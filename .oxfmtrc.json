@@ -1,8 +1,5 @@
 {
-  "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "tabWidth": 2,
-  "ignorePatterns": [
-    "dist/**",
-    "src/gen/**"
-  ]
+    "$schema": "./node_modules/oxfmt/configuration_schema.json",
+    "tabWidth": 4,
+    "ignorePatterns": ["dist/**", "src/gen/**"]
 }
