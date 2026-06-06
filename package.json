@@ -1,0 +1,43 @@
+{
+  "name": "@fabric-labs/polyester-sdk",
+  "version": "0.0.0",
+  "description": "TypeScript SDK for the Polyester public API.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Fabric-Labs/polyester-sdk-typescript.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Fabric-Labs/polyester-sdk-typescript/issues"
+  },
+  "homepage": "https://github.com/Fabric-Labs/polyester-sdk-typescript#readme",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./gen/*": {
+      "types": "./dist/gen/*.d.ts",
+      "import": "./dist/gen/*.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.12.0",
+    "@connectrpc/connect": "^2.0.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  }
+}
