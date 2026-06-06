@@ -1,0 +1,50 @@
+{
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.formatOnSave": true,
+  "oxc.path.node": "bun",
+  "oxc.path.oxfmt": "./node_modules/oxfmt/bin/oxfmt",
+  "oxc.path.oxlint": "./node_modules/oxlint/bin/oxlint",
+  "oxc.fmt.configPath": ".oxfmtrc.json",
+  "prettier.enable": false,
+  "files.associations": {
+    "*.cjs": "javascript",
+    "*.js": "javascript",
+    "*.jsx": "javascriptreact",
+    "*.mjs": "javascript",
+    "*.ts": "typescript",
+    "*.tsx": "typescriptreact",
+    "*.json": "json",
+    "*.jsonc": "jsonc",
+    "*.md": "markdown",
+    "*.mdx": "mdx",
+    "*.yaml": "yaml",
+    "*.yml": "yaml"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[mdx]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  }
+}

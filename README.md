@@ -15,7 +15,14 @@ repository from GitHub or a local checkout.
 ## Development
 
 ```bash
-npm ci
-npm run check
-npm run build
+bun install --frozen-lockfile
+bun run lint
+bun run format:check
+bun run check
+bun run build
 ```
+
+Use `bun run build:watch` for rebuilds while editing.
+
+Run `bun run changeset` when a change should be included in the next package
+release.
