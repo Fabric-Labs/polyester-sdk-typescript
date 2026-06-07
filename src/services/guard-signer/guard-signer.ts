@@ -30,8 +30,6 @@ import {
 import { isResourceNotFoundError } from "../../utils/errors.js";
 import * as v from "valibot";
 
-export type GuardSignerMutationOptions = PolyesterMutationOptions;
-
 export class GuardSignerService {
     #client: Client<typeof Proto.GuardSignerService>;
     #resolver?: SubaccountResolver;
@@ -72,7 +70,7 @@ export class GuardSignerService {
 
     async signProtectedAction(
         input: SignProtectedActionInput,
-        options?: GuardSignerMutationOptions,
+        options?: PolyesterMutationOptions,
     ): Promise<GuardApproval | null> {
         const request = v.parse(SignProtectedActionInputSchema, this.resolveInput(input));
         const response = await this.#client.signProtectedAction(
@@ -84,7 +82,7 @@ export class GuardSignerService {
 
     async batchSignProtectedActions(
         input: BatchSignProtectedActionInput,
-        options?: GuardSignerMutationOptions,
+        options?: PolyesterMutationOptions,
     ): Promise<BatchGuardApprovals> {
         const request = v.parse(BatchSignProtectedActionInputSchema, this.resolveInput(input));
         const response = await this.#client.batchSignProtectedActions(
@@ -101,7 +99,7 @@ export class GuardSignerService {
 
     async rotateWallet(
         input: GuardSignerScopedInput = {},
-        options?: GuardSignerMutationOptions,
+        options?: PolyesterMutationOptions,
     ): Promise<RotateGuardSignerWalletResult> {
         const request = v.parse(GuardSignerScopedInputSchema, this.resolveInput(input));
         const response = await this.#client.rotateGuardSignerWallet(
@@ -113,7 +111,7 @@ export class GuardSignerService {
 
     async exportWallet(
         input: GuardSignerScopedInput = {},
-        options?: GuardSignerMutationOptions,
+        options?: PolyesterMutationOptions,
     ): Promise<ExportGuardSignerWalletResult> {
         const request = v.parse(GuardSignerScopedInputSchema, this.resolveInput(input));
         const response = await this.#client.exportGuardSignerWallet(

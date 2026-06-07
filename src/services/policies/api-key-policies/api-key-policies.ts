@@ -19,9 +19,6 @@ import {
 } from "./api-key-policies.schemas.js";
 import { PolicyIdSchema } from "../shared.js";
 
-/** Optional fresh step-up token from {@link MfaService} after `freshStepUp` challenge completion. */
-export type ApiKeyPoliciesMutationOptions = PolyesterMutationOptions;
-
 export class ApiKeyPoliciesService {
     #client: Client<typeof Proto.PolicyService>;
 
@@ -49,7 +46,7 @@ export class ApiKeyPoliciesService {
 
     async create(
         input: v.InferInput<typeof CreateApiKeyPolicyInputSchema>,
-        options?: ApiKeyPoliciesMutationOptions,
+        options?: PolyesterMutationOptions,
     ): Promise<ApiKeyPolicy> {
         const validatedInput = v.parse(CreateApiKeyPolicyInputSchema, input);
         const res = await this.#client.createApiPolicy(
@@ -62,7 +59,7 @@ export class ApiKeyPoliciesService {
 
     async update(
         input: v.InferInput<typeof UpdateApiKeyPolicyInputSchema>,
-        options?: ApiKeyPoliciesMutationOptions,
+        options?: PolyesterMutationOptions,
     ): Promise<ApiKeyPolicy> {
         const validatedInput = v.parse(UpdateApiKeyPolicyInputSchema, input);
         const res = await this.#client.updateApiPolicy(
@@ -73,7 +70,7 @@ export class ApiKeyPoliciesService {
         return v.parse(ApiKeyPolicySchema, res.policy);
     }
 
-    async delete(policyId: string, options?: ApiKeyPoliciesMutationOptions): Promise<void> {
+    async delete(policyId: string, options?: PolyesterMutationOptions): Promise<void> {
         const validatedPolicyId = v.parse(PolicyIdSchema, policyId);
         await this.#client.deleteApiPolicy(
             { policyId: validatedPolicyId },
@@ -83,7 +80,7 @@ export class ApiKeyPoliciesService {
 
     async apply(
         input: v.InferInput<typeof ApplyApiKeyPolicyInputSchema>,
-        options?: ApiKeyPoliciesMutationOptions,
+        options?: PolyesterMutationOptions,
     ): Promise<void> {
         const validatedInput = v.parse(ApplyApiKeyPolicyInputSchema, input);
         await this.#client.setApiKeyPolicy(

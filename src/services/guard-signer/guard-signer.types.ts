@@ -9,4 +9,3 @@ export type {
     RotateGuardSignerWalletResult,
     SignProtectedActionInput,
 } from "./guard-signer.schemas.js";
-export type { GuardSignerMutationOptions } from "./guard-signer.js";

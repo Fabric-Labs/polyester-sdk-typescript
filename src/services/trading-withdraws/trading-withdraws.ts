@@ -38,8 +38,6 @@ export type CreateTradingWithdrawToFundingServiceInput = CreateTradingWithdrawTo
     walletSigner?: TradingWithdrawWalletSigner;
 };
 
-export type TradingWithdrawMutationOptions = PolyesterMutationOptions;
-
 function toU128(value: bigint): U128 {
     if (value < 0n) {
         throw new Error("U128 value must be zero or greater.");
@@ -154,7 +152,7 @@ export class TradingWithdrawsService {
 
     async createToFunding(
         input: CreateTradingWithdrawToFundingServiceInput,
-        options?: TradingWithdrawMutationOptions,
+        options?: PolyesterMutationOptions,
     ): Promise<CreateTradingWithdrawResult> {
         const { walletSigner, ...inputForValidation } = input;
         const resolvedInput = resolveSubaccountScopedInput(inputForValidation, this.#resolver);

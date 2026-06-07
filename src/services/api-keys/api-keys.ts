@@ -26,9 +26,6 @@ interface SubscribeApiKeysInput extends BaseSubscribeInput<ApiKey> {
     accountId: string;
 }
 
-/** Optional fresh step-up token from {@link MfaService} after `freshStepUp` challenge completion. */
-export type ApiKeysMutationOptions = PolyesterMutationOptions;
-
 export class ApiKeysService {
     readonly policies: ApiKeyPoliciesService;
 
@@ -73,7 +70,7 @@ export class ApiKeysService {
      */
     async create(
         payload: v.InferInput<typeof ApiKeysCreateInputSchema>,
-        options?: ApiKeysMutationOptions,
+        options?: PolyesterMutationOptions,
     ): Promise<ApiKey | null> {
         const resolved = resolveSubaccountScopedInput(payload, this.#resolver);
         const validatedPayload = v.parse(ApiKeysCreateInputSchema, resolved);
@@ -84,7 +81,7 @@ export class ApiKeysService {
         return res.apiKey ? v.parse(ApiKeySchema, res.apiKey) : null;
     }
 
-    async delete(keyId: string, options?: ApiKeysMutationOptions): Promise<void> {
+    async delete(keyId: string, options?: PolyesterMutationOptions): Promise<void> {
         const validatedKeyId = keyId.trim();
         if (!validatedKeyId) throw new Error("[PolyesterClient.apiKeys.delete]: keyId is required");
         await this.#client.deleteApiKey({ keyId: validatedKeyId }, toConnectCallOptions(options));
@@ -92,7 +89,7 @@ export class ApiKeysService {
 
     async update(
         payload: v.InferInput<typeof ApiKeysUpdateInputSchema>,
-        options?: ApiKeysMutationOptions,
+        options?: PolyesterMutationOptions,
     ): Promise<ApiKey | null> {
         const validatedPayload = v.parse(ApiKeysUpdateInputSchema, payload);
         const res = await this.#client.updateApiKey(

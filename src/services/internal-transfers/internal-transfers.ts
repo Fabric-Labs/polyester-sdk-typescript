@@ -14,8 +14,6 @@ import {
     type CreateInternalTransferResult,
 } from "./internal-transfers.schemas.js";
 
-export type InternalTransferMutationOptions = PolyesterMutationOptions;
-
 export class InternalTransfersService {
     #client: Client<typeof Proto.InternalTransferService>;
     #resolver?: SubaccountResolver;

@@ -28,4 +28,3 @@ export type {
     UpdateAddressBookTagInput,
     WithdrawWhitelistView,
 } from "./address-book.schemas.js";
-export type { AddressBookMutationOptions } from "./address-book.js";

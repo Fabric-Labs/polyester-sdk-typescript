@@ -4,7 +4,6 @@ export type {
 } from "./trading-withdraws.schemas.js";
 export type {
     CreateTradingWithdrawToFundingServiceInput,
-    TradingWithdrawMutationOptions,
     TradingWithdrawSigningConfig,
     TradingWithdrawWalletSigner,
     TradingWithdrawWalletTypedData,

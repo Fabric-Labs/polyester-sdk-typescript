@@ -53,9 +53,6 @@ import {
     type WithdrawWhitelistView,
 } from "./address-book.schemas.js";
 
-/** Optional fresh step-up token from MFA after `freshStepUp` challenge completion. */
-export type AddressBookMutationOptions = PolyesterMutationOptions;
-
 export class AddressBookService {
     #client: Client<typeof Proto.AddressBookService>;
     #resolver?: SubaccountResolver;
@@ -84,7 +81,7 @@ export class AddressBookService {
 
     async createEntry(
         input: CreateAddressBookEntryInput,
-        options?: AddressBookMutationOptions,
+        options?: PolyesterMutationOptions,
     ): Promise<AddressBookEntry | null> {
         const request = v.parse(CreateAddressBookEntryInputSchema, this.resolveInput(input));
         const response = await this.#client.createAddressBookEntry(
@@ -96,7 +93,7 @@ export class AddressBookService {
 
     async updateEntry(
         input: UpdateAddressBookEntryInput,
-        options?: AddressBookMutationOptions,
+        options?: PolyesterMutationOptions,
     ): Promise<AddressBookEntry | null> {
         const request = v.parse(UpdateAddressBookEntryInputSchema, input);
         const response = await this.#client.updateAddressBookEntry(
@@ -108,7 +105,7 @@ export class AddressBookService {
 
     async deleteEntry(
         input: DeleteAddressBookEntryInput,
-        options?: AddressBookMutationOptions,
+        options?: PolyesterMutationOptions,
     ): Promise<void> {
         const request = v.parse(DeleteAddressBookEntryInputSchema, input);
         await this.#client.deleteAddressBookEntry(request, toConnectCallOptions(options));
@@ -116,7 +113,7 @@ export class AddressBookService {
 
     async copyEntry(
         input: CopyAddressBookEntryInput,
-        options?: AddressBookMutationOptions,
+        options?: PolyesterMutationOptions,
     ): Promise<AddressBookEntry | null> {
         const request = v.parse(CopyAddressBookEntryInputSchema, input);
         const response = await this.#client.copyAddressBookEntry(
@@ -128,7 +125,7 @@ export class AddressBookService {
 
     async createTag(
         input: CreateAddressBookTagInput,
-        options?: AddressBookMutationOptions,
+        options?: PolyesterMutationOptions,
     ): Promise<AddressBookTag | null> {
         const request = v.parse(CreateAddressBookTagInputSchema, this.resolveInput(input));
         const response = await this.#client.createAddressBookTag(
@@ -140,7 +137,7 @@ export class AddressBookService {
 
     async updateTag(
         input: UpdateAddressBookTagInput,
-        options?: AddressBookMutationOptions,
+        options?: PolyesterMutationOptions,
     ): Promise<AddressBookTag | null> {
         const request = v.parse(UpdateAddressBookTagInputSchema, input);
         const response = await this.#client.updateAddressBookTag(
@@ -152,7 +149,7 @@ export class AddressBookService {
 
     async deleteTag(
         input: DeleteAddressBookTagInput,
-        options?: AddressBookMutationOptions,
+        options?: PolyesterMutationOptions,
     ): Promise<void> {
         const request = v.parse(DeleteAddressBookTagInputSchema, input);
         await this.#client.deleteAddressBookTag(request, toConnectCallOptions(options));

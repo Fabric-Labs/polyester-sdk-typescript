@@ -1,7 +1,4 @@
-export {
-    InternalTransfersService,
-    type InternalTransferMutationOptions,
-} from "./internal-transfers.js";
+export { InternalTransfersService } from "./internal-transfers.js";
 export {
     INTERNAL_TRANSFER_DESTINATION_TYPE_VALUES,
     InternalTransferDestinationCodec,
