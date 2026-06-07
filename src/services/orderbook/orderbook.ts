@@ -1,6 +1,6 @@
 import * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
-import { connectProtoChannel } from "../../realtime/client.js";
+import type { RealtimeClient } from "../../realtime/client.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
     OrderbookDataSchema,
@@ -36,9 +36,11 @@ type BookSide = Map<bigint, bigint>;
 
 export class OrderbookService {
     #client: Client<typeof Proto.OrderbookService>;
+    #realtime: RealtimeClient;
 
-    constructor(transport: Transport) {
+    constructor(transport: Transport, realtime: RealtimeClient) {
         this.#client = createClient(Proto.OrderbookService, transport);
+        this.#realtime = realtime;
     }
 
     async get(input: v.InferInput<typeof GetOrderbookInputSchema>): Promise<OrderbookData> {
@@ -217,7 +219,7 @@ export class OrderbookService {
         setBucket(input.bucket);
         void ensureSnapshot();
 
-        const unsubscribe = connectProtoChannel({
+        const unsubscribe = this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.OrderBookDeltaSchema,
             onPublication: (delta) => {

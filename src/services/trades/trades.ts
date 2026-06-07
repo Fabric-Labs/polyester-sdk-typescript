@@ -3,7 +3,7 @@ import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import { type SubAccountResolver, resolveSubAccountScopedInput } from "../sub-account-resolver.js";
-import { connectProtoChannel } from "../../realtime/client.js";
+import type { RealtimeClient } from "../../realtime/client.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import { UserTradeSchema, GetUserTradesInputSchema, type Trade } from "./trades.schemas.js";
 
@@ -13,13 +13,18 @@ interface SubscribeTradesInput extends BaseSubscribeInput<Trade> {
 
 export class TradesService {
     #client: Client<typeof Proto.OrdersReadService>;
+    #realtime: RealtimeClient;
     #resolver?: SubAccountResolver;
 
-    constructor(transport: Transport, resolver?: SubAccountResolver) {
+    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubAccountResolver) {
         this.#client = createClient(Proto.OrdersReadService, transport);
+        this.#realtime = realtime;
         this.#resolver = resolver;
     }
 
+    /**
+     * List trades for a specific account or subaccount.
+     */
     async list(
         input: v.InferInput<typeof GetUserTradesInputSchema> = {},
     ): Promise<{ trades: Trade[]; nextPageToken: string }> {
@@ -34,7 +39,7 @@ export class TradesService {
 
     subscribe(input: SubscribeTradesInput) {
         const channel = `private:spot:trades:${input.accountId}:proto`;
-        return connectProtoChannel({
+        return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.UserTradeSchema,
             onPublication: (data) => {

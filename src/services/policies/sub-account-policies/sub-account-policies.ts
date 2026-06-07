@@ -4,7 +4,7 @@ import * as v from "valibot";
 import { removeUndefined } from "../../../utils/remove-undefined.js";
 import { idToBigInt } from "../../../utils/base58-id.js";
 import type { BaseSubscribeInput } from "../../../shared/types.js";
-import { connectProtoChannel } from "../../../realtime/index.js";
+import type { RealtimeClient } from "../../../realtime/index.js";
 import {
     SubAccountPolicySchema,
     CreateSubAccountPolicyInputSchema,
@@ -20,9 +20,11 @@ interface SubscribePoliciesInput extends BaseSubscribeInput<SubAccountPolicy> {
 
 export class SubAccountPoliciesService {
     #client: Client<typeof Proto.PolicyService>;
+    #realtime: RealtimeClient;
 
-    constructor(transport: Transport) {
+    constructor(transport: Transport, realtime: RealtimeClient) {
         this.#client = createClient(Proto.PolicyService, transport);
+        this.#realtime = realtime;
     }
 
     async list(): Promise<SubAccountPolicy[]> {
@@ -69,7 +71,7 @@ export class SubAccountPoliciesService {
     subscribePolicies(input: SubscribePoliciesInput) {
         const channel = `private:auth:subaccount-policies:${input.accountId}:proto`;
 
-        return connectProtoChannel({
+        return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.SubaccountPolicyViewSchema,
             onPublication: (data) => {

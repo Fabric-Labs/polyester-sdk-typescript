@@ -12,15 +12,17 @@ import {
     type UsernameHistoryEntry,
 } from "./profile.schemas.js";
 import type { BaseSubscribeInput } from "../../../shared/types.js";
-import { connectProtoChannel } from "../../../realtime/index.js";
+import type { RealtimeClient } from "../../../realtime/index.js";
 
 interface SubscribeIdentityInput extends BaseSubscribeInput<AccountIdentity> {}
 
 export class ProfileService {
     #client: Client<typeof Proto.ProfileService>;
+    #realtime: RealtimeClient;
 
-    constructor(transport: Transport) {
+    constructor(transport: Transport, realtime: RealtimeClient) {
         this.#client = createClient(Proto.ProfileService, transport);
+        this.#realtime = realtime;
     }
 
     async get(): Promise<Profile> {
@@ -42,7 +44,7 @@ export class ProfileService {
 
     subscribeIdentity(input: SubscribeIdentityInput): () => void {
         const channel = "public:identity:updates:proto";
-        return connectProtoChannel({
+        return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.AccountIdentitySchema,
             onPublication: (data) => {

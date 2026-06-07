@@ -1,7 +1,7 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
 import * as v from "valibot";
-import { connectProtoChannel } from "../../realtime/client.js";
+import type { RealtimeClient } from "../../realtime/client.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
     type CandleColumnar,
@@ -32,16 +32,13 @@ interface SubscribeCandlesIntsInput extends BaseSubscribeInput<CandleInt> {
     timeframe: Timeframe;
 }
 
-interface SubscribeCandlesColumnarInput extends BaseSubscribeInput<CandleColumnar> {
-    symbolId: number;
-    timeframe: Timeframe;
-}
-
 export class CandlesService {
     #client: Client<typeof Proto.MarketDataService>;
+    #realtime: RealtimeClient;
 
-    constructor(transport: Transport) {
+    constructor(transport: Transport, realtime: RealtimeClient) {
         this.#client = createClient(Proto.MarketDataService, transport);
+        this.#realtime = realtime;
     }
 
     async list(input: GetCandlesInput): Promise<Candle[]> {
@@ -76,7 +73,7 @@ export class CandlesService {
             return () => {};
         }
         const channel = `public:spot:market:candles:${timeframe}:${input.symbolId}:proto`;
-        return connectProtoChannel({
+        return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.CandlePointSchema,
             onPublication: (data) => {
@@ -104,7 +101,7 @@ export class CandlesService {
             return () => {};
         }
         const channel = `public:spot:market:candles:${timeframe}:${input.symbolId}:proto`;
-        return connectProtoChannel({
+        return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.CandlePointSchema,
             onPublication: (data) => {
@@ -119,11 +116,5 @@ export class CandlesService {
             onConnected: input.onOpen,
             onDisconnected: input.onClose,
         });
-    }
-
-    subscribeColumnar(_input: SubscribeCandlesColumnarInput): never {
-        throw new Error(
-            "[CandlesService.subscribeColumnar] Not implemented. Use unary listColumnar() + row-based WS subscribe().",
-        );
     }
 }

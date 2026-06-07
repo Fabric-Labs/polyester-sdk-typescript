@@ -1,5 +1,5 @@
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
-import { connectProtoChannel } from "../../realtime/client.js";
+import type { RealtimeClient } from "../../realtime/client.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
 import type { BaseSubscribeInput } from "../../shared/types.js";
@@ -19,12 +19,14 @@ interface SubscribeTradesInput extends BaseSubscribeInput<MarketTrade> {
 
 export class MarketDataService {
     #client: Client<typeof Proto.MarketDataService>;
+    #realtime: RealtimeClient;
 
-    constructor(transport: Transport) {
+    constructor(transport: Transport, realtime: RealtimeClient) {
         this.#client = createClient(Proto.MarketDataService, transport);
+        this.#realtime = realtime;
     }
 
-    async getTrades(
+    async listTrades(
         input: v.InferInput<typeof GetMarketTradesInputSchema>,
     ): Promise<MarketTrade[]> {
         const validatedInput = v.parse(GetMarketTradesInputSchema, input);
@@ -47,7 +49,7 @@ export class MarketDataService {
         }
 
         const channel = `public:spot:market:trades:${pair.symbolId}:proto`;
-        return connectProtoChannel({
+        return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.MarketTradeSchema,
             onPublication: (data) => {

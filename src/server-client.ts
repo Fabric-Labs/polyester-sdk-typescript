@@ -9,20 +9,42 @@ import type {
 import { type CookieGetter, getCookieValue } from "./utils/cookies.js";
 import type { JwtAuthProvider, ApiKeyEd25519AuthProvider } from "./shared/transports.js";
 import type { SubAccountResolver } from "./services/sub-account-resolver.js";
+import type { RealtimeConfig } from "./realtime/index.js";
+import { isJwtValid } from "./utils/jwt.js";
+import type { Me } from "./services/auth/auth.js";
 
-export interface ProviderServerData {
-    isLoggedIn: boolean;
+/**
+ * Display-only session data parsed from client-readable cookies.
+ *
+ * This data is unsigned and must not be used for authorization. Use
+ * `verifySession()` to confirm the bearer token with the backend before
+ * treating a request as authenticated.
+ */
+export interface ServerSessionSnapshot {
+    hasDisplaySession: boolean;
     provider: string | null;
     loginMethod: AuthLoginMethod | null;
     walletAddresses: { primaryWallet: string; smartAccount: string } | null;
     activeAccount: ActiveAccountInfo | null;
-    polyesterToken: string | null;
+    bearerToken: string | null;
     username: string | null;
 }
 
-export function parseSessionCookie(cookies: CookieGetter): ProviderServerData {
+function emptyServerSessionSnapshot(): ServerSessionSnapshot {
+    return {
+        hasDisplaySession: false,
+        provider: null,
+        loginMethod: null,
+        walletAddresses: null,
+        activeAccount: null,
+        bearerToken: null,
+        username: null,
+    };
+}
+
+export function parseSessionCookie(cookies: CookieGetter): ServerSessionSnapshot {
     const sessionValue = getCookieValue(cookies, POLYESTER_SESSION_COOKIE_NAME);
-    const polyesterToken = getCookieValue(cookies, POLYESTER_AUTH_TOKEN_COOKIE_NAME) ?? null;
+    const bearerToken = getCookieValue(cookies, POLYESTER_AUTH_TOKEN_COOKIE_NAME) ?? null;
 
     let session: SessionData | null = null;
     if (sessionValue) {
@@ -37,20 +59,21 @@ export function parseSessionCookie(cookies: CookieGetter): ProviderServerData {
     }
 
     return {
-        isLoggedIn: !!session,
+        hasDisplaySession: !!session,
         provider: session?.provider ?? null,
         loginMethod: session?.loginMethod ?? null,
         walletAddresses: session
             ? { primaryWallet: session.primaryWallet, smartAccount: session.smartAccount }
             : null,
         activeAccount: session?.activeAccount ?? null,
-        polyesterToken,
+        bearerToken,
         username: session?.username ?? null,
     };
 }
 
 export interface PolyesterServerClientUrls {
     apiUrl?: string;
+    wsUrl?: string;
 }
 
 export interface PolyesterServerClientConfig {
@@ -58,13 +81,14 @@ export interface PolyesterServerClientConfig {
     wireFormat?: "binary" | "json";
     /** Full auth provider config. Takes precedence over `token` if both are provided. */
     auth?: JwtAuthProvider | ApiKeyEd25519AuthProvider;
-    /** Session data parsed from cookies */
-    session?: ProviderServerData;
+    realtime?: RealtimeConfig;
+    /** Display-only session data parsed from cookies. Not proof of authentication. */
+    session?: ServerSessionSnapshot;
 }
 
 export class PolyesterServerClient extends PolyesterClient {
-    #hasAuth: boolean;
-    #session: ProviderServerData;
+    #hasAuthProvider: boolean;
+    #session: ServerSessionSnapshot;
 
     constructor(config: PolyesterServerClientConfig = {}) {
         const auth = config.auth ?? undefined;
@@ -73,21 +97,19 @@ export class PolyesterServerClient extends PolyesterClient {
             apiUrl: config.urls?.apiUrl ?? POLYESTER_API_BASE_URL,
             auth,
             wireFormat: config.wireFormat,
+            realtime: {
+                ...config.realtime,
+                wsUrl: config.realtime?.wsUrl ?? config.urls?.wsUrl,
+            },
         });
-        this.#hasAuth = !!auth;
-        this.#session = config.session ?? {
-            isLoggedIn: false,
-            provider: null,
-            loginMethod: null,
-            walletAddresses: null,
-            activeAccount: null,
-            polyesterToken: null,
-            username: null,
-        };
+        this.#hasAuthProvider = !!auth;
+        this.#session = config.session ?? emptyServerSessionSnapshot();
     }
 
     /**
-     * Creates a resolver that defaults subaccountId to the active subaccount from session.
+     * Creates a resolver that defaults subaccountId to the active subaccount
+     * from display-only session metadata. This is caller convenience only;
+     * backend auth remains authoritative.
      */
     protected override createSubaccountResolver(): SubAccountResolver {
         return {
@@ -103,23 +125,47 @@ export class PolyesterServerClient extends PolyesterClient {
         };
     }
 
-    get isAuthenticated(): boolean {
-        return this.#hasAuth;
+    get hasAuthProvider(): boolean {
+        return this.#hasAuthProvider;
     }
 
-    get session(): ProviderServerData {
+    get hasBearerToken(): boolean {
+        return !!this.#session.bearerToken;
+    }
+
+    get hasUsableBearerToken(): boolean {
+        return isJwtValid(this.#session.bearerToken);
+    }
+
+    get hasDisplaySession(): boolean {
+        return this.#session.hasDisplaySession;
+    }
+
+    get session(): ServerSessionSnapshot {
         return this.#session;
+    }
+
+    async verifySession(): Promise<Me | null> {
+        if (!this.#hasAuthProvider) return null;
+
+        try {
+            return await this.auth.me();
+        } catch {
+            return null;
+        }
     }
 }
 
 export interface CreateServerClientFromCookiesParams {
     cookies: CookieGetter;
     urls?: PolyesterServerClientUrls;
+    realtime?: RealtimeConfig;
 }
 
 export interface CreateServerClientFromRequestParams {
     request: Request;
     urls?: PolyesterServerClientUrls;
+    realtime?: RealtimeConfig;
 }
 
 export function createPolyesterServerClient(
@@ -132,14 +178,21 @@ export function createPolyesterServerClientFromCookies(
     params: CreateServerClientFromCookiesParams,
 ): PolyesterServerClient {
     const session = parseSessionCookie(params.cookies);
+    const auth = isJwtValid(session.bearerToken)
+        ? ({
+              kind: "jwt",
+              getToken: () => session.bearerToken,
+          } satisfies JwtAuthProvider)
+        : undefined;
 
     return new PolyesterServerClient({
         urls: params.urls,
         session,
-        auth: {
-            kind: "jwt",
-            getToken: () => session.polyesterToken ?? null,
+        realtime: {
+            ...params.realtime,
+            hasAuth: params.realtime?.hasAuth ?? (() => isJwtValid(session.bearerToken)),
         },
+        auth,
     });
 }
 
@@ -149,10 +202,11 @@ export function createPolyesterServerClientFromRequest(
     return createPolyesterServerClientFromCookies({
         cookies: params.request,
         urls: params.urls,
+        realtime: params.realtime,
     });
 }
 
-export function getPolyesterTokenFromCookies(cookies: CookieGetter): string | null {
+export function getBearerTokenFromCookies(cookies: CookieGetter): string | null {
     return getCookieValue(cookies, POLYESTER_AUTH_TOKEN_COOKIE_NAME) ?? null;
 }
 

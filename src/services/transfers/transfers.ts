@@ -1,7 +1,7 @@
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
-import { connectProtoChannel } from "../../realtime/index.js";
+import type { RealtimeClient } from "../../realtime/index.js";
 import { type SubAccountResolver, resolveSubAccountScopedInput } from "../sub-account-resolver.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
@@ -17,10 +17,12 @@ interface SubscribeTransfersInput extends BaseSubscribeInput<LedgerTransfer> {
 
 export class TransfersService {
     #client: Client<typeof Proto.LedgerReadService>;
+    #realtime: RealtimeClient;
     #resolver?: SubAccountResolver;
 
-    constructor(transport: Transport, resolver?: SubAccountResolver) {
+    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubAccountResolver) {
         this.#client = createClient(Proto.LedgerReadService, transport);
+        this.#realtime = realtime;
         this.#resolver = resolver;
     }
 
@@ -37,7 +39,7 @@ export class TransfersService {
 
     subscribe(input: SubscribeTransfersInput): () => void {
         const channel = `private:ledger:transfers:${input.accountId}:proto`;
-        return connectProtoChannel({
+        return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.TransferRowSchema,
             onPublication: (m) => {

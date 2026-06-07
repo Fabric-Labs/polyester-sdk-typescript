@@ -6,7 +6,7 @@ import {
     GetFlowByIdRequestSchema,
     LifecycleReadService,
 } from "../../gen/chain/lifecycle/v1/lifecycle_read_pb.js";
-import { connectProtoChannel } from "../../realtime/client.js";
+import type { RealtimeClient } from "../../realtime/client.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import { isDev } from "../../utils/is-dev.js";
 import * as v from "valibot";
@@ -39,9 +39,11 @@ interface SubscribeLifecycleFlowDetailInput extends BaseSubscribeInput<Lifecycle
 
 export class LifecycleService {
     #client: Client<typeof LifecycleReadService>;
+    #realtime: RealtimeClient;
 
-    constructor(transport: Transport) {
+    constructor(transport: Transport, realtime: RealtimeClient) {
         this.#client = createClient(LifecycleReadService, transport);
+        this.#realtime = realtime;
     }
 
     async listFlows(
@@ -72,7 +74,7 @@ export class LifecycleService {
         const channel = accountId
             ? `private:chain:lifecycle:flows:${accountId}:proto`
             : "public:chain:lifecycle:flows:proto";
-        return connectProtoChannel({
+        return this.#realtime.connectProtoChannel({
             channel,
             schema: FlowSummaryViewSchema,
             onPublication: (data) => {
@@ -97,7 +99,7 @@ export class LifecycleService {
         }
 
         const channel = `public:chain:lifecycle:flow:${parsedFlowId.output.flowId}:proto`;
-        return connectProtoChannel({
+        return this.#realtime.connectProtoChannel({
             channel,
             schema: FlowDetailViewSchema,
             onPublication: (data) => {

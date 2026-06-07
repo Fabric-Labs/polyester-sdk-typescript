@@ -6,7 +6,6 @@ import {
     type Subscription,
 } from "centrifuge/build/protobuf";
 import { POLYESTER_API_BASE_URL, POLYESTER_WEBSOCKET_URL } from "../shared/constants.js";
-import { polyesterToken } from "../shared/polyester-token.js";
 import { decodeProtoFrame } from "../utils/streams.js";
 
 export interface RealtimeConfig {
@@ -14,7 +13,14 @@ export interface RealtimeConfig {
     tokenEndpoint?: string;
     subscribeEndpoint?: string;
     getAuthHeaders?: () => Promise<HeadersInit> | HeadersInit;
+    hasAuth?: () => boolean;
 }
+
+type ResolvedRealtimeConfig = Required<
+    Pick<RealtimeConfig, "wsUrl" | "tokenEndpoint" | "subscribeEndpoint" | "getAuthHeaders">
+> & {
+    hasAuth: () => boolean;
+};
 
 export interface SubscribeHandlers<T> {
     onPublication: (data: T) => void;
@@ -51,7 +57,7 @@ export class RealtimeClient {
     #connectionHandlers = new Set<ConnectionHandler>();
     #sharedSubs = new Map<string, SharedSubscription>();
     #pendingTeardowns = new Map<string, SharedSubscription>();
-    readonly #config: Required<RealtimeConfig>;
+    readonly #config: ResolvedRealtimeConfig;
 
     constructor(config: RealtimeConfig = {}) {
         this.#config = {
@@ -59,13 +65,8 @@ export class RealtimeClient {
             tokenEndpoint: config.tokenEndpoint ?? `${POLYESTER_API_BASE_URL}/v1/rt/token`,
             subscribeEndpoint:
                 config.subscribeEndpoint ?? `${POLYESTER_API_BASE_URL}/v1/rt/subscribe`,
-            getAuthHeaders:
-                config.getAuthHeaders ??
-                ((): HeadersInit => {
-                    const token = polyesterToken.get();
-                    if (!token) return {};
-                    return { authorization: `Bearer ${token}` };
-                }),
+            getAuthHeaders: config.getAuthHeaders ?? (() => ({})),
+            hasAuth: config.hasAuth ?? (() => false),
         };
     }
 
@@ -78,7 +79,8 @@ export class RealtimeClient {
         return {
             getToken: async () => {
                 const headers = await this.#getAuthHeaders();
-                const url = `${POLYESTER_API_BASE_URL}/v1/rt/subscribe?channel=${encodeURIComponent(channel)}`;
+                const url = new URL(this.#config.subscribeEndpoint);
+                url.searchParams.set("channel", channel);
                 const res = await fetch(url, { headers });
                 if (!res.ok) throw new Error(`Failed to fetch subscription token: ${res.status}`);
                 const json = (await res.json()) as { token?: string };
@@ -89,8 +91,7 @@ export class RealtimeClient {
     }
 
     #hasAuth(): boolean {
-        const token = polyesterToken.get();
-        return !!token;
+        return this.#config.hasAuth();
     }
 
     #getOrCreateClient(): Centrifuge {
@@ -136,9 +137,7 @@ export class RealtimeClient {
 
     #getOrCreateSubscription(channel: string): SharedSubscription {
         const existing = this.#sharedSubs.get(channel);
-        if (existing) {
-            return existing;
-        }
+        if (existing) return existing;
 
         const pending = this.#pendingTeardowns.get(channel);
         if (pending) {
@@ -278,6 +277,17 @@ export class RealtimeClient {
         });
     }
 
+    connectProtoChannel<T extends DescMessage>(params: ConnectChannelParams<T>): () => void {
+        return this.connectChannel({
+            ...params,
+            onPublication: (data) => {
+                const msg = decodeProtoFrame(params.schema, data);
+                if (!msg) return;
+                params.onPublication(msg);
+            },
+        });
+    }
+
     disconnect(): void {
         this.#disconnect();
     }
@@ -297,40 +307,4 @@ export class RealtimeClient {
         }
         return total;
     }
-}
-
-let sharedClient: RealtimeClient | null = null;
-let realtimeConfig: RealtimeConfig = {};
-
-export function configureRealtime(config: RealtimeConfig): void {
-    realtimeConfig = config;
-    if (sharedClient) {
-        sharedClient.disconnect();
-        sharedClient = null;
-    }
-}
-
-function getSharedClient(): RealtimeClient {
-    if (!sharedClient) {
-        sharedClient = new RealtimeClient(realtimeConfig);
-    }
-    return sharedClient;
-}
-
-export function connectProtoChannel<T extends DescMessage>(
-    params: ConnectChannelParams<T>,
-): () => void {
-    return getSharedClient().connectChannel({
-        ...params,
-        onPublication: (data) => {
-            const msg = decodeProtoFrame(params.schema, data);
-            if (!msg) return;
-            params.onPublication(msg);
-        },
-    });
-}
-
-export function disconnectRealtime(): void {
-    sharedClient?.disconnect();
-    sharedClient = null;
 }

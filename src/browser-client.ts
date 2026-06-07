@@ -7,6 +7,7 @@ import type { SubAccountResolver } from "./services/sub-account-resolver.js";
 
 export interface PolyesterBrowserClientUrls {
     apiUrl?: string;
+    wsUrl?: string;
 }
 
 export interface PolyesterBrowserClientConfig {
@@ -30,6 +31,10 @@ export class PolyesterBrowserClient extends PolyesterClient {
         super({
             apiUrl,
             auth: { kind: "jwt", getToken: () => polyesterToken.get() },
+            realtime: {
+                wsUrl: config.urls?.wsUrl,
+                hasAuth: () => !!polyesterToken.get(),
+            },
         });
 
         // wire up WalletAuthService with SubAccountsService for createSubAccount support
@@ -37,6 +42,7 @@ export class PolyesterBrowserClient extends PolyesterClient {
             transports: { publicApi: this.transports.publicApi, authApi: this.transports.authApi },
             walletConfig: config.wallet,
             subAccounts: this.subAccounts,
+            realtime: this.realtime,
         });
     }
 

@@ -6,7 +6,7 @@ import * as v from "valibot";
 import { type ApiKey, ApiKeySchema } from "../api-keys/index.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
-import { connectProtoChannel } from "../../realtime/index.js";
+import type { RealtimeClient } from "../../realtime/index.js";
 import {
     DEFAULT_SUBACCOUNT_POLICY,
     type SubAccountPolicy,
@@ -48,10 +48,12 @@ interface SubscribePoliciesInput extends BaseSubscribeInput<SubAccountPolicy> {
 export class SubAccountsService {
     #client: Client<typeof Proto.SubaccountService>;
     #viewClient: Client<typeof Proto.SubaccountViewService>;
+    #realtime: RealtimeClient;
 
-    constructor(transport: Transport) {
+    constructor(transport: Transport, realtime: RealtimeClient) {
         this.#client = createClient(Proto.SubaccountService, transport);
         this.#viewClient = createClient(Proto.SubaccountViewService, transport);
+        this.#realtime = realtime;
     }
 
     async list(): Promise<{
@@ -197,7 +199,7 @@ export class SubAccountsService {
     subscribe(input: SubscribeSubAccountsInput) {
         const channel = `private:auth:subaccounts:${input.accountId}:proto`;
 
-        return connectProtoChannel({
+        return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.SubaccountSchema,
             onPublication: (data) => {
@@ -212,7 +214,7 @@ export class SubAccountsService {
     subscribeApiKeys(input: SubscribeApiKeysInput) {
         const channel = `private:auth:api-keys:${input.accountId}:proto`;
 
-        return connectProtoChannel({
+        return this.#realtime.connectProtoChannel({
             channel,
             schema: ProtoApiKeys.ApiKeySchema,
             onPublication: (data) => {
@@ -227,7 +229,7 @@ export class SubAccountsService {
     subscribePolicies(input: SubscribePoliciesInput) {
         const channel = `private:auth:subaccount-policies:${input.accountId}:proto`;
 
-        return connectProtoChannel({
+        return this.#realtime.connectProtoChannel({
             channel,
             schema: ProtoPolicies.SubaccountPolicyViewSchema,
             onPublication: (data) => {

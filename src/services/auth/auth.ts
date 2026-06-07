@@ -5,6 +5,7 @@ import { ProfileService } from "./profile/profile.js";
 import { formatId } from "../../utils/base58-id.js";
 import { TimestampSchema } from "../../shared/schemas.js";
 import { MfaSessionInfoSchema } from "../mfa/mfa.schemas.js";
+import type { RealtimeClient } from "../../realtime/index.js";
 
 export const LoginWithWalletInputSchema = v.object({
     smartAccountAddress: v.string(),
@@ -62,10 +63,10 @@ export class AuthService {
     #authClient: Client<typeof Proto.AuthService>;
     profile: ProfileService;
 
-    constructor(transports: AuthServiceTransports) {
+    constructor(transports: AuthServiceTransports, realtime: RealtimeClient) {
         this.#publicClient = createClient(Proto.AuthService, transports.publicApi);
         this.#authClient = createClient(Proto.AuthService, transports.authApi);
-        this.profile = new ProfileService(transports.authApi);
+        this.profile = new ProfileService(transports.authApi, realtime);
     }
 
     async me(): Promise<Me> {

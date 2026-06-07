@@ -33,32 +33,6 @@ export interface EnrichedPairConfig {
     status: PairStatus;
 }
 
-const FALLBACK_ASSET: AssetConfig = {
-    symbol: "",
-    ledgerId: 999,
-    name: "",
-    quantityDisplayDecimals: 0,
-    quantityScale: 0,
-};
-
-const FALLBACK_PAIR: EnrichedPairConfig = {
-    symbolId: 0,
-    symbol: "",
-    baseAsset: FALLBACK_ASSET,
-    quoteAsset: FALLBACK_ASSET,
-    tickSize: "",
-    stepSize: "",
-    minNotionalQuote: "0",
-    minQtyBase: "0",
-    allowBuyFeeFromReceived: false,
-    defaultMarketSlippagePctBuy: 0,
-    defaultMarketSlippagePctSell: 0,
-    maxClientRefDriftPct: 0,
-    status: "unknown",
-    listingAt: null,
-    delistingAt: null,
-};
-
 // module-level catalog storage
 let ASSET_CATALOG = new Map<string, AssetConfig>();
 let ASSET_BY_LEDGER_ID = new Map<number, AssetConfig>();
@@ -158,12 +132,12 @@ export function hydrateCatalog(spotConfig: SpotConfig): void {
 
 // asset getters
 
-export function getAsset(symbol: string): AssetConfig {
-    return ASSET_CATALOG.get(symbol) ?? FALLBACK_ASSET;
+export function getAsset(symbol: string): AssetConfig | undefined {
+    return ASSET_CATALOG.get(symbol);
 }
 
-export function getAssetByLedgerId(ledgerId: number): AssetConfig {
-    return ASSET_BY_LEDGER_ID.get(ledgerId) ?? FALLBACK_ASSET;
+export function getAssetByLedgerId(ledgerId: number): AssetConfig | undefined {
+    return ASSET_BY_LEDGER_ID.get(ledgerId);
 }
 
 export function getAllAssets(): AssetConfig[] {
@@ -173,19 +147,26 @@ export function getAllAssets(): AssetConfig[] {
 // pair getters
 
 export function getPair(symbol: string): EnrichedPairConfig {
-    return PAIR_CATALOG.get(symbol) ?? FALLBACK_PAIR;
+    const pair = PAIR_CATALOG.get(symbol);
+    if (!pair) {
+        throw new Error(`[market-data-catalog] Unknown pair symbol: ${symbol}`);
+    }
+    return pair;
 }
 
 /**
  * Resolves a symbol string to symbolId. Returns undefined if not found.
  */
 export function symbolIdForSymbol(symbol: string): number | undefined {
-    const pair = getPair(symbol);
-    return pair.symbolId > 0 ? pair.symbolId : undefined;
+    return PAIR_CATALOG.get(symbol)?.symbolId;
 }
 
 export function getPairBySymbolId(symbolId: number): EnrichedPairConfig {
-    return PAIR_BY_ID.get(symbolId) ?? FALLBACK_PAIR;
+    const pair = PAIR_BY_ID.get(symbolId);
+    if (!pair) {
+        throw new Error(`[market-data-catalog] Unknown pair symbolId: ${symbolId}`);
+    }
+    return pair;
 }
 
 export function getAllPairs(): EnrichedPairConfig[] {
@@ -215,11 +196,11 @@ export function symbolForSymbolId(symbolId: number): string {
 }
 
 export function baseAssetForSymbolId(symbolId: number): AssetConfig {
-    return PAIR_BY_ID.get(symbolId)?.baseAsset ?? FALLBACK_ASSET;
+    return getPairBySymbolId(symbolId).baseAsset;
 }
 
 export function quoteAssetForSymbolId(symbolId: number): AssetConfig {
-    return PAIR_BY_ID.get(symbolId)?.quoteAsset ?? FALLBACK_ASSET;
+    return getPairBySymbolId(symbolId).quoteAsset;
 }
 
 export function baseQuantityScaleForSymbol(symbol: string): number {

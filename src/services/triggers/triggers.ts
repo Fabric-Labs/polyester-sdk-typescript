@@ -35,7 +35,7 @@ import {
     type TriggerEvent,
 } from "./triggers.schemas.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
-import { connectProtoChannel } from "../../realtime/index.js";
+import type { RealtimeClient } from "../../realtime/index.js";
 
 export type {
     CreateTriggerResult,
@@ -61,10 +61,12 @@ interface SubscribeTriggerEventsInput extends BaseSubscribeInput<TriggerEvent> {
 
 export class TriggersService {
     #client: Client<typeof Proto.TriggersService>;
+    #realtime: RealtimeClient;
     #resolver?: SubAccountResolver;
 
-    constructor(transport: Transport, resolver?: SubAccountResolver) {
+    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubAccountResolver) {
         this.#client = createClient(Proto.TriggersService, transport);
+        this.#realtime = realtime;
         this.#resolver = resolver;
     }
 
@@ -167,9 +169,12 @@ export class TriggersService {
         };
     }
 
+    /**
+     * Subscribe to triggers for a specific account or subaccount.
+     */
     subscribe(input: SubscribeTriggersInput): () => void {
         const channel = `private:spot:triggers:${input.accountId}:proto`;
-        return connectProtoChannel({
+        return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.TriggerSchema,
             onPublication: (data) => {
@@ -181,9 +186,12 @@ export class TriggersService {
         });
     }
 
+    /**
+     * Subscribe to trigger events for a specific account or subaccount.
+     */
     subscribeEvents(input: SubscribeTriggerEventsInput): () => void {
         const channel = `private:spot:triggers:events:${input.accountId}:proto`;
-        return connectProtoChannel({
+        return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.TriggerEventSchema,
             onPublication: (data) => {

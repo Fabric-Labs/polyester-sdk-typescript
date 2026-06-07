@@ -1,7 +1,7 @@
 import * as Proto from "../../gen/marketoverview/v1/marketoverview_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
-import { connectProtoChannel } from "../../realtime/client.js";
+import type { RealtimeClient } from "../../realtime/client.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import { formatConnectError } from "../../utils/errors.js";
 import {
@@ -19,9 +19,11 @@ interface SubscribeMarketOverviewInput extends BaseSubscribeInput<MarketOverview
 
 export class MarketOverviewService {
     #client: Client<typeof Proto.MarketOverviewService>;
+    #realtime: RealtimeClient;
 
-    constructor(transport: Transport) {
+    constructor(transport: Transport, realtime: RealtimeClient) {
         this.#client = createClient(Proto.MarketOverviewService, transport);
+        this.#realtime = realtime;
     }
 
     async list(input: ListMarketOverviewInput = {}): Promise<MarketOverview[]> {
@@ -72,7 +74,7 @@ export class MarketOverviewService {
             input.onError?.({ message: formatConnectError(e, "snapshot failed") });
         });
 
-        const unsubscribe = connectProtoChannel({
+        const unsubscribe = this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.MarketOverviewBatchSchema,
             onPublication: (batch) => {

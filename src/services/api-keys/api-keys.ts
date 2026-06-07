@@ -6,7 +6,7 @@ import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
 import { type SubAccountResolver, resolveSubAccountScopedInput } from "../sub-account-resolver.js";
 import { bytesToHex } from "@noble/hashes/utils.js";
 import { keygenAsync } from "@noble/ed25519";
-import { connectProtoChannel } from "../../realtime/index.js";
+import type { RealtimeClient } from "../../realtime/index.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
     ApiKeysListInputSchema,
@@ -28,10 +28,12 @@ export type ApiKeysMutationOptions = {
 
 export class ApiKeysService {
     #client: Client<typeof Proto.ApiKeyService>;
+    #realtime: RealtimeClient;
     #resolver?: SubAccountResolver;
 
-    constructor(transport: Transport, resolver?: SubAccountResolver) {
+    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubAccountResolver) {
         this.#client = createClient(Proto.ApiKeyService, transport);
+        this.#realtime = realtime;
         this.#resolver = resolver;
     }
 
@@ -115,7 +117,7 @@ export class ApiKeysService {
     subscribe(input: SubscribeApiKeysInput) {
         const channel = `private:auth:api-keys:${input.accountId}:proto`;
 
-        return connectProtoChannel({
+        return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.ApiKeySchema,
             onPublication: (data) => {

@@ -4,7 +4,7 @@ import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
 import { type SubAccountResolver, resolveSubAccountScopedInput } from "../sub-account-resolver.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
-import { connectProtoChannel } from "../../realtime/client.js";
+import type { RealtimeClient } from "../../realtime/client.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
     OpenOrdersInputSchema,
@@ -34,11 +34,13 @@ type GetOrderResponse = v.InferOutput<typeof GetOrderResponseSchema>;
 export class OrdersService {
     #readClient: Client<typeof ProtoRead.OrdersReadService>;
     #writeClient: Client<typeof ProtoWrite.OrdersService>;
+    #realtime: RealtimeClient;
     #resolver?: SubAccountResolver;
 
-    constructor(transport: Transport, resolver?: SubAccountResolver) {
+    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubAccountResolver) {
         this.#readClient = createClient(ProtoRead.OrdersReadService, transport);
         this.#writeClient = createClient(ProtoWrite.OrdersService, transport);
+        this.#realtime = realtime;
         this.#resolver = resolver;
     }
 
@@ -120,7 +122,7 @@ export class OrdersService {
 
     subscribe(input: SubscribeOrdersInput): () => void {
         const channel = `private:spot:orders:${input.accountId}:proto`;
-        return connectProtoChannel({
+        return this.#realtime.connectProtoChannel({
             channel,
             schema: ProtoRead.OrderSchema,
             onPublication: (data) => {

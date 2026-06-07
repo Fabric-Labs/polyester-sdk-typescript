@@ -44,6 +44,7 @@ import {
     ZIPPER_CONTRACTS_CATALOG,
 } from "./catalogs/zipper-catalog.generated.js";
 import { refreshCatalogsInBackground } from "./catalogs/catalog-refresh.js";
+import { RealtimeClient, type RealtimeConfig } from "./realtime/index.js";
 
 let generatedCatalogsInitialized = false;
 
@@ -58,10 +59,40 @@ function initializeGeneratedCatalogs(): void {
     generatedCatalogsInitialized = true;
 }
 
+function stripTrailingSlash(url: string): string {
+    return url.replace(/\/+$/u, "");
+}
+
+function wsUrlForApiUrl(apiUrl: string): string {
+    try {
+        const url = new URL(apiUrl);
+        url.protocol = url.protocol === "http:" ? "ws:" : "wss:";
+        return stripTrailingSlash(url.toString());
+    } catch {
+        return apiUrl;
+    }
+}
+
+function realtimeAuthFromProvider(
+    auth: JwtAuthProvider | ApiKeyEd25519AuthProvider | undefined,
+): Pick<RealtimeConfig, "getAuthHeaders" | "hasAuth"> {
+    if (!auth || auth.kind !== "jwt") return {};
+    return {
+        getAuthHeaders: async () => {
+            const token = await auth.getToken();
+            const headers: Record<string, string> = {};
+            if (token) headers.authorization = `Bearer ${token}`;
+            return headers;
+        },
+        hasAuth: () => true,
+    };
+}
+
 export interface PolyesterClientConfig {
     apiUrl: string;
     interceptors?: Interceptor[];
     auth?: JwtAuthProvider | ApiKeyEd25519AuthProvider;
+    realtime?: RealtimeConfig;
     /**
      * Connect wire format. Defaults to binary for production performance.
      * Use `json` for the API Playground visualization.
@@ -95,6 +126,7 @@ export class PolyesterClient {
     readonly whiteboard: WhiteboardService;
     readonly zipper: ZipperService;
     readonly mfa: MfaService;
+    readonly realtime: RealtimeClient;
 
     protected readonly transports: Transports;
 
@@ -111,23 +143,33 @@ export class PolyesterClient {
 
         const { authApi, publicApi } = this.transports;
         const resolver = this.createSubaccountResolver();
+        const realtimeAuth = realtimeAuthFromProvider(config.auth);
+        const apiUrl = stripTrailingSlash(config.apiUrl);
 
-        this.auth = new AuthService({ publicApi, authApi });
+        this.realtime = new RealtimeClient({
+            wsUrl: config.realtime?.wsUrl ?? wsUrlForApiUrl(apiUrl),
+            tokenEndpoint: config.realtime?.tokenEndpoint ?? `${apiUrl}/v1/rt/token`,
+            subscribeEndpoint: config.realtime?.subscribeEndpoint ?? `${apiUrl}/v1/rt/subscribe`,
+            getAuthHeaders: config.realtime?.getAuthHeaders ?? realtimeAuth.getAuthHeaders,
+            hasAuth: config.realtime?.hasAuth ?? realtimeAuth.hasAuth,
+        });
+
+        this.auth = new AuthService({ publicApi, authApi }, this.realtime);
         this.accounts = new AccountsService(authApi);
-        this.apiKeys = new ApiKeysService(authApi, resolver);
-        this.policies = new PoliciesService(authApi);
-        this.subAccounts = new SubAccountsService(authApi);
-        this.candles = new CandlesService(publicApi);
-        this.marketData = new MarketDataService(publicApi);
-        this.marketOverview = new MarketOverviewService(publicApi);
-        this.orderbook = new OrderbookService(publicApi);
-        this.heatmap = new HeatmapService(publicApi);
-        this.lifecycle = new LifecycleService(publicApi);
-        this.trades = new TradesService(authApi, resolver);
-        this.orders = new OrdersService(authApi, resolver);
-        this.triggers = new TriggersService(authApi, resolver);
-        this.balances = new BalancesService(authApi, resolver);
-        this.transfers = new TransfersService(authApi, resolver);
+        this.apiKeys = new ApiKeysService(authApi, this.realtime, resolver);
+        this.policies = new PoliciesService(authApi, this.realtime);
+        this.subAccounts = new SubAccountsService(authApi, this.realtime);
+        this.candles = new CandlesService(publicApi, this.realtime);
+        this.marketData = new MarketDataService(publicApi, this.realtime);
+        this.marketOverview = new MarketOverviewService(publicApi, this.realtime);
+        this.orderbook = new OrderbookService(publicApi, this.realtime);
+        this.heatmap = new HeatmapService(publicApi, this.realtime);
+        this.lifecycle = new LifecycleService(publicApi, this.realtime);
+        this.trades = new TradesService(authApi, this.realtime, resolver);
+        this.orders = new OrdersService(authApi, this.realtime, resolver);
+        this.triggers = new TriggersService(authApi, this.realtime, resolver);
+        this.balances = new BalancesService(authApi, this.realtime, resolver);
+        this.transfers = new TransfersService(authApi, this.realtime, resolver);
         this.internalTransfers = new InternalTransfersService(authApi, resolver);
         this.tradingWithdraws = new TradingWithdrawsService(authApi, resolver);
         this.deposit = new DepositService(authApi, resolver);

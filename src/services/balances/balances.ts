@@ -1,7 +1,7 @@
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
-import { connectProtoChannel } from "../../realtime/index.js";
+import type { RealtimeClient } from "../../realtime/index.js";
 import {
     type SubAccountResolver,
     resolveSubAccountId,
@@ -27,21 +27,14 @@ interface SubscribeBalancesInput extends BaseSubscribeInput<LedgerBalance> {
     accountId: string;
 }
 
-function isZeroBalance(balance: LedgerBalance): boolean {
-    return (
-        balance.unified <= 0 &&
-        balance.funding <= 0 &&
-        balance.reserved <= 0 &&
-        balance.available <= 0
-    );
-}
-
 export class BalancesService {
     #client: Client<typeof Proto.LedgerReadService>;
+    #realtime: RealtimeClient;
     #resolver?: SubAccountResolver;
 
-    constructor(transport: Transport, resolver?: SubAccountResolver) {
+    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubAccountResolver) {
         this.#client = createClient(Proto.LedgerReadService, transport);
+        this.#realtime = realtime;
         this.#resolver = resolver;
     }
 
@@ -50,12 +43,10 @@ export class BalancesService {
         const res = await this.#client.getBalances({
             subaccountId: resolved ? idToBigInt(resolved, "subaccountId") : undefined,
         });
-        return v
-            .parse(
-                v.array(LedgerBalanceSchema),
-                res.balances.filter((b) => isKnownAssetId(b.assetId)),
-            )
-            .filter((b) => !isZeroBalance(b));
+        return v.parse(
+            v.array(LedgerBalanceSchema),
+            res.balances.filter((b) => isKnownAssetId(b.assetId)),
+        );
     }
 
     async getBalanceHistory(input: BalanceHistoryInput): Promise<BalanceHistoryResponse> {
@@ -79,7 +70,7 @@ export class BalancesService {
 
     subscribe(input: SubscribeBalancesInput): () => void {
         const channel = `private:ledger:balances:${input.accountId}:proto`;
-        return connectProtoChannel({
+        return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.AssetBalanceSchema,
             onPublication: (data) => {

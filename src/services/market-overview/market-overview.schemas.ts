@@ -50,7 +50,7 @@ export const MarketOverviewSparklineSchema = v.object({
 
 export type MarketOverviewSparkline = {
     interval: SparklineIntervalName;
-    prices: number[];
+    prices: string[];
 };
 
 export const MarketOverviewOrderBySchema = v.picklist(MARKET_OVERVIEW_ORDER_BY_VALUES);
@@ -95,22 +95,22 @@ export const MarketOverviewSchema = v.pipe(
                 base,
                 quote: assetForSymbol(quoteAsset),
             },
-            lastPrice: parseInt(int6ToDecimalString(m.lastPriceTicks)),
+            lastPrice: int6ToDecimalString(m.lastPriceTicks),
             lastTradeTsMs: tsNsToMs(m.lastTradeTsNs),
             change24hBp: m.change24hBp,
-            high24h: parseInt(int6ToDecimalString(m.high24hTicks)),
-            low24h: parseInt(int6ToDecimalString(m.low24hTicks)),
-            volume24hBase: parseInt(intToDecimalString(m.volume24hBaseScaled, baseScale)),
-            volume24hQuote: parseInt(int6ToDecimalString(m.volume24hQuoteScaled)),
+            high24h: int6ToDecimalString(m.high24hTicks),
+            low24h: int6ToDecimalString(m.low24hTicks),
+            volume24hBase: intToDecimalString(m.volume24hBaseScaled, baseScale),
+            volume24hQuote: int6ToDecimalString(m.volume24hQuoteScaled),
             listedTsMs: tsNsToMs(m.listedTsNs),
-            bestBid: parseInt(int6ToDecimalString(m.bestBidTicks)),
+            bestBid: int6ToDecimalString(m.bestBidTicks),
             bestBidQty: intToDecimalString(m.bestBidQtyScaled, baseScale),
-            bestAsk: parseInt(int6ToDecimalString(m.bestAskTicks)),
-            bestAskQty: parseInt(intToDecimalString(m.bestAskQtyScaled, baseScale)),
+            bestAsk: int6ToDecimalString(m.bestAskTicks),
+            bestAskQty: intToDecimalString(m.bestAskQtyScaled, baseScale),
             sparklines: (m.sparklines ?? []).map((s) => ({
                 interval: s.interval,
 
-                prices: s.closeTicks.map((t) => parseInt(int6ToDecimalString(t))).reverse(),
+                prices: s.closeTicks.map((t) => int6ToDecimalString(t)).reverse(),
             })),
         };
     }),
@@ -123,8 +123,9 @@ const MS_PER_24H = 86_400_000;
 function change24hBpFromSparklineFirstLast(sparklines: MarketOverview["sparklines"]): number {
     const s = sparklines.find((e) => e.interval === "24h") ?? sparklines[0];
     if (!s || s.prices.length < 2) return 0;
-    const first = s.prices[0] ?? 0;
-    const last = s.prices.at(-1) ?? 0;
+    const first = Number(s.prices[0] ?? 0);
+    const last = Number(s.prices.at(-1) ?? 0);
+    if (!Number.isFinite(first) || !Number.isFinite(last)) return 0;
     if (first === 0) return 0;
     return Math.round(((last - first) / first) * 10_000);
 }

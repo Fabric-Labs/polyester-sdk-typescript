@@ -9,7 +9,7 @@ import {
     type HeatmapLiveBucket,
     type GetOrderbookHeatmapRequest,
 } from "../../gen/marketdata/v1/heatmap_pb.js";
-import { connectProtoChannel } from "../../realtime/client.js";
+import type { RealtimeClient } from "../../realtime/client.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import { isDev } from "../../utils/is-dev.js";
 import { HeatmapIntervalCodec } from "./heatmap.codecs.js";
@@ -45,9 +45,11 @@ function toStreamInterval(interval: number | string): string | null {
 
 export class HeatmapService implements OrderbookHeatmapProvider {
     #client: Client<typeof HeatmapRpc>;
+    #realtime: RealtimeClient;
 
-    constructor(transport: Transport) {
+    constructor(transport: Transport, realtime: RealtimeClient) {
         this.#client = createClient(HeatmapRpc, transport);
+        this.#realtime = realtime;
     }
 
     async getOrderbookHeatmap(input: GetOrderbookHeatmapInput): Promise<OrderbookHeatmapResponse> {
@@ -90,7 +92,7 @@ export class HeatmapService implements OrderbookHeatmapProvider {
             return () => {};
         }
         const channel = `public:spot:market:heatmap:${interval}:${input.symbolId}:proto`;
-        return connectProtoChannel({
+        return this.#realtime.connectProtoChannel({
             channel,
             schema: HeatmapLiveBucketSchema,
             onPublication: (data) => input.onEvent(data),

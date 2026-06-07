@@ -9,6 +9,7 @@ import { isJwtValid, getJwtTimeToExpiry } from "../../utils/jwt.js";
 import type { SubAccountsService } from "../sub-accounts/index.js";
 import { formatId } from "../../utils/base58-id.js";
 import type { AuthState, AuthHydrationData, AuthLoginMethod } from "../../shared/auth-types.js";
+import type { RealtimeClient } from "../../realtime/index.js";
 
 export interface WalletAuthEvents {
     authenticated: { accountId: string; username: string };
@@ -61,12 +62,14 @@ export class WalletAuthService extends AuthService {
         transports,
         walletConfig,
         subAccounts,
+        realtime,
     }: {
         transports: AuthServiceTransports;
         walletConfig?: WalletConfig;
         subAccounts: SubAccountsService;
+        realtime: RealtimeClient;
     }) {
-        super(transports);
+        super(transports, realtime);
 
         this.#walletConfig = walletConfig;
         this.#subAccounts = subAccounts;
@@ -342,9 +345,7 @@ export class WalletAuthService extends AuthService {
      * backend API call.
      */
     async createSubAccount(params: CreateSubAccountParams): Promise<CreateSubAccountResult> {
-        if (!this.#isAuthenticated) {
-            throw new Error("Must be authenticated to create subaccounts");
-        }
+        if (!this.#isAuthenticated) throw new Error("Must be authenticated to create subaccounts");
 
         if (!this.#subAccounts) {
             throw new Error(
