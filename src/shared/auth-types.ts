@@ -19,6 +19,7 @@ export type AuthLoginMethod = "google" | "email" | "metamask" | "phantom" | "wal
  * Contains minimal info needed to restore auth state on page load.
  */
 export interface SessionData {
+    environmentFingerprint: string;
     provider: "metamask" | "turnkey" | "other";
     loginMethod: AuthLoginMethod | null;
     primaryWallet: string;

@@ -5,20 +5,18 @@ import {
     type PublicationContext,
     type Subscription,
 } from "centrifuge/build/protobuf";
-import { POLYESTER_API_BASE_URL, POLYESTER_WEBSOCKET_URL } from "../shared/constants.js";
 import { decodeProtoFrame } from "../utils/streams.js";
 
 export interface RealtimeConfig {
-    wsUrl?: string;
-    tokenEndpoint?: string;
-    subscribeEndpoint?: string;
+    wsUrl: string;
+    tokenEndpoint: string;
+    subscribeEndpoint: string;
     getAuthHeaders?: () => Promise<HeadersInit> | HeadersInit;
     hasAuth?: () => boolean;
 }
 
-type ResolvedRealtimeConfig = Required<
-    Pick<RealtimeConfig, "wsUrl" | "tokenEndpoint" | "subscribeEndpoint" | "getAuthHeaders">
-> & {
+type ResolvedRealtimeConfig = Pick<RealtimeConfig, "wsUrl" | "tokenEndpoint" | "subscribeEndpoint"> & {
+    getAuthHeaders: () => Promise<HeadersInit> | HeadersInit;
     hasAuth: () => boolean;
 };
 
@@ -59,12 +57,11 @@ export class RealtimeClient {
     #pendingTeardowns = new Map<string, SharedSubscription>();
     readonly #config: ResolvedRealtimeConfig;
 
-    constructor(config: RealtimeConfig = {}) {
+    constructor(config: RealtimeConfig) {
         this.#config = {
-            wsUrl: config.wsUrl ?? POLYESTER_WEBSOCKET_URL,
-            tokenEndpoint: config.tokenEndpoint ?? `${POLYESTER_API_BASE_URL}/v1/rt/token`,
-            subscribeEndpoint:
-                config.subscribeEndpoint ?? `${POLYESTER_API_BASE_URL}/v1/rt/subscribe`,
+            wsUrl: config.wsUrl,
+            tokenEndpoint: config.tokenEndpoint,
+            subscribeEndpoint: config.subscribeEndpoint,
             getAuthHeaders: config.getAuthHeaders ?? (() => ({})),
             hasAuth: config.hasAuth ?? (() => false),
         };

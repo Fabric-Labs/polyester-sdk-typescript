@@ -1,17 +1,12 @@
 import { PolyesterClient } from "./core-client.js";
-import { polyesterToken } from "./shared/polyester-token.js";
+import { getEnvironmentBoundPolyesterToken } from "./shared/polyester-token.js";
 import { AccountSignerAuthService } from "./services/auth/account-signer-auth.js";
 import type { AccountSignerConfig, AccountSigner } from "./account-signer/types.js";
-import { POLYESTER_API_BASE_URL } from "./shared/constants.js";
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";
-
-export interface PolyesterBrowserClientUrls {
-    apiUrl?: string;
-    wsUrl?: string;
-}
+import type { PolyesterEnvironment } from "./environment.js";
 
 export interface PolyesterBrowserClientConfig {
-    urls?: PolyesterBrowserClientUrls;
+    environment: PolyesterEnvironment;
     /**
      * Account signer interface for authentication.
      * Pass a signer object or a factory function for lazy initialization.
@@ -25,15 +20,15 @@ export interface PolyesterBrowserClientConfig {
 export class PolyesterBrowserClient extends PolyesterClient {
     override readonly auth: AccountSignerAuthService;
 
-    constructor(config: PolyesterBrowserClientConfig = {}) {
-        const apiUrl = config.urls?.apiUrl ?? POLYESTER_API_BASE_URL;
+    constructor(config: PolyesterBrowserClientConfig) {
+        const getToken = () =>
+            getEnvironmentBoundPolyesterToken(config.environment.fingerprint);
 
         super({
-            apiUrl,
-            auth: { kind: "jwt", getToken: () => polyesterToken.get() },
+            environment: config.environment,
+            auth: { kind: "jwt", getToken },
             realtime: {
-                wsUrl: config.urls?.wsUrl,
-                hasAuth: () => !!polyesterToken.get(),
+                hasAuth: () => !!getToken(),
             },
         });
 
@@ -41,6 +36,7 @@ export class PolyesterBrowserClient extends PolyesterClient {
         this.auth = new AccountSignerAuthService({
             transports: { publicApi: this.transports.publicApi, authApi: this.transports.authApi },
             accountSignerConfig: config.accountSigner,
+            environment: config.environment,
             subaccounts: this.subaccounts,
             realtime: this.realtime,
         });

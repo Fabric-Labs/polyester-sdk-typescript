@@ -1,5 +1,6 @@
 import { CookieManager } from "../utils/cookies.js";
 import { POLYESTER_AUTH_TOKEN_COOKIE_NAME } from "./constants.js";
+import { polyesterSession } from "./polyester-session.js";
 
 /**
  * A singleton for managing the polyester token cookie
@@ -16,3 +17,17 @@ import { POLYESTER_AUTH_TOKEN_COOKIE_NAME } from "./constants.js";
  * ```
  */
 export const polyesterToken = new CookieManager({ name: POLYESTER_AUTH_TOKEN_COOKIE_NAME });
+
+export function getEnvironmentBoundPolyesterToken(environmentFingerprint: string): string | null {
+    const token = polyesterToken.get();
+    if (!token) return null;
+
+    const session = polyesterSession.get();
+    if (session?.environmentFingerprint !== environmentFingerprint) {
+        polyesterToken.clear();
+        if (session) polyesterSession.clear();
+        return null;
+    }
+
+    return token;
+}

@@ -1,6 +1,7 @@
 export * from "./core-client.js";
 export * from "./browser-client.js";
 export * from "./server-client.js";
+export * from "./environment.js";
 
 export * from "./services/accounts/index.js";
 export * from "./services/address-book/index.js";

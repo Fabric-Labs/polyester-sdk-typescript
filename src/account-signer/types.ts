@@ -9,6 +9,9 @@ export type HexAddress = `0x${string}`;
  * is optional metadata about the EOA or custody provider that controls it.
  */
 export interface AccountSigner {
+    /** Fingerprint of the PolyesterEnvironment this signer was created for */
+    readonly environmentFingerprint: string;
+
     /** The smart account address (used for authentication and trading) */
     readonly accountAddress: HexAddress;
 
@@ -41,6 +44,9 @@ export function isAccountSignerFactory(
 }
 
 export function assertAccountSigner(value: AccountSigner): void {
+    if (!value.environmentFingerprint) {
+        throw new Error("Account signer must include an environmentFingerprint.");
+    }
     if (!isAddress(value.accountAddress, { strict: false })) {
         throw new Error("Account signer must include a valid accountAddress.");
     }

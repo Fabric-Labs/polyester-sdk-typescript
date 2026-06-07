@@ -1,10 +1,8 @@
 import { create } from "@bufbuild/protobuf";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import { hexToBytes, keccak256, stringToBytes, type Address, type Hex } from "viem";
-import { getZipperContractByName } from "../../catalogs/zipper-catalog.js";
 import * as Proto from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import { U128Schema, type U128 } from "../../gen/polyester/type/v1/u128_pb.js";
-import { POLYCHAIN } from "../../shared/config.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
 import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
@@ -26,6 +24,11 @@ export type TradingWithdrawWalletSigner = {
     signerWallet: string;
     accountId: string;
     signTypedData: (typedData: TradingWithdrawWalletTypedData) => Promise<Hex>;
+};
+
+export type TradingWithdrawSigningConfig = {
+    chainId: number;
+    tradingGatewayAddress: Address;
 };
 
 export type CreateTradingWithdrawToFundingServiceInput = CreateTradingWithdrawToFundingInput & {
@@ -61,15 +64,8 @@ function fromU128(value: U128 | undefined): bigint {
     return (value.hi << 64n) + value.lo;
 }
 
-function resolveTradingGatewayAddress(): Address {
-    const address = getZipperContractByName("tradingGateway")?.address?.trim();
-    if (!address?.startsWith("0x")) {
-        throw new Error("Trading Gateway contract address is unavailable.");
-    }
-    return address as Address;
-}
-
 function buildTradingWithdrawWalletTypedData(params: {
+    signingConfig: TradingWithdrawSigningConfig;
     payload: Proto.TradingWithdrawIntentPayload;
     signerWallet: Address;
     accountId: bigint;
@@ -80,8 +76,8 @@ function buildTradingWithdrawWalletTypedData(params: {
         domain: {
             name: "Polyester Trading Withdraw",
             version: "1",
-            chainId: POLYCHAIN.id,
-            verifyingContract: resolveTradingGatewayAddress(),
+            chainId: params.signingConfig.chainId,
+            verifyingContract: params.signingConfig.tradingGatewayAddress,
         },
         types: {
             WalletTradingWithdraw: [
@@ -116,6 +112,7 @@ function buildTradingWithdrawWalletTypedData(params: {
 }
 
 async function resolveWalletSignature(params: {
+    signingConfig: TradingWithdrawSigningConfig;
     payload: Proto.TradingWithdrawIntentPayload;
     walletSigner: TradingWithdrawWalletSigner;
     targetAccountId: bigint;
@@ -126,6 +123,7 @@ async function resolveWalletSignature(params: {
     }
     const signature = await params.walletSigner.signTypedData(
         buildTradingWithdrawWalletTypedData({
+            signingConfig: params.signingConfig,
             payload: params.payload,
             signerWallet: signerWallet as Address,
             accountId: idToBigInt(params.walletSigner.accountId, "accountId"),
@@ -141,10 +139,16 @@ async function resolveWalletSignature(params: {
 export class TradingWithdrawsService {
     #client: Client<typeof Proto.WithdrawService>;
     #resolver?: SubaccountResolver;
+    #signingConfig: TradingWithdrawSigningConfig;
 
-    constructor(transport: Transport, resolver?: SubaccountResolver) {
+    constructor(
+        transport: Transport,
+        resolver: SubaccountResolver | undefined,
+        signingConfig: TradingWithdrawSigningConfig,
+    ) {
         this.#client = createClient(Proto.WithdrawService, transport);
         this.#resolver = resolver;
+        this.#signingConfig = signingConfig;
     }
 
     async createToFunding(
@@ -167,6 +171,7 @@ export class TradingWithdrawsService {
 
         if (walletSigner) {
             const walletSignature = await resolveWalletSignature({
+                signingConfig: this.#signingConfig,
                 payload,
                 walletSigner,
                 targetAccountId:

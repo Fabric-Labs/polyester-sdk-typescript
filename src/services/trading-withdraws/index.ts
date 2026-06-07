@@ -2,6 +2,7 @@ export {
     TradingWithdrawsService,
     type CreateTradingWithdrawToFundingServiceInput,
     type TradingWithdrawMutationOptions,
+    type TradingWithdrawSigningConfig,
     type TradingWithdrawWalletSigner,
     type TradingWithdrawWalletTypedData,
 } from "./trading-withdraws.js";

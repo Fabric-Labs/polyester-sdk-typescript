@@ -7,11 +7,18 @@ anything just to log in.
 ```ts
 import {
     PolyesterBrowserClient,
+    POLYESTER_TESTNET_ENVIRONMENT,
     createPolyesterAccountSigner,
 } from "@fabric-labs/polyester-sdk";
 
-const accountSigner = createPolyesterAccountSigner({ owner });
-const client = new PolyesterBrowserClient({ accountSigner });
+const accountSigner = createPolyesterAccountSigner({
+    environment: POLYESTER_TESTNET_ENVIRONMENT,
+    owner,
+});
+const client = new PolyesterBrowserClient({
+    environment: POLYESTER_TESTNET_ENVIRONMENT,
+    accountSigner,
+});
 
 await client.auth.login({ provider: "turnkey" });
 ```

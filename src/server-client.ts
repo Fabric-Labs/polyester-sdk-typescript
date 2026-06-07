@@ -1,6 +1,8 @@
 import { PolyesterClient } from "./core-client.js";
-import { POLYESTER_API_BASE_URL, POLYESTER_SESSION_COOKIE_NAME } from "./shared/constants.js";
-import { POLYESTER_AUTH_TOKEN_COOKIE_NAME } from "./shared/constants.js";
+import {
+    POLYESTER_AUTH_TOKEN_COOKIE_NAME,
+    POLYESTER_SESSION_COOKIE_NAME,
+} from "./shared/constants.js";
 import type {
     ActiveAccountInfo,
     AuthLoginMethod,
@@ -9,9 +11,10 @@ import type {
 import { type CookieGetter, getCookieValue } from "./utils/cookies.js";
 import type { JwtAuthProvider, ApiKeyEd25519AuthProvider } from "./shared/transports.js";
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";
-import type { RealtimeConfig } from "./realtime/index.js";
+import type { PolyesterRealtimeAuthConfig } from "./core-client.js";
 import { isJwtValid } from "./utils/jwt.js";
 import type { Me } from "./services/auth/auth.js";
+import type { PolyesterEnvironment } from "./environment.js";
 
 /**
  * Display-only session data parsed from client-readable cookies.
@@ -21,6 +24,7 @@ import type { Me } from "./services/auth/auth.js";
  * treating a request as authenticated.
  */
 export interface ServerSessionSnapshot {
+    environmentFingerprint: string | null;
     hasDisplaySession: boolean;
     provider: string | null;
     loginMethod: AuthLoginMethod | null;
@@ -32,6 +36,7 @@ export interface ServerSessionSnapshot {
 
 function emptyServerSessionSnapshot(): ServerSessionSnapshot {
     return {
+        environmentFingerprint: null,
         hasDisplaySession: false,
         provider: null,
         loginMethod: null,
@@ -42,7 +47,10 @@ function emptyServerSessionSnapshot(): ServerSessionSnapshot {
     };
 }
 
-export function parseSessionCookie(cookies: CookieGetter): ServerSessionSnapshot {
+export function parseSessionCookie(
+    cookies: CookieGetter,
+    environment: PolyesterEnvironment,
+): ServerSessionSnapshot {
     const sessionValue = getCookieValue(cookies, POLYESTER_SESSION_COOKIE_NAME);
     const bearerToken = getCookieValue(cookies, POLYESTER_AUTH_TOKEN_COOKIE_NAME) ?? null;
 
@@ -59,7 +67,12 @@ export function parseSessionCookie(cookies: CookieGetter): ServerSessionSnapshot
         }
     }
 
+    if (session?.environmentFingerprint !== environment.fingerprint) {
+        return emptyServerSessionSnapshot();
+    }
+
     return {
+        environmentFingerprint: session.environmentFingerprint,
         hasDisplaySession: !!session,
         provider: session?.provider ?? null,
         loginMethod: session?.loginMethod ?? null,
@@ -72,17 +85,12 @@ export function parseSessionCookie(cookies: CookieGetter): ServerSessionSnapshot
     };
 }
 
-export interface PolyesterServerClientUrls {
-    apiUrl?: string;
-    wsUrl?: string;
-}
-
 export interface PolyesterServerClientConfig {
-    urls?: PolyesterServerClientUrls;
+    environment: PolyesterEnvironment;
     wireFormat?: "binary" | "json";
     /** Full auth provider config. Takes precedence over `token` if both are provided. */
     auth?: JwtAuthProvider | ApiKeyEd25519AuthProvider;
-    realtime?: RealtimeConfig;
+    realtime?: PolyesterRealtimeAuthConfig;
     /** Display-only session data parsed from cookies. Not proof of authentication. */
     session?: ServerSessionSnapshot;
 }
@@ -91,17 +99,14 @@ export class PolyesterServerClient extends PolyesterClient {
     #hasAuthProvider: boolean;
     #session: ServerSessionSnapshot;
 
-    constructor(config: PolyesterServerClientConfig = {}) {
+    constructor(config: PolyesterServerClientConfig) {
         const auth = config.auth ?? undefined;
 
         super({
-            apiUrl: config.urls?.apiUrl ?? POLYESTER_API_BASE_URL,
+            environment: config.environment,
             auth,
             wireFormat: config.wireFormat,
-            realtime: {
-                ...config.realtime,
-                wsUrl: config.realtime?.wsUrl ?? config.urls?.wsUrl,
-            },
+            realtime: config.realtime,
         });
         this.#hasAuthProvider = !!auth;
         this.#session = config.session ?? emptyServerSessionSnapshot();
@@ -159,18 +164,18 @@ export class PolyesterServerClient extends PolyesterClient {
 
 export interface CreateServerClientFromCookiesParams {
     cookies: CookieGetter;
-    urls?: PolyesterServerClientUrls;
-    realtime?: RealtimeConfig;
+    environment: PolyesterEnvironment;
+    realtime?: PolyesterRealtimeAuthConfig;
 }
 
 export interface CreateServerClientFromRequestParams {
     request: Request;
-    urls?: PolyesterServerClientUrls;
-    realtime?: RealtimeConfig;
+    environment: PolyesterEnvironment;
+    realtime?: PolyesterRealtimeAuthConfig;
 }
 
 export function createPolyesterServerClient(
-    config: PolyesterServerClientConfig = {},
+    config: PolyesterServerClientConfig,
 ): PolyesterServerClient {
     return new PolyesterServerClient(config);
 }
@@ -178,7 +183,7 @@ export function createPolyesterServerClient(
 export function createPolyesterServerClientFromCookies(
     params: CreateServerClientFromCookiesParams,
 ): PolyesterServerClient {
-    const session = parseSessionCookie(params.cookies);
+    const session = parseSessionCookie(params.cookies, params.environment);
     const auth = isJwtValid(session.bearerToken)
         ? ({
               kind: "jwt",
@@ -187,12 +192,9 @@ export function createPolyesterServerClientFromCookies(
         : undefined;
 
     return new PolyesterServerClient({
-        urls: params.urls,
+        environment: params.environment,
         session,
-        realtime: {
-            ...params.realtime,
-            hasAuth: params.realtime?.hasAuth ?? (() => isJwtValid(session.bearerToken)),
-        },
+        realtime: params.realtime,
         auth,
     });
 }
@@ -202,13 +204,16 @@ export function createPolyesterServerClientFromRequest(
 ): PolyesterServerClient {
     return createPolyesterServerClientFromCookies({
         cookies: params.request,
-        urls: params.urls,
+        environment: params.environment,
         realtime: params.realtime,
     });
 }
 
-export function getBearerTokenFromCookies(cookies: CookieGetter): string | null {
-    return getCookieValue(cookies, POLYESTER_AUTH_TOKEN_COOKIE_NAME) ?? null;
+export function getBearerTokenFromCookies(
+    cookies: CookieGetter,
+    environment: PolyesterEnvironment,
+): string | null {
+    return parseSessionCookie(cookies, environment).bearerToken;
 }
 
 export { POLYESTER_AUTH_TOKEN_COOKIE_NAME, POLYESTER_SESSION_COOKIE_NAME };

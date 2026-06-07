@@ -5,53 +5,19 @@ import {
     type PredictSafeAddressParams,
 } from "./predict-safe-address.js";
 import type { AccountSigner, HexAddress } from "./types.js";
-import { POLYCHAIN_NETWORK, SAFE_SMART_ACCOUNT_CONFIG } from "../shared/config.js";
+import type { PolyesterEnvironment } from "../environment.js";
 
 /** ERC-6492 magic suffix for counterfactual signature verification */
 const ERC6492_MAGIC_SUFFIX: Hex =
     "0x6492649264926492649264926492649264926492649264926492649264926492";
 
 export interface CreatePolyesterAccountSignerParams {
+    /** The environment this signer should authenticate against */
+    environment: PolyesterEnvironment;
     /** The owner account (EOA) that will sign messages */
     owner: LocalAccount;
     /** Salt nonce for deriving different Safe addresses from the same owner (default: 0n) */
     saltNonce?: bigint;
-}
-
-interface RequiredPolyesterSafeConfig {
-    safeProxyFactoryAddress: Address;
-    safeSingletonAddress: Address;
-    safeModuleSetupAddress: Address;
-    safe4337ModuleAddress: Address;
-    multiSendAddress: Address;
-}
-
-function getRequiredPolyesterSafeConfig(): RequiredPolyesterSafeConfig {
-    const {
-        safeProxyFactoryAddress,
-        safeSingletonAddress,
-        safeModuleSetupAddress,
-        safe4337ModuleAddress,
-        multiSendAddress,
-    } = SAFE_SMART_ACCOUNT_CONFIG;
-
-    if (
-        !safeProxyFactoryAddress ||
-        !safeSingletonAddress ||
-        !safeModuleSetupAddress ||
-        !safe4337ModuleAddress ||
-        !multiSendAddress
-    ) {
-        throw new Error("Polyester Safe account configuration is incomplete.");
-    }
-
-    return {
-        safeProxyFactoryAddress,
-        safeSingletonAddress,
-        safeModuleSetupAddress,
-        safe4337ModuleAddress,
-        multiSendAddress,
-    };
 }
 
 /**
@@ -107,15 +73,15 @@ function wrapErc6492Signature(factoryAddress: Address, factoryCalldata: Hex, sig
 export function createPolyesterAccountSigner(
     params: CreatePolyesterAccountSignerParams,
 ): AccountSigner {
-    const { owner, saltNonce = 0n } = params;
+    const { environment, owner, saltNonce = 0n } = params;
     const {
         safeProxyFactoryAddress,
         safeSingletonAddress,
         safeModuleSetupAddress,
         safe4337ModuleAddress,
         multiSendAddress,
-    } = getRequiredPolyesterSafeConfig();
-    const chainId = POLYCHAIN_NETWORK.id;
+    } = environment.accountAbstraction.safe;
+    const chainId = environment.chain.id;
 
     const predictParams: PredictSafeAddressParams = {
         owners: [owner.address],
@@ -130,6 +96,7 @@ export function createPolyesterAccountSigner(
     const { address, factoryCalldata } = predictSafeAddressWithData(predictParams);
 
     return {
+        environmentFingerprint: environment.fingerprint,
         accountAddress: address as HexAddress,
         ownerAddress: owner.address as HexAddress,
         signMessage: async (message: string): Promise<Hex> => {

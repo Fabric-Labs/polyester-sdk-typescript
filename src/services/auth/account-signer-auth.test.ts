@@ -1,6 +1,7 @@
 import type { Transport } from "@connectrpc/connect";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { AccountSigner } from "../../account-signer/index.js";
+import { POLYESTER_TESTNET_ENVIRONMENT } from "../../environment.js";
 import { RealtimeClient } from "../../realtime/index.js";
 import { polyesterSession } from "../../shared/polyester-session.js";
 import { polyesterToken } from "../../shared/polyester-token.js";
@@ -19,12 +20,18 @@ function noopTransport(): Transport {
 function authFixture(accountSigner?: AccountSigner) {
     const publicApi = noopTransport();
     const authApi = noopTransport();
-    const realtime = new RealtimeClient({ hasAuth: () => false });
+    const realtime = new RealtimeClient({
+        wsUrl: POLYESTER_TESTNET_ENVIRONMENT.websocketUrl,
+        tokenEndpoint: `${POLYESTER_TESTNET_ENVIRONMENT.apiUrl}/v1/rt/token`,
+        subscribeEndpoint: `${POLYESTER_TESTNET_ENVIRONMENT.apiUrl}/v1/rt/subscribe`,
+        hasAuth: () => false,
+    });
     const subaccounts = new SubaccountsService(authApi, realtime);
 
     const auth = new AccountSignerAuthService({
         transports: { publicApi, authApi },
         accountSignerConfig: accountSigner,
+        environment: POLYESTER_TESTNET_ENVIRONMENT,
         subaccounts,
         realtime,
     });
@@ -40,6 +47,7 @@ function signer(params: Partial<AccountSigner> = {}): AccountSigner {
     const signMessage = vi.fn(async (_message: string): Promise<`0x${string}`> => "0x1234");
 
     return {
+        environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
         accountAddress: "0x1111111111111111111111111111111111111111",
         ownerAddress: "0x2222222222222222222222222222222222222222",
         signMessage,
@@ -145,6 +153,17 @@ describe("AccountSignerAuthService", () => {
         await auth.login({ provider: "other" });
 
         expect(requestLoginNonce).toHaveBeenCalledWith(replacementSigner.accountAddress);
+    });
+
+    it("rejects a signer from another environment before requesting a nonce", async () => {
+        const accountSigner = signer({ environmentFingerprint: "0xother" });
+        const auth = authService(accountSigner);
+        const requestLoginNonce = vi.spyOn(auth, "requestLoginNonce");
+
+        await expect(auth.login({ provider: "other" })).rejects.toThrow(
+            "Account signer environment does not match client environment.",
+        );
+        expect(requestLoginNonce).not.toHaveBeenCalled();
     });
 
     it("creates a subaccount with the provided account signer", async () => {

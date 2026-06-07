@@ -5,6 +5,7 @@ import {
     type JwtAuthProvider,
     type ApiKeyEd25519AuthProvider,
 } from "./shared/transports.js";
+import type { PolyesterEnvironment } from "./environment.js";
 import { AccountsService } from "./services/accounts/index.js";
 import { ApiKeysService } from "./services/api-keys/index.js";
 import { AuthService } from "./services/auth/auth.js";
@@ -58,20 +59,6 @@ function initializeGeneratedCatalogs(): void {
     generatedCatalogsInitialized = true;
 }
 
-function stripTrailingSlash(url: string): string {
-    return url.replace(/\/+$/u, "");
-}
-
-function wsUrlForApiUrl(apiUrl: string): string {
-    try {
-        const url = new URL(apiUrl);
-        url.protocol = url.protocol === "http:" ? "ws:" : "wss:";
-        return stripTrailingSlash(url.toString());
-    } catch {
-        return apiUrl;
-    }
-}
-
 function realtimeAuthFromProvider(
     auth: JwtAuthProvider | ApiKeyEd25519AuthProvider | undefined,
 ): Pick<RealtimeConfig, "getAuthHeaders" | "hasAuth"> {
@@ -87,11 +74,13 @@ function realtimeAuthFromProvider(
     };
 }
 
+export type PolyesterRealtimeAuthConfig = Pick<RealtimeConfig, "getAuthHeaders" | "hasAuth">;
+
 export interface PolyesterClientConfig {
-    apiUrl: string;
+    environment: PolyesterEnvironment;
     interceptors?: Interceptor[];
     auth?: JwtAuthProvider | ApiKeyEd25519AuthProvider;
-    realtime?: RealtimeConfig;
+    realtime?: PolyesterRealtimeAuthConfig;
     /**
      * Connect wire format. Defaults to binary for production performance.
      * Use `json` for the API Playground visualization.
@@ -131,9 +120,10 @@ export class PolyesterClient {
     constructor(config: PolyesterClientConfig) {
         initializeGeneratedCatalogs();
         const interceptors = config.interceptors ?? [];
+        const { environment } = config;
 
         this.transports = createTransports({
-            apiUrl: config.apiUrl,
+            apiUrl: environment.apiUrl,
             interceptors,
             auth: config.auth,
             wireFormat: config.wireFormat,
@@ -142,12 +132,11 @@ export class PolyesterClient {
         const { authApi, publicApi } = this.transports;
         const resolver = this.createSubaccountResolver();
         const realtimeAuth = realtimeAuthFromProvider(config.auth);
-        const apiUrl = stripTrailingSlash(config.apiUrl);
 
         this.realtime = new RealtimeClient({
-            wsUrl: config.realtime?.wsUrl ?? wsUrlForApiUrl(apiUrl),
-            tokenEndpoint: config.realtime?.tokenEndpoint ?? `${apiUrl}/v1/rt/token`,
-            subscribeEndpoint: config.realtime?.subscribeEndpoint ?? `${apiUrl}/v1/rt/subscribe`,
+            wsUrl: environment.websocketUrl,
+            tokenEndpoint: `${environment.apiUrl}/v1/rt/token`,
+            subscribeEndpoint: `${environment.apiUrl}/v1/rt/subscribe`,
             getAuthHeaders: config.realtime?.getAuthHeaders ?? realtimeAuth.getAuthHeaders,
             hasAuth: config.realtime?.hasAuth ?? realtimeAuth.hasAuth,
         });
@@ -168,7 +157,10 @@ export class PolyesterClient {
         this.balances = new BalancesService(authApi, this.realtime, resolver);
         this.transfers = new TransfersService(authApi, this.realtime, resolver);
         this.internalTransfers = new InternalTransfersService(authApi, resolver);
-        this.tradingWithdraws = new TradingWithdrawsService(authApi, resolver);
+        this.tradingWithdraws = new TradingWithdrawsService(authApi, resolver, {
+            chainId: environment.chain.id,
+            tradingGatewayAddress: environment.contracts.tradingGatewayAddress,
+        });
         this.deposit = new DepositService(authApi, resolver);
         this.addressBook = new AddressBookService(authApi, resolver);
         this.guardSigner = new GuardSignerService(authApi, resolver);

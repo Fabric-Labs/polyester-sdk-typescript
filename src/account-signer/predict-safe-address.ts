@@ -14,7 +14,7 @@ import {
  * SafeProxy creation bytecode from @safe-global/safe-contracts v1.4.1
  *
  * This must match the proxyCreationCode() return value from the SafeProxyFactory
- * deployed at SAFE_SMART_ACCOUNT_CONFIG.safeProxyFactoryAddress.
+ * deployed at the environment's safeProxyFactoryAddress.
  *
  * The verification script at scripts/verify-safe-prediction.ts validates this.
  */
