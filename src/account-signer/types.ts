@@ -34,7 +34,9 @@ export type AccountSignerConfig = AccountSigner | AccountSignerFactory;
 /**
  * Helper to check if an account signer config is a factory function.
  */
-export function isAccountSignerFactory(config: AccountSignerConfig): config is AccountSignerFactory {
+export function isAccountSignerFactory(
+    config: AccountSignerConfig,
+): config is AccountSignerFactory {
     return typeof config === "function";
 }
 

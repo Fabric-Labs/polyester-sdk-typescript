@@ -160,11 +160,7 @@ export function createPolyesterAccountSigner(
             const innerSignature = adjustVInSignature(ownerSignature as Hex);
 
             // 5. wrap in ERC-6492 format for counterfactual verification
-            return wrapErc6492Signature(
-                safeProxyFactoryAddress,
-                factoryCalldata,
-                innerSignature,
-            );
+            return wrapErc6492Signature(safeProxyFactoryAddress, factoryCalldata, innerSignature);
         },
     };
 }

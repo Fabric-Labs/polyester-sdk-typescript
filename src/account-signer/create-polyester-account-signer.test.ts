@@ -48,8 +48,8 @@ describe("createPolyesterAccountSigner", () => {
         const signature = await accountSigner.signMessage("Polyester Login\n\nNonce: test");
 
         expect(signature).toMatch(/^0x[0-9a-f]+$/iu);
-        expect(signature.endsWith("6492649264926492649264926492649264926492649264926492649264926492")).toBe(
-            true,
-        );
+        expect(
+            signature.endsWith("6492649264926492649264926492649264926492649264926492649264926492"),
+        ).toBe(true);
     });
 });

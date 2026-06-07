@@ -1,8 +1,5 @@
-import { PolyesterServerClient } from "../src/polyester-client/src/server-client.js";
-import type {
-    AssetConfig,
-    PairConfig,
-} from "../src/polyester-client/src/services/market-data/market-data.schemas.js";
+import { PolyesterServerClient } from "../src/server-client.js";
+import type { AssetConfig, PairConfig } from "../src/services/market-data/market-data.schemas.js";
 import type { EnrichedPairConfig } from "../src/catalogs/market-data-catalog.js";
 
 const OUTPUT_PATH = new URL("../src/catalogs/market-data-catalog.generated.ts", import.meta.url);
@@ -34,8 +31,8 @@ function enrichPairs(pairs: PairConfig[], assets: AssetConfig[]): EnrichedPairCo
             defaultMarketSlippagePctSell: pair.defaultMarketSlippagePctSell,
             maxClientRefDriftPct: pair.maxClientRefDriftPct,
             marketdata: pair.marketdata,
-            listingAt: pair.listingAt,
-            delistingAt: pair.delistingAt,
+            listingAt: pair.listingAt ?? null,
+            delistingAt: pair.delistingAt ?? null,
             status: pair.status,
         });
     }

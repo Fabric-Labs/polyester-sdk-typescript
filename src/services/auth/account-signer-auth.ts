@@ -2,11 +2,7 @@ import { AuthService, type AuthServiceTransports } from "./auth.js";
 import { polyesterToken } from "../../shared/polyester-token.js";
 import { polyesterSession } from "../../shared/polyester-session.js";
 import { POLYESTER_LOGIN_COOKIE_MAX_AGE } from "../../shared/constants.js";
-import type {
-    AccountSigner,
-    AccountSignerConfig,
-    HexAddress,
-} from "../../account-signer/types.js";
+import type { AccountSigner, AccountSignerConfig, HexAddress } from "../../account-signer/types.js";
 import { assertAccountSigner, resolveAccountSigner } from "../../account-signer/types.js";
 import { EventEmitter } from "../../utils/event-emitter.js";
 import { isJwtValid, getJwtTimeToExpiry } from "../../utils/jwt.js";
@@ -255,8 +251,7 @@ export class AccountSignerAuthService extends AuthService {
                             this.#loginMethod ??
                             (this.#walletProvider === "metamask" ? "metamask" : null),
                         primaryWallet:
-                            this.#accountSigner.ownerAddress ??
-                            this.#accountSigner.accountAddress,
+                            this.#accountSigner.ownerAddress ?? this.#accountSigner.accountAddress,
                         smartAccount: this.#accountSigner.accountAddress,
                         activeAccount: {
                             accountId: me.accountId,

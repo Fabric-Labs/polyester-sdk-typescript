@@ -37,10 +37,12 @@ function authService(accountSigner?: AccountSigner) {
 }
 
 function signer(params: Partial<AccountSigner> = {}): AccountSigner {
+    const signMessage = vi.fn(async (_message: string): Promise<`0x${string}`> => "0x1234");
+
     return {
         accountAddress: "0x1111111111111111111111111111111111111111",
         ownerAddress: "0x2222222222222222222222222222222222222222",
-        signMessage: vi.fn(async () => "0x1234"),
+        signMessage,
         ...params,
     };
 }
@@ -51,7 +53,9 @@ function mockLogin(auth: AccountSignerAuthService) {
         .mockResolvedValue({ nonce: "nonce-1" });
     const loginWithWallet = vi
         .spyOn(
-            auth as unknown as { loginWithWallet(input: LoginWithWalletInput): Promise<LoginWithWalletResponse> },
+            auth as unknown as {
+                loginWithWallet(input: LoginWithWalletInput): Promise<LoginWithWalletResponse>;
+            },
             "loginWithWallet",
         )
         .mockResolvedValue({

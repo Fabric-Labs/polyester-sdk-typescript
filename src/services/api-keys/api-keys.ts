@@ -60,7 +60,6 @@ export class ApiKeysService {
      * Create an API key. Some environments require MFA fresh step-up: on failure, complete an MFA
      * challenge with purpose `freshStepUp` via `client.mfa`, then retry with `stepUpToken` in options.
      */
-    // TODO: get with Yvan about why this possibly returns undefined
     async create(
         payload: v.InferInput<typeof ApiKeysCreateInputSchema>,
         options?: ApiKeysMutationOptions,
@@ -83,7 +82,6 @@ export class ApiKeysService {
         );
     }
 
-    // TODO: get with Yvan about why this possibly returns undefined
     async update(
         payload: v.InferInput<typeof ApiKeysUpdateInputSchema>,
         options?: ApiKeysMutationOptions,
