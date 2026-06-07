@@ -8,6 +8,7 @@ import { bytesToHex } from "@noble/hashes/utils.js";
 import { keygenAsync } from "@noble/ed25519";
 import type { RealtimeClient } from "../../realtime/index.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
+import { ApiKeyPoliciesService } from "../policies/api-key-policies/index.js";
 import {
     ApiKeysListInputSchema,
     ApiKeysCreateInputSchema,
@@ -27,11 +28,14 @@ export type ApiKeysMutationOptions = {
 };
 
 export class ApiKeysService {
+    readonly policies: ApiKeyPoliciesService;
+
     #client: Client<typeof Proto.ApiKeyService>;
     #realtime: RealtimeClient;
     #resolver?: SubAccountResolver;
 
     constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubAccountResolver) {
+        this.policies = new ApiKeyPoliciesService(transport);
         this.#client = createClient(Proto.ApiKeyService, transport);
         this.#realtime = realtime;
         this.#resolver = resolver;

@@ -9,7 +9,6 @@ import { AccountsService } from "./services/accounts/index.js";
 import { ApiKeysService } from "./services/api-keys/index.js";
 import { AuthService } from "./services/auth/auth.js";
 import { SubAccountsService } from "./services/sub-accounts/index.js";
-import { PoliciesService } from "./services/policies/index.js";
 import { CandlesService } from "./services/candles/index.js";
 import { MarketDataService } from "./services/market-data/index.js";
 import { MarketOverviewService } from "./services/market-overview/index.js";
@@ -104,7 +103,6 @@ export class PolyesterClient {
     readonly auth: AuthService;
     readonly accounts: AccountsService;
     readonly apiKeys: ApiKeysService;
-    readonly policies: PoliciesService;
     readonly subAccounts: SubAccountsService;
     readonly candles: CandlesService;
     readonly marketData: MarketDataService;
@@ -157,7 +155,6 @@ export class PolyesterClient {
         this.auth = new AuthService({ publicApi, authApi }, this.realtime);
         this.accounts = new AccountsService(authApi);
         this.apiKeys = new ApiKeysService(authApi, this.realtime, resolver);
-        this.policies = new PoliciesService(authApi, this.realtime);
         this.subAccounts = new SubAccountsService(authApi, this.realtime);
         this.candles = new CandlesService(publicApi, this.realtime);
         this.marketData = new MarketDataService(publicApi, this.realtime);
