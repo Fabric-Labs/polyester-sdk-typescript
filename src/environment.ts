@@ -101,10 +101,7 @@ function normalizeEntryPoint(entryPoint: PolyesterEntryPointConfig): PolyesterEn
         throw new Error("accountAbstraction.entryPoint.version must be 0.7.");
     }
     return Object.freeze({
-        address: normalizeAddress(
-            entryPoint.address,
-            "accountAbstraction.entryPoint.address",
-        ),
+        address: normalizeAddress(entryPoint.address, "accountAbstraction.entryPoint.address"),
         version: entryPoint.version,
     });
 }

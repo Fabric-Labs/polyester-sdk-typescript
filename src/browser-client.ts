@@ -21,8 +21,7 @@ export class PolyesterBrowserClient extends PolyesterClient {
     override readonly auth: AccountSignerAuthService;
 
     constructor(config: PolyesterBrowserClientConfig) {
-        const getToken = () =>
-            getEnvironmentBoundPolyesterToken(config.environment.fingerprint);
+        const getToken = () => getEnvironmentBoundPolyesterToken(config.environment.fingerprint);
 
         super({
             environment: config.environment,

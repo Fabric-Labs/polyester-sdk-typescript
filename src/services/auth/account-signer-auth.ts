@@ -441,7 +441,9 @@ export class AccountSignerAuthService extends AuthService {
     #resolveRefreshProvider(
         provider?: "metamask" | "turnkey" | "other",
     ): "metamask" | "turnkey" | "other" {
-        return provider ?? this.#walletProvider ?? this.#getEnvironmentSession()?.provider ?? "other";
+        return (
+            provider ?? this.#walletProvider ?? this.#getEnvironmentSession()?.provider ?? "other"
+        );
     }
 
     #assertAccountSignerEnvironment(accountSigner: AccountSigner): void {

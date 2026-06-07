@@ -70,8 +70,7 @@ export function createPolyesterSmartAccountClient(
         paymaster,
         bundlerTransport: http(environment.accountAbstraction.bundlerUrl),
         userOperation: {
-            estimateFeesPerGas: async () =>
-                (await paymaster.getUserOperationGasPrice()).fast,
+            estimateFeesPerGas: async () => (await paymaster.getUserOperationGasPrice()).fast,
         },
     });
 }

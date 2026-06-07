@@ -15,7 +15,10 @@ export interface RealtimeConfig {
     hasAuth?: () => boolean;
 }
 
-type ResolvedRealtimeConfig = Pick<RealtimeConfig, "wsUrl" | "tokenEndpoint" | "subscribeEndpoint"> & {
+type ResolvedRealtimeConfig = Pick<
+    RealtimeConfig,
+    "wsUrl" | "tokenEndpoint" | "subscribeEndpoint"
+> & {
     getAuthHeaders: () => Promise<HeadersInit> | HeadersInit;
     hasAuth: () => boolean;
 };
