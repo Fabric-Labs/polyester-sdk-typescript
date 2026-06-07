@@ -11,7 +11,7 @@ export const TimeframeSchema = z.enum(TIMEFRAMES);
 export type Timeframe = z.output<typeof TimeframeSchema>;
 
 function timeframeFromProto(value: Proto.Timeframe, schemaName: string): Timeframe {
-	if (value === Proto.Timeframe.UNSPECIFIED) {
+	if (value === Proto.Timeframe.TIMEFRAME_UNSPECIFIED) {
 		throw new Error(`[CandlesService.${schemaName}]: timeframe is required`);
 	}
 	const mapped = TimeframeCodec.protoToOutput[value];
@@ -25,10 +25,10 @@ function timeframeFromProto(value: Proto.Timeframe, schemaName: string): Timefra
 
 function parseTimeframeInput(value: unknown): Proto.Timeframe {
 	if (typeof value === "number") return value as Proto.Timeframe;
-	if (typeof value !== "string") return Proto.Timeframe.UNSPECIFIED;
+	if (typeof value !== "string") return Proto.Timeframe.TIMEFRAME_UNSPECIFIED;
 
 	const trimmed = value.trim();
-	if (!trimmed) return Proto.Timeframe.UNSPECIFIED;
+	if (!trimmed) return Proto.Timeframe.TIMEFRAME_UNSPECIFIED;
 
 	// Alias support:
 	// - chart UI often emits "1M"
@@ -44,7 +44,7 @@ function parseTimeframeInput(value: unknown): Proto.Timeframe {
 	const fromEnum = (Proto.Timeframe as Record<string, unknown>)[trimmed];
 	if (typeof fromEnum === "number") return fromEnum as ProtoTimeframe;
 
-	return Proto.Timeframe.UNSPECIFIED;
+	return Proto.Timeframe.TIMEFRAME_UNSPECIFIED;
 }
 
 const TimeframeInputSchema = z
@@ -52,7 +52,7 @@ const TimeframeInputSchema = z
 	.transform(parseTimeframeInput)
 	.refine(
 		(v): v is SupportedProtoTimeframe =>
-			v !== Proto.Timeframe.UNSPECIFIED && TimeframeCodec.protoToOutput[v] !== undefined,
+			v !== Proto.Timeframe.TIMEFRAME_UNSPECIFIED && TimeframeCodec.protoToOutput[v] !== undefined,
 		{
 			message: "timeframe is required",
 		}
@@ -340,3 +340,5 @@ export const ListCandlesInputSchema = z
 	});
 
 export type GetCandlesInput = z.input<typeof ListCandlesInputSchema>;
+export const GetCandlesColumnsInputSchema = ListCandlesInputSchema;
+export type GetCandlesColumnsInput = z.input<typeof GetCandlesColumnsInputSchema>;

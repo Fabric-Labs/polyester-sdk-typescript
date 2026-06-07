@@ -4,11 +4,8 @@ import { z } from "zod";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import { type SubAccountResolver, resolveSubAccountScopedInput } from "../sub-account-resolver.js";
 import { connectProtoChannel } from "../../realtime/client.js";
-import type { BaseSubscribeInput } from "../../shared/types";
-import { UserTradeSchema, GetUserTradesInputSchema, type Trade } from "./trades.schemas";
-import { createLocalMockNoopSubscription } from "../../mock/local-mock-subscription";
-import type { LocalMockRuntime } from "../../mock/local-mock-runtime";
-import { EMPTY_USER_TRADES_RESULT } from "../../mock/polyester-mock-world";
+import type { BaseSubscribeInput } from "../../shared/types.js";
+import { UserTradeSchema, GetUserTradesInputSchema, type Trade } from "./trades.schemas.js";
 
 interface SubscribeTradesInput extends BaseSubscribeInput<Trade> {
 	accountId: string;
@@ -17,19 +14,16 @@ interface SubscribeTradesInput extends BaseSubscribeInput<Trade> {
 export class TradesService {
 	#client: Client<typeof Proto.OrdersReadService>;
 	#resolver?: SubAccountResolver;
-	#localMock?: LocalMockRuntime;
 
-	constructor(transport: Transport, resolver?: SubAccountResolver, localMock?: LocalMockRuntime) {
+	constructor(transport: Transport, resolver?: SubAccountResolver) {
 		this.#client = createClient(Proto.OrdersReadService, transport);
 		this.#resolver = resolver;
-		this.#localMock = localMock;
 	}
 
 	async list(
 		input: z.input<typeof GetUserTradesInputSchema> = {}
 	): Promise<{ trades: Trade[]; nextPageToken: string }> {
 		const resolved = resolveSubAccountScopedInput(input, this.#resolver);
-		if (this.#localMock?.isEnabled()) return { ...EMPTY_USER_TRADES_RESULT };
 		const validatedInput = GetUserTradesInputSchema.parse(resolved);
 		const res = await this.#client.getUserTrades(removeUndefined(validatedInput));
 		return {
@@ -39,9 +33,6 @@ export class TradesService {
 	}
 
 	subscribe(input: SubscribeTradesInput) {
-		if (this.#localMock?.isEnabled()) {
-			return createLocalMockNoopSubscription(input);
-		}
 		const channel = `private:spot:trades:${input.accountId}:proto`;
 		return connectProtoChannel({
 			channel,

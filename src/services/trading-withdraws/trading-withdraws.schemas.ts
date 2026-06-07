@@ -72,3 +72,8 @@ export const CreateTradingWithdrawResultSchema = z.object({
 });
 
 export type CreateTradingWithdrawResult = z.output<typeof CreateTradingWithdrawResultSchema>;
+
+export const CreateWalletTradingWithdrawResultSchema = CreateTradingWithdrawResultSchema;
+export type CreateWalletTradingWithdrawResult = z.output<
+	typeof CreateWalletTradingWithdrawResultSchema
+>;

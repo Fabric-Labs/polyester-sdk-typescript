@@ -35,7 +35,7 @@ export const TimeframeCodec = {
 		"1mo": Proto.Timeframe.MONTH_1,
 	} satisfies Record<Timeframe, ProtoTimeframe>,
 	protoToOutput: {
-		[Proto.Timeframe.UNSPECIFIED]: undefined,
+		[Proto.Timeframe.TIMEFRAME_UNSPECIFIED]: undefined,
 		[Proto.Timeframe.SEC_1]: "1s",
 		[Proto.Timeframe.MIN_1]: "1m",
 		[Proto.Timeframe.MIN_5]: "5m",

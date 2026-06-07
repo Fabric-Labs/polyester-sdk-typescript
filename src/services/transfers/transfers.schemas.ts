@@ -1,14 +1,14 @@
 import { z } from "zod";
-import { fromU128, u128ToDecimal } from "../../utils/u128";
+import { fromU128, u128ToDecimal } from "../../utils/u128.js";
 import {
 	accountCodeNameFor,
 	formatAmountDisplay,
 	LEDGER_SCALE,
 	symbolForAssetId,
 	transferTypeNameFor,
-} from "../../catalogs/ledger-catalog";
-import { normalizeToMillis } from "../../utils/time";
-import { idToBigInt } from "../../utils/base58-id";
+} from "../../catalogs/ledger-catalog.js";
+import { normalizeToMillis } from "../../utils/time.js";
+import { idToBigInt } from "../../utils/base58-id.js";
 
 const U128Schema = z.object({
 	hi: z.bigint(),

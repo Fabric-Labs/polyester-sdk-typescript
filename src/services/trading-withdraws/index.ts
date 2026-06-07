@@ -13,7 +13,9 @@ export {
 export {
 	CreateTradingWithdrawToFundingInputSchema,
 	CreateTradingWithdrawResultSchema,
+	CreateWalletTradingWithdrawResultSchema,
 	type CreateTradingWithdrawToFundingInput,
 	type CreateTradingWithdrawToFundingRequest,
 	type CreateTradingWithdrawResult,
+	type CreateWalletTradingWithdrawResult,
 } from "./trading-withdraws.schemas.js";

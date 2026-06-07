@@ -1,6 +1,6 @@
 import { z } from "zod";
-import * as Proto from "../../gen/auth/v1/policies_pb";
-import { idToBigInt } from "../../utils/base58-id";
+import * as Proto from "../../gen/auth/v1/policies_pb.js";
+import { idToBigInt } from "../../utils/base58-id.js";
 
 export const SpotMarketRuleSchema = z.object({
 	symbol: z.string(),

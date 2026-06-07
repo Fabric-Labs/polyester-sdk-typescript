@@ -1,14 +1,14 @@
-import * as Proto from "../../gen/auth/v1/subaccounts_pb";
+import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
 import { z } from "zod";
-import { idToBigInt, formatId } from "../../utils/base58-id";
-import { TimestampSchema } from "../../shared/schemas";
-import { tsObjToMs } from "../../utils/time";
+import { idToBigInt, formatId } from "../../utils/base58-id.js";
+import { TimestampSchema } from "../../shared/schemas.js";
+import { tsObjToMs } from "../../utils/time.js";
 import {
 	SubAccountRoleCodec,
 	InviteActionCodec,
 	InviteStatusCodec,
 	RawSubAccountStatusCodec,
-} from "./sub-accounts.codecs";
+} from "./sub-accounts.codecs.js";
 
 const SUBACCOUNT_ROLE_VALUES = [
 	"owner",

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { SideSchema } from "../shared.js";
-import { assetForId } from "../../../../catalogs/ledger-catalog.js";
-import { formatPriceForSymbol, formatQtyForSymbol } from "../../../../catalogs/orders-catalog.js";
+import { assetForId } from "../../catalogs/ledger-catalog.js";
+import { formatPriceForSymbol, formatQtyForSymbol } from "../../catalogs/orders-catalog.js";
 import {
     getPair,
     getPairBySymbolId,
@@ -9,7 +9,7 @@ import {
     baseAssetIdForSymbolId,
     quoteAssetIdForSymbolId,
     type EnrichedPairConfig,
-} from "../../../../catalogs/market-data-catalog.js";
+} from "../../catalogs/market-data-catalog.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { timestampToMs } from "../../utils/timestamp.js";
 import { SideFilterCodec } from "./market-data.codecs.js";

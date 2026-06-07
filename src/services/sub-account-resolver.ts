@@ -32,10 +32,10 @@ export function resolveSubAccountId(
 	return defaultId ?? undefined;
 }
 
-export function resolveSubAccountScopedInput<TInput extends { subAccountId?: string }>(
-	input: TInput,
+export function resolveSubAccountScopedInput<TInput extends object>(
+	input: TInput & { subAccountId?: string },
 	resolver?: SubAccountResolver
-): TInput {
+): TInput & { subAccountId?: string } {
 	return {
 		...input,
 		subAccountId: resolveSubAccountId(input.subAccountId, resolver),

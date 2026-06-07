@@ -47,7 +47,6 @@ import {
 	type UpdateAddressBookTagInput,
 	type WithdrawWhitelistView,
 } from "./address-book.schemas.js";
-import type { LocalMockRuntime } from "../../mock/local-mock-runtime.js";
 
 /** Optional fresh step-up token from MFA after `freshStepUp` challenge completion. */
 export type AddressBookMutationOptions = {
@@ -57,22 +56,18 @@ export type AddressBookMutationOptions = {
 export class AddressBookService {
 	#client: Client<typeof Proto.AddressBookService>;
 	#resolver?: SubAccountResolver;
-	#localMock?: LocalMockRuntime;
 
-	constructor(transport: Transport, resolver?: SubAccountResolver, localMock?: LocalMockRuntime) {
+	constructor(transport: Transport, resolver?: SubAccountResolver) {
 		this.#client = createClient(Proto.AddressBookService, transport);
 		this.#resolver = resolver;
-		this.#localMock = localMock;
 	}
 
 	async listBooks(): Promise<AddressBook[]> {
-		if (this.#localMock?.isEnabled()) return [];
 		const response = await this.#client.listAddressBooks({});
 		return response.books.map((book) => AddressBookSchema.parse(book));
 	}
 
 	async listEntries(input: ListAddressBookEntriesInput = {}): Promise<AddressBookEntries> {
-		if (this.#localMock?.isEnabled()) return [];
 		const request = ListAddressBookEntriesInputSchema.parse(this.resolveInput(input));
 		const response = await this.#client.listAddressBookEntries(removeUndefined(request));
 		return AddressBookEntriesSchema.parse(response.entries);
@@ -82,7 +77,6 @@ export class AddressBookService {
 		input: CreateAddressBookEntryInput,
 		options?: AddressBookMutationOptions
 	): Promise<AddressBookEntry | null> {
-		this.#localMock?.assertMutationAllowed("addressBook.createEntry");
 		const request = CreateAddressBookEntryInputSchema.parse(this.resolveInput(input));
 		const response = await this.#client.createAddressBookEntry(
 			removeUndefined(request),
@@ -95,7 +89,6 @@ export class AddressBookService {
 		input: UpdateAddressBookEntryInput,
 		options?: AddressBookMutationOptions
 	): Promise<AddressBookEntry | null> {
-		this.#localMock?.assertMutationAllowed("addressBook.updateEntry");
 		const request = UpdateAddressBookEntryInputSchema.parse(input);
 		const response = await this.#client.updateAddressBookEntry(
 			removeUndefined(request),
@@ -108,7 +101,6 @@ export class AddressBookService {
 		input: DeleteAddressBookEntryInput,
 		options?: AddressBookMutationOptions
 	): Promise<void> {
-		this.#localMock?.assertMutationAllowed("addressBook.deleteEntry");
 		const request = DeleteAddressBookEntryInputSchema.parse(input);
 		await this.#client.deleteAddressBookEntry(request, stepUpCallOptions(options?.stepUpToken));
 	}
@@ -117,7 +109,6 @@ export class AddressBookService {
 		input: CopyAddressBookEntryInput,
 		options?: AddressBookMutationOptions
 	): Promise<AddressBookEntry | null> {
-		this.#localMock?.assertMutationAllowed("addressBook.copyEntry");
 		const request = CopyAddressBookEntryInputSchema.parse(input);
 		const response = await this.#client.copyAddressBookEntry(
 			removeUndefined(request),
@@ -130,7 +121,6 @@ export class AddressBookService {
 		input: CreateAddressBookTagInput,
 		options?: AddressBookMutationOptions
 	): Promise<AddressBookTag | null> {
-		this.#localMock?.assertMutationAllowed("addressBook.createTag");
 		const request = CreateAddressBookTagInputSchema.parse(this.resolveInput(input));
 		const response = await this.#client.createAddressBookTag(
 			removeUndefined(request),
@@ -143,7 +133,6 @@ export class AddressBookService {
 		input: UpdateAddressBookTagInput,
 		options?: AddressBookMutationOptions
 	): Promise<AddressBookTag | null> {
-		this.#localMock?.assertMutationAllowed("addressBook.updateTag");
 		const request = UpdateAddressBookTagInputSchema.parse(input);
 		const response = await this.#client.updateAddressBookTag(
 			removeUndefined(request),
@@ -156,7 +145,6 @@ export class AddressBookService {
 		input: DeleteAddressBookTagInput,
 		options?: AddressBookMutationOptions
 	): Promise<void> {
-		this.#localMock?.assertMutationAllowed("addressBook.deleteTag");
 		const request = DeleteAddressBookTagInputSchema.parse(input);
 		await this.#client.deleteAddressBookTag(request, stepUpCallOptions(options?.stepUpToken));
 	}
@@ -164,7 +152,6 @@ export class AddressBookService {
 	async listTransferCounterparties(
 		input: ListTransferCounterpartiesInput = {}
 	): Promise<TransferCounterparties> {
-		if (this.#localMock?.isEnabled()) return [];
 		const request = ListTransferCounterpartiesInputSchema.parse(this.resolveInput(input));
 		const response = await this.#client.listTransferCounterparties(removeUndefined(request));
 		return TransferCounterpartiesSchema.parse(response.counterparties);
@@ -173,7 +160,6 @@ export class AddressBookService {
 	async listTransferDestinations(
 		input: ListTransferDestinationsInput = {}
 	): Promise<TransferDestinations> {
-		if (this.#localMock?.isEnabled()) return [];
 		const request = ListTransferDestinationsInputSchema.parse(this.resolveInput(input));
 		const response = await this.#client.listTransferDestinations(removeUndefined(request));
 		return TransferDestinationsSchema.parse(response.destinations);
@@ -182,7 +168,6 @@ export class AddressBookService {
 	async listInternalTransferWhitelistEntries(
 		input: SubAccountScopedInput = {}
 	): Promise<InternalTransferWhitelistEntries> {
-		if (this.#localMock?.isEnabled()) return [];
 		const request = SubAccountScopedInputSchema.parse(this.resolveInput(input));
 		const response = await this.#client.listInternalTransferWhitelistEntries(
 			removeUndefined(request)
@@ -193,14 +178,12 @@ export class AddressBookService {
 	async getWithdrawWhitelistView(
 		input: SubAccountScopedInput = {}
 	): Promise<WithdrawWhitelistView | null> {
-		if (this.#localMock?.isEnabled()) return null;
 		const request = SubAccountScopedInputSchema.parse(this.resolveInput(input));
 		const response = await this.#client.getWithdrawWhitelistView(removeUndefined(request));
 		return response.view ? WithdrawWhitelistViewSchema.parse(response.view) : null;
 	}
 
 	async getView(input: GetAddressBookViewInput = {}): Promise<AddressBookView> {
-		if (this.#localMock?.isEnabled()) return { books: [], tags: [] };
 		const request = GetAddressBookViewInputSchema.parse(this.resolveInput(input));
 		const response = await this.#client.getAddressBookView(removeUndefined(request));
 		return AddressBookViewSchema.parse(response);

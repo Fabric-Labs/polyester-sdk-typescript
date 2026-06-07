@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { fromU128, u128ToDecimal } from "../../utils/u128";
-import { assetForId, LEDGER_SCALE } from "../../../../catalogs/ledger-catalog";
-import { idToBigInt } from "../../utils/base58-id";
-import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb";
-import { BalanceRangeCodec, EquityGroupByCodec } from "./balances.codecs";
+import { fromU128, u128ToDecimal } from "../../utils/u128.js";
+import { assetForId, LEDGER_SCALE } from "../../catalogs/ledger-catalog.js";
+import { idToBigInt } from "../../utils/base58-id.js";
+import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
+import { BalanceRangeCodec, EquityGroupByCodec } from "./balances.codecs.js";
 
 const U128Schema = z.object({
     hi: z.bigint(),

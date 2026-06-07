@@ -1,4 +1,4 @@
-import * as Proto from "../../gen/auth/v1/subaccounts_pb";
+import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
 
 export const SUBACCOUNT_ROLE_VALUES = [
 	"owner",

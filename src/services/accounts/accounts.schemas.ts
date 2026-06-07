@@ -1,7 +1,7 @@
 import { z } from "zod";
-import * as ProtoResolve from "../../gen/auth/v1/resolve_pb";
-import { formatId } from "../../utils/base58-id";
-import { ResolveHintCodec } from "./accounts.codecs";
+import * as ProtoResolve from "../../gen/auth/v1/resolve_pb.js";
+import { formatId } from "../../utils/base58-id.js";
+import { ResolveHintCodec } from "./accounts.codecs.js";
 
 function normalizeResolveHint(value?: string): ProtoResolve.ResolveHint {
 	const raw = (value ?? "").trim();

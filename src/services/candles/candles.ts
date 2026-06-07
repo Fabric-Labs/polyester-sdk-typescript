@@ -10,15 +10,17 @@ import {
 	CandleColumnarSchema,
 	CandleColumnarIntSchema,
 	CandlePointSchema,
+	GetCandlesColumnsInputSchema,
 	ListCandlesInputSchema,
 	type Candle,
 	type CandleInt,
 	type Timeframe,
 	type CandleColumnarInt,
 	type GetCandlesInput,
+	type GetCandlesColumnsInput,
 } from "./candles.schemas.js";
 import { TimeframeCodec } from "./candles.codecs.js";
-import { isDev } from "../../utils/is-dev";
+import { isDev } from "../../utils/is-dev.js";
 
 interface SubscribeCandlesInput extends BaseSubscribeInput<Candle> {
 	symbolId: number;
@@ -51,14 +53,14 @@ export class CandlesService {
 		);
 	}
 
-	async listColumnar(input: GetCandlesInput): Promise<CandleColumnar> {
-		const validatedInput = ListCandlesInputSchema.parse(input);
+	async listColumnar(input: GetCandlesColumnsInput): Promise<CandleColumnar> {
+		const validatedInput = GetCandlesColumnsInputSchema.parse(input);
 		const res = await this.#client.getCandlesColumns(validatedInput);
 		return CandleColumnarSchema.parse(res);
 	}
 
-	async listColumnarInts(input: GetCandlesInput): Promise<CandleColumnarInt> {
-		const validatedInput = ListCandlesInputSchema.parse(input);
+	async listColumnarInts(input: GetCandlesColumnsInput): Promise<CandleColumnarInt> {
+		const validatedInput = GetCandlesColumnsInputSchema.parse(input);
 		const res = await this.#client.getCandlesColumns(validatedInput);
 		return CandleColumnarIntSchema.parse(res);
 	}

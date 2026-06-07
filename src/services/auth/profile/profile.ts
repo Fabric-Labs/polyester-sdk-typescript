@@ -1,7 +1,7 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
-import * as Proto from "../../../gen/auth/v1/profile_pb";
+import * as Proto from "../../../gen/auth/v1/profile_pb.js";
 import { z } from "zod";
-import { removeUndefined } from "../../../utils/remove-undefined";
+import { removeUndefined } from "../../../utils/remove-undefined.js";
 import {
 	AccountIdentitySchema,
 	ProfileSchema,
@@ -10,9 +10,9 @@ import {
 	type AccountIdentity,
 	type Profile,
 	type UsernameHistoryEntry,
-} from "./profile.schemas";
-import type { BaseSubscribeInput } from "../../../shared/types";
-import { connectProtoChannel } from "../../../realtime";
+} from "./profile.schemas.js";
+import type { BaseSubscribeInput } from "../../../shared/types.js";
+import { connectProtoChannel } from "../../../realtime/index.js";
 
 interface SubscribeIdentityInput extends BaseSubscribeInput<AccountIdentity> {}
 

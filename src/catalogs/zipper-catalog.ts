@@ -5,7 +5,7 @@ import type {
     ZipperAssetConfig,
     ZipperChainConfig,
     ZipperChainContractConfig,
-} from "../polyester-client/src/services/zipper/zipper.schemas.js";
+} from "../services/zipper/zipper.schemas.js";
 
 export type {
     DepositWithdrawConfig,

@@ -2,7 +2,7 @@ import * as Proto from "../../gen/marketoverview/v1/marketoverview_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import { z } from "zod";
 import { connectProtoChannel } from "../../realtime/client.js";
-import type { BaseSubscribeInput } from "../../shared/types";
+import type { BaseSubscribeInput } from "../../shared/types.js";
 import { formatConnectError } from "../../utils/errors.js";
 import {
 	ListMarketOverviewInputSchema,
@@ -11,7 +11,6 @@ import {
 	type ListMarketOverviewInput,
 	type MarketOverview,
 } from "./market-overview.schemas.js";
-import type { LocalMockRuntime } from "../../mock/local-mock-runtime.js";
 
 interface SubscribeMarketOverviewInput extends BaseSubscribeInput<MarketOverview[]> {
 	includeSparklines?: boolean;
@@ -20,26 +19,18 @@ interface SubscribeMarketOverviewInput extends BaseSubscribeInput<MarketOverview
 
 export class MarketOverviewService {
 	#client: Client<typeof Proto.MarketOverviewService>;
-	#localMock?: LocalMockRuntime;
 
-	constructor(transport: Transport, localMock?: LocalMockRuntime) {
+	constructor(transport: Transport) {
 		this.#client = createClient(Proto.MarketOverviewService, transport);
-		this.#localMock = localMock;
 	}
 
 	async list(input: ListMarketOverviewInput = {}): Promise<MarketOverview[]> {
-		if (this.#localMock?.isEnabled()) {
-			return this.#localMock.world.listMarketOverview(input);
-		}
 		const validatedInput = ListMarketOverviewInputSchema.parse(input);
 		const res = await this.#client.listMarketOverview(validatedInput);
 		return z.array(MarketOverviewSchema).parse(res.markets);
 	}
 
 	subscribe(input: SubscribeMarketOverviewInput): () => void {
-		if (this.#localMock?.isEnabled()) {
-			return this.#localMock.world.subscribeMarketOverview(input);
-		}
 		const channel = "public:spot:market_overview:updates:proto";
 		let isDisposed = false;
 		let snapshotReady = false;

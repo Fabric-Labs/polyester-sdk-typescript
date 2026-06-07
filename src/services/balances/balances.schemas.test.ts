@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { setAssetCatalog } from "../../catalogs/market-data-catalog";
-import { ASSET_CATALOG } from "../../catalogs/market-data-catalog.generated";
-import { LedgerBalanceSchema } from "./balances.schemas";
+import { setAssetCatalog } from "../../catalogs/market-data-catalog.js";
+import { ASSET_CATALOG } from "../../catalogs/market-data-catalog.generated.js";
+import { LedgerBalanceSchema } from "./balances.schemas.js";
 
 describe("ledger balance schema", () => {
 	beforeAll(() => {

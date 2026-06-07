@@ -1,9 +1,9 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
-import * as Proto from "../../gen/auth/v1/auth_pb";
+import * as Proto from "../../gen/auth/v1/auth_pb.js";
 import { z } from "zod";
 import { ProfileService } from "./profile/profile.js";
-import { formatId } from "../../utils/base58-id";
-import { TimestampSchema } from "../../shared/schemas";
+import { formatId } from "../../utils/base58-id.js";
+import { TimestampSchema } from "../../shared/schemas.js";
 import { MfaSessionInfoSchema } from "../mfa/mfa.schemas.js";
 
 export const LoginWithWalletInputSchema = z.object({

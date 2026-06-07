@@ -1,21 +1,20 @@
 import * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import { connectProtoChannel } from "../../realtime/client.js";
-import type { BaseSubscribeInput } from "../../shared/types";
+import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
 	OrderbookDataSchema,
 	GetOrderbookInputSchema,
 	type OrderbookLevel,
 	type OrderbookData,
-} from "./orderbook.schemas";
+} from "./orderbook.schemas.js";
 import { formatConnectError } from "../../utils/errors.js";
 import { parsePriceTicks } from "../../utils/numbers.js";
 import { formatQtyForSymbol, int6ToDecimalString } from "../../catalogs/orders-catalog.js";
 import { toBig } from "../../utils/u128.js";
 import { getPair } from "../../catalogs/market-data-catalog.js";
 import { z } from "zod";
-import { isDev } from "../../utils/is-dev";
-import type { LocalMockRuntime } from "../../mock/local-mock-runtime.js";
+import { isDev } from "../../utils/is-dev.js";
 
 interface SubscribeOrderbookInput extends BaseSubscribeInput<OrderbookData> {
 	symbol: string;
@@ -37,17 +36,12 @@ type BookSide = Map<bigint, bigint>;
 
 export class OrderbookService {
 	#client: Client<typeof Proto.OrderbookService>;
-	#localMock?: LocalMockRuntime;
 
-	constructor(transport: Transport, localMock?: LocalMockRuntime) {
+	constructor(transport: Transport) {
 		this.#client = createClient(Proto.OrderbookService, transport);
-		this.#localMock = localMock;
 	}
 
 	async get(input: z.input<typeof GetOrderbookInputSchema>): Promise<OrderbookData> {
-		if (this.#localMock?.isEnabled()) {
-			return this.#localMock.world.getOrderbook(input);
-		}
 		const validated = GetOrderbookInputSchema.parse(input);
 		const res = await this.#client.getOrderBook(validated);
 		return OrderbookDataSchema.parse({
@@ -64,9 +58,6 @@ export class OrderbookService {
 	}
 
 	createSubscription(input: CreateOrderbookSubscriptionInput): OrderbookSubscription {
-		if (this.#localMock?.isEnabled()) {
-			return this.#localMock.world.createOrderbookSubscription(input);
-		}
 		const pair = getPair(input.symbol);
 		if (!pair) {
 			if (isDev()) {

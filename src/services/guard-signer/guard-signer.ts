@@ -24,29 +24,24 @@ import {
 	type RotateGuardSignerWalletResult,
 	type SignProtectedActionInput,
 } from "./guard-signer.schemas.js";
-import type { LocalMockRuntime } from "../../mock/local-mock-runtime.js";
 import { isResourceNotFoundError } from "../../utils/errors.js";
 
 export class GuardSignerService {
 	#client: Client<typeof Proto.GuardSignerService>;
 	#resolver?: SubAccountResolver;
-	#localMock?: LocalMockRuntime;
 
-	constructor(transport: Transport, resolver?: SubAccountResolver, localMock?: LocalMockRuntime) {
+	constructor(transport: Transport, resolver?: SubAccountResolver) {
 		this.#client = createClient(Proto.GuardSignerService, transport);
 		this.#resolver = resolver;
-		this.#localMock = localMock;
 	}
 
 	async createWallet(input: GuardSignerScopedInput = {}): Promise<CreateGuardSignerWalletResult> {
-		this.#localMock?.assertMutationAllowed("guardSigner.createWallet");
 		const request = GuardSignerScopedInputSchema.parse(this.resolveInput(input));
 		const response = await this.#client.createGuardSignerWallet(removeUndefined(request));
 		return CreateGuardSignerWalletResultSchema.parse(response);
 	}
 
 	async getStatus(input: GuardSignerScopedInput = {}): Promise<GuardSignerStatus | null> {
-		if (this.#localMock?.isEnabled()) return null;
 		const request = GuardSignerScopedInputSchema.parse(this.resolveInput(input));
 		try {
 			const response = await this.#client.getGuardSignerStatus(removeUndefined(request));
@@ -61,7 +56,6 @@ export class GuardSignerService {
 		input: SignProtectedActionInput,
 		options?: GuardSignerMutationOptions
 	): Promise<GuardApproval | null> {
-		this.#localMock?.assertMutationAllowed("guardSigner.signProtectedAction");
 		const request = SignProtectedActionInputSchema.parse(this.resolveInput(input));
 		const response = await this.#client.signProtectedAction(
 			removeUndefined(request),
@@ -74,7 +68,6 @@ export class GuardSignerService {
 		input: BatchSignProtectedActionInput,
 		options?: GuardSignerMutationOptions
 	): Promise<BatchGuardApprovals> {
-		this.#localMock?.assertMutationAllowed("guardSigner.batchSignProtectedActions");
 		const request = BatchSignProtectedActionInputSchema.parse(this.resolveInput(input));
 		const response = await this.#client.batchSignProtectedActions(
 			removeUndefined(request),
@@ -92,7 +85,6 @@ export class GuardSignerService {
 		input: GuardSignerScopedInput = {},
 		options?: GuardSignerMutationOptions
 	): Promise<RotateGuardSignerWalletResult> {
-		this.#localMock?.assertMutationAllowed("guardSigner.rotateWallet");
 		const request = GuardSignerScopedInputSchema.parse(this.resolveInput(input));
 		const response = await this.#client.rotateGuardSignerWallet(
 			removeUndefined(request),
@@ -105,7 +97,6 @@ export class GuardSignerService {
 		input: GuardSignerScopedInput = {},
 		options?: GuardSignerMutationOptions
 	): Promise<ExportGuardSignerWalletResult> {
-		this.#localMock?.assertMutationAllowed("guardSigner.exportWallet");
 		const request = GuardSignerScopedInputSchema.parse(this.resolveInput(input));
 		const response = await this.#client.exportGuardSignerWallet(
 			removeUndefined(request),

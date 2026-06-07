@@ -5,7 +5,7 @@ import { z } from "zod";
 import { type SubAccountResolver, resolveSubAccountScopedInput } from "../sub-account-resolver.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import { connectProtoChannel } from "../../realtime/client.js";
-import type { BaseSubscribeInput } from "../../shared/types";
+import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
 	OpenOrdersInputSchema,
 	OrderHistoryInputSchema,
@@ -23,10 +23,7 @@ import {
 	ModifyOrderResultSchema,
 	type CreateOrderResult,
 	type ModifyOrderResult,
-} from "./orders.schemas";
-import { createLocalMockNoopSubscription } from "../../mock/local-mock-subscription.js";
-import type { LocalMockRuntime } from "../../mock/local-mock-runtime.js";
-import { EMPTY_ORDERS_RESULT } from "../../mock/polyester-mock-world.js";
+} from "./orders.schemas.js";
 
 interface SubscribeOrdersInput extends BaseSubscribeInput<Order> {
 	accountId: string;
@@ -38,20 +35,17 @@ export class OrdersService {
 	#readClient: Client<typeof ProtoRead.OrdersReadService>;
 	#writeClient: Client<typeof ProtoWrite.OrdersService>;
 	#resolver?: SubAccountResolver;
-	#localMock?: LocalMockRuntime;
 
-	constructor(transport: Transport, resolver?: SubAccountResolver, localMock?: LocalMockRuntime) {
+	constructor(transport: Transport, resolver?: SubAccountResolver) {
 		this.#readClient = createClient(ProtoRead.OrdersReadService, transport);
 		this.#writeClient = createClient(ProtoWrite.OrdersService, transport);
 		this.#resolver = resolver;
-		this.#localMock = localMock;
 	}
 
 	async listOpen(
 		input: z.input<typeof OpenOrdersInputSchema> = {}
 	): Promise<{ orders: Order[]; nextPageToken: string }> {
 		const resolved = resolveSubAccountScopedInput(input, this.#resolver);
-		if (this.#localMock?.isEnabled()) return { ...EMPTY_ORDERS_RESULT };
 		const validatedInput = OpenOrdersInputSchema.parse(resolved);
 		const res = await this.#readClient.getOpenOrders(removeUndefined(validatedInput));
 		return {
@@ -64,7 +58,6 @@ export class OrdersService {
 		input: z.input<typeof OrderHistoryInputSchema> = {}
 	): Promise<{ orders: Order[]; nextPageToken: string }> {
 		const resolved = resolveSubAccountScopedInput(input, this.#resolver);
-		if (this.#localMock?.isEnabled()) return { ...EMPTY_ORDERS_RESULT };
 		const validatedInput = OrderHistoryInputSchema.parse(resolved);
 		const res = await this.#readClient.getOrderHistory(removeUndefined(validatedInput));
 		return {
@@ -74,7 +67,6 @@ export class OrdersService {
 	}
 
 	async create(input: z.input<typeof NewOrderInputSchema>): Promise<CreateOrderResult> {
-		this.#localMock?.assertMutationAllowed("orders.create");
 		const resolved = resolveSubAccountScopedInput(input, this.#resolver);
 		const validatedInput = NewOrderInputSchema.parse(resolved);
 		const requestPayload = removeUndefined(validatedInput);
@@ -83,7 +75,6 @@ export class OrdersService {
 	}
 
 	async cancel(input: z.input<typeof CancelOrderInputSchema>) {
-		this.#localMock?.assertMutationAllowed("orders.cancel");
 		const resolved = resolveSubAccountScopedInput(input, this.#resolver);
 
 		const validated = CancelOrderInputSchema.parse(resolved);
@@ -99,7 +90,6 @@ export class OrdersService {
 	}
 
 	async modify(input: z.input<typeof ModifyOrderInputSchema>): Promise<ModifyOrderResult> {
-		this.#localMock?.assertMutationAllowed("orders.modify");
 		const resolved = {
 			...resolveSubAccountScopedInput(input, this.#resolver),
 			requestId:
@@ -115,7 +105,6 @@ export class OrdersService {
 	async cancelAll(
 		input: z.input<typeof CancelAllOrdersInputSchema>
 	): Promise<CancelAllOrdersResponse> {
-		this.#localMock?.assertMutationAllowed("orders.cancelAll");
 		const resolved = resolveSubAccountScopedInput(input, this.#resolver);
 		const validated = CancelAllOrdersInputSchema.parse(resolved);
 		const res = await this.#writeClient.cancelAllOrders(removeUndefined(validated));
@@ -124,16 +113,12 @@ export class OrdersService {
 
 	async get(input: z.input<typeof GetOrderInputSchema>): Promise<GetOrderResponse | null> {
 		const resolved = resolveSubAccountScopedInput(input, this.#resolver);
-		if (this.#localMock?.isEnabled()) return null;
 		const validatedInput = GetOrderInputSchema.parse(resolved);
 		const res = await this.#readClient.getOrder(removeUndefined(validatedInput));
 		return GetOrderResponseSchema.parse(res);
 	}
 
 	subscribe(input: SubscribeOrdersInput): () => void {
-		if (this.#localMock?.isEnabled()) {
-			return createLocalMockNoopSubscription(input);
-		}
 		const channel = `private:spot:orders:${input.accountId}:proto`;
 		return connectProtoChannel({
 			channel,

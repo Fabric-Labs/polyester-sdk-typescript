@@ -6,12 +6,12 @@ import {
 	ProtoPolicyActionEnumSchema,
 	ProtoPolicyMarketScopeEnumSchema,
 	SpotMarketRuleSchema,
-} from "../shared";
-import { PolicyMarketScopeCodec, PolicyActionCodec } from "../shared.codecs";
-import { bpsToPct, toBigIntOrZero, toBpsOrZero, toIntOrZero } from "../../../utils/numbers";
-import { formatId, idToBigInt } from "../../../utils/base58-id";
-import { TimestampSchema } from "../../../shared/schemas";
-import { tsObjToMs } from "../../../utils/time";
+} from "../shared.js";
+import { PolicyMarketScopeCodec, PolicyActionCodec } from "../shared.codecs.js";
+import { bpsToPct, toBigIntOrZero, toBpsOrZero, toIntOrZero } from "../../../utils/numbers.js";
+import { formatId, idToBigInt } from "../../../utils/base58-id.js";
+import { TimestampSchema } from "../../../shared/schemas.js";
+import { tsObjToMs } from "../../../utils/time.js";
 
 const OptionalNumberDefaultNull = z.number().optional().nullable();
 

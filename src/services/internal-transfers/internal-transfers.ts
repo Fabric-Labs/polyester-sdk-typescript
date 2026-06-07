@@ -1,6 +1,5 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
-import * as Proto from "../../gen/exchange/transfer/v1/internal_transfer_pb.js";
-import type { LocalMockRuntime } from "../../mock/local-mock-runtime.js";
+import * as Proto from "../../gen/transfer/v1/internal_transfer_pb.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
 import { type SubAccountResolver, resolveSubAccountScopedInput } from "../sub-account-resolver.js";
@@ -18,19 +17,16 @@ export type InternalTransferMutationOptions = {
 export class InternalTransfersService {
 	#client: Client<typeof Proto.InternalTransferService>;
 	#resolver?: SubAccountResolver;
-	#localMock?: LocalMockRuntime;
 
-	constructor(transport: Transport, resolver?: SubAccountResolver, localMock?: LocalMockRuntime) {
+	constructor(transport: Transport, resolver?: SubAccountResolver) {
 		this.#client = createClient(Proto.InternalTransferService, transport);
 		this.#resolver = resolver;
-		this.#localMock = localMock;
 	}
 
 	async create(
 		input: CreateInternalTransferInput,
 		options?: InternalTransferMutationOptions
 	): Promise<CreateInternalTransferResult> {
-		this.#localMock?.assertMutationAllowed("internalTransfers.create");
 		const resolvedInput = resolveSubAccountScopedInput(input, this.#resolver);
 		const validatedInput = CreateInternalTransferInputSchema.parse(resolvedInput);
 		const res = await this.#client.createInternalTransfer(

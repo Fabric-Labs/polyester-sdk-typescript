@@ -34,11 +34,8 @@ import {
 	type ListTriggerEventsResult,
 	type TriggerEvent,
 } from "./triggers.schemas.js";
-import type { BaseSubscribeInput } from "../../shared/types";
-import { connectProtoChannel } from "../../realtime";
-import { createLocalMockNoopSubscription } from "../../mock/local-mock-subscription";
-import type { LocalMockRuntime } from "../../mock/local-mock-runtime";
-import { EMPTY_TRIGGERS_RESULT } from "../../mock/polyester-mock-world";
+import type { BaseSubscribeInput } from "../../shared/types.js";
+import { connectProtoChannel } from "../../realtime/index.js";
 
 export type {
 	CreateTriggerResult,
@@ -65,19 +62,16 @@ interface SubscribeTriggerEventsInput extends BaseSubscribeInput<TriggerEvent> {
 export class TriggersService {
 	#client: Client<typeof Proto.TriggersService>;
 	#resolver?: SubAccountResolver;
-	#localMock?: LocalMockRuntime;
 
-	constructor(transport: Transport, resolver?: SubAccountResolver, localMock?: LocalMockRuntime) {
+	constructor(transport: Transport, resolver?: SubAccountResolver) {
 		this.#client = createClient(Proto.TriggersService, transport);
 		this.#resolver = resolver;
-		this.#localMock = localMock;
 	}
 
 	/**
 	 * Create a standalone trigger (stop loss, take profit, trailing stop, TWAP, or ladder).
 	 */
 	async create(input: CreateTriggerInput): Promise<CreateTriggerResult> {
-		this.#localMock?.assertMutationAllowed("triggers.create");
 		const resolved = resolveSubAccountScopedInput(input, this.#resolver);
 		const validatedInput = CreateTriggerInputSchema.parse(resolved);
 		const res = await this.#client.createTrigger(validatedInput);
@@ -89,7 +83,6 @@ export class TriggersService {
 	 */
 	async get(input: GetTriggerInput): Promise<Trigger | null> {
 		const resolved = resolveSubAccountScopedInput(input, this.#resolver);
-		if (this.#localMock?.isEnabled()) return null;
 		const validated = GetTriggerInputSchema.parse(resolved);
 		const res = await this.#client.getTrigger(removeUndefined(validated));
 
@@ -102,7 +95,6 @@ export class TriggersService {
 	 */
 	async list(input: ListTriggersInput = {}): Promise<ListTriggersResult> {
 		const resolved = resolveSubAccountScopedInput(input, this.#resolver);
-		if (this.#localMock?.isEnabled()) return { ...EMPTY_TRIGGERS_RESULT };
 		const validated = ListTriggersInputSchema.parse(resolved);
 		const res = await this.#client.listTriggers(removeUndefined(validated));
 		return {
@@ -115,7 +107,6 @@ export class TriggersService {
 	 * Cancel a trigger.
 	 */
 	async cancel(input: CancelTriggerInput): Promise<CancelTriggerResult> {
-		this.#localMock?.assertMutationAllowed("triggers.cancel");
 		const resolved = resolveSubAccountScopedInput(input, this.#resolver);
 		const validated = CancelTriggerInputSchema.parse(resolved);
 		const res = await this.#client.cancelTrigger(removeUndefined(validated));
@@ -126,7 +117,6 @@ export class TriggersService {
 	 * Modify a trigger (limited patch for trigger price, limit price, trailing params).
 	 */
 	async modify(input: ModifyTriggerInput): Promise<ModifyTriggerResult> {
-		this.#localMock?.assertMutationAllowed("triggers.modify");
 		const resolved = resolveSubAccountScopedInput(input, this.#resolver);
 		const validated = ModifyTriggerInputSchema.parse(resolved);
 		const res = await this.#client.modifyTrigger(validated);
@@ -137,7 +127,6 @@ export class TriggersService {
 	 * Pause a trigger.
 	 */
 	async pause(input: PauseTriggerInput): Promise<PauseTriggerResult> {
-		this.#localMock?.assertMutationAllowed("triggers.pause");
 		const resolved = resolveSubAccountScopedInput(input, this.#resolver);
 		const validated = PauseTriggerInputSchema.parse(resolved);
 		const res = await this.#client.pauseTrigger(removeUndefined(validated));
@@ -148,7 +137,6 @@ export class TriggersService {
 	 * Resume a paused trigger.
 	 */
 	async resume(input: PauseTriggerInput): Promise<ResumeTriggerResult> {
-		this.#localMock?.assertMutationAllowed("triggers.resume");
 		const resolved = resolveSubAccountScopedInput(input, this.#resolver);
 		const validated = PauseTriggerInputSchema.parse(resolved);
 		const res = await this.#client.resumeTrigger(removeUndefined(validated));
@@ -160,7 +148,6 @@ export class TriggersService {
 	 */
 	async listEvents(input: ListTriggerEventsInput): Promise<ListTriggerEventsResult> {
 		const resolved = resolveSubAccountScopedInput(input, this.#resolver);
-		if (this.#localMock?.isEnabled()) return { events: [], nextBeforeTsNs: 0 };
 		const validated = ListTriggerEventsInputSchema.parse(resolved);
 
 		const res = await this.#client.listTriggerEvents(
@@ -181,9 +168,6 @@ export class TriggersService {
 	}
 
 	subscribe(input: SubscribeTriggersInput): () => void {
-		if (this.#localMock?.isEnabled()) {
-			return createLocalMockNoopSubscription(input);
-		}
 		const channel = `private:spot:triggers:${input.accountId}:proto`;
 		return connectProtoChannel({
 			channel,
@@ -198,9 +182,6 @@ export class TriggersService {
 	}
 
 	subscribeEvents(input: SubscribeTriggerEventsInput): () => void {
-		if (this.#localMock?.isEnabled()) {
-			return createLocalMockNoopSubscription(input);
-		}
 		const channel = `private:spot:triggers:events:${input.accountId}:proto`;
 		return connectProtoChannel({
 			channel,

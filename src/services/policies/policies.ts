@@ -1,14 +1,13 @@
 import type { Transport } from "@connectrpc/connect";
-import { ApiKeyPoliciesService } from "./api-key-policies";
-import { SubAccountPoliciesService } from "./sub-account-policies";
-import type { LocalMockRuntime } from "../../mock/local-mock-runtime";
+import { ApiKeyPoliciesService } from "./api-key-policies/index.js";
+import { SubAccountPoliciesService } from "./sub-account-policies/index.js";
 
 export class PoliciesService {
 	subaccount: SubAccountPoliciesService;
 	apiKey: ApiKeyPoliciesService;
 
-	constructor(transport: Transport, localMock?: LocalMockRuntime) {
-		this.subaccount = new SubAccountPoliciesService(transport, localMock);
-		this.apiKey = new ApiKeyPoliciesService(transport, localMock);
+	constructor(transport: Transport) {
+		this.subaccount = new SubAccountPoliciesService(transport);
+		this.apiKey = new ApiKeyPoliciesService(transport);
 	}
 }

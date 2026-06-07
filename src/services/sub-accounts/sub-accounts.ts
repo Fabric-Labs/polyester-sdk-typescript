@@ -1,18 +1,18 @@
-import * as Proto from "../../gen/auth/v1/subaccounts_pb";
-import * as ProtoApiKeys from "../../gen/auth/v1/api_keys_pb";
-import * as ProtoPolicies from "../../gen/auth/v1/policies_pb";
+import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
+import * as ProtoApiKeys from "../../gen/auth/v1/api_keys_pb.js";
+import * as ProtoPolicies from "../../gen/auth/v1/policies_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import { z } from "zod";
-import { type ApiKey, ApiKeySchema } from "../api-keys";
-import { idToBigInt } from "../../utils/base58-id";
-import { stepUpCallOptions } from "../../utils/step-up-call-options";
-import { connectProtoChannel } from "../../realtime";
+import { type ApiKey, ApiKeySchema } from "../api-keys/index.js";
+import { idToBigInt } from "../../utils/base58-id.js";
+import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
+import { connectProtoChannel } from "../../realtime/index.js";
 import {
 	DEFAULT_SUBACCOUNT_POLICY,
 	type SubAccountPolicy,
 	SubAccountPolicySchema,
-} from "../policies/sub-account-policies";
-import type { BaseSubscribeInput } from "../../shared/types";
+} from "../policies/sub-account-policies/index.js";
+import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
 	CreateSubAccountInputSchema,
 	UpdateSubAccountInputSchema,
@@ -31,9 +31,7 @@ import {
 	type SubAccountMember,
 	type SubAccountInvite,
 	type SubAccountEvent,
-} from "./sub-accounts.schemas";
-import { createLocalMockNoopSubscription } from "../../mock/local-mock-subscription";
-import type { LocalMockRuntime } from "../../mock/local-mock-runtime";
+} from "./sub-accounts.schemas.js";
 
 interface SubscribeSubAccountsInput extends BaseSubscribeInput<SubAccount> {
 	accountId: string;
@@ -50,12 +48,10 @@ interface SubscribePoliciesInput extends BaseSubscribeInput<SubAccountPolicy> {
 export class SubAccountsService {
 	#client: Client<typeof Proto.SubaccountService>;
 	#viewClient: Client<typeof Proto.SubaccountViewService>;
-	#localMock?: LocalMockRuntime;
 
-	constructor(transport: Transport, localMock?: LocalMockRuntime) {
+	constructor(transport: Transport) {
 		this.#client = createClient(Proto.SubaccountService, transport);
 		this.#viewClient = createClient(Proto.SubaccountViewService, transport);
-		this.#localMock = localMock;
 	}
 
 	async list(): Promise<{
@@ -106,7 +102,6 @@ export class SubAccountsService {
 	async create(
 		input: z.input<typeof CreateSubAccountInputSchema>
 	): Promise<Proto.CreateSubaccountResponse> {
-		this.#localMock?.assertMutationAllowed("subAccounts.create");
 		const validatedInput = CreateSubAccountInputSchema.parse(input);
 		return this.#client.createSubaccount(validatedInput);
 	}
@@ -114,7 +109,6 @@ export class SubAccountsService {
 	async update(
 		input: z.input<typeof UpdateSubAccountInputSchema>
 	): Promise<Proto.UpdateSubaccountResponse> {
-		this.#localMock?.assertMutationAllowed("subAccounts.update");
 		const validatedInput = UpdateSubAccountInputSchema.parse(input);
 		return await this.#client.updateSubaccount(validatedInput);
 	}
@@ -123,7 +117,6 @@ export class SubAccountsService {
 		input: z.input<typeof InviteSubAccountMemberInputSchema>,
 		options?: { stepUpToken?: string | null }
 	): Promise<SubAccountInvite> {
-		this.#localMock?.assertMutationAllowed("subAccounts.inviteMember");
 		const validatedInput = InviteSubAccountMemberInputSchema.parse(input);
 		const res = await this.#client.inviteSubaccountMember(
 			validatedInput,
@@ -135,7 +128,6 @@ export class SubAccountsService {
 	async removeMember(
 		input: z.input<typeof RemoveSubAccountMemberInputSchema>
 	): Promise<Proto.RemoveSubaccountMemberResponse> {
-		this.#localMock?.assertMutationAllowed("subAccounts.removeMember");
 		const validatedInput = RemoveSubAccountMemberInputSchema.parse(input);
 		return this.#client.removeSubaccountMember(validatedInput);
 	}
@@ -143,7 +135,6 @@ export class SubAccountsService {
 	async updateMemberRole(
 		input: z.input<typeof UpdateSubAccountMemberRoleInputSchema>
 	): Promise<Proto.UpdateSubaccountMemberRoleResponse> {
-		this.#localMock?.assertMutationAllowed("subAccounts.updateMemberRole");
 		const validatedInput = UpdateSubAccountMemberRoleInputSchema.parse(input);
 		return this.#client.updateSubaccountMemberRole(validatedInput);
 	}
@@ -152,7 +143,6 @@ export class SubAccountsService {
 		input: z.input<typeof SetSubAccountMemberMfaRequirementInputSchema>,
 		options?: { stepUpToken?: string | null }
 	): Promise<void> {
-		this.#localMock?.assertMutationAllowed("subAccounts.setMemberMfaRequirement");
 		const validatedInput = SetSubAccountMemberMfaRequirementInputSchema.parse(input);
 		await this.#client.setSubaccountMemberMFARequirement(
 			validatedInput,
@@ -179,7 +169,6 @@ export class SubAccountsService {
 		input: z.input<typeof RespondSubAccountInviteInputSchema>,
 		options?: { stepUpToken?: string | null }
 	): Promise<SubAccountInvite> {
-		this.#localMock?.assertMutationAllowed("subAccounts.respondInvite");
 		const validatedInput = RespondSubAccountInviteInputSchema.parse(input);
 		const res = await this.#client.respondSubaccountInvite(
 			validatedInput,
@@ -189,7 +178,6 @@ export class SubAccountsService {
 	}
 
 	async delete(subAccountId: string): Promise<void> {
-		this.#localMock?.assertMutationAllowed("subAccounts.delete");
 		const validatedSubAccountId = idToBigInt(subAccountId, "subaccountId");
 		await this.#client.updateSubaccount({
 			subaccountId: validatedSubAccountId,
@@ -224,9 +212,6 @@ export class SubAccountsService {
 	}
 
 	subscribeApiKeys(input: SubscribeApiKeysInput) {
-		if (this.#localMock?.isEnabled()) {
-			return createLocalMockNoopSubscription(input);
-		}
 		const channel = `private:auth:api-keys:${input.accountId}:proto`;
 
 		return connectProtoChannel({
@@ -242,9 +227,6 @@ export class SubAccountsService {
 	}
 
 	subscribePolicies(input: SubscribePoliciesInput) {
-		if (this.#localMock?.isEnabled()) {
-			return createLocalMockNoopSubscription(input);
-		}
 		const channel = `private:auth:subaccount-policies:${input.accountId}:proto`;
 
 		return connectProtoChannel({

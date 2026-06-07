@@ -1,5 +1,5 @@
-import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb";
-import type { ExcludeUnspecified } from "../../utils/types";
+import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
+import type { ExcludeUnspecified } from "../../utils/types.js";
 
 export const BALANCE_RANGE_VALUES = ["1d", "7d", "30d", "90d", "180d", "365d"] as const;
 export type BalanceRangeMapKey = (typeof BALANCE_RANGE_VALUES)[number];

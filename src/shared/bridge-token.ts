@@ -1,5 +1,5 @@
 import { CookieManager } from "../utils/cookies.js";
-import { POLYESTER_BRIDGE_TOKEN_COOKIE_NAME } from "./constants";
+import { POLYESTER_BRIDGE_TOKEN_COOKIE_NAME } from "./constants.js";
 
 /**
  * A singleton for managing the bridge token cookie

@@ -1,13 +1,13 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
-import * as Proto from "../../gen/auth/v1/api_keys_pb";
+import * as Proto from "../../gen/auth/v1/api_keys_pb.js";
 import { z } from "zod";
-import { removeUndefined } from "../../utils/remove-undefined";
-import { stepUpCallOptions } from "../../utils/step-up-call-options";
-import { type SubAccountResolver, resolveSubAccountScopedInput } from "../sub-account-resolver";
-import { bytesToHex } from "@noble/hashes/utils";
+import { removeUndefined } from "../../utils/remove-undefined.js";
+import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
+import { type SubAccountResolver, resolveSubAccountScopedInput } from "../sub-account-resolver.js";
+import { bytesToHex } from "@noble/hashes/utils.js";
 import { keygenAsync } from "@noble/ed25519";
-import { connectProtoChannel } from "../../realtime";
-import type { BaseSubscribeInput } from "../../shared/types";
+import { connectProtoChannel } from "../../realtime/index.js";
+import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
 	ApiKeysListInputSchema,
 	ApiKeysCreateInputSchema,
@@ -15,9 +15,7 @@ import {
 	ApiKeySchema,
 	ApiKeysSchema,
 	type ApiKey,
-} from "./api-keys.schemas";
-import { createLocalMockNoopSubscription } from "../../mock/local-mock-subscription";
-import type { LocalMockRuntime } from "../../mock/local-mock-runtime";
+} from "./api-keys.schemas.js";
 
 interface SubscribeApiKeysInput extends BaseSubscribeInput<ApiKey> {
 	accountId: string;
@@ -31,17 +29,14 @@ export type ApiKeysMutationOptions = {
 export class ApiKeysService {
 	#client: Client<typeof Proto.ApiKeyService>;
 	#resolver?: SubAccountResolver;
-	#localMock?: LocalMockRuntime;
 
-	constructor(transport: Transport, resolver?: SubAccountResolver, localMock?: LocalMockRuntime) {
+	constructor(transport: Transport, resolver?: SubAccountResolver) {
 		this.#client = createClient(Proto.ApiKeyService, transport);
 		this.#resolver = resolver;
-		this.#localMock = localMock;
 	}
 
 	async list(params: z.input<typeof ApiKeysListInputSchema> = {}): Promise<ApiKey[]> {
 		const resolved = resolveSubAccountScopedInput(params, this.#resolver);
-		if (this.#localMock?.isEnabled()) return [];
 		const validatedParams = ApiKeysListInputSchema.parse(resolved);
 		const res = await this.#client.listApiKeys(removeUndefined(validatedParams));
 
@@ -51,7 +46,6 @@ export class ApiKeysService {
 	async get(keyId: string): Promise<ApiKey | null> {
 		const validatedKeyId = keyId.trim();
 		if (!validatedKeyId) throw new Error("[PolyesterClient.apiKeys.get]: keyId is required");
-		if (this.#localMock?.isEnabled()) return null;
 		const res = await this.#client.getApiKey({ keyId: validatedKeyId });
 		return res.apiKey ? ApiKeySchema.parse(res.apiKey) : null;
 	}
@@ -65,7 +59,6 @@ export class ApiKeysService {
 		payload: z.input<typeof ApiKeysCreateInputSchema>,
 		options?: ApiKeysMutationOptions
 	): Promise<ApiKey | null> {
-		this.#localMock?.assertMutationAllowed("apiKeys.create");
 		const resolved = resolveSubAccountScopedInput(payload, this.#resolver);
 		const validatedPayload = ApiKeysCreateInputSchema.parse(resolved);
 		const res = await this.#client.createApiKey(
@@ -76,7 +69,6 @@ export class ApiKeysService {
 	}
 
 	async delete(keyId: string, options?: ApiKeysMutationOptions): Promise<void> {
-		this.#localMock?.assertMutationAllowed("apiKeys.delete");
 		const validatedKeyId = keyId.trim();
 		if (!validatedKeyId) throw new Error("[PolyesterClient.apiKeys.delete]: keyId is required");
 		await this.#client.deleteApiKey(
@@ -90,7 +82,6 @@ export class ApiKeysService {
 		payload: z.input<typeof ApiKeysUpdateInputSchema>,
 		options?: ApiKeysMutationOptions
 	): Promise<ApiKey | null> {
-		this.#localMock?.assertMutationAllowed("apiKeys.update");
 		const validatedPayload = ApiKeysUpdateInputSchema.parse(payload);
 		const res = await this.#client.updateApiKey(
 			removeUndefined(validatedPayload),
@@ -122,9 +113,6 @@ export class ApiKeysService {
 	}
 
 	subscribe(input: SubscribeApiKeysInput) {
-		if (this.#localMock?.isEnabled()) {
-			return createLocalMockNoopSubscription(input);
-		}
 		const channel = `private:auth:api-keys:${input.accountId}:proto`;
 
 		return connectProtoChannel({

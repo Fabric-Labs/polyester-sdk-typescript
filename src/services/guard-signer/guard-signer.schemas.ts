@@ -1,4 +1,4 @@
-import { bytesToHex } from "@noble/hashes/utils";
+import { bytesToHex } from "@noble/hashes/utils.js";
 import { z } from "zod";
 import { idToBigInt } from "../../utils/base58-id.js";
 import { PROTECTED_ACTION_VALUES, ProtectedActionCodec } from "./guard-signer.codecs.js";

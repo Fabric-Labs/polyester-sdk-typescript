@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { idToBigInt } from "../../utils/base58-id";
+import { idToBigInt } from "../../utils/base58-id.js";
 
 const OptionalSubAccountIdSchema = z
 	.string()

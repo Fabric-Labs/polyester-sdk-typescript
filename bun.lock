@@ -7,6 +7,7 @@
       "dependencies": {
         "@bufbuild/protobuf": "2.12.0",
         "@connectrpc/connect": "2.0.3",
+        "@connectrpc/connect-web": "2.0.3",
         "@noble/ed25519": "3.1.0",
         "@noble/hashes": "2.2.0",
         "centrifuge": "5.5.3",
@@ -79,6 +80,8 @@
     "@changesets/write": ["@changesets/write@0.4.0", "", { "dependencies": { "@changesets/types": "^6.1.0", "fs-extra": "^7.0.1", "human-id": "^4.1.1", "prettier": "^2.7.1" } }, "sha512-CdTLvIOPiCNuH71pyDu3rA+Q0n65cmAbXnwWH84rKGiFumFzkmHNT8KHTMEchcxN+Kl8I54xGUhJ7l3E7X396Q=="],
 
     "@connectrpc/connect": ["@connectrpc/connect@2.0.3", "", { "peerDependencies": { "@bufbuild/protobuf": "^2.2.0" } }, "sha512-jAbVMHVtDCydGt2P20VpmLjbLtERqSV0RMSyQF3k2zhK8pzQ2QaCAcyVhufClqrOAFZUKL5BqVYtttaxvhmRgg=="],
+
+    "@connectrpc/connect-web": ["@connectrpc/connect-web@2.0.3", "", { "peerDependencies": { "@bufbuild/protobuf": "^2.2.0", "@connectrpc/connect": "2.0.3" } }, "sha512-w4LZ2Ci+NW/kcMoHnoczJgyGTmxuv/MQ+tTm2UNL40HimXKWYCAna/fV0AbHRnTiteiwEBpeSCaxF34MetzhAw=="],
 
     "@emnapi/core": ["@emnapi/core@1.10.0", "", { "dependencies": { "@emnapi/wasi-threads": "1.2.1", "tslib": "^2.4.0" } }, "sha512-yq6OkJ4p82CAfPl0u9mQebQHKPJkY7WrIuk205cTYnYe+k2Z8YBh11FrbRG/H6ihirqcacOgl2BIO8oyMQLeXw=="],
 

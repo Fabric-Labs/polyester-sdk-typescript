@@ -12,7 +12,7 @@ const ENTRY_POINT: EntryPoint = {
 	version: "0.7",
 };
 
-export const PAYMASTER_CLIENT = createPimlicoClient({
+export const PAYMASTER_CLIENT: ReturnType<typeof createPimlicoClient> = createPimlicoClient({
 	transport: http("https://paymaster.polyester.tech"),
 	entryPoint: ENTRY_POINT,
 });

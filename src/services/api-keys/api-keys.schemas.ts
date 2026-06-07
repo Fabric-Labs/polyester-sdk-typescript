@@ -1,12 +1,12 @@
-import * as Proto from "../../gen/auth/v1/api_keys_pb";
+import * as Proto from "../../gen/auth/v1/api_keys_pb.js";
 import { z } from "zod";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
-import { toTimestamp } from "../../utils/timestamp";
-import { formatId, idToBigInt } from "../../utils/base58-id";
-import { tsObjToMs } from "../../utils/time";
-import { TimestampSchema } from "../../shared/schemas";
-import { bytesToHex } from "@noble/hashes/utils";
-import { ApiKeyStatusCodec } from "./api-keys.codecs";
+import { toTimestamp } from "../../utils/timestamp.js";
+import { formatId, idToBigInt } from "../../utils/base58-id.js";
+import { tsObjToMs } from "../../utils/time.js";
+import { TimestampSchema } from "../../shared/schemas.js";
+import { bytesToHex } from "@noble/hashes/utils.js";
+import { ApiKeyStatusCodec } from "./api-keys.codecs.js";
 
 const ApiKeyStatusSchema = z.enum(["active", "revoked", "disabled"]);
 

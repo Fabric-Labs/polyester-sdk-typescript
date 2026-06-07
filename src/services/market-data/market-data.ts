@@ -2,7 +2,7 @@ import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
 import { connectProtoChannel } from "../../realtime/client.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import { z } from "zod";
-import type { BaseSubscribeInput } from "../../shared/types";
+import type { BaseSubscribeInput } from "../../shared/types.js";
 import { getPair } from "../../catalogs/market-data-catalog.js";
 import {
 	GetMarketTradesInputSchema,
@@ -10,9 +10,8 @@ import {
 	type SpotConfig,
 	SpotConfigSchema,
 	type MarketTrade,
-} from "./market-data.schemas";
-import { isDev } from "../../utils/is-dev";
-import type { LocalMockRuntime } from "../../mock/local-mock-runtime.js";
+} from "./market-data.schemas.js";
+import { isDev } from "../../utils/is-dev.js";
 
 interface SubscribeTradesInput extends BaseSubscribeInput<MarketTrade> {
 	symbol: string;
@@ -20,17 +19,12 @@ interface SubscribeTradesInput extends BaseSubscribeInput<MarketTrade> {
 
 export class MarketDataService {
 	#client: Client<typeof Proto.MarketDataService>;
-	#localMock?: LocalMockRuntime;
 
-	constructor(transport: Transport, localMock?: LocalMockRuntime) {
+	constructor(transport: Transport) {
 		this.#client = createClient(Proto.MarketDataService, transport);
-		this.#localMock = localMock;
 	}
 
 	async getTrades(input: z.input<typeof GetMarketTradesInputSchema>): Promise<MarketTrade[]> {
-		if (this.#localMock?.isEnabled()) {
-			return this.#localMock.world.getMarketTrades(input);
-		}
 		const validatedInput = GetMarketTradesInputSchema.parse(input);
 		const res = await this.#client.getTrades(validatedInput);
 		return z.array(MarketTradeSchema).parse(res.trades);
@@ -42,9 +36,6 @@ export class MarketDataService {
 	}
 
 	subscribeTrades(input: SubscribeTradesInput): () => void {
-		if (this.#localMock?.isEnabled()) {
-			return this.#localMock.world.subscribeMarketTrades(input);
-		}
 		const pair = getPair(input.symbol);
 		if (!pair) {
 			if (isDev()) {

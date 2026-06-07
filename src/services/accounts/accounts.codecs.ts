@@ -1,4 +1,4 @@
-import * as ProtoResolve from "../../gen/auth/v1/resolve_pb";
+import * as ProtoResolve from "../../gen/auth/v1/resolve_pb.js";
 
 export const RESOLVE_HINT_KEYS = [
 	"USERNAME",

@@ -4,7 +4,7 @@ import {
 	FlowState,
 	LifecycleSource,
 	RequestFeeStatus,
-} from "../../gen/chain/lifecycle/v1/lifecycle_pb.js";
+} from "../../gen/chain/lifecycle/v1/types_pb.js";
 import {
 	FlowStep,
 	FlowStepActivityKind,

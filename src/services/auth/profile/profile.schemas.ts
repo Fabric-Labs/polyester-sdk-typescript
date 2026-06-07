@@ -1,7 +1,7 @@
 import z from "zod";
-import { TimestampSchema } from "../../../shared/schemas";
-import { tsObjToMs } from "../../../utils/time";
-import { formatId } from "../../../utils/base58-id";
+import { TimestampSchema } from "../../../shared/schemas.js";
+import { tsObjToMs } from "../../../utils/time.js";
+import { formatId } from "../../../utils/base58-id.js";
 
 export const ProfileSchema = z.object({
 	username: z.string(),

@@ -3,7 +3,7 @@ import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import { hexToBytes, keccak256, stringToBytes, type Address, type Hex } from "viem";
 import { getZipperContractByName } from "../../catalogs/zipper-catalog.js";
 import * as Proto from "../../gen/chain/withdraw/v1/withdraw_pb.js";
-import type { LocalMockRuntime } from "../../mock/local-mock-runtime.js";
+import { U128Schema, type U128 } from "../../gen/polyester/type/v1/u128_pb.js";
 import { POLYCHAIN } from "../../shared/config.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
@@ -11,6 +11,7 @@ import { type SubAccountResolver, resolveSubAccountScopedInput } from "../sub-ac
 import { TradingWithdrawActionCodec } from "./trading-withdraws.codecs.js";
 import {
 	CreateTradingWithdrawResultSchema,
+	CreateWalletTradingWithdrawResultSchema,
 	CreateTradingWithdrawToFundingInputSchema,
 	type CreateTradingWithdrawResult,
 	type CreateTradingWithdrawToFundingInput,
@@ -34,12 +35,12 @@ export type TradingWithdrawMutationOptions = {
 	stepUpToken?: string | null;
 };
 
-function toU128(value: bigint): Proto.U128 {
+function toU128(value: bigint): U128 {
 	if (value < 0n) {
 		throw new Error("U128 value must be zero or greater.");
 	}
 
-	return create(Proto.U128Schema, {
+	return create(U128Schema, {
 		hi: value >> 64n,
 		lo: value & ((1n << 64n) - 1n),
 	});
@@ -54,7 +55,7 @@ function createNonce(): bigint {
 	return bytes[0] ?? BigInt(Date.now());
 }
 
-function fromU128(value: Proto.U128 | undefined): bigint {
+function fromU128(value: U128 | undefined): bigint {
 	if (!value) return 0n;
 	return (value.hi << 64n) + value.lo;
 }
@@ -139,19 +140,16 @@ async function resolveWalletSignature(params: {
 export class TradingWithdrawsService {
 	#client: Client<typeof Proto.WithdrawService>;
 	#resolver?: SubAccountResolver;
-	#localMock?: LocalMockRuntime;
 
-	constructor(transport: Transport, resolver?: SubAccountResolver, localMock?: LocalMockRuntime) {
+	constructor(transport: Transport, resolver?: SubAccountResolver) {
 		this.#client = createClient(Proto.WithdrawService, transport);
 		this.#resolver = resolver;
-		this.#localMock = localMock;
 	}
 
 	async createToFunding(
 		input: CreateTradingWithdrawToFundingServiceInput,
 		options?: TradingWithdrawMutationOptions
 	): Promise<CreateTradingWithdrawResult> {
-		this.#localMock?.assertMutationAllowed("tradingWithdraws.createToFunding");
 		const { walletSigner, ...inputForValidation } = input;
 		const resolvedInput = resolveSubAccountScopedInput(inputForValidation, this.#resolver);
 		const validated = CreateTradingWithdrawToFundingInputSchema.parse(resolvedInput);
@@ -182,7 +180,7 @@ export class TradingWithdrawsService {
 				}),
 				stepUpCallOptions(options?.stepUpToken)
 			);
-			return CreateTradingWithdrawResultSchema.parse(response);
+			return CreateWalletTradingWithdrawResultSchema.parse(response);
 		}
 
 		if (!validated.payloadSignature) {

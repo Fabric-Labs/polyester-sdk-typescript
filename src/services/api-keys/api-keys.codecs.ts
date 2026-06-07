@@ -1,5 +1,5 @@
-import * as Proto from "../../gen/auth/v1/api_keys_pb";
-import type { ExcludeUnspecified } from "../../utils/types";
+import * as Proto from "../../gen/auth/v1/api_keys_pb.js";
+import type { ExcludeUnspecified } from "../../utils/types.js";
 
 export const API_KEY_STATUS_VALUES = ["active", "revoked", "disabled"] as const;
 export type ApiKeyStatusLabel = (typeof API_KEY_STATUS_VALUES)[number];

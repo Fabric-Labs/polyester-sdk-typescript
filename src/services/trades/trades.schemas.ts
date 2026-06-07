@@ -15,7 +15,7 @@ import {
 	baseAssetIdForSymbolId,
 	symbolForSymbolId,
 } from "../../catalogs/market-data-catalog.js";
-import { idToBigInt, formatId } from "../../utils/base58-id";
+import { idToBigInt, formatId } from "../../utils/base58-id.js";
 import { TradeSideCodec } from "./trades.codecs.js";
 
 export const UserTradeSchema = z

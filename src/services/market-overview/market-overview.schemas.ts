@@ -3,7 +3,7 @@ import { z } from "zod";
 import { intToDecimalString, int6ToDecimalString } from "../../catalogs/orders-catalog.js";
 import { assetForSymbol } from "../../catalogs/ledger-catalog.js";
 import { tsNsToMs } from "../../utils/time.js";
-import { getPairBySymbolId } from "../../catalogs/market-data-catalog";
+import { getPairBySymbolId } from "../../catalogs/market-data-catalog.js";
 import {
 	SPARKLINE_INTERVAL_VALUES,
 	MARKET_OVERVIEW_ORDER_BY_VALUES,
@@ -77,8 +77,8 @@ export const MarketOverviewSchema = z
 		sparklines: z.array(MarketOverviewSparklineSchema).optional().default([]),
 	})
 	.transform((m) => {
-		const [baseAsset, quoteAsset] = m.symbol.split("-");
-		const base = assetForSymbol(baseAsset ?? "");
+		const [baseAsset = "", quoteAsset = ""] = m.symbol.split("-");
+		const base = assetForSymbol(baseAsset);
 		const baseScale = base.quantityScale;
 		const pair = getPairBySymbolId(m.symbolId);
 
@@ -119,8 +119,8 @@ const MS_PER_24H = 86_400_000;
 function change24hBpFromSparklineFirstLast(sparklines: MarketOverview["sparklines"]): number {
 	const s = sparklines.find((e) => e.interval === "24h") ?? sparklines[0];
 	if (!s || s.prices.length < 2) return 0;
-	const first = s.prices[0];
-	const last = s.prices[s.prices.length - 1];
+	const first = s.prices[0] ?? 0;
+	const last = s.prices.at(-1) ?? 0;
 	if (first === 0) return 0;
 	return Math.round(((last - first) / first) * 10_000);
 }

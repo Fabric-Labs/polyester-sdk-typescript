@@ -1,5 +1,5 @@
 import { z } from "zod";
-import * as Proto from "../../gen/chain/lifecycle/v1/lifecycle_pb.js";
+import * as Proto from "../../gen/chain/lifecycle/v1/types_pb.js";
 import * as ProtoRead from "../../gen/chain/lifecycle/v1/lifecycle_read_pb.js";
 import {
 	LIFECYCLE_FLOW_KIND_VALUES,
@@ -20,9 +20,9 @@ import {
 	type LifecycleRequestFeeStatusValue,
 	type LifecycleTxLookupKindOutputValue,
 } from "./lifecycle.codecs.js";
-import { formatId, idToBigInt } from "../../utils/base58-id";
-import { fromU128, u128ToDecimal } from "../../utils/u128";
-import { assetForId } from "../../catalogs/ledger-catalog";
+import { formatId, idToBigInt } from "../../utils/base58-id.js";
+import { fromU128, u128ToDecimal } from "../../utils/u128.js";
+import { assetForId } from "../../catalogs/ledger-catalog.js";
 
 const FlowKindSchema = z.enum(LIFECYCLE_FLOW_KIND_VALUES);
 const FlowStateSchema = z.enum(LIFECYCLE_FLOW_STATE_VALUES);

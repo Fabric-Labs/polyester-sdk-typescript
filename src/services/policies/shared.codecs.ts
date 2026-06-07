@@ -1,4 +1,4 @@
-import * as Proto from "../../gen/auth/v1/policies_pb";
+import * as Proto from "../../gen/auth/v1/policies_pb.js";
 
 export const POLICY_ACTION_LABELS = [
 	"trade-spot",

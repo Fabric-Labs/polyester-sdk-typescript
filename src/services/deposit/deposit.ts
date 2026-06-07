@@ -11,21 +11,17 @@ import {
 	type ListDepositAddressesInput,
 	type DepositAddress,
 } from "./deposit.schemas.js";
-import type { LocalMockRuntime } from "../../mock/local-mock-runtime.js";
 
 export class DepositService {
 	#client: Client<typeof Proto.DepositAddressService>;
 	#resolver?: SubAccountResolver;
-	#localMock?: LocalMockRuntime;
 
-	constructor(transport: Transport, resolver?: SubAccountResolver, localMock?: LocalMockRuntime) {
+	constructor(transport: Transport, resolver?: SubAccountResolver) {
 		this.#client = createClient(Proto.DepositAddressService, transport);
 		this.#resolver = resolver;
-		this.#localMock = localMock;
 	}
 
 	async createAddress(input: CreateDepositAddressInput): Promise<DepositAddress | null> {
-		this.#localMock?.assertMutationAllowed("deposit.createAddress");
 		const resolvedInput = resolveSubAccountScopedInput(input, this.#resolver);
 		const validatedInput = CreateDepositAddressInputSchema.parse(resolvedInput);
 		const res = await this.#client.createDepositAddress(removeUndefined(validatedInput));
@@ -34,7 +30,6 @@ export class DepositService {
 	}
 
 	async listAddresses(input: ListDepositAddressesInput = {}): Promise<DepositAddress[]> {
-		if (this.#localMock?.isEnabled()) return [];
 		const resolvedInput = resolveSubAccountScopedInput(input, this.#resolver);
 		const validatedInput = ListDepositAddressesInputSchema.parse(resolvedInput);
 		const res = await this.#client.listDepositAddresses(removeUndefined(validatedInput));
