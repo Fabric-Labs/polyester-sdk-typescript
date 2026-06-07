@@ -4,4 +4,3 @@ export type {
     InternalTransferDestination,
     ResolvedInternalTransferDestination,
 } from "./internal-transfers.schemas.js";
-export type { InternalTransferMutationOptions } from "./internal-transfers.js";
