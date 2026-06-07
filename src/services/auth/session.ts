@@ -1,7 +1,10 @@
-import { setCookie, deleteCookie, getCookie } from "../utils/cookies.js";
-import { isDev } from "../utils/is-dev.js";
-import { POLYESTER_SESSION_COOKIE_NAME, POLYESTER_LOGIN_COOKIE_MAX_AGE } from "./constants.js";
-import type { ActiveAccountInfo, AuthLoginMethod, SessionData } from "./auth-types.js";
+import { setCookie, deleteCookie, getCookie } from "../../utils/cookies.js";
+import { isDev } from "../../utils/is-dev.js";
+import {
+    POLYESTER_SESSION_COOKIE_NAME,
+    POLYESTER_LOGIN_COOKIE_MAX_AGE,
+} from "./cookie-constants.js";
+import type { ActiveAccountInfo, AuthLoginMethod, SessionData } from "./session.types.js";
 
 export type { ActiveAccountInfo, AuthLoginMethod, SessionData };
 

@@ -1,5 +1,5 @@
 import { PolyesterClient } from "./core-client.js";
-import { getEnvironmentBoundPolyesterToken } from "./shared/polyester-token.js";
+import { getEnvironmentBoundPolyesterToken } from "./services/auth/token.js";
 import { AccountSignerAuthService } from "./services/auth/account-signer-auth.js";
 import type { AccountSignerConfig, AccountSigner } from "./account-signer/types.js";
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";

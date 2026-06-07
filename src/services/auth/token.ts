@@ -1,6 +1,6 @@
-import { CookieManager } from "../utils/cookies.js";
-import { POLYESTER_AUTH_TOKEN_COOKIE_NAME } from "./constants.js";
-import { polyesterSession } from "./polyester-session.js";
+import { CookieManager } from "../../utils/cookies.js";
+import { POLYESTER_AUTH_TOKEN_COOKIE_NAME } from "./cookie-constants.js";
+import { polyesterSession } from "./session.js";
 
 /**
  * A singleton for managing the polyester token cookie

@@ -2,12 +2,12 @@ import { PolyesterClient } from "./core-client.js";
 import {
     POLYESTER_AUTH_TOKEN_COOKIE_NAME,
     POLYESTER_SESSION_COOKIE_NAME,
-} from "./shared/constants.js";
+} from "./services/auth/cookie-constants.js";
 import type {
     ActiveAccountInfo,
     AuthLoginMethod,
     SessionData,
-} from "./shared/polyester-session.js";
+} from "./services/auth/session.types.js";
 import { type CookieGetter, getCookieValue } from "./utils/cookies.js";
 import type { JwtAuthProvider, ApiKeyEd25519AuthProvider } from "./shared/transports.js";
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";

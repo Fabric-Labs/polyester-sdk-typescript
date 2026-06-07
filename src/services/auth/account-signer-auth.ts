@@ -1,8 +1,8 @@
 import { AuthService, type AuthServiceTransports } from "./auth.js";
-import { polyesterToken } from "../../shared/polyester-token.js";
-import { getEnvironmentBoundPolyesterToken } from "../../shared/polyester-token.js";
-import { polyesterSession } from "../../shared/polyester-session.js";
-import { POLYESTER_LOGIN_COOKIE_MAX_AGE } from "../../shared/constants.js";
+import { polyesterToken } from "./token.js";
+import { getEnvironmentBoundPolyesterToken } from "./token.js";
+import { polyesterSession } from "./session.js";
+import { POLYESTER_LOGIN_COOKIE_MAX_AGE } from "./cookie-constants.js";
 import type { AccountSigner, AccountSignerConfig, HexAddress } from "../../account-signer/types.js";
 import { assertAccountSigner, resolveAccountSigner } from "../../account-signer/types.js";
 import { EventEmitter } from "../../utils/event-emitter.js";
@@ -13,7 +13,7 @@ import type {
     AuthHydrationData,
     AuthLoginMethod,
     SessionData,
-} from "../../shared/auth-types.js";
+} from "./session.types.js";
 import type { RealtimeClient } from "../../realtime/index.js";
 import type { PolyesterEnvironment } from "../../environment.js";
 

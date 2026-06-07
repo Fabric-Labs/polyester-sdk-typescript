@@ -36,15 +36,12 @@ export type {
     HexAddress,
 } from "./account-signer/index.js";
 
-export {
-    createPolyesterSmartAccount,
-    createPolyesterSmartAccountClient,
-} from "./shared/smart-account.js";
+export { createPolyesterSmartAccount, createPolyesterSmartAccountClient } from "./smart-account.js";
 export type {
     CreateSmartAccountParams,
     PolyesterSmartAccountClient,
     SafeSmartAccountInstance,
-} from "./shared/smart-account.js";
+} from "./smart-account.js";
 
 export type { ApiKeyEd25519AuthProvider, JwtAuthProvider } from "./shared/transports.js";
 export type {
@@ -53,7 +50,7 @@ export type {
     AuthLoginMethod,
     AuthState,
     SessionData,
-} from "./shared/auth-types.js";
+} from "./services/auth/session.types.js";
 
 export type * from "./services/accounts/accounts.types.js";
 export type * from "./services/address-book/address-book.types.js";

@@ -3,12 +3,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { AccountSigner } from "../../account-signer/index.js";
 import { POLYESTER_TESTNET_ENVIRONMENT } from "../../environment.js";
 import { RealtimeClient } from "../../realtime/index.js";
-import { polyesterSession } from "../../shared/polyester-session.js";
-import { polyesterToken } from "../../shared/polyester-token.js";
 import { formatId } from "../../utils/base58-id.js";
 import { SubaccountsService } from "../subaccounts/index.js";
 import { AccountSignerAuthService } from "./account-signer-auth.js";
 import type { LoginWithWalletInput, LoginWithWalletResponse } from "./auth.js";
+import { polyesterSession } from "./session.js";
+import { polyesterToken } from "./token.js";
 
 function noopTransport(): Transport {
     return {

@@ -1,4 +1,4 @@
-import type { HexAddress } from "../account-signer/types.js";
+import type { HexAddress } from "../../account-signer/types.js";
 
 /**
  * Information about the currently active account (main or subaccount).
