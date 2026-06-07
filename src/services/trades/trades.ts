@@ -5,6 +5,10 @@ import { removeUndefined } from "../../utils/remove-undefined.js";
 import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
 import type { RealtimeClient } from "../../realtime/client.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
+import {
+    toConnectCallOptions,
+    type PolyesterRequestOptions,
+} from "../../shared/request-options.js";
 import { UserTradeSchema, GetUserTradesInputSchema, type Trade } from "./trades.schemas.js";
 
 interface SubscribeTradesInput extends BaseSubscribeInput<Trade> {
@@ -27,10 +31,14 @@ export class TradesService {
      */
     async list(
         input: v.InferInput<typeof GetUserTradesInputSchema> = {},
+        options?: PolyesterRequestOptions,
     ): Promise<{ trades: Trade[]; nextPageToken: string }> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(GetUserTradesInputSchema, resolved);
-        const res = await this.#client.getUserTrades(removeUndefined(validatedInput));
+        const res = await this.#client.getUserTrades(
+            removeUndefined(validatedInput),
+            toConnectCallOptions(options),
+        );
         return {
             trades: v.parse(v.array(UserTradeSchema), res.trades),
             nextPageToken: res.nextPageToken,

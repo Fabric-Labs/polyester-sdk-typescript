@@ -1,7 +1,11 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as Proto from "../../gen/chain/guard/v1/guard_signer_pb.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
-import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
+import {
+    toConnectCallOptions,
+    type PolyesterMutationOptions,
+    type PolyesterRequestOptions,
+} from "../../shared/request-options.js";
 import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
 import {
     BatchGuardApprovalsSchema,
@@ -18,7 +22,6 @@ import {
     type CreateGuardSignerWalletResult,
     type ExportGuardSignerWalletResult,
     type GuardApproval,
-    type GuardSignerMutationOptions,
     type GuardSignerScopedInput,
     type GuardSignerStatus,
     type RotateGuardSignerWalletResult,
@@ -26,6 +29,8 @@ import {
 } from "./guard-signer.schemas.js";
 import { isResourceNotFoundError } from "../../utils/errors.js";
 import * as v from "valibot";
+
+export type GuardSignerMutationOptions = PolyesterMutationOptions;
 
 export class GuardSignerService {
     #client: Client<typeof Proto.GuardSignerService>;
@@ -36,16 +41,28 @@ export class GuardSignerService {
         this.#resolver = resolver;
     }
 
-    async createWallet(input: GuardSignerScopedInput = {}): Promise<CreateGuardSignerWalletResult> {
+    async createWallet(
+        input: GuardSignerScopedInput = {},
+        options?: PolyesterMutationOptions,
+    ): Promise<CreateGuardSignerWalletResult> {
         const request = v.parse(GuardSignerScopedInputSchema, this.resolveInput(input));
-        const response = await this.#client.createGuardSignerWallet(removeUndefined(request));
+        const response = await this.#client.createGuardSignerWallet(
+            removeUndefined(request),
+            toConnectCallOptions(options),
+        );
         return v.parse(CreateGuardSignerWalletResultSchema, response);
     }
 
-    async getStatus(input: GuardSignerScopedInput = {}): Promise<GuardSignerStatus | null> {
+    async getStatus(
+        input: GuardSignerScopedInput = {},
+        options?: PolyesterRequestOptions,
+    ): Promise<GuardSignerStatus | null> {
         const request = v.parse(GuardSignerScopedInputSchema, this.resolveInput(input));
         try {
-            const response = await this.#client.getGuardSignerStatus(removeUndefined(request));
+            const response = await this.#client.getGuardSignerStatus(
+                removeUndefined(request),
+                toConnectCallOptions(options),
+            );
             return response.status ? v.parse(GuardSignerStatusSchema, response.status) : null;
         } catch (err) {
             if (isResourceNotFoundError(err)) return null;
@@ -60,7 +77,7 @@ export class GuardSignerService {
         const request = v.parse(SignProtectedActionInputSchema, this.resolveInput(input));
         const response = await this.#client.signProtectedAction(
             removeUndefined(request),
-            stepUpCallOptions(options?.stepUpToken),
+            toConnectCallOptions(options),
         );
         return response.approval ? v.parse(GuardApprovalSchema, response.approval) : null;
     }
@@ -72,7 +89,7 @@ export class GuardSignerService {
         const request = v.parse(BatchSignProtectedActionInputSchema, this.resolveInput(input));
         const response = await this.#client.batchSignProtectedActions(
             removeUndefined(request),
-            stepUpCallOptions(options?.stepUpToken),
+            toConnectCallOptions(options),
         );
 
         if (response.approvals.length !== input.actions.length) {
@@ -89,7 +106,7 @@ export class GuardSignerService {
         const request = v.parse(GuardSignerScopedInputSchema, this.resolveInput(input));
         const response = await this.#client.rotateGuardSignerWallet(
             removeUndefined(request),
-            stepUpCallOptions(options?.stepUpToken),
+            toConnectCallOptions(options),
         );
         return v.parse(RotateGuardSignerWalletResultSchema, response);
     }
@@ -101,7 +118,7 @@ export class GuardSignerService {
         const request = v.parse(GuardSignerScopedInputSchema, this.resolveInput(input));
         const response = await this.#client.exportGuardSignerWallet(
             removeUndefined(request),
-            stepUpCallOptions(options?.stepUpToken),
+            toConnectCallOptions(options),
         );
         return v.parse(ExportGuardSignerWalletResultSchema, response);
     }

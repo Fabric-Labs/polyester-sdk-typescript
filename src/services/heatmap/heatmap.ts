@@ -10,6 +10,10 @@ import {
 } from "../../gen/marketdata/v1/heatmap_pb.js";
 import type { RealtimeClient } from "../../realtime/client.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
+import {
+    toConnectCallOptions,
+    type PolyesterRequestOptions,
+} from "../../shared/request-options.js";
 import { isDev } from "../../utils/is-dev.js";
 import { HeatmapIntervalCodec } from "./heatmap.codecs.js";
 import * as v from "valibot";
@@ -23,7 +27,10 @@ import {
 } from "./heatmap.schemas.js";
 
 export interface OrderbookHeatmapProvider {
-    getOrderbookHeatmap(input: GetOrderbookHeatmapInput): Promise<OrderbookHeatmapResponse>;
+    getOrderbookHeatmap(
+        input: GetOrderbookHeatmapInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<OrderbookHeatmapResponse>;
 }
 
 interface SubscribeHeatmapLiveInput extends BaseSubscribeInput<OrderbookHeatmapLiveBucket> {
@@ -54,7 +61,10 @@ export class HeatmapService implements OrderbookHeatmapProvider {
         this.#realtime = realtime;
     }
 
-    async getOrderbookHeatmap(input: GetOrderbookHeatmapInput): Promise<OrderbookHeatmapResponse> {
+    async getOrderbookHeatmap(
+        input: GetOrderbookHeatmapInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<OrderbookHeatmapResponse> {
         const parsed = v.parse(GetOrderbookHeatmapInputSchema, input);
 
         const mode: GetOrderbookHeatmapRequest["mode"] =
@@ -73,14 +83,17 @@ export class HeatmapService implements OrderbookHeatmapProvider {
                       }),
                   };
 
-        const res = await this.#client.getOrderbookHeatmap({
-            symbolId: parsed.symbolId,
-            interval: parsed.interval,
-            depth: parsed.depth,
-            quantityMode: parsed.quantityMode,
-            limit: parsed.limit,
-            mode,
-        });
+        const res = await this.#client.getOrderbookHeatmap(
+            {
+                symbolId: parsed.symbolId,
+                interval: parsed.interval,
+                depth: parsed.depth,
+                quantityMode: parsed.quantityMode,
+                limit: parsed.limit,
+                mode,
+            },
+            toConnectCallOptions(options),
+        );
         return v.parse(OrderbookHeatmapResponseSchema, res);
     }
 

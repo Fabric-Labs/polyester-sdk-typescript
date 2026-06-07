@@ -1,7 +1,10 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as Proto from "../../gen/transfer/v1/internal_transfer_pb.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
-import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
+import {
+    toConnectCallOptions,
+    type PolyesterMutationOptions,
+} from "../../shared/request-options.js";
 import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
 import * as v from "valibot";
 import {
@@ -11,9 +14,7 @@ import {
     type CreateInternalTransferResult,
 } from "./internal-transfers.schemas.js";
 
-export type InternalTransferMutationOptions = {
-    stepUpToken?: string | null;
-};
+export type InternalTransferMutationOptions = PolyesterMutationOptions;
 
 export class InternalTransfersService {
     #client: Client<typeof Proto.InternalTransferService>;
@@ -26,13 +27,13 @@ export class InternalTransfersService {
 
     async create(
         input: CreateInternalTransferInput,
-        options?: InternalTransferMutationOptions,
+        options?: PolyesterMutationOptions,
     ): Promise<CreateInternalTransferResult> {
         const resolvedInput = resolveSubaccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(CreateInternalTransferInputSchema, resolvedInput);
         const res = await this.#client.createInternalTransfer(
             removeUndefined(validatedInput),
-            stepUpCallOptions(options?.stepUpToken),
+            toConnectCallOptions(options),
         );
         return v.parse(CreateInternalTransferResultSchema, res);
     }

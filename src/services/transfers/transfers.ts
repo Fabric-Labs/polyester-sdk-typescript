@@ -5,6 +5,10 @@ import type { RealtimeClient } from "../../realtime/index.js";
 import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
+    toConnectCallOptions,
+    type PolyesterRequestOptions,
+} from "../../shared/request-options.js";
+import {
     LedgerTransferSchema,
     ListTransfersInputSchema,
     type LedgerTransfer,
@@ -28,10 +32,11 @@ export class TransfersService {
 
     async list(
         input: ListTransfersInput,
+        options?: PolyesterRequestOptions,
     ): Promise<{ transfers: LedgerTransfer[]; nextCursor: number | null }> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(ListTransfersInputSchema, resolved);
-        const res = await this.#client.listTransfers(validatedInput);
+        const res = await this.#client.listTransfers(validatedInput, toConnectCallOptions(options));
         const transfers = v.parse(v.array(LedgerTransferSchema), res.transfers);
         const nextCursor = Number(res.nextCursor ?? 0n) || null;
         return { transfers, nextCursor };

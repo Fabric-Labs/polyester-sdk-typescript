@@ -4,6 +4,11 @@ import * as v from "valibot";
 import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import {
+    toConnectCallOptions,
+    type PolyesterMutationOptions,
+    type PolyesterRequestOptions,
+} from "../../shared/request-options.js";
+import {
     CreateTriggerInputSchema,
     ListTriggersInputSchema,
     CancelTriggerInputSchema,
@@ -72,20 +77,26 @@ export class TriggersService {
     /**
      * Create a standalone trigger (stop loss, take profit, trailing stop, TWAP, or ladder).
      */
-    async create(input: CreateTriggerInput): Promise<CreateTriggerResult> {
+    async create(
+        input: CreateTriggerInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<CreateTriggerResult> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(CreateTriggerInputSchema, resolved);
-        const res = await this.#client.createTrigger(validatedInput);
+        const res = await this.#client.createTrigger(validatedInput, toConnectCallOptions(options));
         return v.parse(CreateTriggerResultSchema, res);
     }
 
     /**
      * Get a trigger by ID.
      */
-    async get(input: GetTriggerInput): Promise<Trigger | null> {
+    async get(input: GetTriggerInput, options?: PolyesterRequestOptions): Promise<Trigger | null> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(GetTriggerInputSchema, resolved);
-        const res = await this.#client.getTrigger(removeUndefined(validated));
+        const res = await this.#client.getTrigger(
+            removeUndefined(validated),
+            toConnectCallOptions(options),
+        );
 
         if (!res.trigger) return null;
         return v.parse(TriggerSchema, res.trigger);
@@ -94,10 +105,16 @@ export class TriggersService {
     /**
      * List triggers for a subaccount with optional filters.
      */
-    async list(input: ListTriggersInput = {}): Promise<ListTriggersResult> {
+    async list(
+        input: ListTriggersInput = {},
+        options?: PolyesterRequestOptions,
+    ): Promise<ListTriggersResult> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(ListTriggersInputSchema, resolved);
-        const res = await this.#client.listTriggers(removeUndefined(validated));
+        const res = await this.#client.listTriggers(
+            removeUndefined(validated),
+            toConnectCallOptions(options),
+        );
         return {
             triggers: v.parse(v.array(TriggerSchema), res.triggers),
             total: res.total,
@@ -107,47 +124,71 @@ export class TriggersService {
     /**
      * Cancel a trigger.
      */
-    async cancel(input: CancelTriggerInput): Promise<CancelTriggerResult> {
+    async cancel(
+        input: CancelTriggerInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<CancelTriggerResult> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(CancelTriggerInputSchema, resolved);
-        const res = await this.#client.cancelTrigger(removeUndefined(validated));
+        const res = await this.#client.cancelTrigger(
+            removeUndefined(validated),
+            toConnectCallOptions(options),
+        );
         return v.parse(CancelTriggerResultSchema, res);
     }
 
     /**
      * Modify a trigger (limited patch for trigger price, limit price, trailing params).
      */
-    async modify(input: ModifyTriggerInput): Promise<ModifyTriggerResult> {
+    async modify(
+        input: ModifyTriggerInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<ModifyTriggerResult> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(ModifyTriggerInputSchema, resolved);
-        const res = await this.#client.modifyTrigger(validated);
+        const res = await this.#client.modifyTrigger(validated, toConnectCallOptions(options));
         return v.parse(ModifyTriggerResultSchema, res);
     }
 
     /**
      * Pause a trigger.
      */
-    async pause(input: PauseTriggerInput): Promise<PauseTriggerResult> {
+    async pause(
+        input: PauseTriggerInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<PauseTriggerResult> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(PauseTriggerInputSchema, resolved);
-        const res = await this.#client.pauseTrigger(removeUndefined(validated));
+        const res = await this.#client.pauseTrigger(
+            removeUndefined(validated),
+            toConnectCallOptions(options),
+        );
         return v.parse(PauseTriggerResultSchema, res);
     }
 
     /**
      * Resume a paused trigger.
      */
-    async resume(input: PauseTriggerInput): Promise<ResumeTriggerResult> {
+    async resume(
+        input: PauseTriggerInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<ResumeTriggerResult> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(PauseTriggerInputSchema, resolved);
-        const res = await this.#client.resumeTrigger(removeUndefined(validated));
+        const res = await this.#client.resumeTrigger(
+            removeUndefined(validated),
+            toConnectCallOptions(options),
+        );
         return v.parse(PauseTriggerResultSchema, res);
     }
 
     /**
      * List trigger events (audit trail of fires, cancels, updates).
      */
-    async listEvents(input: ListTriggerEventsInput): Promise<ListTriggerEventsResult> {
+    async listEvents(
+        input: ListTriggerEventsInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<ListTriggerEventsResult> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(ListTriggerEventsInputSchema, resolved);
 
@@ -158,6 +199,7 @@ export class TriggersService {
                 limit: validated.limit ?? 50,
                 beforeTsNs: validated.beforeTsNs ?? 0n,
             }),
+            toConnectCallOptions(options),
         );
 
         return {

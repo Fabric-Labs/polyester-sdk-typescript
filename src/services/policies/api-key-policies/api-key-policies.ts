@@ -3,7 +3,11 @@ import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
 import { removeUndefined } from "../../../utils/remove-undefined.js";
 import { idToBigInt } from "../../../utils/base58-id.js";
-import { stepUpCallOptions } from "../../../utils/step-up-call-options.js";
+import {
+    toConnectCallOptions,
+    type PolyesterMutationOptions,
+    type PolyesterRequestOptions,
+} from "../../../shared/request-options.js";
 import {
     ApiKeyPolicySchema,
     ListApiKeyPoliciesResponseSchema,
@@ -16,9 +20,7 @@ import {
 import { PolicyIdSchema } from "../shared.js";
 
 /** Optional fresh step-up token from {@link MfaService} after `freshStepUp` challenge completion. */
-export type ApiKeyPoliciesMutationOptions = {
-    stepUpToken?: string | null;
-};
+export type ApiKeyPoliciesMutationOptions = PolyesterMutationOptions;
 
 export class ApiKeyPoliciesService {
     #client: Client<typeof Proto.PolicyService>;
@@ -27,14 +29,20 @@ export class ApiKeyPoliciesService {
         this.#client = createClient(Proto.PolicyService, transport);
     }
 
-    async list(): Promise<ApiKeyPolicy[]> {
-        const res = await this.#client.listApiPolicies({});
+    async list(options?: PolyesterRequestOptions): Promise<ApiKeyPolicy[]> {
+        const res = await this.#client.listApiPolicies({}, toConnectCallOptions(options));
         return v.parse(ListApiKeyPoliciesResponseSchema, res);
     }
 
-    async get(policyId: string | undefined): Promise<ApiKeyPolicy> {
+    async get(
+        policyId: string | undefined,
+        options?: PolyesterRequestOptions,
+    ): Promise<ApiKeyPolicy> {
         if (!policyId) return DEFAULT_API_KEY_POLICY;
-        const res = await this.#client.getApiPolicy({ policyId: idToBigInt(policyId, "policyId") });
+        const res = await this.#client.getApiPolicy(
+            { policyId: idToBigInt(policyId, "policyId") },
+            toConnectCallOptions(options),
+        );
         if (!res.policy) return DEFAULT_API_KEY_POLICY;
         return v.parse(ApiKeyPolicySchema, res.policy);
     }
@@ -46,7 +54,7 @@ export class ApiKeyPoliciesService {
         const validatedInput = v.parse(CreateApiKeyPolicyInputSchema, input);
         const res = await this.#client.createApiPolicy(
             removeUndefined(validatedInput),
-            stepUpCallOptions(options?.stepUpToken),
+            toConnectCallOptions(options),
         );
         if (!res.policy) throw new Error("Failed to create API key policy");
         return v.parse(ApiKeyPolicySchema, res.policy);
@@ -59,7 +67,7 @@ export class ApiKeyPoliciesService {
         const validatedInput = v.parse(UpdateApiKeyPolicyInputSchema, input);
         const res = await this.#client.updateApiPolicy(
             removeUndefined(validatedInput),
-            stepUpCallOptions(options?.stepUpToken),
+            toConnectCallOptions(options),
         );
         if (!res.policy) throw new Error("Failed to update API key policy");
         return v.parse(ApiKeyPolicySchema, res.policy);
@@ -69,7 +77,7 @@ export class ApiKeyPoliciesService {
         const validatedPolicyId = v.parse(PolicyIdSchema, policyId);
         await this.#client.deleteApiPolicy(
             { policyId: validatedPolicyId },
-            stepUpCallOptions(options?.stepUpToken),
+            toConnectCallOptions(options),
         );
     }
 
@@ -80,7 +88,7 @@ export class ApiKeyPoliciesService {
         const validatedInput = v.parse(ApplyApiKeyPolicyInputSchema, input);
         await this.#client.setApiKeyPolicy(
             removeUndefined(validatedInput),
-            stepUpCallOptions(options?.stepUpToken),
+            toConnectCallOptions(options),
         );
     }
 }

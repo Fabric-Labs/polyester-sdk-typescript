@@ -4,6 +4,11 @@ import * as v from "valibot";
 import { ProfileService } from "./profile/profile.js";
 import { formatId } from "../../utils/base58-id.js";
 import { TimestampSchema } from "../../shared/schemas.js";
+import {
+    toConnectCallOptions,
+    type PolyesterMutationOptions,
+    type PolyesterRequestOptions,
+} from "../../shared/request-options.js";
 import { MfaSessionInfoSchema } from "../mfa/mfa.schemas.js";
 import type { RealtimeClient } from "../../realtime/index.js";
 
@@ -69,18 +74,33 @@ export class AuthService {
         this.profile = new ProfileService(transports.authApi, realtime);
     }
 
-    async me(): Promise<Me> {
-        const res = await this.#authClient.me({});
+    async me(options?: PolyesterRequestOptions): Promise<Me> {
+        const res = await this.#authClient.me({}, toConnectCallOptions(options));
         return v.parse(MeSchema, res);
     }
 
-    async requestLoginNonce(smartAccountAddress: string): Promise<Nonce> {
-        return v.parse(NonceSchema, await this.#publicClient.getNonce({ smartAccountAddress }));
+    async requestLoginNonce(
+        smartAccountAddress: string,
+        options?: PolyesterRequestOptions,
+    ): Promise<Nonce> {
+        return v.parse(
+            NonceSchema,
+            await this.#publicClient.getNonce(
+                { smartAccountAddress },
+                toConnectCallOptions(options),
+            ),
+        );
     }
 
-    protected async loginWithWallet(input: LoginWithWalletInput): Promise<LoginWithWalletResponse> {
+    protected async loginWithWallet(
+        input: LoginWithWalletInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<LoginWithWalletResponse> {
         const validatedInput = v.parse(LoginWithWalletInputSchema, input);
-        const res = await this.#publicClient.loginWithWallet(validatedInput);
+        const res = await this.#publicClient.loginWithWallet(
+            validatedInput,
+            toConnectCallOptions(options),
+        );
         return v.parse(LoginWithWalletResponseSchema, res);
     }
 }

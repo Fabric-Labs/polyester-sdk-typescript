@@ -4,6 +4,11 @@ import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
 import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
+import {
+    toConnectCallOptions,
+    type PolyesterMutationOptions,
+    type PolyesterRequestOptions,
+} from "../../shared/request-options.js";
 import type { RealtimeClient } from "../../realtime/client.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
@@ -48,10 +53,14 @@ export class OrdersService {
 
     async listOpen(
         input: v.InferInput<typeof OpenOrdersInputSchema> = {},
+        options?: PolyesterRequestOptions,
     ): Promise<{ orders: Order[]; nextPageToken: string }> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(OpenOrdersInputSchema, resolved);
-        const res = await this.#readClient.getOpenOrders(removeUndefined(validatedInput));
+        const res = await this.#readClient.getOpenOrders(
+            removeUndefined(validatedInput),
+            toConnectCallOptions(options),
+        );
         return {
             orders: v.parse(v.array(OrderSchema), res.orders),
             nextPageToken: res.nextPageToken,
@@ -60,41 +69,60 @@ export class OrdersService {
 
     async listHistory(
         input: v.InferInput<typeof OrderHistoryInputSchema> = {},
+        options?: PolyesterRequestOptions,
     ): Promise<{ orders: Order[]; nextPageToken: string }> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(OrderHistoryInputSchema, resolved);
-        const res = await this.#readClient.getOrderHistory(removeUndefined(validatedInput));
+        const res = await this.#readClient.getOrderHistory(
+            removeUndefined(validatedInput),
+            toConnectCallOptions(options),
+        );
         return {
             orders: v.parse(v.array(OrderSchema), res.orders),
             nextPageToken: res.nextPageToken,
         };
     }
 
-    async create(input: v.InferInput<typeof NewOrderInputSchema>): Promise<CreateOrderResult> {
+    async create(
+        input: v.InferInput<typeof NewOrderInputSchema>,
+        options?: PolyesterMutationOptions,
+    ): Promise<CreateOrderResult> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(NewOrderInputSchema, resolved);
         const requestPayload = removeUndefined(validatedInput);
-        const res = await this.#writeClient.createOrder(requestPayload);
+        const res = await this.#writeClient.createOrder(
+            requestPayload,
+            toConnectCallOptions(options),
+        );
         return v.parse(CreateOrderResultSchema, res);
     }
 
-    async cancel(input: v.InferInput<typeof CancelOrderInputSchema>): Promise<CancelOrderResult> {
+    async cancel(
+        input: v.InferInput<typeof CancelOrderInputSchema>,
+        options?: PolyesterMutationOptions,
+    ): Promise<CancelOrderResult> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
 
         const validated = v.parse(CancelOrderInputSchema, resolved);
 
-        const res = await this.#writeClient.cancelOrder({
-            key: {
-                case: "orderId",
-                value: validated.orderId,
+        const res = await this.#writeClient.cancelOrder(
+            {
+                key: {
+                    case: "orderId",
+                    value: validated.orderId,
+                },
+                symbolId: validated.symbolId,
+                subaccountId: validated.subaccountId,
             },
-            symbolId: validated.symbolId,
-            subaccountId: validated.subaccountId,
-        });
+            toConnectCallOptions(options),
+        );
         return v.parse(CancelOrderResultSchema, res);
     }
 
-    async modify(input: v.InferInput<typeof ModifyOrderInputSchema>): Promise<ModifyOrderResult> {
+    async modify(
+        input: v.InferInput<typeof ModifyOrderInputSchema>,
+        options?: PolyesterMutationOptions,
+    ): Promise<ModifyOrderResult> {
         const resolved = {
             ...resolveSubaccountScopedInput(input, this.#resolver),
             requestId:
@@ -103,23 +131,36 @@ export class OrdersService {
                 `req_${Date.now()}_${Math.random().toString(16).slice(2)}`,
         };
         const validated = v.parse(ModifyOrderInputSchema, resolved);
-        const res = await this.#writeClient.modifyOrder(removeUndefined(validated));
+        const res = await this.#writeClient.modifyOrder(
+            removeUndefined(validated),
+            toConnectCallOptions(options),
+        );
         return v.parse(ModifyOrderResultSchema, res);
     }
 
     async cancelAll(
         input: v.InferInput<typeof CancelAllOrdersInputSchema>,
+        options?: PolyesterMutationOptions,
     ): Promise<CancelAllOrdersResponse> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(CancelAllOrdersInputSchema, resolved);
-        const res = await this.#writeClient.cancelAllOrders(removeUndefined(validated));
+        const res = await this.#writeClient.cancelAllOrders(
+            removeUndefined(validated),
+            toConnectCallOptions(options),
+        );
         return v.parse(CancelAllOrdersResponseSchema, res);
     }
 
-    async get(input: v.InferInput<typeof GetOrderInputSchema>): Promise<GetOrderResponse | null> {
+    async get(
+        input: v.InferInput<typeof GetOrderInputSchema>,
+        options?: PolyesterRequestOptions,
+    ): Promise<GetOrderResponse | null> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(GetOrderInputSchema, resolved);
-        const res = await this.#readClient.getOrder(removeUndefined(validatedInput));
+        const res = await this.#readClient.getOrder(
+            removeUndefined(validatedInput),
+            toConnectCallOptions(options),
+        );
         return v.parse(GetOrderResponseSchema, res);
     }
 

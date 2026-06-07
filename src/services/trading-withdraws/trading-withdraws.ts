@@ -4,7 +4,10 @@ import { hexToBytes, keccak256, stringToBytes, type Address, type Hex } from "vi
 import * as Proto from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import { U128Schema, type U128 } from "../../gen/polyester/type/v1/u128_pb.js";
 import { idToBigInt } from "../../utils/base58-id.js";
-import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
+import {
+    toConnectCallOptions,
+    type PolyesterMutationOptions,
+} from "../../shared/request-options.js";
 import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
 import { TradingWithdrawActionCodec } from "./trading-withdraws.codecs.js";
 import * as v from "valibot";
@@ -35,9 +38,7 @@ export type CreateTradingWithdrawToFundingServiceInput = CreateTradingWithdrawTo
     walletSigner?: TradingWithdrawWalletSigner;
 };
 
-export type TradingWithdrawMutationOptions = {
-    stepUpToken?: string | null;
-};
+export type TradingWithdrawMutationOptions = PolyesterMutationOptions;
 
 function toU128(value: bigint): U128 {
     if (value < 0n) {
@@ -184,7 +185,7 @@ export class TradingWithdrawsService {
                     signerWallet: walletSignature.signerWallet,
                     payloadSignature: walletSignature.payloadSignature,
                 }),
-                stepUpCallOptions(options?.stepUpToken),
+                toConnectCallOptions(options),
             );
             return v.parse(CreateWalletTradingWithdrawResultSchema, response);
         }
@@ -198,7 +199,7 @@ export class TradingWithdrawsService {
                 payload,
                 payloadSignature: validated.payloadSignature,
             }),
-            stepUpCallOptions(options?.stepUpToken),
+            toConnectCallOptions(options),
         );
         return v.parse(CreateTradingWithdrawResultSchema, response);
     }

@@ -3,6 +3,11 @@ import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
 import { removeUndefined } from "../../../utils/remove-undefined.js";
 import { idToBigInt } from "../../../utils/base58-id.js";
+import {
+    toConnectCallOptions,
+    type PolyesterMutationOptions,
+    type PolyesterRequestOptions,
+} from "../../../shared/request-options.js";
 import type { BaseSubscribeInput } from "../../../shared/types.js";
 import type { RealtimeClient } from "../../../realtime/index.js";
 import {
@@ -27,45 +32,68 @@ export class SubaccountPoliciesService {
         this.#realtime = realtime;
     }
 
-    async list(): Promise<SubaccountPolicy[]> {
-        const result = await this.#client.listSubaccountPolicies({});
+    async list(options?: PolyesterRequestOptions): Promise<SubaccountPolicy[]> {
+        const result = await this.#client.listSubaccountPolicies({}, toConnectCallOptions(options));
         return v.parse(v.array(SubaccountPolicySchema), result.policies);
     }
 
-    async get(policyId: string): Promise<SubaccountPolicy | null> {
-        const result = await this.#client.getSubaccountPolicy({
-            policyId: idToBigInt(policyId, "policyId"),
-        });
+    async get(
+        policyId: string,
+        options?: PolyesterRequestOptions,
+    ): Promise<SubaccountPolicy | null> {
+        const result = await this.#client.getSubaccountPolicy(
+            {
+                policyId: idToBigInt(policyId, "policyId"),
+            },
+            toConnectCallOptions(options),
+        );
         if (!result.policy) return null;
         return v.parse(SubaccountPolicySchema, result.policy);
     }
 
     async create(
         input: v.InferInput<typeof CreateSubaccountPolicyInputSchema>,
+        options?: PolyesterMutationOptions,
     ): Promise<SubaccountPolicy | null> {
         const validatedInput = v.parse(CreateSubaccountPolicyInputSchema, input);
-        const result = await this.#client.createSubaccountPolicy(removeUndefined(validatedInput));
+        const result = await this.#client.createSubaccountPolicy(
+            removeUndefined(validatedInput),
+            toConnectCallOptions(options),
+        );
         if (!result.policy) throw new Error("Failed to create subaccount policy");
         return v.parse(SubaccountPolicySchema, result.policy);
     }
 
     async update(
         input: v.InferInput<typeof UpdateSubaccountPolicyInputSchema>,
+        options?: PolyesterMutationOptions,
     ): Promise<SubaccountPolicy | null> {
         const validatedInput = v.parse(UpdateSubaccountPolicyInputSchema, input);
-        const result = await this.#client.updateSubaccountPolicy(removeUndefined(validatedInput));
+        const result = await this.#client.updateSubaccountPolicy(
+            removeUndefined(validatedInput),
+            toConnectCallOptions(options),
+        );
         if (!result.policy) throw new Error("Failed to update subaccount policy");
         return v.parse(SubaccountPolicySchema, result.policy);
     }
 
-    async delete(policyId: string): Promise<void> {
+    async delete(policyId: string, options?: PolyesterMutationOptions): Promise<void> {
         const validatedPolicyId = v.parse(PolicyIdSchema, policyId);
-        await this.#client.deleteSubaccountPolicy({ policyId: validatedPolicyId });
+        await this.#client.deleteSubaccountPolicy(
+            { policyId: validatedPolicyId },
+            toConnectCallOptions(options),
+        );
     }
 
-    async apply(input: v.InferInput<typeof ApplySubaccountPolicyInputSchema>): Promise<void> {
+    async apply(
+        input: v.InferInput<typeof ApplySubaccountPolicyInputSchema>,
+        options?: PolyesterMutationOptions,
+    ): Promise<void> {
         const validatedInput = v.parse(ApplySubaccountPolicyInputSchema, input);
-        await this.#client.setSubaccountPolicy(removeUndefined(validatedInput));
+        await this.#client.setSubaccountPolicy(
+            removeUndefined(validatedInput),
+            toConnectCallOptions(options),
+        );
     }
 
     subscribePolicies(input: SubscribePoliciesInput) {

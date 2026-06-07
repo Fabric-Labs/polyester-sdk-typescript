@@ -3,6 +3,10 @@ import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import type { RealtimeClient } from "../../realtime/client.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
+    toConnectCallOptions,
+    type PolyesterRequestOptions,
+} from "../../shared/request-options.js";
+import {
     OrderbookDataSchema,
     GetOrderbookInputSchema,
     type OrderbookLevel,
@@ -43,9 +47,12 @@ export class OrderbookService {
         this.#realtime = realtime;
     }
 
-    async get(input: v.InferInput<typeof GetOrderbookInputSchema>): Promise<OrderbookData> {
+    async get(
+        input: v.InferInput<typeof GetOrderbookInputSchema>,
+        options?: PolyesterRequestOptions,
+    ): Promise<OrderbookData> {
         const validated = v.parse(GetOrderbookInputSchema, input);
-        const res = await this.#client.getOrderBook(validated);
+        const res = await this.#client.getOrderBook(validated, toConnectCallOptions(options));
         return v.parse(OrderbookDataSchema, {
             symbol: validated.symbol,
             depth: validated.depth,

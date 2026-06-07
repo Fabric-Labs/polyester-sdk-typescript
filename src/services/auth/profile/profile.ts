@@ -3,6 +3,11 @@ import * as Proto from "../../../gen/auth/v1/profile_pb.js";
 import * as v from "valibot";
 import { removeUndefined } from "../../../utils/remove-undefined.js";
 import {
+    toConnectCallOptions,
+    type PolyesterMutationOptions,
+    type PolyesterRequestOptions,
+} from "../../../shared/request-options.js";
+import {
     AccountIdentitySchema,
     ProfileSchema,
     UpdateProfileInputSchema,
@@ -25,20 +30,26 @@ export class ProfileService {
         this.#realtime = realtime;
     }
 
-    async get(): Promise<Profile> {
-        const res = await this.#client.getProfile({});
+    async get(options?: PolyesterRequestOptions): Promise<Profile> {
+        const res = await this.#client.getProfile({}, toConnectCallOptions(options));
         if (!res) throw new Error("Profile not found");
         return v.parse(ProfileSchema, res);
     }
 
-    async update(input: v.InferInput<typeof UpdateProfileInputSchema>): Promise<Profile> {
+    async update(
+        input: v.InferInput<typeof UpdateProfileInputSchema>,
+        options?: PolyesterMutationOptions,
+    ): Promise<Profile> {
         const validatedInput = v.parse(UpdateProfileInputSchema, input);
-        const res = await this.#client.updateProfile(removeUndefined(validatedInput));
+        const res = await this.#client.updateProfile(
+            removeUndefined(validatedInput),
+            toConnectCallOptions(options),
+        );
         return v.parse(ProfileSchema, res);
     }
 
-    async getUsernameHistory(): Promise<UsernameHistoryEntry[]> {
-        const res = await this.#client.getUsernameHistory({});
+    async getUsernameHistory(options?: PolyesterRequestOptions): Promise<UsernameHistoryEntry[]> {
+        const res = await this.#client.getUsernameHistory({}, toConnectCallOptions(options));
         return v.parse(v.array(UsernameHistoryEntrySchema), res.history);
     }
 

@@ -8,6 +8,10 @@ import {
 } from "../../gen/chain/lifecycle/v1/lifecycle_read_pb.js";
 import type { RealtimeClient } from "../../realtime/client.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
+import {
+    toConnectCallOptions,
+    type PolyesterRequestOptions,
+} from "../../shared/request-options.js";
 import { isDev } from "../../utils/is-dev.js";
 import * as v from "valibot";
 import {
@@ -48,24 +52,34 @@ export class LifecycleService {
 
     async listFlows(
         input: ListLifecycleFlowsInput,
-        options: { signal?: AbortSignal } = {},
+        options?: PolyesterRequestOptions,
     ): Promise<ListLifecycleFlowsOutput> {
         const parsedInput = v.parse(ListLifecycleFlowsInputSchema, input);
-        const response = await this.#client.listFlows(parsedInput, { signal: options.signal });
+        const response = await this.#client.listFlows(parsedInput, toConnectCallOptions(options));
         return v.parse(ListLifecycleFlowsOutputSchema, response);
     }
 
-    async getFlow(input: GetLifecycleFlowInput): Promise<GetLifecycleFlowOutput> {
+    async getFlow(
+        input: GetLifecycleFlowInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<GetLifecycleFlowOutput> {
         const parsedInput = v.parse(GetLifecycleFlowInputSchema, input);
         const response = await this.#client.getFlowById(
             create(GetFlowByIdRequestSchema, parsedInput),
+            toConnectCallOptions(options),
         );
         return v.parse(GetLifecycleFlowOutputSchema, response);
     }
 
-    async listFlowsByTx(input: ListLifecycleFlowsByTxInput): Promise<ListLifecycleFlowsByTxOutput> {
+    async listFlowsByTx(
+        input: ListLifecycleFlowsByTxInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<ListLifecycleFlowsByTxOutput> {
         const parsedInput = v.parse(ListLifecycleFlowsByTxInputSchema, input);
-        const response = await this.#client.listFlowsByTx(parsedInput);
+        const response = await this.#client.listFlowsByTx(
+            parsedInput,
+            toConnectCallOptions(options),
+        );
         return v.parse(ListLifecycleFlowsByTxOutputSchema, response);
     }
 

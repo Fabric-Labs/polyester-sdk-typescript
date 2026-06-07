@@ -15,10 +15,6 @@ export const GuardSignerScopedInputSchema = v.object({
 
 export type GuardSignerScopedInput = v.InferInput<typeof GuardSignerScopedInputSchema>;
 
-export type GuardSignerMutationOptions = {
-    stepUpToken?: string | null;
-};
-
 const ProtectedActionArgsInputSchema = v.variant("case", [
     v.object({
         case: v.literal("externalWhitelist"),

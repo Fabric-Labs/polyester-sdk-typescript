@@ -1,7 +1,11 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as Proto from "../../gen/auth/v1/mfa_pb.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
-import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
+import {
+    toConnectCallOptions,
+    type PolyesterMutationOptions,
+    type PolyesterRequestOptions,
+} from "../../shared/request-options.js";
 import * as v from "valibot";
 import {
     BeginMfaChallengeInputSchema,
@@ -61,118 +65,137 @@ export class MfaService {
         this.#client = createClient(Proto.MFAService, transport);
     }
 
-    async listFactors(): Promise<ListMfaFactorsResult> {
-        const res = await this.#client.listMFAFactors({});
+    async listFactors(options?: PolyesterRequestOptions): Promise<ListMfaFactorsResult> {
+        const res = await this.#client.listMFAFactors({}, toConnectCallOptions(options));
         return v.parse(ListMfaFactorsResponseSchema, res);
     }
 
-    async beginTotpEnrollment(input: BeginTotpEnrollmentInput): Promise<BeginTotpEnrollmentResult> {
-        const { stepUpToken, ...req } = v.parse(BeginTotpEnrollmentInputSchema, input);
-        const res = await this.#client.beginTOTPEnrollment(
-            req,
-            stepUpCallOptions(stepUpToken ?? undefined),
-        );
+    async beginTotpEnrollment(
+        input: BeginTotpEnrollmentInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<BeginTotpEnrollmentResult> {
+        const req = v.parse(BeginTotpEnrollmentInputSchema, input);
+        const res = await this.#client.beginTOTPEnrollment(req, toConnectCallOptions(options));
         return v.parse(BeginTotpEnrollmentResultSchema, res);
     }
 
     async finishTotpEnrollment(
         input: FinishTotpEnrollmentInput,
+        options?: PolyesterRequestOptions,
     ): Promise<FinishTotpEnrollmentResult> {
         const req = v.parse(FinishTotpEnrollmentInputSchema, input);
-        const res = await this.#client.finishTOTPEnrollment(req);
+        const res = await this.#client.finishTOTPEnrollment(req, toConnectCallOptions(options));
         return v.parse(FinishTotpEnrollmentResultSchema, res);
     }
 
     async beginPasskeyEnrollment(
         input: BeginPasskeyEnrollmentInput,
+        options?: PolyesterMutationOptions,
     ): Promise<BeginPasskeyEnrollmentResult> {
-        const { stepUpToken, ...req } = v.parse(BeginPasskeyEnrollmentInputSchema, input);
-        const res = await this.#client.beginPasskeyEnrollment(
-            req,
-            stepUpCallOptions(stepUpToken ?? undefined),
-        );
+        const req = v.parse(BeginPasskeyEnrollmentInputSchema, input);
+        const res = await this.#client.beginPasskeyEnrollment(req, toConnectCallOptions(options));
         return v.parse(BeginPasskeyEnrollmentResultSchema, res);
     }
 
     async finishPasskeyEnrollment(
         input: FinishPasskeyEnrollmentInput,
+        options?: PolyesterRequestOptions,
     ): Promise<FinishPasskeyEnrollmentResult> {
         const req = v.parse(FinishPasskeyEnrollmentInputSchema, input);
-        const res = await this.#client.finishPasskeyEnrollment(req);
+        const res = await this.#client.finishPasskeyEnrollment(req, toConnectCallOptions(options));
         return v.parse(FinishPasskeyEnrollmentResultSchema, res);
     }
 
-    async beginChallenge(input: BeginMfaChallengeInput): Promise<BeginMfaChallengeResult> {
+    async beginChallenge(
+        input: BeginMfaChallengeInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<BeginMfaChallengeResult> {
         const req = v.parse(BeginMfaChallengeInputSchema, input);
-        const res = await this.#client.beginMFAChallenge(req);
+        const res = await this.#client.beginMFAChallenge(req, toConnectCallOptions(options));
         return v.parse(BeginMfaChallengeResultSchema, res);
     }
 
     async verifyTotpChallenge(
         input: VerifyTotpChallengeInput,
+        options?: PolyesterRequestOptions,
     ): Promise<CompleteMfaChallengeResult> {
         const req = v.parse(VerifyTotpChallengeInputSchema, input);
-        const res = await this.#client.verifyTOTPChallenge(req);
+        const res = await this.#client.verifyTOTPChallenge(req, toConnectCallOptions(options));
         return v.parse(CompleteMfaChallengeResultSchema, res);
     }
 
     async finishPasskeyChallenge(
         input: FinishPasskeyChallengeInput,
+        options?: PolyesterRequestOptions,
     ): Promise<CompleteMfaChallengeResult> {
         const req = v.parse(FinishPasskeyChallengeInputSchema, input);
-        const res = await this.#client.finishPasskeyChallenge(req);
+        const res = await this.#client.finishPasskeyChallenge(req, toConnectCallOptions(options));
         return v.parse(CompleteMfaChallengeResultSchema, res);
     }
 
     async verifyRecoveryCodeChallenge(
         input: VerifyRecoveryCodeChallengeInput,
+        options?: PolyesterRequestOptions,
     ): Promise<CompleteMfaChallengeResult> {
         const req = v.parse(VerifyRecoveryCodeChallengeInputSchema, input);
-        const res = await this.#client.verifyRecoveryCodeChallenge(req);
+        const res = await this.#client.verifyRecoveryCodeChallenge(
+            req,
+            toConnectCallOptions(options),
+        );
         return v.parse(CompleteMfaChallengeResultSchema, res);
     }
 
-    async deleteFactor(input: DeleteMfaFactorInput): Promise<void> {
-        const { factorId, stepUpToken } = v.parse(DeleteMfaFactorInputSchema, input);
-        await this.#client.deleteMFAFactor(
-            { factorId },
-            stepUpCallOptions(stepUpToken ?? undefined),
-        );
+    async deleteFactor(
+        input: DeleteMfaFactorInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<void> {
+        const { factorId } = v.parse(DeleteMfaFactorInputSchema, input);
+        await this.#client.deleteMFAFactor({ factorId }, toConnectCallOptions(options));
     }
 
-    async updateFactor(input: UpdateMfaFactorInput): Promise<UpdateMfaFactorResult> {
-        const { factorId, label, stepUpToken } = v.parse(UpdateMfaFactorInputSchema, input);
+    async updateFactor(
+        input: UpdateMfaFactorInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<UpdateMfaFactorResult> {
+        const { factorId, label } = v.parse(UpdateMfaFactorInputSchema, input);
         const res = await this.#client.updateMFAFactor(
             { factorId, label },
-            stepUpCallOptions(stepUpToken ?? undefined),
+            toConnectCallOptions(options),
         );
         return v.parse(UpdateMfaFactorResultSchema, res);
     }
 
     async regenerateRecoveryCodes(
         input: RegenerateRecoveryCodesInput = {},
+        options?: PolyesterMutationOptions,
     ): Promise<RegenerateRecoveryCodesResult> {
-        const { stepUpToken } = v.parse(RegenerateRecoveryCodesInputSchema, input);
-        const res = await this.#client.regenerateRecoveryCodes(
-            {},
-            stepUpCallOptions(stepUpToken ?? undefined),
-        );
+        v.parse(RegenerateRecoveryCodesInputSchema, input);
+        const res = await this.#client.regenerateRecoveryCodes({}, toConnectCallOptions(options));
         return v.parse(RegenerateRecoveryCodesResultSchema, res);
     }
 
-    async claimFreshStepUp(input: ClaimFreshStepUpInput): Promise<ClaimFreshStepUpResult> {
+    async claimFreshStepUp(
+        input: ClaimFreshStepUpInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<ClaimFreshStepUpResult> {
         const req = v.parse(ClaimFreshStepUpInputSchema, input);
-        const res = await this.#client.claimFreshStepUp(req);
+        const res = await this.#client.claimFreshStepUp(req, toConnectCallOptions(options));
         return v.parse(ClaimFreshStepUpResultSchema, res);
     }
 
-    async consumeFreshStepUp(input: ConsumeFreshStepUpInput): Promise<void> {
+    async consumeFreshStepUp(
+        input: ConsumeFreshStepUpInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<void> {
         const req = v.parse(ConsumeFreshStepUpInputSchema, input);
-        await this.#client.consumeFreshStepUp(removeUndefined(req));
+        await this.#client.consumeFreshStepUp(removeUndefined(req), toConnectCallOptions(options));
     }
 
-    async releaseFreshStepUp(input: ReleaseFreshStepUpInput): Promise<void> {
+    async releaseFreshStepUp(
+        input: ReleaseFreshStepUpInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<void> {
         const req = v.parse(ReleaseFreshStepUpInputSchema, input);
-        await this.#client.releaseFreshStepUp(removeUndefined(req));
+        await this.#client.releaseFreshStepUp(removeUndefined(req), toConnectCallOptions(options));
     }
 }

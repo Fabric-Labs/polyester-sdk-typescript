@@ -3,6 +3,10 @@ import type { RealtimeClient } from "../../realtime/client.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
 import type { BaseSubscribeInput } from "../../shared/types.js";
+import {
+    toConnectCallOptions,
+    type PolyesterRequestOptions,
+} from "../../shared/request-options.js";
 import { getPair } from "../../catalogs/market-data-catalog.js";
 import {
     GetMarketTradesInputSchema,
@@ -28,14 +32,15 @@ export class MarketDataService {
 
     async listTrades(
         input: v.InferInput<typeof GetMarketTradesInputSchema>,
+        options?: PolyesterRequestOptions,
     ): Promise<MarketTrade[]> {
         const validatedInput = v.parse(GetMarketTradesInputSchema, input);
-        const res = await this.#client.getTrades(validatedInput);
+        const res = await this.#client.getTrades(validatedInput, toConnectCallOptions(options));
         return v.parse(v.array(MarketTradeSchema), res.trades);
     }
 
-    async getSpotConfig(): Promise<SpotConfig> {
-        const res = await this.#client.getSpotConfig({});
+    async getSpotConfig(options?: PolyesterRequestOptions): Promise<SpotConfig> {
+        const res = await this.#client.getSpotConfig({}, toConnectCallOptions(options));
         return v.parse(SpotConfigSchema, res);
     }
 

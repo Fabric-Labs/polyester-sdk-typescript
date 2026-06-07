@@ -4,6 +4,10 @@ import * as v from "valibot";
 import type { RealtimeClient } from "../../realtime/client.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
+    toConnectCallOptions,
+    type PolyesterRequestOptions,
+} from "../../shared/request-options.js";
+import {
     type CandleColumnar,
     CandleRowSchema,
     CandleRowIntSchema,
@@ -41,24 +45,36 @@ export class CandlesService {
         this.#realtime = realtime;
     }
 
-    async list(input: GetCandlesInput): Promise<Candle[]> {
+    async list(input: GetCandlesInput, options?: PolyesterRequestOptions): Promise<Candle[]> {
         const validatedInput = v.parse(ListCandlesInputSchema, input);
-        const res = await this.#client.getCandles(validatedInput);
+        const res = await this.#client.getCandles(validatedInput, toConnectCallOptions(options));
         const candles = v.parse(v.optional(v.array(CandlePointSchema), []), res.candles);
         return candles.map((c) =>
             v.parse(CandleRowSchema, { ...c, symbolId: res.symbolId, timeframe: res.timeframe }),
         );
     }
 
-    async listColumnar(input: GetCandlesColumnsInput): Promise<CandleColumnar> {
+    async listColumnar(
+        input: GetCandlesColumnsInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<CandleColumnar> {
         const validatedInput = v.parse(GetCandlesColumnsInputSchema, input);
-        const res = await this.#client.getCandlesColumns(validatedInput);
+        const res = await this.#client.getCandlesColumns(
+            validatedInput,
+            toConnectCallOptions(options),
+        );
         return v.parse(CandleColumnarSchema, res);
     }
 
-    async listColumnarInts(input: GetCandlesColumnsInput): Promise<CandleColumnarInt> {
+    async listColumnarInts(
+        input: GetCandlesColumnsInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<CandleColumnarInt> {
         const validatedInput = v.parse(GetCandlesColumnsInputSchema, input);
-        const res = await this.#client.getCandlesColumns(validatedInput);
+        const res = await this.#client.getCandlesColumns(
+            validatedInput,
+            toConnectCallOptions(options),
+        );
         return v.parse(CandleColumnarIntSchema, res);
     }
 

@@ -7,6 +7,10 @@ import {
     resolveSubaccountId,
     resolveSubaccountScopedInput,
 } from "../subaccount-resolver.js";
+import {
+    toConnectCallOptions,
+    type PolyesterRequestOptions,
+} from "../../shared/request-options.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
@@ -38,33 +42,43 @@ export class BalancesService {
         this.#resolver = resolver;
     }
 
-    async list(input: { subaccountId?: string } = {}): Promise<LedgerBalance[]> {
+    async list(
+        input: { subaccountId?: string } = {},
+        options?: PolyesterRequestOptions,
+    ): Promise<LedgerBalance[]> {
         const resolved = resolveSubaccountId(input.subaccountId, this.#resolver);
-        const res = await this.#client.getBalances({
-            subaccountId: resolved ? idToBigInt(resolved, "subaccountId") : undefined,
-        });
+        const res = await this.#client.getBalances(
+            {
+                subaccountId: resolved ? idToBigInt(resolved, "subaccountId") : undefined,
+            },
+            toConnectCallOptions(options),
+        );
         return v.parse(
             v.array(LedgerBalanceSchema),
             res.balances.filter((b) => isKnownAssetId(b.assetId)),
         );
     }
 
-    async getBalanceHistory(input: BalanceHistoryInput): Promise<BalanceHistoryResponse> {
+    async getBalanceHistory(
+        input: BalanceHistoryInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<BalanceHistoryResponse> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(BalanceHistoryInputSchema, resolved);
-        const res = await this.#client.getBalanceHistory(validated);
+        const res = await this.#client.getBalanceHistory(validated, toConnectCallOptions(options));
         return v.parse(BalanceHistoryResponseSchema, res);
     }
 
     async getEquityHistory(
         input: EquityHistoryInput,
-        options: { signal?: AbortSignal } = {},
+        options?: PolyesterRequestOptions,
     ): Promise<EquityHistoryResponse> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(EquityHistoryInputSchema, resolved);
-        const res = await this.#client.getEquityHistorySeries(validated, {
-            signal: options.signal,
-        });
+        const res = await this.#client.getEquityHistorySeries(
+            validated,
+            toConnectCallOptions(options),
+        );
         return v.parse(EquityHistoryResponseSchema, res);
     }
 

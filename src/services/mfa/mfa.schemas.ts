@@ -82,7 +82,6 @@ export type ListMfaFactorsResult = v.InferOutput<typeof ListMfaFactorsResponseSc
 
 export const BeginTotpEnrollmentInputSchema = v.object({
     label: v.pipe(v.string(), v.trim(), v.minLength(1)),
-    stepUpToken: v.optional(v.pipe(v.string(), v.trim())),
 });
 
 export type BeginTotpEnrollmentInput = v.InferInput<typeof BeginTotpEnrollmentInputSchema>;
@@ -112,7 +111,6 @@ export type FinishTotpEnrollmentResult = v.InferOutput<typeof FinishTotpEnrollme
 
 export const BeginPasskeyEnrollmentInputSchema = v.object({
     label: v.pipe(v.string(), v.trim(), v.minLength(1)),
-    stepUpToken: v.optional(v.pipe(v.string(), v.trim())),
 });
 
 export type BeginPasskeyEnrollmentInput = v.InferInput<typeof BeginPasskeyEnrollmentInputSchema>;
@@ -213,7 +211,6 @@ export type CompleteMfaChallengeResult = v.InferOutput<typeof CompleteMfaChallen
 
 export const DeleteMfaFactorInputSchema = v.object({
     factorId: v.pipe(v.string(), v.trim(), v.minLength(1)),
-    stepUpToken: v.nullable(v.optional(v.pipe(v.string(), v.trim()))),
 });
 
 export type DeleteMfaFactorInput = v.InferInput<typeof DeleteMfaFactorInputSchema>;
@@ -221,7 +218,6 @@ export type DeleteMfaFactorInput = v.InferInput<typeof DeleteMfaFactorInputSchem
 export const UpdateMfaFactorInputSchema = v.object({
     factorId: v.pipe(v.string(), v.trim(), v.minLength(1)),
     label: v.pipe(v.string(), v.maxLength(128)),
-    stepUpToken: v.nullable(v.optional(v.pipe(v.string(), v.trim()))),
 });
 
 export type UpdateMfaFactorInput = v.InferInput<typeof UpdateMfaFactorInputSchema>;
@@ -232,9 +228,7 @@ export const UpdateMfaFactorResultSchema = v.object({
 
 export type UpdateMfaFactorResult = v.InferOutput<typeof UpdateMfaFactorResultSchema>;
 
-export const RegenerateRecoveryCodesInputSchema = v.object({
-    stepUpToken: v.optional(v.nullable(v.pipe(v.string(), v.trim()))),
-});
+export const RegenerateRecoveryCodesInputSchema = v.object({});
 
 export type RegenerateRecoveryCodesInput = v.InferInput<typeof RegenerateRecoveryCodesInputSchema>;
 

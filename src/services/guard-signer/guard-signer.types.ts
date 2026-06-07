@@ -4,9 +4,9 @@ export type {
     CreateGuardSignerWalletResult,
     ExportGuardSignerWalletResult,
     GuardApproval,
-    GuardSignerMutationOptions,
     GuardSignerScopedInput,
     GuardSignerStatus,
     RotateGuardSignerWalletResult,
     SignProtectedActionInput,
 } from "./guard-signer.schemas.js";
+export type { GuardSignerMutationOptions } from "./guard-signer.js";

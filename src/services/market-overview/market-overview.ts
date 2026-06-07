@@ -3,6 +3,10 @@ import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
 import type { RealtimeClient } from "../../realtime/client.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
+import {
+    toConnectCallOptions,
+    type PolyesterRequestOptions,
+} from "../../shared/request-options.js";
 import { formatConnectError } from "../../utils/errors.js";
 import {
     ListMarketOverviewInputSchema,
@@ -26,9 +30,15 @@ export class MarketOverviewService {
         this.#realtime = realtime;
     }
 
-    async list(input: ListMarketOverviewInput = {}): Promise<MarketOverview[]> {
+    async list(
+        input: ListMarketOverviewInput = {},
+        options?: PolyesterRequestOptions,
+    ): Promise<MarketOverview[]> {
         const validatedInput = v.parse(ListMarketOverviewInputSchema, input);
-        const res = await this.#client.listMarketOverview(validatedInput);
+        const res = await this.#client.listMarketOverview(
+            validatedInput,
+            toConnectCallOptions(options),
+        );
         return v.parse(v.array(MarketOverviewSchema), res.markets);
     }
 

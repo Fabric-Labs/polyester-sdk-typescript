@@ -2,7 +2,11 @@ import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as Proto from "../../gen/auth/v1/api_keys_pb.js";
 import * as v from "valibot";
 import { removeUndefined } from "../../utils/remove-undefined.js";
-import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
+import {
+    toConnectCallOptions,
+    type PolyesterMutationOptions,
+    type PolyesterRequestOptions,
+} from "../../shared/request-options.js";
 import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
 import { bytesToHex } from "@noble/hashes/utils.js";
 import { keygenAsync } from "@noble/ed25519";
@@ -23,9 +27,7 @@ interface SubscribeApiKeysInput extends BaseSubscribeInput<ApiKey> {
 }
 
 /** Optional fresh step-up token from {@link MfaService} after `freshStepUp` challenge completion. */
-export type ApiKeysMutationOptions = {
-    stepUpToken?: string | null;
-};
+export type ApiKeysMutationOptions = PolyesterMutationOptions;
 
 export class ApiKeysService {
     readonly policies: ApiKeyPoliciesService;
@@ -41,18 +43,27 @@ export class ApiKeysService {
         this.#resolver = resolver;
     }
 
-    async list(params: v.InferInput<typeof ApiKeysListInputSchema> = {}): Promise<ApiKey[]> {
+    async list(
+        params: v.InferInput<typeof ApiKeysListInputSchema> = {},
+        options?: PolyesterRequestOptions,
+    ): Promise<ApiKey[]> {
         const resolved = resolveSubaccountScopedInput(params, this.#resolver);
         const validatedParams = v.parse(ApiKeysListInputSchema, resolved);
-        const res = await this.#client.listApiKeys(removeUndefined(validatedParams));
+        const res = await this.#client.listApiKeys(
+            removeUndefined(validatedParams),
+            toConnectCallOptions(options),
+        );
 
         return v.parse(ApiKeysSchema, res.apiKeys);
     }
 
-    async get(keyId: string): Promise<ApiKey | null> {
+    async get(keyId: string, options?: PolyesterRequestOptions): Promise<ApiKey | null> {
         const validatedKeyId = keyId.trim();
         if (!validatedKeyId) throw new Error("[PolyesterClient.apiKeys.get]: keyId is required");
-        const res = await this.#client.getApiKey({ keyId: validatedKeyId });
+        const res = await this.#client.getApiKey(
+            { keyId: validatedKeyId },
+            toConnectCallOptions(options),
+        );
         return res.apiKey ? v.parse(ApiKeySchema, res.apiKey) : null;
     }
 
@@ -68,7 +79,7 @@ export class ApiKeysService {
         const validatedPayload = v.parse(ApiKeysCreateInputSchema, resolved);
         const res = await this.#client.createApiKey(
             removeUndefined(validatedPayload),
-            stepUpCallOptions(options?.stepUpToken),
+            toConnectCallOptions(options),
         );
         return res.apiKey ? v.parse(ApiKeySchema, res.apiKey) : null;
     }
@@ -76,10 +87,7 @@ export class ApiKeysService {
     async delete(keyId: string, options?: ApiKeysMutationOptions): Promise<void> {
         const validatedKeyId = keyId.trim();
         if (!validatedKeyId) throw new Error("[PolyesterClient.apiKeys.delete]: keyId is required");
-        await this.#client.deleteApiKey(
-            { keyId: validatedKeyId },
-            stepUpCallOptions(options?.stepUpToken),
-        );
+        await this.#client.deleteApiKey({ keyId: validatedKeyId }, toConnectCallOptions(options));
     }
 
     async update(
@@ -89,7 +97,7 @@ export class ApiKeysService {
         const validatedPayload = v.parse(ApiKeysUpdateInputSchema, payload);
         const res = await this.#client.updateApiKey(
             removeUndefined(validatedPayload),
-            stepUpCallOptions(options?.stepUpToken),
+            toConnectCallOptions(options),
         );
         return res.apiKey ? v.parse(ApiKeySchema, res.apiKey) : null;
     }

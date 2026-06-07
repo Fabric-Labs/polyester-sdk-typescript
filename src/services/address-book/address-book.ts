@@ -1,7 +1,11 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as Proto from "../../gen/auth/v1/address_book_pb.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
-import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
+import {
+    toConnectCallOptions,
+    type PolyesterMutationOptions,
+    type PolyesterRequestOptions,
+} from "../../shared/request-options.js";
 import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
 import * as v from "valibot";
 import {
@@ -50,9 +54,7 @@ import {
 } from "./address-book.schemas.js";
 
 /** Optional fresh step-up token from MFA after `freshStepUp` challenge completion. */
-export type AddressBookMutationOptions = {
-    stepUpToken?: string | null;
-};
+export type AddressBookMutationOptions = PolyesterMutationOptions;
 
 export class AddressBookService {
     #client: Client<typeof Proto.AddressBookService>;
@@ -63,14 +65,20 @@ export class AddressBookService {
         this.#resolver = resolver;
     }
 
-    async listBooks(): Promise<AddressBook[]> {
-        const response = await this.#client.listAddressBooks({});
+    async listBooks(options?: PolyesterRequestOptions): Promise<AddressBook[]> {
+        const response = await this.#client.listAddressBooks({}, toConnectCallOptions(options));
         return response.books.map((book) => v.parse(AddressBookSchema, book));
     }
 
-    async listEntries(input: ListAddressBookEntriesInput = {}): Promise<AddressBookEntries> {
+    async listEntries(
+        input: ListAddressBookEntriesInput = {},
+        options?: PolyesterRequestOptions,
+    ): Promise<AddressBookEntries> {
         const request = v.parse(ListAddressBookEntriesInputSchema, this.resolveInput(input));
-        const response = await this.#client.listAddressBookEntries(removeUndefined(request));
+        const response = await this.#client.listAddressBookEntries(
+            removeUndefined(request),
+            toConnectCallOptions(options),
+        );
         return v.parse(AddressBookEntriesSchema, response.entries);
     }
 
@@ -81,7 +89,7 @@ export class AddressBookService {
         const request = v.parse(CreateAddressBookEntryInputSchema, this.resolveInput(input));
         const response = await this.#client.createAddressBookEntry(
             removeUndefined(request),
-            stepUpCallOptions(options?.stepUpToken),
+            toConnectCallOptions(options),
         );
         return response.entry ? v.parse(AddressBookEntrySchema, response.entry) : null;
     }
@@ -93,7 +101,7 @@ export class AddressBookService {
         const request = v.parse(UpdateAddressBookEntryInputSchema, input);
         const response = await this.#client.updateAddressBookEntry(
             removeUndefined(request),
-            stepUpCallOptions(options?.stepUpToken),
+            toConnectCallOptions(options),
         );
         return response.entry ? v.parse(AddressBookEntrySchema, response.entry) : null;
     }
@@ -103,7 +111,7 @@ export class AddressBookService {
         options?: AddressBookMutationOptions,
     ): Promise<void> {
         const request = v.parse(DeleteAddressBookEntryInputSchema, input);
-        await this.#client.deleteAddressBookEntry(request, stepUpCallOptions(options?.stepUpToken));
+        await this.#client.deleteAddressBookEntry(request, toConnectCallOptions(options));
     }
 
     async copyEntry(
@@ -113,7 +121,7 @@ export class AddressBookService {
         const request = v.parse(CopyAddressBookEntryInputSchema, input);
         const response = await this.#client.copyAddressBookEntry(
             removeUndefined(request),
-            stepUpCallOptions(options?.stepUpToken),
+            toConnectCallOptions(options),
         );
         return response.entry ? v.parse(AddressBookEntrySchema, response.entry) : null;
     }
@@ -125,7 +133,7 @@ export class AddressBookService {
         const request = v.parse(CreateAddressBookTagInputSchema, this.resolveInput(input));
         const response = await this.#client.createAddressBookTag(
             removeUndefined(request),
-            stepUpCallOptions(options?.stepUpToken),
+            toConnectCallOptions(options),
         );
         return response.tag ? v.parse(AddressBookTagSchema, response.tag) : null;
     }
@@ -137,7 +145,7 @@ export class AddressBookService {
         const request = v.parse(UpdateAddressBookTagInputSchema, input);
         const response = await this.#client.updateAddressBookTag(
             removeUndefined(request),
-            stepUpCallOptions(options?.stepUpToken),
+            toConnectCallOptions(options),
         );
         return response.tag ? v.parse(AddressBookTagSchema, response.tag) : null;
     }
@@ -147,46 +155,66 @@ export class AddressBookService {
         options?: AddressBookMutationOptions,
     ): Promise<void> {
         const request = v.parse(DeleteAddressBookTagInputSchema, input);
-        await this.#client.deleteAddressBookTag(request, stepUpCallOptions(options?.stepUpToken));
+        await this.#client.deleteAddressBookTag(request, toConnectCallOptions(options));
     }
 
     async listTransferCounterparties(
         input: ListTransferCounterpartiesInput = {},
+        options?: PolyesterRequestOptions,
     ): Promise<TransferCounterparties> {
         const request = v.parse(ListTransferCounterpartiesInputSchema, this.resolveInput(input));
-        const response = await this.#client.listTransferCounterparties(removeUndefined(request));
+        const response = await this.#client.listTransferCounterparties(
+            removeUndefined(request),
+            toConnectCallOptions(options),
+        );
         return v.parse(TransferCounterpartiesSchema, response.counterparties);
     }
 
     async listTransferDestinations(
         input: ListTransferDestinationsInput = {},
+        options?: PolyesterRequestOptions,
     ): Promise<TransferDestinations> {
         const request = v.parse(ListTransferDestinationsInputSchema, this.resolveInput(input));
-        const response = await this.#client.listTransferDestinations(removeUndefined(request));
+        const response = await this.#client.listTransferDestinations(
+            removeUndefined(request),
+            toConnectCallOptions(options),
+        );
         return v.parse(TransferDestinationsSchema, response.destinations);
     }
 
     async listInternalTransferWhitelistEntries(
         input: SubaccountScopedInput = {},
+        options?: PolyesterRequestOptions,
     ): Promise<InternalTransferWhitelistEntries> {
         const request = v.parse(SubaccountScopedInputSchema, this.resolveInput(input));
         const response = await this.#client.listInternalTransferWhitelistEntries(
             removeUndefined(request),
+            toConnectCallOptions(options),
         );
         return v.parse(InternalTransferWhitelistEntriesSchema, response.entries);
     }
 
     async getWithdrawWhitelistView(
         input: SubaccountScopedInput = {},
+        options?: PolyesterRequestOptions,
     ): Promise<WithdrawWhitelistView | null> {
         const request = v.parse(SubaccountScopedInputSchema, this.resolveInput(input));
-        const response = await this.#client.getWithdrawWhitelistView(removeUndefined(request));
+        const response = await this.#client.getWithdrawWhitelistView(
+            removeUndefined(request),
+            toConnectCallOptions(options),
+        );
         return response.view ? v.parse(WithdrawWhitelistViewSchema, response.view) : null;
     }
 
-    async getView(input: GetAddressBookViewInput = {}): Promise<AddressBookView> {
+    async getView(
+        input: GetAddressBookViewInput = {},
+        options?: PolyesterRequestOptions,
+    ): Promise<AddressBookView> {
         const request = v.parse(GetAddressBookViewInputSchema, this.resolveInput(input));
-        const response = await this.#client.getAddressBookView(removeUndefined(request));
+        const response = await this.#client.getAddressBookView(
+            removeUndefined(request),
+            toConnectCallOptions(options),
+        );
         return v.parse(AddressBookViewSchema, response);
     }
 

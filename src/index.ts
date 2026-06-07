@@ -45,6 +45,10 @@ export type {
 
 export type { ApiKeyEd25519AuthProvider, JwtAuthProvider } from "./shared/transports.js";
 export type {
+    PolyesterMutationOptions,
+    PolyesterRequestOptions,
+} from "./shared/request-options.js";
+export type {
     ActiveAccountInfo,
     AuthHydrationData,
     AuthLoginMethod,
