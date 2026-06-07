@@ -12,7 +12,6 @@ describe("public package entrypoint", () => {
                 POLYESTER_TESTNET_ENVIRONMENT: expect.any(Object),
                 createPolyesterAccountSigner: expect.any(Function),
                 createPolyesterEnvironment: expect.any(Function),
-                createPolyesterServerClient: expect.any(Function),
                 createPolyesterServerClientFromCookies: expect.any(Function),
                 createPolyesterServerClientFromRequest: expect.any(Function),
                 createPolyesterSmartAccount: expect.any(Function),

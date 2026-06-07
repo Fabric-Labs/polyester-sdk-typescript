@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import type { Interceptor } from "@connectrpc/connect";
 import type { AccountSigner } from "./account-signer/index.js";
 import { PolyesterBrowserClient } from "./browser-client.js";
 import { POLYESTER_TESTNET_ENVIRONMENT } from "./environment.js";
@@ -27,6 +28,21 @@ describe("PolyesterBrowserClient", () => {
 
         expect(client.auth).toBeInstanceOf(AccountSignerAuthService);
         expect(client.auth.getAccountSigner()).toBeNull();
+    });
+
+    it("accepts shared transport and realtime config", () => {
+        const passthroughInterceptor: Interceptor = (next) => (req) => next(req);
+        const client = new PolyesterBrowserClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            interceptors: [passthroughInterceptor],
+            wireFormat: "json",
+            realtime: {
+                getAuthHeaders: () => ({ authorization: "Bearer test" }),
+                hasAuth: () => true,
+            },
+        });
+
+        expect(client.auth).toBeInstanceOf(AccountSignerAuthService);
     });
 
     it("updates the auth account signer via setAccountSigner", () => {

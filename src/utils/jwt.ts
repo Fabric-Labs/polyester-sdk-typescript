@@ -3,12 +3,30 @@ export function isJwt(token: string): boolean {
     return parts.length === 3 && !!parts[0] && !!parts[1] && !!parts[2];
 }
 
+const textDecoder = new TextDecoder("utf-8", { fatal: true });
+
+function decodeBase64Url(value: string): string | null {
+    const remainder = value.length % 4;
+    if (remainder === 1) return null;
+
+    const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+    const paddedBase64 =
+        remainder === 0 ? base64 : base64.padEnd(base64.length + 4 - remainder, "=");
+    const binary = atob(paddedBase64);
+    const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+    return textDecoder.decode(bytes);
+}
+
 export function getJwtExpiration(token: string): number | null {
     try {
         const [_, rawPayload] = token.split(".");
         if (!rawPayload) return null;
-        const payload = JSON.parse(atob(rawPayload));
-        return typeof payload.exp === "number" ? payload.exp : null;
+        const decodedPayload = decodeBase64Url(rawPayload);
+        if (!decodedPayload) return null;
+        const payload: unknown = JSON.parse(decodedPayload);
+        if (typeof payload !== "object" || payload === null) return null;
+        const exp = (payload as { exp?: unknown }).exp;
+        return typeof exp === "number" ? exp : null;
     } catch {
         return null;
     }

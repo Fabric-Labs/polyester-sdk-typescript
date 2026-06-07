@@ -1,16 +1,21 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import type { Interceptor } from "@connectrpc/connect";
 import {
-    createPolyesterServerClient,
     createPolyesterServerClientFromCookies,
     parseSessionCookie,
+    PolyesterServerClient,
     POLYESTER_AUTH_TOKEN_COOKIE_NAME,
     POLYESTER_SESSION_COOKIE_NAME,
 } from "./server-client.js";
 import { POLYESTER_TESTNET_ENVIRONMENT } from "./environment.js";
 import type { Me } from "./services/auth/auth.js";
 
+function base64UrlEncode(value: string): string {
+    return btoa(value).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/u, "");
+}
+
 function jwtWithExp(exp: number): string {
-    return ["header", btoa(JSON.stringify({ exp })), "signature"].join(".");
+    return ["header", base64UrlEncode(JSON.stringify({ exp })), "signature"].join(".");
 }
 
 function validJwt(): string {
@@ -152,6 +157,22 @@ describe("parseSessionCookie", () => {
 });
 
 describe("createPolyesterServerClientFromCookies", () => {
+    it("accepts shared transport and realtime config", () => {
+        const passthroughInterceptor: Interceptor = (next) => (req) => next(req);
+        const client = createPolyesterServerClientFromCookies({
+            cookies: {},
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            interceptors: [passthroughInterceptor],
+            wireFormat: "json",
+            realtime: {
+                getAuthHeaders: () => ({ authorization: "Bearer test" }),
+                hasAuth: () => true,
+            },
+        });
+
+        expect(client).toBeInstanceOf(PolyesterServerClient);
+    });
+
     it("does not install an auth provider without cookies", () => {
         const client = createPolyesterServerClientFromCookies({
             cookies: {},
@@ -224,7 +245,7 @@ describe("PolyesterServerClient.verifySession", () => {
     });
 
     it("returns null when no auth provider is configured", async () => {
-        const client = createPolyesterServerClient({
+        const client = new PolyesterServerClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
         });
         const me = vi.spyOn(client.auth, "me");

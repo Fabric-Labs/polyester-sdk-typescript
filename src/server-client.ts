@@ -1,4 +1,4 @@
-import { PolyesterClient } from "./core-client.js";
+import { PolyesterClient, type PolyesterClientBaseConfig } from "./core-client.js";
 import {
     POLYESTER_AUTH_TOKEN_COOKIE_NAME,
     POLYESTER_SESSION_COOKIE_NAME,
@@ -11,7 +11,6 @@ import type {
 import { type CookieGetter, getCookieValue } from "./utils/cookies.js";
 import type { JwtAuthProvider, ApiKeyEd25519AuthProvider } from "./shared/transports.js";
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";
-import type { PolyesterRealtimeAuthConfig } from "./core-client.js";
 import { isJwtValid } from "./utils/jwt.js";
 import type { Me } from "./services/auth/auth.js";
 import type { PolyesterEnvironment } from "./environment.js";
@@ -85,12 +84,9 @@ export function parseSessionCookie(
     };
 }
 
-export interface PolyesterServerClientConfig {
-    environment: PolyesterEnvironment;
-    wireFormat?: "binary" | "json";
-    /** Full auth provider config. Takes precedence over `token` if both are provided. */
+export interface PolyesterServerClientConfig extends PolyesterClientBaseConfig {
+    /** Auth provider config for HTTP/Connect endpoints. */
     auth?: JwtAuthProvider | ApiKeyEd25519AuthProvider;
-    realtime?: PolyesterRealtimeAuthConfig;
     /** Display-only session data parsed from cookies. Not proof of authentication. */
     session?: ServerSessionSnapshot;
 }
@@ -104,6 +100,7 @@ export class PolyesterServerClient extends PolyesterClient {
 
         super({
             environment: config.environment,
+            interceptors: config.interceptors,
             auth,
             wireFormat: config.wireFormat,
             realtime: config.realtime,
@@ -162,22 +159,14 @@ export class PolyesterServerClient extends PolyesterClient {
     }
 }
 
-export interface CreateServerClientFromCookiesParams {
+export interface CreateServerClientFromCookiesParams
+    extends Pick<PolyesterClientBaseConfig, "environment" | "interceptors" | "realtime" | "wireFormat"> {
     cookies: CookieGetter;
-    environment: PolyesterEnvironment;
-    realtime?: PolyesterRealtimeAuthConfig;
 }
 
-export interface CreateServerClientFromRequestParams {
+export interface CreateServerClientFromRequestParams
+    extends Pick<PolyesterClientBaseConfig, "environment" | "interceptors" | "realtime" | "wireFormat"> {
     request: Request;
-    environment: PolyesterEnvironment;
-    realtime?: PolyesterRealtimeAuthConfig;
-}
-
-export function createPolyesterServerClient(
-    config: PolyesterServerClientConfig,
-): PolyesterServerClient {
-    return new PolyesterServerClient(config);
 }
 
 export function createPolyesterServerClientFromCookies(
@@ -193,7 +182,9 @@ export function createPolyesterServerClientFromCookies(
 
     return new PolyesterServerClient({
         environment: params.environment,
+        interceptors: params.interceptors,
         session,
+        wireFormat: params.wireFormat,
         realtime: params.realtime,
         auth,
     });
@@ -205,6 +196,8 @@ export function createPolyesterServerClientFromRequest(
     return createPolyesterServerClientFromCookies({
         cookies: params.request,
         environment: params.environment,
+        interceptors: params.interceptors,
+        wireFormat: params.wireFormat,
         realtime: params.realtime,
     });
 }

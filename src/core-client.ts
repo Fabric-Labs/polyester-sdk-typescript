@@ -76,7 +76,7 @@ function realtimeAuthFromProvider(
 
 export type PolyesterRealtimeAuthConfig = Pick<RealtimeConfig, "getAuthHeaders" | "hasAuth">;
 
-export interface PolyesterClientConfig {
+export interface PolyesterClientBaseConfig {
     environment: PolyesterEnvironment;
     interceptors?: Interceptor[];
     auth?: JwtAuthProvider | ApiKeyEd25519AuthProvider;
@@ -87,6 +87,8 @@ export interface PolyesterClientConfig {
      */
     wireFormat?: "binary" | "json";
 }
+
+export interface PolyesterClientConfig extends PolyesterClientBaseConfig {}
 
 export class PolyesterClient {
     readonly auth: AuthService;

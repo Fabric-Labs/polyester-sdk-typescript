@@ -1,12 +1,15 @@
 export { PolyesterClient } from "./core-client.js";
-export type { PolyesterClientConfig, PolyesterRealtimeAuthConfig } from "./core-client.js";
+export type {
+    PolyesterClientBaseConfig,
+    PolyesterClientConfig,
+    PolyesterRealtimeAuthConfig,
+} from "./core-client.js";
 
 export { PolyesterBrowserClient } from "./browser-client.js";
 export type { PolyesterBrowserClientConfig } from "./browser-client.js";
 
 export {
     PolyesterServerClient,
-    createPolyesterServerClient,
     createPolyesterServerClientFromCookies,
     createPolyesterServerClientFromRequest,
 } from "./server-client.js";

@@ -1,12 +1,10 @@
-import { PolyesterClient } from "./core-client.js";
+import { PolyesterClient, type PolyesterClientBaseConfig } from "./core-client.js";
 import { getEnvironmentBoundPolyesterToken } from "./services/auth/token.js";
 import { AccountSignerAuthService } from "./services/auth/account-signer-auth.js";
 import type { AccountSignerConfig, AccountSigner } from "./account-signer/types.js";
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";
-import type { PolyesterEnvironment } from "./environment.js";
 
-export interface PolyesterBrowserClientConfig {
-    environment: PolyesterEnvironment;
+export interface PolyesterBrowserClientConfig extends Omit<PolyesterClientBaseConfig, "auth"> {
     /**
      * Account signer interface for authentication.
      * Pass a signer object or a factory function for lazy initialization.
@@ -25,9 +23,12 @@ export class PolyesterBrowserClient extends PolyesterClient {
 
         super({
             environment: config.environment,
+            interceptors: config.interceptors,
             auth: { kind: "jwt", getToken },
+            wireFormat: config.wireFormat,
             realtime: {
                 hasAuth: () => !!getToken(),
+                ...config.realtime,
             },
         });
 
