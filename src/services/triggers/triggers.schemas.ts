@@ -235,104 +235,94 @@ function buildTriggerDefaults(): Pick<
     };
 }
 
-const StopLossTriggerInputSchema = v.pipe(
-    v.object({
-        ...BaseChildOrderFieldsSchema.entries,
+type BaseChildOrderInput = v.InferOutput<typeof BaseChildOrderFieldsSchema>;
 
-        triggerType: v.literal("stop_loss"),
+type CreateTriggerBase = ReturnType<typeof buildTriggerDefaults> &
+    Pick<
+        Proto.CreateTriggerRequest,
+        | "subaccountId"
+        | "symbol"
+        | "side"
+        | "orderType"
+        | "tif"
+        | "qtyScaled"
+        | "limitPriceTicks"
+        | "feeSource"
+        | "stpMode"
+        | "postOnly"
+        | "clientTriggerId"
+    >;
 
-        triggerPrice: v.pipe(
-            v.string(),
-            v.trim(),
-            v.minLength(1),
-            v.transform((v) => parsePriceTicks(v, "triggerPrice")),
-        ),
+function buildCreateTriggerBase(input: BaseChildOrderInput): CreateTriggerBase {
+    return {
+        ...buildTriggerDefaults(),
+        subaccountId: input.subaccountId,
+        symbol: input.symbol,
+        side: input.side,
+        orderType: input.orderType,
+        tif: input.tif,
+        qtyScaled: parseQtyScaledForSymbol(input.symbol, input.qty),
+        limitPriceTicks:
+            input.orderType === ProtoOrders.OrderType.LIMIT && input.limitPrice
+                ? parsePriceTicks(input.limitPrice, "limitPrice")
+                : 0n,
+        feeSource: input.feeSource ?? ProtoOrders.FeeSource.QUOTE,
+        stpMode: input.stpMode ?? ProtoOrders.STPMode.EXPIRE_MAKER,
+        postOnly: input.postOnly ?? false,
+        clientTriggerId: input.clientTriggerId ?? crypto.randomUUID(),
+    };
+}
 
-        triggerPriceSource: v.pipe(
-            v.optional(TriggerPriceSourceSchema),
-            v.transform((v) =>
-                v
-                    ? TriggerPriceSourceCodec.inputToProto[v]
-                    : ProtoOrders.TriggerPriceSource.LAST_PRICE,
+function stopTriggerInputSchema(
+    triggerType: "stop_loss" | "take_profit",
+    protoTriggerType: Proto.TriggerType,
+    buyDirection: ProtoOrders.TriggerDirection,
+    sellDirection: ProtoOrders.TriggerDirection,
+) {
+    return v.pipe(
+        v.object({
+            ...BaseChildOrderFieldsSchema.entries,
+
+            triggerType: v.literal(triggerType),
+
+            triggerPrice: v.pipe(
+                v.string(),
+                v.trim(),
+                v.minLength(1),
+                v.transform((v) => parsePriceTicks(v, "triggerPrice")),
             ),
-        ),
-    }),
-    v.transform((input) => {
-        const isBuy = input.side === ProtoOrders.Side.BUY;
-        return {
-            ...buildTriggerDefaults(),
-            subaccountId: input.subaccountId,
-            symbol: input.symbol,
-            triggerType: Proto.TriggerType.STOP_LOSS,
-            side: input.side,
-            orderType: input.orderType,
-            tif: input.tif,
-            qtyScaled: parseQtyScaledForSymbol(input.symbol, input.qty),
-            limitPriceTicks:
-                input.orderType === ProtoOrders.OrderType.LIMIT && input.limitPrice
-                    ? parsePriceTicks(input.limitPrice, "limitPrice")
-                    : 0n,
-            feeSource: input.feeSource,
-            stpMode: input.stpMode,
-            postOnly: input.postOnly,
-            clientTriggerId: input.clientTriggerId,
+
+            triggerPriceSource: v.pipe(
+                v.optional(TriggerPriceSourceSchema),
+                v.transform((v) =>
+                    v
+                        ? TriggerPriceSourceCodec.inputToProto[v]
+                        : ProtoOrders.TriggerPriceSource.LAST_PRICE,
+                ),
+            ),
+        }),
+        v.transform((input) => ({
+            ...buildCreateTriggerBase(input),
+            triggerType: protoTriggerType,
             triggerPriceTicks: input.triggerPrice,
             triggerPriceSource: input.triggerPriceSource,
-            triggerDirection: isBuy
-                ? ProtoOrders.TriggerDirection.ABOVE
-                : ProtoOrders.TriggerDirection.BELOW,
-        };
-    }),
+            triggerDirection: input.side === ProtoOrders.Side.BUY ? buyDirection : sellDirection,
+        })),
+    );
+}
+
+const StopLossTriggerInputSchema = stopTriggerInputSchema(
+    "stop_loss",
+    Proto.TriggerType.STOP_LOSS,
+    ProtoOrders.TriggerDirection.ABOVE,
+    ProtoOrders.TriggerDirection.BELOW,
 );
 
-const TakeProfitTriggerInputSchema = v.pipe(
-    v.object({
-        ...BaseChildOrderFieldsSchema.entries,
-
-        triggerType: v.literal("take_profit"),
-
-        triggerPrice: v.pipe(
-            v.string(),
-            v.trim(),
-            v.minLength(1),
-            v.transform((v) => parsePriceTicks(v, "triggerPrice")),
-        ),
-
-        triggerPriceSource: v.pipe(
-            v.optional(TriggerPriceSourceSchema),
-            v.transform((v) =>
-                v
-                    ? TriggerPriceSourceCodec.inputToProto[v]
-                    : ProtoOrders.TriggerPriceSource.LAST_PRICE,
-            ),
-        ),
-    }),
-    v.transform((input) => {
-        const isBuy = input.side === ProtoOrders.Side.BUY;
-        return {
-            ...buildTriggerDefaults(),
-            subaccountId: input.subaccountId,
-            symbol: input.symbol,
-            triggerType: Proto.TriggerType.TAKE_PROFIT,
-            side: input.side,
-            orderType: input.orderType,
-            tif: input.tif,
-            qtyScaled: parseQtyScaledForSymbol(input.symbol, input.qty),
-            limitPriceTicks:
-                input.orderType === ProtoOrders.OrderType.LIMIT && input.limitPrice
-                    ? parsePriceTicks(input.limitPrice, "limitPrice")
-                    : 0n,
-            feeSource: input.feeSource,
-            stpMode: input.stpMode,
-            postOnly: input.postOnly,
-            clientTriggerId: input.clientTriggerId,
-            triggerPriceTicks: input.triggerPrice,
-            triggerPriceSource: input.triggerPriceSource,
-            triggerDirection: isBuy
-                ? ProtoOrders.TriggerDirection.BELOW
-                : ProtoOrders.TriggerDirection.ABOVE,
-        };
-    }),
+const TakeProfitTriggerInputSchema = stopTriggerInputSchema(
+    "take_profit",
+    Proto.TriggerType.TAKE_PROFIT,
+    ProtoOrders.TriggerDirection.BELOW,
+    ProtoOrders.TriggerDirection.ABOVE,
 );
 
 const TrailingStopTriggerInputSchema = v.pipe(
@@ -366,22 +356,8 @@ const TrailingStopTriggerInputSchema = v.pipe(
         ),
     }),
     v.transform((input) => ({
-        ...buildTriggerDefaults(),
-        subaccountId: input.subaccountId,
-        symbol: input.symbol,
+        ...buildCreateTriggerBase(input),
         triggerType: Proto.TriggerType.TRAILING_STOP,
-        side: input.side,
-        orderType: input.orderType,
-        tif: input.tif,
-        qtyScaled: parseQtyScaledForSymbol(input.symbol, input.qty),
-        limitPriceTicks:
-            input.orderType === ProtoOrders.OrderType.LIMIT && input.limitPrice
-                ? parsePriceTicks(input.limitPrice, "limitPrice")
-                : 0n,
-        feeSource: input.feeSource,
-        stpMode: input.stpMode,
-        postOnly: input.postOnly,
-        clientTriggerId: input.clientTriggerId,
         trailingDistance: input.trailingDistance,
         activationPriceTicks: input.activationPrice,
         maxSlippage: input.maxSlippage,
@@ -425,22 +401,8 @@ const TwapTriggerInputSchema = v.pipe(
         "twapSliceIntervalMs cannot exceed twapDurationMs",
     ),
     v.transform((input) => ({
-        ...buildTriggerDefaults(),
-        subaccountId: input.subaccountId,
-        symbol: input.symbol,
+        ...buildCreateTriggerBase(input),
         triggerType: Proto.TriggerType.TWAP,
-        side: input.side,
-        orderType: input.orderType,
-        tif: input.tif,
-        qtyScaled: parseQtyScaledForSymbol(input.symbol, input.qty),
-        limitPriceTicks:
-            input.orderType === ProtoOrders.OrderType.LIMIT && input.limitPrice
-                ? parsePriceTicks(input.limitPrice, "limitPrice")
-                : 0n,
-        feeSource: input.feeSource,
-        stpMode: input.stpMode,
-        postOnly: input.postOnly,
-        clientTriggerId: input.clientTriggerId,
         triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
         triggerDirection: ProtoOrders.TriggerDirection.ABOVE,
         twapDurationMs: input.twapDurationMs,
@@ -488,22 +450,8 @@ const LadderTriggerInputSchema = v.pipe(
         ),
     }),
     v.transform((input) => ({
-        ...buildTriggerDefaults(),
-        subaccountId: input.subaccountId,
-        symbol: input.symbol,
+        ...buildCreateTriggerBase(input),
         triggerType: Proto.TriggerType.LADDER,
-        side: input.side,
-        orderType: input.orderType,
-        tif: input.tif,
-        qtyScaled: parseQtyScaledForSymbol(input.symbol, input.qty),
-        limitPriceTicks:
-            input.orderType === ProtoOrders.OrderType.LIMIT && input.limitPrice
-                ? parsePriceTicks(input.limitPrice, "limitPrice")
-                : 0n,
-        feeSource: input.feeSource,
-        stpMode: input.stpMode,
-        postOnly: input.postOnly,
-        clientTriggerId: input.clientTriggerId,
         triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
         triggerDirection: ProtoOrders.TriggerDirection.ABOVE,
         ladderPriceMinTicks: input.ladderPriceMin,

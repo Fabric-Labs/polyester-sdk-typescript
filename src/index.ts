@@ -48,6 +48,11 @@ export type {
     PolyesterMutationOptions,
     PolyesterRequestOptions,
 } from "./shared/request-options.js";
+export {
+    isFreshStepUpRequiredError,
+    isMfaEnrollmentRequiredError,
+    isSessionElevationRequiredError,
+} from "./utils/connect-mfa-errors.js";
 export type {
     ActiveAccountInfo,
     AuthHydrationData,

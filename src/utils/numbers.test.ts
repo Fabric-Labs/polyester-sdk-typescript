@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-    parseOptionalUint64Decimal,
-    parseOptionalUint64DecimalStrict,
-} from "./numbers.js";
+import { parseOptionalUint64Decimal, parseOptionalUint64DecimalStrict } from "./numbers.js";
 
 describe("parseOptionalUint64DecimalStrict", () => {
     it("parses trimmed decimal strings", () => {

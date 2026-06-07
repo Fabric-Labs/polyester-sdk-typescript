@@ -107,54 +107,43 @@ const STPSchema = v.picklist(["expire_taker", "expire_maker", "expire_both"]);
 const TriggerPriceSourceSchema = v.picklist(["last", "index", "mark"]);
 const ClientOrderIdPattern = /^[A-Za-z0-9._:/-]+$/;
 
+const AttachedTriggerInputSchema = v.object({
+    triggerPrice: v.pipe(v.string(), v.trim(), v.minLength(1)),
+    triggerPriceSource: v.optional(TriggerPriceSourceSchema),
+    orderType: v.optional(OrderTypeSchema),
+    limitPrice: v.optional(v.pipe(v.string(), v.trim())),
+});
+
+type AttachedTriggerInput = v.InferOutput<typeof AttachedTriggerInputSchema>;
+
+function transformAttachedTriggerInput(
+    input: AttachedTriggerInput,
+    fieldPrefix: "takeProfit" | "stopLoss",
+) {
+    const orderType = input.orderType
+        ? OrderTypeCodec.inputToProto[input.orderType]
+        : ProtoWrite.OrderType.MARKET;
+    return {
+        triggerPriceTicks: parsePriceTicks(input.triggerPrice, `${fieldPrefix}.triggerPrice`),
+        triggerPriceSource: input.triggerPriceSource
+            ? TriggerPriceSourceCodec.inputToProto[input.triggerPriceSource]
+            : ProtoWrite.TriggerPriceSource.LAST_PRICE,
+        orderType,
+        limitPriceTicks:
+            orderType === ProtoWrite.OrderType.LIMIT && input.limitPrice
+                ? parsePriceTicks(input.limitPrice, `${fieldPrefix}.limitPrice`)
+                : 0n,
+    };
+}
+
 const TakeProfitInputSchema = v.pipe(
-    v.object({
-        triggerPrice: v.pipe(v.string(), v.trim(), v.minLength(1)),
-        triggerPriceSource: v.optional(TriggerPriceSourceSchema),
-        orderType: v.optional(OrderTypeSchema),
-        limitPrice: v.optional(v.pipe(v.string(), v.trim())),
-    }),
-    v.transform((input) => {
-        const orderType = input.orderType
-            ? OrderTypeCodec.inputToProto[input.orderType]
-            : ProtoWrite.OrderType.MARKET;
-        return {
-            triggerPriceTicks: parsePriceTicks(input.triggerPrice, "takeProfit.triggerPrice"),
-            triggerPriceSource: input.triggerPriceSource
-                ? TriggerPriceSourceCodec.inputToProto[input.triggerPriceSource]
-                : ProtoWrite.TriggerPriceSource.LAST_PRICE,
-            orderType,
-            limitPriceTicks:
-                orderType === ProtoWrite.OrderType.LIMIT && input.limitPrice
-                    ? parsePriceTicks(input.limitPrice, "takeProfit.limitPrice")
-                    : 0n,
-        };
-    }),
+    AttachedTriggerInputSchema,
+    v.transform((input) => transformAttachedTriggerInput(input, "takeProfit")),
 );
 
 const StopLossInputSchema = v.pipe(
-    v.object({
-        triggerPrice: v.pipe(v.string(), v.trim(), v.minLength(1)),
-        triggerPriceSource: v.optional(TriggerPriceSourceSchema),
-        orderType: v.optional(OrderTypeSchema),
-        limitPrice: v.optional(v.pipe(v.string(), v.trim())),
-    }),
-    v.transform((input) => {
-        const orderType = input.orderType
-            ? OrderTypeCodec.inputToProto[input.orderType]
-            : ProtoWrite.OrderType.MARKET;
-        return {
-            triggerPriceTicks: parsePriceTicks(input.triggerPrice, "stopLoss.triggerPrice"),
-            triggerPriceSource: input.triggerPriceSource
-                ? TriggerPriceSourceCodec.inputToProto[input.triggerPriceSource]
-                : ProtoWrite.TriggerPriceSource.LAST_PRICE,
-            orderType,
-            limitPriceTicks:
-                orderType === ProtoWrite.OrderType.LIMIT && input.limitPrice
-                    ? parsePriceTicks(input.limitPrice, "stopLoss.limitPrice")
-                    : 0n,
-        };
-    }),
+    AttachedTriggerInputSchema,
+    v.transform((input) => transformAttachedTriggerInput(input, "stopLoss")),
 );
 
 const TrailingDistanceSchema = v.union([
@@ -889,6 +878,11 @@ export const GetOrderResponseSchema = v.object({
 
 export type GetOrderResponse = v.InferOutput<typeof GetOrderResponseSchema>;
 
+const OptionalTriggerIdSchema = v.pipe(
+    v.optional(v.bigint()),
+    v.transform((v) => (v ? formatId(v) : undefined)),
+);
+
 export const CreateOrderResultSchema = v.object({
     status: v.string(),
     orderId: v.pipe(
@@ -900,18 +894,9 @@ export const CreateOrderResultSchema = v.object({
         v.bigint(),
         v.transform((v) => tsNsToMs(v)),
     ),
-    takeProfitTriggerId: v.pipe(
-        v.optional(v.bigint()),
-        v.transform((v) => (v ? formatId(v) : undefined)),
-    ),
-    stopLossTriggerId: v.pipe(
-        v.optional(v.bigint()),
-        v.transform((v) => (v ? formatId(v) : undefined)),
-    ),
-    trailingStopTriggerId: v.pipe(
-        v.optional(v.bigint()),
-        v.transform((v) => (v ? formatId(v) : undefined)),
-    ),
+    takeProfitTriggerId: OptionalTriggerIdSchema,
+    stopLossTriggerId: OptionalTriggerIdSchema,
+    trailingStopTriggerId: OptionalTriggerIdSchema,
 });
 
 export type CreateOrderResult = v.InferOutput<typeof CreateOrderResultSchema>;
@@ -930,18 +915,9 @@ export const ModifyOrderResultSchema = v.object({
         v.transform((v) => formatId(v)),
     ),
     code: v.string(),
-    takeProfitTriggerId: v.pipe(
-        v.optional(v.bigint()),
-        v.transform((v) => (v ? formatId(v) : undefined)),
-    ),
-    stopLossTriggerId: v.pipe(
-        v.optional(v.bigint()),
-        v.transform((v) => (v ? formatId(v) : undefined)),
-    ),
-    trailingStopTriggerId: v.pipe(
-        v.optional(v.bigint()),
-        v.transform((v) => (v ? formatId(v) : undefined)),
-    ),
+    takeProfitTriggerId: OptionalTriggerIdSchema,
+    stopLossTriggerId: OptionalTriggerIdSchema,
+    trailingStopTriggerId: OptionalTriggerIdSchema,
     tsNs: v.pipe(
         v.bigint(),
         v.transform((v) => tsNsToMs(v)),
