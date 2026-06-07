@@ -1,125 +1,112 @@
-import { z } from "zod";
-import { idToBigInt } from "../../utils/base58-id.js";
+import * as v from "valibot";
+import {
+    idInputSchema,
+    optionalSubAccountIdInputSchema,
+    positiveBigintLikeSchema,
+} from "../../shared/schemas.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { InternalTransferDestinationCodec } from "./internal-transfers.codecs.js";
 
-const OptionalSubAccountIdSchema = z
-	.string()
-	.trim()
-	.optional()
-	.transform((value) => (value ? idToBigInt(value, "subaccountId") : undefined));
+const OptionalSubAccountIdSchema = optionalSubAccountIdInputSchema();
+const IdSchema = idInputSchema;
+const QuantityScaledSchema = positiveBigintLikeSchema("quantityScaled must be greater than 0");
 
-const IdSchema = (fieldName: string) =>
-	z
-		.string()
-		.trim()
-		.min(1)
-		.transform((value) => idToBigInt(value, fieldName));
+export const InternalTransferDestinationInputSchema = v.pipe(
+    v.variant("type", [
+        v.object({
+            type: v.literal("account"),
+            accountId: IdSchema("accountId"),
+        }),
+        v.object({
+            type: v.literal("subAccount"),
+            subAccountId: IdSchema("subaccountId"),
+        }),
+        v.object({
+            type: v.literal("smartAccountAddress"),
+            address: v.pipe(v.string(), v.trim(), v.minLength(1)),
+        }),
+    ]),
+    v.transform((destination) => {
+        switch (destination.type) {
+            case "account":
+                return {
+                    case: InternalTransferDestinationCodec.inputToProtoCase.account,
+                    value: destination.accountId,
+                } as const;
+            case "subAccount":
+                return {
+                    case: InternalTransferDestinationCodec.inputToProtoCase.subAccount,
+                    value: destination.subAccountId,
+                } as const;
+            case "smartAccountAddress":
+                return {
+                    case: InternalTransferDestinationCodec.inputToProtoCase.smartAccountAddress,
+                    value: destination.address,
+                } as const;
+        }
+    }),
+);
 
-const QuantityScaledSchema = z
-	.union([
-		z.bigint(),
-		z
-			.string()
-			.trim()
-			.regex(/^\d+$/)
-			.transform((value) => BigInt(value)),
-	])
-	.refine((value) => value > 0n, {
-		message: "quantityScaled must be greater than 0",
-	});
-
-export const InternalTransferDestinationInputSchema = z
-	.discriminatedUnion("type", [
-		z.object({
-			type: z.literal("account"),
-			accountId: IdSchema("accountId"),
-		}),
-		z.object({
-			type: z.literal("subAccount"),
-			subAccountId: IdSchema("subaccountId"),
-		}),
-		z.object({
-			type: z.literal("smartAccountAddress"),
-			address: z.string().trim().min(1),
-		}),
-	])
-	.transform((destination) => {
-		switch (destination.type) {
-			case "account":
-				return {
-					case: InternalTransferDestinationCodec.inputToProtoCase.account,
-					value: destination.accountId,
-				} as const;
-			case "subAccount":
-				return {
-					case: InternalTransferDestinationCodec.inputToProtoCase.subAccount,
-					value: destination.subAccountId,
-				} as const;
-			case "smartAccountAddress":
-				return {
-					case: InternalTransferDestinationCodec.inputToProtoCase.smartAccountAddress,
-					value: destination.address,
-				} as const;
-		}
-	});
-
-export type InternalTransferDestination = z.input<typeof InternalTransferDestinationInputSchema>;
-
-export const CreateInternalTransferInputSchema = z
-	.object({
-		subAccountId: OptionalSubAccountIdSchema,
-		destination: InternalTransferDestinationInputSchema,
-		assetId: z.number().int().positive(),
-		quantityScaled: QuantityScaledSchema,
-		idempotencyKey: z.string().trim().min(1),
-	})
-	.transform(({ subAccountId, ...rest }) => ({
-		...rest,
-		subaccountId: subAccountId,
-	}));
-
-export type CreateInternalTransferInput = z.input<typeof CreateInternalTransferInputSchema>;
-export type CreateInternalTransferRequest = z.output<typeof CreateInternalTransferInputSchema>;
-
-const NonEmptyResponseStringSchema = z.string().trim().min(1);
-const OptionalResponseStringSchema = z
-	.string()
-	.trim()
-	.optional()
-	.transform((value) => (value ? value : undefined));
-
-export const ResolvedInternalTransferDestinationSchema = z
-	.object({
-		rootAccountPublicId: OptionalResponseStringSchema,
-		subaccountPublicId: OptionalResponseStringSchema,
-		smartAccountAddress: OptionalResponseStringSchema,
-	})
-	.transform(({ rootAccountPublicId, subaccountPublicId, smartAccountAddress }) => ({
-		rootAccountId: rootAccountPublicId,
-		subAccountId: subaccountPublicId,
-		smartAccountAddress,
-	}));
-
-export type ResolvedInternalTransferDestination = z.output<
-	typeof ResolvedInternalTransferDestinationSchema
+export type InternalTransferDestination = v.InferInput<
+    typeof InternalTransferDestinationInputSchema
 >;
 
-export const CreateInternalTransferResultSchema = z
-	.object({
-		requestId: NonEmptyResponseStringSchema,
-		transferId: NonEmptyResponseStringSchema,
-		acceptedAtUnixNs: z.bigint(),
-		assetId: z.number().int().positive(),
-		assetCode: NonEmptyResponseStringSchema,
-		uAssetId: NonEmptyResponseStringSchema,
-		quantityScaled: z.bigint(),
-		destination: ResolvedInternalTransferDestinationSchema.optional(),
-	})
-	.transform(({ acceptedAtUnixNs, quantityScaled, ...result }) => ({
-		...result,
-		acceptedAtUnixMs: tsNsToMs(acceptedAtUnixNs),
-		quantityScaled: quantityScaled.toString(),
-	}));
+export const CreateInternalTransferInputSchema = v.pipe(
+    v.object({
+        subAccountId: OptionalSubAccountIdSchema,
+        destination: InternalTransferDestinationInputSchema,
+        assetId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+        quantityScaled: QuantityScaledSchema,
+        idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
+    }),
+    v.transform(({ subAccountId, ...rest }) => ({
+        ...rest,
+        subaccountId: subAccountId,
+    })),
+);
 
-export type CreateInternalTransferResult = z.output<typeof CreateInternalTransferResultSchema>;
+export type CreateInternalTransferInput = v.InferInput<typeof CreateInternalTransferInputSchema>;
+export type CreateInternalTransferRequest = v.InferOutput<typeof CreateInternalTransferInputSchema>;
+
+const NonEmptyResponseStringSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
+const OptionalResponseStringSchema = v.pipe(
+    v.optional(v.pipe(v.string(), v.trim())),
+    v.transform((value) => (value ? value : undefined)),
+);
+
+export const ResolvedInternalTransferDestinationSchema = v.pipe(
+    v.object({
+        rootAccountPublicId: OptionalResponseStringSchema,
+        subaccountPublicId: OptionalResponseStringSchema,
+        smartAccountAddress: OptionalResponseStringSchema,
+    }),
+    v.transform(({ rootAccountPublicId, subaccountPublicId, smartAccountAddress }) => ({
+        rootAccountId: rootAccountPublicId,
+        subAccountId: subaccountPublicId,
+        smartAccountAddress,
+    })),
+);
+
+export type ResolvedInternalTransferDestination = v.InferOutput<
+    typeof ResolvedInternalTransferDestinationSchema
+>;
+
+export const CreateInternalTransferResultSchema = v.pipe(
+    v.object({
+        requestId: NonEmptyResponseStringSchema,
+        transferId: NonEmptyResponseStringSchema,
+        acceptedAtUnixNs: v.bigint(),
+        assetId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+        assetCode: NonEmptyResponseStringSchema,
+        uAssetId: NonEmptyResponseStringSchema,
+        quantityScaled: v.bigint(),
+        destination: v.optional(ResolvedInternalTransferDestinationSchema),
+    }),
+    v.transform(({ acceptedAtUnixNs, quantityScaled, ...result }) => ({
+        ...result,
+        acceptedAtUnixMs: tsNsToMs(acceptedAtUnixNs),
+        quantityScaled: quantityScaled.toString(),
+    })),
+);
+
+export type CreateInternalTransferResult = v.InferOutput<typeof CreateInternalTransferResultSchema>;

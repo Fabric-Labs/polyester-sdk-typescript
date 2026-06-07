@@ -9,10 +9,10 @@
  * @returns true if the current environment is development
  */
 export function isDev(): boolean {
-	if (typeof window === "undefined") return false;
-	return (
-		window.location.hostname === "localhost" ||
-		window.location.hostname === "127.0.0.1" ||
-		window.location.port !== ""
-	);
+    if (typeof window === "undefined") return false;
+    return (
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1" ||
+        window.location.port !== ""
+    );
 }

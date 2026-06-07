@@ -7,9 +7,9 @@ export type { DepositsServiceConfig, AddDepositWalletParams } from "./deposits.j
 
 export { TransactionsService } from "./transactions.js";
 export type {
-	TransactionsServiceConfig,
-	GetTransactionsParams,
-	TrackTransactionParams,
+    TransactionsServiceConfig,
+    GetTransactionsParams,
+    TrackTransactionParams,
 } from "./transactions.js";
 
 export { ChainsService } from "./chains.js";
@@ -23,22 +23,22 @@ export type { FeesServiceConfig, GetExtraFeesParams } from "./fees.js";
 
 // Types - new names
 export type {
-	TokenBalance,
-	Chain,
-	Token,
-	Transaction,
-	Fee,
-	ExtraFee,
-	DepositAddress,
-	UserProfile,
-	PaginationParams,
-	PaginatedResponse,
+    TokenBalance,
+    Chain,
+    Token,
+    Transaction,
+    Fee,
+    ExtraFee,
+    DepositAddress,
+    UserProfile,
+    PaginationParams,
+    PaginatedResponse,
 } from "./types.js";
 
 // Internal - not part of public API
 export { BridgeAuthService as _BridgeAuthService } from "./bridge-auth.js";
 export type {
-	BridgeAuthConfig as _BridgeAuthConfig,
-	BridgeAuthState as _BridgeAuthState,
-	BridgeAuthEvents as _BridgeAuthEvents,
+    BridgeAuthConfig as _BridgeAuthConfig,
+    BridgeAuthState as _BridgeAuthState,
+    BridgeAuthEvents as _BridgeAuthEvents,
 } from "./bridge-auth.js";

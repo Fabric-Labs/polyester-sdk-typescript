@@ -1,86 +1,89 @@
-import { z } from "zod";
+import * as v from "valibot";
 import { fromU128, u128ToDecimal } from "../../utils/u128.js";
 import { assetForId, LEDGER_SCALE } from "../../catalogs/ledger-catalog.js";
-import { idToBigInt } from "../../utils/base58-id.js";
+import { optionalSubAccountIdInputSchema } from "../../shared/schemas.js";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { BalanceRangeCodec, EquityGroupByCodec } from "./balances.codecs.js";
 
-const U128Schema = z.object({
-    hi: z.bigint(),
-    lo: z.bigint(),
+const U128Schema = v.object({
+    hi: v.bigint(),
+    lo: v.bigint(),
 });
 
-export const LedgerBalanceSchema = z
-    .object({
-        assetId: z.number(),
-        trading: U128Schema.optional(),
-        unified: U128Schema.optional(),
-        funding: U128Schema.optional().transform(fromU128),
-        reserved: U128Schema.optional().transform(fromU128),
-        available: U128Schema.optional().transform(fromU128),
-    })
-    .transform((b) => {
+export const LedgerBalanceSchema = v.pipe(
+    v.object({
+        assetId: v.number(),
+        trading: v.optional(U128Schema),
+        unified: v.optional(U128Schema),
+        funding: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
+        reserved: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
+        available: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
+    }),
+    v.transform((b) => {
         const aid = b.assetId;
         const unified = fromU128(b.trading ?? b.unified);
 
         return {
             asset: assetForId(aid),
-            funding: parseFloat(u128ToDecimal(b.funding, LEDGER_SCALE)),
+            funding: parseFloat(u128ToDecimal(b.funding ?? 0n, LEDGER_SCALE)),
             unified: parseFloat(u128ToDecimal(unified, LEDGER_SCALE)),
-            reserved: parseFloat(u128ToDecimal(b.reserved, LEDGER_SCALE)),
-            available: parseFloat(u128ToDecimal(b.available, LEDGER_SCALE)),
+            reserved: parseFloat(u128ToDecimal(b.reserved ?? 0n, LEDGER_SCALE)),
+            available: parseFloat(u128ToDecimal(b.available ?? 0n, LEDGER_SCALE)),
         };
-    });
+    }),
+);
 
-export type LedgerBalance = z.output<typeof LedgerBalanceSchema>;
+export type LedgerBalance = v.InferOutput<typeof LedgerBalanceSchema>;
 
 export const BALANCE_RANGES = ["1d", "7d", "30d", "90d", "180d", "365d"] as const;
 
-export const BalanceRangeSchema = z.enum(BALANCE_RANGES);
+export const BalanceRangeSchema = v.picklist(BALANCE_RANGES);
 
-export type BalanceRange = z.output<typeof BalanceRangeSchema>;
+export type BalanceRange = v.InferOutput<typeof BalanceRangeSchema>;
 
 export const EQUITY_GROUP_BYS = ["account", "asset"] as const;
 
-export const EquityGroupBySchema = z.enum(EQUITY_GROUP_BYS);
+export const EquityGroupBySchema = v.picklist(EQUITY_GROUP_BYS);
 
-export type EquityGroupBy = z.output<typeof EquityGroupBySchema>;
+export type EquityGroupBy = v.InferOutput<typeof EquityGroupBySchema>;
 
-export const BalanceHistoryInputSchema = z
-    .object({
-        subAccountId: z
-            .string()
-            .optional()
-            .transform((v) => (v ? idToBigInt(v, "subaccountId") : undefined)),
-        range: BalanceRangeSchema.transform((v) => BalanceRangeCodec.inputToProto[v]),
-        ledger: z.number().optional().default(0),
-        accountCodes: z.array(z.number()).optional().default([]),
-    })
-    .transform(({ subAccountId, ...rest }) => ({
+export const BalanceHistoryInputSchema = v.pipe(
+    v.object({
+        subAccountId: optionalSubAccountIdInputSchema(),
+        range: v.pipe(
+            BalanceRangeSchema,
+            v.transform((v) => BalanceRangeCodec.inputToProto[v]),
+        ),
+        ledger: v.optional(v.optional(v.number()), 0),
+        accountCodes: v.optional(v.optional(v.array(v.number())), []),
+    }),
+    v.transform(({ subAccountId, ...rest }) => ({
         ...rest,
         subaccountId: subAccountId,
-    }));
+    })),
+);
 
-export type BalanceHistoryInput = z.input<typeof BalanceHistoryInputSchema>;
+export type BalanceHistoryInput = v.InferInput<typeof BalanceHistoryInputSchema>;
 
-export const BalanceSeriesSchema = z.object({
-    assetId: z.number(),
-    accountCode: z.number(),
-    balanceQ: z.array(z.bigint()),
+export const BalanceSeriesSchema = v.object({
+    assetId: v.number(),
+    accountCode: v.number(),
+    balanceQ: v.array(v.bigint()),
 });
 
-export const BalanceHistoryResponseSchema = z
-    .object({
-        range: z
-            .enum(Proto.BalanceRange)
-            .transform((v) => BalanceRangeCodec.protoToOutputWithDefault[v]),
-        bucket: z.string(),
-        startTsSec: z.number(),
-        endTsSec: z.number(),
-        points: z.number(),
-        series: z.array(BalanceSeriesSchema),
-    })
-    .transform((data) => ({
+export const BalanceHistoryResponseSchema = v.pipe(
+    v.object({
+        range: v.pipe(
+            v.enum(Proto.BalanceRange),
+            v.transform((v) => BalanceRangeCodec.protoToOutputWithDefault[v]),
+        ),
+        bucket: v.string(),
+        startTsSec: v.number(),
+        endTsSec: v.number(),
+        points: v.number(),
+        series: v.array(BalanceSeriesSchema),
+    }),
+    v.transform((data) => ({
         range: data.range,
         bucket: data.bucket,
         startTsSec: data.startTsSec,
@@ -92,42 +95,45 @@ export const BalanceHistoryResponseSchema = z
             // balanceQ is scaled by 1e7, convert to float array
             balances: s.balanceQ.map((b) => Number(b) / 1e7),
         })),
-    }));
+    })),
+);
 
-export type BalanceHistoryResponse = z.output<typeof BalanceHistoryResponseSchema>;
+export type BalanceHistoryResponse = v.InferOutput<typeof BalanceHistoryResponseSchema>;
 
-export const EquityHistoryInputSchema = z
-    .object({
-        subAccountId: z
-            .string()
-            .optional()
-            .transform((v) => (v ? idToBigInt(v, "subaccountId") : undefined)),
-        range: BalanceRangeSchema.transform((v) => BalanceRangeCodec.inputToProto[v]),
-        accountCodes: z.array(z.number()).optional().default([]),
-        groupBy: EquityGroupBySchema.optional()
-            .default("account")
-            .transform((v) => EquityGroupByCodec.inputToProto[v]),
-    })
-    .transform(({ subAccountId, ...rest }) => ({
+export const EquityHistoryInputSchema = v.pipe(
+    v.object({
+        subAccountId: optionalSubAccountIdInputSchema(),
+        range: v.pipe(
+            BalanceRangeSchema,
+            v.transform((v) => BalanceRangeCodec.inputToProto[v]),
+        ),
+        accountCodes: v.optional(v.optional(v.array(v.number())), []),
+        groupBy: v.pipe(
+            v.optional(v.optional(EquityGroupBySchema), "account"),
+            v.transform((v) => EquityGroupByCodec.inputToProto[v ?? "account"]),
+        ),
+    }),
+    v.transform(({ subAccountId, ...rest }) => ({
         ...rest,
         subaccountId: subAccountId,
-    }));
+    })),
+);
 
-export type EquityHistoryInput = z.input<typeof EquityHistoryInputSchema>;
+export type EquityHistoryInput = v.InferInput<typeof EquityHistoryInputSchema>;
 
-const EquitySeriesGroupingSchema = z.union([
-    z.object({
-        case: z.literal("account"),
-        value: z.object({
-            code: z.number(),
-            name: z.string(),
+const EquitySeriesGroupingSchema = v.union([
+    v.object({
+        case: v.literal("account"),
+        value: v.object({
+            code: v.number(),
+            name: v.string(),
         }),
     }),
-    z.object({
-        case: z.literal("asset"),
-        value: z.object({
-            id: z.number(),
-            symbol: z.string(),
+    v.object({
+        case: v.literal("asset"),
+        value: v.object({
+            id: v.number(),
+            symbol: v.string(),
         }),
     }),
 ]);
@@ -144,12 +150,12 @@ export type EquitySeriesGrouping =
           symbol: string;
       };
 
-export const EquitySeriesSchema = z
-    .object({
+export const EquitySeriesSchema = v.pipe(
+    v.object({
         grouping: EquitySeriesGroupingSchema,
-        equityQ: z.array(z.bigint()),
-    })
-    .transform((series): { grouping: EquitySeriesGrouping; equityQ: bigint[] } => {
+        equityQ: v.array(v.bigint()),
+    }),
+    v.transform((series): { grouping: EquitySeriesGrouping; equityQ: bigint[] } => {
         if (series.grouping.case === "account") {
             return {
                 grouping: {
@@ -169,22 +175,24 @@ export const EquitySeriesSchema = z
             },
             equityQ: series.equityQ,
         };
-    });
+    }),
+);
 
-export const EquityHistoryResponseSchema = z
-    .object({
-        range: z
-            .enum(Proto.BalanceRange)
-            .transform((v) => BalanceRangeCodec.protoToOutputWithDefault[v]),
-        bucket: z.string(),
-        startTsSec: z.number(),
-        endTsSec: z.number(),
-        quoteAsset: z.string(),
-        points: z.number(),
-        series: z.array(EquitySeriesSchema),
-        btcPricesQ: z.array(z.bigint()).optional().default([]),
-    })
-    .transform((data) => ({
+export const EquityHistoryResponseSchema = v.pipe(
+    v.object({
+        range: v.pipe(
+            v.enum(Proto.BalanceRange),
+            v.transform((v) => BalanceRangeCodec.protoToOutputWithDefault[v]),
+        ),
+        bucket: v.string(),
+        startTsSec: v.number(),
+        endTsSec: v.number(),
+        quoteAsset: v.string(),
+        points: v.number(),
+        series: v.array(EquitySeriesSchema),
+        btcPricesQ: v.optional(v.optional(v.array(v.bigint())), []),
+    }),
+    v.transform((data) => ({
         range: data.range,
         bucket: data.bucket,
         startTsSec: data.startTsSec,
@@ -193,7 +201,8 @@ export const EquityHistoryResponseSchema = z
         points: data.points,
         series: data.series,
         btcPricesQ: data.btcPricesQ,
-    }));
+    })),
+);
 
-export type EquitySeries = z.output<typeof EquitySeriesSchema>;
-export type EquityHistoryResponse = z.output<typeof EquityHistoryResponseSchema>;
+export type EquitySeries = v.InferOutput<typeof EquitySeriesSchema>;
+export type EquityHistoryResponse = v.InferOutput<typeof EquityHistoryResponseSchema>;

@@ -1,388 +1,429 @@
-import { z } from "zod";
+import * as v from "valibot";
 import * as Proto from "../../gen/chain/lifecycle/v1/types_pb.js";
 import * as ProtoRead from "../../gen/chain/lifecycle/v1/lifecycle_read_pb.js";
 import {
-	LIFECYCLE_FLOW_KIND_VALUES,
-	LIFECYCLE_FLOW_STATE_VALUES,
-	LIFECYCLE_LIST_SCOPE_VALUES,
-	LIFECYCLE_TX_LOOKUP_KIND_VALUES,
-	LifecycleFlowDomainCodec,
-	LifecycleFlowKindCodec,
-	LifecycleFlowStateCodec,
-	LifecycleFlowStepActivityKindCodec,
-	LifecycleFlowStepCodec,
-	LifecycleFlowTimelineStatusCodec,
-	LifecycleListScopeCodec,
-	LifecycleRequestFeeStatusCodec,
-	LifecycleSourceCodec,
-	LifecycleTxLookupKindCodec,
-	type LifecycleListScopeOutputValue,
-	type LifecycleRequestFeeStatusValue,
-	type LifecycleTxLookupKindOutputValue,
+    LIFECYCLE_FLOW_KIND_VALUES,
+    LIFECYCLE_FLOW_STATE_VALUES,
+    LIFECYCLE_LIST_SCOPE_VALUES,
+    LIFECYCLE_TX_LOOKUP_KIND_VALUES,
+    LifecycleFlowDomainCodec,
+    LifecycleFlowKindCodec,
+    LifecycleFlowStateCodec,
+    LifecycleFlowStepActivityKindCodec,
+    LifecycleFlowStepCodec,
+    LifecycleFlowTimelineStatusCodec,
+    LifecycleListScopeCodec,
+    LifecycleRequestFeeStatusCodec,
+    LifecycleSourceCodec,
+    LifecycleTxLookupKindCodec,
+    type LifecycleListScopeOutputValue,
+    type LifecycleRequestFeeStatusValue,
+    type LifecycleTxLookupKindOutputValue,
 } from "./lifecycle.codecs.js";
 import { formatId, idToBigInt } from "../../utils/base58-id.js";
 import { fromU128, u128ToDecimal } from "../../utils/u128.js";
 import { assetForId } from "../../catalogs/ledger-catalog.js";
 
-const FlowKindSchema = z.enum(LIFECYCLE_FLOW_KIND_VALUES);
-const FlowStateSchema = z.enum(LIFECYCLE_FLOW_STATE_VALUES);
-const ListScopeSchema = z.enum(LIFECYCLE_LIST_SCOPE_VALUES);
-const TxLookupKindSchema = z.enum(LIFECYCLE_TX_LOOKUP_KIND_VALUES);
+const FlowKindSchema = v.picklist(LIFECYCLE_FLOW_KIND_VALUES);
+const FlowStateSchema = v.picklist(LIFECYCLE_FLOW_STATE_VALUES);
+const ListScopeSchema = v.picklist(LIFECYCLE_LIST_SCOPE_VALUES);
+const TxLookupKindSchema = v.picklist(LIFECYCLE_TX_LOOKUP_KIND_VALUES);
 
 const canonicalTxHashPattern = /^0x[0-9a-fA-F]{64}$/;
 const smartAccountAddressPattern = /^0x[0-9a-fA-F]{40}$/;
 const maxUint32 = 4_294_967_295;
 
-const RequiredTxHashSchema = z
-	.string()
-	.trim()
-	.min(1, "txHash is required.")
-	.regex(canonicalTxHashPattern, "txHash must be a canonical EVM tx hash.");
-
-const OptionalOwnerAccountIdSchema = z
-	.string()
-	.trim()
-	.optional()
-	.transform((v) => {
-		if (!v) return undefined;
-		const isSmartAccountAddress = smartAccountAddressPattern.test(v);
-		if (isSmartAccountAddress) return { case: "smartAccountAddress" as const, value: v };
-		return { case: "ownerAccountId" as const, value: idToBigInt(v, "ownerAccountId") };
-	});
-const OptionalAccountIdSchema = z
-	.string()
-	.trim()
-	.optional()
-	.transform((v) => {
-		if (!v) return undefined;
-		return { case: "ownerAccountId" as const, value: idToBigInt(v, "accountId") };
-	});
-const OptionalSmartAccountAddressSchema = z
-	.string()
-	.trim()
-	.regex(smartAccountAddressPattern, "smartAccountAddress must be a canonical 0x address.")
-	.optional();
-
-const Uint32Schema = z.number().int().positive().max(maxUint32);
-
-const LifecycleU128RawSchema = z.object({
-	hi: z.bigint(),
-	lo: z.bigint(),
-});
-
-const LifecycleAmountE18Schema = LifecycleU128RawSchema.transform((v) =>
-	u128ToDecimal(fromU128(v), 18)
+const RequiredTxHashSchema = v.pipe(
+    v.string(),
+    v.trim(),
+    v.minLength(1, "txHash is required."),
+    v.regex(canonicalTxHashPattern, "txHash must be a canonical EVM tx hash."),
 );
 
-const LifecycleU256Schema = z.object({
-	be: z.instanceof(Uint8Array),
+const OptionalOwnerAccountIdSchema = v.pipe(
+    v.optional(v.pipe(v.string(), v.trim())),
+    v.transform((v) => {
+        if (!v) return undefined;
+        const isSmartAccountAddress = smartAccountAddressPattern.test(v);
+        if (isSmartAccountAddress) return { case: "smartAccountAddress" as const, value: v };
+        return { case: "ownerAccountId" as const, value: idToBigInt(v, "ownerAccountId") };
+    }),
+);
+const OptionalAccountIdSchema = v.pipe(
+    v.optional(v.pipe(v.string(), v.trim())),
+    v.transform((v) => {
+        if (!v) return undefined;
+        return { case: "ownerAccountId" as const, value: idToBigInt(v, "accountId") };
+    }),
+);
+const OptionalSmartAccountAddressSchema = v.optional(
+    v.pipe(
+        v.string(),
+        v.trim(),
+        v.regex(smartAccountAddressPattern, "smartAccountAddress must be a canonical 0x address."),
+    ),
+);
+
+const Uint32Schema = v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(maxUint32));
+
+const LifecycleU128RawSchema = v.object({
+    hi: v.bigint(),
+    lo: v.bigint(),
 });
 
-const LifecycleAssetIdsSchema = z.object({
-	chainAssetId: z.number().int().nonnegative(),
-	unifiedAssetId: z.number().int().nonnegative(),
+const LifecycleAmountE18Schema = v.pipe(
+    LifecycleU128RawSchema,
+    v.transform((v) => u128ToDecimal(fromU128(v), 18)),
+);
+
+const LifecycleU256Schema = v.object({
+    be: v.instance(Uint8Array),
 });
 
-const LifecycleFlowStepEnumSchema = z
-	.enum(ProtoRead.FlowStep)
-	.transform((v) => LifecycleFlowStepCodec.protoToOutput[v]);
-const LifecycleSourceEnumSchema = z
-	.enum(Proto.LifecycleSource)
-	.transform((v) => LifecycleSourceCodec.protoToOutput[v]);
-const LifecycleFlowKindEnumSchema = z
-	.enum(Proto.FlowKind)
-	.transform((v) => LifecycleFlowKindCodec.protoToOutput[v]);
-
-const LifecycleFlowDomainEnumSchema = z
-	.enum(Proto.FlowDomain)
-	.optional()
-	.transform((v) =>
-		v === undefined ? "unspecified" : LifecycleFlowDomainCodec.protoToOutput[v]
-	);
-const LifecycleFlowStateEnumSchema = z
-	.enum(Proto.FlowState)
-	.transform((v) => LifecycleFlowStateCodec.protoToOutput[v]);
-const LifecycleFlowStepActivityKindEnumSchema = z
-	.enum(ProtoRead.FlowStepActivityKind)
-	.transform((v) => LifecycleFlowStepActivityKindCodec.protoToOutput[v]);
-const LifecycleFlowTimelineStatusEnumSchema = z
-	.enum(ProtoRead.FlowTimelineStatus)
-	.transform((v) => LifecycleFlowTimelineStatusCodec.protoToOutput[v]);
-const LifecycleRequestFeeStatusEnumSchema = z
-	.enum(Proto.RequestFeeStatus)
-	.transform((v) => LifecycleRequestFeeStatusCodec.protoToOutput[v]);
-const LifecycleIdSchema = z.bigint().transform((v) => formatId(v));
-const LifecycleMsSchema = z.bigint().transform((v) => Number(v));
-const LifecycleTxOccurrenceIndexSchema = z
-	.bigint()
-	.optional()
-	.transform((v) => Number(v ?? 0n));
-const LifecycleReasonHashSchema = z.string().default("");
-const LifecycleLedgerTransferIdSchema = z.string().default("");
-
-export const ListLifecycleFlowsInputSchema = z
-	.object({
-		limit: z.number().int().positive().max(500).optional().default(100),
-		reversed: z.boolean().optional().default(true),
-		flowKind: FlowKindSchema.optional().transform((v) =>
-			v ? LifecycleFlowKindCodec.inputToProto[v] : Proto.FlowKind.KIND_UNSPECIFIED
-		),
-		flowState: FlowStateSchema.optional().transform((v) =>
-			v ? LifecycleFlowStateCodec.inputToProto[v] : Proto.FlowState.STATE_UNSPECIFIED
-		),
-		txRef: z
-			.string()
-			.trim()
-			.min(1)
-			.regex(canonicalTxHashPattern, "txHash must be a canonical EVM tx hash.")
-			.optional(),
-		scope: ListScopeSchema.optional()
-			.default("all")
-			.transform((v) => LifecycleListScopeCodec.inputToProto[v]),
-		accountId: OptionalAccountIdSchema,
-		ownerAccountId: OptionalOwnerAccountIdSchema,
-		smartAccountAddress: OptionalSmartAccountAddressSchema,
-		polyesterChainIds: z.array(Uint32Schema).optional(),
-		zippedAssetIds: z.array(Uint32Schema).optional(),
-		unifiedAssetIds: z.array(Uint32Schema).optional(),
-		pageToken: z.string().trim().optional().default(""),
-	})
-	.transform((value) => {
-		const accountSelector =
-			value.accountId ??
-			value.ownerAccountId ??
-			(value.smartAccountAddress
-				? {
-						case: "smartAccountAddress" as const,
-						value: value.smartAccountAddress,
-					}
-				: undefined);
-		return {
-			limit: value.limit,
-			reversed: value.reversed,
-			flowKind: value.flowKind,
-			flowState: value.flowState,
-			txRef: value.txRef,
-			scope: value.scope,
-			accountSelector,
-			polyesterChainIds: value.polyesterChainIds,
-			zippedAssetIds: value.zippedAssetIds,
-			unifiedAssetIds: value.unifiedAssetIds,
-			pageToken: value.pageToken,
-		};
-	});
-
-export const LifecycleRequestFeeSchema = z
-	.object({
-		assetIds: LifecycleAssetIdsSchema.optional(),
-		amountE18: LifecycleAmountE18Schema.optional(),
-		recipientAddress: z.string(),
-		status: LifecycleRequestFeeStatusEnumSchema,
-	})
-	.transform((v) => {
-		return {
-			...v,
-			unifiedAsset: v.assetIds ? assetForId(v.assetIds.unifiedAssetId) : undefined,
-		};
-	});
-
-export const GetLifecycleFlowInputSchema = z
-	.object({
-		flowId: z.string().trim().min(1, "flowId is required."),
-	})
-	.transform((value) => ({
-		flowId: value.flowId,
-	}));
-
-export const ListLifecycleFlowsByTxInputSchema = z.object({
-	txHash: RequiredTxHashSchema,
-	lookupKind: TxLookupKindSchema.transform((v) => LifecycleTxLookupKindCodec.inputToProto[v]),
-	limit: z.number().int().positive().max(500).optional().default(100),
-	pageToken: z.string().trim().optional().default(""),
+const LifecycleAssetIdsSchema = v.object({
+    chainAssetId: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    unifiedAssetId: v.pipe(v.number(), v.integer(), v.minValue(0)),
 });
 
-export const LifecycleFlowStepActivitySchema = z.object({
-	sequence: z.number().int().nonnegative(),
-	txRef: z.string(),
-	occurredAtUnixMs: LifecycleMsSchema,
-	lifecycleSource: LifecycleSourceEnumSchema,
-	reasonCode: z.number().int().nonnegative(),
-	reasonHash: LifecycleReasonHashSchema,
-	currentConfirmations: z.number().int().nonnegative(),
-	requiredConfirmations: z.number().int().nonnegative(),
-	approveCount: z.number().int().nonnegative(),
-	rejectCount: z.number().int().nonnegative(),
-	validatorCount: z.number().int().nonnegative(),
-	kind: LifecycleFlowStepActivityKindEnumSchema,
-	requiredApprovals: z.number().int().nonnegative(),
-	requiredRejections: z.number().int().nonnegative(),
-	amountE18: LifecycleAmountE18Schema.optional(),
-	ledgerTransferId: LifecycleLedgerTransferIdSchema,
+const LifecycleFlowStepEnumSchema = v.pipe(
+    v.enum(ProtoRead.FlowStep),
+    v.transform((v) => LifecycleFlowStepCodec.protoToOutput[v]),
+);
+const LifecycleSourceEnumSchema = v.pipe(
+    v.enum(Proto.LifecycleSource),
+    v.transform((v) => LifecycleSourceCodec.protoToOutput[v]),
+);
+const LifecycleFlowKindEnumSchema = v.pipe(
+    v.enum(Proto.FlowKind),
+    v.transform((v) => LifecycleFlowKindCodec.protoToOutput[v]),
+);
+
+const LifecycleFlowDomainEnumSchema = v.pipe(
+    v.optional(v.enum(Proto.FlowDomain)),
+    v.transform((v) =>
+        v === undefined ? "unspecified" : LifecycleFlowDomainCodec.protoToOutput[v],
+    ),
+);
+const LifecycleFlowStateEnumSchema = v.pipe(
+    v.enum(Proto.FlowState),
+    v.transform((v) => LifecycleFlowStateCodec.protoToOutput[v]),
+);
+const LifecycleFlowStepActivityKindEnumSchema = v.pipe(
+    v.enum(ProtoRead.FlowStepActivityKind),
+    v.transform((v) => LifecycleFlowStepActivityKindCodec.protoToOutput[v]),
+);
+const LifecycleFlowTimelineStatusEnumSchema = v.pipe(
+    v.enum(ProtoRead.FlowTimelineStatus),
+    v.transform((v) => LifecycleFlowTimelineStatusCodec.protoToOutput[v]),
+);
+const LifecycleRequestFeeStatusEnumSchema = v.pipe(
+    v.enum(Proto.RequestFeeStatus),
+    v.transform((v) => LifecycleRequestFeeStatusCodec.protoToOutput[v]),
+);
+const LifecycleIdSchema = v.pipe(
+    v.bigint(),
+    v.transform((v) => formatId(v)),
+);
+const LifecycleMsSchema = v.pipe(
+    v.bigint(),
+    v.transform((v) => Number(v)),
+);
+const LifecycleTxOccurrenceIndexSchema = v.pipe(
+    v.optional(v.bigint()),
+    v.transform((v) => Number(v ?? 0n)),
+);
+const LifecycleReasonHashSchema = v.optional(v.string(), "");
+const LifecycleLedgerTransferIdSchema = v.optional(v.string(), "");
+
+export const ListLifecycleFlowsInputSchema = v.pipe(
+    v.object({
+        limit: v.optional(
+            v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(500))),
+            100,
+        ),
+        reversed: v.optional(v.optional(v.boolean()), true),
+        flowKind: v.pipe(
+            v.optional(FlowKindSchema),
+            v.transform((v) =>
+                v ? LifecycleFlowKindCodec.inputToProto[v] : Proto.FlowKind.KIND_UNSPECIFIED,
+            ),
+        ),
+        flowState: v.pipe(
+            v.optional(FlowStateSchema),
+            v.transform((v) =>
+                v ? LifecycleFlowStateCodec.inputToProto[v] : Proto.FlowState.STATE_UNSPECIFIED,
+            ),
+        ),
+        txRef: v.optional(
+            v.pipe(
+                v.string(),
+                v.trim(),
+                v.minLength(1),
+                v.regex(canonicalTxHashPattern, "txHash must be a canonical EVM tx hash."),
+            ),
+        ),
+        scope: v.pipe(
+            v.optional(v.optional(ListScopeSchema), "all"),
+            v.transform((v) => LifecycleListScopeCodec.inputToProto[v ?? "all"]),
+        ),
+        accountId: OptionalAccountIdSchema,
+        ownerAccountId: OptionalOwnerAccountIdSchema,
+        smartAccountAddress: OptionalSmartAccountAddressSchema,
+        polyesterChainIds: v.optional(v.array(Uint32Schema)),
+        zippedAssetIds: v.optional(v.array(Uint32Schema)),
+        unifiedAssetIds: v.optional(v.array(Uint32Schema)),
+        pageToken: v.optional(v.optional(v.pipe(v.string(), v.trim())), ""),
+    }),
+    v.transform((value) => {
+        const accountSelector =
+            value.accountId ??
+            value.ownerAccountId ??
+            (value.smartAccountAddress
+                ? {
+                      case: "smartAccountAddress" as const,
+                      value: value.smartAccountAddress,
+                  }
+                : undefined);
+        return {
+            limit: value.limit,
+            reversed: value.reversed,
+            flowKind: value.flowKind,
+            flowState: value.flowState,
+            txRef: value.txRef,
+            scope: value.scope,
+            accountSelector,
+            polyesterChainIds: value.polyesterChainIds,
+            zippedAssetIds: value.zippedAssetIds,
+            unifiedAssetIds: value.unifiedAssetIds,
+            pageToken: value.pageToken,
+        };
+    }),
+);
+
+export const LifecycleRequestFeeSchema = v.pipe(
+    v.object({
+        assetIds: v.optional(LifecycleAssetIdsSchema),
+        amountE18: v.optional(LifecycleAmountE18Schema),
+        recipientAddress: v.string(),
+        status: LifecycleRequestFeeStatusEnumSchema,
+    }),
+    v.transform((v) => {
+        return {
+            ...v,
+            unifiedAsset: v.assetIds ? assetForId(v.assetIds.unifiedAssetId) : undefined,
+        };
+    }),
+);
+
+export const GetLifecycleFlowInputSchema = v.pipe(
+    v.object({
+        flowId: v.pipe(v.string(), v.trim(), v.minLength(1, "flowId is required.")),
+    }),
+    v.transform((value) => ({
+        flowId: value.flowId,
+    })),
+);
+
+export const ListLifecycleFlowsByTxInputSchema = v.object({
+    txHash: RequiredTxHashSchema,
+    lookupKind: v.pipe(
+        TxLookupKindSchema,
+        v.transform((v) => LifecycleTxLookupKindCodec.inputToProto[v]),
+    ),
+    limit: v.optional(
+        v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(500))),
+        100,
+    ),
+    pageToken: v.optional(v.optional(v.pipe(v.string(), v.trim())), ""),
 });
 
-export const LifecycleFlowStepSchema = z
-	.object({
-		sequence: z.number().int().nonnegative(),
-		step: LifecycleFlowStepEnumSchema,
-		assetIds: LifecycleAssetIdsSchema.optional(),
-		polyesterChainId: z.number().int().nonnegative(),
-		amountE18: LifecycleAmountE18Schema.optional(),
-		requestFee: LifecycleRequestFeeSchema.optional(),
-		milestoneTxRef: z.string(),
-		lifecycleSource: LifecycleSourceEnumSchema,
-		reasonCode: z.number().int().nonnegative(),
-		reasonHash: LifecycleReasonHashSchema,
-		currentConfirmations: z.number().int().nonnegative(),
-		requiredConfirmations: z.number().int().nonnegative(),
-		approveCount: z.number().int().nonnegative(),
-		rejectCount: z.number().int().nonnegative(),
-		validatorCount: z.number().int().nonnegative(),
-		requiredApprovals: z.number().int().nonnegative(),
-		requiredRejections: z.number().int().nonnegative(),
-		occurredAtUnixMs: LifecycleMsSchema,
-		blockTimeMovingAverageMs: LifecycleMsSchema,
-		activities: z.array(LifecycleFlowStepActivitySchema).default([]),
-	})
-	.transform((v) => {
-		return {
-			...v,
-			unifiedAsset: v.assetIds ? assetForId(v.assetIds.unifiedAssetId) : undefined,
-		};
-	});
-
-export const LifecycleFlowTimelineItemSchema = z.object({
-	sequence: z.number().int().nonnegative(),
-	step: LifecycleFlowStepEnumSchema,
-	status: LifecycleFlowTimelineStatusEnumSchema,
-	expectedDurationMs: LifecycleMsSchema,
+export const LifecycleFlowStepActivitySchema = v.object({
+    sequence: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    txRef: v.string(),
+    occurredAtUnixMs: LifecycleMsSchema,
+    lifecycleSource: LifecycleSourceEnumSchema,
+    reasonCode: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    reasonHash: LifecycleReasonHashSchema,
+    currentConfirmations: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    requiredConfirmations: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    approveCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    rejectCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    validatorCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    kind: LifecycleFlowStepActivityKindEnumSchema,
+    requiredApprovals: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    requiredRejections: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    amountE18: v.optional(LifecycleAmountE18Schema),
+    ledgerTransferId: LifecycleLedgerTransferIdSchema,
 });
 
-export const LifecycleFlowSummaryProgressSchema = z.object({
-	currentStepStartedAtUnixMs: LifecycleMsSchema,
-	currentStepExpectedDurationMs: LifecycleMsSchema,
-	currentConfirmations: z.number().int().nonnegative(),
-	requiredConfirmations: z.number().int().nonnegative(),
-	approveCount: z.number().int().nonnegative(),
-	rejectCount: z.number().int().nonnegative(),
-	validatorCount: z.number().int().nonnegative(),
-	requiredApprovals: z.number().int().nonnegative(),
-	requiredRejections: z.number().int().nonnegative(),
+export const LifecycleFlowStepSchema = v.pipe(
+    v.object({
+        sequence: v.pipe(v.number(), v.integer(), v.minValue(0)),
+        step: LifecycleFlowStepEnumSchema,
+        assetIds: v.optional(LifecycleAssetIdsSchema),
+        polyesterChainId: v.pipe(v.number(), v.integer(), v.minValue(0)),
+        amountE18: v.optional(LifecycleAmountE18Schema),
+        requestFee: v.optional(LifecycleRequestFeeSchema),
+        milestoneTxRef: v.string(),
+        lifecycleSource: LifecycleSourceEnumSchema,
+        reasonCode: v.pipe(v.number(), v.integer(), v.minValue(0)),
+        reasonHash: LifecycleReasonHashSchema,
+        currentConfirmations: v.pipe(v.number(), v.integer(), v.minValue(0)),
+        requiredConfirmations: v.pipe(v.number(), v.integer(), v.minValue(0)),
+        approveCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
+        rejectCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
+        validatorCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
+        requiredApprovals: v.pipe(v.number(), v.integer(), v.minValue(0)),
+        requiredRejections: v.pipe(v.number(), v.integer(), v.minValue(0)),
+        occurredAtUnixMs: LifecycleMsSchema,
+        blockTimeMovingAverageMs: LifecycleMsSchema,
+        activities: v.optional(v.array(LifecycleFlowStepActivitySchema), []),
+    }),
+    v.transform((v) => {
+        return {
+            ...v,
+            unifiedAsset: v.assetIds ? assetForId(v.assetIds.unifiedAssetId) : undefined,
+        };
+    }),
+);
+
+export const LifecycleFlowTimelineItemSchema = v.object({
+    sequence: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    step: LifecycleFlowStepEnumSchema,
+    status: LifecycleFlowTimelineStatusEnumSchema,
+    expectedDurationMs: LifecycleMsSchema,
 });
 
-export const LifecycleFlowSummarySchema = z
-	.object({
-		ownerAccountId: LifecycleIdSchema,
-		flowId: z.string(),
-		flowKind: LifecycleFlowKindEnumSchema,
-		latestStep: LifecycleFlowStepEnumSchema,
-		assetIds: LifecycleAssetIdsSchema.optional(),
-		polyesterChainId: z.number().int().nonnegative(),
-		amountE18: LifecycleAmountE18Schema.optional(),
-		requestFee: LifecycleRequestFeeSchema.optional(),
-		sourceTxHash: z.string(),
-		txOccurrenceIndex: LifecycleTxOccurrenceIndexSchema,
-		sourceAddress: z.string(),
-		destinationAddress: z.string(),
-		sourceDomain: LifecycleFlowDomainEnumSchema,
-		destinationDomain: LifecycleFlowDomainEnumSchema,
-		latestTxRef: z.string(),
-		latestLifecycleSource: LifecycleSourceEnumSchema,
-		reasonCode: z.number().int().nonnegative(),
-		reasonHash: LifecycleReasonHashSchema,
-		startedAtUnixMs: LifecycleMsSchema,
-		updatedAtUnixMs: LifecycleMsSchema,
-		terminalAtUnixMs: LifecycleMsSchema,
-		lastActivityAtUnixMs: LifecycleMsSchema,
-		isOpen: z.boolean(),
-		isTerminal: z.boolean(),
-		latestStepSequence: z.number().int().nonnegative(),
-		currentProgress: LifecycleFlowSummaryProgressSchema.optional(),
-		summaryTimeline: z.array(LifecycleFlowTimelineItemSchema).default([]),
-		estimatedCompletionUnixMs: LifecycleMsSchema,
-	})
-	.transform((v) => {
-		return {
-			...v,
-			unifiedAsset: v.assetIds ? assetForId(v.assetIds.unifiedAssetId) : undefined,
-		};
-	});
-
-export const LifecycleFlowDetailSchema = z.object({
-	summary: LifecycleFlowSummarySchema.optional(),
-	steps: z.array(LifecycleFlowStepSchema).default([]),
-	fromLiveState: z.boolean(),
-	timeline: z.array(LifecycleFlowTimelineItemSchema).default([]),
+export const LifecycleFlowSummaryProgressSchema = v.object({
+    currentStepStartedAtUnixMs: LifecycleMsSchema,
+    currentStepExpectedDurationMs: LifecycleMsSchema,
+    currentConfirmations: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    requiredConfirmations: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    approveCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    rejectCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    validatorCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    requiredApprovals: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    requiredRejections: v.pipe(v.number(), v.integer(), v.minValue(0)),
 });
 
-export const ListLifecycleFlowsOutputSchema = z.object({
-	flows: z.array(LifecycleFlowSummarySchema).default([]),
-	nextPageToken: z.string().default(""),
+export const LifecycleFlowSummarySchema = v.pipe(
+    v.object({
+        ownerAccountId: LifecycleIdSchema,
+        flowId: v.string(),
+        flowKind: LifecycleFlowKindEnumSchema,
+        latestStep: LifecycleFlowStepEnumSchema,
+        assetIds: v.optional(LifecycleAssetIdsSchema),
+        polyesterChainId: v.pipe(v.number(), v.integer(), v.minValue(0)),
+        amountE18: v.optional(LifecycleAmountE18Schema),
+        requestFee: v.optional(LifecycleRequestFeeSchema),
+        sourceTxHash: v.string(),
+        txOccurrenceIndex: LifecycleTxOccurrenceIndexSchema,
+        sourceAddress: v.string(),
+        destinationAddress: v.string(),
+        sourceDomain: LifecycleFlowDomainEnumSchema,
+        destinationDomain: LifecycleFlowDomainEnumSchema,
+        latestTxRef: v.string(),
+        latestLifecycleSource: LifecycleSourceEnumSchema,
+        reasonCode: v.pipe(v.number(), v.integer(), v.minValue(0)),
+        reasonHash: LifecycleReasonHashSchema,
+        startedAtUnixMs: LifecycleMsSchema,
+        updatedAtUnixMs: LifecycleMsSchema,
+        terminalAtUnixMs: LifecycleMsSchema,
+        lastActivityAtUnixMs: LifecycleMsSchema,
+        isOpen: v.boolean(),
+        isTerminal: v.boolean(),
+        latestStepSequence: v.pipe(v.number(), v.integer(), v.minValue(0)),
+        currentProgress: v.optional(LifecycleFlowSummaryProgressSchema),
+        summaryTimeline: v.optional(v.array(LifecycleFlowTimelineItemSchema), []),
+        estimatedCompletionUnixMs: LifecycleMsSchema,
+    }),
+    v.transform((v) => {
+        return {
+            ...v,
+            unifiedAsset: v.assetIds ? assetForId(v.assetIds.unifiedAssetId) : undefined,
+        };
+    }),
+);
+
+export const LifecycleFlowDetailSchema = v.object({
+    summary: v.optional(LifecycleFlowSummarySchema),
+    steps: v.optional(v.array(LifecycleFlowStepSchema), []),
+    fromLiveState: v.boolean(),
+    timeline: v.optional(v.array(LifecycleFlowTimelineItemSchema), []),
 });
 
-export const GetLifecycleFlowOutputSchema = z.object({
-	flow: LifecycleFlowDetailSchema.optional(),
+export const ListLifecycleFlowsOutputSchema = v.object({
+    flows: v.optional(v.array(LifecycleFlowSummarySchema), []),
+    nextPageToken: v.optional(v.string(), ""),
 });
 
-export const LifecycleFlowTxMatchSchema = z
-	.object({
-		flowId: z.string(),
-		flowKind: LifecycleFlowKindEnumSchema,
-		sourceTxHash: z.string(),
-		latestTxRef: z.string(),
-		txOccurrenceIndex: LifecycleTxOccurrenceIndexSchema,
-		sourceDomain: LifecycleFlowDomainEnumSchema,
-		destinationDomain: LifecycleFlowDomainEnumSchema,
-		latestStep: LifecycleFlowStepEnumSchema,
-		isOpen: z.boolean(),
-		isTerminal: z.boolean(),
-		assetIds: LifecycleAssetIdsSchema.optional(),
-		polyesterChainId: z.number().int().nonnegative(),
-		amountE18: LifecycleAmountE18Schema.optional(),
-		sourceAddress: z.string(),
-		destinationAddress: z.string(),
-		reasonCode: z.number().int().nonnegative(),
-		lastActivityAtUnixMs: LifecycleMsSchema,
-	})
-	.transform((v) => {
-		return {
-			...v,
-			unifiedAsset: v.assetIds ? assetForId(v.assetIds.unifiedAssetId) : undefined,
-		};
-	});
-
-export const ListLifecycleFlowsByTxOutputSchema = z.object({
-	txHash: z.string(),
-	matches: z.array(LifecycleFlowTxMatchSchema).default([]),
-	nextPageToken: z.string().default(""),
+export const GetLifecycleFlowOutputSchema = v.object({
+    flow: v.optional(LifecycleFlowDetailSchema),
 });
 
-export type ListLifecycleFlowsInput = z.input<typeof ListLifecycleFlowsInputSchema>;
-export type ParsedListLifecycleFlowsInput = z.output<typeof ListLifecycleFlowsInputSchema>;
+export const LifecycleFlowTxMatchSchema = v.pipe(
+    v.object({
+        flowId: v.string(),
+        flowKind: LifecycleFlowKindEnumSchema,
+        sourceTxHash: v.string(),
+        latestTxRef: v.string(),
+        txOccurrenceIndex: LifecycleTxOccurrenceIndexSchema,
+        sourceDomain: LifecycleFlowDomainEnumSchema,
+        destinationDomain: LifecycleFlowDomainEnumSchema,
+        latestStep: LifecycleFlowStepEnumSchema,
+        isOpen: v.boolean(),
+        isTerminal: v.boolean(),
+        assetIds: v.optional(LifecycleAssetIdsSchema),
+        polyesterChainId: v.pipe(v.number(), v.integer(), v.minValue(0)),
+        amountE18: v.optional(LifecycleAmountE18Schema),
+        sourceAddress: v.string(),
+        destinationAddress: v.string(),
+        reasonCode: v.pipe(v.number(), v.integer(), v.minValue(0)),
+        lastActivityAtUnixMs: LifecycleMsSchema,
+    }),
+    v.transform((v) => {
+        return {
+            ...v,
+            unifiedAsset: v.assetIds ? assetForId(v.assetIds.unifiedAssetId) : undefined,
+        };
+    }),
+);
 
-export type GetLifecycleFlowInput = z.input<typeof GetLifecycleFlowInputSchema>;
-export type ParsedGetLifecycleFlowInput = z.output<typeof GetLifecycleFlowInputSchema>;
+export const ListLifecycleFlowsByTxOutputSchema = v.object({
+    txHash: v.string(),
+    matches: v.optional(v.array(LifecycleFlowTxMatchSchema), []),
+    nextPageToken: v.optional(v.string(), ""),
+});
 
-export type ListLifecycleFlowsByTxInput = z.input<typeof ListLifecycleFlowsByTxInputSchema>;
-export type ParsedListLifecycleFlowsByTxInput = z.output<typeof ListLifecycleFlowsByTxInputSchema>;
+export type ListLifecycleFlowsInput = v.InferInput<typeof ListLifecycleFlowsInputSchema>;
+export type ParsedListLifecycleFlowsInput = v.InferOutput<typeof ListLifecycleFlowsInputSchema>;
 
-export type LifecycleFlowSummary = z.output<typeof LifecycleFlowSummarySchema>;
-export type LifecycleFlowStep = z.output<typeof LifecycleFlowStepSchema>;
-export type LifecycleFlowStepActivity = z.output<typeof LifecycleFlowStepActivitySchema>;
-export type LifecycleFlowTimelineItem = z.output<typeof LifecycleFlowTimelineItemSchema>;
-export type LifecycleFlowDetail = z.output<typeof LifecycleFlowDetailSchema>;
+export type GetLifecycleFlowInput = v.InferInput<typeof GetLifecycleFlowInputSchema>;
+export type ParsedGetLifecycleFlowInput = v.InferOutput<typeof GetLifecycleFlowInputSchema>;
 
-export type ListLifecycleFlowsOutput = z.output<typeof ListLifecycleFlowsOutputSchema>;
-export type GetLifecycleFlowOutput = z.output<typeof GetLifecycleFlowOutputSchema>;
-export type ListLifecycleFlowsByTxOutput = z.output<typeof ListLifecycleFlowsByTxOutputSchema>;
+export type ListLifecycleFlowsByTxInput = v.InferInput<typeof ListLifecycleFlowsByTxInputSchema>;
+export type ParsedListLifecycleFlowsByTxInput = v.InferOutput<
+    typeof ListLifecycleFlowsByTxInputSchema
+>;
 
-export type LifecycleAssetIds = z.output<typeof LifecycleAssetIdsSchema>;
-export type LifecycleU256 = z.output<typeof LifecycleU256Schema>;
-export type LifecycleRequestFee = z.output<typeof LifecycleRequestFeeSchema>;
+export type LifecycleFlowSummary = v.InferOutput<typeof LifecycleFlowSummarySchema>;
+export type LifecycleFlowStep = v.InferOutput<typeof LifecycleFlowStepSchema>;
+export type LifecycleFlowStepActivity = v.InferOutput<typeof LifecycleFlowStepActivitySchema>;
+export type LifecycleFlowTimelineItem = v.InferOutput<typeof LifecycleFlowTimelineItemSchema>;
+export type LifecycleFlowDetail = v.InferOutput<typeof LifecycleFlowDetailSchema>;
 
-export type LifecycleFlowSummaryProgress = z.output<typeof LifecycleFlowSummaryProgressSchema>;
-export type LifecycleFlowState = z.output<typeof LifecycleFlowStateEnumSchema>;
+export type ListLifecycleFlowsOutput = v.InferOutput<typeof ListLifecycleFlowsOutputSchema>;
+export type GetLifecycleFlowOutput = v.InferOutput<typeof GetLifecycleFlowOutputSchema>;
+export type ListLifecycleFlowsByTxOutput = v.InferOutput<typeof ListLifecycleFlowsByTxOutputSchema>;
+
+export type LifecycleAssetIds = v.InferOutput<typeof LifecycleAssetIdsSchema>;
+export type LifecycleU256 = v.InferOutput<typeof LifecycleU256Schema>;
+export type LifecycleRequestFee = v.InferOutput<typeof LifecycleRequestFeeSchema>;
+
+export type LifecycleFlowSummaryProgress = v.InferOutput<typeof LifecycleFlowSummaryProgressSchema>;
+export type LifecycleFlowState = v.InferOutput<typeof LifecycleFlowStateEnumSchema>;
 export type LifecycleListScope = LifecycleListScopeOutputValue;
 export type LifecycleTxLookupKind = LifecycleTxLookupKindOutputValue;
 export type LifecycleRequestFeeStatus = LifecycleRequestFeeStatusValue;
 
-export type LifecycleFlowTxMatch = z.output<typeof LifecycleFlowTxMatchSchema>;
+export type LifecycleFlowTxMatch = v.InferOutput<typeof LifecycleFlowTxMatchSchema>;

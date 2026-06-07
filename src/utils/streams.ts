@@ -7,16 +7,16 @@ import { type DescMessage, type MessageShape, fromBinary } from "@bufbuild/proto
  * @returns The decoded frame, or null if the frame is invalid.
  */
 export function decodeProtoFrame<T extends DescMessage>(
-	schema: T,
-	m: Uint8Array | MessageShape<T>
+    schema: T,
+    m: Uint8Array | MessageShape<T>,
 ): MessageShape<T> | null {
-	if (!m) return null;
+    if (!m) return null;
 
-	try {
-		if (m instanceof Uint8Array) return fromBinary(schema, m);
-		if (m && typeof m === "object") return m;
-		return null;
-	} catch {
-		return null;
-	}
+    try {
+        if (m instanceof Uint8Array) return fromBinary(schema, m);
+        if (m && typeof m === "object") return m;
+        return null;
+    } catch {
+        return null;
+    }
 }

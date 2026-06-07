@@ -1,42 +1,41 @@
-import { z } from "zod";
-import { idToBigInt } from "../../utils/base58-id.js";
+import * as v from "valibot";
+import { optionalSubAccountIdInputSchema } from "../../shared/schemas.js";
 
-const OptionalSubAccountIdSchema = z
-	.string()
-	.optional()
-	.transform((v) => (v ? idToBigInt(v, "subaccountId") : undefined));
+const OptionalSubAccountIdSchema = optionalSubAccountIdInputSchema();
 
-export const CreateDepositAddressInputSchema = z
-	.object({
-		subAccountId: OptionalSubAccountIdSchema,
-		chainId: z.number().int().positive(),
-	})
-	.transform(({ subAccountId, ...rest }) => ({
-		...rest,
-		subaccountId: subAccountId,
-	}));
+export const CreateDepositAddressInputSchema = v.pipe(
+    v.object({
+        subAccountId: OptionalSubAccountIdSchema,
+        chainId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+    }),
+    v.transform(({ subAccountId, ...rest }) => ({
+        ...rest,
+        subaccountId: subAccountId,
+    })),
+);
 
-export type CreateDepositAddressInput = z.input<typeof CreateDepositAddressInputSchema>;
-export type CreateDepositAddressRequest = z.output<typeof CreateDepositAddressInputSchema>;
+export type CreateDepositAddressInput = v.InferInput<typeof CreateDepositAddressInputSchema>;
+export type CreateDepositAddressRequest = v.InferOutput<typeof CreateDepositAddressInputSchema>;
 
-export const ListDepositAddressesInputSchema = z
-	.object({
-		subAccountId: OptionalSubAccountIdSchema,
-		chainId: z.number().int().positive().optional(),
-	})
-	.transform(({ subAccountId, ...rest }) => ({
-		...rest,
-		subaccountId: subAccountId,
-	}));
+export const ListDepositAddressesInputSchema = v.pipe(
+    v.object({
+        subAccountId: OptionalSubAccountIdSchema,
+        chainId: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0))),
+    }),
+    v.transform(({ subAccountId, ...rest }) => ({
+        ...rest,
+        subaccountId: subAccountId,
+    })),
+);
 
-export type ListDepositAddressesInput = z.input<typeof ListDepositAddressesInputSchema>;
-export type ListDepositAddressesRequest = z.output<typeof ListDepositAddressesInputSchema>;
+export type ListDepositAddressesInput = v.InferInput<typeof ListDepositAddressesInputSchema>;
+export type ListDepositAddressesRequest = v.InferOutput<typeof ListDepositAddressesInputSchema>;
 
-export const DepositAddressSchema = z.object({
-	chainId: z.number().int().positive(),
-	depositAddress: z.string().trim().min(1),
+export const DepositAddressSchema = v.object({
+    chainId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+    depositAddress: v.pipe(v.string(), v.trim(), v.minLength(1)),
 });
 
-export type DepositAddress = z.output<typeof DepositAddressSchema>;
+export type DepositAddress = v.InferOutput<typeof DepositAddressSchema>;
 
-export const DepositAddressesSchema = z.array(DepositAddressSchema);
+export const DepositAddressesSchema = v.array(DepositAddressSchema);

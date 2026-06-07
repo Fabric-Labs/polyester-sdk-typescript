@@ -3,9 +3,9 @@
  * When the active account is a subaccount (not main), this returns that ID.
  */
 export interface SubAccountResolver {
-	getDefaultSubAccountId(): string | null;
-	getActiveAccountId?(): string | null;
-	getMainAccountId?(): string | null;
+    getDefaultSubAccountId(): string | null;
+    getActiveAccountId?(): string | null;
+    getMainAccountId?(): string | null;
 }
 
 /**
@@ -20,24 +20,24 @@ export interface SubAccountResolver {
  * @param resolver - Optional resolver that provides default based on auth state
  */
 export function resolveSubAccountId(
-	explicit: string | undefined,
-	resolver?: SubAccountResolver
+    explicit: string | undefined,
+    resolver?: SubAccountResolver,
 ): string | undefined {
-	// explicit empty string = force main account
-	if (explicit === "") return undefined;
-	// explicit string = use it
-	if (explicit !== undefined) return explicit;
-	// not passed = check resolver
-	const defaultId = resolver?.getDefaultSubAccountId();
-	return defaultId ?? undefined;
+    // explicit empty string = force main account
+    if (explicit === "") return undefined;
+    // explicit string = use it
+    if (explicit !== undefined) return explicit;
+    // not passed = check resolver
+    const defaultId = resolver?.getDefaultSubAccountId();
+    return defaultId ?? undefined;
 }
 
 export function resolveSubAccountScopedInput<TInput extends object>(
-	input: TInput & { subAccountId?: string },
-	resolver?: SubAccountResolver
+    input: TInput & { subAccountId?: string },
+    resolver?: SubAccountResolver,
 ): TInput & { subAccountId?: string } {
-	return {
-		...input,
-		subAccountId: resolveSubAccountId(input.subAccountId, resolver),
-	};
+    return {
+        ...input,
+        subAccountId: resolveSubAccountId(input.subAccountId, resolver),
+    };
 }

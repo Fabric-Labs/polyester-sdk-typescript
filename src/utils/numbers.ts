@@ -9,10 +9,10 @@
  * @throws An error if the field is not a positive integer.
  */
 export function parseRequiredUint64Decimal(raw: string, fieldName: string): bigint {
-	const s = (raw ?? "").trim();
-	if (!s) throw new Error(`${fieldName} is required`);
-	if (!/^[0-9]+$/.test(s)) throw new Error(`${fieldName} must be a positive integer`);
-	return BigInt(s);
+    const s = (raw ?? "").trim();
+    if (!s) throw new Error(`${fieldName} is required`);
+    if (!/^[0-9]+$/.test(s)) throw new Error(`${fieldName} must be a positive integer`);
+    return BigInt(s);
 }
 
 /**
@@ -21,11 +21,11 @@ export function parseRequiredUint64Decimal(raw: string, fieldName: string): bigi
  * @returns The parsed bigint, or undefined if the field is invalid or empty.
  */
 export function parseOptionalUint64Decimal(raw: string | undefined): bigint | undefined {
-	const s = (raw ?? "").trim();
-	if (!s) return;
-	// For optional filters, treat invalid input as "unset" rather than surfacing an error.
-	if (!/^[0-9]+$/.test(s)) return;
-	return BigInt(s);
+    const s = (raw ?? "").trim();
+    if (!s) return;
+    // For optional filters, treat invalid input as "unset" rather than surfacing an error.
+    if (!/^[0-9]+$/.test(s)) return;
+    return BigInt(s);
 }
 
 /**
@@ -33,16 +33,16 @@ export function parseOptionalUint64Decimal(raw: string | undefined): bigint | un
  * Accepts base-10 strings, numeric inputs (truncated), and bigint inputs.
  */
 export function parseOptionalUint64Like(
-	value: string | number | bigint | undefined | null
+    value: string | number | bigint | undefined | null,
 ): bigint | undefined {
-	if (value === undefined || value === null) return undefined;
-	if (typeof value === "bigint") return value >= 0n ? value : undefined;
-	if (typeof value === "number") {
-		if (!Number.isFinite(value)) return undefined;
-		const n = Math.trunc(value);
-		return n >= 0 ? BigInt(n) : undefined;
-	}
-	return parseOptionalUint64Decimal(value);
+    if (value === undefined || value === null) return undefined;
+    if (typeof value === "bigint") return value >= 0n ? value : undefined;
+    if (typeof value === "number") {
+        if (!Number.isFinite(value)) return undefined;
+        const n = Math.trunc(value);
+        return n >= 0 ? BigInt(n) : undefined;
+    }
+    return parseOptionalUint64Decimal(value);
 }
 
 /**
@@ -50,13 +50,13 @@ export function parseOptionalUint64Like(
  * Useful for common "limit" fields coming from UI inputs.
  */
 export function parseOptionalPositiveIntLike(
-	value: string | number | undefined | null
+    value: string | number | undefined | null,
 ): number | undefined {
-	if (value === undefined || value === null) return undefined;
-	const n = typeof value === "string" ? Number(value.trim()) : value;
-	if (!Number.isFinite(n)) return undefined;
-	const int = Math.trunc(n);
-	return int > 0 ? int : undefined;
+    if (value === undefined || value === null) return undefined;
+    const n = typeof value === "string" ? Number(value.trim()) : value;
+    if (!Number.isFinite(n)) return undefined;
+    const int = Math.trunc(n);
+    return int > 0 ? int : undefined;
 }
 
 /**
@@ -69,17 +69,17 @@ export function parseOptionalPositiveIntLike(
  * @throws An error if the field is not a positive number.
  */
 export function decimalToScaledInt(raw: string, scale: number, fieldName: string): bigint {
-	const s = (raw ?? "").trim();
-	if (!s) throw new Error(`${fieldName} is required`);
-	if (!/^[0-9]+(\.[0-9]+)?$/.test(s)) throw new Error(`${fieldName} must be a positive number`);
-	const [intPartRaw, fracRaw = ""] = s.split(".");
-	if (fracRaw.length > scale) {
-		throw new Error(`${fieldName} supports at most ${scale} decimal places`);
-	}
-	const intPart = intPartRaw?.replace(/^0+/, "") ?? "0";
-	const fracPart = fracRaw.padEnd(scale, "0");
-	const combined = `${intPart}${fracPart}`;
-	return BigInt(combined ?? "0");
+    const s = (raw ?? "").trim();
+    if (!s) throw new Error(`${fieldName} is required`);
+    if (!/^[0-9]+(\.[0-9]+)?$/.test(s)) throw new Error(`${fieldName} must be a positive number`);
+    const [intPartRaw, fracRaw = ""] = s.split(".");
+    if (fracRaw.length > scale) {
+        throw new Error(`${fieldName} supports at most ${scale} decimal places`);
+    }
+    const intPart = intPartRaw?.replace(/^0+/, "") ?? "0";
+    const fracPart = fracRaw.padEnd(scale, "0");
+    const combined = `${intPart}${fracPart}`;
+    return BigInt(combined ?? "0");
 }
 
 /**
@@ -92,7 +92,7 @@ export function decimalToScaledInt(raw: string, scale: number, fieldName: string
  * @throws An error if the field is not a positive number.
  */
 export function parseQtyScaled(raw: string, scale: number, fieldName: string): bigint {
-	return decimalToScaledInt(raw, scale, fieldName);
+    return decimalToScaledInt(raw, scale, fieldName);
 }
 
 /**
@@ -104,7 +104,7 @@ export function parseQtyScaled(raw: string, scale: number, fieldName: string): b
  * @throws An error if the field is not a positive number.
  */
 export function parsePriceTicks(raw: string, fieldName: string): bigint {
-	return decimalToScaledInt(raw, 6, fieldName);
+    return decimalToScaledInt(raw, 6, fieldName);
 }
 
 /**
@@ -113,8 +113,8 @@ export function parsePriceTicks(raw: string, fieldName: string): bigint {
  * @returns The coerced bigint.
  */
 export function toBigIntOrZero(value?: number | null): bigint {
-	if (value == null || Number.isNaN(value)) return 0n;
-	return BigInt(Math.max(0, Math.trunc(value)));
+    if (value == null || Number.isNaN(value)) return 0n;
+    return BigInt(Math.max(0, Math.trunc(value)));
 }
 
 /**
@@ -123,8 +123,8 @@ export function toBigIntOrZero(value?: number | null): bigint {
  * @returns The coerced integer.
  */
 export function toIntOrZero(value?: number | null): number {
-	if (value == null || Number.isNaN(value)) return 0;
-	return Math.max(0, Math.trunc(value));
+    if (value == null || Number.isNaN(value)) return 0;
+    return Math.max(0, Math.trunc(value));
 }
 
 /**
@@ -133,8 +133,8 @@ export function toIntOrZero(value?: number | null): number {
  * @returns The coerced integer.
  */
 export function toBpsOrZero(value?: number | null): number {
-	if (value == null || Number.isNaN(value)) return 0;
-	return Math.max(0, Math.trunc(value * 100));
+    if (value == null || Number.isNaN(value)) return 0;
+    return Math.max(0, Math.trunc(value * 100));
 }
 
 /**
@@ -143,6 +143,6 @@ export function toBpsOrZero(value?: number | null): number {
  * @returns The converted percentage.
  */
 export function bpsToPct(value?: number | null): number {
-	if (value == null || Number.isNaN(value)) return 0;
-	return value / 100;
+    if (value == null || Number.isNaN(value)) return 0;
+    return value / 100;
 }

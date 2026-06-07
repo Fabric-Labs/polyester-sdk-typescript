@@ -1,79 +1,60 @@
-import { z } from "zod";
-import { idToBigInt } from "../../utils/base58-id.js";
+import * as v from "valibot";
+import { optionalSubAccountIdInputSchema, positiveBigintLikeSchema } from "../../shared/schemas.js";
 import { decimalToScaledInt } from "../../utils/numbers.js";
 
-const OptionalSubAccountIdSchema = z
-	.string()
-	.trim()
-	.optional()
-	.transform((value) => (value ? idToBigInt(value, "subaccountId") : undefined));
+const OptionalSubAccountIdSchema = optionalSubAccountIdInputSchema();
+const QuantityScaledSchema = positiveBigintLikeSchema("quantityScaled must be greater than 0");
 
-const QuantityScaledSchema = z
-	.union([
-		z.bigint(),
-		z
-			.string()
-			.trim()
-			.regex(/^\d+$/)
-			.transform((value) => BigInt(value)),
-	])
-	.refine((value) => value > 0n, {
-		message: "quantityScaled must be greater than 0",
-	});
+const AmountInputSchema = v.pipe(
+    v.object({
+        amount: v.pipe(v.string(), v.trim(), v.minLength(1)),
+        quantityScale: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(36)),
+    }),
+    v.transform(({ amount, quantityScale }) => decimalToScaledInt(amount, quantityScale, "amount")),
+    v.check((value) => value > 0n, "amount must be greater than 0"),
+);
 
-const AmountInputSchema = z
-	.object({
-		amount: z.string().trim().min(1),
-		quantityScale: z.number().int().min(0).max(36),
-	})
-	.transform(({ amount, quantityScale }) => decimalToScaledInt(amount, quantityScale, "amount"))
-	.refine((value) => value > 0n, {
-		message: "amount must be greater than 0",
-	});
-
-const QuantityInputSchema = z.union([
-	z.object({ quantityScaled: QuantityScaledSchema }),
-	AmountInputSchema.transform((quantityScaled) => ({ quantityScaled })),
+const QuantityInputSchema = v.union([
+    v.object({ quantityScaled: QuantityScaledSchema }),
+    v.pipe(
+        AmountInputSchema,
+        v.transform((quantityScaled) => ({ quantityScaled })),
+    ),
 ]);
 
-export const CreateTradingWithdrawToFundingInputSchema = z
-	.object({
-		subAccountId: OptionalSubAccountIdSchema,
-		assetId: z.number().int().positive(),
-		idempotencyKey: z.string().trim().min(1),
-		destinationAddress: z
-			.string()
-			.trim()
-			.optional()
-			.transform((value) => (value ? value : "")),
-		signerWallet: z
-			.string()
-			.trim()
-			.optional()
-			.transform((value) => (value ? value : "")),
-		payloadSignature: z.instanceof(Uint8Array).optional(),
-	})
-	.and(QuantityInputSchema)
-	.transform(({ subAccountId, ...input }) => ({
-		...input,
-		subaccountId: subAccountId,
-	}));
+export const CreateTradingWithdrawToFundingInputSchema = v.pipe(
+    v.intersect([
+        v.object({
+            subAccountId: OptionalSubAccountIdSchema,
+            assetId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+            idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
+            destinationAddress: v.optional(v.pipe(v.string(), v.trim()), ""),
+            signerWallet: v.optional(v.pipe(v.string(), v.trim()), ""),
+            payloadSignature: v.optional(v.instance(Uint8Array)),
+        }),
+        QuantityInputSchema,
+    ]),
+    v.transform(({ subAccountId, ...input }) => ({
+        ...input,
+        subaccountId: subAccountId,
+    })),
+);
 
-export type CreateTradingWithdrawToFundingInput = z.input<
-	typeof CreateTradingWithdrawToFundingInputSchema
+export type CreateTradingWithdrawToFundingInput = v.InferInput<
+    typeof CreateTradingWithdrawToFundingInputSchema
 >;
 
-export type CreateTradingWithdrawToFundingRequest = z.output<
-	typeof CreateTradingWithdrawToFundingInputSchema
+export type CreateTradingWithdrawToFundingRequest = v.InferOutput<
+    typeof CreateTradingWithdrawToFundingInputSchema
 >;
 
-export const CreateTradingWithdrawResultSchema = z.object({
-	intentId: z.string().trim().min(1),
+export const CreateTradingWithdrawResultSchema = v.object({
+    intentId: v.pipe(v.string(), v.trim(), v.minLength(1)),
 });
 
-export type CreateTradingWithdrawResult = z.output<typeof CreateTradingWithdrawResultSchema>;
+export type CreateTradingWithdrawResult = v.InferOutput<typeof CreateTradingWithdrawResultSchema>;
 
 export const CreateWalletTradingWithdrawResultSchema = CreateTradingWithdrawResultSchema;
-export type CreateWalletTradingWithdrawResult = z.output<
-	typeof CreateWalletTradingWithdrawResultSchema
+export type CreateWalletTradingWithdrawResult = v.InferOutput<
+    typeof CreateWalletTradingWithdrawResultSchema
 >;

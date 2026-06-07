@@ -135,8 +135,8 @@ function setPairCatalog(pairs: PairConfig[], assets?: AssetConfig[]): void {
             defaultMarketSlippagePctSell: pair.defaultMarketSlippagePctSell,
             maxClientRefDriftPct: pair.maxClientRefDriftPct,
             marketdata: pair.marketdata,
-            listingAt: pair.listingAt,
-            delistingAt: pair.delistingAt,
+            listingAt: pair.listingAt ?? null,
+            delistingAt: pair.delistingAt ?? null,
             status: pair.status,
         };
 

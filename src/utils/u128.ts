@@ -6,17 +6,17 @@
  * @returns The bigint.
  */
 export function toBig(v: unknown): bigint {
-	if (v === undefined || v === null) return 0n;
-	if (typeof v === "bigint") return v;
-	if (typeof v === "number") return BigInt(v);
-	if (typeof v === "string" && v.length > 0) {
-		try {
-			return BigInt(v);
-		} catch {
-			return 0n;
-		}
-	}
-	return 0n;
+    if (v === undefined || v === null) return 0n;
+    if (typeof v === "bigint") return v;
+    if (typeof v === "number") return BigInt(v);
+    if (typeof v === "string" && v.length > 0) {
+        try {
+            return BigInt(v);
+        } catch {
+            return 0n;
+        }
+    }
+    return 0n;
 }
 
 /**
@@ -25,10 +25,10 @@ export function toBig(v: unknown): bigint {
  * @returns The bigint.
  */
 export function fromU128(u: { hi: bigint; lo: bigint } | undefined): bigint {
-	if (!u) return 0n;
-	const hi = toBig(u.hi);
-	const lo = toBig(u.lo);
-	return (hi << 64n) + lo;
+    if (!u) return 0n;
+    const hi = toBig(u.hi);
+    const lo = toBig(u.lo);
+    return (hi << 64n) + lo;
 }
 
 /**
@@ -38,9 +38,9 @@ export function fromU128(u: { hi: bigint; lo: bigint } | undefined): bigint {
  * @returns The decimal string.
  */
 export function u128ToDecimal(value: bigint, scale: number): string {
-	if (scale <= 0) return value.toString();
-	const base = 10n ** BigInt(scale);
-	const i = value / base;
-	const f = value % base;
-	return `${i}.${f.toString().padStart(scale, "0")}`;
+    if (scale <= 0) return value.toString();
+    const base = 10n ** BigInt(scale);
+    const i = value / base;
+    const f = value % base;
+    return `${i}.${f.toString().padStart(scale, "0")}`;
 }

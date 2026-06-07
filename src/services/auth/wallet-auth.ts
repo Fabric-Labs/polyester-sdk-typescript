@@ -160,7 +160,8 @@ export class WalletAuthService extends AuthService {
 
         const expiresAt = response.expiresAt
             ? new Date(
-                  Number(response.expiresAt.seconds) * 1000 + response.expiresAt.nanos / 1_000_000,
+                  Number(response.expiresAt.seconds) * 1000 +
+                      (response.expiresAt.nanos ?? 0) / 1_000_000,
               )
             : new Date();
 

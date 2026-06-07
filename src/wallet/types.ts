@@ -8,14 +8,14 @@ export type HexAddress = `0x${string}`;
  * app and pass it here.
  */
 export interface PolyesterWallet {
-	/** The smart account address (used for authentication and trading) */
-	readonly address: HexAddress;
+    /** The smart account address (used for authentication and trading) */
+    readonly address: HexAddress;
 
-	/** The owner/EOA wallet address (optional, used for deposits/bridge) */
-	readonly ownerAddress?: HexAddress;
+    /** The owner/EOA wallet address (optional, used for deposits/bridge) */
+    readonly ownerAddress?: HexAddress;
 
-	/** Sign a message and return the signature */
-	signMessage(message: string): Promise<HexAddress>;
+    /** Sign a message and return the signature */
+    signMessage(message: string): Promise<HexAddress>;
 }
 
 /**
@@ -34,16 +34,16 @@ export type WalletConfig = PolyesterWallet | WalletFactory;
  * Helper to check if a wallet config is a factory function.
  */
 export function isWalletFactory(config: WalletConfig): config is WalletFactory {
-	return typeof config === "function";
+    return typeof config === "function";
 }
 
 /**
  * Helper to resolve a wallet from config.
  */
 export async function resolveWallet(
-	config: WalletConfig | undefined
+    config: WalletConfig | undefined,
 ): Promise<PolyesterWallet | null> {
-	if (!config) return null;
-	if (isWalletFactory(config)) return config();
-	return config;
+    if (!config) return null;
+    if (isWalletFactory(config)) return config();
+    return config;
 }

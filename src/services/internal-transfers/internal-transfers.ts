@@ -3,36 +3,37 @@ import * as Proto from "../../gen/transfer/v1/internal_transfer_pb.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
 import { type SubAccountResolver, resolveSubAccountScopedInput } from "../sub-account-resolver.js";
+import * as v from "valibot";
 import {
-	CreateInternalTransferInputSchema,
-	CreateInternalTransferResultSchema,
-	type CreateInternalTransferInput,
-	type CreateInternalTransferResult,
+    CreateInternalTransferInputSchema,
+    CreateInternalTransferResultSchema,
+    type CreateInternalTransferInput,
+    type CreateInternalTransferResult,
 } from "./internal-transfers.schemas.js";
 
 export type InternalTransferMutationOptions = {
-	stepUpToken?: string | null;
+    stepUpToken?: string | null;
 };
 
 export class InternalTransfersService {
-	#client: Client<typeof Proto.InternalTransferService>;
-	#resolver?: SubAccountResolver;
+    #client: Client<typeof Proto.InternalTransferService>;
+    #resolver?: SubAccountResolver;
 
-	constructor(transport: Transport, resolver?: SubAccountResolver) {
-		this.#client = createClient(Proto.InternalTransferService, transport);
-		this.#resolver = resolver;
-	}
+    constructor(transport: Transport, resolver?: SubAccountResolver) {
+        this.#client = createClient(Proto.InternalTransferService, transport);
+        this.#resolver = resolver;
+    }
 
-	async create(
-		input: CreateInternalTransferInput,
-		options?: InternalTransferMutationOptions
-	): Promise<CreateInternalTransferResult> {
-		const resolvedInput = resolveSubAccountScopedInput(input, this.#resolver);
-		const validatedInput = CreateInternalTransferInputSchema.parse(resolvedInput);
-		const res = await this.#client.createInternalTransfer(
-			removeUndefined(validatedInput),
-			stepUpCallOptions(options?.stepUpToken)
-		);
-		return CreateInternalTransferResultSchema.parse(res);
-	}
+    async create(
+        input: CreateInternalTransferInput,
+        options?: InternalTransferMutationOptions,
+    ): Promise<CreateInternalTransferResult> {
+        const resolvedInput = resolveSubAccountScopedInput(input, this.#resolver);
+        const validatedInput = v.parse(CreateInternalTransferInputSchema, resolvedInput);
+        const res = await this.#client.createInternalTransfer(
+            removeUndefined(validatedInput),
+            stepUpCallOptions(options?.stepUpToken),
+        );
+        return v.parse(CreateInternalTransferResultSchema, res);
+    }
 }

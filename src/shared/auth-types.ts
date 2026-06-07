@@ -5,11 +5,11 @@ import type { HexAddress } from "../wallet/types.js";
  * This is the canonical shape used across session storage, SDK state, and hydration.
  */
 export interface ActiveAccountInfo {
-	accountId: string;
-	isMain: boolean;
-	mainAccountId: string;
-	smartAccountAddress?: string;
-	label?: string;
+    accountId: string;
+    isMain: boolean;
+    mainAccountId: string;
+    smartAccountAddress?: string;
+    label?: string;
 }
 
 export type AuthLoginMethod = "google" | "email" | "metamask" | "phantom" | "walletconnect";
@@ -19,12 +19,12 @@ export type AuthLoginMethod = "google" | "email" | "metamask" | "phantom" | "wal
  * Contains minimal info needed to restore auth state on page load.
  */
 export interface SessionData {
-	provider: "metamask" | "turnkey" | "other";
-	loginMethod: AuthLoginMethod | null;
-	primaryWallet: string;
-	smartAccount: string;
-	activeAccount?: ActiveAccountInfo;
-	username?: string;
+    provider: "metamask" | "turnkey" | "other";
+    loginMethod: AuthLoginMethod | null;
+    primaryWallet: string;
+    smartAccount: string;
+    activeAccount?: ActiveAccountInfo;
+    username?: string;
 }
 
 /**
@@ -32,11 +32,11 @@ export interface SessionData {
  * Represents the current authentication status and account info.
  */
 export interface AuthState {
-	isAuthenticated: boolean;
-	address: HexAddress | null;
-	ownerAddress: HexAddress | null;
-	mainAccountId: string | null;
-	activeAccount: ActiveAccountInfo | null;
+    isAuthenticated: boolean;
+    address: HexAddress | null;
+    ownerAddress: HexAddress | null;
+    mainAccountId: string | null;
+    activeAccount: ActiveAccountInfo | null;
 }
 
 /**
@@ -44,9 +44,9 @@ export interface AuthState {
  * Pass this to hydrateAuthState() on mount to avoid flash of unauthenticated content.
  */
 export interface AuthHydrationData {
-	mainAccountId: string;
-	username: string | null;
-	activeAccountId?: string;
-	smartAccountAddress?: HexAddress;
-	ownerAddress?: HexAddress;
+    mainAccountId: string;
+    username: string | null;
+    activeAccountId?: string;
+    smartAccountAddress?: HexAddress;
+    ownerAddress?: HexAddress;
 }

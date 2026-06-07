@@ -1,236 +1,282 @@
 import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
-import { z } from "zod";
-import { idToBigInt, formatId } from "../../utils/base58-id.js";
-import { TimestampSchema } from "../../shared/schemas.js";
-import { tsObjToMs } from "../../utils/time.js";
+import * as v from "valibot";
+import { formatId } from "../../utils/base58-id.js";
+import { OptionalTimestampMsSchema, idInputSchema } from "../../shared/schemas.js";
 import {
-	SubAccountRoleCodec,
-	InviteActionCodec,
-	InviteStatusCodec,
-	RawSubAccountStatusCodec,
+    SubAccountRoleCodec,
+    InviteActionCodec,
+    InviteStatusCodec,
+    RawSubAccountStatusCodec,
 } from "./sub-accounts.codecs.js";
 
 const SUBACCOUNT_ROLE_VALUES = [
-	"owner",
-	"admin",
-	"treasury",
-	"leveraged_trader",
-	"trader",
-	"viewer",
+    "owner",
+    "admin",
+    "treasury",
+    "leveraged_trader",
+    "trader",
+    "viewer",
 ] as const;
 
-export const SubAccountRoleSchema = z.enum(SUBACCOUNT_ROLE_VALUES);
+export const SubAccountRoleSchema = v.picklist(SUBACCOUNT_ROLE_VALUES);
 
-export type SubAccountRole = z.output<typeof SubAccountRoleSchema>;
+export type SubAccountRole = v.InferOutput<typeof SubAccountRoleSchema>;
 
-const ProtoSubAccountRoleSchema = z
-	.enum(Proto.SubaccountRole)
-	.transform((role) => SubAccountRoleCodec.protoToOutput[role]);
+const ProtoSubAccountRoleSchema = v.pipe(
+    v.enum(Proto.SubaccountRole),
+    v.transform((role) => SubAccountRoleCodec.protoToOutput[role]),
+);
 
-export const CreateSubAccountInputSchema = z.object({
-	label: z.string().optional().default(""),
-	smartAccountAddress: z.string(),
-	nonce: z.string(),
-	signature: z.string(),
-	primaryWalletAddress: z.string().optional().default(""),
-	walletProvider: z.string().optional().default(""),
+export const CreateSubAccountInputSchema = v.object({
+    label: v.optional(v.optional(v.string()), ""),
+    smartAccountAddress: v.string(),
+    nonce: v.string(),
+    signature: v.string(),
+    primaryWalletAddress: v.optional(v.optional(v.string()), ""),
+    walletProvider: v.optional(v.optional(v.string()), ""),
 });
 
-export type CreateSubAccountInput = z.input<typeof CreateSubAccountInputSchema>;
+export type CreateSubAccountInput = v.InferInput<typeof CreateSubAccountInputSchema>;
 
-export const UpdateSubAccountInputSchema = CreateSubAccountInputSchema.pick({
-	label: true,
-})
-	.extend({
-		subAccountId: z.string().transform((v) => idToBigInt(v, "subaccountId")),
-		status: z.enum(["active", "frozen"]),
-	})
-	.transform(({ subAccountId, status, ...rest }) => ({
-		...rest,
-		subaccountId: subAccountId,
-		status: status === "frozen" ? "disabled" : "active",
-	}));
+export const UpdateSubAccountInputSchema = v.pipe(
+    v.object({
+        ...v.pick(CreateSubAccountInputSchema, ["label"]).entries,
+        subAccountId: idInputSchema("subaccountId"),
+        status: v.picklist(["active", "frozen"]),
+    }),
+    v.transform(({ subAccountId, status, ...rest }) => ({
+        ...rest,
+        subaccountId: subAccountId,
+        status: status === "frozen" ? "disabled" : "active",
+    })),
+);
 
-export type UpdateSubAccountInput = z.input<typeof UpdateSubAccountInputSchema>;
+export type UpdateSubAccountInput = v.InferInput<typeof UpdateSubAccountInputSchema>;
 
-export const InviteSubAccountMemberInputSchema = z
-	.object({
-		subAccountId: z.string().transform((v) => idToBigInt(v, "subaccountId")),
-		granteeAccountId: z.string().transform((v) => idToBigInt(v, "granteeAccountId")),
-		role: SubAccountRoleSchema.transform((role) => SubAccountRoleCodec.inputToProto[role]),
-	})
-	.transform(({ subAccountId, ...rest }) => ({
-		...rest,
-		subaccountId: subAccountId,
-	}));
+export const InviteSubAccountMemberInputSchema = v.pipe(
+    v.object({
+        subAccountId: idInputSchema("subaccountId"),
+        granteeAccountId: idInputSchema("granteeAccountId"),
+        role: v.pipe(
+            SubAccountRoleSchema,
+            v.transform((role) => SubAccountRoleCodec.inputToProto[role]),
+        ),
+    }),
+    v.transform(({ subAccountId, ...rest }) => ({
+        ...rest,
+        subaccountId: subAccountId,
+    })),
+);
 
-export type InviteSubAccountMemberInput = z.input<typeof InviteSubAccountMemberInputSchema>;
+export type InviteSubAccountMemberInput = v.InferInput<typeof InviteSubAccountMemberInputSchema>;
 
-export const RemoveSubAccountMemberInputSchema = z
-	.object({
-		subAccountId: z.string().transform((v) => idToBigInt(v, "subaccountId")),
-		granteeAccountId: z.string().transform((v) => idToBigInt(v, "granteeAccountId")),
-	})
-	.transform(({ subAccountId, ...rest }) => ({
-		...rest,
-		subaccountId: subAccountId,
-	}));
+export const RemoveSubAccountMemberInputSchema = v.pipe(
+    v.object({
+        subAccountId: idInputSchema("subaccountId"),
+        granteeAccountId: idInputSchema("granteeAccountId"),
+    }),
+    v.transform(({ subAccountId, ...rest }) => ({
+        ...rest,
+        subaccountId: subAccountId,
+    })),
+);
 
-export type RemoveSubAccountMemberInput = z.input<typeof RemoveSubAccountMemberInputSchema>;
+export type RemoveSubAccountMemberInput = v.InferInput<typeof RemoveSubAccountMemberInputSchema>;
 
 export const UpdateSubAccountMemberRoleInputSchema = InviteSubAccountMemberInputSchema;
 
-export type UpdateSubAccountMemberRoleInput = z.input<typeof UpdateSubAccountMemberRoleInputSchema>;
-
-export const SetSubAccountMemberMfaRequirementInputSchema = z
-	.object({
-		subAccountId: z.string().transform((v) => idToBigInt(v, "subaccountId")),
-		requireMemberMfa: z.boolean(),
-	})
-	.transform(({ subAccountId, ...rest }) => ({
-		...rest,
-		subaccountId: subAccountId,
-	}));
-
-export type SetSubAccountMemberMfaRequirementInput = z.input<
-	typeof SetSubAccountMemberMfaRequirementInputSchema
+export type UpdateSubAccountMemberRoleInput = v.InferInput<
+    typeof UpdateSubAccountMemberRoleInputSchema
 >;
 
-export const ListSubAccountInvitesInputSchema = z.object({
-	direction: z.enum(["incoming", "outgoing", ""]).optional().default(""),
+export const SetSubAccountMemberMfaRequirementInputSchema = v.pipe(
+    v.object({
+        subAccountId: idInputSchema("subaccountId"),
+        requireMemberMfa: v.boolean(),
+    }),
+    v.transform(({ subAccountId, ...rest }) => ({
+        ...rest,
+        subaccountId: subAccountId,
+    })),
+);
+
+export type SetSubAccountMemberMfaRequirementInput = v.InferInput<
+    typeof SetSubAccountMemberMfaRequirementInputSchema
+>;
+
+export const ListSubAccountInvitesInputSchema = v.object({
+    direction: v.optional(v.optional(v.picklist(["incoming", "outgoing", ""])), ""),
 });
 
-export type ListSubAccountInvitesInput = z.input<typeof ListSubAccountInvitesInputSchema>;
+export type ListSubAccountInvitesInput = v.InferInput<typeof ListSubAccountInvitesInputSchema>;
 
-const InviteActionSchema = z.enum(["accept", "decline", "cancel"]);
+const InviteActionSchema = v.picklist(["accept", "decline", "cancel"]);
 
-const InviteStatusSchema = z.enum(["pending", "accepted", "declined", "cancelled"]);
+const InviteStatusSchema = v.picklist(["pending", "accepted", "declined", "cancelled"]);
 
-export type SubAccountInviteStatus = z.output<typeof InviteStatusSchema>;
+export type SubAccountInviteStatus = v.InferOutput<typeof InviteStatusSchema>;
 
-const ProtoInviteStatusSchema = z.enum(Proto.SubaccountInviteStatus);
+const ProtoInviteStatusSchema = v.enum(Proto.SubaccountInviteStatus);
 
-export const RespondSubAccountInviteInputSchema = z.object({
-	inviteId: z.string().transform((v) => idToBigInt(v, "inviteId")),
-	action: InviteActionSchema.transform((v) => InviteActionCodec.inputToProto[v]),
+export const RespondSubAccountInviteInputSchema = v.object({
+    inviteId: idInputSchema("inviteId"),
+    action: v.pipe(
+        InviteActionSchema,
+        v.transform((v) => InviteActionCodec.inputToProto[v]),
+    ),
 });
 
-export type RespondSubAccountInviteInput = z.input<typeof RespondSubAccountInviteInputSchema>;
+export type RespondSubAccountInviteInput = v.InferInput<typeof RespondSubAccountInviteInputSchema>;
 
-const RawSubAccountStatusSchema = z.enum(["active", "disabled", "deleted"]);
+const RawSubAccountStatusSchema = v.picklist(["active", "disabled", "deleted"]);
 
-export type RawSubAccountStatus = z.output<typeof RawSubAccountStatusSchema>;
+export type RawSubAccountStatus = v.InferOutput<typeof RawSubAccountStatusSchema>;
 
 export type SubAccountStatus = "active" | "frozen";
 
-export const SubAccountSchema = z.object({
-	id: z.bigint().transform((v) => formatId(v)),
-	role: ProtoSubAccountRoleSchema,
-	label: z.string().optional().default(""),
-	status: RawSubAccountStatusSchema.transform((v) => RawSubAccountStatusCodec.rawToOutput[v]),
-	smartAccountAddress: z.string(),
-	ownerUsername: z.string().optional().default(""),
-	ownerAvatarUrl: z.string().optional().default(""),
-	ownerRootSmartAccountAddress: z.string(),
-	subaccountPolicyId: z.bigint().transform((v) => formatId(v)),
-	requireMemberMfa: z.boolean().default(false),
+export const SubAccountSchema = v.object({
+    id: v.pipe(
+        v.bigint(),
+        v.transform((v) => formatId(v)),
+    ),
+    role: ProtoSubAccountRoleSchema,
+    label: v.optional(v.optional(v.string()), ""),
+    status: v.pipe(
+        RawSubAccountStatusSchema,
+        v.transform((v) => RawSubAccountStatusCodec.rawToOutput[v]),
+    ),
+    smartAccountAddress: v.string(),
+    ownerUsername: v.optional(v.optional(v.string()), ""),
+    ownerAvatarUrl: v.optional(v.optional(v.string()), ""),
+    ownerRootSmartAccountAddress: v.string(),
+    subaccountPolicyId: v.pipe(
+        v.bigint(),
+        v.transform((v) => formatId(v)),
+    ),
+    requireMemberMfa: v.optional(v.boolean(), false),
 });
 
-export type SubAccount = z.output<typeof SubAccountSchema>;
+export type SubAccount = v.InferOutput<typeof SubAccountSchema>;
 
-export const SubAccountMemberSchema = z.object({
-	accountId: z.bigint().transform((v) => formatId(v)),
-	role: ProtoSubAccountRoleSchema,
-	username: z.string().optional().default(""),
-	smartAccountAddress: z.string(),
-	avatarUrl: z.string().optional().default(""),
-	mfaEnrolled: z.boolean().default(false),
+export const SubAccountMemberSchema = v.object({
+    accountId: v.pipe(
+        v.bigint(),
+        v.transform((v) => formatId(v)),
+    ),
+    role: ProtoSubAccountRoleSchema,
+    username: v.optional(v.optional(v.string()), ""),
+    smartAccountAddress: v.string(),
+    avatarUrl: v.optional(v.optional(v.string()), ""),
+    mfaEnrolled: v.optional(v.boolean(), false),
 });
 
-export type SubAccountMember = z.output<typeof SubAccountMemberSchema>;
+export type SubAccountMember = v.InferOutput<typeof SubAccountMemberSchema>;
 
-export const SubAccountInviteSchema = z
-	.object({
-		id: z.bigint().transform((v) => formatId(v)),
-		subaccountId: z.bigint().transform((v) => formatId(v)),
-		granteeAccountId: z.bigint().transform((v) => formatId(v)),
-		inviterAccountId: z.bigint().transform((v) => formatId(v)),
-		role: ProtoSubAccountRoleSchema,
-		status: ProtoInviteStatusSchema.transform((v) => InviteStatusCodec.protoToOutput[v]),
-		createdAt: TimestampSchema.optional().transform((v) => tsObjToMs(v)),
-		respondedAt: TimestampSchema.optional().transform((v) => tsObjToMs(v)),
-		granteeUsername: z.string().optional().default(""),
-		inviterUsername: z.string().optional().default(""),
-		subaccountLabel: z.string().optional().default(""),
-		inviterRootSmartAccountAddress: z.string(),
-		granteeRootSmartAccountAddress: z.string(),
-		requireMemberMfa: z.boolean(),
-	})
-	.transform(
-		({
-			subaccountLabel,
-			subaccountId,
-			inviterRootSmartAccountAddress,
-			granteeRootSmartAccountAddress,
-			...rest
-		}) => ({
-			...rest,
-			subAccountId: subaccountId,
-			subAccountLabel: subaccountLabel,
-			inviterSmartAccountAddress: inviterRootSmartAccountAddress,
-			granteeSmartAccountAddress: granteeRootSmartAccountAddress,
-		})
-	);
+export const SubAccountInviteSchema = v.pipe(
+    v.object({
+        id: v.pipe(
+            v.bigint(),
+            v.transform((v) => formatId(v)),
+        ),
+        subaccountId: v.pipe(
+            v.bigint(),
+            v.transform((v) => formatId(v)),
+        ),
+        granteeAccountId: v.pipe(
+            v.bigint(),
+            v.transform((v) => formatId(v)),
+        ),
+        inviterAccountId: v.pipe(
+            v.bigint(),
+            v.transform((v) => formatId(v)),
+        ),
+        role: ProtoSubAccountRoleSchema,
+        status: v.pipe(
+            ProtoInviteStatusSchema,
+            v.transform((v) => InviteStatusCodec.protoToOutput[v]),
+        ),
+        createdAt: OptionalTimestampMsSchema,
+        respondedAt: OptionalTimestampMsSchema,
+        granteeUsername: v.optional(v.optional(v.string()), ""),
+        inviterUsername: v.optional(v.optional(v.string()), ""),
+        subaccountLabel: v.optional(v.optional(v.string()), ""),
+        inviterRootSmartAccountAddress: v.string(),
+        granteeRootSmartAccountAddress: v.string(),
+        requireMemberMfa: v.boolean(),
+    }),
+    v.transform(
+        ({
+            subaccountLabel,
+            subaccountId,
+            inviterRootSmartAccountAddress,
+            granteeRootSmartAccountAddress,
+            ...rest
+        }) => ({
+            ...rest,
+            subAccountId: subaccountId,
+            subAccountLabel: subaccountLabel,
+            inviterSmartAccountAddress: inviterRootSmartAccountAddress,
+            granteeSmartAccountAddress: granteeRootSmartAccountAddress,
+        }),
+    ),
+);
 
-export type SubAccountInvite = z.output<typeof SubAccountInviteSchema>;
+export type SubAccountInvite = v.InferOutput<typeof SubAccountInviteSchema>;
 
-export const SubAccountActivityInputSchema = z
-	.object({
-		subAccountId: z.string().transform((v) => idToBigInt(v, "subaccountId")),
-		limit: z.number().max(200).optional().default(50),
-		cursor: z.string().optional(),
-	})
-	.transform(({ subAccountId, ...rest }) => ({
-		...rest,
-		subaccountId: subAccountId,
-	}));
+export const SubAccountActivityInputSchema = v.pipe(
+    v.object({
+        subAccountId: idInputSchema("subaccountId"),
+        limit: v.optional(v.optional(v.pipe(v.number(), v.maxValue(200))), 50),
+        cursor: v.optional(v.string()),
+    }),
+    v.transform(({ subAccountId, ...rest }) => ({
+        ...rest,
+        subaccountId: subAccountId,
+    })),
+);
 
-export type SubAccountActivityInput = z.input<typeof SubAccountActivityInputSchema>;
+export type SubAccountActivityInput = v.InferInput<typeof SubAccountActivityInputSchema>;
 
-export const SubAccountActivityEventSchema = z.object({
-	cursor: z.string(),
-	createdAt: TimestampSchema.optional().transform((v) => tsObjToMs(v)),
-	entityKind: z.enum([
-		"account",
-		"session",
-		"api_key",
-		"subaccount",
-		"member",
-		"policy",
-		"invite",
-		"security",
-	]),
-	eventAction: z.enum([
-		"created",
-		"updated",
-		"deleted",
-		"enabled",
-		"disabled",
-		"removed",
-		"role_set",
-		"received",
-		"replied",
-		"failed",
-		"revoked",
-		"blocked",
-		"hold_placed",
-		"hold_released",
-	]),
-	source: z.enum(["web", "mobile", "api"]),
-	ip: z.string().optional(),
-	userAgent: z.string().optional(),
-	actorAccountId: z.bigint().transform((v) => formatId(v)),
-	payloadJson: z.string().transform((v) => JSON.parse(v)),
+export const SubAccountActivityEventSchema = v.object({
+    cursor: v.string(),
+    createdAt: OptionalTimestampMsSchema,
+    entityKind: v.picklist([
+        "account",
+        "session",
+        "api_key",
+        "subaccount",
+        "member",
+        "policy",
+        "invite",
+        "security",
+    ]),
+    eventAction: v.picklist([
+        "created",
+        "updated",
+        "deleted",
+        "enabled",
+        "disabled",
+        "removed",
+        "role_set",
+        "received",
+        "replied",
+        "failed",
+        "revoked",
+        "blocked",
+        "hold_placed",
+        "hold_released",
+    ]),
+    source: v.picklist(["web", "mobile", "api"]),
+    ip: v.optional(v.string()),
+    userAgent: v.optional(v.string()),
+    actorAccountId: v.pipe(
+        v.bigint(),
+        v.transform((v) => formatId(v)),
+    ),
+    payloadJson: v.pipe(
+        v.string(),
+        v.transform((v) => JSON.parse(v)),
+    ),
 });
 
-export type SubAccountEvent = z.output<typeof SubAccountActivityEventSchema>;
+export type SubAccountEvent = v.InferOutput<typeof SubAccountActivityEventSchema>;

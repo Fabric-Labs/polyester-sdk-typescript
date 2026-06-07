@@ -1,4 +1,4 @@
-import { z } from "zod";
+import * as v from "valibot";
 import { SideSchema } from "../shared.js";
 import { assetForId } from "../../catalogs/ledger-catalog.js";
 import { formatPriceForSymbol, formatQtyForSymbol } from "../../catalogs/orders-catalog.js";
@@ -39,17 +39,17 @@ function symbolMetadataForId(symbolId: number): SymbolMetadata {
     };
 }
 
-export const MarketTradeSchema = z
-    .object({
-        symbolId: z.number(),
-        matchId: z.bigint(),
-        isBuy: z.boolean(),
-        priceTicks: z.bigint(),
-        qtyScaled: z.bigint(),
-        tsNs: z.bigint().optional().default(0n),
-    })
-    .transform((t) => {
-        const sideLabel: z.output<typeof SideSchema> = t.isBuy ? "buy" : "sell";
+export const MarketTradeSchema = v.pipe(
+    v.object({
+        symbolId: v.number(),
+        matchId: v.bigint(),
+        isBuy: v.boolean(),
+        priceTicks: v.bigint(),
+        qtyScaled: v.bigint(),
+        tsNs: v.optional(v.optional(v.bigint()), 0n),
+    }),
+    v.transform((t) => {
+        const sideLabel: v.InferOutput<typeof SideSchema> = t.isBuy ? "buy" : "sell";
         return {
             ...t,
             symbol: symbolMetadataForId(t.symbolId),
@@ -59,36 +59,33 @@ export const MarketTradeSchema = z
             priceDisplay: formatPriceForSymbol(t.priceTicks, t.symbolId),
             tsMs: tsNsToMs(t.tsNs),
         };
-    });
+    }),
+);
 
-export type MarketTrade = z.output<typeof MarketTradeSchema>;
+export type MarketTrade = v.InferOutput<typeof MarketTradeSchema>;
 
-export const GetMarketTradesInputSchema = z
-    .object({
-        symbol: z.string().trim().min(1),
-        side: SideSchema.optional(),
-        startTsNs: z
-            .string()
-            .trim()
-            .optional()
-            .transform((v) => (v ? BigInt(v) : undefined)),
-        endTsNs: z
-            .string()
-            .trim()
-            .optional()
-            .transform((v) => (v ? BigInt(v) : undefined)),
-        limit: z
-            .string()
-            .trim()
-            .optional()
-            .default("")
-            .transform((v) => {
+export const GetMarketTradesInputSchema = v.pipe(
+    v.object({
+        symbol: v.pipe(v.string(), v.trim(), v.minLength(1)),
+        side: v.optional(SideSchema),
+        startTsNs: v.pipe(
+            v.optional(v.pipe(v.string(), v.trim())),
+            v.transform((v) => (v ? BigInt(v) : undefined)),
+        ),
+        endTsNs: v.pipe(
+            v.optional(v.pipe(v.string(), v.trim())),
+            v.transform((v) => (v ? BigInt(v) : undefined)),
+        ),
+        limit: v.pipe(
+            v.optional(v.optional(v.pipe(v.string(), v.trim())), ""),
+            v.transform((v) => {
                 if (!v) return undefined;
                 const lim = Number(v);
                 return Number.isFinite(lim) && lim > 0 ? lim : undefined;
             }),
-    })
-    .transform((input) => {
+        ),
+    }),
+    v.transform((input) => {
         const pair = getPair(input.symbol);
         if (!pair) throw new Error(`Unknown symbol: ${input.symbol}`);
         return {
@@ -98,94 +95,97 @@ export const GetMarketTradesInputSchema = z
             endTsNs: input.endTsNs,
             limit: input.limit,
         };
-    });
+    }),
+);
 
-export type GetMarketTradesInput = z.input<typeof GetMarketTradesInputSchema>;
-export type GetMarketTradesRequest = z.output<typeof GetMarketTradesInputSchema>;
+export type GetMarketTradesInput = v.InferInput<typeof GetMarketTradesInputSchema>;
+export type GetMarketTradesRequest = v.InferOutput<typeof GetMarketTradesInputSchema>;
 
-export const AssetConfigSchema = z
-    .object({
+export const AssetConfigSchema = v.pipe(
+    v.object({
         /**
          * Asset identifier/symbol, e.g. 'USDT', 'BTC'.
          */
-        asset: z.string(),
+        asset: v.string(),
         /**
          * Internal ledger identifier for settlement systems.
          */
-        ledgerId: z.number(),
+        ledgerId: v.number(),
         /**
          * The friendly display name for the asset (e.g. 'Bitcoin').
          */
-        name: z.string(),
+        name: v.string(),
         /**
          * UI-only display precision for asset amounts/balances.
          */
-        quantityDisplayDecimals: z.number(),
+        quantityDisplayDecimals: v.number(),
         /**
          * Fixed integer scaling for quantities/amounts in this asset (0..18).
          */
-        quantityScale: z.number(),
-    })
-    .transform((a) => ({
+        quantityScale: v.number(),
+    }),
+    v.transform((a) => ({
         symbol: a.asset,
         ledgerId: a.ledgerId,
         name: a.name,
         quantityDisplayDecimals: a.quantityDisplayDecimals,
         quantityScale: a.quantityScale,
-    }));
+    })),
+);
 
-export type AssetConfig = z.output<typeof AssetConfigSchema>;
+export type AssetConfig = v.InferOutput<typeof AssetConfigSchema>;
 
-export const PairMarketDataConfigSchema = z
-    .object({
+export const PairMarketDataConfigSchema = v.optional(
+    v.object({
         /**
          * Available price grouping sizes for the orderbook in quote units.
          * Allows viewing orders bucketed by larger increments (e.g., [0.01, 0.1, 1, 10]).
          */
-        orderbookPriceBuckets: z.array(z.number()),
-    })
-    .default({
+        orderbookPriceBuckets: v.array(v.number()),
+    }),
+    {
         orderbookPriceBuckets: [] as number[],
-    });
+    },
+);
 
 function bpsToPercent(bps: number): number {
     return bps / 100;
 }
 
-export const PairConfigSchema = z
-    .object({
+export const PairConfigSchema = v.pipe(
+    v.object({
         /**
          * Internal engine symbol id for the pair.
          */
-        symbolId: z.number(),
+        symbolId: v.number(),
         /**
          * Pair symbol string, e.g. 'BTC-USDT'
          */
-        symbol: z.string(),
+        symbol: v.string(),
         /**
          * Base asset symbol, e.g. 'BTC'
          */
-        baseAsset: z.string(),
+        baseAsset: v.string(),
         /**
          * Quote asset symbol, e.g. 'USDT'
          */
-        quoteAsset: z.string(),
+        quoteAsset: v.string(),
         /**
          * (e.g., "0.01") - The smallest price increment allowed. If tick size is 0.01, you can price at $100.00, $100.01, $100.02... but NOT $100.005.
          */
-        tickSize: z.string(),
+        tickSize: v.string(),
         /**
          * (e.g., "0.0001") - The smallest quantity increment allowed. If step size is 0.0001, you can order 100.0000, 100.0001, 100.0002... but NOT 100.00005.
          */
-        stepSize: z.string(),
+        stepSize: v.string(),
         /**
          * (e.g., "1") - Minimum order value in quote currency. If it's "1" and quote is USD, your order must be worth at least $1. So you can't buy $0.50 worth of something.
          */
-        minNotionalQuote: z.string(),
+        minNotionalQuote: v.string(),
         /**
          * Minimum quantity you can order in base currency terms. If it's "0.001" for BTC, smallest order is 0.001 BTC.
          */
-        minQtyBase: z.string(),
+        minQtyBase: v.string(),
 
         /**
          * Controls whether trading fee can be deducted from what you receive when buying.
@@ -194,53 +194,54 @@ export const PairConfigSchema = z
          * - if `true`, you receive 0.999 ETH (fee taken from ETH you're getting)
          * - if `false`, you receive 1 ETH, but you pay the fee separately in the quote currency (e.g., extra USDT)
          */
-        allowBuyFeeFromReceived: z.boolean(),
+        allowBuyFeeFromReceived: v.boolean(),
         /**
          * Default market slippage for buy orders in basis points from proto.
          */
-        defaultMarketSlippageBpsBuy: z.number().default(0),
+        defaultMarketSlippageBpsBuy: v.optional(v.number(), 0),
         /**
          * Default market slippage for sell orders in basis points from proto.
          */
-        defaultMarketSlippageBpsSell: z.number().default(0),
+        defaultMarketSlippageBpsSell: v.optional(v.number(), 0),
         /**
          * Maximum server/client reference-price drift in basis points from proto.
          */
-        maxClientRefDriftBps: z.number().default(0),
+        maxClientRefDriftBps: v.optional(v.number(), 0),
 
         /**
          * Market-data configuration for this pair (orderbook bucket sizes, depths).
          */
-        marketdata: PairMarketDataConfigSchema.optional(),
+        marketdata: v.optional(PairMarketDataConfigSchema),
         /**
          * Base asset quantity scale copied from AssetConfig.quantityScale.
          */
-        baseQuantityScale: z.number(),
+        baseQuantityScale: v.number(),
         /**
          * Quote asset quantity scale copied from AssetConfig.quantityScale.
          */
-        quoteQuantityScale: z.number(),
+        quoteQuantityScale: v.number(),
         /**
          * Optional scheduled listing timestamp (UTC).
          */
-        listingAt: z.unknown().optional().transform(timestampToMs),
+        listingAt: v.pipe(v.optional(v.unknown()), v.transform(timestampToMs)),
         /**
          * Optional scheduled delisting timestamp (UTC).
          */
-        delistingAt: z.unknown().optional().transform(timestampToMs),
+        delistingAt: v.pipe(v.optional(v.unknown()), v.transform(timestampToMs)),
         /**
          * Operational status of the pair.
          */
-        status: z
-            .string()
-            .transform(
+        status: v.pipe(
+            v.string(),
+            v.transform(
                 (v): PairStatus =>
                     (PAIR_STATUSES as readonly string[]).includes(v)
                         ? (v as PairStatus)
                         : "unknown",
             ),
-    })
-    .transform(
+        ),
+    }),
+    v.transform(
         ({
             defaultMarketSlippageBpsBuy,
             defaultMarketSlippageBpsSell,
@@ -252,7 +253,8 @@ export const PairConfigSchema = z
             defaultMarketSlippagePctSell: bpsToPercent(defaultMarketSlippageBpsSell),
             maxClientRefDriftPct: bpsToPercent(maxClientRefDriftBps),
         }),
-    );
+    ),
+);
 
 export type PairStatus =
     | "enabled"
@@ -270,12 +272,15 @@ export const PAIR_STATUSES = [
     "reduce_only",
 ] as const satisfies readonly PairStatus[];
 
-export type PairConfig = z.output<typeof PairConfigSchema>;
+export type PairConfig = v.InferOutput<typeof PairConfigSchema>;
 
-export const SpotConfigSchema = z.object({
-    assets: z.array(AssetConfigSchema),
-    pairs: z.array(PairConfigSchema),
-    tsSec: z.bigint().transform((v) => Number(v) * 1000),
+export const SpotConfigSchema = v.object({
+    assets: v.array(AssetConfigSchema),
+    pairs: v.array(PairConfigSchema),
+    tsSec: v.pipe(
+        v.bigint(),
+        v.transform((v) => Number(v) * 1000),
+    ),
 });
 
-export type SpotConfig = z.output<typeof SpotConfigSchema>;
+export type SpotConfig = v.InferOutput<typeof SpotConfigSchema>;

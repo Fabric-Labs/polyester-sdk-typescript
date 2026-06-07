@@ -1,117 +1,125 @@
-import { z } from "zod";
+import * as v from "valibot";
 import { TimestampSchema } from "../../shared/schemas.js";
-import * as Proto from "../../gen/auth/v1/social_verification_pb.js";
+import type * as Proto from "../../gen/auth/v1/social_verification_pb.js";
 import {
-	SOCIAL_PROVIDER_VALUES,
-	SOCIAL_VERIFICATION_METHOD_VALUES,
-	SOCIAL_VERIFICATION_STATUS_VALUES,
-	SocialProviderCodec,
-	SocialVerificationMethodCodec,
-	SocialVerificationStatusCodec,
+    SOCIAL_PROVIDER_VALUES,
+    SOCIAL_VERIFICATION_METHOD_VALUES,
+    SOCIAL_VERIFICATION_STATUS_VALUES,
+    SocialProviderCodec,
+    SocialVerificationMethodCodec,
+    SocialVerificationStatusCodec,
 } from "./social-verification.codecs.js";
 
 export {
-	SOCIAL_PROVIDER_VALUES,
-	SOCIAL_VERIFICATION_METHOD_VALUES,
-	SOCIAL_VERIFICATION_STATUS_VALUES,
+    SOCIAL_PROVIDER_VALUES,
+    SOCIAL_VERIFICATION_METHOD_VALUES,
+    SOCIAL_VERIFICATION_STATUS_VALUES,
 } from "./social-verification.codecs.js";
 
-export const SocialProviderSchema = z.enum(SOCIAL_PROVIDER_VALUES);
-export type SocialProvider = z.input<typeof SocialProviderSchema>;
+export const SocialProviderSchema = v.picklist(SOCIAL_PROVIDER_VALUES);
+export type SocialProvider = v.InferInput<typeof SocialProviderSchema>;
 
-export const SocialVerificationMethodSchema = z.enum(SOCIAL_VERIFICATION_METHOD_VALUES);
-export type SocialVerificationMethod = z.input<typeof SocialVerificationMethodSchema>;
+export const SocialVerificationMethodSchema = v.picklist(SOCIAL_VERIFICATION_METHOD_VALUES);
+export type SocialVerificationMethod = v.InferInput<typeof SocialVerificationMethodSchema>;
 
-export const SocialVerificationStatusSchema = z.enum(SOCIAL_VERIFICATION_STATUS_VALUES);
-export type SocialVerificationStatus = z.output<typeof SocialVerificationStatusSchema>;
+export const SocialVerificationStatusSchema = v.picklist(SOCIAL_VERIFICATION_STATUS_VALUES);
+export type SocialVerificationStatus = v.InferOutput<typeof SocialVerificationStatusSchema>;
 
 function normalizeHandle(input: string): string {
-	return (input ?? "").trim().replace(/^@+/, "");
+    return (input ?? "").trim().replace(/^@+/, "");
 }
 
 export function transformVerification(
-	v: Proto.SocialVerification | undefined
+    v: Proto.SocialVerification | undefined,
 ): SocialVerification | undefined {
-	if (!v) return undefined;
-	return {
-		id: v.id,
-		provider: SocialProviderCodec.protoToOutput[v.provider] ?? "twitter",
-		method: SocialVerificationMethodCodec.protoToOutput[v.method] ?? "profile",
-		handle: v.handle,
-		providerUserId: v.providerUserId,
-		challengeCode: v.challengeCode,
-		status: SocialVerificationStatusCodec.protoToOutput[v.status] ?? "pending_user_action",
-		requestedAt: v.requestedAt,
-		expiresAt: v.expiresAt,
-		verifiedAt: v.verifiedAt,
-		attempts: v.attempts,
-		lastError: v.lastError,
-		updatedAt: v.updatedAt,
-	};
+    if (!v) return undefined;
+    return {
+        id: v.id,
+        provider: SocialProviderCodec.protoToOutput[v.provider] ?? "twitter",
+        method: SocialVerificationMethodCodec.protoToOutput[v.method] ?? "profile",
+        handle: v.handle,
+        providerUserId: v.providerUserId,
+        challengeCode: v.challengeCode,
+        status: SocialVerificationStatusCodec.protoToOutput[v.status] ?? "pending_user_action",
+        requestedAt: v.requestedAt,
+        expiresAt: v.expiresAt,
+        verifiedAt: v.verifiedAt,
+        attempts: v.attempts,
+        lastError: v.lastError,
+        updatedAt: v.updatedAt,
+    };
 }
 
-export const SocialVerificationSchema = z.object({
-	id: z.bigint(),
-	provider: SocialProviderSchema,
-	method: SocialVerificationMethodSchema,
-	handle: z.string(),
-	providerUserId: z.string(),
-	challengeCode: z.string(),
-	status: SocialVerificationStatusSchema,
-	requestedAt: TimestampSchema.optional(),
-	expiresAt: TimestampSchema.optional(),
-	verifiedAt: TimestampSchema.optional(),
-	attempts: z.number(),
-	lastError: z.string(),
-	updatedAt: TimestampSchema.optional(),
+export const SocialVerificationSchema = v.object({
+    id: v.bigint(),
+    provider: SocialProviderSchema,
+    method: SocialVerificationMethodSchema,
+    handle: v.string(),
+    providerUserId: v.string(),
+    challengeCode: v.string(),
+    status: SocialVerificationStatusSchema,
+    requestedAt: v.optional(TimestampSchema),
+    expiresAt: v.optional(TimestampSchema),
+    verifiedAt: v.optional(TimestampSchema),
+    attempts: v.number(),
+    lastError: v.string(),
+    updatedAt: v.optional(TimestampSchema),
 });
 
-export type SocialVerification = z.output<typeof SocialVerificationSchema>;
+export type SocialVerification = v.InferOutput<typeof SocialVerificationSchema>;
 
-export const StartVerificationInputSchema = z.object({
-	provider: SocialProviderSchema.transform((v) => SocialProviderCodec.inputToProto[v]),
-	handle: z.string().min(1).max(64).transform(normalizeHandle),
-	method: SocialVerificationMethodSchema.optional()
-		.default("profile")
-		.transform((v) => SocialVerificationMethodCodec.inputToProto[v]),
+export const StartVerificationInputSchema = v.object({
+    provider: v.pipe(
+        SocialProviderSchema,
+        v.transform((v) => SocialProviderCodec.inputToProto[v]),
+    ),
+    handle: v.pipe(v.string(), v.minLength(1), v.maxLength(64), v.transform(normalizeHandle)),
+    method: v.pipe(
+        v.optional(v.optional(SocialVerificationMethodSchema), "profile"),
+        v.transform((v) => SocialVerificationMethodCodec.inputToProto[v ?? "profile"]),
+    ),
 });
 
-export type StartVerificationInput = z.input<typeof StartVerificationInputSchema>;
+export type StartVerificationInput = v.InferInput<typeof StartVerificationInputSchema>;
 
-export const ProviderInputSchema = SocialProviderSchema.transform(
-	(v) => SocialProviderCodec.inputToProto[v]
+export const ProviderInputSchema = v.pipe(
+    SocialProviderSchema,
+    v.transform((v) => SocialProviderCodec.inputToProto[v]),
 );
 
-export const StartVerificationResponseSchema = z
-	.object({
-		challengeCode: z.string(),
-		expiresAt: TimestampSchema.optional(),
-		verification: z.custom<Proto.SocialVerification>().optional(),
-	})
-	.transform((res) => ({
-		challengeCode: res.challengeCode,
-		expiresAt: res.expiresAt,
-		verification: transformVerification(res.verification),
-	}));
+export const StartVerificationResponseSchema = v.pipe(
+    v.object({
+        challengeCode: v.string(),
+        expiresAt: v.optional(TimestampSchema),
+        verification: v.optional(v.custom<Proto.SocialVerification>(() => true)),
+    }),
+    v.transform((res) => ({
+        challengeCode: res.challengeCode,
+        expiresAt: res.expiresAt,
+        verification: transformVerification(res.verification),
+    })),
+);
 
-export type StartVerificationResponse = z.output<typeof StartVerificationResponseSchema>;
+export type StartVerificationResponse = v.InferOutput<typeof StartVerificationResponseSchema>;
 
-export const VerificationReadyResponseSchema = z
-	.object({
-		verification: z.custom<Proto.SocialVerification>().optional(),
-	})
-	.transform((res) => ({
-		verification: transformVerification(res.verification),
-	}));
+export const VerificationReadyResponseSchema = v.pipe(
+    v.object({
+        verification: v.optional(v.custom<Proto.SocialVerification>(() => true)),
+    }),
+    v.transform((res) => ({
+        verification: transformVerification(res.verification),
+    })),
+);
 
-export type VerificationReadyResponse = z.output<typeof VerificationReadyResponseSchema>;
+export type VerificationReadyResponse = v.InferOutput<typeof VerificationReadyResponseSchema>;
 
-export const GetVerificationResponseSchema = z
-	.object({
-		verification: z.custom<Proto.SocialVerification>().optional(),
-	})
-	.transform((res) => ({
-		verification: transformVerification(res.verification),
-	}));
+export const GetVerificationResponseSchema = v.pipe(
+    v.object({
+        verification: v.optional(v.custom<Proto.SocialVerification>(() => true)),
+    }),
+    v.transform((res) => ({
+        verification: transformVerification(res.verification),
+    })),
+);
 
-export type GetVerificationResponse = z.output<typeof GetVerificationResponseSchema>;
+export type GetVerificationResponse = v.InferOutput<typeof GetVerificationResponseSchema>;

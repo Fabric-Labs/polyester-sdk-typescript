@@ -1,84 +1,86 @@
-import { z } from "zod";
+import * as v from "valibot";
 
-export const ZipperChainConfigSchema = z.object({
-	chainId: z.number(),
-	code: z.string(),
-	name: z.string(),
-	nativeChainId: z.string().default(""),
-	nativeCurrencySymbol: z.string(),
-	explorerUrl: z.string(),
-	icon: z.string(),
-	requiredConfirmations: z.number(),
-	confirmationTimeSeconds: z.number(),
-	isCaseSensitive: z.boolean().default(false),
-	minAddressLength: z.number(),
-	maxAddressLength: z.number(),
+export const ZipperChainConfigSchema = v.object({
+    chainId: v.number(),
+    code: v.string(),
+    name: v.string(),
+    nativeChainId: v.optional(v.string(), ""),
+    nativeCurrencySymbol: v.string(),
+    explorerUrl: v.string(),
+    icon: v.string(),
+    requiredConfirmations: v.number(),
+    confirmationTimeSeconds: v.number(),
+    isCaseSensitive: v.optional(v.boolean(), false),
+    minAddressLength: v.number(),
+    maxAddressLength: v.number(),
 });
 
-export type ZipperChainConfig = z.output<typeof ZipperChainConfigSchema>;
+export type ZipperChainConfig = v.InferOutput<typeof ZipperChainConfigSchema>;
 
-export const ZipperAssetChainVariantSchema = z
-	.object({
-		chainAssetId: z.number(),
-		chainId: z.number(),
-		isNativeAsset: z.boolean().default(false),
-		networkFee: z.string().default("0"),
-		networkFeeTsSec: z.bigint().default(0n).transform(Number),
-		ztokenAddress: z.string().optional().default(""),
-		sourceAddress: z.string().default(""),
-		sourceDecimals: z.number().default(18),
-		ztokenDecimals: z.number().default(18),
-		depositMinAmount: z.string().default(""),
-		withdrawMinAmount: z.string().default(""),
-	})
-	.transform(({ sourceAddress, sourceDecimals, ztokenAddress, ztokenDecimals, ...variant }) => ({
-		...variant,
-		sourceToken: {
-			address: sourceAddress,
-			decimals: sourceDecimals,
-		},
-		zToken: {
-			address: ztokenAddress,
-			decimals: ztokenDecimals,
-		},
-	}));
+export const ZipperAssetChainVariantSchema = v.pipe(
+    v.object({
+        chainAssetId: v.number(),
+        chainId: v.number(),
+        isNativeAsset: v.optional(v.boolean(), false),
+        networkFee: v.optional(v.string(), "0"),
+        networkFeeTsSec: v.pipe(v.optional(v.bigint(), 0n), v.transform(Number)),
+        ztokenAddress: v.optional(v.optional(v.string()), ""),
+        sourceAddress: v.optional(v.string(), ""),
+        sourceDecimals: v.optional(v.number(), 18),
+        ztokenDecimals: v.optional(v.number(), 18),
+        depositMinAmount: v.optional(v.string(), ""),
+        withdrawMinAmount: v.optional(v.string(), ""),
+    }),
+    v.transform(({ sourceAddress, sourceDecimals, ztokenAddress, ztokenDecimals, ...variant }) => ({
+        ...variant,
+        sourceToken: {
+            address: sourceAddress,
+            decimals: sourceDecimals,
+        },
+        zToken: {
+            address: ztokenAddress,
+            decimals: ztokenDecimals,
+        },
+    })),
+);
 
-export type ZipperAssetChainVariant = z.output<typeof ZipperAssetChainVariantSchema>;
+export type ZipperAssetChainVariant = v.InferOutput<typeof ZipperAssetChainVariantSchema>;
 
-export const ZipperAssetConfigSchema = z.object({
-	asset: z.string(),
-	ledgerId: z.number(),
-	name: z.string(),
-	icon: z.string(),
-	quantityScale: z.number(),
-	quantityDisplayDecimals: z.number(),
-	variants: z.array(ZipperAssetChainVariantSchema),
-	uAssetId: z.string().default(""),
+export const ZipperAssetConfigSchema = v.object({
+    asset: v.string(),
+    ledgerId: v.number(),
+    name: v.string(),
+    icon: v.string(),
+    quantityScale: v.number(),
+    quantityDisplayDecimals: v.number(),
+    variants: v.array(ZipperAssetChainVariantSchema),
+    uAssetId: v.optional(v.string(), ""),
 });
 
-export type ZipperAssetConfig = z.output<typeof ZipperAssetConfigSchema>;
+export type ZipperAssetConfig = v.InferOutput<typeof ZipperAssetConfigSchema>;
 
-export const ZipperChainContractConfigSchema = z.object({
-	name: z.string(),
-	address: z.string(),
-	type: z.string().default(""),
-	description: z.string().default(""),
-	version: z.number().default(0),
+export const ZipperChainContractConfigSchema = v.object({
+    name: v.string(),
+    address: v.string(),
+    type: v.optional(v.string(), ""),
+    description: v.optional(v.string(), ""),
+    version: v.optional(v.number(), 0),
 });
 
-export type ZipperChainContractConfig = z.output<typeof ZipperChainContractConfigSchema>;
+export type ZipperChainContractConfig = v.InferOutput<typeof ZipperChainContractConfigSchema>;
 
-export const DepositWithdrawConfigSchema = z
-	.object({
-		chains: z.array(ZipperChainConfigSchema),
-		assets: z.array(ZipperAssetConfigSchema),
-		tsSec: z.bigint(),
-		polyesterChainId: z.number(),
-		contracts: z.array(ZipperChainContractConfigSchema).default([]),
-	})
-	.transform(({ tsSec, ...config }) => ({
-		...config,
-		tsMs: Number(tsSec) * 1000,
-	}));
+export const DepositWithdrawConfigSchema = v.pipe(
+    v.object({
+        chains: v.array(ZipperChainConfigSchema),
+        assets: v.array(ZipperAssetConfigSchema),
+        tsSec: v.bigint(),
+        polyesterChainId: v.number(),
+        contracts: v.optional(v.array(ZipperChainContractConfigSchema), []),
+    }),
+    v.transform(({ tsSec, ...config }) => ({
+        ...config,
+        tsMs: Number(tsSec) * 1000,
+    })),
+);
 
-export type DepositWithdrawConfig = z.output<typeof DepositWithdrawConfigSchema>;
+export type DepositWithdrawConfig = v.InferOutput<typeof DepositWithdrawConfigSchema>;
