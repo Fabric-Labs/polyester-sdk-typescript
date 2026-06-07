@@ -1,0 +1,44 @@
+import { describe, expect, it } from "vitest";
+import * as v from "valibot";
+import { LedgerTransferSchema } from "./transfers.schemas.js";
+
+const baseTransfer = {
+    txId: "tx-1",
+    assetId: 1,
+    isDebit: false,
+    type: 1,
+    accountCode: 1,
+};
+
+describe("LedgerTransferSchema", () => {
+    it("converts nanosecond timestamps to millisecond precision", () => {
+        const transfer = v.parse(LedgerTransferSchema, {
+            ...baseTransfer,
+            timestamp: 1_700_000_000_123_456_789n,
+        });
+
+        expect(transfer.timestamp).toBe(1_700_000_000_123);
+    });
+
+    it("converts large bigint timestamps without coercing the raw value to number first", () => {
+        const transfer = v.parse(LedgerTransferSchema, {
+            ...baseTransfer,
+            timestamp: 9_223_372_036_854_775_807n,
+        });
+
+        expect(transfer.timestamp).toBe(9_223_372_036_854);
+    });
+
+    it("preserves zero timestamps", () => {
+        const transfer = v.parse(LedgerTransferSchema, {
+            ...baseTransfer,
+            timestamp: 0n,
+        });
+
+        expect(transfer.timestamp).toBe(0);
+    });
+
+    it("rejects transfers without a timestamp", () => {
+        expect(() => v.parse(LedgerTransferSchema, baseTransfer)).toThrow();
+    });
+});

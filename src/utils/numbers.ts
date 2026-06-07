@@ -29,6 +29,20 @@ export function parseOptionalUint64Decimal(raw: string | undefined): bigint | un
 }
 
 /**
+ * Parse an optional uint64 encoded as a base-10 string into bigint.
+ * Empty values are omitted, but supplied invalid values are rejected.
+ */
+export function parseOptionalUint64DecimalStrict(
+    raw: string | undefined,
+    fieldName: string,
+): bigint | undefined {
+    const s = (raw ?? "").trim();
+    if (!s) return;
+    if (!/^[0-9]+$/.test(s)) throw new Error(`${fieldName} must be a positive integer`);
+    return BigInt(s);
+}
+
+/**
  * Parse an optional uint64-ish value (string/number/bigint) into bigint, or undefined on invalid/empty.
  * Accepts base-10 strings, numeric inputs (truncated), and bigint inputs.
  */

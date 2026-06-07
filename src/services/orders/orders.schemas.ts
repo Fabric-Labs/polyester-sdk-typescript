@@ -21,14 +21,16 @@ import {
     tifLabelFor,
 } from "../../catalogs/orders-catalog.js";
 import {
-    parseOptionalUint64Decimal,
     parsePriceTicks,
     parseQtyScaled,
     parseOptionalPositiveIntLike,
 } from "../../utils/numbers.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { formatId, idToBigInt } from "../../utils/base58-id.js";
-import { optionalSubaccountIdInputSchema } from "../../shared/schemas.js";
+import {
+    optionalSubaccountIdInputSchema,
+    optionalUint64DecimalFilterSchema,
+} from "../../shared/schemas.js";
 import {
     baseQuantityScaleForSymbol,
     getPairBySymbolId,
@@ -90,15 +92,9 @@ export const OrderHistoryInputSchema = v.object({
         v.transform((v) => (v ? OrderStatusFilterCodec.inputToProto[v] : undefined)),
     ),
 
-    startTsNs: v.pipe(
-        v.optional(v.pipe(v.string(), v.trim())),
-        v.transform((v) => (v ? parseOptionalUint64Decimal(v) : undefined)),
-    ),
+    startTsNs: optionalUint64DecimalFilterSchema("startTsNs"),
 
-    endTsNs: v.pipe(
-        v.optional(v.pipe(v.string(), v.trim())),
-        v.transform((v) => (v ? parseOptionalUint64Decimal(v) : undefined)),
-    ),
+    endTsNs: optionalUint64DecimalFilterSchema("endTsNs"),
 });
 
 export type OrderHistoryInput = v.InferInput<typeof OrderHistoryInputSchema>;

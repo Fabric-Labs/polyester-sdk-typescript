@@ -7,7 +7,7 @@ import {
     symbolForAssetId,
     transferTypeNameFor,
 } from "../../catalogs/ledger-catalog.js";
-import { normalizeToMillis } from "../../utils/time.js";
+import { tsNsToMs } from "../../utils/time.js";
 import { optionalSubaccountIdInputSchema } from "../../shared/schemas.js";
 
 const U128Schema = v.object({
@@ -25,7 +25,7 @@ export const LedgerTransferSchema = v.pipe(
         type: v.number(),
         accountCode: v.number(),
         pending: v.optional(v.boolean()),
-        timestamp: v.optional(v.bigint()),
+        timestamp: v.bigint(),
         onchain: v.optional(v.boolean()),
         linkId: v.optional(v.bigint()),
         flowId: v.optional(v.string()),
@@ -60,7 +60,7 @@ export const LedgerTransferSchema = v.pipe(
             accountCode: accountCodeNameFor(tr.accountCode),
             pending: tr.pending,
             onchain: tr.onchain,
-            timestamp: normalizeToMillis(Number(tr.timestamp)),
+            timestamp: tsNsToMs(tr.timestamp),
             balanceAfter,
             isDebit,
             linkId: linkIdNum || undefined,

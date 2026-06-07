@@ -7,6 +7,7 @@ import {
     TimestampNsMsSchema,
     idInputSchema,
     optionalSubaccountIdInputSchema,
+    optionalUint64DecimalFilterSchema,
 } from "../../shared/schemas.js";
 import {
     parsePriceTicks,
@@ -610,7 +611,7 @@ export type ResumeTriggerInput = v.InferInput<typeof PauseTriggerInputSchema>;
 export const ListTriggerEventsInputSchema = v.object({
     ...TriggerScopedInputSchema.entries,
     limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(1000))),
-    beforeTsNs: v.optional(v.pipe(v.string(), v.trim())),
+    beforeTsNs: optionalUint64DecimalFilterSchema("beforeTsNs"),
 });
 
 export type ListTriggerEventsInput = v.InferInput<typeof ListTriggerEventsInputSchema>;

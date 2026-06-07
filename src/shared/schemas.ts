@@ -1,5 +1,6 @@
 import * as v from "valibot";
 import { formatId, idToBigInt } from "../utils/base58-id.js";
+import { parseOptionalUint64DecimalStrict } from "../utils/numbers.js";
 import { tsNsToMs, tsObjToMs } from "../utils/time.js";
 
 export const TimestampSchema = v.object({
@@ -58,6 +59,13 @@ export function optionalIdInputSchema(fieldName: string) {
 
 export function optionalSubaccountIdInputSchema() {
     return optionalIdInputSchema("subaccountId");
+}
+
+export function optionalUint64DecimalFilterSchema(fieldName: string) {
+    return v.pipe(
+        optionalTrimmedStringSchema(),
+        v.transform((value) => parseOptionalUint64DecimalStrict(value, fieldName)),
+    );
 }
 
 export function positiveBigintLikeSchema(message: string) {

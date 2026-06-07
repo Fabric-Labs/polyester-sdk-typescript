@@ -3,7 +3,6 @@ import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
 import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
-import { parseOptionalUint64Decimal } from "../../utils/numbers.js";
 import {
     CreateTriggerInputSchema,
     ListTriggersInputSchema,
@@ -157,9 +156,7 @@ export class TriggersService {
                 triggerId: validated.triggerId,
                 subaccountId: validated.subaccountId,
                 limit: validated.limit ?? 50,
-                beforeTsNs: input.beforeTsNs
-                    ? (parseOptionalUint64Decimal(input.beforeTsNs) ?? 0n)
-                    : 0n,
+                beforeTsNs: validated.beforeTsNs ?? 0n,
             }),
         );
 

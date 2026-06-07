@@ -1,6 +1,5 @@
 import * as v from "valibot";
 import { tsNsToISO, tsNsToMs } from "../../utils/time.js";
-import { parseOptionalUint64Decimal } from "../../utils/numbers.js";
 import { SideSchema } from "../shared.js";
 import {
     feeSourceLabelFor,
@@ -16,7 +15,10 @@ import {
     symbolForSymbolId,
 } from "../../catalogs/market-data-catalog.js";
 import { formatId } from "../../utils/base58-id.js";
-import { optionalSubaccountIdInputSchema } from "../../shared/schemas.js";
+import {
+    optionalSubaccountIdInputSchema,
+    optionalUint64DecimalFilterSchema,
+} from "../../shared/schemas.js";
 import { TradeSideCodec } from "./trades.codecs.js";
 
 export const UserTradeSchema = v.pipe(
@@ -83,22 +85,8 @@ export const GetUserTradesInputSchema = v.object({
         v.optional(SideSchema),
         v.transform((v) => (v ? TradeSideCodec.inputToProto[v] : undefined)),
     ),
-    startTsNs: v.pipe(
-        v.optional(v.pipe(v.string(), v.trim())),
-        v.transform((v) => {
-            if (!v) return undefined;
-            const ts = parseOptionalUint64Decimal(v);
-            return ts !== undefined ? ts : undefined;
-        }),
-    ),
-    endTsNs: v.pipe(
-        v.optional(v.pipe(v.string(), v.trim())),
-        v.transform((v) => {
-            if (!v) return undefined;
-            const ts = parseOptionalUint64Decimal(v);
-            return ts !== undefined ? ts : undefined;
-        }),
-    ),
+    startTsNs: optionalUint64DecimalFilterSchema("startTsNs"),
+    endTsNs: optionalUint64DecimalFilterSchema("endTsNs"),
     limit: v.optional(v.number()),
     pageToken: v.optional(v.pipe(v.string(), v.trim())),
 });
