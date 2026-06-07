@@ -8,7 +8,7 @@ import {
 describe("CreateInternalTransferInputSchema", () => {
     it("converts source subaccount and account destination IDs to proto fields", () => {
         const input = v.parse(CreateInternalTransferInputSchema, {
-            subAccountId: "11",
+            subaccountId: "11",
             destination: { type: "account", accountId: "22" },
             assetId: 1,
             quantityScaled: "1000000",
@@ -26,7 +26,7 @@ describe("CreateInternalTransferInputSchema", () => {
 
     it("converts subaccount destinations to the generated oneof case", () => {
         const input = v.parse(CreateInternalTransferInputSchema, {
-            destination: { type: "subAccount", subAccountId: "33" },
+            destination: { type: "subaccount", subaccountId: "33" },
             assetId: 1,
             quantityScaled: 1n,
             idempotencyKey: "transfer-2",
@@ -115,7 +115,7 @@ describe("CreateInternalTransferResultSchema", () => {
             quantityScaled: "1000000",
             destination: {
                 rootAccountId: "root-public",
-                subAccountId: "sub-public",
+                subaccountId: "sub-public",
                 smartAccountAddress: "0xabc123",
             },
         });

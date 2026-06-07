@@ -37,7 +37,7 @@ export type {
     ListTransferCounterpartiesInput,
     ListTransferDestinationsInput,
     MirroredWithdrawWhitelistEntry,
-    SubAccountScopedInput,
+    SubaccountScopedInput,
     TransferCounterparties,
     TransferCounterparty,
     TransferDestination,

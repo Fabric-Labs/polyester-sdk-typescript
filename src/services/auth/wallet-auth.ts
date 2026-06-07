@@ -6,7 +6,7 @@ import type { PolyesterWallet, WalletConfig, HexAddress } from "../../wallet/typ
 import { resolveWallet } from "../../wallet/types.js";
 import { EventEmitter } from "../../utils/event-emitter.js";
 import { isJwtValid, getJwtTimeToExpiry } from "../../utils/jwt.js";
-import type { SubAccountsService } from "../sub-accounts/index.js";
+import type { SubaccountsService } from "../subaccounts/index.js";
 import { formatId } from "../../utils/base58-id.js";
 import type { AuthState, AuthHydrationData, AuthLoginMethod } from "../../shared/auth-types.js";
 import type { RealtimeClient } from "../../realtime/index.js";
@@ -33,7 +33,7 @@ export interface LoginOptions {
     loginMethod?: AuthLoginMethod | null;
 }
 
-export interface CreateSubAccountParams {
+export interface CreateSubaccountParams {
     /** The wallet for the new subaccount (caller derives this, e.g. via Turnkey saltNonce) */
     wallet: PolyesterWallet;
     /** Optional human-readable label for this subaccount */
@@ -42,8 +42,8 @@ export interface CreateSubAccountParams {
     walletProvider?: string;
 }
 
-export interface CreateSubAccountResult {
-    subAccountId: string;
+export interface CreateSubaccountResult {
+    subaccountId: string;
 }
 
 export class WalletAuthService extends AuthService {
@@ -54,32 +54,32 @@ export class WalletAuthService extends AuthService {
     #isAuthenticated = false;
     #mainAccountId: string | null = null;
     #activeAccountId: string | null = null;
-    #subAccounts: SubAccountsService;
+    #subaccounts: SubaccountsService;
     #walletProvider: "metamask" | "turnkey" | "other" | undefined = undefined;
     #loginMethod: AuthLoginMethod | null = null;
 
     constructor({
         transports,
         walletConfig,
-        subAccounts,
+        subaccounts,
         realtime,
     }: {
         transports: AuthServiceTransports;
         walletConfig?: WalletConfig;
-        subAccounts: SubAccountsService;
+        subaccounts: SubaccountsService;
         realtime: RealtimeClient;
     }) {
         super(transports, realtime);
 
         this.#walletConfig = walletConfig;
-        this.#subAccounts = subAccounts;
+        this.#subaccounts = subaccounts;
     }
 
     /**
      * Set or update the subaccounts service. Useful for lazy initialization.
      */
-    setSubAccountsService(subAccounts: SubAccountsService): void {
-        this.#subAccounts = subAccounts;
+    setSubaccountsService(subaccounts: SubaccountsService): void {
+        this.#subaccounts = subaccounts;
     }
 
     /**
@@ -344,10 +344,10 @@ export class WalletAuthService extends AuthService {
      * with a saltNonce). This method handles the nonce request, message signing, and
      * backend API call.
      */
-    async createSubAccount(params: CreateSubAccountParams): Promise<CreateSubAccountResult> {
+    async createSubaccount(params: CreateSubaccountParams): Promise<CreateSubaccountResult> {
         if (!this.#isAuthenticated) throw new Error("Must be authenticated to create subaccounts");
 
-        if (!this.#subAccounts) {
+        if (!this.#subaccounts) {
             throw new Error(
                 "SubaccountsService not configured. Pass it to constructor or call setSubaccountsService().",
             );
@@ -365,7 +365,7 @@ export class WalletAuthService extends AuthService {
         // use main wallet's owner address for primary wallet reference
         const primaryWalletAddress = this.#wallet?.ownerAddress ?? this.#wallet?.address ?? "";
 
-        const response = await this.#subAccounts.create({
+        const response = await this.#subaccounts.create({
             label,
             smartAccountAddress: wallet.address,
             nonce,
@@ -375,7 +375,7 @@ export class WalletAuthService extends AuthService {
         });
 
         return {
-            subAccountId: formatId(response.subaccountId),
+            subaccountId: formatId(response.subaccountId),
         };
     }
 

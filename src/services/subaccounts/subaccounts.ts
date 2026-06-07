@@ -8,32 +8,32 @@ import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
 import type { RealtimeClient } from "../../realtime/index.js";
 import {
     DEFAULT_SUBACCOUNT_POLICY,
-    SubAccountPoliciesService,
-    type SubAccountPolicy,
-    SubAccountPolicySchema,
-} from "../policies/sub-account-policies/index.js";
+    SubaccountPoliciesService,
+    type SubaccountPolicy,
+    SubaccountPolicySchema,
+} from "../policies/subaccount-policies/index.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
-    CreateSubAccountInputSchema,
-    UpdateSubAccountInputSchema,
-    InviteSubAccountMemberInputSchema,
-    RemoveSubAccountMemberInputSchema,
-    UpdateSubAccountMemberRoleInputSchema,
-    ListSubAccountInvitesInputSchema,
-    RespondSubAccountInviteInputSchema,
-    SubAccountActivityInputSchema,
-    SubAccountSchema,
-    SubAccountMemberSchema,
-    SubAccountInviteSchema,
-    SubAccountActivityEventSchema,
-    SetSubAccountMemberMfaRequirementInputSchema,
-    type SubAccount,
-    type SubAccountMember,
-    type SubAccountInvite,
-    type SubAccountEvent,
-} from "./sub-accounts.schemas.js";
+    CreateSubaccountInputSchema,
+    UpdateSubaccountInputSchema,
+    InviteSubaccountMemberInputSchema,
+    RemoveSubaccountMemberInputSchema,
+    UpdateSubaccountMemberRoleInputSchema,
+    ListSubaccountInvitesInputSchema,
+    RespondSubaccountInviteInputSchema,
+    SubaccountActivityInputSchema,
+    SubaccountSchema,
+    SubaccountMemberSchema,
+    SubaccountInviteSchema,
+    SubaccountActivityEventSchema,
+    SetSubaccountMemberMfaRequirementInputSchema,
+    type Subaccount,
+    type SubaccountMember,
+    type SubaccountInvite,
+    type SubaccountEvent,
+} from "./subaccounts.schemas.js";
 
-interface SubscribeSubAccountsInput extends BaseSubscribeInput<SubAccount> {
+interface SubscribeSubaccountsInput extends BaseSubscribeInput<Subaccount> {
     accountId: string;
 }
 
@@ -41,15 +41,15 @@ interface SubscribeApiKeysInput extends BaseSubscribeInput<ApiKey> {
     accountId: string;
 }
 
-export class SubAccountsService {
-    readonly policies: SubAccountPoliciesService;
+export class SubaccountsService {
+    readonly policies: SubaccountPoliciesService;
 
     #client: Client<typeof Proto.SubaccountService>;
     #viewClient: Client<typeof Proto.SubaccountViewService>;
     #realtime: RealtimeClient;
 
     constructor(transport: Transport, realtime: RealtimeClient) {
-        this.policies = new SubAccountPoliciesService(transport, realtime);
+        this.policies = new SubaccountPoliciesService(transport, realtime);
         this.#client = createClient(Proto.SubaccountService, transport);
         this.#viewClient = createClient(Proto.SubaccountViewService, transport);
         this.#realtime = realtime;
@@ -57,21 +57,21 @@ export class SubAccountsService {
 
     async list(): Promise<{
         totalCreated: number;
-        subAccounts: v.InferOutput<typeof SubAccountSchema>[];
+        subaccounts: v.InferOutput<typeof SubaccountSchema>[];
     }> {
         const res = await this.#client.listSubaccounts({});
         return {
             totalCreated: res.totalCreated,
-            subAccounts: v.parse(v.array(SubAccountSchema), res.subaccounts),
+            subaccounts: v.parse(v.array(SubaccountSchema), res.subaccounts),
         };
     }
 
     async get(subaccountId: string): Promise<
-        SubAccount & {
+        Subaccount & {
             apiKeys: ApiKey[];
-            policy: SubAccountPolicy;
-            members: SubAccountMember[];
-            invites: SubAccountInvite[];
+            policy: SubaccountPolicy;
+            members: SubaccountMember[];
+            invites: SubaccountInvite[];
         }
     > {
         const res = await this.#viewClient.getSubaccount({
@@ -86,63 +86,63 @@ export class SubAccountsService {
         if (!res.subaccount) throw new Error(`Subaccount not found: ${subaccountId}`);
 
         return {
-            ...v.parse(SubAccountSchema, res.subaccount),
+            ...v.parse(SubaccountSchema, res.subaccount),
             policy: res.policy
-                ? v.parse(SubAccountPolicySchema, res.policy)
+                ? v.parse(SubaccountPolicySchema, res.policy)
                 : DEFAULT_SUBACCOUNT_POLICY,
             apiKeys: v.parse(v.optional(v.array(ApiKeySchema), []), res.apiKeys),
-            members: v.parse(v.optional(v.array(SubAccountMemberSchema), []), res.members),
+            members: v.parse(v.optional(v.array(SubaccountMemberSchema), []), res.members),
             invites: v
-                .parse(v.optional(v.array(SubAccountInviteSchema), []), res.invites)
-                .filter((invite) => invite.subAccountId === subaccountId),
+                .parse(v.optional(v.array(SubaccountInviteSchema), []), res.invites)
+                .filter((invite) => invite.subaccountId === subaccountId),
         };
     }
 
     async create(
-        input: v.InferInput<typeof CreateSubAccountInputSchema>,
+        input: v.InferInput<typeof CreateSubaccountInputSchema>,
     ): Promise<Proto.CreateSubaccountResponse> {
-        const validatedInput = v.parse(CreateSubAccountInputSchema, input);
+        const validatedInput = v.parse(CreateSubaccountInputSchema, input);
         return this.#client.createSubaccount(validatedInput);
     }
 
     async update(
-        input: v.InferInput<typeof UpdateSubAccountInputSchema>,
+        input: v.InferInput<typeof UpdateSubaccountInputSchema>,
     ): Promise<Proto.UpdateSubaccountResponse> {
-        const validatedInput = v.parse(UpdateSubAccountInputSchema, input);
+        const validatedInput = v.parse(UpdateSubaccountInputSchema, input);
         return await this.#client.updateSubaccount(validatedInput);
     }
 
     async inviteMember(
-        input: v.InferInput<typeof InviteSubAccountMemberInputSchema>,
+        input: v.InferInput<typeof InviteSubaccountMemberInputSchema>,
         options?: { stepUpToken?: string | null },
-    ): Promise<SubAccountInvite> {
-        const validatedInput = v.parse(InviteSubAccountMemberInputSchema, input);
+    ): Promise<SubaccountInvite> {
+        const validatedInput = v.parse(InviteSubaccountMemberInputSchema, input);
         const res = await this.#client.inviteSubaccountMember(
             validatedInput,
             stepUpCallOptions(options?.stepUpToken),
         );
-        return v.parse(SubAccountInviteSchema, res.invite);
+        return v.parse(SubaccountInviteSchema, res.invite);
     }
 
     async removeMember(
-        input: v.InferInput<typeof RemoveSubAccountMemberInputSchema>,
+        input: v.InferInput<typeof RemoveSubaccountMemberInputSchema>,
     ): Promise<Proto.RemoveSubaccountMemberResponse> {
-        const validatedInput = v.parse(RemoveSubAccountMemberInputSchema, input);
+        const validatedInput = v.parse(RemoveSubaccountMemberInputSchema, input);
         return this.#client.removeSubaccountMember(validatedInput);
     }
 
     async updateMemberRole(
-        input: v.InferInput<typeof UpdateSubAccountMemberRoleInputSchema>,
+        input: v.InferInput<typeof UpdateSubaccountMemberRoleInputSchema>,
     ): Promise<Proto.UpdateSubaccountMemberRoleResponse> {
-        const validatedInput = v.parse(UpdateSubAccountMemberRoleInputSchema, input);
+        const validatedInput = v.parse(UpdateSubaccountMemberRoleInputSchema, input);
         return this.#client.updateSubaccountMemberRole(validatedInput);
     }
 
     async setMemberMfaRequirement(
-        input: v.InferInput<typeof SetSubAccountMemberMfaRequirementInputSchema>,
+        input: v.InferInput<typeof SetSubaccountMemberMfaRequirementInputSchema>,
         options?: { stepUpToken?: string | null },
     ): Promise<void> {
-        const validatedInput = v.parse(SetSubAccountMemberMfaRequirementInputSchema, input);
+        const validatedInput = v.parse(SetSubaccountMemberMfaRequirementInputSchema, input);
         await this.#client.setSubaccountMemberMFARequirement(
             validatedInput,
             stepUpCallOptions(options?.stepUpToken),
@@ -150,60 +150,60 @@ export class SubAccountsService {
     }
 
     async listInvites(
-        input: v.InferInput<typeof ListSubAccountInvitesInputSchema>,
-    ): Promise<SubAccountInvite[]> {
-        const validatedInput = v.parse(ListSubAccountInvitesInputSchema, input);
+        input: v.InferInput<typeof ListSubaccountInvitesInputSchema>,
+    ): Promise<SubaccountInvite[]> {
+        const validatedInput = v.parse(ListSubaccountInvitesInputSchema, input);
         const res = await this.#client.listSubaccountInvites(validatedInput);
-        return v.parse(v.array(SubAccountInviteSchema), res.invites);
+        return v.parse(v.array(SubaccountInviteSchema), res.invites);
     }
 
-    async listMembers(subAccountId: string): Promise<SubAccountMember[]> {
+    async listMembers(subaccountId: string): Promise<SubaccountMember[]> {
         const res = await this.#client.listSubaccountMembers({
-            subaccountId: idToBigInt(subAccountId, "subaccountId"),
+            subaccountId: idToBigInt(subaccountId, "subaccountId"),
         });
-        return v.parse(v.array(SubAccountMemberSchema), res.members);
+        return v.parse(v.array(SubaccountMemberSchema), res.members);
     }
 
     async respondInvite(
-        input: v.InferInput<typeof RespondSubAccountInviteInputSchema>,
+        input: v.InferInput<typeof RespondSubaccountInviteInputSchema>,
         options?: { stepUpToken?: string | null },
-    ): Promise<SubAccountInvite> {
-        const validatedInput = v.parse(RespondSubAccountInviteInputSchema, input);
+    ): Promise<SubaccountInvite> {
+        const validatedInput = v.parse(RespondSubaccountInviteInputSchema, input);
         const res = await this.#client.respondSubaccountInvite(
             validatedInput,
             stepUpCallOptions(options?.stepUpToken),
         );
-        return v.parse(SubAccountInviteSchema, res.invite);
+        return v.parse(SubaccountInviteSchema, res.invite);
     }
 
-    async delete(subAccountId: string): Promise<void> {
-        const validatedSubAccountId = idToBigInt(subAccountId, "subaccountId");
+    async delete(subaccountId: string): Promise<void> {
+        const validatedSubaccountId = idToBigInt(subaccountId, "subaccountId");
         await this.#client.updateSubaccount({
-            subaccountId: validatedSubAccountId,
+            subaccountId: validatedSubaccountId,
             status: "deleted",
         });
     }
 
     async listEvents(
-        input: v.InferInput<typeof SubAccountActivityInputSchema>,
-    ): Promise<{ events: SubAccountEvent[]; nextCursor: string }> {
-        const validatedInput = v.parse(SubAccountActivityInputSchema, input);
+        input: v.InferInput<typeof SubaccountActivityInputSchema>,
+    ): Promise<{ events: SubaccountEvent[]; nextCursor: string }> {
+        const validatedInput = v.parse(SubaccountActivityInputSchema, input);
         const res = await this.#viewClient.listSubaccountActivity(validatedInput);
         return {
-            events: v.parse(v.optional(v.array(SubAccountActivityEventSchema), []), res.events),
+            events: v.parse(v.optional(v.array(SubaccountActivityEventSchema), []), res.events),
             nextCursor: res.nextCursor,
         };
     }
 
-    subscribe(input: SubscribeSubAccountsInput) {
+    subscribe(input: SubscribeSubaccountsInput) {
         const channel = `private:auth:subaccounts:${input.accountId}:proto`;
 
         return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.SubaccountSchema,
             onPublication: (data) => {
-                const subAccount = v.parse(SubAccountSchema, data);
-                input.onEvent(subAccount);
+                const subaccount = v.parse(SubaccountSchema, data);
+                input.onEvent(subaccount);
             },
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),

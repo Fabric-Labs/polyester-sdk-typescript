@@ -3,7 +3,7 @@ import { polyesterToken } from "./shared/polyester-token.js";
 import { WalletAuthService } from "./services/auth/wallet-auth.js";
 import type { WalletConfig, PolyesterWallet } from "./wallet/types.js";
 import { POLYESTER_API_BASE_URL } from "./shared/constants.js";
-import type { SubAccountResolver } from "./services/sub-account-resolver.js";
+import type { SubaccountResolver } from "./services/subaccount-resolver.js";
 
 export interface PolyesterBrowserClientUrls {
     apiUrl?: string;
@@ -37,11 +37,11 @@ export class PolyesterBrowserClient extends PolyesterClient {
             },
         });
 
-        // wire up WalletAuthService with SubAccountsService for createSubAccount support
+        // wire up WalletAuthService with SubaccountsService for createSubaccount support
         this.auth = new WalletAuthService({
             transports: { publicApi: this.transports.publicApi, authApi: this.transports.authApi },
             walletConfig: config.wallet,
-            subAccounts: this.subAccounts,
+            subaccounts: this.subaccounts,
             realtime: this.realtime,
         });
     }
@@ -50,9 +50,9 @@ export class PolyesterBrowserClient extends PolyesterClient {
      * Creates a resolver that defaults subaccountId to the active subaccount.
      * The getter is called lazily when service methods are invoked.
      */
-    protected override createSubaccountResolver(): SubAccountResolver {
+    protected override createSubaccountResolver(): SubaccountResolver {
         return {
-            getDefaultSubAccountId: () => {
+            getDefaultSubaccountId: () => {
                 const state = this.auth.getState();
                 if (state.activeAccount && !state.activeAccount.isMain) {
                     return state.activeAccount.accountId;

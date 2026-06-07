@@ -8,7 +8,7 @@ import {
 import { AccountsService } from "./services/accounts/index.js";
 import { ApiKeysService } from "./services/api-keys/index.js";
 import { AuthService } from "./services/auth/auth.js";
-import { SubAccountsService } from "./services/sub-accounts/index.js";
+import { SubaccountsService } from "./services/subaccounts/index.js";
 import { CandlesService } from "./services/candles/index.js";
 import { MarketDataService } from "./services/market-data/index.js";
 import { MarketOverviewService } from "./services/market-overview/index.js";
@@ -29,7 +29,7 @@ import { SocialVerificationService } from "./services/social-verification/index.
 import { WhiteboardService } from "./services/whiteboard/index.js";
 import { ZipperService } from "./services/zipper/index.js";
 import { MfaService } from "./services/mfa/index.js";
-import type { SubAccountResolver } from "./services/sub-account-resolver.js";
+import type { SubaccountResolver } from "./services/subaccount-resolver.js";
 import { setAssetCatalog, setEnrichedPairCatalog } from "./catalogs/market-data-catalog.js";
 import { ASSET_CATALOG, PAIR_CATALOG } from "./catalogs/market-data-catalog.generated.js";
 import {
@@ -103,7 +103,7 @@ export class PolyesterClient {
     readonly auth: AuthService;
     readonly accounts: AccountsService;
     readonly apiKeys: ApiKeysService;
-    readonly subAccounts: SubAccountsService;
+    readonly subaccounts: SubaccountsService;
     readonly candles: CandlesService;
     readonly marketData: MarketDataService;
     readonly marketOverview: MarketOverviewService;
@@ -155,7 +155,7 @@ export class PolyesterClient {
         this.auth = new AuthService({ publicApi, authApi }, this.realtime);
         this.accounts = new AccountsService(authApi);
         this.apiKeys = new ApiKeysService(authApi, this.realtime, resolver);
-        this.subAccounts = new SubAccountsService(authApi, this.realtime);
+        this.subaccounts = new SubaccountsService(authApi, this.realtime);
         this.candles = new CandlesService(publicApi, this.realtime);
         this.marketData = new MarketDataService(publicApi, this.realtime);
         this.marketOverview = new MarketOverviewService(publicApi, this.realtime);
@@ -185,7 +185,7 @@ export class PolyesterClient {
      * The resolver is called lazily when service methods are invoked,
      * so it's safe to reference `this.auth` even though it's not set during super().
      */
-    protected createSubaccountResolver(): SubAccountResolver | undefined {
+    protected createSubaccountResolver(): SubaccountResolver | undefined {
         return undefined;
     }
 }

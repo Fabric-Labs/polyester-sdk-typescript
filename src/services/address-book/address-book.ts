@@ -2,7 +2,7 @@ import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as Proto from "../../gen/auth/v1/address_book_pb.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
-import { type SubAccountResolver, resolveSubAccountScopedInput } from "../sub-account-resolver.js";
+import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
 import * as v from "valibot";
 import {
     AddressBookEntriesSchema,
@@ -20,7 +20,7 @@ import {
     ListAddressBookEntriesInputSchema,
     ListTransferCounterpartiesInputSchema,
     ListTransferDestinationsInputSchema,
-    SubAccountScopedInputSchema,
+    SubaccountScopedInputSchema,
     TransferCounterpartiesSchema,
     TransferDestinationsSchema,
     UpdateAddressBookEntryInputSchema,
@@ -41,7 +41,7 @@ import {
     type ListAddressBookEntriesInput,
     type ListTransferCounterpartiesInput,
     type ListTransferDestinationsInput,
-    type SubAccountScopedInput,
+    type SubaccountScopedInput,
     type TransferCounterparties,
     type TransferDestinations,
     type UpdateAddressBookEntryInput,
@@ -56,9 +56,9 @@ export type AddressBookMutationOptions = {
 
 export class AddressBookService {
     #client: Client<typeof Proto.AddressBookService>;
-    #resolver?: SubAccountResolver;
+    #resolver?: SubaccountResolver;
 
-    constructor(transport: Transport, resolver?: SubAccountResolver) {
+    constructor(transport: Transport, resolver?: SubaccountResolver) {
         this.#client = createClient(Proto.AddressBookService, transport);
         this.#resolver = resolver;
     }
@@ -167,9 +167,9 @@ export class AddressBookService {
     }
 
     async listInternalTransferWhitelistEntries(
-        input: SubAccountScopedInput = {},
+        input: SubaccountScopedInput = {},
     ): Promise<InternalTransferWhitelistEntries> {
-        const request = v.parse(SubAccountScopedInputSchema, this.resolveInput(input));
+        const request = v.parse(SubaccountScopedInputSchema, this.resolveInput(input));
         const response = await this.#client.listInternalTransferWhitelistEntries(
             removeUndefined(request),
         );
@@ -177,9 +177,9 @@ export class AddressBookService {
     }
 
     async getWithdrawWhitelistView(
-        input: SubAccountScopedInput = {},
+        input: SubaccountScopedInput = {},
     ): Promise<WithdrawWhitelistView | null> {
-        const request = v.parse(SubAccountScopedInputSchema, this.resolveInput(input));
+        const request = v.parse(SubaccountScopedInputSchema, this.resolveInput(input));
         const response = await this.#client.getWithdrawWhitelistView(removeUndefined(request));
         return response.view ? v.parse(WithdrawWhitelistViewSchema, response.view) : null;
     }
@@ -190,7 +190,7 @@ export class AddressBookService {
         return v.parse(AddressBookViewSchema, response);
     }
 
-    private resolveInput<TInput extends { subAccountId?: string }>(input: TInput): TInput {
-        return resolveSubAccountScopedInput(input, this.#resolver);
+    private resolveInput<TInput extends { subaccountId?: string }>(input: TInput): TInput {
+        return resolveSubaccountScopedInput(input, this.#resolver);
     }
 }

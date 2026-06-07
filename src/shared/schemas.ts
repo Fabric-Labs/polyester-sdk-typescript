@@ -56,7 +56,7 @@ export function optionalIdInputSchema(fieldName: string) {
     );
 }
 
-export function optionalSubAccountIdInputSchema() {
+export function optionalSubaccountIdInputSchema() {
     return optionalIdInputSchema("subaccountId");
 }
 

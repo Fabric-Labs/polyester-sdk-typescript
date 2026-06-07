@@ -1,6 +1,6 @@
 export const INTERNAL_TRANSFER_DESTINATION_TYPE_VALUES = [
     "account",
-    "subAccount",
+    "subaccount",
     "smartAccountAddress",
 ] as const;
 
@@ -10,7 +10,7 @@ export type InternalTransferDestinationType =
 export const InternalTransferDestinationCodec = {
     inputToProtoCase: {
         account: "destinationAccountId",
-        subAccount: "destinationSubaccountId",
+        subaccount: "destinationSubaccountId",
         smartAccountAddress: "destinationSmartAccountAddress",
     } satisfies Record<
         InternalTransferDestinationType,

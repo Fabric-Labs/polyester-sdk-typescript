@@ -8,7 +8,7 @@ import {
     OptionalTimestampMsSchema,
     TimestampMsSchema,
     TimestampSchema,
-    optionalSubAccountIdInputSchema,
+    optionalSubaccountIdInputSchema,
 } from "../../shared/schemas.js";
 import { bytesToHex } from "@noble/hashes/utils.js";
 import { ApiKeyStatusCodec } from "./api-keys.codecs.js";
@@ -17,24 +17,18 @@ const ApiKeyStatusSchema = v.picklist(["active", "revoked", "disabled"]);
 
 export type ApiKeyStatus = v.InferOutput<typeof ApiKeyStatusSchema>;
 
-export const ApiKeysListInputSchema = v.pipe(
-    v.object({
-        subAccountId: optionalSubAccountIdInputSchema(),
-    }),
-    v.transform(({ subAccountId, ...rest }) => ({ ...rest, subaccountId: subAccountId })),
-);
+export const ApiKeysListInputSchema = v.object({
+    subaccountId: optionalSubaccountIdInputSchema(),
+});
 
 export type ApiKeysListInput = v.InferInput<typeof ApiKeysListInputSchema>;
 
-export const ApiKeysCreateInputSchema = v.pipe(
-    v.object({
-        label: v.string(),
-        subAccountId: optionalSubAccountIdInputSchema(),
-        ipWhitelist: v.optional(v.optional(v.array(v.string())), []),
-        publicKeyEd25519: v.instance(Uint8Array<ArrayBufferLike>),
-    }),
-    v.transform(({ subAccountId, ...rest }) => ({ ...rest, subaccountId: subAccountId })),
-);
+export const ApiKeysCreateInputSchema = v.object({
+    label: v.string(),
+    subaccountId: optionalSubaccountIdInputSchema(),
+    ipWhitelist: v.optional(v.optional(v.array(v.string())), []),
+    publicKeyEd25519: v.instance(Uint8Array<ArrayBufferLike>),
+});
 
 export type ApiKeysCreateInput = v.InferInput<typeof ApiKeysCreateInputSchema>;
 
@@ -121,7 +115,7 @@ export const ApiKeySchema = v.pipe(
         const hex = bytesToHex(rest.publicKeyEd25519);
         return {
             ...rest,
-            subAccountId: subaccountId,
+            subaccountId,
             publicKeyHex: hex,
         };
     }),

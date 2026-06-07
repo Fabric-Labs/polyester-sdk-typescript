@@ -1,7 +1,7 @@
 import * as v from "valibot";
 import { fromU128, u128ToDecimal } from "../../utils/u128.js";
 import { assetForId, LEDGER_SCALE } from "../../catalogs/ledger-catalog.js";
-import { optionalSubAccountIdInputSchema } from "../../shared/schemas.js";
+import { optionalSubaccountIdInputSchema } from "../../shared/schemas.js";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { BalanceRangeCodec, EquityGroupByCodec } from "./balances.codecs.js";
 
@@ -47,21 +47,15 @@ export const EquityGroupBySchema = v.picklist(EQUITY_GROUP_BYS);
 
 export type EquityGroupBy = v.InferOutput<typeof EquityGroupBySchema>;
 
-export const BalanceHistoryInputSchema = v.pipe(
-    v.object({
-        subAccountId: optionalSubAccountIdInputSchema(),
-        range: v.pipe(
-            BalanceRangeSchema,
-            v.transform((v) => BalanceRangeCodec.inputToProto[v]),
-        ),
-        ledger: v.optional(v.optional(v.number()), 0),
-        accountCodes: v.optional(v.optional(v.array(v.number())), []),
-    }),
-    v.transform(({ subAccountId, ...rest }) => ({
-        ...rest,
-        subaccountId: subAccountId,
-    })),
-);
+export const BalanceHistoryInputSchema = v.object({
+    subaccountId: optionalSubaccountIdInputSchema(),
+    range: v.pipe(
+        BalanceRangeSchema,
+        v.transform((v) => BalanceRangeCodec.inputToProto[v]),
+    ),
+    ledger: v.optional(v.optional(v.number()), 0),
+    accountCodes: v.optional(v.optional(v.array(v.number())), []),
+});
 
 export type BalanceHistoryInput = v.InferInput<typeof BalanceHistoryInputSchema>;
 
@@ -100,24 +94,18 @@ export const BalanceHistoryResponseSchema = v.pipe(
 
 export type BalanceHistoryResponse = v.InferOutput<typeof BalanceHistoryResponseSchema>;
 
-export const EquityHistoryInputSchema = v.pipe(
-    v.object({
-        subAccountId: optionalSubAccountIdInputSchema(),
-        range: v.pipe(
-            BalanceRangeSchema,
-            v.transform((v) => BalanceRangeCodec.inputToProto[v]),
-        ),
-        accountCodes: v.optional(v.optional(v.array(v.number())), []),
-        groupBy: v.pipe(
-            v.optional(v.optional(EquityGroupBySchema), "account"),
-            v.transform((v) => EquityGroupByCodec.inputToProto[v ?? "account"]),
-        ),
-    }),
-    v.transform(({ subAccountId, ...rest }) => ({
-        ...rest,
-        subaccountId: subAccountId,
-    })),
-);
+export const EquityHistoryInputSchema = v.object({
+    subaccountId: optionalSubaccountIdInputSchema(),
+    range: v.pipe(
+        BalanceRangeSchema,
+        v.transform((v) => BalanceRangeCodec.inputToProto[v]),
+    ),
+    accountCodes: v.optional(v.optional(v.array(v.number())), []),
+    groupBy: v.pipe(
+        v.optional(v.optional(EquityGroupBySchema), "account"),
+        v.transform((v) => EquityGroupByCodec.inputToProto[v ?? "account"]),
+    ),
+});
 
 export type EquityHistoryInput = v.InferInput<typeof EquityHistoryInputSchema>;
 

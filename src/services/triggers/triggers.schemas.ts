@@ -6,7 +6,7 @@ import {
     PublicIdSchema,
     TimestampNsMsSchema,
     idInputSchema,
-    optionalSubAccountIdInputSchema,
+    optionalSubaccountIdInputSchema,
 } from "../../shared/schemas.js";
 import {
     parsePriceTicks,
@@ -81,15 +81,8 @@ const TriggerIdInputSchema = idInputSchema("triggerId");
 
 const TriggerScopedInputSchema = v.object({
     triggerId: TriggerIdInputSchema,
-    subAccountId: optionalSubAccountIdInputSchema(),
+    subaccountId: optionalSubaccountIdInputSchema(),
 });
-
-function transformTriggerScopedInput(input: v.InferOutput<typeof TriggerScopedInputSchema>) {
-    return {
-        triggerId: input.triggerId,
-        subaccountId: input.subAccountId,
-    };
-}
 
 const TrailingDistanceInputSchema = v.union([
     TicksStringOrNumberInputSchema,
@@ -173,7 +166,7 @@ function parseMaxSlippage(
 const SideInputSchema = v.picklist(["buy", "sell"]);
 
 const BaseChildOrderFieldsSchema = v.object({
-    subAccountId: v.pipe(
+    subaccountId: v.pipe(
         v.optional(v.pipe(v.string(), v.trim())),
         v.transform((v) => (v ? idToBigInt(v, "subaccountId") : 0n)),
     ),
@@ -267,7 +260,7 @@ const StopLossTriggerInputSchema = v.pipe(
         const isBuy = input.side === ProtoOrders.Side.BUY;
         return {
             ...buildTriggerDefaults(),
-            subaccountId: input.subAccountId,
+            subaccountId: input.subaccountId,
             symbol: input.symbol,
             triggerType: Proto.TriggerType.STOP_LOSS,
             side: input.side,
@@ -317,7 +310,7 @@ const TakeProfitTriggerInputSchema = v.pipe(
         const isBuy = input.side === ProtoOrders.Side.BUY;
         return {
             ...buildTriggerDefaults(),
-            subaccountId: input.subAccountId,
+            subaccountId: input.subaccountId,
             symbol: input.symbol,
             triggerType: Proto.TriggerType.TAKE_PROFIT,
             side: input.side,
@@ -373,7 +366,7 @@ const TrailingStopTriggerInputSchema = v.pipe(
     }),
     v.transform((input) => ({
         ...buildTriggerDefaults(),
-        subaccountId: input.subAccountId,
+        subaccountId: input.subaccountId,
         symbol: input.symbol,
         triggerType: Proto.TriggerType.TRAILING_STOP,
         side: input.side,
@@ -432,7 +425,7 @@ const TwapTriggerInputSchema = v.pipe(
     ),
     v.transform((input) => ({
         ...buildTriggerDefaults(),
-        subaccountId: input.subAccountId,
+        subaccountId: input.subaccountId,
         symbol: input.symbol,
         triggerType: Proto.TriggerType.TWAP,
         side: input.side,
@@ -495,7 +488,7 @@ const LadderTriggerInputSchema = v.pipe(
     }),
     v.transform((input) => ({
         ...buildTriggerDefaults(),
-        subaccountId: input.subAccountId,
+        subaccountId: input.subaccountId,
         symbol: input.symbol,
         triggerType: Proto.TriggerType.LADDER,
         side: input.side,
@@ -529,42 +522,33 @@ export const CreateTriggerInputSchema = v.variant("triggerType", [
 
 export type CreateTriggerInput = v.InferInput<typeof CreateTriggerInputSchema>;
 
-export const ListTriggersInputSchema = v.pipe(
-    v.object({
-        subAccountId: optionalSubAccountIdInputSchema(),
-        parentOrderId: v.pipe(
-            v.optional(v.pipe(v.string(), v.trim())),
-            v.transform((v) => (v ? idToBigInt(v, "parentOrderId") : undefined)),
+export const ListTriggersInputSchema = v.object({
+    subaccountId: optionalSubaccountIdInputSchema(),
+    parentOrderId: v.pipe(
+        v.optional(v.pipe(v.string(), v.trim())),
+        v.transform((v) => (v ? idToBigInt(v, "parentOrderId") : undefined)),
+    ),
+    symbol: v.optional(v.pipe(v.string(), v.trim())),
+    status: v.pipe(
+        v.optional(v.array(TriggerStatusFilterSchema)),
+        v.transform((arr) => arr?.map((s) => TriggerStatusCodec.filterToProto[s]) ?? []),
+    ),
+    triggerType: v.pipe(
+        v.optional(TriggerTypeSchema),
+        v.transform((v) =>
+            v ? TriggerTypeCodec.inputToProto[v] : Proto.TriggerType.TRIGGER_TYPE_UNSPECIFIED,
         ),
-        symbol: v.optional(v.pipe(v.string(), v.trim())),
-        status: v.pipe(
-            v.optional(v.array(TriggerStatusFilterSchema)),
-            v.transform((arr) => arr?.map((s) => TriggerStatusCodec.filterToProto[s]) ?? []),
-        ),
-        triggerType: v.pipe(
-            v.optional(TriggerTypeSchema),
-            v.transform((v) =>
-                v ? TriggerTypeCodec.inputToProto[v] : Proto.TriggerType.TRIGGER_TYPE_UNSPECIFIED,
-            ),
-        ),
-        limit: v.optional(
-            v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(1000))),
-            50,
-        ),
-        offset: v.optional(v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))), 0),
-    }),
-    v.transform(({ subAccountId, ...rest }) => ({
-        ...rest,
-        subaccountId: subAccountId,
-    })),
-);
+    ),
+    limit: v.optional(
+        v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(1000))),
+        50,
+    ),
+    offset: v.optional(v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))), 0),
+});
 
 export type ListTriggersInput = v.InferInput<typeof ListTriggersInputSchema>;
 
-export const CancelTriggerInputSchema = v.pipe(
-    TriggerScopedInputSchema,
-    v.transform(transformTriggerScopedInput),
-);
+export const CancelTriggerInputSchema = TriggerScopedInputSchema;
 
 export type CancelTriggerInput = v.InferInput<typeof CancelTriggerInputSchema>;
 
@@ -605,9 +589,9 @@ export const ModifyTriggerInputSchema = v.pipe(
             input.maxSlippage !== undefined;
         return hasPatch;
     }, "At least one patch field is required"),
-    v.transform(({ subAccountId, ...input }) => ({
+    v.transform(({ subaccountId, ...input }) => ({
         triggerId: input.triggerId,
-        subaccountId: subAccountId,
+        subaccountId,
         triggerPriceTicks: input.triggerPrice,
         limitPriceTicks: input.limitPrice,
         trailingDistance: input.trailingDistance ?? UNSET_TRAILING_DISTANCE,
@@ -623,17 +607,11 @@ export const PauseTriggerInputSchema = CancelTriggerInputSchema;
 export type PauseTriggerInput = v.InferInput<typeof PauseTriggerInputSchema>;
 export type ResumeTriggerInput = v.InferInput<typeof PauseTriggerInputSchema>;
 
-export const ListTriggerEventsInputSchema = v.pipe(
-    v.object({
-        ...TriggerScopedInputSchema.entries,
-        limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(1000))),
-        beforeTsNs: v.optional(v.pipe(v.string(), v.trim())),
-    }),
-    v.transform(({ subAccountId, ...rest }) => ({
-        ...rest,
-        subaccountId: subAccountId,
-    })),
-);
+export const ListTriggerEventsInputSchema = v.object({
+    ...TriggerScopedInputSchema.entries,
+    limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(1000))),
+    beforeTsNs: v.optional(v.pipe(v.string(), v.trim())),
+});
 
 export type ListTriggerEventsInput = v.InferInput<typeof ListTriggerEventsInputSchema>;
 
@@ -855,7 +833,7 @@ export const TriggerSchema = v.pipe(
     }),
     v.transform((t) => ({
         triggerId: formatId(t.triggerId),
-        subAccountId: formatId(t.subaccountId),
+        subaccountId: formatId(t.subaccountId),
         symbolId: t.symbolId,
         symbol: symbolForSymbolId(t.symbolId),
         baseAsset: baseAssetForSymbolId(t.symbolId)!,
@@ -906,7 +884,7 @@ export const TriggerEventSchema = v.pipe(
     v.transform((e) => {
         return {
             triggerId: formatId(e.triggerId),
-            subAccountId: formatId(e.subaccountId),
+            subaccountId: formatId(e.subaccountId),
             symbolId: e.symbolId,
             symbol: symbolForSymbolId(e.symbolId) || "",
             baseAsset: baseAssetForSymbolId(e.symbolId)!,

@@ -8,7 +8,7 @@ import type {
 } from "./shared/polyester-session.js";
 import { type CookieGetter, getCookieValue } from "./utils/cookies.js";
 import type { JwtAuthProvider, ApiKeyEd25519AuthProvider } from "./shared/transports.js";
-import type { SubAccountResolver } from "./services/sub-account-resolver.js";
+import type { SubaccountResolver } from "./services/subaccount-resolver.js";
 import type { RealtimeConfig } from "./realtime/index.js";
 import { isJwtValid } from "./utils/jwt.js";
 import type { Me } from "./services/auth/auth.js";
@@ -111,9 +111,9 @@ export class PolyesterServerClient extends PolyesterClient {
      * from display-only session metadata. This is caller convenience only;
      * backend auth remains authoritative.
      */
-    protected override createSubaccountResolver(): SubAccountResolver {
+    protected override createSubaccountResolver(): SubaccountResolver {
         return {
-            getDefaultSubAccountId: () => {
+            getDefaultSubaccountId: () => {
                 const activeAccount = this.#session.activeAccount;
                 if (activeAccount && !activeAccount.isMain) {
                     return activeAccount.accountId;

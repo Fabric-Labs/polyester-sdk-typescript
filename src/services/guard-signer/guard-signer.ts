@@ -2,7 +2,7 @@ import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as Proto from "../../gen/chain/guard/v1/guard_signer_pb.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
-import { type SubAccountResolver, resolveSubAccountScopedInput } from "../sub-account-resolver.js";
+import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
 import {
     BatchGuardApprovalsSchema,
     BatchSignProtectedActionInputSchema,
@@ -29,9 +29,9 @@ import * as v from "valibot";
 
 export class GuardSignerService {
     #client: Client<typeof Proto.GuardSignerService>;
-    #resolver?: SubAccountResolver;
+    #resolver?: SubaccountResolver;
 
-    constructor(transport: Transport, resolver?: SubAccountResolver) {
+    constructor(transport: Transport, resolver?: SubaccountResolver) {
         this.#client = createClient(Proto.GuardSignerService, transport);
         this.#resolver = resolver;
     }
@@ -106,7 +106,7 @@ export class GuardSignerService {
         return v.parse(ExportGuardSignerWalletResultSchema, response);
     }
 
-    private resolveInput<TInput extends { subAccountId?: string }>(input: TInput): TInput {
-        return resolveSubAccountScopedInput(input, this.#resolver);
+    private resolveInput<TInput extends { subaccountId?: string }>(input: TInput): TInput {
+        return resolveSubaccountScopedInput(input, this.#resolver);
     }
 }

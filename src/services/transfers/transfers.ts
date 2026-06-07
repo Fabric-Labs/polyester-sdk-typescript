@@ -2,7 +2,7 @@ import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
 import type { RealtimeClient } from "../../realtime/index.js";
-import { type SubAccountResolver, resolveSubAccountScopedInput } from "../sub-account-resolver.js";
+import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
     LedgerTransferSchema,
@@ -18,9 +18,9 @@ interface SubscribeTransfersInput extends BaseSubscribeInput<LedgerTransfer> {
 export class TransfersService {
     #client: Client<typeof Proto.LedgerReadService>;
     #realtime: RealtimeClient;
-    #resolver?: SubAccountResolver;
+    #resolver?: SubaccountResolver;
 
-    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubAccountResolver) {
+    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubaccountResolver) {
         this.#client = createClient(Proto.LedgerReadService, transport);
         this.#realtime = realtime;
         this.#resolver = resolver;
@@ -29,7 +29,7 @@ export class TransfersService {
     async list(
         input: ListTransfersInput,
     ): Promise<{ transfers: LedgerTransfer[]; nextCursor: number | null }> {
-        const resolved = resolveSubAccountScopedInput(input, this.#resolver);
+        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(ListTransfersInputSchema, resolved);
         const res = await this.#client.listTransfers(validatedInput);
         const transfers = v.parse(v.array(LedgerTransferSchema), res.transfers);

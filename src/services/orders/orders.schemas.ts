@@ -28,7 +28,7 @@ import {
 } from "../../utils/numbers.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { formatId, idToBigInt } from "../../utils/base58-id.js";
-import { optionalSubAccountIdInputSchema } from "../../shared/schemas.js";
+import { optionalSubaccountIdInputSchema } from "../../shared/schemas.js";
 import {
     baseQuantityScaleForSymbol,
     getPairBySymbolId,
@@ -60,7 +60,7 @@ import {
 const OrderStatusSchema = v.picklist(["FILLED", "CANCELED", "REJECTED"]);
 
 export const BaseOrdersFilterInputSchema = v.object({
-    subAccountId: optionalSubAccountIdInputSchema(),
+    subaccountId: optionalSubaccountIdInputSchema(),
     symbolId: v.optional(v.array(v.number())),
     side: v.pipe(
         v.optional(SideSchema),
@@ -70,46 +70,34 @@ export const BaseOrdersFilterInputSchema = v.object({
     pageToken: v.optional(v.pipe(v.string(), v.trim())),
 });
 
-export const OpenOrdersInputSchema = v.pipe(
-    v.object({
-        ...BaseOrdersFilterInputSchema.entries,
+export const OpenOrdersInputSchema = v.object({
+    ...BaseOrdersFilterInputSchema.entries,
 
-        includeAttachedRisk: v.optional(v.optional(v.boolean()), true),
-        includeAttachedRiskState: v.optional(v.optional(v.boolean()), false),
-    }),
-    v.transform(({ subAccountId, ...rest }) => ({
-        ...rest,
-        subaccountId: subAccountId,
-    })),
-);
+    includeAttachedRisk: v.optional(v.optional(v.boolean()), true),
+    includeAttachedRiskState: v.optional(v.optional(v.boolean()), false),
+});
 
-export const OrderHistoryInputSchema = v.pipe(
-    v.object({
-        ...BaseOrdersFilterInputSchema.entries,
+export const OrderHistoryInputSchema = v.object({
+    ...BaseOrdersFilterInputSchema.entries,
 
-        includeAttachedRisk: v.optional(v.optional(v.boolean()), true),
-        includeAttachedRiskState: v.optional(v.optional(v.boolean()), false),
+    includeAttachedRisk: v.optional(v.optional(v.boolean()), true),
+    includeAttachedRiskState: v.optional(v.optional(v.boolean()), false),
 
-        status: v.pipe(
-            v.optional(OrderStatusSchema),
-            v.transform((v) => (v ? OrderStatusFilterCodec.inputToProto[v] : undefined)),
-        ),
+    status: v.pipe(
+        v.optional(OrderStatusSchema),
+        v.transform((v) => (v ? OrderStatusFilterCodec.inputToProto[v] : undefined)),
+    ),
 
-        startTsNs: v.pipe(
-            v.optional(v.pipe(v.string(), v.trim())),
-            v.transform((v) => (v ? parseOptionalUint64Decimal(v) : undefined)),
-        ),
+    startTsNs: v.pipe(
+        v.optional(v.pipe(v.string(), v.trim())),
+        v.transform((v) => (v ? parseOptionalUint64Decimal(v) : undefined)),
+    ),
 
-        endTsNs: v.pipe(
-            v.optional(v.pipe(v.string(), v.trim())),
-            v.transform((v) => (v ? parseOptionalUint64Decimal(v) : undefined)),
-        ),
-    }),
-    v.transform(({ subAccountId, ...rest }) => ({
-        ...rest,
-        subaccountId: subAccountId,
-    })),
-);
+    endTsNs: v.pipe(
+        v.optional(v.pipe(v.string(), v.trim())),
+        v.transform((v) => (v ? parseOptionalUint64Decimal(v) : undefined)),
+    ),
+});
 
 const OrderTypeSchema = v.picklist(["limit", "market"]);
 const TIFSchema = v.picklist(["gtc", "ioc", "fok"]);
@@ -528,7 +516,7 @@ function formatAttachedRisk(
 
 export const NewOrderInputSchema = v.pipe(
     v.object({
-        subAccountId: optionalSubAccountIdInputSchema(),
+        subaccountId: optionalSubaccountIdInputSchema(),
         symbol: v.pipe(v.string(), v.trim(), v.minLength(1)),
         side: v.pipe(
             SideSchema,
@@ -568,7 +556,7 @@ export const NewOrderInputSchema = v.pipe(
             : true;
     }, "market max slippage and client reference price are only valid for market orders"),
     v.transform(
-        ({ qty, price, subAccountId, risk, marketMaxSlippage, marketClientRefPrice, ...input }) => {
+        ({ qty, price, subaccountId, risk, marketMaxSlippage, marketClientRefPrice, ...input }) => {
             const qtyScale = baseQuantityScaleForSymbol(input.symbol);
             const qtyScaled = parseQtyScaled(qty, qtyScale, "qty");
             const priceTicks =
@@ -579,7 +567,7 @@ export const NewOrderInputSchema = v.pipe(
                 ...input,
                 qtyScaled,
                 priceTicks,
-                subaccountId: subAccountId,
+                subaccountId,
                 attachedRisk: risk,
                 marketMaxSlippage: parseMarketMaxSlippage(marketMaxSlippage),
                 marketClientRefPriceTicks: parseMarketClientRefPriceTicks(marketClientRefPrice),
@@ -677,39 +665,27 @@ function humanizeTerminalReason(raw: string | null | undefined): string {
 
 export type Order = v.InferOutput<typeof OrderSchema>;
 
-export const CancelOrderInputSchema = v.pipe(
-    v.object({
-        orderId: v.pipe(
-            v.string(),
-            v.trim(),
-            v.transform((v) => idToBigInt(v, "orderId")),
-        ),
-        symbolId: v.optional(v.number()),
-        subAccountId: optionalSubAccountIdInputSchema(),
-    }),
-    v.transform(({ subAccountId, ...rest }) => ({
-        ...rest,
-        subaccountId: subAccountId,
-    })),
-);
+export const CancelOrderInputSchema = v.object({
+    orderId: v.pipe(
+        v.string(),
+        v.trim(),
+        v.transform((v) => idToBigInt(v, "orderId")),
+    ),
+    symbolId: v.optional(v.number()),
+    subaccountId: optionalSubaccountIdInputSchema(),
+});
 
-export const CancelAllOrdersInputSchema = v.pipe(
-    v.object({
-        subAccountId: optionalSubAccountIdInputSchema(),
-        symbol: v.optional(v.pipe(v.string(), v.trim())),
-        side: v.pipe(
-            v.optional(SideSchema),
-            v.transform((v) => (v ? OrderSideCodec.inputToProto[v] : undefined)),
-        ),
-        dryRun: v.optional(v.optional(v.boolean()), false),
-        maxOrders: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0))),
-        requestId: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(64)),
-    }),
-    v.transform(({ subAccountId, ...rest }) => ({
-        ...rest,
-        subaccountId: subAccountId,
-    })),
-);
+export const CancelAllOrdersInputSchema = v.object({
+    subaccountId: optionalSubaccountIdInputSchema(),
+    symbol: v.optional(v.pipe(v.string(), v.trim())),
+    side: v.pipe(
+        v.optional(SideSchema),
+        v.transform((v) => (v ? OrderSideCodec.inputToProto[v] : undefined)),
+    ),
+    dryRun: v.optional(v.optional(v.boolean()), false),
+    maxOrders: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0))),
+    requestId: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(64)),
+});
 
 export const CancelAllOrdersResponseSchema = v.pipe(
     v.object({
@@ -743,7 +719,7 @@ export const ModifyOrderInputSchema = v.pipe(
                 v.regex(ClientOrderIdPattern, "clientOrderId has an invalid format"),
             ),
         ),
-        subAccountId: optionalSubAccountIdInputSchema(),
+        subaccountId: optionalSubaccountIdInputSchema(),
         requestId: v.optional(
             v.pipe(
                 v.string(),
@@ -805,7 +781,7 @@ export const ModifyOrderInputSchema = v.pipe(
                 : input.risk;
 
         return {
-            subaccountId: input.subAccountId,
+            subaccountId: input.subaccountId,
             key,
             requestId: input.requestId,
             newPriceTicks,
@@ -823,7 +799,7 @@ export const GetOrderInputSchema = v.pipe(
     v.object({
         orderId: v.optional(v.pipe(v.string(), v.trim())),
         clientOrderId: v.optional(v.pipe(v.string(), v.trim())),
-        subAccountId: optionalSubAccountIdInputSchema(),
+        subaccountId: optionalSubaccountIdInputSchema(),
         includeAttachedRisk: v.optional(v.optional(v.boolean()), true),
         includeAttachedRiskState: v.optional(v.optional(v.boolean()), true),
     }),
@@ -832,14 +808,14 @@ export const GetOrderInputSchema = v.pipe(
         const hasClientOrderId = (input.clientOrderId ?? "").length > 0;
         return hasOrderId !== hasClientOrderId;
     }, "Provide exactly one of orderId or clientOrderId"),
-    v.transform(({ subAccountId, orderId, clientOrderId, ...rest }) => {
+    v.transform(({ subaccountId, orderId, clientOrderId, ...rest }) => {
         const hasOrderId = (orderId ?? "").length > 0;
         const key = hasOrderId
             ? ({ case: "orderId", value: idToBigInt(orderId ?? "", "orderId") } as const)
             : ({ case: "clientOrderId", value: clientOrderId ?? "" } as const);
         return {
             ...rest,
-            subaccountId: subAccountId,
+            subaccountId,
             key,
         };
     }),

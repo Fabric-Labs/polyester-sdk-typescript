@@ -5,7 +5,7 @@ import {
     OptionalTimestampMsSchema,
     PublicIdSchema,
     idInputSchema,
-    optionalSubAccountIdInputSchema,
+    optionalSubaccountIdInputSchema,
 } from "../../shared/schemas.js";
 import {
     ADDRESS_BOOK_ENTRY_KIND_VALUES,
@@ -18,9 +18,9 @@ import {
     type AddressBookEntryKindLabel,
     type DestinationWhitelistStatusLabel,
 } from "./address-book.codecs.js";
-import { SubAccountRoleCodec } from "../sub-accounts/sub-accounts.codecs.js";
+import { SubaccountRoleCodec } from "../subaccounts/subaccounts.codecs.js";
 
-const OptionalSubAccountIdSchema = optionalSubAccountIdInputSchema();
+const OptionalSubaccountIdSchema = optionalSubaccountIdInputSchema();
 const IdSchema = idInputSchema;
 
 const PageSizeSchema = v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(200)));
@@ -34,11 +34,11 @@ const AddressBookTagInputSchema = v.object({
 
 export const ListAddressBookEntriesInputSchema = v.pipe(
     v.object({
-        subAccountId: OptionalSubAccountIdSchema,
+        subaccountId: OptionalSubaccountIdSchema,
         kind: v.optional(v.picklist(ADDRESS_BOOK_ENTRY_KIND_VALUES)),
     }),
-    v.transform(({ subAccountId, kind }) => ({
-        subaccountId: subAccountId,
+    v.transform(({ subaccountId, kind }) => ({
+        subaccountId,
         kind: kind ? AddressBookEntryKindCodec.inputToProto[kind] : undefined,
     })),
 );
@@ -47,7 +47,7 @@ export type ListAddressBookEntriesInput = v.InferInput<typeof ListAddressBookEnt
 
 export const CreateAddressBookEntryInputSchema = v.pipe(
     v.object({
-        subAccountId: OptionalSubAccountIdSchema,
+        subaccountId: OptionalSubaccountIdSchema,
         label: v.pipe(v.string(), v.trim(), v.minLength(1)),
         note: v.optional(v.optional(v.pipe(v.string(), v.trim())), ""),
         entry: v.variant("kind", [
@@ -64,9 +64,9 @@ export const CreateAddressBookEntryInputSchema = v.pipe(
         tagIds: v.optional(v.optional(v.array(IdSchema("tagId"))), []),
         newTags: v.optional(v.optional(v.array(AddressBookTagInputSchema)), []),
     }),
-    v.transform(({ subAccountId, entry, ...rest }) => ({
+    v.transform(({ subaccountId, entry, ...rest }) => ({
         ...rest,
-        subaccountId: subAccountId,
+        subaccountId,
         entry:
             entry.kind === "external"
                 ? {
@@ -87,16 +87,13 @@ export const CreateAddressBookEntryInputSchema = v.pipe(
 
 export type CreateAddressBookEntryInput = v.InferInput<typeof CreateAddressBookEntryInputSchema>;
 
-export const UpdateAddressBookEntryInputSchema = v.pipe(
-    v.object({
-        addressBookEntryId: IdSchema("addressBookEntryId"),
-        label: v.pipe(v.string(), v.trim(), v.minLength(1)),
-        note: v.optional(v.optional(v.pipe(v.string(), v.trim())), ""),
-        tagIds: v.optional(v.optional(v.array(IdSchema("tagId"))), []),
-        newTags: v.optional(v.optional(v.array(AddressBookTagInputSchema)), []),
-    }),
-    v.transform((input) => input),
-);
+export const UpdateAddressBookEntryInputSchema = v.object({
+    addressBookEntryId: IdSchema("addressBookEntryId"),
+    label: v.pipe(v.string(), v.trim(), v.minLength(1)),
+    note: v.optional(v.optional(v.pipe(v.string(), v.trim())), ""),
+    tagIds: v.optional(v.optional(v.array(IdSchema("tagId"))), []),
+    newTags: v.optional(v.optional(v.array(AddressBookTagInputSchema)), []),
+});
 
 export type UpdateAddressBookEntryInput = v.InferInput<typeof UpdateAddressBookEntryInputSchema>;
 
@@ -106,30 +103,18 @@ export const DeleteAddressBookEntryInputSchema = v.object({
 
 export type DeleteAddressBookEntryInput = v.InferInput<typeof DeleteAddressBookEntryInputSchema>;
 
-export const CopyAddressBookEntryInputSchema = v.pipe(
-    v.object({
-        addressBookEntryId: IdSchema("addressBookEntryId"),
-        targetSubAccountId: OptionalSubAccountIdSchema,
-    }),
-    v.transform(({ targetSubAccountId, ...rest }) => ({
-        ...rest,
-        targetSubaccountId: targetSubAccountId,
-    })),
-);
+export const CopyAddressBookEntryInputSchema = v.object({
+    addressBookEntryId: IdSchema("addressBookEntryId"),
+    targetSubaccountId: OptionalSubaccountIdSchema,
+});
 
 export type CopyAddressBookEntryInput = v.InferInput<typeof CopyAddressBookEntryInputSchema>;
 
-export const CreateAddressBookTagInputSchema = v.pipe(
-    v.object({
-        subAccountId: OptionalSubAccountIdSchema,
-        name: v.pipe(v.string(), v.trim(), v.minLength(1)),
-        color: v.optional(v.optional(v.pipe(v.string(), v.trim())), ""),
-    }),
-    v.transform(({ subAccountId, ...rest }) => ({
-        ...rest,
-        subaccountId: subAccountId,
-    })),
-);
+export const CreateAddressBookTagInputSchema = v.object({
+    subaccountId: OptionalSubaccountIdSchema,
+    name: v.pipe(v.string(), v.trim(), v.minLength(1)),
+    color: v.optional(v.optional(v.pipe(v.string(), v.trim())), ""),
+});
 
 export type CreateAddressBookTagInput = v.InferInput<typeof CreateAddressBookTagInputSchema>;
 
@@ -149,14 +134,14 @@ export type DeleteAddressBookTagInput = v.InferInput<typeof DeleteAddressBookTag
 
 export const ListTransferCounterpartiesInputSchema = v.pipe(
     v.object({
-        subAccountId: OptionalSubAccountIdSchema,
+        subaccountId: OptionalSubaccountIdSchema,
         direction: v.optional(v.picklist(TRANSFER_COUNTERPARTY_DIRECTION_VALUES)),
         kind: v.optional(v.picklist(ADDRESS_BOOK_ENTRY_KIND_VALUES)),
         pageSize: PageSizeSchema,
     }),
-    v.transform(({ subAccountId, direction, kind, ...rest }) => ({
+    v.transform(({ subaccountId, direction, kind, ...rest }) => ({
         ...rest,
-        subaccountId: subAccountId,
+        subaccountId,
         direction: direction
             ? TransferCounterpartyDirectionCodec.inputToProto[direction]
             : undefined,
@@ -170,11 +155,11 @@ export type ListTransferCounterpartiesInput = v.InferInput<
 
 export const ListTransferDestinationsInputSchema = v.pipe(
     v.object({
-        subAccountId: OptionalSubAccountIdSchema,
+        subaccountId: OptionalSubaccountIdSchema,
         kind: v.optional(v.picklist(ADDRESS_BOOK_ENTRY_KIND_VALUES)),
     }),
-    v.transform(({ subAccountId, kind }) => ({
-        subaccountId: subAccountId,
+    v.transform(({ subaccountId, kind }) => ({
+        subaccountId,
         kind: kind ? AddressBookEntryKindCodec.inputToProto[kind] : undefined,
     })),
 );
@@ -183,27 +168,16 @@ export type ListTransferDestinationsInput = v.InferInput<
     typeof ListTransferDestinationsInputSchema
 >;
 
-export const SubAccountScopedInputSchema = v.pipe(
-    v.object({
-        subAccountId: OptionalSubAccountIdSchema,
-    }),
-    v.transform(({ subAccountId }) => ({
-        subaccountId: subAccountId,
-    })),
-);
+export const SubaccountScopedInputSchema = v.object({
+    subaccountId: OptionalSubaccountIdSchema,
+});
 
-export type SubAccountScopedInput = v.InferInput<typeof SubAccountScopedInputSchema>;
+export type SubaccountScopedInput = v.InferInput<typeof SubaccountScopedInputSchema>;
 
-export const GetAddressBookViewInputSchema = v.pipe(
-    v.object({
-        subAccountId: OptionalSubAccountIdSchema,
-        pageSize: PageSizeSchema,
-    }),
-    v.transform(({ subAccountId, ...rest }) => ({
-        ...rest,
-        subaccountId: subAccountId,
-    })),
-);
+export const GetAddressBookViewInputSchema = v.object({
+    subaccountId: OptionalSubaccountIdSchema,
+    pageSize: PageSizeSchema,
+});
 
 export type GetAddressBookViewInput = v.InferInput<typeof GetAddressBookViewInputSchema>;
 
@@ -217,53 +191,41 @@ function requiredLabel<TLabel>(label: TLabel | undefined, schemaName: string): T
     throw new Error(`[PolyesterClient.${schemaName}]: enum value is missing or unspecified`);
 }
 
-const AccountScopeSchema = v.pipe(
-    v.object({
-        scopeType: v.pipe(
-            v.enum(Proto.AccountScopeType),
-            v.transform((value) =>
-                requiredLabel(
-                    AccountScopeTypeCodec.protoToOutputWithDefault[value],
-                    "AccountScopeSchema",
-                ),
+const AccountScopeSchema = v.object({
+    scopeType: v.pipe(
+        v.enum(Proto.AccountScopeType),
+        v.transform((value) =>
+            requiredLabel(
+                AccountScopeTypeCodec.protoToOutputWithDefault[value],
+                "AccountScopeSchema",
             ),
         ),
-        rootAccountId: PublicIdSchema,
-        subaccountId: PublicIdSchema,
-    }),
-    v.transform(({ subaccountId, ...scope }) => ({
-        ...scope,
-        subAccountId: subaccountId,
-    })),
-);
+    ),
+    rootAccountId: PublicIdSchema,
+    subaccountId: PublicIdSchema,
+});
 
 const ExternalWithdrawAddressSchema = v.object({
     polychainChainId: v.pipe(v.number(), v.integer()),
     address: v.string(),
 });
 
-const InternalTransferAccountSchema = v.pipe(
-    v.object({
-        rootAccountId: PublicIdSchema,
-        targetAccountId: PublicIdSchema,
-        targetScopeType: v.pipe(
-            v.enum(Proto.AccountScopeType),
-            v.transform((value) =>
-                requiredLabel(
-                    AccountScopeTypeCodec.protoToOutputWithDefault[value],
-                    "InternalTransferAccountSchema",
-                ),
+const InternalTransferAccountSchema = v.object({
+    rootAccountId: PublicIdSchema,
+    targetAccountId: PublicIdSchema,
+    targetScopeType: v.pipe(
+        v.enum(Proto.AccountScopeType),
+        v.transform((value) =>
+            requiredLabel(
+                AccountScopeTypeCodec.protoToOutputWithDefault[value],
+                "InternalTransferAccountSchema",
             ),
         ),
-        smartAccountAddress: v.string(),
-        rootUsername: v.string(),
-        subaccountLabel: v.string(),
-    }),
-    v.transform(({ subaccountLabel, ...account }) => ({
-        ...account,
-        subAccountLabel: subaccountLabel,
-    })),
-);
+    ),
+    smartAccountAddress: v.string(),
+    rootUsername: v.string(),
+    subaccountLabel: v.string(),
+});
 
 const AddressBookEntryValueSchema = v.variant("case", [
     v.object({ case: v.literal("external"), value: ExternalWithdrawAddressSchema }),
@@ -305,7 +267,7 @@ export const AddressBookSchema = v.object({
     scope: v.optional(AccountScopeSchema),
     callerRole: v.pipe(
         v.enum(SubaccountRole),
-        v.transform((role) => SubAccountRoleCodec.protoToOutput[role]),
+        v.transform((role) => SubaccountRoleCodec.protoToOutput[role]),
     ),
     label: v.string(),
     ownerUsername: v.string(),
@@ -385,41 +347,35 @@ export type TransferDestination = v.InferOutput<typeof TransferDestinationSchema
 export const TransferDestinationsSchema = v.array(TransferDestinationSchema);
 export type TransferDestinations = v.InferOutput<typeof TransferDestinationsSchema>;
 
-export const InternalTransferWhitelistEntrySchema = v.pipe(
-    v.object({
-        entryId: PublicIdSchema,
-        scope: v.optional(AccountScopeSchema),
-        rootAccountId: PublicIdSchema,
-        targetAccountId: PublicIdSchema,
-        targetScopeType: v.pipe(
-            v.enum(Proto.AccountScopeType),
-            v.transform((value) =>
-                requiredLabel(
-                    AccountScopeTypeCodec.protoToOutputWithDefault[value],
-                    "InternalTransferWhitelistEntrySchema",
-                ),
+export const InternalTransferWhitelistEntrySchema = v.object({
+    entryId: PublicIdSchema,
+    scope: v.optional(AccountScopeSchema),
+    rootAccountId: PublicIdSchema,
+    targetAccountId: PublicIdSchema,
+    targetScopeType: v.pipe(
+        v.enum(Proto.AccountScopeType),
+        v.transform((value) =>
+            requiredLabel(
+                AccountScopeTypeCodec.protoToOutputWithDefault[value],
+                "InternalTransferWhitelistEntrySchema",
             ),
         ),
-        smartAccountAddress: v.string(),
-        rootUsername: v.string(),
-        subaccountLabel: v.string(),
-        createdAt: TimestampMsSchema,
-        updatedAt: TimestampMsSchema,
-        resolutionStatus: v.pipe(
-            v.enum(Proto.InternalWhitelistResolutionStatus),
-            v.transform((value) =>
-                requiredLabel(
-                    InternalWhitelistResolutionStatusCodec.protoToOutputWithDefault[value],
-                    "InternalTransferWhitelistEntrySchema",
-                ),
+    ),
+    smartAccountAddress: v.string(),
+    rootUsername: v.string(),
+    subaccountLabel: v.string(),
+    createdAt: TimestampMsSchema,
+    updatedAt: TimestampMsSchema,
+    resolutionStatus: v.pipe(
+        v.enum(Proto.InternalWhitelistResolutionStatus),
+        v.transform((value) =>
+            requiredLabel(
+                InternalWhitelistResolutionStatusCodec.protoToOutputWithDefault[value],
+                "InternalTransferWhitelistEntrySchema",
             ),
         ),
-    }),
-    v.transform(({ subaccountLabel, ...entry }) => ({
-        ...entry,
-        subAccountLabel: subaccountLabel,
-    })),
-);
+    ),
+});
 
 export type InternalTransferWhitelistEntry = v.InferOutput<
     typeof InternalTransferWhitelistEntrySchema
@@ -431,15 +387,12 @@ export type InternalTransferWhitelistEntries = v.InferOutput<
     typeof InternalTransferWhitelistEntriesSchema
 >;
 
-export const MirroredWithdrawWhitelistEntrySchema = v.pipe(
-    v.object({
-        canonicalAddress: v.string(),
-        rawAddressHex: v.string(),
-        updatedAt: TimestampMsSchema,
-        polychainChainId: v.pipe(v.number(), v.integer()),
-    }),
-    v.transform((entry) => entry),
-);
+export const MirroredWithdrawWhitelistEntrySchema = v.object({
+    canonicalAddress: v.string(),
+    rawAddressHex: v.string(),
+    updatedAt: TimestampMsSchema,
+    polychainChainId: v.pipe(v.number(), v.integer()),
+});
 
 export type MirroredWithdrawWhitelistEntry = v.InferOutput<
     typeof MirroredWithdrawWhitelistEntrySchema
@@ -474,36 +427,30 @@ export const AddressBookEntriesViewSchema = v.object({
     ),
     internal: v.optional(
         v.array(
-            v.pipe(
-                v.object({
-                    addressBookEntryId: PublicIdSchema,
-                    scope: v.optional(AccountScopeSchema),
-                    label: v.string(),
-                    note: v.string(),
-                    tagIds: v.optional(v.array(PublicIdSchema), []),
-                    whitelistStatus: DestinationWhitelistStatusSchema,
-                    rootAccountId: PublicIdSchema,
-                    targetAccountId: PublicIdSchema,
-                    targetScopeType: v.pipe(
-                        v.enum(Proto.AccountScopeType),
-                        v.transform((value) =>
-                            requiredLabel(
-                                AccountScopeTypeCodec.protoToOutputWithDefault[value],
-                                "AddressBookEntriesViewSchema",
-                            ),
+            v.object({
+                addressBookEntryId: PublicIdSchema,
+                scope: v.optional(AccountScopeSchema),
+                label: v.string(),
+                note: v.string(),
+                tagIds: v.optional(v.array(PublicIdSchema), []),
+                whitelistStatus: DestinationWhitelistStatusSchema,
+                rootAccountId: PublicIdSchema,
+                targetAccountId: PublicIdSchema,
+                targetScopeType: v.pipe(
+                    v.enum(Proto.AccountScopeType),
+                    v.transform((value) =>
+                        requiredLabel(
+                            AccountScopeTypeCodec.protoToOutputWithDefault[value],
+                            "AddressBookEntriesViewSchema",
                         ),
                     ),
-                    smartAccountAddress: v.string(),
-                    rootUsername: v.string(),
-                    subaccountLabel: v.string(),
-                    createdAt: TimestampMsSchema,
-                    updatedAt: TimestampMsSchema,
-                }),
-                v.transform(({ subaccountLabel, ...entry }) => ({
-                    ...entry,
-                    subAccountLabel: subaccountLabel,
-                })),
-            ),
+                ),
+                smartAccountAddress: v.string(),
+                rootUsername: v.string(),
+                subaccountLabel: v.string(),
+                createdAt: TimestampMsSchema,
+                updatedAt: TimestampMsSchema,
+            }),
         ),
         [],
     ),
@@ -529,34 +476,28 @@ export const AddressBookRecentDestinationsViewSchema = v.object({
     ),
     internal: v.optional(
         v.array(
-            v.pipe(
-                v.object({
-                    scope: v.optional(AccountScopeSchema),
-                    lastDirection: TransferCounterpartyDirectionSchema,
-                    saved: v.boolean(),
-                    addressBookEntryId: PublicIdSchema,
-                    useCount: CountSchema,
-                    lastSeenAt: TimestampMsSchema,
-                    rootAccountId: PublicIdSchema,
-                    targetAccountId: PublicIdSchema,
-                    targetScopeType: v.pipe(
-                        v.enum(Proto.AccountScopeType),
-                        v.transform((value) =>
-                            requiredLabel(
-                                AccountScopeTypeCodec.protoToOutputWithDefault[value],
-                                "AddressBookRecentDestinationsViewSchema",
-                            ),
+            v.object({
+                scope: v.optional(AccountScopeSchema),
+                lastDirection: TransferCounterpartyDirectionSchema,
+                saved: v.boolean(),
+                addressBookEntryId: PublicIdSchema,
+                useCount: CountSchema,
+                lastSeenAt: TimestampMsSchema,
+                rootAccountId: PublicIdSchema,
+                targetAccountId: PublicIdSchema,
+                targetScopeType: v.pipe(
+                    v.enum(Proto.AccountScopeType),
+                    v.transform((value) =>
+                        requiredLabel(
+                            AccountScopeTypeCodec.protoToOutputWithDefault[value],
+                            "AddressBookRecentDestinationsViewSchema",
                         ),
                     ),
-                    smartAccountAddress: v.string(),
-                    rootUsername: v.string(),
-                    subaccountLabel: v.string(),
-                }),
-                v.transform(({ subaccountLabel, ...entry }) => ({
-                    ...entry,
-                    subAccountLabel: subaccountLabel,
-                })),
-            ),
+                ),
+                smartAccountAddress: v.string(),
+                rootUsername: v.string(),
+                subaccountLabel: v.string(),
+            }),
         ),
         [],
     ),

@@ -1,13 +1,13 @@
 import * as v from "valibot";
 import {
     idInputSchema,
-    optionalSubAccountIdInputSchema,
+    optionalSubaccountIdInputSchema,
     positiveBigintLikeSchema,
 } from "../../shared/schemas.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { InternalTransferDestinationCodec } from "./internal-transfers.codecs.js";
 
-const OptionalSubAccountIdSchema = optionalSubAccountIdInputSchema();
+const OptionalSubaccountIdSchema = optionalSubaccountIdInputSchema();
 const IdSchema = idInputSchema;
 const QuantityScaledSchema = positiveBigintLikeSchema("quantityScaled must be greater than 0");
 
@@ -18,8 +18,8 @@ export const InternalTransferDestinationInputSchema = v.pipe(
             accountId: IdSchema("accountId"),
         }),
         v.object({
-            type: v.literal("subAccount"),
-            subAccountId: IdSchema("subaccountId"),
+            type: v.literal("subaccount"),
+            subaccountId: IdSchema("subaccountId"),
         }),
         v.object({
             type: v.literal("smartAccountAddress"),
@@ -33,10 +33,10 @@ export const InternalTransferDestinationInputSchema = v.pipe(
                     case: InternalTransferDestinationCodec.inputToProtoCase.account,
                     value: destination.accountId,
                 } as const;
-            case "subAccount":
+            case "subaccount":
                 return {
-                    case: InternalTransferDestinationCodec.inputToProtoCase.subAccount,
-                    value: destination.subAccountId,
+                    case: InternalTransferDestinationCodec.inputToProtoCase.subaccount,
+                    value: destination.subaccountId,
                 } as const;
             case "smartAccountAddress":
                 return {
@@ -51,19 +51,13 @@ export type InternalTransferDestination = v.InferInput<
     typeof InternalTransferDestinationInputSchema
 >;
 
-export const CreateInternalTransferInputSchema = v.pipe(
-    v.object({
-        subAccountId: OptionalSubAccountIdSchema,
-        destination: InternalTransferDestinationInputSchema,
-        assetId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
-        quantityScaled: QuantityScaledSchema,
-        idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
-    }),
-    v.transform(({ subAccountId, ...rest }) => ({
-        ...rest,
-        subaccountId: subAccountId,
-    })),
-);
+export const CreateInternalTransferInputSchema = v.object({
+    subaccountId: OptionalSubaccountIdSchema,
+    destination: InternalTransferDestinationInputSchema,
+    assetId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+    quantityScaled: QuantityScaledSchema,
+    idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
+});
 
 export type CreateInternalTransferInput = v.InferInput<typeof CreateInternalTransferInputSchema>;
 export type CreateInternalTransferRequest = v.InferOutput<typeof CreateInternalTransferInputSchema>;
@@ -82,7 +76,7 @@ export const ResolvedInternalTransferDestinationSchema = v.pipe(
     }),
     v.transform(({ rootAccountPublicId, subaccountPublicId, smartAccountAddress }) => ({
         rootAccountId: rootAccountPublicId,
-        subAccountId: subaccountPublicId,
+        subaccountId: subaccountPublicId,
         smartAccountAddress,
     })),
 );

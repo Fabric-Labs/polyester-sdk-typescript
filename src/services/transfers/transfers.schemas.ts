@@ -8,7 +8,7 @@ import {
     transferTypeNameFor,
 } from "../../catalogs/ledger-catalog.js";
 import { normalizeToMillis } from "../../utils/time.js";
-import { optionalSubAccountIdInputSchema } from "../../shared/schemas.js";
+import { optionalSubaccountIdInputSchema } from "../../shared/schemas.js";
 
 const U128Schema = v.object({
     hi: v.bigint(),
@@ -71,21 +71,15 @@ export const LedgerTransferSchema = v.pipe(
 
 export type LedgerTransfer = v.InferOutput<typeof LedgerTransferSchema>;
 
-export const ListTransfersInputSchema = v.pipe(
-    v.object({
-        subAccountId: optionalSubAccountIdInputSchema(),
-        ledger: v.optional(v.optional(v.number()), 0),
-        limit: v.optional(v.number()),
-        reversed: v.optional(v.optional(v.boolean()), false),
-        since: v.pipe(
-            v.optional(v.optional(v.number()), 0),
-            v.transform((v) => BigInt(v ?? 0)),
-        ),
-    }),
-    v.transform(({ subAccountId, ...rest }) => ({
-        ...rest,
-        subaccountId: subAccountId,
-    })),
-);
+export const ListTransfersInputSchema = v.object({
+    subaccountId: optionalSubaccountIdInputSchema(),
+    ledger: v.optional(v.optional(v.number()), 0),
+    limit: v.optional(v.number()),
+    reversed: v.optional(v.optional(v.boolean()), false),
+    since: v.pipe(
+        v.optional(v.optional(v.number()), 0),
+        v.transform((v) => BigInt(v ?? 0)),
+    ),
+});
 
 export type ListTransfersInput = v.InferInput<typeof ListTransfersInputSchema>;

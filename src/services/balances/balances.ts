@@ -3,10 +3,10 @@ import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
 import type { RealtimeClient } from "../../realtime/index.js";
 import {
-    type SubAccountResolver,
-    resolveSubAccountId,
-    resolveSubAccountScopedInput,
-} from "../sub-account-resolver.js";
+    type SubaccountResolver,
+    resolveSubaccountId,
+    resolveSubaccountScopedInput,
+} from "../subaccount-resolver.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
@@ -30,16 +30,16 @@ interface SubscribeBalancesInput extends BaseSubscribeInput<LedgerBalance> {
 export class BalancesService {
     #client: Client<typeof Proto.LedgerReadService>;
     #realtime: RealtimeClient;
-    #resolver?: SubAccountResolver;
+    #resolver?: SubaccountResolver;
 
-    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubAccountResolver) {
+    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubaccountResolver) {
         this.#client = createClient(Proto.LedgerReadService, transport);
         this.#realtime = realtime;
         this.#resolver = resolver;
     }
 
-    async list(input: { subAccountId?: string } = {}): Promise<LedgerBalance[]> {
-        const resolved = resolveSubAccountId(input.subAccountId, this.#resolver);
+    async list(input: { subaccountId?: string } = {}): Promise<LedgerBalance[]> {
+        const resolved = resolveSubaccountId(input.subaccountId, this.#resolver);
         const res = await this.#client.getBalances({
             subaccountId: resolved ? idToBigInt(resolved, "subaccountId") : undefined,
         });
@@ -50,7 +50,7 @@ export class BalancesService {
     }
 
     async getBalanceHistory(input: BalanceHistoryInput): Promise<BalanceHistoryResponse> {
-        const resolved = resolveSubAccountScopedInput(input, this.#resolver);
+        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(BalanceHistoryInputSchema, resolved);
         const res = await this.#client.getBalanceHistory(validated);
         return v.parse(BalanceHistoryResponseSchema, res);
@@ -60,7 +60,7 @@ export class BalancesService {
         input: EquityHistoryInput,
         options: { signal?: AbortSignal } = {},
     ): Promise<EquityHistoryResponse> {
-        const resolved = resolveSubAccountScopedInput(input, this.#resolver);
+        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(EquityHistoryInputSchema, resolved);
         const res = await this.#client.getEquityHistorySeries(validated, {
             signal: options.signal,

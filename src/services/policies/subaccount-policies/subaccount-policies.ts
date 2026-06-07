@@ -6,19 +6,19 @@ import { idToBigInt } from "../../../utils/base58-id.js";
 import type { BaseSubscribeInput } from "../../../shared/types.js";
 import type { RealtimeClient } from "../../../realtime/index.js";
 import {
-    SubAccountPolicySchema,
-    CreateSubAccountPolicyInputSchema,
-    UpdateSubAccountPolicyInputSchema,
+    SubaccountPolicySchema,
+    CreateSubaccountPolicyInputSchema,
+    UpdateSubaccountPolicyInputSchema,
     PolicyIdSchema,
-    ApplySubAccountPolicyInputSchema,
-    type SubAccountPolicy,
-} from "./sub-account-policies.schemas.js";
+    ApplySubaccountPolicyInputSchema,
+    type SubaccountPolicy,
+} from "./subaccount-policies.schemas.js";
 
-interface SubscribePoliciesInput extends BaseSubscribeInput<SubAccountPolicy> {
+interface SubscribePoliciesInput extends BaseSubscribeInput<SubaccountPolicy> {
     accountId: string;
 }
 
-export class SubAccountPoliciesService {
+export class SubaccountPoliciesService {
     #client: Client<typeof Proto.PolicyService>;
     #realtime: RealtimeClient;
 
@@ -27,35 +27,35 @@ export class SubAccountPoliciesService {
         this.#realtime = realtime;
     }
 
-    async list(): Promise<SubAccountPolicy[]> {
+    async list(): Promise<SubaccountPolicy[]> {
         const result = await this.#client.listSubaccountPolicies({});
-        return v.parse(v.array(SubAccountPolicySchema), result.policies);
+        return v.parse(v.array(SubaccountPolicySchema), result.policies);
     }
 
-    async get(policyId: string): Promise<SubAccountPolicy | null> {
+    async get(policyId: string): Promise<SubaccountPolicy | null> {
         const result = await this.#client.getSubaccountPolicy({
             policyId: idToBigInt(policyId, "policyId"),
         });
         if (!result.policy) return null;
-        return v.parse(SubAccountPolicySchema, result.policy);
+        return v.parse(SubaccountPolicySchema, result.policy);
     }
 
     async create(
-        input: v.InferInput<typeof CreateSubAccountPolicyInputSchema>,
-    ): Promise<SubAccountPolicy | null> {
-        const validatedInput = v.parse(CreateSubAccountPolicyInputSchema, input);
+        input: v.InferInput<typeof CreateSubaccountPolicyInputSchema>,
+    ): Promise<SubaccountPolicy | null> {
+        const validatedInput = v.parse(CreateSubaccountPolicyInputSchema, input);
         const result = await this.#client.createSubaccountPolicy(removeUndefined(validatedInput));
         if (!result.policy) throw new Error("Failed to create subaccount policy");
-        return v.parse(SubAccountPolicySchema, result.policy);
+        return v.parse(SubaccountPolicySchema, result.policy);
     }
 
     async update(
-        input: v.InferInput<typeof UpdateSubAccountPolicyInputSchema>,
-    ): Promise<SubAccountPolicy | null> {
-        const validatedInput = v.parse(UpdateSubAccountPolicyInputSchema, input);
+        input: v.InferInput<typeof UpdateSubaccountPolicyInputSchema>,
+    ): Promise<SubaccountPolicy | null> {
+        const validatedInput = v.parse(UpdateSubaccountPolicyInputSchema, input);
         const result = await this.#client.updateSubaccountPolicy(removeUndefined(validatedInput));
         if (!result.policy) throw new Error("Failed to update subaccount policy");
-        return v.parse(SubAccountPolicySchema, result.policy);
+        return v.parse(SubaccountPolicySchema, result.policy);
     }
 
     async delete(policyId: string): Promise<void> {
@@ -63,8 +63,8 @@ export class SubAccountPoliciesService {
         await this.#client.deleteSubaccountPolicy({ policyId: validatedPolicyId });
     }
 
-    async apply(input: v.InferInput<typeof ApplySubAccountPolicyInputSchema>): Promise<void> {
-        const validatedInput = v.parse(ApplySubAccountPolicyInputSchema, input);
+    async apply(input: v.InferInput<typeof ApplySubaccountPolicyInputSchema>): Promise<void> {
+        const validatedInput = v.parse(ApplySubaccountPolicyInputSchema, input);
         await this.#client.setSubaccountPolicy(removeUndefined(validatedInput));
     }
 
@@ -75,7 +75,7 @@ export class SubAccountPoliciesService {
             channel,
             schema: Proto.SubaccountPolicyViewSchema,
             onPublication: (data) => {
-                const policy = v.parse(SubAccountPolicySchema, data);
+                const policy = v.parse(SubaccountPolicySchema, data);
                 input.onEvent(policy);
             },
             onConnected: () => input.onOpen?.(),

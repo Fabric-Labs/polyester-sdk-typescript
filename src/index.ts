@@ -21,7 +21,7 @@ export * from "./services/orderbook/index.js";
 export * from "./services/orders/index.js";
 export * from "./services/policies/index.js";
 export * from "./services/social-verification/index.js";
-export * from "./services/sub-accounts/index.js";
+export * from "./services/subaccounts/index.js";
 export * from "./services/trades/index.js";
 export * from "./services/trading-withdraws/index.js";
 export * from "./services/transfers/index.js";

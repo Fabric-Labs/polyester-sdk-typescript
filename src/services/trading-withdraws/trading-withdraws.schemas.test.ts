@@ -5,7 +5,7 @@ import * as v from "valibot";
 describe("CreateTradingWithdrawToFundingInputSchema", () => {
     it("converts decimal amount and source subaccount to proto fields", () => {
         const input = v.parse(CreateTradingWithdrawToFundingInputSchema, {
-            subAccountId: "11",
+            subaccountId: "11",
             assetId: 1,
             amount: "1.25",
             quantityScale: 6,

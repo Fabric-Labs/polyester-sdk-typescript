@@ -7,7 +7,7 @@ import { U128Schema, type U128 } from "../../gen/polyester/type/v1/u128_pb.js";
 import { POLYCHAIN } from "../../shared/config.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
-import { type SubAccountResolver, resolveSubAccountScopedInput } from "../sub-account-resolver.js";
+import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
 import { TradingWithdrawActionCodec } from "./trading-withdraws.codecs.js";
 import * as v from "valibot";
 import {
@@ -140,9 +140,9 @@ async function resolveWalletSignature(params: {
 
 export class TradingWithdrawsService {
     #client: Client<typeof Proto.WithdrawService>;
-    #resolver?: SubAccountResolver;
+    #resolver?: SubaccountResolver;
 
-    constructor(transport: Transport, resolver?: SubAccountResolver) {
+    constructor(transport: Transport, resolver?: SubaccountResolver) {
         this.#client = createClient(Proto.WithdrawService, transport);
         this.#resolver = resolver;
     }
@@ -152,7 +152,7 @@ export class TradingWithdrawsService {
         options?: TradingWithdrawMutationOptions,
     ): Promise<CreateTradingWithdrawResult> {
         const { walletSigner, ...inputForValidation } = input;
-        const resolvedInput = resolveSubAccountScopedInput(inputForValidation, this.#resolver);
+        const resolvedInput = resolveSubaccountScopedInput(inputForValidation, this.#resolver);
         const validated = v.parse(CreateTradingWithdrawToFundingInputSchema, resolvedInput);
         const payload = create(Proto.TradingWithdrawIntentPayloadSchema, {
             action: TradingWithdrawActionCodec.inputToProto.to_funding,

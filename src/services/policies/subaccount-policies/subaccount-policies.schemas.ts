@@ -14,7 +14,7 @@ import {
     TimestampSchema,
     TimestampMsSchema,
     idInputSchema,
-    optionalSubAccountIdInputSchema,
+    optionalSubaccountIdInputSchema,
 } from "../../../shared/schemas.js";
 import { tsObjToMs } from "../../../utils/time.js";
 
@@ -23,7 +23,7 @@ const OptionalNumberDefaultNull = v.nullable(v.optional(v.number()));
 /**
  * From the backend format to a usable frontend/UI format, so big ints to numbers, etc.
  */
-export const SubAccountPolicySchema = v.pipe(
+export const SubaccountPolicySchema = v.pipe(
     v.object({
         id: v.pipe(
             v.bigint(),
@@ -109,9 +109,9 @@ export const SubAccountPolicySchema = v.pipe(
     })),
 );
 
-export type SubAccountPolicy = v.InferOutput<typeof SubAccountPolicySchema>;
+export type SubaccountPolicy = v.InferOutput<typeof SubaccountPolicySchema>;
 
-const SubAccountPolicyInputBaseSchema = v.object({
+const SubaccountPolicyInputBaseSchema = v.object({
     name: v.string(),
     description: v.optional(v.optional(v.string()), ""),
     spotMarkets: v.optional(v.optional(v.array(SpotMarketRuleSchema)), []),
@@ -142,11 +142,11 @@ const SubAccountPolicyInputBaseSchema = v.object({
     policyLocked: v.optional(v.optional(v.boolean()), false),
     internalTransfersOwnOnly: v.optional(v.optional(v.boolean()), true),
     enforceWithdrawWhitelist: v.optional(v.optional(v.boolean()), false),
-    subAccountId: optionalSubAccountIdInputSchema(),
+    subaccountId: optionalSubaccountIdInputSchema(),
 });
 
 function createSubaccountPolicyBaseTransform(
-    input: v.InferOutput<typeof SubAccountPolicyInputBaseSchema>,
+    input: v.InferOutput<typeof SubaccountPolicyInputBaseSchema>,
 ) {
     return {
         ...input,
@@ -156,19 +156,19 @@ function createSubaccountPolicyBaseTransform(
         dailyInternalTransferOutLimit: input.dailyInternalTransferLimit,
         intradayDrawdownLimitBps: input.intradayDrawdownLimitPct,
         locked: input.policyLocked,
-        subaccountId: input.subAccountId,
+        subaccountId: input.subaccountId,
     };
 }
 
-export const CreateSubAccountPolicyInputSchema = v.pipe(
-    SubAccountPolicyInputBaseSchema,
+export const CreateSubaccountPolicyInputSchema = v.pipe(
+    SubaccountPolicyInputBaseSchema,
     v.transform(createSubaccountPolicyBaseTransform),
 );
-export type SubAccountPolicyCreateInput = v.InferInput<typeof CreateSubAccountPolicyInputSchema>;
+export type SubaccountPolicyCreateInput = v.InferInput<typeof CreateSubaccountPolicyInputSchema>;
 
-export const UpdateSubAccountPolicyInputSchema = v.pipe(
+export const UpdateSubaccountPolicyInputSchema = v.pipe(
     v.object({
-        ...SubAccountPolicyInputBaseSchema.entries,
+        ...SubaccountPolicyInputBaseSchema.entries,
 
         policyId: v.pipe(
             v.string(),
@@ -182,7 +182,7 @@ export const UpdateSubAccountPolicyInputSchema = v.pipe(
         };
     }),
 );
-export type SubAccountPolicyUpdateInput = v.InferInput<typeof UpdateSubAccountPolicyInputSchema>;
+export type SubaccountPolicyUpdateInput = v.InferInput<typeof UpdateSubaccountPolicyInputSchema>;
 
 export const PolicyIdSchema = v.pipe(
     v.string(),
@@ -191,26 +191,20 @@ export const PolicyIdSchema = v.pipe(
     v.transform((v) => idToBigInt(v, "policyId")),
 );
 
-export const ApplySubAccountPolicyInputSchema = v.pipe(
-    v.object({
-        subAccountId: idInputSchema("subaccountId"),
-        policyId: v.pipe(
-            v.nullable(v.pipe(v.string(), v.trim())),
-            v.transform((value) => (value ? idToBigInt(value, "policyId") : undefined)),
-        ),
-    }),
-    v.transform(({ subAccountId, policyId }) => ({
-        subaccountId: subAccountId,
-        policyId,
-    })),
-);
+export const ApplySubaccountPolicyInputSchema = v.object({
+    subaccountId: idInputSchema("subaccountId"),
+    policyId: v.pipe(
+        v.nullable(v.pipe(v.string(), v.trim())),
+        v.transform((value) => (value ? idToBigInt(value, "policyId") : undefined)),
+    ),
+});
 
-export type SubAccountPolicyApplyInput = v.InferInput<typeof ApplySubAccountPolicyInputSchema>;
+export type SubaccountPolicyApplyInput = v.InferInput<typeof ApplySubaccountPolicyInputSchema>;
 
-export const DEFAULT_SUBACCOUNT_POLICY: SubAccountPolicy = {
+export const DEFAULT_SUBACCOUNT_POLICY: SubaccountPolicy = {
     id: "",
-    name: "Sub-Account Policy",
-    description: "Sub-Account Policy description",
+    name: "Subaccount Policy",
+    description: "Subaccount Policy description",
     spotMarkets: [],
     perpMarkets: [],
     spotMarketScope: "all",

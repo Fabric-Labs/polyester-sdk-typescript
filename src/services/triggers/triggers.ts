@@ -1,7 +1,7 @@
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
-import { type SubAccountResolver, resolveSubAccountScopedInput } from "../sub-account-resolver.js";
+import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import { parseOptionalUint64Decimal } from "../../utils/numbers.js";
 import {
@@ -62,9 +62,9 @@ interface SubscribeTriggerEventsInput extends BaseSubscribeInput<TriggerEvent> {
 export class TriggersService {
     #client: Client<typeof Proto.TriggersService>;
     #realtime: RealtimeClient;
-    #resolver?: SubAccountResolver;
+    #resolver?: SubaccountResolver;
 
-    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubAccountResolver) {
+    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubaccountResolver) {
         this.#client = createClient(Proto.TriggersService, transport);
         this.#realtime = realtime;
         this.#resolver = resolver;
@@ -74,7 +74,7 @@ export class TriggersService {
      * Create a standalone trigger (stop loss, take profit, trailing stop, TWAP, or ladder).
      */
     async create(input: CreateTriggerInput): Promise<CreateTriggerResult> {
-        const resolved = resolveSubAccountScopedInput(input, this.#resolver);
+        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(CreateTriggerInputSchema, resolved);
         const res = await this.#client.createTrigger(validatedInput);
         return v.parse(CreateTriggerResultSchema, res);
@@ -84,7 +84,7 @@ export class TriggersService {
      * Get a trigger by ID.
      */
     async get(input: GetTriggerInput): Promise<Trigger | null> {
-        const resolved = resolveSubAccountScopedInput(input, this.#resolver);
+        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(GetTriggerInputSchema, resolved);
         const res = await this.#client.getTrigger(removeUndefined(validated));
 
@@ -93,10 +93,10 @@ export class TriggersService {
     }
 
     /**
-     * List triggers for a sub-account with optional filters.
+     * List triggers for a subaccount with optional filters.
      */
     async list(input: ListTriggersInput = {}): Promise<ListTriggersResult> {
-        const resolved = resolveSubAccountScopedInput(input, this.#resolver);
+        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(ListTriggersInputSchema, resolved);
         const res = await this.#client.listTriggers(removeUndefined(validated));
         return {
@@ -109,7 +109,7 @@ export class TriggersService {
      * Cancel a trigger.
      */
     async cancel(input: CancelTriggerInput): Promise<CancelTriggerResult> {
-        const resolved = resolveSubAccountScopedInput(input, this.#resolver);
+        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(CancelTriggerInputSchema, resolved);
         const res = await this.#client.cancelTrigger(removeUndefined(validated));
         return v.parse(CancelTriggerResultSchema, res);
@@ -119,7 +119,7 @@ export class TriggersService {
      * Modify a trigger (limited patch for trigger price, limit price, trailing params).
      */
     async modify(input: ModifyTriggerInput): Promise<ModifyTriggerResult> {
-        const resolved = resolveSubAccountScopedInput(input, this.#resolver);
+        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(ModifyTriggerInputSchema, resolved);
         const res = await this.#client.modifyTrigger(validated);
         return v.parse(ModifyTriggerResultSchema, res);
@@ -129,7 +129,7 @@ export class TriggersService {
      * Pause a trigger.
      */
     async pause(input: PauseTriggerInput): Promise<PauseTriggerResult> {
-        const resolved = resolveSubAccountScopedInput(input, this.#resolver);
+        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(PauseTriggerInputSchema, resolved);
         const res = await this.#client.pauseTrigger(removeUndefined(validated));
         return v.parse(PauseTriggerResultSchema, res);
@@ -139,7 +139,7 @@ export class TriggersService {
      * Resume a paused trigger.
      */
     async resume(input: PauseTriggerInput): Promise<ResumeTriggerResult> {
-        const resolved = resolveSubAccountScopedInput(input, this.#resolver);
+        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(PauseTriggerInputSchema, resolved);
         const res = await this.#client.resumeTrigger(removeUndefined(validated));
         return v.parse(PauseTriggerResultSchema, res);
@@ -149,7 +149,7 @@ export class TriggersService {
      * List trigger events (audit trail of fires, cancels, updates).
      */
     async listEvents(input: ListTriggerEventsInput): Promise<ListTriggerEventsResult> {
-        const resolved = resolveSubAccountScopedInput(input, this.#resolver);
+        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(ListTriggerEventsInputSchema, resolved);
 
         const res = await this.#client.listTriggerEvents(

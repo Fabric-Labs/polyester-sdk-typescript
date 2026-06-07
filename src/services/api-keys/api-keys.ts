@@ -3,7 +3,7 @@ import * as Proto from "../../gen/auth/v1/api_keys_pb.js";
 import * as v from "valibot";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import { stepUpCallOptions } from "../../utils/step-up-call-options.js";
-import { type SubAccountResolver, resolveSubAccountScopedInput } from "../sub-account-resolver.js";
+import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
 import { bytesToHex } from "@noble/hashes/utils.js";
 import { keygenAsync } from "@noble/ed25519";
 import type { RealtimeClient } from "../../realtime/index.js";
@@ -32,9 +32,9 @@ export class ApiKeysService {
 
     #client: Client<typeof Proto.ApiKeyService>;
     #realtime: RealtimeClient;
-    #resolver?: SubAccountResolver;
+    #resolver?: SubaccountResolver;
 
-    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubAccountResolver) {
+    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubaccountResolver) {
         this.policies = new ApiKeyPoliciesService(transport);
         this.#client = createClient(Proto.ApiKeyService, transport);
         this.#realtime = realtime;
@@ -42,7 +42,7 @@ export class ApiKeysService {
     }
 
     async list(params: v.InferInput<typeof ApiKeysListInputSchema> = {}): Promise<ApiKey[]> {
-        const resolved = resolveSubAccountScopedInput(params, this.#resolver);
+        const resolved = resolveSubaccountScopedInput(params, this.#resolver);
         const validatedParams = v.parse(ApiKeysListInputSchema, resolved);
         const res = await this.#client.listApiKeys(removeUndefined(validatedParams));
 
@@ -65,7 +65,7 @@ export class ApiKeysService {
         payload: v.InferInput<typeof ApiKeysCreateInputSchema>,
         options?: ApiKeysMutationOptions,
     ): Promise<ApiKey | null> {
-        const resolved = resolveSubAccountScopedInput(payload, this.#resolver);
+        const resolved = resolveSubaccountScopedInput(payload, this.#resolver);
         const validatedPayload = v.parse(ApiKeysCreateInputSchema, resolved);
         const res = await this.#client.createApiKey(
             removeUndefined(validatedPayload),

@@ -1,7 +1,7 @@
 import type { HexAddress } from "../wallet/types.js";
 
 /**
- * Information about the currently active account (main or sub-account).
+ * Information about the currently active account (main or subaccount).
  * This is the canonical shape used across session storage, SDK state, and hydration.
  */
 export interface ActiveAccountInfo {

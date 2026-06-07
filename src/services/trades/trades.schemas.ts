@@ -16,7 +16,7 @@ import {
     symbolForSymbolId,
 } from "../../catalogs/market-data-catalog.js";
 import { formatId } from "../../utils/base58-id.js";
-import { optionalSubAccountIdInputSchema } from "../../shared/schemas.js";
+import { optionalSubaccountIdInputSchema } from "../../shared/schemas.js";
 import { TradeSideCodec } from "./trades.codecs.js";
 
 export const UserTradeSchema = v.pipe(
@@ -69,44 +69,38 @@ export const UserTradeSchema = v.pipe(
 
 export type Trade = v.InferOutput<typeof UserTradeSchema>;
 
-export const GetUserTradesInputSchema = v.pipe(
-    v.object({
-        subAccountId: optionalSubAccountIdInputSchema(),
-        symbolId: v.pipe(
-            v.optional(v.pipe(v.string(), v.trim())),
-            v.transform((v) => {
-                if (!v) return undefined;
-                const sid = Number(v);
-                return Number.isFinite(sid) && sid > 0 ? sid : undefined;
-            }),
-        ),
-        side: v.pipe(
-            v.optional(SideSchema),
-            v.transform((v) => (v ? TradeSideCodec.inputToProto[v] : undefined)),
-        ),
-        startTsNs: v.pipe(
-            v.optional(v.pipe(v.string(), v.trim())),
-            v.transform((v) => {
-                if (!v) return undefined;
-                const ts = parseOptionalUint64Decimal(v);
-                return ts !== undefined ? ts : undefined;
-            }),
-        ),
-        endTsNs: v.pipe(
-            v.optional(v.pipe(v.string(), v.trim())),
-            v.transform((v) => {
-                if (!v) return undefined;
-                const ts = parseOptionalUint64Decimal(v);
-                return ts !== undefined ? ts : undefined;
-            }),
-        ),
-        limit: v.optional(v.number()),
-        pageToken: v.optional(v.pipe(v.string(), v.trim())),
-    }),
-    v.transform(({ subAccountId, ...rest }) => ({
-        ...rest,
-        subaccountId: subAccountId,
-    })),
-);
+export const GetUserTradesInputSchema = v.object({
+    subaccountId: optionalSubaccountIdInputSchema(),
+    symbolId: v.pipe(
+        v.optional(v.pipe(v.string(), v.trim())),
+        v.transform((v) => {
+            if (!v) return undefined;
+            const sid = Number(v);
+            return Number.isFinite(sid) && sid > 0 ? sid : undefined;
+        }),
+    ),
+    side: v.pipe(
+        v.optional(SideSchema),
+        v.transform((v) => (v ? TradeSideCodec.inputToProto[v] : undefined)),
+    ),
+    startTsNs: v.pipe(
+        v.optional(v.pipe(v.string(), v.trim())),
+        v.transform((v) => {
+            if (!v) return undefined;
+            const ts = parseOptionalUint64Decimal(v);
+            return ts !== undefined ? ts : undefined;
+        }),
+    ),
+    endTsNs: v.pipe(
+        v.optional(v.pipe(v.string(), v.trim())),
+        v.transform((v) => {
+            if (!v) return undefined;
+            const ts = parseOptionalUint64Decimal(v);
+            return ts !== undefined ? ts : undefined;
+        }),
+    ),
+    limit: v.optional(v.number()),
+    pageToken: v.optional(v.pipe(v.string(), v.trim())),
+});
 
 export type GetUserTradesInput = v.InferInput<typeof GetUserTradesInputSchema>;

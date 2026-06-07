@@ -1,8 +1,8 @@
 import * as v from "valibot";
-import { optionalSubAccountIdInputSchema, positiveBigintLikeSchema } from "../../shared/schemas.js";
+import { optionalSubaccountIdInputSchema, positiveBigintLikeSchema } from "../../shared/schemas.js";
 import { decimalToScaledInt } from "../../utils/numbers.js";
 
-const OptionalSubAccountIdSchema = optionalSubAccountIdInputSchema();
+const OptionalSubaccountIdSchema = optionalSubaccountIdInputSchema();
 const QuantityScaledSchema = positiveBigintLikeSchema("quantityScaled must be greater than 0");
 
 const AmountInputSchema = v.pipe(
@@ -22,23 +22,17 @@ const QuantityInputSchema = v.union([
     ),
 ]);
 
-export const CreateTradingWithdrawToFundingInputSchema = v.pipe(
-    v.intersect([
-        v.object({
-            subAccountId: OptionalSubAccountIdSchema,
-            assetId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
-            idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
-            destinationAddress: v.optional(v.pipe(v.string(), v.trim()), ""),
-            signerWallet: v.optional(v.pipe(v.string(), v.trim()), ""),
-            payloadSignature: v.optional(v.instance(Uint8Array)),
-        }),
-        QuantityInputSchema,
-    ]),
-    v.transform(({ subAccountId, ...input }) => ({
-        ...input,
-        subaccountId: subAccountId,
-    })),
-);
+export const CreateTradingWithdrawToFundingInputSchema = v.intersect([
+    v.object({
+        subaccountId: OptionalSubaccountIdSchema,
+        assetId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+        idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
+        destinationAddress: v.optional(v.pipe(v.string(), v.trim()), ""),
+        signerWallet: v.optional(v.pipe(v.string(), v.trim()), ""),
+        payloadSignature: v.optional(v.instance(Uint8Array)),
+    }),
+    QuantityInputSchema,
+]);
 
 export type CreateTradingWithdrawToFundingInput = v.InferInput<
     typeof CreateTradingWithdrawToFundingInputSchema
