@@ -77,6 +77,8 @@ export const OpenOrdersInputSchema = v.object({
     includeAttachedRiskState: v.optional(v.optional(v.boolean()), false),
 });
 
+export type OpenOrdersInput = v.InferInput<typeof OpenOrdersInputSchema>;
+
 export const OrderHistoryInputSchema = v.object({
     ...BaseOrdersFilterInputSchema.entries,
 
@@ -98,6 +100,8 @@ export const OrderHistoryInputSchema = v.object({
         v.transform((v) => (v ? parseOptionalUint64Decimal(v) : undefined)),
     ),
 });
+
+export type OrderHistoryInput = v.InferInput<typeof OrderHistoryInputSchema>;
 
 const OrderTypeSchema = v.picklist(["limit", "market"]);
 const TIFSchema = v.picklist(["gtc", "ioc", "fok"]);
@@ -675,6 +679,22 @@ export const CancelOrderInputSchema = v.object({
     subaccountId: optionalSubaccountIdInputSchema(),
 });
 
+export type CancelOrderInput = v.InferInput<typeof CancelOrderInputSchema>;
+
+export const CancelOrderResultSchema = v.object({
+    status: v.string(),
+    orderId: v.pipe(
+        v.bigint(),
+        v.transform((v) => formatId(v)),
+    ),
+    tsNs: v.pipe(
+        v.bigint(),
+        v.transform((v) => tsNsToMs(v)),
+    ),
+});
+
+export type CancelOrderResult = v.InferOutput<typeof CancelOrderResultSchema>;
+
 export const CancelAllOrdersInputSchema = v.object({
     subaccountId: optionalSubaccountIdInputSchema(),
     symbol: v.optional(v.pipe(v.string(), v.trim())),
@@ -686,6 +706,8 @@ export const CancelAllOrdersInputSchema = v.object({
     maxOrders: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0))),
     requestId: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(64)),
 });
+
+export type CancelAllOrdersInput = v.InferInput<typeof CancelAllOrdersInputSchema>;
 
 export const CancelAllOrdersResponseSchema = v.pipe(
     v.object({
@@ -821,6 +843,8 @@ export const GetOrderInputSchema = v.pipe(
     }),
 );
 
+export type GetOrderInput = v.InferInput<typeof GetOrderInputSchema>;
+
 const OrderTransferSchema = v.pipe(
     v.object({
         txId: v.string(),
@@ -866,6 +890,8 @@ export const GetOrderResponseSchema = v.object({
     trades: v.optional(v.optional(v.array(UserTradeSchema)), []),
     transfers: v.optional(v.optional(v.array(OrderTransferSchema)), []),
 });
+
+export type GetOrderResponse = v.InferOutput<typeof GetOrderResponseSchema>;
 
 export const CreateOrderResultSchema = v.object({
     status: v.string(),

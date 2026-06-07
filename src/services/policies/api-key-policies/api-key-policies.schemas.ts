@@ -80,6 +80,15 @@ export const ApiKeyPolicySchema = v.object({
 
 export type ApiKeyPolicy = v.InferOutput<typeof ApiKeyPolicySchema>;
 
+export const ListApiKeyPoliciesResponseSchema = v.pipe(
+    v.object({
+        policies: v.optional(v.array(ApiKeyPolicySchema), []),
+    }),
+    v.transform((value) => value.policies),
+);
+
+export type ListApiKeyPoliciesResponse = v.InferOutput<typeof ListApiKeyPoliciesResponseSchema>;
+
 export const CreateApiKeyPolicyInputSchema = v.object({
     name: v.string(),
     description: v.optional(v.optional(v.string()), ""),

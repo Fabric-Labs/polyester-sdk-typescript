@@ -15,6 +15,7 @@ import {
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
     CreateSubaccountInputSchema,
+    CreateSubaccountResultSchema,
     UpdateSubaccountInputSchema,
     InviteSubaccountMemberInputSchema,
     RemoveSubaccountMemberInputSchema,
@@ -27,6 +28,8 @@ import {
     SubaccountInviteSchema,
     SubaccountActivityEventSchema,
     SetSubaccountMemberMfaRequirementInputSchema,
+    SubaccountMutationResultSchema,
+    type CreateSubaccountResult,
     type Subaccount,
     type SubaccountMember,
     type SubaccountInvite,
@@ -100,16 +103,16 @@ export class SubaccountsService {
 
     async create(
         input: v.InferInput<typeof CreateSubaccountInputSchema>,
-    ): Promise<Proto.CreateSubaccountResponse> {
+    ): Promise<CreateSubaccountResult> {
         const validatedInput = v.parse(CreateSubaccountInputSchema, input);
-        return this.#client.createSubaccount(validatedInput);
+        const res = await this.#client.createSubaccount(validatedInput);
+        return v.parse(CreateSubaccountResultSchema, res);
     }
 
-    async update(
-        input: v.InferInput<typeof UpdateSubaccountInputSchema>,
-    ): Promise<Proto.UpdateSubaccountResponse> {
+    async update(input: v.InferInput<typeof UpdateSubaccountInputSchema>): Promise<void> {
         const validatedInput = v.parse(UpdateSubaccountInputSchema, input);
-        return await this.#client.updateSubaccount(validatedInput);
+        const res = await this.#client.updateSubaccount(validatedInput);
+        return v.parse(SubaccountMutationResultSchema, res);
     }
 
     async inviteMember(
@@ -126,16 +129,18 @@ export class SubaccountsService {
 
     async removeMember(
         input: v.InferInput<typeof RemoveSubaccountMemberInputSchema>,
-    ): Promise<Proto.RemoveSubaccountMemberResponse> {
+    ): Promise<void> {
         const validatedInput = v.parse(RemoveSubaccountMemberInputSchema, input);
-        return this.#client.removeSubaccountMember(validatedInput);
+        const res = await this.#client.removeSubaccountMember(validatedInput);
+        return v.parse(SubaccountMutationResultSchema, res);
     }
 
     async updateMemberRole(
         input: v.InferInput<typeof UpdateSubaccountMemberRoleInputSchema>,
-    ): Promise<Proto.UpdateSubaccountMemberRoleResponse> {
+    ): Promise<void> {
         const validatedInput = v.parse(UpdateSubaccountMemberRoleInputSchema, input);
-        return this.#client.updateSubaccountMemberRole(validatedInput);
+        const res = await this.#client.updateSubaccountMemberRole(validatedInput);
+        return v.parse(SubaccountMutationResultSchema, res);
     }
 
     async setMemberMfaRequirement(
@@ -143,10 +148,11 @@ export class SubaccountsService {
         options?: { stepUpToken?: string | null },
     ): Promise<void> {
         const validatedInput = v.parse(SetSubaccountMemberMfaRequirementInputSchema, input);
-        await this.#client.setSubaccountMemberMFARequirement(
+        const res = await this.#client.setSubaccountMemberMFARequirement(
             validatedInput,
             stepUpCallOptions(options?.stepUpToken),
         );
+        return v.parse(SubaccountMutationResultSchema, res);
     }
 
     async listInvites(
@@ -178,10 +184,11 @@ export class SubaccountsService {
 
     async delete(subaccountId: string): Promise<void> {
         const validatedSubaccountId = idToBigInt(subaccountId, "subaccountId");
-        await this.#client.updateSubaccount({
+        const res = await this.#client.updateSubaccount({
             subaccountId: validatedSubaccountId,
             status: "deleted",
         });
+        return v.parse(SubaccountMutationResultSchema, res);
     }
 
     async listEvents(
@@ -207,6 +214,7 @@ export class SubaccountsService {
             },
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
+            onError: (ctx) => input.onError?.(ctx),
         });
     }
 
@@ -222,6 +230,7 @@ export class SubaccountsService {
             },
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
+            onError: (ctx) => input.onError?.(ctx),
         });
     }
 }

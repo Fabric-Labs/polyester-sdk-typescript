@@ -87,6 +87,7 @@ export class CandlesService {
             },
             onConnected: input.onOpen,
             onDisconnected: input.onClose,
+            onError: input.onError,
         });
     }
 
@@ -115,6 +116,7 @@ export class CandlesService {
             },
             onConnected: input.onOpen,
             onDisconnected: input.onClose,
+            onError: input.onError,
         });
     }
 }

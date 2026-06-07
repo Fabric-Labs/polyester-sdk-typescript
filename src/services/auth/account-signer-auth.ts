@@ -8,7 +8,6 @@ import { assertAccountSigner, resolveAccountSigner } from "../../account-signer/
 import { EventEmitter } from "../../utils/event-emitter.js";
 import { isJwtValid, getJwtTimeToExpiry } from "../../utils/jwt.js";
 import type { SubaccountsService } from "../subaccounts/index.js";
-import { formatId } from "../../utils/base58-id.js";
 import type {
     AuthState,
     AuthHydrationData,
@@ -398,7 +397,7 @@ export class AccountSignerAuthService extends AuthService {
         });
 
         return {
-            subaccountId: formatId(response.subaccountId),
+            subaccountId: response.subaccountId,
         };
     }
 

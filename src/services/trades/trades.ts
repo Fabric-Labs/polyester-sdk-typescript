@@ -48,6 +48,7 @@ export class TradesService {
             },
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
+            onError: (ctx) => input.onError?.(ctx),
         });
     }
 }

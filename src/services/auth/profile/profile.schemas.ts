@@ -26,6 +26,7 @@ export const ProfileSchema = v.object({
 
 export type Profile = v.InferOutput<typeof ProfileSchema>;
 export const UpdateProfileInputSchema = v.partial(ProfileSchema);
+export type UpdateProfileInput = v.InferInput<typeof UpdateProfileInputSchema>;
 
 export const UsernameHistoryEntrySchema = v.object({
     username: v.string(),

@@ -3,7 +3,6 @@ import type {
     HeatmapDepth,
     HeatmapInterval,
     HeatmapQuantityMode,
-    GetOrderbookHeatmapResponse,
 } from "../../gen/marketdata/v1/heatmap_pb.js";
 import { getPair } from "../../catalogs/market-data-catalog.js";
 import {
@@ -152,7 +151,112 @@ export const GetOrderbookHeatmapInputSchema = v.pipe(
     }),
 );
 
+function requiredIntervalLabelFor(value: number): HeatmapIntervalValue {
+    const label = HeatmapIntervalCodec.protoToOutput[value];
+    if (!label) throw new Error(`[OrderbookHeatmapResponseSchema]: invalid interval ${value}`);
+    return label;
+}
+
+function requiredDepthValueFor(value: number): HeatmapDepthValue {
+    const depth = HeatmapDepthCodec.protoToOutput[value];
+    if (!depth) throw new Error(`[OrderbookHeatmapResponseSchema]: invalid depth ${value}`);
+    return depth;
+}
+
+function requiredQuantityModeLabelFor(value: number): HeatmapQuantityModeValue {
+    const label = HeatmapQuantityModeCodec.protoToOutput[value];
+    if (!label) throw new Error(`[OrderbookHeatmapResponseSchema]: invalid quantity mode ${value}`);
+    return label;
+}
+
+const TimestampSecondsSchema = v.pipe(
+    v.bigint(),
+    v.transform((value) => Number(value)),
+);
+
+const Uint64StringSchema = v.pipe(
+    v.bigint(),
+    v.transform((value) => value.toString()),
+);
+
+const Int64StringArraySchema = v.pipe(
+    v.array(v.bigint()),
+    v.transform((values) => values.map((value) => value.toString())),
+);
+
+export const OrderbookHeatmapLevelsSchema = v.object({
+    priceTicks: Int64StringArraySchema,
+    qtyScaled: Int64StringArraySchema,
+});
+
+export type OrderbookHeatmapLevels = v.InferOutput<typeof OrderbookHeatmapLevelsSchema>;
+
+export const OrderbookHeatmapDeltaLevelsSchema = OrderbookHeatmapLevelsSchema;
+
+export type OrderbookHeatmapDeltaLevels = v.InferOutput<typeof OrderbookHeatmapDeltaLevelsSchema>;
+
+export const OrderbookHeatmapKeyframeSchema = v.object({
+    tsSec: TimestampSecondsSchema,
+    bestBidTick: Uint64StringSchema,
+    bestAskTick: Uint64StringSchema,
+    midTick: Uint64StringSchema,
+    bids: v.optional(OrderbookHeatmapLevelsSchema),
+    asks: v.optional(OrderbookHeatmapLevelsSchema),
+    bookSeq: Uint64StringSchema,
+});
+
+export type OrderbookHeatmapKeyframe = v.InferOutput<typeof OrderbookHeatmapKeyframeSchema>;
+
+export const OrderbookHeatmapDeltaBucketSchema = v.object({
+    tsSec: TimestampSecondsSchema,
+    bids: v.optional(OrderbookHeatmapDeltaLevelsSchema),
+    asks: v.optional(OrderbookHeatmapDeltaLevelsSchema),
+    updatesInBucket: v.number(),
+    bookSeqStart: Uint64StringSchema,
+    bookSeqEnd: Uint64StringSchema,
+});
+
+export type OrderbookHeatmapDeltaBucket = v.InferOutput<typeof OrderbookHeatmapDeltaBucketSchema>;
+
+export const OrderbookHeatmapLiveBucketSchema = v.object({
+    symbolId: v.number(),
+    interval: v.pipe(v.number(), v.transform(requiredIntervalLabelFor)),
+    tsSec: TimestampSecondsSchema,
+    isFinal: v.boolean(),
+    bids: v.optional(OrderbookHeatmapDeltaLevelsSchema),
+    asks: v.optional(OrderbookHeatmapDeltaLevelsSchema),
+    updatesInBucket: v.number(),
+    bookSeqStart: Uint64StringSchema,
+    bookSeqEnd: Uint64StringSchema,
+    quantityMode: v.pipe(v.number(), v.transform(requiredQuantityModeLabelFor)),
+    effectiveBinTicks: Uint64StringSchema,
+});
+
+export type OrderbookHeatmapLiveBucket = v.InferOutput<typeof OrderbookHeatmapLiveBucketSchema>;
+
+export const OrderbookHeatmapDeltaChainSchema = v.object({
+    baseKeyframe: v.optional(OrderbookHeatmapKeyframeSchema),
+    deltas: v.optional(v.array(OrderbookHeatmapDeltaBucketSchema), []),
+});
+
+export type OrderbookHeatmapDeltaChain = v.InferOutput<typeof OrderbookHeatmapDeltaChainSchema>;
+
+export const OrderbookHeatmapResponseSchema = v.object({
+    symbolId: v.number(),
+    interval: v.pipe(v.number(), v.transform(requiredIntervalLabelFor)),
+    depth: v.pipe(v.number(), v.transform(requiredDepthValueFor)),
+    chain: v.optional(OrderbookHeatmapDeltaChainSchema),
+    lastPersistedTsSec: TimestampSecondsSchema,
+    liveFromBookSeqEnd: Uint64StringSchema,
+    hasLiveAnchor: v.boolean(),
+    hasMore: v.boolean(),
+    nextTsSec: TimestampSecondsSchema,
+    serverTimeSec: TimestampSecondsSchema,
+    quantityMode: v.pipe(v.number(), v.transform(requiredQuantityModeLabelFor)),
+    liveBucket: v.optional(OrderbookHeatmapLiveBucketSchema),
+});
+
 export type GetOrderbookHeatmapInput = v.InferInput<typeof GetOrderbookHeatmapInputSchema>;
 export type ParsedGetOrderbookHeatmapInput = v.InferOutput<typeof GetOrderbookHeatmapInputSchema>;
-export type OrderbookHeatmapResponse = GetOrderbookHeatmapResponse;
+export type OrderbookHeatmapResponse = v.InferOutput<typeof OrderbookHeatmapResponseSchema>;
 export type ParsedHeatmapMode = HeatmapMode;

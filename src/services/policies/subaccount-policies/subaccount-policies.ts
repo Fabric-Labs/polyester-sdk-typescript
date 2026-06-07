@@ -80,6 +80,7 @@ export class SubaccountPoliciesService {
             },
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
+            onError: (ctx) => input.onError?.(ctx),
         });
     }
 }

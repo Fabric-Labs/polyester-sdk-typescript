@@ -38,6 +38,23 @@ export const CreateSubaccountInputSchema = v.object({
 
 export type CreateSubaccountInput = v.InferInput<typeof CreateSubaccountInputSchema>;
 
+export const CreateSubaccountResultSchema = v.object({
+    subaccountId: v.pipe(
+        v.bigint(),
+        v.transform((v) => formatId(v)),
+    ),
+    totalCreated: v.number(),
+});
+
+export type CreateSubaccountResult = v.InferOutput<typeof CreateSubaccountResultSchema>;
+
+export const SubaccountMutationResultSchema = v.pipe(
+    v.object({}),
+    v.transform(() => undefined),
+);
+
+export type SubaccountMutationResult = v.InferOutput<typeof SubaccountMutationResultSchema>;
+
 export const UpdateSubaccountInputSchema = v.pipe(
     v.object({
         ...v.pick(CreateSubaccountInputSchema, ["label"]).entries,

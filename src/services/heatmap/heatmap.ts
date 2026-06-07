@@ -4,9 +4,8 @@ import { timestampFromDate } from "@bufbuild/protobuf/wkt";
 import {
     HeatmapService as HeatmapRpc,
     HeatmapCursorSchema,
-    HeatmapLiveBucketSchema,
+    HeatmapLiveBucketSchema as ProtoHeatmapLiveBucketSchema,
     HeatmapTimeRangeSchema,
-    type HeatmapLiveBucket,
     type GetOrderbookHeatmapRequest,
 } from "../../gen/marketdata/v1/heatmap_pb.js";
 import type { RealtimeClient } from "../../realtime/client.js";
@@ -16,7 +15,10 @@ import { HeatmapIntervalCodec } from "./heatmap.codecs.js";
 import * as v from "valibot";
 import {
     GetOrderbookHeatmapInputSchema,
+    OrderbookHeatmapLiveBucketSchema,
+    OrderbookHeatmapResponseSchema,
     type GetOrderbookHeatmapInput,
+    type OrderbookHeatmapLiveBucket,
     type OrderbookHeatmapResponse,
 } from "./heatmap.schemas.js";
 
@@ -24,7 +26,7 @@ export interface OrderbookHeatmapProvider {
     getOrderbookHeatmap(input: GetOrderbookHeatmapInput): Promise<OrderbookHeatmapResponse>;
 }
 
-interface SubscribeHeatmapLiveInput extends BaseSubscribeInput<HeatmapLiveBucket> {
+interface SubscribeHeatmapLiveInput extends BaseSubscribeInput<OrderbookHeatmapLiveBucket> {
     symbolId: number;
     interval: number | string;
 }
@@ -71,7 +73,7 @@ export class HeatmapService implements OrderbookHeatmapProvider {
                       }),
                   };
 
-        return this.#client.getOrderbookHeatmap({
+        const res = await this.#client.getOrderbookHeatmap({
             symbolId: parsed.symbolId,
             interval: parsed.interval,
             depth: parsed.depth,
@@ -79,6 +81,7 @@ export class HeatmapService implements OrderbookHeatmapProvider {
             limit: parsed.limit,
             mode,
         });
+        return v.parse(OrderbookHeatmapResponseSchema, res);
     }
 
     subscribeLive(input: SubscribeHeatmapLiveInput): () => void {
@@ -94,8 +97,11 @@ export class HeatmapService implements OrderbookHeatmapProvider {
         const channel = `public:spot:market:heatmap:${interval}:${input.symbolId}:proto`;
         return this.#realtime.connectProtoChannel({
             channel,
-            schema: HeatmapLiveBucketSchema,
-            onPublication: (data) => input.onEvent(data),
+            schema: ProtoHeatmapLiveBucketSchema,
+            onPublication: (data) => {
+                const bucket = v.parse(OrderbookHeatmapLiveBucketSchema, data);
+                input.onEvent(bucket);
+            },
             onConnected: input.onOpen,
             onDisconnected: input.onClose,
             onError: input.onError,

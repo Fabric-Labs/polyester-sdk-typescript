@@ -179,11 +179,12 @@ describe("AccountSignerAuthService", () => {
             .spyOn(subaccountAuth, "requestLoginNonce")
             .mockResolvedValue({ nonce: "sub-nonce" });
         const create = vi.spyOn(subaccounts, "create");
+        const subaccountId = formatId(123n);
 
         create.mockResolvedValue({
-            subaccountId: 123n,
+            subaccountId,
             totalCreated: 1,
-        } as Awaited<ReturnType<SubaccountsService["create"]>>);
+        });
 
         await expect(
             subaccountAuth.createSubaccount({
@@ -191,7 +192,7 @@ describe("AccountSignerAuthService", () => {
                 label: "Trading",
                 walletProvider: "turnkey",
             }),
-        ).resolves.toEqual({ subaccountId: formatId(123n) });
+        ).resolves.toEqual({ subaccountId });
 
         expect(subaccountRequestLoginNonce).toHaveBeenCalledWith(subaccountSigner.accountAddress);
         expect(subaccountSigner.signMessage).toHaveBeenCalledWith(

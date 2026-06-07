@@ -6,6 +6,7 @@ import { idToBigInt } from "../../../utils/base58-id.js";
 import { stepUpCallOptions } from "../../../utils/step-up-call-options.js";
 import {
     ApiKeyPolicySchema,
+    ListApiKeyPoliciesResponseSchema,
     CreateApiKeyPolicyInputSchema,
     UpdateApiKeyPolicyInputSchema,
     ApplyApiKeyPolicyInputSchema,
@@ -26,8 +27,9 @@ export class ApiKeyPoliciesService {
         this.#client = createClient(Proto.PolicyService, transport);
     }
 
-    async list(): Promise<Proto.ListApiPoliciesResponse> {
-        return this.#client.listApiPolicies({});
+    async list(): Promise<ApiKeyPolicy[]> {
+        const res = await this.#client.listApiPolicies({});
+        return v.parse(ListApiKeyPoliciesResponseSchema, res);
     }
 
     async get(policyId: string | undefined): Promise<ApiKeyPolicy> {

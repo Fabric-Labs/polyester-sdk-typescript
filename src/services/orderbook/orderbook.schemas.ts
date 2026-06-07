@@ -25,6 +25,8 @@ export const GetOrderbookInputSchema = v.object({
     ),
 });
 
+export type GetOrderbookInput = v.InferInput<typeof GetOrderbookInputSchema>;
+
 export const OrderbookLevelSchema = v.pipe(
     v.object({
         priceTicks: v.bigint(),

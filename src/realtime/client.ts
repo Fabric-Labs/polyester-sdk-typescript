@@ -43,6 +43,24 @@ type ConnectionHandler = { onConnected?: () => void; onDisconnected?: () => void
 type PublicationHandler<T = unknown> = (data: T) => void;
 type ErrorHandler = (ctx: SubscriptionErrorContext) => void;
 
+function toSubscriptionError(error: unknown): SubscriptionErrorContext["error"] {
+    if (error instanceof Error) return { code: 0, message: error.message };
+    if (typeof error === "string") return { code: 0, message: error };
+    return { code: 0, message: "Unknown realtime subscription error" };
+}
+
+function createSubscriptionErrorContext(
+    channel: string,
+    type: string,
+    error: unknown,
+): SubscriptionErrorContext {
+    return {
+        channel,
+        type,
+        error: toSubscriptionError(error),
+    };
+}
+
 interface SharedSubscription {
     sub: Subscription;
     consumers: number;
@@ -194,6 +212,29 @@ export class RealtimeClient {
         return shared;
     }
 
+    #callErrorHandler(handler: ErrorHandler | undefined, ctx: SubscriptionErrorContext): void {
+        if (!handler) return;
+
+        try {
+            handler(ctx);
+        } catch {
+            // Keep error reporting isolated from other subscription consumers.
+        }
+    }
+
+    #callConsumerHandler(
+        channel: string,
+        type: string,
+        handler: () => void,
+        onError?: ErrorHandler,
+    ): void {
+        try {
+            handler();
+        } catch (error) {
+            this.#callErrorHandler(onError, createSubscriptionErrorContext(channel, type, error));
+        }
+    }
+
     #teardownSubscription(sub: Subscription): void {
         try {
             if (sub.state !== "unsubscribed") {
@@ -229,19 +270,56 @@ export class RealtimeClient {
         const shared = this.#getOrCreateSubscription(channel);
         shared.consumers++;
 
-        const onPub = handlers.onPublication as PublicationHandler;
+        const publicationHandler = handlers.onPublication;
+        const errorHandler = handlers.onError;
+        const subscribedHandler = handlers.onSubscribed;
+        const unsubscribedHandler = handlers.onUnsubscribed;
+
+        const onError: ErrorHandler | undefined = errorHandler
+            ? (ctx) => this.#callErrorHandler(errorHandler, ctx)
+            : undefined;
+        const onPub: PublicationHandler = (data) => {
+            this.#callConsumerHandler(
+                channel,
+                "publication_handler",
+                () => publicationHandler(data as T),
+                onError,
+            );
+        };
+        const onSubscribed = subscribedHandler
+            ? () =>
+                  this.#callConsumerHandler(
+                      channel,
+                      "subscribed_handler",
+                      subscribedHandler,
+                      onError,
+                  )
+            : undefined;
+        const onUnsubscribed = unsubscribedHandler
+            ? () =>
+                  this.#callConsumerHandler(
+                      channel,
+                      "unsubscribed_handler",
+                      unsubscribedHandler,
+                      onError,
+                  )
+            : undefined;
+
         shared.publicationHandlers.add(onPub);
 
-        if (handlers.onSubscribed) shared.subscribedHandlers.add(handlers.onSubscribed);
-        if (handlers.onUnsubscribed) shared.unsubscribedHandlers.add(handlers.onUnsubscribed);
-        if (handlers.onError) shared.errorHandlers.add(handlers.onError);
+        if (onSubscribed) shared.subscribedHandlers.add(onSubscribed);
+        if (onUnsubscribed) shared.unsubscribedHandlers.add(onUnsubscribed);
+        if (onError) shared.errorHandlers.add(onError);
 
+        let closed = false;
         return () => {
+            if (closed) return;
+            closed = true;
+
             shared.publicationHandlers.delete(onPub);
-            if (handlers.onSubscribed) shared.subscribedHandlers.delete(handlers.onSubscribed);
-            if (handlers.onUnsubscribed)
-                shared.unsubscribedHandlers.delete(handlers.onUnsubscribed);
-            if (handlers.onError) shared.errorHandlers.delete(handlers.onError);
+            if (onSubscribed) shared.subscribedHandlers.delete(onSubscribed);
+            if (onUnsubscribed) shared.unsubscribedHandlers.delete(onUnsubscribed);
+            if (onError) shared.errorHandlers.delete(onError);
 
             shared.consumers--;
             if (shared.consumers <= 0) {
@@ -252,7 +330,7 @@ export class RealtimeClient {
                 this.#pendingTeardowns.set(channel, shared);
 
                 queueMicrotask(() => {
-                    if (!this.#pendingTeardowns.has(channel)) return;
+                    if (this.#pendingTeardowns.get(channel) !== shared) return;
                     this.#pendingTeardowns.delete(channel);
 
                     this.#teardownSubscription(shared.sub);
@@ -268,7 +346,16 @@ export class RealtimeClient {
     connectChannel<T extends DescMessage>(params: ConnectChannelParams<T>): () => void {
         return this.subscribe<Uint8Array>(params.channel, {
             onPublication: (data) => {
-                const decoded = fromBinary(params.schema, data);
+                let decoded: MessageShape<T>;
+                try {
+                    decoded = fromBinary(params.schema, data);
+                } catch (error) {
+                    this.#callErrorHandler(
+                        params.onError,
+                        createSubscriptionErrorContext(params.channel, "decode", error),
+                    );
+                    return;
+                }
                 params.onPublication(decoded);
             },
             onSubscribed: params.onConnected,
@@ -278,13 +365,34 @@ export class RealtimeClient {
     }
 
     connectProtoChannel<T extends DescMessage>(params: ConnectChannelParams<T>): () => void {
-        return this.connectChannel({
-            ...params,
+        return this.subscribe<Uint8Array | MessageShape<T>>(params.channel, {
             onPublication: (data) => {
-                const msg = decodeProtoFrame(params.schema, data);
-                if (!msg) return;
+                let msg: MessageShape<T> | null;
+                try {
+                    msg = decodeProtoFrame(params.schema, data);
+                } catch (error) {
+                    this.#callErrorHandler(
+                        params.onError,
+                        createSubscriptionErrorContext(params.channel, "decode", error),
+                    );
+                    return;
+                }
+                if (!msg) {
+                    this.#callErrorHandler(
+                        params.onError,
+                        createSubscriptionErrorContext(
+                            params.channel,
+                            "decode",
+                            "Unable to decode protobuf frame",
+                        ),
+                    );
+                    return;
+                }
                 params.onPublication(msg);
             },
+            onSubscribed: params.onConnected,
+            onUnsubscribed: params.onDisconnected,
+            onError: params.onError,
         });
     }
 

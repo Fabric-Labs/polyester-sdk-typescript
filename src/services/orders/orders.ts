@@ -12,6 +12,8 @@ import {
     NewOrderInputSchema,
     OrderSchema,
     CancelOrderInputSchema,
+    CancelOrderResultSchema,
+    type CancelOrderResult,
     CancelAllOrdersInputSchema,
     CancelAllOrdersResponseSchema,
     type CancelAllOrdersResponse,
@@ -76,12 +78,12 @@ export class OrdersService {
         return v.parse(CreateOrderResultSchema, res);
     }
 
-    async cancel(input: v.InferInput<typeof CancelOrderInputSchema>) {
+    async cancel(input: v.InferInput<typeof CancelOrderInputSchema>): Promise<CancelOrderResult> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
 
         const validated = v.parse(CancelOrderInputSchema, resolved);
 
-        return await this.#writeClient.cancelOrder({
+        const res = await this.#writeClient.cancelOrder({
             key: {
                 case: "orderId",
                 value: validated.orderId,
@@ -89,6 +91,7 @@ export class OrdersService {
             symbolId: validated.symbolId,
             subaccountId: validated.subaccountId,
         });
+        return v.parse(CancelOrderResultSchema, res);
     }
 
     async modify(input: v.InferInput<typeof ModifyOrderInputSchema>): Promise<ModifyOrderResult> {
@@ -131,6 +134,7 @@ export class OrdersService {
             },
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
+            onError: (ctx) => input.onError?.(ctx),
         });
     }
 }
