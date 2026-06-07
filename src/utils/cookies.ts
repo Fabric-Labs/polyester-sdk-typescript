@@ -1,22 +1,5 @@
 import { isDev } from "./is-dev.js";
-
-function serializeCookie(name: string, value: string, options: CookieOptions) {
-    const parts = [`${encodeURIComponent(name)}=${encodeURIComponent(value)}`];
-
-    if (options.maxAge !== undefined) parts.push(`Max-Age=${Math.floor(options.maxAge)}`);
-    if (options.domain) parts.push(`Domain=${options.domain}`);
-    if (options.path) parts.push(`Path=${options.path}`);
-    if (options.expires) {
-        const expires =
-            options.expires instanceof Date ? options.expires : new Date(options.expires);
-        parts.push(`Expires=${expires.toUTCString()}`);
-    }
-    if (options.sameSite) parts.push(`SameSite=${options.sameSite}`);
-    if (options.secure) parts.push("Secure");
-    if (options.httpOnly) parts.push("HttpOnly");
-
-    return parts.join("; ");
-}
+import { parseCookie, serializeCookie } from "./cookie-es/index.js";
 
 interface CookieOptions {
     path?: string;
@@ -28,6 +11,28 @@ interface CookieOptions {
     sameSite?: "lax" | "strict" | "none";
 }
 
+function normalizeCookieOptions(options: CookieOptions) {
+    return {
+        ...options,
+        expires:
+            options.expires === undefined
+                ? undefined
+                : options.expires instanceof Date
+                  ? options.expires
+                  : new Date(options.expires),
+    };
+}
+
+function toCookieRecord(cookies: Record<string, string | undefined>): Record<string, string> {
+    const record: Record<string, string> = {};
+    for (const [name, value] of Object.entries(cookies)) {
+        if (value !== undefined) {
+            record[name] = value;
+        }
+    }
+    return record;
+}
+
 interface SetCookieParams {
     name: string;
     value: string;
@@ -37,22 +42,22 @@ interface SetCookieParams {
 export function setCookie({ name, value, options }: SetCookieParams): void {
     if (typeof document === "undefined") return;
 
-    document.cookie = serializeCookie(name, value, options);
+    document.cookie = serializeCookie(name, value, normalizeCookieOptions(options));
 }
 
 export function getCookie(name: string): string | undefined {
     if (typeof document === "undefined") return;
 
-    return document.cookie
-        .split("; ")
-        .find((row) => row.startsWith(`${name}=`))
-        ?.split("=")[1];
+    return parseCookie(document.cookie)[name];
 }
 
 export function deleteCookie(name: string): void {
     if (typeof document === "undefined") return;
 
-    document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+    document.cookie = serializeCookie(name, "", {
+        path: "/",
+        expires: new Date("Thu, 01 Jan 1970 00:00:00 GMT"),
+    });
 }
 
 export type CookieGetter =
@@ -64,14 +69,7 @@ export function parseCookiesFromRequest(request: Request): Record<string, string
     const cookieHeader = request.headers.get("cookie");
     if (!cookieHeader) return {};
 
-    const cookies: Record<string, string> = {};
-    for (const cookie of cookieHeader.split(";")) {
-        const [name, ...valueParts] = cookie.trim().split("=");
-        if (name) {
-            cookies[name] = valueParts.join("=");
-        }
-    }
-    return cookies;
+    return toCookieRecord(parseCookie(cookieHeader));
 }
 
 export function getCookieValue(cookies: CookieGetter, name: string): string | undefined {

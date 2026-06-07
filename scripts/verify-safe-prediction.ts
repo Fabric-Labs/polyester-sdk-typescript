@@ -17,11 +17,11 @@ import { toSafeSmartAccount } from "permissionless/accounts";
 import {
     predictSafeAddress,
     SAFE_PROXY_CREATION_CODE,
-} from "../src/polyester-client/src/wallet/predict-safe-address.js";
+} from "../src/account-signer/predict-safe-address.js";
 import {
     SAFE_SMART_ACCOUNT_CONFIG,
     POLYCHAIN_PUBLIC_CLIENT,
-} from "../src/polyester-client/src/shared/config.js";
+} from "../src/shared/config.js";
 
 async function main(): Promise<void> {
     console.log("=== Safe Address Prediction Verification ===\n");

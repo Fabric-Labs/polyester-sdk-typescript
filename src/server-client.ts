@@ -24,7 +24,7 @@ export interface ServerSessionSnapshot {
     hasDisplaySession: boolean;
     provider: string | null;
     loginMethod: AuthLoginMethod | null;
-    walletAddresses: { primaryWallet: string; smartAccount: string } | null;
+    accountAddresses: { ownerAddress: string; accountAddress: string } | null;
     activeAccount: ActiveAccountInfo | null;
     bearerToken: string | null;
     username: string | null;
@@ -35,7 +35,7 @@ function emptyServerSessionSnapshot(): ServerSessionSnapshot {
         hasDisplaySession: false,
         provider: null,
         loginMethod: null,
-        walletAddresses: null,
+        accountAddresses: null,
         activeAccount: null,
         bearerToken: null,
         username: null,
@@ -49,9 +49,10 @@ export function parseSessionCookie(cookies: CookieGetter): ServerSessionSnapshot
     let session: SessionData | null = null;
     if (sessionValue) {
         try {
-            const decoded = decodeURIComponent(sessionValue);
             // handle legacy double-encoded cookies (value was previously encoded before passing to setCookie)
-            const jsonStr = decoded.startsWith("%7B") ? decodeURIComponent(decoded) : decoded;
+            const jsonStr = sessionValue.startsWith("%7B")
+                ? decodeURIComponent(sessionValue)
+                : sessionValue;
             session = JSON.parse(jsonStr) as SessionData;
         } catch {
             // invalid JSON
@@ -62,8 +63,8 @@ export function parseSessionCookie(cookies: CookieGetter): ServerSessionSnapshot
         hasDisplaySession: !!session,
         provider: session?.provider ?? null,
         loginMethod: session?.loginMethod ?? null,
-        walletAddresses: session
-            ? { primaryWallet: session.primaryWallet, smartAccount: session.smartAccount }
+        accountAddresses: session
+            ? { ownerAddress: session.primaryWallet, accountAddress: session.smartAccount }
             : null,
         activeAccount: session?.activeAccount ?? null,
         bearerToken,

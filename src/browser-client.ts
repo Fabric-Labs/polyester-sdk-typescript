@@ -1,7 +1,7 @@
 import { PolyesterClient } from "./core-client.js";
 import { polyesterToken } from "./shared/polyester-token.js";
-import { WalletAuthService } from "./services/auth/wallet-auth.js";
-import type { WalletConfig, PolyesterWallet } from "./wallet/types.js";
+import { AccountSignerAuthService } from "./services/auth/account-signer-auth.js";
+import type { AccountSignerConfig, AccountSigner } from "./account-signer/types.js";
 import { POLYESTER_API_BASE_URL } from "./shared/constants.js";
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";
 
@@ -13,17 +13,17 @@ export interface PolyesterBrowserClientUrls {
 export interface PolyesterBrowserClientConfig {
     urls?: PolyesterBrowserClientUrls;
     /**
-     * Wallet interface for signing.
-     * Pass a wallet object or a factory function for lazy initialization.
+     * Account signer interface for authentication.
+     * Pass a signer object or a factory function for lazy initialization.
      */
-    wallet?: WalletConfig;
+    accountSigner?: AccountSignerConfig;
 }
 
 /**
  * A client for interacting with the Polyester DEX in the browser.
  */
 export class PolyesterBrowserClient extends PolyesterClient {
-    override readonly auth: WalletAuthService;
+    override readonly auth: AccountSignerAuthService;
 
     constructor(config: PolyesterBrowserClientConfig = {}) {
         const apiUrl = config.urls?.apiUrl ?? POLYESTER_API_BASE_URL;
@@ -37,10 +37,10 @@ export class PolyesterBrowserClient extends PolyesterClient {
             },
         });
 
-        // wire up WalletAuthService with SubaccountsService for createSubaccount support
-        this.auth = new WalletAuthService({
+        // wire up AccountSignerAuthService with SubaccountsService for createSubaccount support
+        this.auth = new AccountSignerAuthService({
             transports: { publicApi: this.transports.publicApi, authApi: this.transports.authApi },
-            walletConfig: config.wallet,
+            accountSignerConfig: config.accountSigner,
             subaccounts: this.subaccounts,
             realtime: this.realtime,
         });
@@ -64,7 +64,7 @@ export class PolyesterBrowserClient extends PolyesterClient {
         };
     }
 
-    setWallet(wallet: PolyesterWallet | null): void {
-        this.auth.setWallet(wallet);
+    setAccountSigner(accountSigner: AccountSigner | null): void {
+        this.auth.setAccountSigner(accountSigner);
     }
 }

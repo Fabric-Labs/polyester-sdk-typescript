@@ -4,26 +4,54 @@ import {
     predictSafeAddressWithData,
     type PredictSafeAddressParams,
 } from "./predict-safe-address.js";
-import type { HexAddress, PolyesterWallet } from "./types.js";
-import { POLYCHAIN_NETWORK } from "../shared/config.js";
+import type { AccountSigner, HexAddress } from "./types.js";
+import { POLYCHAIN_NETWORK, SAFE_SMART_ACCOUNT_CONFIG } from "../shared/config.js";
 
 /** ERC-6492 magic suffix for counterfactual signature verification */
 const ERC6492_MAGIC_SUFFIX: Hex =
     "0x6492649264926492649264926492649264926492649264926492649264926492";
 
-export interface CreateLoginWalletParams {
+export interface CreatePolyesterAccountSignerParams {
     /** The owner account (EOA) that will sign messages */
     owner: LocalAccount;
     /** Salt nonce for deriving different Safe addresses from the same owner (default: 0n) */
     saltNonce?: bigint;
-    /** Safe contract addresses configuration */
+}
+
+interface RequiredPolyesterSafeConfig {
     safeProxyFactoryAddress: Address;
     safeSingletonAddress: Address;
     safeModuleSetupAddress: Address;
     safe4337ModuleAddress: Address;
     multiSendAddress: Address;
-    /** Chain ID for EIP-712 domain (defaults to POLYCHAIN_NETWORK.id) */
-    chainId?: number;
+}
+
+function getRequiredPolyesterSafeConfig(): RequiredPolyesterSafeConfig {
+    const {
+        safeProxyFactoryAddress,
+        safeSingletonAddress,
+        safeModuleSetupAddress,
+        safe4337ModuleAddress,
+        multiSendAddress,
+    } = SAFE_SMART_ACCOUNT_CONFIG;
+
+    if (
+        !safeProxyFactoryAddress ||
+        !safeSingletonAddress ||
+        !safeModuleSetupAddress ||
+        !safe4337ModuleAddress ||
+        !multiSendAddress
+    ) {
+        throw new Error("Polyester Safe account configuration is incomplete.");
+    }
+
+    return {
+        safeProxyFactoryAddress,
+        safeSingletonAddress,
+        safeModuleSetupAddress,
+        safe4337ModuleAddress,
+        multiSendAddress,
+    };
 }
 
 /**
@@ -65,7 +93,7 @@ function wrapErc6492Signature(factoryAddress: Address, factoryCalldata: Hex, sig
 }
 
 /**
- * Creates a PolyesterWallet for login/authentication without any RPC calls.
+ * Creates an AccountSigner for Polyester authentication without any RPC calls.
  *
  * This computes the Safe smart account address deterministically and produces
  * ERC-6492 wrapped signatures for counterfactual verification. The signature
@@ -73,20 +101,21 @@ function wrapErc6492Signature(factoryAddress: Address, factoryCalldata: Hex, sig
  *
  * For actual chain interactions (UserOperations), use createPolyesterSmartAccount instead.
  *
- * @param params - Owner account and Safe configuration
- * @returns A PolyesterWallet that can be used for authentication
+ * @param params - Owner account and optional salt nonce
+ * @returns An AccountSigner that can be used for authentication
  */
-export function createLoginWallet(params: CreateLoginWalletParams): PolyesterWallet {
+export function createPolyesterAccountSigner(
+    params: CreatePolyesterAccountSignerParams,
+): AccountSigner {
+    const { owner, saltNonce = 0n } = params;
     const {
-        owner,
-        saltNonce = 0n,
         safeProxyFactoryAddress,
         safeSingletonAddress,
         safeModuleSetupAddress,
         safe4337ModuleAddress,
         multiSendAddress,
-        chainId = POLYCHAIN_NETWORK.id,
-    } = params;
+    } = getRequiredPolyesterSafeConfig();
+    const chainId = POLYCHAIN_NETWORK.id;
 
     const predictParams: PredictSafeAddressParams = {
         owners: [owner.address],
@@ -101,9 +130,9 @@ export function createLoginWallet(params: CreateLoginWalletParams): PolyesterWal
     const { address, factoryCalldata } = predictSafeAddressWithData(predictParams);
 
     return {
-        address: address as HexAddress,
+        accountAddress: address as HexAddress,
         ownerAddress: owner.address as HexAddress,
-        signMessage: async (message: string): Promise<HexAddress> => {
+        signMessage: async (message: string): Promise<Hex> => {
             // 1. hash the original message (what Safe calls generateSafeMessageMessage for strings)
             const messageHash = hashMessage(message);
 
@@ -135,7 +164,7 @@ export function createLoginWallet(params: CreateLoginWalletParams): PolyesterWal
                 safeProxyFactoryAddress,
                 factoryCalldata,
                 innerSignature,
-            ) as HexAddress;
+            );
         },
     };
 }

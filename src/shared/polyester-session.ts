@@ -23,10 +23,8 @@ class PolyesterSessionManager {
         const value = getCookie(POLYESTER_SESSION_COOKIE_NAME);
         if (!value) return null;
         try {
-            // serializeCookie URL-encodes the value, so we need to decode it
-            const decoded = decodeURIComponent(value);
             // handle legacy double-encoded cookies (value was previously encoded before passing to setCookie)
-            const jsonStr = decoded.startsWith("%7B") ? decodeURIComponent(decoded) : decoded;
+            const jsonStr = value.startsWith("%7B") ? decodeURIComponent(value) : value;
             return JSON.parse(jsonStr) as SessionData;
         } catch {
             this.clear();

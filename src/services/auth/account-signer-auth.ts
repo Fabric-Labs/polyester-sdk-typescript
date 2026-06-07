@@ -2,8 +2,12 @@ import { AuthService, type AuthServiceTransports } from "./auth.js";
 import { polyesterToken } from "../../shared/polyester-token.js";
 import { polyesterSession } from "../../shared/polyester-session.js";
 import { POLYESTER_LOGIN_COOKIE_MAX_AGE } from "../../shared/constants.js";
-import type { PolyesterWallet, WalletConfig, HexAddress } from "../../wallet/types.js";
-import { resolveWallet } from "../../wallet/types.js";
+import type {
+    AccountSigner,
+    AccountSignerConfig,
+    HexAddress,
+} from "../../account-signer/types.js";
+import { assertAccountSigner, resolveAccountSigner } from "../../account-signer/types.js";
 import { EventEmitter } from "../../utils/event-emitter.js";
 import { isJwtValid, getJwtTimeToExpiry } from "../../utils/jwt.js";
 import type { SubaccountsService } from "../subaccounts/index.js";
@@ -11,7 +15,7 @@ import { formatId } from "../../utils/base58-id.js";
 import type { AuthState, AuthHydrationData, AuthLoginMethod } from "../../shared/auth-types.js";
 import type { RealtimeClient } from "../../realtime/index.js";
 
-export interface WalletAuthEvents {
+export interface AccountSignerAuthEvents {
     authenticated: { accountId: string; username: string };
     loggedOut: void;
     error: { code: string; message: string };
@@ -34,8 +38,8 @@ export interface LoginOptions {
 }
 
 export interface CreateSubaccountParams {
-    /** The wallet for the new subaccount (caller derives this, e.g. via Turnkey saltNonce) */
-    wallet: PolyesterWallet;
+    /** The account signer for the new subaccount (caller derives this, e.g. via Turnkey saltNonce) */
+    accountSigner: AccountSigner;
     /** Optional human-readable label for this subaccount */
     label?: string;
     /** Wallet provider hint (e.g. "turnkey", "metamask"). Defaults to "wallet" */
@@ -46,11 +50,11 @@ export interface CreateSubaccountResult {
     subaccountId: string;
 }
 
-export class WalletAuthService extends AuthService {
-    readonly events = new EventEmitter<WalletAuthEvents>();
+export class AccountSignerAuthService extends AuthService {
+    readonly events = new EventEmitter<AccountSignerAuthEvents>();
 
-    #walletConfig: WalletConfig | undefined;
-    #wallet: PolyesterWallet | null = null;
+    #accountSignerConfig: AccountSignerConfig | undefined;
+    #accountSigner: AccountSigner | null = null;
     #isAuthenticated = false;
     #mainAccountId: string | null = null;
     #activeAccountId: string | null = null;
@@ -60,18 +64,18 @@ export class WalletAuthService extends AuthService {
 
     constructor({
         transports,
-        walletConfig,
+        accountSignerConfig,
         subaccounts,
         realtime,
     }: {
         transports: AuthServiceTransports;
-        walletConfig?: WalletConfig;
+        accountSignerConfig?: AccountSignerConfig;
         subaccounts: SubaccountsService;
         realtime: RealtimeClient;
     }) {
         super(transports, realtime);
 
-        this.#walletConfig = walletConfig;
+        this.#accountSignerConfig = accountSignerConfig;
         this.#subaccounts = subaccounts;
     }
 
@@ -83,40 +87,43 @@ export class WalletAuthService extends AuthService {
     }
 
     /**
-     * Set or update the wallet. Useful for lazy wallet initialization.
+     * Set or update the account signer. Useful for lazy signer initialization.
      */
-    setWallet(wallet: PolyesterWallet | null): void {
-        this.#wallet = wallet;
+    setAccountSigner(accountSigner: AccountSigner | null): void {
+        if (accountSigner) assertAccountSigner(accountSigner);
+        this.#accountSigner = accountSigner;
         this.#notifyStateChange();
     }
 
     /**
-     * Get the current wallet if available.
+     * Get the current account signer if available.
      */
-    getWallet(): PolyesterWallet | null {
-        return this.#wallet;
+    getAccountSigner(): AccountSigner | null {
+        return this.#accountSigner;
     }
 
     /**
-     * Login with the configured wallet.
-     * Requests a nonce, signs it with the wallet, and authenticates with Polyester backend.
+     * Login with the configured account signer.
+     * Requests a nonce, signs it, and authenticates with Polyester backend.
      */
     async login(options: LoginOptions): Promise<LoginResult> {
         const { provider, loginMethod } = options;
 
-        const wallet = await this.#resolveWallet();
+        const accountSigner = await this.#resolveAccountSigner();
 
-        if (!wallet) {
-            throw new Error("No wallet configured. Call setWallet() or pass wallet in config.");
+        if (!accountSigner) {
+            throw new Error(
+                "No account signer configured. Call setAccountSigner() or pass accountSigner in config.",
+            );
         }
 
-        const smartAccountAddress = wallet.address;
-        const ownerAddress = wallet.ownerAddress ?? wallet.address;
+        const smartAccountAddress = accountSigner.accountAddress;
+        const ownerAddress = accountSigner.ownerAddress ?? accountSigner.accountAddress;
 
         const { nonce } = await this.requestLoginNonce(smartAccountAddress);
 
         const message = `Polyester Login\n\nNonce: ${nonce}`;
-        const signature = await wallet.signMessage(message);
+        const signature = await accountSigner.signMessage(message);
 
         const response = await this.loginWithWallet({
             smartAccountAddress,
@@ -193,13 +200,13 @@ export class WalletAuthService extends AuthService {
         this.#mainAccountId = state.mainAccountId;
         this.#activeAccountId = state.activeAccountId ?? state.mainAccountId;
 
-        if (state.smartAccountAddress || state.ownerAddress) {
-            this.#wallet = {
-                address: state.smartAccountAddress as HexAddress,
+        if (state.smartAccountAddress) {
+            this.#accountSigner = {
+                accountAddress: state.smartAccountAddress as HexAddress,
                 ownerAddress: state.ownerAddress as HexAddress,
                 signMessage: async () => {
                     throw new Error(
-                        "Hydrated wallet cannot sign. Call setWallet() with a real wallet.",
+                        "Hydrated account signer cannot sign. Call setAccountSigner() with a real signer.",
                     );
                 },
             };
@@ -234,21 +241,23 @@ export class WalletAuthService extends AuthService {
                 this.#activeAccountId = existingSession?.activeAccount?.accountId ?? me.accountId;
             }
 
-            // use existing wallet if set, otherwise try to resolve from config
-            if (!this.#wallet) {
-                this.#wallet = await resolveWallet(this.#walletConfig);
+            // use existing account signer if set, otherwise try to resolve from config
+            if (!this.#accountSigner) {
+                this.#accountSigner = await resolveAccountSigner(this.#accountSignerConfig);
             }
 
             // ensure session cookie exists for SSR (handles existing users without session)
-            if (this.#wallet?.address) {
+            if (this.#accountSigner?.accountAddress) {
                 if (!existingSession) {
                     polyesterSession.set({
                         provider: this.#walletProvider ? this.#walletProvider : "other",
                         loginMethod:
                             this.#loginMethod ??
                             (this.#walletProvider === "metamask" ? "metamask" : null),
-                        primaryWallet: this.#wallet.ownerAddress ?? this.#wallet.address,
-                        smartAccount: this.#wallet.address,
+                        primaryWallet:
+                            this.#accountSigner.ownerAddress ??
+                            this.#accountSigner.accountAddress,
+                        smartAccount: this.#accountSigner.accountAddress,
                         activeAccount: {
                             accountId: me.accountId,
                             isMain: true,
@@ -338,9 +347,9 @@ export class WalletAuthService extends AuthService {
     }
 
     /**
-     * Create a new subaccount using a derived wallet.
+     * Create a new subaccount using a derived account signer.
      *
-     * The caller is responsible for deriving the subaccount wallet (e.g., via Turnkey
+     * The caller is responsible for deriving the subaccount account signer (e.g., via Turnkey
      * with a saltNonce). This method handles the nonce request, message signing, and
      * backend API call.
      */
@@ -353,21 +362,22 @@ export class WalletAuthService extends AuthService {
             );
         }
 
-        const { wallet, label = "", walletProvider = "wallet" } = params;
+        const { accountSigner, label = "", walletProvider = "wallet" } = params;
 
         // request nonce for the subaccount's smart account address
-        const { nonce } = await this.requestLoginNonce(wallet.address);
+        const { nonce } = await this.requestLoginNonce(accountSigner.accountAddress);
 
-        // sign canonical login message with the subaccount wallet
+        // sign canonical login message with the subaccount account signer
         const message = `Polyester Login\n\nNonce: ${nonce}`;
-        const signature = await wallet.signMessage(message);
+        const signature = await accountSigner.signMessage(message);
 
-        // use main wallet's owner address for primary wallet reference
-        const primaryWalletAddress = this.#wallet?.ownerAddress ?? this.#wallet?.address ?? "";
+        // use main account signer's owner address for primary wallet reference
+        const primaryWalletAddress =
+            this.#accountSigner?.ownerAddress ?? this.#accountSigner?.accountAddress ?? "";
 
         const response = await this.#subaccounts.create({
             label,
-            smartAccountAddress: wallet.address,
+            smartAccountAddress: accountSigner.accountAddress,
             nonce,
             signature,
             primaryWalletAddress,
@@ -382,8 +392,8 @@ export class WalletAuthService extends AuthService {
     getState(): AuthState {
         return {
             isAuthenticated: this.#isAuthenticated,
-            address: this.#wallet?.address ?? null,
-            ownerAddress: this.#wallet?.ownerAddress ?? null,
+            accountAddress: this.#accountSigner?.accountAddress ?? null,
+            ownerAddress: this.#accountSigner?.ownerAddress ?? null,
             mainAccountId: this.#mainAccountId,
             activeAccount:
                 this.#activeAccountId && this.#mainAccountId
@@ -391,20 +401,23 @@ export class WalletAuthService extends AuthService {
                           accountId: this.#activeAccountId,
                           isMain: this.#activeAccountId === this.#mainAccountId,
                           mainAccountId: this.#mainAccountId,
-                          smartAccountAddress: this.#wallet?.address,
+                          smartAccountAddress: this.#accountSigner?.accountAddress,
                       }
                     : null,
         };
     }
 
-    async #resolveWallet(): Promise<PolyesterWallet | null> {
-        if (this.#wallet) return this.#wallet;
-
-        const resolved = await resolveWallet(this.#walletConfig);
-        if (resolved) {
-            this.#wallet = resolved;
+    async #resolveAccountSigner(): Promise<AccountSigner | null> {
+        if (this.#accountSigner) {
+            assertAccountSigner(this.#accountSigner);
+            return this.#accountSigner;
         }
-        return this.#wallet;
+
+        const resolved = await resolveAccountSigner(this.#accountSignerConfig);
+        if (resolved) {
+            this.#accountSigner = resolved;
+        }
+        return this.#accountSigner;
     }
 
     #notifyStateChange(): void {

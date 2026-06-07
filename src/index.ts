@@ -37,6 +37,4 @@ export * from "./shared/smart-account.js";
 export * from "./shared/transports.js";
 export * from "./shared/types.js";
 
-export * from "./wallet/index.js";
-export * from "./wallet/create-login-wallet.js";
-export * from "./wallet/predict-safe-address.js";
+export * from "./account-signer/index.js";

@@ -21,20 +21,43 @@ function expiredJwt(): string {
 }
 
 function displaySessionCookie(): string {
-    return encodeURIComponent(
-        JSON.stringify({
-            provider: "metamask",
-            loginMethod: "metamask",
-            primaryWallet: "0xprimary",
-            smartAccount: "0xsmart",
-            activeAccount: {
-                accountId: "sub-1",
-                isMain: false,
-                mainAccountId: "main-1",
-            },
-            username: "hunter",
-        }),
-    );
+    return JSON.stringify({
+        provider: "metamask",
+        loginMethod: "metamask",
+        primaryWallet: "0xprimary",
+        smartAccount: "0xsmart",
+        activeAccount: {
+            accountId: "sub-1",
+            isMain: false,
+            mainAccountId: "main-1",
+        },
+        username: "hunter",
+    });
+}
+
+function encodedDisplaySessionCookie(): string {
+    return encodeURIComponent(displaySessionCookie());
+}
+
+function legacyDoubleEncodedDisplaySessionCookie(): string {
+    return encodeURIComponent(encodedDisplaySessionCookie());
+}
+
+function expectDisplaySession(session: ReturnType<typeof parseSessionCookie>): void {
+    expect(session.hasDisplaySession).toBe(true);
+    expect(session.bearerToken).toBeNull();
+    expect(session.provider).toBe("metamask");
+    expect(session.loginMethod).toBe("metamask");
+    expect(session.accountAddresses).toEqual({
+        ownerAddress: "0xprimary",
+        accountAddress: "0xsmart",
+    });
+    expect(session.activeAccount).toEqual({
+        accountId: "sub-1",
+        isMain: false,
+        mainAccountId: "main-1",
+    });
+    expect(session.username).toBe("hunter");
 }
 
 describe("parseSessionCookie", () => {
@@ -45,7 +68,7 @@ describe("parseSessionCookie", () => {
             hasDisplaySession: false,
             provider: null,
             loginMethod: null,
-            walletAddresses: null,
+            accountAddresses: null,
             activeAccount: null,
             bearerToken: null,
             username: null,
@@ -57,20 +80,31 @@ describe("parseSessionCookie", () => {
             [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
         });
 
-        expect(session.hasDisplaySession).toBe(true);
-        expect(session.bearerToken).toBeNull();
-        expect(session.provider).toBe("metamask");
-        expect(session.loginMethod).toBe("metamask");
-        expect(session.walletAddresses).toEqual({
-            primaryWallet: "0xprimary",
-            smartAccount: "0xsmart",
+        expectDisplaySession(session);
+    });
+
+    it("parses encoded display session metadata from raw request cookies", () => {
+        const request = new Request("https://example.test", {
+            headers: {
+                cookie: `${POLYESTER_SESSION_COOKIE_NAME}=${encodedDisplaySessionCookie()}`,
+            },
         });
-        expect(session.activeAccount).toEqual({
-            accountId: "sub-1",
-            isMain: false,
-            mainAccountId: "main-1",
+
+        const session = parseSessionCookie(request);
+
+        expectDisplaySession(session);
+    });
+
+    it("parses legacy double-encoded display session metadata", () => {
+        const request = new Request("https://example.test", {
+            headers: {
+                cookie: `${POLYESTER_SESSION_COOKIE_NAME}=${legacyDoubleEncodedDisplaySessionCookie()}`,
+            },
         });
-        expect(session.username).toBe("hunter");
+
+        const session = parseSessionCookie(request);
+
+        expectDisplaySession(session);
     });
 
     it("parses bearer token state separately from display session metadata", () => {

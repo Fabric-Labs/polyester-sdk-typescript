@@ -1,4 +1,4 @@
-import type { HexAddress } from "../wallet/types.js";
+import type { HexAddress } from "../account-signer/types.js";
 
 /**
  * Information about the currently active account (main or subaccount).
@@ -33,7 +33,7 @@ export interface SessionData {
  */
 export interface AuthState {
     isAuthenticated: boolean;
-    address: HexAddress | null;
+    accountAddress: HexAddress | null;
     ownerAddress: HexAddress | null;
     mainAccountId: string | null;
     activeAccount: ActiveAccountInfo | null;
