@@ -8,7 +8,7 @@ import {
 import type { PolyesterEnvironment } from "./environment.js";
 import { AccountsService } from "./services/accounts/index.js";
 import { ApiKeysService } from "./services/api-keys/index.js";
-import { AuthService } from "./services/auth/auth.js";
+import { AuthService, type AuthServiceTransports } from "./services/auth/auth.js";
 import { SubaccountsService } from "./services/subaccounts/index.js";
 import { CandlesService } from "./services/candles/index.js";
 import { MarketDataService } from "./services/market-data/index.js";
@@ -90,6 +90,17 @@ export interface PolyesterClientBaseConfig {
 
 export interface PolyesterClientConfig extends PolyesterClientBaseConfig {}
 
+interface AuthServiceFactoryContext {
+    transports: AuthServiceTransports;
+    realtime: RealtimeClient;
+    subaccounts: SubaccountsService;
+    environment: PolyesterEnvironment;
+}
+
+interface PolyesterClientRuntimeConfig {
+    createAuth?: (context: AuthServiceFactoryContext) => AuthService;
+}
+
 export class PolyesterClient {
     readonly auth: AuthService;
     readonly accounts: AccountsService;
@@ -119,7 +130,7 @@ export class PolyesterClient {
 
     protected readonly transports: Transports;
 
-    constructor(config: PolyesterClientConfig) {
+    constructor(config: PolyesterClientConfig, runtime: PolyesterClientRuntimeConfig = {}) {
         initializeGeneratedCatalogs();
         const interceptors = config.interceptors ?? [];
         const { environment } = config;
@@ -132,7 +143,6 @@ export class PolyesterClient {
         });
 
         const { authApi, publicApi } = this.transports;
-        const resolver = this.createSubaccountResolver();
         const realtimeAuth = realtimeAuthFromProvider(config.auth);
 
         this.realtime = new RealtimeClient({
@@ -143,10 +153,19 @@ export class PolyesterClient {
             hasAuth: config.realtime?.hasAuth ?? realtimeAuth.hasAuth,
         });
 
-        this.auth = new AuthService({ publicApi, authApi }, this.realtime);
+        this.subaccounts = new SubaccountsService(authApi, this.realtime);
+        this.auth =
+            runtime.createAuth?.({
+                transports: { publicApi, authApi },
+                realtime: this.realtime,
+                subaccounts: this.subaccounts,
+                environment,
+            }) ?? new AuthService({ publicApi, authApi }, this.realtime);
+
+        const resolver = this.createSubaccountResolver();
+
         this.accounts = new AccountsService(authApi);
         this.apiKeys = new ApiKeysService(authApi, this.realtime, resolver);
-        this.subaccounts = new SubaccountsService(authApi, this.realtime);
         this.candles = new CandlesService(publicApi, this.realtime);
         this.marketData = new MarketDataService(publicApi, this.realtime);
         this.marketOverview = new MarketOverviewService(publicApi, this.realtime);
@@ -176,8 +195,7 @@ export class PolyesterClient {
 
     /**
      * Override in subclasses to provide a subaccount resolver.
-     * The resolver is called lazily when service methods are invoked,
-     * so it's safe to reference `this.auth` even though it's not set during super().
+     * The resolver is called lazily when service methods are invoked.
      */
     protected createSubaccountResolver(): SubaccountResolver | undefined {
         return undefined;

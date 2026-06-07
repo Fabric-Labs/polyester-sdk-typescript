@@ -70,4 +70,41 @@ describe("PolyesterBrowserClient", () => {
             "Account signer environment does not match client environment.",
         );
     });
+
+    it("wires browser auth to the client subaccounts service during construction", async () => {
+        const client = new PolyesterBrowserClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+        });
+        const rootSigner = signer("0x1111111111111111111111111111111111111111");
+        const subaccountSigner = signer("0x4444444444444444444444444444444444444444");
+        const create = vi.spyOn(client.subaccounts, "create").mockResolvedValue({
+            subaccountId: "subaccount-1",
+            totalCreated: 1,
+        });
+        vi.spyOn(client.auth, "requestLoginNonce").mockResolvedValue({ nonce: "nonce-1" });
+
+        client.auth.hydrateAuthState({
+            mainAccountId: "main-1",
+            username: "hunter",
+            smartAccountAddress: rootSigner.accountAddress,
+            ownerAddress: rootSigner.ownerAddress,
+        });
+
+        await expect(
+            client.auth.createSubaccount({
+                accountSigner: subaccountSigner,
+                label: "Trading",
+                walletProvider: "turnkey",
+            }),
+        ).resolves.toEqual({ subaccountId: "subaccount-1" });
+
+        expect(create).toHaveBeenCalledWith({
+            label: "Trading",
+            smartAccountAddress: subaccountSigner.accountAddress,
+            nonce: "nonce-1",
+            signature: "0xsignature",
+            primaryWalletAddress: rootSigner.ownerAddress,
+            walletProvider: "turnkey",
+        });
+    });
 });

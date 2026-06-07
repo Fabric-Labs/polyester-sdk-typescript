@@ -16,30 +16,33 @@ export interface PolyesterBrowserClientConfig extends Omit<PolyesterClientBaseCo
  * A client for interacting with the Polyester DEX in the browser.
  */
 export class PolyesterBrowserClient extends PolyesterClient {
-    override readonly auth: AccountSignerAuthService;
+    declare readonly auth: AccountSignerAuthService;
 
     constructor(config: PolyesterBrowserClientConfig) {
         const getToken = () => getEnvironmentBoundPolyesterToken(config.environment.fingerprint);
 
-        super({
-            environment: config.environment,
-            interceptors: config.interceptors,
-            auth: { kind: "jwt", getToken },
-            wireFormat: config.wireFormat,
-            realtime: {
-                hasAuth: () => !!getToken(),
-                ...config.realtime,
+        super(
+            {
+                environment: config.environment,
+                interceptors: config.interceptors,
+                auth: { kind: "jwt", getToken },
+                wireFormat: config.wireFormat,
+                realtime: {
+                    hasAuth: () => !!getToken(),
+                    ...config.realtime,
+                },
             },
-        });
-
-        // wire up AccountSignerAuthService with SubaccountsService for createSubaccount support
-        this.auth = new AccountSignerAuthService({
-            transports: { publicApi: this.transports.publicApi, authApi: this.transports.authApi },
-            accountSignerConfig: config.accountSigner,
-            environment: config.environment,
-            subaccounts: this.subaccounts,
-            realtime: this.realtime,
-        });
+            {
+                createAuth: ({ transports, realtime, subaccounts, environment }) =>
+                    new AccountSignerAuthService({
+                        transports,
+                        accountSignerConfig: config.accountSigner,
+                        environment,
+                        subaccounts,
+                        realtime,
+                    }),
+            },
+        );
     }
 
     /**
