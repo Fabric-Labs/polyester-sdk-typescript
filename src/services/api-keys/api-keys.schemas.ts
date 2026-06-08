@@ -41,7 +41,7 @@ export type ApiKeysCreateInput = v.InferInput<typeof ApiKeysCreateInputSchema>;
 
 export const ApiKeysUpdateInputSchema = v.pipe(
     v.object({
-        keyId: v.string(),
+        keyId: v.pipe(v.string(), v.trim(), v.minLength(1, "keyId is required")),
         label: v.optional(v.string()),
         status: v.pipe(
             v.optional(ApiKeyStatusSchema),
@@ -49,7 +49,7 @@ export const ApiKeysUpdateInputSchema = v.pipe(
         ),
         ipWhitelist: v.optional(v.array(v.string())),
         expiresAtIso: v.pipe(
-            v.nullable(v.optional(v.string())),
+            v.optional(v.nullable(v.string())),
             v.transform((v) => {
                 let expiresAt: Timestamp | undefined;
                 if (v !== undefined) {
@@ -71,13 +71,13 @@ export const ApiKeysUpdateInputSchema = v.pipe(
     }),
     v.transform((data) => {
         const { expiresAtIso: expiresAt, ipWhitelist, ...rest } = data;
-        return {
-            ...rest,
-            expiresAt,
-            ipWhitelist: {
-                cidrs: ipWhitelist,
-            },
+        const payload = { ...rest } as typeof rest & {
+            expiresAt?: Timestamp;
+            ipWhitelist?: { cidrs: string[] };
         };
+        if (expiresAt !== undefined) payload.expiresAt = expiresAt;
+        if (ipWhitelist !== undefined) payload.ipWhitelist = { cidrs: ipWhitelist };
+        return payload;
     }),
 );
 
