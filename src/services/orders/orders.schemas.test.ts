@@ -5,11 +5,92 @@ import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import { setEnrichedPairCatalog } from "../../catalogs/market-data-catalog.js";
 import {
     CancelOrderInputSchema,
+    type ModifyOrderInput,
     ModifyOrderInputSchema,
     NewOrderInputSchema,
     OrderHistoryInputSchema,
     OrderSchema,
 } from "./orders.schemas.js";
+
+type AssertModifyOrderInput<T extends ModifyOrderInput> = T;
+
+type _ValidModifyByOrderIdWithPrice = AssertModifyOrderInput<{
+    orderId: string;
+    symbol: string;
+    newPrice: string;
+}>;
+
+type _ValidModifyByClientOrderIdWithRisk = AssertModifyOrderInput<{
+    clientOrderId: string;
+    symbol: string;
+    risk: {
+        takeProfit: {
+            triggerPrice: string;
+        };
+    };
+}>;
+
+type _ValidModifyWithClearRisk = AssertModifyOrderInput<{
+    clientOrderId: string;
+    symbol: string;
+    clearRisk: true;
+}>;
+
+// @ts-expect-error modify requires exactly one order key
+type _InvalidModifyWithoutOrderKey = AssertModifyOrderInput<{
+    symbol: string;
+    newQty: string;
+}>;
+
+// @ts-expect-error modify accepts orderId or clientOrderId, not both
+type _InvalidModifyWithBothOrderKeys = AssertModifyOrderInput<{
+    orderId: string;
+    clientOrderId: string;
+    symbol: string;
+    newQty: string;
+}>;
+
+// @ts-expect-error modify requires at least one patch field
+type _InvalidModifyWithoutPatch = AssertModifyOrderInput<{
+    orderId: string;
+    symbol: string;
+}>;
+
+// @ts-expect-error risk and clearRisk are mutually exclusive
+type _InvalidModifyWithRiskAndClearRisk = AssertModifyOrderInput<{
+    orderId: string;
+    symbol: string;
+    risk: {
+        takeProfit: {
+            triggerPrice: string;
+        };
+    };
+    clearRisk: true;
+}>;
+
+// @ts-expect-error risk patches must include at least one leg
+type _InvalidModifyWithEmptyRisk = AssertModifyOrderInput<{
+    orderId: string;
+    symbol: string;
+    risk: {};
+}>;
+
+// @ts-expect-error stopLoss and trailingStop are mutually exclusive stop legs
+type _InvalidModifyWithBothStopLegs = AssertModifyOrderInput<{
+    orderId: string;
+    symbol: string;
+    risk: {
+        stopLoss: {
+            triggerPrice: string;
+        };
+        trailingStop: {
+            trailingDistance: {
+                kind: "ticks";
+                ticks: string;
+            };
+        };
+    };
+}>;
 
 function seedPairCatalog(): void {
     const btc = {
@@ -188,6 +269,48 @@ describe("ModifyOrderInputSchema", () => {
             newAttachedRisk: {},
             behavior: ProtoWrite.ModifyBehavior.AMEND_OR_REPLACE,
         });
+    });
+
+    it("rejects invalid risk patch states", () => {
+        seedPairCatalog();
+
+        expect(() =>
+            v.parse(ModifyOrderInputSchema, {
+                orderId: "11",
+                symbol: "BTC-USDT",
+                risk: {},
+            }),
+        ).toThrow();
+        expect(() =>
+            v.parse(ModifyOrderInputSchema, {
+                orderId: "11",
+                symbol: "BTC-USDT",
+                risk: {
+                    takeProfit: {
+                        triggerPrice: "105",
+                    },
+                },
+                clearRisk: true,
+                abc: 123,
+            }),
+        ).toThrow();
+        expect(() =>
+            v.parse(ModifyOrderInputSchema, {
+                orderId: "11",
+                symbol: "BTC-USDT",
+                risk: {
+                    stopLoss: {
+                        triggerPrice: "95",
+                    },
+                    trailingStop: {
+                        trailingDistance: {
+                            kind: "ticks",
+                            ticks: "10",
+                        },
+                    },
+                },
+            }),
+        ).toThrow();
     });
 });
 

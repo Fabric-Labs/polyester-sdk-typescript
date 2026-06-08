@@ -296,35 +296,77 @@ const TrailingStopInputSchema = v.pipe(
     })),
 );
 
+const RiskPolicyObjectInputSchema = v.object({
+    takeProfit: v.optional(TakeProfitInputSchema),
+    stopLoss: v.optional(StopLossInputSchema),
+    trailingStop: v.optional(TrailingStopInputSchema),
+    oco: v.optional(v.boolean()),
+});
+
+type RiskPolicyObjectInput = v.InferOutput<typeof RiskPolicyObjectInputSchema>;
+
+function hasRiskLeg(input: RiskPolicyObjectInput | undefined): input is RiskPolicyObjectInput {
+    return !!input && !!(input.takeProfit || input.stopLoss || input.trailingStop);
+}
+
+function hasOneStopLeg(input: RiskPolicyObjectInput | undefined): boolean {
+    return !input || !(input.stopLoss && input.trailingStop);
+}
+
+function transformRiskPolicyInput(input: RiskPolicyObjectInput) {
+    const stopLeg = input.stopLoss
+        ? ({ case: "stopLoss", value: input.stopLoss } as const)
+        : input.trailingStop
+          ? ({ case: "trailingStop", value: input.trailingStop } as const)
+          : ({ case: undefined, value: undefined } as const);
+    const oco = input.oco === true && !!input.takeProfit && stopLeg.case !== undefined;
+    return {
+        takeProfit: input.takeProfit,
+        stopLeg,
+        oco,
+    };
+}
+
 export const RiskPolicyInputSchema = v.pipe(
-    v.optional(
+    v.optional(RiskPolicyObjectInputSchema),
+    v.check(hasOneStopLeg, "Provide exactly one stop leg: stopLoss or trailingStop"),
+    v.transform((input) => (hasRiskLeg(input) ? transformRiskPolicyInput(input) : undefined)),
+);
+
+const RequiredRiskPolicyInputSchema = v.pipe(
+    v.union([
         v.object({
-            takeProfit: v.optional(TakeProfitInputSchema),
-            stopLoss: v.optional(StopLossInputSchema),
-            trailingStop: v.optional(TrailingStopInputSchema),
+            takeProfit: TakeProfitInputSchema,
+            stopLoss: StopLossInputSchema,
+            trailingStop: v.optional(v.never()),
             oco: v.optional(v.boolean()),
         }),
-    ),
-    v.check(
-        (input) => !input || !(input.stopLoss && input.trailingStop),
-        "Provide exactly one stop leg: stopLoss or trailingStop",
-    ),
-    v.transform((input) => {
-        if (!input) return undefined;
-        const hasAny = input.takeProfit || input.stopLoss || input.trailingStop;
-        if (!hasAny) return undefined;
-        const stopLeg = input.stopLoss
-            ? ({ case: "stopLoss", value: input.stopLoss } as const)
-            : input.trailingStop
-              ? ({ case: "trailingStop", value: input.trailingStop } as const)
-              : ({ case: undefined, value: undefined } as const);
-        const oco = input.oco === true && !!input.takeProfit && stopLeg.case !== undefined;
-        return {
-            takeProfit: input.takeProfit,
-            stopLeg,
-            oco,
-        };
-    }),
+        v.object({
+            takeProfit: TakeProfitInputSchema,
+            stopLoss: v.optional(v.never()),
+            trailingStop: TrailingStopInputSchema,
+            oco: v.optional(v.boolean()),
+        }),
+        v.object({
+            takeProfit: TakeProfitInputSchema,
+            stopLoss: v.optional(v.never()),
+            trailingStop: v.optional(v.never()),
+            oco: v.optional(v.boolean()),
+        }),
+        v.object({
+            takeProfit: v.optional(v.never()),
+            stopLoss: StopLossInputSchema,
+            trailingStop: v.optional(v.never()),
+            oco: v.optional(v.boolean()),
+        }),
+        v.object({
+            takeProfit: v.optional(v.never()),
+            stopLoss: v.optional(v.never()),
+            trailingStop: TrailingStopInputSchema,
+            oco: v.optional(v.boolean()),
+        }),
+    ]),
+    v.transform((input) => transformRiskPolicyInput(input)),
 );
 
 export type TakeProfitInput = v.InferInput<typeof TakeProfitInputSchema>;
@@ -765,64 +807,114 @@ export type CancelAllOrdersResponse = v.InferOutput<typeof CancelAllOrdersRespon
 
 const ModifyBehaviorInputSchema = v.picklist(["AMEND_OR_REPLACE", "AMEND_ONLY", "REPLACE_ONLY"]);
 
-export const ModifyOrderInputSchema = v.pipe(
-    v.object({
-        orderId: v.optional(v.pipe(v.string(), v.trim())),
-        clientOrderId: v.optional(
-            v.pipe(
-                v.string(),
-                v.trim(),
-                v.maxLength(36),
-                v.regex(ClientOrderIdPattern, "clientOrderId has an invalid format"),
-            ),
+const ModifyOrderIdInputSchema = v.pipe(
+    v.string(),
+    v.trim(),
+    v.minLength(1),
+    v.transform((value) => idToBigInt(value, "orderId")),
+);
+
+const ClientOrderIdInputSchema = v.pipe(
+    v.string(),
+    v.trim(),
+    v.minLength(1),
+    v.maxLength(36),
+    v.regex(ClientOrderIdPattern),
+);
+
+const ModifyPatchStringInputSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
+
+const ModifyOrderBaseInputSchema = v.object({
+    subaccountId: optionalSubaccountIdInputSchema(),
+    requestId: v.optional(
+        v.pipe(
+            v.string(),
+            v.trim(),
+            v.minLength(1),
+            v.maxLength(64),
+            v.regex(ClientOrderIdPattern, "requestId has an invalid format"),
         ),
-        subaccountId: optionalSubaccountIdInputSchema(),
-        requestId: v.optional(
-            v.pipe(
-                v.string(),
-                v.trim(),
-                v.minLength(1),
-                v.maxLength(64),
-                v.regex(ClientOrderIdPattern, "requestId has an invalid format"),
-            ),
-        ),
-        symbol: v.pipe(v.string(), v.trim(), v.minLength(1)),
-        newPrice: v.optional(v.pipe(v.string(), v.trim())),
-        newQty: v.optional(v.pipe(v.string(), v.trim())),
-        behavior: v.optional(ModifyBehaviorInputSchema),
-        newClientOrderId: v.optional(
-            v.pipe(
-                v.string(),
-                v.trim(),
-                v.maxLength(36),
-                v.regex(ClientOrderIdPattern, "newClientOrderId has an invalid format"),
-            ),
-        ),
-        risk: RiskPolicyInputSchema,
-        clearRisk: v.optional(v.boolean(), false),
-    }),
-    v.check((input) => {
-        const hasOrderId = (input.orderId ?? "").trim().length > 0;
-        const hasClientOrderId = (input.clientOrderId ?? "").trim().length > 0;
-        return hasOrderId !== hasClientOrderId;
-    }, "Provide exactly one of orderId or clientOrderId"),
-    v.check((input) => {
-        const hasNewPrice = (input.newPrice ?? "").trim().length > 0;
-        const hasNewQty = (input.newQty ?? "").trim().length > 0;
-        const hasRiskPatch = input.clearRisk === true || input.risk !== undefined;
-        return hasNewPrice || hasNewQty || hasRiskPatch;
-    }, "At least one patch field is required"),
-    v.check(
-        (input) => !(input.clearRisk === true && input.risk !== undefined),
-        "Provide risk or clearRisk, not both",
     ),
+    symbol: v.pipe(v.string(), v.trim(), v.minLength(1)),
+    behavior: v.optional(ModifyBehaviorInputSchema),
+    newClientOrderId: v.optional(ClientOrderIdInputSchema),
+});
+
+const ModifyOrderKeyInputSchema = v.union([
+    v.pipe(
+        v.object({
+            orderId: ModifyOrderIdInputSchema,
+            clientOrderId: v.optional(v.never()),
+        }),
+        v.transform(({ orderId }) => ({
+            key: { case: "orderId" as const, value: orderId },
+        })),
+    ),
+    v.pipe(
+        v.object({
+            orderId: v.optional(v.never()),
+            clientOrderId: ClientOrderIdInputSchema,
+        }),
+        v.transform(({ clientOrderId }) => ({
+            key: { case: "clientOrderId" as const, value: clientOrderId },
+        })),
+    ),
+]);
+
+const ModifyOrderPricePatchInputSchema = v.object({
+    newPrice: ModifyPatchStringInputSchema,
+    newQty: v.optional(ModifyPatchStringInputSchema),
+});
+
+const ModifyOrderQtyPatchInputSchema = v.object({
+    newPrice: v.optional(ModifyPatchStringInputSchema),
+    newQty: ModifyPatchStringInputSchema,
+});
+
+const ModifyOrderNoPriceQtyPatchInputSchema = v.object({
+    newPrice: v.optional(v.never()),
+    newQty: v.optional(v.never()),
+});
+
+const ModifyOrderSetRiskPatchInputSchema = v.object({
+    risk: RequiredRiskPolicyInputSchema,
+    clearRisk: v.optional(v.literal(false)),
+});
+
+const ModifyOrderClearRiskPatchInputSchema = v.object({
+    risk: v.optional(v.never()),
+    clearRisk: v.literal(true),
+});
+
+const ModifyOrderNoRiskPatchInputSchema = v.object({
+    risk: v.optional(v.never()),
+    clearRisk: v.optional(v.literal(false)),
+});
+
+const ModifyOrderAnyRiskPatchInputSchema = v.union([
+    ModifyOrderSetRiskPatchInputSchema,
+    ModifyOrderClearRiskPatchInputSchema,
+    ModifyOrderNoRiskPatchInputSchema,
+]);
+
+const ModifyOrderRequiredRiskPatchInputSchema = v.union([
+    ModifyOrderSetRiskPatchInputSchema,
+    ModifyOrderClearRiskPatchInputSchema,
+]);
+
+const ModifyOrderPatchInputSchema = v.union([
+    v.intersect([ModifyOrderPricePatchInputSchema, ModifyOrderAnyRiskPatchInputSchema]),
+    v.intersect([ModifyOrderQtyPatchInputSchema, ModifyOrderAnyRiskPatchInputSchema]),
+    v.intersect([ModifyOrderNoPriceQtyPatchInputSchema, ModifyOrderRequiredRiskPatchInputSchema]),
+]);
+
+export const ModifyOrderInputSchema = v.pipe(
+    v.intersect([
+        ModifyOrderBaseInputSchema,
+        ModifyOrderKeyInputSchema,
+        ModifyOrderPatchInputSchema,
+    ]),
     v.transform((input) => {
-        const orderIdRaw = (input.orderId ?? "").trim();
-        const clientOrderId = (input.clientOrderId ?? "").trim();
-        const hasOrderId = orderIdRaw.length > 0;
-        const key = hasOrderId
-            ? { case: "orderId" as const, value: idToBigInt(orderIdRaw, "orderId") }
-            : { case: "clientOrderId" as const, value: clientOrderId };
         const newPriceTicks = input.newPrice
             ? parsePriceTicks(input.newPrice, "newPrice")
             : undefined;
@@ -839,7 +931,7 @@ export const ModifyOrderInputSchema = v.pipe(
 
         return {
             subaccountId: input.subaccountId,
-            key,
+            key: input.key,
             requestId: input.requestId,
             newPriceTicks,
             newQtyScaled,
