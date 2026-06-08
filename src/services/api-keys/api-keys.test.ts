@@ -67,6 +67,8 @@ function apiKey(overrides: Partial<Record<string, unknown>> = {}): Record<string
     return {
         keyId: "ak_0123456789abcdef0123456789abcdef",
         label: "Desk key",
+        icon: "terminal",
+        color: "blue",
         ipWhitelist: ["127.0.0.1/32"],
         status: Proto.ApiKeyStatus.ACTIVE,
         createdAt: { seconds: 1n, nanos: 0 },
@@ -136,6 +138,8 @@ describe("ApiKeysService", () => {
             expect.objectContaining({
                 keyId: "ak_0123456789abcdef0123456789abcdef",
                 status: "active",
+                icon: "terminal",
+                color: "blue",
                 subaccountId: formatId(2n),
                 policyId: formatId(3n),
                 createdAt: 1000,
@@ -163,10 +167,14 @@ describe("ApiKeysService", () => {
                 input: {
                     keyId: " ak_0123456789abcdef0123456789abcdef ",
                     label: "Desk key",
+                    icon: "terminal",
+                    color: "blue",
                 },
                 expected: {
                     keyId: "ak_0123456789abcdef0123456789abcdef",
                     label: "Desk key",
+                    icon: "terminal",
+                    color: "blue",
                 },
                 absent: ["status", "ipWhitelist", "expiresAt"],
             },
@@ -229,6 +237,8 @@ describe("ApiKeysService", () => {
         await service.create(
             {
                 label: "Maker key",
+                icon: "wand",
+                color: "violet",
                 subaccountId: " 9 ",
                 publicKeyEd25519: publicKey,
             },
@@ -240,6 +250,8 @@ describe("ApiKeysService", () => {
         expect(calls[0]?.signal).toBe(signal);
         expect(calls[1]?.message).toMatchObject({
             label: "Maker key",
+            icon: "wand",
+            color: "violet",
             subaccountId: 9n,
             ipWhitelist: [],
             publicKeyEd25519: publicKey,
@@ -325,6 +337,8 @@ describe("api key input schemas", () => {
             }),
         ).toMatchObject({
             label: "Desk key",
+            icon: "",
+            color: "",
             ipWhitelist: [],
         });
 

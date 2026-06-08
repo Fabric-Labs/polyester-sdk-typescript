@@ -37,6 +37,8 @@ export type ApiKeyIdInput = v.InferInput<typeof ApiKeyIdInputSchema>;
 
 export const ApiKeysCreateInputSchema = v.object({
     label: v.string(),
+    icon: v.optional(v.string(), ""),
+    color: v.optional(v.string(), ""),
     subaccountId: optionalSubaccountIdInputSchema(),
     ipWhitelist: v.optional(v.array(v.string()), []),
     publicKeyEd25519: v.instance(Uint8Array<ArrayBufferLike>),
@@ -48,6 +50,8 @@ export const ApiKeysUpdateInputSchema = v.pipe(
     v.object({
         keyId: v.pipe(v.string(), v.trim(), v.minLength(1, "keyId is required")),
         label: v.optional(v.string()),
+        icon: v.optional(v.string()),
+        color: v.optional(v.string()),
         status: v.pipe(
             v.optional(ApiKeyUpdateStatusSchema),
             v.transform((v) => (v ? ApiKeyStatusCodec.inputToProto[v] : undefined)),
@@ -87,6 +91,8 @@ export const ApiKeySchema = v.pipe(
     v.object({
         keyId: v.string(),
         label: v.optional(v.string(), ""),
+        icon: v.optional(v.string(), ""),
+        color: v.optional(v.string(), ""),
         ipWhitelist: v.optional(v.array(v.string()), []),
         subaccountId: OptionalPublicIdSchema,
         policyId: OptionalPublicIdSchema,

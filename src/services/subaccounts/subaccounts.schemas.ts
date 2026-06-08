@@ -32,6 +32,8 @@ const ProtoSubaccountRoleSchema = v.pipe(
 
 export const CreateSubaccountInputSchema = v.object({
     label: v.optional(v.string(), ""),
+    icon: v.optional(v.string(), ""),
+    color: v.optional(v.string(), ""),
     smartAccountAddress: v.string(),
     nonce: v.string(),
     signature: v.string(),
@@ -60,7 +62,7 @@ export type SubaccountMutationResult = v.InferOutput<typeof SubaccountMutationRe
 
 export const UpdateSubaccountInputSchema = v.pipe(
     v.object({
-        ...v.pick(CreateSubaccountInputSchema, ["label"]).entries,
+        ...v.pick(CreateSubaccountInputSchema, ["label", "icon", "color"]).entries,
         subaccountId: idInputSchema("subaccountId"),
         status: v.picklist(SUBACCOUNT_STATUS_VALUES),
     }),
@@ -141,6 +143,8 @@ export const SubaccountSchema = v.object({
     id: PublicIdSchema,
     role: ProtoSubaccountRoleSchema,
     label: v.optional(v.string(), ""),
+    icon: v.optional(v.string(), ""),
+    color: v.optional(v.string(), ""),
     status: ProtoSubaccountStatusSchema,
     smartAccountAddress: v.string(),
     ownerUsername: v.optional(v.string(), ""),

@@ -48,6 +48,17 @@ describe("createPolyesterEnvironment", () => {
         ).toThrow("apiUrl must use a secure protocol for remote hosts.");
     });
 
+    it("allows insecure IPv6 loopback URLs", () => {
+        const environment = createPolyesterEnvironment({
+            ...baseParams,
+            apiUrl: "http://[::1]:3000/",
+            websocketUrl: "ws://[::1]:3001/",
+        });
+
+        expect(environment.apiUrl).toBe("http://[::1]:3000");
+        expect(environment.websocketUrl).toBe("ws://[::1]:3001");
+    });
+
     it("rejects invalid addresses", () => {
         expect(() =>
             createPolyesterEnvironment({

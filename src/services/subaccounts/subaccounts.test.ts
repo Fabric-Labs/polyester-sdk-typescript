@@ -15,6 +15,8 @@ function subaccount(id = 42n) {
         id,
         role: Proto.SubaccountRole.OWNER,
         label: "Treasury",
+        icon: "vault",
+        color: "gold",
         status: "active",
         smartAccountAddress: "0x1111111111111111111111111111111111111111",
         ownerUsername: "owner",
@@ -112,6 +114,8 @@ describe("SubaccountsService", () => {
                 {
                     id: formatId(42n),
                     role: "owner",
+                    icon: "vault",
+                    color: "gold",
                     status: "active",
                     requireMemberMfa: true,
                 },
@@ -198,6 +202,8 @@ describe("SubaccountsService", () => {
                     service.create(
                         {
                             label: "Trading",
+                            icon: "chart",
+                            color: "green",
                             smartAccountAddress: "0x1111111111111111111111111111111111111111",
                             nonce: "nonce",
                             signature: "signature",
@@ -206,6 +212,8 @@ describe("SubaccountsService", () => {
                     ),
                 expected: {
                     label: "Trading",
+                    icon: "chart",
+                    color: "green",
                     smartAccountAddress: "0x1111111111111111111111111111111111111111",
                     nonce: "nonce",
                     signature: "signature",
@@ -214,10 +222,22 @@ describe("SubaccountsService", () => {
             {
                 run: () =>
                     service.update(
-                        { subaccountId: "42", label: "Disabled", status: "disabled" },
+                        {
+                            subaccountId: "42",
+                            label: "Disabled",
+                            icon: "pause",
+                            color: "gray",
+                            status: "disabled",
+                        },
                         { stepUpToken: " fresh-token " },
                     ),
-                expected: { subaccountId: 42n, label: "Disabled", status: "disabled" },
+                expected: {
+                    subaccountId: 42n,
+                    label: "Disabled",
+                    icon: "pause",
+                    color: "gray",
+                    status: "disabled",
+                },
             },
             {
                 run: () => service.delete({ subaccountId: "42" }, { stepUpToken: " fresh-token " }),

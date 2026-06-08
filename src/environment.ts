@@ -61,7 +61,7 @@ export interface CreatePolyesterEnvironmentParams {
     readonly contracts: PolyesterContractsEnvironment;
 }
 
-const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1"]);
+const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
 
 function isLocalHost(hostname: string): boolean {
     return LOCAL_HOSTS.has(hostname);
