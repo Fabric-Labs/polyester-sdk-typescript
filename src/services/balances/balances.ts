@@ -14,9 +14,9 @@ import {
 import { idToBigInt } from "../../utils/base58-id.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
-    LedgerBalanceSchema,
+    createBalanceHistoryResponseSchema,
+    createLedgerBalanceSchema,
     BalanceHistoryInputSchema,
-    BalanceHistoryResponseSchema,
     EquityHistoryInputSchema,
     EquityHistoryResponseSchema,
     type LedgerBalance,
@@ -25,7 +25,7 @@ import {
     type EquityHistoryInput,
     type EquityHistoryResponse,
 } from "./balances.schemas.js";
-import { isKnownAssetId } from "../../catalogs/ledger-catalog.js";
+import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 
 interface SubscribeBalancesInput extends BaseSubscribeInput<LedgerBalance> {
     accountId: string;
@@ -38,11 +38,18 @@ export class BalancesService {
     #client: Client<typeof Proto.LedgerReadService>;
     #realtime: RealtimeClient;
     #resolver?: SubaccountResolver;
+    #catalog: CatalogReader;
 
-    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubaccountResolver) {
+    constructor(
+        transport: Transport,
+        realtime: RealtimeClient,
+        resolver?: SubaccountResolver,
+        catalog: CatalogReader = staticCatalog,
+    ) {
         this.#client = createClient(Proto.LedgerReadService, transport);
         this.#realtime = realtime;
         this.#resolver = resolver;
+        this.#catalog = catalog;
     }
 
     /**
@@ -59,9 +66,11 @@ export class BalancesService {
             },
             toConnectCallOptions(options),
         );
+        const snapshot = this.#catalog.snapshot();
+        const reader = this.#catalog;
         return v.parse(
-            v.array(LedgerBalanceSchema),
-            res.balances.filter((b) => isKnownAssetId(b.assetId)),
+            v.array(createLedgerBalanceSchema(snapshot)),
+            res.balances.filter((b) => reader.ledger.isKnownAssetId(b.assetId)),
         );
     }
 
@@ -75,7 +84,7 @@ export class BalancesService {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(BalanceHistoryInputSchema, resolved);
         const res = await this.#client.getBalanceHistory(validated, toConnectCallOptions(options));
-        return v.parse(BalanceHistoryResponseSchema, res);
+        return v.parse(createBalanceHistoryResponseSchema(this.#catalog.snapshot()), res);
     }
 
     /**
@@ -103,8 +112,8 @@ export class BalancesService {
             channel,
             schema: Proto.AssetBalanceSchema,
             onPublication: (data) => {
-                if (!isKnownAssetId(data.assetId)) return;
-                const b = v.parse(LedgerBalanceSchema, data);
+                if (!this.#catalog.ledger.isKnownAssetId(data.assetId)) return;
+                const b = v.parse(createLedgerBalanceSchema(this.#catalog.snapshot()), data);
                 input.onEvent(b);
             },
             onConnected: input.onOpen,

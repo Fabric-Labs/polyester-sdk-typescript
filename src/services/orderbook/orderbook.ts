@@ -7,18 +7,18 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import {
-    OrderbookDataSchema,
+    createOrderbookDataSchema,
     GetOrderbookInputSchema,
     type OrderbookLevel,
     type OrderbookData,
 } from "./orderbook.schemas.js";
 import { formatConnectError } from "../../utils/errors.js";
 import { parsePriceTicks } from "../../utils/numbers.js";
-import { formatQtyForSymbol, int6ToDecimalString } from "../../catalogs/orders-catalog.js";
+import { int6ToDecimalString } from "../../catalogs/orders-catalog.js";
 import { toBig } from "../../utils/u128.js";
-import { getPair } from "../../catalogs/market-data-catalog.js";
 import * as v from "valibot";
 import { isDev } from "../../utils/is-dev.js";
+import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 
 interface SubscribeOrderbookInput extends BaseSubscribeInput<OrderbookData> {
     symbol: string;
@@ -44,10 +44,16 @@ type BookSide = Map<bigint, bigint>;
 export class OrderbookService {
     #client: Client<typeof Proto.OrderbookService>;
     #realtime: RealtimeClient;
+    #catalog: CatalogReader;
 
-    constructor(transport: Transport, realtime: RealtimeClient) {
+    constructor(
+        transport: Transport,
+        realtime: RealtimeClient,
+        catalog: CatalogReader = staticCatalog,
+    ) {
         this.#client = createClient(Proto.OrderbookService, transport);
         this.#realtime = realtime;
+        this.#catalog = catalog;
     }
 
     /**
@@ -59,7 +65,7 @@ export class OrderbookService {
     ): Promise<OrderbookData> {
         const validated = v.parse(GetOrderbookInputSchema, input);
         const res = await this.#client.getOrderBook(validated, toConnectCallOptions(options));
-        return v.parse(OrderbookDataSchema, {
+        return v.parse(createOrderbookDataSchema(this.#catalog.snapshot()), {
             symbol: validated.symbol,
             depth: validated.depth,
             bookSeq: res.bookSeq,
@@ -79,11 +85,12 @@ export class OrderbookService {
      * Creates a stateful order book subscription that first fetches a snapshot, buffers proto deltas from public:spot:orderbook:deltas:depth:{depth}:{symbolId}:proto, applies sequence-checked updates, and refetches on gaps or reconnects. The returned handle can unsubscribe or change local price bucket aggregation without reconnecting.
      */
     createSubscription(input: CreateOrderbookSubscriptionInput): OrderbookSubscription {
-        const pair = getPair(input.symbol);
+        const pair = this.#catalog.market.requirePairBySymbol(input.symbol);
 
         const wsDepth = Math.min(500, Math.max(1, Math.trunc(input.depth ?? 50)));
         const channel = `public:spot:orderbook:deltas:depth:${wsDepth}:${pair.symbolId}:proto`;
         const symbolId = pair.symbolId;
+        const catalog = this.#catalog;
 
         const client = this.#client;
 
@@ -121,7 +128,7 @@ export class OrderbookService {
                 priceTicks: priceTicks.toString(),
                 qtyScaled: qtyScaled.toString(),
                 priceDisplay: int6ToDecimalString(priceTicks),
-                qtyDisplay: formatQtyForSymbol(qtyScaled, symbolId),
+                qtyDisplay: catalog.orders.formatQuantity(qtyScaled, symbolId),
             }));
         }
 

@@ -1,9 +1,13 @@
 import * as Proto from "../../gen/marketoverview/v1/marketoverview_pb.js";
 import * as v from "valibot";
 import { intToDecimalString, int6ToDecimalString } from "../../catalogs/orders-catalog.js";
-import { assetForSymbol } from "../../catalogs/ledger-catalog.js";
 import { tsNsToMs } from "../../utils/time.js";
-import { getPairBySymbolId } from "../../catalogs/market-data-catalog.js";
+import {
+    createCatalogSnapshotReader,
+    staticCatalog,
+    type CatalogReader,
+    type CatalogSnapshot,
+} from "../../catalogs/index.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import {
     SPARKLINE_INTERVAL_VALUES,
@@ -58,60 +62,68 @@ export const MarketOverviewSortSchema = v.picklist(MARKET_OVERVIEW_SORT_VALUES);
 
 export type MarketOverviewSort = v.InferOutput<typeof MarketOverviewSortSchema>;
 
-export const MarketOverviewSchema = v.pipe(
-    v.object({
-        symbolId: v.number(),
-        symbol: v.string(),
-        lastPriceTicks: v.bigint(),
-        lastTradeTsNs: v.optional(v.bigint(), 0n),
-        change24hBp: v.number(),
-        high24hTicks: v.bigint(),
-        low24hTicks: v.bigint(),
-        volume24hBaseScaled: v.bigint(),
-        volume24hQuoteScaled: v.bigint(),
-        listedTsNs: v.optional(v.bigint(), 0n),
-        bestBidTicks: v.bigint(),
-        bestBidQtyScaled: v.bigint(),
-        bestAskTicks: v.bigint(),
-        bestAskQtyScaled: v.bigint(),
-        sparklines: v.optional(v.array(MarketOverviewSparklineSchema), []),
-    }),
-    v.transform((m) => {
-        const [baseAsset = "", quoteAsset = ""] = m.symbol.split("-");
-        const base = assetForSymbol(baseAsset);
-        const baseScale = base.quantityScale;
-        const pair = getPairBySymbolId(m.symbolId);
+export function createMarketOverviewSchema(catalog: CatalogSnapshot) {
+    return createMarketOverviewSchemaForReader(createCatalogSnapshotReader(catalog));
+}
 
-        return {
-            symbolId: m.symbolId,
-            pair: m.symbol,
-            pairListingAt: pair.listingAt ?? null,
-            pairDelistingAt: pair.delistingAt ?? null,
-            status: pair.status,
-            symbol: {
-                base,
-                quote: assetForSymbol(quoteAsset),
-            },
-            lastPrice: int6ToDecimalString(m.lastPriceTicks),
-            lastTradeTsMs: tsNsToMs(m.lastTradeTsNs),
-            change24hBp: m.change24hBp,
-            high24h: int6ToDecimalString(m.high24hTicks),
-            low24h: int6ToDecimalString(m.low24hTicks),
-            volume24hBase: intToDecimalString(m.volume24hBaseScaled, baseScale),
-            volume24hQuote: int6ToDecimalString(m.volume24hQuoteScaled),
-            listedTsMs: tsNsToMs(m.listedTsNs),
-            bestBid: int6ToDecimalString(m.bestBidTicks),
-            bestBidQty: intToDecimalString(m.bestBidQtyScaled, baseScale),
-            bestAsk: int6ToDecimalString(m.bestAskTicks),
-            bestAskQty: intToDecimalString(m.bestAskQtyScaled, baseScale),
-            sparklines: (m.sparklines ?? []).map((s) => ({
-                interval: s.interval,
+function createMarketOverviewSchemaForReader(reader: CatalogReader) {
+    return v.pipe(
+        v.object({
+            symbolId: v.number(),
+            symbol: v.string(),
+            lastPriceTicks: v.bigint(),
+            lastTradeTsNs: v.optional(v.bigint(), 0n),
+            change24hBp: v.number(),
+            high24hTicks: v.bigint(),
+            low24hTicks: v.bigint(),
+            volume24hBaseScaled: v.bigint(),
+            volume24hQuoteScaled: v.bigint(),
+            listedTsNs: v.optional(v.bigint(), 0n),
+            bestBidTicks: v.bigint(),
+            bestBidQtyScaled: v.bigint(),
+            bestAskTicks: v.bigint(),
+            bestAskQtyScaled: v.bigint(),
+            sparklines: v.optional(v.array(MarketOverviewSparklineSchema), []),
+        }),
+        v.transform((m) => {
+            const [baseAsset = "", quoteAsset = ""] = m.symbol.split("-");
+            const base = reader.ledger.requireAssetBySymbol(baseAsset);
+            const baseScale = base.quantityScale;
+            const pair = reader.market.requirePairBySymbolId(m.symbolId);
 
-                prices: s.closeTicks.map((t) => int6ToDecimalString(t)).reverse(),
-            })),
-        };
-    }),
-);
+            return {
+                symbolId: m.symbolId,
+                pair: m.symbol,
+                pairListingAt: pair.listingAt ?? null,
+                pairDelistingAt: pair.delistingAt ?? null,
+                status: pair.status,
+                symbol: {
+                    base,
+                    quote: reader.ledger.requireAssetBySymbol(quoteAsset),
+                },
+                lastPrice: int6ToDecimalString(m.lastPriceTicks),
+                lastTradeTsMs: tsNsToMs(m.lastTradeTsNs),
+                change24hBp: m.change24hBp,
+                high24h: int6ToDecimalString(m.high24hTicks),
+                low24h: int6ToDecimalString(m.low24hTicks),
+                volume24hBase: intToDecimalString(m.volume24hBaseScaled, baseScale),
+                volume24hQuote: int6ToDecimalString(m.volume24hQuoteScaled),
+                listedTsMs: tsNsToMs(m.listedTsNs),
+                bestBid: int6ToDecimalString(m.bestBidTicks),
+                bestBidQty: intToDecimalString(m.bestBidQtyScaled, baseScale),
+                bestAsk: int6ToDecimalString(m.bestAskTicks),
+                bestAskQty: intToDecimalString(m.bestAskQtyScaled, baseScale),
+                sparklines: (m.sparklines ?? []).map((s) => ({
+                    interval: s.interval,
+
+                    prices: s.closeTicks.map((t) => int6ToDecimalString(t)).reverse(),
+                })),
+            };
+        }),
+    );
+}
+
+export const MarketOverviewSchema = createMarketOverviewSchemaForReader(staticCatalog);
 
 export type MarketOverview = v.InferOutput<typeof MarketOverviewSchema>;
 

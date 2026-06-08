@@ -176,7 +176,7 @@ describe("MarketDataService", () => {
         const service = new MarketDataService(transport.transport, realtimeClientStub().realtime);
 
         await expect(service.listTrades({ symbol: "BTC-USDT" })).rejects.toThrow(
-            /Unknown pair symbolId: 999/,
+            /\[catalog\] market symbolId not found: 999/,
         );
     });
 
@@ -230,7 +230,7 @@ describe("MarketDataService", () => {
                 symbol: "NOPE-USDT",
                 onEvent: vi.fn(),
             }),
-        ).toThrow(/Unknown pair symbol: NOPE-USDT/);
+        ).toThrow(/\[catalog\] market pairSymbol not found: NOPE-USDT/);
         expect(realtime.connectProtoChannel).not.toHaveBeenCalled();
     });
 

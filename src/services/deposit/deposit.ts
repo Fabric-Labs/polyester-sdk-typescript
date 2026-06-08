@@ -9,14 +9,15 @@ import {
 } from "../../shared/request-options.js";
 import * as v from "valibot";
 import {
-    CreateDepositAddressInputSchema,
-    ListDepositAddressesInputSchema,
+    createCreateDepositAddressInputSchema,
+    createListDepositAddressesInputSchema,
     DepositAddressSchema,
     DepositAddressesSchema,
     type CreateDepositAddressInput,
     type ListDepositAddressesInput,
     type DepositAddress,
 } from "./deposit.schemas.js";
+import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 
 /**
  * Manages chain deposit addresses for root accounts and subaccounts.
@@ -24,10 +25,16 @@ import {
 export class DepositService {
     #client: Client<typeof Proto.DepositAddressService>;
     #resolver?: SubaccountResolver;
+    #catalog: CatalogReader;
 
-    constructor(transport: Transport, resolver?: SubaccountResolver) {
+    constructor(
+        transport: Transport,
+        resolver?: SubaccountResolver,
+        catalog: CatalogReader = staticCatalog,
+    ) {
         this.#client = createClient(Proto.DepositAddressService, transport);
         this.#resolver = resolver;
+        this.#catalog = catalog;
     }
 
     /**
@@ -38,7 +45,10 @@ export class DepositService {
         options?: PolyesterMutationOptions,
     ): Promise<DepositAddress | null> {
         const resolvedInput = resolveSubaccountScopedInput(input, this.#resolver);
-        const validatedInput = v.parse(CreateDepositAddressInputSchema, resolvedInput);
+        const validatedInput = v.parse(
+            createCreateDepositAddressInputSchema(this.#catalog.snapshot()),
+            resolvedInput,
+        );
         const res = await this.#client.createDepositAddress(
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
@@ -55,7 +65,10 @@ export class DepositService {
         options?: PolyesterRequestOptions,
     ): Promise<DepositAddress[]> {
         const resolvedInput = resolveSubaccountScopedInput(input, this.#resolver);
-        const validatedInput = v.parse(ListDepositAddressesInputSchema, resolvedInput);
+        const validatedInput = v.parse(
+            createListDepositAddressesInputSchema(this.#catalog.snapshot()),
+            resolvedInput,
+        );
         const res = await this.#client.listDepositAddresses(
             removeUndefined(validatedInput),
             toConnectCallOptions(options),

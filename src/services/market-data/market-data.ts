@@ -7,10 +7,11 @@ import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import { getPair } from "../../catalogs/market-data-catalog.js";
+import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 import {
-    GetMarketTradesInputSchema,
-    MarketTradeSchema,
+    createGetMarketTradesInputSchema,
+    createMarketTradeSchema,
+    type GetMarketTradesInputSchema,
     type SpotConfig,
     SpotConfigSchema,
     type MarketTrade,
@@ -27,10 +28,16 @@ interface SubscribeTradesInput extends BaseSubscribeInput<MarketTrade> {
 export class MarketDataService {
     #client: Client<typeof Proto.MarketDataService>;
     #realtime: RealtimeClient;
+    #catalog: CatalogReader;
 
-    constructor(transport: Transport, realtime: RealtimeClient) {
+    constructor(
+        transport: Transport,
+        realtime: RealtimeClient,
+        catalog: CatalogReader = staticCatalog,
+    ) {
         this.#client = createClient(Proto.MarketDataService, transport);
         this.#realtime = realtime;
+        this.#catalog = catalog;
     }
 
     /**
@@ -40,9 +47,10 @@ export class MarketDataService {
         input: v.InferInput<typeof GetMarketTradesInputSchema>,
         options?: PolyesterRequestOptions,
     ): Promise<MarketTrade[]> {
-        const validatedInput = v.parse(GetMarketTradesInputSchema, input);
+        const catalog = this.#catalog.snapshot();
+        const validatedInput = v.parse(createGetMarketTradesInputSchema(catalog), input);
         const res = await this.#client.getTrades(validatedInput, toConnectCallOptions(options));
-        return v.parse(v.array(MarketTradeSchema), res.trades);
+        return v.parse(v.array(createMarketTradeSchema(catalog)), res.trades);
     }
 
     /**
@@ -57,14 +65,14 @@ export class MarketDataService {
      * Subscribes to public trade prints on public:spot:market:trades:{symbolId}:proto for the requested symbol and emits parsed market trades.
      */
     subscribeTrades(input: SubscribeTradesInput): () => void {
-        const pair = getPair(input.symbol);
+        const pair = this.#catalog.market.requirePairBySymbol(input.symbol);
 
         const channel = `public:spot:market:trades:${pair.symbolId}:proto`;
         return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.MarketTradeSchema,
             onPublication: (data) => {
-                const trade = v.parse(MarketTradeSchema, data);
+                const trade = v.parse(createMarketTradeSchema(this.#catalog.snapshot()), data);
                 input.onEvent(trade);
             },
             onConnected: () => input.onOpen?.(),

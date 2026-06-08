@@ -182,7 +182,7 @@ describe("PolyesterBrowserClient", () => {
             refreshCatalogs: false,
         });
 
-        await client.refreshCatalogs();
+        await client.catalog.refresh();
 
         expect(refresh.getSpotConfig).toHaveBeenCalledTimes(1);
         expect(refresh.getDepositWithdrawConfig).toHaveBeenCalledTimes(1);

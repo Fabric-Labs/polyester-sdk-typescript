@@ -32,36 +32,8 @@ import { WhiteboardService } from "./services/whiteboard/index.js";
 import { ZipperService } from "./services/zipper/index.js";
 import { MfaService } from "./services/mfa/index.js";
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";
-import { setAssetCatalog, setEnrichedPairCatalog } from "./catalogs/market-data-catalog.js";
-import { ASSET_CATALOG, PAIR_CATALOG } from "./catalogs/market-data-catalog.generated.js";
-import {
-    setZipperAssetsCatalog,
-    setZipperChainsCatalog,
-    setZipperContractsCatalog,
-} from "./catalogs/zipper-catalog.js";
-import {
-    ZIPPER_ASSET_CATALOG,
-    ZIPPER_CHAIN_CATALOG,
-    ZIPPER_CONTRACTS_CATALOG,
-} from "./catalogs/zipper-catalog.generated.js";
-import {
-    refreshCatalogs as refreshCatalogsFromApi,
-    refreshCatalogsInBackground,
-} from "./catalogs/catalog-refresh.js";
+import { createPolyesterCatalog, type ClientCatalog } from "./catalogs/index.js";
 import { RealtimeClient, type RealtimeConfig } from "./realtime/index.js";
-
-let generatedCatalogsInitialized = false;
-
-function initializeGeneratedCatalogs(): void {
-    if (generatedCatalogsInitialized) return;
-
-    setAssetCatalog(ASSET_CATALOG);
-    setEnrichedPairCatalog(PAIR_CATALOG);
-    setZipperChainsCatalog(ZIPPER_CHAIN_CATALOG);
-    setZipperAssetsCatalog(ZIPPER_ASSET_CATALOG);
-    setZipperContractsCatalog(ZIPPER_CONTRACTS_CATALOG);
-    generatedCatalogsInitialized = true;
-}
 
 function realtimeAuthFromProvider(
     auth: JwtAuthProvider | ApiKeyEd25519AuthProvider | undefined,
@@ -104,6 +76,10 @@ export interface PolyesterClientBaseConfig {
      * Refresh runtime catalogs from the API after construction. Defaults to true.
      */
     refreshCatalogs?: boolean;
+    /**
+     * Client-owned catalog store. Tests and advanced callers can inject fixture-backed catalogs.
+     */
+    catalog?: ClientCatalog;
 }
 
 export interface PolyesterClientConfig extends PolyesterClientBaseConfig {}
@@ -148,11 +124,11 @@ export class PolyesterClient {
     readonly zipper: ZipperService;
     readonly mfa: MfaService;
     readonly realtime: RealtimeClient;
+    readonly catalog: ClientCatalog;
 
     protected readonly transports: Transports;
 
     constructor(config: PolyesterClientConfig, runtime: PolyesterClientRuntimeConfig = {}) {
-        initializeGeneratedCatalogs();
         const interceptors = config.interceptors ?? [];
         const { environment } = config;
 
@@ -184,26 +160,39 @@ export class PolyesterClient {
             }) ?? new AuthService({ publicApi, authApi }, this.realtime);
 
         const resolver = this.createSubaccountResolver();
+        this.catalog =
+            config.catalog ??
+            createPolyesterCatalog({
+                refresh: {
+                    market: () => this.marketData.getSpotConfig(),
+                    zipper: () => this.zipper.getDepositWithdrawConfig(),
+                },
+            });
 
         this.accounts = new AccountsService(authApi);
         this.apiKeys = new ApiKeysService(authApi, this.realtime, resolver);
-        this.candles = new CandlesService(publicApi, this.realtime);
-        this.marketData = new MarketDataService(publicApi, this.realtime);
-        this.marketOverview = new MarketOverviewService(publicApi, this.realtime);
-        this.orderbook = new OrderbookService(publicApi, this.realtime);
-        this.heatmap = new HeatmapService(publicApi, this.realtime);
-        this.lifecycle = new LifecycleService(publicApi, this.realtime);
-        this.trades = new TradesService(authApi, this.realtime, resolver);
-        this.orders = new OrdersService(authApi, this.realtime, resolver);
-        this.triggers = new TriggersService(authApi, this.realtime, resolver);
-        this.balances = new BalancesService(authApi, this.realtime, resolver);
-        this.transfers = new TransfersService(authApi, this.realtime, resolver);
+        this.candles = new CandlesService(publicApi, this.realtime, this.catalog);
+        this.marketData = new MarketDataService(publicApi, this.realtime, this.catalog);
+        this.marketOverview = new MarketOverviewService(publicApi, this.realtime, this.catalog);
+        this.orderbook = new OrderbookService(publicApi, this.realtime, this.catalog);
+        this.heatmap = new HeatmapService(publicApi, this.realtime, this.catalog);
+        this.lifecycle = new LifecycleService(publicApi, this.realtime, this.catalog);
+        this.trades = new TradesService(authApi, this.realtime, resolver, this.catalog);
+        this.orders = new OrdersService(authApi, this.realtime, resolver, this.catalog);
+        this.triggers = new TriggersService(authApi, this.realtime, resolver, this.catalog);
+        this.balances = new BalancesService(authApi, this.realtime, resolver, this.catalog);
+        this.transfers = new TransfersService(authApi, this.realtime, resolver, this.catalog);
         this.internalTransfers = new InternalTransfersService(authApi, resolver);
-        this.tradingWithdraws = new TradingWithdrawsService(authApi, resolver, {
-            chainId: environment.chain.id,
-            tradingGatewayAddress: environment.contracts.tradingGatewayAddress,
-        });
-        this.deposit = new DepositService(authApi, resolver);
+        this.tradingWithdraws = new TradingWithdrawsService(
+            authApi,
+            resolver,
+            {
+                chainId: environment.chain.id,
+                tradingGatewayAddress: environment.contracts.tradingGatewayAddress,
+            },
+            this.catalog,
+        );
+        this.deposit = new DepositService(authApi, resolver, this.catalog);
         this.addressBook = new AddressBookService(authApi, resolver);
         this.guardSigner = new GuardSignerService(authApi, resolver);
         this.socialVerification = new SocialVerificationService(authApi);
@@ -212,15 +201,8 @@ export class PolyesterClient {
         this.mfa = new MfaService(authApi);
 
         if (config.refreshCatalogs !== false) {
-            refreshCatalogsInBackground(this);
+            this.catalog.refresh().catch(() => {});
         }
-    }
-
-    /**
-     * Refreshes SDK catalogs used by catalog lookup helpers.
-     */
-    async refreshCatalogs(): Promise<void> {
-        await refreshCatalogsFromApi(this);
     }
 
     /**

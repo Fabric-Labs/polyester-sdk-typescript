@@ -1,11 +1,11 @@
 import type * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
 import * as v from "valibot";
+import { int6ToDecimalString, int18ToDecimalString } from "../../catalogs/orders-catalog.js";
 import {
-    formatQtyForSymbol,
-    int6ToDecimalString,
-    int18ToDecimalString,
-} from "../../catalogs/orders-catalog.js";
-import { getPair } from "../../catalogs/market-data-catalog.js";
+    createCatalogSnapshotReader,
+    staticCatalog,
+    type CatalogSnapshot,
+} from "../../catalogs/index.js";
 import { DepthCodec, type OrderbookSupportedDepth } from "./orderbook.codecs.js";
 
 function toDepthEnum(depth: number): Proto.Depth {
@@ -42,30 +42,34 @@ export const OrderbookLevelSchema = v.pipe(
 
 export type OrderbookLevel = v.InferOutput<typeof OrderbookLevelSchema>;
 
-export const OrderbookDataSchema = v.pipe(
-    v.object({
-        symbol: v.string(),
-        depth: v.number(),
-        bookSeq: v.bigint(),
-        bids: v.array(OrderbookLevelSchema),
-        asks: v.array(OrderbookLevelSchema),
-    }),
-    v.transform((d) => {
-        const pair = getPair(d.symbol);
-        const symbolId = pair?.symbolId ?? 0;
-        return {
-            ...d,
-            bookSeq: d.bookSeq.toString(),
-            bids: d.bids.map((level) => ({
-                ...level,
-                qtyDisplay: formatQtyForSymbol(level.qtyScaled, symbolId),
-            })),
-            asks: d.asks.map((level) => ({
-                ...level,
-                qtyDisplay: formatQtyForSymbol(level.qtyScaled, symbolId),
-            })),
-        };
-    }),
-);
+export function createOrderbookDataSchema(catalog: CatalogSnapshot) {
+    const reader = createCatalogSnapshotReader(catalog);
+    return v.pipe(
+        v.object({
+            symbol: v.string(),
+            depth: v.number(),
+            bookSeq: v.bigint(),
+            bids: v.array(OrderbookLevelSchema),
+            asks: v.array(OrderbookLevelSchema),
+        }),
+        v.transform((d) => {
+            const symbolId = reader.market.requireSymbolIdByPairSymbol(d.symbol);
+            return {
+                ...d,
+                bookSeq: d.bookSeq.toString(),
+                bids: d.bids.map((level) => ({
+                    ...level,
+                    qtyDisplay: reader.orders.formatQuantity(level.qtyScaled, symbolId),
+                })),
+                asks: d.asks.map((level) => ({
+                    ...level,
+                    qtyDisplay: reader.orders.formatQuantity(level.qtyScaled, symbolId),
+                })),
+            };
+        }),
+    );
+}
+
+export const OrderbookDataSchema = createOrderbookDataSchema(staticCatalog.snapshot());
 
 export type OrderbookData = v.InferOutput<typeof OrderbookDataSchema>;

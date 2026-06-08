@@ -29,110 +29,54 @@ export type ZipperEnrichedAssetConfig = Omit<ZipperAssetConfig, "variants"> & {
     chains: ZipperEnrichedAssetChain[];
 };
 
-const FALLBACK_ZIPPER_CHAIN: ZipperChainConfig = {
-    chainId: 0,
-    code: "",
-    name: "",
-    nativeChainId: "",
-    nativeCurrencySymbol: "",
-    explorerUrl: "",
-    icon: "",
-    requiredConfirmations: 0,
-    confirmationTimeSeconds: 0,
-    isCaseSensitive: false,
-    minAddressLength: 0,
-    maxAddressLength: 0,
-};
-
-const FALLBACK_ZIPPER_ASSET: ZipperEnrichedAssetConfig = {
-    asset: "",
-    ledgerId: 0,
-    name: "",
-    icon: "",
-    quantityScale: 0,
-    quantityDisplayDecimals: 0,
-    uAssetId: "",
-    chains: [],
-};
-
-function createFallbackZipperChain(chainId: number): ZipperChainConfig {
-    const label = `Chain ${chainId}`;
-    return {
-        ...FALLBACK_ZIPPER_CHAIN,
-        chainId,
-        code: `chain-${chainId}`,
-        name: label,
-    };
+export interface ZipperCatalogData {
+    readonly chains: readonly ZipperChainConfig[];
+    readonly assets: readonly ZipperEnrichedAssetConfig[];
+    readonly contracts: readonly ZipperChainContractConfig[];
+    readonly tsMs?: number;
 }
 
-let ZIPPER_CHAIN_CATALOG = new Map<string, ZipperChainConfig>();
-let ZIPPER_CHAIN_BY_ID = new Map<number, ZipperChainConfig>();
-let ZIPPER_ASSET_CATALOG = new Map<string, ZipperEnrichedAssetConfig>();
-let ZIPPER_ASSET_BY_LEDGER_ID = new Map<number, ZipperEnrichedAssetConfig>();
-let ZIPPER_CONTRACTS_CATALOG = new Map<string, ZipperChainContractConfig>();
+export type ZipperCatalogSeed =
+    | DepositWithdrawConfig
+    | {
+          readonly chains: readonly ZipperChainConfig[];
+          readonly assets: readonly (ZipperAssetConfig | ZipperEnrichedAssetConfig)[];
+          readonly contracts?: readonly ZipperChainContractConfig[];
+          readonly tsMs?: number;
+      };
 
-/**
- * Replaces the in-memory Zipper chains catalog.
- */
-export function setZipperChainsCatalog(chains: ZipperChainConfig[]): void {
-    const byCode = new Map<string, ZipperChainConfig>();
-    const byId = new Map<number, ZipperChainConfig>();
-
-    for (const chain of chains) {
-        byCode.set(chain.code, chain);
-        byId.set(chain.chainId, chain);
-    }
-
-    ZIPPER_CHAIN_CATALOG = byCode;
-    ZIPPER_CHAIN_BY_ID = byId;
-}
-
-/**
- * Replaces the in-memory Zipper assets catalog.
- */
-export function setZipperAssetsCatalog(assets: ZipperEnrichedAssetConfig[]): void {
-    const byAsset = new Map<string, ZipperEnrichedAssetConfig>();
-    const byLedgerId = new Map<number, ZipperEnrichedAssetConfig>();
-
-    for (const asset of assets) {
-        byAsset.set(asset.asset, asset);
-        byLedgerId.set(asset.ledgerId, asset);
-    }
-
-    ZIPPER_ASSET_CATALOG = byAsset;
-    ZIPPER_ASSET_BY_LEDGER_ID = byLedgerId;
-}
-
-/**
- * Replaces the in-memory Zipper contracts catalog.
- */
-export function setZipperContractsCatalog(contracts: ZipperChainContractConfig[]): void {
-    const byName = new Map<string, ZipperChainContractConfig>();
-
-    for (const contract of contracts) {
-        byName.set(contract.name, contract);
-    }
-
-    ZIPPER_CONTRACTS_CATALOG = byName;
+function isEnrichedZipperAsset(
+    asset: ZipperAssetConfig | ZipperEnrichedAssetConfig,
+): asset is ZipperEnrichedAssetConfig {
+    return "chains" in asset;
 }
 
 /**
  * Adds derived display metadata to Zipper asset records.
  */
 export function enrichZipperAssets(
-    assets: ZipperAssetConfig[],
-    chains: ZipperChainConfig[],
-): ZipperEnrichedAssetConfig[] {
+    assets: readonly (ZipperAssetConfig | ZipperEnrichedAssetConfig)[],
+    chains: readonly ZipperChainConfig[],
+): readonly ZipperEnrichedAssetConfig[] {
     const chainById = new Map(chains.map((chain) => [chain.chainId, chain]));
     const enrichedAssets: ZipperEnrichedAssetConfig[] = [];
 
     for (const asset of assets) {
+        if (isEnrichedZipperAsset(asset)) {
+            enrichedAssets.push(asset);
+            continue;
+        }
+
         const { variants, ...rest } = asset;
         const enrichedChains: ZipperEnrichedAssetChain[] = [];
 
         for (const variant of variants) {
-            const chain =
-                chainById.get(variant.chainId) ?? createFallbackZipperChain(variant.chainId);
+            const chain = chainById.get(variant.chainId);
+            if (!chain) {
+                throw new Error(
+                    `[catalog] zipper asset ${asset.asset} references unknown chainId: ${variant.chainId}`,
+                );
+            }
 
             enrichedChains.push({
                 ...chain,
@@ -156,69 +100,97 @@ export function enrichZipperAssets(
     return enrichedAssets;
 }
 
-/**
- * Loads Zipper chain, asset, and contract records into the in-memory catalog.
- */
-export function hydrateZipperCatalog(config: DepositWithdrawConfig): void {
-    setZipperChainsCatalog(config.chains);
-    setZipperAssetsCatalog(enrichZipperAssets(config.assets, config.chains));
-    setZipperContractsCatalog(config.contracts);
+export function buildZipperCatalogData(seed: ZipperCatalogSeed): ZipperCatalogData {
+    const chains = [...seed.chains];
+    const assets = enrichZipperAssets(seed.assets, chains);
+    return Object.freeze({
+        chains: Object.freeze(chains),
+        assets: Object.freeze([...assets]),
+        contracts: Object.freeze([...(seed.contracts ?? [])]),
+        tsMs: seed.tsMs,
+    });
 }
 
-/**
- * Returns Zipper chain metadata by chain key.
- */
-export function getZipperChain(code: string): ZipperChainConfig {
-    return ZIPPER_CHAIN_CATALOG.get(code) ?? FALLBACK_ZIPPER_CHAIN;
+export type { ZipperContractName };
+
+let legacyChainByCode = new Map<string, ZipperChainConfig>();
+let legacyChainById = new Map<number, ZipperChainConfig>();
+let legacyAssetBySymbol = new Map<string, ZipperEnrichedAssetConfig>();
+let legacyAssetByLedgerId = new Map<number, ZipperEnrichedAssetConfig>();
+let legacyContractByName = new Map<string, ZipperChainContractConfig>();
+let legacyZipperCatalogListener:
+    | ((zipper: {
+          chains: readonly ZipperChainConfig[];
+          assets: readonly ZipperEnrichedAssetConfig[];
+          contracts: readonly ZipperChainContractConfig[];
+      }) => void)
+    | undefined;
+
+export function setLegacyZipperCatalogListener(
+    listener: (zipper: {
+        chains: readonly ZipperChainConfig[];
+        assets: readonly ZipperEnrichedAssetConfig[];
+        contracts: readonly ZipperChainContractConfig[];
+    }) => void,
+): void {
+    legacyZipperCatalogListener = listener;
 }
 
-/**
- * Returns Zipper chain metadata by numeric chain id.
- */
-export function getZipperChainById(chainId: number): ZipperChainConfig {
-    return ZIPPER_CHAIN_BY_ID.get(chainId) ?? FALLBACK_ZIPPER_CHAIN;
+function notifyLegacyZipperCatalogListener(): void {
+    legacyZipperCatalogListener?.({
+        chains: getAllZipperChains(),
+        assets: getAllZipperAssets(),
+        contracts: getAllZipperContracts(),
+    });
 }
 
-/**
- * Returns every chain in the Zipper catalog.
- */
+export function setZipperChainsCatalog(chains: readonly ZipperChainConfig[]): void {
+    legacyChainByCode = new Map(chains.map((chain) => [chain.code, chain]));
+    legacyChainById = new Map(chains.map((chain) => [chain.chainId, chain]));
+    notifyLegacyZipperCatalogListener();
+}
+
+export function setZipperAssetsCatalog(assets: readonly ZipperEnrichedAssetConfig[]): void {
+    legacyAssetBySymbol = new Map(assets.map((asset) => [asset.asset, asset]));
+    legacyAssetByLedgerId = new Map(assets.map((asset) => [asset.ledgerId, asset]));
+    notifyLegacyZipperCatalogListener();
+}
+
+export function setZipperContractsCatalog(contracts: readonly ZipperChainContractConfig[]): void {
+    legacyContractByName = new Map(contracts.map((contract) => [contract.name, contract]));
+    notifyLegacyZipperCatalogListener();
+}
+
+export function getZipperChain(code: string): ZipperChainConfig | undefined {
+    return legacyChainByCode.get(code);
+}
+
+export function getZipperChainById(chainId: number): ZipperChainConfig | undefined {
+    return legacyChainById.get(chainId);
+}
+
 export function getAllZipperChains(): ZipperChainConfig[] {
-    return Array.from(ZIPPER_CHAIN_CATALOG.values());
+    return Array.from(legacyChainByCode.values());
 }
 
-/**
- * Returns Zipper asset metadata by asset key.
- */
-export function getZipperAsset(asset: string): ZipperEnrichedAssetConfig {
-    return ZIPPER_ASSET_CATALOG.get(asset) ?? FALLBACK_ZIPPER_ASSET;
+export function getZipperAsset(asset: string): ZipperEnrichedAssetConfig | undefined {
+    return legacyAssetBySymbol.get(asset);
 }
 
-/**
- * Returns Zipper asset metadata by ledger asset id.
- */
-export function getZipperAssetByLedgerId(ledgerId: number): ZipperEnrichedAssetConfig {
-    return ZIPPER_ASSET_BY_LEDGER_ID.get(ledgerId) ?? FALLBACK_ZIPPER_ASSET;
+export function getZipperAssetByLedgerId(ledgerId: number): ZipperEnrichedAssetConfig | undefined {
+    return legacyAssetByLedgerId.get(ledgerId);
 }
 
-/**
- * Returns every asset in the Zipper catalog.
- */
 export function getAllZipperAssets(): ZipperEnrichedAssetConfig[] {
-    return Array.from(ZIPPER_ASSET_CATALOG.values());
+    return Array.from(legacyAssetBySymbol.values());
 }
 
-/**
- * Returns Zipper contract metadata by contract name.
- */
 export function getZipperContractByName(
     name: ZipperContractName,
 ): ZipperChainContractConfig | undefined {
-    return ZIPPER_CONTRACTS_CATALOG.get(name);
+    return legacyContractByName.get(name);
 }
 
-/**
- * Returns every contract in the Zipper catalog.
- */
 export function getAllZipperContracts(): ZipperChainContractConfig[] {
-    return Array.from(ZIPPER_CONTRACTS_CATALOG.values());
+    return Array.from(legacyContractByName.values());
 }

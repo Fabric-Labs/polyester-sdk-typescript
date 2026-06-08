@@ -395,7 +395,8 @@ describe("OrdersService", () => {
             symbol: "BTC-USDT",
         });
         expect(request?.requestId).toEqual(expect.any(String));
-        expect((request?.requestId as string).length).toBeGreaterThan(0);
+        const requestId = request?.requestId as string;
+        expect(requestId.length).toBeGreaterThan(0);
     });
 
     it("preserves a caller-provided request ID for cancelAll", async () => {

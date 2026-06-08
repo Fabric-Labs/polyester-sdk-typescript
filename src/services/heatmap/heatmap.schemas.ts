@@ -4,7 +4,11 @@ import type {
     HeatmapInterval,
     HeatmapQuantityMode,
 } from "../../gen/marketdata/v1/heatmap_pb.js";
-import { getPair } from "../../catalogs/market-data-catalog.js";
+import {
+    createCatalogSnapshotReader,
+    staticCatalog,
+    type CatalogSnapshot,
+} from "../../catalogs/index.js";
 import { OptionalTimestampSecondsInputSchema } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import {
@@ -60,55 +64,66 @@ const CursorInputSchema = v.optional(
     ),
 );
 
-export const GetOrderbookHeatmapInputSchema = v.pipe(
-    v.object({
-        symbol: v.optional(v.pipe(v.string(), v.minLength(1))),
-        symbolId: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0))),
-        interval: IntervalInputSchema,
-        depth: DepthInputSchema,
-        quantityMode: QuantityModeInputSchema,
-        limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(20_000))),
-        startTsSec: OptionalTimestampSecondsInputSchema,
-        endTsSec: OptionalTimestampSecondsInputSchema,
-        cursorTsSec: CursorInputSchema,
-    }),
-    v.check(
-        (value) => value.cursorTsSec != null || value.startTsSec != null || value.endTsSec != null,
-        "cursorTsSec, startTsSec, or endTsSec is required",
-    ),
-    v.transform((value) => {
-        const symbolId =
-            value.symbolId ??
-            (() => {
-                const pair = value.symbol ? getPair(value.symbol) : undefined;
-                return pair?.symbolId;
-            })();
-        if (!symbolId || symbolId <= 0) {
-            throw new Error("symbolId is required and must be > 0");
-        }
+export function createGetOrderbookHeatmapInputSchema(catalog: CatalogSnapshot) {
+    const reader = createCatalogSnapshotReader(catalog);
+    return v.pipe(
+        v.object({
+            symbol: v.optional(v.pipe(v.string(), v.minLength(1))),
+            symbolId: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0))),
+            interval: IntervalInputSchema,
+            depth: DepthInputSchema,
+            quantityMode: QuantityModeInputSchema,
+            limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(20_000))),
+            startTsSec: OptionalTimestampSecondsInputSchema,
+            endTsSec: OptionalTimestampSecondsInputSchema,
+            cursorTsSec: CursorInputSchema,
+        }),
+        v.check(
+            (value) =>
+                value.cursorTsSec != null || value.startTsSec != null || value.endTsSec != null,
+            "cursorTsSec, startTsSec, or endTsSec is required",
+        ),
+        v.transform((value) => {
+            const symbolId =
+                value.symbolId ??
+                (() => {
+                    return value.symbol
+                        ? reader.market.requireSymbolIdByPairSymbol(value.symbol)
+                        : undefined;
+                })();
+            if (!symbolId || symbolId <= 0) {
+                throw new Error("symbolId is required and must be > 0");
+            }
 
-        const mode: HeatmapMode =
-            value.cursorTsSec != null
-                ? { case: "cursor", fromTsSec: value.cursorTsSec }
-                : {
-                      case: "timeRange",
-                      startTime:
-                          value.startTsSec != null
-                              ? timestampFromTsSec(value.startTsSec)
-                              : undefined,
-                      endTime:
-                          value.endTsSec != null ? timestampFromTsSec(value.endTsSec) : undefined,
-                  };
+            const mode: HeatmapMode =
+                value.cursorTsSec != null
+                    ? { case: "cursor", fromTsSec: value.cursorTsSec }
+                    : {
+                          case: "timeRange",
+                          startTime:
+                              value.startTsSec != null
+                                  ? timestampFromTsSec(value.startTsSec)
+                                  : undefined,
+                          endTime:
+                              value.endTsSec != null
+                                  ? timestampFromTsSec(value.endTsSec)
+                                  : undefined,
+                      };
 
-        return {
-            symbolId,
-            interval: value.interval,
-            depth: value.depth,
-            quantityMode: value.quantityMode,
-            limit: value.limit,
-            mode,
-        };
-    }),
+            return {
+                symbolId,
+                interval: value.interval,
+                depth: value.depth,
+                quantityMode: value.quantityMode,
+                limit: value.limit,
+                mode,
+            };
+        }),
+    );
+}
+
+export const GetOrderbookHeatmapInputSchema = createGetOrderbookHeatmapInputSchema(
+    staticCatalog.snapshot(),
 );
 
 function requiredIntervalLabelFor(value: number): HeatmapIntervalValue {

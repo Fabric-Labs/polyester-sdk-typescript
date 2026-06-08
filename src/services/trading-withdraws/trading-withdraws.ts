@@ -12,12 +12,13 @@ import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subacc
 import { TradingWithdrawActionCodec } from "./trading-withdraws.codecs.js";
 import * as v from "valibot";
 import {
+    createCreateTradingWithdrawToFundingInputSchema,
     CreateTradingWithdrawResultSchema,
     CreateWalletTradingWithdrawResultSchema,
-    CreateTradingWithdrawToFundingInputSchema,
     type CreateTradingWithdrawResult,
     type CreateTradingWithdrawToFundingInput,
 } from "./trading-withdraws.schemas.js";
+import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 
 const DEFAULT_DEADLINE_SECONDS = 5 * 60;
 
@@ -142,15 +143,18 @@ export class TradingWithdrawsService {
     #client: Client<typeof Proto.WithdrawService>;
     #resolver?: SubaccountResolver;
     #signingConfig: TradingWithdrawSigningConfig;
+    #catalog: CatalogReader;
 
     constructor(
         transport: Transport,
         resolver: SubaccountResolver | undefined,
         signingConfig: TradingWithdrawSigningConfig,
+        catalog: CatalogReader = staticCatalog,
     ) {
         this.#client = createClient(Proto.WithdrawService, transport);
         this.#resolver = resolver;
         this.#signingConfig = signingConfig;
+        this.#catalog = catalog;
     }
 
     /**
@@ -162,7 +166,10 @@ export class TradingWithdrawsService {
     ): Promise<CreateTradingWithdrawResult> {
         const { walletSigner, ...inputForValidation } = input;
         const resolvedInput = resolveSubaccountScopedInput(inputForValidation, this.#resolver);
-        const validated = v.parse(CreateTradingWithdrawToFundingInputSchema, resolvedInput);
+        const validated = v.parse(
+            createCreateTradingWithdrawToFundingInputSchema(this.#catalog.snapshot()),
+            resolvedInput,
+        );
         const payload = create(Proto.TradingWithdrawIntentPayloadSchema, {
             action: TradingWithdrawActionCodec.inputToProto.to_funding,
             assetId: validated.assetId,

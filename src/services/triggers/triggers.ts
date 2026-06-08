@@ -9,15 +9,15 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import {
-    CreateTriggerInputSchema,
+    createCreateTriggerInputSchema,
+    createTriggerEventSchema,
+    createTriggerSchema,
     ListTriggersInputSchema,
     CancelTriggerInputSchema,
     GetTriggerInputSchema,
     ModifyTriggerInputSchema,
     PauseTriggerInputSchema,
     ListTriggerEventsInputSchema,
-    TriggerSchema,
-    TriggerEventSchema,
     CreateTriggerResultSchema,
     CancelTriggerResultSchema,
     ModifyTriggerResultSchema,
@@ -40,6 +40,7 @@ import {
 } from "./triggers.schemas.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import type { RealtimeClient } from "../../realtime/index.js";
+import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 
 export type {
     CreateTriggerResult,
@@ -70,11 +71,18 @@ export class TriggersService {
     #client: Client<typeof Proto.TriggersService>;
     #realtime: RealtimeClient;
     #resolver?: SubaccountResolver;
+    #catalog: CatalogReader;
 
-    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubaccountResolver) {
+    constructor(
+        transport: Transport,
+        realtime: RealtimeClient,
+        resolver?: SubaccountResolver,
+        catalog: CatalogReader = staticCatalog,
+    ) {
         this.#client = createClient(Proto.TriggersService, transport);
         this.#realtime = realtime;
         this.#resolver = resolver;
+        this.#catalog = catalog;
     }
 
     /**
@@ -85,7 +93,10 @@ export class TriggersService {
         options?: PolyesterMutationOptions,
     ): Promise<CreateTriggerResult> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
-        const validatedInput = v.parse(CreateTriggerInputSchema, resolved);
+        const validatedInput = v.parse(
+            createCreateTriggerInputSchema(this.#catalog.snapshot()),
+            resolved,
+        );
         const res = await this.#client.createTrigger(validatedInput, toConnectCallOptions(options));
         return v.parse(CreateTriggerResultSchema, res);
     }
@@ -102,7 +113,7 @@ export class TriggersService {
         );
 
         if (!res.trigger) return null;
-        return v.parse(TriggerSchema, res.trigger);
+        return v.parse(createTriggerSchema(this.#catalog.snapshot()), res.trigger);
     }
 
     /**
@@ -119,7 +130,7 @@ export class TriggersService {
             toConnectCallOptions(options),
         );
         return {
-            triggers: v.parse(v.array(TriggerSchema), res.triggers),
+            triggers: v.parse(v.array(createTriggerSchema(this.#catalog.snapshot())), res.triggers),
             total: res.total,
         };
     }
@@ -206,7 +217,10 @@ export class TriggersService {
         );
 
         return {
-            events: v.parse(v.array(TriggerEventSchema), res.events),
+            events: v.parse(
+                v.array(createTriggerEventSchema(this.#catalog.snapshot())),
+                res.events,
+            ),
             nextBeforeTsNs: Number(res.nextBeforeTsNs) / 1_000_000,
         };
     }
@@ -220,7 +234,7 @@ export class TriggersService {
             channel,
             schema: Proto.TriggerSchema,
             onPublication: (data) => {
-                const trigger = v.parse(TriggerSchema, data);
+                const trigger = v.parse(createTriggerSchema(this.#catalog.snapshot()), data);
                 input.onEvent(trigger);
             },
             onConnected: () => input.onOpen?.(),
@@ -238,7 +252,7 @@ export class TriggersService {
             channel,
             schema: Proto.TriggerEventSchema,
             onPublication: (data) => {
-                const event = v.parse(TriggerEventSchema, data);
+                const event = v.parse(createTriggerEventSchema(this.#catalog.snapshot()), data);
                 input.onEvent(event);
             },
             onConnected: () => input.onOpen?.(),

@@ -156,7 +156,7 @@ describe("TradesService", () => {
         });
         const service = new TradesService(transport.transport, realtimeClientStub().realtime);
 
-        await expect(service.list()).rejects.toThrow(/Invalid side: 0/);
+        await expect(service.list()).rejects.toThrow(/\[UserTradeSchema\]: invalid side 0/);
     });
 
     it("wires private trade subscriptions and parses publications", () => {
@@ -215,6 +215,6 @@ describe("TradesService", () => {
                     side: ProtoOrders.Side.SIDE_UNSPECIFIED,
                 }),
             ),
-        ).toThrow(/Invalid side: 0/);
+        ).toThrow(/\[UserTradeSchema\]: invalid side 0/);
     });
 });

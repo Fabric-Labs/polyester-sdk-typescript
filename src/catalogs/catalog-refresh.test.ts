@@ -183,8 +183,8 @@ describe("catalog refresh", () => {
         expect(client.zipper.getDepositWithdrawConfig).toHaveBeenCalledTimes(1);
         expect(getAsset("REFRESH_BASE")?.ledgerId).toBe(900_001);
         expect(getPair("REFRESH_BASE-REFRESH_QUOTE").symbolId).toBe(900_001);
-        expect(getZipperChain("refresh-chain").chainId).toBe(900_001);
-        expect(getZipperAsset("REFRESH_ASSET").ledgerId).toBe(900_003);
+        expect(getZipperChain("refresh-chain")?.chainId).toBe(900_001);
+        expect(getZipperAsset("REFRESH_ASSET")?.ledgerId).toBe(900_003);
         expect(getAllZipperContracts()).toEqual([
             expect.objectContaining({ name: "refreshContract" }),
         ]);

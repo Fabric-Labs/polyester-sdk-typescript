@@ -23,6 +23,10 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./catalogs": {
+      "types": "./dist/catalogs/index.d.ts",
+      "import": "./dist/catalogs/index.js"
+    },
     "./smart-account": {
       "types": "./dist/smart-account/index.d.ts",
       "import": "./dist/smart-account/index.js"

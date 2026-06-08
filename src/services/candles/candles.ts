@@ -9,13 +9,9 @@ import {
 } from "../../shared/request-options.js";
 import {
     type CandleColumnar,
-    CandleRowSchema,
     CandleRowIntSchema,
-    CandleColumnarSchema,
     CandleColumnarIntSchema,
     CandlePointSchema,
-    GetCandlesColumnsInputSchema,
-    ListCandlesInputSchema,
     TimeframeSchema,
     type Candle,
     type CandleInt,
@@ -23,8 +19,12 @@ import {
     type CandleColumnarInt,
     type GetCandlesInput,
     type GetCandlesColumnsInput,
+    createCandleColumnarSchema,
+    createCandleRowSchema,
+    createListCandlesInputSchema,
 } from "./candles.schemas.js";
 import { TimeframeCodec } from "./candles.codecs.js";
+import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 
 interface SubscribeCandlesInput extends BaseSubscribeInput<Candle> {
     symbolId: number;
@@ -47,21 +47,32 @@ const SubscribeCandlesParamsSchema = v.object({
 export class CandlesService {
     #client: Client<typeof Proto.MarketDataService>;
     #realtime: RealtimeClient;
+    #catalog: CatalogReader;
 
-    constructor(transport: Transport, realtime: RealtimeClient) {
+    constructor(
+        transport: Transport,
+        realtime: RealtimeClient,
+        catalog: CatalogReader = staticCatalog,
+    ) {
         this.#client = createClient(Proto.MarketDataService, transport);
         this.#realtime = realtime;
+        this.#catalog = catalog;
     }
 
     /**
      * Returns OHLCV candles for a symbol/timeframe request, mapped into row objects with symbol id and timeframe. The proto response is newest-first and may include incomplete/reference data depending on input flags.
      */
     async list(input: GetCandlesInput, options?: PolyesterRequestOptions): Promise<Candle[]> {
-        const validatedInput = v.parse(ListCandlesInputSchema, input);
+        const catalog = this.#catalog.snapshot();
+        const validatedInput = v.parse(createListCandlesInputSchema(catalog), input);
         const res = await this.#client.getCandles(validatedInput, toConnectCallOptions(options));
         const candles = v.parse(v.optional(v.array(CandlePointSchema), []), res.candles);
         return candles.map((c) =>
-            v.parse(CandleRowSchema, { ...c, symbolId: res.symbolId, timeframe: res.timeframe }),
+            v.parse(createCandleRowSchema(catalog), {
+                ...c,
+                symbolId: res.symbolId,
+                timeframe: res.timeframe,
+            }),
         );
     }
 
@@ -72,12 +83,13 @@ export class CandlesService {
         input: GetCandlesColumnsInput,
         options?: PolyesterRequestOptions,
     ): Promise<CandleColumnar> {
-        const validatedInput = v.parse(GetCandlesColumnsInputSchema, input);
+        const catalog = this.#catalog.snapshot();
+        const validatedInput = v.parse(createListCandlesInputSchema(catalog), input);
         const res = await this.#client.getCandlesColumns(
             validatedInput,
             toConnectCallOptions(options),
         );
-        return v.parse(CandleColumnarSchema, res);
+        return v.parse(createCandleColumnarSchema(catalog), res);
     }
 
     /**
@@ -87,7 +99,10 @@ export class CandlesService {
         input: GetCandlesColumnsInput,
         options?: PolyesterRequestOptions,
     ): Promise<CandleColumnarInt> {
-        const validatedInput = v.parse(GetCandlesColumnsInputSchema, input);
+        const validatedInput = v.parse(
+            createListCandlesInputSchema(this.#catalog.snapshot()),
+            input,
+        );
         const res = await this.#client.getCandlesColumns(
             validatedInput,
             toConnectCallOptions(options),
@@ -110,7 +125,7 @@ export class CandlesService {
             schema: Proto.CandlePointSchema,
             onPublication: (data) => {
                 const point = v.parse(CandlePointSchema, data);
-                const candle = v.parse(CandleRowSchema, {
+                const candle = v.parse(createCandleRowSchema(this.#catalog.snapshot()), {
                     ...point,
                     symbolId: params.symbolId,
                     timeframe: protoTimeframe,

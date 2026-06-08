@@ -40,7 +40,7 @@ describe("subscription input validation", () => {
                 symbol: "NOPE-USDT",
                 onEvent: vi.fn(),
             }),
-        ).toThrow(/Unknown pair symbol: NOPE-USDT/);
+        ).toThrow(/\[catalog\] market pairSymbol not found: NOPE-USDT/);
         expect(realtime.connectProtoChannel).not.toHaveBeenCalled();
     });
 
@@ -53,7 +53,7 @@ describe("subscription input validation", () => {
                 symbol: "NOPE-USDT",
                 onEvent: vi.fn(),
             }),
-        ).toThrow(/Unknown pair symbol: NOPE-USDT/);
+        ).toThrow(/\[catalog\] market pairSymbol not found: NOPE-USDT/);
         expect(realtime.connectProtoChannel).not.toHaveBeenCalled();
     });
 

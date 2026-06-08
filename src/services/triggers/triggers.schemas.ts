@@ -18,20 +18,11 @@ import {
 import { tsNsToMs } from "../../utils/time.js";
 import { formatId, idToBigInt } from "../../utils/base58-id.js";
 import {
-    formatPriceForSymbol,
-    formatQtyForSymbol,
-    sideLabelFor,
-    orderTypeLabelFor,
-    tifLabelFor,
-    stpModeLabelFor,
-    feeSourceLabelFor,
-} from "../../catalogs/orders-catalog.js";
-import {
-    baseAssetForSymbolId,
-    baseQuantityScaleForSymbol,
-    quoteAssetForSymbolId,
-    symbolForSymbolId,
-} from "../../catalogs/market-data-catalog.js";
+    createCatalogSnapshotReader,
+    staticCatalog,
+    type CatalogReader,
+    type CatalogSnapshot,
+} from "../../catalogs/index.js";
 import {
     TriggerTypeCodec,
     TriggerStatusCodec,
@@ -202,8 +193,8 @@ const BaseChildOrderFieldsSchema = v.object({
 const UNSET_TRAILING_DISTANCE: TrailingDistanceOneof = { case: undefined, value: undefined };
 const UNSET_MAX_SLIPPAGE: MaxSlippageOneof = { case: undefined, value: undefined };
 
-function parseQtyScaledForSymbol(symbol: string, qty: string): bigint {
-    const qtyScale = baseQuantityScaleForSymbol(symbol);
+function parseQtyScaledForSymbol(reader: CatalogReader, symbol: string, qty: string): bigint {
+    const qtyScale = reader.market.requirePairBySymbol(symbol).baseAsset.quantityScale;
     return parseQtyScaled(qty, qtyScale, "qty");
 }
 
@@ -252,7 +243,10 @@ type CreateTriggerBase = ReturnType<typeof buildTriggerDefaults> &
         | "clientTriggerId"
     >;
 
-function buildCreateTriggerBase(input: BaseChildOrderInput): CreateTriggerBase {
+function buildCreateTriggerBase(
+    reader: CatalogReader,
+    input: BaseChildOrderInput,
+): CreateTriggerBase {
     return {
         ...buildTriggerDefaults(),
         subaccountId: input.subaccountId,
@@ -260,7 +254,7 @@ function buildCreateTriggerBase(input: BaseChildOrderInput): CreateTriggerBase {
         side: input.side,
         orderType: input.orderType,
         tif: input.tif,
-        qtyScaled: parseQtyScaledForSymbol(input.symbol, input.qty),
+        qtyScaled: parseQtyScaledForSymbol(reader, input.symbol, input.qty),
         limitPriceTicks:
             input.orderType === ProtoOrders.OrderType.LIMIT && input.limitPrice
                 ? parsePriceTicks(input.limitPrice, "limitPrice")
@@ -273,6 +267,7 @@ function buildCreateTriggerBase(input: BaseChildOrderInput): CreateTriggerBase {
 }
 
 function stopTriggerInputSchema(
+    reader: CatalogReader,
     triggerType: "stop_loss" | "take_profit",
     protoTriggerType: Proto.TriggerType,
     buyDirection: ProtoOrders.TriggerDirection,
@@ -301,7 +296,7 @@ function stopTriggerInputSchema(
             ),
         }),
         v.transform((input) => ({
-            ...buildCreateTriggerBase(input),
+            ...buildCreateTriggerBase(reader, input),
             triggerType: protoTriggerType,
             triggerPriceTicks: input.triggerPrice,
             triggerPriceSource:
@@ -311,163 +306,184 @@ function stopTriggerInputSchema(
     );
 }
 
-const StopLossTriggerInputSchema = stopTriggerInputSchema(
-    "stop_loss",
-    Proto.TriggerType.STOP_LOSS,
-    ProtoOrders.TriggerDirection.ABOVE,
-    ProtoOrders.TriggerDirection.BELOW,
-);
+function createStopLossTriggerInputSchema(reader: CatalogReader) {
+    return stopTriggerInputSchema(
+        reader,
+        "stop_loss",
+        Proto.TriggerType.STOP_LOSS,
+        ProtoOrders.TriggerDirection.ABOVE,
+        ProtoOrders.TriggerDirection.BELOW,
+    );
+}
 
-const TakeProfitTriggerInputSchema = stopTriggerInputSchema(
-    "take_profit",
-    Proto.TriggerType.TAKE_PROFIT,
-    ProtoOrders.TriggerDirection.BELOW,
-    ProtoOrders.TriggerDirection.ABOVE,
-);
+function createTakeProfitTriggerInputSchema(reader: CatalogReader) {
+    return stopTriggerInputSchema(
+        reader,
+        "take_profit",
+        Proto.TriggerType.TAKE_PROFIT,
+        ProtoOrders.TriggerDirection.BELOW,
+        ProtoOrders.TriggerDirection.ABOVE,
+    );
+}
 
-const TrailingStopTriggerInputSchema = v.pipe(
-    v.object({
-        ...BaseChildOrderFieldsSchema.entries,
+function createTrailingStopTriggerInputSchema(reader: CatalogReader) {
+    return v.pipe(
+        v.object({
+            ...BaseChildOrderFieldsSchema.entries,
 
-        triggerType: v.literal("trailing_stop"),
-        trailingDistance: v.pipe(TrailingDistanceInputSchema, v.transform(parseTrailingDistance)),
-
-        activationPrice: v.pipe(
-            v.optional(v.pipe(v.string(), v.trim())),
-            v.transform((v) => (v ? parsePriceTicks(v, "activationPrice") : 0n)),
-        ),
-
-        maxSlippage: v.pipe(v.optional(MaxSlippageInputSchema), v.transform(parseMaxSlippage)),
-
-        triggerPriceSource: v.pipe(
-            v.optional(TriggerPriceSourceSchema),
-            v.transform((v) =>
-                v
-                    ? TriggerPriceSourceCodec.inputToProto[v]
-                    : ProtoOrders.TriggerPriceSource.LAST_PRICE,
+            triggerType: v.literal("trailing_stop"),
+            trailingDistance: v.pipe(
+                TrailingDistanceInputSchema,
+                v.transform(parseTrailingDistance),
             ),
-        ),
 
-        triggerDirection: v.pipe(
-            v.optional(TriggerDirectionSchema),
-            v.transform((v) =>
-                v ? TriggerDirectionCodec.inputToProto[v] : ProtoOrders.TriggerDirection.ABOVE,
+            activationPrice: v.pipe(
+                v.optional(v.pipe(v.string(), v.trim())),
+                v.transform((v) => (v ? parsePriceTicks(v, "activationPrice") : 0n)),
             ),
-        ),
-    }),
-    v.transform((input) => ({
-        ...buildCreateTriggerBase(input),
-        triggerType: Proto.TriggerType.TRAILING_STOP,
-        trailingDistance: input.trailingDistance,
-        activationPriceTicks: input.activationPrice ?? 0n,
-        maxSlippage: input.maxSlippage ?? UNSET_MAX_SLIPPAGE,
-        triggerPriceSource: input.triggerPriceSource ?? ProtoOrders.TriggerPriceSource.LAST_PRICE,
-        triggerDirection: input.triggerDirection ?? ProtoOrders.TriggerDirection.ABOVE,
-    })),
-);
 
-const TwapTriggerInputSchema = v.pipe(
-    v.object({
-        ...BaseChildOrderFieldsSchema.entries,
+            maxSlippage: v.pipe(v.optional(MaxSlippageInputSchema), v.transform(parseMaxSlippage)),
 
-        triggerType: v.literal("twap"),
-
-        twapDurationMs: v.pipe(
-            v.union([v.pipe(v.string(), v.trim()), v.number()]),
-            v.transform((v) => {
-                const durationMs = parseOptionalPositiveIntLike(v);
-                if (!durationMs || durationMs < 1000) {
-                    throw new Error("twapDurationMs must be at least 1000ms");
-                }
-                return BigInt(durationMs);
-            }),
-        ),
-
-        twapSliceIntervalMs: v.pipe(
-            v.union([v.pipe(v.string(), v.trim()), v.number()]),
-            v.transform((v) => {
-                const sliceIntervalMs = parseOptionalPositiveIntLike(v);
-                if (!sliceIntervalMs || sliceIntervalMs < 100) {
-                    throw new Error("twapSliceIntervalMs must be at least 100ms");
-                }
-                return BigInt(sliceIntervalMs);
-            }),
-        ),
-
-        maxSlippage: v.pipe(v.optional(MaxSlippageInputSchema), v.transform(parseMaxSlippage)),
-    }),
-    v.check(
-        (data) => data.twapSliceIntervalMs <= data.twapDurationMs,
-        "twapSliceIntervalMs cannot exceed twapDurationMs",
-    ),
-    v.transform((input) => ({
-        ...buildCreateTriggerBase(input),
-        triggerType: Proto.TriggerType.TWAP,
-        triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
-        triggerDirection: ProtoOrders.TriggerDirection.ABOVE,
-        twapDurationMs: input.twapDurationMs,
-        twapSliceIntervalMs: input.twapSliceIntervalMs,
-        maxSlippage: input.maxSlippage,
-    })),
-);
-
-const LadderTriggerInputSchema = v.pipe(
-    v.object({
-        ...BaseChildOrderFieldsSchema.entries,
-
-        triggerType: v.literal("ladder"),
-
-        ladderPriceMin: v.pipe(
-            v.string(),
-            v.trim(),
-            v.minLength(1),
-            v.transform((v) => parsePriceTicks(v, "ladderPriceMin")),
-        ),
-
-        ladderPriceMax: v.pipe(
-            v.string(),
-            v.trim(),
-            v.minLength(1),
-            v.transform((v) => parsePriceTicks(v, "ladderPriceMax")),
-        ),
-
-        ladderLevels: v.pipe(
-            v.union([v.pipe(v.string(), v.trim()), v.pipe(v.number(), v.integer())]),
-            v.transform((v) => {
-                const levels = parseOptionalPositiveIntLike(v);
-                if (!levels || levels < 2 || levels > 100) {
-                    throw new Error("ladderLevels must be between 2 and 100");
-                }
-                return levels;
-            }),
-        ),
-
-        ladderDistribution: v.pipe(
-            v.optional(LadderDistributionSchema),
-            v.transform((v) =>
-                v ? LadderDistributionCodec.inputToProto[v] : Proto.LadderDistribution.LINEAR,
+            triggerPriceSource: v.pipe(
+                v.optional(TriggerPriceSourceSchema),
+                v.transform((v) =>
+                    v
+                        ? TriggerPriceSourceCodec.inputToProto[v]
+                        : ProtoOrders.TriggerPriceSource.LAST_PRICE,
+                ),
             ),
-        ),
-    }),
-    v.transform((input) => ({
-        ...buildCreateTriggerBase(input),
-        triggerType: Proto.TriggerType.LADDER,
-        triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
-        triggerDirection: ProtoOrders.TriggerDirection.ABOVE,
-        ladderPriceMinTicks: input.ladderPriceMin,
-        ladderPriceMaxTicks: input.ladderPriceMax,
-        ladderLevels: input.ladderLevels,
-        ladderDistribution: input.ladderDistribution,
-    })),
-);
 
-export const CreateTriggerInputSchema = v.variant("triggerType", [
-    StopLossTriggerInputSchema,
-    TakeProfitTriggerInputSchema,
-    TrailingStopTriggerInputSchema,
-    TwapTriggerInputSchema,
-    LadderTriggerInputSchema,
-]);
+            triggerDirection: v.pipe(
+                v.optional(TriggerDirectionSchema),
+                v.transform((v) =>
+                    v ? TriggerDirectionCodec.inputToProto[v] : ProtoOrders.TriggerDirection.ABOVE,
+                ),
+            ),
+        }),
+        v.transform((input) => ({
+            ...buildCreateTriggerBase(reader, input),
+            triggerType: Proto.TriggerType.TRAILING_STOP,
+            trailingDistance: input.trailingDistance,
+            activationPriceTicks: input.activationPrice ?? 0n,
+            maxSlippage: input.maxSlippage ?? UNSET_MAX_SLIPPAGE,
+            triggerPriceSource:
+                input.triggerPriceSource ?? ProtoOrders.TriggerPriceSource.LAST_PRICE,
+            triggerDirection: input.triggerDirection ?? ProtoOrders.TriggerDirection.ABOVE,
+        })),
+    );
+}
+
+function createTwapTriggerInputSchema(reader: CatalogReader) {
+    return v.pipe(
+        v.object({
+            ...BaseChildOrderFieldsSchema.entries,
+
+            triggerType: v.literal("twap"),
+
+            twapDurationMs: v.pipe(
+                v.union([v.pipe(v.string(), v.trim()), v.number()]),
+                v.transform((v) => {
+                    const durationMs = parseOptionalPositiveIntLike(v);
+                    if (!durationMs || durationMs < 1000) {
+                        throw new Error("twapDurationMs must be at least 1000ms");
+                    }
+                    return BigInt(durationMs);
+                }),
+            ),
+
+            twapSliceIntervalMs: v.pipe(
+                v.union([v.pipe(v.string(), v.trim()), v.number()]),
+                v.transform((v) => {
+                    const sliceIntervalMs = parseOptionalPositiveIntLike(v);
+                    if (!sliceIntervalMs || sliceIntervalMs < 100) {
+                        throw new Error("twapSliceIntervalMs must be at least 100ms");
+                    }
+                    return BigInt(sliceIntervalMs);
+                }),
+            ),
+
+            maxSlippage: v.pipe(v.optional(MaxSlippageInputSchema), v.transform(parseMaxSlippage)),
+        }),
+        v.check(
+            (data) => data.twapSliceIntervalMs <= data.twapDurationMs,
+            "twapSliceIntervalMs cannot exceed twapDurationMs",
+        ),
+        v.transform((input) => ({
+            ...buildCreateTriggerBase(reader, input),
+            triggerType: Proto.TriggerType.TWAP,
+            triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
+            triggerDirection: ProtoOrders.TriggerDirection.ABOVE,
+            twapDurationMs: input.twapDurationMs,
+            twapSliceIntervalMs: input.twapSliceIntervalMs,
+            maxSlippage: input.maxSlippage,
+        })),
+    );
+}
+
+function createLadderTriggerInputSchema(reader: CatalogReader) {
+    return v.pipe(
+        v.object({
+            ...BaseChildOrderFieldsSchema.entries,
+
+            triggerType: v.literal("ladder"),
+
+            ladderPriceMin: v.pipe(
+                v.string(),
+                v.trim(),
+                v.minLength(1),
+                v.transform((v) => parsePriceTicks(v, "ladderPriceMin")),
+            ),
+
+            ladderPriceMax: v.pipe(
+                v.string(),
+                v.trim(),
+                v.minLength(1),
+                v.transform((v) => parsePriceTicks(v, "ladderPriceMax")),
+            ),
+
+            ladderLevels: v.pipe(
+                v.union([v.pipe(v.string(), v.trim()), v.pipe(v.number(), v.integer())]),
+                v.transform((v) => {
+                    const levels = parseOptionalPositiveIntLike(v);
+                    if (!levels || levels < 2 || levels > 100) {
+                        throw new Error("ladderLevels must be between 2 and 100");
+                    }
+                    return levels;
+                }),
+            ),
+
+            ladderDistribution: v.pipe(
+                v.optional(LadderDistributionSchema),
+                v.transform((v) =>
+                    v ? LadderDistributionCodec.inputToProto[v] : Proto.LadderDistribution.LINEAR,
+                ),
+            ),
+        }),
+        v.transform((input) => ({
+            ...buildCreateTriggerBase(reader, input),
+            triggerType: Proto.TriggerType.LADDER,
+            triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
+            triggerDirection: ProtoOrders.TriggerDirection.ABOVE,
+            ladderPriceMinTicks: input.ladderPriceMin,
+            ladderPriceMaxTicks: input.ladderPriceMax,
+            ladderLevels: input.ladderLevels,
+            ladderDistribution: input.ladderDistribution,
+        })),
+    );
+}
+
+export function createCreateTriggerInputSchema(catalog: CatalogSnapshot) {
+    const reader = createCatalogSnapshotReader(catalog);
+    return v.variant("triggerType", [
+        createStopLossTriggerInputSchema(reader),
+        createTakeProfitTriggerInputSchema(reader),
+        createTrailingStopTriggerInputSchema(reader),
+        createTwapTriggerInputSchema(reader),
+        createLadderTriggerInputSchema(reader),
+    ]);
+}
+
+export const CreateTriggerInputSchema = createCreateTriggerInputSchema(staticCatalog.snapshot());
 
 export type CreateTriggerInput = v.InferInput<typeof CreateTriggerInputSchema>;
 
@@ -698,12 +714,13 @@ export type TriggerDetailsOutput =
 function transformTriggerDetails(
     details: v.InferOutput<typeof TriggerDetailsRawSchema>,
     symbolId: number,
+    reader: CatalogReader,
 ): TriggerDetailsOutput {
     switch (details.case) {
         case "stop":
             return {
                 case: "stop",
-                triggerPrice: formatPriceForSymbol(details.value.triggerPriceTicks, symbolId),
+                triggerPrice: reader.orders.formatPrice(details.value.triggerPriceTicks, symbolId),
                 triggerPriceSource: requiredEnumLabel(
                     TriggerPriceSourceCodec.protoToOutput,
                     details.value.triggerPriceSource,
@@ -722,20 +739,20 @@ function transformTriggerDetails(
                 case: "trailing",
                 trailingDistancePrice:
                     details.value.trailingDistanceTicks > 0n
-                        ? formatPriceForSymbol(details.value.trailingDistanceTicks, symbolId)
+                        ? reader.orders.formatPrice(details.value.trailingDistanceTicks, symbolId)
                         : undefined,
                 trailingDistanceBps: details.value.trailingDistanceBps,
                 activationPrice:
                     details.value.activationPriceTicks > 0n
-                        ? formatPriceForSymbol(details.value.activationPriceTicks, symbolId)
+                        ? reader.orders.formatPrice(details.value.activationPriceTicks, symbolId)
                         : undefined,
                 peakPrice:
                     details.value.peakPriceTicks > 0n
-                        ? formatPriceForSymbol(details.value.peakPriceTicks, symbolId)
+                        ? reader.orders.formatPrice(details.value.peakPriceTicks, symbolId)
                         : undefined,
                 troughPrice:
                     details.value.troughPriceTicks > 0n
-                        ? formatPriceForSymbol(details.value.troughPriceTicks, symbolId)
+                        ? reader.orders.formatPrice(details.value.troughPriceTicks, symbolId)
                         : undefined,
                 maxSlippageTicks: details.value.maxSlippageTicks,
                 maxSlippageBps: details.value.maxSlippageBps,
@@ -759,13 +776,22 @@ function transformTriggerDetails(
                 twapSliceIntervalMs: Number(details.value.twapSliceIntervalMs),
                 sliceIdx: details.value.sliceIdx,
                 sliceCount: details.value.sliceCount,
-                executedQty: formatQtyForSymbol(details.value.executedQtyScaled, symbolId),
+                executedQty: reader.orders.formatQuantity(
+                    details.value.executedQtyScaled,
+                    symbolId,
+                ),
             };
         case "ladder":
             return {
                 case: "ladder",
-                ladderPriceMin: formatPriceForSymbol(details.value.ladderPriceMinTicks, symbolId),
-                ladderPriceMax: formatPriceForSymbol(details.value.ladderPriceMaxTicks, symbolId),
+                ladderPriceMin: reader.orders.formatPrice(
+                    details.value.ladderPriceMinTicks,
+                    symbolId,
+                ),
+                ladderPriceMax: reader.orders.formatPrice(
+                    details.value.ladderPriceMaxTicks,
+                    symbolId,
+                ),
                 ladderLevels: details.value.ladderLevels,
                 ladderDistribution: requiredEnumLabel(
                     LadderDistributionCodec.protoToOutput,
@@ -779,116 +805,161 @@ function transformTriggerDetails(
     }
 }
 
-export const TriggerSchema = v.pipe(
-    v.object({
-        triggerId: v.bigint(),
-        subaccountId: v.bigint(),
-        symbolId: v.number(),
-        symbol: v.string(),
-        triggerType: v.enum(Proto.TriggerType),
-        status: v.enum(Proto.TriggerStatus),
-        parentOrderId: v.optional(v.bigint()),
-        side: v.enum(ProtoOrders.Side),
-        orderType: v.enum(ProtoOrders.OrderType),
-        tif: v.enum(ProtoOrders.TIF),
-        qtyScaled: v.bigint(),
-        limitPriceTicks: v.bigint(),
-        feeSource: v.enum(ProtoOrders.FeeSource),
-        stpMode: v.enum(ProtoOrders.STPMode),
-        postOnly: v.boolean(),
-        clientTriggerId: v.string(),
-        createdAt: v.optional(TimestampSchema),
-        updatedAt: v.optional(TimestampSchema),
-        armedAt: v.optional(TimestampSchema),
-        completedAt: v.optional(TimestampSchema),
-        childOrderIds: v.optional(v.array(v.bigint())),
-        details: v.optional(TriggerDetailsRawSchema),
-    }),
-    v.transform((t) => ({
-        triggerId: formatId(t.triggerId),
-        subaccountId: formatId(t.subaccountId),
-        symbolId: t.symbolId,
-        symbol: symbolForSymbolId(t.symbolId),
-        baseAsset: baseAssetForSymbolId(t.symbolId)!,
-        quoteAsset: quoteAssetForSymbolId(t.symbolId)!,
-        triggerType: requiredEnumLabel(
-            TriggerTypeCodec.protoToOutput,
-            t.triggerType,
-            "TriggerSchema",
-            "trigger type",
-        ),
-        status: requiredEnumLabel(
-            TriggerStatusCodec.protoToOutput,
-            t.status,
-            "TriggerSchema",
-            "status",
-        ),
-        parentOrderId: t.parentOrderId ? formatId(t.parentOrderId) : undefined,
-        side: sideLabelFor(t.side),
-        isBuy: t.side === ProtoOrders.Side.BUY,
-        orderType: orderTypeLabelFor(t.orderType),
-        tif: tifLabelFor(t.tif),
-        qty: formatQtyForSymbol(t.qtyScaled, t.symbolId),
-        limitPrice:
-            t.limitPriceTicks > 0n
-                ? formatPriceForSymbol(t.limitPriceTicks, t.symbolId)
-                : undefined,
-        feeSource: feeSourceLabelFor(t.feeSource),
-        stpMode: stpModeLabelFor(t.stpMode),
-        postOnly: t.postOnly,
-        clientTriggerId: t.clientTriggerId,
-        createdTs: t.createdAt?.seconds ? Number(t.createdAt.seconds) * 1000 : undefined,
-        updatedTs: t.updatedAt?.seconds ? Number(t.updatedAt.seconds) * 1000 : undefined,
-        armedTs: t.armedAt?.seconds ? Number(t.armedAt.seconds) * 1000 : undefined,
-        completedTs: t.completedAt?.seconds ? Number(t.completedAt.seconds) * 1000 : undefined,
-        childOrderIds: t.childOrderIds?.map((id) => formatId(id)) ?? [],
-        details: t.details ? transformTriggerDetails(t.details, t.symbolId) : undefined,
-    })),
-);
+export function createTriggerSchema(catalog: CatalogSnapshot) {
+    const reader = createCatalogSnapshotReader(catalog);
+    return v.pipe(
+        v.object({
+            triggerId: v.bigint(),
+            subaccountId: v.bigint(),
+            symbolId: v.number(),
+            symbol: v.string(),
+            triggerType: v.enum(Proto.TriggerType),
+            status: v.enum(Proto.TriggerStatus),
+            parentOrderId: v.optional(v.bigint()),
+            side: v.enum(ProtoOrders.Side),
+            orderType: v.enum(ProtoOrders.OrderType),
+            tif: v.enum(ProtoOrders.TIF),
+            qtyScaled: v.bigint(),
+            limitPriceTicks: v.bigint(),
+            feeSource: v.enum(ProtoOrders.FeeSource),
+            stpMode: v.enum(ProtoOrders.STPMode),
+            postOnly: v.boolean(),
+            clientTriggerId: v.string(),
+            createdAt: v.optional(TimestampSchema),
+            updatedAt: v.optional(TimestampSchema),
+            armedAt: v.optional(TimestampSchema),
+            completedAt: v.optional(TimestampSchema),
+            childOrderIds: v.optional(v.array(v.bigint())),
+            details: v.optional(TriggerDetailsRawSchema),
+        }),
+        v.transform((t) => {
+            const pair = reader.market.requirePairBySymbolId(t.symbolId);
+            return {
+                triggerId: formatId(t.triggerId),
+                subaccountId: formatId(t.subaccountId),
+                symbolId: t.symbolId,
+                symbol: pair.symbol,
+                baseAsset: pair.baseAsset,
+                quoteAsset: pair.quoteAsset,
+                triggerType: requiredEnumLabel(
+                    TriggerTypeCodec.protoToOutput,
+                    t.triggerType,
+                    "TriggerSchema",
+                    "trigger type",
+                ),
+                status: requiredEnumLabel(
+                    TriggerStatusCodec.protoToOutput,
+                    t.status,
+                    "TriggerSchema",
+                    "status",
+                ),
+                parentOrderId: t.parentOrderId ? formatId(t.parentOrderId) : undefined,
+                side: requiredEnumLabel(
+                    TriggerSideCodec.protoToOutput,
+                    t.side,
+                    "TriggerSchema",
+                    "side",
+                ),
+                isBuy: t.side === ProtoOrders.Side.BUY,
+                orderType: requiredEnumLabel(
+                    OrderTypeCodec.protoToOutput,
+                    t.orderType,
+                    "TriggerSchema",
+                    "order type",
+                ),
+                tif: requiredEnumLabel(
+                    TifCodec.protoToOutput,
+                    t.tif,
+                    "TriggerSchema",
+                    "time in force",
+                ),
+                qty: reader.orders.formatQuantity(t.qtyScaled, t.symbolId),
+                limitPrice:
+                    t.limitPriceTicks > 0n
+                        ? reader.orders.formatPrice(t.limitPriceTicks, t.symbolId)
+                        : undefined,
+                feeSource: requiredEnumLabel(
+                    FeeSourceCodec.protoToOutput,
+                    t.feeSource,
+                    "TriggerSchema",
+                    "fee source",
+                ),
+                stpMode: requiredEnumLabel(
+                    StpModeCodec.protoToOutput,
+                    t.stpMode,
+                    "TriggerSchema",
+                    "STP mode",
+                ),
+                postOnly: t.postOnly,
+                clientTriggerId: t.clientTriggerId,
+                createdTs: t.createdAt?.seconds ? Number(t.createdAt.seconds) * 1000 : undefined,
+                updatedTs: t.updatedAt?.seconds ? Number(t.updatedAt.seconds) * 1000 : undefined,
+                armedTs: t.armedAt?.seconds ? Number(t.armedAt.seconds) * 1000 : undefined,
+                completedTs: t.completedAt?.seconds
+                    ? Number(t.completedAt.seconds) * 1000
+                    : undefined,
+                childOrderIds: t.childOrderIds?.map((id) => formatId(id)) ?? [],
+                details: t.details
+                    ? transformTriggerDetails(t.details, t.symbolId, reader)
+                    : undefined,
+            };
+        }),
+    );
+}
+
+export const TriggerSchema = createTriggerSchema(staticCatalog.snapshot());
 
 export type Trigger = v.InferOutput<typeof TriggerSchema>;
 
-export const TriggerEventSchema = v.pipe(
-    v.object({
-        triggerId: v.bigint(),
-        subaccountId: v.bigint(),
-        symbolId: v.number(),
-        triggerType: v.enum(Proto.TriggerType),
-        eventType: v.enum(Proto.TriggerEventType),
-        tsNs: v.bigint(),
-        childSeq: v.number(),
-        childOrderId: v.bigint(),
-        firePxTicks: v.bigint(),
-        reason: v.string(),
-    }),
-    v.transform((e) => {
-        return {
-            triggerId: formatId(e.triggerId),
-            subaccountId: formatId(e.subaccountId),
-            symbolId: e.symbolId,
-            symbol: symbolForSymbolId(e.symbolId) || "",
-            baseAsset: baseAssetForSymbolId(e.symbolId)!,
-            quoteAsset: quoteAssetForSymbolId(e.symbolId)!,
-            triggerType: requiredEnumLabel(
-                TriggerTypeCodec.protoToOutput,
-                e.triggerType,
-                "TriggerEventSchema",
-                "trigger type",
-            ),
-            eventType: requiredEnumLabel(
-                TriggerEventTypeCodec.protoToOutput,
-                e.eventType,
-                "TriggerEventSchema",
-                "event type",
-            ),
-            ts: tsNsToMs(e.tsNs),
-            childSeq: e.childSeq,
-            childOrderId: e.childOrderId > 0n ? formatId(e.childOrderId) : undefined,
-            firePrice:
-                e.firePxTicks > 0n ? formatPriceForSymbol(e.firePxTicks, e.symbolId) : undefined,
-            reason: e.reason || undefined,
-        };
-    }),
-);
+export function createTriggerEventSchema(catalog: CatalogSnapshot) {
+    const reader = createCatalogSnapshotReader(catalog);
+    return v.pipe(
+        v.object({
+            triggerId: v.bigint(),
+            subaccountId: v.bigint(),
+            symbolId: v.number(),
+            triggerType: v.enum(Proto.TriggerType),
+            eventType: v.enum(Proto.TriggerEventType),
+            tsNs: v.bigint(),
+            childSeq: v.number(),
+            childOrderId: v.bigint(),
+            firePxTicks: v.bigint(),
+            reason: v.string(),
+        }),
+        v.transform((e) => {
+            const pair = reader.market.requirePairBySymbolId(e.symbolId);
+            return {
+                triggerId: formatId(e.triggerId),
+                subaccountId: formatId(e.subaccountId),
+                symbolId: e.symbolId,
+                symbol: pair.symbol,
+                baseAsset: pair.baseAsset,
+                quoteAsset: pair.quoteAsset,
+                triggerType: requiredEnumLabel(
+                    TriggerTypeCodec.protoToOutput,
+                    e.triggerType,
+                    "TriggerEventSchema",
+                    "trigger type",
+                ),
+                eventType: requiredEnumLabel(
+                    TriggerEventTypeCodec.protoToOutput,
+                    e.eventType,
+                    "TriggerEventSchema",
+                    "event type",
+                ),
+                ts: tsNsToMs(e.tsNs),
+                childSeq: e.childSeq,
+                childOrderId: e.childOrderId > 0n ? formatId(e.childOrderId) : undefined,
+                firePrice:
+                    e.firePxTicks > 0n
+                        ? reader.orders.formatPrice(e.firePxTicks, e.symbolId)
+                        : undefined,
+                reason: e.reason || undefined,
+            };
+        }),
+    );
+}
+
+export const TriggerEventSchema = createTriggerEventSchema(staticCatalog.snapshot());
 
 export type TriggerEvent = v.InferOutput<typeof TriggerEventSchema>;

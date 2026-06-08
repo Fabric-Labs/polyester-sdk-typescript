@@ -327,7 +327,7 @@ describe("OrderbookService", () => {
                 symbol: "UNKNOWN-USDT",
                 onEvent: vi.fn(),
             }),
-        ).toThrow("[market-data-catalog] Unknown pair symbol: UNKNOWN-USDT");
+        ).toThrow("[catalog] market pairSymbol not found: UNKNOWN-USDT");
         expect(realtime.realtime.connectProtoChannel).not.toHaveBeenCalled();
     });
 });

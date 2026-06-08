@@ -11,14 +11,11 @@ import {
     TicksStringOrNumberInputSchema,
 } from "../shared.js";
 import {
-    feeSourceLabelFor,
-    formatPriceForSymbol,
-    formatQtyForSymbol,
-    orderTypeLabelFor,
-    sideLabelFor,
-    stpModeLabelFor,
-    tifLabelFor,
-} from "../../catalogs/orders-catalog.js";
+    createCatalogSnapshotReader,
+    LEDGER_SCALE,
+    staticCatalog,
+    type CatalogSnapshot,
+} from "../../catalogs/index.js";
 import {
     parsePriceTicks,
     parseQtyScaled,
@@ -33,20 +30,9 @@ import {
     optionalUint64DecimalFilterSchema,
 } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
-import {
-    baseQuantityScaleForSymbol,
-    getPairBySymbolId,
-    symbolForSymbolId,
-} from "../../catalogs/market-data-catalog.js";
-import { UserTradeSchema } from "../trades/index.js";
+import { createUserTradeSchema } from "../trades/trades.schemas.js";
 import { fromU128, u128ToDecimal } from "../../utils/u128.js";
-import {
-    formatAmountDisplay,
-    LEDGER_SCALE,
-    symbolForAssetId,
-    transferTypeNameFor,
-    accountCodeNameFor,
-} from "../../catalogs/ledger-catalog.js";
+import { transferTypeNameFor, accountCodeNameFor } from "../../catalogs/index.js";
 import {
     OrderStatusCodec,
     OrderStatusFilterCodec,
@@ -453,6 +439,7 @@ function formatRiskLeg(
         | v.InferOutput<typeof ReadTakeProfitPolicySchema>
         | v.InferOutput<typeof ReadStopLossPolicySchema>,
     symbolId: number,
+    reader: ReturnType<typeof createCatalogSnapshotReader>,
 ) {
     const orderType = requiredEnumLabel(
         OrderTypeCodec.protoToOutput,
@@ -461,7 +448,7 @@ function formatRiskLeg(
         "order type",
     );
     return {
-        triggerPrice: formatPriceForSymbol(leg.triggerPriceTicks, symbolId),
+        triggerPrice: reader.orders.formatPrice(leg.triggerPriceTicks, symbolId),
         triggerPriceSource: requiredEnumLabel(
             TriggerPriceSourceCodec.protoToOutput,
             leg.triggerPriceSource,
@@ -470,7 +457,9 @@ function formatRiskLeg(
         ),
         orderType,
         limitPrice:
-            orderType === "limit" ? formatPriceForSymbol(leg.limitPriceTicks, symbolId) : undefined,
+            orderType === "limit"
+                ? reader.orders.formatPrice(leg.limitPriceTicks, symbolId)
+                : undefined,
     };
 }
 
@@ -511,14 +500,15 @@ function formatMarketMaxSlippage(ticks: number, bps: number): MarketMaxSlippage 
 function formatAttachedRisk(
     risk: v.InferOutput<typeof ReadAttachedRiskSchema> | undefined,
     symbolId: number,
+    reader: ReturnType<typeof createCatalogSnapshotReader>,
 ) {
     if (!risk) return undefined;
 
     const takeProfit = risk.takeProfit?.policy
-        ? formatRiskLeg(risk.takeProfit.policy, symbolId)
+        ? formatRiskLeg(risk.takeProfit.policy, symbolId, reader)
         : undefined;
     const stopLoss = risk.stopLoss?.policy
-        ? formatRiskLeg(risk.stopLoss.policy, symbolId)
+        ? formatRiskLeg(risk.stopLoss.policy, symbolId, reader)
         : undefined;
     const trailingStop = risk.trailingStop?.policy
         ? {
@@ -526,7 +516,7 @@ function formatAttachedRisk(
               maxSlippage: formatTrailingMaxSlippage(risk.trailingStop.policy.maxSlippage),
               activationPrice:
                   risk.trailingStop.policy.activationPriceTicks > 0n
-                      ? formatPriceForSymbol(
+                      ? reader.orders.formatPrice(
                             risk.trailingStop.policy.activationPriceTicks,
                             symbolId,
                         )
@@ -560,138 +550,184 @@ function formatAttachedRisk(
     };
 }
 
-export const NewOrderInputSchema = v.pipe(
-    v.object({
-        subaccountId: optionalSubaccountIdInputSchema(),
-        symbol: v.pipe(v.string(), v.trim(), v.minLength(1)),
-        side: v.pipe(
-            SideSchema,
-            v.transform((v) => OrderSideCodec.inputToProto[v]),
-        ),
-        orderType: v.pipe(
-            OrderTypeSchema,
-            v.transform((v) => OrderTypeCodec.inputToProto[v]),
-        ),
-        tif: v.pipe(
-            TIFSchema,
-            v.transform((v) => TifCodec.inputToProto[v]),
-        ),
-        price: v.optional(v.pipe(v.string(), v.trim())),
-        qty: v.pipe(v.string(), v.trim(), v.minLength(1)),
-        postOnly: v.optional(v.boolean(), false),
-        clientOrderId: v.optional(v.pipe(v.string(), v.trim())),
-        feeSource: v.pipe(
-            v.optional(FeeSourceSchema),
-            v.transform((v) => (v ? FeeSourceCodec.inputToProto[v] : ProtoWrite.FeeSource.QUOTE)),
-        ),
-        stpMode: v.pipe(
-            v.optional(STPSchema),
-            v.transform((v) => (v ? StpModeCodec.inputToProto[v] : undefined)),
-        ),
-        risk: RiskPolicyInputSchema,
-        marketMaxSlippage: v.optional(MarketMaxSlippageSchema),
-        marketClientRefPrice: v.optional(v.pipe(v.string(), v.trim())),
-    }),
-    v.check((input) => {
-        const hasMarketClientRefPrice = (input.marketClientRefPrice ?? "").length > 0;
-        const hasMarketMaxSlippage =
-            input.marketMaxSlippage !== undefined && input.marketMaxSlippage.kind !== "none";
-        return input.orderType !== ProtoWrite.OrderType.MARKET &&
-            (hasMarketClientRefPrice || hasMarketMaxSlippage)
-            ? false
-            : true;
-    }, "market max slippage and client reference price are only valid for market orders"),
-    v.transform(
-        ({ qty, price, subaccountId, risk, marketMaxSlippage, marketClientRefPrice, ...input }) => {
-            const qtyScale = baseQuantityScaleForSymbol(input.symbol);
-            const qtyScaled = parseQtyScaled(qty, qtyScale, "qty");
-            const priceTicks =
-                input.orderType === ProtoWrite.OrderType.LIMIT && price
-                    ? parsePriceTicks(price, "price")
-                    : 0n;
-            return {
-                ...input,
-                qtyScaled,
-                priceTicks,
+export function createNewOrderInputSchema(catalog: CatalogSnapshot) {
+    const reader = createCatalogSnapshotReader(catalog);
+    return v.pipe(
+        v.object({
+            subaccountId: optionalSubaccountIdInputSchema(),
+            symbol: v.pipe(v.string(), v.trim(), v.minLength(1)),
+            side: v.pipe(
+                SideSchema,
+                v.transform((v) => OrderSideCodec.inputToProto[v]),
+            ),
+            orderType: v.pipe(
+                OrderTypeSchema,
+                v.transform((v) => OrderTypeCodec.inputToProto[v]),
+            ),
+            tif: v.pipe(
+                TIFSchema,
+                v.transform((v) => TifCodec.inputToProto[v]),
+            ),
+            price: v.optional(v.pipe(v.string(), v.trim())),
+            qty: v.pipe(v.string(), v.trim(), v.minLength(1)),
+            postOnly: v.optional(v.boolean(), false),
+            clientOrderId: v.optional(v.pipe(v.string(), v.trim())),
+            feeSource: v.pipe(
+                v.optional(FeeSourceSchema),
+                v.transform((v) =>
+                    v ? FeeSourceCodec.inputToProto[v] : ProtoWrite.FeeSource.QUOTE,
+                ),
+            ),
+            stpMode: v.pipe(
+                v.optional(STPSchema),
+                v.transform((v) => (v ? StpModeCodec.inputToProto[v] : undefined)),
+            ),
+            risk: RiskPolicyInputSchema,
+            marketMaxSlippage: v.optional(MarketMaxSlippageSchema),
+            marketClientRefPrice: v.optional(v.pipe(v.string(), v.trim())),
+        }),
+        v.check((input) => {
+            const hasMarketClientRefPrice = (input.marketClientRefPrice ?? "").length > 0;
+            const hasMarketMaxSlippage =
+                input.marketMaxSlippage !== undefined && input.marketMaxSlippage.kind !== "none";
+            return input.orderType !== ProtoWrite.OrderType.MARKET &&
+                (hasMarketClientRefPrice || hasMarketMaxSlippage)
+                ? false
+                : true;
+        }, "market max slippage and client reference price are only valid for market orders"),
+        v.transform(
+            ({
+                qty,
+                price,
                 subaccountId,
-                attachedRisk: risk,
-                marketMaxSlippage: parseMarketMaxSlippage(marketMaxSlippage),
-                marketClientRefPriceTicks: parseMarketClientRefPriceTicks(marketClientRefPrice),
-            };
-        },
-    ),
-);
+                risk,
+                marketMaxSlippage,
+                marketClientRefPrice,
+                ...input
+            }) => {
+                const pair = reader.market.requirePairBySymbol(input.symbol);
+                const qtyScale = pair.baseAsset.quantityScale;
+                const qtyScaled = parseQtyScaled(qty, qtyScale, "qty");
+                const priceTicks =
+                    input.orderType === ProtoWrite.OrderType.LIMIT && price
+                        ? parsePriceTicks(price, "price")
+                        : 0n;
+                return {
+                    ...input,
+                    qtyScaled,
+                    priceTicks,
+                    subaccountId,
+                    attachedRisk: risk,
+                    marketMaxSlippage: parseMarketMaxSlippage(marketMaxSlippage),
+                    marketClientRefPriceTicks: parseMarketClientRefPriceTicks(marketClientRefPrice),
+                };
+            },
+        ),
+    );
+}
+
+export const NewOrderInputSchema = createNewOrderInputSchema(staticCatalog.snapshot());
 
 export type NewOrderInput = v.InferInput<typeof NewOrderInputSchema>;
 
-export const OrderSchema = v.pipe(
-    v.object({
-        orderId: v.bigint(),
-        symbolId: v.number(),
-        clientOrderId: v.string(),
-        side: v.enum(ProtoWrite.Side),
-        status: OrderStatusOutputSchema,
-        orderType: v.number(),
-        tif: v.number(),
-        stpMode: v.number(),
-        feeSource: v.number(),
-        postOnly: v.boolean(),
-        origQty: v.bigint(),
-        cumQty: v.bigint(),
-        leavesQty: v.bigint(),
-        avgPxTicks: v.bigint(),
-        priceTicks: v.bigint(),
-        createdTsNs: v.bigint(),
-        terminalTsNs: v.bigint(),
-        terminalReason: v.optional(v.string(), ""),
-        terminalReasonCode: v.number(),
-        attachedRisk: v.optional(ReadAttachedRiskSchema),
-        origin: v.optional(ReadOrderOriginSchema),
-        marketClientRefPriceTicks: v.bigint(),
-        marketMaxSlippageTicks: v.number(),
-        marketMaxSlippageBps: v.number(),
-    }),
-    v.transform((o) => {
-        const sideNum = o.side;
-        const isPartial = o.status === "working" && Number(o.cumQty) > 0;
-        const pair = getPairBySymbolId(o.symbolId);
-        const marketClientRefPrice =
-            o.marketClientRefPriceTicks > 0n
-                ? formatPriceForSymbol(o.marketClientRefPriceTicks, o.symbolId)
-                : undefined;
-        const marketMaxSlippage = formatMarketMaxSlippage(
-            o.marketMaxSlippageTicks,
-            o.marketMaxSlippageBps,
-        );
-        return {
-            orderId: formatId(o.orderId),
-            symbolId: o.symbolId,
-            clientOrderId: o.clientOrderId,
-            pair,
-            status: isPartial ? ("partial" as const) : o.status,
-            side: sideLabelFor(sideNum),
-            orderType: orderTypeLabelFor(o.orderType),
-            tif: tifLabelFor(o.tif),
-            stpMode: stpModeLabelFor(o.stpMode),
-            feeSource: feeSourceLabelFor(o.feeSource),
-            postOnly: o.postOnly,
-            origQty: formatQtyForSymbol(o.origQty, o.symbolId),
-            cumQty: formatQtyForSymbol(o.cumQty, o.symbolId),
-            leavesQty: formatQtyForSymbol(o.leavesQty, o.symbolId),
-            avgPx: formatPriceForSymbol(o.avgPxTicks, o.symbolId),
-            price: formatPriceForSymbol(o.priceTicks, o.symbolId),
-            createdTs: tsNsToMs(o.createdTsNs),
-            terminalTs: tsNsToMs(o.terminalTsNs),
-            symbol: symbolForSymbolId(o.symbolId),
-            terminalReason: humanizeTerminalReason(o.terminalReason),
-            terminalReasonCode: o.terminalReasonCode,
-            attachedRisk: formatAttachedRisk(o.attachedRisk, o.symbolId),
-            ...(o.origin ? { origin: o.origin } : {}),
-            ...(marketClientRefPrice ? { marketClientRefPrice } : {}),
-            ...(marketMaxSlippage ? { marketMaxSlippage } : {}),
-        };
-    }),
-);
+export function createOrderSchema(catalog: CatalogSnapshot) {
+    const reader = createCatalogSnapshotReader(catalog);
+    return v.pipe(
+        v.object({
+            orderId: v.bigint(),
+            symbolId: v.number(),
+            clientOrderId: v.string(),
+            side: v.enum(ProtoWrite.Side),
+            status: OrderStatusOutputSchema,
+            orderType: v.number(),
+            tif: v.number(),
+            stpMode: v.number(),
+            feeSource: v.number(),
+            postOnly: v.boolean(),
+            origQty: v.bigint(),
+            cumQty: v.bigint(),
+            leavesQty: v.bigint(),
+            avgPxTicks: v.bigint(),
+            priceTicks: v.bigint(),
+            createdTsNs: v.bigint(),
+            terminalTsNs: v.bigint(),
+            terminalReason: v.optional(v.string(), ""),
+            terminalReasonCode: v.number(),
+            attachedRisk: v.optional(ReadAttachedRiskSchema),
+            origin: v.optional(ReadOrderOriginSchema),
+            marketClientRefPriceTicks: v.bigint(),
+            marketMaxSlippageTicks: v.number(),
+            marketMaxSlippageBps: v.number(),
+        }),
+        v.transform((o) => {
+            const sideNum = o.side;
+            const isPartial = o.status === "working" && Number(o.cumQty) > 0;
+            const pair = reader.market.requirePairBySymbolId(o.symbolId);
+            const marketClientRefPrice =
+                o.marketClientRefPriceTicks > 0n
+                    ? reader.orders.formatPrice(o.marketClientRefPriceTicks, o.symbolId)
+                    : undefined;
+            const marketMaxSlippage = formatMarketMaxSlippage(
+                o.marketMaxSlippageTicks,
+                o.marketMaxSlippageBps,
+            );
+            return {
+                orderId: formatId(o.orderId),
+                symbolId: o.symbolId,
+                clientOrderId: o.clientOrderId,
+                pair,
+                status: isPartial ? ("partial" as const) : o.status,
+                side: requiredEnumLabel(
+                    OrderSideCodec.protoToOutput,
+                    sideNum,
+                    "OrderSchema",
+                    "side",
+                ),
+                orderType: requiredEnumLabel(
+                    OrderTypeCodec.protoToOutput,
+                    o.orderType,
+                    "OrderSchema",
+                    "order type",
+                ),
+                tif: requiredEnumLabel(
+                    TifCodec.protoToOutput,
+                    o.tif,
+                    "OrderSchema",
+                    "time in force",
+                ),
+                stpMode: requiredEnumLabel(
+                    StpModeCodec.protoToOutput,
+                    o.stpMode,
+                    "OrderSchema",
+                    "STP mode",
+                ),
+                feeSource: requiredEnumLabel(
+                    FeeSourceCodec.protoToOutput,
+                    o.feeSource,
+                    "OrderSchema",
+                    "fee source",
+                ),
+                postOnly: o.postOnly,
+                origQty: reader.orders.formatQuantity(o.origQty, o.symbolId),
+                cumQty: reader.orders.formatQuantity(o.cumQty, o.symbolId),
+                leavesQty: reader.orders.formatQuantity(o.leavesQty, o.symbolId),
+                avgPx: reader.orders.formatPrice(o.avgPxTicks, o.symbolId),
+                price: reader.orders.formatPrice(o.priceTicks, o.symbolId),
+                createdTs: tsNsToMs(o.createdTsNs),
+                terminalTs: tsNsToMs(o.terminalTsNs),
+                symbol: pair.symbol,
+                terminalReason: humanizeTerminalReason(o.terminalReason),
+                terminalReasonCode: o.terminalReasonCode,
+                attachedRisk: formatAttachedRisk(o.attachedRisk, o.symbolId, reader),
+                ...(o.origin ? { origin: o.origin } : {}),
+                ...(marketClientRefPrice ? { marketClientRefPrice } : {}),
+                ...(marketMaxSlippage ? { marketMaxSlippage } : {}),
+            };
+        }),
+    );
+}
+
+export const OrderSchema = createOrderSchema(staticCatalog.snapshot());
 
 function humanizeTerminalReason(raw: string | null | undefined): string {
     const key = (raw ?? "").trim();
@@ -895,39 +931,48 @@ const ModifyOrderPatchInputSchema = v.union([
     v.intersect([ModifyOrderNoPriceQtyPatchInputSchema, ModifyOrderRequiredRiskPatchInputSchema]),
 ]);
 
-export const ModifyOrderInputSchema = v.pipe(
-    v.intersect([
-        ModifyOrderBaseInputSchema,
-        ModifyOrderKeyInputSchema,
-        ModifyOrderPatchInputSchema,
-    ]),
-    v.transform((input) => {
-        const newPriceTicks = input.newPrice
-            ? parsePriceTicks(input.newPrice, "newPrice")
-            : undefined;
-        const newQtyScaled = input.newQty
-            ? parseQtyScaled(input.newQty, baseQuantityScaleForSymbol(input.symbol), "newQty")
-            : undefined;
-        const behavior = input.behavior
-            ? ModifyBehaviorCodec.inputToProto[input.behavior]
-            : ProtoWrite.ModifyBehavior.AMEND_OR_REPLACE;
-        const newAttachedRisk =
-            input.clearRisk === true
-                ? ({} as NonNullable<ProtoWrite.ModifyOrderRequest["newAttachedRisk"]>)
-                : input.risk;
+export function createModifyOrderInputSchema(catalog: CatalogSnapshot) {
+    const reader = createCatalogSnapshotReader(catalog);
+    return v.pipe(
+        v.intersect([
+            ModifyOrderBaseInputSchema,
+            ModifyOrderKeyInputSchema,
+            ModifyOrderPatchInputSchema,
+        ]),
+        v.transform((input) => {
+            const newPriceTicks = input.newPrice
+                ? parsePriceTicks(input.newPrice, "newPrice")
+                : undefined;
+            const newQtyScaled = input.newQty
+                ? parseQtyScaled(
+                      input.newQty,
+                      reader.market.requirePairBySymbol(input.symbol).baseAsset.quantityScale,
+                      "newQty",
+                  )
+                : undefined;
+            const behavior = input.behavior
+                ? ModifyBehaviorCodec.inputToProto[input.behavior]
+                : ProtoWrite.ModifyBehavior.AMEND_OR_REPLACE;
+            const newAttachedRisk =
+                input.clearRisk === true
+                    ? ({} as NonNullable<ProtoWrite.ModifyOrderRequest["newAttachedRisk"]>)
+                    : input.risk;
 
-        return {
-            subaccountId: input.subaccountId,
-            key: input.key,
-            requestId: input.requestId,
-            newPriceTicks,
-            newQtyScaled,
-            newAttachedRisk,
-            behavior,
-            newClientOrderId: input.newClientOrderId ?? "",
-        };
-    }),
-);
+            return {
+                subaccountId: input.subaccountId,
+                key: input.key,
+                requestId: input.requestId,
+                newPriceTicks,
+                newQtyScaled,
+                newAttachedRisk,
+                behavior,
+                newClientOrderId: input.newClientOrderId ?? "",
+            };
+        }),
+    );
+}
+
+export const ModifyOrderInputSchema = createModifyOrderInputSchema(staticCatalog.snapshot());
 
 export type ModifyOrderInput = v.InferInput<typeof ModifyOrderInputSchema>;
 
@@ -959,51 +1004,60 @@ export const GetOrderDetailsInputSchema = v.pipe(
 
 export type GetOrderDetailsInput = v.InferInput<typeof GetOrderDetailsInputSchema>;
 
-const OrderTransferSchema = v.pipe(
-    v.object({
-        txId: v.string(),
-        matchId: v.pipe(
-            v.bigint(),
-            v.transform((v) => Number(v)),
-        ),
-        assetId: v.number(),
-        amountHi: v.bigint(),
-        amountLo: v.bigint(),
-        isDebit: v.boolean(),
-        type: v.number(),
-        accountCode: v.number(),
-        timestamp: v.bigint(),
-    }),
-    v.transform((tr) => {
-        const aid = tr.assetId;
-        const amt128 = fromU128({ hi: tr.amountHi, lo: tr.amountLo });
-        let amount =
-            aid !== 0
-                ? formatAmountDisplay(u128ToDecimal(amt128, LEDGER_SCALE), aid)
-                : u128ToDecimal(amt128, LEDGER_SCALE);
-        if (tr.isDebit) amount = `-${amount}`;
-        else amount = `+${amount}`;
-        return {
-            txId: tr.txId,
-            matchId: tr.matchId,
-            assetId: tr.assetId,
-            isDebit: tr.isDebit,
-            timestamp: tsNsToMs(tr.timestamp),
-            amount,
-            symbol: symbolForAssetId(aid),
-            type: transferTypeNameFor(tr.type),
-            accountCode: accountCodeNameFor(tr.accountCode),
-        };
-    }),
-);
+export function createOrderTransferSchema(catalog: CatalogSnapshot) {
+    const reader = createCatalogSnapshotReader(catalog);
+    return v.pipe(
+        v.object({
+            txId: v.string(),
+            matchId: v.pipe(
+                v.bigint(),
+                v.transform((v) => Number(v)),
+            ),
+            assetId: v.number(),
+            amountHi: v.bigint(),
+            amountLo: v.bigint(),
+            isDebit: v.boolean(),
+            type: v.number(),
+            accountCode: v.number(),
+            timestamp: v.bigint(),
+        }),
+        v.transform((tr) => {
+            const aid = tr.assetId;
+            const amt128 = fromU128({ hi: tr.amountHi, lo: tr.amountLo });
+            let amount =
+                aid !== 0
+                    ? reader.ledger.formatAmount(u128ToDecimal(amt128, LEDGER_SCALE), aid)
+                    : u128ToDecimal(amt128, LEDGER_SCALE);
+            if (tr.isDebit) amount = `-${amount}`;
+            else amount = `+${amount}`;
+            return {
+                txId: tr.txId,
+                matchId: tr.matchId,
+                assetId: tr.assetId,
+                isDebit: tr.isDebit,
+                timestamp: tsNsToMs(tr.timestamp),
+                amount,
+                symbol: aid !== 0 ? reader.ledger.requireSymbolByLedgerId(aid) : "0",
+                type: transferTypeNameFor(tr.type),
+                accountCode: accountCodeNameFor(tr.accountCode),
+            };
+        }),
+    );
+}
+
+const OrderTransferSchema = createOrderTransferSchema(staticCatalog.snapshot());
 
 export type OrderTransfer = v.InferOutput<typeof OrderTransferSchema>;
 
-export const OrderDetailsSchema = v.object({
-    order: OrderSchema,
-    trades: v.optional(v.array(UserTradeSchema), []),
-    transfers: v.optional(v.array(OrderTransferSchema), []),
-});
+export function createOrderDetailsSchema(catalog: CatalogSnapshot) {
+    return v.object({
+        order: createOrderSchema(catalog),
+        trades: v.optional(v.array(createUserTradeSchema(catalog)), []),
+        transfers: v.optional(v.array(createOrderTransferSchema(catalog)), []),
+    });
+}
+
+export const OrderDetailsSchema = createOrderDetailsSchema(staticCatalog.snapshot());
 
 export type OrderDetails = v.InferOutput<typeof OrderDetailsSchema>;
 

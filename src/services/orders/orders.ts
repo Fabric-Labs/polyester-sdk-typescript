@@ -12,10 +12,13 @@ import {
 import type { RealtimeClient } from "../../realtime/client.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
+    createModifyOrderInputSchema,
+    createNewOrderInputSchema,
+    createOrderDetailsSchema,
+    createOrderSchema,
     OpenOrdersInputSchema,
     OrderHistoryInputSchema,
-    NewOrderInputSchema,
-    OrderSchema,
+    type NewOrderInputSchema,
     CancelOrderInputSchema,
     CancelOrderResultSchema,
     type CancelOrderResult,
@@ -24,14 +27,14 @@ import {
     type CancelAllOrdersResponse,
     type Order,
     GetOrderDetailsInputSchema,
-    OrderDetailsSchema,
     CreateOrderResultSchema,
-    ModifyOrderInputSchema,
+    type ModifyOrderInputSchema,
     ModifyOrderResultSchema,
     type CreateOrderResult,
     type ModifyOrderResult,
     type OrderDetails,
 } from "./orders.schemas.js";
+import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 
 interface SubscribeOrdersInput extends BaseSubscribeInput<Order> {
     accountId: string;
@@ -52,12 +55,19 @@ export class OrdersService {
     #writeClient: Client<typeof ProtoWrite.OrdersService>;
     #realtime: RealtimeClient;
     #resolver?: SubaccountResolver;
+    #catalog: CatalogReader;
 
-    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubaccountResolver) {
+    constructor(
+        transport: Transport,
+        realtime: RealtimeClient,
+        resolver?: SubaccountResolver,
+        catalog: CatalogReader = staticCatalog,
+    ) {
         this.#readClient = createClient(ProtoRead.OrdersReadService, transport);
         this.#writeClient = createClient(ProtoWrite.OrdersService, transport);
         this.#realtime = realtime;
         this.#resolver = resolver;
+        this.#catalog = catalog;
     }
 
     /**
@@ -73,8 +83,9 @@ export class OrdersService {
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
+        const schema = createOrderSchema(this.#catalog.snapshot());
         return {
-            orders: v.parse(v.array(OrderSchema), res.orders),
+            orders: v.parse(v.array(schema), res.orders),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -92,8 +103,9 @@ export class OrdersService {
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
+        const schema = createOrderSchema(this.#catalog.snapshot());
         return {
-            orders: v.parse(v.array(OrderSchema), res.orders),
+            orders: v.parse(v.array(schema), res.orders),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -106,7 +118,10 @@ export class OrdersService {
         options?: PolyesterMutationOptions,
     ): Promise<CreateOrderResult> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
-        const validatedInput = v.parse(NewOrderInputSchema, resolved);
+        const validatedInput = v.parse(
+            createNewOrderInputSchema(this.#catalog.snapshot()),
+            resolved,
+        );
         const requestPayload = removeUndefined(validatedInput);
         const res = await this.#writeClient.createOrder(
             requestPayload,
@@ -148,7 +163,7 @@ export class OrdersService {
             ...resolveSubaccountScopedInput(input, this.#resolver),
             requestId: input.requestId ?? createMutationRequestId(),
         };
-        const validated = v.parse(ModifyOrderInputSchema, resolved);
+        const validated = v.parse(createModifyOrderInputSchema(this.#catalog.snapshot()), resolved);
         const res = await this.#writeClient.modifyOrder(
             removeUndefined(validated),
             toConnectCallOptions(options),
@@ -189,7 +204,7 @@ export class OrdersService {
             toConnectCallOptions(options),
         );
         if (!res.order) return null;
-        return v.parse(OrderDetailsSchema, res);
+        return v.parse(createOrderDetailsSchema(this.#catalog.snapshot()), res);
     }
 
     /**
@@ -201,7 +216,7 @@ export class OrdersService {
             channel,
             schema: ProtoRead.OrderSchema,
             onPublication: (data) => {
-                const order = v.parse(OrderSchema, data);
+                const order = v.parse(createOrderSchema(this.#catalog.snapshot()), data);
                 input.onEvent(order);
             },
             onConnected: () => input.onOpen?.(),

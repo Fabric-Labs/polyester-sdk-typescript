@@ -4,7 +4,6 @@ import type {
     PairStatus,
     SpotConfig,
 } from "../services/market-data/market-data.schemas.js";
-import { isDev } from "../utils/is-dev.js";
 
 export type PairMarketDataConfig = {
     orderbookPriceBuckets: number[];
@@ -33,69 +32,46 @@ export interface EnrichedPairConfig {
     status: PairStatus;
 }
 
-// module-level catalog storage
-let ASSET_CATALOG = new Map<string, AssetConfig>();
-let ASSET_BY_LEDGER_ID = new Map<number, AssetConfig>();
-let PAIR_CATALOG = new Map<string, EnrichedPairConfig>();
-let PAIR_BY_ID = new Map<number, EnrichedPairConfig>();
-
-/**
- * Populates the asset catalog from an array of AssetConfig.
- */
-export function setAssetCatalog(assets: AssetConfig[]): void {
-    const bySymbol = new Map<string, AssetConfig>();
-    const byLedgerId = new Map<number, AssetConfig>();
-
-    for (const asset of assets) {
-        bySymbol.set(asset.symbol, asset);
-        byLedgerId.set(asset.ledgerId, asset);
-    }
-
-    ASSET_CATALOG = bySymbol;
-    ASSET_BY_LEDGER_ID = byLedgerId;
+export interface MarketCatalogData {
+    readonly assets: readonly AssetConfig[];
+    readonly pairs: readonly EnrichedPairConfig[];
+    readonly tsSec?: number;
 }
 
-/**
- * Populates the pair catalog from already-enriched pairs.
- */
-export function setEnrichedPairCatalog(pairs: EnrichedPairConfig[]): void {
-    const bySymbol = new Map<string, EnrichedPairConfig>();
-    const byId = new Map<number, EnrichedPairConfig>();
+export type MarketCatalogSeed =
+    | SpotConfig
+    | {
+          readonly assets: readonly AssetConfig[];
+          readonly pairs: readonly (PairConfig | EnrichedPairConfig)[];
+          readonly tsSec?: number;
+      };
 
-    for (const pair of pairs) {
-        bySymbol.set(pair.symbol, pair);
-        byId.set(pair.symbolId, pair);
-    }
-
-    PAIR_CATALOG = bySymbol;
-    PAIR_BY_ID = byId;
+function isEnrichedPair(pair: PairConfig | EnrichedPairConfig): pair is EnrichedPairConfig {
+    return typeof pair.baseAsset === "object" && typeof pair.quoteAsset === "object";
 }
 
-/**
- * Populates the pair catalog, enriching each pair with full asset references.
- * Requires assets to be set first (or passed explicitly).
- */
-function setPairCatalog(pairs: PairConfig[], assets?: AssetConfig[]): void {
-    // use passed assets or fall back to current catalog
-    const assetMap = assets ? new Map(assets.map((a) => [a.symbol, a])) : ASSET_CATALOG;
-
-    const bySymbol = new Map<string, EnrichedPairConfig>();
-    const byId = new Map<number, EnrichedPairConfig>();
+export function enrichMarketPairs(
+    pairs: readonly (PairConfig | EnrichedPairConfig)[],
+    assets: readonly AssetConfig[],
+): readonly EnrichedPairConfig[] {
+    const assetBySymbol = new Map(assets.map((asset) => [asset.symbol, asset]));
+    const enrichedPairs: EnrichedPairConfig[] = [];
 
     for (const pair of pairs) {
-        const baseAsset = assetMap.get(pair.baseAsset);
-        const quoteAsset = assetMap.get(pair.quoteAsset);
-
-        if (!baseAsset || !quoteAsset) {
-            if (isDev()) {
-                console.warn(
-                    `[market-data-catalog] Missing asset for pair ${pair.symbol}: base=${pair.baseAsset}, quote=${pair.quoteAsset}`,
-                );
-            }
+        if (isEnrichedPair(pair)) {
+            enrichedPairs.push(pair);
             continue;
         }
 
-        const enriched: EnrichedPairConfig = {
+        const baseAsset = assetBySymbol.get(pair.baseAsset);
+        const quoteAsset = assetBySymbol.get(pair.quoteAsset);
+        if (!baseAsset || !quoteAsset) {
+            throw new Error(
+                `[catalog] market pair ${pair.symbol} references unknown asset: base=${pair.baseAsset}, quote=${pair.quoteAsset}`,
+            );
+        }
+
+        enrichedPairs.push({
             symbolId: pair.symbolId,
             symbol: pair.symbol,
             baseAsset,
@@ -112,161 +88,90 @@ function setPairCatalog(pairs: PairConfig[], assets?: AssetConfig[]): void {
             listingAt: pair.listingAt ?? null,
             delistingAt: pair.delistingAt ?? null,
             status: pair.status,
-        };
-
-        bySymbol.set(pair.symbol, enriched);
-        byId.set(pair.symbolId, enriched);
+        });
     }
 
-    PAIR_CATALOG = bySymbol;
-    PAIR_BY_ID = byId;
+    return enrichedPairs;
 }
 
-/**
- * Hydrates both asset and pair catalogs from a SpotConfig response.
- */
-export function hydrateCatalog(spotConfig: SpotConfig): void {
-    setAssetCatalog(spotConfig.assets);
-    setPairCatalog(spotConfig.pairs, spotConfig.assets);
-}
-
-// asset getters
-
-/**
- * Returns market-data asset metadata by asset symbol.
- */
-export function getAsset(symbol: string): AssetConfig | undefined {
-    return ASSET_CATALOG.get(symbol);
-}
-
-/**
- * Returns market-data asset metadata by ledger asset id.
- */
-export function getAssetByLedgerId(ledgerId: number): AssetConfig | undefined {
-    return ASSET_BY_LEDGER_ID.get(ledgerId);
-}
-
-/**
- * Returns every asset in the market-data catalog.
- */
-export function getAllAssets(): AssetConfig[] {
-    return Array.from(ASSET_CATALOG.values());
-}
-
-// pair getters
-
-/**
- * Returns market pair metadata by pair symbol.
- */
-export function getPair(symbol: string): EnrichedPairConfig {
-    const pair = PAIR_CATALOG.get(symbol);
-    if (!pair) {
-        throw new Error(`[market-data-catalog] Unknown pair symbol: ${symbol}`);
-    }
-    return pair;
-}
-
-/**
- * Resolves a symbol string to symbolId. Returns undefined if not found.
- */
-export function symbolIdForSymbol(symbol: string): number | undefined {
-    return PAIR_CATALOG.get(symbol)?.symbolId;
-}
-
-/**
- * Returns market pair metadata by numeric symbol id.
- */
-export function getPairBySymbolId(symbolId: number): EnrichedPairConfig {
-    const pair = PAIR_BY_ID.get(symbolId);
-    if (!pair) {
-        throw new Error(`[market-data-catalog] Unknown pair symbolId: ${symbolId}`);
-    }
-    return pair;
-}
-
-/**
- * Returns every market pair known to the catalog.
- */
-export function getAllPairs(): EnrichedPairConfig[] {
-    return Array.from(PAIR_CATALOG.values());
-}
-
-/**
- * Returns all market pairs that have ever been listed.
- */
-export function getAllPairsEverListed(): EnrichedPairConfig[] {
-    return Array.from(PAIR_CATALOG.values()).filter(
-        (pair) => pair.listingAt !== null && pair.listingAt < Date.now(),
-    );
-}
-
-/**
- * Returns market pairs that are currently listed.
- */
-export function getAllListedPairs(): EnrichedPairConfig[] {
-    return Array.from(PAIR_CATALOG.values()).filter((pair) => {
-        if (pair.listingAt === null) return false;
-        if (pair.listingAt > Date.now()) return false;
-        if (pair.status === "disabled") return false;
-        if (pair.delistingAt !== null && pair.delistingAt < Date.now()) return false;
-        return true;
+export function buildMarketCatalogData(seed: MarketCatalogSeed): MarketCatalogData {
+    const assets = [...seed.assets];
+    const pairs = enrichMarketPairs(seed.pairs, assets);
+    return Object.freeze({
+        assets: Object.freeze(assets),
+        pairs: Object.freeze([...pairs]),
+        tsSec: seed.tsSec,
     });
 }
 
-// convenience helpers for backward compatibility
+let legacyAssetBySymbol = new Map<string, AssetConfig>();
+let legacyAssetByLedgerId = new Map<number, AssetConfig>();
+let legacyPairBySymbol = new Map<string, EnrichedPairConfig>();
+let legacyPairBySymbolId = new Map<number, EnrichedPairConfig>();
+let legacyMarketCatalogListener:
+    | ((market: { assets: readonly AssetConfig[]; pairs: readonly EnrichedPairConfig[] }) => void)
+    | undefined;
 
-/**
- * Returns the pair symbol for a numeric symbol id.
- */
+export function setLegacyMarketCatalogListener(
+    listener: (market: {
+        assets: readonly AssetConfig[];
+        pairs: readonly EnrichedPairConfig[];
+    }) => void,
+): void {
+    legacyMarketCatalogListener = listener;
+}
+
+function notifyLegacyMarketCatalogListener(): void {
+    legacyMarketCatalogListener?.({
+        assets: getAllAssets(),
+        pairs: getAllPairs(),
+    });
+}
+
+export function setAssetCatalog(assets: readonly AssetConfig[]): void {
+    legacyAssetBySymbol = new Map(assets.map((asset) => [asset.symbol, asset]));
+    legacyAssetByLedgerId = new Map(assets.map((asset) => [asset.ledgerId, asset]));
+    notifyLegacyMarketCatalogListener();
+}
+
+export function setEnrichedPairCatalog(pairs: readonly EnrichedPairConfig[]): void {
+    legacyPairBySymbol = new Map(pairs.map((pair) => [pair.symbol, pair]));
+    legacyPairBySymbolId = new Map(pairs.map((pair) => [pair.symbolId, pair]));
+    notifyLegacyMarketCatalogListener();
+}
+
+export function getAsset(symbol: string): AssetConfig | undefined {
+    return legacyAssetBySymbol.get(symbol);
+}
+
+export function getAssetByLedgerId(ledgerId: number): AssetConfig | undefined {
+    return legacyAssetByLedgerId.get(ledgerId);
+}
+
+export function getAllAssets(): AssetConfig[] {
+    return Array.from(legacyAssetBySymbol.values());
+}
+
+export function getPair(symbol: string): EnrichedPairConfig {
+    const pair = legacyPairBySymbol.get(symbol);
+    if (!pair) throw new Error(`[market-data-catalog] Unknown pair symbol: ${symbol}`);
+    return pair;
+}
+
+export function getPairBySymbolId(symbolId: number): EnrichedPairConfig {
+    const pair = legacyPairBySymbolId.get(symbolId);
+    if (!pair) throw new Error(`[market-data-catalog] Unknown pair symbolId: ${symbolId}`);
+    return pair;
+}
+
+export function getAllPairs(): EnrichedPairConfig[] {
+    return Array.from(legacyPairBySymbol.values());
+}
+
+export function symbolIdForSymbol(symbol: string): number | undefined {
+    return legacyPairBySymbol.get(symbol)?.symbolId;
+}
+
 export function symbolForSymbolId(symbolId: number): string {
-    return PAIR_BY_ID.get(symbolId)?.symbol ?? String(symbolId);
-}
-
-/**
- * Returns the base asset metadata for a numeric symbol id.
- */
-export function baseAssetForSymbolId(symbolId: number): AssetConfig {
-    return getPairBySymbolId(symbolId).baseAsset;
-}
-
-/**
- * Returns the quote asset metadata for a numeric symbol id.
- */
-export function quoteAssetForSymbolId(symbolId: number): AssetConfig {
-    return getPairBySymbolId(symbolId).quoteAsset;
-}
-
-/**
- * Returns the base quantity scale for a market symbol.
- */
-export function baseQuantityScaleForSymbol(symbol: string): number {
-    return PAIR_CATALOG.get(symbol)?.baseAsset.quantityScale ?? 18;
-}
-
-/**
- * Returns the ledger id for the base asset of a symbol.
- * Falls back to 0 if symbol not found.
- */
-export function baseAssetIdForSymbolId(symbolId: number): number {
-    return PAIR_BY_ID.get(symbolId)?.baseAsset.ledgerId ?? 0;
-}
-
-/**
- * Returns the ledger id for the quote asset of a symbol.
- * Falls back to 0 if symbol not found.
- */
-export function quoteAssetIdForSymbolId(symbolId: number): number {
-    return PAIR_BY_ID.get(symbolId)?.quoteAsset.ledgerId ?? 0;
-}
-
-/**
- * Returns the default market-order slippage percentage for a symbol.
- */
-export function defaultMarketSlippagePctForSymbol(
-    symbol: string,
-    side: "buy" | "sell",
-): number | undefined {
-    const pair = PAIR_CATALOG.get(symbol);
-    if (!pair) return undefined;
-    return side === "buy" ? pair.defaultMarketSlippagePctBuy : pair.defaultMarketSlippagePctSell;
+    return getPairBySymbolId(symbolId).symbol;
 }

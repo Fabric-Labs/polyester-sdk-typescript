@@ -2,72 +2,82 @@ import * as v from "valibot";
 import { tsNsToISO, tsNsToMs } from "../../utils/time.js";
 import { SideSchema } from "../shared.js";
 import {
-    feeSourceLabelFor,
-    formatQtyForSymbol,
-    formatPriceForSymbol,
-    sideLabelFor,
-    int18ToDecimalString,
-} from "../../catalogs/orders-catalog.js";
-import {
-    baseAssetForSymbolId,
-    quoteAssetForSymbolId,
-    baseAssetIdForSymbolId,
-    symbolForSymbolId,
-} from "../../catalogs/market-data-catalog.js";
+    createCatalogSnapshotReader,
+    staticCatalog,
+    type CatalogSnapshot,
+} from "../../catalogs/index.js";
+import { FeeSourceCodec, OrderSideCodec } from "../orders/orders.codecs.js";
+import { int18ToDecimalString } from "../../catalogs/orders-catalog.js";
 import { formatId } from "../../utils/base58-id.js";
 import {
     optionalSubaccountIdInputSchema,
     optionalUint64DecimalFilterSchema,
 } from "../../shared/schemas.js";
 import { TradeSideCodec } from "./trades.codecs.js";
+import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 
-export const UserTradeSchema = v.pipe(
-    v.object({
-        tradeId: v.optional(v.bigint()),
-        orderId: v.bigint(),
-        subaccountId: v.optional(v.bigint()),
-        symbolId: v.number(),
-        side: v.number(),
-        isMaker: v.boolean(),
-        feeSource: v.number(),
-        qtyScaled: v.bigint(),
-        priceTicks: v.bigint(),
-        feeScaled: v.bigint(),
-        tsNs: v.bigint(),
-        matchId: v.bigint(),
-    }),
-    v.transform((t) => {
-        const baseAssetId = baseAssetIdForSymbolId(t.symbolId);
-        const baseAsset = baseAssetForSymbolId(t.symbolId);
-        const quoteAsset = quoteAssetForSymbolId(t.symbolId);
-        // 1=QUOTE fee paid in quote asset, 2=RECEIVED fee paid in base asset
-        const feeAsset = t.feeSource === 1 ? quoteAsset : baseAsset;
-        const fee = Number(int18ToDecimalString(t.feeScaled));
+export function createUserTradeSchema(catalog: CatalogSnapshot) {
+    const reader = createCatalogSnapshotReader(catalog);
+    return v.pipe(
+        v.object({
+            tradeId: v.optional(v.bigint()),
+            orderId: v.bigint(),
+            subaccountId: v.optional(v.bigint()),
+            symbolId: v.number(),
+            side: v.number(),
+            isMaker: v.boolean(),
+            feeSource: v.number(),
+            qtyScaled: v.bigint(),
+            priceTicks: v.bigint(),
+            feeScaled: v.bigint(),
+            tsNs: v.bigint(),
+            matchId: v.bigint(),
+        }),
+        v.transform((t) => {
+            const pair = reader.market.requirePairBySymbolId(t.symbolId);
+            const baseAssetId = pair.baseAsset.ledgerId;
+            const baseAsset = pair.baseAsset;
+            const quoteAsset = pair.quoteAsset;
+            const feeAsset = t.feeSource === 1 ? quoteAsset : baseAsset;
+            const fee = Number(int18ToDecimalString(t.feeScaled));
 
-        return {
-            tradeId: t.tradeId ? formatId(t.tradeId) : undefined,
-            orderId: formatId(t.orderId),
-            subaccountId: t.subaccountId ? formatId(t.subaccountId) : undefined,
-            symbolId: t.symbolId,
-            symbolLabel: symbolForSymbolId(t.symbolId),
-            baseAsset,
-            quoteAsset,
-            feeAsset,
-            sideLabel: sideLabelFor(t.side),
-            liquidityLabel: t.isMaker ? ("maker" as const) : ("taker" as const),
-            feeSource: t.feeSource,
-            feeSourceLabel: feeSourceLabelFor(t.feeSource),
-            baseAssetId,
-            qtyDisplay: formatQtyForSymbol(t.qtyScaled, t.symbolId),
-            priceDisplay: formatPriceForSymbol(t.priceTicks, t.symbolId),
-            fee,
-            tsNs: t.tsNs,
-            tsIso: tsNsToISO(t.tsNs),
-            tsMs: tsNsToMs(t.tsNs),
-            matchId: Number(t.matchId),
-        };
-    }),
-);
+            return {
+                tradeId: t.tradeId ? formatId(t.tradeId) : undefined,
+                orderId: formatId(t.orderId),
+                subaccountId: t.subaccountId ? formatId(t.subaccountId) : undefined,
+                symbolId: t.symbolId,
+                symbolLabel: pair.symbol,
+                baseAsset,
+                quoteAsset,
+                feeAsset,
+                sideLabel: requiredEnumLabel(
+                    OrderSideCodec.protoToOutput,
+                    t.side,
+                    "UserTradeSchema",
+                    "side",
+                ),
+                liquidityLabel: t.isMaker ? ("maker" as const) : ("taker" as const),
+                feeSource: t.feeSource,
+                feeSourceLabel: requiredEnumLabel(
+                    FeeSourceCodec.protoToOutput,
+                    t.feeSource,
+                    "UserTradeSchema",
+                    "fee source",
+                ),
+                baseAssetId,
+                qtyDisplay: reader.orders.formatQuantity(t.qtyScaled, t.symbolId),
+                priceDisplay: reader.orders.formatPrice(t.priceTicks, t.symbolId),
+                fee,
+                tsNs: t.tsNs,
+                tsIso: tsNsToISO(t.tsNs),
+                tsMs: tsNsToMs(t.tsNs),
+                matchId: Number(t.matchId),
+            };
+        }),
+    );
+}
+
+export const UserTradeSchema = createUserTradeSchema(staticCatalog.snapshot());
 
 export type Trade = v.InferOutput<typeof UserTradeSchema>;
 

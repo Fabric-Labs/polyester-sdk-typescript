@@ -23,6 +23,8 @@ export type OrderTypeValue = (typeof ORDER_TYPE_VALUES)[number];
 
 export const TIF_VALUES = ["gtc", "ioc", "fok"] as const;
 export type TifValue = (typeof TIF_VALUES)[number];
+export const TIF_OUTPUT_VALUES = ["GTC", "IOC", "FOK"] as const;
+export type TifOutputValue = (typeof TIF_OUTPUT_VALUES)[number];
 
 export const FEE_SOURCE_VALUES = ["quote", "received"] as const;
 export type FeeSourceValue = (typeof FEE_SOURCE_VALUES)[number];
@@ -80,6 +82,10 @@ export const OrderSideCodec = {
         buy: ProtoWrite.Side.BUY,
         sell: ProtoWrite.Side.SELL,
     } satisfies InputToProto<OrderSideValue, ProtoWrite.Side>,
+    protoToOutput: {
+        [ProtoWrite.Side.BUY]: "buy",
+        [ProtoWrite.Side.SELL]: "sell",
+    } satisfies ProtoToOutput<ProtoWrite.Side, OrderSideValue>,
 } as const;
 
 export const OrderTypeCodec = {
@@ -99,6 +105,11 @@ export const TifCodec = {
         ioc: ProtoWrite.TIF.IOC,
         fok: ProtoWrite.TIF.FOK,
     } satisfies InputToProto<TifValue, ProtoWrite.TIF>,
+    protoToOutput: {
+        [ProtoWrite.TIF.GTC]: "GTC",
+        [ProtoWrite.TIF.IOC]: "IOC",
+        [ProtoWrite.TIF.FOK]: "FOK",
+    } satisfies ProtoToOutput<ProtoWrite.TIF, TifOutputValue>,
 } as const;
 
 export const FeeSourceCodec = {
@@ -106,6 +117,10 @@ export const FeeSourceCodec = {
         quote: ProtoWrite.FeeSource.QUOTE,
         received: ProtoWrite.FeeSource.RECEIVED,
     } satisfies InputToProto<FeeSourceValue, ProtoWrite.FeeSource>,
+    protoToOutput: {
+        [ProtoWrite.FeeSource.QUOTE]: "quote",
+        [ProtoWrite.FeeSource.RECEIVED]: "received",
+    } satisfies ProtoToOutput<ProtoWrite.FeeSource, FeeSourceValue>,
 } as const;
 
 export const StpModeCodec = {
@@ -114,6 +129,11 @@ export const StpModeCodec = {
         expire_maker: ProtoWrite.STPMode.EXPIRE_MAKER,
         expire_both: ProtoWrite.STPMode.EXPIRE_BOTH,
     } satisfies InputToProto<StpModeValue, ProtoWrite.STPMode>,
+    protoToOutput: {
+        [ProtoWrite.STPMode.EXPIRE_TAKER]: "expire_taker",
+        [ProtoWrite.STPMode.EXPIRE_MAKER]: "expire_maker",
+        [ProtoWrite.STPMode.EXPIRE_BOTH]: "expire_both",
+    } satisfies ProtoToOutput<ProtoWrite.STPMode, StpModeValue>,
 } as const;
 
 export const OrderOriginScopeCodec = {

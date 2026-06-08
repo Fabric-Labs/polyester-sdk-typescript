@@ -9,7 +9,8 @@ import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import { UserTradeSchema, GetUserTradesInputSchema, type Trade } from "./trades.schemas.js";
+import { createUserTradeSchema, GetUserTradesInputSchema, type Trade } from "./trades.schemas.js";
+import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 
 interface SubscribeTradesInput extends BaseSubscribeInput<Trade> {
     accountId: string;
@@ -22,11 +23,18 @@ export class TradesService {
     #client: Client<typeof Proto.OrdersReadService>;
     #realtime: RealtimeClient;
     #resolver?: SubaccountResolver;
+    #catalog: CatalogReader;
 
-    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubaccountResolver) {
+    constructor(
+        transport: Transport,
+        realtime: RealtimeClient,
+        resolver?: SubaccountResolver,
+        catalog: CatalogReader = staticCatalog,
+    ) {
         this.#client = createClient(Proto.OrdersReadService, transport);
         this.#realtime = realtime;
         this.#resolver = resolver;
+        this.#catalog = catalog;
     }
 
     /**
@@ -43,7 +51,7 @@ export class TradesService {
             toConnectCallOptions(options),
         );
         return {
-            trades: v.parse(v.array(UserTradeSchema), res.trades),
+            trades: v.parse(v.array(createUserTradeSchema(this.#catalog.snapshot())), res.trades),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -57,7 +65,7 @@ export class TradesService {
             channel,
             schema: Proto.UserTradeSchema,
             onPublication: (data) => {
-                const trade = v.parse(UserTradeSchema, data);
+                const trade = v.parse(createUserTradeSchema(this.#catalog.snapshot()), data);
                 input.onEvent(trade);
             },
             onConnected: () => input.onOpen?.(),
