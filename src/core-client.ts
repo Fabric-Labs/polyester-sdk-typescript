@@ -1,5 +1,6 @@
 import type { Interceptor } from "@connectrpc/connect";
 import {
+    createApiKeyEd25519AuthHeaders,
     createTransports,
     type Transports,
     type JwtAuthProvider,
@@ -65,14 +66,24 @@ function initializeGeneratedCatalogs(): void {
 function realtimeAuthFromProvider(
     auth: JwtAuthProvider | ApiKeyEd25519AuthProvider | undefined,
 ): Pick<RealtimeConfig, "getAuthHeaders" | "hasAuth"> {
-    if (!auth || auth.kind !== "jwt") return {};
+    if (!auth) return {};
+    if (auth.kind === "jwt") {
+        return {
+            getAuthHeaders: async () => {
+                const token = await auth.getToken();
+                const headers: Record<string, string> = {};
+                if (token) headers.authorization = `Bearer ${token}`;
+                return headers;
+            },
+            hasAuth: () => true,
+        };
+    }
     return {
-        getAuthHeaders: async () => {
-            const token = await auth.getToken();
-            const headers: Record<string, string> = {};
-            if (token) headers.authorization = `Bearer ${token}`;
-            return headers;
-        },
+        getAuthHeaders: (request) =>
+            createApiKeyEd25519AuthHeaders(auth, {
+                url: request.url,
+                method: request.method,
+            }),
         hasAuth: () => true,
     };
 }

@@ -10,11 +10,16 @@ import { decodeProtoFrame } from "../utils/streams.js";
 
 const realtimeFetch = makeFetch();
 
+export interface RealtimeAuthRequest {
+    url: string | URL;
+    method: string;
+}
+
 export interface RealtimeConfig {
     wsUrl: string;
     tokenEndpoint: string;
     subscribeEndpoint: string;
-    getAuthHeaders?: () => Promise<HeadersInit> | HeadersInit;
+    getAuthHeaders?: (request: RealtimeAuthRequest) => Promise<HeadersInit> | HeadersInit;
     hasAuth?: () => boolean;
 }
 
@@ -22,7 +27,7 @@ type ResolvedRealtimeConfig = Pick<
     RealtimeConfig,
     "wsUrl" | "tokenEndpoint" | "subscribeEndpoint"
 > & {
-    getAuthHeaders: () => Promise<HeadersInit> | HeadersInit;
+    getAuthHeaders: (request: RealtimeAuthRequest) => Promise<HeadersInit> | HeadersInit;
     hasAuth: () => boolean;
 };
 
@@ -99,8 +104,8 @@ export class RealtimeClient {
         };
     }
 
-    async #getAuthHeaders(): Promise<HeadersInit> {
-        return this.#config.getAuthHeaders();
+    async #getAuthHeaders(request: RealtimeAuthRequest): Promise<HeadersInit> {
+        return this.#config.getAuthHeaders(request);
     }
 
     #emitSubscriptionError(shared: SharedSubscription, type: string, error: unknown): void {
@@ -123,9 +128,9 @@ export class RealtimeClient {
         return {
             getToken: async () => {
                 try {
-                    const headers = await this.#getAuthHeaders();
                     const url = new URL(this.#config.subscribeEndpoint);
                     url.searchParams.set("channel", shared.channel);
+                    const headers = await this.#getAuthHeaders({ url, method: "GET" });
                     const res = await realtimeFetch(url, { headers });
                     if (!res.ok) {
                         throw new Error(`Failed to fetch subscription token: ${res.status}`);
@@ -154,7 +159,10 @@ export class RealtimeClient {
                 ? {
                       getToken: async () => {
                           try {
-                              const headers = await this.#getAuthHeaders();
+                              const headers = await this.#getAuthHeaders({
+                                  url: this.#config.tokenEndpoint,
+                                  method: "GET",
+                              });
                               const res = await realtimeFetch(this.#config.tokenEndpoint, {
                                   headers,
                               });

@@ -370,11 +370,15 @@ describe("RealtimeClient", () => {
                 }),
             ),
         );
+        const authRequests: Array<{ url: string; method: string }> = [];
         const client = new RealtimeClient({
             wsUrl: "wss://stream.example.test",
             tokenEndpoint: "https://api.example.test/v1/rt/token",
             subscribeEndpoint: "https://api.example.test/custom/subscribe?existing=1",
-            getAuthHeaders: () => ({ authorization: "Bearer scoped-token" }),
+            getAuthHeaders: (request) => {
+                authRequests.push({ url: String(request.url), method: request.method });
+                return { authorization: "Bearer scoped-token" };
+            },
             hasAuth: () => true,
         });
 
@@ -408,6 +412,13 @@ describe("RealtimeClient", () => {
         expect(subscribeUrl.pathname).toBe("/custom/subscribe");
         expect(subscribeUrl.searchParams.get("existing")).toBe("1");
         expect(subscribeUrl.searchParams.get("channel")).toBe("private:test:orders:proto");
+        expect(authRequests).toEqual([
+            { url: "https://api.example.test/v1/rt/token", method: "GET" },
+            {
+                url: "https://api.example.test/custom/subscribe?existing=1&channel=private%3Atest%3Aorders%3Aproto",
+                method: "GET",
+            },
+        ]);
     });
 
     it("reports connection token failures to private subscription error handlers", async () => {

@@ -43,6 +43,13 @@ export interface ApiKeyEd25519AuthProvider {
     getSecretKey: () => Uint8Array | null | Promise<Uint8Array | null>;
 }
 
+export interface ApiKeyEd25519SigningRequest {
+    url: string | URL;
+    method: string;
+    body?: Uint8Array;
+    timestamp?: string;
+}
+
 /**
  * Error wrapper used when an SDK transport request fails before Connect can return a normal RPC error.
  */
@@ -133,6 +140,41 @@ async function sha256Hex(bytes: Uint8Array): Promise<string> {
     return Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+function canonicalQueryString(params: URLSearchParams): string {
+    const pairs: string[] = [];
+    for (const [k, v] of params.entries()) {
+        pairs.push(`${encodeURIComponent(k)}=${encodeURIComponent(v)}`);
+    }
+    pairs.sort();
+    return pairs.join("&");
+}
+
+/**
+ * Creates API-key authentication headers for endpoints using the Polyester Ed25519 signing contract.
+ */
+export async function createApiKeyEd25519AuthHeaders(
+    auth: ApiKeyEd25519AuthProvider,
+    request: ApiKeyEd25519SigningRequest,
+): Promise<Record<string, string>> {
+    const [keyId, secretKey] = await Promise.all([auth.getKeyId(), auth.getSecretKey()]);
+    if (!keyId || !secretKey) throw new Error("Missing API key ID or secret key");
+
+    const urlObj = new URL(request.url);
+    const timestamp = request.timestamp ?? String(Date.now());
+    const bodyHash = await sha256Hex(request.body ?? new Uint8Array(0));
+    const canonicalQuery = canonicalQueryString(urlObj.searchParams);
+    const canonical = `${timestamp}\n${request.method}\n${urlObj.pathname}\n${canonicalQuery}\n${bodyHash}`;
+    const msgBytes = new TextEncoder().encode(canonical);
+    const sig = await signAsync(msgBytes, secretKey);
+    const signatureHex = Array.from(sig, (b: number) => b.toString(16).padStart(2, "0")).join("");
+
+    return {
+        "X-API-KEY-ID": keyId,
+        "X-API-TIMESTAMP": timestamp,
+        "X-API-SIGNATURE": signatureHex,
+    };
+}
+
 /**
  * Creates an interceptor that attaches SDK authentication headers.
  */
@@ -148,12 +190,6 @@ export function createAuthInterceptor(
                 req.header.set("Authorization", `Bearer ${token}`);
             }
         } else if (auth.kind === "api-key-ed25519") {
-            const [keyId, secretKey] = await Promise.all([auth.getKeyId(), auth.getSecretKey()]);
-            if (!keyId || !secretKey) throw new Error("Missing API key ID or secret key");
-            const urlObj = new URL(req.url);
-            const method = req.requestMethod;
-            const timestamp = String(Date.now());
-
             let bodyBytes: Uint8Array;
             if (!req.stream) {
                 // unary request - serialize the message using the method's input schema
@@ -167,31 +203,14 @@ export function createAuthInterceptor(
                 bodyBytes = new Uint8Array(0);
             }
 
-            const bodyHash = await sha256Hex(bodyBytes);
-
-            // build canonical query string
-            const params = urlObj.searchParams;
-            const pairs: string[] = [];
-            for (const [k, v] of params.entries()) {
-                pairs.push(`${encodeURIComponent(k)}=${encodeURIComponent(v)}`);
+            const headers = await createApiKeyEd25519AuthHeaders(auth, {
+                url: req.url,
+                method: req.requestMethod,
+                body: bodyBytes,
+            });
+            for (const [key, value] of Object.entries(headers)) {
+                req.header.set(key, value);
             }
-            pairs.sort();
-            const canonicalQuery = pairs.join("&");
-
-            // build canonical string for signing
-            const canonical = `${timestamp}\n${method}\n${urlObj.pathname}\n${canonicalQuery}\n${bodyHash}`;
-
-            // sign with Ed25519
-            const msgBytes = new TextEncoder().encode(canonical);
-            const sig = await signAsync(msgBytes, secretKey);
-            const signatureHex = Array.from(sig, (b: number) =>
-                b.toString(16).padStart(2, "0"),
-            ).join("");
-
-            // set auth headers
-            req.header.set("X-API-KEY-ID", keyId);
-            req.header.set("X-API-TIMESTAMP", timestamp);
-            req.header.set("X-API-SIGNATURE", signatureHex);
         }
         return next(req);
     };
