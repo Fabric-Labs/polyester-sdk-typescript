@@ -1,1 +1,6 @@
-bun test
+#!/usr/bin/env sh
+
+# Add common bun installation paths for GUI apps (like GitHub Desktop)
+export PATH="/opt/homebrew/bin:$HOME/.bun/bin:$PATH"
+
+bunx lint-staged
