@@ -36,6 +36,7 @@
     "build": "bun --bun tsdown",
     "dev": "bun --bun tsdown --watch",
     "check": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
     "changeset": "bun --bun node_modules/.bin/changeset",
     "ci:publish": "bun run build && bun --bun node_modules/.bin/changeset publish",
     "format": "bun --bun oxfmt \"src/**/*.ts\" \"*.ts\"",
