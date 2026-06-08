@@ -16,6 +16,7 @@ import {
     CandlePointSchema,
     GetCandlesColumnsInputSchema,
     ListCandlesInputSchema,
+    TimeframeSchema,
     type Candle,
     type CandleInt,
     type Timeframe,
@@ -34,6 +35,11 @@ interface SubscribeCandlesIntsInput extends BaseSubscribeInput<CandleInt> {
     symbolId: number;
     timeframe: Timeframe;
 }
+
+const SubscribeCandlesParamsSchema = v.object({
+    symbolId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+    timeframe: TimeframeSchema,
+});
 
 export class CandlesService {
     #client: Client<typeof Proto.MarketDataService>;
@@ -78,7 +84,12 @@ export class CandlesService {
     }
 
     subscribe(input: SubscribeCandlesInput): () => void {
-        const channel = `public:spot:market:candles:${input.timeframe}:${input.symbolId}:proto`;
+        const params = v.parse(SubscribeCandlesParamsSchema, {
+            symbolId: input.symbolId,
+            timeframe: input.timeframe,
+        });
+        const protoTimeframe = TimeframeCodec.inputToProto[params.timeframe];
+        const channel = `public:spot:market:candles:${params.timeframe}:${params.symbolId}:proto`;
         return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.CandlePointSchema,
@@ -86,8 +97,8 @@ export class CandlesService {
                 const point = v.parse(CandlePointSchema, data);
                 const candle = v.parse(CandleRowSchema, {
                     ...point,
-                    symbolId: input.symbolId,
-                    timeframe: TimeframeCodec.inputToProto[input.timeframe],
+                    symbolId: params.symbolId,
+                    timeframe: protoTimeframe,
                 });
                 input.onEvent(candle);
             },
@@ -98,7 +109,12 @@ export class CandlesService {
     }
 
     subscribeInts(input: SubscribeCandlesIntsInput): () => void {
-        const channel = `public:spot:market:candles:${input.timeframe}:${input.symbolId}:proto`;
+        const params = v.parse(SubscribeCandlesParamsSchema, {
+            symbolId: input.symbolId,
+            timeframe: input.timeframe,
+        });
+        const protoTimeframe = TimeframeCodec.inputToProto[params.timeframe];
+        const channel = `public:spot:market:candles:${params.timeframe}:${params.symbolId}:proto`;
         return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.CandlePointSchema,
@@ -106,8 +122,8 @@ export class CandlesService {
                 const point = v.parse(CandlePointSchema, data);
                 const candle = v.parse(CandleRowIntSchema, {
                     ...point,
-                    symbolId: input.symbolId,
-                    timeframe: TimeframeCodec.inputToProto[input.timeframe],
+                    symbolId: params.symbolId,
+                    timeframe: protoTimeframe,
                 });
                 input.onEvent(candle);
             },

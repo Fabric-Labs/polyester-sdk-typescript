@@ -16,13 +16,14 @@ repository from GitHub or a local checkout.
 
 ```bash
 bun install --frozen-lockfile
+bun run hooks:install
 bun run lint
 bun run format:check
 bun run check
 bun run build
 ```
 
-Use `bun run build:watch` for rebuilds while editing.
+Use `bun run dev` for rebuilds while editing.
 
 Run `bun run changeset` when a change should be included in the next package
 release.

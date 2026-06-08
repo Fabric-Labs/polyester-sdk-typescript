@@ -46,12 +46,6 @@ export class MarketDataService {
 
     subscribeTrades(input: SubscribeTradesInput): () => void {
         const pair = getPair(input.symbol);
-        if (!pair) {
-            if (isDev()) {
-                console.error(`[MarketDataService] Unknown symbol: ${input.symbol}`);
-            }
-            return () => {};
-        }
 
         const channel = `public:spot:market:trades:${pair.symbolId}:proto`;
         return this.#realtime.connectProtoChannel({

@@ -13,7 +13,7 @@ import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import type { HeatmapIntervalValue } from "./heatmap.codecs.js";
+import { HEATMAP_INTERVAL_VALUES, type HeatmapIntervalValue } from "./heatmap.codecs.js";
 import * as v from "valibot";
 import {
     GetOrderbookHeatmapInputSchema,
@@ -35,6 +35,11 @@ interface SubscribeHeatmapLiveInput extends BaseSubscribeInput<OrderbookHeatmapL
     symbolId: number;
     interval: HeatmapIntervalValue;
 }
+
+const SubscribeHeatmapLiveParamsSchema = v.object({
+    symbolId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+    interval: v.picklist(HEATMAP_INTERVAL_VALUES),
+});
 
 export class HeatmapService implements OrderbookHeatmapProvider {
     #client: Client<typeof HeatmapRpc>;
@@ -80,7 +85,11 @@ export class HeatmapService implements OrderbookHeatmapProvider {
     }
 
     subscribeLive(input: SubscribeHeatmapLiveInput): () => void {
-        const channel = `public:spot:market:heatmap:${input.interval}:${input.symbolId}:proto`;
+        const params = v.parse(SubscribeHeatmapLiveParamsSchema, {
+            symbolId: input.symbolId,
+            interval: input.interval,
+        });
+        const channel = `public:spot:market:heatmap:${params.interval}:${params.symbolId}:proto`;
         return this.#realtime.connectProtoChannel({
             channel,
             schema: ProtoHeatmapLiveBucketSchema,

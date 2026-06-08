@@ -68,12 +68,6 @@ export class OrderbookService {
 
     createSubscription(input: CreateOrderbookSubscriptionInput): OrderbookSubscription {
         const pair = getPair(input.symbol);
-        if (!pair) {
-            if (isDev()) {
-                console.error(`[OrderbookService] Unknown symbol: ${input.symbol}`);
-            }
-            return { unsubscribe: () => {}, setBucket: () => {} };
-        }
 
         // Devnet delta channels currently publish reliably up to depth 500.
         // Clamp subscription depth to keep live updates flowing.
@@ -163,11 +157,25 @@ export class OrderbookService {
 
         async function refetchSnapshot(): Promise<void> {
             const snapshot = await inputServiceFetch();
-            bidsMap = levelsToMap(snapshot?.bids ?? []);
-            asksMap = levelsToMap(snapshot?.asks ?? []);
-            currentBookSeq = toBig(snapshot?.bookSeq ?? 0n);
+            bidsMap = levelsToMap(snapshot.bids);
+            asksMap = levelsToMap(snapshot.asks);
+            currentBookSeq = toBig(snapshot.bookSeq);
             snapshotReady = true;
             emit();
+        }
+
+        function reportSnapshotError(error: unknown): void {
+            if (isDev()) {
+                console.error("Failed to fetch orderbook", error);
+            }
+            input.onError?.({
+                channel,
+                type: "snapshot",
+                error: {
+                    code: 0,
+                    message: formatConnectError(error, "snapshot failed"),
+                },
+            });
         }
 
         async function ensureSnapshot(): Promise<void> {
@@ -182,24 +190,16 @@ export class OrderbookService {
                     handleDelta(delta);
                 }
             } catch (e: unknown) {
-                // @ts-expect-error - TODO: fix this
-                input.onError?.({ message: formatConnectError(e, "snapshot failed") });
+                reportSnapshotError(e);
             }
         }
 
-        async function inputServiceFetch(): Promise<Proto.GetOrderBookResponse | undefined> {
+        async function inputServiceFetch(): Promise<Proto.GetOrderBookResponse> {
             const validated = v.parse(GetOrderbookInputSchema, {
                 symbol: input.symbol,
                 depth: wsDepth,
             });
-            try {
-                const res = await client.getOrderBook(validated);
-                return res;
-            } catch (err) {
-                if (isDev()) {
-                    console.error("Failed to fetch orderbook", err);
-                }
-            }
+            return client.getOrderBook(validated);
         }
 
         function handleDelta(delta: Proto.OrderBookDelta): void {

@@ -39,7 +39,7 @@
     "lint": "bun --bun oxlint",
     "lint:fix": "bun --bun oxlint --fix",
     "version": "bun --bun node_modules/.bin/changeset version",
-    "prepare": "husky"
+    "hooks:install": "husky"
   },
   "dependencies": {
     "@bufbuild/protobuf": "2.12.0",
