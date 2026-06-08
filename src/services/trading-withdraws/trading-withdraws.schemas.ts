@@ -7,6 +7,7 @@ import {
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
+import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 
 const OptionalSubaccountIdSchema = optionalSubaccountIdInputSchema();
 const QuantityScaledSchema = positiveBigintLikeSchema("quantityScaled must be greater than 0");
@@ -75,6 +76,13 @@ function createCreateTradingWithdrawToFundingInputSchemaForReader(reader: Catalo
 
 export const CreateTradingWithdrawToFundingInputSchema =
     createCreateTradingWithdrawToFundingInputSchemaForReader(staticCatalog);
+
+export function createTradingWithdrawsSchemas(catalog: CatalogReader) {
+    return createCatalogSchemaCache(catalog, (reader) => ({
+        createTradingWithdrawToFundingInput:
+            createCreateTradingWithdrawToFundingInputSchemaForReader(reader),
+    }));
+}
 
 export type CreateTradingWithdrawToFundingInput = v.InferInput<
     typeof CreateTradingWithdrawToFundingInputSchema

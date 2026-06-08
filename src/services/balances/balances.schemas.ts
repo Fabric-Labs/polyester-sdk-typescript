@@ -7,6 +7,7 @@ import {
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
+import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 import { optionalSubaccountIdInputSchema } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
@@ -124,6 +125,13 @@ export const BalanceHistoryResponseSchema =
     createBalanceHistoryResponseSchemaForReader(staticCatalog);
 
 export type BalanceHistoryResponse = v.InferOutput<typeof BalanceHistoryResponseSchema>;
+
+export function createBalancesSchemas(catalog: CatalogReader) {
+    return createCatalogSchemaCache(catalog, (reader) => ({
+        ledgerBalance: createLedgerBalanceSchemaForReader(reader),
+        balanceHistoryResponse: createBalanceHistoryResponseSchemaForReader(reader),
+    }));
+}
 
 export const EquityHistoryInputSchema = v.object({
     subaccountId: optionalSubaccountIdInputSchema(),

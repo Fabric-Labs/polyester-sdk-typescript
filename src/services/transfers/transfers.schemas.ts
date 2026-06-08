@@ -9,6 +9,7 @@ import {
     type CatalogSnapshot,
     transferTypeNameFor,
 } from "../../catalogs/index.js";
+import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 import { tsNsToMs } from "../../utils/time.js";
 import {
     OptionalTimestampMsToNsInputSchema,
@@ -83,6 +84,12 @@ function createLedgerTransferSchemaForReader(reader: CatalogReader) {
 export const LedgerTransferSchema = createLedgerTransferSchemaForReader(staticCatalog);
 
 export type LedgerTransfer = v.InferOutput<typeof LedgerTransferSchema>;
+
+export function createTransfersSchemas(catalog: CatalogReader) {
+    return createCatalogSchemaCache(catalog, (reader) => ({
+        ledgerTransfer: createLedgerTransferSchemaForReader(reader),
+    }));
+}
 
 export const ListTransfersInputSchema = v.object({
     subaccountId: optionalSubaccountIdInputSchema(),

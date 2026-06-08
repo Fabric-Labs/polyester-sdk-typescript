@@ -16,7 +16,7 @@ import {
 import { HEATMAP_INTERVAL_VALUES, type HeatmapIntervalValue } from "./heatmap.codecs.js";
 import * as v from "valibot";
 import {
-    createGetOrderbookHeatmapInputSchema,
+    createHeatmapSchemas,
     OrderbookHeatmapLiveBucketSchema,
     OrderbookHeatmapResponseSchema,
     type GetOrderbookHeatmapInput,
@@ -48,7 +48,7 @@ const SubscribeHeatmapLiveParamsSchema = v.object({
 export class HeatmapService implements OrderbookHeatmapProvider {
     #client: Client<typeof HeatmapRpc>;
     #realtime: RealtimeClient;
-    #catalog: CatalogReader;
+    #schemas: ReturnType<typeof createHeatmapSchemas>;
 
     constructor(
         transport: Transport,
@@ -57,7 +57,7 @@ export class HeatmapService implements OrderbookHeatmapProvider {
     ) {
         this.#client = createClient(HeatmapRpc, transport);
         this.#realtime = realtime;
-        this.#catalog = catalog;
+        this.#schemas = createHeatmapSchemas(catalog);
     }
 
     /**
@@ -67,10 +67,8 @@ export class HeatmapService implements OrderbookHeatmapProvider {
         input: GetOrderbookHeatmapInput,
         options?: PolyesterRequestOptions,
     ): Promise<OrderbookHeatmapResponse> {
-        const parsed = v.parse(
-            createGetOrderbookHeatmapInputSchema(this.#catalog.snapshot()),
-            input,
-        );
+        const schemas = this.#schemas.current();
+        const parsed = v.parse(schemas.getOrderbookHeatmapInput, input);
 
         const mode: GetOrderbookHeatmapRequest["mode"] =
             parsed.mode.case === "cursor"

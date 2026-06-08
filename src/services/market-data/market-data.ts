@@ -9,8 +9,7 @@ import {
 } from "../../shared/request-options.js";
 import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 import {
-    createGetMarketTradesInputSchema,
-    createMarketTradeSchema,
+    createMarketDataSchemas,
     type GetMarketTradesInputSchema,
     type SpotConfig,
     SpotConfigSchema,
@@ -29,6 +28,7 @@ export class MarketDataService {
     #client: Client<typeof Proto.MarketDataService>;
     #realtime: RealtimeClient;
     #catalog: CatalogReader;
+    #schemas: ReturnType<typeof createMarketDataSchemas>;
 
     constructor(
         transport: Transport,
@@ -38,6 +38,7 @@ export class MarketDataService {
         this.#client = createClient(Proto.MarketDataService, transport);
         this.#realtime = realtime;
         this.#catalog = catalog;
+        this.#schemas = createMarketDataSchemas(catalog);
     }
 
     /**
@@ -47,10 +48,10 @@ export class MarketDataService {
         input: v.InferInput<typeof GetMarketTradesInputSchema>,
         options?: PolyesterRequestOptions,
     ): Promise<MarketTrade[]> {
-        const catalog = this.#catalog.snapshot();
-        const validatedInput = v.parse(createGetMarketTradesInputSchema(catalog), input);
+        const schemas = this.#schemas.current();
+        const validatedInput = v.parse(schemas.getMarketTradesInput, input);
         const res = await this.#client.getTrades(validatedInput, toConnectCallOptions(options));
-        return v.parse(v.array(createMarketTradeSchema(catalog)), res.trades);
+        return v.parse(v.array(schemas.marketTrade), res.trades);
     }
 
     /**
@@ -72,7 +73,8 @@ export class MarketDataService {
             channel,
             schema: Proto.MarketTradeSchema,
             onPublication: (data) => {
-                const trade = v.parse(createMarketTradeSchema(this.#catalog.snapshot()), data);
+                const schemas = this.#schemas.current();
+                const trade = v.parse(schemas.marketTrade, data);
                 input.onEvent(trade);
             },
             onConnected: () => input.onOpen?.(),

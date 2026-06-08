@@ -7,6 +7,7 @@ import {
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
+import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 import { DepthCodec, type OrderbookSupportedDepth } from "./orderbook.codecs.js";
 
 function toDepthEnum(depth: number): Proto.Depth {
@@ -77,3 +78,9 @@ function createOrderbookDataSchemaForReader(reader: CatalogReader) {
 export const OrderbookDataSchema = createOrderbookDataSchemaForReader(staticCatalog);
 
 export type OrderbookData = v.InferOutput<typeof OrderbookDataSchema>;
+
+export function createOrderbookSchemas(catalog: CatalogReader) {
+    return createCatalogSchemaCache(catalog, (reader) => ({
+        orderbookData: createOrderbookDataSchemaForReader(reader),
+    }));
+}

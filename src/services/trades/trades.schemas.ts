@@ -7,6 +7,7 @@ import {
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
+import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 import { FeeSourceCodec, OrderSideCodec } from "../orders/orders.codecs.js";
 import { int18ToDecimalString } from "../../catalogs/orders-catalog.js";
 import { formatId } from "../../utils/base58-id.js";
@@ -84,6 +85,12 @@ export function createUserTradeSchemaForReader(reader: CatalogReader) {
 export const UserTradeSchema = createUserTradeSchemaForReader(staticCatalog);
 
 export type Trade = v.InferOutput<typeof UserTradeSchema>;
+
+export function createTradesSchemas(catalog: CatalogReader) {
+    return createCatalogSchemaCache(catalog, (reader) => ({
+        userTrade: createUserTradeSchemaForReader(reader),
+    }));
+}
 
 export const GetUserTradesInputSchema = v.object({
     subaccountId: optionalSubaccountIdInputSchema(),

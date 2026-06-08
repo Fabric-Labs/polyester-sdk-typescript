@@ -15,11 +15,7 @@ import {
 import { isDev } from "../../utils/is-dev.js";
 import * as v from "valibot";
 import {
-    createGetLifecycleFlowOutputSchema,
-    createLifecycleFlowDetailSchema,
-    createLifecycleFlowSummarySchema,
-    createListLifecycleFlowsByTxOutputSchema,
-    createListLifecycleFlowsOutputSchema,
+    createLifecycleSchemas,
     GetLifecycleFlowInputSchema,
     ListLifecycleFlowsByTxInputSchema,
     ListLifecycleFlowsInputSchema,
@@ -48,7 +44,7 @@ interface SubscribeLifecycleFlowDetailInput extends BaseSubscribeInput<Lifecycle
 export class LifecycleService {
     #client: Client<typeof LifecycleReadService>;
     #realtime: RealtimeClient;
-    #catalog: CatalogReader;
+    #schemas: ReturnType<typeof createLifecycleSchemas>;
 
     constructor(
         transport: Transport,
@@ -57,7 +53,7 @@ export class LifecycleService {
     ) {
         this.#client = createClient(LifecycleReadService, transport);
         this.#realtime = realtime;
-        this.#catalog = catalog;
+        this.#schemas = createLifecycleSchemas(catalog);
     }
 
     /**
@@ -69,7 +65,8 @@ export class LifecycleService {
     ): Promise<ListLifecycleFlowsOutput> {
         const parsedInput = v.parse(ListLifecycleFlowsInputSchema, input);
         const response = await this.#client.listFlows(parsedInput, toConnectCallOptions(options));
-        return v.parse(createListLifecycleFlowsOutputSchema(this.#catalog.snapshot()), response);
+        const schemas = this.#schemas.current();
+        return v.parse(schemas.listLifecycleFlowsOutput, response);
     }
 
     /**
@@ -84,7 +81,8 @@ export class LifecycleService {
             create(GetFlowByIdRequestSchema, parsedInput),
             toConnectCallOptions(options),
         );
-        return v.parse(createGetLifecycleFlowOutputSchema(this.#catalog.snapshot()), response);
+        const schemas = this.#schemas.current();
+        return v.parse(schemas.getLifecycleFlowOutput, response);
     }
 
     /**
@@ -99,10 +97,8 @@ export class LifecycleService {
             parsedInput,
             toConnectCallOptions(options),
         );
-        return v.parse(
-            createListLifecycleFlowsByTxOutputSchema(this.#catalog.snapshot()),
-            response,
-        );
+        const schemas = this.#schemas.current();
+        return v.parse(schemas.listLifecycleFlowsByTxOutput, response);
     }
 
     /**
@@ -117,10 +113,8 @@ export class LifecycleService {
             channel,
             schema: FlowSummaryViewSchema,
             onPublication: (data) => {
-                const flow = v.parse(
-                    createLifecycleFlowSummarySchema(this.#catalog.snapshot()),
-                    data,
-                );
+                const schemas = this.#schemas.current();
+                const flow = v.parse(schemas.lifecycleFlowSummary, data);
                 input.onEvent(flow);
             },
             onConnected: input.onOpen,
@@ -148,10 +142,8 @@ export class LifecycleService {
             channel,
             schema: FlowDetailViewSchema,
             onPublication: (data) => {
-                const flow = v.parse(
-                    createLifecycleFlowDetailSchema(this.#catalog.snapshot()),
-                    data,
-                );
+                const schemas = this.#schemas.current();
+                const flow = v.parse(schemas.lifecycleFlowDetail, data);
                 input.onEvent(flow);
             },
             onConnected: input.onOpen,

@@ -6,6 +6,7 @@ import {
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
+import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 import { parseOptionalPositiveIntLike } from "../../utils/numbers.js";
 import { OptionalTimestampSecondsInputSchema } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
@@ -284,3 +285,11 @@ export type GetCandlesInput = v.InferInput<typeof ListCandlesInputSchema>;
 export const GetCandlesColumnsInputSchema = ListCandlesInputSchema;
 export const createGetCandlesColumnsInputSchema = createListCandlesInputSchema;
 export type GetCandlesColumnsInput = v.InferInput<typeof GetCandlesColumnsInputSchema>;
+
+export function createCandlesSchemas(catalog: CatalogReader) {
+    return createCatalogSchemaCache(catalog, (reader) => ({
+        candleRow: createCandleRowSchemaForReader(reader),
+        candleColumnar: createCandleColumnarSchemaForReader(reader),
+        listCandlesInput: createListCandlesInputSchemaForReader(reader),
+    }));
+}

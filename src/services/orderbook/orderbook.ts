@@ -7,7 +7,7 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import {
-    createOrderbookDataSchema,
+    createOrderbookSchemas,
     GetOrderbookInputSchema,
     type OrderbookLevel,
     type OrderbookData,
@@ -45,6 +45,7 @@ export class OrderbookService {
     #client: Client<typeof Proto.OrderbookService>;
     #realtime: RealtimeClient;
     #catalog: CatalogReader;
+    #schemas: ReturnType<typeof createOrderbookSchemas>;
 
     constructor(
         transport: Transport,
@@ -54,6 +55,7 @@ export class OrderbookService {
         this.#client = createClient(Proto.OrderbookService, transport);
         this.#realtime = realtime;
         this.#catalog = catalog;
+        this.#schemas = createOrderbookSchemas(catalog);
     }
 
     /**
@@ -65,7 +67,8 @@ export class OrderbookService {
     ): Promise<OrderbookData> {
         const validated = v.parse(GetOrderbookInputSchema, input);
         const res = await this.#client.getOrderBook(validated, toConnectCallOptions(options));
-        return v.parse(createOrderbookDataSchema(this.#catalog.snapshot()), {
+        const schemas = this.#schemas.current();
+        return v.parse(schemas.orderbookData, {
             symbol: validated.symbol,
             depth: validated.depth,
             bookSeq: res.bookSeq,

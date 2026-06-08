@@ -10,6 +10,7 @@ import {
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
+import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 import { OptionalTimestampSecondsInputSchema } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import {
@@ -128,6 +129,12 @@ function createGetOrderbookHeatmapInputSchemaForReader(reader: CatalogReader) {
 
 export const GetOrderbookHeatmapInputSchema =
     createGetOrderbookHeatmapInputSchemaForReader(staticCatalog);
+
+export function createHeatmapSchemas(catalog: CatalogReader) {
+    return createCatalogSchemaCache(catalog, (reader) => ({
+        getOrderbookHeatmapInput: createGetOrderbookHeatmapInputSchemaForReader(reader),
+    }));
+}
 
 function requiredIntervalLabelFor(value: number): HeatmapIntervalValue {
     return requiredEnumLabel(

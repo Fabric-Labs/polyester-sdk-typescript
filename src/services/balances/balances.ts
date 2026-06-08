@@ -14,8 +14,7 @@ import {
 import { idToBigInt } from "../../utils/base58-id.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
-    createBalanceHistoryResponseSchema,
-    createLedgerBalanceSchema,
+    createBalancesSchemas,
     BalanceHistoryInputSchema,
     EquityHistoryInputSchema,
     EquityHistoryResponseSchema,
@@ -39,6 +38,7 @@ export class BalancesService {
     #realtime: RealtimeClient;
     #resolver?: SubaccountResolver;
     #catalog: CatalogReader;
+    #schemas: ReturnType<typeof createBalancesSchemas>;
 
     constructor(
         transport: Transport,
@@ -50,6 +50,7 @@ export class BalancesService {
         this.#realtime = realtime;
         this.#resolver = resolver;
         this.#catalog = catalog;
+        this.#schemas = createBalancesSchemas(catalog);
     }
 
     /**
@@ -66,10 +67,10 @@ export class BalancesService {
             },
             toConnectCallOptions(options),
         );
-        const snapshot = this.#catalog.snapshot();
+        const schemas = this.#schemas.current();
         const reader = this.#catalog;
         return v.parse(
-            v.array(createLedgerBalanceSchema(snapshot)),
+            v.array(schemas.ledgerBalance),
             res.balances.filter((b) => reader.ledger.isKnownAssetId(b.assetId)),
         );
     }
@@ -84,7 +85,8 @@ export class BalancesService {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validated = v.parse(BalanceHistoryInputSchema, resolved);
         const res = await this.#client.getBalanceHistory(validated, toConnectCallOptions(options));
-        return v.parse(createBalanceHistoryResponseSchema(this.#catalog.snapshot()), res);
+        const schemas = this.#schemas.current();
+        return v.parse(schemas.balanceHistoryResponse, res);
     }
 
     /**
@@ -113,7 +115,8 @@ export class BalancesService {
             schema: Proto.AssetBalanceSchema,
             onPublication: (data) => {
                 if (!this.#catalog.ledger.isKnownAssetId(data.assetId)) return;
-                const b = v.parse(createLedgerBalanceSchema(this.#catalog.snapshot()), data);
+                const schemas = this.#schemas.current();
+                const b = v.parse(schemas.ledgerBalance, data);
                 input.onEvent(b);
             },
             onConnected: input.onOpen,

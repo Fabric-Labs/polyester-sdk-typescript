@@ -8,6 +8,7 @@ import {
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
+import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import {
     SPARKLINE_INTERVAL_VALUES,
@@ -126,6 +127,12 @@ function createMarketOverviewSchemaForReader(reader: CatalogReader) {
 export const MarketOverviewSchema = createMarketOverviewSchemaForReader(staticCatalog);
 
 export type MarketOverview = v.InferOutput<typeof MarketOverviewSchema>;
+
+export function createMarketOverviewSchemas(catalog: CatalogReader) {
+    return createCatalogSchemaCache(catalog, (reader) => ({
+        marketOverview: createMarketOverviewSchemaForReader(reader),
+    }));
+}
 
 const MS_PER_24H = 86_400_000;
 

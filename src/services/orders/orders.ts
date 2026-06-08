@@ -12,10 +12,7 @@ import {
 import type { RealtimeClient } from "../../realtime/client.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
-    createModifyOrderInputSchema,
-    createNewOrderInputSchema,
-    createOrderDetailsSchema,
-    createOrderSchema,
+    createOrdersSchemas,
     OpenOrdersInputSchema,
     OrderHistoryInputSchema,
     type NewOrderInputSchema,
@@ -55,7 +52,7 @@ export class OrdersService {
     #writeClient: Client<typeof ProtoWrite.OrdersService>;
     #realtime: RealtimeClient;
     #resolver?: SubaccountResolver;
-    #catalog: CatalogReader;
+    #schemas: ReturnType<typeof createOrdersSchemas>;
 
     constructor(
         transport: Transport,
@@ -67,7 +64,7 @@ export class OrdersService {
         this.#writeClient = createClient(ProtoWrite.OrdersService, transport);
         this.#realtime = realtime;
         this.#resolver = resolver;
-        this.#catalog = catalog;
+        this.#schemas = createOrdersSchemas(catalog);
     }
 
     /**
@@ -83,9 +80,9 @@ export class OrdersService {
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
-        const schema = createOrderSchema(this.#catalog.snapshot());
+        const schemas = this.#schemas.current();
         return {
-            orders: v.parse(v.array(schema), res.orders),
+            orders: v.parse(v.array(schemas.order), res.orders),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -103,9 +100,9 @@ export class OrdersService {
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
-        const schema = createOrderSchema(this.#catalog.snapshot());
+        const schemas = this.#schemas.current();
         return {
-            orders: v.parse(v.array(schema), res.orders),
+            orders: v.parse(v.array(schemas.order), res.orders),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -118,10 +115,8 @@ export class OrdersService {
         options?: PolyesterMutationOptions,
     ): Promise<CreateOrderResult> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
-        const validatedInput = v.parse(
-            createNewOrderInputSchema(this.#catalog.snapshot()),
-            resolved,
-        );
+        const schemas = this.#schemas.current();
+        const validatedInput = v.parse(schemas.newOrderInput, resolved);
         const requestPayload = removeUndefined(validatedInput);
         const res = await this.#writeClient.createOrder(
             requestPayload,
@@ -163,7 +158,8 @@ export class OrdersService {
             ...resolveSubaccountScopedInput(input, this.#resolver),
             requestId: input.requestId ?? createMutationRequestId(),
         };
-        const validated = v.parse(createModifyOrderInputSchema(this.#catalog.snapshot()), resolved);
+        const schemas = this.#schemas.current();
+        const validated = v.parse(schemas.modifyOrderInput, resolved);
         const res = await this.#writeClient.modifyOrder(
             removeUndefined(validated),
             toConnectCallOptions(options),
@@ -204,7 +200,8 @@ export class OrdersService {
             toConnectCallOptions(options),
         );
         if (!res.order) return null;
-        return v.parse(createOrderDetailsSchema(this.#catalog.snapshot()), res);
+        const schemas = this.#schemas.current();
+        return v.parse(schemas.orderDetails, res);
     }
 
     /**
@@ -216,7 +213,8 @@ export class OrdersService {
             channel,
             schema: ProtoRead.OrderSchema,
             onPublication: (data) => {
-                const order = v.parse(createOrderSchema(this.#catalog.snapshot()), data);
+                const schemas = this.#schemas.current();
+                const order = v.parse(schemas.order, data);
                 input.onEvent(order);
             },
             onConnected: () => input.onOpen?.(),

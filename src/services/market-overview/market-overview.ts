@@ -9,7 +9,7 @@ import {
 } from "../../shared/request-options.js";
 import { formatConnectError } from "../../utils/errors.js";
 import {
-    createMarketOverviewSchema,
+    createMarketOverviewSchemas,
     ListMarketOverviewInputSchema,
     type SparklineIntervalName,
     type ListMarketOverviewInput,
@@ -28,7 +28,7 @@ interface SubscribeMarketOverviewInput extends BaseSubscribeInput<MarketOverview
 export class MarketOverviewService {
     #client: Client<typeof Proto.MarketOverviewService>;
     #realtime: RealtimeClient;
-    #catalog: CatalogReader;
+    #schemas: ReturnType<typeof createMarketOverviewSchemas>;
 
     constructor(
         transport: Transport,
@@ -37,7 +37,7 @@ export class MarketOverviewService {
     ) {
         this.#client = createClient(Proto.MarketOverviewService, transport);
         this.#realtime = realtime;
-        this.#catalog = catalog;
+        this.#schemas = createMarketOverviewSchemas(catalog);
     }
 
     /**
@@ -52,7 +52,8 @@ export class MarketOverviewService {
             validatedInput,
             toConnectCallOptions(options),
         );
-        return v.parse(v.array(createMarketOverviewSchema(this.#catalog.snapshot())), res.markets);
+        const schemas = this.#schemas.current();
+        return v.parse(v.array(schemas.marketOverview), res.markets);
     }
 
     /**
@@ -104,8 +105,10 @@ export class MarketOverviewService {
             channel,
             schema: Proto.MarketOverviewBatchSchema,
             onPublication: (batch) => {
-                const schema = createMarketOverviewSchema(this.#catalog.snapshot());
-                const markets = (batch.markets ?? []).map((m) => v.parse(schema, m));
+                const schemas = this.#schemas.current();
+                const markets = (batch.markets ?? []).map((m) =>
+                    v.parse(schemas.marketOverview, m),
+                );
                 if (!snapshotReady) {
                     pendingBatches = pendingBatches.concat(markets).slice(-2000);
                     return;

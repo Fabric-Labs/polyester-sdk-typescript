@@ -9,9 +9,7 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import {
-    createCreateTriggerInputSchema,
-    createTriggerEventSchema,
-    createTriggerSchema,
+    createTriggersSchemas,
     ListTriggersInputSchema,
     CancelTriggerInputSchema,
     GetTriggerInputSchema,
@@ -71,7 +69,7 @@ export class TriggersService {
     #client: Client<typeof Proto.TriggersService>;
     #realtime: RealtimeClient;
     #resolver?: SubaccountResolver;
-    #catalog: CatalogReader;
+    #schemas: ReturnType<typeof createTriggersSchemas>;
 
     constructor(
         transport: Transport,
@@ -82,7 +80,7 @@ export class TriggersService {
         this.#client = createClient(Proto.TriggersService, transport);
         this.#realtime = realtime;
         this.#resolver = resolver;
-        this.#catalog = catalog;
+        this.#schemas = createTriggersSchemas(catalog);
     }
 
     /**
@@ -93,10 +91,8 @@ export class TriggersService {
         options?: PolyesterMutationOptions,
     ): Promise<CreateTriggerResult> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
-        const validatedInput = v.parse(
-            createCreateTriggerInputSchema(this.#catalog.snapshot()),
-            resolved,
-        );
+        const schemas = this.#schemas.current();
+        const validatedInput = v.parse(schemas.createTriggerInput, resolved);
         const res = await this.#client.createTrigger(validatedInput, toConnectCallOptions(options));
         return v.parse(CreateTriggerResultSchema, res);
     }
@@ -113,7 +109,8 @@ export class TriggersService {
         );
 
         if (!res.trigger) return null;
-        return v.parse(createTriggerSchema(this.#catalog.snapshot()), res.trigger);
+        const schemas = this.#schemas.current();
+        return v.parse(schemas.trigger, res.trigger);
     }
 
     /**
@@ -129,8 +126,9 @@ export class TriggersService {
             removeUndefined(validated),
             toConnectCallOptions(options),
         );
+        const schemas = this.#schemas.current();
         return {
-            triggers: v.parse(v.array(createTriggerSchema(this.#catalog.snapshot())), res.triggers),
+            triggers: v.parse(v.array(schemas.trigger), res.triggers),
             total: res.total,
         };
     }
@@ -216,11 +214,9 @@ export class TriggersService {
             toConnectCallOptions(options),
         );
 
+        const schemas = this.#schemas.current();
         return {
-            events: v.parse(
-                v.array(createTriggerEventSchema(this.#catalog.snapshot())),
-                res.events,
-            ),
+            events: v.parse(v.array(schemas.triggerEvent), res.events),
             nextBeforeTsNs: Number(res.nextBeforeTsNs) / 1_000_000,
         };
     }
@@ -234,7 +230,8 @@ export class TriggersService {
             channel,
             schema: Proto.TriggerSchema,
             onPublication: (data) => {
-                const trigger = v.parse(createTriggerSchema(this.#catalog.snapshot()), data);
+                const schemas = this.#schemas.current();
+                const trigger = v.parse(schemas.trigger, data);
                 input.onEvent(trigger);
             },
             onConnected: () => input.onOpen?.(),
@@ -252,7 +249,8 @@ export class TriggersService {
             channel,
             schema: Proto.TriggerEventSchema,
             onPublication: (data) => {
-                const event = v.parse(createTriggerEventSchema(this.#catalog.snapshot()), data);
+                const schemas = this.#schemas.current();
+                const event = v.parse(schemas.triggerEvent, data);
                 input.onEvent(event);
             },
             onConnected: () => input.onOpen?.(),

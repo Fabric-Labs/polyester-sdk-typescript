@@ -17,6 +17,7 @@ import {
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
+import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 import {
     parsePriceTicks,
     parseQtyScaled,
@@ -1077,6 +1078,15 @@ function createOrderDetailsSchemaForReader(reader: CatalogReader) {
 export const OrderDetailsSchema = createOrderDetailsSchemaForReader(staticCatalog);
 
 export type OrderDetails = v.InferOutput<typeof OrderDetailsSchema>;
+
+export function createOrdersSchemas(catalog: CatalogReader) {
+    return createCatalogSchemaCache(catalog, (reader) => ({
+        newOrderInput: createNewOrderInputSchemaForReader(reader),
+        order: createOrderSchemaForReader(reader),
+        modifyOrderInput: createModifyOrderInputSchemaForReader(reader),
+        orderDetails: createOrderDetailsSchemaForReader(reader),
+    }));
+}
 
 export const CreateOrderResultSchema = v.object({
     status: v.string(),

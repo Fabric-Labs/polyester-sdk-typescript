@@ -12,7 +12,7 @@ import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subacc
 import { TradingWithdrawActionCodec } from "./trading-withdraws.codecs.js";
 import * as v from "valibot";
 import {
-    createCreateTradingWithdrawToFundingInputSchema,
+    createTradingWithdrawsSchemas,
     CreateTradingWithdrawResultSchema,
     CreateWalletTradingWithdrawResultSchema,
     type CreateTradingWithdrawResult,
@@ -143,7 +143,7 @@ export class TradingWithdrawsService {
     #client: Client<typeof Proto.WithdrawService>;
     #resolver?: SubaccountResolver;
     #signingConfig: TradingWithdrawSigningConfig;
-    #catalog: CatalogReader;
+    #schemas: ReturnType<typeof createTradingWithdrawsSchemas>;
 
     constructor(
         transport: Transport,
@@ -154,7 +154,7 @@ export class TradingWithdrawsService {
         this.#client = createClient(Proto.WithdrawService, transport);
         this.#resolver = resolver;
         this.#signingConfig = signingConfig;
-        this.#catalog = catalog;
+        this.#schemas = createTradingWithdrawsSchemas(catalog);
     }
 
     /**
@@ -166,10 +166,8 @@ export class TradingWithdrawsService {
     ): Promise<CreateTradingWithdrawResult> {
         const { walletSigner, ...inputForValidation } = input;
         const resolvedInput = resolveSubaccountScopedInput(inputForValidation, this.#resolver);
-        const validated = v.parse(
-            createCreateTradingWithdrawToFundingInputSchema(this.#catalog.snapshot()),
-            resolvedInput,
-        );
+        const schemas = this.#schemas.current();
+        const validated = v.parse(schemas.createTradingWithdrawToFundingInput, resolvedInput);
         const payload = create(Proto.TradingWithdrawIntentPayloadSchema, {
             action: TradingWithdrawActionCodec.inputToProto.to_funding,
             assetId: validated.assetId,

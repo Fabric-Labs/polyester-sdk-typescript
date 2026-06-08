@@ -28,6 +28,7 @@ import {
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
+import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import { PublicIdSchema } from "../../shared/schemas.js";
 
@@ -509,6 +510,19 @@ function createListLifecycleFlowsByTxOutputSchemaForReader(reader: CatalogReader
 
 export const ListLifecycleFlowsByTxOutputSchema =
     createListLifecycleFlowsByTxOutputSchemaForReader(staticCatalog);
+
+export function createLifecycleSchemas(catalog: CatalogReader) {
+    return createCatalogSchemaCache(catalog, (reader) => ({
+        lifecycleRequestFee: createLifecycleRequestFeeSchemaForReader(reader),
+        lifecycleFlowStep: createLifecycleFlowStepSchemaForReader(reader),
+        lifecycleFlowSummary: createLifecycleFlowSummarySchemaForReader(reader),
+        lifecycleFlowDetail: createLifecycleFlowDetailSchemaForReader(reader),
+        listLifecycleFlowsOutput: createListLifecycleFlowsOutputSchemaForReader(reader),
+        getLifecycleFlowOutput: createGetLifecycleFlowOutputSchemaForReader(reader),
+        lifecycleFlowTxMatch: createLifecycleFlowTxMatchSchemaForReader(reader),
+        listLifecycleFlowsByTxOutput: createListLifecycleFlowsByTxOutputSchemaForReader(reader),
+    }));
+}
 
 export type ListLifecycleFlowsInput = v.InferInput<typeof ListLifecycleFlowsInputSchema>;
 export type ParsedListLifecycleFlowsInput = v.InferOutput<typeof ListLifecycleFlowsInputSchema>;

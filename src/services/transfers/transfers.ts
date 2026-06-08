@@ -9,7 +9,7 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import {
-    createLedgerTransferSchema,
+    createTransfersSchemas,
     ListTransfersInputSchema,
     type LedgerTransfer,
     type ListTransfersInput,
@@ -27,7 +27,7 @@ export class TransfersService {
     #client: Client<typeof Proto.LedgerReadService>;
     #realtime: RealtimeClient;
     #resolver?: SubaccountResolver;
-    #catalog: CatalogReader;
+    #schemas: ReturnType<typeof createTransfersSchemas>;
 
     constructor(
         transport: Transport,
@@ -38,7 +38,7 @@ export class TransfersService {
         this.#client = createClient(Proto.LedgerReadService, transport);
         this.#realtime = realtime;
         this.#resolver = resolver;
-        this.#catalog = catalog;
+        this.#schemas = createTransfersSchemas(catalog);
     }
 
     /**
@@ -51,10 +51,8 @@ export class TransfersService {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(ListTransfersInputSchema, resolved);
         const res = await this.#client.listTransfers(validatedInput, toConnectCallOptions(options));
-        const transfers = v.parse(
-            v.array(createLedgerTransferSchema(this.#catalog.snapshot())),
-            res.transfers,
-        );
+        const schemas = this.#schemas.current();
+        const transfers = v.parse(v.array(schemas.ledgerTransfer), res.transfers);
         const nextCursor = Number(res.nextCursor ?? 0n) || null;
         return { transfers, nextCursor };
     }
@@ -68,7 +66,8 @@ export class TransfersService {
             channel,
             schema: Proto.TransferRowSchema,
             onPublication: (m) => {
-                const tr = v.parse(createLedgerTransferSchema(this.#catalog.snapshot()), m);
+                const schemas = this.#schemas.current();
+                const tr = v.parse(schemas.ledgerTransfer, m);
                 input.onEvent(tr);
             },
             onConnected: input.onOpen,

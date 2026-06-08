@@ -6,6 +6,7 @@ import {
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
+import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 
 const OptionalSubaccountIdSchema = optionalSubaccountIdInputSchema();
 
@@ -60,6 +61,13 @@ export const ListDepositAddressesInputSchema =
 
 export type ListDepositAddressesInput = v.InferInput<typeof ListDepositAddressesInputSchema>;
 export type ListDepositAddressesRequest = v.InferOutput<typeof ListDepositAddressesInputSchema>;
+
+export function createDepositSchemas(catalog: CatalogReader) {
+    return createCatalogSchemaCache(catalog, (reader) => ({
+        createDepositAddressInput: createCreateDepositAddressInputSchemaForReader(reader),
+        listDepositAddressesInput: createListDepositAddressesInputSchemaForReader(reader),
+    }));
+}
 
 export const DepositAddressSchema = v.object({
     chainId: v.pipe(v.number(), v.integer(), v.gtValue(0)),

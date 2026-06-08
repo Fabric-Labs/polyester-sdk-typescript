@@ -23,6 +23,7 @@ import {
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
+import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 import {
     TriggerTypeCodec,
     TriggerStatusCodec,
@@ -972,3 +973,11 @@ function createTriggerEventSchemaForReader(reader: CatalogReader) {
 export const TriggerEventSchema = createTriggerEventSchemaForReader(staticCatalog);
 
 export type TriggerEvent = v.InferOutput<typeof TriggerEventSchema>;
+
+export function createTriggersSchemas(catalog: CatalogReader) {
+    return createCatalogSchemaCache(catalog, (reader) => ({
+        createTriggerInput: createCreateTriggerInputSchemaForReader(reader),
+        trigger: createTriggerSchemaForReader(reader),
+        triggerEvent: createTriggerEventSchemaForReader(reader),
+    }));
+}

@@ -7,6 +7,7 @@ import {
     type CatalogSnapshot,
     type EnrichedPairConfig,
 } from "../../catalogs/index.js";
+import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { timestampToMs, tsNsToTimestamp } from "../../utils/timestamp.js";
 import { SideFilterCodec } from "./market-data.codecs.js";
@@ -113,6 +114,13 @@ export const GetMarketTradesInputSchema = createGetMarketTradesInputSchemaForRea
 
 export type GetMarketTradesInput = v.InferInput<typeof GetMarketTradesInputSchema>;
 export type GetMarketTradesRequest = v.InferOutput<typeof GetMarketTradesInputSchema>;
+
+export function createMarketDataSchemas(catalog: CatalogReader) {
+    return createCatalogSchemaCache(catalog, (reader) => ({
+        marketTrade: createMarketTradeSchemaForReader(reader),
+        getMarketTradesInput: createGetMarketTradesInputSchemaForReader(reader),
+    }));
+}
 
 export const AssetConfigSchema = v.pipe(
     v.object({
