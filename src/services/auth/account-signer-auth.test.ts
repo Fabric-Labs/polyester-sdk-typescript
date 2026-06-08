@@ -8,7 +8,25 @@ import { SubaccountsService } from "../subaccounts/index.js";
 import { AccountSignerAuthService } from "./account-signer-auth.js";
 import type { LoginWithWalletInput, LoginWithWalletResponse } from "./auth.js";
 import { polyesterSession } from "./session.js";
-import { polyesterToken } from "./token.js";
+import { createMemoryAuthTokenStorage, type AuthTokenStorage } from "./token-storage.js";
+
+const originalDocument = Object.getOwnPropertyDescriptor(globalThis, "document");
+
+function base64UrlEncode(value: string): string {
+    return btoa(value).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/u, "");
+}
+
+function jwtWithExp(exp: number): string {
+    return ["header", base64UrlEncode(JSON.stringify({ exp })), "signature"].join(".");
+}
+
+function installDocument(cookie = ""): void {
+    Object.defineProperty(globalThis, "document", {
+        configurable: true,
+        value: { cookie },
+        writable: true,
+    });
+}
 
 function noopTransport(): Transport {
     return {
@@ -17,7 +35,20 @@ function noopTransport(): Transport {
     } as unknown as Transport;
 }
 
-function authFixture(accountSigner?: AccountSigner) {
+function createTestStorage(initialToken: string | null = null) {
+    let token = initialToken;
+    return {
+        get: vi.fn(() => token),
+        set: vi.fn((nextToken: string) => {
+            token = nextToken;
+        }),
+        clear: vi.fn(() => {
+            token = null;
+        }),
+    } satisfies AuthTokenStorage;
+}
+
+function authFixture(accountSigner?: AccountSigner, tokenStorage?: AuthTokenStorage) {
     const publicApi = noopTransport();
     const authApi = noopTransport();
     const realtime = new RealtimeClient({
@@ -34,6 +65,7 @@ function authFixture(accountSigner?: AccountSigner) {
         environment: POLYESTER_TESTNET_ENVIRONMENT,
         subaccounts,
         realtime,
+        tokenStorage: tokenStorage ?? createMemoryAuthTokenStorage(),
     });
 
     return { auth, subaccounts };
@@ -81,9 +113,14 @@ function mockLogin(auth: AccountSignerAuthService) {
 
 describe("AccountSignerAuthService", () => {
     afterEach(() => {
-        polyesterToken.clear();
         polyesterSession.clear();
         vi.restoreAllMocks();
+        vi.useRealTimers();
+        if (originalDocument) {
+            Object.defineProperty(globalThis, "document", originalDocument);
+        } else {
+            Reflect.deleteProperty(globalThis, "document");
+        }
     });
 
     it("maps account signer fields to the backend wallet login payload", async () => {
@@ -153,6 +190,121 @@ describe("AccountSignerAuthService", () => {
         await auth.login({ provider: "other" });
 
         expect(requestLoginNonce).toHaveBeenCalledWith(replacementSigner.accountAddress);
+    });
+
+    it("stores login tokens through the configured token storage", async () => {
+        const accountSigner = signer();
+        const tokenStorage = createTestStorage();
+        const auth = authFixture(accountSigner, tokenStorage).auth;
+        mockLogin(auth);
+
+        await auth.login({ provider: "turnkey" });
+
+        expect(tokenStorage.set).toHaveBeenCalledWith("token-1", {
+            expiresAt: null,
+            maxAgeSeconds: null,
+        });
+    });
+
+    it("replaces the configured token storage token on refresh", async () => {
+        const accountSigner = signer();
+        const tokenStorage = createTestStorage();
+        const auth = authFixture(accountSigner, tokenStorage).auth;
+        const { loginWithWallet } = mockLogin(auth);
+
+        await auth.login({ provider: "turnkey" });
+        loginWithWallet.mockResolvedValueOnce({
+            accessToken: "token-2",
+            accountId: "account-1",
+            username: "hunter",
+            expiresAt: {
+                seconds: 1n,
+                nanos: 0,
+            },
+        });
+        await auth.refreshSession();
+
+        expect(tokenStorage.set).toHaveBeenNthCalledWith(1, "token-1", {
+            expiresAt: null,
+            maxAgeSeconds: null,
+        });
+        expect(tokenStorage.set).toHaveBeenNthCalledWith(2, "token-2", {
+            expiresAt: null,
+            maxAgeSeconds: null,
+        });
+    });
+
+    it("clears the configured token storage on logout", async () => {
+        const accountSigner = signer();
+        const tokenStorage = createTestStorage();
+        const auth = authFixture(accountSigner, tokenStorage).auth;
+        mockLogin(auth);
+
+        await auth.login({ provider: "turnkey" });
+        await auth.logout();
+
+        expect(tokenStorage.clear).toHaveBeenCalledTimes(1);
+    });
+
+    it("restores a valid stored token through the configured token storage", async () => {
+        const accountSigner = signer();
+        const token = jwtWithExp(Math.floor(Date.now() / 1000) + 3600);
+        const tokenStorage = createTestStorage(token);
+        const auth = authFixture(accountSigner, tokenStorage).auth;
+        installDocument();
+        polyesterSession.set({
+            environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+            provider: "turnkey",
+            loginMethod: null,
+            primaryWallet: accountSigner.ownerAddress ?? accountSigner.accountAddress,
+            smartAccount: accountSigner.accountAddress,
+            activeAccount: {
+                accountId: "account-1",
+                isMain: true,
+                mainAccountId: "account-1",
+            },
+            username: "hunter",
+        });
+        vi.spyOn(auth, "me").mockResolvedValue({ accountId: "account-1", username: "hunter" });
+
+        await expect(auth.restoreSession()).resolves.toEqual({
+            accountId: "account-1",
+            username: "hunter",
+        });
+
+        expect(tokenStorage.clear).not.toHaveBeenCalled();
+        expect(auth.getState()).toMatchObject({
+            isAuthenticated: true,
+            mainAccountId: "account-1",
+        });
+    });
+
+    it("clears configured token storage when restore sees no matching display session", async () => {
+        const token = jwtWithExp(Math.floor(Date.now() / 1000) + 3600);
+        const tokenStorage = createTestStorage(token);
+        const auth = authFixture(signer(), tokenStorage).auth;
+
+        await expect(auth.restoreSession()).resolves.toBeNull();
+
+        expect(tokenStorage.clear).toHaveBeenCalled();
+    });
+
+    it("reports session time to expiry from the configured token storage", () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
+        const accountSigner = signer();
+        const token = jwtWithExp(Math.floor(Date.now() / 1000) + 90);
+        const auth = authFixture(accountSigner, createTestStorage(token)).auth;
+        installDocument();
+        polyesterSession.set({
+            environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+            provider: "turnkey",
+            loginMethod: null,
+            primaryWallet: accountSigner.ownerAddress ?? accountSigner.accountAddress,
+            smartAccount: accountSigner.accountAddress,
+        });
+
+        expect(auth.getSessionTimeToExpiry()).toBe(90_000);
     });
 
     it("rejects a signer from another environment before requesting a nonce", async () => {

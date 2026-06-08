@@ -9,6 +9,7 @@ import {
     optionalSubaccountIdInputSchema,
     optionalUint64DecimalFilterSchema,
 } from "../../shared/schemas.js";
+import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import {
     parsePriceTicks,
     parseQtyScaled,
@@ -572,7 +573,9 @@ type LadderDistributionLabel = "linear" | "geometric" | "weighted_favorable";
 
 const TriggerResultStatusSchema = v.pipe(
     v.enum(Proto.TriggerStatus),
-    v.transform((status) => TriggerStatusCodec.protoToLabel[status]),
+    v.transform((status) =>
+        requiredEnumLabel(TriggerStatusCodec.protoToLabel, status, "TriggerResultSchema", "status"),
+    ),
 );
 
 const TriggerResultBaseSchema = v.object({
@@ -700,10 +703,18 @@ function transformTriggerDetails(
             return {
                 case: "stop",
                 triggerPrice: formatPriceForSymbol(details.value.triggerPriceTicks, symbolId),
-                triggerPriceSource:
-                    TriggerPriceSourceCodec.protoToLabel[details.value.triggerPriceSource],
-                triggerDirection:
-                    TriggerDirectionCodec.protoToLabel[details.value.triggerDirection],
+                triggerPriceSource: requiredEnumLabel(
+                    TriggerPriceSourceCodec.protoToLabel,
+                    details.value.triggerPriceSource,
+                    "TriggerDetailsSchema",
+                    "trigger price source",
+                ),
+                triggerDirection: requiredEnumLabel(
+                    TriggerDirectionCodec.protoToLabel,
+                    details.value.triggerDirection,
+                    "TriggerDetailsSchema",
+                    "trigger direction",
+                ),
             };
         case "trailing":
             return {
@@ -727,10 +738,18 @@ function transformTriggerDetails(
                         : undefined,
                 maxSlippageTicks: details.value.maxSlippageTicks,
                 maxSlippageBps: details.value.maxSlippageBps,
-                triggerPriceSource:
-                    TriggerPriceSourceCodec.protoToLabel[details.value.triggerPriceSource],
-                triggerDirection:
-                    TriggerDirectionCodec.protoToLabel[details.value.triggerDirection],
+                triggerPriceSource: requiredEnumLabel(
+                    TriggerPriceSourceCodec.protoToLabel,
+                    details.value.triggerPriceSource,
+                    "TriggerDetailsSchema",
+                    "trigger price source",
+                ),
+                triggerDirection: requiredEnumLabel(
+                    TriggerDirectionCodec.protoToLabel,
+                    details.value.triggerDirection,
+                    "TriggerDetailsSchema",
+                    "trigger direction",
+                ),
             };
         case "twap":
             return {
@@ -747,8 +766,12 @@ function transformTriggerDetails(
                 ladderPriceMin: formatPriceForSymbol(details.value.ladderPriceMinTicks, symbolId),
                 ladderPriceMax: formatPriceForSymbol(details.value.ladderPriceMaxTicks, symbolId),
                 ladderLevels: details.value.ladderLevels,
-                ladderDistribution:
-                    LadderDistributionCodec.protoToLabel[details.value.ladderDistribution],
+                ladderDistribution: requiredEnumLabel(
+                    LadderDistributionCodec.protoToLabel,
+                    details.value.ladderDistribution,
+                    "TriggerDetailsSchema",
+                    "ladder distribution",
+                ),
             };
         default:
             return { case: undefined };
@@ -787,8 +810,18 @@ export const TriggerSchema = v.pipe(
         symbol: symbolForSymbolId(t.symbolId),
         baseAsset: baseAssetForSymbolId(t.symbolId)!,
         quoteAsset: quoteAssetForSymbolId(t.symbolId)!,
-        triggerType: TriggerTypeCodec.protoToLabel[t.triggerType],
-        status: TriggerStatusCodec.protoToLabel[t.status],
+        triggerType: requiredEnumLabel(
+            TriggerTypeCodec.protoToLabel,
+            t.triggerType,
+            "TriggerSchema",
+            "trigger type",
+        ),
+        status: requiredEnumLabel(
+            TriggerStatusCodec.protoToLabel,
+            t.status,
+            "TriggerSchema",
+            "status",
+        ),
         parentOrderId: t.parentOrderId ? formatId(t.parentOrderId) : undefined,
         side: sideLabelFor(t.side),
         isBuy: t.side === ProtoOrders.Side.BUY,
@@ -799,10 +832,7 @@ export const TriggerSchema = v.pipe(
             t.limitPriceTicks > 0n
                 ? formatPriceForSymbol(t.limitPriceTicks, t.symbolId)
                 : undefined,
-        feeSource:
-            t.feeSource !== ProtoOrders.FeeSource.FEE_SOURCE_UNSPECIFIED
-                ? feeSourceLabelFor(t.feeSource)
-                : undefined,
+        feeSource: feeSourceLabelFor(t.feeSource),
         stpMode: stpModeLabelFor(t.stpMode),
         postOnly: t.postOnly,
         clientTriggerId: t.clientTriggerId,
@@ -838,8 +868,18 @@ export const TriggerEventSchema = v.pipe(
             symbol: symbolForSymbolId(e.symbolId) || "",
             baseAsset: baseAssetForSymbolId(e.symbolId)!,
             quoteAsset: quoteAssetForSymbolId(e.symbolId)!,
-            triggerType: TriggerTypeCodec.protoToLabel[e.triggerType],
-            eventType: TriggerEventTypeCodec.protoToLabel[e.eventType],
+            triggerType: requiredEnumLabel(
+                TriggerTypeCodec.protoToLabel,
+                e.triggerType,
+                "TriggerEventSchema",
+                "trigger type",
+            ),
+            eventType: requiredEnumLabel(
+                TriggerEventTypeCodec.protoToLabel,
+                e.eventType,
+                "TriggerEventSchema",
+                "event type",
+            ),
             ts: tsNsToMs(e.tsNs),
             childSeq: e.childSeq,
             childOrderId: e.childOrderId > 0n ? formatId(e.childOrderId) : undefined,

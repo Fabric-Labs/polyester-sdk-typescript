@@ -28,7 +28,7 @@ export interface Transports {
  */
 export interface JwtAuthProvider {
     kind: "jwt";
-    /** Typically wraps polyesterToken.get() or similar. */
+    /** Typically wraps the configured browser auth token storage. */
     getToken: () => string | null | Promise<string | null>;
 }
 
@@ -55,6 +55,7 @@ export function isAbortError(err: unknown): boolean {
 }
 
 export function makeFetch(): typeof fetch {
+    // @ts-expect-error - this is fine.
     return async (input, init) => {
         // Normalize headers into a mutable Headers object
         const headers = new Headers(init?.headers);

@@ -1,4 +1,5 @@
 import * as Proto from "../../gen/auth/v1/social_verification_pb.js";
+import type { InputToProto, ProtoToOutput } from "../../utils/types.js";
 
 export const SOCIAL_PROVIDER_VALUES = ["twitter", "discord"] as const;
 export type SocialProviderValue = (typeof SOCIAL_PROVIDER_VALUES)[number];
@@ -21,12 +22,11 @@ export const SocialProviderCodec = {
     inputToProto: {
         twitter: Proto.SocialProvider.TWITTER,
         discord: Proto.SocialProvider.DISCORD,
-    } satisfies Record<SocialProviderValue, Proto.SocialProvider>,
+    } satisfies InputToProto<SocialProviderValue, Proto.SocialProvider>,
     protoToOutput: {
-        [Proto.SocialProvider.PROVIDER_UNSPECIFIED]: undefined,
         [Proto.SocialProvider.TWITTER]: "twitter",
         [Proto.SocialProvider.DISCORD]: "discord",
-    } satisfies Record<Proto.SocialProvider, SocialProviderValue | undefined>,
+    } satisfies ProtoToOutput<Proto.SocialProvider, SocialProviderValue>,
 } as const;
 
 export const SocialVerificationMethodCodec = {
@@ -34,18 +34,16 @@ export const SocialVerificationMethodCodec = {
         profile: Proto.SocialVerificationMethod.METHOD_PROFILE,
         channel: Proto.SocialVerificationMethod.METHOD_CHANNEL,
         dm: Proto.SocialVerificationMethod.METHOD_DM,
-    } satisfies Record<SocialVerificationMethodValue, Proto.SocialVerificationMethod>,
+    } satisfies InputToProto<SocialVerificationMethodValue, Proto.SocialVerificationMethod>,
     protoToOutput: {
-        [Proto.SocialVerificationMethod.METHOD_UNSPECIFIED]: undefined,
         [Proto.SocialVerificationMethod.METHOD_PROFILE]: "profile",
         [Proto.SocialVerificationMethod.METHOD_CHANNEL]: "channel",
         [Proto.SocialVerificationMethod.METHOD_DM]: "dm",
-    } satisfies Record<Proto.SocialVerificationMethod, SocialVerificationMethodValue | undefined>,
+    } satisfies ProtoToOutput<Proto.SocialVerificationMethod, SocialVerificationMethodValue>,
 } as const;
 
 export const SocialVerificationStatusCodec = {
     protoToOutput: {
-        [Proto.SocialVerificationStatus.STATUS_UNSPECIFIED]: undefined,
         [Proto.SocialVerificationStatus.STATUS_PENDING_USER_ACTION]: "pending_user_action",
         [Proto.SocialVerificationStatus.STATUS_QUEUED]: "queued",
         [Proto.SocialVerificationStatus.STATUS_IN_PROGRESS]: "in_progress",
@@ -53,5 +51,5 @@ export const SocialVerificationStatusCodec = {
         [Proto.SocialVerificationStatus.STATUS_FAILED]: "failed",
         [Proto.SocialVerificationStatus.STATUS_EXPIRED]: "expired",
         [Proto.SocialVerificationStatus.STATUS_CANCELLED]: "cancelled",
-    } satisfies Record<Proto.SocialVerificationStatus, SocialVerificationStatusValue | undefined>,
+    } satisfies ProtoToOutput<Proto.SocialVerificationStatus, SocialVerificationStatusValue>,
 } as const;

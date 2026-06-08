@@ -15,12 +15,6 @@ export const SessionLevelCodec = {
         [Proto.SessionLevel.MFA_ELEVATED]: "mfaElevated",
         [Proto.SessionLevel.FRESH_STEP_UP]: "freshStepUp",
     } satisfies Record<ExcludeUnspecified<Proto.SessionLevel>, SessionLevelLabel>,
-    protoToOutputWithDefault: {
-        [Proto.SessionLevel.SESSION_LEVEL_UNSPECIFIED]: undefined,
-        [Proto.SessionLevel.PRIMARY_AUTHENTICATED]: "primaryAuthenticated",
-        [Proto.SessionLevel.MFA_ELEVATED]: "mfaElevated",
-        [Proto.SessionLevel.FRESH_STEP_UP]: "freshStepUp",
-    } satisfies Record<Proto.SessionLevel, SessionLevelLabel | undefined>,
 } as const;
 
 export const MFA_FACTOR_TYPE_VALUES = ["totp", "passkey", "recoveryCode"] as const;
@@ -37,12 +31,6 @@ export const MfaFactorTypeCodec = {
         [Proto.MFAFactorType.MFA_FACTOR_TYPE_PASSKEY]: "passkey",
         [Proto.MFAFactorType.MFA_FACTOR_TYPE_RECOVERY_CODE]: "recoveryCode",
     } satisfies Record<ExcludeUnspecified<Proto.MFAFactorType>, MfaFactorTypeLabel>,
-    protoToOutputWithDefault: {
-        [Proto.MFAFactorType.MFA_FACTOR_TYPE_UNSPECIFIED]: undefined,
-        [Proto.MFAFactorType.MFA_FACTOR_TYPE_TOTP]: "totp",
-        [Proto.MFAFactorType.MFA_FACTOR_TYPE_PASSKEY]: "passkey",
-        [Proto.MFAFactorType.MFA_FACTOR_TYPE_RECOVERY_CODE]: "recoveryCode",
-    } satisfies Record<Proto.MFAFactorType, MfaFactorTypeLabel | undefined>,
 } as const;
 
 export const MFA_CHALLENGE_PURPOSE_VALUES = ["sessionElevation", "freshStepUp"] as const;
@@ -57,9 +45,4 @@ export const MfaChallengePurposeCodec = {
         [Proto.MFAChallengePurpose.MFA_CHALLENGE_PURPOSE_SESSION_ELEVATION]: "sessionElevation",
         [Proto.MFAChallengePurpose.MFA_CHALLENGE_PURPOSE_FRESH_STEP_UP]: "freshStepUp",
     } satisfies Record<ExcludeUnspecified<Proto.MFAChallengePurpose>, MfaChallengePurposeLabel>,
-    protoToOutputWithDefault: {
-        [Proto.MFAChallengePurpose.MFA_CHALLENGE_PURPOSE_UNSPECIFIED]: undefined,
-        [Proto.MFAChallengePurpose.MFA_CHALLENGE_PURPOSE_SESSION_ELEVATION]: "sessionElevation",
-        [Proto.MFAChallengePurpose.MFA_CHALLENGE_PURPOSE_FRESH_STEP_UP]: "freshStepUp",
-    } satisfies Record<Proto.MFAChallengePurpose, MfaChallengePurposeLabel | undefined>,
 } as const;

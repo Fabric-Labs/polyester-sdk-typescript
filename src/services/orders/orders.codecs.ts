@@ -1,5 +1,6 @@
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
+import type { InputToProto, ProtoToOutput } from "../../utils/types.js";
 
 export const ORDER_STATUS_FILTER_VALUES = ["FILLED", "CANCELED", "REJECTED"] as const;
 export type OrderStatusFilterValue = (typeof ORDER_STATUS_FILTER_VALUES)[number];
@@ -20,7 +21,6 @@ export const STP_MODE_VALUES = ["expire_taker", "expire_maker", "expire_both"] a
 export type StpModeValue = (typeof STP_MODE_VALUES)[number];
 
 export const ORDER_ORIGIN_SCOPE_VALUES = [
-    "unknown",
     "direct",
     "attached_risk",
     "standalone_trigger",
@@ -29,7 +29,6 @@ export const ORDER_ORIGIN_SCOPE_VALUES = [
 export type OrderOriginScope = (typeof ORDER_ORIGIN_SCOPE_VALUES)[number];
 
 export const ORDER_TRIGGER_TYPE_VALUES = [
-    "unknown",
     "stop_loss",
     "take_profit",
     "trailing_stop",
@@ -44,7 +43,7 @@ export type TriggerPriceSourceValue = (typeof TRIGGER_PRICE_SOURCE_VALUES)[numbe
 export const MODIFY_BEHAVIOR_VALUES = ["AMEND_OR_REPLACE", "AMEND_ONLY", "REPLACE_ONLY"] as const;
 export type ModifyBehaviorValue = (typeof MODIFY_BEHAVIOR_VALUES)[number];
 
-export const MODIFY_ACTION_VALUES = ["UNSPECIFIED", "AMENDED", "REPLACED"] as const;
+export const MODIFY_ACTION_VALUES = ["AMENDED", "REPLACED"] as const;
 export type ModifyActionValue = (typeof MODIFY_ACTION_VALUES)[number];
 
 export const OrderStatusFilterCodec = {
@@ -52,21 +51,21 @@ export const OrderStatusFilterCodec = {
         FILLED: ProtoRead.OrderStatus.FILLED,
         CANCELED: ProtoRead.OrderStatus.CANCELED,
         REJECTED: ProtoRead.OrderStatus.REJECTED,
-    } satisfies Record<OrderStatusFilterValue, ProtoRead.OrderStatus>,
+    } satisfies InputToProto<OrderStatusFilterValue, ProtoRead.OrderStatus>,
 } as const;
 
 export const OrderSideCodec = {
     inputToProto: {
         buy: ProtoWrite.Side.BUY,
         sell: ProtoWrite.Side.SELL,
-    } satisfies Record<OrderSideValue, ProtoWrite.Side>,
+    } satisfies InputToProto<OrderSideValue, ProtoWrite.Side>,
 } as const;
 
 export const OrderTypeCodec = {
     inputToProto: {
         limit: ProtoWrite.OrderType.LIMIT,
         market: ProtoWrite.OrderType.MARKET,
-    } satisfies Record<OrderTypeValue, ProtoWrite.OrderType>,
+    } satisfies InputToProto<OrderTypeValue, ProtoWrite.OrderType>,
 } as const;
 
 export const TifCodec = {
@@ -74,14 +73,14 @@ export const TifCodec = {
         gtc: ProtoWrite.TIF.GTC,
         ioc: ProtoWrite.TIF.IOC,
         fok: ProtoWrite.TIF.FOK,
-    } satisfies Record<TifValue, ProtoWrite.TIF>,
+    } satisfies InputToProto<TifValue, ProtoWrite.TIF>,
 } as const;
 
 export const FeeSourceCodec = {
     inputToProto: {
         quote: ProtoWrite.FeeSource.QUOTE,
         received: ProtoWrite.FeeSource.RECEIVED,
-    } satisfies Record<FeeSourceValue, ProtoWrite.FeeSource>,
+    } satisfies InputToProto<FeeSourceValue, ProtoWrite.FeeSource>,
 } as const;
 
 export const StpModeCodec = {
@@ -89,28 +88,26 @@ export const StpModeCodec = {
         expire_taker: ProtoWrite.STPMode.EXPIRE_TAKER,
         expire_maker: ProtoWrite.STPMode.EXPIRE_MAKER,
         expire_both: ProtoWrite.STPMode.EXPIRE_BOTH,
-    } satisfies Record<StpModeValue, ProtoWrite.STPMode>,
+    } satisfies InputToProto<StpModeValue, ProtoWrite.STPMode>,
 } as const;
 
 export const OrderOriginScopeCodec = {
     protoToLabel: {
-        [ProtoRead.OrderOriginScope.ORDER_ORIGIN_SCOPE_UNSPECIFIED]: "unknown",
         [ProtoRead.OrderOriginScope.DIRECT]: "direct",
         [ProtoRead.OrderOriginScope.ATTACHED_RISK]: "attached_risk",
         [ProtoRead.OrderOriginScope.STANDALONE_TRIGGER]: "standalone_trigger",
         [ProtoRead.OrderOriginScope.SYSTEM]: "system",
-    } satisfies Record<ProtoRead.OrderOriginScope, OrderOriginScope>,
+    } satisfies ProtoToOutput<ProtoRead.OrderOriginScope, OrderOriginScope>,
 } as const;
 
 export const OrderTriggerTypeCodec = {
     protoToLabel: {
-        [ProtoRead.OrderTriggerType.ORDER_TRIGGER_TYPE_UNSPECIFIED]: "unknown",
         [ProtoRead.OrderTriggerType.STOP_LOSS]: "stop_loss",
         [ProtoRead.OrderTriggerType.TAKE_PROFIT]: "take_profit",
         [ProtoRead.OrderTriggerType.TRAILING_STOP]: "trailing_stop",
         [ProtoRead.OrderTriggerType.TWAP]: "twap",
         [ProtoRead.OrderTriggerType.LADDER]: "ladder",
-    } satisfies Record<ProtoRead.OrderTriggerType, OrderTriggerType>,
+    } satisfies ProtoToOutput<ProtoRead.OrderTriggerType, OrderTriggerType>,
 } as const;
 
 export const TriggerPriceSourceCodec = {
@@ -118,7 +115,7 @@ export const TriggerPriceSourceCodec = {
         last: ProtoWrite.TriggerPriceSource.LAST_PRICE,
         index: ProtoWrite.TriggerPriceSource.INDEX_PRICE,
         mark: ProtoWrite.TriggerPriceSource.MARK_PRICE,
-    } satisfies Record<TriggerPriceSourceValue, ProtoWrite.TriggerPriceSource>,
+    } satisfies InputToProto<TriggerPriceSourceValue, ProtoWrite.TriggerPriceSource>,
 } as const;
 
 export const ModifyBehaviorCodec = {
@@ -126,13 +123,12 @@ export const ModifyBehaviorCodec = {
         AMEND_OR_REPLACE: ProtoWrite.ModifyBehavior.AMEND_OR_REPLACE,
         AMEND_ONLY: ProtoWrite.ModifyBehavior.AMEND_ONLY,
         REPLACE_ONLY: ProtoWrite.ModifyBehavior.REPLACE_ONLY,
-    } satisfies Record<ModifyBehaviorValue, ProtoWrite.ModifyBehavior>,
+    } satisfies InputToProto<ModifyBehaviorValue, ProtoWrite.ModifyBehavior>,
 } as const;
 
 export const ModifyActionCodec = {
     protoToLabel: {
-        [ProtoWrite.ModifyActionTaken.MODIFY_ACTION_UNSPECIFIED]: "UNSPECIFIED",
         [ProtoWrite.ModifyActionTaken.AMENDED]: "AMENDED",
         [ProtoWrite.ModifyActionTaken.REPLACED]: "REPLACED",
-    } satisfies Record<ProtoWrite.ModifyActionTaken, ModifyActionValue>,
+    } satisfies ProtoToOutput<ProtoWrite.ModifyActionTaken, ModifyActionValue>,
 } as const;

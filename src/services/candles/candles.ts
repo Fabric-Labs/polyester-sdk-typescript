@@ -24,7 +24,6 @@ import {
     type GetCandlesColumnsInput,
 } from "./candles.schemas.js";
 import { TimeframeCodec } from "./candles.codecs.js";
-import { isDev } from "../../utils/is-dev.js";
 
 interface SubscribeCandlesInput extends BaseSubscribeInput<Candle> {
     symbolId: number;
@@ -79,16 +78,7 @@ export class CandlesService {
     }
 
     subscribe(input: SubscribeCandlesInput): () => void {
-        const timeframe = TimeframeCodec.outputToStreamable[input.timeframe];
-        if (!timeframe) {
-            if (isDev()) {
-                console.error(
-                    `[CandlesService] No WS stream for timeframe yet: ${input.timeframe}`,
-                );
-            }
-            return () => {};
-        }
-        const channel = `public:spot:market:candles:${timeframe}:${input.symbolId}:proto`;
+        const channel = `public:spot:market:candles:${input.timeframe}:${input.symbolId}:proto`;
         return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.CandlePointSchema,
@@ -108,16 +98,7 @@ export class CandlesService {
     }
 
     subscribeInts(input: SubscribeCandlesIntsInput): () => void {
-        const timeframe = TimeframeCodec.outputToStreamable[input.timeframe];
-        if (!timeframe) {
-            if (isDev()) {
-                console.error(
-                    `[CandlesService] No WS stream for timeframe yet: ${input.timeframe}`,
-                );
-            }
-            return () => {};
-        }
-        const channel = `public:spot:market:candles:${timeframe}:${input.symbolId}:proto`;
+        const channel = `public:spot:market:candles:${input.timeframe}:${input.symbolId}:proto`;
         return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.CandlePointSchema,

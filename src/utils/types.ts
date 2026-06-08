@@ -1,1 +1,11 @@
 export type ExcludeUnspecified<T> = Exclude<T, 0>;
+
+export type ProtoToOutput<ProtoEnum extends number, OutputEnum> = Record<
+    ExcludeUnspecified<ProtoEnum>,
+    OutputEnum
+>;
+
+export type InputToProto<OutputEnum extends PropertyKey, ProtoEnum extends number> = Record<
+    OutputEnum,
+    ProtoEnum
+>;

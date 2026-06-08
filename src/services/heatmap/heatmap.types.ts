@@ -1,4 +1,10 @@
 export type {
+    HeatmapDepthValue,
+    HeatmapIntervalValue,
+    HeatmapQuantityModeValue,
+} from "./heatmap.codecs.js";
+
+export type {
     GetOrderbookHeatmapInput,
     OrderbookHeatmapDeltaBucket,
     OrderbookHeatmapDeltaChain,

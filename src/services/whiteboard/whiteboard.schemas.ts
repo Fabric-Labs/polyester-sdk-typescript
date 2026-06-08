@@ -1,7 +1,11 @@
-import type { JsonObject } from "@bufbuild/protobuf";
 import * as Proto from "../../gen/collab/v1/whiteboard_pb.js";
 import * as v from "valibot";
-import { OptionalTimestampMsSchema, PublicIdSchema } from "../../shared/schemas.js";
+import {
+    JsonObjectSchema,
+    OptionalTimestampMsSchema,
+    PublicIdSchema,
+} from "../../shared/schemas.js";
+import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import {
     WHITEBOARD_ACL_SUBJECT_TYPE_VALUES,
     WHITEBOARD_AUDIENCE_VALUES,
@@ -13,28 +17,13 @@ import {
 } from "./whiteboard.codecs.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 
-function isJsonObject(value: unknown): value is JsonObject {
-    return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function requiredAudienceLabelFor(value: Proto.BoardAudience) {
-    const label = WhiteboardAudienceCodec.protoToOutput[value];
-    if (!label) throw new Error(`[WhiteboardAudienceSchema]: invalid audience ${value}`);
-    return label;
-}
-
 function requiredRoleLabelFor(value: Proto.BoardRole) {
-    const label = WhiteboardRoleCodec.protoToOutput[value];
-    if (!label) throw new Error(`[WhiteboardRoleSchema]: invalid role ${value}`);
-    return label;
-}
-
-function requiredAclSubjectTypeLabelFor(value: Proto.BoardAclSubjectType) {
-    const label = WhiteboardAclSubjectTypeCodec.protoToOutput[value];
-    if (!label) {
-        throw new Error(`[WhiteboardAclSubjectTypeSchema]: invalid subject type ${value}`);
-    }
-    return label;
+    return requiredEnumLabel(
+        WhiteboardRoleCodec.protoToOutput,
+        value,
+        "WhiteboardRoleSchema",
+        "role",
+    );
 }
 
 const WhiteboardIdSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
@@ -56,7 +45,7 @@ export type WhiteboardResolvedRole = v.InferOutput<typeof WhiteboardResolvedRole
 export const WhiteboardAclSubjectTypeSchema = v.picklist(WHITEBOARD_ACL_SUBJECT_TYPE_VALUES);
 export type WhiteboardAclSubjectType = v.InferOutput<typeof WhiteboardAclSubjectTypeSchema>;
 
-export const WhiteboardSnapshotSchema = v.custom<JsonObject>(isJsonObject);
+export const WhiteboardSnapshotSchema = JsonObjectSchema;
 export type WhiteboardSnapshot = v.InferOutput<typeof WhiteboardSnapshotSchema>;
 
 const WhiteboardAudienceInputSchema = v.pipe(
@@ -178,7 +167,14 @@ export type WhiteboardAccess = v.InferOutput<typeof WhiteboardAccessSchema>;
 export const WhiteboardAclEntrySchema = v.object({
     subjectType: v.pipe(
         v.enum(Proto.BoardAclSubjectType),
-        v.transform(requiredAclSubjectTypeLabelFor),
+        v.transform((value) =>
+            requiredEnumLabel(
+                WhiteboardAclSubjectTypeCodec.protoToOutput,
+                value,
+                "WhiteboardAclSubjectTypeSchema",
+                "subject type",
+            ),
+        ),
     ),
     subjectId: PublicIdSchema,
     role: v.pipe(v.enum(Proto.BoardRole), v.transform(requiredRoleLabelFor)),
@@ -191,7 +187,17 @@ export const WhiteboardBoardSchema = v.pipe(
         boardId: v.string(),
         ownerAccountId: PublicIdSchema,
         title: v.string(),
-        audience: v.pipe(v.enum(Proto.BoardAudience), v.transform(requiredAudienceLabelFor)),
+        audience: v.pipe(
+            v.enum(Proto.BoardAudience),
+            v.transform((value) =>
+                requiredEnumLabel(
+                    WhiteboardAudienceCodec.protoToOutput,
+                    value,
+                    "WhiteboardAudienceSchema",
+                    "audience",
+                ),
+            ),
+        ),
         defaultRole: v.pipe(v.enum(Proto.BoardRole), v.transform(requiredRoleLabelFor)),
         accessVersion: Uint64StringSchema,
         initialSnapshot: v.optional(WhiteboardSnapshotSchema),

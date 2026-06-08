@@ -4,6 +4,7 @@ import { intToDecimalString, int6ToDecimalString } from "../../catalogs/orders-c
 import { assetForSymbol } from "../../catalogs/ledger-catalog.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { getPairBySymbolId } from "../../catalogs/market-data-catalog.js";
+import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import {
     SPARKLINE_INTERVAL_VALUES,
     MARKET_OVERVIEW_ORDER_BY_VALUES,
@@ -29,21 +30,17 @@ export const SparklineIntervalSchema = v.picklist(SPARKLINE_INTERVAL_VALUES);
 
 export type SparklineIntervalName = v.InferOutput<typeof SparklineIntervalSchema>;
 
-function sparklineIntervalNameFor(value: Proto.SparklineInterval): SparklineIntervalName {
-    if (value === Proto.SparklineInterval.SPARKLINE_INTERVAL_UNSPECIFIED) {
-        throw new Error("[MarketOverviewSparklineSchema]: interval is required");
-    }
-    const name = SparklineIntervalCodec.protoToOutput[value];
-    if (!name) {
-        throw new Error(`[MarketOverviewSparklineSchema]: invalid interval ${value}`);
-    }
-    return name;
-}
-
 export const MarketOverviewSparklineSchema = v.object({
     interval: v.pipe(
         v.enum(Proto.SparklineInterval),
-        v.transform((v) => sparklineIntervalNameFor(v)),
+        v.transform((value) =>
+            requiredEnumLabel(
+                SparklineIntervalCodec.protoToOutput,
+                value,
+                "MarketOverviewSparklineSchema",
+                "interval",
+            ),
+        ),
     ),
     closeTicks: v.array(v.bigint()),
 });

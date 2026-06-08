@@ -1,8 +1,5 @@
 import { AuthService, type AuthServiceTransports } from "./auth.js";
-import { polyesterToken } from "./token.js";
-import { getEnvironmentBoundPolyesterToken } from "./token.js";
 import { polyesterSession } from "./session.js";
-import { POLYESTER_LOGIN_COOKIE_MAX_AGE } from "./cookie-constants.js";
 import type { AccountSigner, AccountSignerConfig, HexAddress } from "../../account-signer/types.js";
 import { assertAccountSigner, resolveAccountSigner } from "../../account-signer/types.js";
 import { EventEmitter } from "../../utils/event-emitter.js";
@@ -16,6 +13,12 @@ import type {
 } from "./session.types.js";
 import type { RealtimeClient } from "../../realtime/index.js";
 import type { PolyesterEnvironment } from "../../environment.js";
+import {
+    createAuthTokenStorageSetOptions,
+    getEnvironmentBoundAuthToken,
+    type AuthTokenStorage,
+    type AuthTokenStorageSetOptions,
+} from "./token-storage.js";
 
 export interface AccountSignerAuthEvents {
     authenticated: { accountId: string; username: string };
@@ -64,6 +67,7 @@ export class AccountSignerAuthService extends AuthService {
     #walletProvider: "metamask" | "turnkey" | "other" | undefined = undefined;
     #loginMethod: AuthLoginMethod | null = null;
     #environmentFingerprint: string;
+    #tokenStorage: AuthTokenStorage;
 
     constructor({
         transports,
@@ -71,18 +75,21 @@ export class AccountSignerAuthService extends AuthService {
         environment,
         subaccounts,
         realtime,
+        tokenStorage,
     }: {
         transports: AuthServiceTransports;
         accountSignerConfig?: AccountSignerConfig;
         environment: PolyesterEnvironment;
         subaccounts: SubaccountsService;
         realtime: RealtimeClient;
+        tokenStorage: AuthTokenStorage;
     }) {
         super(transports, realtime);
 
         this.#accountSignerConfig = accountSignerConfig;
         this.#environmentFingerprint = environment.fingerprint;
         this.#subaccounts = subaccounts;
+        this.#tokenStorage = tokenStorage;
     }
 
     /**
@@ -146,7 +153,8 @@ export class AccountSignerAuthService extends AuthService {
             environmentSession?.loginMethod ??
             (provider === "metamask" ? "metamask" : null);
 
-        polyesterToken.set(response.accessToken, { maxAge: POLYESTER_LOGIN_COOKIE_MAX_AGE });
+        const tokenOptions = createAuthTokenStorageSetOptions(response.accessToken);
+        this.#tokenStorage.set(response.accessToken, tokenOptions);
         this.#isAuthenticated = true;
         this.#mainAccountId = response.accountId;
         this.#activeAccountId = response.accountId;
@@ -154,19 +162,22 @@ export class AccountSignerAuthService extends AuthService {
         this.#loginMethod = resolvedLoginMethod;
 
         // set full session for SSR hydration
-        polyesterSession.set({
-            environmentFingerprint: this.#environmentFingerprint,
-            provider: provider,
-            loginMethod: resolvedLoginMethod,
-            primaryWallet: ownerAddress,
-            smartAccount: smartAccountAddress,
-            activeAccount: {
-                accountId: response.accountId,
-                isMain: true,
-                mainAccountId: response.accountId,
+        polyesterSession.set(
+            {
+                environmentFingerprint: this.#environmentFingerprint,
+                provider: provider,
+                loginMethod: resolvedLoginMethod,
+                primaryWallet: ownerAddress,
+                smartAccount: smartAccountAddress,
+                activeAccount: {
+                    accountId: response.accountId,
+                    isMain: true,
+                    mainAccountId: response.accountId,
+                },
+                username: response.username ?? undefined,
             },
-            username: response.username ?? undefined,
-        });
+            { maxAgeSeconds: tokenOptions.maxAgeSeconds },
+        );
 
         this.#notifyStateChange();
 
@@ -194,10 +205,8 @@ export class AccountSignerAuthService extends AuthService {
      * the flash of unauthenticated content by not making any network calls.
      */
     hydrateAuthState(state: AuthHydrationData): void {
-        if (typeof document !== "undefined") {
-            const existingToken = getEnvironmentBoundPolyesterToken(this.#environmentFingerprint);
-            if (!existingToken || !isJwtValid(existingToken)) return;
-        }
+        const existingToken = this.#getEnvironmentBoundToken();
+        if (!existingToken || !isJwtValid(existingToken)) return;
 
         const existingSession = this.#getEnvironmentSession();
         this.#walletProvider = existingSession?.provider ?? this.#walletProvider;
@@ -229,7 +238,7 @@ export class AccountSignerAuthService extends AuthService {
      * @returns User data if session restored, null otherwise
      */
     async restoreSession(): Promise<{ accountId: string; username: string } | null> {
-        const existingToken = getEnvironmentBoundPolyesterToken(this.#environmentFingerprint);
+        const existingToken = this.#getEnvironmentBoundToken();
 
         if (!existingToken || !isJwtValid(existingToken)) {
             this.#clearExpiredSessionState();
@@ -260,22 +269,26 @@ export class AccountSignerAuthService extends AuthService {
             // ensure session cookie exists for SSR (handles existing users without session)
             if (this.#accountSigner?.accountAddress) {
                 if (!existingSession) {
-                    polyesterSession.set({
-                        environmentFingerprint: this.#environmentFingerprint,
-                        provider: this.#walletProvider ? this.#walletProvider : "other",
-                        loginMethod:
-                            this.#loginMethod ??
-                            (this.#walletProvider === "metamask" ? "metamask" : null),
-                        primaryWallet:
-                            this.#accountSigner.ownerAddress ?? this.#accountSigner.accountAddress,
-                        smartAccount: this.#accountSigner.accountAddress,
-                        activeAccount: {
-                            accountId: me.accountId,
-                            isMain: true,
-                            mainAccountId: me.accountId,
+                    polyesterSession.set(
+                        {
+                            environmentFingerprint: this.#environmentFingerprint,
+                            provider: this.#walletProvider ? this.#walletProvider : "other",
+                            loginMethod:
+                                this.#loginMethod ??
+                                (this.#walletProvider === "metamask" ? "metamask" : null),
+                            primaryWallet:
+                                this.#accountSigner.ownerAddress ??
+                                this.#accountSigner.accountAddress,
+                            smartAccount: this.#accountSigner.accountAddress,
+                            activeAccount: {
+                                accountId: me.accountId,
+                                isMain: true,
+                                mainAccountId: me.accountId,
+                            },
+                            username: me.username ?? undefined,
                         },
-                        username: me.username ?? undefined,
-                    });
+                        { maxAgeSeconds: this.#getCurrentTokenStorageOptions().maxAgeSeconds },
+                    );
                 } else {
                     this.#walletProvider = existingSession?.provider;
                     this.#loginMethod = existingSession.loginMethod ?? this.#loginMethod;
@@ -291,7 +304,7 @@ export class AccountSignerAuthService extends AuthService {
     }
 
     async logout(): Promise<void> {
-        polyesterToken.clear();
+        this.#tokenStorage.clear();
         this.#isAuthenticated = false;
         this.#mainAccountId = null;
         this.#activeAccountId = null;
@@ -305,7 +318,7 @@ export class AccountSignerAuthService extends AuthService {
 
     #clearExpiredSessionState(): void {
         const shouldEmitLoggedOut = this.#isAuthenticated;
-        polyesterToken.clear();
+        this.#tokenStorage.clear();
         polyesterSession.clear();
         this.#isAuthenticated = false;
         this.#mainAccountId = null;
@@ -318,7 +331,7 @@ export class AccountSignerAuthService extends AuthService {
     }
 
     getSessionTimeToExpiry(): number {
-        const token = getEnvironmentBoundPolyesterToken(this.#environmentFingerprint);
+        const token = this.#getEnvironmentBoundToken();
         if (!token) return 0;
         return getJwtTimeToExpiry(token);
     }
@@ -346,12 +359,15 @@ export class AccountSignerAuthService extends AuthService {
         this.#activeAccountId = accountId;
         const isMain = accountId === this.#mainAccountId;
 
-        polyesterSession.setActiveAccount({
-            accountId,
-            isMain,
-            smartAccountAddress: options?.smartAccountAddress,
-            label: options?.label,
-        });
+        polyesterSession.setActiveAccount(
+            {
+                accountId,
+                isMain,
+                smartAccountAddress: options?.smartAccountAddress,
+                label: options?.label,
+            },
+            { maxAgeSeconds: this.#getCurrentTokenStorageOptions().maxAgeSeconds },
+        );
         this.#notifyStateChange();
 
         return { accountId, isMain };
@@ -437,6 +453,16 @@ export class AccountSignerAuthService extends AuthService {
         this.events.emit("stateChange", this.getState());
     }
 
+    #getEnvironmentBoundToken(): string | null {
+        return getEnvironmentBoundAuthToken(this.#tokenStorage, this.#environmentFingerprint);
+    }
+
+    #getCurrentTokenStorageOptions(): AuthTokenStorageSetOptions {
+        const token = this.#tokenStorage.get();
+        if (!token) return { expiresAt: null, maxAgeSeconds: null };
+        return createAuthTokenStorageSetOptions(token);
+    }
+
     #resolveRefreshProvider(
         provider?: "metamask" | "turnkey" | "other",
     ): "metamask" | "turnkey" | "other" {
@@ -456,7 +482,7 @@ export class AccountSignerAuthService extends AuthService {
         const session = polyesterSession.get();
         if (!session) return null;
         if (session.environmentFingerprint !== this.#environmentFingerprint) {
-            polyesterToken.clear();
+            this.#tokenStorage.clear();
             polyesterSession.clear();
             return null;
         }

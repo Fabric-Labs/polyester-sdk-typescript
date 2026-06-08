@@ -4,8 +4,16 @@ import type { AccountSigner } from "./account-signer/index.js";
 import { PolyesterBrowserClient } from "./browser-client.js";
 import { POLYESTER_TESTNET_ENVIRONMENT } from "./environment.js";
 import { AccountSignerAuthService } from "./services/auth/account-signer-auth.js";
+import type { LoginWithWalletInput, LoginWithWalletResponse } from "./services/auth/auth.js";
+import { POLYESTER_AUTH_TOKEN_COOKIE_NAME } from "./services/auth/cookie-constants.js";
+import {
+    createCookieAuthTokenStorage,
+    type AuthTokenStorage,
+} from "./services/auth/token-storage.js";
 import { MarketDataService } from "./services/market-data/index.js";
 import { ZipperService } from "./services/zipper/index.js";
+
+const originalDocument = Object.getOwnPropertyDescriptor(globalThis, "document");
 
 function signer(accountAddress: AccountSigner["accountAddress"]): AccountSigner {
     return {
@@ -14,6 +22,86 @@ function signer(accountAddress: AccountSigner["accountAddress"]): AccountSigner 
         ownerAddress: "0x2222222222222222222222222222222222222222",
         signMessage: async () => "0xsignature",
     };
+}
+
+function base64UrlEncode(value: string): string {
+    return btoa(value).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/u, "");
+}
+
+function jwtWithExp(exp: number): string {
+    return ["header", base64UrlEncode(JSON.stringify({ exp })), "signature"].join(".");
+}
+
+function installCookieJar(): { jar: Map<string, string>; writes: string[] } {
+    const jar = new Map<string, string>();
+    const writes: string[] = [];
+    const document = {};
+
+    Object.defineProperty(document, "cookie", {
+        configurable: true,
+        get: () => Array.from(jar, ([name, value]) => `${name}=${value}`).join("; "),
+        set: (value: string) => {
+            writes.push(value);
+            const [pair = "", ...attributes] = value.split(";");
+            const separatorIndex = pair.indexOf("=");
+            if (separatorIndex === -1) return;
+
+            const name = pair.slice(0, separatorIndex);
+            const cookieValue = pair.slice(separatorIndex + 1);
+            const maxAge = attributes
+                .map((attribute) => attribute.trim())
+                .find((attribute) => attribute.toLowerCase().startsWith("max-age="));
+            const expires = attributes
+                .map((attribute) => attribute.trim())
+                .find((attribute) => attribute.toLowerCase().startsWith("expires="));
+
+            if (
+                cookieValue === "" &&
+                (maxAge?.toLowerCase() === "max-age=0" || expires?.includes("Thu, 01 Jan 1970"))
+            ) {
+                jar.delete(name);
+                return;
+            }
+
+            jar.set(name, cookieValue);
+        },
+    });
+
+    Object.defineProperty(globalThis, "document", {
+        configurable: true,
+        value: document,
+        writable: true,
+    });
+
+    return { jar, writes };
+}
+
+function mockClientLogin(client: PolyesterBrowserClient, accessToken: string) {
+    vi.spyOn(client.auth, "requestLoginNonce").mockResolvedValue({ nonce: "nonce-1" });
+    return vi
+        .spyOn(
+            client.auth as unknown as {
+                loginWithWallet(input: LoginWithWalletInput): Promise<LoginWithWalletResponse>;
+            },
+            "loginWithWallet",
+        )
+        .mockResolvedValue({
+            accessToken,
+            accountId: "account-1",
+            username: "hunter",
+            expiresAt: {
+                seconds: 1n,
+                nanos: 0,
+            },
+        });
+}
+
+function createTestStorage() {
+    return {
+        get: vi.fn(() => null),
+        set: vi.fn(),
+        clear: vi.fn(),
+    } satisfies AuthTokenStorage;
 }
 
 function mockCatalogRefreshEndpoints(): {
@@ -42,8 +130,14 @@ describe("PolyesterBrowserClient", () => {
     });
 
     afterEach(async () => {
+        vi.useRealTimers();
         await new Promise((resolve) => setTimeout(resolve, 0));
         vi.restoreAllMocks();
+        if (originalDocument) {
+            Object.defineProperty(globalThis, "document", originalDocument);
+        } else {
+            Reflect.deleteProperty(globalThis, "document");
+        }
     });
 
     it("accepts an accountSigner config", () => {
@@ -110,6 +204,61 @@ describe("PolyesterBrowserClient", () => {
         expect(client.auth).toBeInstanceOf(AccountSignerAuthService);
     });
 
+    it("uses memory token storage by default without writing the bearer token cookie", async () => {
+        const cookies = installCookieJar();
+        const accountSigner = signer("0x1111111111111111111111111111111111111111");
+        const client = new PolyesterBrowserClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            accountSigner,
+            refreshCatalogs: false,
+        });
+        const token = jwtWithExp(Math.floor(Date.now() / 1000) + 3600);
+        mockClientLogin(client, token);
+
+        await client.auth.login({ provider: "turnkey" });
+
+        expect(cookies.jar.has(POLYESTER_AUTH_TOKEN_COOKIE_NAME)).toBe(false);
+        expect(client.auth.getSessionTimeToExpiry()).toBeGreaterThan(0);
+    });
+
+    it("persists bearer tokens to cookies only when cookie storage is configured", async () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
+        const cookies = installCookieJar();
+        const accountSigner = signer("0x1111111111111111111111111111111111111111");
+        const client = new PolyesterBrowserClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            accountSigner,
+            refreshCatalogs: false,
+            tokenStorage: createCookieAuthTokenStorage(),
+        });
+        const token = jwtWithExp(Math.floor(Date.now() / 1000) + 120);
+        mockClientLogin(client, token);
+
+        await client.auth.login({ provider: "turnkey" });
+
+        expect(cookies.jar.get(POLYESTER_AUTH_TOKEN_COOKIE_NAME)).toBe(token);
+        expect(
+            cookies.writes.find((write) => write.startsWith(POLYESTER_AUTH_TOKEN_COOKIE_NAME)),
+        ).toContain("Max-Age=120");
+    });
+
+    it("checks configured token storage before rejecting private realtime subscriptions", () => {
+        const tokenStorage = createTestStorage();
+        const client = new PolyesterBrowserClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            refreshCatalogs: false,
+            tokenStorage,
+        });
+
+        expect(() =>
+            client.realtime.subscribe("private:orders", {
+                onPublication: () => {},
+            }),
+        ).toThrow('Cannot subscribe to private channel "private:orders" without authentication');
+        expect(tokenStorage.get).toHaveBeenCalled();
+    });
+
     it("updates the auth account signer via setAccountSigner", () => {
         const client = new PolyesterBrowserClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
@@ -149,14 +298,9 @@ describe("PolyesterBrowserClient", () => {
             subaccountId: "subaccount-1",
             totalCreated: 1,
         });
-        vi.spyOn(client.auth, "requestLoginNonce").mockResolvedValue({ nonce: "nonce-1" });
-
-        client.auth.hydrateAuthState({
-            mainAccountId: "main-1",
-            username: "hunter",
-            smartAccountAddress: rootSigner.accountAddress,
-            ownerAddress: rootSigner.ownerAddress,
-        });
+        mockClientLogin(client, jwtWithExp(Math.floor(Date.now() / 1000) + 3600));
+        client.setAccountSigner(rootSigner);
+        await client.auth.login({ provider: "turnkey" });
 
         await expect(
             client.auth.createSubaccount({

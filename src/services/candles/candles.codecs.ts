@@ -1,5 +1,5 @@
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
-import type { ExcludeUnspecified } from "../../utils/types.js";
+import type { ExcludeUnspecified, InputToProto, ProtoToOutput } from "../../utils/types.js";
 
 export const TIMEFRAMES = [
     "1s",
@@ -33,9 +33,8 @@ export const TimeframeCodec = {
         "1d": Proto.Timeframe.DAY_1,
         "1w": Proto.Timeframe.WEEK_1,
         "1mo": Proto.Timeframe.MONTH_1,
-    } satisfies Record<Timeframe, ProtoTimeframe>,
+    } satisfies InputToProto<Timeframe, Proto.Timeframe>,
     protoToOutput: {
-        [Proto.Timeframe.TIMEFRAME_UNSPECIFIED]: undefined,
         [Proto.Timeframe.SEC_1]: "1s",
         [Proto.Timeframe.MIN_1]: "1m",
         [Proto.Timeframe.MIN_5]: "5m",
@@ -47,18 +46,5 @@ export const TimeframeCodec = {
         [Proto.Timeframe.DAY_1]: "1d",
         [Proto.Timeframe.WEEK_1]: "1w",
         [Proto.Timeframe.MONTH_1]: "1mo",
-    } satisfies Record<Proto.Timeframe, Timeframe | undefined>,
-    outputToStreamable: {
-        "1s": "1s",
-        "1m": "1m",
-        "5m": "5m",
-        "15m": "15m",
-        "30m": "30m",
-        "1h": "1h",
-        "4h": "4h",
-        "12h": "12h",
-        "1d": "1d",
-        "1w": "1w",
-        "1mo": "1mo",
-    } satisfies Record<Timeframe, string>,
+    } satisfies ProtoToOutput<Proto.Timeframe, Timeframe>,
 } as const;

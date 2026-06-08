@@ -16,18 +16,17 @@ import {
     LifecycleRequestFeeStatusCodec,
     LifecycleSourceCodec,
     LifecycleTxLookupKindCodec,
-    type LifecycleListScopeOutputValue,
+    type LifecycleListScopeValue,
     type LifecycleRequestFeeStatusValue,
-    type LifecycleTxLookupKindOutputValue,
+    type LifecycleTxLookupKindValue,
 } from "./lifecycle.codecs.js";
 import { formatId, idToBigInt } from "../../utils/base58-id.js";
 import { fromU128, u128ToDecimal } from "../../utils/u128.js";
 import { assetForId } from "../../catalogs/ledger-catalog.js";
+import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 
 const FlowKindSchema = v.picklist(LIFECYCLE_FLOW_KIND_VALUES);
 const FlowStateSchema = v.picklist(LIFECYCLE_FLOW_STATE_VALUES);
-const ListScopeSchema = v.picklist(LIFECYCLE_LIST_SCOPE_VALUES);
-const TxLookupKindSchema = v.picklist(LIFECYCLE_TX_LOOKUP_KIND_VALUES);
 
 const canonicalTxHashPattern = /^0x[0-9a-fA-F]{64}$/;
 const smartAccountAddressPattern = /^0x[0-9a-fA-F]{40}$/;
@@ -76,10 +75,6 @@ const LifecycleAmountE18Schema = v.pipe(
     v.transform((v) => u128ToDecimal(fromU128(v), 18)),
 );
 
-const LifecycleU256Schema = v.object({
-    be: v.instance(Uint8Array),
-});
-
 const LifecycleAssetIdsSchema = v.object({
     chainAssetId: v.pipe(v.number(), v.integer(), v.minValue(0)),
     unifiedAssetId: v.pipe(v.number(), v.integer(), v.minValue(0)),
@@ -87,38 +82,87 @@ const LifecycleAssetIdsSchema = v.object({
 
 const LifecycleFlowStepEnumSchema = v.pipe(
     v.enum(ProtoRead.FlowStep),
-    v.transform((v) => LifecycleFlowStepCodec.protoToOutput[v]),
+    v.transform((v) =>
+        requiredEnumLabel(
+            LifecycleFlowStepCodec.protoToOutput,
+            v,
+            "LifecycleFlowStepSchema",
+            "step",
+        ),
+    ),
 );
 const LifecycleSourceEnumSchema = v.pipe(
     v.enum(Proto.LifecycleSource),
-    v.transform((v) => LifecycleSourceCodec.protoToOutput[v]),
+    v.transform((v) =>
+        requiredEnumLabel(LifecycleSourceCodec.protoToOutput, v, "LifecycleSourceSchema", "source"),
+    ),
 );
 const LifecycleFlowKindEnumSchema = v.pipe(
     v.enum(Proto.FlowKind),
-    v.transform((v) => LifecycleFlowKindCodec.protoToOutput[v]),
+    v.transform((v) =>
+        requiredEnumLabel(
+            LifecycleFlowKindCodec.protoToOutput,
+            v,
+            "LifecycleFlowKindSchema",
+            "flow kind",
+        ),
+    ),
 );
 
 const LifecycleFlowDomainEnumSchema = v.pipe(
-    v.optional(v.enum(Proto.FlowDomain)),
+    v.enum(Proto.FlowDomain),
     v.transform((v) =>
-        v === undefined ? "unspecified" : LifecycleFlowDomainCodec.protoToOutput[v],
+        requiredEnumLabel(
+            LifecycleFlowDomainCodec.protoToOutput,
+            v,
+            "LifecycleFlowDomainSchema",
+            "flow domain",
+        ),
     ),
 );
 const LifecycleFlowStateEnumSchema = v.pipe(
     v.enum(Proto.FlowState),
-    v.transform((v) => LifecycleFlowStateCodec.protoToOutput[v]),
+    v.transform((v) =>
+        requiredEnumLabel(
+            LifecycleFlowStateCodec.protoToOutput,
+            v,
+            "LifecycleFlowStateSchema",
+            "flow state",
+        ),
+    ),
 );
 const LifecycleFlowStepActivityKindEnumSchema = v.pipe(
     v.enum(ProtoRead.FlowStepActivityKind),
-    v.transform((v) => LifecycleFlowStepActivityKindCodec.protoToOutput[v]),
+    v.transform((v) =>
+        requiredEnumLabel(
+            LifecycleFlowStepActivityKindCodec.protoToOutput,
+            v,
+            "LifecycleFlowStepActivityKindSchema",
+            "activity kind",
+        ),
+    ),
 );
 const LifecycleFlowTimelineStatusEnumSchema = v.pipe(
     v.enum(ProtoRead.FlowTimelineStatus),
-    v.transform((v) => LifecycleFlowTimelineStatusCodec.protoToOutput[v]),
+    v.transform((v) =>
+        requiredEnumLabel(
+            LifecycleFlowTimelineStatusCodec.protoToOutput,
+            v,
+            "LifecycleFlowTimelineStatusSchema",
+            "timeline status",
+        ),
+    ),
 );
 const LifecycleRequestFeeStatusEnumSchema = v.pipe(
     v.enum(Proto.RequestFeeStatus),
-    v.transform((v) => LifecycleRequestFeeStatusCodec.protoToOutput[v]),
+    v.transform((v) =>
+        requiredEnumLabel(
+            LifecycleRequestFeeStatusCodec.protoToOutput,
+            v,
+            "LifecycleRequestFeeStatusSchema",
+            "request fee status",
+        ),
+    ),
 );
 const LifecycleIdSchema = v.pipe(
     v.bigint(),
@@ -163,7 +207,7 @@ export const ListLifecycleFlowsInputSchema = v.pipe(
             ),
         ),
         scope: v.pipe(
-            v.optional(v.optional(ListScopeSchema), "all"),
+            v.optional(v.optional(v.picklist(LIFECYCLE_LIST_SCOPE_VALUES)), "all"),
             v.transform((v) => LifecycleListScopeCodec.inputToProto[v ?? "all"]),
         ),
         accountId: OptionalAccountIdSchema,
@@ -227,7 +271,7 @@ export const GetLifecycleFlowInputSchema = v.pipe(
 export const ListLifecycleFlowsByTxInputSchema = v.object({
     txHash: RequiredTxHashSchema,
     lookupKind: v.pipe(
-        TxLookupKindSchema,
+        v.picklist(LIFECYCLE_TX_LOOKUP_KIND_VALUES),
         v.transform((v) => LifecycleTxLookupKindCodec.inputToProto[v]),
     ),
     limit: v.optional(
@@ -417,13 +461,12 @@ export type GetLifecycleFlowOutput = v.InferOutput<typeof GetLifecycleFlowOutput
 export type ListLifecycleFlowsByTxOutput = v.InferOutput<typeof ListLifecycleFlowsByTxOutputSchema>;
 
 export type LifecycleAssetIds = v.InferOutput<typeof LifecycleAssetIdsSchema>;
-export type LifecycleU256 = v.InferOutput<typeof LifecycleU256Schema>;
 export type LifecycleRequestFee = v.InferOutput<typeof LifecycleRequestFeeSchema>;
 
 export type LifecycleFlowSummaryProgress = v.InferOutput<typeof LifecycleFlowSummaryProgressSchema>;
 export type LifecycleFlowState = v.InferOutput<typeof LifecycleFlowStateEnumSchema>;
-export type LifecycleListScope = LifecycleListScopeOutputValue;
-export type LifecycleTxLookupKind = LifecycleTxLookupKindOutputValue;
+export type LifecycleListScope = LifecycleListScopeValue;
+export type LifecycleTxLookupKind = LifecycleTxLookupKindValue;
 export type LifecycleRequestFeeStatus = LifecycleRequestFeeStatusValue;
 
 export type LifecycleFlowTxMatch = v.InferOutput<typeof LifecycleFlowTxMatchSchema>;

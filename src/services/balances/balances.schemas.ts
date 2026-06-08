@@ -2,6 +2,7 @@ import * as v from "valibot";
 import { fromU128, u128ToDecimal } from "../../utils/u128.js";
 import { assetForId, LEDGER_SCALE } from "../../catalogs/ledger-catalog.js";
 import { optionalSubaccountIdInputSchema } from "../../shared/schemas.js";
+import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { BalanceRangeCodec, EquityGroupByCodec } from "./balances.codecs.js";
 
@@ -69,7 +70,14 @@ export const BalanceHistoryResponseSchema = v.pipe(
     v.object({
         range: v.pipe(
             v.enum(Proto.BalanceRange),
-            v.transform((v) => BalanceRangeCodec.protoToOutputWithDefault[v]),
+            v.transform((v) =>
+                requiredEnumLabel(
+                    BalanceRangeCodec.protoToOutput,
+                    v,
+                    "BalanceHistoryResponseSchema",
+                    "range",
+                ),
+            ),
         ),
         bucket: v.string(),
         startTsSec: v.number(),
@@ -170,7 +178,14 @@ export const EquityHistoryResponseSchema = v.pipe(
     v.object({
         range: v.pipe(
             v.enum(Proto.BalanceRange),
-            v.transform((v) => BalanceRangeCodec.protoToOutputWithDefault[v]),
+            v.transform((v) =>
+                requiredEnumLabel(
+                    BalanceRangeCodec.protoToOutput,
+                    v,
+                    "EquityHistoryResponseSchema",
+                    "range",
+                ),
+            ),
         ),
         bucket: v.string(),
         startTsSec: v.number(),

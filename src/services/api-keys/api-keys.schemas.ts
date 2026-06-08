@@ -10,6 +10,7 @@ import {
     TimestampSchema,
     optionalSubaccountIdInputSchema,
 } from "../../shared/schemas.js";
+import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import { bytesToHex } from "@noble/hashes/utils.js";
 import { ApiKeyStatusCodec } from "./api-keys.codecs.js";
 
@@ -107,13 +108,14 @@ export const ApiKeySchema = v.pipe(
         ),
         status: v.pipe(
             v.enum(Proto.ApiKeyStatus),
-            v.transform((v) => {
-                const status = ApiKeyStatusCodec.protoToOutputWithDefault[v];
-                if (!status) {
-                    throw new Error("[PolyesterClient.ApiKeySchema]: status is required");
-                }
-                return status;
-            }),
+            v.transform((v) =>
+                requiredEnumLabel(
+                    ApiKeyStatusCodec.protoToOutput,
+                    v,
+                    "PolyesterClient.ApiKeySchema",
+                    "status",
+                ),
+            ),
         ),
         createdByActor: v.string(),
     }),

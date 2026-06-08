@@ -5,11 +5,14 @@ import type {
     HeatmapQuantityMode,
 } from "../../gen/marketdata/v1/heatmap_pb.js";
 import { getPair } from "../../catalogs/market-data-catalog.js";
+import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import {
+    HEATMAP_DEPTH_VALUES,
+    HEATMAP_INTERVAL_VALUES,
+    HEATMAP_QUANTITY_MODE_VALUES,
     HeatmapDepthCodec,
     HeatmapIntervalCodec,
     HeatmapQuantityModeCodec,
-    type HeatmapDepthValue,
     type HeatmapIntervalValue,
     type HeatmapQuantityModeValue,
 } from "./heatmap.codecs.js";
@@ -21,91 +24,49 @@ type HeatmapMode =
       }
     | {
           case: "timeRange";
-          startTime?: Date;
-          endTime?: Date;
+          startTime?: TimestampInit;
+          endTime?: TimestampInit;
       };
 
+type TimestampInit = { seconds: bigint; nanos: number };
+
 const IntervalInputSchema = v.pipe(
-    v.optional(v.union([v.number(), v.string()])),
-    v.transform((value): HeatmapInterval => {
-        if (typeof value === "number" && value in HeatmapIntervalCodec.protoToOutput) {
-            return value as HeatmapInterval;
-        }
-        if (typeof value !== "string" || !value) return HeatmapIntervalCodec.inputToProto["1s"];
-        const mapped = HeatmapIntervalCodec.inputToProto[value as HeatmapIntervalValue];
-        return mapped ?? HeatmapIntervalCodec.inputToProto["1s"];
-    }),
+    v.optional(v.picklist(HEATMAP_INTERVAL_VALUES), "1s"),
+    v.transform((value): HeatmapInterval => HeatmapIntervalCodec.inputToProto[value]),
 );
 
-function parseDepthValue(value: unknown): HeatmapDepth {
-    if (typeof value === "number" && value in HeatmapDepthCodec.protoToOutput) {
-        return value as HeatmapDepth;
-    }
-    const numeric = Number(value);
-    if (!Number.isFinite(numeric)) return HeatmapDepthCodec.inputToProto[50];
-    const rounded = Math.trunc(numeric);
-    const closest = HeatmapDepthCodec.supportedDepths.reduce((previous, current) =>
-        Math.abs(current - rounded) < Math.abs(previous - rounded) ? current : previous,
-    );
-    return HeatmapDepthCodec.inputToProto[closest as HeatmapDepthValue];
-}
-
 const DepthInputSchema = v.pipe(
-    v.optional(v.union([v.number(), v.string()])),
-    v.transform((value): HeatmapDepth => parseDepthValue(value)),
+    v.optional(v.picklist(HEATMAP_DEPTH_VALUES), 50),
+    v.transform((value): HeatmapDepth => HeatmapDepthCodec.inputToProto[value]),
 );
 
 const QuantityModeInputSchema = v.pipe(
-    v.optional(v.union([v.number(), v.string()])),
-    v.transform((value): HeatmapQuantityMode => {
-        if (typeof value === "number" && value in HeatmapQuantityModeCodec.protoToOutput) {
-            return value as HeatmapQuantityMode;
-        }
-        if (typeof value !== "string" || !value) return HeatmapQuantityModeCodec.inputToProto.close;
-        const mapped = HeatmapQuantityModeCodec.inputToProto[value as HeatmapQuantityModeValue];
-        return mapped ?? HeatmapQuantityModeCodec.inputToProto.close;
-    }),
+    v.optional(v.picklist(HEATMAP_QUANTITY_MODE_VALUES), "close"),
+    v.transform((value): HeatmapQuantityMode => HeatmapQuantityModeCodec.inputToProto[value]),
 );
 
-function toDate(value: unknown): Date | undefined {
-    if (value == null) return undefined;
-    if (value instanceof Date) return Number.isFinite(value.getTime()) ? value : undefined;
-    if (typeof value === "number") {
-        if (!Number.isFinite(value)) return undefined;
-        return new Date(value);
-    }
-    if (typeof value === "bigint") return new Date(Number(value));
-    if (typeof value === "string") {
-        const trimmed = value.trim();
-        if (!trimmed) return undefined;
-        const epochSecondsMatch = /^\d+$/.test(trimmed);
-        if (epochSecondsMatch) return new Date(Number(trimmed) * 1000);
-        const parsed = Date.parse(trimmed);
-        return Number.isFinite(parsed) ? new Date(parsed) : undefined;
-    }
-    return undefined;
+function timestampFromTsSec(tsSec: bigint): TimestampInit {
+    return { seconds: tsSec, nanos: 0 };
 }
 
-const TimestampLikeSchema = v.pipe(
-    v.optional(v.union([v.number(), v.bigint(), v.string(), v.date()])),
-    v.transform((value) => toDate(value)),
+const OptionalTimestampSecondsSchema = v.optional(
+    v.pipe(
+        v.number(),
+        v.integer(),
+        v.minValue(0),
+        v.maxValue(Number.MAX_SAFE_INTEGER),
+        v.transform((value) => BigInt(value)),
+    ),
 );
 
-const CursorInputSchema = v.pipe(
-    v.optional(v.union([v.number(), v.bigint(), v.string()])),
-    v.transform((value): bigint | undefined => {
-        if (value == null) return undefined;
-        if (typeof value === "bigint") return value;
-        if (typeof value === "number") {
-            if (!Number.isFinite(value)) return undefined;
-            const truncated = Math.trunc(value);
-            return truncated > 0 ? BigInt(truncated) : undefined;
-        }
-        const trimmed = value.trim();
-        if (!trimmed) return undefined;
-        const bigint = BigInt(trimmed);
-        return bigint > 0n ? bigint : undefined;
-    }),
+const CursorInputSchema = v.optional(
+    v.pipe(
+        v.number(),
+        v.integer(),
+        v.gtValue(0),
+        v.maxValue(Number.MAX_SAFE_INTEGER),
+        v.transform((value) => BigInt(value)),
+    ),
 );
 
 export const GetOrderbookHeatmapInputSchema = v.pipe(
@@ -116,10 +77,14 @@ export const GetOrderbookHeatmapInputSchema = v.pipe(
         depth: DepthInputSchema,
         quantityMode: QuantityModeInputSchema,
         limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(20_000))),
-        startTime: TimestampLikeSchema,
-        endTime: TimestampLikeSchema,
+        startTsSec: OptionalTimestampSecondsSchema,
+        endTsSec: OptionalTimestampSecondsSchema,
         cursorTsSec: CursorInputSchema,
     }),
+    v.check(
+        (value) => value.cursorTsSec != null || value.startTsSec != null || value.endTsSec != null,
+        "cursorTsSec, startTsSec, or endTsSec is required",
+    ),
     v.transform((value) => {
         const symbolId =
             value.symbolId ??
@@ -136,8 +101,12 @@ export const GetOrderbookHeatmapInputSchema = v.pipe(
                 ? { case: "cursor", fromTsSec: value.cursorTsSec }
                 : {
                       case: "timeRange",
-                      startTime: value.startTime,
-                      endTime: value.endTime,
+                      startTime:
+                          value.startTsSec != null
+                              ? timestampFromTsSec(value.startTsSec)
+                              : undefined,
+                      endTime:
+                          value.endTsSec != null ? timestampFromTsSec(value.endTsSec) : undefined,
                   };
 
         return {
@@ -152,21 +121,21 @@ export const GetOrderbookHeatmapInputSchema = v.pipe(
 );
 
 function requiredIntervalLabelFor(value: number): HeatmapIntervalValue {
-    const label = HeatmapIntervalCodec.protoToOutput[value];
-    if (!label) throw new Error(`[OrderbookHeatmapResponseSchema]: invalid interval ${value}`);
-    return label;
-}
-
-function requiredDepthValueFor(value: number): HeatmapDepthValue {
-    const depth = HeatmapDepthCodec.protoToOutput[value];
-    if (!depth) throw new Error(`[OrderbookHeatmapResponseSchema]: invalid depth ${value}`);
-    return depth;
+    return requiredEnumLabel(
+        HeatmapIntervalCodec.protoToOutput,
+        value,
+        "OrderbookHeatmapResponseSchema",
+        "interval",
+    );
 }
 
 function requiredQuantityModeLabelFor(value: number): HeatmapQuantityModeValue {
-    const label = HeatmapQuantityModeCodec.protoToOutput[value];
-    if (!label) throw new Error(`[OrderbookHeatmapResponseSchema]: invalid quantity mode ${value}`);
-    return label;
+    return requiredEnumLabel(
+        HeatmapQuantityModeCodec.protoToOutput,
+        value,
+        "OrderbookHeatmapResponseSchema",
+        "quantity mode",
+    );
 }
 
 const TimestampSecondsSchema = v.pipe(
@@ -244,7 +213,17 @@ export type OrderbookHeatmapDeltaChain = v.InferOutput<typeof OrderbookHeatmapDe
 export const OrderbookHeatmapResponseSchema = v.object({
     symbolId: v.number(),
     interval: v.pipe(v.number(), v.transform(requiredIntervalLabelFor)),
-    depth: v.pipe(v.number(), v.transform(requiredDepthValueFor)),
+    depth: v.pipe(
+        v.number(),
+        v.transform((value) =>
+            requiredEnumLabel(
+                HeatmapDepthCodec.protoToOutput,
+                value,
+                "OrderbookHeatmapResponseSchema",
+                "depth",
+            ),
+        ),
+    ),
     chain: v.optional(OrderbookHeatmapDeltaChainSchema),
     lastPersistedTsSec: TimestampSecondsSchema,
     liveFromBookSeqEnd: Uint64StringSchema,

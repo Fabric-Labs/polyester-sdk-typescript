@@ -31,6 +31,7 @@ import {
     optionalSubaccountIdInputSchema,
     optionalUint64DecimalFilterSchema,
 } from "../../shared/schemas.js";
+import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import {
     baseQuantityScaleForSymbol,
     getPairBySymbolId,
@@ -382,11 +383,25 @@ const ReadAttachedRiskSchema = v.object({
 const ReadOrderOriginSchema = v.object({
     scope: v.pipe(
         v.enum(ProtoRead.OrderOriginScope),
-        v.transform((v) => OrderOriginScopeCodec.protoToLabel[v]),
+        v.transform((v) =>
+            requiredEnumLabel(
+                OrderOriginScopeCodec.protoToLabel,
+                v,
+                "ReadOrderOriginSchema",
+                "scope",
+            ),
+        ),
     ),
     triggerType: v.pipe(
         v.enum(ProtoRead.OrderTriggerType),
-        v.transform((v) => OrderTriggerTypeCodec.protoToLabel[v]),
+        v.transform((v) =>
+            requiredEnumLabel(
+                OrderTriggerTypeCodec.protoToLabel,
+                v,
+                "ReadOrderOriginSchema",
+                "trigger type",
+            ),
+        ),
     ),
     triggerId: v.pipe(
         v.optional(v.bigint()),
@@ -400,13 +415,18 @@ const ReadOrderOriginSchema = v.object({
 });
 
 function triggerPriceSourceLabelFor(v: number): TriggerPriceSource {
+    if (v === ProtoWrite.TriggerPriceSource.LAST_PRICE) return "last";
     if (v === ProtoWrite.TriggerPriceSource.INDEX_PRICE) return "index";
     if (v === ProtoWrite.TriggerPriceSource.MARK_PRICE) return "mark";
-    return "last";
+    throw new Error(`[ReadAttachedRiskSchema]: invalid trigger price source ${v}`);
 }
 
 function riskOrderTypeLabelFor(v: number): RiskOrderType {
-    return v === ProtoWrite.OrderType.LIMIT ? "limit" : "market";
+    const label = orderTypeLabelFor(v);
+    if (label !== "limit" && label !== "market") {
+        throw new Error(`[ReadAttachedRiskSchema]: invalid order type ${v}`);
+    }
+    return label;
 }
 
 function formatRiskLeg(
@@ -616,7 +636,7 @@ export const OrderSchema = v.pipe(
             orderType: orderTypeLabelFor(o.orderType),
             tif: tifLabelFor(o.tif),
             stpMode: stpModeLabelFor(o.stpMode),
-            feeSource: o.feeSource !== 0 ? feeSourceLabelFor(o.feeSource) : undefined,
+            feeSource: feeSourceLabelFor(o.feeSource),
             postOnly: o.postOnly,
             origQty: formatQtyForSymbol(o.origQty, o.symbolId),
             cumQty: formatQtyForSymbol(o.cumQty, o.symbolId),
@@ -904,7 +924,14 @@ export type CreateOrderResult = v.InferOutput<typeof CreateOrderResultSchema>;
 export const ModifyOrderResultSchema = v.object({
     actionTaken: v.pipe(
         v.enum(ProtoWrite.ModifyActionTaken),
-        v.transform((v) => ModifyActionCodec.protoToLabel[v]),
+        v.transform((v) =>
+            requiredEnumLabel(
+                ModifyActionCodec.protoToLabel,
+                v,
+                "ModifyOrderResultSchema",
+                "action taken",
+            ),
+        ),
     ),
     oldOrderId: v.pipe(
         v.bigint(),

@@ -1,4 +1,5 @@
 import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
+import type { InputToProto, ProtoToOutput } from "../../utils/types.js";
 
 export const SUBACCOUNT_ROLE_VALUES = [
     "owner",
@@ -21,11 +22,15 @@ export const SUBACCOUNT_INVITE_STATUS_VALUES = [
 ] as const;
 export type SubaccountInviteStatusValue = (typeof SUBACCOUNT_INVITE_STATUS_VALUES)[number];
 
-export const RAW_SUBACCOUNT_STATUS_VALUES = ["active", "disabled", "deleted"] as const;
-export type RawSubaccountStatusValue = (typeof RAW_SUBACCOUNT_STATUS_VALUES)[number];
-
-export const SUBACCOUNT_STATUS_VALUES = ["active", "frozen"] as const;
+export const SUBACCOUNT_STATUS_VALUES = ["active", "disabled", "deleted"] as const;
 export type SubaccountStatusValue = (typeof SUBACCOUNT_STATUS_VALUES)[number];
+type SubaccountStatusProto = Proto.UpdateSubaccountRequest["status"] & Proto.Subaccount["status"];
+
+const SubaccountStatusProto = {
+    ACTIVE: "active",
+    DISABLED: "disabled",
+    DELETED: "deleted",
+} as const satisfies Record<string, SubaccountStatusProto>;
 
 export const SubaccountRoleCodec = {
     inputToProto: {
@@ -35,7 +40,7 @@ export const SubaccountRoleCodec = {
         leveraged_trader: Proto.SubaccountRole.LEVERAGED_TRADER,
         trader: Proto.SubaccountRole.TRADER,
         viewer: Proto.SubaccountRole.VIEWER,
-    } satisfies Record<SubaccountRoleValue, Proto.SubaccountRole>,
+    } satisfies InputToProto<SubaccountRoleValue, Proto.SubaccountRole>,
     protoToOutput: {
         [Proto.SubaccountRole.OWNER]: "owner",
         [Proto.SubaccountRole.ADMIN]: "admin",
@@ -43,8 +48,7 @@ export const SubaccountRoleCodec = {
         [Proto.SubaccountRole.LEVERAGED_TRADER]: "leveraged_trader",
         [Proto.SubaccountRole.TRADER]: "trader",
         [Proto.SubaccountRole.VIEWER]: "viewer",
-        [Proto.SubaccountRole.SUBACCOUNT_ROLE_UNSPECIFIED]: "viewer",
-    } satisfies Record<Proto.SubaccountRole, SubaccountRoleValue>,
+    } satisfies ProtoToOutput<Proto.SubaccountRole, SubaccountRoleValue>,
 } as const;
 
 export const InviteActionCodec = {
@@ -52,7 +56,7 @@ export const InviteActionCodec = {
         accept: Proto.SubaccountInviteAction.ACCEPT,
         decline: Proto.SubaccountInviteAction.DECLINE,
         cancel: Proto.SubaccountInviteAction.CANCEL,
-    } satisfies Record<SubaccountInviteActionValue, Proto.SubaccountInviteAction>,
+    } satisfies InputToProto<SubaccountInviteActionValue, Proto.SubaccountInviteAction>,
 } as const;
 
 export const InviteStatusCodec = {
@@ -61,14 +65,18 @@ export const InviteStatusCodec = {
         [Proto.SubaccountInviteStatus.ACCEPTED]: "accepted",
         [Proto.SubaccountInviteStatus.DECLINED]: "declined",
         [Proto.SubaccountInviteStatus.CANCELLED]: "cancelled",
-        [Proto.SubaccountInviteStatus.UNSPECIFIED]: "pending",
-    } satisfies Record<Proto.SubaccountInviteStatus, SubaccountInviteStatusValue>,
+    } satisfies ProtoToOutput<Proto.SubaccountInviteStatus, SubaccountInviteStatusValue>,
 } as const;
 
-export const RawSubaccountStatusCodec = {
-    rawToOutput: {
-        active: "active",
-        disabled: "frozen",
-        deleted: "frozen",
-    } satisfies Record<RawSubaccountStatusValue, SubaccountStatusValue>,
+export const SubaccountStatusCodec = {
+    inputToProto: {
+        active: SubaccountStatusProto.ACTIVE,
+        disabled: SubaccountStatusProto.DISABLED,
+        deleted: SubaccountStatusProto.DELETED,
+    } satisfies Record<SubaccountStatusValue, SubaccountStatusProto>,
+    protoToOutput: {
+        [SubaccountStatusProto.ACTIVE]: "active",
+        [SubaccountStatusProto.DISABLED]: "disabled",
+        [SubaccountStatusProto.DELETED]: "deleted",
+    } satisfies Record<SubaccountStatusProto, SubaccountStatusValue>,
 } as const;

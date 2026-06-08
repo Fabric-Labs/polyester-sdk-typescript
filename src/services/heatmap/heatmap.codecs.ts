@@ -3,6 +3,7 @@ import {
     HeatmapInterval,
     HeatmapQuantityMode,
 } from "../../gen/marketdata/v1/heatmap_pb.js";
+import type { InputToProto, ProtoToOutput } from "../../utils/types.js";
 
 export const HEATMAP_INTERVAL_VALUES = ["1s", "1m", "5m", "1h"] as const;
 export type HeatmapIntervalValue = (typeof HEATMAP_INTERVAL_VALUES)[number];
@@ -19,13 +20,13 @@ export const HeatmapIntervalCodec = {
         "1m": HeatmapInterval.INTERVAL_1M,
         "5m": HeatmapInterval.INTERVAL_5M,
         "1h": HeatmapInterval.INTERVAL_1H,
-    } satisfies Record<HeatmapIntervalValue, HeatmapInterval>,
+    } satisfies InputToProto<HeatmapIntervalValue, HeatmapInterval>,
     protoToOutput: {
         [HeatmapInterval.INTERVAL_1S]: "1s",
         [HeatmapInterval.INTERVAL_1M]: "1m",
         [HeatmapInterval.INTERVAL_5M]: "5m",
         [HeatmapInterval.INTERVAL_1H]: "1h",
-    } as Record<number, HeatmapIntervalValue | undefined>,
+    } satisfies ProtoToOutput<HeatmapInterval, HeatmapIntervalValue>,
 } as const;
 
 export const HeatmapDepthCodec = {
@@ -39,7 +40,7 @@ export const HeatmapDepthCodec = {
         200: HeatmapDepth.DEPTH_200,
         500: HeatmapDepth.DEPTH_500,
         1000: HeatmapDepth.DEPTH_1000,
-    } satisfies Record<HeatmapDepthValue, HeatmapDepth>,
+    } satisfies InputToProto<HeatmapDepthValue, HeatmapDepth>,
     protoToOutput: {
         [HeatmapDepth.DEPTH_1]: 1,
         [HeatmapDepth.DEPTH_5]: 5,
@@ -50,7 +51,7 @@ export const HeatmapDepthCodec = {
         [HeatmapDepth.DEPTH_200]: 200,
         [HeatmapDepth.DEPTH_500]: 500,
         [HeatmapDepth.DEPTH_1000]: 1000,
-    } as Record<number, HeatmapDepthValue | undefined>,
+    } satisfies ProtoToOutput<HeatmapDepth, HeatmapDepthValue>,
     supportedDepths: HEATMAP_DEPTH_VALUES,
 } as const;
 
@@ -58,9 +59,9 @@ export const HeatmapQuantityModeCodec = {
     inputToProto: {
         close: HeatmapQuantityMode.CLOSE,
         peak: HeatmapQuantityMode.PEAK,
-    } satisfies Record<HeatmapQuantityModeValue, HeatmapQuantityMode>,
+    } satisfies InputToProto<HeatmapQuantityModeValue, HeatmapQuantityMode>,
     protoToOutput: {
         [HeatmapQuantityMode.CLOSE]: "close",
         [HeatmapQuantityMode.PEAK]: "peak",
-    } as Record<number, HeatmapQuantityModeValue | undefined>,
+    } satisfies ProtoToOutput<HeatmapQuantityMode, HeatmapQuantityModeValue>,
 } as const;

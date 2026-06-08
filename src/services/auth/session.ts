@@ -9,14 +9,23 @@ import type { ActiveAccountInfo, AuthLoginMethod, SessionData } from "./session.
 
 export type { ActiveAccountInfo, AuthLoginMethod, SessionData };
 
+interface SessionCookieOptions {
+    maxAgeSeconds?: number | null;
+}
+
+function resolveSessionCookieMaxAge(options?: SessionCookieOptions): number | undefined {
+    if (!options) return POLYESTER_LOGIN_COOKIE_MAX_AGE;
+    return options.maxAgeSeconds ?? undefined;
+}
+
 class PolyesterSessionManager {
-    set(session: SessionData): void {
+    set(session: SessionData, options?: SessionCookieOptions): void {
         setCookie({
             name: POLYESTER_SESSION_COOKIE_NAME,
             value: JSON.stringify(session),
             options: {
                 path: "/",
-                maxAge: POLYESTER_LOGIN_COOKIE_MAX_AGE,
+                maxAge: resolveSessionCookieMaxAge(options),
                 secure: !isDev(),
                 sameSite: "lax",
             },
@@ -41,7 +50,10 @@ class PolyesterSessionManager {
         }
     }
 
-    setActiveAccount(activeAccount: Omit<ActiveAccountInfo, "mainAccountId">): void {
+    setActiveAccount(
+        activeAccount: Omit<ActiveAccountInfo, "mainAccountId">,
+        options?: SessionCookieOptions,
+    ): void {
         const session = this.get();
         if (!session) return;
         const mainAccountId = session.activeAccount?.mainAccountId ?? activeAccount.accountId;
@@ -49,14 +61,17 @@ class PolyesterSessionManager {
             ? session.smartAccount
             : activeAccount.smartAccountAddress;
         const label = activeAccount.isMain ? undefined : activeAccount.label;
-        this.set({
-            ...session,
-            activeAccount: { ...activeAccount, mainAccountId, smartAccountAddress, label },
-            username: session.username,
-        });
+        this.set(
+            {
+                ...session,
+                activeAccount: { ...activeAccount, mainAccountId, smartAccountAddress, label },
+                username: session.username,
+            },
+            options,
+        );
     }
 
-    setUsername(username: string | null): void {
+    setUsername(username: string | null, options?: SessionCookieOptions): void {
         const session = this.get();
         if (!session) return;
         const nextSession = { ...session };
@@ -67,7 +82,7 @@ class PolyesterSessionManager {
             delete nextSession.username;
         }
 
-        this.set(nextSession);
+        this.set(nextSession, options);
     }
 
     clear(): void {

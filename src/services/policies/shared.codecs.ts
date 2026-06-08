@@ -1,4 +1,5 @@
 import * as Proto from "../../gen/auth/v1/policies_pb.js";
+import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import type { ExcludeUnspecified } from "../../utils/types.js";
 
 export const POLICY_ACTION_LABELS = [
@@ -63,15 +64,19 @@ export const PolicyActionCodec = {
 } as const;
 
 export function policyMarketScopeLabelFor(value: Proto.MarketScope_Value): PolicyMarketScopeLabel {
-    if (value === Proto.MarketScope_Value.UNSPECIFIED) {
-        throw new Error(`[PolicyMarketScopeCodec]: invalid market scope ${value}`);
-    }
-    return PolicyMarketScopeCodec.protoToOutput[value];
+    return requiredEnumLabel(
+        PolicyMarketScopeCodec.protoToOutput,
+        value,
+        "PolicyMarketScopeCodec",
+        "market scope",
+    );
 }
 
 export function policyActionLabelFor(value: Proto.PolicyAction): PolicyActionLabel {
-    if (value === Proto.PolicyAction.UNSPECIFIED) {
-        throw new Error(`[PolicyActionCodec]: invalid policy action ${value}`);
-    }
-    return PolicyActionCodec.protoToOutput[value];
+    return requiredEnumLabel(
+        PolicyActionCodec.protoToOutput,
+        value,
+        "PolicyActionCodec",
+        "policy action",
+    );
 }

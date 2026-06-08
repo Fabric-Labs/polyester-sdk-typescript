@@ -2,6 +2,7 @@ import * as v from "valibot";
 import { formatId, idToBigInt } from "../utils/base58-id.js";
 import { parseOptionalUint64DecimalStrict } from "../utils/numbers.js";
 import { tsNsToMs, tsObjToMs } from "../utils/time.js";
+import type { JsonObject } from "@bufbuild/protobuf";
 
 export const TimestampSchema = v.object({
     seconds: v.bigint(),
@@ -81,3 +82,8 @@ export function positiveBigintLikeSchema(message: string) {
         v.check((value) => value > 0n, message),
     );
 }
+
+export const JsonObjectSchema = v.custom<JsonObject>(
+    (input): input is JsonObject =>
+        typeof input === "object" && input !== null && !Array.isArray(input),
+);

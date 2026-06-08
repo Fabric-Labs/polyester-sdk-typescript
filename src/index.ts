@@ -7,6 +7,15 @@ export type {
 
 export { PolyesterBrowserClient } from "./browser-client.js";
 export type { PolyesterBrowserClientConfig } from "./browser-client.js";
+export {
+    createCookieAuthTokenStorage,
+    createMemoryAuthTokenStorage,
+} from "./services/auth/token-storage.js";
+export type {
+    AuthTokenStorage,
+    AuthTokenStorageSetOptions,
+    CookieAuthTokenStorageOptions,
+} from "./services/auth/token-storage.js";
 
 export {
     PolyesterServerClient,

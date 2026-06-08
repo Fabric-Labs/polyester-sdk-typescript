@@ -1,7 +1,7 @@
-import type { JsonObject } from "@bufbuild/protobuf";
 import * as v from "valibot";
 import * as Proto from "../../gen/auth/v1/mfa_pb.js";
-import { OptionalTimestampMsSchema } from "../../shared/schemas.js";
+import { JsonObjectSchema, OptionalTimestampMsSchema } from "../../shared/schemas.js";
+import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import {
     MfaChallengePurposeCodec,
     MfaFactorTypeCodec,
@@ -9,26 +9,19 @@ import {
     SessionLevelCodec,
 } from "./mfa.codecs.js";
 
-function isJsonObject(val: unknown): val is JsonObject {
-    return typeof val === "object" && val !== null && !Array.isArray(val);
-}
-
-export const JsonObjectSchema = v.custom<JsonObject>(isJsonObject);
-
 export const MfaSessionInfoSchema = v.pipe(
     v.object({
         sessionId: v.string(),
         sessionLevel: v.pipe(
             v.enum(Proto.SessionLevel),
-            v.transform((v) => {
-                const label = SessionLevelCodec.protoToOutputWithDefault[v];
-                if (!label) {
-                    throw new Error(
-                        "[PolyesterClient.MfaSessionInfoSchema]: sessionLevel is missing or unspecified",
-                    );
-                }
-                return label;
-            }),
+            v.transform((v) =>
+                requiredEnumLabel(
+                    SessionLevelCodec.protoToOutput,
+                    v,
+                    "PolyesterClient.MfaSessionInfoSchema",
+                    "sessionLevel",
+                ),
+            ),
         ),
         authenticationMethods: v.optional(v.array(v.string()), []),
         authTime: OptionalTimestampMsSchema,
@@ -48,15 +41,14 @@ export const MfaFactorSchema = v.pipe(
         factorId: v.string(),
         factorType: v.pipe(
             v.enum(Proto.MFAFactorType),
-            v.transform((v) => {
-                const label = MfaFactorTypeCodec.protoToOutputWithDefault[v];
-                if (!label) {
-                    throw new Error(
-                        "[PolyesterClient.MfaFactorSchema]: factorType is missing or unspecified",
-                    );
-                }
-                return label;
-            }),
+            v.transform((v) =>
+                requiredEnumLabel(
+                    MfaFactorTypeCodec.protoToOutput,
+                    v,
+                    "PolyesterClient.MfaFactorSchema",
+                    "factorType",
+                ),
+            ),
         ),
         label: v.string(),
         createdAt: OptionalTimestampMsSchema,
@@ -155,10 +147,14 @@ export const BeginMfaChallengeResultSchema = v.object({
     allowedFactorTypes: v.pipe(
         v.array(v.enum(Proto.MFAFactorType)),
         v.transform((arr) =>
-            arr.flatMap((t) => {
-                const label = MfaFactorTypeCodec.protoToOutputWithDefault[t];
-                return label ? [label] : [];
-            }),
+            arr.map((t) =>
+                requiredEnumLabel(
+                    MfaFactorTypeCodec.protoToOutput,
+                    t,
+                    "PolyesterClient.BeginMfaChallengeResultSchema",
+                    "allowed factor type",
+                ),
+            ),
         ),
     ),
     publicKey: v.optional(JsonObjectSchema),

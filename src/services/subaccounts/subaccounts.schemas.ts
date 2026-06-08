@@ -2,11 +2,13 @@ import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
 import * as v from "valibot";
 import { formatId } from "../../utils/base58-id.js";
 import { OptionalTimestampMsSchema, idInputSchema } from "../../shared/schemas.js";
+import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import {
     SubaccountRoleCodec,
     InviteActionCodec,
     InviteStatusCodec,
-    RawSubaccountStatusCodec,
+    SubaccountStatusCodec,
+    SUBACCOUNT_STATUS_VALUES,
 } from "./subaccounts.codecs.js";
 
 const SUBACCOUNT_ROLE_VALUES = [
@@ -24,7 +26,9 @@ export type SubaccountRole = v.InferOutput<typeof SubaccountRoleSchema>;
 
 const ProtoSubaccountRoleSchema = v.pipe(
     v.enum(Proto.SubaccountRole),
-    v.transform((role) => SubaccountRoleCodec.protoToOutput[role]),
+    v.transform((role) =>
+        requiredEnumLabel(SubaccountRoleCodec.protoToOutput, role, "SubaccountRoleSchema", "role"),
+    ),
 );
 
 export const CreateSubaccountInputSchema = v.object({
@@ -65,12 +69,12 @@ export const UpdateSubaccountInputSchema = v.pipe(
     v.object({
         ...v.pick(CreateSubaccountInputSchema, ["label"]).entries,
         subaccountId: idInputSchema("subaccountId"),
-        status: v.picklist(["active", "frozen"]),
+        status: v.picklist(SUBACCOUNT_STATUS_VALUES),
     }),
     v.transform(({ subaccountId, status, ...rest }) => ({
         ...rest,
         subaccountId,
-        status: status === "frozen" ? "disabled" : "active",
+        status: SubaccountStatusCodec.inputToProto[status],
     })),
 );
 
@@ -133,11 +137,12 @@ export const RespondSubaccountInviteInputSchema = v.object({
 
 export type RespondSubaccountInviteInput = v.InferInput<typeof RespondSubaccountInviteInputSchema>;
 
-const RawSubaccountStatusSchema = v.picklist(["active", "disabled", "deleted"]);
+const ProtoSubaccountStatusSchema = v.pipe(
+    v.picklist(SUBACCOUNT_STATUS_VALUES),
+    v.transform((status) => SubaccountStatusCodec.protoToOutput[status]),
+);
 
-export type RawSubaccountStatus = v.InferOutput<typeof RawSubaccountStatusSchema>;
-
-export type SubaccountStatus = "active" | "frozen";
+export type SubaccountStatus = v.InferOutput<typeof ProtoSubaccountStatusSchema>;
 
 export const SubaccountSchema = v.object({
     id: v.pipe(
@@ -146,10 +151,7 @@ export const SubaccountSchema = v.object({
     ),
     role: ProtoSubaccountRoleSchema,
     label: v.optional(v.optional(v.string()), ""),
-    status: v.pipe(
-        RawSubaccountStatusSchema,
-        v.transform((v) => RawSubaccountStatusCodec.rawToOutput[v]),
-    ),
+    status: ProtoSubaccountStatusSchema,
     smartAccountAddress: v.string(),
     ownerUsername: v.optional(v.optional(v.string()), ""),
     ownerAvatarUrl: v.optional(v.optional(v.string()), ""),
@@ -198,7 +200,14 @@ export const SubaccountInviteSchema = v.pipe(
         role: ProtoSubaccountRoleSchema,
         status: v.pipe(
             ProtoInviteStatusSchema,
-            v.transform((v) => InviteStatusCodec.protoToOutput[v]),
+            v.transform((v) =>
+                requiredEnumLabel(
+                    InviteStatusCodec.protoToOutput,
+                    v,
+                    "SubaccountInviteSchema",
+                    "status",
+                ),
+            ),
         ),
         createdAt: OptionalTimestampMsSchema,
         respondedAt: OptionalTimestampMsSchema,

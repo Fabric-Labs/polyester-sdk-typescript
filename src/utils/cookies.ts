@@ -51,11 +51,11 @@ export function getCookie(name: string): string | undefined {
     return parseCookie(document.cookie)[name];
 }
 
-export function deleteCookie(name: string): void {
+export function deleteCookie(name: string, options?: { path?: string }): void {
     if (typeof document === "undefined") return;
 
     document.cookie = serializeCookie(name, "", {
-        path: "/",
+        path: options?.path ?? "/",
         expires: new Date("Thu, 01 Jan 1970 00:00:00 GMT"),
     });
 }
@@ -119,6 +119,7 @@ export class CookieManager {
             secure?: boolean;
             sameSite?: "lax" | "strict" | "none";
             maxAge?: number;
+            expires?: Date;
         },
     ): void {
         setCookie({
@@ -129,11 +130,12 @@ export class CookieManager {
                 sameSite: options?.sameSite ?? "lax",
                 secure: options?.secure ?? (isDev() ? false : true),
                 maxAge: options?.maxAge,
+                expires: options?.expires,
             },
         });
     }
 
-    clear(): void {
-        deleteCookie(this.#name);
+    clear(options?: { path?: string }): void {
+        deleteCookie(this.#name, options);
     }
 }
