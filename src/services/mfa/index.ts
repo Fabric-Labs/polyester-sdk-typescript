@@ -11,7 +11,6 @@ export {
     type MfaChallengePurposeLabel,
 } from "./mfa.codecs.js";
 export {
-    JsonObjectSchema,
     MfaSessionInfoSchema,
     MfaFactorSchema,
     ListMfaFactorsResponseSchema,
