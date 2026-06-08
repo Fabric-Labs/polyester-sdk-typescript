@@ -1,6 +1,5 @@
 import type * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
 import * as v from "valibot";
-import { int6ToDecimalString, int18ToDecimalString } from "../../catalogs/orders-catalog.js";
 import {
     createCatalogSnapshotReader,
     staticCatalog,
@@ -29,20 +28,27 @@ export const GetOrderbookInputSchema = v.object({
 
 export type GetOrderbookInput = v.InferInput<typeof GetOrderbookInputSchema>;
 
-export const OrderbookLevelSchema = v.pipe(
-    v.object({
-        priceTicks: v.bigint(),
-        qtyScaled: v.bigint(),
-    }),
-    v.transform((l) => ({
-        priceTicks: l.priceTicks.toString(),
-        qtyScaled: l.qtyScaled.toString(),
-        priceDisplay: int6ToDecimalString(l.priceTicks),
-        qtyDisplay: int18ToDecimalString(l.qtyScaled),
-    })),
-);
+const OrderbookLevelInputSchema = v.object({
+    priceTicks: v.bigint(),
+    qtyScaled: v.bigint(),
+});
 
-export type OrderbookLevel = v.InferOutput<typeof OrderbookLevelSchema>;
+export type OrderbookLevelInput = v.InferOutput<typeof OrderbookLevelInputSchema>;
+
+export function formatOrderbookLevel(
+    reader: CatalogReader,
+    symbolId: number,
+    level: OrderbookLevelInput,
+) {
+    return {
+        priceTicks: level.priceTicks.toString(),
+        qtyScaled: level.qtyScaled.toString(),
+        priceDisplay: reader.orders.formatPrice(level.priceTicks, symbolId),
+        qtyDisplay: reader.orders.formatQuantity(level.qtyScaled, symbolId),
+    };
+}
+
+export type OrderbookLevel = ReturnType<typeof formatOrderbookLevel>;
 
 export function createOrderbookDataSchema(catalog: CatalogSnapshot) {
     return createOrderbookDataSchemaForReader(createCatalogSnapshotReader(catalog));
@@ -54,22 +60,16 @@ function createOrderbookDataSchemaForReader(reader: CatalogReader) {
             symbol: v.string(),
             depth: v.number(),
             bookSeq: v.bigint(),
-            bids: v.array(OrderbookLevelSchema),
-            asks: v.array(OrderbookLevelSchema),
+            bids: v.array(OrderbookLevelInputSchema),
+            asks: v.array(OrderbookLevelInputSchema),
         }),
         v.transform((d) => {
             const symbolId = reader.market.requireSymbolIdByPairSymbol(d.symbol);
             return {
                 ...d,
                 bookSeq: d.bookSeq.toString(),
-                bids: d.bids.map((level) => ({
-                    ...level,
-                    qtyDisplay: reader.orders.formatQuantity(level.qtyScaled, symbolId),
-                })),
-                asks: d.asks.map((level) => ({
-                    ...level,
-                    qtyDisplay: reader.orders.formatQuantity(level.qtyScaled, symbolId),
-                })),
+                bids: d.bids.map((level) => formatOrderbookLevel(reader, symbolId, level)),
+                asks: d.asks.map((level) => formatOrderbookLevel(reader, symbolId, level)),
             };
         }),
     );

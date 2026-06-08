@@ -48,6 +48,21 @@ const btcUsdtPair: EnrichedPairConfig = {
     status: "enabled",
 };
 
+const points = {
+    symbol: "PTS",
+    ledgerId: 3,
+    name: "Points",
+    quantityDisplayDecimals: 3,
+    quantityScale: 3,
+};
+
+const btcPointsPair: EnrichedPairConfig = {
+    ...btcUsdtPair,
+    symbolId: 202,
+    symbol: "BTC-PTS",
+    quoteAsset: points,
+};
+
 describe("MarketOverviewSchema", () => {
     it("preserves fractional market values as decimal strings", () => {
         const schema = createMarketOverviewSchema(
@@ -87,6 +102,36 @@ describe("MarketOverviewSchema", () => {
             bestAsk: "1234.600002",
             bestAskQty: "0.23456789",
             sparklines: [{ interval: "24h", prices: ["1.000001", "1.01"] }],
+        });
+    });
+
+    it("derives pair assets from the catalog and formats quote volume with quote scale", () => {
+        const schema = createMarketOverviewSchema(
+            createTestCatalog({ pairs: [btcPointsPair] }).snapshot(),
+        );
+        const market = v.parse(schema, {
+            symbolId: 202,
+            symbol: "STALE-RESPONSE-SYMBOL",
+            lastPriceTicks: 1_000_000n,
+            change24hBp: 0,
+            high24hTicks: 1_000_000n,
+            low24hTicks: 1_000_000n,
+            volume24hBaseScaled: 123_456_789n,
+            volume24hQuoteScaled: 987_654_321n,
+            bestBidTicks: 1_000_000n,
+            bestBidQtyScaled: 1n,
+            bestAskTicks: 1_000_000n,
+            bestAskQtyScaled: 1n,
+        });
+
+        expect(market).toMatchObject({
+            pair: "BTC-PTS",
+            symbol: {
+                base: btc,
+                quote: points,
+            },
+            volume24hBase: "1.23456789",
+            volume24hQuote: "987654.321",
         });
     });
 

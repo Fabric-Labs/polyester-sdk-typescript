@@ -9,7 +9,6 @@ import {
 } from "../../catalogs/index.js";
 import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 import { FeeSourceCodec, OrderSideCodec } from "../orders/orders.codecs.js";
-import { int18ToDecimalString } from "../../catalogs/orders-catalog.js";
 import { formatId } from "../../utils/base58-id.js";
 import {
     optionalSubaccountIdInputSchema,
@@ -43,8 +42,14 @@ export function createUserTradeSchemaForReader(reader: CatalogReader) {
             const baseAssetId = pair.baseAsset.ledgerId;
             const baseAsset = pair.baseAsset;
             const quoteAsset = pair.quoteAsset;
+            const feeSourceLabel = requiredEnumLabel(
+                FeeSourceCodec.protoToOutput,
+                t.feeSource,
+                "UserTradeSchema",
+                "fee source",
+            );
             const feeAsset = t.feeSource === 1 ? quoteAsset : baseAsset;
-            const fee = Number(int18ToDecimalString(t.feeScaled));
+            const fee = Number(reader.orders.formatFee(t.feeScaled, t.symbolId, t.feeSource));
 
             return {
                 tradeId: t.tradeId ? formatId(t.tradeId) : undefined,
@@ -63,12 +68,7 @@ export function createUserTradeSchemaForReader(reader: CatalogReader) {
                 ),
                 liquidityLabel: t.isMaker ? ("maker" as const) : ("taker" as const),
                 feeSource: t.feeSource,
-                feeSourceLabel: requiredEnumLabel(
-                    FeeSourceCodec.protoToOutput,
-                    t.feeSource,
-                    "UserTradeSchema",
-                    "fee source",
-                ),
+                feeSourceLabel,
                 baseAssetId,
                 qtyDisplay: reader.orders.formatQuantity(t.qtyScaled, t.symbolId),
                 priceDisplay: reader.orders.formatPrice(t.priceTicks, t.symbolId),

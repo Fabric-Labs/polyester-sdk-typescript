@@ -87,20 +87,21 @@ function createMarketOverviewSchemaForReader(reader: CatalogReader) {
             sparklines: v.optional(v.array(MarketOverviewSparklineSchema), []),
         }),
         v.transform((m) => {
-            const [baseAsset = "", quoteAsset = ""] = m.symbol.split("-");
-            const base = reader.ledger.requireAssetBySymbol(baseAsset);
-            const baseScale = base.quantityScale;
             const pair = reader.market.requirePairBySymbolId(m.symbolId);
+            const base = pair.baseAsset;
+            const quote = pair.quoteAsset;
+            const baseScale = base.quantityScale;
+            const quoteScale = quote.quantityScale;
 
             return {
                 symbolId: m.symbolId,
-                pair: m.symbol,
+                pair: pair.symbol,
                 pairListingAt: pair.listingAt ?? null,
                 pairDelistingAt: pair.delistingAt ?? null,
                 status: pair.status,
                 symbol: {
                     base,
-                    quote: reader.ledger.requireAssetBySymbol(quoteAsset),
+                    quote,
                 },
                 lastPrice: int6ToDecimalString(m.lastPriceTicks),
                 lastTradeTsMs: tsNsToMs(m.lastTradeTsNs),
@@ -108,7 +109,7 @@ function createMarketOverviewSchemaForReader(reader: CatalogReader) {
                 high24h: int6ToDecimalString(m.high24hTicks),
                 low24h: int6ToDecimalString(m.low24hTicks),
                 volume24hBase: intToDecimalString(m.volume24hBaseScaled, baseScale),
-                volume24hQuote: int6ToDecimalString(m.volume24hQuoteScaled),
+                volume24hQuote: intToDecimalString(m.volume24hQuoteScaled, quoteScale),
                 listedTsMs: tsNsToMs(m.listedTsNs),
                 bestBid: int6ToDecimalString(m.bestBidTicks),
                 bestBidQty: intToDecimalString(m.bestBidQtyScaled, baseScale),

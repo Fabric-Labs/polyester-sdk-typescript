@@ -1,6 +1,28 @@
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import type { InputToProto, ProtoToOutput } from "../../utils/types.js";
+export {
+    FEE_SOURCE_VALUES,
+    FeeSourceCodec,
+    type FeeSourceValue,
+    ORDER_SIDE_VALUES as TRIGGER_SIDE_VALUES,
+    ORDER_TYPE_VALUES,
+    OrderSideCodec as TriggerSideCodec,
+    type OrderSideValue as TriggerSideValue,
+    OrderTypeCodec,
+    type OrderTypeValue,
+    STP_MODE_VALUES,
+    StpModeCodec,
+    type StpModeValue,
+    TIF_OUTPUT_VALUES,
+    TIF_VALUES,
+    TifCodec,
+    type TifOutputValue,
+    type TifValue,
+    TRIGGER_PRICE_SOURCE_VALUES,
+    TriggerPriceSourceCodec,
+    type TriggerPriceSourceValue,
+} from "../orders/order-enums.codecs.js";
 
 export const TRIGGER_TYPE_VALUES = [
     "stop_loss",
@@ -30,26 +52,6 @@ export type TriggerStatusLabelValue = (typeof TRIGGER_STATUS_LABEL_VALUES)[numbe
 
 export const TRIGGER_EVENT_TYPE_LABEL_VALUES = ["fired", "canceled", "updated"] as const;
 export type TriggerEventTypeLabelValue = (typeof TRIGGER_EVENT_TYPE_LABEL_VALUES)[number];
-
-export const TRIGGER_SIDE_VALUES = ["buy", "sell"] as const;
-export type TriggerSideValue = (typeof TRIGGER_SIDE_VALUES)[number];
-
-export const ORDER_TYPE_VALUES = ["limit", "market"] as const;
-export type OrderTypeValue = (typeof ORDER_TYPE_VALUES)[number];
-
-export const TIF_VALUES = ["gtc", "ioc", "fok"] as const;
-export type TifValue = (typeof TIF_VALUES)[number];
-export const TIF_OUTPUT_VALUES = ["GTC", "IOC", "FOK"] as const;
-export type TifOutputValue = (typeof TIF_OUTPUT_VALUES)[number];
-
-export const FEE_SOURCE_VALUES = ["quote", "received"] as const;
-export type FeeSourceValue = (typeof FEE_SOURCE_VALUES)[number];
-
-export const STP_MODE_VALUES = ["expire_taker", "expire_maker", "expire_both"] as const;
-export type StpModeValue = (typeof STP_MODE_VALUES)[number];
-
-export const TRIGGER_PRICE_SOURCE_VALUES = ["last", "index", "mark"] as const;
-export type TriggerPriceSourceValue = (typeof TRIGGER_PRICE_SOURCE_VALUES)[number];
 
 export const TRIGGER_DIRECTION_VALUES = ["above", "below"] as const;
 export type TriggerDirectionValue = (typeof TRIGGER_DIRECTION_VALUES)[number];
@@ -108,78 +110,6 @@ export const TriggerEventTypeCodec = {
         [Proto.TriggerEventType.CANCELED]: "canceled",
         [Proto.TriggerEventType.UPDATED]: "updated",
     } satisfies ProtoToOutput<Proto.TriggerEventType, TriggerEventTypeLabelValue>,
-} as const;
-
-export const TriggerSideCodec = {
-    inputToProto: {
-        buy: ProtoOrders.Side.BUY,
-        sell: ProtoOrders.Side.SELL,
-    } satisfies InputToProto<TriggerSideValue, ProtoOrders.Side>,
-    protoToOutput: {
-        [ProtoOrders.Side.BUY]: "buy",
-        [ProtoOrders.Side.SELL]: "sell",
-    } satisfies ProtoToOutput<ProtoOrders.Side, TriggerSideValue>,
-} as const;
-
-export const OrderTypeCodec = {
-    inputToProto: {
-        limit: ProtoOrders.OrderType.LIMIT,
-        market: ProtoOrders.OrderType.MARKET,
-    } satisfies InputToProto<OrderTypeValue, ProtoOrders.OrderType>,
-    protoToOutput: {
-        [ProtoOrders.OrderType.LIMIT]: "limit",
-        [ProtoOrders.OrderType.MARKET]: "market",
-    } satisfies ProtoToOutput<ProtoOrders.OrderType, OrderTypeValue>,
-} as const;
-
-export const TifCodec = {
-    inputToProto: {
-        gtc: ProtoOrders.TIF.GTC,
-        ioc: ProtoOrders.TIF.IOC,
-        fok: ProtoOrders.TIF.FOK,
-    } satisfies InputToProto<TifValue, ProtoOrders.TIF>,
-    protoToOutput: {
-        [ProtoOrders.TIF.GTC]: "GTC",
-        [ProtoOrders.TIF.IOC]: "IOC",
-        [ProtoOrders.TIF.FOK]: "FOK",
-    } satisfies ProtoToOutput<ProtoOrders.TIF, TifOutputValue>,
-} as const;
-
-export const FeeSourceCodec = {
-    inputToProto: {
-        quote: ProtoOrders.FeeSource.QUOTE,
-        received: ProtoOrders.FeeSource.RECEIVED,
-    } satisfies InputToProto<FeeSourceValue, ProtoOrders.FeeSource>,
-    protoToOutput: {
-        [ProtoOrders.FeeSource.QUOTE]: "quote",
-        [ProtoOrders.FeeSource.RECEIVED]: "received",
-    } satisfies ProtoToOutput<ProtoOrders.FeeSource, FeeSourceValue>,
-} as const;
-
-export const StpModeCodec = {
-    inputToProto: {
-        expire_taker: ProtoOrders.STPMode.EXPIRE_TAKER,
-        expire_maker: ProtoOrders.STPMode.EXPIRE_MAKER,
-        expire_both: ProtoOrders.STPMode.EXPIRE_BOTH,
-    } satisfies InputToProto<StpModeValue, ProtoOrders.STPMode>,
-    protoToOutput: {
-        [ProtoOrders.STPMode.EXPIRE_TAKER]: "expire_taker",
-        [ProtoOrders.STPMode.EXPIRE_MAKER]: "expire_maker",
-        [ProtoOrders.STPMode.EXPIRE_BOTH]: "expire_both",
-    } satisfies ProtoToOutput<ProtoOrders.STPMode, StpModeValue>,
-} as const;
-
-export const TriggerPriceSourceCodec = {
-    inputToProto: {
-        last: ProtoOrders.TriggerPriceSource.LAST_PRICE,
-        index: ProtoOrders.TriggerPriceSource.INDEX_PRICE,
-        mark: ProtoOrders.TriggerPriceSource.MARK_PRICE,
-    } satisfies InputToProto<TriggerPriceSourceValue, ProtoOrders.TriggerPriceSource>,
-    protoToOutput: {
-        [ProtoOrders.TriggerPriceSource.LAST_PRICE]: "last",
-        [ProtoOrders.TriggerPriceSource.INDEX_PRICE]: "index",
-        [ProtoOrders.TriggerPriceSource.MARK_PRICE]: "mark",
-    } satisfies ProtoToOutput<ProtoOrders.TriggerPriceSource, TriggerPriceSourceValue>,
 } as const;
 
 export const TriggerDirectionCodec = {

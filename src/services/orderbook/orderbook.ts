@@ -8,13 +8,13 @@ import {
 } from "../../shared/request-options.js";
 import {
     createOrderbookSchemas,
+    formatOrderbookLevel,
     GetOrderbookInputSchema,
     type OrderbookLevel,
     type OrderbookData,
 } from "./orderbook.schemas.js";
 import { formatConnectError } from "../../utils/errors.js";
 import { parsePriceTicks } from "../../utils/numbers.js";
-import { int6ToDecimalString } from "../../catalogs/orders-catalog.js";
 import { toBig } from "../../utils/u128.js";
 import * as v from "valibot";
 import { isDev } from "../../utils/is-dev.js";
@@ -127,12 +127,11 @@ export class OrderbookService {
                 if (pa === pb) return 0;
                 return side === "bids" ? (pa > pb ? -1 : 1) : pa < pb ? -1 : 1;
             });
-            return entries.slice(0, limit).map(([priceTicks, qtyScaled]) => ({
-                priceTicks: priceTicks.toString(),
-                qtyScaled: qtyScaled.toString(),
-                priceDisplay: int6ToDecimalString(priceTicks),
-                qtyDisplay: catalog.orders.formatQuantity(qtyScaled, symbolId),
-            }));
+            return entries
+                .slice(0, limit)
+                .map(([priceTicks, qtyScaled]) =>
+                    formatOrderbookLevel(catalog, symbolId, { priceTicks, qtyScaled }),
+                );
         }
 
         function sideToUIBucketed(

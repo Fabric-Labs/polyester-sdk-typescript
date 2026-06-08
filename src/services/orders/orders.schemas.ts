@@ -36,13 +36,20 @@ import { createUserTradeSchemaForReader } from "../trades/trades.schemas.js";
 import { fromU128, u128ToDecimal } from "../../utils/u128.js";
 import { transferTypeNameFor, accountCodeNameFor } from "../../catalogs/index.js";
 import {
+    FEE_SOURCE_VALUES,
+    MODIFY_BEHAVIOR_VALUES,
+    ORDER_STATUS_FILTER_VALUES,
+    ORDER_TYPE_VALUES,
     OrderStatusCodec,
     OrderStatusFilterCodec,
     OrderSideCodec,
     OrderTypeCodec,
+    STP_MODE_VALUES,
+    TIF_VALUES,
     TifCodec,
     FeeSourceCodec,
     StpModeCodec,
+    TRIGGER_PRICE_SOURCE_VALUES,
     OrderOriginScopeCodec,
     OrderTriggerTypeCodec,
     TriggerPriceSourceCodec,
@@ -50,7 +57,7 @@ import {
     ModifyActionCodec,
 } from "./orders.codecs.js";
 
-const OrderStatusSchema = v.picklist(["FILLED", "CANCELED", "REJECTED"]);
+const OrderStatusSchema = v.picklist(ORDER_STATUS_FILTER_VALUES);
 
 const OrderStatusOutputSchema = v.pipe(
     v.enum(ProtoRead.OrderStatus),
@@ -102,12 +109,12 @@ export const OrderHistoryInputSchema = v.object({
 
 export type OrderHistoryInput = v.InferInput<typeof OrderHistoryInputSchema>;
 
-const OrderTypeSchema = v.picklist(["limit", "market"]);
-const TIFSchema = v.picklist(["gtc", "ioc", "fok"]);
-const FeeSourceSchema = v.picklist(["quote", "received"]);
-const STPSchema = v.picklist(["expire_taker", "expire_maker", "expire_both"]);
+const OrderTypeSchema = v.picklist(ORDER_TYPE_VALUES);
+const TIFSchema = v.picklist(TIF_VALUES);
+const FeeSourceSchema = v.picklist(FEE_SOURCE_VALUES);
+const STPSchema = v.picklist(STP_MODE_VALUES);
 
-const TriggerPriceSourceSchema = v.picklist(["last", "index", "mark"]);
+const TriggerPriceSourceSchema = v.picklist(TRIGGER_PRICE_SOURCE_VALUES);
 const ClientOrderIdPattern = /^[A-Za-z0-9._:/-]+$/;
 
 const AttachedTriggerInputSchema = v.object({
@@ -836,7 +843,7 @@ export const CancelAllOrdersResponseSchema = v.pipe(
 
 export type CancelAllOrdersResponse = v.InferOutput<typeof CancelAllOrdersResponseSchema>;
 
-const ModifyBehaviorInputSchema = v.picklist(["AMEND_OR_REPLACE", "AMEND_ONLY", "REPLACE_ONLY"]);
+const ModifyBehaviorInputSchema = v.picklist(MODIFY_BEHAVIOR_VALUES);
 
 const ModifyOrderIdInputSchema = v.pipe(
     v.string(),

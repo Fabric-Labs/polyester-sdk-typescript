@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
 import { createTestCatalog } from "../../testing/catalog.js";
-import { createOrderbookDataSchema, GetOrderbookInputSchema } from "./orderbook.schemas.js";
+import {
+    createOrderbookDataSchema,
+    formatOrderbookLevel,
+    GetOrderbookInputSchema,
+} from "./orderbook.schemas.js";
 
 function seedPairCatalog() {
     const btc = {
@@ -59,6 +63,20 @@ describe("GetOrderbookInputSchema", () => {
 });
 
 describe("OrderbookDataSchema", () => {
+    it("formats standalone levels with the caller-provided pair catalog context", () => {
+        const catalog = seedPairCatalog();
+
+        expect(
+            formatOrderbookLevel(catalog, 1, {
+                priceTicks: 100_000_000n,
+                qtyScaled: 123_456_789n,
+            }),
+        ).toMatchObject({
+            priceDisplay: "100",
+            qtyDisplay: "1.23456789",
+        });
+    });
+
     it("formats price and quantity display fields using the pair catalog", () => {
         const schema = createOrderbookDataSchema(seedPairCatalog().snapshot());
 

@@ -25,12 +25,22 @@ import {
 } from "../../catalogs/index.js";
 import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 import {
+    FEE_SOURCE_VALUES,
+    LADDER_DISTRIBUTION_VALUES,
+    ORDER_TYPE_VALUES,
     TriggerTypeCodec,
     TriggerStatusCodec,
+    STP_MODE_VALUES,
+    TIF_VALUES,
     OrderTypeCodec,
     TifCodec,
     FeeSourceCodec,
     StpModeCodec,
+    TRIGGER_DIRECTION_VALUES,
+    TRIGGER_PRICE_SOURCE_VALUES,
+    TRIGGER_SIDE_VALUES,
+    TRIGGER_STATUS_FILTER_VALUES,
+    TRIGGER_TYPE_VALUES,
     TriggerPriceSourceCodec,
     TriggerDirectionCodec,
     LadderDistributionCodec,
@@ -45,31 +55,15 @@ import {
     TicksStringOrNumberInputSchema,
 } from "../shared.js";
 
-const TriggerTypeSchema = v.picklist([
-    "stop_loss",
-    "take_profit",
-    "trailing_stop",
-    "twap",
-    "ladder",
-]);
-
-const TriggerStatusFilterSchema = v.picklist([
-    "created",
-    "armed",
-    "running",
-    "completed",
-    "cancelled",
-    "failed",
-    "paused",
-]);
-
-const OrderTypeSchema = v.picklist(["limit", "market"]);
-const TIFSchema = v.picklist(["gtc", "ioc", "fok"]);
-const FeeSourceSchema = v.picklist(["quote", "received"]);
-const STPSchema = v.picklist(["expire_taker", "expire_maker", "expire_both"]);
-const TriggerPriceSourceSchema = v.picklist(["last", "index", "mark"]);
-const TriggerDirectionSchema = v.picklist(["above", "below"]);
-const LadderDistributionSchema = v.picklist(["linear"]);
+const TriggerTypeSchema = v.picklist(TRIGGER_TYPE_VALUES);
+const TriggerStatusFilterSchema = v.picklist(TRIGGER_STATUS_FILTER_VALUES);
+const OrderTypeSchema = v.picklist(ORDER_TYPE_VALUES);
+const TIFSchema = v.picklist(TIF_VALUES);
+const FeeSourceSchema = v.picklist(FEE_SOURCE_VALUES);
+const STPSchema = v.picklist(STP_MODE_VALUES);
+const TriggerPriceSourceSchema = v.picklist(TRIGGER_PRICE_SOURCE_VALUES);
+const TriggerDirectionSchema = v.picklist(TRIGGER_DIRECTION_VALUES);
+const LadderDistributionSchema = v.picklist(LADDER_DISTRIBUTION_VALUES);
 
 const TriggerIdInputSchema = idInputSchema("triggerId");
 
@@ -157,7 +151,7 @@ function parseMaxSlippage(
     return { case: "maxSlippageBps", value: bps };
 }
 
-const SideInputSchema = v.picklist(["buy", "sell"]);
+const SideInputSchema = v.picklist(TRIGGER_SIDE_VALUES);
 
 const BaseChildOrderFieldsSchema = v.object({
     subaccountId: v.pipe(

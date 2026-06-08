@@ -56,7 +56,7 @@ const userTrade = {
     feeSource: ProtoOrders.FeeSource.QUOTE,
     qtyScaled: 123_456_789n,
     priceTicks: 1_234_567n,
-    feeScaled: 1_000_000_000_000_000n,
+    feeScaled: 1_000n,
     tsNs: 1_700_000_000_000_000_000n,
     matchId: 22n,
 };
