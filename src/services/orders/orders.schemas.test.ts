@@ -469,6 +469,34 @@ describe("OrderSchema", () => {
         expect(order.status).toBe("partial");
     });
 
+    it("decodes attached risk enum fields through the codecs", () => {
+        seedPairCatalog();
+
+        const order = v.parse(
+            OrderSchema,
+            rawOrder({
+                attachedRisk: {
+                    takeProfit: {
+                        policy: {
+                            triggerPriceTicks: 101_000_000n,
+                            triggerPriceSource: ProtoWrite.TriggerPriceSource.INDEX_PRICE,
+                            orderType: ProtoWrite.OrderType.LIMIT,
+                            limitPriceTicks: 102_500_000n,
+                        },
+                    },
+                    oco: false,
+                },
+            }),
+        );
+
+        expect(order.attachedRisk?.takeProfit).toMatchObject({
+            triggerPrice: "101",
+            triggerPriceSource: "index",
+            orderType: "limit",
+            limitPrice: "102.5",
+        });
+    });
+
     it("rejects unspecified order status values", () => {
         seedPairCatalog();
 

@@ -360,8 +360,6 @@ export type StopLossInput = v.InferInput<typeof StopLossInputSchema>;
 export type TrailingStopInput = v.InferInput<typeof TrailingStopInputSchema>;
 export type RiskPolicyInput = v.InferInput<typeof RiskPolicyInputSchema>;
 
-type TriggerPriceSource = "last" | "index" | "mark";
-type RiskOrderType = "limit" | "market";
 type TrailingDistance =
     | { kind: "ticks"; ticks: string }
     | { kind: "bps"; bps: number }
@@ -450,31 +448,26 @@ const ReadOrderOriginSchema = v.object({
     childSeq: v.number(),
 });
 
-function triggerPriceSourceLabelFor(v: number): TriggerPriceSource {
-    if (v === ProtoWrite.TriggerPriceSource.LAST_PRICE) return "last";
-    if (v === ProtoWrite.TriggerPriceSource.INDEX_PRICE) return "index";
-    if (v === ProtoWrite.TriggerPriceSource.MARK_PRICE) return "mark";
-    throw new Error(`[ReadAttachedRiskSchema]: invalid trigger price source ${v}`);
-}
-
-function riskOrderTypeLabelFor(v: number): RiskOrderType {
-    const label = orderTypeLabelFor(v);
-    if (label !== "limit" && label !== "market") {
-        throw new Error(`[ReadAttachedRiskSchema]: invalid order type ${v}`);
-    }
-    return label;
-}
-
 function formatRiskLeg(
     leg:
         | v.InferOutput<typeof ReadTakeProfitPolicySchema>
         | v.InferOutput<typeof ReadStopLossPolicySchema>,
     symbolId: number,
 ) {
-    const orderType = riskOrderTypeLabelFor(leg.orderType);
+    const orderType = requiredEnumLabel(
+        OrderTypeCodec.protoToOutput,
+        leg.orderType,
+        "ReadAttachedRiskSchema",
+        "order type",
+    );
     return {
         triggerPrice: formatPriceForSymbol(leg.triggerPriceTicks, symbolId),
-        triggerPriceSource: triggerPriceSourceLabelFor(leg.triggerPriceSource),
+        triggerPriceSource: requiredEnumLabel(
+            TriggerPriceSourceCodec.protoToOutput,
+            leg.triggerPriceSource,
+            "ReadAttachedRiskSchema",
+            "trigger price source",
+        ),
         orderType,
         limitPrice:
             orderType === "limit" ? formatPriceForSymbol(leg.limitPriceTicks, symbolId) : undefined,
@@ -538,10 +531,18 @@ function formatAttachedRisk(
                             symbolId,
                         )
                       : undefined,
-              triggerPriceSource: triggerPriceSourceLabelFor(
+              triggerPriceSource: requiredEnumLabel(
+                  TriggerPriceSourceCodec.protoToOutput,
                   risk.trailingStop.policy.triggerPriceSource,
+                  "ReadAttachedRiskSchema",
+                  "trigger price source",
               ),
-              orderType: riskOrderTypeLabelFor(risk.trailingStop.policy.orderType),
+              orderType: requiredEnumLabel(
+                  OrderTypeCodec.protoToOutput,
+                  risk.trailingStop.policy.orderType,
+                  "ReadAttachedRiskSchema",
+                  "order type",
+              ),
           }
         : undefined;
 

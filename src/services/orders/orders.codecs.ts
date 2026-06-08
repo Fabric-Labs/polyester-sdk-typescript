@@ -87,6 +87,10 @@ export const OrderTypeCodec = {
         limit: ProtoWrite.OrderType.LIMIT,
         market: ProtoWrite.OrderType.MARKET,
     } satisfies InputToProto<OrderTypeValue, ProtoWrite.OrderType>,
+    protoToOutput: {
+        [ProtoWrite.OrderType.LIMIT]: "limit",
+        [ProtoWrite.OrderType.MARKET]: "market",
+    } satisfies ProtoToOutput<ProtoWrite.OrderType, OrderTypeValue>,
 } as const;
 
 export const TifCodec = {
@@ -137,6 +141,11 @@ export const TriggerPriceSourceCodec = {
         index: ProtoWrite.TriggerPriceSource.INDEX_PRICE,
         mark: ProtoWrite.TriggerPriceSource.MARK_PRICE,
     } satisfies InputToProto<TriggerPriceSourceValue, ProtoWrite.TriggerPriceSource>,
+    protoToOutput: {
+        [ProtoWrite.TriggerPriceSource.LAST_PRICE]: "last",
+        [ProtoWrite.TriggerPriceSource.INDEX_PRICE]: "index",
+        [ProtoWrite.TriggerPriceSource.MARK_PRICE]: "mark",
+    } satisfies ProtoToOutput<ProtoWrite.TriggerPriceSource, TriggerPriceSourceValue>,
 } as const;
 
 export const ModifyBehaviorCodec = {
