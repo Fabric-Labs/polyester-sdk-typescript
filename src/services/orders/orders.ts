@@ -116,7 +116,7 @@ export class OrdersService {
     }
 
     /**
-     * Cancels one open order in the resolved account scope by order id, with optional symbol routing. Returns the backend cancellation status, order id, and server timestamp fields.
+     * Cancels one open order in the resolved account scope by order id or client order id, with optional symbol routing. Returns the backend cancellation status, order id, and server timestamp fields.
      */
     async cancel(
         input: v.InferInput<typeof CancelOrderInputSchema>,
@@ -128,10 +128,7 @@ export class OrdersService {
 
         const res = await this.#writeClient.cancelOrder(
             {
-                key: {
-                    case: "orderId",
-                    value: validated.orderId,
-                },
+                key: validated.key,
                 symbolId: validated.symbolId,
                 subaccountId: validated.subaccountId,
             },

@@ -318,6 +318,9 @@ describe("OrdersService", () => {
             service.cancel({ orderId: "22", symbolId: 1, subaccountId: "11" }),
         ).resolves.toMatchObject({ status: "cancelled", tsNs: 2 });
         await expect(
+            service.cancel({ clientOrderId: " client-1 ", symbolId: 1, subaccountId: "11" }),
+        ).resolves.toMatchObject({ status: "cancelled", tsNs: 2 });
+        await expect(
             service.modify({
                 clientOrderId: " client-1 ",
                 requestId: " modify-1 ",
@@ -331,10 +334,19 @@ describe("OrdersService", () => {
             tsNs: 3,
         });
 
-        expect(captures.find((call) => call.method === "cancelOrder")?.message).toMatchObject({
+        const cancelRequests = captures.filter((call) => call.method === "cancelOrder");
+        expect(cancelRequests[0]?.message).toMatchObject({
             key: {
                 case: "orderId",
                 value: 22n,
+            },
+            symbolId: 1,
+            subaccountId: 11n,
+        });
+        expect(cancelRequests[1]?.message).toMatchObject({
+            key: {
+                case: "clientOrderId",
+                value: "client-1",
             },
             symbolId: 1,
             subaccountId: 11n,

@@ -682,15 +682,40 @@ function humanizeTerminalReason(raw: string | null | undefined): string {
 
 export type Order = v.InferOutput<typeof OrderSchema>;
 
-export const CancelOrderInputSchema = v.object({
-    orderId: v.pipe(
-        v.string(),
-        v.trim(),
-        v.transform((v) => idToBigInt(v, "orderId")),
-    ),
+const CancelOrderScopeInputEntries = {
     symbolId: v.optional(v.number()),
     subaccountId: optionalSubaccountIdInputSchema(),
-});
+};
+
+export const CancelOrderInputSchema = v.pipe(
+    v.union([
+        v.object({
+            ...CancelOrderScopeInputEntries,
+            orderId: v.pipe(
+                v.string(),
+                v.trim(),
+                v.minLength(1),
+                v.transform((v) => idToBigInt(v, "orderId")),
+            ),
+            clientOrderId: v.optional(v.never()),
+        }),
+        v.object({
+            ...CancelOrderScopeInputEntries,
+            orderId: v.optional(v.never()),
+            clientOrderId: v.pipe(v.string(), v.trim(), v.minLength(1)),
+        }),
+    ]),
+    v.transform(({ orderId, clientOrderId, ...rest }) => {
+        const key =
+            orderId !== undefined
+                ? ({ case: "orderId", value: orderId } as const)
+                : ({ case: "clientOrderId", value: clientOrderId } as const);
+        return {
+            ...rest,
+            key,
+        };
+    }),
+);
 
 export type CancelOrderInput = v.InferInput<typeof CancelOrderInputSchema>;
 

@@ -4,6 +4,7 @@ import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import { setEnrichedPairCatalog } from "../../catalogs/market-data-catalog.js";
 import {
+    CancelOrderInputSchema,
     ModifyOrderInputSchema,
     NewOrderInputSchema,
     OrderHistoryInputSchema,
@@ -187,6 +188,27 @@ describe("ModifyOrderInputSchema", () => {
             newAttachedRisk: {},
             behavior: ProtoWrite.ModifyBehavior.AMEND_OR_REPLACE,
         });
+    });
+});
+
+describe("CancelOrderInputSchema", () => {
+    it("normalizes order id and client order id keys", () => {
+        expect(v.parse(CancelOrderInputSchema, { orderId: "11" })).toMatchObject({
+            key: { case: "orderId", value: 11n },
+        });
+        expect(v.parse(CancelOrderInputSchema, { clientOrderId: " client-1 " })).toMatchObject({
+            key: { case: "clientOrderId", value: "client-1" },
+        });
+    });
+
+    it("requires exactly one cancel key", () => {
+        expect(() => v.parse(CancelOrderInputSchema, {})).toThrow();
+        expect(() =>
+            v.parse(CancelOrderInputSchema, {
+                orderId: "11",
+                clientOrderId: "client-1",
+            }),
+        ).toThrow();
     });
 });
 
