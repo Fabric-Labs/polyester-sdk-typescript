@@ -69,16 +69,11 @@ export const ApiKeysUpdateInputSchema = v.pipe(
             }),
         ),
     }),
-    v.transform((data) => {
-        const { expiresAtIso: expiresAt, ipWhitelist, ...rest } = data;
-        const payload = { ...rest } as typeof rest & {
-            expiresAt?: Timestamp;
-            ipWhitelist?: { cidrs: string[] };
-        };
-        if (expiresAt !== undefined) payload.expiresAt = expiresAt;
-        if (ipWhitelist !== undefined) payload.ipWhitelist = { cidrs: ipWhitelist };
-        return payload;
-    }),
+    v.transform(({ expiresAtIso: expiresAt, ipWhitelist, ...rest }) => ({
+        ...rest,
+        ...(expiresAt !== undefined ? { expiresAt } : {}),
+        ...(ipWhitelist !== undefined ? { ipWhitelist: { cidrs: ipWhitelist } } : {}),
+    })),
 );
 
 export type ApiKeysUpdateInput = v.InferInput<typeof ApiKeysUpdateInputSchema>;
