@@ -13,11 +13,8 @@ import {
     policyMarketScopeLabelFor,
     policyActionLabelFor,
 } from "../shared.codecs.js";
-import { toBigIntOrZero } from "../../../utils/numbers.js";
 import { formatId, idToBigInt } from "../../../utils/base58-id.js";
-import { TimestampSchema } from "../../../shared/schemas.js";
-
-const OptionalNumberDefaultNull = v.optional(v.nullable(v.number()), null);
+import { OptionalNumberToBigIntOrZeroSchema, TimestampSchema } from "../../../shared/schemas.js";
 
 /**
  * From the backend format to a usable frontend/UI format, so big ints to numbers, etc.
@@ -111,18 +108,9 @@ const ApiKeyPolicyInputBaseSchema = v.object({
         v.optional(v.optional(v.array(PolicyActionEnumSchema)), []),
         v.transform((v) => (v ?? []).map((action) => PolicyActionCodec.inputToProto[action])),
     ),
-    maxOrderNotional: v.pipe(
-        OptionalNumberDefaultNull,
-        v.transform((value) => toBigIntOrZero(value)),
-    ),
-    dailyInternalTransferLimit: v.pipe(
-        OptionalNumberDefaultNull,
-        v.transform((value) => toBigIntOrZero(value)),
-    ),
-    dailyWithdrawLimit: v.pipe(
-        OptionalNumberDefaultNull,
-        v.transform((value) => toBigIntOrZero(value)),
-    ),
+    maxOrderNotional: OptionalNumberToBigIntOrZeroSchema,
+    dailyInternalTransferLimit: OptionalNumberToBigIntOrZeroSchema,
+    dailyWithdrawLimit: OptionalNumberToBigIntOrZeroSchema,
     isTemplate: v.optional(v.optional(v.boolean()), false),
     assignToKeyId: v.optional(v.pipe(v.string(), v.trim())),
 });

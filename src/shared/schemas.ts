@@ -1,6 +1,11 @@
 import * as v from "valibot";
 import { formatId, idToBigInt } from "../utils/base58-id.js";
-import { parseOptionalUint64DecimalStrict } from "../utils/numbers.js";
+import {
+    parseOptionalUint64DecimalStrict,
+    toBigIntOrZero,
+    toBpsOrZero,
+    toIntOrZero,
+} from "../utils/numbers.js";
 import { tsNsToMs, tsObjToMs } from "../utils/time.js";
 import type { JsonObject } from "@bufbuild/protobuf";
 
@@ -17,6 +22,23 @@ export const TimestampMsSchema = v.pipe(
 export const OptionalTimestampMsSchema = v.pipe(
     v.optional(TimestampSchema),
     v.transform((value) => tsObjToMs(value)),
+);
+
+export const OptionalNumberDefaultNullSchema = v.optional(v.nullable(v.number()), null);
+
+export const OptionalNumberToBigIntOrZeroSchema = v.pipe(
+    OptionalNumberDefaultNullSchema,
+    v.transform((value) => toBigIntOrZero(value)),
+);
+
+export const OptionalNumberToIntOrZeroSchema = v.pipe(
+    OptionalNumberDefaultNullSchema,
+    v.transform((value) => toIntOrZero(value)),
+);
+
+export const OptionalNumberToBpsOrZeroSchema = v.pipe(
+    OptionalNumberDefaultNullSchema,
+    v.transform((value) => toBpsOrZero(value)),
 );
 
 export const TimestampNsMsSchema = v.pipe(

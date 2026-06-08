@@ -11,7 +11,7 @@ import {
     type EnrichedPairConfig,
 } from "../../catalogs/market-data-catalog.js";
 import { tsNsToMs } from "../../utils/time.js";
-import { timestampToMs } from "../../utils/timestamp.js";
+import { timestampToMs, tsNsToTimestamp } from "../../utils/timestamp.js";
 import { SideFilterCodec } from "./market-data.codecs.js";
 
 interface SymbolMetadata {
@@ -91,8 +91,8 @@ export const GetMarketTradesInputSchema = v.pipe(
         return {
             symbolId: pair.symbolId,
             side: input.side ? SideFilterCodec.inputToProto[input.side] : undefined,
-            startTsNs: input.startTsNs,
-            endTsNs: input.endTsNs,
+            startTime: tsNsToTimestamp(input.startTsNs),
+            endTime: tsNsToTimestamp(input.endTsNs),
             limit: input.limit,
         };
     }),

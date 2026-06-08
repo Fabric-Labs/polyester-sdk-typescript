@@ -8,6 +8,17 @@ export function toTimestamp({ seconds, nanos }: { seconds: bigint; nanos: number
 }
 
 /**
+ * Converts epoch nanoseconds to a proto Timestamp.
+ */
+export function tsNsToTimestamp(tsNs: bigint | undefined): Timestamp | undefined {
+    if (tsNs === undefined) return undefined;
+    return toTimestamp({
+        seconds: tsNs / 1_000_000_000n,
+        nanos: Number(tsNs % 1_000_000_000n),
+    });
+}
+
+/**
  * Converts supported timestamp-like values to epoch milliseconds.
  */
 export function timestampToMs(value: unknown): number | null {

@@ -13,17 +13,18 @@ import {
     policyMarketScopeLabelFor,
     policyActionLabelFor,
 } from "../shared.codecs.js";
-import { bpsToPct, toBigIntOrZero, toBpsOrZero, toIntOrZero } from "../../../utils/numbers.js";
+import { bpsToPct } from "../../../utils/numbers.js";
 import { formatId, idToBigInt } from "../../../utils/base58-id.js";
 import {
+    OptionalNumberToBigIntOrZeroSchema,
+    OptionalNumberToBpsOrZeroSchema,
+    OptionalNumberToIntOrZeroSchema,
     TimestampSchema,
     TimestampMsSchema,
     idInputSchema,
     optionalSubaccountIdInputSchema,
 } from "../../../shared/schemas.js";
 import { tsObjToMs } from "../../../utils/time.js";
-
-const OptionalNumberDefaultNull = v.nullable(v.optional(v.number()));
 
 /**
  * From the backend format to a usable frontend/UI format, so big ints to numbers, etc.
@@ -133,15 +134,15 @@ const SubaccountPolicyInputBaseSchema = v.object({
         v.optional(v.optional(v.array(PolicyActionEnumSchema)), []),
         v.transform((v) => (v ?? []).map((action) => PolicyActionCodec.inputToProto[action])),
     ),
-    globalLeverageCap: v.pipe(OptionalNumberDefaultNull, v.transform(toIntOrZero)),
-    globalExposureCap: v.pipe(OptionalNumberDefaultNull, v.transform(toBigIntOrZero)),
-    maxOrderSize: v.pipe(OptionalNumberDefaultNull, v.transform(toBigIntOrZero)),
-    maxOpenOrders: v.pipe(OptionalNumberDefaultNull, v.transform(toIntOrZero)),
-    maxOpenPositions: v.pipe(OptionalNumberDefaultNull, v.transform(toIntOrZero)),
-    dailyInternalTransferLimit: v.pipe(OptionalNumberDefaultNull, v.transform(toBigIntOrZero)),
-    dailyWithdrawLimit: v.pipe(OptionalNumberDefaultNull, v.transform(toBigIntOrZero)),
-    dailyLossLimit: v.pipe(OptionalNumberDefaultNull, v.transform(toBigIntOrZero)),
-    intradayDrawdownLimitPct: v.pipe(OptionalNumberDefaultNull, v.transform(toBpsOrZero)),
+    globalLeverageCap: OptionalNumberToIntOrZeroSchema,
+    globalExposureCap: OptionalNumberToBigIntOrZeroSchema,
+    maxOrderSize: OptionalNumberToBigIntOrZeroSchema,
+    maxOpenOrders: OptionalNumberToIntOrZeroSchema,
+    maxOpenPositions: OptionalNumberToIntOrZeroSchema,
+    dailyInternalTransferLimit: OptionalNumberToBigIntOrZeroSchema,
+    dailyWithdrawLimit: OptionalNumberToBigIntOrZeroSchema,
+    dailyLossLimit: OptionalNumberToBigIntOrZeroSchema,
+    intradayDrawdownLimitPct: OptionalNumberToBpsOrZeroSchema,
     tradingHalted: v.optional(v.optional(v.boolean()), false),
     liquidationOnly: v.optional(v.optional(v.boolean()), false),
     policyLocked: v.optional(v.optional(v.boolean()), false),
