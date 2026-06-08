@@ -40,6 +40,7 @@ import {
     type MaxSlippageOneof,
     type TrailingDistanceOneof,
 } from "./trigger-child-order.schemas.js";
+import { parseSlippageInput, parseTrailingDistanceInput } from "../trailing-oneof-inputs.js";
 
 const TriggerTypeSchema = v.picklist(TRIGGER_TYPE_VALUES);
 const TriggerStatusFilterSchema = v.picklist(TRIGGER_STATUS_FILTER_VALUES);
@@ -72,62 +73,17 @@ const MaxSlippageInputSchema = v.union([
 function parseTrailingDistance(
     distance: v.InferOutput<typeof TrailingDistanceInputSchema>,
 ): TrailingDistanceOneof {
-    if (distance.kind === "ticks") {
-        const ticks = parseOptionalPositiveIntLike(distance.ticks);
-        if (ticks === undefined || ticks <= 0) {
-            throw new Error("trailingDistanceTicks must be a positive integer");
-        }
-        return { case: "trailingDistanceTicks", value: BigInt(ticks) };
-    }
-    if (distance.kind === "quote") {
-        const ticks = parsePriceTicks(distance.quote, "trailingDistance");
-        return { case: "trailingDistanceTicks", value: ticks };
-    }
-    if (distance.kind === "percent") {
-        const percent =
-            typeof distance.percent === "string" ? parseFloat(distance.percent) : distance.percent;
-        if (!Number.isFinite(percent) || percent <= 0) {
-            throw new Error("trailingDistancePercent must be a positive number");
-        }
-        return { case: "trailingDistanceBps", value: Math.round(percent * 100) };
-    }
-    const bps = parseOptionalPositiveIntLike(distance.bps);
-    if (bps === undefined || bps <= 0) {
-        throw new Error("trailingDistanceBps must be a positive integer");
-    }
-    return { case: "trailingDistanceBps", value: bps };
+    return parseTrailingDistanceInput(distance, "trailingDistance");
 }
 
 function parseMaxSlippage(
     slippage: v.InferOutput<typeof MaxSlippageInputSchema> | undefined,
 ): MaxSlippageOneof {
-    if (!slippage || slippage.kind === "none") {
-        return { case: undefined, value: undefined };
-    }
-    if (slippage.kind === "ticks") {
-        const ticks = parseOptionalPositiveIntLike(slippage.ticks);
-        if (ticks === undefined || ticks <= 0) {
-            throw new Error("maxSlippageTicks must be a positive integer");
-        }
-        return { case: "maxSlippageTicks", value: ticks };
-    }
-    if (slippage.kind === "quote") {
-        const ticks = parsePriceTicks(slippage.quote, "maxSlippage");
-        return { case: "maxSlippageTicks", value: Number(ticks) };
-    }
-    if (slippage.kind === "percent") {
-        const percent =
-            typeof slippage.percent === "string" ? parseFloat(slippage.percent) : slippage.percent;
-        if (!Number.isFinite(percent) || percent <= 0) {
-            throw new Error("maxSlippagePercent must be a positive number");
-        }
-        return { case: "maxSlippageBps", value: Math.round(percent * 100) };
-    }
-    const bps = parseOptionalPositiveIntLike(slippage.bps);
-    if (bps === undefined || bps <= 0) {
-        throw new Error("maxSlippageBps must be a positive integer");
-    }
-    return { case: "maxSlippageBps", value: bps };
+    return parseSlippageInput(slippage, {
+        fieldName: "maxSlippage",
+        ticksCase: "maxSlippageTicks",
+        bpsCase: "maxSlippageBps",
+    });
 }
 
 function stopTriggerInputSchema(

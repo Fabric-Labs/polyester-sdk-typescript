@@ -284,6 +284,90 @@ describe("NewOrderInputSchema", () => {
         ).toThrow();
     });
 
+    it("normalizes attached trailing risk with order-only distance and slippage variants", () => {
+        const schema = createNewOrderInputSchema(seedPairCatalog().snapshot());
+
+        const input = v.parse(schema, {
+            symbol: "BTC-USDT",
+            side: "buy",
+            orderType: "limit",
+            tif: "gtc",
+            price: "100",
+            qty: "0.5",
+            risk: {
+                trailingStop: {
+                    trailingDistance: { kind: "ticks", ticks: "10" },
+                    maxSlippage: { kind: "bps", bps: 25 },
+                },
+            },
+        });
+
+        expect(input.attachedRisk).toMatchObject({
+            stopLeg: {
+                case: "trailingStop",
+                value: {
+                    trailingDistance: { case: "trailingDistanceTicks", value: 10n },
+                    maxSlippage: { case: "maxSlippageBps", value: 25 },
+                },
+            },
+        });
+    });
+
+    it("rejects trigger-only attached trailing risk variants", () => {
+        const schema = createNewOrderInputSchema(seedPairCatalog().snapshot());
+        const baseOrder = {
+            symbol: "BTC-USDT",
+            side: "buy",
+            orderType: "limit",
+            tif: "gtc",
+            price: "100",
+            qty: "0.5",
+        };
+
+        expect(() =>
+            v.parse(schema, {
+                ...baseOrder,
+                risk: {
+                    trailingStop: {
+                        trailingDistance: { kind: "quote", quote: "0.50" },
+                    },
+                },
+            }),
+        ).toThrow();
+        expect(() =>
+            v.parse(schema, {
+                ...baseOrder,
+                risk: {
+                    trailingStop: {
+                        trailingDistance: { kind: "percent", percent: "1.5" },
+                    },
+                },
+            }),
+        ).toThrow();
+        expect(() =>
+            v.parse(schema, {
+                ...baseOrder,
+                risk: {
+                    trailingStop: {
+                        trailingDistance: { kind: "ticks", ticks: "10" },
+                        maxSlippage: { kind: "quote", quote: "0.25" },
+                    },
+                },
+            }),
+        ).toThrow();
+        expect(() =>
+            v.parse(schema, {
+                ...baseOrder,
+                risk: {
+                    trailingStop: {
+                        trailingDistance: { kind: "ticks", ticks: "10" },
+                        maxSlippage: { kind: "percent", percent: "1.25" },
+                    },
+                },
+            }),
+        ).toThrow();
+    });
+
     it("validates quantity and limit price against pair constraints", () => {
         const schema = createNewOrderInputSchema(seedPairCatalog().snapshot());
         const baseOrder = {
@@ -293,7 +377,7 @@ describe("NewOrderInputSchema", () => {
             tif: "gtc",
             price: "100",
             qty: "0.5",
-        } as const;
+        } satisfies NewOrderInput;
 
         expect(() =>
             v.parse(schema, {

@@ -114,7 +114,7 @@ describe("CreateTriggerInputSchema", () => {
     it("normalizes trailing distance and max slippage variants", () => {
         const schema = createCreateTriggerInputSchema(seedPairCatalog().snapshot());
 
-        const input = v.parse(schema, {
+        const quoteDistanceInput = v.parse(schema, {
             triggerType: "trailing_stop",
             symbol: "BTC-USDT",
             side: "buy",
@@ -125,10 +125,28 @@ describe("CreateTriggerInputSchema", () => {
             maxSlippage: { kind: "percent", percent: "1.25" },
             clientTriggerId: "trigger-client-2",
         });
+        const percentDistanceInput = v.parse(schema, {
+            triggerType: "trailing_stop",
+            symbol: "BTC-USDT",
+            side: "buy",
+            orderType: "market",
+            tif: "ioc",
+            qty: "0.25",
+            trailingDistance: { kind: "percent", percent: "1.5" },
+            maxSlippage: { kind: "quote", quote: "0.25" },
+            clientTriggerId: "trigger-client-2",
+        });
 
-        expect(input).toMatchObject({
+        expect(quoteDistanceInput).toMatchObject({
             trailingDistance: { case: "trailingDistanceTicks", value: 500_000n },
             maxSlippage: { case: "maxSlippageBps", value: 125 },
+            activationPriceTicks: 0n,
+            triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
+            triggerDirection: ProtoOrders.TriggerDirection.ABOVE,
+        });
+        expect(percentDistanceInput).toMatchObject({
+            trailingDistance: { case: "trailingDistanceBps", value: 150 },
+            maxSlippage: { case: "maxSlippageTicks", value: 250_000 },
             activationPriceTicks: 0n,
             triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
             triggerDirection: ProtoOrders.TriggerDirection.ABOVE,

@@ -9,7 +9,7 @@ import {
     TicksStringOrNumberInputSchema,
 } from "../shared.js";
 import type { CatalogReader } from "../../catalogs/index.js";
-import { parsePriceTicks, parseOptionalPositiveIntLike } from "../../utils/numbers.js";
+import { parsePriceTicks } from "../../utils/numbers.js";
 import {
     ORDER_TYPE_VALUES,
     OrderTypeCodec,
@@ -17,6 +17,7 @@ import {
     TriggerPriceSourceCodec,
 } from "./orders.codecs.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { parseSlippageInput, parseTrailingDistanceInput } from "../trailing-oneof-inputs.js";
 
 const OrderTypeSchema = v.picklist(ORDER_TYPE_VALUES);
 const TriggerPriceSourceSchema = v.picklist(TRIGGER_PRICE_SOURCE_VALUES);
@@ -82,82 +83,38 @@ export const MarketMaxSlippageSchema = v.union([
 
 const MAX_BPS = 10_000;
 const MAX_INT32 = 2_147_483_647;
+const UNSET_TRAILING_STOP_MAX_SLIPPAGE: ProtoWrite.TrailingStopPolicy["maxSlippage"] = {
+    case: undefined,
+    value: undefined,
+};
 
 function parseTrailingDistance(
     distance: v.InferOutput<typeof TrailingDistanceSchema>,
 ): ProtoWrite.TrailingStopPolicy["trailingDistance"] {
-    if (distance.kind === "ticks") {
-        const ticks = parseOptionalPositiveIntLike(distance.ticks);
-        if (ticks === undefined || ticks <= 0) {
-            throw new Error("trailingStop.trailingDistanceTicks must be a positive integer");
-        }
-        return { case: "trailingDistanceTicks", value: BigInt(ticks) };
-    }
-    if (distance.kind === "bps") {
-        const bps = parseOptionalPositiveIntLike(distance.bps);
-        if (bps === undefined || bps <= 0) {
-            throw new Error("trailingStop.trailingDistanceBps must be a positive integer");
-        }
-        return { case: "trailingDistanceBps", value: bps };
-    }
-    return { case: undefined, value: undefined };
+    return parseTrailingDistanceInput(distance, "trailingStop.trailingDistance");
 }
 
 function parseMaxSlippage(
     slippage: v.InferOutput<typeof MaxSlippageSchema>,
 ): ProtoWrite.TrailingStopPolicy["maxSlippage"] {
-    if (slippage.kind === "ticks") {
-        const ticks = parseOptionalPositiveIntLike(slippage.ticks);
-        if (ticks === undefined || ticks <= 0) {
-            throw new Error("trailingStop.maxSlippageTicks must be a positive integer");
-        }
-        return { case: "maxSlippageTicks", value: ticks };
-    }
-    if (slippage.kind === "bps") {
-        const bps = parseOptionalPositiveIntLike(slippage.bps);
-        if (bps === undefined || bps <= 0) {
-            throw new Error("trailingStop.maxSlippageBps must be a positive integer");
-        }
-        return { case: "maxSlippageBps", value: bps };
-    }
-    return { case: undefined, value: undefined };
+    return parseSlippageInput(slippage, {
+        fieldName: "trailingStop.maxSlippage",
+        ticksCase: "maxSlippageTicks",
+        bpsCase: "maxSlippageBps",
+    });
 }
 
 export function parseMarketMaxSlippage(
     slippage: v.InferOutput<typeof MarketMaxSlippageSchema> | undefined,
 ): ProtoWrite.CreateOrderRequest["marketMaxSlippage"] {
-    if (!slippage || slippage.kind === "none") {
-        return { case: undefined, value: undefined };
-    }
-    if (slippage.kind === "ticks") {
-        const ticks = parseOptionalPositiveIntLike(slippage.ticks);
-        if (ticks === undefined || ticks <= 0 || ticks > MAX_INT32) {
-            throw new Error("marketMaxSlippageTicks must be a positive int32");
-        }
-        return { case: "marketMaxSlippageTicks", value: ticks };
-    }
-    if (slippage.kind === "quote") {
-        const ticks = parsePriceTicks(slippage.quote, "marketMaxSlippage");
-        if (ticks <= 0n || ticks > BigInt(MAX_INT32)) {
-            throw new Error("marketMaxSlippageTicks must be a positive int32");
-        }
-        return { case: "marketMaxSlippageTicks", value: Number(ticks) };
-    }
-    if (slippage.kind === "percent") {
-        const percent =
-            typeof slippage.percent === "string"
-                ? Number.parseFloat(slippage.percent)
-                : slippage.percent;
-        if (!Number.isFinite(percent) || percent <= 0 || percent > 100) {
-            throw new Error("marketMaxSlippagePercent must be between 0 and 100");
-        }
-        return { case: "marketMaxSlippageBps", value: Math.round(percent * 100) };
-    }
-    const bps = parseOptionalPositiveIntLike(slippage.bps);
-    if (bps === undefined || bps <= 0 || bps > MAX_BPS) {
-        throw new Error("marketMaxSlippageBps must be between 1 and 10000");
-    }
-    return { case: "marketMaxSlippageBps", value: bps };
+    return parseSlippageInput(slippage, {
+        fieldName: "marketMaxSlippage",
+        ticksCase: "marketMaxSlippageTicks",
+        bpsCase: "marketMaxSlippageBps",
+        maxTicks: MAX_INT32,
+        maxBps: MAX_BPS,
+        maxPercent: 100,
+    });
 }
 
 const TrailingStopInputSchema = v.pipe(
@@ -172,7 +129,7 @@ const TrailingStopInputSchema = v.pipe(
         trailingDistance: parseTrailingDistance(input.trailingDistance),
         maxSlippage: input.maxSlippage
             ? parseMaxSlippage(input.maxSlippage)
-            : { case: undefined as undefined, value: undefined as undefined },
+            : UNSET_TRAILING_STOP_MAX_SLIPPAGE,
         activationPriceTicks: input.activationPrice
             ? parsePriceTicks(input.activationPrice, "trailingStop.activationPrice")
             : 0n,
