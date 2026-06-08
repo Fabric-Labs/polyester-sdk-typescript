@@ -10,6 +10,7 @@ interface MockSubscriptionRecord {
     state: MockSubscriptionState;
     subscribeCalls: number;
     unsubscribeCalls: number;
+    tokenPromise?: Promise<string>;
     handlers: Map<string, MockEventHandler[]>;
     on: (event: string, handler: MockEventHandler) => void;
     emit: (event: string, ...args: unknown[]) => void;
@@ -24,6 +25,10 @@ interface MockCentrifugeRecord {
     removedSubscriptions: MockSubscriptionRecord[];
     connectCalls: number;
     disconnectCalls: number;
+    tokenPromise?: Promise<string>;
+    handlers: Map<string, MockEventHandler[]>;
+    on: (event: string, handler: MockEventHandler) => void;
+    emit: (event: string, ...args: unknown[]) => void;
 }
 
 const centrifugeState = {
@@ -35,6 +40,7 @@ vi.mock("centrifuge/build/protobuf", () => {
         state: MockSubscriptionState = "unsubscribed";
         subscribeCalls = 0;
         unsubscribeCalls = 0;
+        tokenPromise: Promise<string> | undefined;
         handlers = new Map<string, MockEventHandler[]>();
 
         constructor(
@@ -57,7 +63,8 @@ vi.mock("centrifuge/build/protobuf", () => {
         subscribe(): void {
             this.subscribeCalls++;
             this.state = "subscribed";
-            void this.opts?.getToken?.();
+            this.tokenPromise = this.opts?.getToken?.();
+            this.tokenPromise?.catch(() => {});
         }
 
         unsubscribe(): void {
@@ -71,6 +78,8 @@ vi.mock("centrifuge/build/protobuf", () => {
         removedSubscriptions: MockSubscriptionRecord[] = [];
         connectCalls = 0;
         disconnectCalls = 0;
+        handlers = new Map<string, MockEventHandler[]>();
+        tokenPromise: Promise<string> | undefined;
 
         constructor(
             readonly wsUrl: string,
@@ -79,11 +88,22 @@ vi.mock("centrifuge/build/protobuf", () => {
             centrifugeState.instances.push(this);
         }
 
-        on(): void {}
+        on(event: string, handler: MockEventHandler): void {
+            const handlers = this.handlers.get(event) ?? [];
+            handlers.push(handler);
+            this.handlers.set(event, handlers);
+        }
+
+        emit(event: string, ...args: unknown[]): void {
+            for (const handler of this.handlers.get(event) ?? []) {
+                handler(...args);
+            }
+        }
 
         connect(): void {
             this.connectCalls++;
-            void this.opts.getToken?.();
+            this.tokenPromise = this.opts.getToken?.();
+            this.tokenPromise?.catch(() => {});
         }
 
         newSubscription(channel: string, opts?: TokenOpts): MockSubscriptionRecord {
@@ -212,6 +232,74 @@ describe("RealtimeClient", () => {
         expect(instance.disconnectCalls).toBe(1);
     });
 
+    it("does not manually reconnect when Centrifuge reports a disconnect", () => {
+        const client = createPublicRealtimeClient();
+        client.subscribe("public:test", { onPublication: () => {} });
+        const instance = firstInstance();
+
+        expect(instance.connectCalls).toBe(1);
+
+        instance.emit("disconnected");
+
+        expect(instance.connectCalls).toBe(1);
+    });
+
+    it("preserves public subscriptions when a private subscription upgrades the transport", async () => {
+        const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+            const url = String(input);
+            const token = url.includes("/subscribe") ? "subscription-token" : "connection-token";
+            return Promise.resolve(
+                new Response(JSON.stringify({ token }), {
+                    headers: { "content-type": "application/json" },
+                    status: 200,
+                }),
+            );
+        });
+        let hasAuth = false;
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            getAuthHeaders: () => ({ authorization: "Bearer upgraded-token" }),
+            hasAuth: () => hasAuth,
+        });
+        const onPublicPublication = vi.fn();
+        const onPrivatePublication = vi.fn();
+
+        client.subscribe("public:test", { onPublication: onPublicPublication });
+        const publicInstance = firstInstance();
+        const stalePublicSubscription = firstSubscription(publicInstance);
+
+        hasAuth = true;
+        client.subscribe("private:test", { onPublication: onPrivatePublication });
+        await waitForAsyncTokens();
+
+        expect(centrifugeState.instances).toHaveLength(2);
+        expect(publicInstance.disconnectCalls).toBe(1);
+        const authenticatedInstance = centrifugeState.instances[1];
+        expect(authenticatedInstance?.subscriptions.map((sub) => sub.channel)).toEqual([
+            "public:test",
+            "private:test",
+        ]);
+        expect(client.activeChannels).toBe(2);
+        expect(client.totalConsumers).toBe(2);
+
+        const reattachedPublicSubscription = authenticatedInstance?.subscriptions.find(
+            (sub) => sub.channel === "public:test",
+        );
+        if (!reattachedPublicSubscription) {
+            throw new Error("Expected public subscription to be reattached");
+        }
+
+        reattachedPublicSubscription.emit("publication", { data: "after-upgrade" });
+        stalePublicSubscription.emit("publication", { data: "stale" });
+
+        expect(onPublicPublication).toHaveBeenCalledTimes(1);
+        expect(onPublicPublication).toHaveBeenCalledWith("after-upgrade");
+        expect(onPrivatePublication).not.toHaveBeenCalled();
+        expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+
     it("reports malformed protobuf frames through onError", () => {
         const client = createPublicRealtimeClient();
         const onPublication = vi.fn();
@@ -320,6 +408,88 @@ describe("RealtimeClient", () => {
         expect(subscribeUrl.pathname).toBe("/custom/subscribe");
         expect(subscribeUrl.searchParams.get("existing")).toBe("1");
         expect(subscribeUrl.searchParams.get("channel")).toBe("private:test:orders:proto");
+    });
+
+    it("reports connection token failures to private subscription error handlers", async () => {
+        vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+            const url = String(input);
+            if (url.endsWith("/v1/rt/token")) {
+                return Promise.resolve(new Response(null, { status: 500 }));
+            }
+            return Promise.resolve(
+                new Response(JSON.stringify({ token: "subscription-token" }), {
+                    headers: { "content-type": "application/json" },
+                    status: 200,
+                }),
+            );
+        });
+        const onError = vi.fn();
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            getAuthHeaders: () => ({ authorization: "Bearer scoped-token" }),
+            hasAuth: () => true,
+        });
+
+        client.subscribe("private:test", {
+            onPublication: () => {},
+            onError,
+        });
+        const instance = firstInstance();
+
+        await expect(instance.tokenPromise).rejects.toThrow(
+            "Failed to fetch connection token: 500",
+        );
+        expect(onError).toHaveBeenCalledWith({
+            channel: "private:test",
+            type: "connection_token",
+            error: {
+                code: 0,
+                message: "Failed to fetch connection token: 500",
+            },
+        });
+    });
+
+    it("reports subscription token failures to that channel error handler", async () => {
+        vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+            const url = String(input);
+            if (url.includes("/v1/rt/subscribe")) {
+                return Promise.resolve(new Response(null, { status: 500 }));
+            }
+            return Promise.resolve(
+                new Response(JSON.stringify({ token: "connection-token" }), {
+                    headers: { "content-type": "application/json" },
+                    status: 200,
+                }),
+            );
+        });
+        const onError = vi.fn();
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            getAuthHeaders: () => ({ authorization: "Bearer scoped-token" }),
+            hasAuth: () => true,
+        });
+
+        client.subscribe("private:test", {
+            onPublication: () => {},
+            onError,
+        });
+        const subscription = firstSubscription();
+
+        await expect(subscription.tokenPromise).rejects.toThrow(
+            "Failed to fetch subscription token: 500",
+        );
+        expect(onError).toHaveBeenCalledWith({
+            channel: "private:test",
+            type: "subscription_token",
+            error: {
+                code: 0,
+                message: "Failed to fetch subscription token: 500",
+            },
+        });
     });
 
     it("keeps realtime state scoped to each client instance", async () => {

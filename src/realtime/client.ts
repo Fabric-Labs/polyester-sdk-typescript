@@ -45,6 +45,7 @@ export interface ConnectChannelParams<T extends DescMessage> {
 type ConnectionHandler = { onConnected?: () => void; onDisconnected?: () => void };
 type PublicationHandler<T = unknown> = (data: T) => void;
 type ErrorHandler = (ctx: SubscriptionErrorContext) => void;
+type RealtimeClientMode = "public" | "authenticated";
 
 function toSubscriptionError(error: unknown): SubscriptionErrorContext["error"] {
     if (error instanceof Error) return { code: 0, message: error.message };
@@ -65,7 +66,10 @@ function createSubscriptionErrorContext(
 }
 
 interface SharedSubscription {
-    sub: Subscription;
+    channel: string;
+    sub: Subscription | null;
+    client: Centrifuge | null;
+    attachmentEpoch: number;
     consumers: number;
     publicationHandlers: Set<PublicationHandler>;
     subscribedHandlers: Set<() => void>;
@@ -75,7 +79,8 @@ interface SharedSubscription {
 
 export class RealtimeClient {
     #client: Centrifuge | null = null;
-    #clientUsesAuth = false;
+    #clientMode: RealtimeClientMode | null = null;
+    #clientEpoch = 0;
     #connectionHandlers = new Set<ConnectionHandler>();
     #sharedSubs = new Map<string, SharedSubscription>();
     #pendingTeardowns = new Map<string, SharedSubscription>();
@@ -95,18 +100,42 @@ export class RealtimeClient {
         return this.#config.getAuthHeaders();
     }
 
-    #subscriptionOpts(channel: string) {
-        if (!channel.startsWith("private:")) return undefined;
+    #emitSubscriptionError(shared: SharedSubscription, type: string, error: unknown): void {
+        const ctx = createSubscriptionErrorContext(shared.channel, type, error);
+        for (const handler of shared.errorHandlers) {
+            handler(ctx);
+        }
+    }
+
+    #emitConnectionTokenError(error: unknown): void {
+        for (const shared of this.#sharedSubs.values()) {
+            if (shared.channel.startsWith("private:")) {
+                this.#emitSubscriptionError(shared, "connection_token", error);
+            }
+        }
+    }
+
+    #subscriptionOpts(shared: SharedSubscription, attachmentEpoch: number) {
+        if (!shared.channel.startsWith("private:")) return undefined;
         return {
             getToken: async () => {
-                const headers = await this.#getAuthHeaders();
-                const url = new URL(this.#config.subscribeEndpoint);
-                url.searchParams.set("channel", channel);
-                const res = await realtimeFetch(url, { headers });
-                if (!res.ok) throw new Error(`Failed to fetch subscription token: ${res.status}`);
-                const json = (await res.json()) as { token?: string };
-                if (!json?.token) throw new Error("No token found");
-                return json.token;
+                try {
+                    const headers = await this.#getAuthHeaders();
+                    const url = new URL(this.#config.subscribeEndpoint);
+                    url.searchParams.set("channel", shared.channel);
+                    const res = await realtimeFetch(url, { headers });
+                    if (!res.ok) {
+                        throw new Error(`Failed to fetch subscription token: ${res.status}`);
+                    }
+                    const json = (await res.json()) as { token?: string };
+                    if (!json?.token) throw new Error("No token found");
+                    return json.token;
+                } catch (error) {
+                    if (shared.attachmentEpoch === attachmentEpoch) {
+                        this.#emitSubscriptionError(shared, "subscription_token", error);
+                    }
+                    throw error;
+                }
             },
         };
     }
@@ -115,45 +144,136 @@ export class RealtimeClient {
         return this.#config.hasAuth();
     }
 
-    #getOrCreateClient(): Centrifuge {
-        if (this.#client) {
-            return this.#client;
-        }
-
-        const usesAuth = this.#hasAuth();
-        const opts = usesAuth
-            ? {
-                  getToken: async () => {
-                      const headers = await this.#getAuthHeaders();
-                      const res = await realtimeFetch(this.#config.tokenEndpoint, { headers });
-                      if (!res.ok)
-                          throw new Error(`Failed to fetch connection token: ${res.status}`);
-                      const json = (await res.json()) as { token?: string };
-                      if (!json?.token) throw new Error("No connection token found");
-                      return json.token;
-                  },
-              }
-            : {};
+    #createClient(mode: RealtimeClientMode): Centrifuge {
+        const epoch = ++this.#clientEpoch;
+        const opts =
+            mode === "authenticated"
+                ? {
+                      getToken: async () => {
+                          try {
+                              const headers = await this.#getAuthHeaders();
+                              const res = await realtimeFetch(this.#config.tokenEndpoint, {
+                                  headers,
+                              });
+                              if (!res.ok) {
+                                  throw new Error(
+                                      `Failed to fetch connection token: ${res.status}`,
+                                  );
+                              }
+                              const json = (await res.json()) as { token?: string };
+                              if (!json?.token) throw new Error("No connection token found");
+                              return json.token;
+                          } catch (error) {
+                              if (this.#clientEpoch === epoch) {
+                                  this.#emitConnectionTokenError(error);
+                              }
+                              throw error;
+                          }
+                      },
+                  }
+                : {};
 
         this.#client = new Centrifuge(this.#config.wsUrl, opts);
-        this.#clientUsesAuth = usesAuth;
+        this.#clientMode = mode;
 
         this.#client.on("connected", () => {
+            if (this.#clientEpoch !== epoch) return;
             for (const h of this.#connectionHandlers) h.onConnected?.();
         });
         this.#client.on("disconnected", () => {
+            if (this.#clientEpoch !== epoch) return;
             for (const h of this.#connectionHandlers) h.onDisconnected?.();
-            if (this.#sharedSubs.size > 0 && this.#client) {
-                try {
-                    this.#client.connect();
-                } catch {
-                    // noop
-                }
-            }
         });
 
         this.#client.connect();
         return this.#client;
+    }
+
+    #ensureClientMode(mode: RealtimeClientMode): Centrifuge {
+        if (this.#client && this.#clientMode === mode) return this.#client;
+
+        if (!this.#client) return this.#createClient(mode);
+        this.#replaceClient(mode);
+        if (!this.#client) throw new Error("Failed to initialize realtime client");
+        return this.#client;
+    }
+
+    #ensureClientForChannel(channel: string): Centrifuge {
+        if (channel.startsWith("private:")) {
+            if (!this.#hasAuth()) {
+                throw new Error(
+                    `Cannot subscribe to private channel "${channel}" without authentication`,
+                );
+            }
+            return this.#ensureClientMode("authenticated");
+        }
+
+        if (this.#client) return this.#client;
+        return this.#ensureClientMode(this.#hasAuth() ? "authenticated" : "public");
+    }
+
+    #replaceClient(mode: RealtimeClientMode): void {
+        const oldClient = this.#client;
+        this.#client = null;
+        this.#clientMode = null;
+        this.#clientEpoch++;
+
+        for (const shared of this.#sharedSubs.values()) {
+            shared.sub = null;
+            shared.client = null;
+            shared.attachmentEpoch++;
+        }
+        for (const shared of this.#pendingTeardowns.values()) {
+            shared.sub = null;
+            shared.client = null;
+            shared.attachmentEpoch++;
+        }
+
+        try {
+            oldClient?.disconnect();
+        } catch {
+            // noop
+        }
+
+        this.#createClient(mode);
+        for (const shared of this.#sharedSubs.values()) {
+            this.#attachSubscription(shared);
+        }
+    }
+
+    #attachSubscription(shared: SharedSubscription): void {
+        if (shared.sub) return;
+
+        const client = this.#ensureClientForChannel(shared.channel);
+        if (shared.sub) return;
+
+        const attachmentEpoch = shared.attachmentEpoch + 1;
+        shared.attachmentEpoch = attachmentEpoch;
+        const sub = client.newSubscription(
+            shared.channel,
+            this.#subscriptionOpts(shared, attachmentEpoch),
+        );
+        shared.sub = sub;
+        shared.client = client;
+
+        sub.on("publication", (ctx: PublicationContext) => {
+            if (shared.sub !== sub || shared.attachmentEpoch !== attachmentEpoch) return;
+            for (const handler of shared.publicationHandlers) handler(ctx.data);
+        });
+        sub.on("subscribed", () => {
+            if (shared.sub !== sub || shared.attachmentEpoch !== attachmentEpoch) return;
+            for (const handler of shared.subscribedHandlers) handler();
+        });
+        sub.on("unsubscribed", () => {
+            if (shared.sub !== sub || shared.attachmentEpoch !== attachmentEpoch) return;
+            for (const handler of shared.unsubscribedHandlers) handler();
+        });
+        sub.on("error", (ctx) => {
+            if (shared.sub !== sub || shared.attachmentEpoch !== attachmentEpoch) return;
+            for (const handler of shared.errorHandlers) handler(ctx);
+        });
+
+        sub.subscribe();
     }
 
     #getOrCreateSubscription(channel: string): SharedSubscription {
@@ -164,32 +284,19 @@ export class RealtimeClient {
         if (pending) {
             this.#pendingTeardowns.delete(channel);
             this.#sharedSubs.set(channel, pending);
-            if (pending.sub.state !== "subscribed") {
+            if (!pending.sub) {
+                this.#attachSubscription(pending);
+            } else if (pending.sub.state !== "subscribed") {
                 pending.sub.subscribe();
             }
             return pending;
         }
 
-        if (channel.startsWith("private:") && !this.#hasAuth()) {
-            throw new Error(
-                `Cannot subscribe to private channel "${channel}" without authentication`,
-            );
-        }
-
-        if (
-            channel.startsWith("private:") &&
-            this.#client &&
-            !this.#clientUsesAuth &&
-            this.#hasAuth()
-        ) {
-            this.#disconnect();
-        }
-
-        const client = this.#getOrCreateClient();
-        const sub = client.newSubscription(channel, this.#subscriptionOpts(channel));
-
         const shared: SharedSubscription = {
-            sub,
+            channel,
+            sub: null,
+            client: null,
+            attachmentEpoch: 0,
             consumers: 0,
             publicationHandlers: new Set(),
             subscribedHandlers: new Set(),
@@ -197,21 +304,13 @@ export class RealtimeClient {
             errorHandlers: new Set(),
         };
 
-        sub.on("publication", (ctx: PublicationContext) => {
-            for (const handler of shared.publicationHandlers) handler(ctx.data);
-        });
-        sub.on("subscribed", () => {
-            for (const handler of shared.subscribedHandlers) handler();
-        });
-        sub.on("unsubscribed", () => {
-            for (const handler of shared.unsubscribedHandlers) handler();
-        });
-        sub.on("error", (ctx) => {
-            for (const handler of shared.errorHandlers) handler(ctx);
-        });
-
-        sub.subscribe();
         this.#sharedSubs.set(channel, shared);
+        try {
+            this.#attachSubscription(shared);
+        } catch (error) {
+            this.#sharedSubs.delete(channel);
+            throw error;
+        }
         return shared;
     }
 
@@ -238,7 +337,14 @@ export class RealtimeClient {
         }
     }
 
-    #teardownSubscription(sub: Subscription): void {
+    #teardownSubscription(shared: SharedSubscription): void {
+        const sub = shared.sub;
+        const client = shared.client;
+        shared.sub = null;
+        shared.client = null;
+        shared.attachmentEpoch++;
+        if (!sub) return;
+
         try {
             if (sub.state !== "unsubscribed") {
                 sub.unsubscribe();
@@ -247,25 +353,26 @@ export class RealtimeClient {
             // noop
         }
         try {
-            this.#client?.removeSubscription?.(sub);
+            client?.removeSubscription?.(sub);
         } catch {
             // noop
         }
     }
 
     #disconnect(): void {
-        if (!this.#client) return;
+        const client = this.#client;
 
         this.#pendingTeardowns.clear();
         this.#sharedSubs.clear();
+        this.#client = null;
+        this.#clientMode = null;
+        this.#clientEpoch++;
 
         try {
-            this.#client.disconnect();
+            client?.disconnect();
         } catch {
             // noop
         }
-        this.#client = null;
-        this.#clientUsesAuth = false;
         this.#connectionHandlers.clear();
     }
 
@@ -336,7 +443,7 @@ export class RealtimeClient {
                     if (this.#pendingTeardowns.get(channel) !== shared) return;
                     this.#pendingTeardowns.delete(channel);
 
-                    this.#teardownSubscription(shared.sub);
+                    this.#teardownSubscription(shared);
 
                     if (this.#sharedSubs.size === 0 && this.#pendingTeardowns.size === 0) {
                         this.#disconnect();
