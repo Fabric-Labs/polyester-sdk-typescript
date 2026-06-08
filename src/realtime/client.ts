@@ -5,7 +5,10 @@ import {
     type PublicationContext,
     type Subscription,
 } from "centrifuge/build/protobuf";
+import { makeFetch } from "../shared/transports.js";
 import { decodeProtoFrame } from "../utils/streams.js";
+
+const realtimeFetch = makeFetch();
 
 export interface RealtimeConfig {
     wsUrl: string;
@@ -99,7 +102,7 @@ export class RealtimeClient {
                 const headers = await this.#getAuthHeaders();
                 const url = new URL(this.#config.subscribeEndpoint);
                 url.searchParams.set("channel", channel);
-                const res = await fetch(url, { headers });
+                const res = await realtimeFetch(url, { headers });
                 if (!res.ok) throw new Error(`Failed to fetch subscription token: ${res.status}`);
                 const json = (await res.json()) as { token?: string };
                 if (!json?.token) throw new Error("No token found");
@@ -122,7 +125,7 @@ export class RealtimeClient {
             ? {
                   getToken: async () => {
                       const headers = await this.#getAuthHeaders();
-                      const res = await fetch(this.#config.tokenEndpoint, { headers });
+                      const res = await realtimeFetch(this.#config.tokenEndpoint, { headers });
                       if (!res.ok)
                           throw new Error(`Failed to fetch connection token: ${res.status}`);
                       const json = (await res.json()) as { token?: string };

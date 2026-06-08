@@ -303,15 +303,18 @@ describe("RealtimeClient", () => {
 
         const calls = fetchMock.mock.calls.map(([input, init]) => ({
             url: String(input),
-            headers: init?.headers,
+            headers: Object.fromEntries(new Headers(init?.headers).entries()),
+            redirect: init?.redirect,
         }));
         expect(calls[0]).toEqual({
             url: "https://api.example.test/v1/rt/token",
             headers: { authorization: "Bearer scoped-token" },
+            redirect: "manual",
         });
 
         const subscribeCall = calls[1];
         expect(subscribeCall?.headers).toEqual({ authorization: "Bearer scoped-token" });
+        expect(subscribeCall?.redirect).toBe("manual");
         const subscribeUrl = new URL(subscribeCall?.url ?? "");
         expect(subscribeUrl.origin).toBe("https://api.example.test");
         expect(subscribeUrl.pathname).toBe("/custom/subscribe");

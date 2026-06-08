@@ -131,7 +131,7 @@ const SubaccountPolicyInputBaseSchema = v.object({
     ),
     actions: v.pipe(
         v.optional(v.optional(v.array(PolicyActionEnumSchema)), []),
-        v.transform((v) => (v ?? []).map((action) => PolicyActionCodec.outputToProto[action])),
+        v.transform((v) => (v ?? []).map((action) => PolicyActionCodec.inputToProto[action])),
     ),
     globalLeverageCap: v.pipe(OptionalNumberDefaultNull, v.transform(toIntOrZero)),
     globalExposureCap: v.pipe(OptionalNumberDefaultNull, v.transform(toBigIntOrZero)),

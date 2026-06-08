@@ -24,7 +24,63 @@ function transportWithMessage(
 }
 
 describe("OrdersService", () => {
-    it("returns null when get order response omits the order", async () => {
+    it("generates a request ID for cancelAll when omitted", async () => {
+        let request: Record<string, unknown> | undefined;
+        const service = new OrdersService(
+            transportWithMessage(
+                {
+                    status: "ok",
+                    matchedOrders: 2,
+                    submittedCancels: 2,
+                    failedCancels: 0,
+                    tsNs: 1000000n,
+                },
+                (message) => {
+                    request = message;
+                },
+            ),
+            {} as RealtimeClient,
+        );
+
+        await expect(service.cancelAll({ symbol: " BTC-USDT " })).resolves.toMatchObject({
+            status: "ok",
+            matchedOrders: 2,
+            submittedCancels: 2,
+            failedCancels: 0,
+            ts: 1,
+        });
+
+        expect(request).toMatchObject({
+            symbol: "BTC-USDT",
+        });
+        expect(request?.requestId).toEqual(expect.any(String));
+        expect((request?.requestId as string).length).toBeGreaterThan(0);
+    });
+
+    it("preserves a caller-provided request ID for cancelAll", async () => {
+        let request: Record<string, unknown> | undefined;
+        const service = new OrdersService(
+            transportWithMessage(
+                {
+                    status: "ok",
+                    matchedOrders: 0,
+                    submittedCancels: 0,
+                    failedCancels: 0,
+                    tsNs: 1000000n,
+                },
+                (message) => {
+                    request = message;
+                },
+            ),
+            {} as RealtimeClient,
+        );
+
+        await service.cancelAll({ requestId: " retry-cancel-all-1 " });
+
+        expect(request?.requestId).toBe("retry-cancel-all-1");
+    });
+
+    it("returns null when get order details response omits the order", async () => {
         let request: Record<string, unknown> | undefined;
         const service = new OrdersService(
             transportWithMessage({}, (message) => {
@@ -33,7 +89,7 @@ describe("OrdersService", () => {
             {} as RealtimeClient,
         );
 
-        await expect(service.get({ clientOrderId: " client-1 " })).resolves.toBeNull();
+        await expect(service.getDetails({ clientOrderId: " client-1 " })).resolves.toBeNull();
 
         expect(request).toMatchObject({
             includeAttachedRisk: true,

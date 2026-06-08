@@ -55,24 +55,28 @@ export function isAbortError(err: unknown): boolean {
 }
 
 export function makeFetch(): typeof fetch {
-    // @ts-expect-error - this is fine.
-    return async (input, init) => {
-        // Normalize headers into a mutable Headers object
-        const headers = new Headers(init?.headers);
+    const wrappedFetch = Object.assign(
+        async (input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => {
+            // Normalize headers into a mutable Headers object
+            const headers = new Headers(init?.headers);
 
-        try {
-            const res = await fetch(input, {
-                ...init,
-                headers,
-                redirect: "manual",
-            });
+            try {
+                const res = await fetch(input, {
+                    ...init,
+                    headers,
+                    redirect: "manual",
+                });
 
-            return res;
-        } catch (err) {
-            if (isAbortError(err)) throw err;
-            throw new TransportError("Transport request failed", { cause: err });
-        }
-    };
+                return res;
+            } catch (err) {
+                if (isAbortError(err)) throw err;
+                throw new TransportError("Transport request failed", { cause: err });
+            }
+        },
+        fetch,
+    );
+
+    return wrappedFetch;
 }
 
 export function createTransports(config: TransportConfig): Transports {
@@ -110,7 +114,7 @@ async function sha256Hex(bytes: Uint8Array): Promise<string> {
     if (typeof crypto === "undefined" || !crypto.subtle) {
         throw new Error("SHA-256 not available in this environment");
     }
-    const hash = await crypto.subtle.digest("SHA-256", bytes.buffer as ArrayBuffer);
+    const hash = await crypto.subtle.digest("SHA-256", bytes.slice());
     return Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 

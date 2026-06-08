@@ -109,7 +109,7 @@ export const CreateApiKeyPolicyInputSchema = v.object({
     ),
     actions: v.pipe(
         v.optional(v.optional(v.array(PolicyActionEnumSchema)), []),
-        v.transform((v) => (v ?? []).map((action) => PolicyActionCodec.outputToProto[action])),
+        v.transform((v) => (v ?? []).map((action) => PolicyActionCodec.inputToProto[action])),
     ),
     maxOrderNotional: v.pipe(OptionalNumberDefaultNull, v.transform(toBigIntOrZero)),
     dailyInternalTransferLimit: v.pipe(OptionalNumberDefaultNull, v.transform(toBigIntOrZero)),

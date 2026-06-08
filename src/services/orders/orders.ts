@@ -23,20 +23,26 @@ import {
     CancelAllOrdersResponseSchema,
     type CancelAllOrdersResponse,
     type Order,
-    GetOrderInputSchema,
-    GetOrderResponseSchema,
+    GetOrderDetailsInputSchema,
+    OrderDetailsSchema,
     CreateOrderResultSchema,
     ModifyOrderInputSchema,
     ModifyOrderResultSchema,
     type CreateOrderResult,
     type ModifyOrderResult,
+    type OrderDetails,
 } from "./orders.schemas.js";
 
 interface SubscribeOrdersInput extends BaseSubscribeInput<Order> {
     accountId: string;
 }
 
-type GetOrderResponse = v.InferOutput<typeof GetOrderResponseSchema>;
+function createMutationRequestId(): string {
+    return (
+        globalThis.crypto?.randomUUID?.() ??
+        `req_${Date.now()}_${Math.random().toString(16).slice(2)}`
+    );
+}
 
 export class OrdersService {
     #readClient: Client<typeof ProtoRead.OrdersReadService>;
@@ -83,6 +89,12 @@ export class OrdersService {
         };
     }
 
+    /**
+     * Create an order.
+     *
+     * Order creation uses `clientOrderId` as the caller-controlled idempotency key. Provide a
+     * stable `clientOrderId` when retrying the same logical create across attempts.
+     */
     async create(
         input: v.InferInput<typeof NewOrderInputSchema>,
         options?: PolyesterMutationOptions,
@@ -119,16 +131,19 @@ export class OrdersService {
         return v.parse(CancelOrderResultSchema, res);
     }
 
+    /**
+     * Modify an order.
+     *
+     * A `requestId` is generated when omitted. Provide a stable `requestId` when retrying the
+     * same logical modification across attempts.
+     */
     async modify(
         input: v.InferInput<typeof ModifyOrderInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<ModifyOrderResult> {
         const resolved = {
             ...resolveSubaccountScopedInput(input, this.#resolver),
-            requestId:
-                input.requestId ??
-                globalThis.crypto?.randomUUID?.() ??
-                `req_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+            requestId: input.requestId ?? createMutationRequestId(),
         };
         const validated = v.parse(ModifyOrderInputSchema, resolved);
         const res = await this.#writeClient.modifyOrder(
@@ -138,11 +153,20 @@ export class OrdersService {
         return v.parse(ModifyOrderResultSchema, res);
     }
 
+    /**
+     * Cancel all matching orders.
+     *
+     * A `requestId` is generated when omitted. Provide a stable `requestId` when retrying the
+     * same logical cancellation across attempts.
+     */
     async cancelAll(
         input: v.InferInput<typeof CancelAllOrdersInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<CancelAllOrdersResponse> {
-        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolved = {
+            ...resolveSubaccountScopedInput(input, this.#resolver),
+            requestId: input.requestId ?? createMutationRequestId(),
+        };
         const validated = v.parse(CancelAllOrdersInputSchema, resolved);
         const res = await this.#writeClient.cancelAllOrders(
             removeUndefined(validated),
@@ -151,18 +175,18 @@ export class OrdersService {
         return v.parse(CancelAllOrdersResponseSchema, res);
     }
 
-    async get(
-        input: v.InferInput<typeof GetOrderInputSchema>,
+    async getDetails(
+        input: v.InferInput<typeof GetOrderDetailsInputSchema>,
         options?: PolyesterRequestOptions,
-    ): Promise<GetOrderResponse | null> {
+    ): Promise<OrderDetails | null> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
-        const validatedInput = v.parse(GetOrderInputSchema, resolved);
+        const validatedInput = v.parse(GetOrderDetailsInputSchema, resolved);
         const res = await this.#readClient.getOrder(
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
         if (!res.order) return null;
-        return v.parse(GetOrderResponseSchema, res);
+        return v.parse(OrderDetailsSchema, res);
     }
 
     subscribe(input: SubscribeOrdersInput): () => void {

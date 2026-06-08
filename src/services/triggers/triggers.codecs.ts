@@ -70,7 +70,7 @@ export const TriggerTypeCodec = {
         twap: Proto.TriggerType.TWAP,
         ladder: Proto.TriggerType.LADDER,
     } satisfies InputToProto<TriggerTypeValue, Proto.TriggerType>,
-    protoToLabel: {
+    protoToOutput: {
         [Proto.TriggerType.STOP_LOSS]: "stop_loss",
         [Proto.TriggerType.TAKE_PROFIT]: "take_profit",
         [Proto.TriggerType.TRAILING_STOP]: "trailing_stop",
@@ -80,7 +80,7 @@ export const TriggerTypeCodec = {
 } as const;
 
 export const TriggerStatusCodec = {
-    filterToProto: {
+    inputToProto: {
         created: Proto.TriggerStatus.CREATED,
         armed: Proto.TriggerStatus.ARMED,
         running: Proto.TriggerStatus.RUNNING,
@@ -89,7 +89,7 @@ export const TriggerStatusCodec = {
         failed: Proto.TriggerStatus.FAILED,
         paused: Proto.TriggerStatus.PAUSED,
     } satisfies InputToProto<TriggerStatusFilterValue, Proto.TriggerStatus>,
-    protoToLabel: {
+    protoToOutput: {
         [Proto.TriggerStatus.CREATED]: "created",
         [Proto.TriggerStatus.ARMED]: "armed",
         [Proto.TriggerStatus.RUNNING]: "running",
@@ -101,7 +101,7 @@ export const TriggerStatusCodec = {
 } as const;
 
 export const TriggerEventTypeCodec = {
-    protoToLabel: {
+    protoToOutput: {
         [Proto.TriggerEventType.FIRED]: "fired",
         [Proto.TriggerEventType.CANCELED]: "canceled",
         [Proto.TriggerEventType.UPDATED]: "updated",
@@ -151,7 +151,7 @@ export const TriggerPriceSourceCodec = {
         index: ProtoOrders.TriggerPriceSource.INDEX_PRICE,
         mark: ProtoOrders.TriggerPriceSource.MARK_PRICE,
     } satisfies InputToProto<TriggerPriceSourceValue, ProtoOrders.TriggerPriceSource>,
-    protoToLabel: {
+    protoToOutput: {
         [ProtoOrders.TriggerPriceSource.LAST_PRICE]: "last",
         [ProtoOrders.TriggerPriceSource.INDEX_PRICE]: "index",
         [ProtoOrders.TriggerPriceSource.MARK_PRICE]: "mark",
@@ -163,7 +163,7 @@ export const TriggerDirectionCodec = {
         above: ProtoOrders.TriggerDirection.ABOVE,
         below: ProtoOrders.TriggerDirection.BELOW,
     } satisfies InputToProto<TriggerDirectionValue, ProtoOrders.TriggerDirection>,
-    protoToLabel: {
+    protoToOutput: {
         [ProtoOrders.TriggerDirection.ABOVE]: "above",
         [ProtoOrders.TriggerDirection.BELOW]: "below",
     } satisfies ProtoToOutput<ProtoOrders.TriggerDirection, TriggerDirectionValue>,
@@ -173,7 +173,7 @@ export const LadderDistributionCodec = {
     inputToProto: {
         linear: Proto.LadderDistribution.LINEAR,
     } satisfies InputToProto<LadderDistributionValue, Proto.LadderDistribution>,
-    protoToLabel: {
+    protoToOutput: {
         [Proto.LadderDistribution.LINEAR]: "linear",
         [Proto.LadderDistribution.GEOMETRIC]: "geometric",
         [Proto.LadderDistribution.WEIGHTED_FAVORABLE]: "weighted_favorable",

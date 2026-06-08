@@ -5,7 +5,7 @@ export type ProtoToOutput<ProtoEnum extends number, OutputEnum> = Record<
     OutputEnum
 >;
 
-export type InputToProto<OutputEnum extends PropertyKey, ProtoEnum extends number> = Record<
-    OutputEnum,
+export type InputToProto<InputValue extends PropertyKey, ProtoEnum extends number> = Record<
+    InputValue,
     ProtoEnum
 >;

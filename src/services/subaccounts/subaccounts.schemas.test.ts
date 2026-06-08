@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 
 import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
-import { SubaccountSchema, UpdateSubaccountInputSchema } from "./subaccounts.schemas.js";
+import {
+    SubaccountMutationResultSchema,
+    SubaccountSchema,
+    UpdateSubaccountInputSchema,
+} from "./subaccounts.schemas.js";
 
 const baseSubaccount = {
     id: 1n,
@@ -41,5 +45,9 @@ describe("subaccount status schemas", () => {
                 status: "frozen",
             }),
         ).toThrow();
+    });
+
+    it("keeps empty mutation responses as result objects", () => {
+        expect(v.parse(SubaccountMutationResultSchema, {})).toEqual({});
     });
 });

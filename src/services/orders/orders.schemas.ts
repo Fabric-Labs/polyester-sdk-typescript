@@ -385,7 +385,7 @@ const ReadOrderOriginSchema = v.object({
         v.enum(ProtoRead.OrderOriginScope),
         v.transform((v) =>
             requiredEnumLabel(
-                OrderOriginScopeCodec.protoToLabel,
+                OrderOriginScopeCodec.protoToOutput,
                 v,
                 "ReadOrderOriginSchema",
                 "scope",
@@ -396,7 +396,7 @@ const ReadOrderOriginSchema = v.object({
         v.enum(ProtoRead.OrderTriggerType),
         v.transform((v) =>
             requiredEnumLabel(
-                OrderTriggerTypeCodec.protoToLabel,
+                OrderTriggerTypeCodec.protoToOutput,
                 v,
                 "ReadOrderOriginSchema",
                 "trigger type",
@@ -709,7 +709,7 @@ export const CancelAllOrdersInputSchema = v.object({
     ),
     dryRun: v.optional(v.optional(v.boolean()), false),
     maxOrders: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0))),
-    requestId: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(64)),
+    requestId: v.optional(v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(64))),
 });
 
 export type CancelAllOrdersInput = v.InferInput<typeof CancelAllOrdersInputSchema>;
@@ -822,7 +822,7 @@ export const ModifyOrderInputSchema = v.pipe(
 
 export type ModifyOrderInput = v.InferInput<typeof ModifyOrderInputSchema>;
 
-export const GetOrderInputSchema = v.pipe(
+export const GetOrderDetailsInputSchema = v.pipe(
     v.object({
         orderId: v.optional(v.pipe(v.string(), v.trim())),
         clientOrderId: v.optional(v.pipe(v.string(), v.trim())),
@@ -848,7 +848,7 @@ export const GetOrderInputSchema = v.pipe(
     }),
 );
 
-export type GetOrderInput = v.InferInput<typeof GetOrderInputSchema>;
+export type GetOrderDetailsInput = v.InferInput<typeof GetOrderDetailsInputSchema>;
 
 const OrderTransferSchema = v.pipe(
     v.object({
@@ -890,13 +890,13 @@ const OrderTransferSchema = v.pipe(
 
 export type OrderTransfer = v.InferOutput<typeof OrderTransferSchema>;
 
-export const GetOrderResponseSchema = v.object({
+export const OrderDetailsSchema = v.object({
     order: OrderSchema,
     trades: v.optional(v.optional(v.array(UserTradeSchema)), []),
     transfers: v.optional(v.optional(v.array(OrderTransferSchema)), []),
 });
 
-export type GetOrderResponse = v.InferOutput<typeof GetOrderResponseSchema>;
+export type OrderDetails = v.InferOutput<typeof OrderDetailsSchema>;
 
 const OptionalTriggerIdSchema = v.pipe(
     v.optional(v.bigint()),
@@ -926,7 +926,7 @@ export const ModifyOrderResultSchema = v.object({
         v.enum(ProtoWrite.ModifyActionTaken),
         v.transform((v) =>
             requiredEnumLabel(
-                ModifyActionCodec.protoToLabel,
+                ModifyActionCodec.protoToOutput,
                 v,
                 "ModifyOrderResultSchema",
                 "action taken",

@@ -481,7 +481,7 @@ export const ListTriggersInputSchema = v.object({
     symbol: v.optional(v.pipe(v.string(), v.trim())),
     status: v.pipe(
         v.optional(v.array(TriggerStatusFilterSchema)),
-        v.transform((arr) => arr?.map((s) => TriggerStatusCodec.filterToProto[s]) ?? []),
+        v.transform((arr) => arr?.map((s) => TriggerStatusCodec.inputToProto[s]) ?? []),
     ),
     triggerType: v.pipe(
         v.optional(TriggerTypeSchema),
@@ -574,7 +574,12 @@ type LadderDistributionLabel = "linear" | "geometric" | "weighted_favorable";
 const TriggerResultStatusSchema = v.pipe(
     v.enum(Proto.TriggerStatus),
     v.transform((status) =>
-        requiredEnumLabel(TriggerStatusCodec.protoToLabel, status, "TriggerResultSchema", "status"),
+        requiredEnumLabel(
+            TriggerStatusCodec.protoToOutput,
+            status,
+            "TriggerResultSchema",
+            "status",
+        ),
     ),
 );
 
@@ -704,13 +709,13 @@ function transformTriggerDetails(
                 case: "stop",
                 triggerPrice: formatPriceForSymbol(details.value.triggerPriceTicks, symbolId),
                 triggerPriceSource: requiredEnumLabel(
-                    TriggerPriceSourceCodec.protoToLabel,
+                    TriggerPriceSourceCodec.protoToOutput,
                     details.value.triggerPriceSource,
                     "TriggerDetailsSchema",
                     "trigger price source",
                 ),
                 triggerDirection: requiredEnumLabel(
-                    TriggerDirectionCodec.protoToLabel,
+                    TriggerDirectionCodec.protoToOutput,
                     details.value.triggerDirection,
                     "TriggerDetailsSchema",
                     "trigger direction",
@@ -739,13 +744,13 @@ function transformTriggerDetails(
                 maxSlippageTicks: details.value.maxSlippageTicks,
                 maxSlippageBps: details.value.maxSlippageBps,
                 triggerPriceSource: requiredEnumLabel(
-                    TriggerPriceSourceCodec.protoToLabel,
+                    TriggerPriceSourceCodec.protoToOutput,
                     details.value.triggerPriceSource,
                     "TriggerDetailsSchema",
                     "trigger price source",
                 ),
                 triggerDirection: requiredEnumLabel(
-                    TriggerDirectionCodec.protoToLabel,
+                    TriggerDirectionCodec.protoToOutput,
                     details.value.triggerDirection,
                     "TriggerDetailsSchema",
                     "trigger direction",
@@ -767,7 +772,7 @@ function transformTriggerDetails(
                 ladderPriceMax: formatPriceForSymbol(details.value.ladderPriceMaxTicks, symbolId),
                 ladderLevels: details.value.ladderLevels,
                 ladderDistribution: requiredEnumLabel(
-                    LadderDistributionCodec.protoToLabel,
+                    LadderDistributionCodec.protoToOutput,
                     details.value.ladderDistribution,
                     "TriggerDetailsSchema",
                     "ladder distribution",
@@ -811,13 +816,13 @@ export const TriggerSchema = v.pipe(
         baseAsset: baseAssetForSymbolId(t.symbolId)!,
         quoteAsset: quoteAssetForSymbolId(t.symbolId)!,
         triggerType: requiredEnumLabel(
-            TriggerTypeCodec.protoToLabel,
+            TriggerTypeCodec.protoToOutput,
             t.triggerType,
             "TriggerSchema",
             "trigger type",
         ),
         status: requiredEnumLabel(
-            TriggerStatusCodec.protoToLabel,
+            TriggerStatusCodec.protoToOutput,
             t.status,
             "TriggerSchema",
             "status",
@@ -869,13 +874,13 @@ export const TriggerEventSchema = v.pipe(
             baseAsset: baseAssetForSymbolId(e.symbolId)!,
             quoteAsset: quoteAssetForSymbolId(e.symbolId)!,
             triggerType: requiredEnumLabel(
-                TriggerTypeCodec.protoToLabel,
+                TriggerTypeCodec.protoToOutput,
                 e.triggerType,
                 "TriggerEventSchema",
                 "trigger type",
             ),
             eventType: requiredEnumLabel(
-                TriggerEventTypeCodec.protoToLabel,
+                TriggerEventTypeCodec.protoToOutput,
                 e.eventType,
                 "TriggerEventSchema",
                 "event type",

@@ -39,6 +39,7 @@ import {
     type SubaccountMember,
     type SubaccountInvite,
     type SubaccountEvent,
+    type SubaccountMutationResult,
 } from "./subaccounts.schemas.js";
 
 interface SubscribeSubaccountsInput extends BaseSubscribeInput<Subaccount> {
@@ -129,7 +130,7 @@ export class SubaccountsService {
     async update(
         input: v.InferInput<typeof UpdateSubaccountInputSchema>,
         options?: PolyesterMutationOptions,
-    ): Promise<void> {
+    ): Promise<SubaccountMutationResult> {
         const validatedInput = v.parse(UpdateSubaccountInputSchema, input);
         const res = await this.#client.updateSubaccount(
             validatedInput,
@@ -153,7 +154,7 @@ export class SubaccountsService {
     async removeMember(
         input: v.InferInput<typeof RemoveSubaccountMemberInputSchema>,
         options?: PolyesterMutationOptions,
-    ): Promise<void> {
+    ): Promise<SubaccountMutationResult> {
         const validatedInput = v.parse(RemoveSubaccountMemberInputSchema, input);
         const res = await this.#client.removeSubaccountMember(
             validatedInput,
@@ -165,7 +166,7 @@ export class SubaccountsService {
     async updateMemberRole(
         input: v.InferInput<typeof UpdateSubaccountMemberRoleInputSchema>,
         options?: PolyesterMutationOptions,
-    ): Promise<void> {
+    ): Promise<SubaccountMutationResult> {
         const validatedInput = v.parse(UpdateSubaccountMemberRoleInputSchema, input);
         const res = await this.#client.updateSubaccountMemberRole(
             validatedInput,
@@ -177,7 +178,7 @@ export class SubaccountsService {
     async setMemberMfaRequirement(
         input: v.InferInput<typeof SetSubaccountMemberMfaRequirementInputSchema>,
         options?: PolyesterMutationOptions,
-    ): Promise<void> {
+    ): Promise<SubaccountMutationResult> {
         const validatedInput = v.parse(SetSubaccountMemberMfaRequirementInputSchema, input);
         const res = await this.#client.setSubaccountMemberMFARequirement(
             validatedInput,
@@ -225,7 +226,7 @@ export class SubaccountsService {
     async delete(
         input: v.InferInput<typeof SubaccountIdInputSchema>,
         options?: PolyesterMutationOptions,
-    ): Promise<void> {
+    ): Promise<SubaccountMutationResult> {
         const validatedInput = v.parse(SubaccountIdInputSchema, input);
         const res = await this.#client.updateSubaccount(
             {

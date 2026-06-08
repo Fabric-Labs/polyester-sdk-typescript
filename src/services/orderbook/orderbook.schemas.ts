@@ -9,12 +9,12 @@ import { getPair } from "../../catalogs/market-data-catalog.js";
 import { DepthCodec, type OrderbookSupportedDepth } from "./orderbook.codecs.js";
 
 function toDepthEnum(depth: number): Proto.Depth {
-    if (depth in DepthCodec.depthToProto)
-        return DepthCodec.depthToProto[depth as OrderbookSupportedDepth];
+    if (depth in DepthCodec.inputToProto)
+        return DepthCodec.inputToProto[depth as OrderbookSupportedDepth];
     const closest = DepthCodec.supportedDepths.reduce((prev, curr) =>
         Math.abs(curr - depth) < Math.abs(prev - depth) ? curr : prev,
     );
-    return DepthCodec.depthToProto[closest];
+    return DepthCodec.inputToProto[closest];
 }
 
 export const GetOrderbookInputSchema = v.object({

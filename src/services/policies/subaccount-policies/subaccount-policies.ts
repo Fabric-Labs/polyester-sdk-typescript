@@ -54,7 +54,7 @@ export class SubaccountPoliciesService {
     async create(
         input: v.InferInput<typeof CreateSubaccountPolicyInputSchema>,
         options?: PolyesterMutationOptions,
-    ): Promise<SubaccountPolicy | null> {
+    ): Promise<SubaccountPolicy> {
         const validatedInput = v.parse(CreateSubaccountPolicyInputSchema, input);
         const result = await this.#client.createSubaccountPolicy(
             removeUndefined(validatedInput),
@@ -67,7 +67,7 @@ export class SubaccountPoliciesService {
     async update(
         input: v.InferInput<typeof UpdateSubaccountPolicyInputSchema>,
         options?: PolyesterMutationOptions,
-    ): Promise<SubaccountPolicy | null> {
+    ): Promise<SubaccountPolicy> {
         const validatedInput = v.parse(UpdateSubaccountPolicyInputSchema, input);
         const result = await this.#client.updateSubaccountPolicy(
             removeUndefined(validatedInput),

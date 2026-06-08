@@ -47,7 +47,7 @@ export const PolicyActionCodec = {
         [Proto.PolicyAction.MANAGE_ADDRESS_BOOK]: "manage-address-book",
         [Proto.PolicyAction.MANAGE_TRANSFER_WHITELISTS]: "manage-transfer-whitelists",
     } satisfies Record<ExcludeUnspecified<Proto.PolicyAction>, PolicyActionLabel>,
-    outputToProto: {
+    inputToProto: {
         "trade-spot": Proto.PolicyAction.TRADE_SPOT,
         "trade-perp": Proto.PolicyAction.TRADE_PERP,
         "internal-transfer": Proto.PolicyAction.INTERNAL_TRANSFER,

@@ -58,10 +58,7 @@ export const CreateSubaccountResultSchema = v.object({
 
 export type CreateSubaccountResult = v.InferOutput<typeof CreateSubaccountResultSchema>;
 
-export const SubaccountMutationResultSchema = v.pipe(
-    v.object({}),
-    v.transform(() => undefined),
-);
+export const SubaccountMutationResultSchema = v.object({});
 
 export type SubaccountMutationResult = v.InferOutput<typeof SubaccountMutationResultSchema>;
 

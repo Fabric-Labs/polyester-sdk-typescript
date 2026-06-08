@@ -92,7 +92,7 @@ export const StpModeCodec = {
 } as const;
 
 export const OrderOriginScopeCodec = {
-    protoToLabel: {
+    protoToOutput: {
         [ProtoRead.OrderOriginScope.DIRECT]: "direct",
         [ProtoRead.OrderOriginScope.ATTACHED_RISK]: "attached_risk",
         [ProtoRead.OrderOriginScope.STANDALONE_TRIGGER]: "standalone_trigger",
@@ -101,7 +101,7 @@ export const OrderOriginScopeCodec = {
 } as const;
 
 export const OrderTriggerTypeCodec = {
-    protoToLabel: {
+    protoToOutput: {
         [ProtoRead.OrderTriggerType.STOP_LOSS]: "stop_loss",
         [ProtoRead.OrderTriggerType.TAKE_PROFIT]: "take_profit",
         [ProtoRead.OrderTriggerType.TRAILING_STOP]: "trailing_stop",
@@ -127,7 +127,7 @@ export const ModifyBehaviorCodec = {
 } as const;
 
 export const ModifyActionCodec = {
-    protoToLabel: {
+    protoToOutput: {
         [ProtoWrite.ModifyActionTaken.AMENDED]: "AMENDED",
         [ProtoWrite.ModifyActionTaken.REPLACED]: "REPLACED",
     } satisfies ProtoToOutput<ProtoWrite.ModifyActionTaken, ModifyActionValue>,
