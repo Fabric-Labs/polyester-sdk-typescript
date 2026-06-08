@@ -2,12 +2,12 @@ import * as Proto from "../../gen/marketoverview/v1/marketoverview_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
 import type { RealtimeClient } from "../../realtime/client.js";
+import { snapshotThenStream } from "../../realtime/snapshot-then-stream.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import { formatConnectError } from "../../utils/errors.js";
 import {
     createMarketOverviewSchemas,
     ListMarketOverviewInputSchema,
@@ -61,9 +61,6 @@ export class MarketOverviewService {
      */
     subscribe(input: SubscribeMarketOverviewInput): () => void {
         const channel = "public:spot:market_overview:updates:proto";
-        let isDisposed = false;
-        let snapshotReady = false;
-        let pendingBatches: MarketOverview[] = [];
         const bySymbolId = new Map<number, MarketOverview>();
         const includeSparklines = input.includeSparklines ?? true;
         const sparklineIntervals = input.sparklineIntervals ?? ["24h"];
@@ -77,64 +74,47 @@ export class MarketOverviewService {
             bySymbolId.set(m.symbolId, m);
         }
 
-        async function fetchSnapshot(): Promise<void> {
-            const resp = await listMarketOverview({
+        function applyMarkets(markets: readonly MarketOverview[]): void {
+            for (const market of markets) {
+                handleMarketUpdate(market);
+            }
+        }
+
+        async function fetchSnapshot(): Promise<MarketOverview[]> {
+            return listMarketOverview({
                 includeSparklines,
                 sparklineIntervals,
             });
-            bySymbolId.clear();
-            for (const m of resp) {
-                bySymbolId.set(m.symbolId, m);
-            }
-            snapshotReady = true;
-            if (pendingBatches.length > 0) {
-                for (const m of pendingBatches) {
-                    bySymbolId.set(m.symbolId, m);
-                }
-                pendingBatches = [];
-            }
-            emit();
         }
 
-        void fetchSnapshot().catch((e: unknown) => {
-            // @ts-expect-error - TODO: fix this
-            input.onError?.({ message: formatConnectError(e, "snapshot failed") });
-        });
-
-        const unsubscribe = this.#realtime.connectProtoChannel({
+        const stream = snapshotThenStream({
+            realtime: this.#realtime,
             channel,
             schema: Proto.MarketOverviewBatchSchema,
-            onPublication: (batch) => {
+            maxBufferedPublications: 2000,
+            snapshotErrorLog: "Failed to fetch market overview",
+            fetchSnapshot,
+            readPublication: (batch) => {
                 const schemas = this.#schemas.current();
-                const markets = (batch.markets ?? []).map((m) =>
-                    v.parse(schemas.marketOverview, m),
-                );
-                if (!snapshotReady) {
-                    pendingBatches = pendingBatches.concat(markets).slice(-2000);
-                    return;
-                }
-                for (const mk of markets) {
-                    handleMarketUpdate(mk);
-                }
+                return (batch.markets ?? []).map((m) => v.parse(schemas.marketOverview, m));
+            },
+            applySnapshot: (markets, bufferedMarkets) => {
+                bySymbolId.clear();
+                applyMarkets(markets);
+                applyMarkets(bufferedMarkets);
                 emit();
             },
-            onConnected: () => input.onOpen?.(),
-            onDisconnected: () => {
-                if (isDisposed) return;
-                input.onClose?.();
-                snapshotReady = false;
-                void fetchSnapshot().catch(() => {});
+            applyLivePublications: (markets) => {
+                applyMarkets(markets);
+                emit();
             },
-            onError: (ctx) => input.onError?.(ctx),
+            onOpen: input.onOpen,
+            onClose: input.onClose,
+            onError: input.onError,
         });
 
         function dispose(): void {
-            isDisposed = true;
-            try {
-                unsubscribe();
-            } catch {
-                // noop
-            }
+            stream.unsubscribe();
         }
 
         return dispose;

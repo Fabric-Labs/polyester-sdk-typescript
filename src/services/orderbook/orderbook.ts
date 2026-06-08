@@ -1,6 +1,10 @@
 import * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import type { RealtimeClient } from "../../realtime/client.js";
+import {
+    snapshotThenStream,
+    type SnapshotThenStreamSubscription,
+} from "../../realtime/snapshot-then-stream.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
     toConnectCallOptions,
@@ -13,11 +17,9 @@ import {
     type OrderbookLevel,
     type OrderbookData,
 } from "./orderbook.schemas.js";
-import { formatConnectError } from "../../utils/errors.js";
 import { parsePriceTicks } from "../../utils/numbers.js";
 import { toBig } from "../../utils/u128.js";
 import * as v from "valibot";
-import { isDev } from "../../utils/is-dev.js";
 import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 
 interface SubscribeOrderbookInput extends BaseSubscribeInput<OrderbookData> {
@@ -100,10 +102,8 @@ export class OrderbookService {
         let bidsMap: BookSide = new Map();
         let asksMap: BookSide = new Map();
         let currentBookSeq = 0n;
-        let snapshotReady = false;
-        let isDisposed = false;
-        let pendingDeltas: Proto.OrderBookDelta[] = [];
         let bucketTicks: bigint | null = null;
+        let stream: SnapshotThenStreamSubscription | undefined;
 
         function levelsToMap(levels: Proto.PriceLevel[] | undefined): BookSide {
             const map: BookSide = new Map();
@@ -171,46 +171,7 @@ export class OrderbookService {
                     bucketTicks = null;
                 }
             }
-            if (snapshotReady) emit();
-        }
-
-        async function refetchSnapshot(): Promise<void> {
-            const snapshot = await inputServiceFetch();
-            bidsMap = levelsToMap(snapshot.bids);
-            asksMap = levelsToMap(snapshot.asks);
-            currentBookSeq = toBig(snapshot.bookSeq);
-            snapshotReady = true;
-            emit();
-        }
-
-        function reportSnapshotError(error: unknown): void {
-            if (isDev()) {
-                console.error("Failed to fetch orderbook", error);
-            }
-            input.onError?.({
-                channel,
-                type: "snapshot",
-                error: {
-                    code: 0,
-                    message: formatConnectError(error, "snapshot failed"),
-                },
-            });
-        }
-
-        async function ensureSnapshot(): Promise<void> {
-            snapshotReady = false;
-            pendingDeltas = [];
-            try {
-                await refetchSnapshot();
-                const buffered = pendingDeltas;
-                pendingDeltas = [];
-                for (const delta of buffered) {
-                    if (isDisposed) return;
-                    handleDelta(delta);
-                }
-            } catch (e: unknown) {
-                reportSnapshotError(e);
-            }
+            if (stream?.isReady()) emit();
         }
 
         async function inputServiceFetch(): Promise<Proto.GetOrderBookResponse> {
@@ -229,7 +190,7 @@ export class OrderbookService {
             }
 
             if (currentBookSeq !== 0n && delta.bookSeqStart > currentBookSeq + 1n) {
-                void ensureSnapshot();
+                stream?.refreshSnapshot();
                 return;
             }
 
@@ -243,45 +204,37 @@ export class OrderbookService {
         }
 
         setBucket(input.bucket);
-        void ensureSnapshot();
-
-        const unsubscribe = this.#realtime.connectProtoChannel({
+        stream = snapshotThenStream({
+            realtime: this.#realtime,
             channel,
             schema: Proto.OrderBookDeltaSchema,
-            onPublication: (delta) => {
-                if (!snapshotReady) {
-                    pendingDeltas.push(delta);
-                    if (pendingDeltas.length > 200) pendingDeltas = pendingDeltas.slice(-200);
-                    return;
-                }
-                handleDelta(delta);
-            },
-            onConnected: () => {
-                input.onOpen?.();
-                if (!snapshotReady || pendingDeltas.length === 0) return;
-                const buffered = pendingDeltas;
-                pendingDeltas = [];
-                for (const d of buffered) {
-                    if (isDisposed) return;
-                    handleDelta(d);
+            maxBufferedPublications: 200,
+            snapshotErrorLog: "Failed to fetch orderbook",
+            fetchSnapshot: inputServiceFetch,
+            readPublication: (delta) => [delta],
+            applySnapshot: (snapshot, bufferedDeltas) => {
+                bidsMap = levelsToMap(snapshot.bids);
+                asksMap = levelsToMap(snapshot.asks);
+                currentBookSeq = toBig(snapshot.bookSeq);
+                emit();
+                for (const delta of bufferedDeltas) {
+                    if (stream?.isDisposed()) return;
+                    handleDelta(delta);
                 }
             },
-            onDisconnected: () => {
-                if (isDisposed) return;
-                input.onClose?.();
-                void ensureSnapshot();
+            applyLivePublications: (deltas) => {
+                for (const delta of deltas) {
+                    if (stream?.isDisposed()) return;
+                    handleDelta(delta);
+                }
             },
-            onError: (ctx) => input.onError?.(ctx),
+            onOpen: input.onOpen,
+            onClose: input.onClose,
+            onError: input.onError,
         });
 
         function dispose(): void {
-            isDisposed = true;
-            pendingDeltas = [];
-            try {
-                unsubscribe();
-            } catch {
-                // noop
-            }
+            stream?.unsubscribe();
         }
 
         return { unsubscribe: dispose, setBucket };

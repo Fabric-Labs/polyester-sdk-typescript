@@ -262,7 +262,42 @@ describe("MarketOverviewService", () => {
         service.subscribe({ onEvent: vi.fn(), onError });
         await flushMicrotasks();
 
-        expect(onError).toHaveBeenCalledWith({ message: "snapshot unavailable" });
+        expect(onError).toHaveBeenCalledWith({
+            channel: "public:spot:market_overview:updates:proto",
+            type: "snapshot",
+            error: {
+                code: 0,
+                message: "snapshot unavailable",
+            },
+        });
+    });
+
+    it("reports reconnect snapshot failures through the subscription error callback", async () => {
+        const catalog = seedPairCatalog();
+        const transport = unaryTransport((_call, index) => {
+            if (index === 0) return { markets: [market()], total: 1 };
+            throw new Error("reconnect snapshot unavailable");
+        });
+        const realtime = realtimeClientStub();
+        const onError = vi.fn();
+        const service = new MarketOverviewService(transport.transport, realtime.realtime, catalog);
+
+        service.subscribe({ onEvent: vi.fn(), onError });
+        await flushMicrotasks();
+
+        expect(onError).not.toHaveBeenCalled();
+
+        realtime.params?.onDisconnected?.();
+        await flushMicrotasks();
+
+        expect(onError).toHaveBeenCalledWith({
+            channel: "public:spot:market_overview:updates:proto",
+            type: "snapshot",
+            error: {
+                code: 0,
+                message: "reconnect snapshot unavailable",
+            },
+        });
     });
 
     it("throws on malformed market overview publications after snapshot readiness", async () => {
