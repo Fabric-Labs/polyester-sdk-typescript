@@ -64,8 +64,8 @@
     "vitest": "4.1.8"
   },
   "lint-staged": {
-		"*.{js,ts,jsx,tsx,json,css,md,svelte,html}": [
-			"oxfmt --write"
-		]
-	}
+    "*.{js,ts,jsx,tsx}": [
+      "oxfmt --write"
+    ]
+  }
 }
