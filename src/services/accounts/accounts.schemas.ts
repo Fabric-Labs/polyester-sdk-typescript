@@ -15,10 +15,10 @@ function normalizeResolveHint(value?: string): ProtoResolve.ResolveHint {
 export const ResolveAccountInputSchema = v.object({
     query: v.pipe(v.string(), v.trim(), v.minLength(1, "query is required")),
     hint: v.pipe(
-        v.optional(v.optional(v.string()), ""),
+        v.optional(v.string(), ""),
         v.transform((value) => normalizeResolveHint(value)),
     ),
-    includeSubaccounts: v.optional(v.optional(v.boolean()), false),
+    includeSubaccounts: v.optional(v.boolean(), false),
 });
 
 export type ResolveAccountInput = v.InferInput<typeof ResolveAccountInputSchema>;

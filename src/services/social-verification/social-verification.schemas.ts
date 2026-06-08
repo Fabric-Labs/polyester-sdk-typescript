@@ -94,7 +94,7 @@ export const StartVerificationInputSchema = v.object({
     ),
     handle: v.pipe(v.string(), v.transform(normalizeHandle), v.minLength(1), v.maxLength(64)),
     method: v.pipe(
-        v.optional(v.optional(SocialVerificationMethodSchema), "profile"),
+        v.optional(SocialVerificationMethodSchema, "profile"),
         v.transform((v) => SocialVerificationMethodCodec.inputToProto[v ?? "profile"]),
     ),
 });

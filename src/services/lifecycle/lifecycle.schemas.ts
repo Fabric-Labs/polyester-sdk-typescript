@@ -181,11 +181,8 @@ const LifecycleLedgerTransferIdSchema = v.optional(v.string(), "");
 
 export const ListLifecycleFlowsInputSchema = v.pipe(
     v.object({
-        limit: v.optional(
-            v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(500))),
-            100,
-        ),
-        reversed: v.optional(v.optional(v.boolean()), true),
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(500)), 100),
+        reversed: v.optional(v.boolean(), true),
         flowKind: v.pipe(
             v.optional(FlowKindSchema),
             v.transform((v) =>
@@ -207,7 +204,7 @@ export const ListLifecycleFlowsInputSchema = v.pipe(
             ),
         ),
         scope: v.pipe(
-            v.optional(v.optional(v.picklist(LIFECYCLE_LIST_SCOPE_VALUES)), "all"),
+            v.optional(v.picklist(LIFECYCLE_LIST_SCOPE_VALUES), "all"),
             v.transform((v) => LifecycleListScopeCodec.inputToProto[v ?? "all"]),
         ),
         accountId: OptionalAccountIdSchema,
@@ -216,7 +213,7 @@ export const ListLifecycleFlowsInputSchema = v.pipe(
         polyesterChainIds: v.optional(v.array(Uint32Schema)),
         zippedAssetIds: v.optional(v.array(Uint32Schema)),
         unifiedAssetIds: v.optional(v.array(Uint32Schema)),
-        pageToken: v.optional(v.optional(v.pipe(v.string(), v.trim())), ""),
+        pageToken: v.optional(v.pipe(v.string(), v.trim()), ""),
     }),
     v.transform((value) => {
         const accountSelector =
@@ -274,11 +271,8 @@ export const ListLifecycleFlowsByTxInputSchema = v.object({
         v.picklist(LIFECYCLE_TX_LOOKUP_KIND_VALUES),
         v.transform((v) => LifecycleTxLookupKindCodec.inputToProto[v]),
     ),
-    limit: v.optional(
-        v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(500))),
-        100,
-    ),
-    pageToken: v.optional(v.optional(v.pipe(v.string(), v.trim())), ""),
+    limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(500)), 100),
+    pageToken: v.optional(v.pipe(v.string(), v.trim()), ""),
 });
 
 export const LifecycleFlowStepActivitySchema = v.object({

@@ -46,7 +46,7 @@ export const MarketTradeSchema = v.pipe(
         isBuy: v.boolean(),
         priceTicks: v.bigint(),
         qtyScaled: v.bigint(),
-        tsNs: v.optional(v.optional(v.bigint()), 0n),
+        tsNs: v.optional(v.bigint(), 0n),
     }),
     v.transform((t) => {
         const sideLabel: v.InferOutput<typeof SideSchema> = t.isBuy ? "buy" : "sell";
@@ -77,7 +77,7 @@ export const GetMarketTradesInputSchema = v.pipe(
             v.transform((v) => (v ? BigInt(v) : undefined)),
         ),
         limit: v.pipe(
-            v.optional(v.optional(v.pipe(v.string(), v.trim())), ""),
+            v.optional(v.pipe(v.string(), v.trim()), ""),
             v.transform((v) => {
                 if (!v) return undefined;
                 const lim = Number(v);

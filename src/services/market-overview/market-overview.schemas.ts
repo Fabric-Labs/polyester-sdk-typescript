@@ -63,18 +63,18 @@ export const MarketOverviewSchema = v.pipe(
         symbolId: v.number(),
         symbol: v.string(),
         lastPriceTicks: v.bigint(),
-        lastTradeTsNs: v.optional(v.optional(v.bigint()), 0n),
+        lastTradeTsNs: v.optional(v.bigint(), 0n),
         change24hBp: v.number(),
         high24hTicks: v.bigint(),
         low24hTicks: v.bigint(),
         volume24hBaseScaled: v.bigint(),
         volume24hQuoteScaled: v.bigint(),
-        listedTsNs: v.optional(v.optional(v.bigint()), 0n),
+        listedTsNs: v.optional(v.bigint(), 0n),
         bestBidTicks: v.bigint(),
         bestBidQtyScaled: v.bigint(),
         bestAskTicks: v.bigint(),
         bestAskQtyScaled: v.bigint(),
-        sparklines: v.optional(v.optional(v.array(MarketOverviewSparklineSchema)), []),
+        sparklines: v.optional(v.array(MarketOverviewSparklineSchema), []),
     }),
     v.transform((m) => {
         const [baseAsset = "", quoteAsset = ""] = m.symbol.split("-");
@@ -151,20 +151,20 @@ export type MarketOverviewBatch = {
 };
 
 export const ListMarketOverviewInputSchema = v.object({
-    symbols: v.optional(v.optional(v.array(v.pipe(v.string(), v.trim(), v.minLength(1)))), []),
+    symbols: v.optional(v.array(v.pipe(v.string(), v.trim(), v.minLength(1))), []),
     limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0)), 500),
     page: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0)), 1),
     orderBy: v.pipe(
-        v.optional(v.optional(MarketOverviewOrderBySchema), "volume_24h_quote"),
+        v.optional(MarketOverviewOrderBySchema, "volume_24h_quote"),
         v.transform((v) => MarketOverviewOrderByCodec.inputToProto[v ?? "volume_24h_quote"]),
     ),
     sort: v.pipe(
-        v.optional(v.optional(MarketOverviewSortSchema), "desc"),
+        v.optional(MarketOverviewSortSchema, "desc"),
         v.transform((v) => MarketOverviewSortCodec.inputToProto[v ?? "desc"]),
     ),
-    includeSparklines: v.optional(v.optional(v.boolean()), true),
+    includeSparklines: v.optional(v.boolean(), true),
     sparklineIntervals: v.pipe(
-        v.optional(v.optional(v.array(SparklineIntervalSchema)), ["24h"]),
+        v.optional(v.array(SparklineIntervalSchema), ["24h"]),
         v.transform((intervals) =>
             (intervals ?? ["24h"]).map((v) => SparklineIntervalCodec.inputToProto[v]),
         ),

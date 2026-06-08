@@ -173,9 +173,7 @@ const BaseChildOrderFieldsSchema = v.object({
         v.transform((v) => (v ? idToBigInt(v, "subaccountId") : 0n)),
     ),
     symbol: v.pipe(v.string(), v.trim(), v.minLength(1)),
-    clientTriggerId: v.optional(v.optional(v.pipe(v.string(), v.trim())), () =>
-        crypto.randomUUID(),
-    ),
+    clientTriggerId: v.optional(v.pipe(v.string(), v.trim()), () => crypto.randomUUID()),
     side: v.pipe(
         SideInputSchema,
         v.transform((v) => TriggerSideCodec.inputToProto[v]),
@@ -198,7 +196,7 @@ const BaseChildOrderFieldsSchema = v.object({
         v.optional(STPSchema),
         v.transform((v) => (v ? StpModeCodec.inputToProto[v] : ProtoOrders.STPMode.EXPIRE_MAKER)),
     ),
-    postOnly: v.optional(v.optional(v.boolean()), false),
+    postOnly: v.optional(v.boolean(), false),
 });
 
 const UNSET_TRAILING_DISTANCE: TrailingDistanceOneof = { case: undefined, value: undefined };
@@ -490,11 +488,8 @@ export const ListTriggersInputSchema = v.object({
             v ? TriggerTypeCodec.inputToProto[v] : Proto.TriggerType.TRIGGER_TYPE_UNSPECIFIED,
         ),
     ),
-    limit: v.optional(
-        v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(1000))),
-        50,
-    ),
-    offset: v.optional(v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))), 0),
+    limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(1000)), 50),
+    offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 0),
 });
 
 export type ListTriggersInput = v.InferInput<typeof ListTriggersInputSchema>;

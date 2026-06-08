@@ -16,10 +16,10 @@ export const LoginWithWalletInputSchema = v.object({
     smartAccountAddress: v.string(),
     nonce: v.string(),
     signature: v.string(),
-    userAgent: v.optional(v.optional(v.string()), ""),
-    ip: v.optional(v.optional(v.string()), ""),
-    primaryWalletAddress: v.optional(v.optional(v.string()), ""),
-    walletProvider: v.optional(v.optional(v.string()), ""),
+    userAgent: v.optional(v.string(), ""),
+    ip: v.optional(v.string(), ""),
+    primaryWalletAddress: v.optional(v.string(), ""),
+    walletProvider: v.optional(v.string(), ""),
 });
 
 export type LoginWithWalletInput = v.InferInput<typeof LoginWithWalletInputSchema>;

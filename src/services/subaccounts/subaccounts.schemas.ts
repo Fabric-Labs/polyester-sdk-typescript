@@ -32,12 +32,12 @@ const ProtoSubaccountRoleSchema = v.pipe(
 );
 
 export const CreateSubaccountInputSchema = v.object({
-    label: v.optional(v.optional(v.string()), ""),
+    label: v.optional(v.string(), ""),
     smartAccountAddress: v.string(),
     nonce: v.string(),
     signature: v.string(),
-    primaryWalletAddress: v.optional(v.optional(v.string()), ""),
-    walletProvider: v.optional(v.optional(v.string()), ""),
+    primaryWalletAddress: v.optional(v.string(), ""),
+    walletProvider: v.optional(v.string(), ""),
 });
 
 export type CreateSubaccountInput = v.InferInput<typeof CreateSubaccountInputSchema>;
@@ -111,7 +111,7 @@ export type SetSubaccountMemberMfaRequirementInput = v.InferInput<
 >;
 
 export const ListSubaccountInvitesInputSchema = v.object({
-    direction: v.optional(v.optional(v.picklist(["incoming", "outgoing", ""])), ""),
+    direction: v.optional(v.picklist(["incoming", "outgoing", ""]), ""),
 });
 
 export type ListSubaccountInvitesInput = v.InferInput<typeof ListSubaccountInvitesInputSchema>;
@@ -147,11 +147,11 @@ export const SubaccountSchema = v.object({
         v.transform((v) => formatId(v)),
     ),
     role: ProtoSubaccountRoleSchema,
-    label: v.optional(v.optional(v.string()), ""),
+    label: v.optional(v.string(), ""),
     status: ProtoSubaccountStatusSchema,
     smartAccountAddress: v.string(),
-    ownerUsername: v.optional(v.optional(v.string()), ""),
-    ownerAvatarUrl: v.optional(v.optional(v.string()), ""),
+    ownerUsername: v.optional(v.string(), ""),
+    ownerAvatarUrl: v.optional(v.string(), ""),
     ownerRootSmartAccountAddress: v.string(),
     subaccountPolicyId: v.pipe(
         v.bigint(),
@@ -168,9 +168,9 @@ export const SubaccountMemberSchema = v.object({
         v.transform((v) => formatId(v)),
     ),
     role: ProtoSubaccountRoleSchema,
-    username: v.optional(v.optional(v.string()), ""),
+    username: v.optional(v.string(), ""),
     smartAccountAddress: v.string(),
-    avatarUrl: v.optional(v.optional(v.string()), ""),
+    avatarUrl: v.optional(v.string(), ""),
     mfaEnrolled: v.optional(v.boolean(), false),
 });
 
@@ -208,9 +208,9 @@ export const SubaccountInviteSchema = v.pipe(
         ),
         createdAt: OptionalTimestampMsSchema,
         respondedAt: OptionalTimestampMsSchema,
-        granteeUsername: v.optional(v.optional(v.string()), ""),
-        inviterUsername: v.optional(v.optional(v.string()), ""),
-        subaccountLabel: v.optional(v.optional(v.string()), ""),
+        granteeUsername: v.optional(v.string(), ""),
+        inviterUsername: v.optional(v.string(), ""),
+        subaccountLabel: v.optional(v.string(), ""),
         inviterRootSmartAccountAddress: v.string(),
         granteeRootSmartAccountAddress: v.string(),
         requireMemberMfa: v.boolean(),
@@ -236,7 +236,7 @@ export type SubaccountInvite = v.InferOutput<typeof SubaccountInviteSchema>;
 
 export const SubaccountActivityInputSchema = v.object({
     subaccountId: idInputSchema("subaccountId"),
-    limit: v.optional(v.optional(v.pipe(v.number(), v.maxValue(200))), 50),
+    limit: v.optional(v.pipe(v.number(), v.maxValue(200)), 50),
     cursor: v.optional(v.string()),
 });
 

@@ -54,8 +54,8 @@ export const BalanceHistoryInputSchema = v.object({
         BalanceRangeSchema,
         v.transform((v) => BalanceRangeCodec.inputToProto[v]),
     ),
-    ledger: v.optional(v.optional(v.number()), 0),
-    accountCodes: v.optional(v.optional(v.array(v.number())), []),
+    ledger: v.optional(v.number(), 0),
+    accountCodes: v.optional(v.array(v.number()), []),
 });
 
 export type BalanceHistoryInput = v.InferInput<typeof BalanceHistoryInputSchema>;
@@ -108,9 +108,9 @@ export const EquityHistoryInputSchema = v.object({
         BalanceRangeSchema,
         v.transform((v) => BalanceRangeCodec.inputToProto[v]),
     ),
-    accountCodes: v.optional(v.optional(v.array(v.number())), []),
+    accountCodes: v.optional(v.array(v.number()), []),
     groupBy: v.pipe(
-        v.optional(v.optional(EquityGroupBySchema), "account"),
+        v.optional(EquityGroupBySchema, "account"),
         v.transform((v) => EquityGroupByCodec.inputToProto[v ?? "account"]),
     ),
 });
@@ -193,7 +193,7 @@ export const EquityHistoryResponseSchema = v.pipe(
         quoteAsset: v.string(),
         points: v.number(),
         series: v.array(EquitySeriesSchema),
-        btcPricesQ: v.optional(v.optional(v.array(v.bigint())), []),
+        btcPricesQ: v.optional(v.array(v.bigint()), []),
     }),
     v.transform((data) => ({
         range: data.range,

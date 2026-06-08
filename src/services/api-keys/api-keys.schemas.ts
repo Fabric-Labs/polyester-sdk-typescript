@@ -33,7 +33,7 @@ export type ApiKeyIdInput = v.InferInput<typeof ApiKeyIdInputSchema>;
 export const ApiKeysCreateInputSchema = v.object({
     label: v.string(),
     subaccountId: optionalSubaccountIdInputSchema(),
-    ipWhitelist: v.optional(v.optional(v.array(v.string())), []),
+    ipWhitelist: v.optional(v.array(v.string()), []),
     publicKeyEd25519: v.instance(Uint8Array<ArrayBufferLike>),
 });
 

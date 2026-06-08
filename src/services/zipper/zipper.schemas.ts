@@ -24,7 +24,7 @@ export const ZipperAssetChainVariantSchema = v.pipe(
         isNativeAsset: v.optional(v.boolean(), false),
         networkFee: v.optional(v.string(), "0"),
         networkFeeTsSec: v.pipe(v.optional(v.bigint(), 0n), v.transform(Number)),
-        ztokenAddress: v.optional(v.optional(v.string()), ""),
+        ztokenAddress: v.optional(v.string(), ""),
         sourceAddress: v.optional(v.string(), ""),
         sourceDecimals: v.optional(v.number(), 18),
         ztokenDecimals: v.optional(v.number(), 18),

@@ -34,7 +34,7 @@ const OptionalSymbolIdSchema = v.pipe(
     v.transform((value) => parseOptionalPositiveIntLike(value)),
 );
 
-const OptionalBooleanSchema = v.optional(v.optional(v.boolean()), false);
+const OptionalBooleanSchema = v.optional(v.boolean(), false);
 
 type TimestampInit = { seconds: bigint; nanos: number };
 
@@ -65,7 +65,7 @@ export const CandleRowSchema = v.pipe(
         low: v.bigint(),
         close: v.bigint(),
         volume: v.bigint(),
-        isClosed: v.optional(v.optional(v.boolean()), false),
+        isClosed: v.optional(v.boolean(), false),
     }),
     v.transform((data) => {
         return {
@@ -94,7 +94,7 @@ export const CandleRowIntSchema = v.object({
     low: v.bigint(),
     close: v.bigint(),
     volume: v.bigint(),
-    isClosed: v.optional(v.optional(v.boolean()), false),
+    isClosed: v.optional(v.boolean(), false),
 });
 
 export const CandlePointSchema = v.object({
@@ -104,7 +104,7 @@ export const CandlePointSchema = v.object({
     low: v.bigint(),
     close: v.bigint(),
     volume: v.bigint(),
-    isClosed: v.optional(v.optional(v.boolean()), false),
+    isClosed: v.optional(v.boolean(), false),
 });
 
 export const CandleColumnarSchema = v.pipe(
@@ -120,12 +120,12 @@ export const CandleColumnarSchema = v.pipe(
         low: v.array(v.bigint()),
         close: v.array(v.bigint()),
         volume: v.array(v.bigint()),
-        referenceTsSec: v.optional(v.optional(v.array(v.bigint())), []),
-        referenceOpen: v.optional(v.optional(v.array(v.bigint())), []),
-        referenceHigh: v.optional(v.optional(v.array(v.bigint())), []),
-        referenceLow: v.optional(v.optional(v.array(v.bigint())), []),
-        referenceClose: v.optional(v.optional(v.array(v.bigint())), []),
-        referenceVolume: v.optional(v.optional(v.array(v.bigint())), []),
+        referenceTsSec: v.optional(v.array(v.bigint()), []),
+        referenceOpen: v.optional(v.array(v.bigint()), []),
+        referenceHigh: v.optional(v.array(v.bigint()), []),
+        referenceLow: v.optional(v.array(v.bigint()), []),
+        referenceClose: v.optional(v.array(v.bigint()), []),
+        referenceVolume: v.optional(v.array(v.bigint()), []),
     }),
     v.transform((d) => {
         const referenceTsSec = d.referenceTsSec ?? [];
@@ -179,12 +179,12 @@ export const CandleColumnarIntSchema = v.pipe(
         low: v.array(v.bigint()),
         close: v.array(v.bigint()),
         volume: v.array(v.bigint()),
-        referenceTsSec: v.optional(v.optional(v.array(v.bigint())), []),
-        referenceOpen: v.optional(v.optional(v.array(v.bigint())), []),
-        referenceHigh: v.optional(v.optional(v.array(v.bigint())), []),
-        referenceLow: v.optional(v.optional(v.array(v.bigint())), []),
-        referenceClose: v.optional(v.optional(v.array(v.bigint())), []),
-        referenceVolume: v.optional(v.optional(v.array(v.bigint())), []),
+        referenceTsSec: v.optional(v.array(v.bigint()), []),
+        referenceOpen: v.optional(v.array(v.bigint()), []),
+        referenceHigh: v.optional(v.array(v.bigint()), []),
+        referenceLow: v.optional(v.array(v.bigint()), []),
+        referenceClose: v.optional(v.array(v.bigint()), []),
+        referenceVolume: v.optional(v.array(v.bigint()), []),
     }),
     v.transform((d) => {
         const referenceTsSec = d.referenceTsSec ?? [];
@@ -227,7 +227,7 @@ export const ListCandlesInputSchema = v.pipe(
         symbolId: OptionalSymbolIdSchema,
         timeframe: TimeframeInputSchema,
         limit: OptionalPositiveNumberSchema,
-        includeIncomplete: v.optional(v.optional(v.boolean()), false),
+        includeIncomplete: v.optional(v.boolean(), false),
         includeReference: OptionalBooleanSchema,
         startTsSec: OptionalTimestampSecondsSchema,
         endTsSec: OptionalTimestampSecondsSchema,

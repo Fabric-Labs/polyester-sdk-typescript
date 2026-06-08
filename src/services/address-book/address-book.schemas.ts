@@ -28,7 +28,7 @@ const TimestampMsSchema = OptionalTimestampMsSchema;
 
 const AddressBookTagInputSchema = v.object({
     name: v.pipe(v.string(), v.trim(), v.minLength(1)),
-    color: v.optional(v.optional(v.pipe(v.string(), v.trim())), ""),
+    color: v.optional(v.pipe(v.string(), v.trim()), ""),
 });
 
 export const ListAddressBookEntriesInputSchema = v.pipe(
@@ -48,7 +48,7 @@ export const CreateAddressBookEntryInputSchema = v.pipe(
     v.object({
         subaccountId: OptionalSubaccountIdSchema,
         label: v.pipe(v.string(), v.trim(), v.minLength(1)),
-        note: v.optional(v.optional(v.pipe(v.string(), v.trim())), ""),
+        note: v.optional(v.pipe(v.string(), v.trim()), ""),
         entry: v.variant("kind", [
             v.object({
                 kind: v.literal("external"),
@@ -60,8 +60,8 @@ export const CreateAddressBookEntryInputSchema = v.pipe(
                 smartAccountAddress: v.pipe(v.string(), v.trim(), v.minLength(1)),
             }),
         ]),
-        tagIds: v.optional(v.optional(v.array(IdSchema("tagId"))), []),
-        newTags: v.optional(v.optional(v.array(AddressBookTagInputSchema)), []),
+        tagIds: v.optional(v.array(IdSchema("tagId")), []),
+        newTags: v.optional(v.array(AddressBookTagInputSchema), []),
     }),
     v.transform(({ subaccountId, entry, ...rest }) => ({
         ...rest,
@@ -89,9 +89,9 @@ export type CreateAddressBookEntryInput = v.InferInput<typeof CreateAddressBookE
 export const UpdateAddressBookEntryInputSchema = v.object({
     addressBookEntryId: IdSchema("addressBookEntryId"),
     label: v.pipe(v.string(), v.trim(), v.minLength(1)),
-    note: v.optional(v.optional(v.pipe(v.string(), v.trim())), ""),
-    tagIds: v.optional(v.optional(v.array(IdSchema("tagId"))), []),
-    newTags: v.optional(v.optional(v.array(AddressBookTagInputSchema)), []),
+    note: v.optional(v.pipe(v.string(), v.trim()), ""),
+    tagIds: v.optional(v.array(IdSchema("tagId")), []),
+    newTags: v.optional(v.array(AddressBookTagInputSchema), []),
 });
 
 export type UpdateAddressBookEntryInput = v.InferInput<typeof UpdateAddressBookEntryInputSchema>;
@@ -112,7 +112,7 @@ export type CopyAddressBookEntryInput = v.InferInput<typeof CopyAddressBookEntry
 export const CreateAddressBookTagInputSchema = v.object({
     subaccountId: OptionalSubaccountIdSchema,
     name: v.pipe(v.string(), v.trim(), v.minLength(1)),
-    color: v.optional(v.optional(v.pipe(v.string(), v.trim())), ""),
+    color: v.optional(v.pipe(v.string(), v.trim()), ""),
 });
 
 export type CreateAddressBookTagInput = v.InferInput<typeof CreateAddressBookTagInputSchema>;
@@ -120,7 +120,7 @@ export type CreateAddressBookTagInput = v.InferInput<typeof CreateAddressBookTag
 export const UpdateAddressBookTagInputSchema = v.object({
     tagId: IdSchema("tagId"),
     name: v.pipe(v.string(), v.trim(), v.minLength(1)),
-    color: v.optional(v.optional(v.pipe(v.string(), v.trim())), ""),
+    color: v.optional(v.pipe(v.string(), v.trim()), ""),
 });
 
 export type UpdateAddressBookTagInput = v.InferInput<typeof UpdateAddressBookTagInputSchema>;

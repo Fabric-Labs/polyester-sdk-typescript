@@ -51,7 +51,7 @@ export const SubaccountPolicySchema = v.pipe(
             v.optional(v.array(ProtoPolicyActionEnumSchema), []),
             v.transform((v) => v.map((action) => policyActionLabelFor(action))),
         ),
-        isTemplate: v.optional(v.optional(v.boolean()), false),
+        isTemplate: v.optional(v.boolean(), false),
         sourceTemplateId: v.pipe(
             v.bigint(),
             v.transform((v) => (v ? formatId(v) : undefined)),
@@ -119,9 +119,9 @@ export type SubaccountPolicy = v.InferOutput<typeof SubaccountPolicySchema>;
 
 const SubaccountPolicyInputBaseSchema = v.object({
     name: v.string(),
-    description: v.optional(v.optional(v.string()), ""),
-    spotMarkets: v.optional(v.optional(v.array(SpotMarketRuleSchema)), []),
-    perpMarkets: v.optional(v.optional(v.array(PerpMarketRuleSchema)), []),
+    description: v.optional(v.string(), ""),
+    spotMarkets: v.optional(v.array(SpotMarketRuleSchema), []),
+    perpMarkets: v.optional(v.array(PerpMarketRuleSchema), []),
     spotMarketScope: v.pipe(
         PolicyMarketScopeEnumSchema,
         v.transform((v) => PolicyMarketScopeCodec.inputToProto[v]),
@@ -131,7 +131,7 @@ const SubaccountPolicyInputBaseSchema = v.object({
         v.transform((v) => PolicyMarketScopeCodec.inputToProto[v]),
     ),
     actions: v.pipe(
-        v.optional(v.optional(v.array(PolicyActionEnumSchema)), []),
+        v.optional(v.array(PolicyActionEnumSchema), []),
         v.transform((v) => (v ?? []).map((action) => PolicyActionCodec.inputToProto[action])),
     ),
     globalLeverageCap: OptionalNumberToIntOrZeroSchema,
@@ -143,11 +143,11 @@ const SubaccountPolicyInputBaseSchema = v.object({
     dailyWithdrawLimit: OptionalNumberToBigIntOrZeroSchema,
     dailyLossLimit: OptionalNumberToBigIntOrZeroSchema,
     intradayDrawdownLimitPct: OptionalNumberToBpsOrZeroSchema,
-    tradingHalted: v.optional(v.optional(v.boolean()), false),
-    liquidationOnly: v.optional(v.optional(v.boolean()), false),
-    policyLocked: v.optional(v.optional(v.boolean()), false),
-    internalTransfersOwnOnly: v.optional(v.optional(v.boolean()), true),
-    enforceWithdrawWhitelist: v.optional(v.optional(v.boolean()), false),
+    tradingHalted: v.optional(v.boolean(), false),
+    liquidationOnly: v.optional(v.boolean(), false),
+    policyLocked: v.optional(v.boolean(), false),
+    internalTransfersOwnOnly: v.optional(v.boolean(), true),
+    enforceWithdrawWhitelist: v.optional(v.boolean(), false),
     subaccountId: optionalSubaccountIdInputSchema(),
 });
 

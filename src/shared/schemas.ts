@@ -11,7 +11,7 @@ import type { JsonObject } from "@bufbuild/protobuf";
 
 export const TimestampSchema = v.object({
     seconds: v.bigint(),
-    nanos: v.optional(v.optional(v.number()), 0),
+    nanos: v.optional(v.number(), 0),
 });
 
 export const TimestampMsSchema = v.pipe(

@@ -76,8 +76,8 @@ export const BaseOrdersFilterInputSchema = v.object({
 export const OpenOrdersInputSchema = v.object({
     ...BaseOrdersFilterInputSchema.entries,
 
-    includeAttachedRisk: v.optional(v.optional(v.boolean()), true),
-    includeAttachedRiskState: v.optional(v.optional(v.boolean()), false),
+    includeAttachedRisk: v.optional(v.boolean(), true),
+    includeAttachedRiskState: v.optional(v.boolean(), false),
 });
 
 export type OpenOrdersInput = v.InferInput<typeof OpenOrdersInputSchema>;
@@ -85,8 +85,8 @@ export type OpenOrdersInput = v.InferInput<typeof OpenOrdersInputSchema>;
 export const OrderHistoryInputSchema = v.object({
     ...BaseOrdersFilterInputSchema.entries,
 
-    includeAttachedRisk: v.optional(v.optional(v.boolean()), true),
-    includeAttachedRiskState: v.optional(v.optional(v.boolean()), false),
+    includeAttachedRisk: v.optional(v.boolean(), true),
+    includeAttachedRiskState: v.optional(v.boolean(), false),
 
     status: v.pipe(
         v.optional(OrderStatusSchema),
@@ -377,7 +377,7 @@ const ReadAttachedRiskSchema = v.object({
     takeProfit: v.optional(ReadAttachedRiskTakeProfitSchema),
     stopLoss: v.optional(ReadAttachedRiskStopLossSchema),
     trailingStop: v.optional(ReadAttachedRiskTrailingStopSchema),
-    oco: v.optional(v.optional(v.boolean()), false),
+    oco: v.optional(v.boolean(), false),
 });
 
 const ReadOrderOriginSchema = v.object({
@@ -541,7 +541,7 @@ export const NewOrderInputSchema = v.pipe(
         ),
         price: v.optional(v.pipe(v.string(), v.trim())),
         qty: v.pipe(v.string(), v.trim(), v.minLength(1)),
-        postOnly: v.optional(v.optional(v.boolean()), false),
+        postOnly: v.optional(v.boolean(), false),
         clientOrderId: v.optional(v.pipe(v.string(), v.trim())),
         feeSource: v.pipe(
             v.optional(FeeSourceSchema),
@@ -606,7 +606,7 @@ export const OrderSchema = v.pipe(
         priceTicks: v.bigint(),
         createdTsNs: v.bigint(),
         terminalTsNs: v.bigint(),
-        terminalReason: v.optional(v.optional(v.string()), ""),
+        terminalReason: v.optional(v.string(), ""),
         terminalReasonCode: v.number(),
         attachedRisk: v.optional(ReadAttachedRiskSchema),
         origin: v.optional(ReadOrderOriginSchema),
@@ -707,7 +707,7 @@ export const CancelAllOrdersInputSchema = v.object({
         v.optional(SideSchema),
         v.transform((v) => (v ? OrderSideCodec.inputToProto[v] : undefined)),
     ),
-    dryRun: v.optional(v.optional(v.boolean()), false),
+    dryRun: v.optional(v.boolean(), false),
     maxOrders: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0))),
     requestId: v.optional(v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(64))),
 });
@@ -769,7 +769,7 @@ export const ModifyOrderInputSchema = v.pipe(
             ),
         ),
         risk: RiskPolicyInputSchema,
-        clearRisk: v.optional(v.optional(v.boolean()), false),
+        clearRisk: v.optional(v.boolean(), false),
     }),
     v.check((input) => {
         const hasOrderId = (input.orderId ?? "").trim().length > 0;
@@ -827,8 +827,8 @@ export const GetOrderDetailsInputSchema = v.pipe(
         orderId: v.optional(v.pipe(v.string(), v.trim())),
         clientOrderId: v.optional(v.pipe(v.string(), v.trim())),
         subaccountId: optionalSubaccountIdInputSchema(),
-        includeAttachedRisk: v.optional(v.optional(v.boolean()), true),
-        includeAttachedRiskState: v.optional(v.optional(v.boolean()), true),
+        includeAttachedRisk: v.optional(v.boolean(), true),
+        includeAttachedRiskState: v.optional(v.boolean(), true),
     }),
     v.check((input) => {
         const hasOrderId = (input.orderId ?? "").length > 0;
@@ -892,8 +892,8 @@ export type OrderTransfer = v.InferOutput<typeof OrderTransferSchema>;
 
 export const OrderDetailsSchema = v.object({
     order: OrderSchema,
-    trades: v.optional(v.optional(v.array(UserTradeSchema)), []),
-    transfers: v.optional(v.optional(v.array(OrderTransferSchema)), []),
+    trades: v.optional(v.array(UserTradeSchema), []),
+    transfers: v.optional(v.array(OrderTransferSchema), []),
 });
 
 export type OrderDetails = v.InferOutput<typeof OrderDetailsSchema>;

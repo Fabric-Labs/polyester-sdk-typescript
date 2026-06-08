@@ -73,11 +73,11 @@ export type LedgerTransfer = v.InferOutput<typeof LedgerTransferSchema>;
 
 export const ListTransfersInputSchema = v.object({
     subaccountId: optionalSubaccountIdInputSchema(),
-    ledger: v.optional(v.optional(v.number()), 0),
+    ledger: v.optional(v.number(), 0),
     limit: v.optional(v.number()),
-    reversed: v.optional(v.optional(v.boolean()), false),
+    reversed: v.optional(v.boolean(), false),
     since: v.pipe(
-        v.optional(v.optional(v.number()), 0),
+        v.optional(v.number(), 0),
         v.transform((v) => BigInt(v ?? 0)),
     ),
 });

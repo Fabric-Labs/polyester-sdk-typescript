@@ -40,7 +40,7 @@ export const ApiKeyPolicySchema = v.object({
         v.optional(v.array(ProtoPolicyActionEnumSchema), []),
         v.transform((v) => v.map((action) => policyActionLabelFor(action))),
     ),
-    isTemplate: v.optional(v.optional(v.boolean()), false),
+    isTemplate: v.optional(v.boolean(), false),
     sourceTemplateId: v.pipe(
         v.optional(v.bigint()),
         v.transform((v) => (v ? formatId(v) : undefined)),
@@ -55,7 +55,7 @@ export const ApiKeyPolicySchema = v.object({
     ),
     maxOpenOrders: v.optional(v.number()),
     maxOpenPositions: v.optional(v.number()),
-    globalPerpLeverageX: v.optional(v.optional(v.number()), 0),
+    globalPerpLeverageX: v.optional(v.number(), 0),
     dailyInternalTransferOutLimit: v.pipe(
         v.bigint(),
         v.transform((v) => Number(v)),
@@ -64,10 +64,10 @@ export const ApiKeyPolicySchema = v.object({
         v.bigint(),
         v.transform((v) => Number(v)),
     ),
-    internalTransfersOwnOnly: v.optional(v.optional(v.boolean()), true),
-    enforceWithdrawWhitelist: v.optional(v.optional(v.boolean()), false),
-    tradingHalted: v.optional(v.optional(v.boolean()), false),
-    liquidationOnly: v.optional(v.optional(v.boolean()), false),
+    internalTransfersOwnOnly: v.optional(v.boolean(), true),
+    enforceWithdrawWhitelist: v.optional(v.boolean(), false),
+    tradingHalted: v.optional(v.boolean(), false),
+    liquidationOnly: v.optional(v.boolean(), false),
     dailyLossLimit: v.pipe(
         v.optional(v.bigint()),
         v.transform((v) => (v ? Number(v) : undefined)),
@@ -93,9 +93,9 @@ export type ListApiKeyPoliciesResponse = v.InferOutput<typeof ListApiKeyPolicies
 
 const ApiKeyPolicyInputBaseSchema = v.object({
     name: v.string(),
-    description: v.optional(v.optional(v.string()), ""),
-    spotMarkets: v.optional(v.optional(v.array(SpotMarketRuleSchema)), []),
-    perpMarkets: v.optional(v.optional(v.array(PerpMarketRuleSchema)), []),
+    description: v.optional(v.string(), ""),
+    spotMarkets: v.optional(v.array(SpotMarketRuleSchema), []),
+    perpMarkets: v.optional(v.array(PerpMarketRuleSchema), []),
     spotMarketScope: v.pipe(
         PolicyMarketScopeEnumSchema,
         v.transform((v) => PolicyMarketScopeCodec.inputToProto[v]),
@@ -105,13 +105,13 @@ const ApiKeyPolicyInputBaseSchema = v.object({
         v.transform((v) => PolicyMarketScopeCodec.inputToProto[v]),
     ),
     actions: v.pipe(
-        v.optional(v.optional(v.array(PolicyActionEnumSchema)), []),
+        v.optional(v.array(PolicyActionEnumSchema), []),
         v.transform((v) => (v ?? []).map((action) => PolicyActionCodec.inputToProto[action])),
     ),
     maxOrderNotional: OptionalNumberToBigIntOrZeroSchema,
     dailyInternalTransferLimit: OptionalNumberToBigIntOrZeroSchema,
     dailyWithdrawLimit: OptionalNumberToBigIntOrZeroSchema,
-    isTemplate: v.optional(v.optional(v.boolean()), false),
+    isTemplate: v.optional(v.boolean(), false),
     assignToKeyId: v.optional(v.pipe(v.string(), v.trim())),
 });
 
