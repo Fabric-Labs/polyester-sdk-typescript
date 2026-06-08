@@ -59,8 +59,9 @@ describe("getJwtExpiration", () => {
     it("returns null for malformed payloads", () => {
         expect(getJwtExpiration("header.a.signature")).toBeNull();
         expect(getJwtExpiration(jwtWithPayload({ sub: "missing-exp" }))).toBeNull();
-        expect(getJwtExpiration(["header", base64UrlEncode("{"), "signature"].join(".")))
-            .toBeNull();
+        expect(
+            getJwtExpiration(["header", base64UrlEncode("{"), "signature"].join(".")),
+        ).toBeNull();
     });
 });
 
