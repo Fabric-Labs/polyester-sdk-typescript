@@ -12,6 +12,7 @@ import { POLYESTER_TESTNET_ENVIRONMENT } from "./environment.js";
 import type { Me } from "./services/auth/auth.js";
 import { MarketDataService } from "./services/market-data/index.js";
 import { ZipperService } from "./services/zipper/index.js";
+import { createTestCatalog } from "./testing/catalog.js";
 
 function base64UrlEncode(value: string): string {
     return btoa(value).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/u, "");
@@ -270,6 +271,20 @@ describe("PolyesterServerClient catalog refresh", () => {
             refreshCatalogs: false,
         });
 
+        expect(refresh.getSpotConfig).not.toHaveBeenCalled();
+        expect(refresh.getDepositWithdrawConfig).not.toHaveBeenCalled();
+    });
+
+    it("uses an injected catalog without starting runtime refresh", () => {
+        const refresh = mockCatalogRefreshEndpoints();
+        const catalog = createTestCatalog();
+
+        const client = new PolyesterServerClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            catalog,
+        });
+
+        expect(client.catalog).toBe(catalog);
         expect(refresh.getSpotConfig).not.toHaveBeenCalled();
         expect(refresh.getDepositWithdrawConfig).not.toHaveBeenCalled();
     });

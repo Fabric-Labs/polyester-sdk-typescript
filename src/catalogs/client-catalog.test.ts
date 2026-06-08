@@ -196,10 +196,31 @@ describe("createPolyesterCatalog", () => {
             refresh: false,
         });
 
-        expect(() => catalog.market.requirePairBySymbolId(1)).toThrow(CatalogLookupError);
-        expect(() => catalog.orders.formatQuantity(1n, 1)).toThrow(
-            "[catalog] market symbolId not found: 1",
-        );
+        try {
+            catalog.market.requirePairBySymbolId(1);
+            expect.fail("expected catalog lookup to fail");
+        } catch (error) {
+            expect(error).toBeInstanceOf(CatalogLookupError);
+            expect(error).toMatchObject({
+                code: "CATALOG_LOOKUP_MISS",
+                domain: "market",
+                lookup: "symbolId",
+                value: 1,
+            });
+        }
+
+        try {
+            catalog.orders.formatQuantity(1n, 1);
+            expect.fail("expected order catalog lookup to fail");
+        } catch (error) {
+            expect(error).toBeInstanceOf(CatalogLookupError);
+            expect(error).toMatchObject({
+                code: "CATALOG_LOOKUP_MISS",
+                domain: "market",
+                lookup: "symbolId",
+                value: 1,
+            });
+        }
     });
 
     it("shares one in-flight refresh across concurrent refresh calls", async () => {

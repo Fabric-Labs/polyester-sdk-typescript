@@ -12,6 +12,7 @@ import {
 } from "./services/auth/token-storage.js";
 import { MarketDataService } from "./services/market-data/index.js";
 import { ZipperService } from "./services/zipper/index.js";
+import { createTestCatalog } from "./testing/catalog.js";
 
 const originalDocument = Object.getOwnPropertyDescriptor(globalThis, "document");
 
@@ -171,6 +172,20 @@ describe("PolyesterBrowserClient", () => {
             refreshCatalogs: false,
         });
 
+        expect(refresh.getSpotConfig).not.toHaveBeenCalled();
+        expect(refresh.getDepositWithdrawConfig).not.toHaveBeenCalled();
+    });
+
+    it("uses an injected catalog without starting runtime refresh", () => {
+        const refresh = mockCatalogRefreshEndpoints();
+        const catalog = createTestCatalog();
+
+        const client = new PolyesterBrowserClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            catalog,
+        });
+
+        expect(client.catalog).toBe(catalog);
         expect(refresh.getSpotConfig).not.toHaveBeenCalled();
         expect(refresh.getDepositWithdrawConfig).not.toHaveBeenCalled();
     });
