@@ -1,3 +1,4 @@
+import * as ProtoOrders from "../gen/orders/v1/orders_pb.js";
 import { decimalToScaledInt } from "../utils/numbers.js";
 import type { AssetConfig, ZipperChainConfig } from "./config-types.js";
 import { indexesFor } from "./indexes.js";
@@ -29,57 +30,62 @@ function isEverListed(pair: EnrichedPairConfig, nowMs: number): boolean {
     return pair.listingAt !== null && pair.listingAt < nowMs;
 }
 
-export function createReader(getSnapshot: () => CatalogSnapshot): CatalogReader {
-    function snapshot(): CatalogSnapshot {
-        return getSnapshot();
-    }
+type SnapshotGetter = () => CatalogSnapshot;
 
-    function getPair(pair: PairCatalogKey): EnrichedPairConfig | null {
-        return typeof pair === "number"
-            ? market.getPairBySymbolId(pair)
-            : market.getPairBySymbol(pair);
-    }
+function requireCatalogValue<T>(
+    domain: CatalogLookupDomain,
+    lookup: string,
+    value: string | number,
+    found: T | null,
+): T {
+    if (found === null) throw new CatalogLookupError(domain, lookup, value);
+    return found;
+}
 
-    function requirePair(
-        pair: PairCatalogKey,
-        domain: CatalogLookupDomain = "market",
-    ): EnrichedPairConfig {
-        const found = getPair(pair);
-        if (!found)
-            throw new CatalogLookupError(
-                domain,
-                typeof pair === "number" ? "symbolId" : "symbol",
-                pair,
-            );
-        return found;
-    }
+function getPair(market: MarketCatalogReader, pair: PairCatalogKey): EnrichedPairConfig | null {
+    return typeof pair === "number" ? market.getPairBySymbolId(pair) : market.getPairBySymbol(pair);
+}
 
-    function getLedgerAsset(asset: AssetCatalogKey): AssetConfig | null {
-        return typeof asset === "number"
-            ? ledger.getAssetByLedgerId(asset)
-            : ledger.getAssetBySymbol(asset);
-    }
+function requirePair(
+    market: MarketCatalogReader,
+    pair: PairCatalogKey,
+    domain: CatalogLookupDomain = "market",
+): EnrichedPairConfig {
+    return requireCatalogValue(
+        domain,
+        typeof pair === "number" ? "symbolId" : "symbol",
+        pair,
+        getPair(market, pair),
+    );
+}
 
-    function requireLedgerAsset(
-        asset: AssetCatalogKey,
-        domain: CatalogLookupDomain = "ledger",
-    ): AssetConfig {
-        const found = getLedgerAsset(asset);
-        if (!found)
-            throw new CatalogLookupError(
-                domain,
-                typeof asset === "number" ? "ledgerId" : "symbol",
-                asset,
-            );
-        return found;
-    }
+function getLedgerAsset(ledger: LedgerCatalogReader, asset: AssetCatalogKey): AssetConfig | null {
+    return typeof asset === "number"
+        ? ledger.getAssetByLedgerId(asset)
+        : ledger.getAssetBySymbol(asset);
+}
 
-    function getZipperChain(chain: ChainCatalogKey): ZipperChainConfig | null {
-        return typeof chain === "number"
-            ? zipper.getChainById(chain)
-            : zipper.getChainByCode(chain);
-    }
+function requireLedgerAsset(
+    ledger: LedgerCatalogReader,
+    asset: AssetCatalogKey,
+    domain: CatalogLookupDomain = "ledger",
+): AssetConfig {
+    return requireCatalogValue(
+        domain,
+        typeof asset === "number" ? "ledgerId" : "symbol",
+        asset,
+        getLedgerAsset(ledger, asset),
+    );
+}
 
+function getZipperChain(
+    zipper: ZipperCatalogReader,
+    chain: ChainCatalogKey,
+): ZipperChainConfig | null {
+    return typeof chain === "number" ? zipper.getChainById(chain) : zipper.getChainByCode(chain);
+}
+
+function createMarketReader(snapshot: SnapshotGetter): MarketCatalogReader {
     const market: MarketCatalogReader = {
         listAssets: () => snapshot().market.assets,
         getAssetBySymbol: (assetSymbol) =>
@@ -132,6 +138,10 @@ export function createReader(getSnapshot: () => CatalogSnapshot): CatalogReader 
         },
     };
 
+    return market;
+}
+
+function createLedgerReader(market: MarketCatalogReader): LedgerCatalogReader {
     const ledger: LedgerCatalogReader = {
         getAssetByLedgerId: (ledgerAssetId) => market.getAssetByLedgerId(ledgerAssetId),
         requireAssetByLedgerId(ledgerAssetId) {
@@ -154,7 +164,7 @@ export function createReader(getSnapshot: () => CatalogSnapshot): CatalogReader 
             return ledger.requireAssetByLedgerId(ledgerAssetId).symbol;
         },
         parseAmount(amount, asset) {
-            const config = requireLedgerAsset(asset, "ledger");
+            const config = requireLedgerAsset(ledger, asset, "ledger");
             const value = decimalToScaledInt(amount, config.quantityScale, "amount");
             return {
                 value,
@@ -166,16 +176,20 @@ export function createReader(getSnapshot: () => CatalogSnapshot): CatalogReader 
             };
         },
         formatAmount(amount, asset) {
-            const config = requireLedgerAsset(asset, "ledger");
+            const config = requireLedgerAsset(ledger, asset, "ledger");
             return formatLedgerDecimal(amount, config.quantityDisplayDecimals);
         },
         isKnownAssetId: (ledgerAssetId) =>
             ledgerAssetId !== 0 && ledger.getAssetByLedgerId(ledgerAssetId) !== null,
     };
 
+    return ledger;
+}
+
+function createOrdersReader(market: MarketCatalogReader): OrdersCatalogReader {
     const orders: OrdersCatalogReader = {
         parseQuantity(quantity, pair) {
-            const config = requirePair(pair, "orders");
+            const config = requirePair(market, pair, "orders");
             const value = decimalToScaledInt(quantity, config.baseAsset.quantityScale, "quantity");
             return {
                 value,
@@ -184,7 +198,7 @@ export function createReader(getSnapshot: () => CatalogSnapshot): CatalogReader 
             };
         },
         parsePrice(price, pair) {
-            const config = requirePair(pair, "orders");
+            const config = requirePair(market, pair, "orders");
             const value = decimalToScaledInt(price, 6, "price");
             return {
                 value,
@@ -203,7 +217,7 @@ export function createReader(getSnapshot: () => CatalogSnapshot): CatalogReader 
             return int6ToDecimalString(priceTicks);
         },
         validateOrderInput(input) {
-            const pair = requirePair(input.pair, "orders");
+            const pair = requirePair(market, input.pair, "orders");
             const quantity = orders.parseQuantity(input.quantity, pair.symbolId).value;
             const step = decimalToScaledInt(
                 pair.stepSize,
@@ -227,14 +241,25 @@ export function createReader(getSnapshot: () => CatalogSnapshot): CatalogReader 
         },
         formatFee(feeScaled, pairSymbolId, feeSource) {
             const pair = market.requirePairBySymbolId(pairSymbolId);
-            const asset =
-                feeSource === 1 ? pair.quoteAsset : feeSource === 2 ? pair.baseAsset : undefined;
+            let asset: AssetConfig | undefined;
+            switch (feeSource) {
+                case ProtoOrders.FeeSource.QUOTE:
+                    asset = pair.quoteAsset;
+                    break;
+                case ProtoOrders.FeeSource.RECEIVED:
+                    asset = pair.baseAsset;
+                    break;
+            }
             if (!asset) throw new CatalogLookupError("orders", "feeSource", feeSource);
             const decimal = intToDecimalString(feeScaled, asset.quantityScale);
             return formatToDecimals(decimal, asset.quantityDisplayDecimals, asset.quantityScale);
         },
     };
 
+    return orders;
+}
+
+function createZipperReader(snapshot: SnapshotGetter): ZipperCatalogReader {
     const zipper: ZipperCatalogReader = {
         listChains: () => snapshot().zipper.chains,
         getChainByCode: (chainCode) =>
@@ -274,7 +299,7 @@ export function createReader(getSnapshot: () => CatalogSnapshot): CatalogReader 
                 typeof asset === "number"
                     ? zipper.getAssetByLedgerId(asset)
                     : zipper.getAssetBySymbol(asset);
-            const zipperChain = getZipperChain(chain);
+            const zipperChain = getZipperChain(zipper, chain);
             if (!zipperAsset || !zipperChain) return null;
             const route = zipperAsset.chains.find(
                 (candidate) => candidate.chainId === zipperChain.chainId,
@@ -300,6 +325,19 @@ export function createReader(getSnapshot: () => CatalogSnapshot): CatalogReader 
             return contract;
         },
     };
+
+    return zipper;
+}
+
+export function createReader(getSnapshot: () => CatalogSnapshot): CatalogReader {
+    function snapshot(): CatalogSnapshot {
+        return getSnapshot();
+    }
+
+    const market = createMarketReader(snapshot);
+    const ledger = createLedgerReader(market);
+    const orders = createOrdersReader(market);
+    const zipper = createZipperReader(snapshot);
 
     return { market, ledger, orders, zipper, snapshot };
 }

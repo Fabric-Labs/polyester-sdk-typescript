@@ -47,7 +47,7 @@ export function createUserTradeSchemaForReader(reader: CatalogReader) {
                 "UserTradeSchema",
                 "fee source",
             );
-            const feeAsset = t.feeSource === 1 ? quoteAsset : baseAsset;
+            const feeAsset = feeSourceLabel === "quote" ? quoteAsset : baseAsset;
             const fee = Number(reader.orders.formatFee(t.feeScaled, t.symbolId, t.feeSource));
 
             return {
