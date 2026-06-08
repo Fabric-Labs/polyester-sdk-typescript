@@ -58,7 +58,7 @@ export interface CatalogReader {
 export interface ClientCatalog extends CatalogReader {
     state(): CatalogState;
     ready(): Promise<CatalogSnapshot>;
-    refresh(options?: CatalogRefreshOptions): Promise<CatalogSnapshot>;
+    refresh(): Promise<CatalogSnapshot>;
 }
 
 export interface CatalogSnapshot {
@@ -74,10 +74,6 @@ export type CatalogState =
     | { status: "refreshing"; previousSource: CatalogSnapshot["source"] }
     | { status: "fresh"; source: "api" | "custom" }
     | { status: "stale"; source: CatalogSnapshot["source"]; error: unknown };
-
-export interface CatalogRefreshOptions {
-    force?: boolean;
-}
 
 export interface CatalogRefreshSource {
     market(): Promise<SpotConfig>;

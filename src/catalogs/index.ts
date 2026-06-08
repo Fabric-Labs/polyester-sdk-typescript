@@ -23,7 +23,6 @@ export {
     type AssetCatalogKey,
     type CatalogLookupDomain,
     type CatalogReader,
-    type CatalogRefreshOptions,
     type CatalogRefreshSource,
     type CatalogSnapshot,
     type CatalogState,

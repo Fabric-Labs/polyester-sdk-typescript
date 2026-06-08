@@ -53,7 +53,7 @@ export function createPolyesterCatalog(options: CreatePolyesterCatalogOptions = 
                 refreshInFlight = undefined;
             });
 
-        readyPromise ??= refreshInFlight.catch(() => current);
+        readyPromise = refreshInFlight.catch(() => current);
         return refreshInFlight;
     }
 
