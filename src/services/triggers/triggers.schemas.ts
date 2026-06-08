@@ -10,11 +10,7 @@ import {
     optionalUint64DecimalFilterSchema,
 } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
-import {
-    parsePriceTicks,
-    parseQtyScaled,
-    parseOptionalPositiveIntLike,
-} from "../../utils/numbers.js";
+import { parsePriceTicks, parseOptionalPositiveIntLike } from "../../utils/numbers.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { formatId, idToBigInt } from "../../utils/base58-id.js";
 import {
@@ -188,11 +184,6 @@ const BaseChildOrderFieldsSchema = v.object({
 const UNSET_TRAILING_DISTANCE: TrailingDistanceOneof = { case: undefined, value: undefined };
 const UNSET_MAX_SLIPPAGE: MaxSlippageOneof = { case: undefined, value: undefined };
 
-function parseQtyScaledForSymbol(reader: CatalogReader, symbol: string, qty: string): bigint {
-    const qtyScale = reader.market.requirePairBySymbol(symbol).baseAsset.quantityScale;
-    return parseQtyScaled(qty, qtyScale, "qty");
-}
-
 function buildTriggerDefaults(): Pick<
     Proto.CreateTriggerRequest,
     | "triggerPriceTicks"
@@ -242,6 +233,12 @@ function buildCreateTriggerBase(
     reader: CatalogReader,
     input: BaseChildOrderInput,
 ): CreateTriggerBase {
+    reader.orders.validateOrderInput({
+        pair: input.symbol,
+        quantity: input.qty,
+        price: input.orderType === ProtoOrders.OrderType.LIMIT ? input.limitPrice : undefined,
+    });
+
     return {
         ...buildTriggerDefaults(),
         subaccountId: input.subaccountId,
@@ -249,7 +246,7 @@ function buildCreateTriggerBase(
         side: input.side,
         orderType: input.orderType,
         tif: input.tif,
-        qtyScaled: parseQtyScaledForSymbol(reader, input.symbol, input.qty),
+        qtyScaled: reader.orders.parseQuantity(input.qty, input.symbol).value,
         limitPriceTicks:
             input.orderType === ProtoOrders.OrderType.LIMIT && input.limitPrice
                 ? parsePriceTicks(input.limitPrice, "limitPrice")

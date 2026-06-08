@@ -135,6 +135,39 @@ describe("CreateTriggerInputSchema", () => {
         });
     });
 
+    it("validates child order quantity and limit price against pair constraints", () => {
+        const schema = createCreateTriggerInputSchema(seedPairCatalog().snapshot());
+        const baseTrigger = {
+            triggerType: "stop_loss",
+            symbol: "BTC-USDT",
+            side: "sell",
+            orderType: "limit",
+            tif: "gtc",
+            qty: "0.5",
+            limitPrice: "99.50",
+            triggerPrice: "100.00",
+        } as const;
+
+        expect(() =>
+            v.parse(schema, {
+                ...baseTrigger,
+                qty: "0.0000015",
+            }),
+        ).toThrow("quantity does not satisfy pair step size");
+        expect(() =>
+            v.parse(schema, {
+                ...baseTrigger,
+                qty: "0",
+            }),
+        ).toThrow("quantity is below pair minimum");
+        expect(() =>
+            v.parse(schema, {
+                ...baseTrigger,
+                limitPrice: "99.501",
+            }),
+        ).toThrow("price does not satisfy pair tick size");
+    });
+
     it("rejects invalid timing and ladder bounds", () => {
         const schema = createCreateTriggerInputSchema(seedPairCatalog().snapshot());
 

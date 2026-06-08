@@ -18,11 +18,7 @@ import {
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
 import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
-import {
-    parsePriceTicks,
-    parseQtyScaled,
-    parseOptionalPositiveIntLike,
-} from "../../utils/numbers.js";
+import { parsePriceTicks, parseOptionalPositiveIntLike } from "../../utils/numbers.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { formatId, idToBigInt } from "../../utils/base58-id.js";
 import {
@@ -617,9 +613,12 @@ function createNewOrderInputSchemaForReader(reader: CatalogReader) {
                 marketClientRefPrice,
                 ...input
             }) => {
-                const pair = reader.market.requirePairBySymbol(input.symbol);
-                const qtyScale = pair.baseAsset.quantityScale;
-                const qtyScaled = parseQtyScaled(qty, qtyScale, "qty");
+                reader.orders.validateOrderInput({
+                    pair: input.symbol,
+                    quantity: qty,
+                    price: input.orderType === ProtoWrite.OrderType.LIMIT ? price : undefined,
+                });
+                const qtyScaled = reader.orders.parseQuantity(qty, input.symbol).value;
                 const priceTicks =
                     input.orderType === ProtoWrite.OrderType.LIMIT && price
                         ? parsePriceTicks(price, "price")
@@ -961,12 +960,15 @@ function createModifyOrderInputSchemaForReader(reader: CatalogReader) {
             const newPriceTicks = input.newPrice
                 ? parsePriceTicks(input.newPrice, "newPrice")
                 : undefined;
+            if (input.newQty) {
+                reader.orders.validateOrderInput({
+                    pair: input.symbol,
+                    quantity: input.newQty,
+                    price: input.newPrice,
+                });
+            }
             const newQtyScaled = input.newQty
-                ? parseQtyScaled(
-                      input.newQty,
-                      reader.market.requirePairBySymbol(input.symbol).baseAsset.quantityScale,
-                      "newQty",
-                  )
+                ? reader.orders.parseQuantity(input.newQty, input.symbol).value
                 : undefined;
             const behavior = input.behavior
                 ? ModifyBehaviorCodec.inputToProto[input.behavior]

@@ -284,6 +284,37 @@ describe("NewOrderInputSchema", () => {
         ).toThrow();
     });
 
+    it("validates quantity and limit price against pair constraints", () => {
+        const schema = createNewOrderInputSchema(seedPairCatalog().snapshot());
+        const baseOrder = {
+            symbol: "BTC-USDT",
+            side: "buy",
+            orderType: "limit",
+            tif: "gtc",
+            price: "100",
+            qty: "0.5",
+        } as const;
+
+        expect(() =>
+            v.parse(schema, {
+                ...baseOrder,
+                qty: "0.0000015",
+            }),
+        ).toThrow("quantity does not satisfy pair step size");
+        expect(() =>
+            v.parse(schema, {
+                ...baseOrder,
+                qty: "0",
+            }),
+        ).toThrow("quantity is below pair minimum");
+        expect(() =>
+            v.parse(schema, {
+                ...baseOrder,
+                price: "100.001",
+            }),
+        ).toThrow("price does not satisfy pair tick size");
+    });
+
     it("rejects invalid attached risk states", () => {
         const schema = createNewOrderInputSchema(seedPairCatalog().snapshot());
 
@@ -357,6 +388,33 @@ describe("ModifyOrderInputSchema", () => {
             newAttachedRisk: {},
             behavior: ProtoWrite.ModifyBehavior.AMEND_OR_REPLACE,
         });
+    });
+
+    it("validates new quantity against pair constraints when present", () => {
+        const schema = createModifyOrderInputSchema(seedPairCatalog().snapshot());
+
+        expect(() =>
+            v.parse(schema, {
+                orderId: "11",
+                symbol: "BTC-USDT",
+                newQty: "0.0000015",
+            }),
+        ).toThrow("quantity does not satisfy pair step size");
+        expect(() =>
+            v.parse(schema, {
+                orderId: "11",
+                symbol: "BTC-USDT",
+                newQty: "0",
+            }),
+        ).toThrow("quantity is below pair minimum");
+        expect(() =>
+            v.parse(schema, {
+                orderId: "11",
+                symbol: "BTC-USDT",
+                newQty: "0.5",
+                newPrice: "100.001",
+            }),
+        ).toThrow("price does not satisfy pair tick size");
     });
 
     it("rejects invalid risk patch states", () => {
