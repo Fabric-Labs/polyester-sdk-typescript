@@ -1,5 +1,4 @@
 // AUTO-GENERATED FILE - DO NOT EDIT
-// Generated at: 2026-06-02T01:36:08.275Z
 // Run `bun run scripts/generate-asset-catalog.ts` to regenerate
 
 import type { AssetConfig } from "./config-types.js";

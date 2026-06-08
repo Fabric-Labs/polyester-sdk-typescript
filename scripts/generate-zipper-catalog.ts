@@ -1,28 +1,30 @@
 import { PolyesterServerClient } from "../src/server-client.js";
+import { POLYESTER_TESTNET_ENVIRONMENT } from "../src/environment.js";
 import { enrichZipperAssets } from "../src/catalogs/zipper-catalog.js";
 
 const OUTPUT_PATH = new URL("../src/catalogs/zipper-catalog.generated.ts", import.meta.url);
 
 async function main(): Promise<void> {
-    const client = new PolyesterServerClient();
+    const client = new PolyesterServerClient({
+        environment: POLYESTER_TESTNET_ENVIRONMENT,
+        refreshCatalogs: false,
+    });
     const config = await client.zipper.getDepositWithdrawConfig();
     const enrichedAssets = enrichZipperAssets(config.assets, config.chains);
     const contractNames = config.contracts.map((contract) => contract.name);
-    const timestamp = new Date().toISOString();
 
     const content = `// AUTO-GENERATED FILE - DO NOT EDIT
-// Generated at: ${timestamp}
 // Run \`bun run scripts/generate-zipper-catalog.ts\` to regenerate
 
 import type { ZipperEnrichedAssetConfig, ZipperChainConfig, ZipperChainContractConfig } from "./zipper-catalog.js";
 
-export const ZIPPER_CHAIN_CATALOG: ZipperChainConfig[] = ${JSON.stringify(config.chains, null, "\t")};
+export const ZIPPER_CHAIN_CATALOG: ZipperChainConfig[] = ${JSON.stringify(config.chains, null, 4)};
 
-export const ZIPPER_ASSET_CATALOG: ZipperEnrichedAssetConfig[] = ${JSON.stringify(enrichedAssets, null, "\t")};
+export const ZIPPER_ASSET_CATALOG: ZipperEnrichedAssetConfig[] = ${JSON.stringify(enrichedAssets, null, 4)};
 
-export const ZIPPER_CONTRACTS_CATALOG: ZipperChainContractConfig[] = ${JSON.stringify(config.contracts, null, "\t")};
+export const ZIPPER_CONTRACTS_CATALOG: ZipperChainContractConfig[] = ${JSON.stringify(config.contracts, null, 4)};
 
-export const ZIPPER_CONTRACT_NAMES = ${JSON.stringify(contractNames, null, "\t")} as const;
+export const ZIPPER_CONTRACT_NAMES = ${JSON.stringify(contractNames, null, 4)} as const;
 
 export type ZipperContractName = (typeof ZIPPER_CONTRACT_NAMES)[number];
 `;

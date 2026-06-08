@@ -1,4 +1,5 @@
 import { PolyesterServerClient } from "../src/server-client.js";
+import { POLYESTER_TESTNET_ENVIRONMENT } from "../src/environment.js";
 import type { AssetConfig, PairConfig } from "../src/catalogs/config-types.js";
 import type { EnrichedPairConfig } from "../src/catalogs/market-data-catalog.js";
 
@@ -41,22 +42,23 @@ function enrichPairs(pairs: PairConfig[], assets: AssetConfig[]): EnrichedPairCo
 }
 
 async function main(): Promise<void> {
-    const client = new PolyesterServerClient();
+    const client = new PolyesterServerClient({
+        environment: POLYESTER_TESTNET_ENVIRONMENT,
+        refreshCatalogs: false,
+    });
     const spotConfig = await client.marketData.getSpotConfig();
 
     const enrichedPairs = enrichPairs(spotConfig.pairs, spotConfig.assets);
-    const timestamp = new Date().toISOString();
 
     const content = `// AUTO-GENERATED FILE - DO NOT EDIT
-// Generated at: ${timestamp}
 // Run \`bun run scripts/generate-asset-catalog.ts\` to regenerate
 
 import type { AssetConfig } from "./config-types.js";
 import type { EnrichedPairConfig } from "./market-data-catalog.js";
 
-export const ASSET_CATALOG: AssetConfig[] = ${JSON.stringify(spotConfig.assets, null, "\t")};
+export const ASSET_CATALOG: AssetConfig[] = ${JSON.stringify(spotConfig.assets, null, 4)};
 
-export const PAIR_CATALOG: EnrichedPairConfig[] = ${JSON.stringify(enrichedPairs, null, "\t")};
+export const PAIR_CATALOG: EnrichedPairConfig[] = ${JSON.stringify(enrichedPairs, null, 4)};
 `;
 
     await Bun.write(OUTPUT_PATH, content);
