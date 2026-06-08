@@ -2,7 +2,6 @@ import * as v from "valibot";
 import { SideSchema } from "../shared.js";
 import {
     createCatalogSnapshotReader,
-    staticCatalog,
     PAIR_STATUSES,
     type AssetConfig,
     type CatalogReader,
@@ -76,9 +75,7 @@ function createMarketTradeSchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const MarketTradeSchema = createMarketTradeSchemaForReader(staticCatalog);
-
-export type MarketTrade = v.InferOutput<typeof MarketTradeSchema>;
+export type MarketTrade = v.InferOutput<ReturnType<typeof createMarketTradeSchema>>;
 
 export function createGetMarketTradesInputSchema(catalog: CatalogSnapshot) {
     return createGetMarketTradesInputSchemaForReader(createCatalogSnapshotReader(catalog));
@@ -119,10 +116,12 @@ function createGetMarketTradesInputSchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const GetMarketTradesInputSchema = createGetMarketTradesInputSchemaForReader(staticCatalog);
-
-export type GetMarketTradesInput = v.InferInput<typeof GetMarketTradesInputSchema>;
-export type GetMarketTradesRequest = v.InferOutput<typeof GetMarketTradesInputSchema>;
+export type GetMarketTradesInput = v.InferInput<
+    ReturnType<typeof createGetMarketTradesInputSchema>
+>;
+export type GetMarketTradesRequest = v.InferOutput<
+    ReturnType<typeof createGetMarketTradesInputSchema>
+>;
 
 export function createMarketDataSchemas(catalog: CatalogReader) {
     return createCatalogSchemaCache(catalog, (reader) => ({

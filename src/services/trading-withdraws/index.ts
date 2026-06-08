@@ -11,9 +11,9 @@ export {
     type TradingWithdrawActionValue,
 } from "./trading-withdraws.codecs.js";
 export {
-    CreateTradingWithdrawToFundingInputSchema,
     CreateTradingWithdrawResultSchema,
     CreateWalletTradingWithdrawResultSchema,
+    createCreateTradingWithdrawToFundingInputSchema,
     type CreateTradingWithdrawToFundingInput,
     type CreateTradingWithdrawToFundingRequest,
     type CreateTradingWithdrawResult,

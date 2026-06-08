@@ -8,7 +8,6 @@ import {
 
 export {
     CancelTriggerInputSchema,
-    CreateTriggerInputSchema,
     GetTriggerInputSchema,
     ListTriggerEventsInputSchema,
     ListTriggersInputSchema,
@@ -32,8 +31,6 @@ export {
     CreateTriggerResultSchema,
     ModifyTriggerResultSchema,
     PauseTriggerResultSchema,
-    TriggerEventSchema,
-    TriggerSchema,
     createTriggerEventSchema,
     createTriggerSchema,
 } from "./triggers-output.schemas.js";

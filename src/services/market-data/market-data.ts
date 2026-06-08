@@ -10,7 +10,7 @@ import {
 import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 import {
     createMarketDataSchemas,
-    type GetMarketTradesInputSchema,
+    type GetMarketTradesInput,
     type SpotConfig,
     SpotConfigSchema,
     type MarketTrade,
@@ -45,7 +45,7 @@ export class MarketDataService {
      * Returns recent public trades for one spot market, ordered newest-first by execution timestamp with match id as a tie-breaker. Supports limit, time bounds, side filtering, and match-id pagination.
      */
     async listTrades(
-        input: v.InferInput<typeof GetMarketTradesInputSchema>,
+        input: GetMarketTradesInput,
         options?: PolyesterRequestOptions,
     ): Promise<MarketTrade[]> {
         const schemas = this.#schemas.current();

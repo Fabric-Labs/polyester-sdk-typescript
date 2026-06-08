@@ -3,7 +3,6 @@ import { optionalSubaccountIdInputSchema, positiveBigintLikeSchema } from "../..
 import { decimalToScaledInt } from "../../utils/numbers.js";
 import {
     createCatalogSnapshotReader,
-    staticCatalog,
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
@@ -74,9 +73,6 @@ function createCreateTradingWithdrawToFundingInputSchemaForReader(reader: Catalo
     );
 }
 
-export const CreateTradingWithdrawToFundingInputSchema =
-    createCreateTradingWithdrawToFundingInputSchemaForReader(staticCatalog);
-
 export function createTradingWithdrawsSchemas(catalog: CatalogReader) {
     return createCatalogSchemaCache(catalog, (reader) => ({
         createTradingWithdrawToFundingInput:
@@ -85,11 +81,11 @@ export function createTradingWithdrawsSchemas(catalog: CatalogReader) {
 }
 
 export type CreateTradingWithdrawToFundingInput = v.InferInput<
-    typeof CreateTradingWithdrawToFundingInputSchema
+    ReturnType<typeof createCreateTradingWithdrawToFundingInputSchema>
 >;
 
 export type CreateTradingWithdrawToFundingRequest = v.InferOutput<
-    typeof CreateTradingWithdrawToFundingInputSchema
+    ReturnType<typeof createCreateTradingWithdrawToFundingInputSchema>
 >;
 
 export const CreateTradingWithdrawResultSchema = v.object({

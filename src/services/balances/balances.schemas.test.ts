@@ -2,10 +2,25 @@ import { describe, expect, it } from "vitest";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import {
     BalanceHistoryInputSchema,
+    createLedgerBalanceSchema,
     EquityHistoryInputSchema,
-    LedgerBalanceSchema,
 } from "./balances.schemas.js";
 import * as v from "valibot";
+import { createTestCatalog } from "../../testing/catalog.js";
+
+const LedgerBalanceSchema = createLedgerBalanceSchema(
+    createTestCatalog({
+        assets: [
+            {
+                symbol: "USDT",
+                ledgerId: 1,
+                name: "Tether USD",
+                quantityDisplayDecimals: 6,
+                quantityScale: 6,
+            },
+        ],
+    }).snapshot(),
+);
 
 describe("ledger balance schema", () => {
     it("maps generated trading balances to unified output balances", () => {

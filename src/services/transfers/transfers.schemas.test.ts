@@ -1,6 +1,21 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
-import { LedgerTransferSchema, ListTransfersInputSchema } from "./transfers.schemas.js";
+import { createTestCatalog } from "../../testing/catalog.js";
+import { createLedgerTransferSchema, ListTransfersInputSchema } from "./transfers.schemas.js";
+
+const LedgerTransferSchema = createLedgerTransferSchema(
+    createTestCatalog({
+        assets: [
+            {
+                symbol: "USDT",
+                ledgerId: 1,
+                name: "Tether USD",
+                quantityDisplayDecimals: 6,
+                quantityScale: 6,
+            },
+        ],
+    }).snapshot(),
+);
 
 const baseTransfer = {
     txId: "tx-1",

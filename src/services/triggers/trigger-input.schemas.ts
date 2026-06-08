@@ -10,7 +10,6 @@ import { parsePriceTicks, parseOptionalPositiveIntLike } from "../../utils/numbe
 import { idToBigInt } from "../../utils/base58-id.js";
 import {
     createCatalogSnapshotReader,
-    staticCatalog,
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
@@ -351,9 +350,7 @@ export function createCreateTriggerInputSchemaForReader(reader: CatalogReader) {
     ]);
 }
 
-export const CreateTriggerInputSchema = createCreateTriggerInputSchemaForReader(staticCatalog);
-
-export type CreateTriggerInput = v.InferInput<typeof CreateTriggerInputSchema>;
+export type CreateTriggerInput = v.InferInput<ReturnType<typeof createCreateTriggerInputSchema>>;
 
 export const ListTriggersInputSchema = v.object({
     subaccountId: optionalSubaccountIdInputSchema(),

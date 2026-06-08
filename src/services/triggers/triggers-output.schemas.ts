@@ -7,7 +7,6 @@ import { tsNsToMs } from "../../utils/time.js";
 import { formatId } from "../../utils/base58-id.js";
 import {
     createCatalogSnapshotReader,
-    staticCatalog,
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
@@ -353,9 +352,7 @@ export function createTriggerSchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const TriggerSchema = createTriggerSchemaForReader(staticCatalog);
-
-export type Trigger = v.InferOutput<typeof TriggerSchema>;
+export type Trigger = v.InferOutput<ReturnType<typeof createTriggerSchema>>;
 
 export function createTriggerEventSchema(catalog: CatalogSnapshot) {
     return createTriggerEventSchemaForReader(createCatalogSnapshotReader(catalog));
@@ -409,9 +406,7 @@ export function createTriggerEventSchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const TriggerEventSchema = createTriggerEventSchemaForReader(staticCatalog);
-
-export type TriggerEvent = v.InferOutput<typeof TriggerEventSchema>;
+export type TriggerEvent = v.InferOutput<ReturnType<typeof createTriggerEventSchema>>;
 
 export type ListTriggerEventsResult = {
     events: TriggerEvent[];

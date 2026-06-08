@@ -4,7 +4,6 @@ import { intToDecimalString, int6ToDecimalString } from "../../catalogs/orders-c
 import { tsNsToMs } from "../../utils/time.js";
 import {
     createCatalogSnapshotReader,
-    staticCatalog,
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
@@ -125,9 +124,7 @@ function createMarketOverviewSchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const MarketOverviewSchema = createMarketOverviewSchemaForReader(staticCatalog);
-
-export type MarketOverview = v.InferOutput<typeof MarketOverviewSchema>;
+export type MarketOverview = v.InferOutput<ReturnType<typeof createMarketOverviewSchema>>;
 
 export function createMarketOverviewSchemas(catalog: CatalogReader) {
     return createCatalogSchemaCache(catalog, (reader) => ({

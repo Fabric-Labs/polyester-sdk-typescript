@@ -2,7 +2,6 @@ import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import * as v from "valibot";
 import {
     createCatalogSnapshotReader,
-    staticCatalog,
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
@@ -169,9 +168,7 @@ export function createModifyOrderInputSchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const ModifyOrderInputSchema = createModifyOrderInputSchemaForReader(staticCatalog);
-
-export type ModifyOrderInput = v.InferInput<typeof ModifyOrderInputSchema>;
+export type ModifyOrderInput = v.InferInput<ReturnType<typeof createModifyOrderInputSchema>>;
 
 export const ModifyOrderResultSchema = v.object({
     actionTaken: v.pipe(

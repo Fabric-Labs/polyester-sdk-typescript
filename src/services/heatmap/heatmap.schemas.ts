@@ -6,7 +6,6 @@ import type {
 } from "../../gen/marketdata/v1/heatmap_pb.js";
 import {
     createCatalogSnapshotReader,
-    staticCatalog,
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
@@ -126,9 +125,6 @@ function createGetOrderbookHeatmapInputSchemaForReader(reader: CatalogReader) {
         }),
     );
 }
-
-export const GetOrderbookHeatmapInputSchema =
-    createGetOrderbookHeatmapInputSchemaForReader(staticCatalog);
 
 export function createHeatmapSchemas(catalog: CatalogReader) {
     return createCatalogSchemaCache(catalog, (reader) => ({
@@ -251,7 +247,11 @@ export const OrderbookHeatmapResponseSchema = v.object({
     liveBucket: v.optional(OrderbookHeatmapLiveBucketSchema),
 });
 
-export type GetOrderbookHeatmapInput = v.InferInput<typeof GetOrderbookHeatmapInputSchema>;
-export type ParsedGetOrderbookHeatmapInput = v.InferOutput<typeof GetOrderbookHeatmapInputSchema>;
+export type GetOrderbookHeatmapInput = v.InferInput<
+    ReturnType<typeof createGetOrderbookHeatmapInputSchema>
+>;
+export type ParsedGetOrderbookHeatmapInput = v.InferOutput<
+    ReturnType<typeof createGetOrderbookHeatmapInputSchema>
+>;
 export type OrderbookHeatmapResponse = v.InferOutput<typeof OrderbookHeatmapResponseSchema>;
 export type ParsedHeatmapMode = HeatmapMode;

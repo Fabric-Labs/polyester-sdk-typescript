@@ -3,7 +3,6 @@ import { fromU128, u128ToDecimal } from "../../utils/u128.js";
 import {
     createCatalogSnapshotReader,
     LEDGER_SCALE,
-    staticCatalog,
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
@@ -47,9 +46,7 @@ function createLedgerBalanceSchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const LedgerBalanceSchema = createLedgerBalanceSchemaForReader(staticCatalog);
-
-export type LedgerBalance = v.InferOutput<typeof LedgerBalanceSchema>;
+export type LedgerBalance = v.InferOutput<ReturnType<typeof createLedgerBalanceSchema>>;
 
 export const BALANCE_RANGES = ["1d", "7d", "30d", "90d", "180d", "365d"] as const;
 
@@ -121,10 +118,9 @@ function createBalanceHistoryResponseSchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const BalanceHistoryResponseSchema =
-    createBalanceHistoryResponseSchemaForReader(staticCatalog);
-
-export type BalanceHistoryResponse = v.InferOutput<typeof BalanceHistoryResponseSchema>;
+export type BalanceHistoryResponse = v.InferOutput<
+    ReturnType<typeof createBalanceHistoryResponseSchema>
+>;
 
 export function createBalancesSchemas(catalog: CatalogReader) {
     return createCatalogSchemaCache(catalog, (reader) => ({

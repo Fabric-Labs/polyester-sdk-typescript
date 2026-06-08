@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 
 import * as Proto from "../../gen/marketdata/v1/heatmap_pb.js";
-import { GetOrderbookHeatmapInputSchema } from "./heatmap.schemas.js";
+import { createTestCatalog } from "../../testing/catalog.js";
+import { createGetOrderbookHeatmapInputSchema } from "./heatmap.schemas.js";
+
+const GetOrderbookHeatmapInputSchema = createGetOrderbookHeatmapInputSchema(
+    createTestCatalog().snapshot(),
+);
 
 describe("GetOrderbookHeatmapInputSchema", () => {
     it("maps explicit input values to proto values", () => {

@@ -3,7 +3,6 @@ import { tsNsToISO, tsNsToMs } from "../../utils/time.js";
 import { SideSchema } from "../shared.js";
 import {
     createCatalogSnapshotReader,
-    staticCatalog,
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
@@ -82,9 +81,7 @@ export function createUserTradeSchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const UserTradeSchema = createUserTradeSchemaForReader(staticCatalog);
-
-export type Trade = v.InferOutput<typeof UserTradeSchema>;
+export type Trade = v.InferOutput<ReturnType<typeof createUserTradeSchema>>;
 
 export function createTradesSchemas(catalog: CatalogReader) {
     return createCatalogSchemaCache(catalog, (reader) => ({

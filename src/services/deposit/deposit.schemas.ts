@@ -2,7 +2,6 @@ import * as v from "valibot";
 import { optionalSubaccountIdInputSchema } from "../../shared/schemas.js";
 import {
     createCatalogSnapshotReader,
-    staticCatalog,
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
@@ -39,11 +38,12 @@ function createCreateDepositAddressInputSchemaForReader(reader: CatalogReader) {
     ]);
 }
 
-export const CreateDepositAddressInputSchema =
-    createCreateDepositAddressInputSchemaForReader(staticCatalog);
-
-export type CreateDepositAddressInput = v.InferInput<typeof CreateDepositAddressInputSchema>;
-export type CreateDepositAddressRequest = v.InferOutput<typeof CreateDepositAddressInputSchema>;
+export type CreateDepositAddressInput = v.InferInput<
+    ReturnType<typeof createCreateDepositAddressInputSchema>
+>;
+export type CreateDepositAddressRequest = v.InferOutput<
+    ReturnType<typeof createCreateDepositAddressInputSchema>
+>;
 
 export function createListDepositAddressesInputSchema(catalog: CatalogSnapshot) {
     return createListDepositAddressesInputSchemaForReader(createCatalogSnapshotReader(catalog));
@@ -56,11 +56,12 @@ function createListDepositAddressesInputSchemaForReader(reader: CatalogReader) {
     ]);
 }
 
-export const ListDepositAddressesInputSchema =
-    createListDepositAddressesInputSchemaForReader(staticCatalog);
-
-export type ListDepositAddressesInput = v.InferInput<typeof ListDepositAddressesInputSchema>;
-export type ListDepositAddressesRequest = v.InferOutput<typeof ListDepositAddressesInputSchema>;
+export type ListDepositAddressesInput = v.InferInput<
+    ReturnType<typeof createListDepositAddressesInputSchema>
+>;
+export type ListDepositAddressesRequest = v.InferOutput<
+    ReturnType<typeof createListDepositAddressesInputSchema>
+>;
 
 export function createDepositSchemas(catalog: CatalogReader) {
     return createCatalogSchemaCache(catalog, (reader) => ({

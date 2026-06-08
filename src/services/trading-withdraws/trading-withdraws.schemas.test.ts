@@ -1,9 +1,24 @@
 import { describe, expect, it } from "vitest";
 import {
+    createCreateTradingWithdrawToFundingInputSchema,
     CreateTradingWithdrawResultSchema,
-    CreateTradingWithdrawToFundingInputSchema,
 } from "./trading-withdraws.schemas.js";
 import * as v from "valibot";
+import { createTestCatalog } from "../../testing/catalog.js";
+
+const CreateTradingWithdrawToFundingInputSchema = createCreateTradingWithdrawToFundingInputSchema(
+    createTestCatalog({
+        assets: [
+            {
+                symbol: "USDT",
+                ledgerId: 1,
+                name: "Tether USD",
+                quantityDisplayDecimals: 6,
+                quantityScale: 6,
+            },
+        ],
+    }).snapshot(),
+);
 
 describe("CreateTradingWithdrawToFundingInputSchema", () => {
     it("converts decimal amount and source subaccount to proto fields", () => {

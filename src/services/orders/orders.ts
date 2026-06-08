@@ -15,7 +15,7 @@ import {
     createOrdersSchemas,
     OpenOrdersInputSchema,
     OrderHistoryInputSchema,
-    type NewOrderInputSchema,
+    type NewOrderInput,
     CancelOrderInputSchema,
     CancelOrderResultSchema,
     type CancelOrderResult,
@@ -25,7 +25,7 @@ import {
     type Order,
     GetOrderDetailsInputSchema,
     CreateOrderResultSchema,
-    type ModifyOrderInputSchema,
+    type ModifyOrderInput,
     ModifyOrderResultSchema,
     type CreateOrderResult,
     type ModifyOrderResult,
@@ -111,7 +111,7 @@ export class OrdersService {
      * Places a spot order with side, type, quantity, optional price/slippage fields, fee source, STP mode, and optional attached take-profit, stop-loss, or trailing-stop risk controls. clientOrderId is the caller-controlled idempotency key and should be reused only for the same logical order.
      */
     async create(
-        input: v.InferInput<typeof NewOrderInputSchema>,
+        input: NewOrderInput,
         options?: PolyesterMutationOptions,
     ): Promise<CreateOrderResult> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
@@ -151,7 +151,7 @@ export class OrdersService {
      * Applies a price, quantity, client id, or attached-risk patch to one open order using the backend modify behavior policy. A requestId is generated when omitted; provide a stable value when retrying the same logical modification.
      */
     async modify(
-        input: v.InferInput<typeof ModifyOrderInputSchema>,
+        input: ModifyOrderInput,
         options?: PolyesterMutationOptions,
     ): Promise<ModifyOrderResult> {
         const resolved = {

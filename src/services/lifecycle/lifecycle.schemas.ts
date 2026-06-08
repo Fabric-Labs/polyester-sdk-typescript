@@ -24,7 +24,6 @@ import { idToBigInt } from "../../utils/base58-id.js";
 import { fromU128, u128ToDecimal } from "../../utils/u128.js";
 import {
     createCatalogSnapshotReader,
-    staticCatalog,
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
@@ -267,8 +266,6 @@ function createLifecycleRequestFeeSchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const LifecycleRequestFeeSchema = createLifecycleRequestFeeSchemaForReader(staticCatalog);
-
 export const GetLifecycleFlowInputSchema = v.pipe(
     v.object({
         flowId: v.pipe(v.string(), v.trim(), v.minLength(1, "flowId is required.")),
@@ -346,8 +343,6 @@ function createLifecycleFlowStepSchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const LifecycleFlowStepSchema = createLifecycleFlowStepSchemaForReader(staticCatalog);
-
 export const LifecycleFlowTimelineItemSchema = v.object({
     sequence: v.pipe(v.number(), v.integer(), v.minValue(0)),
     step: LifecycleFlowStepEnumSchema,
@@ -414,8 +409,6 @@ function createLifecycleFlowSummarySchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const LifecycleFlowSummarySchema = createLifecycleFlowSummarySchemaForReader(staticCatalog);
-
 export function createLifecycleFlowDetailSchema(catalog: CatalogSnapshot) {
     return createLifecycleFlowDetailSchemaForReader(createCatalogSnapshotReader(catalog));
 }
@@ -429,8 +422,6 @@ function createLifecycleFlowDetailSchemaForReader(reader: CatalogReader) {
     });
 }
 
-export const LifecycleFlowDetailSchema = createLifecycleFlowDetailSchemaForReader(staticCatalog);
-
 export function createListLifecycleFlowsOutputSchema(catalog: CatalogSnapshot) {
     return createListLifecycleFlowsOutputSchemaForReader(createCatalogSnapshotReader(catalog));
 }
@@ -442,9 +433,6 @@ function createListLifecycleFlowsOutputSchemaForReader(reader: CatalogReader) {
     });
 }
 
-export const ListLifecycleFlowsOutputSchema =
-    createListLifecycleFlowsOutputSchemaForReader(staticCatalog);
-
 export function createGetLifecycleFlowOutputSchema(catalog: CatalogSnapshot) {
     return createGetLifecycleFlowOutputSchemaForReader(createCatalogSnapshotReader(catalog));
 }
@@ -454,9 +442,6 @@ function createGetLifecycleFlowOutputSchemaForReader(reader: CatalogReader) {
         flow: v.optional(createLifecycleFlowDetailSchemaForReader(reader)),
     });
 }
-
-export const GetLifecycleFlowOutputSchema =
-    createGetLifecycleFlowOutputSchemaForReader(staticCatalog);
 
 export function createLifecycleFlowTxMatchSchema(catalog: CatalogSnapshot) {
     return createLifecycleFlowTxMatchSchemaForReader(createCatalogSnapshotReader(catalog));
@@ -494,8 +479,6 @@ function createLifecycleFlowTxMatchSchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const LifecycleFlowTxMatchSchema = createLifecycleFlowTxMatchSchemaForReader(staticCatalog);
-
 export function createListLifecycleFlowsByTxOutputSchema(catalog: CatalogSnapshot) {
     return createListLifecycleFlowsByTxOutputSchemaForReader(createCatalogSnapshotReader(catalog));
 }
@@ -507,9 +490,6 @@ function createListLifecycleFlowsByTxOutputSchemaForReader(reader: CatalogReader
         nextPageToken: v.optional(v.string(), ""),
     });
 }
-
-export const ListLifecycleFlowsByTxOutputSchema =
-    createListLifecycleFlowsByTxOutputSchemaForReader(staticCatalog);
 
 export function createLifecycleSchemas(catalog: CatalogReader) {
     return createCatalogSchemaCache(catalog, (reader) => ({
@@ -535,18 +515,26 @@ export type ParsedListLifecycleFlowsByTxInput = v.InferOutput<
     typeof ListLifecycleFlowsByTxInputSchema
 >;
 
-export type LifecycleFlowSummary = v.InferOutput<typeof LifecycleFlowSummarySchema>;
-export type LifecycleFlowStep = v.InferOutput<typeof LifecycleFlowStepSchema>;
+export type LifecycleFlowSummary = v.InferOutput<
+    ReturnType<typeof createLifecycleFlowSummarySchema>
+>;
+export type LifecycleFlowStep = v.InferOutput<ReturnType<typeof createLifecycleFlowStepSchema>>;
 export type LifecycleFlowStepActivity = v.InferOutput<typeof LifecycleFlowStepActivitySchema>;
 export type LifecycleFlowTimelineItem = v.InferOutput<typeof LifecycleFlowTimelineItemSchema>;
-export type LifecycleFlowDetail = v.InferOutput<typeof LifecycleFlowDetailSchema>;
+export type LifecycleFlowDetail = v.InferOutput<ReturnType<typeof createLifecycleFlowDetailSchema>>;
 
-export type ListLifecycleFlowsOutput = v.InferOutput<typeof ListLifecycleFlowsOutputSchema>;
-export type GetLifecycleFlowOutput = v.InferOutput<typeof GetLifecycleFlowOutputSchema>;
-export type ListLifecycleFlowsByTxOutput = v.InferOutput<typeof ListLifecycleFlowsByTxOutputSchema>;
+export type ListLifecycleFlowsOutput = v.InferOutput<
+    ReturnType<typeof createListLifecycleFlowsOutputSchema>
+>;
+export type GetLifecycleFlowOutput = v.InferOutput<
+    ReturnType<typeof createGetLifecycleFlowOutputSchema>
+>;
+export type ListLifecycleFlowsByTxOutput = v.InferOutput<
+    ReturnType<typeof createListLifecycleFlowsByTxOutputSchema>
+>;
 
 export type LifecycleAssetIds = v.InferOutput<typeof LifecycleAssetIdsSchema>;
-export type LifecycleRequestFee = v.InferOutput<typeof LifecycleRequestFeeSchema>;
+export type LifecycleRequestFee = v.InferOutput<ReturnType<typeof createLifecycleRequestFeeSchema>>;
 
 export type LifecycleFlowSummaryProgress = v.InferOutput<typeof LifecycleFlowSummaryProgressSchema>;
 export type LifecycleFlowState = v.InferOutput<typeof LifecycleFlowStateEnumSchema>;
@@ -554,4 +542,6 @@ export type LifecycleListScope = LifecycleListScopeValue;
 export type LifecycleTxLookupKind = LifecycleTxLookupKindValue;
 export type LifecycleRequestFeeStatus = LifecycleRequestFeeStatusValue;
 
-export type LifecycleFlowTxMatch = v.InferOutput<typeof LifecycleFlowTxMatchSchema>;
+export type LifecycleFlowTxMatch = v.InferOutput<
+    ReturnType<typeof createLifecycleFlowTxMatchSchema>
+>;

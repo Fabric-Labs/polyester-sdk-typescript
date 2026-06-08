@@ -3,7 +3,6 @@ import * as v from "valibot";
 import { SideSchema } from "../shared.js";
 import {
     createCatalogSnapshotReader,
-    staticCatalog,
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
@@ -167,9 +166,7 @@ export function createNewOrderInputSchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const NewOrderInputSchema = createNewOrderInputSchemaForReader(staticCatalog);
-
-export type NewOrderInput = v.InferInput<typeof NewOrderInputSchema>;
+export type NewOrderInput = v.InferInput<ReturnType<typeof createNewOrderInputSchema>>;
 
 const CancelOrderScopeInputEntries = {
     symbolId: v.optional(v.number()),

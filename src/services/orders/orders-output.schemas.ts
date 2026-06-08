@@ -4,7 +4,6 @@ import * as v from "valibot";
 import {
     createCatalogSnapshotReader,
     LEDGER_SCALE,
-    staticCatalog,
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
@@ -171,8 +170,6 @@ export function createOrderSchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const OrderSchema = createOrderSchemaForReader(staticCatalog);
-
 function humanizeTerminalReason(raw: string | null | undefined): string {
     const key = (raw ?? "").trim();
     if (!key) return "";
@@ -189,7 +186,7 @@ function humanizeTerminalReason(raw: string | null | undefined): string {
         .join(" ");
 }
 
-export type Order = v.InferOutput<typeof OrderSchema>;
+export type Order = v.InferOutput<ReturnType<typeof createOrderSchema>>;
 
 export function createOrderTransferSchema(catalog: CatalogSnapshot) {
     return createOrderTransferSchemaForReader(createCatalogSnapshotReader(catalog));
@@ -235,9 +232,7 @@ function createOrderTransferSchemaForReader(reader: CatalogReader) {
     );
 }
 
-const OrderTransferSchema = createOrderTransferSchemaForReader(staticCatalog);
-
-export type OrderTransfer = v.InferOutput<typeof OrderTransferSchema>;
+export type OrderTransfer = v.InferOutput<ReturnType<typeof createOrderTransferSchema>>;
 
 export function createOrderDetailsSchema(catalog: CatalogSnapshot) {
     return createOrderDetailsSchemaForReader(createCatalogSnapshotReader(catalog));
@@ -251,6 +246,4 @@ export function createOrderDetailsSchemaForReader(reader: CatalogReader) {
     });
 }
 
-export const OrderDetailsSchema = createOrderDetailsSchemaForReader(staticCatalog);
-
-export type OrderDetails = v.InferOutput<typeof OrderDetailsSchema>;
+export type OrderDetails = v.InferOutput<ReturnType<typeof createOrderDetailsSchema>>;

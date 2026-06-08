@@ -4,7 +4,7 @@ import * as v from "valibot";
 import type { CatalogReader, CatalogSnapshot, EnrichedPairConfig } from "../../catalogs/index.js";
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
 import { createTestCatalog } from "../../testing/catalog.js";
-import { createCandlesSchemas, ListCandlesInputSchema } from "./candles.schemas.js";
+import { createCandlesSchemas, createListCandlesInputSchema } from "./candles.schemas.js";
 
 const btc = {
     symbol: "BTC",
@@ -48,7 +48,8 @@ function catalogForPair(pair: EnrichedPairConfig) {
 
 describe("ListCandlesInputSchema", () => {
     it("maps explicit timeframe values to proto values", () => {
-        const input = v.parse(ListCandlesInputSchema, {
+        const schema = createListCandlesInputSchema(catalogForPair(pair(1)).snapshot());
+        const input = v.parse(schema, {
             symbolId: 1,
             timeframe: "1mo",
             startTsSec: 100,
@@ -61,22 +62,24 @@ describe("ListCandlesInputSchema", () => {
     });
 
     it("rejects timeframe aliases, proto enum input, and timestamp coercion", () => {
+        const schema = createListCandlesInputSchema(catalogForPair(pair(1)).snapshot());
+
         expect(() =>
-            v.parse(ListCandlesInputSchema, {
+            v.parse(schema, {
                 symbolId: 1,
                 timeframe: "1M",
             }),
         ).toThrow();
 
         expect(() =>
-            v.parse(ListCandlesInputSchema, {
+            v.parse(schema, {
                 symbolId: 1,
                 timeframe: Proto.Timeframe.SEC_1,
             }),
         ).toThrow();
 
         expect(() =>
-            v.parse(ListCandlesInputSchema, {
+            v.parse(schema, {
                 symbolId: 1,
                 timeframe: "1m",
                 startTsSec: "100",
@@ -84,7 +87,7 @@ describe("ListCandlesInputSchema", () => {
         ).toThrow();
 
         expect(() =>
-            v.parse(ListCandlesInputSchema, {
+            v.parse(schema, {
                 symbolId: 1,
                 timeframe: "1m",
                 startTsSec: 100n,
@@ -92,7 +95,7 @@ describe("ListCandlesInputSchema", () => {
         ).toThrow();
 
         expect(() =>
-            v.parse(ListCandlesInputSchema, {
+            v.parse(schema, {
                 symbolId: 1,
                 timeframe: "1m",
                 startTsSec: -1,

@@ -2,7 +2,6 @@ import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
 import * as v from "valibot";
 import {
     createCatalogSnapshotReader,
-    staticCatalog,
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
@@ -83,8 +82,6 @@ function createCandleRowSchemaForReader(reader: CatalogReader) {
         }),
     );
 }
-
-export const CandleRowSchema = createCandleRowSchemaForReader(staticCatalog);
 
 export const CandleRowIntSchema = v.object({
     symbolId: v.number(),
@@ -180,8 +177,6 @@ function createCandleColumnarSchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const CandleColumnarSchema = createCandleColumnarSchemaForReader(staticCatalog);
-
 export const CandleColumnarIntSchema = v.pipe(
     v.object({
         symbolId: v.number(),
@@ -228,12 +223,12 @@ export const CandleColumnarIntSchema = v.pipe(
     }),
 );
 
-export type Candle = v.InferOutput<typeof CandleRowSchema>;
-export type CandleInput = v.InferInput<typeof CandleRowSchema>;
+export type Candle = v.InferOutput<ReturnType<typeof createCandleRowSchema>>;
+export type CandleInput = v.InferInput<ReturnType<typeof createCandleRowSchema>>;
 export type CandleIntInput = v.InferInput<typeof CandleRowIntSchema>;
 export type CandleInt = v.InferOutput<typeof CandleRowIntSchema>;
-export type CandleColumnar = v.InferOutput<typeof CandleColumnarSchema>;
-export type CandleColumnarInput = v.InferInput<typeof CandleColumnarSchema>;
+export type CandleColumnar = v.InferOutput<ReturnType<typeof createCandleColumnarSchema>>;
+export type CandleColumnarInput = v.InferInput<ReturnType<typeof createCandleColumnarSchema>>;
 export type CandleColumnarIntInput = v.InferInput<typeof CandleColumnarIntSchema>;
 export type CandleColumnarInt = v.InferOutput<typeof CandleColumnarIntSchema>;
 
@@ -279,12 +274,9 @@ function createListCandlesInputSchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const ListCandlesInputSchema = createListCandlesInputSchemaForReader(staticCatalog);
-
-export type GetCandlesInput = v.InferInput<typeof ListCandlesInputSchema>;
-export const GetCandlesColumnsInputSchema = ListCandlesInputSchema;
+export type GetCandlesInput = v.InferInput<ReturnType<typeof createListCandlesInputSchema>>;
 export const createGetCandlesColumnsInputSchema = createListCandlesInputSchema;
-export type GetCandlesColumnsInput = v.InferInput<typeof GetCandlesColumnsInputSchema>;
+export type GetCandlesColumnsInput = v.InferInput<ReturnType<typeof createListCandlesInputSchema>>;
 
 export function createCandlesSchemas(catalog: CatalogReader) {
     return createCatalogSchemaCache(catalog, (reader) => ({

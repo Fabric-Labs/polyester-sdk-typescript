@@ -2,7 +2,6 @@ import type * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
 import * as v from "valibot";
 import {
     createCatalogSnapshotReader,
-    staticCatalog,
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
@@ -75,9 +74,7 @@ function createOrderbookDataSchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const OrderbookDataSchema = createOrderbookDataSchemaForReader(staticCatalog);
-
-export type OrderbookData = v.InferOutput<typeof OrderbookDataSchema>;
+export type OrderbookData = v.InferOutput<ReturnType<typeof createOrderbookDataSchema>>;
 
 export function createOrderbookSchemas(catalog: CatalogReader) {
     return createCatalogSchemaCache(catalog, (reader) => ({

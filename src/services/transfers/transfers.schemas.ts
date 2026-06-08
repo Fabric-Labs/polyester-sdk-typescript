@@ -4,7 +4,6 @@ import {
     accountCodeNameFor,
     LEDGER_SCALE,
     createCatalogSnapshotReader,
-    staticCatalog,
     type CatalogReader,
     type CatalogSnapshot,
     transferTypeNameFor,
@@ -81,9 +80,7 @@ function createLedgerTransferSchemaForReader(reader: CatalogReader) {
     );
 }
 
-export const LedgerTransferSchema = createLedgerTransferSchemaForReader(staticCatalog);
-
-export type LedgerTransfer = v.InferOutput<typeof LedgerTransferSchema>;
+export type LedgerTransfer = v.InferOutput<ReturnType<typeof createLedgerTransferSchema>>;
 
 export function createTransfersSchemas(catalog: CatalogReader) {
     return createCatalogSchemaCache(catalog, (reader) => ({

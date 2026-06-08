@@ -14,15 +14,16 @@ import * as MarketDataProto from "../gen/marketdata/v1/marketdata_pb.js";
 import * as OrdersProto from "../gen/orders/v1/orders_pb.js";
 import * as TriggersProto from "../gen/triggers/v1/triggers_pb.js";
 import { requiredEnumLabel } from "../shared/proto-enum-codec.js";
+import { createTestCatalog } from "../testing/catalog.js";
 import {
     AddressBookEntryKindCodec,
     DestinationWhitelistStatusCodec,
 } from "./address-book/address-book.codecs.js";
 import { ApiKeySchema } from "./api-keys/api-keys.schemas.js";
-import { BalanceHistoryResponseSchema } from "./balances/balances.schemas.js";
-import { CandleRowSchema } from "./candles/candles.schemas.js";
+import { createBalanceHistoryResponseSchema } from "./balances/balances.schemas.js";
+import { createCandleRowSchema } from "./candles/candles.schemas.js";
 import { OrderbookHeatmapResponseSchema } from "./heatmap/heatmap.schemas.js";
-import { LifecycleRequestFeeSchema } from "./lifecycle/lifecycle.schemas.js";
+import { createLifecycleRequestFeeSchema } from "./lifecycle/lifecycle.schemas.js";
 import { BeginMfaChallengeResultSchema } from "./mfa/mfa.schemas.js";
 import { ModifyOrderResultSchema } from "./orders/orders.schemas.js";
 import { transformVerification } from "./social-verification/social-verification.schemas.js";
@@ -31,6 +32,10 @@ import { CreateTriggerResultSchema } from "./triggers/triggers.schemas.js";
 import { WhiteboardAccessSchema } from "./whiteboard/whiteboard.schemas.js";
 
 const timestamp = { seconds: 0n, nanos: 0 };
+const testCatalogSnapshot = createTestCatalog().snapshot();
+const BalanceHistoryResponseSchema = createBalanceHistoryResponseSchema(testCatalogSnapshot);
+const LifecycleRequestFeeSchema = createLifecycleRequestFeeSchema(testCatalogSnapshot);
+const CandleRowSchema = createCandleRowSchema(testCatalogSnapshot);
 
 function kindFromProto(kind: AddressBookProto.AddressBookEntryKind) {
     return requiredEnumLabel(

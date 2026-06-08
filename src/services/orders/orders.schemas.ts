@@ -15,7 +15,6 @@ export {
     CancelOrderResultSchema,
     CreateOrderResultSchema,
     GetOrderDetailsInputSchema,
-    NewOrderInputSchema,
     OpenOrdersInputSchema,
     OrderHistoryInputSchema,
     createNewOrderInputSchema,
@@ -32,16 +31,10 @@ export type {
     OrderHistoryInput,
 } from "./orders-input.schemas.js";
 
-export {
-    ModifyOrderInputSchema,
-    ModifyOrderResultSchema,
-    createModifyOrderInputSchema,
-} from "./orders-modify.schemas.js";
+export { ModifyOrderResultSchema, createModifyOrderInputSchema } from "./orders-modify.schemas.js";
 export type { ModifyOrderInput, ModifyOrderResult } from "./orders-modify.schemas.js";
 
 export {
-    OrderDetailsSchema,
-    OrderSchema,
     createOrderDetailsSchema,
     createOrderSchema,
     createOrderTransferSchema,
