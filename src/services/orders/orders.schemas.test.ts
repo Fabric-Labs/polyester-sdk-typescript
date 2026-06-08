@@ -191,33 +191,65 @@ describe("ModifyOrderInputSchema", () => {
 });
 
 describe("OrderSchema", () => {
+    function rawOrder(overrides: Record<string, unknown> = {}) {
+        return {
+            orderId: 11n,
+            symbolId: 1,
+            clientOrderId: "client-1",
+            side: ProtoWrite.Side.BUY,
+            status: ProtoRead.OrderStatus.WORKING,
+            orderType: ProtoWrite.OrderType.LIMIT,
+            tif: ProtoWrite.TIF.GTC,
+            stpMode: ProtoWrite.STPMode.EXPIRE_MAKER,
+            feeSource: ProtoWrite.FeeSource.QUOTE,
+            postOnly: false,
+            origQty: 100_000_000n,
+            cumQty: 0n,
+            leavesQty: 100_000_000n,
+            avgPxTicks: 0n,
+            priceTicks: 100_000_000n,
+            createdTsNs: 1_000_000n,
+            terminalTsNs: 0n,
+            terminalReasonCode: 0,
+            marketClientRefPriceTicks: 0n,
+            marketMaxSlippageTicks: 0,
+            marketMaxSlippageBps: 0,
+            ...overrides,
+        };
+    }
+
+    it("decodes order status through the codec", () => {
+        seedPairCatalog();
+
+        const order = v.parse(OrderSchema, rawOrder({ status: ProtoRead.OrderStatus.FILLED }));
+
+        expect(order.status).toBe("filled");
+    });
+
+    it("keeps the derived partial status for working orders with fills", () => {
+        seedPairCatalog();
+
+        const order = v.parse(OrderSchema, rawOrder({ cumQty: 50_000_000n }));
+
+        expect(order.status).toBe("partial");
+    });
+
+    it("rejects unspecified order status values", () => {
+        seedPairCatalog();
+
+        expect(() =>
+            v.parse(
+                OrderSchema,
+                rawOrder({ status: ProtoRead.OrderStatus.ORDER_STATUS_UNSPECIFIED }),
+            ),
+        ).toThrow("invalid status 0");
+    });
+
     it("rejects unspecified backend enum values", () => {
         seedPairCatalog();
 
         expect(() =>
-            v.parse(OrderSchema, {
-                orderId: 11n,
-                symbolId: 1,
-                clientOrderId: "client-1",
-                side: ProtoWrite.Side.SIDE_UNSPECIFIED,
-                status: ProtoRead.OrderStatus.WORKING,
-                orderType: ProtoWrite.OrderType.LIMIT,
-                tif: ProtoWrite.TIF.GTC,
-                stpMode: ProtoWrite.STPMode.EXPIRE_MAKER,
-                feeSource: ProtoWrite.FeeSource.QUOTE,
-                postOnly: false,
-                origQty: 100_000_000n,
-                cumQty: 0n,
-                leavesQty: 100_000_000n,
-                avgPxTicks: 0n,
-                priceTicks: 100_000_000n,
-                createdTsNs: 1_000_000n,
-                terminalTsNs: 0n,
-                terminalReasonCode: 0,
-                marketClientRefPriceTicks: 0n,
-                marketMaxSlippageTicks: 0,
-                marketMaxSlippageBps: 0,
-            }),
+            v.parse(OrderSchema, rawOrder({ side: ProtoWrite.Side.SIDE_UNSPECIFIED })),
         ).toThrow();
     });
 });

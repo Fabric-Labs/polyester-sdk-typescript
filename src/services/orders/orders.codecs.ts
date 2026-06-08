@@ -5,6 +5,16 @@ import type { InputToProto, ProtoToOutput } from "../../utils/types.js";
 export const ORDER_STATUS_FILTER_VALUES = ["FILLED", "CANCELED", "REJECTED"] as const;
 export type OrderStatusFilterValue = (typeof ORDER_STATUS_FILTER_VALUES)[number];
 
+export const ORDER_STATUS_VALUES = [
+    "pending",
+    "pending_cancel",
+    "working",
+    "filled",
+    "canceled",
+    "rejected",
+] as const;
+export type OrderStatusValue = (typeof ORDER_STATUS_VALUES)[number];
+
 export const ORDER_SIDE_VALUES = ["buy", "sell"] as const;
 export type OrderSideValue = (typeof ORDER_SIDE_VALUES)[number];
 
@@ -52,6 +62,17 @@ export const OrderStatusFilterCodec = {
         CANCELED: ProtoRead.OrderStatus.CANCELED,
         REJECTED: ProtoRead.OrderStatus.REJECTED,
     } satisfies InputToProto<OrderStatusFilterValue, ProtoRead.OrderStatus>,
+} as const;
+
+export const OrderStatusCodec = {
+    protoToOutput: {
+        [ProtoRead.OrderStatus.PENDING]: "pending",
+        [ProtoRead.OrderStatus.PENDING_CANCEL]: "pending_cancel",
+        [ProtoRead.OrderStatus.WORKING]: "working",
+        [ProtoRead.OrderStatus.FILLED]: "filled",
+        [ProtoRead.OrderStatus.CANCELED]: "canceled",
+        [ProtoRead.OrderStatus.REJECTED]: "rejected",
+    } satisfies ProtoToOutput<ProtoRead.OrderStatus, OrderStatusValue>,
 } as const;
 
 export const OrderSideCodec = {

@@ -14,7 +14,6 @@ import {
     feeSourceLabelFor,
     formatPriceForSymbol,
     formatQtyForSymbol,
-    orderStatusLabelFor,
     orderTypeLabelFor,
     sideLabelFor,
     stpModeLabelFor,
@@ -47,6 +46,7 @@ import {
     accountCodeNameFor,
 } from "../../catalogs/ledger-catalog.js";
 import {
+    OrderStatusCodec,
     OrderStatusFilterCodec,
     OrderSideCodec,
     OrderTypeCodec,
@@ -61,6 +61,18 @@ import {
 } from "./orders.codecs.js";
 
 const OrderStatusSchema = v.picklist(["FILLED", "CANCELED", "REJECTED"]);
+
+const OrderStatusOutputSchema = v.pipe(
+    v.enum(ProtoRead.OrderStatus),
+    v.transform((status) =>
+        requiredEnumLabel(
+            OrderStatusCodec.protoToOutput,
+            status,
+            "PolyesterClient.OrderSchema",
+            "status",
+        ),
+    ),
+);
 
 export const BaseOrdersFilterInputSchema = v.object({
     subaccountId: optionalSubaccountIdInputSchema(),
@@ -593,7 +605,7 @@ export const OrderSchema = v.pipe(
         symbolId: v.number(),
         clientOrderId: v.string(),
         side: v.enum(ProtoWrite.Side),
-        status: v.number(),
+        status: OrderStatusOutputSchema,
         orderType: v.number(),
         tif: v.number(),
         stpMode: v.number(),
@@ -616,7 +628,7 @@ export const OrderSchema = v.pipe(
     }),
     v.transform((o) => {
         const sideNum = o.side;
-        const isPartial = o.status === ProtoRead.OrderStatus.WORKING && Number(o.cumQty) > 0;
+        const isPartial = o.status === "working" && Number(o.cumQty) > 0;
         const pair = getPairBySymbolId(o.symbolId);
         const marketClientRefPrice =
             o.marketClientRefPriceTicks > 0n
@@ -631,7 +643,7 @@ export const OrderSchema = v.pipe(
             symbolId: o.symbolId,
             clientOrderId: o.clientOrderId,
             pair,
-            status: isPartial ? ("partial" as const) : orderStatusLabelFor(o.status),
+            status: isPartial ? ("partial" as const) : o.status,
             side: sideLabelFor(sideNum),
             orderType: orderTypeLabelFor(o.orderType),
             tif: tifLabelFor(o.tif),
