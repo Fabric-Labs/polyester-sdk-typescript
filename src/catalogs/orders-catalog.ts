@@ -1,6 +1,7 @@
 import { formatAmountDisplay } from "../catalogs/ledger-catalog.js";
 import { getAllPairs, getPairBySymbolId } from "./market-data-catalog.js";
 
+// Convert integer in arbitrary-scale units to a decimal string (no scientific, trimmed)
 /**
  * Returns symbol dropdown options from the current catalog.
  * Includes "All" option at the start.
@@ -13,7 +14,7 @@ export function getSymbolOptions(): { label: string; value: string }[] {
     return options;
 }
 
-// Convert integer in arbitrary-scale units to a decimal string (no scientific, trimmed)
+// Convert integer in 18-scale units to a decimal string (no scientific, trimmed)
 /**
  * Formats a scaled integer as a decimal string.
  */
@@ -31,7 +32,7 @@ export function intToDecimalString(x: bigint | number | string, scale: number): 
     return (neg ? "-" : "") + trimmed;
 }
 
-// Convert integer in 18-scale units to a decimal string (no scientific, trimmed)
+// Format order quantity (scaled integer) using the pair's base asset display decimals
 /**
  * Formats an 18-decimal scaled integer as a decimal string.
  */
@@ -42,7 +43,6 @@ export function int18ToDecimalString(x: bigint | number | string): string {
 const DEFAULT_QTY_DECIMALS = 8;
 const DEFAULT_QTY_SCALE = 18;
 
-// Format order quantity (scaled integer) using the pair's base asset display decimals
 /**
  * Formats a quantity using the base scale for a market symbol.
  */
