@@ -14,6 +14,7 @@ import type { RealtimeClient } from "../../realtime/index.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import { ApiKeyPoliciesService } from "../policies/api-key-policies/index.js";
 import {
+    ApiKeyIdInputSchema,
     ApiKeysListInputSchema,
     ApiKeysCreateInputSchema,
     ApiKeysUpdateInputSchema,
@@ -54,13 +55,12 @@ export class ApiKeysService {
         return v.parse(ApiKeysSchema, res.apiKeys);
     }
 
-    async get(keyId: string, options?: PolyesterRequestOptions): Promise<ApiKey | null> {
-        const validatedKeyId = keyId.trim();
-        if (!validatedKeyId) throw new Error("[PolyesterClient.apiKeys.get]: keyId is required");
-        const res = await this.#client.getApiKey(
-            { keyId: validatedKeyId },
-            toConnectCallOptions(options),
-        );
+    async get(
+        input: v.InferInput<typeof ApiKeyIdInputSchema>,
+        options?: PolyesterRequestOptions,
+    ): Promise<ApiKey | null> {
+        const validatedInput = v.parse(ApiKeyIdInputSchema, input);
+        const res = await this.#client.getApiKey(validatedInput, toConnectCallOptions(options));
         return res.apiKey ? v.parse(ApiKeySchema, res.apiKey) : null;
     }
 
@@ -81,10 +81,12 @@ export class ApiKeysService {
         return res.apiKey ? v.parse(ApiKeySchema, res.apiKey) : null;
     }
 
-    async delete(keyId: string, options?: PolyesterMutationOptions): Promise<void> {
-        const validatedKeyId = keyId.trim();
-        if (!validatedKeyId) throw new Error("[PolyesterClient.apiKeys.delete]: keyId is required");
-        await this.#client.deleteApiKey({ keyId: validatedKeyId }, toConnectCallOptions(options));
+    async delete(
+        input: v.InferInput<typeof ApiKeyIdInputSchema>,
+        options?: PolyesterMutationOptions,
+    ): Promise<void> {
+        const validatedInput = v.parse(ApiKeyIdInputSchema, input);
+        await this.#client.deleteApiKey(validatedInput, toConnectCallOptions(options));
     }
 
     async update(

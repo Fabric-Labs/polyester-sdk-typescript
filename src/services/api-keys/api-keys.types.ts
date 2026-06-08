@@ -1,5 +1,6 @@
 export type {
     ApiKey,
+    ApiKeyIdInput,
     ApiKeyStatus,
     ApiKeysCreateInput,
     ApiKeysListInput,

@@ -87,6 +87,12 @@ export const ProviderInputSchema = v.pipe(
     v.transform((v) => SocialProviderCodec.inputToProto[v]),
 );
 
+export const SocialProviderInputSchema = v.object({
+    provider: ProviderInputSchema,
+});
+
+export type SocialProviderInput = v.InferInput<typeof SocialProviderInputSchema>;
+
 export const StartVerificationResponseSchema = v.pipe(
     v.object({
         challengeCode: v.string(),

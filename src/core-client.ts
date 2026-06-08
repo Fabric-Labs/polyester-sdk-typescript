@@ -43,7 +43,10 @@ import {
     ZIPPER_CHAIN_CATALOG,
     ZIPPER_CONTRACTS_CATALOG,
 } from "./catalogs/zipper-catalog.generated.js";
-import { refreshCatalogsInBackground } from "./catalogs/catalog-refresh.js";
+import {
+    refreshCatalogs as refreshCatalogsFromApi,
+    refreshCatalogsInBackground,
+} from "./catalogs/catalog-refresh.js";
 import { RealtimeClient, type RealtimeConfig } from "./realtime/index.js";
 
 let generatedCatalogsInitialized = false;
@@ -86,6 +89,10 @@ export interface PolyesterClientBaseConfig {
      * Use `json` for the API Playground visualization.
      */
     wireFormat?: "binary" | "json";
+    /**
+     * Refresh runtime catalogs from the API after construction. Defaults to true.
+     */
+    refreshCatalogs?: boolean;
 }
 
 export interface PolyesterClientConfig extends PolyesterClientBaseConfig {}
@@ -190,7 +197,13 @@ export class PolyesterClient {
         this.zipper = new ZipperService(publicApi);
         this.mfa = new MfaService(authApi);
 
-        refreshCatalogsInBackground(this);
+        if (config.refreshCatalogs !== false) {
+            refreshCatalogsInBackground(this);
+        }
+    }
+
+    async refreshCatalogs(): Promise<void> {
+        await refreshCatalogsFromApi(this);
     }
 
     /**

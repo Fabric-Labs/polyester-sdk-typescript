@@ -161,6 +161,7 @@ export class OrdersService {
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
+        if (!res.order) return null;
         return v.parse(GetOrderResponseSchema, res);
     }
 

@@ -23,6 +23,12 @@ export const ApiKeysListInputSchema = v.object({
 
 export type ApiKeysListInput = v.InferInput<typeof ApiKeysListInputSchema>;
 
+export const ApiKeyIdInputSchema = v.object({
+    keyId: v.pipe(v.string(), v.trim(), v.minLength(1, "keyId is required")),
+});
+
+export type ApiKeyIdInput = v.InferInput<typeof ApiKeyIdInputSchema>;
+
 export const ApiKeysCreateInputSchema = v.object({
     label: v.string(),
     subaccountId: optionalSubaccountIdInputSchema(),

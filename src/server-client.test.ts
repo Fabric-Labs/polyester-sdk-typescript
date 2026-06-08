@@ -1,7 +1,8 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Interceptor } from "@connectrpc/connect";
 import {
     createPolyesterServerClientFromCookies,
+    createPolyesterServerClientFromRequest,
     parseSessionCookie,
     PolyesterServerClient,
     POLYESTER_AUTH_TOKEN_COOKIE_NAME,
@@ -9,6 +10,8 @@ import {
 } from "./server-client.js";
 import { POLYESTER_TESTNET_ENVIRONMENT } from "./environment.js";
 import type { Me } from "./services/auth/auth.js";
+import { MarketDataService } from "./services/market-data/index.js";
+import { ZipperService } from "./services/zipper/index.js";
 
 function base64UrlEncode(value: string): string {
     return btoa(value).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/u, "");
@@ -69,6 +72,35 @@ function expectDisplaySession(session: ReturnType<typeof parseSessionCookie>): v
     });
     expect(session.username).toBe("hunter");
 }
+
+function mockCatalogRefreshEndpoints(): {
+    getSpotConfig: ReturnType<typeof vi.spyOn>;
+    getDepositWithdrawConfig: ReturnType<typeof vi.spyOn>;
+} {
+    return {
+        getSpotConfig: vi
+            .spyOn(MarketDataService.prototype, "getSpotConfig")
+            .mockResolvedValue({ assets: [], pairs: [], tsSec: 0 }),
+        getDepositWithdrawConfig: vi
+            .spyOn(ZipperService.prototype, "getDepositWithdrawConfig")
+            .mockResolvedValue({
+                chains: [],
+                assets: [],
+                polyesterChainId: 0,
+                contracts: [],
+                tsMs: 0,
+            }),
+    };
+}
+
+beforeEach(() => {
+    vi.clearAllMocks();
+});
+
+afterEach(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    vi.restoreAllMocks();
+});
 
 describe("parseSessionCookie", () => {
     it("returns empty display and bearer state when no cookies are present", () => {
@@ -156,6 +188,62 @@ describe("parseSessionCookie", () => {
     });
 });
 
+describe("PolyesterServerClient catalog refresh", () => {
+    it("refreshes catalogs in the background by default", () => {
+        const refresh = mockCatalogRefreshEndpoints();
+
+        new PolyesterServerClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+        });
+
+        expect(refresh.getSpotConfig).toHaveBeenCalledTimes(1);
+        expect(refresh.getDepositWithdrawConfig).toHaveBeenCalledTimes(1);
+    });
+
+    it("skips background catalog refresh when disabled", () => {
+        const refresh = mockCatalogRefreshEndpoints();
+
+        new PolyesterServerClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            refreshCatalogs: false,
+        });
+
+        expect(refresh.getSpotConfig).not.toHaveBeenCalled();
+        expect(refresh.getDepositWithdrawConfig).not.toHaveBeenCalled();
+    });
+
+    it("refreshes catalogs explicitly", async () => {
+        const refresh = mockCatalogRefreshEndpoints();
+        const client = new PolyesterServerClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            refreshCatalogs: false,
+        });
+
+        await client.refreshCatalogs();
+
+        expect(refresh.getSpotConfig).toHaveBeenCalledTimes(1);
+        expect(refresh.getDepositWithdrawConfig).toHaveBeenCalledTimes(1);
+    });
+
+    it("passes the refresh opt-out through server helpers", () => {
+        const refresh = mockCatalogRefreshEndpoints();
+
+        createPolyesterServerClientFromCookies({
+            cookies: {},
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            refreshCatalogs: false,
+        });
+        createPolyesterServerClientFromRequest({
+            request: new Request("https://example.test"),
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            refreshCatalogs: false,
+        });
+
+        expect(refresh.getSpotConfig).not.toHaveBeenCalled();
+        expect(refresh.getDepositWithdrawConfig).not.toHaveBeenCalled();
+    });
+});
+
 describe("createPolyesterServerClientFromCookies", () => {
     it("accepts shared transport and realtime config", () => {
         const passthroughInterceptor: Interceptor = (next) => (req) => next(req);
@@ -164,6 +252,7 @@ describe("createPolyesterServerClientFromCookies", () => {
             environment: POLYESTER_TESTNET_ENVIRONMENT,
             interceptors: [passthroughInterceptor],
             wireFormat: "json",
+            refreshCatalogs: false,
             realtime: {
                 getAuthHeaders: () => ({ authorization: "Bearer test" }),
                 hasAuth: () => true,
@@ -177,6 +266,7 @@ describe("createPolyesterServerClientFromCookies", () => {
         const client = createPolyesterServerClientFromCookies({
             cookies: {},
             environment: POLYESTER_TESTNET_ENVIRONMENT,
+            refreshCatalogs: false,
         });
 
         expect(client.hasDisplaySession).toBe(false);
@@ -188,6 +278,7 @@ describe("createPolyesterServerClientFromCookies", () => {
     it("keeps display session metadata without installing an auth provider", () => {
         const client = createPolyesterServerClientFromCookies({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
+            refreshCatalogs: false,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
             },
@@ -202,6 +293,7 @@ describe("createPolyesterServerClientFromCookies", () => {
     it("installs an auth provider for a usable bearer token", () => {
         const client = createPolyesterServerClientFromCookies({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
+            refreshCatalogs: false,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
@@ -217,6 +309,7 @@ describe("createPolyesterServerClientFromCookies", () => {
     it("does not install an auth provider for expired or malformed bearer tokens", () => {
         const expired = createPolyesterServerClientFromCookies({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
+            refreshCatalogs: false,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: expiredJwt(),
@@ -224,6 +317,7 @@ describe("createPolyesterServerClientFromCookies", () => {
         });
         const malformed = createPolyesterServerClientFromCookies({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
+            refreshCatalogs: false,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: "not-a-jwt",
@@ -247,6 +341,7 @@ describe("PolyesterServerClient.verifySession", () => {
     it("returns null when no auth provider is configured", async () => {
         const client = new PolyesterServerClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
+            refreshCatalogs: false,
         });
         const me = vi.spyOn(client.auth, "me");
 
@@ -257,6 +352,7 @@ describe("PolyesterServerClient.verifySession", () => {
     it("returns the current user when the backend verifies the session", async () => {
         const client = createPolyesterServerClientFromCookies({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
+            refreshCatalogs: false,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
@@ -271,6 +367,7 @@ describe("PolyesterServerClient.verifySession", () => {
     it("returns null when backend verification fails", async () => {
         const client = createPolyesterServerClientFromCookies({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
+            refreshCatalogs: false,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),

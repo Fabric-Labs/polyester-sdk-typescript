@@ -38,6 +38,12 @@ export const CreateSubaccountInputSchema = v.object({
 
 export type CreateSubaccountInput = v.InferInput<typeof CreateSubaccountInputSchema>;
 
+export const SubaccountIdInputSchema = v.object({
+    subaccountId: idInputSchema("subaccountId"),
+});
+
+export type SubaccountIdInput = v.InferInput<typeof SubaccountIdInputSchema>;
+
 export const CreateSubaccountResultSchema = v.object({
     subaccountId: v.pipe(
         v.bigint(),

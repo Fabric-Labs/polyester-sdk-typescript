@@ -27,6 +27,7 @@ export class PolyesterBrowserClient extends PolyesterClient {
                 interceptors: config.interceptors,
                 auth: { kind: "jwt", getToken },
                 wireFormat: config.wireFormat,
+                refreshCatalogs: config.refreshCatalogs,
                 realtime: {
                     hasAuth: () => !!getToken(),
                     ...config.realtime,

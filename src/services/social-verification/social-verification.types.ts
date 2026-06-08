@@ -1,5 +1,6 @@
 export type {
     GetVerificationResponse,
+    SocialProviderInput,
     SocialProvider,
     SocialVerification,
     SocialVerificationMethod,

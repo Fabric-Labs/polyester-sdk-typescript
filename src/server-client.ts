@@ -104,6 +104,7 @@ export class PolyesterServerClient extends PolyesterClient {
             auth,
             wireFormat: config.wireFormat,
             realtime: config.realtime,
+            refreshCatalogs: config.refreshCatalogs,
         });
         this.#hasAuthProvider = !!auth;
         this.#session = config.session ?? emptyServerSessionSnapshot();
@@ -159,13 +160,17 @@ export class PolyesterServerClient extends PolyesterClient {
     }
 }
 
-export interface CreateServerClientFromCookiesParams
-    extends Pick<PolyesterClientBaseConfig, "environment" | "interceptors" | "realtime" | "wireFormat"> {
+export interface CreateServerClientFromCookiesParams extends Pick<
+    PolyesterClientBaseConfig,
+    "environment" | "interceptors" | "realtime" | "wireFormat" | "refreshCatalogs"
+> {
     cookies: CookieGetter;
 }
 
-export interface CreateServerClientFromRequestParams
-    extends Pick<PolyesterClientBaseConfig, "environment" | "interceptors" | "realtime" | "wireFormat"> {
+export interface CreateServerClientFromRequestParams extends Pick<
+    PolyesterClientBaseConfig,
+    "environment" | "interceptors" | "realtime" | "wireFormat" | "refreshCatalogs"
+> {
     request: Request;
 }
 
@@ -186,6 +191,7 @@ export function createPolyesterServerClientFromCookies(
         session,
         wireFormat: params.wireFormat,
         realtime: params.realtime,
+        refreshCatalogs: params.refreshCatalogs,
         auth,
     });
 }
@@ -199,6 +205,7 @@ export function createPolyesterServerClientFromRequest(
         interceptors: params.interceptors,
         wireFormat: params.wireFormat,
         realtime: params.realtime,
+        refreshCatalogs: params.refreshCatalogs,
     });
 }
 

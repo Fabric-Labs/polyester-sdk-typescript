@@ -20,17 +20,13 @@ export class AccountsService {
     }
 
     async resolve(
-        query: string,
-        options?: ResolveAccountInput,
-        requestOptions?: PolyesterRequestOptions,
+        input: ResolveAccountInput,
+        options?: PolyesterRequestOptions,
     ): Promise<ResolvedAccount[]> {
-        const validatedOptions = v.parse(ResolveAccountInputSchema, options);
+        const validatedInput = v.parse(ResolveAccountInputSchema, input);
         const res = await this.#client.resolveAccount(
-            {
-                query,
-                ...validatedOptions,
-            },
-            toConnectCallOptions(requestOptions),
+            validatedInput,
+            toConnectCallOptions(options),
         );
 
         return v.parse(ResolvedAccountArraySchema, res.matches);

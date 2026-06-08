@@ -10,6 +10,7 @@ export type {
     Subaccount,
     SubaccountActivityInput,
     SubaccountEvent,
+    SubaccountIdInput,
     SubaccountInvite,
     SubaccountInviteStatus,
     SubaccountMember,

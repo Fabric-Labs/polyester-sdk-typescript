@@ -19,7 +19,6 @@ function refreshMarketCatalog(client: CatalogRefreshClient): Promise<void> {
     marketCatalogRefresh ??= client.marketData
         .getSpotConfig()
         .then(hydrateCatalog)
-        .catch(() => {})
         .finally(() => {
             marketCatalogRefresh = undefined;
         });
@@ -31,7 +30,6 @@ function refreshZipperCatalog(client: CatalogRefreshClient): Promise<void> {
     zipperCatalogRefresh ??= client.zipper
         .getDepositWithdrawConfig()
         .then(hydrateZipperCatalog)
-        .catch(() => {})
         .finally(() => {
             zipperCatalogRefresh = undefined;
         });
@@ -39,9 +37,12 @@ function refreshZipperCatalog(client: CatalogRefreshClient): Promise<void> {
     return zipperCatalogRefresh;
 }
 
+export async function refreshCatalogs(client: CatalogRefreshClient): Promise<void> {
+    await Promise.all([refreshMarketCatalog(client), refreshZipperCatalog(client)]);
+}
+
 export function refreshCatalogsInBackground(client: CatalogRefreshClient): void {
-    refreshMarketCatalog(client);
-    refreshZipperCatalog(client);
+    refreshCatalogs(client).catch(() => {});
 }
 
 export async function refreshZipperCatalogFromApi(client: CatalogRefreshClient): Promise<void> {
