@@ -77,6 +77,9 @@ interface SharedSubscription {
     errorHandlers: Set<ErrorHandler>;
 }
 
+/**
+ * Shared Centrifuge realtime client that multiplexes public and private protobuf subscriptions across SDK services.
+ */
 export class RealtimeClient {
     #client: Centrifuge | null = null;
     #clientMode: RealtimeClientMode | null = null;
@@ -376,6 +379,9 @@ export class RealtimeClient {
         this.#connectionHandlers.clear();
     }
 
+    /**
+     * Subscribes to a realtime channel and returns an unsubscribe function.
+     */
     subscribe<T>(channel: string, handlers: SubscribeHandlers<T>): () => void {
         const shared = this.#getOrCreateSubscription(channel);
         shared.consumers++;
@@ -453,6 +459,9 @@ export class RealtimeClient {
         };
     }
 
+    /**
+     * Connects to a realtime channel with a custom message decoder.
+     */
     connectChannel<T extends DescMessage>(params: ConnectChannelParams<T>): () => void {
         return this.subscribe<Uint8Array>(params.channel, {
             onPublication: (data) => {
@@ -474,6 +483,9 @@ export class RealtimeClient {
         });
     }
 
+    /**
+     * Connects to a realtime channel that emits protobuf messages.
+     */
     connectProtoChannel<T extends DescMessage>(params: ConnectChannelParams<T>): () => void {
         return this.subscribe<Uint8Array | MessageShape<T>>(params.channel, {
             onPublication: (data) => {
@@ -506,6 +518,9 @@ export class RealtimeClient {
         });
     }
 
+    /**
+     * Disconnects the realtime client from all active channels.
+     */
     disconnect(): void {
         this.#disconnect();
     }

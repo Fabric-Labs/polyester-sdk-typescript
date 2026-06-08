@@ -21,6 +21,9 @@ export interface CookieAuthTokenStorageOptions {
     sameSite?: "lax" | "strict" | "none";
 }
 
+/**
+ * Builds cookie write options for auth token storage.
+ */
 export function createAuthTokenStorageSetOptions(token: string): AuthTokenStorageSetOptions {
     const exp = getJwtExpiration(token);
     if (exp === null) {
@@ -34,6 +37,9 @@ export function createAuthTokenStorageSetOptions(token: string): AuthTokenStorag
     };
 }
 
+/**
+ * Creates in-memory auth token storage.
+ */
 export function createMemoryAuthTokenStorage(initialToken?: string | null): AuthTokenStorage {
     let storedToken = initialToken ?? null;
 
@@ -48,6 +54,9 @@ export function createMemoryAuthTokenStorage(initialToken?: string | null): Auth
     };
 }
 
+/**
+ * Creates cookie-backed auth token storage.
+ */
 export function createCookieAuthTokenStorage(
     options: CookieAuthTokenStorageOptions = {},
 ): AuthTokenStorage {
@@ -72,6 +81,9 @@ export function createCookieAuthTokenStorage(
     };
 }
 
+/**
+ * Returns the auth token scoped to the active SDK environment.
+ */
 export function getEnvironmentBoundAuthToken(
     tokenStorage: AuthTokenStorage,
     environmentFingerprint: string,

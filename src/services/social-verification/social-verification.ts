@@ -18,6 +18,9 @@ import {
     type GetVerificationResponse,
 } from "./social-verification.schemas.js";
 
+/**
+ * Verifies ownership of external social accounts for the authenticated caller.
+ */
 export class SocialVerificationService {
     #client: Client<typeof Proto.SocialVerificationService>;
 
@@ -25,6 +28,9 @@ export class SocialVerificationService {
         this.#client = createClient(Proto.SocialVerificationService, transport);
     }
 
+    /**
+     * Starts or restarts provider verification for a handle, normalizing leading @, defaulting to profile verification, and returning a poly_... challenge code that expires after about 15 minutes.
+     */
     async start(
         input: StartVerificationInput,
         options?: PolyesterMutationOptions,
@@ -37,6 +43,9 @@ export class SocialVerificationService {
         return v.parse(StartVerificationResponseSchema, res);
     }
 
+    /**
+     * Queues a provider check after the caller has placed the challenge code according to the selected verification method.
+     */
     async markReady(
         input: v.InferInput<typeof SocialProviderInputSchema>,
         options?: PolyesterMutationOptions,
@@ -49,6 +58,9 @@ export class SocialVerificationService {
         return v.parse(VerificationReadyResponseSchema, res);
     }
 
+    /**
+     * Returns the caller's current verification state for a provider, including status, challenge metadata, attempts, last error, and verified timestamp.
+     */
     async get(
         input: v.InferInput<typeof SocialProviderInputSchema>,
         options?: PolyesterRequestOptions,

@@ -12,6 +12,9 @@ import {
     type ResolvedAccount,
 } from "./accounts.schemas.js";
 
+/**
+ * Resolves user-entered account identifiers into transfer/shareable root or subaccount destinations.
+ */
 export class AccountsService {
     #client: Client<typeof ProtoResolve.ResolveService>;
 
@@ -19,6 +22,9 @@ export class AccountsService {
         this.#client = createClient(ProtoResolve.ResolveService, transport);
     }
 
+    /**
+     * Resolves a username, opaque account/subaccount ID, or smart-account address into matching destination accounts; set includeSubaccounts for internal-transfer flows that may target subaccounts.
+     */
     async resolve(
         input: ResolveAccountInput,
         options?: PolyesterRequestOptions,

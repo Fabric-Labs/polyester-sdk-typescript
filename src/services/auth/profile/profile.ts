@@ -21,6 +21,9 @@ import type { RealtimeClient } from "../../../realtime/index.js";
 
 interface SubscribeIdentityInput extends BaseSubscribeInput<AccountIdentity> {}
 
+/**
+ * Manages the authenticated account's public profile and realtime identity updates.
+ */
 export class ProfileService {
     #client: Client<typeof Proto.ProfileService>;
     #realtime: RealtimeClient;
@@ -30,12 +33,18 @@ export class ProfileService {
         this.#realtime = realtime;
     }
 
+    /**
+     * Fetches the caller's public profile, including username eligibility/cooldown, verified social handles, avatar, VIP tier, and account creation timestamp.
+     */
     async get(options?: PolyesterRequestOptions): Promise<Profile> {
         const res = await this.#client.getProfile({}, toConnectCallOptions(options));
         if (!res) throw new Error("Profile not found");
         return v.parse(ProfileSchema, res);
     }
 
+    /**
+     * Updates only the provided mutable profile fields; omitted fields are unchanged, while present empty strings clear optional text fields such as bio, website, Twitter, and avatar URL.
+     */
     async update(
         input: v.InferInput<typeof UpdateProfileInputSchema>,
         options?: PolyesterMutationOptions,
@@ -48,11 +57,17 @@ export class ProfileService {
         return v.parse(ProfileSchema, res);
     }
 
+    /**
+     * Returns the caller's recent username changes, newest first, capped at 20 entries.
+     */
     async getUsernameHistory(options?: PolyesterRequestOptions): Promise<UsernameHistoryEntry[]> {
         const res = await this.#client.getUsernameHistory({}, toConnectCallOptions(options));
         return v.parse(v.array(UsernameHistoryEntrySchema), res.history);
     }
 
+    /**
+     * Subscribes to public identity updates and emits normalized account identity records with base58 account IDs, username, avatar URL, and root smart-account address.
+     */
     subscribeIdentity(input: SubscribeIdentityInput): () => void {
         const channel = "public:identity:updates:proto";
         return this.#realtime.connectProtoChannel({

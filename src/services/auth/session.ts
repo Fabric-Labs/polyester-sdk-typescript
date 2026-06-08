@@ -18,7 +18,13 @@ function resolveSessionCookieMaxAge(options?: SessionCookieOptions): number | un
     return options.maxAgeSeconds ?? undefined;
 }
 
+/**
+ * Stores and mutates the SDK's in-memory view of the active authenticated session.
+ */
 class PolyesterSessionManager {
+    /**
+     * Replaces the current session state.
+     */
     set(session: SessionData, options?: SessionCookieOptions): void {
         setCookie({
             name: POLYESTER_SESSION_COOKIE_NAME,
@@ -32,6 +38,9 @@ class PolyesterSessionManager {
         });
     }
 
+    /**
+     * Returns the current session state, or null when no session is active.
+     */
     get(): SessionData | null {
         const value = getCookie(POLYESTER_SESSION_COOKIE_NAME);
         if (!value) return null;
@@ -50,6 +59,9 @@ class PolyesterSessionManager {
         }
     }
 
+    /**
+     * Updates the active account and subaccount in the current session.
+     */
     setActiveAccount(
         activeAccount: Omit<ActiveAccountInfo, "mainAccountId">,
         options?: SessionCookieOptions,
@@ -71,6 +83,9 @@ class PolyesterSessionManager {
         );
     }
 
+    /**
+     * Updates the username stored in the current session.
+     */
     setUsername(username: string | null, options?: SessionCookieOptions): void {
         const session = this.get();
         if (!session) return;
@@ -85,6 +100,9 @@ class PolyesterSessionManager {
         this.set(nextSession, options);
     }
 
+    /**
+     * Clears the current session state.
+     */
     clear(): void {
         deleteCookie(POLYESTER_SESSION_COOKIE_NAME);
     }

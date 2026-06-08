@@ -53,6 +53,9 @@ import {
     type WithdrawWhitelistView,
 } from "./address-book.schemas.js";
 
+/**
+ * Manages saved transfer destinations, tags, whitelist views, and recent counterparties for root or subaccount-scoped address books.
+ */
 export class AddressBookService {
     #client: Client<typeof Proto.AddressBookService>;
     #resolver?: SubaccountResolver;
@@ -62,11 +65,17 @@ export class AddressBookService {
         this.#resolver = resolver;
     }
 
+    /**
+     * Returns the root and subaccount address books visible to the caller, including caller role and display metadata.
+     */
     async listBooks(options?: PolyesterRequestOptions): Promise<AddressBook[]> {
         const response = await this.#client.listAddressBooks({}, toConnectCallOptions(options));
         return response.books.map((book) => v.parse(AddressBookSchema, book));
     }
 
+    /**
+     * Returns saved address-book entries for the resolved subaccount scope, optionally filtered by external-chain or internal-account destination kind.
+     */
     async listEntries(
         input: ListAddressBookEntriesInput = {},
         options?: PolyesterRequestOptions,
@@ -79,6 +88,9 @@ export class AddressBookService {
         return v.parse(AddressBookEntriesSchema, response.entries);
     }
 
+    /**
+     * Creates a saved external withdrawal or internal transfer destination in the resolved address book, optionally attaching existing tags and creating new tags in the same request.
+     */
     async createEntry(
         input: CreateAddressBookEntryInput,
         options?: PolyesterMutationOptions,
@@ -91,6 +103,9 @@ export class AddressBookService {
         return response.entry ? v.parse(AddressBookEntrySchema, response.entry) : null;
     }
 
+    /**
+     * Replaces the label, note, and tag set for an existing saved destination.
+     */
     async updateEntry(
         input: UpdateAddressBookEntryInput,
         options?: PolyesterMutationOptions,
@@ -103,6 +118,9 @@ export class AddressBookService {
         return response.entry ? v.parse(AddressBookEntrySchema, response.entry) : null;
     }
 
+    /**
+     * Deletes one saved destination from the selected address book.
+     */
     async deleteEntry(
         input: DeleteAddressBookEntryInput,
         options?: PolyesterMutationOptions,
@@ -111,6 +129,9 @@ export class AddressBookService {
         await this.#client.deleteAddressBookEntry(request, toConnectCallOptions(options));
     }
 
+    /**
+     * Copies a saved destination into another visible root or subaccount address book.
+     */
     async copyEntry(
         input: CopyAddressBookEntryInput,
         options?: PolyesterMutationOptions,
@@ -123,6 +144,9 @@ export class AddressBookService {
         return response.entry ? v.parse(AddressBookEntrySchema, response.entry) : null;
     }
 
+    /**
+     * Creates a tag in the resolved address book scope for organizing saved destinations.
+     */
     async createTag(
         input: CreateAddressBookTagInput,
         options?: PolyesterMutationOptions,
@@ -135,6 +159,9 @@ export class AddressBookService {
         return response.tag ? v.parse(AddressBookTagSchema, response.tag) : null;
     }
 
+    /**
+     * Updates a tag's name and optional color token.
+     */
     async updateTag(
         input: UpdateAddressBookTagInput,
         options?: PolyesterMutationOptions,
@@ -147,6 +174,9 @@ export class AddressBookService {
         return response.tag ? v.parse(AddressBookTagSchema, response.tag) : null;
     }
 
+    /**
+     * Deletes a tag and detaches it from any address-book entries.
+     */
     async deleteTag(
         input: DeleteAddressBookTagInput,
         options?: PolyesterMutationOptions,
@@ -155,6 +185,9 @@ export class AddressBookService {
         await this.#client.deleteAddressBookTag(request, toConnectCallOptions(options));
     }
 
+    /**
+     * Returns recent transfer counterparties, including unsaved destinations, with direction, kind, use count, and first/last seen timestamps.
+     */
     async listTransferCounterparties(
         input: ListTransferCounterpartiesInput = {},
         options?: PolyesterRequestOptions,
@@ -167,6 +200,9 @@ export class AddressBookService {
         return v.parse(TransferCounterpartiesSchema, response.counterparties);
     }
 
+    /**
+     * Returns saved and whitelisted destinations available for transfer flows in the resolved address book scope.
+     */
     async listTransferDestinations(
         input: ListTransferDestinationsInput = {},
         options?: PolyesterRequestOptions,
@@ -179,6 +215,9 @@ export class AddressBookService {
         return v.parse(TransferDestinationsSchema, response.destinations);
     }
 
+    /**
+     * Returns internal-transfer whitelist entries for the resolved scope, including target account metadata and resolution status.
+     */
     async listInternalTransferWhitelistEntries(
         input: SubaccountScopedInput = {},
         options?: PolyesterRequestOptions,
@@ -191,6 +230,9 @@ export class AddressBookService {
         return v.parse(InternalTransferWhitelistEntriesSchema, response.entries);
     }
 
+    /**
+     * Returns external and internal withdrawal whitelist requirements plus active mirrored external whitelist entries for the resolved scope.
+     */
     async getWithdrawWhitelistView(
         input: SubaccountScopedInput = {},
         options?: PolyesterRequestOptions,
@@ -203,6 +245,9 @@ export class AddressBookService {
         return response.view ? v.parse(WithdrawWhitelistViewSchema, response.view) : null;
     }
 
+    /**
+     * Fetches the combined address-book view used by dashboards: books, saved entries, recent destinations, tags, and withdrawal whitelist status.
+     */
     async getView(
         input: GetAddressBookViewInput = {},
         options?: PolyesterRequestOptions,

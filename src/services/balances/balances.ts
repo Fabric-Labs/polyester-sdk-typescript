@@ -31,6 +31,9 @@ interface SubscribeBalancesInput extends BaseSubscribeInput<LedgerBalance> {
     accountId: string;
 }
 
+/**
+ * Reads and streams ledger balances plus balance and equity history for the authenticated account scope.
+ */
 export class BalancesService {
     #client: Client<typeof Proto.LedgerReadService>;
     #realtime: RealtimeClient;
@@ -42,6 +45,9 @@ export class BalancesService {
         this.#resolver = resolver;
     }
 
+    /**
+     * Returns current asset balances for the resolved root account or subaccount, including trading, funding, reserved, and available amounts. Unknown asset ids are filtered out before schema parsing.
+     */
     async list(
         input: { subaccountId?: string } = {},
         options?: PolyesterRequestOptions,
@@ -59,6 +65,9 @@ export class BalancesService {
         );
     }
 
+    /**
+     * Returns columnar balance history for the resolved account scope over a selected range, optionally filtered by ledger asset and account buckets.
+     */
     async getBalanceHistory(
         input: BalanceHistoryInput,
         options?: PolyesterRequestOptions,
@@ -69,6 +78,9 @@ export class BalancesService {
         return v.parse(BalanceHistoryResponseSchema, res);
     }
 
+    /**
+     * Returns equity history series for the resolved account scope over a selected range, optionally grouped by account or asset and filtered by account buckets.
+     */
     async getEquityHistory(
         input: EquityHistoryInput,
         options?: PolyesterRequestOptions,
@@ -82,6 +94,9 @@ export class BalancesService {
         return v.parse(EquityHistoryResponseSchema, res);
     }
 
+    /**
+     * Subscribes to private balance updates on private:ledger:balances:{accountId}:proto and emits known-asset balance records only.
+     */
     subscribe(input: SubscribeBalancesInput): () => void {
         const channel = `private:ledger:balances:${input.accountId}:proto`;
         return this.#realtime.connectProtoChannel({

@@ -21,6 +21,9 @@ interface SubscribeMarketOverviewInput extends BaseSubscribeInput<MarketOverview
     sparklineIntervals?: SparklineIntervalName[];
 }
 
+/**
+ * Provides ticker-style per-market stats and a live merged overview stream.
+ */
 export class MarketOverviewService {
     #client: Client<typeof Proto.MarketOverviewService>;
     #realtime: RealtimeClient;
@@ -30,6 +33,9 @@ export class MarketOverviewService {
         this.#realtime = realtime;
     }
 
+    /**
+     * Returns market overview rows with last price, 24h stats, top-of-book values, listing timestamp, and optional sparklines. Supports symbol filtering, sorting, pagination, and sparkline interval selection.
+     */
     async list(
         input: ListMarketOverviewInput = {},
         options?: PolyesterRequestOptions,
@@ -42,6 +48,9 @@ export class MarketOverviewService {
         return v.parse(v.array(MarketOverviewSchema), res.markets);
     }
 
+    /**
+     * Subscribes to public:spot:market_overview:updates:proto, fetches an initial snapshot, buffers updates until ready, and emits the merged set of latest market rows. On reconnect it refetches the snapshot before resuming updates.
+     */
     subscribe(input: SubscribeMarketOverviewInput): () => void {
         const channel = "public:spot:market_overview:updates:proto";
         let isDisposed = false;

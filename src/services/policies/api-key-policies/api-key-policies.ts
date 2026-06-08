@@ -19,6 +19,9 @@ import {
 } from "./api-key-policies.schemas.js";
 import { PolicyIdSchema } from "../shared.js";
 
+/**
+ * Manages reusable API key policy templates and their assignment to API keys.
+ */
 export class ApiKeyPoliciesService {
     #client: Client<typeof Proto.PolicyService>;
 
@@ -26,11 +29,17 @@ export class ApiKeyPoliciesService {
         this.#client = createClient(Proto.PolicyService, transport);
     }
 
+    /**
+     * Returns API key policy templates available to the caller.
+     */
     async list(options?: PolyesterRequestOptions): Promise<ApiKeyPolicy[]> {
         const res = await this.#client.listApiPolicies({}, toConnectCallOptions(options));
         return v.parse(ListApiKeyPoliciesResponseSchema, res);
     }
 
+    /**
+     * Fetches an API key policy by base58 policy ID, falling back to the SDK default no-permissions policy when no ID or policy is returned.
+     */
     async get(
         policyId: string | undefined,
         options?: PolyesterRequestOptions,
@@ -44,6 +53,9 @@ export class ApiKeyPoliciesService {
         return v.parse(ApiKeyPolicySchema, res.policy);
     }
 
+    /**
+     * Creates an API key policy template with market scopes, allowed actions, notional/transfer limits, and optional immediate assignment to a key.
+     */
     async create(
         input: v.InferInput<typeof CreateApiKeyPolicyInputSchema>,
         options?: PolyesterMutationOptions,
@@ -57,6 +69,9 @@ export class ApiKeyPoliciesService {
         return v.parse(ApiKeyPolicySchema, res.policy);
     }
 
+    /**
+     * Replaces an existing API key policy template using the supplied market, action, and limit settings.
+     */
     async update(
         input: v.InferInput<typeof UpdateApiKeyPolicyInputSchema>,
         options?: PolyesterMutationOptions,
@@ -70,6 +85,9 @@ export class ApiKeyPoliciesService {
         return v.parse(ApiKeyPolicySchema, res.policy);
     }
 
+    /**
+     * Deletes an API key policy template when it is not in use.
+     */
     async delete(policyId: string, options?: PolyesterMutationOptions): Promise<void> {
         const validatedPolicyId = v.parse(PolicyIdSchema, policyId);
         await this.#client.deleteApiPolicy(
@@ -78,6 +96,9 @@ export class ApiKeyPoliciesService {
         );
     }
 
+    /**
+     * Attaches a policy to an API key, or clears the key-specific policy when policyId is null.
+     */
     async apply(
         input: v.InferInput<typeof ApplyApiKeyPolicyInputSchema>,
         options?: PolyesterMutationOptions,

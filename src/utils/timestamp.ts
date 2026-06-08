@@ -1,9 +1,15 @@
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
 
+/**
+ * Creates a proto Timestamp from seconds and nanos parts.
+ */
 export function toTimestamp({ seconds, nanos }: { seconds: bigint; nanos: number }): Timestamp {
     return { seconds, nanos } as Timestamp;
 }
 
+/**
+ * Converts supported timestamp-like values to epoch milliseconds.
+ */
 export function timestampToMs(value: unknown): number | null {
     if (value == null) return null;
 

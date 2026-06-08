@@ -14,7 +14,6 @@ export type {
     LifecycleRequestFee,
     LifecycleRequestFeeStatus,
     LifecycleTxLookupKind,
-    LifecycleU256,
     ListLifecycleFlowsByTxInput,
     ListLifecycleFlowsByTxOutput,
     ListLifecycleFlowsInput,

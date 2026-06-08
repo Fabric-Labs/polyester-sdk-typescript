@@ -21,6 +21,9 @@ interface SubscribeTradesInput extends BaseSubscribeInput<MarketTrade> {
     symbol: string;
 }
 
+/**
+ * Exposes public spot trades, spot configuration, and live trade streams.
+ */
 export class MarketDataService {
     #client: Client<typeof Proto.MarketDataService>;
     #realtime: RealtimeClient;
@@ -30,6 +33,9 @@ export class MarketDataService {
         this.#realtime = realtime;
     }
 
+    /**
+     * Returns recent public trades for one spot market, ordered newest-first by execution timestamp with match id as a tie-breaker. Supports limit, time bounds, side filtering, and match-id pagination.
+     */
     async listTrades(
         input: v.InferInput<typeof GetMarketTradesInputSchema>,
         options?: PolyesterRequestOptions,
@@ -39,11 +45,17 @@ export class MarketDataService {
         return v.parse(v.array(MarketTradeSchema), res.trades);
     }
 
+    /**
+     * Returns the cacheable spot reference-data snapshot, including asset metadata, pair trading constraints, display scales, statuses, and market slippage defaults.
+     */
     async getSpotConfig(options?: PolyesterRequestOptions): Promise<SpotConfig> {
         const res = await this.#client.getSpotConfig({}, toConnectCallOptions(options));
         return v.parse(SpotConfigSchema, res);
     }
 
+    /**
+     * Subscribes to public trade prints on public:spot:market:trades:{symbolId}:proto for the requested symbol and emits parsed market trades.
+     */
     subscribeTrades(input: SubscribeTradesInput): () => void {
         const pair = getPair(input.symbol);
 

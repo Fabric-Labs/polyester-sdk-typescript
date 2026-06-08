@@ -4,10 +4,16 @@ import { getAsset, getAssetByLedgerId, getAllAssets } from "./market-data-catalo
 const DEFAULT_DECIMALS = 8;
 const DEFAULT_QUANTITY_SCALE = 18;
 
+/**
+ * Checks whether the ledger catalog contains an asset id.
+ */
 export function isKnownAssetId(ledgerId: number): boolean {
     return ledgerId !== 0 && getAssetByLedgerId(ledgerId) !== undefined;
 }
 
+/**
+ * Returns the ledger asset metadata for an asset id.
+ */
 export function assetForId(ledgerId: number): AssetConfig {
     const config = getAssetByLedgerId(ledgerId);
     if (config) return config;
@@ -20,6 +26,9 @@ export function assetForId(ledgerId: number): AssetConfig {
     };
 }
 
+/**
+ * Returns the ledger asset metadata for an asset symbol.
+ */
 export function assetForSymbol(symbol: string): AssetConfig {
     const config = getAsset(symbol);
     if (config) return config;
@@ -32,6 +41,9 @@ export function assetForSymbol(symbol: string): AssetConfig {
     };
 }
 
+/**
+ * Returns the display symbol for a ledger asset id.
+ */
 export function symbolForAssetId(ledgerId: number): string {
     return assetForId(ledgerId).symbol;
 }
@@ -56,6 +68,9 @@ function displayDecimalsFor(id: number): number {
 }
 
 // Format a full-scale (18) decimal string to asset display decimals with half-up rounding, trim trailing zeros.
+/**
+ * Formats a scaled ledger amount for display with its asset symbol.
+ */
 export function formatAmountDisplay(amount: string, assetId: number): string {
     const s = (amount ?? "").trim();
     if (!s) return "0";
@@ -125,6 +140,9 @@ const accountCodeNames: Record<number, AccountCodeName> = {
     500: "insurance",
 };
 
+/**
+ * Returns the display name for a ledger account code.
+ */
 export function accountCodeNameFor(code: number): AccountCodeName {
     return accountCodeNames[code] ?? `acct_code:${code}`;
 }
@@ -169,6 +187,9 @@ const transferCodeNames: Record<number, TransferTypeName> = {
     1061: "unified_to_fund",
 };
 
+/**
+ * Returns the display name for a ledger transfer type.
+ */
 export function transferTypeNameFor(code: number): TransferTypeName {
     return transferCodeNames[code] ?? `xfer_code:${code}`;
 }

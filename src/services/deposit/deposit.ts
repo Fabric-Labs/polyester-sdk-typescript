@@ -18,6 +18,9 @@ import {
     type DepositAddress,
 } from "./deposit.schemas.js";
 
+/**
+ * Manages chain deposit addresses for root accounts and subaccounts.
+ */
 export class DepositService {
     #client: Client<typeof Proto.DepositAddressService>;
     #resolver?: SubaccountResolver;
@@ -27,6 +30,9 @@ export class DepositService {
         this.#resolver = resolver;
     }
 
+    /**
+     * Creates or returns the deposit address assigned to the resolved account target for a selected chain. Returns null if the backend response does not include an address.
+     */
     async createAddress(
         input: CreateDepositAddressInput,
         options?: PolyesterMutationOptions,
@@ -41,6 +47,9 @@ export class DepositService {
         return v.parse(DepositAddressSchema, res.depositAddress);
     }
 
+    /**
+     * Lists known deposit addresses for the resolved account target, optionally filtered by chain. Results are ordered by ascending chain id in the generated proto contract.
+     */
     async listAddresses(
         input: ListDepositAddressesInput = {},
         options?: PolyesterRequestOptions,

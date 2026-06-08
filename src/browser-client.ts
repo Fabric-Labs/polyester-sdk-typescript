@@ -76,6 +76,9 @@ export class PolyesterBrowserClient extends PolyesterClient {
         };
     }
 
+    /**
+     * Sets the account signer used for authenticated browser requests.
+     */
     setAccountSigner(accountSigner: AccountSigner | null): void {
         this.auth.setAccountSigner(accountSigner);
     }

@@ -34,14 +34,23 @@ export const OptionalPublicIdSchema = v.pipe(
     v.transform((value) => (value ? formatId(value) : undefined)),
 );
 
+/**
+ * Creates a schema that trims required string input.
+ */
 export function trimmedStringSchema() {
     return v.pipe(v.string(), v.trim());
 }
 
+/**
+ * Creates a schema that trims optional string input.
+ */
 export function optionalTrimmedStringSchema() {
     return v.optional(trimmedStringSchema());
 }
 
+/**
+ * Creates a schema for required public id input.
+ */
 export function idInputSchema(fieldName: string) {
     return v.pipe(
         v.string(),
@@ -51,6 +60,9 @@ export function idInputSchema(fieldName: string) {
     );
 }
 
+/**
+ * Creates a schema for optional public id input.
+ */
 export function optionalIdInputSchema(fieldName: string) {
     return v.pipe(
         optionalTrimmedStringSchema(),
@@ -58,10 +70,16 @@ export function optionalIdInputSchema(fieldName: string) {
     );
 }
 
+/**
+ * Creates a schema for optional subaccount id input.
+ */
 export function optionalSubaccountIdInputSchema() {
     return optionalIdInputSchema("subaccountId");
 }
 
+/**
+ * Creates a schema for optional uint64 decimal filter input.
+ */
 export function optionalUint64DecimalFilterSchema(fieldName: string) {
     return v.pipe(
         optionalTrimmedStringSchema(),
@@ -69,6 +87,9 @@ export function optionalUint64DecimalFilterSchema(fieldName: string) {
     );
 }
 
+/**
+ * Creates a schema for positive bigint-like input.
+ */
 export function positiveBigintLikeSchema(message: string) {
     return v.pipe(
         v.union([

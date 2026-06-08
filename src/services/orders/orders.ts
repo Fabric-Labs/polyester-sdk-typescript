@@ -44,6 +44,9 @@ function createMutationRequestId(): string {
     );
 }
 
+/**
+ * Manages account-scoped spot orders across read, write, and realtime order update surfaces.
+ */
 export class OrdersService {
     #readClient: Client<typeof ProtoRead.OrdersReadService>;
     #writeClient: Client<typeof ProtoWrite.OrdersService>;
@@ -57,6 +60,9 @@ export class OrdersService {
         this.#resolver = resolver;
     }
 
+    /**
+     * Returns open orders for the resolved root account or subaccount, with optional symbol, side, pagination, and attached-risk inclusion filters. Results include the next page token returned by GetOpenOrders.
+     */
     async listOpen(
         input: v.InferInput<typeof OpenOrdersInputSchema> = {},
         options?: PolyesterRequestOptions,
@@ -73,6 +79,9 @@ export class OrdersService {
         };
     }
 
+    /**
+     * Returns historical orders for the resolved account scope, supporting symbol, side, status, time range, pagination, and attached-risk filters. Results are paginated with the backend nextPageToken.
+     */
     async listHistory(
         input: v.InferInput<typeof OrderHistoryInputSchema> = {},
         options?: PolyesterRequestOptions,
@@ -90,10 +99,7 @@ export class OrdersService {
     }
 
     /**
-     * Create an order.
-     *
-     * Order creation uses `clientOrderId` as the caller-controlled idempotency key. Provide a
-     * stable `clientOrderId` when retrying the same logical create across attempts.
+     * Places a spot order with side, type, quantity, optional price/slippage fields, fee source, STP mode, and optional attached take-profit, stop-loss, or trailing-stop risk controls. clientOrderId is the caller-controlled idempotency key and should be reused only for the same logical order.
      */
     async create(
         input: v.InferInput<typeof NewOrderInputSchema>,
@@ -109,6 +115,9 @@ export class OrdersService {
         return v.parse(CreateOrderResultSchema, res);
     }
 
+    /**
+     * Cancels one open order in the resolved account scope by order id, with optional symbol routing. Returns the backend cancellation status, order id, and server timestamp fields.
+     */
     async cancel(
         input: v.InferInput<typeof CancelOrderInputSchema>,
         options?: PolyesterMutationOptions,
@@ -132,10 +141,7 @@ export class OrdersService {
     }
 
     /**
-     * Modify an order.
-     *
-     * A `requestId` is generated when omitted. Provide a stable `requestId` when retrying the
-     * same logical modification across attempts.
+     * Applies a price, quantity, client id, or attached-risk patch to one open order using the backend modify behavior policy. A requestId is generated when omitted; provide a stable value when retrying the same logical modification.
      */
     async modify(
         input: v.InferInput<typeof ModifyOrderInputSchema>,
@@ -154,10 +160,7 @@ export class OrdersService {
     }
 
     /**
-     * Cancel all matching orders.
-     *
-     * A `requestId` is generated when omitted. Provide a stable `requestId` when retrying the
-     * same logical cancellation across attempts.
+     * Cancels all matching open orders for the resolved account scope, optionally narrowed by symbol and side, with dry-run and max-order safeguards. A requestId is generated when omitted; provide a stable value when retrying the same logical bulk cancellation.
      */
     async cancelAll(
         input: v.InferInput<typeof CancelAllOrdersInputSchema>,
@@ -175,6 +178,9 @@ export class OrdersService {
         return v.parse(CancelAllOrdersResponseSchema, res);
     }
 
+    /**
+     * Fetches one order by id or client order id and returns its order, trades, and transfer details when found. Returns null when the backend response has no order.
+     */
     async getDetails(
         input: v.InferInput<typeof GetOrderDetailsInputSchema>,
         options?: PolyesterRequestOptions,
@@ -189,6 +195,9 @@ export class OrdersService {
         return v.parse(OrderDetailsSchema, res);
     }
 
+    /**
+     * Subscribes to private order updates on private:spot:orders:{accountId}:proto and emits parsed order records until the returned unsubscribe function is called.
+     */
     subscribe(input: SubscribeOrdersInput): () => void {
         const channel = `private:spot:orders:${input.accountId}:proto`;
         return this.#realtime.connectProtoChannel({

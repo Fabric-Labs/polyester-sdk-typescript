@@ -41,6 +41,9 @@ interface SubscribeLifecycleFlowDetailInput extends BaseSubscribeInput<Lifecycle
     flowId: string;
 }
 
+/**
+ * Reads and streams chain lifecycle flow state, history, progress, and transaction matches.
+ */
 export class LifecycleService {
     #client: Client<typeof LifecycleReadService>;
     #realtime: RealtimeClient;
@@ -50,6 +53,9 @@ export class LifecycleService {
         this.#realtime = realtime;
     }
 
+    /**
+     * Returns paginated lifecycle flow summaries filtered by kind, state, scope, account selector, transaction reference, chain ids, and asset ids. The response is ordered by last activity time and includes an opaque next page token.
+     */
     async listFlows(
         input: ListLifecycleFlowsInput,
         options?: PolyesterRequestOptions,
@@ -59,6 +65,9 @@ export class LifecycleService {
         return v.parse(ListLifecycleFlowsOutputSchema, response);
     }
 
+    /**
+     * Fetches one lifecycle flow by its public flow id and returns summary, factual steps, timeline, and live-state detail when available.
+     */
     async getFlow(
         input: GetLifecycleFlowInput,
         options?: PolyesterRequestOptions,
@@ -71,6 +80,9 @@ export class LifecycleService {
         return v.parse(GetLifecycleFlowOutputSchema, response);
     }
 
+    /**
+     * Searches lifecycle flows that reference a 0x-prefixed transaction hash, using source-only or any-reference lookup mode. A single transaction may match zero, one, or many flows.
+     */
     async listFlowsByTx(
         input: ListLifecycleFlowsByTxInput,
         options?: PolyesterRequestOptions,
@@ -83,6 +95,9 @@ export class LifecycleService {
         return v.parse(ListLifecycleFlowsByTxOutputSchema, response);
     }
 
+    /**
+     * Subscribes to open lifecycle flow summary updates, using private:chain:lifecycle:flows:{accountId}:proto when an account id is provided and the public flow channel otherwise.
+     */
     subscribeOpenFlows(input: SubscribeOpenLifecycleFlowsInput): () => void {
         const accountId = input.accountId?.trim();
         const channel = accountId
@@ -101,6 +116,9 @@ export class LifecycleService {
         });
     }
 
+    /**
+     * Subscribes to detail updates for one lifecycle flow on public:chain:lifecycle:flow:{flowId}:proto. Invalid flow ids are rejected locally with a no-op unsubscribe function.
+     */
     subscribeFlowDetail(input: SubscribeLifecycleFlowDetailInput): () => void {
         const parsedFlowId = v.safeParse(GetLifecycleFlowInputSchema, { flowId: input.flowId });
         if (!parsedFlowId.success) {

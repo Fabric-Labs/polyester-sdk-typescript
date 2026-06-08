@@ -127,6 +127,9 @@ function change24hBpFromSparklineFirstLast(sparklines: MarketOverview["sparkline
     return Math.round(((last - first) / first) * 10_000);
 }
 
+/**
+ * Formats the 24-hour market change percentage for display.
+ */
 export function getMarketOverview24hChangeDisplay(
     market: Pick<MarketOverview, "change24hBp" | "listedTsMs" | "sparklines">,
     nowMs: number = Date.now(),

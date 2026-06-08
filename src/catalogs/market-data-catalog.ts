@@ -132,20 +132,32 @@ export function hydrateCatalog(spotConfig: SpotConfig): void {
 
 // asset getters
 
+/**
+ * Returns market-data asset metadata by asset symbol.
+ */
 export function getAsset(symbol: string): AssetConfig | undefined {
     return ASSET_CATALOG.get(symbol);
 }
 
+/**
+ * Returns market-data asset metadata by ledger asset id.
+ */
 export function getAssetByLedgerId(ledgerId: number): AssetConfig | undefined {
     return ASSET_BY_LEDGER_ID.get(ledgerId);
 }
 
+/**
+ * Returns every asset in the market-data catalog.
+ */
 export function getAllAssets(): AssetConfig[] {
     return Array.from(ASSET_CATALOG.values());
 }
 
 // pair getters
 
+/**
+ * Returns market pair metadata by pair symbol.
+ */
 export function getPair(symbol: string): EnrichedPairConfig {
     const pair = PAIR_CATALOG.get(symbol);
     if (!pair) {
@@ -161,6 +173,9 @@ export function symbolIdForSymbol(symbol: string): number | undefined {
     return PAIR_CATALOG.get(symbol)?.symbolId;
 }
 
+/**
+ * Returns market pair metadata by numeric symbol id.
+ */
 export function getPairBySymbolId(symbolId: number): EnrichedPairConfig {
     const pair = PAIR_BY_ID.get(symbolId);
     if (!pair) {
@@ -169,16 +184,25 @@ export function getPairBySymbolId(symbolId: number): EnrichedPairConfig {
     return pair;
 }
 
+/**
+ * Returns every market pair known to the catalog.
+ */
 export function getAllPairs(): EnrichedPairConfig[] {
     return Array.from(PAIR_CATALOG.values());
 }
 
+/**
+ * Returns all market pairs that have ever been listed.
+ */
 export function getAllPairsEverListed(): EnrichedPairConfig[] {
     return Array.from(PAIR_CATALOG.values()).filter(
         (pair) => pair.listingAt !== null && pair.listingAt < Date.now(),
     );
 }
 
+/**
+ * Returns market pairs that are currently listed.
+ */
 export function getAllListedPairs(): EnrichedPairConfig[] {
     return Array.from(PAIR_CATALOG.values()).filter((pair) => {
         if (pair.listingAt === null) return false;
@@ -191,18 +215,30 @@ export function getAllListedPairs(): EnrichedPairConfig[] {
 
 // convenience helpers for backward compatibility
 
+/**
+ * Returns the pair symbol for a numeric symbol id.
+ */
 export function symbolForSymbolId(symbolId: number): string {
     return PAIR_BY_ID.get(symbolId)?.symbol ?? String(symbolId);
 }
 
+/**
+ * Returns the base asset metadata for a numeric symbol id.
+ */
 export function baseAssetForSymbolId(symbolId: number): AssetConfig {
     return getPairBySymbolId(symbolId).baseAsset;
 }
 
+/**
+ * Returns the quote asset metadata for a numeric symbol id.
+ */
 export function quoteAssetForSymbolId(symbolId: number): AssetConfig {
     return getPairBySymbolId(symbolId).quoteAsset;
 }
 
+/**
+ * Returns the base quantity scale for a market symbol.
+ */
 export function baseQuantityScaleForSymbol(symbol: string): number {
     return PAIR_CATALOG.get(symbol)?.baseAsset.quantityScale ?? 18;
 }
@@ -223,6 +259,9 @@ export function quoteAssetIdForSymbolId(symbolId: number): number {
     return PAIR_BY_ID.get(symbolId)?.quoteAsset.ledgerId ?? 0;
 }
 
+/**
+ * Returns the default market-order slippage percentage for a symbol.
+ */
 export function defaultMarketSlippagePctForSymbol(
     symbol: string,
     side: "buy" | "sell",

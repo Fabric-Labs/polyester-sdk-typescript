@@ -63,6 +63,9 @@ export const PolicyActionCodec = {
     } satisfies Record<PolicyActionLabel, Proto.PolicyAction>,
 } as const;
 
+/**
+ * Returns the display label for a policy market scope.
+ */
 export function policyMarketScopeLabelFor(value: Proto.MarketScope_Value): PolicyMarketScopeLabel {
     return requiredEnumLabel(
         PolicyMarketScopeCodec.protoToOutput,
@@ -72,6 +75,9 @@ export function policyMarketScopeLabelFor(value: Proto.MarketScope_Value): Polic
     );
 }
 
+/**
+ * Returns the display label for a policy action.
+ */
 export function policyActionLabelFor(value: Proto.PolicyAction): PolicyActionLabel {
     return requiredEnumLabel(
         PolicyActionCodec.protoToOutput,

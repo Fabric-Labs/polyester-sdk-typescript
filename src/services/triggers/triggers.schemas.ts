@@ -306,7 +306,8 @@ function stopTriggerInputSchema(
             ...buildCreateTriggerBase(input),
             triggerType: protoTriggerType,
             triggerPriceTicks: input.triggerPrice,
-            triggerPriceSource: input.triggerPriceSource,
+            triggerPriceSource:
+                input.triggerPriceSource ?? ProtoOrders.TriggerPriceSource.LAST_PRICE,
             triggerDirection: input.side === ProtoOrders.Side.BUY ? buyDirection : sellDirection,
         })),
     );
@@ -360,10 +361,10 @@ const TrailingStopTriggerInputSchema = v.pipe(
         ...buildCreateTriggerBase(input),
         triggerType: Proto.TriggerType.TRAILING_STOP,
         trailingDistance: input.trailingDistance,
-        activationPriceTicks: input.activationPrice,
-        maxSlippage: input.maxSlippage,
-        triggerPriceSource: input.triggerPriceSource,
-        triggerDirection: input.triggerDirection,
+        activationPriceTicks: input.activationPrice ?? 0n,
+        maxSlippage: input.maxSlippage ?? UNSET_MAX_SLIPPAGE,
+        triggerPriceSource: input.triggerPriceSource ?? ProtoOrders.TriggerPriceSource.LAST_PRICE,
+        triggerDirection: input.triggerDirection ?? ProtoOrders.TriggerDirection.ABOVE,
     })),
 );
 

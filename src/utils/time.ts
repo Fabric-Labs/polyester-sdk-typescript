@@ -53,10 +53,14 @@ export function tsNsToSeconds(ts: bigint | number | undefined): number {
     return 0;
 }
 
+/**
+ * Converts a proto timestamp object to epoch milliseconds.
+ */
 export function tsObjToMs(ts?: { seconds?: bigint; nanos?: number }): number | undefined {
     if (ts === undefined) return undefined;
     if (ts.seconds === undefined) return undefined;
-    return new Date(Number(ts.seconds) * 1000).getTime();
+    const nanos = ts.nanos ?? 0;
+    return Number(ts.seconds) * 1000 + Math.floor(nanos / 1_000_000);
 }
 
 /**

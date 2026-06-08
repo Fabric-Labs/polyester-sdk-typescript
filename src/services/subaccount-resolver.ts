@@ -32,6 +32,9 @@ export function resolveSubaccountId(
     return defaultId ?? undefined;
 }
 
+/**
+ * Resolves subaccount-scoped input using the configured resolver when needed.
+ */
 export function resolveSubaccountScopedInput<TInput extends object>(
     input: TInput & { subaccountId?: string },
     resolver?: SubaccountResolver,

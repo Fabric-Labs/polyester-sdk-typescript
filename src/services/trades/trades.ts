@@ -15,6 +15,9 @@ interface SubscribeTradesInput extends BaseSubscribeInput<Trade> {
     accountId: string;
 }
 
+/**
+ * Reads and streams authenticated user trade fills.
+ */
 export class TradesService {
     #client: Client<typeof Proto.OrdersReadService>;
     #realtime: RealtimeClient;
@@ -27,7 +30,7 @@ export class TradesService {
     }
 
     /**
-     * List trades for a specific account or subaccount.
+     * Returns user trades for the resolved root account or subaccount, supporting symbol, side, time range, limit, and page token filters. Results include the next page token from GetUserTrades.
      */
     async list(
         input: v.InferInput<typeof GetUserTradesInputSchema> = {},
@@ -45,6 +48,9 @@ export class TradesService {
         };
     }
 
+    /**
+     * Subscribes to private user trade updates on private:spot:trades:{accountId}:proto and emits parsed fills.
+     */
     subscribe(input: SubscribeTradesInput) {
         const channel = `private:spot:trades:${input.accountId}:proto`;
         return this.#realtime.connectProtoChannel({

@@ -41,6 +41,9 @@ const SubscribeCandlesParamsSchema = v.object({
     timeframe: TimeframeSchema,
 });
 
+/**
+ * Reads and streams public spot OHLCV candle data in row and columnar formats.
+ */
 export class CandlesService {
     #client: Client<typeof Proto.MarketDataService>;
     #realtime: RealtimeClient;
@@ -50,6 +53,9 @@ export class CandlesService {
         this.#realtime = realtime;
     }
 
+    /**
+     * Returns OHLCV candles for a symbol/timeframe request, mapped into row objects with symbol id and timeframe. The proto response is newest-first and may include incomplete/reference data depending on input flags.
+     */
     async list(input: GetCandlesInput, options?: PolyesterRequestOptions): Promise<Candle[]> {
         const validatedInput = v.parse(ListCandlesInputSchema, input);
         const res = await this.#client.getCandles(validatedInput, toConnectCallOptions(options));
@@ -59,6 +65,9 @@ export class CandlesService {
         );
     }
 
+    /**
+     * Returns candle data in chart-friendly column arrays ordered oldest-first by bucket start time. This preserves decimal-string SDK formatting from the columnar schema.
+     */
     async listColumnar(
         input: GetCandlesColumnsInput,
         options?: PolyesterRequestOptions,
@@ -71,6 +80,9 @@ export class CandlesService {
         return v.parse(CandleColumnarSchema, res);
     }
 
+    /**
+     * Returns the same columnar candle series using integer tick/scale representations for low-level charting or computation.
+     */
     async listColumnarInts(
         input: GetCandlesColumnsInput,
         options?: PolyesterRequestOptions,
@@ -83,6 +95,9 @@ export class CandlesService {
         return v.parse(CandleColumnarIntSchema, res);
     }
 
+    /**
+     * Subscribes to live candle updates on public:spot:market:candles:{timeframe}:{symbolId}:proto and emits row-form candles.
+     */
     subscribe(input: SubscribeCandlesInput): () => void {
         const params = v.parse(SubscribeCandlesParamsSchema, {
             symbolId: input.symbolId,
@@ -108,6 +123,9 @@ export class CandlesService {
         });
     }
 
+    /**
+     * Subscribes to the same live candle channel as subscribe, but emits integer row candles instead of formatted decimal rows.
+     */
     subscribeInts(input: SubscribeCandlesIntsInput): () => void {
         const params = v.parse(SubscribeCandlesParamsSchema, {
             symbolId: input.symbolId,

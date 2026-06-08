@@ -43,6 +43,9 @@ export function isAccountSignerFactory(
     return typeof config === "function";
 }
 
+/**
+ * Asserts that a value implements the account signer contract.
+ */
 export function assertAccountSigner(value: AccountSigner): void {
     if (!value.environmentFingerprint) {
         throw new Error("Account signer must include an environmentFingerprint.");

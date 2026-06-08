@@ -14,6 +14,9 @@ export function getSymbolOptions(): { label: string; value: string }[] {
 }
 
 // Convert integer in arbitrary-scale units to a decimal string (no scientific, trimmed)
+/**
+ * Formats a scaled integer as a decimal string.
+ */
 export function intToDecimalString(x: bigint | number | string, scale: number): string {
     const s = String(x ?? "0").replace(/[^0-9-]/g, "");
     if (!s) return "0";
@@ -29,6 +32,9 @@ export function intToDecimalString(x: bigint | number | string, scale: number): 
 }
 
 // Convert integer in 18-scale units to a decimal string (no scientific, trimmed)
+/**
+ * Formats an 18-decimal scaled integer as a decimal string.
+ */
 export function int18ToDecimalString(x: bigint | number | string): string {
     return intToDecimalString(x, 18);
 }
@@ -37,6 +43,9 @@ const DEFAULT_QTY_DECIMALS = 8;
 const DEFAULT_QTY_SCALE = 18;
 
 // Format order quantity (scaled integer) using the pair's base asset display decimals
+/**
+ * Formats a quantity using the base scale for a market symbol.
+ */
 export function formatQtyForSymbol(qty: bigint | number | string, symbolId: number): string {
     const pair = getPairBySymbolId(symbolId);
     const scale = pair?.baseAsset.quantityScale ?? DEFAULT_QTY_SCALE;
@@ -94,6 +103,9 @@ function trimTrailingZeros(x: string): string {
 
 // Format a trade fee given scaled integer amount, symbolId, and FeeSource enum value.
 // QUOTE fees are formatted in quote asset units; RECEIVED fees in base asset units.
+/**
+ * Formats a trade fee using its fee asset scale.
+ */
 export function formatFeeForTrade(
     feeScaled: bigint | number | string,
     symbolId: number,
@@ -109,6 +121,9 @@ export function formatFeeForTrade(
 }
 
 // Convert integer in 6-scale ticks to decimal string (prices)
+/**
+ * Formats a 6-decimal scaled integer as a decimal string.
+ */
 export function int6ToDecimalString(x: bigint | number | string): string {
     const s = String(x ?? "0").replace(/[^0-9-]/g, "");
     if (!s) return "0";
@@ -124,6 +139,9 @@ export function int6ToDecimalString(x: bigint | number | string): string {
 }
 
 // Format price ticks for a symbol (assume 6-decimal ticks universally for now)
+/**
+ * Formats a price using the quote scale for a market symbol.
+ */
 export function formatPriceForSymbol(
     priceTicks: bigint | number | string,
     _symbolId: number,
@@ -137,6 +155,9 @@ const SIDE_LABEL_MAP: Record<number, Side> = {
     1: "buy",
     2: "sell",
 };
+/**
+ * Returns the display label for an order side.
+ */
 export function sideLabelFor(v: number): Side {
     const value = SIDE_LABEL_MAP[v];
     if (!value) throw new Error(`Invalid side: ${v}`);
@@ -161,6 +182,9 @@ const ORDER_STATUS_LABEL_MAP: Record<number, OrderStatus> = {
     6: "rejected",
 };
 
+/**
+ * Returns the display label for an order status.
+ */
 export function orderStatusLabelFor(v: number): OrderStatus {
     const value = ORDER_STATUS_LABEL_MAP[v];
     if (!value) throw new Error(`Invalid order status: ${v}`);
@@ -172,6 +196,9 @@ const ORDER_TYPE_LABEL_MAP: Record<number, OrderType> = {
     1: "limit",
     2: "market",
 };
+/**
+ * Returns the display label for an order type.
+ */
 export function orderTypeLabelFor(v: number): OrderType {
     const value = ORDER_TYPE_LABEL_MAP[v];
     if (!value) throw new Error(`Invalid order type: ${v}`);
@@ -184,6 +211,9 @@ const TIF_LABEL_MAP: Record<number, TIF> = {
     2: "IOC",
     3: "FOK",
 };
+/**
+ * Returns the display label for a time-in-force value.
+ */
 export function tifLabelFor(v: number): TIF {
     const value = TIF_LABEL_MAP[v];
     if (!value) throw new Error(`Invalid TIF: ${v}`);
@@ -196,6 +226,9 @@ const STP_MODE_LABEL_MAP: Record<number, STPMode> = {
     2: "expire_taker",
     3: "expire_both",
 };
+/**
+ * Returns the display label for a self-trade prevention mode.
+ */
 export function stpModeLabelFor(v: number): STPMode {
     const value = STP_MODE_LABEL_MAP[v];
     if (!value) throw new Error(`Invalid STP mode: ${v}`);
@@ -207,6 +240,9 @@ const FEE_SOURCE_LABEL_MAP: Record<number, FeeSource> = {
     1: "quote",
     2: "received",
 };
+/**
+ * Returns the display label for a fee source.
+ */
 export function feeSourceLabelFor(v: number): FeeSource {
     const value = FEE_SOURCE_LABEL_MAP[v];
     if (!value) throw new Error(`Invalid fee source: ${v}`);

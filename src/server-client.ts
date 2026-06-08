@@ -47,6 +47,9 @@ function emptyServerSessionSnapshot(): ServerSessionSnapshot {
     };
 }
 
+/**
+ * Parses a serialized session cookie into SDK session data.
+ */
 export function parseSessionCookie(
     cookies: CookieGetter,
     environment: PolyesterEnvironment,
@@ -100,6 +103,9 @@ export interface PolyesterServerClientConfig extends PolyesterClientBaseConfig {
     useDisplaySessionActiveAccountAsDefault?: boolean;
 }
 
+/**
+ * Server-side SDK client that can parse display-session cookies and verify bearer-token sessions with the backend.
+ */
 export class PolyesterServerClient extends PolyesterClient {
     #hasAuthProvider: boolean;
     #session: ServerSessionSnapshot;
@@ -161,6 +167,9 @@ export class PolyesterServerClient extends PolyesterClient {
         return this.#session;
     }
 
+    /**
+     * Verifies the current server session and returns its auth state.
+     */
     async verifySession(): Promise<Me | null> {
         if (!this.#hasAuthProvider) return null;
 
@@ -198,6 +207,9 @@ export interface CreateServerClientFromRequestParams extends Pick<
     useDisplaySessionActiveAccountAsDefault?: boolean;
 }
 
+/**
+ * Creates a server SDK client from a cookie source.
+ */
 export function createPolyesterServerClientFromCookies(
     params: CreateServerClientFromCookiesParams,
 ): PolyesterServerClient {
@@ -221,6 +233,9 @@ export function createPolyesterServerClientFromCookies(
     });
 }
 
+/**
+ * Creates a server SDK client from a Request object.
+ */
 export function createPolyesterServerClientFromRequest(
     params: CreateServerClientFromRequestParams,
 ): PolyesterServerClient {
@@ -235,6 +250,9 @@ export function createPolyesterServerClientFromRequest(
     });
 }
 
+/**
+ * Reads a bearer token from supported auth cookies.
+ */
 export function getBearerTokenFromCookies(
     cookies: CookieGetter,
     environment: PolyesterEnvironment,

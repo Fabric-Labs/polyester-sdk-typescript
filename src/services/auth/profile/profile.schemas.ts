@@ -25,7 +25,13 @@ export const ProfileSchema = v.object({
 });
 
 export type Profile = v.InferOutput<typeof ProfileSchema>;
-export const UpdateProfileInputSchema = v.partial(ProfileSchema);
+export const UpdateProfileInputSchema = v.object({
+    username: v.optional(v.string()),
+    bio: v.optional(v.string()),
+    website: v.optional(v.string()),
+    twitter: v.optional(v.string()),
+    avatarUrl: v.optional(v.string()),
+});
 export type UpdateProfileInput = v.InferInput<typeof UpdateProfileInputSchema>;
 
 export const UsernameHistoryEntrySchema = v.object({

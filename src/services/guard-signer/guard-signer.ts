@@ -30,6 +30,9 @@ import {
 import { isResourceNotFoundError } from "../../utils/errors.js";
 import * as v from "valibot";
 
+/**
+ * Manages backend guard signer wallets and approval signatures for protected Polyester account actions.
+ */
 export class GuardSignerService {
     #client: Client<typeof Proto.GuardSignerService>;
     #resolver?: SubaccountResolver;
@@ -39,6 +42,9 @@ export class GuardSignerService {
         this.#resolver = resolver;
     }
 
+    /**
+     * Creates a guard signer wallet for the resolved account target and returns the generated signer EVM address.
+     */
     async createWallet(
         input: GuardSignerScopedInput = {},
         options?: PolyesterMutationOptions,
@@ -51,6 +57,9 @@ export class GuardSignerService {
         return v.parse(CreateGuardSignerWalletResultSchema, response);
     }
 
+    /**
+     * Returns stored and live guard signer status for the resolved account target, including signer address, on-chain signer, initialization state, nonce, and nonce space. Returns null when the backend reports the wallet is not found.
+     */
     async getStatus(
         input: GuardSignerScopedInput = {},
         options?: PolyesterRequestOptions,
@@ -68,6 +77,9 @@ export class GuardSignerService {
         }
     }
 
+    /**
+     * Creates one guard approval signature for a supported protected action, such as whitelist updates or whitelist requirement changes. Returns null if the backend response has no approval payload.
+     */
     async signProtectedAction(
         input: SignProtectedActionInput,
         options?: PolyesterMutationOptions,
@@ -80,6 +92,9 @@ export class GuardSignerService {
         return response.approval ? v.parse(GuardApprovalSchema, response.approval) : null;
     }
 
+    /**
+     * Creates ordered guard approval signatures for a batch of protected actions and verifies the backend returned one approval per requested action.
+     */
     async batchSignProtectedActions(
         input: BatchSignProtectedActionInput,
         options?: PolyesterMutationOptions,
@@ -97,6 +112,9 @@ export class GuardSignerService {
         return v.parse(BatchGuardApprovalsSchema, response);
     }
 
+    /**
+     * Generates a backend-managed replacement guard signer for the resolved account target and returns the new signer address plus the rotation approval payload.
+     */
     async rotateWallet(
         input: GuardSignerScopedInput = {},
         options?: PolyesterMutationOptions,
@@ -109,6 +127,9 @@ export class GuardSignerService {
         return v.parse(RotateGuardSignerWalletResultSchema, response);
     }
 
+    /**
+     * Exports guard signer private key material for the resolved account target after owner authorization and fresh step-up, returning the backend export response.
+     */
     async exportWallet(
         input: GuardSignerScopedInput = {},
         options?: PolyesterMutationOptions,

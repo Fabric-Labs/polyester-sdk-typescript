@@ -1,9 +1,20 @@
+/**
+ * Checks whether a string has the shape of a JWT.
+ */
 export function isJwt(token: string): boolean {
     const parts = token.split(".");
     return parts.length === 3 && !!parts[0] && !!parts[1] && !!parts[2];
 }
 
-const textDecoder = new TextDecoder("utf-8", { fatal: true });
+let textDecoder: TextDecoder | undefined;
+
+/**
+ * Gets a TextDecoder instance.
+ */
+function getTextDecoder(): TextDecoder {
+    textDecoder ??= new TextDecoder("utf-8", { fatal: true });
+    return textDecoder;
+}
 
 function decodeBase64Url(value: string): string | null {
     const remainder = value.length % 4;
@@ -14,9 +25,12 @@ function decodeBase64Url(value: string): string | null {
         remainder === 0 ? base64 : base64.padEnd(base64.length + 4 - remainder, "=");
     const binary = atob(paddedBase64);
     const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
-    return textDecoder.decode(bytes);
+    return getTextDecoder().decode(bytes);
 }
 
+/**
+ * Reads a JWT expiration timestamp when present.
+ */
 export function getJwtExpiration(token: string): number | null {
     try {
         const [_, rawPayload] = token.split(".");
@@ -32,6 +46,9 @@ export function getJwtExpiration(token: string): number | null {
     }
 }
 
+/**
+ * Checks whether a JWT is expired.
+ */
 export function isJwtExpired(token: string): boolean {
     const exp = getJwtExpiration(token);
     if (exp === null) return true;
@@ -39,6 +56,9 @@ export function isJwtExpired(token: string): boolean {
     return exp < currentTime;
 }
 
+/**
+ * Checks whether a JWT is present, well formed, and not expired.
+ */
 export function isJwtValid(token: string | null): token is string {
     if (!token) return false;
     if (!isJwt(token)) return false;

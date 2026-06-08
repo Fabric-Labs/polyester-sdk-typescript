@@ -7,6 +7,9 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 
+/**
+ * Reads public Zipper deposit/withdraw chain and asset configuration.
+ */
 export class ZipperService {
     #client: Client<typeof Proto.ZipperService>;
 
@@ -14,6 +17,9 @@ export class ZipperService {
         this.#client = createClient(Proto.ZipperService, transport);
     }
 
+    /**
+     * Returns supported external chains, unified assets, chain-specific asset variants, network fees, min deposit/withdraw amounts, and contract metadata for Zipper-powered deposit and withdraw flows.
+     */
     async getDepositWithdrawConfig(
         options?: PolyesterRequestOptions,
     ): Promise<DepositWithdrawConfig> {

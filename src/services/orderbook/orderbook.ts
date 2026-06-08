@@ -38,6 +38,9 @@ export interface CreateOrderbookSubscriptionInput
 
 type BookSide = Map<bigint, bigint>;
 
+/**
+ * Reads spot order book snapshots and maintains realtime local order book state from public delta channels.
+ */
 export class OrderbookService {
     #client: Client<typeof Proto.OrderbookService>;
     #realtime: RealtimeClient;
@@ -47,6 +50,9 @@ export class OrderbookService {
         this.#realtime = realtime;
     }
 
+    /**
+     * Fetches a spot order book depth snapshot for a symbol and requested depth, returning best bids and asks with the backend book sequence.
+     */
     async get(
         input: v.InferInput<typeof GetOrderbookInputSchema>,
         options?: PolyesterRequestOptions,
@@ -62,15 +68,19 @@ export class OrderbookService {
         });
     }
 
+    /**
+     * Subscribes to the managed order book stream for a symbol and forwards reconstructed snapshots to onEvent. This is a convenience wrapper around createSubscription().unsubscribe.
+     */
     subscribe(input: SubscribeOrderbookInput): () => void {
         return this.createSubscription(input).unsubscribe;
     }
 
+    /**
+     * Creates a stateful order book subscription that first fetches a snapshot, buffers proto deltas from public:spot:orderbook:deltas:depth:{depth}:{symbolId}:proto, applies sequence-checked updates, and refetches on gaps or reconnects. The returned handle can unsubscribe or change local price bucket aggregation without reconnecting.
+     */
     createSubscription(input: CreateOrderbookSubscriptionInput): OrderbookSubscription {
         const pair = getPair(input.symbol);
 
-        // Devnet delta channels currently publish reliably up to depth 500.
-        // Clamp subscription depth to keep live updates flowing.
         const wsDepth = Math.min(500, Math.max(1, Math.trunc(input.depth ?? 50)));
         const channel = `public:spot:orderbook:deltas:depth:${wsDepth}:${pair.symbolId}:proto`;
         const symbolId = pair.symbolId;

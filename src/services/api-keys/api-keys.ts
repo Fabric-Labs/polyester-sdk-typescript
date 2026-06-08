@@ -27,6 +27,9 @@ interface SubscribeApiKeysInput extends BaseSubscribeInput<ApiKey> {
     accountId: string;
 }
 
+/**
+ * Manages API key metadata, client-generated Ed25519 keypairs, policies, and realtime API key updates.
+ */
 export class ApiKeysService {
     readonly policies: ApiKeyPoliciesService;
 
@@ -41,6 +44,9 @@ export class ApiKeysService {
         this.#resolver = resolver;
     }
 
+    /**
+     * Returns non-revoked API keys owned by the caller, newest first, optionally scoped through an explicit or resolver-provided subaccount ID.
+     */
     async list(
         params: v.InferInput<typeof ApiKeysListInputSchema> = {},
         options?: PolyesterRequestOptions,
@@ -55,6 +61,9 @@ export class ApiKeysService {
         return v.parse(ApiKeysSchema, res.apiKeys);
     }
 
+    /**
+     * Fetches one caller-owned API key by ak_... key ID and returns null when no matching key is returned.
+     */
     async get(
         input: v.InferInput<typeof ApiKeyIdInputSchema>,
         options?: PolyesterRequestOptions,
@@ -65,8 +74,7 @@ export class ApiKeysService {
     }
 
     /**
-     * Create an API key. Some environments require MFA fresh step-up: on failure, complete an MFA
-     * challenge with purpose `freshStepUp` via `client.mfa`, then retry with `stepUpToken` in options.
+     * Creates API key metadata using a client-generated Ed25519 public key; security settings may require MFA fresh step-up and retrying with stepUpToken.
      */
     async create(
         payload: v.InferInput<typeof ApiKeysCreateInputSchema>,
@@ -81,6 +89,9 @@ export class ApiKeysService {
         return res.apiKey ? v.parse(ApiKeySchema, res.apiKey) : null;
     }
 
+    /**
+     * Permanently revokes the specified API key; revoked keys cannot authenticate again.
+     */
     async delete(
         input: v.InferInput<typeof ApiKeyIdInputSchema>,
         options?: PolyesterMutationOptions,
@@ -89,6 +100,9 @@ export class ApiKeysService {
         await this.#client.deleteApiKey(validatedInput, toConnectCallOptions(options));
     }
 
+    /**
+     * Updates mutable key metadata, ACTIVE/DISABLED status, IP whitelist replacement/clearing, and optional expiry; revocation must use delete.
+     */
     async update(
         payload: v.InferInput<typeof ApiKeysUpdateInputSchema>,
         options?: PolyesterMutationOptions,
@@ -102,9 +116,7 @@ export class ApiKeysService {
     }
 
     /**
-     * Generates a new Ed25519 keypair on the client.
-     * The public key is used to create a new API key on the server.
-     * @returns The public and secret key bytes in hex and bytes format.
+     * Generates an Ed25519 keypair locally and returns public and secret key material as both hex strings and byte arrays; only the public key should be sent to the API.
      */
     async generateKeypair(): Promise<{
         publicKey: { hex: string; bytes: Uint8Array };
@@ -123,6 +135,9 @@ export class ApiKeysService {
         };
     }
 
+    /**
+     * Subscribes to private API key updates for an account and emits normalized API key metadata from realtime protobuf publications.
+     */
     subscribe(input: SubscribeApiKeysInput) {
         const channel = `private:auth:api-keys:${input.accountId}:proto`;
 

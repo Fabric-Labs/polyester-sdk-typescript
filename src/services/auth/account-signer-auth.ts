@@ -55,6 +55,9 @@ export interface CreateSubaccountResult {
     subaccountId: string;
 }
 
+/**
+ * Coordinates wallet/account-signer authentication, session storage, subaccount selection, and session refresh.
+ */
 export class AccountSignerAuthService extends AuthService {
     readonly events = new EventEmitter<AccountSignerAuthEvents>();
 
@@ -93,14 +96,14 @@ export class AccountSignerAuthService extends AuthService {
     }
 
     /**
-     * Set or update the subaccounts service. Useful for lazy initialization.
+     * Attaches the subaccounts service used when creating a subaccount during authenticated flows.
      */
     setSubaccountsService(subaccounts: SubaccountsService): void {
         this.#subaccounts = subaccounts;
     }
 
     /**
-     * Set or update the account signer. Useful for lazy signer initialization.
+     * Sets the account signer used to sign login and account-switch challenges.
      */
     setAccountSigner(accountSigner: AccountSigner | null): void {
         if (accountSigner) this.#assertAccountSignerEnvironment(accountSigner);
@@ -109,15 +112,14 @@ export class AccountSignerAuthService extends AuthService {
     }
 
     /**
-     * Get the current account signer if available.
+     * Returns the active account signer, throwing if one has not been configured.
      */
     getAccountSigner(): AccountSigner | null {
         return this.#accountSigner;
     }
 
     /**
-     * Login with the configured account signer.
-     * Requests a nonce, signs it, and authenticates with Polyester backend.
+     * Signs a short-lived login nonce with the configured account signer, exchanges it for a session token, and stores the hydrated account/subaccount session state.
      */
     async login(options: LoginOptions): Promise<LoginResult> {
         const { provider, loginMethod } = options;
@@ -201,8 +203,7 @@ export class AccountSignerAuthService extends AuthService {
     }
 
     /**
-     * Hydrate auth state from server-provided data. This is synchronous and avoids
-     * the flash of unauthenticated content by not making any network calls.
+     * Builds auth state from a session token and optional active account override.
      */
     hydrateAuthState(state: AuthHydrationData): void {
         const existingToken = this.#getEnvironmentBoundToken();
@@ -233,9 +234,7 @@ export class AccountSignerAuthService extends AuthService {
     }
 
     /**
-     * Restore an existing session from stored tokens.
-     * Makes a network call to validate the session - use `hydrateAuthState()` for SSR hydration.
-     * @returns User data if session restored, null otherwise
+     * Loads the stored token, validates that it still belongs to this environment, and restores auth state when possible.
      */
     async restoreSession(): Promise<{ accountId: string; username: string } | null> {
         const existingToken = this.#getEnvironmentBoundToken();
@@ -303,6 +302,9 @@ export class AccountSignerAuthService extends AuthService {
         }
     }
 
+    /**
+     * Clears stored auth state and removes the persisted auth token.
+     */
     async logout(): Promise<void> {
         this.#tokenStorage.clear();
         this.#isAuthenticated = false;
@@ -330,12 +332,18 @@ export class AccountSignerAuthService extends AuthService {
         }
     }
 
+    /**
+     * Returns the remaining lifetime of the stored session token in milliseconds.
+     */
     getSessionTimeToExpiry(): number {
         const token = this.#getEnvironmentBoundToken();
         if (!token) return 0;
         return getJwtTimeToExpiry(token);
     }
 
+    /**
+     * Refreshes the active account-signer session and updates persisted auth state.
+     */
     async refreshSession(params?: {
         provider?: "metamask" | "turnkey" | "other";
         loginMethod?: AuthLoginMethod | null;
@@ -348,6 +356,9 @@ export class AccountSignerAuthService extends AuthService {
         });
     }
 
+    /**
+     * Switches the active account/subaccount by signing the required account switch flow.
+     */
     switchAccount(
         accountId: string,
         options?: { smartAccountAddress?: string; label?: string },
@@ -374,11 +385,7 @@ export class AccountSignerAuthService extends AuthService {
     }
 
     /**
-     * Create a new subaccount using a derived account signer.
-     *
-     * The caller is responsible for deriving the subaccount account signer (e.g., via Turnkey
-     * with a saltNonce). This method handles the nonce request, message signing, and
-     * backend API call.
+     * Creates a subaccount for the authenticated account and makes it available to the session state.
      */
     async createSubaccount(params: CreateSubaccountParams): Promise<CreateSubaccountResult> {
         if (!this.#isAuthenticated) throw new Error("Must be authenticated to create subaccounts");
@@ -417,6 +424,9 @@ export class AccountSignerAuthService extends AuthService {
         };
     }
 
+    /**
+     * Returns the current account-signer auth state snapshot.
+     */
     getState(): AuthState {
         return {
             isAuthenticated: this.#isAuthenticated,

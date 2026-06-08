@@ -182,6 +182,9 @@ function environmentFingerprint(input: {
     );
 }
 
+/**
+ * Creates a complete SDK environment configuration from entrypoint and contract settings.
+ */
 export function createPolyesterEnvironment(
     params: CreatePolyesterEnvironmentParams,
 ): PolyesterEnvironment {

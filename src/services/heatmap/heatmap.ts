@@ -41,6 +41,9 @@ const SubscribeHeatmapLiveParamsSchema = v.object({
     interval: v.picklist(HEATMAP_INTERVAL_VALUES),
 });
 
+/**
+ * Reads historical order book heatmap chains and streams live heatmap buckets.
+ */
 export class HeatmapService implements OrderbookHeatmapProvider {
     #client: Client<typeof HeatmapRpc>;
     #realtime: RealtimeClient;
@@ -50,6 +53,9 @@ export class HeatmapService implements OrderbookHeatmapProvider {
         this.#realtime = realtime;
     }
 
+    /**
+     * Fetches order book heatmap data for a symbol, interval, depth, and quantity mode using either an absolute time range or cursor pagination. The response includes a keyframe anchor, delta buckets, pagination metadata, and live-anchor fields when available.
+     */
     async getOrderbookHeatmap(
         input: GetOrderbookHeatmapInput,
         options?: PolyesterRequestOptions,
@@ -84,6 +90,9 @@ export class HeatmapService implements OrderbookHeatmapProvider {
         return v.parse(OrderbookHeatmapResponseSchema, res);
     }
 
+    /**
+     * Subscribes to live heatmap buckets on public:spot:market:heatmap:{interval}:{symbolId}:proto and emits parsed bid/ask delta buckets for the selected interval.
+     */
     subscribeLive(input: SubscribeHeatmapLiveInput): () => void {
         const params = v.parse(SubscribeHeatmapLiveParamsSchema, {
             symbolId: input.symbolId,

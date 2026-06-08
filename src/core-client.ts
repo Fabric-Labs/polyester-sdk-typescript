@@ -108,6 +108,9 @@ interface PolyesterClientRuntimeConfig {
     createAuth?: (context: AuthServiceFactoryContext) => AuthService;
 }
 
+/**
+ * Base SDK client that wires transports, realtime, catalogs, and all public service clients for a Polyester environment.
+ */
 export class PolyesterClient {
     readonly auth: AuthService;
     readonly accounts: AccountsService;
@@ -202,6 +205,9 @@ export class PolyesterClient {
         }
     }
 
+    /**
+     * Refreshes SDK catalogs used by catalog lookup helpers.
+     */
     async refreshCatalogs(): Promise<void> {
         await refreshCatalogsFromApi(this);
     }

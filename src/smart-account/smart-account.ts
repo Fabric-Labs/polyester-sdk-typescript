@@ -17,6 +17,9 @@ export interface CreateSmartAccountParams {
     publicClient?: PublicClient;
 }
 
+/**
+ * Creates a Polyester smart account instance.
+ */
 export async function createPolyesterSmartAccount({
     environment,
     owner,
@@ -45,6 +48,9 @@ export async function createPolyesterSmartAccount({
     return account;
 }
 
+/**
+ * Creates a viem client bound to a Polyester smart account.
+ */
 export function createPolyesterSmartAccountClient(
     account: SafeSmartAccountInstance,
     params: { environment: PolyesterEnvironment },

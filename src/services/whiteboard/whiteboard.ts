@@ -38,6 +38,9 @@ import {
     type WhiteboardJoinTokenResult,
 } from "./whiteboard.schemas.js";
 
+/**
+ * Manages collaborative whiteboards, ACLs, archive state, and join tokens.
+ */
 export class WhiteboardService {
     #client: Client<typeof Proto.WhiteboardService>;
 
@@ -45,6 +48,9 @@ export class WhiteboardService {
         this.#client = createClient(Proto.WhiteboardService, transport);
     }
 
+    /**
+     * Creates a whiteboard and returns the parsed whiteboard record.
+     */
     async create(
         input: CreateWhiteboardBoardInput,
         options?: PolyesterMutationOptions,
@@ -54,6 +60,9 @@ export class WhiteboardService {
         return v.parse(CreateWhiteboardBoardResultSchema, res);
     }
 
+    /**
+     * Fetches a whiteboard by id and returns null when no whiteboard is present in the response.
+     */
     async get(
         input: GetWhiteboardBoardInput | string,
         options?: PolyesterRequestOptions,
@@ -66,6 +75,9 @@ export class WhiteboardService {
         return v.parse(GetWhiteboardBoardResultSchema, res);
     }
 
+    /**
+     * Returns whiteboards matching the requested filters.
+     */
     async list(
         input: ListWhiteboardBoardsInput = {},
         options?: PolyesterRequestOptions,
@@ -75,6 +87,9 @@ export class WhiteboardService {
         return v.parse(ListWhiteboardBoardsResultSchema, res);
     }
 
+    /**
+     * Updates whiteboard metadata such as title or archive-related fields.
+     */
     async update(
         input: UpdateWhiteboardBoardInput,
         options?: PolyesterMutationOptions,
@@ -87,6 +102,9 @@ export class WhiteboardService {
         return v.parse(UpdateWhiteboardBoardResultSchema, res);
     }
 
+    /**
+     * Updates whiteboard access-control entries.
+     */
     async updateAcl(
         input: UpdateWhiteboardBoardAclInput,
         options?: PolyesterMutationOptions,
@@ -99,6 +117,9 @@ export class WhiteboardService {
         return v.parse(UpdateWhiteboardBoardAclResultSchema, res);
     }
 
+    /**
+     * Archives a whiteboard by id.
+     */
     async archive(
         input: ArchiveWhiteboardBoardInput,
         options?: PolyesterMutationOptions,
@@ -108,6 +129,9 @@ export class WhiteboardService {
         return v.parse(ArchiveWhiteboardBoardResultSchema, res);
     }
 
+    /**
+     * Creates a join token that can grant access to a whiteboard.
+     */
     async mintJoinToken(
         input: MintWhiteboardJoinTokenInput | string,
         options?: PolyesterMutationOptions,

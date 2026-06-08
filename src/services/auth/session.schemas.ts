@@ -27,6 +27,9 @@ export const SessionDataSchema = v.object({
     username: v.optional(v.string()),
 });
 
+/**
+ * Parses raw session data into the SDK session shape.
+ */
 export function parseSessionData(value: unknown): SessionData | null {
     const parsed = v.safeParse(SessionDataSchema, value);
     return parsed.success ? parsed.output : null;

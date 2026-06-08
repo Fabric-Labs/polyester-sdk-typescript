@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
-import { LedgerTransferSchema } from "./transfers.schemas.js";
+import { LedgerTransferSchema, ListTransfersInputSchema } from "./transfers.schemas.js";
 
 const baseTransfer = {
     txId: "tx-1",
@@ -40,5 +40,34 @@ describe("LedgerTransferSchema", () => {
 
     it("rejects transfers without a timestamp", () => {
         expect(() => v.parse(LedgerTransferSchema, baseTransfer)).toThrow();
+    });
+});
+
+describe("ListTransfersInputSchema", () => {
+    it("applies defaults and converts IDs and cursors to proto fields", () => {
+        const input = v.parse(ListTransfersInputSchema, {
+            subaccountId: "11",
+            since: 123,
+        });
+
+        expect(input).toEqual({
+            subaccountId: 11n,
+            ledger: 0,
+            reversed: false,
+            since: 123n,
+        });
+    });
+
+    it("treats empty subaccount input as main account", () => {
+        const input = v.parse(ListTransfersInputSchema, {
+            subaccountId: "",
+        });
+
+        expect(input.subaccountId).toBeUndefined();
+    });
+
+    it("rejects invalid subaccount and cursor inputs", () => {
+        expect(() => v.parse(ListTransfersInputSchema, { subaccountId: "-1" })).toThrow();
+        expect(() => v.parse(ListTransfersInputSchema, { since: 12.5 })).toThrow();
     });
 });

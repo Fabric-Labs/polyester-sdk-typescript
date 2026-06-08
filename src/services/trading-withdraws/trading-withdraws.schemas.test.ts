@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { CreateTradingWithdrawToFundingInputSchema } from "./trading-withdraws.schemas.js";
+import {
+    CreateTradingWithdrawResultSchema,
+    CreateTradingWithdrawToFundingInputSchema,
+} from "./trading-withdraws.schemas.js";
 import * as v from "valibot";
 
 describe("CreateTradingWithdrawToFundingInputSchema", () => {
@@ -57,5 +60,19 @@ describe("CreateTradingWithdrawToFundingInputSchema", () => {
                 idempotencyKey: "",
             }),
         ).toThrow();
+    });
+});
+
+describe("CreateTradingWithdrawResultSchema", () => {
+    it("trims and preserves accepted intent IDs", () => {
+        const result = v.parse(CreateTradingWithdrawResultSchema, {
+            intentId: " intent-1 ",
+        });
+
+        expect(result).toEqual({ intentId: "intent-1" });
+    });
+
+    it("rejects empty backend intent IDs", () => {
+        expect(() => v.parse(CreateTradingWithdrawResultSchema, { intentId: "" })).toThrow();
     });
 });

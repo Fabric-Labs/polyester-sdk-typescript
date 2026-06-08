@@ -13,6 +13,9 @@ export type PolyesterConnectCallOptions = {
     headers?: Headers;
 };
 
+/**
+ * Converts SDK request options into Connect RPC call options.
+ */
 export function toConnectCallOptions(
     options?: PolyesterMutationOptions,
 ): PolyesterConnectCallOptions | undefined {

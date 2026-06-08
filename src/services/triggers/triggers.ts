@@ -63,6 +63,9 @@ interface SubscribeTriggerEventsInput extends BaseSubscribeInput<TriggerEvent> {
     accountId: string;
 }
 
+/**
+ * Manages standalone order triggers and their realtime lifecycle/event streams.
+ */
 export class TriggersService {
     #client: Client<typeof Proto.TriggersService>;
     #realtime: RealtimeClient;
@@ -75,7 +78,7 @@ export class TriggersService {
     }
 
     /**
-     * Create a standalone trigger (stop loss, take profit, trailing stop, TWAP, or ladder).
+     * Creates a standalone trigger, such as stop-loss, take-profit, trailing-stop, TWAP, or ladder, for the resolved account scope. The request includes trigger conditions, order fields, strategy-specific fields, and optional clientTriggerId.
      */
     async create(
         input: CreateTriggerInput,
@@ -88,7 +91,7 @@ export class TriggersService {
     }
 
     /**
-     * Get a trigger by ID.
+     * Fetches one trigger by id in the resolved account scope and returns null when the backend response contains no trigger.
      */
     async get(input: GetTriggerInput, options?: PolyesterRequestOptions): Promise<Trigger | null> {
         const resolved = resolveSubaccountScopedInput(input, this.#resolver);
@@ -103,7 +106,7 @@ export class TriggersService {
     }
 
     /**
-     * List triggers for a subaccount with optional filters.
+     * Lists triggers for the resolved account scope with optional symbol, status, trigger type, parent order, limit, and offset filters. Results are returned newest-first with a total count.
      */
     async list(
         input: ListTriggersInput = {},
@@ -122,7 +125,7 @@ export class TriggersService {
     }
 
     /**
-     * Cancel a trigger.
+     * Cancels an active trigger by id in the resolved account scope and returns the trigger id, resulting status, and server timestamp.
      */
     async cancel(
         input: CancelTriggerInput,
@@ -138,7 +141,7 @@ export class TriggersService {
     }
 
     /**
-     * Modify a trigger (limited patch for trigger price, limit price, trailing params).
+     * Applies a limited patch to an existing trigger, covering trigger price, limit price, trailing distance, activation price, and market slippage fields where supported.
      */
     async modify(
         input: ModifyTriggerInput,
@@ -151,7 +154,7 @@ export class TriggersService {
     }
 
     /**
-     * Pause a trigger.
+     * Pauses an active trigger by id in the resolved account scope and returns the resulting trigger status.
      */
     async pause(
         input: PauseTriggerInput,
@@ -167,7 +170,7 @@ export class TriggersService {
     }
 
     /**
-     * Resume a paused trigger.
+     * Resumes a paused trigger by id in the resolved account scope and returns the resulting trigger status.
      */
     async resume(
         input: PauseTriggerInput,
@@ -183,7 +186,7 @@ export class TriggersService {
     }
 
     /**
-     * List trigger events (audit trail of fires, cancels, updates).
+     * Returns newest-first historical lifecycle events for one trigger, including fire, cancel, update, child order, fire price, and reason details. The SDK defaults limit to 50 and converts nextBeforeTsNs from nanoseconds to milliseconds.
      */
     async listEvents(
         input: ListTriggerEventsInput,
@@ -209,7 +212,7 @@ export class TriggersService {
     }
 
     /**
-     * Subscribe to triggers for a specific account or subaccount.
+     * Subscribes to private trigger state updates on private:spot:triggers:{accountId}:proto and emits parsed trigger records.
      */
     subscribe(input: SubscribeTriggersInput): () => void {
         const channel = `private:spot:triggers:${input.accountId}:proto`;
@@ -227,7 +230,7 @@ export class TriggersService {
     }
 
     /**
-     * Subscribe to trigger events for a specific account or subaccount.
+     * Subscribes to private trigger lifecycle events on private:spot:triggers:events:{accountId}:proto and emits parsed trigger event records.
      */
     subscribeEvents(input: SubscribeTriggerEventsInput): () => void {
         const channel = `private:spot:triggers:events:${input.accountId}:proto`;

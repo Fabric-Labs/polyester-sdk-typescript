@@ -63,6 +63,9 @@ const NonceSchema = v.object({
 
 export type Nonce = v.InferOutput<typeof NonceSchema>;
 
+/**
+ * Handles wallet-based authentication, caller introspection, and authenticated profile operations.
+ */
 export class AuthService {
     #publicClient: Client<typeof Proto.AuthService>;
     #authClient: Client<typeof Proto.AuthService>;
@@ -74,11 +77,17 @@ export class AuthService {
         this.profile = new ProfileService(transports.authApi, realtime);
     }
 
+    /**
+     * Returns the authenticated caller's account context, including account ID, optional API key ID, username, and session assurance details from the presented token or API key.
+     */
     async me(options?: PolyesterRequestOptions): Promise<Me> {
         const res = await this.#authClient.me({}, toConnectCallOptions(options));
         return v.parse(MeSchema, res);
     }
 
+    /**
+     * Requests a short-lived nonce for the given smart-account EVM address; the nonce is single-purpose, replaced by subsequent requests, and expires after about five minutes.
+     */
     async requestLoginNonce(
         smartAccountAddress: string,
         options?: PolyesterRequestOptions,
@@ -92,6 +101,9 @@ export class AuthService {
         );
     }
 
+    /**
+     * Exchanges a signed login nonce for an authenticated session token and account identity returned by the auth API.
+     */
     protected async loginWithWallet(
         input: LoginWithWalletInput,
         options?: PolyesterMutationOptions,

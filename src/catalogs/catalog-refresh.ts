@@ -37,14 +37,23 @@ function refreshZipperCatalog(client: CatalogRefreshClient): Promise<void> {
     return zipperCatalogRefresh;
 }
 
+/**
+ * Refreshes all mutable SDK catalogs from their configured API sources.
+ */
 export async function refreshCatalogs(client: CatalogRefreshClient): Promise<void> {
     await Promise.all([refreshMarketCatalog(client), refreshZipperCatalog(client)]);
 }
 
+/**
+ * Starts a non-blocking catalog refresh and reports any refresh failures.
+ */
 export function refreshCatalogsInBackground(client: CatalogRefreshClient): void {
     refreshCatalogs(client).catch(() => {});
 }
 
+/**
+ * Fetches and hydrates the Zipper catalog from the configured API endpoint.
+ */
 export async function refreshZipperCatalogFromApi(client: CatalogRefreshClient): Promise<void> {
     await refreshZipperCatalog(client);
 }

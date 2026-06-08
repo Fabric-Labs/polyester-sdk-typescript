@@ -1,6 +1,10 @@
 import { describe, expect, it, beforeEach } from "vitest";
 import * as v from "valibot";
-import { SparklineInterval } from "../../gen/marketoverview/v1/marketoverview_pb.js";
+import {
+    MarketOrderBy,
+    SortDirection,
+    SparklineInterval,
+} from "../../gen/marketoverview/v1/marketoverview_pb.js";
 import {
     setAssetCatalog,
     setEnrichedPairCatalog,
@@ -8,6 +12,7 @@ import {
 } from "../../catalogs/market-data-catalog.js";
 import {
     getMarketOverview24hChangeDisplay,
+    ListMarketOverviewInputSchema,
     MarketOverviewSchema,
     type MarketOverview,
 } from "./market-overview.schemas.js";
@@ -101,5 +106,42 @@ describe("MarketOverviewSchema", () => {
             change24hBp: 10_000,
             showNewListingSparklineInfo: true,
         });
+    });
+});
+
+describe("ListMarketOverviewInputSchema", () => {
+    it("maps list filters, sort, and sparkline intervals to proto values", () => {
+        const input = v.parse(ListMarketOverviewInputSchema, {
+            symbols: [" BTC-USDT ", " ETH-USDT "],
+            orderBy: "last_price",
+            sort: "asc",
+            includeSparklines: false,
+            sparklineIntervals: ["1h", "1w"],
+        });
+
+        expect(input).toEqual({
+            symbols: ["BTC-USDT", "ETH-USDT"],
+            limit: 500,
+            page: 1,
+            orderBy: MarketOrderBy.ORDER_BY_LAST_PRICE,
+            sort: SortDirection.SORT_ASC,
+            includeSparklines: false,
+            sparklineIntervals: [SparklineInterval.SPARKLINE_1H, SparklineInterval.SPARKLINE_1W],
+        });
+    });
+
+    it("rejects invalid list input values", () => {
+        const cases = [
+            { symbols: [" "] },
+            { limit: 0 },
+            { page: 0 },
+            { orderBy: "name" },
+            { sort: "newest" },
+            { sparklineIntervals: ["12h"] },
+        ];
+
+        for (const input of cases) {
+            expect(() => v.parse(ListMarketOverviewInputSchema, input)).toThrow();
+        }
     });
 });

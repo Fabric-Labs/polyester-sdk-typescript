@@ -17,7 +17,7 @@ import { toBigIntOrZero } from "../../../utils/numbers.js";
 import { formatId, idToBigInt } from "../../../utils/base58-id.js";
 import { TimestampSchema } from "../../../shared/schemas.js";
 
-const OptionalNumberDefaultNull = v.nullable(v.optional(v.number()));
+const OptionalNumberDefaultNull = v.optional(v.nullable(v.number()), null);
 
 /**
  * From the backend format to a usable frontend/UI format, so big ints to numbers, etc.
@@ -94,7 +94,7 @@ export const ListApiKeyPoliciesResponseSchema = v.pipe(
 
 export type ListApiKeyPoliciesResponse = v.InferOutput<typeof ListApiKeyPoliciesResponseSchema>;
 
-export const CreateApiKeyPolicyInputSchema = v.object({
+const ApiKeyPolicyInputBaseSchema = v.object({
     name: v.string(),
     description: v.optional(v.optional(v.string()), ""),
     spotMarkets: v.optional(v.optional(v.array(SpotMarketRuleSchema)), []),
@@ -111,22 +111,50 @@ export const CreateApiKeyPolicyInputSchema = v.object({
         v.optional(v.optional(v.array(PolicyActionEnumSchema)), []),
         v.transform((v) => (v ?? []).map((action) => PolicyActionCodec.inputToProto[action])),
     ),
-    maxOrderNotional: v.pipe(OptionalNumberDefaultNull, v.transform(toBigIntOrZero)),
-    dailyInternalTransferLimit: v.pipe(OptionalNumberDefaultNull, v.transform(toBigIntOrZero)),
-    dailyWithdrawLimit: v.pipe(OptionalNumberDefaultNull, v.transform(toBigIntOrZero)),
+    maxOrderNotional: v.pipe(
+        OptionalNumberDefaultNull,
+        v.transform((value) => toBigIntOrZero(value)),
+    ),
+    dailyInternalTransferLimit: v.pipe(
+        OptionalNumberDefaultNull,
+        v.transform((value) => toBigIntOrZero(value)),
+    ),
+    dailyWithdrawLimit: v.pipe(
+        OptionalNumberDefaultNull,
+        v.transform((value) => toBigIntOrZero(value)),
+    ),
     isTemplate: v.optional(v.optional(v.boolean()), false),
     assignToKeyId: v.optional(v.pipe(v.string(), v.trim())),
 });
 
+function createApiKeyPolicyBaseTransform(input: v.InferOutput<typeof ApiKeyPolicyInputBaseSchema>) {
+    const { dailyInternalTransferLimit, ...rest } = input;
+    return {
+        ...rest,
+        dailyInternalTransferOutLimit: dailyInternalTransferLimit,
+    };
+}
+
+export const CreateApiKeyPolicyInputSchema = v.pipe(
+    ApiKeyPolicyInputBaseSchema,
+    v.transform(createApiKeyPolicyBaseTransform),
+);
+
 export type ApiKeyPolicyCreateInput = v.InferInput<typeof CreateApiKeyPolicyInputSchema>;
 
-export const UpdateApiKeyPolicyInputSchema = v.object({
-    ...v.omit(CreateApiKeyPolicyInputSchema, ["assignToKeyId"]).entries,
-    policyId: v.pipe(
-        v.string(),
-        v.transform((v) => idToBigInt(v, "policyId")),
-    ),
-});
+export const UpdateApiKeyPolicyInputSchema = v.pipe(
+    v.object({
+        ...v.omit(ApiKeyPolicyInputBaseSchema, ["assignToKeyId"]).entries,
+        policyId: v.pipe(
+            v.string(),
+            v.transform((v) => idToBigInt(v, "policyId")),
+        ),
+    }),
+    v.transform(({ policyId, ...rest }) => ({
+        ...createApiKeyPolicyBaseTransform(rest),
+        policyId,
+    })),
+);
 
 export type ApiKeyPolicyUpdateInput = v.InferInput<typeof UpdateApiKeyPolicyInputSchema>;
 

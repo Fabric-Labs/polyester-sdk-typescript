@@ -23,6 +23,9 @@ interface SubscribePoliciesInput extends BaseSubscribeInput<SubaccountPolicy> {
     accountId: string;
 }
 
+/**
+ * Manages reusable subaccount policy templates, assignments, and realtime policy updates.
+ */
 export class SubaccountPoliciesService {
     #client: Client<typeof Proto.PolicyService>;
     #realtime: RealtimeClient;
@@ -32,11 +35,17 @@ export class SubaccountPoliciesService {
         this.#realtime = realtime;
     }
 
+    /**
+     * Returns subaccount policy templates visible to the caller, sorted by ascending policy ID.
+     */
     async list(options?: PolyesterRequestOptions): Promise<SubaccountPolicy[]> {
         const result = await this.#client.listSubaccountPolicies({}, toConnectCallOptions(options));
         return v.parse(v.array(SubaccountPolicySchema), result.policies);
     }
 
+    /**
+     * Fetches one subaccount policy template by base58 policy ID and returns null when no policy is returned.
+     */
     async get(
         policyId: string,
         options?: PolyesterRequestOptions,
@@ -51,6 +60,9 @@ export class SubaccountPoliciesService {
         return v.parse(SubaccountPolicySchema, result.policy);
     }
 
+    /**
+     * Creates a subaccount policy template, optionally attaching it to a target subaccount in the same request.
+     */
     async create(
         input: v.InferInput<typeof CreateSubaccountPolicyInputSchema>,
         options?: PolyesterMutationOptions,
@@ -64,6 +76,9 @@ export class SubaccountPoliciesService {
         return v.parse(SubaccountPolicySchema, result.policy);
     }
 
+    /**
+     * Replaces an existing subaccount policy template with supplied market scopes, allowed actions, exposure limits, transfer rules, and safety controls.
+     */
     async update(
         input: v.InferInput<typeof UpdateSubaccountPolicyInputSchema>,
         options?: PolyesterMutationOptions,
@@ -77,6 +92,9 @@ export class SubaccountPoliciesService {
         return v.parse(SubaccountPolicySchema, result.policy);
     }
 
+    /**
+     * Deletes a subaccount policy template when it is not in use.
+     */
     async delete(policyId: string, options?: PolyesterMutationOptions): Promise<void> {
         const validatedPolicyId = v.parse(PolicyIdSchema, policyId);
         await this.#client.deleteSubaccountPolicy(
@@ -85,6 +103,9 @@ export class SubaccountPoliciesService {
         );
     }
 
+    /**
+     * Attaches a policy to a subaccount, or clears the subaccount-specific policy when policyId is null.
+     */
     async apply(
         input: v.InferInput<typeof ApplySubaccountPolicyInputSchema>,
         options?: PolyesterMutationOptions,
@@ -96,6 +117,9 @@ export class SubaccountPoliciesService {
         );
     }
 
+    /**
+     * Subscribes to private subaccount policy updates for an account and emits normalized policy views.
+     */
     subscribePolicies(input: SubscribePoliciesInput) {
         const channel = `private:auth:subaccount-policies:${input.accountId}:proto`;
 

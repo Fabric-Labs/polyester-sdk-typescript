@@ -50,6 +50,9 @@ interface SubscribeApiKeysInput extends BaseSubscribeInput<ApiKey> {
     accountId: string;
 }
 
+/**
+ * Creates, manages, shares, audits, and subscribes to subaccounts visible to the authenticated caller.
+ */
 export class SubaccountsService {
     readonly policies: SubaccountPoliciesService;
 
@@ -64,6 +67,9 @@ export class SubaccountsService {
         this.#realtime = realtime;
     }
 
+    /**
+     * Returns subaccounts owned by or shared with the caller plus totalCreated, including soft-deleted count metadata useful for deriving future smart-account salts.
+     */
     async list(options?: PolyesterRequestOptions): Promise<{
         totalCreated: number;
         subaccounts: v.InferOutput<typeof SubaccountSchema>[];
@@ -75,6 +81,9 @@ export class SubaccountsService {
         };
     }
 
+    /**
+     * Fetches an aggregated subaccount dashboard view with subaccount details, policy, API keys, balances, members, and outgoing invites; throws if the subaccount is missing.
+     */
     async get(
         input: v.InferInput<typeof SubaccountIdInputSchema>,
         options?: PolyesterRequestOptions,
@@ -115,6 +124,9 @@ export class SubaccountsService {
         };
     }
 
+    /**
+     * Creates a new subaccount under the caller's root account using a smart-account address, nonce, and signature proof.
+     */
     async create(
         input: v.InferInput<typeof CreateSubaccountInputSchema>,
         options?: PolyesterMutationOptions,
@@ -127,6 +139,9 @@ export class SubaccountsService {
         return v.parse(CreateSubaccountResultSchema, res);
     }
 
+    /**
+     * Updates mutable subaccount display/status fields such as label and active/disabled/deleted status.
+     */
     async update(
         input: v.InferInput<typeof UpdateSubaccountInputSchema>,
         options?: PolyesterMutationOptions,
@@ -139,6 +154,9 @@ export class SubaccountsService {
         return v.parse(SubaccountMutationResultSchema, res);
     }
 
+    /**
+     * Creates or refreshes a pending invitation granting a role on a subaccount to another root account.
+     */
     async inviteMember(
         input: v.InferInput<typeof InviteSubaccountMemberInputSchema>,
         options?: PolyesterMutationOptions,
@@ -151,6 +169,9 @@ export class SubaccountsService {
         return v.parse(SubaccountInviteSchema, res.invite);
     }
 
+    /**
+     * Removes delegated access for a subaccount member by grantee account ID.
+     */
     async removeMember(
         input: v.InferInput<typeof RemoveSubaccountMemberInputSchema>,
         options?: PolyesterMutationOptions,
@@ -163,6 +184,9 @@ export class SubaccountsService {
         return v.parse(SubaccountMutationResultSchema, res);
     }
 
+    /**
+     * Changes an existing delegated member's role without sending a new invitation.
+     */
     async updateMemberRole(
         input: v.InferInput<typeof UpdateSubaccountMemberRoleInputSchema>,
         options?: PolyesterMutationOptions,
@@ -175,6 +199,9 @@ export class SubaccountsService {
         return v.parse(SubaccountMutationResultSchema, res);
     }
 
+    /**
+     * Enables or disables the owner-controlled MFA requirement for delegated interactive member actions on a subaccount.
+     */
     async setMemberMfaRequirement(
         input: v.InferInput<typeof SetSubaccountMemberMfaRequirementInputSchema>,
         options?: PolyesterMutationOptions,
@@ -187,6 +214,9 @@ export class SubaccountsService {
         return v.parse(SubaccountMutationResultSchema, res);
     }
 
+    /**
+     * Returns incoming, outgoing, or all subaccount invitations for the caller, newest first.
+     */
     async listInvites(
         input: v.InferInput<typeof ListSubaccountInvitesInputSchema>,
         options?: PolyesterRequestOptions,
@@ -199,6 +229,9 @@ export class SubaccountsService {
         return v.parse(v.array(SubaccountInviteSchema), res.invites);
     }
 
+    /**
+     * Returns the owner and delegated members for a subaccount, including role and MFA enrollment status.
+     */
     async listMembers(
         input: v.InferInput<typeof SubaccountIdInputSchema>,
         options?: PolyesterRequestOptions,
@@ -211,6 +244,9 @@ export class SubaccountsService {
         return v.parse(v.array(SubaccountMemberSchema), res.members);
     }
 
+    /**
+     * Accepts or rejects an incoming invite, or cancels an outgoing invite, returning the updated invitation.
+     */
     async respondInvite(
         input: v.InferInput<typeof RespondSubaccountInviteInputSchema>,
         options?: PolyesterMutationOptions,
@@ -223,6 +259,9 @@ export class SubaccountsService {
         return v.parse(SubaccountInviteSchema, res.invite);
     }
 
+    /**
+     * Soft-deletes a subaccount by updating its status to deleted.
+     */
     async delete(
         input: v.InferInput<typeof SubaccountIdInputSchema>,
         options?: PolyesterMutationOptions,
@@ -238,6 +277,9 @@ export class SubaccountsService {
         return v.parse(SubaccountMutationResultSchema, res);
     }
 
+    /**
+     * Returns paginated audit/activity events for a subaccount, newest first, with a limit capped at 200 and opaque cursor pagination.
+     */
     async listEvents(
         input: v.InferInput<typeof SubaccountActivityInputSchema>,
         options?: PolyesterRequestOptions,
@@ -253,6 +295,9 @@ export class SubaccountsService {
         };
     }
 
+    /**
+     * Subscribes to private subaccount updates for an account and emits normalized subaccount records.
+     */
     subscribe(input: SubscribeSubaccountsInput) {
         const channel = `private:auth:subaccounts:${input.accountId}:proto`;
 
@@ -269,6 +314,9 @@ export class SubaccountsService {
         });
     }
 
+    /**
+     * Subscribes to private API key updates for an account through the subaccount realtime channel helper.
+     */
     subscribeApiKeys(input: SubscribeApiKeysInput) {
         const channel = `private:auth:api-keys:${input.accountId}:proto`;
 

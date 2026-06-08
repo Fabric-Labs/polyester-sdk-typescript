@@ -30,6 +30,9 @@ function normalizeHandle(input: string): string {
     return (input ?? "").trim().replace(/^@+/, "");
 }
 
+/**
+ * Normalizes a social verification response into the SDK verification shape.
+ */
 export function transformVerification(
     v: Proto.SocialVerification | undefined,
 ): SocialVerification | undefined {
@@ -89,7 +92,7 @@ export const StartVerificationInputSchema = v.object({
         SocialProviderSchema,
         v.transform((v) => SocialProviderCodec.inputToProto[v]),
     ),
-    handle: v.pipe(v.string(), v.minLength(1), v.maxLength(64), v.transform(normalizeHandle)),
+    handle: v.pipe(v.string(), v.transform(normalizeHandle), v.minLength(1), v.maxLength(64)),
     method: v.pipe(
         v.optional(v.optional(SocialVerificationMethodSchema), "profile"),
         v.transform((v) => SocialVerificationMethodCodec.inputToProto[v ?? "profile"]),

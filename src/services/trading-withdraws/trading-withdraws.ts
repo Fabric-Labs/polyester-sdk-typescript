@@ -135,6 +135,9 @@ async function resolveWalletSignature(params: {
     };
 }
 
+/**
+ * Creates durable Trading withdrawal intents to Funding using API signatures or wallet EIP-712 signatures.
+ */
 export class TradingWithdrawsService {
     #client: Client<typeof Proto.WithdrawService>;
     #resolver?: SubaccountResolver;
@@ -150,6 +153,9 @@ export class TradingWithdrawsService {
         this.#signingConfig = signingConfig;
     }
 
+    /**
+     * Builds a Trading-to-Funding withdraw intent payload with asset id, scaled amount, destination address, five-minute deadline, nonce, and idempotency key. If a wallet signer is provided, it signs EIP-712 typed data and calls the wallet endpoint; otherwise a payload signature is required for the backend-authorized endpoint.
+     */
     async createToFunding(
         input: CreateTradingWithdrawToFundingServiceInput,
         options?: PolyesterMutationOptions,

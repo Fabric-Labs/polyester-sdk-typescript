@@ -19,6 +19,9 @@ interface SubscribeTransfersInput extends BaseSubscribeInput<LedgerTransfer> {
     accountId: string;
 }
 
+/**
+ * Reads and streams ledger transfer activity for the authenticated account scope.
+ */
 export class TransfersService {
     #client: Client<typeof Proto.LedgerReadService>;
     #realtime: RealtimeClient;
@@ -30,6 +33,9 @@ export class TransfersService {
         this.#resolver = resolver;
     }
 
+    /**
+     * Returns ledger transfers for the resolved account scope with limit, direction, timestamp, code, ledger, and cursor filters. The proto nextCursor is converted to null when no further page is available.
+     */
     async list(
         input: ListTransfersInput,
         options?: PolyesterRequestOptions,
@@ -42,6 +48,9 @@ export class TransfersService {
         return { transfers, nextCursor };
     }
 
+    /**
+     * Subscribes to private ledger transfer updates on private:ledger:transfers:{accountId}:proto and emits parsed transfer rows.
+     */
     subscribe(input: SubscribeTransfersInput): () => void {
         const channel = `private:ledger:transfers:${input.accountId}:proto`;
         return this.#realtime.connectProtoChannel({

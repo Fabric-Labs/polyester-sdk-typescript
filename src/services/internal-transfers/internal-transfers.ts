@@ -14,6 +14,9 @@ import {
     type CreateInternalTransferResult,
 } from "./internal-transfers.schemas.js";
 
+/**
+ * Creates authenticated Trading-to-Trading internal transfer requests.
+ */
 export class InternalTransfersService {
     #client: Client<typeof Proto.InternalTransferService>;
     #resolver?: SubaccountResolver;
@@ -23,6 +26,9 @@ export class InternalTransfersService {
         this.#resolver = resolver;
     }
 
+    /**
+     * Creates or returns an idempotent internal transfer from the resolved source account to a destination root account, subaccount, or smart-account address. The request carries asset id, scaled quantity, and a stable idempotency key; the response includes request/transfer ids, resolved destination, and status.
+     */
     async create(
         input: CreateInternalTransferInput,
         options?: PolyesterMutationOptions,

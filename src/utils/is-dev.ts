@@ -19,6 +19,9 @@ function isLoopbackIpv4(hostname: string): boolean {
     });
 }
 
+/**
+ * Checks whether the current runtime appears to be a development environment.
+ */
 export function isDev(): boolean {
     if (typeof window === "undefined") return false;
     const hostname = window.location.hostname.toLowerCase();

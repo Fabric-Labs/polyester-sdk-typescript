@@ -43,6 +43,9 @@ export interface ApiKeyEd25519AuthProvider {
     getSecretKey: () => Uint8Array | null | Promise<Uint8Array | null>;
 }
 
+/**
+ * Error wrapper used when an SDK transport request fails before Connect can return a normal RPC error.
+ */
 export class TransportError extends Error {
     constructor(message: string, options: { cause: unknown }) {
         super(message, { cause: options.cause });
@@ -50,10 +53,16 @@ export class TransportError extends Error {
     }
 }
 
+/**
+ * Checks whether an error represents an aborted request.
+ */
 export function isAbortError(err: unknown): boolean {
     return err instanceof DOMException && err.name === "AbortError";
 }
 
+/**
+ * Returns the fetch implementation used by SDK transports.
+ */
 export function makeFetch(): typeof fetch {
     const wrappedFetch = Object.assign(
         async (input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => {
@@ -79,6 +88,9 @@ export function makeFetch(): typeof fetch {
     return wrappedFetch;
 }
 
+/**
+ * Creates Connect transports for SDK service clients.
+ */
 export function createTransports(config: TransportConfig): Transports {
     const { apiUrl, interceptors = [], auth, wireFormat = "binary" } = config;
     const useBinaryFormat = wireFormat === "binary";
@@ -103,6 +115,9 @@ export function createTransports(config: TransportConfig): Transports {
     return { authApi, publicApi };
 }
 
+/**
+ * Creates an interceptor that enables mock transport behavior.
+ */
 export function createMockInterceptor(getEnabled: () => boolean): Interceptor {
     return (next) => async (req) => {
         if (getEnabled()) req.header.set(POLYESTER_MOCK_HEADER, "true");
@@ -118,6 +133,9 @@ async function sha256Hex(bytes: Uint8Array): Promise<string> {
     return Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+/**
+ * Creates an interceptor that attaches SDK authentication headers.
+ */
 export function createAuthInterceptor(
     auth: JwtAuthProvider | ApiKeyEd25519AuthProvider,
     options?: { wireFormat?: ConnectWireFormat },

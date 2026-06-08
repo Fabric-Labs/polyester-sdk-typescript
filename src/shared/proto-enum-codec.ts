@@ -1,3 +1,6 @@
+/**
+ * Creates a schema transform that rejects unspecified proto enum labels.
+ */
 export function requiredEnumLabel<TOutput>(
     mapping: Readonly<Partial<Record<number, TOutput>>>,
     value: number,
