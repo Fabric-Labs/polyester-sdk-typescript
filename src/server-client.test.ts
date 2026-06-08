@@ -73,6 +73,25 @@ function expectDisplaySession(session: ReturnType<typeof parseSessionCookie>): v
     expect(session.username).toBe("hunter");
 }
 
+function expectEmptySession(session: ReturnType<typeof parseSessionCookie>): void {
+    expect(session).toEqual({
+        environmentFingerprint: null,
+        hasDisplaySession: false,
+        provider: null,
+        loginMethod: null,
+        accountAddresses: null,
+        activeAccount: null,
+        bearerToken: null,
+        username: null,
+    });
+}
+
+class TestablePolyesterServerClient extends PolyesterServerClient {
+    getDefaultSubaccountIdForTest(): string | null {
+        return this.createSubaccountResolver().getDefaultSubaccountId();
+    }
+}
+
 function mockCatalogRefreshEndpoints(): {
     getSpotConfig: ReturnType<typeof vi.spyOn>;
     getDepositWithdrawConfig: ReturnType<typeof vi.spyOn>;
@@ -106,16 +125,7 @@ describe("parseSessionCookie", () => {
     it("returns empty display and bearer state when no cookies are present", () => {
         const session = parseSessionCookie({}, POLYESTER_TESTNET_ENVIRONMENT);
 
-        expect(session).toEqual({
-            environmentFingerprint: null,
-            hasDisplaySession: false,
-            provider: null,
-            loginMethod: null,
-            accountAddresses: null,
-            activeAccount: null,
-            bearerToken: null,
-            username: null,
-        });
+        expectEmptySession(session);
     });
 
     it("parses unsigned display session metadata without implying auth", () => {
@@ -175,16 +185,68 @@ describe("parseSessionCookie", () => {
             POLYESTER_TESTNET_ENVIRONMENT,
         );
 
-        expect(session).toEqual({
-            environmentFingerprint: null,
-            hasDisplaySession: false,
-            provider: null,
-            loginMethod: null,
-            accountAddresses: null,
-            activeAccount: null,
-            bearerToken: null,
-            username: null,
+        expectEmptySession(session);
+    });
+
+    it("ignores display session metadata that fails schema validation", () => {
+        const invalidSession = {
+            environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+            provider: "metamask",
+            loginMethod: "metamask",
+            primaryWallet: "0xprimary",
+            smartAccount: "0xsmart",
+            activeAccount: {
+                accountId: "sub-1",
+                isMain: "false",
+                mainAccountId: "main-1",
+            },
+            username: "hunter",
+        };
+
+        const session = parseSessionCookie(
+            {
+                [POLYESTER_SESSION_COOKIE_NAME]: JSON.stringify(invalidSession),
+                [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
+            },
+            POLYESTER_TESTNET_ENVIRONMENT,
+        );
+
+        expectEmptySession(session);
+    });
+});
+
+describe("PolyesterServerClient subaccount defaults", () => {
+    it("does not use display-session active account as a server default unless opted in", () => {
+        const session = parseSessionCookie(
+            {
+                [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
+            },
+            POLYESTER_TESTNET_ENVIRONMENT,
+        );
+        const client = new TestablePolyesterServerClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            refreshCatalogs: false,
+            session,
         });
+
+        expect(client.getDefaultSubaccountIdForTest()).toBeNull();
+    });
+
+    it("uses display-session active account as a server default when explicitly opted in", () => {
+        const session = parseSessionCookie(
+            {
+                [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
+            },
+            POLYESTER_TESTNET_ENVIRONMENT,
+        );
+        const client = new TestablePolyesterServerClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            refreshCatalogs: false,
+            session,
+            useDisplaySessionActiveAccountAsDefault: true,
+        });
+
+        expect(client.getDefaultSubaccountIdForTest()).toBe("sub-1");
     });
 });
 

@@ -4,6 +4,7 @@ import {
     POLYESTER_SESSION_COOKIE_NAME,
     POLYESTER_LOGIN_COOKIE_MAX_AGE,
 } from "./cookie-constants.js";
+import { parseSessionData } from "./session.schemas.js";
 import type { ActiveAccountInfo, AuthLoginMethod, SessionData } from "./session.types.js";
 
 export type { ActiveAccountInfo, AuthLoginMethod, SessionData };
@@ -28,7 +29,12 @@ class PolyesterSessionManager {
         try {
             // handle legacy double-encoded cookies (value was previously encoded before passing to setCookie)
             const jsonStr = value.startsWith("%7B") ? decodeURIComponent(value) : value;
-            return JSON.parse(jsonStr) as SessionData;
+            const session = parseSessionData(JSON.parse(jsonStr));
+            if (!session) {
+                this.clear();
+                return null;
+            }
+            return session;
         } catch {
             this.clear();
             return null;

@@ -7,7 +7,12 @@ import {
     ProtoPolicyMarketScopeEnumSchema,
     SpotMarketRuleSchema,
 } from "../shared.js";
-import { PolicyMarketScopeCodec, PolicyActionCodec } from "../shared.codecs.js";
+import {
+    PolicyMarketScopeCodec,
+    PolicyActionCodec,
+    policyMarketScopeLabelFor,
+    policyActionLabelFor,
+} from "../shared.codecs.js";
 import { bpsToPct, toBigIntOrZero, toBpsOrZero, toIntOrZero } from "../../../utils/numbers.js";
 import { formatId, idToBigInt } from "../../../utils/base58-id.js";
 import {
@@ -34,16 +39,16 @@ export const SubaccountPolicySchema = v.pipe(
         spotMarkets: v.optional(v.array(SpotMarketRuleSchema), []),
         spotMarketScope: v.pipe(
             ProtoPolicyMarketScopeEnumSchema,
-            v.transform((v) => PolicyMarketScopeCodec.protoToOutput[v]),
+            v.transform((v) => policyMarketScopeLabelFor(v)),
         ),
         perpMarketScope: v.pipe(
             ProtoPolicyMarketScopeEnumSchema,
-            v.transform((v) => PolicyMarketScopeCodec.protoToOutput[v]),
+            v.transform((v) => policyMarketScopeLabelFor(v)),
         ),
         perpMarkets: v.optional(v.array(PerpMarketRuleSchema), []),
         actions: v.pipe(
             v.optional(v.array(ProtoPolicyActionEnumSchema), []),
-            v.transform((v) => v.map((action) => PolicyActionCodec.protoToOutput[action])),
+            v.transform((v) => v.map((action) => policyActionLabelFor(action))),
         ),
         isTemplate: v.optional(v.optional(v.boolean()), false),
         sourceTemplateId: v.pipe(

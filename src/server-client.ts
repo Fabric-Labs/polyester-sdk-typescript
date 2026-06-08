@@ -8,6 +8,7 @@ import type {
     AuthLoginMethod,
     SessionData,
 } from "./services/auth/session.types.js";
+import { parseSessionData } from "./services/auth/session.schemas.js";
 import { type CookieGetter, getCookieValue } from "./utils/cookies.js";
 import type { JwtAuthProvider, ApiKeyEd25519AuthProvider } from "./shared/transports.js";
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";
@@ -60,27 +61,28 @@ export function parseSessionCookie(
             const jsonStr = sessionValue.startsWith("%7B")
                 ? decodeURIComponent(sessionValue)
                 : sessionValue;
-            session = JSON.parse(jsonStr) as SessionData;
+            session = parseSessionData(JSON.parse(jsonStr));
         } catch {
             // invalid JSON
         }
     }
 
-    if (session?.environmentFingerprint !== environment.fingerprint) {
+    if (!session || session.environmentFingerprint !== environment.fingerprint) {
         return emptyServerSessionSnapshot();
     }
 
     return {
         environmentFingerprint: session.environmentFingerprint,
-        hasDisplaySession: !!session,
-        provider: session?.provider ?? null,
-        loginMethod: session?.loginMethod ?? null,
-        accountAddresses: session
-            ? { ownerAddress: session.primaryWallet, accountAddress: session.smartAccount }
-            : null,
-        activeAccount: session?.activeAccount ?? null,
+        hasDisplaySession: true,
+        provider: session.provider,
+        loginMethod: session.loginMethod,
+        accountAddresses: {
+            ownerAddress: session.primaryWallet,
+            accountAddress: session.smartAccount,
+        },
+        activeAccount: session.activeAccount ?? null,
         bearerToken,
-        username: session?.username ?? null,
+        username: session.username ?? null,
     };
 }
 
@@ -89,11 +91,19 @@ export interface PolyesterServerClientConfig extends PolyesterClientBaseConfig {
     auth?: JwtAuthProvider | ApiKeyEd25519AuthProvider;
     /** Display-only session data parsed from cookies. Not proof of authentication. */
     session?: ServerSessionSnapshot;
+    /**
+     * Use unsigned display-session `activeAccount` as the default subaccount for
+     * calls that omit `subaccountId`. This preserves account-switcher intent for
+     * apps that explicitly opt in; backend authorization must still decide what
+     * the authenticated user can access.
+     */
+    useDisplaySessionActiveAccountAsDefault?: boolean;
 }
 
 export class PolyesterServerClient extends PolyesterClient {
     #hasAuthProvider: boolean;
     #session: ServerSessionSnapshot;
+    #useDisplaySessionActiveAccountAsDefault: boolean;
 
     constructor(config: PolyesterServerClientConfig) {
         const auth = config.auth ?? undefined;
@@ -108,20 +118,22 @@ export class PolyesterServerClient extends PolyesterClient {
         });
         this.#hasAuthProvider = !!auth;
         this.#session = config.session ?? emptyServerSessionSnapshot();
+        this.#useDisplaySessionActiveAccountAsDefault =
+            config.useDisplaySessionActiveAccountAsDefault ?? false;
     }
 
     /**
-     * Creates a resolver that defaults subaccountId to the active subaccount
-     * from display-only session metadata. This is caller convenience only;
+     * Creates a resolver for server-side subaccount defaults. Display-session
+     * `activeAccount` is only used as caller intent when explicitly enabled;
      * backend auth remains authoritative.
      */
     protected override createSubaccountResolver(): SubaccountResolver {
         return {
             getDefaultSubaccountId: () => {
+                if (!this.#useDisplaySessionActiveAccountAsDefault) return null;
+
                 const activeAccount = this.#session.activeAccount;
-                if (activeAccount && !activeAccount.isMain) {
-                    return activeAccount.accountId;
-                }
+                if (activeAccount && !activeAccount.isMain) return activeAccount.accountId;
                 return null;
             },
             getActiveAccountId: () => this.#session.activeAccount?.accountId ?? null,
@@ -165,6 +177,12 @@ export interface CreateServerClientFromCookiesParams extends Pick<
     "environment" | "interceptors" | "realtime" | "wireFormat" | "refreshCatalogs"
 > {
     cookies: CookieGetter;
+    /**
+     * Use unsigned display-session `activeAccount` as the default subaccount for
+     * calls that omit `subaccountId`. This is caller intent from UI hydration,
+     * not proof of authority; backend authorization remains authoritative.
+     */
+    useDisplaySessionActiveAccountAsDefault?: boolean;
 }
 
 export interface CreateServerClientFromRequestParams extends Pick<
@@ -172,6 +190,12 @@ export interface CreateServerClientFromRequestParams extends Pick<
     "environment" | "interceptors" | "realtime" | "wireFormat" | "refreshCatalogs"
 > {
     request: Request;
+    /**
+     * Use unsigned display-session `activeAccount` as the default subaccount for
+     * calls that omit `subaccountId`. This is caller intent from UI hydration,
+     * not proof of authority; backend authorization remains authoritative.
+     */
+    useDisplaySessionActiveAccountAsDefault?: boolean;
 }
 
 export function createPolyesterServerClientFromCookies(
@@ -193,6 +217,7 @@ export function createPolyesterServerClientFromCookies(
         realtime: params.realtime,
         refreshCatalogs: params.refreshCatalogs,
         auth,
+        useDisplaySessionActiveAccountAsDefault: params.useDisplaySessionActiveAccountAsDefault,
     });
 }
 
@@ -206,6 +231,7 @@ export function createPolyesterServerClientFromRequest(
         wireFormat: params.wireFormat,
         realtime: params.realtime,
         refreshCatalogs: params.refreshCatalogs,
+        useDisplaySessionActiveAccountAsDefault: params.useDisplaySessionActiveAccountAsDefault,
     });
 }
 

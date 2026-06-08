@@ -1,4 +1,5 @@
 import * as Proto from "../../gen/auth/v1/policies_pb.js";
+import type { ExcludeUnspecified } from "../../utils/types.js";
 
 export const POLICY_ACTION_LABELS = [
     "trade-spot",
@@ -27,13 +28,11 @@ export const PolicyMarketScopeCodec = {
     protoToOutput: {
         [Proto.MarketScope_Value.ALL]: "all",
         [Proto.MarketScope_Value.ALLOWLIST]: "allowlist",
-        [Proto.MarketScope_Value.UNSPECIFIED]: "all",
-    } satisfies Record<Proto.MarketScope_Value, PolicyMarketScopeLabel>,
+    } satisfies Record<ExcludeUnspecified<Proto.MarketScope_Value>, PolicyMarketScopeLabel>,
 } as const;
 
 export const PolicyActionCodec = {
     protoToOutput: {
-        [Proto.PolicyAction.UNSPECIFIED]: "read-balances",
         [Proto.PolicyAction.TRADE_SPOT]: "trade-spot",
         [Proto.PolicyAction.TRADE_PERP]: "trade-perp",
         [Proto.PolicyAction.INTERNAL_TRANSFER]: "internal-transfer",
@@ -46,7 +45,7 @@ export const PolicyActionCodec = {
         [Proto.PolicyAction.READ_TRANSFER_CONTROLS]: "read-transfer-controls",
         [Proto.PolicyAction.MANAGE_ADDRESS_BOOK]: "manage-address-book",
         [Proto.PolicyAction.MANAGE_TRANSFER_WHITELISTS]: "manage-transfer-whitelists",
-    } satisfies Record<Proto.PolicyAction, PolicyActionLabel>,
+    } satisfies Record<ExcludeUnspecified<Proto.PolicyAction>, PolicyActionLabel>,
     outputToProto: {
         "trade-spot": Proto.PolicyAction.TRADE_SPOT,
         "trade-perp": Proto.PolicyAction.TRADE_PERP,
@@ -62,3 +61,17 @@ export const PolicyActionCodec = {
         "manage-transfer-whitelists": Proto.PolicyAction.MANAGE_TRANSFER_WHITELISTS,
     } satisfies Record<PolicyActionLabel, Proto.PolicyAction>,
 } as const;
+
+export function policyMarketScopeLabelFor(value: Proto.MarketScope_Value): PolicyMarketScopeLabel {
+    if (value === Proto.MarketScope_Value.UNSPECIFIED) {
+        throw new Error(`[PolicyMarketScopeCodec]: invalid market scope ${value}`);
+    }
+    return PolicyMarketScopeCodec.protoToOutput[value];
+}
+
+export function policyActionLabelFor(value: Proto.PolicyAction): PolicyActionLabel {
+    if (value === Proto.PolicyAction.UNSPECIFIED) {
+        throw new Error(`[PolicyActionCodec]: invalid policy action ${value}`);
+    }
+    return PolicyActionCodec.protoToOutput[value];
+}
