@@ -33,6 +33,10 @@ import { ZipperService } from "./services/zipper/index.js";
 import { MfaService } from "./services/mfa/index.js";
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";
 import { createPolyesterCatalog, type ClientCatalog } from "./catalogs/index.js";
+import {
+    refreshCatalogsInBackground,
+    type CatalogRefreshErrorHandler,
+} from "./catalogs/catalog-refresh.js";
 import { RealtimeClient, type RealtimeConfig } from "./realtime/index.js";
 
 function realtimeAuthFromProvider(
@@ -76,6 +80,10 @@ export interface PolyesterClientBaseConfig {
      * Refresh runtime catalogs from the API after construction. Defaults to true.
      */
     refreshCatalogs?: boolean;
+    /**
+     * Called when the default background catalog refresh fails.
+     */
+    onCatalogRefreshError?: CatalogRefreshErrorHandler;
     /**
      * Client-owned catalog store. Tests and advanced callers can inject fixture-backed catalogs.
      */
@@ -201,7 +209,7 @@ export class PolyesterClient {
         this.mfa = new MfaService(authApi);
 
         if (config.refreshCatalogs !== false) {
-            this.catalog.refresh().catch(() => {});
+            refreshCatalogsInBackground(this, config.onCatalogRefreshError);
         }
     }
 

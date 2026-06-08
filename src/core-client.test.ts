@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { signAsync } from "@noble/ed25519";
 import { POLYESTER_TESTNET_ENVIRONMENT } from "./environment.js";
+import { createTestCatalog } from "./testing/catalog.js";
 
 type RealtimeAuthRequest = {
     url: string | URL;
@@ -74,5 +75,30 @@ describe("PolyesterClient realtime auth", () => {
             "X-API-TIMESTAMP": "1234567890",
             "X-API-SIGNATURE": expectedSignature,
         });
+    });
+});
+
+describe("PolyesterClient catalog refresh", () => {
+    afterEach(() => {
+        vi.restoreAllMocks();
+        realtimeConfigs.length = 0;
+    });
+
+    it("reports startup catalog refresh failures", async () => {
+        const error = new Error("catalog refresh failed");
+        const catalog = createTestCatalog();
+        const onCatalogRefreshError = vi.fn();
+        vi.spyOn(catalog, "refresh").mockRejectedValue(error);
+
+        new PolyesterClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            catalog,
+            onCatalogRefreshError,
+        });
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect(catalog.refresh).toHaveBeenCalledTimes(1);
+        expect(onCatalogRefreshError).toHaveBeenCalledTimes(1);
+        expect(onCatalogRefreshError).toHaveBeenCalledWith(error);
     });
 });

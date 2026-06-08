@@ -121,6 +121,7 @@ export class PolyesterServerClient extends PolyesterClient {
             wireFormat: config.wireFormat,
             realtime: config.realtime,
             refreshCatalogs: config.refreshCatalogs,
+            onCatalogRefreshError: config.onCatalogRefreshError,
             catalog: config.catalog,
         });
         this.#hasAuthProvider = !!auth;
@@ -184,7 +185,13 @@ export class PolyesterServerClient extends PolyesterClient {
 
 export interface CreateServerClientFromCookiesParams extends Pick<
     PolyesterClientBaseConfig,
-    "environment" | "interceptors" | "realtime" | "wireFormat" | "refreshCatalogs" | "catalog"
+    | "environment"
+    | "interceptors"
+    | "realtime"
+    | "wireFormat"
+    | "refreshCatalogs"
+    | "onCatalogRefreshError"
+    | "catalog"
 > {
     cookies: CookieGetter;
     /**
@@ -197,7 +204,13 @@ export interface CreateServerClientFromCookiesParams extends Pick<
 
 export interface CreateServerClientFromRequestParams extends Pick<
     PolyesterClientBaseConfig,
-    "environment" | "interceptors" | "realtime" | "wireFormat" | "refreshCatalogs" | "catalog"
+    | "environment"
+    | "interceptors"
+    | "realtime"
+    | "wireFormat"
+    | "refreshCatalogs"
+    | "onCatalogRefreshError"
+    | "catalog"
 > {
     request: Request;
     /**
@@ -229,6 +242,7 @@ export function createPolyesterServerClientFromCookies(
         wireFormat: params.wireFormat,
         realtime: params.realtime,
         refreshCatalogs: params.refreshCatalogs,
+        onCatalogRefreshError: params.onCatalogRefreshError,
         catalog: params.catalog,
         auth,
         useDisplaySessionActiveAccountAsDefault: params.useDisplaySessionActiveAccountAsDefault,
@@ -248,6 +262,7 @@ export function createPolyesterServerClientFromRequest(
         wireFormat: params.wireFormat,
         realtime: params.realtime,
         refreshCatalogs: params.refreshCatalogs,
+        onCatalogRefreshError: params.onCatalogRefreshError,
         catalog: params.catalog,
         useDisplaySessionActiveAccountAsDefault: params.useDisplaySessionActiveAccountAsDefault,
     });

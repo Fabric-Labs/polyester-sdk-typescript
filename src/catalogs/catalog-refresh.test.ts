@@ -53,14 +53,16 @@ describe("catalog refresh", () => {
         await expect(refreshCatalogs(client)).rejects.toThrow("catalog refresh failed");
     });
 
-    it("swallows background refresh failures", async () => {
-        const client = refreshClient(
-            vi.fn(() => Promise.reject(new Error("catalog refresh failed"))),
-        );
+    it("reports background refresh failures", async () => {
+        const error = new Error("catalog refresh failed");
+        const onError = vi.fn();
+        const client = refreshClient(vi.fn(() => Promise.reject(error)));
 
-        refreshCatalogsInBackground(client);
+        refreshCatalogsInBackground(client, onError);
         await new Promise((resolve) => setTimeout(resolve, 0));
 
         expect(client.catalog.refresh).toHaveBeenCalledTimes(1);
+        expect(onError).toHaveBeenCalledTimes(1);
+        expect(onError).toHaveBeenCalledWith(error);
     });
 });
