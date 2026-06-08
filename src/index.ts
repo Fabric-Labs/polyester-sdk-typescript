@@ -48,13 +48,6 @@ export type {
     HexAddress,
 } from "./account-signer/index.js";
 
-export { createPolyesterSmartAccount, createPolyesterSmartAccountClient } from "./smart-account.js";
-export type {
-    CreateSmartAccountParams,
-    PolyesterSmartAccountClient,
-    SafeSmartAccountInstance,
-} from "./smart-account.js";
-
 export type { ApiKeyEd25519AuthProvider, JwtAuthProvider } from "./shared/transports.js";
 export type {
     PolyesterMutationOptions,

@@ -3,7 +3,7 @@ import { createPublicClient, http } from "viem";
 import { createSmartAccountClient } from "permissionless";
 import { toSafeSmartAccount } from "permissionless/accounts";
 import { createPimlicoClient } from "permissionless/clients/pimlico";
-import type { PolyesterEnvironment } from "./environment.js";
+import type { PolyesterEnvironment } from "../environment.js";
 
 export type SafeSmartAccountInstance = Awaited<ReturnType<typeof toSafeSmartAccount>>;
 export type PolyesterSmartAccountClient = ReturnType<typeof createPolyesterSmartAccountClient>;
