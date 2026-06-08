@@ -48,12 +48,18 @@ describe("ListTransfersInputSchema", () => {
         const input = v.parse(ListTransfersInputSchema, {
             subaccountId: "11",
             since: 123,
+            timestampMin: 1_700_000_000_123,
+            timestampMax: 1_700_000_001_123,
+            code: 1030,
         });
 
         expect(input).toEqual({
             subaccountId: 11n,
             ledger: 0,
             reversed: false,
+            timestampMin: 1_700_000_000_123_000_000n,
+            timestampMax: 1_700_000_001_123_000_000n,
+            code: 1030,
             since: 123n,
         });
     });
@@ -69,5 +75,8 @@ describe("ListTransfersInputSchema", () => {
     it("rejects invalid subaccount and cursor inputs", () => {
         expect(() => v.parse(ListTransfersInputSchema, { subaccountId: "-1" })).toThrow();
         expect(() => v.parse(ListTransfersInputSchema, { since: 12.5 })).toThrow();
+        expect(() => v.parse(ListTransfersInputSchema, { timestampMin: 12.5 })).toThrow();
+        expect(() => v.parse(ListTransfersInputSchema, { timestampMax: -1 })).toThrow();
+        expect(() => v.parse(ListTransfersInputSchema, { code: 1.5 })).toThrow();
     });
 });

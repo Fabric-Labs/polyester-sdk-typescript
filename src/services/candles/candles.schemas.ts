@@ -3,6 +3,7 @@ import * as v from "valibot";
 import { formatPriceForSymbol, formatQtyForSymbol } from "../../catalogs/orders-catalog.js";
 import { getPair } from "../../catalogs/market-data-catalog.js";
 import { parseOptionalPositiveIntLike } from "../../utils/numbers.js";
+import { OptionalTimestampSecondsInputSchema } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import { TIMEFRAMES, TimeframeCodec } from "./candles.codecs.js";
 
@@ -41,16 +42,6 @@ type TimestampInit = { seconds: bigint; nanos: number };
 function timestampFromTsSec(tsSec: bigint): TimestampInit {
     return { seconds: tsSec, nanos: 0 };
 }
-
-const OptionalTimestampSecondsSchema = v.optional(
-    v.pipe(
-        v.number(),
-        v.integer(),
-        v.minValue(0),
-        v.maxValue(Number.MAX_SAFE_INTEGER),
-        v.transform((value) => BigInt(value)),
-    ),
-);
 
 export const CandleRowSchema = v.pipe(
     v.object({
@@ -229,8 +220,8 @@ export const ListCandlesInputSchema = v.pipe(
         limit: OptionalPositiveNumberSchema,
         includeIncomplete: v.optional(v.boolean(), false),
         includeReference: OptionalBooleanSchema,
-        startTsSec: OptionalTimestampSecondsSchema,
-        endTsSec: OptionalTimestampSecondsSchema,
+        startTsSec: OptionalTimestampSecondsInputSchema,
+        endTsSec: OptionalTimestampSecondsInputSchema,
     }),
     v.transform((d) => {
         const resolvedSymbolId =

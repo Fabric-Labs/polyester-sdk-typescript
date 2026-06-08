@@ -9,6 +9,7 @@ import type { SubaccountResolver } from "../subaccount-resolver.js";
 import { ApiKeysService } from "./api-keys.js";
 import {
     ApiKeyIdInputSchema,
+    ApiKeySchema,
     ApiKeysCreateInputSchema,
     ApiKeysUpdateInputSchema,
 } from "./api-keys.schemas.js";
@@ -337,5 +338,17 @@ describe("api key input schemas", () => {
         });
         expect(labelOnlyUpdate).not.toHaveProperty("ipWhitelist");
         expect(labelOnlyUpdate).not.toHaveProperty("expiresAt");
+        expect(() =>
+            v.parse(ApiKeysUpdateInputSchema, {
+                keyId: "key-1",
+                status: "revoked",
+            }),
+        ).toThrow();
+
+        expect(v.parse(ApiKeySchema, apiKey({ status: Proto.ApiKeyStatus.REVOKED }))).toMatchObject(
+            {
+                status: "revoked",
+            },
+        );
     });
 });

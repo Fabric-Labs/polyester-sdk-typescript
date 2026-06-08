@@ -8,7 +8,10 @@ import {
     transferTypeNameFor,
 } from "../../catalogs/ledger-catalog.js";
 import { tsNsToMs } from "../../utils/time.js";
-import { optionalSubaccountIdInputSchema } from "../../shared/schemas.js";
+import {
+    OptionalTimestampMsToNsInputSchema,
+    optionalSubaccountIdInputSchema,
+} from "../../shared/schemas.js";
 
 const U128Schema = v.object({
     hi: v.bigint(),
@@ -76,6 +79,9 @@ export const ListTransfersInputSchema = v.object({
     ledger: v.optional(v.number(), 0),
     limit: v.optional(v.number()),
     reversed: v.optional(v.boolean(), false),
+    timestampMin: OptionalTimestampMsToNsInputSchema,
+    timestampMax: OptionalTimestampMsToNsInputSchema,
+    code: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(0xffffffff))),
     since: v.pipe(
         v.optional(v.number(), 0),
         v.transform((v) => BigInt(v ?? 0)),

@@ -12,9 +12,14 @@ import {
 } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import { bytesToHex } from "@noble/hashes/utils.js";
-import { ApiKeyStatusCodec } from "./api-keys.codecs.js";
+import {
+    API_KEY_STATUS_VALUES,
+    API_KEY_UPDATE_STATUS_VALUES,
+    ApiKeyStatusCodec,
+} from "./api-keys.codecs.js";
 
-const ApiKeyStatusSchema = v.picklist(["active", "revoked", "disabled"]);
+const ApiKeyStatusSchema = v.picklist(API_KEY_STATUS_VALUES);
+const ApiKeyUpdateStatusSchema = v.picklist(API_KEY_UPDATE_STATUS_VALUES);
 
 export type ApiKeyStatus = v.InferOutput<typeof ApiKeyStatusSchema>;
 
@@ -44,7 +49,7 @@ export const ApiKeysUpdateInputSchema = v.pipe(
         keyId: v.pipe(v.string(), v.trim(), v.minLength(1, "keyId is required")),
         label: v.optional(v.string()),
         status: v.pipe(
-            v.optional(ApiKeyStatusSchema),
+            v.optional(ApiKeyUpdateStatusSchema),
             v.transform((v) => (v ? ApiKeyStatusCodec.inputToProto[v] : undefined)),
         ),
         ipWhitelist: v.optional(v.array(v.string())),

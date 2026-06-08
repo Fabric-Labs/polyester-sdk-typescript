@@ -9,6 +9,10 @@ import {
 import { tsNsToMs, tsObjToMs } from "../utils/time.js";
 import type { JsonObject } from "@bufbuild/protobuf";
 
+const UINT64_MAX = (1n << 64n) - 1n;
+const MS_TO_NS = 1_000_000n;
+const MAX_UINT64_TIMESTAMP_MS = Number(UINT64_MAX / MS_TO_NS);
+
 export const TimestampSchema = v.object({
     seconds: v.bigint(),
     nanos: v.optional(v.number(), 0),
@@ -46,6 +50,26 @@ export const TimestampNsMsSchema = v.pipe(
     v.transform((value) => tsNsToMs(value)),
 );
 
+export const OptionalTimestampMsToNsInputSchema = v.optional(
+    v.pipe(
+        v.number(),
+        v.integer(),
+        v.minValue(0),
+        v.maxValue(MAX_UINT64_TIMESTAMP_MS),
+        v.transform((value) => BigInt(value) * MS_TO_NS),
+    ),
+);
+
+export const OptionalTimestampSecondsInputSchema = v.optional(
+    v.pipe(
+        v.number(),
+        v.integer(),
+        v.minValue(0),
+        v.maxValue(Number.MAX_SAFE_INTEGER),
+        v.transform((value) => BigInt(value)),
+    ),
+);
+
 export const PublicIdSchema = v.pipe(
     v.bigint(),
     v.transform((value) => formatId(value)),
@@ -56,19 +80,9 @@ export const OptionalPublicIdSchema = v.pipe(
     v.transform((value) => (value ? formatId(value) : undefined)),
 );
 
-/**
- * Creates a schema that trims required string input.
- */
-export function trimmedStringSchema() {
-    return v.pipe(v.string(), v.trim());
-}
+const TrimmedStringSchema = v.pipe(v.string(), v.trim());
 
-/**
- * Creates a schema that trims optional string input.
- */
-export function optionalTrimmedStringSchema() {
-    return v.optional(trimmedStringSchema());
-}
+const OptionalTrimmedStringSchema = v.optional(TrimmedStringSchema);
 
 /**
  * Creates a schema for required public id input.
@@ -87,7 +101,7 @@ export function idInputSchema(fieldName: string) {
  */
 export function optionalIdInputSchema(fieldName: string) {
     return v.pipe(
-        optionalTrimmedStringSchema(),
+        OptionalTrimmedStringSchema,
         v.transform((value) => (value ? idToBigInt(value, fieldName) : undefined)),
     );
 }
@@ -104,7 +118,7 @@ export function optionalSubaccountIdInputSchema() {
  */
 export function optionalUint64DecimalFilterSchema(fieldName: string) {
     return v.pipe(
-        optionalTrimmedStringSchema(),
+        OptionalTrimmedStringSchema,
         v.transform((value) => parseOptionalUint64DecimalStrict(value, fieldName)),
     );
 }
@@ -117,7 +131,7 @@ export function positiveBigintLikeSchema(message: string) {
         v.union([
             v.bigint(),
             v.pipe(
-                trimmedStringSchema(),
+                TrimmedStringSchema,
                 v.regex(/^\d+$/),
                 v.transform((value) => BigInt(value)),
             ),

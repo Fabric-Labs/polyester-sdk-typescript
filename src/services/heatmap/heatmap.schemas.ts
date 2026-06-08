@@ -5,6 +5,7 @@ import type {
     HeatmapQuantityMode,
 } from "../../gen/marketdata/v1/heatmap_pb.js";
 import { getPair } from "../../catalogs/market-data-catalog.js";
+import { OptionalTimestampSecondsInputSchema } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import {
     HEATMAP_DEPTH_VALUES,
@@ -49,16 +50,6 @@ function timestampFromTsSec(tsSec: bigint): TimestampInit {
     return { seconds: tsSec, nanos: 0 };
 }
 
-const OptionalTimestampSecondsSchema = v.optional(
-    v.pipe(
-        v.number(),
-        v.integer(),
-        v.minValue(0),
-        v.maxValue(Number.MAX_SAFE_INTEGER),
-        v.transform((value) => BigInt(value)),
-    ),
-);
-
 const CursorInputSchema = v.optional(
     v.pipe(
         v.number(),
@@ -77,8 +68,8 @@ export const GetOrderbookHeatmapInputSchema = v.pipe(
         depth: DepthInputSchema,
         quantityMode: QuantityModeInputSchema,
         limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(20_000))),
-        startTsSec: OptionalTimestampSecondsSchema,
-        endTsSec: OptionalTimestampSecondsSchema,
+        startTsSec: OptionalTimestampSecondsInputSchema,
+        endTsSec: OptionalTimestampSecondsInputSchema,
         cursorTsSec: CursorInputSchema,
     }),
     v.check(

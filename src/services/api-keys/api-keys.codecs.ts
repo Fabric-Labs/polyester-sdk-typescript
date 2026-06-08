@@ -3,13 +3,14 @@ import type { InputToProto, ProtoToOutput } from "../../utils/types.js";
 
 export const API_KEY_STATUS_VALUES = ["active", "revoked", "disabled"] as const;
 export type ApiKeyStatusLabel = (typeof API_KEY_STATUS_VALUES)[number];
+export const API_KEY_UPDATE_STATUS_VALUES = ["active", "disabled"] as const;
+export type ApiKeyUpdateStatusLabel = (typeof API_KEY_UPDATE_STATUS_VALUES)[number];
 
 export const ApiKeyStatusCodec = {
     inputToProto: {
         active: Proto.ApiKeyStatus.ACTIVE,
-        revoked: Proto.ApiKeyStatus.REVOKED,
         disabled: Proto.ApiKeyStatus.DISABLED,
-    } satisfies InputToProto<ApiKeyStatusLabel, Proto.ApiKeyStatus>,
+    } satisfies InputToProto<ApiKeyUpdateStatusLabel, Proto.ApiKeyStatus>,
     protoToOutput: {
         [Proto.ApiKeyStatus.ACTIVE]: "active",
         [Proto.ApiKeyStatus.REVOKED]: "revoked",
