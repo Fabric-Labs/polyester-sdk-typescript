@@ -2,10 +2,13 @@ import type { Transport } from "@connectrpc/connect";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
+import { createPolyesterCatalog, staticCatalog } from "../../catalogs/index.js";
 import type { RealtimeClient } from "../../realtime/client.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { createTestCatalog } from "../../testing/catalog.js";
+import type { AssetConfig, PairConfig, SpotConfig } from "../market-data/market-data.schemas.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
+import type { DepositWithdrawConfig } from "../zipper/zipper.schemas.js";
 import { OrdersService } from "./orders.js";
 
 type CapturedUnary = {
@@ -68,6 +71,69 @@ function createRealtimeStub(): {
             return params;
         },
         unsubscribe,
+    };
+}
+
+const emptyZipperConfig = {
+    chains: [],
+    assets: [],
+    polyesterChainId: 0,
+    contracts: [],
+    tsMs: 0,
+} satisfies DepositWithdrawConfig;
+
+function testAsset(
+    symbol: string,
+    ledgerId: number,
+    quantityScale: number,
+    quantityDisplayDecimals = quantityScale,
+): AssetConfig {
+    return {
+        symbol,
+        ledgerId,
+        name: symbol,
+        quantityDisplayDecimals,
+        quantityScale,
+    };
+}
+
+function testPair(params: {
+    symbol: string;
+    symbolId: number;
+    baseAsset: AssetConfig;
+    quoteAsset: AssetConfig;
+}): PairConfig {
+    return {
+        symbolId: params.symbolId,
+        symbol: params.symbol,
+        baseAsset: params.baseAsset.symbol,
+        quoteAsset: params.quoteAsset.symbol,
+        tickSize: "0.01",
+        stepSize: "0.01",
+        minNotionalQuote: "1",
+        minQtyBase: "0.01",
+        allowBuyFeeFromReceived: false,
+        defaultMarketSlippagePctBuy: 0,
+        defaultMarketSlippagePctSell: 0,
+        maxClientRefDriftPct: 0,
+        baseQuantityScale: params.baseAsset.quantityScale,
+        quoteQuantityScale: params.quoteAsset.quantityScale,
+        listingAt: null,
+        delistingAt: null,
+        status: "enabled",
+    };
+}
+
+function refreshMarketSeed(params: {
+    symbol: string;
+    symbolId: number;
+    baseAsset: AssetConfig;
+    quoteAsset: AssetConfig;
+}): SpotConfig {
+    return {
+        assets: [params.baseAsset, params.quoteAsset],
+        pairs: [testPair(params)],
+        tsSec: 0,
     };
 }
 
@@ -292,6 +358,63 @@ describe("OrdersService", () => {
             feeSource: ProtoWrite.FeeSource.RECEIVED,
             stpMode: ProtoWrite.STPMode.EXPIRE_BOTH,
         });
+    });
+
+    it("uses refreshed client catalog snapshots when parsing later read responses", async () => {
+        const quote = testAsset("REFRESH_QUOTE", 902, 2);
+        const initialMarket = refreshMarketSeed({
+            symbol: "REFRESH_OLD-USD",
+            symbolId: 77,
+            baseAsset: testAsset("REFRESH_OLD", 901, 2),
+            quoteAsset: quote,
+        });
+        const refreshedMarket = refreshMarketSeed({
+            symbol: "REFRESH_NEW-USD",
+            symbolId: 77,
+            baseAsset: testAsset("REFRESH_NEW", 903, 4),
+            quoteAsset: quote,
+        });
+        const catalog = createPolyesterCatalog({
+            seed: {
+                market: initialMarket,
+                zipper: emptyZipperConfig,
+            },
+            refresh: {
+                market: vi.fn(() => Promise.resolve(refreshedMarket)),
+                zipper: vi.fn(() => Promise.resolve(emptyZipperConfig)),
+            },
+        });
+        const service = new OrdersService(
+            transportWithResponses({
+                getOpenOrders: {
+                    orders: [
+                        protoOrder({
+                            symbolId: 77,
+                            origQty: 12_345n,
+                            leavesQty: 12_345n,
+                        }),
+                    ],
+                    nextPageToken: "",
+                },
+            }),
+            createRealtimeStub().realtime,
+            undefined,
+            catalog,
+        );
+
+        const beforeRefresh = await service.listOpen();
+        await catalog.refresh();
+        const afterRefresh = await service.listOpen();
+
+        expect(beforeRefresh.orders[0]).toMatchObject({
+            symbol: "REFRESH_OLD-USD",
+            origQty: "123.45",
+        });
+        expect(afterRefresh.orders[0]).toMatchObject({
+            symbol: "REFRESH_NEW-USD",
+            origQty: "1.2345",
+        });
+        expect(staticCatalog.market.getPairBySymbol("REFRESH_NEW-USD")).toBeNull();
     });
 
     it("normalizes cancel and modify mutation payloads", async () => {

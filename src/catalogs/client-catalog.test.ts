@@ -1,6 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
-import { createPolyesterCatalog } from "./client-catalog.js";
-import type { CatalogRefreshSource } from "./types.js";
+import type {
+    AssetConfig,
+    PairConfig,
+    SpotConfig,
+} from "../services/market-data/market-data.schemas.js";
+import type { DepositWithdrawConfig } from "../services/zipper/zipper.schemas.js";
+import { createPolyesterCatalog, staticCatalog } from "./client-catalog.js";
+import { CatalogLookupError, type CatalogRefreshSource } from "./types.js";
 
 const marketRefreshConfig = {
     assets: [],
@@ -15,6 +21,74 @@ const zipperRefreshConfig = {
     contracts: [],
     tsMs: 0,
 } satisfies Awaited<ReturnType<CatalogRefreshSource["zipper"]>>;
+
+function asset(
+    symbol: string,
+    ledgerId: number,
+    quantityScale: number,
+    quantityDisplayDecimals = quantityScale,
+): AssetConfig {
+    return {
+        symbol,
+        ledgerId,
+        name: symbol,
+        quantityDisplayDecimals,
+        quantityScale,
+    };
+}
+
+function pair(params: {
+    symbol: string;
+    symbolId: number;
+    baseAsset: AssetConfig;
+    quoteAsset: AssetConfig;
+    stepSize?: string;
+    minQtyBase?: string;
+}): PairConfig {
+    return {
+        symbolId: params.symbolId,
+        symbol: params.symbol,
+        baseAsset: params.baseAsset.symbol,
+        quoteAsset: params.quoteAsset.symbol,
+        tickSize: "0.01",
+        stepSize: params.stepSize ?? "0.01",
+        minNotionalQuote: "1",
+        minQtyBase: params.minQtyBase ?? "0.01",
+        allowBuyFeeFromReceived: false,
+        defaultMarketSlippagePctBuy: 0,
+        defaultMarketSlippagePctSell: 0,
+        maxClientRefDriftPct: 0,
+        baseQuantityScale: params.baseAsset.quantityScale,
+        quoteQuantityScale: params.quoteAsset.quantityScale,
+        listingAt: null,
+        delistingAt: null,
+        status: "enabled",
+    };
+}
+
+function marketSeed(params: {
+    symbol: string;
+    symbolId: number;
+    baseAsset: AssetConfig;
+    quoteAsset: AssetConfig;
+}): SpotConfig {
+    return {
+        assets: [params.baseAsset, params.quoteAsset],
+        pairs: [
+            pair({
+                symbol: params.symbol,
+                symbolId: params.symbolId,
+                baseAsset: params.baseAsset,
+                quoteAsset: params.quoteAsset,
+            }),
+        ],
+        tsSec: 0,
+    };
+}
+
+function emptyZipperSeed(): DepositWithdrawConfig {
+    return zipperRefreshConfig;
+}
 
 function deferred<T>(): {
     promise: Promise<T>;
@@ -39,6 +113,95 @@ function refreshSource(overrides: Partial<CatalogRefreshSource> = {}): CatalogRe
 }
 
 describe("createPolyesterCatalog", () => {
+    it("keeps custom catalog snapshots isolated per client", () => {
+        const quote = asset("USD", 200, 2);
+        const coarseAsset = asset("TEST", 101, 2);
+        const preciseAsset = asset("TEST", 102, 4);
+        const coarseCatalog = createPolyesterCatalog({
+            seed: {
+                market: marketSeed({
+                    symbol: "TEST-USD",
+                    symbolId: 11,
+                    baseAsset: coarseAsset,
+                    quoteAsset: quote,
+                }),
+                zipper: emptyZipperSeed(),
+            },
+            refresh: false,
+        });
+        const preciseCatalog = createPolyesterCatalog({
+            seed: {
+                market: marketSeed({
+                    symbol: "TEST-USD",
+                    symbolId: 22,
+                    baseAsset: preciseAsset,
+                    quoteAsset: quote,
+                }),
+                zipper: emptyZipperSeed(),
+            },
+            refresh: false,
+        });
+
+        expect(coarseCatalog.snapshot()).not.toBe(preciseCatalog.snapshot());
+        expect(coarseCatalog.market.requireSymbolIdByPairSymbol("TEST-USD")).toBe(11);
+        expect(preciseCatalog.market.requireSymbolIdByPairSymbol("TEST-USD")).toBe(22);
+        expect(coarseCatalog.orders.parseQuantity("1.23", "TEST-USD")).toMatchObject({
+            value: 123n,
+            scale: 2,
+            formatted: "1.23",
+        });
+        expect(preciseCatalog.orders.parseQuantity("1.23", "TEST-USD")).toMatchObject({
+            value: 12_300n,
+            scale: 4,
+            formatted: "1.23",
+        });
+    });
+
+    it("does not mutate the static catalog when a client catalog refreshes", async () => {
+        const quote = asset("USD", 200, 2);
+        const clientOnlyAsset = asset("CLIENT_ONLY_TEST_ASSET", 201, 3);
+        const before = staticCatalog.snapshot();
+        const catalog = createPolyesterCatalog({
+            refresh: refreshSource({
+                market: vi.fn(() =>
+                    Promise.resolve(
+                        marketSeed({
+                            symbol: "CLIENT_ONLY_TEST_ASSET-USD",
+                            symbolId: 201,
+                            baseAsset: clientOnlyAsset,
+                            quoteAsset: quote,
+                        }),
+                    ),
+                ),
+            }),
+        });
+
+        await catalog.refresh();
+
+        expect(catalog.market.requireAssetBySymbol("CLIENT_ONLY_TEST_ASSET")).toBe(clientOnlyAsset);
+        expect(staticCatalog.snapshot()).toBe(before);
+        expect(staticCatalog.market.getAssetBySymbol("CLIENT_ONLY_TEST_ASSET")).toBeNull();
+    });
+
+    it("fails closed when a custom snapshot does not contain a requested catalog entry", () => {
+        const catalog = createPolyesterCatalog({
+            seed: {
+                market: {
+                    assets: [],
+                    pairs: [],
+                    tsSec: 0,
+                },
+                zipper: emptyZipperSeed(),
+            },
+            refresh: false,
+        });
+
+        expect(() => catalog.market.requirePairBySymbolId(1)).toThrow(CatalogLookupError);
+        expect(() => catalog.orders.formatQuantity(1n, 1)).toThrow(
+            "[catalog] market symbolId not found: 1",
+        );
+    });
+
     it("shares one in-flight refresh across concurrent refresh calls", async () => {
         const market = deferred<typeof marketRefreshConfig>();
         const zipper = deferred<typeof zipperRefreshConfig>();
@@ -84,6 +247,7 @@ describe("createPolyesterCatalog", () => {
 
         await expect(catalog.refresh()).rejects.toThrow(error);
 
+        expect(catalog.snapshot()).toBe(initial);
         expect(await catalog.ready()).toBe(initial);
         expect(catalog.state()).toEqual({ status: "stale", source: "generated", error });
     });
