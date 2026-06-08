@@ -1,6 +1,5 @@
-import type { AssetConfig } from "../services/market-data/market-data.schemas.js";
-import type { ZipperChainConfig } from "../services/zipper/zipper.schemas.js";
 import { decimalToScaledInt } from "../utils/numbers.js";
+import type { AssetConfig, ZipperChainConfig } from "./config-types.js";
 import { indexesFor } from "./indexes.js";
 import { formatLedgerDecimal } from "./ledger-catalog.js";
 import type { EnrichedPairConfig } from "./market-data-catalog.js";

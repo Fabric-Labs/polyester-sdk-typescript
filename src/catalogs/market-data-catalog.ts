@@ -1,13 +1,12 @@
 import type {
     AssetConfig,
     PairConfig,
+    PairMarketDataConfig,
     PairStatus,
     SpotConfig,
-} from "../services/market-data/market-data.schemas.js";
+} from "./config-types.js";
 
-export type PairMarketDataConfig = {
-    orderbookPriceBuckets: number[];
-};
+export type { PairMarketDataConfig } from "./config-types.js";
 
 /**
  * Enriched pair config where baseAsset/quoteAsset are full AssetConfig objects

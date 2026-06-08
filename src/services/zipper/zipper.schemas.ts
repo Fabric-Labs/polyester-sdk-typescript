@@ -1,4 +1,19 @@
 import * as v from "valibot";
+import type {
+    DepositWithdrawConfig,
+    ZipperAssetChainVariant,
+    ZipperAssetConfig,
+    ZipperChainConfig,
+    ZipperChainContractConfig,
+} from "../../catalogs/index.js";
+
+export type {
+    DepositWithdrawConfig,
+    ZipperAssetChainVariant,
+    ZipperAssetConfig,
+    ZipperChainConfig,
+    ZipperChainContractConfig,
+};
 
 export const ZipperChainConfigSchema = v.object({
     chainId: v.number(),
@@ -14,8 +29,6 @@ export const ZipperChainConfigSchema = v.object({
     minAddressLength: v.number(),
     maxAddressLength: v.number(),
 });
-
-export type ZipperChainConfig = v.InferOutput<typeof ZipperChainConfigSchema>;
 
 export const ZipperAssetChainVariantSchema = v.pipe(
     v.object({
@@ -44,8 +57,6 @@ export const ZipperAssetChainVariantSchema = v.pipe(
     })),
 );
 
-export type ZipperAssetChainVariant = v.InferOutput<typeof ZipperAssetChainVariantSchema>;
-
 export const ZipperAssetConfigSchema = v.object({
     asset: v.string(),
     ledgerId: v.number(),
@@ -57,8 +68,6 @@ export const ZipperAssetConfigSchema = v.object({
     uAssetId: v.optional(v.string(), ""),
 });
 
-export type ZipperAssetConfig = v.InferOutput<typeof ZipperAssetConfigSchema>;
-
 export const ZipperChainContractConfigSchema = v.object({
     name: v.string(),
     address: v.string(),
@@ -66,8 +75,6 @@ export const ZipperChainContractConfigSchema = v.object({
     description: v.optional(v.string(), ""),
     version: v.optional(v.number(), 0),
 });
-
-export type ZipperChainContractConfig = v.InferOutput<typeof ZipperChainContractConfigSchema>;
 
 export const DepositWithdrawConfigSchema = v.pipe(
     v.object({
@@ -82,5 +89,3 @@ export const DepositWithdrawConfigSchema = v.pipe(
         tsMs: Number(tsSec) * 1000,
     })),
 );
-
-export type DepositWithdrawConfig = v.InferOutput<typeof DepositWithdrawConfigSchema>;

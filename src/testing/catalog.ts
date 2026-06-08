@@ -4,7 +4,7 @@ import {
     type EnrichedPairConfig,
     type ZipperCatalogSeed,
 } from "../catalogs/index.js";
-import type { AssetConfig, PairConfig } from "../services/market-data/market-data.schemas.js";
+import type { AssetConfig, PairConfig } from "../catalogs/config-types.js";
 
 type TestCatalogOptions = {
     assets?: readonly AssetConfig[];

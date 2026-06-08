@@ -1,5 +1,5 @@
 import { PolyesterServerClient } from "../src/server-client.js";
-import type { AssetConfig, PairConfig } from "../src/services/market-data/market-data.schemas.js";
+import type { AssetConfig, PairConfig } from "../src/catalogs/config-types.js";
 import type { EnrichedPairConfig } from "../src/catalogs/market-data-catalog.js";
 
 const OUTPUT_PATH = new URL("../src/catalogs/market-data-catalog.generated.ts", import.meta.url);
@@ -51,7 +51,7 @@ async function main(): Promise<void> {
 // Generated at: ${timestamp}
 // Run \`bun run scripts/generate-asset-catalog.ts\` to regenerate
 
-import type { AssetConfig } from "../services/market-data/market-data.schemas.js";
+import type { AssetConfig } from "./config-types.js";
 import type { EnrichedPairConfig } from "./market-data-catalog.js";
 
 export const ASSET_CATALOG: AssetConfig[] = ${JSON.stringify(spotConfig.assets, null, "\t")};

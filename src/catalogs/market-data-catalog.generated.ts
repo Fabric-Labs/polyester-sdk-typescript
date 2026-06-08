@@ -2,7 +2,7 @@
 // Generated at: 2026-06-02T01:36:08.275Z
 // Run `bun run scripts/generate-asset-catalog.ts` to regenerate
 
-import type { AssetConfig } from "../services/market-data/market-data.schemas.js";
+import type { AssetConfig } from "./config-types.js";
 import type { EnrichedPairConfig } from "./market-data-catalog.js";
 
 export const ASSET_CATALOG: AssetConfig[] = [

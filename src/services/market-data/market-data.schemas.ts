@@ -3,14 +3,23 @@ import { SideSchema } from "../shared.js";
 import {
     createCatalogSnapshotReader,
     staticCatalog,
+    PAIR_STATUSES,
+    type AssetConfig,
     type CatalogReader,
     type CatalogSnapshot,
     type EnrichedPairConfig,
+    type PairConfig,
+    type PairMarketDataConfig,
+    type PairStatus,
+    type SpotConfig,
 } from "../../catalogs/index.js";
 import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { timestampToMs, tsNsToTimestamp } from "../../utils/timestamp.js";
 import { SideFilterCodec } from "./market-data.codecs.js";
+
+export type { AssetConfig, PairConfig, PairMarketDataConfig, PairStatus, SpotConfig };
+export { PAIR_STATUSES };
 
 interface SymbolMetadata {
     id: number;
@@ -154,8 +163,6 @@ export const AssetConfigSchema = v.pipe(
     })),
 );
 
-export type AssetConfig = v.InferOutput<typeof AssetConfigSchema>;
-
 export const PairMarketDataConfigSchema = v.optional(
     v.object({
         /**
@@ -277,24 +284,6 @@ export const PairConfigSchema = v.pipe(
     ),
 );
 
-export type PairStatus =
-    | "enabled"
-    | "disabled"
-    | "cancel_only"
-    | "post_only"
-    | "reduce_only"
-    | "unknown";
-
-export const PAIR_STATUSES = [
-    "enabled",
-    "disabled",
-    "cancel_only",
-    "post_only",
-    "reduce_only",
-] as const satisfies readonly PairStatus[];
-
-export type PairConfig = v.InferOutput<typeof PairConfigSchema>;
-
 export const SpotConfigSchema = v.object({
     assets: v.array(AssetConfigSchema),
     pairs: v.array(PairConfigSchema),
@@ -303,5 +292,3 @@ export const SpotConfigSchema = v.object({
         v.transform((v) => Number(v) * 1000),
     ),
 });
-
-export type SpotConfig = v.InferOutput<typeof SpotConfigSchema>;

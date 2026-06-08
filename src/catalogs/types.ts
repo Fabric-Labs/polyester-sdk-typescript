@@ -1,9 +1,10 @@
-import type { AssetConfig, SpotConfig } from "../services/market-data/market-data.schemas.js";
 import type {
+    AssetConfig,
     DepositWithdrawConfig,
+    SpotConfig,
     ZipperChainConfig,
     ZipperChainContractConfig,
-} from "../services/zipper/zipper.schemas.js";
+} from "./config-types.js";
 import type {
     EnrichedPairConfig,
     MarketCatalogData,

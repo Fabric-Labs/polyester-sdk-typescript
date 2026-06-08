@@ -1,10 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type {
-    AssetConfig,
-    PairConfig,
-    SpotConfig,
-} from "../services/market-data/market-data.schemas.js";
-import type { DepositWithdrawConfig } from "../services/zipper/zipper.schemas.js";
+import type { AssetConfig, DepositWithdrawConfig, PairConfig, SpotConfig } from "./config-types.js";
 import { createPolyesterCatalog, staticCatalog } from "./client-catalog.js";
 import { CatalogLookupError, type CatalogRefreshSource } from "./types.js";
 

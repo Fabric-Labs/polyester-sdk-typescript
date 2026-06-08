@@ -1,4 +1,17 @@
 export {
+    PAIR_STATUSES,
+    type AssetConfig,
+    type DepositWithdrawConfig,
+    type PairConfig,
+    type PairMarketDataConfig,
+    type PairStatus,
+    type SpotConfig,
+    type ZipperAssetChainVariant,
+    type ZipperAssetConfig,
+    type ZipperChainConfig,
+    type ZipperChainContractConfig,
+} from "./config-types.js";
+export {
     accountCodeNameFor,
     formatLedgerDecimal,
     LEDGER_SCALE,

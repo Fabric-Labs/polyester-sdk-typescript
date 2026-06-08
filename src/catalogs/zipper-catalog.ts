@@ -1,11 +1,11 @@
-import type { ZipperContractName } from "./zipper-catalog.generated.js";
 import type {
     DepositWithdrawConfig,
     ZipperAssetChainVariant,
     ZipperAssetConfig,
     ZipperChainConfig,
     ZipperChainContractConfig,
-} from "../services/zipper/zipper.schemas.js";
+} from "./config-types.js";
+import type { ZipperContractName } from "./zipper-catalog.generated.js";
 
 export type {
     DepositWithdrawConfig,
