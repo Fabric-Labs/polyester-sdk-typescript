@@ -14,11 +14,13 @@ import {
     policyActionLabelFor,
 } from "../shared.codecs.js";
 import { bpsToPct } from "../../../utils/numbers.js";
-import { formatId, idToBigInt } from "../../../utils/base58-id.js";
+import { idToBigInt } from "../../../utils/base58-id.js";
 import {
     OptionalNumberToBigIntOrZeroSchema,
     OptionalNumberToBpsOrZeroSchema,
     OptionalNumberToIntOrZeroSchema,
+    OptionalPublicIdSchema,
+    PublicIdSchema,
     TimestampSchema,
     TimestampMsSchema,
     idInputSchema,
@@ -31,10 +33,7 @@ import { tsObjToMs } from "../../../utils/time.js";
  */
 export const SubaccountPolicySchema = v.pipe(
     v.object({
-        id: v.pipe(
-            v.bigint(),
-            v.transform((v) => formatId(v)),
-        ),
+        id: PublicIdSchema,
         name: v.string(),
         description: v.string(),
         spotMarkets: v.optional(v.array(SpotMarketRuleSchema), []),
@@ -52,10 +51,7 @@ export const SubaccountPolicySchema = v.pipe(
             v.transform((v) => v.map((action) => policyActionLabelFor(action))),
         ),
         isTemplate: v.optional(v.boolean(), false),
-        sourceTemplateId: v.pipe(
-            v.bigint(),
-            v.transform((v) => (v ? formatId(v) : undefined)),
-        ),
+        sourceTemplateId: OptionalPublicIdSchema,
         globalNotionalCap: v.pipe(
             v.bigint(),
             v.transform((v) => Number(v)),

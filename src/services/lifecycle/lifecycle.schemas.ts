@@ -20,10 +20,11 @@ import {
     type LifecycleRequestFeeStatusValue,
     type LifecycleTxLookupKindValue,
 } from "./lifecycle.codecs.js";
-import { formatId, idToBigInt } from "../../utils/base58-id.js";
+import { idToBigInt } from "../../utils/base58-id.js";
 import { fromU128, u128ToDecimal } from "../../utils/u128.js";
 import { assetForId } from "../../catalogs/ledger-catalog.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { PublicIdSchema } from "../../shared/schemas.js";
 
 const FlowKindSchema = v.picklist(LIFECYCLE_FLOW_KIND_VALUES);
 const FlowStateSchema = v.picklist(LIFECYCLE_FLOW_STATE_VALUES);
@@ -163,10 +164,6 @@ const LifecycleRequestFeeStatusEnumSchema = v.pipe(
             "request fee status",
         ),
     ),
-);
-const LifecycleIdSchema = v.pipe(
-    v.bigint(),
-    v.transform((v) => formatId(v)),
 );
 const LifecycleMsSchema = v.pipe(
     v.bigint(),
@@ -346,7 +343,7 @@ export const LifecycleFlowSummaryProgressSchema = v.object({
 
 export const LifecycleFlowSummarySchema = v.pipe(
     v.object({
-        ownerAccountId: LifecycleIdSchema,
+        ownerAccountId: PublicIdSchema,
         flowId: v.string(),
         flowKind: LifecycleFlowKindEnumSchema,
         latestStep: LifecycleFlowStepEnumSchema,

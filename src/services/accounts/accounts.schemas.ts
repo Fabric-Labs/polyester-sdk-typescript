@@ -1,6 +1,6 @@
 import * as v from "valibot";
 import * as ProtoResolve from "../../gen/auth/v1/resolve_pb.js";
-import { formatId } from "../../utils/base58-id.js";
+import { PublicIdSchema } from "../../shared/schemas.js";
 import { ResolveHintCodec } from "./accounts.codecs.js";
 
 function normalizeResolveHint(value?: string): ProtoResolve.ResolveHint {
@@ -28,10 +28,7 @@ export const ResolvedAccountSchema = v.object({
     kind: v.picklist(["root", "sub"]),
     rootUsername: v.optional(v.string()),
     subaccountLabel: v.optional(v.string()),
-    accountId: v.pipe(
-        v.bigint(),
-        v.transform((v) => formatId(v)),
-    ),
+    accountId: PublicIdSchema,
 });
 
 export const ResolvedAccountArraySchema = v.optional(v.array(ResolvedAccountSchema), []);

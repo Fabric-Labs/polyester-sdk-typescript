@@ -2,9 +2,9 @@ import * as Proto from "../../gen/auth/v1/api_keys_pb.js";
 import * as v from "valibot";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { toTimestamp } from "../../utils/timestamp.js";
-import { formatId } from "../../utils/base58-id.js";
 import { tsObjToMs } from "../../utils/time.js";
 import {
+    OptionalPublicIdSchema,
     OptionalTimestampMsSchema,
     TimestampMsSchema,
     TimestampSchema,
@@ -83,14 +83,8 @@ export const ApiKeySchema = v.pipe(
         keyId: v.string(),
         label: v.optional(v.string(), ""),
         ipWhitelist: v.optional(v.array(v.string()), []),
-        subaccountId: v.pipe(
-            v.optional(v.bigint()),
-            v.transform((v) => (v ? formatId(v) : undefined)),
-        ),
-        policyId: v.pipe(
-            v.optional(v.bigint()),
-            v.transform((v) => (v ? formatId(v) : undefined)),
-        ),
+        subaccountId: OptionalPublicIdSchema,
+        policyId: OptionalPublicIdSchema,
         createdAt: TimestampMsSchema,
         lastUsedAt: OptionalTimestampMsSchema,
         publicKeyEd25519: v.instance(Uint8Array<ArrayBufferLike>),

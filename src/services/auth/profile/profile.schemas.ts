@@ -1,7 +1,6 @@
 import * as v from "valibot";
-import { TimestampSchema } from "../../../shared/schemas.js";
+import { PublicIdSchema, TimestampSchema } from "../../../shared/schemas.js";
 import { tsObjToMs } from "../../../utils/time.js";
-import { formatId } from "../../../utils/base58-id.js";
 
 export const ProfileSchema = v.object({
     username: v.string(),
@@ -45,10 +44,7 @@ export const UsernameHistoryEntrySchema = v.object({
 export type UsernameHistoryEntry = v.InferOutput<typeof UsernameHistoryEntrySchema>;
 
 export const AccountIdentitySchema = v.object({
-    accountId: v.pipe(
-        v.bigint(),
-        v.transform((value) => formatId(value)),
-    ),
+    accountId: PublicIdSchema,
     username: v.optional(v.string()),
     avatarUrl: v.optional(v.string()),
     rootSmartAccountAddress: v.string(),

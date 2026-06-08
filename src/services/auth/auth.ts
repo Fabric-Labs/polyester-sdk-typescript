@@ -2,8 +2,7 @@ import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as Proto from "../../gen/auth/v1/auth_pb.js";
 import * as v from "valibot";
 import { ProfileService } from "./profile/profile.js";
-import { formatId } from "../../utils/base58-id.js";
-import { TimestampSchema } from "../../shared/schemas.js";
+import { OptionalPublicIdSchema, PublicIdSchema, TimestampSchema } from "../../shared/schemas.js";
 import {
     toConnectCallOptions,
     type PolyesterMutationOptions,
@@ -30,14 +29,8 @@ export interface AuthServiceTransports {
 }
 
 const MeSchema = v.object({
-    accountId: v.pipe(
-        v.bigint(),
-        v.transform((value) => formatId(value)),
-    ),
-    apiKeyId: v.pipe(
-        v.optional(v.bigint()),
-        v.transform((v) => (v ? formatId(v) : undefined)),
-    ),
+    accountId: PublicIdSchema,
+    apiKeyId: OptionalPublicIdSchema,
     username: v.string(),
     session: v.optional(MfaSessionInfoSchema),
 });
@@ -47,10 +40,7 @@ export type Me = v.InferOutput<typeof MeSchema>;
 const LoginWithWalletResponseSchema = v.object({
     accessToken: v.string(),
     expiresAt: v.optional(TimestampSchema),
-    accountId: v.pipe(
-        v.bigint(),
-        v.transform((value) => formatId(value)),
-    ),
+    accountId: PublicIdSchema,
     username: v.string(),
 });
 

@@ -13,17 +13,19 @@ import {
     policyMarketScopeLabelFor,
     policyActionLabelFor,
 } from "../shared.codecs.js";
-import { formatId, idToBigInt } from "../../../utils/base58-id.js";
-import { OptionalNumberToBigIntOrZeroSchema, TimestampSchema } from "../../../shared/schemas.js";
+import { idToBigInt } from "../../../utils/base58-id.js";
+import {
+    OptionalNumberToBigIntOrZeroSchema,
+    OptionalPublicIdSchema,
+    PublicIdSchema,
+    TimestampSchema,
+} from "../../../shared/schemas.js";
 
 /**
  * From the backend format to a usable frontend/UI format, so big ints to numbers, etc.
  */
 export const ApiKeyPolicySchema = v.object({
-    id: v.pipe(
-        v.bigint(),
-        v.transform((v) => formatId(v)),
-    ),
+    id: PublicIdSchema,
     name: v.string(),
     description: v.string(),
     spotMarkets: v.optional(v.array(SpotMarketRuleSchema), []),
@@ -41,10 +43,7 @@ export const ApiKeyPolicySchema = v.object({
         v.transform((v) => v.map((action) => policyActionLabelFor(action))),
     ),
     isTemplate: v.optional(v.boolean(), false),
-    sourceTemplateId: v.pipe(
-        v.optional(v.bigint()),
-        v.transform((v) => (v ? formatId(v) : undefined)),
-    ),
+    sourceTemplateId: OptionalPublicIdSchema,
     globalNotionalCap: v.pipe(
         v.optional(v.bigint()),
         v.transform((v) => (v ? Number(v) : undefined)),

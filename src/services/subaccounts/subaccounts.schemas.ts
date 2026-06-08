@@ -1,7 +1,6 @@
 import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
 import * as v from "valibot";
-import { formatId } from "../../utils/base58-id.js";
-import { OptionalTimestampMsSchema, idInputSchema } from "../../shared/schemas.js";
+import { OptionalTimestampMsSchema, PublicIdSchema, idInputSchema } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import {
     SubaccountRoleCodec,
@@ -49,10 +48,7 @@ export const SubaccountIdInputSchema = v.object({
 export type SubaccountIdInput = v.InferInput<typeof SubaccountIdInputSchema>;
 
 export const CreateSubaccountResultSchema = v.object({
-    subaccountId: v.pipe(
-        v.bigint(),
-        v.transform((v) => formatId(v)),
-    ),
+    subaccountId: PublicIdSchema,
     totalCreated: v.number(),
 });
 
@@ -142,10 +138,7 @@ const ProtoSubaccountStatusSchema = v.pipe(
 export type SubaccountStatus = v.InferOutput<typeof ProtoSubaccountStatusSchema>;
 
 export const SubaccountSchema = v.object({
-    id: v.pipe(
-        v.bigint(),
-        v.transform((v) => formatId(v)),
-    ),
+    id: PublicIdSchema,
     role: ProtoSubaccountRoleSchema,
     label: v.optional(v.string(), ""),
     status: ProtoSubaccountStatusSchema,
@@ -153,20 +146,14 @@ export const SubaccountSchema = v.object({
     ownerUsername: v.optional(v.string(), ""),
     ownerAvatarUrl: v.optional(v.string(), ""),
     ownerRootSmartAccountAddress: v.string(),
-    subaccountPolicyId: v.pipe(
-        v.bigint(),
-        v.transform((v) => formatId(v)),
-    ),
+    subaccountPolicyId: PublicIdSchema,
     requireMemberMfa: v.optional(v.boolean(), false),
 });
 
 export type Subaccount = v.InferOutput<typeof SubaccountSchema>;
 
 export const SubaccountMemberSchema = v.object({
-    accountId: v.pipe(
-        v.bigint(),
-        v.transform((v) => formatId(v)),
-    ),
+    accountId: PublicIdSchema,
     role: ProtoSubaccountRoleSchema,
     username: v.optional(v.string(), ""),
     smartAccountAddress: v.string(),
@@ -178,22 +165,10 @@ export type SubaccountMember = v.InferOutput<typeof SubaccountMemberSchema>;
 
 export const SubaccountInviteSchema = v.pipe(
     v.object({
-        id: v.pipe(
-            v.bigint(),
-            v.transform((v) => formatId(v)),
-        ),
-        subaccountId: v.pipe(
-            v.bigint(),
-            v.transform((v) => formatId(v)),
-        ),
-        granteeAccountId: v.pipe(
-            v.bigint(),
-            v.transform((v) => formatId(v)),
-        ),
-        inviterAccountId: v.pipe(
-            v.bigint(),
-            v.transform((v) => formatId(v)),
-        ),
+        id: PublicIdSchema,
+        subaccountId: PublicIdSchema,
+        granteeAccountId: PublicIdSchema,
+        inviterAccountId: PublicIdSchema,
         role: ProtoSubaccountRoleSchema,
         status: v.pipe(
             ProtoInviteStatusSchema,
@@ -274,10 +249,7 @@ export const SubaccountActivityEventSchema = v.object({
     source: v.picklist(["web", "mobile", "api"]),
     ip: v.optional(v.string()),
     userAgent: v.optional(v.string()),
-    actorAccountId: v.pipe(
-        v.bigint(),
-        v.transform((v) => formatId(v)),
-    ),
+    actorAccountId: PublicIdSchema,
     payloadJson: v.pipe(
         v.string(),
         v.transform((v) => JSON.parse(v)),

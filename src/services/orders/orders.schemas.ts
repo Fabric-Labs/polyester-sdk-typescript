@@ -27,6 +27,8 @@ import {
 import { tsNsToMs } from "../../utils/time.js";
 import { formatId, idToBigInt } from "../../utils/base58-id.js";
 import {
+    OptionalPublicIdSchema,
+    PublicIdSchema,
     optionalSubaccountIdInputSchema,
     optionalUint64DecimalFilterSchema,
 } from "../../shared/schemas.js";
@@ -415,14 +417,8 @@ const ReadOrderOriginSchema = v.object({
             ),
         ),
     ),
-    triggerId: v.pipe(
-        v.optional(v.bigint()),
-        v.transform((v) => (v ? formatId(v) : undefined)),
-    ),
-    parentOrderId: v.pipe(
-        v.optional(v.bigint()),
-        v.transform((v) => (v ? formatId(v) : undefined)),
-    ),
+    triggerId: OptionalPublicIdSchema,
+    parentOrderId: OptionalPublicIdSchema,
     childSeq: v.number(),
 });
 
@@ -700,10 +696,7 @@ export type CancelOrderInput = v.InferInput<typeof CancelOrderInputSchema>;
 
 export const CancelOrderResultSchema = v.object({
     status: v.string(),
-    orderId: v.pipe(
-        v.bigint(),
-        v.transform((v) => formatId(v)),
-    ),
+    orderId: PublicIdSchema,
     tsNs: v.pipe(
         v.bigint(),
         v.transform((v) => tsNsToMs(v)),
@@ -910,25 +903,17 @@ export const OrderDetailsSchema = v.object({
 
 export type OrderDetails = v.InferOutput<typeof OrderDetailsSchema>;
 
-const OptionalTriggerIdSchema = v.pipe(
-    v.optional(v.bigint()),
-    v.transform((v) => (v ? formatId(v) : undefined)),
-);
-
 export const CreateOrderResultSchema = v.object({
     status: v.string(),
-    orderId: v.pipe(
-        v.bigint(),
-        v.transform((v) => formatId(v)),
-    ),
+    orderId: PublicIdSchema,
     clientOrderId: v.string(),
     tsNs: v.pipe(
         v.bigint(),
         v.transform((v) => tsNsToMs(v)),
     ),
-    takeProfitTriggerId: OptionalTriggerIdSchema,
-    stopLossTriggerId: OptionalTriggerIdSchema,
-    trailingStopTriggerId: OptionalTriggerIdSchema,
+    takeProfitTriggerId: OptionalPublicIdSchema,
+    stopLossTriggerId: OptionalPublicIdSchema,
+    trailingStopTriggerId: OptionalPublicIdSchema,
 });
 
 export type CreateOrderResult = v.InferOutput<typeof CreateOrderResultSchema>;
@@ -945,18 +930,12 @@ export const ModifyOrderResultSchema = v.object({
             ),
         ),
     ),
-    oldOrderId: v.pipe(
-        v.bigint(),
-        v.transform((v) => formatId(v)),
-    ),
-    finalOrderId: v.pipe(
-        v.bigint(),
-        v.transform((v) => formatId(v)),
-    ),
+    oldOrderId: PublicIdSchema,
+    finalOrderId: PublicIdSchema,
     code: v.string(),
-    takeProfitTriggerId: OptionalTriggerIdSchema,
-    stopLossTriggerId: OptionalTriggerIdSchema,
-    trailingStopTriggerId: OptionalTriggerIdSchema,
+    takeProfitTriggerId: OptionalPublicIdSchema,
+    stopLossTriggerId: OptionalPublicIdSchema,
+    trailingStopTriggerId: OptionalPublicIdSchema,
     tsNs: v.pipe(
         v.bigint(),
         v.transform((v) => tsNsToMs(v)),
