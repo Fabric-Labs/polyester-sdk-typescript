@@ -6,13 +6,67 @@ import { setEnrichedPairCatalog } from "../../catalogs/market-data-catalog.js";
 import {
     CancelOrderInputSchema,
     type ModifyOrderInput,
+    type NewOrderInput,
     ModifyOrderInputSchema,
     NewOrderInputSchema,
     OrderHistoryInputSchema,
     OrderSchema,
 } from "./orders.schemas.js";
 
+type AssertNewOrderInput<T extends NewOrderInput> = T;
 type AssertModifyOrderInput<T extends ModifyOrderInput> = T;
+
+type _ValidNewOrderWithAttachedRisk = AssertNewOrderInput<{
+    symbol: string;
+    side: "buy";
+    orderType: "limit";
+    tif: "gtc";
+    price: string;
+    qty: string;
+    risk: {
+        takeProfit: {
+            triggerPrice: string;
+        };
+        trailingStop: {
+            trailingDistance: {
+                kind: "ticks";
+                ticks: string;
+            };
+        };
+    };
+}>;
+
+// @ts-expect-error new order risk policies must include at least one leg
+type _InvalidNewOrderWithEmptyRisk = AssertNewOrderInput<{
+    symbol: string;
+    side: "buy";
+    orderType: "limit";
+    tif: "gtc";
+    price: string;
+    qty: string;
+    risk: {};
+}>;
+
+// @ts-expect-error stopLoss and trailingStop are mutually exclusive stop legs
+type _InvalidNewOrderWithBothStopLegs = AssertNewOrderInput<{
+    symbol: string;
+    side: "buy";
+    orderType: "limit";
+    tif: "gtc";
+    price: string;
+    qty: string;
+    risk: {
+        stopLoss: {
+            triggerPrice: string;
+        };
+        trailingStop: {
+            trailingDistance: {
+                kind: "ticks";
+                ticks: string;
+            };
+        };
+    };
+}>;
 
 type _ValidModifyByOrderIdWithPrice = AssertModifyOrderInput<{
     orderId: string;
@@ -228,6 +282,42 @@ describe("NewOrderInputSchema", () => {
                 price: "100",
                 qty: "0.5",
                 marketMaxSlippage: { kind: "bps", bps: 10 },
+            }),
+        ).toThrow();
+    });
+
+    it("rejects invalid attached risk states", () => {
+        seedPairCatalog();
+
+        const baseOrder = {
+            symbol: "BTC-USDT",
+            side: "buy",
+            orderType: "limit",
+            tif: "gtc",
+            price: "100",
+            qty: "0.5",
+        };
+
+        expect(() =>
+            v.parse(NewOrderInputSchema, {
+                ...baseOrder,
+                risk: {},
+            }),
+        ).toThrow();
+        expect(() =>
+            v.parse(NewOrderInputSchema, {
+                ...baseOrder,
+                risk: {
+                    stopLoss: {
+                        triggerPrice: "95",
+                    },
+                    trailingStop: {
+                        trailingDistance: {
+                            kind: "ticks",
+                            ticks: "10",
+                        },
+                    },
+                },
             }),
         ).toThrow();
     });

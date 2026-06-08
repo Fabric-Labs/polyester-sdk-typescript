@@ -296,22 +296,40 @@ const TrailingStopInputSchema = v.pipe(
     })),
 );
 
-const RiskPolicyObjectInputSchema = v.object({
-    takeProfit: v.optional(TakeProfitInputSchema),
-    stopLoss: v.optional(StopLossInputSchema),
-    trailingStop: v.optional(TrailingStopInputSchema),
-    oco: v.optional(v.boolean()),
-});
+const RiskPolicyObjectInputSchema = v.union([
+    v.object({
+        takeProfit: TakeProfitInputSchema,
+        stopLoss: StopLossInputSchema,
+        trailingStop: v.optional(v.never()),
+        oco: v.optional(v.boolean()),
+    }),
+    v.object({
+        takeProfit: TakeProfitInputSchema,
+        stopLoss: v.optional(v.never()),
+        trailingStop: TrailingStopInputSchema,
+        oco: v.optional(v.boolean()),
+    }),
+    v.object({
+        takeProfit: TakeProfitInputSchema,
+        stopLoss: v.optional(v.never()),
+        trailingStop: v.optional(v.never()),
+        oco: v.optional(v.boolean()),
+    }),
+    v.object({
+        takeProfit: v.optional(v.never()),
+        stopLoss: StopLossInputSchema,
+        trailingStop: v.optional(v.never()),
+        oco: v.optional(v.boolean()),
+    }),
+    v.object({
+        takeProfit: v.optional(v.never()),
+        stopLoss: v.optional(v.never()),
+        trailingStop: TrailingStopInputSchema,
+        oco: v.optional(v.boolean()),
+    }),
+]);
 
 type RiskPolicyObjectInput = v.InferOutput<typeof RiskPolicyObjectInputSchema>;
-
-function hasRiskLeg(input: RiskPolicyObjectInput | undefined): input is RiskPolicyObjectInput {
-    return !!input && !!(input.takeProfit || input.stopLoss || input.trailingStop);
-}
-
-function hasOneStopLeg(input: RiskPolicyObjectInput | undefined): boolean {
-    return !input || !(input.stopLoss && input.trailingStop);
-}
 
 function transformRiskPolicyInput(input: RiskPolicyObjectInput) {
     const stopLeg = input.stopLoss
@@ -329,43 +347,11 @@ function transformRiskPolicyInput(input: RiskPolicyObjectInput) {
 
 export const RiskPolicyInputSchema = v.pipe(
     v.optional(RiskPolicyObjectInputSchema),
-    v.check(hasOneStopLeg, "Provide exactly one stop leg: stopLoss or trailingStop"),
-    v.transform((input) => (hasRiskLeg(input) ? transformRiskPolicyInput(input) : undefined)),
+    v.transform((input) => (input ? transformRiskPolicyInput(input) : undefined)),
 );
 
 const RequiredRiskPolicyInputSchema = v.pipe(
-    v.union([
-        v.object({
-            takeProfit: TakeProfitInputSchema,
-            stopLoss: StopLossInputSchema,
-            trailingStop: v.optional(v.never()),
-            oco: v.optional(v.boolean()),
-        }),
-        v.object({
-            takeProfit: TakeProfitInputSchema,
-            stopLoss: v.optional(v.never()),
-            trailingStop: TrailingStopInputSchema,
-            oco: v.optional(v.boolean()),
-        }),
-        v.object({
-            takeProfit: TakeProfitInputSchema,
-            stopLoss: v.optional(v.never()),
-            trailingStop: v.optional(v.never()),
-            oco: v.optional(v.boolean()),
-        }),
-        v.object({
-            takeProfit: v.optional(v.never()),
-            stopLoss: StopLossInputSchema,
-            trailingStop: v.optional(v.never()),
-            oco: v.optional(v.boolean()),
-        }),
-        v.object({
-            takeProfit: v.optional(v.never()),
-            stopLoss: v.optional(v.never()),
-            trailingStop: TrailingStopInputSchema,
-            oco: v.optional(v.boolean()),
-        }),
-    ]),
+    RiskPolicyObjectInputSchema,
     v.transform((input) => transformRiskPolicyInput(input)),
 );
 
