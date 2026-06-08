@@ -473,7 +473,10 @@ function createLadderTriggerInputSchema(reader: CatalogReader) {
 }
 
 export function createCreateTriggerInputSchema(catalog: CatalogSnapshot) {
-    const reader = createCatalogSnapshotReader(catalog);
+    return createCreateTriggerInputSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+function createCreateTriggerInputSchemaForReader(reader: CatalogReader) {
     return v.variant("triggerType", [
         createStopLossTriggerInputSchema(reader),
         createTakeProfitTriggerInputSchema(reader),
@@ -483,7 +486,7 @@ export function createCreateTriggerInputSchema(catalog: CatalogSnapshot) {
     ]);
 }
 
-export const CreateTriggerInputSchema = createCreateTriggerInputSchema(staticCatalog.snapshot());
+export const CreateTriggerInputSchema = createCreateTriggerInputSchemaForReader(staticCatalog);
 
 export type CreateTriggerInput = v.InferInput<typeof CreateTriggerInputSchema>;
 
@@ -806,7 +809,10 @@ function transformTriggerDetails(
 }
 
 export function createTriggerSchema(catalog: CatalogSnapshot) {
-    const reader = createCatalogSnapshotReader(catalog);
+    return createTriggerSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+function createTriggerSchemaForReader(reader: CatalogReader) {
     return v.pipe(
         v.object({
             triggerId: v.bigint(),
@@ -907,12 +913,15 @@ export function createTriggerSchema(catalog: CatalogSnapshot) {
     );
 }
 
-export const TriggerSchema = createTriggerSchema(staticCatalog.snapshot());
+export const TriggerSchema = createTriggerSchemaForReader(staticCatalog);
 
 export type Trigger = v.InferOutput<typeof TriggerSchema>;
 
 export function createTriggerEventSchema(catalog: CatalogSnapshot) {
-    const reader = createCatalogSnapshotReader(catalog);
+    return createTriggerEventSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+function createTriggerEventSchemaForReader(reader: CatalogReader) {
     return v.pipe(
         v.object({
             triggerId: v.bigint(),
@@ -960,6 +969,6 @@ export function createTriggerEventSchema(catalog: CatalogSnapshot) {
     );
 }
 
-export const TriggerEventSchema = createTriggerEventSchema(staticCatalog.snapshot());
+export const TriggerEventSchema = createTriggerEventSchemaForReader(staticCatalog);
 
 export type TriggerEvent = v.InferOutput<typeof TriggerEventSchema>;

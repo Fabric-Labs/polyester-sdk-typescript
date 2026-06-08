@@ -5,6 +5,7 @@ import {
     LEDGER_SCALE,
     createCatalogSnapshotReader,
     staticCatalog,
+    type CatalogReader,
     type CatalogSnapshot,
     transferTypeNameFor,
 } from "../../catalogs/index.js";
@@ -20,7 +21,10 @@ const U128Schema = v.object({
 });
 
 export function createLedgerTransferSchema(catalog: CatalogSnapshot) {
-    const reader = createCatalogSnapshotReader(catalog);
+    return createLedgerTransferSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+function createLedgerTransferSchemaForReader(reader: CatalogReader) {
     return v.pipe(
         v.object({
             txId: v.string(),
@@ -76,7 +80,7 @@ export function createLedgerTransferSchema(catalog: CatalogSnapshot) {
     );
 }
 
-export const LedgerTransferSchema = createLedgerTransferSchema(staticCatalog.snapshot());
+export const LedgerTransferSchema = createLedgerTransferSchemaForReader(staticCatalog);
 
 export type LedgerTransfer = v.InferOutput<typeof LedgerTransferSchema>;
 

@@ -1,10 +1,10 @@
 import type { Transport } from "@connectrpc/connect";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { setEnrichedPairCatalog } from "../../catalogs/market-data-catalog.js";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import type { RealtimeClient } from "../../realtime/client.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
+import { createTestCatalog } from "../../testing/catalog.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import { OrdersService } from "./orders.js";
 
@@ -71,7 +71,7 @@ function createRealtimeStub(): {
     };
 }
 
-function seedPairCatalog(): void {
+function seedPairCatalog() {
     const btc = {
         symbol: "BTC",
         ledgerId: 1,
@@ -87,25 +87,27 @@ function seedPairCatalog(): void {
         quantityScale: 6,
     };
 
-    setEnrichedPairCatalog([
-        {
-            symbolId: 1,
-            symbol: "BTC-USDT",
-            baseAsset: btc,
-            quoteAsset: usdt,
-            tickSize: "0.01",
-            stepSize: "0.000001",
-            minNotionalQuote: "1",
-            minQtyBase: "0.000001",
-            allowBuyFeeFromReceived: false,
-            defaultMarketSlippagePctBuy: 0.5,
-            defaultMarketSlippagePctSell: 0.5,
-            maxClientRefDriftPct: 0.1,
-            listingAt: null,
-            delistingAt: null,
-            status: "enabled",
-        },
-    ]);
+    return createTestCatalog({
+        pairs: [
+            {
+                symbolId: 1,
+                symbol: "BTC-USDT",
+                baseAsset: btc,
+                quoteAsset: usdt,
+                tickSize: "0.01",
+                stepSize: "0.000001",
+                minNotionalQuote: "1",
+                minQtyBase: "0.000001",
+                allowBuyFeeFromReceived: false,
+                defaultMarketSlippagePctBuy: 0.5,
+                defaultMarketSlippagePctSell: 0.5,
+                maxClientRefDriftPct: 0.1,
+                listingAt: null,
+                delistingAt: null,
+                status: "enabled",
+            },
+        ],
+    });
 }
 
 function protoOrder(overrides: Partial<ProtoRead.Order> = {}): ProtoRead.Order {
@@ -138,12 +140,11 @@ function protoOrder(overrides: Partial<ProtoRead.Order> = {}): ProtoRead.Order {
 
 describe("OrdersService", () => {
     afterEach(() => {
-        setEnrichedPairCatalog([]);
         vi.restoreAllMocks();
     });
 
     it("normalizes read requests, resolver defaults, and forwards signals", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const controller = new AbortController();
         const resolver: SubaccountResolver = {
             getDefaultSubaccountId: () => "11",
@@ -159,6 +160,7 @@ describe("OrdersService", () => {
             ),
             createRealtimeStub().realtime,
             resolver,
+            catalog,
         );
 
         const cases = [
@@ -229,7 +231,7 @@ describe("OrdersService", () => {
     });
 
     it("normalizes create requests, parses create responses, and forwards mutation options", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         let captured: CapturedUnary | undefined;
         const controller = new AbortController();
         const service = new OrdersService(
@@ -247,6 +249,8 @@ describe("OrdersService", () => {
                 },
             ),
             createRealtimeStub().realtime,
+            undefined,
+            catalog,
         );
 
         await expect(
@@ -291,7 +295,7 @@ describe("OrdersService", () => {
     });
 
     it("normalizes cancel and modify mutation payloads", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const captures: CapturedUnary[] = [];
         const service = new OrdersService(
             transportWithResponses(
@@ -312,6 +316,8 @@ describe("OrdersService", () => {
                 (call) => captures.push(call),
             ),
             createRealtimeStub().realtime,
+            undefined,
+            catalog,
         );
 
         await expect(
@@ -446,7 +452,7 @@ describe("OrdersService", () => {
     });
 
     it("parses populated order details responses", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const service = new OrdersService(
             transportWithResponses({
                 getOrder: {
@@ -456,6 +462,8 @@ describe("OrdersService", () => {
                 },
             }),
             createRealtimeStub().realtime,
+            undefined,
+            catalog,
         );
 
         await expect(service.getDetails({ orderId: "11" })).resolves.toMatchObject({
@@ -472,9 +480,14 @@ describe("OrdersService", () => {
     });
 
     it("uses private order channels and parses realtime publications", () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const realtime = createRealtimeStub();
-        const service = new OrdersService(transportWithResponses({}), realtime.realtime);
+        const service = new OrdersService(
+            transportWithResponses({}),
+            realtime.realtime,
+            undefined,
+            catalog,
+        );
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();
@@ -519,7 +532,7 @@ describe("OrdersService", () => {
     });
 
     it("rejects malformed backend and realtime order payloads", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const service = new OrdersService(
             transportWithResponses({
                 getOpenOrders: {
@@ -530,6 +543,8 @@ describe("OrdersService", () => {
                 },
             }),
             createRealtimeStub().realtime,
+            undefined,
+            catalog,
         );
 
         await expect(service.listOpen()).rejects.toThrow();
@@ -538,6 +553,8 @@ describe("OrdersService", () => {
         const subscriptionService = new OrdersService(
             transportWithResponses({}),
             realtime.realtime,
+            undefined,
+            catalog,
         );
         subscriptionService.subscribe({ accountId: "account-1", onEvent: vi.fn() });
 

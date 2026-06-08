@@ -1,17 +1,17 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import * as v from "valibot";
-import { setEnrichedPairCatalog } from "../../catalogs/market-data-catalog.js";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
+import { createTestCatalog } from "../../testing/catalog.js";
 import {
-    CreateTriggerInputSchema,
+    createCreateTriggerInputSchema,
+    createTriggerEventSchema,
+    createTriggerSchema,
     ListTriggerEventsInputSchema,
     ModifyTriggerInputSchema,
-    TriggerEventSchema,
-    TriggerSchema,
 } from "./triggers.schemas.js";
 
-function seedPairCatalog(): void {
+function seedPairCatalog() {
     const btc = {
         symbol: "BTC",
         ledgerId: 1,
@@ -27,30 +27,28 @@ function seedPairCatalog(): void {
         quantityScale: 6,
     };
 
-    setEnrichedPairCatalog([
-        {
-            symbolId: 1,
-            symbol: "BTC-USDT",
-            baseAsset: btc,
-            quoteAsset: usdt,
-            tickSize: "0.01",
-            stepSize: "0.000001",
-            minNotionalQuote: "1",
-            minQtyBase: "0.000001",
-            allowBuyFeeFromReceived: false,
-            defaultMarketSlippagePctBuy: 0.5,
-            defaultMarketSlippagePctSell: 0.5,
-            maxClientRefDriftPct: 0.1,
-            listingAt: null,
-            delistingAt: null,
-            status: "enabled",
-        },
-    ]);
+    return createTestCatalog({
+        pairs: [
+            {
+                symbolId: 1,
+                symbol: "BTC-USDT",
+                baseAsset: btc,
+                quoteAsset: usdt,
+                tickSize: "0.01",
+                stepSize: "0.000001",
+                minNotionalQuote: "1",
+                minQtyBase: "0.000001",
+                allowBuyFeeFromReceived: false,
+                defaultMarketSlippagePctBuy: 0.5,
+                defaultMarketSlippagePctSell: 0.5,
+                maxClientRefDriftPct: 0.1,
+                listingAt: null,
+                delistingAt: null,
+                status: "enabled",
+            },
+        ],
+    });
 }
-
-afterEach(() => {
-    setEnrichedPairCatalog([]);
-});
 
 describe("ListTriggerEventsInputSchema", () => {
     it("parses a supplied cursor", () => {
@@ -81,9 +79,9 @@ describe("ListTriggerEventsInputSchema", () => {
 
 describe("CreateTriggerInputSchema", () => {
     it("normalizes stop trigger fields and applies child order defaults", () => {
-        seedPairCatalog();
+        const schema = createCreateTriggerInputSchema(seedPairCatalog().snapshot());
 
-        const input = v.parse(CreateTriggerInputSchema, {
+        const input = v.parse(schema, {
             triggerType: "stop_loss",
             symbol: " BTC-USDT ",
             side: "sell",
@@ -114,9 +112,9 @@ describe("CreateTriggerInputSchema", () => {
     });
 
     it("normalizes trailing distance and max slippage variants", () => {
-        seedPairCatalog();
+        const schema = createCreateTriggerInputSchema(seedPairCatalog().snapshot());
 
-        const input = v.parse(CreateTriggerInputSchema, {
+        const input = v.parse(schema, {
             triggerType: "trailing_stop",
             symbol: "BTC-USDT",
             side: "buy",
@@ -138,10 +136,10 @@ describe("CreateTriggerInputSchema", () => {
     });
 
     it("rejects invalid timing and ladder bounds", () => {
-        seedPairCatalog();
+        const schema = createCreateTriggerInputSchema(seedPairCatalog().snapshot());
 
         expect(() =>
-            v.parse(CreateTriggerInputSchema, {
+            v.parse(schema, {
                 triggerType: "twap",
                 symbol: "BTC-USDT",
                 side: "buy",
@@ -153,7 +151,7 @@ describe("CreateTriggerInputSchema", () => {
             }),
         ).toThrow();
         expect(() =>
-            v.parse(CreateTriggerInputSchema, {
+            v.parse(schema, {
                 triggerType: "ladder",
                 symbol: "BTC-USDT",
                 side: "buy",
@@ -198,10 +196,12 @@ describe("ModifyTriggerInputSchema", () => {
 
 describe("Trigger and TriggerEvent schemas", () => {
     it("rejects unspecified backend enum values", () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
+        const triggerSchema = createTriggerSchema(catalog.snapshot());
+        const triggerEventSchema = createTriggerEventSchema(catalog.snapshot());
 
         expect(() =>
-            v.parse(TriggerSchema, {
+            v.parse(triggerSchema, {
                 triggerId: 11n,
                 subaccountId: 22n,
                 symbolId: 1,
@@ -220,7 +220,7 @@ describe("Trigger and TriggerEvent schemas", () => {
             }),
         ).toThrow();
         expect(() =>
-            v.parse(TriggerEventSchema, {
+            v.parse(triggerEventSchema, {
                 triggerId: 11n,
                 subaccountId: 22n,
                 symbolId: 1,

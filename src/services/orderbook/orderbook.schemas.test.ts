@@ -1,10 +1,10 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import * as v from "valibot";
-import { setEnrichedPairCatalog } from "../../catalogs/market-data-catalog.js";
 import * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
-import { GetOrderbookInputSchema, OrderbookDataSchema } from "./orderbook.schemas.js";
+import { createTestCatalog } from "../../testing/catalog.js";
+import { createOrderbookDataSchema, GetOrderbookInputSchema } from "./orderbook.schemas.js";
 
-function seedPairCatalog(): void {
+function seedPairCatalog() {
     const btc = {
         symbol: "BTC",
         ledgerId: 1,
@@ -20,25 +20,27 @@ function seedPairCatalog(): void {
         quantityScale: 6,
     };
 
-    setEnrichedPairCatalog([
-        {
-            symbolId: 1,
-            symbol: "BTC-USDT",
-            baseAsset: btc,
-            quoteAsset: usdt,
-            tickSize: "0.01",
-            stepSize: "0.000001",
-            minNotionalQuote: "1",
-            minQtyBase: "0.000001",
-            allowBuyFeeFromReceived: false,
-            defaultMarketSlippagePctBuy: 0.5,
-            defaultMarketSlippagePctSell: 0.5,
-            maxClientRefDriftPct: 0.1,
-            listingAt: null,
-            delistingAt: null,
-            status: "enabled",
-        },
-    ]);
+    return createTestCatalog({
+        pairs: [
+            {
+                symbolId: 1,
+                symbol: "BTC-USDT",
+                baseAsset: btc,
+                quoteAsset: usdt,
+                tickSize: "0.01",
+                stepSize: "0.000001",
+                minNotionalQuote: "1",
+                minQtyBase: "0.000001",
+                allowBuyFeeFromReceived: false,
+                defaultMarketSlippagePctBuy: 0.5,
+                defaultMarketSlippagePctSell: 0.5,
+                maxClientRefDriftPct: 0.1,
+                listingAt: null,
+                delistingAt: null,
+                status: "enabled",
+            },
+        ],
+    });
 }
 
 describe("GetOrderbookInputSchema", () => {
@@ -57,14 +59,10 @@ describe("GetOrderbookInputSchema", () => {
 });
 
 describe("OrderbookDataSchema", () => {
-    afterEach(() => {
-        setEnrichedPairCatalog([]);
-    });
-
     it("formats price and quantity display fields using the pair catalog", () => {
-        seedPairCatalog();
+        const schema = createOrderbookDataSchema(seedPairCatalog().snapshot());
 
-        const data = v.parse(OrderbookDataSchema, {
+        const data = v.parse(schema, {
             symbol: "BTC-USDT",
             depth: Proto.Depth.DEPTH_50,
             bookSeq: 12n,
@@ -81,8 +79,10 @@ describe("OrderbookDataSchema", () => {
     });
 
     it("rejects malformed backend levels", () => {
+        const schema = createOrderbookDataSchema(seedPairCatalog().snapshot());
+
         expect(() =>
-            v.parse(OrderbookDataSchema, {
+            v.parse(schema, {
                 symbol: "BTC-USDT",
                 depth: Proto.Depth.DEPTH_50,
                 bookSeq: 12n,

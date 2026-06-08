@@ -1,6 +1,4 @@
-import { beforeAll, describe, expect, it } from "vitest";
-import { setAssetCatalog } from "../../catalogs/market-data-catalog.js";
-import { ASSET_CATALOG } from "../../catalogs/market-data-catalog.generated.js";
+import { describe, expect, it } from "vitest";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import {
     BalanceHistoryInputSchema,
@@ -10,10 +8,6 @@ import {
 import * as v from "valibot";
 
 describe("ledger balance schema", () => {
-    beforeAll(() => {
-        setAssetCatalog(ASSET_CATALOG);
-    });
-
     it("maps generated trading balances to unified output balances", () => {
         const balance = v.parse(LedgerBalanceSchema, {
             assetId: 1,

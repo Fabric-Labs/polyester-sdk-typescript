@@ -1,14 +1,11 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import * as v from "valibot";
-import {
-    setAssetCatalog,
-    setEnrichedPairCatalog,
-    type EnrichedPairConfig,
-} from "../../catalogs/market-data-catalog.js";
+import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
+import { createTestCatalog } from "../../testing/catalog.js";
 import {
-    GetMarketTradesInputSchema,
-    MarketTradeSchema,
+    createGetMarketTradesInputSchema,
+    createMarketTradeSchema,
     SpotConfigSchema,
 } from "./market-data.schemas.js";
 
@@ -46,22 +43,15 @@ const btcUsdtPair: EnrichedPairConfig = {
     status: "enabled",
 };
 
-function seedPairCatalog(): void {
-    setAssetCatalog([btc, usdt]);
-    setEnrichedPairCatalog([btcUsdtPair]);
+function seedPairCatalog() {
+    return createTestCatalog({ assets: [btc, usdt], pairs: [btcUsdtPair] });
 }
 
 describe("market data schemas", () => {
-    afterEach(() => {
-        vi.restoreAllMocks();
-        setAssetCatalog([]);
-        setEnrichedPairCatalog([]);
-    });
-
     it("maps market trade filters to proto request fields", () => {
-        seedPairCatalog();
+        const schema = createGetMarketTradesInputSchema(seedPairCatalog().snapshot());
 
-        const input = v.parse(GetMarketTradesInputSchema, {
+        const input = v.parse(schema, {
             symbol: " BTC-USDT ",
             side: "sell",
             startTsNs: " 1700000000123456789 ",
@@ -79,9 +69,9 @@ describe("market data schemas", () => {
     });
 
     it("omits absent optional trade filters", () => {
-        seedPairCatalog();
+        const schema = createGetMarketTradesInputSchema(seedPairCatalog().snapshot());
 
-        const input = v.parse(GetMarketTradesInputSchema, { symbol: "BTC-USDT" });
+        const input = v.parse(schema, { symbol: "BTC-USDT" });
 
         expect(input).toEqual({
             symbolId: 101,
@@ -93,7 +83,7 @@ describe("market data schemas", () => {
     });
 
     it("rejects invalid trade filter inputs", () => {
-        seedPairCatalog();
+        const schema = createGetMarketTradesInputSchema(seedPairCatalog().snapshot());
         const cases = [
             { symbol: "NOPE-USDT" },
             { symbol: "BTC-USDT", side: "both" },
@@ -102,14 +92,14 @@ describe("market data schemas", () => {
         ];
 
         for (const input of cases) {
-            expect(() => v.parse(GetMarketTradesInputSchema, input)).toThrow();
+            expect(() => v.parse(schema, input)).toThrow();
         }
     });
 
     it("parses public trades with catalog metadata and display fields", () => {
-        seedPairCatalog();
+        const schema = createMarketTradeSchema(seedPairCatalog().snapshot());
 
-        const trade = v.parse(MarketTradeSchema, {
+        const trade = v.parse(schema, {
             symbolId: 101,
             matchId: 22n,
             isBuy: false,

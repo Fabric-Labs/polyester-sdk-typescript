@@ -1,19 +1,16 @@
-import { describe, expect, it, beforeEach } from "vitest";
+import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import {
     MarketOrderBy,
     SortDirection,
     SparklineInterval,
 } from "../../gen/marketoverview/v1/marketoverview_pb.js";
+import type { EnrichedPairConfig } from "../../catalogs/index.js";
+import { createTestCatalog } from "../../testing/catalog.js";
 import {
-    setAssetCatalog,
-    setEnrichedPairCatalog,
-    type EnrichedPairConfig,
-} from "../../catalogs/market-data-catalog.js";
-import {
+    createMarketOverviewSchema,
     getMarketOverview24hChangeDisplay,
     ListMarketOverviewInputSchema,
-    MarketOverviewSchema,
     type MarketOverview,
 } from "./market-overview.schemas.js";
 
@@ -52,13 +49,11 @@ const btcUsdtPair: EnrichedPairConfig = {
 };
 
 describe("MarketOverviewSchema", () => {
-    beforeEach(() => {
-        setAssetCatalog([btc, usdt]);
-        setEnrichedPairCatalog([btcUsdtPair]);
-    });
-
     it("preserves fractional market values as decimal strings", () => {
-        const market = v.parse(MarketOverviewSchema, {
+        const schema = createMarketOverviewSchema(
+            createTestCatalog({ assets: [btc, usdt], pairs: [btcUsdtPair] }).snapshot(),
+        );
+        const market = v.parse(schema, {
             symbolId: 101,
             symbol: "BTC-USDT",
             lastPriceTicks: 1_234_567_890n,

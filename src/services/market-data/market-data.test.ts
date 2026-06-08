@@ -1,11 +1,8 @@
 import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-    setAssetCatalog,
-    setEnrichedPairCatalog,
-    type EnrichedPairConfig,
-} from "../../catalogs/market-data-catalog.js";
+import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
+import { createTestCatalog } from "../../testing/catalog.js";
 import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
 import { MarketDataService } from "./market-data.js";
 
@@ -52,23 +49,24 @@ const marketTrade = {
     tsNs: 1_700_000_000_000_000_000n,
 };
 
-function seedPairCatalog(): void {
-    setAssetCatalog([btc, usdt]);
-    setEnrichedPairCatalog([btcUsdtPair]);
+function seedPairCatalog() {
+    return createTestCatalog({ assets: [btc, usdt], pairs: [btcUsdtPair] });
 }
 
 describe("MarketDataService", () => {
     afterEach(() => {
         vi.restoreAllMocks();
-        setAssetCatalog([]);
-        setEnrichedPairCatalog([]);
     });
 
     it("normalizes public trade filters to the proto request and parses trades", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const controller = new AbortController();
         const transport = unaryTransport({ trades: [marketTrade], nextMatchId: 0n });
-        const service = new MarketDataService(transport.transport, realtimeClientStub().realtime);
+        const service = new MarketDataService(
+            transport.transport,
+            realtimeClientStub().realtime,
+            catalog,
+        );
 
         const trades = await service.listTrades(
             {
@@ -103,9 +101,13 @@ describe("MarketDataService", () => {
     });
 
     it("returns an empty public trade list for empty backend rows", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const transport = unaryTransport({ trades: [], nextMatchId: 0n });
-        const service = new MarketDataService(transport.transport, realtimeClientStub().realtime);
+        const service = new MarketDataService(
+            transport.transport,
+            realtimeClientStub().realtime,
+            catalog,
+        );
 
         await expect(service.listTrades({ symbol: "BTC-USDT" })).resolves.toEqual([]);
     });
@@ -168,12 +170,16 @@ describe("MarketDataService", () => {
     });
 
     it("rejects public trades that reference unknown backend symbol ids", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const transport = unaryTransport({
             trades: [{ ...marketTrade, symbolId: 999 }],
             nextMatchId: 0n,
         });
-        const service = new MarketDataService(transport.transport, realtimeClientStub().realtime);
+        const service = new MarketDataService(
+            transport.transport,
+            realtimeClientStub().realtime,
+            catalog,
+        );
 
         await expect(service.listTrades({ symbol: "BTC-USDT" })).rejects.toThrow(
             /\[catalog\] market symbolId not found: 999/,
@@ -181,13 +187,17 @@ describe("MarketDataService", () => {
     });
 
     it("wires public trade subscriptions and parses publications", () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();
         const onError = vi.fn();
-        const service = new MarketDataService(unaryTransport({}).transport, realtime.realtime);
+        const service = new MarketDataService(
+            unaryTransport({}).transport,
+            realtime.realtime,
+            catalog,
+        );
 
         const unsubscribe = service.subscribeTrades({
             symbol: "BTC-USDT",
@@ -235,9 +245,13 @@ describe("MarketDataService", () => {
     });
 
     it("throws on malformed public trade publications", () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const realtime = realtimeClientStub();
-        const service = new MarketDataService(unaryTransport({}).transport, realtime.realtime);
+        const service = new MarketDataService(
+            unaryTransport({}).transport,
+            realtime.realtime,
+            catalog,
+        );
 
         service.subscribeTrades({ symbol: "BTC-USDT", onEvent: vi.fn() });
 

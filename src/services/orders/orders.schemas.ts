@@ -14,6 +14,7 @@ import {
     createCatalogSnapshotReader,
     LEDGER_SCALE,
     staticCatalog,
+    type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
 import {
@@ -30,7 +31,7 @@ import {
     optionalUint64DecimalFilterSchema,
 } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
-import { createUserTradeSchema } from "../trades/trades.schemas.js";
+import { createUserTradeSchemaForReader } from "../trades/trades.schemas.js";
 import { fromU128, u128ToDecimal } from "../../utils/u128.js";
 import { transferTypeNameFor, accountCodeNameFor } from "../../catalogs/index.js";
 import {
@@ -551,7 +552,10 @@ function formatAttachedRisk(
 }
 
 export function createNewOrderInputSchema(catalog: CatalogSnapshot) {
-    const reader = createCatalogSnapshotReader(catalog);
+    return createNewOrderInputSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+function createNewOrderInputSchemaForReader(reader: CatalogReader) {
     return v.pipe(
         v.object({
             subaccountId: optionalSubaccountIdInputSchema(),
@@ -626,12 +630,15 @@ export function createNewOrderInputSchema(catalog: CatalogSnapshot) {
     );
 }
 
-export const NewOrderInputSchema = createNewOrderInputSchema(staticCatalog.snapshot());
+export const NewOrderInputSchema = createNewOrderInputSchemaForReader(staticCatalog);
 
 export type NewOrderInput = v.InferInput<typeof NewOrderInputSchema>;
 
 export function createOrderSchema(catalog: CatalogSnapshot) {
-    const reader = createCatalogSnapshotReader(catalog);
+    return createOrderSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+function createOrderSchemaForReader(reader: CatalogReader) {
     return v.pipe(
         v.object({
             orderId: v.bigint(),
@@ -727,7 +734,7 @@ export function createOrderSchema(catalog: CatalogSnapshot) {
     );
 }
 
-export const OrderSchema = createOrderSchema(staticCatalog.snapshot());
+export const OrderSchema = createOrderSchemaForReader(staticCatalog);
 
 function humanizeTerminalReason(raw: string | null | undefined): string {
     const key = (raw ?? "").trim();
@@ -932,7 +939,10 @@ const ModifyOrderPatchInputSchema = v.union([
 ]);
 
 export function createModifyOrderInputSchema(catalog: CatalogSnapshot) {
-    const reader = createCatalogSnapshotReader(catalog);
+    return createModifyOrderInputSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+function createModifyOrderInputSchemaForReader(reader: CatalogReader) {
     return v.pipe(
         v.intersect([
             ModifyOrderBaseInputSchema,
@@ -972,7 +982,7 @@ export function createModifyOrderInputSchema(catalog: CatalogSnapshot) {
     );
 }
 
-export const ModifyOrderInputSchema = createModifyOrderInputSchema(staticCatalog.snapshot());
+export const ModifyOrderInputSchema = createModifyOrderInputSchemaForReader(staticCatalog);
 
 export type ModifyOrderInput = v.InferInput<typeof ModifyOrderInputSchema>;
 
@@ -1005,7 +1015,10 @@ export const GetOrderDetailsInputSchema = v.pipe(
 export type GetOrderDetailsInput = v.InferInput<typeof GetOrderDetailsInputSchema>;
 
 export function createOrderTransferSchema(catalog: CatalogSnapshot) {
-    const reader = createCatalogSnapshotReader(catalog);
+    return createOrderTransferSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+function createOrderTransferSchemaForReader(reader: CatalogReader) {
     return v.pipe(
         v.object({
             txId: v.string(),
@@ -1045,19 +1058,23 @@ export function createOrderTransferSchema(catalog: CatalogSnapshot) {
     );
 }
 
-const OrderTransferSchema = createOrderTransferSchema(staticCatalog.snapshot());
+const OrderTransferSchema = createOrderTransferSchemaForReader(staticCatalog);
 
 export type OrderTransfer = v.InferOutput<typeof OrderTransferSchema>;
 
 export function createOrderDetailsSchema(catalog: CatalogSnapshot) {
+    return createOrderDetailsSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+function createOrderDetailsSchemaForReader(reader: CatalogReader) {
     return v.object({
-        order: createOrderSchema(catalog),
-        trades: v.optional(v.array(createUserTradeSchema(catalog)), []),
-        transfers: v.optional(v.array(createOrderTransferSchema(catalog)), []),
+        order: createOrderSchemaForReader(reader),
+        trades: v.optional(v.array(createUserTradeSchemaForReader(reader)), []),
+        transfers: v.optional(v.array(createOrderTransferSchemaForReader(reader)), []),
     });
 }
 
-export const OrderDetailsSchema = createOrderDetailsSchema(staticCatalog.snapshot());
+export const OrderDetailsSchema = createOrderDetailsSchemaForReader(staticCatalog);
 
 export type OrderDetails = v.InferOutput<typeof OrderDetailsSchema>;
 

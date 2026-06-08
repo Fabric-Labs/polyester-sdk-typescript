@@ -1,35 +1,23 @@
-import { beforeAll, describe, expect, it } from "vitest";
-import { isKnownAssetId } from "./ledger-catalog.js";
-import {
-    getAsset,
-    getAssetByLedgerId,
-    getPair,
-    getPairBySymbolId,
-    setAssetCatalog,
-    setEnrichedPairCatalog,
-    symbolIdForSymbol,
-} from "./market-data-catalog.js";
+import { describe, expect, it } from "vitest";
 import { ASSET_CATALOG, PAIR_CATALOG } from "./market-data-catalog.generated.js";
+import { createTestCatalog } from "../testing/catalog.js";
 
 describe("market data catalog", () => {
-    beforeAll(() => {
-        setAssetCatalog(ASSET_CATALOG);
-        setEnrichedPairCatalog(PAIR_CATALOG);
-    });
+    const catalog = createTestCatalog({ assets: ASSET_CATALOG, pairs: PAIR_CATALOG });
 
-    it("returns undefined for unknown asset lookups", () => {
-        expect(getAsset("NOT_REAL")).toBeUndefined();
-        expect(getAssetByLedgerId(999_999)).toBeUndefined();
-        expect(isKnownAssetId(999_999)).toBe(false);
+    it("returns null for unknown asset lookups", () => {
+        expect(catalog.market.getAssetBySymbol("NOT_REAL")).toBeNull();
+        expect(catalog.market.getAssetByLedgerId(999_999)).toBeNull();
+        expect(catalog.ledger.isKnownAssetId(999_999)).toBe(false);
     });
 
     it("throws for unknown pair lookups", () => {
-        expect(() => getPair("NOT_REAL-USDT")).toThrow(
-            "[market-data-catalog] Unknown pair symbol: NOT_REAL-USDT",
+        expect(() => catalog.market.requirePairBySymbol("NOT_REAL-USDT")).toThrow(
+            "[catalog] market pairSymbol not found: NOT_REAL-USDT",
         );
-        expect(() => getPairBySymbolId(999_999)).toThrow(
-            "[market-data-catalog] Unknown pair symbolId: 999999",
+        expect(() => catalog.market.requirePairBySymbolId(999_999)).toThrow(
+            "[catalog] market symbolId not found: 999999",
         );
-        expect(symbolIdForSymbol("NOT_REAL-USDT")).toBeUndefined();
+        expect(catalog.market.getSymbolIdByPairSymbol("NOT_REAL-USDT")).toBeNull();
     });
 });

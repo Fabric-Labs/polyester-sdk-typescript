@@ -4,6 +4,7 @@ import {
     createCatalogSnapshotReader,
     LEDGER_SCALE,
     staticCatalog,
+    type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
 import { optionalSubaccountIdInputSchema } from "../../shared/schemas.js";
@@ -17,7 +18,10 @@ const U128Schema = v.object({
 });
 
 export function createLedgerBalanceSchema(catalog: CatalogSnapshot) {
-    const reader = createCatalogSnapshotReader(catalog);
+    return createLedgerBalanceSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+function createLedgerBalanceSchemaForReader(reader: CatalogReader) {
     return v.pipe(
         v.object({
             assetId: v.number(),
@@ -42,7 +46,7 @@ export function createLedgerBalanceSchema(catalog: CatalogSnapshot) {
     );
 }
 
-export const LedgerBalanceSchema = createLedgerBalanceSchema(staticCatalog.snapshot());
+export const LedgerBalanceSchema = createLedgerBalanceSchemaForReader(staticCatalog);
 
 export type LedgerBalance = v.InferOutput<typeof LedgerBalanceSchema>;
 
@@ -77,7 +81,10 @@ export const BalanceSeriesSchema = v.object({
 });
 
 export function createBalanceHistoryResponseSchema(catalog: CatalogSnapshot) {
-    const reader = createCatalogSnapshotReader(catalog);
+    return createBalanceHistoryResponseSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+function createBalanceHistoryResponseSchemaForReader(reader: CatalogReader) {
     return v.pipe(
         v.object({
             range: v.pipe(
@@ -113,9 +120,8 @@ export function createBalanceHistoryResponseSchema(catalog: CatalogSnapshot) {
     );
 }
 
-export const BalanceHistoryResponseSchema = createBalanceHistoryResponseSchema(
-    staticCatalog.snapshot(),
-);
+export const BalanceHistoryResponseSchema =
+    createBalanceHistoryResponseSchemaForReader(staticCatalog);
 
 export type BalanceHistoryResponse = v.InferOutput<typeof BalanceHistoryResponseSchema>;
 

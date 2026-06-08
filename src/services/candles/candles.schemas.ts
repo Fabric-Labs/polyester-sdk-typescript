@@ -3,6 +3,7 @@ import * as v from "valibot";
 import {
     createCatalogSnapshotReader,
     staticCatalog,
+    type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
 import { parseOptionalPositiveIntLike } from "../../utils/numbers.js";
@@ -47,7 +48,10 @@ function timestampFromTsSec(tsSec: bigint): TimestampInit {
 }
 
 export function createCandleRowSchema(catalog: CatalogSnapshot) {
-    const reader = createCatalogSnapshotReader(catalog);
+    return createCandleRowSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+function createCandleRowSchemaForReader(reader: CatalogReader) {
     return v.pipe(
         v.object({
             symbolId: v.number(),
@@ -79,7 +83,7 @@ export function createCandleRowSchema(catalog: CatalogSnapshot) {
     );
 }
 
-export const CandleRowSchema = createCandleRowSchema(staticCatalog.snapshot());
+export const CandleRowSchema = createCandleRowSchemaForReader(staticCatalog);
 
 export const CandleRowIntSchema = v.object({
     symbolId: v.number(),
@@ -107,7 +111,10 @@ export const CandlePointSchema = v.object({
 });
 
 export function createCandleColumnarSchema(catalog: CatalogSnapshot) {
-    const reader = createCatalogSnapshotReader(catalog);
+    return createCandleColumnarSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+function createCandleColumnarSchemaForReader(reader: CatalogReader) {
     return v.pipe(
         v.object({
             symbolId: v.number(),
@@ -172,7 +179,7 @@ export function createCandleColumnarSchema(catalog: CatalogSnapshot) {
     );
 }
 
-export const CandleColumnarSchema = createCandleColumnarSchema(staticCatalog.snapshot());
+export const CandleColumnarSchema = createCandleColumnarSchemaForReader(staticCatalog);
 
 export const CandleColumnarIntSchema = v.pipe(
     v.object({
@@ -230,7 +237,10 @@ export type CandleColumnarIntInput = v.InferInput<typeof CandleColumnarIntSchema
 export type CandleColumnarInt = v.InferOutput<typeof CandleColumnarIntSchema>;
 
 export function createListCandlesInputSchema(catalog: CatalogSnapshot) {
-    const reader = createCatalogSnapshotReader(catalog);
+    return createListCandlesInputSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+function createListCandlesInputSchemaForReader(reader: CatalogReader) {
     return v.pipe(
         v.object({
             symbol: v.optional(v.pipe(v.string(), v.minLength(1))),
@@ -268,7 +278,7 @@ export function createListCandlesInputSchema(catalog: CatalogSnapshot) {
     );
 }
 
-export const ListCandlesInputSchema = createListCandlesInputSchema(staticCatalog.snapshot());
+export const ListCandlesInputSchema = createListCandlesInputSchemaForReader(staticCatalog);
 
 export type GetCandlesInput = v.InferInput<typeof ListCandlesInputSchema>;
 export const GetCandlesColumnsInputSchema = ListCandlesInputSchema;

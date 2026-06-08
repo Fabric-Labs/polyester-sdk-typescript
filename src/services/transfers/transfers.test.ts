@@ -1,8 +1,8 @@
 import type { Transport } from "@connectrpc/connect";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { setAssetCatalog } from "../../catalogs/market-data-catalog.js";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import type { RealtimeClient } from "../../realtime/index.js";
+import { createTestCatalog } from "../../testing/catalog.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import { TransfersService } from "./transfers.js";
 
@@ -69,16 +69,18 @@ function createRealtimeStub(): {
     };
 }
 
-function seedAssetCatalog(): void {
-    setAssetCatalog([
-        {
-            symbol: "USDC",
-            ledgerId: 1,
-            name: "USD Coin",
-            quantityDisplayDecimals: 2,
-            quantityScale: 18,
-        },
-    ]);
+function seedAssetCatalog() {
+    return createTestCatalog({
+        assets: [
+            {
+                symbol: "USDC",
+                ledgerId: 1,
+                name: "USD Coin",
+                quantityDisplayDecimals: 2,
+                quantityScale: 18,
+            },
+        ],
+    });
 }
 
 function transferRow(overrides: Partial<Proto.TransferRow> = {}): Proto.TransferRow {
@@ -101,12 +103,11 @@ function transferRow(overrides: Partial<Proto.TransferRow> = {}): Proto.Transfer
 
 describe("TransfersService", () => {
     afterEach(() => {
-        setAssetCatalog([]);
         vi.restoreAllMocks();
     });
 
     it("normalizes list inputs, resolver defaults, signals, and response parsing", async () => {
-        seedAssetCatalog();
+        const catalog = seedAssetCatalog();
         let captured: CapturedUnary | undefined;
         const controller = new AbortController();
         const resolver: SubaccountResolver = {
@@ -124,6 +125,7 @@ describe("TransfersService", () => {
             ),
             createRealtimeStub().realtime,
             resolver,
+            catalog,
         );
 
         await expect(
@@ -203,9 +205,14 @@ describe("TransfersService", () => {
     });
 
     it("uses private transfer channels and parses realtime publications", () => {
-        seedAssetCatalog();
+        const catalog = seedAssetCatalog();
         const realtime = createRealtimeStub();
-        const service = new TransfersService(transportWithResponse({}), realtime.realtime);
+        const service = new TransfersService(
+            transportWithResponse({}),
+            realtime.realtime,
+            undefined,
+            catalog,
+        );
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();

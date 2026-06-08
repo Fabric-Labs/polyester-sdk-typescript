@@ -1,10 +1,10 @@
 import type { Transport } from "@connectrpc/connect";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { setEnrichedPairCatalog } from "../../catalogs/market-data-catalog.js";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import type { RealtimeClient } from "../../realtime/index.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
+import { createTestCatalog } from "../../testing/catalog.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import { TriggersService } from "./triggers.js";
 
@@ -71,7 +71,7 @@ function createRealtimeStub(): {
     };
 }
 
-function seedPairCatalog(): void {
+function seedPairCatalog() {
     const btc = {
         symbol: "BTC",
         ledgerId: 1,
@@ -87,25 +87,27 @@ function seedPairCatalog(): void {
         quantityScale: 6,
     };
 
-    setEnrichedPairCatalog([
-        {
-            symbolId: 1,
-            symbol: "BTC-USDT",
-            baseAsset: btc,
-            quoteAsset: usdt,
-            tickSize: "0.01",
-            stepSize: "0.000001",
-            minNotionalQuote: "1",
-            minQtyBase: "0.000001",
-            allowBuyFeeFromReceived: false,
-            defaultMarketSlippagePctBuy: 0.5,
-            defaultMarketSlippagePctSell: 0.5,
-            maxClientRefDriftPct: 0.1,
-            listingAt: null,
-            delistingAt: null,
-            status: "enabled",
-        },
-    ]);
+    return createTestCatalog({
+        pairs: [
+            {
+                symbolId: 1,
+                symbol: "BTC-USDT",
+                baseAsset: btc,
+                quoteAsset: usdt,
+                tickSize: "0.01",
+                stepSize: "0.000001",
+                minNotionalQuote: "1",
+                minQtyBase: "0.000001",
+                allowBuyFeeFromReceived: false,
+                defaultMarketSlippagePctBuy: 0.5,
+                defaultMarketSlippagePctSell: 0.5,
+                maxClientRefDriftPct: 0.1,
+                listingAt: null,
+                delistingAt: null,
+                status: "enabled",
+            },
+        ],
+    });
 }
 
 function trigger(overrides: Partial<Proto.Trigger> = {}): Proto.Trigger {
@@ -163,12 +165,11 @@ const createResult = {
 
 describe("TriggersService", () => {
     afterEach(() => {
-        setEnrichedPairCatalog([]);
         vi.restoreAllMocks();
     });
 
     it("normalizes all create trigger variants and parses create responses", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
 
         const cases: {
             name: string;
@@ -297,6 +298,8 @@ describe("TriggersService", () => {
                     captured = call;
                 }),
                 createRealtimeStub().realtime,
+                undefined,
+                catalog,
             );
 
             await expect(service.create(testCase.input)).resolves.toMatchObject({
@@ -312,7 +315,7 @@ describe("TriggersService", () => {
     });
 
     it("normalizes read methods, defaults, resolver state, and call options", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const captures: CapturedUnary[] = [];
         const controller = new AbortController();
         const resolver: SubaccountResolver = {
@@ -329,6 +332,7 @@ describe("TriggersService", () => {
             ),
             createRealtimeStub().realtime,
             resolver,
+            catalog,
         );
 
         await expect(service.get({ triggerId: "22", subaccountId: "" })).resolves.toBeNull();
@@ -387,7 +391,7 @@ describe("TriggersService", () => {
     });
 
     it("normalizes trigger mutations and forwards step-up metadata", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const captures: CapturedUnary[] = [];
         const service = new TriggersService(
             transportWithResponses(
@@ -416,6 +420,8 @@ describe("TriggersService", () => {
                 (call) => captures.push(call),
             ),
             createRealtimeStub().realtime,
+            undefined,
+            catalog,
         );
 
         await expect(
@@ -459,9 +465,14 @@ describe("TriggersService", () => {
     });
 
     it("uses private trigger channels and parses trigger publications", () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const realtime = createRealtimeStub();
-        const service = new TriggersService(transportWithResponses({}), realtime.realtime);
+        const service = new TriggersService(
+            transportWithResponses({}),
+            realtime.realtime,
+            undefined,
+            catalog,
+        );
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();
@@ -511,9 +522,14 @@ describe("TriggersService", () => {
     });
 
     it("uses private trigger event channels and parses event publications", () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const realtime = createRealtimeStub();
-        const service = new TriggersService(transportWithResponses({}), realtime.realtime);
+        const service = new TriggersService(
+            transportWithResponses({}),
+            realtime.realtime,
+            undefined,
+            catalog,
+        );
         const onEvent = vi.fn();
 
         service.subscribeEvents({
@@ -541,13 +557,18 @@ describe("TriggersService", () => {
     });
 
     it("rejects invalid create input and malformed backend trigger responses", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const transport = transportWithResponses({
             getTrigger: {
                 trigger: trigger({ status: Proto.TriggerStatus.TRIGGER_STATUS_UNSPECIFIED }),
             },
         });
-        const service = new TriggersService(transport, createRealtimeStub().realtime);
+        const service = new TriggersService(
+            transport,
+            createRealtimeStub().realtime,
+            undefined,
+            catalog,
+        );
 
         await expect(
             service.create({

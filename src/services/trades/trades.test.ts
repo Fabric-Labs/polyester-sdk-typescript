@@ -1,12 +1,9 @@
 import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-    setAssetCatalog,
-    setEnrichedPairCatalog,
-    type EnrichedPairConfig,
-} from "../../catalogs/market-data-catalog.js";
+import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
+import { createTestCatalog } from "../../testing/catalog.js";
 import {
     realtimeClientStub,
     subaccountResolverStub,
@@ -64,26 +61,24 @@ const userTrade = {
     matchId: 22n,
 };
 
-function seedPairCatalog(): void {
-    setAssetCatalog([btc, usdt]);
-    setEnrichedPairCatalog([btcUsdtPair]);
+function seedPairCatalog() {
+    return createTestCatalog({ assets: [btc, usdt], pairs: [btcUsdtPair] });
 }
 
 describe("TradesService", () => {
     afterEach(() => {
         vi.restoreAllMocks();
-        setAssetCatalog([]);
-        setEnrichedPairCatalog([]);
     });
 
     it("normalizes list filters, resolver defaults, signal, and parses trades", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const controller = new AbortController();
         const transport = unaryTransport({ trades: [userTrade], nextPageToken: "next-page" });
         const service = new TradesService(
             transport.transport,
             realtimeClientStub().realtime,
             subaccountResolverStub("12"),
+            catalog,
         );
 
         const result = await service.list(
@@ -149,24 +144,34 @@ describe("TradesService", () => {
     });
 
     it("rejects user trades with unmapped backend side values", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const transport = unaryTransport({
             trades: [{ ...userTrade, side: ProtoOrders.Side.SIDE_UNSPECIFIED }],
             nextPageToken: "",
         });
-        const service = new TradesService(transport.transport, realtimeClientStub().realtime);
+        const service = new TradesService(
+            transport.transport,
+            realtimeClientStub().realtime,
+            undefined,
+            catalog,
+        );
 
         await expect(service.list()).rejects.toThrow(/\[UserTradeSchema\]: invalid side 0/);
     });
 
     it("wires private trade subscriptions and parses publications", () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();
         const onError = vi.fn();
-        const service = new TradesService(unaryTransport({}).transport, realtime.realtime);
+        const service = new TradesService(
+            unaryTransport({}).transport,
+            realtime.realtime,
+            undefined,
+            catalog,
+        );
 
         const unsubscribe = service.subscribe({
             accountId: "acct-1",
@@ -202,9 +207,14 @@ describe("TradesService", () => {
     });
 
     it("throws on malformed trade publications", () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const realtime = realtimeClientStub();
-        const service = new TradesService(unaryTransport({}).transport, realtime.realtime);
+        const service = new TradesService(
+            unaryTransport({}).transport,
+            realtime.realtime,
+            undefined,
+            catalog,
+        );
 
         service.subscribe({ accountId: "acct-1", onEvent: vi.fn() });
 

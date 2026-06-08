@@ -7,6 +7,7 @@ import type {
 import {
     createCatalogSnapshotReader,
     staticCatalog,
+    type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
 import { OptionalTimestampSecondsInputSchema } from "../../shared/schemas.js";
@@ -65,7 +66,10 @@ const CursorInputSchema = v.optional(
 );
 
 export function createGetOrderbookHeatmapInputSchema(catalog: CatalogSnapshot) {
-    const reader = createCatalogSnapshotReader(catalog);
+    return createGetOrderbookHeatmapInputSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+function createGetOrderbookHeatmapInputSchemaForReader(reader: CatalogReader) {
     return v.pipe(
         v.object({
             symbol: v.optional(v.pipe(v.string(), v.minLength(1))),
@@ -122,9 +126,8 @@ export function createGetOrderbookHeatmapInputSchema(catalog: CatalogSnapshot) {
     );
 }
 
-export const GetOrderbookHeatmapInputSchema = createGetOrderbookHeatmapInputSchema(
-    staticCatalog.snapshot(),
-);
+export const GetOrderbookHeatmapInputSchema =
+    createGetOrderbookHeatmapInputSchemaForReader(staticCatalog);
 
 function requiredIntervalLabelFor(value: number): HeatmapIntervalValue {
     return requiredEnumLabel(

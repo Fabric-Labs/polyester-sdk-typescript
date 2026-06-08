@@ -4,6 +4,7 @@ import { decimalToScaledInt } from "../../utils/numbers.js";
 import {
     createCatalogSnapshotReader,
     staticCatalog,
+    type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
 
@@ -24,7 +25,12 @@ const QuantityInputSchema = v.union([
 ]);
 
 export function createCreateTradingWithdrawToFundingInputSchema(catalog: CatalogSnapshot) {
-    const reader = createCatalogSnapshotReader(catalog);
+    return createCreateTradingWithdrawToFundingInputSchemaForReader(
+        createCatalogSnapshotReader(catalog),
+    );
+}
+
+function createCreateTradingWithdrawToFundingInputSchemaForReader(reader: CatalogReader) {
     return v.pipe(
         v.intersect([
             v.object({
@@ -68,7 +74,7 @@ export function createCreateTradingWithdrawToFundingInputSchema(catalog: Catalog
 }
 
 export const CreateTradingWithdrawToFundingInputSchema =
-    createCreateTradingWithdrawToFundingInputSchema(staticCatalog.snapshot());
+    createCreateTradingWithdrawToFundingInputSchemaForReader(staticCatalog);
 
 export type CreateTradingWithdrawToFundingInput = v.InferInput<
     typeof CreateTradingWithdrawToFundingInputSchema

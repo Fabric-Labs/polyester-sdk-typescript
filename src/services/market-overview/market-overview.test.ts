@@ -1,11 +1,8 @@
 import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-    setAssetCatalog,
-    setEnrichedPairCatalog,
-    type EnrichedPairConfig,
-} from "../../catalogs/market-data-catalog.js";
+import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import * as Proto from "../../gen/marketoverview/v1/marketoverview_pb.js";
+import { createTestCatalog } from "../../testing/catalog.js";
 import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
 import { MarketOverviewService } from "./market-overview.js";
 
@@ -43,9 +40,8 @@ const btcUsdtPair: EnrichedPairConfig = {
     status: "enabled",
 };
 
-function seedPairCatalog(): void {
-    setAssetCatalog([btc, usdt]);
-    setEnrichedPairCatalog([btcUsdtPair]);
+function seedPairCatalog() {
+    return createTestCatalog({ assets: [btc, usdt], pairs: [btcUsdtPair] });
 }
 
 function market(overrides: Record<string, unknown> = {}) {
@@ -88,17 +84,16 @@ async function flushMicrotasks(): Promise<void> {
 describe("MarketOverviewService", () => {
     afterEach(() => {
         vi.restoreAllMocks();
-        setAssetCatalog([]);
-        setEnrichedPairCatalog([]);
     });
 
     it("normalizes list inputs to the proto request and parses market rows", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const controller = new AbortController();
         const transport = unaryTransport({ markets: [market()], total: 1 });
         const service = new MarketOverviewService(
             transport.transport,
             realtimeClientStub().realtime,
+            catalog,
         );
 
         const markets = await service.list(
@@ -160,7 +155,7 @@ describe("MarketOverviewService", () => {
     });
 
     it("rejects market rows with unmapped backend sparkline enums", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const transport = unaryTransport({
             markets: [
                 market({
@@ -177,6 +172,7 @@ describe("MarketOverviewService", () => {
         const service = new MarketOverviewService(
             transport.transport,
             realtimeClientStub().realtime,
+            catalog,
         );
 
         await expect(service.list()).rejects.toThrow(
@@ -185,13 +181,13 @@ describe("MarketOverviewService", () => {
     });
 
     it("buffers subscription publications until the initial snapshot resolves", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const snapshot = deferred<Record<string, unknown>>();
         const transport = unaryTransport(() => snapshot.promise);
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const onOpen = vi.fn();
-        const service = new MarketOverviewService(transport.transport, realtime.realtime);
+        const service = new MarketOverviewService(transport.transport, realtime.realtime, catalog);
 
         service.subscribe({
             includeSparklines: false,
@@ -228,12 +224,12 @@ describe("MarketOverviewService", () => {
     });
 
     it("refetches snapshots on disconnect until unsubscribed", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const transport = unaryTransport({ markets: [market()], total: 1 });
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const onClose = vi.fn();
-        const service = new MarketOverviewService(transport.transport, realtime.realtime);
+        const service = new MarketOverviewService(transport.transport, realtime.realtime, catalog);
 
         const unsubscribe = service.subscribe({ onEvent, onClose });
         await flushMicrotasks();
@@ -270,10 +266,10 @@ describe("MarketOverviewService", () => {
     });
 
     it("throws on malformed market overview publications after snapshot readiness", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const transport = unaryTransport({ markets: [market()], total: 1 });
         const realtime = realtimeClientStub();
-        const service = new MarketOverviewService(transport.transport, realtime.realtime);
+        const service = new MarketOverviewService(transport.transport, realtime.realtime, catalog);
 
         service.subscribe({ onEvent: vi.fn() });
         await flushMicrotasks();

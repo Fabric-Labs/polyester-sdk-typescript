@@ -1,12 +1,7 @@
 import { formatToDecimals } from "./orders-catalog.js";
-import { getAssetByLedgerId } from "./market-data-catalog.js";
 
 // Internal ledger scale (PolyesterChain): always 18 for on-chain assets
 export const LEDGER_SCALE = 18;
-
-export function isKnownAssetId(ledgerId: number): boolean {
-    return ledgerId !== 0 && getAssetByLedgerId(ledgerId) !== undefined;
-}
 
 /**
  * Formats a full-scale ledger decimal string to an asset's display precision.

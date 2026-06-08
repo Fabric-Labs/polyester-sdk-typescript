@@ -4,6 +4,7 @@ import { int6ToDecimalString, int18ToDecimalString } from "../../catalogs/orders
 import {
     createCatalogSnapshotReader,
     staticCatalog,
+    type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
 import { DepthCodec, type OrderbookSupportedDepth } from "./orderbook.codecs.js";
@@ -43,7 +44,10 @@ export const OrderbookLevelSchema = v.pipe(
 export type OrderbookLevel = v.InferOutput<typeof OrderbookLevelSchema>;
 
 export function createOrderbookDataSchema(catalog: CatalogSnapshot) {
-    const reader = createCatalogSnapshotReader(catalog);
+    return createOrderbookDataSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+function createOrderbookDataSchemaForReader(reader: CatalogReader) {
     return v.pipe(
         v.object({
             symbol: v.string(),
@@ -70,6 +74,6 @@ export function createOrderbookDataSchema(catalog: CatalogSnapshot) {
     );
 }
 
-export const OrderbookDataSchema = createOrderbookDataSchema(staticCatalog.snapshot());
+export const OrderbookDataSchema = createOrderbookDataSchemaForReader(staticCatalog);
 
 export type OrderbookData = v.InferOutput<typeof OrderbookDataSchema>;

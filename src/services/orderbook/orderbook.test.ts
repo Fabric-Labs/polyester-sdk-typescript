@@ -2,8 +2,8 @@ import type { Transport } from "@connectrpc/connect";
 import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { RealtimeClient } from "../../realtime/client.js";
-import { setEnrichedPairCatalog } from "../../catalogs/market-data-catalog.js";
 import * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
+import { createTestCatalog } from "../../testing/catalog.js";
 import { OrderbookService } from "./orderbook.js";
 
 type CapturedUnary = {
@@ -81,7 +81,7 @@ async function flushMicrotasks(): Promise<void> {
     }
 }
 
-function seedPairCatalog(): void {
+function seedPairCatalog() {
     const btc = {
         symbol: "BTC",
         ledgerId: 1,
@@ -97,35 +97,36 @@ function seedPairCatalog(): void {
         quantityScale: 6,
     };
 
-    setEnrichedPairCatalog([
-        {
-            symbolId: 1,
-            symbol: "BTC-USDT",
-            baseAsset: btc,
-            quoteAsset: usdt,
-            tickSize: "0.01",
-            stepSize: "0.000001",
-            minNotionalQuote: "1",
-            minQtyBase: "0.000001",
-            allowBuyFeeFromReceived: false,
-            defaultMarketSlippagePctBuy: 0.5,
-            defaultMarketSlippagePctSell: 0.5,
-            maxClientRefDriftPct: 0.1,
-            listingAt: null,
-            delistingAt: null,
-            status: "enabled",
-        },
-    ]);
+    return createTestCatalog({
+        pairs: [
+            {
+                symbolId: 1,
+                symbol: "BTC-USDT",
+                baseAsset: btc,
+                quoteAsset: usdt,
+                tickSize: "0.01",
+                stepSize: "0.000001",
+                minNotionalQuote: "1",
+                minQtyBase: "0.000001",
+                allowBuyFeeFromReceived: false,
+                defaultMarketSlippagePctBuy: 0.5,
+                defaultMarketSlippagePctSell: 0.5,
+                maxClientRefDriftPct: 0.1,
+                listingAt: null,
+                delistingAt: null,
+                status: "enabled",
+            },
+        ],
+    });
 }
 
 describe("OrderbookService", () => {
     afterEach(() => {
         vi.restoreAllMocks();
-        setEnrichedPairCatalog([]);
     });
 
     it("normalizes get requests, forwards signals, and parses snapshots", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         let captured: CapturedUnary | undefined;
         const controller = new AbortController();
         const service = new OrderbookService(
@@ -140,6 +141,7 @@ describe("OrderbookService", () => {
                 },
             ),
             createRealtimeStub().realtime,
+            catalog,
         );
 
         await expect(
@@ -177,7 +179,7 @@ describe("OrderbookService", () => {
     });
 
     it("rejects malformed backend snapshots", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const service = new OrderbookService(
             transportWithMessage({
                 bookSeq: 12n,
@@ -185,17 +187,19 @@ describe("OrderbookService", () => {
                 asks: [],
             }),
             createRealtimeStub().realtime,
+            catalog,
         );
 
         await expect(service.get({ symbol: "BTC-USDT" })).rejects.toThrow();
     });
 
     it("reports snapshot failures without emitting an empty ready book", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const realtime = createRealtimeStub();
         const service = new OrderbookService(
             rejectingTransport(new Error("snapshot unavailable")),
             realtime.realtime,
+            catalog,
         );
         const onEvent = vi.fn();
         const onError = vi.fn();
@@ -234,7 +238,7 @@ describe("OrderbookService", () => {
     });
 
     it("uses the public delta channel, callbacks, and parsed publications for subscriptions", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const realtime = createRealtimeStub();
         const service = new OrderbookService(
             transportWithMessage({
@@ -243,6 +247,7 @@ describe("OrderbookService", () => {
                 asks: [{ priceTicks: 101_000_000n, qtyScaled: 50_000_000n }],
             }),
             realtime.realtime,
+            catalog,
         );
         const onEvent = vi.fn();
         const onOpen = vi.fn();

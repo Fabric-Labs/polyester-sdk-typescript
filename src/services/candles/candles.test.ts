@@ -1,11 +1,8 @@
 import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-    setAssetCatalog,
-    setEnrichedPairCatalog,
-    type EnrichedPairConfig,
-} from "../../catalogs/market-data-catalog.js";
+import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
+import { createTestCatalog } from "../../testing/catalog.js";
 import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
 import { CandlesService } from "./candles.js";
 
@@ -53,27 +50,28 @@ const candlePoint = {
     isClosed: true,
 };
 
-function seedPairCatalog(): void {
-    setAssetCatalog([btc, usdt]);
-    setEnrichedPairCatalog([btcUsdtPair]);
+function seedPairCatalog() {
+    return createTestCatalog({ assets: [btc, usdt], pairs: [btcUsdtPair] });
 }
 
 describe("CandlesService", () => {
     afterEach(() => {
         vi.restoreAllMocks();
-        setAssetCatalog([]);
-        setEnrichedPairCatalog([]);
     });
 
     it("normalizes list inputs to the candle proto request and parses rows", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const controller = new AbortController();
         const transport = unaryTransport({
             symbolId: 101,
             timeframe: Proto.Timeframe.MIN_5,
             candles: [candlePoint],
         });
-        const service = new CandlesService(transport.transport, realtimeClientStub().realtime);
+        const service = new CandlesService(
+            transport.transport,
+            realtimeClientStub().realtime,
+            catalog,
+        );
 
         const candles = await service.list(
             {
@@ -113,18 +111,22 @@ describe("CandlesService", () => {
     });
 
     it("returns an empty list when the candle response omits repeated rows", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const transport = unaryTransport({
             symbolId: 101,
             timeframe: Proto.Timeframe.MIN_1,
         });
-        const service = new CandlesService(transport.transport, realtimeClientStub().realtime);
+        const service = new CandlesService(
+            transport.transport,
+            realtimeClientStub().realtime,
+            catalog,
+        );
 
         await expect(service.list({ symbolId: 101, timeframe: "1m" })).resolves.toEqual([]);
     });
 
     it("parses decimal columnar responses and preserves optional reference series", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const transport = unaryTransport({
             symbolId: 101,
             timeframe: Proto.Timeframe.HOUR_1,
@@ -141,7 +143,11 @@ describe("CandlesService", () => {
             referenceClose: [2_250_000n],
             referenceVolume: [200_000_000n],
         });
-        const service = new CandlesService(transport.transport, realtimeClientStub().realtime);
+        const service = new CandlesService(
+            transport.transport,
+            realtimeClientStub().realtime,
+            catalog,
+        );
 
         const columnar = await service.listColumnar({
             symbolId: 101,
@@ -216,13 +222,17 @@ describe("CandlesService", () => {
     });
 
     it("wires row candle subscriptions and parses point publications", () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();
         const onError = vi.fn();
-        const service = new CandlesService(unaryTransport({}).transport, realtime.realtime);
+        const service = new CandlesService(
+            unaryTransport({}).transport,
+            realtime.realtime,
+            catalog,
+        );
 
         const unsubscribe = service.subscribe({
             symbolId: 101,

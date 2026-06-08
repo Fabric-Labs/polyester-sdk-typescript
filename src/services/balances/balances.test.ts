@@ -1,7 +1,7 @@
 import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { setAssetCatalog } from "../../catalogs/market-data-catalog.js";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
+import { createTestCatalog } from "../../testing/catalog.js";
 import {
     realtimeClientStub,
     subaccountResolverStub,
@@ -19,8 +19,8 @@ const usdt = {
 
 const oneLedgerUnit = { hi: 0n, lo: 1_000_000_000_000_000_000n };
 
-function seedAssets(): void {
-    setAssetCatalog([usdt]);
+function seedAssets() {
+    return createTestCatalog({ assets: [usdt] });
 }
 
 function assetBalance(assetId: number) {
@@ -36,11 +36,10 @@ function assetBalance(assetId: number) {
 describe("BalancesService", () => {
     afterEach(() => {
         vi.restoreAllMocks();
-        setAssetCatalog([]);
     });
 
     it("normalizes list subaccount inputs, forwards signal, and filters unknown assets", async () => {
-        seedAssets();
+        const catalog = seedAssets();
         const cases = [
             { name: "resolver default", input: {}, resolverDefault: "7", expected: 7n },
             {
@@ -66,6 +65,7 @@ describe("BalancesService", () => {
                 transport.transport,
                 realtimeClientStub().realtime,
                 subaccountResolverStub(testCase.resolverDefault),
+                catalog,
             );
 
             const balances = await service.list(testCase.input, { signal: controller.signal });
@@ -86,7 +86,7 @@ describe("BalancesService", () => {
     });
 
     it("normalizes balance history requests and parses scaled balance series", async () => {
-        seedAssets();
+        const catalog = seedAssets();
         const transport = unaryTransport({
             range: Proto.BalanceRange.DAY_7,
             bucket: "1h",
@@ -95,7 +95,12 @@ describe("BalancesService", () => {
             points: 2,
             series: [{ assetId: 1, accountCode: 301, balanceQ: [10_000_000n, 12_500_000n] }],
         });
-        const service = new BalancesService(transport.transport, realtimeClientStub().realtime);
+        const service = new BalancesService(
+            transport.transport,
+            realtimeClientStub().realtime,
+            undefined,
+            catalog,
+        );
 
         const history = await service.getBalanceHistory({
             subaccountId: " 9 ",
@@ -180,13 +185,18 @@ describe("BalancesService", () => {
     });
 
     it("wires balance subscriptions, filters unknown assets, and parses publications", () => {
-        seedAssets();
+        const catalog = seedAssets();
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();
         const onError = vi.fn();
-        const service = new BalancesService(unaryTransport({}).transport, realtime.realtime);
+        const service = new BalancesService(
+            unaryTransport({}).transport,
+            realtime.realtime,
+            undefined,
+            catalog,
+        );
 
         const unsubscribe = service.subscribe({
             accountId: "acct-1",
@@ -218,9 +228,14 @@ describe("BalancesService", () => {
     });
 
     it("throws on malformed balance publications", () => {
-        seedAssets();
+        const catalog = seedAssets();
         const realtime = realtimeClientStub();
-        const service = new BalancesService(unaryTransport({}).transport, realtime.realtime);
+        const service = new BalancesService(
+            unaryTransport({}).transport,
+            realtime.realtime,
+            undefined,
+            catalog,
+        );
 
         service.subscribe({ accountId: "acct-1", onEvent: vi.fn() });
 

@@ -3,13 +3,13 @@ import { optionalSubaccountIdInputSchema } from "../../shared/schemas.js";
 import {
     createCatalogSnapshotReader,
     staticCatalog,
+    type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
 
 const OptionalSubaccountIdSchema = optionalSubaccountIdInputSchema();
 
-function chainIdInputSchema(catalog: CatalogSnapshot, required: boolean) {
-    const reader = createCatalogSnapshotReader(catalog);
+function chainIdInputSchemaForReader(reader: CatalogReader, required: boolean) {
     return v.pipe(
         v.object({
             chainId: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0))),
@@ -28,29 +28,35 @@ function chainIdInputSchema(catalog: CatalogSnapshot, required: boolean) {
 }
 
 export function createCreateDepositAddressInputSchema(catalog: CatalogSnapshot) {
+    return createCreateDepositAddressInputSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+function createCreateDepositAddressInputSchemaForReader(reader: CatalogReader) {
     return v.intersect([
         v.object({ subaccountId: OptionalSubaccountIdSchema }),
-        chainIdInputSchema(catalog, true),
+        chainIdInputSchemaForReader(reader, true),
     ]);
 }
 
-export const CreateDepositAddressInputSchema = createCreateDepositAddressInputSchema(
-    staticCatalog.snapshot(),
-);
+export const CreateDepositAddressInputSchema =
+    createCreateDepositAddressInputSchemaForReader(staticCatalog);
 
 export type CreateDepositAddressInput = v.InferInput<typeof CreateDepositAddressInputSchema>;
 export type CreateDepositAddressRequest = v.InferOutput<typeof CreateDepositAddressInputSchema>;
 
 export function createListDepositAddressesInputSchema(catalog: CatalogSnapshot) {
+    return createListDepositAddressesInputSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+function createListDepositAddressesInputSchemaForReader(reader: CatalogReader) {
     return v.intersect([
         v.object({ subaccountId: OptionalSubaccountIdSchema }),
-        chainIdInputSchema(catalog, false),
+        chainIdInputSchemaForReader(reader, false),
     ]);
 }
 
-export const ListDepositAddressesInputSchema = createListDepositAddressesInputSchema(
-    staticCatalog.snapshot(),
-);
+export const ListDepositAddressesInputSchema =
+    createListDepositAddressesInputSchemaForReader(staticCatalog);
 
 export type ListDepositAddressesInput = v.InferInput<typeof ListDepositAddressesInputSchema>;
 export type ListDepositAddressesRequest = v.InferOutput<typeof ListDepositAddressesInputSchema>;

@@ -1,16 +1,16 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
-import { setEnrichedPairCatalog } from "../../catalogs/market-data-catalog.js";
+import { createTestCatalog } from "../../testing/catalog.js";
 import {
     CancelOrderInputSchema,
+    createModifyOrderInputSchema,
+    createNewOrderInputSchema,
+    createOrderSchema,
     type ModifyOrderInput,
     type NewOrderInput,
-    ModifyOrderInputSchema,
-    NewOrderInputSchema,
     OrderHistoryInputSchema,
-    OrderSchema,
 } from "./orders.schemas.js";
 
 type AssertNewOrderInput<T extends NewOrderInput> = T;
@@ -146,7 +146,7 @@ type _InvalidModifyWithBothStopLegs = AssertModifyOrderInput<{
     };
 }>;
 
-function seedPairCatalog(): void {
+function seedPairCatalog() {
     const btc = {
         symbol: "BTC",
         ledgerId: 1,
@@ -162,30 +162,28 @@ function seedPairCatalog(): void {
         quantityScale: 6,
     };
 
-    setEnrichedPairCatalog([
-        {
-            symbolId: 1,
-            symbol: "BTC-USDT",
-            baseAsset: btc,
-            quoteAsset: usdt,
-            tickSize: "0.01",
-            stepSize: "0.000001",
-            minNotionalQuote: "1",
-            minQtyBase: "0.000001",
-            allowBuyFeeFromReceived: false,
-            defaultMarketSlippagePctBuy: 0.5,
-            defaultMarketSlippagePctSell: 0.5,
-            maxClientRefDriftPct: 0.1,
-            listingAt: null,
-            delistingAt: null,
-            status: "enabled",
-        },
-    ]);
+    return createTestCatalog({
+        pairs: [
+            {
+                symbolId: 1,
+                symbol: "BTC-USDT",
+                baseAsset: btc,
+                quoteAsset: usdt,
+                tickSize: "0.01",
+                stepSize: "0.000001",
+                minNotionalQuote: "1",
+                minQtyBase: "0.000001",
+                allowBuyFeeFromReceived: false,
+                defaultMarketSlippagePctBuy: 0.5,
+                defaultMarketSlippagePctSell: 0.5,
+                maxClientRefDriftPct: 0.1,
+                listingAt: null,
+                delistingAt: null,
+                status: "enabled",
+            },
+        ],
+    });
 }
-
-afterEach(() => {
-    setEnrichedPairCatalog([]);
-});
 
 describe("OrderHistoryInputSchema", () => {
     it("parses supplied timestamp filters", () => {
@@ -213,7 +211,7 @@ describe("OrderHistoryInputSchema", () => {
 
 describe("NewOrderInputSchema", () => {
     it("normalizes limit and market order fields", () => {
-        seedPairCatalog();
+        const schema = createNewOrderInputSchema(seedPairCatalog().snapshot());
 
         const cases = [
             {
@@ -266,15 +264,15 @@ describe("NewOrderInputSchema", () => {
         ];
 
         for (const testCase of cases) {
-            expect(v.parse(NewOrderInputSchema, testCase.input)).toMatchObject(testCase.expected);
+            expect(v.parse(schema, testCase.input)).toMatchObject(testCase.expected);
         }
     });
 
     it("rejects market-only slippage fields on limit orders", () => {
-        seedPairCatalog();
+        const schema = createNewOrderInputSchema(seedPairCatalog().snapshot());
 
         expect(() =>
-            v.parse(NewOrderInputSchema, {
+            v.parse(schema, {
                 symbol: "BTC-USDT",
                 side: "buy",
                 orderType: "limit",
@@ -287,7 +285,7 @@ describe("NewOrderInputSchema", () => {
     });
 
     it("rejects invalid attached risk states", () => {
-        seedPairCatalog();
+        const schema = createNewOrderInputSchema(seedPairCatalog().snapshot());
 
         const baseOrder = {
             symbol: "BTC-USDT",
@@ -299,13 +297,13 @@ describe("NewOrderInputSchema", () => {
         };
 
         expect(() =>
-            v.parse(NewOrderInputSchema, {
+            v.parse(schema, {
                 ...baseOrder,
                 risk: {},
             }),
         ).toThrow();
         expect(() =>
-            v.parse(NewOrderInputSchema, {
+            v.parse(schema, {
                 ...baseOrder,
                 risk: {
                     stopLoss: {
@@ -325,10 +323,10 @@ describe("NewOrderInputSchema", () => {
 
 describe("ModifyOrderInputSchema", () => {
     it("requires one order key and at least one patch field", () => {
-        seedPairCatalog();
+        const schema = createModifyOrderInputSchema(seedPairCatalog().snapshot());
 
         expect(() =>
-            v.parse(ModifyOrderInputSchema, {
+            v.parse(schema, {
                 orderId: "11",
                 clientOrderId: "client-1",
                 symbol: "BTC-USDT",
@@ -336,7 +334,7 @@ describe("ModifyOrderInputSchema", () => {
             }),
         ).toThrow();
         expect(() =>
-            v.parse(ModifyOrderInputSchema, {
+            v.parse(schema, {
                 orderId: "11",
                 symbol: "BTC-USDT",
             }),
@@ -344,9 +342,9 @@ describe("ModifyOrderInputSchema", () => {
     });
 
     it("normalizes client-order patches and clear-risk requests", () => {
-        seedPairCatalog();
+        const schema = createModifyOrderInputSchema(seedPairCatalog().snapshot());
 
-        const patch = v.parse(ModifyOrderInputSchema, {
+        const patch = v.parse(schema, {
             clientOrderId: " client-1 ",
             symbol: "BTC-USDT",
             newPrice: "101.25",
@@ -362,17 +360,17 @@ describe("ModifyOrderInputSchema", () => {
     });
 
     it("rejects invalid risk patch states", () => {
-        seedPairCatalog();
+        const schema = createModifyOrderInputSchema(seedPairCatalog().snapshot());
 
         expect(() =>
-            v.parse(ModifyOrderInputSchema, {
+            v.parse(schema, {
                 orderId: "11",
                 symbol: "BTC-USDT",
                 risk: {},
             }),
         ).toThrow();
         expect(() =>
-            v.parse(ModifyOrderInputSchema, {
+            v.parse(schema, {
                 orderId: "11",
                 symbol: "BTC-USDT",
                 risk: {
@@ -385,7 +383,7 @@ describe("ModifyOrderInputSchema", () => {
             }),
         ).toThrow();
         expect(() =>
-            v.parse(ModifyOrderInputSchema, {
+            v.parse(schema, {
                 orderId: "11",
                 symbol: "BTC-USDT",
                 risk: {
@@ -454,26 +452,26 @@ describe("OrderSchema", () => {
     }
 
     it("decodes order status through the codec", () => {
-        seedPairCatalog();
+        const schema = createOrderSchema(seedPairCatalog().snapshot());
 
-        const order = v.parse(OrderSchema, rawOrder({ status: ProtoRead.OrderStatus.FILLED }));
+        const order = v.parse(schema, rawOrder({ status: ProtoRead.OrderStatus.FILLED }));
 
         expect(order.status).toBe("filled");
     });
 
     it("keeps the derived partial status for working orders with fills", () => {
-        seedPairCatalog();
+        const schema = createOrderSchema(seedPairCatalog().snapshot());
 
-        const order = v.parse(OrderSchema, rawOrder({ cumQty: 50_000_000n }));
+        const order = v.parse(schema, rawOrder({ cumQty: 50_000_000n }));
 
         expect(order.status).toBe("partial");
     });
 
     it("decodes attached risk enum fields through the codecs", () => {
-        seedPairCatalog();
+        const schema = createOrderSchema(seedPairCatalog().snapshot());
 
         const order = v.parse(
-            OrderSchema,
+            schema,
             rawOrder({
                 attachedRisk: {
                     takeProfit: {
@@ -498,21 +496,18 @@ describe("OrderSchema", () => {
     });
 
     it("rejects unspecified order status values", () => {
-        seedPairCatalog();
+        const schema = createOrderSchema(seedPairCatalog().snapshot());
 
         expect(() =>
-            v.parse(
-                OrderSchema,
-                rawOrder({ status: ProtoRead.OrderStatus.ORDER_STATUS_UNSPECIFIED }),
-            ),
+            v.parse(schema, rawOrder({ status: ProtoRead.OrderStatus.ORDER_STATUS_UNSPECIFIED })),
         ).toThrow("invalid status 0");
     });
 
     it("rejects unspecified backend enum values", () => {
-        seedPairCatalog();
+        const schema = createOrderSchema(seedPairCatalog().snapshot());
 
         expect(() =>
-            v.parse(OrderSchema, rawOrder({ side: ProtoWrite.Side.SIDE_UNSPECIFIED })),
+            v.parse(schema, rawOrder({ side: ProtoWrite.Side.SIDE_UNSPECIFIED })),
         ).toThrow();
     });
 });

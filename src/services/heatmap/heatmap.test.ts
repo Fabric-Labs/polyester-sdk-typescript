@@ -1,10 +1,8 @@
 import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-    setEnrichedPairCatalog,
-    type EnrichedPairConfig,
-} from "../../catalogs/market-data-catalog.js";
+import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import * as Proto from "../../gen/marketdata/v1/heatmap_pb.js";
+import { createTestCatalog } from "../../testing/catalog.js";
 import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
 import { HeatmapService } from "./heatmap.js";
 
@@ -42,8 +40,8 @@ const btcUsdtPair: EnrichedPairConfig = {
     status: "enabled",
 };
 
-function seedPairCatalog(): void {
-    setEnrichedPairCatalog([btcUsdtPair]);
+function seedPairCatalog() {
+    return createTestCatalog({ pairs: [btcUsdtPair] });
 }
 
 type HeatmapDeltaLevelsInit = {
@@ -123,11 +121,10 @@ function heatmapResponse(overrides: Record<string, unknown> = {}) {
 describe("HeatmapService", () => {
     afterEach(() => {
         vi.restoreAllMocks();
-        setEnrichedPairCatalog([]);
     });
 
     it("normalizes heatmap requests for cursor and time-range modes", async () => {
-        seedPairCatalog();
+        const catalog = seedPairCatalog();
         const cases = [
             {
                 name: "cursor defaults",
@@ -177,7 +174,11 @@ describe("HeatmapService", () => {
         for (const testCase of cases) {
             const controller = new AbortController();
             const transport = unaryTransport(testCase.response);
-            const service = new HeatmapService(transport.transport, realtimeClientStub().realtime);
+            const service = new HeatmapService(
+                transport.transport,
+                realtimeClientStub().realtime,
+                catalog,
+            );
 
             const response = await service.getOrderbookHeatmap(testCase.input, {
                 signal: controller.signal,

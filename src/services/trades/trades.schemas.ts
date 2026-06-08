@@ -4,6 +4,7 @@ import { SideSchema } from "../shared.js";
 import {
     createCatalogSnapshotReader,
     staticCatalog,
+    type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
 import { FeeSourceCodec, OrderSideCodec } from "../orders/orders.codecs.js";
@@ -17,7 +18,10 @@ import { TradeSideCodec } from "./trades.codecs.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 
 export function createUserTradeSchema(catalog: CatalogSnapshot) {
-    const reader = createCatalogSnapshotReader(catalog);
+    return createUserTradeSchemaForReader(createCatalogSnapshotReader(catalog));
+}
+
+export function createUserTradeSchemaForReader(reader: CatalogReader) {
     return v.pipe(
         v.object({
             tradeId: v.optional(v.bigint()),
@@ -77,7 +81,7 @@ export function createUserTradeSchema(catalog: CatalogSnapshot) {
     );
 }
 
-export const UserTradeSchema = createUserTradeSchema(staticCatalog.snapshot());
+export const UserTradeSchema = createUserTradeSchemaForReader(staticCatalog);
 
 export type Trade = v.InferOutput<typeof UserTradeSchema>;
 

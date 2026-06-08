@@ -8,7 +8,6 @@ import { decimalToScaledInt } from "../utils/numbers.js";
 import { ASSET_CATALOG, PAIR_CATALOG } from "./market-data-catalog.generated.js";
 import {
     buildMarketCatalogData,
-    setLegacyMarketCatalogListener,
     type EnrichedPairConfig,
     type MarketCatalogData,
     type MarketCatalogSeed,
@@ -22,7 +21,6 @@ import {
 } from "./zipper-catalog.generated.js";
 import {
     buildZipperCatalogData,
-    setLegacyZipperCatalogListener,
     type ZipperCatalogData,
     type ZipperCatalogSeed,
     type ZipperContractName,
@@ -219,9 +217,6 @@ const generatedSeed = {
     },
 } satisfies Required<NonNullable<CreatePolyesterCatalogOptions["seed"]>>;
 
-let staticSeed: Required<NonNullable<CreatePolyesterCatalogOptions["seed"]>> = generatedSeed;
-let generatedSnapshotVersion = 1;
-
 function buildCatalogSnapshot(params: {
     seed: Required<NonNullable<CreatePolyesterCatalogOptions["seed"]>>;
     source: CatalogSnapshot["source"];
@@ -239,9 +234,9 @@ function buildCatalogSnapshot(params: {
 
 export function buildGeneratedCatalogSnapshot(): CatalogSnapshot {
     return buildCatalogSnapshot({
-        seed: staticSeed,
+        seed: generatedSeed,
         source: "generated",
-        version: generatedSnapshotVersion,
+        version: 1,
     });
 }
 
@@ -628,28 +623,5 @@ export function createPolyesterCatalog(options: CreatePolyesterCatalogOptions = 
     };
 }
 
-let generatedSnapshot = buildGeneratedCatalogSnapshot();
-
-function replaceGeneratedSnapshot(
-    seed: Required<NonNullable<CreatePolyesterCatalogOptions["seed"]>>,
-): void {
-    staticSeed = seed;
-    generatedSnapshotVersion += 1;
-    generatedSnapshot = buildGeneratedCatalogSnapshot();
-}
-
-setLegacyMarketCatalogListener((market) => {
-    replaceGeneratedSnapshot({
-        ...staticSeed,
-        market,
-    });
-});
-
-setLegacyZipperCatalogListener((zipper) => {
-    replaceGeneratedSnapshot({
-        ...staticSeed,
-        zipper,
-    });
-});
-
+const generatedSnapshot = buildGeneratedCatalogSnapshot();
 export const staticCatalog: CatalogReader = createReader(() => generatedSnapshot);

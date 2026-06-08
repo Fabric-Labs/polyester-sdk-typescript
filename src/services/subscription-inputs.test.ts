@@ -1,6 +1,5 @@
 import type { Transport } from "@connectrpc/connect";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { setEnrichedPairCatalog } from "../catalogs/market-data-catalog.js";
 import type { RealtimeClient } from "../realtime/client.js";
 import { CandlesService } from "./candles/candles.js";
 import { HeatmapService } from "./heatmap/heatmap.js";
@@ -28,7 +27,6 @@ function realtimeStub(): {
 describe("subscription input validation", () => {
     afterEach(() => {
         vi.restoreAllMocks();
-        setEnrichedPairCatalog([]);
     });
 
     it("throws for unknown market trade symbols before connecting realtime", () => {
