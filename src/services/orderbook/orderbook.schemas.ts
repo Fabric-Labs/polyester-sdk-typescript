@@ -1,4 +1,3 @@
-import type * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
 import * as v from "valibot";
 import {
     createCatalogSnapshotReader,
@@ -6,24 +5,22 @@ import {
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
 import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
-import { DepthCodec, type OrderbookSupportedDepth } from "./orderbook.codecs.js";
+import { normalizeOrderbookDepth } from "./orderbook.codecs.js";
 
-function toDepthEnum(depth: number): Proto.Depth {
-    if (depth in DepthCodec.inputToProto)
-        return DepthCodec.inputToProto[depth as OrderbookSupportedDepth];
-    const closest = DepthCodec.supportedDepths.reduce((prev, curr) =>
-        Math.abs(curr - depth) < Math.abs(prev - depth) ? curr : prev,
-    );
-    return DepthCodec.inputToProto[closest];
-}
-
-export const GetOrderbookInputSchema = v.object({
-    symbol: v.string(),
-    depth: v.pipe(
-        v.optional(v.number(), 50),
-        v.transform((v) => toDepthEnum(v)),
-    ),
-});
+export const GetOrderbookInputSchema = v.pipe(
+    v.object({
+        symbol: v.string(),
+        depth: v.optional(v.number(), 50),
+    }),
+    v.transform((input) => {
+        const depth = normalizeOrderbookDepth(input.depth);
+        return {
+            symbol: input.symbol,
+            depth: depth.levels,
+            protoDepth: depth.protoDepth,
+        };
+    }),
+);
 
 export type GetOrderbookInput = v.InferInput<typeof GetOrderbookInputSchema>;
 

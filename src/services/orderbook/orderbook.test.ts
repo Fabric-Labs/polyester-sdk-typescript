@@ -148,7 +148,7 @@ describe("OrderbookService", () => {
             service.get({ symbol: "BTC-USDT", depth: 37 }, { signal: controller.signal }),
         ).resolves.toMatchObject({
             symbol: "BTC-USDT",
-            depth: Proto.Depth.DEPTH_50,
+            depth: 50,
             bookSeq: "12",
             bids: [
                 {
@@ -240,12 +240,18 @@ describe("OrderbookService", () => {
     it("uses the public delta channel, callbacks, and parsed publications for subscriptions", async () => {
         const catalog = seedPairCatalog();
         const realtime = createRealtimeStub();
+        let captured: CapturedUnary | undefined;
         const service = new OrderbookService(
-            transportWithMessage({
-                bookSeq: 1n,
-                bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
-                asks: [{ priceTicks: 101_000_000n, qtyScaled: 50_000_000n }],
-            }),
+            transportWithMessage(
+                {
+                    bookSeq: 1n,
+                    bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
+                    asks: [{ priceTicks: 101_000_000n, qtyScaled: 50_000_000n }],
+                },
+                (call) => {
+                    captured = call;
+                },
+            ),
             realtime.realtime,
             catalog,
         );
@@ -276,6 +282,13 @@ describe("OrderbookService", () => {
 
         await flushMicrotasks();
 
+        expect(captured).toMatchObject({
+            method: "getOrderBook",
+            message: {
+                symbol: "BTC-USDT",
+                depth: Proto.Depth.DEPTH_500,
+            },
+        });
         expect(onOpen).toHaveBeenCalledTimes(1);
         expect(onClose).toHaveBeenCalledTimes(1);
         expect(onError).toHaveBeenCalledWith({

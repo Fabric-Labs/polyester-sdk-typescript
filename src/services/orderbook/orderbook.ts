@@ -68,7 +68,10 @@ export class OrderbookService {
         options?: PolyesterRequestOptions,
     ): Promise<OrderbookData> {
         const validated = v.parse(GetOrderbookInputSchema, input);
-        const res = await this.#client.getOrderBook(validated, toConnectCallOptions(options));
+        const res = await this.#client.getOrderBook(
+            { symbol: validated.symbol, depth: validated.protoDepth },
+            toConnectCallOptions(options),
+        );
         const schemas = this.#schemas.current();
         return v.parse(schemas.orderbookData, {
             symbol: validated.symbol,
@@ -179,7 +182,7 @@ export class OrderbookService {
                 symbol: input.symbol,
                 depth: wsDepth,
             });
-            return client.getOrderBook(validated);
+            return client.getOrderBook({ symbol: validated.symbol, depth: validated.protoDepth });
         }
 
         function handleDelta(delta: Proto.OrderBookDelta): void {
