@@ -54,6 +54,11 @@ export interface CreateSubaccountResult {
     subaccountId: string;
 }
 
+interface AccountIdentity {
+    accountAddress: HexAddress;
+    ownerAddress?: HexAddress;
+}
+
 /**
  * Coordinates wallet/account-signer authentication, session storage, subaccount selection, and session refresh.
  */
@@ -62,6 +67,7 @@ export class AccountSignerAuthService extends AuthService {
 
     #accountSignerConfig: AccountSignerConfig | undefined;
     #accountSigner: AccountSigner | null = null;
+    #accountIdentity: AccountIdentity | null = null;
     #isAuthenticated = false;
     #mainAccountId: string | null = null;
     #activeAccountId: string | null = null;
@@ -115,6 +121,7 @@ export class AccountSignerAuthService extends AuthService {
     setAccountSigner(accountSigner: AccountSigner | null): void {
         if (accountSigner) this.#assertAccountSignerEnvironment(accountSigner);
         this.#accountSigner = accountSigner;
+        this.#accountIdentity = accountSigner ? this.#identityFromSigner(accountSigner) : null;
         this.#notifyStateChange();
     }
 
@@ -181,6 +188,7 @@ export class AccountSignerAuthService extends AuthService {
         this.#activeAccountId = response.accountId;
         this.#walletProvider = provider;
         this.#loginMethod = resolvedLoginMethod;
+        this.#accountIdentity = this.#identityFromSigner(accountSigner);
 
         this.#notifyStateChange();
 
@@ -217,19 +225,12 @@ export class AccountSignerAuthService extends AuthService {
         this.#isAuthenticated = true;
         this.#mainAccountId = state.mainAccountId;
         this.#activeAccountId = state.activeAccountId ?? state.mainAccountId;
-
-        if (state.smartAccountAddress) {
-            this.#accountSigner = {
-                environmentFingerprint: this.#environmentFingerprint,
-                accountAddress: state.smartAccountAddress as HexAddress,
-                ownerAddress: state.ownerAddress as HexAddress,
-                signMessage: async () => {
-                    throw new Error(
-                        "Hydrated account signer cannot sign. Call setAccountSigner() with a real signer.",
-                    );
-                },
-            };
-        }
+        this.#accountIdentity = state.smartAccountAddress
+            ? {
+                  accountAddress: state.smartAccountAddress,
+                  ownerAddress: state.ownerAddress,
+              }
+            : null;
 
         this.#notifyStateChange();
     }
@@ -263,6 +264,7 @@ export class AccountSignerAuthService extends AuthService {
                 this.#accountSigner = await resolveAccountSigner(this.#accountSignerConfig);
                 if (this.#accountSigner) {
                     this.#assertAccountSignerEnvironment(this.#accountSigner);
+                    this.#accountIdentity = this.#identityFromSigner(this.#accountSigner);
                 }
             }
 
@@ -303,6 +305,7 @@ export class AccountSignerAuthService extends AuthService {
         this.#mainAccountId = null;
         this.#activeAccountId = null;
         this.#loginMethod = null;
+        this.#accountIdentity = null;
 
         this.#sessionStore.clear();
 
@@ -318,6 +321,7 @@ export class AccountSignerAuthService extends AuthService {
         this.#mainAccountId = null;
         this.#activeAccountId = null;
         this.#loginMethod = null;
+        this.#accountIdentity = null;
         this.#notifyStateChange();
         if (shouldEmitLoggedOut) {
             this.events.emit("loggedOut", undefined);
@@ -420,10 +424,12 @@ export class AccountSignerAuthService extends AuthService {
      * Returns the current account-signer auth state snapshot.
      */
     getState(): AuthState {
+        const accountIdentity = this.#accountSigner ?? this.#accountIdentity;
+
         return {
             isAuthenticated: this.#isAuthenticated,
-            accountAddress: this.#accountSigner?.accountAddress ?? null,
-            ownerAddress: this.#accountSigner?.ownerAddress ?? null,
+            accountAddress: accountIdentity?.accountAddress ?? null,
+            ownerAddress: accountIdentity?.ownerAddress ?? null,
             mainAccountId: this.#mainAccountId,
             activeAccount:
                 this.#activeAccountId && this.#mainAccountId
@@ -431,7 +437,7 @@ export class AccountSignerAuthService extends AuthService {
                           accountId: this.#activeAccountId,
                           isMain: this.#activeAccountId === this.#mainAccountId,
                           mainAccountId: this.#mainAccountId,
-                          smartAccountAddress: this.#accountSigner?.accountAddress,
+                          smartAccountAddress: accountIdentity?.accountAddress,
                       }
                     : null,
         };
@@ -447,6 +453,7 @@ export class AccountSignerAuthService extends AuthService {
         if (resolved) {
             this.#assertAccountSignerEnvironment(resolved);
             this.#accountSigner = resolved;
+            this.#accountIdentity = this.#identityFromSigner(resolved);
         }
         return this.#accountSigner;
     }
@@ -478,6 +485,13 @@ export class AccountSignerAuthService extends AuthService {
         if (accountSigner.environmentFingerprint !== this.#environmentFingerprint) {
             throw new Error("Account signer environment does not match client environment.");
         }
+    }
+
+    #identityFromSigner(accountSigner: AccountSigner): AccountIdentity {
+        return {
+            accountAddress: accountSigner.accountAddress,
+            ownerAddress: accountSigner.ownerAddress,
+        };
     }
 
     #getEnvironmentSession(): SessionData | null {

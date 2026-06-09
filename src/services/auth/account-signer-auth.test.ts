@@ -279,6 +279,49 @@ describe("AccountSignerAuthService", () => {
         });
     });
 
+    it("hydrates identity without exposing a fake account signer", async () => {
+        const accountSigner = signer();
+        const token = jwtWithExp(Math.floor(Date.now() / 1000) + 3600);
+        const tokenStorage = createTestStorage(token);
+        const auth = authFixture(accountSigner, tokenStorage).auth;
+        installDocument();
+        polyesterSession.set({
+            environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+            provider: "turnkey",
+            loginMethod: null,
+            primaryWallet: accountSigner.ownerAddress ?? accountSigner.accountAddress,
+            smartAccount: accountSigner.accountAddress,
+            activeAccount: {
+                accountId: "account-1",
+                isMain: true,
+                mainAccountId: "account-1",
+            },
+            username: "hunter",
+        });
+
+        auth.hydrateAuthState({
+            mainAccountId: "account-1",
+            username: "hunter",
+            smartAccountAddress: accountSigner.accountAddress,
+            ownerAddress: accountSigner.ownerAddress,
+        });
+
+        expect(auth.getAccountSigner()).toBeNull();
+        expect(auth.getState()).toMatchObject({
+            isAuthenticated: true,
+            accountAddress: accountSigner.accountAddress,
+            ownerAddress: accountSigner.ownerAddress,
+            mainAccountId: "account-1",
+        });
+
+        const { requestLoginNonce } = mockLogin(auth);
+        await auth.login({ provider: "turnkey" });
+
+        expect(requestLoginNonce).toHaveBeenCalledWith(accountSigner.accountAddress);
+        expect(accountSigner.signMessage).toHaveBeenCalledWith("Polyester Login\n\nNonce: nonce-1");
+        expect(auth.getAccountSigner()).toBe(accountSigner);
+    });
+
     it("clears configured token storage when restore sees no matching display session", async () => {
         const token = jwtWithExp(Math.floor(Date.now() / 1000) + 3600);
         const tokenStorage = createTestStorage(token);
