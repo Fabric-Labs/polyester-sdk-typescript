@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import * as Proto from "../../gen/auth/v1/mfa_pb.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { unaryTransportByMethod } from "../../testing/service-harness.js";

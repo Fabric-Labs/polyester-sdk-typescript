@@ -9,10 +9,11 @@ import {
 import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 import { FeeSourceCodec, OrderSideCodec } from "../orders/orders.codecs.js";
 import { formatId } from "../../utils/base58-id.js";
+import { optionalUint64DecimalFilterSchema } from "../../shared/schemas.js";
 import {
-    optionalSubaccountIdInputSchema,
-    optionalUint64DecimalFilterSchema,
-} from "../../shared/schemas.js";
+    AccountScopeInputEntries,
+    accountScopeToSubaccountId,
+} from "../../shared/account-scope.js";
 import { TradeSideCodec } from "./trades.codecs.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 
@@ -89,24 +90,30 @@ export function createTradesSchemas(catalog: CatalogReader) {
     }));
 }
 
-export const GetUserTradesInputSchema = v.object({
-    subaccountId: optionalSubaccountIdInputSchema(),
-    symbolId: v.pipe(
-        v.optional(v.pipe(v.string(), v.trim())),
-        v.transform((v) => {
-            if (!v) return undefined;
-            const sid = Number(v);
-            return Number.isFinite(sid) && sid > 0 ? sid : undefined;
-        }),
-    ),
-    side: v.pipe(
-        v.optional(SideSchema),
-        v.transform((v) => (v ? TradeSideCodec.inputToProto[v] : undefined)),
-    ),
-    startTsNs: optionalUint64DecimalFilterSchema("startTsNs"),
-    endTsNs: optionalUint64DecimalFilterSchema("endTsNs"),
-    limit: v.optional(v.number()),
-    pageToken: v.optional(v.pipe(v.string(), v.trim())),
-});
+export const GetUserTradesInputSchema = v.pipe(
+    v.object({
+        ...AccountScopeInputEntries,
+        symbolId: v.pipe(
+            v.optional(v.pipe(v.string(), v.trim())),
+            v.transform((v) => {
+                if (!v) return undefined;
+                const sid = Number(v);
+                return Number.isFinite(sid) && sid > 0 ? sid : undefined;
+            }),
+        ),
+        side: v.pipe(
+            v.optional(SideSchema),
+            v.transform((v) => (v ? TradeSideCodec.inputToProto[v] : undefined)),
+        ),
+        startTsNs: optionalUint64DecimalFilterSchema("startTsNs"),
+        endTsNs: optionalUint64DecimalFilterSchema("endTsNs"),
+        limit: v.optional(v.number()),
+        pageToken: v.optional(v.pipe(v.string(), v.trim())),
+    }),
+    v.transform(({ account, ...input }) => ({
+        ...input,
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
 
 export type GetUserTradesInput = v.InferInput<typeof GetUserTradesInputSchema>;

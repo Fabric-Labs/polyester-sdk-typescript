@@ -8,7 +8,7 @@ import {
     toConnectCallOptions,
     type PolyesterMutationOptions,
 } from "../../shared/request-options.js";
-import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
+import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import { TradingWithdrawActionCodec } from "./trading-withdraws.codecs.js";
 import * as v from "valibot";
 import {
@@ -165,7 +165,7 @@ export class TradingWithdrawsService {
         options?: PolyesterMutationOptions,
     ): Promise<CreateTradingWithdrawResult> {
         const { walletSigner, ...inputForValidation } = input;
-        const resolvedInput = resolveSubaccountScopedInput(inputForValidation, this.#resolver);
+        const resolvedInput = resolveAccountScopedInput(inputForValidation, this.#resolver);
         const schemas = this.#schemas.current();
         const validated = v.parse(schemas.createTradingWithdrawToFundingInput, resolvedInput);
         const payload = create(Proto.TradingWithdrawIntentPayloadSchema, {

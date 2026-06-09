@@ -1,13 +1,12 @@
 import * as v from "valibot";
-import {
-    idInputSchema,
-    optionalSubaccountIdInputSchema,
-    positiveBigintLikeSchema,
-} from "../../shared/schemas.js";
+import { idInputSchema, positiveBigintLikeSchema } from "../../shared/schemas.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { InternalTransferDestinationCodec } from "./internal-transfers.codecs.js";
+import {
+    AccountScopeInputEntries,
+    accountScopeToSubaccountId,
+} from "../../shared/account-scope.js";
 
-const OptionalSubaccountIdSchema = optionalSubaccountIdInputSchema();
 const IdSchema = idInputSchema;
 const QuantityScaledSchema = positiveBigintLikeSchema("quantityScaled must be greater than 0");
 
@@ -51,13 +50,19 @@ export type InternalTransferDestination = v.InferInput<
     typeof InternalTransferDestinationInputSchema
 >;
 
-export const CreateInternalTransferInputSchema = v.object({
-    subaccountId: OptionalSubaccountIdSchema,
-    destination: InternalTransferDestinationInputSchema,
-    assetId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
-    quantityScaled: QuantityScaledSchema,
-    idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
-});
+export const CreateInternalTransferInputSchema = v.pipe(
+    v.object({
+        ...AccountScopeInputEntries,
+        destination: InternalTransferDestinationInputSchema,
+        assetId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+        quantityScaled: QuantityScaledSchema,
+        idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
+    }),
+    v.transform(({ account, ...input }) => ({
+        ...input,
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
 
 export type CreateInternalTransferInput = v.InferInput<typeof CreateInternalTransferInputSchema>;
 export type CreateInternalTransferRequest = v.InferOutput<typeof CreateInternalTransferInputSchema>;

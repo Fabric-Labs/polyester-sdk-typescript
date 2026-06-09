@@ -125,7 +125,7 @@ describe("TradesService", () => {
         });
     });
 
-    it("omits undefined list fields and lets blank subaccount input force root scope", async () => {
+    it("omits undefined list fields and lets explicit main scope force root scope", async () => {
         const transport = unaryTransport({ trades: [], nextPageToken: "" });
         const service = new TradesService(
             transport.transport,
@@ -133,7 +133,7 @@ describe("TradesService", () => {
             subaccountResolverStub("12"),
         );
 
-        await expect(service.list({ subaccountId: "", symbolId: "101" })).resolves.toEqual({
+        await expect(service.list({ account: "main", symbolId: "101" })).resolves.toEqual({
             trades: [],
             nextPageToken: "",
         });

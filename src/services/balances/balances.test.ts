@@ -44,13 +44,13 @@ describe("BalancesService", () => {
             { name: "resolver default", input: {}, resolverDefault: "7", expected: 7n },
             {
                 name: "explicit subaccount",
-                input: { subaccountId: " 8 " },
+                input: { account: { subaccountId: " 8 " } },
                 resolverDefault: "7",
                 expected: 8n,
             },
             {
-                name: "blank explicit subaccount",
-                input: { subaccountId: "" },
+                name: "explicit main account",
+                input: { account: "main" },
                 resolverDefault: "7",
                 expected: undefined,
             },
@@ -103,7 +103,7 @@ describe("BalancesService", () => {
         );
 
         const history = await service.getBalanceHistory({
-            subaccountId: " 9 ",
+            account: { subaccountId: " 9 " },
             range: "7d",
             ledger: 1,
             accountCodes: [301],

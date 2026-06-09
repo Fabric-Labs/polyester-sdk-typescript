@@ -5,7 +5,7 @@ import {
     toConnectCallOptions,
     type PolyesterMutationOptions,
 } from "../../shared/request-options.js";
-import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
+import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import * as v from "valibot";
 import {
     CreateInternalTransferInputSchema,
@@ -33,7 +33,7 @@ export class InternalTransfersService {
         input: CreateInternalTransferInput,
         options?: PolyesterMutationOptions,
     ): Promise<CreateInternalTransferResult> {
-        const resolvedInput = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolvedInput = resolveAccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(CreateInternalTransferInputSchema, resolvedInput);
         const res = await this.#client.createInternalTransfer(
             removeUndefined(validatedInput),

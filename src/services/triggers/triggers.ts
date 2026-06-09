@@ -1,7 +1,7 @@
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
-import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
+import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import {
     toConnectCallOptions,
@@ -90,7 +90,7 @@ export class TriggersService {
         input: CreateTriggerInput,
         options?: PolyesterMutationOptions,
     ): Promise<CreateTriggerResult> {
-        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
         const schemas = this.#schemas.current();
         const validatedInput = v.parse(schemas.createTriggerInput, resolved);
         const res = await this.#client.createTrigger(validatedInput, toConnectCallOptions(options));
@@ -101,7 +101,7 @@ export class TriggersService {
      * Fetches one trigger by id in the resolved account scope and returns null when the backend response contains no trigger.
      */
     async get(input: GetTriggerInput, options?: PolyesterRequestOptions): Promise<Trigger | null> {
-        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = v.parse(GetTriggerInputSchema, resolved);
         const res = await this.#client.getTrigger(
             removeUndefined(validated),
@@ -120,7 +120,7 @@ export class TriggersService {
         input: ListTriggersInput = {},
         options?: PolyesterRequestOptions,
     ): Promise<ListTriggersResult> {
-        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = v.parse(ListTriggersInputSchema, resolved);
         const res = await this.#client.listTriggers(
             removeUndefined(validated),
@@ -140,7 +140,7 @@ export class TriggersService {
         input: CancelTriggerInput,
         options?: PolyesterMutationOptions,
     ): Promise<CancelTriggerResult> {
-        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = v.parse(CancelTriggerInputSchema, resolved);
         const res = await this.#client.cancelTrigger(
             removeUndefined(validated),
@@ -156,7 +156,7 @@ export class TriggersService {
         input: ModifyTriggerInput,
         options?: PolyesterMutationOptions,
     ): Promise<ModifyTriggerResult> {
-        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = v.parse(ModifyTriggerInputSchema, resolved);
         const res = await this.#client.modifyTrigger(validated, toConnectCallOptions(options));
         return v.parse(ModifyTriggerResultSchema, res);
@@ -169,7 +169,7 @@ export class TriggersService {
         input: PauseTriggerInput,
         options?: PolyesterMutationOptions,
     ): Promise<PauseTriggerResult> {
-        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = v.parse(PauseTriggerInputSchema, resolved);
         const res = await this.#client.pauseTrigger(
             removeUndefined(validated),
@@ -185,7 +185,7 @@ export class TriggersService {
         input: PauseTriggerInput,
         options?: PolyesterMutationOptions,
     ): Promise<ResumeTriggerResult> {
-        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = v.parse(PauseTriggerInputSchema, resolved);
         const res = await this.#client.resumeTrigger(
             removeUndefined(validated),
@@ -201,7 +201,7 @@ export class TriggersService {
         input: ListTriggerEventsInput,
         options?: PolyesterRequestOptions,
     ): Promise<ListTriggerEventsResult> {
-        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = v.parse(ListTriggerEventsInputSchema, resolved);
 
         const res = await this.#client.listTriggerEvents(

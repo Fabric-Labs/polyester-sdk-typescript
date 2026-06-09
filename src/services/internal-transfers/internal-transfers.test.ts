@@ -69,7 +69,7 @@ describe("InternalTransfersService", () => {
         });
     });
 
-    it("treats an explicit empty subaccount as main account and bypasses the resolver", async () => {
+    it("treats explicit main scope as main account and bypasses the resolver", async () => {
         const resolver: SubaccountResolver = {
             getDefaultSubaccountId: () => "11",
         };
@@ -77,7 +77,7 @@ describe("InternalTransfersService", () => {
         const service = new InternalTransfersService(transport.transport, resolver);
 
         await service.create({
-            subaccountId: "",
+            account: "main",
             destination: { type: "account", accountId: "22" },
             assetId: 1,
             quantityScaled: 1n,

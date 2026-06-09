@@ -2,8 +2,11 @@ import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as v from "valibot";
 import type { CatalogReader } from "../../catalogs/index.js";
-import { idToBigInt } from "../../utils/base58-id.js";
 import { buildSpotOrderCore } from "../orders/spot-order-core.schemas.js";
+import {
+    AccountScopeInputEntries,
+    accountScopeToSubaccountIdOrZero,
+} from "../../shared/account-scope.js";
 import {
     FEE_SOURCE_VALUES,
     ORDER_TYPE_VALUES,
@@ -27,10 +30,7 @@ export type TrailingDistanceOneof = Proto.CreateTriggerRequest["trailingDistance
 export type MaxSlippageOneof = Proto.CreateTriggerRequest["maxSlippage"];
 
 export const BaseChildOrderFieldsSchema = v.object({
-    subaccountId: v.pipe(
-        v.optional(v.pipe(v.string(), v.trim())),
-        v.transform((v) => (v ? idToBigInt(v, "subaccountId") : 0n)),
-    ),
+    ...AccountScopeInputEntries,
     symbol: v.pipe(v.string(), v.trim(), v.minLength(1)),
     clientTriggerId: v.optional(v.pipe(v.string(), v.trim()), () => crypto.randomUUID()),
     side: v.pipe(
@@ -135,7 +135,7 @@ export function buildCreateTriggerBase(
     return {
         ...buildTriggerDefaults(),
         ...order,
-        subaccountId: input.subaccountId,
+        subaccountId: accountScopeToSubaccountIdOrZero(input.account),
         limitPriceTicks: priceTicks,
         clientTriggerId: input.clientTriggerId ?? crypto.randomUUID(),
     };

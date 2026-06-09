@@ -7,7 +7,7 @@ import {
     type PolyesterMutationOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
+import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import { bytesToHex } from "@noble/hashes/utils.js";
 import { keygenAsync } from "@noble/ed25519";
 import type { RealtimeClient } from "../../realtime/index.js";
@@ -51,7 +51,7 @@ export class ApiKeysService {
         params: v.InferInput<typeof ApiKeysListInputSchema> = {},
         options?: PolyesterRequestOptions,
     ): Promise<ApiKey[]> {
-        const resolved = resolveSubaccountScopedInput(params, this.#resolver);
+        const resolved = resolveAccountScopedInput(params, this.#resolver);
         const validatedParams = v.parse(ApiKeysListInputSchema, resolved);
         const res = await this.#client.listApiKeys(
             removeUndefined(validatedParams),
@@ -80,7 +80,7 @@ export class ApiKeysService {
         payload: v.InferInput<typeof ApiKeysCreateInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<ApiKey | null> {
-        const resolved = resolveSubaccountScopedInput(payload, this.#resolver);
+        const resolved = resolveAccountScopedInput(payload, this.#resolver);
         const validatedPayload = v.parse(ApiKeysCreateInputSchema, resolved);
         const res = await this.#client.createApiKey(
             removeUndefined(validatedPayload),

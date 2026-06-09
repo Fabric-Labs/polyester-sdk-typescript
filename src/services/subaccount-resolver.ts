@@ -1,3 +1,5 @@
+import type { AccountScope, AccountScopedInput } from "../shared/account-scope.js";
+
 /**
  * Provides the default subaccount ID based on auth state.
  * When the active account is a subaccount (not main), this returns that ID.
@@ -9,38 +11,42 @@ export interface SubaccountResolver {
 }
 
 /**
- * Resolves the subaccount ID for a service call.
+ * Resolves the account scope for a service call.
  *
  * Priority:
- * 1. Explicit `""` -> returns `undefined` (use main account)
- * 2. Explicit non-empty string -> returns that string
- * 3. `undefined` (not passed) -> checks resolver for active subaccount
- *
- * @param explicit - The explicitly passed subaccountId (or undefined if not passed)
- * @param resolver - Optional resolver that provides default based on auth state
+ * 1. Explicit `"main"` -> returns main-account scope
+ * 2. Explicit `{ subaccountId }` -> returns that subaccount
+ * 3. Explicit `"active"` or omitted -> checks resolver for active subaccount
  */
-export function resolveSubaccountId(
-    explicit: string | undefined,
+export function resolveAccountScope(
+    explicit: AccountScope | undefined,
     resolver?: SubaccountResolver,
-): string | undefined {
-    // explicit empty string = force main account
-    if (explicit === "") return undefined;
-    // explicit string = use it
-    if (explicit !== undefined) return explicit;
-    // not passed = check resolver
+): AccountScope | undefined {
+    if (explicit === "main") return "main";
+    if (explicit !== undefined && explicit !== "active") return explicit;
+
     const defaultId = resolver?.getDefaultSubaccountId();
-    return defaultId ?? undefined;
+    return defaultId ? { subaccountId: defaultId } : undefined;
+}
+
+function assertNoLegacySubaccountId(input: object): void {
+    if (Object.prototype.hasOwnProperty.call(input, "subaccountId")) {
+        throw new Error(
+            'Use `account: "main"` or `account: { subaccountId }` instead of `subaccountId`.',
+        );
+    }
 }
 
 /**
- * Resolves subaccount-scoped input using the configured resolver when needed.
+ * Resolves account-scoped input using the configured resolver when needed.
  */
-export function resolveSubaccountScopedInput<TInput extends object>(
-    input: TInput & { subaccountId?: string },
+export function resolveAccountScopedInput<TInput extends object>(
+    input: TInput & AccountScopedInput,
     resolver?: SubaccountResolver,
-): TInput & { subaccountId?: string } {
+): TInput & AccountScopedInput {
+    assertNoLegacySubaccountId(input);
     return {
         ...input,
-        subaccountId: resolveSubaccountId(input.subaccountId, resolver),
+        account: resolveAccountScope(input.account, resolver),
     };
 }

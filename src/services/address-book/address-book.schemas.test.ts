@@ -41,7 +41,7 @@ const baseExternalEntry = {
 describe("CreateAddressBookEntryInputSchema", () => {
     it("normalizes external entries, tags, and public ID inputs", () => {
         const input = v.parse(CreateAddressBookEntryInputSchema, {
-            subaccountId: " 42 ",
+            account: { subaccountId: " 42 " },
             label: " Treasury ",
             note: " ops ",
             entry: {
@@ -90,7 +90,7 @@ describe("CreateAddressBookEntryInputSchema", () => {
 describe("ListTransferCounterpartiesInputSchema", () => {
     it("maps filters to proto enums and rejects invalid page sizes", () => {
         const input = v.parse(ListTransferCounterpartiesInputSchema, {
-            subaccountId: "3",
+            account: { subaccountId: "3" },
             direction: "withdrawTo",
             kind: "external",
             pageSize: 50,

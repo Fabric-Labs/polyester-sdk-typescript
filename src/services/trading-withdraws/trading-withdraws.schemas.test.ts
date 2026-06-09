@@ -23,7 +23,7 @@ const CreateTradingWithdrawToFundingInputSchema = createCreateTradingWithdrawToF
 describe("CreateTradingWithdrawToFundingInputSchema", () => {
     it("converts decimal amount and source subaccount to proto fields", () => {
         const input = v.parse(CreateTradingWithdrawToFundingInputSchema, {
-            subaccountId: "11",
+            account: { subaccountId: "11" },
             assetId: 1,
             amount: "1.25",
             quantityScale: 6,

@@ -115,7 +115,7 @@ describe("TriggersService", () => {
             {
                 name: "stop loss",
                 input: {
-                    subaccountId: "11",
+                    account: { subaccountId: "11" },
                     triggerType: "stop_loss",
                     symbol: " BTC-USDT ",
                     side: "sell",
@@ -267,7 +267,7 @@ describe("TriggersService", () => {
             catalog,
         );
 
-        await expect(service.get({ triggerId: "22", subaccountId: "" })).resolves.toBeNull();
+        await expect(service.get({ triggerId: "22", account: "main" })).resolves.toBeNull();
         await expect(
             service.list(
                 {
@@ -360,12 +360,15 @@ describe("TriggersService", () => {
         );
 
         await expect(
-            service.cancel({ triggerId: "22", subaccountId: "11" }, { stepUpToken: " fresh " }),
+            service.cancel(
+                { triggerId: "22", account: { subaccountId: "11" } },
+                { stepUpToken: " fresh " },
+            ),
         ).resolves.toMatchObject({ status: "cancelled", tsNs: 1 });
         await expect(
             service.modify({
                 triggerId: "22",
-                subaccountId: "11",
+                account: { subaccountId: "11" },
                 triggerPrice: "101.25",
                 maxSlippage: { kind: "none" },
             }),

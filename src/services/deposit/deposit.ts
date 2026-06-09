@@ -1,7 +1,7 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as Proto from "../../gen/chain/deposit/v1/deposit_pb.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
-import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
+import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import {
     toConnectCallOptions,
     type PolyesterMutationOptions,
@@ -43,7 +43,7 @@ export class DepositService {
         input: CreateDepositAddressInput,
         options?: PolyesterMutationOptions,
     ): Promise<DepositAddress | null> {
-        const resolvedInput = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolvedInput = resolveAccountScopedInput(input, this.#resolver);
         const schemas = this.#schemas.current();
         const validatedInput = v.parse(schemas.createDepositAddressInput, resolvedInput);
         const res = await this.#client.createDepositAddress(
@@ -61,7 +61,7 @@ export class DepositService {
         input: ListDepositAddressesInput = {},
         options?: PolyesterRequestOptions,
     ): Promise<DepositAddress[]> {
-        const resolvedInput = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolvedInput = resolveAccountScopedInput(input, this.#resolver);
         const schemas = this.#schemas.current();
         const validatedInput = v.parse(schemas.listDepositAddressesInput, resolvedInput);
         const res = await this.#client.listDepositAddresses(

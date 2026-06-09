@@ -33,7 +33,7 @@ describe("DepositService", () => {
         await expect(service.createAddress({ chainId: 1 })).resolves.toBeNull();
     });
 
-    it("normalizes list requests and lets empty explicit subaccount IDs force root scope", async () => {
+    it("normalizes list requests and lets explicit main scope force root scope", async () => {
         const transport = unaryTransport({
             depositAddresses: [
                 {
@@ -46,7 +46,7 @@ describe("DepositService", () => {
         const signal = new AbortController().signal;
 
         await expect(
-            service.listAddresses({ subaccountId: "", chainId: 8453 }, { signal }),
+            service.listAddresses({ account: "main", chainId: 8453 }, { signal }),
         ).resolves.toEqual([
             {
                 chainId: 8453,

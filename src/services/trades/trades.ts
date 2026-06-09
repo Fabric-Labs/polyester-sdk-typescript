@@ -2,7 +2,7 @@ import * as Proto from "../../gen/orders/v1/orders_read_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
 import { removeUndefined } from "../../utils/remove-undefined.js";
-import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
+import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import type { RealtimeClient } from "../../realtime/client.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
@@ -44,7 +44,7 @@ export class TradesService {
         input: v.InferInput<typeof GetUserTradesInputSchema> = {},
         options?: PolyesterRequestOptions,
     ): Promise<{ trades: Trade[]; nextPageToken: string }> {
-        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(GetUserTradesInputSchema, resolved);
         const res = await this.#client.getUserTrades(
             removeUndefined(validatedInput),

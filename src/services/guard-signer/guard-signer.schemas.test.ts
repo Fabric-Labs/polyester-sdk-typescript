@@ -11,7 +11,7 @@ import {
 describe("SignProtectedActionInputSchema", () => {
     it("maps protected actions and external whitelist args to proto shape", () => {
         const input = v.parse(SignProtectedActionInputSchema, {
-            subaccountId: " 9 ",
+            account: { subaccountId: " 9 " },
             action: "fundingAddExternalWhitelist",
             args: {
                 case: "externalWhitelist",
@@ -65,7 +65,7 @@ describe("SignProtectedActionInputSchema", () => {
 describe("BatchSignProtectedActionInputSchema", () => {
     it("maps each action and rejects empty batches", () => {
         const input = v.parse(BatchSignProtectedActionInputSchema, {
-            subaccountId: "4",
+            account: { subaccountId: "4" },
             actions: [
                 {
                     action: "fundingAddInternalWhitelist",

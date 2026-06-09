@@ -49,6 +49,7 @@ export type {
 } from "./account-signer/index.js";
 
 export type { ApiKeyEd25519AuthProvider, JwtAuthProvider } from "./shared/transports.js";
+export type { AccountScope, AccountScopedInput } from "./shared/account-scope.js";
 export type {
     PolyesterMutationOptions,
     PolyesterRequestOptions,

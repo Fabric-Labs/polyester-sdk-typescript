@@ -2,7 +2,7 @@ import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
 import type { RealtimeClient } from "../../realtime/index.js";
-import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
+import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
     toConnectCallOptions,
@@ -48,7 +48,7 @@ export class TransfersService {
         input: ListTransfersInput,
         options?: PolyesterRequestOptions,
     ): Promise<{ transfers: LedgerTransfer[]; nextCursor: number | null }> {
-        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(ListTransfersInputSchema, resolved);
         const res = await this.#client.listTransfers(validatedInput, toConnectCallOptions(options));
         const schemas = this.#schemas.current();

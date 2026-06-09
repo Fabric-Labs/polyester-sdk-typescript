@@ -1,11 +1,11 @@
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as v from "valibot";
+import { idInputSchema, optionalUint64DecimalFilterSchema } from "../../shared/schemas.js";
 import {
-    idInputSchema,
-    optionalSubaccountIdInputSchema,
-    optionalUint64DecimalFilterSchema,
-} from "../../shared/schemas.js";
+    AccountScopeInputEntries,
+    accountScopeToSubaccountId,
+} from "../../shared/account-scope.js";
 import { parsePriceTicks, parseOptionalPositiveIntLike } from "../../utils/numbers.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import {
@@ -50,10 +50,18 @@ const LadderDistributionSchema = v.picklist(LADDER_DISTRIBUTION_VALUES);
 
 const TriggerIdInputSchema = idInputSchema("triggerId");
 
-const TriggerScopedInputSchema = v.object({
+const TriggerScopedInputEntries = {
     triggerId: TriggerIdInputSchema,
-    subaccountId: optionalSubaccountIdInputSchema(),
-});
+    ...AccountScopeInputEntries,
+};
+
+const TriggerScopedInputSchema = v.pipe(
+    v.object(TriggerScopedInputEntries),
+    v.transform(({ account, ...input }) => ({
+        ...input,
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
 
 const TrailingDistanceInputSchema = v.union([
     TicksStringOrNumberInputSchema,
@@ -308,26 +316,32 @@ export function createCreateTriggerInputSchemaForReader(reader: CatalogReader) {
 
 export type CreateTriggerInput = v.InferInput<ReturnType<typeof createCreateTriggerInputSchema>>;
 
-export const ListTriggersInputSchema = v.object({
-    subaccountId: optionalSubaccountIdInputSchema(),
-    parentOrderId: v.pipe(
-        v.optional(v.pipe(v.string(), v.trim())),
-        v.transform((v) => (v ? idToBigInt(v, "parentOrderId") : undefined)),
-    ),
-    symbol: v.optional(v.pipe(v.string(), v.trim())),
-    status: v.pipe(
-        v.optional(v.array(TriggerStatusFilterSchema)),
-        v.transform((arr) => arr?.map((s) => TriggerStatusCodec.inputToProto[s]) ?? []),
-    ),
-    triggerType: v.pipe(
-        v.optional(TriggerTypeSchema),
-        v.transform((v) =>
-            v ? TriggerTypeCodec.inputToProto[v] : Proto.TriggerType.TRIGGER_TYPE_UNSPECIFIED,
+export const ListTriggersInputSchema = v.pipe(
+    v.object({
+        ...AccountScopeInputEntries,
+        parentOrderId: v.pipe(
+            v.optional(v.pipe(v.string(), v.trim())),
+            v.transform((v) => (v ? idToBigInt(v, "parentOrderId") : undefined)),
         ),
-    ),
-    limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(1000)), 50),
-    offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 0),
-});
+        symbol: v.optional(v.pipe(v.string(), v.trim())),
+        status: v.pipe(
+            v.optional(v.array(TriggerStatusFilterSchema)),
+            v.transform((arr) => arr?.map((s) => TriggerStatusCodec.inputToProto[s]) ?? []),
+        ),
+        triggerType: v.pipe(
+            v.optional(TriggerTypeSchema),
+            v.transform((v) =>
+                v ? TriggerTypeCodec.inputToProto[v] : Proto.TriggerType.TRIGGER_TYPE_UNSPECIFIED,
+            ),
+        ),
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(1000)), 50),
+        offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 0),
+    }),
+    v.transform(({ account, ...input }) => ({
+        ...input,
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
 
 export type ListTriggersInput = v.InferInput<typeof ListTriggersInputSchema>;
 
@@ -341,7 +355,7 @@ export type GetTriggerInput = v.InferInput<typeof GetTriggerInputSchema>;
 
 export const ModifyTriggerInputSchema = v.pipe(
     v.object({
-        ...TriggerScopedInputSchema.entries,
+        ...TriggerScopedInputEntries,
         triggerPrice: v.pipe(
             v.optional(v.pipe(v.string(), v.trim())),
             v.transform((v) => (v ? parsePriceTicks(v, "triggerPrice") : undefined)),
@@ -372,9 +386,9 @@ export const ModifyTriggerInputSchema = v.pipe(
             input.maxSlippage !== undefined;
         return hasPatch;
     }, "At least one patch field is required"),
-    v.transform(({ subaccountId, ...input }) => ({
+    v.transform(({ account, ...input }) => ({
         triggerId: input.triggerId,
-        subaccountId,
+        subaccountId: accountScopeToSubaccountId(account),
         triggerPriceTicks: input.triggerPrice,
         limitPriceTicks: input.limitPrice,
         trailingDistance: input.trailingDistance ?? UNSET_TRAILING_DISTANCE,
@@ -390,10 +404,16 @@ export const PauseTriggerInputSchema = CancelTriggerInputSchema;
 export type PauseTriggerInput = v.InferInput<typeof PauseTriggerInputSchema>;
 export type ResumeTriggerInput = v.InferInput<typeof PauseTriggerInputSchema>;
 
-export const ListTriggerEventsInputSchema = v.object({
-    ...TriggerScopedInputSchema.entries,
-    limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(1000))),
-    beforeTsNs: optionalUint64DecimalFilterSchema("beforeTsNs"),
-});
+export const ListTriggerEventsInputSchema = v.pipe(
+    v.object({
+        ...TriggerScopedInputEntries,
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(1000))),
+        beforeTsNs: optionalUint64DecimalFilterSchema("beforeTsNs"),
+    }),
+    v.transform(({ account, ...input }) => ({
+        ...input,
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
 
 export type ListTriggerEventsInput = v.InferInput<typeof ListTriggerEventsInputSchema>;

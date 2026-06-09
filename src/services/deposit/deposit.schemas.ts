@@ -1,13 +1,14 @@
 import * as v from "valibot";
-import { optionalSubaccountIdInputSchema } from "../../shared/schemas.js";
 import {
     createCatalogSnapshotReader,
     type CatalogReader,
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
 import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
-
-const OptionalSubaccountIdSchema = optionalSubaccountIdInputSchema();
+import {
+    AccountScopeInputEntries,
+    accountScopeToSubaccountId,
+} from "../../shared/account-scope.js";
 
 function chainIdInputSchemaForReader(reader: CatalogReader, required: boolean) {
     return v.pipe(
@@ -32,10 +33,16 @@ export function createCreateDepositAddressInputSchema(catalog: CatalogSnapshot) 
 }
 
 function createCreateDepositAddressInputSchemaForReader(reader: CatalogReader) {
-    return v.intersect([
-        v.object({ subaccountId: OptionalSubaccountIdSchema }),
-        chainIdInputSchemaForReader(reader, true),
-    ]);
+    return v.pipe(
+        v.intersect([
+            v.object({ ...AccountScopeInputEntries }),
+            chainIdInputSchemaForReader(reader, true),
+        ]),
+        v.transform(({ account, ...input }) => ({
+            ...input,
+            subaccountId: accountScopeToSubaccountId(account),
+        })),
+    );
 }
 
 export type CreateDepositAddressInput = v.InferInput<
@@ -50,10 +57,16 @@ export function createListDepositAddressesInputSchema(catalog: CatalogSnapshot) 
 }
 
 function createListDepositAddressesInputSchemaForReader(reader: CatalogReader) {
-    return v.intersect([
-        v.object({ subaccountId: OptionalSubaccountIdSchema }),
-        chainIdInputSchemaForReader(reader, false),
-    ]);
+    return v.pipe(
+        v.intersect([
+            v.object({ ...AccountScopeInputEntries }),
+            chainIdInputSchemaForReader(reader, false),
+        ]),
+        v.transform(({ account, ...input }) => ({
+            ...input,
+            subaccountId: accountScopeToSubaccountId(account),
+        })),
+    );
 }
 
 export type ListDepositAddressesInput = v.InferInput<

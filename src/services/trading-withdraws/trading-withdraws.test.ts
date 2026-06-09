@@ -67,7 +67,7 @@ describe("TradingWithdrawsService", () => {
 
         await expect(
             service.createToFunding({
-                subaccountId: "2",
+                account: { subaccountId: "2" },
                 assetId: 1,
                 quantityScaled: 100n,
                 destinationAddress: "funding",

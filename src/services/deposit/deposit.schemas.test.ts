@@ -36,7 +36,7 @@ describe("CreateDepositAddressInputSchema", () => {
         const schema = createCreateDepositAddressInputSchema(zipperCatalog());
 
         const input = v.parse(schema, {
-            subaccountId: " 7 ",
+            account: { subaccountId: " 7 " },
             chainCode: "BASE",
         });
 

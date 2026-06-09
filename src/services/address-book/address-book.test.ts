@@ -60,12 +60,12 @@ describe("AddressBookService", () => {
         });
     });
 
-    it("lets an empty explicit subaccount ID force root scope over the resolver", async () => {
+    it("lets explicit main scope force root scope over the resolver", async () => {
         const transport = unaryTransport({ destinations: [] });
         const service = new AddressBookService(transport.transport, subaccountResolverStub("42"));
 
         await expect(
-            service.listTransferDestinations({ subaccountId: "", kind: "internal" }),
+            service.listTransferDestinations({ account: "main", kind: "internal" }),
         ).resolves.toEqual([]);
 
         expect(transport.lastCall()?.message).toEqual({

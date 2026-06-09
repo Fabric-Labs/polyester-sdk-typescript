@@ -8,8 +8,11 @@ import {
     OptionalTimestampMsSchema,
     TimestampMsSchema,
     TimestampSchema,
-    optionalSubaccountIdInputSchema,
 } from "../../shared/schemas.js";
+import {
+    AccountScopeInputEntries,
+    accountScopeToSubaccountId,
+} from "../../shared/account-scope.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import { bytesToHex } from "@noble/hashes/utils.js";
 import {
@@ -23,9 +26,14 @@ const ApiKeyUpdateStatusSchema = v.picklist(API_KEY_UPDATE_STATUS_VALUES);
 
 export type ApiKeyStatus = v.InferOutput<typeof ApiKeyStatusSchema>;
 
-export const ApiKeysListInputSchema = v.object({
-    subaccountId: optionalSubaccountIdInputSchema(),
-});
+export const ApiKeysListInputSchema = v.pipe(
+    v.object({
+        ...AccountScopeInputEntries,
+    }),
+    v.transform(({ account }) => ({
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
 
 export type ApiKeysListInput = v.InferInput<typeof ApiKeysListInputSchema>;
 
@@ -35,14 +43,20 @@ export const ApiKeyIdInputSchema = v.object({
 
 export type ApiKeyIdInput = v.InferInput<typeof ApiKeyIdInputSchema>;
 
-export const ApiKeysCreateInputSchema = v.object({
-    label: v.string(),
-    icon: v.optional(v.string(), ""),
-    color: v.optional(v.string(), ""),
-    subaccountId: optionalSubaccountIdInputSchema(),
-    ipWhitelist: v.optional(v.array(v.string()), []),
-    publicKeyEd25519: v.instance(Uint8Array<ArrayBufferLike>),
-});
+export const ApiKeysCreateInputSchema = v.pipe(
+    v.object({
+        label: v.string(),
+        icon: v.optional(v.string(), ""),
+        color: v.optional(v.string(), ""),
+        ...AccountScopeInputEntries,
+        ipWhitelist: v.optional(v.array(v.string()), []),
+        publicKeyEd25519: v.instance(Uint8Array<ArrayBufferLike>),
+    }),
+    v.transform(({ account, ...input }) => ({
+        ...input,
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
 
 export type ApiKeysCreateInput = v.InferInput<typeof ApiKeysCreateInputSchema>;
 

@@ -1,17 +1,23 @@
 import { bytesToHex } from "@noble/hashes/utils.js";
 import * as v from "valibot";
-import { optionalSubaccountIdInputSchema } from "../../shared/schemas.js";
 import { PROTECTED_ACTION_VALUES, ProtectedActionCodec } from "./guard-signer.codecs.js";
-
-const OptionalSubaccountIdSchema = optionalSubaccountIdInputSchema();
+import {
+    AccountScopeInputEntries,
+    accountScopeToSubaccountId,
+} from "../../shared/account-scope.js";
 
 const HexAddressSchema = v.pipe(v.string(), v.trim(), v.regex(/^0x[0-9a-fA-F]{40}$/));
 
 const WhitelistAddressSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
 
-export const GuardSignerScopedInputSchema = v.object({
-    subaccountId: OptionalSubaccountIdSchema,
-});
+export const GuardSignerScopedInputSchema = v.pipe(
+    v.object({
+        ...AccountScopeInputEntries,
+    }),
+    v.transform(({ account }) => ({
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
 
 export type GuardSignerScopedInput = v.InferInput<typeof GuardSignerScopedInputSchema>;
 
@@ -67,12 +73,12 @@ function toProtectedActionArgs(args: v.InferOutput<typeof ProtectedActionArgsInp
 
 export const SignProtectedActionInputSchema = v.pipe(
     v.object({
-        subaccountId: OptionalSubaccountIdSchema,
+        ...AccountScopeInputEntries,
         action: v.picklist(PROTECTED_ACTION_VALUES),
         args: v.optional(ProtectedActionArgsInputSchema),
     }),
-    v.transform(({ subaccountId, action, args }) => ({
-        subaccountId,
+    v.transform(({ account, action, args }) => ({
+        subaccountId: accountScopeToSubaccountId(account),
         action: ProtectedActionCodec.inputToProto[action],
         args: args ? toProtectedActionArgs(args) : undefined,
     })),
@@ -82,7 +88,7 @@ export type SignProtectedActionInput = v.InferInput<typeof SignProtectedActionIn
 
 export const BatchSignProtectedActionInputSchema = v.pipe(
     v.object({
-        subaccountId: OptionalSubaccountIdSchema,
+        ...AccountScopeInputEntries,
         actions: v.pipe(
             v.array(
                 v.object({
@@ -93,8 +99,8 @@ export const BatchSignProtectedActionInputSchema = v.pipe(
             v.minLength(1, "At least one protected action is required."),
         ),
     }),
-    v.transform(({ subaccountId, actions }) => ({
-        subaccountId,
+    v.transform(({ account, actions }) => ({
+        subaccountId: accountScopeToSubaccountId(account),
         actions: actions.map(({ action, args }) => ({
             action: ProtectedActionCodec.inputToProto[action],
             args: args ? toProtectedActionArgs(args) : undefined,

@@ -52,14 +52,14 @@ describe("ApiKeysService", () => {
                 expectedSubaccountId: 42n,
             },
             {
-                input: { subaccountId: " 7 " },
+                input: { account: { subaccountId: " 7 " } },
                 expectedSubaccountId: 7n,
             },
             {
-                input: { subaccountId: "" },
+                input: { account: "main" },
                 expectedSubaccountId: undefined,
             },
-        ];
+        ] as const;
 
         for (const { input, expectedSubaccountId } of cases) {
             const signal = new AbortController().signal;
@@ -188,7 +188,7 @@ describe("ApiKeysService", () => {
                 label: "Maker key",
                 icon: "wand",
                 color: "violet",
-                subaccountId: " 9 ",
+                account: { subaccountId: " 9 " },
                 publicKeyEd25519: publicKey,
             },
             { signal, stepUpToken: " create-token " },

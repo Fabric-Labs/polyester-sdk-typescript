@@ -1,5 +1,5 @@
 import * as v from "valibot";
-import { optionalSubaccountIdInputSchema, positiveBigintLikeSchema } from "../../shared/schemas.js";
+import { positiveBigintLikeSchema } from "../../shared/schemas.js";
 import { decimalToScaledInt } from "../../utils/numbers.js";
 import {
     createCatalogSnapshotReader,
@@ -7,8 +7,11 @@ import {
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
 import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
+import {
+    AccountScopeInputEntries,
+    accountScopeToSubaccountId,
+} from "../../shared/account-scope.js";
 
-const OptionalSubaccountIdSchema = optionalSubaccountIdInputSchema();
 const QuantityScaledSchema = positiveBigintLikeSchema("quantityScaled must be greater than 0");
 
 const QuantityInputSchema = v.union([
@@ -34,7 +37,7 @@ function createCreateTradingWithdrawToFundingInputSchemaForReader(reader: Catalo
     return v.pipe(
         v.intersect([
             v.object({
-                subaccountId: OptionalSubaccountIdSchema,
+                ...AccountScopeInputEntries,
                 assetId: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0))),
                 asset: v.optional(v.pipe(v.string(), v.trim(), v.minLength(1))),
                 idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
@@ -61,7 +64,7 @@ function createCreateTradingWithdrawToFundingInputSchemaForReader(reader: Catalo
                 );
             if (quantityScaled <= 0n) throw new Error("amount must be greater than 0");
             return {
-                subaccountId: input.subaccountId,
+                subaccountId: accountScopeToSubaccountId(input.account),
                 assetId: catalogAsset.ledgerId,
                 idempotencyKey: input.idempotencyKey,
                 destinationAddress: input.destinationAddress,

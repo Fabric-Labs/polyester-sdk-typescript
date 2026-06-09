@@ -193,7 +193,7 @@ describe("OrdersService", () => {
                 call: () =>
                     service.listHistory(
                         {
-                            subaccountId: "",
+                            account: "main",
                             status: "FILLED",
                             startTsNs: " 100 ",
                             endTsNs: "200",
@@ -252,7 +252,7 @@ describe("OrdersService", () => {
         await expect(
             service.create(
                 {
-                    subaccountId: "11",
+                    account: { subaccountId: "11" },
                     symbol: " BTC-USDT ",
                     side: "buy",
                     orderType: "limit",
@@ -373,10 +373,14 @@ describe("OrdersService", () => {
         );
 
         await expect(
-            service.cancel({ orderId: "22", symbolId: 1, subaccountId: "11" }),
+            service.cancel({ orderId: "22", symbolId: 1, account: { subaccountId: "11" } }),
         ).resolves.toMatchObject({ status: "cancelled", tsNs: 2 });
         await expect(
-            service.cancel({ clientOrderId: " client-1 ", symbolId: 1, subaccountId: "11" }),
+            service.cancel({
+                clientOrderId: " client-1 ",
+                symbolId: 1,
+                account: { subaccountId: "11" },
+            }),
         ).resolves.toMatchObject({ status: "cancelled", tsNs: 2 });
         await expect(
             service.modify({

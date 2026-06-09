@@ -217,7 +217,7 @@ describe("NewOrderInputSchema", () => {
             {
                 name: "limit",
                 input: {
-                    subaccountId: "11",
+                    account: { subaccountId: "11" },
                     symbol: " BTC-USDT ",
                     side: "buy",
                     orderType: "limit",

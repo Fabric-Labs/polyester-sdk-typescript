@@ -6,7 +6,8 @@ import {
     type PolyesterMutationOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
+import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
+import type { AccountScopedInput } from "../../shared/account-scope.js";
 import {
     BatchGuardApprovalsSchema,
     BatchSignProtectedActionInputSchema,
@@ -142,7 +143,7 @@ export class GuardSignerService {
         return v.parse(ExportGuardSignerWalletResultSchema, response);
     }
 
-    private resolveInput<TInput extends { subaccountId?: string }>(input: TInput): TInput {
-        return resolveSubaccountScopedInput(input, this.#resolver);
+    private resolveInput<TInput extends AccountScopedInput>(input: TInput): TInput {
+        return resolveAccountScopedInput(input, this.#resolver);
     }
 }

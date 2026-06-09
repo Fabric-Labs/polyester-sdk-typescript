@@ -7,10 +7,13 @@ import {
     type CatalogSnapshot,
 } from "../../catalogs/index.js";
 import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
-import { optionalSubaccountIdInputSchema } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { BalanceRangeCodec, EquityGroupByCodec } from "./balances.codecs.js";
+import {
+    AccountScopeInputEntries,
+    accountScopeToSubaccountId,
+} from "../../shared/account-scope.js";
 
 const U128Schema = v.object({
     hi: v.bigint(),
@@ -60,15 +63,21 @@ export const EquityGroupBySchema = v.picklist(EQUITY_GROUP_BYS);
 
 export type EquityGroupBy = v.InferOutput<typeof EquityGroupBySchema>;
 
-export const BalanceHistoryInputSchema = v.object({
-    subaccountId: optionalSubaccountIdInputSchema(),
-    range: v.pipe(
-        BalanceRangeSchema,
-        v.transform((v) => BalanceRangeCodec.inputToProto[v]),
-    ),
-    ledger: v.optional(v.number(), 0),
-    accountCodes: v.optional(v.array(v.number()), []),
-});
+export const BalanceHistoryInputSchema = v.pipe(
+    v.object({
+        ...AccountScopeInputEntries,
+        range: v.pipe(
+            BalanceRangeSchema,
+            v.transform((v) => BalanceRangeCodec.inputToProto[v]),
+        ),
+        ledger: v.optional(v.number(), 0),
+        accountCodes: v.optional(v.array(v.number()), []),
+    }),
+    v.transform(({ account, ...input }) => ({
+        ...input,
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
 
 export type BalanceHistoryInput = v.InferInput<typeof BalanceHistoryInputSchema>;
 
@@ -129,18 +138,24 @@ export function createBalancesSchemas(catalog: CatalogReader) {
     }));
 }
 
-export const EquityHistoryInputSchema = v.object({
-    subaccountId: optionalSubaccountIdInputSchema(),
-    range: v.pipe(
-        BalanceRangeSchema,
-        v.transform((v) => BalanceRangeCodec.inputToProto[v]),
-    ),
-    accountCodes: v.optional(v.array(v.number()), []),
-    groupBy: v.pipe(
-        v.optional(EquityGroupBySchema, "account"),
-        v.transform((v) => EquityGroupByCodec.inputToProto[v ?? "account"]),
-    ),
-});
+export const EquityHistoryInputSchema = v.pipe(
+    v.object({
+        ...AccountScopeInputEntries,
+        range: v.pipe(
+            BalanceRangeSchema,
+            v.transform((v) => BalanceRangeCodec.inputToProto[v]),
+        ),
+        accountCodes: v.optional(v.array(v.number()), []),
+        groupBy: v.pipe(
+            v.optional(EquityGroupBySchema, "account"),
+            v.transform((v) => EquityGroupByCodec.inputToProto[v ?? "account"]),
+        ),
+    }),
+    v.transform(({ account, ...input }) => ({
+        ...input,
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
 
 export type EquityHistoryInput = v.InferInput<typeof EquityHistoryInputSchema>;
 

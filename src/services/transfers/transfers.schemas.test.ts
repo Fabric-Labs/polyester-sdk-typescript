@@ -61,7 +61,7 @@ describe("LedgerTransferSchema", () => {
 describe("ListTransfersInputSchema", () => {
     it("applies defaults and converts IDs and cursors to proto fields", () => {
         const input = v.parse(ListTransfersInputSchema, {
-            subaccountId: "11",
+            account: { subaccountId: "11" },
             since: 123,
             timestampMin: 1_700_000_000_123,
             timestampMax: 1_700_000_001_123,
@@ -79,16 +79,20 @@ describe("ListTransfersInputSchema", () => {
         });
     });
 
-    it("treats empty subaccount input as main account", () => {
+    it("treats explicit main account scope as main account", () => {
         const input = v.parse(ListTransfersInputSchema, {
-            subaccountId: "",
+            account: "main",
         });
 
         expect(input.subaccountId).toBeUndefined();
     });
 
-    it("rejects invalid subaccount and cursor inputs", () => {
+    it("rejects legacy or invalid account and cursor inputs", () => {
+        expect(() => v.parse(ListTransfersInputSchema, { subaccountId: "" })).toThrow();
         expect(() => v.parse(ListTransfersInputSchema, { subaccountId: "-1" })).toThrow();
+        expect(() =>
+            v.parse(ListTransfersInputSchema, { account: { subaccountId: "-1" } }),
+        ).toThrow();
         expect(() => v.parse(ListTransfersInputSchema, { since: 12.5 })).toThrow();
         expect(() => v.parse(ListTransfersInputSchema, { timestampMin: 12.5 })).toThrow();
         expect(() => v.parse(ListTransfersInputSchema, { timestampMax: -1 })).toThrow();

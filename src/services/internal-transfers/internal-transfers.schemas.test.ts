@@ -8,7 +8,7 @@ import {
 describe("CreateInternalTransferInputSchema", () => {
     it("converts source subaccount and account destination IDs to proto fields", () => {
         const input = v.parse(CreateInternalTransferInputSchema, {
-            subaccountId: "11",
+            account: { subaccountId: "11" },
             destination: { type: "account", accountId: "22" },
             assetId: 1,
             quantityScaled: "1000000",

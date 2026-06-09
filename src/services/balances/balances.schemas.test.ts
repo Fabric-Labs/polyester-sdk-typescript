@@ -41,7 +41,7 @@ describe("ledger balance schema", () => {
 describe("balance history input schemas", () => {
     it("maps balance ranges, subaccounts, and defaults to proto inputs", () => {
         const input = v.parse(BalanceHistoryInputSchema, {
-            subaccountId: " 12 ",
+            account: { subaccountId: " 12 " },
             range: "90d",
         });
 

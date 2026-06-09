@@ -10,10 +10,11 @@ import {
 } from "../../catalogs/index.js";
 import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 import { tsNsToMs } from "../../utils/time.js";
+import { OptionalTimestampMsToNsInputSchema } from "../../shared/schemas.js";
 import {
-    OptionalTimestampMsToNsInputSchema,
-    optionalSubaccountIdInputSchema,
-} from "../../shared/schemas.js";
+    AccountScopeInputEntries,
+    accountScopeToSubaccountId,
+} from "../../shared/account-scope.js";
 
 const U128Schema = v.object({
     hi: v.bigint(),
@@ -88,18 +89,24 @@ export function createTransfersSchemas(catalog: CatalogReader) {
     }));
 }
 
-export const ListTransfersInputSchema = v.object({
-    subaccountId: optionalSubaccountIdInputSchema(),
-    ledger: v.optional(v.number(), 0),
-    limit: v.optional(v.number()),
-    reversed: v.optional(v.boolean(), false),
-    timestampMin: OptionalTimestampMsToNsInputSchema,
-    timestampMax: OptionalTimestampMsToNsInputSchema,
-    code: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(0xffffffff))),
-    since: v.pipe(
-        v.optional(v.number(), 0),
-        v.transform((v) => BigInt(v ?? 0)),
-    ),
-});
+export const ListTransfersInputSchema = v.pipe(
+    v.strictObject({
+        ...AccountScopeInputEntries,
+        ledger: v.optional(v.number(), 0),
+        limit: v.optional(v.number()),
+        reversed: v.optional(v.boolean(), false),
+        timestampMin: OptionalTimestampMsToNsInputSchema,
+        timestampMax: OptionalTimestampMsToNsInputSchema,
+        code: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(0xffffffff))),
+        since: v.pipe(
+            v.optional(v.number(), 0),
+            v.transform((v) => BigInt(v ?? 0)),
+        ),
+    }),
+    v.transform(({ account, ...input }) => ({
+        ...input,
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
 
 export type ListTransfersInput = v.InferInput<typeof ListTransfersInputSchema>;

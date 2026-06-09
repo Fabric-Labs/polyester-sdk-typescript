@@ -2,7 +2,7 @@ import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
-import { type SubaccountResolver, resolveSubaccountScopedInput } from "../subaccount-resolver.js";
+import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import {
     toConnectCallOptions,
@@ -74,7 +74,7 @@ export class OrdersService {
         input: v.InferInput<typeof OpenOrdersInputSchema> = {},
         options?: PolyesterRequestOptions,
     ): Promise<{ orders: Order[]; nextPageToken: string }> {
-        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(OpenOrdersInputSchema, resolved);
         const res = await this.#readClient.getOpenOrders(
             removeUndefined(validatedInput),
@@ -94,7 +94,7 @@ export class OrdersService {
         input: v.InferInput<typeof OrderHistoryInputSchema> = {},
         options?: PolyesterRequestOptions,
     ): Promise<{ orders: Order[]; nextPageToken: string }> {
-        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(OrderHistoryInputSchema, resolved);
         const res = await this.#readClient.getOrderHistory(
             removeUndefined(validatedInput),
@@ -114,7 +114,7 @@ export class OrdersService {
         input: NewOrderInput,
         options?: PolyesterMutationOptions,
     ): Promise<CreateOrderResult> {
-        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
         const schemas = this.#schemas.current();
         const validatedInput = v.parse(schemas.newOrderInput, resolved);
         const requestPayload = removeUndefined(validatedInput);
@@ -132,7 +132,7 @@ export class OrdersService {
         input: v.InferInput<typeof CancelOrderInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<CancelOrderResult> {
-        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
 
         const validated = v.parse(CancelOrderInputSchema, resolved);
 
@@ -155,7 +155,7 @@ export class OrdersService {
         options?: PolyesterMutationOptions,
     ): Promise<ModifyOrderResult> {
         const resolved = {
-            ...resolveSubaccountScopedInput(input, this.#resolver),
+            ...resolveAccountScopedInput(input, this.#resolver),
             requestId: input.requestId ?? createMutationRequestId(),
         };
         const schemas = this.#schemas.current();
@@ -175,7 +175,7 @@ export class OrdersService {
         options?: PolyesterMutationOptions,
     ): Promise<CancelAllOrdersResponse> {
         const resolved = {
-            ...resolveSubaccountScopedInput(input, this.#resolver),
+            ...resolveAccountScopedInput(input, this.#resolver),
             requestId: input.requestId ?? createMutationRequestId(),
         };
         const validated = v.parse(CancelAllOrdersInputSchema, resolved);
@@ -193,7 +193,7 @@ export class OrdersService {
         input: v.InferInput<typeof GetOrderDetailsInputSchema>,
         options?: PolyesterRequestOptions,
     ): Promise<OrderDetails | null> {
-        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(GetOrderDetailsInputSchema, resolved);
         const res = await this.#readClient.getOrder(
             removeUndefined(validatedInput),

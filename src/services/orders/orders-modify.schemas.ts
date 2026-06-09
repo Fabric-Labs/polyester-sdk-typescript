@@ -8,11 +8,11 @@ import {
 import { parsePriceTicks } from "../../utils/numbers.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { idToBigInt } from "../../utils/base58-id.js";
+import { OptionalPublicIdSchema, PublicIdSchema } from "../../shared/schemas.js";
 import {
-    OptionalPublicIdSchema,
-    PublicIdSchema,
-    optionalSubaccountIdInputSchema,
-} from "../../shared/schemas.js";
+    AccountScopeInputEntries,
+    accountScopeToSubaccountId,
+} from "../../shared/account-scope.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import { MODIFY_BEHAVIOR_VALUES, ModifyActionCodec, ModifyBehaviorCodec } from "./orders.codecs.js";
 import { RequiredRiskPolicyInputSchema } from "./orders-risk.schemas.js";
@@ -38,7 +38,7 @@ const ClientOrderIdInputSchema = v.pipe(
 const ModifyPatchStringInputSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
 
 const ModifyOrderBaseInputSchema = v.object({
-    subaccountId: optionalSubaccountIdInputSchema(),
+    ...AccountScopeInputEntries,
     requestId: v.optional(
         v.pipe(
             v.string(),
@@ -155,7 +155,7 @@ export function createModifyOrderInputSchemaForReader(reader: CatalogReader) {
                     : input.risk;
 
             return {
-                subaccountId: input.subaccountId,
+                subaccountId: accountScopeToSubaccountId(input.account),
                 key: input.key,
                 requestId: input.requestId,
                 newPriceTicks,

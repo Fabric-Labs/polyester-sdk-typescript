@@ -84,7 +84,7 @@ describe("GuardSignerService", () => {
             nonce: "12",
             nonceSpace: 9n,
         });
-        await expect(service.getStatus({ subaccountId: "" })).resolves.toBeNull();
+        await expect(service.getStatus({ account: "main" })).resolves.toBeNull();
 
         expect(transport.calls[0]?.message).toEqual({ subaccountId: 42n });
         expect(transport.calls[0]?.signal).toBe(signal);
@@ -131,7 +131,7 @@ describe("GuardSignerService", () => {
         await expect(
             service.batchSignProtectedActions(
                 {
-                    subaccountId: "",
+                    account: "main",
                     actions: [
                         {
                             action: "fundingSetInternalWhitelistRequired",

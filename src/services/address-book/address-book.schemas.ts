@@ -7,6 +7,10 @@ import {
     idInputSchema,
     optionalSubaccountIdInputSchema,
 } from "../../shared/schemas.js";
+import {
+    AccountScopeInputEntries,
+    accountScopeToSubaccountId,
+} from "../../shared/account-scope.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import {
     ADDRESS_BOOK_ENTRY_KIND_VALUES,
@@ -33,11 +37,11 @@ const AddressBookTagInputSchema = v.object({
 
 export const ListAddressBookEntriesInputSchema = v.pipe(
     v.object({
-        subaccountId: OptionalSubaccountIdSchema,
+        ...AccountScopeInputEntries,
         kind: v.optional(v.picklist(ADDRESS_BOOK_ENTRY_KIND_VALUES)),
     }),
-    v.transform(({ subaccountId, kind }) => ({
-        subaccountId,
+    v.transform(({ account, kind }) => ({
+        subaccountId: accountScopeToSubaccountId(account),
         kind: kind ? AddressBookEntryKindCodec.inputToProto[kind] : undefined,
     })),
 );
@@ -46,7 +50,7 @@ export type ListAddressBookEntriesInput = v.InferInput<typeof ListAddressBookEnt
 
 export const CreateAddressBookEntryInputSchema = v.pipe(
     v.object({
-        subaccountId: OptionalSubaccountIdSchema,
+        ...AccountScopeInputEntries,
         label: v.pipe(v.string(), v.trim(), v.minLength(1)),
         note: v.optional(v.pipe(v.string(), v.trim()), ""),
         entry: v.variant("kind", [
@@ -63,9 +67,9 @@ export const CreateAddressBookEntryInputSchema = v.pipe(
         tagIds: v.optional(v.array(IdSchema("tagId")), []),
         newTags: v.optional(v.array(AddressBookTagInputSchema), []),
     }),
-    v.transform(({ subaccountId, entry, ...rest }) => ({
+    v.transform(({ account, entry, ...rest }) => ({
         ...rest,
-        subaccountId,
+        subaccountId: accountScopeToSubaccountId(account),
         entry:
             entry.kind === "external"
                 ? {
@@ -109,11 +113,17 @@ export const CopyAddressBookEntryInputSchema = v.object({
 
 export type CopyAddressBookEntryInput = v.InferInput<typeof CopyAddressBookEntryInputSchema>;
 
-export const CreateAddressBookTagInputSchema = v.object({
-    subaccountId: OptionalSubaccountIdSchema,
-    name: v.pipe(v.string(), v.trim(), v.minLength(1)),
-    color: v.optional(v.pipe(v.string(), v.trim()), ""),
-});
+export const CreateAddressBookTagInputSchema = v.pipe(
+    v.object({
+        ...AccountScopeInputEntries,
+        name: v.pipe(v.string(), v.trim(), v.minLength(1)),
+        color: v.optional(v.pipe(v.string(), v.trim()), ""),
+    }),
+    v.transform(({ account, ...input }) => ({
+        ...input,
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
 
 export type CreateAddressBookTagInput = v.InferInput<typeof CreateAddressBookTagInputSchema>;
 
@@ -133,14 +143,14 @@ export type DeleteAddressBookTagInput = v.InferInput<typeof DeleteAddressBookTag
 
 export const ListTransferCounterpartiesInputSchema = v.pipe(
     v.object({
-        subaccountId: OptionalSubaccountIdSchema,
+        ...AccountScopeInputEntries,
         direction: v.optional(v.picklist(TRANSFER_COUNTERPARTY_DIRECTION_VALUES)),
         kind: v.optional(v.picklist(ADDRESS_BOOK_ENTRY_KIND_VALUES)),
         pageSize: PageSizeSchema,
     }),
-    v.transform(({ subaccountId, direction, kind, ...rest }) => ({
+    v.transform(({ account, direction, kind, ...rest }) => ({
         ...rest,
-        subaccountId,
+        subaccountId: accountScopeToSubaccountId(account),
         direction: direction
             ? TransferCounterpartyDirectionCodec.inputToProto[direction]
             : undefined,
@@ -154,11 +164,11 @@ export type ListTransferCounterpartiesInput = v.InferInput<
 
 export const ListTransferDestinationsInputSchema = v.pipe(
     v.object({
-        subaccountId: OptionalSubaccountIdSchema,
+        ...AccountScopeInputEntries,
         kind: v.optional(v.picklist(ADDRESS_BOOK_ENTRY_KIND_VALUES)),
     }),
-    v.transform(({ subaccountId, kind }) => ({
-        subaccountId,
+    v.transform(({ account, kind }) => ({
+        subaccountId: accountScopeToSubaccountId(account),
         kind: kind ? AddressBookEntryKindCodec.inputToProto[kind] : undefined,
     })),
 );
@@ -167,16 +177,27 @@ export type ListTransferDestinationsInput = v.InferInput<
     typeof ListTransferDestinationsInputSchema
 >;
 
-export const SubaccountScopedInputSchema = v.object({
-    subaccountId: OptionalSubaccountIdSchema,
-});
+export const SubaccountScopedInputSchema = v.pipe(
+    v.object({
+        ...AccountScopeInputEntries,
+    }),
+    v.transform(({ account }) => ({
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
 
 export type SubaccountScopedInput = v.InferInput<typeof SubaccountScopedInputSchema>;
 
-export const GetAddressBookViewInputSchema = v.object({
-    subaccountId: OptionalSubaccountIdSchema,
-    pageSize: PageSizeSchema,
-});
+export const GetAddressBookViewInputSchema = v.pipe(
+    v.object({
+        ...AccountScopeInputEntries,
+        pageSize: PageSizeSchema,
+    }),
+    v.transform(({ account, ...input }) => ({
+        ...input,
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
 
 export type GetAddressBookViewInput = v.InferInput<typeof GetAddressBookViewInputSchema>;
 

@@ -2,16 +2,12 @@ import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as v from "valibot";
 import type { RealtimeClient } from "../../realtime/index.js";
-import {
-    type SubaccountResolver,
-    resolveSubaccountId,
-    resolveSubaccountScopedInput,
-} from "../subaccount-resolver.js";
+import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import { idToBigInt } from "../../utils/base58-id.js";
+import { accountScopeToSubaccountId, type AccountScopedInput } from "../../shared/account-scope.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
     createBalancesSchemas,
@@ -57,13 +53,13 @@ export class BalancesService {
      * Returns current asset balances for the resolved root account or subaccount, including trading, funding, reserved, and available amounts. Unknown asset ids are filtered out before schema parsing.
      */
     async list(
-        input: { subaccountId?: string } = {},
+        input: AccountScopedInput = {},
         options?: PolyesterRequestOptions,
     ): Promise<LedgerBalance[]> {
-        const resolved = resolveSubaccountId(input.subaccountId, this.#resolver);
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
         const res = await this.#client.getBalances(
             {
-                subaccountId: resolved ? idToBigInt(resolved, "subaccountId") : undefined,
+                subaccountId: accountScopeToSubaccountId(resolved.account),
             },
             toConnectCallOptions(options),
         );
@@ -82,7 +78,7 @@ export class BalancesService {
         input: BalanceHistoryInput,
         options?: PolyesterRequestOptions,
     ): Promise<BalanceHistoryResponse> {
-        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = v.parse(BalanceHistoryInputSchema, resolved);
         const res = await this.#client.getBalanceHistory(validated, toConnectCallOptions(options));
         const schemas = this.#schemas.current();
@@ -96,7 +92,7 @@ export class BalancesService {
         input: EquityHistoryInput,
         options?: PolyesterRequestOptions,
     ): Promise<EquityHistoryResponse> {
-        const resolved = resolveSubaccountScopedInput(input, this.#resolver);
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = v.parse(EquityHistoryInputSchema, resolved);
         const res = await this.#client.getEquityHistorySeries(
             validated,

@@ -257,7 +257,7 @@ describe("ModifyTriggerInputSchema", () => {
     it("normalizes patch fields and empty oneofs", () => {
         const input = v.parse(ModifyTriggerInputSchema, {
             triggerId: "11",
-            subaccountId: "22",
+            account: { subaccountId: "22" },
             triggerPrice: "101.25",
             maxSlippage: { kind: "none" },
         });
