@@ -1,42 +1,15 @@
 import { isDev } from "./is-dev.js";
-import { parseCookie, serializeCookie } from "./cookie-es/index.js";
-
-interface CookieOptions {
-    path?: string;
-    domain?: string;
-    expires?: Date | string;
-    maxAge?: number;
-    secure?: boolean;
-    httpOnly?: boolean;
-    sameSite?: "lax" | "strict" | "none";
-}
-
-function normalizeCookieOptions(options: CookieOptions) {
-    return {
-        ...options,
-        expires:
-            options.expires === undefined
-                ? undefined
-                : options.expires instanceof Date
-                  ? options.expires
-                  : new Date(options.expires),
-    };
-}
-
-function toCookieRecord(cookies: Record<string, string | undefined>): Record<string, string> {
-    const record: Record<string, string> = {};
-    for (const [name, value] of Object.entries(cookies)) {
-        if (value !== undefined) {
-            record[name] = value;
-        }
-    }
-    return record;
-}
+import {
+    type Cookies,
+    type CookieSerializeOptions,
+    parseCookie,
+    serializeCookie,
+} from "./cookie-es/index.js";
 
 interface SetCookieParams {
     name: string;
     value: string;
-    options: CookieOptions;
+    options: CookieSerializeOptions;
 }
 
 /**
@@ -45,7 +18,7 @@ interface SetCookieParams {
 export function setCookie({ name, value, options }: SetCookieParams): void {
     if (typeof document === "undefined") return;
 
-    document.cookie = serializeCookie(name, value, normalizeCookieOptions(options));
+    document.cookie = serializeCookie(name, value, options);
 }
 
 /**
@@ -77,11 +50,11 @@ export type CookieGetter =
 /**
  * Parses cookies from a Request header.
  */
-export function parseCookiesFromRequest(request: Request): Record<string, string> {
+export function parseCookiesFromRequest(request: Request): Cookies {
     const cookieHeader = request.headers.get("cookie");
     if (!cookieHeader) return {};
 
-    return toCookieRecord(parseCookie(cookieHeader));
+    return parseCookie(cookieHeader);
 }
 
 /**

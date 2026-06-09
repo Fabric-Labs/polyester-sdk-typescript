@@ -4,9 +4,9 @@ import type { AccountSignerConfig, AccountSigner } from "./account-signer/types.
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";
 import {
     createMemoryAuthTokenStorage,
-    getEnvironmentBoundAuthToken,
     type AuthTokenStorage,
 } from "./services/auth/token-storage.js";
+import { AuthSessionStore } from "./services/auth/session.js";
 
 export interface PolyesterBrowserClientConfig extends Omit<PolyesterClientBaseConfig, "auth"> {
     /**
@@ -29,8 +29,10 @@ export class PolyesterBrowserClient extends PolyesterClient {
 
     constructor(config: PolyesterBrowserClientConfig) {
         const tokenStorage = config.tokenStorage ?? createMemoryAuthTokenStorage();
-        const getToken = () =>
-            getEnvironmentBoundAuthToken(tokenStorage, config.environment.fingerprint);
+        const sessionStore = new AuthSessionStore({
+            environmentFingerprint: config.environment.fingerprint,
+        });
+        const getToken = () => sessionStore.getEnvironmentBoundToken(tokenStorage);
 
         super(
             {
@@ -55,6 +57,7 @@ export class PolyesterBrowserClient extends PolyesterClient {
                         subaccounts,
                         realtime,
                         tokenStorage,
+                        sessionStore,
                     }),
             },
         );

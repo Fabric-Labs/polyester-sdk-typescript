@@ -77,7 +77,7 @@ describe("cookie utilities", () => {
             name: "session",
             value: "hello world",
             options: {
-                expires: "Tue, 19 Jan 2038 03:14:07 GMT",
+                expires: new Date("Tue, 19 Jan 2038 03:14:07 GMT"),
                 maxAge: 60,
                 path: "/",
                 sameSite: "lax",

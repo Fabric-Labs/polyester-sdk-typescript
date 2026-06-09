@@ -1,13 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { POLYESTER_TESTNET_ENVIRONMENT } from "../../environment.js";
 import { POLYESTER_AUTH_TOKEN_COOKIE_NAME } from "./cookie-constants.js";
-import { polyesterSession } from "./session.js";
 import {
     createAuthTokenStorageSetOptions,
     createCookieAuthTokenStorage,
     createMemoryAuthTokenStorage,
-    getEnvironmentBoundAuthToken,
-    type AuthTokenStorage,
 } from "./token-storage.js";
 
 const originalDocument = Object.getOwnPropertyDescriptor(globalThis, "document");
@@ -64,21 +60,7 @@ function installCookieJar(): { jar: Map<string, string>; writes: string[] } {
     return { jar, writes };
 }
 
-function createTestStorage(initialToken: string | null) {
-    let token = initialToken;
-    return {
-        get: () => token,
-        set: (nextToken: string) => {
-            token = nextToken;
-        },
-        clear: vi.fn(() => {
-            token = null;
-        }),
-    } satisfies AuthTokenStorage;
-}
-
 afterEach(() => {
-    polyesterSession.clear();
     vi.restoreAllMocks();
     vi.useRealTimers();
     if (originalDocument) {
@@ -126,23 +108,5 @@ describe("auth token storage", () => {
 
         expect(cookies.writes[0]).not.toContain("Max-Age=");
         expect(cookies.writes[0]).not.toContain("Expires=");
-    });
-
-    it("clears configured storage when the display session belongs to another environment", () => {
-        installCookieJar();
-        const token = jwtWithExp(Math.floor(Date.now() / 1000) + 180);
-        const storage = createTestStorage(token);
-        polyesterSession.set({
-            environmentFingerprint: "other-environment",
-            provider: "turnkey",
-            loginMethod: null,
-            primaryWallet: "0xprimary",
-            smartAccount: "0xsmart",
-        });
-
-        expect(
-            getEnvironmentBoundAuthToken(storage, POLYESTER_TESTNET_ENVIRONMENT.fingerprint),
-        ).toBeNull();
-        expect(storage.clear).toHaveBeenCalledTimes(1);
     });
 });

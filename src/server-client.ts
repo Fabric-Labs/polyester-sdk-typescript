@@ -3,49 +3,16 @@ import {
     POLYESTER_AUTH_TOKEN_COOKIE_NAME,
     POLYESTER_SESSION_COOKIE_NAME,
 } from "./services/auth/cookie-constants.js";
-import type {
-    ActiveAccountInfo,
-    AuthLoginMethod,
-    SessionData,
-} from "./services/auth/session.types.js";
-import { parseSessionData } from "./services/auth/session.schemas.js";
-import { type CookieGetter, getCookieValue } from "./utils/cookies.js";
+import type { ServerSessionSnapshot } from "./services/auth/session.types.js";
+import { emptyServerSessionSnapshot, parseServerSessionSnapshot } from "./services/auth/session.js";
+import type { CookieGetter } from "./utils/cookies.js";
 import type { JwtAuthProvider, ApiKeyEd25519AuthProvider } from "./shared/transports.js";
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";
 import { isJwtValid } from "./utils/jwt.js";
 import type { Me } from "./services/auth/auth.js";
 import type { PolyesterEnvironment } from "./environment.js";
 
-/**
- * Display-only session data parsed from client-readable cookies.
- *
- * This data is unsigned and must not be used for authorization. Use
- * `verifySession()` to confirm the bearer token with the backend before
- * treating a request as authenticated.
- */
-export interface ServerSessionSnapshot {
-    environmentFingerprint: string | null;
-    hasDisplaySession: boolean;
-    provider: string | null;
-    loginMethod: AuthLoginMethod | null;
-    accountAddresses: { ownerAddress: string; accountAddress: string } | null;
-    activeAccount: ActiveAccountInfo | null;
-    bearerToken: string | null;
-    username: string | null;
-}
-
-function emptyServerSessionSnapshot(): ServerSessionSnapshot {
-    return {
-        environmentFingerprint: null,
-        hasDisplaySession: false,
-        provider: null,
-        loginMethod: null,
-        accountAddresses: null,
-        activeAccount: null,
-        bearerToken: null,
-        username: null,
-    };
-}
+export type { ServerSessionSnapshot };
 
 /**
  * Parses a serialized session cookie into SDK session data.
@@ -54,39 +21,7 @@ export function parseSessionCookie(
     cookies: CookieGetter,
     environment: PolyesterEnvironment,
 ): ServerSessionSnapshot {
-    const sessionValue = getCookieValue(cookies, POLYESTER_SESSION_COOKIE_NAME);
-    const bearerToken = getCookieValue(cookies, POLYESTER_AUTH_TOKEN_COOKIE_NAME) ?? null;
-
-    let session: SessionData | null = null;
-    if (sessionValue) {
-        try {
-            // handle legacy double-encoded cookies (value was previously encoded before passing to setCookie)
-            const jsonStr = sessionValue.startsWith("%7B")
-                ? decodeURIComponent(sessionValue)
-                : sessionValue;
-            session = parseSessionData(JSON.parse(jsonStr));
-        } catch {
-            // invalid JSON
-        }
-    }
-
-    if (!session || session.environmentFingerprint !== environment.fingerprint) {
-        return emptyServerSessionSnapshot();
-    }
-
-    return {
-        environmentFingerprint: session.environmentFingerprint,
-        hasDisplaySession: true,
-        provider: session.provider,
-        loginMethod: session.loginMethod,
-        accountAddresses: {
-            ownerAddress: session.primaryWallet,
-            accountAddress: session.smartAccount,
-        },
-        activeAccount: session.activeAccount ?? null,
-        bearerToken,
-        username: session.username ?? null,
-    };
+    return parseServerSessionSnapshot(cookies, environment);
 }
 
 export interface PolyesterServerClientConfig extends PolyesterClientBaseConfig {

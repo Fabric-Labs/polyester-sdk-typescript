@@ -1,5 +1,5 @@
 import { AuthService, type AuthServiceTransports } from "./auth.js";
-import { polyesterSession } from "./session.js";
+import { AuthSessionStore } from "./session.js";
 import type { AccountSigner, AccountSignerConfig, HexAddress } from "../../account-signer/types.js";
 import { assertAccountSigner, resolveAccountSigner } from "../../account-signer/types.js";
 import { EventEmitter } from "../../utils/event-emitter.js";
@@ -15,7 +15,6 @@ import type { RealtimeClient } from "../../realtime/index.js";
 import type { PolyesterEnvironment } from "../../environment.js";
 import {
     createAuthTokenStorageSetOptions,
-    getEnvironmentBoundAuthToken,
     type AuthTokenStorage,
     type AuthTokenStorageSetOptions,
 } from "./token-storage.js";
@@ -71,6 +70,7 @@ export class AccountSignerAuthService extends AuthService {
     #loginMethod: AuthLoginMethod | null = null;
     #environmentFingerprint: string;
     #tokenStorage: AuthTokenStorage;
+    #sessionStore: AuthSessionStore;
 
     constructor({
         transports,
@@ -79,6 +79,7 @@ export class AccountSignerAuthService extends AuthService {
         subaccounts,
         realtime,
         tokenStorage,
+        sessionStore,
     }: {
         transports: AuthServiceTransports;
         accountSignerConfig?: AccountSignerConfig;
@@ -86,6 +87,7 @@ export class AccountSignerAuthService extends AuthService {
         subaccounts: SubaccountsService;
         realtime: RealtimeClient;
         tokenStorage: AuthTokenStorage;
+        sessionStore?: AuthSessionStore;
     }) {
         super(transports, realtime);
 
@@ -93,6 +95,11 @@ export class AccountSignerAuthService extends AuthService {
         this.#environmentFingerprint = environment.fingerprint;
         this.#subaccounts = subaccounts;
         this.#tokenStorage = tokenStorage;
+        this.#sessionStore =
+            sessionStore ??
+            new AuthSessionStore({
+                environmentFingerprint: environment.fingerprint,
+            });
     }
 
     /**
@@ -156,30 +163,24 @@ export class AccountSignerAuthService extends AuthService {
             (provider === "metamask" ? "metamask" : null);
 
         const tokenOptions = createAuthTokenStorageSetOptions(response.accessToken);
-        this.#tokenStorage.set(response.accessToken, tokenOptions);
+        this.#sessionStore.commitLogin(
+            {
+                accessToken: response.accessToken,
+                tokenOptions,
+                provider,
+                loginMethod: resolvedLoginMethod,
+                primaryWallet: ownerAddress,
+                smartAccount: smartAccountAddress,
+                accountId: response.accountId,
+                username: response.username ?? undefined,
+            },
+            this.#tokenStorage,
+        );
         this.#isAuthenticated = true;
         this.#mainAccountId = response.accountId;
         this.#activeAccountId = response.accountId;
         this.#walletProvider = provider;
         this.#loginMethod = resolvedLoginMethod;
-
-        // set full session for SSR hydration
-        polyesterSession.set(
-            {
-                environmentFingerprint: this.#environmentFingerprint,
-                provider: provider,
-                loginMethod: resolvedLoginMethod,
-                primaryWallet: ownerAddress,
-                smartAccount: smartAccountAddress,
-                activeAccount: {
-                    accountId: response.accountId,
-                    isMain: true,
-                    mainAccountId: response.accountId,
-                },
-                username: response.username ?? undefined,
-            },
-            { maxAgeSeconds: tokenOptions.maxAgeSeconds },
-        );
 
         this.#notifyStateChange();
 
@@ -265,33 +266,24 @@ export class AccountSignerAuthService extends AuthService {
                 }
             }
 
-            // ensure session cookie exists for SSR (handles existing users without session)
+            // keep the display session available for SSR hydration
             if (this.#accountSigner?.accountAddress) {
-                if (!existingSession) {
-                    polyesterSession.set(
-                        {
-                            environmentFingerprint: this.#environmentFingerprint,
-                            provider: this.#walletProvider ? this.#walletProvider : "other",
-                            loginMethod:
-                                this.#loginMethod ??
-                                (this.#walletProvider === "metamask" ? "metamask" : null),
-                            primaryWallet:
-                                this.#accountSigner.ownerAddress ??
-                                this.#accountSigner.accountAddress,
-                            smartAccount: this.#accountSigner.accountAddress,
-                            activeAccount: {
-                                accountId: me.accountId,
-                                isMain: true,
-                                mainAccountId: me.accountId,
-                            },
-                            username: me.username ?? undefined,
-                        },
-                        { maxAgeSeconds: this.#getCurrentTokenStorageOptions().maxAgeSeconds },
-                    );
-                } else {
-                    this.#walletProvider = existingSession?.provider;
-                    this.#loginMethod = existingSession.loginMethod ?? this.#loginMethod;
-                }
+                const session = this.#sessionStore.ensureSession(
+                    {
+                        provider: this.#walletProvider ? this.#walletProvider : "other",
+                        loginMethod:
+                            this.#loginMethod ??
+                            (this.#walletProvider === "metamask" ? "metamask" : null),
+                        primaryWallet:
+                            this.#accountSigner.ownerAddress ?? this.#accountSigner.accountAddress,
+                        smartAccount: this.#accountSigner.accountAddress,
+                        accountId: me.accountId,
+                        username: me.username ?? undefined,
+                    },
+                    { maxAgeSeconds: this.#getCurrentTokenStorageOptions().maxAgeSeconds },
+                );
+                this.#walletProvider = session.provider;
+                this.#loginMethod = session.loginMethod ?? this.#loginMethod;
             }
 
             this.#notifyStateChange();
@@ -312,7 +304,7 @@ export class AccountSignerAuthService extends AuthService {
         this.#activeAccountId = null;
         this.#loginMethod = null;
 
-        polyesterSession.clear();
+        this.#sessionStore.clear();
 
         this.#notifyStateChange();
         this.events.emit("loggedOut", undefined);
@@ -321,7 +313,7 @@ export class AccountSignerAuthService extends AuthService {
     #clearExpiredSessionState(): void {
         const shouldEmitLoggedOut = this.#isAuthenticated;
         this.#tokenStorage.clear();
-        polyesterSession.clear();
+        this.#sessionStore.clear();
         this.#isAuthenticated = false;
         this.#mainAccountId = null;
         this.#activeAccountId = null;
@@ -370,7 +362,7 @@ export class AccountSignerAuthService extends AuthService {
         this.#activeAccountId = accountId;
         const isMain = accountId === this.#mainAccountId;
 
-        polyesterSession.setActiveAccount(
+        this.#sessionStore.setActiveAccount(
             {
                 accountId,
                 isMain,
@@ -464,7 +456,7 @@ export class AccountSignerAuthService extends AuthService {
     }
 
     #getEnvironmentBoundToken(): string | null {
-        return getEnvironmentBoundAuthToken(this.#tokenStorage, this.#environmentFingerprint);
+        return this.#sessionStore.getEnvironmentBoundToken(this.#tokenStorage);
     }
 
     #getCurrentTokenStorageOptions(): AuthTokenStorageSetOptions {
@@ -489,13 +481,6 @@ export class AccountSignerAuthService extends AuthService {
     }
 
     #getEnvironmentSession(): SessionData | null {
-        const session = polyesterSession.get();
-        if (!session) return null;
-        if (session.environmentFingerprint !== this.#environmentFingerprint) {
-            this.#tokenStorage.clear();
-            polyesterSession.clear();
-            return null;
-        }
-        return session;
+        return this.#sessionStore.get();
     }
 }

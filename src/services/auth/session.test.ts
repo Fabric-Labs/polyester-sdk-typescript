@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { POLYESTER_TESTNET_ENVIRONMENT } from "../../environment.js";
 import { POLYESTER_SESSION_COOKIE_NAME } from "./cookie-constants.js";
-import { polyesterSession } from "./session.js";
+import { AuthSessionStore, polyesterSession } from "./session.js";
 import type { SessionData } from "./session.types.js";
+import type { AuthTokenStorage } from "./token-storage.js";
 
 function sessionCookie(session: unknown): string {
     return `${POLYESTER_SESSION_COOKIE_NAME}=${encodeURIComponent(JSON.stringify(session))}`;
@@ -22,6 +23,19 @@ function validSession(): SessionData {
         },
         username: "hunter",
     };
+}
+
+function createTestStorage(initialToken: string | null) {
+    let token = initialToken;
+    return {
+        get: () => token,
+        set: (nextToken: string) => {
+            token = nextToken;
+        },
+        clear: vi.fn(() => {
+            token = null;
+        }),
+    } satisfies AuthTokenStorage;
 }
 
 describe("polyesterSession", () => {
@@ -48,6 +62,39 @@ describe("polyesterSession", () => {
         vi.stubGlobal("document", { cookie: sessionCookie(session) });
 
         expect(polyesterSession.get()).toBeNull();
+        expect(polyesterSession.get()).toBeNull();
+    });
+});
+
+describe("AuthSessionStore", () => {
+    afterEach(() => {
+        polyesterSession.clear();
+        vi.restoreAllMocks();
+        vi.unstubAllGlobals();
+    });
+
+    it("returns environment-bound tokens when the display session matches", () => {
+        const storage = createTestStorage("token-1");
+        const store = new AuthSessionStore({
+            environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+        });
+        vi.stubGlobal("document", { cookie: sessionCookie(validSession()) });
+
+        expect(store.getEnvironmentBoundToken(storage)).toBe("token-1");
+        expect(storage.clear).not.toHaveBeenCalled();
+    });
+
+    it("clears configured token storage when the display session belongs to another environment", () => {
+        const storage = createTestStorage("token-1");
+        const store = new AuthSessionStore({
+            environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+        });
+        vi.stubGlobal("document", {
+            cookie: sessionCookie({ ...validSession(), environmentFingerprint: "0xother" }),
+        });
+
+        expect(store.getEnvironmentBoundToken(storage)).toBeNull();
+        expect(storage.clear).toHaveBeenCalledTimes(1);
         expect(polyesterSession.get()).toBeNull();
     });
 });

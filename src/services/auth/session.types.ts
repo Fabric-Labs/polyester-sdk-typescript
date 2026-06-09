@@ -51,3 +51,19 @@ export interface AuthHydrationData {
     smartAccountAddress?: HexAddress;
     ownerAddress?: HexAddress;
 }
+
+/**
+ * Display-only session data parsed from client-readable cookies.
+ *
+ * This data is unsigned and must not be used for authorization.
+ */
+export interface ServerSessionSnapshot {
+    environmentFingerprint: string | null;
+    hasDisplaySession: boolean;
+    provider: string | null;
+    loginMethod: AuthLoginMethod | null;
+    accountAddresses: { ownerAddress: string; accountAddress: string } | null;
+    activeAccount: ActiveAccountInfo | null;
+    bearerToken: string | null;
+    username: string | null;
+}

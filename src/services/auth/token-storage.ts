@@ -1,7 +1,6 @@
 import { CookieManager } from "../../utils/cookies.js";
 import { getJwtExpiration } from "../../utils/jwt.js";
 import { POLYESTER_AUTH_TOKEN_COOKIE_NAME } from "./cookie-constants.js";
-import { polyesterSession } from "./session.js";
 
 export interface AuthTokenStorageSetOptions {
     expiresAt: Date | null;
@@ -79,24 +78,4 @@ export function createCookieAuthTokenStorage(
             cookie.clear({ path });
         },
     };
-}
-
-/**
- * Returns the auth token scoped to the active SDK environment.
- */
-export function getEnvironmentBoundAuthToken(
-    tokenStorage: AuthTokenStorage,
-    environmentFingerprint: string,
-): string | null {
-    const token = tokenStorage.get();
-    if (!token) return null;
-
-    const session = polyesterSession.get();
-    if (session?.environmentFingerprint !== environmentFingerprint) {
-        tokenStorage.clear();
-        if (session) polyesterSession.clear();
-        return null;
-    }
-
-    return token;
 }
