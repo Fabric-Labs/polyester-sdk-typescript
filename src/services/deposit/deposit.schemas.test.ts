@@ -1,43 +1,18 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
-import { createTestCatalog } from "../../testing/catalog.js";
 import {
     createCreateDepositAddressInputSchema,
     createListDepositAddressesInputSchema,
     DepositAddressesSchema,
 } from "./deposit.schemas.js";
 
-function zipperCatalog() {
-    return createTestCatalog({
-        zipper: {
-            chains: [
-                {
-                    chainId: 8453,
-                    code: "BASE",
-                    name: "Base",
-                    nativeChainId: "8453",
-                    nativeCurrencySymbol: "ETH",
-                    explorerUrl: "https://basescan.org",
-                    icon: "base.svg",
-                    requiredConfirmations: 12,
-                    confirmationTimeSeconds: 2,
-                    isCaseSensitive: false,
-                    minAddressLength: 42,
-                    maxAddressLength: 42,
-                },
-            ],
-            assets: [],
-        },
-    }).snapshot();
-}
-
 describe("CreateDepositAddressInputSchema", () => {
-    it("resolves chain codes through the zipper catalog", () => {
-        const schema = createCreateDepositAddressInputSchema(zipperCatalog());
+    it("accepts explicit chain IDs", () => {
+        const schema = createCreateDepositAddressInputSchema();
 
         const input = v.parse(schema, {
             account: { subaccountId: " 7 " },
-            chainCode: "BASE",
+            chainId: 8453,
         });
 
         expect(input).toEqual({
@@ -46,25 +21,17 @@ describe("CreateDepositAddressInputSchema", () => {
         });
     });
 
-    it("accepts explicit chain IDs without catalog lookup", () => {
-        const schema = createCreateDepositAddressInputSchema(zipperCatalog());
+    it("requires a positive chain ID", () => {
+        const schema = createCreateDepositAddressInputSchema();
 
-        const input = v.parse(schema, { chainId: 8453 });
-
-        expect(input.chainId).toBe(8453);
-    });
-
-    it("requires a known chain selector", () => {
-        const schema = createCreateDepositAddressInputSchema(zipperCatalog());
-
-        expect(() => v.parse(schema, {})).toThrow("chainId or chainCode is required");
-        expect(() => v.parse(schema, { chainCode: "UNKNOWN" })).toThrow();
+        expect(() => v.parse(schema, {})).toThrow();
+        expect(() => v.parse(schema, { chainId: 0 })).toThrow();
     });
 });
 
 describe("ListDepositAddressesInputSchema", () => {
     it("leaves chain ID unset when no optional chain selector is supplied", () => {
-        const schema = createListDepositAddressesInputSchema(zipperCatalog());
+        const schema = createListDepositAddressesInputSchema();
 
         const input = v.parse(schema, {});
 

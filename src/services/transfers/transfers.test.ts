@@ -1,23 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
-import { createTestCatalog } from "../../testing/catalog.js";
 import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import { TransfersService } from "./transfers.js";
-
-function seedAssetCatalog() {
-    return createTestCatalog({
-        assets: [
-            {
-                symbol: "USDC",
-                ledgerId: 1,
-                name: "USD Coin",
-                quantityDisplayDecimals: 2,
-                quantityScale: 18,
-            },
-        ],
-    });
-}
 
 function transferRow(overrides: Partial<Proto.TransferRow> = {}): Proto.TransferRow {
     return {
@@ -43,7 +28,6 @@ describe("TransfersService", () => {
     });
 
     it("normalizes list inputs, resolver defaults, signals, and response parsing", async () => {
-        const catalog = seedAssetCatalog();
         const controller = new AbortController();
         const resolver: SubaccountResolver = {
             getDefaultSubaccountId: () => "11",
@@ -56,7 +40,6 @@ describe("TransfersService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             resolver,
-            catalog,
         );
 
         await expect(
@@ -76,14 +59,14 @@ describe("TransfersService", () => {
             transfers: [
                 {
                     txId: "tx-1",
-                    amount: "+1",
-                    symbol: "USDC",
+                    assetId: 1,
+                    amountQ: "1000000000000000000",
                     type: "internal_transfer",
                     accountCode: "unified_trading",
                     pending: false,
                     onchain: false,
                     timestamp: 1_700_000_000_123,
-                    balanceAfter: "2",
+                    balanceAfterQ: "2000000000000000000",
                     isDebit: false,
                     linkId: 22,
                     flowId: "flow-1",
@@ -133,13 +116,11 @@ describe("TransfersService", () => {
     });
 
     it("uses private transfer channels and parses realtime publications", () => {
-        const catalog = seedAssetCatalog();
         const realtime = realtimeClientStub();
         const service = new TransfersService(
             unaryTransport({}).transport,
             realtime.realtime,
             undefined,
-            catalog,
         );
         const onEvent = vi.fn();
         const onOpen = vi.fn();
@@ -175,8 +156,8 @@ describe("TransfersService", () => {
         expect(onEvent).toHaveBeenCalledWith(
             expect.objectContaining({
                 txId: "tx-1",
-                amount: "+1",
-                symbol: "USDC",
+                assetId: 1,
+                amountQ: "1000000000000000000",
                 timestamp: 1_700_000_000_123,
             }),
         );

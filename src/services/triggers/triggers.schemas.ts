@@ -1,13 +1,6 @@
-import type { CatalogReader } from "../../catalogs/index.js";
-import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
-import { createCreateTriggerInputSchemaForReader } from "./trigger-input.schemas.js";
-import {
-    createTriggerEventSchemaForReader,
-    createTriggerSchemaForReader,
-} from "./triggers-output.schemas.js";
-
 export {
     CancelTriggerInputSchema,
+    CreateTriggerInputSchema,
     GetTriggerInputSchema,
     ListTriggerEventsInputSchema,
     ListTriggersInputSchema,
@@ -31,6 +24,8 @@ export {
     CreateTriggerResultSchema,
     ModifyTriggerResultSchema,
     PauseTriggerResultSchema,
+    TriggerEventSchema,
+    TriggerSchema,
     createTriggerEventSchema,
     createTriggerSchema,
 } from "./triggers-output.schemas.js";
@@ -49,11 +44,3 @@ export type {
     TriggerEvent,
     TwapDetailsOutput,
 } from "./triggers-output.schemas.js";
-
-export function createTriggersSchemas(catalog: CatalogReader) {
-    return createCatalogSchemaCache(catalog, (reader) => ({
-        createTriggerInput: createCreateTriggerInputSchemaForReader(reader),
-        trigger: createTriggerSchemaForReader(reader),
-        triggerEvent: createTriggerEventSchemaForReader(reader),
-    }));
-}

@@ -29,30 +29,35 @@ describe("subscription input validation", () => {
         vi.restoreAllMocks();
     });
 
-    it("throws for unknown market trade symbols before connecting realtime", () => {
+    it("uses caller-provided market trade symbol ids for realtime routing", () => {
         const realtime = realtimeStub();
         const service = new MarketDataService(noopTransport(), realtime.realtime);
 
-        expect(() =>
-            service.subscribeTrades({
-                symbol: "NOPE-USDT",
-                onEvent: vi.fn(),
-            }),
-        ).toThrow(/\[catalog\] market pairSymbol not found: NOPE-USDT/);
-        expect(realtime.connectProtoChannel).not.toHaveBeenCalled();
+        service.subscribeTrades({
+            symbolId: 999,
+            onEvent: vi.fn(),
+        });
+
+        expect(realtime.connectProtoChannel).toHaveBeenCalledWith(
+            expect.objectContaining({ channel: "public:spot:market:trades:999:proto" }),
+        );
     });
 
-    it("throws for unknown orderbook symbols before connecting realtime", () => {
+    it("uses caller-provided orderbook symbol ids for realtime routing", () => {
         const realtime = realtimeStub();
         const service = new OrderbookService(noopTransport(), realtime.realtime);
 
-        expect(() =>
-            service.createSubscription({
-                symbol: "NOPE-USDT",
-                onEvent: vi.fn(),
+        service.subscribe({
+            symbol: "NOPE-USDT",
+            symbolId: 999,
+            onEvent: vi.fn(),
+        });
+
+        expect(realtime.connectProtoChannel).toHaveBeenCalledWith(
+            expect.objectContaining({
+                channel: "public:spot:orderbook:deltas:depth:50:999:proto",
             }),
-        ).toThrow(/\[catalog\] market pairSymbol not found: NOPE-USDT/);
-        expect(realtime.connectProtoChannel).not.toHaveBeenCalled();
+        );
     });
 
     it("throws for unsupported candle subscription timeframes before connecting realtime", () => {

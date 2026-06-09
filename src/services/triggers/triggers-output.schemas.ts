@@ -6,11 +6,6 @@ import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { formatId } from "../../utils/base58-id.js";
 import {
-    createCatalogSnapshotReader,
-    type CatalogReader,
-    type CatalogSnapshot,
-} from "../../catalogs/index.js";
-import {
     TriggerTypeCodec,
     TriggerStatusCodec,
     OrderTypeCodec,
@@ -111,18 +106,18 @@ const TriggerDetailsRawSchema = v.variant("case", [
 
 export type StopDetailsOutput = {
     case: "stop";
-    triggerPrice: string;
+    triggerPriceTicks: string;
     triggerPriceSource: TriggerPriceSourceLabel;
     triggerDirection: TriggerDirectionLabel;
 };
 
 export type TrailingDetailsOutput = {
     case: "trailing";
-    trailingDistancePrice: string | undefined;
+    trailingDistanceTicks: string | undefined;
     trailingDistanceBps: number;
-    activationPrice: string | undefined;
-    peakPrice: string | undefined;
-    troughPrice: string | undefined;
+    activationPriceTicks: string | undefined;
+    peakPriceTicks: string | undefined;
+    troughPriceTicks: string | undefined;
     maxSlippageTicks: number;
     maxSlippageBps: number;
     triggerPriceSource: TriggerPriceSourceLabel;
@@ -135,13 +130,13 @@ export type TwapDetailsOutput = {
     twapSliceIntervalMs: number;
     sliceIdx: number;
     sliceCount: number;
-    executedQty: string;
+    executedQtyScaled: string;
 };
 
 export type LadderDetailsOutput = {
     case: "ladder";
-    ladderPriceMin: string;
-    ladderPriceMax: string;
+    ladderPriceMinTicks: string;
+    ladderPriceMaxTicks: string;
     ladderLevels: number;
     ladderDistribution: LadderDistributionLabel;
 };
@@ -155,14 +150,12 @@ export type TriggerDetailsOutput =
 
 function transformTriggerDetails(
     details: v.InferOutput<typeof TriggerDetailsRawSchema>,
-    symbolId: number,
-    reader: CatalogReader,
 ): TriggerDetailsOutput {
     switch (details.case) {
         case "stop":
             return {
                 case: "stop",
-                triggerPrice: reader.orders.formatPrice(details.value.triggerPriceTicks, symbolId),
+                triggerPriceTicks: details.value.triggerPriceTicks.toString(),
                 triggerPriceSource: requiredEnumLabel(
                     TriggerPriceSourceCodec.protoToOutput,
                     details.value.triggerPriceSource,
@@ -179,22 +172,22 @@ function transformTriggerDetails(
         case "trailing":
             return {
                 case: "trailing",
-                trailingDistancePrice:
+                trailingDistanceTicks:
                     details.value.trailingDistanceTicks > 0n
-                        ? reader.orders.formatPrice(details.value.trailingDistanceTicks, symbolId)
+                        ? details.value.trailingDistanceTicks.toString()
                         : undefined,
                 trailingDistanceBps: details.value.trailingDistanceBps,
-                activationPrice:
+                activationPriceTicks:
                     details.value.activationPriceTicks > 0n
-                        ? reader.orders.formatPrice(details.value.activationPriceTicks, symbolId)
+                        ? details.value.activationPriceTicks.toString()
                         : undefined,
-                peakPrice:
+                peakPriceTicks:
                     details.value.peakPriceTicks > 0n
-                        ? reader.orders.formatPrice(details.value.peakPriceTicks, symbolId)
+                        ? details.value.peakPriceTicks.toString()
                         : undefined,
-                troughPrice:
+                troughPriceTicks:
                     details.value.troughPriceTicks > 0n
-                        ? reader.orders.formatPrice(details.value.troughPriceTicks, symbolId)
+                        ? details.value.troughPriceTicks.toString()
                         : undefined,
                 maxSlippageTicks: details.value.maxSlippageTicks,
                 maxSlippageBps: details.value.maxSlippageBps,
@@ -218,22 +211,13 @@ function transformTriggerDetails(
                 twapSliceIntervalMs: Number(details.value.twapSliceIntervalMs),
                 sliceIdx: details.value.sliceIdx,
                 sliceCount: details.value.sliceCount,
-                executedQty: reader.orders.formatQuantity(
-                    details.value.executedQtyScaled,
-                    symbolId,
-                ),
+                executedQtyScaled: details.value.executedQtyScaled.toString(),
             };
         case "ladder":
             return {
                 case: "ladder",
-                ladderPriceMin: reader.orders.formatPrice(
-                    details.value.ladderPriceMinTicks,
-                    symbolId,
-                ),
-                ladderPriceMax: reader.orders.formatPrice(
-                    details.value.ladderPriceMaxTicks,
-                    symbolId,
-                ),
+                ladderPriceMinTicks: details.value.ladderPriceMinTicks.toString(),
+                ladderPriceMaxTicks: details.value.ladderPriceMaxTicks.toString(),
                 ladderLevels: details.value.ladderLevels,
                 ladderDistribution: requiredEnumLabel(
                     LadderDistributionCodec.protoToOutput,
@@ -247,166 +231,131 @@ function transformTriggerDetails(
     }
 }
 
-export function createTriggerSchema(catalog: CatalogSnapshot) {
-    return createTriggerSchemaForReader(createCatalogSnapshotReader(catalog));
+export const TriggerSchema = v.pipe(
+    v.object({
+        triggerId: v.bigint(),
+        subaccountId: v.bigint(),
+        symbolId: v.number(),
+        symbol: v.string(),
+        triggerType: v.enum(Proto.TriggerType),
+        status: v.enum(Proto.TriggerStatus),
+        parentOrderId: v.optional(v.bigint()),
+        side: v.enum(ProtoOrders.Side),
+        orderType: v.enum(ProtoOrders.OrderType),
+        tif: v.enum(ProtoOrders.TIF),
+        qtyScaled: v.bigint(),
+        limitPriceTicks: v.bigint(),
+        feeSource: v.enum(ProtoOrders.FeeSource),
+        stpMode: v.enum(ProtoOrders.STPMode),
+        postOnly: v.boolean(),
+        clientTriggerId: v.string(),
+        createdAt: v.optional(TimestampSchema),
+        updatedAt: v.optional(TimestampSchema),
+        armedAt: v.optional(TimestampSchema),
+        completedAt: v.optional(TimestampSchema),
+        childOrderIds: v.optional(v.array(v.bigint())),
+        details: v.optional(TriggerDetailsRawSchema),
+    }),
+    v.transform((t) => ({
+        triggerId: formatId(t.triggerId),
+        subaccountId: formatId(t.subaccountId),
+        symbolId: t.symbolId,
+        symbol: t.symbol,
+        triggerType: requiredEnumLabel(
+            TriggerTypeCodec.protoToOutput,
+            t.triggerType,
+            "TriggerSchema",
+            "trigger type",
+        ),
+        status: requiredEnumLabel(
+            TriggerStatusCodec.protoToOutput,
+            t.status,
+            "TriggerSchema",
+            "status",
+        ),
+        parentOrderId: t.parentOrderId ? formatId(t.parentOrderId) : undefined,
+        side: requiredEnumLabel(TriggerSideCodec.protoToOutput, t.side, "TriggerSchema", "side"),
+        isBuy: t.side === ProtoOrders.Side.BUY,
+        orderType: requiredEnumLabel(
+            OrderTypeCodec.protoToOutput,
+            t.orderType,
+            "TriggerSchema",
+            "order type",
+        ),
+        tif: requiredEnumLabel(TifCodec.protoToOutput, t.tif, "TriggerSchema", "time in force"),
+        qtyScaled: t.qtyScaled.toString(),
+        limitPriceTicks: t.limitPriceTicks > 0n ? t.limitPriceTicks.toString() : undefined,
+        feeSource: requiredEnumLabel(
+            FeeSourceCodec.protoToOutput,
+            t.feeSource,
+            "TriggerSchema",
+            "fee source",
+        ),
+        stpMode: requiredEnumLabel(
+            StpModeCodec.protoToOutput,
+            t.stpMode,
+            "TriggerSchema",
+            "STP mode",
+        ),
+        postOnly: t.postOnly,
+        clientTriggerId: t.clientTriggerId,
+        createdTs: t.createdAt?.seconds ? Number(t.createdAt.seconds) * 1000 : undefined,
+        updatedTs: t.updatedAt?.seconds ? Number(t.updatedAt.seconds) * 1000 : undefined,
+        armedTs: t.armedAt?.seconds ? Number(t.armedAt.seconds) * 1000 : undefined,
+        completedTs: t.completedAt?.seconds ? Number(t.completedAt.seconds) * 1000 : undefined,
+        childOrderIds: t.childOrderIds?.map((id) => formatId(id)) ?? [],
+        details: t.details ? transformTriggerDetails(t.details) : undefined,
+    })),
+);
+
+export function createTriggerSchema() {
+    return TriggerSchema;
 }
 
-export function createTriggerSchemaForReader(reader: CatalogReader) {
-    return v.pipe(
-        v.object({
-            triggerId: v.bigint(),
-            subaccountId: v.bigint(),
-            symbolId: v.number(),
-            symbol: v.string(),
-            triggerType: v.enum(Proto.TriggerType),
-            status: v.enum(Proto.TriggerStatus),
-            parentOrderId: v.optional(v.bigint()),
-            side: v.enum(ProtoOrders.Side),
-            orderType: v.enum(ProtoOrders.OrderType),
-            tif: v.enum(ProtoOrders.TIF),
-            qtyScaled: v.bigint(),
-            limitPriceTicks: v.bigint(),
-            feeSource: v.enum(ProtoOrders.FeeSource),
-            stpMode: v.enum(ProtoOrders.STPMode),
-            postOnly: v.boolean(),
-            clientTriggerId: v.string(),
-            createdAt: v.optional(TimestampSchema),
-            updatedAt: v.optional(TimestampSchema),
-            armedAt: v.optional(TimestampSchema),
-            completedAt: v.optional(TimestampSchema),
-            childOrderIds: v.optional(v.array(v.bigint())),
-            details: v.optional(TriggerDetailsRawSchema),
-        }),
-        v.transform((t) => {
-            const pair = reader.market.requirePairBySymbolId(t.symbolId);
-            return {
-                triggerId: formatId(t.triggerId),
-                subaccountId: formatId(t.subaccountId),
-                symbolId: t.symbolId,
-                symbol: pair.symbol,
-                baseAsset: pair.baseAsset,
-                quoteAsset: pair.quoteAsset,
-                triggerType: requiredEnumLabel(
-                    TriggerTypeCodec.protoToOutput,
-                    t.triggerType,
-                    "TriggerSchema",
-                    "trigger type",
-                ),
-                status: requiredEnumLabel(
-                    TriggerStatusCodec.protoToOutput,
-                    t.status,
-                    "TriggerSchema",
-                    "status",
-                ),
-                parentOrderId: t.parentOrderId ? formatId(t.parentOrderId) : undefined,
-                side: requiredEnumLabel(
-                    TriggerSideCodec.protoToOutput,
-                    t.side,
-                    "TriggerSchema",
-                    "side",
-                ),
-                isBuy: t.side === ProtoOrders.Side.BUY,
-                orderType: requiredEnumLabel(
-                    OrderTypeCodec.protoToOutput,
-                    t.orderType,
-                    "TriggerSchema",
-                    "order type",
-                ),
-                tif: requiredEnumLabel(
-                    TifCodec.protoToOutput,
-                    t.tif,
-                    "TriggerSchema",
-                    "time in force",
-                ),
-                qty: reader.orders.formatQuantity(t.qtyScaled, t.symbolId),
-                limitPrice:
-                    t.limitPriceTicks > 0n
-                        ? reader.orders.formatPrice(t.limitPriceTicks, t.symbolId)
-                        : undefined,
-                feeSource: requiredEnumLabel(
-                    FeeSourceCodec.protoToOutput,
-                    t.feeSource,
-                    "TriggerSchema",
-                    "fee source",
-                ),
-                stpMode: requiredEnumLabel(
-                    StpModeCodec.protoToOutput,
-                    t.stpMode,
-                    "TriggerSchema",
-                    "STP mode",
-                ),
-                postOnly: t.postOnly,
-                clientTriggerId: t.clientTriggerId,
-                createdTs: t.createdAt?.seconds ? Number(t.createdAt.seconds) * 1000 : undefined,
-                updatedTs: t.updatedAt?.seconds ? Number(t.updatedAt.seconds) * 1000 : undefined,
-                armedTs: t.armedAt?.seconds ? Number(t.armedAt.seconds) * 1000 : undefined,
-                completedTs: t.completedAt?.seconds
-                    ? Number(t.completedAt.seconds) * 1000
-                    : undefined,
-                childOrderIds: t.childOrderIds?.map((id) => formatId(id)) ?? [],
-                details: t.details
-                    ? transformTriggerDetails(t.details, t.symbolId, reader)
-                    : undefined,
-            };
-        }),
-    );
+export type Trigger = v.InferOutput<typeof TriggerSchema>;
+
+export const TriggerEventSchema = v.pipe(
+    v.object({
+        triggerId: v.bigint(),
+        subaccountId: v.bigint(),
+        symbolId: v.number(),
+        triggerType: v.enum(Proto.TriggerType),
+        eventType: v.enum(Proto.TriggerEventType),
+        tsNs: v.bigint(),
+        childSeq: v.number(),
+        childOrderId: v.bigint(),
+        firePxTicks: v.bigint(),
+        reason: v.string(),
+    }),
+    v.transform((e) => ({
+        triggerId: formatId(e.triggerId),
+        subaccountId: formatId(e.subaccountId),
+        symbolId: e.symbolId,
+        triggerType: requiredEnumLabel(
+            TriggerTypeCodec.protoToOutput,
+            e.triggerType,
+            "TriggerEventSchema",
+            "trigger type",
+        ),
+        eventType: requiredEnumLabel(
+            TriggerEventTypeCodec.protoToOutput,
+            e.eventType,
+            "TriggerEventSchema",
+            "event type",
+        ),
+        ts: tsNsToMs(e.tsNs),
+        childSeq: e.childSeq,
+        childOrderId: e.childOrderId > 0n ? formatId(e.childOrderId) : undefined,
+        firePriceTicks: e.firePxTicks > 0n ? e.firePxTicks.toString() : undefined,
+        reason: e.reason || undefined,
+    })),
+);
+
+export function createTriggerEventSchema() {
+    return TriggerEventSchema;
 }
 
-export type Trigger = v.InferOutput<ReturnType<typeof createTriggerSchema>>;
-
-export function createTriggerEventSchema(catalog: CatalogSnapshot) {
-    return createTriggerEventSchemaForReader(createCatalogSnapshotReader(catalog));
-}
-
-export function createTriggerEventSchemaForReader(reader: CatalogReader) {
-    return v.pipe(
-        v.object({
-            triggerId: v.bigint(),
-            subaccountId: v.bigint(),
-            symbolId: v.number(),
-            triggerType: v.enum(Proto.TriggerType),
-            eventType: v.enum(Proto.TriggerEventType),
-            tsNs: v.bigint(),
-            childSeq: v.number(),
-            childOrderId: v.bigint(),
-            firePxTicks: v.bigint(),
-            reason: v.string(),
-        }),
-        v.transform((e) => {
-            const pair = reader.market.requirePairBySymbolId(e.symbolId);
-            return {
-                triggerId: formatId(e.triggerId),
-                subaccountId: formatId(e.subaccountId),
-                symbolId: e.symbolId,
-                symbol: pair.symbol,
-                baseAsset: pair.baseAsset,
-                quoteAsset: pair.quoteAsset,
-                triggerType: requiredEnumLabel(
-                    TriggerTypeCodec.protoToOutput,
-                    e.triggerType,
-                    "TriggerEventSchema",
-                    "trigger type",
-                ),
-                eventType: requiredEnumLabel(
-                    TriggerEventTypeCodec.protoToOutput,
-                    e.eventType,
-                    "TriggerEventSchema",
-                    "event type",
-                ),
-                ts: tsNsToMs(e.tsNs),
-                childSeq: e.childSeq,
-                childOrderId: e.childOrderId > 0n ? formatId(e.childOrderId) : undefined,
-                firePrice:
-                    e.firePxTicks > 0n
-                        ? reader.orders.formatPrice(e.firePxTicks, e.symbolId)
-                        : undefined,
-                reason: e.reason || undefined,
-            };
-        }),
-    );
-}
-
-export type TriggerEvent = v.InferOutput<ReturnType<typeof createTriggerEventSchema>>;
+export type TriggerEvent = v.InferOutput<typeof TriggerEventSchema>;
 
 export type ListTriggerEventsResult = {
     events: TriggerEvent[];

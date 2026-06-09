@@ -8,7 +8,6 @@ import {
     TicksStringInputSchema,
     TicksStringOrNumberInputSchema,
 } from "../shared.js";
-import type { CatalogReader } from "../../catalogs/index.js";
 import { parsePriceTicks } from "../../utils/numbers.js";
 import {
     ORDER_TYPE_VALUES,
@@ -270,8 +269,6 @@ function formatRiskLeg(
     leg:
         | v.InferOutput<typeof ReadTakeProfitPolicySchema>
         | v.InferOutput<typeof ReadStopLossPolicySchema>,
-    symbolId: number,
-    reader: CatalogReader,
 ) {
     const orderType = requiredEnumLabel(
         OrderTypeCodec.protoToOutput,
@@ -280,7 +277,7 @@ function formatRiskLeg(
         "order type",
     );
     return {
-        triggerPrice: reader.orders.formatPrice(leg.triggerPriceTicks, symbolId),
+        triggerPriceTicks: leg.triggerPriceTicks.toString(),
         triggerPriceSource: requiredEnumLabel(
             TriggerPriceSourceCodec.protoToOutput,
             leg.triggerPriceSource,
@@ -288,10 +285,7 @@ function formatRiskLeg(
             "trigger price source",
         ),
         orderType,
-        limitPrice:
-            orderType === "limit"
-                ? reader.orders.formatPrice(leg.limitPriceTicks, symbolId)
-                : undefined,
+        limitPriceTicks: orderType === "limit" ? leg.limitPriceTicks.toString() : undefined,
     };
 }
 
@@ -329,29 +323,18 @@ export function formatMarketMaxSlippage(ticks: number, bps: number): MarketMaxSl
     return undefined;
 }
 
-export function formatAttachedRisk(
-    risk: v.InferOutput<typeof ReadAttachedRiskSchema> | undefined,
-    symbolId: number,
-    reader: CatalogReader,
-) {
+export function formatAttachedRisk(risk: v.InferOutput<typeof ReadAttachedRiskSchema> | undefined) {
     if (!risk) return undefined;
 
-    const takeProfit = risk.takeProfit?.policy
-        ? formatRiskLeg(risk.takeProfit.policy, symbolId, reader)
-        : undefined;
-    const stopLoss = risk.stopLoss?.policy
-        ? formatRiskLeg(risk.stopLoss.policy, symbolId, reader)
-        : undefined;
+    const takeProfit = risk.takeProfit?.policy ? formatRiskLeg(risk.takeProfit.policy) : undefined;
+    const stopLoss = risk.stopLoss?.policy ? formatRiskLeg(risk.stopLoss.policy) : undefined;
     const trailingStop = risk.trailingStop?.policy
         ? {
               trailingDistance: formatTrailingDistance(risk.trailingStop.policy.trailingDistance),
               maxSlippage: formatTrailingMaxSlippage(risk.trailingStop.policy.maxSlippage),
-              activationPrice:
+              activationPriceTicks:
                   risk.trailingStop.policy.activationPriceTicks > 0n
-                      ? reader.orders.formatPrice(
-                            risk.trailingStop.policy.activationPriceTicks,
-                            symbolId,
-                        )
+                      ? risk.trailingStop.policy.activationPriceTicks.toString()
                       : undefined,
               triggerPriceSource: requiredEnumLabel(
                   TriggerPriceSourceCodec.protoToOutput,

@@ -1,14 +1,12 @@
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import * as v from "valibot";
-import {
-    createCatalogSnapshotReader,
-    type CatalogReader,
-    type CatalogSnapshot,
-} from "../../catalogs/index.js";
-import { parsePriceTicks } from "../../utils/numbers.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { idToBigInt } from "../../utils/base58-id.js";
-import { OptionalPublicIdSchema, PublicIdSchema } from "../../shared/schemas.js";
+import {
+    OptionalPublicIdSchema,
+    PublicIdSchema,
+    positiveBigintStringInputSchema,
+} from "../../shared/schemas.js";
 import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
@@ -35,8 +33,6 @@ const ClientOrderIdInputSchema = v.pipe(
     v.regex(ClientOrderIdPattern),
 );
 
-const ModifyPatchStringInputSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
-
 const ModifyOrderBaseInputSchema = v.object({
     ...AccountScopeInputEntries,
     requestId: v.optional(
@@ -48,7 +44,6 @@ const ModifyOrderBaseInputSchema = v.object({
             v.regex(ClientOrderIdPattern, "requestId has an invalid format"),
         ),
     ),
-    symbol: v.pipe(v.string(), v.trim(), v.minLength(1)),
     behavior: v.optional(ModifyBehaviorInputSchema),
     newClientOrderId: v.optional(ClientOrderIdInputSchema),
 });
@@ -75,18 +70,18 @@ const ModifyOrderKeyInputSchema = v.union([
 ]);
 
 const ModifyOrderPricePatchInputSchema = v.object({
-    newPrice: ModifyPatchStringInputSchema,
-    newQty: v.optional(ModifyPatchStringInputSchema),
+    newPriceTicks: positiveBigintStringInputSchema("newPriceTicks"),
+    newQtyScaled: v.optional(positiveBigintStringInputSchema("newQtyScaled")),
 });
 
 const ModifyOrderQtyPatchInputSchema = v.object({
-    newPrice: v.optional(ModifyPatchStringInputSchema),
-    newQty: ModifyPatchStringInputSchema,
+    newPriceTicks: v.optional(positiveBigintStringInputSchema("newPriceTicks")),
+    newQtyScaled: positiveBigintStringInputSchema("newQtyScaled"),
 });
 
 const ModifyOrderNoPriceQtyPatchInputSchema = v.object({
-    newPrice: v.optional(v.never()),
-    newQty: v.optional(v.never()),
+    newPriceTicks: v.optional(v.never()),
+    newQtyScaled: v.optional(v.never()),
 });
 
 const ModifyOrderSetRiskPatchInputSchema = v.object({
@@ -121,54 +116,39 @@ const ModifyOrderPatchInputSchema = v.union([
     v.intersect([ModifyOrderNoPriceQtyPatchInputSchema, ModifyOrderRequiredRiskPatchInputSchema]),
 ]);
 
-export function createModifyOrderInputSchema(catalog: CatalogSnapshot) {
-    return createModifyOrderInputSchemaForReader(createCatalogSnapshotReader(catalog));
+export const ModifyOrderInputSchema = v.pipe(
+    v.intersect([
+        ModifyOrderBaseInputSchema,
+        ModifyOrderKeyInputSchema,
+        ModifyOrderPatchInputSchema,
+    ]),
+    v.transform((input) => {
+        const behavior = input.behavior
+            ? ModifyBehaviorCodec.inputToProto[input.behavior]
+            : ProtoWrite.ModifyBehavior.AMEND_OR_REPLACE;
+        const newAttachedRisk =
+            input.clearRisk === true
+                ? ({} as NonNullable<ProtoWrite.ModifyOrderRequest["newAttachedRisk"]>)
+                : input.risk;
+
+        return {
+            subaccountId: accountScopeToSubaccountId(input.account),
+            key: input.key,
+            requestId: input.requestId,
+            newPriceTicks: input.newPriceTicks,
+            newQtyScaled: input.newQtyScaled,
+            newAttachedRisk,
+            behavior,
+            newClientOrderId: input.newClientOrderId ?? "",
+        };
+    }),
+);
+
+export function createModifyOrderInputSchema() {
+    return ModifyOrderInputSchema;
 }
 
-export function createModifyOrderInputSchemaForReader(reader: CatalogReader) {
-    return v.pipe(
-        v.intersect([
-            ModifyOrderBaseInputSchema,
-            ModifyOrderKeyInputSchema,
-            ModifyOrderPatchInputSchema,
-        ]),
-        v.transform((input) => {
-            const newPriceTicks = input.newPrice
-                ? parsePriceTicks(input.newPrice, "newPrice")
-                : undefined;
-            if (input.newQty) {
-                reader.orders.validateOrderInput({
-                    pair: input.symbol,
-                    quantity: input.newQty,
-                    price: input.newPrice,
-                });
-            }
-            const newQtyScaled = input.newQty
-                ? reader.orders.parseQuantity(input.newQty, input.symbol).value
-                : undefined;
-            const behavior = input.behavior
-                ? ModifyBehaviorCodec.inputToProto[input.behavior]
-                : ProtoWrite.ModifyBehavior.AMEND_OR_REPLACE;
-            const newAttachedRisk =
-                input.clearRisk === true
-                    ? ({} as NonNullable<ProtoWrite.ModifyOrderRequest["newAttachedRisk"]>)
-                    : input.risk;
-
-            return {
-                subaccountId: accountScopeToSubaccountId(input.account),
-                key: input.key,
-                requestId: input.requestId,
-                newPriceTicks,
-                newQtyScaled,
-                newAttachedRisk,
-                behavior,
-                newClientOrderId: input.newClientOrderId ?? "",
-            };
-        }),
-    );
-}
-
-export type ModifyOrderInput = v.InferInput<ReturnType<typeof createModifyOrderInputSchema>>;
+export type ModifyOrderInput = v.InferInput<typeof ModifyOrderInputSchema>;
 
 export const ModifyOrderResultSchema = v.object({
     actionTaken: v.pipe(

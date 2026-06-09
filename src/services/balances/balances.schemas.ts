@@ -1,12 +1,5 @@
 import * as v from "valibot";
-import { fromU128, u128ToDecimal } from "../../utils/u128.js";
-import {
-    createCatalogSnapshotReader,
-    LEDGER_SCALE,
-    type CatalogReader,
-    type CatalogSnapshot,
-} from "../../catalogs/index.js";
-import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
+import { fromU128 } from "../../utils/u128.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { BalanceRangeCodec, EquityGroupByCodec } from "./balances.codecs.js";
@@ -20,33 +13,30 @@ const U128Schema = v.object({
     lo: v.bigint(),
 });
 
-export function createLedgerBalanceSchema(catalog: CatalogSnapshot) {
-    return createLedgerBalanceSchemaForReader(createCatalogSnapshotReader(catalog));
-}
+export const LedgerBalanceSchema = v.pipe(
+    v.object({
+        assetId: v.number(),
+        trading: v.optional(U128Schema),
+        unified: v.optional(U128Schema),
+        funding: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
+        reserved: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
+        available: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
+    }),
+    v.transform((b) => {
+        const unified = fromU128(b.trading ?? b.unified);
 
-function createLedgerBalanceSchemaForReader(reader: CatalogReader) {
-    return v.pipe(
-        v.object({
-            assetId: v.number(),
-            trading: v.optional(U128Schema),
-            unified: v.optional(U128Schema),
-            funding: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
-            reserved: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
-            available: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
-        }),
-        v.transform((b) => {
-            const aid = b.assetId;
-            const unified = fromU128(b.trading ?? b.unified);
+        return {
+            assetId: b.assetId,
+            fundingQ: (b.funding ?? 0n).toString(),
+            unifiedQ: unified.toString(),
+            reservedQ: (b.reserved ?? 0n).toString(),
+            availableQ: (b.available ?? 0n).toString(),
+        };
+    }),
+);
 
-            return {
-                asset: reader.ledger.requireAssetByLedgerId(aid),
-                funding: parseFloat(u128ToDecimal(b.funding ?? 0n, LEDGER_SCALE)),
-                unified: parseFloat(u128ToDecimal(unified, LEDGER_SCALE)),
-                reserved: parseFloat(u128ToDecimal(b.reserved ?? 0n, LEDGER_SCALE)),
-                available: parseFloat(u128ToDecimal(b.available ?? 0n, LEDGER_SCALE)),
-            };
-        }),
-    );
+export function createLedgerBalanceSchema() {
+    return LedgerBalanceSchema;
 }
 
 export type LedgerBalance = v.InferOutput<ReturnType<typeof createLedgerBalanceSchema>>;
@@ -87,56 +77,46 @@ export const BalanceSeriesSchema = v.object({
     balanceQ: v.array(v.bigint()),
 });
 
-export function createBalanceHistoryResponseSchema(catalog: CatalogSnapshot) {
-    return createBalanceHistoryResponseSchemaForReader(createCatalogSnapshotReader(catalog));
-}
-
-function createBalanceHistoryResponseSchemaForReader(reader: CatalogReader) {
-    return v.pipe(
-        v.object({
-            range: v.pipe(
-                v.enum(Proto.BalanceRange),
-                v.transform((v) =>
-                    requiredEnumLabel(
-                        BalanceRangeCodec.protoToOutput,
-                        v,
-                        "BalanceHistoryResponseSchema",
-                        "range",
-                    ),
+export const BalanceHistoryResponseSchema = v.pipe(
+    v.object({
+        range: v.pipe(
+            v.enum(Proto.BalanceRange),
+            v.transform((v) =>
+                requiredEnumLabel(
+                    BalanceRangeCodec.protoToOutput,
+                    v,
+                    "BalanceHistoryResponseSchema",
+                    "range",
                 ),
             ),
-            bucket: v.string(),
-            startTsSec: v.number(),
-            endTsSec: v.number(),
-            points: v.number(),
-            series: v.array(BalanceSeriesSchema),
-        }),
-        v.transform((data) => ({
-            range: data.range,
-            bucket: data.bucket,
-            startTsSec: data.startTsSec,
-            endTsSec: data.endTsSec,
-            points: data.points,
-            series: data.series.map((s) => ({
-                asset: reader.ledger.requireAssetByLedgerId(s.assetId),
-                accountCode: s.accountCode,
-                // balanceQ is scaled by 1e7, convert to float array
-                balances: s.balanceQ.map((b) => Number(b) / 1e7),
-            })),
+        ),
+        bucket: v.string(),
+        startTsSec: v.number(),
+        endTsSec: v.number(),
+        points: v.number(),
+        series: v.array(BalanceSeriesSchema),
+    }),
+    v.transform((data) => ({
+        range: data.range,
+        bucket: data.bucket,
+        startTsSec: data.startTsSec,
+        endTsSec: data.endTsSec,
+        points: data.points,
+        series: data.series.map((s) => ({
+            assetId: s.assetId,
+            accountCode: s.accountCode,
+            balanceQ: s.balanceQ.map((b) => b.toString()),
         })),
-    );
+    })),
+);
+
+export function createBalanceHistoryResponseSchema() {
+    return BalanceHistoryResponseSchema;
 }
 
 export type BalanceHistoryResponse = v.InferOutput<
     ReturnType<typeof createBalanceHistoryResponseSchema>
 >;
-
-export function createBalancesSchemas(catalog: CatalogReader) {
-    return createCatalogSchemaCache(catalog, (reader) => ({
-        ledgerBalance: createLedgerBalanceSchemaForReader(reader),
-        balanceHistoryResponse: createBalanceHistoryResponseSchemaForReader(reader),
-    }));
-}
 
 export const EquityHistoryInputSchema = v.pipe(
     v.object({

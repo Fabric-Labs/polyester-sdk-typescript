@@ -5,8 +5,6 @@ import {
     SortDirection,
     SparklineInterval,
 } from "../../gen/marketoverview/v1/marketoverview_pb.js";
-import type { EnrichedPairConfig } from "../../catalogs/index.js";
-import { createTestCatalog } from "../../testing/catalog.js";
 import {
     createMarketOverviewSchema,
     getMarketOverview24hChangeDisplay,
@@ -14,60 +12,9 @@ import {
     type MarketOverview,
 } from "./market-overview.schemas.js";
 
-const btc = {
-    symbol: "BTC",
-    ledgerId: 1,
-    name: "Bitcoin",
-    quantityDisplayDecimals: 8,
-    quantityScale: 8,
-};
-
-const usdt = {
-    symbol: "USDT",
-    ledgerId: 2,
-    name: "Tether",
-    quantityDisplayDecimals: 6,
-    quantityScale: 6,
-};
-
-const btcUsdtPair: EnrichedPairConfig = {
-    symbolId: 101,
-    symbol: "BTC-USDT",
-    baseAsset: btc,
-    quoteAsset: usdt,
-    tickSize: "0.000001",
-    stepSize: "0.00000001",
-    minNotionalQuote: "1",
-    minQtyBase: "0.00000001",
-    allowBuyFeeFromReceived: false,
-    defaultMarketSlippagePctBuy: 0,
-    defaultMarketSlippagePctSell: 0,
-    maxClientRefDriftPct: 0,
-    listingAt: 1_700_000_000_000,
-    delistingAt: null,
-    status: "enabled",
-};
-
-const points = {
-    symbol: "PTS",
-    ledgerId: 3,
-    name: "Points",
-    quantityDisplayDecimals: 3,
-    quantityScale: 3,
-};
-
-const btcPointsPair: EnrichedPairConfig = {
-    ...btcUsdtPair,
-    symbolId: 202,
-    symbol: "BTC-PTS",
-    quoteAsset: points,
-};
-
 describe("MarketOverviewSchema", () => {
-    it("preserves fractional market values as decimal strings", () => {
-        const schema = createMarketOverviewSchema(
-            createTestCatalog({ assets: [btc, usdt], pairs: [btcUsdtPair] }).snapshot(),
-        );
+    it("preserves raw market values as strings", () => {
+        const schema = createMarketOverviewSchema();
         const market = v.parse(schema, {
             symbolId: 101,
             symbol: "BTC-USDT",
@@ -91,55 +38,30 @@ describe("MarketOverviewSchema", () => {
             ],
         });
 
-        expect(market).toMatchObject({
-            lastPrice: "1234.56789",
-            high24h: "2000.123456",
-            low24h: "999.999999",
-            volume24hBase: "1.23456789",
-            volume24hQuote: "987.654321",
-            bestBid: "1234.500001",
-            bestBidQty: "0.12345678",
-            bestAsk: "1234.600002",
-            bestAskQty: "0.23456789",
-            sparklines: [{ interval: "24h", prices: ["1.000001", "1.01"] }],
+        expect(market).toEqual({
+            symbolId: 101,
+            symbol: "BTC-USDT",
+            lastPriceTicks: "1234567890",
+            lastTradeTsMs: 1_700_000_000_123,
+            change24hBp: 123,
+            high24hTicks: "2000123456",
+            low24hTicks: "999999999",
+            volume24hBaseScaled: "123456789",
+            volume24hQuoteScaled: "987654321",
+            listedTsMs: 1_700_000_000_000,
+            bestBidTicks: "1234500001",
+            bestBidQtyScaled: "12345678",
+            bestAskTicks: "1234600002",
+            bestAskQtyScaled: "23456789",
+            sparklines: [{ interval: "24h", closeTicks: ["1000001", "1010000"] }],
         });
     });
 
-    it("derives pair assets from the catalog and formats quote volume with quote scale", () => {
-        const schema = createMarketOverviewSchema(
-            createTestCatalog({ pairs: [btcPointsPair] }).snapshot(),
-        );
-        const market = v.parse(schema, {
-            symbolId: 202,
-            symbol: "STALE-RESPONSE-SYMBOL",
-            lastPriceTicks: 1_000_000n,
-            change24hBp: 0,
-            high24hTicks: 1_000_000n,
-            low24hTicks: 1_000_000n,
-            volume24hBaseScaled: 123_456_789n,
-            volume24hQuoteScaled: 987_654_321n,
-            bestBidTicks: 1_000_000n,
-            bestBidQtyScaled: 1n,
-            bestAskTicks: 1_000_000n,
-            bestAskQtyScaled: 1n,
-        });
-
-        expect(market).toMatchObject({
-            pair: "BTC-PTS",
-            symbol: {
-                base: btc,
-                quote: points,
-            },
-            volume24hBase: "1.23456789",
-            volume24hQuote: "987654.321",
-        });
-    });
-
-    it("computes display-only 24h change from decimal string sparkline prices", () => {
+    it("computes display-only 24h change from raw sparkline ticks", () => {
         const market: Pick<MarketOverview, "change24hBp" | "listedTsMs" | "sparklines"> = {
             change24hBp: 0,
             listedTsMs: Date.now() - 1_000,
-            sparklines: [{ interval: "24h", prices: ["1.5", "3"] }],
+            sparklines: [{ interval: "24h", closeTicks: ["1500000", "3000000"] }],
         };
 
         expect(getMarketOverview24hChangeDisplay(market)).toEqual({

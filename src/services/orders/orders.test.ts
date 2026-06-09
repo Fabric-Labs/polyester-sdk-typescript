@@ -1,116 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
-import { createPolyesterCatalog, staticCatalog } from "../../catalogs/index.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
-import { createTestCatalog } from "../../testing/catalog.js";
 import { realtimeClientStub, unaryTransportByMethod } from "../../testing/service-harness.js";
-import type { AssetConfig, PairConfig, SpotConfig } from "../market-data/market-data.schemas.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
-import type { DepositWithdrawConfig } from "../zipper/zipper.schemas.js";
 import { OrdersService } from "./orders.js";
-
-const emptyZipperConfig = {
-    chains: [],
-    assets: [],
-    polyesterChainId: 0,
-    contracts: [],
-    tsMs: 0,
-} satisfies DepositWithdrawConfig;
-
-function testAsset(
-    symbol: string,
-    ledgerId: number,
-    quantityScale: number,
-    quantityDisplayDecimals = quantityScale,
-): AssetConfig {
-    return {
-        symbol,
-        ledgerId,
-        name: symbol,
-        quantityDisplayDecimals,
-        quantityScale,
-    };
-}
-
-function testPair(params: {
-    symbol: string;
-    symbolId: number;
-    baseAsset: AssetConfig;
-    quoteAsset: AssetConfig;
-}): PairConfig {
-    return {
-        symbolId: params.symbolId,
-        symbol: params.symbol,
-        baseAsset: params.baseAsset.symbol,
-        quoteAsset: params.quoteAsset.symbol,
-        tickSize: "0.01",
-        stepSize: "0.01",
-        minNotionalQuote: "1",
-        minQtyBase: "0.01",
-        allowBuyFeeFromReceived: false,
-        defaultMarketSlippagePctBuy: 0,
-        defaultMarketSlippagePctSell: 0,
-        maxClientRefDriftPct: 0,
-        baseQuantityScale: params.baseAsset.quantityScale,
-        quoteQuantityScale: params.quoteAsset.quantityScale,
-        listingAt: null,
-        delistingAt: null,
-        status: "enabled",
-    };
-}
-
-function refreshMarketSeed(params: {
-    symbol: string;
-    symbolId: number;
-    baseAsset: AssetConfig;
-    quoteAsset: AssetConfig;
-}): SpotConfig {
-    return {
-        assets: [params.baseAsset, params.quoteAsset],
-        pairs: [testPair(params)],
-        tsSec: 0,
-    };
-}
-
-function seedPairCatalog() {
-    const btc = {
-        symbol: "BTC",
-        ledgerId: 1,
-        name: "Bitcoin",
-        quantityDisplayDecimals: 8,
-        quantityScale: 8,
-    };
-    const usdt = {
-        symbol: "USDT",
-        ledgerId: 2,
-        name: "Tether USD",
-        quantityDisplayDecimals: 2,
-        quantityScale: 6,
-    };
-
-    return createTestCatalog({
-        pairs: [
-            {
-                symbolId: 1,
-                symbol: "BTC-USDT",
-                baseAsset: btc,
-                quoteAsset: usdt,
-                tickSize: "0.01",
-                stepSize: "0.000001",
-                minNotionalQuote: "1",
-                minQtyBase: "0.000001",
-                allowBuyFeeFromReceived: false,
-                defaultMarketSlippagePctBuy: 0.5,
-                defaultMarketSlippagePctSell: 0.5,
-                maxClientRefDriftPct: 0.1,
-                listingAt: null,
-                delistingAt: null,
-                status: "enabled",
-            },
-        ],
-    });
-}
 
 function protoOrder(overrides: Partial<ProtoRead.Order> = {}): ProtoRead.Order {
     return {
@@ -146,7 +40,6 @@ describe("OrdersService", () => {
     });
 
     it("normalizes read requests, resolver defaults, and forwards signals", async () => {
-        const catalog = seedPairCatalog();
         const controller = new AbortController();
         const resolver: SubaccountResolver = {
             getDefaultSubaccountId: () => "11",
@@ -159,7 +52,6 @@ describe("OrdersService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             resolver,
-            catalog,
         );
 
         const cases = [
@@ -232,7 +124,6 @@ describe("OrdersService", () => {
     });
 
     it("normalizes create requests, parses create responses, and forwards mutation options", async () => {
-        const catalog = seedPairCatalog();
         const controller = new AbortController();
         const transport = unaryTransportByMethod({
             createOrder: {
@@ -246,7 +137,6 @@ describe("OrdersService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             undefined,
-            catalog,
         );
 
         await expect(
@@ -257,8 +147,8 @@ describe("OrdersService", () => {
                     side: "buy",
                     orderType: "limit",
                     tif: "gtc",
-                    price: "100.25",
-                    qty: "0.5",
+                    priceTicks: "100250000",
+                    qtyScaled: "50000000",
                     postOnly: true,
                     clientOrderId: " client-1 ",
                     feeSource: "received",
@@ -291,66 +181,7 @@ describe("OrdersService", () => {
         });
     });
 
-    it("uses refreshed client catalog snapshots when parsing later read responses", async () => {
-        const quote = testAsset("REFRESH_QUOTE", 902, 2);
-        const initialMarket = refreshMarketSeed({
-            symbol: "REFRESH_OLD-USD",
-            symbolId: 77,
-            baseAsset: testAsset("REFRESH_OLD", 901, 2),
-            quoteAsset: quote,
-        });
-        const refreshedMarket = refreshMarketSeed({
-            symbol: "REFRESH_NEW-USD",
-            symbolId: 77,
-            baseAsset: testAsset("REFRESH_NEW", 903, 4),
-            quoteAsset: quote,
-        });
-        const catalog = createPolyesterCatalog({
-            seed: {
-                market: initialMarket,
-                zipper: emptyZipperConfig,
-            },
-            refresh: {
-                market: vi.fn(() => Promise.resolve(refreshedMarket)),
-                zipper: vi.fn(() => Promise.resolve(emptyZipperConfig)),
-            },
-        });
-        const transport = unaryTransportByMethod({
-            getOpenOrders: {
-                orders: [
-                    protoOrder({
-                        symbolId: 77,
-                        origQty: 12_345n,
-                        leavesQty: 12_345n,
-                    }),
-                ],
-                nextPageToken: "",
-            },
-        });
-        const service = new OrdersService(
-            transport.transport,
-            realtimeClientStub().realtime,
-            undefined,
-            catalog,
-        );
-
-        const beforeRefresh = await service.listOpen();
-        await catalog.refresh();
-        const afterRefresh = await service.listOpen();
-
-        expect(beforeRefresh.orders[0]).toMatchObject({
-            symbol: "REFRESH_OLD-USD",
-            origQty: "123.45",
-        });
-        expect(afterRefresh.orders[0]).toMatchObject({
-            symbol: "REFRESH_NEW-USD",
-            origQty: "1.2345",
-        });
-        expect(staticCatalog.market.getPairBySymbol("REFRESH_NEW-USD")).toBeNull();
-    });
-
     it("normalizes cancel and modify mutation payloads", async () => {
-        const catalog = seedPairCatalog();
         const transport = unaryTransportByMethod({
             cancelOrder: {
                 status: "cancelled",
@@ -369,7 +200,6 @@ describe("OrdersService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             undefined,
-            catalog,
         );
 
         await expect(
@@ -386,8 +216,7 @@ describe("OrdersService", () => {
             service.modify({
                 clientOrderId: " client-1 ",
                 requestId: " modify-1 ",
-                symbol: "BTC-USDT",
-                newQty: "0.25",
+                newQtyScaled: "25000000",
                 behavior: "AMEND_ONLY",
             }),
         ).resolves.toMatchObject({
@@ -494,7 +323,6 @@ describe("OrdersService", () => {
     });
 
     it("parses populated order details responses", async () => {
-        const catalog = seedPairCatalog();
         const transport = unaryTransportByMethod({
             getOrder: {
                 order: protoOrder({ status: ProtoRead.OrderStatus.FILLED }),
@@ -506,16 +334,15 @@ describe("OrdersService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             undefined,
-            catalog,
         );
 
         await expect(service.getDetails({ orderId: "11" })).resolves.toMatchObject({
             order: {
                 clientOrderId: "client-1",
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 status: "filled",
-                origQty: "1",
-                price: "100",
+                origQtyScaled: "100000000",
+                priceTicks: "100000000",
             },
             trades: [],
             transfers: [],
@@ -523,13 +350,11 @@ describe("OrdersService", () => {
     });
 
     it("uses private order channels and parses realtime publications", () => {
-        const catalog = seedPairCatalog();
         const realtime = realtimeClientStub();
         const service = new OrdersService(
             unaryTransportByMethod({}).transport,
             realtime.realtime,
             undefined,
-            catalog,
         );
         const onEvent = vi.fn();
         const onOpen = vi.fn();
@@ -565,7 +390,7 @@ describe("OrdersService", () => {
         expect(onEvent).toHaveBeenCalledWith(
             expect.objectContaining({
                 clientOrderId: "client-1",
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 status: "filled",
             }),
         );
@@ -575,7 +400,6 @@ describe("OrdersService", () => {
     });
 
     it("rejects malformed backend and realtime order payloads", async () => {
-        const catalog = seedPairCatalog();
         const transport = unaryTransportByMethod({
             getOpenOrders: {
                 orders: [protoOrder({ status: ProtoRead.OrderStatus.ORDER_STATUS_UNSPECIFIED })],
@@ -586,7 +410,6 @@ describe("OrdersService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             undefined,
-            catalog,
         );
 
         await expect(service.listOpen()).rejects.toThrow();
@@ -596,7 +419,6 @@ describe("OrdersService", () => {
             unaryTransportByMethod({}).transport,
             realtime.realtime,
             undefined,
-            catalog,
         );
         subscriptionService.subscribe({ accountId: "account-1", onEvent: vi.fn() });
 

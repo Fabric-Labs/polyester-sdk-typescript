@@ -11,19 +11,19 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import {
-    createOrderbookSchemas,
     formatOrderbookLevel,
     GetOrderbookInputSchema,
+    OrderbookDataSchema,
     type OrderbookLevel,
     type OrderbookData,
 } from "./orderbook.schemas.js";
 import { parsePriceTicks } from "../../utils/numbers.js";
 import { toBig } from "../../utils/u128.js";
 import * as v from "valibot";
-import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 
 interface SubscribeOrderbookInput extends BaseSubscribeInput<OrderbookData> {
     symbol: string;
+    symbolId: number;
     depth?: number;
     bucket?: string | null;
 }
@@ -36,7 +36,9 @@ export interface OrderbookSubscription {
 }
 
 export interface CreateOrderbookSubscriptionInput
-    extends OrderbookStreamHandlers, Pick<SubscribeOrderbookInput, "symbol" | "depth" | "bucket"> {}
+    extends
+        OrderbookStreamHandlers,
+        Pick<SubscribeOrderbookInput, "symbol" | "symbolId" | "depth" | "bucket"> {}
 
 type BookSide = Map<bigint, bigint>;
 
@@ -46,18 +48,10 @@ type BookSide = Map<bigint, bigint>;
 export class OrderbookService {
     #client: Client<typeof Proto.OrderbookService>;
     #realtime: RealtimeClient;
-    #catalog: CatalogReader;
-    #schemas: ReturnType<typeof createOrderbookSchemas>;
 
-    constructor(
-        transport: Transport,
-        realtime: RealtimeClient,
-        catalog: CatalogReader = staticCatalog,
-    ) {
+    constructor(transport: Transport, realtime: RealtimeClient) {
         this.#client = createClient(Proto.OrderbookService, transport);
         this.#realtime = realtime;
-        this.#catalog = catalog;
-        this.#schemas = createOrderbookSchemas(catalog);
     }
 
     /**
@@ -72,8 +66,7 @@ export class OrderbookService {
             { symbol: validated.symbol, depth: validated.protoDepth },
             toConnectCallOptions(options),
         );
-        const schemas = this.#schemas.current();
-        return v.parse(schemas.orderbookData, {
+        return v.parse(OrderbookDataSchema, {
             symbol: validated.symbol,
             depth: validated.depth,
             bookSeq: res.bookSeq,
@@ -93,12 +86,9 @@ export class OrderbookService {
      * Creates a stateful order book subscription that first fetches a snapshot, buffers proto deltas from public:spot:orderbook:deltas:depth:{depth}:{symbolId}:proto, applies sequence-checked updates, and refetches on gaps or reconnects. The returned handle can unsubscribe or change local price bucket aggregation without reconnecting.
      */
     createSubscription(input: CreateOrderbookSubscriptionInput): OrderbookSubscription {
-        const pair = this.#catalog.market.requirePairBySymbol(input.symbol);
-
+        const symbolId = v.parse(v.pipe(v.number(), v.integer(), v.gtValue(0)), input.symbolId);
         const wsDepth = Math.min(500, Math.max(1, Math.trunc(input.depth ?? 50)));
-        const channel = `public:spot:orderbook:deltas:depth:${wsDepth}:${pair.symbolId}:proto`;
-        const symbolId = pair.symbolId;
-        const catalog = this.#catalog;
+        const channel = `public:spot:orderbook:deltas:depth:${wsDepth}:${symbolId}:proto`;
 
         const client = this.#client;
 
@@ -132,9 +122,7 @@ export class OrderbookService {
             });
             return entries
                 .slice(0, limit)
-                .map(([priceTicks, qtyScaled]) =>
-                    formatOrderbookLevel(catalog, symbolId, { priceTicks, qtyScaled }),
-                );
+                .map(([priceTicks, qtyScaled]) => formatOrderbookLevel({ priceTicks, qtyScaled }));
         }
 
         function sideToUIBucketed(

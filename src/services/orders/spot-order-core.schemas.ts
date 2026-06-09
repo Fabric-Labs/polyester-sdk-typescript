@@ -1,21 +1,18 @@
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
-import type { CatalogReader } from "../../catalogs/index.js";
-import { parsePriceTicks } from "../../utils/numbers.js";
 
 export type SpotOrderCoreInput = {
     symbol: string;
     side: ProtoWrite.Side;
     orderType: ProtoWrite.OrderType;
     tif: ProtoWrite.TIF;
-    qty: string;
-    price?: string;
+    qtyScaled: bigint;
+    priceTicks?: bigint;
     feeSource?: ProtoWrite.FeeSource;
     stpMode?: ProtoWrite.STPMode;
     postOnly?: boolean;
 };
 
 type BuildSpotOrderCoreOptions = {
-    priceFieldName?: string;
     defaultStpMode?: ProtoWrite.STPMode;
 };
 
@@ -33,35 +30,27 @@ export type SpotOrderCoreWithDefaultStp = SpotOrderCoreBase & {
 };
 
 export function buildSpotOrderCore(
-    reader: CatalogReader,
     input: SpotOrderCoreInput,
     options: BuildSpotOrderCoreOptions & { defaultStpMode: ProtoWrite.STPMode },
 ): SpotOrderCoreWithDefaultStp;
 export function buildSpotOrderCore(
-    reader: CatalogReader,
     input: SpotOrderCoreInput,
     options?: BuildSpotOrderCoreOptions,
 ): SpotOrderCore;
 export function buildSpotOrderCore(
-    reader: CatalogReader,
     input: SpotOrderCoreInput,
     options: BuildSpotOrderCoreOptions = {},
 ): SpotOrderCore {
-    const price = input.orderType === ProtoWrite.OrderType.LIMIT ? input.price : undefined;
-
-    reader.orders.validateOrderInput({
-        pair: input.symbol,
-        quantity: input.qty,
-        price,
-    });
+    const priceTicks =
+        input.orderType === ProtoWrite.OrderType.LIMIT && input.priceTicks ? input.priceTicks : 0n;
 
     return {
         symbol: input.symbol,
         side: input.side,
         orderType: input.orderType,
         tif: input.tif,
-        qtyScaled: reader.orders.parseQuantity(input.qty, input.symbol).value,
-        priceTicks: price ? parsePriceTicks(price, options.priceFieldName ?? "price") : 0n,
+        qtyScaled: input.qtyScaled,
+        priceTicks,
         feeSource: input.feeSource ?? ProtoWrite.FeeSource.QUOTE,
         stpMode: input.stpMode ?? options.defaultStpMode,
         postOnly: input.postOnly ?? false,

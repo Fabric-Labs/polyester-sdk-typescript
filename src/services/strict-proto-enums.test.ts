@@ -14,7 +14,6 @@ import * as MarketDataProto from "../gen/marketdata/v1/marketdata_pb.js";
 import * as OrdersProto from "../gen/orders/v1/orders_pb.js";
 import * as TriggersProto from "../gen/triggers/v1/triggers_pb.js";
 import { requiredEnumLabel } from "../shared/proto-enum-codec.js";
-import { createTestCatalog } from "../testing/catalog.js";
 import {
     AddressBookEntryKindCodec,
     DestinationWhitelistStatusCodec,
@@ -32,10 +31,9 @@ import { CreateTriggerResultSchema } from "./triggers/triggers.schemas.js";
 import { WhiteboardAccessSchema } from "./whiteboard/whiteboard.schemas.js";
 
 const timestamp = { seconds: 0n, nanos: 0 };
-const testCatalogSnapshot = createTestCatalog().snapshot();
-const BalanceHistoryResponseSchema = createBalanceHistoryResponseSchema(testCatalogSnapshot);
-const LifecycleRequestFeeSchema = createLifecycleRequestFeeSchema(testCatalogSnapshot);
-const CandleRowSchema = createCandleRowSchema(testCatalogSnapshot);
+const BalanceHistoryResponseSchema = createBalanceHistoryResponseSchema();
+const LifecycleRequestFeeSchema = createLifecycleRequestFeeSchema();
+const CandleRowSchema = createCandleRowSchema();
 
 function kindFromProto(kind: AddressBookProto.AddressBookEntryKind) {
     return requiredEnumLabel(

@@ -12,10 +12,10 @@ import {
 import type { RealtimeClient } from "../../realtime/client.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
-    createOrdersSchemas,
     OpenOrdersInputSchema,
     OrderHistoryInputSchema,
     type NewOrderInput,
+    NewOrderInputSchema,
     CancelOrderInputSchema,
     CancelOrderResultSchema,
     type CancelOrderResult,
@@ -26,12 +26,14 @@ import {
     GetOrderDetailsInputSchema,
     CreateOrderResultSchema,
     type ModifyOrderInput,
+    ModifyOrderInputSchema,
     ModifyOrderResultSchema,
     type CreateOrderResult,
     type ModifyOrderResult,
     type OrderDetails,
+    OrderSchema,
+    OrderDetailsSchema,
 } from "./orders.schemas.js";
-import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 
 interface SubscribeOrdersInput extends BaseSubscribeInput<Order> {
     accountId: string;
@@ -52,19 +54,12 @@ export class OrdersService {
     #writeClient: Client<typeof ProtoWrite.OrdersService>;
     #realtime: RealtimeClient;
     #resolver?: SubaccountResolver;
-    #schemas: ReturnType<typeof createOrdersSchemas>;
 
-    constructor(
-        transport: Transport,
-        realtime: RealtimeClient,
-        resolver?: SubaccountResolver,
-        catalog: CatalogReader = staticCatalog,
-    ) {
+    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubaccountResolver) {
         this.#readClient = createClient(ProtoRead.OrdersReadService, transport);
         this.#writeClient = createClient(ProtoWrite.OrdersService, transport);
         this.#realtime = realtime;
         this.#resolver = resolver;
-        this.#schemas = createOrdersSchemas(catalog);
     }
 
     /**
@@ -80,9 +75,8 @@ export class OrdersService {
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
-        const schemas = this.#schemas.current();
         return {
-            orders: v.parse(v.array(schemas.order), res.orders),
+            orders: v.parse(v.array(OrderSchema), res.orders),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -100,9 +94,8 @@ export class OrdersService {
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
-        const schemas = this.#schemas.current();
         return {
-            orders: v.parse(v.array(schemas.order), res.orders),
+            orders: v.parse(v.array(OrderSchema), res.orders),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -115,8 +108,7 @@ export class OrdersService {
         options?: PolyesterMutationOptions,
     ): Promise<CreateOrderResult> {
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const schemas = this.#schemas.current();
-        const validatedInput = v.parse(schemas.newOrderInput, resolved);
+        const validatedInput = v.parse(NewOrderInputSchema, resolved);
         const requestPayload = removeUndefined(validatedInput);
         const res = await this.#writeClient.createOrder(
             requestPayload,
@@ -158,8 +150,7 @@ export class OrdersService {
             ...resolveAccountScopedInput(input, this.#resolver),
             requestId: input.requestId ?? createMutationRequestId(),
         };
-        const schemas = this.#schemas.current();
-        const validated = v.parse(schemas.modifyOrderInput, resolved);
+        const validated = v.parse(ModifyOrderInputSchema, resolved);
         const res = await this.#writeClient.modifyOrder(
             removeUndefined(validated),
             toConnectCallOptions(options),
@@ -200,8 +191,7 @@ export class OrdersService {
             toConnectCallOptions(options),
         );
         if (!res.order) return null;
-        const schemas = this.#schemas.current();
-        return v.parse(schemas.orderDetails, res);
+        return v.parse(OrderDetailsSchema, res);
     }
 
     /**
@@ -213,8 +203,7 @@ export class OrdersService {
             channel,
             schema: ProtoRead.OrderSchema,
             onPublication: (data) => {
-                const schemas = this.#schemas.current();
-                const order = v.parse(schemas.order, data);
+                const order = v.parse(OrderSchema, data);
                 input.onEvent(order);
             },
             onConnected: () => input.onOpen?.(),

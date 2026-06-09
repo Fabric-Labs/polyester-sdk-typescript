@@ -1,9 +1,7 @@
 import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
-import { createTestCatalog } from "../../testing/catalog.js";
 import {
     realtimeClientStub,
     subaccountResolverStub,
@@ -11,40 +9,6 @@ import {
 } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
 import { TradesService } from "./trades.js";
-
-const btc = {
-    symbol: "BTC",
-    ledgerId: 1,
-    name: "Bitcoin",
-    quantityDisplayDecimals: 8,
-    quantityScale: 8,
-};
-
-const usdt = {
-    symbol: "USDT",
-    ledgerId: 2,
-    name: "Tether USD",
-    quantityDisplayDecimals: 6,
-    quantityScale: 6,
-};
-
-const btcUsdtPair: EnrichedPairConfig = {
-    symbolId: 101,
-    symbol: "BTC-USDT",
-    baseAsset: btc,
-    quoteAsset: usdt,
-    tickSize: "0.000001",
-    stepSize: "0.00000001",
-    minNotionalQuote: "1",
-    minQtyBase: "0.00000001",
-    allowBuyFeeFromReceived: false,
-    defaultMarketSlippagePctBuy: 0,
-    defaultMarketSlippagePctSell: 0,
-    maxClientRefDriftPct: 0,
-    listingAt: null,
-    delistingAt: null,
-    status: "enabled",
-};
 
 const userTrade = {
     tradeId: 3n,
@@ -61,24 +25,18 @@ const userTrade = {
     matchId: 22n,
 };
 
-function seedPairCatalog() {
-    return createTestCatalog({ assets: [btc, usdt], pairs: [btcUsdtPair] });
-}
-
 describe("TradesService", () => {
     afterEach(() => {
         vi.restoreAllMocks();
     });
 
     it("normalizes list filters, resolver defaults, signal, and parses trades", async () => {
-        const catalog = seedPairCatalog();
         const controller = new AbortController();
         const transport = unaryTransport({ trades: [userTrade], nextPageToken: "next-page" });
         const service = new TradesService(
             transport.transport,
             realtimeClientStub().realtime,
             subaccountResolverStub("12"),
-            catalog,
         );
 
         const result = await service.list(
@@ -111,15 +69,16 @@ describe("TradesService", () => {
                     orderId: formatId(2n),
                     subaccountId: formatId(12n),
                     symbolId: 101,
-                    symbolLabel: "BTC-USDT",
                     sideLabel: "sell",
                     liquidityLabel: "maker",
+                    feeSource: ProtoOrders.FeeSource.QUOTE,
                     feeSourceLabel: "quote",
-                    qtyDisplay: "1.23456789",
-                    priceDisplay: "1.234567",
-                    fee: 0.001,
+                    qtyScaled: "123456789",
+                    priceTicks: "1234567",
+                    feeScaled: "1000",
+                    tsNs: "1700000000000000000",
                     tsMs: 1_700_000_000_000,
-                    matchId: 22,
+                    matchId: "22",
                 }),
             ],
         });
@@ -144,7 +103,6 @@ describe("TradesService", () => {
     });
 
     it("rejects user trades with unmapped backend side values", async () => {
-        const catalog = seedPairCatalog();
         const transport = unaryTransport({
             trades: [{ ...userTrade, side: ProtoOrders.Side.SIDE_UNSPECIFIED }],
             nextPageToken: "",
@@ -153,14 +111,12 @@ describe("TradesService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             undefined,
-            catalog,
         );
 
         await expect(service.list()).rejects.toThrow(/\[UserTradeSchema\]: invalid side 0/);
     });
 
     it("wires private trade subscriptions and parses publications", () => {
-        const catalog = seedPairCatalog();
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const onOpen = vi.fn();
@@ -170,7 +126,6 @@ describe("TradesService", () => {
             unaryTransport({}).transport,
             realtime.realtime,
             undefined,
-            catalog,
         );
 
         const unsubscribe = service.subscribe({
@@ -196,9 +151,13 @@ describe("TradesService", () => {
         expect(onEvent).toHaveBeenCalledWith(
             expect.objectContaining({
                 orderId: formatId(2n),
-                symbolLabel: "BTC-USDT",
                 sideLabel: "sell",
                 liquidityLabel: "maker",
+                feeSource: ProtoOrders.FeeSource.QUOTE,
+                qtyScaled: "123456789",
+                priceTicks: "1234567",
+                feeScaled: "1000",
+                tsNs: "1700000000000000000",
             }),
         );
 
@@ -207,13 +166,11 @@ describe("TradesService", () => {
     });
 
     it("throws on malformed trade publications", () => {
-        const catalog = seedPairCatalog();
         const realtime = realtimeClientStub();
         const service = new TradesService(
             unaryTransport({}).transport,
             realtime.realtime,
             undefined,
-            catalog,
         );
 
         service.subscribe({ accountId: "acct-1", onEvent: vi.fn() });

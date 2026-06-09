@@ -1,12 +1,12 @@
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as v from "valibot";
-import type { CatalogReader } from "../../catalogs/index.js";
 import { buildSpotOrderCore } from "../orders/spot-order-core.schemas.js";
 import {
     AccountScopeInputEntries,
     accountScopeToSubaccountIdOrZero,
 } from "../../shared/account-scope.js";
+import { positiveBigintStringInputSchema } from "../../shared/schemas.js";
 import {
     FEE_SOURCE_VALUES,
     ORDER_TYPE_VALUES,
@@ -45,8 +45,8 @@ export const BaseChildOrderFieldsSchema = v.object({
         TIFSchema,
         v.transform((v) => TifCodec.inputToProto[v]),
     ),
-    qty: v.pipe(v.string(), v.trim(), v.minLength(1)),
-    limitPrice: v.optional(v.pipe(v.string(), v.trim())),
+    qtyScaled: positiveBigintStringInputSchema("qtyScaled"),
+    limitPriceTicks: v.optional(positiveBigintStringInputSchema("limitPriceTicks")),
     feeSource: v.pipe(
         v.optional(FeeSourceSchema),
         v.transform((v) => (v ? FeeSourceCodec.inputToProto[v] : undefined)),
@@ -109,25 +109,20 @@ type CreateTriggerBase = ReturnType<typeof buildTriggerDefaults> &
         | "clientTriggerId"
     >;
 
-export function buildCreateTriggerBase(
-    reader: CatalogReader,
-    input: BaseChildOrderInput,
-): CreateTriggerBase {
+export function buildCreateTriggerBase(input: BaseChildOrderInput): CreateTriggerBase {
     const { priceTicks, ...order } = buildSpotOrderCore(
-        reader,
         {
             symbol: input.symbol,
             side: input.side,
             orderType: input.orderType,
             tif: input.tif,
-            qty: input.qty,
-            price: input.limitPrice,
+            qtyScaled: input.qtyScaled,
+            priceTicks: input.limitPriceTicks,
             feeSource: input.feeSource,
             stpMode: input.stpMode,
             postOnly: input.postOnly,
         },
         {
-            priceFieldName: "limitPrice",
             defaultStpMode: ProtoOrders.STPMode.EXPIRE_MAKER,
         },
     );

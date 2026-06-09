@@ -1,8 +1,19 @@
 import { describe, expect, it, vi } from "vitest";
-import type { AssetConfig, DepositWithdrawConfig, PairConfig, SpotConfig } from "./config-types.js";
-import { createPolyesterCatalog, staticCatalog } from "./client-catalog.js";
+import type {
+    AssetConfig,
+    DepositWithdrawConfig,
+    PairConfig,
+    SpotConfig,
+} from "../shared/catalog-config.js";
+import { createPolyesterCatalog } from "./client-catalog.js";
 import { createReader } from "./readers.js";
-import { CatalogLookupError, type CatalogRefreshSource, type CatalogSnapshot } from "./types.js";
+import { buildCatalogSnapshot } from "./snapshot.js";
+import {
+    CatalogLookupError,
+    CatalogNotReadyError,
+    type CatalogRefreshSource,
+    type CatalogSnapshot,
+} from "./types.js";
 
 type MutableCatalogSnapshot = Omit<CatalogSnapshot, "market" | "version"> & {
     market: CatalogSnapshot["market"];
@@ -91,6 +102,13 @@ function emptyZipperSeed(): DepositWithdrawConfig {
     return zipperRefreshConfig;
 }
 
+function snapshotSeed(market: SpotConfig): CatalogSnapshot {
+    return buildCatalogSnapshot({
+        market,
+        zipper: emptyZipperSeed(),
+    });
+}
+
 function deferred<T>(): {
     promise: Promise<T>;
     resolve: (value: T) => void;
@@ -119,27 +137,25 @@ describe("createPolyesterCatalog", () => {
         const coarseAsset = asset("TEST", 101, 2);
         const preciseAsset = asset("TEST", 102, 4);
         const coarseCatalog = createPolyesterCatalog({
-            seed: {
-                market: marketSeed({
+            snapshot: snapshotSeed(
+                marketSeed({
                     symbol: "TEST-USD",
                     symbolId: 11,
                     baseAsset: coarseAsset,
                     quoteAsset: quote,
                 }),
-                zipper: emptyZipperSeed(),
-            },
+            ),
             refresh: false,
         });
         const preciseCatalog = createPolyesterCatalog({
-            seed: {
-                market: marketSeed({
+            snapshot: snapshotSeed(
+                marketSeed({
                     symbol: "TEST-USD",
                     symbolId: 22,
                     baseAsset: preciseAsset,
                     quoteAsset: quote,
                 }),
-                zipper: emptyZipperSeed(),
-            },
+            ),
             refresh: false,
         });
 
@@ -147,21 +163,29 @@ describe("createPolyesterCatalog", () => {
         expect(coarseCatalog.market.requireSymbolIdByPairSymbol("TEST-USD")).toBe(11);
         expect(preciseCatalog.market.requireSymbolIdByPairSymbol("TEST-USD")).toBe(22);
         expect(coarseCatalog.orders.parseQuantity("1.23", "TEST-USD")).toMatchObject({
-            value: 123n,
+            value: "123",
             scale: 2,
             formatted: "1.23",
         });
         expect(preciseCatalog.orders.parseQuantity("1.23", "TEST-USD")).toMatchObject({
-            value: 12_300n,
+            value: "12300",
             scale: 4,
             formatted: "1.23",
         });
     });
 
-    it("does not mutate the static catalog when a client catalog refreshes", async () => {
+    it("starts empty until a snapshot is passed or refresh succeeds", async () => {
+        const catalog = createPolyesterCatalog({ refresh: false });
+
+        expect(catalog.state()).toEqual({ status: "empty" });
+        expect(await catalog.ready()).toBeNull();
+        expect(() => catalog.snapshot()).toThrow(CatalogNotReadyError);
+        expect(() => catalog.market.requireAssetBySymbol("NOPE")).toThrow(CatalogNotReadyError);
+    });
+
+    it("refreshes an empty catalog explicitly", async () => {
         const quote = asset("USD", 200, 2);
         const clientOnlyAsset = asset("CLIENT_ONLY_TEST_ASSET", 201, 3);
-        const before = staticCatalog.snapshot();
         const catalog = createPolyesterCatalog({
             refresh: refreshSource({
                 market: vi.fn(() =>
@@ -180,8 +204,7 @@ describe("createPolyesterCatalog", () => {
         await catalog.refresh();
 
         expect(catalog.market.requireAssetBySymbol("CLIENT_ONLY_TEST_ASSET")).toBe(clientOnlyAsset);
-        expect(staticCatalog.snapshot()).toBe(before);
-        expect(staticCatalog.market.getAssetBySymbol("CLIENT_ONLY_TEST_ASSET")).toBeNull();
+        expect(catalog.state()).toEqual({ status: "fresh", source: "api" });
     });
 
     it("rebuilds lookup indexes when a reused snapshot object advances version", () => {
@@ -189,27 +212,25 @@ describe("createPolyesterCatalog", () => {
         const initialAsset = asset("CACHE_INITIAL", 301, 2);
         const updatedAsset = asset("CACHE_UPDATED", 302, 2);
         const initialSnapshot = createPolyesterCatalog({
-            seed: {
-                market: marketSeed({
+            snapshot: snapshotSeed(
+                marketSeed({
                     symbol: "CACHE_INITIAL-USD",
                     symbolId: 301,
                     baseAsset: initialAsset,
                     quoteAsset: quote,
                 }),
-                zipper: emptyZipperSeed(),
-            },
+            ),
             refresh: false,
         }).snapshot();
         const updatedSnapshot = createPolyesterCatalog({
-            seed: {
-                market: marketSeed({
+            snapshot: snapshotSeed(
+                marketSeed({
                     symbol: "CACHE_UPDATED-USD",
                     symbolId: 302,
                     baseAsset: updatedAsset,
                     quoteAsset: quote,
                 }),
-                zipper: emptyZipperSeed(),
-            },
+            ),
             refresh: false,
         }).snapshot();
         const currentSnapshot: MutableCatalogSnapshot = {
@@ -228,14 +249,14 @@ describe("createPolyesterCatalog", () => {
 
     it("fails closed when a custom snapshot does not contain a requested catalog entry", () => {
         const catalog = createPolyesterCatalog({
-            seed: {
+            snapshot: buildCatalogSnapshot({
                 market: {
                     assets: [],
                     pairs: [],
                     tsSec: 0,
                 },
                 zipper: emptyZipperSeed(),
-            },
+            }),
             refresh: false,
         });
 
@@ -287,7 +308,7 @@ describe("createPolyesterCatalog", () => {
 
         const refreshed = await firstRefresh;
         expect(refreshed.source).toBe("api");
-        expect(refreshed.version).toBe(2);
+        expect(refreshed.version).toBe(1);
     });
 
     it("resolves ready to the refreshed API snapshot after a successful refresh", async () => {
@@ -303,6 +324,10 @@ describe("createPolyesterCatalog", () => {
     it("marks state stale and resolves ready to the existing snapshot after refresh failure", async () => {
         const error = new Error("catalog refresh failed");
         const catalog = createPolyesterCatalog({
+            snapshot: buildCatalogSnapshot({
+                market: marketRefreshConfig,
+                zipper: zipperRefreshConfig,
+            }),
             refresh: refreshSource({
                 market: vi.fn(() => Promise.reject(error)),
             }),
@@ -313,7 +338,7 @@ describe("createPolyesterCatalog", () => {
 
         expect(catalog.snapshot()).toBe(initial);
         expect(await catalog.ready()).toBe(initial);
-        expect(catalog.state()).toEqual({ status: "stale", source: "generated", error });
+        expect(catalog.state()).toEqual({ status: "stale", source: "snapshot", error });
     });
 
     it("resolves ready to a later successful refresh after an earlier failure", async () => {
@@ -322,15 +347,14 @@ describe("createPolyesterCatalog", () => {
             market: vi.fn().mockRejectedValueOnce(error).mockResolvedValue(marketRefreshConfig),
         });
         const catalog = createPolyesterCatalog({ refresh: source });
-        const initial = catalog.snapshot();
 
         await expect(catalog.refresh()).rejects.toThrow(error);
-        expect(await catalog.ready()).toBe(initial);
+        expect(await catalog.ready()).toBeNull();
 
         const refreshed = await catalog.refresh();
 
         expect(refreshed.source).toBe("api");
-        expect(refreshed.version).toBe(2);
+        expect(refreshed.version).toBe(1);
         expect(await catalog.ready()).toBe(refreshed);
         expect(catalog.state()).toEqual({ status: "fresh", source: "api" });
     });

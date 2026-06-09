@@ -5,7 +5,7 @@ import type {
     ZipperAssetConfig,
     ZipperChainConfig,
     ZipperChainContractConfig,
-} from "../../catalogs/index.js";
+} from "../../shared/catalog-config.js";
 
 export type {
     DepositWithdrawConfig,

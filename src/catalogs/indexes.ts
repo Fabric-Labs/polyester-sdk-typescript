@@ -1,4 +1,8 @@
-import type { AssetConfig, ZipperChainConfig, ZipperChainContractConfig } from "./config-types.js";
+import type {
+    AssetConfig,
+    ZipperChainConfig,
+    ZipperChainContractConfig,
+} from "../shared/catalog-config.js";
 import type { EnrichedPairConfig } from "./market-data-catalog.js";
 import type { CatalogSnapshot } from "./types.js";
 import type { ZipperEnrichedAssetConfig } from "./zipper-catalog.js";

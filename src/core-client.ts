@@ -32,7 +32,11 @@ import { WhiteboardService } from "./services/whiteboard/index.js";
 import { ZipperService } from "./services/zipper/index.js";
 import { MfaService } from "./services/mfa/index.js";
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";
-import { createPolyesterCatalog, type ClientCatalog } from "./catalogs/index.js";
+import {
+    createPolyesterCatalog,
+    type CatalogSnapshot,
+    type ClientCatalog,
+} from "./catalogs/index.js";
 import { RealtimeClient, type RealtimeConfig } from "./realtime/index.js";
 
 function realtimeAuthFromProvider(
@@ -73,9 +77,13 @@ export interface PolyesterClientBaseConfig {
      */
     wireFormat?: "binary" | "json";
     /**
-     * Client-owned catalog store. Tests and advanced callers can inject fixture-backed catalogs.
+     * Client-owned catalog store. Advanced callers can inject a fully managed catalog instance.
      */
     catalog?: ClientCatalog;
+    /**
+     * Explicit initial catalog snapshot, commonly hydrated from server-rendered data.
+     */
+    catalogSnapshot?: CatalogSnapshot;
 }
 
 export interface PolyesterClientConfig extends PolyesterClientBaseConfig {}
@@ -127,6 +135,9 @@ export class PolyesterClient {
     constructor(config: PolyesterClientConfig, runtime: PolyesterClientRuntimeConfig = {}) {
         const interceptors = config.interceptors ?? [];
         const { environment } = config;
+        if (config.catalog && config.catalogSnapshot) {
+            throw new Error("Provide either catalog or catalogSnapshot, not both.");
+        }
 
         this.transports = createTransports({
             apiUrl: environment.apiUrl,
@@ -161,6 +172,7 @@ export class PolyesterClient {
         this.catalog =
             config.catalog ??
             createPolyesterCatalog({
+                snapshot: config.catalogSnapshot,
                 refresh: {
                     market: () => catalogRefreshMarketData.getSpotConfig(),
                     zipper: () => catalogRefreshZipper.getDepositWithdrawConfig(),
@@ -169,28 +181,23 @@ export class PolyesterClient {
 
         this.accounts = new AccountsService(authApi);
         this.apiKeys = new ApiKeysService(authApi, this.realtime, resolver);
-        this.candles = new CandlesService(publicApi, this.realtime, this.catalog);
-        this.marketData = new MarketDataService(publicApi, this.realtime, this.catalog);
-        this.marketOverview = new MarketOverviewService(publicApi, this.realtime, this.catalog);
-        this.orderbook = new OrderbookService(publicApi, this.realtime, this.catalog);
-        this.heatmap = new HeatmapService(publicApi, this.realtime, this.catalog);
-        this.lifecycle = new LifecycleService(publicApi, this.realtime, this.catalog);
-        this.trades = new TradesService(authApi, this.realtime, resolver, this.catalog);
-        this.orders = new OrdersService(authApi, this.realtime, resolver, this.catalog);
-        this.triggers = new TriggersService(authApi, this.realtime, resolver, this.catalog);
-        this.balances = new BalancesService(authApi, this.realtime, resolver, this.catalog);
-        this.transfers = new TransfersService(authApi, this.realtime, resolver, this.catalog);
+        this.candles = new CandlesService(publicApi, this.realtime);
+        this.marketData = new MarketDataService(publicApi, this.realtime);
+        this.marketOverview = new MarketOverviewService(publicApi, this.realtime);
+        this.orderbook = new OrderbookService(publicApi, this.realtime);
+        this.heatmap = new HeatmapService(publicApi, this.realtime);
+        this.lifecycle = new LifecycleService(publicApi, this.realtime);
+        this.trades = new TradesService(authApi, this.realtime, resolver);
+        this.orders = new OrdersService(authApi, this.realtime, resolver);
+        this.triggers = new TriggersService(authApi, this.realtime, resolver);
+        this.balances = new BalancesService(authApi, this.realtime, resolver);
+        this.transfers = new TransfersService(authApi, this.realtime, resolver);
         this.internalTransfers = new InternalTransfersService(authApi, resolver);
-        this.tradingWithdraws = new TradingWithdrawsService(
-            authApi,
-            resolver,
-            {
-                chainId: environment.chain.id,
-                tradingGatewayAddress: environment.contracts.tradingGatewayAddress,
-            },
-            this.catalog,
-        );
-        this.deposit = new DepositService(authApi, resolver, this.catalog);
+        this.tradingWithdraws = new TradingWithdrawsService(authApi, resolver, {
+            chainId: environment.chain.id,
+            tradingGatewayAddress: environment.contracts.tradingGatewayAddress,
+        });
+        this.deposit = new DepositService(authApi, resolver);
         this.addressBook = new AddressBookService(authApi, resolver);
         this.guardSigner = new GuardSignerService(authApi, resolver);
         this.socialVerification = new SocialVerificationService(authApi);

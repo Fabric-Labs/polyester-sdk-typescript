@@ -4,12 +4,6 @@ import type {
     HeatmapInterval,
     HeatmapQuantityMode,
 } from "../../gen/marketdata/v1/heatmap_pb.js";
-import {
-    createCatalogSnapshotReader,
-    type CatalogReader,
-    type CatalogSnapshot,
-} from "../../catalogs/index.js";
-import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 import { OptionalTimestampSecondsInputSchema } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import {
@@ -65,72 +59,45 @@ const CursorInputSchema = v.optional(
     ),
 );
 
-export function createGetOrderbookHeatmapInputSchema(catalog: CatalogSnapshot) {
-    return createGetOrderbookHeatmapInputSchemaForReader(createCatalogSnapshotReader(catalog));
-}
+export const GetOrderbookHeatmapInputSchema = v.pipe(
+    v.object({
+        symbolId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+        interval: IntervalInputSchema,
+        depth: DepthInputSchema,
+        quantityMode: QuantityModeInputSchema,
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(20_000))),
+        startTsSec: OptionalTimestampSecondsInputSchema,
+        endTsSec: OptionalTimestampSecondsInputSchema,
+        cursorTsSec: CursorInputSchema,
+    }),
+    v.check(
+        (value) => value.cursorTsSec != null || value.startTsSec != null || value.endTsSec != null,
+        "cursorTsSec, startTsSec, or endTsSec is required",
+    ),
+    v.transform((value) => {
+        const mode: HeatmapMode =
+            value.cursorTsSec != null
+                ? { case: "cursor", fromTsSec: value.cursorTsSec }
+                : {
+                      case: "timeRange",
+                      startTime:
+                          value.startTsSec != null
+                              ? timestampFromTsSec(value.startTsSec)
+                              : undefined,
+                      endTime:
+                          value.endTsSec != null ? timestampFromTsSec(value.endTsSec) : undefined,
+                  };
 
-function createGetOrderbookHeatmapInputSchemaForReader(reader: CatalogReader) {
-    return v.pipe(
-        v.object({
-            symbol: v.optional(v.pipe(v.string(), v.minLength(1))),
-            symbolId: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0))),
-            interval: IntervalInputSchema,
-            depth: DepthInputSchema,
-            quantityMode: QuantityModeInputSchema,
-            limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(20_000))),
-            startTsSec: OptionalTimestampSecondsInputSchema,
-            endTsSec: OptionalTimestampSecondsInputSchema,
-            cursorTsSec: CursorInputSchema,
-        }),
-        v.check(
-            (value) =>
-                value.cursorTsSec != null || value.startTsSec != null || value.endTsSec != null,
-            "cursorTsSec, startTsSec, or endTsSec is required",
-        ),
-        v.transform((value) => {
-            const symbolId =
-                value.symbolId ??
-                (() => {
-                    return value.symbol
-                        ? reader.market.requireSymbolIdByPairSymbol(value.symbol)
-                        : undefined;
-                })();
-            if (!symbolId || symbolId <= 0) {
-                throw new Error("symbolId is required and must be > 0");
-            }
-
-            const mode: HeatmapMode =
-                value.cursorTsSec != null
-                    ? { case: "cursor", fromTsSec: value.cursorTsSec }
-                    : {
-                          case: "timeRange",
-                          startTime:
-                              value.startTsSec != null
-                                  ? timestampFromTsSec(value.startTsSec)
-                                  : undefined,
-                          endTime:
-                              value.endTsSec != null
-                                  ? timestampFromTsSec(value.endTsSec)
-                                  : undefined,
-                      };
-
-            return {
-                symbolId,
-                interval: value.interval,
-                depth: value.depth,
-                quantityMode: value.quantityMode,
-                limit: value.limit,
-                mode,
-            };
-        }),
-    );
-}
-
-export function createHeatmapSchemas(catalog: CatalogReader) {
-    return createCatalogSchemaCache(catalog, (reader) => ({
-        getOrderbookHeatmapInput: createGetOrderbookHeatmapInputSchemaForReader(reader),
-    }));
-}
+        return {
+            symbolId: value.symbolId,
+            interval: value.interval,
+            depth: value.depth,
+            quantityMode: value.quantityMode,
+            limit: value.limit,
+            mode,
+        };
+    }),
+);
 
 function requiredIntervalLabelFor(value: number): HeatmapIntervalValue {
     return requiredEnumLabel(
@@ -247,11 +214,7 @@ export const OrderbookHeatmapResponseSchema = v.object({
     liveBucket: v.optional(OrderbookHeatmapLiveBucketSchema),
 });
 
-export type GetOrderbookHeatmapInput = v.InferInput<
-    ReturnType<typeof createGetOrderbookHeatmapInputSchema>
->;
-export type ParsedGetOrderbookHeatmapInput = v.InferOutput<
-    ReturnType<typeof createGetOrderbookHeatmapInputSchema>
->;
+export type GetOrderbookHeatmapInput = v.InferInput<typeof GetOrderbookHeatmapInputSchema>;
+export type ParsedGetOrderbookHeatmapInput = v.InferOutput<typeof GetOrderbookHeatmapInputSchema>;
 export type OrderbookHeatmapResponse = v.InferOutput<typeof OrderbookHeatmapResponseSchema>;
 export type ParsedHeatmapMode = HeatmapMode;

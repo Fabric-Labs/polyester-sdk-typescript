@@ -36,9 +36,6 @@ jobs:
       - name: Type-check
         run: bun run check
 
-      - name: Check generated catalogs
-        run: bun run check:catalogs
-
       - name: Test
         run: bun run test
 

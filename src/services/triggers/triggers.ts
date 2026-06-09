@@ -9,7 +9,7 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import {
-    createTriggersSchemas,
+    CreateTriggerInputSchema,
     ListTriggersInputSchema,
     CancelTriggerInputSchema,
     GetTriggerInputSchema,
@@ -20,6 +20,8 @@ import {
     CancelTriggerResultSchema,
     ModifyTriggerResultSchema,
     PauseTriggerResultSchema,
+    TriggerSchema,
+    TriggerEventSchema,
     type Trigger,
     type CreateTriggerInput,
     type ListTriggersInput,
@@ -38,7 +40,6 @@ import {
 } from "./triggers.schemas.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import type { RealtimeClient } from "../../realtime/index.js";
-import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 
 export type {
     CreateTriggerResult,
@@ -69,18 +70,11 @@ export class TriggersService {
     #client: Client<typeof Proto.TriggersService>;
     #realtime: RealtimeClient;
     #resolver?: SubaccountResolver;
-    #schemas: ReturnType<typeof createTriggersSchemas>;
 
-    constructor(
-        transport: Transport,
-        realtime: RealtimeClient,
-        resolver?: SubaccountResolver,
-        catalog: CatalogReader = staticCatalog,
-    ) {
+    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubaccountResolver) {
         this.#client = createClient(Proto.TriggersService, transport);
         this.#realtime = realtime;
         this.#resolver = resolver;
-        this.#schemas = createTriggersSchemas(catalog);
     }
 
     /**
@@ -91,8 +85,7 @@ export class TriggersService {
         options?: PolyesterMutationOptions,
     ): Promise<CreateTriggerResult> {
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const schemas = this.#schemas.current();
-        const validatedInput = v.parse(schemas.createTriggerInput, resolved);
+        const validatedInput = v.parse(CreateTriggerInputSchema, resolved);
         const res = await this.#client.createTrigger(validatedInput, toConnectCallOptions(options));
         return v.parse(CreateTriggerResultSchema, res);
     }
@@ -109,8 +102,7 @@ export class TriggersService {
         );
 
         if (!res.trigger) return null;
-        const schemas = this.#schemas.current();
-        return v.parse(schemas.trigger, res.trigger);
+        return v.parse(TriggerSchema, res.trigger);
     }
 
     /**
@@ -126,9 +118,8 @@ export class TriggersService {
             removeUndefined(validated),
             toConnectCallOptions(options),
         );
-        const schemas = this.#schemas.current();
         return {
-            triggers: v.parse(v.array(schemas.trigger), res.triggers),
+            triggers: v.parse(v.array(TriggerSchema), res.triggers),
             total: res.total,
         };
     }
@@ -214,9 +205,8 @@ export class TriggersService {
             toConnectCallOptions(options),
         );
 
-        const schemas = this.#schemas.current();
         return {
-            events: v.parse(v.array(schemas.triggerEvent), res.events),
+            events: v.parse(v.array(TriggerEventSchema), res.events),
             nextBeforeTsNs: Number(res.nextBeforeTsNs) / 1_000_000,
         };
     }
@@ -230,8 +220,7 @@ export class TriggersService {
             channel,
             schema: Proto.TriggerSchema,
             onPublication: (data) => {
-                const schemas = this.#schemas.current();
-                const trigger = v.parse(schemas.trigger, data);
+                const trigger = v.parse(TriggerSchema, data);
                 input.onEvent(trigger);
             },
             onConnected: () => input.onOpen?.(),
@@ -249,8 +238,7 @@ export class TriggersService {
             channel,
             schema: Proto.TriggerEventSchema,
             onPublication: (data) => {
-                const schemas = this.#schemas.current();
-                const event = v.parse(schemas.triggerEvent, data);
+                const event = v.parse(TriggerEventSchema, data);
                 input.onEvent(event);
             },
             onConnected: () => input.onOpen?.(),

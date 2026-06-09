@@ -50,6 +50,16 @@ export const TimestampNsMsSchema = v.pipe(
     v.transform((value) => tsNsToMs(value)),
 );
 
+export const BigIntStringSchema = v.pipe(
+    v.bigint(),
+    v.transform((value) => value.toString()),
+);
+
+export const OptionalBigIntStringSchema = v.pipe(
+    v.optional(v.bigint()),
+    v.transform((value) => (value === undefined ? undefined : value.toString())),
+);
+
 export const OptionalTimestampMsToNsInputSchema = v.optional(
     v.pipe(
         v.number(),
@@ -137,6 +147,21 @@ export function positiveBigintLikeSchema(message: string) {
             ),
         ]),
         v.check((value) => value > 0n, message),
+    );
+}
+
+export function bigintStringInputSchema(fieldName: string) {
+    return v.pipe(
+        TrimmedStringSchema,
+        v.regex(/^\d+$/, `${fieldName} must be a decimal integer`),
+        v.transform((value) => BigInt(value)),
+    );
+}
+
+export function positiveBigintStringInputSchema(fieldName: string) {
+    return v.pipe(
+        bigintStringInputSchema(fieldName),
+        v.check((value) => value > 0n, `${fieldName} must be greater than 0`),
     );
 }
 

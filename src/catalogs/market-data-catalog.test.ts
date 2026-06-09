@@ -1,9 +1,44 @@
 import { describe, expect, it } from "vitest";
-import { ASSET_CATALOG, PAIR_CATALOG } from "./market-data-catalog.generated.js";
 import { createTestCatalog } from "../testing/catalog.js";
 
 describe("market data catalog", () => {
-    const catalog = createTestCatalog({ assets: ASSET_CATALOG, pairs: PAIR_CATALOG });
+    const catalog = createTestCatalog({
+        assets: [
+            {
+                symbol: "TEST",
+                ledgerId: 1,
+                name: "Test Asset",
+                quantityDisplayDecimals: 2,
+                quantityScale: 6,
+            },
+            {
+                symbol: "USDT",
+                ledgerId: 2,
+                name: "Tether USD",
+                quantityDisplayDecimals: 2,
+                quantityScale: 6,
+            },
+        ],
+        pairs: [
+            {
+                symbolId: 1,
+                symbol: "TEST-USDT",
+                baseAsset: "TEST",
+                quoteAsset: "USDT",
+                tickSize: "0.01",
+                stepSize: "0.000001",
+                minNotionalQuote: "1",
+                minQtyBase: "0.000001",
+                allowBuyFeeFromReceived: true,
+                defaultMarketSlippagePctBuy: 1,
+                defaultMarketSlippagePctSell: 1,
+                maxClientRefDriftPct: 1,
+                baseQuantityScale: 6,
+                quoteQuantityScale: 6,
+                status: "enabled",
+            },
+        ],
+    });
 
     it("returns null for unknown asset lookups", () => {
         expect(catalog.market.getAssetBySymbol("NOT_REAL")).toBeNull();

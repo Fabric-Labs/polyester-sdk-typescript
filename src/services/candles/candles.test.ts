@@ -1,44 +1,8 @@
 import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
-import { createTestCatalog } from "../../testing/catalog.js";
 import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
 import { CandlesService } from "./candles.js";
-
-const btc = {
-    symbol: "BTC",
-    ledgerId: 1,
-    name: "Bitcoin",
-    quantityDisplayDecimals: 8,
-    quantityScale: 8,
-};
-
-const usdt = {
-    symbol: "USDT",
-    ledgerId: 2,
-    name: "Tether USD",
-    quantityDisplayDecimals: 6,
-    quantityScale: 6,
-};
-
-const btcUsdtPair: EnrichedPairConfig = {
-    symbolId: 101,
-    symbol: "BTC-USDT",
-    baseAsset: btc,
-    quoteAsset: usdt,
-    tickSize: "0.000001",
-    stepSize: "0.00000001",
-    minNotionalQuote: "1",
-    minQtyBase: "0.00000001",
-    allowBuyFeeFromReceived: false,
-    defaultMarketSlippagePctBuy: 0,
-    defaultMarketSlippagePctSell: 0,
-    maxClientRefDriftPct: 0,
-    listingAt: null,
-    delistingAt: null,
-    status: "enabled",
-};
 
 const candlePoint = {
     tsSec: 100n,
@@ -50,32 +14,23 @@ const candlePoint = {
     isClosed: true,
 };
 
-function seedPairCatalog() {
-    return createTestCatalog({ assets: [btc, usdt], pairs: [btcUsdtPair] });
-}
-
 describe("CandlesService", () => {
     afterEach(() => {
         vi.restoreAllMocks();
     });
 
     it("normalizes list inputs to the candle proto request and parses rows", async () => {
-        const catalog = seedPairCatalog();
         const controller = new AbortController();
         const transport = unaryTransport({
             symbolId: 101,
             timeframe: Proto.Timeframe.MIN_5,
             candles: [candlePoint],
         });
-        const service = new CandlesService(
-            transport.transport,
-            realtimeClientStub().realtime,
-            catalog,
-        );
+        const service = new CandlesService(transport.transport, realtimeClientStub().realtime);
 
         const candles = await service.list(
             {
-                symbol: "BTC-USDT",
+                symbolId: 101,
                 timeframe: "5m",
                 limit: "25",
                 includeIncomplete: true,
@@ -100,33 +55,27 @@ describe("CandlesService", () => {
                 symbolId: 101,
                 timeframe: "5m",
                 time: 100,
-                open: 1.234,
-                high: 1.235,
-                low: 1.233,
-                close: 1.234567,
-                volume: 1.23456789,
+                openTicks: "1234000",
+                highTicks: "1235000",
+                lowTicks: "1233000",
+                closeTicks: "1234567",
+                volumeScaled: "123456789",
                 isClosed: true,
             },
         ]);
     });
 
     it("returns an empty list when the candle response omits repeated rows", async () => {
-        const catalog = seedPairCatalog();
         const transport = unaryTransport({
             symbolId: 101,
             timeframe: Proto.Timeframe.MIN_1,
         });
-        const service = new CandlesService(
-            transport.transport,
-            realtimeClientStub().realtime,
-            catalog,
-        );
+        const service = new CandlesService(transport.transport, realtimeClientStub().realtime);
 
         await expect(service.list({ symbolId: 101, timeframe: "1m" })).resolves.toEqual([]);
     });
 
     it("parses decimal columnar responses and preserves optional reference series", async () => {
-        const catalog = seedPairCatalog();
         const transport = unaryTransport({
             symbolId: 101,
             timeframe: Proto.Timeframe.HOUR_1,
@@ -143,11 +92,7 @@ describe("CandlesService", () => {
             referenceClose: [2_250_000n],
             referenceVolume: [200_000_000n],
         });
-        const service = new CandlesService(
-            transport.transport,
-            realtimeClientStub().realtime,
-            catalog,
-        );
+        const service = new CandlesService(transport.transport, realtimeClientStub().realtime);
 
         const columnar = await service.listColumnar({
             symbolId: 101,
@@ -164,18 +109,18 @@ describe("CandlesService", () => {
             symbolId: 101,
             timeframe: "1h",
             time: [100],
-            open: [1],
-            high: [1.5],
-            low: [0.9],
-            close: [1.25],
-            volume: [1],
+            openTicks: ["1000000"],
+            highTicks: ["1500000"],
+            lowTicks: ["900000"],
+            closeTicks: ["1250000"],
+            volumeScaled: ["100000000"],
             reference: {
                 time: [90],
-                open: [2],
-                high: [2.5],
-                low: [1.9],
-                close: [2.25],
-                volume: [2],
+                openTicks: ["2000000"],
+                highTicks: ["2500000"],
+                lowTicks: ["1900000"],
+                closeTicks: ["2250000"],
+                volumeScaled: ["200000000"],
             },
         });
     });
@@ -198,12 +143,12 @@ describe("CandlesService", () => {
         expect(columnar).toEqual({
             symbolId: 101,
             timeframe: "1s",
-            tsSec: [100n],
-            open: [1n],
-            high: [2n],
-            low: [3n],
-            close: [4n],
-            volume: [5n],
+            tsSec: ["100"],
+            openTicks: ["1"],
+            highTicks: ["2"],
+            lowTicks: ["3"],
+            closeTicks: ["4"],
+            volumeScaled: ["5"],
             reference: null,
         });
     });
@@ -222,17 +167,12 @@ describe("CandlesService", () => {
     });
 
     it("wires row candle subscriptions and parses point publications", () => {
-        const catalog = seedPairCatalog();
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();
         const onError = vi.fn();
-        const service = new CandlesService(
-            unaryTransport({}).transport,
-            realtime.realtime,
-            catalog,
-        );
+        const service = new CandlesService(unaryTransport({}).transport, realtime.realtime);
 
         const unsubscribe = service.subscribe({
             symbolId: 101,
@@ -259,8 +199,8 @@ describe("CandlesService", () => {
             expect.objectContaining({
                 symbolId: 101,
                 timeframe: "1m",
-                close: 1.234567,
-                volume: 1.23456789,
+                closeTicks: "1234567",
+                volumeScaled: "123456789",
             }),
         );
 
@@ -280,7 +220,13 @@ describe("CandlesService", () => {
         expect(onEvent).toHaveBeenCalledWith({
             symbolId: 101,
             timeframe: "1s",
-            ...candlePoint,
+            time: 100,
+            openTicks: "1234000",
+            highTicks: "1235000",
+            lowTicks: "1233000",
+            closeTicks: "1234567",
+            volumeScaled: "123456789",
+            isClosed: true,
         });
     });
 

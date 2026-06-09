@@ -4,29 +4,15 @@ import {
     CreateTradingWithdrawResultSchema,
 } from "./trading-withdraws.schemas.js";
 import * as v from "valibot";
-import { createTestCatalog } from "../../testing/catalog.js";
 
-const CreateTradingWithdrawToFundingInputSchema = createCreateTradingWithdrawToFundingInputSchema(
-    createTestCatalog({
-        assets: [
-            {
-                symbol: "USDT",
-                ledgerId: 1,
-                name: "Tether USD",
-                quantityDisplayDecimals: 6,
-                quantityScale: 6,
-            },
-        ],
-    }).snapshot(),
-);
+const CreateTradingWithdrawToFundingInputSchema = createCreateTradingWithdrawToFundingInputSchema();
 
 describe("CreateTradingWithdrawToFundingInputSchema", () => {
-    it("converts decimal amount and source subaccount to proto fields", () => {
+    it("maps raw scaled quantity and source subaccount to proto fields", () => {
         const input = v.parse(CreateTradingWithdrawToFundingInputSchema, {
             account: { subaccountId: "11" },
             assetId: 1,
-            amount: "1.25",
-            quantityScale: 6,
+            quantityScaled: "1250000",
             idempotencyKey: " withdraw-1 ",
             destinationAddress: " 0xabc123 ",
         });
@@ -56,8 +42,7 @@ describe("CreateTradingWithdrawToFundingInputSchema", () => {
         expect(() =>
             v.parse(CreateTradingWithdrawToFundingInputSchema, {
                 assetId: 1,
-                amount: "1.234",
-                quantityScale: 2,
+                quantityScaled: "not-a-number",
                 idempotencyKey: "withdraw-3",
             }),
         ).toThrow();

@@ -9,13 +9,12 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import {
-    createMarketOverviewSchemas,
     ListMarketOverviewInputSchema,
+    MarketOverviewSchema,
     type SparklineIntervalName,
     type ListMarketOverviewInput,
     type MarketOverview,
 } from "./market-overview.schemas.js";
-import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 
 interface SubscribeMarketOverviewInput extends BaseSubscribeInput<MarketOverview[]> {
     includeSparklines?: boolean;
@@ -28,16 +27,10 @@ interface SubscribeMarketOverviewInput extends BaseSubscribeInput<MarketOverview
 export class MarketOverviewService {
     #client: Client<typeof Proto.MarketOverviewService>;
     #realtime: RealtimeClient;
-    #schemas: ReturnType<typeof createMarketOverviewSchemas>;
 
-    constructor(
-        transport: Transport,
-        realtime: RealtimeClient,
-        catalog: CatalogReader = staticCatalog,
-    ) {
+    constructor(transport: Transport, realtime: RealtimeClient) {
         this.#client = createClient(Proto.MarketOverviewService, transport);
         this.#realtime = realtime;
-        this.#schemas = createMarketOverviewSchemas(catalog);
     }
 
     /**
@@ -52,8 +45,7 @@ export class MarketOverviewService {
             validatedInput,
             toConnectCallOptions(options),
         );
-        const schemas = this.#schemas.current();
-        return v.parse(v.array(schemas.marketOverview), res.markets);
+        return v.parse(v.array(MarketOverviewSchema), res.markets);
     }
 
     /**
@@ -95,8 +87,7 @@ export class MarketOverviewService {
             snapshotErrorLog: "Failed to fetch market overview",
             fetchSnapshot,
             readPublication: (batch) => {
-                const schemas = this.#schemas.current();
-                return (batch.markets ?? []).map((m) => v.parse(schemas.marketOverview, m));
+                return (batch.markets ?? []).map((m) => v.parse(MarketOverviewSchema, m));
             },
             applySnapshot: (markets, bufferedMarkets) => {
                 bySymbolId.clear();

@@ -6,21 +6,8 @@ import {
     EquityHistoryInputSchema,
 } from "./balances.schemas.js";
 import * as v from "valibot";
-import { createTestCatalog } from "../../testing/catalog.js";
 
-const LedgerBalanceSchema = createLedgerBalanceSchema(
-    createTestCatalog({
-        assets: [
-            {
-                symbol: "USDT",
-                ledgerId: 1,
-                name: "Tether USD",
-                quantityDisplayDecimals: 6,
-                quantityScale: 6,
-            },
-        ],
-    }).snapshot(),
-);
+const LedgerBalanceSchema = createLedgerBalanceSchema();
 
 describe("ledger balance schema", () => {
     it("maps generated trading balances to unified output balances", () => {
@@ -32,9 +19,9 @@ describe("ledger balance schema", () => {
             available: { hi: 0n, lo: 1_000_000_000_000_000_000n },
         });
 
-        expect(balance.asset.symbol).toBe("USDT");
-        expect(balance.unified).toBe(1);
-        expect(balance.available).toBe(1);
+        expect(balance.assetId).toBe(1);
+        expect(balance.unifiedQ).toBe("1000000000000000000");
+        expect(balance.availableQ).toBe("1000000000000000000");
     });
 });
 

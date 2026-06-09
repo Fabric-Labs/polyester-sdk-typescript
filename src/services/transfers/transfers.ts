@@ -9,12 +9,11 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import {
-    createTransfersSchemas,
+    LedgerTransferSchema,
     ListTransfersInputSchema,
     type LedgerTransfer,
     type ListTransfersInput,
 } from "./transfers.schemas.js";
-import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 
 interface SubscribeTransfersInput extends BaseSubscribeInput<LedgerTransfer> {
     accountId: string;
@@ -27,18 +26,11 @@ export class TransfersService {
     #client: Client<typeof Proto.LedgerReadService>;
     #realtime: RealtimeClient;
     #resolver?: SubaccountResolver;
-    #schemas: ReturnType<typeof createTransfersSchemas>;
 
-    constructor(
-        transport: Transport,
-        realtime: RealtimeClient,
-        resolver?: SubaccountResolver,
-        catalog: CatalogReader = staticCatalog,
-    ) {
+    constructor(transport: Transport, realtime: RealtimeClient, resolver?: SubaccountResolver) {
         this.#client = createClient(Proto.LedgerReadService, transport);
         this.#realtime = realtime;
         this.#resolver = resolver;
-        this.#schemas = createTransfersSchemas(catalog);
     }
 
     /**
@@ -51,8 +43,7 @@ export class TransfersService {
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(ListTransfersInputSchema, resolved);
         const res = await this.#client.listTransfers(validatedInput, toConnectCallOptions(options));
-        const schemas = this.#schemas.current();
-        const transfers = v.parse(v.array(schemas.ledgerTransfer), res.transfers);
+        const transfers = v.parse(v.array(LedgerTransferSchema), res.transfers);
         const nextCursor = Number(res.nextCursor ?? 0n) || null;
         return { transfers, nextCursor };
     }
@@ -66,8 +57,7 @@ export class TransfersService {
             channel,
             schema: Proto.TransferRowSchema,
             onPublication: (m) => {
-                const schemas = this.#schemas.current();
-                const tr = v.parse(schemas.ledgerTransfer, m);
+                const tr = v.parse(LedgerTransferSchema, m);
                 input.onEvent(tr);
             },
             onConnected: input.onOpen,

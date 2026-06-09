@@ -10,7 +10,9 @@ import {
 import {
     type CandleColumnar,
     CandleRowIntSchema,
+    CandleRowSchema,
     CandleColumnarIntSchema,
+    CandleColumnarSchema,
     CandlePointSchema,
     TimeframeSchema,
     type Candle,
@@ -19,10 +21,9 @@ import {
     type CandleColumnarInt,
     type GetCandlesInput,
     type GetCandlesColumnsInput,
-    createCandlesSchemas,
+    ListCandlesInputSchema,
 } from "./candles.schemas.js";
 import { TimeframeCodec } from "./candles.codecs.js";
-import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 
 interface SubscribeCandlesInput extends BaseSubscribeInput<Candle> {
     symbolId: number;
@@ -45,28 +46,21 @@ const SubscribeCandlesParamsSchema = v.object({
 export class CandlesService {
     #client: Client<typeof Proto.MarketDataService>;
     #realtime: RealtimeClient;
-    #schemas: ReturnType<typeof createCandlesSchemas>;
 
-    constructor(
-        transport: Transport,
-        realtime: RealtimeClient,
-        catalog: CatalogReader = staticCatalog,
-    ) {
+    constructor(transport: Transport, realtime: RealtimeClient) {
         this.#client = createClient(Proto.MarketDataService, transport);
         this.#realtime = realtime;
-        this.#schemas = createCandlesSchemas(catalog);
     }
 
     /**
      * Returns OHLCV candles for a symbol/timeframe request, mapped into row objects with symbol id and timeframe. The proto response is newest-first and may include incomplete/reference data depending on input flags.
      */
     async list(input: GetCandlesInput, options?: PolyesterRequestOptions): Promise<Candle[]> {
-        const schemas = this.#schemas.current();
-        const validatedInput = v.parse(schemas.listCandlesInput, input);
+        const validatedInput = v.parse(ListCandlesInputSchema, input);
         const res = await this.#client.getCandles(validatedInput, toConnectCallOptions(options));
         const candles = v.parse(v.optional(v.array(CandlePointSchema), []), res.candles);
         return candles.map((c) =>
-            v.parse(schemas.candleRow, {
+            v.parse(CandleRowSchema, {
                 ...c,
                 symbolId: res.symbolId,
                 timeframe: res.timeframe,
@@ -81,13 +75,12 @@ export class CandlesService {
         input: GetCandlesColumnsInput,
         options?: PolyesterRequestOptions,
     ): Promise<CandleColumnar> {
-        const schemas = this.#schemas.current();
-        const validatedInput = v.parse(schemas.listCandlesInput, input);
+        const validatedInput = v.parse(ListCandlesInputSchema, input);
         const res = await this.#client.getCandlesColumns(
             validatedInput,
             toConnectCallOptions(options),
         );
-        return v.parse(schemas.candleColumnar, res);
+        return v.parse(CandleColumnarSchema, res);
     }
 
     /**
@@ -97,8 +90,7 @@ export class CandlesService {
         input: GetCandlesColumnsInput,
         options?: PolyesterRequestOptions,
     ): Promise<CandleColumnarInt> {
-        const schemas = this.#schemas.current();
-        const validatedInput = v.parse(schemas.listCandlesInput, input);
+        const validatedInput = v.parse(ListCandlesInputSchema, input);
         const res = await this.#client.getCandlesColumns(
             validatedInput,
             toConnectCallOptions(options),
@@ -121,8 +113,7 @@ export class CandlesService {
             schema: Proto.CandlePointSchema,
             onPublication: (data) => {
                 const point = v.parse(CandlePointSchema, data);
-                const schemas = this.#schemas.current();
-                const candle = v.parse(schemas.candleRow, {
+                const candle = v.parse(CandleRowSchema, {
                     ...point,
                     symbolId: params.symbolId,
                     timeframe: protoTimeframe,

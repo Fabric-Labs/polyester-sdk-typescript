@@ -1,48 +1,8 @@
 import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import * as Proto from "../../gen/marketdata/v1/heatmap_pb.js";
-import { createTestCatalog } from "../../testing/catalog.js";
 import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
 import { HeatmapService } from "./heatmap.js";
-
-const btc = {
-    symbol: "BTC",
-    ledgerId: 1,
-    name: "Bitcoin",
-    quantityDisplayDecimals: 8,
-    quantityScale: 8,
-};
-
-const usdt = {
-    symbol: "USDT",
-    ledgerId: 2,
-    name: "Tether USD",
-    quantityDisplayDecimals: 6,
-    quantityScale: 6,
-};
-
-const btcUsdtPair: EnrichedPairConfig = {
-    symbolId: 101,
-    symbol: "BTC-USDT",
-    baseAsset: btc,
-    quoteAsset: usdt,
-    tickSize: "0.000001",
-    stepSize: "0.00000001",
-    minNotionalQuote: "1",
-    minQtyBase: "0.00000001",
-    allowBuyFeeFromReceived: false,
-    defaultMarketSlippagePctBuy: 0,
-    defaultMarketSlippagePctSell: 0,
-    maxClientRefDriftPct: 0,
-    listingAt: null,
-    delistingAt: null,
-    status: "enabled",
-};
-
-function seedPairCatalog() {
-    return createTestCatalog({ pairs: [btcUsdtPair] });
-}
 
 type HeatmapDeltaLevelsInit = {
     priceTicks: bigint[];
@@ -124,11 +84,10 @@ describe("HeatmapService", () => {
     });
 
     it("normalizes heatmap requests for cursor and time-range modes", async () => {
-        const catalog = seedPairCatalog();
         const cases = [
             {
                 name: "cursor defaults",
-                input: { symbol: "BTC-USDT", cursorTsSec: 200 },
+                input: { symbolId: 101, cursorTsSec: 200 },
                 response: heatmapResponse(),
                 expected: {
                     symbolId: 101,
@@ -174,11 +133,7 @@ describe("HeatmapService", () => {
         for (const testCase of cases) {
             const controller = new AbortController();
             const transport = unaryTransport(testCase.response);
-            const service = new HeatmapService(
-                transport.transport,
-                realtimeClientStub().realtime,
-                catalog,
-            );
+            const service = new HeatmapService(transport.transport, realtimeClientStub().realtime);
 
             const response = await service.getOrderbookHeatmap(testCase.input, {
                 signal: controller.signal,

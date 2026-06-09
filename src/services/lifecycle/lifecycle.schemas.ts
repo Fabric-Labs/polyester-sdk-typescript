@@ -22,12 +22,6 @@ import {
 } from "./lifecycle.codecs.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import { fromU128, u128ToDecimal } from "../../utils/u128.js";
-import {
-    createCatalogSnapshotReader,
-    type CatalogReader,
-    type CatalogSnapshot,
-} from "../../catalogs/index.js";
-import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import { PublicIdSchema } from "../../shared/schemas.js";
 
@@ -251,27 +245,15 @@ export const ListLifecycleFlowsInputSchema = v.pipe(
     }),
 );
 
-export function createLifecycleRequestFeeSchema(catalog: CatalogSnapshot) {
-    return createLifecycleRequestFeeSchemaForReader(createCatalogSnapshotReader(catalog));
-}
+export const LifecycleRequestFeeSchema = v.object({
+    assetIds: v.optional(LifecycleAssetIdsSchema),
+    amountE18: v.optional(LifecycleAmountE18Schema),
+    recipientAddress: v.string(),
+    status: LifecycleRequestFeeStatusEnumSchema,
+});
 
-function createLifecycleRequestFeeSchemaForReader(reader: CatalogReader) {
-    return v.pipe(
-        v.object({
-            assetIds: v.optional(LifecycleAssetIdsSchema),
-            amountE18: v.optional(LifecycleAmountE18Schema),
-            recipientAddress: v.string(),
-            status: LifecycleRequestFeeStatusEnumSchema,
-        }),
-        v.transform((v) => {
-            return {
-                ...v,
-                unifiedAsset: v.assetIds
-                    ? reader.ledger.requireAssetByLedgerId(v.assetIds.unifiedAssetId)
-                    : undefined,
-            };
-        }),
-    );
+export function createLifecycleRequestFeeSchema() {
+    return LifecycleRequestFeeSchema;
 }
 
 export const GetLifecycleFlowInputSchema = v.pipe(
@@ -312,43 +294,31 @@ export const LifecycleFlowStepActivitySchema = v.object({
     ledgerTransferId: LifecycleLedgerTransferIdSchema,
 });
 
-export function createLifecycleFlowStepSchema(catalog: CatalogSnapshot) {
-    return createLifecycleFlowStepSchemaForReader(createCatalogSnapshotReader(catalog));
-}
+export const LifecycleFlowStepSchema = v.object({
+    sequence: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    step: LifecycleFlowStepEnumSchema,
+    assetIds: v.optional(LifecycleAssetIdsSchema),
+    polyesterChainId: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    amountE18: v.optional(LifecycleAmountE18Schema),
+    requestFee: v.optional(LifecycleRequestFeeSchema),
+    milestoneTxRef: v.string(),
+    lifecycleSource: LifecycleSourceEnumSchema,
+    reasonCode: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    reasonHash: LifecycleReasonHashSchema,
+    currentConfirmations: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    requiredConfirmations: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    approveCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    rejectCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    validatorCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    requiredApprovals: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    requiredRejections: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    occurredAtUnixMs: LifecycleMsSchema,
+    blockTimeMovingAverageMs: LifecycleMsSchema,
+    activities: v.optional(v.array(LifecycleFlowStepActivitySchema), []),
+});
 
-function createLifecycleFlowStepSchemaForReader(reader: CatalogReader) {
-    return v.pipe(
-        v.object({
-            sequence: v.pipe(v.number(), v.integer(), v.minValue(0)),
-            step: LifecycleFlowStepEnumSchema,
-            assetIds: v.optional(LifecycleAssetIdsSchema),
-            polyesterChainId: v.pipe(v.number(), v.integer(), v.minValue(0)),
-            amountE18: v.optional(LifecycleAmountE18Schema),
-            requestFee: v.optional(createLifecycleRequestFeeSchemaForReader(reader)),
-            milestoneTxRef: v.string(),
-            lifecycleSource: LifecycleSourceEnumSchema,
-            reasonCode: v.pipe(v.number(), v.integer(), v.minValue(0)),
-            reasonHash: LifecycleReasonHashSchema,
-            currentConfirmations: v.pipe(v.number(), v.integer(), v.minValue(0)),
-            requiredConfirmations: v.pipe(v.number(), v.integer(), v.minValue(0)),
-            approveCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
-            rejectCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
-            validatorCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
-            requiredApprovals: v.pipe(v.number(), v.integer(), v.minValue(0)),
-            requiredRejections: v.pipe(v.number(), v.integer(), v.minValue(0)),
-            occurredAtUnixMs: LifecycleMsSchema,
-            blockTimeMovingAverageMs: LifecycleMsSchema,
-            activities: v.optional(v.array(LifecycleFlowStepActivitySchema), []),
-        }),
-        v.transform((v) => {
-            return {
-                ...v,
-                unifiedAsset: v.assetIds
-                    ? reader.ledger.requireAssetByLedgerId(v.assetIds.unifiedAssetId)
-                    : undefined,
-            };
-        }),
-    );
+export function createLifecycleFlowStepSchema() {
+    return LifecycleFlowStepSchema;
 }
 
 export const LifecycleFlowTimelineItemSchema = v.object({
@@ -370,146 +340,101 @@ export const LifecycleFlowSummaryProgressSchema = v.object({
     requiredRejections: v.pipe(v.number(), v.integer(), v.minValue(0)),
 });
 
-export function createLifecycleFlowSummarySchema(catalog: CatalogSnapshot) {
-    return createLifecycleFlowSummarySchemaForReader(createCatalogSnapshotReader(catalog));
+export const LifecycleFlowSummarySchema = v.object({
+    ownerAccountId: PublicIdSchema,
+    flowId: v.string(),
+    flowKind: LifecycleFlowKindEnumSchema,
+    latestStep: LifecycleFlowStepEnumSchema,
+    assetIds: v.optional(LifecycleAssetIdsSchema),
+    polyesterChainId: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    amountE18: v.optional(LifecycleAmountE18Schema),
+    requestFee: v.optional(LifecycleRequestFeeSchema),
+    sourceTxHash: v.string(),
+    txOccurrenceIndex: LifecycleTxOccurrenceIndexSchema,
+    sourceAddress: v.string(),
+    destinationAddress: v.string(),
+    sourceDomain: LifecycleFlowDomainEnumSchema,
+    destinationDomain: LifecycleFlowDomainEnumSchema,
+    latestTxRef: v.string(),
+    latestLifecycleSource: LifecycleSourceEnumSchema,
+    reasonCode: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    reasonHash: LifecycleReasonHashSchema,
+    startedAtUnixMs: LifecycleMsSchema,
+    updatedAtUnixMs: LifecycleMsSchema,
+    terminalAtUnixMs: LifecycleMsSchema,
+    lastActivityAtUnixMs: LifecycleMsSchema,
+    isOpen: v.boolean(),
+    isTerminal: v.boolean(),
+    latestStepSequence: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    currentProgress: v.optional(LifecycleFlowSummaryProgressSchema),
+    summaryTimeline: v.optional(v.array(LifecycleFlowTimelineItemSchema), []),
+    estimatedCompletionUnixMs: LifecycleMsSchema,
+});
+
+export function createLifecycleFlowSummarySchema() {
+    return LifecycleFlowSummarySchema;
 }
 
-function createLifecycleFlowSummarySchemaForReader(reader: CatalogReader) {
-    return v.pipe(
-        v.object({
-            ownerAccountId: PublicIdSchema,
-            flowId: v.string(),
-            flowKind: LifecycleFlowKindEnumSchema,
-            latestStep: LifecycleFlowStepEnumSchema,
-            assetIds: v.optional(LifecycleAssetIdsSchema),
-            polyesterChainId: v.pipe(v.number(), v.integer(), v.minValue(0)),
-            amountE18: v.optional(LifecycleAmountE18Schema),
-            requestFee: v.optional(createLifecycleRequestFeeSchemaForReader(reader)),
-            sourceTxHash: v.string(),
-            txOccurrenceIndex: LifecycleTxOccurrenceIndexSchema,
-            sourceAddress: v.string(),
-            destinationAddress: v.string(),
-            sourceDomain: LifecycleFlowDomainEnumSchema,
-            destinationDomain: LifecycleFlowDomainEnumSchema,
-            latestTxRef: v.string(),
-            latestLifecycleSource: LifecycleSourceEnumSchema,
-            reasonCode: v.pipe(v.number(), v.integer(), v.minValue(0)),
-            reasonHash: LifecycleReasonHashSchema,
-            startedAtUnixMs: LifecycleMsSchema,
-            updatedAtUnixMs: LifecycleMsSchema,
-            terminalAtUnixMs: LifecycleMsSchema,
-            lastActivityAtUnixMs: LifecycleMsSchema,
-            isOpen: v.boolean(),
-            isTerminal: v.boolean(),
-            latestStepSequence: v.pipe(v.number(), v.integer(), v.minValue(0)),
-            currentProgress: v.optional(LifecycleFlowSummaryProgressSchema),
-            summaryTimeline: v.optional(v.array(LifecycleFlowTimelineItemSchema), []),
-            estimatedCompletionUnixMs: LifecycleMsSchema,
-        }),
-        v.transform((v) => {
-            return {
-                ...v,
-                unifiedAsset: v.assetIds
-                    ? reader.ledger.requireAssetByLedgerId(v.assetIds.unifiedAssetId)
-                    : undefined,
-            };
-        }),
-    );
+export const LifecycleFlowDetailSchema = v.object({
+    summary: v.optional(LifecycleFlowSummarySchema),
+    steps: v.optional(v.array(LifecycleFlowStepSchema), []),
+    fromLiveState: v.boolean(),
+    timeline: v.optional(v.array(LifecycleFlowTimelineItemSchema), []),
+});
+
+export function createLifecycleFlowDetailSchema() {
+    return LifecycleFlowDetailSchema;
 }
 
-export function createLifecycleFlowDetailSchema(catalog: CatalogSnapshot) {
-    return createLifecycleFlowDetailSchemaForReader(createCatalogSnapshotReader(catalog));
+export const ListLifecycleFlowsOutputSchema = v.object({
+    flows: v.optional(v.array(LifecycleFlowSummarySchema), []),
+    nextPageToken: v.optional(v.string(), ""),
+});
+
+export function createListLifecycleFlowsOutputSchema() {
+    return ListLifecycleFlowsOutputSchema;
 }
 
-function createLifecycleFlowDetailSchemaForReader(reader: CatalogReader) {
-    return v.object({
-        summary: v.optional(createLifecycleFlowSummarySchemaForReader(reader)),
-        steps: v.optional(v.array(createLifecycleFlowStepSchemaForReader(reader)), []),
-        fromLiveState: v.boolean(),
-        timeline: v.optional(v.array(LifecycleFlowTimelineItemSchema), []),
-    });
+export const GetLifecycleFlowOutputSchema = v.object({
+    flow: v.optional(LifecycleFlowDetailSchema),
+});
+
+export function createGetLifecycleFlowOutputSchema() {
+    return GetLifecycleFlowOutputSchema;
 }
 
-export function createListLifecycleFlowsOutputSchema(catalog: CatalogSnapshot) {
-    return createListLifecycleFlowsOutputSchemaForReader(createCatalogSnapshotReader(catalog));
+export const LifecycleFlowTxMatchSchema = v.object({
+    flowId: v.string(),
+    flowKind: LifecycleFlowKindEnumSchema,
+    sourceTxHash: v.string(),
+    latestTxRef: v.string(),
+    txOccurrenceIndex: LifecycleTxOccurrenceIndexSchema,
+    sourceDomain: LifecycleFlowDomainEnumSchema,
+    destinationDomain: LifecycleFlowDomainEnumSchema,
+    latestStep: LifecycleFlowStepEnumSchema,
+    isOpen: v.boolean(),
+    isTerminal: v.boolean(),
+    assetIds: v.optional(LifecycleAssetIdsSchema),
+    polyesterChainId: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    amountE18: v.optional(LifecycleAmountE18Schema),
+    sourceAddress: v.string(),
+    destinationAddress: v.string(),
+    reasonCode: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    lastActivityAtUnixMs: LifecycleMsSchema,
+});
+
+export function createLifecycleFlowTxMatchSchema() {
+    return LifecycleFlowTxMatchSchema;
 }
 
-function createListLifecycleFlowsOutputSchemaForReader(reader: CatalogReader) {
-    return v.object({
-        flows: v.optional(v.array(createLifecycleFlowSummarySchemaForReader(reader)), []),
-        nextPageToken: v.optional(v.string(), ""),
-    });
-}
+export const ListLifecycleFlowsByTxOutputSchema = v.object({
+    txHash: v.string(),
+    matches: v.optional(v.array(LifecycleFlowTxMatchSchema), []),
+    nextPageToken: v.optional(v.string(), ""),
+});
 
-export function createGetLifecycleFlowOutputSchema(catalog: CatalogSnapshot) {
-    return createGetLifecycleFlowOutputSchemaForReader(createCatalogSnapshotReader(catalog));
-}
-
-function createGetLifecycleFlowOutputSchemaForReader(reader: CatalogReader) {
-    return v.object({
-        flow: v.optional(createLifecycleFlowDetailSchemaForReader(reader)),
-    });
-}
-
-export function createLifecycleFlowTxMatchSchema(catalog: CatalogSnapshot) {
-    return createLifecycleFlowTxMatchSchemaForReader(createCatalogSnapshotReader(catalog));
-}
-
-function createLifecycleFlowTxMatchSchemaForReader(reader: CatalogReader) {
-    return v.pipe(
-        v.object({
-            flowId: v.string(),
-            flowKind: LifecycleFlowKindEnumSchema,
-            sourceTxHash: v.string(),
-            latestTxRef: v.string(),
-            txOccurrenceIndex: LifecycleTxOccurrenceIndexSchema,
-            sourceDomain: LifecycleFlowDomainEnumSchema,
-            destinationDomain: LifecycleFlowDomainEnumSchema,
-            latestStep: LifecycleFlowStepEnumSchema,
-            isOpen: v.boolean(),
-            isTerminal: v.boolean(),
-            assetIds: v.optional(LifecycleAssetIdsSchema),
-            polyesterChainId: v.pipe(v.number(), v.integer(), v.minValue(0)),
-            amountE18: v.optional(LifecycleAmountE18Schema),
-            sourceAddress: v.string(),
-            destinationAddress: v.string(),
-            reasonCode: v.pipe(v.number(), v.integer(), v.minValue(0)),
-            lastActivityAtUnixMs: LifecycleMsSchema,
-        }),
-        v.transform((v) => {
-            return {
-                ...v,
-                unifiedAsset: v.assetIds
-                    ? reader.ledger.requireAssetByLedgerId(v.assetIds.unifiedAssetId)
-                    : undefined,
-            };
-        }),
-    );
-}
-
-export function createListLifecycleFlowsByTxOutputSchema(catalog: CatalogSnapshot) {
-    return createListLifecycleFlowsByTxOutputSchemaForReader(createCatalogSnapshotReader(catalog));
-}
-
-function createListLifecycleFlowsByTxOutputSchemaForReader(reader: CatalogReader) {
-    return v.object({
-        txHash: v.string(),
-        matches: v.optional(v.array(createLifecycleFlowTxMatchSchemaForReader(reader)), []),
-        nextPageToken: v.optional(v.string(), ""),
-    });
-}
-
-export function createLifecycleSchemas(catalog: CatalogReader) {
-    return createCatalogSchemaCache(catalog, (reader) => ({
-        lifecycleRequestFee: createLifecycleRequestFeeSchemaForReader(reader),
-        lifecycleFlowStep: createLifecycleFlowStepSchemaForReader(reader),
-        lifecycleFlowSummary: createLifecycleFlowSummarySchemaForReader(reader),
-        lifecycleFlowDetail: createLifecycleFlowDetailSchemaForReader(reader),
-        listLifecycleFlowsOutput: createListLifecycleFlowsOutputSchemaForReader(reader),
-        getLifecycleFlowOutput: createGetLifecycleFlowOutputSchemaForReader(reader),
-        lifecycleFlowTxMatch: createLifecycleFlowTxMatchSchemaForReader(reader),
-        listLifecycleFlowsByTxOutput: createListLifecycleFlowsByTxOutputSchemaForReader(reader),
-    }));
+export function createListLifecycleFlowsByTxOutputSchema() {
+    return ListLifecycleFlowsByTxOutputSchema;
 }
 
 export type ListLifecycleFlowsInput = v.InferInput<typeof ListLifecycleFlowsInputSchema>;
@@ -523,26 +448,18 @@ export type ParsedListLifecycleFlowsByTxInput = v.InferOutput<
     typeof ListLifecycleFlowsByTxInputSchema
 >;
 
-export type LifecycleFlowSummary = v.InferOutput<
-    ReturnType<typeof createLifecycleFlowSummarySchema>
->;
-export type LifecycleFlowStep = v.InferOutput<ReturnType<typeof createLifecycleFlowStepSchema>>;
+export type LifecycleFlowSummary = v.InferOutput<typeof LifecycleFlowSummarySchema>;
+export type LifecycleFlowStep = v.InferOutput<typeof LifecycleFlowStepSchema>;
 export type LifecycleFlowStepActivity = v.InferOutput<typeof LifecycleFlowStepActivitySchema>;
 export type LifecycleFlowTimelineItem = v.InferOutput<typeof LifecycleFlowTimelineItemSchema>;
-export type LifecycleFlowDetail = v.InferOutput<ReturnType<typeof createLifecycleFlowDetailSchema>>;
+export type LifecycleFlowDetail = v.InferOutput<typeof LifecycleFlowDetailSchema>;
 
-export type ListLifecycleFlowsOutput = v.InferOutput<
-    ReturnType<typeof createListLifecycleFlowsOutputSchema>
->;
-export type GetLifecycleFlowOutput = v.InferOutput<
-    ReturnType<typeof createGetLifecycleFlowOutputSchema>
->;
-export type ListLifecycleFlowsByTxOutput = v.InferOutput<
-    ReturnType<typeof createListLifecycleFlowsByTxOutputSchema>
->;
+export type ListLifecycleFlowsOutput = v.InferOutput<typeof ListLifecycleFlowsOutputSchema>;
+export type GetLifecycleFlowOutput = v.InferOutput<typeof GetLifecycleFlowOutputSchema>;
+export type ListLifecycleFlowsByTxOutput = v.InferOutput<typeof ListLifecycleFlowsByTxOutputSchema>;
 
 export type LifecycleAssetIds = v.InferOutput<typeof LifecycleAssetIdsSchema>;
-export type LifecycleRequestFee = v.InferOutput<ReturnType<typeof createLifecycleRequestFeeSchema>>;
+export type LifecycleRequestFee = v.InferOutput<typeof LifecycleRequestFeeSchema>;
 
 export type LifecycleFlowSummaryProgress = v.InferOutput<typeof LifecycleFlowSummaryProgressSchema>;
 export type LifecycleFlowState = v.InferOutput<typeof LifecycleFlowStateEnumSchema>;
@@ -550,6 +467,4 @@ export type LifecycleListScope = LifecycleListScopeValue;
 export type LifecycleTxLookupKind = LifecycleTxLookupKindValue;
 export type LifecycleRequestFeeStatus = LifecycleRequestFeeStatusValue;
 
-export type LifecycleFlowTxMatch = v.InferOutput<
-    ReturnType<typeof createLifecycleFlowTxMatchSchema>
->;
+export type LifecycleFlowTxMatch = v.InferOutput<typeof LifecycleFlowTxMatchSchema>;

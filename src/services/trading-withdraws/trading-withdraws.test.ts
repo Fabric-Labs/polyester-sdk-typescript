@@ -69,7 +69,7 @@ describe("TradingWithdrawsService", () => {
             service.createToFunding({
                 account: { subaccountId: "2" },
                 assetId: 1,
-                quantityScaled: 100n,
+                quantityScaled: "100",
                 destinationAddress: "funding",
                 idempotencyKey: "withdraw-1",
                 walletSigner: {
@@ -112,7 +112,7 @@ describe("TradingWithdrawsService", () => {
         await expect(
             service.createToFunding({
                 assetId: 1,
-                quantityScaled: 100n,
+                quantityScaled: "100",
                 idempotencyKey: "withdraw-1",
             }),
         ).rejects.toThrow("Trading withdraw requires a wallet signer or payload signature.");
@@ -128,7 +128,7 @@ describe("TradingWithdrawsService", () => {
         await expect(
             service.createToFunding({
                 assetId: 1,
-                quantityScaled: 100n,
+                quantityScaled: "100",
                 idempotencyKey: "withdraw-1",
                 payloadSignature: new Uint8Array([1]),
             }),

@@ -2,49 +2,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
-import { createTestCatalog } from "../../testing/catalog.js";
 import { realtimeClientStub, unaryTransportByMethod } from "../../testing/service-harness.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import { TriggersService } from "./triggers.js";
-
-function seedPairCatalog() {
-    const btc = {
-        symbol: "BTC",
-        ledgerId: 1,
-        name: "Bitcoin",
-        quantityDisplayDecimals: 8,
-        quantityScale: 8,
-    };
-    const usdt = {
-        symbol: "USDT",
-        ledgerId: 2,
-        name: "Tether USD",
-        quantityDisplayDecimals: 2,
-        quantityScale: 6,
-    };
-
-    return createTestCatalog({
-        pairs: [
-            {
-                symbolId: 1,
-                symbol: "BTC-USDT",
-                baseAsset: btc,
-                quoteAsset: usdt,
-                tickSize: "0.01",
-                stepSize: "0.000001",
-                minNotionalQuote: "1",
-                minQtyBase: "0.000001",
-                allowBuyFeeFromReceived: false,
-                defaultMarketSlippagePctBuy: 0.5,
-                defaultMarketSlippagePctSell: 0.5,
-                maxClientRefDriftPct: 0.1,
-                listingAt: null,
-                delistingAt: null,
-                status: "enabled",
-            },
-        ],
-    });
-}
 
 function trigger(overrides: Partial<Proto.Trigger> = {}): Proto.Trigger {
     return {
@@ -105,8 +65,6 @@ describe("TriggersService", () => {
     });
 
     it("normalizes all create trigger variants and parses create responses", async () => {
-        const catalog = seedPairCatalog();
-
         const cases: {
             name: string;
             input: Parameters<TriggersService["create"]>[0];
@@ -121,9 +79,9 @@ describe("TriggersService", () => {
                     side: "sell",
                     orderType: "limit",
                     tif: "gtc",
-                    qty: "0.5",
-                    limitPrice: "99.50",
-                    triggerPrice: "100.00",
+                    qtyScaled: "50000000",
+                    limitPriceTicks: "99500000",
+                    triggerPriceTicks: "100000000",
                     clientTriggerId: " trigger-client-1 ",
                 },
                 expected: {
@@ -145,8 +103,8 @@ describe("TriggersService", () => {
                     side: "sell",
                     orderType: "market",
                     tif: "ioc",
-                    qty: "0.25",
-                    triggerPrice: "101.00",
+                    qtyScaled: "25000000",
+                    triggerPriceTicks: "101000000",
                     clientTriggerId: "trigger-client-2",
                 },
                 expected: {
@@ -165,9 +123,9 @@ describe("TriggersService", () => {
                     side: "buy",
                     orderType: "market",
                     tif: "ioc",
-                    qty: "0.25",
+                    qtyScaled: "25000000",
                     trailingDistance: { kind: "percent", percent: "1.5" },
-                    activationPrice: "99.00",
+                    activationPriceTicks: "99000000",
                     maxSlippage: { kind: "quote", quote: "0.25" },
                     clientTriggerId: "trigger-client-3",
                 },
@@ -188,7 +146,7 @@ describe("TriggersService", () => {
                     side: "buy",
                     orderType: "market",
                     tif: "ioc",
-                    qty: "1",
+                    qtyScaled: "100000000",
                     twapDurationMs: "60000",
                     twapSliceIntervalMs: 5000,
                     maxSlippage: { kind: "bps", bps: 25 },
@@ -209,10 +167,10 @@ describe("TriggersService", () => {
                     side: "buy",
                     orderType: "limit",
                     tif: "gtc",
-                    qty: "1",
-                    limitPrice: "100.00",
-                    ladderPriceMin: "99.00",
-                    ladderPriceMax: "101.00",
+                    qtyScaled: "100000000",
+                    limitPriceTicks: "100000000",
+                    ladderPriceMinTicks: "99000000",
+                    ladderPriceMaxTicks: "101000000",
                     ladderLevels: "5",
                     ladderDistribution: "linear",
                     clientTriggerId: "trigger-client-5",
@@ -233,7 +191,6 @@ describe("TriggersService", () => {
                 transport.transport,
                 realtimeClientStub().realtime,
                 undefined,
-                catalog,
             );
 
             await expect(service.create(testCase.input)).resolves.toMatchObject({
@@ -250,7 +207,6 @@ describe("TriggersService", () => {
     });
 
     it("normalizes read methods, defaults, resolver state, and call options", async () => {
-        const catalog = seedPairCatalog();
         const controller = new AbortController();
         const resolver: SubaccountResolver = {
             getDefaultSubaccountId: () => "11",
@@ -264,7 +220,6 @@ describe("TriggersService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             resolver,
-            catalog,
         );
 
         await expect(service.get({ triggerId: "22", account: "main" })).resolves.toBeNull();
@@ -284,7 +239,9 @@ describe("TriggersService", () => {
                 {
                     clientTriggerId: "trigger-client-1",
                     status: "armed",
-                    details: { case: "stop", triggerPrice: "100" },
+                    qtyScaled: "50000000",
+                    limitPriceTicks: "99500000",
+                    details: { case: "stop", triggerPriceTicks: "100000000" },
                 },
             ],
         });
@@ -293,7 +250,7 @@ describe("TriggersService", () => {
             events: [
                 {
                     eventType: "fired",
-                    firePrice: "100",
+                    firePriceTicks: "100000000",
                     reason: "crossed",
                 },
             ],
@@ -329,7 +286,6 @@ describe("TriggersService", () => {
     });
 
     it("normalizes trigger mutations and forwards step-up metadata", async () => {
-        const catalog = seedPairCatalog();
         const transport = unaryTransportByMethod({
             cancelTrigger: {
                 triggerId: 22n,
@@ -356,7 +312,6 @@ describe("TriggersService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             undefined,
-            catalog,
         );
 
         await expect(
@@ -369,7 +324,7 @@ describe("TriggersService", () => {
             service.modify({
                 triggerId: "22",
                 account: { subaccountId: "11" },
-                triggerPrice: "101.25",
+                triggerPriceTicks: "101250000",
                 maxSlippage: { kind: "none" },
             }),
         ).resolves.toMatchObject({ status: "armed", tsNs: 2 });
@@ -413,13 +368,11 @@ describe("TriggersService", () => {
     });
 
     it("uses private trigger channels and parses trigger publications", () => {
-        const catalog = seedPairCatalog();
         const realtime = realtimeClientStub();
         const service = new TriggersService(
             unaryTransportByMethod({}).transport,
             realtime.realtime,
             undefined,
-            catalog,
         );
         const onEvent = vi.fn();
         const onOpen = vi.fn();
@@ -470,13 +423,11 @@ describe("TriggersService", () => {
     });
 
     it("uses private trigger event channels and parses event publications", () => {
-        const catalog = seedPairCatalog();
         const realtime = realtimeClientStub();
         const service = new TriggersService(
             unaryTransportByMethod({}).transport,
             realtime.realtime,
             undefined,
-            catalog,
         );
         const onEvent = vi.fn();
 
@@ -492,8 +443,8 @@ describe("TriggersService", () => {
         expect(onEvent).toHaveBeenCalledWith(
             expect.objectContaining({
                 eventType: "fired",
-                symbol: "BTC-USDT",
-                firePrice: "100",
+                symbolId: 1,
+                firePriceTicks: "100000000",
                 reason: "crossed",
             }),
         );
@@ -505,7 +456,6 @@ describe("TriggersService", () => {
     });
 
     it("rejects invalid create input and malformed backend trigger responses", async () => {
-        const catalog = seedPairCatalog();
         const transport = unaryTransportByMethod({
             getTrigger: {
                 trigger: trigger({ status: Proto.TriggerStatus.TRIGGER_STATUS_UNSPECIFIED }),
@@ -515,7 +465,6 @@ describe("TriggersService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             undefined,
-            catalog,
         );
 
         await expect(
@@ -525,7 +474,7 @@ describe("TriggersService", () => {
                 side: "buy",
                 orderType: "market",
                 tif: "ioc",
-                qty: "1",
+                qtyScaled: "100000000",
                 twapDurationMs: 500,
                 twapSliceIntervalMs: 100,
             }),

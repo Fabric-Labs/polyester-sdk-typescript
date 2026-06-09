@@ -1,6 +1,6 @@
 import * as ProtoOrders from "../gen/orders/v1/orders_pb.js";
 import { decimalToScaledInt } from "../utils/numbers.js";
-import type { AssetConfig, ZipperChainConfig } from "./config-types.js";
+import type { AssetConfig, ZipperChainConfig } from "../shared/catalog-config.js";
 import { indexesFor } from "./indexes.js";
 import { formatLedgerDecimal } from "./ledger-catalog.js";
 import type { EnrichedPairConfig } from "./market-data-catalog.js";
@@ -199,7 +199,7 @@ class LedgerReader implements LedgerCatalogReader {
         const config = requireLedgerAsset(this, asset, "ledger");
         const value = decimalToScaledInt(amount, config.quantityScale, "amount");
         return {
-            value,
+            value: value.toString(),
             scale: config.quantityScale,
             formatted: this.formatAmount(
                 intToDecimalString(value, config.quantityScale),
@@ -225,7 +225,7 @@ class OrdersReader implements OrdersCatalogReader {
         const config = requirePair(this.market, pair, "orders");
         const value = decimalToScaledInt(quantity, config.baseAsset.quantityScale, "quantity");
         return {
-            value,
+            value: value.toString(),
             scale: config.baseAsset.quantityScale,
             formatted: this.formatQuantity(value, config.symbolId),
         };
@@ -235,7 +235,7 @@ class OrdersReader implements OrdersCatalogReader {
         const config = requirePair(this.market, pair, "orders");
         const value = decimalToScaledInt(price, 6, "price");
         return {
-            value,
+            value: value.toString(),
             scale: 6,
             formatted: this.formatPrice(value, config.symbolId),
         };
@@ -255,7 +255,7 @@ class OrdersReader implements OrdersCatalogReader {
 
     validateOrderInput(input: { pair: PairCatalogKey; quantity: string; price?: string }): void {
         const pair = requirePair(this.market, input.pair, "orders");
-        const quantity = this.parseQuantity(input.quantity, pair.symbolId).value;
+        const quantity = BigInt(this.parseQuantity(input.quantity, pair.symbolId).value);
         const step = decimalToScaledInt(pair.stepSize, pair.baseAsset.quantityScale, "stepSize");
         const minQty = decimalToScaledInt(
             pair.minQtyBase,
@@ -266,7 +266,7 @@ class OrdersReader implements OrdersCatalogReader {
             throw new Error("quantity does not satisfy pair step size");
         if (quantity < minQty) throw new Error("quantity is below pair minimum");
         if (input.price !== undefined) {
-            const price = this.parsePrice(input.price, pair.symbolId).value;
+            const price = BigInt(this.parsePrice(input.price, pair.symbolId).value);
             const tick = decimalToScaledInt(pair.tickSize, 6, "tickSize");
             if (tick > 0n && price % tick !== 0n)
                 throw new Error("price does not satisfy pair tick size");

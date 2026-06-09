@@ -4,9 +4,9 @@ import type {
     PairMarketDataConfig,
     PairStatus,
     SpotConfig,
-} from "./config-types.js";
+} from "../shared/catalog-config.js";
 
-export type { PairMarketDataConfig } from "./config-types.js";
+export type { PairMarketDataConfig } from "../shared/catalog-config.js";
 
 /**
  * Enriched pair config where baseAsset/quoteAsset are full AssetConfig objects

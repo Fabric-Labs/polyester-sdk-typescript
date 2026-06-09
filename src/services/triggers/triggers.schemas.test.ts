@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
-import { createTestCatalog } from "../../testing/catalog.js";
 import {
     createCreateTriggerInputSchema,
     createTriggerEventSchema,
@@ -10,45 +9,6 @@ import {
     ListTriggerEventsInputSchema,
     ModifyTriggerInputSchema,
 } from "./triggers.schemas.js";
-
-function seedPairCatalog() {
-    const btc = {
-        symbol: "BTC",
-        ledgerId: 1,
-        name: "Bitcoin",
-        quantityDisplayDecimals: 8,
-        quantityScale: 8,
-    };
-    const usdt = {
-        symbol: "USDT",
-        ledgerId: 2,
-        name: "Tether USD",
-        quantityDisplayDecimals: 2,
-        quantityScale: 6,
-    };
-
-    return createTestCatalog({
-        pairs: [
-            {
-                symbolId: 1,
-                symbol: "BTC-USDT",
-                baseAsset: btc,
-                quoteAsset: usdt,
-                tickSize: "0.01",
-                stepSize: "0.000001",
-                minNotionalQuote: "1",
-                minQtyBase: "0.000001",
-                allowBuyFeeFromReceived: false,
-                defaultMarketSlippagePctBuy: 0.5,
-                defaultMarketSlippagePctSell: 0.5,
-                maxClientRefDriftPct: 0.1,
-                listingAt: null,
-                delistingAt: null,
-                status: "enabled",
-            },
-        ],
-    });
-}
 
 describe("ListTriggerEventsInputSchema", () => {
     it("parses a supplied cursor", () => {
@@ -79,7 +39,7 @@ describe("ListTriggerEventsInputSchema", () => {
 
 describe("CreateTriggerInputSchema", () => {
     it("normalizes stop trigger fields and applies child order defaults", () => {
-        const schema = createCreateTriggerInputSchema(seedPairCatalog().snapshot());
+        const schema = createCreateTriggerInputSchema();
 
         const input = v.parse(schema, {
             triggerType: "stop_loss",
@@ -87,9 +47,9 @@ describe("CreateTriggerInputSchema", () => {
             side: "sell",
             orderType: "limit",
             tif: "gtc",
-            qty: "0.5",
-            limitPrice: "99.50",
-            triggerPrice: "100.00",
+            qtyScaled: "50000000",
+            limitPriceTicks: "99500000",
+            triggerPriceTicks: "100000000",
             clientTriggerId: " trigger-client-1 ",
         });
 
@@ -112,7 +72,7 @@ describe("CreateTriggerInputSchema", () => {
     });
 
     it("normalizes explicit child order core fields", () => {
-        const schema = createCreateTriggerInputSchema(seedPairCatalog().snapshot());
+        const schema = createCreateTriggerInputSchema();
 
         const input = v.parse(schema, {
             triggerType: "stop_loss",
@@ -120,9 +80,9 @@ describe("CreateTriggerInputSchema", () => {
             side: "sell",
             orderType: "limit",
             tif: "gtc",
-            qty: "0.5",
-            limitPrice: "99.50",
-            triggerPrice: "100.00",
+            qtyScaled: "50000000",
+            limitPriceTicks: "99500000",
+            triggerPriceTicks: "100000000",
             feeSource: "received",
             stpMode: "expire_both",
             postOnly: true,
@@ -139,7 +99,7 @@ describe("CreateTriggerInputSchema", () => {
     });
 
     it("normalizes trailing distance and max slippage variants", () => {
-        const schema = createCreateTriggerInputSchema(seedPairCatalog().snapshot());
+        const schema = createCreateTriggerInputSchema();
 
         const quoteDistanceInput = v.parse(schema, {
             triggerType: "trailing_stop",
@@ -147,7 +107,7 @@ describe("CreateTriggerInputSchema", () => {
             side: "buy",
             orderType: "market",
             tif: "ioc",
-            qty: "0.25",
+            qtyScaled: "25000000",
             trailingDistance: { kind: "quote", quote: "0.50" },
             maxSlippage: { kind: "percent", percent: "1.25" },
             clientTriggerId: "trigger-client-2",
@@ -158,7 +118,7 @@ describe("CreateTriggerInputSchema", () => {
             side: "buy",
             orderType: "market",
             tif: "ioc",
-            qty: "0.25",
+            qtyScaled: "25000000",
             trailingDistance: { kind: "percent", percent: "1.5" },
             maxSlippage: { kind: "quote", quote: "0.25" },
             clientTriggerId: "trigger-client-2",
@@ -167,54 +127,54 @@ describe("CreateTriggerInputSchema", () => {
         expect(quoteDistanceInput).toMatchObject({
             trailingDistance: { case: "trailingDistanceTicks", value: 500_000n },
             maxSlippage: { case: "maxSlippageBps", value: 125 },
-            activationPriceTicks: 0n,
+            activationPriceTicks: undefined,
             triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
             triggerDirection: ProtoOrders.TriggerDirection.ABOVE,
         });
         expect(percentDistanceInput).toMatchObject({
             trailingDistance: { case: "trailingDistanceBps", value: 150 },
             maxSlippage: { case: "maxSlippageTicks", value: 250_000 },
-            activationPriceTicks: 0n,
+            activationPriceTicks: undefined,
             triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
             triggerDirection: ProtoOrders.TriggerDirection.ABOVE,
         });
     });
 
-    it("validates child order quantity and limit price against pair constraints", () => {
-        const schema = createCreateTriggerInputSchema(seedPairCatalog().snapshot());
+    it("validates raw child order quantity and limit price fields", () => {
+        const schema = createCreateTriggerInputSchema();
         const baseTrigger = {
             triggerType: "stop_loss",
             symbol: "BTC-USDT",
             side: "sell",
             orderType: "limit",
             tif: "gtc",
-            qty: "0.5",
-            limitPrice: "99.50",
-            triggerPrice: "100.00",
+            qtyScaled: "50000000",
+            limitPriceTicks: "99500000",
+            triggerPriceTicks: "100000000",
         } as const;
 
         expect(() =>
             v.parse(schema, {
                 ...baseTrigger,
-                qty: "0.0000015",
+                qtyScaled: "0.0000015",
             }),
-        ).toThrow("quantity does not satisfy pair step size");
+        ).toThrow("qtyScaled must be a decimal integer");
         expect(() =>
             v.parse(schema, {
                 ...baseTrigger,
-                qty: "0",
+                qtyScaled: "0",
             }),
-        ).toThrow("quantity is below pair minimum");
+        ).toThrow("qtyScaled must be greater than 0");
         expect(() =>
             v.parse(schema, {
                 ...baseTrigger,
-                limitPrice: "99.501",
+                limitPriceTicks: "99.501",
             }),
-        ).toThrow("price does not satisfy pair tick size");
+        ).toThrow("limitPriceTicks must be a decimal integer");
     });
 
     it("rejects invalid timing and ladder bounds", () => {
-        const schema = createCreateTriggerInputSchema(seedPairCatalog().snapshot());
+        const schema = createCreateTriggerInputSchema();
 
         expect(() =>
             v.parse(schema, {
@@ -223,7 +183,7 @@ describe("CreateTriggerInputSchema", () => {
                 side: "buy",
                 orderType: "market",
                 tif: "ioc",
-                qty: "1",
+                qtyScaled: "100000000",
                 twapDurationMs: 500,
                 twapSliceIntervalMs: 100,
             }),
@@ -235,10 +195,10 @@ describe("CreateTriggerInputSchema", () => {
                 side: "buy",
                 orderType: "limit",
                 tif: "gtc",
-                qty: "1",
-                limitPrice: "100",
-                ladderPriceMin: "99",
-                ladderPriceMax: "101",
+                qtyScaled: "100000000",
+                limitPriceTicks: "100",
+                ladderPriceMinTicks: "99",
+                ladderPriceMaxTicks: "101",
                 ladderLevels: 1,
             }),
         ).toThrow();
@@ -258,7 +218,7 @@ describe("ModifyTriggerInputSchema", () => {
         const input = v.parse(ModifyTriggerInputSchema, {
             triggerId: "11",
             account: { subaccountId: "22" },
-            triggerPrice: "101.25",
+            triggerPriceTicks: "101250000",
             maxSlippage: { kind: "none" },
         });
 
@@ -274,9 +234,8 @@ describe("ModifyTriggerInputSchema", () => {
 
 describe("Trigger and TriggerEvent schemas", () => {
     it("rejects unspecified backend enum values", () => {
-        const catalog = seedPairCatalog();
-        const triggerSchema = createTriggerSchema(catalog.snapshot());
-        const triggerEventSchema = createTriggerEventSchema(catalog.snapshot());
+        const triggerSchema = createTriggerSchema();
+        const triggerEventSchema = createTriggerEventSchema();
 
         expect(() =>
             v.parse(triggerSchema, {

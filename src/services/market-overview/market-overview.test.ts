@@ -1,48 +1,8 @@
 import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import * as Proto from "../../gen/marketoverview/v1/marketoverview_pb.js";
-import { createTestCatalog } from "../../testing/catalog.js";
 import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
 import { MarketOverviewService } from "./market-overview.js";
-
-const btc = {
-    symbol: "BTC",
-    ledgerId: 1,
-    name: "Bitcoin",
-    quantityDisplayDecimals: 8,
-    quantityScale: 8,
-};
-
-const usdt = {
-    symbol: "USDT",
-    ledgerId: 2,
-    name: "Tether USD",
-    quantityDisplayDecimals: 6,
-    quantityScale: 6,
-};
-
-const btcUsdtPair: EnrichedPairConfig = {
-    symbolId: 101,
-    symbol: "BTC-USDT",
-    baseAsset: btc,
-    quoteAsset: usdt,
-    tickSize: "0.000001",
-    stepSize: "0.00000001",
-    minNotionalQuote: "1",
-    minQtyBase: "0.00000001",
-    allowBuyFeeFromReceived: false,
-    defaultMarketSlippagePctBuy: 0,
-    defaultMarketSlippagePctSell: 0,
-    maxClientRefDriftPct: 0,
-    listingAt: 1_600_000_000_000,
-    delistingAt: null,
-    status: "enabled",
-};
-
-function seedPairCatalog() {
-    return createTestCatalog({ assets: [btc, usdt], pairs: [btcUsdtPair] });
-}
 
 function market(overrides: Record<string, unknown> = {}) {
     return {
@@ -87,13 +47,11 @@ describe("MarketOverviewService", () => {
     });
 
     it("normalizes list inputs to the proto request and parses market rows", async () => {
-        const catalog = seedPairCatalog();
         const controller = new AbortController();
         const transport = unaryTransport({ markets: [market()], total: 1 });
         const service = new MarketOverviewService(
             transport.transport,
             realtimeClientStub().realtime,
-            catalog,
         );
 
         const markets = await service.list(
@@ -123,17 +81,23 @@ describe("MarketOverviewService", () => {
         });
         expect(transport.lastCall()?.signal).toBe(controller.signal);
         expect(markets).toEqual([
-            expect.objectContaining({
+            {
                 symbolId: 101,
-                pair: "BTC-USDT",
-                pairListingAt: 1_600_000_000_000,
-                status: "enabled",
-                lastPrice: "1.234567",
-                volume24hBase: "1.23456789",
-                volume24hQuote: "987.654321",
-                bestBid: "1.2",
-                bestAskQty: "0.2",
-            }),
+                symbol: "BTC-USDT",
+                lastPriceTicks: "1234567",
+                lastTradeTsMs: 1_700_000_000_000,
+                change24hBp: 123,
+                high24hTicks: "2000000",
+                low24hTicks: "1000000",
+                volume24hBaseScaled: "123456789",
+                volume24hQuoteScaled: "987654321",
+                listedTsMs: 1_600_000_000_000,
+                bestBidTicks: "1200000",
+                bestBidQtyScaled: "10000000",
+                bestAskTicks: "1300000",
+                bestAskQtyScaled: "20000000",
+                sparklines: [],
+            },
         ]);
     });
 
@@ -155,7 +119,6 @@ describe("MarketOverviewService", () => {
     });
 
     it("rejects market rows with unmapped backend sparkline enums", async () => {
-        const catalog = seedPairCatalog();
         const transport = unaryTransport({
             markets: [
                 market({
@@ -172,7 +135,6 @@ describe("MarketOverviewService", () => {
         const service = new MarketOverviewService(
             transport.transport,
             realtimeClientStub().realtime,
-            catalog,
         );
 
         await expect(service.list()).rejects.toThrow(
@@ -181,13 +143,12 @@ describe("MarketOverviewService", () => {
     });
 
     it("buffers subscription publications until the initial snapshot resolves", async () => {
-        const catalog = seedPairCatalog();
         const snapshot = deferred<Record<string, unknown>>();
         const transport = unaryTransport(() => snapshot.promise);
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const onOpen = vi.fn();
-        const service = new MarketOverviewService(transport.transport, realtime.realtime, catalog);
+        const service = new MarketOverviewService(transport.transport, realtime.realtime);
 
         service.subscribe({
             includeSparklines: false,
@@ -219,17 +180,16 @@ describe("MarketOverviewService", () => {
 
         expect(onEvent).toHaveBeenCalledTimes(1);
         expect(onEvent.mock.calls[0]?.[0]).toEqual([
-            expect.objectContaining({ symbolId: 101, lastPrice: "2" }),
+            expect.objectContaining({ symbolId: 101, lastPriceTicks: "2000000" }),
         ]);
     });
 
     it("refetches snapshots on disconnect until unsubscribed", async () => {
-        const catalog = seedPairCatalog();
         const transport = unaryTransport({ markets: [market()], total: 1 });
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const onClose = vi.fn();
-        const service = new MarketOverviewService(transport.transport, realtime.realtime, catalog);
+        const service = new MarketOverviewService(transport.transport, realtime.realtime);
 
         const unsubscribe = service.subscribe({ onEvent, onClose });
         await flushMicrotasks();
@@ -273,14 +233,13 @@ describe("MarketOverviewService", () => {
     });
 
     it("reports reconnect snapshot failures through the subscription error callback", async () => {
-        const catalog = seedPairCatalog();
         const transport = unaryTransport((_call, index) => {
             if (index === 0) return { markets: [market()], total: 1 };
             throw new Error("reconnect snapshot unavailable");
         });
         const realtime = realtimeClientStub();
         const onError = vi.fn();
-        const service = new MarketOverviewService(transport.transport, realtime.realtime, catalog);
+        const service = new MarketOverviewService(transport.transport, realtime.realtime);
 
         service.subscribe({ onEvent: vi.fn(), onError });
         await flushMicrotasks();
@@ -301,10 +260,9 @@ describe("MarketOverviewService", () => {
     });
 
     it("throws on malformed market overview publications after snapshot readiness", async () => {
-        const catalog = seedPairCatalog();
         const transport = unaryTransport({ markets: [market()], total: 1 });
         const realtime = realtimeClientStub();
-        const service = new MarketOverviewService(transport.transport, realtime.realtime, catalog);
+        const service = new MarketOverviewService(transport.transport, realtime.realtime);
 
         service.subscribe({ onEvent: vi.fn() });
         await flushMicrotasks();

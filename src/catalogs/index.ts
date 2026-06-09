@@ -10,13 +10,8 @@ export {
     type ZipperAssetConfig,
     type ZipperChainConfig,
     type ZipperChainContractConfig,
-} from "./config-types.js";
-export {
-    accountCodeNameFor,
-    formatLedgerDecimal,
-    LEDGER_SCALE,
-    transferTypeNameFor,
-} from "./ledger-catalog.js";
+} from "../shared/catalog-config.js";
+export { formatLedgerDecimal, LEDGER_SCALE } from "./ledger-catalog.js";
 export type {
     EnrichedPairConfig,
     MarketCatalogData,
@@ -28,17 +23,20 @@ export {
     int18ToDecimalString,
     intToDecimalString,
 } from "./orders-catalog.js";
-export { createPolyesterCatalog, staticCatalog } from "./client-catalog.js";
+export { createPolyesterCatalog } from "./client-catalog.js";
 export { createCatalogSnapshotReader } from "./readers.js";
-export { buildCustomCatalogSnapshot, buildGeneratedCatalogSnapshot } from "./snapshot.js";
+export { buildCatalogSnapshot, type CatalogSnapshotInput } from "./snapshot.js";
 export {
     CatalogLookupError,
+    CatalogNotReadyError,
     type AssetCatalogKey,
     type CatalogLookupDomain,
     type CatalogReader,
     type CatalogRefreshSource,
     type CatalogSnapshot,
+    type CatalogSnapshotSource,
     type CatalogState,
+    type CatalogStateSource,
     type ChainCatalogKey,
     type ClientCatalog,
     type CreatePolyesterCatalogOptions,

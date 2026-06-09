@@ -1,43 +1,8 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
-import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
-import { createTestCatalog } from "../../testing/catalog.js";
+import { formatId } from "../../utils/base58-id.js";
 import { createUserTradeSchema, GetUserTradesInputSchema } from "./trades.schemas.js";
-
-const baseAsset = {
-    symbol: "BASE",
-    ledgerId: 1,
-    name: "Base",
-    quantityDisplayDecimals: 4,
-    quantityScale: 4,
-};
-
-const quoteAsset = {
-    symbol: "QUOTE",
-    ledgerId: 2,
-    name: "Quote",
-    quantityDisplayDecimals: 2,
-    quantityScale: 2,
-};
-
-const pair: EnrichedPairConfig = {
-    symbolId: 7,
-    symbol: "BASE-QUOTE",
-    baseAsset,
-    quoteAsset,
-    tickSize: "0.01",
-    stepSize: "0.0001",
-    minNotionalQuote: "1",
-    minQtyBase: "0.0001",
-    allowBuyFeeFromReceived: true,
-    defaultMarketSlippagePctBuy: 0,
-    defaultMarketSlippagePctSell: 0,
-    maxClientRefDriftPct: 0,
-    listingAt: null,
-    delistingAt: null,
-    status: "enabled",
-};
 
 function trade(overrides: Record<string, unknown> = {}) {
     return {
@@ -57,25 +22,34 @@ function trade(overrides: Record<string, unknown> = {}) {
 }
 
 describe("UserTradeSchema", () => {
-    it("formats fees using the fee asset scale from the catalog", () => {
-        const schema = createUserTradeSchema(createTestCatalog({ pairs: [pair] }).snapshot());
+    it("preserves raw ids, enum labels, quantities, and timestamps", () => {
+        const schema = createUserTradeSchema();
 
-        expect(v.parse(schema, trade({ feeSource: ProtoOrders.FeeSource.QUOTE }))).toMatchObject({
-            feeAsset: quoteAsset,
-            fee: 1.23,
+        expect(v.parse(schema, trade({ subaccountId: 12n }))).toEqual({
+            tradeId: formatId(1n),
+            orderId: formatId(2n),
+            subaccountId: formatId(12n),
+            symbolId: 7,
+            sideLabel: "buy",
+            liquidityLabel: "taker",
+            feeSource: ProtoOrders.FeeSource.QUOTE,
+            feeSourceLabel: "quote",
+            qtyScaled: "1234",
+            priceTicks: "1000000",
+            feeScaled: "123",
+            tsNs: "1",
+            tsIso: "1970-01-01T00:00:00.000Z",
+            tsMs: 0,
+            matchId: "3",
         });
-        expect(
-            v.parse(
-                schema,
-                trade({
-                    feeSource: ProtoOrders.FeeSource.RECEIVED,
-                    feeScaled: 123n,
-                }),
-            ),
-        ).toMatchObject({
-            feeAsset: baseAsset,
-            fee: 0.0123,
-        });
+    });
+
+    it("rejects user trades with unmapped backend fee source values", () => {
+        const schema = createUserTradeSchema();
+
+        expect(() =>
+            v.parse(schema, trade({ feeSource: ProtoOrders.FeeSource.FEE_SOURCE_UNSPECIFIED })),
+        ).toThrow(/\[UserTradeSchema\]: invalid fee source 0/);
     });
 });
 

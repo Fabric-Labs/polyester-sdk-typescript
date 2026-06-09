@@ -1,58 +1,18 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
-import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
-import { createTestCatalog } from "../../testing/catalog.js";
 import {
     createGetMarketTradesInputSchema,
     createMarketTradeSchema,
     SpotConfigSchema,
 } from "./market-data.schemas.js";
 
-const btc = {
-    symbol: "BTC",
-    ledgerId: 1,
-    name: "Bitcoin",
-    quantityDisplayDecimals: 8,
-    quantityScale: 8,
-};
-
-const usdt = {
-    symbol: "USDT",
-    ledgerId: 2,
-    name: "Tether USD",
-    quantityDisplayDecimals: 6,
-    quantityScale: 6,
-};
-
-const btcUsdtPair: EnrichedPairConfig = {
-    symbolId: 101,
-    symbol: "BTC-USDT",
-    baseAsset: btc,
-    quoteAsset: usdt,
-    tickSize: "0.000001",
-    stepSize: "0.00000001",
-    minNotionalQuote: "1",
-    minQtyBase: "0.00000001",
-    allowBuyFeeFromReceived: false,
-    defaultMarketSlippagePctBuy: 0,
-    defaultMarketSlippagePctSell: 0,
-    maxClientRefDriftPct: 0,
-    listingAt: null,
-    delistingAt: null,
-    status: "enabled",
-};
-
-function seedPairCatalog() {
-    return createTestCatalog({ assets: [btc, usdt], pairs: [btcUsdtPair] });
-}
-
 describe("market data schemas", () => {
     it("maps market trade filters to proto request fields", () => {
-        const schema = createGetMarketTradesInputSchema(seedPairCatalog().snapshot());
+        const schema = createGetMarketTradesInputSchema();
 
         const input = v.parse(schema, {
-            symbol: " BTC-USDT ",
+            symbolId: 101,
             side: "sell",
             startTsNs: " 1700000000123456789 ",
             endTsNs: "1700000001123456789",
@@ -69,9 +29,9 @@ describe("market data schemas", () => {
     });
 
     it("omits absent optional trade filters", () => {
-        const schema = createGetMarketTradesInputSchema(seedPairCatalog().snapshot());
+        const schema = createGetMarketTradesInputSchema();
 
-        const input = v.parse(schema, { symbol: "BTC-USDT" });
+        const input = v.parse(schema, { symbolId: 101 });
 
         expect(input).toEqual({
             symbolId: 101,
@@ -83,12 +43,12 @@ describe("market data schemas", () => {
     });
 
     it("rejects invalid trade filter inputs", () => {
-        const schema = createGetMarketTradesInputSchema(seedPairCatalog().snapshot());
+        const schema = createGetMarketTradesInputSchema();
         const cases = [
-            { symbol: "NOPE-USDT" },
-            { symbol: "BTC-USDT", side: "both" },
-            { symbol: "BTC-USDT", startTsNs: "not-a-ts" },
-            { symbol: "BTC-USDT", endTsNs: "12.3" },
+            { symbolId: 0 },
+            { symbolId: 101, side: "both" },
+            { symbolId: 101, startTsNs: "not-a-ts" },
+            { symbolId: 101, endTsNs: "12.3" },
         ];
 
         for (const input of cases) {
@@ -96,8 +56,8 @@ describe("market data schemas", () => {
         }
     });
 
-    it("parses public trades with catalog metadata and display fields", () => {
-        const schema = createMarketTradeSchema(seedPairCatalog().snapshot());
+    it("parses public trades with raw numeric fields", () => {
+        const schema = createMarketTradeSchema();
 
         const trade = v.parse(schema, {
             symbolId: 101,
@@ -110,10 +70,9 @@ describe("market data schemas", () => {
 
         expect(trade).toMatchObject({
             symbolId: 101,
-            symbolLabel: "BTC-USDT",
             sideLabel: "sell",
-            qtyDisplay: "1.23456789",
-            priceDisplay: "1.234567",
+            qtyScaled: "123456789",
+            priceTicks: "1234567",
             tsMs: 1_700_000_000_000,
         });
     });
@@ -149,7 +108,13 @@ describe("market data schemas", () => {
             tsSec: 123n,
         });
 
-        expect(config.assets[0]).toEqual(btc);
+        expect(config.assets[0]).toEqual({
+            symbol: "BTC",
+            ledgerId: 1,
+            name: "Bitcoin",
+            quantityDisplayDecimals: 8,
+            quantityScale: 8,
+        });
         expect(config.pairs[0]).toMatchObject({
             symbolId: 101,
             defaultMarketSlippagePctBuy: 0,

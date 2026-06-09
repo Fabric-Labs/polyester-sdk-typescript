@@ -4,8 +4,9 @@ import type {
     ZipperAssetConfig,
     ZipperChainConfig,
     ZipperChainContractConfig,
-} from "./config-types.js";
-import type { ZipperContractName } from "./zipper-catalog.generated.js";
+} from "../shared/catalog-config.js";
+
+export type ZipperContractName = string;
 
 export type {
     DepositWithdrawConfig,
@@ -110,5 +111,3 @@ export function buildZipperCatalogData(seed: ZipperCatalogSeed): ZipperCatalogDa
         tsMs: seed.tsMs,
     });
 }
-
-export type { ZipperContractName };

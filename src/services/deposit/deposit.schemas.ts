@@ -1,48 +1,24 @@
 import * as v from "valibot";
 import {
-    createCatalogSnapshotReader,
-    type CatalogReader,
-    type CatalogSnapshot,
-} from "../../catalogs/index.js";
-import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
-import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
 
-function chainIdInputSchemaForReader(reader: CatalogReader, required: boolean) {
-    return v.pipe(
-        v.object({
-            chainId: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0))),
-            chainCode: v.optional(v.pipe(v.string(), v.trim(), v.minLength(1))),
-        }),
-        v.transform((input) => {
-            const chainId =
-                input.chainId ??
-                (input.chainCode ? reader.zipper.requireChainIdByCode(input.chainCode) : undefined);
-            if (required && chainId === undefined) {
-                throw new Error("chainId or chainCode is required");
-            }
-            return { chainId };
-        }),
-    );
-}
+const ChainIdSchema = v.pipe(v.number(), v.integer(), v.gtValue(0));
 
-export function createCreateDepositAddressInputSchema(catalog: CatalogSnapshot) {
-    return createCreateDepositAddressInputSchemaForReader(createCatalogSnapshotReader(catalog));
-}
+export const CreateDepositAddressInputSchema = v.pipe(
+    v.object({
+        ...AccountScopeInputEntries,
+        chainId: ChainIdSchema,
+    }),
+    v.transform(({ account, ...input }) => ({
+        ...input,
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
 
-function createCreateDepositAddressInputSchemaForReader(reader: CatalogReader) {
-    return v.pipe(
-        v.intersect([
-            v.object({ ...AccountScopeInputEntries }),
-            chainIdInputSchemaForReader(reader, true),
-        ]),
-        v.transform(({ account, ...input }) => ({
-            ...input,
-            subaccountId: accountScopeToSubaccountId(account),
-        })),
-    );
+export function createCreateDepositAddressInputSchema() {
+    return CreateDepositAddressInputSchema;
 }
 
 export type CreateDepositAddressInput = v.InferInput<
@@ -52,21 +28,19 @@ export type CreateDepositAddressRequest = v.InferOutput<
     ReturnType<typeof createCreateDepositAddressInputSchema>
 >;
 
-export function createListDepositAddressesInputSchema(catalog: CatalogSnapshot) {
-    return createListDepositAddressesInputSchemaForReader(createCatalogSnapshotReader(catalog));
-}
+export const ListDepositAddressesInputSchema = v.pipe(
+    v.object({
+        ...AccountScopeInputEntries,
+        chainId: v.optional(ChainIdSchema),
+    }),
+    v.transform(({ account, ...input }) => ({
+        ...input,
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
 
-function createListDepositAddressesInputSchemaForReader(reader: CatalogReader) {
-    return v.pipe(
-        v.intersect([
-            v.object({ ...AccountScopeInputEntries }),
-            chainIdInputSchemaForReader(reader, false),
-        ]),
-        v.transform(({ account, ...input }) => ({
-            ...input,
-            subaccountId: accountScopeToSubaccountId(account),
-        })),
-    );
+export function createListDepositAddressesInputSchema() {
+    return ListDepositAddressesInputSchema;
 }
 
 export type ListDepositAddressesInput = v.InferInput<
@@ -75,13 +49,6 @@ export type ListDepositAddressesInput = v.InferInput<
 export type ListDepositAddressesRequest = v.InferOutput<
     ReturnType<typeof createListDepositAddressesInputSchema>
 >;
-
-export function createDepositSchemas(catalog: CatalogReader) {
-    return createCatalogSchemaCache(catalog, (reader) => ({
-        createDepositAddressInput: createCreateDepositAddressInputSchemaForReader(reader),
-        listDepositAddressesInput: createListDepositAddressesInputSchemaForReader(reader),
-    }));
-}
 
 export const DepositAddressSchema = v.object({
     chainId: v.pipe(v.number(), v.integer(), v.gtValue(0)),

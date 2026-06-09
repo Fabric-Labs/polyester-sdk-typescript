@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
-import { createTestCatalog } from "../../testing/catalog.js";
 import {
     CancelOrderInputSchema,
     createModifyOrderInputSchema,
@@ -21,8 +20,8 @@ type _ValidNewOrderWithAttachedRisk = AssertNewOrderInput<{
     side: "buy";
     orderType: "limit";
     tif: "gtc";
-    price: string;
-    qty: string;
+    priceTicks: string;
+    qtyScaled: string;
     risk: {
         takeProfit: {
             triggerPrice: string;
@@ -42,8 +41,8 @@ type _InvalidNewOrderWithEmptyRisk = AssertNewOrderInput<{
     side: "buy";
     orderType: "limit";
     tif: "gtc";
-    price: string;
-    qty: string;
+    priceTicks: string;
+    qtyScaled: string;
     risk: {};
 }>;
 
@@ -53,8 +52,8 @@ type _InvalidNewOrderWithBothStopLegs = AssertNewOrderInput<{
     side: "buy";
     orderType: "limit";
     tif: "gtc";
-    price: string;
-    qty: string;
+    priceTicks: string;
+    qtyScaled: string;
     risk: {
         stopLoss: {
             triggerPrice: string;
@@ -71,7 +70,7 @@ type _InvalidNewOrderWithBothStopLegs = AssertNewOrderInput<{
 type _ValidModifyByOrderIdWithPrice = AssertModifyOrderInput<{
     orderId: string;
     symbol: string;
-    newPrice: string;
+    newPriceTicks: string;
 }>;
 
 type _ValidModifyByClientOrderIdWithRisk = AssertModifyOrderInput<{
@@ -93,7 +92,7 @@ type _ValidModifyWithClearRisk = AssertModifyOrderInput<{
 // @ts-expect-error modify requires exactly one order key
 type _InvalidModifyWithoutOrderKey = AssertModifyOrderInput<{
     symbol: string;
-    newQty: string;
+    newQtyScaled: string;
 }>;
 
 // @ts-expect-error modify accepts orderId or clientOrderId, not both
@@ -101,7 +100,7 @@ type _InvalidModifyWithBothOrderKeys = AssertModifyOrderInput<{
     orderId: string;
     clientOrderId: string;
     symbol: string;
-    newQty: string;
+    newQtyScaled: string;
 }>;
 
 // @ts-expect-error modify requires at least one patch field
@@ -146,45 +145,6 @@ type _InvalidModifyWithBothStopLegs = AssertModifyOrderInput<{
     };
 }>;
 
-function seedPairCatalog() {
-    const btc = {
-        symbol: "BTC",
-        ledgerId: 1,
-        name: "Bitcoin",
-        quantityDisplayDecimals: 8,
-        quantityScale: 8,
-    };
-    const usdt = {
-        symbol: "USDT",
-        ledgerId: 2,
-        name: "Tether USD",
-        quantityDisplayDecimals: 2,
-        quantityScale: 6,
-    };
-
-    return createTestCatalog({
-        pairs: [
-            {
-                symbolId: 1,
-                symbol: "BTC-USDT",
-                baseAsset: btc,
-                quoteAsset: usdt,
-                tickSize: "0.01",
-                stepSize: "0.000001",
-                minNotionalQuote: "1",
-                minQtyBase: "0.000001",
-                allowBuyFeeFromReceived: false,
-                defaultMarketSlippagePctBuy: 0.5,
-                defaultMarketSlippagePctSell: 0.5,
-                maxClientRefDriftPct: 0.1,
-                listingAt: null,
-                delistingAt: null,
-                status: "enabled",
-            },
-        ],
-    });
-}
-
 describe("OrderHistoryInputSchema", () => {
     it("parses supplied timestamp filters", () => {
         const input = v.parse(OrderHistoryInputSchema, {
@@ -211,7 +171,7 @@ describe("OrderHistoryInputSchema", () => {
 
 describe("NewOrderInputSchema", () => {
     it("normalizes limit and market order fields", () => {
-        const schema = createNewOrderInputSchema(seedPairCatalog().snapshot());
+        const schema = createNewOrderInputSchema();
 
         const cases = [
             {
@@ -222,8 +182,8 @@ describe("NewOrderInputSchema", () => {
                     side: "buy",
                     orderType: "limit",
                     tif: "gtc",
-                    price: "100.25",
-                    qty: "0.5",
+                    priceTicks: "100250000",
+                    qtyScaled: "50000000",
                     clientOrderId: " client-1 ",
                     feeSource: "received",
                 },
@@ -247,9 +207,9 @@ describe("NewOrderInputSchema", () => {
                     side: "sell",
                     orderType: "market",
                     tif: "ioc",
-                    qty: "0.25",
+                    qtyScaled: "25000000",
                     marketMaxSlippage: { kind: "percent", percent: "1.5" },
-                    marketClientRefPrice: "99.50",
+                    marketClientRefPriceTicks: "99500000",
                 },
                 expected: {
                     side: ProtoWrite.Side.SELL,
@@ -272,8 +232,8 @@ describe("NewOrderInputSchema", () => {
             side: "buy",
             orderType: "limit",
             tif: "gtc",
-            price: "100",
-            qty: "0.5",
+            priceTicks: "100000000",
+            qtyScaled: "50000000",
         });
 
         expect(defaultedInput.feeSource).toBe(ProtoWrite.FeeSource.QUOTE);
@@ -281,7 +241,7 @@ describe("NewOrderInputSchema", () => {
     });
 
     it("rejects market-only slippage fields on limit orders", () => {
-        const schema = createNewOrderInputSchema(seedPairCatalog().snapshot());
+        const schema = createNewOrderInputSchema();
 
         expect(() =>
             v.parse(schema, {
@@ -289,23 +249,23 @@ describe("NewOrderInputSchema", () => {
                 side: "buy",
                 orderType: "limit",
                 tif: "gtc",
-                price: "100",
-                qty: "0.5",
+                priceTicks: "100000000",
+                qtyScaled: "50000000",
                 marketMaxSlippage: { kind: "bps", bps: 10 },
             }),
         ).toThrow();
     });
 
     it("normalizes attached trailing risk with order-only distance and slippage variants", () => {
-        const schema = createNewOrderInputSchema(seedPairCatalog().snapshot());
+        const schema = createNewOrderInputSchema();
 
         const input = v.parse(schema, {
             symbol: "BTC-USDT",
             side: "buy",
             orderType: "limit",
             tif: "gtc",
-            price: "100",
-            qty: "0.5",
+            priceTicks: "100000000",
+            qtyScaled: "50000000",
             risk: {
                 trailingStop: {
                     trailingDistance: { kind: "ticks", ticks: "10" },
@@ -326,14 +286,14 @@ describe("NewOrderInputSchema", () => {
     });
 
     it("rejects trigger-only attached trailing risk variants", () => {
-        const schema = createNewOrderInputSchema(seedPairCatalog().snapshot());
+        const schema = createNewOrderInputSchema();
         const baseOrder = {
             symbol: "BTC-USDT",
             side: "buy",
             orderType: "limit",
             tif: "gtc",
-            price: "100",
-            qty: "0.5",
+            priceTicks: "100000000",
+            qtyScaled: "50000000",
         };
 
         expect(() =>
@@ -380,47 +340,47 @@ describe("NewOrderInputSchema", () => {
         ).toThrow();
     });
 
-    it("validates quantity and limit price against pair constraints", () => {
-        const schema = createNewOrderInputSchema(seedPairCatalog().snapshot());
+    it("rejects invalid raw quantity and accepts raw price ticks", () => {
+        const schema = createNewOrderInputSchema();
         const baseOrder = {
             symbol: "BTC-USDT",
             side: "buy",
             orderType: "limit",
             tif: "gtc",
-            price: "100",
-            qty: "0.5",
+            priceTicks: "100000000",
+            qtyScaled: "50000000",
         } satisfies NewOrderInput;
 
         expect(() =>
             v.parse(schema, {
                 ...baseOrder,
-                qty: "0.0000015",
+                qtyScaled: "0.0000015",
             }),
-        ).toThrow("quantity does not satisfy pair step size");
+        ).toThrow("qtyScaled must be a decimal integer");
         expect(() =>
             v.parse(schema, {
                 ...baseOrder,
-                qty: "0",
+                qtyScaled: "0",
             }),
-        ).toThrow("quantity is below pair minimum");
+        ).toThrow("qtyScaled must be greater than 0");
         expect(() =>
             v.parse(schema, {
                 ...baseOrder,
-                price: "100.001",
+                priceTicks: "100001000",
             }),
-        ).toThrow("price does not satisfy pair tick size");
+        ).not.toThrow();
     });
 
     it("rejects invalid attached risk states", () => {
-        const schema = createNewOrderInputSchema(seedPairCatalog().snapshot());
+        const schema = createNewOrderInputSchema();
 
         const baseOrder = {
             symbol: "BTC-USDT",
             side: "buy",
             orderType: "limit",
             tif: "gtc",
-            price: "100",
-            qty: "0.5",
+            priceTicks: "100000000",
+            qtyScaled: "50000000",
         };
 
         expect(() =>
@@ -450,31 +410,28 @@ describe("NewOrderInputSchema", () => {
 
 describe("ModifyOrderInputSchema", () => {
     it("requires one order key and at least one patch field", () => {
-        const schema = createModifyOrderInputSchema(seedPairCatalog().snapshot());
+        const schema = createModifyOrderInputSchema();
 
         expect(() =>
             v.parse(schema, {
                 orderId: "11",
                 clientOrderId: "client-1",
-                symbol: "BTC-USDT",
-                newQty: "0.5",
+                newQtyScaled: "50000000",
             }),
         ).toThrow();
         expect(() =>
             v.parse(schema, {
                 orderId: "11",
-                symbol: "BTC-USDT",
             }),
         ).toThrow();
     });
 
     it("normalizes client-order patches and clear-risk requests", () => {
-        const schema = createModifyOrderInputSchema(seedPairCatalog().snapshot());
+        const schema = createModifyOrderInputSchema();
 
         const patch = v.parse(schema, {
             clientOrderId: " client-1 ",
-            symbol: "BTC-USDT",
-            newPrice: "101.25",
+            newPriceTicks: "101250000",
             clearRisk: true,
         });
 
@@ -486,35 +443,32 @@ describe("ModifyOrderInputSchema", () => {
         });
     });
 
-    it("validates new quantity against pair constraints when present", () => {
-        const schema = createModifyOrderInputSchema(seedPairCatalog().snapshot());
+    it("rejects invalid raw new quantity when present", () => {
+        const schema = createModifyOrderInputSchema();
 
         expect(() =>
             v.parse(schema, {
-                orderId: "11",
-                symbol: "BTC-USDT",
-                newQty: "0.0000015",
+                clientOrderId: "client-1",
+                newQtyScaled: "0.0000015",
             }),
-        ).toThrow("quantity does not satisfy pair step size");
+        ).toThrow();
         expect(() =>
             v.parse(schema, {
-                orderId: "11",
-                symbol: "BTC-USDT",
-                newQty: "0",
+                clientOrderId: "client-1",
+                newQtyScaled: "0",
             }),
-        ).toThrow("quantity is below pair minimum");
+        ).toThrow();
         expect(() =>
             v.parse(schema, {
-                orderId: "11",
-                symbol: "BTC-USDT",
-                newQty: "0.5",
-                newPrice: "100.001",
+                clientOrderId: "client-1",
+                newQtyScaled: "50000000",
+                newPriceTicks: "100001000",
             }),
-        ).toThrow("price does not satisfy pair tick size");
+        ).not.toThrow();
     });
 
     it("rejects invalid risk patch states", () => {
-        const schema = createModifyOrderInputSchema(seedPairCatalog().snapshot());
+        const schema = createModifyOrderInputSchema();
 
         expect(() =>
             v.parse(schema, {
@@ -606,7 +560,7 @@ describe("OrderSchema", () => {
     }
 
     it("decodes order status through the codec", () => {
-        const schema = createOrderSchema(seedPairCatalog().snapshot());
+        const schema = createOrderSchema();
 
         const order = v.parse(schema, rawOrder({ status: ProtoRead.OrderStatus.FILLED }));
 
@@ -614,7 +568,7 @@ describe("OrderSchema", () => {
     });
 
     it("keeps the derived partial status for working orders with fills", () => {
-        const schema = createOrderSchema(seedPairCatalog().snapshot());
+        const schema = createOrderSchema();
 
         const order = v.parse(schema, rawOrder({ cumQty: 50_000_000n }));
 
@@ -622,7 +576,7 @@ describe("OrderSchema", () => {
     });
 
     it("decodes attached risk enum fields through the codecs", () => {
-        const schema = createOrderSchema(seedPairCatalog().snapshot());
+        const schema = createOrderSchema();
 
         const order = v.parse(
             schema,
@@ -642,15 +596,15 @@ describe("OrderSchema", () => {
         );
 
         expect(order.attachedRisk?.takeProfit).toMatchObject({
-            triggerPrice: "101",
+            triggerPriceTicks: "101000000",
             triggerPriceSource: "index",
             orderType: "limit",
-            limitPrice: "102.5",
+            limitPriceTicks: "102500000",
         });
     });
 
     it("rejects unspecified order status values", () => {
-        const schema = createOrderSchema(seedPairCatalog().snapshot());
+        const schema = createOrderSchema();
 
         expect(() =>
             v.parse(schema, rawOrder({ status: ProtoRead.OrderStatus.ORDER_STATUS_UNSPECIFIED })),
@@ -658,7 +612,7 @@ describe("OrderSchema", () => {
     });
 
     it("rejects unspecified backend enum values", () => {
-        const schema = createOrderSchema(seedPairCatalog().snapshot());
+        const schema = createOrderSchema();
 
         expect(() =>
             v.parse(schema, rawOrder({ side: ProtoWrite.Side.SIDE_UNSPECIFIED })),

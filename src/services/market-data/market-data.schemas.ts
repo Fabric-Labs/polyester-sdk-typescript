@@ -1,18 +1,13 @@
 import * as v from "valibot";
 import { SideSchema } from "../shared.js";
 import {
-    createCatalogSnapshotReader,
     PAIR_STATUSES,
     type AssetConfig,
-    type CatalogReader,
-    type CatalogSnapshot,
-    type EnrichedPairConfig,
     type PairConfig,
     type PairMarketDataConfig,
     type PairStatus,
     type SpotConfig,
-} from "../../catalogs/index.js";
-import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
+} from "../../shared/catalog-config.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { timestampToMs, tsNsToTimestamp } from "../../utils/timestamp.js";
 import { SideFilterCodec } from "./market-data.codecs.js";
@@ -20,100 +15,68 @@ import { SideFilterCodec } from "./market-data.codecs.js";
 export type { AssetConfig, PairConfig, PairMarketDataConfig, PairStatus, SpotConfig };
 export { PAIR_STATUSES };
 
-interface SymbolMetadata {
-    id: number;
-    label: string;
-    baseAssetId: number;
-    quoteAssetId: number;
-    baseAsset: AssetConfig;
-    quoteAsset: AssetConfig;
-    pair?: EnrichedPairConfig;
-}
+export const MarketTradeSchema = v.pipe(
+    v.object({
+        symbolId: v.number(),
+        matchId: v.bigint(),
+        isBuy: v.boolean(),
+        priceTicks: v.bigint(),
+        qtyScaled: v.bigint(),
+        tsNs: v.optional(v.bigint(), 0n),
+    }),
+    v.transform((t) => {
+        const sideLabel: v.InferOutput<typeof SideSchema> = t.isBuy ? "buy" : "sell";
+        return {
+            symbolId: t.symbolId,
+            matchId: t.matchId.toString(),
+            isBuy: t.isBuy,
+            sideLabel,
+            qtyScaled: t.qtyScaled.toString(),
+            priceTicks: t.priceTicks.toString(),
+            tsNs: t.tsNs.toString(),
+            tsMs: tsNsToMs(t.tsNs),
+        };
+    }),
+);
 
-function symbolMetadataForId(reader: CatalogReader, symbolId: number): SymbolMetadata {
-    const pair = reader.market.requirePairBySymbolId(symbolId);
-    const baseAssetId = pair.baseAsset.ledgerId;
-    const quoteAssetId = pair.quoteAsset.ledgerId;
-    return {
-        id: symbolId,
-        label: pair.symbol,
-        baseAssetId,
-        quoteAssetId,
-        baseAsset: pair.baseAsset,
-        quoteAsset: pair.quoteAsset,
-        pair,
-    };
-}
-
-export function createMarketTradeSchema(catalog: CatalogSnapshot) {
-    return createMarketTradeSchemaForReader(createCatalogSnapshotReader(catalog));
-}
-
-function createMarketTradeSchemaForReader(reader: CatalogReader) {
-    return v.pipe(
-        v.object({
-            symbolId: v.number(),
-            matchId: v.bigint(),
-            isBuy: v.boolean(),
-            priceTicks: v.bigint(),
-            qtyScaled: v.bigint(),
-            tsNs: v.optional(v.bigint(), 0n),
-        }),
-        v.transform((t) => {
-            const sideLabel: v.InferOutput<typeof SideSchema> = t.isBuy ? "buy" : "sell";
-            const pair = reader.market.requirePairBySymbolId(t.symbolId);
-            return {
-                ...t,
-                symbol: symbolMetadataForId(reader, t.symbolId),
-                symbolLabel: pair.symbol,
-                sideLabel,
-                qtyDisplay: reader.orders.formatQuantity(t.qtyScaled, t.symbolId),
-                priceDisplay: reader.orders.formatPrice(t.priceTicks, t.symbolId),
-                tsMs: tsNsToMs(t.tsNs),
-            };
-        }),
-    );
+export function createMarketTradeSchema() {
+    return MarketTradeSchema;
 }
 
 export type MarketTrade = v.InferOutput<ReturnType<typeof createMarketTradeSchema>>;
 
-export function createGetMarketTradesInputSchema(catalog: CatalogSnapshot) {
-    return createGetMarketTradesInputSchemaForReader(createCatalogSnapshotReader(catalog));
-}
+export const GetMarketTradesInputSchema = v.pipe(
+    v.object({
+        symbolId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+        side: v.optional(SideSchema),
+        startTsNs: v.pipe(
+            v.optional(v.pipe(v.string(), v.trim())),
+            v.transform((v) => (v ? BigInt(v) : undefined)),
+        ),
+        endTsNs: v.pipe(
+            v.optional(v.pipe(v.string(), v.trim())),
+            v.transform((v) => (v ? BigInt(v) : undefined)),
+        ),
+        limit: v.pipe(
+            v.optional(v.pipe(v.string(), v.trim()), ""),
+            v.transform((v) => {
+                if (!v) return undefined;
+                const lim = Number(v);
+                return Number.isFinite(lim) && lim > 0 ? lim : undefined;
+            }),
+        ),
+    }),
+    v.transform((input) => ({
+        symbolId: input.symbolId,
+        side: input.side ? SideFilterCodec.inputToProto[input.side] : undefined,
+        startTime: tsNsToTimestamp(input.startTsNs),
+        endTime: tsNsToTimestamp(input.endTsNs),
+        limit: input.limit,
+    })),
+);
 
-function createGetMarketTradesInputSchemaForReader(reader: CatalogReader) {
-    return v.pipe(
-        v.object({
-            symbol: v.pipe(v.string(), v.trim(), v.minLength(1)),
-            side: v.optional(SideSchema),
-            startTsNs: v.pipe(
-                v.optional(v.pipe(v.string(), v.trim())),
-                v.transform((v) => (v ? BigInt(v) : undefined)),
-            ),
-            endTsNs: v.pipe(
-                v.optional(v.pipe(v.string(), v.trim())),
-                v.transform((v) => (v ? BigInt(v) : undefined)),
-            ),
-            limit: v.pipe(
-                v.optional(v.pipe(v.string(), v.trim()), ""),
-                v.transform((v) => {
-                    if (!v) return undefined;
-                    const lim = Number(v);
-                    return Number.isFinite(lim) && lim > 0 ? lim : undefined;
-                }),
-            ),
-        }),
-        v.transform((input) => {
-            const pair = reader.market.requirePairBySymbol(input.symbol);
-            return {
-                symbolId: pair.symbolId,
-                side: input.side ? SideFilterCodec.inputToProto[input.side] : undefined,
-                startTime: tsNsToTimestamp(input.startTsNs),
-                endTime: tsNsToTimestamp(input.endTsNs),
-                limit: input.limit,
-            };
-        }),
-    );
+export function createGetMarketTradesInputSchema() {
+    return GetMarketTradesInputSchema;
 }
 
 export type GetMarketTradesInput = v.InferInput<
@@ -122,13 +85,6 @@ export type GetMarketTradesInput = v.InferInput<
 export type GetMarketTradesRequest = v.InferOutput<
     ReturnType<typeof createGetMarketTradesInputSchema>
 >;
-
-export function createMarketDataSchemas(catalog: CatalogReader) {
-    return createCatalogSchemaCache(catalog, (reader) => ({
-        marketTrade: createMarketTradeSchemaForReader(reader),
-        getMarketTradesInput: createGetMarketTradesInputSchemaForReader(reader),
-    }));
-}
 
 export const AssetConfigSchema = v.pipe(
     v.object({

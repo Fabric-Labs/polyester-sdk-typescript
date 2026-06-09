@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import * as Proto from "../../gen/chain/lifecycle/v1/types_pb.js";
 import * as ProtoRead from "../../gen/chain/lifecycle/v1/lifecycle_read_pb.js";
-import { createTestCatalog } from "../../testing/catalog.js";
 import { formatId } from "../../utils/base58-id.js";
 import {
     createLifecycleFlowSummarySchema,
@@ -11,20 +10,6 @@ import {
 } from "./lifecycle.schemas.js";
 
 const canonicalTxHash = `0x${"a".repeat(64)}`;
-
-function lifecycleCatalog() {
-    return createTestCatalog({
-        assets: [
-            {
-                symbol: "USDT",
-                ledgerId: 42,
-                name: "Tether USD",
-                quantityDisplayDecimals: 6,
-                quantityScale: 6,
-            },
-        ],
-    }).snapshot();
-}
 
 const baseFlowSummary = {
     ownerAccountId: 7n,
@@ -173,8 +158,8 @@ describe("ListLifecycleFlowsByTxInputSchema", () => {
 });
 
 describe("LifecycleFlowSummarySchema", () => {
-    it("maps catalog assets, enum labels, u128 amounts, and timestamps", () => {
-        const schema = createLifecycleFlowSummarySchema(lifecycleCatalog());
+    it("maps asset ids, enum labels, u128 amounts, and timestamps", () => {
+        const schema = createLifecycleFlowSummarySchema();
 
         const flow = v.parse(schema, baseFlowSummary);
 
@@ -182,17 +167,17 @@ describe("LifecycleFlowSummarySchema", () => {
             ownerAccountId: formatId(7n),
             flowKind: "deposit",
             latestStep: "source",
-            unifiedAsset: {
-                symbol: "USDT",
-                ledgerId: 42,
+            assetIds: {
+                chainAssetId: 1001,
+                unifiedAssetId: 42,
             },
             amountE18: "1.500000000000000000",
             requestFee: {
                 amountE18: "0.025000000000000000",
                 status: "locked",
-                unifiedAsset: {
-                    symbol: "USDT",
-                    ledgerId: 42,
+                assetIds: {
+                    chainAssetId: 1001,
+                    unifiedAssetId: 42,
                 },
             },
             sourceDomain: "external_chain",
@@ -206,18 +191,9 @@ describe("LifecycleFlowSummarySchema", () => {
         });
     });
 
-    it("rejects missing catalog assets and proto-zero output enums", () => {
-        const schema = createLifecycleFlowSummarySchema(lifecycleCatalog());
+    it("rejects proto-zero output enums", () => {
+        const schema = createLifecycleFlowSummarySchema();
 
-        expect(() =>
-            v.parse(schema, {
-                ...baseFlowSummary,
-                assetIds: {
-                    chainAssetId: 1001,
-                    unifiedAssetId: 404,
-                },
-            }),
-        ).toThrow();
         expect(() =>
             v.parse(schema, {
                 ...baseFlowSummary,

@@ -1,7 +1,6 @@
 import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
-import { createTestCatalog } from "../../testing/catalog.js";
 import {
     realtimeClientStub,
     subaccountResolverStub,
@@ -9,19 +8,7 @@ import {
 } from "../../testing/service-harness.js";
 import { BalancesService } from "./balances.js";
 
-const usdt = {
-    symbol: "USDT",
-    ledgerId: 1,
-    name: "Tether USD",
-    quantityDisplayDecimals: 6,
-    quantityScale: 6,
-};
-
 const oneLedgerUnit = { hi: 0n, lo: 1_000_000_000_000_000_000n };
-
-function seedAssets() {
-    return createTestCatalog({ assets: [usdt] });
-}
 
 function assetBalance(assetId: number) {
     return {
@@ -38,8 +25,7 @@ describe("BalancesService", () => {
         vi.restoreAllMocks();
     });
 
-    it("normalizes list subaccount inputs, forwards signal, and filters unknown assets", async () => {
-        const catalog = seedAssets();
+    it("normalizes list subaccount inputs, forwards signal, and preserves raw assets", async () => {
         const cases = [
             { name: "resolver default", input: {}, resolverDefault: "7", expected: 7n },
             {
@@ -65,7 +51,6 @@ describe("BalancesService", () => {
                 transport.transport,
                 realtimeClientStub().realtime,
                 subaccountResolverStub(testCase.resolverDefault),
-                catalog,
             );
 
             const balances = await service.list(testCase.input, { signal: controller.signal });
@@ -75,18 +60,24 @@ describe("BalancesService", () => {
             expect(transport.lastCall()?.signal, testCase.name).toBe(controller.signal);
             expect(balances).toEqual([
                 {
-                    asset: usdt,
-                    funding: 0,
-                    unified: 1,
-                    reserved: 0,
-                    available: 1,
+                    assetId: 1,
+                    fundingQ: "0",
+                    unifiedQ: "1000000000000000000",
+                    reservedQ: "0",
+                    availableQ: "1000000000000000000",
+                },
+                {
+                    assetId: 999,
+                    fundingQ: "0",
+                    unifiedQ: "1000000000000000000",
+                    reservedQ: "0",
+                    availableQ: "1000000000000000000",
                 },
             ]);
         }
     });
 
     it("normalizes balance history requests and parses scaled balance series", async () => {
-        const catalog = seedAssets();
         const transport = unaryTransport({
             range: Proto.BalanceRange.DAY_7,
             bucket: "1h",
@@ -99,7 +90,6 @@ describe("BalancesService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             undefined,
-            catalog,
         );
 
         const history = await service.getBalanceHistory({
@@ -121,7 +111,7 @@ describe("BalancesService", () => {
             startTsSec: 100,
             endTsSec: 200,
             points: 2,
-            series: [{ asset: usdt, accountCode: 301, balances: [1, 1.25] }],
+            series: [{ assetId: 1, accountCode: 301, balanceQ: ["10000000", "12500000"] }],
         });
     });
 
@@ -184,8 +174,7 @@ describe("BalancesService", () => {
         );
     });
 
-    it("wires balance subscriptions, filters unknown assets, and parses publications", () => {
-        const catalog = seedAssets();
+    it("wires balance subscriptions and parses raw publications", () => {
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const onOpen = vi.fn();
@@ -195,7 +184,6 @@ describe("BalancesService", () => {
             unaryTransport({}).transport,
             realtime.realtime,
             undefined,
-            catalog,
         );
 
         const unsubscribe = service.subscribe({
@@ -220,21 +208,26 @@ describe("BalancesService", () => {
         expect(onOpen).toHaveBeenCalledTimes(1);
         expect(onClose).toHaveBeenCalledTimes(1);
         expect(onError).toHaveBeenCalledWith(error);
-        expect(onEvent).toHaveBeenCalledTimes(1);
-        expect(onEvent.mock.calls[0]?.[0]).toMatchObject({ asset: usdt, unified: 1 });
+        expect(onEvent).toHaveBeenCalledTimes(2);
+        expect(onEvent.mock.calls[0]?.[0]).toMatchObject({
+            assetId: 1,
+            unifiedQ: "1000000000000000000",
+        });
+        expect(onEvent.mock.calls[1]?.[0]).toMatchObject({
+            assetId: 999,
+            unifiedQ: "1000000000000000000",
+        });
 
         unsubscribe();
         expect(realtime.connectProtoChannel.mock.results[0]?.value).toHaveBeenCalledTimes(1);
     });
 
     it("throws on malformed balance publications", () => {
-        const catalog = seedAssets();
         const realtime = realtimeClientStub();
         const service = new BalancesService(
             unaryTransport({}).transport,
             realtime.realtime,
             undefined,
-            catalog,
         );
 
         service.subscribe({ accountId: "acct-1", onEvent: vi.fn() });

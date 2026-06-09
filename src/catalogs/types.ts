@@ -4,15 +4,10 @@ import type {
     SpotConfig,
     ZipperChainConfig,
     ZipperChainContractConfig,
-} from "./config-types.js";
-import type {
-    EnrichedPairConfig,
-    MarketCatalogData,
-    MarketCatalogSeed,
-} from "./market-data-catalog.js";
+} from "../shared/catalog-config.js";
+import type { EnrichedPairConfig, MarketCatalogData } from "./market-data-catalog.js";
 import type {
     ZipperCatalogData,
-    ZipperCatalogSeed,
     ZipperContractName,
     ZipperEnrichedAssetChain,
     ZipperEnrichedAssetConfig,
@@ -23,6 +18,8 @@ export type AssetCatalogKey = string | number;
 export type ChainCatalogKey = string | number;
 
 export type CatalogLookupDomain = "market" | "ledger" | "orders" | "zipper";
+export type CatalogSnapshotSource = "api" | "snapshot";
+export type CatalogStateSource = CatalogSnapshotSource | "empty";
 
 export class CatalogLookupError extends Error {
     readonly code = "CATALOG_LOOKUP_MISS";
@@ -37,8 +34,17 @@ export class CatalogLookupError extends Error {
     }
 }
 
+export class CatalogNotReadyError extends Error {
+    readonly code = "CATALOG_NOT_READY";
+
+    constructor() {
+        super("[catalog] no catalog snapshot has been loaded");
+        this.name = "CatalogNotReadyError";
+    }
+}
+
 export interface ParsedCatalogAmount {
-    readonly value: bigint;
+    readonly value: string;
     readonly scale: number;
     readonly formatted: string;
 }
@@ -58,12 +64,12 @@ export interface CatalogReader {
 
 export interface ClientCatalog extends CatalogReader {
     state(): CatalogState;
-    ready(): Promise<CatalogSnapshot>;
+    ready(): Promise<CatalogSnapshot | null>;
     refresh(): Promise<CatalogSnapshot>;
 }
 
 export interface CatalogSnapshot {
-    readonly source: "generated" | "api" | "custom";
+    readonly source: CatalogSnapshotSource;
     readonly loadedAtMs: number;
     readonly version: number;
     readonly market: MarketCatalogData;
@@ -71,10 +77,10 @@ export interface CatalogSnapshot {
 }
 
 export type CatalogState =
-    | { status: "generated" }
-    | { status: "refreshing"; previousSource: CatalogSnapshot["source"] }
-    | { status: "fresh"; source: "api" | "custom" }
-    | { status: "stale"; source: CatalogSnapshot["source"]; error: unknown };
+    | { status: "empty" }
+    | { status: "refreshing"; previousSource: CatalogStateSource }
+    | { status: "fresh"; source: CatalogSnapshotSource }
+    | { status: "stale"; source: CatalogStateSource; error: unknown };
 
 export interface CatalogRefreshSource {
     market(): Promise<SpotConfig>;
@@ -82,12 +88,8 @@ export interface CatalogRefreshSource {
 }
 
 export interface CreatePolyesterCatalogOptions {
-    seed?: {
-        market?: MarketCatalogSeed;
-        zipper?: ZipperCatalogSeed;
-    };
+    snapshot?: CatalogSnapshot;
     refresh?: false | CatalogRefreshSource;
-    source?: CatalogSnapshot["source"];
 }
 
 export interface MarketCatalogReader {

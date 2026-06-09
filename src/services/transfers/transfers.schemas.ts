@@ -1,14 +1,6 @@
 import * as v from "valibot";
-import { fromU128, u128ToDecimal } from "../../utils/u128.js";
-import {
-    accountCodeNameFor,
-    LEDGER_SCALE,
-    createCatalogSnapshotReader,
-    type CatalogReader,
-    type CatalogSnapshot,
-    transferTypeNameFor,
-} from "../../catalogs/index.js";
-import { createCatalogSchemaCache } from "../catalog-schema-cache.js";
+import { fromU128 } from "../../utils/u128.js";
+import { accountCodeNameFor, transferTypeNameFor } from "../../shared/ledger-codes.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { OptionalTimestampMsToNsInputSchema } from "../../shared/schemas.js";
 import {
@@ -21,73 +13,48 @@ const U128Schema = v.object({
     lo: v.bigint(),
 });
 
-export function createLedgerTransferSchema(catalog: CatalogSnapshot) {
-    return createLedgerTransferSchemaForReader(createCatalogSnapshotReader(catalog));
-}
+export const LedgerTransferSchema = v.pipe(
+    v.object({
+        txId: v.string(),
+        assetId: v.number(),
+        amount: v.optional(U128Schema),
+        balanceAfter: v.optional(U128Schema),
+        isDebit: v.boolean(),
+        type: v.number(),
+        accountCode: v.number(),
+        pending: v.optional(v.boolean()),
+        timestamp: v.bigint(),
+        onchain: v.optional(v.boolean()),
+        linkId: v.optional(v.bigint()),
+        flowId: v.optional(v.string()),
+    }),
+    v.transform((tr) => {
+        const amountQ = fromU128(tr.amount);
+        const balanceAfterQ = fromU128(tr.balanceAfter);
+        const linkIdNum = Number(tr.linkId ?? 0n);
 
-function createLedgerTransferSchemaForReader(reader: CatalogReader) {
-    return v.pipe(
-        v.object({
-            txId: v.string(),
-            assetId: v.number(),
-            amount: v.optional(U128Schema),
-            balanceAfter: v.optional(U128Schema),
-            isDebit: v.boolean(),
-            type: v.number(),
-            accountCode: v.number(),
-            pending: v.optional(v.boolean()),
-            timestamp: v.bigint(),
-            onchain: v.optional(v.boolean()),
-            linkId: v.optional(v.bigint()),
-            flowId: v.optional(v.string()),
-        }),
-        v.transform((tr) => {
-            const aid = tr.assetId;
-            const amt128 = fromU128(tr.amount);
-            const bal128 = fromU128(tr.balanceAfter);
-            const isDebit = tr.isDebit;
+        return {
+            txId: tr.txId,
+            assetId: tr.assetId,
+            amountQ: amountQ.toString(),
+            balanceAfterQ: balanceAfterQ !== 0n ? balanceAfterQ.toString() : undefined,
+            type: transferTypeNameFor(tr.type),
+            accountCode: accountCodeNameFor(tr.accountCode),
+            pending: tr.pending,
+            onchain: tr.onchain,
+            timestamp: tsNsToMs(tr.timestamp),
+            isDebit: tr.isDebit,
+            linkId: linkIdNum || undefined,
+            flowId: tr.flowId?.trim() ?? "",
+        };
+    }),
+);
 
-            let amount =
-                aid !== 0
-                    ? reader.ledger.formatAmount(u128ToDecimal(amt128, LEDGER_SCALE), aid)
-                    : u128ToDecimal(amt128, LEDGER_SCALE);
-            if (isDebit) amount = `-${amount}`;
-            else amount = `+${amount}`;
-
-            const balanceAfter =
-                bal128 !== 0n
-                    ? aid !== 0
-                        ? reader.ledger.formatAmount(u128ToDecimal(bal128, LEDGER_SCALE), aid)
-                        : u128ToDecimal(bal128, LEDGER_SCALE)
-                    : undefined;
-
-            const linkIdNum = Number(tr.linkId ?? 0n);
-
-            return {
-                txId: tr.txId,
-                amount,
-                symbol: aid !== 0 ? reader.ledger.requireSymbolByLedgerId(aid) : "0",
-                type: transferTypeNameFor(tr.type),
-                accountCode: accountCodeNameFor(tr.accountCode),
-                pending: tr.pending,
-                onchain: tr.onchain,
-                timestamp: tsNsToMs(tr.timestamp),
-                balanceAfter,
-                isDebit,
-                linkId: linkIdNum || undefined,
-                flowId: tr.flowId?.trim() ?? "",
-            };
-        }),
-    );
+export function createLedgerTransferSchema() {
+    return LedgerTransferSchema;
 }
 
 export type LedgerTransfer = v.InferOutput<ReturnType<typeof createLedgerTransferSchema>>;
-
-export function createTransfersSchemas(catalog: CatalogReader) {
-    return createCatalogSchemaCache(catalog, (reader) => ({
-        ledgerTransfer: createLedgerTransferSchemaForReader(reader),
-    }));
-}
 
 export const ListTransfersInputSchema = v.pipe(
     v.strictObject({

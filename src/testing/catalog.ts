@@ -1,10 +1,11 @@
 import {
+    buildCatalogSnapshot,
     createPolyesterCatalog,
     type ClientCatalog,
     type EnrichedPairConfig,
     type ZipperCatalogSeed,
 } from "../catalogs/index.js";
-import type { AssetConfig, PairConfig } from "../catalogs/config-types.js";
+import type { AssetConfig, PairConfig } from "../shared/catalog-config.js";
 
 type TestCatalogOptions = {
     assets?: readonly AssetConfig[];
@@ -32,14 +33,20 @@ function uniqueAssets(
 
 export function createTestCatalog(options: TestCatalogOptions = {}): ClientCatalog {
     const pairs = options.pairs ?? [];
-    return createPolyesterCatalog({
-        seed: {
-            market: {
-                assets: uniqueAssets(options.assets ?? [], pairs),
-                pairs,
-            },
-            zipper: options.zipper,
+    const snapshot = buildCatalogSnapshot({
+        market: {
+            assets: uniqueAssets(options.assets ?? [], pairs),
+            pairs,
         },
+        zipper: options.zipper ?? {
+            chains: [],
+            assets: [],
+            contracts: [],
+            tsMs: 0,
+        },
+    });
+    return createPolyesterCatalog({
+        snapshot,
         refresh: false,
     });
 }

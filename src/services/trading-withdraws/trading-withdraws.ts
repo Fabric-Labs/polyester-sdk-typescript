@@ -12,13 +12,12 @@ import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccoun
 import { TradingWithdrawActionCodec } from "./trading-withdraws.codecs.js";
 import * as v from "valibot";
 import {
-    createTradingWithdrawsSchemas,
+    CreateTradingWithdrawToFundingInputSchema,
     CreateTradingWithdrawResultSchema,
     CreateWalletTradingWithdrawResultSchema,
     type CreateTradingWithdrawResult,
     type CreateTradingWithdrawToFundingInput,
 } from "./trading-withdraws.schemas.js";
-import { staticCatalog, type CatalogReader } from "../../catalogs/index.js";
 
 const DEFAULT_DEADLINE_SECONDS = 5 * 60;
 
@@ -143,18 +142,15 @@ export class TradingWithdrawsService {
     #client: Client<typeof Proto.WithdrawService>;
     #resolver?: SubaccountResolver;
     #signingConfig: TradingWithdrawSigningConfig;
-    #schemas: ReturnType<typeof createTradingWithdrawsSchemas>;
 
     constructor(
         transport: Transport,
         resolver: SubaccountResolver | undefined,
         signingConfig: TradingWithdrawSigningConfig,
-        catalog: CatalogReader = staticCatalog,
     ) {
         this.#client = createClient(Proto.WithdrawService, transport);
         this.#resolver = resolver;
         this.#signingConfig = signingConfig;
-        this.#schemas = createTradingWithdrawsSchemas(catalog);
     }
 
     /**
@@ -166,8 +162,7 @@ export class TradingWithdrawsService {
     ): Promise<CreateTradingWithdrawResult> {
         const { walletSigner, ...inputForValidation } = input;
         const resolvedInput = resolveAccountScopedInput(inputForValidation, this.#resolver);
-        const schemas = this.#schemas.current();
-        const validated = v.parse(schemas.createTradingWithdrawToFundingInput, resolvedInput);
+        const validated = v.parse(CreateTradingWithdrawToFundingInputSchema, resolvedInput);
         const payload = create(Proto.TradingWithdrawIntentPayloadSchema, {
             action: TradingWithdrawActionCodec.inputToProto.to_funding,
             assetId: validated.assetId,

@@ -1,18 +1,17 @@
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as v from "valibot";
-import { idInputSchema, optionalUint64DecimalFilterSchema } from "../../shared/schemas.js";
+import {
+    idInputSchema,
+    optionalUint64DecimalFilterSchema,
+    positiveBigintStringInputSchema,
+} from "../../shared/schemas.js";
 import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
-import { parsePriceTicks, parseOptionalPositiveIntLike } from "../../utils/numbers.js";
+import { parseOptionalPositiveIntLike } from "../../utils/numbers.js";
 import { idToBigInt } from "../../utils/base58-id.js";
-import {
-    createCatalogSnapshotReader,
-    type CatalogReader,
-    type CatalogSnapshot,
-} from "../../catalogs/index.js";
 import {
     LADDER_DISTRIBUTION_VALUES,
     TRIGGER_DIRECTION_VALUES,
@@ -95,7 +94,6 @@ function parseMaxSlippage(
 }
 
 function stopTriggerInputSchema(
-    reader: CatalogReader,
     triggerType: "stop_loss" | "take_profit",
     protoTriggerType: Proto.TriggerType,
     buyDirection: ProtoOrders.TriggerDirection,
@@ -107,12 +105,7 @@ function stopTriggerInputSchema(
 
             triggerType: v.literal(triggerType),
 
-            triggerPrice: v.pipe(
-                v.string(),
-                v.trim(),
-                v.minLength(1),
-                v.transform((v) => parsePriceTicks(v, "triggerPrice")),
-            ),
+            triggerPriceTicks: positiveBigintStringInputSchema("triggerPriceTicks"),
 
             triggerPriceSource: v.pipe(
                 v.optional(TriggerPriceSourceSchema),
@@ -124,9 +117,9 @@ function stopTriggerInputSchema(
             ),
         }),
         v.transform((input) => ({
-            ...buildCreateTriggerBase(reader, input),
+            ...buildCreateTriggerBase(input),
             triggerType: protoTriggerType,
-            triggerPriceTicks: input.triggerPrice,
+            triggerPriceTicks: input.triggerPriceTicks,
             triggerPriceSource:
                 input.triggerPriceSource ?? ProtoOrders.TriggerPriceSource.LAST_PRICE,
             triggerDirection: input.side === ProtoOrders.Side.BUY ? buyDirection : sellDirection,
@@ -134,9 +127,8 @@ function stopTriggerInputSchema(
     );
 }
 
-function createStopLossTriggerInputSchema(reader: CatalogReader) {
+function createStopLossTriggerInputSchema() {
     return stopTriggerInputSchema(
-        reader,
         "stop_loss",
         Proto.TriggerType.STOP_LOSS,
         ProtoOrders.TriggerDirection.ABOVE,
@@ -144,9 +136,8 @@ function createStopLossTriggerInputSchema(reader: CatalogReader) {
     );
 }
 
-function createTakeProfitTriggerInputSchema(reader: CatalogReader) {
+function createTakeProfitTriggerInputSchema() {
     return stopTriggerInputSchema(
-        reader,
         "take_profit",
         Proto.TriggerType.TAKE_PROFIT,
         ProtoOrders.TriggerDirection.BELOW,
@@ -154,7 +145,7 @@ function createTakeProfitTriggerInputSchema(reader: CatalogReader) {
     );
 }
 
-function createTrailingStopTriggerInputSchema(reader: CatalogReader) {
+function createTrailingStopTriggerInputSchema() {
     return v.pipe(
         v.object({
             ...BaseChildOrderFieldsSchema.entries,
@@ -165,9 +156,9 @@ function createTrailingStopTriggerInputSchema(reader: CatalogReader) {
                 v.transform(parseTrailingDistance),
             ),
 
-            activationPrice: v.pipe(
-                v.optional(v.pipe(v.string(), v.trim())),
-                v.transform((v) => (v ? parsePriceTicks(v, "activationPrice") : 0n)),
+            activationPriceTicks: v.pipe(
+                v.optional(positiveBigintStringInputSchema("activationPriceTicks")),
+                v.transform((v) => v ?? 0n),
             ),
 
             maxSlippage: v.pipe(v.optional(MaxSlippageInputSchema), v.transform(parseMaxSlippage)),
@@ -189,10 +180,10 @@ function createTrailingStopTriggerInputSchema(reader: CatalogReader) {
             ),
         }),
         v.transform((input) => ({
-            ...buildCreateTriggerBase(reader, input),
+            ...buildCreateTriggerBase(input),
             triggerType: Proto.TriggerType.TRAILING_STOP,
             trailingDistance: input.trailingDistance,
-            activationPriceTicks: input.activationPrice ?? 0n,
+            activationPriceTicks: input.activationPriceTicks,
             maxSlippage: input.maxSlippage ?? UNSET_MAX_SLIPPAGE,
             triggerPriceSource:
                 input.triggerPriceSource ?? ProtoOrders.TriggerPriceSource.LAST_PRICE,
@@ -201,7 +192,7 @@ function createTrailingStopTriggerInputSchema(reader: CatalogReader) {
     );
 }
 
-function createTwapTriggerInputSchema(reader: CatalogReader) {
+function createTwapTriggerInputSchema() {
     return v.pipe(
         v.object({
             ...BaseChildOrderFieldsSchema.entries,
@@ -237,7 +228,7 @@ function createTwapTriggerInputSchema(reader: CatalogReader) {
             "twapSliceIntervalMs cannot exceed twapDurationMs",
         ),
         v.transform((input) => ({
-            ...buildCreateTriggerBase(reader, input),
+            ...buildCreateTriggerBase(input),
             triggerType: Proto.TriggerType.TWAP,
             triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
             triggerDirection: ProtoOrders.TriggerDirection.ABOVE,
@@ -248,26 +239,16 @@ function createTwapTriggerInputSchema(reader: CatalogReader) {
     );
 }
 
-function createLadderTriggerInputSchema(reader: CatalogReader) {
+function createLadderTriggerInputSchema() {
     return v.pipe(
         v.object({
             ...BaseChildOrderFieldsSchema.entries,
 
             triggerType: v.literal("ladder"),
 
-            ladderPriceMin: v.pipe(
-                v.string(),
-                v.trim(),
-                v.minLength(1),
-                v.transform((v) => parsePriceTicks(v, "ladderPriceMin")),
-            ),
+            ladderPriceMinTicks: positiveBigintStringInputSchema("ladderPriceMinTicks"),
 
-            ladderPriceMax: v.pipe(
-                v.string(),
-                v.trim(),
-                v.minLength(1),
-                v.transform((v) => parsePriceTicks(v, "ladderPriceMax")),
-            ),
+            ladderPriceMaxTicks: positiveBigintStringInputSchema("ladderPriceMaxTicks"),
 
             ladderLevels: v.pipe(
                 v.union([v.pipe(v.string(), v.trim()), v.pipe(v.number(), v.integer())]),
@@ -288,33 +269,31 @@ function createLadderTriggerInputSchema(reader: CatalogReader) {
             ),
         }),
         v.transform((input) => ({
-            ...buildCreateTriggerBase(reader, input),
+            ...buildCreateTriggerBase(input),
             triggerType: Proto.TriggerType.LADDER,
             triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
             triggerDirection: ProtoOrders.TriggerDirection.ABOVE,
-            ladderPriceMinTicks: input.ladderPriceMin,
-            ladderPriceMaxTicks: input.ladderPriceMax,
+            ladderPriceMinTicks: input.ladderPriceMinTicks,
+            ladderPriceMaxTicks: input.ladderPriceMaxTicks,
             ladderLevels: input.ladderLevels,
             ladderDistribution: input.ladderDistribution,
         })),
     );
 }
 
-export function createCreateTriggerInputSchema(catalog: CatalogSnapshot) {
-    return createCreateTriggerInputSchemaForReader(createCatalogSnapshotReader(catalog));
+export const CreateTriggerInputSchema = v.variant("triggerType", [
+    createStopLossTriggerInputSchema(),
+    createTakeProfitTriggerInputSchema(),
+    createTrailingStopTriggerInputSchema(),
+    createTwapTriggerInputSchema(),
+    createLadderTriggerInputSchema(),
+]);
+
+export function createCreateTriggerInputSchema() {
+    return CreateTriggerInputSchema;
 }
 
-export function createCreateTriggerInputSchemaForReader(reader: CatalogReader) {
-    return v.variant("triggerType", [
-        createStopLossTriggerInputSchema(reader),
-        createTakeProfitTriggerInputSchema(reader),
-        createTrailingStopTriggerInputSchema(reader),
-        createTwapTriggerInputSchema(reader),
-        createLadderTriggerInputSchema(reader),
-    ]);
-}
-
-export type CreateTriggerInput = v.InferInput<ReturnType<typeof createCreateTriggerInputSchema>>;
+export type CreateTriggerInput = v.InferInput<typeof CreateTriggerInputSchema>;
 
 export const ListTriggersInputSchema = v.pipe(
     v.object({
@@ -356,22 +335,13 @@ export type GetTriggerInput = v.InferInput<typeof GetTriggerInputSchema>;
 export const ModifyTriggerInputSchema = v.pipe(
     v.object({
         ...TriggerScopedInputEntries,
-        triggerPrice: v.pipe(
-            v.optional(v.pipe(v.string(), v.trim())),
-            v.transform((v) => (v ? parsePriceTicks(v, "triggerPrice") : undefined)),
-        ),
-        limitPrice: v.pipe(
-            v.optional(v.pipe(v.string(), v.trim())),
-            v.transform((v) => (v ? parsePriceTicks(v, "limitPrice") : undefined)),
-        ),
+        triggerPriceTicks: v.optional(positiveBigintStringInputSchema("triggerPriceTicks")),
+        limitPriceTicks: v.optional(positiveBigintStringInputSchema("limitPriceTicks")),
         trailingDistance: v.pipe(
             v.optional(TrailingDistanceInputSchema),
             v.transform((v) => (v ? parseTrailingDistance(v) : undefined)),
         ),
-        activationPrice: v.pipe(
-            v.optional(v.pipe(v.string(), v.trim())),
-            v.transform((v) => (v ? parsePriceTicks(v, "activationPrice") : undefined)),
-        ),
+        activationPriceTicks: v.optional(positiveBigintStringInputSchema("activationPriceTicks")),
         maxSlippage: v.pipe(
             v.optional(MaxSlippageInputSchema),
             v.transform((v) => (v ? parseMaxSlippage(v) : undefined)),
@@ -379,20 +349,20 @@ export const ModifyTriggerInputSchema = v.pipe(
     }),
     v.check((input) => {
         const hasPatch =
-            input.triggerPrice !== undefined ||
-            input.limitPrice !== undefined ||
+            input.triggerPriceTicks !== undefined ||
+            input.limitPriceTicks !== undefined ||
             input.trailingDistance !== undefined ||
-            input.activationPrice !== undefined ||
+            input.activationPriceTicks !== undefined ||
             input.maxSlippage !== undefined;
         return hasPatch;
     }, "At least one patch field is required"),
     v.transform(({ account, ...input }) => ({
         triggerId: input.triggerId,
         subaccountId: accountScopeToSubaccountId(account),
-        triggerPriceTicks: input.triggerPrice,
-        limitPriceTicks: input.limitPrice,
+        triggerPriceTicks: input.triggerPriceTicks,
+        limitPriceTicks: input.limitPriceTicks,
         trailingDistance: input.trailingDistance ?? UNSET_TRAILING_DISTANCE,
-        activationPriceTicks: input.activationPrice,
+        activationPriceTicks: input.activationPriceTicks,
         maxSlippage: input.maxSlippage ?? UNSET_MAX_SLIPPAGE,
     })),
 );

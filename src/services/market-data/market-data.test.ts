@@ -1,8 +1,6 @@
 import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
-import { createTestCatalog } from "../../testing/catalog.js";
 import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
 import { MarketDataService } from "./market-data.js";
 
@@ -14,32 +12,6 @@ const btc = {
     quantityScale: 8,
 };
 
-const usdt = {
-    symbol: "USDT",
-    ledgerId: 2,
-    name: "Tether USD",
-    quantityDisplayDecimals: 6,
-    quantityScale: 6,
-};
-
-const btcUsdtPair: EnrichedPairConfig = {
-    symbolId: 101,
-    symbol: "BTC-USDT",
-    baseAsset: btc,
-    quoteAsset: usdt,
-    tickSize: "0.000001",
-    stepSize: "0.00000001",
-    minNotionalQuote: "1",
-    minQtyBase: "0.00000001",
-    allowBuyFeeFromReceived: false,
-    defaultMarketSlippagePctBuy: 0,
-    defaultMarketSlippagePctSell: 0,
-    maxClientRefDriftPct: 0,
-    listingAt: null,
-    delistingAt: null,
-    status: "enabled",
-};
-
 const marketTrade = {
     symbolId: 101,
     matchId: 22n,
@@ -49,28 +21,19 @@ const marketTrade = {
     tsNs: 1_700_000_000_000_000_000n,
 };
 
-function seedPairCatalog() {
-    return createTestCatalog({ assets: [btc, usdt], pairs: [btcUsdtPair] });
-}
-
 describe("MarketDataService", () => {
     afterEach(() => {
         vi.restoreAllMocks();
     });
 
     it("normalizes public trade filters to the proto request and parses trades", async () => {
-        const catalog = seedPairCatalog();
         const controller = new AbortController();
         const transport = unaryTransport({ trades: [marketTrade], nextMatchId: 0n });
-        const service = new MarketDataService(
-            transport.transport,
-            realtimeClientStub().realtime,
-            catalog,
-        );
+        const service = new MarketDataService(transport.transport, realtimeClientStub().realtime);
 
         const trades = await service.listTrades(
             {
-                symbol: " BTC-USDT ",
+                symbolId: 101,
                 side: "buy",
                 startTsNs: "1700000000123456789",
                 endTsNs: "1700000001123456789",
@@ -90,26 +53,20 @@ describe("MarketDataService", () => {
         expect(trades).toEqual([
             expect.objectContaining({
                 symbolId: 101,
-                matchId: 22n,
-                symbolLabel: "BTC-USDT",
+                matchId: "22",
                 sideLabel: "sell",
-                qtyDisplay: "1.23456789",
-                priceDisplay: "1.234567",
+                qtyScaled: "123456789",
+                priceTicks: "1234567",
                 tsMs: 1_700_000_000_000,
             }),
         ]);
     });
 
     it("returns an empty public trade list for empty backend rows", async () => {
-        const catalog = seedPairCatalog();
         const transport = unaryTransport({ trades: [], nextMatchId: 0n });
-        const service = new MarketDataService(
-            transport.transport,
-            realtimeClientStub().realtime,
-            catalog,
-        );
+        const service = new MarketDataService(transport.transport, realtimeClientStub().realtime);
 
-        await expect(service.listTrades({ symbol: "BTC-USDT" })).resolves.toEqual([]);
+        await expect(service.listTrades({ symbolId: 101 })).resolves.toEqual([]);
     });
 
     it("parses spot config responses at the service boundary", async () => {
@@ -169,38 +126,16 @@ describe("MarketDataService", () => {
         });
     });
 
-    it("rejects public trades that reference unknown backend symbol ids", async () => {
-        const catalog = seedPairCatalog();
-        const transport = unaryTransport({
-            trades: [{ ...marketTrade, symbolId: 999 }],
-            nextMatchId: 0n,
-        });
-        const service = new MarketDataService(
-            transport.transport,
-            realtimeClientStub().realtime,
-            catalog,
-        );
-
-        await expect(service.listTrades({ symbol: "BTC-USDT" })).rejects.toThrow(
-            /\[catalog\] market symbolId not found: 999/,
-        );
-    });
-
     it("wires public trade subscriptions and parses publications", () => {
-        const catalog = seedPairCatalog();
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();
         const onError = vi.fn();
-        const service = new MarketDataService(
-            unaryTransport({}).transport,
-            realtime.realtime,
-            catalog,
-        );
+        const service = new MarketDataService(unaryTransport({}).transport, realtime.realtime);
 
         const unsubscribe = service.subscribeTrades({
-            symbol: "BTC-USDT",
+            symbolId: 101,
             onEvent,
             onOpen,
             onClose,
@@ -221,9 +156,10 @@ describe("MarketDataService", () => {
         expect(onError).toHaveBeenCalledWith(error);
         expect(onEvent).toHaveBeenCalledWith(
             expect.objectContaining({
-                symbolLabel: "BTC-USDT",
+                symbolId: 101,
                 sideLabel: "sell",
-                priceDisplay: "1.234567",
+                priceTicks: "1234567",
+                qtyScaled: "123456789",
             }),
         );
 
@@ -231,29 +167,23 @@ describe("MarketDataService", () => {
         expect(realtime.connectProtoChannel.mock.results[0]?.value).toHaveBeenCalledTimes(1);
     });
 
-    it("throws for unknown subscription symbols before connecting realtime", () => {
+    it("uses the caller-provided subscription symbol id", () => {
         const realtime = realtimeClientStub();
         const service = new MarketDataService(unaryTransport({}).transport, realtime.realtime);
 
-        expect(() =>
-            service.subscribeTrades({
-                symbol: "NOPE-USDT",
-                onEvent: vi.fn(),
-            }),
-        ).toThrow(/\[catalog\] market pairSymbol not found: NOPE-USDT/);
-        expect(realtime.connectProtoChannel).not.toHaveBeenCalled();
+        service.subscribeTrades({
+            symbolId: 999,
+            onEvent: vi.fn(),
+        });
+
+        expect(realtime.params?.channel).toBe("public:spot:market:trades:999:proto");
     });
 
     it("throws on malformed public trade publications", () => {
-        const catalog = seedPairCatalog();
         const realtime = realtimeClientStub();
-        const service = new MarketDataService(
-            unaryTransport({}).transport,
-            realtime.realtime,
-            catalog,
-        );
+        const service = new MarketDataService(unaryTransport({}).transport, realtime.realtime);
 
-        service.subscribeTrades({ symbol: "BTC-USDT", onEvent: vi.fn() });
+        service.subscribeTrades({ symbolId: 101, onEvent: vi.fn() });
 
         expect(() =>
             realtime.params?.onPublication({

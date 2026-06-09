@@ -1,17 +1,12 @@
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import * as v from "valibot";
 import { SideSchema } from "../shared.js";
-import {
-    createCatalogSnapshotReader,
-    type CatalogReader,
-    type CatalogSnapshot,
-} from "../../catalogs/index.js";
-import { parsePriceTicks } from "../../utils/numbers.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import {
     OptionalPublicIdSchema,
     PublicIdSchema,
+    positiveBigintStringInputSchema,
     optionalUint64DecimalFilterSchema,
 } from "../../shared/schemas.js";
 import {
@@ -98,89 +93,87 @@ export const OrderHistoryInputSchema = v.pipe(
 
 export type OrderHistoryInput = v.InferInput<typeof OrderHistoryInputSchema>;
 
-function parseMarketClientRefPriceTicks(price: string | undefined): bigint {
-    const trimmed = (price ?? "").trim();
-    if (!trimmed) return 0n;
-    const ticks = parsePriceTicks(trimmed, "marketClientRefPrice");
-    if (ticks <= 0n) {
-        throw new Error("marketClientRefPrice must be greater than 0");
-    }
-    return ticks;
-}
-
-export function createNewOrderInputSchema(catalog: CatalogSnapshot) {
-    return createNewOrderInputSchemaForReader(createCatalogSnapshotReader(catalog));
-}
-
-export function createNewOrderInputSchemaForReader(reader: CatalogReader) {
-    return v.pipe(
-        v.object({
-            ...AccountScopeInputEntries,
-            symbol: v.pipe(v.string(), v.trim(), v.minLength(1)),
-            side: v.pipe(
-                SideSchema,
-                v.transform((v) => OrderSideCodec.inputToProto[v]),
-            ),
-            orderType: v.pipe(
-                OrderTypeSchema,
-                v.transform((v) => OrderTypeCodec.inputToProto[v]),
-            ),
-            tif: v.pipe(
-                TIFSchema,
-                v.transform((v) => TifCodec.inputToProto[v]),
-            ),
-            price: v.optional(v.pipe(v.string(), v.trim())),
-            qty: v.pipe(v.string(), v.trim(), v.minLength(1)),
-            postOnly: v.optional(v.boolean(), false),
-            clientOrderId: v.optional(v.pipe(v.string(), v.trim())),
-            feeSource: v.pipe(
-                v.optional(FeeSourceSchema),
-                v.transform((v) => (v ? FeeSourceCodec.inputToProto[v] : undefined)),
-            ),
-            stpMode: v.pipe(
-                v.optional(STPSchema),
-                v.transform((v) => (v ? StpModeCodec.inputToProto[v] : undefined)),
-            ),
-            risk: RiskPolicyInputSchema,
-            marketMaxSlippage: v.optional(MarketMaxSlippageSchema),
-            marketClientRefPrice: v.optional(v.pipe(v.string(), v.trim())),
-        }),
-        v.check((input) => {
-            const hasMarketClientRefPrice = (input.marketClientRefPrice ?? "").length > 0;
-            const hasMarketMaxSlippage =
-                input.marketMaxSlippage !== undefined && input.marketMaxSlippage.kind !== "none";
-            return input.orderType !== ProtoWrite.OrderType.MARKET &&
-                (hasMarketClientRefPrice || hasMarketMaxSlippage)
-                ? false
-                : true;
-        }, "market max slippage and client reference price are only valid for market orders"),
-        v.transform(
-            ({ qty, price, account, risk, marketMaxSlippage, marketClientRefPrice, ...input }) => {
-                const order = buildSpotOrderCore(reader, {
-                    symbol: input.symbol,
-                    side: input.side,
-                    orderType: input.orderType,
-                    tif: input.tif,
-                    qty,
-                    price,
-                    feeSource: input.feeSource,
-                    stpMode: input.stpMode,
-                    postOnly: input.postOnly,
-                });
-                return {
-                    ...order,
-                    clientOrderId: input.clientOrderId,
-                    subaccountId: accountScopeToSubaccountId(account),
-                    attachedRisk: risk,
-                    marketMaxSlippage: parseMarketMaxSlippage(marketMaxSlippage),
-                    marketClientRefPriceTicks: parseMarketClientRefPriceTicks(marketClientRefPrice),
-                };
-            },
+export const NewOrderInputSchema = v.pipe(
+    v.object({
+        ...AccountScopeInputEntries,
+        symbol: v.pipe(v.string(), v.trim(), v.minLength(1)),
+        side: v.pipe(
+            SideSchema,
+            v.transform((v) => OrderSideCodec.inputToProto[v]),
         ),
-    );
+        orderType: v.pipe(
+            OrderTypeSchema,
+            v.transform((v) => OrderTypeCodec.inputToProto[v]),
+        ),
+        tif: v.pipe(
+            TIFSchema,
+            v.transform((v) => TifCodec.inputToProto[v]),
+        ),
+        priceTicks: v.optional(positiveBigintStringInputSchema("priceTicks")),
+        qtyScaled: positiveBigintStringInputSchema("qtyScaled"),
+        postOnly: v.optional(v.boolean(), false),
+        clientOrderId: v.optional(v.pipe(v.string(), v.trim())),
+        feeSource: v.pipe(
+            v.optional(FeeSourceSchema),
+            v.transform((v) => (v ? FeeSourceCodec.inputToProto[v] : undefined)),
+        ),
+        stpMode: v.pipe(
+            v.optional(STPSchema),
+            v.transform((v) => (v ? StpModeCodec.inputToProto[v] : undefined)),
+        ),
+        risk: RiskPolicyInputSchema,
+        marketMaxSlippage: v.optional(MarketMaxSlippageSchema),
+        marketClientRefPriceTicks: v.optional(
+            positiveBigintStringInputSchema("marketClientRefPriceTicks"),
+        ),
+    }),
+    v.check((input) => {
+        const hasMarketClientRefPrice = input.marketClientRefPriceTicks !== undefined;
+        const hasMarketMaxSlippage =
+            input.marketMaxSlippage !== undefined && input.marketMaxSlippage.kind !== "none";
+        return input.orderType !== ProtoWrite.OrderType.MARKET &&
+            (hasMarketClientRefPrice || hasMarketMaxSlippage)
+            ? false
+            : true;
+    }, "market max slippage and client reference price are only valid for market orders"),
+    v.transform(
+        ({
+            account,
+            risk,
+            marketMaxSlippage,
+            marketClientRefPriceTicks,
+            priceTicks,
+            qtyScaled,
+            ...input
+        }) => {
+            const order = buildSpotOrderCore({
+                symbol: input.symbol,
+                side: input.side,
+                orderType: input.orderType,
+                tif: input.tif,
+                qtyScaled,
+                priceTicks,
+                feeSource: input.feeSource,
+                stpMode: input.stpMode,
+                postOnly: input.postOnly,
+            });
+            return {
+                ...order,
+                clientOrderId: input.clientOrderId,
+                subaccountId: accountScopeToSubaccountId(account),
+                attachedRisk: risk,
+                marketMaxSlippage: parseMarketMaxSlippage(marketMaxSlippage),
+                marketClientRefPriceTicks: marketClientRefPriceTicks ?? 0n,
+            };
+        },
+    ),
+);
+
+export function createNewOrderInputSchema() {
+    return NewOrderInputSchema;
 }
 
-export type NewOrderInput = v.InferInput<ReturnType<typeof createNewOrderInputSchema>>;
+export type NewOrderInput = v.InferInput<typeof NewOrderInputSchema>;
 
 const CancelOrderScopeInputEntries = {
     symbolId: v.optional(v.number()),
