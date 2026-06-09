@@ -45,28 +45,47 @@ const RequiredTxHashSchema = v.pipe(
     v.regex(canonicalTxHashPattern, "txHash must be a canonical EVM tx hash."),
 );
 
-const OptionalOwnerAccountIdSchema = v.pipe(
-    v.optional(v.pipe(v.string(), v.trim())),
-    v.transform((v) => {
-        if (!v) return undefined;
-        const isSmartAccountAddress = smartAccountAddressPattern.test(v);
-        if (isSmartAccountAddress) return { case: "smartAccountAddress" as const, value: v };
-        return { case: "ownerAccountId" as const, value: idToBigInt(v, "ownerAccountId") };
-    }),
+const AccountSelectorIdSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
+const SmartAccountAddressSchema = v.pipe(
+    v.string(),
+    v.trim(),
+    v.regex(smartAccountAddressPattern, "smartAccountAddress must be a canonical 0x address."),
 );
-const OptionalAccountIdSchema = v.pipe(
-    v.optional(v.pipe(v.string(), v.trim())),
-    v.transform((v) => {
-        if (!v) return undefined;
-        return { case: "ownerAccountId" as const, value: idToBigInt(v, "accountId") };
+
+const LifecycleAccountSelectorInputSchema = v.pipe(
+    v.variant("kind", [
+        v.strictObject({
+            kind: v.literal("accountId"),
+            accountId: AccountSelectorIdSchema,
+        }),
+        v.strictObject({
+            kind: v.literal("ownerAccountId"),
+            ownerAccountId: AccountSelectorIdSchema,
+        }),
+        v.strictObject({
+            kind: v.literal("smartAccountAddress"),
+            smartAccountAddress: SmartAccountAddressSchema,
+        }),
+    ]),
+    v.transform((selector) => {
+        switch (selector.kind) {
+            case "accountId":
+                return {
+                    case: "ownerAccountId" as const,
+                    value: idToBigInt(selector.accountId, "accountId"),
+                };
+            case "ownerAccountId":
+                return {
+                    case: "ownerAccountId" as const,
+                    value: idToBigInt(selector.ownerAccountId, "ownerAccountId"),
+                };
+            case "smartAccountAddress":
+                return {
+                    case: "smartAccountAddress" as const,
+                    value: selector.smartAccountAddress,
+                };
+        }
     }),
-);
-const OptionalSmartAccountAddressSchema = v.optional(
-    v.pipe(
-        v.string(),
-        v.trim(),
-        v.regex(smartAccountAddressPattern, "smartAccountAddress must be a canonical 0x address."),
-    ),
 );
 
 const Uint32Schema = v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(maxUint32));
@@ -182,7 +201,7 @@ const LifecycleReasonHashSchema = v.optional(v.string(), "");
 const LifecycleLedgerTransferIdSchema = v.optional(v.string(), "");
 
 export const ListLifecycleFlowsInputSchema = v.pipe(
-    v.object({
+    v.strictObject({
         limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(500)), 100),
         reversed: v.optional(v.boolean(), true),
         flowKind: v.pipe(
@@ -209,24 +228,13 @@ export const ListLifecycleFlowsInputSchema = v.pipe(
             v.optional(v.picklist(LIFECYCLE_LIST_SCOPE_VALUES), "all"),
             v.transform((v) => LifecycleListScopeCodec.inputToProto[v ?? "all"]),
         ),
-        accountId: OptionalAccountIdSchema,
-        ownerAccountId: OptionalOwnerAccountIdSchema,
-        smartAccountAddress: OptionalSmartAccountAddressSchema,
+        accountSelector: v.optional(LifecycleAccountSelectorInputSchema),
         polyesterChainIds: v.optional(v.array(Uint32Schema)),
         zippedAssetIds: v.optional(v.array(Uint32Schema)),
         unifiedAssetIds: v.optional(v.array(Uint32Schema)),
         pageToken: v.optional(v.pipe(v.string(), v.trim()), ""),
     }),
     v.transform((value) => {
-        const accountSelector =
-            value.accountId ??
-            value.ownerAccountId ??
-            (value.smartAccountAddress
-                ? {
-                      case: "smartAccountAddress" as const,
-                      value: value.smartAccountAddress,
-                  }
-                : undefined);
         return {
             limit: value.limit,
             reversed: value.reversed,
@@ -234,7 +242,7 @@ export const ListLifecycleFlowsInputSchema = v.pipe(
             flowState: value.flowState,
             txRef: value.txRef,
             scope: value.scope,
-            accountSelector,
+            accountSelector: value.accountSelector,
             polyesterChainIds: value.polyesterChainIds,
             zippedAssetIds: value.zippedAssetIds,
             unifiedAssetIds: value.unifiedAssetIds,

@@ -62,7 +62,7 @@ describe("LifecycleService", () => {
                     flowKind: "deposit",
                     flowState: "completed",
                     scope: "open",
-                    accountId: "42",
+                    accountSelector: { kind: "accountId", accountId: "42" },
                     pageToken: "cursor",
                 },
                 { signal },

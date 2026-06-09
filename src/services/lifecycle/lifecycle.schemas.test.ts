@@ -79,7 +79,7 @@ describe("ListLifecycleFlowsInputSchema", () => {
             flowKind: "deposit",
             flowState: "completed",
             scope: "open",
-            accountId: " 11 ",
+            accountSelector: { kind: "accountId", accountId: " 11 " },
             polyesterChainIds: [8453],
             zippedAssetIds: [1001],
             unifiedAssetIds: [42],
@@ -104,9 +104,23 @@ describe("ListLifecycleFlowsInputSchema", () => {
         });
     });
 
+    it("maps owner account selectors explicitly", () => {
+        const input = v.parse(ListLifecycleFlowsInputSchema, {
+            accountSelector: { kind: "ownerAccountId", ownerAccountId: " 12 " },
+        });
+
+        expect(input.accountSelector).toEqual({
+            case: "ownerAccountId",
+            value: 12n,
+        });
+    });
+
     it("accepts smart account selectors and rejects invalid uint32 filters", () => {
         const input = v.parse(ListLifecycleFlowsInputSchema, {
-            ownerAccountId: "0x0000000000000000000000000000000000000001",
+            accountSelector: {
+                kind: "smartAccountAddress",
+                smartAccountAddress: "0x0000000000000000000000000000000000000001",
+            },
         });
 
         expect(input.accountSelector).toEqual({
@@ -114,6 +128,25 @@ describe("ListLifecycleFlowsInputSchema", () => {
             value: "0x0000000000000000000000000000000000000001",
         });
         expect(() => v.parse(ListLifecycleFlowsInputSchema, { polyesterChainIds: [0] })).toThrow();
+    });
+
+    it("rejects legacy flat account selector fields", () => {
+        expect(() => v.parse(ListLifecycleFlowsInputSchema, { accountId: "11" })).toThrow();
+        expect(() =>
+            v.parse(ListLifecycleFlowsInputSchema, {
+                ownerAccountId: "12",
+                smartAccountAddress: "0x0000000000000000000000000000000000000001",
+            }),
+        ).toThrow();
+        expect(() =>
+            v.parse(ListLifecycleFlowsInputSchema, {
+                accountSelector: {
+                    kind: "ownerAccountId",
+                    ownerAccountId: "12",
+                    smartAccountAddress: "0x0000000000000000000000000000000000000001",
+                },
+            }),
+        ).toThrow();
     });
 });
 
