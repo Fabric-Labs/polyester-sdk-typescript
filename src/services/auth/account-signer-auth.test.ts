@@ -68,7 +68,7 @@ function authFixture(accountSigner?: AccountSigner, tokenStorage?: AuthTokenStor
         tokenStorage: tokenStorage ?? createMemoryAuthTokenStorage(),
     });
 
-    return { auth, subaccounts };
+    return { auth, realtime, subaccounts };
 }
 
 function authService(accountSigner?: AccountSigner) {
@@ -237,13 +237,15 @@ describe("AccountSignerAuthService", () => {
     it("clears the configured token storage on logout", async () => {
         const accountSigner = signer();
         const tokenStorage = createTestStorage();
-        const auth = authFixture(accountSigner, tokenStorage).auth;
+        const { auth, realtime } = authFixture(accountSigner, tokenStorage);
+        const disconnectPrivate = vi.spyOn(realtime, "disconnectPrivate");
         mockLogin(auth);
 
         await auth.login({ provider: "turnkey" });
         await auth.logout();
 
         expect(tokenStorage.clear).toHaveBeenCalledTimes(1);
+        expect(disconnectPrivate).toHaveBeenCalledTimes(1);
     });
 
     it("restores a valid stored token through the configured token storage", async () => {
@@ -325,11 +327,13 @@ describe("AccountSignerAuthService", () => {
     it("clears configured token storage when restore sees no matching display session", async () => {
         const token = jwtWithExp(Math.floor(Date.now() / 1000) + 3600);
         const tokenStorage = createTestStorage(token);
-        const auth = authFixture(signer(), tokenStorage).auth;
+        const { auth, realtime } = authFixture(signer(), tokenStorage);
+        const disconnectPrivate = vi.spyOn(realtime, "disconnectPrivate");
 
         await expect(auth.restoreSession()).resolves.toBeNull();
 
         expect(tokenStorage.clear).toHaveBeenCalled();
+        expect(disconnectPrivate).toHaveBeenCalledTimes(1);
     });
 
     it("reports session time to expiry from the configured token storage", () => {

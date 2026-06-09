@@ -77,6 +77,7 @@ export class AccountSignerAuthService extends AuthService {
     #environmentFingerprint: string;
     #tokenStorage: AuthTokenStorage;
     #sessionStore: AuthSessionStore;
+    #realtime: RealtimeClient;
 
     constructor({
         transports,
@@ -101,6 +102,7 @@ export class AccountSignerAuthService extends AuthService {
         this.#environmentFingerprint = environment.fingerprint;
         this.#subaccounts = subaccounts;
         this.#tokenStorage = tokenStorage;
+        this.#realtime = realtime;
         this.#sessionStore =
             sessionStore ??
             new AuthSessionStore({
@@ -300,6 +302,7 @@ export class AccountSignerAuthService extends AuthService {
      * Clears stored auth state and removes the persisted auth token.
      */
     async logout(): Promise<void> {
+        this.#realtime.disconnectPrivate();
         this.#tokenStorage.clear();
         this.#isAuthenticated = false;
         this.#mainAccountId = null;
@@ -315,6 +318,7 @@ export class AccountSignerAuthService extends AuthService {
 
     #clearExpiredSessionState(): void {
         const shouldEmitLoggedOut = this.#isAuthenticated;
+        this.#realtime.disconnectPrivate();
         this.#tokenStorage.clear();
         this.#sessionStore.clear();
         this.#isAuthenticated = false;

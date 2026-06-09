@@ -15,11 +15,16 @@ export interface CatalogIndexes {
     readonly zipperContractByName: Map<string, ZipperChainContractConfig>;
 }
 
-const indexesBySnapshot = new WeakMap<CatalogSnapshot, CatalogIndexes>();
+type CatalogIndexCacheEntry = {
+    readonly version: number;
+    readonly indexes: CatalogIndexes;
+};
+
+const indexesBySnapshot = new WeakMap<CatalogSnapshot, CatalogIndexCacheEntry>();
 
 export function indexesFor(snapshot: CatalogSnapshot): CatalogIndexes {
     const existing = indexesBySnapshot.get(snapshot);
-    if (existing) return existing;
+    if (existing?.version === snapshot.version) return existing.indexes;
 
     const indexes: CatalogIndexes = {
         assetBySymbol: new Map(snapshot.market.assets.map((asset) => [asset.symbol, asset])),
@@ -36,6 +41,6 @@ export function indexesFor(snapshot: CatalogSnapshot): CatalogIndexes {
             snapshot.zipper.contracts.map((contract) => [contract.name, contract]),
         ),
     };
-    indexesBySnapshot.set(snapshot, indexes);
+    indexesBySnapshot.set(snapshot, { version: snapshot.version, indexes });
     return indexes;
 }

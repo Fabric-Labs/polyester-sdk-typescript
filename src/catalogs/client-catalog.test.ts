@@ -1,7 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import type { AssetConfig, DepositWithdrawConfig, PairConfig, SpotConfig } from "./config-types.js";
 import { createPolyesterCatalog, staticCatalog } from "./client-catalog.js";
-import { CatalogLookupError, type CatalogRefreshSource } from "./types.js";
+import { createReader } from "./readers.js";
+import { CatalogLookupError, type CatalogRefreshSource, type CatalogSnapshot } from "./types.js";
+
+type MutableCatalogSnapshot = Omit<CatalogSnapshot, "market" | "version"> & {
+    market: CatalogSnapshot["market"];
+    version: number;
+};
 
 const marketRefreshConfig = {
     assets: [],
@@ -176,6 +182,48 @@ describe("createPolyesterCatalog", () => {
         expect(catalog.market.requireAssetBySymbol("CLIENT_ONLY_TEST_ASSET")).toBe(clientOnlyAsset);
         expect(staticCatalog.snapshot()).toBe(before);
         expect(staticCatalog.market.getAssetBySymbol("CLIENT_ONLY_TEST_ASSET")).toBeNull();
+    });
+
+    it("rebuilds lookup indexes when a reused snapshot object advances version", () => {
+        const quote = asset("USD", 300, 2);
+        const initialAsset = asset("CACHE_INITIAL", 301, 2);
+        const updatedAsset = asset("CACHE_UPDATED", 302, 2);
+        const initialSnapshot = createPolyesterCatalog({
+            seed: {
+                market: marketSeed({
+                    symbol: "CACHE_INITIAL-USD",
+                    symbolId: 301,
+                    baseAsset: initialAsset,
+                    quoteAsset: quote,
+                }),
+                zipper: emptyZipperSeed(),
+            },
+            refresh: false,
+        }).snapshot();
+        const updatedSnapshot = createPolyesterCatalog({
+            seed: {
+                market: marketSeed({
+                    symbol: "CACHE_UPDATED-USD",
+                    symbolId: 302,
+                    baseAsset: updatedAsset,
+                    quoteAsset: quote,
+                }),
+                zipper: emptyZipperSeed(),
+            },
+            refresh: false,
+        }).snapshot();
+        const currentSnapshot: MutableCatalogSnapshot = {
+            ...initialSnapshot,
+        };
+        const reader = createReader(() => currentSnapshot);
+
+        expect(reader.market.getAssetBySymbol("CACHE_INITIAL")).toBe(initialAsset);
+
+        currentSnapshot.market = updatedSnapshot.market;
+        currentSnapshot.version += 1;
+
+        expect(reader.market.getAssetBySymbol("CACHE_INITIAL")).toBeNull();
+        expect(reader.market.getAssetBySymbol("CACHE_UPDATED")).toBe(updatedAsset);
     });
 
     it("fails closed when a custom snapshot does not contain a requested catalog entry", () => {

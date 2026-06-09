@@ -244,7 +244,7 @@ describe("RealtimeClient", () => {
         expect(instance.connectCalls).toBe(1);
     });
 
-    it("preserves public subscriptions when a private subscription upgrades the transport", async () => {
+    it("keeps public and private subscriptions on stable clients", async () => {
         const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
             const url = String(input);
             const token = url.includes("/subscribe") ? "subscription-token" : "connection-token";
@@ -268,36 +268,108 @@ describe("RealtimeClient", () => {
 
         client.subscribe("public:test", { onPublication: onPublicPublication });
         const publicInstance = firstInstance();
-        const stalePublicSubscription = firstSubscription(publicInstance);
+        const publicSubscription = firstSubscription(publicInstance);
 
         hasAuth = true;
         client.subscribe("private:test", { onPublication: onPrivatePublication });
         await waitForAsyncTokens();
 
         expect(centrifugeState.instances).toHaveLength(2);
-        expect(publicInstance.disconnectCalls).toBe(1);
+        expect(publicInstance.disconnectCalls).toBe(0);
         const authenticatedInstance = centrifugeState.instances[1];
+        expect(publicInstance.subscriptions.map((sub) => sub.channel)).toEqual(["public:test"]);
         expect(authenticatedInstance?.subscriptions.map((sub) => sub.channel)).toEqual([
-            "public:test",
             "private:test",
         ]);
         expect(client.activeChannels).toBe(2);
         expect(client.totalConsumers).toBe(2);
 
-        const reattachedPublicSubscription = authenticatedInstance?.subscriptions.find(
-            (sub) => sub.channel === "public:test",
-        );
-        if (!reattachedPublicSubscription) {
-            throw new Error("Expected public subscription to be reattached");
-        }
-
-        reattachedPublicSubscription.emit("publication", { data: "after-upgrade" });
-        stalePublicSubscription.emit("publication", { data: "stale" });
+        publicSubscription.emit("publication", { data: "still-public" });
 
         expect(onPublicPublication).toHaveBeenCalledTimes(1);
-        expect(onPublicPublication).toHaveBeenCalledWith("after-upgrade");
+        expect(onPublicPublication).toHaveBeenCalledWith("still-public");
         expect(onPrivatePublication).not.toHaveBeenCalled();
         expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+
+    it("disconnects only the idle client when mixed public and private subscriptions unsubscribe", async () => {
+        vi.spyOn(globalThis, "fetch").mockImplementation(() =>
+            Promise.resolve(
+                new Response(JSON.stringify({ token: "rt-token" }), {
+                    headers: { "content-type": "application/json" },
+                    status: 200,
+                }),
+            ),
+        );
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            getAuthHeaders: () => ({ authorization: "Bearer scoped-token" }),
+            hasAuth: () => true,
+        });
+
+        const unsubscribePublic = client.subscribe("public:test", { onPublication: () => {} });
+        const publicInstance = firstInstance();
+        const unsubscribePrivate = client.subscribe("private:test", { onPublication: () => {} });
+        const privateInstance = centrifugeState.instances[1];
+        if (!privateInstance) throw new Error("Expected authenticated realtime client");
+
+        unsubscribePublic();
+        await waitForAsyncTokens();
+
+        expect(publicInstance.disconnectCalls).toBe(1);
+        expect(privateInstance.disconnectCalls).toBe(0);
+        expect(client.isConnected).toBe(true);
+        expect(client.activeChannels).toBe(1);
+
+        unsubscribePrivate();
+        await waitForAsyncTokens();
+
+        expect(privateInstance.disconnectCalls).toBe(1);
+        expect(client.isConnected).toBe(false);
+        expect(client.activeChannels).toBe(0);
+    });
+
+    it("disconnects private realtime state without touching public subscriptions", async () => {
+        vi.spyOn(globalThis, "fetch").mockImplementation(() =>
+            Promise.resolve(
+                new Response(JSON.stringify({ token: "rt-token" }), {
+                    headers: { "content-type": "application/json" },
+                    status: 200,
+                }),
+            ),
+        );
+        const onPublicPublication = vi.fn();
+        const onPrivatePublication = vi.fn();
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            getAuthHeaders: () => ({ authorization: "Bearer scoped-token" }),
+            hasAuth: () => true,
+        });
+
+        client.subscribe("public:test", { onPublication: onPublicPublication });
+        const publicInstance = firstInstance();
+        const publicSubscription = firstSubscription(publicInstance);
+        client.subscribe("private:test", { onPublication: onPrivatePublication });
+        const privateInstance = centrifugeState.instances[1];
+        if (!privateInstance) throw new Error("Expected authenticated realtime client");
+        const privateSubscription = firstSubscription(privateInstance);
+
+        client.disconnectPrivate();
+
+        expect(publicInstance.disconnectCalls).toBe(0);
+        expect(privateInstance.disconnectCalls).toBe(1);
+        expect(client.isConnected).toBe(true);
+        expect(client.activeChannels).toBe(1);
+
+        publicSubscription.emit("publication", { data: "public-after-private-disconnect" });
+        privateSubscription.emit("publication", { data: "private-after-disconnect" });
+
+        expect(onPublicPublication).toHaveBeenCalledWith("public-after-private-disconnect");
+        expect(onPrivatePublication).not.toHaveBeenCalled();
     });
 
     it("reports malformed protobuf frames through onError", () => {
