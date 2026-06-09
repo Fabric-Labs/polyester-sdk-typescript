@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file chain/lifecycle/v1/types.proto.
  */
 export const file_chain_lifecycle_v1_types: GenFile = /*@__PURE__*/
-  fileDesc("Ch5jaGFpbi9saWZlY3ljbGUvdjEvdHlwZXMucHJvdG8SEmNoYWluLmxpZmVjeWNsZS52MSJCCghBc3NldElkcxIWCg5jaGFpbl9hc3NldF9pZBgBIAEoDRIYChB1bmlmaWVkX2Fzc2V0X2lkGAMgASgNSgQIAhADIrsBCgpSZXF1ZXN0RmVlEi8KCWFzc2V0X2lkcxgBIAEoCzIcLmNoYWluLmxpZmVjeWNsZS52MS5Bc3NldElkcxIrCgphbW91bnRfZTE4GAIgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIZChFyZWNpcGllbnRfYWRkcmVzcxgDIAEoCRI0CgZzdGF0dXMYBCABKA4yJC5jaGFpbi5saWZlY3ljbGUudjEuUmVxdWVzdEZlZVN0YXR1cyp1ChBSZXF1ZXN0RmVlU3RhdHVzEiIKHlJFUVVFU1RfRkVFX1NUQVRVU19VTlNQRUNJRklFRBAAEh0KGVJFUVVFU1RfRkVFX1NUQVRVU19MT0NLRUQQARIeChpSRVFVRVNUX0ZFRV9TVEFUVVNfU0VUVExFRBACKlgKCEZsb3dLaW5kEhQKEEtJTkRfVU5TUEVDSUZJRUQQABIQCgxLSU5EX0RFUE9TSVQQARIRCg1LSU5EX1dJVEhEUkFXEAISEQoNS0lORF9UUkFOU0ZFUhADKo4BCgpGbG93RG9tYWluEhYKEkRPTUFJTl9VTlNQRUNJRklFRBAAEhkKFURPTUFJTl9FWFRFUk5BTF9DSEFJThABEhEKDURPTUFJTl9aSVBQRVIQAhISCg5ET01BSU5fRlVORElORxADEhIKDkRPTUFJTl9UUkFESU5HEAQSEgoORE9NQUlOX0xFTkRJTkcQBSqBAQoPTGlmZWN5Y2xlU291cmNlEhYKElNPVVJDRV9VTlNQRUNJRklFRBAAEhIKDlNPVVJDRV9SRUxBWUVSEAESGgoWU09VUkNFX1BPTFlFU1RFUl9DSEFJThACEhMKD1NPVVJDRV9FWEVDVVRPUhADEhEKDVNPVVJDRV9MRURHRVIQBCrHAQoJRmxvd1N0YXRlEhUKEVNUQVRFX1VOU1BFQ0lGSUVEEAASGAoUU1RBVEVfUEVORElOR19TT1VSQ0UQARIhCh1TVEFURV9QRU5ESU5HX1BPTFlFU1RFUl9DSEFJThACEhgKFFNUQVRFX1BFTkRJTkdfTEVER0VSEAMSEwoPU1RBVEVfQ09NUExFVEVEEAQSEAoMU1RBVEVfRkFJTEVEEAUSEQoNU1RBVEVfRFJPUFBFRBAGEhIKDlNUQVRFX1JFRlVOREVEEAdCUVpPZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9jaGFpbi9saWZlY3ljbGUvdjE7Y2hhaW5saWZlY3ljbGV2MWIGcHJvdG8z", [file_polyester_type_v1_u128]);
+  fileDesc("Ch5jaGFpbi9saWZlY3ljbGUvdjEvdHlwZXMucHJvdG8SEmNoYWluLmxpZmVjeWNsZS52MSJDCghBc3NldElkcxIXCg96aXBwZWRfYXNzZXRfaWQYASABKA0SGAoQdW5pZmllZF9hc3NldF9pZBgDIAEoDUoECAIQAyK7AQoKUmVxdWVzdEZlZRIvCglhc3NldF9pZHMYASABKAsyHC5jaGFpbi5saWZlY3ljbGUudjEuQXNzZXRJZHMSKwoKYW1vdW50X2UxOBgCIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSGQoRcmVjaXBpZW50X2FkZHJlc3MYAyABKAkSNAoGc3RhdHVzGAQgASgOMiQuY2hhaW4ubGlmZWN5Y2xlLnYxLlJlcXVlc3RGZWVTdGF0dXMqdQoQUmVxdWVzdEZlZVN0YXR1cxIiCh5SRVFVRVNUX0ZFRV9TVEFUVVNfVU5TUEVDSUZJRUQQABIdChlSRVFVRVNUX0ZFRV9TVEFUVVNfTE9DS0VEEAESHgoaUkVRVUVTVF9GRUVfU1RBVFVTX1NFVFRMRUQQAiroAwoKRmxvd1JlYXNvbhIbChdGTE9XX1JFQVNPTl9VTlNQRUNJRklFRBAAEioKJkZMT1dfUkVBU09OX1pJUFBFUl9WQUxJREFUSU9OX1JFSkVDVEVEEGUSKQolRkxPV19SRUFTT05fWklQUEVSX0VYRUNVVElPTl9SRUpFQ1RFRBBmEjAKLEZMT1dfUkVBU09OX1pJUFBFUl9XSVRIRFJBV19FWEVDVVRJT05fRkFJTEVEEGcSLAooRkxPV19SRUFTT05fWklQUEVSX0RFUE9TSVRfUkVGVU5EX0ZBSUxFRBBoEicKIkZMT1dfUkVBU09OX0xFREdFUl9NSVJST1JfUkVKRUNURUQQyAESNwoyRkxPV19SRUFTT05fTEVER0VSX01JUlJPUl9UUkFOU0ZFUl9FWENFRURTX0NSRURJVFMQyQESLgopRkxPV19SRUFTT05fTEVER0VSX01JUlJPUl9UUkFOU0ZFUl9FWElTVFMQygESOQo0RkxPV19SRUFTT05fTEVER0VSX01JUlJPUl9QRU5ESU5HX1RSQU5TRkVSX05PVF9GT1VORBDLARI5CjRGTE9XX1JFQVNPTl9MRURHRVJfTUlSUk9SX1RSQU5TRkVSX0lEX0FMUkVBRFlfRkFJTEVEEMwBKlgKCEZsb3dLaW5kEhQKEEtJTkRfVU5TUEVDSUZJRUQQABIQCgxLSU5EX0RFUE9TSVQQARIRCg1LSU5EX1dJVEhEUkFXEAISEQoNS0lORF9UUkFOU0ZFUhADKo4BCgpGbG93RG9tYWluEhYKEkRPTUFJTl9VTlNQRUNJRklFRBAAEhkKFURPTUFJTl9FWFRFUk5BTF9DSEFJThABEhEKDURPTUFJTl9aSVBQRVIQAhISCg5ET01BSU5fRlVORElORxADEhIKDkRPTUFJTl9UUkFESU5HEAQSEgoORE9NQUlOX0xFTkRJTkcQBSqBAQoPTGlmZWN5Y2xlU291cmNlEhYKElNPVVJDRV9VTlNQRUNJRklFRBAAEhIKDlNPVVJDRV9SRUxBWUVSEAESGgoWU09VUkNFX1BPTFlFU1RFUl9DSEFJThACEhMKD1NPVVJDRV9FWEVDVVRPUhADEhEKDVNPVVJDRV9MRURHRVIQBCrHAQoJRmxvd1N0YXRlEhUKEVNUQVRFX1VOU1BFQ0lGSUVEEAASGAoUU1RBVEVfUEVORElOR19TT1VSQ0UQARIhCh1TVEFURV9QRU5ESU5HX1BPTFlFU1RFUl9DSEFJThACEhgKFFNUQVRFX1BFTkRJTkdfTEVER0VSEAMSEwoPU1RBVEVfQ09NUExFVEVEEAQSEAoMU1RBVEVfRkFJTEVEEAUSEQoNU1RBVEVfRFJPUFBFRBAGEhIKDlNUQVRFX1JFRlVOREVEEAdCUVpPZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9jaGFpbi9saWZlY3ljbGUvdjE7Y2hhaW5saWZlY3ljbGV2MWIGcHJvdG8z", [file_polyester_type_v1_u128]);
 
 /**
  * AssetIds identifies the asset roles involved in one lifecycle.
@@ -21,14 +21,14 @@ export const file_chain_lifecycle_v1_types: GenFile = /*@__PURE__*/
  */
 export type AssetIds = Message<"chain.lifecycle.v1.AssetIds"> & {
   /**
-   * Chain asset identifier for the chain-specific asset mapping row. This is
+   * Zipped asset identifier for the chain-specific asset mapping row. This is
    * the canonical id from `chain_zipped_assets`, which already represents the
    * source-chain asset metadata plus its mapped zToken relationship when
    * relevant.
    *
-   * @generated from field: uint32 chain_asset_id = 1;
+   * @generated from field: uint32 zipped_asset_id = 1;
    */
-  chainAssetId: number;
+  zippedAssetId: number;
 
   /**
    * Unified asset identifier for the uAsset used by funding or trading flows
@@ -118,6 +118,91 @@ export const RequestFeeStatusSchema: GenEnum<RequestFeeStatus> = /*@__PURE__*/
   enumDesc(file_chain_lifecycle_v1_types, 0);
 
 /**
+ * FlowReason is the stable product-facing reason catalog for failed, dropped,
+ * refunded, or otherwise notable lifecycle states.
+ *
+ * @generated from enum chain.lifecycle.v1.FlowReason
+ */
+export enum FlowReason {
+  /**
+   * @generated from enum value: FLOW_REASON_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * Zipper validators reached the rejection quorum.
+   *
+   * @generated from enum value: FLOW_REASON_ZIPPER_VALIDATION_REJECTED = 101;
+   */
+  ZIPPER_VALIDATION_REJECTED = 101,
+
+  /**
+   * Zipper execution rejected the request.
+   *
+   * @generated from enum value: FLOW_REASON_ZIPPER_EXECUTION_REJECTED = 102;
+   */
+  ZIPPER_EXECUTION_REJECTED = 102,
+
+  /**
+   * Zipper withdraw execution failed.
+   *
+   * @generated from enum value: FLOW_REASON_ZIPPER_WITHDRAW_EXECUTION_FAILED = 103;
+   */
+  ZIPPER_WITHDRAW_EXECUTION_FAILED = 103,
+
+  /**
+   * Zipper deposit refund failed.
+   *
+   * @generated from enum value: FLOW_REASON_ZIPPER_DEPOSIT_REFUND_FAILED = 104;
+   */
+  ZIPPER_DEPOSIT_REFUND_FAILED = 104,
+
+  /**
+   * Ledger mirror rejected a command before it could be durably applied.
+   *
+   * @generated from enum value: FLOW_REASON_LEDGER_MIRROR_REJECTED = 200;
+   */
+  LEDGER_MIRROR_REJECTED = 200,
+
+  /**
+   * Ledger settlement rejected the mirror command because the source account did
+   * not have enough credits for the transfer.
+   *
+   * @generated from enum value: FLOW_REASON_LEDGER_MIRROR_TRANSFER_EXCEEDS_CREDITS = 201;
+   */
+  LEDGER_MIRROR_TRANSFER_EXCEEDS_CREDITS = 201,
+
+  /**
+   * Ledger settlement reported that the transfer already exists for this mirror
+   * command identity.
+   *
+   * @generated from enum value: FLOW_REASON_LEDGER_MIRROR_TRANSFER_EXISTS = 202;
+   */
+  LEDGER_MIRROR_TRANSFER_EXISTS = 202,
+
+  /**
+   * Ledger settlement reported that the pending transfer referenced by the
+   * command was not found.
+   *
+   * @generated from enum value: FLOW_REASON_LEDGER_MIRROR_PENDING_TRANSFER_NOT_FOUND = 203;
+   */
+  LEDGER_MIRROR_PENDING_TRANSFER_NOT_FOUND = 203,
+
+  /**
+   * Ledger settlement reported that this transfer id is already marked failed.
+   *
+   * @generated from enum value: FLOW_REASON_LEDGER_MIRROR_TRANSFER_ID_ALREADY_FAILED = 204;
+   */
+  LEDGER_MIRROR_TRANSFER_ID_ALREADY_FAILED = 204,
+}
+
+/**
+ * Describes the enum chain.lifecycle.v1.FlowReason.
+ */
+export const FlowReasonSchema: GenEnum<FlowReason> = /*@__PURE__*/
+  enumDesc(file_chain_lifecycle_v1_types, 1);
+
+/**
  * FlowKind identifies the product flow family.
  *
  * @generated from enum chain.lifecycle.v1.FlowKind
@@ -154,7 +239,7 @@ export enum FlowKind {
  * Describes the enum chain.lifecycle.v1.FlowKind.
  */
 export const FlowKindSchema: GenEnum<FlowKind> = /*@__PURE__*/
-  enumDesc(file_chain_lifecycle_v1_types, 1);
+  enumDesc(file_chain_lifecycle_v1_types, 2);
 
 /**
  * FlowDomain identifies the product domain that currently owns or processes the
@@ -208,7 +293,7 @@ export enum FlowDomain {
  * Describes the enum chain.lifecycle.v1.FlowDomain.
  */
 export const FlowDomainSchema: GenEnum<FlowDomain> = /*@__PURE__*/
-  enumDesc(file_chain_lifecycle_v1_types, 2);
+  enumDesc(file_chain_lifecycle_v1_types, 3);
 
 /**
  * LifecycleSource identifies the subsystem that emitted a normalized fact or
@@ -255,7 +340,7 @@ export enum LifecycleSource {
  * Describes the enum chain.lifecycle.v1.LifecycleSource.
  */
 export const LifecycleSourceSchema: GenEnum<LifecycleSource> = /*@__PURE__*/
-  enumDesc(file_chain_lifecycle_v1_types, 3);
+  enumDesc(file_chain_lifecycle_v1_types, 4);
 
 /**
  * FlowState is the latest lifecycle state after folding normalized facts.
@@ -322,5 +407,5 @@ export enum FlowState {
  * Describes the enum chain.lifecycle.v1.FlowState.
  */
 export const FlowStateSchema: GenEnum<FlowState> = /*@__PURE__*/
-  enumDesc(file_chain_lifecycle_v1_types, 4);
+  enumDesc(file_chain_lifecycle_v1_types, 5);
 

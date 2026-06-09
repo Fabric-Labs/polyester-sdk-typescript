@@ -5,7 +5,7 @@
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb.js";
-import type { AssetIds, FlowDomain, FlowKind, FlowState, LifecycleSource, RequestFee } from "./types_pb.js";
+import type { AssetIds, FlowDomain, FlowKind, FlowReason, FlowState, LifecycleSource, RequestFee } from "./types_pb.js";
 import { file_chain_lifecycle_v1_types } from "./types_pb.js";
 import { file_gnostic_openapi_v3_annotations } from "../../../gnostic/openapi/v3/annotations_pb.js";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb.js";
@@ -18,7 +18,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file chain/lifecycle/v1/lifecycle_read.proto.
  */
 export const file_chain_lifecycle_v1_lifecycle_read: GenFile = /*@__PURE__*/
-  fileDesc("CidjaGFpbi9saWZlY3ljbGUvdjEvbGlmZWN5Y2xlX3JlYWQucHJvdG8SEmNoYWluLmxpZmVjeWNsZS52MSJDCg9HZXRGbG93UmVzcG9uc2USMAoEZmxvdxgBIAEoCzIiLmNoYWluLmxpZmVjeWNsZS52MS5GbG93RGV0YWlsVmlldyJOChJHZXRGbG93QnlJZFJlcXVlc3QSOAoHZmxvd19pZBgBIAEoCUInukgkciIQBhhAMhxeZmxvd19bMS05QS1ISi1OUC1aYS1rbS16XSskIr4BChRMaXN0Rmxvd3NCeVR4UmVxdWVzdBIuCgd0eF9oYXNoGAEgASgJQh26SBpyGDITXjB4WzAtOWEtZkEtRl17NjR9JJgBQhI/Cgtsb29rdXBfa2luZBgCIAEoDjIgLmNoYWluLmxpZmVjeWNsZS52MS5UeExvb2t1cEtpbmRCCLpIBYIBAhABEhcKBWxpbWl0GAMgASgNQgi6SAUqAxj0AxIcCgpwYWdlX3Rva2VuGAQgASgJQgi6SAVyAxiABCLFBAoQTGlzdEZsb3dzUmVxdWVzdBIXCgVsaW1pdBgBIAEoDUIIukgFKgMY9AMSEAoIcmV2ZXJzZWQYAiABKAgSOQoJZmxvd19raW5kGAMgASgOMhwuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dLaW5kQgi6SAWCAQIQARI7CgpmbG93X3N0YXRlGAQgASgOMh0uY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdGF0ZUIIukgFggECEAESMAoGdHhfcmVmGAUgASgJQiC6SB3YAQFyGDITXjB4WzAtOWEtZkEtRl17NjR9JJgBQhI2CgVzY29wZRgGIAEoDjIdLmNoYWluLmxpZmVjeWNsZS52MS5MaXN0U2NvcGVCCLpIBYIBAhABEioKEG93bmVyX2FjY291bnRfaWQYByABKAZCDrpIC1IJIQAAAAAAAAAASAASPgoVc21hcnRfYWNjb3VudF9hZGRyZXNzGAggASgJQh26SBpyGDITXjB4WzAtOWEtZkEtRl17NDB9JJgBKkgAEi0KE3BvbHllc3Rlcl9jaGFpbl9pZHMYCSADKA1CELpIDZIBChBkGAEiBCoCIAASKgoQemlwcGVkX2Fzc2V0X2lkcxgKIAMoDUIQukgNkgEKEGQYASIEKgIgABIrChF1bmlmaWVkX2Fzc2V0X2lkcxgLIAMoDUIQukgNkgEKEGQYASIEKgIgABIcCgpwYWdlX3Rva2VuGAwgASgJQgi6SAVyAxiABEISChBhY2NvdW50X3NlbGVjdG9yImoKEUxpc3RGbG93c1Jlc3BvbnNlEjIKBWZsb3dzGAEgAygLMiMuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdW1tYXJ5VmlldxIhCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCCLpIBXIDGIAEItEECg9GbG93VHhNYXRjaFZpZXcSDwoHZmxvd19pZBgBIAEoCRIvCglmbG93X2tpbmQYAyABKA4yHC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd0tpbmQSFgoOc291cmNlX3R4X2hhc2gYBCABKAkSFQoNbGF0ZXN0X3R4X3JlZhgFIAEoCRIbChN0eF9vY2N1cnJlbmNlX2luZGV4GAYgASgEEjUKDXNvdXJjZV9kb21haW4YByABKA4yHi5jaGFpbi5saWZlY3ljbGUudjEuRmxvd0RvbWFpbhI6ChJkZXN0aW5hdGlvbl9kb21haW4YCCABKA4yHi5jaGFpbi5saWZlY3ljbGUudjEuRmxvd0RvbWFpbhIxCgtsYXRlc3Rfc3RlcBgJIAEoDjIcLmNoYWluLmxpZmVjeWNsZS52MS5GbG93U3RlcBIPCgdpc19vcGVuGAogASgIEhMKC2lzX3Rlcm1pbmFsGAsgASgIEi8KCWFzc2V0X2lkcxgMIAEoCzIcLmNoYWluLmxpZmVjeWNsZS52MS5Bc3NldElkcxIaChJwb2x5ZXN0ZXJfY2hhaW5faWQYDSABKA0SKwoKYW1vdW50X2UxOBgOIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSFgoOc291cmNlX2FkZHJlc3MYDyABKAkSGwoTZGVzdGluYXRpb25fYWRkcmVzcxgQIAEoCRITCgtyZWFzb25fY29kZRgRIAEoDRIgChhsYXN0X2FjdGl2aXR5X2F0X3VuaXhfbXMYEiABKAQigQEKFUxpc3RGbG93c0J5VHhSZXNwb25zZRIPCgd0eF9oYXNoGAEgASgJEjQKB21hdGNoZXMYAiADKAsyIy5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1R4TWF0Y2hWaWV3EiEKD25leHRfcGFnZV90b2tlbhgDIAEoCUIIukgFcgMYgAQiiggKD0Zsb3dTdW1tYXJ5VmlldxIYChBvd25lcl9hY2NvdW50X2lkGAEgASgGEg8KB2Zsb3dfaWQYISABKAkSLwoJZmxvd19raW5kGAQgASgOMhwuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dLaW5kEjEKC2xhdGVzdF9zdGVwGAYgASgOMhwuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdGVwEi8KCWFzc2V0X2lkcxgHIAEoCzIcLmNoYWluLmxpZmVjeWNsZS52MS5Bc3NldElkcxIaChJwb2x5ZXN0ZXJfY2hhaW5faWQYCCABKA0SKwoKYW1vdW50X2UxOBgJIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSMwoLcmVxdWVzdF9mZWUYHCABKAsyHi5jaGFpbi5saWZlY3ljbGUudjEuUmVxdWVzdEZlZRIWCg5zb3VyY2VfdHhfaGFzaBgLIAEoCRIbChN0eF9vY2N1cnJlbmNlX2luZGV4GCAgASgEEhYKDnNvdXJjZV9hZGRyZXNzGA0gASgJEhsKE2Rlc3RpbmF0aW9uX2FkZHJlc3MYDiABKAkSFQoNbGF0ZXN0X3R4X3JlZhgPIAEoCRI1Cg1zb3VyY2VfZG9tYWluGB0gASgOMh4uY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dEb21haW4SOgoSZGVzdGluYXRpb25fZG9tYWluGB4gASgOMh4uY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dEb21haW4SRAoXbGF0ZXN0X2xpZmVjeWNsZV9zb3VyY2UYECABKA4yIy5jaGFpbi5saWZlY3ljbGUudjEuTGlmZWN5Y2xlU291cmNlEhMKC3JlYXNvbl9jb2RlGBEgASgNEhoKEnN0YXJ0ZWRfYXRfdW5peF9tcxgSIAEoBBIaChJ1cGRhdGVkX2F0X3VuaXhfbXMYEyABKAQSGwoTdGVybWluYWxfYXRfdW5peF9tcxgUIAEoBBIgChhsYXN0X2FjdGl2aXR5X2F0X3VuaXhfbXMYFSABKAQSDwoHaXNfb3BlbhgWIAEoCBITCgtpc190ZXJtaW5hbBgXIAEoCBIcChRsYXRlc3Rfc3RlcF9zZXF1ZW5jZRgYIAEoDRJFChBjdXJyZW50X3Byb2dyZXNzGBkgASgLMisuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdW1tYXJ5UHJvZ3Jlc3NWaWV3EkIKEHN1bW1hcnlfdGltZWxpbmUYGiADKAsyKC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1RpbWVsaW5lSXRlbVZpZXcSJAocZXN0aW1hdGVkX2NvbXBsZXRpb25fdW5peF9tcxgbIAEoBCKrAgoXRmxvd1N1bW1hcnlQcm9ncmVzc1ZpZXcSJwofY3VycmVudF9zdGVwX3N0YXJ0ZWRfYXRfdW5peF9tcxgBIAEoBBIpCiFjdXJyZW50X3N0ZXBfZXhwZWN0ZWRfZHVyYXRpb25fbXMYAiABKAQSHQoVY3VycmVudF9jb25maXJtYXRpb25zGAUgASgNEh4KFnJlcXVpcmVkX2NvbmZpcm1hdGlvbnMYBiABKA0SFQoNYXBwcm92ZV9jb3VudBgHIAEoDRIUCgxyZWplY3RfY291bnQYCCABKA0SFwoPdmFsaWRhdG9yX2NvdW50GAkgASgNEhoKEnJlcXVpcmVkX2FwcHJvdmFscxgKIAEoDRIbChNyZXF1aXJlZF9yZWplY3Rpb25zGAsgASgNIqgFCgxGbG93U3RlcFZpZXcSEAoIc2VxdWVuY2UYASABKA0SKgoEc3RlcBgDIAEoDjIcLmNoYWluLmxpZmVjeWNsZS52MS5GbG93U3RlcBIvCglhc3NldF9pZHMYByABKAsyHC5jaGFpbi5saWZlY3ljbGUudjEuQXNzZXRJZHMSGgoScG9seWVzdGVyX2NoYWluX2lkGAggASgNEisKCmFtb3VudF9lMTgYCSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EjMKC3JlcXVlc3RfZmVlGBggASgLMh4uY2hhaW4ubGlmZWN5Y2xlLnYxLlJlcXVlc3RGZWUSGAoQbWlsZXN0b25lX3R4X3JlZhgLIAEoCRI9ChBsaWZlY3ljbGVfc291cmNlGAwgASgOMiMuY2hhaW4ubGlmZWN5Y2xlLnYxLkxpZmVjeWNsZVNvdXJjZRITCgtyZWFzb25fY29kZRgNIAEoDRIdChVjdXJyZW50X2NvbmZpcm1hdGlvbnMYDiABKA0SHgoWcmVxdWlyZWRfY29uZmlybWF0aW9ucxgPIAEoDRIVCg1hcHByb3ZlX2NvdW50GBAgASgNEhQKDHJlamVjdF9jb3VudBgRIAEoDRIXCg92YWxpZGF0b3JfY291bnQYEiABKA0SGgoScmVxdWlyZWRfYXBwcm92YWxzGBYgASgNEhsKE3JlcXVpcmVkX3JlamVjdGlvbnMYFyABKA0SGwoTb2NjdXJyZWRfYXRfdW5peF9tcxgTIAEoBBIkChxibG9ja190aW1lX21vdmluZ19hdmVyYWdlX21zGBQgASgEEjwKCmFjdGl2aXRpZXMYFSADKAsyKC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1N0ZXBBY3Rpdml0eVZpZXci6AMKFEZsb3dTdGVwQWN0aXZpdHlWaWV3EhAKCHNlcXVlbmNlGAEgASgNEg4KBnR4X3JlZhgCIAEoCRIbChNvY2N1cnJlZF9hdF91bml4X21zGAMgASgEEj0KEGxpZmVjeWNsZV9zb3VyY2UYBCABKA4yIy5jaGFpbi5saWZlY3ljbGUudjEuTGlmZWN5Y2xlU291cmNlEhMKC3JlYXNvbl9jb2RlGAUgASgNEh0KFWN1cnJlbnRfY29uZmlybWF0aW9ucxgGIAEoDRIeChZyZXF1aXJlZF9jb25maXJtYXRpb25zGAcgASgNEhUKDWFwcHJvdmVfY291bnQYCCABKA0SFAoMcmVqZWN0X2NvdW50GAkgASgNEhcKD3ZhbGlkYXRvcl9jb3VudBgKIAEoDRI2CgRraW5kGAsgASgOMiguY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdGVwQWN0aXZpdHlLaW5kEhoKEnJlcXVpcmVkX2FwcHJvdmFscxgMIAEoDRIbChNyZXF1aXJlZF9yZWplY3Rpb25zGA0gASgNEisKCmFtb3VudF9lMTgYDiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EhoKEmxlZGdlcl90cmFuc2Zlcl9pZBgPIAEoCSKqAQoURmxvd1RpbWVsaW5lSXRlbVZpZXcSEAoIc2VxdWVuY2UYASABKA0SKgoEc3RlcBgCIAEoDjIcLmNoYWluLmxpZmVjeWNsZS52MS5GbG93U3RlcBI2CgZzdGF0dXMYAyABKA4yJi5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1RpbWVsaW5lU3RhdHVzEhwKFGV4cGVjdGVkX2R1cmF0aW9uX21zGAQgASgEIswBCg5GbG93RGV0YWlsVmlldxI0CgdzdW1tYXJ5GAEgASgLMiMuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdW1tYXJ5VmlldxIvCgVzdGVwcxgCIAMoCzIgLmNoYWluLmxpZmVjeWNsZS52MS5GbG93U3RlcFZpZXcSFwoPZnJvbV9saXZlX3N0YXRlGAMgASgIEjoKCHRpbWVsaW5lGAQgAygLMiguY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dUaW1lbGluZUl0ZW1WaWV3Kj0KDFR4TG9va3VwS2luZBISCg5UWF9VTlNQRUNJRklFRBAAEg0KCVRYX1NPVVJDRRABEgoKBlRYX0FOWRACKlsKCUxpc3RTY29wZRIUChBMSVNUX1VOU1BFQ0lGSUVEEAASDAoITElTVF9BTEwQARISCg5MSVNUX09QRU5fT05MWRACEhYKEkxJU1RfVEVSTUlOQUxfT05MWRADKrICCghGbG93U3RlcBIZChVGTE9XX1NURVBfVU5TUEVDSUZJRUQQABIUChBGTE9XX1NURVBfU09VUkNFEAESFgoSRkxPV19TVEVQX1RSQU5TRkVSEAISFQoRRkxPV19TVEVQX1JFUVVFU1QQAxIYChRGTE9XX1NURVBfVkFMSURBVElPThAEEhcKE0ZMT1dfU1RFUF9FWEVDVVRJT04QBRIaChZGTE9XX1NURVBfQVNTRVRfQlVSTkVEEAYSFQoRRkxPV19TVEVQX0RST1BQRUQQBxIUChBGTE9XX1NURVBfRkFJTEVEEAgSFgoSRkxPV19TVEVQX1JFRlVOREVEEAkSGAoURkxPV19TVEVQX0ZVTEZJTExJTkcQChIYChRGTE9XX1NURVBfU0VUVExFTUVOVBALKnEKFEZsb3dTdGVwQWN0aXZpdHlLaW5kEhgKFEFDVElWSVRZX1VOU1BFQ0lGSUVEEAASEwoPQUNUSVZJVFlfTUlOVEVEEAESFAoQQUNUSVZJVFlfRlVORElORxACEhQKEEFDVElWSVRZX1RSQURJTkcQAyqOAQoSRmxvd1RpbWVsaW5lU3RhdHVzEh8KG1RJTUVMSU5FX1NUQVRVU19VTlNQRUNJRklFRBAAEh0KGVRJTUVMSU5FX1NUQVRVU19DT01QTEVURUQQARIbChdUSU1FTElORV9TVEFUVVNfQ1VSUkVOVBACEhsKF1RJTUVMSU5FX1NUQVRVU19QTEFOTkVEEAMyvwUKFExpZmVjeWNsZVJlYWRTZXJ2aWNlEs8BCgtHZXRGbG93QnlJZBImLmNoYWluLmxpZmVjeWNsZS52MS5HZXRGbG93QnlJZFJlcXVlc3QaIy5jaGFpbi5saWZlY3ljbGUudjEuR2V0Rmxvd1Jlc3BvbnNlInO6R0sKCUxpZmVjeWNsZRIOR2V0IEZsb3cgQnkgSWQaLlJldHJpZXZlIG9uZSBsaWZlY3ljbGUgZmxvdyBieSBwdWJsaWMgZmxvdyBpZC6ItRgBgtPkkwIbEhkvdjEvY2hhaW4vZmxvd3Mve2Zsb3dfaWR9Et4BCglMaXN0Rmxvd3MSJC5jaGFpbi5saWZlY3ljbGUudjEuTGlzdEZsb3dzUmVxdWVzdBolLmNoYWluLmxpZmVjeWNsZS52MS5MaXN0Rmxvd3NSZXNwb25zZSKDAbpHZQoJTGlmZWN5Y2xlEgpMaXN0IEZsb3dzGkxMaXN0IGxpZmVjeWNsZSBmbG93cyB3aXRoIG9wdGlvbmFsIGFjY291bnQsIGNoYWluLCBhc3NldCwgYW5kIHN0YXRlIGZpbHRlcnMuiLUYAYLT5JMCERIPL3YxL2NoYWluL2Zsb3dzEvMBCg1MaXN0Rmxvd3NCeVR4EiguY2hhaW4ubGlmZWN5Y2xlLnYxLkxpc3RGbG93c0J5VHhSZXF1ZXN0GikuY2hhaW4ubGlmZWN5Y2xlLnYxLkxpc3RGbG93c0J5VHhSZXNwb25zZSKMAbpHVgoJTGlmZWN5Y2xlEhBMaXN0IEZsb3dzIEJ5IFR4GjdMaXN0IGxpZmVjeWNsZSBmbG93cyB0aGF0IHJlZmVyZW5jZSBhIHRyYW5zYWN0aW9uIGhhc2guiLUYAYLT5JMCKRInL3YxL2NoYWluL2Zsb3dzL2J5LXR4L3t0eF9oYXNofS9tYXRjaGVzQpQBWk9naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2NoYWluL2xpZmVjeWNsZS92MTtjaGFpbmxpZmVjeWNsZXYxukdAOj4KCUxpZmVjeWNsZRIxUmVhZCBsaWZlY3ljbGUgZmxvdyBzdGF0ZSwgaGlzdG9yeSwgYW5kIHByb2dyZXNzLmIGcHJvdG8z", [file_buf_validate_validate, file_chain_lifecycle_v1_types, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_polyester_api_options, file_polyester_type_v1_u128]);
+  fileDesc("CidjaGFpbi9saWZlY3ljbGUvdjEvbGlmZWN5Y2xlX3JlYWQucHJvdG8SEmNoYWluLmxpZmVjeWNsZS52MSJDCg9HZXRGbG93UmVzcG9uc2USMAoEZmxvdxgBIAEoCzIiLmNoYWluLmxpZmVjeWNsZS52MS5GbG93RGV0YWlsVmlldyJOChJHZXRGbG93QnlJZFJlcXVlc3QSOAoHZmxvd19pZBgBIAEoCUInukgkciIQBhhAMhxeZmxvd19bMS05QS1ISi1OUC1aYS1rbS16XSskIr4BChRMaXN0Rmxvd3NCeVR4UmVxdWVzdBIuCgd0eF9oYXNoGAEgASgJQh26SBpyGDITXjB4WzAtOWEtZkEtRl17NjR9JJgBQhI/Cgtsb29rdXBfa2luZBgCIAEoDjIgLmNoYWluLmxpZmVjeWNsZS52MS5UeExvb2t1cEtpbmRCCLpIBYIBAhABEhcKBWxpbWl0GAMgASgNQgi6SAUqAxj0AxIcCgpwYWdlX3Rva2VuGAQgASgJQgi6SAVyAxiABCLlBAoQTGlzdEZsb3dzUmVxdWVzdBIXCgVsaW1pdBgBIAEoDUIIukgFKgMY9AMSMAoEc29ydBgCIAEoDjIYLmNoYWluLmxpZmVjeWNsZS52MS5Tb3J0Qgi6SAWCAQIQARI5CglmbG93X2tpbmQYAyABKA4yHC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd0tpbmRCCLpIBYIBAhABEjsKCmZsb3dfc3RhdGUYBCABKA4yHS5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1N0YXRlQgi6SAWCAQIQARIwCgZ0eF9yZWYYBSABKAlCILpIHdgBAXIYMhNeMHhbMC05YS1mQS1GXXs2NH0kmAFCEjYKBXNjb3BlGAYgASgOMh0uY2hhaW4ubGlmZWN5Y2xlLnYxLkxpc3RTY29wZUIIukgFggECEAESKgoQb3duZXJfYWNjb3VudF9pZBgHIAEoBkIOukgLUgkhAAAAAAAAAABIABI+ChVzbWFydF9hY2NvdW50X2FkZHJlc3MYCCABKAlCHbpIGnIYMhNeMHhbMC05YS1mQS1GXXs0MH0kmAEqSAASLQoTcG9seWVzdGVyX2NoYWluX2lkcxgJIAMoDUIQukgNkgEKEGQYASIEKgIgABIqChB6aXBwZWRfYXNzZXRfaWRzGAogAygNQhC6SA2SAQoQZBgBIgQqAiAAEisKEXVuaWZpZWRfYXNzZXRfaWRzGAsgAygNQhC6SA2SAQoQZBgBIgQqAiAAEhwKCnBhZ2VfdG9rZW4YDCABKAlCCLpIBXIDGIAEQhIKEGFjY291bnRfc2VsZWN0b3IiagoRTGlzdEZsb3dzUmVzcG9uc2USMgoFZmxvd3MYASADKAsyIy5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1N1bW1hcnlWaWV3EiEKD25leHRfcGFnZV90b2tlbhgCIAEoCUIIukgFcgMYgAQi8gQKD0Zsb3dUeE1hdGNoVmlldxIPCgdmbG93X2lkGAEgASgJEi8KCWZsb3dfa2luZBgDIAEoDjIcLmNoYWluLmxpZmVjeWNsZS52MS5GbG93S2luZBIWCg5zb3VyY2VfdHhfaGFzaBgEIAEoCRIVCg1sYXRlc3RfdHhfcmVmGAUgASgJEhsKE3R4X29jY3VycmVuY2VfaW5kZXgYBiABKAQSNQoNc291cmNlX2RvbWFpbhgHIAEoDjIeLmNoYWluLmxpZmVjeWNsZS52MS5GbG93RG9tYWluEjoKEmRlc3RpbmF0aW9uX2RvbWFpbhgIIAEoDjIeLmNoYWluLmxpZmVjeWNsZS52MS5GbG93RG9tYWluEjIKDGN1cnJlbnRfc3RlcBgJIAEoDjIcLmNoYWluLmxpZmVjeWNsZS52MS5GbG93U3RlcBIPCgdpc19vcGVuGAogASgIEhMKC2lzX3Rlcm1pbmFsGAsgASgIEi8KCWFzc2V0X2lkcxgMIAEoCzIcLmNoYWluLmxpZmVjeWNsZS52MS5Bc3NldElkcxIaChJwb2x5ZXN0ZXJfY2hhaW5faWQYDSABKA0SKwoKYW1vdW50X2UxOBgOIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSFgoOc291cmNlX2FkZHJlc3MYDyABKAkSGwoTZGVzdGluYXRpb25fYWRkcmVzcxgQIAEoCRIzCgtyZWFzb25fY29kZRgRIAEoDjIeLmNoYWluLmxpZmVjeWNsZS52MS5GbG93UmVhc29uEiAKGGxhc3RfYWN0aXZpdHlfYXRfdW5peF9tcxgSIAEoBCKBAQoVTGlzdEZsb3dzQnlUeFJlc3BvbnNlEg8KB3R4X2hhc2gYASABKAkSNAoHbWF0Y2hlcxgCIAMoCzIjLmNoYWluLmxpZmVjeWNsZS52MS5GbG93VHhNYXRjaFZpZXcSIQoPbmV4dF9wYWdlX3Rva2VuGAMgASgJQgi6SAVyAxiABCKtCAoPRmxvd1N1bW1hcnlWaWV3EhgKEG93bmVyX2FjY291bnRfaWQYASABKAYSDwoHZmxvd19pZBghIAEoCRIvCglmbG93X2tpbmQYBCABKA4yHC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd0tpbmQSMgoMY3VycmVudF9zdGVwGAYgASgOMhwuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdGVwEi8KCWFzc2V0X2lkcxgHIAEoCzIcLmNoYWluLmxpZmVjeWNsZS52MS5Bc3NldElkcxIaChJwb2x5ZXN0ZXJfY2hhaW5faWQYCCABKA0SKwoKYW1vdW50X2UxOBgJIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSMwoLcmVxdWVzdF9mZWUYHCABKAsyHi5jaGFpbi5saWZlY3ljbGUudjEuUmVxdWVzdEZlZRIWCg5zb3VyY2VfdHhfaGFzaBgLIAEoCRIbChN0eF9vY2N1cnJlbmNlX2luZGV4GCAgASgEEhYKDnNvdXJjZV9hZGRyZXNzGA0gASgJEhsKE2Rlc3RpbmF0aW9uX2FkZHJlc3MYDiABKAkSFQoNbGF0ZXN0X3R4X3JlZhgPIAEoCRI1Cg1zb3VyY2VfZG9tYWluGB0gASgOMh4uY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dEb21haW4SOgoSZGVzdGluYXRpb25fZG9tYWluGB4gASgOMh4uY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dEb21haW4SRAoXbGF0ZXN0X2xpZmVjeWNsZV9zb3VyY2UYECABKA4yIy5jaGFpbi5saWZlY3ljbGUudjEuTGlmZWN5Y2xlU291cmNlEjMKC3JlYXNvbl9jb2RlGBEgASgOMh4uY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dSZWFzb24SGgoSc3RhcnRlZF9hdF91bml4X21zGBIgASgEEhoKEnVwZGF0ZWRfYXRfdW5peF9tcxgTIAEoBBIbChN0ZXJtaW5hbF9hdF91bml4X21zGBQgASgEEiAKGGxhc3RfYWN0aXZpdHlfYXRfdW5peF9tcxgVIAEoBBIPCgdpc19vcGVuGBYgASgIEhMKC2lzX3Rlcm1pbmFsGBcgASgIEh0KFWN1cnJlbnRfc3RlcF9zZXF1ZW5jZRgYIAEoDRJFChBjdXJyZW50X3Byb2dyZXNzGBkgASgLMisuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdW1tYXJ5UHJvZ3Jlc3NWaWV3EkMKEXByb2dyZXNzX3RpbWVsaW5lGBogAygLMiguY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dUaW1lbGluZUl0ZW1WaWV3EiQKHGVzdGltYXRlZF9jb21wbGV0aW9uX3VuaXhfbXMYGyABKAQiqwIKF0Zsb3dTdW1tYXJ5UHJvZ3Jlc3NWaWV3EicKH2N1cnJlbnRfc3RlcF9zdGFydGVkX2F0X3VuaXhfbXMYASABKAQSKQohY3VycmVudF9zdGVwX2V4cGVjdGVkX2R1cmF0aW9uX21zGAIgASgEEh0KFWN1cnJlbnRfY29uZmlybWF0aW9ucxgFIAEoDRIeChZyZXF1aXJlZF9jb25maXJtYXRpb25zGAYgASgNEhUKDWFwcHJvdmVfY291bnQYByABKA0SFAoMcmVqZWN0X2NvdW50GAggASgNEhcKD3ZhbGlkYXRvcl9jb3VudBgJIAEoDRIaChJyZXF1aXJlZF9hcHByb3ZhbHMYCiABKA0SGwoTcmVxdWlyZWRfcmVqZWN0aW9ucxgLIAEoDSLIBQoMRmxvd1N0ZXBWaWV3EhAKCHNlcXVlbmNlGAEgASgNEioKBHN0ZXAYAyABKA4yHC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1N0ZXASLwoJYXNzZXRfaWRzGAcgASgLMhwuY2hhaW4ubGlmZWN5Y2xlLnYxLkFzc2V0SWRzEhoKEnBvbHllc3Rlcl9jaGFpbl9pZBgIIAEoDRIrCgphbW91bnRfZTE4GAkgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIzCgtyZXF1ZXN0X2ZlZRgYIAEoCzIeLmNoYWluLmxpZmVjeWNsZS52MS5SZXF1ZXN0RmVlEhgKEG1pbGVzdG9uZV90eF9yZWYYCyABKAkSPQoQbGlmZWN5Y2xlX3NvdXJjZRgMIAEoDjIjLmNoYWluLmxpZmVjeWNsZS52MS5MaWZlY3ljbGVTb3VyY2USMwoLcmVhc29uX2NvZGUYDSABKA4yHi5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1JlYXNvbhIdChVjdXJyZW50X2NvbmZpcm1hdGlvbnMYDiABKA0SHgoWcmVxdWlyZWRfY29uZmlybWF0aW9ucxgPIAEoDRIVCg1hcHByb3ZlX2NvdW50GBAgASgNEhQKDHJlamVjdF9jb3VudBgRIAEoDRIXCg92YWxpZGF0b3JfY291bnQYEiABKA0SGgoScmVxdWlyZWRfYXBwcm92YWxzGBYgASgNEhsKE3JlcXVpcmVkX3JlamVjdGlvbnMYFyABKA0SGwoTb2NjdXJyZWRfYXRfdW5peF9tcxgTIAEoBBIkChxibG9ja190aW1lX21vdmluZ19hdmVyYWdlX21zGBQgASgEEjwKCmFjdGl2aXRpZXMYFSADKAsyKC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1N0ZXBBY3Rpdml0eVZpZXciiAQKFEZsb3dTdGVwQWN0aXZpdHlWaWV3EhAKCHNlcXVlbmNlGAEgASgNEg4KBnR4X3JlZhgCIAEoCRIbChNvY2N1cnJlZF9hdF91bml4X21zGAMgASgEEj0KEGxpZmVjeWNsZV9zb3VyY2UYBCABKA4yIy5jaGFpbi5saWZlY3ljbGUudjEuTGlmZWN5Y2xlU291cmNlEjMKC3JlYXNvbl9jb2RlGAUgASgOMh4uY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dSZWFzb24SHQoVY3VycmVudF9jb25maXJtYXRpb25zGAYgASgNEh4KFnJlcXVpcmVkX2NvbmZpcm1hdGlvbnMYByABKA0SFQoNYXBwcm92ZV9jb3VudBgIIAEoDRIUCgxyZWplY3RfY291bnQYCSABKA0SFwoPdmFsaWRhdG9yX2NvdW50GAogASgNEjYKBGtpbmQYCyABKA4yKC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1N0ZXBBY3Rpdml0eUtpbmQSGgoScmVxdWlyZWRfYXBwcm92YWxzGAwgASgNEhsKE3JlcXVpcmVkX3JlamVjdGlvbnMYDSABKA0SKwoKYW1vdW50X2UxOBgOIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSGgoSbGVkZ2VyX3RyYW5zZmVyX2lkGA8gASgJIqoBChRGbG93VGltZWxpbmVJdGVtVmlldxIQCghzZXF1ZW5jZRgBIAEoDRIqCgRzdGVwGAIgASgOMhwuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdGVwEjYKBnN0YXR1cxgDIAEoDjImLmNoYWluLmxpZmVjeWNsZS52MS5GbG93VGltZWxpbmVTdGF0dXMSHAoUZXhwZWN0ZWRfZHVyYXRpb25fbXMYBCABKAQimQEKDkZsb3dEZXRhaWxWaWV3EjQKB3N1bW1hcnkYASABKAsyIy5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1N1bW1hcnlWaWV3EjgKDm9ic2VydmVkX3N0ZXBzGAIgAygLMiAuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdGVwVmlldxIXCg9mcm9tX2xpdmVfc3RhdGUYAyABKAgqPQoMVHhMb29rdXBLaW5kEhIKDlRYX1VOU1BFQ0lGSUVEEAASDQoJVFhfU09VUkNFEAESCgoGVFhfQU5ZEAIqWwoJTGlzdFNjb3BlEhQKEExJU1RfVU5TUEVDSUZJRUQQABIMCghMSVNUX0FMTBABEhIKDkxJU1RfT1BFTl9PTkxZEAISFgoSTElTVF9URVJNSU5BTF9PTkxZEAMqPgoEU29ydBIUChBTT1JUX1VOU1BFQ0lGSUVEEAASDwoLU09SVF9ORVdFU1QQARIPCgtTT1JUX09MREVTVBACKrgCCghGbG93U3RlcBIZChVGTE9XX1NURVBfVU5TUEVDSUZJRUQQABIUChBGTE9XX1NURVBfU09VUkNFEAESFgoSRkxPV19TVEVQX1RSQU5TRkVSEAISFQoRRkxPV19TVEVQX1JFUVVFU1QQAxIYChRGTE9XX1NURVBfVkFMSURBVElPThAEEhcKE0ZMT1dfU1RFUF9FWEVDVVRJT04QBRIgChxGTE9XX1NURVBfQlJJREdFX0ZVTEZJTExNRU5UEAYSFQoRRkxPV19TVEVQX0RST1BQRUQQBxIUChBGTE9XX1NURVBfRkFJTEVEEAgSFgoSRkxPV19TVEVQX1JFRlVOREVEEAkSGAoURkxPV19TVEVQX0ZVTEZJTExJTkcQChIYChRGTE9XX1NURVBfU0VUVExFTUVOVBALKnEKFEZsb3dTdGVwQWN0aXZpdHlLaW5kEhgKFEFDVElWSVRZX1VOU1BFQ0lGSUVEEAASEwoPQUNUSVZJVFlfTUlOVEVEEAESFAoQQUNUSVZJVFlfRlVORElORxACEhQKEEFDVElWSVRZX1RSQURJTkcQAyqOAQoSRmxvd1RpbWVsaW5lU3RhdHVzEh8KG1RJTUVMSU5FX1NUQVRVU19VTlNQRUNJRklFRBAAEh0KGVRJTUVMSU5FX1NUQVRVU19DT01QTEVURUQQARIbChdUSU1FTElORV9TVEFUVVNfQ1VSUkVOVBACEhsKF1RJTUVMSU5FX1NUQVRVU19QTEFOTkVEEAMyvwUKFExpZmVjeWNsZVJlYWRTZXJ2aWNlEs8BCgtHZXRGbG93QnlJZBImLmNoYWluLmxpZmVjeWNsZS52MS5HZXRGbG93QnlJZFJlcXVlc3QaIy5jaGFpbi5saWZlY3ljbGUudjEuR2V0Rmxvd1Jlc3BvbnNlInO6R0sKCUxpZmVjeWNsZRIOR2V0IEZsb3cgQnkgSWQaLlJldHJpZXZlIG9uZSBsaWZlY3ljbGUgZmxvdyBieSBwdWJsaWMgZmxvdyBpZC6ItRgBgtPkkwIbEhkvdjEvY2hhaW4vZmxvd3Mve2Zsb3dfaWR9Et4BCglMaXN0Rmxvd3MSJC5jaGFpbi5saWZlY3ljbGUudjEuTGlzdEZsb3dzUmVxdWVzdBolLmNoYWluLmxpZmVjeWNsZS52MS5MaXN0Rmxvd3NSZXNwb25zZSKDAbpHZQoJTGlmZWN5Y2xlEgpMaXN0IEZsb3dzGkxMaXN0IGxpZmVjeWNsZSBmbG93cyB3aXRoIG9wdGlvbmFsIGFjY291bnQsIGNoYWluLCBhc3NldCwgYW5kIHN0YXRlIGZpbHRlcnMuiLUYAYLT5JMCERIPL3YxL2NoYWluL2Zsb3dzEvMBCg1MaXN0Rmxvd3NCeVR4EiguY2hhaW4ubGlmZWN5Y2xlLnYxLkxpc3RGbG93c0J5VHhSZXF1ZXN0GikuY2hhaW4ubGlmZWN5Y2xlLnYxLkxpc3RGbG93c0J5VHhSZXNwb25zZSKMAbpHVgoJTGlmZWN5Y2xlEhBMaXN0IEZsb3dzIEJ5IFR4GjdMaXN0IGxpZmVjeWNsZSBmbG93cyB0aGF0IHJlZmVyZW5jZSBhIHRyYW5zYWN0aW9uIGhhc2guiLUYAYLT5JMCKRInL3YxL2NoYWluL2Zsb3dzL2J5LXR4L3t0eF9oYXNofS9tYXRjaGVzQpQBWk9naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2NoYWluL2xpZmVjeWNsZS92MTtjaGFpbmxpZmVjeWNsZXYxukdAOj4KCUxpZmVjeWNsZRIxUmVhZCBsaWZlY3ljbGUgZmxvdyBzdGF0ZSwgaGlzdG9yeSwgYW5kIHByb2dyZXNzLmIGcHJvdG8z", [file_buf_validate_validate, file_chain_lifecycle_v1_types, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_polyester_api_options, file_polyester_type_v1_u128]);
 
 /**
  * GetFlowResponse returns one lifecycle flow with summary, factual steps, and
@@ -122,11 +122,11 @@ export type ListFlowsRequest = Message<"chain.lifecycle.v1.ListFlowsRequest"> & 
   limit: number;
 
   /**
-   * Sort newest first when true; oldest first when false.
+   * Sort direction for lifecycle activity time.
    *
-   * @generated from field: bool reversed = 2;
+   * @generated from field: chain.lifecycle.v1.Sort sort = 2;
    */
-  reversed: boolean;
+  sort: Sort;
 
   /**
    * Optional product flow kind filter. Unspecified includes all kinds.
@@ -226,8 +226,8 @@ export const ListFlowsRequestSchema: GenMessage<ListFlowsRequest> = /*@__PURE__*
  */
 export type ListFlowsResponse = Message<"chain.lifecycle.v1.ListFlowsResponse"> & {
   /**
-   * Flow summaries ordered by last activity time, then public flow id. Sort order is
-   * controlled by the request `reversed` flag.
+   * Flow summaries ordered by last activity time, then public flow id. Sort
+   * order is controlled by the request `sort` field.
    *
    * @generated from field: repeated chain.lifecycle.v1.FlowSummaryView flows = 1;
    */
@@ -306,11 +306,11 @@ export type FlowTxMatchView = Message<"chain.lifecycle.v1.FlowTxMatchView"> & {
   destinationDomain: FlowDomain;
 
   /**
-   * Latest business-facing visible step for this flow.
+   * Current user-facing progress step for this flow.
    *
-   * @generated from field: chain.lifecycle.v1.FlowStep latest_step = 9;
+   * @generated from field: chain.lifecycle.v1.FlowStep current_step = 9;
    */
-  latestStep: FlowStep;
+  currentStep: FlowStep;
 
   /**
    * True when this flow is still progressing.
@@ -362,12 +362,11 @@ export type FlowTxMatchView = Message<"chain.lifecycle.v1.FlowTxMatchView"> & {
   destinationAddress: string;
 
   /**
-   * Product-facing reason code for failed, dropped, or otherwise notable flows;
-   * zero means no reason code is present.
+   * Product-facing reason for failed, dropped, or otherwise notable flows.
    *
-   * @generated from field: uint32 reason_code = 17;
+   * @generated from field: chain.lifecycle.v1.FlowReason reason_code = 17;
    */
-  reasonCode: number;
+  reasonCode: FlowReason;
 
   /**
    * Timestamp used for list ordering in milliseconds since epoch (UTC).
@@ -450,11 +449,12 @@ export type FlowSummaryView = Message<"chain.lifecycle.v1.FlowSummaryView"> & {
   flowKind: FlowKind;
 
   /**
-   * Latest business-facing visible step for this flow.
+   * Current user-facing progress step for this flow. This may be derived from
+   * the flow state before a matching factual observed step exists.
    *
-   * @generated from field: chain.lifecycle.v1.FlowStep latest_step = 6;
+   * @generated from field: chain.lifecycle.v1.FlowStep current_step = 6;
    */
-  latestStep: FlowStep;
+  currentStep: FlowStep;
 
   /**
    * Asset identifiers involved in the flow.
@@ -550,12 +550,11 @@ export type FlowSummaryView = Message<"chain.lifecycle.v1.FlowSummaryView"> & {
   latestLifecycleSource: LifecycleSource;
 
   /**
-   * Product-facing reason code for failed, dropped, or otherwise notable flows;
-   * zero means no reason code is present.
+   * Product-facing reason for failed, dropped, or otherwise notable flows.
    *
-   * @generated from field: uint32 reason_code = 17;
+   * @generated from field: chain.lifecycle.v1.FlowReason reason_code = 17;
    */
-  reasonCode: number;
+  reasonCode: FlowReason;
 
   /**
    * First observed business timestamp in milliseconds since epoch (UTC).
@@ -600,11 +599,11 @@ export type FlowSummaryView = Message<"chain.lifecycle.v1.FlowSummaryView"> & {
   isTerminal: boolean;
 
   /**
-   * One-based sequence of the latest visible step in the summary timeline.
+   * One-based sequence of `current_step` in `progress_timeline`.
    *
-   * @generated from field: uint32 latest_step_sequence = 24;
+   * @generated from field: uint32 current_step_sequence = 24;
    */
-  latestStepSequence: number;
+  currentStepSequence: number;
 
   /**
    * Progress data for the current visible step when the flow is open.
@@ -614,11 +613,12 @@ export type FlowSummaryView = Message<"chain.lifecycle.v1.FlowSummaryView"> & {
   currentProgress?: FlowSummaryProgressView | undefined;
 
   /**
-   * Estimated and observed top-level timeline for list/header UI.
+   * Progress-bar timeline for list/header UI. This timeline may include a
+   * current derived step that is ahead of the latest factual observed step.
    *
-   * @generated from field: repeated chain.lifecycle.v1.FlowTimelineItemView summary_timeline = 26;
+   * @generated from field: repeated chain.lifecycle.v1.FlowTimelineItemView progress_timeline = 26;
    */
-  summaryTimeline: FlowTimelineItemView[];
+  progressTimeline: FlowTimelineItemView[];
 
   /**
    * Estimated Unix completion timestamp in milliseconds.
@@ -714,20 +714,22 @@ export const FlowSummaryProgressViewSchema: GenMessage<FlowSummaryProgressView> 
   messageDesc(file_chain_lifecycle_v1_lifecycle_read, 8);
 
 /**
- * FlowStepView is one factual visible step in the lifecycle detail view.
+ * FlowStepView is one factual observed visible step in the lifecycle detail
+ * view. Use `FlowSummaryView.progress_timeline` for the current projected
+ * progress state.
  *
  * @generated from message chain.lifecycle.v1.FlowStepView
  */
 export type FlowStepView = Message<"chain.lifecycle.v1.FlowStepView"> & {
   /**
-   * One-based visible step sequence for display.
+   * One-based observed step sequence for display and audit.
    *
    * @generated from field: uint32 sequence = 1;
    */
   sequence: number;
 
   /**
-   * Business-facing visible step.
+   * Business-facing observed step.
    *
    * @generated from field: chain.lifecycle.v1.FlowStep step = 3;
    */
@@ -776,12 +778,11 @@ export type FlowStepView = Message<"chain.lifecycle.v1.FlowStepView"> & {
   lifecycleSource: LifecycleSource;
 
   /**
-   * Product-facing reason code for failed, dropped, or otherwise notable steps;
-   * zero means no reason code is present.
+   * Product-facing reason for failed, dropped, or otherwise notable steps.
    *
-   * @generated from field: uint32 reason_code = 13;
+   * @generated from field: chain.lifecycle.v1.FlowReason reason_code = 13;
    */
-  reasonCode: number;
+  reasonCode: FlowReason;
 
   /**
    * Current source confirmation count when confirmations apply.
@@ -898,12 +899,11 @@ export type FlowStepActivityView = Message<"chain.lifecycle.v1.FlowStepActivityV
   lifecycleSource: LifecycleSource;
 
   /**
-   * Product-facing reason code for notable activity states; zero means no
-   * reason code is present.
+   * Product-facing reason for notable activity states.
    *
-   * @generated from field: uint32 reason_code = 5;
+   * @generated from field: chain.lifecycle.v1.FlowReason reason_code = 5;
    */
-  reasonCode: number;
+  reasonCode: FlowReason;
 
   /**
    * Current source confirmation count when confirmations apply.
@@ -984,7 +984,8 @@ export const FlowStepActivityViewSchema: GenMessage<FlowStepActivityView> = /*@_
   messageDesc(file_chain_lifecycle_v1_lifecycle_read, 10);
 
 /**
- * FlowTimelineItemView is one item in the expected visible lifecycle path.
+ * FlowTimelineItemView is one item in the expected visible lifecycle progress
+ * path.
  *
  * @generated from message chain.lifecycle.v1.FlowTimelineItemView
  */
@@ -1004,7 +1005,7 @@ export type FlowTimelineItemView = Message<"chain.lifecycle.v1.FlowTimelineItemV
   step: FlowStep;
 
   /**
-   * Observed/planned status for this timeline item.
+   * Progress status for this timeline item.
    *
    * @generated from field: chain.lifecycle.v1.FlowTimelineStatus status = 3;
    */
@@ -1040,11 +1041,12 @@ export type FlowDetailView = Message<"chain.lifecycle.v1.FlowDetailView"> & {
   summary?: FlowSummaryView | undefined;
 
   /**
-   * Factual visible steps observed for this flow, ordered by sequence.
+   * Factual visible steps observed for this flow, ordered by sequence. Open
+   * flows may have `summary.current_step` ahead of the last observed step.
    *
-   * @generated from field: repeated chain.lifecycle.v1.FlowStepView steps = 2;
+   * @generated from field: repeated chain.lifecycle.v1.FlowStepView observed_steps = 2;
    */
-  steps: FlowStepView[];
+  observedSteps: FlowStepView[];
 
   /**
    * True when this detail was served from live in-memory state rather than
@@ -1053,13 +1055,6 @@ export type FlowDetailView = Message<"chain.lifecycle.v1.FlowDetailView"> & {
    * @generated from field: bool from_live_state = 3;
    */
   fromLiveState: boolean;
-
-  /**
-   * Expected visible lifecycle path, enriched with observed step status.
-   *
-   * @generated from field: repeated chain.lifecycle.v1.FlowTimelineItemView timeline = 4;
-   */
-  timeline: FlowTimelineItemView[];
 };
 
 /**
@@ -1146,6 +1141,40 @@ export const ListScopeSchema: GenEnum<ListScope> = /*@__PURE__*/
   enumDesc(file_chain_lifecycle_v1_lifecycle_read, 1);
 
 /**
+ * Sort selects lifecycle list ordering.
+ *
+ * @generated from enum chain.lifecycle.v1.Sort
+ */
+export enum Sort {
+  /**
+   * Sort order was not specified; server defaults apply.
+   *
+   * @generated from enum value: SORT_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * Return newest lifecycle activity first.
+   *
+   * @generated from enum value: SORT_NEWEST = 1;
+   */
+  NEWEST = 1,
+
+  /**
+   * Return oldest lifecycle activity first.
+   *
+   * @generated from enum value: SORT_OLDEST = 2;
+   */
+  OLDEST = 2,
+}
+
+/**
+ * Describes the enum chain.lifecycle.v1.Sort.
+ */
+export const SortSchema: GenEnum<Sort> = /*@__PURE__*/
+  enumDesc(file_chain_lifecycle_v1_lifecycle_read, 2);
+
+/**
  * FlowStep is the public lifecycle step shown in API and realtime read
  * models. It is business-facing and intentionally hides the lower-level
  * technical milestone taxonomy.
@@ -1196,11 +1225,11 @@ export enum FlowStep {
   EXECUTION = 5,
 
   /**
-   * Withdraw zAsset burn / on-chain fulfillment before final ledger settlement.
+   * Bridge fulfillment before final ledger settlement.
    *
-   * @generated from enum value: FLOW_STEP_ASSET_BURNED = 6;
+   * @generated from enum value: FLOW_STEP_BRIDGE_FULFILLMENT = 6;
    */
-  ASSET_BURNED = 6,
+  BRIDGE_FULFILLMENT = 6,
 
   /**
    * Flow was dropped before success.
@@ -1243,7 +1272,7 @@ export enum FlowStep {
  * Describes the enum chain.lifecycle.v1.FlowStep.
  */
 export const FlowStepSchema: GenEnum<FlowStep> = /*@__PURE__*/
-  enumDesc(file_chain_lifecycle_v1_lifecycle_read, 2);
+  enumDesc(file_chain_lifecycle_v1_lifecycle_read, 3);
 
 /**
  * @generated from enum chain.lifecycle.v1.FlowStepActivityKind
@@ -1282,11 +1311,11 @@ export enum FlowStepActivityKind {
  * Describes the enum chain.lifecycle.v1.FlowStepActivityKind.
  */
 export const FlowStepActivityKindSchema: GenEnum<FlowStepActivityKind> = /*@__PURE__*/
-  enumDesc(file_chain_lifecycle_v1_lifecycle_read, 3);
+  enumDesc(file_chain_lifecycle_v1_lifecycle_read, 4);
 
 /**
- * FlowTimelineStatus describes how a planned timeline item relates to observed
- * lifecycle facts.
+ * FlowTimelineStatus describes how a progress timeline item relates to the
+ * current user-facing flow state.
  *
  * @generated from enum chain.lifecycle.v1.FlowTimelineStatus
  */
@@ -1299,14 +1328,14 @@ export enum FlowTimelineStatus {
   TIMELINE_STATUS_UNSPECIFIED = 0,
 
   /**
-   * Step has been observed or is behind the latest observed step.
+   * Step has been observed or is behind the current progress step.
    *
    * @generated from enum value: TIMELINE_STATUS_COMPLETED = 1;
    */
   TIMELINE_STATUS_COMPLETED = 1,
 
   /**
-   * Step is the current active step.
+   * Step is the current active progress step.
    *
    * @generated from enum value: TIMELINE_STATUS_CURRENT = 2;
    */
@@ -1324,7 +1353,7 @@ export enum FlowTimelineStatus {
  * Describes the enum chain.lifecycle.v1.FlowTimelineStatus.
  */
 export const FlowTimelineStatusSchema: GenEnum<FlowTimelineStatus> = /*@__PURE__*/
-  enumDesc(file_chain_lifecycle_v1_lifecycle_read, 4);
+  enumDesc(file_chain_lifecycle_v1_lifecycle_read, 5);
 
 /**
  * LifecycleReadService exposes lifecycle flow lookup and listing APIs.
