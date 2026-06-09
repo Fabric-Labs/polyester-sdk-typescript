@@ -226,7 +226,6 @@ describe("PolyesterServerClient subaccount defaults", () => {
         );
         const client = new TestablePolyesterServerClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
             session,
         });
 
@@ -242,7 +241,6 @@ describe("PolyesterServerClient subaccount defaults", () => {
         );
         const client = new TestablePolyesterServerClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
             session,
             useDisplaySessionActiveAccountAsDefault: true,
         });
@@ -252,23 +250,11 @@ describe("PolyesterServerClient subaccount defaults", () => {
 });
 
 describe("PolyesterServerClient catalog refresh", () => {
-    it("refreshes catalogs in the background by default", () => {
+    it("does not refresh catalogs during construction", () => {
         const refresh = mockCatalogRefreshEndpoints();
 
         new PolyesterServerClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-        });
-
-        expect(refresh.getSpotConfig).toHaveBeenCalledTimes(1);
-        expect(refresh.getDepositWithdrawConfig).toHaveBeenCalledTimes(1);
-    });
-
-    it("skips background catalog refresh when disabled", () => {
-        const refresh = mockCatalogRefreshEndpoints();
-
-        new PolyesterServerClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
         });
 
         expect(refresh.getSpotConfig).not.toHaveBeenCalled();
@@ -293,7 +279,6 @@ describe("PolyesterServerClient catalog refresh", () => {
         const refresh = mockCatalogRefreshEndpoints();
         const client = new PolyesterServerClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
         });
 
         await client.catalog.refresh();
@@ -302,18 +287,16 @@ describe("PolyesterServerClient catalog refresh", () => {
         expect(refresh.getDepositWithdrawConfig).toHaveBeenCalledTimes(1);
     });
 
-    it("passes the refresh opt-out through server helpers", () => {
+    it("server helpers do not refresh catalogs during construction", () => {
         const refresh = mockCatalogRefreshEndpoints();
 
         createPolyesterServerClientFromCookies({
             cookies: {},
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
         });
         createPolyesterServerClientFromRequest({
             request: new Request("https://example.test"),
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
         });
 
         expect(refresh.getSpotConfig).not.toHaveBeenCalled();
@@ -329,7 +312,6 @@ describe("createPolyesterServerClientFromCookies", () => {
             environment: POLYESTER_TESTNET_ENVIRONMENT,
             interceptors: [passthroughInterceptor],
             wireFormat: "json",
-            refreshCatalogs: false,
             realtime: {
                 getAuthHeaders: () => ({ authorization: "Bearer test" }),
                 hasAuth: () => true,
@@ -343,7 +325,6 @@ describe("createPolyesterServerClientFromCookies", () => {
         const client = createPolyesterServerClientFromCookies({
             cookies: {},
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
         });
 
         expect(client.hasDisplaySession).toBe(false);
@@ -355,7 +336,6 @@ describe("createPolyesterServerClientFromCookies", () => {
     it("keeps display session metadata without installing an auth provider", () => {
         const client = createPolyesterServerClientFromCookies({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
             },
@@ -370,7 +350,6 @@ describe("createPolyesterServerClientFromCookies", () => {
     it("installs an auth provider for a usable bearer token", () => {
         const client = createPolyesterServerClientFromCookies({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
@@ -386,7 +365,6 @@ describe("createPolyesterServerClientFromCookies", () => {
     it("does not install an auth provider for expired or malformed bearer tokens", () => {
         const expired = createPolyesterServerClientFromCookies({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: expiredJwt(),
@@ -394,7 +372,6 @@ describe("createPolyesterServerClientFromCookies", () => {
         });
         const malformed = createPolyesterServerClientFromCookies({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: "not-a-jwt",
@@ -418,7 +395,6 @@ describe("PolyesterServerClient.verifySession", () => {
     it("returns null when no auth provider is configured", async () => {
         const client = new PolyesterServerClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
         });
         const me = vi.spyOn(client.auth, "me");
 
@@ -429,7 +405,6 @@ describe("PolyesterServerClient.verifySession", () => {
     it("returns the current user when the backend verifies the session", async () => {
         const client = createPolyesterServerClientFromCookies({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
@@ -444,7 +419,6 @@ describe("PolyesterServerClient.verifySession", () => {
     it("returns null when backend verification fails", async () => {
         const client = createPolyesterServerClientFromCookies({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),

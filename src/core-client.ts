@@ -33,10 +33,6 @@ import { ZipperService } from "./services/zipper/index.js";
 import { MfaService } from "./services/mfa/index.js";
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";
 import { createPolyesterCatalog, type ClientCatalog } from "./catalogs/index.js";
-import {
-    refreshCatalogsInBackground,
-    type CatalogRefreshErrorHandler,
-} from "./catalogs/catalog-refresh.js";
 import { RealtimeClient, type RealtimeConfig } from "./realtime/index.js";
 
 function realtimeAuthFromProvider(
@@ -73,17 +69,9 @@ export interface PolyesterClientBaseConfig {
     realtime?: PolyesterRealtimeAuthConfig;
     /**
      * Connect wire format. Defaults to binary for production performance.
-     * Use `json` for the API Playground visualization.
+     * Use `json` for human-readable debugging.
      */
     wireFormat?: "binary" | "json";
-    /**
-     * Refresh runtime catalogs from the API after construction. Defaults to true.
-     */
-    refreshCatalogs?: boolean;
-    /**
-     * Called when the default background catalog refresh fails.
-     */
-    onCatalogRefreshError?: CatalogRefreshErrorHandler;
     /**
      * Client-owned catalog store. Tests and advanced callers can inject fixture-backed catalogs.
      */
@@ -168,12 +156,14 @@ export class PolyesterClient {
             }) ?? new AuthService({ publicApi, authApi }, this.realtime);
 
         const resolver = this.createSubaccountResolver();
+        const catalogRefreshMarketData = new MarketDataService(publicApi, this.realtime);
+        const catalogRefreshZipper = new ZipperService(publicApi);
         this.catalog =
             config.catalog ??
             createPolyesterCatalog({
                 refresh: {
-                    market: () => this.marketData.getSpotConfig(),
-                    zipper: () => this.zipper.getDepositWithdrawConfig(),
+                    market: () => catalogRefreshMarketData.getSpotConfig(),
+                    zipper: () => catalogRefreshZipper.getDepositWithdrawConfig(),
                 },
             });
 
@@ -207,10 +197,6 @@ export class PolyesterClient {
         this.whiteboard = new WhiteboardService(authApi);
         this.zipper = new ZipperService(publicApi);
         this.mfa = new MfaService(authApi);
-
-        if (config.refreshCatalogs !== false) {
-            refreshCatalogsInBackground(this, config.onCatalogRefreshError);
-        }
     }
 
     /**

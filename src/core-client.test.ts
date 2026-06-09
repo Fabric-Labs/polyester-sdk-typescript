@@ -46,7 +46,6 @@ describe("PolyesterClient realtime auth", () => {
 
         new PolyesterClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
             auth: {
                 kind: "api-key-ed25519",
                 getKeyId: () => "ak_test",
@@ -84,21 +83,15 @@ describe("PolyesterClient catalog refresh", () => {
         realtimeConfigs.length = 0;
     });
 
-    it("reports startup catalog refresh failures", async () => {
-        const error = new Error("catalog refresh failed");
+    it("does not refresh injected catalogs during construction", () => {
         const catalog = createTestCatalog();
-        const onCatalogRefreshError = vi.fn();
-        vi.spyOn(catalog, "refresh").mockRejectedValue(error);
+        const refresh = vi.spyOn(catalog, "refresh");
 
         new PolyesterClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
             catalog,
-            onCatalogRefreshError,
         });
-        await new Promise((resolve) => setTimeout(resolve, 0));
 
-        expect(catalog.refresh).toHaveBeenCalledTimes(1);
-        expect(onCatalogRefreshError).toHaveBeenCalledTimes(1);
-        expect(onCatalogRefreshError).toHaveBeenCalledWith(error);
+        expect(refresh).not.toHaveBeenCalled();
     });
 });

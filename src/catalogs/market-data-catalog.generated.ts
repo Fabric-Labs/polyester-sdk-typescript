@@ -1,5 +1,5 @@
 // AUTO-GENERATED FILE - DO NOT EDIT
-// Run `bun run scripts/generate-asset-catalog.ts` to regenerate
+// Run `bun run refresh:catalogs:testnet` to regenerate
 
 import type { AssetConfig } from "./config-types.js";
 import type { EnrichedPairConfig } from "./market-data-catalog.js";

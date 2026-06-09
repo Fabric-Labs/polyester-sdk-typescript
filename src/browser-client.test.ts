@@ -146,30 +146,17 @@ describe("PolyesterBrowserClient", () => {
         const client = new PolyesterBrowserClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
             accountSigner,
-            refreshCatalogs: false,
         });
 
         expect(client.auth).toBeInstanceOf(AccountSignerAuthService);
         expect(client.auth.getAccountSigner()).toBeNull();
     });
 
-    it("refreshes catalogs in the background by default", () => {
+    it("does not refresh catalogs during construction", () => {
         const refresh = mockCatalogRefreshEndpoints();
 
         new PolyesterBrowserClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-        });
-
-        expect(refresh.getSpotConfig).toHaveBeenCalledTimes(1);
-        expect(refresh.getDepositWithdrawConfig).toHaveBeenCalledTimes(1);
-    });
-
-    it("skips background catalog refresh when disabled", () => {
-        const refresh = mockCatalogRefreshEndpoints();
-
-        new PolyesterBrowserClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
         });
 
         expect(refresh.getSpotConfig).not.toHaveBeenCalled();
@@ -194,7 +181,6 @@ describe("PolyesterBrowserClient", () => {
         const refresh = mockCatalogRefreshEndpoints();
         const client = new PolyesterBrowserClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
         });
 
         await client.catalog.refresh();
@@ -209,7 +195,6 @@ describe("PolyesterBrowserClient", () => {
             environment: POLYESTER_TESTNET_ENVIRONMENT,
             interceptors: [passthroughInterceptor],
             wireFormat: "json",
-            refreshCatalogs: false,
             realtime: {
                 getAuthHeaders: () => ({ authorization: "Bearer test" }),
                 hasAuth: () => true,
@@ -225,7 +210,6 @@ describe("PolyesterBrowserClient", () => {
         const client = new PolyesterBrowserClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
             accountSigner,
-            refreshCatalogs: false,
         });
         const token = jwtWithExp(Math.floor(Date.now() / 1000) + 3600);
         mockClientLogin(client, token);
@@ -244,7 +228,6 @@ describe("PolyesterBrowserClient", () => {
         const client = new PolyesterBrowserClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
             accountSigner,
-            refreshCatalogs: false,
             tokenStorage: createCookieAuthTokenStorage(),
         });
         const token = jwtWithExp(Math.floor(Date.now() / 1000) + 120);
@@ -262,7 +245,6 @@ describe("PolyesterBrowserClient", () => {
         const tokenStorage = createTestStorage();
         const client = new PolyesterBrowserClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
             tokenStorage,
         });
 
@@ -277,7 +259,6 @@ describe("PolyesterBrowserClient", () => {
     it("updates the auth account signer via setAccountSigner", () => {
         const client = new PolyesterBrowserClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
         });
         const accountSigner = signer("0x3333333333333333333333333333333333333333");
 
@@ -290,7 +271,6 @@ describe("PolyesterBrowserClient", () => {
     it("rejects an account signer from another environment", () => {
         const client = new PolyesterBrowserClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
         });
         const accountSigner = {
             ...signer("0x3333333333333333333333333333333333333333"),
@@ -305,7 +285,6 @@ describe("PolyesterBrowserClient", () => {
     it("wires browser auth to the client subaccounts service during construction", async () => {
         const client = new PolyesterBrowserClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
-            refreshCatalogs: false,
         });
         const rootSigner = signer("0x1111111111111111111111111111111111111111");
         const subaccountSigner = signer("0x4444444444444444444444444444444444444444");
