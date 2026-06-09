@@ -266,6 +266,18 @@ describe("NewOrderInputSchema", () => {
         for (const testCase of cases) {
             expect(v.parse(schema, testCase.input)).toMatchObject(testCase.expected);
         }
+
+        const defaultedInput = v.parse(schema, {
+            symbol: "BTC-USDT",
+            side: "buy",
+            orderType: "limit",
+            tif: "gtc",
+            price: "100",
+            qty: "0.5",
+        });
+
+        expect(defaultedInput.feeSource).toBe(ProtoWrite.FeeSource.QUOTE);
+        expect(defaultedInput.stpMode).toBeUndefined();
     });
 
     it("rejects market-only slippage fields on limit orders", () => {

@@ -2,8 +2,8 @@ import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as v from "valibot";
 import type { CatalogReader } from "../../catalogs/index.js";
-import { parsePriceTicks } from "../../utils/numbers.js";
 import { idToBigInt } from "../../utils/base58-id.js";
+import { buildSpotOrderCore } from "../orders/spot-order-core.schemas.js";
 import {
     FEE_SOURCE_VALUES,
     ORDER_TYPE_VALUES,
@@ -49,11 +49,11 @@ export const BaseChildOrderFieldsSchema = v.object({
     limitPrice: v.optional(v.pipe(v.string(), v.trim())),
     feeSource: v.pipe(
         v.optional(FeeSourceSchema),
-        v.transform((v) => (v ? FeeSourceCodec.inputToProto[v] : ProtoOrders.FeeSource.QUOTE)),
+        v.transform((v) => (v ? FeeSourceCodec.inputToProto[v] : undefined)),
     ),
     stpMode: v.pipe(
         v.optional(STPSchema),
-        v.transform((v) => (v ? StpModeCodec.inputToProto[v] : ProtoOrders.STPMode.EXPIRE_MAKER)),
+        v.transform((v) => (v ? StpModeCodec.inputToProto[v] : undefined)),
     ),
     postOnly: v.optional(v.boolean(), false),
 });
@@ -113,27 +113,30 @@ export function buildCreateTriggerBase(
     reader: CatalogReader,
     input: BaseChildOrderInput,
 ): CreateTriggerBase {
-    reader.orders.validateOrderInput({
-        pair: input.symbol,
-        quantity: input.qty,
-        price: input.orderType === ProtoOrders.OrderType.LIMIT ? input.limitPrice : undefined,
-    });
+    const { priceTicks, ...order } = buildSpotOrderCore(
+        reader,
+        {
+            symbol: input.symbol,
+            side: input.side,
+            orderType: input.orderType,
+            tif: input.tif,
+            qty: input.qty,
+            price: input.limitPrice,
+            feeSource: input.feeSource,
+            stpMode: input.stpMode,
+            postOnly: input.postOnly,
+        },
+        {
+            priceFieldName: "limitPrice",
+            defaultStpMode: ProtoOrders.STPMode.EXPIRE_MAKER,
+        },
+    );
 
     return {
         ...buildTriggerDefaults(),
+        ...order,
         subaccountId: input.subaccountId,
-        symbol: input.symbol,
-        side: input.side,
-        orderType: input.orderType,
-        tif: input.tif,
-        qtyScaled: reader.orders.parseQuantity(input.qty, input.symbol).value,
-        limitPriceTicks:
-            input.orderType === ProtoOrders.OrderType.LIMIT && input.limitPrice
-                ? parsePriceTicks(input.limitPrice, "limitPrice")
-                : 0n,
-        feeSource: input.feeSource ?? ProtoOrders.FeeSource.QUOTE,
-        stpMode: input.stpMode ?? ProtoOrders.STPMode.EXPIRE_MAKER,
-        postOnly: input.postOnly ?? false,
+        limitPriceTicks: priceTicks,
         clientTriggerId: input.clientTriggerId ?? crypto.randomUUID(),
     };
 }

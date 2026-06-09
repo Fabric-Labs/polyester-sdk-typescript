@@ -1,40 +1,10 @@
-import type { Transport } from "@connectrpc/connect";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import * as Proto from "../../gen/auth/v1/resolve_pb.js";
+import { unaryTransportSequence } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
 import { ResolveAccountInputSchema } from "./accounts.schemas.js";
 import { AccountsService } from "./accounts.js";
-
-type CapturedCall = {
-    message: Record<string, unknown>;
-    signal: AbortSignal | undefined;
-    headers: HeadersInit | undefined;
-};
-
-function transportWithMessages(
-    messages: Record<string, unknown>[],
-    calls: CapturedCall[] = [],
-): Transport {
-    return {
-        unary: vi.fn(async (...args: unknown[]) => {
-            calls.push({
-                signal: args[1] as AbortSignal | undefined,
-                headers: args[3] as HeadersInit | undefined,
-                message: args[4] as Record<string, unknown>,
-            });
-            return {
-                message: messages.shift() ?? {},
-                header: new Headers(),
-                trailer: new Headers(),
-                stream: false,
-                service: undefined,
-                method: undefined,
-            };
-        }),
-        stream: vi.fn(),
-    } as unknown as Transport;
-}
 
 describe("AccountsService", () => {
     it("normalizes resolve inputs to proto request payloads", async () => {
@@ -73,34 +43,33 @@ describe("AccountsService", () => {
         ];
 
         for (const { input, expected } of cases) {
-            const calls: CapturedCall[] = [];
             const signal = new AbortController().signal;
-            const service = new AccountsService(transportWithMessages([{ matches: [] }], calls));
+            const transport = unaryTransportSequence([{ matches: [] }]);
+            const service = new AccountsService(transport.transport);
 
             await expect(service.resolve(input, { signal })).resolves.toEqual([]);
 
-            expect(calls[0]?.message).toMatchObject(expected);
-            expect(calls[0]?.signal).toBe(signal);
+            expect(transport.calls[0]?.message).toMatchObject(expected);
+            expect(transport.calls[0]?.signal).toBe(signal);
         }
     });
 
     it("parses resolve response matches and defaults omitted matches to an empty list", async () => {
-        const service = new AccountsService(
-            transportWithMessages([
-                {
-                    matches: [
-                        {
-                            smartAccountAddress: "0xabc",
-                            kind: "sub",
-                            rootUsername: "alice",
-                            subaccountLabel: "maker",
-                            accountId: 42n,
-                        },
-                    ],
-                },
-                {},
-            ]),
-        );
+        const transport = unaryTransportSequence([
+            {
+                matches: [
+                    {
+                        smartAccountAddress: "0xabc",
+                        kind: "sub",
+                        rootUsername: "alice",
+                        subaccountLabel: "maker",
+                        accountId: 42n,
+                    },
+                ],
+            },
+            {},
+        ]);
+        const service = new AccountsService(transport.transport);
 
         await expect(service.resolve({ query: "alice" })).resolves.toEqual([
             {
@@ -115,19 +84,18 @@ describe("AccountsService", () => {
     });
 
     it("rejects malformed resolve responses", async () => {
-        const service = new AccountsService(
-            transportWithMessages([
-                {
-                    matches: [
-                        {
-                            smartAccountAddress: "0xabc",
-                            kind: "team",
-                            accountId: 1n,
-                        },
-                    ],
-                },
-            ]),
-        );
+        const transport = unaryTransportSequence([
+            {
+                matches: [
+                    {
+                        smartAccountAddress: "0xabc",
+                        kind: "team",
+                        accountId: 1n,
+                    },
+                ],
+            },
+        ]);
+        const service = new AccountsService(transport.transport);
 
         await expect(service.resolve({ query: "alice" })).rejects.toThrow();
     });

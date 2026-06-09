@@ -15,6 +15,13 @@ export interface CapturedUnaryCall {
     message: MessageInitShape<UnaryArgs[0]["input"]>;
 }
 
+type UnaryTransportHarness = {
+    transport: Transport;
+    unary: ReturnType<typeof vi.fn>;
+    calls: CapturedUnaryCall[];
+    lastCall: () => CapturedUnaryCall | undefined;
+};
+
 function unaryResponse(message: UnaryResponseMessage) {
     return {
         message,
@@ -36,12 +43,7 @@ export function unaryTransport(
               call: CapturedUnaryCall,
               index: number,
           ) => UnaryResponseMessage | Promise<UnaryResponseMessage>),
-): {
-    transport: Transport;
-    unary: ReturnType<typeof vi.fn>;
-    calls: CapturedUnaryCall[];
-    lastCall: () => CapturedUnaryCall | undefined;
-} {
+): UnaryTransportHarness {
     const calls: CapturedUnaryCall[] = [];
     const unary = vi.fn(async (...args: UnaryArgs) => {
         const call: CapturedUnaryCall = {
@@ -69,6 +71,22 @@ export function unaryTransport(
 }
 
 /**
+ * Runs the unary transport helper with ordered response messages.
+ */
+export function unaryTransportSequence(responses: UnaryResponseMessage[]): UnaryTransportHarness {
+    return unaryTransport((_call, index) => responses[index] ?? {});
+}
+
+/**
+ * Runs the unary transport helper with responses keyed by RPC method localName.
+ */
+export function unaryTransportByMethod(
+    responses: Record<string, UnaryResponseMessage>,
+): UnaryTransportHarness {
+    return unaryTransport((call) => responses[call.method.localName] ?? {});
+}
+
+/**
  * Runs the rejecting unary transport helper.
  */
 export function rejectingUnaryTransport(error: unknown): Transport {
@@ -87,12 +105,14 @@ export function realtimeClientStub(): {
     realtime: RealtimeClient;
     connectProtoChannel: ReturnType<typeof vi.fn>;
     params: Parameters<RealtimeClient["connectProtoChannel"]>[0] | undefined;
+    unsubscribe: ReturnType<typeof vi.fn>;
 } {
     let params: Parameters<RealtimeClient["connectProtoChannel"]>[0] | undefined;
+    const unsubscribe = vi.fn();
     const connectProtoChannel = vi.fn(
         (nextParams: Parameters<RealtimeClient["connectProtoChannel"]>[0]) => {
             params = nextParams;
-            return vi.fn();
+            return unsubscribe;
         },
     );
 
@@ -104,6 +124,7 @@ export function realtimeClientStub(): {
         get params() {
             return params;
         },
+        unsubscribe,
     };
 }
 

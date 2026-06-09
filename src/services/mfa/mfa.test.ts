@@ -1,48 +1,8 @@
-import type { Transport } from "@connectrpc/connect";
 import { describe, expect, it, vi } from "vitest";
 import * as Proto from "../../gen/auth/v1/mfa_pb.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
+import { unaryTransportByMethod } from "../../testing/service-harness.js";
 import { MfaService } from "./mfa.js";
-
-type CapturedUnary = {
-    method: string;
-    signal: AbortSignal | undefined;
-    headers: HeadersInit | undefined;
-    message: Record<string, unknown>;
-};
-
-function transportWithResponses(
-    responses: Record<string, Record<string, unknown>>,
-    capture?: (call: CapturedUnary) => void,
-): Transport {
-    return {
-        unary: vi.fn(
-            async (
-                method: { localName: string },
-                signal: AbortSignal | undefined,
-                _timeoutMs: number | undefined,
-                headers: HeadersInit | undefined,
-                message: Record<string, unknown>,
-            ) => {
-                capture?.({
-                    method: method.localName,
-                    signal,
-                    headers,
-                    message,
-                });
-                return {
-                    message: responses[method.localName] ?? {},
-                    header: new Headers(),
-                    trailer: new Headers(),
-                    stream: false,
-                    service: undefined,
-                    method: undefined,
-                };
-            },
-        ),
-        stream: vi.fn(),
-    } as unknown as Transport;
-}
 
 const factor = {
     factorId: "mfa_1",
@@ -66,21 +26,14 @@ const completeChallenge = {
 
 describe("MfaService", () => {
     it("passes step-up token as call metadata, not request input", async () => {
-        let captured: CapturedUnary | undefined;
-        const service = new MfaService(
-            transportWithResponses(
-                {
-                    beginTOTPEnrollment: {
-                        enrollmentId: "enrollment-1",
-                        secret: "secret",
-                        otpauthUri: "otpauth://totp/polyester",
-                    },
-                },
-                (call) => {
-                    captured = call;
-                },
-            ),
-        );
+        const transport = unaryTransportByMethod({
+            beginTOTPEnrollment: {
+                enrollmentId: "enrollment-1",
+                secret: "secret",
+                otpauthUri: "otpauth://totp/polyester",
+            },
+        });
+        const service = new MfaService(transport.transport);
 
         await expect(
             service.beginTotpEnrollment(
@@ -93,6 +46,7 @@ describe("MfaService", () => {
             otpauthUri: "otpauth://totp/polyester",
         });
 
+        const captured = transport.lastCall();
         expect(new Headers(captured?.headers).get(AUTH_STEP_UP_HEADER_NAME)).toBe("fresh-token");
         expect(captured?.message).toMatchObject({ label: "authenticator" });
         expect(captured?.message).not.toHaveProperty("stepUpToken");
@@ -347,18 +301,15 @@ describe("MfaService", () => {
 
     for (const testCase of methodCases) {
         it(`normalizes ${testCase.name} calls and parses the response`, async () => {
-            let captured: CapturedUnary | undefined;
             const controller = new AbortController();
-            const service = new MfaService(
-                transportWithResponses({ [testCase.method]: testCase.response }, (call) => {
-                    captured = call;
-                }),
-            );
+            const transport = unaryTransportByMethod({ [testCase.method]: testCase.response });
+            const service = new MfaService(transport.transport);
 
             const result = await testCase.call(service, { signal: controller.signal });
 
+            const captured = transport.lastCall();
+            expect(captured?.method.localName).toBe(testCase.method);
             expect(captured).toMatchObject({
-                method: testCase.method,
                 signal: controller.signal,
                 message: testCase.expectedMessage,
             });
@@ -371,14 +322,13 @@ describe("MfaService", () => {
     }
 
     it("rejects malformed backend challenge completion responses", async () => {
-        const service = new MfaService(
-            transportWithResponses({
-                verifyTOTPChallenge: {
-                    ...completeChallenge,
-                    stepUpToken: undefined,
-                },
-            }),
-        );
+        const transport = unaryTransportByMethod({
+            verifyTOTPChallenge: {
+                ...completeChallenge,
+                stepUpToken: undefined,
+            },
+        });
+        const service = new MfaService(transport.transport);
 
         await expect(
             service.verifyTotpChallenge({ challengeId: "challenge-1", code: "123456" }),

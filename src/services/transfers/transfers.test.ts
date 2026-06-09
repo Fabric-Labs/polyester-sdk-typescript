@@ -1,73 +1,9 @@
-import type { Transport } from "@connectrpc/connect";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
-import type { RealtimeClient } from "../../realtime/index.js";
 import { createTestCatalog } from "../../testing/catalog.js";
+import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import { TransfersService } from "./transfers.js";
-
-type CapturedUnary = {
-    method: string;
-    signal: AbortSignal | undefined;
-    headers: HeadersInit | undefined;
-    message: Record<string, unknown>;
-};
-
-function transportWithResponse(
-    response: Record<string, unknown>,
-    capture?: (call: CapturedUnary) => void,
-): Transport {
-    return {
-        unary: vi.fn(
-            async (
-                method: { localName: string },
-                signal: AbortSignal | undefined,
-                _timeoutMs: number | undefined,
-                headers: HeadersInit | undefined,
-                message: Record<string, unknown>,
-            ) => {
-                capture?.({
-                    method: method.localName,
-                    signal,
-                    headers,
-                    message,
-                });
-                return {
-                    message: response,
-                    header: new Headers(),
-                    trailer: new Headers(),
-                    stream: false,
-                    service: undefined,
-                    method: undefined,
-                };
-            },
-        ),
-        stream: vi.fn(),
-    } as unknown as Transport;
-}
-
-function createRealtimeStub(): {
-    realtime: RealtimeClient;
-    params: Parameters<RealtimeClient["connectProtoChannel"]>[0] | undefined;
-    unsubscribe: ReturnType<typeof vi.fn>;
-} {
-    let params: Parameters<RealtimeClient["connectProtoChannel"]>[0] | undefined;
-    const unsubscribe = vi.fn();
-    return {
-        realtime: {
-            connectProtoChannel: vi.fn(
-                (nextParams: Parameters<RealtimeClient["connectProtoChannel"]>[0]) => {
-                    params = nextParams;
-                    return unsubscribe;
-                },
-            ),
-        } as unknown as RealtimeClient,
-        get params() {
-            return params;
-        },
-        unsubscribe,
-    };
-}
 
 function seedAssetCatalog() {
     return createTestCatalog({
@@ -108,22 +44,17 @@ describe("TransfersService", () => {
 
     it("normalizes list inputs, resolver defaults, signals, and response parsing", async () => {
         const catalog = seedAssetCatalog();
-        let captured: CapturedUnary | undefined;
         const controller = new AbortController();
         const resolver: SubaccountResolver = {
             getDefaultSubaccountId: () => "11",
         };
+        const transport = unaryTransport({
+            transfers: [transferRow()],
+            nextCursor: 42n,
+        });
         const service = new TransfersService(
-            transportWithResponse(
-                {
-                    transfers: [transferRow()],
-                    nextCursor: 42n,
-                },
-                (call) => {
-                    captured = call;
-                },
-            ),
-            createRealtimeStub().realtime,
+            transport.transport,
+            realtimeClientStub().realtime,
             resolver,
             catalog,
         );
@@ -161,8 +92,9 @@ describe("TransfersService", () => {
             nextCursor: 42,
         });
 
+        const captured = transport.lastCall();
+        expect(captured?.method.localName).toBe("listTransfers");
         expect(captured).toMatchObject({
-            method: "listTransfers",
             signal: controller.signal,
             message: {
                 subaccountId: 11n,
@@ -178,13 +110,11 @@ describe("TransfersService", () => {
     });
 
     it("returns null nextCursor for empty or zero backend cursors", async () => {
-        const service = new TransfersService(
-            transportWithResponse({
-                transfers: [],
-                nextCursor: 0n,
-            }),
-            createRealtimeStub().realtime,
-        );
+        const transport = unaryTransport({
+            transfers: [],
+            nextCursor: 0n,
+        });
+        const service = new TransfersService(transport.transport, realtimeClientStub().realtime);
 
         await expect(service.list({})).resolves.toEqual({
             transfers: [],
@@ -193,22 +123,20 @@ describe("TransfersService", () => {
     });
 
     it("rejects malformed backend transfers", async () => {
-        const service = new TransfersService(
-            transportWithResponse({
-                transfers: [transferRow({ timestamp: undefined })],
-                nextCursor: 0n,
-            }),
-            createRealtimeStub().realtime,
-        );
+        const transport = unaryTransport({
+            transfers: [transferRow({ timestamp: undefined })],
+            nextCursor: 0n,
+        });
+        const service = new TransfersService(transport.transport, realtimeClientStub().realtime);
 
         await expect(service.list({})).rejects.toThrow();
     });
 
     it("uses private transfer channels and parses realtime publications", () => {
         const catalog = seedAssetCatalog();
-        const realtime = createRealtimeStub();
+        const realtime = realtimeClientStub();
         const service = new TransfersService(
-            transportWithResponse({}),
+            unaryTransport({}).transport,
             realtime.realtime,
             undefined,
             catalog,

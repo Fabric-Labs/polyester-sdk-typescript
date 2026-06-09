@@ -33,6 +33,7 @@ import {
     RiskPolicyInputSchema,
     parseMarketMaxSlippage,
 } from "./orders-risk.schemas.js";
+import { buildSpotOrderCore } from "./spot-order-core.schemas.js";
 
 const OrderStatusSchema = v.picklist(ORDER_STATUS_FILTER_VALUES);
 const OrderTypeSchema = v.picklist(ORDER_TYPE_VALUES);
@@ -111,9 +112,7 @@ export function createNewOrderInputSchemaForReader(reader: CatalogReader) {
             clientOrderId: v.optional(v.pipe(v.string(), v.trim())),
             feeSource: v.pipe(
                 v.optional(FeeSourceSchema),
-                v.transform((v) =>
-                    v ? FeeSourceCodec.inputToProto[v] : ProtoWrite.FeeSource.QUOTE,
-                ),
+                v.transform((v) => (v ? FeeSourceCodec.inputToProto[v] : undefined)),
             ),
             stpMode: v.pipe(
                 v.optional(STPSchema),
@@ -142,20 +141,20 @@ export function createNewOrderInputSchemaForReader(reader: CatalogReader) {
                 marketClientRefPrice,
                 ...input
             }) => {
-                reader.orders.validateOrderInput({
-                    pair: input.symbol,
-                    quantity: qty,
-                    price: input.orderType === ProtoWrite.OrderType.LIMIT ? price : undefined,
+                const order = buildSpotOrderCore(reader, {
+                    symbol: input.symbol,
+                    side: input.side,
+                    orderType: input.orderType,
+                    tif: input.tif,
+                    qty,
+                    price,
+                    feeSource: input.feeSource,
+                    stpMode: input.stpMode,
+                    postOnly: input.postOnly,
                 });
-                const qtyScaled = reader.orders.parseQuantity(qty, input.symbol).value;
-                const priceTicks =
-                    input.orderType === ProtoWrite.OrderType.LIMIT && price
-                        ? parsePriceTicks(price, "price")
-                        : 0n;
                 return {
-                    ...input,
-                    qtyScaled,
-                    priceTicks,
+                    ...order,
+                    clientOrderId: input.clientOrderId,
                     subaccountId,
                     attachedRisk: risk,
                     marketMaxSlippage: parseMarketMaxSlippage(marketMaxSlippage),

@@ -111,6 +111,33 @@ describe("CreateTriggerInputSchema", () => {
         });
     });
 
+    it("normalizes explicit child order core fields", () => {
+        const schema = createCreateTriggerInputSchema(seedPairCatalog().snapshot());
+
+        const input = v.parse(schema, {
+            triggerType: "stop_loss",
+            symbol: "BTC-USDT",
+            side: "sell",
+            orderType: "limit",
+            tif: "gtc",
+            qty: "0.5",
+            limitPrice: "99.50",
+            triggerPrice: "100.00",
+            feeSource: "received",
+            stpMode: "expire_both",
+            postOnly: true,
+            clientTriggerId: "trigger-client-1",
+        });
+
+        expect(input).toMatchObject({
+            feeSource: ProtoOrders.FeeSource.RECEIVED,
+            stpMode: ProtoOrders.STPMode.EXPIRE_BOTH,
+            postOnly: true,
+            limitPriceTicks: 99_500_000n,
+            qtyScaled: 50_000_000n,
+        });
+    });
+
     it("normalizes trailing distance and max slippage variants", () => {
         const schema = createCreateTriggerInputSchema(seedPairCatalog().snapshot());
 

@@ -1,20 +1,14 @@
-import type { Transport } from "@connectrpc/connect";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import * as Proto from "../../gen/auth/v1/social_verification_pb.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
+import { unaryTransportSequence } from "../../testing/service-harness.js";
 import { SocialVerificationService } from "./social-verification.js";
 import {
     SocialProviderInputSchema,
     StartVerificationInputSchema,
     transformVerification,
 } from "./social-verification.schemas.js";
-
-type CapturedCall = {
-    message: Record<string, unknown>;
-    signal: AbortSignal | undefined;
-    headers: HeadersInit | undefined;
-};
 
 type StartVerificationCase = {
     input: Parameters<SocialVerificationService["start"]>[0];
@@ -24,30 +18,6 @@ type StartVerificationCase = {
         method: Proto.SocialVerificationMethod;
     };
 };
-
-function transportWithMessages(
-    messages: Record<string, unknown>[],
-    calls: CapturedCall[] = [],
-): Transport {
-    return {
-        unary: vi.fn(async (...args: unknown[]) => {
-            calls.push({
-                signal: args[1] as AbortSignal | undefined,
-                headers: args[3] as HeadersInit | undefined,
-                message: args[4] as Record<string, unknown>,
-            });
-            return {
-                message: messages.shift() ?? {},
-                header: new Headers(),
-                trailer: new Headers(),
-                stream: false,
-                service: undefined,
-                method: undefined,
-            };
-        }),
-        stream: vi.fn(),
-    } as unknown as Transport;
-}
 
 function verification(overrides: Partial<Record<string, unknown>> = {}): Record<string, unknown> {
     return {
@@ -67,7 +37,7 @@ function verification(overrides: Partial<Record<string, unknown>> = {}): Record<
     };
 }
 
-function stepUpHeader(call: CapturedCall | undefined): string | null {
+function stepUpHeader(call: { headers: HeadersInit | undefined } | undefined): string | null {
     return new Headers(call?.headers).get(AUTH_STEP_UP_HEADER_NAME);
 }
 
@@ -100,24 +70,19 @@ describe("SocialVerificationService", () => {
         ];
 
         for (const { input, expected } of cases) {
-            const calls: CapturedCall[] = [];
             const signal = new AbortController().signal;
-            const service = new SocialVerificationService(
-                transportWithMessages(
-                    [
-                        {
-                            challengeCode: "poly_123",
-                            expiresAt: { seconds: 2n, nanos: 0 },
-                            verification: verification({
-                                provider: expected.provider,
-                                method: expected.method,
-                                handle: expected.handle,
-                            }),
-                        },
-                    ],
-                    calls,
-                ),
-            );
+            const transport = unaryTransportSequence([
+                {
+                    challengeCode: "poly_123",
+                    expiresAt: { seconds: 2n, nanos: 0 },
+                    verification: verification({
+                        provider: expected.provider,
+                        method: expected.method,
+                        handle: expected.handle,
+                    }),
+                },
+            ]);
+            const service = new SocialVerificationService(transport.transport);
 
             await expect(
                 service.start(input, { signal, stepUpToken: " fresh-token " }),
@@ -130,29 +95,24 @@ describe("SocialVerificationService", () => {
                 },
             });
 
-            expect(calls[0]?.message).toMatchObject(expected);
-            expect(calls[0]?.message).not.toHaveProperty("stepUpToken");
-            expect(calls[0]?.signal).toBe(signal);
-            expect(stepUpHeader(calls[0])).toBe("fresh-token");
+            expect(transport.calls[0]?.message).toMatchObject(expected);
+            expect(transport.calls[0]?.message).not.toHaveProperty("stepUpToken");
+            expect(transport.calls[0]?.signal).toBe(signal);
+            expect(stepUpHeader(transport.calls[0])).toBe("fresh-token");
         }
     });
 
     it("normalizes provider-only methods and preserves empty verification responses", async () => {
-        const calls: CapturedCall[] = [];
         const signal = new AbortController().signal;
-        const service = new SocialVerificationService(
-            transportWithMessages(
-                [
-                    {
-                        verification: verification({
-                            status: Proto.SocialVerificationStatus.STATUS_QUEUED,
-                        }),
-                    },
-                    {},
-                ],
-                calls,
-            ),
-        );
+        const transport = unaryTransportSequence([
+            {
+                verification: verification({
+                    status: Proto.SocialVerificationStatus.STATUS_QUEUED,
+                }),
+            },
+            {},
+        ]);
+        const service = new SocialVerificationService(transport.transport);
 
         await expect(
             service.markReady({ provider: "twitter" }, { stepUpToken: " ready-token " }),
@@ -166,10 +126,10 @@ describe("SocialVerificationService", () => {
             verification: undefined,
         });
 
-        expect(calls[0]?.message).toEqual({ provider: Proto.SocialProvider.TWITTER });
-        expect(stepUpHeader(calls[0])).toBe("ready-token");
-        expect(calls[1]?.message).toEqual({ provider: Proto.SocialProvider.DISCORD });
-        expect(calls[1]?.signal).toBe(signal);
+        expect(transport.calls[0]?.message).toEqual({ provider: Proto.SocialProvider.TWITTER });
+        expect(stepUpHeader(transport.calls[0])).toBe("ready-token");
+        expect(transport.calls[1]?.message).toEqual({ provider: Proto.SocialProvider.DISCORD });
+        expect(transport.calls[1]?.signal).toBe(signal);
     });
 
     it("rejects malformed backend verification enums", async () => {
@@ -192,13 +152,12 @@ describe("SocialVerificationService", () => {
         ];
 
         for (const { field, value, message } of cases) {
-            const service = new SocialVerificationService(
-                transportWithMessages([
-                    {
-                        verification: verification({ [field]: value }),
-                    },
-                ]),
-            );
+            const transport = unaryTransportSequence([
+                {
+                    verification: verification({ [field]: value }),
+                },
+            ]);
+            const service = new SocialVerificationService(transport.transport);
 
             await expect(service.get({ provider: "twitter" })).rejects.toThrow(message);
         }

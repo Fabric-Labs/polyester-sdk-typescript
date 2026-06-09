@@ -1,78 +1,14 @@
-import type { Transport } from "@connectrpc/connect";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import { createPolyesterCatalog, staticCatalog } from "../../catalogs/index.js";
-import type { RealtimeClient } from "../../realtime/client.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { createTestCatalog } from "../../testing/catalog.js";
+import { realtimeClientStub, unaryTransportByMethod } from "../../testing/service-harness.js";
 import type { AssetConfig, PairConfig, SpotConfig } from "../market-data/market-data.schemas.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import type { DepositWithdrawConfig } from "../zipper/zipper.schemas.js";
 import { OrdersService } from "./orders.js";
-
-type CapturedUnary = {
-    method: string;
-    signal: AbortSignal | undefined;
-    headers: HeadersInit | undefined;
-    message: Record<string, unknown>;
-};
-
-function transportWithResponses(
-    responses: Record<string, Record<string, unknown>>,
-    capture?: (call: CapturedUnary) => void,
-): Transport {
-    return {
-        unary: vi.fn(
-            async (
-                method: { localName: string },
-                signal: AbortSignal | undefined,
-                _timeoutMs: number | undefined,
-                headers: HeadersInit | undefined,
-                message: Record<string, unknown>,
-            ) => {
-                capture?.({
-                    method: method.localName,
-                    signal,
-                    headers,
-                    message,
-                });
-                return {
-                    message: responses[method.localName] ?? {},
-                    header: new Headers(),
-                    trailer: new Headers(),
-                    stream: false,
-                    service: undefined,
-                    method: undefined,
-                };
-            },
-        ),
-        stream: vi.fn(),
-    } as unknown as Transport;
-}
-
-function createRealtimeStub(): {
-    realtime: RealtimeClient;
-    params: Parameters<RealtimeClient["connectProtoChannel"]>[0] | undefined;
-    unsubscribe: ReturnType<typeof vi.fn>;
-} {
-    let params: Parameters<RealtimeClient["connectProtoChannel"]>[0] | undefined;
-    const unsubscribe = vi.fn();
-    return {
-        realtime: {
-            connectProtoChannel: vi.fn(
-                (nextParams: Parameters<RealtimeClient["connectProtoChannel"]>[0]) => {
-                    params = nextParams;
-                    return unsubscribe;
-                },
-            ),
-        } as unknown as RealtimeClient,
-        get params() {
-            return params;
-        },
-        unsubscribe,
-    };
-}
 
 const emptyZipperConfig = {
     chains: [],
@@ -215,16 +151,13 @@ describe("OrdersService", () => {
         const resolver: SubaccountResolver = {
             getDefaultSubaccountId: () => "11",
         };
-        const captures: CapturedUnary[] = [];
+        const transport = unaryTransportByMethod({
+            getOpenOrders: { orders: [], nextPageToken: "open-next" },
+            getOrderHistory: { orders: [], nextPageToken: "history-next" },
+        });
         const service = new OrdersService(
-            transportWithResponses(
-                {
-                    getOpenOrders: { orders: [], nextPageToken: "open-next" },
-                    getOrderHistory: { orders: [], nextPageToken: "history-next" },
-                },
-                (call) => captures.push(call),
-            ),
-            createRealtimeStub().realtime,
+            transport.transport,
+            realtimeClientStub().realtime,
             resolver,
             catalog,
         );
@@ -281,40 +214,37 @@ describe("OrdersService", () => {
 
         for (const testCase of cases) {
             const result = await testCase.call();
-            const captured = captures.find((call) => call.method === testCase.expectedMethod);
+            const captured = transport.calls.find(
+                (call) => call.method.localName === testCase.expectedMethod,
+            );
 
             expect(result).toEqual({ orders: [], nextPageToken: testCase.expectedNextPageToken });
+            expect(captured?.method.localName).toBe(testCase.expectedMethod);
             expect(captured).toMatchObject({
-                method: testCase.expectedMethod,
                 signal: controller.signal,
                 message: testCase.expectedMessage,
             });
         }
 
         expect(
-            captures.find((call) => call.method === "getOrderHistory")?.message,
+            transport.calls.find((call) => call.method.localName === "getOrderHistory")?.message,
         ).not.toHaveProperty("subaccountId");
     });
 
     it("normalizes create requests, parses create responses, and forwards mutation options", async () => {
         const catalog = seedPairCatalog();
-        let captured: CapturedUnary | undefined;
         const controller = new AbortController();
+        const transport = unaryTransportByMethod({
+            createOrder: {
+                status: "accepted",
+                orderId: 11n,
+                clientOrderId: "client-1",
+                tsNs: 1_000_000n,
+            },
+        });
         const service = new OrdersService(
-            transportWithResponses(
-                {
-                    createOrder: {
-                        status: "accepted",
-                        orderId: 11n,
-                        clientOrderId: "client-1",
-                        tsNs: 1_000_000n,
-                    },
-                },
-                (call) => {
-                    captured = call;
-                },
-            ),
-            createRealtimeStub().realtime,
+            transport.transport,
+            realtimeClientStub().realtime,
             undefined,
             catalog,
         );
@@ -342,7 +272,8 @@ describe("OrdersService", () => {
             tsNs: 1,
         });
 
-        expect(captured?.method).toBe("createOrder");
+        const captured = transport.lastCall();
+        expect(captured?.method.localName).toBe("createOrder");
         expect(captured?.signal).toBe(controller.signal);
         expect(new Headers(captured?.headers).get(AUTH_STEP_UP_HEADER_NAME)).toBe("fresh-token");
         expect(captured?.message).toMatchObject({
@@ -384,20 +315,21 @@ describe("OrdersService", () => {
                 zipper: vi.fn(() => Promise.resolve(emptyZipperConfig)),
             },
         });
+        const transport = unaryTransportByMethod({
+            getOpenOrders: {
+                orders: [
+                    protoOrder({
+                        symbolId: 77,
+                        origQty: 12_345n,
+                        leavesQty: 12_345n,
+                    }),
+                ],
+                nextPageToken: "",
+            },
+        });
         const service = new OrdersService(
-            transportWithResponses({
-                getOpenOrders: {
-                    orders: [
-                        protoOrder({
-                            symbolId: 77,
-                            origQty: 12_345n,
-                            leavesQty: 12_345n,
-                        }),
-                    ],
-                    nextPageToken: "",
-                },
-            }),
-            createRealtimeStub().realtime,
+            transport.transport,
+            realtimeClientStub().realtime,
             undefined,
             catalog,
         );
@@ -419,26 +351,23 @@ describe("OrdersService", () => {
 
     it("normalizes cancel and modify mutation payloads", async () => {
         const catalog = seedPairCatalog();
-        const captures: CapturedUnary[] = [];
+        const transport = unaryTransportByMethod({
+            cancelOrder: {
+                status: "cancelled",
+                orderId: 22n,
+                tsNs: 2_000_000n,
+            },
+            modifyOrder: {
+                actionTaken: ProtoWrite.ModifyActionTaken.AMENDED,
+                oldOrderId: 22n,
+                finalOrderId: 22n,
+                code: "ok",
+                tsNs: 3_000_000n,
+            },
+        });
         const service = new OrdersService(
-            transportWithResponses(
-                {
-                    cancelOrder: {
-                        status: "cancelled",
-                        orderId: 22n,
-                        tsNs: 2_000_000n,
-                    },
-                    modifyOrder: {
-                        actionTaken: ProtoWrite.ModifyActionTaken.AMENDED,
-                        oldOrderId: 22n,
-                        finalOrderId: 22n,
-                        code: "ok",
-                        tsNs: 3_000_000n,
-                    },
-                },
-                (call) => captures.push(call),
-            ),
-            createRealtimeStub().realtime,
+            transport.transport,
+            realtimeClientStub().realtime,
             undefined,
             catalog,
         );
@@ -463,7 +392,9 @@ describe("OrdersService", () => {
             tsNs: 3,
         });
 
-        const cancelRequests = captures.filter((call) => call.method === "cancelOrder");
+        const cancelRequests = transport.calls.filter(
+            (call) => call.method.localName === "cancelOrder",
+        );
         expect(cancelRequests[0]?.message).toMatchObject({
             key: {
                 case: "orderId",
@@ -480,7 +411,9 @@ describe("OrdersService", () => {
             symbolId: 1,
             subaccountId: 11n,
         });
-        expect(captures.find((call) => call.method === "modifyOrder")?.message).toMatchObject({
+        expect(
+            transport.calls.find((call) => call.method.localName === "modifyOrder")?.message,
+        ).toMatchObject({
             key: {
                 case: "clientOrderId",
                 value: "client-1",
@@ -493,24 +426,16 @@ describe("OrdersService", () => {
     });
 
     it("generates a request ID for cancelAll when omitted", async () => {
-        let request: Record<string, unknown> | undefined;
-        const service = new OrdersService(
-            transportWithResponses(
-                {
-                    cancelAllOrders: {
-                        status: "ok",
-                        matchedOrders: 2,
-                        submittedCancels: 2,
-                        failedCancels: 0,
-                        tsNs: 1_000_000n,
-                    },
-                },
-                (call) => {
-                    request = call.message;
-                },
-            ),
-            createRealtimeStub().realtime,
-        );
+        const transport = unaryTransportByMethod({
+            cancelAllOrders: {
+                status: "ok",
+                matchedOrders: 2,
+                submittedCancels: 2,
+                failedCancels: 0,
+                tsNs: 1_000_000n,
+            },
+        });
+        const service = new OrdersService(transport.transport, realtimeClientStub().realtime);
 
         await expect(service.cancelAll({ symbol: " BTC-USDT " })).resolves.toMatchObject({
             status: "ok",
@@ -520,6 +445,7 @@ describe("OrdersService", () => {
             ts: 1,
         });
 
+        const request = transport.lastCall()?.message;
         expect(request).toMatchObject({
             symbol: "BTC-USDT",
         });
@@ -529,41 +455,30 @@ describe("OrdersService", () => {
     });
 
     it("preserves a caller-provided request ID for cancelAll", async () => {
-        let request: Record<string, unknown> | undefined;
-        const service = new OrdersService(
-            transportWithResponses(
-                {
-                    cancelAllOrders: {
-                        status: "ok",
-                        matchedOrders: 0,
-                        submittedCancels: 0,
-                        failedCancels: 0,
-                        tsNs: 1_000_000n,
-                    },
-                },
-                (call) => {
-                    request = call.message;
-                },
-            ),
-            createRealtimeStub().realtime,
-        );
+        const transport = unaryTransportByMethod({
+            cancelAllOrders: {
+                status: "ok",
+                matchedOrders: 0,
+                submittedCancels: 0,
+                failedCancels: 0,
+                tsNs: 1_000_000n,
+            },
+        });
+        const service = new OrdersService(transport.transport, realtimeClientStub().realtime);
 
         await service.cancelAll({ requestId: " retry-cancel-all-1 " });
 
+        const request = transport.lastCall()?.message;
         expect(request?.requestId).toBe("retry-cancel-all-1");
     });
 
     it("returns null when get order details response omits the order", async () => {
-        let request: Record<string, unknown> | undefined;
-        const service = new OrdersService(
-            transportWithResponses({ getOrder: {} }, (call) => {
-                request = call.message;
-            }),
-            createRealtimeStub().realtime,
-        );
+        const transport = unaryTransportByMethod({ getOrder: {} });
+        const service = new OrdersService(transport.transport, realtimeClientStub().realtime);
 
         await expect(service.getDetails({ clientOrderId: " client-1 " })).resolves.toBeNull();
 
+        const request = transport.lastCall()?.message;
         expect(request).toMatchObject({
             includeAttachedRisk: true,
             includeAttachedRiskState: true,
@@ -576,15 +491,16 @@ describe("OrdersService", () => {
 
     it("parses populated order details responses", async () => {
         const catalog = seedPairCatalog();
+        const transport = unaryTransportByMethod({
+            getOrder: {
+                order: protoOrder({ status: ProtoRead.OrderStatus.FILLED }),
+                trades: [],
+                transfers: [],
+            },
+        });
         const service = new OrdersService(
-            transportWithResponses({
-                getOrder: {
-                    order: protoOrder({ status: ProtoRead.OrderStatus.FILLED }),
-                    trades: [],
-                    transfers: [],
-                },
-            }),
-            createRealtimeStub().realtime,
+            transport.transport,
+            realtimeClientStub().realtime,
             undefined,
             catalog,
         );
@@ -604,9 +520,9 @@ describe("OrdersService", () => {
 
     it("uses private order channels and parses realtime publications", () => {
         const catalog = seedPairCatalog();
-        const realtime = createRealtimeStub();
+        const realtime = realtimeClientStub();
         const service = new OrdersService(
-            transportWithResponses({}),
+            unaryTransportByMethod({}).transport,
             realtime.realtime,
             undefined,
             catalog,
@@ -656,25 +572,24 @@ describe("OrdersService", () => {
 
     it("rejects malformed backend and realtime order payloads", async () => {
         const catalog = seedPairCatalog();
+        const transport = unaryTransportByMethod({
+            getOpenOrders: {
+                orders: [protoOrder({ status: ProtoRead.OrderStatus.ORDER_STATUS_UNSPECIFIED })],
+                nextPageToken: "",
+            },
+        });
         const service = new OrdersService(
-            transportWithResponses({
-                getOpenOrders: {
-                    orders: [
-                        protoOrder({ status: ProtoRead.OrderStatus.ORDER_STATUS_UNSPECIFIED }),
-                    ],
-                    nextPageToken: "",
-                },
-            }),
-            createRealtimeStub().realtime,
+            transport.transport,
+            realtimeClientStub().realtime,
             undefined,
             catalog,
         );
 
         await expect(service.listOpen()).rejects.toThrow();
 
-        const realtime = createRealtimeStub();
+        const realtime = realtimeClientStub();
         const subscriptionService = new OrdersService(
-            transportWithResponses({}),
+            unaryTransportByMethod({}).transport,
             realtime.realtime,
             undefined,
             catalog,

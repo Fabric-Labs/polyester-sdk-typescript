@@ -1,75 +1,11 @@
-import type { Transport } from "@connectrpc/connect";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
-import type { RealtimeClient } from "../../realtime/index.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { createTestCatalog } from "../../testing/catalog.js";
+import { realtimeClientStub, unaryTransportByMethod } from "../../testing/service-harness.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import { TriggersService } from "./triggers.js";
-
-type CapturedUnary = {
-    method: string;
-    signal: AbortSignal | undefined;
-    headers: HeadersInit | undefined;
-    message: Record<string, unknown>;
-};
-
-function transportWithResponses(
-    responses: Record<string, Record<string, unknown>>,
-    capture?: (call: CapturedUnary) => void,
-): Transport {
-    return {
-        unary: vi.fn(
-            async (
-                method: { localName: string },
-                signal: AbortSignal | undefined,
-                _timeoutMs: number | undefined,
-                headers: HeadersInit | undefined,
-                message: Record<string, unknown>,
-            ) => {
-                capture?.({
-                    method: method.localName,
-                    signal,
-                    headers,
-                    message,
-                });
-                return {
-                    message: responses[method.localName] ?? {},
-                    header: new Headers(),
-                    trailer: new Headers(),
-                    stream: false,
-                    service: undefined,
-                    method: undefined,
-                };
-            },
-        ),
-        stream: vi.fn(),
-    } as unknown as Transport;
-}
-
-function createRealtimeStub(): {
-    realtime: RealtimeClient;
-    params: Parameters<RealtimeClient["connectProtoChannel"]>[0] | undefined;
-    unsubscribe: ReturnType<typeof vi.fn>;
-} {
-    let params: Parameters<RealtimeClient["connectProtoChannel"]>[0] | undefined;
-    const unsubscribe = vi.fn();
-    return {
-        realtime: {
-            connectProtoChannel: vi.fn(
-                (nextParams: Parameters<RealtimeClient["connectProtoChannel"]>[0]) => {
-                    params = nextParams;
-                    return unsubscribe;
-                },
-            ),
-        } as unknown as RealtimeClient,
-        get params() {
-            return params;
-        },
-        unsubscribe,
-    };
-}
 
 function seedPairCatalog() {
     const btc = {
@@ -292,12 +228,10 @@ describe("TriggersService", () => {
         ];
 
         for (const testCase of cases) {
-            let captured: CapturedUnary | undefined;
+            const transport = unaryTransportByMethod({ createTrigger: createResult });
             const service = new TriggersService(
-                transportWithResponses({ createTrigger: createResult }, (call) => {
-                    captured = call;
-                }),
-                createRealtimeStub().realtime,
+                transport.transport,
+                realtimeClientStub().realtime,
                 undefined,
                 catalog,
             );
@@ -307,8 +241,9 @@ describe("TriggersService", () => {
                 tsNs: 1,
                 clientTriggerId: "trigger-client-1",
             });
+            const captured = transport.lastCall();
+            expect(captured?.method.localName).toBe("createTrigger");
             expect(captured).toMatchObject({
-                method: "createTrigger",
                 message: testCase.expected,
             });
         }
@@ -316,21 +251,18 @@ describe("TriggersService", () => {
 
     it("normalizes read methods, defaults, resolver state, and call options", async () => {
         const catalog = seedPairCatalog();
-        const captures: CapturedUnary[] = [];
         const controller = new AbortController();
         const resolver: SubaccountResolver = {
             getDefaultSubaccountId: () => "11",
         };
+        const transport = unaryTransportByMethod({
+            getTrigger: {},
+            listTriggers: { triggers: [trigger()], total: 1 },
+            listTriggerEvents: { events: [triggerEvent()], nextBeforeTsNs: 2_000_000n },
+        });
         const service = new TriggersService(
-            transportWithResponses(
-                {
-                    getTrigger: {},
-                    listTriggers: { triggers: [trigger()], total: 1 },
-                    listTriggerEvents: { events: [triggerEvent()], nextBeforeTsNs: 2_000_000n },
-                },
-                (call) => captures.push(call),
-            ),
-            createRealtimeStub().realtime,
+            transport.transport,
+            realtimeClientStub().realtime,
             resolver,
             catalog,
         );
@@ -367,10 +299,14 @@ describe("TriggersService", () => {
             ],
         });
 
-        expect(captures.find((call) => call.method === "getTrigger")?.message).toEqual({
+        expect(
+            transport.calls.find((call) => call.method.localName === "getTrigger")?.message,
+        ).toEqual({
             triggerId: 22n,
         });
-        expect(captures.find((call) => call.method === "listTriggers")).toMatchObject({
+        expect(
+            transport.calls.find((call) => call.method.localName === "listTriggers"),
+        ).toMatchObject({
             signal: controller.signal,
             message: {
                 subaccountId: 11n,
@@ -382,7 +318,9 @@ describe("TriggersService", () => {
                 offset: 0,
             },
         });
-        expect(captures.find((call) => call.method === "listTriggerEvents")?.message).toEqual({
+        expect(
+            transport.calls.find((call) => call.method.localName === "listTriggerEvents")?.message,
+        ).toEqual({
             triggerId: 22n,
             subaccountId: 11n,
             limit: 2,
@@ -392,34 +330,31 @@ describe("TriggersService", () => {
 
     it("normalizes trigger mutations and forwards step-up metadata", async () => {
         const catalog = seedPairCatalog();
-        const captures: CapturedUnary[] = [];
+        const transport = unaryTransportByMethod({
+            cancelTrigger: {
+                triggerId: 22n,
+                status: Proto.TriggerStatus.CANCELLED,
+                tsNs: 1_000_000n,
+            },
+            modifyTrigger: {
+                triggerId: 22n,
+                status: Proto.TriggerStatus.ARMED,
+                tsNs: 2_000_000n,
+            },
+            pauseTrigger: {
+                triggerId: 22n,
+                status: Proto.TriggerStatus.PAUSED,
+                tsNs: 3_000_000n,
+            },
+            resumeTrigger: {
+                triggerId: 22n,
+                status: Proto.TriggerStatus.ARMED,
+                tsNs: 4_000_000n,
+            },
+        });
         const service = new TriggersService(
-            transportWithResponses(
-                {
-                    cancelTrigger: {
-                        triggerId: 22n,
-                        status: Proto.TriggerStatus.CANCELLED,
-                        tsNs: 1_000_000n,
-                    },
-                    modifyTrigger: {
-                        triggerId: 22n,
-                        status: Proto.TriggerStatus.ARMED,
-                        tsNs: 2_000_000n,
-                    },
-                    pauseTrigger: {
-                        triggerId: 22n,
-                        status: Proto.TriggerStatus.PAUSED,
-                        tsNs: 3_000_000n,
-                    },
-                    resumeTrigger: {
-                        triggerId: 22n,
-                        status: Proto.TriggerStatus.ARMED,
-                        tsNs: 4_000_000n,
-                    },
-                },
-                (call) => captures.push(call),
-            ),
-            createRealtimeStub().realtime,
+            transport.transport,
+            realtimeClientStub().realtime,
             undefined,
             catalog,
         );
@@ -444,31 +379,41 @@ describe("TriggersService", () => {
             tsNs: 4,
         });
 
-        expect(new Headers(captures[0]?.headers).get(AUTH_STEP_UP_HEADER_NAME)).toBe("fresh");
-        expect(captures.find((call) => call.method === "cancelTrigger")?.message).toEqual({
+        expect(new Headers(transport.calls[0]?.headers).get(AUTH_STEP_UP_HEADER_NAME)).toBe(
+            "fresh",
+        );
+        expect(
+            transport.calls.find((call) => call.method.localName === "cancelTrigger")?.message,
+        ).toEqual({
             triggerId: 22n,
             subaccountId: 11n,
         });
-        expect(captures.find((call) => call.method === "modifyTrigger")?.message).toMatchObject({
+        expect(
+            transport.calls.find((call) => call.method.localName === "modifyTrigger")?.message,
+        ).toMatchObject({
             triggerId: 22n,
             subaccountId: 11n,
             triggerPriceTicks: 101_250_000n,
             trailingDistance: { case: undefined, value: undefined },
             maxSlippage: { case: undefined, value: undefined },
         });
-        expect(captures.find((call) => call.method === "pauseTrigger")?.message).toEqual({
+        expect(
+            transport.calls.find((call) => call.method.localName === "pauseTrigger")?.message,
+        ).toEqual({
             triggerId: 22n,
         });
-        expect(captures.find((call) => call.method === "resumeTrigger")?.message).toEqual({
+        expect(
+            transport.calls.find((call) => call.method.localName === "resumeTrigger")?.message,
+        ).toEqual({
             triggerId: 22n,
         });
     });
 
     it("uses private trigger channels and parses trigger publications", () => {
         const catalog = seedPairCatalog();
-        const realtime = createRealtimeStub();
+        const realtime = realtimeClientStub();
         const service = new TriggersService(
-            transportWithResponses({}),
+            unaryTransportByMethod({}).transport,
             realtime.realtime,
             undefined,
             catalog,
@@ -523,9 +468,9 @@ describe("TriggersService", () => {
 
     it("uses private trigger event channels and parses event publications", () => {
         const catalog = seedPairCatalog();
-        const realtime = createRealtimeStub();
+        const realtime = realtimeClientStub();
         const service = new TriggersService(
-            transportWithResponses({}),
+            unaryTransportByMethod({}).transport,
             realtime.realtime,
             undefined,
             catalog,
@@ -558,14 +503,14 @@ describe("TriggersService", () => {
 
     it("rejects invalid create input and malformed backend trigger responses", async () => {
         const catalog = seedPairCatalog();
-        const transport = transportWithResponses({
+        const transport = unaryTransportByMethod({
             getTrigger: {
                 trigger: trigger({ status: Proto.TriggerStatus.TRIGGER_STATUS_UNSPECIFIED }),
             },
         });
         const service = new TriggersService(
-            transport,
-            createRealtimeStub().realtime,
+            transport.transport,
+            realtimeClientStub().realtime,
             undefined,
             catalog,
         );

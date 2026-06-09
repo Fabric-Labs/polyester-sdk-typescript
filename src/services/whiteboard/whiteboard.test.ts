@@ -1,8 +1,8 @@
-import type { Transport } from "@connectrpc/connect";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import * as Proto from "../../gen/collab/v1/whiteboard_pb.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
+import { unaryTransportSequence } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
 import { WhiteboardService } from "./whiteboard.js";
 import {
@@ -11,36 +11,6 @@ import {
     UpdateWhiteboardBoardInputSchema,
     WhiteboardJoinTokenResultSchema,
 } from "./whiteboard.schemas.js";
-
-type CapturedCall = {
-    message: Record<string, unknown>;
-    signal: AbortSignal | undefined;
-    headers: HeadersInit | undefined;
-};
-
-function transportWithMessages(
-    messages: Record<string, unknown>[],
-    calls: CapturedCall[] = [],
-): Transport {
-    return {
-        unary: vi.fn(async (...args: unknown[]) => {
-            calls.push({
-                signal: args[1] as AbortSignal | undefined,
-                headers: args[3] as HeadersInit | undefined,
-                message: args[4] as Record<string, unknown>,
-            });
-            return {
-                message: messages.shift() ?? {},
-                header: new Headers(),
-                trailer: new Headers(),
-                stream: false,
-                service: undefined,
-                method: undefined,
-            };
-        }),
-        stream: vi.fn(),
-    } as unknown as Transport;
-}
 
 function board(overrides: Partial<Record<string, unknown>> = {}): Record<string, unknown> {
     return {
@@ -105,15 +75,15 @@ function joinToken(overrides: Partial<Record<string, unknown>> = {}): Record<str
     };
 }
 
-function stepUpHeader(call: CapturedCall | undefined): string | null {
+function stepUpHeader(call: { headers: HeadersInit | undefined } | undefined): string | null {
     return new Headers(call?.headers).get(AUTH_STEP_UP_HEADER_NAME);
 }
 
 describe("WhiteboardService", () => {
     it("normalizes create payloads and parses board details", async () => {
-        const calls: CapturedCall[] = [];
         const signal = new AbortController().signal;
-        const service = new WhiteboardService(transportWithMessages([boardDetails()], calls));
+        const transport = unaryTransportSequence([boardDetails()]);
+        const service = new WhiteboardService(transport.transport);
 
         await expect(
             service.create(
@@ -160,7 +130,7 @@ describe("WhiteboardService", () => {
             },
         });
 
-        expect(calls[0]?.message).toMatchObject({
+        expect(transport.calls[0]?.message).toMatchObject({
             title: "Roadmap",
             audience: Proto.BoardAudience.PUBLIC,
             defaultRole: Proto.BoardRole.VIEWER,
@@ -173,20 +143,19 @@ describe("WhiteboardService", () => {
             ],
             initialSnapshot: { nodes: [] },
         });
-        expect(calls[0]?.message).not.toHaveProperty("stepUpToken");
-        expect(calls[0]?.signal).toBe(signal);
-        expect(stepUpHeader(calls[0])).toBe("fresh-token");
+        expect(transport.calls[0]?.message).not.toHaveProperty("stepUpToken");
+        expect(transport.calls[0]?.signal).toBe(signal);
+        expect(stepUpHeader(transport.calls[0])).toBe("fresh-token");
     });
 
     it("normalizes get and list inputs and preserves empty list responses", async () => {
-        const calls: CapturedCall[] = [];
         const signal = new AbortController().signal;
-        const service = new WhiteboardService(
-            transportWithMessages(
-                [boardDetails(), {}, { boards: [{ board: board(), access: access() }] }],
-                calls,
-            ),
-        );
+        const transport = unaryTransportSequence([
+            boardDetails(),
+            {},
+            { boards: [{ board: board(), access: access() }] },
+        ]);
+        const service = new WhiteboardService(transport.transport);
 
         await expect(service.get(" board-1 ", { signal })).resolves.toMatchObject({
             board: {
@@ -207,18 +176,16 @@ describe("WhiteboardService", () => {
             ],
         });
 
-        expect(calls[0]?.message).toEqual({ boardId: "board-1" });
-        expect(calls[0]?.signal).toBe(signal);
-        expect(calls[1]?.message).toEqual({ includeArchived: false });
-        expect(calls[2]?.message).toEqual({ includeArchived: true });
-        expect(calls[2]?.signal).toBe(signal);
+        expect(transport.calls[0]?.message).toEqual({ boardId: "board-1" });
+        expect(transport.calls[0]?.signal).toBe(signal);
+        expect(transport.calls[1]?.message).toEqual({ includeArchived: false });
+        expect(transport.calls[2]?.message).toEqual({ includeArchived: true });
+        expect(transport.calls[2]?.signal).toBe(signal);
     });
 
     it("normalizes update and ACL replacement requests", async () => {
-        const calls: CapturedCall[] = [];
-        const service = new WhiteboardService(
-            transportWithMessages([boardDetails(), boardDetails()], calls),
-        );
+        const transport = unaryTransportSequence([boardDetails(), boardDetails()]);
+        const service = new WhiteboardService(transport.transport);
 
         await service.update(
             {
@@ -242,15 +209,15 @@ describe("WhiteboardService", () => {
             { stepUpToken: " acl-token " },
         );
 
-        expect(calls[0]?.message).toMatchObject({
+        expect(transport.calls[0]?.message).toMatchObject({
             boardId: "board-1",
             title: "New title",
             audience: Proto.BoardAudience.PRIVATE,
         });
-        expect(calls[0]?.message).not.toHaveProperty("defaultRole");
-        expect(calls[0]?.message).not.toHaveProperty("initialSnapshot");
-        expect(stepUpHeader(calls[0])).toBe("update-token");
-        expect(calls[1]?.message).toMatchObject({
+        expect(transport.calls[0]?.message).not.toHaveProperty("defaultRole");
+        expect(transport.calls[0]?.message).not.toHaveProperty("initialSnapshot");
+        expect(stepUpHeader(transport.calls[0])).toBe("update-token");
+        expect(transport.calls[1]?.message).toMatchObject({
             boardId: "board-1",
             aclEntries: [
                 {
@@ -260,12 +227,12 @@ describe("WhiteboardService", () => {
                 },
             ],
         });
-        expect(stepUpHeader(calls[1])).toBe("acl-token");
+        expect(stepUpHeader(transport.calls[1])).toBe("acl-token");
     });
 
     it("normalizes archive and mint join token requests", async () => {
-        const calls: CapturedCall[] = [];
-        const service = new WhiteboardService(transportWithMessages([{}, joinToken()], calls));
+        const transport = unaryTransportSequence([{}, joinToken()]);
+        const service = new WhiteboardService(transport.transport);
 
         const archiveResult = await service.archive(
             { boardId: " board-1 ", archived: false },
@@ -291,25 +258,20 @@ describe("WhiteboardService", () => {
         });
 
         expect(archiveResult.board).toBeUndefined();
-        expect(calls[0]?.message).toEqual({ boardId: "board-1", archived: false });
-        expect(stepUpHeader(calls[0])).toBe("archive-token");
-        expect(calls[1]?.message).toEqual({ boardId: "board-1" });
-        expect(stepUpHeader(calls[1])).toBe("mint-token");
+        expect(transport.calls[0]?.message).toEqual({ boardId: "board-1", archived: false });
+        expect(stepUpHeader(transport.calls[0])).toBe("archive-token");
+        expect(transport.calls[1]?.message).toEqual({ boardId: "board-1" });
+        expect(stepUpHeader(transport.calls[1])).toBe("mint-token");
     });
 
     it("rejects invalid inputs and malformed backend responses before exposing them", async () => {
-        const calls: CapturedCall[] = [];
-        const service = new WhiteboardService(
-            transportWithMessages(
-                [
-                    boardDetails({
-                        board: board({ audience: Proto.BoardAudience.AUDIENCE_UNSPECIFIED }),
-                    }),
-                    { aclEntries: [] },
-                ],
-                calls,
-            ),
-        );
+        const transport = unaryTransportSequence([
+            boardDetails({
+                board: board({ audience: Proto.BoardAudience.AUDIENCE_UNSPECIFIED }),
+            }),
+            { aclEntries: [] },
+        ]);
+        const service = new WhiteboardService(transport.transport);
 
         await expect(
             service.update({ boardId: "board-1" } as Parameters<WhiteboardService["update"]>[0]),
@@ -323,7 +285,7 @@ describe("WhiteboardService", () => {
                 ],
             }),
         ).rejects.toThrow("aclEntries must not contain duplicate subjects");
-        expect(calls).toHaveLength(0);
+        expect(transport.calls).toHaveLength(0);
 
         await expect(service.get("board-1")).rejects.toThrow("invalid audience 0");
         await expect(service.get("board-1")).rejects.toThrow();

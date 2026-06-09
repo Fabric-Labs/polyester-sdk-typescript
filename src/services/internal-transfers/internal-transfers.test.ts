@@ -1,48 +1,8 @@
-import type { Transport } from "@connectrpc/connect";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
+import { unaryTransport } from "../../testing/service-harness.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import { InternalTransfersService } from "./internal-transfers.js";
-
-type CapturedUnary = {
-    method: string;
-    signal: AbortSignal | undefined;
-    headers: HeadersInit | undefined;
-    message: Record<string, unknown>;
-};
-
-function transportWithResponse(
-    response: Record<string, unknown>,
-    capture?: (call: CapturedUnary) => void,
-): Transport {
-    return {
-        unary: vi.fn(
-            async (
-                method: { localName: string },
-                signal: AbortSignal | undefined,
-                _timeoutMs: number | undefined,
-                headers: HeadersInit | undefined,
-                message: Record<string, unknown>,
-            ) => {
-                capture?.({
-                    method: method.localName,
-                    signal,
-                    headers,
-                    message,
-                });
-                return {
-                    message: response,
-                    header: new Headers(),
-                    trailer: new Headers(),
-                    stream: false,
-                    service: undefined,
-                    method: undefined,
-                };
-            },
-        ),
-        stream: vi.fn(),
-    } as unknown as Transport;
-}
 
 const acceptedTransfer = {
     requestId: "req-1",
@@ -61,17 +21,12 @@ const acceptedTransfer = {
 
 describe("InternalTransfersService", () => {
     it("normalizes create payloads, resolver defaults, and mutation options", async () => {
-        let captured: CapturedUnary | undefined;
         const controller = new AbortController();
         const resolver: SubaccountResolver = {
             getDefaultSubaccountId: () => "11",
         };
-        const service = new InternalTransfersService(
-            transportWithResponse(acceptedTransfer, (call) => {
-                captured = call;
-            }),
-            resolver,
-        );
+        const transport = unaryTransport(acceptedTransfer);
+        const service = new InternalTransfersService(transport.transport, resolver);
 
         await expect(
             service.create(
@@ -98,7 +53,8 @@ describe("InternalTransfersService", () => {
             },
         });
 
-        expect(captured?.method).toBe("createInternalTransfer");
+        const captured = transport.lastCall();
+        expect(captured?.method.localName).toBe("createInternalTransfer");
         expect(captured?.signal).toBe(controller.signal);
         expect(new Headers(captured?.headers).get(AUTH_STEP_UP_HEADER_NAME)).toBe("fresh-token");
         expect(captured?.message).toMatchObject({
@@ -114,16 +70,11 @@ describe("InternalTransfersService", () => {
     });
 
     it("treats an explicit empty subaccount as main account and bypasses the resolver", async () => {
-        let captured: CapturedUnary | undefined;
         const resolver: SubaccountResolver = {
             getDefaultSubaccountId: () => "11",
         };
-        const service = new InternalTransfersService(
-            transportWithResponse(acceptedTransfer, (call) => {
-                captured = call;
-            }),
-            resolver,
-        );
+        const transport = unaryTransport(acceptedTransfer);
+        const service = new InternalTransfersService(transport.transport, resolver);
 
         await service.create({
             subaccountId: "",
@@ -133,20 +84,20 @@ describe("InternalTransfersService", () => {
             idempotencyKey: "transfer-2",
         });
 
+        const captured = transport.lastCall();
         expect(captured?.message).not.toHaveProperty("subaccountId");
-        expect(captured?.message.destination).toEqual({
+        expect((captured?.message as { destination?: unknown })?.destination).toEqual({
             case: "destinationAccountId",
             value: 22n,
         });
     });
 
     it("rejects malformed backend create responses", async () => {
-        const service = new InternalTransfersService(
-            transportWithResponse({
-                ...acceptedTransfer,
-                requestId: "",
-            }),
-        );
+        const transport = unaryTransport({
+            ...acceptedTransfer,
+            requestId: "",
+        });
+        const service = new InternalTransfersService(transport.transport);
 
         await expect(
             service.create({

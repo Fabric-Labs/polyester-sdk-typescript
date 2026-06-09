@@ -1,9 +1,8 @@
-import type { Transport } from "@connectrpc/connect";
 import { describe, expect, it, vi } from "vitest";
 import * as v from "valibot";
 import * as Proto from "../../../gen/auth/v1/profile_pb.js";
-import type { RealtimeClient } from "../../../realtime/client.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../../shared/request-options.js";
+import { realtimeClientStub, unaryTransportSequence } from "../../../testing/service-harness.js";
 import { formatId } from "../../../utils/base58-id.js";
 import { ProfileService } from "./profile.js";
 import {
@@ -11,12 +10,6 @@ import {
     ProfileSchema,
     UpdateProfileInputSchema,
 } from "./profile.schemas.js";
-
-type CapturedCall = {
-    message: Record<string, unknown>;
-    signal: AbortSignal | undefined;
-    headers: HeadersInit | undefined;
-};
 
 type IdentitySubscriptionParams = {
     channel: string;
@@ -26,40 +19,6 @@ type IdentitySubscriptionParams = {
     onDisconnected: () => void;
     onError: (ctx: Record<string, unknown>) => void;
 };
-
-function transportWithMessages(
-    messages: Record<string, unknown>[],
-    calls: CapturedCall[] = [],
-): Transport {
-    return {
-        unary: vi.fn(async (...args: unknown[]) => {
-            calls.push({
-                signal: args[1] as AbortSignal | undefined,
-                headers: args[3] as HeadersInit | undefined,
-                message: args[4] as Record<string, unknown>,
-            });
-            return {
-                message: messages.shift() ?? {},
-                header: new Headers(),
-                trailer: new Headers(),
-                stream: false,
-                service: undefined,
-                method: undefined,
-            };
-        }),
-        stream: vi.fn(),
-    } as unknown as Transport;
-}
-
-function realtimeMock() {
-    const unsubscribe = vi.fn();
-    const connectProtoChannel = vi.fn((_params: unknown) => unsubscribe);
-    return {
-        client: { connectProtoChannel } as unknown as RealtimeClient,
-        connectProtoChannel,
-        unsubscribe,
-    };
-}
 
 function profile(overrides: Partial<Record<string, unknown>> = {}): Record<string, unknown> {
     return {
@@ -76,28 +35,22 @@ function profile(overrides: Partial<Record<string, unknown>> = {}): Record<strin
     };
 }
 
-function stepUpHeader(call: CapturedCall | undefined): string | null {
+function stepUpHeader(call: { headers: HeadersInit | undefined } | undefined): string | null {
     return new Headers(call?.headers).get(AUTH_STEP_UP_HEADER_NAME);
 }
 
 describe("ProfileService", () => {
     it("gets the profile with an empty request and parses defaults", async () => {
-        const calls: CapturedCall[] = [];
         const signal = new AbortController().signal;
-        const realtime = realtimeMock();
-        const service = new ProfileService(
-            transportWithMessages(
-                [
-                    profile({
-                        twitterVerified: undefined,
-                        discordVerified: undefined,
-                        usernameUnlocked: undefined,
-                    }),
-                ],
-                calls,
-            ),
-            realtime.client,
-        );
+        const realtime = realtimeClientStub();
+        const transport = unaryTransportSequence([
+            profile({
+                twitterVerified: undefined,
+                discordVerified: undefined,
+                usernameUnlocked: undefined,
+            }),
+        ]);
+        const service = new ProfileService(transport.transport, realtime.realtime);
 
         await expect(service.get({ signal })).resolves.toMatchObject({
             username: "alice",
@@ -107,17 +60,14 @@ describe("ProfileService", () => {
             createdAt: 1000,
             nextUsernameChangeAt: 2000,
         });
-        expect(calls[0]?.message).toEqual({});
-        expect(calls[0]?.signal).toBe(signal);
+        expect(transport.calls[0]?.message).toEqual({});
+        expect(transport.calls[0]?.signal).toBe(signal);
     });
 
     it("updates mutable profile fields without forwarding readonly fields", async () => {
-        const calls: CapturedCall[] = [];
-        const realtime = realtimeMock();
-        const service = new ProfileService(
-            transportWithMessages([profile({ bio: "updated", website: "" })], calls),
-            realtime.client,
-        );
+        const realtime = realtimeClientStub();
+        const transport = unaryTransportSequence([profile({ bio: "updated", website: "" })]);
+        const service = new ProfileService(transport.transport, realtime.realtime);
 
         await expect(
             service.update(
@@ -134,34 +84,28 @@ describe("ProfileService", () => {
             website: "",
         });
 
-        expect(calls[0]?.message).toEqual({
+        expect(transport.calls[0]?.message).toEqual({
             bio: "updated",
             website: "",
         });
-        expect(stepUpHeader(calls[0])).toBe("fresh-token");
+        expect(stepUpHeader(transport.calls[0])).toBe("fresh-token");
     });
 
     it("parses username history and rejects malformed profile responses", async () => {
-        const calls: CapturedCall[] = [];
         const signal = new AbortController().signal;
-        const realtime = realtimeMock();
-        const service = new ProfileService(
-            transportWithMessages(
-                [
+        const realtime = realtimeClientStub();
+        const transport = unaryTransportSequence([
+            {
+                history: [
                     {
-                        history: [
-                            {
-                                username: "alice",
-                                setAt: { seconds: 3n, nanos: 0 },
-                            },
-                        ],
+                        username: "alice",
+                        setAt: { seconds: 3n, nanos: 0 },
                     },
-                    {},
                 ],
-                calls,
-            ),
-            realtime.client,
-        );
+            },
+            {},
+        ]);
+        const service = new ProfileService(transport.transport, realtime.realtime);
 
         await expect(service.getUsernameHistory({ signal })).resolves.toEqual([
             {
@@ -169,14 +113,14 @@ describe("ProfileService", () => {
                 setAt: 3000,
             },
         ]);
-        expect(calls[0]?.message).toEqual({});
-        expect(calls[0]?.signal).toBe(signal);
+        expect(transport.calls[0]?.message).toEqual({});
+        expect(transport.calls[0]?.signal).toBe(signal);
         await expect(service.get()).rejects.toThrow();
     });
 
     it("subscribes to public identity publications and parses events", () => {
-        const realtime = realtimeMock();
-        const service = new ProfileService(transportWithMessages([]), realtime.client);
+        const realtime = realtimeClientStub();
+        const service = new ProfileService(unaryTransportSequence([]).transport, realtime.realtime);
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();
@@ -189,8 +133,7 @@ describe("ProfileService", () => {
             onError,
         });
 
-        const params = realtime.connectProtoChannel.mock
-            .calls[0]?.[0] as IdentitySubscriptionParams;
+        const params = realtime.params as unknown as IdentitySubscriptionParams;
         expect(unsubscribe).toBe(realtime.unsubscribe);
         expect(params).toMatchObject({
             channel: "public:identity:updates:proto",

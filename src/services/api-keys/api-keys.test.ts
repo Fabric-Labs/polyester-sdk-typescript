@@ -1,9 +1,8 @@
-import type { Transport } from "@connectrpc/connect";
 import { describe, expect, it, vi } from "vitest";
 import * as v from "valibot";
 import * as Proto from "../../gen/auth/v1/api_keys_pb.js";
-import type { RealtimeClient } from "../../realtime/client.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
+import { realtimeClientStub, unaryTransportSequence } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import { ApiKeysService } from "./api-keys.js";
@@ -14,12 +13,6 @@ import {
     ApiKeysUpdateInputSchema,
 } from "./api-keys.schemas.js";
 
-type CapturedCall = {
-    message: Record<string, unknown>;
-    signal: AbortSignal | undefined;
-    headers: HeadersInit | undefined;
-};
-
 type ApiKeySubscriptionParams = {
     channel: string;
     schema: unknown;
@@ -28,40 +21,6 @@ type ApiKeySubscriptionParams = {
     onDisconnected: () => void;
     onError: (ctx: Record<string, unknown>) => void;
 };
-
-function transportWithMessages(
-    messages: Record<string, unknown>[],
-    calls: CapturedCall[] = [],
-): Transport {
-    return {
-        unary: vi.fn(async (...args: unknown[]) => {
-            calls.push({
-                signal: args[1] as AbortSignal | undefined,
-                headers: args[3] as HeadersInit | undefined,
-                message: args[4] as Record<string, unknown>,
-            });
-            return {
-                message: messages.shift() ?? {},
-                header: new Headers(),
-                trailer: new Headers(),
-                stream: false,
-                service: undefined,
-                method: undefined,
-            };
-        }),
-        stream: vi.fn(),
-    } as unknown as Transport;
-}
-
-function realtimeMock() {
-    const unsubscribe = vi.fn();
-    const connectProtoChannel = vi.fn((_params: unknown) => unsubscribe);
-    return {
-        client: { connectProtoChannel } as unknown as RealtimeClient,
-        connectProtoChannel,
-        unsubscribe,
-    };
-}
 
 function apiKey(overrides: Partial<Record<string, unknown>> = {}): Record<string, unknown> {
     return {
@@ -78,7 +37,7 @@ function apiKey(overrides: Partial<Record<string, unknown>> = {}): Record<string
     };
 }
 
-function stepUpHeader(call: CapturedCall | undefined): string | null {
+function stepUpHeader(call: { headers: HeadersInit | undefined } | undefined): string | null {
     return new Headers(call?.headers).get(AUTH_STEP_UP_HEADER_NAME);
 }
 
@@ -103,36 +62,32 @@ describe("ApiKeysService", () => {
         ];
 
         for (const { input, expectedSubaccountId } of cases) {
-            const calls: CapturedCall[] = [];
             const signal = new AbortController().signal;
-            const realtime = realtimeMock();
-            const service = new ApiKeysService(
-                transportWithMessages([{ apiKeys: [] }], calls),
-                realtime.client,
-                resolver,
-            );
+            const realtime = realtimeClientStub();
+            const transport = unaryTransportSequence([{ apiKeys: [] }]);
+            const service = new ApiKeysService(transport.transport, realtime.realtime, resolver);
 
             await expect(service.list(input, { signal })).resolves.toEqual([]);
 
             if (expectedSubaccountId === undefined) {
-                expect(calls[0]?.message).not.toHaveProperty("subaccountId");
+                expect(transport.calls[0]?.message).not.toHaveProperty("subaccountId");
             } else {
-                expect(calls[0]?.message).toMatchObject({ subaccountId: expectedSubaccountId });
+                expect(transport.calls[0]?.message).toMatchObject({
+                    subaccountId: expectedSubaccountId,
+                });
             }
-            expect(calls[0]?.signal).toBe(signal);
+            expect(transport.calls[0]?.signal).toBe(signal);
         }
     });
 
     it("parses API key responses and returns null for empty key responses", async () => {
-        const realtime = realtimeMock();
-        const service = new ApiKeysService(
-            transportWithMessages([
-                { apiKeys: [apiKey({ subaccountId: 2n, policyId: 3n })] },
-                { apiKey: apiKey({ lastUsedAt: { seconds: 2n, nanos: 0 } }) },
-                {},
-            ]),
-            realtime.client,
-        );
+        const realtime = realtimeClientStub();
+        const transport = unaryTransportSequence([
+            { apiKeys: [apiKey({ subaccountId: 2n, policyId: 3n })] },
+            { apiKey: apiKey({ lastUsedAt: { seconds: 2n, nanos: 0 } }) },
+            {},
+        ]);
+        const service = new ApiKeysService(transport.transport, realtime.realtime);
 
         await expect(service.list()).resolves.toEqual([
             expect.objectContaining({
@@ -209,29 +164,23 @@ describe("ApiKeysService", () => {
         ];
 
         for (const { input, expected, absent } of updateCases) {
-            const calls: CapturedCall[] = [];
-            const realtime = realtimeMock();
-            const service = new ApiKeysService(
-                transportWithMessages([{ apiKey: apiKey() }], calls),
-                realtime.client,
-            );
+            const realtime = realtimeClientStub();
+            const transport = unaryTransportSequence([{ apiKey: apiKey() }]);
+            const service = new ApiKeysService(transport.transport, realtime.realtime);
 
             await service.update(input, { stepUpToken: " fresh-token " });
 
-            expect(calls[0]?.message).toMatchObject(expected);
+            expect(transport.calls[0]?.message).toMatchObject(expected);
             for (const field of absent) {
-                expect(calls[0]?.message).not.toHaveProperty(field);
+                expect(transport.calls[0]?.message).not.toHaveProperty(field);
             }
-            expect(stepUpHeader(calls[0])).toBe("fresh-token");
+            expect(stepUpHeader(transport.calls[0])).toBe("fresh-token");
         }
 
-        const calls: CapturedCall[] = [];
         const signal = new AbortController().signal;
-        const realtime = realtimeMock();
-        const service = new ApiKeysService(
-            transportWithMessages([{ apiKey: apiKey() }, {}, {}], calls),
-            realtime.client,
-        );
+        const realtime = realtimeClientStub();
+        const transport = unaryTransportSequence([{ apiKey: apiKey() }, {}, {}]);
+        const service = new ApiKeysService(transport.transport, realtime.realtime);
 
         await service.get({ keyId: " key-1 " }, { signal });
         await service.create(
@@ -246,9 +195,9 @@ describe("ApiKeysService", () => {
         );
         await service.delete({ keyId: " key-1 " }, { stepUpToken: " delete-token " });
 
-        expect(calls[0]?.message).toEqual({ keyId: "key-1" });
-        expect(calls[0]?.signal).toBe(signal);
-        expect(calls[1]?.message).toMatchObject({
+        expect(transport.calls[0]?.message).toEqual({ keyId: "key-1" });
+        expect(transport.calls[0]?.signal).toBe(signal);
+        expect(transport.calls[1]?.message).toMatchObject({
             label: "Maker key",
             icon: "wand",
             color: "violet",
@@ -256,25 +205,23 @@ describe("ApiKeysService", () => {
             ipWhitelist: [],
             publicKeyEd25519: publicKey,
         });
-        expect(calls[1]?.message).not.toHaveProperty("stepUpToken");
-        expect(calls[1]?.signal).toBe(signal);
-        expect(stepUpHeader(calls[1])).toBe("create-token");
-        expect(calls[2]?.message).toEqual({ keyId: "key-1" });
-        expect(stepUpHeader(calls[2])).toBe("delete-token");
+        expect(transport.calls[1]?.message).not.toHaveProperty("stepUpToken");
+        expect(transport.calls[1]?.signal).toBe(signal);
+        expect(stepUpHeader(transport.calls[1])).toBe("create-token");
+        expect(transport.calls[2]?.message).toEqual({ keyId: "key-1" });
+        expect(stepUpHeader(transport.calls[2])).toBe("delete-token");
     });
 
     it("rejects malformed API key responses", async () => {
-        const realtime = realtimeMock();
-        const service = new ApiKeysService(
-            transportWithMessages([
-                {
-                    apiKey: apiKey({
-                        status: Proto.ApiKeyStatus.API_KEY_STATUS_UNSPECIFIED,
-                    }),
-                },
-            ]),
-            realtime.client,
-        );
+        const realtime = realtimeClientStub();
+        const transport = unaryTransportSequence([
+            {
+                apiKey: apiKey({
+                    status: Proto.ApiKeyStatus.API_KEY_STATUS_UNSPECIFIED,
+                }),
+            },
+        ]);
+        const service = new ApiKeysService(transport.transport, realtime.realtime);
 
         await expect(service.get({ keyId: "ak_0123456789abcdef0123456789abcdef" })).rejects.toThrow(
             "invalid status 0",
@@ -282,8 +229,8 @@ describe("ApiKeysService", () => {
     });
 
     it("subscribes to account API key publications and parses events", () => {
-        const realtime = realtimeMock();
-        const service = new ApiKeysService(transportWithMessages([]), realtime.client);
+        const realtime = realtimeClientStub();
+        const service = new ApiKeysService(unaryTransportSequence([]).transport, realtime.realtime);
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();
@@ -297,7 +244,7 @@ describe("ApiKeysService", () => {
             onError,
         });
 
-        const params = realtime.connectProtoChannel.mock.calls[0]?.[0] as ApiKeySubscriptionParams;
+        const params = realtime.params as unknown as ApiKeySubscriptionParams;
         expect(unsubscribe).toBe(realtime.unsubscribe);
         expect(params).toMatchObject({
             channel: "private:auth:api-keys:acct-1:proto",

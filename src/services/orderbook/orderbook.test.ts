@@ -1,79 +1,13 @@
-import type { Transport } from "@connectrpc/connect";
 import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { RealtimeClient } from "../../realtime/client.js";
 import * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
 import { createTestCatalog } from "../../testing/catalog.js";
+import {
+    realtimeClientStub,
+    rejectingUnaryTransport,
+    unaryTransport,
+} from "../../testing/service-harness.js";
 import { OrderbookService } from "./orderbook.js";
-
-type CapturedUnary = {
-    method: string;
-    signal: AbortSignal | undefined;
-    headers: HeadersInit | undefined;
-    message: Record<string, unknown>;
-};
-
-function transportWithMessage(
-    message: Record<string, unknown>,
-    capture?: (call: CapturedUnary) => void,
-): Transport {
-    return {
-        unary: vi.fn(
-            async (
-                method: { localName: string },
-                signal: AbortSignal | undefined,
-                _timeoutMs: number | undefined,
-                headers: HeadersInit | undefined,
-                input: Record<string, unknown>,
-            ) => {
-                capture?.({
-                    method: method.localName,
-                    signal,
-                    headers,
-                    message: input,
-                });
-                return {
-                    message,
-                    header: new Headers(),
-                    trailer: new Headers(),
-                    stream: false,
-                    service: undefined,
-                    method: undefined,
-                };
-            },
-        ),
-        stream: vi.fn(),
-    } as unknown as Transport;
-}
-
-function rejectingTransport(error: unknown): Transport {
-    return {
-        unary: vi.fn(async () => {
-            throw error;
-        }),
-        stream: vi.fn(),
-    } as unknown as Transport;
-}
-
-function createRealtimeStub(): {
-    realtime: RealtimeClient;
-    params: Parameters<RealtimeClient["connectProtoChannel"]>[0] | undefined;
-} {
-    let params: Parameters<RealtimeClient["connectProtoChannel"]>[0] | undefined;
-    return {
-        realtime: {
-            connectProtoChannel: vi.fn(
-                (nextParams: Parameters<RealtimeClient["connectProtoChannel"]>[0]) => {
-                    params = nextParams;
-                    return vi.fn();
-                },
-            ),
-        } as unknown as RealtimeClient,
-        get params() {
-            return params;
-        },
-    };
-}
 
 async function flushMicrotasks(): Promise<void> {
     for (let i = 0; i < 3; i++) {
@@ -127,20 +61,15 @@ describe("OrderbookService", () => {
 
     it("normalizes get requests, forwards signals, and parses snapshots", async () => {
         const catalog = seedPairCatalog();
-        let captured: CapturedUnary | undefined;
         const controller = new AbortController();
+        const transport = unaryTransport({
+            bookSeq: 12n,
+            bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
+            asks: [{ priceTicks: 100_250_000n, qtyScaled: 50_000_000n }],
+        });
         const service = new OrderbookService(
-            transportWithMessage(
-                {
-                    bookSeq: 12n,
-                    bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
-                    asks: [{ priceTicks: 100_250_000n, qtyScaled: 50_000_000n }],
-                },
-                (call) => {
-                    captured = call;
-                },
-            ),
-            createRealtimeStub().realtime,
+            transport.transport,
+            realtimeClientStub().realtime,
             catalog,
         );
 
@@ -168,8 +97,9 @@ describe("OrderbookService", () => {
             ],
         });
 
+        const captured = transport.lastCall();
+        expect(captured?.method.localName).toBe("getOrderBook");
         expect(captured).toMatchObject({
-            method: "getOrderBook",
             signal: controller.signal,
             message: {
                 symbol: "BTC-USDT",
@@ -180,13 +110,14 @@ describe("OrderbookService", () => {
 
     it("rejects malformed backend snapshots", async () => {
         const catalog = seedPairCatalog();
+        const transport = unaryTransport({
+            bookSeq: 12n,
+            bids: [{ priceTicks: 100_000_000n }],
+            asks: [],
+        });
         const service = new OrderbookService(
-            transportWithMessage({
-                bookSeq: 12n,
-                bids: [{ priceTicks: 100_000_000n }],
-                asks: [],
-            }),
-            createRealtimeStub().realtime,
+            transport.transport,
+            realtimeClientStub().realtime,
             catalog,
         );
 
@@ -195,9 +126,9 @@ describe("OrderbookService", () => {
 
     it("reports snapshot failures without emitting an empty ready book", async () => {
         const catalog = seedPairCatalog();
-        const realtime = createRealtimeStub();
+        const realtime = realtimeClientStub();
         const service = new OrderbookService(
-            rejectingTransport(new Error("snapshot unavailable")),
+            rejectingUnaryTransport(new Error("snapshot unavailable")),
             realtime.realtime,
             catalog,
         );
@@ -239,22 +170,13 @@ describe("OrderbookService", () => {
 
     it("uses the public delta channel, callbacks, and parsed publications for subscriptions", async () => {
         const catalog = seedPairCatalog();
-        const realtime = createRealtimeStub();
-        let captured: CapturedUnary | undefined;
-        const service = new OrderbookService(
-            transportWithMessage(
-                {
-                    bookSeq: 1n,
-                    bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
-                    asks: [{ priceTicks: 101_000_000n, qtyScaled: 50_000_000n }],
-                },
-                (call) => {
-                    captured = call;
-                },
-            ),
-            realtime.realtime,
-            catalog,
-        );
+        const realtime = realtimeClientStub();
+        const transport = unaryTransport({
+            bookSeq: 1n,
+            bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
+            asks: [{ priceTicks: 101_000_000n, qtyScaled: 50_000_000n }],
+        });
+        const service = new OrderbookService(transport.transport, realtime.realtime, catalog);
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();
@@ -282,8 +204,9 @@ describe("OrderbookService", () => {
 
         await flushMicrotasks();
 
+        const captured = transport.lastCall();
+        expect(captured?.method.localName).toBe("getOrderBook");
         expect(captured).toMatchObject({
-            method: "getOrderBook",
             message: {
                 symbol: "BTC-USDT",
                 depth: Proto.Depth.DEPTH_500,
@@ -337,8 +260,8 @@ describe("OrderbookService", () => {
     });
 
     it("validates the subscription symbol before connecting realtime", () => {
-        const realtime = createRealtimeStub();
-        const service = new OrderbookService(transportWithMessage({}), realtime.realtime);
+        const realtime = realtimeClientStub();
+        const service = new OrderbookService(unaryTransport({}).transport, realtime.realtime);
 
         expect(() =>
             service.subscribe({
