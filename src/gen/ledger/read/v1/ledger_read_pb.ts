@@ -7,6 +7,8 @@ import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb.js";
 import { file_gnostic_openapi_v3_annotations } from "../../../gnostic/openapi/v3/annotations_pb.js";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb.js";
+import type { AccountCode, TransferCode } from "../../v1/catalog_pb.js";
+import { file_ledger_v1_catalog } from "../../v1/catalog_pb.js";
 import { file_polyester_api_options } from "../../../polyester/api/options_pb.js";
 import type { U128 } from "../../../polyester/type/v1/u128_pb.js";
 import { file_polyester_type_v1_u128 } from "../../../polyester/type/v1/u128_pb.js";
@@ -16,7 +18,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file ledger/read/v1/ledger_read.proto.
  */
 export const file_ledger_read_v1_ledger_read: GenFile = /*@__PURE__*/
-  fileDesc("CiBsZWRnZXIvcmVhZC92MS9sZWRnZXJfcmVhZC5wcm90bxIObGVkZ2VyLnJlYWQudjEiQgoSR2V0QmFsYW5jZXNSZXF1ZXN0EhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBAUIQCg5fc3ViYWNjb3VudF9pZCLLAQoMQXNzZXRCYWxhbmNlEhAKCGFzc2V0X2lkGAEgASgNEigKB3RyYWRpbmcYAiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EigKB2Z1bmRpbmcYAyABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EikKCHJlc2VydmVkGAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIqCglhdmFpbGFibGUYBSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4IkUKE0dldEJhbGFuY2VzUmVzcG9uc2USLgoIYmFsYW5jZXMYASADKAsyHC5sZWRnZXIucmVhZC52MS5Bc3NldEJhbGFuY2UipgEKGEdldEJhbGFuY2VIaXN0b3J5UmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESNQoFcmFuZ2UYAiABKA4yHC5sZWRnZXIucmVhZC52MS5CYWxhbmNlUmFuZ2VCCLpIBYIBAhABEg4KBmxlZGdlchgDIAEoDRIVCg1hY2NvdW50X2NvZGVzGAQgAygNQhAKDl9zdWJhY2NvdW50X2lkIkoKDUJhbGFuY2VTZXJpZXMSEAoIYXNzZXRfaWQYASABKA0SFAoMYWNjb3VudF9jb2RlGAIgASgNEhEKCWJhbGFuY2VfcRgDIAMoBCLBAQoZR2V0QmFsYW5jZUhpc3RvcnlSZXNwb25zZRIrCgVyYW5nZRgBIAEoDjIcLmxlZGdlci5yZWFkLnYxLkJhbGFuY2VSYW5nZRIOCgZidWNrZXQYAiABKAkSFAoMc3RhcnRfdHNfc2VjGAMgASgHEhIKCmVuZF90c19zZWMYBCABKAcSDgoGcG9pbnRzGAUgASgNEi0KBnNlcmllcxgGIAMoCzIdLmxlZGdlci5yZWFkLnYxLkJhbGFuY2VTZXJpZXMiLQoPQWNjb3VudEdyb3VwaW5nEgwKBGNvZGUYASABKA0SDAoEbmFtZRgCIAEoCSIrCg1Bc3NldEdyb3VwaW5nEgoKAmlkGAEgASgNEg4KBnN5bWJvbBgCIAEoCSLSAQodR2V0RXF1aXR5SGlzdG9yeVNlcmllc1JlcXVlc3QSGgoNc3ViYWNjb3VudF9pZBgBIAEoBkgAiAEBEjUKBXJhbmdlGAIgASgOMhwubGVkZ2VyLnJlYWQudjEuQmFsYW5jZVJhbmdlQgi6SAWCAQIQARIVCg1hY2NvdW50X2NvZGVzGAQgAygNEi8KCGdyb3VwX2J5GAUgASgOMh0ubGVkZ2VyLnJlYWQudjEuRXF1aXR5R3JvdXBCeUIQCg5fc3ViYWNjb3VudF9pZEoECAMQBCKQAQoMRXF1aXR5U2VyaWVzEjIKB2FjY291bnQYASABKAsyHy5sZWRnZXIucmVhZC52MS5BY2NvdW50R3JvdXBpbmdIABIuCgVhc3NldBgDIAEoCzIdLmxlZGdlci5yZWFkLnYxLkFzc2V0R3JvdXBpbmdIABIQCghlcXVpdHlfcRgCIAMoEkIKCghncm91cGluZyL2AQoeR2V0RXF1aXR5SGlzdG9yeVNlcmllc1Jlc3BvbnNlEisKBXJhbmdlGAEgASgOMhwubGVkZ2VyLnJlYWQudjEuQmFsYW5jZVJhbmdlEg4KBmJ1Y2tldBgCIAEoCRIUCgxzdGFydF90c19zZWMYAyABKAcSEgoKZW5kX3RzX3NlYxgEIAEoBxITCgtxdW90ZV9hc3NldBgGIAEoCRIOCgZwb2ludHMYByABKA0SLAoGc2VyaWVzGAggAygLMhwubGVkZ2VyLnJlYWQudjEuRXF1aXR5U2VyaWVzEhQKDGJ0Y19wcmljZXNfcRgKIAMoA0oECAUQBiKWAwoUTGlzdFRyYW5zZmVyc1JlcXVlc3QSGgoNc3ViYWNjb3VudF9pZBgBIAEoBkgAiAEBEhcKBWxpbWl0GAIgASgNQgi6SAUqAxjoBxIQCghyZXZlcnNlZBgDIAEoCBIVCg10aW1lc3RhbXBfbWluGAQgASgEEhUKDXRpbWVzdGFtcF9tYXgYBSABKAQSDAoEY29kZRgGIAEoDRIOCgZsZWRnZXIYByABKA0SDQoFc2luY2UYCCABKAQ6yQG6SMUBGsIBCiRsaXN0X3RyYW5zZmVycy50aW1lc3RhbXBfcmFuZ2VfdmFsaWQSOHRpbWVzdGFtcF9tYXggbXVzdCBiZSA+PSB0aW1lc3RhbXBfbWluIHdoZW4gYm90aCBhcmUgc2V0GmB0aGlzLnRpbWVzdGFtcF9taW4gPT0gMHUgfHwgdGhpcy50aW1lc3RhbXBfbWF4ID09IDB1IHx8IHRoaXMudGltZXN0YW1wX21heCA+PSB0aGlzLnRpbWVzdGFtcF9taW5CEAoOX3N1YmFjY291bnRfaWQigwIKC1RyYW5zZmVyUm93EhAKCGFzc2V0X2lkGAEgASgNEicKBmFtb3VudBgCIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSDAoEdHlwZRgDIAEoDRIUCgxhY2NvdW50X2NvZGUYBCABKA0SEQoJdGltZXN0YW1wGAUgASgEEg0KBXR4X2lkGAcgASgJEg8KB29uY2hhaW4YCCABKAgSLgoNYmFsYW5jZV9hZnRlchgJIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSEAoIaXNfZGViaXQYCiABKAgSDwoHbGlua19pZBgLIAEoBBIPCgdmbG93X2lkGAwgASgJIlwKFUxpc3RUcmFuc2ZlcnNSZXNwb25zZRIuCgl0cmFuc2ZlcnMYASADKAsyGy5sZWRnZXIucmVhZC52MS5UcmFuc2ZlclJvdxITCgtuZXh0X2N1cnNvchgCIAEoBCJrChBMaXN0SG9sZHNSZXF1ZXN0EhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBARIXCgVsaW1pdBgCIAEoDUIIukgFKgMY6AcSEAoIcmV2ZXJzZWQYAyABKAhCEAoOX3N1YmFjY291bnRfaWQidQoHSG9sZFJvdxIPCgdob2xkX2lkGAEgASgGEjAKD2Ftb3VudF9yZXNlcnZlZBgCIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSEAoIYXNzZXRfaWQYAyABKA0SFQoNZXhwaXJlc19hdF9ucxgEIAEoBCI7ChFMaXN0SG9sZHNSZXNwb25zZRImCgVob2xkcxgBIAMoCzIXLmxlZGdlci5yZWFkLnYxLkhvbGRSb3ciEgoQR2V0SGVhbHRoUmVxdWVzdCIwChFHZXRIZWFsdGhSZXNwb25zZRIKCgJvaxgBIAEoCBIPCgd2ZXJzaW9uGAIgASgJIjYKC0Vycm9yRGV0YWlsEicKBGNvZGUYASABKA4yGS5sZWRnZXIucmVhZC52MS5FcnJvckNvZGUqdQoMQmFsYW5jZVJhbmdlEh0KGUJBTEFOQ0VfUkFOR0VfVU5TUEVDSUZJRUQQABIJCgVEQVlfMRABEgkKBURBWV83EAISCgoGREFZXzMwEAMSCgoGREFZXzkwEAQSCwoHREFZXzE4MBAFEgsKB0RBWV8zNjUQBipTCg1FcXVpdHlHcm91cEJ5EhgKFEdST1VQX0JZX1VOU1BFQ0lGSUVEEAASFAoQR1JPVVBfQllfQUNDT1VOVBABEhIKDkdST1VQX0JZX0FTU0VUEAIq8gIKCUVycm9yQ29kZRIaChZFUlJPUl9DT0RFX1VOU1BFQ0lGSUVEEAASGgoWRVJST1JfQ09ERV9CQURfUkVRVUVTVBABEh4KGkVSUk9SX0NPREVfVU5BVVRIRU5USUNBVEVEEAISIAocRVJST1JfQ09ERV9QRVJNSVNTSU9OX0RFTklFRBADEhgKFEVSUk9SX0NPREVfTk9UX0ZPVU5EEAQSIQodRVJST1JfQ09ERV9NSVNTSU5HX0FDQ09VTlRfSUQQBRIhCh1FUlJPUl9DT0RFX0lOVkFMSURfQUNDT1VOVF9JRBAGEh0KGUVSUk9SX0NPREVfTUlTU0lOR19XQUxMRVQQBxIsCihFUlJPUl9DT0RFX1dBTExFVF9SRVNPTFVUSU9OX1VOQVZBSUxBQkxFEAgSHwobRVJST1JfQ09ERV9XQUxMRVRfTk9UX0ZPVU5EEAkSHQoZRVJST1JfQ09ERV9VUFNUUkVBTV9FUlJPUhAKMrUFChFMZWRnZXJSZWFkU2VydmljZRJqChFHZXRCYWxhbmNlSGlzdG9yeRIoLmxlZGdlci5yZWFkLnYxLkdldEJhbGFuY2VIaXN0b3J5UmVxdWVzdBopLmxlZGdlci5yZWFkLnYxLkdldEJhbGFuY2VIaXN0b3J5UmVzcG9uc2UiABJ5ChZHZXRFcXVpdHlIaXN0b3J5U2VyaWVzEi0ubGVkZ2VyLnJlYWQudjEuR2V0RXF1aXR5SGlzdG9yeVNlcmllc1JlcXVlc3QaLi5sZWRnZXIucmVhZC52MS5HZXRFcXVpdHlIaXN0b3J5U2VyaWVzUmVzcG9uc2UiABJeCg1MaXN0VHJhbnNmZXJzEiQubGVkZ2VyLnJlYWQudjEuTGlzdFRyYW5zZmVyc1JlcXVlc3QaJS5sZWRnZXIucmVhZC52MS5MaXN0VHJhbnNmZXJzUmVzcG9uc2UiABJSCglMaXN0SG9sZHMSIC5sZWRnZXIucmVhZC52MS5MaXN0SG9sZHNSZXF1ZXN0GiEubGVkZ2VyLnJlYWQudjEuTGlzdEhvbGRzUmVzcG9uc2UiABJYCgtHZXRCYWxhbmNlcxIiLmxlZGdlci5yZWFkLnYxLkdldEJhbGFuY2VzUmVxdWVzdBojLmxlZGdlci5yZWFkLnYxLkdldEJhbGFuY2VzUmVzcG9uc2UiABKqAQoJR2V0SGVhbHRoEiAubGVkZ2VyLnJlYWQudjEuR2V0SGVhbHRoUmVxdWVzdBohLmxlZGdlci5yZWFkLnYxLkdldEhlYWx0aFJlc3BvbnNlIli6Rz8KC0xlZGdlciBSZWFkEgpHZXQgSGVhbHRoGiRSZXRyaWV2ZSBzZXJ2aWNlIGhlYWx0aCBhbmQgdmVyc2lvbi6ItRgBgtPkkwIMEgovdjEvaGVhbHRoQo0BWkVnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2xlZGdlci9yZWFkL3YxO2xlZGdlcnJkdjG6R0M6QQoLTGVkZ2VyIFJlYWQSMlJlYWQgZW5kcG9pbnRzIGZvciBiYWxhbmNlcywgdHJhbnNmZXJzLCBhbmQgaG9sZHMuYgZwcm90bzM", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_polyester_api_options, file_polyester_type_v1_u128]);
+  fileDesc("CiBsZWRnZXIvcmVhZC92MS9sZWRnZXJfcmVhZC5wcm90bxIObGVkZ2VyLnJlYWQudjEiQgoSR2V0QmFsYW5jZXNSZXF1ZXN0EhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBAUIQCg5fc3ViYWNjb3VudF9pZCLLAQoMQXNzZXRCYWxhbmNlEhAKCGFzc2V0X2lkGAEgASgNEigKB3RyYWRpbmcYAiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EigKB2Z1bmRpbmcYAyABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EikKCHJlc2VydmVkGAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIqCglhdmFpbGFibGUYBSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4IkUKE0dldEJhbGFuY2VzUmVzcG9uc2USLgoIYmFsYW5jZXMYASADKAsyHC5sZWRnZXIucmVhZC52MS5Bc3NldEJhbGFuY2UivgEKGEdldEJhbGFuY2VIaXN0b3J5UmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESNQoFcmFuZ2UYAiABKA4yHC5sZWRnZXIucmVhZC52MS5CYWxhbmNlUmFuZ2VCCLpIBYIBAhABEg4KBmxlZGdlchgDIAEoDRItCg1hY2NvdW50X2NvZGVzGAQgAygOMhYubGVkZ2VyLnYxLkFjY291bnRDb2RlQhAKDl9zdWJhY2NvdW50X2lkImIKDUJhbGFuY2VTZXJpZXMSEAoIYXNzZXRfaWQYASABKA0SLAoMYWNjb3VudF9jb2RlGAIgASgOMhYubGVkZ2VyLnYxLkFjY291bnRDb2RlEhEKCWJhbGFuY2VfcRgDIAMoBCLBAQoZR2V0QmFsYW5jZUhpc3RvcnlSZXNwb25zZRIrCgVyYW5nZRgBIAEoDjIcLmxlZGdlci5yZWFkLnYxLkJhbGFuY2VSYW5nZRIOCgZidWNrZXQYAiABKAkSFAoMc3RhcnRfdHNfc2VjGAMgASgHEhIKCmVuZF90c19zZWMYBCABKAcSDgoGcG9pbnRzGAUgASgNEi0KBnNlcmllcxgGIAMoCzIdLmxlZGdlci5yZWFkLnYxLkJhbGFuY2VTZXJpZXMiNQoPQWNjb3VudEdyb3VwaW5nEhQKDGFjY291bnRfY29kZRgBIAEoDRIMCgRuYW1lGAIgASgJIisKDUFzc2V0R3JvdXBpbmcSCgoCaWQYASABKA0SDgoGc3ltYm9sGAIgASgJIuoBCh1HZXRFcXVpdHlIaXN0b3J5U2VyaWVzUmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESNQoFcmFuZ2UYAiABKA4yHC5sZWRnZXIucmVhZC52MS5CYWxhbmNlUmFuZ2VCCLpIBYIBAhABEi0KDWFjY291bnRfY29kZXMYBCADKA4yFi5sZWRnZXIudjEuQWNjb3VudENvZGUSLwoIZ3JvdXBfYnkYBSABKA4yHS5sZWRnZXIucmVhZC52MS5FcXVpdHlHcm91cEJ5QhAKDl9zdWJhY2NvdW50X2lkSgQIAxAEIpABCgxFcXVpdHlTZXJpZXMSMgoHYWNjb3VudBgBIAEoCzIfLmxlZGdlci5yZWFkLnYxLkFjY291bnRHcm91cGluZ0gAEi4KBWFzc2V0GAMgASgLMh0ubGVkZ2VyLnJlYWQudjEuQXNzZXRHcm91cGluZ0gAEhAKCGVxdWl0eV9xGAIgAygSQgoKCGdyb3VwaW5nIvYBCh5HZXRFcXVpdHlIaXN0b3J5U2VyaWVzUmVzcG9uc2USKwoFcmFuZ2UYASABKA4yHC5sZWRnZXIucmVhZC52MS5CYWxhbmNlUmFuZ2USDgoGYnVja2V0GAIgASgJEhQKDHN0YXJ0X3RzX3NlYxgDIAEoBxISCgplbmRfdHNfc2VjGAQgASgHEhMKC3F1b3RlX2Fzc2V0GAYgASgJEg4KBnBvaW50cxgHIAEoDRIsCgZzZXJpZXMYCCADKAsyHC5sZWRnZXIucmVhZC52MS5FcXVpdHlTZXJpZXMSFAoMYnRjX3ByaWNlc19xGAogAygDSgQIBRAGIrgDChRMaXN0VHJhbnNmZXJzUmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESFwoFbGltaXQYAiABKA1CCLpIBSoDGOgHEhAKCHJldmVyc2VkGAMgASgIEhUKDXRpbWVzdGFtcF9taW4YBCABKAQSFQoNdGltZXN0YW1wX21heBgFIAEoBBIuCg10cmFuc2Zlcl9jb2RlGAYgASgOMhcubGVkZ2VyLnYxLlRyYW5zZmVyQ29kZRIOCgZsZWRnZXIYByABKA0SDQoFc2luY2UYCCABKAQ6yQG6SMUBGsIBCiRsaXN0X3RyYW5zZmVycy50aW1lc3RhbXBfcmFuZ2VfdmFsaWQSOHRpbWVzdGFtcF9tYXggbXVzdCBiZSA+PSB0aW1lc3RhbXBfbWluIHdoZW4gYm90aCBhcmUgc2V0GmB0aGlzLnRpbWVzdGFtcF9taW4gPT0gMHUgfHwgdGhpcy50aW1lc3RhbXBfbWF4ID09IDB1IHx8IHRoaXMudGltZXN0YW1wX21heCA+PSB0aGlzLnRpbWVzdGFtcF9taW5CEAoOX3N1YmFjY291bnRfaWQivQIKC1RyYW5zZmVyUm93EhAKCGFzc2V0X2lkGAEgASgNEicKBmFtb3VudBgCIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSLgoNdHJhbnNmZXJfY29kZRgDIAEoDjIXLmxlZGdlci52MS5UcmFuc2ZlckNvZGUSLAoMYWNjb3VudF9jb2RlGAQgASgOMhYubGVkZ2VyLnYxLkFjY291bnRDb2RlEhEKCXRpbWVzdGFtcBgFIAEoBBINCgV0eF9pZBgHIAEoCRIPCgdvbmNoYWluGAggASgIEi4KDWJhbGFuY2VfYWZ0ZXIYCSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EhAKCGlzX2RlYml0GAogASgIEg8KB2xpbmtfaWQYCyABKAQSDwoHZmxvd19pZBgMIAEoCSJcChVMaXN0VHJhbnNmZXJzUmVzcG9uc2USLgoJdHJhbnNmZXJzGAEgAygLMhsubGVkZ2VyLnJlYWQudjEuVHJhbnNmZXJSb3cSEwoLbmV4dF9jdXJzb3IYAiABKAQiawoQTGlzdEhvbGRzUmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESFwoFbGltaXQYAiABKA1CCLpIBSoDGOgHEhAKCHJldmVyc2VkGAMgASgIQhAKDl9zdWJhY2NvdW50X2lkInUKB0hvbGRSb3cSDwoHaG9sZF9pZBgBIAEoBhIwCg9hbW91bnRfcmVzZXJ2ZWQYAiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EhAKCGFzc2V0X2lkGAMgASgNEhUKDWV4cGlyZXNfYXRfbnMYBCABKAQiOwoRTGlzdEhvbGRzUmVzcG9uc2USJgoFaG9sZHMYASADKAsyFy5sZWRnZXIucmVhZC52MS5Ib2xkUm93IhIKEEdldEhlYWx0aFJlcXVlc3QiMAoRR2V0SGVhbHRoUmVzcG9uc2USCgoCb2sYASABKAgSDwoHdmVyc2lvbhgCIAEoCSI2CgtFcnJvckRldGFpbBInCgRjb2RlGAEgASgOMhkubGVkZ2VyLnJlYWQudjEuRXJyb3JDb2RlKnUKDEJhbGFuY2VSYW5nZRIdChlCQUxBTkNFX1JBTkdFX1VOU1BFQ0lGSUVEEAASCQoFREFZXzEQARIJCgVEQVlfNxACEgoKBkRBWV8zMBADEgoKBkRBWV85MBAEEgsKB0RBWV8xODAQBRILCgdEQVlfMzY1EAYqUwoNRXF1aXR5R3JvdXBCeRIYChRHUk9VUF9CWV9VTlNQRUNJRklFRBAAEhQKEEdST1VQX0JZX0FDQ09VTlQQARISCg5HUk9VUF9CWV9BU1NFVBACKvICCglFcnJvckNvZGUSGgoWRVJST1JfQ09ERV9VTlNQRUNJRklFRBAAEhoKFkVSUk9SX0NPREVfQkFEX1JFUVVFU1QQARIeChpFUlJPUl9DT0RFX1VOQVVUSEVOVElDQVRFRBACEiAKHEVSUk9SX0NPREVfUEVSTUlTU0lPTl9ERU5JRUQQAxIYChRFUlJPUl9DT0RFX05PVF9GT1VORBAEEiEKHUVSUk9SX0NPREVfTUlTU0lOR19BQ0NPVU5UX0lEEAUSIQodRVJST1JfQ09ERV9JTlZBTElEX0FDQ09VTlRfSUQQBhIdChlFUlJPUl9DT0RFX01JU1NJTkdfV0FMTEVUEAcSLAooRVJST1JfQ09ERV9XQUxMRVRfUkVTT0xVVElPTl9VTkFWQUlMQUJMRRAIEh8KG0VSUk9SX0NPREVfV0FMTEVUX05PVF9GT1VORBAJEh0KGUVSUk9SX0NPREVfVVBTVFJFQU1fRVJST1IQCjK1BQoRTGVkZ2VyUmVhZFNlcnZpY2USagoRR2V0QmFsYW5jZUhpc3RvcnkSKC5sZWRnZXIucmVhZC52MS5HZXRCYWxhbmNlSGlzdG9yeVJlcXVlc3QaKS5sZWRnZXIucmVhZC52MS5HZXRCYWxhbmNlSGlzdG9yeVJlc3BvbnNlIgASeQoWR2V0RXF1aXR5SGlzdG9yeVNlcmllcxItLmxlZGdlci5yZWFkLnYxLkdldEVxdWl0eUhpc3RvcnlTZXJpZXNSZXF1ZXN0Gi4ubGVkZ2VyLnJlYWQudjEuR2V0RXF1aXR5SGlzdG9yeVNlcmllc1Jlc3BvbnNlIgASXgoNTGlzdFRyYW5zZmVycxIkLmxlZGdlci5yZWFkLnYxLkxpc3RUcmFuc2ZlcnNSZXF1ZXN0GiUubGVkZ2VyLnJlYWQudjEuTGlzdFRyYW5zZmVyc1Jlc3BvbnNlIgASUgoJTGlzdEhvbGRzEiAubGVkZ2VyLnJlYWQudjEuTGlzdEhvbGRzUmVxdWVzdBohLmxlZGdlci5yZWFkLnYxLkxpc3RIb2xkc1Jlc3BvbnNlIgASWAoLR2V0QmFsYW5jZXMSIi5sZWRnZXIucmVhZC52MS5HZXRCYWxhbmNlc1JlcXVlc3QaIy5sZWRnZXIucmVhZC52MS5HZXRCYWxhbmNlc1Jlc3BvbnNlIgASqgEKCUdldEhlYWx0aBIgLmxlZGdlci5yZWFkLnYxLkdldEhlYWx0aFJlcXVlc3QaIS5sZWRnZXIucmVhZC52MS5HZXRIZWFsdGhSZXNwb25zZSJYukc/CgtMZWRnZXIgUmVhZBIKR2V0IEhlYWx0aBokUmV0cmlldmUgc2VydmljZSBoZWFsdGggYW5kIHZlcnNpb24uiLUYAYLT5JMCDBIKL3YxL2hlYWx0aEKNAVpFZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9sZWRnZXIvcmVhZC92MTtsZWRnZXJyZHYxukdDOkEKC0xlZGdlciBSZWFkEjJSZWFkIGVuZHBvaW50cyBmb3IgYmFsYW5jZXMsIHRyYW5zZmVycywgYW5kIGhvbGRzLmIGcHJvdG8z", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_ledger_v1_catalog, file_polyester_api_options, file_polyester_type_v1_u128]);
 
 /**
  * @generated from message ledger.read.v1.GetBalancesRequest
@@ -140,9 +142,9 @@ export type GetBalanceHistoryRequest = Message<"ledger.read.v1.GetBalanceHistory
    * Optional subset of account buckets to return. When empty, returns all
    * account buckets.
    *
-   * @generated from field: repeated uint32 account_codes = 4;
+   * @generated from field: repeated ledger.v1.AccountCode account_codes = 4;
    */
-  accountCodes: number[];
+  accountCodes: AccountCode[];
 };
 
 /**
@@ -167,11 +169,11 @@ export type BalanceSeries = Message<"ledger.read.v1.BalanceSeries"> & {
   assetId: number;
 
   /**
-   * account bucket code
+   * account bucket
    *
-   * @generated from field: uint32 account_code = 2;
+   * @generated from field: ledger.v1.AccountCode account_code = 2;
    */
-  accountCode: number;
+  accountCode: AccountCode;
 
   /**
    * balance in asset units scaled by 1e7 (7 decimals). Aligned 1:1 with implicit timestamps.
@@ -239,9 +241,9 @@ export type AccountGrouping = Message<"ledger.read.v1.AccountGrouping"> & {
   /**
    * account bucket code
    *
-   * @generated from field: uint32 code = 1;
+   * @generated from field: uint32 account_code = 1;
    */
-  code: number;
+  accountCode: number;
 
   /**
    * human-readable name ("funding", "trading")
@@ -309,13 +311,13 @@ export type GetEquityHistorySeriesRequest = Message<"ledger.read.v1.GetEquityHis
   range: BalanceRange;
 
   /**
-   * Optional subset of account bucket codes.
+   * Optional subset of account buckets.
    * When empty, server returns both funding and trading.
    * Only used when group_by = ACCOUNT.
    *
-   * @generated from field: repeated uint32 account_codes = 4;
+   * @generated from field: repeated ledger.v1.AccountCode account_codes = 4;
    */
-  accountCodes: number[];
+  accountCodes: AccountCode[];
 
   /**
    * How to group the equity series. Defaults to ACCOUNT if unspecified.
@@ -461,26 +463,25 @@ export type ListTransfersRequest = Message<"ledger.read.v1.ListTransfersRequest"
   reversed: boolean;
 
   /**
-   * Optional lower timestamp bound (inclusive). Server may ignore.
+   * Optional lower transfer timestamp bound in microseconds since epoch (inclusive).
    *
    * @generated from field: uint64 timestamp_min = 4;
    */
   timestampMin: bigint;
 
   /**
-   * Optional upper timestamp bound (inclusive). Server may ignore.
+   * Optional upper transfer timestamp bound in microseconds since epoch (inclusive).
    *
    * @generated from field: uint64 timestamp_max = 5;
    */
   timestampMax: bigint;
 
   /**
-   * Optional filter by transfer reason code (stored as uint16 internally; use
-   * uint32 here for convenience).
+   * Optional filter by transfer reason.
    *
-   * @generated from field: uint32 code = 6;
+   * @generated from field: ledger.v1.TransferCode transfer_code = 6;
    */
-  code: number;
+  transferCode: TransferCode;
 
   /**
    * optional filter by asset ledger
@@ -490,7 +491,7 @@ export type ListTransfersRequest = Message<"ledger.read.v1.ListTransfersRequest"
   ledger: number;
 
   /**
-   * cursor: return rows with timestamp > since
+   * cursor in microseconds since epoch: return rows with timestamp > since
    *
    * @generated from field: uint64 since = 8;
    */
@@ -525,21 +526,21 @@ export type TransferRow = Message<"ledger.read.v1.TransferRow"> & {
   amount?: U128 | undefined;
 
   /**
-   * reason code id
+   * product reason for this transfer
    *
-   * @generated from field: uint32 type = 3;
+   * @generated from field: ledger.v1.TransferCode transfer_code = 3;
    */
-  type: number;
+  transferCode: TransferCode;
 
   /**
-   * account bucket code
+   * account bucket affected by this transfer
    *
-   * @generated from field: uint32 account_code = 4;
+   * @generated from field: ledger.v1.AccountCode account_code = 4;
    */
-  accountCode: number;
+  accountCode: AccountCode;
 
   /**
-   * cluster timestamp
+   * transfer timestamp in microseconds since epoch (UTC)
    *
    * @generated from field: uint64 timestamp = 5;
    */
