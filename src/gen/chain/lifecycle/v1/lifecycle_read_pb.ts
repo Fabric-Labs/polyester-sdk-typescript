@@ -428,7 +428,7 @@ export const ListFlowsByTxResponseSchema: GenMessage<ListFlowsByTxResponse> = /*
  */
 export type FlowSummaryView = Message<"chain.lifecycle.v1.FlowSummaryView"> & {
   /**
-   * Public account identifier for the account the flow belongs to.
+   * Public account identifier for the root account or subaccount the flow belongs to.
    *
    * @generated from field: fixed64 owner_account_id = 1;
    */
