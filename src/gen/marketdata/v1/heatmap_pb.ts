@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file marketdata/v1/heatmap.proto.
  */
 export const file_marketdata_v1_heatmap: GenFile = /*@__PURE__*/
-  fileDesc("ChttYXJrZXRkYXRhL3YxL2hlYXRtYXAucHJvdG8SDW1hcmtldGRhdGEudjEingMKEEhlYXRtYXBUaW1lUmFuZ2USLgoKc3RhcnRfdGltZRgBIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wOqsCukinAhp+ChxoZWF0bWFwX3RpbWVfcmFuZ2Uubm9uX2VtcHR5EjJhdCBsZWFzdCBvbmUgb2Ygc3RhcnRfdGltZSBvciBlbmRfdGltZSBtdXN0IGJlIHNldBoqaGFzKHRoaXMuc3RhcnRfdGltZSkgfHwgaGFzKHRoaXMuZW5kX3RpbWUpGqQBCh5oZWF0bWFwX3RpbWVfcmFuZ2UudmFsaWRfb3JkZXISMGVuZF90aW1lIG11c3QgYmUgPj0gc3RhcnRfdGltZSB3aGVuIGJvdGggYXJlIHNldBpQIWhhcyh0aGlzLnN0YXJ0X3RpbWUpIHx8ICFoYXModGhpcy5lbmRfdGltZSkgfHwgdGhpcy5lbmRfdGltZSA+PSB0aGlzLnN0YXJ0X3RpbWUiLQoNSGVhdG1hcEN1cnNvchIcCgtmcm9tX3RzX3NlYxgBIAEoBEIHukgEMgIgACKHAwoaR2V0T3JkZXJib29rSGVhdG1hcFJlcXVlc3QSGgoJc3ltYm9sX2lkGAEgASgNQge6SAQqAiAAEjwKCGludGVydmFsGAIgASgOMh4ubWFya2V0ZGF0YS52MS5IZWF0bWFwSW50ZXJ2YWxCCrpIB4IBBBABIAASNgoFZGVwdGgYAyABKA4yGy5tYXJrZXRkYXRhLnYxLkhlYXRtYXBEZXB0aEIKukgHggEEEAEgABI1Cgp0aW1lX3JhbmdlGAQgASgLMh8ubWFya2V0ZGF0YS52MS5IZWF0bWFwVGltZVJhbmdlSAASLgoGY3Vyc29yGAUgASgLMhwubWFya2V0ZGF0YS52MS5IZWF0bWFwQ3Vyc29ySAASGgoFbGltaXQYBiABKA1CC7pICCoGGKCcASgBEkUKDXF1YW50aXR5X21vZGUYByABKA4yIi5tYXJrZXRkYXRhLnYxLkhlYXRtYXBRdWFudGl0eU1vZGVCCrpIB4IBBBABIABCDQoEbW9kZRIFukgCCAEixQEKDUhlYXRtYXBMZXZlbHMSEwoLcHJpY2VfdGlja3MYASADKAMSEgoKcXR5X3NjYWxlZBgCIAMoAzqKAbpIhgEagwEKHGhlYXRtYXBfbGV2ZWxzLmVxdWFsX2xlbmd0aHMSMnByaWNlX3RpY2tzIGFuZCBxdHlfc2NhbGVkIG11c3QgaGF2ZSBlcXVhbCBsZW5ndGhzGi9zaXplKHRoaXMucHJpY2VfdGlja3MpID09IHNpemUodGhpcy5xdHlfc2NhbGVkKSLQAQoSSGVhdG1hcERlbHRhTGV2ZWxzEhMKC3ByaWNlX3RpY2tzGAEgAygDEhIKCnF0eV9zY2FsZWQYAiADKAM6kAG6SIwBGokBCiJoZWF0bWFwX2RlbHRhX2xldmVscy5lcXVhbF9sZW5ndGhzEjJwcmljZV90aWNrcyBhbmQgcXR5X3NjYWxlZCBtdXN0IGhhdmUgZXF1YWwgbGVuZ3Rocxovc2l6ZSh0aGlzLnByaWNlX3RpY2tzKSA9PSBzaXplKHRoaXMucXR5X3NjYWxlZCkiywEKD0hlYXRtYXBLZXlmcmFtZRIOCgZ0c19zZWMYASABKAQSFQoNYmVzdF9iaWRfdGljaxgCIAEoAxIVCg1iZXN0X2Fza190aWNrGAMgASgDEhAKCG1pZF90aWNrGAQgASgDEioKBGJpZHMYBSABKAsyHC5tYXJrZXRkYXRhLnYxLkhlYXRtYXBMZXZlbHMSKgoEYXNrcxgGIAEoCzIcLm1hcmtldGRhdGEudjEuSGVhdG1hcExldmVscxIQCghib29rX3NlcRgHIAEoBCLPAQoSSGVhdG1hcERlbHRhQnVja2V0Eg4KBnRzX3NlYxgBIAEoBBIvCgRiaWRzGAIgASgLMiEubWFya2V0ZGF0YS52MS5IZWF0bWFwRGVsdGFMZXZlbHMSLwoEYXNrcxgDIAEoCzIhLm1hcmtldGRhdGEudjEuSGVhdG1hcERlbHRhTGV2ZWxzEhkKEXVwZGF0ZXNfaW5fYnVja2V0GAQgASgNEhYKDmJvb2tfc2VxX3N0YXJ0GAUgASgEEhQKDGJvb2tfc2VxX2VuZBgGIAEoBCKVAwoRSGVhdG1hcExpdmVCdWNrZXQSEQoJc3ltYm9sX2lkGAEgASgNEjwKCGludGVydmFsGAIgASgOMh4ubWFya2V0ZGF0YS52MS5IZWF0bWFwSW50ZXJ2YWxCCrpIB4IBBBABIAASDgoGdHNfc2VjGAMgASgEEhAKCGlzX2ZpbmFsGAQgASgIEi8KBGJpZHMYBSABKAsyIS5tYXJrZXRkYXRhLnYxLkhlYXRtYXBEZWx0YUxldmVscxIvCgRhc2tzGAYgASgLMiEubWFya2V0ZGF0YS52MS5IZWF0bWFwRGVsdGFMZXZlbHMSGQoRdXBkYXRlc19pbl9idWNrZXQYByABKA0SFgoOYm9va19zZXFfc3RhcnQYCCABKAQSFAoMYm9va19zZXFfZW5kGAkgASgEEkUKDXF1YW50aXR5X21vZGUYCiABKA4yIi5tYXJrZXRkYXRhLnYxLkhlYXRtYXBRdWFudGl0eU1vZGVCCrpIB4IBBBABIAASGwoTZWZmZWN0aXZlX2Jpbl90aWNrcxgLIAEoBCJ9ChFIZWF0bWFwRGVsdGFDaGFpbhI1Cg1iYXNlX2tleWZyYW1lGAEgASgLMh4ubWFya2V0ZGF0YS52MS5IZWF0bWFwS2V5ZnJhbWUSMQoGZGVsdGFzGAIgAygLMiEubWFya2V0ZGF0YS52MS5IZWF0bWFwRGVsdGFCdWNrZXQiyQMKG0dldE9yZGVyYm9va0hlYXRtYXBSZXNwb25zZRIRCglzeW1ib2xfaWQYASABKA0SMAoIaW50ZXJ2YWwYAiABKA4yHi5tYXJrZXRkYXRhLnYxLkhlYXRtYXBJbnRlcnZhbBIqCgVkZXB0aBgDIAEoDjIbLm1hcmtldGRhdGEudjEuSGVhdG1hcERlcHRoEi8KBWNoYWluGAQgASgLMiAubWFya2V0ZGF0YS52MS5IZWF0bWFwRGVsdGFDaGFpbhIdChVsYXN0X3BlcnNpc3RlZF90c19zZWMYBSABKAQSHgoWbGl2ZV9mcm9tX2Jvb2tfc2VxX2VuZBgGIAEoBBIXCg9oYXNfbGl2ZV9hbmNob3IYByABKAgSEAoIaGFzX21vcmUYCCABKAgSEwoLbmV4dF90c19zZWMYCSABKAQSFwoPc2VydmVyX3RpbWVfc2VjGAogASgEEjkKDXF1YW50aXR5X21vZGUYCyABKA4yIi5tYXJrZXRkYXRhLnYxLkhlYXRtYXBRdWFudGl0eU1vZGUSNQoLbGl2ZV9idWNrZXQYDCABKAsyIC5tYXJrZXRkYXRhLnYxLkhlYXRtYXBMaXZlQnVja2V0Km8KD0hlYXRtYXBJbnRlcnZhbBIYChRJTlRFUlZBTF9VTlNQRUNJRklFRBAAEg8KC0lOVEVSVkFMXzFTEAESDwoLSU5URVJWQUxfMU0QAhIPCgtJTlRFUlZBTF81TRADEg8KC0lOVEVSVkFMXzFIEAQqpgEKDEhlYXRtYXBEZXB0aBIVChFERVBUSF9VTlNQRUNJRklFRBAAEgsKB0RFUFRIXzEQARILCgdERVBUSF81EAISDAoIREVQVEhfMTAQAxIMCghERVBUSF8yMBAEEgwKCERFUFRIXzUwEAUSDQoJREVQVEhfMTAwEAYSDQoJREVQVEhfMjAwEAcSDQoJREVQVEhfNTAwEAgSDgoKREVQVEhfMTAwMBAJKkQKE0hlYXRtYXBRdWFudGl0eU1vZGUSGAoUUVRZX01PREVfVU5TUEVDSUZJRUQQABIJCgVDTE9TRRABEggKBFBFQUsQAjKEAQoOSGVhdG1hcFNlcnZpY2UScgoTR2V0T3JkZXJib29rSGVhdG1hcBIpLm1hcmtldGRhdGEudjEuR2V0T3JkZXJib29rSGVhdG1hcFJlcXVlc3QaKi5tYXJrZXRkYXRhLnYxLkdldE9yZGVyYm9va0hlYXRtYXBSZXNwb25zZSIEiLUYAUJIWkZnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL21hcmtldGRhdGEvdjE7bWFya2V0ZGF0YXYxYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChttYXJrZXRkYXRhL3YxL2hlYXRtYXAucHJvdG8SDW1hcmtldGRhdGEudjEingMKEEhlYXRtYXBUaW1lUmFuZ2USLgoKc3RhcnRfdGltZRgBIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wOqsCukinAhp+ChxoZWF0bWFwX3RpbWVfcmFuZ2Uubm9uX2VtcHR5EjJhdCBsZWFzdCBvbmUgb2Ygc3RhcnRfdGltZSBvciBlbmRfdGltZSBtdXN0IGJlIHNldBoqaGFzKHRoaXMuc3RhcnRfdGltZSkgfHwgaGFzKHRoaXMuZW5kX3RpbWUpGqQBCh5oZWF0bWFwX3RpbWVfcmFuZ2UudmFsaWRfb3JkZXISMGVuZF90aW1lIG11c3QgYmUgPj0gc3RhcnRfdGltZSB3aGVuIGJvdGggYXJlIHNldBpQIWhhcyh0aGlzLnN0YXJ0X3RpbWUpIHx8ICFoYXModGhpcy5lbmRfdGltZSkgfHwgdGhpcy5lbmRfdGltZSA+PSB0aGlzLnN0YXJ0X3RpbWUi6AMKGkdldE9yZGVyYm9va0hlYXRtYXBSZXF1ZXN0EhoKCXN5bWJvbF9pZBgBIAEoDUIHukgEKgIgABI8CghpbnRlcnZhbBgCIAEoDjIeLm1hcmtldGRhdGEudjEuSGVhdG1hcEludGVydmFsQgq6SAeCAQQQASAAEjYKBWRlcHRoGAMgASgOMhsubWFya2V0ZGF0YS52MS5IZWF0bWFwRGVwdGhCCrpIB4IBBBABIAASMwoKdGltZV9yYW5nZRgEIAEoCzIfLm1hcmtldGRhdGEudjEuSGVhdG1hcFRpbWVSYW5nZRIcCgpwYWdlX3Rva2VuGAUgASgJQgi6SAVyAxiABBIaCgVsaW1pdBgGIAEoDUILukgIKgYYoJwBKAESRQoNcXVhbnRpdHlfbW9kZRgHIAEoDjIiLm1hcmtldGRhdGEudjEuSGVhdG1hcFF1YW50aXR5TW9kZUIKukgHggEEEAEgADqBAbpIfhp8CiVnZXRfb3JkZXJib29rX2hlYXRtYXAuYW5jaG9yX3JlcXVpcmVkEiR0aW1lX3JhbmdlIG9yIHBhZ2VfdG9rZW4gaXMgcmVxdWlyZWQaLWhhcyh0aGlzLnRpbWVfcmFuZ2UpIHx8IHRoaXMucGFnZV90b2tlbiAhPSAnJyLFAQoNSGVhdG1hcExldmVscxITCgtwcmljZV90aWNrcxgBIAMoAxISCgpxdHlfc2NhbGVkGAIgAygDOooBukiGARqDAQocaGVhdG1hcF9sZXZlbHMuZXF1YWxfbGVuZ3RocxIycHJpY2VfdGlja3MgYW5kIHF0eV9zY2FsZWQgbXVzdCBoYXZlIGVxdWFsIGxlbmd0aHMaL3NpemUodGhpcy5wcmljZV90aWNrcykgPT0gc2l6ZSh0aGlzLnF0eV9zY2FsZWQpItABChJIZWF0bWFwRGVsdGFMZXZlbHMSEwoLcHJpY2VfdGlja3MYASADKAMSEgoKcXR5X3NjYWxlZBgCIAMoAzqQAbpIjAEaiQEKImhlYXRtYXBfZGVsdGFfbGV2ZWxzLmVxdWFsX2xlbmd0aHMSMnByaWNlX3RpY2tzIGFuZCBxdHlfc2NhbGVkIG11c3QgaGF2ZSBlcXVhbCBsZW5ndGhzGi9zaXplKHRoaXMucHJpY2VfdGlja3MpID09IHNpemUodGhpcy5xdHlfc2NhbGVkKSLLAQoPSGVhdG1hcEtleWZyYW1lEg4KBnRzX3NlYxgBIAEoBBIVCg1iZXN0X2JpZF90aWNrGAIgASgDEhUKDWJlc3RfYXNrX3RpY2sYAyABKAMSEAoIbWlkX3RpY2sYBCABKAMSKgoEYmlkcxgFIAEoCzIcLm1hcmtldGRhdGEudjEuSGVhdG1hcExldmVscxIqCgRhc2tzGAYgASgLMhwubWFya2V0ZGF0YS52MS5IZWF0bWFwTGV2ZWxzEhAKCGJvb2tfc2VxGAcgASgEIs8BChJIZWF0bWFwRGVsdGFCdWNrZXQSDgoGdHNfc2VjGAEgASgEEi8KBGJpZHMYAiABKAsyIS5tYXJrZXRkYXRhLnYxLkhlYXRtYXBEZWx0YUxldmVscxIvCgRhc2tzGAMgASgLMiEubWFya2V0ZGF0YS52MS5IZWF0bWFwRGVsdGFMZXZlbHMSGQoRdXBkYXRlc19pbl9idWNrZXQYBCABKA0SFgoOYm9va19zZXFfc3RhcnQYBSABKAQSFAoMYm9va19zZXFfZW5kGAYgASgEIpUDChFIZWF0bWFwTGl2ZUJ1Y2tldBIRCglzeW1ib2xfaWQYASABKA0SPAoIaW50ZXJ2YWwYAiABKA4yHi5tYXJrZXRkYXRhLnYxLkhlYXRtYXBJbnRlcnZhbEIKukgHggEEEAEgABIOCgZ0c19zZWMYAyABKAQSEAoIaXNfZmluYWwYBCABKAgSLwoEYmlkcxgFIAEoCzIhLm1hcmtldGRhdGEudjEuSGVhdG1hcERlbHRhTGV2ZWxzEi8KBGFza3MYBiABKAsyIS5tYXJrZXRkYXRhLnYxLkhlYXRtYXBEZWx0YUxldmVscxIZChF1cGRhdGVzX2luX2J1Y2tldBgHIAEoDRIWCg5ib29rX3NlcV9zdGFydBgIIAEoBBIUCgxib29rX3NlcV9lbmQYCSABKAQSRQoNcXVhbnRpdHlfbW9kZRgKIAEoDjIiLm1hcmtldGRhdGEudjEuSGVhdG1hcFF1YW50aXR5TW9kZUIKukgHggEEEAEgABIbChNlZmZlY3RpdmVfYmluX3RpY2tzGAsgASgEIn0KEUhlYXRtYXBEZWx0YUNoYWluEjUKDWJhc2Vfa2V5ZnJhbWUYASABKAsyHi5tYXJrZXRkYXRhLnYxLkhlYXRtYXBLZXlmcmFtZRIxCgZkZWx0YXMYAiADKAsyIS5tYXJrZXRkYXRhLnYxLkhlYXRtYXBEZWx0YUJ1Y2tldCLFAwobR2V0T3JkZXJib29rSGVhdG1hcFJlc3BvbnNlEhEKCXN5bWJvbF9pZBgBIAEoDRIwCghpbnRlcnZhbBgCIAEoDjIeLm1hcmtldGRhdGEudjEuSGVhdG1hcEludGVydmFsEioKBWRlcHRoGAMgASgOMhsubWFya2V0ZGF0YS52MS5IZWF0bWFwRGVwdGgSLwoFY2hhaW4YBCABKAsyIC5tYXJrZXRkYXRhLnYxLkhlYXRtYXBEZWx0YUNoYWluEh0KFWxhc3RfcGVyc2lzdGVkX3RzX3NlYxgFIAEoBBIeChZsaXZlX2Zyb21fYm9va19zZXFfZW5kGAYgASgEEhcKD2hhc19saXZlX2FuY2hvchgHIAEoCBIhCg9uZXh0X3BhZ2VfdG9rZW4YCCABKAlCCLpIBXIDGIAEEhcKD3NlcnZlcl90aW1lX3NlYxgKIAEoBBI5Cg1xdWFudGl0eV9tb2RlGAsgASgOMiIubWFya2V0ZGF0YS52MS5IZWF0bWFwUXVhbnRpdHlNb2RlEjUKC2xpdmVfYnVja2V0GAwgASgLMiAubWFya2V0ZGF0YS52MS5IZWF0bWFwTGl2ZUJ1Y2tldCpvCg9IZWF0bWFwSW50ZXJ2YWwSGAoUSU5URVJWQUxfVU5TUEVDSUZJRUQQABIPCgtJTlRFUlZBTF8xUxABEg8KC0lOVEVSVkFMXzFNEAISDwoLSU5URVJWQUxfNU0QAxIPCgtJTlRFUlZBTF8xSBAEKqYBCgxIZWF0bWFwRGVwdGgSFQoRREVQVEhfVU5TUEVDSUZJRUQQABILCgdERVBUSF8xEAESCwoHREVQVEhfNRACEgwKCERFUFRIXzEwEAMSDAoIREVQVEhfMjAQBBIMCghERVBUSF81MBAFEg0KCURFUFRIXzEwMBAGEg0KCURFUFRIXzIwMBAHEg0KCURFUFRIXzUwMBAIEg4KCkRFUFRIXzEwMDAQCSpEChNIZWF0bWFwUXVhbnRpdHlNb2RlEhgKFFFUWV9NT0RFX1VOU1BFQ0lGSUVEEAASCQoFQ0xPU0UQARIICgRQRUFLEAIyhAEKDkhlYXRtYXBTZXJ2aWNlEnIKE0dldE9yZGVyYm9va0hlYXRtYXASKS5tYXJrZXRkYXRhLnYxLkdldE9yZGVyYm9va0hlYXRtYXBSZXF1ZXN0GioubWFya2V0ZGF0YS52MS5HZXRPcmRlcmJvb2tIZWF0bWFwUmVzcG9uc2UiBIi1GAFCSFpGZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9tYXJrZXRkYXRhL3YxO21hcmtldGRhdGF2MWIGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * HeatmapTimeRange selects historical buckets by [start_time, end_time] (UTC).
@@ -40,25 +40,6 @@ export type HeatmapTimeRange = Message<"marketdata.v1.HeatmapTimeRange"> & {
  */
 export const HeatmapTimeRangeSchema: GenMessage<HeatmapTimeRange> = /*@__PURE__*/
   messageDesc(file_marketdata_v1_heatmap, 0);
-
-/**
- * HeatmapCursor selects historical buckets older than from_ts_sec (exclusive).
- *
- * @generated from message marketdata.v1.HeatmapCursor
- */
-export type HeatmapCursor = Message<"marketdata.v1.HeatmapCursor"> & {
-  /**
-   * @generated from field: uint64 from_ts_sec = 1;
-   */
-  fromTsSec: bigint;
-};
-
-/**
- * Describes the message marketdata.v1.HeatmapCursor.
- * Use `create(HeatmapCursorSchema)` to create a new message.
- */
-export const HeatmapCursorSchema: GenMessage<HeatmapCursor> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_heatmap, 1);
 
 /**
  * GetOrderbookHeatmapRequest fetches historical heatmap buckets.
@@ -88,25 +69,21 @@ export type GetOrderbookHeatmapRequest = Message<"marketdata.v1.GetOrderbookHeat
   depth: HeatmapDepth;
 
   /**
-   * Query mode:
-   * - time_range: absolute range query
-   * - cursor: keyset pagination (older-than)
+   * Absolute time range for the first page. Reuse the same request filters and
+   * pass page_token from the prior response to continue older buckets.
    *
-   * @generated from oneof marketdata.v1.GetOrderbookHeatmapRequest.mode
+   * @generated from field: marketdata.v1.HeatmapTimeRange time_range = 4;
    */
-  mode: {
-    /**
-     * @generated from field: marketdata.v1.HeatmapTimeRange time_range = 4;
-     */
-    value: HeatmapTimeRange;
-    case: "timeRange";
-  } | {
-    /**
-     * @generated from field: marketdata.v1.HeatmapCursor cursor = 5;
-     */
-    value: HeatmapCursor;
-    case: "cursor";
-  } | { case: undefined; value?: undefined };
+  timeRange?: HeatmapTimeRange | undefined;
+
+  /**
+   * Opaque keyset cursor from a previous response. The cursor is exclusive and
+   * bound to symbol, interval, depth, quantity mode, and the original time
+   * range.
+   *
+   * @generated from field: string page_token = 5;
+   */
+  pageToken: string;
 
   /**
    * Maximum number of delta buckets returned (min 1, max 20000).
@@ -131,7 +108,7 @@ export type GetOrderbookHeatmapRequest = Message<"marketdata.v1.GetOrderbookHeat
  * Use `create(GetOrderbookHeatmapRequestSchema)` to create a new message.
  */
 export const GetOrderbookHeatmapRequestSchema: GenMessage<GetOrderbookHeatmapRequest> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_heatmap, 2);
+  messageDesc(file_marketdata_v1_heatmap, 1);
 
 /**
  * HeatmapLevels represents one side of the orderbook for snapshots.
@@ -159,7 +136,7 @@ export type HeatmapLevels = Message<"marketdata.v1.HeatmapLevels"> & {
  * Use `create(HeatmapLevelsSchema)` to create a new message.
  */
 export const HeatmapLevelsSchema: GenMessage<HeatmapLevels> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_heatmap, 3);
+  messageDesc(file_marketdata_v1_heatmap, 2);
 
 /**
  * HeatmapDeltaLevels represents sparse per-bucket level changes for one side.
@@ -186,7 +163,7 @@ export type HeatmapDeltaLevels = Message<"marketdata.v1.HeatmapDeltaLevels"> & {
  * Use `create(HeatmapDeltaLevelsSchema)` to create a new message.
  */
 export const HeatmapDeltaLevelsSchema: GenMessage<HeatmapDeltaLevels> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_heatmap, 4);
+  messageDesc(file_marketdata_v1_heatmap, 3);
 
 /**
  * HeatmapKeyframe is a full-book snapshot anchor.
@@ -237,7 +214,7 @@ export type HeatmapKeyframe = Message<"marketdata.v1.HeatmapKeyframe"> & {
  * Use `create(HeatmapKeyframeSchema)` to create a new message.
  */
 export const HeatmapKeyframeSchema: GenMessage<HeatmapKeyframe> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_heatmap, 5);
+  messageDesc(file_marketdata_v1_heatmap, 4);
 
 /**
  * HeatmapDeltaBucket is one sparse update bucket containing both sides.
@@ -285,7 +262,7 @@ export type HeatmapDeltaBucket = Message<"marketdata.v1.HeatmapDeltaBucket"> & {
  * Use `create(HeatmapDeltaBucketSchema)` to create a new message.
  */
 export const HeatmapDeltaBucketSchema: GenMessage<HeatmapDeltaBucket> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_heatmap, 6);
+  messageDesc(file_marketdata_v1_heatmap, 5);
 
 /**
  * HeatmapLiveBucket is the canonical live payload for realtime heatmap updates.
@@ -369,7 +346,7 @@ export type HeatmapLiveBucket = Message<"marketdata.v1.HeatmapLiveBucket"> & {
  * Use `create(HeatmapLiveBucketSchema)` to create a new message.
  */
 export const HeatmapLiveBucketSchema: GenMessage<HeatmapLiveBucket> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_heatmap, 7);
+  messageDesc(file_marketdata_v1_heatmap, 6);
 
 /**
  * HeatmapDeltaChain is the historical payload for all intervals.
@@ -395,7 +372,7 @@ export type HeatmapDeltaChain = Message<"marketdata.v1.HeatmapDeltaChain"> & {
  * Use `create(HeatmapDeltaChainSchema)` to create a new message.
  */
 export const HeatmapDeltaChainSchema: GenMessage<HeatmapDeltaChain> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_heatmap, 8);
+  messageDesc(file_marketdata_v1_heatmap, 7);
 
 /**
  * GetOrderbookHeatmapResponse returns a historical replay chain plus optional
@@ -454,18 +431,11 @@ export type GetOrderbookHeatmapResponse = Message<"marketdata.v1.GetOrderbookHea
   hasLiveAnchor: boolean;
 
   /**
-   * True when more older buckets are available through cursor pagination.
+   * Opaque cursor for the next page. Empty when no more results exist.
    *
-   * @generated from field: bool has_more = 8;
+   * @generated from field: string next_page_token = 8;
    */
-  hasMore: boolean;
-
-  /**
-   * Exclusive cursor for older-than pagination in cursor mode, in seconds since epoch (UTC). Zero means no next page.
-   *
-   * @generated from field: uint64 next_ts_sec = 9;
-   */
-  nextTsSec: bigint;
+  nextPageToken: string;
 
   /**
    * Server response time in seconds since epoch (UTC).
@@ -495,7 +465,7 @@ export type GetOrderbookHeatmapResponse = Message<"marketdata.v1.GetOrderbookHea
  * Use `create(GetOrderbookHeatmapResponseSchema)` to create a new message.
  */
 export const GetOrderbookHeatmapResponseSchema: GenMessage<GetOrderbookHeatmapResponse> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_heatmap, 9);
+  messageDesc(file_marketdata_v1_heatmap, 8);
 
 /**
  * HeatmapInterval controls bucket resolution for historical orderbook heatmap.

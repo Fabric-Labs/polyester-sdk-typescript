@@ -711,7 +711,9 @@ export type GetOpenOrdersRequest = Message<"orders.v1.GetOpenOrdersRequest"> & {
   limit?: number | undefined;
 
   /**
-   * Opaque, account-bound cursor from previous response.
+   * Opaque keyset cursor from a previous response. The cursor is exclusive and
+   * bound to the authenticated account, sub-account scope, filters, and sort
+   * order.
    *
    * @generated from field: string page_token = 11;
    */
@@ -753,7 +755,7 @@ export type GetOpenOrdersResponse = Message<"orders.v1.GetOpenOrdersResponse"> &
   orders: Order[];
 
   /**
-   * Opaque, account-bound cursor for next page.
+   * Opaque cursor for the next page. Empty when no more results exist.
    *
    * @generated from field: string next_page_token = 2;
    */
@@ -823,7 +825,9 @@ export type GetOrderHistoryRequest = Message<"orders.v1.GetOrderHistoryRequest">
   limit?: number | undefined;
 
   /**
-   * Opaque, account-bound cursor from previous response.
+   * Opaque keyset cursor from a previous response. The cursor is exclusive and
+   * bound to the authenticated account, sub-account scope, filters, time range,
+   * and sort order.
    *
    * @generated from field: string page_token = 13;
    */
@@ -865,7 +869,7 @@ export type GetOrderHistoryResponse = Message<"orders.v1.GetOrderHistoryResponse
   orders: Order[];
 
   /**
-   * Opaque, account-bound cursor for next page.
+   * Opaque cursor for the next page. Empty when no more results exist.
    *
    * @generated from field: string next_page_token = 2;
    */
@@ -928,7 +932,9 @@ export type GetUserTradesRequest = Message<"orders.v1.GetUserTradesRequest"> & {
   limit?: number | undefined;
 
   /**
-   * Opaque, account-bound cursor from previous response.
+   * Opaque keyset cursor from a previous response. The cursor is exclusive and
+   * bound to the authenticated account, sub-account scope, filters, time range,
+   * and sort order.
    *
    * @generated from field: string page_token = 13;
    */
@@ -956,7 +962,7 @@ export type GetUserTradesResponse = Message<"orders.v1.GetUserTradesResponse"> &
   trades: UserTrade[];
 
   /**
-   * Opaque, account-bound cursor for next page.
+   * Opaque cursor for the next page. Empty when no more results exist.
    *
    * @generated from field: string next_page_token = 2;
    */
