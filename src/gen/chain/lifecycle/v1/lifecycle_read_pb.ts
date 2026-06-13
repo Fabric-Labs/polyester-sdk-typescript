@@ -97,7 +97,8 @@ export type ListFlowsByTxRequest = Message<"chain.lifecycle.v1.ListFlowsByTxRequ
   limit: number;
 
   /**
-   * Opaque keyset pagination cursor returned by a previous response.
+   * Opaque keyset cursor returned by a previous response. The cursor is
+   * exclusive and bound to the transaction hash and lookup mode.
    *
    * @generated from field: string page_token = 4;
    */
@@ -208,8 +209,9 @@ export type ListFlowsRequest = Message<"chain.lifecycle.v1.ListFlowsRequest"> & 
   unifiedAssetIds: number[];
 
   /**
-   * Opaque keyset pagination cursor returned by a previous response. It must be
-   * reused with the same sort direction.
+   * Opaque keyset cursor returned by a previous response. The cursor is
+   * exclusive and bound to the caller, filters, account selector, and sort
+   * direction.
    *
    * @generated from field: string page_token = 12;
    */
@@ -238,7 +240,7 @@ export type ListFlowsResponse = Message<"chain.lifecycle.v1.ListFlowsResponse"> 
   flows: FlowSummaryView[];
 
   /**
-   * Opaque cursor for the next page; empty when no more results exist.
+   * Opaque cursor for the next page. Empty when no more results exist.
    *
    * @generated from field: string next_page_token = 2;
    */
@@ -410,7 +412,7 @@ export type ListFlowsByTxResponse = Message<"chain.lifecycle.v1.ListFlowsByTxRes
   matches: FlowTxMatchView[];
 
   /**
-   * Opaque cursor for the next page; empty when no more results exist.
+   * Opaque cursor for the next page. Empty when no more results exist.
    *
    * @generated from field: string next_page_token = 3;
    */
@@ -475,8 +477,10 @@ export type FlowSummaryView = Message<"chain.lifecycle.v1.FlowSummaryView"> & {
   polyesterChainId: number;
 
   /**
-   * Principal or visible amount for the flow in 18-decimal asset units. For
-   * settled fee-bearing flows this is the visible net amount.
+   * Principal or settled amount for the flow in 18-decimal asset units. For
+   * withdrawals this is the gross amount debited from ledger; bridge fulfillment
+   * steps may show the net external amount after request_fee. For deposits this
+   * may be the net amount credited to ledger after chain fees.
    *
    * @generated from field: polyester.type.v1.U128 amount_e18 = 9;
    */

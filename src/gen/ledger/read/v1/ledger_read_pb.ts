@@ -449,14 +449,16 @@ export type ListTransfersRequest = Message<"ledger.read.v1.ListTransfersRequest"
   subaccountId?: bigint | undefined;
 
   /**
-   * Max number of rows to return (server may clamp). Default applied if 0.
+   * Maximum number of transfer rows to return. Defaults to 100 when omitted;
+   * maximum is 1000.
    *
    * @generated from field: uint32 limit = 2;
    */
   limit: number;
 
   /**
-   * true=newest first; false=oldest first.
+   * Sort direction. When true, rows are returned newest first; when false,
+   * rows are returned oldest first.
    *
    * @generated from field: bool reversed = 3;
    */
@@ -484,7 +486,7 @@ export type ListTransfersRequest = Message<"ledger.read.v1.ListTransfersRequest"
   transferCode: TransferCode;
 
   /**
-   * optional filter by asset ledger
+   * Optional filter by asset ledger.
    *
    * @generated from field: uint32 ledger = 7;
    */
@@ -493,9 +495,9 @@ export type ListTransfersRequest = Message<"ledger.read.v1.ListTransfersRequest"
   /**
    * cursor in microseconds since epoch: return rows with timestamp > since
    *
-   * @generated from field: uint64 since = 8;
+   * @generated from field: string page_token = 9;
    */
-  since: bigint;
+  pageToken: string;
 };
 
 /**
@@ -610,9 +612,11 @@ export type ListTransfersResponse = Message<"ledger.read.v1.ListTransfersRespons
   transfers: TransferRow[];
 
   /**
-   * @generated from field: uint64 next_cursor = 2;
+   * Opaque cursor for the next page. Empty when no more results exist.
+   *
+   * @generated from field: string next_page_token = 3;
    */
-  nextCursor: bigint;
+  nextPageToken: string;
 };
 
 /**
@@ -635,7 +639,8 @@ export type ListHoldsRequest = Message<"ledger.read.v1.ListHoldsRequest"> & {
   subaccountId?: bigint | undefined;
 
   /**
-   * Max number of rows to return (server may clamp). Default applied if 0.
+   * Maximum number of holds to return. Defaults to 100 when omitted; maximum is
+   * 1000.
    *
    * @generated from field: uint32 limit = 2;
    */
@@ -647,6 +652,14 @@ export type ListHoldsRequest = Message<"ledger.read.v1.ListHoldsRequest"> & {
    * @generated from field: bool reversed = 3;
    */
   reversed: boolean;
+
+  /**
+   * Opaque keyset cursor from a previous response. The cursor is exclusive and
+   * bound to account, sub-account scope, and sort direction.
+   *
+   * @generated from field: string page_token = 4;
+   */
+  pageToken: string;
 };
 
 /**
@@ -704,6 +717,13 @@ export type ListHoldsResponse = Message<"ledger.read.v1.ListHoldsResponse"> & {
    * @generated from field: repeated ledger.read.v1.HoldRow holds = 1;
    */
   holds: HoldRow[];
+
+  /**
+   * Opaque cursor for the next page. Empty when no more results exist.
+   *
+   * @generated from field: string next_page_token = 2;
+   */
+  nextPageToken: string;
 };
 
 /**
