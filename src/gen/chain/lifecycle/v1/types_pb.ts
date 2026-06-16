@@ -50,8 +50,8 @@ export const AssetIdsSchema: GenMessage<AssetIds> = /*@__PURE__*/
 
 /**
  * RequestFee captures the on-chain fee associated with a deposit or withdrawal
- * request. This is separate from summary `amount_e18`, which carries the gross
- * request principal for API display.
+ * request. This is separate from `amount_e18`: withdrawals keep the gross
+ * request principal, while deposits may settle as the net credited amount.
  *
  * @generated from message chain.lifecycle.v1.RequestFee
  */
