@@ -477,10 +477,9 @@ export type FlowSummaryView = Message<"chain.lifecycle.v1.FlowSummaryView"> & {
   polyesterChainId: number;
 
   /**
-   * Principal or settled amount for the flow in 18-decimal asset units. For
-   * withdrawals this is the gross amount debited from ledger; bridge fulfillment
-   * steps may show the net external amount after request_fee. For deposits this
-   * may be the net amount credited to ledger after chain fees.
+   * Gross principal amount for the flow in 18-decimal asset units. Request fees
+   * are exposed separately in request_fee. Specific fulfillment steps may carry
+   * a net movement amount when the step represents external delivery.
    *
    * @generated from field: polyester.type.v1.U128 amount_e18 = 9;
    */

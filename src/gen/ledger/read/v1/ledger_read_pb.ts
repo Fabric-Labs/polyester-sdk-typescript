@@ -18,7 +18,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file ledger/read/v1/ledger_read.proto.
  */
 export const file_ledger_read_v1_ledger_read: GenFile = /*@__PURE__*/
-  fileDesc("CiBsZWRnZXIvcmVhZC92MS9sZWRnZXJfcmVhZC5wcm90bxIObGVkZ2VyLnJlYWQudjEiQgoSR2V0QmFsYW5jZXNSZXF1ZXN0EhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBAUIQCg5fc3ViYWNjb3VudF9pZCLLAQoMQXNzZXRCYWxhbmNlEhAKCGFzc2V0X2lkGAEgASgNEigKB3RyYWRpbmcYAiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EigKB2Z1bmRpbmcYAyABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EikKCHJlc2VydmVkGAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIqCglhdmFpbGFibGUYBSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4IkUKE0dldEJhbGFuY2VzUmVzcG9uc2USLgoIYmFsYW5jZXMYASADKAsyHC5sZWRnZXIucmVhZC52MS5Bc3NldEJhbGFuY2UivgEKGEdldEJhbGFuY2VIaXN0b3J5UmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESNQoFcmFuZ2UYAiABKA4yHC5sZWRnZXIucmVhZC52MS5CYWxhbmNlUmFuZ2VCCLpIBYIBAhABEg4KBmxlZGdlchgDIAEoDRItCg1hY2NvdW50X2NvZGVzGAQgAygOMhYubGVkZ2VyLnYxLkFjY291bnRDb2RlQhAKDl9zdWJhY2NvdW50X2lkImIKDUJhbGFuY2VTZXJpZXMSEAoIYXNzZXRfaWQYASABKA0SLAoMYWNjb3VudF9jb2RlGAIgASgOMhYubGVkZ2VyLnYxLkFjY291bnRDb2RlEhEKCWJhbGFuY2VfcRgDIAMoBCLBAQoZR2V0QmFsYW5jZUhpc3RvcnlSZXNwb25zZRIrCgVyYW5nZRgBIAEoDjIcLmxlZGdlci5yZWFkLnYxLkJhbGFuY2VSYW5nZRIOCgZidWNrZXQYAiABKAkSFAoMc3RhcnRfdHNfc2VjGAMgASgHEhIKCmVuZF90c19zZWMYBCABKAcSDgoGcG9pbnRzGAUgASgNEi0KBnNlcmllcxgGIAMoCzIdLmxlZGdlci5yZWFkLnYxLkJhbGFuY2VTZXJpZXMiNQoPQWNjb3VudEdyb3VwaW5nEhQKDGFjY291bnRfY29kZRgBIAEoDRIMCgRuYW1lGAIgASgJIisKDUFzc2V0R3JvdXBpbmcSCgoCaWQYASABKA0SDgoGc3ltYm9sGAIgASgJIuoBCh1HZXRFcXVpdHlIaXN0b3J5U2VyaWVzUmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESNQoFcmFuZ2UYAiABKA4yHC5sZWRnZXIucmVhZC52MS5CYWxhbmNlUmFuZ2VCCLpIBYIBAhABEi0KDWFjY291bnRfY29kZXMYBCADKA4yFi5sZWRnZXIudjEuQWNjb3VudENvZGUSLwoIZ3JvdXBfYnkYBSABKA4yHS5sZWRnZXIucmVhZC52MS5FcXVpdHlHcm91cEJ5QhAKDl9zdWJhY2NvdW50X2lkSgQIAxAEIpABCgxFcXVpdHlTZXJpZXMSMgoHYWNjb3VudBgBIAEoCzIfLmxlZGdlci5yZWFkLnYxLkFjY291bnRHcm91cGluZ0gAEi4KBWFzc2V0GAMgASgLMh0ubGVkZ2VyLnJlYWQudjEuQXNzZXRHcm91cGluZ0gAEhAKCGVxdWl0eV9xGAIgAygSQgoKCGdyb3VwaW5nIvYBCh5HZXRFcXVpdHlIaXN0b3J5U2VyaWVzUmVzcG9uc2USKwoFcmFuZ2UYASABKA4yHC5sZWRnZXIucmVhZC52MS5CYWxhbmNlUmFuZ2USDgoGYnVja2V0GAIgASgJEhQKDHN0YXJ0X3RzX3NlYxgDIAEoBxISCgplbmRfdHNfc2VjGAQgASgHEhMKC3F1b3RlX2Fzc2V0GAYgASgJEg4KBnBvaW50cxgHIAEoDRIsCgZzZXJpZXMYCCADKAsyHC5sZWRnZXIucmVhZC52MS5FcXVpdHlTZXJpZXMSFAoMYnRjX3ByaWNlc19xGAogAygDSgQIBRAGIrgDChRMaXN0VHJhbnNmZXJzUmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESFwoFbGltaXQYAiABKA1CCLpIBSoDGOgHEhAKCHJldmVyc2VkGAMgASgIEhUKDXRpbWVzdGFtcF9taW4YBCABKAQSFQoNdGltZXN0YW1wX21heBgFIAEoBBIuCg10cmFuc2Zlcl9jb2RlGAYgASgOMhcubGVkZ2VyLnYxLlRyYW5zZmVyQ29kZRIOCgZsZWRnZXIYByABKA0SDQoFc2luY2UYCCABKAQ6yQG6SMUBGsIBCiRsaXN0X3RyYW5zZmVycy50aW1lc3RhbXBfcmFuZ2VfdmFsaWQSOHRpbWVzdGFtcF9tYXggbXVzdCBiZSA+PSB0aW1lc3RhbXBfbWluIHdoZW4gYm90aCBhcmUgc2V0GmB0aGlzLnRpbWVzdGFtcF9taW4gPT0gMHUgfHwgdGhpcy50aW1lc3RhbXBfbWF4ID09IDB1IHx8IHRoaXMudGltZXN0YW1wX21heCA+PSB0aGlzLnRpbWVzdGFtcF9taW5CEAoOX3N1YmFjY291bnRfaWQivQIKC1RyYW5zZmVyUm93EhAKCGFzc2V0X2lkGAEgASgNEicKBmFtb3VudBgCIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSLgoNdHJhbnNmZXJfY29kZRgDIAEoDjIXLmxlZGdlci52MS5UcmFuc2ZlckNvZGUSLAoMYWNjb3VudF9jb2RlGAQgASgOMhYubGVkZ2VyLnYxLkFjY291bnRDb2RlEhEKCXRpbWVzdGFtcBgFIAEoBBINCgV0eF9pZBgHIAEoCRIPCgdvbmNoYWluGAggASgIEi4KDWJhbGFuY2VfYWZ0ZXIYCSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EhAKCGlzX2RlYml0GAogASgIEg8KB2xpbmtfaWQYCyABKAQSDwoHZmxvd19pZBgMIAEoCSJcChVMaXN0VHJhbnNmZXJzUmVzcG9uc2USLgoJdHJhbnNmZXJzGAEgAygLMhsubGVkZ2VyLnJlYWQudjEuVHJhbnNmZXJSb3cSEwoLbmV4dF9jdXJzb3IYAiABKAQiawoQTGlzdEhvbGRzUmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESFwoFbGltaXQYAiABKA1CCLpIBSoDGOgHEhAKCHJldmVyc2VkGAMgASgIQhAKDl9zdWJhY2NvdW50X2lkInUKB0hvbGRSb3cSDwoHaG9sZF9pZBgBIAEoBhIwCg9hbW91bnRfcmVzZXJ2ZWQYAiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EhAKCGFzc2V0X2lkGAMgASgNEhUKDWV4cGlyZXNfYXRfbnMYBCABKAQiOwoRTGlzdEhvbGRzUmVzcG9uc2USJgoFaG9sZHMYASADKAsyFy5sZWRnZXIucmVhZC52MS5Ib2xkUm93IhIKEEdldEhlYWx0aFJlcXVlc3QiMAoRR2V0SGVhbHRoUmVzcG9uc2USCgoCb2sYASABKAgSDwoHdmVyc2lvbhgCIAEoCSI2CgtFcnJvckRldGFpbBInCgRjb2RlGAEgASgOMhkubGVkZ2VyLnJlYWQudjEuRXJyb3JDb2RlKnUKDEJhbGFuY2VSYW5nZRIdChlCQUxBTkNFX1JBTkdFX1VOU1BFQ0lGSUVEEAASCQoFREFZXzEQARIJCgVEQVlfNxACEgoKBkRBWV8zMBADEgoKBkRBWV85MBAEEgsKB0RBWV8xODAQBRILCgdEQVlfMzY1EAYqUwoNRXF1aXR5R3JvdXBCeRIYChRHUk9VUF9CWV9VTlNQRUNJRklFRBAAEhQKEEdST1VQX0JZX0FDQ09VTlQQARISCg5HUk9VUF9CWV9BU1NFVBACKvICCglFcnJvckNvZGUSGgoWRVJST1JfQ09ERV9VTlNQRUNJRklFRBAAEhoKFkVSUk9SX0NPREVfQkFEX1JFUVVFU1QQARIeChpFUlJPUl9DT0RFX1VOQVVUSEVOVElDQVRFRBACEiAKHEVSUk9SX0NPREVfUEVSTUlTU0lPTl9ERU5JRUQQAxIYChRFUlJPUl9DT0RFX05PVF9GT1VORBAEEiEKHUVSUk9SX0NPREVfTUlTU0lOR19BQ0NPVU5UX0lEEAUSIQodRVJST1JfQ09ERV9JTlZBTElEX0FDQ09VTlRfSUQQBhIdChlFUlJPUl9DT0RFX01JU1NJTkdfV0FMTEVUEAcSLAooRVJST1JfQ09ERV9XQUxMRVRfUkVTT0xVVElPTl9VTkFWQUlMQUJMRRAIEh8KG0VSUk9SX0NPREVfV0FMTEVUX05PVF9GT1VORBAJEh0KGUVSUk9SX0NPREVfVVBTVFJFQU1fRVJST1IQCjK1BQoRTGVkZ2VyUmVhZFNlcnZpY2USagoRR2V0QmFsYW5jZUhpc3RvcnkSKC5sZWRnZXIucmVhZC52MS5HZXRCYWxhbmNlSGlzdG9yeVJlcXVlc3QaKS5sZWRnZXIucmVhZC52MS5HZXRCYWxhbmNlSGlzdG9yeVJlc3BvbnNlIgASeQoWR2V0RXF1aXR5SGlzdG9yeVNlcmllcxItLmxlZGdlci5yZWFkLnYxLkdldEVxdWl0eUhpc3RvcnlTZXJpZXNSZXF1ZXN0Gi4ubGVkZ2VyLnJlYWQudjEuR2V0RXF1aXR5SGlzdG9yeVNlcmllc1Jlc3BvbnNlIgASXgoNTGlzdFRyYW5zZmVycxIkLmxlZGdlci5yZWFkLnYxLkxpc3RUcmFuc2ZlcnNSZXF1ZXN0GiUubGVkZ2VyLnJlYWQudjEuTGlzdFRyYW5zZmVyc1Jlc3BvbnNlIgASUgoJTGlzdEhvbGRzEiAubGVkZ2VyLnJlYWQudjEuTGlzdEhvbGRzUmVxdWVzdBohLmxlZGdlci5yZWFkLnYxLkxpc3RIb2xkc1Jlc3BvbnNlIgASWAoLR2V0QmFsYW5jZXMSIi5sZWRnZXIucmVhZC52MS5HZXRCYWxhbmNlc1JlcXVlc3QaIy5sZWRnZXIucmVhZC52MS5HZXRCYWxhbmNlc1Jlc3BvbnNlIgASqgEKCUdldEhlYWx0aBIgLmxlZGdlci5yZWFkLnYxLkdldEhlYWx0aFJlcXVlc3QaIS5sZWRnZXIucmVhZC52MS5HZXRIZWFsdGhSZXNwb25zZSJYukc/CgtMZWRnZXIgUmVhZBIKR2V0IEhlYWx0aBokUmV0cmlldmUgc2VydmljZSBoZWFsdGggYW5kIHZlcnNpb24uiLUYAYLT5JMCDBIKL3YxL2hlYWx0aEKNAVpFZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9sZWRnZXIvcmVhZC92MTtsZWRnZXJyZHYxukdDOkEKC0xlZGdlciBSZWFkEjJSZWFkIGVuZHBvaW50cyBmb3IgYmFsYW5jZXMsIHRyYW5zZmVycywgYW5kIGhvbGRzLmIGcHJvdG8z", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_ledger_v1_catalog, file_polyester_api_options, file_polyester_type_v1_u128]);
+  fileDesc("CiBsZWRnZXIvcmVhZC92MS9sZWRnZXJfcmVhZC5wcm90bxIObGVkZ2VyLnJlYWQudjEiQgoSR2V0QmFsYW5jZXNSZXF1ZXN0EhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBAUIQCg5fc3ViYWNjb3VudF9pZCLLAQoMQXNzZXRCYWxhbmNlEhAKCGFzc2V0X2lkGAEgASgNEigKB3RyYWRpbmcYAiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EigKB2Z1bmRpbmcYAyABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EikKCHJlc2VydmVkGAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIqCglhdmFpbGFibGUYBSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4IkUKE0dldEJhbGFuY2VzUmVzcG9uc2USLgoIYmFsYW5jZXMYASADKAsyHC5sZWRnZXIucmVhZC52MS5Bc3NldEJhbGFuY2UivgEKGEdldEJhbGFuY2VIaXN0b3J5UmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESNQoFcmFuZ2UYAiABKA4yHC5sZWRnZXIucmVhZC52MS5CYWxhbmNlUmFuZ2VCCLpIBYIBAhABEg4KBmxlZGdlchgDIAEoDRItCg1hY2NvdW50X2NvZGVzGAQgAygOMhYubGVkZ2VyLnYxLkFjY291bnRDb2RlQhAKDl9zdWJhY2NvdW50X2lkImIKDUJhbGFuY2VTZXJpZXMSEAoIYXNzZXRfaWQYASABKA0SLAoMYWNjb3VudF9jb2RlGAIgASgOMhYubGVkZ2VyLnYxLkFjY291bnRDb2RlEhEKCWJhbGFuY2VfcRgDIAMoBCLBAQoZR2V0QmFsYW5jZUhpc3RvcnlSZXNwb25zZRIrCgVyYW5nZRgBIAEoDjIcLmxlZGdlci5yZWFkLnYxLkJhbGFuY2VSYW5nZRIOCgZidWNrZXQYAiABKAkSFAoMc3RhcnRfdHNfc2VjGAMgASgHEhIKCmVuZF90c19zZWMYBCABKAcSDgoGcG9pbnRzGAUgASgNEi0KBnNlcmllcxgGIAMoCzIdLmxlZGdlci5yZWFkLnYxLkJhbGFuY2VTZXJpZXMiNQoPQWNjb3VudEdyb3VwaW5nEhQKDGFjY291bnRfY29kZRgBIAEoDRIMCgRuYW1lGAIgASgJIisKDUFzc2V0R3JvdXBpbmcSCgoCaWQYASABKA0SDgoGc3ltYm9sGAIgASgJIuQBCh1HZXRFcXVpdHlIaXN0b3J5U2VyaWVzUmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESNQoFcmFuZ2UYAiABKA4yHC5sZWRnZXIucmVhZC52MS5CYWxhbmNlUmFuZ2VCCLpIBYIBAhABEi0KDWFjY291bnRfY29kZXMYBCADKA4yFi5sZWRnZXIudjEuQWNjb3VudENvZGUSLwoIZ3JvdXBfYnkYBSABKA4yHS5sZWRnZXIucmVhZC52MS5FcXVpdHlHcm91cEJ5QhAKDl9zdWJhY2NvdW50X2lkIpABCgxFcXVpdHlTZXJpZXMSMgoHYWNjb3VudBgBIAEoCzIfLmxlZGdlci5yZWFkLnYxLkFjY291bnRHcm91cGluZ0gAEi4KBWFzc2V0GAMgASgLMh0ubGVkZ2VyLnJlYWQudjEuQXNzZXRHcm91cGluZ0gAEhAKCGVxdWl0eV9xGAIgAygSQgoKCGdyb3VwaW5nIvABCh5HZXRFcXVpdHlIaXN0b3J5U2VyaWVzUmVzcG9uc2USKwoFcmFuZ2UYASABKA4yHC5sZWRnZXIucmVhZC52MS5CYWxhbmNlUmFuZ2USDgoGYnVja2V0GAIgASgJEhQKDHN0YXJ0X3RzX3NlYxgDIAEoBxISCgplbmRfdHNfc2VjGAQgASgHEhMKC3F1b3RlX2Fzc2V0GAYgASgJEg4KBnBvaW50cxgHIAEoDRIsCgZzZXJpZXMYCCADKAsyHC5sZWRnZXIucmVhZC52MS5FcXVpdHlTZXJpZXMSFAoMYnRjX3ByaWNlc19xGAogAygDIscDChRMaXN0VHJhbnNmZXJzUmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESFwoFbGltaXQYAiABKA1CCLpIBSoDGOgHEhAKCHJldmVyc2VkGAMgASgIEhUKDXRpbWVzdGFtcF9taW4YBCABKAQSFQoNdGltZXN0YW1wX21heBgFIAEoBBIuCg10cmFuc2Zlcl9jb2RlGAYgASgOMhcubGVkZ2VyLnYxLlRyYW5zZmVyQ29kZRIOCgZsZWRnZXIYByABKA0SHAoKcGFnZV90b2tlbhgJIAEoCUIIukgFcgMYgAQ6yQG6SMUBGsIBCiRsaXN0X3RyYW5zZmVycy50aW1lc3RhbXBfcmFuZ2VfdmFsaWQSOHRpbWVzdGFtcF9tYXggbXVzdCBiZSA+PSB0aW1lc3RhbXBfbWluIHdoZW4gYm90aCBhcmUgc2V0GmB0aGlzLnRpbWVzdGFtcF9taW4gPT0gMHUgfHwgdGhpcy50aW1lc3RhbXBfbWF4ID09IDB1IHx8IHRoaXMudGltZXN0YW1wX21heCA+PSB0aGlzLnRpbWVzdGFtcF9taW5CEAoOX3N1YmFjY291bnRfaWQidwoMVHJhbnNmZXJTaWRlEi4KBGtpbmQYASABKA4yIC5sZWRnZXIucmVhZC52MS5UcmFuc2ZlclNpZGVLaW5kEhcKCmFjY291bnRfaWQYAiABKAZIAIgBARIPCgdhZGRyZXNzGAMgASgJQg0KC19hY2NvdW50X2lkIp4DCgtUcmFuc2ZlclJvdxIQCghhc3NldF9pZBgBIAEoDRInCgZhbW91bnQYAiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Ei4KDXRyYW5zZmVyX2NvZGUYAyABKA4yFy5sZWRnZXIudjEuVHJhbnNmZXJDb2RlEiwKDGFjY291bnRfY29kZRgEIAEoDjIWLmxlZGdlci52MS5BY2NvdW50Q29kZRIRCgl0aW1lc3RhbXAYBSABKAQSDQoFdHhfaWQYByABKAkSDwoHb25jaGFpbhgIIAEoCBIuCg1iYWxhbmNlX2FmdGVyGAkgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIQCghpc19kZWJpdBgKIAEoCBIPCgdsaW5rX2lkGAsgASgEEg8KB2Zsb3dfaWQYDCABKAkSLAoGc291cmNlGA0gASgLMhwubGVkZ2VyLnJlYWQudjEuVHJhbnNmZXJTaWRlEjEKC2Rlc3RpbmF0aW9uGA4gASgLMhwubGVkZ2VyLnJlYWQudjEuVHJhbnNmZXJTaWRlImoKFUxpc3RUcmFuc2ZlcnNSZXNwb25zZRIuCgl0cmFuc2ZlcnMYASADKAsyGy5sZWRnZXIucmVhZC52MS5UcmFuc2ZlclJvdxIhCg9uZXh0X3BhZ2VfdG9rZW4YAyABKAlCCLpIBXIDGIAEIokBChBMaXN0SG9sZHNSZXF1ZXN0EhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBARIXCgVsaW1pdBgCIAEoDUIIukgFKgMY6AcSEAoIcmV2ZXJzZWQYAyABKAgSHAoKcGFnZV90b2tlbhgEIAEoCUIIukgFcgMYgARCEAoOX3N1YmFjY291bnRfaWQidQoHSG9sZFJvdxIPCgdob2xkX2lkGAEgASgGEjAKD2Ftb3VudF9yZXNlcnZlZBgCIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSEAoIYXNzZXRfaWQYAyABKA0SFQoNZXhwaXJlc19hdF9ucxgEIAEoBCJeChFMaXN0SG9sZHNSZXNwb25zZRImCgVob2xkcxgBIAMoCzIXLmxlZGdlci5yZWFkLnYxLkhvbGRSb3cSIQoPbmV4dF9wYWdlX3Rva2VuGAIgASgJQgi6SAVyAxiABCISChBHZXRIZWFsdGhSZXF1ZXN0IjAKEUdldEhlYWx0aFJlc3BvbnNlEgoKAm9rGAEgASgIEg8KB3ZlcnNpb24YAiABKAkiNgoLRXJyb3JEZXRhaWwSJwoEY29kZRgBIAEoDjIZLmxlZGdlci5yZWFkLnYxLkVycm9yQ29kZSp1CgxCYWxhbmNlUmFuZ2USHQoZQkFMQU5DRV9SQU5HRV9VTlNQRUNJRklFRBAAEgkKBURBWV8xEAESCQoFREFZXzcQAhIKCgZEQVlfMzAQAxIKCgZEQVlfOTAQBBILCgdEQVlfMTgwEAUSCwoHREFZXzM2NRAGKlMKDUVxdWl0eUdyb3VwQnkSGAoUR1JPVVBfQllfVU5TUEVDSUZJRUQQABIUChBHUk9VUF9CWV9BQ0NPVU5UEAESEgoOR1JPVVBfQllfQVNTRVQQAiq1AQoQVHJhbnNmZXJTaWRlS2luZBIiCh5UUkFOU0ZFUl9TSURFX0tJTkRfVU5TUEVDSUZJRUQQABITCg9GVU5ESU5HX0FDQ09VTlQQARITCg9UUkFESU5HX0FDQ09VTlQQAhIUChBFWFRFUk5BTF9BRERSRVNTEAMSGAoUUFJJVkFURV9DT1VOVEVSUEFSVFkQBBIPCgtGRUVfQUNDT1VOVBAFEhIKDlNZU1RFTV9BQ0NPVU5UEAYq8gIKCUVycm9yQ29kZRIaChZFUlJPUl9DT0RFX1VOU1BFQ0lGSUVEEAASGgoWRVJST1JfQ09ERV9CQURfUkVRVUVTVBABEh4KGkVSUk9SX0NPREVfVU5BVVRIRU5USUNBVEVEEAISIAocRVJST1JfQ09ERV9QRVJNSVNTSU9OX0RFTklFRBADEhgKFEVSUk9SX0NPREVfTk9UX0ZPVU5EEAQSIQodRVJST1JfQ09ERV9NSVNTSU5HX0FDQ09VTlRfSUQQBRIhCh1FUlJPUl9DT0RFX0lOVkFMSURfQUNDT1VOVF9JRBAGEh0KGUVSUk9SX0NPREVfTUlTU0lOR19XQUxMRVQQBxIsCihFUlJPUl9DT0RFX1dBTExFVF9SRVNPTFVUSU9OX1VOQVZBSUxBQkxFEAgSHwobRVJST1JfQ09ERV9XQUxMRVRfTk9UX0ZPVU5EEAkSHQoZRVJST1JfQ09ERV9VUFNUUkVBTV9FUlJPUhAKMrUFChFMZWRnZXJSZWFkU2VydmljZRJqChFHZXRCYWxhbmNlSGlzdG9yeRIoLmxlZGdlci5yZWFkLnYxLkdldEJhbGFuY2VIaXN0b3J5UmVxdWVzdBopLmxlZGdlci5yZWFkLnYxLkdldEJhbGFuY2VIaXN0b3J5UmVzcG9uc2UiABJ5ChZHZXRFcXVpdHlIaXN0b3J5U2VyaWVzEi0ubGVkZ2VyLnJlYWQudjEuR2V0RXF1aXR5SGlzdG9yeVNlcmllc1JlcXVlc3QaLi5sZWRnZXIucmVhZC52MS5HZXRFcXVpdHlIaXN0b3J5U2VyaWVzUmVzcG9uc2UiABJeCg1MaXN0VHJhbnNmZXJzEiQubGVkZ2VyLnJlYWQudjEuTGlzdFRyYW5zZmVyc1JlcXVlc3QaJS5sZWRnZXIucmVhZC52MS5MaXN0VHJhbnNmZXJzUmVzcG9uc2UiABJSCglMaXN0SG9sZHMSIC5sZWRnZXIucmVhZC52MS5MaXN0SG9sZHNSZXF1ZXN0GiEubGVkZ2VyLnJlYWQudjEuTGlzdEhvbGRzUmVzcG9uc2UiABJYCgtHZXRCYWxhbmNlcxIiLmxlZGdlci5yZWFkLnYxLkdldEJhbGFuY2VzUmVxdWVzdBojLmxlZGdlci5yZWFkLnYxLkdldEJhbGFuY2VzUmVzcG9uc2UiABKqAQoJR2V0SGVhbHRoEiAubGVkZ2VyLnJlYWQudjEuR2V0SGVhbHRoUmVxdWVzdBohLmxlZGdlci5yZWFkLnYxLkdldEhlYWx0aFJlc3BvbnNlIli6Rz8KC0xlZGdlciBSZWFkEgpHZXQgSGVhbHRoGiRSZXRyaWV2ZSBzZXJ2aWNlIGhlYWx0aCBhbmQgdmVyc2lvbi6ItRgBgtPkkwIMEgovdjEvaGVhbHRoQo0BWkVnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2xlZGdlci9yZWFkL3YxO2xlZGdlcnJkdjG6R0M6QQoLTGVkZ2VyIFJlYWQSMlJlYWQgZW5kcG9pbnRzIGZvciBiYWxhbmNlcywgdHJhbnNmZXJzLCBhbmQgaG9sZHMuYgZwcm90bzM", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_ledger_v1_catalog, file_polyester_api_options, file_polyester_type_v1_u128]);
 
 /**
  * @generated from message ledger.read.v1.GetBalancesRequest
@@ -465,14 +465,16 @@ export type ListTransfersRequest = Message<"ledger.read.v1.ListTransfersRequest"
   reversed: boolean;
 
   /**
-   * Optional lower transfer timestamp bound in microseconds since epoch (inclusive).
+   * Optional lower transfer timestamp bound in microseconds since epoch (UTC),
+   * inclusive.
    *
    * @generated from field: uint64 timestamp_min = 4;
    */
   timestampMin: bigint;
 
   /**
-   * Optional upper transfer timestamp bound in microseconds since epoch (inclusive).
+   * Optional upper transfer timestamp bound in microseconds since epoch (UTC),
+   * inclusive.
    *
    * @generated from field: uint64 timestamp_max = 5;
    */
@@ -493,7 +495,9 @@ export type ListTransfersRequest = Message<"ledger.read.v1.ListTransfersRequest"
   ledger: number;
 
   /**
-   * cursor in microseconds since epoch: return rows with timestamp > since
+   * Opaque keyset cursor from a previous response. The cursor is exclusive and
+   * bound to the authenticated account, sub-account scope, filters, timestamp
+   * bounds, and sort direction.
    *
    * @generated from field: string page_token = 9;
    */
@@ -506,6 +510,43 @@ export type ListTransfersRequest = Message<"ledger.read.v1.ListTransfersRequest"
  */
 export const ListTransfersRequestSchema: GenMessage<ListTransfersRequest> = /*@__PURE__*/
   messageDesc(file_ledger_read_v1_ledger_read, 11);
+
+/**
+ * TransferSide describes one side of a ledger transfer for display.
+ *
+ * @generated from message ledger.read.v1.TransferSide
+ */
+export type TransferSide = Message<"ledger.read.v1.TransferSide"> & {
+  /**
+   * @generated from field: ledger.read.v1.TransferSideKind kind = 1;
+   */
+  kind: TransferSideKind;
+
+  /**
+   * Public root or subaccount id when this side is safe to identify. Never
+   * populated for private counterparties or non-user ledger accounts.
+   *
+   * @generated from field: optional fixed64 account_id = 2;
+   */
+  accountId?: bigint | undefined;
+
+  /**
+   * Address for this side when known. For EXTERNAL_ADDRESS this is an
+   * external-chain wallet address from lifecycle correlation; for identifiable
+   * Polyester user ledger accounts this is a Polyester smart-account address.
+   * May be empty during the transfer-to-lifecycle consistency window.
+   *
+   * @generated from field: string address = 3;
+   */
+  address: string;
+};
+
+/**
+ * Describes the message ledger.read.v1.TransferSide.
+ * Use `create(TransferSideSchema)` to create a new message.
+ */
+export const TransferSideSchema: GenMessage<TransferSide> = /*@__PURE__*/
+  messageDesc(file_ledger_read_v1_ledger_read, 12);
 
 /**
  * Transfer row with compact integers and client-side resolution.
@@ -577,20 +618,34 @@ export type TransferRow = Message<"ledger.read.v1.TransferRow"> & {
   isDebit: boolean;
 
   /**
-   * correlation id derived from ME matchId for grouping
+   * Correlation id derived from ME matchId for grouping related legs (0 when N/A).
    *
    * @generated from field: uint64 link_id = 11;
    */
   linkId: bigint;
 
   /**
-   * related legs (0 when N/A)
-   *
-   * public lifecycle flow id when this transfer belongs
+   * Public lifecycle flow id when this transfer belongs to a chain lifecycle flow.
    *
    * @generated from field: string flow_id = 12;
    */
   flowId: string;
+
+  /**
+   * Ledger debit side for From-column display. This is debit-to-credit, not
+   * row-relative; use is_debit to know whether this row is the debit leg.
+   *
+   * @generated from field: ledger.read.v1.TransferSide source = 13;
+   */
+  source?: TransferSide | undefined;
+
+  /**
+   * Ledger credit side for To-column display. This is debit-to-credit, not
+   * row-relative; use is_debit to know whether this row is the credit leg.
+   *
+   * @generated from field: ledger.read.v1.TransferSide destination = 14;
+   */
+  destination?: TransferSide | undefined;
 };
 
 /**
@@ -598,7 +653,7 @@ export type TransferRow = Message<"ledger.read.v1.TransferRow"> & {
  * Use `create(TransferRowSchema)` to create a new message.
  */
 export const TransferRowSchema: GenMessage<TransferRow> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 12);
+  messageDesc(file_ledger_read_v1_ledger_read, 13);
 
 /**
  * @generated from message ledger.read.v1.ListTransfersResponse
@@ -624,7 +679,7 @@ export type ListTransfersResponse = Message<"ledger.read.v1.ListTransfersRespons
  * Use `create(ListTransfersResponseSchema)` to create a new message.
  */
 export const ListTransfersResponseSchema: GenMessage<ListTransfersResponse> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 13);
+  messageDesc(file_ledger_read_v1_ledger_read, 14);
 
 /**
  * @generated from message ledger.read.v1.ListHoldsRequest
@@ -667,7 +722,7 @@ export type ListHoldsRequest = Message<"ledger.read.v1.ListHoldsRequest"> & {
  * Use `create(ListHoldsRequestSchema)` to create a new message.
  */
 export const ListHoldsRequestSchema: GenMessage<ListHoldsRequest> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 14);
+  messageDesc(file_ledger_read_v1_ledger_read, 15);
 
 /**
  * Hold row with compact integers and client-side resolution.
@@ -707,7 +762,7 @@ export type HoldRow = Message<"ledger.read.v1.HoldRow"> & {
  * Use `create(HoldRowSchema)` to create a new message.
  */
 export const HoldRowSchema: GenMessage<HoldRow> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 15);
+  messageDesc(file_ledger_read_v1_ledger_read, 16);
 
 /**
  * @generated from message ledger.read.v1.ListHoldsResponse
@@ -731,7 +786,7 @@ export type ListHoldsResponse = Message<"ledger.read.v1.ListHoldsResponse"> & {
  * Use `create(ListHoldsResponseSchema)` to create a new message.
  */
 export const ListHoldsResponseSchema: GenMessage<ListHoldsResponse> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 16);
+  messageDesc(file_ledger_read_v1_ledger_read, 17);
 
 /**
  * @generated from message ledger.read.v1.GetHealthRequest
@@ -744,7 +799,7 @@ export type GetHealthRequest = Message<"ledger.read.v1.GetHealthRequest"> & {
  * Use `create(GetHealthRequestSchema)` to create a new message.
  */
 export const GetHealthRequestSchema: GenMessage<GetHealthRequest> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 17);
+  messageDesc(file_ledger_read_v1_ledger_read, 18);
 
 /**
  * @generated from message ledger.read.v1.GetHealthResponse
@@ -766,7 +821,7 @@ export type GetHealthResponse = Message<"ledger.read.v1.GetHealthResponse"> & {
  * Use `create(GetHealthResponseSchema)` to create a new message.
  */
 export const GetHealthResponseSchema: GenMessage<GetHealthResponse> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 18);
+  messageDesc(file_ledger_read_v1_ledger_read, 19);
 
 /**
  * ErrorDetail is attached to ConnectRPC errors for structured error handling.
@@ -788,7 +843,7 @@ export type ErrorDetail = Message<"ledger.read.v1.ErrorDetail"> & {
  * Use `create(ErrorDetailSchema)` to create a new message.
  */
 export const ErrorDetailSchema: GenMessage<ErrorDetail> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 19);
+  messageDesc(file_ledger_read_v1_ledger_read, 20);
 
 /**
  * Supported history windows for balance charts.
@@ -885,6 +940,70 @@ export const EquityGroupBySchema: GenEnum<EquityGroupBy> = /*@__PURE__*/
   enumDesc(file_ledger_read_v1_ledger_read, 1);
 
 /**
+ * TransferSideKind identifies the display class for one side of a transfer.
+ *
+ * @generated from enum ledger.read.v1.TransferSideKind
+ */
+export enum TransferSideKind {
+  /**
+   * Transfer side type was not specified.
+   *
+   * @generated from enum value: TRANSFER_SIDE_KIND_UNSPECIFIED = 0;
+   */
+  TRANSFER_SIDE_KIND_UNSPECIFIED = 0,
+
+  /**
+   * Polyester funding account.
+   *
+   * @generated from enum value: FUNDING_ACCOUNT = 1;
+   */
+  FUNDING_ACCOUNT = 1,
+
+  /**
+   * Polyester trading account.
+   *
+   * @generated from enum value: TRADING_ACCOUNT = 2;
+   */
+  TRADING_ACCOUNT = 2,
+
+  /**
+   * External wallet or chain address. The address is lifecycle-derived and may
+   * be empty until ledger-to-lifecycle correlation is projected.
+   *
+   * @generated from enum value: EXTERNAL_ADDRESS = 3;
+   */
+  EXTERNAL_ADDRESS = 3,
+
+  /**
+   * Private off-chain counterparty that must not be identified to the caller.
+   * account_id and address are intentionally omitted.
+   *
+   * @generated from enum value: PRIVATE_COUNTERPARTY = 4;
+   */
+  PRIVATE_COUNTERPARTY = 4,
+
+  /**
+   * Fee ledger side, for example spot or perp trading fees.
+   *
+   * @generated from enum value: FEE_ACCOUNT = 5;
+   */
+  FEE_ACCOUNT = 5,
+
+  /**
+   * System, operator, clearing, or other non-user side.
+   *
+   * @generated from enum value: SYSTEM_ACCOUNT = 6;
+   */
+  SYSTEM_ACCOUNT = 6,
+}
+
+/**
+ * Describes the enum ledger.read.v1.TransferSideKind.
+ */
+export const TransferSideKindSchema: GenEnum<TransferSideKind> = /*@__PURE__*/
+  enumDesc(file_ledger_read_v1_ledger_read, 2);
+
+/**
  * ErrorCode enumerates stable machine-readable error codes for the Ledger Read
  * API. These mirror the REST problem+json "code" field for parity between REST
  * and ConnectRPC clients.
@@ -958,7 +1077,7 @@ export enum ErrorCode {
  * Describes the enum ledger.read.v1.ErrorCode.
  */
 export const ErrorCodeSchema: GenEnum<ErrorCode> = /*@__PURE__*/
-  enumDesc(file_ledger_read_v1_ledger_read, 2);
+  enumDesc(file_ledger_read_v1_ledger_read, 3);
 
 /**
  * LedgerReadService exposes read-only ledger endpoints (balances, history, transfers, holds).
