@@ -145,6 +145,15 @@ export type Subaccount = Message<"auth.v1.Subaccount"> & {
    * @generated from field: bool require_member_mfa = 12;
    */
   requireMemberMfa: boolean;
+
+  /**
+   * Smart-account derivation salt nonce assigned when this sub-account was
+   * created. Present only when the caller owns the sub-account and can use it
+   * for direct chain signing.
+   *
+   * @generated from field: optional uint32 smart_account_salt_nonce = 13;
+   */
+  smartAccountSaltNonce?: number | undefined;
 };
 
 /**
@@ -184,8 +193,9 @@ export type ListSubaccountsResponse = Message<"auth.v1.ListSubaccountsResponse">
 
   /**
    * Total number of sub-accounts that have ever been created for this root,
-   * including soft-deleted ones. Can be used by clients to derive a stable
-   * salt/index for new Smart Accounts.
+   * including soft-deleted ones. Clients use total_created + 1 only for the
+   * next new Smart Account; existing sub-accounts expose their assigned salt
+   * nonce on Subaccount when direct signing is available.
    *
    * @generated from field: uint32 total_created = 2;
    */
@@ -234,7 +244,8 @@ export type CreateSubaccountRequest = Message<"auth.v1.CreateSubaccountRequest">
   smartAccountAddress: string;
 
   /**
-   * Nonce returned by GetNonce for this smart account.
+   * Auth challenge nonce returned by GetNonce for this smart account. This is
+   * not the smart-account derivation salt nonce.
    *
    * @generated from field: string nonce = 3;
    */
@@ -290,6 +301,14 @@ export type CreateSubaccountResponse = Message<"auth.v1.CreateSubaccountResponse
    * @generated from field: uint32 total_created = 2;
    */
   totalCreated: number;
+
+  /**
+   * Smart-account derivation salt nonce assigned to the created sub-account.
+   * Today this equals total_created for a successful create.
+   *
+   * @generated from field: uint32 smart_account_salt_nonce = 3;
+   */
+  smartAccountSaltNonce: number;
 };
 
 /**

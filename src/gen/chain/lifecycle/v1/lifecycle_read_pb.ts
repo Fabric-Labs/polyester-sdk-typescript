@@ -347,7 +347,7 @@ export type FlowTxMatchView = Message<"chain.lifecycle.v1.FlowTxMatchView"> & {
   polyesterChainId: number;
 
   /**
-   * Principal or visible amount for this flow in 18-decimal asset units.
+   * Gross principal amount for this flow in 18-decimal asset units.
    *
    * @generated from field: polyester.type.v1.U128 amount_e18 = 14;
    */
@@ -758,7 +758,8 @@ export type FlowStepView = Message<"chain.lifecycle.v1.FlowStepView"> & {
   polyesterChainId: number;
 
   /**
-   * Amount represented by this step in 18-decimal asset units.
+   * Amount represented by this step in 18-decimal asset units. Steps may carry
+   * the actual net movement amount when fees have already been taken.
    *
    * @generated from field: polyester.type.v1.U128 amount_e18 = 9;
    */
@@ -971,6 +972,7 @@ export type FlowStepActivityView = Message<"chain.lifecycle.v1.FlowStepActivityV
 
   /**
    * Amount posted by the underlying movement represented by this activity.
+   * This may be a net movement amount for fee-bearing fulfillment activity.
    *
    * @generated from field: polyester.type.v1.U128 amount_e18 = 14;
    */
