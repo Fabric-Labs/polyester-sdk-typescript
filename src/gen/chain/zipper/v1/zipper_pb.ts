@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file chain/zipper/v1/zipper.proto.
  */
 export const file_chain_zipper_v1_zipper: GenFile = /*@__PURE__*/
-  fileDesc("ChxjaGFpbi96aXBwZXIvdjEvemlwcGVyLnByb3RvEg9jaGFpbi56aXBwZXIudjEirgIKC0NoYWluQ29uZmlnEhAKCGNoYWluX2lkGAEgASgNEgwKBGNvZGUYAiABKAkSDAoEbmFtZRgDIAEoCRIXCg9uYXRpdmVfY2hhaW5faWQYBCABKAkSHgoWbmF0aXZlX2N1cnJlbmN5X3N5bWJvbBgFIAEoCRIUCgxleHBsb3Jlcl91cmwYBiABKAkSDAoEaWNvbhgHIAEoCRIeChZyZXF1aXJlZF9jb25maXJtYXRpb25zGAggASgNEiEKGWNvbmZpcm1hdGlvbl90aW1lX3NlY29uZHMYCSABKA0SGQoRaXNfY2FzZV9zZW5zaXRpdmUYCiABKAgSGgoSbWluX2FkZHJlc3NfbGVuZ3RoGAsgASgNEhoKEm1heF9hZGRyZXNzX2xlbmd0aBgMIAEoDSKGAgoRQXNzZXRDaGFpblZhcmlhbnQSFgoOY2hhaW5fYXNzZXRfaWQYASABKA0SEAoIY2hhaW5faWQYAiABKA0SFwoPaXNfbmF0aXZlX2Fzc2V0GAMgASgIEhMKC25ldHdvcmtfZmVlGAQgASgJEhYKDnp0b2tlbl9hZGRyZXNzGAYgASgJEhYKDnNvdXJjZV9hZGRyZXNzGAcgASgJEhcKD3NvdXJjZV9kZWNpbWFscxgIIAEoDRIXCg96dG9rZW5fZGVjaW1hbHMYCSABKA0SGgoSZGVwb3NpdF9taW5fYW1vdW50GAogASgJEhsKE3dpdGhkcmF3X21pbl9hbW91bnQYCyABKAki0AEKC0Fzc2V0Q29uZmlnEg0KBWFzc2V0GAEgASgJEhEKCWxlZGdlcl9pZBgCIAEoDRIMCgRuYW1lGAMgASgJEgwKBGljb24YBCABKAkSFgoOcXVhbnRpdHlfc2NhbGUYBSABKA0SIQoZcXVhbnRpdHlfZGlzcGxheV9kZWNpbWFscxgGIAEoDRI0Cgh2YXJpYW50cxgHIAMoCzIiLmNoYWluLnppcHBlci52MS5Bc3NldENoYWluVmFyaWFudBISCgp1X2Fzc2V0X2lkGAggASgJImgKE0NoYWluQ29udHJhY3RDb25maWcSDAoEbmFtZRgBIAEoCRIPCgdhZGRyZXNzGAIgASgJEgwKBHR5cGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSDwoHdmVyc2lvbhgFIAEoDSIhCh9HZXREZXBvc2l0V2l0aGRyYXdDb25maWdSZXF1ZXN0IuMBCiBHZXREZXBvc2l0V2l0aGRyYXdDb25maWdSZXNwb25zZRIsCgZjaGFpbnMYASADKAsyHC5jaGFpbi56aXBwZXIudjEuQ2hhaW5Db25maWcSLAoGYXNzZXRzGAIgAygLMhwuY2hhaW4uemlwcGVyLnYxLkFzc2V0Q29uZmlnEg4KBnRzX3NlYxgDIAEoBBIaChJwb2x5ZXN0ZXJfY2hhaW5faWQYBCABKA0SNwoJY29udHJhY3RzGAUgAygLMiQuY2hhaW4uemlwcGVyLnYxLkNoYWluQ29udHJhY3RDb25maWcy2QIKDVppcHBlclNlcnZpY2USxwIKGEdldERlcG9zaXRXaXRoZHJhd0NvbmZpZxIwLmNoYWluLnppcHBlci52MS5HZXREZXBvc2l0V2l0aGRyYXdDb25maWdSZXF1ZXN0GjEuY2hhaW4uemlwcGVyLnYxLkdldERlcG9zaXRXaXRoZHJhd0NvbmZpZ1Jlc3BvbnNlIsUBukeUAQoSRGVwb3NpdCAmIFdpdGhkcmF3Eh1HZXQgRGVwb3NpdCAmIFdpdGhkcmF3IENvbmZpZxpfUmV0cmlldmUgdGhlIHN1cHBvcnRlZCBjaGFpbnMgYW5kIHVuaWZpZWQgYXNzZXRzIGZvciBaaXBwZXItcG93ZXJlZCBkZXBvc2l0IGFuZCB3aXRoZHJhdyBmbG93cy6ItRgBgtPkkwIjEiEvdjEvY2hhaW4vZGVwb3NpdC13aXRoZHJhdy9jb25maWdCvgFaSWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vY2hhaW4vemlwcGVyL3YxO2NoYWluemlwcGVydjG6R3A6bgoSRGVwb3NpdCAmIFdpdGhkcmF3ElhQdWJsaWMgWmlwcGVyLXBvd2VyZWQgc3VyZmFjZSBmb3IgZGVwb3NpdCBhbmQgd2l0aGRyYXcgY2hhaW4gY29uZmlndXJhdGlvbiBpbiBQb2x5ZXN0ZXIuYgZwcm90bzM", [file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_polyester_api_options]);
+  fileDesc("ChxjaGFpbi96aXBwZXIvdjEvemlwcGVyLnByb3RvEg9jaGFpbi56aXBwZXIudjEirgIKC0NoYWluQ29uZmlnEhAKCGNoYWluX2lkGAEgASgNEgwKBGNvZGUYAiABKAkSDAoEbmFtZRgDIAEoCRIXCg9uYXRpdmVfY2hhaW5faWQYBCABKAkSHgoWbmF0aXZlX2N1cnJlbmN5X3N5bWJvbBgFIAEoCRIUCgxleHBsb3Jlcl91cmwYBiABKAkSDAoEaWNvbhgHIAEoCRIeChZyZXF1aXJlZF9jb25maXJtYXRpb25zGAggASgNEiEKGWNvbmZpcm1hdGlvbl90aW1lX3NlY29uZHMYCSABKA0SGQoRaXNfY2FzZV9zZW5zaXRpdmUYCiABKAgSGgoSbWluX2FkZHJlc3NfbGVuZ3RoGAsgASgNEhoKEm1heF9hZGRyZXNzX2xlbmd0aBgMIAEoDSKZAgoRQXNzZXRDaGFpblZhcmlhbnQSFwoPemlwcGVkX2Fzc2V0X2lkGAEgASgNEhAKCGNoYWluX2lkGAIgASgNEhcKD2lzX25hdGl2ZV9hc3NldBgDIAEoCBITCgtuZXR3b3JrX2ZlZRgEIAEoCRIWCg56dG9rZW5fYWRkcmVzcxgGIAEoCRIWCg5zb3VyY2VfYWRkcmVzcxgHIAEoCRIXCg9zb3VyY2VfZGVjaW1hbHMYCCABKA0SFwoPenRva2VuX2RlY2ltYWxzGAkgASgNEhoKEmRlcG9zaXRfbWluX2Ftb3VudBgKIAEoCRIbChN3aXRoZHJhd19taW5fYW1vdW50GAsgASgJEhAKCHN1cHBseV9xGAwgASgEIkQKF1ppcHBlZEFzc2V0U3VwcGx5VXBkYXRlEhcKD3ppcHBlZF9hc3NldF9pZBgBIAEoDRIQCghzdXBwbHlfcRgCIAEoBCJTChZaaXBwZWRBc3NldFN1cHBseUJhdGNoEjkKB3VwZGF0ZXMYASADKAsyKC5jaGFpbi56aXBwZXIudjEuWmlwcGVkQXNzZXRTdXBwbHlVcGRhdGUi0AEKC0Fzc2V0Q29uZmlnEg0KBWFzc2V0GAEgASgJEhEKCWxlZGdlcl9pZBgCIAEoDRIMCgRuYW1lGAMgASgJEgwKBGljb24YBCABKAkSFgoOcXVhbnRpdHlfc2NhbGUYBSABKA0SIQoZcXVhbnRpdHlfZGlzcGxheV9kZWNpbWFscxgGIAEoDRI0Cgh2YXJpYW50cxgHIAMoCzIiLmNoYWluLnppcHBlci52MS5Bc3NldENoYWluVmFyaWFudBISCgp1X2Fzc2V0X2lkGAggASgJImgKE0NoYWluQ29udHJhY3RDb25maWcSDAoEbmFtZRgBIAEoCRIPCgdhZGRyZXNzGAIgASgJEgwKBHR5cGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSDwoHdmVyc2lvbhgFIAEoDSIhCh9HZXREZXBvc2l0V2l0aGRyYXdDb25maWdSZXF1ZXN0IuMBCiBHZXREZXBvc2l0V2l0aGRyYXdDb25maWdSZXNwb25zZRIsCgZjaGFpbnMYASADKAsyHC5jaGFpbi56aXBwZXIudjEuQ2hhaW5Db25maWcSLAoGYXNzZXRzGAIgAygLMhwuY2hhaW4uemlwcGVyLnYxLkFzc2V0Q29uZmlnEg4KBnRzX3NlYxgDIAEoBBIaChJwb2x5ZXN0ZXJfY2hhaW5faWQYBCABKA0SNwoJY29udHJhY3RzGAUgAygLMiQuY2hhaW4uemlwcGVyLnYxLkNoYWluQ29udHJhY3RDb25maWcy2QIKDVppcHBlclNlcnZpY2USxwIKGEdldERlcG9zaXRXaXRoZHJhd0NvbmZpZxIwLmNoYWluLnppcHBlci52MS5HZXREZXBvc2l0V2l0aGRyYXdDb25maWdSZXF1ZXN0GjEuY2hhaW4uemlwcGVyLnYxLkdldERlcG9zaXRXaXRoZHJhd0NvbmZpZ1Jlc3BvbnNlIsUBukeUAQoSRGVwb3NpdCAmIFdpdGhkcmF3Eh1HZXQgRGVwb3NpdCAmIFdpdGhkcmF3IENvbmZpZxpfUmV0cmlldmUgdGhlIHN1cHBvcnRlZCBjaGFpbnMgYW5kIHVuaWZpZWQgYXNzZXRzIGZvciBaaXBwZXItcG93ZXJlZCBkZXBvc2l0IGFuZCB3aXRoZHJhdyBmbG93cy6ItRgBgtPkkwIjEiEvdjEvY2hhaW4vZGVwb3NpdC13aXRoZHJhdy9jb25maWdCvgFaSWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vY2hhaW4vemlwcGVyL3YxO2NoYWluemlwcGVydjG6R3A6bgoSRGVwb3NpdCAmIFdpdGhkcmF3ElhQdWJsaWMgWmlwcGVyLXBvd2VyZWQgc3VyZmFjZSBmb3IgZGVwb3NpdCBhbmQgd2l0aGRyYXcgY2hhaW4gY29uZmlndXJhdGlvbiBpbiBQb2x5ZXN0ZXIuYgZwcm90bzM", [file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_polyester_api_options]);
 
 /**
  * ChainConfig describes one supported external chain for deposit and withdraw.
@@ -123,11 +123,11 @@ export const ChainConfigSchema: GenMessage<ChainConfig> = /*@__PURE__*/
  */
 export type AssetChainVariant = Message<"chain.zipper.v1.AssetChainVariant"> & {
   /**
-   * Canonical chain asset id from `chain_zipped_assets.id`.
+   * Canonical zipped asset route id from `chain_zipped_assets.id`.
    *
-   * @generated from field: uint32 chain_asset_id = 1;
+   * @generated from field: uint32 zipped_asset_id = 1;
    */
-  chainAssetId: number;
+  zippedAssetId: number;
 
   /**
    * Chain that this asset belongs to.
@@ -192,6 +192,14 @@ export type AssetChainVariant = Message<"chain.zipper.v1.AssetChainVariant"> & {
    * @generated from field: string withdraw_min_amount = 11;
    */
   withdrawMinAmount: string;
+
+  /**
+   * Latest zToken supply for this chain asset variant, scaled by the parent
+   * asset's `quantity_scale`.
+   *
+   * @generated from field: uint64 supply_q = 12;
+   */
+  supplyQ: bigint;
 };
 
 /**
@@ -200,6 +208,55 @@ export type AssetChainVariant = Message<"chain.zipper.v1.AssetChainVariant"> & {
  */
 export const AssetChainVariantSchema: GenMessage<AssetChainVariant> = /*@__PURE__*/
   messageDesc(file_chain_zipper_v1_zipper, 1);
+
+/**
+ * ZippedAssetSupplyUpdate carries the latest route liquidity for one zipped
+ * asset. It is published on the protobuf websocket channel.
+ *
+ * @generated from message chain.zipper.v1.ZippedAssetSupplyUpdate
+ */
+export type ZippedAssetSupplyUpdate = Message<"chain.zipper.v1.ZippedAssetSupplyUpdate"> & {
+  /**
+   * Canonical zipped asset route id from `chain_zipped_assets.id`.
+   *
+   * @generated from field: uint32 zipped_asset_id = 1;
+   */
+  zippedAssetId: number;
+
+  /**
+   * Latest zToken supply for this route, scaled by the parent asset's
+   * `quantity_scale`.
+   *
+   * @generated from field: uint64 supply_q = 2;
+   */
+  supplyQ: bigint;
+};
+
+/**
+ * Describes the message chain.zipper.v1.ZippedAssetSupplyUpdate.
+ * Use `create(ZippedAssetSupplyUpdateSchema)` to create a new message.
+ */
+export const ZippedAssetSupplyUpdateSchema: GenMessage<ZippedAssetSupplyUpdate> = /*@__PURE__*/
+  messageDesc(file_chain_zipper_v1_zipper, 2);
+
+/**
+ * ZippedAssetSupplyBatch batches public zipped-asset supply updates.
+ *
+ * @generated from message chain.zipper.v1.ZippedAssetSupplyBatch
+ */
+export type ZippedAssetSupplyBatch = Message<"chain.zipper.v1.ZippedAssetSupplyBatch"> & {
+  /**
+   * @generated from field: repeated chain.zipper.v1.ZippedAssetSupplyUpdate updates = 1;
+   */
+  updates: ZippedAssetSupplyUpdate[];
+};
+
+/**
+ * Describes the message chain.zipper.v1.ZippedAssetSupplyBatch.
+ * Use `create(ZippedAssetSupplyBatchSchema)` to create a new message.
+ */
+export const ZippedAssetSupplyBatchSchema: GenMessage<ZippedAssetSupplyBatch> = /*@__PURE__*/
+  messageDesc(file_chain_zipper_v1_zipper, 3);
 
 /**
  * AssetConfig describes one unified Polyester asset and all compatible
@@ -270,7 +327,7 @@ export type AssetConfig = Message<"chain.zipper.v1.AssetConfig"> & {
  * Use `create(AssetConfigSchema)` to create a new message.
  */
 export const AssetConfigSchema: GenMessage<AssetConfig> = /*@__PURE__*/
-  messageDesc(file_chain_zipper_v1_zipper, 2);
+  messageDesc(file_chain_zipper_v1_zipper, 4);
 
 /**
  * ChainContractConfig describes an active Polyester-chain contract address
@@ -321,7 +378,7 @@ export type ChainContractConfig = Message<"chain.zipper.v1.ChainContractConfig">
  * Use `create(ChainContractConfigSchema)` to create a new message.
  */
 export const ChainContractConfigSchema: GenMessage<ChainContractConfig> = /*@__PURE__*/
-  messageDesc(file_chain_zipper_v1_zipper, 3);
+  messageDesc(file_chain_zipper_v1_zipper, 5);
 
 /**
  * @generated from message chain.zipper.v1.GetDepositWithdrawConfigRequest
@@ -334,7 +391,7 @@ export type GetDepositWithdrawConfigRequest = Message<"chain.zipper.v1.GetDeposi
  * Use `create(GetDepositWithdrawConfigRequestSchema)` to create a new message.
  */
 export const GetDepositWithdrawConfigRequestSchema: GenMessage<GetDepositWithdrawConfigRequest> = /*@__PURE__*/
-  messageDesc(file_chain_zipper_v1_zipper, 4);
+  messageDesc(file_chain_zipper_v1_zipper, 6);
 
 /**
  * @generated from message chain.zipper.v1.GetDepositWithdrawConfigResponse
@@ -381,7 +438,7 @@ export type GetDepositWithdrawConfigResponse = Message<"chain.zipper.v1.GetDepos
  * Use `create(GetDepositWithdrawConfigResponseSchema)` to create a new message.
  */
 export const GetDepositWithdrawConfigResponseSchema: GenMessage<GetDepositWithdrawConfigResponse> = /*@__PURE__*/
-  messageDesc(file_chain_zipper_v1_zipper, 5);
+  messageDesc(file_chain_zipper_v1_zipper, 7);
 
 /**
  * ZipperService exposes deposit and withdraw chain configuration.
