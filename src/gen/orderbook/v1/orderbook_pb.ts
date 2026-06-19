@@ -48,20 +48,20 @@ export const GetOrderBookRequestSchema: GenMessage<GetOrderBookRequest> = /*@__P
 
 /**
  * PriceLevel uses scaled integers for the binary (protobuf) API (low-latency).
- * Any REST surface should expose decimal strings via DTO conversion.
+ * REST surfaces expose decimal strings via DTO conversion.
  *
  * @generated from message orderbook.v1.PriceLevel
  */
 export type PriceLevel = Message<"orderbook.v1.PriceLevel"> & {
   /**
-   * Price in ticks (scaled integer); same semantics as orders APIs (see orders.v1).
+   * Price in quote units scaled by 1e6.
    *
    * @generated from field: int64 price_ticks = 1;
    */
   priceTicks: bigint;
 
   /**
-   * Quantity in base units (scaled integer); same semantics as orders APIs.
+   * Quantity scaled by the pair's base_quantity_scale from GetSpotConfig.
    *
    * @generated from field: int64 qty_scaled = 2;
    */
@@ -77,7 +77,7 @@ export const PriceLevelSchema: GenMessage<PriceLevel> = /*@__PURE__*/
 
 /**
  * GetOrderBookResponse is a depth snapshot for the binary (protobuf) API (scaled integers).
- * Any REST surface should expose decimal strings via DTO conversion.
+ * REST surfaces expose decimal strings via DTO conversion.
  *
  * @generated from message orderbook.v1.GetOrderBookResponse
  */

@@ -354,7 +354,7 @@ export type FlowTxMatchView = Message<"chain.lifecycle.v1.FlowTxMatchView"> & {
   polyesterChainId: number;
 
   /**
-   * Gross principal amount for this flow in 18-decimal asset units.
+   * Gross principal amount for this flow in 18-decimal unified asset units.
    *
    * @generated from field: polyester.type.v1.U128 amount_e18 = 14;
    */
@@ -493,9 +493,10 @@ export type FlowSummaryView = Message<"chain.lifecycle.v1.FlowSummaryView"> & {
   polyesterChainId: number;
 
   /**
-   * Gross principal amount for the flow in 18-decimal asset units. Request fees
-   * are exposed separately in request_fee. Specific fulfillment steps may carry
-   * a net movement amount when the step represents external delivery.
+   * Gross principal amount for the flow in 18-decimal unified asset units.
+   * Request fees are exposed separately in request_fee. Specific fulfillment
+   * steps may carry a net movement amount when the step represents external
+   * delivery.
    *
    * @generated from field: polyester.type.v1.U128 amount_e18 = 9;
    */
@@ -773,8 +774,8 @@ export type FlowStepView = Message<"chain.lifecycle.v1.FlowStepView"> & {
   polyesterChainId: number;
 
   /**
-   * Amount represented by this step in 18-decimal asset units. Steps may carry
-   * the actual net movement amount when fees have already been taken.
+   * Amount represented by this step in 18-decimal unified asset units. Steps
+   * may carry the actual net movement amount when fees have already been taken.
    *
    * @generated from field: polyester.type.v1.U128 amount_e18 = 9;
    */
@@ -986,8 +987,9 @@ export type FlowStepActivityView = Message<"chain.lifecycle.v1.FlowStepActivityV
   requiredRejections: number;
 
   /**
-   * Amount posted by the underlying movement represented by this activity.
-   * This may be a net movement amount for fee-bearing fulfillment activity.
+   * Amount posted by the underlying movement represented by this activity, in
+   * 18-decimal unified asset units. This may be a net movement amount for
+   * fee-bearing fulfillment activity.
    *
    * @generated from field: polyester.type.v1.U128 amount_e18 = 14;
    */

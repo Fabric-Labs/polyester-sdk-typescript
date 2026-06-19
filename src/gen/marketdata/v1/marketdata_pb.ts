@@ -471,7 +471,7 @@ export const GetCandlesResponseSchema: GenMessage<GetCandlesResponse> = /*@__PUR
  */
 export type GetCandlesColumnsResponse = Message<"marketdata.v1.GetCandlesColumnsResponse"> & {
   /**
-   * Engine symbol id.
+   * Numeric spot market identifier.
    *
    * @generated from field: uint32 symbol_id = 1;
    */
@@ -492,28 +492,37 @@ export type GetCandlesColumnsResponse = Message<"marketdata.v1.GetCandlesColumns
   tsSec: bigint[];
 
   /**
-   * OHLCV values in engine tick/scale units.
+   * Opening prices in quote units scaled by 1e6.
    *
    * @generated from field: repeated int64 open = 4;
    */
   open: bigint[];
 
   /**
+   * Highest traded prices in quote units scaled by 1e6.
+   *
    * @generated from field: repeated int64 high = 5;
    */
   high: bigint[];
 
   /**
+   * Lowest traded prices in quote units scaled by 1e6.
+   *
    * @generated from field: repeated int64 low = 6;
    */
   low: bigint[];
 
   /**
+   * Closing prices in quote units scaled by 1e6.
+   *
    * @generated from field: repeated int64 close = 7;
    */
   close: bigint[];
 
   /**
+   * Traded base-asset quantities scaled by the pair's base_quantity_scale from
+   * GetSpotConfig.
+   *
    * @generated from field: repeated int64 volume = 8;
    */
   volume: bigint[];
@@ -527,26 +536,37 @@ export type GetCandlesColumnsResponse = Message<"marketdata.v1.GetCandlesColumns
   referenceTsSec: bigint[];
 
   /**
+   * Reference opening prices in quote units scaled by 1e6.
+   *
    * @generated from field: repeated int64 reference_open = 10;
    */
   referenceOpen: bigint[];
 
   /**
+   * Reference high prices in quote units scaled by 1e6.
+   *
    * @generated from field: repeated int64 reference_high = 11;
    */
   referenceHigh: bigint[];
 
   /**
+   * Reference low prices in quote units scaled by 1e6.
+   *
    * @generated from field: repeated int64 reference_low = 12;
    */
   referenceLow: bigint[];
 
   /**
+   * Reference closing prices in quote units scaled by 1e6.
+   *
    * @generated from field: repeated int64 reference_close = 13;
    */
   referenceClose: bigint[];
 
   /**
+   * Reference traded base-asset quantities scaled by the pair's
+   * base_quantity_scale from GetSpotConfig.
+   *
    * @generated from field: repeated int64 reference_volume = 14;
    */
   referenceVolume: bigint[];
@@ -568,13 +588,12 @@ export const GetCandlesColumnsResponseSchema: GenMessage<GetCandlesColumnsRespon
 
 /**
  * Candle represents a single OHLCV bucket for a symbol and timeframe.
- * Values are expressed in the same tick/scale units as the matching engine.
  *
  * @generated from message marketdata.v1.Candle
  */
 export type Candle = Message<"marketdata.v1.Candle"> & {
   /**
-   * engine symbol id
+   * numeric spot market identifier
    *
    * @generated from field: uint32 symbol_id = 1;
    */
@@ -595,35 +614,36 @@ export type Candle = Message<"marketdata.v1.Candle"> & {
   tsSec: bigint;
 
   /**
-   * open
+   * opening price in quote units scaled by 1e6
    *
    * @generated from field: int64 open = 4;
    */
   open: bigint;
 
   /**
-   * high
+   * highest traded price in quote units scaled by 1e6
    *
    * @generated from field: int64 high = 5;
    */
   high: bigint;
 
   /**
-   * low
+   * lowest traded price in quote units scaled by 1e6
    *
    * @generated from field: int64 low = 6;
    */
   low: bigint;
 
   /**
-   * close
+   * closing price in quote units scaled by 1e6
    *
    * @generated from field: int64 close = 7;
    */
   close: bigint;
 
   /**
-   * volume in base units, scaled by the base asset quantity_scale (see GetSpotConfig).
+   * Traded base-asset quantity scaled by the pair's base_quantity_scale from
+   * GetSpotConfig.
    *
    * @generated from field: int64 volume = 8;
    */
@@ -1072,7 +1092,8 @@ export const MarketDataService: GenService<{
   },
   /**
    * GetCandlesColumns returns OHLCV candles in a columnar representation optimized for charting.
-   * This method is intended for ConnectRPC clients (binary protobuf) and returns raw tick/scale ints.
+   * This method is intended for ConnectRPC clients and returns scaled integers:
+   * OHLC prices use 1e6 quote-unit scale, and volumes use base_quantity_scale.
    *
    * @generated from rpc marketdata.v1.MarketDataService.GetCandlesColumns
    */

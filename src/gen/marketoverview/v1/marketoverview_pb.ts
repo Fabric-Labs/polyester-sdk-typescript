@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file marketoverview/v1/marketoverview.proto.
  */
 export const file_marketoverview_v1_marketoverview: GenFile = /*@__PURE__*/
-  fileDesc("CiZtYXJrZXRvdmVydmlldy92MS9tYXJrZXRvdmVydmlldy5wcm90bxIRbWFya2V0b3ZlcnZpZXcudjEiOQoLRXJyb3JEZXRhaWwSKgoEY29kZRgBIAEoDjIcLm1hcmtldG92ZXJ2aWV3LnYxLkVycm9yQ29kZSJiCglTcGFya2xpbmUSQAoIaW50ZXJ2YWwYASABKA4yJC5tYXJrZXRvdmVydmlldy52MS5TcGFya2xpbmVJbnRlcnZhbEIIukgFggECEAESEwoLY2xvc2VfdGlja3MYAiADKAMioAMKDk1hcmtldE92ZXJ2aWV3EhEKCXN5bWJvbF9pZBgBIAEoDRIOCgZzeW1ib2wYAiABKAkSGAoQbGFzdF9wcmljZV90aWNrcxgDIAEoAxIYChBsYXN0X3RyYWRlX3RzX25zGAQgASgEEhUKDWNoYW5nZV8yNGhfYnAYBSABKAUSFgoOaGlnaF8yNGhfdGlja3MYBiABKAMSFQoNbG93XzI0aF90aWNrcxgHIAEoAxIeChZ2b2x1bWVfMjRoX2Jhc2Vfc2NhbGVkGAggASgDEh8KF3ZvbHVtZV8yNGhfcXVvdGVfc2NhbGVkGA4gASgDEhQKDGxpc3RlZF90c19ucxgPIAEoBBIWCg5iZXN0X2JpZF90aWNrcxgJIAEoAxIbChNiZXN0X2JpZF9xdHlfc2NhbGVkGAogASgDEhYKDmJlc3RfYXNrX3RpY2tzGAsgASgDEhsKE2Jlc3RfYXNrX3F0eV9zY2FsZWQYDCABKAMSMAoKc3BhcmtsaW5lcxgNIAMoCzIcLm1hcmtldG92ZXJ2aWV3LnYxLlNwYXJrbGluZSLJAgoZTGlzdE1hcmtldE92ZXJ2aWV3UmVxdWVzdBIPCgdzeW1ib2xzGAEgAygJEhcKBWxpbWl0GAIgASgNQgi6SAUqAxjQDxIcCgpwYWdlX3Rva2VuGAMgASgJQgi6SAVyAxiABBI8CghvcmRlcl9ieRgEIAEoDjIgLm1hcmtldG92ZXJ2aWV3LnYxLk1hcmtldE9yZGVyQnlCCLpIBYIBAhABEjgKBHNvcnQYBSABKA4yIC5tYXJrZXRvdmVydmlldy52MS5Tb3J0RGlyZWN0aW9uQgi6SAWCAQIQARIaChJpbmNsdWRlX3NwYXJrbGluZXMYBiABKAgSUAoTc3BhcmtsaW5lX2ludGVydmFscxgHIAMoDjIkLm1hcmtldG92ZXJ2aWV3LnYxLlNwYXJrbGluZUludGVydmFsQg26SAqSAQciBYIBAhABInMKGkxpc3RNYXJrZXRPdmVydmlld1Jlc3BvbnNlEjIKB21hcmtldHMYASADKAsyIS5tYXJrZXRvdmVydmlldy52MS5NYXJrZXRPdmVydmlldxIhCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCCLpIBXIDGIAEIlgKE01hcmtldE92ZXJ2aWV3QmF0Y2gSMgoHbWFya2V0cxgBIAMoCzIhLm1hcmtldG92ZXJ2aWV3LnYxLk1hcmtldE92ZXJ2aWV3Eg0KBXRzX25zGAIgASgEKoABChFTcGFya2xpbmVJbnRlcnZhbBIiCh5TUEFSS0xJTkVfSU5URVJWQUxfVU5TUEVDSUZJRUQQABIQCgxTUEFSS0xJTkVfMUgQARIRCg1TUEFSS0xJTkVfMjRIEAISEAoMU1BBUktMSU5FXzFXEAMSEAoMU1BBUktMSU5FXzFNEAQqnQEKDU1hcmtldE9yZGVyQnkSHwobTUFSS0VUX09SREVSX0JZX1VOU1BFQ0lGSUVEEAASGgoWT1JERVJfQllfQ0hBTkdFXzI0SF9CUBABEh0KGU9SREVSX0JZX1ZPTFVNRV8yNEhfUVVPVEUQAhIXChNPUkRFUl9CWV9MQVNUX1BSSUNFEAMSFwoTT1JERVJfQllfREFURV9BRERFRBAEKkwKDVNvcnREaXJlY3Rpb24SHgoaU09SVF9ESVJFQ1RJT05fVU5TUEVDSUZJRUQQABIMCghTT1JUX0FTQxABEg0KCVNPUlRfREVTQxACKrkBCglFcnJvckNvZGUSGgoWRVJST1JfQ09ERV9VTlNQRUNJRklFRBAAEhoKFkVSUk9SX0NPREVfQkFEX1JFUVVFU1QQARIfChtFUlJPUl9DT0RFX0lOVkFMSURfQVJHVU1FTlQQAhIYChRFUlJPUl9DT0RFX05PVF9GT1VORBADEhoKFkVSUk9SX0NPREVfVU5BVkFJTEFCTEUQBBIdChlFUlJPUl9DT0RFX1VQU1RSRUFNX0VSUk9SEAUy5gIKFU1hcmtldE92ZXJ2aWV3U2VydmljZRLMAgoSTGlzdE1hcmtldE92ZXJ2aWV3EiwubWFya2V0b3ZlcnZpZXcudjEuTGlzdE1hcmtldE92ZXJ2aWV3UmVxdWVzdBotLm1hcmtldG92ZXJ2aWV3LnYxLkxpc3RNYXJrZXRPdmVydmlld1Jlc3BvbnNlItgBukevAQoXTWFya2V0IE92ZXJ2aWV3IFNlcnZpY2USFUxpc3QgTWFya2V0IE92ZXJ2aWV3cxp9TGlzdCB0aWNrZXItc3R5bGUgbWFya2V0IG92ZXJ2aWV3IHJvd3Mgd2l0aCBvcHRpb25hbCBzcGFya2xpbmVzLiBTdXBwb3J0cyBzeW1ib2wgZmlsdGVyaW5nLCBzb3J0aW5nLCBhbmQgcGFnaW5hdGlvbiBjb250cm9scy6ItRgBgtPkkwIbEhkvdjEvc3BvdC9tYXJrZXRzL292ZXJ2aWV3QsgBWk5naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL21hcmtldG92ZXJ2aWV3L3YxO21hcmtldG92ZXJ2aWV3djG6R3U6cwoXTWFya2V0IE92ZXJ2aWV3IFNlcnZpY2USWFB1YmxpYyByZWFkIHN1cmZhY2UgZm9yIHBlci1tYXJrZXQgb3ZlcnZpZXcgKHRpY2tlci1saWtlKSBzdGF0cyBhbmQgb3B0aW9uYWwgc3BhcmtsaW5lcy5iBnByb3RvMw", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_polyester_api_options]);
+  fileDesc("CiZtYXJrZXRvdmVydmlldy92MS9tYXJrZXRvdmVydmlldy5wcm90bxIRbWFya2V0b3ZlcnZpZXcudjEiOQoLRXJyb3JEZXRhaWwSKgoEY29kZRgBIAEoDjIcLm1hcmtldG92ZXJ2aWV3LnYxLkVycm9yQ29kZSJiCglTcGFya2xpbmUSQAoIaW50ZXJ2YWwYASABKA4yJC5tYXJrZXRvdmVydmlldy52MS5TcGFya2xpbmVJbnRlcnZhbEIIukgFggECEAESEwoLY2xvc2VfdGlja3MYAiADKAMioQMKDk1hcmtldE92ZXJ2aWV3EhEKCXN5bWJvbF9pZBgBIAEoDRIOCgZzeW1ib2wYAiABKAkSGAoQbGFzdF9wcmljZV90aWNrcxgDIAEoAxIYChBsYXN0X3RyYWRlX3RzX25zGAQgASgEEhYKDmNoYW5nZV8yNGhfYnBzGAUgASgFEhYKDmhpZ2hfMjRoX3RpY2tzGAYgASgDEhUKDWxvd18yNGhfdGlja3MYByABKAMSHgoWdm9sdW1lXzI0aF9iYXNlX3NjYWxlZBgIIAEoAxIfChd2b2x1bWVfMjRoX3F1b3RlX3NjYWxlZBgOIAEoAxIUCgxsaXN0ZWRfdHNfbnMYDyABKAQSFgoOYmVzdF9iaWRfdGlja3MYCSABKAMSGwoTYmVzdF9iaWRfcXR5X3NjYWxlZBgKIAEoAxIWCg5iZXN0X2Fza190aWNrcxgLIAEoAxIbChNiZXN0X2Fza19xdHlfc2NhbGVkGAwgASgDEjAKCnNwYXJrbGluZXMYDSADKAsyHC5tYXJrZXRvdmVydmlldy52MS5TcGFya2xpbmUiyQIKGUxpc3RNYXJrZXRPdmVydmlld1JlcXVlc3QSDwoHc3ltYm9scxgBIAMoCRIXCgVsaW1pdBgCIAEoDUIIukgFKgMY0A8SHAoKcGFnZV90b2tlbhgDIAEoCUIIukgFcgMYgAQSPAoIb3JkZXJfYnkYBCABKA4yIC5tYXJrZXRvdmVydmlldy52MS5NYXJrZXRPcmRlckJ5Qgi6SAWCAQIQARI4CgRzb3J0GAUgASgOMiAubWFya2V0b3ZlcnZpZXcudjEuU29ydERpcmVjdGlvbkIIukgFggECEAESGgoSaW5jbHVkZV9zcGFya2xpbmVzGAYgASgIElAKE3NwYXJrbGluZV9pbnRlcnZhbHMYByADKA4yJC5tYXJrZXRvdmVydmlldy52MS5TcGFya2xpbmVJbnRlcnZhbEINukgKkgEHIgWCAQIQASJzChpMaXN0TWFya2V0T3ZlcnZpZXdSZXNwb25zZRIyCgdtYXJrZXRzGAEgAygLMiEubWFya2V0b3ZlcnZpZXcudjEuTWFya2V0T3ZlcnZpZXcSIQoPbmV4dF9wYWdlX3Rva2VuGAIgASgJQgi6SAVyAxiABCJYChNNYXJrZXRPdmVydmlld0JhdGNoEjIKB21hcmtldHMYASADKAsyIS5tYXJrZXRvdmVydmlldy52MS5NYXJrZXRPdmVydmlldxINCgV0c19ucxgCIAEoBCqAAQoRU3BhcmtsaW5lSW50ZXJ2YWwSIgoeU1BBUktMSU5FX0lOVEVSVkFMX1VOU1BFQ0lGSUVEEAASEAoMU1BBUktMSU5FXzFIEAESEQoNU1BBUktMSU5FXzI0SBACEhAKDFNQQVJLTElORV8xVxADEhAKDFNQQVJLTElORV8xTRAEKp4BCg1NYXJrZXRPcmRlckJ5Eh8KG01BUktFVF9PUkRFUl9CWV9VTlNQRUNJRklFRBAAEhsKF09SREVSX0JZX0NIQU5HRV8yNEhfQlBTEAESHQoZT1JERVJfQllfVk9MVU1FXzI0SF9RVU9URRACEhcKE09SREVSX0JZX0xBU1RfUFJJQ0UQAxIXChNPUkRFUl9CWV9EQVRFX0FEREVEEAQqTAoNU29ydERpcmVjdGlvbhIeChpTT1JUX0RJUkVDVElPTl9VTlNQRUNJRklFRBAAEgwKCFNPUlRfQVNDEAESDQoJU09SVF9ERVNDEAIquQEKCUVycm9yQ29kZRIaChZFUlJPUl9DT0RFX1VOU1BFQ0lGSUVEEAASGgoWRVJST1JfQ09ERV9CQURfUkVRVUVTVBABEh8KG0VSUk9SX0NPREVfSU5WQUxJRF9BUkdVTUVOVBACEhgKFEVSUk9SX0NPREVfTk9UX0ZPVU5EEAMSGgoWRVJST1JfQ09ERV9VTkFWQUlMQUJMRRAEEh0KGUVSUk9SX0NPREVfVVBTVFJFQU1fRVJST1IQBTLmAgoVTWFya2V0T3ZlcnZpZXdTZXJ2aWNlEswCChJMaXN0TWFya2V0T3ZlcnZpZXcSLC5tYXJrZXRvdmVydmlldy52MS5MaXN0TWFya2V0T3ZlcnZpZXdSZXF1ZXN0Gi0ubWFya2V0b3ZlcnZpZXcudjEuTGlzdE1hcmtldE92ZXJ2aWV3UmVzcG9uc2Ui2AG6R68BChdNYXJrZXQgT3ZlcnZpZXcgU2VydmljZRIVTGlzdCBNYXJrZXQgT3ZlcnZpZXdzGn1MaXN0IHRpY2tlci1zdHlsZSBtYXJrZXQgb3ZlcnZpZXcgcm93cyB3aXRoIG9wdGlvbmFsIHNwYXJrbGluZXMuIFN1cHBvcnRzIHN5bWJvbCBmaWx0ZXJpbmcsIHNvcnRpbmcsIGFuZCBwYWdpbmF0aW9uIGNvbnRyb2xzLoi1GAGC0+STAhsSGS92MS9zcG90L21hcmtldHMvb3ZlcnZpZXdCyAFaTmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vbWFya2V0b3ZlcnZpZXcvdjE7bWFya2V0b3ZlcnZpZXd2MbpHdTpzChdNYXJrZXQgT3ZlcnZpZXcgU2VydmljZRJYUHVibGljIHJlYWQgc3VyZmFjZSBmb3IgcGVyLW1hcmtldCBvdmVydmlldyAodGlja2VyLWxpa2UpIHN0YXRzIGFuZCBvcHRpb25hbCBzcGFya2xpbmVzLmIGcHJvdG8z", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_polyester_api_options]);
 
 /**
  * ErrorDetail carries a typed domain error code for machine-readable handling.
@@ -47,7 +47,7 @@ export type Sparkline = Message<"marketoverview.v1.Sparkline"> & {
   interval: SparklineInterval;
 
   /**
-   * Newest-first close prices (ticks).
+   * Newest-first close prices in quote units scaled by 1e6.
    *
    * @generated from field: repeated int64 close_ticks = 2;
    */
@@ -66,7 +66,7 @@ export const SparklineSchema: GenMessage<Sparkline> = /*@__PURE__*/
  */
 export type MarketOverview = Message<"marketoverview.v1.MarketOverview"> & {
   /**
-   * Engine symbol id.
+   * Numeric spot market identifier.
    *
    * @generated from field: uint32 symbol_id = 1;
    */
@@ -80,7 +80,7 @@ export type MarketOverview = Message<"marketoverview.v1.MarketOverview"> & {
   symbol: string;
 
   /**
-   * Last traded price (ticks) and timestamp.
+   * Last traded price in quote units scaled by 1e6.
    *
    * @generated from field: int64 last_price_ticks = 3;
    */
@@ -96,31 +96,36 @@ export type MarketOverview = Message<"marketoverview.v1.MarketOverview"> & {
   /**
    * Rolling 24h change expressed in basis points (bp). Example: +123 = +1.23%.
    *
-   * @generated from field: int32 change_24h_bp = 5;
+   * @generated from field: int32 change_24h_bps = 5;
    */
-  change24hBp: number;
+  change24hBps: number;
 
   /**
    * Rolling 24h stats.
+   * Highest traded price in the 24h window, in quote units scaled by 1e6.
    *
    * @generated from field: int64 high_24h_ticks = 6;
    */
   high24hTicks: bigint;
 
   /**
+   * Lowest traded price in the 24h window, in quote units scaled by 1e6.
+   *
    * @generated from field: int64 low_24h_ticks = 7;
    */
   low24hTicks: bigint;
 
   /**
-   * Rolling 24h base volume, in scaled base units.
+   * Rolling 24h base volume scaled by the pair's base_quantity_scale from
+   * GetSpotConfig.
    *
    * @generated from field: int64 volume_24h_base_scaled = 8;
    */
   volume24hBaseScaled: bigint;
 
   /**
-   * Rolling 24h quote volume, in scaled quote units.
+   * Rolling 24h quote volume scaled by the pair's quote_quantity_scale from
+   * GetSpotConfig.
    *
    * @generated from field: int64 volume_24h_quote_scaled = 14;
    */
@@ -134,26 +139,30 @@ export type MarketOverview = Message<"marketoverview.v1.MarketOverview"> & {
   listedTsNs: bigint;
 
   /**
-   * Current top-of-book (ticks).
+   * Current best bid price in quote units scaled by 1e6.
    *
    * @generated from field: int64 best_bid_ticks = 9;
    */
   bestBidTicks: bigint;
 
   /**
-   * Best bid quantity, in scaled base units.
+   * Best bid quantity scaled by the pair's base_quantity_scale from
+   * GetSpotConfig.
    *
    * @generated from field: int64 best_bid_qty_scaled = 10;
    */
   bestBidQtyScaled: bigint;
 
   /**
+   * Current best ask price in quote units scaled by 1e6.
+   *
    * @generated from field: int64 best_ask_ticks = 11;
    */
   bestAskTicks: bigint;
 
   /**
-   * Best ask quantity, in scaled base units.
+   * Best ask quantity scaled by the pair's base_quantity_scale from
+   * GetSpotConfig.
    *
    * @generated from field: int64 best_ask_qty_scaled = 12;
    */
@@ -352,19 +361,20 @@ export enum MarketOrderBy {
   /**
    * Sort by absolute 24h change (basis points).
    *
-   * @generated from enum value: ORDER_BY_CHANGE_24H_BP = 1;
+   * @generated from enum value: ORDER_BY_CHANGE_24H_BPS = 1;
    */
-  ORDER_BY_CHANGE_24H_BP = 1,
+  ORDER_BY_CHANGE_24H_BPS = 1,
 
   /**
-   * Sort by 24h quote volume (scaled quote units).
+   * Sort by 24h quote volume scaled by the pair's quote_quantity_scale from
+   * GetSpotConfig.
    *
    * @generated from enum value: ORDER_BY_VOLUME_24H_QUOTE = 2;
    */
   ORDER_BY_VOLUME_24H_QUOTE = 2,
 
   /**
-   * Sort by last price ticks.
+   * Sort by last price in quote units scaled by 1e6.
    *
    * @generated from enum value: ORDER_BY_LAST_PRICE = 3;
    */

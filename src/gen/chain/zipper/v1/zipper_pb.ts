@@ -123,7 +123,7 @@ export const ChainConfigSchema: GenMessage<ChainConfig> = /*@__PURE__*/
  */
 export type AssetChainVariant = Message<"chain.zipper.v1.AssetChainVariant"> & {
   /**
-   * Canonical zipped asset route id from `chain_zipped_assets.id`.
+   * Canonical zipped asset route id.
    *
    * @generated from field: uint32 zipped_asset_id = 1;
    */
@@ -195,7 +195,7 @@ export type AssetChainVariant = Message<"chain.zipper.v1.AssetChainVariant"> & {
 
   /**
    * Latest zToken supply for this chain asset variant, scaled by the parent
-   * asset's `quantity_scale`.
+   * unified asset's quantity_scale. Decode: supply_q / 10^quantity_scale.
    *
    * @generated from field: uint64 supply_q = 12;
    */
@@ -217,7 +217,7 @@ export const AssetChainVariantSchema: GenMessage<AssetChainVariant> = /*@__PURE_
  */
 export type ZippedAssetSupplyUpdate = Message<"chain.zipper.v1.ZippedAssetSupplyUpdate"> & {
   /**
-   * Canonical zipped asset route id from `chain_zipped_assets.id`.
+   * Canonical zipped asset route id.
    *
    * @generated from field: uint32 zipped_asset_id = 1;
    */
@@ -225,7 +225,7 @@ export type ZippedAssetSupplyUpdate = Message<"chain.zipper.v1.ZippedAssetSupply
 
   /**
    * Latest zToken supply for this route, scaled by the parent asset's
-   * `quantity_scale`.
+   * quantity_scale. Decode: supply_q / 10^quantity_scale.
    *
    * @generated from field: uint64 supply_q = 2;
    */
@@ -273,7 +273,7 @@ export type AssetConfig = Message<"chain.zipper.v1.AssetConfig"> & {
   asset: string;
 
   /**
-   * Polyester internal ledger id for the unified asset.
+   * Public unified asset id.
    *
    * @generated from field: uint32 ledger_id = 2;
    */
@@ -294,7 +294,9 @@ export type AssetConfig = Message<"chain.zipper.v1.AssetConfig"> & {
   icon: string;
 
   /**
-   * Internal precision for the unified asset.
+   * Integer scale for unified-asset quantities (0..18). A scale of 8 means one
+   * whole asset is represented as 100000000 in supply_q and other
+   * quantity_scale-based fields.
    *
    * @generated from field: uint32 quantity_scale = 5;
    */

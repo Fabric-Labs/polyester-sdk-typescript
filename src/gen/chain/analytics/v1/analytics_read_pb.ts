@@ -115,8 +115,9 @@ export type GetZippedAssetSupplyResponse = Message<"chain.analytics.v1.GetZipped
   points: number;
 
   /**
-   * Total zToken supply per bucket in asset units scaled by the asset quantity scale.
-   * Resolve the scale from Spot Config for the zipped asset's unified asset.
+   * Total zToken supply per bucket scaled by the unified asset's
+   * AssetConfig.quantity_scale from SpotConfig for this zipped asset.
+   * Decode: total_supply_q / 10^quantity_scale.
    *
    * @generated from field: repeated uint64 total_supply_q = 7;
    */
@@ -144,8 +145,9 @@ export type ZippedAssetSupplySeries = Message<"chain.analytics.v1.ZippedAssetSup
   zippedAssetId: number;
 
   /**
-   * Total zToken supply per bucket in asset units scaled by the asset quantity scale.
-   * Resolve the scale from Spot Config for the zipped asset's unified asset.
+   * Total zToken supply per bucket scaled by the unified asset's
+   * AssetConfig.quantity_scale from SpotConfig for this zipped asset.
+   * Decode: total_supply_q / 10^quantity_scale.
    *
    * @generated from field: repeated uint64 total_supply_q = 2;
    */
@@ -373,8 +375,9 @@ export type GetUnifiedAssetBalancesResponse = Message<"chain.analytics.v1.GetUni
   points: number;
 
   /**
-   * Total unified balance per bucket across public account surfaces in asset units scaled by the asset quantity scale.
-   * Resolve the scale from Spot Config for this asset.
+   * Total unified balance per bucket across public account surfaces, scaled by
+   * AssetConfig.quantity_scale from SpotConfig for asset_id.
+   * Decode: total_balance_q / 10^quantity_scale.
    *
    * @generated from field: repeated uint64 total_balance_q = 7;
    */

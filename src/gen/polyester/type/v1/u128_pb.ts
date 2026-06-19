@@ -13,7 +13,13 @@ export const file_polyester_type_v1_u128: GenFile = /*@__PURE__*/
   fileDesc("Chxwb2x5ZXN0ZXIvdHlwZS92MS91MTI4LnByb3RvEhFwb2x5ZXN0ZXIudHlwZS52MSIeCgRVMTI4EgoKAmhpGAEgASgGEgoKAmxvGAIgASgGQk9aTWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vcG9seWVzdGVyL3R5cGUvdjE7cG9seWVzdGVydHlwZXYxYgZwcm90bzM");
 
 /**
- * U128 represents an unsigned 128-bit integer as two fixed64 parts.
+ * U128 represents an unsigned 128-bit integer as two fixed64 parts:
+ * value = (hi << 64) | lo.
+ *
+ * Public amount fields that use U128, including ledger balances and fields
+ * named amount_e18, use fixed 18-decimal scale unless their field comment says
+ * otherwise. U128 can also carry raw identifiers, such as a withdraw nonce; do
+ * not apply decimal scaling to those fields.
  *
  * @generated from message polyester.type.v1.U128
  */

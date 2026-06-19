@@ -78,7 +78,8 @@ export type TradingWithdrawIntentPayload = Message<"chain.withdraw.v1.TradingWit
   action: TradingWithdrawAction;
 
   /**
-   * Asset identifier from Polyester asset metadata.
+   * Unified asset identifier from Polyester asset metadata. amount_e18 is
+   * denominated in this asset at canonical 18-decimal scale.
    *
    * @generated from field: uint32 asset_id = 2;
    */
@@ -92,7 +93,7 @@ export type TradingWithdrawIntentPayload = Message<"chain.withdraw.v1.TradingWit
   destinationChainId: bigint;
 
   /**
-   * Withdraw amount in canonical 18-decimal units.
+   * Withdraw amount in canonical 18-decimal unified asset units.
    * For example, 0.5 is encoded as 500000000000000000.
    *
    * @generated from field: polyester.type.v1.U128 amount_e18 = 4;
@@ -109,7 +110,8 @@ export type TradingWithdrawIntentPayload = Message<"chain.withdraw.v1.TradingWit
   deadlineTsSec: bigint;
 
   /**
-   * Client-generated nonce bound to the signed request.
+   * Client-generated unsigned 128-bit nonce bound to the signed request. This
+   * is an identifier, not a decimal amount.
    *
    * @generated from field: polyester.type.v1.U128 nonce = 6;
    */

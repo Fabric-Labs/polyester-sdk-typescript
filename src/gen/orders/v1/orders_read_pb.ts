@@ -7,15 +7,17 @@ import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf
 import { file_buf_validate_validate } from "../../buf/validate/validate_pb.js";
 import type { AccountCode, TransferCode } from "../../ledger/v1/catalog_pb.js";
 import { file_ledger_v1_catalog } from "../../ledger/v1/catalog_pb.js";
-import type { FeeSource, OrderType, Side, StopLossPolicy, STPMode, TakeProfitPolicy, TIF, TrailingStopPolicy } from "./orders_pb.js";
+import type { FeeSource, OrderType, SelfTradePreventionMode, Side, StopLossPolicy, TakeProfitPolicy, TimeInForce, TrailingStopPolicy } from "./orders_pb.js";
 import { file_orders_v1_orders } from "./orders_pb.js";
+import type { U128 } from "../../polyester/type/v1/u128_pb.js";
+import { file_polyester_type_v1_u128 } from "../../polyester/type/v1/u128_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file orders/v1/orders_read.proto.
  */
 export const file_orders_v1_orders_read: GenFile = /*@__PURE__*/
-  fileDesc("ChtvcmRlcnMvdjEvb3JkZXJzX3JlYWQucHJvdG8SCW9yZGVycy52MSLtAQoLT3JkZXJPcmlnaW4SNAoFc2NvcGUYASABKA4yGy5vcmRlcnMudjEuT3JkZXJPcmlnaW5TY29wZUIIukgFggECEAESOwoMdHJpZ2dlcl90eXBlGAIgASgOMhsub3JkZXJzLnYxLk9yZGVyVHJpZ2dlclR5cGVCCLpIBYIBAhABEhcKCnRyaWdnZXJfaWQYAyABKAZIAIgBARIcCg9wYXJlbnRfb3JkZXJfaWQYBCABKAZIAYgBARIRCgljaGlsZF9zZXEYBSABKA1CDQoLX3RyaWdnZXJfaWRCEgoQX3BhcmVudF9vcmRlcl9pZCLuAgoUQXR0YWNoZWRSaXNrTGVnU3RhdGUSQAoGc3RhdHVzGAEgASgOMiYub3JkZXJzLnYxLkF0dGFjaGVkUmlza0xlZ1N0YXRlLlN0YXR1c0IIukgFggECEAESEwoLYXJtZWRfdHNfbnMYAiABKAQSFgoOdGVybWluYWxfdHNfbnMYAyABKAQSFwoKdHJpZ2dlcl9pZBgEIAEoBkgAiAEBEhsKDmNoaWxkX29yZGVyX2lkGAUgASgGSAGIAQEijgEKBlN0YXR1cxIWChJTVEFUVVNfVU5TUEVDSUZJRUQQABISCg5OT1RfQ09ORklHVVJFRBABEgsKB0NSRUFURUQQAhIJCgVBUk1FRBADEgsKB1JVTk5JTkcQBBINCglDT01QTEVURUQQBRIMCghDQU5DRUxFRBAGEgoKBkZBSUxFRBAHEgoKBlBBVVNFRBAIQg0KC190cmlnZ2VyX2lkQhEKD19jaGlsZF9vcmRlcl9pZCJ1ChZBdHRhY2hlZFJpc2tUYWtlUHJvZml0EisKBnBvbGljeRgBIAEoCzIbLm9yZGVycy52MS5UYWtlUHJvZml0UG9saWN5Ei4KBXN0YXRlGAIgASgLMh8ub3JkZXJzLnYxLkF0dGFjaGVkUmlza0xlZ1N0YXRlInEKFEF0dGFjaGVkUmlza1N0b3BMb3NzEikKBnBvbGljeRgBIAEoCzIZLm9yZGVycy52MS5TdG9wTG9zc1BvbGljeRIuCgVzdGF0ZRgCIAEoCzIfLm9yZGVycy52MS5BdHRhY2hlZFJpc2tMZWdTdGF0ZSJ5ChhBdHRhY2hlZFJpc2tUcmFpbGluZ1N0b3ASLQoGcG9saWN5GAEgASgLMh0ub3JkZXJzLnYxLlRyYWlsaW5nU3RvcFBvbGljeRIuCgVzdGF0ZRgCIAEoCzIfLm9yZGVycy52MS5BdHRhY2hlZFJpc2tMZWdTdGF0ZSLDAQoMQXR0YWNoZWRSaXNrEjYKC3Rha2VfcHJvZml0GAEgASgLMiEub3JkZXJzLnYxLkF0dGFjaGVkUmlza1Rha2VQcm9maXQSMgoJc3RvcF9sb3NzGAIgASgLMh8ub3JkZXJzLnYxLkF0dGFjaGVkUmlza1N0b3BMb3NzEjoKDXRyYWlsaW5nX3N0b3AYAyABKAsyIy5vcmRlcnMudjEuQXR0YWNoZWRSaXNrVHJhaWxpbmdTdG9wEgsKA29jbxgEIAEoCCLpBQoFT3JkZXISEAoIb3JkZXJfaWQYASABKAYSEQoJc3ltYm9sX2lkGAMgASgNEjUKD2NsaWVudF9vcmRlcl9pZBgEIAEoCUIcukgZchcYJDITXltBLVphLXowLTkuXzovLV0qJBInCgRzaWRlGAUgASgOMg8ub3JkZXJzLnYxLlNpZGVCCLpIBYIBAhABEiYKBnN0YXR1cxgGIAEoDjIWLm9yZGVycy52MS5PcmRlclN0YXR1cxIoCgpvcmRlcl90eXBlGAcgASgOMhQub3JkZXJzLnYxLk9yZGVyVHlwZRIbCgN0aWYYCCABKA4yDi5vcmRlcnMudjEuVElGEiQKCHN0cF9tb2RlGAkgASgOMhIub3JkZXJzLnYxLlNUUE1vZGUSKAoKZmVlX3NvdXJjZRgKIAEoDjIULm9yZGVycy52MS5GZWVTb3VyY2USEQoJcG9zdF9vbmx5GAsgASgIEhAKCG9yaWdfcXR5GAwgASgDEg8KB2N1bV9xdHkYDSABKAMSEgoKbGVhdmVzX3F0eRgUIAEoAxIUCgxhdmdfcHhfdGlja3MYDiABKAMSEwoLcHJpY2VfdGlja3MYDyABKAMSFQoNY3JlYXRlZF90c19ucxgQIAEoBBIWCg50ZXJtaW5hbF90c19ucxgRIAEoBBIcChR0ZXJtaW5hbF9yZWFzb25fY29kZRgSIAEoDRIXCg90ZXJtaW5hbF9yZWFzb24YEyABKAkSLgoNYXR0YWNoZWRfcmlzaxgVIAEoCzIXLm9yZGVycy52MS5BdHRhY2hlZFJpc2sSJgoGb3JpZ2luGBYgASgLMhYub3JkZXJzLnYxLk9yZGVyT3JpZ2luEiUKHW1hcmtldF9jbGllbnRfcmVmX3ByaWNlX3RpY2tzGBcgASgDEiEKGW1hcmtldF9tYXhfc2xpcHBhZ2VfdGlja3MYGCABKAUSHwoXbWFya2V0X21heF9zbGlwcGFnZV9icHMYGSABKAUikgIKCVVzZXJUcmFkZRIRCglzeW1ib2xfaWQYAiABKA0SEAoIbWF0Y2hfaWQYAyABKAQSEAoIb3JkZXJfaWQYBCABKAYSJwoEc2lkZRgFIAEoDjIPLm9yZGVycy52MS5TaWRlQgi6SAWCAQIQARIQCghpc19tYWtlchgGIAEoCBITCgtwcmljZV90aWNrcxgHIAEoAxISCgpxdHlfc2NhbGVkGAggASgDEhIKCmZlZV9zY2FsZWQYCSABKAMSKAoKZmVlX3NvdXJjZRgKIAEoDjIULm9yZGVycy52MS5GZWVTb3VyY2USHQoVcmVmZXJyYWxfc2hhcmVfc2NhbGVkGAwgASgDEg0KBXRzX25zGA0gASgEIusBCg1PcmRlclRyYW5zZmVyEhAKCG1hdGNoX2lkGAEgASgEEhAKCGFzc2V0X2lkGAIgASgNEhEKCWFtb3VudF9oaRgDIAEoBBIRCglhbW91bnRfbG8YBCABKAQSEAoIaXNfZGViaXQYBSABKAgSLgoNdHJhbnNmZXJfY29kZRgGIAEoDjIXLmxlZGdlci52MS5UcmFuc2ZlckNvZGUSLAoMYWNjb3VudF9jb2RlGAcgASgOMhYubGVkZ2VyLnYxLkFjY291bnRDb2RlEhEKCXRpbWVzdGFtcBgIIAEoBBINCgV0eF9pZBgJIAEoCSLyAgoUR2V0T3Blbk9yZGVyc1JlcXVlc3QSKgoNc3ViYWNjb3VudF9pZBgBIAEoBkIOukgLUgkhAAAAAAAAAABIAIgBARIjCglzeW1ib2xfaWQYAiADKA1CELpIDZIBChBkGAEiBCoCIAASJwoEc2lkZRgDIAEoDjIPLm9yZGVycy52MS5TaWRlQgi6SAWCAQIQARIeCgVsaW1pdBgKIAEoDUIKukgHKgUY6AcoAUgBiAEBEhwKCnBhZ2VfdG9rZW4YCyABKAlCCLpIBXIDGIAEEiIKFWluY2x1ZGVfYXR0YWNoZWRfcmlzaxgMIAEoCEgCiAEBEigKG2luY2x1ZGVfYXR0YWNoZWRfcmlza19zdGF0ZRgNIAEoCEgDiAEBQhAKDl9zdWJhY2NvdW50X2lkQggKBl9saW1pdEIYChZfaW5jbHVkZV9hdHRhY2hlZF9yaXNrQh4KHF9pbmNsdWRlX2F0dGFjaGVkX3Jpc2tfc3RhdGUiXAoVR2V0T3Blbk9yZGVyc1Jlc3BvbnNlEiAKBm9yZGVycxgBIAMoCzIQLm9yZGVycy52MS5PcmRlchIhCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCCLpIBXIDGIAEIrMFChZHZXRPcmRlckhpc3RvcnlSZXF1ZXN0EioKDXN1YmFjY291bnRfaWQYASABKAZCDrpIC1IJIQAAAAAAAAAASACIAQESIwoJc3ltYm9sX2lkGAIgAygNQhC6SA2SAQoQZBgBIgQqAiAAEicKBHNpZGUYAyABKA4yDy5vcmRlcnMudjEuU2lkZUIIukgFggECEAESMAoGc3RhdHVzGAQgASgOMhYub3JkZXJzLnYxLk9yZGVyU3RhdHVzQgi6SAWCAQIQARIYCgtzdGFydF90c19ucxgKIAEoBEgBiAEBEhYKCWVuZF90c19ucxgLIAEoBEgCiAEBEh4KBWxpbWl0GAwgASgNQgq6SAcqBRjoBygBSAOIAQESHAoKcGFnZV90b2tlbhgNIAEoCUIIukgFcgMYgAQSIgoVaW5jbHVkZV9hdHRhY2hlZF9yaXNrGA4gASgISASIAQESKAobaW5jbHVkZV9hdHRhY2hlZF9yaXNrX3N0YXRlGA8gASgISAWIAQE6ugG6SLYBGrMBCiVvcmRlcnNfaGlzdG9yeV9iaW4ub3JkZXJlZF90aW1lX3JhbmdlEjJzdGFydF90c19ucyBtdXN0IGJlIDw9IGVuZF90c19ucyB3aGVuIGJvdGggYXJlIHNldBpWIWhhcyh0aGlzLnN0YXJ0X3RzX25zKSB8fCAhaGFzKHRoaXMuZW5kX3RzX25zKSB8fCAodGhpcy5zdGFydF90c19ucyA8PSB0aGlzLmVuZF90c19ucylCEAoOX3N1YmFjY291bnRfaWRCDgoMX3N0YXJ0X3RzX25zQgwKCl9lbmRfdHNfbnNCCAoGX2xpbWl0QhgKFl9pbmNsdWRlX2F0dGFjaGVkX3Jpc2tCHgocX2luY2x1ZGVfYXR0YWNoZWRfcmlza19zdGF0ZSJeChdHZXRPcmRlckhpc3RvcnlSZXNwb25zZRIgCgZvcmRlcnMYASADKAsyEC5vcmRlcnMudjEuT3JkZXISIQoPbmV4dF9wYWdlX3Rva2VuGAIgASgJQgi6SAVyAxiABCLuAwoUR2V0VXNlclRyYWRlc1JlcXVlc3QSKgoNc3ViYWNjb3VudF9pZBgBIAEoBkIOukgLUgkhAAAAAAAAAABIAIgBARIdCglzeW1ib2xfaWQYAiABKA1CCrpIB9gBASoCIAASJwoEc2lkZRgDIAEoDjIPLm9yZGVycy52MS5TaWRlQgi6SAWCAQIQARIYCgtzdGFydF90c19ucxgKIAEoBEgBiAEBEhYKCWVuZF90c19ucxgLIAEoBEgCiAEBEh4KBWxpbWl0GAwgASgNQgq6SAcqBRjoBygBSAOIAQESHAoKcGFnZV90b2tlbhgNIAEoCUIIukgFcgMYgAQ6twG6SLMBGrABCiJ1c2VyX3RyYWRlc19iaW4ub3JkZXJlZF90aW1lX3JhbmdlEjJzdGFydF90c19ucyBtdXN0IGJlIDw9IGVuZF90c19ucyB3aGVuIGJvdGggYXJlIHNldBpWIWhhcyh0aGlzLnN0YXJ0X3RzX25zKSB8fCAhaGFzKHRoaXMuZW5kX3RzX25zKSB8fCAodGhpcy5zdGFydF90c19ucyA8PSB0aGlzLmVuZF90c19ucylCEAoOX3N1YmFjY291bnRfaWRCDgoMX3N0YXJ0X3RzX25zQgwKCl9lbmRfdHNfbnNCCAoGX2xpbWl0ImAKFUdldFVzZXJUcmFkZXNSZXNwb25zZRIkCgZ0cmFkZXMYASADKAsyFC5vcmRlcnMudjEuVXNlclRyYWRlEiEKD25leHRfcGFnZV90b2tlbhgCIAEoCUIIukgFcgMYgAQixAIKD0dldE9yZGVyUmVxdWVzdBIqCg1zdWJhY2NvdW50X2lkGAEgASgGQg66SAtSCSEAAAAAAAAAAEgBiAEBEiIKCG9yZGVyX2lkGAIgASgGQg66SAtSCSEAAAAAAAAAAEgAEjkKD2NsaWVudF9vcmRlcl9pZBgDIAEoCUIeukgbchkQARgkMhNeW0EtWmEtejAtOS5fOi8tXSskSAASIgoVaW5jbHVkZV9hdHRhY2hlZF9yaXNrGAogASgISAKIAQESKAobaW5jbHVkZV9hdHRhY2hlZF9yaXNrX3N0YXRlGAsgASgISAOIAQFCDAoDa2V5EgW6SAIIAUIQCg5fc3ViYWNjb3VudF9pZEIYChZfaW5jbHVkZV9hdHRhY2hlZF9yaXNrQh4KHF9pbmNsdWRlX2F0dGFjaGVkX3Jpc2tfc3RhdGUihgEKEEdldE9yZGVyUmVzcG9uc2USHwoFb3JkZXIYASABKAsyEC5vcmRlcnMudjEuT3JkZXISJAoGdHJhZGVzGAIgAygLMhQub3JkZXJzLnYxLlVzZXJUcmFkZRIrCgl0cmFuc2ZlcnMYAyADKAsyGC5vcmRlcnMudjEuT3JkZXJUcmFuc2ZlciqBAQoLT3JkZXJTdGF0dXMSHAoYT1JERVJfU1RBVFVTX1VOU1BFQ0lGSUVEEAASCwoHUEVORElORxABEhIKDlBFTkRJTkdfQ0FOQ0VMEAISCwoHV09SS0lORxADEgoKBkZJTExFRBAEEgwKCENBTkNFTEVEEAUSDAoIUkVKRUNURUQQBip5ChBPcmRlck9yaWdpblNjb3BlEiIKHk9SREVSX09SSUdJTl9TQ09QRV9VTlNQRUNJRklFRBAAEgoKBkRJUkVDVBABEhEKDUFUVEFDSEVEX1JJU0sQAhIWChJTVEFOREFMT05FX1RSSUdHRVIQAxIKCgZTWVNURU0QBCp/ChBPcmRlclRyaWdnZXJUeXBlEiIKHk9SREVSX1RSSUdHRVJfVFlQRV9VTlNQRUNJRklFRBAAEg0KCVNUT1BfTE9TUxABEg8KC1RBS0VfUFJPRklUEAISEQoNVFJBSUxJTkdfU1RPUBADEggKBFRXQVAQBBIKCgZMQURERVIQBTLiAgoRT3JkZXJzUmVhZFNlcnZpY2USVAoNR2V0T3Blbk9yZGVycxIfLm9yZGVycy52MS5HZXRPcGVuT3JkZXJzUmVxdWVzdBogLm9yZGVycy52MS5HZXRPcGVuT3JkZXJzUmVzcG9uc2UiABJaCg9HZXRPcmRlckhpc3RvcnkSIS5vcmRlcnMudjEuR2V0T3JkZXJIaXN0b3J5UmVxdWVzdBoiLm9yZGVycy52MS5HZXRPcmRlckhpc3RvcnlSZXNwb25zZSIAElQKDUdldFVzZXJUcmFkZXMSHy5vcmRlcnMudjEuR2V0VXNlclRyYWRlc1JlcXVlc3QaIC5vcmRlcnMudjEuR2V0VXNlclRyYWRlc1Jlc3BvbnNlIgASRQoIR2V0T3JkZXISGi5vcmRlcnMudjEuR2V0T3JkZXJSZXF1ZXN0Ghsub3JkZXJzLnYxLkdldE9yZGVyUmVzcG9uc2UiAEJAWj5naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL29yZGVycy92MTtvcmRlcnN2MWIGcHJvdG8z", [file_buf_validate_validate, file_ledger_v1_catalog, file_orders_v1_orders]);
+  fileDesc("ChtvcmRlcnMvdjEvb3JkZXJzX3JlYWQucHJvdG8SCW9yZGVycy52MSLtAQoLT3JkZXJPcmlnaW4SNAoFc2NvcGUYASABKA4yGy5vcmRlcnMudjEuT3JkZXJPcmlnaW5TY29wZUIIukgFggECEAESOwoMdHJpZ2dlcl90eXBlGAIgASgOMhsub3JkZXJzLnYxLk9yZGVyVHJpZ2dlclR5cGVCCLpIBYIBAhABEhcKCnRyaWdnZXJfaWQYAyABKAZIAIgBARIcCg9wYXJlbnRfb3JkZXJfaWQYBCABKAZIAYgBARIRCgljaGlsZF9zZXEYBSABKA1CDQoLX3RyaWdnZXJfaWRCEgoQX3BhcmVudF9vcmRlcl9pZCLuAgoUQXR0YWNoZWRSaXNrTGVnU3RhdGUSQAoGc3RhdHVzGAEgASgOMiYub3JkZXJzLnYxLkF0dGFjaGVkUmlza0xlZ1N0YXRlLlN0YXR1c0IIukgFggECEAESEwoLYXJtZWRfdHNfbnMYAiABKAQSFgoOdGVybWluYWxfdHNfbnMYAyABKAQSFwoKdHJpZ2dlcl9pZBgEIAEoBkgAiAEBEhsKDmNoaWxkX29yZGVyX2lkGAUgASgGSAGIAQEijgEKBlN0YXR1cxIWChJTVEFUVVNfVU5TUEVDSUZJRUQQABISCg5OT1RfQ09ORklHVVJFRBABEgsKB0NSRUFURUQQAhIJCgVBUk1FRBADEgsKB1JVTk5JTkcQBBINCglDT01QTEVURUQQBRIMCghDQU5DRUxFRBAGEgoKBkZBSUxFRBAHEgoKBlBBVVNFRBAIQg0KC190cmlnZ2VyX2lkQhEKD19jaGlsZF9vcmRlcl9pZCJ1ChZBdHRhY2hlZFJpc2tUYWtlUHJvZml0EisKBnBvbGljeRgBIAEoCzIbLm9yZGVycy52MS5UYWtlUHJvZml0UG9saWN5Ei4KBXN0YXRlGAIgASgLMh8ub3JkZXJzLnYxLkF0dGFjaGVkUmlza0xlZ1N0YXRlInEKFEF0dGFjaGVkUmlza1N0b3BMb3NzEikKBnBvbGljeRgBIAEoCzIZLm9yZGVycy52MS5TdG9wTG9zc1BvbGljeRIuCgVzdGF0ZRgCIAEoCzIfLm9yZGVycy52MS5BdHRhY2hlZFJpc2tMZWdTdGF0ZSJ5ChhBdHRhY2hlZFJpc2tUcmFpbGluZ1N0b3ASLQoGcG9saWN5GAEgASgLMh0ub3JkZXJzLnYxLlRyYWlsaW5nU3RvcFBvbGljeRIuCgVzdGF0ZRgCIAEoCzIfLm9yZGVycy52MS5BdHRhY2hlZFJpc2tMZWdTdGF0ZSLDAQoMQXR0YWNoZWRSaXNrEjYKC3Rha2VfcHJvZml0GAEgASgLMiEub3JkZXJzLnYxLkF0dGFjaGVkUmlza1Rha2VQcm9maXQSMgoJc3RvcF9sb3NzGAIgASgLMh8ub3JkZXJzLnYxLkF0dGFjaGVkUmlza1N0b3BMb3NzEjoKDXRyYWlsaW5nX3N0b3AYAyABKAsyIy5vcmRlcnMudjEuQXR0YWNoZWRSaXNrVHJhaWxpbmdTdG9wEgsKA29jbxgEIAEoCCK1BgoFT3JkZXISEAoIb3JkZXJfaWQYASABKAYSEQoJc3ltYm9sX2lkGAMgASgNEjUKD2NsaWVudF9vcmRlcl9pZBgEIAEoCUIcukgZchcYJDITXltBLVphLXowLTkuXzovLV0qJBInCgRzaWRlGAUgASgOMg8ub3JkZXJzLnYxLlNpZGVCCLpIBYIBAhABEiYKBnN0YXR1cxgGIAEoDjIWLm9yZGVycy52MS5PcmRlclN0YXR1cxIoCgpvcmRlcl90eXBlGAcgASgOMhQub3JkZXJzLnYxLk9yZGVyVHlwZRItCg10aW1lX2luX2ZvcmNlGAggASgOMhYub3JkZXJzLnYxLlRpbWVJbkZvcmNlEkYKGnNlbGZfdHJhZGVfcHJldmVudGlvbl9tb2RlGAkgASgOMiIub3JkZXJzLnYxLlNlbGZUcmFkZVByZXZlbnRpb25Nb2RlEigKCmZlZV9zb3VyY2UYCiABKA4yFC5vcmRlcnMudjEuRmVlU291cmNlEhEKCXBvc3Rfb25seRgLIAEoCBIXCg9vcmlnX3F0eV9zY2FsZWQYDCABKAMSFgoOY3VtX3F0eV9zY2FsZWQYDSABKAMSGQoRbGVhdmVzX3F0eV9zY2FsZWQYFCABKAMSFwoPYXZnX3ByaWNlX3RpY2tzGA4gASgDEhMKC3ByaWNlX3RpY2tzGA8gASgDEhUKDWNyZWF0ZWRfdHNfbnMYECABKAQSFgoOdGVybWluYWxfdHNfbnMYESABKAQSHAoUdGVybWluYWxfcmVhc29uX2NvZGUYEiABKA0SFwoPdGVybWluYWxfcmVhc29uGBMgASgJEi4KDWF0dGFjaGVkX3Jpc2sYFSABKAsyFy5vcmRlcnMudjEuQXR0YWNoZWRSaXNrEiYKBm9yaWdpbhgWIAEoCzIWLm9yZGVycy52MS5PcmRlck9yaWdpbhIlCh1tYXJrZXRfY2xpZW50X3JlZl9wcmljZV90aWNrcxgXIAEoAxIhChltYXJrZXRfbWF4X3NsaXBwYWdlX3RpY2tzGBggASgFEh8KF21hcmtldF9tYXhfc2xpcHBhZ2VfYnBzGBkgASgFIpICCglVc2VyVHJhZGUSEQoJc3ltYm9sX2lkGAIgASgNEhAKCG1hdGNoX2lkGAMgASgEEhAKCG9yZGVyX2lkGAQgASgGEicKBHNpZGUYBSABKA4yDy5vcmRlcnMudjEuU2lkZUIIukgFggECEAESEAoIaXNfbWFrZXIYBiABKAgSEwoLcHJpY2VfdGlja3MYByABKAMSEgoKcXR5X3NjYWxlZBgIIAEoAxISCgpmZWVfc2NhbGVkGAkgASgDEigKCmZlZV9zb3VyY2UYCiABKA4yFC5vcmRlcnMudjEuRmVlU291cmNlEh0KFXJlZmVycmFsX3NoYXJlX3NjYWxlZBgMIAEoAxINCgV0c19ucxgNIAEoBCLuAQoNT3JkZXJUcmFuc2ZlchIQCghtYXRjaF9pZBgBIAEoBBIQCghhc3NldF9pZBgCIAEoDRIrCgphbW91bnRfZTE4GAMgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIQCghpc19kZWJpdBgFIAEoCBIuCg10cmFuc2Zlcl9jb2RlGAYgASgOMhcubGVkZ2VyLnYxLlRyYW5zZmVyQ29kZRIsCgxhY2NvdW50X2NvZGUYByABKA4yFi5sZWRnZXIudjEuQWNjb3VudENvZGUSDQoFdHNfbnMYCCABKAQSDQoFdHhfaWQYCSABKAki8gIKFEdldE9wZW5PcmRlcnNSZXF1ZXN0EioKDXN1YmFjY291bnRfaWQYASABKAZCDrpIC1IJIQAAAAAAAAAASACIAQESIwoJc3ltYm9sX2lkGAIgAygNQhC6SA2SAQoQZBgBIgQqAiAAEicKBHNpZGUYAyABKA4yDy5vcmRlcnMudjEuU2lkZUIIukgFggECEAESHgoFbGltaXQYCiABKA1CCrpIByoFGOgHKAFIAYgBARIcCgpwYWdlX3Rva2VuGAsgASgJQgi6SAVyAxiABBIiChVpbmNsdWRlX2F0dGFjaGVkX3Jpc2sYDCABKAhIAogBARIoChtpbmNsdWRlX2F0dGFjaGVkX3Jpc2tfc3RhdGUYDSABKAhIA4gBAUIQCg5fc3ViYWNjb3VudF9pZEIICgZfbGltaXRCGAoWX2luY2x1ZGVfYXR0YWNoZWRfcmlza0IeChxfaW5jbHVkZV9hdHRhY2hlZF9yaXNrX3N0YXRlIlwKFUdldE9wZW5PcmRlcnNSZXNwb25zZRIgCgZvcmRlcnMYASADKAsyEC5vcmRlcnMudjEuT3JkZXISIQoPbmV4dF9wYWdlX3Rva2VuGAIgASgJQgi6SAVyAxiABCKzBQoWR2V0T3JkZXJIaXN0b3J5UmVxdWVzdBIqCg1zdWJhY2NvdW50X2lkGAEgASgGQg66SAtSCSEAAAAAAAAAAEgAiAEBEiMKCXN5bWJvbF9pZBgCIAMoDUIQukgNkgEKEGQYASIEKgIgABInCgRzaWRlGAMgASgOMg8ub3JkZXJzLnYxLlNpZGVCCLpIBYIBAhABEjAKBnN0YXR1cxgEIAEoDjIWLm9yZGVycy52MS5PcmRlclN0YXR1c0IIukgFggECEAESGAoLc3RhcnRfdHNfbnMYCiABKARIAYgBARIWCgllbmRfdHNfbnMYCyABKARIAogBARIeCgVsaW1pdBgMIAEoDUIKukgHKgUY6AcoAUgDiAEBEhwKCnBhZ2VfdG9rZW4YDSABKAlCCLpIBXIDGIAEEiIKFWluY2x1ZGVfYXR0YWNoZWRfcmlzaxgOIAEoCEgEiAEBEigKG2luY2x1ZGVfYXR0YWNoZWRfcmlza19zdGF0ZRgPIAEoCEgFiAEBOroBuki2ARqzAQolb3JkZXJzX2hpc3RvcnlfYmluLm9yZGVyZWRfdGltZV9yYW5nZRIyc3RhcnRfdHNfbnMgbXVzdCBiZSA8PSBlbmRfdHNfbnMgd2hlbiBib3RoIGFyZSBzZXQaViFoYXModGhpcy5zdGFydF90c19ucykgfHwgIWhhcyh0aGlzLmVuZF90c19ucykgfHwgKHRoaXMuc3RhcnRfdHNfbnMgPD0gdGhpcy5lbmRfdHNfbnMpQhAKDl9zdWJhY2NvdW50X2lkQg4KDF9zdGFydF90c19uc0IMCgpfZW5kX3RzX25zQggKBl9saW1pdEIYChZfaW5jbHVkZV9hdHRhY2hlZF9yaXNrQh4KHF9pbmNsdWRlX2F0dGFjaGVkX3Jpc2tfc3RhdGUiXgoXR2V0T3JkZXJIaXN0b3J5UmVzcG9uc2USIAoGb3JkZXJzGAEgAygLMhAub3JkZXJzLnYxLk9yZGVyEiEKD25leHRfcGFnZV90b2tlbhgCIAEoCUIIukgFcgMYgAQi7gMKFEdldFVzZXJUcmFkZXNSZXF1ZXN0EioKDXN1YmFjY291bnRfaWQYASABKAZCDrpIC1IJIQAAAAAAAAAASACIAQESHQoJc3ltYm9sX2lkGAIgASgNQgq6SAfYAQEqAiAAEicKBHNpZGUYAyABKA4yDy5vcmRlcnMudjEuU2lkZUIIukgFggECEAESGAoLc3RhcnRfdHNfbnMYCiABKARIAYgBARIWCgllbmRfdHNfbnMYCyABKARIAogBARIeCgVsaW1pdBgMIAEoDUIKukgHKgUY6AcoAUgDiAEBEhwKCnBhZ2VfdG9rZW4YDSABKAlCCLpIBXIDGIAEOrcBukizARqwAQoidXNlcl90cmFkZXNfYmluLm9yZGVyZWRfdGltZV9yYW5nZRIyc3RhcnRfdHNfbnMgbXVzdCBiZSA8PSBlbmRfdHNfbnMgd2hlbiBib3RoIGFyZSBzZXQaViFoYXModGhpcy5zdGFydF90c19ucykgfHwgIWhhcyh0aGlzLmVuZF90c19ucykgfHwgKHRoaXMuc3RhcnRfdHNfbnMgPD0gdGhpcy5lbmRfdHNfbnMpQhAKDl9zdWJhY2NvdW50X2lkQg4KDF9zdGFydF90c19uc0IMCgpfZW5kX3RzX25zQggKBl9saW1pdCJgChVHZXRVc2VyVHJhZGVzUmVzcG9uc2USJAoGdHJhZGVzGAEgAygLMhQub3JkZXJzLnYxLlVzZXJUcmFkZRIhCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCCLpIBXIDGIAEIsQCCg9HZXRPcmRlclJlcXVlc3QSKgoNc3ViYWNjb3VudF9pZBgBIAEoBkIOukgLUgkhAAAAAAAAAABIAYgBARIiCghvcmRlcl9pZBgCIAEoBkIOukgLUgkhAAAAAAAAAABIABI5Cg9jbGllbnRfb3JkZXJfaWQYAyABKAlCHrpIG3IZEAEYJDITXltBLVphLXowLTkuXzovLV0rJEgAEiIKFWluY2x1ZGVfYXR0YWNoZWRfcmlzaxgKIAEoCEgCiAEBEigKG2luY2x1ZGVfYXR0YWNoZWRfcmlza19zdGF0ZRgLIAEoCEgDiAEBQgwKA2tleRIFukgCCAFCEAoOX3N1YmFjY291bnRfaWRCGAoWX2luY2x1ZGVfYXR0YWNoZWRfcmlza0IeChxfaW5jbHVkZV9hdHRhY2hlZF9yaXNrX3N0YXRlIoYBChBHZXRPcmRlclJlc3BvbnNlEh8KBW9yZGVyGAEgASgLMhAub3JkZXJzLnYxLk9yZGVyEiQKBnRyYWRlcxgCIAMoCzIULm9yZGVycy52MS5Vc2VyVHJhZGUSKwoJdHJhbnNmZXJzGAMgAygLMhgub3JkZXJzLnYxLk9yZGVyVHJhbnNmZXIqgQEKC09yZGVyU3RhdHVzEhwKGE9SREVSX1NUQVRVU19VTlNQRUNJRklFRBAAEgsKB1BFTkRJTkcQARISCg5QRU5ESU5HX0NBTkNFTBACEgsKB1dPUktJTkcQAxIKCgZGSUxMRUQQBBIMCghDQU5DRUxFRBAFEgwKCFJFSkVDVEVEEAYqeQoQT3JkZXJPcmlnaW5TY29wZRIiCh5PUkRFUl9PUklHSU5fU0NPUEVfVU5TUEVDSUZJRUQQABIKCgZESVJFQ1QQARIRCg1BVFRBQ0hFRF9SSVNLEAISFgoSU1RBTkRBTE9ORV9UUklHR0VSEAMSCgoGU1lTVEVNEAQqfwoQT3JkZXJUcmlnZ2VyVHlwZRIiCh5PUkRFUl9UUklHR0VSX1RZUEVfVU5TUEVDSUZJRUQQABINCglTVE9QX0xPU1MQARIPCgtUQUtFX1BST0ZJVBACEhEKDVRSQUlMSU5HX1NUT1AQAxIICgRUV0FQEAQSCgoGTEFEREVSEAUy4gIKEU9yZGVyc1JlYWRTZXJ2aWNlElQKDUdldE9wZW5PcmRlcnMSHy5vcmRlcnMudjEuR2V0T3Blbk9yZGVyc1JlcXVlc3QaIC5vcmRlcnMudjEuR2V0T3Blbk9yZGVyc1Jlc3BvbnNlIgASWgoPR2V0T3JkZXJIaXN0b3J5EiEub3JkZXJzLnYxLkdldE9yZGVySGlzdG9yeVJlcXVlc3QaIi5vcmRlcnMudjEuR2V0T3JkZXJIaXN0b3J5UmVzcG9uc2UiABJUCg1HZXRVc2VyVHJhZGVzEh8ub3JkZXJzLnYxLkdldFVzZXJUcmFkZXNSZXF1ZXN0GiAub3JkZXJzLnYxLkdldFVzZXJUcmFkZXNSZXNwb25zZSIAEkUKCEdldE9yZGVyEhoub3JkZXJzLnYxLkdldE9yZGVyUmVxdWVzdBobLm9yZGVycy52MS5HZXRPcmRlclJlc3BvbnNlIgBCQFo+Z2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9vcmRlcnMvdjE7b3JkZXJzdjFiBnByb3RvMw", [file_buf_validate_validate, file_ledger_v1_catalog, file_orders_v1_orders, file_polyester_type_v1_u128]);
 
 /**
  * OrderOrigin explains why an order exists and where it came from.
@@ -375,19 +377,20 @@ export type Order = Message<"orders.v1.Order"> & {
   /**
    * Time-in-force policy.
    *
-   * @generated from field: orders.v1.TIF tif = 8;
+   * @generated from field: orders.v1.TimeInForce time_in_force = 8;
    */
-  tif: TIF;
+  timeInForce: TimeInForce;
 
   /**
    * Self-trade prevention mode.
    *
-   * @generated from field: orders.v1.STPMode stp_mode = 9;
+   * @generated from field: orders.v1.SelfTradePreventionMode self_trade_prevention_mode = 9;
    */
-  stpMode: STPMode;
+  selfTradePreventionMode: SelfTradePreventionMode;
 
   /**
-   * Fee source used for buy fills.
+   * Fee source selected for BUY fills. This also determines the decode scale
+   * for fee_scaled and referral_share_scaled on user trade rows.
    *
    * @generated from field: orders.v1.FeeSource fee_source = 10;
    */
@@ -401,35 +404,38 @@ export type Order = Message<"orders.v1.Order"> & {
   postOnly: boolean;
 
   /**
-   * Original order quantity (scaled base units).
+   * Original order quantity scaled by the pair's base_quantity_scale from
+   * GetSpotConfig for symbol_id.
    *
-   * @generated from field: int64 orig_qty = 12;
+   * @generated from field: int64 orig_qty_scaled = 12;
    */
-  origQty: bigint;
+  origQtyScaled: bigint;
 
   /**
-   * Cumulative filled quantity (scaled base units).
+   * Cumulative filled quantity scaled by the pair's base_quantity_scale from
+   * GetSpotConfig for symbol_id.
    *
-   * @generated from field: int64 cum_qty = 13;
+   * @generated from field: int64 cum_qty_scaled = 13;
    */
-  cumQty: bigint;
+  cumQtyScaled: bigint;
 
   /**
-   * Remaining working quantity (scaled base units). Zero for terminal orders.
+   * Remaining working quantity scaled by the pair's base_quantity_scale from
+   * GetSpotConfig for symbol_id. Zero for terminal orders.
    *
-   * @generated from field: int64 leaves_qty = 20;
+   * @generated from field: int64 leaves_qty_scaled = 20;
    */
-  leavesQty: bigint;
+  leavesQtyScaled: bigint;
 
   /**
-   * Average fill price in ticks (0 if no fills).
+   * Average fill price in quote units scaled by 1e6. Zero if no fills.
    *
-   * @generated from field: int64 avg_px_ticks = 14;
+   * @generated from field: int64 avg_price_ticks = 14;
    */
-  avgPxTicks: bigint;
+  avgPriceTicks: bigint;
 
   /**
-   * Limit price in ticks (0 for MARKET).
+   * Limit price in quote units scaled by 1e6. Zero for MARKET orders.
    *
    * @generated from field: int64 price_ticks = 15;
    */
@@ -480,14 +486,15 @@ export type Order = Message<"orders.v1.Order"> & {
   origin?: OrderOrigin | undefined;
 
   /**
-   * Optional client-side reference price used for MARKET slippage protection.
+   * Optional client-side reference price used for MARKET slippage protection,
+   * in quote units scaled by 1e6.
    *
    * @generated from field: int64 market_client_ref_price_ticks = 23;
    */
   marketClientRefPriceTicks: bigint;
 
   /**
-   * Optional MARKET max slippage in absolute ticks.
+   * Optional MARKET max slippage as a price delta in 1e-6 quote-unit ticks.
    *
    * @generated from field: int32 market_max_slippage_ticks = 24;
    */
@@ -550,35 +557,40 @@ export type UserTrade = Message<"orders.v1.UserTrade"> & {
   isMaker: boolean;
 
   /**
-   * Execution price in ticks.
+   * Execution price in quote units scaled by 1e6.
    *
    * @generated from field: int64 price_ticks = 7;
    */
   priceTicks: bigint;
 
   /**
-   * Executed quantity in scaled base units.
+   * Executed quantity scaled by the pair's base_quantity_scale from
+   * GetSpotConfig for symbol_id.
    *
    * @generated from field: int64 qty_scaled = 8;
    */
   qtyScaled: bigint;
 
   /**
-   * Fee amount in scaled units.
+   * Fee amount in the charged asset's scale. Use quote_quantity_scale when
+   * fee_source is QUOTE or UNSPECIFIED; use base_quantity_scale when fee_source
+   * is RECEIVED.
    *
    * @generated from field: int64 fee_scaled = 9;
    */
   feeScaled: bigint;
 
   /**
-   * Fee source charged for this fill.
+   * Fee source charged for this fill. This determines how to decode fee_scaled
+   * and referral_share_scaled.
    *
    * @generated from field: orders.v1.FeeSource fee_source = 10;
    */
   feeSource: FeeSource;
 
   /**
-   * Referral share amount in scaled units.
+   * Referral share amount in the same denomination and scale as fee_scaled for
+   * this fill.
    *
    * @generated from field: int64 referral_share_scaled = 12;
    */
@@ -620,18 +632,11 @@ export type OrderTransfer = Message<"orders.v1.OrderTransfer"> & {
   assetId: number;
 
   /**
-   * Transfer amount, high 64 bits of an unsigned 128-bit integer.
+   * Transfer amount at fixed 18-decimal ledger scale.
    *
-   * @generated from field: uint64 amount_hi = 3;
+   * @generated from field: polyester.type.v1.U128 amount_e18 = 3;
    */
-  amountHi: bigint;
-
-  /**
-   * Transfer amount, low 64 bits of an unsigned 128-bit integer.
-   *
-   * @generated from field: uint64 amount_lo = 4;
-   */
-  amountLo: bigint;
+  amountE18?: U128 | undefined;
 
   /**
    * True when the transfer debits the account; false when it credits the account.
@@ -657,9 +662,9 @@ export type OrderTransfer = Message<"orders.v1.OrderTransfer"> & {
   /**
    * Transfer timestamp in nanoseconds since epoch (UTC).
    *
-   * @generated from field: uint64 timestamp = 8;
+   * @generated from field: uint64 ts_ns = 8;
    */
-  timestamp: bigint;
+  tsNs: bigint;
 
   /**
    * Transfer transaction identifier.

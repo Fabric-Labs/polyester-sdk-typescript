@@ -57,21 +57,30 @@ export const AssetIdsSchema: GenMessage<AssetIds> = /*@__PURE__*/
  */
 export type RequestFee = Message<"chain.lifecycle.v1.RequestFee"> & {
   /**
+   * Asset identities for the fee asset.
+   *
    * @generated from field: chain.lifecycle.v1.AssetIds asset_ids = 1;
    */
   assetIds?: AssetIds | undefined;
 
   /**
+   * On-chain request fee in 18-decimal units of the fee asset identified by
+   * asset_ids. Separate from gross flow amount_e18 on summaries.
+   *
    * @generated from field: polyester.type.v1.U128 amount_e18 = 2;
    */
   amountE18?: U128 | undefined;
 
   /**
+   * Fee recipient address when settled on chain.
+   *
    * @generated from field: string recipient_address = 3;
    */
   recipientAddress: string;
 
   /**
+   * Current state of the fee snapshot.
+   *
    * @generated from field: chain.lifecycle.v1.RequestFeeStatus status = 4;
    */
   status: RequestFeeStatus;
