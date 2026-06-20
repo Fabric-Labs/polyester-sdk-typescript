@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-06-19T22:31:39.959401+00:00",
+  "generatedAt": "2026-06-20T13:43:08.752592+00:00",
   "paths": {
     "gen": "src/gen"
   },
   "protoRepo": "Fabric-Labs/polyester-proto",
-  "publicDescriptorSha256": "c317d84a2ab8481ad51c633df21a92e6b883cb25f99eeee759fa7330678d875b",
+  "publicDescriptorSha256": "fcb81ab624f79954efe35ccdb78877c7ffe19f487260bd80f79271cbb76e4083",
   "schemaVersion": 1,
   "sdk": "typescript"
 }
