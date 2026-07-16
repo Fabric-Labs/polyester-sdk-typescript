@@ -85,14 +85,16 @@ export type AssetBalance = Message<"ledger.read.v1.AssetBalance"> & {
   available?: U128 | undefined;
 
   /**
-   * Monotonic version of the posted trading and funding balance snapshot.
+   * Source-owned version of the latest posted balance snapshot.
+   * Compare only with posted_version values for the same account and asset.
    *
    * @generated from field: uint64 posted_version = 6;
    */
   postedVersion: bigint;
 
   /**
-   * Monotonic version of the reservation authority used for reserved.
+   * Source-owned version of the latest reserved balance snapshot.
+   * Compare only with reserved_version values for the same account and asset.
    *
    * @generated from field: uint64 reserved_version = 7;
    */
