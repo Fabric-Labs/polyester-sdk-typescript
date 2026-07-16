@@ -156,7 +156,10 @@ export type Subaccount = Message<"auth.v1.Subaccount"> & {
   smartAccountSaltNonce?: number | undefined;
 
   /**
-   * Time in UTC when this sub-account's configuration was last changed.
+   * Time in UTC when this sub-account's configuration was last changed. For the
+   * same sub-account, later is fresher, equal is an idempotent replay, and
+   * earlier is stale. Equal timestamps with different configuration indicate
+   * an invariant failure.
    *
    * @generated from field: google.protobuf.Timestamp updated_at = 14;
    */

@@ -508,8 +508,9 @@ export type Order = Message<"orders.v1.Order"> & {
   marketMaxSlippageBps: number;
 
   /**
-   * Source-owned per-order state revision. A larger value is always fresher for
-   * the same order; clients can use it to reject stale or duplicate updates.
+   * Source-owned per-order state revision. For the same order, a larger value
+   * is fresher, an equal value is an idempotent replay, and a smaller value is
+   * stale. Equal revisions with different state indicate an invariant failure.
    *
    * @generated from field: uint64 state_revision = 26;
    */

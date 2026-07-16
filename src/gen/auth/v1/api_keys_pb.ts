@@ -123,8 +123,10 @@ export type ApiKey = Message<"auth.v1.ApiKey"> & {
   createdByActor: string;
 
   /**
-   * Time in UTC when this key's configuration was last changed. This is
-   * independent of last_used_at, which tracks authentication activity.
+   * Time in UTC when this key's configuration was last changed. For the same
+   * key, later is fresher, equal is an idempotent replay, and earlier is stale.
+   * Equal timestamps with different configuration indicate an invariant failure.
+   * This is independent of last_used_at, which tracks authentication activity.
    *
    * @generated from field: google.protobuf.Timestamp updated_at = 25;
    */
