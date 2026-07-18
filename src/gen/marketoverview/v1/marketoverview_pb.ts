@@ -322,7 +322,7 @@ export enum SparklineInterval {
   SPARKLINE_1H = 1,
 
   /**
-   * 24 hour sparkline. Typically returns up to 1440 points (1-minute buckets).
+   * 24 hour sparkline. Typically returns up to 96 points (15-minute buckets).
    *
    * @generated from enum value: SPARKLINE_24H = 2;
    */
@@ -336,7 +336,7 @@ export enum SparklineInterval {
   SPARKLINE_1W = 3,
 
   /**
-   * 1 month sparkline. Typically returns up to 30 points (1-day buckets).
+   * 1 month sparkline. Typically returns up to 180 points (4-hour buckets).
    *
    * @generated from enum value: SPARKLINE_1M = 4;
    */
