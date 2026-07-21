@@ -8,15 +8,15 @@ import { file_buf_validate_validate } from "../../buf/validate/validate_pb.js";
 import { file_gnostic_openapi_v3_annotations } from "../../gnostic/openapi/v3/annotations_pb.js";
 import { file_google_api_annotations } from "../../google/api/annotations_pb.js";
 import { file_google_api_field_behavior } from "../../google/api/field_behavior_pb.js";
-import type { Timestamp } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
+import type { FieldMask, Timestamp } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_field_mask, file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file auth/v1/api_keys.proto.
  */
 export const file_auth_v1_api_keys: GenFile = /*@__PURE__*/
-  fileDesc("ChZhdXRoL3YxL2FwaV9rZXlzLnByb3RvEgdhdXRoLnYxIowECgZBcGlLZXkSKAoGa2V5X2lkGAIgASgJQhi6SBVyEzIRXmFrX1thLWYwLTldezMyfSQSDQoFbGFiZWwYAyABKAkSFQoEaWNvbhgJIAEoCUIHukgEcgIYIBIWCgVjb2xvchgKIAEoCUIHukgEcgIYIBInCgxpcF93aGl0ZWxpc3QYBCADKAlCEbpIDpIBCxAgGAEiBXID0AEBEiUKBnN0YXR1cxgGIAEoDjIVLmF1dGgudjEuQXBpS2V5U3RhdHVzEhoKDXN1YmFjY291bnRfaWQYByABKAZIAIgBARIWCglwb2xpY3lfaWQYCCABKAZIAYgBARIuCgpjcmVhdGVkX2F0GBQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxsYXN0X3VzZWRfYXQYFSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEnB1YmxpY19rZXlfZWQyNTUxORgWIAEoDBIuCgpleHBpcmVzX2F0GBcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIYChBjcmVhdGVkX2J5X2FjdG9yGBggASgJEi4KCnVwZGF0ZWRfYXQYGSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQhAKDl9zdWJhY2NvdW50X2lkQgwKCl9wb2xpY3lfaWQiLwoLSXBXaGl0ZWxpc3QSIAoFY2lkcnMYASADKAlCEbpIDpIBCxAgGAEiBXID0AEBIuABChNDcmVhdGVBcGlLZXlSZXF1ZXN0EhsKBWxhYmVsGAEgASgJQgzgQQK6SAZyBBABGEASGgoNc3ViYWNjb3VudF9pZBgDIAEoBkgAiAEBEhUKBGljb24YBiABKAlCB7pIBHICGCASFgoFY29sb3IYByABKAlCB7pIBHICGCASJwoMaXBfd2hpdGVsaXN0GAQgAygJQhG6SA6SAQsQIBgBIgVyA9ABARImChJwdWJsaWNfa2V5X2VkMjU1MTkYBSABKAxCCuBBArpIBHoCaCBCEAoOX3N1YmFjY291bnRfaWQiOAoUQ3JlYXRlQXBpS2V5UmVzcG9uc2USIAoHYXBpX2tleRgBIAEoCzIPLmF1dGgudjEuQXBpS2V5IkIKEkxpc3RBcGlLZXlzUmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQFCEAoOX3N1YmFjY291bnRfaWQiOAoTTGlzdEFwaUtleXNSZXNwb25zZRIhCghhcGlfa2V5cxgBIAMoCzIPLmF1dGgudjEuQXBpS2V5IkQKE0RlbGV0ZUFwaUtleVJlcXVlc3QSLQoGa2V5X2lkGAEgASgJQh3gQQK6SBdyFRABMhFeYWtfW2EtZjAtOV17MzJ9JCIWChREZWxldGVBcGlLZXlSZXNwb25zZSJBChBHZXRBcGlLZXlSZXF1ZXN0Ei0KBmtleV9pZBgBIAEoCUId4EECukgXchUQATIRXmFrX1thLWYwLTldezMyfSQiNQoRR2V0QXBpS2V5UmVzcG9uc2USIAoHYXBpX2tleRgBIAEoCzIPLmF1dGgudjEuQXBpS2V5It0DChNVcGRhdGVBcGlLZXlSZXF1ZXN0Ei0KBmtleV9pZBgBIAEoCUId4EECukgXchUQATIRXmFrX1thLWYwLTldezMyfSQSFgoFbGFiZWwYAiABKAlCB7pIBHICGEASFQoEaWNvbhgGIAEoCUIHukgEcgIYIBIWCgVjb2xvchgHIAEoCUIHukgEcgIYIBIxCgZzdGF0dXMYAyABKA4yFS5hdXRoLnYxLkFwaUtleVN0YXR1c0IKukgHggEEEAEgAhIqCgxpcF93aGl0ZWxpc3QYBCABKAsyFC5hdXRoLnYxLklwV2hpdGVsaXN0Ei4KCmV4cGlyZXNfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wOsABuki8ARq5AQoZZXhwaXJlc19hdF9mdXR1cmVfb3JfemVybxIoZXhwaXJlc19hdCBtdXN0IGJlIGluIHRoZSBmdXR1cmUgb3IgemVybxpyIWhhcyh0aGlzLmV4cGlyZXNfYXQpID8gdHJ1ZSA6IHRoaXMuZXhwaXJlc19hdCA9PSB0aW1lc3RhbXAoJzE5NzAtMDEtMDFUMDA6MDA6MDBaJykgPyB0cnVlIDogdGhpcy5leHBpcmVzX2F0ID4gbm93IjgKFFVwZGF0ZUFwaUtleVJlc3BvbnNlEiAKB2FwaV9rZXkYASABKAsyDy5hdXRoLnYxLkFwaUtleSpVCgxBcGlLZXlTdGF0dXMSHgoaQVBJX0tFWV9TVEFUVVNfVU5TUEVDSUZJRUQQABIKCgZBQ1RJVkUQARILCgdSRVZPS0VEEAISDAoIRElTQUJMRUQQAzLnCAoNQXBpS2V5U2VydmljZRLlAQoMQ3JlYXRlQXBpS2V5EhwuYXV0aC52MS5DcmVhdGVBcGlLZXlSZXF1ZXN0Gh0uYXV0aC52MS5DcmVhdGVBcGlLZXlSZXNwb25zZSKXAbpHeAoMQXV0aCBTZXJ2aWNlEg5DcmVhdGUgQVBJIEtleRpYQ3JlYXRlIGEgbmV3IEFQSSBrZXkgZm9yIHRoZSBjYWxsZXIgYWNjb3VudCwgaW5jbHVkaW5nIHB1YmxpYyBrZXkgbWF0ZXJpYWwgYW5kIG1ldGFkYXRhLoLT5JMCFjoBKiIRL3YxL2F1dGgvYXBpLWtleXMS6gEKC0xpc3RBcGlLZXlzEhsuYXV0aC52MS5MaXN0QXBpS2V5c1JlcXVlc3QaHC5hdXRoLnYxLkxpc3RBcGlLZXlzUmVzcG9uc2UinwG6R4IBCgxBdXRoIFNlcnZpY2USDUxpc3QgQVBJIEtleXMaY0xpc3Qgbm9uLXJldm9rZWQgQVBJIGtleXMgZm9yIHRoZSBjYWxsZXIgYWNjb3VudCwgbmV3ZXN0IGZpcnN0LCBvcHRpb25hbGx5IGZpbHRlcmVkIGJ5IHN1Yi1hY2NvdW50LoLT5JMCExIRL3YxL2F1dGgvYXBpLWtleXMSvAEKCUdldEFwaUtleRIZLmF1dGgudjEuR2V0QXBpS2V5UmVxdWVzdBoaLmF1dGgudjEuR2V0QXBpS2V5UmVzcG9uc2UieLpHUwoMQXV0aCBTZXJ2aWNlEgtHZXQgQVBJIEtleRo2UmV0cmlldmUgYSBzaW5nbGUgQVBJIGtleSBvd25lZCBieSB0aGUgY2FsbGVyIGFjY291bnQugtPkkwIcEhovdjEvYXV0aC9hcGkta2V5cy97a2V5X2lkfRLaAQoMRGVsZXRlQXBpS2V5EhwuYXV0aC52MS5EZWxldGVBcGlLZXlSZXF1ZXN0Gh0uYXV0aC52MS5EZWxldGVBcGlLZXlSZXNwb25zZSKMAbpHZwoMQXV0aCBTZXJ2aWNlEg5EZWxldGUgQVBJIEtleRpHUmV2b2tlIGFuIEFQSSBrZXkgb3duZWQgYnkgdGhlIGNhbGxlciBhY2NvdW50LiBSZXZvY2F0aW9uIGlzIHBlcm1hbmVudC6C0+STAhwqGi92MS9hdXRoL2FwaS1rZXlzL3trZXlfaWR9EuQBCgxVcGRhdGVBcGlLZXkSHC5hdXRoLnYxLlVwZGF0ZUFwaUtleVJlcXVlc3QaHS5hdXRoLnYxLlVwZGF0ZUFwaUtleVJlc3BvbnNlIpYBukduCgxBdXRoIFNlcnZpY2USDlVwZGF0ZSBBUEkgS2V5Gk5VcGRhdGUgbXV0YWJsZSBBUEkga2V5IGZpZWxkcywgaW5jbHVkaW5nIGxhYmVsLCBzdGF0dXMsIHdoaXRlbGlzdCwgYW5kIGV4cGlyeS6C0+STAh86ASoyGi92MS9hdXRoL2FwaS1rZXlzL3trZXlfaWR9QjxaOmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vYXV0aC92MTthdXRodjFiBnByb3RvMw", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_api_field_behavior, file_google_protobuf_timestamp]);
+  fileDesc("ChZhdXRoL3YxL2FwaV9rZXlzLnByb3RvEgdhdXRoLnYxIp4ECgZBcGlLZXkSKAoGa2V5X2lkGAIgASgJQhi6SBVyEzIRXmFrX1thLWYwLTldezMyfSQSDQoFbGFiZWwYAyABKAkSFQoEaWNvbhgJIAEoCUIHukgEcgIYIBIWCgVjb2xvchgKIAEoCUIHukgEcgIYIBInCgxpcF93aGl0ZWxpc3QYBCADKAlCEbpIDpIBCxAgGAEiBXID0AEBEiUKBnN0YXR1cxgGIAEoDjIVLmF1dGgudjEuQXBpS2V5U3RhdHVzEhoKDXN1YmFjY291bnRfaWQYByABKAZIAIgBARIWCglwb2xpY3lfaWQYCCABKAZIAYgBARIuCgpjcmVhdGVkX2F0GBQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxsYXN0X3VzZWRfYXQYFSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEnB1YmxpY19rZXlfZWQyNTUxORgWIAEoDBIuCgpleHBpcmVzX2F0GBcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIYChBjcmVhdGVkX2J5X2FjdG9yGBggASgJEi4KCnVwZGF0ZWRfYXQYGSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCHJldmlzaW9uGBogASgEQhAKDl9zdWJhY2NvdW50X2lkQgwKCl9wb2xpY3lfaWQi4AEKE0NyZWF0ZUFwaUtleVJlcXVlc3QSGwoFbGFiZWwYASABKAlCDOBBArpIBnIEEAEYQBIaCg1zdWJhY2NvdW50X2lkGAMgASgGSACIAQESFQoEaWNvbhgGIAEoCUIHukgEcgIYIBIWCgVjb2xvchgHIAEoCUIHukgEcgIYIBInCgxpcF93aGl0ZWxpc3QYBCADKAlCEbpIDpIBCxAgGAEiBXID0AEBEiYKEnB1YmxpY19rZXlfZWQyNTUxORgFIAEoDEIK4EECukgEegJoIEIQCg5fc3ViYWNjb3VudF9pZCI4ChRDcmVhdGVBcGlLZXlSZXNwb25zZRIgCgdhcGlfa2V5GAEgASgLMg8uYXV0aC52MS5BcGlLZXkiQgoSTGlzdEFwaUtleXNSZXF1ZXN0EhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBAUIQCg5fc3ViYWNjb3VudF9pZCI4ChNMaXN0QXBpS2V5c1Jlc3BvbnNlEiEKCGFwaV9rZXlzGAEgAygLMg8uYXV0aC52MS5BcGlLZXkiRAoTRGVsZXRlQXBpS2V5UmVxdWVzdBItCgZrZXlfaWQYASABKAlCHeBBArpIF3IVEAEyEV5ha19bYS1mMC05XXszMn0kIhYKFERlbGV0ZUFwaUtleVJlc3BvbnNlIkEKEEdldEFwaUtleVJlcXVlc3QSLQoGa2V5X2lkGAEgASgJQh3gQQK6SBdyFRABMhFeYWtfW2EtZjAtOV17MzJ9JCI1ChFHZXRBcGlLZXlSZXNwb25zZRIgCgdhcGlfa2V5GAEgASgLMg8uYXV0aC52MS5BcGlLZXkiqAMKEEFwaUtleVVwZGF0ZVNwZWMSFgoFbGFiZWwYASABKAlCB7pIBHICGEASFQoEaWNvbhgCIAEoCUIHukgEcgIYIBIWCgVjb2xvchgDIAEoCUIHukgEcgIYIBIxCgZzdGF0dXMYBCABKA4yFS5hdXRoLnYxLkFwaUtleVN0YXR1c0IKukgHggEEEAEgAhInCgxpcF93aGl0ZWxpc3QYBSADKAlCEbpIDpIBCxAgGAEiBXID0AEBEi4KCmV4cGlyZXNfYXQYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wOsABuki8ARq5AQoZZXhwaXJlc19hdF9mdXR1cmVfb3JfemVybxIoZXhwaXJlc19hdCBtdXN0IGJlIGluIHRoZSBmdXR1cmUgb3IgemVybxpyIWhhcyh0aGlzLmV4cGlyZXNfYXQpID8gdHJ1ZSA6IHRoaXMuZXhwaXJlc19hdCA9PSB0aW1lc3RhbXAoJzE5NzAtMDEtMDFUMDA6MDA6MDBaJykgPyB0cnVlIDogdGhpcy5leHBpcmVzX2F0ID4gbm93It4BChNVcGRhdGVBcGlLZXlSZXF1ZXN0Ei0KBmtleV9pZBgBIAEoCUId4EECukgXchUQATIRXmFrX1thLWYwLTldezMyfSQSNQoHYXBpX2tleRgCIAEoCzIZLmF1dGgudjEuQXBpS2V5VXBkYXRlU3BlY0IJ4EECukgDyAEBEjoKC3VwZGF0ZV9tYXNrGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFza0IJ4EECukgDyAEBEiUKEWV4cGVjdGVkX3JldmlzaW9uGAQgASgEQgrgQQK6SAQyAiAAIjgKFFVwZGF0ZUFwaUtleVJlc3BvbnNlEiAKB2FwaV9rZXkYASABKAsyDy5hdXRoLnYxLkFwaUtleSpVCgxBcGlLZXlTdGF0dXMSHgoaQVBJX0tFWV9TVEFUVVNfVU5TUEVDSUZJRUQQABIKCgZBQ1RJVkUQARILCgdSRVZPS0VEEAISDAoIRElTQUJMRUQQAzLnCAoNQXBpS2V5U2VydmljZRLlAQoMQ3JlYXRlQXBpS2V5EhwuYXV0aC52MS5DcmVhdGVBcGlLZXlSZXF1ZXN0Gh0uYXV0aC52MS5DcmVhdGVBcGlLZXlSZXNwb25zZSKXAbpHeAoMQXV0aCBTZXJ2aWNlEg5DcmVhdGUgQVBJIEtleRpYQ3JlYXRlIGEgbmV3IEFQSSBrZXkgZm9yIHRoZSBjYWxsZXIgYWNjb3VudCwgaW5jbHVkaW5nIHB1YmxpYyBrZXkgbWF0ZXJpYWwgYW5kIG1ldGFkYXRhLoLT5JMCFjoBKiIRL3YxL2F1dGgvYXBpLWtleXMS6gEKC0xpc3RBcGlLZXlzEhsuYXV0aC52MS5MaXN0QXBpS2V5c1JlcXVlc3QaHC5hdXRoLnYxLkxpc3RBcGlLZXlzUmVzcG9uc2UinwG6R4IBCgxBdXRoIFNlcnZpY2USDUxpc3QgQVBJIEtleXMaY0xpc3Qgbm9uLXJldm9rZWQgQVBJIGtleXMgZm9yIHRoZSBjYWxsZXIgYWNjb3VudCwgbmV3ZXN0IGZpcnN0LCBvcHRpb25hbGx5IGZpbHRlcmVkIGJ5IHN1Yi1hY2NvdW50LoLT5JMCExIRL3YxL2F1dGgvYXBpLWtleXMSvAEKCUdldEFwaUtleRIZLmF1dGgudjEuR2V0QXBpS2V5UmVxdWVzdBoaLmF1dGgudjEuR2V0QXBpS2V5UmVzcG9uc2UieLpHUwoMQXV0aCBTZXJ2aWNlEgtHZXQgQVBJIEtleRo2UmV0cmlldmUgYSBzaW5nbGUgQVBJIGtleSBvd25lZCBieSB0aGUgY2FsbGVyIGFjY291bnQugtPkkwIcEhovdjEvYXV0aC9hcGkta2V5cy97a2V5X2lkfRLaAQoMRGVsZXRlQXBpS2V5EhwuYXV0aC52MS5EZWxldGVBcGlLZXlSZXF1ZXN0Gh0uYXV0aC52MS5EZWxldGVBcGlLZXlSZXNwb25zZSKMAbpHZwoMQXV0aCBTZXJ2aWNlEg5EZWxldGUgQVBJIEtleRpHUmV2b2tlIGFuIEFQSSBrZXkgb3duZWQgYnkgdGhlIGNhbGxlciBhY2NvdW50LiBSZXZvY2F0aW9uIGlzIHBlcm1hbmVudC6C0+STAhwqGi92MS9hdXRoL2FwaS1rZXlzL3trZXlfaWR9EuQBCgxVcGRhdGVBcGlLZXkSHC5hdXRoLnYxLlVwZGF0ZUFwaUtleVJlcXVlc3QaHS5hdXRoLnYxLlVwZGF0ZUFwaUtleVJlc3BvbnNlIpYBukduCgxBdXRoIFNlcnZpY2USDlVwZGF0ZSBBUEkgS2V5Gk5VcGRhdGUgbXV0YWJsZSBBUEkga2V5IGZpZWxkcywgaW5jbHVkaW5nIGxhYmVsLCBzdGF0dXMsIHdoaXRlbGlzdCwgYW5kIGV4cGlyeS6C0+STAh86ASoyGi92MS9hdXRoL2FwaS1rZXlzL3trZXlfaWR9QjxaOmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vYXV0aC92MTthdXRodjFiBnByb3RvMw", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_api_field_behavior, file_google_protobuf_field_mask, file_google_protobuf_timestamp]);
 
 /**
  * ApiKey is public API key metadata. It never includes the private key or seed.
@@ -131,6 +131,13 @@ export type ApiKey = Message<"auth.v1.ApiKey"> & {
    * @generated from field: google.protobuf.Timestamp updated_at = 25;
    */
   updatedAt?: Timestamp | undefined;
+
+  /**
+   * Monotonic resource revision used for conditional updates.
+   *
+   * @generated from field: uint64 revision = 26;
+   */
+  revision: bigint;
 };
 
 /**
@@ -139,27 +146,6 @@ export type ApiKey = Message<"auth.v1.ApiKey"> & {
  */
 export const ApiKeySchema: GenMessage<ApiKey> = /*@__PURE__*/
   messageDesc(file_auth_v1_api_keys, 0);
-
-/**
- * IpWhitelist replaces or clears an API key IP whitelist during updates.
- *
- * @generated from message auth.v1.IpWhitelist
- */
-export type IpWhitelist = Message<"auth.v1.IpWhitelist"> & {
-  /**
-   * CIDR strings, e.g. "1.2.3.4/32". Maximum 32 unique entries.
-   *
-   * @generated from field: repeated string cidrs = 1;
-   */
-  cidrs: string[];
-};
-
-/**
- * Describes the message auth.v1.IpWhitelist.
- * Use `create(IpWhitelistSchema)` to create a new message.
- */
-export const IpWhitelistSchema: GenMessage<IpWhitelist> = /*@__PURE__*/
-  messageDesc(file_auth_v1_api_keys, 1);
 
 /**
  * CreateApiKeyRequest creates a new API key. Clients generate the Ed25519 key
@@ -219,7 +205,7 @@ export type CreateApiKeyRequest = Message<"auth.v1.CreateApiKeyRequest"> & {
  * Use `create(CreateApiKeyRequestSchema)` to create a new message.
  */
 export const CreateApiKeyRequestSchema: GenMessage<CreateApiKeyRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_api_keys, 2);
+  messageDesc(file_auth_v1_api_keys, 1);
 
 /**
  * CreateApiKeyResponse returns the created API key metadata.
@@ -240,7 +226,7 @@ export type CreateApiKeyResponse = Message<"auth.v1.CreateApiKeyResponse"> & {
  * Use `create(CreateApiKeyResponseSchema)` to create a new message.
  */
 export const CreateApiKeyResponseSchema: GenMessage<CreateApiKeyResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_api_keys, 3);
+  messageDesc(file_auth_v1_api_keys, 2);
 
 /**
  * ListApiKeysRequest lists non-revoked API keys owned by the caller.
@@ -262,7 +248,7 @@ export type ListApiKeysRequest = Message<"auth.v1.ListApiKeysRequest"> & {
  * Use `create(ListApiKeysRequestSchema)` to create a new message.
  */
 export const ListApiKeysRequestSchema: GenMessage<ListApiKeysRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_api_keys, 4);
+  messageDesc(file_auth_v1_api_keys, 3);
 
 /**
  * ListApiKeysResponse contains matching API keys, newest first by creation time.
@@ -283,7 +269,7 @@ export type ListApiKeysResponse = Message<"auth.v1.ListApiKeysResponse"> & {
  * Use `create(ListApiKeysResponseSchema)` to create a new message.
  */
 export const ListApiKeysResponseSchema: GenMessage<ListApiKeysResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_api_keys, 5);
+  messageDesc(file_auth_v1_api_keys, 4);
 
 /**
  * DeleteApiKeyRequest permanently revokes an API key.
@@ -305,7 +291,7 @@ export type DeleteApiKeyRequest = Message<"auth.v1.DeleteApiKeyRequest"> & {
  * Use `create(DeleteApiKeyRequestSchema)` to create a new message.
  */
 export const DeleteApiKeyRequestSchema: GenMessage<DeleteApiKeyRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_api_keys, 6);
+  messageDesc(file_auth_v1_api_keys, 5);
 
 /**
  * DeleteApiKeyResponse is empty when revocation succeeds.
@@ -320,7 +306,7 @@ export type DeleteApiKeyResponse = Message<"auth.v1.DeleteApiKeyResponse"> & {
  * Use `create(DeleteApiKeyResponseSchema)` to create a new message.
  */
 export const DeleteApiKeyResponseSchema: GenMessage<DeleteApiKeyResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_api_keys, 7);
+  messageDesc(file_auth_v1_api_keys, 6);
 
 /**
  * GetApiKeyRequest returns a single API key owned by the caller's account.
@@ -342,7 +328,7 @@ export type GetApiKeyRequest = Message<"auth.v1.GetApiKeyRequest"> & {
  * Use `create(GetApiKeyRequestSchema)` to create a new message.
  */
 export const GetApiKeyRequestSchema: GenMessage<GetApiKeyRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_api_keys, 8);
+  messageDesc(file_auth_v1_api_keys, 7);
 
 /**
  * GetApiKeyResponse returns one API key owned by the caller.
@@ -363,10 +349,66 @@ export type GetApiKeyResponse = Message<"auth.v1.GetApiKeyResponse"> & {
  * Use `create(GetApiKeyResponseSchema)` to create a new message.
  */
 export const GetApiKeyResponseSchema: GenMessage<GetApiKeyResponse> = /*@__PURE__*/
+  messageDesc(file_auth_v1_api_keys, 8);
+
+/**
+ * ApiKeyUpdateSpec contains mutable API key configuration.
+ *
+ * @generated from message auth.v1.ApiKeyUpdateSpec
+ */
+export type ApiKeyUpdateSpec = Message<"auth.v1.ApiKeyUpdateSpec"> & {
+  /**
+   * Human-friendly label for the key. Empty clears the label when selected.
+   *
+   * @generated from field: string label = 1;
+   */
+  label: string;
+
+  /**
+   * User-chosen icon/emoji for UI display. Empty clears the icon when selected.
+   *
+   * @generated from field: string icon = 2;
+   */
+  icon: string;
+
+  /**
+   * User-chosen color token for UI display. Empty clears the color when selected.
+   *
+   * @generated from field: string color = 3;
+   */
+  color: string;
+
+  /**
+   * New status. ACTIVE and DISABLED are allowed; revocation uses DeleteApiKey.
+   *
+   * @generated from field: auth.v1.ApiKeyStatus status = 4;
+   */
+  status: ApiKeyStatus;
+
+  /**
+   * Complete replacement IP whitelist. Empty clears the restriction when selected.
+   *
+   * @generated from field: repeated string ip_whitelist = 5;
+   */
+  ipWhitelist: string[];
+
+  /**
+   * Expiry time in UTC. When selected, omission or the epoch clears expiry.
+   *
+   * @generated from field: google.protobuf.Timestamp expires_at = 6;
+   */
+  expiresAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message auth.v1.ApiKeyUpdateSpec.
+ * Use `create(ApiKeyUpdateSpecSchema)` to create a new message.
+ */
+export const ApiKeyUpdateSpecSchema: GenMessage<ApiKeyUpdateSpec> = /*@__PURE__*/
   messageDesc(file_auth_v1_api_keys, 9);
 
 /**
- * UpdateApiKeyRequest updates mutable metadata for an existing API key.
+ * UpdateApiKeyRequest changes selected mutable fields on an existing API key.
  *
  * @generated from message auth.v1.UpdateApiKeyRequest
  */
@@ -379,54 +421,26 @@ export type UpdateApiKeyRequest = Message<"auth.v1.UpdateApiKeyRequest"> & {
   keyId: string;
 
   /**
-   * New human-friendly label for the key. If empty, label is left unchanged.
-   * Maximum length is 64 characters.
+   * Candidate values for fields selected by update_mask.
    *
-   * @generated from field: string label = 2;
+   * @generated from field: auth.v1.ApiKeyUpdateSpec api_key = 2;
    */
-  label: string;
+  apiKey?: ApiKeyUpdateSpec | undefined;
 
   /**
-   * New user-chosen icon/emoji for UI display. If empty, left unchanged.
+   * Mutable fields to apply. Paths are relative to api_key. The mask is required,
+   * must be non-empty, and cannot contain "*".
    *
-   * @generated from field: string icon = 6;
+   * @generated from field: google.protobuf.FieldMask update_mask = 3;
    */
-  icon: string;
+  updateMask?: FieldMask | undefined;
 
   /**
-   * New user-chosen color token for UI display. If empty, left unchanged.
+   * Revision returned by the latest successful read.
    *
-   * @generated from field: string color = 7;
+   * @generated from field: uint64 expected_revision = 4;
    */
-  color: string;
-
-  /**
-   * Optional new status. ACTIVE and DISABLED are allowed; REVOKED must be done
-   * via DeleteApiKey and is terminal.
-   *
-   * @generated from field: auth.v1.ApiKeyStatus status = 3;
-   */
-  status: ApiKeyStatus;
-
-  /**
-   * Optional new IP whitelist. If this field is omitted, the whitelist is left
-   * unchanged. If it is present:
-   * - cidrs non-empty replaces the existing whitelist.
-   * - cidrs empty clears the whitelist (no IP restriction).
-   *
-   * @generated from field: auth.v1.IpWhitelist ip_whitelist = 4;
-   */
-  ipWhitelist?: IpWhitelist | undefined;
-
-  /**
-   * Optional new expiry time in UTC. If this field is present:
-   * - Non-zero timestamp sets/updates the expiry.
-   * - Zero/epoch timestamp clears the expiry (no automatic expiry).
-   * If this field is omitted, the expiry is left unchanged.
-   *
-   * @generated from field: google.protobuf.Timestamp expires_at = 5;
-   */
-  expiresAt?: Timestamp | undefined;
+  expectedRevision: bigint;
 };
 
 /**
