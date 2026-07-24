@@ -27,21 +27,21 @@ export enum MFARequirement {
   MFA_UNSPECIFIED = 0,
 
   /**
-   * The RPC requires recently completed interactive MFA. Stale assurance must be renewed.
+   * The RPC requires a recently MFA-elevated interactive session.
    *
    * @generated from enum value: MFA_RECENT = 1;
    */
   MFA_RECENT = 1,
 
   /**
-   * The RPC always requires a fresh, single-use step-up proof, even when MFA was completed recently.
+   * The RPC requires a fresh, single-use step-up proof.
    *
    * @generated from enum value: MFA_FRESH_STEP_UP = 2;
    */
   MFA_FRESH_STEP_UP = 2,
 
   /**
-   * The required MFA level depends on the request.
+   * The RPC's MFA requirement depends on the caller or request.
    *
    * @generated from enum value: MFA_CONDITIONAL = 3;
    */
