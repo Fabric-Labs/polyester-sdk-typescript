@@ -280,7 +280,7 @@ export const HeatmapDeltaBucketSchema: GenMessage<HeatmapDeltaBucket> = /*@__PUR
   messageDesc(file_marketdata_v1_heatmap, 5);
 
 /**
- * HeatmapLiveBucket is the canonical live payload for realtime heatmap updates.
+ * HeatmapLiveBucket is the canonical live payload for real-time heatmap updates.
  * It represents the latest state of one bucket (open or finalized).
  *
  * @generated from message marketdata.v1.HeatmapLiveBucket
@@ -308,18 +308,23 @@ export type HeatmapLiveBucket = Message<"marketdata.v1.HeatmapLiveBucket"> & {
   tsSec: bigint;
 
   /**
-   * false for provisional open-bucket updates, true when bucket is finalized.
+   * True when this bucket is finalized; false for provisional updates to an
+   * open bucket.
    *
    * @generated from field: bool is_final = 4;
    */
   isFinal: boolean;
 
   /**
+   * Sparse bid-side level changes represented by this bucket.
+   *
    * @generated from field: marketdata.v1.HeatmapDeltaLevels bids = 5;
    */
   bids?: HeatmapDeltaLevels | undefined;
 
   /**
+   * Sparse ask-side level changes represented by this bucket.
+   *
    * @generated from field: marketdata.v1.HeatmapDeltaLevels asks = 6;
    */
   asks?: HeatmapDeltaLevels | undefined;
@@ -332,17 +337,21 @@ export type HeatmapLiveBucket = Message<"marketdata.v1.HeatmapLiveBucket"> & {
   updatesInBucket: number;
 
   /**
+   * Earliest monotonic order book sequence represented by this bucket.
+   *
    * @generated from field: uint64 book_seq_start = 8;
    */
   bookSeqStart: bigint;
 
   /**
+   * Latest monotonic order book sequence represented by this bucket.
+   *
    * @generated from field: uint64 book_seq_end = 9;
    */
   bookSeqEnd: bigint;
 
   /**
-   * Quantity semantics for qty_scaled in bids/asks.
+   * Quantity semantics for qty_scaled in bids and asks.
    *
    * @generated from field: marketdata.v1.HeatmapQuantityMode quantity_mode = 10;
    */

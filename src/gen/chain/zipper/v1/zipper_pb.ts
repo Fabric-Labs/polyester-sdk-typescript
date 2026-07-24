@@ -211,13 +211,13 @@ export const AssetChainVariantSchema: GenMessage<AssetChainVariant> = /*@__PURE_
 
 /**
  * ZippedAssetSupplyUpdate carries the latest route liquidity for one zipped
- * asset. It is published on the protobuf websocket channel.
+ * asset. It is published on the Protobuf WebSocket channel.
  *
  * @generated from message chain.zipper.v1.ZippedAssetSupplyUpdate
  */
 export type ZippedAssetSupplyUpdate = Message<"chain.zipper.v1.ZippedAssetSupplyUpdate"> & {
   /**
-   * Canonical zipped asset route id.
+   * Canonical zipped asset route ID.
    *
    * @generated from field: uint32 zipped_asset_id = 1;
    */
@@ -246,6 +246,8 @@ export const ZippedAssetSupplyUpdateSchema: GenMessage<ZippedAssetSupplyUpdate> 
  */
 export type ZippedAssetSupplyBatch = Message<"chain.zipper.v1.ZippedAssetSupplyBatch"> & {
   /**
+   * Supply updates included in this batch.
+   *
    * @generated from field: repeated chain.zipper.v1.ZippedAssetSupplyUpdate updates = 1;
    */
   updates: ZippedAssetSupplyUpdate[];

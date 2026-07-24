@@ -158,6 +158,9 @@ export type OrderBookDelta = Message<"orderbook.v1.OrderBookDelta"> & {
   bookSeqStart: bigint;
 
   /**
+   * Monotonic book sequence at the end of this update's range. Consumers can
+   * retain it as the last applied sequence and ignore updates that do not advance it.
+   *
    * @generated from field: uint64 book_seq_end = 3;
    */
   bookSeqEnd: bigint;

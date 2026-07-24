@@ -1318,13 +1318,17 @@ export type TrailingDetails = Message<"triggers.v1.TrailingDetails"> & {
   maxSlippageBps: number;
 
   /**
-   * Direction/source are fixed per trigger; exposed for completeness.
+   * Price source used for trigger evaluation. Fixed for the lifetime of the
+   * trigger and exposed for completeness.
    *
    * @generated from field: orders.v1.TriggerPriceSource trigger_price_source = 8;
    */
   triggerPriceSource: TriggerPriceSource;
 
   /**
+   * Direction the price must cross to fire the trigger. Fixed for the lifetime
+   * of the trigger and exposed for completeness.
+   *
    * @generated from field: orders.v1.TriggerDirection trigger_direction = 9;
    */
   triggerDirection: TriggerDirection;

@@ -544,12 +544,14 @@ export const ListTransfersRequestSchema: GenMessage<ListTransfersRequest> = /*@_
  */
 export type TransferSide = Message<"ledger.read.v1.TransferSide"> & {
   /**
+   * Display classification for this transfer side.
+   *
    * @generated from field: ledger.read.v1.TransferSideKind kind = 1;
    */
   kind: TransferSideKind;
 
   /**
-   * Public root or subaccount id when this side is safe to identify. Never
+   * Public root account or subaccount ID when this side is safe to identify. Never
    * populated for private counterparties or non-user ledger accounts.
    *
    * @generated from field: optional fixed64 account_id = 2;
@@ -559,8 +561,8 @@ export type TransferSide = Message<"ledger.read.v1.TransferSide"> & {
   /**
    * Address for this side when known. For EXTERNAL_ADDRESS this is an
    * external-chain wallet address from lifecycle correlation; for identifiable
-   * Polyester user ledger accounts this is a Polyester smart-account address.
-   * May be empty during the transfer-to-lifecycle consistency window.
+   * Polyester accounts this is a Polyester smart-account address.
+   * May be empty until the corresponding lifecycle details are available.
    *
    * @generated from field: string address = 3;
    */
@@ -575,14 +577,14 @@ export const TransferSideSchema: GenMessage<TransferSide> = /*@__PURE__*/
   messageDesc(file_ledger_read_v1_ledger_read, 12);
 
 /**
- * Transfer row with compact integers and client-side resolution.
+ * TransferRow describes one debit or credit leg of a ledger transfer.
  *
  * @generated from message ledger.read.v1.TransferRow
  */
 export type TransferRow = Message<"ledger.read.v1.TransferRow"> & {
   /**
-   * Public unified asset id. Resolve symbol from SpotConfig; U128 amounts in
-   * this row always use fixed 18-decimal ledger scale.
+   * Public unified asset ID. Resolve its symbol through the spot configuration
+   * API. U128 amounts in this row always use a fixed 18-decimal ledger scale.
    *
    * @generated from field: uint32 asset_id = 1;
    */
@@ -596,21 +598,21 @@ export type TransferRow = Message<"ledger.read.v1.TransferRow"> & {
   amountE18?: U128 | undefined;
 
   /**
-   * product reason for this transfer
+   * Product reason for this transfer.
    *
    * @generated from field: ledger.v1.TransferCode transfer_code = 3;
    */
   transferCode: TransferCode;
 
   /**
-   * account bucket affected by this transfer
+   * Account bucket affected by this transfer.
    *
    * @generated from field: ledger.v1.AccountCode account_code = 4;
    */
   accountCode: AccountCode;
 
   /**
-   * transfer timestamp in microseconds since epoch (UTC)
+   * Transfer timestamp in microseconds since epoch (UTC).
    *
    * @generated from field: uint64 ts_us = 5;
    */
@@ -624,37 +626,37 @@ export type TransferRow = Message<"ledger.read.v1.TransferRow"> & {
   balanceAfterE18?: U128 | undefined;
 
   /**
-   * true for debit legs, false for credit legs
+   * True when this row is the debit leg; false when it is the credit leg.
    *
    * @generated from field: bool is_debit = 10;
    */
   isDebit: boolean;
 
   /**
-   * Correlation id derived from ME matchId for grouping related legs (0 when N/A).
+   * Correlation ID used to group related transfer legs. Zero when unavailable.
    *
    * @generated from field: uint64 link_id = 11;
    */
   linkId: bigint;
 
   /**
-   * Public lifecycle flow id when this transfer belongs to a chain lifecycle flow.
+   * Public lifecycle flow ID when this transfer belongs to a chain lifecycle flow.
    *
    * @generated from field: string flow_id = 12;
    */
   flowId: string;
 
   /**
-   * Ledger debit side for From-column display. This is debit-to-credit, not
-   * row-relative; use is_debit to know whether this row is the debit leg.
+   * Debit side of the transfer. This relationship is debit-to-credit rather
+   * than row-relative; use is_debit to determine whether this row is the debit leg.
    *
    * @generated from field: ledger.read.v1.TransferSide source = 13;
    */
   source?: TransferSide | undefined;
 
   /**
-   * Ledger credit side for To-column display. This is debit-to-credit, not
-   * row-relative; use is_debit to know whether this row is the credit leg.
+   * Credit side of the transfer. This relationship is debit-to-credit rather
+   * than row-relative; use is_debit to determine whether this row is the credit leg.
    *
    * @generated from field: ledger.read.v1.TransferSide destination = 14;
    */
@@ -669,6 +671,8 @@ export const TransferRowSchema: GenMessage<TransferRow> = /*@__PURE__*/
   messageDesc(file_ledger_read_v1_ledger_read, 13);
 
 /**
+ * ListTransfersResponse contains transfer rows and an optional continuation cursor.
+ *
  * @generated from message ledger.read.v1.ListTransfersResponse
  */
 export type ListTransfersResponse = Message<"ledger.read.v1.ListTransfersResponse"> & {
