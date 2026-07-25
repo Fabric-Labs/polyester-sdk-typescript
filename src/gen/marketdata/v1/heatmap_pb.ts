@@ -24,11 +24,15 @@ export const file_marketdata_v1_heatmap: GenFile = /*@__PURE__*/
  */
 export type HeatmapTimeRange = Message<"marketdata.v1.HeatmapTimeRange"> & {
   /**
+   * Inclusive lower bound in UTC. Omit to leave the lower bound open.
+   *
    * @generated from field: google.protobuf.Timestamp start_time = 1;
    */
   startTime?: Timestamp | undefined;
 
   /**
+   * Inclusive upper bound in UTC. Omit to leave the upper bound open.
+   *
    * @generated from field: google.protobuf.Timestamp end_time = 2;
    */
   endTime?: Timestamp | undefined;
@@ -209,16 +213,22 @@ export type HeatmapKeyframe = Message<"marketdata.v1.HeatmapKeyframe"> & {
   midTicks: bigint;
 
   /**
+   * Complete bid-side levels at the snapshot.
+   *
    * @generated from field: marketdata.v1.HeatmapLevels bids = 5;
    */
   bids?: HeatmapLevels | undefined;
 
   /**
+   * Complete ask-side levels at the snapshot.
+   *
    * @generated from field: marketdata.v1.HeatmapLevels asks = 6;
    */
   asks?: HeatmapLevels | undefined;
 
   /**
+   * Monotonic order book sequence at the snapshot.
+   *
    * @generated from field: uint64 book_seq = 7;
    */
   bookSeq: bigint;
@@ -245,11 +255,15 @@ export type HeatmapDeltaBucket = Message<"marketdata.v1.HeatmapDeltaBucket"> & {
   tsSec: bigint;
 
   /**
+   * Sparse bid-side level changes in this bucket.
+   *
    * @generated from field: marketdata.v1.HeatmapDeltaLevels bids = 2;
    */
   bids?: HeatmapDeltaLevels | undefined;
 
   /**
+   * Sparse ask-side level changes in this bucket.
+   *
    * @generated from field: marketdata.v1.HeatmapDeltaLevels asks = 3;
    */
   asks?: HeatmapDeltaLevels | undefined;
@@ -262,11 +276,15 @@ export type HeatmapDeltaBucket = Message<"marketdata.v1.HeatmapDeltaBucket"> & {
   updatesInBucket: number;
 
   /**
+   * Earliest monotonic order book sequence represented by this bucket.
+   *
    * @generated from field: uint64 book_seq_start = 5;
    */
   bookSeqStart: bigint;
 
   /**
+   * Latest monotonic order book sequence represented by this bucket.
+   *
    * @generated from field: uint64 book_seq_end = 6;
    */
   bookSeqEnd: bigint;
@@ -382,11 +400,15 @@ export const HeatmapLiveBucketSchema: GenMessage<HeatmapLiveBucket> = /*@__PURE_
  */
 export type HeatmapDeltaChain = Message<"marketdata.v1.HeatmapDeltaChain"> & {
   /**
+   * Full-book snapshot from which to apply the returned deltas.
+   *
    * @generated from field: marketdata.v1.HeatmapKeyframe base_keyframe = 1;
    */
   baseKeyframe?: HeatmapKeyframe | undefined;
 
   /**
+   * Sparse update buckets ordered oldest-first by timestamp.
+   *
    * @generated from field: repeated marketdata.v1.HeatmapDeltaBucket deltas = 2;
    */
   deltas: HeatmapDeltaBucket[];

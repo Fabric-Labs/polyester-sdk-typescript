@@ -1114,13 +1114,15 @@ export type BatchCreateOrdersResponse = Message<"orders.v1.BatchCreateOrdersResp
   results: BatchCreateResultItem[];
 
   /**
-   * Aggregate counts.
+   * Number of requested orders that were accepted.
    *
    * @generated from field: uint32 accepted_count = 2;
    */
   acceptedCount: number;
 
   /**
+   * Number of requested orders that were rejected.
+   *
    * @generated from field: uint32 rejected_count = 3;
    */
   rejectedCount: number;
@@ -1271,18 +1273,22 @@ export type ModifyOrderResponse = Message<"orders.v1.ModifyOrderResponse"> & {
   code: string;
 
   /**
-   * Trigger IDs for updated attached risk controls (when applicable).
+   * Trigger ID for attached take-profit after modification, when configured.
    *
    * @generated from field: optional uint64 take_profit_trigger_id = 5;
    */
   takeProfitTriggerId?: bigint | undefined;
 
   /**
+   * Trigger ID for attached stop-loss after modification, when configured.
+   *
    * @generated from field: optional uint64 stop_loss_trigger_id = 6;
    */
   stopLossTriggerId?: bigint | undefined;
 
   /**
+   * Trigger ID for attached trailing stop after modification, when configured.
+   *
    * @generated from field: optional uint64 trailing_stop_trigger_id = 7;
    */
   trailingStopTriggerId?: bigint | undefined;
@@ -1690,13 +1696,15 @@ export type BatchCancelOrdersResponse = Message<"orders.v1.BatchCancelOrdersResp
   results: BatchCancelResultItem[];
 
   /**
-   * Aggregate counts.
+   * Number of requested cancellations that were accepted.
    *
    * @generated from field: uint32 accepted_count = 2;
    */
   acceptedCount: number;
 
   /**
+   * Number of requested cancellations that were rejected.
+   *
    * @generated from field: uint32 rejected_count = 3;
    */
   rejectedCount: number;

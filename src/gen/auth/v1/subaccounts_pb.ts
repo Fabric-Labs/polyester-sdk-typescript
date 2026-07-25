@@ -756,6 +756,8 @@ export type SubaccountInvite = Message<"auth.v1.SubaccountInvite"> & {
   granteeUsername: string;
 
   /**
+   * Username of the account that sent the invitation, when available.
+   *
    * @generated from field: string inviter_username = 10;
    */
   inviterUsername: string;
