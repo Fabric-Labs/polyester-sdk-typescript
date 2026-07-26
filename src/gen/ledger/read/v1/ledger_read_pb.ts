@@ -113,6 +113,10 @@ export const AssetBalanceSchema: GenMessage<AssetBalance> = /*@__PURE__*/
  */
 export type GetBalancesResponse = Message<"ledger.read.v1.GetBalancesResponse"> & {
   /**
+   * One entry for every supported unified asset, including assets with zero
+   * balances. Sorted by available trading amount (highest first), then by
+   * asset symbol alphabetically.
+   *
    * @generated from field: repeated ledger.read.v1.AssetBalance balances = 1;
    */
   balances: AssetBalance[];
@@ -208,35 +212,49 @@ export const BalanceSeriesSchema: GenMessage<BalanceSeries> = /*@__PURE__*/
   messageDesc(file_ledger_read_v1_ledger_read, 4);
 
 /**
+ * GetBalanceHistoryResponse returns aligned balance chart series.
+ *
  * @generated from message ledger.read.v1.GetBalanceHistoryResponse
  */
 export type GetBalanceHistoryResponse = Message<"ledger.read.v1.GetBalanceHistoryResponse"> & {
   /**
+   * Resolved history window.
+   *
    * @generated from field: ledger.read.v1.BalanceRange range = 1;
    */
   range: BalanceRange;
 
   /**
+   * Sampling interval between points, such as "5m" or "1h".
+   *
    * @generated from field: string bucket = 2;
    */
   bucket: string;
 
   /**
+   * First point timestamp in seconds since epoch (UTC).
+   *
    * @generated from field: fixed32 start_ts_sec = 3;
    */
   startTsSec: number;
 
   /**
+   * Last point timestamp in seconds since epoch (UTC).
+   *
    * @generated from field: fixed32 end_ts_sec = 4;
    */
   endTsSec: number;
 
   /**
+   * Number of aligned points in each returned series.
+   *
    * @generated from field: uint32 points = 5;
    */
   points: number;
 
   /**
+   * Balance series ordered by asset ID, then account bucket.
+   *
    * @generated from field: repeated ledger.read.v1.BalanceSeries series = 6;
    */
   series: BalanceSeries[];
@@ -398,25 +416,35 @@ export const EquitySeriesSchema: GenMessage<EquitySeries> = /*@__PURE__*/
   messageDesc(file_ledger_read_v1_ledger_read, 9);
 
 /**
+ * GetEquityHistorySeriesResponse returns aligned equity chart series.
+ *
  * @generated from message ledger.read.v1.GetEquityHistorySeriesResponse
  */
 export type GetEquityHistorySeriesResponse = Message<"ledger.read.v1.GetEquityHistorySeriesResponse"> & {
   /**
+   * Resolved history window.
+   *
    * @generated from field: ledger.read.v1.BalanceRange range = 1;
    */
   range: BalanceRange;
 
   /**
+   * Sampling interval between points, such as "5m" or "1h".
+   *
    * @generated from field: string bucket = 2;
    */
   bucket: string;
 
   /**
+   * First point timestamp in seconds since epoch (UTC).
+   *
    * @generated from field: fixed32 start_ts_sec = 3;
    */
   startTsSec: number;
 
   /**
+   * Last point timestamp in seconds since epoch (UTC).
+   *
    * @generated from field: fixed32 end_ts_sec = 4;
    */
   endTsSec: number;
@@ -429,11 +457,15 @@ export type GetEquityHistorySeriesResponse = Message<"ledger.read.v1.GetEquityHi
   quoteAsset: string;
 
   /**
+   * Number of aligned points in each returned series.
+   *
    * @generated from field: uint32 points = 7;
    */
   points: number;
 
   /**
+   * Equity series ordered by grouping identifier ascending.
+   *
    * @generated from field: repeated ledger.read.v1.EquitySeries series = 8;
    */
   series: EquitySeries[];
@@ -761,6 +793,8 @@ export type HoldRow = Message<"ledger.read.v1.HoldRow"> & {
   assetId: number;
 
   /**
+   * Expiration time in nanoseconds since epoch (UTC).
+   *
    * @generated from field: uint64 expires_at_ns = 4;
    */
   expiresAtNs: bigint;
@@ -778,6 +812,8 @@ export const HoldRowSchema: GenMessage<HoldRow> = /*@__PURE__*/
  */
 export type ListHoldsResponse = Message<"ledger.read.v1.ListHoldsResponse"> & {
   /**
+   * Hold rows in the sort direction requested by the caller.
+   *
    * @generated from field: repeated ledger.read.v1.HoldRow holds = 1;
    */
   holds: HoldRow[];
