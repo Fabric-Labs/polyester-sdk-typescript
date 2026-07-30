@@ -15,8 +15,8 @@ export const file_tradews_v1_trade_ws: GenFile = /*@__PURE__*/
   fileDesc("Chl0cmFkZXdzL3YxL3RyYWRlX3dzLnByb3RvEgp0cmFkZXdzLnYxIssCCgtDbGllbnRGcmFtZRILCgNzZXEYASABKAQSFgoOY29ycmVsYXRpb25faWQYAiABKAkSJwoEcGluZxgKIAEoCzIXLnRyYWRld3MudjEuUGluZ1JlcXVlc3RIABI1CgxjcmVhdGVfb3JkZXIYCyABKAsyHS5vcmRlcnMudjEuQ3JlYXRlT3JkZXJSZXF1ZXN0SAASNQoMY2FuY2VsX29yZGVyGAwgASgLMh0ub3JkZXJzLnYxLkNhbmNlbE9yZGVyUmVxdWVzdEgAEjUKDG1vZGlmeV9vcmRlchgNIAEoCzIdLm9yZGVycy52MS5Nb2RpZnlPcmRlclJlcXVlc3RIABI+ChFjYW5jZWxfYWxsX29yZGVycxgOIAEoCzIhLm9yZGVycy52MS5DYW5jZWxBbGxPcmRlcnNSZXF1ZXN0SABCCQoHcGF5bG9hZCIeCgtQaW5nUmVxdWVzdBIPCgdwYXlsb2FkGAEgASgMIqQCCgtTZXJ2ZXJGcmFtZRILCgNzZXEYASABKAQSFgoOY29ycmVsYXRpb25faWQYAiABKAkSKAoEcG9uZxgKIAEoCzIYLnRyYWRld3MudjEuUG9uZ1Jlc3BvbnNlSAASJgoDYWNrGAsgASgLMhcudHJhZGV3cy52MS5BY2tSZXNwb25zZUgAEisKBnJlamVjdBgMIAEoCzIZLnRyYWRld3MudjEuQ29tbWFuZFJlamVjdEgAEjAKCG92ZXJsb2FkGA0gASgLMhwudHJhZGV3cy52MS5PdmVybG9hZFJlc3BvbnNlSAASNAoIdGVybWluYWwYDiABKAsyIC50cmFkZXdzLnYxLlRlcm1pbmFsU2Vzc2lvbkV2ZW50SABCCQoHcGF5bG9hZCIfCgxQb25nUmVzcG9uc2USDwoHcGF5bG9hZBgBIAEoDCKAAgoLQWNrUmVzcG9uc2USNgoMY3JlYXRlX29yZGVyGAEgASgLMh4ub3JkZXJzLnYxLkNyZWF0ZU9yZGVyUmVzcG9uc2VIABI2CgxjYW5jZWxfb3JkZXIYAiABKAsyHi5vcmRlcnMudjEuQ2FuY2VsT3JkZXJSZXNwb25zZUgAEjYKDG1vZGlmeV9vcmRlchgDIAEoCzIeLm9yZGVycy52MS5Nb2RpZnlPcmRlclJlc3BvbnNlSAASPwoRY2FuY2VsX2FsbF9vcmRlcnMYBCABKAsyIi5vcmRlcnMudjEuQ2FuY2VsQWxsT3JkZXJzUmVzcG9uc2VIAEIICgZyZXN1bHQiLQoNQ29tbWFuZFJlamVjdBIMCgRjb2RlGAEgASgJEg4KBmRldGFpbBgCIAEoCSIwChBPdmVybG9hZFJlc3BvbnNlEgwKBGNvZGUYASABKAkSDgoGZGV0YWlsGAIgASgJIjQKFFRlcm1pbmFsU2Vzc2lvbkV2ZW50EgwKBGNvZGUYASABKAkSDgoGZGV0YWlsGAIgASgJQkJaQGdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vdHJhZGV3cy92MTt0cmFkZXdzdjFiBnByb3RvMw", [file_orders_v1_orders]);
 
 /**
- * ClientFrame is the protobuf write-websocket envelope. The payloads reuse the
- * public Orders API DTOs so protobuf clients do not learn a second order model.
+ * ClientFrame is the protobuf write-websocket envelope. Its payloads reuse the
+ * public Orders API request contracts so every transport shares one order model.
  *
  * @generated from message tradews.v1.ClientFrame
  */
@@ -48,7 +48,8 @@ export type ClientFrame = Message<"tradews.v1.ClientFrame"> & {
     case: "ping";
   } | {
     /**
-     * Create-order command using the public Orders API DTO.
+     * Create-order command using the public Orders API request contract,
+     * including its required base-quantity or maximum-quote-debit sizing choice.
      *
      * @generated from field: orders.v1.CreateOrderRequest create_order = 11;
      */
@@ -56,7 +57,7 @@ export type ClientFrame = Message<"tradews.v1.ClientFrame"> & {
     case: "createOrder";
   } | {
     /**
-     * Cancel-order command using the public Orders API DTO.
+     * Cancel-order command using the public Orders API request contract.
      *
      * @generated from field: orders.v1.CancelOrderRequest cancel_order = 12;
      */
@@ -64,7 +65,7 @@ export type ClientFrame = Message<"tradews.v1.ClientFrame"> & {
     case: "cancelOrder";
   } | {
     /**
-     * Modify-order command using the public Orders API DTO.
+     * Modify-order command using the public Orders API request contract.
      *
      * @generated from field: orders.v1.ModifyOrderRequest modify_order = 13;
      */
@@ -72,7 +73,7 @@ export type ClientFrame = Message<"tradews.v1.ClientFrame"> & {
     case: "modifyOrder";
   } | {
     /**
-     * Cancel-all command using the public Orders API DTO.
+     * Cancel-all command using the public Orders API request contract.
      *
      * @generated from field: orders.v1.CancelAllOrdersRequest cancel_all_orders = 14;
      */
