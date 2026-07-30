@@ -7,7 +7,7 @@ import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf
 import { file_buf_validate_validate } from "../../buf/validate/validate_pb.js";
 import type { AccountCode, TransferCode } from "../../ledger/v1/catalog_pb.js";
 import { file_ledger_v1_catalog } from "../../ledger/v1/catalog_pb.js";
-import type { FeeSource, OrderType, SelfTradePreventionMode, Side, StopLossPolicy, TakeProfitPolicy, TimeInForce, TrailingStopPolicy } from "./orders_pb.js";
+import type { BatchReplaceAdmissionStatus, FeeAsset, OrderType, SelfTradePreventionMode, Side, StopLossPolicy, TakeProfitPolicy, TimeInForce, TrailingStopPolicy } from "./orders_pb.js";
 import { file_orders_v1_orders } from "./orders_pb.js";
 import type { U128 } from "../../polyester/type/v1/u128_pb.js";
 import { file_polyester_type_v1_u128 } from "../../polyester/type/v1/u128_pb.js";
@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file orders/v1/orders_read.proto.
  */
 export const file_orders_v1_orders_read: GenFile = /*@__PURE__*/
-  fileDesc("ChtvcmRlcnMvdjEvb3JkZXJzX3JlYWQucHJvdG8SCW9yZGVycy52MSLtAQoLT3JkZXJPcmlnaW4SNAoFc2NvcGUYASABKA4yGy5vcmRlcnMudjEuT3JkZXJPcmlnaW5TY29wZUIIukgFggECEAESOwoMdHJpZ2dlcl90eXBlGAIgASgOMhsub3JkZXJzLnYxLk9yZGVyVHJpZ2dlclR5cGVCCLpIBYIBAhABEhcKCnRyaWdnZXJfaWQYAyABKAZIAIgBARIcCg9wYXJlbnRfb3JkZXJfaWQYBCABKAZIAYgBARIRCgljaGlsZF9zZXEYBSABKA1CDQoLX3RyaWdnZXJfaWRCEgoQX3BhcmVudF9vcmRlcl9pZCLuAgoUQXR0YWNoZWRSaXNrTGVnU3RhdGUSQAoGc3RhdHVzGAEgASgOMiYub3JkZXJzLnYxLkF0dGFjaGVkUmlza0xlZ1N0YXRlLlN0YXR1c0IIukgFggECEAESEwoLYXJtZWRfdHNfbnMYAiABKAQSFgoOdGVybWluYWxfdHNfbnMYAyABKAQSFwoKdHJpZ2dlcl9pZBgEIAEoBkgAiAEBEhsKDmNoaWxkX29yZGVyX2lkGAUgASgGSAGIAQEijgEKBlN0YXR1cxIWChJTVEFUVVNfVU5TUEVDSUZJRUQQABISCg5OT1RfQ09ORklHVVJFRBABEgsKB0NSRUFURUQQAhIJCgVBUk1FRBADEgsKB1JVTk5JTkcQBBINCglDT01QTEVURUQQBRIMCghDQU5DRUxFRBAGEgoKBkZBSUxFRBAHEgoKBlBBVVNFRBAIQg0KC190cmlnZ2VyX2lkQhEKD19jaGlsZF9vcmRlcl9pZCJ1ChZBdHRhY2hlZFJpc2tUYWtlUHJvZml0EisKBnBvbGljeRgBIAEoCzIbLm9yZGVycy52MS5UYWtlUHJvZml0UG9saWN5Ei4KBXN0YXRlGAIgASgLMh8ub3JkZXJzLnYxLkF0dGFjaGVkUmlza0xlZ1N0YXRlInEKFEF0dGFjaGVkUmlza1N0b3BMb3NzEikKBnBvbGljeRgBIAEoCzIZLm9yZGVycy52MS5TdG9wTG9zc1BvbGljeRIuCgVzdGF0ZRgCIAEoCzIfLm9yZGVycy52MS5BdHRhY2hlZFJpc2tMZWdTdGF0ZSJ5ChhBdHRhY2hlZFJpc2tUcmFpbGluZ1N0b3ASLQoGcG9saWN5GAEgASgLMh0ub3JkZXJzLnYxLlRyYWlsaW5nU3RvcFBvbGljeRIuCgVzdGF0ZRgCIAEoCzIfLm9yZGVycy52MS5BdHRhY2hlZFJpc2tMZWdTdGF0ZSLDAQoMQXR0YWNoZWRSaXNrEjYKC3Rha2VfcHJvZml0GAEgASgLMiEub3JkZXJzLnYxLkF0dGFjaGVkUmlza1Rha2VQcm9maXQSMgoJc3RvcF9sb3NzGAIgASgLMh8ub3JkZXJzLnYxLkF0dGFjaGVkUmlza1N0b3BMb3NzEjoKDXRyYWlsaW5nX3N0b3AYAyABKAsyIy5vcmRlcnMudjEuQXR0YWNoZWRSaXNrVHJhaWxpbmdTdG9wEgsKA29jbxgEIAEoCCLVBgoFT3JkZXISEAoIb3JkZXJfaWQYASABKAYSEQoJc3ltYm9sX2lkGAMgASgNEjUKD2NsaWVudF9vcmRlcl9pZBgEIAEoCUIcukgZchcYJDITXltBLVphLXowLTkuXzovLV0qJBInCgRzaWRlGAUgASgOMg8ub3JkZXJzLnYxLlNpZGVCCLpIBYIBAhABEiYKBnN0YXR1cxgGIAEoDjIWLm9yZGVycy52MS5PcmRlclN0YXR1cxIoCgpvcmRlcl90eXBlGAcgASgOMhQub3JkZXJzLnYxLk9yZGVyVHlwZRItCg10aW1lX2luX2ZvcmNlGAggASgOMhYub3JkZXJzLnYxLlRpbWVJbkZvcmNlEkYKGnNlbGZfdHJhZGVfcHJldmVudGlvbl9tb2RlGAkgASgOMiIub3JkZXJzLnYxLlNlbGZUcmFkZVByZXZlbnRpb25Nb2RlEigKCmZlZV9zb3VyY2UYCiABKA4yFC5vcmRlcnMudjEuRmVlU291cmNlEhEKCXBvc3Rfb25seRgLIAEoCBIXCg9vcmlnX3F0eV9zY2FsZWQYDCABKAMSFgoOY3VtX3F0eV9zY2FsZWQYDSABKAMSGQoRbGVhdmVzX3F0eV9zY2FsZWQYFCABKAMSFwoPYXZnX3ByaWNlX3RpY2tzGA4gASgDEhMKC3ByaWNlX3RpY2tzGA8gASgDEhUKDWNyZWF0ZWRfdHNfbnMYECABKAQSFgoOdGVybWluYWxfdHNfbnMYESABKAQSHAoUdGVybWluYWxfcmVhc29uX2NvZGUYEiABKA0SFwoPdGVybWluYWxfcmVhc29uGBMgASgJEi4KDWF0dGFjaGVkX3Jpc2sYFSABKAsyFy5vcmRlcnMudjEuQXR0YWNoZWRSaXNrEiYKBm9yaWdpbhgWIAEoCzIWLm9yZGVycy52MS5PcmRlck9yaWdpbhIlCh1tYXJrZXRfY2xpZW50X3JlZl9wcmljZV90aWNrcxgXIAEoAxIhChltYXJrZXRfbWF4X3NsaXBwYWdlX3RpY2tzGBggASgFEh8KF21hcmtldF9tYXhfc2xpcHBhZ2VfYnBzGBkgASgFEh4KB3ZlcnNpb24YGiABKA1CDbpICioIGP////8HKAEikgIKCVVzZXJUcmFkZRIRCglzeW1ib2xfaWQYAiABKA0SEAoIbWF0Y2hfaWQYAyABKAQSEAoIb3JkZXJfaWQYBCABKAYSJwoEc2lkZRgFIAEoDjIPLm9yZGVycy52MS5TaWRlQgi6SAWCAQIQARIQCghpc19tYWtlchgGIAEoCBITCgtwcmljZV90aWNrcxgHIAEoAxISCgpxdHlfc2NhbGVkGAggASgDEhIKCmZlZV9zY2FsZWQYCSABKAMSKAoKZmVlX3NvdXJjZRgKIAEoDjIULm9yZGVycy52MS5GZWVTb3VyY2USHQoVcmVmZXJyYWxfc2hhcmVfc2NhbGVkGAwgASgDEg0KBXRzX25zGA0gASgEIu4BCg1PcmRlclRyYW5zZmVyEhAKCG1hdGNoX2lkGAEgASgEEhAKCGFzc2V0X2lkGAIgASgNEisKCmFtb3VudF9lMTgYAyABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EhAKCGlzX2RlYml0GAUgASgIEi4KDXRyYW5zZmVyX2NvZGUYBiABKA4yFy5sZWRnZXIudjEuVHJhbnNmZXJDb2RlEiwKDGFjY291bnRfY29kZRgHIAEoDjIWLmxlZGdlci52MS5BY2NvdW50Q29kZRINCgV0c19ucxgIIAEoBBINCgV0eF9pZBgJIAEoCSLyAgoUR2V0T3Blbk9yZGVyc1JlcXVlc3QSKgoNc3ViYWNjb3VudF9pZBgBIAEoBkIOukgLUgkhAAAAAAAAAABIAIgBARIjCglzeW1ib2xfaWQYAiADKA1CELpIDZIBChBkGAEiBCoCIAASJwoEc2lkZRgDIAEoDjIPLm9yZGVycy52MS5TaWRlQgi6SAWCAQIQARIeCgVsaW1pdBgKIAEoDUIKukgHKgUY6AcoAUgBiAEBEhwKCnBhZ2VfdG9rZW4YCyABKAlCCLpIBXIDGIAEEiIKFWluY2x1ZGVfYXR0YWNoZWRfcmlzaxgMIAEoCEgCiAEBEigKG2luY2x1ZGVfYXR0YWNoZWRfcmlza19zdGF0ZRgNIAEoCEgDiAEBQhAKDl9zdWJhY2NvdW50X2lkQggKBl9saW1pdEIYChZfaW5jbHVkZV9hdHRhY2hlZF9yaXNrQh4KHF9pbmNsdWRlX2F0dGFjaGVkX3Jpc2tfc3RhdGUiXAoVR2V0T3Blbk9yZGVyc1Jlc3BvbnNlEiAKBm9yZGVycxgBIAMoCzIQLm9yZGVycy52MS5PcmRlchIhCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCCLpIBXIDGIAEIrMFChZHZXRPcmRlckhpc3RvcnlSZXF1ZXN0EioKDXN1YmFjY291bnRfaWQYASABKAZCDrpIC1IJIQAAAAAAAAAASACIAQESIwoJc3ltYm9sX2lkGAIgAygNQhC6SA2SAQoQZBgBIgQqAiAAEicKBHNpZGUYAyABKA4yDy5vcmRlcnMudjEuU2lkZUIIukgFggECEAESMAoGc3RhdHVzGAQgASgOMhYub3JkZXJzLnYxLk9yZGVyU3RhdHVzQgi6SAWCAQIQARIYCgtzdGFydF90c19ucxgKIAEoBEgBiAEBEhYKCWVuZF90c19ucxgLIAEoBEgCiAEBEh4KBWxpbWl0GAwgASgNQgq6SAcqBRjoBygBSAOIAQESHAoKcGFnZV90b2tlbhgNIAEoCUIIukgFcgMYgAQSIgoVaW5jbHVkZV9hdHRhY2hlZF9yaXNrGA4gASgISASIAQESKAobaW5jbHVkZV9hdHRhY2hlZF9yaXNrX3N0YXRlGA8gASgISAWIAQE6ugG6SLYBGrMBCiVvcmRlcnNfaGlzdG9yeV9iaW4ub3JkZXJlZF90aW1lX3JhbmdlEjJzdGFydF90c19ucyBtdXN0IGJlIDw9IGVuZF90c19ucyB3aGVuIGJvdGggYXJlIHNldBpWIWhhcyh0aGlzLnN0YXJ0X3RzX25zKSB8fCAhaGFzKHRoaXMuZW5kX3RzX25zKSB8fCAodGhpcy5zdGFydF90c19ucyA8PSB0aGlzLmVuZF90c19ucylCEAoOX3N1YmFjY291bnRfaWRCDgoMX3N0YXJ0X3RzX25zQgwKCl9lbmRfdHNfbnNCCAoGX2xpbWl0QhgKFl9pbmNsdWRlX2F0dGFjaGVkX3Jpc2tCHgocX2luY2x1ZGVfYXR0YWNoZWRfcmlza19zdGF0ZSJeChdHZXRPcmRlckhpc3RvcnlSZXNwb25zZRIgCgZvcmRlcnMYASADKAsyEC5vcmRlcnMudjEuT3JkZXISIQoPbmV4dF9wYWdlX3Rva2VuGAIgASgJQgi6SAVyAxiABCLuAwoUR2V0VXNlclRyYWRlc1JlcXVlc3QSKgoNc3ViYWNjb3VudF9pZBgBIAEoBkIOukgLUgkhAAAAAAAAAABIAIgBARIdCglzeW1ib2xfaWQYAiABKA1CCrpIB9gBASoCIAASJwoEc2lkZRgDIAEoDjIPLm9yZGVycy52MS5TaWRlQgi6SAWCAQIQARIYCgtzdGFydF90c19ucxgKIAEoBEgBiAEBEhYKCWVuZF90c19ucxgLIAEoBEgCiAEBEh4KBWxpbWl0GAwgASgNQgq6SAcqBRjoBygBSAOIAQESHAoKcGFnZV90b2tlbhgNIAEoCUIIukgFcgMYgAQ6twG6SLMBGrABCiJ1c2VyX3RyYWRlc19iaW4ub3JkZXJlZF90aW1lX3JhbmdlEjJzdGFydF90c19ucyBtdXN0IGJlIDw9IGVuZF90c19ucyB3aGVuIGJvdGggYXJlIHNldBpWIWhhcyh0aGlzLnN0YXJ0X3RzX25zKSB8fCAhaGFzKHRoaXMuZW5kX3RzX25zKSB8fCAodGhpcy5zdGFydF90c19ucyA8PSB0aGlzLmVuZF90c19ucylCEAoOX3N1YmFjY291bnRfaWRCDgoMX3N0YXJ0X3RzX25zQgwKCl9lbmRfdHNfbnNCCAoGX2xpbWl0ImAKFUdldFVzZXJUcmFkZXNSZXNwb25zZRIkCgZ0cmFkZXMYASADKAsyFC5vcmRlcnMudjEuVXNlclRyYWRlEiEKD25leHRfcGFnZV90b2tlbhgCIAEoCUIIukgFcgMYgAQixAIKD0dldE9yZGVyUmVxdWVzdBIqCg1zdWJhY2NvdW50X2lkGAEgASgGQg66SAtSCSEAAAAAAAAAAEgBiAEBEiIKCG9yZGVyX2lkGAIgASgGQg66SAtSCSEAAAAAAAAAAEgAEjkKD2NsaWVudF9vcmRlcl9pZBgDIAEoCUIeukgbchkQARgkMhNeW0EtWmEtejAtOS5fOi8tXSskSAASIgoVaW5jbHVkZV9hdHRhY2hlZF9yaXNrGAogASgISAKIAQESKAobaW5jbHVkZV9hdHRhY2hlZF9yaXNrX3N0YXRlGAsgASgISAOIAQFCDAoDa2V5EgW6SAIIAUIQCg5fc3ViYWNjb3VudF9pZEIYChZfaW5jbHVkZV9hdHRhY2hlZF9yaXNrQh4KHF9pbmNsdWRlX2F0dGFjaGVkX3Jpc2tfc3RhdGUihgEKEEdldE9yZGVyUmVzcG9uc2USHwoFb3JkZXIYASABKAsyEC5vcmRlcnMudjEuT3JkZXISJAoGdHJhZGVzGAIgAygLMhQub3JkZXJzLnYxLlVzZXJUcmFkZRIrCgl0cmFuc2ZlcnMYAyADKAsyGC5vcmRlcnMudjEuT3JkZXJUcmFuc2ZlciqBAQoLT3JkZXJTdGF0dXMSHAoYT1JERVJfU1RBVFVTX1VOU1BFQ0lGSUVEEAASCwoHUEVORElORxABEhIKDlBFTkRJTkdfQ0FOQ0VMEAISCwoHV09SS0lORxADEgoKBkZJTExFRBAEEgwKCENBTkNFTEVEEAUSDAoIUkVKRUNURUQQBip5ChBPcmRlck9yaWdpblNjb3BlEiIKHk9SREVSX09SSUdJTl9TQ09QRV9VTlNQRUNJRklFRBAAEgoKBkRJUkVDVBABEhEKDUFUVEFDSEVEX1JJU0sQAhIWChJTVEFOREFMT05FX1RSSUdHRVIQAxIKCgZTWVNURU0QBCp/ChBPcmRlclRyaWdnZXJUeXBlEiIKHk9SREVSX1RSSUdHRVJfVFlQRV9VTlNQRUNJRklFRBAAEg0KCVNUT1BfTE9TUxABEg8KC1RBS0VfUFJPRklUEAISEQoNVFJBSUxJTkdfU1RPUBADEggKBFRXQVAQBBIKCgZMQURERVIQBTLiAgoRT3JkZXJzUmVhZFNlcnZpY2USVAoNR2V0T3Blbk9yZGVycxIfLm9yZGVycy52MS5HZXRPcGVuT3JkZXJzUmVxdWVzdBogLm9yZGVycy52MS5HZXRPcGVuT3JkZXJzUmVzcG9uc2UiABJaCg9HZXRPcmRlckhpc3RvcnkSIS5vcmRlcnMudjEuR2V0T3JkZXJIaXN0b3J5UmVxdWVzdBoiLm9yZGVycy52MS5HZXRPcmRlckhpc3RvcnlSZXNwb25zZSIAElQKDUdldFVzZXJUcmFkZXMSHy5vcmRlcnMudjEuR2V0VXNlclRyYWRlc1JlcXVlc3QaIC5vcmRlcnMudjEuR2V0VXNlclRyYWRlc1Jlc3BvbnNlIgASRQoIR2V0T3JkZXISGi5vcmRlcnMudjEuR2V0T3JkZXJSZXF1ZXN0Ghsub3JkZXJzLnYxLkdldE9yZGVyUmVzcG9uc2UiAEJAWj5naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL29yZGVycy92MTtvcmRlcnN2MWIGcHJvdG8z", [file_buf_validate_validate, file_ledger_v1_catalog, file_orders_v1_orders, file_polyester_type_v1_u128]);
+  fileDesc("ChtvcmRlcnMvdjEvb3JkZXJzX3JlYWQucHJvdG8SCW9yZGVycy52MSLtAQoLT3JkZXJPcmlnaW4SNAoFc2NvcGUYASABKA4yGy5vcmRlcnMudjEuT3JkZXJPcmlnaW5TY29wZUIIukgFggECEAESOwoMdHJpZ2dlcl90eXBlGAIgASgOMhsub3JkZXJzLnYxLk9yZGVyVHJpZ2dlclR5cGVCCLpIBYIBAhABEhcKCnRyaWdnZXJfaWQYAyABKAZIAIgBARIcCg9wYXJlbnRfb3JkZXJfaWQYBCABKAZIAYgBARIRCgljaGlsZF9zZXEYBSABKA1CDQoLX3RyaWdnZXJfaWRCEgoQX3BhcmVudF9vcmRlcl9pZCLuAgoUQXR0YWNoZWRSaXNrTGVnU3RhdGUSQAoGc3RhdHVzGAEgASgOMiYub3JkZXJzLnYxLkF0dGFjaGVkUmlza0xlZ1N0YXRlLlN0YXR1c0IIukgFggECEAESEwoLYXJtZWRfdHNfbnMYAiABKAQSFgoOdGVybWluYWxfdHNfbnMYAyABKAQSFwoKdHJpZ2dlcl9pZBgEIAEoBkgAiAEBEhsKDmNoaWxkX29yZGVyX2lkGAUgASgGSAGIAQEijgEKBlN0YXR1cxIWChJTVEFUVVNfVU5TUEVDSUZJRUQQABISCg5OT1RfQ09ORklHVVJFRBABEgsKB0NSRUFURUQQAhIJCgVBUk1FRBADEgsKB1JVTk5JTkcQBBINCglDT01QTEVURUQQBRIMCghDQU5DRUxFRBAGEgoKBkZBSUxFRBAHEgoKBlBBVVNFRBAIQg0KC190cmlnZ2VyX2lkQhEKD19jaGlsZF9vcmRlcl9pZCJ1ChZBdHRhY2hlZFJpc2tUYWtlUHJvZml0EisKBnBvbGljeRgBIAEoCzIbLm9yZGVycy52MS5UYWtlUHJvZml0UG9saWN5Ei4KBXN0YXRlGAIgASgLMh8ub3JkZXJzLnYxLkF0dGFjaGVkUmlza0xlZ1N0YXRlInEKFEF0dGFjaGVkUmlza1N0b3BMb3NzEikKBnBvbGljeRgBIAEoCzIZLm9yZGVycy52MS5TdG9wTG9zc1BvbGljeRIuCgVzdGF0ZRgCIAEoCzIfLm9yZGVycy52MS5BdHRhY2hlZFJpc2tMZWdTdGF0ZSJ5ChhBdHRhY2hlZFJpc2tUcmFpbGluZ1N0b3ASLQoGcG9saWN5GAEgASgLMh0ub3JkZXJzLnYxLlRyYWlsaW5nU3RvcFBvbGljeRIuCgVzdGF0ZRgCIAEoCzIfLm9yZGVycy52MS5BdHRhY2hlZFJpc2tMZWdTdGF0ZSLDAQoMQXR0YWNoZWRSaXNrEjYKC3Rha2VfcHJvZml0GAEgASgLMiEub3JkZXJzLnYxLkF0dGFjaGVkUmlza1Rha2VQcm9maXQSMgoJc3RvcF9sb3NzGAIgASgLMh8ub3JkZXJzLnYxLkF0dGFjaGVkUmlza1N0b3BMb3NzEjoKDXRyYWlsaW5nX3N0b3AYAyABKAsyIy5vcmRlcnMudjEuQXR0YWNoZWRSaXNrVHJhaWxpbmdTdG9wEgsKA29jbxgEIAEoCCLBBwoFT3JkZXISEAoIb3JkZXJfaWQYASABKAYSEQoJc3ltYm9sX2lkGAMgASgNEjUKD2NsaWVudF9vcmRlcl9pZBgEIAEoCUIcukgZchcYJDITXltBLVphLXowLTkuXzovLV0qJBInCgRzaWRlGAUgASgOMg8ub3JkZXJzLnYxLlNpZGVCCLpIBYIBAhABEiYKBnN0YXR1cxgGIAEoDjIWLm9yZGVycy52MS5PcmRlclN0YXR1cxIoCgpvcmRlcl90eXBlGAcgASgOMhQub3JkZXJzLnYxLk9yZGVyVHlwZRItCg10aW1lX2luX2ZvcmNlGAggASgOMhYub3JkZXJzLnYxLlRpbWVJbkZvcmNlEkYKGnNlbGZfdHJhZGVfcHJldmVudGlvbl9tb2RlGAkgASgOMiIub3JkZXJzLnYxLlNlbGZUcmFkZVByZXZlbnRpb25Nb2RlEiYKCWZlZV9hc3NldBgKIAEoDjITLm9yZGVycy52MS5GZWVBc3NldBIRCglwb3N0X29ubHkYCyABKAgSFwoPb3JpZ19xdHlfc2NhbGVkGAwgASgDEhYKDmN1bV9xdHlfc2NhbGVkGA0gASgDEhkKEWxlYXZlc19xdHlfc2NhbGVkGBQgASgDEhcKD2F2Z19wcmljZV90aWNrcxgOIAEoAxITCgtwcmljZV90aWNrcxgPIAEoAxIVCg1jcmVhdGVkX3RzX25zGBAgASgEEhYKDnRlcm1pbmFsX3RzX25zGBEgASgEEhwKFHRlcm1pbmFsX3JlYXNvbl9jb2RlGBIgASgNEhcKD3Rlcm1pbmFsX3JlYXNvbhgTIAEoCRIuCg1hdHRhY2hlZF9yaXNrGBUgASgLMhcub3JkZXJzLnYxLkF0dGFjaGVkUmlzaxImCgZvcmlnaW4YFiABKAsyFi5vcmRlcnMudjEuT3JkZXJPcmlnaW4SJQodbWFya2V0X2NsaWVudF9yZWZfcHJpY2VfdGlja3MYFyABKAMSIQoZbWFya2V0X21heF9zbGlwcGFnZV90aWNrcxgYIAEoBRIfChdtYXJrZXRfbWF4X3NsaXBwYWdlX2JwcxgZIAEoBRIeCgd2ZXJzaW9uGBogASgNQg26SAoqCBj/////BygBEhgKEGJhdGNoX3JlcXVlc3RfaWQYGyABKAYSLQogc3VibWl0dGVkX21heF9xdW90ZV9kZWJpdF9zY2FsZWQYHCABKANIAIgBAUIjCiFfc3VibWl0dGVkX21heF9xdW90ZV9kZWJpdF9zY2FsZWQikAIKCVVzZXJUcmFkZRIRCglzeW1ib2xfaWQYAiABKA0SEAoIbWF0Y2hfaWQYAyABKAQSEAoIb3JkZXJfaWQYBCABKAYSJwoEc2lkZRgFIAEoDjIPLm9yZGVycy52MS5TaWRlQgi6SAWCAQIQARIQCghpc19tYWtlchgGIAEoCBITCgtwcmljZV90aWNrcxgHIAEoAxISCgpxdHlfc2NhbGVkGAggASgDEhIKCmZlZV9zY2FsZWQYCSABKAMSJgoJZmVlX2Fzc2V0GAogASgOMhMub3JkZXJzLnYxLkZlZUFzc2V0Eh0KFXJlZmVycmFsX3NoYXJlX3NjYWxlZBgMIAEoAxINCgV0c19ucxgNIAEoBCLuAQoNT3JkZXJUcmFuc2ZlchIQCghtYXRjaF9pZBgBIAEoBBIQCghhc3NldF9pZBgCIAEoDRIrCgphbW91bnRfZTE4GAMgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIQCghpc19kZWJpdBgFIAEoCBIuCg10cmFuc2Zlcl9jb2RlGAYgASgOMhcubGVkZ2VyLnYxLlRyYW5zZmVyQ29kZRIsCgxhY2NvdW50X2NvZGUYByABKA4yFi5sZWRnZXIudjEuQWNjb3VudENvZGUSDQoFdHNfbnMYCCABKAQSDQoFdHhfaWQYCSABKAki8gIKFEdldE9wZW5PcmRlcnNSZXF1ZXN0EioKDXN1YmFjY291bnRfaWQYASABKAZCDrpIC1IJIQAAAAAAAAAASACIAQESIwoJc3ltYm9sX2lkGAIgAygNQhC6SA2SAQoQZBgBIgQqAiAAEicKBHNpZGUYAyABKA4yDy5vcmRlcnMudjEuU2lkZUIIukgFggECEAESHgoFbGltaXQYCiABKA1CCrpIByoFGOgHKAFIAYgBARIcCgpwYWdlX3Rva2VuGAsgASgJQgi6SAVyAxiABBIiChVpbmNsdWRlX2F0dGFjaGVkX3Jpc2sYDCABKAhIAogBARIoChtpbmNsdWRlX2F0dGFjaGVkX3Jpc2tfc3RhdGUYDSABKAhIA4gBAUIQCg5fc3ViYWNjb3VudF9pZEIICgZfbGltaXRCGAoWX2luY2x1ZGVfYXR0YWNoZWRfcmlza0IeChxfaW5jbHVkZV9hdHRhY2hlZF9yaXNrX3N0YXRlIlwKFUdldE9wZW5PcmRlcnNSZXNwb25zZRIgCgZvcmRlcnMYASADKAsyEC5vcmRlcnMudjEuT3JkZXISIQoPbmV4dF9wYWdlX3Rva2VuGAIgASgJQgi6SAVyAxiABCKzBQoWR2V0T3JkZXJIaXN0b3J5UmVxdWVzdBIqCg1zdWJhY2NvdW50X2lkGAEgASgGQg66SAtSCSEAAAAAAAAAAEgAiAEBEiMKCXN5bWJvbF9pZBgCIAMoDUIQukgNkgEKEGQYASIEKgIgABInCgRzaWRlGAMgASgOMg8ub3JkZXJzLnYxLlNpZGVCCLpIBYIBAhABEjAKBnN0YXR1cxgEIAEoDjIWLm9yZGVycy52MS5PcmRlclN0YXR1c0IIukgFggECEAESGAoLc3RhcnRfdHNfbnMYCiABKARIAYgBARIWCgllbmRfdHNfbnMYCyABKARIAogBARIeCgVsaW1pdBgMIAEoDUIKukgHKgUY6AcoAUgDiAEBEhwKCnBhZ2VfdG9rZW4YDSABKAlCCLpIBXIDGIAEEiIKFWluY2x1ZGVfYXR0YWNoZWRfcmlzaxgOIAEoCEgEiAEBEigKG2luY2x1ZGVfYXR0YWNoZWRfcmlza19zdGF0ZRgPIAEoCEgFiAEBOroBuki2ARqzAQolb3JkZXJzX2hpc3RvcnlfYmluLm9yZGVyZWRfdGltZV9yYW5nZRIyc3RhcnRfdHNfbnMgbXVzdCBiZSA8PSBlbmRfdHNfbnMgd2hlbiBib3RoIGFyZSBzZXQaViFoYXModGhpcy5zdGFydF90c19ucykgfHwgIWhhcyh0aGlzLmVuZF90c19ucykgfHwgKHRoaXMuc3RhcnRfdHNfbnMgPD0gdGhpcy5lbmRfdHNfbnMpQhAKDl9zdWJhY2NvdW50X2lkQg4KDF9zdGFydF90c19uc0IMCgpfZW5kX3RzX25zQggKBl9saW1pdEIYChZfaW5jbHVkZV9hdHRhY2hlZF9yaXNrQh4KHF9pbmNsdWRlX2F0dGFjaGVkX3Jpc2tfc3RhdGUiXgoXR2V0T3JkZXJIaXN0b3J5UmVzcG9uc2USIAoGb3JkZXJzGAEgAygLMhAub3JkZXJzLnYxLk9yZGVyEiEKD25leHRfcGFnZV90b2tlbhgCIAEoCUIIukgFcgMYgAQi7gMKFEdldFVzZXJUcmFkZXNSZXF1ZXN0EioKDXN1YmFjY291bnRfaWQYASABKAZCDrpIC1IJIQAAAAAAAAAASACIAQESHQoJc3ltYm9sX2lkGAIgASgNQgq6SAfYAQEqAiAAEicKBHNpZGUYAyABKA4yDy5vcmRlcnMudjEuU2lkZUIIukgFggECEAESGAoLc3RhcnRfdHNfbnMYCiABKARIAYgBARIWCgllbmRfdHNfbnMYCyABKARIAogBARIeCgVsaW1pdBgMIAEoDUIKukgHKgUY6AcoAUgDiAEBEhwKCnBhZ2VfdG9rZW4YDSABKAlCCLpIBXIDGIAEOrcBukizARqwAQoidXNlcl90cmFkZXNfYmluLm9yZGVyZWRfdGltZV9yYW5nZRIyc3RhcnRfdHNfbnMgbXVzdCBiZSA8PSBlbmRfdHNfbnMgd2hlbiBib3RoIGFyZSBzZXQaViFoYXModGhpcy5zdGFydF90c19ucykgfHwgIWhhcyh0aGlzLmVuZF90c19ucykgfHwgKHRoaXMuc3RhcnRfdHNfbnMgPD0gdGhpcy5lbmRfdHNfbnMpQhAKDl9zdWJhY2NvdW50X2lkQg4KDF9zdGFydF90c19uc0IMCgpfZW5kX3RzX25zQggKBl9saW1pdCJgChVHZXRVc2VyVHJhZGVzUmVzcG9uc2USJAoGdHJhZGVzGAEgAygLMhQub3JkZXJzLnYxLlVzZXJUcmFkZRIhCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCCLpIBXIDGIAEIsQCCg9HZXRPcmRlclJlcXVlc3QSKgoNc3ViYWNjb3VudF9pZBgBIAEoBkIOukgLUgkhAAAAAAAAAABIAYgBARIiCghvcmRlcl9pZBgCIAEoBkIOukgLUgkhAAAAAAAAAABIABI5Cg9jbGllbnRfb3JkZXJfaWQYAyABKAlCHrpIG3IZEAEYJDITXltBLVphLXowLTkuXzovLV0rJEgAEiIKFWluY2x1ZGVfYXR0YWNoZWRfcmlzaxgKIAEoCEgCiAEBEigKG2luY2x1ZGVfYXR0YWNoZWRfcmlza19zdGF0ZRgLIAEoCEgDiAEBQgwKA2tleRIFukgCCAFCEAoOX3N1YmFjY291bnRfaWRCGAoWX2luY2x1ZGVfYXR0YWNoZWRfcmlza0IeChxfaW5jbHVkZV9hdHRhY2hlZF9yaXNrX3N0YXRlIoYBChBHZXRPcmRlclJlc3BvbnNlEh8KBW9yZGVyGAEgASgLMhAub3JkZXJzLnYxLk9yZGVyEiQKBnRyYWRlcxgCIAMoCzIULm9yZGVycy52MS5Vc2VyVHJhZGUSKwoJdHJhbnNmZXJzGAMgAygLMhgub3JkZXJzLnYxLk9yZGVyVHJhbnNmZXIihgEKHEdldEJhdGNoUmVwbGFjZVN0YXR1c1JlcXVlc3QSKgoNc3ViYWNjb3VudF9pZBgBIAEoBkIOukgLUgkhAAAAAAAAAABIAIgBARIoChBiYXRjaF9yZXF1ZXN0X2lkGAIgASgGQg66SAtSCSEAAAAAAAAAAEIQCg5fc3ViYWNjb3VudF9pZCLgAQoWQmF0Y2hSZXBsYWNlU3RhdHVzSXRlbRISCgppdGVtX2luZGV4GAEgASgNEisKBXBoYXNlGAIgASgOMhwub3JkZXJzLnYxLkJhdGNoUmVwbGFjZVBoYXNlEhQKDG9sZF9vcmRlcl9pZBgDIAEoBhIcChRyZXBsYWNlbWVudF9vcmRlcl9pZBgEIAEoBhIsCgxvcmRlcl9zdGF0dXMYBSABKA4yFi5vcmRlcnMudjEuT3JkZXJTdGF0dXMSDAoEY29kZRgGIAEoCRIVCg11cGRhdGVkX3RzX25zGAcgASgEIowCCh1HZXRCYXRjaFJlcGxhY2VTdGF0dXNSZXNwb25zZRIYChBiYXRjaF9yZXF1ZXN0X2lkGAEgASgGEkAKEGFkbWlzc2lvbl9zdGF0dXMYAiABKA4yJi5vcmRlcnMudjEuQmF0Y2hSZXBsYWNlQWRtaXNzaW9uU3RhdHVzEjAKBWl0ZW1zGAMgAygLMiEub3JkZXJzLnYxLkJhdGNoUmVwbGFjZVN0YXR1c0l0ZW0SFgoOYWNjZXB0ZWRfY291bnQYBCABKA0SFgoOcmVqZWN0ZWRfY291bnQYBSABKA0SFgoOYWNjZXB0ZWRfdHNfbnMYBiABKAQSFQoNdXBkYXRlZF90c19ucxgHIAEoBCqBAQoLT3JkZXJTdGF0dXMSHAoYT1JERVJfU1RBVFVTX1VOU1BFQ0lGSUVEEAASCwoHUEVORElORxABEhIKDlBFTkRJTkdfQ0FOQ0VMEAISCwoHV09SS0lORxADEgoKBkZJTExFRBAEEgwKCENBTkNFTEVEEAUSDAoIUkVKRUNURUQQBiq/AQoRQmF0Y2hSZXBsYWNlUGhhc2USIwofQkFUQ0hfUkVQTEFDRV9QSEFTRV9VTlNQRUNJRklFRBAAEiAKHEJBVENIX1JFUExBQ0VfUEhBU0VfQURNSVRURUQQARIfChtCQVRDSF9SRVBMQUNFX1BIQVNFX1dPUktJTkcQAhIgChxCQVRDSF9SRVBMQUNFX1BIQVNFX1JFSkVDVEVEEAMSIAocQkFUQ0hfUkVQTEFDRV9QSEFTRV9URVJNSU5BTBAEKnkKEE9yZGVyT3JpZ2luU2NvcGUSIgoeT1JERVJfT1JJR0lOX1NDT1BFX1VOU1BFQ0lGSUVEEAASCgoGRElSRUNUEAESEQoNQVRUQUNIRURfUklTSxACEhYKElNUQU5EQUxPTkVfVFJJR0dFUhADEgoKBlNZU1RFTRAEKn8KEE9yZGVyVHJpZ2dlclR5cGUSIgoeT1JERVJfVFJJR0dFUl9UWVBFX1VOU1BFQ0lGSUVEEAASDQoJU1RPUF9MT1NTEAESDwoLVEFLRV9QUk9GSVQQAhIRCg1UUkFJTElOR19TVE9QEAMSCAoEVFdBUBAEEgoKBkxBRERFUhAFMtADChFPcmRlcnNSZWFkU2VydmljZRJUCg1HZXRPcGVuT3JkZXJzEh8ub3JkZXJzLnYxLkdldE9wZW5PcmRlcnNSZXF1ZXN0GiAub3JkZXJzLnYxLkdldE9wZW5PcmRlcnNSZXNwb25zZSIAEloKD0dldE9yZGVySGlzdG9yeRIhLm9yZGVycy52MS5HZXRPcmRlckhpc3RvcnlSZXF1ZXN0GiIub3JkZXJzLnYxLkdldE9yZGVySGlzdG9yeVJlc3BvbnNlIgASVAoNR2V0VXNlclRyYWRlcxIfLm9yZGVycy52MS5HZXRVc2VyVHJhZGVzUmVxdWVzdBogLm9yZGVycy52MS5HZXRVc2VyVHJhZGVzUmVzcG9uc2UiABJFCghHZXRPcmRlchIaLm9yZGVycy52MS5HZXRPcmRlclJlcXVlc3QaGy5vcmRlcnMudjEuR2V0T3JkZXJSZXNwb25zZSIAEmwKFUdldEJhdGNoUmVwbGFjZVN0YXR1cxInLm9yZGVycy52MS5HZXRCYXRjaFJlcGxhY2VTdGF0dXNSZXF1ZXN0Gigub3JkZXJzLnYxLkdldEJhdGNoUmVwbGFjZVN0YXR1c1Jlc3BvbnNlIgBCQFo+Z2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9vcmRlcnMvdjE7b3JkZXJzdjFiBnByb3RvMw", [file_buf_validate_validate, file_ledger_v1_catalog, file_orders_v1_orders, file_polyester_type_v1_u128]);
 
 /**
  * OrderOrigin explains why an order exists and where it came from.
@@ -389,12 +389,12 @@ export type Order = Message<"orders.v1.Order"> & {
   selfTradePreventionMode: SelfTradePreventionMode;
 
   /**
-   * Fee source selected for BUY fills. This also determines the decode scale
+   * Fee asset selected for fills. This also determines the decode scale
    * for fee_scaled and referral_share_scaled on user trade rows.
    *
-   * @generated from field: orders.v1.FeeSource fee_source = 10;
+   * @generated from field: orders.v1.FeeAsset fee_asset = 10;
    */
-  feeSource: FeeSource;
+  feeAsset: FeeAsset;
 
   /**
    * True if the order was submitted as post-only (maker-only).
@@ -514,6 +514,22 @@ export type Order = Message<"orders.v1.Order"> & {
    * @generated from field: uint32 version = 26;
    */
   version: number;
+
+  /**
+   * Batch-replace identity that admitted this order. Zero for other origins.
+   *
+   * @generated from field: fixed64 batch_request_id = 27;
+   */
+  batchRequestId: bigint;
+
+  /**
+   * Submitted hard all-in quote debit limit, scaled by the pair's
+   * quote_quantity_scale from GetSpotConfig. Present only when that sizing
+   * method was submitted.
+   *
+   * @generated from field: optional int64 submitted_max_quote_debit_scaled = 28;
+   */
+  submittedMaxQuoteDebitScaled?: bigint | undefined;
 };
 
 /**
@@ -581,20 +597,20 @@ export type UserTrade = Message<"orders.v1.UserTrade"> & {
 
   /**
    * Fee amount in the charged asset's scale. Use quote_quantity_scale when
-   * fee_source is QUOTE or UNSPECIFIED; use base_quantity_scale when fee_source
-   * is RECEIVED.
+   * fee_asset is QUOTE or UNSPECIFIED; use base_quantity_scale when fee_asset
+   * is BASE.
    *
    * @generated from field: int64 fee_scaled = 9;
    */
   feeScaled: bigint;
 
   /**
-   * Fee source charged for this fill. This determines how to decode fee_scaled
+   * Fee asset charged for this fill. This determines how to decode fee_scaled
    * and referral_share_scaled.
    *
-   * @generated from field: orders.v1.FeeSource fee_source = 10;
+   * @generated from field: orders.v1.FeeAsset fee_asset = 10;
    */
-  feeSource: FeeSource;
+  feeAsset: FeeAsset;
 
   /**
    * Referral share amount in the same denomination and scale as fee_scaled for
@@ -1083,6 +1099,160 @@ export const GetOrderResponseSchema: GenMessage<GetOrderResponse> = /*@__PURE__*
   messageDesc(file_orders_v1_orders_read, 16);
 
 /**
+ * GetBatchReplaceStatusRequest retrieves one admitted batch by server identity.
+ *
+ * @generated from message orders.v1.GetBatchReplaceStatusRequest
+ */
+export type GetBatchReplaceStatusRequest = Message<"orders.v1.GetBatchReplaceStatusRequest"> & {
+  /**
+   * Target sub-account numeric ID. When omitted, uses caller's root account.
+   *
+   * @generated from field: optional fixed64 subaccount_id = 1;
+   */
+  subaccountId?: bigint | undefined;
+
+  /**
+   * Server-issued batch identity from BatchReplaceOrders.
+   *
+   * @generated from field: fixed64 batch_request_id = 2;
+   */
+  batchRequestId: bigint;
+};
+
+/**
+ * Describes the message orders.v1.GetBatchReplaceStatusRequest.
+ * Use `create(GetBatchReplaceStatusRequestSchema)` to create a new message.
+ */
+export const GetBatchReplaceStatusRequestSchema: GenMessage<GetBatchReplaceStatusRequest> = /*@__PURE__*/
+  messageDesc(file_orders_v1_orders_read, 17);
+
+/**
+ * BatchReplaceStatusItem is the index-stable execution status for one replacement.
+ *
+ * @generated from message orders.v1.BatchReplaceStatusItem
+ */
+export type BatchReplaceStatusItem = Message<"orders.v1.BatchReplaceStatusItem"> & {
+  /**
+   * Zero-based item index from the write request.
+   *
+   * @generated from field: uint32 item_index = 1;
+   */
+  itemIndex: number;
+
+  /**
+   * Current recoverable phase.
+   *
+   * @generated from field: orders.v1.BatchReplacePhase phase = 2;
+   */
+  phase: BatchReplacePhase;
+
+  /**
+   * Original order targeted by the replacement.
+   *
+   * @generated from field: fixed64 old_order_id = 3;
+   */
+  oldOrderId: bigint;
+
+  /**
+   * Assigned successor order ID. Zero when rejected before assignment.
+   *
+   * @generated from field: fixed64 replacement_order_id = 4;
+   */
+  replacementOrderId: bigint;
+
+  /**
+   * Current successor order status when available.
+   *
+   * @generated from field: orders.v1.OrderStatus order_status = 5;
+   */
+  orderStatus: OrderStatus;
+
+  /**
+   * Stable rejection or terminal error code. Empty when none.
+   *
+   * @generated from field: string code = 6;
+   */
+  code: string;
+
+  /**
+   * Latest status timestamp in nanoseconds since epoch.
+   *
+   * @generated from field: uint64 updated_ts_ns = 7;
+   */
+  updatedTsNs: bigint;
+};
+
+/**
+ * Describes the message orders.v1.BatchReplaceStatusItem.
+ * Use `create(BatchReplaceStatusItemSchema)` to create a new message.
+ */
+export const BatchReplaceStatusItemSchema: GenMessage<BatchReplaceStatusItem> = /*@__PURE__*/
+  messageDesc(file_orders_v1_orders_read, 18);
+
+/**
+ * GetBatchReplaceStatusResponse returns durable batch and per-item finality.
+ *
+ * @generated from message orders.v1.GetBatchReplaceStatusResponse
+ */
+export type GetBatchReplaceStatusResponse = Message<"orders.v1.GetBatchReplaceStatusResponse"> & {
+  /**
+   * Server-issued batch identity.
+   *
+   * @generated from field: fixed64 batch_request_id = 1;
+   */
+  batchRequestId: bigint;
+
+  /**
+   * Aggregate admission status returned by the write receipt.
+   *
+   * @generated from field: orders.v1.BatchReplaceAdmissionStatus admission_status = 2;
+   */
+  admissionStatus: BatchReplaceAdmissionStatus;
+
+  /**
+   * Per-item statuses in request order.
+   *
+   * @generated from field: repeated orders.v1.BatchReplaceStatusItem items = 3;
+   */
+  items: BatchReplaceStatusItem[];
+
+  /**
+   * Number of admitted items.
+   *
+   * @generated from field: uint32 accepted_count = 4;
+   */
+  acceptedCount: number;
+
+  /**
+   * Number of rejected items.
+   *
+   * @generated from field: uint32 rejected_count = 5;
+   */
+  rejectedCount: number;
+
+  /**
+   * Server acceptance timestamp in nanoseconds since epoch.
+   *
+   * @generated from field: uint64 accepted_ts_ns = 6;
+   */
+  acceptedTsNs: bigint;
+
+  /**
+   * Latest batch status timestamp in nanoseconds since epoch.
+   *
+   * @generated from field: uint64 updated_ts_ns = 7;
+   */
+  updatedTsNs: bigint;
+};
+
+/**
+ * Describes the message orders.v1.GetBatchReplaceStatusResponse.
+ * Use `create(GetBatchReplaceStatusResponseSchema)` to create a new message.
+ */
+export const GetBatchReplaceStatusResponseSchema: GenMessage<GetBatchReplaceStatusResponse> = /*@__PURE__*/
+  messageDesc(file_orders_v1_orders_read, 19);
+
+/**
  * OrderStatus is specific to the read API (write API uses simple "accepted" status string).
  *
  * @generated from enum orders.v1.OrderStatus
@@ -1096,8 +1266,7 @@ export enum OrderStatus {
   ORDER_STATUS_UNSPECIFIED = 0,
 
   /**
-   * Accepted by the admission layer and submitted for execution, but not yet
-   * confirmed as working.
+   * Accepted and submitted for execution, but not yet confirmed as working.
    *
    * @generated from enum value: PENDING = 1;
    */
@@ -1146,6 +1315,54 @@ export const OrderStatusSchema: GenEnum<OrderStatus> = /*@__PURE__*/
   enumDesc(file_orders_v1_orders_read, 0);
 
 /**
+ * BatchReplacePhase is the recoverable execution phase for one replacement.
+ *
+ * @generated from enum orders.v1.BatchReplacePhase
+ */
+export enum BatchReplacePhase {
+  /**
+   * Phase is unavailable.
+   *
+   * @generated from enum value: BATCH_REPLACE_PHASE_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * The replacement was admitted and handed to execution.
+   *
+   * @generated from enum value: BATCH_REPLACE_PHASE_ADMITTED = 1;
+   */
+  ADMITTED = 1,
+
+  /**
+   * The successor order is active.
+   *
+   * @generated from enum value: BATCH_REPLACE_PHASE_WORKING = 2;
+   */
+  WORKING = 2,
+
+  /**
+   * The replacement was rejected.
+   *
+   * @generated from enum value: BATCH_REPLACE_PHASE_REJECTED = 3;
+   */
+  REJECTED = 3,
+
+  /**
+   * The successor reached a terminal order state.
+   *
+   * @generated from enum value: BATCH_REPLACE_PHASE_TERMINAL = 4;
+   */
+  TERMINAL = 4,
+}
+
+/**
+ * Describes the enum orders.v1.BatchReplacePhase.
+ */
+export const BatchReplacePhaseSchema: GenEnum<BatchReplacePhase> = /*@__PURE__*/
+  enumDesc(file_orders_v1_orders_read, 1);
+
+/**
  * OrderOriginScope captures broad origin classes for an order.
  *
  * @generated from enum orders.v1.OrderOriginScope
@@ -1180,7 +1397,7 @@ export enum OrderOriginScope {
   STANDALONE_TRIGGER = 3,
 
   /**
-   * Internal/system automation (for example liquidation/ops actions).
+   * System-managed automation, such as liquidation or account-protection actions.
    *
    * @generated from enum value: SYSTEM = 4;
    */
@@ -1191,7 +1408,7 @@ export enum OrderOriginScope {
  * Describes the enum orders.v1.OrderOriginScope.
  */
 export const OrderOriginScopeSchema: GenEnum<OrderOriginScope> = /*@__PURE__*/
-  enumDesc(file_orders_v1_orders_read, 1);
+  enumDesc(file_orders_v1_orders_read, 2);
 
 /**
  * OrderTriggerType captures the trigger strategy that generated the order.
@@ -1246,7 +1463,7 @@ export enum OrderTriggerType {
  * Describes the enum orders.v1.OrderTriggerType.
  */
 export const OrderTriggerTypeSchema: GenEnum<OrderTriggerType> = /*@__PURE__*/
-  enumDesc(file_orders_v1_orders_read, 2);
+  enumDesc(file_orders_v1_orders_read, 3);
 
 /**
  * @generated from service orders.v1.OrdersReadService
@@ -1294,6 +1511,16 @@ export const OrdersReadService: GenService<{
     methodKind: "unary";
     input: typeof GetOrderRequestSchema;
     output: typeof GetOrderResponseSchema;
+  },
+  /**
+   * Retrieve durable execution status for one admitted batch replacement.
+   *
+   * @generated from rpc orders.v1.OrdersReadService.GetBatchReplaceStatus
+   */
+  getBatchReplaceStatus: {
+    methodKind: "unary";
+    input: typeof GetBatchReplaceStatusRequestSchema;
+    output: typeof GetBatchReplaceStatusResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_orders_v1_orders_read, 0);
