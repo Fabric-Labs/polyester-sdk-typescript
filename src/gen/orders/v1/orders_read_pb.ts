@@ -1504,6 +1504,7 @@ export const OrdersReadService: GenService<{
   },
   /**
    * Retrieve a single order by order ID or client order ID, including related user trades and ledger transfers.
+   * Recent accepted orders may wait briefly for read availability; retry UNAVAILABLE with the same lookup key.
    *
    * @generated from rpc orders.v1.OrdersReadService.GetOrder
    */
