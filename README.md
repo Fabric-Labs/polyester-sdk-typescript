@@ -1,11 +1,9 @@
 # Polyester TypeScript SDK
 
-TypeScript SDK for the Polyester public API.
+Typed client for the Polyester Exchange public API. Covers markets, orders,
+balances, transfers, auth, and realtime streams over ConnectRPC.
 
-Generated protobuf types and ConnectRPC service descriptors live in `src/gen/`.
-The package root contains SDK entry points and helper APIs.
-
-This SDK is maintained by Fabric Labs and updated as the public API evolves.
+Works in browsers, Node, Bun, and edge runtimes. ESM only.
 
 ## Install
 
@@ -13,43 +11,130 @@ This SDK is maintained by Fabric Labs and updated as the public API evolves.
 npm install @polyester/sdk
 ```
 
-While the SDK is pre-1.0, compatible changes increment the patch version and
-breaking changes increment the minor version. A consumer range such as
-`^0.1.0` can update through `0.1.x` without crossing into breaking `0.2.x`
-releases.
+## Browser
 
-## Development
+Polyester accounts are smart accounts, so you bring an owner wallet and the SDK
+derives the account signer. Nothing gets deployed just to log in.
 
-```bash
-bun install --frozen-lockfile
-bun run lint
-bun run format:check
-bun run check
-bun run test
-bun run build
-bun run verify:package
+```ts
+import { PolyesterBrowserClient, POLYESTER_TESTNET_ENVIRONMENT } from "@polyester/sdk";
+import { createPolyesterAccountSigner } from "@polyester/sdk/account-signer";
+
+const accountSigner = createPolyesterAccountSigner({
+    environment: POLYESTER_TESTNET_ENVIRONMENT,
+    owner,
+});
+
+const client = new PolyesterBrowserClient({
+    environment: POLYESTER_TESTNET_ENVIRONMENT,
+    accountSigner,
+});
+
+await client.auth.login({ provider: "turnkey" });
+
+const { orders } = await client.orders.listOpen();
 ```
 
-Use `bun run dev` for rebuilds while editing.
+See [docs/browser-login.md](docs/browser-login.md) for how account identity and
+owner metadata relate.
 
-Run `bun run changeset` when a change should be included in the next package
-release. Generated protobuf updates must also run
-`bun scripts/strip-descriptor-options.ts`; CI rejects a generated tree that is
-not already stripped.
+## Server
 
-## Publishing
+`createPolyesterServerClientFromRequest` reads the session cookies off an
+incoming request. Useful for SSR loaders and route handlers.
 
-The `publish-polyester-sdk.yml` workflow maintains a Changesets release pull
-request for changes merged into `main`. Merging that release pull request
-publishes the stable version to npm's `latest` tag and creates the corresponding
-GitHub release.
+```ts
+import {
+    createPolyesterServerClientFromRequest,
+    POLYESTER_TESTNET_ENVIRONMENT,
+} from "@polyester/sdk";
 
-Package exports permanently target the built `dist` tree. `prepack` performs a
-clean build, and CI verifies that every declared export exists before release.
+const client = createPolyesterServerClientFromRequest({
+    request,
+    environment: POLYESTER_TESTNET_ENVIRONMENT,
+});
 
-Repository administrators must configure npm trusted publishing for the
-`Fabric-Labs/polyester-sdk-typescript` repository and the
-`publish-polyester-sdk.yml` workflow. Save a granular, package-scoped read-only
-npm token as the GitHub Actions secret `NPM_READ_TOKEN`; publishing itself uses
-OIDC rather than a write token. Grant the intended npm teams access to the
-private package separately.
+if (client.hasUsableBearerToken) {
+    const me = await client.verifySession();
+}
+```
+
+The parsed cookie session is display data for hydrating UI. It is not proof of
+authentication, so the backend still authorizes every call.
+
+For machine clients, pass an Ed25519 API key provider instead of a cookie
+session:
+
+```ts
+import { PolyesterClient, POLYESTER_TESTNET_ENVIRONMENT } from "@polyester/sdk";
+
+const client = new PolyesterClient({
+    environment: POLYESTER_TESTNET_ENVIRONMENT,
+    auth: {
+        kind: "api-key-ed25519",
+        getKeyId: () => process.env.POLYESTER_API_KEY_ID ?? null,
+        getSecretKey: () => secretKeyBytes,
+    },
+});
+```
+
+## Realtime
+
+Subscriptions return their own unsubscribe function. No event emitter, no
+cleanup bookkeeping.
+
+```ts
+const unsubscribe = client.orders.subscribe({
+    accountId,
+    onEvent: (order) => console.log(order.orderId, order.status),
+    onError: (ctx) => console.warn(ctx.channel, ctx.error),
+});
+```
+
+## Entry points
+
+| Import | Contains |
+| --- | --- |
+| `@polyester/sdk` | clients, environments, errors, types |
+| `@polyester/sdk/errors` | error classes and codes on their own |
+| `@polyester/sdk/account-signer` | `createPolyesterAccountSigner` |
+| `@polyester/sdk/smart-account` | UserOperations and on-chain smart account calls |
+| `@polyester/sdk/catalogs` | symbol catalog and decimal scales |
+| `@polyester/sdk/server-session` | cookie parsing without the client graph |
+| `@polyester/sdk/unstable/gen` | raw protobuf types and service descriptors |
+
+`account-signer` and `smart-account` are separate subpaths on purpose. Both pull
+in a large viem graph, and keeping them out of the root barrel means the app
+shell does not pay for them.
+
+Anything under `unstable/` can change in a patch release.
+
+## Errors
+
+Every failure surfaces as a `PolyesterError` subclass with a stable `code`, so
+you can branch without string matching.
+
+```ts
+import { StaleQuoteError, RateLimitError } from "@polyester/sdk/errors";
+
+try {
+    await client.orders.create(input);
+} catch (error) {
+    if (error instanceof StaleQuoteError) return refreshQuote();
+    if (error instanceof RateLimitError) return backOff(error.retryAfterMs);
+    throw error;
+}
+```
+
+## Versioning
+
+Pre-1.0, so the usual semver shift applies: patch bumps are compatible, minor
+bumps can break. Pin with `^0.1.0` to ride `0.1.x` without jumping into `0.2.x`.
+
+## Contributing
+
+Setup, commands, and release process live in
+[CONTRIBUTING.md](CONTRIBUTING.md). Security reports go to
+[SECURITY.md](SECURITY.md), not the issue tracker.
+
+Maintained by Fabric Labs and updated as the public API evolves.

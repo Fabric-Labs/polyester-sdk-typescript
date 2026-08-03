@@ -5,11 +5,8 @@ SDK derives an account signer for the Polyester account without deploying
 anything just to log in.
 
 ```ts
-import {
-    PolyesterBrowserClient,
-    POLYESTER_TESTNET_ENVIRONMENT,
-    createPolyesterAccountSigner,
-} from "@polyester/sdk";
+import { PolyesterBrowserClient, POLYESTER_TESTNET_ENVIRONMENT } from "@polyester/sdk";
+import { createPolyesterAccountSigner } from "@polyester/sdk/account-signer";
 
 const accountSigner = createPolyesterAccountSigner({
     environment: POLYESTER_TESTNET_ENVIRONMENT,
