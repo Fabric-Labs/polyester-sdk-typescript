@@ -1,0 +1,728 @@
+import { describe, expect, expectTypeOf, it } from "vitest";
+import { create } from "@bufbuild/protobuf";
+import * as v from "valibot";
+import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
+import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
+import type { EnrichedPairConfig } from "../../catalogs/index.js";
+import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
+import { createTestCatalog } from "../../testing/catalog.js";
+import {
+    CreateTriggerResultSchema,
+    ListTriggerEventsInputSchema,
+    createCreateTriggerInputSchema,
+    createModifyTriggerInputSchema,
+    createTriggerEventSchema,
+    createTriggerSchema,
+    type CreateTriggerInput,
+    type ListTriggerEventsInput,
+    type Trigger,
+} from "./triggers.schemas.js";
+
+const btc = {
+    symbol: "BTC",
+    ledgerId: 1,
+    name: "Bitcoin",
+    quantityDisplayDecimals: 8,
+    quantityScale: 8,
+};
+const usdt = {
+    symbol: "USDT",
+    ledgerId: 2,
+    name: "Tether",
+    quantityDisplayDecimals: 2,
+    quantityScale: 6,
+};
+
+const btcUsdt: EnrichedPairConfig = {
+    symbolId: 1,
+    symbol: "BTC-USDT",
+    baseAsset: btc,
+    quoteAsset: usdt,
+    tickSize: "0.000001",
+    stepSize: "0.00000001",
+    minNotionalQuote: "1",
+    minQtyBase: "0.00000001",
+    allowBuyFeeFromBase: true,
+    defaultMarketSlippagePctBuy: 0,
+    defaultMarketSlippagePctSell: 0,
+    maxClientRefDriftPct: 0,
+    listingAt: null,
+    delistingAt: null,
+    status: "enabled",
+};
+
+function testScales() {
+    const catalog = createTestCatalog({ pairs: [btcUsdt] });
+    return createCatalogSdkScales(() => catalog);
+}
+
+function baseWireTrigger(overrides: Partial<Proto.Trigger> = {}): Proto.Trigger {
+    return {
+        triggerId: 11n,
+        subaccountId: 22n,
+        symbolId: 1,
+        symbol: "BTC-USDT",
+        status: Proto.TriggerStatus.STATUS_ARMED,
+        qtyScaled: 50_000_000n,
+        feeAsset: ProtoOrders.FeeAsset.QUOTE,
+        selfTradePreventionMode: ProtoOrders.SelfTradePreventionMode.EXPIRE_MAKER,
+        configuration: {
+            case: "stopLoss",
+            value: {
+                triggerPriceTicks: 100_000_000n,
+                side: ProtoOrders.Side.SELL,
+                child: {
+                    execution: {
+                        case: "limitGtc",
+                        value: { priceTicks: 99_500_000n, postOnly: false },
+                    },
+                },
+            },
+        },
+        clientTriggerId: "trigger-client-1",
+        runtimeDetails: {
+            case: "stop",
+            value: {
+                triggerPriceTicks: 100_000_000n,
+                triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
+                triggerDirection: ProtoOrders.TriggerDirection.BELOW,
+            },
+        },
+        ...overrides,
+    } as Proto.Trigger;
+}
+
+describe("ListTriggerEventsInputSchema", () => {
+    it("exposes only supported event filters", () => {
+        expectTypeOf<ListTriggerEventsInput["eventType"]>().toEqualTypeOf<
+            "fired" | "canceled" | "updated" | undefined
+        >();
+        expect(
+            v.safeParse(ListTriggerEventsInputSchema, {
+                triggerId: "11",
+                eventType: "unspecified",
+            }).success,
+        ).toBe(false);
+    });
+
+    it("normalizes page tokens and maps event filters to protobuf values", () => {
+        expect(
+            v.parse(ListTriggerEventsInputSchema, {
+                triggerId: "11",
+                eventType: "fired",
+                pageToken: " cursor-1 ",
+            }),
+        ).toMatchObject({
+            triggerId: 11n,
+            eventType: Proto.TriggerEventType.EVENT_FIRED,
+            pageToken: "cursor-1",
+        });
+        expect(v.parse(ListTriggerEventsInputSchema, { triggerId: "11" })).toMatchObject({
+            triggerId: 11n,
+            eventType: undefined,
+            pageToken: "",
+        });
+    });
+});
+
+describe("CreateTriggerInputSchema", () => {
+    it("exposes side-safe conditional child execution types", () => {
+        type ExpectedBuyExecution =
+            | { type: "limit_gtc"; price: string; postOnly?: boolean }
+            | { type: "limit_ioc"; price: string }
+            | { type: "limit_fok"; price: string };
+        type BuyStopLossInput = Extract<
+            CreateTriggerInput,
+            { triggerType: "stop_loss"; side: "buy" }
+        >;
+        type BuyTakeProfitInput = Extract<
+            CreateTriggerInput,
+            { triggerType: "take_profit"; side: "buy" }
+        >;
+        type SellStopLossInput = Extract<
+            CreateTriggerInput,
+            { triggerType: "stop_loss"; side: "sell" }
+        >;
+
+        expectTypeOf<BuyStopLossInput["execution"]>().toEqualTypeOf<ExpectedBuyExecution>();
+        expectTypeOf<BuyTakeProfitInput["execution"]>().toEqualTypeOf<ExpectedBuyExecution>();
+        expectTypeOf<{ type: "market_ioc" }>().toMatchTypeOf<SellStopLossInput["execution"]>();
+    });
+
+    it("builds all stop-loss and take-profit child execution variants", () => {
+        const schema = createCreateTriggerInputSchema(testScales());
+        const cases = [
+            {
+                input: {
+                    triggerType: "stop_loss",
+                    symbol: " BTC-USDT ",
+                    side: "sell",
+                    qty: "0.5",
+                    triggerPrice: "100",
+                    execution: { type: "market_ioc" },
+                    clientTriggerId: " trigger-client-1 ",
+                },
+                expected: {
+                    case: "stopLoss",
+                    value: {
+                        child: { execution: { case: "marketIoc" } },
+                    },
+                },
+            },
+            {
+                input: {
+                    triggerType: "stop_loss",
+                    symbol: "BTC-USDT",
+                    side: "sell",
+                    qty: "0.5",
+                    triggerPrice: "100",
+                    execution: { type: "limit_gtc", price: "99.5", postOnly: true },
+                    clientTriggerId: "trigger-client-2",
+                },
+                expected: {
+                    case: "stopLoss",
+                    value: {
+                        child: {
+                            execution: {
+                                case: "limitGtc",
+                                value: { priceTicks: 99_500_000n, postOnly: true },
+                            },
+                        },
+                    },
+                },
+            },
+            {
+                input: {
+                    triggerType: "take_profit",
+                    symbol: "BTC-USDT",
+                    side: "sell",
+                    qty: "0.5",
+                    triggerPrice: "101",
+                    execution: { type: "limit_ioc", price: "100.5" },
+                    clientTriggerId: "trigger-client-3",
+                },
+                expected: {
+                    case: "takeProfit",
+                    value: {
+                        child: {
+                            execution: {
+                                case: "limitIoc",
+                                value: { priceTicks: 100_500_000n },
+                            },
+                        },
+                    },
+                },
+            },
+            {
+                input: {
+                    triggerType: "take_profit",
+                    symbol: "BTC-USDT",
+                    side: "buy",
+                    qty: "0.5",
+                    triggerPrice: "101",
+                    execution: { type: "limit_fok", price: "101.5" },
+                    clientTriggerId: "trigger-client-4",
+                },
+                expected: {
+                    case: "takeProfit",
+                    value: {
+                        child: {
+                            execution: {
+                                case: "limitFok",
+                                value: { priceTicks: 101_500_000n },
+                            },
+                        },
+                    },
+                },
+            },
+        ] as const;
+
+        for (const testCase of cases) {
+            expect(v.parse(schema, testCase.input)).toMatchObject({
+                trigger: {
+                    symbol: "BTC-USDT",
+                    qtyScaled: 50_000_000n,
+                    feeAsset: ProtoOrders.FeeAsset.QUOTE,
+                    selfTradePreventionMode: ProtoOrders.SelfTradePreventionMode.EXPIRE_MAKER,
+                    strategy: {
+                        ...testCase.expected,
+                        value: {
+                            triggerPriceTicks:
+                                testCase.input.triggerType === "stop_loss"
+                                    ? 100_000_000n
+                                    : 101_000_000n,
+                            side:
+                                testCase.input.side === "sell"
+                                    ? ProtoOrders.Side.SELL
+                                    : ProtoOrders.Side.BUY,
+                            ...testCase.expected.value,
+                        },
+                    },
+                },
+            });
+        }
+    });
+
+    it("rejects BUY market children for stop-loss and take-profit triggers", () => {
+        const schema = createCreateTriggerInputSchema(testScales());
+
+        for (const triggerType of ["stop_loss", "take_profit"] as const) {
+            expect(() =>
+                v.parse(schema, {
+                    triggerType,
+                    symbol: "BTC-USDT",
+                    side: "buy",
+                    qty: "0.5",
+                    triggerPrice: "100",
+                    execution: { type: "market_ioc" },
+                }),
+            ).toThrow();
+        }
+    });
+
+    it("normalizes explicit fee asset and self-trade prevention on the intent", () => {
+        const schema = createCreateTriggerInputSchema(testScales());
+
+        expect(
+            v.parse(schema, {
+                triggerType: "take_profit",
+                symbol: "BTC-USDT",
+                side: "buy",
+                qty: "0.5",
+                triggerPrice: "101",
+                execution: { type: "limit_gtc", price: "101.5" },
+                feeAsset: "base",
+                selfTradePreventionMode: "expire_both",
+                clientTriggerId: "trigger-client-1",
+            }),
+        ).toMatchObject({
+            trigger: {
+                feeAsset: ProtoOrders.FeeAsset.BASE,
+                selfTradePreventionMode: ProtoOrders.SelfTradePreventionMode.EXPIRE_BOTH,
+            },
+        });
+    });
+
+    it("normalizes trailing distance and maximum slippage variants", () => {
+        const schema = createCreateTriggerInputSchema(testScales());
+
+        const priceDistanceInput = v.parse(schema, {
+            triggerType: "trailing_stop",
+            symbol: "BTC-USDT",
+            qty: "0.25",
+            trailingDistance: { kind: "distance", distance: "0.5" },
+            maxSlippage: { kind: "bps", bps: 125 },
+            clientTriggerId: "trigger-client-2",
+        });
+        const bpsDistanceInput = v.parse(schema, {
+            triggerType: "trailing_stop",
+            symbol: "BTC-USDT",
+            qty: "0.25",
+            trailingDistance: { kind: "bps", bps: 150 },
+            activationPrice: "99",
+            maxSlippage: { kind: "slippage", slippage: "0.25" },
+            clientTriggerId: "trigger-client-3",
+        });
+
+        expect(priceDistanceInput).toMatchObject({
+            trigger: {
+                strategy: {
+                    case: "trailingStop",
+                    value: {
+                        side: ProtoOrders.Side.SELL,
+                        trailingDistance: {
+                            case: "trailingDistanceTicks",
+                            value: 500_000n,
+                        },
+                        activationPriceTicks: 0n,
+                        maxSlippage: { case: "maxSlippageBps", value: 125 },
+                    },
+                },
+            },
+        });
+        expect(bpsDistanceInput).toMatchObject({
+            trigger: {
+                strategy: {
+                    case: "trailingStop",
+                    value: {
+                        side: ProtoOrders.Side.SELL,
+                        trailingDistance: { case: "trailingDistanceBps", value: 150 },
+                        activationPriceTicks: 99_000_000n,
+                        maxSlippage: { case: "maxSlippageTicks", value: 250_000 },
+                    },
+                },
+            },
+        });
+    });
+
+    it("builds explicit TWAP execution and ladder strategies", () => {
+        const schema = createCreateTriggerInputSchema(testScales());
+
+        expect(
+            v.parse(schema, {
+                triggerType: "twap",
+                symbol: "BTC-USDT",
+                side: "buy",
+                qty: "1",
+                durationMs: "60000",
+                sliceIntervalMs: 5000,
+                execution: { type: "limit_gtc", price: "100.25" },
+            }),
+        ).toMatchObject({
+            trigger: {
+                strategy: {
+                    case: "twap",
+                    value: {
+                        side: ProtoOrders.Side.BUY,
+                        durationMs: 60_000n,
+                        sliceIntervalMs: 5_000n,
+                        execution: {
+                            case: "limitGtc",
+                            value: { priceTicks: 100_250_000n },
+                        },
+                    },
+                },
+            },
+        });
+        expect(
+            v.parse(schema, {
+                triggerType: "ladder",
+                symbol: "BTC-USDT",
+                side: "buy",
+                qty: "1",
+                priceMin: "99",
+                priceMax: "101",
+                levels: "5",
+                postOnly: true,
+            }),
+        ).toMatchObject({
+            trigger: {
+                strategy: {
+                    case: "ladder",
+                    value: {
+                        side: ProtoOrders.Side.BUY,
+                        priceMinTicks: 99_000_000n,
+                        priceMaxTicks: 101_000_000n,
+                        levels: 5,
+                        postOnly: true,
+                    },
+                },
+            },
+        });
+    });
+
+    it("rejects invalid precision, timing, and ladder bounds", () => {
+        const schema = createCreateTriggerInputSchema(testScales());
+        const baseStop = {
+            triggerType: "stop_loss",
+            symbol: "BTC-USDT",
+            side: "sell",
+            qty: "0.5",
+            triggerPrice: "100",
+            execution: { type: "limit_gtc", price: "99.5" },
+        } as const;
+
+        expect(() => v.parse(schema, { ...baseStop, qty: "0.000000015" })).toThrow(
+            "qty supports at most 8 decimal places",
+        );
+        expect(() =>
+            v.parse(schema, {
+                ...baseStop,
+                execution: { type: "limit_gtc", price: "99.5000001" },
+            }),
+        ).toThrow("execution.price supports at most 6 decimal places");
+        expect(() =>
+            v.parse(schema, {
+                triggerType: "twap",
+                symbol: "BTC-USDT",
+                side: "buy",
+                qty: "1",
+                durationMs: 500,
+                sliceIntervalMs: 100,
+                execution: { type: "market_ioc" },
+            }),
+        ).toThrow("durationMs must be at least 1000ms");
+        expect(() =>
+            v.parse(schema, {
+                triggerType: "ladder",
+                symbol: "BTC-USDT",
+                side: "buy",
+                qty: "1",
+                priceMin: "99",
+                priceMax: "101",
+                levels: 1,
+            }),
+        ).toThrow("levels must be between 2 and 100");
+    });
+});
+
+describe("ModifyTriggerInputSchema", () => {
+    it("requires at least one patch field", () => {
+        const schema = createModifyTriggerInputSchema(testScales());
+
+        expect(() => v.parse(schema, { triggerId: "11" })).toThrow(
+            "At least one patch field is required",
+        );
+    });
+
+    it("converts decimal patch fields and normalizes empty oneofs", () => {
+        const schema = createModifyTriggerInputSchema(testScales());
+
+        expect(
+            v.parse(schema, {
+                triggerId: "11",
+                account: { subaccountId: "22" },
+                triggerPrice: "101.25",
+                trailingDistance: { kind: "distance", distance: "0.5" },
+                maxSlippage: { kind: "none" },
+            }),
+        ).toMatchObject({
+            triggerId: 11n,
+            subaccountId: 22n,
+            triggerPriceTicks: 101_250_000n,
+            trailingDistance: { case: "trailingDistanceTicks", value: 500_000n },
+            maxSlippage: { case: undefined, value: undefined },
+        });
+    });
+});
+
+describe("Trigger result and output schemas", () => {
+    it("parses creation as an admission acknowledgement", () => {
+        expect(
+            v.parse(CreateTriggerResultSchema, {
+                triggerId: 11n,
+                clientTriggerId: "trigger-client-1",
+                acceptedAt: { seconds: 1n, nanos: 250_000_000 },
+                acceptedAtTsNs: 1_250_000_000n,
+            }),
+        ).toMatchObject({
+            clientTriggerId: "trigger-client-1",
+            acceptedAt: 1_250,
+            acceptedAtNs: "1250000000",
+        });
+    });
+
+    it("derives creation time from nanoseconds when the protobuf timestamp is absent", () => {
+        expect(
+            v.parse(CreateTriggerResultSchema, {
+                triggerId: 11n,
+                clientTriggerId: "trigger-client-1",
+                acceptedAtTsNs: 1_250_000_000n,
+            }),
+        ).toMatchObject({
+            clientTriggerId: "trigger-client-1",
+            acceptedAt: 1_250,
+            acceptedAtNs: "1250000000",
+        });
+    });
+
+    it("converts conditional configuration and stop runtime details independently", () => {
+        const output = v.parse(createTriggerSchema(testScales()), baseWireTrigger());
+        type HasChildOrderIds = "childOrderIds" extends keyof Trigger ? true : false;
+
+        expect(output).toMatchObject({
+            status: "armed",
+            qty: "0.5",
+            configuration: {
+                type: "stop_loss",
+                side: "sell",
+                triggerPrice: "100",
+                execution: {
+                    type: "limit_gtc",
+                    price: "99.5",
+                    postOnly: false,
+                },
+            },
+            runtimeDetails: {
+                case: "stop",
+                triggerPrice: "100",
+                triggerPriceSource: "last",
+                triggerDirection: "below",
+            },
+        });
+        expect(output).not.toHaveProperty("triggerType");
+        expect(output).not.toHaveProperty("side");
+        expect(output).not.toHaveProperty("orderType");
+        expect(output).not.toHaveProperty("timeInForce");
+        expect(output).not.toHaveProperty("details");
+        expect(output).not.toHaveProperty("childOrderIds");
+        expectTypeOf<HasChildOrderIds>().toEqualTypeOf<false>();
+    });
+
+    it("converts trailing configuration and runtime state", () => {
+        const output = v.parse(
+            createTriggerSchema(testScales()),
+            baseWireTrigger({
+                status: Proto.TriggerStatus.STATUS_CANCELED,
+                configuration: {
+                    case: "trailingStop",
+                    value: create(Proto.TrailingStopTriggerSchema, {
+                        side: ProtoOrders.Side.SELL,
+                        trailingDistance: { case: "trailingDistanceBps", value: 200 },
+                        activationPriceTicks: 99_000_000n,
+                        maxSlippage: { case: "maxSlippageTicks", value: 250_000 },
+                    }),
+                },
+                runtimeDetails: {
+                    case: "trailing",
+                    value: create(Proto.TrailingDetailsSchema, {
+                        trailingDistanceTicks: 0n,
+                        activationPriceTicks: 99_000_000n,
+                        peakPriceTicks: 100_500_000n,
+                        troughPriceTicks: 0n,
+                        trailingDistanceBps: 200,
+                        maxSlippageTicks: 250_000,
+                        maxSlippageBps: 0,
+                        triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
+                        triggerDirection:
+                            ProtoOrders.TriggerDirection.TRIGGER_DIRECTION_UNSPECIFIED,
+                    }),
+                },
+            }),
+        );
+
+        expect(output).toMatchObject({
+            status: "cancelled",
+            configuration: {
+                type: "trailing_stop",
+                side: "sell",
+                trailingDistance: { kind: "bps", bps: 200 },
+                activationPrice: "99",
+                maxSlippage: { kind: "slippage", slippage: "0.25" },
+            },
+            runtimeDetails: {
+                case: "trailing",
+                trailingDistanceBps: 200,
+                activationPrice: "99",
+                peakPrice: "100.5",
+                troughPrice: undefined,
+                maxSlippage: "0.25",
+                triggerDirection: "unspecified",
+            },
+        });
+    });
+
+    it("converts TWAP and ladder configuration and runtime state", () => {
+        const schema = createTriggerSchema(testScales());
+        const twap = v.parse(
+            schema,
+            baseWireTrigger({
+                qtyScaled: 100_000_000n,
+                configuration: {
+                    case: "twap",
+                    value: create(Proto.TwapTriggerSchema, {
+                        side: ProtoOrders.Side.BUY,
+                        durationMs: 60_000n,
+                        sliceIntervalMs: 5_000n,
+                        execution: {
+                            case: "marketIoc",
+                            value: create(Proto.TwapMarketIocSchema),
+                        },
+                    }),
+                },
+                runtimeDetails: {
+                    case: "twapState",
+                    value: create(Proto.TwapDetailsSchema, {
+                        twapDurationMs: 60_000n,
+                        twapSliceIntervalMs: 5_000n,
+                        sliceIdx: 2,
+                        sliceCount: 12,
+                        executedQtyScaled: 25_000_000n,
+                    }),
+                },
+            }),
+        );
+        const ladder = v.parse(
+            schema,
+            baseWireTrigger({
+                configuration: {
+                    case: "ladder",
+                    value: create(Proto.LadderTriggerSchema, {
+                        side: ProtoOrders.Side.SELL,
+                        priceMinTicks: 99_000_000n,
+                        priceMaxTicks: 101_000_000n,
+                        levels: 5,
+                        postOnly: true,
+                    }),
+                },
+                runtimeDetails: {
+                    case: "ladderState",
+                    value: create(Proto.LadderDetailsSchema, {
+                        ladderPriceMinTicks: 99_000_000n,
+                        ladderPriceMaxTicks: 101_000_000n,
+                        ladderLevels: 5,
+                        ladderDistribution: Proto.LadderDistribution.LINEAR,
+                    }),
+                },
+            }),
+        );
+
+        expect(twap).toMatchObject({
+            qty: "1",
+            configuration: {
+                type: "twap",
+                side: "buy",
+                durationMs: 60_000,
+                sliceIntervalMs: 5_000,
+                execution: { type: "market_ioc" },
+            },
+            runtimeDetails: {
+                case: "twap",
+                sliceIdx: 2,
+                sliceCount: 12,
+                executedQty: "0.25",
+            },
+        });
+        expect(ladder).toMatchObject({
+            configuration: {
+                type: "ladder",
+                side: "sell",
+                priceMin: "99",
+                priceMax: "101",
+                levels: 5,
+                postOnly: true,
+            },
+            runtimeDetails: {
+                case: "ladder",
+                ladderPriceMin: "99",
+                ladderPriceMax: "101",
+                ladderLevels: 5,
+                ladderDistribution: "linear",
+            },
+        });
+    });
+
+    it("preserves unspecified output enums", () => {
+        const triggerSchema = createTriggerSchema(testScales());
+        const triggerEventSchema = createTriggerEventSchema(testScales());
+
+        expect(
+            v.parse(
+                triggerSchema,
+                baseWireTrigger({
+                    status: Proto.TriggerStatus.STATUS_UNSPECIFIED,
+                    configuration: { case: undefined },
+                    runtimeDetails: { case: undefined },
+                }),
+            ),
+        ).toMatchObject({
+            status: "unspecified",
+            configuration: { type: "unspecified" },
+            runtimeDetails: { case: undefined },
+        });
+        expect(
+            v.parse(triggerEventSchema, {
+                triggerId: 11n,
+                subaccountId: 22n,
+                symbolId: 1,
+                triggerType: Proto.TriggerType.STOP_LOSS,
+                eventType: Proto.TriggerEventType.EVENT_UNSPECIFIED,
+                tsNs: 1_000_000n,
+                childSeq: 1,
+                childOrderId: 0n,
+                firePriceTicks: 0n,
+                reason: "",
+            }),
+        ).toMatchObject({ eventType: "unspecified" });
+    });
+});
