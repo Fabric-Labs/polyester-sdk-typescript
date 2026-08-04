@@ -1,5 +1,13 @@
 # @polyester/sdk
 
+## 0.1.0
+
+### Minor Changes
+
+- [#39](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/39) [`7b7a16a`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/7b7a16a3ccaead38a0be19a19fcb23d3951db89c) Thanks [@huntabyte](https://github.com/huntabyte)! - Expose exact authenticated trade economics. `Trade.fee` now decodes the protobuf's E18 `U128` amount instead of the removed asset-scaled fee field. `Trade.referralShare` exposes the optional E18 referral amount, and `Trade.feeIsRebate` distinguishes rebates from charged fees.
+
+- [#39](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/39) [`7b7a16a`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/7b7a16a3ccaead38a0be19a19fcb23d3951db89c) Thanks [@huntabyte](https://github.com/huntabyte)! - **Breaking:** Remove `Trade.tradeId` and `Trade.subaccountId`. Neither identifier exists in the upstream `UserTrade` response, so retaining them misrepresented the wire contract.
+
 ## 0.0.1
 
 ### Patch Changes
