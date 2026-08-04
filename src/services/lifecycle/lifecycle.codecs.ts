@@ -54,6 +54,9 @@ export const LIFECYCLE_REASON_VALUES = [
     "ledger_mirror_transfer_exists",
     "ledger_mirror_pending_transfer_not_found",
     "ledger_mirror_transfer_id_already_failed",
+    "trading_withdraw_policy_denied",
+    "trading_withdraw_contract_reverted",
+    "trading_withdraw_execution_failed",
 ] as const;
 /**
  * Catalog labels plus a code-preserving fallback for wire values the generated
@@ -209,6 +212,9 @@ export const LifecycleReasonCodec = {
             "ledger_mirror_pending_transfer_not_found",
         [LifecycleReason.LEDGER_MIRROR_TRANSFER_ID_ALREADY_FAILED]:
             "ledger_mirror_transfer_id_already_failed",
+        [LifecycleReason.TRADING_WITHDRAW_POLICY_DENIED]: "trading_withdraw_policy_denied",
+        [LifecycleReason.TRADING_WITHDRAW_CONTRACT_REVERTED]: "trading_withdraw_contract_reverted",
+        [LifecycleReason.TRADING_WITHDRAW_EXECUTION_FAILED]: "trading_withdraw_execution_failed",
     } satisfies Record<LifecycleReason, LifecycleReasonValue>,
 } as const;
 
