@@ -54,16 +54,16 @@ function testScales() {
 const flushAsync = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 const userTrade = {
-    tradeId: 3n,
     orderId: 2n,
-    subaccountId: 12n,
     symbolId: 101,
     side: ProtoOrders.Side.SELL,
     isMaker: true,
     feeAsset: ProtoOrders.FeeAsset.QUOTE,
     qtyScaled: 123_456_789n,
     priceTicks: 1_234_567n,
-    feeScaled: 1_000n,
+    feeAmountE18: { hi: 0n, lo: 1_000_000_000_000_000n },
+    referralShareAmountE18: { hi: 0n, lo: 250_000_000_000_000n },
+    feeIsRebate: false,
     tsNs: 1_700_000_000_000_000_000n,
     matchId: 22n,
 };
@@ -109,9 +109,7 @@ describe("TradesService", () => {
             nextPageToken: "next-page",
             trades: [
                 expect.objectContaining({
-                    tradeId: formatId(3n),
                     orderId: formatId(2n),
-                    subaccountId: formatId(12n),
                     symbolId: 101,
                     sideLabel: "sell",
                     liquidityLabel: "maker",
@@ -119,6 +117,8 @@ describe("TradesService", () => {
                     qty: "1.23456789",
                     price: "1.234567",
                     fee: "0.001",
+                    referralShare: "0.00025",
+                    feeIsRebate: false,
                     tsNs: "1700000000000000000",
                     tsMs: 1_700_000_000_000,
                     matchId: "22",
@@ -127,7 +127,7 @@ describe("TradesService", () => {
         });
     });
 
-    it("scales base-asset fees by the base asset quantity scale", async () => {
+    it("decodes base-asset fees from their exact E18 amount", async () => {
         const transport = unaryTransport({
             trades: [{ ...userTrade, feeAsset: ProtoOrders.FeeAsset.BASE }],
             nextPageToken: "",
@@ -143,8 +143,7 @@ describe("TradesService", () => {
 
         expect(result.trades[0]).toMatchObject({
             feeAsset: "base",
-            // 1000n at the BTC base-quantity scale (8), not the quote scale (6).
-            fee: "0.00001",
+            fee: "0.001",
         });
     });
 
@@ -240,6 +239,8 @@ describe("TradesService", () => {
                 qty: "1.23456789",
                 price: "1.234567",
                 fee: "0.001",
+                referralShare: "0.00025",
+                feeIsRebate: false,
                 tsNs: "1700000000000000000",
             }),
         );

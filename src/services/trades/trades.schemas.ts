@@ -10,21 +10,28 @@ import {
 } from "../../shared/account-scope.js";
 import { TradeSideCodec } from "./trades.codecs.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
-import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
+import { E18_SCALE, scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
+import { fromU128 } from "../../utils/u128.js";
 
+const U128Schema = v.object({
+    hi: v.bigint(),
+    lo: v.bigint(),
+});
+
+/** Parses a generated user-trade fill into the SDK's JSON-safe public shape. */
 export function createUserTradeSchema(scales: SdkScales) {
     return v.pipe(
         v.object({
-            tradeId: v.optional(v.bigint()),
             orderId: v.bigint(),
-            subaccountId: v.optional(v.bigint()),
             symbolId: v.number(),
             side: v.number(),
             isMaker: v.boolean(),
             feeAsset: v.number(),
             qtyScaled: v.bigint(),
             priceTicks: v.bigint(),
-            feeScaled: v.bigint(),
+            feeAmountE18: v.optional(U128Schema),
+            referralShareAmountE18: v.optional(U128Schema),
+            feeIsRebate: v.boolean(),
             tsNs: v.bigint(),
             matchId: v.bigint(),
         }),
@@ -35,14 +42,8 @@ export function createUserTradeSchema(scales: SdkScales) {
                 "UserTradeSchema",
                 "fee asset",
             );
-            // BASE-denominated fees use the base quantity scale; quote fees use
-            // the pair quote scale.
-            const feeScale =
-                feeAsset === "base" ? scales.baseQty(t.symbolId) : scales.quoteAmount(t.symbolId);
             return {
-                tradeId: t.tradeId ? formatId(t.tradeId) : undefined,
                 orderId: formatId(t.orderId),
-                subaccountId: t.subaccountId ? formatId(t.subaccountId) : undefined,
                 symbolId: t.symbolId,
                 sideLabel: requiredEnumLabel(
                     OrderSideCodec.protoToOutput,
@@ -54,7 +55,16 @@ export function createUserTradeSchema(scales: SdkScales) {
                 feeAsset,
                 qty: scaledToDecimalOutput(t.qtyScaled, scales.baseQty(t.symbolId)),
                 price: scaledToDecimalOutput(t.priceTicks, scales.price()),
-                fee: scaledToDecimalOutput(t.feeScaled, feeScale),
+                fee: scaledToDecimalOutput(fromU128(t.feeAmountE18), E18_SCALE),
+                ...(t.referralShareAmountE18 === undefined
+                    ? {}
+                    : {
+                          referralShare: scaledToDecimalOutput(
+                              fromU128(t.referralShareAmountE18),
+                              E18_SCALE,
+                          ),
+                      }),
+                feeIsRebate: t.feeIsRebate,
                 tsNs: t.tsNs.toString(),
                 tsIso: tsNsToISO(t.tsNs),
                 tsMs: tsNsToMs(t.tsNs),
@@ -64,8 +74,10 @@ export function createUserTradeSchema(scales: SdkScales) {
     );
 }
 
+/** A JSON-safe authenticated trade fill returned by the SDK. */
 export type Trade = v.InferOutput<ReturnType<typeof createUserTradeSchema>>;
 
+/** Validates filters accepted by {@link TradesService.list}. */
 export const GetUserTradesInputSchema = v.pipe(
     v.strictObject({
         ...AccountScopeInputEntries,
@@ -92,4 +104,5 @@ export const GetUserTradesInputSchema = v.pipe(
     })),
 );
 
+/** Filters accepted by {@link TradesService.list}. */
 export type GetUserTradesInput = v.InferInput<typeof GetUserTradesInputSchema>;

@@ -790,7 +790,22 @@ describe("OrdersService", () => {
         const transport = unaryTransportByMethod({
             getOrder: {
                 order: protoOrder({ status: ProtoRead.OrderStatus.FILLED }),
-                trades: [],
+                trades: [
+                    {
+                        orderId: 11n,
+                        symbolId: 1,
+                        matchId: 5n,
+                        side: ProtoWrite.Side.BUY,
+                        isMaker: true,
+                        priceTicks: 100_000_000n,
+                        qtyScaled: 50_000_000n,
+                        feeAmountE18: { hi: 0n, lo: 1_250_000_000_000_000n },
+                        feeAsset: ProtoWrite.FeeAsset.QUOTE,
+                        referralShareAmountE18: { hi: 0n, lo: 250_000_000_000_000n },
+                        tsNs: 1_000_000n,
+                        feeIsRebate: true,
+                    },
+                ],
                 transfers: [
                     {
                         txId: "tx-1",
@@ -820,7 +835,15 @@ describe("OrdersService", () => {
                 origQty: "1",
                 price: "100",
             },
-            trades: [],
+            trades: [
+                expect.objectContaining({
+                    orderId: formatId(11n),
+                    matchId: "5",
+                    fee: "0.00125",
+                    referralShare: "0.00025",
+                    feeIsRebate: true,
+                }),
+            ],
             transfers: [
                 expect.objectContaining({
                     txId: "tx-1",

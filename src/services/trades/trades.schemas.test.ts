@@ -47,7 +47,6 @@ function testScales() {
 
 function trade(overrides: Record<string, unknown> = {}) {
     return {
-        tradeId: 1n,
         orderId: 2n,
         symbolId: 7,
         side: ProtoOrders.Side.BUY,
@@ -55,7 +54,9 @@ function trade(overrides: Record<string, unknown> = {}) {
         feeAsset: ProtoOrders.FeeAsset.QUOTE,
         qtyScaled: 1234n,
         priceTicks: 1_000_000n,
-        feeScaled: 123n,
+        feeAmountE18: { hi: 0n, lo: 123n },
+        referralShareAmountE18: { hi: 0n, lo: 45n },
+        feeIsRebate: true,
         tsNs: 1n,
         matchId: 3n,
         ...overrides,
@@ -66,17 +67,17 @@ describe("UserTradeSchema", () => {
     it("converts ids, enum labels, and decimal money fields", () => {
         const schema = createUserTradeSchema(testScales());
 
-        expect(v.parse(schema, trade({ subaccountId: 12n }))).toEqual({
-            tradeId: formatId(1n),
+        expect(v.parse(schema, trade())).toEqual({
             orderId: formatId(2n),
-            subaccountId: formatId(12n),
             symbolId: 7,
             sideLabel: "buy",
             liquidityLabel: "taker",
             feeAsset: "quote",
             qty: "0.00001234",
             price: "1",
-            fee: "0.000123",
+            fee: "0.000000000000000123",
+            referralShare: "0.000000000000000045",
+            feeIsRebate: true,
             tsNs: "1",
             tsIso: "1970-01-01T00:00:00.000Z",
             tsMs: 0,
@@ -84,17 +85,31 @@ describe("UserTradeSchema", () => {
         });
     });
 
-    it("scales fees by the base asset when the fee asset is base", () => {
+    it("uses exact E18 fee precision regardless of the fee asset quantity scale", () => {
         const schema = createUserTradeSchema(testScales());
 
         const parsed = v.parse(
             schema,
-            trade({ feeAsset: ProtoOrders.FeeAsset.BASE, feeScaled: 123n }),
+            trade({
+                feeAsset: ProtoOrders.FeeAsset.BASE,
+                feeAmountE18: { hi: 0n, lo: 123_456_789_012_345_678n },
+            }),
         );
 
         expect(parsed.feeAsset).toBe("base");
-        // Base (BTC) scale 8 instead of quote (USDT) scale 6.
-        expect(parsed.fee).toBe("0.00000123");
+        expect(parsed.fee).toBe("0.123456789012345678");
+    });
+
+    it("uses zero for an absent fee and preserves absent referral share", () => {
+        const schema = createUserTradeSchema(testScales());
+        const parsed = v.parse(
+            schema,
+            trade({ feeAmountE18: undefined, referralShareAmountE18: undefined }),
+        );
+
+        expect(parsed.fee).toBe("0");
+        expect(parsed).not.toHaveProperty("referralShare");
+        expect(parsed.feeIsRebate).toBe(true);
     });
 
     it("preserves user trades with an unspecified backend fee asset", () => {
