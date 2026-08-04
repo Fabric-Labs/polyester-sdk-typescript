@@ -269,6 +269,27 @@ describe("LifecycleFlowSummarySchema", () => {
         expect(flow.lifecycleReason).toBe("ledger_mirror_transfer_exceeds_credits");
     });
 
+    it.each([
+        [Proto.LifecycleReason.TRADING_WITHDRAW_POLICY_DENIED, "trading_withdraw_policy_denied"],
+        [
+            Proto.LifecycleReason.TRADING_WITHDRAW_CONTRACT_REVERTED,
+            "trading_withdraw_contract_reverted",
+        ],
+        [
+            Proto.LifecycleReason.TRADING_WITHDRAW_EXECUTION_FAILED,
+            "trading_withdraw_execution_failed",
+        ],
+    ] as const)("maps trading withdrawal lifecycle reason %i", (reason, expected) => {
+        const schema = createLifecycleFlowSummarySchema();
+
+        const flow = v.parse(schema, {
+            ...baseFlowSummary,
+            lifecycleReason: reason,
+        });
+
+        expect(flow.lifecycleReason).toBe(expected);
+    });
+
     it("preserves precise Zipper reason details", () => {
         const schema = createLifecycleFlowSummarySchema();
 
