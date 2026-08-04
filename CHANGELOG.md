@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.1.1
+
+### Patch Changes
+
+- [#41](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/41) [`4ee1746`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/4ee174671d677740aa9bfe911736dd51b758da6a) Thanks [@aiiven](https://github.com/aiiven)! - Expose trading withdrawal policy, contract, and execution failure reasons through lifecycle responses.
+
 ## 0.1.0
 
 ### Minor Changes
