@@ -1275,4 +1275,21 @@ describe("OrderTransferSchema", () => {
             timestamp: 1,
         });
     });
+
+    it("decodes retained trading-withdraw request fees", () => {
+        const schema = createOrderTransferSchema();
+
+        const transfer = v.parse(schema, {
+            txId: "tx-2",
+            matchId: 6n,
+            assetId: 1,
+            amountE18: { hi: 0n, lo: 1n },
+            isDebit: true,
+            transferCode: TransferCode.TRADING_WITHDRAW_REQUEST_FEE,
+            accountCode: AccountCode.TRADING,
+            tsNs: 1_000_000n,
+        });
+
+        expect(transfer.type).toBe("trading_withdraw_request_fee");
+    });
 });

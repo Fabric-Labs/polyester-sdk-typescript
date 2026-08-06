@@ -14,6 +14,7 @@ import { removeUndefined } from "../../utils/remove-undefined.js";
 import {
     toConnectCallOptions,
     type PolyesterMutationOptions,
+    type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
@@ -23,12 +24,16 @@ import {
     createCreateTradingWithdrawToFundingInputSchema,
     CreateTradingWithdrawResultSchema,
     CreateWalletTradingWithdrawResultSchema,
+    ValidateWithdrawDestinationInputSchema,
+    ValidateWithdrawDestinationResultSchema,
     type CreateTradingWithdrawResult,
     type CreateTradingWithdrawToExternalChainInput,
     type CreateTradingWithdrawToExternalChainRequest,
     type CreateTradingWithdrawToFundingInput,
     type CreateTradingWithdrawToFundingRequest,
     type TradingWithdrawIntentPayloadRequest,
+    type ValidateWithdrawDestinationInput,
+    type ValidateWithdrawDestinationResult,
 } from "./trading-withdraws.schemas.js";
 
 export type TradingWithdrawWalletTypedData = ReturnType<typeof buildTradingWithdrawWalletTypedData>;
@@ -204,6 +209,21 @@ export class TradingWithdrawsService {
         this.#toFundingInputSchema = createCreateTradingWithdrawToFundingInputSchema(scales);
         this.#toExternalChainInputSchema =
             createCreateTradingWithdrawToExternalChainInputSchema(scales);
+    }
+
+    /**
+     * Checks whether an external-chain destination can receive a withdrawal without creating, signing, or reserving one.
+     */
+    async validateDestination(
+        input: ValidateWithdrawDestinationInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<ValidateWithdrawDestinationResult> {
+        const request = v.parse(ValidateWithdrawDestinationInputSchema, input);
+        const response = await this.#client.validateWithdrawDestination(
+            request,
+            toConnectCallOptions(options),
+        );
+        return v.parse(ValidateWithdrawDestinationResultSchema, response);
     }
 
     /**

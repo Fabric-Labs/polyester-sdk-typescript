@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file chain/withdraw/v1/withdraw.proto.
  */
 export const file_chain_withdraw_v1_withdraw: GenFile = /*@__PURE__*/
-  fileDesc("CiBjaGFpbi93aXRoZHJhdy92MS93aXRoZHJhdy5wcm90bxIRY2hhaW4ud2l0aGRyYXcudjEiMgodQ3JlYXRlVHJhZGluZ1dpdGhkcmF3UmVzcG9uc2USEQoJaW50ZW50X2lkGAEgASgJIjgKI0NyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhd1Jlc3BvbnNlEhEKCWludGVudF9pZBgBIAEoCSK4AgocVHJhZGluZ1dpdGhkcmF3SW50ZW50UGF5bG9hZBI6CgZhY3Rpb24YASABKA4yKC5jaGFpbi53aXRoZHJhdy52MS5UcmFkaW5nV2l0aGRyYXdBY3Rpb25CABISCghhc3NldF9pZBgCIAEoDUIAEhwKFGRlc3RpbmF0aW9uX2NoYWluX2lkGAMgASgEEi0KCmFtb3VudF9lMTgYBCABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4QgASGQoPZGVhZGxpbmVfdHNfc2VjGAUgASgEQgASKAoFbm9uY2UYBiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4QgASGwoTZGVzdGluYXRpb25fYWRkcmVzcxgHIAEoCRIZCg9pZGVtcG90ZW5jeV9rZXkYCCABKAlCACJ/ChxDcmVhdGVUcmFkaW5nV2l0aGRyYXdSZXF1ZXN0EkIKB3BheWxvYWQYASABKAsyLy5jaGFpbi53aXRoZHJhdy52MS5UcmFkaW5nV2l0aGRyYXdJbnRlbnRQYXlsb2FkQgASGwoRcGF5bG9hZF9zaWduYXR1cmUYAiABKAxCACK1AQoiQ3JlYXRlV2FsbGV0VHJhZGluZ1dpdGhkcmF3UmVxdWVzdBJCCgdwYXlsb2FkGAEgASgLMi8uY2hhaW4ud2l0aGRyYXcudjEuVHJhZGluZ1dpdGhkcmF3SW50ZW50UGF5bG9hZEIAEhUKDXN1YmFjY291bnRfaWQYAiABKAQSFwoNc2lnbmVyX3dhbGxldBgDIAEoCUIAEhsKEXBheWxvYWRfc2lnbmF0dXJlGAQgASgMQgAqVgoVVHJhZGluZ1dpdGhkcmF3QWN0aW9uEhYKEkFDVElPTl9VTlNQRUNJRklFRBAAEg4KClRPX0ZVTkRJTkcQARIVChFUT19FWFRFUk5BTF9DSEFJThACMqACCg9XaXRoZHJhd1NlcnZpY2USfAoVQ3JlYXRlVHJhZGluZ1dpdGhkcmF3Ei8uY2hhaW4ud2l0aGRyYXcudjEuQ3JlYXRlVHJhZGluZ1dpdGhkcmF3UmVxdWVzdBowLmNoYWluLndpdGhkcmF3LnYxLkNyZWF0ZVRyYWRpbmdXaXRoZHJhd1Jlc3BvbnNlIgASjgEKG0NyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhdxI1LmNoYWluLndpdGhkcmF3LnYxLkNyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhd1JlcXVlc3QaNi5jaGFpbi53aXRoZHJhdy52MS5DcmVhdGVXYWxsZXRUcmFkaW5nV2l0aGRyYXdSZXNwb25zZSIAQk9aTWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vY2hhaW4vd2l0aGRyYXcvdjE7Y2hhaW53aXRoZHJhd3YxYgZwcm90bzM=", [file_polyester_api_options, file_polyester_type_v1_u128]);
+  fileDesc("CiBjaGFpbi93aXRoZHJhdy92MS93aXRoZHJhdy5wcm90bxIRY2hhaW4ud2l0aGRyYXcudjEiMgodQ3JlYXRlVHJhZGluZ1dpdGhkcmF3UmVzcG9uc2USEQoJaW50ZW50X2lkGAEgASgJIjgKI0NyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhd1Jlc3BvbnNlEhEKCWludGVudF9pZBgBIAEoCSK4AgocVHJhZGluZ1dpdGhkcmF3SW50ZW50UGF5bG9hZBI6CgZhY3Rpb24YASABKA4yKC5jaGFpbi53aXRoZHJhdy52MS5UcmFkaW5nV2l0aGRyYXdBY3Rpb25CABISCghhc3NldF9pZBgCIAEoDUIAEhwKFGRlc3RpbmF0aW9uX2NoYWluX2lkGAMgASgEEi0KCmFtb3VudF9lMTgYBCABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4QgASGQoPZGVhZGxpbmVfdHNfc2VjGAUgASgEQgASKAoFbm9uY2UYBiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4QgASGwoTZGVzdGluYXRpb25fYWRkcmVzcxgHIAEoCRIZCg9pZGVtcG90ZW5jeV9rZXkYCCABKAlCACJ/ChxDcmVhdGVUcmFkaW5nV2l0aGRyYXdSZXF1ZXN0EkIKB3BheWxvYWQYASABKAsyLy5jaGFpbi53aXRoZHJhdy52MS5UcmFkaW5nV2l0aGRyYXdJbnRlbnRQYXlsb2FkQgASGwoRcGF5bG9hZF9zaWduYXR1cmUYAiABKAxCACK1AQoiQ3JlYXRlV2FsbGV0VHJhZGluZ1dpdGhkcmF3UmVxdWVzdBJCCgdwYXlsb2FkGAEgASgLMi8uY2hhaW4ud2l0aGRyYXcudjEuVHJhZGluZ1dpdGhkcmF3SW50ZW50UGF5bG9hZEIAEhUKDXN1YmFjY291bnRfaWQYAiABKAQSFwoNc2lnbmVyX3dhbGxldBgDIAEoCUIAEhsKEXBheWxvYWRfc2lnbmF0dXJlGAQgASgMQgAiYwoiVmFsaWRhdGVXaXRoZHJhd0Rlc3RpbmF0aW9uUmVxdWVzdBIeChRkZXN0aW5hdGlvbl9jaGFpbl9pZBgBIAEoBEIAEh0KE2Rlc3RpbmF0aW9uX2FkZHJlc3MYAiABKAlCACKwAQojVmFsaWRhdGVXaXRoZHJhd0Rlc3RpbmF0aW9uUmVzcG9uc2USDQoFdmFsaWQYASABKAgSQgoEY29kZRgCIAEoDjI0LmNoYWluLndpdGhkcmF3LnYxLldpdGhkcmF3RGVzdGluYXRpb25WYWxpZGF0aW9uQ29kZRIPCgdtZXNzYWdlGAMgASgJEiUKHWNhbm9uaWNhbF9kZXN0aW5hdGlvbl9hZGRyZXNzGAQgASgJKlYKFVRyYWRpbmdXaXRoZHJhd0FjdGlvbhIWChJBQ1RJT05fVU5TUEVDSUZJRUQQABIOCgpUT19GVU5ESU5HEAESFQoRVE9fRVhURVJOQUxfQ0hBSU4QAiq7AQohV2l0aGRyYXdEZXN0aW5hdGlvblZhbGlkYXRpb25Db2RlEhYKElJFU1VMVF9VTlNQRUNJRklFRBAAEgkKBVZBTElEEAESEwoPSU5WQUxJRF9BRERSRVNTEAISFQoRVU5TVVBQT1JURURfQ0hBSU4QAxIbChdQT0xZRVNURVJfU01BUlRfQUNDT1VOVBAEEhIKDlRPS0VOX0NPTlRSQUNUEAUSFgoSREVOWUxJU1RFRF9BRERSRVNTEAYysQMKD1dpdGhkcmF3U2VydmljZRKOAQobVmFsaWRhdGVXaXRoZHJhd0Rlc3RpbmF0aW9uEjUuY2hhaW4ud2l0aGRyYXcudjEuVmFsaWRhdGVXaXRoZHJhd0Rlc3RpbmF0aW9uUmVxdWVzdBo2LmNoYWluLndpdGhkcmF3LnYxLlZhbGlkYXRlV2l0aGRyYXdEZXN0aW5hdGlvblJlc3BvbnNlIgASfAoVQ3JlYXRlVHJhZGluZ1dpdGhkcmF3Ei8uY2hhaW4ud2l0aGRyYXcudjEuQ3JlYXRlVHJhZGluZ1dpdGhkcmF3UmVxdWVzdBowLmNoYWluLndpdGhkcmF3LnYxLkNyZWF0ZVRyYWRpbmdXaXRoZHJhd1Jlc3BvbnNlIgASjgEKG0NyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhdxI1LmNoYWluLndpdGhkcmF3LnYxLkNyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhd1JlcXVlc3QaNi5jaGFpbi53aXRoZHJhdy52MS5DcmVhdGVXYWxsZXRUcmFkaW5nV2l0aGRyYXdSZXNwb25zZSIAQk9aTWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vY2hhaW4vd2l0aGRyYXcvdjE7Y2hhaW53aXRoZHJhd3YxYgZwcm90bzM=", [file_polyester_api_options, file_polyester_type_v1_u128]);
 
 /**
  * CreateTradingWithdrawResponse returns the accepted durable intent identifier
@@ -215,6 +215,78 @@ export const CreateWalletTradingWithdrawRequestSchema: GenMessage<CreateWalletTr
   messageDesc(file_chain_withdraw_v1_withdraw, 4);
 
 /**
+ * ValidateWithdrawDestinationRequest checks one external-chain
+ * destination for an authenticated caller without creating a withdraw.
+ *
+ * @generated from message chain.withdraw.v1.ValidateWithdrawDestinationRequest
+ */
+export type ValidateWithdrawDestinationRequest = Message<"chain.withdraw.v1.ValidateWithdrawDestinationRequest"> & {
+  /**
+   * External destination chain identifier.
+   *
+   * @generated from field: uint64 destination_chain_id = 1;
+   */
+  destinationChainId: bigint;
+
+  /**
+   * Destination address to validate for destination_chain_id.
+   *
+   * @generated from field: string destination_address = 2;
+   */
+  destinationAddress: string;
+};
+
+/**
+ * Describes the message chain.withdraw.v1.ValidateWithdrawDestinationRequest.
+ * Use `create(ValidateWithdrawDestinationRequestSchema)` to create a new message.
+ */
+export const ValidateWithdrawDestinationRequestSchema: GenMessage<ValidateWithdrawDestinationRequest> = /*@__PURE__*/
+  messageDesc(file_chain_withdraw_v1_withdraw, 5);
+
+/**
+ * ValidateWithdrawDestinationResponse returns a user-safe validation
+ * result without exposing internal denylist details.
+ *
+ * @generated from message chain.withdraw.v1.ValidateWithdrawDestinationResponse
+ */
+export type ValidateWithdrawDestinationResponse = Message<"chain.withdraw.v1.ValidateWithdrawDestinationResponse"> & {
+  /**
+   * Whether the destination may be used for a withdraw.
+   *
+   * @generated from field: bool valid = 1;
+   */
+  valid: boolean;
+
+  /**
+   * Public validation outcome code.
+   *
+   * @generated from field: chain.withdraw.v1.WithdrawDestinationValidationCode code = 2;
+   */
+  code: WithdrawDestinationValidationCode;
+
+  /**
+   * User-safe explanation of the validation outcome.
+   *
+   * @generated from field: string message = 3;
+   */
+  message: string;
+
+  /**
+   * Canonical destination address when valid. Empty when valid is false.
+   *
+   * @generated from field: string canonical_destination_address = 4;
+   */
+  canonicalDestinationAddress: string;
+};
+
+/**
+ * Describes the message chain.withdraw.v1.ValidateWithdrawDestinationResponse.
+ * Use `create(ValidateWithdrawDestinationResponseSchema)` to create a new message.
+ */
+export const ValidateWithdrawDestinationResponseSchema: GenMessage<ValidateWithdrawDestinationResponse> = /*@__PURE__*/
+  messageDesc(file_chain_withdraw_v1_withdraw, 6);
+
+/**
  * TradingWithdrawAction identifies where funds should move from Trading.
  *
  * @generated from enum chain.withdraw.v1.TradingWithdrawAction
@@ -243,11 +315,86 @@ export const TradingWithdrawActionSchema: GenEnum<TradingWithdrawAction> = /*@__
   enumDesc(file_chain_withdraw_v1_withdraw, 0);
 
 /**
+ * WithdrawDestinationValidationCode identifies the public outcome of an
+ * external-chain destination validation.
+ *
+ * @generated from enum chain.withdraw.v1.WithdrawDestinationValidationCode
+ */
+export enum WithdrawDestinationValidationCode {
+  /**
+   * No validation outcome was produced.
+   *
+   * @generated from enum value: RESULT_UNSPECIFIED = 0;
+   */
+  RESULT_UNSPECIFIED = 0,
+
+  /**
+   * The destination is valid and may be used for a withdraw.
+   *
+   * @generated from enum value: VALID = 1;
+   */
+  VALID = 1,
+
+  /**
+   * The address is not valid for the selected destination chain.
+   *
+   * @generated from enum value: INVALID_ADDRESS = 2;
+   */
+  INVALID_ADDRESS = 2,
+
+  /**
+   * The selected destination chain is not supported for withdraws.
+   *
+   * @generated from enum value: UNSUPPORTED_CHAIN = 3;
+   */
+  UNSUPPORTED_CHAIN = 3,
+
+  /**
+   * The destination is a Polyester smart account and cannot be used for an
+   * external-chain withdraw.
+   *
+   * @generated from enum value: POLYESTER_SMART_ACCOUNT = 4;
+   */
+  POLYESTER_SMART_ACCOUNT = 4,
+
+  /**
+   * The destination is a token contract and cannot receive withdrawals.
+   *
+   * @generated from enum value: TOKEN_CONTRACT = 5;
+   */
+  TOKEN_CONTRACT = 5,
+
+  /**
+   * The destination is blocked by Polyester's user-safety denylist.
+   *
+   * @generated from enum value: DENYLISTED_ADDRESS = 6;
+   */
+  DENYLISTED_ADDRESS = 6,
+}
+
+/**
+ * Describes the enum chain.withdraw.v1.WithdrawDestinationValidationCode.
+ */
+export const WithdrawDestinationValidationCodeSchema: GenEnum<WithdrawDestinationValidationCode> = /*@__PURE__*/
+  enumDesc(file_chain_withdraw_v1_withdraw, 1);
+
+/**
  * WithdrawService manages authenticated chain-facing withdraw request intake.
  *
  * @generated from service chain.withdraw.v1.WithdrawService
  */
 export const WithdrawService: GenService<{
+  /**
+   * Validate an external-chain withdraw destination for an authenticated
+   * caller without creating, signing, or reserving a withdraw.
+   *
+   * @generated from rpc chain.withdraw.v1.WithdrawService.ValidateWithdrawDestination
+   */
+  validateWithdrawDestination: {
+    methodKind: "unary";
+    input: typeof ValidateWithdrawDestinationRequestSchema;
+    output: typeof ValidateWithdrawDestinationResponseSchema;
+  },
   /**
    * Create or return one durable withdraw from Trading.
    *

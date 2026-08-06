@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
+import { TransferCode } from "../../gen/ledger/v1/catalog_pb.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import { formatId } from "../../utils/base58-id.js";
@@ -210,6 +211,16 @@ describe("LedgerTransferSchema", () => {
     it("rejects transfers without a timestamp", () => {
         expect(() => v.parse(LedgerTransferSchema, baseTransfer)).toThrow();
     });
+
+    it("decodes retained trading-withdraw request fees", () => {
+        const transfer = v.parse(LedgerTransferSchema, {
+            ...baseTransfer,
+            transferCode: TransferCode.TRADING_WITHDRAW_REQUEST_FEE,
+            tsUs: 0n,
+        });
+
+        expect(transfer.type).toBe("trading_withdraw_request_fee");
+    });
 });
 
 describe("ListTransfersInputSchema", () => {
@@ -239,6 +250,14 @@ describe("ListTransfersInputSchema", () => {
         });
 
         expect(input.subaccountId).toBeUndefined();
+    });
+
+    it("encodes the trading-withdraw request-fee filter", () => {
+        const input = v.parse(ListTransfersInputSchema, {
+            transferCode: "trading_withdraw_request_fee",
+        });
+
+        expect(input.transferCode).toBe(TransferCode.TRADING_WITHDRAW_REQUEST_FEE);
     });
 
     it("rejects legacy or invalid account and cursor inputs", () => {
