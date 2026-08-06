@@ -2,6 +2,8 @@ export type {
     CreateTradingWithdrawToExternalChainInput,
     CreateTradingWithdrawResult,
     CreateTradingWithdrawToFundingInput,
+    ValidateWithdrawDestinationInput,
+    ValidateWithdrawDestinationResult,
 } from "./trading-withdraws.schemas.js";
 export type {
     CreateTradingWithdrawToExternalChainServiceInput,

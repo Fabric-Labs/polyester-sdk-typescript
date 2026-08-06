@@ -5,8 +5,12 @@ import {
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
 import type * as Proto from "../../gen/chain/withdraw/v1/withdraw_pb.js";
+import { WithdrawDestinationValidationCode } from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import { toU128, type U128Value } from "../../utils/u128.js";
-import { TradingWithdrawActionCodec } from "./trading-withdraws.codecs.js";
+import {
+    TradingWithdrawActionCodec,
+    WithdrawDestinationValidationCodeCodec,
+} from "./trading-withdraws.codecs.js";
 
 const DEFAULT_DEADLINE_SECONDS = 5 * 60;
 
@@ -157,4 +161,74 @@ export type CreateTradingWithdrawResult = v.InferOutput<typeof CreateTradingWith
 export const CreateWalletTradingWithdrawResultSchema = CreateTradingWithdrawResultSchema;
 export type CreateWalletTradingWithdrawResult = v.InferOutput<
     typeof CreateWalletTradingWithdrawResultSchema
+>;
+
+export const ValidateWithdrawDestinationInputSchema = v.pipe(
+    v.strictObject({
+        destinationChainId: v.pipe(
+            v.number(),
+            v.integer(),
+            v.gtValue(0),
+            v.maxValue(Number.MAX_SAFE_INTEGER),
+        ),
+        destinationAddress: v.pipe(v.string(), v.trim(), v.minLength(1)),
+    }),
+    v.transform((input) => ({
+        destinationChainId: BigInt(input.destinationChainId),
+        destinationAddress: input.destinationAddress,
+    })),
+);
+
+export type ValidateWithdrawDestinationInput = v.InferInput<
+    typeof ValidateWithdrawDestinationInputSchema
+>;
+export type ValidateWithdrawDestinationRequest = v.InferOutput<
+    typeof ValidateWithdrawDestinationInputSchema
+>;
+
+const ValidWithdrawDestinationResultSchema = v.pipe(
+    v.object({
+        valid: v.literal(true),
+        code: v.literal(WithdrawDestinationValidationCode.VALID),
+        message: v.string(),
+        canonicalDestinationAddress: v.pipe(v.string(), v.trim(), v.minLength(1)),
+    }),
+    v.transform((result) => ({
+        ...result,
+        code: WithdrawDestinationValidationCodeCodec.protoToOutput[result.code],
+    })),
+);
+
+const {
+    [WithdrawDestinationValidationCode.VALID]: _validWithdrawDestinationCode,
+    ...InvalidWithdrawDestinationCodeCodec
+} = WithdrawDestinationValidationCodeCodec.protoToOutput;
+
+const InvalidWithdrawDestinationResultSchema = v.pipe(
+    v.object({
+        valid: v.literal(false),
+        code: v.picklist([
+            WithdrawDestinationValidationCode.RESULT_UNSPECIFIED,
+            WithdrawDestinationValidationCode.INVALID_ADDRESS,
+            WithdrawDestinationValidationCode.UNSUPPORTED_CHAIN,
+            WithdrawDestinationValidationCode.POLYESTER_SMART_ACCOUNT,
+            WithdrawDestinationValidationCode.TOKEN_CONTRACT,
+            WithdrawDestinationValidationCode.DENYLISTED_ADDRESS,
+        ]),
+        message: v.string(),
+        canonicalDestinationAddress: v.string(),
+    }),
+    v.transform((result) => ({
+        ...result,
+        code: InvalidWithdrawDestinationCodeCodec[result.code],
+    })),
+);
+
+export const ValidateWithdrawDestinationResultSchema = v.union([
+    ValidWithdrawDestinationResultSchema,
+    InvalidWithdrawDestinationResultSchema,
+]);
+
+export type ValidateWithdrawDestinationResult = v.InferOutput<
+    typeof ValidateWithdrawDestinationResultSchema
 >;

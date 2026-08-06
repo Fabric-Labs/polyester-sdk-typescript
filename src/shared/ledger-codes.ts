@@ -17,6 +17,7 @@ export const TRANSFER_CODE_VALUES = [
     "trading_to_funding",
     "trading_withdraw_reserve",
     "funding_user_transfer",
+    "trading_withdraw_request_fee",
 ] as const;
 export type TransferCodeValue = (typeof TRANSFER_CODE_VALUES)[number];
 
@@ -46,6 +47,7 @@ export const TransferCodeCodec = {
         trading_to_funding: TransferCode.TRADING_TO_FUNDING,
         trading_withdraw_reserve: TransferCode.TRADING_WITHDRAW_RESERVE,
         funding_user_transfer: TransferCode.FUNDING_USER_TRANSFER,
+        trading_withdraw_request_fee: TransferCode.TRADING_WITHDRAW_REQUEST_FEE,
     } satisfies InputToProto<TransferCodeValue, TransferCode>,
     protoToOutput: {
         [TransferCode.TRANSFER_CODE_UNSPECIFIED]: "unspecified",
@@ -61,5 +63,6 @@ export const TransferCodeCodec = {
         [TransferCode.TRADING_TO_FUNDING]: "trading_to_funding",
         [TransferCode.TRADING_WITHDRAW_RESERVE]: "trading_withdraw_reserve",
         [TransferCode.FUNDING_USER_TRANSFER]: "funding_user_transfer",
+        [TransferCode.TRADING_WITHDRAW_REQUEST_FEE]: "trading_withdraw_request_fee",
     } satisfies ProtoToOutput<TransferCode, TransferCodeValue>,
 } as const;

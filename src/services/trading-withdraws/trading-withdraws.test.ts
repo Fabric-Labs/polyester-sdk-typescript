@@ -34,6 +34,71 @@ function testScales() {
 }
 
 describe("TradingWithdrawsService", () => {
+    it("validates an external destination and forwards request options", async () => {
+        const controller = new AbortController();
+        const transport = unaryTransportByMethod({
+            validateWithdrawDestination: {
+                valid: true,
+                code: Proto.WithdrawDestinationValidationCode.VALID,
+                message: "Destination is valid.",
+                canonicalDestinationAddress: "0xabc123",
+            },
+        });
+        const service = new TradingWithdrawsService(
+            transport.transport,
+            undefined,
+            signingConfig,
+            testScales(),
+        );
+
+        await expect(
+            service.validateDestination(
+                {
+                    destinationChainId: 10_009,
+                    destinationAddress: " rAddress:123 ",
+                },
+                { signal: controller.signal },
+            ),
+        ).resolves.toEqual({
+            valid: true,
+            code: "valid",
+            message: "Destination is valid.",
+            canonicalDestinationAddress: "0xabc123",
+        });
+
+        const captured = transport.lastCall();
+        expect(captured?.method.localName).toBe("validateWithdrawDestination");
+        expect(captured?.message).toEqual({
+            destinationChainId: 10_009n,
+            destinationAddress: "rAddress:123",
+        });
+        expect(captured?.signal).toBe(controller.signal);
+    });
+
+    it("rejects malformed destination-validation responses", async () => {
+        const transport = unaryTransportByMethod({
+            validateWithdrawDestination: {
+                valid: false,
+                code: Proto.WithdrawDestinationValidationCode.VALID,
+                message: "Inconsistent response.",
+                canonicalDestinationAddress: "",
+            },
+        });
+        const service = new TradingWithdrawsService(
+            transport.transport,
+            undefined,
+            signingConfig,
+            testScales(),
+        );
+
+        await expect(
+            service.validateDestination({
+                destinationChainId: 10_009,
+                destinationAddress: "rAddress:123",
+            }),
+        ).rejects.toThrow();
+    });
+
     it("builds signed-payload withdraw requests from decimal quantities and forwards mutation options", async () => {
         const controller = new AbortController();
         const payloadSignature = new Uint8Array([1, 2, 3]);

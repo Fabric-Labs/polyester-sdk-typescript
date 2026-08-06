@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
+import { WithdrawDestinationValidationCode } from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import {
     createCreateTradingWithdrawToExternalChainInputSchema,
     createCreateTradingWithdrawToFundingInputSchema,
     CreateTradingWithdrawResultSchema,
+    ValidateWithdrawDestinationInputSchema,
+    ValidateWithdrawDestinationResultSchema,
 } from "./trading-withdraws.schemas.js";
 import * as v from "valibot";
 
@@ -158,5 +161,111 @@ describe("CreateTradingWithdrawResultSchema", () => {
 
     it("rejects empty backend intent IDs", () => {
         expect(() => v.parse(CreateTradingWithdrawResultSchema, { intentId: "" })).toThrow();
+    });
+});
+
+describe("ValidateWithdrawDestinationInputSchema", () => {
+    it("trims the address and converts the chain id to uint64-compatible bigint", () => {
+        expect(
+            v.parse(ValidateWithdrawDestinationInputSchema, {
+                destinationChainId: 10_009,
+                destinationAddress: " rAddress:123 ",
+            }),
+        ).toEqual({
+            destinationChainId: 10_009n,
+            destinationAddress: "rAddress:123",
+        });
+    });
+
+    it.each([0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1])(
+        "rejects invalid chain id %s",
+        (destinationChainId) => {
+            expect(() =>
+                v.parse(ValidateWithdrawDestinationInputSchema, {
+                    destinationChainId,
+                    destinationAddress: "rAddress:123",
+                }),
+            ).toThrow();
+        },
+    );
+
+    it("rejects an empty destination address", () => {
+        expect(() =>
+            v.parse(ValidateWithdrawDestinationInputSchema, {
+                destinationChainId: 10_009,
+                destinationAddress: "   ",
+            }),
+        ).toThrow();
+    });
+});
+
+describe("ValidateWithdrawDestinationResultSchema", () => {
+    it("decodes a valid destination with its canonical address", () => {
+        expect(
+            v.parse(ValidateWithdrawDestinationResultSchema, {
+                valid: true,
+                code: WithdrawDestinationValidationCode.VALID,
+                message: "Destination is valid.",
+                canonicalDestinationAddress: " 0xabc123 ",
+            }),
+        ).toEqual({
+            valid: true,
+            code: "valid",
+            message: "Destination is valid.",
+            canonicalDestinationAddress: "0xabc123",
+        });
+    });
+
+    it.each([
+        [WithdrawDestinationValidationCode.RESULT_UNSPECIFIED, "unspecified"],
+        [WithdrawDestinationValidationCode.INVALID_ADDRESS, "invalid_address"],
+        [WithdrawDestinationValidationCode.UNSUPPORTED_CHAIN, "unsupported_chain"],
+        [WithdrawDestinationValidationCode.POLYESTER_SMART_ACCOUNT, "polyester_smart_account"],
+        [WithdrawDestinationValidationCode.TOKEN_CONTRACT, "token_contract"],
+        [WithdrawDestinationValidationCode.DENYLISTED_ADDRESS, "denylisted_address"],
+    ] as const)("decodes failure code %i as %s", (code, expected) => {
+        expect(
+            v.parse(ValidateWithdrawDestinationResultSchema, {
+                valid: false,
+                code,
+                message: "Destination cannot be used.",
+                canonicalDestinationAddress: "",
+            }),
+        ).toMatchObject({ valid: false, code: expected });
+    });
+
+    it("preserves a canonical address returned with a failed validation", () => {
+        expect(
+            v.parse(ValidateWithdrawDestinationResultSchema, {
+                valid: false,
+                code: WithdrawDestinationValidationCode.DENYLISTED_ADDRESS,
+                message: "Destination cannot be used.",
+                canonicalDestinationAddress: "0xabc123",
+            }),
+        ).toMatchObject({
+            valid: false,
+            canonicalDestinationAddress: "0xabc123",
+        });
+    });
+
+    it("rejects inconsistent or unknown backend outcomes", () => {
+        const base = {
+            message: "Invalid response.",
+            canonicalDestinationAddress: "",
+        };
+        expect(() =>
+            v.parse(ValidateWithdrawDestinationResultSchema, {
+                ...base,
+                valid: false,
+                code: WithdrawDestinationValidationCode.VALID,
+            }),
+        ).toThrow();
+        expect(() =>
+            v.parse(ValidateWithdrawDestinationResultSchema, {
+                ...base,
+                valid: false,
+                code: 999,
+            }),
+        ).toThrow();
     });
 });
