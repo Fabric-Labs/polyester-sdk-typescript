@@ -1,5 +1,15 @@
 # @polyester/sdk
 
+## 0.2.0
+
+### Minor Changes
+
+- [#43](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/43) [`0896e61`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/0896e61b83df934b090e7a31903fe3ba001c3a05) Thanks [@aiiven](https://github.com/aiiven)! - feat(ledger): add trading withdrawal request-fee codes to transfer filters and decoded records.
+
+### Patch Changes
+
+- [#43](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/43) [`0896e61`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/0896e61b83df934b090e7a31903fe3ba001c3a05) Thanks [@aiiven](https://github.com/aiiven)! - feat(withdraw): add a destination validation method to support preflight checks before external-chain withdrawals.
+
 ## 0.1.1
 
 ### Patch Changes
