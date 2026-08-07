@@ -9,6 +9,17 @@ import {
 } from "../catalogs/types.js";
 import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
 import {
+    ErrorCode as OrderErrorCode,
+    ErrorDetailSchema as OrderErrorDetailSchema,
+} from "../gen/orders/v1/orders_pb.js";
+import {
+    FailureReason,
+    LimiterScope,
+    PolicyClass,
+    RateLimitDetailSchema,
+    RefillModel,
+} from "../gen/polyester/ratelimit/v1/types_pb.js";
+import {
     isFreshStepUpRequiredError,
     isMfaEnrollmentRequiredError,
     isMfaLastFactorRequiredError,
@@ -327,6 +338,48 @@ describe("connectErrorToPolyesterError", () => {
         const mapped = connectErrorToPolyesterError(ce);
         expect(mapped).toBeInstanceOf(RateLimitError);
         expect((mapped as RateLimitError).retryAfterMs).toBe(2000);
+    });
+
+    it("maps structured rate-limit details and prefers their retry guidance", () => {
+        const rateLimit = create(RateLimitDetailSchema, {
+            reason: FailureReason.QUOTA_EXCEEDED,
+            limit: 100n,
+            remaining: 0n,
+            retryAfterMs: 1_500n,
+            policyVersion: 7n,
+            operationId: "orders.create",
+            policyClass: PolicyClass.TRADING_PLACE,
+            scope: LimiterScope.SUBACCOUNT,
+            refillModel: RefillModel.ROLLING_WINDOW,
+        });
+        const orderDetail = create(OrderErrorDetailSchema, {
+            code: OrderErrorCode.RATE_LIMIT_EXCEEDED,
+            rateLimit,
+        });
+        const raw = new ConnectError(
+            "quota exhausted",
+            Code.InvalidArgument,
+            new Headers({ "retry-after": "9" }),
+            [{ desc: OrderErrorDetailSchema, value: orderDetail }],
+        );
+
+        const mapped = connectErrorToPolyesterError(raw);
+
+        expect(mapped).toBeInstanceOf(RateLimitError);
+        expect(mapped).toMatchObject({
+            retryAfterMs: 1_500,
+            rateLimit: {
+                reason: "quota_exceeded",
+                limit: "100",
+                remaining: "0",
+                retryAfterMs: "1500",
+                policyVersion: "7",
+                operationId: "orders.create",
+                policyClass: "trading_place",
+                scope: "subaccount",
+                refillModel: "rolling_window",
+            },
+        });
     });
 });
 

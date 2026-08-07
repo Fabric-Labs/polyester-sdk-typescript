@@ -1,5 +1,6 @@
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import * as v from "valibot";
+import { RateLimitDetailSchema } from "../../shared/rate-limit.schemas.js";
 
 export type OrderErrorCode = keyof typeof ProtoWrite.ErrorCode;
 
@@ -23,6 +24,7 @@ export const OrderErrorDetailSchema = v.object({
             message: v.string(),
         }),
     ),
+    rateLimit: v.optional(RateLimitDetailSchema),
 });
 
 export type OrderErrorDetail = v.InferOutput<typeof OrderErrorDetailSchema>;

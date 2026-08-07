@@ -1,3 +1,5 @@
+import type { RateLimitDetail } from "./rate-limit.schemas.js";
+
 /**
  * Typed error hierarchy for the Polyester SDK.
  *
@@ -151,6 +153,8 @@ export class TimeoutError extends TransientError {
 export interface RateLimitErrorOptions extends PolyesterErrorOptions {
     /** Suggested wait before retrying, when the backend provided one. */
     retryAfterMs?: number;
+    /** Structured quota state attached to the rejection, when provided. */
+    rateLimit?: RateLimitDetail;
 }
 
 /** The backend rejected the request due to rate limiting. */
@@ -158,11 +162,14 @@ export class RateLimitError extends TransientError {
     override readonly code: string = "RATE_LIMITED";
     /** Suggested wait before retrying, in milliseconds, when known. */
     readonly retryAfterMs?: number;
+    /** Structured quota state attached to the rejection, when provided. */
+    readonly rateLimit?: RateLimitDetail;
 
     constructor(message: string, options?: RateLimitErrorOptions) {
         super(message, options);
         this.name = "RateLimitError";
         this.retryAfterMs = options?.retryAfterMs;
+        this.rateLimit = options?.rateLimit;
     }
 }
 

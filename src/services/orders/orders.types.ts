@@ -25,6 +25,7 @@ export type {
     NewOrderInput,
     OpenOrdersInput,
     OrderErrorCode,
+    OrderErrorDetail,
     OrderIntentInput,
     Order,
     OrderDetails,

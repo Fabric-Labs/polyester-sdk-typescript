@@ -111,6 +111,13 @@ export type {
     RateLimitErrorOptions,
     MfaVerificationFailureReason,
 } from "./shared/errors.js";
+export type {
+    RateLimitDetail,
+    RateLimitFailureReason,
+    RateLimitPolicyClass,
+    RateLimitRefillModel,
+    RateLimitScope,
+} from "./shared/rate-limit.schemas.js";
 export {
     connectErrorToPolyesterError,
     createErrorMappingInterceptor,

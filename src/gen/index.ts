@@ -34,6 +34,7 @@ export * as ordersReadPb from "./orders/v1/orders_read_pb.js";
 export * as polychartEventsPb from "./polychart/events/v1/polychart_events_pb.js";
 export * as polychartPb from "./polychart/v1/polychart_pb.js";
 export * as polyesterOptionsPb from "./polyester/api/options_pb.js";
+export * as rateLimitPb from "./polyester/ratelimit/v1/types_pb.js";
 export * as u128Pb from "./polyester/type/v1/u128_pb.js";
 export * as tradeWsPb from "./tradews/v1/trade_ws_pb.js";
 export * as internalTransferPb from "./transfer/v1/internal_transfer_pb.js";

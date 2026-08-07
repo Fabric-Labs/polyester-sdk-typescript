@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
+import * as ProtoRateLimit from "../../gen/polyester/ratelimit/v1/types_pb.js";
 import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
@@ -354,6 +355,20 @@ describe("batch replace schemas", () => {
                     replacementOrderId: 0n,
                     clientOrderId: "order-b",
                     code: "INVALID_ORDER_STATE",
+                    error: {
+                        code: ProtoWrite.ErrorCode.RATE_LIMIT_EXCEEDED,
+                        violations: [],
+                        rateLimit: {
+                            reason: ProtoRateLimit.FailureReason.QUOTA_EXCEEDED,
+                            limit: 20n,
+                            remaining: 0n,
+                            retryAfterMs: 500n,
+                            operationId: "orders.batch_replace",
+                            policyClass: ProtoRateLimit.PolicyClass.TRADING_PLACE,
+                            scope: ProtoRateLimit.LimiterScope.SUBACCOUNT,
+                            refillModel: ProtoRateLimit.RefillModel.CONTINUOUS,
+                        },
+                    },
                 },
             ],
             acceptedCount: 1,
@@ -380,6 +395,21 @@ describe("batch replace schemas", () => {
                     replacementOrderId: undefined,
                     clientOrderId: "order-b",
                     code: "INVALID_ORDER_STATE",
+                    error: {
+                        code: "RATE_LIMIT_EXCEEDED",
+                        violations: [],
+                        rateLimit: {
+                            reason: "quota_exceeded",
+                            limit: "20",
+                            remaining: "0",
+                            retryAfterMs: "500",
+                            policyVersion: undefined,
+                            operationId: "orders.batch_replace",
+                            policyClass: "trading_place",
+                            scope: "subaccount",
+                            refillModel: "continuous",
+                        },
+                    },
                 },
             ],
             acceptedCount: 1,
@@ -519,6 +549,10 @@ describe("batch cancel schemas", () => {
                         orderId: 0n,
                         clientOrderId: "order-b",
                         code: "ORDER_NOT_FOUND",
+                        error: {
+                            code: ProtoWrite.ErrorCode.NOT_FOUND,
+                            violations: [],
+                        },
                     },
                 ],
                 acceptedCount: 1,
@@ -538,6 +572,11 @@ describe("batch cancel schemas", () => {
                     orderId: undefined,
                     clientOrderId: "order-b",
                     code: "ORDER_NOT_FOUND",
+                    error: {
+                        code: "NOT_FOUND",
+                        violations: [],
+                        rateLimit: undefined,
+                    },
                 },
             ],
             acceptedCount: 1,
