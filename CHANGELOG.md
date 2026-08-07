@@ -1,5 +1,13 @@
 # @polyester/sdk
 
+## 0.2.1
+
+### Patch Changes
+
+- [#45](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/45) [`9e85a55`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/9e85a55432709b88257fb2bdd26a8c09b92935e2) Thanks [@aiiven](https://github.com/aiiven)! - feat(orders): add structured rate-limit details to order rejection results and typed errors.
+
+- [#45](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/45) [`9e85a55`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/9e85a55432709b88257fb2bdd26a8c09b92935e2) Thanks [@aiiven](https://github.com/aiiven)! - feat(realtime): add structured error details to trading command rejections.
+
 ## 0.2.0
 
 ### Minor Changes
