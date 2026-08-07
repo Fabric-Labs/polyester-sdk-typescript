@@ -1,4 +1,5 @@
 import { Code, ConnectError, type Interceptor } from "@connectrpc/connect";
+import * as v from "valibot";
 import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
 import {
     ErrorCode as OrderErrorCode,
@@ -32,6 +33,7 @@ import {
     TransientError,
     ValidationError,
 } from "./errors.js";
+import { RateLimitDetailSchema, type RateLimitDetail } from "./rate-limit.schemas.js";
 
 function getAuthErrorDetails(err: unknown) {
     return ConnectError.from(err).findDetails(AuthErrorDetailSchema);
@@ -42,9 +44,26 @@ function hasAuthErrorCode(err: unknown, code: AuthErrorCode): boolean {
 }
 
 function hasOrderErrorCode(err: unknown, code: OrderErrorCode): boolean {
-    return ConnectError.from(err)
-        .findDetails(OrderErrorDetailSchema)
-        .some((detail) => detail.code === code);
+    return getOrderErrorDetails(err).some((detail) => detail.code === code);
+}
+
+function getOrderErrorDetails(err: unknown) {
+    return ConnectError.from(err).findDetails(OrderErrorDetailSchema);
+}
+
+function getRateLimitDetail(err: unknown): RateLimitDetail | undefined {
+    for (const orderDetail of getOrderErrorDetails(err)) {
+        if (!orderDetail.rateLimit) continue;
+        const result = v.safeParse(RateLimitDetailSchema, orderDetail.rateLimit);
+        if (result.success) return result.output;
+    }
+    return undefined;
+}
+
+function safeRetryAfterMs(rateLimit: RateLimitDetail | undefined): number | undefined {
+    if (rateLimit?.retryAfterMs === undefined) return undefined;
+    const value = BigInt(rateLimit.retryAfterMs);
+    return value <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(value) : undefined;
 }
 
 /**
@@ -147,6 +166,15 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
 
     if (hasOrderErrorCode(ce, OrderErrorCode.STALE_QUOTE)) {
         return new StaleQuoteError(withFallback("The submitted market quote is stale."), options);
+    }
+
+    const rateLimit = getRateLimitDetail(ce);
+    if (rateLimit || hasOrderErrorCode(ce, OrderErrorCode.RATE_LIMIT_EXCEEDED)) {
+        return new RateLimitError(withFallback("Rate limit exceeded."), {
+            ...options,
+            rateLimit,
+            retryAfterMs: safeRetryAfterMs(rateLimit) ?? parseRetryAfterMs(ce),
+        });
     }
 
     switch (ce.code) {

@@ -352,6 +352,7 @@ const BatchReplaceAdmissionItemSchema = v.pipe(
         replacementOrderId: OptionalPublicIdSchema,
         clientOrderId: v.string(),
         code: v.string(),
+        error: v.optional(OrderErrorDetailSchema),
     }),
     v.transform((item) => ({
         ...item,
@@ -537,6 +538,7 @@ const BatchCancelOrderResultSchema = v.object({
     orderId: OptionalPublicIdSchema,
     clientOrderId: v.string(),
     code: v.string(),
+    error: v.optional(OrderErrorDetailSchema),
 });
 
 export type BatchCancelOrderResult = v.InferOutput<typeof BatchCancelOrderResultSchema>;
