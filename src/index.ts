@@ -129,7 +129,7 @@ export {
     isMfaEnrollmentRequiredError,
     isSessionElevationRequiredError,
 } from "./utils/connect-mfa-errors.js";
-export { isStaleQuoteError } from "./utils/connect-order-errors.js";
+export { getOrderErrorDetail, isStaleQuoteError } from "./utils/connect-order-errors.js";
 export {
     formatConnectError,
     formatUserFacingError,
