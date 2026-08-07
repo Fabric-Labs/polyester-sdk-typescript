@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.2.2
+
+### Patch Changes
+
+- [#48](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/48) [`e363ba5`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/e363ba59cb1a5e52ac8ea04f843e2562c9e29f0d) Thanks [@huntabyte](https://github.com/huntabyte)! - feat(orders): export a canonical cause-chain parser for structured order error details.
+
 ## 0.2.1
 
 ### Patch Changes
