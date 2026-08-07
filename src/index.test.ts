@@ -29,7 +29,6 @@ describe("public package entrypoint", () => {
                 isPolicyLockedError: expect.any(Function),
                 isPolicyScopeMismatchError: expect.any(Function),
                 getOrderErrorDetail: expect.any(Function),
-                OrderErrorDetailSchema: expect.any(Object),
             }),
         );
     });
@@ -49,6 +48,7 @@ describe("public package entrypoint", () => {
                 polyesterSession: expect.anything(),
                 polyesterToken: expect.anything(),
                 LoginWithWalletInputSchema: expect.anything(),
+                OrderErrorDetailSchema: expect.anything(),
                 OrderSchema: expect.anything(),
                 TimeframeCodec: expect.anything(),
             }),

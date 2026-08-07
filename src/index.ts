@@ -130,7 +130,6 @@ export {
     isSessionElevationRequiredError,
 } from "./utils/connect-mfa-errors.js";
 export { getOrderErrorDetail, isStaleQuoteError } from "./utils/connect-order-errors.js";
-export { OrderErrorDetailSchema } from "./services/orders/order-errors.schemas.js";
 export {
     formatConnectError,
     formatUserFacingError,

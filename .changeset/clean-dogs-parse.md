@@ -2,4 +2,4 @@
 "@polyester/sdk": patch
 ---
 
-feat(orders): export the canonical order error detail schema and cause-chain parser.
+feat(orders): export a canonical cause-chain parser for structured order error details.
