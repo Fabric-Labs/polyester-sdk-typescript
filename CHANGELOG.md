@@ -1,5 +1,15 @@
 # @polyester/sdk
 
+## 0.3.0
+
+### Minor Changes
+
+- [#50](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/50) [`b3412a0`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b3412a0f8376708be58f60b2d4e1537e35867757) Thanks [@aiiven](https://github.com/aiiven)! - feat(triggers): support time-scheduled trigger events that omit conditional fire prices.
+
+### Patch Changes
+
+- [#50](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/50) [`b3412a0`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b3412a0f8376708be58f60b2d4e1537e35867757) Thanks [@aiiven](https://github.com/aiiven)! - feat(orders): add trigger ID filters for listing open and historical child orders.
+
 ## 0.2.2
 
 ### Patch Changes
