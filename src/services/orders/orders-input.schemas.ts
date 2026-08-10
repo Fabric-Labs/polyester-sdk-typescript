@@ -9,6 +9,7 @@ import {
     OptionalTimestampMsSchema,
     PublicIdSchema,
     TimestampMsSchema,
+    optionalIdInputSchema,
     optionalUint64DecimalFilterSchema,
 } from "../../shared/schemas.js";
 import {
@@ -44,6 +45,7 @@ const SelfTradePreventionModeSchema = v.picklist(SELF_TRADE_PREVENTION_MODE_VALU
 const BaseOrdersFilterInputEntries = {
     ...AccountScopeInputEntries,
     symbolId: v.optional(v.array(v.number())),
+    triggerId: optionalIdInputSchema("triggerId"),
     side: v.pipe(
         v.optional(SideSchema),
         v.transform((v) => (v ? OrderSideCodec.inputToProto[v] : undefined)),

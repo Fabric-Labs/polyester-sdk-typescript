@@ -205,24 +205,28 @@ type _InvalidModifyWithBothStopLegs = AssertModifyOrderInput<{
 }>;
 
 describe("OrderHistoryInputSchema", () => {
-    it("parses supplied timestamp filters", () => {
+    it("parses supplied trigger and timestamp filters", () => {
         const input = v.parse(OrderHistoryInputSchema, {
+            triggerId: formatId(22n),
             startTsNs: " 100 ",
             endTsNs: "200",
         });
 
+        expect(input.triggerId).toBe(22n);
         expect(input.startTsNs).toBe(100n);
         expect(input.endTsNs).toBe(200n);
     });
 
-    it("omits absent timestamp filters", () => {
+    it("omits absent trigger and timestamp filters", () => {
         const input = v.parse(OrderHistoryInputSchema, {});
 
+        expect(input.triggerId).toBeUndefined();
         expect(input.startTsNs).toBeUndefined();
         expect(input.endTsNs).toBeUndefined();
     });
 
-    it("rejects invalid supplied timestamp filters", () => {
+    it("rejects invalid supplied trigger and timestamp filters", () => {
+        expect(() => v.parse(OrderHistoryInputSchema, { triggerId: "invalid-0" })).toThrow();
         expect(() => v.parse(OrderHistoryInputSchema, { startTsNs: "not-a-ts" })).toThrow();
         expect(() => v.parse(OrderHistoryInputSchema, { endTsNs: "12.3" })).toThrow();
     });

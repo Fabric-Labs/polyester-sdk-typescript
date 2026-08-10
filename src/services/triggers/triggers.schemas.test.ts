@@ -725,4 +725,22 @@ describe("Trigger result and output schemas", () => {
             }),
         ).toMatchObject({ eventType: "unspecified" });
     });
+
+    it("accepts TWAP events without a conditional fire price", () => {
+        const triggerEventSchema = createTriggerEventSchema(testScales());
+
+        expect(
+            v.parse(triggerEventSchema, {
+                triggerId: 11n,
+                subaccountId: 22n,
+                symbolId: 1,
+                triggerType: Proto.TriggerType.TWAP,
+                eventType: Proto.TriggerEventType.EVENT_FIRED,
+                tsNs: 1_000_000n,
+                childSeq: 1,
+                childOrderId: 33n,
+                reason: "",
+            }),
+        ).toMatchObject({ triggerType: "twap", firePrice: undefined });
+    });
 });

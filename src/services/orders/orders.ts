@@ -123,7 +123,7 @@ export class OrdersService {
     }
 
     /**
-     * Returns open orders for the resolved root account or subaccount, with optional symbol, side, pagination, and attached-risk inclusion filters. Results include the next page token returned by GetOpenOrders.
+     * Returns open orders for the resolved root account or subaccount, with optional symbol, trigger ID, side, pagination, and attached-risk inclusion filters. Results include the next page token returned by GetOpenOrders.
      */
     async listOpen(
         input: v.InferInput<typeof OpenOrdersInputSchema> = {},
@@ -146,7 +146,7 @@ export class OrdersService {
     }
 
     /**
-     * Returns historical orders for the resolved account scope, supporting symbol, side, status, time range, pagination, and attached-risk filters. Results are paginated with the backend nextPageToken.
+     * Returns historical orders for the resolved account scope, supporting symbol, trigger ID, side, status, time range, pagination, and attached-risk filters. Results are paginated with the backend nextPageToken.
      */
     async listHistory(
         input: v.InferInput<typeof OrderHistoryInputSchema> = {},
