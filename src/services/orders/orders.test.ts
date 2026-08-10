@@ -115,6 +115,7 @@ describe("OrdersService", () => {
                     service.listOpen(
                         {
                             symbolId: [1],
+                            triggerId: "22",
                             side: "buy",
                             limit: 25,
                             pageToken: " cursor ",
@@ -126,6 +127,7 @@ describe("OrdersService", () => {
                 expectedMessage: {
                     subaccountId: 11n,
                     symbolId: [1],
+                    triggerId: 22n,
                     side: ProtoWrite.Side.BUY,
                     limit: 25,
                     pageToken: "cursor",
@@ -140,6 +142,7 @@ describe("OrdersService", () => {
                     service.listHistory(
                         {
                             account: "main",
+                            triggerId: "22",
                             status: "FILLED",
                             startTsNs: " 100 ",
                             endTsNs: "200",
@@ -149,6 +152,7 @@ describe("OrdersService", () => {
                 expectedMethod: "getOrderHistory",
                 expectedMessage: {
                     status: ProtoRead.OrderStatus.FILLED,
+                    triggerId: 22n,
                     startTsNs: 100n,
                     endTsNs: 200n,
                     includeAttachedRisk: true,

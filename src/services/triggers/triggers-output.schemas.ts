@@ -566,7 +566,7 @@ export function createTriggerEventSchema(scales: SdkScales) {
             tsNs: v.bigint(),
             childSeq: v.number(),
             childOrderId: v.bigint(),
-            firePriceTicks: v.bigint(),
+            firePriceTicks: v.optional(v.bigint()),
             reason: v.string(),
         }),
         v.transform((e) => ({
@@ -589,7 +589,7 @@ export function createTriggerEventSchema(scales: SdkScales) {
             childSeq: e.childSeq,
             childOrderId: e.childOrderId > 0n ? formatId(e.childOrderId) : undefined,
             firePrice:
-                e.firePriceTicks > 0n
+                e.firePriceTicks !== undefined && e.firePriceTicks > 0n
                     ? scaledToDecimalOutput(e.firePriceTicks, scales.price())
                     : undefined,
             reason: e.reason || undefined,
