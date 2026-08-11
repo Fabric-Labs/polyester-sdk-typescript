@@ -73,6 +73,7 @@ const MarketOverviewRawSchema = v.object({
     bestAskTicks: v.bigint(),
     bestAskQtyScaled: v.bigint(),
     sparklines: v.optional(v.array(MarketOverviewSparklineRawSchema), []),
+    indexPriceTicks: v.bigint(),
 });
 
 export function createMarketOverviewSchema(scales: SdkScales) {
@@ -97,6 +98,10 @@ export function createMarketOverviewSchema(scales: SdkScales) {
                 bestBidQty: scaledToDecimalOutput(m.bestBidQtyScaled, baseQtyScale),
                 bestAsk: scaledToDecimalOutput(m.bestAskTicks, priceScale),
                 bestAskQty: scaledToDecimalOutput(m.bestAskQtyScaled, baseQtyScale),
+                indexPrice:
+                    m.indexPriceTicks > 0n
+                        ? scaledToDecimalOutput(m.indexPriceTicks, priceScale)
+                        : undefined,
                 sparklines: (m.sparklines ?? []).map(
                     (s): MarketOverviewSparkline => ({
                         interval: s.interval,

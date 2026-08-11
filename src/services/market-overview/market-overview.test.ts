@@ -63,6 +63,7 @@ function market(overrides: Record<string, unknown> = {}) {
         bestBidQtyScaled: 10_000_000n,
         bestAskTicks: 1_300_000n,
         bestAskQtyScaled: 20_000_000n,
+        indexPriceTicks: 1_250_000n,
         sparklines: [],
         ...overrides,
     };
@@ -141,6 +142,7 @@ describe("MarketOverviewService", () => {
                     bestBidQty: "0.1",
                     bestAsk: "1.3",
                     bestAskQty: "0.2",
+                    indexPrice: "1.25",
                     sparklines: [],
                 },
             ],
@@ -246,7 +248,7 @@ describe("MarketOverviewService", () => {
 
         expect(onEvent).toHaveBeenCalledTimes(1);
         expect(onEvent.mock.calls[0]?.[0]).toEqual([
-            expect.objectContaining({ symbolId: 101, lastPrice: "2" }),
+            expect.objectContaining({ symbolId: 101, lastPrice: "2", indexPrice: "1.25" }),
         ]);
     });
 

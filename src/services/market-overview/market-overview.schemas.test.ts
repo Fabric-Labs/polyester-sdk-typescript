@@ -1,7 +1,9 @@
+import { create } from "@bufbuild/protobuf";
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import {
     MarketOrderBy,
+    MarketOverviewSchema,
     SortDirection,
     SparklineInterval,
 } from "../../gen/marketoverview/v1/marketoverview_pb.js";
@@ -72,6 +74,7 @@ describe("MarketOverviewSchema", () => {
             bestBidQtyScaled: 12_345_678n,
             bestAskTicks: 1_234_600_002n,
             bestAskQtyScaled: 23_456_789n,
+            indexPriceTicks: 1_234_550_003n,
             sparklines: [
                 {
                     interval: SparklineInterval.SPARKLINE_24H,
@@ -95,8 +98,15 @@ describe("MarketOverviewSchema", () => {
             bestBidQty: "0.12345678",
             bestAsk: "1234.600002",
             bestAskQty: "0.23456789",
+            indexPrice: "1234.550003",
             sparklines: [{ interval: "24h", close: ["1.000001", "1.01"] }],
         });
+
+        const unavailableIndexPrice = v.parse(
+            schema,
+            create(MarketOverviewSchema, { symbolId: 101, indexPriceTicks: 0n }),
+        );
+        expect(unavailableIndexPrice.indexPrice).toBeUndefined();
     });
 
     it("computes display-only 24h change from decimal sparkline closes", () => {

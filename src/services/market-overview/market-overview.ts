@@ -40,7 +40,7 @@ export class MarketOverviewService {
     }
 
     /**
-     * Returns market overview rows with last price, 24h stats, top-of-book values, listing timestamp, and optional sparklines. Supports symbol filtering, sorting, pagination, and sparkline interval selection.
+     * Returns market overview rows with last and index prices, 24h stats, top-of-book values, listing timestamp, and optional sparklines. Supports symbol filtering, sorting, pagination, and sparkline interval selection.
      */
     async list(
         input: ListMarketOverviewInput = {},
