@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.3.1
+
+### Patch Changes
+
+- [#52](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/52) [`4d78227`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/4d78227aa61b426e3ab8c0ac9bff6225a7865d42) Thanks [@aiiven](https://github.com/aiiven)! - feat(market-overview): expose the current multi-venue index price on market overview rows.
+
 ## 0.3.0
 
 ### Minor Changes
