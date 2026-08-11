@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file polyester/type/v1/u128.proto.
  */
 export const file_polyester_type_v1_u128: GenFile = /*@__PURE__*/
-  fileDesc("Chxwb2x5ZXN0ZXIvdHlwZS92MS91MTI4LnByb3RvEhFwb2x5ZXN0ZXIudHlwZS52MSIeCgRVMTI4EgoKAmhpGAEgASgGEgoKAmxvGAIgASgGQk9aTWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vcG9seWVzdGVyL3R5cGUvdjE7cG9seWVzdGVydHlwZXYxYgZwcm90bzM=");
+  fileDesc("Chxwb2x5ZXN0ZXIvdHlwZS92MS91MTI4LnByb3RvEhFwb2x5ZXN0ZXIudHlwZS52MSIeCgRVMTI4EgoKAmhpGAEgASgGEgoKAmxvGAIgASgGQk9aTWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vcG9seWVzdGVyL3R5cGUvdjE7cG9seWVzdGVydHlwZXYxYgZwcm90bzM");
 
 /**
  * U128 represents an unsigned 128-bit integer as two fixed64 parts:
