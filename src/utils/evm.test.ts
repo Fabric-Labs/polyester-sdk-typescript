@@ -63,7 +63,18 @@ describe("evm utils parity with viem", () => {
         for (const h of ["0x", "0x00", "0xdeadBEEF", "0x" + "ab".repeat(65)]) {
             expect(evmHexToBytes(h)).toEqual(hexToBytes(h as `0x${string}`));
         }
-        expect(() => evmHexToBytes("0xabc")).toThrow();
-        expect(() => evmHexToBytes("abcd")).toThrow();
+    });
+
+    it("evmHexToBytes does not include malformed input in its error", () => {
+        const secret = "d3adbeef".repeat(8);
+        for (const value of [
+            secret,
+            `0x${secret}\n`,
+            `0x${secret} `,
+            `0X${secret}`,
+            `0x${secret}a`,
+        ]) {
+            expect(() => evmHexToBytes(value)).toThrow(/^Invalid hex value$/);
+        }
     });
 });

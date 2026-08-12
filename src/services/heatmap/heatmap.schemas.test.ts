@@ -29,6 +29,7 @@ describe("GetOrderbookHeatmapInputSchema", () => {
     it("uses explicit defaults for omitted optional codec inputs", () => {
         const input = v.parse(GetOrderbookHeatmapInputSchema, {
             symbolId: 1,
+            limit: 100,
             startTsSec: 100,
         });
 
@@ -45,6 +46,7 @@ describe("GetOrderbookHeatmapInputSchema", () => {
     it("accepts page-token pagination without a time range", () => {
         const input = v.parse(GetOrderbookHeatmapInputSchema, {
             symbolId: 1,
+            limit: 100,
             pageToken: "cursor-1",
         });
 
@@ -87,6 +89,14 @@ describe("GetOrderbookHeatmapInputSchema", () => {
         expect(() =>
             v.parse(GetOrderbookHeatmapInputSchema, {
                 symbolId: 1,
+                limit: 100,
+            }),
+        ).toThrow();
+
+        expect(() =>
+            v.parse(GetOrderbookHeatmapInputSchema, {
+                symbolId: 1,
+                startTsSec: 100,
             }),
         ).toThrow();
     });

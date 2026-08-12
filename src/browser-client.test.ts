@@ -18,6 +18,7 @@ import { MarketDataService } from "./services/market-data/index.js";
 import { ZipperService } from "./services/zipper/index.js";
 import { createTestCatalog } from "./testing/catalog.js";
 import type { CatalogSnapshot } from "./catalogs/index.js";
+import { ConfigurationError } from "./shared/errors.js";
 
 const originalDocument = Object.getOwnPropertyDescriptor(globalThis, "document");
 
@@ -146,6 +147,13 @@ describe("PolyesterBrowserClient", () => {
         }
     });
 
+    it("rejects a non-object configuration with an SDK configuration error", () => {
+        expect(() => new PolyesterBrowserClient(null as never)).toThrow(ConfigurationError);
+        expect(() => new PolyesterBrowserClient(null as never)).toThrow(
+            "Client configuration must be an object.",
+        );
+    });
+
     it("accepts an accountSigner config", () => {
         const accountSigner = signer("0x1111111111111111111111111111111111111111");
         const client = new PolyesterBrowserClient({
@@ -187,6 +195,7 @@ describe("PolyesterBrowserClient", () => {
 
         expect(
             () =>
+                // @ts-expect-error catalog and catalogCell are mutually exclusive
                 new PolyesterBrowserClient({
                     environment: POLYESTER_TESTNET_ENVIRONMENT,
                     catalog,
@@ -303,18 +312,31 @@ describe("PolyesterBrowserClient", () => {
         ).toContain("Max-Age=120");
     });
 
-    it("checks configured token storage before rejecting private realtime subscriptions", () => {
+    it("reports unauthenticated private realtime subscriptions through onError", async () => {
         const tokenStorage = createTestStorage();
+        const onError = vi.fn();
         const client = new PolyesterBrowserClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
             tokenStorage,
         });
 
-        expect(() =>
-            client.realtime.subscribe("private:orders", {
-                onPublication: () => {},
-            }),
-        ).toThrow('Cannot subscribe to private channel "private:orders" without authentication');
+        const unsubscribe = client.realtime.subscribe("private:orders", {
+            onPublication: () => {},
+            onError,
+        });
+
+        expect(unsubscribe).toBeTypeOf("function");
+
+        await Promise.resolve();
+
+        expect(onError.mock.calls[0]?.[0]).toMatchObject({
+            channel: "private:orders",
+            type: "auth",
+            error: {
+                message:
+                    'Cannot subscribe to private channel "private:orders" without authentication',
+            },
+        });
         expect(tokenStorage.get).toHaveBeenCalled();
     });
 

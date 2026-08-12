@@ -1,4 +1,4 @@
-import * as v from "valibot";
+import * as v from "./validation.js";
 import * as Proto from "../gen/polyester/ratelimit/v1/types_pb.js";
 import type { ProtoToOutput } from "../utils/types.js";
 import { requiredEnumLabel } from "./proto-enum-codec.js";

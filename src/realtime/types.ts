@@ -5,6 +5,7 @@ export interface SubscribeHandlers<T> {
     onPublication: (data: T) => void;
     onSubscribed?: () => void;
     onUnsubscribed?: () => void;
+    /** Observes subscription failures. Missing authentication throws when omitted. */
     onError?: (ctx: SdkSubscriptionErrorContext) => void;
 }
 
@@ -14,6 +15,7 @@ export interface ConnectChannelParams<T extends DescMessage> {
     onPublication: (data: MessageShape<T>) => void;
     onConnected?: () => void;
     onDisconnected?: () => void;
+    /** Observes subscription failures. Missing authentication throws when omitted. */
     onError?: (ctx: SdkSubscriptionErrorContext) => void;
 }
 

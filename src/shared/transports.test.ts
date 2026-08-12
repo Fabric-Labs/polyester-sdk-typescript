@@ -1,8 +1,15 @@
+import { createClient } from "@connectrpc/connect";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { signAsync } from "@noble/ed25519";
+import * as Proto from "../gen/marketoverview/v1/marketoverview_pb.js";
 import { isRetryableError } from "../utils/errors.js";
-import { NetworkError, TransientError } from "./errors.js";
-import { createApiKeyEd25519AuthHeaders, isAbortError, makeFetch } from "./transports.js";
+import { AuthenticationError, NetworkError, PolyesterError, TransientError } from "./errors.js";
+import {
+    createApiKeyEd25519AuthHeaders,
+    createTransports,
+    isAbortError,
+    makeFetch,
+} from "./transports.js";
 
 function bytesToHex(bytes: Uint8Array): string {
     return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
@@ -41,6 +48,37 @@ describe("makeFetch", () => {
         vi.spyOn(globalThis, "fetch").mockResolvedValue(response);
 
         await expect(makeFetch()("https://api.test")).resolves.toBe(response);
+    });
+});
+
+describe("createTransports", () => {
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    it("preserves mapped SDK errors outside Connect's call runner", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(
+            new Response(
+                JSON.stringify({ code: "unauthenticated", message: "Authentication required." }),
+                { status: 401, headers: { "content-type": "application/json" } },
+            ),
+        );
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        const rejection = expect(client.listMarketOverview({})).rejects;
+        await rejection.toBeInstanceOf(AuthenticationError);
+        await rejection.toBeInstanceOf(PolyesterError);
+    });
+
+    it("preserves SDK network errors outside Connect's call runner", async () => {
+        vi.spyOn(globalThis, "fetch").mockRejectedValue(new TypeError("Failed to fetch"));
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        const rejection = expect(client.listMarketOverview({})).rejects;
+        await rejection.toBeInstanceOf(NetworkError);
+        await rejection.toBeInstanceOf(PolyesterError);
     });
 });
 

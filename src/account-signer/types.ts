@@ -1,5 +1,6 @@
 import type { Hex } from "viem";
 import { isEvmAddress } from "../utils/evm.js";
+import { ConfigurationError } from "../shared/errors.js";
 
 export type HexAddress = `0x${string}`;
 
@@ -48,14 +49,20 @@ export function isAccountSignerFactory(
  * Asserts that a value implements the account signer contract.
  */
 export function assertAccountSigner(value: AccountSigner): void {
+    if (typeof value !== "object" || value === null) {
+        throw new ConfigurationError("Account signer must be an object or factory function.");
+    }
     if (!value.environmentFingerprint) {
-        throw new Error("Account signer must include an environmentFingerprint.");
+        throw new ConfigurationError("Account signer must include an environmentFingerprint.");
     }
     if (!isEvmAddress(value.accountAddress)) {
-        throw new Error("Account signer must include a valid accountAddress.");
+        throw new ConfigurationError("Account signer must include a valid accountAddress.");
     }
     if (value.ownerAddress && !isEvmAddress(value.ownerAddress)) {
-        throw new Error("Account signer ownerAddress must be a valid address.");
+        throw new ConfigurationError("Account signer ownerAddress must be a valid address.");
+    }
+    if (typeof value.signMessage !== "function") {
+        throw new ConfigurationError("Account signer must include a signMessage function.");
     }
 }
 

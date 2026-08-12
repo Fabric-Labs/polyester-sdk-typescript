@@ -1,4 +1,9 @@
-import { PolyesterClient, type PolyesterClientBaseConfig } from "./core-client.js";
+import {
+    parsePolyesterClientConfig,
+    pickPolyesterCatalogConfig,
+    PolyesterClient,
+    type PolyesterClientBaseConfig,
+} from "./core-client.js";
 import {
     POLYESTER_AUTH_TOKEN_COOKIE_NAME,
     POLYESTER_SESSION_COOKIE_NAME,
@@ -11,6 +16,7 @@ import type { SubaccountResolver } from "./services/subaccount-resolver.js";
 import { isJwtValid } from "./utils/jwt.js";
 import type { Me } from "./services/auth/auth.js";
 import type { PolyesterEnvironment } from "./environment.js";
+import { ConfigurationError } from "./shared/errors.js";
 
 export type { ServerSessionSnapshot };
 
@@ -24,10 +30,11 @@ export function parseSessionCookie(
     return parseServerSessionSnapshot(cookies, environment);
 }
 
-export interface PolyesterServerClientConfig extends PolyesterClientBaseConfig {
+/** Configuration for the server Polyester client. */
+export type PolyesterServerClientConfig = PolyesterClientBaseConfig & {
     /** Auth provider config for HTTP/Connect endpoints. */
     auth?: JwtAuthProvider | ApiKeyEd25519AuthProvider;
-    /** Display-only session data parsed from cookies. Not proof of authentication. */
+    /** Bearer authentication and display-only session data parsed from cookies. */
     session?: ServerSessionSnapshot;
     /**
      * Use unsigned display-session `activeAccount` as the default subaccount for
@@ -36,7 +43,7 @@ export interface PolyesterServerClientConfig extends PolyesterClientBaseConfig {
      * the authenticated user can access.
      */
     useDisplaySessionActiveAccountAsDefault?: boolean;
-}
+};
 
 /**
  * Server-side SDK client that can parse display-session cookies and verify bearer-token sessions with the backend.
@@ -47,6 +54,7 @@ export class PolyesterServerClient extends PolyesterClient {
     #useDisplaySessionActiveAccountAsDefault: boolean;
 
     constructor(config: PolyesterServerClientConfig) {
+        config = parsePolyesterClientConfig(config);
         const auth = config.auth ?? undefined;
 
         super({
@@ -55,9 +63,7 @@ export class PolyesterServerClient extends PolyesterClient {
             auth,
             wireFormat: config.wireFormat,
             realtime: config.realtime,
-            catalog: config.catalog,
-            catalogSnapshot: config.catalogSnapshot,
-            catalogCell: config.catalogCell,
+            ...pickPolyesterCatalogConfig(config),
             transports: config.transports,
             realtimeClient: config.realtimeClient,
         });
@@ -120,50 +126,52 @@ export class PolyesterServerClient extends PolyesterClient {
     }
 }
 
-export interface CreateServerClientFromCookiesParams extends Pick<
-    PolyesterClientBaseConfig,
-    | "environment"
-    | "interceptors"
-    | "realtime"
-    | "wireFormat"
-    | "catalog"
-    | "catalogSnapshot"
-    | "catalogCell"
-    | "transports"
-    | "realtimeClient"
-> {
-    cookies: CookieGetter;
-    /**
-     * Use unsigned display-session `activeAccount` as the default subaccount for
-     * calls that omit `subaccountId`. This is caller intent from UI hydration,
-     * not proof of authority; backend authorization remains authoritative.
-     */
-    useDisplaySessionActiveAccountAsDefault?: boolean;
-}
+type ServerClientFactoryBaseConfig<TConfig> = TConfig extends PolyesterClientBaseConfig
+    ? Pick<
+          TConfig,
+          | "environment"
+          | "interceptors"
+          | "realtime"
+          | "wireFormat"
+          | "catalog"
+          | "catalogSnapshot"
+          | "catalogCell"
+          | "transports"
+          | "realtimeClient"
+      >
+    : never;
 
-export interface CreateServerClientFromRequestParams extends Pick<
-    PolyesterClientBaseConfig,
-    | "environment"
-    | "interceptors"
-    | "realtime"
-    | "wireFormat"
-    | "catalog"
-    | "catalogSnapshot"
-    | "catalogCell"
-    | "transports"
-    | "realtimeClient"
-> {
-    request: Request;
-    /**
-     * Use unsigned display-session `activeAccount` as the default subaccount for
-     * calls that omit `subaccountId`. This is caller intent from UI hydration,
-     * not proof of authority; backend authorization remains authoritative.
-     */
-    useDisplaySessionActiveAccountAsDefault?: boolean;
-}
+/** Parameters for creating a server client from cookies. */
+export type CreateServerClientFromCookiesParams =
+    ServerClientFactoryBaseConfig<PolyesterClientBaseConfig> & {
+        /**
+         * A Request, name-value record, or synchronous cookie store whose `get`
+         * method returns either a string or an object with a string `value`.
+         * Await asynchronous framework cookie helpers before passing their result.
+         */
+        cookies: CookieGetter;
+        /**
+         * Use unsigned display-session `activeAccount` as the default subaccount for
+         * calls that omit `subaccountId`. This is caller intent from UI hydration,
+         * not proof of authority; backend authorization remains authoritative.
+         */
+        useDisplaySessionActiveAccountAsDefault?: boolean;
+    };
+
+/** Parameters for creating a server client from a request. */
+export type CreateServerClientFromRequestParams =
+    ServerClientFactoryBaseConfig<PolyesterClientBaseConfig> & {
+        request: Request;
+        /**
+         * Use unsigned display-session `activeAccount` as the default subaccount for
+         * calls that omit `subaccountId`. This is caller intent from UI hydration,
+         * not proof of authority; backend authorization remains authoritative.
+         */
+        useDisplaySessionActiveAccountAsDefault?: boolean;
+    };
 
 /**
- * Creates a server SDK client from a cookie source.
+ * Creates a server SDK client from a Request, cookie record, or synchronous cookie store.
  */
 export function createPolyesterServerClientFromCookies(
     params: CreateServerClientFromCookiesParams,
@@ -182,9 +190,7 @@ export function createPolyesterServerClientFromCookies(
         session,
         wireFormat: params.wireFormat,
         realtime: params.realtime,
-        catalog: params.catalog,
-        catalogSnapshot: params.catalogSnapshot,
-        catalogCell: params.catalogCell,
+        ...pickPolyesterCatalogConfig(params),
         transports: params.transports,
         realtimeClient: params.realtimeClient,
         auth,
@@ -198,15 +204,16 @@ export function createPolyesterServerClientFromCookies(
 export function createPolyesterServerClientFromRequest(
     params: CreateServerClientFromRequestParams,
 ): PolyesterServerClient {
+    if (!(params?.request instanceof Request)) {
+        throw new ConfigurationError("request is required and must be a Request.");
+    }
     return createPolyesterServerClientFromCookies({
         cookies: params.request,
         environment: params.environment,
         interceptors: params.interceptors,
         wireFormat: params.wireFormat,
         realtime: params.realtime,
-        catalog: params.catalog,
-        catalogSnapshot: params.catalogSnapshot,
-        catalogCell: params.catalogCell,
+        ...pickPolyesterCatalogConfig(params),
         transports: params.transports,
         realtimeClient: params.realtimeClient,
         useDisplaySessionActiveAccountAsDefault: params.useDisplaySessionActiveAccountAsDefault,

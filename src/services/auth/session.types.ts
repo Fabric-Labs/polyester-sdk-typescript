@@ -59,9 +59,10 @@ export interface AuthHydrationData {
 }
 
 /**
- * Display-only session data parsed from client-readable cookies.
+ * Server-side cookie state for authentication and UI hydration.
  *
- * This data is unsigned and must not be used for authorization.
+ * Display-session fields are unsigned and must not be used for authorization.
+ * The bearer token is a credential, but only backend verification proves authentication.
  */
 export interface ServerSessionSnapshot {
     environmentFingerprint: string | null;

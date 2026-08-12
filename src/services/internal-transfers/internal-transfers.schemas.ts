@@ -1,5 +1,5 @@
 import type { MessageInitShape } from "@bufbuild/protobuf";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import type * as Proto from "../../gen/transfer/v1/internal_transfer_pb.js";
 import { idInputSchema } from "../../shared/schemas.js";
 import { tsNsToMs } from "../../utils/time.js";

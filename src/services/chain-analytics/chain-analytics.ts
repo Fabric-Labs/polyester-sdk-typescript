@@ -5,7 +5,7 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import {
     GetUnifiedAssetBalancesInputSchema,
     GetZippedAssetSupplyGroupInputSchema,

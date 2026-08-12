@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { AccountSigner } from "./types.js";
 import { resolveAccountSigner } from "./types.js";
+import { ConfigurationError } from "../shared/errors.js";
 import { POLYESTER_TESTNET_ENVIRONMENT } from "../environment.js";
 
 const signer: AccountSigner = {
@@ -11,6 +12,12 @@ const signer: AccountSigner = {
 };
 
 describe("resolveAccountSigner", () => {
+    it("rejects a malformed signer with an SDK configuration error", async () => {
+        await expect(resolveAccountSigner("nonsense" as never)).rejects.toBeInstanceOf(
+            ConfigurationError,
+        );
+    });
+
     it("returns null when no account signer is configured", async () => {
         await expect(resolveAccountSigner(undefined)).resolves.toBeNull();
     });

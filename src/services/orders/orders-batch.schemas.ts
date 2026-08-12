@@ -1,7 +1,7 @@
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import { create } from "@bufbuild/protobuf";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,

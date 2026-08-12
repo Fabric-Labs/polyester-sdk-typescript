@@ -59,10 +59,17 @@ export function deleteCookie(name: string, options?: { path?: string }): void {
     });
 }
 
-export type CookieGetter =
-    | Record<string, string>
-    | { get(name: string): string | undefined }
-    | Request;
+type CookieValue = string | { readonly value: string };
+type CookieStoreLike = { get(name: string): CookieValue | undefined };
+
+/** A supported server-side cookie source. */
+export type CookieGetter = Record<string, string> | CookieStoreLike | Request;
+
+function isCookieStore(
+    cookies: Record<string, string> | CookieStoreLike,
+): cookies is CookieStoreLike {
+    return typeof cookies.get === "function";
+}
 
 /**
  * Parses cookies from a Request header.
@@ -82,10 +89,11 @@ export function getCookieValue(cookies: CookieGetter, name: string): string | un
         const parsed = parseCookiesFromRequest(cookies);
         return parsed[name];
     }
-    if (typeof cookies.get === "function") {
-        return cookies.get(name);
+    if (isCookieStore(cookies)) {
+        const cookie = cookies.get(name);
+        return typeof cookie === "string" ? cookie : cookie?.value;
     }
-    return (cookies as Record<string, string>)[name];
+    return cookies[name];
 }
 
 interface CookieManagerOptions {

@@ -32,13 +32,17 @@ export class EventEmitter<TEvents extends { [K in keyof TEvents]: unknown }> {
     }
 
     /**
-     * Emits an event to all registered listeners.
+     * Emits an event to all registered listeners, isolating errors thrown synchronously by each listener.
      */
     emit<K extends keyof TEvents>(event: K, data: TEvents[K]): void {
         const callbacks = this.#listeners.get(event);
         if (callbacks) {
             for (const callback of callbacks) {
-                callback(data);
+                try {
+                    callback(data);
+                } catch {
+                    // A consumer callback must not interrupt the SDK operation or other listeners.
+                }
             }
         }
     }

@@ -1,6 +1,6 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as Proto from "../../../gen/auth/v1/profile_pb.js";
-import * as v from "valibot";
+import * as v from "../../../shared/validation.js";
 import { removeUndefined } from "../../../utils/remove-undefined.js";
 import {
     toConnectCallOptions,
@@ -79,7 +79,7 @@ export class ProfileService {
             },
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
-            onError: (ctx) => input.onError?.(ctx),
+            onError: input.onError,
         });
     }
 }

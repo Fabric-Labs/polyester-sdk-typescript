@@ -60,4 +60,12 @@ describe("ListCandlesInputSchema", () => {
             }),
         ).toThrow();
     });
+
+    it("rejects invalid limits instead of omitting them", () => {
+        const schema = createListCandlesInputSchema();
+
+        expect(() => v.parse(schema, { symbolId: 1, timeframe: "1m", limit: "3" })).toThrow();
+        expect(() => v.parse(schema, { symbolId: 1, timeframe: "1m", limit: 0 })).toThrow();
+        expect(() => v.parse(schema, { symbolId: 1, timeframe: "1m", limit: -1 })).toThrow();
+    });
 });

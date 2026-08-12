@@ -1,4 +1,9 @@
-import { PolyesterClient, type PolyesterClientBaseConfig } from "./core-client.js";
+import {
+    parsePolyesterClientConfig,
+    pickPolyesterCatalogConfig,
+    PolyesterClient,
+    type PolyesterClientBaseConfig,
+} from "./core-client.js";
 import { AccountSignerAuthService } from "./services/auth/account-signer-auth.js";
 import type { AccountSignerConfig, AccountSigner } from "./account-signer/types.js";
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";
@@ -8,7 +13,12 @@ import {
 } from "./services/auth/token-storage.js";
 import { AuthSessionStore } from "./services/auth/session.js";
 
-export interface PolyesterBrowserClientConfig extends Omit<PolyesterClientBaseConfig, "auth"> {
+type BrowserClientBaseConfig<TConfig> = TConfig extends PolyesterClientBaseConfig
+    ? Omit<TConfig, "auth">
+    : never;
+
+/** Configuration for the browser Polyester client. */
+export type PolyesterBrowserClientConfig = BrowserClientBaseConfig<PolyesterClientBaseConfig> & {
     /**
      * Account signer interface for authentication.
      * Pass a signer object or a factory function for lazy initialization.
@@ -19,7 +29,7 @@ export interface PolyesterBrowserClientConfig extends Omit<PolyesterClientBaseCo
      * Use createCookieAuthTokenStorage() to opt into reload/SSR persistence.
      */
     tokenStorage?: AuthTokenStorage;
-}
+};
 
 /**
  * A client for interacting with the Polyester DEX in the browser.
@@ -33,6 +43,7 @@ export class PolyesterBrowserClient extends PolyesterClient {
     }
 
     constructor(config: PolyesterBrowserClientConfig) {
+        config = parsePolyesterClientConfig(config);
         const tokenStorage = config.tokenStorage ?? createMemoryAuthTokenStorage();
         const sessionStore = new AuthSessionStore({
             environmentFingerprint: config.environment.fingerprint,
@@ -45,9 +56,7 @@ export class PolyesterBrowserClient extends PolyesterClient {
                 interceptors: config.interceptors,
                 auth: { kind: "jwt", getToken },
                 wireFormat: config.wireFormat,
-                catalog: config.catalog,
-                catalogSnapshot: config.catalogSnapshot,
-                catalogCell: config.catalogCell,
+                ...pickPolyesterCatalogConfig(config),
                 transports: config.transports,
                 realtimeClient: config.realtimeClient,
                 realtime: {

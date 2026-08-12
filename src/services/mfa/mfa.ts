@@ -6,7 +6,7 @@ import {
     type PolyesterMutationOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import {
     BeginMfaChallengeInputSchema,
     BeginMfaChallengeResultSchema,

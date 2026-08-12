@@ -1,7 +1,7 @@
 import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
 import * as ProtoApiKeys from "../../gen/auth/v1/api_keys_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import { type ApiKey, ApiKeySchema } from "../api-keys/index.js";
 import { formatId } from "../../utils/base58-id.js";
 import {
@@ -284,7 +284,7 @@ export class SubaccountsService {
     }
 
     /**
-     * Returns paginated audit/activity events for a subaccount, newest first, with a limit capped at 200 and opaque cursor pagination.
+     * Returns paginated audit/activity events for a subaccount, newest first, with a non-negative integer limit from 0 through 200 and opaque cursor pagination.
      */
     async listEvents(
         input: v.InferInput<typeof SubaccountActivityInputSchema>,
@@ -316,7 +316,7 @@ export class SubaccountsService {
             },
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
-            onError: (ctx) => input.onError?.(ctx),
+            onError: input.onError,
         });
     }
 
@@ -335,7 +335,7 @@ export class SubaccountsService {
             },
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
-            onError: (ctx) => input.onError?.(ctx),
+            onError: input.onError,
         });
     }
 }

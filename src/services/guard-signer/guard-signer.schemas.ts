@@ -1,5 +1,5 @@
 import { bytesToHex } from "@noble/hashes/utils.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import { PROTECTED_ACTION_VALUES, ProtectedActionCodec } from "./guard-signer.codecs.js";
 import {
     AccountScopeInputEntries,

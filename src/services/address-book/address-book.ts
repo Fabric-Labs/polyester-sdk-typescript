@@ -10,7 +10,7 @@ import {
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import type { AccountScopedInput } from "../../shared/account-scope.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import {
     AddressBookEntriesSchema,
     AddressBookEntrySchema,
@@ -304,7 +304,7 @@ export class AddressBookService {
             },
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
-            onError: (ctx) => input.onError?.(ctx),
+            onError: input.onError,
         });
     }
 

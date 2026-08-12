@@ -1,5 +1,5 @@
-import { Code, ConnectError, type Interceptor } from "@connectrpc/connect";
-import * as v from "valibot";
+import { Code, ConnectError, type Interceptor, type Transport } from "@connectrpc/connect";
+import * as v from "./validation.js";
 import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
 import {
     ErrorCode as OrderErrorCode,
@@ -282,5 +282,43 @@ export function createErrorMappingInterceptor(): Interceptor {
         } catch (err) {
             throw toPolyesterError(err);
         }
+    };
+}
+
+/**
+ * Wraps a Connect transport so errors are translated after Connect's call
+ * runner has applied its own error normalization.
+ */
+export function createErrorMappingTransport(transport: Transport): Transport {
+    return {
+        async unary(method, signal, timeoutMs, header, input, contextValues) {
+            try {
+                return await transport.unary(
+                    method,
+                    signal,
+                    timeoutMs,
+                    header,
+                    input,
+                    contextValues,
+                );
+            } catch (error) {
+                throw toPolyesterError(error);
+            }
+        },
+        async stream(method, signal, timeoutMs, header, input, contextValues) {
+            try {
+                const response = await transport.stream(
+                    method,
+                    signal,
+                    timeoutMs,
+                    header,
+                    input,
+                    contextValues,
+                );
+                return { ...response, message: mapStreamErrors(response.message) };
+            } catch (error) {
+                throw toPolyesterError(error);
+            }
+        },
     };
 }

@@ -1,7 +1,7 @@
 import * as Proto from "../../gen/marketoverview/v1/marketoverview_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
 import { snapshotThenStream } from "../../realtime/snapshot-then-stream.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";

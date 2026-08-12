@@ -26,7 +26,7 @@ import {
 } from "./orderbook.schemas.js";
 import { toBig } from "../../utils/u128.js";
 import { isResourceNotFoundError } from "../../utils/errors.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 
 interface SubscribeOrderbookInput extends BaseSubscribeInput<OrderbookData> {
     symbol: string;

@@ -1,6 +1,6 @@
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import { create } from "@bufbuild/protobuf";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import { SideSchema } from "../shared.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { idToBigInt } from "../../utils/base58-id.js";
@@ -337,14 +337,18 @@ export const CancelOrderInputSchema = v.pipe(
 
 export type CancelOrderInput = v.InferInput<typeof CancelOrderInputSchema>;
 
-export const CancelOrderResultSchema = v.object({
-    status: v.string(),
-    orderId: PublicIdSchema,
-    tsNs: v.pipe(
-        v.bigint(),
-        v.transform((v) => tsNsToMs(v)),
-    ),
-});
+export const CancelOrderResultSchema = v.pipe(
+    v.object({
+        status: v.string(),
+        orderId: PublicIdSchema,
+        tsNs: v.bigint(),
+    }),
+    v.transform(({ tsNs, ...result }) => ({
+        ...result,
+        ts: tsNsToMs(tsNs),
+        tsNs: tsNs.toString(),
+    })),
+);
 
 export type CancelOrderResult = v.InferOutput<typeof CancelOrderResultSchema>;
 

@@ -1,7 +1,7 @@
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import type { PolyesterRealtime } from "../../realtime/index.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import {
@@ -76,7 +76,7 @@ export class BalancesService {
     }
 
     /**
-     * Returns columnar balance history for the resolved account scope over a selected range, optionally filtered by ledger asset and account buckets.
+     * Returns columnar balance history for the resolved account scope over a selected range, optionally filtered by a non-negative integer ledger asset ID and account buckets. Ledger 0 or omission includes all assets.
      */
     async getBalanceHistory(
         input: BalanceHistoryInput,

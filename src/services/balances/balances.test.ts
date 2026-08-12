@@ -186,6 +186,24 @@ describe("BalancesService", () => {
         });
     });
 
+    it.each([-1, 1.5, 4_294_967_296])(
+        "rejects an invalid balance-history ledger before transport: %s",
+        async (ledger) => {
+            const transport = unaryTransport({});
+            const service = new BalancesService(
+                transport.transport,
+                realtimeClientStub().realtime,
+                undefined,
+                testScales(),
+            );
+
+            await expect(
+                service.getBalanceHistory({ account: "main", range: "1d", ledger }),
+            ).rejects.toMatchObject({ name: "ValidationError" });
+            expect(transport.unary).not.toHaveBeenCalled();
+        },
+    );
+
     it("normalizes equity history defaults and converts equity and btc price series", async () => {
         const controller = new AbortController();
         const transport = unaryTransport({

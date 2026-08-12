@@ -13,7 +13,7 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import { isDev } from "../../utils/is-dev.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import {
     GetLifecycleFlowInputSchema,
     GetLifecycleFlowOutputSchema,

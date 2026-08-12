@@ -1,8 +1,13 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as Proto from "../../gen/auth/v1/auth_pb.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import { ProfileService } from "./profile/profile.js";
-import { OptionalPublicIdSchema, PublicIdSchema, TimestampSchema } from "../../shared/schemas.js";
+import {
+    OptionalPublicIdSchema,
+    OptionalTimestampMsSchema,
+    PublicIdSchema,
+    TimestampSchema,
+} from "../../shared/schemas.js";
 import {
     toConnectCallOptions,
     type PolyesterMutationOptions,
@@ -48,7 +53,7 @@ export type LoginWithWalletResponse = v.InferOutput<typeof LoginWithWalletRespon
 
 const NonceSchema = v.object({
     nonce: v.string(),
-    expiresAt: v.optional(TimestampSchema),
+    expiresAt: OptionalTimestampMsSchema,
 });
 
 export type Nonce = v.InferOutput<typeof NonceSchema>;
@@ -76,7 +81,10 @@ export class AuthService {
     }
 
     /**
-     * Requests a short-lived nonce for the given smart-account EVM address; the nonce is single-purpose, replaced by subsequent requests, and expires after about five minutes.
+     * Requests a short-lived nonce for the given smart-account EVM address.
+     * The nonce is single-purpose, replaced by subsequent requests, and expires
+     * after about five minutes. The optional expiry is milliseconds since the
+     * Unix epoch.
      */
     async requestLoginNonce(
         smartAccountAddress: string,

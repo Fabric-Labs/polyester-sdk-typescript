@@ -310,6 +310,24 @@ describe("AccountSignerAuthService", () => {
         expect(disconnectPrivate).toHaveBeenCalledTimes(1);
     });
 
+    it("resolves logout and notifies every listener when one listener throws", async () => {
+        const tokenStorage = createTestStorage();
+        const auth = authFixture(signer(), tokenStorage).auth;
+        const laterListener = vi.fn();
+        mockLogin(auth);
+        await auth.login({ provider: "turnkey" });
+
+        auth.events.on("loggedOut", () => {
+            throw new Error("listener failed");
+        });
+        auth.events.on("loggedOut", laterListener);
+
+        await expect(auth.logout()).resolves.toBeUndefined();
+        expect(tokenStorage.get()).toBeNull();
+        expect(auth.getState().isAuthenticated).toBe(false);
+        expect(laterListener).toHaveBeenCalledOnce();
+    });
+
     it("restores a valid stored token through the configured token storage", async () => {
         const accountSigner = signer();
         const token = jwtWithExp(Math.floor(Date.now() / 1000) + 3600);

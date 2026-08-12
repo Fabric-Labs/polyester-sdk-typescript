@@ -45,9 +45,13 @@ export function resolveAccountScopedInput<TInput extends object>(
     input: TInput & AccountScopedInput,
     resolver?: SubaccountResolver,
 ): TInput & AccountScopedInput {
-    assertNoLegacySubaccountId(input);
+    if (input === null) {
+        throw new ValidationError("Account-scoped input must be an object when provided.");
+    }
+    const normalizedInput = input ?? {};
+    assertNoLegacySubaccountId(normalizedInput);
     return {
-        ...input,
-        account: resolveAccountScope(input.account, resolver),
+        ...normalizedInput,
+        account: resolveAccountScope(normalizedInput.account, resolver),
     };
 }

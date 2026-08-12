@@ -1,4 +1,4 @@
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 
 const OrderIdempotencyKeyPattern = /^[A-Za-z0-9._:/-]*$/;
 

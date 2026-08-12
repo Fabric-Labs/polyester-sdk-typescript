@@ -1,4 +1,4 @@
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import { SideSchema } from "../shared.js";
 import {
     PAIR_STATUSES,
@@ -56,14 +56,7 @@ export const GetMarketTradesInputSchema = v.pipe(
             v.optional(v.pipe(v.string(), v.trim())),
             v.transform((v) => (v ? BigInt(v) : undefined)),
         ),
-        limit: v.pipe(
-            v.optional(v.pipe(v.string(), v.trim()), ""),
-            v.transform((v) => {
-                if (!v) return undefined;
-                const lim = Number(v);
-                return Number.isFinite(lim) && lim > 0 ? lim : undefined;
-            }),
-        ),
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(1_000))),
         pageToken: v.optional(v.pipe(v.string(), v.trim()), ""),
     }),
     v.transform((input) => ({

@@ -14,7 +14,7 @@ import {
 } from "../../shared/request-options.js";
 import { createReadyGate, type SdkScales } from "../../shared/decimal-surface.js";
 import { HEATMAP_INTERVAL_VALUES, type HeatmapIntervalValue } from "./heatmap.codecs.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import {
     GetOrderbookHeatmapInputSchema,
     createOrderbookHeatmapLiveBucketSchema,
@@ -75,7 +75,7 @@ export class HeatmapService implements OrderbookHeatmapProvider {
                 interval: parsed.interval,
                 depth: parsed.depth,
                 quantityMode: parsed.quantityMode,
-                limit: parsed.limit ?? 0,
+                limit: parsed.limit,
                 pageToken: parsed.pageToken,
                 timeRange:
                     parsed.timeRange != null

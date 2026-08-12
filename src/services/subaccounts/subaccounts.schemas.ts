@@ -1,5 +1,5 @@
 import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import {
     BigIntStringSchema,
     OptionalTimestampMsSchema,
@@ -278,7 +278,7 @@ export type SubaccountInvite = v.InferOutput<typeof SubaccountInviteSchema>;
 
 export const SubaccountActivityInputSchema = v.strictObject({
     subaccountId: idInputSchema("subaccountId"),
-    limit: v.optional(v.pipe(v.number(), v.maxValue(200)), 50),
+    limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(200)), 50),
     pageToken: v.optional(v.pipe(v.string(), v.trim()), ""),
 });
 

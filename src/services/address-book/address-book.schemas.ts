@@ -1,4 +1,4 @@
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import * as Proto from "../../gen/auth/v1/address_book_pb.js";
 import { SubaccountRole } from "../../gen/auth/v1/subaccounts_pb.js";
 import {

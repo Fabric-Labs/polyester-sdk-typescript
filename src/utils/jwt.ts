@@ -57,10 +57,10 @@ export function isJwtExpired(token: string): boolean {
 }
 
 /**
- * Checks whether a JWT is present, well formed, and not expired.
+ * Checks whether a value is a present, well-formed, unexpired JWT string.
  */
-export function isJwtValid(token: string | null): token is string {
-    if (!token) return false;
+export function isJwtValid(token: unknown): token is string {
+    if (typeof token !== "string" || !token) return false;
     if (!isJwt(token)) return false;
     if (isJwtExpired(token)) return false;
     return true;

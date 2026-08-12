@@ -1,4 +1,4 @@
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import type {
     HeatmapDepth,
     HeatmapInterval,
@@ -51,7 +51,7 @@ export const GetOrderbookHeatmapInputSchema = v.pipe(
         interval: IntervalInputSchema,
         depth: DepthInputSchema,
         quantityMode: QuantityModeInputSchema,
-        limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(20_000))),
+        limit: v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(20_000)),
         startTsSec: OptionalTimestampSecondsInputSchema,
         endTsSec: OptionalTimestampSecondsInputSchema,
         pageToken: v.optional(v.pipe(v.string(), v.trim()), ""),

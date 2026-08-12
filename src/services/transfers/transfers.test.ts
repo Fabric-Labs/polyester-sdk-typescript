@@ -129,6 +129,27 @@ describe("TransfersService", () => {
         });
     });
 
+    it("lists transfers when input is omitted or undefined and validates null", async () => {
+        const transport = unaryTransport({
+            transfers: [],
+            nextPageToken: "",
+        });
+        const service = new TransfersService(
+            transport.transport,
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+        const expected = { transfers: [], nextPageToken: "" };
+
+        await expect(service.list()).resolves.toEqual(expected);
+        await expect(service.list(undefined)).resolves.toEqual(expected);
+        await expect(service.list(null as never)).rejects.toThrow(
+            "Account-scoped input must be an object when provided.",
+        );
+        expect(transport.lastCall()?.method.localName).toBe("listTransfers");
+    });
+
     it("returns empty nextPageToken when the backend has no further page", async () => {
         const transport = unaryTransport({
             transfers: [],

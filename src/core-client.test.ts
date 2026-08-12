@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { signAsync } from "@noble/ed25519";
 import { POLYESTER_TESTNET_ENVIRONMENT } from "./environment.js";
 import { createTestCatalog } from "./testing/catalog.js";
+import type { CatalogSnapshot } from "./catalogs/index.js";
 
 type RealtimeAuthRequest = {
     url: string | URL;
@@ -29,10 +30,65 @@ vi.mock("./realtime/index.js", () => ({
 }));
 
 import { PolyesterClient } from "./core-client.js";
+import { ConfigurationError } from "./shared/errors.js";
 
 function bytesToHex(bytes: Uint8Array): string {
     return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 }
+
+describe("PolyesterClient configuration", () => {
+    it("rejects a missing environment with an SDK configuration error", () => {
+        expect(() => new PolyesterClient({} as never)).toThrow(ConfigurationError);
+        expect(() => new PolyesterClient({} as never)).toThrow("environment must be an object.");
+    });
+
+    it("rejects an incomplete environment before constructing transports", () => {
+        expect(
+            () =>
+                new PolyesterClient({
+                    environment: {
+                        apiUrl: "https://api.example.test",
+                        websocketUrl: "wss://api.example.test",
+                        fingerprint: "0xfingerprint",
+                    },
+                } as never),
+        ).toThrow(ConfigurationError);
+        expect(
+            () =>
+                new PolyesterClient({
+                    environment: {
+                        apiUrl: "https://api.example.test",
+                        websocketUrl: "wss://api.example.test",
+                        fingerprint: "0xfingerprint",
+                    },
+                } as never),
+        ).toThrow("name must be a non-empty string.");
+    });
+
+    it.each(["xml", 42])("rejects unsupported wire format %j", (wireFormat) => {
+        expect(
+            () =>
+                new PolyesterClient({
+                    environment: POLYESTER_TESTNET_ENVIRONMENT,
+                    wireFormat,
+                } as never),
+        ).toThrow('wireFormat must be either "binary" or "json".');
+    });
+
+    it("rejects providing both catalog and catalogSnapshot", () => {
+        const catalog = createTestCatalog();
+
+        expect(
+            () =>
+                // @ts-expect-error catalog and catalogSnapshot are mutually exclusive
+                new PolyesterClient({
+                    environment: POLYESTER_TESTNET_ENVIRONMENT,
+                    catalog,
+                    catalogSnapshot: catalog.snapshot(),
+                }),
+        ).toThrow("Provide either catalog or catalogSnapshot, not both.");
+    });
+});
 
 describe("PolyesterClient realtime auth", () => {
     afterEach(() => {
@@ -96,5 +152,23 @@ describe("PolyesterClient catalog refresh", () => {
         });
 
         expect(refresh).not.toHaveBeenCalled();
+    });
+
+    it("accepts catalogSnapshot and catalogCell together", () => {
+        const snapshot = createTestCatalog().snapshot();
+        let current: CatalogSnapshot | undefined;
+        const client = new PolyesterClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            catalogSnapshot: snapshot,
+            catalogCell: {
+                get: () => current,
+                set: (nextSnapshot) => {
+                    current = nextSnapshot;
+                },
+            },
+        });
+
+        expect(client.catalog.snapshot()).toBe(snapshot);
+        expect(current).toBe(snapshot);
     });
 });

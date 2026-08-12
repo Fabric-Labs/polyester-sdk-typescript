@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as Proto from "../../gen/marketoverview/v1/marketoverview_pb.js";
 import { CatalogLookupError } from "../../catalogs/types.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
+import { PolyesterError, ValidationError } from "../../shared/errors.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
 import { MarketOverviewService } from "./market-overview.js";
@@ -88,6 +89,26 @@ async function flushMicrotasks(): Promise<void> {
 describe("MarketOverviewService", () => {
     afterEach(() => {
         vi.restoreAllMocks();
+    });
+
+    it("reports invalid inputs through the SDK error hierarchy", async () => {
+        const transport = unaryTransport({});
+        const service = new MarketOverviewService(
+            transport.transport,
+            realtimeClientStub().realtime,
+            testScales(),
+        );
+
+        const error = await service.list({ limit: -1 }).catch((reason: unknown) => reason);
+
+        expect(error).toBeInstanceOf(ValidationError);
+        expect(error).toBeInstanceOf(PolyesterError);
+        expect(error).toMatchObject({
+            code: "VALIDATION_FAILED",
+            retryable: false,
+            cause: { name: "ValiError" },
+        });
+        expect(transport.unary).not.toHaveBeenCalled();
     });
 
     it("normalizes list inputs to the proto request and parses market rows into decimals", async () => {

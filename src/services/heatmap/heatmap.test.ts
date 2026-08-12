@@ -134,13 +134,14 @@ describe("HeatmapService", () => {
         const cases = [
             {
                 name: "page token pagination",
-                input: { symbolId: 101, startTsSec: 100, pageToken: "cursor-1" },
+                input: { symbolId: 101, limit: 100, startTsSec: 100, pageToken: "cursor-1" },
                 response: heatmapResponse(),
                 expected: {
                     symbolId: 101,
                     interval: Proto.HeatmapInterval.INTERVAL_1S,
                     depth: Proto.HeatmapDepth.DEPTH_50,
                     quantityMode: Proto.HeatmapQuantityMode.CLOSE,
+                    limit: 100,
                     pageToken: "cursor-1",
                 },
             },
@@ -240,7 +241,7 @@ describe("HeatmapService", () => {
         );
 
         await expect(
-            service.getOrderbookHeatmap({ symbolId: 101, startTsSec: 100 }),
+            service.getOrderbookHeatmap({ symbolId: 101, limit: 100, startTsSec: 100 }),
         ).rejects.toThrow(/\[OrderbookHeatmapResponseSchema\]: invalid interval 999/);
     });
 

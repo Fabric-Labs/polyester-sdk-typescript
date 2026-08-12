@@ -1,4 +1,4 @@
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import { fromU128 } from "../../utils/u128.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import type { DecodedEnum } from "../../utils/types.js";
@@ -93,7 +93,10 @@ export const BalanceHistoryInputSchema = v.pipe(
             BalanceRangeSchema,
             v.transform((v) => BalanceRangeCodec.inputToProto[v]),
         ),
-        ledger: v.optional(v.number(), 0),
+        ledger: v.optional(
+            v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(4_294_967_295)),
+            0,
+        ),
         accountCodes: v.optional(
             v.array(
                 v.pipe(

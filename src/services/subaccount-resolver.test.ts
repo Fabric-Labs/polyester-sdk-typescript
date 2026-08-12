@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { ValidationError } from "../shared/errors.js";
 import { resolveAccountScopedInput, type SubaccountResolver } from "./subaccount-resolver.js";
 
 function resolver(defaultSubaccountId: string | null): SubaccountResolver {
@@ -8,6 +9,26 @@ function resolver(defaultSubaccountId: string | null): SubaccountResolver {
 }
 
 describe("resolveAccountScopedInput", () => {
+    it("treats undefined input as omitted", () => {
+        expect(resolveAccountScopedInput(undefined as never, resolver("sub-1"))).toEqual({
+            account: { subaccountId: "sub-1" },
+        });
+    });
+
+    it("rejects null input with a validation error", () => {
+        expect.assertions(2);
+
+        try {
+            resolveAccountScopedInput(null as never, resolver("sub-1"));
+        } catch (error) {
+            expect(error).toBeInstanceOf(ValidationError);
+            expect(error).toHaveProperty(
+                "message",
+                "Account-scoped input must be an object when provided.",
+            );
+        }
+    });
+
     it("uses the resolver default when account is omitted", () => {
         const input = resolveAccountScopedInput({ limit: 50 }, resolver("sub-1"));
 

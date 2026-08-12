@@ -1,4 +1,4 @@
-import * as v from "valibot";
+import * as v from "./validation.js";
 import { formatId, idToBigInt } from "../utils/base58-id.js";
 import {
     parseOptionalUint64DecimalStrict,

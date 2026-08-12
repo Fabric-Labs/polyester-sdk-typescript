@@ -7,12 +7,71 @@ import {
     PolyesterServerClient,
     POLYESTER_AUTH_TOKEN_COOKIE_NAME,
     POLYESTER_SESSION_COOKIE_NAME,
+    type CreateServerClientFromCookiesParams,
+    type CreateServerClientFromRequestParams,
+    type PolyesterServerClientConfig,
 } from "./server-client.js";
 import { POLYESTER_TESTNET_ENVIRONMENT } from "./environment.js";
 import type { Me } from "./services/auth/auth.js";
 import { MarketDataService } from "./services/market-data/index.js";
 import { ZipperService } from "./services/zipper/index.js";
 import { createTestCatalog } from "./testing/catalog.js";
+import { ConfigurationError } from "./shared/errors.js";
+import type { CatalogSnapshot, CatalogSnapshotCell, ClientCatalog } from "./catalogs/index.js";
+
+type ExpectFalse<T extends false> = T;
+type ExpectTrue<T extends true> = T;
+
+type CatalogConflict = {
+    environment: typeof POLYESTER_TESTNET_ENVIRONMENT;
+    catalog: ClientCatalog;
+    catalogCell: CatalogSnapshotCell;
+};
+
+type CatalogHydration = {
+    environment: typeof POLYESTER_TESTNET_ENVIRONMENT;
+    catalogSnapshot: CatalogSnapshot;
+    catalogCell: CatalogSnapshotCell;
+};
+
+type ServerConfigCatalogExclusivityTests = [
+    ExpectFalse<CatalogConflict extends PolyesterServerClientConfig ? true : false>,
+    ExpectFalse<
+        CatalogConflict & {
+            cookies: Record<string, string>;
+        } extends CreateServerClientFromCookiesParams
+            ? true
+            : false
+    >,
+    ExpectFalse<
+        CatalogConflict & { request: Request } extends CreateServerClientFromRequestParams
+            ? true
+            : false
+    >,
+    ExpectTrue<CatalogHydration extends PolyesterServerClientConfig ? true : false>,
+    ExpectTrue<
+        CatalogHydration & {
+            cookies: Record<string, string>;
+        } extends CreateServerClientFromCookiesParams
+            ? true
+            : false
+    >,
+    ExpectTrue<
+        CatalogHydration & { request: Request } extends CreateServerClientFromRequestParams
+            ? true
+            : false
+    >,
+];
+
+const serverConfigCatalogExclusivityTests: ServerConfigCatalogExclusivityTests = [
+    false,
+    false,
+    false,
+    true,
+    true,
+    true,
+];
+void serverConfigCatalogExclusivityTests;
 
 function base64UrlEncode(value: string): string {
     return btoa(value).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/u, "");
@@ -74,17 +133,19 @@ function expectDisplaySession(session: ReturnType<typeof parseSessionCookie>): v
     expect(session.username).toBe("hunter");
 }
 
+const emptySessionShape = {
+    environmentFingerprint: null,
+    hasDisplaySession: false,
+    provider: null,
+    loginMethod: null,
+    accountAddresses: null,
+    activeAccount: null,
+    bearerToken: null,
+    username: null,
+} satisfies ReturnType<typeof parseSessionCookie>;
+
 function expectEmptySession(session: ReturnType<typeof parseSessionCookie>): void {
-    expect(session).toEqual({
-        environmentFingerprint: null,
-        hasDisplaySession: false,
-        provider: null,
-        loginMethod: null,
-        accountAddresses: null,
-        activeAccount: null,
-        bearerToken: null,
-        username: null,
-    });
+    expect(session).toEqual(emptySessionShape);
 }
 
 class TestablePolyesterServerClient extends PolyesterServerClient {
@@ -164,7 +225,7 @@ describe("parseSessionCookie", () => {
         expectDisplaySession(session);
     });
 
-    it("ignores bearer token state without matching display session metadata", () => {
+    it("preserves bearer token state without display session metadata", () => {
         const token = validJwt();
         const session = parseSessionCookie(
             {
@@ -174,14 +235,15 @@ describe("parseSessionCookie", () => {
         );
 
         expect(session.hasDisplaySession).toBe(false);
-        expect(session.bearerToken).toBeNull();
+        expect(session.bearerToken).toBe(token);
     });
 
-    it("ignores display session metadata for another environment", () => {
+    it("discards auth when display session metadata belongs to another environment", () => {
+        const token = validJwt();
         const session = parseSessionCookie(
             {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie("0xother"),
-                [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
+                [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: token,
             },
             POLYESTER_TESTNET_ENVIRONMENT,
         );
@@ -190,6 +252,7 @@ describe("parseSessionCookie", () => {
     });
 
     it("ignores display session metadata that fails schema validation", () => {
+        const token = validJwt();
         const invalidSession = {
             environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
             provider: "metamask",
@@ -207,16 +270,26 @@ describe("parseSessionCookie", () => {
         const session = parseSessionCookie(
             {
                 [POLYESTER_SESSION_COOKIE_NAME]: JSON.stringify(invalidSession),
-                [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
+                [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: token,
             },
             POLYESTER_TESTNET_ENVIRONMENT,
         );
 
-        expectEmptySession(session);
+        expect(session).toEqual({
+            ...emptySessionShape,
+            bearerToken: token,
+        });
     });
 });
 
 describe("PolyesterServerClient subaccount defaults", () => {
+    it("rejects a non-object configuration with an SDK configuration error", () => {
+        expect(() => new PolyesterServerClient(null as never)).toThrow(ConfigurationError);
+        expect(() => new PolyesterServerClient(null as never)).toThrow(
+            "Client configuration must be an object.",
+        );
+    });
+
     it("does not use display-session active account as a server default unless opted in", () => {
         const session = parseSessionCookie(
             {
@@ -362,6 +435,74 @@ describe("createPolyesterServerClientFromCookies", () => {
         expect(client.hasAuthProvider).toBe(true);
     });
 
+    it("does not install an auth provider for a bearer token bound to another environment", () => {
+        const client = createPolyesterServerClientFromCookies({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            cookies: {
+                [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie("0xother"),
+                [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
+            },
+        });
+
+        expect(client.hasDisplaySession).toBe(false);
+        expect(client.hasBearerToken).toBe(false);
+        expect(client.hasUsableBearerToken).toBe(false);
+        expect(client.hasAuthProvider).toBe(false);
+    });
+
+    it("accepts framework cookie getters that return cookie objects", () => {
+        const values = new Map([
+            [POLYESTER_SESSION_COOKIE_NAME, displaySessionCookie()],
+            [POLYESTER_AUTH_TOKEN_COOKIE_NAME, validJwt()],
+        ]);
+        const client = createPolyesterServerClientFromCookies({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            cookies: {
+                get: (name) => {
+                    const value = values.get(name);
+                    return value === undefined ? undefined : { name, value };
+                },
+            },
+        });
+
+        expect(client.session.username).toBe("hunter");
+        expect(client.hasDisplaySession).toBe(true);
+        expect(client.hasBearerToken).toBe(true);
+        expect(client.hasUsableBearerToken).toBe(true);
+        expect(client.hasAuthProvider).toBe(true);
+    });
+
+    it("installs an auth provider for a usable bearer token without a display session", () => {
+        const client = createPolyesterServerClientFromCookies({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            cookies: {
+                [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
+            },
+        });
+
+        expect(client.hasDisplaySession).toBe(false);
+        expect(client.hasBearerToken).toBe(true);
+        expect(client.hasUsableBearerToken).toBe(true);
+        expect(client.hasAuthProvider).toBe(true);
+    });
+
+    it("installs an auth provider from a request without a display session", () => {
+        const token = validJwt();
+        const client = createPolyesterServerClientFromRequest({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            request: new Request("https://example.test", {
+                headers: {
+                    cookie: `${POLYESTER_AUTH_TOKEN_COOKIE_NAME}=${token}`,
+                },
+            }),
+        });
+
+        expect(client.hasDisplaySession).toBe(false);
+        expect(client.hasBearerToken).toBe(true);
+        expect(client.hasUsableBearerToken).toBe(true);
+        expect(client.hasAuthProvider).toBe(true);
+    });
+
     it("does not install an auth provider for expired or malformed bearer tokens", () => {
         const expired = createPolyesterServerClientFromCookies({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
@@ -384,6 +525,21 @@ describe("createPolyesterServerClientFromCookies", () => {
         expect(malformed.hasBearerToken).toBe(true);
         expect(malformed.hasUsableBearerToken).toBe(false);
         expect(malformed.hasAuthProvider).toBe(false);
+    });
+});
+
+describe("createPolyesterServerClientFromRequest configuration", () => {
+    it("rejects a missing request with an SDK configuration error", () => {
+        expect(() =>
+            createPolyesterServerClientFromRequest({
+                environment: POLYESTER_TESTNET_ENVIRONMENT,
+            } as never),
+        ).toThrow(ConfigurationError);
+        expect(() =>
+            createPolyesterServerClientFromRequest({
+                environment: POLYESTER_TESTNET_ENVIRONMENT,
+            } as never),
+        ).toThrow("request is required and must be a Request.");
     });
 });
 
