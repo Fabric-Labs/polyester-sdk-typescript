@@ -14,7 +14,8 @@ import {
 } from "../../shared/request-options.js";
 import { createReadyGate, type SdkScales } from "../../shared/decimal-surface.js";
 import { HEATMAP_INTERVAL_VALUES, type HeatmapIntervalValue } from "./heatmap.codecs.js";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
+import { parse } from "../../shared/validation.js";
 import {
     GetOrderbookHeatmapInputSchema,
     createOrderbookHeatmapLiveBucketSchema,
@@ -66,7 +67,7 @@ export class HeatmapService implements OrderbookHeatmapProvider {
         input: GetOrderbookHeatmapInput,
         options?: PolyesterRequestOptions,
     ): Promise<OrderbookHeatmapResponse> {
-        const parsed = v.parse(GetOrderbookHeatmapInputSchema, input);
+        const parsed = parse(GetOrderbookHeatmapInputSchema, input);
         await this.#scales.ready();
 
         const res = await this.#client.getOrderbookHeatmap(
@@ -87,14 +88,14 @@ export class HeatmapService implements OrderbookHeatmapProvider {
             },
             toConnectCallOptions(options),
         );
-        return v.parse(this.#responseSchema, res);
+        return parse(this.#responseSchema, res);
     }
 
     /**
      * Subscribes to live heatmap buckets on public:spot:market:heatmap:{interval}:{symbolId}:proto and emits parsed bid/ask delta buckets for the selected interval.
      */
     subscribeLive(input: SubscribeHeatmapLiveInput): () => void {
-        const params = v.parse(SubscribeHeatmapLiveParamsSchema, {
+        const params = parse(SubscribeHeatmapLiveParamsSchema, {
             symbolId: input.symbolId,
             interval: input.interval,
         });
@@ -108,7 +109,7 @@ export class HeatmapService implements OrderbookHeatmapProvider {
             schema: ProtoHeatmapLiveBucketSchema,
             onPublication: (data) => {
                 gate.run(() => {
-                    const bucket = v.parse(this.#liveBucketSchema, data);
+                    const bucket = parse(this.#liveBucketSchema, data);
                     input.onEvent(bucket);
                 });
             },

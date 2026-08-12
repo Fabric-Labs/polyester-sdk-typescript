@@ -13,7 +13,8 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import { isDev } from "../../utils/is-dev.js";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
+import { parse } from "../../shared/validation.js";
 import {
     GetLifecycleFlowInputSchema,
     GetLifecycleFlowOutputSchema,
@@ -60,9 +61,9 @@ export class LifecycleService {
         input: ListLifecycleFlowsInput,
         options?: PolyesterRequestOptions,
     ): Promise<ListLifecycleFlowsOutput> {
-        const parsedInput = v.parse(ListLifecycleFlowsInputSchema, input);
+        const parsedInput = parse(ListLifecycleFlowsInputSchema, input);
         const response = await this.#client.listFlows(parsedInput, toConnectCallOptions(options));
-        const res = v.parse(ListLifecycleFlowsOutputSchema, response);
+        const res = parse(ListLifecycleFlowsOutputSchema, response);
         return res;
     }
 
@@ -73,12 +74,12 @@ export class LifecycleService {
         input: GetLifecycleFlowInput,
         options?: PolyesterRequestOptions,
     ): Promise<GetLifecycleFlowOutput> {
-        const parsedInput = v.parse(GetLifecycleFlowInputSchema, input);
+        const parsedInput = parse(GetLifecycleFlowInputSchema, input);
         const response = await this.#client.getFlowById(
             create(GetFlowByIdRequestSchema, parsedInput),
             toConnectCallOptions(options),
         );
-        return v.parse(GetLifecycleFlowOutputSchema, response);
+        return parse(GetLifecycleFlowOutputSchema, response);
     }
 
     /**
@@ -88,12 +89,12 @@ export class LifecycleService {
         input: ListLifecycleFlowsByTxInput,
         options?: PolyesterRequestOptions,
     ): Promise<ListLifecycleFlowsByTxOutput> {
-        const parsedInput = v.parse(ListLifecycleFlowsByTxInputSchema, input);
+        const parsedInput = parse(ListLifecycleFlowsByTxInputSchema, input);
         const response = await this.#client.listFlowsByTx(
             parsedInput,
             toConnectCallOptions(options),
         );
-        return v.parse(ListLifecycleFlowsByTxOutputSchema, response);
+        return parse(ListLifecycleFlowsByTxOutputSchema, response);
     }
 
     /**
@@ -108,7 +109,7 @@ export class LifecycleService {
             channel,
             schema: FlowSummaryViewSchema,
             onPublication: (data) => {
-                const flow = v.parse(LifecycleFlowSummarySchema, data);
+                const flow = parse(LifecycleFlowSummarySchema, data);
                 input.onEvent(flow);
             },
             onConnected: input.onOpen,
@@ -136,7 +137,7 @@ export class LifecycleService {
             channel,
             schema: FlowDetailViewSchema,
             onPublication: (data) => {
-                const flow = v.parse(LifecycleFlowDetailSchema, data);
+                const flow = parse(LifecycleFlowDetailSchema, data);
                 input.onEvent(flow);
             },
             onConnected: input.onOpen,

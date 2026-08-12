@@ -1,8 +1,6 @@
 import * as v from "valibot";
 import { ValidationError } from "./errors.js";
 
-export * from "valibot";
-
 /**
  * Parses a value with Valibot and translates schema failures into the SDK's
  * public error hierarchy.

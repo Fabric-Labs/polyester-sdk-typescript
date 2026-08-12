@@ -1,7 +1,8 @@
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
+import { parse } from "../../shared/validation.js";
 import type { PolyesterRealtime } from "../../realtime/index.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
@@ -53,9 +54,9 @@ export class TransfersService {
     ): Promise<{ transfers: LedgerTransfer[]; nextPageToken: string }> {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const validatedInput = v.parse(ListTransfersInputSchema, resolved);
+        const validatedInput = parse(ListTransfersInputSchema, resolved);
         const res = await this.#client.listTransfers(validatedInput, toConnectCallOptions(options));
-        const transfers = v.parse(v.array(this.#ledgerTransferSchema), res.transfers);
+        const transfers = parse(v.array(this.#ledgerTransferSchema), res.transfers);
         return { transfers, nextPageToken: res.nextPageToken };
     }
 
@@ -73,7 +74,7 @@ export class TransfersService {
             schema: Proto.TransferRowSchema,
             onPublication: (m) => {
                 gate.run(() => {
-                    const tr = v.parse(this.#ledgerTransferSchema, m);
+                    const tr = parse(this.#ledgerTransferSchema, m);
                     input.onEvent(tr);
                 });
             },

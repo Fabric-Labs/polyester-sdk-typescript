@@ -1,6 +1,7 @@
 import * as Proto from "../../../gen/auth/v1/policies_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
-import * as v from "../../../shared/validation.js";
+import type * as v from "valibot";
+import { parse } from "../../../shared/validation.js";
 import { removeUndefined } from "../../../utils/remove-undefined.js";
 import {
     toConnectCallOptions,
@@ -37,12 +38,12 @@ export class ApiKeyPoliciesService {
         input: v.InferInput<typeof ListApiKeyPoliciesInputSchema> = {},
         options?: PolyesterRequestOptions,
     ): Promise<ApiKeyPolicy[]> {
-        const request = v.parse(ListApiKeyPoliciesInputSchema, input);
+        const request = parse(ListApiKeyPoliciesInputSchema, input);
         const res = await this.#client.listApiPolicies(
             removeUndefined(request),
             toConnectCallOptions(options),
         );
-        return v.parse(ListApiKeyPoliciesResponseSchema, res);
+        return parse(ListApiKeyPoliciesResponseSchema, res);
     }
 
     /**
@@ -52,14 +53,14 @@ export class ApiKeyPoliciesService {
         input: v.InferInput<typeof GetApiKeyPolicyInputSchema>,
         options?: PolyesterRequestOptions,
     ): Promise<ApiKeyPolicy> {
-        const { policyId, keyId } = v.parse(GetApiKeyPolicyInputSchema, input);
+        const { policyId, keyId } = parse(GetApiKeyPolicyInputSchema, input);
         if (!policyId) return DEFAULT_API_KEY_POLICY;
         const res = await this.#client.getApiPolicy(
             removeUndefined({ policyId, keyId }),
             toConnectCallOptions(options),
         );
         if (!res.policy) return DEFAULT_API_KEY_POLICY;
-        return v.parse(ApiKeyPolicySchema, res.policy);
+        return parse(ApiKeyPolicySchema, res.policy);
     }
 
     /**
@@ -69,13 +70,13 @@ export class ApiKeyPoliciesService {
         input: v.InferInput<typeof CreateApiKeyPolicyInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<ApiKeyPolicy> {
-        const validatedInput = v.parse(CreateApiKeyPolicyInputSchema, input);
+        const validatedInput = parse(CreateApiKeyPolicyInputSchema, input);
         const res = await this.#client.createApiPolicy(
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
         if (!res.policy) throw new Error("Failed to create API key policy");
-        return v.parse(ApiKeyPolicySchema, res.policy);
+        return parse(ApiKeyPolicySchema, res.policy);
     }
 
     /**
@@ -85,20 +86,20 @@ export class ApiKeyPoliciesService {
         input: v.InferInput<typeof UpdateApiKeyPolicyInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<ApiKeyPolicy> {
-        const validatedInput = v.parse(UpdateApiKeyPolicyInputSchema, input);
+        const validatedInput = parse(UpdateApiKeyPolicyInputSchema, input);
         const res = await this.#client.updateApiPolicy(
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
         if (!res.policy) throw new Error("Failed to update API key policy");
-        return v.parse(ApiKeyPolicySchema, res.policy);
+        return parse(ApiKeyPolicySchema, res.policy);
     }
 
     /**
      * Deletes an API key policy template when it is not in use.
      */
     async delete(policyId: string, options?: PolyesterMutationOptions): Promise<void> {
-        const validatedPolicyId = v.parse(PolicyIdSchema, policyId);
+        const validatedPolicyId = parse(PolicyIdSchema, policyId);
         await this.#client.deleteApiPolicy(
             { policyId: validatedPolicyId },
             toConnectCallOptions(options),
@@ -112,7 +113,7 @@ export class ApiKeyPoliciesService {
         input: v.InferInput<typeof ApplyApiKeyPolicyInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<void> {
-        const validatedInput = v.parse(ApplyApiKeyPolicyInputSchema, input);
+        const validatedInput = parse(ApplyApiKeyPolicyInputSchema, input);
         await this.#client.setApiKeyPolicy(
             removeUndefined(validatedInput),
             toConnectCallOptions(options),

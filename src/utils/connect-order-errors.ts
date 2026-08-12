@@ -1,5 +1,5 @@
 import { ConnectError } from "@connectrpc/connect";
-import * as v from "../shared/validation.js";
+import * as v from "valibot";
 import { ErrorDetailSchema } from "../gen/orders/v1/orders_pb.js";
 import {
     OrderErrorDetailSchema,

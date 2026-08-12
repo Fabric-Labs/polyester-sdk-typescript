@@ -1,7 +1,8 @@
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
+import { parse } from "../../shared/validation.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import {
@@ -115,9 +116,9 @@ export class TriggersService {
     ): Promise<CreateTriggerResult> {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const validatedInput = v.parse(this.#createTriggerInputSchema, resolved);
+        const validatedInput = parse(this.#createTriggerInputSchema, resolved);
         const res = await this.#client.createTrigger(validatedInput, toConnectCallOptions(options));
-        return v.parse(CreateTriggerResultSchema, res);
+        return parse(CreateTriggerResultSchema, res);
     }
 
     /**
@@ -126,14 +127,14 @@ export class TriggersService {
     async get(input: GetTriggerInput, options?: PolyesterRequestOptions): Promise<Trigger | null> {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const validated = v.parse(GetTriggerInputSchema, resolved);
+        const validated = parse(GetTriggerInputSchema, resolved);
         const res = await this.#client.getTrigger(
             removeUndefined(validated),
             toConnectCallOptions(options),
         );
 
         if (!res.trigger) return null;
-        return v.parse(this.#triggerSchema, res.trigger);
+        return parse(this.#triggerSchema, res.trigger);
     }
 
     /**
@@ -145,13 +146,13 @@ export class TriggersService {
     ): Promise<ListTriggersResult> {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const validated = v.parse(ListTriggersInputSchema, resolved);
+        const validated = parse(ListTriggersInputSchema, resolved);
         const res = await this.#client.listTriggers(
             removeUndefined(validated),
             toConnectCallOptions(options),
         );
         return {
-            triggers: v.parse(
+            triggers: parse(
                 v.array(this.#triggerSchema),
                 res.triggers.filter((trigger) => hasKnownTriggerSymbol(this.#scales, trigger)),
             ),
@@ -167,12 +168,12 @@ export class TriggersService {
         options?: PolyesterMutationOptions,
     ): Promise<CancelTriggerResult> {
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const validated = v.parse(CancelTriggerInputSchema, resolved);
+        const validated = parse(CancelTriggerInputSchema, resolved);
         const res = await this.#client.cancelTrigger(
             removeUndefined(validated),
             toConnectCallOptions(options),
         );
-        return v.parse(CancelTriggerResultSchema, res);
+        return parse(CancelTriggerResultSchema, res);
     }
 
     /**
@@ -184,9 +185,9 @@ export class TriggersService {
     ): Promise<ModifyTriggerResult> {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const validated = v.parse(this.#modifyTriggerInputSchema, resolved);
+        const validated = parse(this.#modifyTriggerInputSchema, resolved);
         const res = await this.#client.modifyTrigger(validated, toConnectCallOptions(options));
-        return v.parse(ModifyTriggerResultSchema, res);
+        return parse(ModifyTriggerResultSchema, res);
     }
 
     /**
@@ -197,12 +198,12 @@ export class TriggersService {
         options?: PolyesterMutationOptions,
     ): Promise<PauseTriggerResult> {
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const validated = v.parse(PauseTriggerInputSchema, resolved);
+        const validated = parse(PauseTriggerInputSchema, resolved);
         const res = await this.#client.pauseTrigger(
             removeUndefined(validated),
             toConnectCallOptions(options),
         );
-        return v.parse(PauseTriggerResultSchema, res);
+        return parse(PauseTriggerResultSchema, res);
     }
 
     /**
@@ -213,12 +214,12 @@ export class TriggersService {
         options?: PolyesterMutationOptions,
     ): Promise<ResumeTriggerResult> {
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const validated = v.parse(ResumeTriggerInputSchema, resolved);
+        const validated = parse(ResumeTriggerInputSchema, resolved);
         const res = await this.#client.resumeTrigger(
             removeUndefined(validated),
             toConnectCallOptions(options),
         );
-        return v.parse(ResumeTriggerResultSchema, res);
+        return parse(ResumeTriggerResultSchema, res);
     }
 
     /**
@@ -230,7 +231,7 @@ export class TriggersService {
     ): Promise<ListTriggerEventsResult> {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const validated = v.parse(ListTriggerEventsInputSchema, resolved);
+        const validated = parse(ListTriggerEventsInputSchema, resolved);
 
         const res = await this.#client.listTriggerEvents(
             removeUndefined({
@@ -244,7 +245,7 @@ export class TriggersService {
         );
 
         return {
-            events: v.parse(v.array(this.#triggerEventSchema), res.events),
+            events: parse(v.array(this.#triggerEventSchema), res.events),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -263,7 +264,7 @@ export class TriggersService {
             schema: Proto.TriggerSchema,
             onPublication: (data) => {
                 gate.run(() => {
-                    const trigger = v.parse(this.#triggerSchema, data);
+                    const trigger = parse(this.#triggerSchema, data);
                     input.onEvent(trigger);
                 });
             },
@@ -287,7 +288,7 @@ export class TriggersService {
             schema: Proto.TriggerEventSchema,
             onPublication: (data) => {
                 gate.run(() => {
-                    const event = v.parse(this.#triggerEventSchema, data);
+                    const event = parse(this.#triggerEventSchema, data);
                     input.onEvent(event);
                 });
             },

@@ -1,4 +1,4 @@
-import * as v from "../shared/validation.js";
+import * as v from "valibot";
 
 export const SideSchema = v.picklist(["buy", "sell"]);
 

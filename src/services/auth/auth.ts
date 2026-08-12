@@ -1,6 +1,7 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as Proto from "../../gen/auth/v1/auth_pb.js";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
+import { parse } from "../../shared/validation.js";
 import { ProfileService } from "./profile/profile.js";
 import {
     OptionalPublicIdSchema,
@@ -77,7 +78,7 @@ export class AuthService {
      */
     async me(options?: PolyesterRequestOptions): Promise<Me> {
         const res = await this.#authClient.me({}, toConnectCallOptions(options));
-        return v.parse(MeSchema, res);
+        return parse(MeSchema, res);
     }
 
     /**
@@ -90,7 +91,7 @@ export class AuthService {
         smartAccountAddress: string,
         options?: PolyesterRequestOptions,
     ): Promise<Nonce> {
-        return v.parse(
+        return parse(
             NonceSchema,
             await this.#publicClient.getNonce(
                 { smartAccountAddress },
@@ -106,11 +107,11 @@ export class AuthService {
         input: LoginWithWalletInput,
         options?: PolyesterMutationOptions,
     ): Promise<LoginWithWalletResponse> {
-        const validatedInput = v.parse(LoginWithWalletInputSchema, input);
+        const validatedInput = parse(LoginWithWalletInputSchema, input);
         const res = await this.#publicClient.loginWithWallet(
             validatedInput,
             toConnectCallOptions(options),
         );
-        return v.parse(LoginWithWalletResponseSchema, res);
+        return parse(LoginWithWalletResponseSchema, res);
     }
 }

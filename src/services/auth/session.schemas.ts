@@ -1,4 +1,4 @@
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
 import type { SessionData } from "./session.types.js";
 
 export const AuthLoginMethodSchema = v.picklist([

@@ -1,4 +1,5 @@
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
+import { parse } from "../../shared/validation.js";
 import * as Proto from "../../gen/auth/v1/address_book_pb.js";
 import { SubaccountRole } from "../../gen/auth/v1/subaccounts_pb.js";
 import {
@@ -108,7 +109,7 @@ export const CreateAddressBookEntryInputSchema = v.pipe(
 export type CreateAddressBookEntryInput = v.InferInput<typeof CreateAddressBookEntryInputSchema>;
 
 export function validateCreateAddressBookEntryInput(input: CreateAddressBookEntryInput): void {
-    v.parse(CreateAddressBookEntryInputSchema, input);
+    parse(CreateAddressBookEntryInputSchema, input);
 }
 
 type AddressBookEntryPatch = {

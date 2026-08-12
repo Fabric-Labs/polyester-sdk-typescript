@@ -1,4 +1,4 @@
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
 import { quantityInputToE18, type SdkScales } from "../../shared/decimal-surface.js";
 import {
     AccountScopeInputEntries,

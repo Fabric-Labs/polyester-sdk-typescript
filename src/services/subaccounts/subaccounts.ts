@@ -1,7 +1,8 @@
 import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
 import * as ProtoApiKeys from "../../gen/auth/v1/api_keys_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
+import { parse } from "../../shared/validation.js";
 import { type ApiKey, ApiKeySchema } from "../api-keys/index.js";
 import { formatId } from "../../utils/base58-id.js";
 import {
@@ -79,7 +80,7 @@ export class SubaccountsService {
         const res = await this.#client.listSubaccounts({}, toConnectCallOptions(options));
         return {
             totalCreated: res.totalCreated,
-            subaccounts: v.parse(v.array(SubaccountSchema), res.subaccounts),
+            subaccounts: parse(v.array(SubaccountSchema), res.subaccounts),
         };
     }
 
@@ -97,7 +98,7 @@ export class SubaccountsService {
             invites: SubaccountInvite[];
         }
     > {
-        const validatedInput = v.parse(SubaccountIdInputSchema, input);
+        const validatedInput = parse(SubaccountIdInputSchema, input);
         const subaccountId = formatId(validatedInput.subaccountId);
         const res = await this.#viewClient.getSubaccount(
             {
@@ -114,12 +115,12 @@ export class SubaccountsService {
         if (!res.subaccount) throw new Error(`Subaccount not found: ${subaccountId}`);
 
         return {
-            ...v.parse(SubaccountSchema, res.subaccount),
+            ...parse(SubaccountSchema, res.subaccount),
             policy: res.policy
-                ? v.parse(SubaccountPolicySchema, res.policy)
+                ? parse(SubaccountPolicySchema, res.policy)
                 : DEFAULT_SUBACCOUNT_POLICY,
-            apiKeys: v.parse(v.optional(v.array(ApiKeySchema), []), res.apiKeys),
-            members: v.parse(v.optional(v.array(SubaccountMemberSchema), []), res.members),
+            apiKeys: parse(v.optional(v.array(ApiKeySchema), []), res.apiKeys),
+            members: parse(v.optional(v.array(SubaccountMemberSchema), []), res.members),
             invites: v
                 .parse(v.optional(v.array(SubaccountInviteSchema), []), res.invites)
                 .filter((invite) => invite.subaccountId === subaccountId),
@@ -133,12 +134,12 @@ export class SubaccountsService {
         input: v.InferInput<typeof CreateSubaccountInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<CreateSubaccountResult> {
-        const validatedInput = v.parse(CreateSubaccountInputSchema, input);
+        const validatedInput = parse(CreateSubaccountInputSchema, input);
         const res = await this.#client.createSubaccount(
             validatedInput,
             toConnectCallOptions(options),
         );
-        return v.parse(CreateSubaccountResultSchema, res);
+        return parse(CreateSubaccountResultSchema, res);
     }
 
     /**
@@ -148,13 +149,13 @@ export class SubaccountsService {
         input: v.InferInput<typeof UpdateSubaccountInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<Subaccount> {
-        const validatedInput = v.parse(UpdateSubaccountInputSchema, input);
+        const validatedInput = parse(UpdateSubaccountInputSchema, input);
         const res = await this.#client.updateSubaccount(
             validatedInput,
             toConnectCallOptions(options),
         );
         if (!res.subaccount) throw new Error("Failed to update subaccount");
-        return v.parse(SubaccountSchema, res.subaccount);
+        return parse(SubaccountSchema, res.subaccount);
     }
 
     /**
@@ -164,12 +165,12 @@ export class SubaccountsService {
         input: v.InferInput<typeof InviteSubaccountMemberInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<SubaccountInvite> {
-        const validatedInput = v.parse(InviteSubaccountMemberInputSchema, input);
+        const validatedInput = parse(InviteSubaccountMemberInputSchema, input);
         const res = await this.#client.inviteSubaccountMember(
             validatedInput,
             toConnectCallOptions(options),
         );
-        return v.parse(SubaccountInviteSchema, res.invite);
+        return parse(SubaccountInviteSchema, res.invite);
     }
 
     /**
@@ -179,12 +180,12 @@ export class SubaccountsService {
         input: v.InferInput<typeof RemoveSubaccountMemberInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<SubaccountMutationResult> {
-        const validatedInput = v.parse(RemoveSubaccountMemberInputSchema, input);
+        const validatedInput = parse(RemoveSubaccountMemberInputSchema, input);
         const res = await this.#client.removeSubaccountMember(
             validatedInput,
             toConnectCallOptions(options),
         );
-        return v.parse(SubaccountMutationResultSchema, res);
+        return parse(SubaccountMutationResultSchema, res);
     }
 
     /**
@@ -194,12 +195,12 @@ export class SubaccountsService {
         input: v.InferInput<typeof UpdateSubaccountMemberRoleInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<SubaccountMutationResult> {
-        const validatedInput = v.parse(UpdateSubaccountMemberRoleInputSchema, input);
+        const validatedInput = parse(UpdateSubaccountMemberRoleInputSchema, input);
         const res = await this.#client.updateSubaccountMemberRole(
             validatedInput,
             toConnectCallOptions(options),
         );
-        return v.parse(SubaccountMutationResultSchema, res);
+        return parse(SubaccountMutationResultSchema, res);
     }
 
     /**
@@ -209,12 +210,12 @@ export class SubaccountsService {
         input: v.InferInput<typeof SetSubaccountMemberMfaRequirementInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<SubaccountMutationResult> {
-        const validatedInput = v.parse(SetSubaccountMemberMfaRequirementInputSchema, input);
+        const validatedInput = parse(SetSubaccountMemberMfaRequirementInputSchema, input);
         const res = await this.#client.setSubaccountMemberMFARequirement(
             validatedInput,
             toConnectCallOptions(options),
         );
-        return v.parse(SubaccountMutationResultSchema, res);
+        return parse(SubaccountMutationResultSchema, res);
     }
 
     /**
@@ -224,12 +225,12 @@ export class SubaccountsService {
         input: v.InferInput<typeof ListSubaccountInvitesInputSchema>,
         options?: PolyesterRequestOptions,
     ): Promise<SubaccountInvite[]> {
-        const validatedInput = v.parse(ListSubaccountInvitesInputSchema, input);
+        const validatedInput = parse(ListSubaccountInvitesInputSchema, input);
         const res = await this.#client.listSubaccountInvites(
             validatedInput,
             toConnectCallOptions(options),
         );
-        return v.parse(v.array(SubaccountInviteSchema), res.invites);
+        return parse(v.array(SubaccountInviteSchema), res.invites);
     }
 
     /**
@@ -239,12 +240,12 @@ export class SubaccountsService {
         input: v.InferInput<typeof SubaccountIdInputSchema>,
         options?: PolyesterRequestOptions,
     ): Promise<SubaccountMember[]> {
-        const validatedInput = v.parse(SubaccountIdInputSchema, input);
+        const validatedInput = parse(SubaccountIdInputSchema, input);
         const res = await this.#client.listSubaccountMembers(
             validatedInput,
             toConnectCallOptions(options),
         );
-        return v.parse(v.array(SubaccountMemberSchema), res.members);
+        return parse(v.array(SubaccountMemberSchema), res.members);
     }
 
     /**
@@ -254,12 +255,12 @@ export class SubaccountsService {
         input: v.InferInput<typeof RespondSubaccountInviteInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<SubaccountInvite> {
-        const validatedInput = v.parse(RespondSubaccountInviteInputSchema, input);
+        const validatedInput = parse(RespondSubaccountInviteInputSchema, input);
         const res = await this.#client.respondSubaccountInvite(
             validatedInput,
             toConnectCallOptions(options),
         );
-        return v.parse(SubaccountInviteSchema, res.invite);
+        return parse(SubaccountInviteSchema, res.invite);
     }
 
     /**
@@ -269,7 +270,7 @@ export class SubaccountsService {
         input: v.InferInput<typeof DeleteSubaccountInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<Subaccount> {
-        const validatedInput = v.parse(DeleteSubaccountInputSchema, input);
+        const validatedInput = parse(DeleteSubaccountInputSchema, input);
         const res = await this.#client.updateSubaccount(
             {
                 subaccountId: validatedInput.subaccountId,
@@ -280,7 +281,7 @@ export class SubaccountsService {
             toConnectCallOptions(options),
         );
         if (!res.subaccount) throw new Error("Failed to delete subaccount");
-        return v.parse(SubaccountSchema, res.subaccount);
+        return parse(SubaccountSchema, res.subaccount);
     }
 
     /**
@@ -290,13 +291,13 @@ export class SubaccountsService {
         input: v.InferInput<typeof SubaccountActivityInputSchema>,
         options?: PolyesterRequestOptions,
     ): Promise<{ events: SubaccountEvent[]; nextPageToken: string }> {
-        const validatedInput = v.parse(SubaccountActivityInputSchema, input);
+        const validatedInput = parse(SubaccountActivityInputSchema, input);
         const res = await this.#viewClient.listSubaccountActivity(
             validatedInput,
             toConnectCallOptions(options),
         );
         return {
-            events: v.parse(v.optional(v.array(SubaccountActivityEventSchema), []), res.events),
+            events: parse(v.optional(v.array(SubaccountActivityEventSchema), []), res.events),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -311,7 +312,7 @@ export class SubaccountsService {
             channel,
             schema: Proto.SubaccountSchema,
             onPublication: (data) => {
-                const subaccount = v.parse(SubaccountSchema, data);
+                const subaccount = parse(SubaccountSchema, data);
                 input.onEvent(subaccount);
             },
             onConnected: () => input.onOpen?.(),
@@ -330,7 +331,7 @@ export class SubaccountsService {
             channel,
             schema: ProtoApiKeys.ApiKeySchema,
             onPublication: (data) => {
-                const apiKey = v.parse(ApiKeySchema, data);
+                const apiKey = parse(ApiKeySchema, data);
                 input.onEvent(apiKey);
             },
             onConnected: () => input.onOpen?.(),

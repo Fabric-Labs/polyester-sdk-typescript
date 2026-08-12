@@ -29,7 +29,7 @@ import {
     type SignProtectedActionInput,
 } from "./guard-signer.schemas.js";
 import { formatConnectError, isResourceNotFoundError } from "../../utils/errors.js";
-import * as v from "../../shared/validation.js";
+import { parse } from "../../shared/validation.js";
 
 const GUARD_SIGNER_WALLET_NOT_FOUND_MESSAGE = "guard signer wallet not found";
 
@@ -58,12 +58,12 @@ export class GuardSignerService {
         input: GuardSignerScopedInput = {},
         options?: PolyesterMutationOptions,
     ): Promise<CreateGuardSignerWalletResult> {
-        const request = v.parse(GuardSignerScopedInputSchema, this.resolveInput(input));
+        const request = parse(GuardSignerScopedInputSchema, this.resolveInput(input));
         const response = await this.#client.createGuardSignerWallet(
             removeUndefined(request),
             toConnectCallOptions(options),
         );
-        return v.parse(CreateGuardSignerWalletResultSchema, response);
+        return parse(CreateGuardSignerWalletResultSchema, response);
     }
 
     /**
@@ -73,13 +73,13 @@ export class GuardSignerService {
         input: GuardSignerScopedInput = {},
         options?: PolyesterRequestOptions,
     ): Promise<GuardSignerStatus | null> {
-        const request = v.parse(GuardSignerScopedInputSchema, this.resolveInput(input));
+        const request = parse(GuardSignerScopedInputSchema, this.resolveInput(input));
         try {
             const response = await this.#client.getGuardSignerStatus(
                 removeUndefined(request),
                 toConnectCallOptions(options),
             );
-            return response.status ? v.parse(GuardSignerStatusSchema, response.status) : null;
+            return response.status ? parse(GuardSignerStatusSchema, response.status) : null;
         } catch (err) {
             if (isResourceNotFoundError(err) || isGuardSignerWalletNotFoundError(err)) return null;
             throw err;
@@ -93,12 +93,12 @@ export class GuardSignerService {
         input: SignProtectedActionInput,
         options?: PolyesterMutationOptions,
     ): Promise<GuardApproval | null> {
-        const request = v.parse(SignProtectedActionInputSchema, this.resolveInput(input));
+        const request = parse(SignProtectedActionInputSchema, this.resolveInput(input));
         const response = await this.#client.signProtectedAction(
             removeUndefined(request),
             toConnectCallOptions(options),
         );
-        return response.approval ? v.parse(GuardApprovalSchema, response.approval) : null;
+        return response.approval ? parse(GuardApprovalSchema, response.approval) : null;
     }
 
     /**
@@ -108,7 +108,7 @@ export class GuardSignerService {
         input: BatchSignProtectedActionInput,
         options?: PolyesterMutationOptions,
     ): Promise<BatchGuardApprovals> {
-        const request = v.parse(BatchSignProtectedActionInputSchema, this.resolveInput(input));
+        const request = parse(BatchSignProtectedActionInputSchema, this.resolveInput(input));
         const response = await this.#client.batchSignProtectedActions(
             removeUndefined(request),
             toConnectCallOptions(options),
@@ -118,7 +118,7 @@ export class GuardSignerService {
             throw new Error("Backend returned a mismatched number of GuardSigner approvals.");
         }
 
-        return v.parse(BatchGuardApprovalsSchema, response);
+        return parse(BatchGuardApprovalsSchema, response);
     }
 
     /**
@@ -128,12 +128,12 @@ export class GuardSignerService {
         input: GuardSignerScopedInput = {},
         options?: PolyesterMutationOptions,
     ): Promise<RotateGuardSignerWalletResult> {
-        const request = v.parse(GuardSignerScopedInputSchema, this.resolveInput(input));
+        const request = parse(GuardSignerScopedInputSchema, this.resolveInput(input));
         const response = await this.#client.rotateGuardSignerWallet(
             removeUndefined(request),
             toConnectCallOptions(options),
         );
-        return v.parse(RotateGuardSignerWalletResultSchema, response);
+        return parse(RotateGuardSignerWalletResultSchema, response);
     }
 
     /**
@@ -143,12 +143,12 @@ export class GuardSignerService {
         input: GuardSignerScopedInput = {},
         options?: PolyesterMutationOptions,
     ): Promise<ExportGuardSignerWalletResult> {
-        const request = v.parse(GuardSignerScopedInputSchema, this.resolveInput(input));
+        const request = parse(GuardSignerScopedInputSchema, this.resolveInput(input));
         const response = await this.#client.exportGuardSignerWallet(
             removeUndefined(request),
             toConnectCallOptions(options),
         );
-        return v.parse(ExportGuardSignerWalletResultSchema, response);
+        return parse(ExportGuardSignerWalletResultSchema, response);
     }
 
     private resolveInput<TInput extends AccountScopedInput>(input: TInput): TInput {

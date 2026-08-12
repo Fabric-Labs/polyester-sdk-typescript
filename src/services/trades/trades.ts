@@ -1,7 +1,8 @@
 import * as Proto from "../../gen/orders/v1/orders_read_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
+import { parse } from "../../shared/validation.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
@@ -49,13 +50,13 @@ export class TradesService {
     ): Promise<{ trades: Trade[]; nextPageToken: string }> {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const validatedInput = v.parse(GetUserTradesInputSchema, resolved);
+        const validatedInput = parse(GetUserTradesInputSchema, resolved);
         const res = await this.#client.getUserTrades(
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
         return {
-            trades: v.parse(v.array(this.#userTradeSchema), res.trades),
+            trades: parse(v.array(this.#userTradeSchema), res.trades),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -74,7 +75,7 @@ export class TradesService {
             schema: Proto.UserTradeSchema,
             onPublication: (data) => {
                 gate.run(() => {
-                    const trade = v.parse(this.#userTradeSchema, data);
+                    const trade = parse(this.#userTradeSchema, data);
                     input.onEvent(trade);
                 });
             },

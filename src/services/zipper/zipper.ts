@@ -12,7 +12,7 @@ import {
     publicationHandlerErrorContext,
     type SdkSubscriptionErrorContext,
 } from "../../shared/subscription-errors.js";
-import * as v from "../../shared/validation.js";
+import { parse } from "../../shared/validation.js";
 import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
@@ -45,7 +45,7 @@ export class ZipperService {
         options?: PolyesterRequestOptions,
     ): Promise<DepositWithdrawConfig> {
         const res = await this.#client.getDepositWithdrawConfig({}, toConnectCallOptions(options));
-        return v.parse(DepositWithdrawConfigSchema, res);
+        return parse(DepositWithdrawConfigSchema, res);
     }
 
     /**
@@ -70,7 +70,7 @@ export class ZipperService {
         );
 
         const parseBatch = (batch: Proto.ZippedAssetSupplyBatch): ZippedAssetSupplyBatch =>
-            v.parse(schema, batch);
+            parse(schema, batch);
         const parseUpdates = (
             updates: readonly Proto.ZippedAssetSupplyUpdate[],
         ): ZippedAssetSupplyBatch["updates"] =>

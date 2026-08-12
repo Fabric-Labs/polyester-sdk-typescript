@@ -1,4 +1,4 @@
-import * as v from "./validation.js";
+import * as v from "valibot";
 import { idToBigInt } from "../utils/base58-id.js";
 
 export const AccountScopeSchema = v.union([

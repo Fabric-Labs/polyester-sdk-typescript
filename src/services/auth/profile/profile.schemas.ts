@@ -1,4 +1,4 @@
-import * as v from "../../../shared/validation.js";
+import * as v from "valibot";
 import { PublicIdSchema, TimestampSchema } from "../../../shared/schemas.js";
 import { tsObjToMs } from "../../../utils/time.js";
 

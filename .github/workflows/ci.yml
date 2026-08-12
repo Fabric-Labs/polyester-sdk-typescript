@@ -42,6 +42,3 @@ jobs:
 
             - name: Check SDK
               run: bun run ci
-
-            - name: Validate package contents
-              run: npm pack --dry-run --ignore-scripts

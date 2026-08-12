@@ -1,5 +1,5 @@
 import { Code, ConnectError, type Interceptor, type Transport } from "@connectrpc/connect";
-import * as v from "./validation.js";
+import * as v from "valibot";
 import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
 import {
     ErrorCode as OrderErrorCode,

@@ -1,6 +1,7 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as Proto from "../../../gen/auth/v1/profile_pb.js";
-import * as v from "../../../shared/validation.js";
+import * as v from "valibot";
+import { parse } from "../../../shared/validation.js";
 import { removeUndefined } from "../../../utils/remove-undefined.js";
 import {
     toConnectCallOptions,
@@ -39,7 +40,7 @@ export class ProfileService {
     async get(options?: PolyesterRequestOptions): Promise<Profile> {
         const res = await this.#client.getProfile({}, toConnectCallOptions(options));
         if (!res) throw new Error("Profile not found");
-        return v.parse(ProfileSchema, res);
+        return parse(ProfileSchema, res);
     }
 
     /**
@@ -49,12 +50,12 @@ export class ProfileService {
         input: v.InferInput<typeof UpdateProfileInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<Profile> {
-        const validatedInput = v.parse(UpdateProfileInputSchema, input);
+        const validatedInput = parse(UpdateProfileInputSchema, input);
         const res = await this.#client.updateProfile(
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
-        return v.parse(ProfileSchema, res);
+        return parse(ProfileSchema, res);
     }
 
     /**
@@ -62,7 +63,7 @@ export class ProfileService {
      */
     async getUsernameHistory(options?: PolyesterRequestOptions): Promise<UsernameHistoryEntry[]> {
         const res = await this.#client.getUsernameHistory({}, toConnectCallOptions(options));
-        return v.parse(v.array(UsernameHistoryEntrySchema), res.history);
+        return parse(v.array(UsernameHistoryEntrySchema), res.history);
     }
 
     /**
@@ -74,7 +75,7 @@ export class ProfileService {
             channel,
             schema: Proto.AccountIdentitySchema,
             onPublication: (data) => {
-                const identity = v.parse(AccountIdentitySchema, data);
+                const identity = parse(AccountIdentitySchema, data);
                 input.onEvent(identity);
             },
             onConnected: () => input.onOpen?.(),

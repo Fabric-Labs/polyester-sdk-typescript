@@ -1,6 +1,6 @@
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import { create } from "@bufbuild/protobuf";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
 import { tsNsToMs } from "../../utils/time.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import { OptionalPublicIdSchema, PublicIdSchema } from "../../shared/schemas.js";

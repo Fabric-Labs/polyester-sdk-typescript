@@ -1,4 +1,4 @@
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { fromU128 } from "../../utils/u128.js";
 import {

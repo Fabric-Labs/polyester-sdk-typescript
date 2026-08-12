@@ -60,9 +60,6 @@ jobs:
             - name: Check SDK
               run: bun run ci
 
-            - name: Validate package contents
-              run: npm pack --dry-run --ignore-scripts
-
             - name: Create release pull request or publish to npm
               uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d
               with:

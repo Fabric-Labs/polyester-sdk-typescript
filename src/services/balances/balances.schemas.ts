@@ -1,4 +1,4 @@
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
 import { fromU128 } from "../../utils/u128.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import type { DecodedEnum } from "../../utils/types.js";

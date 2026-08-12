@@ -1,7 +1,7 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as Proto from "../../gen/collab/v1/whiteboard_pb.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
-import * as v from "../../shared/validation.js";
+import { parse } from "../../shared/validation.js";
 import {
     toConnectCallOptions,
     type PolyesterMutationOptions,
@@ -55,9 +55,9 @@ export class WhiteboardService {
         input: CreateWhiteboardBoardInput,
         options?: PolyesterMutationOptions,
     ): Promise<CreateWhiteboardBoardResult> {
-        const validatedInput = v.parse(CreateWhiteboardBoardInputSchema, input);
+        const validatedInput = parse(CreateWhiteboardBoardInputSchema, input);
         const res = await this.#client.createBoard(validatedInput, toConnectCallOptions(options));
-        return v.parse(CreateWhiteboardBoardResultSchema, res);
+        return parse(CreateWhiteboardBoardResultSchema, res);
     }
 
     /**
@@ -67,12 +67,12 @@ export class WhiteboardService {
         input: GetWhiteboardBoardInput | string,
         options?: PolyesterRequestOptions,
     ): Promise<GetWhiteboardBoardResult> {
-        const validatedInput = v.parse(
+        const validatedInput = parse(
             GetWhiteboardBoardInputSchema,
             typeof input === "string" ? { boardId: input } : input,
         );
         const res = await this.#client.getBoard(validatedInput, toConnectCallOptions(options));
-        return v.parse(GetWhiteboardBoardResultSchema, res);
+        return parse(GetWhiteboardBoardResultSchema, res);
     }
 
     /**
@@ -82,9 +82,9 @@ export class WhiteboardService {
         input: ListWhiteboardBoardsInput = {},
         options?: PolyesterRequestOptions,
     ): Promise<ListWhiteboardBoardsResult> {
-        const validatedInput = v.parse(ListWhiteboardBoardsInputSchema, input);
+        const validatedInput = parse(ListWhiteboardBoardsInputSchema, input);
         const res = await this.#client.listBoards(validatedInput, toConnectCallOptions(options));
-        return v.parse(ListWhiteboardBoardsResultSchema, res);
+        return parse(ListWhiteboardBoardsResultSchema, res);
     }
 
     /**
@@ -94,12 +94,12 @@ export class WhiteboardService {
         input: UpdateWhiteboardBoardInput,
         options?: PolyesterMutationOptions,
     ): Promise<UpdateWhiteboardBoardResult> {
-        const validatedInput = v.parse(UpdateWhiteboardBoardInputSchema, input);
+        const validatedInput = parse(UpdateWhiteboardBoardInputSchema, input);
         const res = await this.#client.updateBoard(
             removeUndefined({ ...validatedInput }) as Proto.UpdateBoardRequest,
             toConnectCallOptions(options),
         );
-        return v.parse(UpdateWhiteboardBoardResultSchema, res);
+        return parse(UpdateWhiteboardBoardResultSchema, res);
     }
 
     /**
@@ -109,12 +109,12 @@ export class WhiteboardService {
         input: UpdateWhiteboardBoardAclInput,
         options?: PolyesterMutationOptions,
     ): Promise<UpdateWhiteboardBoardAclResult> {
-        const validatedInput = v.parse(UpdateWhiteboardBoardAclInputSchema, input);
+        const validatedInput = parse(UpdateWhiteboardBoardAclInputSchema, input);
         const res = await this.#client.updateBoardAcl(
             validatedInput,
             toConnectCallOptions(options),
         );
-        return v.parse(UpdateWhiteboardBoardAclResultSchema, res);
+        return parse(UpdateWhiteboardBoardAclResultSchema, res);
     }
 
     /**
@@ -124,9 +124,9 @@ export class WhiteboardService {
         input: ArchiveWhiteboardBoardInput,
         options?: PolyesterMutationOptions,
     ): Promise<ArchiveWhiteboardBoardResult> {
-        const validatedInput = v.parse(ArchiveWhiteboardBoardInputSchema, input);
+        const validatedInput = parse(ArchiveWhiteboardBoardInputSchema, input);
         const res = await this.#client.archiveBoard(validatedInput, toConnectCallOptions(options));
-        return v.parse(ArchiveWhiteboardBoardResultSchema, res);
+        return parse(ArchiveWhiteboardBoardResultSchema, res);
     }
 
     /**
@@ -136,11 +136,11 @@ export class WhiteboardService {
         input: MintWhiteboardJoinTokenInput | string,
         options?: PolyesterMutationOptions,
     ): Promise<WhiteboardJoinTokenResult> {
-        const validatedInput = v.parse(
+        const validatedInput = parse(
             MintWhiteboardJoinTokenInputSchema,
             typeof input === "string" ? { boardId: input } : input,
         );
         const res = await this.#client.mintJoinToken(validatedInput, toConnectCallOptions(options));
-        return v.parse(WhiteboardJoinTokenResultSchema, res);
+        return parse(WhiteboardJoinTokenResultSchema, res);
     }
 }

@@ -1,5 +1,5 @@
 import * as Proto from "../../gen/collab/v1/whiteboard_pb.js";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
 import {
     JsonObjectSchema,
     OptionalTimestampMsSchema,

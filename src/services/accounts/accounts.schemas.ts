@@ -1,4 +1,4 @@
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
 import * as ProtoResolve from "../../gen/auth/v1/resolve_pb.js";
 import { PublicIdSchema } from "../../shared/schemas.js";
 import { ResolveHintCodec } from "./accounts.codecs.js";

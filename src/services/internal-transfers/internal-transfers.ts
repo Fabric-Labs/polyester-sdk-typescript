@@ -7,7 +7,7 @@ import {
 } from "../../shared/request-options.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
-import * as v from "../../shared/validation.js";
+import { parse } from "../../shared/validation.js";
 import {
     createCreateInternalTransferInputSchema,
     createCreateInternalTransferResultSchema,
@@ -42,11 +42,11 @@ export class InternalTransfersService {
     ): Promise<CreateInternalTransferResult> {
         await this.#scales.ready();
         const resolvedInput = resolveAccountScopedInput(input, this.#resolver);
-        const validatedInput = v.parse(this.#inputSchema, resolvedInput);
+        const validatedInput = parse(this.#inputSchema, resolvedInput);
         const res = await this.#client.createInternalTransfer(
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
-        return v.parse(this.#resultSchema, res);
+        return parse(this.#resultSchema, res);
     }
 }

@@ -2,7 +2,8 @@ import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
+import { parse } from "../../shared/validation.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import {
@@ -143,13 +144,13 @@ export class OrdersService {
     ): Promise<{ orders: Order[]; nextPageToken: string }> {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const validatedInput = v.parse(OpenOrdersInputSchema, resolved);
+        const validatedInput = parse(OpenOrdersInputSchema, resolved);
         const res = await this.#readClient.getOpenOrders(
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
         return {
-            orders: v.parse(
+            orders: parse(
                 v.array(this.#orderSchema),
                 res.orders.filter((order) => hasKnownOrderSymbol(this.#scales, order)),
             ),
@@ -166,13 +167,13 @@ export class OrdersService {
     ): Promise<{ orders: Order[]; nextPageToken: string }> {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const validatedInput = v.parse(OrderHistoryInputSchema, resolved);
+        const validatedInput = parse(OrderHistoryInputSchema, resolved);
         const res = await this.#readClient.getOrderHistory(
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
         return {
-            orders: v.parse(
+            orders: parse(
                 v.array(this.#orderSchema),
                 res.orders.filter((order) => hasKnownOrderSymbol(this.#scales, order)),
             ),
@@ -189,12 +190,12 @@ export class OrdersService {
     ): Promise<PreviewOrderResult> {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const request = v.parse(this.#newOrderInputSchema, resolved);
+        const request = parse(this.#newOrderInputSchema, resolved);
         const response = await this.#writeClient.previewOrder(
             removeUndefined(request),
             toConnectCallOptions(options),
         );
-        return v.parse(createPreviewOrderResultSchema(this.#scales, input.symbol), response);
+        return parse(createPreviewOrderResultSchema(this.#scales, input.symbol), response);
     }
 
     /**
@@ -206,13 +207,13 @@ export class OrdersService {
     ): Promise<CreateOrderResult> {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const validatedInput = v.parse(this.#newOrderInputSchema, resolved);
+        const validatedInput = parse(this.#newOrderInputSchema, resolved);
         const requestPayload = removeUndefined(validatedInput);
         const res = await this.#writeClient.createOrder(
             requestPayload,
             toConnectCallOptions(options),
         );
-        return v.parse(createCreateOrderResultSchema(this.#scales, input.symbol), res);
+        return parse(createCreateOrderResultSchema(this.#scales, input.symbol), res);
     }
 
     /**
@@ -227,12 +228,12 @@ export class OrdersService {
             ...resolveAccountScopedInput(input, this.#resolver),
             requestId: input.requestId ?? createMutationRequestId(),
         };
-        const request = v.parse(this.#batchCreateOrdersInputSchema, resolved);
+        const request = parse(this.#batchCreateOrdersInputSchema, resolved);
         const response = await this.#writeClient.batchCreateOrders(
             removeUndefined(request),
             toConnectCallOptions(options),
         );
-        const result = v.parse(
+        const result = parse(
             createBatchCreateOrdersResultSchema(
                 this.#scales,
                 input.items.map((item) => item.symbol),
@@ -252,7 +253,7 @@ export class OrdersService {
     ): Promise<CancelOrderResult> {
         const resolved = resolveAccountScopedInput(input, this.#resolver);
 
-        const validated = v.parse(CancelOrderInputSchema, resolved);
+        const validated = parse(CancelOrderInputSchema, resolved);
 
         const res = await this.#writeClient.cancelOrder(
             {
@@ -262,7 +263,7 @@ export class OrdersService {
             },
             toConnectCallOptions(options),
         );
-        return v.parse(CancelOrderResultSchema, res);
+        return parse(CancelOrderResultSchema, res);
     }
 
     /**
@@ -276,12 +277,12 @@ export class OrdersService {
             ...resolveAccountScopedInput(input, this.#resolver),
             requestId: input.requestId ?? createMutationRequestId(),
         };
-        const request = v.parse(BatchCancelOrdersInputSchema, resolved);
+        const request = parse(BatchCancelOrdersInputSchema, resolved);
         const response = await this.#writeClient.batchCancelOrders(
             removeUndefined(request),
             toConnectCallOptions(options),
         );
-        const result = v.parse(BatchCancelOrdersResultSchema, response);
+        const result = parse(BatchCancelOrdersResultSchema, response);
         assertBatchResultCount("batchCancel", input.items.length, result.results.length);
         return result;
     }
@@ -299,12 +300,12 @@ export class OrdersService {
             requestId: input.requestId ?? createMutationRequestId(),
         };
         assertKnownModifyOrderInputKeys(resolved);
-        const validated = v.parse(this.#modifyOrderInputSchema, resolved);
+        const validated = parse(this.#modifyOrderInputSchema, resolved);
         const res = await this.#writeClient.modifyOrder(
             removeUndefined(validated),
             toConnectCallOptions(options),
         );
-        return v.parse(ModifyOrderResultSchema, res);
+        return parse(ModifyOrderResultSchema, res);
     }
 
     /**
@@ -322,7 +323,7 @@ export class OrdersService {
             ...resolveAccountScopedInput(input, this.#resolver),
             requestId: input.requestId ?? createMutationRequestId(),
         };
-        const request = v.parse(
+        const request = parse(
             createBatchReplaceOrdersInputSchema(this.#scales, input.symbolId),
             resolved,
         );
@@ -330,7 +331,7 @@ export class OrdersService {
             removeUndefined(request),
             toConnectCallOptions(options),
         );
-        const result = v.parse(BatchReplaceOrdersResultSchema, response);
+        const result = parse(BatchReplaceOrdersResultSchema, response);
         assertBatchResultCount("batchReplace", input.items.length, result.results.length);
         return result;
     }
@@ -343,12 +344,12 @@ export class OrdersService {
         options?: PolyesterRequestOptions,
     ): Promise<GetBatchReplaceStatusResult> {
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const request = v.parse(GetBatchReplaceStatusInputSchema, resolved);
+        const request = parse(GetBatchReplaceStatusInputSchema, resolved);
         const response = await this.#readClient.getBatchReplaceStatus(
             removeUndefined(request),
             toConnectCallOptions(options),
         );
-        return v.parse(GetBatchReplaceStatusResultSchema, response);
+        return parse(GetBatchReplaceStatusResultSchema, response);
     }
 
     /**
@@ -362,12 +363,12 @@ export class OrdersService {
             ...resolveAccountScopedInput(input, this.#resolver),
             requestId: input.requestId ?? createMutationRequestId(),
         };
-        const validated = v.parse(CancelAllOrdersInputSchema, resolved);
+        const validated = parse(CancelAllOrdersInputSchema, resolved);
         const res = await this.#writeClient.cancelAllOrders(
             removeUndefined(validated),
             toConnectCallOptions(options),
         );
-        return v.parse(CancelAllOrdersResponseSchema, res);
+        return parse(CancelAllOrdersResponseSchema, res);
     }
 
     /**
@@ -381,12 +382,12 @@ export class OrdersService {
             ...resolveAccountScopedInput(input, this.#resolver),
             requestId: input.requestId ?? createMutationRequestId(),
         };
-        const request = v.parse(CancelAllAfterInputSchema, resolved);
+        const request = parse(CancelAllAfterInputSchema, resolved);
         const response = await this.#writeClient.cancelAllAfter(
             removeUndefined(request),
             toConnectCallOptions(options),
         );
-        return v.parse(CancelAllAfterResultSchema, response);
+        return parse(CancelAllAfterResultSchema, response);
     }
 
     /**
@@ -398,7 +399,7 @@ export class OrdersService {
     ): Promise<OrderDetails | null> {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const validatedInput = v.parse(GetOrderDetailsInputSchema, resolved);
+        const validatedInput = parse(GetOrderDetailsInputSchema, resolved);
         let res: ProtoRead.GetOrderResponse;
         try {
             res = await this.#readClient.getOrder(
@@ -410,7 +411,7 @@ export class OrdersService {
             throw error;
         }
         if (!res.order) return null;
-        return v.parse(this.#orderDetailsSchema, res);
+        return parse(this.#orderDetailsSchema, res);
     }
 
     /**
@@ -427,7 +428,7 @@ export class OrdersService {
             schema: ProtoRead.OrderSchema,
             onPublication: (data) => {
                 gate.run(() => {
-                    const order = v.parse(this.#orderSchema, data);
+                    const order = parse(this.#orderSchema, data);
                     input.onEvent(order);
                 });
             },
