@@ -1,4 +1,4 @@
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
 import * as Proto from "../../gen/chain/lifecycle/v1/types_pb.js";
 import * as ProtoRead from "../../gen/chain/lifecycle/v1/lifecycle_read_pb.js";
 import {

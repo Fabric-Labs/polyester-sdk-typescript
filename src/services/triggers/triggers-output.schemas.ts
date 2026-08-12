@@ -1,6 +1,6 @@
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
 import {
     BigIntStringSchema,
     OptionalTimestampMsSchema,

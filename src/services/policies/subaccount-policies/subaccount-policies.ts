@@ -1,6 +1,7 @@
 import * as Proto from "../../../gen/auth/v1/policies_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
-import * as v from "../../../shared/validation.js";
+import * as v from "valibot";
+import { parse } from "../../../shared/validation.js";
 import { removeUndefined } from "../../../utils/remove-undefined.js";
 import {
     toConnectCallOptions,
@@ -47,12 +48,12 @@ export class SubaccountPoliciesService {
         options?: PolyesterRequestOptions,
     ): Promise<SubaccountPolicy[]> {
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const request = v.parse(ListSubaccountPoliciesInputSchema, resolved);
+        const request = parse(ListSubaccountPoliciesInputSchema, resolved);
         const result = await this.#client.listSubaccountPolicies(
             removeUndefined(request),
             toConnectCallOptions(options),
         );
-        return v.parse(v.array(SubaccountPolicySchema), result.policies);
+        return parse(v.array(SubaccountPolicySchema), result.policies);
     }
 
     /**
@@ -63,13 +64,13 @@ export class SubaccountPoliciesService {
         options?: PolyesterRequestOptions,
     ): Promise<SubaccountPolicy | null> {
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const request = v.parse(GetSubaccountPolicyInputSchema, resolved);
+        const request = parse(GetSubaccountPolicyInputSchema, resolved);
         const result = await this.#client.getSubaccountPolicy(
             removeUndefined(request),
             toConnectCallOptions(options),
         );
         if (!result.policy) return null;
-        return v.parse(SubaccountPolicySchema, result.policy);
+        return parse(SubaccountPolicySchema, result.policy);
     }
 
     /**
@@ -79,13 +80,13 @@ export class SubaccountPoliciesService {
         input: v.InferInput<typeof CreateSubaccountPolicyInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<SubaccountPolicy> {
-        const validatedInput = v.parse(CreateSubaccountPolicyInputSchema, input);
+        const validatedInput = parse(CreateSubaccountPolicyInputSchema, input);
         const result = await this.#client.createSubaccountPolicy(
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
         if (!result.policy) throw new Error("Failed to create subaccount policy");
-        return v.parse(SubaccountPolicySchema, result.policy);
+        return parse(SubaccountPolicySchema, result.policy);
     }
 
     /**
@@ -95,20 +96,20 @@ export class SubaccountPoliciesService {
         input: v.InferInput<typeof UpdateSubaccountPolicyInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<SubaccountPolicy> {
-        const validatedInput = v.parse(UpdateSubaccountPolicyInputSchema, input);
+        const validatedInput = parse(UpdateSubaccountPolicyInputSchema, input);
         const result = await this.#client.updateSubaccountPolicy(
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
         if (!result.policy) throw new Error("Failed to update subaccount policy");
-        return v.parse(SubaccountPolicySchema, result.policy);
+        return parse(SubaccountPolicySchema, result.policy);
     }
 
     /**
      * Deletes a subaccount policy template when it is not in use.
      */
     async delete(policyId: string, options?: PolyesterMutationOptions): Promise<void> {
-        const validatedPolicyId = v.parse(PolicyIdSchema, policyId);
+        const validatedPolicyId = parse(PolicyIdSchema, policyId);
         await this.#client.deleteSubaccountPolicy(
             { policyId: validatedPolicyId },
             toConnectCallOptions(options),
@@ -122,7 +123,7 @@ export class SubaccountPoliciesService {
         input: v.InferInput<typeof ApplySubaccountPolicyInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<void> {
-        const validatedInput = v.parse(ApplySubaccountPolicyInputSchema, input);
+        const validatedInput = parse(ApplySubaccountPolicyInputSchema, input);
         await this.#client.setSubaccountPolicy(
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
@@ -139,7 +140,7 @@ export class SubaccountPoliciesService {
             channel,
             schema: Proto.SubaccountPolicyViewSchema,
             onPublication: (data) => {
-                const policy = v.parse(SubaccountPolicySchema, data);
+                const policy = parse(SubaccountPolicySchema, data);
                 input.onEvent(policy);
             },
             onConnected: () => input.onOpen?.(),

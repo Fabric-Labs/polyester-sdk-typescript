@@ -1,6 +1,7 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as Proto from "../../gen/auth/v1/api_keys_pb.js";
-import * as v from "../../shared/validation.js";
+import type * as v from "valibot";
+import { parse } from "../../shared/validation.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import {
     toConnectCallOptions,
@@ -52,13 +53,13 @@ export class ApiKeysService {
         options?: PolyesterRequestOptions,
     ): Promise<ApiKey[]> {
         const resolved = resolveAccountScopedInput(params, this.#resolver);
-        const validatedParams = v.parse(ApiKeysListInputSchema, resolved);
+        const validatedParams = parse(ApiKeysListInputSchema, resolved);
         const res = await this.#client.listApiKeys(
             removeUndefined(validatedParams),
             toConnectCallOptions(options),
         );
 
-        return v.parse(ApiKeysSchema, res.apiKeys);
+        return parse(ApiKeysSchema, res.apiKeys);
     }
 
     /**
@@ -68,9 +69,9 @@ export class ApiKeysService {
         input: v.InferInput<typeof ApiKeyIdInputSchema>,
         options?: PolyesterRequestOptions,
     ): Promise<ApiKey | null> {
-        const validatedInput = v.parse(ApiKeyIdInputSchema, input);
+        const validatedInput = parse(ApiKeyIdInputSchema, input);
         const res = await this.#client.getApiKey(validatedInput, toConnectCallOptions(options));
-        return res.apiKey ? v.parse(ApiKeySchema, res.apiKey) : null;
+        return res.apiKey ? parse(ApiKeySchema, res.apiKey) : null;
     }
 
     /**
@@ -81,12 +82,12 @@ export class ApiKeysService {
         options?: PolyesterMutationOptions,
     ): Promise<ApiKey | null> {
         const resolved = resolveAccountScopedInput(payload, this.#resolver);
-        const validatedPayload = v.parse(ApiKeysCreateInputSchema, resolved);
+        const validatedPayload = parse(ApiKeysCreateInputSchema, resolved);
         const res = await this.#client.createApiKey(
             removeUndefined(validatedPayload),
             toConnectCallOptions(options),
         );
-        return res.apiKey ? v.parse(ApiKeySchema, res.apiKey) : null;
+        return res.apiKey ? parse(ApiKeySchema, res.apiKey) : null;
     }
 
     /**
@@ -96,7 +97,7 @@ export class ApiKeysService {
         input: v.InferInput<typeof ApiKeyIdInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<void> {
-        const validatedInput = v.parse(ApiKeyIdInputSchema, input);
+        const validatedInput = parse(ApiKeyIdInputSchema, input);
         await this.#client.deleteApiKey(validatedInput, toConnectCallOptions(options));
     }
 
@@ -107,12 +108,12 @@ export class ApiKeysService {
         payload: v.InferInput<typeof ApiKeysUpdateInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<ApiKey | null> {
-        const validatedPayload = v.parse(ApiKeysUpdateInputSchema, payload);
+        const validatedPayload = parse(ApiKeysUpdateInputSchema, payload);
         const res = await this.#client.updateApiKey(
             removeUndefined(validatedPayload),
             toConnectCallOptions(options),
         );
-        return res.apiKey ? v.parse(ApiKeySchema, res.apiKey) : null;
+        return res.apiKey ? parse(ApiKeySchema, res.apiKey) : null;
     }
 
     /**
@@ -145,7 +146,7 @@ export class ApiKeysService {
             channel,
             schema: Proto.ApiKeySchema,
             onPublication: (data) => {
-                const apiKey = v.parse(ApiKeySchema, data);
+                const apiKey = parse(ApiKeySchema, data);
                 input.onEvent(apiKey);
             },
             onConnected: () => input.onOpen?.(),

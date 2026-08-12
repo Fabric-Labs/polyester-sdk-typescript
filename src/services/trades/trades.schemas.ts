@@ -1,4 +1,4 @@
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
 import { tsNsToISO, tsNsToMs } from "../../utils/time.js";
 import { SideSchema } from "../shared.js";
 import { FeeAssetCodec, OrderSideCodec } from "../orders/orders.codecs.js";

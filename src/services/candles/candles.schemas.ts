@@ -1,5 +1,5 @@
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
 import type { DecodedEnum } from "../../utils/types.js";
 import { OptionalTimestampSecondsInputSchema } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";

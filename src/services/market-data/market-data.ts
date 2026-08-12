@@ -5,7 +5,8 @@ import {
     publicationHandlerErrorContext,
     type SdkSubscriptionErrorContext,
 } from "../../shared/subscription-errors.js";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
+import { parse } from "../../shared/validation.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
     toConnectCallOptions,
@@ -50,10 +51,10 @@ export class MarketDataService {
         options?: PolyesterRequestOptions,
     ): Promise<{ trades: MarketTrade[]; nextPageToken: string }> {
         await this.#scales.ready();
-        const validatedInput = v.parse(GetMarketTradesInputSchema, input);
+        const validatedInput = parse(GetMarketTradesInputSchema, input);
         const res = await this.#client.getTrades(validatedInput, toConnectCallOptions(options));
         return {
-            trades: v.parse(v.array(this.#marketTradeSchema), res.trades),
+            trades: parse(v.array(this.#marketTradeSchema), res.trades),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -67,14 +68,14 @@ export class MarketDataService {
      */
     async getSpotConfig(options?: PolyesterRequestOptions): Promise<SpotConfig> {
         const res = await this.#client.getSpotConfig({}, toConnectCallOptions(options));
-        return v.parse(SpotConfigSchema, res);
+        return parse(SpotConfigSchema, res);
     }
 
     /**
      * Subscribes to public trade prints on public:spot:market:trades:{symbolId}:proto for the requested symbol and emits parsed market trades.
      */
     subscribeTrades(input: SubscribeTradesInput): () => void {
-        const symbolId = v.parse(v.pipe(v.number(), v.integer(), v.gtValue(0)), input.symbolId);
+        const symbolId = parse(v.pipe(v.number(), v.integer(), v.gtValue(0)), input.symbolId);
         const channel = `public:spot:market:trades:${symbolId}:proto`;
         const notifyError = (error: SdkSubscriptionErrorContext) => {
             if (isDev()) {
@@ -91,7 +92,7 @@ export class MarketDataService {
             schema: Proto.MarketTradeSchema,
             onPublication: (data) => {
                 gate.run(() => {
-                    const trade = v.parse(this.#marketTradeSchema, data);
+                    const trade = parse(this.#marketTradeSchema, data);
                     input.onEvent(trade);
                 });
             },

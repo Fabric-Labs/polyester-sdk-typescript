@@ -7,7 +7,7 @@ import {
     type PolyesterMutationOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import * as v from "../../shared/validation.js";
+import { parse } from "../../shared/validation.js";
 import {
     CreateDepositAddressInputSchema,
     DepositAddressSchema,
@@ -38,13 +38,13 @@ export class DepositService {
         options?: PolyesterMutationOptions,
     ): Promise<DepositAddress | null> {
         const resolvedInput = resolveAccountScopedInput(input, this.#resolver);
-        const validatedInput = v.parse(CreateDepositAddressInputSchema, resolvedInput);
+        const validatedInput = parse(CreateDepositAddressInputSchema, resolvedInput);
         const res = await this.#client.createDepositAddress(
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
         if (!res.depositAddress) return null;
-        return v.parse(DepositAddressSchema, res.depositAddress);
+        return parse(DepositAddressSchema, res.depositAddress);
     }
 
     /**
@@ -55,11 +55,11 @@ export class DepositService {
         options?: PolyesterRequestOptions,
     ): Promise<DepositAddress[]> {
         const resolvedInput = resolveAccountScopedInput(input, this.#resolver);
-        const validatedInput = v.parse(ListDepositAddressesInputSchema, resolvedInput);
+        const validatedInput = parse(ListDepositAddressesInputSchema, resolvedInput);
         const res = await this.#client.listDepositAddresses(
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
-        return v.parse(DepositAddressesSchema, res.depositAddresses);
+        return parse(DepositAddressesSchema, res.depositAddresses);
     }
 }

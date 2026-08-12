@@ -1,4 +1,4 @@
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
 import type { PairCatalogKey } from "../../catalogs/types.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { normalizeOrderbookDepth } from "./orderbook.codecs.js";

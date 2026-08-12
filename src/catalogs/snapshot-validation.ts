@@ -1,4 +1,4 @@
-import * as v from "../shared/validation.js";
+import * as v from "valibot";
 import { ValidationError } from "../shared/errors.js";
 import { PAIR_STATUSES } from "../shared/catalog-config.js";
 import type { CatalogSnapshot } from "./types.js";

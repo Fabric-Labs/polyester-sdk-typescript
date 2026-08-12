@@ -1,7 +1,7 @@
 import * as Proto from "../../gen/chain/analytics/v1/analytics_read_pb.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
 import {
     CHAIN_ANALYTICS_RANGE_VALUES,
     ChainAnalyticsRangeCodec,

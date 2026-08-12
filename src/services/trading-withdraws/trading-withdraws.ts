@@ -18,7 +18,7 @@ import {
 } from "../../shared/request-options.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
-import * as v from "../../shared/validation.js";
+import { parse } from "../../shared/validation.js";
 import {
     createCreateTradingWithdrawToExternalChainInputSchema,
     createCreateTradingWithdrawToFundingInputSchema,
@@ -218,12 +218,12 @@ export class TradingWithdrawsService {
         input: ValidateWithdrawDestinationInput,
         options?: PolyesterRequestOptions,
     ): Promise<ValidateWithdrawDestinationResult> {
-        const request = v.parse(ValidateWithdrawDestinationInputSchema, input);
+        const request = parse(ValidateWithdrawDestinationInputSchema, input);
         const response = await this.#client.validateWithdrawDestination(
             request,
             toConnectCallOptions(options),
         );
-        return v.parse(ValidateWithdrawDestinationResultSchema, response);
+        return parse(ValidateWithdrawDestinationResultSchema, response);
     }
 
     /**
@@ -247,7 +247,7 @@ export class TradingWithdrawsService {
         await this.#scales.ready();
         const { walletSigner, ...inputForValidation } = input;
         const resolvedInput = resolveAccountScopedInput(inputForValidation, this.#resolver);
-        const validated = v.parse(this.#toFundingInputSchema, resolvedInput);
+        const validated = parse(this.#toFundingInputSchema, resolvedInput);
         return this.#prepareWithdraw(validated, walletSigner);
     }
 
@@ -272,7 +272,7 @@ export class TradingWithdrawsService {
         await this.#scales.ready();
         const { walletSigner, ...inputForValidation } = input;
         const resolvedInput = resolveAccountScopedInput(inputForValidation, this.#resolver);
-        const validated = v.parse(this.#toExternalChainInputSchema, resolvedInput);
+        const validated = parse(this.#toExternalChainInputSchema, resolvedInput);
         return this.#prepareWithdraw(validated, walletSigner);
     }
 
@@ -308,7 +308,7 @@ export class TradingWithdrawsService {
                         request,
                         toConnectCallOptions(options),
                     );
-                    return v.parse(CreateWalletTradingWithdrawResultSchema, response);
+                    return parse(CreateWalletTradingWithdrawResultSchema, response);
                 },
             };
         }
@@ -329,7 +329,7 @@ export class TradingWithdrawsService {
                     request,
                     toConnectCallOptions(options),
                 );
-                return v.parse(CreateTradingWithdrawResultSchema, response);
+                return parse(CreateTradingWithdrawResultSchema, response);
             },
         };
     }

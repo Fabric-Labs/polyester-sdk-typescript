@@ -1,4 +1,4 @@
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
 import * as Proto from "../../gen/auth/v1/mfa_pb.js";
 import { JsonObjectSchema, OptionalTimestampMsSchema } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";

@@ -1,4 +1,4 @@
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
 import * as Proto from "../../gen/auth/v1/policies_pb.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 

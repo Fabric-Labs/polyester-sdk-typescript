@@ -1,6 +1,6 @@
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
 import { tsNsToMs } from "../../utils/time.js";
 import { formatId } from "../../utils/base58-id.js";
 import { OptionalPublicIdSchema } from "../../shared/schemas.js";

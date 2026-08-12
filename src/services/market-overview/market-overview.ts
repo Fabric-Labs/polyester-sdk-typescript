@@ -1,7 +1,8 @@
 import * as Proto from "../../gen/marketoverview/v1/marketoverview_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
+import { parse } from "../../shared/validation.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
 import { snapshotThenStream } from "../../realtime/snapshot-then-stream.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
@@ -46,14 +47,14 @@ export class MarketOverviewService {
         input: ListMarketOverviewInput = {},
         options?: PolyesterRequestOptions,
     ): Promise<{ markets: MarketOverview[]; nextPageToken: string }> {
-        const validatedInput = v.parse(ListMarketOverviewInputSchema, input);
+        const validatedInput = parse(ListMarketOverviewInputSchema, input);
         await this.#scales.ready();
         const res = await this.#client.listMarketOverview(
             validatedInput,
             toConnectCallOptions(options),
         );
         return {
-            markets: v.parse(v.array(this.#marketOverviewSchema), res.markets),
+            markets: parse(v.array(this.#marketOverviewSchema), res.markets),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -88,7 +89,7 @@ export class MarketOverviewService {
         }
 
         function parseMarkets(markets: readonly Proto.MarketOverview[]): MarketOverview[] {
-            return markets.map((m) => v.parse(schema, m));
+            return markets.map((m) => parse(schema, m));
         }
 
         async function fetchSnapshot(): Promise<MarketOverview[]> {

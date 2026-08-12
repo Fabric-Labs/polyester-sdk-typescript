@@ -6,7 +6,7 @@ import {
     type PolyesterMutationOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import * as v from "../../shared/validation.js";
+import { parse } from "../../shared/validation.js";
 import {
     BeginMfaChallengeInputSchema,
     BeginMfaChallengeResultSchema,
@@ -73,7 +73,7 @@ export class MfaService {
      */
     async listFactors(options?: PolyesterRequestOptions): Promise<ListMfaFactorsResult> {
         const res = await this.#client.listMFAFactors({}, toConnectCallOptions(options));
-        return v.parse(ListMfaFactorsResponseSchema, res);
+        return parse(ListMfaFactorsResponseSchema, res);
     }
 
     /**
@@ -83,9 +83,9 @@ export class MfaService {
         input: BeginTotpEnrollmentInput,
         options?: PolyesterMutationOptions,
     ): Promise<BeginTotpEnrollmentResult> {
-        const req = v.parse(BeginTotpEnrollmentInputSchema, input);
+        const req = parse(BeginTotpEnrollmentInputSchema, input);
         const res = await this.#client.beginTOTPEnrollment(req, toConnectCallOptions(options));
-        return v.parse(BeginTotpEnrollmentResultSchema, res);
+        return parse(BeginTotpEnrollmentResultSchema, res);
     }
 
     /**
@@ -95,9 +95,9 @@ export class MfaService {
         input: FinishTotpEnrollmentInput,
         options?: PolyesterRequestOptions,
     ): Promise<FinishTotpEnrollmentResult> {
-        const req = v.parse(FinishTotpEnrollmentInputSchema, input);
+        const req = parse(FinishTotpEnrollmentInputSchema, input);
         const res = await this.#client.finishTOTPEnrollment(req, toConnectCallOptions(options));
-        return v.parse(FinishTotpEnrollmentResultSchema, res);
+        return parse(FinishTotpEnrollmentResultSchema, res);
     }
 
     /**
@@ -107,9 +107,9 @@ export class MfaService {
         input: BeginPasskeyEnrollmentInput,
         options?: PolyesterMutationOptions,
     ): Promise<BeginPasskeyEnrollmentResult> {
-        const req = v.parse(BeginPasskeyEnrollmentInputSchema, input);
+        const req = parse(BeginPasskeyEnrollmentInputSchema, input);
         const res = await this.#client.beginPasskeyEnrollment(req, toConnectCallOptions(options));
-        return v.parse(BeginPasskeyEnrollmentResultSchema, res);
+        return parse(BeginPasskeyEnrollmentResultSchema, res);
     }
 
     /**
@@ -119,9 +119,9 @@ export class MfaService {
         input: FinishPasskeyEnrollmentInput,
         options?: PolyesterRequestOptions,
     ): Promise<FinishPasskeyEnrollmentResult> {
-        const req = v.parse(FinishPasskeyEnrollmentInputSchema, input);
+        const req = parse(FinishPasskeyEnrollmentInputSchema, input);
         const res = await this.#client.finishPasskeyEnrollment(req, toConnectCallOptions(options));
-        return v.parse(FinishPasskeyEnrollmentResultSchema, res);
+        return parse(FinishPasskeyEnrollmentResultSchema, res);
     }
 
     /**
@@ -131,9 +131,9 @@ export class MfaService {
         input: BeginMfaChallengeInput,
         options?: PolyesterRequestOptions,
     ): Promise<BeginMfaChallengeResult> {
-        const req = v.parse(BeginMfaChallengeInputSchema, input);
+        const req = parse(BeginMfaChallengeInputSchema, input);
         const res = await this.#client.beginMFAChallenge(req, toConnectCallOptions(options));
-        return v.parse(BeginMfaChallengeResultSchema, res);
+        return parse(BeginMfaChallengeResultSchema, res);
     }
 
     /**
@@ -143,9 +143,9 @@ export class MfaService {
         input: VerifyTotpChallengeInput,
         options?: PolyesterRequestOptions,
     ): Promise<CompleteMfaChallengeResult> {
-        const req = v.parse(VerifyTotpChallengeInputSchema, input);
+        const req = parse(VerifyTotpChallengeInputSchema, input);
         const res = await this.#client.verifyTOTPChallenge(req, toConnectCallOptions(options));
-        return v.parse(CompleteMfaChallengeResultSchema, res);
+        return parse(CompleteMfaChallengeResultSchema, res);
     }
 
     /**
@@ -155,9 +155,9 @@ export class MfaService {
         input: FinishPasskeyChallengeInput,
         options?: PolyesterRequestOptions,
     ): Promise<CompleteMfaChallengeResult> {
-        const req = v.parse(FinishPasskeyChallengeInputSchema, input);
+        const req = parse(FinishPasskeyChallengeInputSchema, input);
         const res = await this.#client.finishPasskeyChallenge(req, toConnectCallOptions(options));
-        return v.parse(CompleteMfaChallengeResultSchema, res);
+        return parse(CompleteMfaChallengeResultSchema, res);
     }
 
     /**
@@ -167,12 +167,12 @@ export class MfaService {
         input: VerifyRecoveryCodeChallengeInput,
         options?: PolyesterRequestOptions,
     ): Promise<CompleteMfaChallengeResult> {
-        const req = v.parse(VerifyRecoveryCodeChallengeInputSchema, input);
+        const req = parse(VerifyRecoveryCodeChallengeInputSchema, input);
         const res = await this.#client.verifyRecoveryCodeChallenge(
             req,
             toConnectCallOptions(options),
         );
-        return v.parse(CompleteMfaChallengeResultSchema, res);
+        return parse(CompleteMfaChallengeResultSchema, res);
     }
 
     /**
@@ -182,7 +182,7 @@ export class MfaService {
         input: DeleteMfaFactorInput,
         options?: PolyesterMutationOptions,
     ): Promise<void> {
-        const { factorId } = v.parse(DeleteMfaFactorInputSchema, input);
+        const { factorId } = parse(DeleteMfaFactorInputSchema, input);
         await this.#client.deleteMFAFactor({ factorId }, toConnectCallOptions(options));
     }
 
@@ -193,12 +193,12 @@ export class MfaService {
         input: UpdateMfaFactorInput,
         options?: PolyesterMutationOptions,
     ): Promise<UpdateMfaFactorResult> {
-        const { factorId, label } = v.parse(UpdateMfaFactorInputSchema, input);
+        const { factorId, label } = parse(UpdateMfaFactorInputSchema, input);
         const res = await this.#client.updateMFAFactor(
             { factorId, label },
             toConnectCallOptions(options),
         );
-        return v.parse(UpdateMfaFactorResultSchema, res);
+        return parse(UpdateMfaFactorResultSchema, res);
     }
 
     /**
@@ -208,9 +208,9 @@ export class MfaService {
         input: RegenerateRecoveryCodesInput = {},
         options?: PolyesterMutationOptions,
     ): Promise<RegenerateRecoveryCodesResult> {
-        v.parse(RegenerateRecoveryCodesInputSchema, input);
+        parse(RegenerateRecoveryCodesInputSchema, input);
         const res = await this.#client.regenerateRecoveryCodes({}, toConnectCallOptions(options));
-        return v.parse(RegenerateRecoveryCodesResultSchema, res);
+        return parse(RegenerateRecoveryCodesResultSchema, res);
     }
 
     /**
@@ -220,9 +220,9 @@ export class MfaService {
         input: ClaimFreshStepUpInput,
         options?: PolyesterRequestOptions,
     ): Promise<ClaimFreshStepUpResult> {
-        const req = v.parse(ClaimFreshStepUpInputSchema, input);
+        const req = parse(ClaimFreshStepUpInputSchema, input);
         const res = await this.#client.claimFreshStepUp(req, toConnectCallOptions(options));
-        return v.parse(ClaimFreshStepUpResultSchema, res);
+        return parse(ClaimFreshStepUpResultSchema, res);
     }
 
     /**
@@ -232,7 +232,7 @@ export class MfaService {
         input: ConsumeFreshStepUpInput,
         options?: PolyesterRequestOptions,
     ): Promise<void> {
-        const req = v.parse(ConsumeFreshStepUpInputSchema, input);
+        const req = parse(ConsumeFreshStepUpInputSchema, input);
         await this.#client.consumeFreshStepUp(removeUndefined(req), toConnectCallOptions(options));
     }
 
@@ -243,7 +243,7 @@ export class MfaService {
         input: ReleaseFreshStepUpInput,
         options?: PolyesterRequestOptions,
     ): Promise<void> {
-        const req = v.parse(ReleaseFreshStepUpInputSchema, input);
+        const req = parse(ReleaseFreshStepUpInputSchema, input);
         await this.#client.releaseFreshStepUp(removeUndefined(req), toConnectCallOptions(options));
     }
 }

@@ -1,6 +1,7 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as Proto from "../../gen/auth/v1/social_verification_pb.js";
-import * as v from "../../shared/validation.js";
+import type * as v from "valibot";
+import { parse } from "../../shared/validation.js";
 import {
     toConnectCallOptions,
     type PolyesterMutationOptions,
@@ -35,12 +36,12 @@ export class SocialVerificationService {
         input: StartVerificationInput,
         options?: PolyesterMutationOptions,
     ): Promise<StartVerificationResponse> {
-        const validated = v.parse(StartVerificationInputSchema, input);
+        const validated = parse(StartVerificationInputSchema, input);
         const res = await this.#client.startSocialVerification(
             validated,
             toConnectCallOptions(options),
         );
-        return v.parse(StartVerificationResponseSchema, res);
+        return parse(StartVerificationResponseSchema, res);
     }
 
     /**
@@ -50,12 +51,12 @@ export class SocialVerificationService {
         input: v.InferInput<typeof SocialProviderInputSchema>,
         options?: PolyesterMutationOptions,
     ): Promise<VerificationReadyResponse> {
-        const validated = v.parse(SocialProviderInputSchema, input);
+        const validated = parse(SocialProviderInputSchema, input);
         const res = await this.#client.socialVerificationReady(
             validated,
             toConnectCallOptions(options),
         );
-        return v.parse(VerificationReadyResponseSchema, res);
+        return parse(VerificationReadyResponseSchema, res);
     }
 
     /**
@@ -65,11 +66,11 @@ export class SocialVerificationService {
         input: v.InferInput<typeof SocialProviderInputSchema>,
         options?: PolyesterRequestOptions,
     ): Promise<GetVerificationResponse> {
-        const validated = v.parse(SocialProviderInputSchema, input);
+        const validated = parse(SocialProviderInputSchema, input);
         const res = await this.#client.getSocialVerification(
             validated,
             toConnectCallOptions(options),
         );
-        return v.parse(GetVerificationResponseSchema, res);
+        return parse(GetVerificationResponseSchema, res);
     }
 }

@@ -26,7 +26,8 @@ import {
 } from "./orderbook.schemas.js";
 import { toBig } from "../../utils/u128.js";
 import { isResourceNotFoundError } from "../../utils/errors.js";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
+import { parse } from "../../shared/validation.js";
 
 interface SubscribeOrderbookInput extends BaseSubscribeInput<OrderbookData> {
     symbol: string;
@@ -70,13 +71,13 @@ export class OrderbookService {
         input: v.InferInput<typeof GetOrderbookInputSchema>,
         options?: PolyesterRequestOptions,
     ): Promise<OrderbookData> {
-        const validated = v.parse(GetOrderbookInputSchema, input);
+        const validated = parse(GetOrderbookInputSchema, input);
         await this.#scales.ready();
         const res = await this.#client.getOrderBook(
             { symbol: validated.symbol, depth: validated.protoDepth },
             toConnectCallOptions(options),
         );
-        return v.parse(createOrderbookDataSchema(this.#scales, validated.symbol), {
+        return parse(createOrderbookDataSchema(this.#scales, validated.symbol), {
             symbol: validated.symbol,
             depth: validated.depth,
             bookSeq: res.bookSeq,
@@ -96,7 +97,7 @@ export class OrderbookService {
      * Creates a stateful order book subscription that first fetches a snapshot, buffers proto deltas from public:spot:orderbook:deltas:depth:{depth}:{symbolId}:proto, applies sequence-checked updates, and refetches on gaps or reconnects. The returned handle can unsubscribe or change local price bucket aggregation without reconnecting.
      */
     createSubscription(input: CreateOrderbookSubscriptionInput): OrderbookSubscription {
-        const symbolId = v.parse(v.pipe(v.number(), v.integer(), v.gtValue(0)), input.symbolId);
+        const symbolId = parse(v.pipe(v.number(), v.integer(), v.gtValue(0)), input.symbolId);
         const wsDepth = Math.min(500, Math.max(1, Math.trunc(input.depth ?? 50)));
         const channel = `public:spot:orderbook:deltas:depth:${wsDepth}:${symbolId}:proto`;
 
@@ -185,7 +186,7 @@ export class OrderbookService {
         }
 
         async function inputServiceFetch(): Promise<Proto.GetOrderBookResponse> {
-            const validated = v.parse(GetOrderbookInputSchema, {
+            const validated = parse(GetOrderbookInputSchema, {
                 symbol: input.symbol,
                 depth: wsDepth,
             });

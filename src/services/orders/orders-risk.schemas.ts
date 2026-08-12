@@ -1,6 +1,6 @@
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import { create } from "@bufbuild/protobuf";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
 import {
     BpsStringOrNumberInputSchema,
     NoneInputSchema,

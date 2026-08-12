@@ -1,7 +1,8 @@
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
+import { parse } from "../../shared/validation.js";
 import type { PolyesterRealtime } from "../../realtime/index.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import {
@@ -65,14 +66,14 @@ export class BalancesService {
     ): Promise<LedgerBalance[]> {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const validated = v.parse(BalancesListInputSchema, resolved);
+        const validated = parse(BalancesListInputSchema, resolved);
         const res = await this.#client.getBalances(
             {
                 subaccountId: accountScopeToSubaccountId(validated.account),
             },
             toConnectCallOptions(options),
         );
-        return v.parse(v.array(this.#ledgerBalanceSchema), res.balances);
+        return parse(v.array(this.#ledgerBalanceSchema), res.balances);
     }
 
     /**
@@ -84,9 +85,9 @@ export class BalancesService {
     ): Promise<BalanceHistoryResponse> {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const validated = v.parse(BalanceHistoryInputSchema, resolved);
+        const validated = parse(BalanceHistoryInputSchema, resolved);
         const res = await this.#client.getBalanceHistory(validated, toConnectCallOptions(options));
-        return v.parse(this.#balanceHistoryResponseSchema, res);
+        return parse(this.#balanceHistoryResponseSchema, res);
     }
 
     /**
@@ -98,12 +99,12 @@ export class BalancesService {
     ): Promise<EquityHistoryResponse> {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
-        const validated = v.parse(EquityHistoryInputSchema, resolved);
+        const validated = parse(EquityHistoryInputSchema, resolved);
         const res = await this.#client.getEquityHistorySeries(
             validated,
             toConnectCallOptions(options),
         );
-        return v.parse(this.#equityHistoryResponseSchema, res);
+        return parse(this.#equityHistoryResponseSchema, res);
     }
 
     /**
@@ -120,7 +121,7 @@ export class BalancesService {
             schema: Proto.AssetBalanceSchema,
             onPublication: (data) => {
                 gate.run(() => {
-                    const b = v.parse(this.#ledgerBalanceSchema, data);
+                    const b = parse(this.#ledgerBalanceSchema, data);
                     input.onEvent(b);
                 });
             },

@@ -89,8 +89,8 @@
         "changeset": "changeset",
         "version-packages": "changeset version && bun install --lockfile-only",
         "release": "changeset publish",
-        "verify:package": "bun scripts/verify-package-exports.ts",
-        "ci": "bun run lint && bun run format:check && bun run check && bun run test && bun run build && bun run verify:package"
+        "verify:package": "bun run build && bun scripts/verify-package-exports.ts",
+        "ci": "bun run lint && bun run format:check && bun run check && bun run test && bun run verify:package"
     },
     "dependencies": {
         "@bufbuild/protobuf": "2.13.0",

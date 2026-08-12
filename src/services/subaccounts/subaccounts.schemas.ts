@@ -1,5 +1,5 @@
 import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
-import * as v from "../../shared/validation.js";
+import * as v from "valibot";
 import {
     BigIntStringSchema,
     OptionalTimestampMsSchema,
