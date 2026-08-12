@@ -1,6 +1,6 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as ProtoResolve from "../../gen/auth/v1/resolve_pb.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import {
     toConnectCallOptions,
     type PolyesterRequestOptions,

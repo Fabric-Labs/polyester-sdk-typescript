@@ -1,5 +1,5 @@
 import * as Proto from "../../gen/auth/v1/api_keys_pb.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import { toTimestamp } from "../../utils/timestamp.js";
 import { tsObjToMs, tsObjToNsString } from "../../utils/time.js";
 import {

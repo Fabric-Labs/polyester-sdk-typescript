@@ -1,5 +1,5 @@
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import { parseOptionalPositiveIntLike } from "../../utils/numbers.js";
 import type { DecodedEnum } from "../../utils/types.js";
 import { OptionalTimestampSecondsInputSchema } from "../../shared/schemas.js";

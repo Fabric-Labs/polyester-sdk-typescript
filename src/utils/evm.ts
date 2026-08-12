@@ -70,7 +70,7 @@ export function evmUtf8ToHex(value: string): EvmHex {
 /** 0x-prefixed hex to bytes (viem `hexToBytes`); throws on malformed input. */
 export function evmHexToBytes(value: string): Uint8Array {
     if (!/^0x(?:[0-9a-fA-F]{2})*$/.test(value)) {
-        throw new ConfigurationError(`Invalid hex value: ${value}`);
+        throw new ConfigurationError("Invalid hex value");
     }
     return nobleHexToBytes(value.slice(2).toLowerCase());
 }

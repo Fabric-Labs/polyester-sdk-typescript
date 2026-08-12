@@ -1,7 +1,7 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import * as Proto from "../../gen/collab/v1/whiteboard_pb.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import {
     toConnectCallOptions,
     type PolyesterMutationOptions,

@@ -1,7 +1,7 @@
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import type { PolyesterRealtime } from "../../realtime/index.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
@@ -48,7 +48,7 @@ export class TransfersService {
      * Returns ledger transfers for the resolved account scope with limit, direction, timestamp, code, ledger, and page-token filters.
      */
     async list(
-        input: ListTransfersInput,
+        input: ListTransfersInput = {},
         options?: PolyesterRequestOptions,
     ): Promise<{ transfers: LedgerTransfer[]; nextPageToken: string }> {
         await this.#scales.ready();

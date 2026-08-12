@@ -1,4 +1,4 @@
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import { SideSchema } from "../shared.js";
 import {
     PAIR_STATUSES,

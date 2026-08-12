@@ -29,7 +29,7 @@ import {
     type SignProtectedActionInput,
 } from "./guard-signer.schemas.js";
 import { formatConnectError, isResourceNotFoundError } from "../../utils/errors.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 
 const GUARD_SIGNER_WALLET_NOT_FOUND_MESSAGE = "guard signer wallet not found";
 

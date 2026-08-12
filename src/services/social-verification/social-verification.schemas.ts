@@ -1,4 +1,4 @@
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import { TimestampSchema } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import type { DecodedEnum } from "../../utils/types.js";

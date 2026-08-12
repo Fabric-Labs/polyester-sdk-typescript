@@ -12,7 +12,7 @@ import {
     publicationHandlerErrorContext,
     type SdkSubscriptionErrorContext,
 } from "../../shared/subscription-errors.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import {
     toConnectCallOptions,
     type PolyesterRequestOptions,

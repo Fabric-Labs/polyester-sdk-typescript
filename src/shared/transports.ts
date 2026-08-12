@@ -2,7 +2,7 @@ import { createConnectTransport } from "@connectrpc/connect-web";
 import type { Transport, Interceptor } from "@connectrpc/connect";
 import { toBinary, toJsonString } from "@bufbuild/protobuf";
 import { signAsync } from "@noble/ed25519";
-import { createErrorMappingInterceptor } from "./connect-error-mapping.js";
+import { createErrorMappingTransport } from "./connect-error-mapping.js";
 import { ConfigurationError, isAbortError, NetworkError } from "./errors.js";
 
 export { isAbortError };
@@ -88,25 +88,26 @@ export function makeFetch(): typeof fetch {
 export function createTransports(config: TransportConfig): Transports {
     const { apiUrl, interceptors = [], auth, wireFormat = "binary" } = config;
     const useBinaryFormat = wireFormat === "binary";
-    // Outermost so every RPC failure surfaces as a typed PolyesterError.
-    const errorMapping = createErrorMappingInterceptor();
-
-    const publicApi = createConnectTransport({
-        baseUrl: apiUrl,
-        useBinaryFormat,
-        interceptors: [errorMapping, ...interceptors],
-        fetch: makeFetch(),
-    });
+    const publicApi = createErrorMappingTransport(
+        createConnectTransport({
+            baseUrl: apiUrl,
+            useBinaryFormat,
+            interceptors,
+            fetch: makeFetch(),
+        }),
+    );
 
     const authInterceptors = auth
-        ? [errorMapping, createAuthInterceptor(auth, { wireFormat }), ...interceptors]
-        : [errorMapping, ...interceptors];
-    const authApi = createConnectTransport({
-        baseUrl: apiUrl,
-        useBinaryFormat,
-        interceptors: authInterceptors,
-        fetch: makeFetch(),
-    });
+        ? [createAuthInterceptor(auth, { wireFormat }), ...interceptors]
+        : interceptors;
+    const authApi = createErrorMappingTransport(
+        createConnectTransport({
+            baseUrl: apiUrl,
+            useBinaryFormat,
+            interceptors: authInterceptors,
+            fetch: makeFetch(),
+        }),
+    );
 
     return { authApi, publicApi };
 }

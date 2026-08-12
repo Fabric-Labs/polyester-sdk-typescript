@@ -1,7 +1,7 @@
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import {

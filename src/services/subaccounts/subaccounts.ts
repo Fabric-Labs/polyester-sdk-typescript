@@ -1,7 +1,7 @@
 import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
 import * as ProtoApiKeys from "../../gen/auth/v1/api_keys_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
-import * as v from "valibot";
+import * as v from "../../shared/validation.js";
 import { type ApiKey, ApiKeySchema } from "../api-keys/index.js";
 import { formatId } from "../../utils/base58-id.js";
 import {
