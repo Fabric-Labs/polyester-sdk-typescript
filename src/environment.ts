@@ -57,6 +57,12 @@ export interface CreatePolyesterEnvironmentParams {
 
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
 
+function requireObject(value: unknown, label: string): asserts value is Record<string, unknown> {
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new ConfigurationError(`${label} must be an object.`);
+    }
+}
+
 function isLocalHost(hostname: string): boolean {
     return LOCAL_HOSTS.has(hostname);
 }
@@ -91,6 +97,7 @@ function normalizeAddress(value: Address, label: string): Address {
 }
 
 function normalizeEntryPoint(entryPoint: PolyesterEntryPointConfig): PolyesterEntryPointConfig {
+    requireObject(entryPoint, "accountAbstraction.entryPoint");
     if (entryPoint.version !== "0.7") {
         throw new ConfigurationError("accountAbstraction.entryPoint.version must be 0.7.");
     }
@@ -101,6 +108,7 @@ function normalizeEntryPoint(entryPoint: PolyesterEntryPointConfig): PolyesterEn
 }
 
 function normalizeSafeConfig(safe: PolyesterSafeDeploymentConfig): PolyesterSafeDeploymentConfig {
+    requireObject(safe, "accountAbstraction.safe");
     return Object.freeze({
         version: safe.version,
         safeModuleSetupAddress: normalizeAddress(
@@ -133,6 +141,7 @@ function normalizeSafeConfig(safe: PolyesterSafeDeploymentConfig): PolyesterSafe
 }
 
 function normalizeChain(chain: Chain, rpcUrl: string): Chain {
+    requireObject(chain, "chain");
     if (!Number.isInteger(chain.id) || chain.id <= 0) {
         throw new ConfigurationError("chain.id must be a positive integer.");
     }
@@ -184,6 +193,12 @@ function environmentFingerprint(input: {
 export function createPolyesterEnvironment(
     params: CreatePolyesterEnvironmentParams,
 ): PolyesterEnvironment {
+    requireObject(params, "Environment configuration");
+    if (typeof params.name !== "string" || params.name.trim().length === 0) {
+        throw new ConfigurationError("name must be a non-empty string.");
+    }
+    requireObject(params.accountAbstraction, "accountAbstraction");
+    requireObject(params.contracts, "contracts");
     const apiUrl = normalizeUrl(params.apiUrl, "apiUrl", ["https:", "http:"]);
     const websocketUrl = normalizeUrl(params.websocketUrl, "websocketUrl", ["wss:", "ws:"]);
     const rpcUrl = normalizeUrl(params.rpcUrl, "rpcUrl", ["https:", "http:"]);

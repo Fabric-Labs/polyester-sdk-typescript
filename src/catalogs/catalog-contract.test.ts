@@ -6,6 +6,7 @@ import {
     CatalogLookupError,
     CatalogValidationFailedError,
 } from "./types.js";
+import { ValidationError } from "../shared/errors.js";
 
 const BTC = {
     symbol: "BTC",
@@ -415,5 +416,34 @@ describe("catalogs export surface", () => {
                 LEDGER_SCALE: expect.anything(),
             }),
         );
+    });
+});
+
+describe("catalog runtime boundaries", () => {
+    it.each([null, undefined, {}, "nope"])("rejects malformed snapshot readers", (snapshot) => {
+        expect(() => catalogs.createCatalogSnapshotReader(snapshot as never)).toThrow(
+            ValidationError,
+        );
+    });
+
+    it("validates a snapshot before applying an empty supply patch", () => {
+        expect(() => catalogs.patchZipperCatalogSupply(null as never, [])).toThrow(ValidationError);
+    });
+
+    it("rejects malformed supply updates without advancing snapshot freshness", () => {
+        const snapshot = catalog().snapshot();
+        const originalTimestamp = snapshot.tsMs;
+
+        expect(() =>
+            catalogs.patchZipperCatalogSupply(snapshot, [
+                { zippedAssetId: 901, supply: null as never },
+            ]),
+        ).toThrow(ValidationError);
+        expect(snapshot.version).toBe(1);
+        expect(snapshot.tsMs).toBe(originalTimestamp);
+    });
+
+    it.each([undefined, {}])("rejects malformed snapshot builder input", (input) => {
+        expect(() => catalogs.buildCatalogSnapshot(input as never)).toThrow(ValidationError);
     });
 });

@@ -11,6 +11,7 @@ import type { SubaccountResolver } from "./services/subaccount-resolver.js";
 import { isJwtValid } from "./utils/jwt.js";
 import type { Me } from "./services/auth/auth.js";
 import type { PolyesterEnvironment } from "./environment.js";
+import { ConfigurationError } from "./shared/errors.js";
 
 export type { ServerSessionSnapshot };
 
@@ -203,6 +204,9 @@ export function createPolyesterServerClientFromCookies(
 export function createPolyesterServerClientFromRequest(
     params: CreateServerClientFromRequestParams,
 ): PolyesterServerClient {
+    if (!(params?.request instanceof Request)) {
+        throw new ConfigurationError("request is required and must be a Request.");
+    }
     return createPolyesterServerClientFromCookies({
         cookies: params.request,
         environment: params.environment,

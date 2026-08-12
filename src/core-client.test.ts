@@ -29,10 +29,30 @@ vi.mock("./realtime/index.js", () => ({
 }));
 
 import { PolyesterClient } from "./core-client.js";
+import { ConfigurationError } from "./shared/errors.js";
 
 function bytesToHex(bytes: Uint8Array): string {
     return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 }
+
+describe("PolyesterClient configuration", () => {
+    it("rejects a missing environment with an SDK configuration error", () => {
+        expect(() => new PolyesterClient({} as never)).toThrow(ConfigurationError);
+        expect(() => new PolyesterClient({} as never)).toThrow(
+            "environment is required and must be a PolyesterEnvironment.",
+        );
+    });
+
+    it.each(["xml", 42])("rejects unsupported wire format %j", (wireFormat) => {
+        expect(
+            () =>
+                new PolyesterClient({
+                    environment: POLYESTER_TESTNET_ENVIRONMENT,
+                    wireFormat,
+                } as never),
+        ).toThrow('wireFormat must be either "binary" or "json".');
+    });
+});
 
 describe("PolyesterClient realtime auth", () => {
     afterEach(() => {

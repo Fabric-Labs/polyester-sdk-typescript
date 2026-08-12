@@ -1,3 +1,5 @@
+import { create } from "@bufbuild/protobuf";
+import { Code, ConnectError } from "@connectrpc/connect";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
@@ -6,7 +8,11 @@ import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { createTestCatalog } from "../../testing/catalog.js";
-import { realtimeClientStub, unaryTransportByMethod } from "../../testing/service-harness.js";
+import {
+    realtimeClientStub,
+    rejectingUnaryTransport,
+    unaryTransportByMethod,
+} from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import { OrdersService } from "./orders.js";
@@ -327,14 +333,14 @@ describe("OrdersService", () => {
             cancelOrder: {
                 status: "cancelled",
                 orderId: 22n,
-                tsNs: 2_000_000n,
+                tsNs: 1_786_023_715_943_284_847n,
             },
             modifyOrder: {
                 actionTaken: ProtoWrite.ModifyActionTaken.AMENDED,
                 oldOrderId: 22n,
                 finalOrderId: 22n,
                 code: "ok",
-                tsNs: 3_000_000n,
+                tsNs: 1_786_023_715_905_284_847n,
             },
         });
         const service = new OrdersService(
@@ -346,14 +352,22 @@ describe("OrdersService", () => {
 
         await expect(
             service.cancel({ orderId: "22", symbolId: 1, account: { subaccountId: "11" } }),
-        ).resolves.toMatchObject({ status: "cancelled", tsNs: 2 });
+        ).resolves.toMatchObject({
+            status: "cancelled",
+            ts: 1_786_023_715_943,
+            tsNs: "1786023715943284847",
+        });
         await expect(
             service.cancel({
                 clientOrderId: " client-1 ",
                 symbolId: 1,
                 account: { subaccountId: "11" },
             }),
-        ).resolves.toMatchObject({ status: "cancelled", tsNs: 2 });
+        ).resolves.toMatchObject({
+            status: "cancelled",
+            ts: 1_786_023_715_943,
+            tsNs: "1786023715943284847",
+        });
         await expect(
             service.modify({
                 clientOrderId: " client-1 ",
@@ -365,7 +379,8 @@ describe("OrdersService", () => {
         ).resolves.toMatchObject({
             actionTaken: "AMENDED",
             code: "ok",
-            tsNs: 3,
+            ts: 1_786_023_715_905,
+            tsNs: "1786023715905284847",
         });
 
         const cancelRequests = transport.calls.filter(
@@ -788,6 +803,52 @@ describe("OrdersService", () => {
                 value: "client-1",
             },
         });
+    });
+
+    it("returns null when the backend reports that the order was not found", async () => {
+        const service = new OrdersService(
+            rejectingUnaryTransport(new ConnectError("order not found", Code.Unknown)),
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await expect(service.getDetails({ orderId: "11" })).resolves.toBeNull();
+    });
+
+    it.each([
+        ["NotFound status", new ConnectError("missing", Code.NotFound)],
+        [
+            "structured order error",
+            new ConnectError("missing", Code.Unknown, undefined, [
+                {
+                    desc: ProtoWrite.ErrorDetailSchema,
+                    value: create(ProtoWrite.ErrorDetailSchema, {
+                        code: ProtoWrite.ErrorCode.NOT_FOUND,
+                    }),
+                },
+            ]),
+        ],
+    ])("returns null for a stable %s", async (_name, error) => {
+        const service = new OrdersService(
+            rejectingUnaryTransport(error),
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await expect(service.getDetails({ orderId: "11" })).resolves.toBeNull();
+    });
+
+    it("preserves unrelated get order failures", async () => {
+        const service = new OrdersService(
+            rejectingUnaryTransport(new ConnectError("database unavailable", Code.Unknown)),
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await expect(service.getDetails({ orderId: "11" })).rejects.toThrow("database unavailable");
     });
 
     it("parses populated order details responses to decimal strings", async () => {

@@ -462,6 +462,27 @@ describe("RealtimeClient", () => {
         expect(onDisconnected).not.toHaveBeenCalled();
     });
 
+    it("does not report readiness until the channel subscription is confirmed", async () => {
+        const client = createPublicRealtimeClient();
+        const onSubscribed = vi.fn();
+
+        client.subscribe("public:test", {
+            onPublication: vi.fn(),
+            onSubscribed,
+        });
+        const subscription = firstSubscription();
+        subscription.state = "subscribing";
+
+        await waitForAsyncTokens();
+
+        expect(onSubscribed).not.toHaveBeenCalled();
+
+        subscription.state = "subscribed";
+        subscription.emit("subscribed");
+
+        expect(onSubscribed).toHaveBeenCalledOnce();
+    });
+
     it("delivers a subscribed epoch once when a consumer adds another consumer", async () => {
         const client = createPublicRealtimeClient();
         const secondOnSubscribed = vi.fn();

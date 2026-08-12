@@ -13,6 +13,8 @@ import {
 import type { PolyesterRealtime } from "../../realtime/types.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import { createReadyGate, type SdkScales } from "../../shared/decimal-surface.js";
+import { getOrderErrorDetail } from "../../utils/connect-order-errors.js";
+import { formatConnectError, isResourceNotFoundError } from "../../utils/errors.js";
 import {
     OpenOrdersInputSchema,
     OrderHistoryInputSchema,
@@ -68,6 +70,16 @@ function hasKnownOrderSymbol(scales: SdkScales, order: { symbolId: number }): bo
     } catch {
         return false;
     }
+}
+
+const MISCLASSIFIED_ORDER_NOT_FOUND_MESSAGE = "order not found";
+
+function isOrderNotFoundError(error: unknown): boolean {
+    return (
+        isResourceNotFoundError(error) ||
+        getOrderErrorDetail(error)?.code === "NOT_FOUND" ||
+        formatConnectError(error, "").toLowerCase() === MISCLASSIFIED_ORDER_NOT_FOUND_MESSAGE
+    );
 }
 
 interface SubscribeOrdersInput extends BaseSubscribeInput<Order> {
@@ -232,7 +244,7 @@ export class OrdersService {
     }
 
     /**
-     * Cancels one open order in the resolved account scope by order id or client order id, with optional symbol routing. Returns the backend cancellation status, order id, and server timestamp fields.
+     * Requests cancellation of one order in the resolved account scope by order id or client order id, with optional symbol routing. The response acknowledges the cancellation request, not the order's final lifecycle state; reconcile through order reads or realtime before releasing local state. A missing target remains a {@link ResourceNotFoundError}; callers performing desired-state cleanup may treat that error as success when the order could already have filled or left the book.
      */
     async cancel(
         input: v.InferInput<typeof CancelOrderInputSchema>,
@@ -378,7 +390,7 @@ export class OrdersService {
     }
 
     /**
-     * Fetches one order by id or client order id and returns its order, trades, and transfer details when found. Returns null when the backend response has no order.
+     * Fetches one order by id or client order id and returns its order, trades, and transfer details when found. Returns null when the requested order is not found.
      */
     async getDetails(
         input: v.InferInput<typeof GetOrderDetailsInputSchema>,
@@ -387,10 +399,16 @@ export class OrdersService {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validatedInput = v.parse(GetOrderDetailsInputSchema, resolved);
-        const res = await this.#readClient.getOrder(
-            removeUndefined(validatedInput),
-            toConnectCallOptions(options),
-        );
+        let res: ProtoRead.GetOrderResponse;
+        try {
+            res = await this.#readClient.getOrder(
+                removeUndefined(validatedInput),
+                toConnectCallOptions(options),
+            );
+        } catch (error) {
+            if (isOrderNotFoundError(error)) return null;
+            throw error;
+        }
         if (!res.order) return null;
         return v.parse(this.#orderDetailsSchema, res);
     }

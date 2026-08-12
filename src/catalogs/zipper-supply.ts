@@ -1,4 +1,8 @@
 import type { CatalogSnapshot } from "./types.js";
+import {
+    parseCatalogSnapshot,
+    parseZippedAssetSupplyCatalogUpdates,
+} from "./snapshot-validation.js";
 
 export type ZippedAssetSupplyCatalogUpdate = {
     zippedAssetId: number;
@@ -9,15 +13,17 @@ export function patchZipperCatalogSupply(
     snapshot: CatalogSnapshot,
     updates: readonly ZippedAssetSupplyCatalogUpdate[],
 ): CatalogSnapshot {
-    if (updates.length === 0) return snapshot;
+    const parsedSnapshot = parseCatalogSnapshot(snapshot);
+    const parsedUpdates = parseZippedAssetSupplyCatalogUpdates(updates);
+    if (parsedUpdates.length === 0) return parsedSnapshot;
 
     const supplyByZippedAssetId = new Map<number, string>();
-    for (const update of updates) {
+    for (const update of parsedUpdates) {
         supplyByZippedAssetId.set(update.zippedAssetId, update.supply);
     }
 
     let changed = false;
-    const assets = snapshot.zipper.assets.map((asset) => {
+    const assets = parsedSnapshot.zipper.assets.map((asset) => {
         let assetChanged = false;
         const chains = asset.chains.map((chain) => {
             const supply = supplyByZippedAssetId.get(chain.zippedAssetId);
@@ -30,15 +36,15 @@ export function patchZipperCatalogSupply(
         return assetChanged ? { ...asset, chains } : asset;
     });
 
-    if (!changed) return snapshot;
+    if (!changed) return parsedSnapshot;
     const nowMs = Date.now();
 
     return {
-        ...snapshot,
+        ...parsedSnapshot,
         tsMs: nowMs,
-        version: snapshot.version + 1,
+        version: parsedSnapshot.version + 1,
         zipper: {
-            ...snapshot.zipper,
+            ...parsedSnapshot.zipper,
             tsMs: nowMs,
             assets,
         },

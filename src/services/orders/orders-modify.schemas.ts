@@ -200,28 +200,32 @@ export function createModifyOrderInputSchema(scales: SdkScales) {
 
 export type ModifyOrderInput = v.InferInput<ReturnType<typeof createModifyOrderInputSchema>>;
 
-export const ModifyOrderResultSchema = v.object({
-    actionTaken: v.pipe(
-        v.enum(ProtoWrite.ModifyActionTaken),
-        v.transform((v) =>
-            requiredEnumLabel(
-                ModifyActionCodec.protoToOutput,
-                v,
-                "ModifyOrderResultSchema",
-                "action taken",
+export const ModifyOrderResultSchema = v.pipe(
+    v.object({
+        actionTaken: v.pipe(
+            v.enum(ProtoWrite.ModifyActionTaken),
+            v.transform((v) =>
+                requiredEnumLabel(
+                    ModifyActionCodec.protoToOutput,
+                    v,
+                    "ModifyOrderResultSchema",
+                    "action taken",
+                ),
             ),
         ),
-    ),
-    oldOrderId: PublicIdSchema,
-    finalOrderId: PublicIdSchema,
-    code: v.string(),
-    takeProfitTriggerId: OptionalPublicIdSchema,
-    stopLossTriggerId: OptionalPublicIdSchema,
-    trailingStopTriggerId: OptionalPublicIdSchema,
-    tsNs: v.pipe(
-        v.bigint(),
-        v.transform((v) => tsNsToMs(v)),
-    ),
-});
+        oldOrderId: PublicIdSchema,
+        finalOrderId: PublicIdSchema,
+        code: v.string(),
+        takeProfitTriggerId: OptionalPublicIdSchema,
+        stopLossTriggerId: OptionalPublicIdSchema,
+        trailingStopTriggerId: OptionalPublicIdSchema,
+        tsNs: v.bigint(),
+    }),
+    v.transform(({ tsNs, ...result }) => ({
+        ...result,
+        ts: tsNsToMs(tsNs),
+        tsNs: tsNs.toString(),
+    })),
+);
 
 export type ModifyOrderResult = v.InferOutput<typeof ModifyOrderResultSchema>;

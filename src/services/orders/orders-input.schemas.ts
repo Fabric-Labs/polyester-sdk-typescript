@@ -337,14 +337,18 @@ export const CancelOrderInputSchema = v.pipe(
 
 export type CancelOrderInput = v.InferInput<typeof CancelOrderInputSchema>;
 
-export const CancelOrderResultSchema = v.object({
-    status: v.string(),
-    orderId: PublicIdSchema,
-    tsNs: v.pipe(
-        v.bigint(),
-        v.transform((v) => tsNsToMs(v)),
-    ),
-});
+export const CancelOrderResultSchema = v.pipe(
+    v.object({
+        status: v.string(),
+        orderId: PublicIdSchema,
+        tsNs: v.bigint(),
+    }),
+    v.transform(({ tsNs, ...result }) => ({
+        ...result,
+        ts: tsNsToMs(tsNs),
+        tsNs: tsNs.toString(),
+    })),
+);
 
 export type CancelOrderResult = v.InferOutput<typeof CancelOrderResultSchema>;
 

@@ -14,6 +14,7 @@ import {
     type CatalogRefreshSource,
     type CatalogSnapshot,
 } from "./types.js";
+import { ConfigurationError, ValidationError } from "../shared/errors.js";
 
 type MutableCatalogSnapshot = Omit<CatalogSnapshot, "market" | "version"> & {
     market: CatalogSnapshot["market"];
@@ -132,6 +133,32 @@ function refreshSource(overrides: Partial<CatalogRefreshSource> = {}): CatalogRe
 }
 
 describe("createPolyesterCatalog", () => {
+    it("rejects a null options object", () => {
+        expect(() => createPolyesterCatalog(null as never)).toThrow(ConfigurationError);
+        expect(() => createPolyesterCatalog(null as never)).toThrow(
+            "Catalog options must be an object.",
+        );
+    });
+
+    it.each([{}, "nope", null, undefined])(
+        "rejects malformed snapshots without changing catalog state",
+        (snapshot) => {
+            const catalog = createPolyesterCatalog({ refresh: false });
+
+            expect(() => catalog.setSnapshot(snapshot as never)).toThrow(ValidationError);
+            expect(catalog.state()).toEqual({ status: "empty" });
+        },
+    );
+
+    it("preserves the current snapshot when a replacement is malformed", () => {
+        const seeded = snapshotSeed(marketRefreshConfig);
+        const catalog = createPolyesterCatalog({ snapshot: seeded, refresh: false });
+
+        expect(() => catalog.setSnapshot(null as never)).toThrow(ValidationError);
+        expect(catalog.snapshot()).toBe(seeded);
+        expect(catalog.state()).toEqual({ status: "fresh", source: "snapshot" });
+    });
+
     it("keeps custom catalog snapshots isolated per client", () => {
         const quote = asset("USD", 200, 2);
         const coarseAsset = asset("TEST", 101, 2);

@@ -8,16 +8,26 @@ import type {
     CreatePolyesterCatalogOptions,
 } from "./types.js";
 import { CatalogNotReadyError } from "./types.js";
+import { ConfigurationError } from "../shared/errors.js";
+import { parseCatalogSnapshot } from "./snapshot-validation.js";
 
 export function createPolyesterCatalog(options: CreatePolyesterCatalogOptions = {}): ClientCatalog {
+    if (typeof options !== "object" || options === null || Array.isArray(options)) {
+        throw new ConfigurationError("Catalog options must be an object.");
+    }
     const cell = options.cell;
     let local: CatalogSnapshot | undefined = undefined;
-    const getCurrent = (): CatalogSnapshot | undefined => (cell ? cell.get() : local);
+    const getCurrent = (): CatalogSnapshot | undefined => {
+        const current = cell ? cell.get() : local;
+        return current === undefined ? undefined : parseCatalogSnapshot(current);
+    };
     const setCurrent = (snapshot: CatalogSnapshot): void => {
         if (cell) cell.set(snapshot);
         else local = snapshot;
     };
-    if (options.snapshot && !getCurrent()) setCurrent(options.snapshot);
+    if (options.snapshot !== undefined && !getCurrent()) {
+        setCurrent(parseCatalogSnapshot(options.snapshot));
+    }
 
     const initial = getCurrent();
     let stateValue: CatalogState = initial
@@ -34,8 +44,9 @@ export function createPolyesterCatalog(options: CreatePolyesterCatalogOptions = 
     const currentSource = (): CatalogStateSource => getCurrent()?.source ?? "empty";
 
     function setSnapshot(snapshot: CatalogSnapshot): void {
-        setCurrent(snapshot);
-        stateValue = { status: "fresh", source: snapshot.source };
+        const parsed = parseCatalogSnapshot(snapshot);
+        setCurrent(parsed);
+        stateValue = { status: "fresh", source: parsed.source };
     }
 
     function refresh(): Promise<CatalogSnapshot> {

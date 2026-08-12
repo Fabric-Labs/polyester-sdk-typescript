@@ -181,6 +181,23 @@ export class PolyesterClient {
     #mfa: MfaService | undefined;
 
     constructor(config: PolyesterClientConfig, runtime: PolyesterClientRuntimeConfig = {}) {
+        if (typeof config !== "object" || config === null || Array.isArray(config)) {
+            throw new ConfigurationError("Client configuration must be an object.");
+        }
+        if (
+            typeof config.environment !== "object" ||
+            config.environment === null ||
+            typeof config.environment.apiUrl !== "string" ||
+            typeof config.environment.websocketUrl !== "string" ||
+            typeof config.environment.fingerprint !== "string"
+        ) {
+            throw new ConfigurationError(
+                "environment is required and must be a PolyesterEnvironment.",
+            );
+        }
+        if (config.wireFormat !== undefined && !["binary", "json"].includes(config.wireFormat)) {
+            throw new ConfigurationError('wireFormat must be either "binary" or "json".');
+        }
         const interceptors = config.interceptors ?? [];
         const { environment } = config;
         if (config.catalog && config.catalogSnapshot) {

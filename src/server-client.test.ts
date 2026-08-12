@@ -13,6 +13,7 @@ import type { Me } from "./services/auth/auth.js";
 import { MarketDataService } from "./services/market-data/index.js";
 import { ZipperService } from "./services/zipper/index.js";
 import { createTestCatalog } from "./testing/catalog.js";
+import { ConfigurationError } from "./shared/errors.js";
 
 function base64UrlEncode(value: string): string {
     return btoa(value).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/u, "");
@@ -447,6 +448,21 @@ describe("createPolyesterServerClientFromCookies", () => {
         expect(malformed.hasBearerToken).toBe(true);
         expect(malformed.hasUsableBearerToken).toBe(false);
         expect(malformed.hasAuthProvider).toBe(false);
+    });
+});
+
+describe("createPolyesterServerClientFromRequest configuration", () => {
+    it("rejects a missing request with an SDK configuration error", () => {
+        expect(() =>
+            createPolyesterServerClientFromRequest({
+                environment: POLYESTER_TESTNET_ENVIRONMENT,
+            } as never),
+        ).toThrow(ConfigurationError);
+        expect(() =>
+            createPolyesterServerClientFromRequest({
+                environment: POLYESTER_TESTNET_ENVIRONMENT,
+            } as never),
+        ).toThrow("request is required and must be a Request.");
     });
 });
 

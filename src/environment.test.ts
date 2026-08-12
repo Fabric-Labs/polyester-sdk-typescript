@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createPolyesterEnvironment, POLYESTER_TESTNET_ENVIRONMENT } from "./environment.js";
+import { ConfigurationError } from "./shared/errors.js";
 
 const baseParams = {
     name: "custom",
@@ -16,6 +17,19 @@ const baseParams = {
 };
 
 describe("createPolyesterEnvironment", () => {
+    it.each([null, undefined])("rejects a missing configuration object", (params) => {
+        expect(() => createPolyesterEnvironment(params as never)).toThrow(ConfigurationError);
+        expect(() => createPolyesterEnvironment(params as never)).toThrow(
+            "Environment configuration must be an object.",
+        );
+    });
+
+    it("rejects an empty environment name", () => {
+        expect(() => createPolyesterEnvironment({ ...baseParams, name: "" })).toThrow(
+            "name must be a non-empty string.",
+        );
+    });
+
     it("normalizes URLs and creates a stable fingerprint", () => {
         const environment = createPolyesterEnvironment(baseParams);
         const sameEnvironment = createPolyesterEnvironment(baseParams);

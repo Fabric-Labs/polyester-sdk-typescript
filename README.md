@@ -102,16 +102,40 @@ const client = new PolyesterClient({
 
 ## Realtime
 
-Subscriptions return their own unsubscribe function. No event emitter, no
-cleanup bookkeeping.
+Subscriptions start connecting immediately and return their own unsubscribe
+function. The return value does not mean the channel is open. Wait for the first
+`onOpen` callback to avoid the initial startup gap. This does not guarantee
+delivery across a later disconnect; applications that require continuity must
+reconcile after connection gaps. `onOpen` can run again after a successful
+reconnect, so keep one-time writes outside the callback itself.
 
 ```ts
-const unsubscribe = client.orders.subscribe({
-    accountId,
-    onEvent: (order) => console.log(order.orderId, order.status),
-    onError: (ctx) => console.warn(ctx.channel, ctx.error),
+const unsubscribe = await new Promise<() => void>((resolve, reject) => {
+    let stop = () => {};
+    let pending = true;
+
+    stop = client.orders.subscribe({
+        accountId,
+        onOpen: () => {
+            if (!pending) return;
+            pending = false;
+            resolve(stop);
+        },
+        onEvent: (order) => console.log(order.orderId, order.status),
+        onError: (ctx) => {
+            console.warn(ctx.channel, ctx.error);
+            if (!pending) return;
+            pending = false;
+            stop();
+            reject(ctx.error);
+        },
+    });
 });
+
+await client.orders.create(order);
 ```
+
+Call `unsubscribe()` when the subscription is no longer needed.
 
 ## Entry points
 

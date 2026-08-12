@@ -42,6 +42,7 @@ import {
     type ZipperAssetChainRoute,
     type ZipperCatalogReader,
 } from "./types.js";
+import { parseCatalogSnapshot } from "./snapshot-validation.js";
 
 /** Price ticks are always quoted at 6 decimal places. */
 export const PRICE_SCALE = 6;
@@ -768,5 +769,6 @@ export function createReader(getSnapshot: () => CatalogSnapshot): CatalogReader 
 }
 
 export function createCatalogSnapshotReader(snapshot: CatalogSnapshot): CatalogReader {
-    return createReader(() => snapshot);
+    const parsed = parseCatalogSnapshot(snapshot);
+    return createReader(() => parsed);
 }
