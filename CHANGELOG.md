@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.4.1
+
+### Patch Changes
+
+- [#56](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/56) [`1e34fde`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/1e34fde8be60b78006ee2c0c23595c0561ab5d6a) Thanks [@huntabyte](https://github.com/huntabyte)! - Repair the published TypeScript declarations so public contract and service callback types retain their precise inferred shapes.
+
 ## 0.4.0
 
 ### Minor Changes
