@@ -1,5 +1,43 @@
 # @polyester/sdk
 
+## 0.4.0
+
+### Minor Changes
+
+- [#54](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/54) [`b1d07ad`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b1d07ad58e7f691cbf0df32e5905bd679c1adfd6) Thanks [@huntabyte](https://github.com/huntabyte)! - Standardize market-data limits as positive integers, reject string and invalid candle or trade limits, and require a valid orderbook heatmap limit before sending requests.
+
+### Patch Changes
+
+- [#54](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/54) [`b1d07ad`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b1d07ad58e7f691cbf0df32e5905bd679c1adfd6) Thanks [@huntabyte](https://github.com/huntabyte)! - Return exact nanosecond timestamp strings and epoch-millisecond timestamps from single-order cancel and modify operations.
+
+- [#54](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/54) [`b1d07ad`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b1d07ad58e7f691cbf0df32e5905bd679c1adfd6) Thanks [@huntabyte](https://github.com/huntabyte)! - Preserve server-side bearer authentication when the display-session cookie is missing or invalid, and discard it when an explicit display session belongs to another environment.
+
+- [#54](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/54) [`b1d07ad`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b1d07ad58e7f691cbf0df32e5905bd679c1adfd6) Thanks [@huntabyte](https://github.com/huntabyte)! - Clarify that single-order cancellation acknowledges the request and requires lifecycle reconciliation, while missing targets remain not-found errors.
+
+- [#54](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/54) [`b1d07ad`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b1d07ad58e7f691cbf0df32e5905bd679c1adfd6) Thanks [@huntabyte](https://github.com/huntabyte)! - Document that realtime callers must wait for `onOpen` before issuing writes whose events they need to observe.
+
+- [#54](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/54) [`b1d07ad`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b1d07ad58e7f691cbf0df32e5905bd679c1adfd6) Thanks [@huntabyte](https://github.com/huntabyte)! - Allow transfer history to be listed without an input object and return an SDK validation error for null account-scoped inputs.
+
+- [#54](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/54) [`b1d07ad`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b1d07ad58e7f691cbf0df32e5905bd679c1adfd6) Thanks [@huntabyte](https://github.com/huntabyte)! - Accept Next.js-style cookie getters when creating server clients.
+
+- [#54](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/54) [`b1d07ad`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b1d07ad58e7f691cbf0df32e5905bd679c1adfd6) Thanks [@huntabyte](https://github.com/huntabyte)! - Reject malformed client, environment, account signer, and catalog configuration with SDK error types before constructing clients or marking catalog snapshots fresh.
+
+- [#54](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/54) [`b1d07ad`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b1d07ad58e7f691cbf0df32e5905bd679c1adfd6) Thanks [@huntabyte](https://github.com/huntabyte)! - Isolate synchronously thrown auth event listener errors so one failing listener cannot reject a completed auth operation or prevent later listeners from running.
+
+- [#54](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/54) [`b1d07ad`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b1d07ad58e7f691cbf0df32e5905bd679c1adfd6) Thanks [@huntabyte](https://github.com/huntabyte)! - Return login nonce expiration timestamps as JSON-safe epoch-millisecond numbers instead of raw protobuf timestamp objects.
+
+- [#54](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/54) [`b1d07ad`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b1d07ad58e7f691cbf0df32e5905bd679c1adfd6) Thanks [@huntabyte](https://github.com/huntabyte)! - Route private realtime subscription authentication failures through `onError` when provided, and throw from `subscribe()` when no error observer exists.
+
+- [#54](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/54) [`b1d07ad`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b1d07ad58e7f691cbf0df32e5905bd679c1adfd6) Thanks [@huntabyte](https://github.com/huntabyte)! - Return `null` from `orders.getDetails` when the backend reports that the requested order was not found.
+
+- [#54](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/54) [`b1d07ad`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b1d07ad58e7f691cbf0df32e5905bd679c1adfd6) Thanks [@huntabyte](https://github.com/huntabyte)! - fix(auth): prevent malformed hex credentials from appearing in configuration error messages.
+
+- [#54](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/54) [`b1d07ad`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b1d07ad58e7f691cbf0df32e5905bd679c1adfd6) Thanks [@huntabyte](https://github.com/huntabyte)! - Return `false` from `isJwtValid` for non-string values instead of throwing.
+
+- [#54](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/54) [`b1d07ad`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b1d07ad58e7f691cbf0df32e5905bd679c1adfd6) Thanks [@huntabyte](https://github.com/huntabyte)! - Validate subaccount activity limits and balance-history ledger IDs as non-negative integers before serializing requests.
+
+- [#54](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/54) [`b1d07ad`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b1d07ad58e7f691cbf0df32e5905bd679c1adfd6) Thanks [@huntabyte](https://github.com/huntabyte)! - Translate schema validation, authentication, RPC, and network failures into the documented `PolyesterError` hierarchy.
+
 ## 0.3.1
 
 ### Patch Changes
