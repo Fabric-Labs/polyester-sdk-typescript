@@ -69,6 +69,9 @@ describe("cookie utilities", () => {
     it("passes through already-parsed cookie getters", () => {
         expect(getCookieValue({ token: "hello%20world" }, "token")).toBe("hello%20world");
         expect(getCookieValue({ get: () => "hello%20world" }, "token")).toBe("hello%20world");
+        expect(getCookieValue({ get: (name) => ({ name, value: "hello%20world" }) }, "token")).toBe(
+            "hello%20world",
+        );
     });
 
     it("serializes cookies with cookie-es", () => {

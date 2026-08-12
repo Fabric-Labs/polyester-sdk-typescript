@@ -93,7 +93,10 @@ export const BalanceHistoryInputSchema = v.pipe(
             BalanceRangeSchema,
             v.transform((v) => BalanceRangeCodec.inputToProto[v]),
         ),
-        ledger: v.optional(v.number(), 0),
+        ledger: v.optional(
+            v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(4_294_967_295)),
+            0,
+        ),
         accountCodes: v.optional(
             v.array(
                 v.pipe(

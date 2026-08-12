@@ -1,6 +1,5 @@
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
 import * as v from "../../shared/validation.js";
-import { parseOptionalPositiveIntLike } from "../../utils/numbers.js";
 import type { DecodedEnum } from "../../utils/types.js";
 import { OptionalTimestampSecondsInputSchema } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
@@ -25,9 +24,8 @@ const TimeframeInputSchema = v.pipe(
     v.transform((value) => TimeframeCodec.inputToProto[value]),
 );
 
-const OptionalPositiveNumberSchema = v.pipe(
-    v.optional(v.union([v.string(), v.number()])),
-    v.transform((value) => parseOptionalPositiveIntLike(value)),
+const OptionalPositiveNumberSchema = v.optional(
+    v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(10_000)),
 );
 
 const OptionalBooleanSchema = v.optional(v.boolean(), false);

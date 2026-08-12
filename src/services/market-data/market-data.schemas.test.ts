@@ -57,7 +57,7 @@ describe("market data schemas", () => {
             side: "sell",
             startTsNs: " 1700000000123456789 ",
             endTsNs: "1700000001123456789",
-            limit: " 50 ",
+            limit: 50,
         });
 
         expect(input).toEqual({
@@ -68,6 +68,15 @@ describe("market data schemas", () => {
             limit: 50,
             pageToken: "",
         });
+    });
+
+    it("accepts numeric trade limits and rejects invalid limits", () => {
+        const schema = createGetMarketTradesInputSchema();
+
+        expect(v.parse(schema, { symbolId: 101, limit: 3 })).toMatchObject({ limit: 3 });
+        expect(() => v.parse(schema, { symbolId: 101, limit: "3" })).toThrow();
+        expect(() => v.parse(schema, { symbolId: 101, limit: 0 })).toThrow();
+        expect(() => v.parse(schema, { symbolId: 101, limit: -1 })).toThrow();
     });
 
     it("omits absent optional trade filters", () => {

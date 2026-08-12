@@ -303,18 +303,31 @@ describe("PolyesterBrowserClient", () => {
         ).toContain("Max-Age=120");
     });
 
-    it("checks configured token storage before rejecting private realtime subscriptions", () => {
+    it("reports unauthenticated private realtime subscriptions through onError", async () => {
         const tokenStorage = createTestStorage();
+        const onError = vi.fn();
         const client = new PolyesterBrowserClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
             tokenStorage,
         });
 
-        expect(() =>
-            client.realtime.subscribe("private:orders", {
-                onPublication: () => {},
-            }),
-        ).toThrow('Cannot subscribe to private channel "private:orders" without authentication');
+        const unsubscribe = client.realtime.subscribe("private:orders", {
+            onPublication: () => {},
+            onError,
+        });
+
+        expect(unsubscribe).toBeTypeOf("function");
+
+        await Promise.resolve();
+
+        expect(onError.mock.calls[0]?.[0]).toMatchObject({
+            channel: "private:orders",
+            type: "auth",
+            error: {
+                message:
+                    'Cannot subscribe to private channel "private:orders" without authentication',
+            },
+        });
         expect(tokenStorage.get).toHaveBeenCalled();
     });
 

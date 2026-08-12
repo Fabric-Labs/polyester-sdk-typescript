@@ -72,4 +72,21 @@ describe("isJwtValid", () => {
         expect(isJwtValid(jwtWithPayload({ exp: nowSeconds + 3600 }))).toBe(true);
         expect(isJwtValid(jwtWithPayload({ exp: nowSeconds - 3600 }))).toBe(false);
     });
+
+    it("returns false for malformed and non-string values", () => {
+        const invalidValues: unknown[] = [
+            "not a jwt",
+            null,
+            undefined,
+            42,
+            {
+                name: "polyester_auth_token",
+                value: jwtWithPayload({ exp: Math.floor(Date.now() / 1000) + 3600 }),
+            },
+        ];
+
+        for (const value of invalidValues) {
+            expect(isJwtValid(value)).toBe(false);
+        }
+    });
 });

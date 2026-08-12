@@ -27,7 +27,7 @@ export function parseSessionCookie(
 export interface PolyesterServerClientConfig extends PolyesterClientBaseConfig {
     /** Auth provider config for HTTP/Connect endpoints. */
     auth?: JwtAuthProvider | ApiKeyEd25519AuthProvider;
-    /** Display-only session data parsed from cookies. Not proof of authentication. */
+    /** Bearer authentication and display-only session data parsed from cookies. */
     session?: ServerSessionSnapshot;
     /**
      * Use unsigned display-session `activeAccount` as the default subaccount for
@@ -132,6 +132,11 @@ export interface CreateServerClientFromCookiesParams extends Pick<
     | "transports"
     | "realtimeClient"
 > {
+    /**
+     * A Request, name-value record, or synchronous cookie store whose `get`
+     * method returns either a string or an object with a string `value`.
+     * Await asynchronous framework cookie helpers before passing their result.
+     */
     cookies: CookieGetter;
     /**
      * Use unsigned display-session `activeAccount` as the default subaccount for
@@ -163,7 +168,7 @@ export interface CreateServerClientFromRequestParams extends Pick<
 }
 
 /**
- * Creates a server SDK client from a cookie source.
+ * Creates a server SDK client from a Request, cookie record, or synchronous cookie store.
  */
 export function createPolyesterServerClientFromCookies(
     params: CreateServerClientFromCookiesParams,

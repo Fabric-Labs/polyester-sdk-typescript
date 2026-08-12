@@ -85,7 +85,7 @@ describe("CandlesService", () => {
             {
                 symbolId: 101,
                 timeframe: "5m",
-                limit: "25",
+                limit: 25,
                 includeIncomplete: true,
                 startTsSec: 100,
                 endTsSec: 200,

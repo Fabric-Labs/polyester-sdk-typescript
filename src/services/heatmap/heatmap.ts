@@ -75,7 +75,7 @@ export class HeatmapService implements OrderbookHeatmapProvider {
                 interval: parsed.interval,
                 depth: parsed.depth,
                 quantityMode: parsed.quantityMode,
-                limit: parsed.limit ?? 0,
+                limit: parsed.limit,
                 pageToken: parsed.pageToken,
                 timeRange:
                     parsed.timeRange != null

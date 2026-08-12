@@ -284,7 +284,7 @@ export class SubaccountsService {
     }
 
     /**
-     * Returns paginated audit/activity events for a subaccount, newest first, with a limit capped at 200 and opaque cursor pagination.
+     * Returns paginated audit/activity events for a subaccount, newest first, with a non-negative integer limit from 0 through 200 and opaque cursor pagination.
      */
     async listEvents(
         input: v.InferInput<typeof SubaccountActivityInputSchema>,

@@ -122,6 +122,7 @@ class MockCentrifuge implements MockCentrifugeRecord {
 
 import { __setRealtimeCentrifugeForTests, RealtimeClient } from "./client.js";
 import { OrderSchema } from "../gen/orders/v1/orders_read_pb.js";
+import { AuthenticationError } from "../shared/errors.js";
 
 async function waitForAsyncTokens(): Promise<void> {
     await Promise.resolve();
@@ -161,6 +162,38 @@ describe("RealtimeClient", () => {
     afterEach(() => {
         vi.restoreAllMocks();
         centrifugeState.instances.length = 0;
+    });
+
+    it("reports missing authentication through onError without throwing", async () => {
+        const client = createPublicRealtimeClient();
+        const onError = vi.fn();
+
+        const unsubscribe = client.subscribe("private:test", {
+            onPublication: () => {},
+            onError,
+        });
+
+        expect(unsubscribe).toBeTypeOf("function");
+        expect(onError).not.toHaveBeenCalled();
+
+        await Promise.resolve();
+
+        expect(onError).toHaveBeenCalledOnce();
+        expect(onError.mock.calls[0]?.[0]).toMatchObject({
+            channel: "private:test",
+            type: "auth",
+            error: {
+                message:
+                    'Cannot subscribe to private channel "private:test" without authentication',
+            },
+        });
+        expect(onError.mock.calls[0]?.[0].error).toBeInstanceOf(AuthenticationError);
+        expect(client.activeChannels).toBe(0);
+        expect(client.totalConsumers).toBe(0);
+        expect(centrifugeState.instances).toHaveLength(0);
+
+        expect(unsubscribe()).toBeUndefined();
+        expect(unsubscribe()).toBeUndefined();
     });
 
     it("makes unsubscribe handles idempotent", async () => {

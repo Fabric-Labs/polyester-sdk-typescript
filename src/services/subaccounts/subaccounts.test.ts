@@ -406,6 +406,17 @@ describe("SubaccountsService", () => {
         ]);
     });
 
+    it.each([-1, 1.5])("rejects an invalid activity limit before transport: %s", async (limit) => {
+        const transport = unaryTransport({});
+        const realtime = realtimeClientStub();
+        const service = new SubaccountsService(transport.transport, realtime.realtime);
+
+        await expect(service.listEvents({ subaccountId: "42", limit })).rejects.toMatchObject({
+            name: "ValidationError",
+        });
+        expect(transport.unary).not.toHaveBeenCalled();
+    });
+
     it("subscribes to subaccount and API key channels and parses publications", () => {
         const transport = unaryTransport({});
         const realtime = realtimeClientStub();

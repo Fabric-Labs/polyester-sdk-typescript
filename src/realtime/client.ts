@@ -505,7 +505,16 @@ export class RealtimeClient implements PolyesterRealtime {
      * Subscribes to a realtime channel and returns an unsubscribe function.
      */
     subscribe<T>(channel: string, handlers: SubscribeHandlers<T>): () => void {
-        const shared = this.#getOrCreateSubscription(channel);
+        let shared: SharedSubscription;
+        try {
+            shared = this.#getOrCreateSubscription(channel);
+        } catch (error) {
+            if (!(error instanceof AuthenticationError)) throw error;
+
+            const ctx = createSdkSubscriptionErrorContext(channel, "auth", error);
+            queueMicrotask(() => this.#callErrorHandler(handlers.onError, ctx));
+            return () => {};
+        }
         shared.consumers++;
 
         const publicationHandler = handlers.onPublication;

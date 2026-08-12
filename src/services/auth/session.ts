@@ -127,7 +127,7 @@ export function emptyServerSessionSnapshot(): ServerSessionSnapshot {
 }
 
 /**
- * Parses a serialized session cookie into a display-only server snapshot.
+ * Parses bearer authentication and display-only session cookies into a server snapshot.
  */
 export function parseServerSessionSnapshot(
     cookies: CookieGetter,
@@ -138,7 +138,7 @@ export function parseServerSessionSnapshot(
     const session = sessionValue ? SessionCodec.decode(sessionValue) : null;
 
     if (!session || session.environmentFingerprint !== environment.fingerprint) {
-        return emptyServerSessionSnapshot();
+        return { ...emptyServerSessionSnapshot(), bearerToken };
     }
 
     return {

@@ -76,7 +76,7 @@ describe("MarketDataService", () => {
                 side: "buy",
                 startTsNs: "1700000000123456789",
                 endTsNs: "1700000001123456789",
-                limit: "25",
+                limit: 25,
                 pageToken: " cursor-1 ",
             },
             { signal: controller.signal },
