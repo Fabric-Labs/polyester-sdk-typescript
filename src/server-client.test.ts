@@ -7,6 +7,9 @@ import {
     PolyesterServerClient,
     POLYESTER_AUTH_TOKEN_COOKIE_NAME,
     POLYESTER_SESSION_COOKIE_NAME,
+    type CreateServerClientFromCookiesParams,
+    type CreateServerClientFromRequestParams,
+    type PolyesterServerClientConfig,
 } from "./server-client.js";
 import { POLYESTER_TESTNET_ENVIRONMENT } from "./environment.js";
 import type { Me } from "./services/auth/auth.js";
@@ -14,6 +17,61 @@ import { MarketDataService } from "./services/market-data/index.js";
 import { ZipperService } from "./services/zipper/index.js";
 import { createTestCatalog } from "./testing/catalog.js";
 import { ConfigurationError } from "./shared/errors.js";
+import type { CatalogSnapshot, CatalogSnapshotCell, ClientCatalog } from "./catalogs/index.js";
+
+type ExpectFalse<T extends false> = T;
+type ExpectTrue<T extends true> = T;
+
+type CatalogConflict = {
+    environment: typeof POLYESTER_TESTNET_ENVIRONMENT;
+    catalog: ClientCatalog;
+    catalogCell: CatalogSnapshotCell;
+};
+
+type CatalogHydration = {
+    environment: typeof POLYESTER_TESTNET_ENVIRONMENT;
+    catalogSnapshot: CatalogSnapshot;
+    catalogCell: CatalogSnapshotCell;
+};
+
+type ServerConfigCatalogExclusivityTests = [
+    ExpectFalse<CatalogConflict extends PolyesterServerClientConfig ? true : false>,
+    ExpectFalse<
+        CatalogConflict & {
+            cookies: Record<string, string>;
+        } extends CreateServerClientFromCookiesParams
+            ? true
+            : false
+    >,
+    ExpectFalse<
+        CatalogConflict & { request: Request } extends CreateServerClientFromRequestParams
+            ? true
+            : false
+    >,
+    ExpectTrue<CatalogHydration extends PolyesterServerClientConfig ? true : false>,
+    ExpectTrue<
+        CatalogHydration & {
+            cookies: Record<string, string>;
+        } extends CreateServerClientFromCookiesParams
+            ? true
+            : false
+    >,
+    ExpectTrue<
+        CatalogHydration & { request: Request } extends CreateServerClientFromRequestParams
+            ? true
+            : false
+    >,
+];
+
+const serverConfigCatalogExclusivityTests: ServerConfigCatalogExclusivityTests = [
+    false,
+    false,
+    false,
+    true,
+    true,
+    true,
+];
+void serverConfigCatalogExclusivityTests;
 
 function base64UrlEncode(value: string): string {
     return btoa(value).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/u, "");

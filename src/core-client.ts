@@ -129,6 +129,18 @@ export type PolyesterClientBaseConfig = PolyesterClientCommonConfig & PolyesterC
 /** Configuration for the base Polyester client. */
 export type PolyesterClientConfig = PolyesterClientBaseConfig;
 
+/** Preserves the exclusive catalog configuration while projecting client config fields. */
+export function pickPolyesterCatalogConfig(
+    config: PolyesterClientBaseConfig,
+): PolyesterCatalogConfig {
+    return config.catalog === undefined
+        ? {
+              catalogSnapshot: config.catalogSnapshot,
+              catalogCell: config.catalogCell,
+          }
+        : { catalog: config.catalog };
+}
+
 interface AuthServiceFactoryContext {
     transports: AuthServiceTransports;
     realtime: PolyesterRealtime;

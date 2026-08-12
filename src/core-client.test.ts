@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { signAsync } from "@noble/ed25519";
 import { POLYESTER_TESTNET_ENVIRONMENT } from "./environment.js";
 import { createTestCatalog } from "./testing/catalog.js";
+import type { CatalogSnapshot } from "./catalogs/index.js";
 
 type RealtimeAuthRequest = {
     url: string | URL;
@@ -73,6 +74,20 @@ describe("PolyesterClient configuration", () => {
                 } as never),
         ).toThrow('wireFormat must be either "binary" or "json".');
     });
+
+    it("rejects providing both catalog and catalogSnapshot", () => {
+        const catalog = createTestCatalog();
+
+        expect(
+            () =>
+                // @ts-expect-error catalog and catalogSnapshot are mutually exclusive
+                new PolyesterClient({
+                    environment: POLYESTER_TESTNET_ENVIRONMENT,
+                    catalog,
+                    catalogSnapshot: catalog.snapshot(),
+                }),
+        ).toThrow("Provide either catalog or catalogSnapshot, not both.");
+    });
 });
 
 describe("PolyesterClient realtime auth", () => {
@@ -137,5 +152,23 @@ describe("PolyesterClient catalog refresh", () => {
         });
 
         expect(refresh).not.toHaveBeenCalled();
+    });
+
+    it("accepts catalogSnapshot and catalogCell together", () => {
+        const snapshot = createTestCatalog().snapshot();
+        let current: CatalogSnapshot | undefined;
+        const client = new PolyesterClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            catalogSnapshot: snapshot,
+            catalogCell: {
+                get: () => current,
+                set: (nextSnapshot) => {
+                    current = nextSnapshot;
+                },
+            },
+        });
+
+        expect(client.catalog.snapshot()).toBe(snapshot);
+        expect(current).toBe(snapshot);
     });
 });

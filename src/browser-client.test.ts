@@ -195,6 +195,7 @@ describe("PolyesterBrowserClient", () => {
 
         expect(
             () =>
+                // @ts-expect-error catalog and catalogCell are mutually exclusive
                 new PolyesterBrowserClient({
                     environment: POLYESTER_TESTNET_ENVIRONMENT,
                     catalog,

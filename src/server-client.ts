@@ -1,5 +1,6 @@
 import {
     parsePolyesterClientConfig,
+    pickPolyesterCatalogConfig,
     PolyesterClient,
     type PolyesterClientBaseConfig,
 } from "./core-client.js";
@@ -62,9 +63,7 @@ export class PolyesterServerClient extends PolyesterClient {
             auth,
             wireFormat: config.wireFormat,
             realtime: config.realtime,
-            catalog: config.catalog,
-            catalogSnapshot: config.catalogSnapshot,
-            catalogCell: config.catalogCell,
+            ...pickPolyesterCatalogConfig(config),
             transports: config.transports,
             realtimeClient: config.realtimeClient,
         });
@@ -143,31 +142,33 @@ type ServerClientFactoryBaseConfig<TConfig> = TConfig extends PolyesterClientBas
     : never;
 
 /** Parameters for creating a server client from cookies. */
-export type CreateServerClientFromCookiesParams = ServerClientFactoryBaseConfig<PolyesterClientBaseConfig> & {
-    /**
-     * A Request, name-value record, or synchronous cookie store whose `get`
-     * method returns either a string or an object with a string `value`.
-     * Await asynchronous framework cookie helpers before passing their result.
-     */
-    cookies: CookieGetter;
-    /**
-     * Use unsigned display-session `activeAccount` as the default subaccount for
-     * calls that omit `subaccountId`. This is caller intent from UI hydration,
-     * not proof of authority; backend authorization remains authoritative.
-     */
-    useDisplaySessionActiveAccountAsDefault?: boolean;
-};
+export type CreateServerClientFromCookiesParams =
+    ServerClientFactoryBaseConfig<PolyesterClientBaseConfig> & {
+        /**
+         * A Request, name-value record, or synchronous cookie store whose `get`
+         * method returns either a string or an object with a string `value`.
+         * Await asynchronous framework cookie helpers before passing their result.
+         */
+        cookies: CookieGetter;
+        /**
+         * Use unsigned display-session `activeAccount` as the default subaccount for
+         * calls that omit `subaccountId`. This is caller intent from UI hydration,
+         * not proof of authority; backend authorization remains authoritative.
+         */
+        useDisplaySessionActiveAccountAsDefault?: boolean;
+    };
 
 /** Parameters for creating a server client from a request. */
-export type CreateServerClientFromRequestParams = ServerClientFactoryBaseConfig<PolyesterClientBaseConfig> & {
-    request: Request;
-    /**
-     * Use unsigned display-session `activeAccount` as the default subaccount for
-     * calls that omit `subaccountId`. This is caller intent from UI hydration,
-     * not proof of authority; backend authorization remains authoritative.
-     */
-    useDisplaySessionActiveAccountAsDefault?: boolean;
-};
+export type CreateServerClientFromRequestParams =
+    ServerClientFactoryBaseConfig<PolyesterClientBaseConfig> & {
+        request: Request;
+        /**
+         * Use unsigned display-session `activeAccount` as the default subaccount for
+         * calls that omit `subaccountId`. This is caller intent from UI hydration,
+         * not proof of authority; backend authorization remains authoritative.
+         */
+        useDisplaySessionActiveAccountAsDefault?: boolean;
+    };
 
 /**
  * Creates a server SDK client from a Request, cookie record, or synchronous cookie store.
@@ -189,9 +190,7 @@ export function createPolyesterServerClientFromCookies(
         session,
         wireFormat: params.wireFormat,
         realtime: params.realtime,
-        catalog: params.catalog,
-        catalogSnapshot: params.catalogSnapshot,
-        catalogCell: params.catalogCell,
+        ...pickPolyesterCatalogConfig(params),
         transports: params.transports,
         realtimeClient: params.realtimeClient,
         auth,
@@ -214,9 +213,7 @@ export function createPolyesterServerClientFromRequest(
         interceptors: params.interceptors,
         wireFormat: params.wireFormat,
         realtime: params.realtime,
-        catalog: params.catalog,
-        catalogSnapshot: params.catalogSnapshot,
-        catalogCell: params.catalogCell,
+        ...pickPolyesterCatalogConfig(params),
         transports: params.transports,
         realtimeClient: params.realtimeClient,
         useDisplaySessionActiveAccountAsDefault: params.useDisplaySessionActiveAccountAsDefault,

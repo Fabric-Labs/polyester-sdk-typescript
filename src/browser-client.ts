@@ -1,5 +1,6 @@
 import {
     parsePolyesterClientConfig,
+    pickPolyesterCatalogConfig,
     PolyesterClient,
     type PolyesterClientBaseConfig,
 } from "./core-client.js";
@@ -55,9 +56,7 @@ export class PolyesterBrowserClient extends PolyesterClient {
                 interceptors: config.interceptors,
                 auth: { kind: "jwt", getToken },
                 wireFormat: config.wireFormat,
-                catalog: config.catalog,
-                catalogSnapshot: config.catalogSnapshot,
-                catalogCell: config.catalogCell,
+                ...pickPolyesterCatalogConfig(config),
                 transports: config.transports,
                 realtimeClient: config.realtimeClient,
                 realtime: {
