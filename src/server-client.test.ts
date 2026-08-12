@@ -180,7 +180,7 @@ describe("parseSessionCookie", () => {
         expect(session.bearerToken).toBe(token);
     });
 
-    it("ignores display session metadata for another environment without discarding auth", () => {
+    it("discards auth when display session metadata belongs to another environment", () => {
         const token = validJwt();
         const session = parseSessionCookie(
             {
@@ -190,10 +190,7 @@ describe("parseSessionCookie", () => {
             POLYESTER_TESTNET_ENVIRONMENT,
         );
 
-        expect(session).toEqual({
-            ...emptySessionShape,
-            bearerToken: token,
-        });
+        expectEmptySession(session);
     });
 
     it("ignores display session metadata that fails schema validation", () => {
@@ -228,6 +225,13 @@ describe("parseSessionCookie", () => {
 });
 
 describe("PolyesterServerClient subaccount defaults", () => {
+    it("rejects a non-object configuration with an SDK configuration error", () => {
+        expect(() => new PolyesterServerClient(null as never)).toThrow(ConfigurationError);
+        expect(() => new PolyesterServerClient(null as never)).toThrow(
+            "Client configuration must be an object.",
+        );
+    });
+
     it("does not use display-session active account as a server default unless opted in", () => {
         const session = parseSessionCookie(
             {
@@ -371,6 +375,21 @@ describe("createPolyesterServerClientFromCookies", () => {
         expect(client.hasBearerToken).toBe(true);
         expect(client.hasUsableBearerToken).toBe(true);
         expect(client.hasAuthProvider).toBe(true);
+    });
+
+    it("does not install an auth provider for a bearer token bound to another environment", () => {
+        const client = createPolyesterServerClientFromCookies({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            cookies: {
+                [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie("0xother"),
+                [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
+            },
+        });
+
+        expect(client.hasDisplaySession).toBe(false);
+        expect(client.hasBearerToken).toBe(false);
+        expect(client.hasUsableBearerToken).toBe(false);
+        expect(client.hasAuthProvider).toBe(false);
     });
 
     it("accepts framework cookie getters that return cookie objects", () => {

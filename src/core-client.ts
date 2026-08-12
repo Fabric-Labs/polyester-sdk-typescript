@@ -7,7 +7,7 @@ import {
     type JwtAuthProvider,
     type ApiKeyEd25519AuthProvider,
 } from "./shared/transports.js";
-import type { PolyesterEnvironment } from "./environment.js";
+import { parsePolyesterEnvironment, type PolyesterEnvironment } from "./environment.js";
 import { AccountsService } from "./services/accounts/index.js";
 import { ApiKeysService } from "./services/api-keys/index.js";
 import { AuthService, type AuthServiceTransports } from "./services/auth/auth.js";
@@ -76,7 +76,7 @@ function realtimeAuthFromProvider(
 
 export type PolyesterRealtimeAuthConfig = Pick<RealtimeConfig, "getAuthHeaders" | "hasAuth">;
 
-export interface PolyesterClientBaseConfig {
+interface PolyesterClientCommonConfig {
     environment: PolyesterEnvironment;
     interceptors?: Interceptor[];
     auth?: JwtAuthProvider | ApiKeyEd25519AuthProvider;
@@ -86,21 +86,6 @@ export interface PolyesterClientBaseConfig {
      * Use `json` for human-readable debugging.
      */
     wireFormat?: "binary" | "json";
-    /**
-     * Client-owned catalog store. Advanced callers can inject a fully managed catalog instance.
-     */
-    catalog?: ClientCatalog;
-    /**
-     * Explicit initial catalog snapshot, commonly hydrated from server-rendered data.
-     * Combines with `catalogCell` as the cell's initial value (never clobbers a
-     * pre-populated cell).
-     */
-    catalogSnapshot?: CatalogSnapshot;
-    /**
-     * External snapshot storage for the client-built catalog (mutually exclusive with
-     * `catalog`). A cell backed by a reactive source makes every catalog read reactive.
-     */
-    catalogCell?: CatalogSnapshotCell;
     /**
      * Advanced: inject pre-built Connect transports (in-memory mocks, custom
      * stacks). When provided, the SDK does not build its own transports and the
@@ -116,7 +101,33 @@ export interface PolyesterClientBaseConfig {
     realtimeClient?: PolyesterRealtime;
 }
 
-export interface PolyesterClientConfig extends PolyesterClientBaseConfig {}
+type PolyesterCatalogConfig =
+    | {
+          /** Client-owned catalog store. */
+          catalog: ClientCatalog;
+          catalogSnapshot?: never;
+          catalogCell?: never;
+      }
+    | {
+          catalog?: never;
+          /**
+           * Explicit initial catalog snapshot, commonly hydrated from server-rendered data.
+           * Combines with `catalogCell` as the cell's initial value without clobbering a
+           * pre-populated cell.
+           */
+          catalogSnapshot?: CatalogSnapshot;
+          /**
+           * External snapshot storage for the client-built catalog. A cell backed by a
+           * reactive source makes every catalog read reactive.
+           */
+          catalogCell?: CatalogSnapshotCell;
+      };
+
+/** Configuration shared by every Polyester client. */
+export type PolyesterClientBaseConfig = PolyesterClientCommonConfig & PolyesterCatalogConfig;
+
+/** Configuration for the base Polyester client. */
+export type PolyesterClientConfig = PolyesterClientBaseConfig;
 
 interface AuthServiceFactoryContext {
     transports: AuthServiceTransports;
@@ -127,6 +138,33 @@ interface AuthServiceFactoryContext {
 
 interface PolyesterClientRuntimeConfig {
     createAuth?: (context: AuthServiceFactoryContext) => AuthService;
+}
+
+/**
+ * Parses the configuration shared by every public client constructor.
+ */
+export function parsePolyesterClientConfig<TConfig extends PolyesterClientBaseConfig>(
+    config: TConfig,
+): TConfig {
+    if (typeof config !== "object" || config === null || Array.isArray(config)) {
+        throw new ConfigurationError("Client configuration must be an object.");
+    }
+    const environment = parsePolyesterEnvironment(config.environment);
+    if (
+        config.wireFormat !== undefined &&
+        config.wireFormat !== "binary" &&
+        config.wireFormat !== "json"
+    ) {
+        throw new ConfigurationError('wireFormat must be either "binary" or "json".');
+    }
+    if (config.catalog && config.catalogSnapshot) {
+        throw new ConfigurationError("Provide either catalog or catalogSnapshot, not both.");
+    }
+    if (config.catalog && config.catalogCell) {
+        throw new ConfigurationError("Provide either catalog or catalogCell, not both.");
+    }
+
+    return Object.assign({}, config, { environment });
 }
 
 /**
@@ -181,31 +219,10 @@ export class PolyesterClient {
     #mfa: MfaService | undefined;
 
     constructor(config: PolyesterClientConfig, runtime: PolyesterClientRuntimeConfig = {}) {
-        if (typeof config !== "object" || config === null || Array.isArray(config)) {
-            throw new ConfigurationError("Client configuration must be an object.");
-        }
-        if (
-            typeof config.environment !== "object" ||
-            config.environment === null ||
-            typeof config.environment.apiUrl !== "string" ||
-            typeof config.environment.websocketUrl !== "string" ||
-            typeof config.environment.fingerprint !== "string"
-        ) {
-            throw new ConfigurationError(
-                "environment is required and must be a PolyesterEnvironment.",
-            );
-        }
-        if (config.wireFormat !== undefined && !["binary", "json"].includes(config.wireFormat)) {
-            throw new ConfigurationError('wireFormat must be either "binary" or "json".');
-        }
+        const parsedConfig = parsePolyesterClientConfig(config);
+        config = parsedConfig;
         const interceptors = config.interceptors ?? [];
         const { environment } = config;
-        if (config.catalog && config.catalogSnapshot) {
-            throw new ConfigurationError("Provide either catalog or catalogSnapshot, not both.");
-        }
-        if (config.catalog && config.catalogCell) {
-            throw new ConfigurationError("Provide either catalog or catalogCell, not both.");
-        }
 
         this.transports =
             config.transports ??

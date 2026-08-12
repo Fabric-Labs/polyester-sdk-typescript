@@ -1,157 +1,173 @@
+import * as v from "../shared/validation.js";
 import { ValidationError } from "../shared/errors.js";
+import { PAIR_STATUSES } from "../shared/catalog-config.js";
 import type { CatalogSnapshot } from "./types.js";
 import type { ZippedAssetSupplyCatalogUpdate } from "./zipper-supply.js";
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === "object" && value !== null && !Array.isArray(value);
-}
+const FiniteNumberSchema = v.pipe(v.number(), v.finite());
+const IntegerSchema = v.pipe(FiniteNumberSchema, v.safeInteger());
 
-function isFiniteNumber(value: unknown): value is number {
-    return typeof value === "number" && Number.isFinite(value);
-}
+const AssetConfigSchema = v.object({
+    symbol: v.string(),
+    ledgerId: IntegerSchema,
+    name: v.string(),
+    quantityDisplayDecimals: IntegerSchema,
+    quantityScale: IntegerSchema,
+});
 
-function hasString(record: Record<string, unknown>, key: string): boolean {
-    return typeof record[key] === "string";
-}
+const PairMarketDataConfigSchema = v.object({
+    orderbookPriceBuckets: v.array(FiniteNumberSchema),
+});
 
-function hasNumber(record: Record<string, unknown>, key: string): boolean {
-    return isFiniteNumber(record[key]);
-}
+const EnrichedPairConfigSchema = v.object({
+    symbolId: IntegerSchema,
+    symbol: v.string(),
+    baseAsset: AssetConfigSchema,
+    quoteAsset: AssetConfigSchema,
+    tickSize: v.string(),
+    stepSize: v.string(),
+    minNotionalQuote: v.string(),
+    minQtyBase: v.string(),
+    allowBuyFeeFromBase: v.boolean(),
+    defaultMarketSlippagePctBuy: FiniteNumberSchema,
+    defaultMarketSlippagePctSell: FiniteNumberSchema,
+    maxClientRefDriftPct: FiniteNumberSchema,
+    marketdata: v.optional(PairMarketDataConfigSchema),
+    listingAt: v.nullable(FiniteNumberSchema),
+    delistingAt: v.nullable(FiniteNumberSchema),
+    status: v.picklist([...PAIR_STATUSES, "unknown"]),
+});
 
-function isMarketAsset(value: unknown): boolean {
-    if (!isRecord(value)) return false;
-    return (
-        hasString(value, "symbol") &&
-        hasNumber(value, "ledgerId") &&
-        hasString(value, "name") &&
-        hasNumber(value, "quantityDisplayDecimals") &&
-        hasNumber(value, "quantityScale")
+const ZipperChainConfigSchema = v.object({
+    chainId: IntegerSchema,
+    code: v.string(),
+    name: v.string(),
+    nativeChainId: v.string(),
+    nativeCurrencySymbol: v.string(),
+    explorerUrl: v.string(),
+    icon: v.string(),
+    requiredConfirmations: IntegerSchema,
+    confirmationTimeSeconds: IntegerSchema,
+    isCaseSensitive: v.boolean(),
+    minAddressLength: IntegerSchema,
+    maxAddressLength: IntegerSchema,
+});
+
+const ZipperTokenConfigSchema = v.object({
+    address: v.string(),
+    decimals: IntegerSchema,
+});
+
+const ZipperEnrichedAssetChainSchema = v.object({
+    ...ZipperChainConfigSchema.entries,
+    zippedAssetId: IntegerSchema,
+    isNativeAsset: v.boolean(),
+    networkFee: v.optional(v.string()),
+    networkFeeTsSec: v.optional(FiniteNumberSchema),
+    depositMinAmount: v.optional(v.string()),
+    withdrawMinAmount: v.optional(v.string()),
+    supply: v.optional(v.string()),
+    sourceToken: ZipperTokenConfigSchema,
+    zToken: ZipperTokenConfigSchema,
+});
+
+const ZipperEnrichedAssetConfigSchema = v.object({
+    asset: v.string(),
+    ledgerId: IntegerSchema,
+    name: v.string(),
+    icon: v.string(),
+    quantityScale: IntegerSchema,
+    quantityDisplayDecimals: IntegerSchema,
+    uAssetId: v.string(),
+    chains: v.array(ZipperEnrichedAssetChainSchema),
+});
+
+const ZipperChainContractConfigSchema = v.object({
+    name: v.string(),
+    address: v.string(),
+    type: v.string(),
+    description: v.string(),
+    version: IntegerSchema,
+});
+
+const CatalogSnapshotShapeSchema = v.object({
+    source: v.picklist(["api", "snapshot"]),
+    tsMs: FiniteNumberSchema,
+    version: IntegerSchema,
+    market: v.object({
+        assets: v.array(AssetConfigSchema),
+        pairs: v.array(EnrichedPairConfigSchema),
+        tsSec: v.optional(FiniteNumberSchema),
+    }),
+    zipper: v.object({
+        chains: v.array(ZipperChainConfigSchema),
+        assets: v.array(ZipperEnrichedAssetConfigSchema),
+        contracts: v.array(ZipperChainContractConfigSchema),
+        tsMs: v.optional(FiniteNumberSchema),
+    }),
+});
+
+const ZippedAssetSupplyCatalogUpdatesSchema = v.array(
+    v.object({
+        zippedAssetId: IntegerSchema,
+        supply: v.string(),
+    }),
+);
+
+const parsedSnapshots = new WeakMap<object, CatalogSnapshot>();
+
+function hasValidRelationships(
+    snapshot: v.InferOutput<typeof CatalogSnapshotShapeSchema>,
+): boolean {
+    const assetSymbols = new Set(snapshot.market.assets.map((asset) => asset.symbol));
+    if (
+        snapshot.market.pairs.some(
+            (pair) =>
+                !assetSymbols.has(pair.baseAsset.symbol) ||
+                !assetSymbols.has(pair.quoteAsset.symbol),
+        )
+    ) {
+        return false;
+    }
+
+    const chainIds = new Set(snapshot.zipper.chains.map((chain) => chain.chainId));
+    return snapshot.zipper.assets.every((asset) =>
+        asset.chains.every((chain) => chainIds.has(chain.chainId)),
     );
 }
 
-function isMarketPair(value: unknown): boolean {
-    if (!isRecord(value)) return false;
-    return (
-        hasNumber(value, "symbolId") &&
-        hasString(value, "symbol") &&
-        isMarketAsset(value.baseAsset) &&
-        isMarketAsset(value.quoteAsset) &&
-        hasString(value, "tickSize") &&
-        hasString(value, "stepSize") &&
-        hasString(value, "minNotionalQuote") &&
-        hasString(value, "minQtyBase") &&
-        typeof value.allowBuyFeeFromBase === "boolean" &&
-        hasNumber(value, "defaultMarketSlippagePctBuy") &&
-        hasNumber(value, "defaultMarketSlippagePctSell") &&
-        hasNumber(value, "maxClientRefDriftPct") &&
-        hasString(value, "status")
-    );
-}
+const CatalogSnapshotSchema = v.custom<CatalogSnapshot>((value) => {
+    const result = v.safeParse(CatalogSnapshotShapeSchema, value);
+    return result.success && hasValidRelationships(result.output);
+});
 
-function isZipperChain(value: unknown): value is Record<string, unknown> {
-    if (!isRecord(value)) return false;
-    return (
-        hasNumber(value, "chainId") &&
-        hasString(value, "code") &&
-        hasString(value, "name") &&
-        hasString(value, "nativeChainId") &&
-        hasString(value, "nativeCurrencySymbol") &&
-        hasString(value, "explorerUrl") &&
-        hasString(value, "icon") &&
-        hasNumber(value, "requiredConfirmations") &&
-        hasNumber(value, "confirmationTimeSeconds") &&
-        typeof value.isCaseSensitive === "boolean" &&
-        hasNumber(value, "minAddressLength") &&
-        hasNumber(value, "maxAddressLength")
-    );
-}
-
-function isToken(value: unknown): boolean {
-    return isRecord(value) && hasString(value, "address") && hasNumber(value, "decimals");
-}
-
-function isZipperAssetChain(value: unknown): boolean {
-    return (
-        isZipperChain(value) &&
-        hasNumber(value, "zippedAssetId") &&
-        typeof value.isNativeAsset === "boolean" &&
-        (value.supply === undefined || typeof value.supply === "string") &&
-        isToken(value.sourceToken) &&
-        isToken(value.zToken)
-    );
-}
-
-function isZipperAsset(value: unknown): boolean {
-    if (!isRecord(value)) return false;
-    return (
-        hasString(value, "asset") &&
-        hasNumber(value, "ledgerId") &&
-        hasString(value, "name") &&
-        hasString(value, "icon") &&
-        hasNumber(value, "quantityScale") &&
-        hasNumber(value, "quantityDisplayDecimals") &&
-        hasString(value, "uAssetId") &&
-        Array.isArray(value.chains) &&
-        value.chains.every(isZipperAssetChain)
-    );
-}
-
-function isZipperContract(value: unknown): boolean {
-    if (!isRecord(value)) return false;
-    return (
-        hasString(value, "name") &&
-        hasString(value, "address") &&
-        hasString(value, "type") &&
-        hasString(value, "description") &&
-        hasNumber(value, "version")
-    );
-}
-
-function isCatalogSnapshot(value: unknown): value is CatalogSnapshot {
-    if (!isRecord(value)) return false;
-    if (value.source !== "api" && value.source !== "snapshot") return false;
-    if (!hasNumber(value, "tsMs") || !hasNumber(value, "version")) return false;
-
-    const market = value.market;
-    const zipper = value.zipper;
-    return (
-        isRecord(market) &&
-        Array.isArray(market.assets) &&
-        market.assets.every(isMarketAsset) &&
-        Array.isArray(market.pairs) &&
-        market.pairs.every(isMarketPair) &&
-        isRecord(zipper) &&
-        Array.isArray(zipper.chains) &&
-        zipper.chains.every(isZipperChain) &&
-        Array.isArray(zipper.assets) &&
-        zipper.assets.every(isZipperAsset) &&
-        Array.isArray(zipper.contracts) &&
-        zipper.contracts.every(isZipperContract)
-    );
-}
-
-/** Parses untrusted SSR or JavaScript input as a catalog snapshot. */
+/** Parses and caches untrusted SSR or JavaScript input as a catalog snapshot. */
 export function parseCatalogSnapshot(value: unknown): CatalogSnapshot {
-    if (!isCatalogSnapshot(value)) {
+    if (typeof value !== "object" || value === null) {
         throw new ValidationError("Catalog snapshot is malformed.");
     }
-    return value;
+
+    const cached = parsedSnapshots.get(value);
+    if (cached) return cached;
+
+    const result = v.safeParse(CatalogSnapshotSchema, value);
+    if (!result.success) {
+        throw new ValidationError("Catalog snapshot is malformed.");
+    }
+
+    const snapshot: CatalogSnapshot = result.output;
+    parsedSnapshots.set(value, snapshot);
+    parsedSnapshots.set(snapshot, snapshot);
+    return snapshot;
 }
 
 /** Parses supply updates before they can advance a snapshot's version or timestamp. */
 export function parseZippedAssetSupplyCatalogUpdates(
     value: unknown,
 ): readonly ZippedAssetSupplyCatalogUpdate[] {
-    if (
-        !Array.isArray(value) ||
-        !value.every(
-            (update): update is ZippedAssetSupplyCatalogUpdate =>
-                isRecord(update) &&
-                Number.isInteger(update.zippedAssetId) &&
-                typeof update.supply === "string",
-        )
-    ) {
+    const result = v.safeParse(ZippedAssetSupplyCatalogUpdatesSchema, value);
+    if (!result.success) {
         throw new ValidationError("Zipper catalog supply updates are malformed.");
     }
-    return value;
+    return result.output;
 }

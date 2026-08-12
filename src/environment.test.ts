@@ -30,6 +30,21 @@ describe("createPolyesterEnvironment", () => {
         );
     });
 
+    it("rejects an incomplete nested chain with an SDK configuration error", () => {
+        expect(() =>
+            createPolyesterEnvironment({
+                ...baseParams,
+                chain: { id: 999_001 },
+            } as never),
+        ).toThrow(ConfigurationError);
+        expect(() =>
+            createPolyesterEnvironment({
+                ...baseParams,
+                chain: { id: 999_001 },
+            } as never),
+        ).toThrow("chain.name must be a non-empty string.");
+    });
+
     it("normalizes URLs and creates a stable fingerprint", () => {
         const environment = createPolyesterEnvironment(baseParams);
         const sameEnvironment = createPolyesterEnvironment(baseParams);

@@ -194,7 +194,7 @@ export function snapshotThenStream<TSchema extends DescMessage, TSnapshot, TPubl
             pendingPublications = [];
             params.onClose?.();
         },
-        onError: (ctx) => params.onError?.(ctx),
+        onError: params.onError,
     });
 
     function unsubscribe(): void {

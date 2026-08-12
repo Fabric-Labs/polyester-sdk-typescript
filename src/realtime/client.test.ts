@@ -196,6 +196,20 @@ describe("RealtimeClient", () => {
         expect(unsubscribe()).toBeUndefined();
     });
 
+    it("throws missing authentication when no error observer exists", () => {
+        const client = createPublicRealtimeClient();
+
+        expect(() =>
+            client.subscribe("private:test", {
+                onPublication: () => {},
+            }),
+        ).toThrow(AuthenticationError);
+
+        expect(client.activeChannels).toBe(0);
+        expect(client.totalConsumers).toBe(0);
+        expect(centrifugeState.instances).toHaveLength(0);
+    });
+
     it("makes unsubscribe handles idempotent", async () => {
         const client = createPublicRealtimeClient();
         const unsubscribe = client.subscribe("public:test", { onPublication: () => {} });

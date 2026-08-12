@@ -38,9 +38,30 @@ function bytesToHex(bytes: Uint8Array): string {
 describe("PolyesterClient configuration", () => {
     it("rejects a missing environment with an SDK configuration error", () => {
         expect(() => new PolyesterClient({} as never)).toThrow(ConfigurationError);
-        expect(() => new PolyesterClient({} as never)).toThrow(
-            "environment is required and must be a PolyesterEnvironment.",
-        );
+        expect(() => new PolyesterClient({} as never)).toThrow("environment must be an object.");
+    });
+
+    it("rejects an incomplete environment before constructing transports", () => {
+        expect(
+            () =>
+                new PolyesterClient({
+                    environment: {
+                        apiUrl: "https://api.example.test",
+                        websocketUrl: "wss://api.example.test",
+                        fingerprint: "0xfingerprint",
+                    },
+                } as never),
+        ).toThrow(ConfigurationError);
+        expect(
+            () =>
+                new PolyesterClient({
+                    environment: {
+                        apiUrl: "https://api.example.test",
+                        websocketUrl: "wss://api.example.test",
+                        fingerprint: "0xfingerprint",
+                    },
+                } as never),
+        ).toThrow("name must be a non-empty string.");
     });
 
     it.each(["xml", 42])("rejects unsupported wire format %j", (wireFormat) => {

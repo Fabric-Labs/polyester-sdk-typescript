@@ -316,7 +316,7 @@ export class SubaccountsService {
             },
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
-            onError: (ctx) => input.onError?.(ctx),
+            onError: input.onError,
         });
     }
 
@@ -335,7 +335,7 @@ export class SubaccountsService {
             },
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
-            onError: (ctx) => input.onError?.(ctx),
+            onError: input.onError,
         });
     }
 }

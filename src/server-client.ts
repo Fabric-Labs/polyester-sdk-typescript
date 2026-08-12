@@ -1,4 +1,8 @@
-import { PolyesterClient, type PolyesterClientBaseConfig } from "./core-client.js";
+import {
+    parsePolyesterClientConfig,
+    PolyesterClient,
+    type PolyesterClientBaseConfig,
+} from "./core-client.js";
 import {
     POLYESTER_AUTH_TOKEN_COOKIE_NAME,
     POLYESTER_SESSION_COOKIE_NAME,
@@ -25,7 +29,8 @@ export function parseSessionCookie(
     return parseServerSessionSnapshot(cookies, environment);
 }
 
-export interface PolyesterServerClientConfig extends PolyesterClientBaseConfig {
+/** Configuration for the server Polyester client. */
+export type PolyesterServerClientConfig = PolyesterClientBaseConfig & {
     /** Auth provider config for HTTP/Connect endpoints. */
     auth?: JwtAuthProvider | ApiKeyEd25519AuthProvider;
     /** Bearer authentication and display-only session data parsed from cookies. */
@@ -37,7 +42,7 @@ export interface PolyesterServerClientConfig extends PolyesterClientBaseConfig {
      * the authenticated user can access.
      */
     useDisplaySessionActiveAccountAsDefault?: boolean;
-}
+};
 
 /**
  * Server-side SDK client that can parse display-session cookies and verify bearer-token sessions with the backend.
@@ -48,6 +53,7 @@ export class PolyesterServerClient extends PolyesterClient {
     #useDisplaySessionActiveAccountAsDefault: boolean;
 
     constructor(config: PolyesterServerClientConfig) {
+        config = parsePolyesterClientConfig(config);
         const auth = config.auth ?? undefined;
 
         super({
@@ -121,18 +127,23 @@ export class PolyesterServerClient extends PolyesterClient {
     }
 }
 
-export interface CreateServerClientFromCookiesParams extends Pick<
-    PolyesterClientBaseConfig,
-    | "environment"
-    | "interceptors"
-    | "realtime"
-    | "wireFormat"
-    | "catalog"
-    | "catalogSnapshot"
-    | "catalogCell"
-    | "transports"
-    | "realtimeClient"
-> {
+type ServerClientFactoryBaseConfig<TConfig> = TConfig extends PolyesterClientBaseConfig
+    ? Pick<
+          TConfig,
+          | "environment"
+          | "interceptors"
+          | "realtime"
+          | "wireFormat"
+          | "catalog"
+          | "catalogSnapshot"
+          | "catalogCell"
+          | "transports"
+          | "realtimeClient"
+      >
+    : never;
+
+/** Parameters for creating a server client from cookies. */
+export type CreateServerClientFromCookiesParams = ServerClientFactoryBaseConfig<PolyesterClientBaseConfig> & {
     /**
      * A Request, name-value record, or synchronous cookie store whose `get`
      * method returns either a string or an object with a string `value`.
@@ -145,20 +156,10 @@ export interface CreateServerClientFromCookiesParams extends Pick<
      * not proof of authority; backend authorization remains authoritative.
      */
     useDisplaySessionActiveAccountAsDefault?: boolean;
-}
+};
 
-export interface CreateServerClientFromRequestParams extends Pick<
-    PolyesterClientBaseConfig,
-    | "environment"
-    | "interceptors"
-    | "realtime"
-    | "wireFormat"
-    | "catalog"
-    | "catalogSnapshot"
-    | "catalogCell"
-    | "transports"
-    | "realtimeClient"
-> {
+/** Parameters for creating a server client from a request. */
+export type CreateServerClientFromRequestParams = ServerClientFactoryBaseConfig<PolyesterClientBaseConfig> & {
     request: Request;
     /**
      * Use unsigned display-session `activeAccount` as the default subaccount for
@@ -166,7 +167,7 @@ export interface CreateServerClientFromRequestParams extends Pick<
      * not proof of authority; backend authorization remains authoritative.
      */
     useDisplaySessionActiveAccountAsDefault?: boolean;
-}
+};
 
 /**
  * Creates a server SDK client from a Request, cookie record, or synchronous cookie store.

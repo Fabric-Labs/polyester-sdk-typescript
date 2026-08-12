@@ -10,7 +10,10 @@ export interface BaseSubscribeInput<T> {
     onOpen?: () => void;
     /** Called when an active channel subscription closes. */
     onClose?: () => void;
-    /** Called when the subscription or an event handler reports an error. */
+    /**
+     * Called when the subscription or an event handler reports an error. When omitted,
+     * a synchronously detected missing-authentication failure throws instead.
+     */
     onError?: (ctx: SdkSubscriptionErrorContext) => void;
     /** Called for each event received while the channel subscription is active. */
     onEvent: (c: T) => void;

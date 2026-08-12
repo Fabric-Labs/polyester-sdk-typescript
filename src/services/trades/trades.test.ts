@@ -3,7 +3,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import type { EnrichedPairConfig } from "../../catalogs/index.js";
+import { RealtimeClient } from "../../realtime/client.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
+import { AuthenticationError } from "../../shared/errors.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import {
     realtimeClientStub,
@@ -247,6 +249,26 @@ describe("TradesService", () => {
 
         unsubscribe();
         expect(realtime.connectProtoChannel.mock.results[0]?.value).toHaveBeenCalledTimes(1);
+    });
+
+    it("throws when a private subscription has neither authentication nor an error observer", () => {
+        const service = new TradesService(
+            unaryTransport({}).transport,
+            new RealtimeClient({
+                wsUrl: "wss://stream.example.test",
+                tokenEndpoint: "https://api.example.test/v1/rt/token",
+                subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            }),
+            undefined,
+            testScales(),
+        );
+
+        expect(() =>
+            service.subscribe({
+                accountId: "acct-1",
+                onEvent: vi.fn(),
+            }),
+        ).toThrow(AuthenticationError);
     });
 
     it("queues publications until scales are ready and flushes them in order", async () => {

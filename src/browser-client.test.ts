@@ -18,6 +18,7 @@ import { MarketDataService } from "./services/market-data/index.js";
 import { ZipperService } from "./services/zipper/index.js";
 import { createTestCatalog } from "./testing/catalog.js";
 import type { CatalogSnapshot } from "./catalogs/index.js";
+import { ConfigurationError } from "./shared/errors.js";
 
 const originalDocument = Object.getOwnPropertyDescriptor(globalThis, "document");
 
@@ -144,6 +145,13 @@ describe("PolyesterBrowserClient", () => {
         } else {
             Reflect.deleteProperty(globalThis, "document");
         }
+    });
+
+    it("rejects a non-object configuration with an SDK configuration error", () => {
+        expect(() => new PolyesterBrowserClient(null as never)).toThrow(ConfigurationError);
+        expect(() => new PolyesterBrowserClient(null as never)).toThrow(
+            "Client configuration must be an object.",
+        );
     });
 
     it("accepts an accountSigner config", () => {

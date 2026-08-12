@@ -63,6 +63,12 @@ function requireObject(value: unknown, label: string): asserts value is Record<s
     }
 }
 
+function requireNonEmptyString(value: unknown, label: string): asserts value is string {
+    if (typeof value !== "string" || value.trim().length === 0) {
+        throw new ConfigurationError(`${label} must be a non-empty string.`);
+    }
+}
+
 function isLocalHost(hostname: string): boolean {
     return LOCAL_HOSTS.has(hostname);
 }
@@ -109,6 +115,11 @@ function normalizeEntryPoint(entryPoint: PolyesterEntryPointConfig): PolyesterEn
 
 function normalizeSafeConfig(safe: PolyesterSafeDeploymentConfig): PolyesterSafeDeploymentConfig {
     requireObject(safe, "accountAbstraction.safe");
+    if (safe.version !== "1.4.1" && safe.version !== "1.5.0") {
+        throw new ConfigurationError(
+            'accountAbstraction.safe.version must be either "1.4.1" or "1.5.0".',
+        );
+    }
     return Object.freeze({
         version: safe.version,
         safeModuleSetupAddress: normalizeAddress(
@@ -144,6 +155,20 @@ function normalizeChain(chain: Chain, rpcUrl: string): Chain {
     requireObject(chain, "chain");
     if (!Number.isInteger(chain.id) || chain.id <= 0) {
         throw new ConfigurationError("chain.id must be a positive integer.");
+    }
+    requireNonEmptyString(chain.name, "chain.name");
+    requireObject(chain.nativeCurrency, "chain.nativeCurrency");
+    if (!Number.isInteger(chain.nativeCurrency.decimals) || chain.nativeCurrency.decimals < 0) {
+        throw new ConfigurationError(
+            "chain.nativeCurrency.decimals must be a non-negative integer.",
+        );
+    }
+    requireNonEmptyString(chain.nativeCurrency.name, "chain.nativeCurrency.name");
+    requireNonEmptyString(chain.nativeCurrency.symbol, "chain.nativeCurrency.symbol");
+    requireObject(chain.rpcUrls, "chain.rpcUrls");
+    requireObject(chain.rpcUrls.default, "chain.rpcUrls.default");
+    if (!Array.isArray(chain.rpcUrls.default.http)) {
+        throw new ConfigurationError("chain.rpcUrls.default.http must be an array.");
     }
 
     // Shape parity with viem's defineChain: spread over undefined defaults.
@@ -194,9 +219,7 @@ export function createPolyesterEnvironment(
     params: CreatePolyesterEnvironmentParams,
 ): PolyesterEnvironment {
     requireObject(params, "Environment configuration");
-    if (typeof params.name !== "string" || params.name.trim().length === 0) {
-        throw new ConfigurationError("name must be a non-empty string.");
-    }
+    requireNonEmptyString(params.name, "name");
     requireObject(params.accountAbstraction, "accountAbstraction");
     requireObject(params.contracts, "contracts");
     const apiUrl = normalizeUrl(params.apiUrl, "apiUrl", ["https:", "http:"]);
@@ -242,6 +265,20 @@ export function createPolyesterEnvironment(
         accountAbstraction,
         contracts,
     });
+}
+
+/**
+ * Parses a complete environment supplied to a public SDK client constructor.
+ */
+export function parsePolyesterEnvironment(environment: PolyesterEnvironment): PolyesterEnvironment {
+    requireObject(environment, "environment");
+    const parsed = createPolyesterEnvironment(environment);
+    if (environment.fingerprint !== parsed.fingerprint) {
+        throw new ConfigurationError(
+            "environment.fingerprint must match the environment configuration.",
+        );
+    }
+    return parsed;
 }
 
 export const POLYESTER_TESTNET_ENVIRONMENT = createPolyesterEnvironment({

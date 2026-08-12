@@ -502,7 +502,9 @@ export class RealtimeClient implements PolyesterRealtime {
     }
 
     /**
-     * Subscribes to a realtime channel and returns an unsubscribe function.
+     * Subscribes to a realtime channel and returns an unsubscribe function. Missing
+     * authentication is reported to `onError`, or thrown synchronously when no error
+     * observer is provided.
      */
     subscribe<T>(channel: string, handlers: SubscribeHandlers<T>): () => void {
         let shared: SharedSubscription;
@@ -510,6 +512,7 @@ export class RealtimeClient implements PolyesterRealtime {
             shared = this.#getOrCreateSubscription(channel);
         } catch (error) {
             if (!(error instanceof AuthenticationError)) throw error;
+            if (!handlers.onError) throw error;
 
             const ctx = createSdkSubscriptionErrorContext(channel, "auth", error);
             queueMicrotask(() => this.#callErrorHandler(handlers.onError, ctx));

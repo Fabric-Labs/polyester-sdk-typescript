@@ -269,7 +269,7 @@ export class TriggersService {
             },
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
-            onError: (ctx) => input.onError?.(ctx),
+            onError: input.onError,
         });
     }
 
@@ -293,7 +293,7 @@ export class TriggersService {
             },
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
-            onError: (ctx) => input.onError?.(ctx),
+            onError: input.onError,
         });
     }
 }
