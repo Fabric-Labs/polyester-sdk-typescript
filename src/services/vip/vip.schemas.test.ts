@@ -35,8 +35,8 @@ describe("VipTierCatalogSchema", () => {
         });
     });
 
-    it("rejects out-of-range tiers and retention thresholds", () => {
-        expect(() =>
+    it("accepts tier numbers outside the current VIP0-VIP10 catalog", () => {
+        expect(
             v.parse(VipTierCatalogSchema, {
                 policyVersion: 1n,
                 effectiveFrom,
@@ -44,6 +44,24 @@ describe("VipTierCatalogSchema", () => {
                 tiers: [
                     {
                         tier: 11,
+                        volumeThresholdUsd: "0",
+                        makerFeeRatePercent: "0",
+                        takerFeeRatePercent: "0",
+                    },
+                ],
+            }).tiers[0]?.tier,
+        ).toBe(11);
+    });
+
+    it("rejects non-integer tiers and out-of-range retention thresholds", () => {
+        expect(() =>
+            v.parse(VipTierCatalogSchema, {
+                policyVersion: 1n,
+                effectiveFrom,
+                retentionThresholdBp: 8000,
+                tiers: [
+                    {
+                        tier: 1.5,
                         volumeThresholdUsd: "0",
                         makerFeeRatePercent: "0",
                         takerFeeRatePercent: "0",

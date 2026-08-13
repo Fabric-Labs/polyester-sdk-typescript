@@ -27,7 +27,7 @@ export const SpotFeeRateSchema = v.object({
     symbol: v.pipe(v.string(), v.trim(), v.minLength(1)),
     makerFeeRatePercent: DecimalStringSchema,
     takerFeeRatePercent: DecimalStringSchema,
-    vipTier: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(10)),
+    vipTier: v.pipe(v.number(), v.integer()),
 });
 
 export type SpotFeeRate = v.InferOutput<typeof SpotFeeRateSchema>;

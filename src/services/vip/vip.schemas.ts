@@ -9,7 +9,7 @@ const DecimalStringSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
 
 const OptionalDecimalStringSchema = v.optional(DecimalStringSchema);
 
-const VipTierNumberSchema = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(10));
+const VipTierNumberSchema = v.pipe(v.number(), v.integer());
 
 export const VipTierSchema = v.object({
     tier: VipTierNumberSchema,
@@ -22,7 +22,7 @@ export const VipTierSchema = v.object({
 export type VipTier = v.InferOutput<typeof VipTierSchema>;
 
 export const NextVipTierThresholdsSchema = v.object({
-    tier: v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(10)),
+    tier: VipTierNumberSchema,
     volumeThresholdUsd: DecimalStringSchema,
     aopThresholdUsd: DecimalStringSchema,
 });
