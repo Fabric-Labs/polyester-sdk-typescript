@@ -3,6 +3,7 @@ import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
+import { VipTierNumberSchema } from "../vip/vip.schemas.js";
 
 const DecimalStringSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
 
@@ -34,7 +35,7 @@ export const SpotFeeRateSchema = v.object({
     symbol: v.pipe(v.string(), v.trim(), v.minLength(1)),
     makerFeeRatePercent: DecimalStringSchema,
     takerFeeRatePercent: DecimalStringSchema,
-    vipTier: v.pipe(v.number(), v.integer()),
+    vipTier: VipTierNumberSchema,
 });
 
 export type SpotFeeRate = v.InferOutput<typeof SpotFeeRateSchema>;

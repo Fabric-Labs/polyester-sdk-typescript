@@ -26,7 +26,7 @@ export class VipService {
     }
 
     /**
-     * Returns the complete active VIP0 through VIP10 tier catalog, including policy version, effective time, retention threshold, and per-tier volume/AOP thresholds and fee rates.
+     * Returns the complete active VIP0+ tier catalog, including policy version, effective time, retention threshold, and per-tier volume/AOP thresholds and fee rates.
      */
     async listTiers(options?: PolyesterRequestOptions): Promise<VipTierCatalog> {
         const res = await this.#publicClient.listVIPTiers({}, toConnectCallOptions(options));

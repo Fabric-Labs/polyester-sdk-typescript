@@ -9,28 +9,30 @@ const DecimalStringSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
 
 const OptionalDecimalStringSchema = v.optional(DecimalStringSchema);
 
-const VipTierNumberSchema = v.pipe(v.number(), v.integer());
+export const VipTierNumberSchema = v.pipe(v.number(), v.integer(), v.minValue(0));
+
+const VipTierRates = {
+    volumeThresholdUsd: DecimalStringSchema,
+    makerFeeRatePercent: DecimalStringSchema,
+    takerFeeRatePercent: DecimalStringSchema,
+};
 
 export const VipTierSchema = v.union([
     v.object({
         tier: v.literal(0),
-        volumeThresholdUsd: DecimalStringSchema,
-        makerFeeRatePercent: DecimalStringSchema,
-        takerFeeRatePercent: DecimalStringSchema,
+        ...VipTierRates,
     }),
     v.object({
-        tier: v.pipe(v.number(), v.integer(), v.minValue(1)),
-        volumeThresholdUsd: DecimalStringSchema,
+        tier: v.pipe(VipTierNumberSchema, v.minValue(1)),
         aopThresholdUsd: DecimalStringSchema,
-        makerFeeRatePercent: DecimalStringSchema,
-        takerFeeRatePercent: DecimalStringSchema,
+        ...VipTierRates,
     }),
 ]);
 
 export type VipTier = v.InferOutput<typeof VipTierSchema>;
 
 export const NextVipTierThresholdsSchema = v.object({
-    tier: VipTierNumberSchema,
+    tier: v.pipe(VipTierNumberSchema, v.minValue(1)),
     volumeThresholdUsd: DecimalStringSchema,
     aopThresholdUsd: DecimalStringSchema,
 });

@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
-import { VipStatusSchema, VipTierCatalogSchema } from "./vip.schemas.js";
+import {
+    NextVipTierThresholdsSchema,
+    VipStatusSchema,
+    VipTierCatalogSchema,
+} from "./vip.schemas.js";
 
 const effectiveFrom = { seconds: 1_700_000_000n, nanos: 0 };
 
@@ -92,6 +96,24 @@ describe("VipTierCatalogSchema", () => {
         });
     });
 
+    it("rejects negative VIP tiers", () => {
+        expect(() =>
+            v.parse(VipTierCatalogSchema, {
+                policyVersion: 1n,
+                effectiveFrom,
+                retentionThresholdBp: 8000,
+                tiers: [
+                    {
+                        tier: -1,
+                        volumeThresholdUsd: "0",
+                        makerFeeRatePercent: "0",
+                        takerFeeRatePercent: "0",
+                    },
+                ],
+            }),
+        ).toThrow();
+    });
+
     it("rejects non-integer tiers and out-of-range retention thresholds", () => {
         expect(() =>
             v.parse(VipTierCatalogSchema, {
@@ -114,6 +136,18 @@ describe("VipTierCatalogSchema", () => {
                 effectiveFrom,
                 retentionThresholdBp: 0,
                 tiers: [],
+            }),
+        ).toThrow();
+    });
+});
+
+describe("NextVipTierThresholdsSchema", () => {
+    it("requires the next tier to be at least 1", () => {
+        expect(() =>
+            v.parse(NextVipTierThresholdsSchema, {
+                tier: 0,
+                volumeThresholdUsd: "1000",
+                aopThresholdUsd: "1000",
             }),
         ).toThrow();
     });

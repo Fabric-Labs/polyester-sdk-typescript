@@ -7,12 +7,12 @@ import {
 } from "./rate-limits.schemas.js";
 
 describe("GetTradingRateLimitsInputSchema", () => {
-    it("keeps account scope on the parsed input", () => {
+    it("maps account scope onto the proto request", () => {
         expect(
             v.parse(GetTradingRateLimitsInputSchema, {
                 account: { subaccountId: "42" },
             }),
-        ).toEqual({ account: { subaccountId: "42" } });
+        ).toEqual({ subaccountId: 42n });
     });
 });
 

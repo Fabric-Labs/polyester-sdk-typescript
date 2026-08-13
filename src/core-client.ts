@@ -234,7 +234,7 @@ export class PolyesterClient {
     #mfa: MfaService | undefined;
     #vip: VipService | undefined;
     #fees: FeesService | undefined;
-    #rateLimit: RateLimitService | undefined;
+    #tradingRateLimits: RateLimitService | undefined;
 
     constructor(config: PolyesterClientConfig, runtime: PolyesterClientRuntimeConfig = {}) {
         const parsedConfig = parsePolyesterClientConfig(config);
@@ -524,8 +524,8 @@ export class PolyesterClient {
         return (this.#fees ??= new FeesService(this.transports.authApi, this.#getResolver()));
     }
 
-    get rateLimit(): RateLimitService {
-        return (this.#rateLimit ??= new RateLimitService(
+    get tradingRateLimits(): RateLimitService {
+        return (this.#tradingRateLimits ??= new RateLimitService(
             {
                 publicApi: this.transports.publicApi,
                 authApi: this.transports.authApi,

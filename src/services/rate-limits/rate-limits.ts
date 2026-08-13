@@ -1,6 +1,6 @@
 import { createClient, type Client } from "@connectrpc/connect";
 import * as Proto from "../../gen/ratelimit/v1/ratelimit_pb.js";
-import { accountScopeToSubaccountId, type AccountScopedInput } from "../../shared/account-scope.js";
+import type { AccountScopedInput } from "../../shared/account-scope.js";
 import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
@@ -32,7 +32,7 @@ export class RateLimitService {
     }
 
     /**
-     * Returns the complete active placement and cancellation quota catalog for VIP0 through VIP10.
+     * Returns the complete active placement and cancellation quota catalog for VIP0+.
      */
     async getConfig(options?: PolyesterRequestOptions): Promise<RateLimitConfig> {
         const res = await this.#publicClient.getRateLimitConfig({}, toConnectCallOptions(options));
@@ -47,11 +47,8 @@ export class RateLimitService {
         options?: PolyesterRequestOptions,
     ): Promise<TradingRateLimits> {
         const resolvedInput = resolveAccountScopedInput(input, this.#resolver);
-        const validated = parse(GetTradingRateLimitsInputSchema, resolvedInput);
         const res = await this.#authClient.getTradingRateLimits(
-            removeUndefined({
-                subaccountId: accountScopeToSubaccountId(validated.account),
-            }),
+            removeUndefined(parse(GetTradingRateLimitsInputSchema, resolvedInput)),
             toConnectCallOptions(options),
         );
         return parse(TradingRateLimitsSchema, res);
