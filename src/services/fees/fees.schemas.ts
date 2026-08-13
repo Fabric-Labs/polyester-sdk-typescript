@@ -11,11 +11,18 @@ const SymbolIdSchema = v.pipe(v.number(), v.integer(), v.minValue(1));
 export const GetSpotFeeRatesInputSchema = v.pipe(
     v.strictObject({
         ...AccountScopeInputEntries,
-        symbolIds: v.optional(v.pipe(v.array(SymbolIdSchema), v.maxLength(100)), []),
+        symbolIds: v.optional(
+            v.pipe(
+                v.array(SymbolIdSchema),
+                v.maxLength(100),
+                v.check((ids) => new Set(ids).size === ids.length, "symbolIds must be unique"),
+            ),
+            [],
+        ),
     }),
     v.transform(({ account, symbolIds }) => ({
         subaccountId: accountScopeToSubaccountId(account),
-        symbolId: symbolIds ?? [],
+        symbolId: symbolIds,
     })),
 );
 

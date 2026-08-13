@@ -11,13 +11,21 @@ const OptionalDecimalStringSchema = v.optional(DecimalStringSchema);
 
 const VipTierNumberSchema = v.pipe(v.number(), v.integer());
 
-export const VipTierSchema = v.object({
-    tier: VipTierNumberSchema,
-    volumeThresholdUsd: DecimalStringSchema,
-    aopThresholdUsd: OptionalDecimalStringSchema,
-    makerFeeRatePercent: DecimalStringSchema,
-    takerFeeRatePercent: DecimalStringSchema,
-});
+export const VipTierSchema = v.union([
+    v.object({
+        tier: v.literal(0),
+        volumeThresholdUsd: DecimalStringSchema,
+        makerFeeRatePercent: DecimalStringSchema,
+        takerFeeRatePercent: DecimalStringSchema,
+    }),
+    v.object({
+        tier: v.pipe(v.number(), v.integer(), v.minValue(1)),
+        volumeThresholdUsd: DecimalStringSchema,
+        aopThresholdUsd: DecimalStringSchema,
+        makerFeeRatePercent: DecimalStringSchema,
+        takerFeeRatePercent: DecimalStringSchema,
+    }),
+]);
 
 export type VipTier = v.InferOutput<typeof VipTierSchema>;
 

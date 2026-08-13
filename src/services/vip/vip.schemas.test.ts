@@ -45,12 +45,51 @@ describe("VipTierCatalogSchema", () => {
                     {
                         tier: 11,
                         volumeThresholdUsd: "0",
+                        aopThresholdUsd: "1000",
                         makerFeeRatePercent: "0",
                         takerFeeRatePercent: "0",
                     },
                 ],
             }).tiers[0]?.tier,
         ).toBe(11);
+    });
+
+    it("requires AOP on VIP1+ and omits it on VIP0", () => {
+        expect(() =>
+            v.parse(VipTierCatalogSchema, {
+                policyVersion: 1n,
+                effectiveFrom,
+                retentionThresholdBp: 8000,
+                tiers: [
+                    {
+                        tier: 1,
+                        volumeThresholdUsd: "0",
+                        makerFeeRatePercent: "0",
+                        takerFeeRatePercent: "0",
+                    },
+                ],
+            }),
+        ).toThrow();
+        expect(
+            v.parse(VipTierCatalogSchema, {
+                policyVersion: 1n,
+                effectiveFrom,
+                retentionThresholdBp: 8000,
+                tiers: [
+                    {
+                        tier: 0,
+                        volumeThresholdUsd: "0",
+                        makerFeeRatePercent: "0",
+                        takerFeeRatePercent: "0",
+                    },
+                ],
+            }).tiers[0],
+        ).toEqual({
+            tier: 0,
+            volumeThresholdUsd: "0",
+            makerFeeRatePercent: "0",
+            takerFeeRatePercent: "0",
+        });
     });
 
     it("rejects non-integer tiers and out-of-range retention thresholds", () => {

@@ -1,5 +1,4 @@
 export type {
-    GetTradingRateLimitsInput,
     RateLimitConfig,
     TradingRateLimitClass,
     TradingRateLimitRule,

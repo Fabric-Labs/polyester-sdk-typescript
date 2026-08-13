@@ -1,9 +1,10 @@
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as Proto from "../../gen/vip/v1/vip_pb.js";
 import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
+import type { Transports } from "../../shared/transports.js";
 import { parse } from "../../shared/validation.js";
 import {
     VipStatusSchema,
@@ -12,11 +13,6 @@ import {
     type VipTierCatalog,
 } from "./vip.schemas.js";
 
-export interface VipServiceTransports {
-    publicApi: Transport;
-    authApi: Transport;
-}
-
 /**
  * Reads public VIP policy catalogs and authenticated caller-root VIP status.
  */
@@ -24,7 +20,7 @@ export class VipService {
     #publicClient: Client<typeof Proto.VIPService>;
     #authClient: Client<typeof Proto.VIPService>;
 
-    constructor(transports: VipServiceTransports) {
+    constructor(transports: Transports) {
         this.#publicClient = createClient(Proto.VIPService, transports.publicApi);
         this.#authClient = createClient(Proto.VIPService, transports.authApi);
     }

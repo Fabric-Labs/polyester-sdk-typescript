@@ -7,12 +7,12 @@ import {
 } from "./rate-limits.schemas.js";
 
 describe("GetTradingRateLimitsInputSchema", () => {
-    it("maps account scope onto the proto request", () => {
+    it("keeps account scope on the parsed input", () => {
         expect(
             v.parse(GetTradingRateLimitsInputSchema, {
                 account: { subaccountId: "42" },
             }),
-        ).toEqual({ subaccountId: 42n });
+        ).toEqual({ account: { subaccountId: "42" } });
     });
 });
 
@@ -27,7 +27,7 @@ describe("TradingRateLimitRuleSchema", () => {
                 burstWeight: 1n,
             }),
         ).toEqual({
-            policyClass: "cancel",
+            policyClass: "trading_cancel",
             tier: 10,
             quotaWeight: "5",
             periodMs: "250",

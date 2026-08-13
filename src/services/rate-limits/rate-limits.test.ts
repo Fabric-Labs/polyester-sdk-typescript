@@ -35,14 +35,14 @@ describe("RateLimitService", () => {
             effectiveFrom: 1_700_000_000_000,
             rules: [
                 {
-                    policyClass: "place",
+                    policyClass: "trading_place",
                     tier: 2,
                     quotaWeight: "100",
                     periodMs: "1000",
                     burstWeight: "20",
                 },
                 {
-                    policyClass: "cancel",
+                    policyClass: "trading_cancel",
                     tier: 2,
                     quotaWeight: "100",
                     periodMs: "1000",
@@ -77,7 +77,7 @@ describe("RateLimitService", () => {
             effectiveFrom: 1_700_000_000_000,
             rules: [
                 {
-                    policyClass: "place",
+                    policyClass: "trading_place",
                     tier: 2,
                     quotaWeight: "100",
                     periodMs: "1000",
@@ -86,7 +86,7 @@ describe("RateLimitService", () => {
             ],
             apiKeyRules: [
                 {
-                    policyClass: "place",
+                    policyClass: "trading_place",
                     tier: 2,
                     quotaWeight: "10",
                     periodMs: "1000",
@@ -97,5 +97,26 @@ describe("RateLimitService", () => {
 
         expect(authApi.lastCall()?.message).toEqual({ subaccountId: 42n });
         expect(publicApi.calls).toHaveLength(0);
+    });
+
+    it("lets explicit main scope force root scope", async () => {
+        const publicApi = unaryTransport({});
+        const authApi = unaryTransport({
+            policyVersion: 7n,
+            effectiveFrom,
+            rules: [rule()],
+        });
+        const service = new RateLimitService(
+            {
+                publicApi: publicApi.transport,
+                authApi: authApi.transport,
+            },
+            subaccountResolverStub("42"),
+        );
+
+        await expect(service.getTradingLimits({ account: "main" })).resolves.toMatchObject({
+            policyVersion: "7",
+        });
+        expect(authApi.lastCall()?.message).toEqual({});
     });
 });
