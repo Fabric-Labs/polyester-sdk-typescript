@@ -15,6 +15,7 @@ import { LifecycleReadService } from "./gen/chain/lifecycle/v1/lifecycle_read_pb
 import { WithdrawService } from "./gen/chain/withdraw/v1/withdraw_pb.js";
 import { ZipperService } from "./gen/chain/zipper/v1/zipper_pb.js";
 import { WhiteboardService } from "./gen/collab/v1/whiteboard_pb.js";
+import { FeeService } from "./gen/fees/v1/fees_pb.js";
 import { LedgerReadService } from "./gen/ledger/read/v1/ledger_read_pb.js";
 import { HeatmapService } from "./gen/marketdata/v1/heatmap_pb.js";
 import { MarketDataService } from "./gen/marketdata/v1/marketdata_pb.js";
@@ -22,8 +23,10 @@ import { MarketOverviewService } from "./gen/marketoverview/v1/marketoverview_pb
 import { OrderbookService } from "./gen/orderbook/v1/orderbook_pb.js";
 import { OrdersService } from "./gen/orders/v1/orders_pb.js";
 import { OrdersReadService } from "./gen/orders/v1/orders_read_pb.js";
+import { RateLimitService } from "./gen/ratelimit/v1/ratelimit_pb.js";
 import { InternalTransferService } from "./gen/transfer/v1/internal_transfer_pb.js";
 import { TriggersService } from "./gen/triggers/v1/triggers_pb.js";
+import { VIPService } from "./gen/vip/v1/vip_pb.js";
 
 /**
  * Every proto service descriptor the SDK's service layer wires a client for.
@@ -40,6 +43,7 @@ export const WIRED_SERVICE_DESCRIPTORS: readonly DescService[] = [
     AuthService,
     ChainAnalyticsService,
     DepositAddressService,
+    FeeService,
     GuardSignerService,
     HeatmapService,
     InternalTransferService,
@@ -53,11 +57,13 @@ export const WIRED_SERVICE_DESCRIPTORS: readonly DescService[] = [
     OrdersService,
     PolicyService,
     ProfileService,
+    RateLimitService,
     ResolveService,
     SocialVerificationService,
     SubaccountService,
     SubaccountViewService,
     TriggersService,
+    VIPService,
     WhiteboardService,
     WithdrawService,
     ZipperService,
