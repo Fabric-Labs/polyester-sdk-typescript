@@ -1,5 +1,15 @@
 # @polyester/sdk
 
+## 0.4.2
+
+### Patch Changes
+
+- [#58](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/58) [`c253beb`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/c253beb9cbef0ab5d5d33cc330edc85ff585468b) Thanks [@aiiven](https://github.com/aiiven)! - feat(vip): add VIP tier catalog and status methods for public policy snapshots and authenticated caller-root qualification.
+
+- [#58](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/58) [`c253beb`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/c253beb9cbef0ab5d5d33cc330edc85ff585468b) Thanks [@aiiven](https://github.com/aiiven)! - feat(fees): add a spot fee rate method for authenticated effective maker and taker rates.
+
+- [#58](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/58) [`c253beb`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/c253beb9cbef0ab5d5d33cc330edc85ff585468b) Thanks [@aiiven](https://github.com/aiiven)! - feat(rate-limit): add trading rate-limit catalog and effective limit methods for public quota snapshots and authenticated account targets.
+
 ## 0.4.1
 
 ### Patch Changes
