@@ -15,8 +15,8 @@ export const GetSpotFeeRatesInputSchema = v.pipe(
         symbolIds: v.optional(
             v.pipe(
                 v.array(SymbolIdSchema),
+                v.transform((ids) => [...new Set(ids)]),
                 v.maxLength(100),
-                v.check((ids) => new Set(ids).size === ids.length, "symbolIds must be unique"),
             ),
             [],
         ),

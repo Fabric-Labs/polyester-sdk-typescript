@@ -15,12 +15,14 @@ describe("GetSpotFeeRatesInputSchema", () => {
         });
     });
 
-    it("rejects duplicate symbol identifiers", () => {
-        expect(() =>
+    it("dedupes symbol identifiers", () => {
+        expect(
             v.parse(GetSpotFeeRatesInputSchema, {
-                symbolIds: [101, 101],
+                symbolIds: [101, 202, 101],
             }),
-        ).toThrow();
+        ).toEqual({
+            symbolId: [101, 202],
+        });
     });
 
     it("rejects more than 100 symbol identifiers", () => {
