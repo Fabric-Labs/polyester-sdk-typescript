@@ -12,6 +12,7 @@ import * as LedgerReadProto from "../gen/ledger/read/v1/ledger_read_pb.js";
 import * as HeatmapProto from "../gen/marketdata/v1/heatmap_pb.js";
 import * as MarketDataProto from "../gen/marketdata/v1/marketdata_pb.js";
 import * as OrdersProto from "../gen/orders/v1/orders_pb.js";
+import * as RateLimitProto from "../gen/ratelimit/v1/ratelimit_pb.js";
 import { requiredEnumLabel } from "../shared/proto-enum-codec.js";
 import {
     AddressBookEntryKindCodec,
@@ -32,6 +33,7 @@ import {
     SubaccountInviteSchema,
     SubaccountSchema,
 } from "./subaccounts/subaccounts.schemas.js";
+import { TradingRateLimitRuleSchema } from "./rate-limits/rate-limits.schemas.js";
 import { WhiteboardAccessSchema } from "./whiteboard/whiteboard.schemas.js";
 
 const timestamp = { seconds: 0n, nanos: 0 };
@@ -250,6 +252,18 @@ describe("proto enum output decoding", () => {
                 allowedFactorTypes: [MfaProto.MFAFactorType.MFA_FACTOR_TYPE_UNSPECIFIED],
             }),
         ).toMatchObject({ allowedFactorTypes: ["unspecified"] });
+    });
+
+    it("preserves unspecified trading rate-limit policy class", () => {
+        expect(
+            v.parse(TradingRateLimitRuleSchema, {
+                policyClass: RateLimitProto.TradingRateLimitClass.UNSPECIFIED,
+                tier: 0,
+                quotaWeight: 0n,
+                periodMs: 1000n,
+                burstWeight: 0n,
+            }),
+        ).toMatchObject({ policyClass: "unspecified" });
     });
 
     it("still rejects truly unknown nonzero enum values", () => {

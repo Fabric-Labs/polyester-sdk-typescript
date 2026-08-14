@@ -33,6 +33,9 @@ import { SocialVerificationService } from "./services/social-verification/index.
 import { WhiteboardService } from "./services/whiteboard/index.js";
 import { ZipperService } from "./services/zipper/index.js";
 import { MfaService } from "./services/mfa/index.js";
+import { VipService } from "./services/vip/index.js";
+import { FeesService } from "./services/fees/index.js";
+import { RateLimitService } from "./services/rate-limits/index.js";
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";
 import {
     createPolyesterCatalog,
@@ -229,6 +232,9 @@ export class PolyesterClient {
     #whiteboard: WhiteboardService | undefined;
     #zipper: ZipperService | undefined;
     #mfa: MfaService | undefined;
+    #vip: VipService | undefined;
+    #fees: FeesService | undefined;
+    #tradingRateLimits: RateLimitService | undefined;
 
     constructor(config: PolyesterClientConfig, runtime: PolyesterClientRuntimeConfig = {}) {
         const parsedConfig = parsePolyesterClientConfig(config);
@@ -505,6 +511,27 @@ export class PolyesterClient {
 
     get mfa(): MfaService {
         return (this.#mfa ??= new MfaService(this.transports.authApi));
+    }
+
+    get vip(): VipService {
+        return (this.#vip ??= new VipService({
+            publicApi: this.transports.publicApi,
+            authApi: this.transports.authApi,
+        }));
+    }
+
+    get fees(): FeesService {
+        return (this.#fees ??= new FeesService(this.transports.authApi, this.#getResolver()));
+    }
+
+    get tradingRateLimits(): RateLimitService {
+        return (this.#tradingRateLimits ??= new RateLimitService(
+            {
+                publicApi: this.transports.publicApi,
+                authApi: this.transports.authApi,
+            },
+            this.#getResolver(),
+        ));
     }
 
     /**
