@@ -126,7 +126,9 @@ const BatchCreateOrderResultRawSchema = v.object({
         v.object({
             case: v.literal("rejected"),
             value: v.object({
-                error: OrderErrorDetailSchema,
+                // The server may reject without a structured detail (e.g. capacity
+                // limits); surface the rejection instead of failing the parse.
+                error: v.optional(OrderErrorDetailSchema),
             }),
         }),
     ]),

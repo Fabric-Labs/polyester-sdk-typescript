@@ -136,7 +136,7 @@ export class OrdersService {
     }
 
     /**
-     * Returns open orders for the resolved root account or subaccount, with optional symbol, trigger ID, side, pagination, and attached-risk inclusion filters. Results include the next page token returned by GetOpenOrders.
+     * Returns open orders for the resolved root account or subaccount, with optional symbol, trigger ID, side, pagination, and attached-risk inclusion filters. Results are paginated with a server-determined page size: a single call is not the full set of open orders — keep calling with the returned nextPageToken until it is empty.
      */
     async listOpen(
         input: v.InferInput<typeof OpenOrdersInputSchema> = {},
