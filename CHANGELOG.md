@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.4.3
+
+### Patch Changes
+
+- [#60](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/60) [`f91caab`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/f91caaba589ce689ffaa7d310f833373a8e61009) Thanks [@huntabyte](https://github.com/huntabyte)! - Declare the Multicall3 deployment (`0xF35A6AE5408fa1356064849D0BC3855f801aa6aC`, block 563457) on the Polychain testnet chain definition so viem clients can batch contract reads via multicall instead of issuing one `eth_call` per read.
+
 ## 0.4.2
 
 ### Patch Changes
