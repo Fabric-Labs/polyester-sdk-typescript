@@ -185,6 +185,26 @@ describe("batch create schemas", () => {
         expect(() => v.parse(schema, { items: [limitOrder("x".repeat(37))] })).toThrow();
     });
 
+    it("surfaces rejections that carry no structured error detail", () => {
+        const result = v.parse(createBatchCreateOrdersResultSchema(testScales(), ["BTC-USDT"]), {
+            results: [
+                {
+                    clientOrderId: "order-a",
+                    outcome: { case: "rejected", value: {} },
+                },
+            ],
+            acceptedCount: 0,
+            rejectedCount: 1,
+            tsNs: 2_000_000_123n,
+        });
+
+        expect(result.results[0]).toEqual({
+            status: "rejected",
+            clientOrderId: "order-a",
+            error: undefined,
+        });
+    });
+
     it("returns ordered discriminated outcomes and exact timestamps", () => {
         expect(
             v.parse(createBatchCreateOrdersResultSchema(testScales(), ["BTC-USDT", "BTC-USDT"]), {
