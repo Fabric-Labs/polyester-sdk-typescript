@@ -305,6 +305,12 @@ export const POLYESTER_TESTNET_ENVIRONMENT = createPolyesterEnvironment({
                 url: "https://polyesterscan.com",
             },
         },
+        contracts: {
+            multicall3: {
+                address: "0xF35A6AE5408fa1356064849D0BC3855f801aa6aC",
+                blockCreated: 563457,
+            },
+        },
     },
     accountAbstraction: {
         bundlerUrl: "https://bundler.polyester.tech",
