@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.4.4
+
+### Patch Changes
+
+- [#62](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/62) [`ee6f75a`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/ee6f75a64294ffad0c05dfdfe65b802699509b7b) Thanks [@huntabyte](https://github.com/huntabyte)! - fix: `orders.batchCreate()` no longer throws a `ValiError` when the server rejects an item without a structured error detail; the item is surfaced as `status: "rejected"` with `error` possibly undefined. Also documents that `orders.listOpen()` is paginated and must be drained via `nextPageToken`.
+
 ## 0.4.3
 
 ### Patch Changes
