@@ -24,6 +24,7 @@ import {
     type OrderbookLevel,
     type OrderbookData,
 } from "./orderbook.schemas.js";
+import { orderbookWsChannelDepth } from "./orderbook.codecs.js";
 import { toBig } from "../../utils/u128.js";
 import { isResourceNotFoundError } from "../../utils/errors.js";
 import * as v from "valibot";
@@ -94,12 +95,17 @@ export class OrderbookService {
     }
 
     /**
-     * Creates a stateful order book subscription that first fetches a snapshot, buffers proto deltas from public:spot:orderbook:deltas:depth:{depth}:{symbolId}:proto, applies sequence-checked updates, and refetches on gaps or reconnects. The returned handle can unsubscribe or change local price bucket aggregation without reconnecting.
+     * Creates a stateful order book subscription that first fetches a snapshot, buffers proto deltas from public:spot:orderbook:deltas:depth:{depth}:{symbolId}:proto, applies sequence-checked updates, and refetches on observed sequence gaps or reconnects. The returned handle can unsubscribe or change local price bucket aggregation without reconnecting.
+     *
+     * `depth` is clamped to [1, 500] and rides the smallest published channel depth that covers it (see ORDERBOOK_WS_DEPTHS); levels are sliced back to the requested depth locally.
+     *
+     * Refetching is driven by observed sequence gaps and reconnect events only. A feed that stays subscribed but stops publishing is indistinguishable from a quiet market, so it does not trigger onError or a refetch. Callers that must detect a stalled book need their own idle watchdog plus a REST refetch.
      */
     createSubscription(input: CreateOrderbookSubscriptionInput): OrderbookSubscription {
         const symbolId = parse(v.pipe(v.number(), v.integer(), v.gtValue(0)), input.symbolId);
-        const wsDepth = Math.min(500, Math.max(1, Math.trunc(input.depth ?? 50)));
-        const channel = `public:spot:orderbook:deltas:depth:${wsDepth}:${symbolId}:proto`;
+        const requestedDepth = Math.min(500, Math.max(1, Math.trunc(input.depth ?? 50)));
+        const channelDepth = orderbookWsChannelDepth(requestedDepth);
+        const channel = `public:spot:orderbook:deltas:depth:${channelDepth}:${symbolId}:proto`;
 
         const client = this.#client;
         const scales = this.#scales;
@@ -164,10 +170,10 @@ export class OrderbookService {
             gate.run(() => {
                 input.onEvent({
                     symbol: input.symbol,
-                    depth: wsDepth,
+                    depth: requestedDepth,
                     bookSeq: currentBookSeq.toString(),
-                    bids: sideToUIBucketed(bidsMap, "bids", wsDepth, bucketTicks),
-                    asks: sideToUIBucketed(asksMap, "asks", wsDepth, bucketTicks),
+                    bids: sideToUIBucketed(bidsMap, "bids", requestedDepth, bucketTicks),
+                    asks: sideToUIBucketed(asksMap, "asks", requestedDepth, bucketTicks),
                 });
             });
         }
@@ -188,7 +194,7 @@ export class OrderbookService {
         async function inputServiceFetch(): Promise<Proto.GetOrderBookResponse> {
             const validated = parse(GetOrderbookInputSchema, {
                 symbol: input.symbol,
-                depth: wsDepth,
+                depth: channelDepth,
             });
             try {
                 return await client.getOrderBook({
