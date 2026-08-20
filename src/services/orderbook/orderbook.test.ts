@@ -10,6 +10,7 @@ import {
     unaryTransport,
 } from "../../testing/service-harness.js";
 import { OrderbookService } from "./orderbook.js";
+import { ORDERBOOK_WS_DEPTHS, orderbookWsChannelDepth } from "./orderbook.codecs.js";
 
 const BTC = {
     symbol: "BTC",
@@ -324,6 +325,50 @@ describe("OrderbookService", () => {
         subscription.unsubscribe();
     });
 
+    it("routes an unpublished depth to the smallest published channel depth", async () => {
+        const realtime = realtimeClientStub();
+        const transport = unaryTransport({ bookSeq: 5n, bids: [], asks: [] });
+        const service = new OrderbookService(transport.transport, realtime.realtime, testScales());
+
+        const subscription = service.createSubscription({
+            symbol: "BTC-USDT",
+            symbolId: 101,
+            depth: 10,
+            onEvent: vi.fn(),
+        });
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+
+        expect(realtime.params?.channel).toBe("public:spot:orderbook:deltas:depth:20:101:proto");
+        expect(transport.lastCall()?.message).toMatchObject({ depth: Proto.Depth.DEPTH_20 });
+        subscription.unsubscribe();
+    });
+
+    it("slices the deeper feed back down to the requested depth", async () => {
+        const realtime = realtimeClientStub();
+        const bids = Array.from({ length: 20 }, (_, i) => ({
+            priceTicks: BigInt(100_000_000 - i * 100),
+            qtyScaled: 1_000_000n,
+        }));
+        const transport = unaryTransport({ bookSeq: 7n, bids, asks: [] });
+        const service = new OrderbookService(transport.transport, realtime.realtime, testScales());
+        const onEvent = vi.fn();
+
+        const subscription = service.createSubscription({
+            symbol: "BTC-USDT",
+            symbolId: 101,
+            depth: 10,
+            onEvent,
+        });
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+
+        expect(onEvent).toHaveBeenCalledOnce();
+        expect(onEvent.mock.calls[0]?.[0]).toMatchObject({ depth: 10 });
+        expect(onEvent.mock.calls[0]?.[0].bids).toHaveLength(10);
+        subscription.unsubscribe();
+    });
+
     it("uses the caller-provided symbol id for realtime routing", () => {
         const realtime = realtimeClientStub();
         const service = new OrderbookService(
@@ -339,5 +384,20 @@ describe("OrderbookService", () => {
 
         expect(realtime.params?.channel).toBe("public:spot:orderbook:deltas:depth:50:999:proto");
         unsubscribe();
+    });
+});
+
+describe("orderbookWsChannelDepth", () => {
+    it("maps published depths to themselves", () => {
+        expect(ORDERBOOK_WS_DEPTHS.map(orderbookWsChannelDepth)).toEqual([...ORDERBOOK_WS_DEPTHS]);
+    });
+
+    it("lifts unpublished depths onto the next published channel depth", () => {
+        // 5, 10, 100 and 1000 are accepted by the REST snapshot but have no delta publisher.
+        expect(orderbookWsChannelDepth(5)).toBe(20);
+        expect(orderbookWsChannelDepth(10)).toBe(20);
+        expect(orderbookWsChannelDepth(100)).toBe(200);
+        expect(orderbookWsChannelDepth(1000)).toBe(500);
+        expect(orderbookWsChannelDepth(37)).toBe(50);
     });
 });
