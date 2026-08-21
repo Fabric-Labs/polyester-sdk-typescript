@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.6.0
+
+### Minor Changes
+
+- [#68](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/68) [`a1a35ec`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/a1a35ecaa2948bfd6c9f0a392426ea83fadc166f) Thanks [@huntabyte](https://github.com/huntabyte)! - Reject decimal order and trigger inputs that exceed protobuf signed-integer bounds with `CatalogConversionError`. `getSpotOrderConstraints()` now exposes the derived `maxPrice`, `maxQtyBase`, `maxNotionalQuote`, and `maxQuoteSlippage` wire ceilings.
+
 ## 0.5.0
 
 ### Minor Changes
