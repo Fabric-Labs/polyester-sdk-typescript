@@ -43,6 +43,7 @@ import {
     type ZipperCatalogReader,
 } from "./types.js";
 import { parseCatalogSnapshot } from "./snapshot-validation.js";
+import { PROTOBUF_INT32_MAX, PROTOBUF_INT64_MAX } from "../shared/wire-bounds.js";
 
 /** Price ticks are always quoted at 6 decimal places. */
 export const PRICE_SCALE = 6;
@@ -441,6 +442,9 @@ class OrdersReader implements OrdersCatalogReader {
 
     getSpotOrderConstraints(pair: PairCatalogKey): SpotOrderConstraints {
         const config = this.market.requirePair(pair);
+        const priceScale = PRICE_SCALE;
+        const quantityScale = config.baseAsset.quantityScale;
+        const quoteAmountScale = config.quoteAsset.quantityScale;
         return {
             symbolId: config.symbolId,
             symbol: config.symbol,
@@ -449,9 +453,13 @@ class OrdersReader implements OrdersCatalogReader {
             stepSize: config.stepSize,
             minQtyBase: config.minQtyBase,
             minNotionalQuote: config.minNotionalQuote,
-            priceScale: PRICE_SCALE,
-            quantityScale: config.baseAsset.quantityScale,
-            quoteAmountScale: config.quoteAsset.quantityScale,
+            maxPrice: scaledToDecimal(PROTOBUF_INT64_MAX, priceScale),
+            maxQtyBase: scaledToDecimal(PROTOBUF_INT64_MAX, quantityScale),
+            maxNotionalQuote: scaledToDecimal(PROTOBUF_INT64_MAX, quoteAmountScale),
+            maxQuoteSlippage: scaledToDecimal(PROTOBUF_INT32_MAX, priceScale),
+            priceScale,
+            quantityScale,
+            quoteAmountScale,
             priceDisplayDecimals: priceConverter(config).displayDecimals,
             quantityDisplayDecimals: config.baseAsset.quantityDisplayDecimals,
             quoteAmountDisplayDecimals: config.quoteAsset.quantityDisplayDecimals,

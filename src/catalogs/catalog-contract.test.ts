@@ -7,6 +7,7 @@ import {
     CatalogValidationFailedError,
 } from "./types.js";
 import { ValidationError } from "../shared/errors.js";
+import { positiveDecimalInputToScaled } from "../shared/decimal-surface.js";
 
 const BTC = {
     symbol: "BTC",
@@ -233,6 +234,10 @@ describe("spot order constraints and validation", () => {
             stepSize: "0.0001",
             minQtyBase: "0.0001",
             minNotionalQuote: "10",
+            maxPrice: "9223372036854.775807",
+            maxQtyBase: "92233720368.54775807",
+            maxNotionalQuote: "9223372036854.775807",
+            maxQuoteSlippage: "2147.483647",
             priceScale: 6,
             quantityScale: 8,
             quoteAmountScale: 6,
@@ -240,6 +245,46 @@ describe("spot order constraints and validation", () => {
             quantityDisplayDecimals: 5,
             quoteAmountDisplayDecimals: 2,
         });
+    });
+
+    it("keeps int64 maxima aligned with decimal input conversion", () => {
+        const constraints = catalog().orders.getSpotOrderConstraints("BTC-USDC");
+
+        expect(
+            positiveDecimalInputToScaled("price", constraints.maxPrice, constraints.priceScale),
+        ).toBe(9_223_372_036_854_775_807n);
+        expect(
+            positiveDecimalInputToScaled(
+                "quantity",
+                constraints.maxQtyBase,
+                constraints.quantityScale,
+            ),
+        ).toBe(9_223_372_036_854_775_807n);
+        expect(
+            positiveDecimalInputToScaled(
+                "maxQuoteDebit",
+                constraints.maxNotionalQuote,
+                constraints.quoteAmountScale,
+            ),
+        ).toBe(9_223_372_036_854_775_807n);
+
+        expect(() =>
+            positiveDecimalInputToScaled("price", "9223372036854.775808", constraints.priceScale),
+        ).toThrow(CatalogConversionError);
+        expect(() =>
+            positiveDecimalInputToScaled(
+                "quantity",
+                "92233720368.54775808",
+                constraints.quantityScale,
+            ),
+        ).toThrow(CatalogConversionError);
+        expect(() =>
+            positiveDecimalInputToScaled(
+                "maxQuoteDebit",
+                "9223372036854.775808",
+                constraints.quoteAmountScale,
+            ),
+        ).toThrow(CatalogConversionError);
     });
 
     it("accepts valid quantity and price input", () => {

@@ -8,6 +8,7 @@ import {
 } from "../../shared/account-scope.js";
 import { positiveDecimalInputToScaled, type SdkScales } from "../../shared/decimal-surface.js";
 import { CatalogConversionError } from "../../catalogs/types.js";
+import { PROTOBUF_INT32_MAX } from "../../shared/wire-bounds.js";
 import { parseOptionalPositiveIntLike } from "../../utils/numbers.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import {
@@ -75,8 +76,6 @@ const MaxSlippageInputSchema = v.union([
     NoneInputSchema,
 ]);
 
-const MAX_INT32 = 2_147_483_647n;
-
 function parseTrailingDistance(
     scales: SdkScales,
     distance: v.InferOutput<typeof TrailingDistanceInputSchema>,
@@ -111,7 +110,7 @@ function parseMaxSlippage(
             slippage.slippage,
             scales.price(),
         );
-        if (ticks > MAX_INT32) {
+        if (ticks > PROTOBUF_INT32_MAX) {
             throw new CatalogConversionError(
                 "maxSlippage.slippage",
                 `maxSlippage.slippage exceeds the maximum supported price distance: ${slippage.slippage}`,
