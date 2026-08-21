@@ -1,5 +1,19 @@
 # @polyester/sdk
 
+## 0.5.0
+
+### Minor Changes
+
+- [#66](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/66) [`e8a5721`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/e8a5721b57be7ebd0b7edf80c4ed85919fccdb0a) Thanks [@huntabyte](https://github.com/huntabyte)! - `sendPolyesterUserOperation` now prepares the operation in a single pass, halving the network round-trips before the wallet signature prompt appears. Gas estimation errors now propagate instead of triggering a silent resend.
+
+- [#66](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/66) [`e8a5721`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/e8a5721b57be7ebd0b7edf80c4ed85919fccdb0a) Thanks [@huntabyte](https://github.com/huntabyte)! - `sendPolyesterUserOperation` accepts a new `onWalletSignatureRequested` callback that fires right before the wallet is asked to sign, so UIs can show an accurate "confirm in your wallet" state.
+
+- [#66](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/66) [`e8a5721`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/e8a5721b57be7ebd0b7edf80c4ed85919fccdb0a) Thanks [@huntabyte](https://github.com/huntabyte)! - New `warmPolyesterSmartAccountClient` helper pre-fetches the gas price and warms RPC connections ahead of a submission. The smart account client now caches gas prices, for 10 seconds by default, configurable via the new `options.gasPriceCacheTtlMs` setting.
+
+### Patch Changes
+
+- [#66](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/66) [`e8a5721`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/e8a5721b57be7ebd0b7edf80c4ed85919fccdb0a) Thanks [@huntabyte](https://github.com/huntabyte)! - The smart account client polls for UserOperation receipts every second instead of every 4 seconds, configurable via the new `options.pollingIntervalMs` setting.
+
 ## 0.4.5
 
 ### Patch Changes
