@@ -3,7 +3,7 @@ import * as v from "valibot";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import { AccountCode, TransferCode } from "../../gen/ledger/v1/catalog_pb.js";
-import type { EnrichedPairConfig } from "../../catalogs/index.js";
+import { CatalogConversionError, type EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import { formatId } from "../../utils/base58-id.js";
@@ -336,6 +336,98 @@ describe("NewOrderInputSchema", () => {
         expect(defaultedInput.order.selfTradePreventionMode).toBeUndefined();
     });
 
+    it("accepts the int64 price ceiling and rejects one tick above it", () => {
+        const schema = createNewOrderInputSchema(testScales());
+        const order = {
+            symbol: "BTC-USDT",
+            side: "buy",
+            qty: "0.5",
+        } as const;
+
+        expect(
+            v.parse(schema, {
+                ...order,
+                execution: { type: "limit_gtc", price: "9223372036854.775807" },
+            }).order.execution,
+        ).toMatchObject({ value: { priceTicks: 9_223_372_036_854_775_807n } });
+        expect(() =>
+            v.parse(schema, {
+                ...order,
+                execution: { type: "limit_gtc", price: "9223372036854.775808" },
+            }),
+        ).toThrow(CatalogConversionError);
+        expect(() =>
+            v.parse(schema, {
+                ...order,
+                execution: { type: "limit_gtc", price: "9223372036854.775808" },
+            }),
+        ).toThrow("execution.price exceeds the maximum supported value");
+    });
+
+    it("accepts the int64 quantity ceiling and rejects one tick above it", () => {
+        const schema = createNewOrderInputSchema(testScales());
+        const order = {
+            symbol: "BTC-USDT",
+            side: "buy",
+            execution: { type: "market_ioc" },
+        } as const;
+
+        expect(v.parse(schema, { ...order, qty: "92233720368.54775807" }).order.sizing).toEqual({
+            case: "baseQtyScaled",
+            value: 9_223_372_036_854_775_807n,
+        });
+        expect(() => v.parse(schema, { ...order, qty: "92233720368.54775808" })).toThrow(
+            CatalogConversionError,
+        );
+        expect(() => v.parse(schema, { ...order, qty: "92233720368.54775808" })).toThrow(
+            "qty exceeds the maximum supported value",
+        );
+    });
+
+    it("accepts the int64 risk trigger ceiling and rejects one tick above it", () => {
+        const schema = createNewOrderInputSchema(testScales());
+        const order = {
+            symbol: "BTC-USDT",
+            side: "buy",
+            qty: "0.5",
+            execution: { type: "market_ioc" },
+        } as const;
+
+        expect(
+            v.parse(schema, {
+                ...order,
+                risk: {
+                    takeProfit: {
+                        triggerPrice: "9223372036854.775807",
+                        execution: { type: "market_ioc" },
+                    },
+                },
+            }).order.attachedRisk?.takeProfit?.triggerPriceTicks,
+        ).toBe(9_223_372_036_854_775_807n);
+        expect(() =>
+            v.parse(schema, {
+                ...order,
+                risk: {
+                    takeProfit: {
+                        triggerPrice: "9223372036854.775808",
+                        execution: { type: "market_ioc" },
+                    },
+                },
+            }),
+        ).toThrow(CatalogConversionError);
+        expect(() =>
+            v.parse(schema, {
+                ...order,
+                risk: {
+                    takeProfit: {
+                        triggerPrice: "9223372036854.775808",
+                        execution: { type: "market_ioc" },
+                    },
+                },
+            }),
+        ).toThrow("takeProfit.triggerPrice exceeds the maximum supported value");
+    });
+
     it.each([
         ["market_ioc", { type: "market_ioc" }],
         ["limit_ioc", { type: "limit_ioc", price: "100.25" }],
@@ -631,6 +723,32 @@ describe("NewOrderInputSchema", () => {
                 },
             },
         });
+
+        expect(
+            v.parse(schema, {
+                ...baseOrder,
+                execution: {
+                    type: "market_ioc",
+                    maxSlippage: { kind: "slippage", slippage: "2147.483647" },
+                },
+            }).order.execution,
+        ).toMatchObject({
+            value: {
+                maxSlippage: {
+                    case: "maxSlippageTicks",
+                    value: 2_147_483_647,
+                },
+            },
+        });
+        expect(() =>
+            v.parse(schema, {
+                ...baseOrder,
+                execution: {
+                    type: "market_ioc",
+                    maxSlippage: { kind: "slippage", slippage: "2147.483648" },
+                },
+            }),
+        ).toThrow("execution.maxSlippage.slippage");
 
         for (const bps of [0, 0.5, "0.5", 0.9, "0.9", -0.5, "-0.5"]) {
             expect(() =>

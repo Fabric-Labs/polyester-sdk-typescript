@@ -1,6 +1,7 @@
 import { positiveDecimalInputToScaled, type SdkScales } from "../shared/decimal-surface.js";
 import { CatalogConversionError } from "../catalogs/types.js";
 import { parseOptionalPositiveIntLike } from "../utils/numbers.js";
+import { PROTOBUF_INT32_MAX } from "../shared/wire-bounds.js";
 
 type PositiveIntLikeInput = string | number;
 
@@ -37,9 +38,6 @@ type SlippageOptions<TicksCase extends string, BpsCase extends string> = {
     bpsCase: BpsCase;
     maxBps?: number;
 };
-
-/** Slippage ticks travel as int32 on the wire. */
-const MAX_INT32_TICKS = 2_147_483_647n;
 
 export function parseTrailingDistanceInput(
     scales: SdkScales,
@@ -81,7 +79,7 @@ export function parseSlippageInput<const TicksCase extends string, const BpsCase
             slippage.slippage,
             scales.price(),
         );
-        if (ticks > MAX_INT32_TICKS) {
+        if (ticks > PROTOBUF_INT32_MAX) {
             throw new CatalogConversionError(
                 `${options.fieldName}.slippage`,
                 `${options.fieldName}.slippage exceeds the maximum supported price distance: ${slippage.slippage}`,

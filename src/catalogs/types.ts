@@ -114,6 +114,14 @@ export interface SpotOrderConstraints {
     readonly stepSize: string;
     readonly minQtyBase: string;
     readonly minNotionalQuote: string;
+    /** Price wire-format ceiling. This is not an exchange trading limit. */
+    readonly maxPrice: string;
+    /** Base-quantity wire-format ceiling. This is not an exchange trading limit. */
+    readonly maxQtyBase: string;
+    /** Quote-amount wire-format ceiling. This is not an exchange trading limit. */
+    readonly maxNotionalQuote: string;
+    /** Quote-denominated slippage wire-format ceiling. This is not an exchange trading limit. */
+    readonly maxQuoteSlippage: string;
     readonly priceScale: number;
     readonly quantityScale: number;
     readonly quoteAmountScale: number;

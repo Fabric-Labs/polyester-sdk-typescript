@@ -18,6 +18,7 @@ import {
     type PairCatalogKey,
 } from "../catalogs/types.js";
 import { PRICE_SCALE } from "../catalogs/readers.js";
+import { PROTOBUF_INT64_MAX } from "./wire-bounds.js";
 
 /** On-chain unified-asset amounts (`amountE18`) are always 18-decimal scaled. */
 export const E18_SCALE = 18;
@@ -91,11 +92,29 @@ export function decimalInputToScaled(field: string, value: string, scale: number
     return result.scaled;
 }
 
-/** Like decimalInputToScaled, but additionally requires a value greater than zero. */
-export function positiveDecimalInputToScaled(field: string, value: string, scale: number): bigint {
+function unboundedPositiveDecimalInputToScaled(
+    field: string,
+    value: string,
+    scale: number,
+): bigint {
     const scaled = decimalInputToScaled(field, value, scale);
     if (scaled <= 0n) {
         throw new CatalogConversionError(field, `${field} must be greater than 0: ${value}`);
+    }
+    return scaled;
+}
+
+/**
+ * Converts a positive decimal input to a scaled protobuf `int64` value.
+ * Rejects values above the wire-format ceiling before serialization.
+ */
+export function positiveDecimalInputToScaled(field: string, value: string, scale: number): bigint {
+    const scaled = unboundedPositiveDecimalInputToScaled(field, value, scale);
+    if (scaled > PROTOBUF_INT64_MAX) {
+        throw new CatalogConversionError(
+            field,
+            `${field} exceeds the maximum supported value: ${value}`,
+        );
     }
     return scaled;
 }
@@ -120,7 +139,7 @@ export function quantityInputToE18(params: {
         );
     }
     return (
-        positiveDecimalInputToScaled(field, params.quantity, assetScale) *
+        unboundedPositiveDecimalInputToScaled(field, params.quantity, assetScale) *
         10n ** BigInt(E18_SCALE - assetScale)
     );
 }
