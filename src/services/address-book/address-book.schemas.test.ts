@@ -126,6 +126,72 @@ describe("address-book patch schemas", () => {
         });
     });
 
+    it("accepts 10 new tags and rejects 11 for create and update inputs", () => {
+        const tenTags = Array.from({ length: 10 }, (_, index) => ({ name: `Tag ${index}` }));
+        const elevenTags = [...tenTags, { name: "Tag 10" }];
+
+        expect(() =>
+            v.parse(CreateAddressBookEntryInputSchema, {
+                label: "Treasury",
+                entry: {
+                    kind: "external",
+                    polychainChainId: 8453,
+                    address: "0x0000000000000000000000000000000000000001",
+                },
+                newTags: tenTags,
+            }),
+        ).not.toThrow();
+        expect(() =>
+            v.parse(CreateAddressBookEntryInputSchema, {
+                label: "Treasury",
+                entry: {
+                    kind: "external",
+                    polychainChainId: 8453,
+                    address: "0x0000000000000000000000000000000000000001",
+                },
+                newTags: elevenTags,
+            }),
+        ).toThrow();
+
+        expect(() =>
+            v.parse(UpdateAddressBookEntryInputSchema, {
+                addressBookEntryId: "7",
+                expectedRevision: "4",
+                newTags: tenTags,
+            }),
+        ).not.toThrow();
+        expect(() =>
+            v.parse(UpdateAddressBookEntryInputSchema, {
+                addressBookEntryId: "7",
+                expectedRevision: "4",
+                newTags: elevenTags,
+            }),
+        ).toThrow();
+    });
+
+    it("accepts exact tag text limits and rejects one character over", () => {
+        expect(() =>
+            v.parse(UpdateAddressBookEntryInputSchema, {
+                addressBookEntryId: "7",
+                expectedRevision: "4",
+                newTags: [{ name: "n".repeat(48), color: "c".repeat(32) }],
+            }),
+        ).not.toThrow();
+
+        for (const tag of [
+            { name: "n".repeat(49), color: "c".repeat(32) },
+            { name: "n".repeat(48), color: "c".repeat(33) },
+        ]) {
+            expect(() =>
+                v.parse(UpdateAddressBookEntryInputSchema, {
+                    addressBookEntryId: "7",
+                    expectedRevision: "4",
+                    newTags: [tag],
+                }),
+            ).toThrow();
+        }
+    });
+
     it("distinguishes omitted tag fields from an explicit color clear", () => {
         expect(v.parse(UpdateAddressBookTagInputSchema, { tagId: "5", color: "" })).toEqual({
             tagId: 5n,

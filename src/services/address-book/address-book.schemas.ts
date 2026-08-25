@@ -45,9 +45,10 @@ const PageTokenSchema = v.optional(v.pipe(v.string(), v.trim()), "");
 const TimestampMsSchema = OptionalTimestampMsSchema;
 
 const AddressBookTagInputSchema = v.strictObject({
-    name: v.pipe(v.string(), v.trim(), v.minLength(1)),
-    color: v.optional(v.pipe(v.string(), v.trim()), ""),
+    name: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(48)),
+    color: v.optional(v.pipe(v.string(), v.trim(), v.maxLength(32)), ""),
 });
+const AddressBookTagInputsSchema = v.pipe(v.array(AddressBookTagInputSchema), v.maxLength(10));
 
 export const ListAddressBookEntriesInputSchema = v.pipe(
     v.strictObject({
@@ -83,7 +84,7 @@ export const CreateAddressBookEntryInputSchema = v.pipe(
             }),
         ]),
         tagIds: v.optional(v.array(IdSchema("tagId")), []),
-        newTags: v.optional(v.array(AddressBookTagInputSchema), []),
+        newTags: v.optional(AddressBookTagInputsSchema, []),
     }),
     v.transform(({ account, entry, ...rest }) => ({
         ...rest,
@@ -133,7 +134,7 @@ export const UpdateAddressBookEntryInputSchema = v.pipe(
         label: v.optional(v.pipe(v.string(), v.trim())),
         note: v.optional(v.pipe(v.string(), v.trim())),
         tagIds: v.optional(v.array(IdSchema("tagId"))),
-        newTags: v.optional(v.array(AddressBookTagInputSchema)),
+        newTags: v.optional(AddressBookTagInputsSchema),
     }),
     v.check(
         ({ label, note, tagIds, newTags }) =>
