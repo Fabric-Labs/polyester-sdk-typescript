@@ -1,5 +1,17 @@
 # @polyester/sdk
 
+## 0.7.0
+
+### Minor Changes
+
+- [#70](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/70) [`a198991`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/a1989916b770136e38c9b9dc368f40e0a60a8856) Thanks [@aiiven](https://github.com/aiiven)! - fix(social-verification): align provider handle validation with backend limits and forbidden characters.
+
+### Patch Changes
+
+- [#70](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/70) [`a198991`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/a1989916b770136e38c9b9dc368f40e0a60a8856) Thanks [@aiiven](https://github.com/aiiven)! - feat(address-book): add atomic tag creation to address-book entry updates.
+
+- [#70](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/70) [`a198991`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/a1989916b770136e38c9b9dc368f40e0a60a8856) Thanks [@aiiven](https://github.com/aiiven)! - feat(auth): map structured internal authentication failures to the SDK internal-server error.
+
 ## 0.6.0
 
 ### Minor Changes
