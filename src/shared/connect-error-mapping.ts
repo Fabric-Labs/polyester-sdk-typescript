@@ -146,6 +146,9 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
             options,
         );
     }
+    if (hasAuthErrorCode(ce, AuthErrorCode.AUTH_INTERNAL_ERROR)) {
+        return new InternalServerError(withFallback("Internal server error."), options);
+    }
 
     const mfaVerificationReason = getMfaVerificationFailureReason(ce);
     if (mfaVerificationReason) {

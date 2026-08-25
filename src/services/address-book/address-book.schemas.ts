@@ -45,9 +45,10 @@ const PageTokenSchema = v.optional(v.pipe(v.string(), v.trim()), "");
 const TimestampMsSchema = OptionalTimestampMsSchema;
 
 const AddressBookTagInputSchema = v.strictObject({
-    name: v.pipe(v.string(), v.trim(), v.minLength(1)),
-    color: v.optional(v.pipe(v.string(), v.trim()), ""),
+    name: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(48)),
+    color: v.optional(v.pipe(v.string(), v.trim(), v.maxLength(32)), ""),
 });
+const AddressBookTagInputsSchema = v.pipe(v.array(AddressBookTagInputSchema), v.maxLength(10));
 
 export const ListAddressBookEntriesInputSchema = v.pipe(
     v.strictObject({
@@ -83,7 +84,7 @@ export const CreateAddressBookEntryInputSchema = v.pipe(
             }),
         ]),
         tagIds: v.optional(v.array(IdSchema("tagId")), []),
-        newTags: v.optional(v.array(AddressBookTagInputSchema), []),
+        newTags: v.optional(AddressBookTagInputsSchema, []),
     }),
     v.transform(({ account, entry, ...rest }) => ({
         ...rest,
@@ -116,12 +117,14 @@ type AddressBookEntryPatch = {
     label?: string;
     note?: string;
     tagIds?: bigint[];
+    newTags?: v.InferOutput<typeof AddressBookTagInputSchema>[];
 };
 
 const ADDRESS_BOOK_ENTRY_PATCH_FIELDS = defineProtoPatchFields<AddressBookEntryPatch>()({
     label: { path: "label", encode: (label) => ({ label }) },
     note: { path: "note", encode: (note) => ({ note }) },
     tagIds: { path: "tag_ids", encode: (tagIds) => ({ tagIds }) },
+    newTags: { path: "new_tags", encode: (newTags) => ({ newTags }) },
 });
 
 export const UpdateAddressBookEntryInputSchema = v.pipe(
@@ -131,10 +134,14 @@ export const UpdateAddressBookEntryInputSchema = v.pipe(
         label: v.optional(v.pipe(v.string(), v.trim())),
         note: v.optional(v.pipe(v.string(), v.trim())),
         tagIds: v.optional(v.array(IdSchema("tagId"))),
+        newTags: v.optional(AddressBookTagInputsSchema),
     }),
     v.check(
-        ({ label, note, tagIds }) =>
-            label !== undefined || note !== undefined || tagIds !== undefined,
+        ({ label, note, tagIds, newTags }) =>
+            label !== undefined ||
+            note !== undefined ||
+            tagIds !== undefined ||
+            newTags !== undefined,
         "At least one address-book entry field must be provided",
     ),
     v.transform(({ addressBookEntryId, expectedRevision, ...input }) => {

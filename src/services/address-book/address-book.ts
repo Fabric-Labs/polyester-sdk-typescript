@@ -120,7 +120,7 @@ export class AddressBookService {
     }
 
     /**
-     * Updates selected saved-destination metadata using optimistic concurrency.
+     * Updates selected saved-destination metadata using optimistic concurrency, optionally creating and attaching tags in the same request.
      */
     async updateEntry(
         input: UpdateAddressBookEntryInput,

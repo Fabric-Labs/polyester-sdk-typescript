@@ -92,19 +92,104 @@ describe("CreateAddressBookEntryInputSchema", () => {
 });
 
 describe("address-book patch schemas", () => {
-    it("builds a tag-list clear without synthesizing label or note", () => {
+    it("builds tag updates without synthesizing label or note", () => {
         expect(
             v.parse(UpdateAddressBookEntryInputSchema, {
                 addressBookEntryId: "7",
                 expectedRevision: "4",
                 tagIds: [],
+                newTags: [{ name: " Treasury ", color: " blue " }],
             }),
         ).toEqual({
             addressBookEntryId: 7n,
-            entry: { tagIds: [] },
-            updateMask: { paths: ["tag_ids"] },
+            entry: {
+                tagIds: [],
+                newTags: [{ name: "Treasury", color: "blue" }],
+            },
+            updateMask: { paths: ["tag_ids", "new_tags"] },
             expectedRevision: 4n,
         });
+    });
+
+    it("appends newly created tags without replacing the current tag ids", () => {
+        expect(
+            v.parse(UpdateAddressBookEntryInputSchema, {
+                addressBookEntryId: "7",
+                expectedRevision: "4",
+                newTags: [{ name: " Treasury " }],
+            }),
+        ).toEqual({
+            addressBookEntryId: 7n,
+            entry: { newTags: [{ name: "Treasury", color: "" }] },
+            updateMask: { paths: ["new_tags"] },
+            expectedRevision: 4n,
+        });
+    });
+
+    it("accepts 10 new tags and rejects 11 for create and update inputs", () => {
+        const tenTags = Array.from({ length: 10 }, (_, index) => ({ name: `Tag ${index}` }));
+        const elevenTags = [...tenTags, { name: "Tag 10" }];
+
+        expect(() =>
+            v.parse(CreateAddressBookEntryInputSchema, {
+                label: "Treasury",
+                entry: {
+                    kind: "external",
+                    polychainChainId: 8453,
+                    address: "0x0000000000000000000000000000000000000001",
+                },
+                newTags: tenTags,
+            }),
+        ).not.toThrow();
+        expect(() =>
+            v.parse(CreateAddressBookEntryInputSchema, {
+                label: "Treasury",
+                entry: {
+                    kind: "external",
+                    polychainChainId: 8453,
+                    address: "0x0000000000000000000000000000000000000001",
+                },
+                newTags: elevenTags,
+            }),
+        ).toThrow();
+
+        expect(() =>
+            v.parse(UpdateAddressBookEntryInputSchema, {
+                addressBookEntryId: "7",
+                expectedRevision: "4",
+                newTags: tenTags,
+            }),
+        ).not.toThrow();
+        expect(() =>
+            v.parse(UpdateAddressBookEntryInputSchema, {
+                addressBookEntryId: "7",
+                expectedRevision: "4",
+                newTags: elevenTags,
+            }),
+        ).toThrow();
+    });
+
+    it("accepts exact tag text limits and rejects one character over", () => {
+        expect(() =>
+            v.parse(UpdateAddressBookEntryInputSchema, {
+                addressBookEntryId: "7",
+                expectedRevision: "4",
+                newTags: [{ name: "n".repeat(48), color: "c".repeat(32) }],
+            }),
+        ).not.toThrow();
+
+        for (const tag of [
+            { name: "n".repeat(49), color: "c".repeat(32) },
+            { name: "n".repeat(48), color: "c".repeat(33) },
+        ]) {
+            expect(() =>
+                v.parse(UpdateAddressBookEntryInputSchema, {
+                    addressBookEntryId: "7",
+                    expectedRevision: "4",
+                    newTags: [tag],
+                }),
+            ).toThrow();
+        }
     });
 
     it("distinguishes omitted tag fields from an explicit color clear", () => {
