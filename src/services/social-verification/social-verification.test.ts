@@ -210,4 +210,16 @@ describe("social verification schemas", () => {
             ),
         ).toMatchObject({ status: "unspecified" });
     });
+
+    it("rejects handles outside the backend contract", () => {
+        const cases = [
+            { provider: "twitter" as const, handle: "sixteen_char_long" },
+            { provider: "twitter" as const, handle: "not-valid" },
+            { provider: "discord" as const, handle: "<script>" },
+        ];
+
+        for (const input of cases) {
+            expect(() => v.parse(StartVerificationInputSchema, input)).toThrow();
+        }
+    });
 });

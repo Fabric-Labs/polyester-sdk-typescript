@@ -92,17 +92,36 @@ describe("CreateAddressBookEntryInputSchema", () => {
 });
 
 describe("address-book patch schemas", () => {
-    it("builds a tag-list clear without synthesizing label or note", () => {
+    it("builds tag updates without synthesizing label or note", () => {
         expect(
             v.parse(UpdateAddressBookEntryInputSchema, {
                 addressBookEntryId: "7",
                 expectedRevision: "4",
                 tagIds: [],
+                newTags: [{ name: " Treasury ", color: " blue " }],
             }),
         ).toEqual({
             addressBookEntryId: 7n,
-            entry: { tagIds: [] },
-            updateMask: { paths: ["tag_ids"] },
+            entry: {
+                tagIds: [],
+                newTags: [{ name: "Treasury", color: "blue" }],
+            },
+            updateMask: { paths: ["tag_ids", "new_tags"] },
+            expectedRevision: 4n,
+        });
+    });
+
+    it("appends newly created tags without replacing the current tag ids", () => {
+        expect(
+            v.parse(UpdateAddressBookEntryInputSchema, {
+                addressBookEntryId: "7",
+                expectedRevision: "4",
+                newTags: [{ name: " Treasury " }],
+            }),
+        ).toEqual({
+            addressBookEntryId: 7n,
+            entry: { newTags: [{ name: "Treasury", color: "" }] },
+            updateMask: { paths: ["new_tags"] },
             expectedRevision: 4n,
         });
     });

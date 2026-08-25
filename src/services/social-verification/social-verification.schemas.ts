@@ -2,7 +2,7 @@ import * as v from "valibot";
 import { TimestampSchema } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import type { DecodedEnum } from "../../utils/types.js";
-import type * as Proto from "../../gen/auth/v1/social_verification_pb.js";
+import * as Proto from "../../gen/auth/v1/social_verification_pb.js";
 import {
     SOCIAL_PROVIDER_VALUES,
     SOCIAL_VERIFICATION_METHOD_VALUES,
@@ -30,6 +30,8 @@ export type SocialVerificationStatus = v.InferOutput<typeof SocialVerificationSt
 function normalizeHandle(input: string): string {
     return (input ?? "").trim().replace(/^@+/, "");
 }
+
+const TWITTER_HANDLE_PATTERN = /^[A-Za-z0-9_]{1,15}$/;
 
 /**
  * Normalizes a social verification response into the SDK verification shape.
@@ -93,17 +95,25 @@ export type SocialVerification = Omit<SocialVerificationBase, "provider" | "meth
     status: DecodedEnum<SocialVerificationStatus>;
 };
 
-export const StartVerificationInputSchema = v.strictObject({
-    provider: v.pipe(
-        SocialProviderSchema,
-        v.transform((v) => SocialProviderCodec.inputToProto[v]),
+export const StartVerificationInputSchema = v.pipe(
+    v.strictObject({
+        provider: v.pipe(
+            SocialProviderSchema,
+            v.transform((v) => SocialProviderCodec.inputToProto[v]),
+        ),
+        handle: v.pipe(v.string(), v.transform(normalizeHandle), v.minLength(1), v.maxLength(64)),
+        method: v.pipe(
+            v.optional(SocialVerificationMethodSchema, "profile"),
+            v.transform((v) => SocialVerificationMethodCodec.inputToProto[v ?? "profile"]),
+        ),
+    }),
+    v.check(({ handle }) => !/[<>]/.test(handle), "Handle must not contain '<' or '>'"),
+    v.check(
+        ({ provider, handle }) =>
+            provider !== Proto.SocialProvider.TWITTER || TWITTER_HANDLE_PATTERN.test(handle),
+        "Twitter handle must be 1-15 letters, digits, or underscores",
     ),
-    handle: v.pipe(v.string(), v.transform(normalizeHandle), v.minLength(1), v.maxLength(64)),
-    method: v.pipe(
-        v.optional(SocialVerificationMethodSchema, "profile"),
-        v.transform((v) => SocialVerificationMethodCodec.inputToProto[v ?? "profile"]),
-    ),
-});
+);
 
 export type StartVerificationInput = v.InferInput<typeof StartVerificationInputSchema>;
 

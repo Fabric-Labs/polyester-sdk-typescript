@@ -226,6 +226,15 @@ describe("connectErrorToPolyesterError", () => {
         expect(mapped.cause).toBe(raw);
     });
 
+    it("maps structured auth internal failures before transport-code handling", () => {
+        const raw = authDetailError("", Code.PermissionDenied, AuthErrorCode.AUTH_INTERNAL_ERROR);
+        const mapped = connectErrorToPolyesterError(raw);
+
+        expect(mapped).toBeInstanceOf(InternalServerError);
+        expect(mapped.message).toBe("Internal server error.");
+        expect(mapped.cause).toBe(raw);
+    });
+
     it("keeps unstructured aborted errors transient", () => {
         const mapped = connectErrorToPolyesterError(new ConnectError("aborted", Code.Aborted));
 
