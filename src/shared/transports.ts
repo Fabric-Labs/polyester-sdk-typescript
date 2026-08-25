@@ -130,6 +130,12 @@ async function sha256Hex(bytes: Uint8Array): Promise<string> {
     return Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+let lastTimestamp = 0;
+function nextTimestamp(): string {
+    lastTimestamp = Math.max(lastTimestamp + 1, Date.now());
+    return String(lastTimestamp);
+}
+
 function canonicalQueryString(params: URLSearchParams): string {
     const pairs: string[] = [];
     for (const [k, v] of params.entries()) {
@@ -150,7 +156,7 @@ export async function createApiKeyEd25519AuthHeaders(
     if (!keyId || !secretKey) throw new ConfigurationError("Missing API key ID or secret key");
 
     const urlObj = new URL(request.url);
-    const timestamp = request.timestamp ?? String(Date.now());
+    const timestamp = request.timestamp ?? nextTimestamp();
     const bodyHash = await sha256Hex(request.body ?? new Uint8Array(0));
     const canonicalQuery = canonicalQueryString(urlObj.searchParams);
     const canonical = `${timestamp}\n${request.method}\n${urlObj.pathname}\n${canonicalQuery}\n${bodyHash}`;

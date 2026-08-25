@@ -114,6 +114,25 @@ describe("createApiKeyEd25519AuthHeaders", () => {
         });
     });
 
+    it("allocates strictly increasing timestamps for concurrent requests", async () => {
+        const secretKey = Uint8Array.from({ length: 32 }, (_, i) => i + 1);
+        const auth = {
+            kind: "api-key-ed25519",
+            getKeyId: () => "ak_test",
+            getSecretKey: () => secretKey,
+        } as const;
+        const request = { url: "https://api.example.test/v1/rt/token", method: "GET" };
+
+        const headers = await Promise.all(
+            Array.from({ length: 5 }, () => createApiKeyEd25519AuthHeaders(auth, request)),
+        );
+
+        const timestamps = headers.map((h) => Number(h["X-API-TIMESTAMP"]));
+        for (let i = 1; i < timestamps.length; i++) {
+            expect(timestamps[i]).toBeGreaterThan(timestamps[i - 1]!);
+        }
+    });
+
     it("rejects missing API-key credentials", async () => {
         await expect(
             createApiKeyEd25519AuthHeaders(
