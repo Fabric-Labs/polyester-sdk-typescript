@@ -1,5 +1,21 @@
 # @polyester/sdk
 
+## 0.8.0
+
+### Minor Changes
+
+- [#75](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/75) [`f9590a0`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/f9590a0fbfabfc6a4bb5ba6d12870e7dd30f1a4a) Thanks [@aiiven](https://github.com/aiiven)! - feat(orders): require symbol IDs for order modifications and expose policy-specific rejection codes.
+
+- [#75](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/75) [`f9590a0`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/f9590a0fbfabfc6a4bb5ba6d12870e7dd30f1a4a) Thanks [@aiiven](https://github.com/aiiven)! - feat(triggers): require symbol IDs for policy-routed modifications and resumes, and expose failed trigger events.
+
+- [#75](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/75) [`f9590a0`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/f9590a0fbfabfc6a4bb5ba6d12870e7dd30f1a4a) Thanks [@aiiven](https://github.com/aiiven)! - feat(policies): expose the spot-only policy contract, including read-address-book permissions and no-permission API-key defaults.
+
+### Patch Changes
+
+- [#75](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/75) [`f9590a0`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/f9590a0fbfabfc6a4bb5ba6d12870e7dd30f1a4a) Thanks [@aiiven](https://github.com/aiiven)! - perf(gen): omit unused option-only descriptor metadata from published protobuf modules.
+
+- [#72](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/72) [`1a5fa52`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/1a5fa52df5ac8a8bd4bb4b64dfb705c8abb3ac60) Thanks [@huntabyte](https://github.com/huntabyte)! - fix(auth): Ed25519 API-key signing now allocates strictly increasing `X-API-TIMESTAMP` values, so concurrent requests in the same millisecond no longer share a timestamp and risk replay rejection on strict servers.
+
 ## 0.7.0
 
 ### Minor Changes
