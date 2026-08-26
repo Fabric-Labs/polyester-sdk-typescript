@@ -571,6 +571,7 @@ describe("TriggersService", () => {
         await expect(
             service.modify({
                 triggerId: "22",
+                symbolId: 1,
                 account: { subaccountId: "11" },
                 triggerPrice: "101.25",
                 maxSlippage: { kind: "none" },
@@ -580,7 +581,11 @@ describe("TriggersService", () => {
             service.pause({ triggerId: "22", account: { subaccountId: "11" } }),
         ).resolves.toMatchObject({ status: "paused", ts: 3, tsNs: "3000345" });
         await expect(
-            service.resume({ triggerId: "22", account: { subaccountId: "11" } }),
+            service.resume({
+                triggerId: "22",
+                symbolId: 1,
+                account: { subaccountId: "11" },
+            }),
         ).resolves.toMatchObject({ status: "running", ts: 4, tsNs: "4000456" });
 
         expect(new Headers(transport.calls[0]?.headers).get(AUTH_STEP_UP_HEADER_NAME)).toBe(
@@ -593,6 +598,7 @@ describe("TriggersService", () => {
             transport.calls.find((call) => call.method.localName === "modifyTrigger")?.message,
         ).toMatchObject({
             triggerId: 22n,
+            symbolId: 1,
             subaccountId: 11n,
             triggerPriceTicks: 101_250_000n,
             trailingDistance: { case: undefined, value: undefined },
@@ -603,7 +609,7 @@ describe("TriggersService", () => {
         ).toEqual({ triggerId: 22n, subaccountId: 11n });
         expect(
             transport.calls.find((call) => call.method.localName === "resumeTrigger")?.message,
-        ).toEqual({ triggerId: 22n, subaccountId: 11n });
+        ).toEqual({ triggerId: 22n, symbolId: 1, subaccountId: 11n });
     });
 
     it("uses private trigger channels and parses trigger publications", async () => {

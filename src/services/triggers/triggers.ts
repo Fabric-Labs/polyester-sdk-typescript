@@ -177,7 +177,7 @@ export class TriggersService {
     }
 
     /**
-     * Applies a limited patch to an existing trigger, covering trigger price, limit price, trailing distance, activation price, and market slippage fields where supported.
+     * Applies a limited patch to an existing trigger. The symbol ID routes policy checks for exposure-increasing changes.
      */
     async modify(
         input: ModifyTriggerInput,
@@ -207,7 +207,7 @@ export class TriggersService {
     }
 
     /**
-     * Resumes a paused trigger.
+     * Resumes a paused trigger using its symbol ID for policy checks.
      */
     async resume(
         input: ResumeTriggerInput,

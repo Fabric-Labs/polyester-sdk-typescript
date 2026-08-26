@@ -74,7 +74,7 @@ export type ApiKey = Message<"auth.v1.ApiKey"> & {
 
   /**
    * Optional API policy attached to this key (opaque ID).
-   * Empty means "no per-key policy", so only the sub-account policy (and roles) apply.
+   * Empty means no policy is attached and the key has no permissions.
    *
    * @generated from field: optional fixed64 policy_id = 8;
    */

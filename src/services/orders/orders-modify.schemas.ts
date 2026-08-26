@@ -5,6 +5,7 @@ import { tsNsToMs } from "../../utils/time.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import { OptionalPublicIdSchema, PublicIdSchema } from "../../shared/schemas.js";
 import { positiveDecimalInputToScaled, type SdkScales } from "../../shared/decimal-surface.js";
+import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
@@ -30,9 +31,7 @@ const ModifyOrderIdInputSchema = v.pipe(
 const DecimalInputStringSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
 
 const ModifyOrderItemBaseInputSchema = v.object({
-    // Pair symbol of the order being modified; required to resolve the
-    // base-quantity wire scale for newQty.
-    symbol: v.pipe(v.string(), v.trim(), v.minLength(1)),
+    symbolId: v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(PROTOBUF_UINT32_MAX)),
     behavior: v.optional(ModifyBehaviorInputSchema),
     newClientOrderId: v.optional(ClientOrderIdInputSchema),
 });
@@ -173,7 +172,7 @@ function toModifyOrderItem(
                 : positiveDecimalInputToScaled(
                       "newQty",
                       input.newQty,
-                      scales.baseQty(input.symbol),
+                      scales.baseQty(input.symbolId),
                   ),
         newAttachedRisk:
             input.clearRisk === true ? create(ProtoWrite.RiskPolicySchema) : input.risk,
@@ -181,6 +180,7 @@ function toModifyOrderItem(
             ? ModifyBehaviorCodec.inputToProto[input.behavior]
             : defaultBehavior,
         newClientOrderId: input.newClientOrderId ?? "",
+        symbolId: input.symbolId,
     };
 }
 

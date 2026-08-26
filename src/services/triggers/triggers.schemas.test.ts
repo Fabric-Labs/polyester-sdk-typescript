@@ -6,17 +6,46 @@ import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
+import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import {
     CreateTriggerResultSchema,
     ListTriggerEventsInputSchema,
+    ResumeTriggerInputSchema,
     createCreateTriggerInputSchema,
     createModifyTriggerInputSchema,
     createTriggerEventSchema,
     createTriggerSchema,
     type CreateTriggerInput,
     type ListTriggerEventsInput,
+    type ModifyTriggerInput,
+    type ResumeTriggerInput,
     type Trigger,
 } from "./triggers.schemas.js";
+
+type AssertModifyTriggerInput<T extends ModifyTriggerInput> = T;
+type AssertResumeTriggerInput<T extends ResumeTriggerInput> = T;
+
+type _ValidModifyTriggerWithSymbolId = AssertModifyTriggerInput<{
+    triggerId: string;
+    symbolId: number;
+    triggerPrice: string;
+}>;
+
+// @ts-expect-error trigger modify requires a symbol ID
+type _InvalidModifyTriggerWithoutSymbolId = AssertModifyTriggerInput<{
+    triggerId: string;
+    triggerPrice: string;
+}>;
+
+type _ValidResumeTriggerWithSymbolId = AssertResumeTriggerInput<{
+    triggerId: string;
+    symbolId: number;
+}>;
+
+// @ts-expect-error trigger resume requires a symbol ID
+type _InvalidResumeTriggerWithoutSymbolId = AssertResumeTriggerInput<{
+    triggerId: string;
+}>;
 
 const btc = {
     symbol: "BTC",
@@ -95,7 +124,7 @@ function baseWireTrigger(overrides: Partial<Proto.Trigger> = {}): Proto.Trigger 
 describe("ListTriggerEventsInputSchema", () => {
     it("exposes only supported event filters", () => {
         expectTypeOf<ListTriggerEventsInput["eventType"]>().toEqualTypeOf<
-            "fired" | "canceled" | "updated" | undefined
+            "fired" | "canceled" | "updated" | "failed" | undefined
         >();
         expect(
             v.safeParse(ListTriggerEventsInputSchema, {
@@ -122,6 +151,9 @@ describe("ListTriggerEventsInputSchema", () => {
             eventType: undefined,
             pageToken: "",
         });
+        expect(
+            v.parse(ListTriggerEventsInputSchema, { triggerId: "11", eventType: "failed" }),
+        ).toMatchObject({ eventType: Proto.TriggerEventType.EVENT_FAILED });
     });
 });
 
@@ -460,7 +492,7 @@ describe("ModifyTriggerInputSchema", () => {
     it("requires at least one patch field", () => {
         const schema = createModifyTriggerInputSchema(testScales());
 
-        expect(() => v.parse(schema, { triggerId: "11" })).toThrow(
+        expect(() => v.parse(schema, { triggerId: "11", symbolId: 1 })).toThrow(
             "At least one patch field is required",
         );
     });
@@ -471,6 +503,7 @@ describe("ModifyTriggerInputSchema", () => {
         expect(
             v.parse(schema, {
                 triggerId: "11",
+                symbolId: 1,
                 account: { subaccountId: "22" },
                 triggerPrice: "101.25",
                 trailingDistance: { kind: "distance", distance: "0.5" },
@@ -478,11 +511,61 @@ describe("ModifyTriggerInputSchema", () => {
             }),
         ).toMatchObject({
             triggerId: 11n,
+            symbolId: 1,
             subaccountId: 22n,
             triggerPriceTicks: 101_250_000n,
             trailingDistance: { case: "trailingDistanceTicks", value: 500_000n },
             maxSlippage: { case: undefined, value: undefined },
         });
+    });
+
+    it("requires a positive symbol ID", () => {
+        const schema = createModifyTriggerInputSchema(testScales());
+
+        expect(() => v.parse(schema, { triggerId: "11", triggerPrice: "101.25" })).toThrow();
+        expect(() =>
+            v.parse(schema, { triggerId: "11", symbolId: 0, triggerPrice: "101.25" }),
+        ).toThrow();
+        expect(
+            v.parse(schema, {
+                triggerId: "11",
+                symbolId: PROTOBUF_UINT32_MAX,
+                triggerPrice: "101.25",
+            }).symbolId,
+        ).toBe(PROTOBUF_UINT32_MAX);
+        expect(() =>
+            v.parse(schema, {
+                triggerId: "11",
+                symbolId: PROTOBUF_UINT32_MAX + 1,
+                triggerPrice: "101.25",
+            }),
+        ).toThrow();
+    });
+});
+
+describe("ResumeTriggerInputSchema", () => {
+    it("requires and forwards a positive symbol ID", () => {
+        expect(() => v.parse(ResumeTriggerInputSchema, { triggerId: "11" })).toThrow();
+        expect(() => v.parse(ResumeTriggerInputSchema, { triggerId: "11", symbolId: 0 })).toThrow();
+        expect(
+            v.parse(ResumeTriggerInputSchema, {
+                triggerId: "11",
+                symbolId: 1,
+                account: { subaccountId: "22" },
+            }),
+        ).toEqual({ triggerId: 11n, symbolId: 1, subaccountId: 22n });
+        expect(
+            v.parse(ResumeTriggerInputSchema, {
+                triggerId: "11",
+                symbolId: PROTOBUF_UINT32_MAX,
+            }).symbolId,
+        ).toBe(PROTOBUF_UINT32_MAX);
+        expect(() =>
+            v.parse(ResumeTriggerInputSchema, {
+                triggerId: "11",
+                symbolId: PROTOBUF_UINT32_MAX + 1,
+            }),
+        ).toThrow();
     });
 });
 
@@ -742,5 +825,27 @@ describe("Trigger result and output schemas", () => {
                 reason: "",
             }),
         ).toMatchObject({ triggerType: "twap", firePrice: undefined });
+    });
+
+    it("maps failed trigger events with their reason", () => {
+        const triggerEventSchema = createTriggerEventSchema(testScales());
+
+        expect(
+            v.parse(triggerEventSchema, {
+                triggerId: 11n,
+                subaccountId: 22n,
+                symbolId: 1,
+                triggerType: Proto.TriggerType.TWAP,
+                eventType: Proto.TriggerEventType.EVENT_FAILED,
+                tsNs: 1_000_000n,
+                childSeq: 2,
+                childOrderId: 0n,
+                reason: "policy max open orders",
+            }),
+        ).toMatchObject({
+            eventType: "failed",
+            reason: "policy max open orders",
+            childOrderId: undefined,
+        });
     });
 });

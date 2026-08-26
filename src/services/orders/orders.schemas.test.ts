@@ -6,6 +6,7 @@ import { AccountCode, TransferCode } from "../../gen/ledger/v1/catalog_pb.js";
 import { CatalogConversionError, type EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
+import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import { formatId } from "../../utils/base58-id.js";
 import {
     CancelAllOrdersInputSchema,
@@ -125,13 +126,13 @@ type _InvalidNewOrderWithBothStopLegs = AssertNewOrderInput<{
 
 type _ValidModifyByOrderIdWithPrice = AssertModifyOrderInput<{
     orderId: string;
-    symbol: string;
+    symbolId: number;
     newPrice: string;
 }>;
 
 type _ValidModifyByClientOrderIdWithRisk = AssertModifyOrderInput<{
     clientOrderId: string;
-    symbol: string;
+    symbolId: number;
     risk: {
         takeProfit: {
             triggerPrice: string;
@@ -144,13 +145,19 @@ type _ValidModifyByClientOrderIdWithRisk = AssertModifyOrderInput<{
 
 type _ValidModifyWithClearRisk = AssertModifyOrderInput<{
     clientOrderId: string;
-    symbol: string;
+    symbolId: number;
     clearRisk: true;
+}>;
+
+// @ts-expect-error modify requires a symbol ID
+type _InvalidModifyWithoutSymbolId = AssertModifyOrderInput<{
+    orderId: string;
+    newPrice: string;
 }>;
 
 // @ts-expect-error modify requires exactly one order key
 type _InvalidModifyWithoutOrderKey = AssertModifyOrderInput<{
-    symbol: string;
+    symbolId: number;
     newQty: string;
 }>;
 
@@ -158,20 +165,20 @@ type _InvalidModifyWithoutOrderKey = AssertModifyOrderInput<{
 type _InvalidModifyWithBothOrderKeys = AssertModifyOrderInput<{
     orderId: string;
     clientOrderId: string;
-    symbol: string;
+    symbolId: number;
     newQty: string;
 }>;
 
 // @ts-expect-error modify requires at least one patch field
 type _InvalidModifyWithoutPatch = AssertModifyOrderInput<{
     orderId: string;
-    symbol: string;
+    symbolId: number;
 }>;
 
 // @ts-expect-error risk and clearRisk are mutually exclusive
 type _InvalidModifyWithRiskAndClearRisk = AssertModifyOrderInput<{
     orderId: string;
-    symbol: string;
+    symbolId: number;
     risk: {
         takeProfit: {
             triggerPrice: string;
@@ -183,14 +190,14 @@ type _InvalidModifyWithRiskAndClearRisk = AssertModifyOrderInput<{
 // @ts-expect-error risk patches must include at least one leg
 type _InvalidModifyWithEmptyRisk = AssertModifyOrderInput<{
     orderId: string;
-    symbol: string;
+    symbolId: number;
     risk: {};
 }>;
 
 // @ts-expect-error stopLoss and trailingStop are mutually exclusive stop legs
 type _InvalidModifyWithBothStopLegs = AssertModifyOrderInput<{
     orderId: string;
-    symbol: string;
+    symbolId: number;
     risk: {
         stopLoss: {
             triggerPrice: string;
@@ -982,24 +989,45 @@ describe("ModifyOrderInputSchema", () => {
             v.parse(schema, {
                 orderId: "11",
                 clientOrderId: "client-1",
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 newQty: "0.5",
             }),
         ).toThrow();
         expect(() =>
             v.parse(schema, {
                 orderId: "11",
-                symbol: "BTC-USDT",
+                symbolId: 1,
             }),
         ).toThrow();
     });
 
-    it("requires the pair symbol", () => {
+    it("requires a positive symbol ID", () => {
         const schema = createModifyOrderInputSchema(testScales());
 
         expect(() =>
             v.parse(schema, {
                 clientOrderId: "client-1",
+                newPrice: "101.25",
+            }),
+        ).toThrow();
+        expect(() =>
+            v.parse(schema, {
+                clientOrderId: "client-1",
+                symbolId: 0,
+                newPrice: "101.25",
+            }),
+        ).toThrow();
+        expect(
+            v.parse(schema, {
+                clientOrderId: "client-1",
+                symbolId: PROTOBUF_UINT32_MAX,
+                newPrice: "101.25",
+            }).symbolId,
+        ).toBe(PROTOBUF_UINT32_MAX);
+        expect(() =>
+            v.parse(schema, {
+                clientOrderId: "client-1",
+                symbolId: PROTOBUF_UINT32_MAX + 1,
                 newPrice: "101.25",
             }),
         ).toThrow();
@@ -1010,7 +1038,7 @@ describe("ModifyOrderInputSchema", () => {
 
         const patch = v.parse(schema, {
             clientOrderId: " client-1 ",
-            symbol: "BTC-USDT",
+            symbolId: 1,
             newPrice: "101.25",
             clearRisk: true,
         });
@@ -1020,6 +1048,7 @@ describe("ModifyOrderInputSchema", () => {
             newPriceTicks: 101_250_000n,
             newAttachedRisk: {},
             behavior: ProtoWrite.ModifyBehavior.AMEND_OR_REPLACE,
+            symbolId: 1,
         });
     });
 
@@ -1029,21 +1058,21 @@ describe("ModifyOrderInputSchema", () => {
         expect(() =>
             v.parse(schema, {
                 clientOrderId: "client-1",
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 newQty: "0.000000015",
             }),
         ).toThrow("newQty supports at most 8 decimal places");
         expect(() =>
             v.parse(schema, {
                 clientOrderId: "client-1",
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 newQty: "0",
             }),
         ).toThrow("newQty must be greater than 0");
         expect(() =>
             v.parse(schema, {
                 clientOrderId: "client-1",
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 newQty: "0.5",
                 newPrice: "100.001",
             }),
@@ -1056,14 +1085,14 @@ describe("ModifyOrderInputSchema", () => {
         expect(() =>
             v.parse(schema, {
                 orderId: "11",
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 risk: {},
             }),
         ).toThrow();
         expect(() =>
             v.parse(schema, {
                 orderId: "11",
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 risk: {
                     takeProfit: {
                         triggerPrice: "105",
@@ -1076,7 +1105,7 @@ describe("ModifyOrderInputSchema", () => {
         expect(() =>
             v.parse(schema, {
                 orderId: "11",
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 risk: {
                     stopLoss: {
                         triggerPrice: "95",
@@ -1097,7 +1126,7 @@ describe("ModifyOrderInputSchema", () => {
 
         const patch = v.parse(schema, {
             orderId: "11",
-            symbol: "BTC-USDT",
+            symbolId: 1,
             risk: {
                 takeProfit: {
                     triggerPrice: "105",

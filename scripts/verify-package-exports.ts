@@ -106,11 +106,21 @@ try {
     type LifecycleFlowSummary,
     type MarketOverview,
     type ModifyOrderInput,
+    type ModifyTriggerInput,
+    type PauseTriggerInput,
+    type PauseTriggerResult,
     type PolyesterClient,
+    type ResumeTriggerInput,
+    type ResumeTriggerResult,
 } from "@polyester/sdk";
 
 declare const client: PolyesterClient;
 declare const modifyOrderInput: ModifyOrderInput;
+declare const modifyTriggerInput: ModifyTriggerInput;
+declare const pauseTriggerInput: PauseTriggerInput;
+declare const pauseTriggerResult: PauseTriggerResult;
+declare const resumeTriggerInput: ResumeTriggerInput;
+declare const resumeTriggerResult: ResumeTriggerResult;
 
 function expectType<T>(_value: T): void {}
 type IsAny<T> = 0 extends 1 & T ? true : false;
@@ -135,6 +145,17 @@ async function verifyServiceInference(): Promise<void> {
 
     expectNotAny(modifyOrderInput, true);
     await client.orders.modify(modifyOrderInput);
+
+    expectNotAny(modifyTriggerInput, true);
+    await client.triggers.modify(modifyTriggerInput);
+
+    expectNotAny(pauseTriggerInput, true);
+    expectNotAny(pauseTriggerResult, true);
+    await client.triggers.pause(pauseTriggerInput);
+
+    expectNotAny(resumeTriggerInput, true);
+    expectNotAny(resumeTriggerResult, true);
+    await client.triggers.resume(resumeTriggerInput);
 
     client.balances.subscribe({
         accountId: "account-id",

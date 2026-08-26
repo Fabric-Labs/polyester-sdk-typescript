@@ -288,7 +288,7 @@ export class OrdersService {
     }
 
     /**
-     * Applies a price, quantity, client id, or attached-risk patch to one open order using the backend modify behavior policy. A requestId is generated when omitted; provide a stable value when retrying the same logical modification.
+     * Applies a price, quantity, client id, or attached-risk patch to one open order. The symbol ID routes policy checks and quantity scaling. A requestId is generated when omitted; provide a stable value when retrying the same logical modification.
      */
     async modify(
         input: ModifyOrderInput,

@@ -20,13 +20,8 @@ function apiKeyPolicy() {
         name: "Restricted key",
         description: "Only reads balances",
         spotMarkets: [],
-        perpMarkets: [],
         spotMarketScope: Proto.MarketScope_Value.ALL,
-        perpMarketScope: Proto.MarketScope_Value.ALL,
         actions: [Proto.PolicyAction.READ_BALANCES],
-        maxOrderNotional: 0n,
-        dailyInternalTransferOutLimit: 25n,
-        dailyWithdrawLimit: 50n,
         isTemplate: false,
         createdAt,
         updatedAt,
@@ -59,7 +54,6 @@ describe("ApiKeyPoliciesService", () => {
             {
                 id: "8",
                 actions: ["read-balances"],
-                dailyInternalTransferOutLimit: 25,
                 createdAt: 1_234,
                 updatedAt: 2_345,
                 updatedAtNs: "2345678901",
@@ -98,11 +92,7 @@ describe("ApiKeyPoliciesService", () => {
                         {
                             name: "Key reads",
                             spotMarketScope: "all",
-                            perpMarketScope: "all",
                             actions: ["read-balances"],
-                            dailyInternalTransferLimit: 25,
-                            dailyWithdrawLimit: 50,
-                            maxOrderNotional: null,
                             assignToKeyId: " ak_1234567890abcdef1234567890abcdef ",
                         },
                         { stepUpToken: " fresh-token " },
@@ -111,11 +101,7 @@ describe("ApiKeyPoliciesService", () => {
                     policy: {
                         name: "Key reads",
                         spotMarketScope: Proto.MarketScope_Value.ALL,
-                        perpMarketScope: Proto.MarketScope_Value.ALL,
                         actions: [Proto.PolicyAction.READ_BALANCES],
-                        maxOrderNotional: 0n,
-                        dailyInternalTransferOutLimit: 25n,
-                        dailyWithdrawLimit: 50n,
                     },
                     assignToKeyId: "ak_1234567890abcdef1234567890abcdef",
                 },
@@ -127,11 +113,8 @@ describe("ApiKeyPoliciesService", () => {
                             policyId: "7",
                             expectedRevision: "5",
                             name: "Updated",
-                            spotMarketScope: "all",
-                            perpMarketScope: "allowlist",
-                            perpMarkets: [{ symbol: "BTC-PERP", maxLeverageX: 5 }],
-                            dailyInternalTransferLimit: 0,
-                            dailyWithdrawLimit: 0,
+                            spotMarketScope: "allowlist",
+                            spotMarkets: [{ symbol: "BTC-USDT" }],
                         },
                         { stepUpToken: " fresh-token " },
                     ),
@@ -139,21 +122,11 @@ describe("ApiKeyPoliciesService", () => {
                     policyId: 7n,
                     policy: {
                         name: "Updated",
-                        spotMarketScope: Proto.MarketScope_Value.ALL,
-                        perpMarketScope: Proto.MarketScope_Value.ALLOWLIST,
-                        perpMarkets: [{ symbol: "BTC-PERP", maxLeverageX: 5 }],
-                        dailyInternalTransferOutLimit: 0n,
-                        dailyWithdrawLimit: 0n,
+                        spotMarketScope: Proto.MarketScope_Value.ALLOWLIST,
+                        spotMarkets: [{ symbol: "BTC-USDT" }],
                     },
                     updateMask: {
-                        paths: [
-                            "name",
-                            "perp_markets",
-                            "spot_market_scope",
-                            "perp_market_scope",
-                            "daily_internal_transfer_out_limit",
-                            "daily_withdraw_limit",
-                        ],
+                        paths: ["name", "spot_markets", "spot_market_scope"],
                     },
                     expectedRevision: 5n,
                 },
@@ -184,34 +157,23 @@ describe("ApiKeyPoliciesService", () => {
         }
     });
 
-    it("schema parsing renames internal transfer input to the proto request field", () => {
-        expect(
+    it("rejects retired policy limit fields", () => {
+        expect(() =>
             v.parse(CreateApiKeyPolicyInputSchema, {
                 name: "Create",
                 spotMarketScope: "all",
-                perpMarketScope: "all",
-                dailyInternalTransferLimit: 10,
-                dailyWithdrawLimit: 20,
+                maxOrderNotional: 10,
             }),
-        ).toMatchObject({
-            policy: { dailyInternalTransferOutLimit: 10n },
-        });
+        ).toThrow();
 
-        expect(
+        expect(() =>
             v.parse(UpdateApiKeyPolicyInputSchema, {
                 policyId: "7",
                 expectedRevision: "5",
                 name: "Update",
-                spotMarketScope: "all",
-                perpMarketScope: "all",
-                dailyInternalTransferLimit: 10,
                 dailyWithdrawLimit: 20,
             }),
-        ).toMatchObject({
-            policyId: 7n,
-            policy: { dailyInternalTransferOutLimit: 10n },
-            expectedRevision: 5n,
-        });
+        ).toThrow();
     });
 
     it("omits null policy IDs when clearing an API key policy", () => {
