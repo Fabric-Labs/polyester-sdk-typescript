@@ -4,6 +4,9 @@
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../buf/validate/validate_pb.js";
+import { file_gnostic_openapi_v3_annotations } from "../../gnostic/openapi/v3/annotations_pb.js";
+import { file_google_api_annotations } from "../../google/api/annotations_pb.js";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import { file_polyester_api_options } from "../../polyester/api/options_pb.js";
@@ -13,7 +16,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file orderbook/v1/orderbook.proto.
  */
 export const file_orderbook_v1_orderbook: GenFile = /*@__PURE__*/
-  fileDesc("ChxvcmRlcmJvb2svdjEvb3JkZXJib29rLnByb3RvEgxvcmRlcmJvb2sudjEiTQoTR2V0T3JkZXJCb29rUmVxdWVzdBIQCgZzeW1ib2wYASABKAlCABIkCgVkZXB0aBgCIAEoDjITLm9yZGVyYm9vay52MS5EZXB0aEIAIjUKClByaWNlTGV2ZWwSEwoLcHJpY2VfdGlja3MYASABKAMSEgoKcXR5X3NjYWxlZBgCIAEoAyKzAQoUR2V0T3JkZXJCb29rUmVzcG9uc2USEQoJc3ltYm9sX2lkGAEgASgNEhAKCGJvb2tfc2VxGAIgASgEEiYKBGJpZHMYAyADKAsyGC5vcmRlcmJvb2sudjEuUHJpY2VMZXZlbBImCgRhc2tzGAQgAygLMhgub3JkZXJib29rLnYxLlByaWNlTGV2ZWwSJgoCdHMYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wItgBCg5PcmRlckJvb2tEZWx0YRIRCglzeW1ib2xfaWQYASABKA0SFgoOYm9va19zZXFfc3RhcnQYAiABKAQSFAoMYm9va19zZXFfZW5kGAMgASgEEiYKBGJpZHMYBCADKAsyGC5vcmRlcmJvb2sudjEuUHJpY2VMZXZlbBImCgRhc2tzGAUgAygLMhgub3JkZXJib29rLnYxLlByaWNlTGV2ZWwSDQoFcmVzZXQYBiABKAgSJgoCdHMYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wKp8BCgVEZXB0aBIVChFERVBUSF9VTlNQRUNJRklFRBAAEgsKB0RFUFRIXzEQARILCgdERVBUSF81EAISDAoIREVQVEhfMTAQAxIMCghERVBUSF8yMBAEEgwKCERFUFRIXzUwEAUSDQoJREVQVEhfMTAwEAYSDQoJREVQVEhfMjAwEAcSDQoJREVQVEhfNTAwEAgSDgoKREVQVEhfMTAwMBAJMmsKEE9yZGVyYm9va1NlcnZpY2USVwoMR2V0T3JkZXJCb29rEiEub3JkZXJib29rLnYxLkdldE9yZGVyQm9va1JlcXVlc3QaIi5vcmRlcmJvb2sudjEuR2V0T3JkZXJCb29rUmVzcG9uc2UiAEJGWkRnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL29yZGVyYm9vay92MTtvcmRlcmJvb2t2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChxvcmRlcmJvb2svdjEvb3JkZXJib29rLnByb3RvEgxvcmRlcmJvb2sudjEiXwoTR2V0T3JkZXJCb29rUmVxdWVzdBIaCglzeW1ib2xfaWQYASABKA1CB7pIBCoCIAASLAoFZGVwdGgYAiABKA4yEy5vcmRlcmJvb2sudjEuRGVwdGhCCLpIBYIBAhABIjUKClByaWNlTGV2ZWwSEwoLcHJpY2VfdGlja3MYASABKAMSEgoKcXR5X3NjYWxlZBgCIAEoAyKzAQoUR2V0T3JkZXJCb29rUmVzcG9uc2USEQoJc3ltYm9sX2lkGAEgASgNEhAKCGJvb2tfc2VxGAIgASgEEiYKBGJpZHMYAyADKAsyGC5vcmRlcmJvb2sudjEuUHJpY2VMZXZlbBImCgRhc2tzGAQgAygLMhgub3JkZXJib29rLnYxLlByaWNlTGV2ZWwSJgoCdHMYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wItgBCg5PcmRlckJvb2tEZWx0YRIRCglzeW1ib2xfaWQYASABKA0SFgoOYm9va19zZXFfc3RhcnQYAiABKAQSFAoMYm9va19zZXFfZW5kGAMgASgEEiYKBGJpZHMYBCADKAsyGC5vcmRlcmJvb2sudjEuUHJpY2VMZXZlbBImCgRhc2tzGAUgAygLMhgub3JkZXJib29rLnYxLlByaWNlTGV2ZWwSDQoFcmVzZXQYBiABKAgSJgoCdHMYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wKp8BCgVEZXB0aBIVChFERVBUSF9VTlNQRUNJRklFRBAAEgsKB0RFUFRIXzEQARILCgdERVBUSF81EAISDAoIREVQVEhfMTAQAxIMCghERVBUSF8yMBAEEgwKCERFUFRIXzUwEAUSDQoJREVQVEhfMTAwEAYSDQoJREVQVEhfMjAwEAcSDQoJREVQVEhfNTAwEAgSDgoKREVQVEhfMTAwMBAJMrYCChBPcmRlcmJvb2tTZXJ2aWNlEqECCgxHZXRPcmRlckJvb2sSIS5vcmRlcmJvb2sudjEuR2V0T3JkZXJCb29rUmVxdWVzdBoiLm9yZGVyYm9vay52MS5HZXRPcmRlckJvb2tSZXNwb25zZSLJAbpHoAEKEU9yZGVyYm9vayBTZXJ2aWNlEg5HZXQgT3JkZXIgQm9vaxp7UmV0cmlldmUgYSBzcG90IG9yZGVyIGJvb2sgZGVwdGggc25hcHNob3QgZm9yIGEgc3ltYm9sLiBTdXBwb3J0cyBzZWxlY3RhYmxlIGRlcHRoIHBlciBzaWRlIGFuZCByZXR1cm5zIGJlc3QgYmlkL2FzayBsZXZlbHMuiLUYAYLT5JMCGxIZL3YxL29yZGVyYm9vay97c3ltYm9sX2lkfUKXAVpEZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9vcmRlcmJvb2svdjE7b3JkZXJib29rdjG6R046TAoRT3JkZXJib29rIFNlcnZpY2USN1B1YmxpYyByZWFkIHN1cmZhY2UgZm9yIHNwb3Qgb3JkZXJib29rIGRlcHRoIHNuYXBzaG90cy5iBnByb3RvMw", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * GetOrderBookRequest describes a snapshot view request.
@@ -22,11 +25,11 @@ export const file_orderbook_v1_orderbook: GenFile = /*@__PURE__*/
  */
 export type GetOrderBookRequest = Message<"orderbook.v1.GetOrderBookRequest"> & {
   /**
-   * e.g. "BTC-USDT"; resolved to symbol_id server-side.
+   * Stable numeric pair ID from GetSpotConfig.
    *
-   * @generated from field: string symbol = 1;
+   * @generated from field: uint32 symbol_id = 1;
    */
-  symbol: string;
+  symbolId: number;
 
   /**
    * Requested depth per side (number of price levels). Default is 50.

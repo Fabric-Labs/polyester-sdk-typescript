@@ -4,13 +4,16 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../buf/validate/validate_pb.js";
+import { file_gnostic_openapi_v3_annotations } from "../../gnostic/openapi/v3/annotations_pb.js";
+import { file_google_api_annotations } from "../../google/api/annotations_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file fees/v1/fees.proto.
  */
 export const file_fees_v1_fees: GenFile = /*@__PURE__*/
-  fileDesc("ChJmZWVzL3YxL2ZlZXMucHJvdG8SB2ZlZXMudjEijAEKC1Nwb3RGZWVSYXRlEhMKCXN5bWJvbF9pZBgBIAEoDUIAEhAKBnN5bWJvbBgCIAEoCUIAEiAKFm1ha2VyX2ZlZV9yYXRlX3BlcmNlbnQYAyABKAlCABIgChZ0YWtlcl9mZWVfcmF0ZV9wZXJjZW50GAQgASgJQgASEgoIdmlwX3RpZXIYBSABKA1CACJdChZHZXRTcG90RmVlUmF0ZXNSZXF1ZXN0EhwKDXN1YmFjY291bnRfaWQYASABKAZCAEgAiAEBEhMKCXN5bWJvbF9pZBgCIAMoDUIAQhAKDl9zdWJhY2NvdW50X2lkIkIKF0dldFNwb3RGZWVSYXRlc1Jlc3BvbnNlEicKCWZlZV9yYXRlcxgBIAMoCzIULmZlZXMudjEuU3BvdEZlZVJhdGUyZAoKRmVlU2VydmljZRJWCg9HZXRTcG90RmVlUmF0ZXMSHy5mZWVzLnYxLkdldFNwb3RGZWVSYXRlc1JlcXVlc3QaIC5mZWVzLnYxLkdldFNwb3RGZWVSYXRlc1Jlc3BvbnNlIgBCPFo6Z2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9mZWVzL3YxO2ZlZXN2MWIGcHJvdG8z");
+  fileDesc("ChJmZWVzL3YxL2ZlZXMucHJvdG8SB2ZlZXMudjEi/AEKC1Nwb3RGZWVSYXRlEhoKCXN5bWJvbF9pZBgBIAEoDUIHukgEKgIgABJbChZtYWtlcl9mZWVfcmF0ZV9wZXJjZW50GAMgASgJQju6SDhyNhABGA4yMF4tPygxMDAoWy5dMCspP3woWzAtOV18WzEtOV1bMC05XSkoWy5dWzAtOV0rKT8pJBJZChZ0YWtlcl9mZWVfcmF0ZV9wZXJjZW50GAQgASgJQjm6SDZyNBABGA0yLl4oMTAwKFsuXTArKT98KFswLTldfFsxLTldWzAtOV0pKFsuXVswLTldKyk/KSQSGQoIdmlwX3RpZXIYBSABKA1CB7pIBCoCGAoiewoWR2V0U3BvdEZlZVJhdGVzUmVxdWVzdBIqCg1zdWJhY2NvdW50X2lkGAEgASgGQg66SAtSCSEAAAAAAAAAAEgAiAEBEiMKCXN5bWJvbF9pZBgCIAMoDUIQukgNkgEKEGQYASIEKgIgAEIQCg5fc3ViYWNjb3VudF9pZCJCChdHZXRTcG90RmVlUmF0ZXNSZXNwb25zZRInCglmZWVfcmF0ZXMYASADKAsyFC5mZWVzLnYxLlNwb3RGZWVSYXRlMvMBCgpGZWVTZXJ2aWNlEuQBCg9HZXRTcG90RmVlUmF0ZXMSHy5mZWVzLnYxLkdldFNwb3RGZWVSYXRlc1JlcXVlc3QaIC5mZWVzLnYxLkdldFNwb3RGZWVSYXRlc1Jlc3BvbnNlIo0BukdwCgtGZWUgU2VydmljZRISR2V0IFNwb3QgRmVlIFJhdGVzGk1HZXQgZWZmZWN0aXZlIG1ha2VyIGFuZCB0YWtlciBmZWUgcmF0ZXMgZm9yIHRoZSBhdXRoZW50aWNhdGVkIGFjY291bnQgdGFyZ2V0LoLT5JMCFBISL3YxL3Nwb3QvZmVlLXJhdGVzQn9aOmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vZmVlcy92MTtmZWVzdjG6R0A6PgoLRmVlIFNlcnZpY2USL0F1dGhlbnRpY2F0ZWQgZWZmZWN0aXZlIHNwb3QgdHJhZGluZyBmZWUgcmF0ZXMuYgZwcm90bzM", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations]);
 
 /**
  * SpotFeeRate describes the effective maker and taker rates for one spot
@@ -25,13 +28,6 @@ export type SpotFeeRate = Message<"fees.v1.SpotFeeRate"> & {
    * @generated from field: uint32 symbol_id = 1;
    */
   symbolId: number;
-
-  /**
-   * Canonical spot market symbol, for example "BTC-USDT".
-   *
-   * @generated from field: string symbol = 2;
-   */
-  symbol: string;
 
   /**
    * Effective maker fee rate encoded as a base-10 percentage string without a

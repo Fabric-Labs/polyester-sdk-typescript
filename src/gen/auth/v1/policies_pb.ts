@@ -4,6 +4,10 @@
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../buf/validate/validate_pb.js";
+import { file_gnostic_openapi_v3_annotations } from "../../gnostic/openapi/v3/annotations_pb.js";
+import { file_google_api_annotations } from "../../google/api/annotations_pb.js";
+import { file_google_api_field_behavior } from "../../google/api/field_behavior_pb.js";
 import type { FieldMask, Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_field_mask, file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import { file_polyester_api_options } from "../../polyester/api/options_pb.js";
@@ -13,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file auth/v1/policies.proto.
  */
 export const file_auth_v1_policies: GenFile = /*@__PURE__*/
-  fileDesc("ChZhdXRoL3YxL3BvbGljaWVzLnByb3RvEgdhdXRoLnYxIj8KC01hcmtldFNjb3BlIjAKBVZhbHVlEg8KC1VOU1BFQ0lGSUVEEAASBwoDQUxMEAESDQoJQUxMT1dMSVNUEAIiIgoOU3BvdE1hcmtldFJ1bGUSEAoGc3ltYm9sGAEgASgJQgAi7wYKFFN1YmFjY291bnRQb2xpY3lWaWV3EgoKAmlkGAEgASgGEgwKBG5hbWUYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAkSLQoMc3BvdF9tYXJrZXRzGAQgAygLMhcuYXV0aC52MS5TcG90TWFya2V0UnVsZRI3ChFzcG90X21hcmtldF9zY29wZRgGIAEoDjIaLmF1dGgudjEuTWFya2V0U2NvcGUuVmFsdWVCABIoCgdhY3Rpb25zGAggAygOMhUuYXV0aC52MS5Qb2xpY3lBY3Rpb25CABITCgtpc190ZW1wbGF0ZRgKIAEoCBIaChJzb3VyY2VfdGVtcGxhdGVfaWQYCyABKAYSGgoSbWF4X29yZGVyX25vdGlvbmFsGA0gASgEEhcKD21heF9vcGVuX29yZGVycxgOIAEoDRIWCg50cmFkaW5nX2hhbHRlZBgXIAEoCBIOCgZsb2NrZWQYGyABKAgSLQoJcmV2aWV3X2F0GBwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpleHBpcmVzX2F0GB0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpjcmVhdGVkX2F0GBQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgp1cGRhdGVkX2F0GBUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghyZXZpc2lvbhgeIAEoBEoECAUQBkoECAcQCEoECAwQDUoECA8QFEoECBYQF0oECBgQG1IMcGVycF9tYXJrZXRzUhFwZXJwX21hcmtldF9zY29wZVITZ2xvYmFsX25vdGlvbmFsX2NhcFISbWF4X29wZW5fcG9zaXRpb25zUhZnbG9iYWxfcGVycF9sZXZlcmFnZV94UiFkYWlseV9pbnRlcm5hbF90cmFuc2Zlcl9vdXRfbGltaXRSFGRhaWx5X3dpdGhkcmF3X2xpbWl0UhtpbnRlcm5hbF90cmFuc2ZlcnNfb3duX29ubHlSGmVuZm9yY2Vfd2l0aGRyYXdfd2hpdGVsaXN0UhBsaXF1aWRhdGlvbl9vbmx5UhBkYWlseV9sb3NzX2xpbWl0UhtpbnRyYWRheV9kcmF3ZG93bl9saW1pdF9icHMiTwodTGlzdFN1YmFjY291bnRQb2xpY2llc1JlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASACIAQFCEAoOX3N1YmFjY291bnRfaWQiUQoeTGlzdFN1YmFjY291bnRQb2xpY2llc1Jlc3BvbnNlEi8KCHBvbGljaWVzGAEgAygLMh0uYXV0aC52MS5TdWJhY2NvdW50UG9saWN5VmlldyJhChpHZXRTdWJhY2NvdW50UG9saWN5UmVxdWVzdBITCglwb2xpY3lfaWQYASABKAZCABIcCg1zdWJhY2NvdW50X2lkGAIgASgGQgBIAIgBAUIQCg5fc3ViYWNjb3VudF9pZCJMChtHZXRTdWJhY2NvdW50UG9saWN5UmVzcG9uc2USLQoGcG9saWN5GAEgASgLMh0uYXV0aC52MS5TdWJhY2NvdW50UG9saWN5VmlldyLABQoUU3ViYWNjb3VudFBvbGljeVNwZWMSDgoEbmFtZRgBIAEoCUIAEhUKC2Rlc2NyaXB0aW9uGAIgASgJQgASLQoMc3BvdF9tYXJrZXRzGAMgAygLMhcuYXV0aC52MS5TcG90TWFya2V0UnVsZRI3ChFzcG90X21hcmtldF9zY29wZRgFIAEoDjIaLmF1dGgudjEuTWFya2V0U2NvcGUuVmFsdWVCABIoCgdhY3Rpb25zGAcgAygOMhUuYXV0aC52MS5Qb2xpY3lBY3Rpb25CABIaChJtYXhfb3JkZXJfbm90aW9uYWwYDSABKAQSFwoPbWF4X29wZW5fb3JkZXJzGA4gASgNEhYKDnRyYWRpbmdfaGFsdGVkGBUgASgIEg4KBmxvY2tlZBgZIAEoCBItCglyZXZpZXdfYXQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmV4cGlyZXNfYXQYGyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wOgBKBAgEEAVKBAgGEAdKBAgMEA1KBAgPEBVKBAgWEBlSDHBlcnBfbWFya2V0c1IRcGVycF9tYXJrZXRfc2NvcGVSE2dsb2JhbF9ub3Rpb25hbF9jYXBSEm1heF9vcGVuX3Bvc2l0aW9uc1IWZ2xvYmFsX3BlcnBfbGV2ZXJhZ2VfeFIhZGFpbHlfaW50ZXJuYWxfdHJhbnNmZXJfb3V0X2xpbWl0UhRkYWlseV93aXRoZHJhd19saW1pdFIbaW50ZXJuYWxfdHJhbnNmZXJzX293bl9vbmx5UhplbmZvcmNlX3dpdGhkcmF3X3doaXRlbGlzdFIQbGlxdWlkYXRpb25fb25seVIQZGFpbHlfbG9zc19saW1pdFIbaW50cmFkYXlfZHJhd2Rvd25fbGltaXRfYnBzIoABCh1DcmVhdGVTdWJhY2NvdW50UG9saWN5UmVxdWVzdBIvCgZwb2xpY3kYASABKAsyHS5hdXRoLnYxLlN1YmFjY291bnRQb2xpY3lTcGVjQgASHAoNc3ViYWNjb3VudF9pZBgCIAEoBkIASACIAQFCEAoOX3N1YmFjY291bnRfaWQiTwoeQ3JlYXRlU3ViYWNjb3VudFBvbGljeVJlc3BvbnNlEi0KBnBvbGljeRgBIAEoCzIdLmF1dGgudjEuU3ViYWNjb3VudFBvbGljeVZpZXcitQEKHVVwZGF0ZVN1YmFjY291bnRQb2xpY3lSZXF1ZXN0EhMKCXBvbGljeV9pZBgBIAEoBkIAEi8KBnBvbGljeRgCIAEoCzIdLmF1dGgudjEuU3ViYWNjb3VudFBvbGljeVNwZWNCABIxCgt1cGRhdGVfbWFzaxgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2tCABIbChFleHBlY3RlZF9yZXZpc2lvbhgEIAEoBEIAIk8KHlVwZGF0ZVN1YmFjY291bnRQb2xpY3lSZXNwb25zZRItCgZwb2xpY3kYASABKAsyHS5hdXRoLnYxLlN1YmFjY291bnRQb2xpY3lWaWV3IjQKHURlbGV0ZVN1YmFjY291bnRQb2xpY3lSZXF1ZXN0EhMKCXBvbGljeV9pZBgBIAEoBkIAIiAKHkRlbGV0ZVN1YmFjY291bnRQb2xpY3lSZXNwb25zZSJIChpTZXRTdWJhY2NvdW50UG9saWN5UmVxdWVzdBIXCg1zdWJhY2NvdW50X2lkGAEgASgGQgASEQoJcG9saWN5X2lkGAIgASgGIh0KG1NldFN1YmFjY291bnRQb2xpY3lSZXNwb25zZSL/AwoNQXBpUG9saWN5VmlldxIKCgJpZBgBIAEoBhIMCgRuYW1lGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEi0KDHNwb3RfbWFya2V0cxgEIAMoCzIXLmF1dGgudjEuU3BvdE1hcmtldFJ1bGUSKAoHYWN0aW9ucxgGIAMoDjIVLmF1dGgudjEuUG9saWN5QWN0aW9uQgASNwoRc3BvdF9tYXJrZXRfc2NvcGUYByABKA4yGi5hdXRoLnYxLk1hcmtldFNjb3BlLlZhbHVlQgASEwoLaXNfdGVtcGxhdGUYEyABKAgSGgoSc291cmNlX3RlbXBsYXRlX2lkGBQgASgGEi4KCmNyZWF0ZWRfYXQYFSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCnVwZGF0ZWRfYXQYFiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCHJldmlzaW9uGBcgASgESgQIBRAGSgQICBAJSgQIDRAOSgQIERASSgQIEhATUgxwZXJwX21hcmtldHNSEXBlcnBfbWFya2V0X3Njb3BlUiFkYWlseV9pbnRlcm5hbF90cmFuc2Zlcl9vdXRfbGltaXRSFGRhaWx5X3dpdGhkcmF3X2xpbWl0UhJtYXhfb3JkZXJfbm90aW9uYWwiOgoWTGlzdEFwaVBvbGljaWVzUmVxdWVzdBIVCgZrZXlfaWQYASABKAlCAEgAiAEBQgkKB19rZXlfaWQiQwoXTGlzdEFwaVBvbGljaWVzUmVzcG9uc2USKAoIcG9saWNpZXMYASADKAsyFi5hdXRoLnYxLkFwaVBvbGljeVZpZXciTAoTR2V0QXBpUG9saWN5UmVxdWVzdBITCglwb2xpY3lfaWQYASABKAZCABIVCgZrZXlfaWQYAiABKAlCAEgAiAEBQgkKB19rZXlfaWQiPgoUR2V0QXBpUG9saWN5UmVzcG9uc2USJgoGcG9saWN5GAEgASgLMhYuYXV0aC52MS5BcGlQb2xpY3lWaWV3IusCCg1BcGlQb2xpY3lTcGVjEg4KBG5hbWUYASABKAlCABIVCgtkZXNjcmlwdGlvbhgCIAEoCUIAEi0KDHNwb3RfbWFya2V0cxgDIAMoCzIXLmF1dGgudjEuU3BvdE1hcmtldFJ1bGUSNwoRc3BvdF9tYXJrZXRfc2NvcGUYBSABKA4yGi5hdXRoLnYxLk1hcmtldFNjb3BlLlZhbHVlQgASKAoHYWN0aW9ucxgHIAMoDjIVLmF1dGgudjEuUG9saWN5QWN0aW9uQgASEwoLaXNfdGVtcGxhdGUYEyABKAg6AEoECAQQBUoECAYQB0oECA0QDkoECBEQEkoECBIQE1IMcGVycF9tYXJrZXRzUhFwZXJwX21hcmtldF9zY29wZVIhZGFpbHlfaW50ZXJuYWxfdHJhbnNmZXJfb3V0X2xpbWl0UhRkYWlseV93aXRoZHJhd19saW1pdFISbWF4X29yZGVyX25vdGlvbmFsIl4KFkNyZWF0ZUFwaVBvbGljeVJlcXVlc3QSKAoGcG9saWN5GAEgASgLMhYuYXV0aC52MS5BcGlQb2xpY3lTcGVjQgASGgoQYXNzaWduX3RvX2tleV9pZBgCIAEoCUIAIkEKF0NyZWF0ZUFwaVBvbGljeVJlc3BvbnNlEiYKBnBvbGljeRgBIAEoCzIWLmF1dGgudjEuQXBpUG9saWN5VmlldyKnAQoWVXBkYXRlQXBpUG9saWN5UmVxdWVzdBITCglwb2xpY3lfaWQYASABKAZCABIoCgZwb2xpY3kYAiABKAsyFi5hdXRoLnYxLkFwaVBvbGljeVNwZWNCABIxCgt1cGRhdGVfbWFzaxgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2tCABIbChFleHBlY3RlZF9yZXZpc2lvbhgEIAEoBEIAIkEKF1VwZGF0ZUFwaVBvbGljeVJlc3BvbnNlEiYKBnBvbGljeRgBIAEoCzIWLmF1dGgudjEuQXBpUG9saWN5VmlldyItChZEZWxldGVBcGlQb2xpY3lSZXF1ZXN0EhMKCXBvbGljeV9pZBgBIAEoBkIAIhkKF0RlbGV0ZUFwaVBvbGljeVJlc3BvbnNlIj0KFlNldEFwaUtleVBvbGljeVJlcXVlc3QSEAoGa2V5X2lkGAEgASgJQgASEQoJcG9saWN5X2lkGAIgASgGIhkKF1NldEFwaUtleVBvbGljeVJlc3BvbnNlKs4CCgxQb2xpY3lBY3Rpb24SDwoLVU5TUEVDSUZJRUQQABIOCgpUUkFERV9TUE9UEAESFQoRSU5URVJOQUxfVFJBTlNGRVIQAxIVChFFWFRFUk5BTF9XSVRIRFJBVxAEEhEKDVJFQURfQkFMQU5DRVMQBRINCglSRUFEX1NQT1QQBhIbChdSRUFEX0lOVEVSTkFMX1RSQU5TRkVSUxAIEhUKEVJFQURfQUREUkVTU19CT09LEAsSFwoTTUFOQUdFX0FERFJFU1NfQk9PSxAMIgQIAhACIgQIBxAHIgQIDRANIgQICRAJKgpUUkFERV9QRVJQKglSRUFEX1BFUlAqGlJFQURfVFJBTlNGRVJfREVTVElOQVRJT05TKhpNQU5BR0VfVFJBTlNGRVJfV0hJVEVMSVNUUyoZUkVBRF9FWFRFUk5BTF9XSVRIRFJBV0FMUzKSCQoNUG9saWN5U2VydmljZRJrChZMaXN0U3ViYWNjb3VudFBvbGljaWVzEiYuYXV0aC52MS5MaXN0U3ViYWNjb3VudFBvbGljaWVzUmVxdWVzdBonLmF1dGgudjEuTGlzdFN1YmFjY291bnRQb2xpY2llc1Jlc3BvbnNlIgASYgoTR2V0U3ViYWNjb3VudFBvbGljeRIjLmF1dGgudjEuR2V0U3ViYWNjb3VudFBvbGljeVJlcXVlc3QaJC5hdXRoLnYxLkdldFN1YmFjY291bnRQb2xpY3lSZXNwb25zZSIAEmsKFkNyZWF0ZVN1YmFjY291bnRQb2xpY3kSJi5hdXRoLnYxLkNyZWF0ZVN1YmFjY291bnRQb2xpY3lSZXF1ZXN0GicuYXV0aC52MS5DcmVhdGVTdWJhY2NvdW50UG9saWN5UmVzcG9uc2UiABJrChZVcGRhdGVTdWJhY2NvdW50UG9saWN5EiYuYXV0aC52MS5VcGRhdGVTdWJhY2NvdW50UG9saWN5UmVxdWVzdBonLmF1dGgudjEuVXBkYXRlU3ViYWNjb3VudFBvbGljeVJlc3BvbnNlIgASawoWRGVsZXRlU3ViYWNjb3VudFBvbGljeRImLmF1dGgudjEuRGVsZXRlU3ViYWNjb3VudFBvbGljeVJlcXVlc3QaJy5hdXRoLnYxLkRlbGV0ZVN1YmFjY291bnRQb2xpY3lSZXNwb25zZSIAEmIKE1NldFN1YmFjY291bnRQb2xpY3kSIy5hdXRoLnYxLlNldFN1YmFjY291bnRQb2xpY3lSZXF1ZXN0GiQuYXV0aC52MS5TZXRTdWJhY2NvdW50UG9saWN5UmVzcG9uc2UiABJWCg9MaXN0QXBpUG9saWNpZXMSHy5hdXRoLnYxLkxpc3RBcGlQb2xpY2llc1JlcXVlc3QaIC5hdXRoLnYxLkxpc3RBcGlQb2xpY2llc1Jlc3BvbnNlIgASTQoMR2V0QXBpUG9saWN5EhwuYXV0aC52MS5HZXRBcGlQb2xpY3lSZXF1ZXN0Gh0uYXV0aC52MS5HZXRBcGlQb2xpY3lSZXNwb25zZSIAElYKD0NyZWF0ZUFwaVBvbGljeRIfLmF1dGgudjEuQ3JlYXRlQXBpUG9saWN5UmVxdWVzdBogLmF1dGgudjEuQ3JlYXRlQXBpUG9saWN5UmVzcG9uc2UiABJWCg9VcGRhdGVBcGlQb2xpY3kSHy5hdXRoLnYxLlVwZGF0ZUFwaVBvbGljeVJlcXVlc3QaIC5hdXRoLnYxLlVwZGF0ZUFwaVBvbGljeVJlc3BvbnNlIgASVgoPRGVsZXRlQXBpUG9saWN5Eh8uYXV0aC52MS5EZWxldGVBcGlQb2xpY3lSZXF1ZXN0GiAuYXV0aC52MS5EZWxldGVBcGlQb2xpY3lSZXNwb25zZSIAElYKD1NldEFwaUtleVBvbGljeRIfLmF1dGgudjEuU2V0QXBpS2V5UG9saWN5UmVxdWVzdBogLmF1dGgudjEuU2V0QXBpS2V5UG9saWN5UmVzcG9uc2UiAEI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2F1dGgvdjE7YXV0aHYxYgZwcm90bzM=", [file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChZhdXRoL3YxL3BvbGljaWVzLnByb3RvEgdhdXRoLnYxIj8KC01hcmtldFNjb3BlIjAKBVZhbHVlEg8KC1VOU1BFQ0lGSUVEEAASBwoDQUxMEAESDQoJQUxMT1dMSVNUEAIiMAoSU3BvdE1hcmtldFNlbGVjdG9yEhoKCXN5bWJvbF9pZBgBIAEoDUIHukgEKgIgACIjCg5TcG90TWFya2V0UnVsZRIRCglzeW1ib2xfaWQYASABKA0iigcKFFN1YmFjY291bnRQb2xpY3lWaWV3EgoKAmlkGAEgASgGEgwKBG5hbWUYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAkSLQoMc3BvdF9tYXJrZXRzGAQgAygLMhcuYXV0aC52MS5TcG90TWFya2V0UnVsZRI/ChFzcG90X21hcmtldF9zY29wZRgGIAEoDjIaLmF1dGgudjEuTWFya2V0U2NvcGUuVmFsdWVCCLpIBYIBAhABEjsKB2FjdGlvbnMYCCADKA4yFS5hdXRoLnYxLlBvbGljeUFjdGlvbkITukgQkgENEEAYASIHggEEEAEgABITCgtpc190ZW1wbGF0ZRgKIAEoCBIaChJzb3VyY2VfdGVtcGxhdGVfaWQYCyABKAYSGgoSbWF4X29yZGVyX25vdGlvbmFsGA0gASgEEhcKD21heF9vcGVuX29yZGVycxgOIAEoDRIWCg50cmFkaW5nX2hhbHRlZBgXIAEoCBIOCgZsb2NrZWQYGyABKAgSLQoJcmV2aWV3X2F0GBwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpleHBpcmVzX2F0GB0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpjcmVhdGVkX2F0GBQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgp1cGRhdGVkX2F0GBUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghyZXZpc2lvbhgeIAEoBEoECAUQBkoECAcQCEoECAwQDUoECA8QFEoECBYQF0oECBgQG1IMcGVycF9tYXJrZXRzUhFwZXJwX21hcmtldF9zY29wZVITZ2xvYmFsX25vdGlvbmFsX2NhcFISbWF4X29wZW5fcG9zaXRpb25zUhZnbG9iYWxfcGVycF9sZXZlcmFnZV94UiFkYWlseV9pbnRlcm5hbF90cmFuc2Zlcl9vdXRfbGltaXRSFGRhaWx5X3dpdGhkcmF3X2xpbWl0UhtpbnRlcm5hbF90cmFuc2ZlcnNfb3duX29ubHlSGmVuZm9yY2Vfd2l0aGRyYXdfd2hpdGVsaXN0UhBsaXF1aWRhdGlvbl9vbmx5UhBkYWlseV9sb3NzX2xpbWl0UhtpbnRyYWRheV9kcmF3ZG93bl9saW1pdF9icHMiXQodTGlzdFN1YmFjY291bnRQb2xpY2llc1JlcXVlc3QSKgoNc3ViYWNjb3VudF9pZBgBIAEoBkIOukgLUgkhAAAAAAAAAABIAIgBAUIQCg5fc3ViYWNjb3VudF9pZCJRCh5MaXN0U3ViYWNjb3VudFBvbGljaWVzUmVzcG9uc2USLwoIcG9saWNpZXMYASADKAsyHS5hdXRoLnYxLlN1YmFjY291bnRQb2xpY3lWaWV3In0KGkdldFN1YmFjY291bnRQb2xpY3lSZXF1ZXN0EiEKCXBvbGljeV9pZBgBIAEoBkIOukgLUgkhAAAAAAAAAAASKgoNc3ViYWNjb3VudF9pZBgCIAEoBkIOukgLUgkhAAAAAAAAAABIAIgBAUIQCg5fc3ViYWNjb3VudF9pZCJMChtHZXRTdWJhY2NvdW50UG9saWN5UmVzcG9uc2USLQoGcG9saWN5GAEgASgLMh0uYXV0aC52MS5TdWJhY2NvdW50UG9saWN5VmlldyKYCAoUU3ViYWNjb3VudFBvbGljeVNwZWMSFQoEbmFtZRgBIAEoCUIHukgEcgIYQBIdCgtkZXNjcmlwdGlvbhgCIAEoCUIIukgFcgMYgAISMQoMc3BvdF9tYXJrZXRzGAMgAygLMhsuYXV0aC52MS5TcG90TWFya2V0U2VsZWN0b3ISPwoRc3BvdF9tYXJrZXRfc2NvcGUYBSABKA4yGi5hdXRoLnYxLk1hcmtldFNjb3BlLlZhbHVlQgi6SAWCAQIQARI7CgdhY3Rpb25zGAcgAygOMhUuYXV0aC52MS5Qb2xpY3lBY3Rpb25CE7pIEJIBDRBAGAEiB4IBBBABIAASGgoSbWF4X29yZGVyX25vdGlvbmFsGA0gASgEEhcKD21heF9vcGVuX29yZGVycxgOIAEoDRIWCg50cmFkaW5nX2hhbHRlZBgVIAEoCBIOCgZsb2NrZWQYGSABKAgSLQoJcmV2aWV3X2F0GBogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpleHBpcmVzX2F0GBsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcDqpArpIpQIapwEKH3Nwb3RfYWxsb3dsaXN0X3JlcXVpcmVzX21hcmtldHMSQnNwb3RfbWFya2V0cyBtdXN0IGJlIG5vbi1lbXB0eSB3aGVuIHNwb3RfbWFya2V0X3Njb3BlIGlzIEFMTE9XTElTVBpAdGhpcy5zcG90X21hcmtldF9zY29wZSAhPSAyID8gdHJ1ZSA6IHNpemUodGhpcy5zcG90X21hcmtldHMpID4gMBp5ChNzcG90X21hcmtldHNfdW5pcXVlEjJzcG90X21hcmtldHMgbXVzdCBub3QgY29udGFpbiBkdXBsaWNhdGUgc3ltYm9sIElEcxoudGhpcy5zcG90X21hcmtldHMubWFwKG0sIG0uc3ltYm9sX2lkKS51bmlxdWUoKUoECAQQBUoECAYQB0oECAwQDUoECA8QFUoECBYQGVIMcGVycF9tYXJrZXRzUhFwZXJwX21hcmtldF9zY29wZVITZ2xvYmFsX25vdGlvbmFsX2NhcFISbWF4X29wZW5fcG9zaXRpb25zUhZnbG9iYWxfcGVycF9sZXZlcmFnZV94UiFkYWlseV9pbnRlcm5hbF90cmFuc2Zlcl9vdXRfbGltaXRSFGRhaWx5X3dpdGhkcmF3X2xpbWl0UhtpbnRlcm5hbF90cmFuc2ZlcnNfb3duX29ubHlSGmVuZm9yY2Vfd2l0aGRyYXdfd2hpdGVsaXN0UhBsaXF1aWRhdGlvbl9vbmx5UhBkYWlseV9sb3NzX2xpbWl0UhtpbnRyYWRheV9kcmF3ZG93bl9saW1pdF9icHMilwEKHUNyZWF0ZVN1YmFjY291bnRQb2xpY3lSZXF1ZXN0EjgKBnBvbGljeRgBIAEoCzIdLmF1dGgudjEuU3ViYWNjb3VudFBvbGljeVNwZWNCCeBBArpIA8gBARIqCg1zdWJhY2NvdW50X2lkGAIgASgGQg66SAtSCSEAAAAAAAAAAEgAiAEBQhAKDl9zdWJhY2NvdW50X2lkIk8KHkNyZWF0ZVN1YmFjY291bnRQb2xpY3lSZXNwb25zZRItCgZwb2xpY3kYASABKAsyHS5hdXRoLnYxLlN1YmFjY291bnRQb2xpY3lWaWV3IuIBCh1VcGRhdGVTdWJhY2NvdW50UG9saWN5UmVxdWVzdBIkCglwb2xpY3lfaWQYASABKAZCEeBBArpIC1IJIQAAAAAAAAAAEjgKBnBvbGljeRgCIAEoCzIdLmF1dGgudjEuU3ViYWNjb3VudFBvbGljeVNwZWNCCeBBArpIA8gBARI6Cgt1cGRhdGVfbWFzaxgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2tCCeBBArpIA8gBARIlChFleHBlY3RlZF9yZXZpc2lvbhgEIAEoBEIK4EECukgEMgIgACJPCh5VcGRhdGVTdWJhY2NvdW50UG9saWN5UmVzcG9uc2USLQoGcG9saWN5GAEgASgLMh0uYXV0aC52MS5TdWJhY2NvdW50UG9saWN5VmlldyJCCh1EZWxldGVTdWJhY2NvdW50UG9saWN5UmVxdWVzdBIhCglwb2xpY3lfaWQYASABKAZCDrpIC1IJIQAAAAAAAAAAIiAKHkRlbGV0ZVN1YmFjY291bnRQb2xpY3lSZXNwb25zZSJWChpTZXRTdWJhY2NvdW50UG9saWN5UmVxdWVzdBIlCg1zdWJhY2NvdW50X2lkGAEgASgGQg66SAtSCSEAAAAAAAAAABIRCglwb2xpY3lfaWQYAiABKAYiHQobU2V0U3ViYWNjb3VudFBvbGljeVJlc3BvbnNlIpoECg1BcGlQb2xpY3lWaWV3EgoKAmlkGAEgASgGEgwKBG5hbWUYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAkSLQoMc3BvdF9tYXJrZXRzGAQgAygLMhcuYXV0aC52MS5TcG90TWFya2V0UnVsZRI7CgdhY3Rpb25zGAYgAygOMhUuYXV0aC52MS5Qb2xpY3lBY3Rpb25CE7pIEJIBDRBAGAEiB4IBBBABIAASPwoRc3BvdF9tYXJrZXRfc2NvcGUYByABKA4yGi5hdXRoLnYxLk1hcmtldFNjb3BlLlZhbHVlQgi6SAWCAQIQARITCgtpc190ZW1wbGF0ZRgTIAEoCBIaChJzb3VyY2VfdGVtcGxhdGVfaWQYFCABKAYSLgoKY3JlYXRlZF9hdBgVIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKdXBkYXRlZF9hdBgWIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIcmV2aXNpb24YFyABKARKBAgFEAZKBAgIEAlKBAgNEA5KBAgREBJKBAgSEBNSDHBlcnBfbWFya2V0c1IRcGVycF9tYXJrZXRfc2NvcGVSIWRhaWx5X2ludGVybmFsX3RyYW5zZmVyX291dF9saW1pdFIUZGFpbHlfd2l0aGRyYXdfbGltaXRSEm1heF9vcmRlcl9ub3Rpb25hbCJSChZMaXN0QXBpUG9saWNpZXNSZXF1ZXN0Ei0KBmtleV9pZBgBIAEoCUIYukgVchMyEV5ha19bYS1mMC05XXszMn0kSACIAQFCCQoHX2tleV9pZCJDChdMaXN0QXBpUG9saWNpZXNSZXNwb25zZRIoCghwb2xpY2llcxgBIAMoCzIWLmF1dGgudjEuQXBpUG9saWN5VmlldyJyChNHZXRBcGlQb2xpY3lSZXF1ZXN0EiEKCXBvbGljeV9pZBgBIAEoBkIOukgLUgkhAAAAAAAAAAASLQoGa2V5X2lkGAIgASgJQhi6SBVyEzIRXmFrX1thLWYwLTldezMyfSRIAIgBAUIJCgdfa2V5X2lkIj4KFEdldEFwaVBvbGljeVJlc3BvbnNlEiYKBnBvbGljeRgBIAEoCzIWLmF1dGgudjEuQXBpUG9saWN5VmlldyLDBQoNQXBpUG9saWN5U3BlYxIVCgRuYW1lGAEgASgJQge6SARyAhhAEh0KC2Rlc2NyaXB0aW9uGAIgASgJQgi6SAVyAxiAAhIxCgxzcG90X21hcmtldHMYAyADKAsyGy5hdXRoLnYxLlNwb3RNYXJrZXRTZWxlY3RvchI/ChFzcG90X21hcmtldF9zY29wZRgFIAEoDjIaLmF1dGgudjEuTWFya2V0U2NvcGUuVmFsdWVCCLpIBYIBAhABEjsKB2FjdGlvbnMYByADKA4yFS5hdXRoLnYxLlBvbGljeUFjdGlvbkITukgQkgENEEAYASIHggEEEAEgABITCgtpc190ZW1wbGF0ZRgTIAEoCDqpArpIpQIapwEKH3Nwb3RfYWxsb3dsaXN0X3JlcXVpcmVzX21hcmtldHMSQnNwb3RfbWFya2V0cyBtdXN0IGJlIG5vbi1lbXB0eSB3aGVuIHNwb3RfbWFya2V0X3Njb3BlIGlzIEFMTE9XTElTVBpAdGhpcy5zcG90X21hcmtldF9zY29wZSAhPSAyID8gdHJ1ZSA6IHNpemUodGhpcy5zcG90X21hcmtldHMpID4gMBp5ChNzcG90X21hcmtldHNfdW5pcXVlEjJzcG90X21hcmtldHMgbXVzdCBub3QgY29udGFpbiBkdXBsaWNhdGUgc3ltYm9sIElEcxoudGhpcy5zcG90X21hcmtldHMubWFwKG0sIG0uc3ltYm9sX2lkKS51bmlxdWUoKUoECAQQBUoECAYQB0oECA0QDkoECBEQEkoECBIQE1IMcGVycF9tYXJrZXRzUhFwZXJwX21hcmtldF9zY29wZVIhZGFpbHlfaW50ZXJuYWxfdHJhbnNmZXJfb3V0X2xpbWl0UhRkYWlseV93aXRoZHJhd19saW1pdFISbWF4X29yZGVyX25vdGlvbmFsIoIBChZDcmVhdGVBcGlQb2xpY3lSZXF1ZXN0EjEKBnBvbGljeRgBIAEoCzIWLmF1dGgudjEuQXBpUG9saWN5U3BlY0IJ4EECukgDyAEBEjUKEGFzc2lnbl90b19rZXlfaWQYAiABKAlCG7pIGHIWMhReJHxeYWtfW2EtZjAtOV17MzJ9JCJBChdDcmVhdGVBcGlQb2xpY3lSZXNwb25zZRImCgZwb2xpY3kYASABKAsyFi5hdXRoLnYxLkFwaVBvbGljeVZpZXci1AEKFlVwZGF0ZUFwaVBvbGljeVJlcXVlc3QSJAoJcG9saWN5X2lkGAEgASgGQhHgQQK6SAtSCSEAAAAAAAAAABIxCgZwb2xpY3kYAiABKAsyFi5hdXRoLnYxLkFwaVBvbGljeVNwZWNCCeBBArpIA8gBARI6Cgt1cGRhdGVfbWFzaxgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2tCCeBBArpIA8gBARIlChFleHBlY3RlZF9yZXZpc2lvbhgEIAEoBEIK4EECukgEMgIgACJBChdVcGRhdGVBcGlQb2xpY3lSZXNwb25zZRImCgZwb2xpY3kYASABKAsyFi5hdXRoLnYxLkFwaVBvbGljeVZpZXciOwoWRGVsZXRlQXBpUG9saWN5UmVxdWVzdBIhCglwb2xpY3lfaWQYASABKAZCDrpIC1IJIQAAAAAAAAAAIhkKF0RlbGV0ZUFwaVBvbGljeVJlc3BvbnNlIloKFlNldEFwaUtleVBvbGljeVJlcXVlc3QSLQoGa2V5X2lkGAEgASgJQh3gQQK6SBdyFRABMhFeYWtfW2EtZjAtOV17MzJ9JBIRCglwb2xpY3lfaWQYAiABKAYiGQoXU2V0QXBpS2V5UG9saWN5UmVzcG9uc2UqzgIKDFBvbGljeUFjdGlvbhIPCgtVTlNQRUNJRklFRBAAEg4KClRSQURFX1NQT1QQARIVChFJTlRFUk5BTF9UUkFOU0ZFUhADEhUKEUVYVEVSTkFMX1dJVEhEUkFXEAQSEQoNUkVBRF9CQUxBTkNFUxAFEg0KCVJFQURfU1BPVBAGEhsKF1JFQURfSU5URVJOQUxfVFJBTlNGRVJTEAgSFQoRUkVBRF9BRERSRVNTX0JPT0sQCxIXChNNQU5BR0VfQUREUkVTU19CT09LEAwiBAgCEAIiBAgHEAciBAgNEA0iBAgJEAkqClRSQURFX1BFUlAqCVJFQURfUEVSUCoaUkVBRF9UUkFOU0ZFUl9ERVNUSU5BVElPTlMqGk1BTkFHRV9UUkFOU0ZFUl9XSElURUxJU1RTKhlSRUFEX0VYVEVSTkFMX1dJVEhEUkFXQUxTMtQXCg1Qb2xpY3lTZXJ2aWNlEvgBChZMaXN0U3ViYWNjb3VudFBvbGljaWVzEiYuYXV0aC52MS5MaXN0U3ViYWNjb3VudFBvbGljaWVzUmVxdWVzdBonLmF1dGgudjEuTGlzdFN1YmFjY291bnRQb2xpY2llc1Jlc3BvbnNlIowBukdkCgxBdXRoIFNlcnZpY2USGExpc3QgU3ViYWNjb3VudCBQb2xpY2llcxo6TGlzdCBzdWItYWNjb3VudCBwb2xpY3kgdGVtcGxhdGVzIGF2YWlsYWJsZSB0byB0aGUgY2FsbGVyLoLT5JMCHxIdL3YxL2F1dGgvcG9saWNpZXMvc3ViYWNjb3VudHMS+QEKE0dldFN1YmFjY291bnRQb2xpY3kSIy5hdXRoLnYxLkdldFN1YmFjY291bnRQb2xpY3lSZXF1ZXN0GiQuYXV0aC52MS5HZXRTdWJhY2NvdW50UG9saWN5UmVzcG9uc2UilgG6R2IKDEF1dGggU2VydmljZRIVR2V0IFN1YmFjY291bnQgUG9saWN5GjtSZXRyaWV2ZSBhIHNpbmdsZSBzdWItYWNjb3VudCBwb2xpY3kgdGVtcGxhdGUgYnkgcG9saWN5IElELoLT5JMCKxIpL3YxL2F1dGgvcG9saWNpZXMvc3ViYWNjb3VudHMve3BvbGljeV9pZH0SkgIKFkNyZWF0ZVN1YmFjY291bnRQb2xpY3kSJi5hdXRoLnYxLkNyZWF0ZVN1YmFjY291bnRQb2xpY3lSZXF1ZXN0GicuYXV0aC52MS5DcmVhdGVTdWJhY2NvdW50UG9saWN5UmVzcG9uc2UipgG6R3cKDEF1dGggU2VydmljZRIYQ3JlYXRlIFN1YmFjY291bnQgUG9saWN5Gk1DcmVhdGUgYSBuZXcgc3ViLWFjY291bnQgcG9saWN5IHRlbXBsYXRlIGZvciB0aGUgY2FsbGVyIGFjY291bnQgb3Igd29ya3NwYWNlLpi1GAKC0+STAiI6ASoiHS92MS9hdXRoL3BvbGljaWVzL3N1YmFjY291bnRzEpMCChZVcGRhdGVTdWJhY2NvdW50UG9saWN5EiYuYXV0aC52MS5VcGRhdGVTdWJhY2NvdW50UG9saWN5UmVxdWVzdBonLmF1dGgudjEuVXBkYXRlU3ViYWNjb3VudFBvbGljeVJlc3BvbnNlIqcBukdsCgxBdXRoIFNlcnZpY2USGFVwZGF0ZSBTdWJhY2NvdW50IFBvbGljeRpCQ2hhbmdlIHNlbGVjdGVkIGZpZWxkcyBvbiBhbiBleGlzdGluZyBzdWItYWNjb3VudCBwb2xpY3kgdGVtcGxhdGUumLUYAoLT5JMCLjoBKjIpL3YxL2F1dGgvcG9saWNpZXMvc3ViYWNjb3VudHMve3BvbGljeV9pZH0SkwIKFkRlbGV0ZVN1YmFjY291bnRQb2xpY3kSJi5hdXRoLnYxLkRlbGV0ZVN1YmFjY291bnRQb2xpY3lSZXF1ZXN0GicuYXV0aC52MS5EZWxldGVTdWJhY2NvdW50UG9saWN5UmVzcG9uc2UipwG6R28KDEF1dGggU2VydmljZRIYRGVsZXRlIFN1YmFjY291bnQgUG9saWN5GkVEZWxldGUgYW4gZXhpc3Rpbmcgc3ViLWFjY291bnQgcG9saWN5IHRlbXBsYXRlIHdoZW4gaXQgaXMgbm90IGluIHVzZS6YtRgCgtPkkwIrKikvdjEvYXV0aC9wb2xpY2llcy9zdWJhY2NvdW50cy97cG9saWN5X2lkfRKHAgoTU2V0U3ViYWNjb3VudFBvbGljeRIjLmF1dGgudjEuU2V0U3ViYWNjb3VudFBvbGljeVJlcXVlc3QaJC5hdXRoLnYxLlNldFN1YmFjY291bnRQb2xpY3lSZXNwb25zZSKkAbpHZwoMQXV0aCBTZXJ2aWNlEhVTZXQgU3ViYWNjb3VudCBQb2xpY3kaQEF0dGFjaCBvciBjbGVhciBhIHN1Yi1hY2NvdW50IHBvbGljeSBmb3IgdGhlIHRhcmdldCBzdWItYWNjb3VudC6YtRgCgtPkkwIwOgEqMisvdjEvYXV0aC9zdWJhY2NvdW50cy97c3ViYWNjb3VudF9pZH0vcG9saWN5EtkBCg9MaXN0QXBpUG9saWNpZXMSHy5hdXRoLnYxLkxpc3RBcGlQb2xpY2llc1JlcXVlc3QaIC5hdXRoLnYxLkxpc3RBcGlQb2xpY2llc1Jlc3BvbnNlIoIBukddCgxBdXRoIFNlcnZpY2USFUxpc3QgQVBJIEtleSBQb2xpY2llcxo2TGlzdCBBUEkga2V5IHBvbGljeSB0ZW1wbGF0ZXMgYXZhaWxhYmxlIHRvIHRoZSBjYWxsZXIugtPkkwIcEhovdjEvYXV0aC9wb2xpY2llcy9hcGkta2V5cxLaAQoMR2V0QXBpUG9saWN5EhwuYXV0aC52MS5HZXRBcGlQb2xpY3lSZXF1ZXN0Gh0uYXV0aC52MS5HZXRBcGlQb2xpY3lSZXNwb25zZSKMAbpHWwoMQXV0aCBTZXJ2aWNlEhJHZXQgQVBJIEtleSBQb2xpY3kaN1JldHJpZXZlIGEgc2luZ2xlIEFQSSBrZXkgcG9saWN5IHRlbXBsYXRlIGJ5IHBvbGljeSBJRC6C0+STAigSJi92MS9hdXRoL3BvbGljaWVzL2FwaS1rZXlzL3twb2xpY3lfaWR9EvMBCg9DcmVhdGVBcGlQb2xpY3kSHy5hdXRoLnYxLkNyZWF0ZUFwaVBvbGljeVJlcXVlc3QaIC5hdXRoLnYxLkNyZWF0ZUFwaVBvbGljeVJlc3BvbnNlIpwBukdwCgxBdXRoIFNlcnZpY2USFUNyZWF0ZSBBUEkgS2V5IFBvbGljeRpJQ3JlYXRlIGEgbmV3IEFQSSBrZXkgcG9saWN5IHRlbXBsYXRlIGZvciB0aGUgY2FsbGVyIGFjY291bnQgb3Igd29ya3NwYWNlLpi1GAKC0+STAh86ASoiGi92MS9hdXRoL3BvbGljaWVzL2FwaS1rZXlzEvQBCg9VcGRhdGVBcGlQb2xpY3kSHy5hdXRoLnYxLlVwZGF0ZUFwaVBvbGljeVJlcXVlc3QaIC5hdXRoLnYxLlVwZGF0ZUFwaVBvbGljeVJlc3BvbnNlIp0BukdlCgxBdXRoIFNlcnZpY2USFVVwZGF0ZSBBUEkgS2V5IFBvbGljeRo+Q2hhbmdlIHNlbGVjdGVkIGZpZWxkcyBvbiBhbiBleGlzdGluZyBBUEkga2V5IHBvbGljeSB0ZW1wbGF0ZS6YtRgCgtPkkwIrOgEqMiYvdjEvYXV0aC9wb2xpY2llcy9hcGkta2V5cy97cG9saWN5X2lkfRL0AQoPRGVsZXRlQXBpUG9saWN5Eh8uYXV0aC52MS5EZWxldGVBcGlQb2xpY3lSZXF1ZXN0GiAuYXV0aC52MS5EZWxldGVBcGlQb2xpY3lSZXNwb25zZSKdAbpHaAoMQXV0aCBTZXJ2aWNlEhVEZWxldGUgQVBJIEtleSBQb2xpY3kaQURlbGV0ZSBhbiBleGlzdGluZyBBUEkga2V5IHBvbGljeSB0ZW1wbGF0ZSB3aGVuIGl0IGlzIG5vdCBpbiB1c2UumLUYAoLT5JMCKComL3YxL2F1dGgvcG9saWNpZXMvYXBpLWtleXMve3BvbGljeV9pZH0S4wEKD1NldEFwaUtleVBvbGljeRIfLmF1dGgudjEuU2V0QXBpS2V5UG9saWN5UmVxdWVzdBogLmF1dGgudjEuU2V0QXBpS2V5UG9saWN5UmVzcG9uc2UijAG6R1kKDEF1dGggU2VydmljZRISU2V0IEFQSSBLZXkgUG9saWN5GjVBdHRhY2ggb3IgY2xlYXIgYW4gQVBJIGtleSBwb2xpY3kgZm9yIHRoZSB0YXJnZXQga2V5Lpi1GAKC0+STAiY6ASoyIS92MS9hdXRoL2FwaS1rZXlzL3trZXlfaWR9L3BvbGljeUI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2F1dGgvdjE7YXV0aHYxYgZwcm90bzM", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_api_field_behavior, file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * MarketScope describes how a policy applies to spot markets.
@@ -67,17 +71,38 @@ export const MarketScope_ValueSchema: GenEnum<MarketScope_Value> = /*@__PURE__*/
   enumDesc(file_auth_v1_policies, 0, 0);
 
 /**
- * SpotMarketRule describes an allowed spot market for a sub-account policy.
+ * SpotMarketSelector identifies an allowed spot market in policy mutations.
+ *
+ * @generated from message auth.v1.SpotMarketSelector
+ */
+export type SpotMarketSelector = Message<"auth.v1.SpotMarketSelector"> & {
+  /**
+   * Stable numeric pair ID from GetSpotConfig.
+   *
+   * @generated from field: uint32 symbol_id = 1;
+   */
+  symbolId: number;
+};
+
+/**
+ * Describes the message auth.v1.SpotMarketSelector.
+ * Use `create(SpotMarketSelectorSchema)` to create a new message.
+ */
+export const SpotMarketSelectorSchema: GenMessage<SpotMarketSelector> = /*@__PURE__*/
+  messageDesc(file_auth_v1_policies, 1);
+
+/**
+ * SpotMarketRule describes an allowed spot market in policy views.
  *
  * @generated from message auth.v1.SpotMarketRule
  */
 export type SpotMarketRule = Message<"auth.v1.SpotMarketRule"> & {
   /**
-   * Spot market symbol, e.g. "BTC-USDT".
+   * Stable numeric pair ID.
    *
-   * @generated from field: string symbol = 1;
+   * @generated from field: uint32 symbol_id = 1;
    */
-  symbol: string;
+  symbolId: number;
 };
 
 /**
@@ -85,7 +110,7 @@ export type SpotMarketRule = Message<"auth.v1.SpotMarketRule"> & {
  * Use `create(SpotMarketRuleSchema)` to create a new message.
  */
 export const SpotMarketRuleSchema: GenMessage<SpotMarketRule> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 1);
+  messageDesc(file_auth_v1_policies, 2);
 
 /**
  * SubaccountPolicyView is the public view of a sub-account policy.
@@ -230,7 +255,7 @@ export type SubaccountPolicyView = Message<"auth.v1.SubaccountPolicyView"> & {
  * Use `create(SubaccountPolicyViewSchema)` to create a new message.
  */
 export const SubaccountPolicyViewSchema: GenMessage<SubaccountPolicyView> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 2);
+  messageDesc(file_auth_v1_policies, 3);
 
 /**
  * ListSubaccountPoliciesRequest lists the finite set of sub-account policies
@@ -254,7 +279,7 @@ export type ListSubaccountPoliciesRequest = Message<"auth.v1.ListSubaccountPolic
  * Use `create(ListSubaccountPoliciesRequestSchema)` to create a new message.
  */
 export const ListSubaccountPoliciesRequestSchema: GenMessage<ListSubaccountPoliciesRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 3);
+  messageDesc(file_auth_v1_policies, 4);
 
 /**
  * ListSubaccountPoliciesResponse contains sub-account policy templates sorted
@@ -276,7 +301,7 @@ export type ListSubaccountPoliciesResponse = Message<"auth.v1.ListSubaccountPoli
  * Use `create(ListSubaccountPoliciesResponseSchema)` to create a new message.
  */
 export const ListSubaccountPoliciesResponseSchema: GenMessage<ListSubaccountPoliciesResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 4);
+  messageDesc(file_auth_v1_policies, 5);
 
 /**
  * GetSubaccountPolicyRequest fetches one sub-account policy template by ID.
@@ -305,7 +330,7 @@ export type GetSubaccountPolicyRequest = Message<"auth.v1.GetSubaccountPolicyReq
  * Use `create(GetSubaccountPolicyRequestSchema)` to create a new message.
  */
 export const GetSubaccountPolicyRequestSchema: GenMessage<GetSubaccountPolicyRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 5);
+  messageDesc(file_auth_v1_policies, 6);
 
 /**
  * GetSubaccountPolicyResponse returns the requested sub-account policy.
@@ -326,7 +351,7 @@ export type GetSubaccountPolicyResponse = Message<"auth.v1.GetSubaccountPolicyRe
  * Use `create(GetSubaccountPolicyResponseSchema)` to create a new message.
  */
 export const GetSubaccountPolicyResponseSchema: GenMessage<GetSubaccountPolicyResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 6);
+  messageDesc(file_auth_v1_policies, 7);
 
 /**
  * SubaccountPolicySpec contains the mutable configuration of a sub-account policy.
@@ -352,9 +377,9 @@ export type SubaccountPolicySpec = Message<"auth.v1.SubaccountPolicySpec"> & {
   /**
    * Allowed spot markets for this policy.
    *
-   * @generated from field: repeated auth.v1.SpotMarketRule spot_markets = 3;
+   * @generated from field: repeated auth.v1.SpotMarketSelector spot_markets = 3;
    */
-  spotMarkets: SpotMarketRule[];
+  spotMarkets: SpotMarketSelector[];
 
   /**
    * Market-level scope for spot markets. When unspecified, defaults to ALL.
@@ -425,7 +450,7 @@ export type SubaccountPolicySpec = Message<"auth.v1.SubaccountPolicySpec"> & {
  * Use `create(SubaccountPolicySpecSchema)` to create a new message.
  */
 export const SubaccountPolicySpecSchema: GenMessage<SubaccountPolicySpec> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 7);
+  messageDesc(file_auth_v1_policies, 8);
 
 /**
  * CreateSubaccountPolicyRequest defines a new sub-account policy template, with
@@ -454,7 +479,7 @@ export type CreateSubaccountPolicyRequest = Message<"auth.v1.CreateSubaccountPol
  * Use `create(CreateSubaccountPolicyRequestSchema)` to create a new message.
  */
 export const CreateSubaccountPolicyRequestSchema: GenMessage<CreateSubaccountPolicyRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 8);
+  messageDesc(file_auth_v1_policies, 9);
 
 /**
  * CreateSubaccountPolicyResponse returns the created sub-account policy.
@@ -475,7 +500,7 @@ export type CreateSubaccountPolicyResponse = Message<"auth.v1.CreateSubaccountPo
  * Use `create(CreateSubaccountPolicyResponseSchema)` to create a new message.
  */
 export const CreateSubaccountPolicyResponseSchema: GenMessage<CreateSubaccountPolicyResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 9);
+  messageDesc(file_auth_v1_policies, 10);
 
 /**
  * UpdateSubaccountPolicyRequest changes selected mutable fields on an existing
@@ -520,7 +545,7 @@ export type UpdateSubaccountPolicyRequest = Message<"auth.v1.UpdateSubaccountPol
  * Use `create(UpdateSubaccountPolicyRequestSchema)` to create a new message.
  */
 export const UpdateSubaccountPolicyRequestSchema: GenMessage<UpdateSubaccountPolicyRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 10);
+  messageDesc(file_auth_v1_policies, 11);
 
 /**
  * UpdateSubaccountPolicyResponse returns the updated sub-account policy.
@@ -541,7 +566,7 @@ export type UpdateSubaccountPolicyResponse = Message<"auth.v1.UpdateSubaccountPo
  * Use `create(UpdateSubaccountPolicyResponseSchema)` to create a new message.
  */
 export const UpdateSubaccountPolicyResponseSchema: GenMessage<UpdateSubaccountPolicyResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 11);
+  messageDesc(file_auth_v1_policies, 12);
 
 /**
  * DeleteSubaccountPolicyRequest deletes a sub-account policy template when it
@@ -563,7 +588,7 @@ export type DeleteSubaccountPolicyRequest = Message<"auth.v1.DeleteSubaccountPol
  * Use `create(DeleteSubaccountPolicyRequestSchema)` to create a new message.
  */
 export const DeleteSubaccountPolicyRequestSchema: GenMessage<DeleteSubaccountPolicyRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 12);
+  messageDesc(file_auth_v1_policies, 13);
 
 /**
  * DeleteSubaccountPolicyResponse is empty when the delete succeeds.
@@ -578,7 +603,7 @@ export type DeleteSubaccountPolicyResponse = Message<"auth.v1.DeleteSubaccountPo
  * Use `create(DeleteSubaccountPolicyResponseSchema)` to create a new message.
  */
 export const DeleteSubaccountPolicyResponseSchema: GenMessage<DeleteSubaccountPolicyResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 13);
+  messageDesc(file_auth_v1_policies, 14);
 
 /**
  * SetSubaccountPolicyRequest attaches or clears a policy template on a
@@ -608,7 +633,7 @@ export type SetSubaccountPolicyRequest = Message<"auth.v1.SetSubaccountPolicyReq
  * Use `create(SetSubaccountPolicyRequestSchema)` to create a new message.
  */
 export const SetSubaccountPolicyRequestSchema: GenMessage<SetSubaccountPolicyRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 14);
+  messageDesc(file_auth_v1_policies, 15);
 
 /**
  * SetSubaccountPolicyResponse is empty when the policy binding succeeds.
@@ -623,7 +648,7 @@ export type SetSubaccountPolicyResponse = Message<"auth.v1.SetSubaccountPolicyRe
  * Use `create(SetSubaccountPolicyResponseSchema)` to create a new message.
  */
 export const SetSubaccountPolicyResponseSchema: GenMessage<SetSubaccountPolicyResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 15);
+  messageDesc(file_auth_v1_policies, 16);
 
 /**
  * ApiPolicyView is the public view of an API key policy template. Its action
@@ -721,7 +746,7 @@ export type ApiPolicyView = Message<"auth.v1.ApiPolicyView"> & {
  * Use `create(ApiPolicyViewSchema)` to create a new message.
  */
 export const ApiPolicyViewSchema: GenMessage<ApiPolicyView> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 16);
+  messageDesc(file_auth_v1_policies, 17);
 
 /**
  * ListApiPoliciesRequest lists the finite set of API key policies visible in
@@ -745,7 +770,7 @@ export type ListApiPoliciesRequest = Message<"auth.v1.ListApiPoliciesRequest"> &
  * Use `create(ListApiPoliciesRequestSchema)` to create a new message.
  */
 export const ListApiPoliciesRequestSchema: GenMessage<ListApiPoliciesRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 17);
+  messageDesc(file_auth_v1_policies, 18);
 
 /**
  * ListApiPoliciesResponse contains API key policy templates sorted by ascending
@@ -767,7 +792,7 @@ export type ListApiPoliciesResponse = Message<"auth.v1.ListApiPoliciesResponse">
  * Use `create(ListApiPoliciesResponseSchema)` to create a new message.
  */
 export const ListApiPoliciesResponseSchema: GenMessage<ListApiPoliciesResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 18);
+  messageDesc(file_auth_v1_policies, 19);
 
 /**
  * GetApiPolicyRequest fetches one API key policy template by ID.
@@ -796,7 +821,7 @@ export type GetApiPolicyRequest = Message<"auth.v1.GetApiPolicyRequest"> & {
  * Use `create(GetApiPolicyRequestSchema)` to create a new message.
  */
 export const GetApiPolicyRequestSchema: GenMessage<GetApiPolicyRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 19);
+  messageDesc(file_auth_v1_policies, 20);
 
 /**
  * GetApiPolicyResponse returns the requested API key policy.
@@ -817,7 +842,7 @@ export type GetApiPolicyResponse = Message<"auth.v1.GetApiPolicyResponse"> & {
  * Use `create(GetApiPolicyResponseSchema)` to create a new message.
  */
 export const GetApiPolicyResponseSchema: GenMessage<GetApiPolicyResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 20);
+  messageDesc(file_auth_v1_policies, 21);
 
 /**
  * ApiPolicySpec contains the mutable configuration of an API key policy.
@@ -843,9 +868,9 @@ export type ApiPolicySpec = Message<"auth.v1.ApiPolicySpec"> & {
   /**
    * Allowed spot markets for this API key policy.
    *
-   * @generated from field: repeated auth.v1.SpotMarketRule spot_markets = 3;
+   * @generated from field: repeated auth.v1.SpotMarketSelector spot_markets = 3;
    */
-  spotMarkets: SpotMarketRule[];
+  spotMarkets: SpotMarketSelector[];
 
   /**
    * Market-level scope for spot markets. When unspecified, defaults to ALL.
@@ -875,7 +900,7 @@ export type ApiPolicySpec = Message<"auth.v1.ApiPolicySpec"> & {
  * Use `create(ApiPolicySpecSchema)` to create a new message.
  */
 export const ApiPolicySpecSchema: GenMessage<ApiPolicySpec> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 21);
+  messageDesc(file_auth_v1_policies, 22);
 
 /**
  * CreateApiPolicyRequest defines a new API key policy template.
@@ -905,7 +930,7 @@ export type CreateApiPolicyRequest = Message<"auth.v1.CreateApiPolicyRequest"> &
  * Use `create(CreateApiPolicyRequestSchema)` to create a new message.
  */
 export const CreateApiPolicyRequestSchema: GenMessage<CreateApiPolicyRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 22);
+  messageDesc(file_auth_v1_policies, 23);
 
 /**
  * CreateApiPolicyResponse returns the created API key policy.
@@ -926,7 +951,7 @@ export type CreateApiPolicyResponse = Message<"auth.v1.CreateApiPolicyResponse">
  * Use `create(CreateApiPolicyResponseSchema)` to create a new message.
  */
 export const CreateApiPolicyResponseSchema: GenMessage<CreateApiPolicyResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 23);
+  messageDesc(file_auth_v1_policies, 24);
 
 /**
  * UpdateApiPolicyRequest changes selected mutable fields on an existing API
@@ -971,7 +996,7 @@ export type UpdateApiPolicyRequest = Message<"auth.v1.UpdateApiPolicyRequest"> &
  * Use `create(UpdateApiPolicyRequestSchema)` to create a new message.
  */
 export const UpdateApiPolicyRequestSchema: GenMessage<UpdateApiPolicyRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 24);
+  messageDesc(file_auth_v1_policies, 25);
 
 /**
  * UpdateApiPolicyResponse returns the updated API key policy.
@@ -992,7 +1017,7 @@ export type UpdateApiPolicyResponse = Message<"auth.v1.UpdateApiPolicyResponse">
  * Use `create(UpdateApiPolicyResponseSchema)` to create a new message.
  */
 export const UpdateApiPolicyResponseSchema: GenMessage<UpdateApiPolicyResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 25);
+  messageDesc(file_auth_v1_policies, 26);
 
 /**
  * DeleteApiPolicyRequest deletes an API key policy template when it is not in use.
@@ -1013,7 +1038,7 @@ export type DeleteApiPolicyRequest = Message<"auth.v1.DeleteApiPolicyRequest"> &
  * Use `create(DeleteApiPolicyRequestSchema)` to create a new message.
  */
 export const DeleteApiPolicyRequestSchema: GenMessage<DeleteApiPolicyRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 26);
+  messageDesc(file_auth_v1_policies, 27);
 
 /**
  * DeleteApiPolicyResponse is empty when the delete succeeds.
@@ -1028,7 +1053,7 @@ export type DeleteApiPolicyResponse = Message<"auth.v1.DeleteApiPolicyResponse">
  * Use `create(DeleteApiPolicyResponseSchema)` to create a new message.
  */
 export const DeleteApiPolicyResponseSchema: GenMessage<DeleteApiPolicyResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 27);
+  messageDesc(file_auth_v1_policies, 28);
 
 /**
  * SetApiKeyPolicyRequest attaches or clears a policy template on an API key.
@@ -1058,7 +1083,7 @@ export type SetApiKeyPolicyRequest = Message<"auth.v1.SetApiKeyPolicyRequest"> &
  * Use `create(SetApiKeyPolicyRequestSchema)` to create a new message.
  */
 export const SetApiKeyPolicyRequestSchema: GenMessage<SetApiKeyPolicyRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 28);
+  messageDesc(file_auth_v1_policies, 29);
 
 /**
  * SetApiKeyPolicyResponse is empty when the policy binding succeeds.
@@ -1073,7 +1098,7 @@ export type SetApiKeyPolicyResponse = Message<"auth.v1.SetApiKeyPolicyResponse">
  * Use `create(SetApiKeyPolicyResponseSchema)` to create a new message.
  */
 export const SetApiKeyPolicyResponseSchema: GenMessage<SetApiKeyPolicyResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_policies, 29);
+  messageDesc(file_auth_v1_policies, 30);
 
 /**
  * PolicyAction is a high-level permission that can be granted by a policy.
