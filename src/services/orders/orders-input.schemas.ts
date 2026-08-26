@@ -1,7 +1,7 @@
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import { create } from "@bufbuild/protobuf";
 import * as v from "valibot";
-import { SideSchema } from "../shared.js";
+import { SideSchema, SymbolIdInputSchema } from "../shared.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import {
@@ -101,7 +101,7 @@ const DecimalInputStringSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
 
 function createOrderIntentBaseEntries(scales: SdkScales) {
     return {
-        symbol: v.pipe(v.string(), v.trim(), v.minLength(1)),
+        symbolId: SymbolIdInputSchema,
         side: v.pipe(
             SideSchema,
             v.transform((v) => OrderSideCodec.inputToProto[v]),
@@ -195,14 +195,14 @@ function toOrderIntent(input: ParsedOrderIntentInput, scales: SdkScales) {
         qty !== undefined
             ? ({
                   case: "baseQtyScaled",
-                  value: positiveDecimalInputToScaled("qty", qty, scales.baseQty(intent.symbol)),
+                  value: positiveDecimalInputToScaled("qty", qty, scales.baseQty(intent.symbolId)),
               } as const)
             : ({
                   case: "maxQuoteDebitScaled",
                   value: positiveDecimalInputToScaled(
                       "maxQuoteDebit",
                       maxQuoteDebit,
-                      scales.quoteAmount(intent.symbol),
+                      scales.quoteAmount(intent.symbolId),
                   ),
               } as const);
     return {
@@ -355,7 +355,7 @@ export type CancelOrderResult = v.InferOutput<typeof CancelOrderResultSchema>;
 export const CancelAllOrdersInputSchema = v.pipe(
     v.strictObject({
         ...AccountScopeInputEntries,
-        symbol: v.optional(v.pipe(v.string(), v.trim())),
+        symbolId: v.optional(SymbolIdInputSchema),
         side: v.pipe(
             v.optional(SideSchema),
             v.transform((v) => (v ? OrderSideCodec.inputToProto[v] : undefined)),
@@ -418,7 +418,7 @@ export const GetOrderDetailsInputSchema = v.pipe(
 
 export type GetOrderDetailsInput = v.InferInput<typeof GetOrderDetailsInputSchema>;
 
-export function createCreateOrderResultSchema(scales: SdkScales, symbol: string) {
+export function createCreateOrderResultSchema(scales: SdkScales, symbolId: number) {
     return v.pipe(
         v.object({
             orderId: PublicIdSchema,
@@ -444,14 +444,14 @@ export function createCreateOrderResultSchema(scales: SdkScales, symbol: string)
                 acceptedAtNs: acceptedAtTsNs.toString(),
                 resolvedBaseQty: scaledToDecimalOutput(
                     resolvedBaseQtyScaled,
-                    scales.baseQty(symbol),
+                    scales.baseQty(symbolId),
                 ),
                 ...(submittedMaxQuoteDebitScaled === undefined
                     ? {}
                     : {
                           submittedMaxQuoteDebit: scaledToDecimalOutput(
                               submittedMaxQuoteDebitScaled,
-                              scales.quoteAmount(symbol),
+                              scales.quoteAmount(symbolId),
                           ),
                       }),
             }),
@@ -461,7 +461,7 @@ export function createCreateOrderResultSchema(scales: SdkScales, symbol: string)
 
 export type CreateOrderResult = v.InferOutput<ReturnType<typeof createCreateOrderResultSchema>>;
 
-export function createPreviewOrderResultSchema(scales: SdkScales, symbol: string) {
+export function createPreviewOrderResultSchema(scales: SdkScales, symbolId: number) {
     return v.pipe(
         v.object({
             admissible: v.optional(v.boolean()),
@@ -477,7 +477,7 @@ export function createPreviewOrderResultSchema(scales: SdkScales, symbol: string
                 : {
                       resolvedBaseQty: scaledToDecimalOutput(
                           resolvedBaseQtyScaled,
-                          scales.baseQty(symbol),
+                          scales.baseQty(symbolId),
                       ),
                   }),
             ...(protectedPriceBoundTicks === undefined

@@ -55,7 +55,6 @@ function trigger(overrides: Partial<Proto.Trigger> = {}): Proto.Trigger {
         triggerId: 11n,
         subaccountId: 22n,
         symbolId: 1,
-        symbol: "BTC-USDT",
         status: Proto.TriggerStatus.STATUS_ARMED,
         qtyScaled: 50_000_000n,
         feeAsset: ProtoOrders.FeeAsset.QUOTE,
@@ -128,7 +127,7 @@ describe("TriggersService", () => {
                 input: {
                     account: { subaccountId: "11" },
                     triggerType: "stop_loss",
-                    symbol: " BTC-USDT ",
+                    symbolId: 1,
                     side: "sell",
                     qty: "0.5",
                     triggerPrice: "100",
@@ -148,7 +147,7 @@ describe("TriggersService", () => {
                 name: "stop-loss limit GTC",
                 input: {
                     triggerType: "stop_loss",
-                    symbol: "BTC-USDT",
+                    symbolId: 1,
                     side: "sell",
                     qty: "0.25",
                     triggerPrice: "99",
@@ -173,7 +172,7 @@ describe("TriggersService", () => {
                 name: "take-profit limit IOC",
                 input: {
                     triggerType: "take_profit",
-                    symbol: "BTC-USDT",
+                    symbolId: 1,
                     side: "sell",
                     qty: "0.25",
                     triggerPrice: "101",
@@ -198,7 +197,7 @@ describe("TriggersService", () => {
                 name: "take-profit limit FOK",
                 input: {
                     triggerType: "take_profit",
-                    symbol: "BTC-USDT",
+                    symbolId: 1,
                     side: "buy",
                     qty: "0.25",
                     triggerPrice: "101",
@@ -225,7 +224,7 @@ describe("TriggersService", () => {
                 name: "trailing stop",
                 input: {
                     triggerType: "trailing_stop",
-                    symbol: "BTC-USDT",
+                    symbolId: 1,
                     qty: "0.25",
                     trailingDistance: { kind: "bps", bps: 150 },
                     activationPrice: "99",
@@ -246,7 +245,7 @@ describe("TriggersService", () => {
                 name: "TWAP market IOC",
                 input: {
                     triggerType: "twap",
-                    symbol: "BTC-USDT",
+                    symbolId: 1,
                     side: "buy",
                     qty: "1",
                     durationMs: "60000",
@@ -268,7 +267,7 @@ describe("TriggersService", () => {
                 name: "TWAP limit GTC",
                 input: {
                     triggerType: "twap",
-                    symbol: "BTC-USDT",
+                    symbolId: 1,
                     side: "sell",
                     qty: "1",
                     durationMs: 60_000,
@@ -293,7 +292,7 @@ describe("TriggersService", () => {
                 name: "ladder",
                 input: {
                     triggerType: "ladder",
-                    symbol: "BTC-USDT",
+                    symbolId: 1,
                     side: "buy",
                     qty: "1",
                     priceMin: "99",
@@ -333,7 +332,7 @@ describe("TriggersService", () => {
                 method: { localName: "createTrigger" },
                 message: {
                     trigger: {
-                        symbol: "BTC-USDT",
+                        symbolId: 1,
                         qtyScaled: expect.any(BigInt),
                         clientTriggerId: expect.stringMatching(/^trigger-client-/),
                         strategy: testCase.expectedStrategy,
@@ -370,7 +369,7 @@ describe("TriggersService", () => {
             service.list(
                 {
                     parentOrderId: "33",
-                    symbol: " BTC-USDT ",
+                    symbolId: 1,
                     status: ["armed", "paused"],
                     triggerType: "twap",
                 },
@@ -420,7 +419,7 @@ describe("TriggersService", () => {
             message: {
                 subaccountId: 11n,
                 parentOrderId: 33n,
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 status: [Proto.TriggerStatus.STATUS_ARMED, Proto.TriggerStatus.STATUS_PAUSED],
                 triggerType: Proto.TriggerType.TWAP,
                 limit: 50,
@@ -655,7 +654,7 @@ describe("TriggersService", () => {
         expect(onEvent).toHaveBeenCalledWith(
             expect.objectContaining({
                 clientTriggerId: "trigger-client-1",
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 status: "armed",
                 qty: "0.5",
                 configuration: expect.objectContaining({ type: "stop_loss" }),
@@ -737,7 +736,7 @@ describe("TriggersService", () => {
         await expect(
             service.create({
                 triggerType: "twap",
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 side: "buy",
                 qty: "1",
                 durationMs: 500,

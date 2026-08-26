@@ -108,7 +108,7 @@ export class TriggersService {
     }
 
     /**
-     * Creates a standalone trigger, such as stop-loss, take-profit, trailing-stop, TWAP, or ladder, for the resolved account scope. The request includes trigger conditions, order fields, strategy-specific fields, and optional clientTriggerId.
+     * Creates a standalone trigger for a symbol ID, using that market's catalog quantity scale.
      */
     async create(
         input: CreateTriggerInput,
@@ -138,7 +138,7 @@ export class TriggersService {
     }
 
     /**
-     * Lists triggers for the resolved account scope with optional symbol, status, trigger type, parent order, limit, and page-token filters. Results are returned newest-first.
+     * Lists triggers for the resolved account scope with optional symbol ID, status, trigger type, parent order, limit, and page-token filters. Results are returned newest-first.
      */
     async list(
         input: ListTriggersInput = {},

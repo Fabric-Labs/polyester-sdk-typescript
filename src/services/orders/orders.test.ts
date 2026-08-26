@@ -212,7 +212,7 @@ describe("OrdersService", () => {
             service.create(
                 {
                     account: { subaccountId: "11" },
-                    symbol: "BTC-USDT",
+                    symbolId: 1,
                     side: "buy",
                     qty: "0.5",
                     execution: {
@@ -241,7 +241,7 @@ describe("OrdersService", () => {
         expect(captured?.message).toMatchObject({
             subaccountId: 11n,
             order: {
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 side: ProtoWrite.Side.BUY,
                 sizing: {
                     case: "baseQtyScaled",
@@ -279,7 +279,7 @@ describe("OrdersService", () => {
 
         await expect(
             service.preview({
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 side: "buy",
                 maxQuoteDebit: "125.5",
                 execution: { type: "market_ioc" },
@@ -316,7 +316,7 @@ describe("OrdersService", () => {
 
         await expect(
             service.create({
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 side: "buy",
                 qty: "0.5",
                 execution: {
@@ -435,7 +435,7 @@ describe("OrdersService", () => {
             testScales(),
         );
 
-        await expect(service.cancelAll({ symbol: " BTC-USDT " })).resolves.toMatchObject({
+        await expect(service.cancelAll({ symbolId: 1 })).resolves.toMatchObject({
             status: "ok",
             matchedOrders: 2,
             submittedCancels: 2,
@@ -445,7 +445,7 @@ describe("OrdersService", () => {
 
         const request = transport.lastCall()?.message;
         expect(request).toMatchObject({
-            symbol: "BTC-USDT",
+            symbolId: 1,
         });
         expect(request?.requestId).toEqual(expect.any(String));
         const requestId = request?.requestId as string;
@@ -511,7 +511,7 @@ describe("OrdersService", () => {
                     requestId: " batch-create-1 ",
                     items: [
                         {
-                            symbol: "BTC-USDT",
+                            symbolId: 1,
                             side: "buy",
                             qty: "0.5",
                             execution: { type: "limit_gtc", price: "100.25" },
@@ -545,7 +545,7 @@ describe("OrdersService", () => {
             requestId: "batch-create-1",
             items: [
                 {
-                    symbol: "BTC-USDT",
+                    symbolId: 1,
                     sizing: {
                         case: "baseQtyScaled",
                         value: 50_000_000n,
@@ -739,7 +739,7 @@ describe("OrdersService", () => {
         await expect(
             service.cancelAllAfter({
                 timeoutSec: 15,
-                symbol: " BTC-USDT ",
+                symbolId: 1,
                 side: "sell",
             }),
         ).resolves.toEqual({
@@ -756,7 +756,7 @@ describe("OrdersService", () => {
         expect(call?.message).toMatchObject({
             subaccountId: 11n,
             timeoutSec: 15,
-            symbol: "BTC-USDT",
+            symbolId: 1,
             side: ProtoWrite.Side.SELL,
         });
         expect(call?.message.requestId).toEqual(expect.any(String));

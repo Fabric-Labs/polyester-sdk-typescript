@@ -8,7 +8,7 @@ import {
 } from "../../shared/account-scope.js";
 import { positiveDecimalInputToScaled, type SdkScales } from "../../shared/decimal-surface.js";
 import { CatalogConversionError } from "../../catalogs/types.js";
-import { PROTOBUF_INT32_MAX, PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
+import { PROTOBUF_INT32_MAX } from "../../shared/wire-bounds.js";
 import { parseOptionalPositiveIntLike } from "../../utils/numbers.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import {
@@ -20,7 +20,7 @@ import {
     TriggerTypeCodec,
     TriggerStatusCodec,
 } from "./triggers.codecs.js";
-import { BpsStringOrNumberInputSchema, NoneInputSchema } from "../shared.js";
+import { BpsStringOrNumberInputSchema, NoneInputSchema, SymbolIdInputSchema } from "../shared.js";
 import {
     BaseTriggerFieldsSchema,
     ConditionalExecutionInputSchema,
@@ -39,12 +39,6 @@ const TriggerTypeSchema = v.picklist(TRIGGER_TYPE_VALUES);
 const TriggerStatusFilterSchema = v.picklist(TRIGGER_STATUS_FILTER_VALUES);
 const TriggerEventTypeSchema = v.picklist(TRIGGER_EVENT_TYPE_VALUES);
 const TriggerIdInputSchema = idInputSchema("triggerId");
-const TriggerSymbolIdInputSchema = v.pipe(
-    v.number(),
-    v.integer(),
-    v.gtValue(0),
-    v.maxValue(PROTOBUF_UINT32_MAX),
-);
 
 const TriggerScopedInputEntries = {
     triggerId: TriggerIdInputSchema,
@@ -349,6 +343,7 @@ function createLadderTriggerInputSchema(scales: SdkScales) {
     );
 }
 
+/** Builds the create-trigger boundary schema using catalog scales keyed by symbol ID. */
 export function createCreateTriggerInputSchema(scales: SdkScales) {
     return v.union([
         ...createConditionalTriggerInputSchema(scales, "stop_loss"),
@@ -359,8 +354,10 @@ export function createCreateTriggerInputSchema(scales: SdkScales) {
     ]);
 }
 
+/** Public input for creating a standalone trigger. */
 export type CreateTriggerInput = v.InferInput<ReturnType<typeof createCreateTriggerInputSchema>>;
 
+/** Public filters for listing triggers in an account scope. */
 export const ListTriggersInputSchema = v.pipe(
     v.strictObject({
         ...AccountScopeInputEntries,
@@ -368,7 +365,7 @@ export const ListTriggersInputSchema = v.pipe(
             v.optional(v.pipe(v.string(), v.trim())),
             v.transform((value) => (value ? idToBigInt(value, "parentOrderId") : undefined)),
         ),
-        symbol: v.optional(v.pipe(v.string(), v.trim())),
+        symbolId: v.optional(SymbolIdInputSchema),
         status: v.pipe(
             v.optional(v.array(TriggerStatusFilterSchema)),
             v.transform(
@@ -392,6 +389,7 @@ export const ListTriggersInputSchema = v.pipe(
     })),
 );
 
+/** Public filters for listing triggers. */
 export type ListTriggersInput = v.InferInput<typeof ListTriggersInputSchema>;
 
 export const CancelTriggerInputSchema = TriggerScopedInputSchema;
@@ -406,7 +404,7 @@ export type PauseTriggerInput = v.InferInput<typeof PauseTriggerInputSchema>;
 export const ResumeTriggerInputSchema = v.pipe(
     v.strictObject({
         ...TriggerScopedInputEntries,
-        symbolId: TriggerSymbolIdInputSchema,
+        symbolId: SymbolIdInputSchema,
     }),
     v.transform(({ account, ...input }) => ({
         ...input,
@@ -419,7 +417,7 @@ export function createModifyTriggerInputSchema(scales: SdkScales) {
     return v.pipe(
         v.strictObject({
             ...TriggerScopedInputEntries,
-            symbolId: TriggerSymbolIdInputSchema,
+            symbolId: SymbolIdInputSchema,
             triggerPrice: v.optional(DecimalInputStringSchema),
             limitPrice: v.optional(DecimalInputStringSchema),
             trailingDistance: v.optional(TrailingDistanceInputSchema),

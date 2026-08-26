@@ -136,7 +136,7 @@ export class OrdersService {
     }
 
     /**
-     * Returns open orders for the resolved root account or subaccount, with optional symbol, trigger ID, side, pagination, and attached-risk inclusion filters. Results are paginated with a server-determined page size: a single call is not the full set of open orders — keep calling with the returned nextPageToken until it is empty.
+     * Returns open orders for the resolved root account or subaccount, with optional symbol IDs, trigger ID, side, pagination, and attached-risk inclusion filters. Results are paginated with a server-determined page size: a single call is not the full set of open orders — keep calling with the returned nextPageToken until it is empty.
      */
     async listOpen(
         input: v.InferInput<typeof OpenOrdersInputSchema> = {},
@@ -159,7 +159,7 @@ export class OrdersService {
     }
 
     /**
-     * Returns historical orders for the resolved account scope, supporting symbol, trigger ID, side, status, time range, pagination, and attached-risk filters. Results are paginated with the backend nextPageToken.
+     * Returns historical orders for the resolved account scope, supporting symbol IDs, trigger ID, side, status, time range, pagination, and attached-risk filters. Results are paginated with the backend nextPageToken.
      */
     async listHistory(
         input: v.InferInput<typeof OrderHistoryInputSchema> = {},
@@ -195,7 +195,10 @@ export class OrdersService {
             removeUndefined(request),
             toConnectCallOptions(options),
         );
-        return parse(createPreviewOrderResultSchema(this.#scales, input.symbol), response);
+        return parse(
+            createPreviewOrderResultSchema(this.#scales, request.order.symbolId),
+            response,
+        );
     }
 
     /**
@@ -213,7 +216,10 @@ export class OrdersService {
             requestPayload,
             toConnectCallOptions(options),
         );
-        return parse(createCreateOrderResultSchema(this.#scales, input.symbol), res);
+        return parse(
+            createCreateOrderResultSchema(this.#scales, validatedInput.order.symbolId),
+            res,
+        );
     }
 
     /**
@@ -236,7 +242,7 @@ export class OrdersService {
         const result = parse(
             createBatchCreateOrdersResultSchema(
                 this.#scales,
-                input.items.map((item) => item.symbol),
+                request.items.map((item) => item.symbolId),
             ),
             response,
         );
@@ -353,7 +359,7 @@ export class OrdersService {
     }
 
     /**
-     * Cancels all matching open orders for the resolved account scope, optionally narrowed by symbol and side, with dry-run preview. A requestId is generated when omitted; provide a stable value when retrying the same logical bulk cancellation.
+     * Cancels all matching open orders for the resolved account scope, optionally narrowed by symbol ID and side, with dry-run preview. A requestId is generated when omitted; provide a stable value when retrying the same logical bulk cancellation.
      */
     async cancelAll(
         input: v.InferInput<typeof CancelAllOrdersInputSchema>,
@@ -372,7 +378,7 @@ export class OrdersService {
     }
 
     /**
-     * Arms, refreshes, or disables the account dead-man switch. timeoutSec 0 disables it; 10–120 arms it. Generate a new requestId for each deliberate heartbeat, but reuse the same ID when retrying one ambiguous heartbeat.
+     * Arms, refreshes, or disables the account dead-man switch, optionally scoped by symbol ID and side. timeoutSec 0 disables it; 10–120 arms it. Generate a new requestId for each deliberate heartbeat, but reuse the same ID when retrying one ambiguous heartbeat.
      */
     async cancelAllAfter(
         input: CancelAllAfterInput,

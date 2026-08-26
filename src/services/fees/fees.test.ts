@@ -8,7 +8,6 @@ describe("FeesService", () => {
             feeRates: [
                 {
                     symbolId: 101,
-                    symbol: "BTC-USDT",
                     makerFeeRatePercent: "0.02",
                     takerFeeRatePercent: "0.05",
                     vipTier: 2,
@@ -21,7 +20,6 @@ describe("FeesService", () => {
         await expect(service.getSpotRates({ symbolIds: [101] }, { signal })).resolves.toEqual([
             {
                 symbolId: 101,
-                symbol: "BTC-USDT",
                 makerFeeRatePercent: "0.02",
                 takerFeeRatePercent: "0.05",
                 vipTier: 2,

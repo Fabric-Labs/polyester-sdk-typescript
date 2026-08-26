@@ -66,6 +66,7 @@ describe("OrderbookService", () => {
     it("normalizes get requests, forwards signals, and parses snapshots into decimals", async () => {
         const controller = new AbortController();
         const transport = unaryTransport({
+            symbolId: 101,
             bookSeq: 12n,
             bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
             asks: [{ priceTicks: 100_250_000n, qtyScaled: 50_000_000n }],
@@ -77,9 +78,9 @@ describe("OrderbookService", () => {
         );
 
         await expect(
-            service.get({ symbol: "BTC-USDT", depth: 37 }, { signal: controller.signal }),
+            service.get({ symbolId: 101, depth: 37 }, { signal: controller.signal }),
         ).resolves.toMatchObject({
-            symbol: "BTC-USDT",
+            symbolId: 101,
             depth: 50,
             bookSeq: "12",
             bids: [
@@ -101,7 +102,7 @@ describe("OrderbookService", () => {
         expect(captured).toMatchObject({
             signal: controller.signal,
             message: {
-                symbol: "BTC-USDT",
+                symbolId: 101,
                 depth: Proto.Depth.DEPTH_50,
             },
         });
@@ -109,6 +110,7 @@ describe("OrderbookService", () => {
 
     it("rejects malformed backend snapshots", async () => {
         const transport = unaryTransport({
+            symbolId: 101,
             bookSeq: 12n,
             bids: [{ priceTicks: 100_000_000n }],
             asks: [],
@@ -119,7 +121,7 @@ describe("OrderbookService", () => {
             testScales(),
         );
 
-        await expect(service.get({ symbol: "BTC-USDT" })).rejects.toThrow();
+        await expect(service.get({ symbolId: 101 })).rejects.toThrow();
     });
 
     it("reports snapshot failures without emitting an empty ready book", async () => {
@@ -133,7 +135,6 @@ describe("OrderbookService", () => {
         const onError = vi.fn();
 
         const subscription = service.createSubscription({
-            symbol: "BTC-USDT",
             symbolId: 101,
             depth: 50,
             onEvent,
@@ -179,7 +180,6 @@ describe("OrderbookService", () => {
         const onError = vi.fn();
 
         const subscription = service.createSubscription({
-            symbol: "BTC-USDT",
             symbolId: 101,
             depth: 50,
             onEvent,
@@ -191,7 +191,7 @@ describe("OrderbookService", () => {
         expect(onError).not.toHaveBeenCalled();
         expect(onEvent).toHaveBeenCalledOnce();
         expect(onEvent).toHaveBeenCalledWith({
-            symbol: "BTC-USDT",
+            symbolId: 101,
             depth: 50,
             bookSeq: "0",
             bids: [],
@@ -203,6 +203,7 @@ describe("OrderbookService", () => {
     it("uses the public delta channel, callbacks, and parsed publications for subscriptions", async () => {
         const realtime = realtimeClientStub();
         const transport = unaryTransport({
+            symbolId: 101,
             bookSeq: 1n,
             bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
             asks: [{ priceTicks: 101_000_000n, qtyScaled: 50_000_000n }],
@@ -214,7 +215,6 @@ describe("OrderbookService", () => {
         const onError = vi.fn();
 
         const subscription = service.createSubscription({
-            symbol: "BTC-USDT",
             symbolId: 101,
             depth: 1000,
             bucket: "0.01",
@@ -239,7 +239,7 @@ describe("OrderbookService", () => {
         expect(captured?.method.localName).toBe("getOrderBook");
         expect(captured).toMatchObject({
             message: {
-                symbol: "BTC-USDT",
+                symbolId: 101,
                 depth: Proto.Depth.DEPTH_500,
             },
         });
@@ -297,6 +297,7 @@ describe("OrderbookService", () => {
     it("routes emit failures for unknown symbol ids to the subscription error callback", async () => {
         const realtime = realtimeClientStub();
         const transport = unaryTransport({
+            symbolId: 999,
             bookSeq: 1n,
             bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
             asks: [],
@@ -306,7 +307,6 @@ describe("OrderbookService", () => {
         const onError = vi.fn();
 
         const subscription = service.createSubscription({
-            symbol: "UNKNOWN-USDT",
             symbolId: 999,
             depth: 50,
             onEvent,
@@ -327,11 +327,10 @@ describe("OrderbookService", () => {
 
     it("routes an unpublished depth to the smallest published channel depth", async () => {
         const realtime = realtimeClientStub();
-        const transport = unaryTransport({ bookSeq: 5n, bids: [], asks: [] });
+        const transport = unaryTransport({ symbolId: 101, bookSeq: 5n, bids: [], asks: [] });
         const service = new OrderbookService(transport.transport, realtime.realtime, testScales());
 
         const subscription = service.createSubscription({
-            symbol: "BTC-USDT",
             symbolId: 101,
             depth: 10,
             onEvent: vi.fn(),
@@ -340,7 +339,10 @@ describe("OrderbookService", () => {
         await flushMicrotasks();
 
         expect(realtime.params?.channel).toBe("public:spot:orderbook:deltas:depth:20:101:proto");
-        expect(transport.lastCall()?.message).toMatchObject({ depth: Proto.Depth.DEPTH_20 });
+        expect(transport.lastCall()?.message).toMatchObject({
+            symbolId: 101,
+            depth: Proto.Depth.DEPTH_20,
+        });
         subscription.unsubscribe();
     });
 
@@ -350,12 +352,11 @@ describe("OrderbookService", () => {
             priceTicks: BigInt(100_000_000 - i * 100),
             qtyScaled: 1_000_000n,
         }));
-        const transport = unaryTransport({ bookSeq: 7n, bids, asks: [] });
+        const transport = unaryTransport({ symbolId: 101, bookSeq: 7n, bids, asks: [] });
         const service = new OrderbookService(transport.transport, realtime.realtime, testScales());
         const onEvent = vi.fn();
 
         const subscription = service.createSubscription({
-            symbol: "BTC-USDT",
             symbolId: 101,
             depth: 10,
             onEvent,
@@ -377,7 +378,6 @@ describe("OrderbookService", () => {
             testScales(),
         );
         const unsubscribe = service.subscribe({
-            symbol: "UNKNOWN-USDT",
             symbolId: 999,
             onEvent: vi.fn(),
         });

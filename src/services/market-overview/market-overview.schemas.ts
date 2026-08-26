@@ -4,6 +4,7 @@ import { tsNsToMs } from "../../utils/time.js";
 import type { DecodedEnum } from "../../utils/types.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
+import { SymbolIdInputSchema } from "../shared.js";
 import {
     SPARKLINE_INTERVAL_VALUES,
     MARKET_OVERVIEW_ORDER_BY_VALUES,
@@ -58,8 +59,7 @@ export const MarketOverviewSortSchema = v.picklist(MARKET_OVERVIEW_SORT_VALUES);
 export type MarketOverviewSort = v.InferOutput<typeof MarketOverviewSortSchema>;
 
 const MarketOverviewRawSchema = v.object({
-    symbolId: v.number(),
-    symbol: v.string(),
+    symbolId: SymbolIdInputSchema,
     lastPriceTicks: v.bigint(),
     lastTradeTsNs: v.optional(v.bigint(), 0n),
     change24hBps: v.number(),
@@ -85,7 +85,6 @@ export function createMarketOverviewSchema(scales: SdkScales) {
             const quoteAmountScale = scales.quoteAmount(m.symbolId);
             return {
                 symbolId: m.symbolId,
-                symbol: m.symbol,
                 lastPrice: scaledToDecimalOutput(m.lastPriceTicks, priceScale),
                 lastTradeTsMs: tsNsToMs(m.lastTradeTsNs),
                 change24hBps: m.change24hBps,
@@ -152,25 +151,28 @@ export type MarketOverviewBatch = {
     tsNs: bigint;
 };
 
-export const ListMarketOverviewInputSchema = v.object({
-    symbols: v.optional(v.array(v.pipe(v.string(), v.trim(), v.minLength(1))), []),
-    limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0)), 500),
-    pageToken: v.optional(v.pipe(v.string(), v.trim()), ""),
-    orderBy: v.pipe(
-        v.optional(MarketOverviewOrderBySchema, "volume_24h_quote"),
-        v.transform((v) => MarketOverviewOrderByCodec.inputToProto[v ?? "volume_24h_quote"]),
-    ),
-    sort: v.pipe(
-        v.optional(MarketOverviewSortSchema, "desc"),
-        v.transform((v) => MarketOverviewSortCodec.inputToProto[v ?? "desc"]),
-    ),
-    includeSparklines: v.optional(v.boolean(), true),
-    sparklineIntervals: v.pipe(
-        v.optional(v.array(SparklineIntervalSchema), ["24h"]),
-        v.transform((intervals) =>
-            (intervals ?? ["24h"]).map((v) => SparklineIntervalCodec.inputToProto[v]),
+export const ListMarketOverviewInputSchema = v.pipe(
+    v.strictObject({
+        symbolIds: v.optional(v.array(SymbolIdInputSchema), []),
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0)), 500),
+        pageToken: v.optional(v.pipe(v.string(), v.trim()), ""),
+        orderBy: v.pipe(
+            v.optional(MarketOverviewOrderBySchema, "volume_24h_quote"),
+            v.transform((v) => MarketOverviewOrderByCodec.inputToProto[v ?? "volume_24h_quote"]),
         ),
-    ),
-});
+        sort: v.pipe(
+            v.optional(MarketOverviewSortSchema, "desc"),
+            v.transform((v) => MarketOverviewSortCodec.inputToProto[v ?? "desc"]),
+        ),
+        includeSparklines: v.optional(v.boolean(), true),
+        sparklineIntervals: v.pipe(
+            v.optional(v.array(SparklineIntervalSchema), ["24h"]),
+            v.transform((intervals) =>
+                (intervals ?? ["24h"]).map((v) => SparklineIntervalCodec.inputToProto[v]),
+            ),
+        ),
+    }),
+    v.transform(({ symbolIds, ...input }) => ({ symbolId: symbolIds, ...input })),
+);
 
 export type ListMarketOverviewInput = v.InferInput<typeof ListMarketOverviewInputSchema>;

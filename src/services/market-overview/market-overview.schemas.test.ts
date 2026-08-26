@@ -8,6 +8,7 @@ import {
     SparklineInterval,
 } from "../../gen/marketoverview/v1/marketoverview_pb.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
+import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import {
     createMarketOverviewSchema,
@@ -61,7 +62,6 @@ describe("MarketOverviewSchema", () => {
         const schema = createMarketOverviewSchema(testScales());
         const market = v.parse(schema, {
             symbolId: 101,
-            symbol: "BTC-USDT",
             lastPriceTicks: 1_234_567_890n,
             lastTradeTsNs: 1_700_000_000_123_456_789n,
             change24hBps: 123,
@@ -85,7 +85,6 @@ describe("MarketOverviewSchema", () => {
 
         expect(market).toEqual({
             symbolId: 101,
-            symbol: "BTC-USDT",
             lastPrice: "1234.56789",
             lastTradeTsMs: 1_700_000_000_123,
             change24hBps: 123,
@@ -126,7 +125,7 @@ describe("MarketOverviewSchema", () => {
 describe("ListMarketOverviewInputSchema", () => {
     it("maps list filters, sort, and sparkline intervals to proto values", () => {
         const input = v.parse(ListMarketOverviewInputSchema, {
-            symbols: [" BTC-USDT ", " ETH-USDT "],
+            symbolIds: [101, PROTOBUF_UINT32_MAX],
             orderBy: "last_price",
             sort: "asc",
             includeSparklines: false,
@@ -134,7 +133,7 @@ describe("ListMarketOverviewInputSchema", () => {
         });
 
         expect(input).toEqual({
-            symbols: ["BTC-USDT", "ETH-USDT"],
+            symbolId: [101, PROTOBUF_UINT32_MAX],
             limit: 500,
             pageToken: "",
             orderBy: MarketOrderBy.ORDER_BY_LAST_PRICE,
@@ -146,7 +145,9 @@ describe("ListMarketOverviewInputSchema", () => {
 
     it("rejects invalid list input values", () => {
         const cases = [
-            { symbols: [" "] },
+            { symbols: [101] },
+            { symbolIds: [0] },
+            { symbolIds: [PROTOBUF_UINT32_MAX + 1] },
             { limit: 0 },
             { orderBy: "name" },
             { sort: "newest" },

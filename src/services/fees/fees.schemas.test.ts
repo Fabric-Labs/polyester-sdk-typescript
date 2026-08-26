@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
+import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import { GetSpotFeeRatesInputSchema, SpotFeeRateSchema } from "./fees.schemas.js";
 
 describe("GetSpotFeeRatesInputSchema", () => {
@@ -32,6 +33,15 @@ describe("GetSpotFeeRatesInputSchema", () => {
             }),
         ).toThrow();
     });
+
+    it("enforces the positive uint32 symbol identifier boundary", () => {
+        expect(
+            v.parse(GetSpotFeeRatesInputSchema, { symbolIds: [PROTOBUF_UINT32_MAX] }).symbolId,
+        ).toEqual([PROTOBUF_UINT32_MAX]);
+        expect(() =>
+            v.parse(GetSpotFeeRatesInputSchema, { symbolIds: [PROTOBUF_UINT32_MAX + 1] }),
+        ).toThrow();
+    });
 });
 
 describe("SpotFeeRateSchema", () => {
@@ -39,14 +49,12 @@ describe("SpotFeeRateSchema", () => {
         expect(
             v.parse(SpotFeeRateSchema, {
                 symbolId: 101,
-                symbol: " BTC-USDT ",
                 makerFeeRatePercent: "-0.01",
                 takerFeeRatePercent: "0.05",
                 vipTier: 0,
             }),
         ).toEqual({
             symbolId: 101,
-            symbol: "BTC-USDT",
             makerFeeRatePercent: "-0.01",
             takerFeeRatePercent: "0.05",
             vipTier: 0,

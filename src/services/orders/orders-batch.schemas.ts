@@ -10,7 +10,7 @@ import { OptionalPublicIdSchema, PublicIdSchema, idInputSchema } from "../../sha
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { formatId } from "../../utils/base58-id.js";
-import { SideSchema } from "../shared.js";
+import { SideSchema, SymbolIdInputSchema } from "../shared.js";
 import {
     positiveDecimalInputToScaled,
     scaledToDecimalOutput,
@@ -38,7 +38,6 @@ const PositivePublicIdSchema = v.pipe(
     v.gtValue(0n),
     v.transform((value) => formatId(value)),
 );
-const OptionalSymbolInputSchema = v.optional(v.pipe(v.string(), v.trim(), v.maxLength(32)));
 const OptionalSideInputSchema = v.pipe(
     v.optional(SideSchema),
     v.transform((side) => (side ? OrderSideCodec.inputToProto[side] : undefined)),
@@ -57,7 +56,7 @@ export const CancelAllAfterInputSchema = v.pipe(
     v.strictObject({
         ...AccountScopeInputEntries,
         timeoutSec: CancelAllAfterTimeoutInputSchema,
-        symbol: OptionalSymbolInputSchema,
+        symbolId: v.optional(SymbolIdInputSchema),
         side: OptionalSideInputSchema,
         requestId: v.optional(OrderRequestIdInputSchema),
     }),
@@ -134,7 +133,7 @@ const BatchCreateOrderResultRawSchema = v.object({
     ]),
 });
 
-export function createBatchCreateOrdersResultSchema(scales: SdkScales, symbols: string[]) {
+export function createBatchCreateOrdersResultSchema(scales: SdkScales, symbolIds: number[]) {
     return v.pipe(
         v.object({
             results: v.array(BatchCreateOrderResultRawSchema),
@@ -148,7 +147,7 @@ export function createBatchCreateOrdersResultSchema(scales: SdkScales, symbols: 
             "Batch create result counts do not match the returned results.",
         ),
         v.check(
-            (response) => response.results.length === symbols.length,
+            (response) => response.results.length === symbolIds.length,
             "Batch create result count does not match the submitted item count.",
         ),
         v.transform(({ tsNs, ...response }) => ({
@@ -163,21 +162,21 @@ export function createBatchCreateOrdersResultSchema(scales: SdkScales, symbols: 
                 }
                 const { resolvedBaseQtyScaled, submittedMaxQuoteDebitScaled, ...accepted } =
                     outcome.value;
-                const symbol = symbols[index]!;
+                const symbolId = symbolIds[index]!;
                 return {
                     status: "accepted" as const,
                     clientOrderId,
                     ...accepted,
                     resolvedBaseQty: scaledToDecimalOutput(
                         resolvedBaseQtyScaled,
-                        scales.baseQty(symbol),
+                        scales.baseQty(symbolId),
                     ),
                     ...(submittedMaxQuoteDebitScaled === undefined
                         ? {}
                         : {
                               submittedMaxQuoteDebit: scaledToDecimalOutput(
                                   submittedMaxQuoteDebitScaled,
-                                  scales.quoteAmount(symbol),
+                                  scales.quoteAmount(symbolId),
                               ),
                           }),
                 };

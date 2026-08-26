@@ -5,6 +5,7 @@ import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import * as ProtoRateLimit from "../../gen/polyester/ratelimit/v1/types_pb.js";
 import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
+import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import { formatId } from "../../utils/base58-id.js";
 import {
@@ -59,7 +60,7 @@ function testScales() {
 
 function limitOrder(clientOrderId: string) {
     return {
-        symbol: "BTC-USDT",
+        symbolId: 1,
         side: "buy" as const,
         qty: "0.5",
         execution: {
@@ -76,17 +77,39 @@ describe("CancelAllAfter schemas", () => {
             v.parse(CancelAllAfterInputSchema, {
                 account: { subaccountId: "11" },
                 timeoutSec,
-                symbol: " BTC-USDT ",
+                symbolId: 1,
                 side: "sell",
                 requestId: " caa-1 ",
             }),
         ).toEqual({
             subaccountId: 11n,
             timeoutSec,
-            symbol: "BTC-USDT",
+            symbolId: 1,
             side: ProtoWrite.Side.SELL,
             requestId: "caa-1",
         });
+    });
+
+    it("accepts the uint32 symbol ID ceiling and rejects invalid IDs", () => {
+        expect(
+            v.parse(CancelAllAfterInputSchema, {
+                timeoutSec: 10,
+                symbolId: PROTOBUF_UINT32_MAX,
+            }).symbolId,
+        ).toBe(PROTOBUF_UINT32_MAX);
+        expect(() => v.parse(CancelAllAfterInputSchema, { timeoutSec: 10, symbolId: 0 })).toThrow();
+        expect(() =>
+            v.parse(CancelAllAfterInputSchema, {
+                timeoutSec: 10,
+                symbolId: PROTOBUF_UINT32_MAX + 1,
+            }),
+        ).toThrow();
+        expect(() =>
+            v.parse(CancelAllAfterInputSchema, {
+                timeoutSec: 10,
+                symbol: "BTC-USDT",
+            }),
+        ).toThrow();
     });
 
     it.each([1, 9, 10.5, 121])("rejects timeoutSec %s", (timeoutSec) => {
@@ -125,7 +148,7 @@ describe("batch create schemas", () => {
             requestId: "batch-create-1",
             items: [
                 {
-                    symbol: "BTC-USDT",
+                    symbolId: 1,
                     sizing: {
                         case: "baseQtyScaled",
                         value: 50_000_000n,
@@ -136,7 +159,7 @@ describe("batch create schemas", () => {
                     },
                 },
                 {
-                    symbol: "BTC-USDT",
+                    symbolId: 1,
                     sizing: {
                         case: "baseQtyScaled",
                         value: 50_000_000n,
@@ -150,7 +173,7 @@ describe("batch create schemas", () => {
         const input = v.parse(createBatchCreateOrdersInputSchema(testScales()), {
             items: [
                 {
-                    symbol: "BTC-USDT",
+                    symbolId: 1,
                     side: "buy",
                     maxQuoteDebit: "125.5",
                     execution: { type: "market_ioc" },
@@ -186,7 +209,7 @@ describe("batch create schemas", () => {
     });
 
     it("surfaces rejections that carry no structured error detail", () => {
-        const result = v.parse(createBatchCreateOrdersResultSchema(testScales(), ["BTC-USDT"]), {
+        const result = v.parse(createBatchCreateOrdersResultSchema(testScales(), [1]), {
             results: [
                 {
                     clientOrderId: "order-a",
@@ -207,7 +230,7 @@ describe("batch create schemas", () => {
 
     it("returns ordered discriminated outcomes and exact timestamps", () => {
         expect(
-            v.parse(createBatchCreateOrdersResultSchema(testScales(), ["BTC-USDT", "BTC-USDT"]), {
+            v.parse(createBatchCreateOrdersResultSchema(testScales(), [1, 1]), {
                 results: [
                     {
                         clientOrderId: "order-a",

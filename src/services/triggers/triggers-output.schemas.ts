@@ -11,6 +11,7 @@ import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { formatId } from "../../utils/base58-id.js";
+import { SymbolIdInputSchema } from "../shared.js";
 import {
     TriggerTypeCodec,
     TriggerStatusCodec,
@@ -497,13 +498,13 @@ function transformTriggerDetails(
     }
 }
 
+/** Builds the public trigger output schema using each record's symbol ID for quantity scaling. */
 export function createTriggerSchema(scales: SdkScales) {
     return v.pipe(
         v.object({
             triggerId: v.bigint(),
             subaccountId: v.bigint(),
-            symbolId: v.number(),
-            symbol: v.string(),
+            symbolId: SymbolIdInputSchema,
             status: v.enum(Proto.TriggerStatus),
             parentOrderId: v.optional(v.bigint()),
             qtyScaled: v.bigint(),
@@ -521,7 +522,6 @@ export function createTriggerSchema(scales: SdkScales) {
             triggerId: formatId(t.triggerId),
             subaccountId: formatId(t.subaccountId),
             symbolId: t.symbolId,
-            symbol: t.symbol,
             status: requiredEnumLabel(
                 TriggerStatusCodec.protoToOutput,
                 t.status,
@@ -553,6 +553,7 @@ export function createTriggerSchema(scales: SdkScales) {
     );
 }
 
+/** A normalized standalone trigger record. */
 export type Trigger = v.InferOutput<ReturnType<typeof createTriggerSchema>>;
 
 export function createTriggerEventSchema(scales: SdkScales) {
