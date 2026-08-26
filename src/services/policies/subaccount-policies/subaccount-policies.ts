@@ -117,7 +117,7 @@ export class SubaccountPoliciesService {
     }
 
     /**
-     * Attaches a policy to a subaccount, or clears the subaccount-specific policy when policyId is null.
+     * Attaches a policy to a subaccount. Passing a null policyId clears the explicit binding and restores the system read-only policy.
      */
     async apply(
         input: v.InferInput<typeof ApplySubaccountPolicyInputSchema>,

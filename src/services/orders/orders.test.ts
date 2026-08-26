@@ -371,7 +371,7 @@ describe("OrdersService", () => {
         await expect(
             service.modify({
                 clientOrderId: " client-1 ",
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 requestId: " modify-1 ",
                 newQty: "0.25",
                 behavior: "AMEND_ONLY",
@@ -414,8 +414,8 @@ describe("OrdersService", () => {
             newQtyScaled: 25_000_000n,
             behavior: ProtoWrite.ModifyBehavior.AMEND_ONLY,
             newClientOrderId: "",
+            symbolId: 1,
         });
-        expect(modifyMessage).not.toHaveProperty("symbol");
     });
 
     it("generates a request ID for cancelAll when omitted", async () => {

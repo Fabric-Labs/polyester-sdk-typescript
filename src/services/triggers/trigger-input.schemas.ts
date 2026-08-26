@@ -8,7 +8,7 @@ import {
 } from "../../shared/account-scope.js";
 import { positiveDecimalInputToScaled, type SdkScales } from "../../shared/decimal-surface.js";
 import { CatalogConversionError } from "../../catalogs/types.js";
-import { PROTOBUF_INT32_MAX } from "../../shared/wire-bounds.js";
+import { PROTOBUF_INT32_MAX, PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import { parseOptionalPositiveIntLike } from "../../utils/numbers.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import {
@@ -39,6 +39,12 @@ const TriggerTypeSchema = v.picklist(TRIGGER_TYPE_VALUES);
 const TriggerStatusFilterSchema = v.picklist(TRIGGER_STATUS_FILTER_VALUES);
 const TriggerEventTypeSchema = v.picklist(TRIGGER_EVENT_TYPE_VALUES);
 const TriggerIdInputSchema = idInputSchema("triggerId");
+const TriggerSymbolIdInputSchema = v.pipe(
+    v.number(),
+    v.integer(),
+    v.gtValue(0),
+    v.maxValue(PROTOBUF_UINT32_MAX),
+);
 
 const TriggerScopedInputEntries = {
     triggerId: TriggerIdInputSchema,
@@ -397,13 +403,23 @@ export type GetTriggerInput = v.InferInput<typeof GetTriggerInputSchema>;
 export const PauseTriggerInputSchema = TriggerScopedInputSchema;
 export type PauseTriggerInput = v.InferInput<typeof PauseTriggerInputSchema>;
 
-export const ResumeTriggerInputSchema = TriggerScopedInputSchema;
+export const ResumeTriggerInputSchema = v.pipe(
+    v.strictObject({
+        ...TriggerScopedInputEntries,
+        symbolId: TriggerSymbolIdInputSchema,
+    }),
+    v.transform(({ account, ...input }) => ({
+        ...input,
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
 export type ResumeTriggerInput = v.InferInput<typeof ResumeTriggerInputSchema>;
 
 export function createModifyTriggerInputSchema(scales: SdkScales) {
     return v.pipe(
         v.strictObject({
             ...TriggerScopedInputEntries,
+            symbolId: TriggerSymbolIdInputSchema,
             triggerPrice: v.optional(DecimalInputStringSchema),
             limitPrice: v.optional(DecimalInputStringSchema),
             trailingDistance: v.optional(TrailingDistanceInputSchema),
@@ -422,6 +438,7 @@ export function createModifyTriggerInputSchema(scales: SdkScales) {
         v.transform(({ account, ...input }) => ({
             triggerId: input.triggerId,
             subaccountId: accountScopeToSubaccountId(account),
+            symbolId: input.symbolId,
             triggerPriceTicks:
                 input.triggerPrice === undefined
                     ? undefined

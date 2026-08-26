@@ -17,17 +17,13 @@ const marketScopeCases = [
 const policyActionCases = [
     [Proto.PolicyAction.UNSPECIFIED, "unspecified"],
     [Proto.PolicyAction.TRADE_SPOT, "trade-spot"],
-    [Proto.PolicyAction.TRADE_PERP, "trade-perp"],
     [Proto.PolicyAction.INTERNAL_TRANSFER, "internal-transfer"],
     [Proto.PolicyAction.EXTERNAL_WITHDRAW, "external-withdraw"],
     [Proto.PolicyAction.READ_BALANCES, "read-balances"],
     [Proto.PolicyAction.READ_SPOT, "read-spot"],
-    [Proto.PolicyAction.READ_PERP, "read-perp"],
     [Proto.PolicyAction.READ_INTERNAL_TRANSFERS, "read-internal-transfers"],
-    [Proto.PolicyAction.READ_EXTERNAL_WITHDRAWALS, "read-external-withdrawals"],
-    [Proto.PolicyAction.READ_TRANSFER_CONTROLS, "read-transfer-controls"],
+    [Proto.PolicyAction.READ_ADDRESS_BOOK, "read-address-book"],
     [Proto.PolicyAction.MANAGE_ADDRESS_BOOK, "manage-address-book"],
-    [Proto.PolicyAction.MANAGE_TRANSFER_WHITELISTS, "manage-transfer-whitelists"],
 ] as const;
 
 describe("PolicyMarketScopeCodec", () => {

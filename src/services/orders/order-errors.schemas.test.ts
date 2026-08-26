@@ -5,6 +5,20 @@ import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import { OrderErrorDetailSchema } from "./order-errors.schemas.js";
 
 describe("OrderErrorDetailSchema", () => {
+    it.each([
+        [ProtoWrite.ErrorCode.POLICY_MAX_OPEN_ORDERS, "POLICY_MAX_OPEN_ORDERS"],
+        [ProtoWrite.ErrorCode.SUBACCOUNT_READ_FORBIDDEN, "SUBACCOUNT_READ_FORBIDDEN"],
+        [ProtoWrite.ErrorCode.POLICY_SPOT_READ_DENY, "POLICY_SPOT_READ_DENY"],
+        [ProtoWrite.ErrorCode.API_KEY_SPOT_READ_DENY, "API_KEY_SPOT_READ_DENY"],
+    ] as const)("maps policy rejection %s to %s", (code, expected) => {
+        expect(
+            v.parse(OrderErrorDetailSchema, {
+                code,
+                violations: [],
+            }),
+        ).toEqual({ code: expected, violations: [] });
+    });
+
     it("preserves exact structured rate-limit guidance", () => {
         expect(
             v.parse(OrderErrorDetailSchema, {

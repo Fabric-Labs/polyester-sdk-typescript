@@ -79,13 +79,13 @@ describe("strict method inputs reject unknown keys", () => {
     });
 
     it("rejects unknown modify-order keys while allowing every declared key", () => {
-        expect(() =>
-            assertKnownModifyOrderInputKeys({ symbol: "BTC-USDT", newPrise: "1" }),
-        ).toThrow('Unknown key "newPrise" in modify order input.');
+        expect(() => assertKnownModifyOrderInputKeys({ symbolId: 1, newPrise: "1" })).toThrow(
+            'Unknown key "newPrise" in modify order input.',
+        );
         expect(() =>
             assertKnownModifyOrderInputKeys({
                 account: "main",
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 requestId: "req",
                 behavior: "amend_or_replace",
                 newClientOrderId: "c1",

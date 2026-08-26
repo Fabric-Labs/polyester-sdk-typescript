@@ -50,7 +50,7 @@ export type TriggerStatusFilterValue = (typeof TRIGGER_STATUS_FILTER_VALUES)[num
 export const TRIGGER_STATUS_LABEL_VALUES = TRIGGER_STATUS_FILTER_VALUES;
 export type TriggerStatusLabelValue = (typeof TRIGGER_STATUS_LABEL_VALUES)[number];
 
-export const TRIGGER_EVENT_TYPE_VALUES = ["fired", "canceled", "updated"] as const;
+export const TRIGGER_EVENT_TYPE_VALUES = ["fired", "canceled", "updated", "failed"] as const;
 export type TriggerEventTypeValue = (typeof TRIGGER_EVENT_TYPE_VALUES)[number];
 
 export const TRIGGER_EVENT_TYPE_LABEL_VALUES = TRIGGER_EVENT_TYPE_VALUES;
@@ -114,12 +114,14 @@ export const TriggerEventTypeCodec = {
         fired: Proto.TriggerEventType.EVENT_FIRED,
         canceled: Proto.TriggerEventType.EVENT_CANCELED,
         updated: Proto.TriggerEventType.EVENT_UPDATED,
+        failed: Proto.TriggerEventType.EVENT_FAILED,
     } satisfies InputToProto<TriggerEventTypeValue, Proto.TriggerEventType>,
     protoToOutput: {
         [Proto.TriggerEventType.EVENT_UNSPECIFIED]: "unspecified",
         [Proto.TriggerEventType.EVENT_FIRED]: "fired",
         [Proto.TriggerEventType.EVENT_CANCELED]: "canceled",
         [Proto.TriggerEventType.EVENT_UPDATED]: "updated",
+        [Proto.TriggerEventType.EVENT_FAILED]: "failed",
     } satisfies ProtoToOutput<Proto.TriggerEventType, TriggerEventTypeLabelValue>,
 } as const;
 

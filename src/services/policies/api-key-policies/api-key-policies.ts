@@ -64,7 +64,7 @@ export class ApiKeyPoliciesService {
     }
 
     /**
-     * Creates an API key policy template with market scopes, allowed actions, notional/transfer limits, and optional immediate assignment to a key.
+     * Creates an API key policy template with a spot-market scope, allowed actions, and optional immediate assignment to a key.
      */
     async create(
         input: v.InferInput<typeof CreateApiKeyPolicyInputSchema>,
@@ -107,7 +107,7 @@ export class ApiKeyPoliciesService {
     }
 
     /**
-     * Attaches a policy to an API key, or clears the key-specific policy when policyId is null.
+     * Attaches a policy to an API key. Passing a null policyId clears the binding and leaves the key with no permissions.
      */
     async apply(
         input: v.InferInput<typeof ApplyApiKeyPolicyInputSchema>,

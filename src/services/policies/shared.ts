@@ -6,24 +6,15 @@ export const SpotMarketRuleSchema = v.object({
     symbol: v.string(),
 });
 
-export const PerpMarketRuleSchema = v.object({
-    symbol: v.string(),
-    maxLeverageX: v.number(),
-});
-
 export const POLICY_ACTIONS = [
     "trade-spot",
-    "trade-perp",
     "internal-transfer",
     "external-withdraw",
     "read-balances",
     "read-spot",
-    "read-perp",
     "read-internal-transfers",
-    "read-external-withdrawals",
-    "read-transfer-controls",
+    "read-address-book",
     "manage-address-book",
-    "manage-transfer-whitelists",
 ] as const;
 
 export const POLICY_MARKET_SCOPES = ["all", "allowlist"] as const;
