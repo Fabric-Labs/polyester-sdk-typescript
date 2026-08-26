@@ -9,6 +9,7 @@ import { createTestCatalog } from "../../testing/catalog.js";
 import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import {
     CreateTriggerResultSchema,
+    ListTriggersInputSchema,
     ListTriggerEventsInputSchema,
     ResumeTriggerInputSchema,
     createCreateTriggerInputSchema,
@@ -80,8 +81,8 @@ const btcUsdt: EnrichedPairConfig = {
     status: "enabled",
 };
 
-function testScales() {
-    const catalog = createTestCatalog({ pairs: [btcUsdt] });
+function testScales(symbolId = btcUsdt.symbolId) {
+    const catalog = createTestCatalog({ pairs: [{ ...btcUsdt, symbolId }] });
     return createCatalogSdkScales(() => catalog);
 }
 
@@ -90,7 +91,6 @@ function baseWireTrigger(overrides: Partial<Proto.Trigger> = {}): Proto.Trigger 
         triggerId: 11n,
         subaccountId: 22n,
         symbolId: 1,
-        symbol: "BTC-USDT",
         status: Proto.TriggerStatus.STATUS_ARMED,
         qtyScaled: 50_000_000n,
         feeAsset: ProtoOrders.FeeAsset.QUOTE,
@@ -181,13 +181,29 @@ describe("CreateTriggerInputSchema", () => {
         expectTypeOf<{ type: "market_ioc" }>().toMatchTypeOf<SellStopLossInput["execution"]>();
     });
 
+    it("requires a positive uint32 symbol ID and forwards its exact maximum", () => {
+        const schema = createCreateTriggerInputSchema(testScales(PROTOBUF_UINT32_MAX));
+        const input = {
+            triggerType: "stop_loss",
+            symbolId: PROTOBUF_UINT32_MAX,
+            side: "sell",
+            qty: "0.5",
+            triggerPrice: "100",
+            execution: { type: "market_ioc" },
+        } as const;
+
+        expect(v.parse(schema, input).trigger.symbolId).toBe(PROTOBUF_UINT32_MAX);
+        expect(() => v.parse(schema, { ...input, symbolId: 0 })).toThrow();
+        expect(() => v.parse(schema, { ...input, symbolId: PROTOBUF_UINT32_MAX + 1 })).toThrow();
+    });
+
     it("builds all stop-loss and take-profit child execution variants", () => {
         const schema = createCreateTriggerInputSchema(testScales());
         const cases = [
             {
                 input: {
                     triggerType: "stop_loss",
-                    symbol: " BTC-USDT ",
+                    symbolId: 1,
                     side: "sell",
                     qty: "0.5",
                     triggerPrice: "100",
@@ -204,7 +220,7 @@ describe("CreateTriggerInputSchema", () => {
             {
                 input: {
                     triggerType: "stop_loss",
-                    symbol: "BTC-USDT",
+                    symbolId: 1,
                     side: "sell",
                     qty: "0.5",
                     triggerPrice: "100",
@@ -226,7 +242,7 @@ describe("CreateTriggerInputSchema", () => {
             {
                 input: {
                     triggerType: "take_profit",
-                    symbol: "BTC-USDT",
+                    symbolId: 1,
                     side: "sell",
                     qty: "0.5",
                     triggerPrice: "101",
@@ -248,7 +264,7 @@ describe("CreateTriggerInputSchema", () => {
             {
                 input: {
                     triggerType: "take_profit",
-                    symbol: "BTC-USDT",
+                    symbolId: 1,
                     side: "buy",
                     qty: "0.5",
                     triggerPrice: "101",
@@ -272,7 +288,7 @@ describe("CreateTriggerInputSchema", () => {
         for (const testCase of cases) {
             expect(v.parse(schema, testCase.input)).toMatchObject({
                 trigger: {
-                    symbol: "BTC-USDT",
+                    symbolId: 1,
                     qtyScaled: 50_000_000n,
                     feeAsset: ProtoOrders.FeeAsset.QUOTE,
                     selfTradePreventionMode: ProtoOrders.SelfTradePreventionMode.EXPIRE_MAKER,
@@ -302,7 +318,7 @@ describe("CreateTriggerInputSchema", () => {
             expect(() =>
                 v.parse(schema, {
                     triggerType,
-                    symbol: "BTC-USDT",
+                    symbolId: 1,
                     side: "buy",
                     qty: "0.5",
                     triggerPrice: "100",
@@ -318,7 +334,7 @@ describe("CreateTriggerInputSchema", () => {
         expect(
             v.parse(schema, {
                 triggerType: "take_profit",
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 side: "buy",
                 qty: "0.5",
                 triggerPrice: "101",
@@ -340,7 +356,7 @@ describe("CreateTriggerInputSchema", () => {
 
         const priceDistanceInput = v.parse(schema, {
             triggerType: "trailing_stop",
-            symbol: "BTC-USDT",
+            symbolId: 1,
             qty: "0.25",
             trailingDistance: { kind: "distance", distance: "0.5" },
             maxSlippage: { kind: "bps", bps: 125 },
@@ -348,7 +364,7 @@ describe("CreateTriggerInputSchema", () => {
         });
         const bpsDistanceInput = v.parse(schema, {
             triggerType: "trailing_stop",
-            symbol: "BTC-USDT",
+            symbolId: 1,
             qty: "0.25",
             trailingDistance: { kind: "bps", bps: 150 },
             activationPrice: "99",
@@ -393,7 +409,7 @@ describe("CreateTriggerInputSchema", () => {
         expect(
             v.parse(schema, {
                 triggerType: "twap",
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 side: "buy",
                 qty: "1",
                 durationMs: "60000",
@@ -419,7 +435,7 @@ describe("CreateTriggerInputSchema", () => {
         expect(
             v.parse(schema, {
                 triggerType: "ladder",
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 side: "buy",
                 qty: "1",
                 priceMin: "99",
@@ -447,7 +463,7 @@ describe("CreateTriggerInputSchema", () => {
         const schema = createCreateTriggerInputSchema(testScales());
         const baseStop = {
             triggerType: "stop_loss",
-            symbol: "BTC-USDT",
+            symbolId: 1,
             side: "sell",
             qty: "0.5",
             triggerPrice: "100",
@@ -466,7 +482,7 @@ describe("CreateTriggerInputSchema", () => {
         expect(() =>
             v.parse(schema, {
                 triggerType: "twap",
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 side: "buy",
                 qty: "1",
                 durationMs: 500,
@@ -477,7 +493,7 @@ describe("CreateTriggerInputSchema", () => {
         expect(() =>
             v.parse(schema, {
                 triggerType: "ladder",
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 side: "buy",
                 qty: "1",
                 priceMin: "99",
@@ -485,6 +501,18 @@ describe("CreateTriggerInputSchema", () => {
                 levels: 1,
             }),
         ).toThrow("levels must be between 2 and 100");
+    });
+});
+
+describe("ListTriggersInputSchema", () => {
+    it("accepts the uint32 symbol ID maximum and rejects one over", () => {
+        expect(v.parse(ListTriggersInputSchema, { symbolId: PROTOBUF_UINT32_MAX }).symbolId).toBe(
+            PROTOBUF_UINT32_MAX,
+        );
+        expect(() => v.parse(ListTriggersInputSchema, { symbolId: 0 })).toThrow();
+        expect(() =>
+            v.parse(ListTriggersInputSchema, { symbolId: PROTOBUF_UINT32_MAX + 1 }),
+        ).toThrow();
     });
 });
 
@@ -624,6 +652,7 @@ describe("Trigger result and output schemas", () => {
             },
         });
         expect(output).not.toHaveProperty("triggerType");
+        expect(output).not.toHaveProperty("symbol");
         expect(output).not.toHaveProperty("side");
         expect(output).not.toHaveProperty("orderType");
         expect(output).not.toHaveProperty("timeInForce");

@@ -54,7 +54,6 @@ describe("subscription input validation", () => {
         const service = new OrderbookService(noopTransport(), realtime.realtime, testScales());
 
         service.subscribe({
-            symbol: "NOPE-USDT",
             symbolId: 999,
             onEvent: vi.fn(),
         });

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
+import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import {
     createOrderbookDataSchema,
@@ -52,15 +53,19 @@ function testScales() {
 describe("GetOrderbookInputSchema", () => {
     it("defaults and rounds requested depths to public levels and private proto values", () => {
         const cases = [
-            { input: { symbol: "BTC-USDT" }, depth: 50, protoDepth: Proto.Depth.DEPTH_50 },
-            { input: { symbol: "BTC-USDT", depth: 1 }, depth: 1, protoDepth: Proto.Depth.DEPTH_1 },
+            { input: { symbolId: 101 }, depth: 50, protoDepth: Proto.Depth.DEPTH_50 },
             {
-                input: { symbol: "BTC-USDT", depth: 37 },
+                input: { symbolId: 101, depth: 1 },
+                depth: 1,
+                protoDepth: Proto.Depth.DEPTH_1,
+            },
+            {
+                input: { symbolId: 101, depth: 37 },
                 depth: 50,
                 protoDepth: Proto.Depth.DEPTH_50,
             },
             {
-                input: { symbol: "BTC-USDT", depth: 750 },
+                input: { symbolId: 101, depth: 750 },
                 depth: 500,
                 protoDepth: Proto.Depth.DEPTH_500,
             },
@@ -71,6 +76,17 @@ describe("GetOrderbookInputSchema", () => {
             expect(parsed.depth).toBe(testCase.depth);
             expect(parsed.protoDepth).toBe(testCase.protoDepth);
         }
+    });
+
+    it("accepts the uint32 symbol ID ceiling and rejects invalid IDs", () => {
+        expect(v.parse(GetOrderbookInputSchema, { symbolId: PROTOBUF_UINT32_MAX }).symbolId).toBe(
+            PROTOBUF_UINT32_MAX,
+        );
+        expect(() => v.parse(GetOrderbookInputSchema, { symbolId: 0 })).toThrow();
+        expect(() =>
+            v.parse(GetOrderbookInputSchema, { symbolId: PROTOBUF_UINT32_MAX + 1 }),
+        ).toThrow();
+        expect(() => v.parse(GetOrderbookInputSchema, { symbol: "BTC-USDT" })).toThrow();
     });
 });
 
@@ -83,7 +99,7 @@ describe("OrderbookDataSchema", () => {
                     qtyScaled: 123_456_789n,
                 },
                 testScales(),
-                "BTC-USDT",
+                101,
             ),
         ).toEqual({
             price: "100",
@@ -92,10 +108,10 @@ describe("OrderbookDataSchema", () => {
     });
 
     it("converts price and quantity fields to decimal strings", () => {
-        const schema = createOrderbookDataSchema(testScales(), "BTC-USDT");
+        const schema = createOrderbookDataSchema(testScales(), 101);
 
         const data = v.parse(schema, {
-            symbol: "BTC-USDT",
+            symbolId: 101,
             depth: 50,
             bookSeq: 12n,
             bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
@@ -103,7 +119,7 @@ describe("OrderbookDataSchema", () => {
         });
 
         expect(data).toMatchObject({
-            symbol: "BTC-USDT",
+            symbolId: 101,
             depth: 50,
             bookSeq: "12",
             bids: [{ price: "100", qty: "1" }],
@@ -112,11 +128,11 @@ describe("OrderbookDataSchema", () => {
     });
 
     it("rejects malformed backend levels", () => {
-        const schema = createOrderbookDataSchema(testScales(), "BTC-USDT");
+        const schema = createOrderbookDataSchema(testScales(), 101);
 
         expect(() =>
             v.parse(schema, {
-                symbol: "BTC-USDT",
+                symbolId: 101,
                 depth: 50,
                 bookSeq: 12n,
                 bids: [{ priceTicks: 100_000_000n }],

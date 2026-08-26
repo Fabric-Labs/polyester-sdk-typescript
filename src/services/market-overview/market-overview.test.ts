@@ -51,7 +51,6 @@ function testScales() {
 function market(overrides: Record<string, unknown> = {}) {
     return {
         symbolId: 101,
-        symbol: "BTC-USDT",
         lastPriceTicks: 1_234_567n,
         lastTradeTsNs: 1_700_000_000_000_000_000n,
         change24hBps: 123,
@@ -122,7 +121,7 @@ describe("MarketOverviewService", () => {
 
         const result = await service.list(
             {
-                symbols: [" BTC-USDT "],
+                symbolIds: [101],
                 limit: 2,
                 pageToken: " cursor-1 ",
                 orderBy: "last_price",
@@ -134,7 +133,7 @@ describe("MarketOverviewService", () => {
         );
 
         expect(transport.lastCall()?.message).toEqual({
-            symbols: ["BTC-USDT"],
+            symbolId: [101],
             limit: 2,
             pageToken: "cursor-1",
             orderBy: Proto.MarketOrderBy.ORDER_BY_LAST_PRICE,
@@ -150,7 +149,6 @@ describe("MarketOverviewService", () => {
             markets: [
                 {
                     symbolId: 101,
-                    symbol: "BTC-USDT",
                     lastPrice: "1.234567",
                     lastTradeTsMs: 1_700_000_000_000,
                     change24hBps: 123,
@@ -181,7 +179,7 @@ describe("MarketOverviewService", () => {
 
         await expect(service.list()).resolves.toEqual({ markets: [], nextPageToken: "" });
         expect(transport.lastCall()?.message).toMatchObject({
-            symbols: [],
+            symbolId: [],
             limit: 500,
             pageToken: "",
             includeSparklines: true,
@@ -191,7 +189,7 @@ describe("MarketOverviewService", () => {
 
     it("rejects market rows for unknown symbol ids during parse", async () => {
         const transport = unaryTransport({
-            markets: [market({ symbolId: 999, symbol: "UNKNOWN-USDT" })],
+            markets: [market({ symbolId: 999 })],
             nextPageToken: "",
         });
         const service = new MarketOverviewService(

@@ -1,6 +1,15 @@
 import * as v from "valibot";
+import { PROTOBUF_UINT32_MAX } from "../shared/wire-bounds.js";
 
 export const SideSchema = v.picklist(["buy", "sell"]);
+
+/** A positive spot-market identifier that fits its protobuf `uint32` field. */
+export const SymbolIdInputSchema = v.pipe(
+    v.number(),
+    v.integer(),
+    v.gtValue(0),
+    v.maxValue(PROTOBUF_UINT32_MAX),
+);
 
 export const PositiveStringInputSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
 

@@ -1,9 +1,10 @@
 import * as v from "valibot";
 import * as Proto from "../../gen/auth/v1/policies_pb.js";
 import { idToBigInt } from "../../utils/base58-id.js";
+import { SymbolIdInputSchema } from "../shared.js";
 
 export const SpotMarketRuleSchema = v.object({
-    symbol: v.string(),
+    symbolId: SymbolIdInputSchema,
 });
 
 export const POLICY_ACTIONS = [

@@ -27,11 +27,10 @@ import {
 import { orderbookWsChannelDepth } from "./orderbook.codecs.js";
 import { toBig } from "../../utils/u128.js";
 import { isResourceNotFoundError } from "../../utils/errors.js";
-import * as v from "valibot";
+import type * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 
 interface SubscribeOrderbookInput extends BaseSubscribeInput<OrderbookData> {
-    symbol: string;
     symbolId: number;
     depth?: number;
     bucket?: string | null;
@@ -47,7 +46,7 @@ export interface OrderbookSubscription {
 export interface CreateOrderbookSubscriptionInput
     extends
         OrderbookStreamHandlers,
-        Pick<SubscribeOrderbookInput, "symbol" | "symbolId" | "depth" | "bucket"> {}
+        Pick<SubscribeOrderbookInput, "symbolId" | "depth" | "bucket"> {}
 
 type BookSide = Map<bigint, bigint>;
 
@@ -66,7 +65,7 @@ export class OrderbookService {
     }
 
     /**
-     * Fetches a spot order book depth snapshot for a symbol and requested depth, returning best bids and asks with the backend book sequence.
+     * Fetches a spot order book depth snapshot for a symbol ID and requested depth, returning best bids and asks with the backend book sequence.
      */
     async get(
         input: v.InferInput<typeof GetOrderbookInputSchema>,
@@ -75,11 +74,11 @@ export class OrderbookService {
         const validated = parse(GetOrderbookInputSchema, input);
         await this.#scales.ready();
         const res = await this.#client.getOrderBook(
-            { symbol: validated.symbol, depth: validated.protoDepth },
+            { symbolId: validated.symbolId, depth: validated.protoDepth },
             toConnectCallOptions(options),
         );
-        return parse(createOrderbookDataSchema(this.#scales, validated.symbol), {
-            symbol: validated.symbol,
+        return parse(createOrderbookDataSchema(this.#scales, validated.symbolId), {
+            symbolId: res.symbolId,
             depth: validated.depth,
             bookSeq: res.bookSeq,
             bids: res.bids,
@@ -88,7 +87,7 @@ export class OrderbookService {
     }
 
     /**
-     * Subscribes to the managed order book stream for a symbol and forwards reconstructed snapshots to onEvent. This is a convenience wrapper around createSubscription().unsubscribe.
+     * Subscribes to the managed order book stream for a symbol ID and forwards reconstructed snapshots to onEvent. This is a convenience wrapper around createSubscription().unsubscribe.
      */
     subscribe(input: SubscribeOrderbookInput): () => void {
         return this.createSubscription(input).unsubscribe;
@@ -102,7 +101,10 @@ export class OrderbookService {
      * Refetching is driven by observed sequence gaps and reconnect events only. A feed that stays subscribed but stops publishing is indistinguishable from a quiet market, so it does not trigger onError or a refetch. Callers that must detect a stalled book need their own idle watchdog plus a REST refetch.
      */
     createSubscription(input: CreateOrderbookSubscriptionInput): OrderbookSubscription {
-        const symbolId = parse(v.pipe(v.number(), v.integer(), v.gtValue(0)), input.symbolId);
+        const { symbolId } = parse(GetOrderbookInputSchema, {
+            symbolId: input.symbolId,
+            depth: input.depth,
+        });
         const requestedDepth = Math.min(500, Math.max(1, Math.trunc(input.depth ?? 50)));
         const channelDepth = orderbookWsChannelDepth(requestedDepth);
         const channel = `public:spot:orderbook:deltas:depth:${channelDepth}:${symbolId}:proto`;
@@ -169,7 +171,7 @@ export class OrderbookService {
         function emit(): void {
             gate.run(() => {
                 input.onEvent({
-                    symbol: input.symbol,
+                    symbolId,
                     depth: requestedDepth,
                     bookSeq: currentBookSeq.toString(),
                     bids: sideToUIBucketed(bidsMap, "bids", requestedDepth, bucketTicks),
@@ -193,18 +195,19 @@ export class OrderbookService {
 
         async function inputServiceFetch(): Promise<Proto.GetOrderBookResponse> {
             const validated = parse(GetOrderbookInputSchema, {
-                symbol: input.symbol,
+                symbolId,
                 depth: channelDepth,
             });
             try {
                 return await client.getOrderBook({
-                    symbol: validated.symbol,
+                    symbolId: validated.symbolId,
                     depth: validated.protoDepth,
                 });
             } catch (error: unknown) {
                 if (!isResourceNotFoundError(error)) throw error;
 
                 return create(Proto.GetOrderBookResponseSchema, {
+                    symbolId,
                     bookSeq: 0n,
                     bids: [],
                     asks: [],

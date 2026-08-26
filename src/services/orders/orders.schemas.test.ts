@@ -55,8 +55,8 @@ const btcUsdt: EnrichedPairConfig = {
     status: "enabled",
 };
 
-function testScales() {
-    const catalog = createTestCatalog({ pairs: [btcUsdt] });
+function testScales(pair: EnrichedPairConfig = btcUsdt) {
+    const catalog = createTestCatalog({ pairs: [pair] });
     return createCatalogSdkScales(() => catalog);
 }
 
@@ -64,7 +64,7 @@ type AssertNewOrderInput<T extends NewOrderInput> = T;
 type AssertModifyOrderInput<T extends ModifyOrderInput> = T;
 
 type _ValidNewOrderWithAttachedRisk = AssertNewOrderInput<{
-    symbol: string;
+    symbolId: number;
     side: "buy";
     qty: string;
     execution: {
@@ -89,7 +89,7 @@ type _ValidNewOrderWithAttachedRisk = AssertNewOrderInput<{
 
 // @ts-expect-error new order risk policies must include at least one leg
 type _InvalidNewOrderWithEmptyRisk = AssertNewOrderInput<{
-    symbol: string;
+    symbolId: number;
     side: "buy";
     qty: string;
     execution: {
@@ -101,7 +101,7 @@ type _InvalidNewOrderWithEmptyRisk = AssertNewOrderInput<{
 
 // @ts-expect-error stopLoss and trailingStop are mutually exclusive stop legs
 type _InvalidNewOrderWithBothStopLegs = AssertNewOrderInput<{
-    symbol: string;
+    symbolId: number;
     side: "buy";
     qty: string;
     execution: {
@@ -240,6 +240,17 @@ describe("OrderHistoryInputSchema", () => {
 });
 
 describe("CancelAllOrdersInputSchema", () => {
+    it("accepts the uint32 symbol ID ceiling and rejects invalid IDs", () => {
+        expect(
+            v.parse(CancelAllOrdersInputSchema, { symbolId: PROTOBUF_UINT32_MAX }).symbolId,
+        ).toBe(PROTOBUF_UINT32_MAX);
+        expect(() => v.parse(CancelAllOrdersInputSchema, { symbolId: 0 })).toThrow();
+        expect(() =>
+            v.parse(CancelAllOrdersInputSchema, { symbolId: PROTOBUF_UINT32_MAX + 1 }),
+        ).toThrow();
+        expect(() => v.parse(CancelAllOrdersInputSchema, { symbol: "BTC-USDT" })).toThrow();
+    });
+
     it("rejects the removed maxOrders cap", () => {
         expect(() =>
             v.parse(CancelAllOrdersInputSchema, {
@@ -252,6 +263,24 @@ describe("CancelAllOrdersInputSchema", () => {
 });
 
 describe("NewOrderInputSchema", () => {
+    it("accepts the uint32 symbol ID ceiling and rejects invalid IDs", () => {
+        const schema = createNewOrderInputSchema(
+            testScales({ ...btcUsdt, symbolId: PROTOBUF_UINT32_MAX }),
+        );
+        const order = {
+            side: "buy",
+            qty: "0.5",
+            execution: { type: "market_ioc" },
+        } as const;
+
+        expect(v.parse(schema, { ...order, symbolId: PROTOBUF_UINT32_MAX }).order.symbolId).toBe(
+            PROTOBUF_UINT32_MAX,
+        );
+        expect(() => v.parse(schema, { ...order, symbolId: 0 })).toThrow();
+        expect(() => v.parse(schema, { ...order, symbolId: PROTOBUF_UINT32_MAX + 1 })).toThrow();
+        expect(() => v.parse(schema, { ...order, symbol: "BTC-USDT" })).toThrow();
+    });
+
     it("converts decimal limit and market order fields to wire scaled integers", () => {
         const schema = createNewOrderInputSchema(testScales());
 
@@ -260,7 +289,7 @@ describe("NewOrderInputSchema", () => {
                 name: "limit",
                 input: {
                     account: { subaccountId: "11" },
-                    symbol: " BTC-USDT ",
+                    symbolId: 1,
                     side: "buy",
                     qty: "0.5",
                     execution: {
@@ -273,7 +302,7 @@ describe("NewOrderInputSchema", () => {
                 expected: {
                     subaccountId: 11n,
                     order: {
-                        symbol: "BTC-USDT",
+                        symbolId: 1,
                         side: ProtoWrite.Side.BUY,
                         sizing: {
                             case: "baseQtyScaled",
@@ -294,7 +323,7 @@ describe("NewOrderInputSchema", () => {
             {
                 name: "market",
                 input: {
-                    symbol: "BTC-USDT",
+                    symbolId: 1,
                     side: "sell",
                     qty: "0.25",
                     execution: {
@@ -330,7 +359,7 @@ describe("NewOrderInputSchema", () => {
         }
 
         const defaultedInput = v.parse(schema, {
-            symbol: "BTC-USDT",
+            symbolId: 1,
             side: "buy",
             qty: "0.5",
             execution: {
@@ -346,7 +375,7 @@ describe("NewOrderInputSchema", () => {
     it("accepts the int64 price ceiling and rejects one tick above it", () => {
         const schema = createNewOrderInputSchema(testScales());
         const order = {
-            symbol: "BTC-USDT",
+            symbolId: 1,
             side: "buy",
             qty: "0.5",
         } as const;
@@ -374,7 +403,7 @@ describe("NewOrderInputSchema", () => {
     it("accepts the int64 quantity ceiling and rejects one tick above it", () => {
         const schema = createNewOrderInputSchema(testScales());
         const order = {
-            symbol: "BTC-USDT",
+            symbolId: 1,
             side: "buy",
             execution: { type: "market_ioc" },
         } as const;
@@ -394,7 +423,7 @@ describe("NewOrderInputSchema", () => {
     it("accepts the int64 risk trigger ceiling and rejects one tick above it", () => {
         const schema = createNewOrderInputSchema(testScales());
         const order = {
-            symbol: "BTC-USDT",
+            symbolId: 1,
             side: "buy",
             qty: "0.5",
             execution: { type: "market_ioc" },
@@ -440,7 +469,7 @@ describe("NewOrderInputSchema", () => {
         ["limit_ioc", { type: "limit_ioc", price: "100.25" }],
     ] as const)("encodes BUY %s max-quote sizing", (_name, execution) => {
         const output = v.parse(createNewOrderInputSchema(testScales()), {
-            symbol: "BTC-USDT",
+            symbolId: 1,
             side: "buy",
             maxQuoteDebit: "125.5",
             execution,
@@ -455,7 +484,7 @@ describe("NewOrderInputSchema", () => {
     it("requires exactly one sizing mode and restricts max-quote sizing to BUY IOC orders", () => {
         const schema = createNewOrderInputSchema(testScales());
         const eligibleOrder = {
-            symbol: "BTC-USDT",
+            symbolId: 1,
             side: "buy",
             execution: { type: "market_ioc" },
         };
@@ -491,7 +520,7 @@ describe("NewOrderInputSchema", () => {
 
         expect(
             v.parse(schema, {
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 side: "buy",
                 qty: "0.5",
                 execution: { type: "market_ioc" },
@@ -500,7 +529,7 @@ describe("NewOrderInputSchema", () => {
         ).toBe(ProtoWrite.FeeAsset.BASE);
         expect(() =>
             v.parse(schema, {
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 side: "sell",
                 qty: "0.5",
                 execution: { type: "market_ioc" },
@@ -514,7 +543,7 @@ describe("NewOrderInputSchema", () => {
 
         expect(() =>
             v.parse(schema, {
-                symbol: "BTC-USDT",
+                symbolId: 1,
                 side: "buy",
                 qty: "0.5",
                 execution: {
@@ -531,7 +560,7 @@ describe("NewOrderInputSchema", () => {
         ["limit_fok", "limitFok"],
     ] as const)("encodes %s as the matching protobuf execution", (type, expectedCase) => {
         const output = v.parse(createNewOrderInputSchema(testScales()), {
-            symbol: "BTC-USDT",
+            symbolId: 1,
             side: "buy",
             qty: "0.5",
             execution: { type, price: "100.25" },
@@ -547,7 +576,7 @@ describe("NewOrderInputSchema", () => {
         const schema = createNewOrderInputSchema(testScales());
 
         const input = v.parse(schema, {
-            symbol: "BTC-USDT",
+            symbolId: 1,
             side: "buy",
             qty: "0.5",
             execution: { type: "limit_gtc", price: "100" },
@@ -594,7 +623,7 @@ describe("NewOrderInputSchema", () => {
         const schema = createNewOrderInputSchema(testScales());
 
         const input = v.parse(schema, {
-            symbol: "BTC-USDT",
+            symbolId: 1,
             side: "buy",
             qty: "0.5",
             execution: { type: "limit_gtc", price: "100" },
@@ -619,7 +648,7 @@ describe("NewOrderInputSchema", () => {
         });
 
         const slippageInput = v.parse(schema, {
-            symbol: "BTC-USDT",
+            symbolId: 1,
             side: "buy",
             qty: "0.5",
             execution: { type: "limit_gtc", price: "100" },
@@ -644,7 +673,7 @@ describe("NewOrderInputSchema", () => {
     it("rejects unknown attached trailing risk variants and excess precision", () => {
         const schema = createNewOrderInputSchema(testScales());
         const baseOrder = {
-            symbol: "BTC-USDT",
+            symbolId: 1,
             side: "buy",
             qty: "0.5",
             execution: { type: "limit_gtc", price: "100" },
@@ -707,7 +736,7 @@ describe("NewOrderInputSchema", () => {
     it("converts decimal market max slippage and rejects oversized values", () => {
         const schema = createNewOrderInputSchema(testScales());
         const baseOrder = {
-            symbol: "BTC-USDT",
+            symbolId: 1,
             side: "sell",
             qty: "0.25",
             execution: { type: "market_ioc" },
@@ -811,7 +840,7 @@ describe("NewOrderInputSchema", () => {
     it("rejects invalid decimal quantity and accepts decimal prices", () => {
         const schema = createNewOrderInputSchema(testScales());
         const baseOrder = {
-            symbol: "BTC-USDT",
+            symbolId: 1,
             side: "buy",
             qty: "0.5",
             execution: { type: "limit_gtc", price: "100" },
@@ -853,7 +882,7 @@ describe("NewOrderInputSchema", () => {
         const schema = createNewOrderInputSchema(testScales());
 
         const baseOrder = {
-            symbol: "BTC-USDT",
+            symbolId: 1,
             side: "buy",
             qty: "0.5",
             execution: { type: "limit_gtc", price: "100" },
@@ -887,7 +916,7 @@ describe("NewOrderInputSchema", () => {
 describe("create result and preview schemas", () => {
     it("exposes millisecond and exact nanosecond admission timestamps", () => {
         expect(
-            v.parse(createCreateOrderResultSchema(testScales(), "BTC-USDT"), {
+            v.parse(createCreateOrderResultSchema(testScales(), 1), {
                 orderId: 11n,
                 clientOrderId: "client-1",
                 acceptedAt: { seconds: 1n, nanos: 250_000_000 },
@@ -905,7 +934,7 @@ describe("create result and preview schemas", () => {
 
     it("derives acceptedAt from nanoseconds when the protobuf timestamp is absent", () => {
         expect(
-            v.parse(createCreateOrderResultSchema(testScales(), "BTC-USDT"), {
+            v.parse(createCreateOrderResultSchema(testScales(), 1), {
                 orderId: 11n,
                 clientOrderId: "",
                 acceptedAtTsNs: 1_250_000_000n,
@@ -919,7 +948,7 @@ describe("create result and preview schemas", () => {
     });
 
     it("normalizes truthful preview admission fields", () => {
-        const result = v.parse(createPreviewOrderResultSchema(testScales(), "BTC-USDT"), {
+        const result = v.parse(createPreviewOrderResultSchema(testScales(), 1), {
             resolvedBaseQtyScaled: 50_000_000n,
             protectedPriceBoundTicks: 100_250_000n,
             evaluatedAt: { seconds: 1n, nanos: 250_000_000 },
@@ -938,7 +967,7 @@ describe("create result and preview schemas", () => {
 
     it("keeps unresolved preview values absent", () => {
         expect(
-            v.parse(createPreviewOrderResultSchema(testScales(), "BTC-USDT"), {
+            v.parse(createPreviewOrderResultSchema(testScales(), 1), {
                 admissible: false,
                 evaluatedAt: { seconds: 1n, nanos: 250_000_000 },
                 rejection: {
@@ -970,7 +999,7 @@ describe("create result and preview schemas", () => {
 
     it("requires an evaluation timestamp when preview values are unresolved", () => {
         expect(() =>
-            v.parse(createPreviewOrderResultSchema(testScales(), "BTC-USDT"), {
+            v.parse(createPreviewOrderResultSchema(testScales(), 1), {
                 admissible: false,
                 rejection: {
                     code: ProtoWrite.ErrorCode.BAD_QTY,

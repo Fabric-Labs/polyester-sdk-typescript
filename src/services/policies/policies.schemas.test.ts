@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 
 import * as Proto from "../../gen/auth/v1/policies_pb.js";
+import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import {
     ApiKeyPolicySchema,
     UpdateApiKeyPolicyInputSchema,
@@ -21,7 +22,7 @@ function apiKeyPolicy() {
         id: 1n,
         name: "API key policy",
         description: "",
-        spotMarkets: [],
+        spotMarkets: [{ symbolId: 101 }],
         spotMarketScope: Proto.MarketScope_Value.ALL,
         actions: [
             Proto.PolicyAction.TRADE_SPOT,
@@ -46,7 +47,7 @@ function subaccountPolicy() {
         id: 1n,
         name: "Subaccount policy",
         description: "",
-        spotMarkets: [],
+        spotMarkets: [{ symbolId: 101 }],
         spotMarketScope: Proto.MarketScope_Value.ALL,
         actions: [Proto.PolicyAction.READ_BALANCES],
         sourceTemplateId: 0n,
@@ -140,6 +141,23 @@ describe("policy output schemas", () => {
 });
 
 describe("policy patch schemas", () => {
+    it("enforces the positive uint32 symbol identifier boundary", () => {
+        expect(
+            v.parse(UpdateApiKeyPolicyInputSchema, {
+                policyId: "1",
+                expectedRevision: "3",
+                spotMarkets: [{ symbolId: PROTOBUF_UINT32_MAX }],
+            }).policy,
+        ).toEqual({ spotMarkets: [{ symbolId: PROTOBUF_UINT32_MAX }] });
+        expect(() =>
+            v.parse(UpdateApiKeyPolicyInputSchema, {
+                policyId: "1",
+                expectedRevision: "3",
+                spotMarkets: [{ symbolId: PROTOBUF_UINT32_MAX + 1 }],
+            }),
+        ).toThrow();
+    });
+
     it("preserves false, empty arrays, and nullable timestamp clears", () => {
         const patch = v.parse(UpdateSubaccountPolicyInputSchema, {
             policyId: "1",

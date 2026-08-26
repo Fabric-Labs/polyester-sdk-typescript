@@ -114,7 +114,7 @@ describe("ApiKeyPoliciesService", () => {
                             expectedRevision: "5",
                             name: "Updated",
                             spotMarketScope: "allowlist",
-                            spotMarkets: [{ symbol: "BTC-USDT" }],
+                            spotMarkets: [{ symbolId: 101 }],
                         },
                         { stepUpToken: " fresh-token " },
                     ),
@@ -123,7 +123,7 @@ describe("ApiKeyPoliciesService", () => {
                     policy: {
                         name: "Updated",
                         spotMarketScope: Proto.MarketScope_Value.ALLOWLIST,
-                        spotMarkets: [{ symbol: "BTC-USDT" }],
+                        spotMarkets: [{ symbolId: 101 }],
                     },
                     updateMask: {
                         paths: ["name", "spot_markets", "spot_market_scope"],

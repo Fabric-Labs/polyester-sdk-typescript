@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file fees/v1/fees.proto.
  */
 export const file_fees_v1_fees: GenFile = /*@__PURE__*/
-  fileDesc("ChJmZWVzL3YxL2ZlZXMucHJvdG8SB2ZlZXMudjEijAEKC1Nwb3RGZWVSYXRlEhMKCXN5bWJvbF9pZBgBIAEoDUIAEhAKBnN5bWJvbBgCIAEoCUIAEiAKFm1ha2VyX2ZlZV9yYXRlX3BlcmNlbnQYAyABKAlCABIgChZ0YWtlcl9mZWVfcmF0ZV9wZXJjZW50GAQgASgJQgASEgoIdmlwX3RpZXIYBSABKA1CACJdChZHZXRTcG90RmVlUmF0ZXNSZXF1ZXN0EhwKDXN1YmFjY291bnRfaWQYASABKAZCAEgAiAEBEhMKCXN5bWJvbF9pZBgCIAMoDUIAQhAKDl9zdWJhY2NvdW50X2lkIkIKF0dldFNwb3RGZWVSYXRlc1Jlc3BvbnNlEicKCWZlZV9yYXRlcxgBIAMoCzIULmZlZXMudjEuU3BvdEZlZVJhdGUyZAoKRmVlU2VydmljZRJWCg9HZXRTcG90RmVlUmF0ZXMSHy5mZWVzLnYxLkdldFNwb3RGZWVSYXRlc1JlcXVlc3QaIC5mZWVzLnYxLkdldFNwb3RGZWVSYXRlc1Jlc3BvbnNlIgBCPFo6Z2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9mZWVzL3YxO2ZlZXN2MWIGcHJvdG8z");
+  fileDesc("ChJmZWVzL3YxL2ZlZXMucHJvdG8SB2ZlZXMudjEiegoLU3BvdEZlZVJhdGUSEwoJc3ltYm9sX2lkGAEgASgNQgASIAoWbWFrZXJfZmVlX3JhdGVfcGVyY2VudBgDIAEoCUIAEiAKFnRha2VyX2ZlZV9yYXRlX3BlcmNlbnQYBCABKAlCABISCgh2aXBfdGllchgFIAEoDUIAIl0KFkdldFNwb3RGZWVSYXRlc1JlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASACIAQESEwoJc3ltYm9sX2lkGAIgAygNQgBCEAoOX3N1YmFjY291bnRfaWQiQgoXR2V0U3BvdEZlZVJhdGVzUmVzcG9uc2USJwoJZmVlX3JhdGVzGAEgAygLMhQuZmVlcy52MS5TcG90RmVlUmF0ZTJkCgpGZWVTZXJ2aWNlElYKD0dldFNwb3RGZWVSYXRlcxIfLmZlZXMudjEuR2V0U3BvdEZlZVJhdGVzUmVxdWVzdBogLmZlZXMudjEuR2V0U3BvdEZlZVJhdGVzUmVzcG9uc2UiAEI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2ZlZXMvdjE7ZmVlc3YxYgZwcm90bzM=");
 
 /**
  * SpotFeeRate describes the effective maker and taker rates for one spot
@@ -25,13 +25,6 @@ export type SpotFeeRate = Message<"fees.v1.SpotFeeRate"> & {
    * @generated from field: uint32 symbol_id = 1;
    */
   symbolId: number;
-
-  /**
-   * Canonical spot market symbol, for example "BTC-USDT".
-   *
-   * @generated from field: string symbol = 2;
-   */
-  symbol: string;
 
   /**
    * Effective maker fee rate encoded as a base-10 percentage string without a

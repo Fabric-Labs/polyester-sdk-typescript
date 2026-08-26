@@ -6,6 +6,7 @@ import {
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
 import { positiveDecimalInputToScaled, type SdkScales } from "../../shared/decimal-surface.js";
+import { SymbolIdInputSchema } from "../shared.js";
 import {
     FEE_ASSET_VALUES,
     FeeAssetCodec,
@@ -23,9 +24,10 @@ export const DecimalInputStringSchema = v.pipe(v.string(), v.trim(), v.minLength
 export type TrailingDistanceOneof = Proto.ModifyTriggerRequest["trailingDistance"];
 export type MaxSlippageOneof = Proto.ModifyTriggerRequest["maxSlippage"];
 
+/** Shared public fields for creating a trigger intent. */
 export const BaseTriggerFieldsSchema = v.object({
     ...AccountScopeInputEntries,
-    symbol: v.pipe(v.string(), v.trim(), v.minLength(1)),
+    symbolId: SymbolIdInputSchema,
     clientTriggerId: v.optional(v.pipe(v.string(), v.trim()), () => crypto.randomUUID()),
     qty: DecimalInputStringSchema,
     feeAsset: v.pipe(
@@ -84,8 +86,12 @@ export function buildTriggerIntentBase(input: BaseTriggerInput, scales: SdkScale
     return {
         subaccountId: accountScopeToSubaccountId(input.account),
         intent: {
-            symbol: input.symbol,
-            qtyScaled: positiveDecimalInputToScaled("qty", input.qty, scales.baseQty(input.symbol)),
+            symbolId: input.symbolId,
+            qtyScaled: positiveDecimalInputToScaled(
+                "qty",
+                input.qty,
+                scales.baseQty(input.symbolId),
+            ),
             feeAsset: input.feeAsset,
             selfTradePreventionMode: input.selfTradePreventionMode,
             clientTriggerId: input.clientTriggerId ?? crypto.randomUUID(),

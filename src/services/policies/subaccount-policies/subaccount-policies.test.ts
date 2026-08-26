@@ -136,7 +136,7 @@ describe("SubaccountPoliciesService", () => {
                             expectedRevision: "6",
                             name: "Updated policy",
                             spotMarketScope: "allowlist",
-                            spotMarkets: [{ symbol: "BTC-USDT" }],
+                            spotMarkets: [{ symbolId: 101 }],
                             tradingHalted: false,
                         },
                         { stepUpToken: " fresh-token " },
@@ -146,7 +146,7 @@ describe("SubaccountPoliciesService", () => {
                     policy: {
                         name: "Updated policy",
                         spotMarketScope: Proto.MarketScope_Value.ALLOWLIST,
-                        spotMarkets: [{ symbol: "BTC-USDT" }],
+                        spotMarkets: [{ symbolId: 101 }],
                         tradingHalted: false,
                     },
                     updateMask: {
