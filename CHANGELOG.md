@@ -1,5 +1,13 @@
 # @polyester/sdk
 
+## 0.9.0
+
+### Minor Changes
+
+- [#76](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/76) [`b1ae171`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b1ae171854e8e66ab699dc228fbf01cbeff6ff47) Thanks [@aiiven](https://github.com/aiiven)! - feat(policies): use stable symbol IDs in API-key and subaccount policy selectors.
+
+- [#76](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/76) [`b1ae171`](https://github.com/Fabric-Labs/polyester-sdk-typescript/commit/b1ae171854e8e66ab699dc228fbf01cbeff6ff47) Thanks [@aiiven](https://github.com/aiiven)! - feat(trading): use stable symbol IDs for spot-market requests and responses.
+
 ## 0.8.0
 
 ### Minor Changes
