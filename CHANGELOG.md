@@ -1,5 +1,19 @@
 # @polyester/sdk
 
+## 0.9.1
+
+### Patch Changes
+
+- Reject trailing-stop maximum slippage above 10,000 basis points. ([#79](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/79))
+
+- Accept exact decimal inputs with zero padding beyond the configured wire scale. ([#79](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/79))
+
+- Reject OCO risk policies that do not include both take-profit and a stop leg. ([#79](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/79))
+
+- Reject duplicate non-empty client order IDs in one batch create request. ([#79](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/79))
+
+- Reject unsupported characters in cancel-all request IDs, matching other order mutations. ([#79](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/79))
+
 ## 0.9.0
 
 ### Minor Changes
