@@ -2,7 +2,6 @@ import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import { create } from "@bufbuild/protobuf";
 import * as v from "valibot";
 import { tsNsToMs } from "../../utils/time.js";
-import { idToBigInt } from "../../utils/base58-id.js";
 import { OptionalPublicIdSchema, PublicIdSchema } from "../../shared/schemas.js";
 import { positiveDecimalInputToScaled, type SdkScales } from "../../shared/decimal-surface.js";
 import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
@@ -15,18 +14,11 @@ import { MODIFY_BEHAVIOR_VALUES, ModifyActionCodec, ModifyBehaviorCodec } from "
 import { createRequiredRiskPolicyInputSchema } from "./orders-risk.schemas.js";
 import {
     ClientOrderIdInputSchema,
+    OrderIdInputSchema,
     OrderRequestIdInputSchema,
 } from "./orders-identifiers.schemas.js";
 
 const ModifyBehaviorInputSchema = v.picklist(MODIFY_BEHAVIOR_VALUES);
-
-const ModifyOrderIdInputSchema = v.pipe(
-    v.string(),
-    v.trim(),
-    v.minLength(1),
-    v.transform((value) => idToBigInt(value, "orderId")),
-    v.check((value) => value > 0n, "orderId must be greater than zero"),
-);
 
 const DecimalInputStringSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
 
@@ -44,7 +36,7 @@ const ModifyOrderRequestInputSchema = v.object({
 const ModifyOrderKeyInputSchema = v.union([
     v.pipe(
         v.object({
-            orderId: ModifyOrderIdInputSchema,
+            orderId: OrderIdInputSchema,
             clientOrderId: v.optional(v.never()),
         }),
         v.transform(({ orderId }) => ({

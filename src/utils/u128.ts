@@ -9,23 +9,11 @@ export type U128Value = {
     lo: bigint;
 };
 
-/**
- * Convert a value to a bigint.
- * @param v - The value to convert to a bigint.
- * @returns The bigint.
- */
-export function toBig(v: unknown): bigint {
-    if (v === undefined || v === null) return 0n;
-    if (typeof v === "bigint") return v;
-    if (typeof v === "number") return BigInt(v);
-    if (typeof v === "string" && v.length > 0) {
-        try {
-            return BigInt(v);
-        } catch {
-            return 0n;
-        }
+function requireU64(value: bigint, part: "hi" | "lo"): bigint {
+    if (value < 0n || value > U64_MASK) {
+        throw new RangeError(`U128 ${part} must be between 0 and 2^64 - 1.`);
     }
-    return 0n;
+    return value;
 }
 
 /**
@@ -35,8 +23,8 @@ export function toBig(v: unknown): bigint {
  */
 export function fromU128(u: U128Value | undefined): bigint {
     if (!u) return 0n;
-    const hi = toBig(u.hi);
-    const lo = toBig(u.lo);
+    const hi = requireU64(u.hi, "hi");
+    const lo = requireU64(u.lo, "lo");
     return (hi << U64_BITS) + lo;
 }
 
@@ -49,18 +37,4 @@ export function toU128(value: bigint): U128Value {
         hi: value >> U64_BITS,
         lo: value & U64_MASK,
     };
-}
-
-/**
- * Convert a bigint and scale into a decimal string.
- * @param value - The value to convert to a decimal string.
- * @param scale - The scale to convert the value to.
- * @returns The decimal string.
- */
-export function u128ToDecimal(value: bigint, scale: number): string {
-    if (scale <= 0) return value.toString();
-    const base = 10n ** BigInt(scale);
-    const i = value / base;
-    const f = value % base;
-    return `${i}.${f.toString().padStart(scale, "0")}`;
 }

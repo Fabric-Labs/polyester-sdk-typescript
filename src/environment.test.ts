@@ -77,6 +77,15 @@ describe("createPolyesterEnvironment", () => {
         ).toThrow("apiUrl must use a secure protocol for remote hosts.");
     });
 
+    it("rejects query parameters on the Connect API base URL", () => {
+        expect(() =>
+            createPolyesterEnvironment({
+                ...baseParams,
+                apiUrl: "https://api.example.test?tenant=wrong-place",
+            }),
+        ).toThrow("apiUrl must not include query parameters.");
+    });
+
     it("allows insecure IPv6 loopback URLs", () => {
         const environment = createPolyesterEnvironment({
             ...baseParams,

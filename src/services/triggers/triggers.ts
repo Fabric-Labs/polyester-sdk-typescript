@@ -61,15 +61,6 @@ export interface ListTriggersResult {
     nextPageToken: string;
 }
 
-function hasKnownTriggerSymbol(scales: SdkScales, trigger: { symbolId: number }): boolean {
-    try {
-        scales.baseQty(trigger.symbolId);
-        return true;
-    } catch {
-        return false;
-    }
-}
-
 interface SubscribeTriggersInput extends BaseSubscribeInput<Trigger> {
     accountId: string;
 }
@@ -152,10 +143,7 @@ export class TriggersService {
             toConnectCallOptions(options),
         );
         return {
-            triggers: parse(
-                v.array(this.#triggerSchema),
-                res.triggers.filter((trigger) => hasKnownTriggerSymbol(this.#scales, trigger)),
-            ),
+            triggers: parse(v.array(this.#triggerSchema), res.triggers),
             nextPageToken: res.nextPageToken,
         };
     }

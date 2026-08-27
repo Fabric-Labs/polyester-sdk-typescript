@@ -40,7 +40,7 @@ export function getJwtExpiration(token: string): number | null {
         const payload: unknown = JSON.parse(decodedPayload);
         if (typeof payload !== "object" || payload === null) return null;
         const exp = (payload as { exp?: unknown }).exp;
-        return typeof exp === "number" ? exp : null;
+        return typeof exp === "number" && Number.isFinite(exp) ? exp : null;
     } catch {
         return null;
     }
@@ -52,8 +52,7 @@ export function getJwtExpiration(token: string): number | null {
 export function isJwtExpired(token: string): boolean {
     const exp = getJwtExpiration(token);
     if (exp === null) return true;
-    const currentTime = Math.floor(Date.now() / 1000);
-    return exp < currentTime;
+    return Date.now() >= exp * 1000;
 }
 
 /**

@@ -10,6 +10,7 @@ import {
 } from "../../shared/catalog-config.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { timestampToMs, tsNsToTimestamp } from "../../utils/timestamp.js";
+import { optionalUint64DecimalFilterSchema } from "../../shared/schemas.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { PairStatusCodec, SideFilterCodec } from "./market-data.codecs.js";
 
@@ -48,14 +49,8 @@ export const GetMarketTradesInputSchema = v.pipe(
     v.object({
         symbolId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
         side: v.optional(SideSchema),
-        startTsNs: v.pipe(
-            v.optional(v.pipe(v.string(), v.trim())),
-            v.transform((v) => (v ? BigInt(v) : undefined)),
-        ),
-        endTsNs: v.pipe(
-            v.optional(v.pipe(v.string(), v.trim())),
-            v.transform((v) => (v ? BigInt(v) : undefined)),
-        ),
+        startTsNs: optionalUint64DecimalFilterSchema("startTsNs"),
+        endTsNs: optionalUint64DecimalFilterSchema("endTsNs"),
         limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(1_000))),
         pageToken: v.optional(v.pipe(v.string(), v.trim()), ""),
     }),

@@ -70,6 +70,16 @@ describe("LedgerTransferSchema", () => {
         expect(transfer.balanceAfter).toBe("2.5");
     });
 
+    it("preserves link ids beyond Number's safe integer range", () => {
+        const transfer = v.parse(LedgerTransferSchema, {
+            ...baseTransfer,
+            linkId: 9_007_199_254_740_993n,
+            tsUs: 0n,
+        });
+
+        expect(transfer.linkId).toBe("9007199254740993");
+    });
+
     it("preserves unknown asset ids using the catalog fallback path", () => {
         const transfer = v.parse(LedgerTransferSchema, {
             ...baseTransfer,
@@ -226,7 +236,7 @@ describe("LedgerTransferSchema", () => {
 describe("ListTransfersInputSchema", () => {
     it("applies defaults and converts IDs and page tokens to proto fields", () => {
         const input = v.parse(ListTransfersInputSchema, {
-            account: { subaccountId: "11" },
+            account: { subaccountId: formatId(11n) },
             pageToken: "cursor-1",
             timestampMin: 1_700_000_000_123,
             timestampMax: 1_700_000_001_123,

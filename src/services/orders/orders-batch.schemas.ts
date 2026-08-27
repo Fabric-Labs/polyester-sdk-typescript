@@ -27,6 +27,7 @@ import { createOrderIntentInputSchema } from "./orders-input.schemas.js";
 import { createRequiredRiskPolicyInputSchema } from "./orders-risk.schemas.js";
 import {
     ClientOrderIdInputSchema,
+    positiveOrderIdInputSchema,
     OrderRequestIdInputSchema,
 } from "./orders-identifiers.schemas.js";
 import { OrderErrorDetailSchema } from "./order-errors.schemas.js";
@@ -241,7 +242,7 @@ const BatchReplaceTargetInputSchema = v.union([
     ),
 ]);
 
-function createBatchReplaceOrderItemInputSchema(scales: SdkScales, symbolId: number) {
+function createBatchReplaceOrderItemInputSchema(scales: SdkScales) {
     const patchSchema = v.union([
         v.object({
             newPrice: DecimalInputStringSchema,
@@ -268,47 +269,23 @@ function createBatchReplaceOrderItemInputSchema(scales: SdkScales, symbolId: num
             clearRisk: v.literal(true),
         }),
     ]);
-    return v.pipe(
-        v.intersect([
-            BatchReplaceTargetInputSchema,
-            patchSchema,
-            v.object({
-                newClientOrderId: v.optional(ClientOrderIdInputSchema),
-            }),
-        ]),
-        v.transform((input) => ({
-            key: input.key,
-            newPriceTicks:
-                input.newPrice === undefined
-                    ? undefined
-                    : positiveDecimalInputToScaled(
-                          "items.newPrice",
-                          input.newPrice,
-                          scales.price(),
-                      ),
-            newQtyScaled:
-                input.newQty === undefined
-                    ? undefined
-                    : positiveDecimalInputToScaled(
-                          "items.newQty",
-                          input.newQty,
-                          scales.baseQty(symbolId),
-                      ),
-            newAttachedRisk:
-                input.clearRisk === true ? create(ProtoWrite.RiskPolicySchema) : input.risk,
-            newClientOrderId: input.newClientOrderId ?? "",
-        })),
-    );
+    return v.intersect([
+        BatchReplaceTargetInputSchema,
+        patchSchema,
+        v.object({
+            newClientOrderId: v.optional(ClientOrderIdInputSchema),
+        }),
+    ]);
 }
 
-export function createBatchReplaceOrdersInputSchema(scales: SdkScales, symbolId: number) {
+export function createBatchReplaceOrdersInputSchema(scales: SdkScales) {
     return v.pipe(
         v.strictObject({
             ...AccountScopeInputEntries,
-            symbolId: v.pipe(v.literal(symbolId), v.integer(), v.minValue(1)),
+            symbolId: SymbolIdInputSchema,
             requestId: v.optional(OrderRequestIdInputSchema),
             items: v.pipe(
-                v.array(createBatchReplaceOrderItemInputSchema(scales, symbolId)),
+                v.array(createBatchReplaceOrderItemInputSchema(scales)),
                 v.minLength(1, "At least one replacement is required."),
                 v.maxLength(50, "Batch replace accepts at most 50 replacements."),
             ),
@@ -319,10 +296,34 @@ export function createBatchReplaceOrdersInputSchema(scales: SdkScales, symbolId:
             );
             return new Set(targets).size === targets.length;
         }, "Each batch replace target must be unique."),
-        v.transform(({ account, ...input }) => ({
-            ...input,
-            subaccountId: accountScopeToSubaccountId(account),
-        })),
+        v.transform(({ account, items, ...input }) => {
+            return {
+                ...input,
+                items: items.map((item) => ({
+                    key: item.key,
+                    newPriceTicks:
+                        item.newPrice === undefined
+                            ? undefined
+                            : positiveDecimalInputToScaled(
+                                  "items.newPrice",
+                                  item.newPrice,
+                                  scales.price(),
+                              ),
+                    newQtyScaled:
+                        item.newQty === undefined
+                            ? undefined
+                            : positiveDecimalInputToScaled(
+                                  "items.newQty",
+                                  item.newQty,
+                                  scales.baseQty(input.symbolId),
+                              ),
+                    newAttachedRisk:
+                        item.clearRisk === true ? create(ProtoWrite.RiskPolicySchema) : item.risk,
+                    newClientOrderId: item.newClientOrderId ?? "",
+                })),
+                subaccountId: accountScopeToSubaccountId(account),
+            };
+        }),
     );
 }
 
@@ -501,12 +502,9 @@ export type GetBatchReplaceStatusResult = v.InferOutput<typeof GetBatchReplaceSt
 const BatchCancelOrderInputSchema = v.union([
     v.pipe(
         v.strictObject({
-            orderId: v.pipe(
-                idInputSchema("items.orderId"),
-                v.check((value) => value > 0n, "items.orderId must be greater than zero"),
-            ),
+            orderId: positiveOrderIdInputSchema("items.orderId"),
             clientOrderId: v.optional(v.never()),
-            symbolId: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+            symbolId: v.optional(SymbolIdInputSchema),
         }),
         v.transform(({ orderId, symbolId }) => ({ orderId, symbolId })),
     ),
@@ -514,7 +512,7 @@ const BatchCancelOrderInputSchema = v.union([
         v.strictObject({
             orderId: v.optional(v.never()),
             clientOrderId: ClientOrderIdInputSchema,
-            symbolId: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+            symbolId: v.optional(SymbolIdInputSchema),
         }),
         v.transform(({ clientOrderId, symbolId }) => ({ clientOrderId, symbolId })),
     ),

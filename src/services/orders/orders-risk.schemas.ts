@@ -1,4 +1,5 @@
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
+import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import { create } from "@bufbuild/protobuf";
 import * as v from "valibot";
 import {
@@ -13,6 +14,10 @@ import {
     type SdkScales,
 } from "../../shared/decimal-surface.js";
 import { parseSlippageInput, parseTrailingDistanceInput } from "../trailing-oneof-inputs.js";
+import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { formatId } from "../../utils/base58-id.js";
+import { tsNsToMs } from "../../utils/time.js";
+import { AttachedRiskLegStatusCodec } from "./orders.codecs.js";
 
 const DecimalInputStringSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
 
@@ -59,11 +64,7 @@ function attachedTriggerInputSchema(scales: SdkScales, fieldPrefix: "takeProfit"
     );
 }
 
-const TrailingDistanceSchema = v.union([
-    PriceDistanceInputSchema,
-    BpsStringOrNumberInputSchema,
-    NoneInputSchema,
-]);
+const TrailingDistanceSchema = v.union([PriceDistanceInputSchema, BpsStringOrNumberInputSchema]);
 
 const MaxSlippageSchema = v.union([
     PriceSlippageInputSchema,
@@ -265,16 +266,27 @@ const ReadTrailingStopPolicySchema = v.object({
     activationPriceTicks: v.bigint(),
 });
 
+const ReadAttachedRiskLegStateSchema = v.object({
+    status: v.enum(ProtoRead.AttachedRiskLegState_Status),
+    armedTsNs: v.bigint(),
+    terminalTsNs: v.bigint(),
+    triggerId: v.optional(v.bigint()),
+    childOrderId: v.optional(v.bigint()),
+});
+
 const ReadAttachedRiskTakeProfitSchema = v.object({
     policy: v.optional(ReadTakeProfitPolicySchema),
+    state: v.optional(ReadAttachedRiskLegStateSchema),
 });
 
 const ReadAttachedRiskStopLossSchema = v.object({
     policy: v.optional(ReadStopLossPolicySchema),
+    state: v.optional(ReadAttachedRiskLegStateSchema),
 });
 
 const ReadAttachedRiskTrailingStopSchema = v.object({
     policy: v.optional(ReadTrailingStopPolicySchema),
+    state: v.optional(ReadAttachedRiskLegStateSchema),
 });
 
 export const ReadAttachedRiskSchema = v.object({
@@ -306,6 +318,29 @@ function formatRiskLeg(
     return {
         triggerPrice: scaledToDecimalOutput(leg.triggerPriceTicks, scales.price()),
         execution: formatRiskExecution(scales, leg.child),
+    };
+}
+
+function formatRiskLegState(state: v.InferOutput<typeof ReadAttachedRiskLegStateSchema>) {
+    return {
+        status: requiredEnumLabel(
+            AttachedRiskLegStatusCodec.protoToOutput,
+            state.status,
+            "AttachedRiskLegStateSchema",
+            "status",
+        ),
+        armedTs: state.armedTsNs > 0n ? tsNsToMs(state.armedTsNs) : undefined,
+        armedTsNs: state.armedTsNs > 0n ? state.armedTsNs.toString() : undefined,
+        terminalTs: state.terminalTsNs > 0n ? tsNsToMs(state.terminalTsNs) : undefined,
+        terminalTsNs: state.terminalTsNs > 0n ? state.terminalTsNs.toString() : undefined,
+        triggerId:
+            state.triggerId !== undefined && state.triggerId > 0n
+                ? formatId(state.triggerId)
+                : undefined,
+        childOrderId:
+            state.childOrderId !== undefined && state.childOrderId > 0n
+                ? formatId(state.childOrderId)
+                : undefined,
     };
 }
 
@@ -361,36 +396,59 @@ export function formatAttachedRisk(
 ) {
     if (!risk) return undefined;
 
-    const takeProfit = risk.takeProfit?.policy
-        ? formatRiskLeg(scales, risk.takeProfit.policy)
-        : undefined;
-    const stopLoss = risk.stopLoss?.policy
-        ? formatRiskLeg(scales, risk.stopLoss.policy)
-        : undefined;
-    const trailingStop = risk.trailingStop?.policy
-        ? {
-              trailingDistance: formatTrailingDistance(
-                  scales,
-                  risk.trailingStop.policy.trailingDistance,
-              ),
-              maxSlippage: formatTrailingMaxSlippage(scales, risk.trailingStop.policy.maxSlippage),
-              activationPrice:
-                  risk.trailingStop.policy.activationPriceTicks > 0n
-                      ? scaledToDecimalOutput(
-                            risk.trailingStop.policy.activationPriceTicks,
-                            scales.price(),
-                        )
+    const takeProfit =
+        risk.takeProfit?.policy || risk.takeProfit?.state
+            ? {
+                  ...(risk.takeProfit.policy
+                      ? formatRiskLeg(scales, risk.takeProfit.policy)
+                      : undefined),
+                  state: risk.takeProfit.state
+                      ? formatRiskLegState(risk.takeProfit.state)
                       : undefined,
-          }
-        : undefined;
+              }
+            : undefined;
+    const stopLoss =
+        risk.stopLoss?.policy || risk.stopLoss?.state
+            ? {
+                  ...(risk.stopLoss.policy
+                      ? formatRiskLeg(scales, risk.stopLoss.policy)
+                      : undefined),
+                  state: risk.stopLoss.state ? formatRiskLegState(risk.stopLoss.state) : undefined,
+              }
+            : undefined;
+    const trailingStop =
+        risk.trailingStop?.policy || risk.trailingStop?.state
+            ? {
+                  ...(risk.trailingStop.policy
+                      ? {
+                            trailingDistance: formatTrailingDistance(
+                                scales,
+                                risk.trailingStop.policy.trailingDistance,
+                            ),
+                            maxSlippage: formatTrailingMaxSlippage(
+                                scales,
+                                risk.trailingStop.policy.maxSlippage,
+                            ),
+                            activationPrice:
+                                risk.trailingStop.policy.activationPriceTicks > 0n
+                                    ? scaledToDecimalOutput(
+                                          risk.trailingStop.policy.activationPriceTicks,
+                                          scales.price(),
+                                      )
+                                    : undefined,
+                        }
+                      : undefined),
+                  state: risk.trailingStop.state
+                      ? formatRiskLegState(risk.trailingStop.state)
+                      : undefined,
+              }
+            : undefined;
 
     if (!takeProfit && !stopLoss && !trailingStop) return undefined;
 
-    const effectiveStopLoss = trailingStop ? undefined : stopLoss;
-
     return {
         takeProfit,
-        stopLoss: effectiveStopLoss,
+        stopLoss,
         trailingStop,
         oco: risk.oco,
     };

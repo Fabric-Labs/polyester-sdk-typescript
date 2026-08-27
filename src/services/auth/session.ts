@@ -186,7 +186,11 @@ export class AuthSessionStore {
         const token = tokenStorage.get();
         if (!token) return null;
 
-        if (!this.get()) {
+        const session = this.#session.get();
+        if (!session) return token;
+
+        if (session.environmentFingerprint !== this.#environmentFingerprint) {
+            this.#session.clear();
             tokenStorage.clear();
             return null;
         }

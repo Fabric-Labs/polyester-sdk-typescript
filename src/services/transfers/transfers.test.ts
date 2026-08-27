@@ -59,7 +59,7 @@ describe("TransfersService", () => {
     it("normalizes list inputs, resolver defaults, signals, and converts decimal amounts", async () => {
         const controller = new AbortController();
         const resolver: SubaccountResolver = {
-            getDefaultSubaccountId: () => "11",
+            getDefaultSubaccountId: () => formatId(11n),
         };
         const transport = unaryTransport({
             transfers: [transferRow()],
@@ -95,7 +95,7 @@ describe("TransfersService", () => {
                     timestamp: 1_781_190_257_836,
                     balanceAfter: "2.5",
                     isDebit: false,
-                    linkId: 22,
+                    linkId: "22",
                     flowId: "flow-1",
                     source: {
                         kind: "funding_account",
@@ -246,7 +246,7 @@ describe("TransfersService", () => {
             accountCode: "trading",
             timestamp: 1_781_190_257_836,
             isDebit: false,
-            linkId: 23,
+            linkId: "23",
             source: {
                 kind: "unspecified",
                 address: "",

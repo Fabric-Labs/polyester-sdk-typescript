@@ -4,8 +4,11 @@ import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
+import { ValidationError } from "../../shared/errors.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
+import { PROTOBUF_INT32_MAX } from "../../shared/wire-bounds.js";
 import { createTestCatalog } from "../../testing/catalog.js";
+import { formatId } from "../../utils/base58-id.js";
 import { realtimeClientStub, unaryTransportByMethod } from "../../testing/service-harness.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import { TriggersService } from "./triggers.js";
@@ -125,7 +128,7 @@ describe("TriggersService", () => {
             {
                 name: "stop-loss market IOC",
                 input: {
-                    account: { subaccountId: "11" },
+                    account: { subaccountId: formatId(11n) },
                     triggerType: "stop_loss",
                     symbolId: 1,
                     side: "sell",
@@ -344,15 +347,38 @@ describe("TriggersService", () => {
         expect(cases).toHaveLength(8);
     });
 
+    it("rejects trailing-distance overflow with a typed validation error before transport", async () => {
+        const transport = unaryTransportByMethod({ createTrigger: createResult });
+        const service = new TriggersService(
+            transport.transport,
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await expect(
+            service.create({
+                triggerType: "trailing_stop",
+                symbolId: 1,
+                qty: "0.25",
+                trailingDistance: {
+                    kind: "bps",
+                    bps: (PROTOBUF_INT32_MAX + 1n).toString(),
+                },
+            }),
+        ).rejects.toBeInstanceOf(ValidationError);
+        expect(transport.calls).toHaveLength(0);
+    });
+
     it("normalizes reads and returns configuration separately from runtime state", async () => {
         const controller = new AbortController();
         const resolver: SubaccountResolver = {
-            getDefaultSubaccountId: () => "11",
+            getDefaultSubaccountId: () => formatId(11n),
         };
         const transport = unaryTransportByMethod({
             getTrigger: {},
             listTriggers: {
-                triggers: [trigger(), trigger({ triggerId: 12n, symbolId: 999 })],
+                triggers: [trigger()],
                 nextPageToken: "next-page",
             },
             listTriggerEvents: { events: [triggerEvent()], nextPageToken: "event-page" },
@@ -364,11 +390,13 @@ describe("TriggersService", () => {
             testScales(),
         );
 
-        await expect(service.get({ triggerId: "22", account: "main" })).resolves.toBeNull();
+        await expect(
+            service.get({ triggerId: formatId(22n), account: "main" }),
+        ).resolves.toBeNull();
         await expect(
             service.list(
                 {
-                    parentOrderId: "33",
+                    parentOrderId: formatId(33n),
                     symbolId: 1,
                     status: ["armed", "paused"],
                     triggerType: "twap",
@@ -397,7 +425,7 @@ describe("TriggersService", () => {
             ],
         });
         await expect(
-            service.listEvents({ triggerId: "22", limit: 2, eventType: "fired" }),
+            service.listEvents({ triggerId: formatId(22n), limit: 2, eventType: "fired" }),
         ).resolves.toMatchObject({
             nextPageToken: "event-page",
             events: [
@@ -435,6 +463,22 @@ describe("TriggersService", () => {
             eventType: Proto.TriggerEventType.EVENT_FIRED,
             pageToken: "",
         });
+    });
+
+    it("fails loudly when a listed trigger needs a symbol absent from the catalog", async () => {
+        const service = new TriggersService(
+            unaryTransportByMethod({
+                listTriggers: {
+                    triggers: [trigger(), trigger({ triggerId: 12n, symbolId: 999 })],
+                    nextPageToken: "",
+                },
+            }).transport,
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await expect(service.list()).rejects.toThrow(/symbolId not found: 999/);
     });
 
     it("preserves conditional triggers whose response omits child execution", async () => {
@@ -563,27 +607,30 @@ describe("TriggersService", () => {
 
         await expect(
             service.cancel(
-                { triggerId: "22", account: { subaccountId: "11" } },
+                { triggerId: formatId(22n), account: { subaccountId: formatId(11n) } },
                 { stepUpToken: " fresh " },
             ),
         ).resolves.toMatchObject({ status: "cancelled", ts: 1, tsNs: "1000123" });
         await expect(
             service.modify({
-                triggerId: "22",
+                triggerId: formatId(22n),
                 symbolId: 1,
-                account: { subaccountId: "11" },
+                account: { subaccountId: formatId(11n) },
                 triggerPrice: "101.25",
-                maxSlippage: { kind: "none" },
+                maxSlippage: { kind: "bps", bps: 25 },
             }),
         ).resolves.toMatchObject({ status: "armed", ts: 2, tsNs: "2000234" });
         await expect(
-            service.pause({ triggerId: "22", account: { subaccountId: "11" } }),
+            service.pause({
+                triggerId: formatId(22n),
+                account: { subaccountId: formatId(11n) },
+            }),
         ).resolves.toMatchObject({ status: "paused", ts: 3, tsNs: "3000345" });
         await expect(
             service.resume({
-                triggerId: "22",
+                triggerId: formatId(22n),
                 symbolId: 1,
-                account: { subaccountId: "11" },
+                account: { subaccountId: formatId(11n) },
             }),
         ).resolves.toMatchObject({ status: "running", ts: 4, tsNs: "4000456" });
 
@@ -601,7 +648,7 @@ describe("TriggersService", () => {
             subaccountId: 11n,
             triggerPriceTicks: 101_250_000n,
             trailingDistance: { case: undefined, value: undefined },
-            maxSlippage: { case: undefined, value: undefined },
+            maxSlippage: { case: "maxSlippageBps", value: 25 },
         });
         expect(
             transport.calls.find((call) => call.method.localName === "pauseTrigger")?.message,
@@ -746,6 +793,6 @@ describe("TriggersService", () => {
         ).rejects.toThrow();
         expect(transport.unary).not.toHaveBeenCalled();
 
-        await expect(service.get({ triggerId: "22" })).rejects.toThrow();
+        await expect(service.get({ triggerId: formatId(22n) })).rejects.toThrow();
     });
 });

@@ -25,7 +25,6 @@ import {
     type OrderbookData,
 } from "./orderbook.schemas.js";
 import { orderbookWsChannelDepth } from "./orderbook.codecs.js";
-import { toBig } from "../../utils/u128.js";
 import { isResourceNotFoundError } from "../../utils/errors.js";
 import type * as v from "valibot";
 import { parse } from "../../shared/validation.js";
@@ -162,7 +161,11 @@ export class OrderbookService {
             const agg: BookSide = new Map();
             for (const [priceTicks, qtyScaled] of map.entries()) {
                 if (qtyScaled <= 0n) continue;
-                const bucketPrice = (priceTicks / bucket) * bucket;
+                const bucketFloor = (priceTicks / bucket) * bucket;
+                const bucketPrice =
+                    side === "asks" && bucketFloor !== priceTicks
+                        ? bucketFloor + bucket
+                        : bucketFloor;
                 agg.set(bucketPrice, (agg.get(bucketPrice) ?? 0n) + qtyScaled);
             }
             return sideToUI(agg, side, limit);
@@ -215,7 +218,9 @@ export class OrderbookService {
             }
         }
 
-        function handleDelta(delta: Proto.OrderBookDelta): void {
+        function handleDelta(delta: Proto.OrderBookDelta): boolean {
+            if (delta.bookSeqEnd <= currentBookSeq) return true;
+
             if (delta.reset) {
                 bidsMap.clear();
                 asksMap.clear();
@@ -224,16 +229,15 @@ export class OrderbookService {
 
             if (currentBookSeq !== 0n && delta.bookSeqStart > currentBookSeq + 1n) {
                 stream?.refreshSnapshot();
-                return;
+                return false;
             }
-
-            if (delta.bookSeqEnd <= currentBookSeq) return;
 
             applySideDelta(bidsMap, delta.bids);
             applySideDelta(asksMap, delta.asks);
 
             currentBookSeq = delta.bookSeqEnd > currentBookSeq ? delta.bookSeqEnd : currentBookSeq;
             emit();
+            return true;
         }
 
         setBucket(input.bucket);
@@ -243,22 +247,23 @@ export class OrderbookService {
             schema: Proto.OrderBookDeltaSchema,
             maxBufferedPublications: 200,
             snapshotErrorLog: "Failed to fetch orderbook",
+            snapshotRetry: { maxAttempts: 3, delayMs: 1_000 },
             fetchSnapshot: inputServiceFetch,
             readPublication: (delta) => [delta],
             applySnapshot: (snapshot, bufferedDeltas) => {
                 bidsMap = levelsToMap(snapshot.bids);
                 asksMap = levelsToMap(snapshot.asks);
-                currentBookSeq = toBig(snapshot.bookSeq);
+                currentBookSeq = snapshot.bookSeq;
                 emit();
                 for (const delta of bufferedDeltas) {
                     if (stream?.isDisposed()) return;
-                    handleDelta(delta);
+                    if (!handleDelta(delta)) return;
                 }
             },
             applyLivePublications: (deltas) => {
                 for (const delta of deltas) {
                     if (stream?.isDisposed()) return;
-                    handleDelta(delta);
+                    if (!handleDelta(delta)) return;
                 }
             },
             onOpen: input.onOpen,

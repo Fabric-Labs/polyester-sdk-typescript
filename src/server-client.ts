@@ -16,7 +16,7 @@ import type { SubaccountResolver } from "./services/subaccount-resolver.js";
 import { isJwtValid } from "./utils/jwt.js";
 import type { Me } from "./services/auth/auth.js";
 import type { PolyesterEnvironment } from "./environment.js";
-import { ConfigurationError } from "./shared/errors.js";
+import { AuthenticationError, ConfigurationError } from "./shared/errors.js";
 
 export type { ServerSessionSnapshot };
 
@@ -113,15 +113,18 @@ export class PolyesterServerClient extends PolyesterClient {
     }
 
     /**
-     * Verifies the current server session and returns its auth state.
+     * Verifies the current server session. Returns null only when credentials
+     * are absent or rejected as unauthenticated. Transport, configuration, and
+     * other backend failures are rethrown so callers do not treat outages as logout.
      */
     async verifySession(): Promise<Me | null> {
         if (!this.#hasAuthProvider) return null;
 
         try {
             return await this.auth.me();
-        } catch {
-            return null;
+        } catch (error) {
+            if (error instanceof AuthenticationError) return null;
+            throw error;
         }
     }
 }

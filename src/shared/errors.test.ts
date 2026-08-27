@@ -349,6 +349,21 @@ describe("connectErrorToPolyesterError", () => {
         expect((mapped as RateLimitError).retryAfterMs).toBe(2000);
     });
 
+    it.each(["1e308", "0x10", "1.5", "Mon, 1.5"])(
+        'rejects invalid Retry-After value "%s"',
+        (value) => {
+            const ce = new ConnectError(
+                "slow down",
+                Code.ResourceExhausted,
+                new Headers({ "retry-after": value }),
+            );
+            const mapped = connectErrorToPolyesterError(ce);
+
+            expect(mapped).toBeInstanceOf(RateLimitError);
+            expect((mapped as RateLimitError).retryAfterMs).toBeUndefined();
+        },
+    );
+
     it("maps structured rate-limit details and prefers their retry guidance", () => {
         const rateLimit = create(RateLimitDetailSchema, {
             reason: FailureReason.QUOTA_EXCEEDED,
@@ -506,6 +521,8 @@ describe("predicates over typed and raw errors", () => {
         expect(isRetryableError(new DOMException("aborted", "AbortError"))).toBe(false);
         // legacy raw ConnectError behavior preserved
         expect(isRetryableError(new ConnectError("down", Code.Unavailable))).toBe(true);
+        expect(isRetryableError(new ConnectError("limited", Code.ResourceExhausted))).toBe(true);
+        expect(isRetryableError(new ConnectError("aborted", Code.Aborted))).toBe(true);
         expect(isRetryableError(new ConnectError("bad", Code.InvalidArgument))).toBe(false);
     });
 

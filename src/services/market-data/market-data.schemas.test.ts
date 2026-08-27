@@ -100,6 +100,7 @@ describe("market data schemas", () => {
             { symbolId: 0 },
             { symbolId: 101, side: "both" },
             { symbolId: 101, startTsNs: "not-a-ts" },
+            { symbolId: 101, startTsNs: "1_000" },
             { symbolId: 101, endTsNs: "12.3" },
         ];
 

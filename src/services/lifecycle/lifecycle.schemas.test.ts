@@ -68,7 +68,7 @@ describe("ListLifecycleFlowsInputSchema", () => {
             flowKind: "deposit",
             flowState: "completed",
             scope: "open",
-            accountSelector: { kind: "accountId", accountId: " 11 " },
+            accountSelector: { kind: "accountId", accountId: ` ${formatId(11n)} ` },
             polyesterChainIds: [8453],
             zippedAssetIds: [1001],
             unifiedAssetIds: [42],
@@ -106,7 +106,10 @@ describe("ListLifecycleFlowsInputSchema", () => {
 
     it("maps owner account selectors explicitly", () => {
         const input = v.parse(ListLifecycleFlowsInputSchema, {
-            accountSelector: { kind: "ownerAccountId", ownerAccountId: " 12 " },
+            accountSelector: {
+                kind: "ownerAccountId",
+                ownerAccountId: ` ${formatId(12n)} `,
+            },
         });
 
         expect(input.accountSelector).toEqual({

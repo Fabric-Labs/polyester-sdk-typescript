@@ -91,9 +91,15 @@ export function isPolicyScopeMismatchError(err: unknown): boolean {
  */
 export function isRetryableError(err: unknown): boolean {
     if (isAbortError(err)) return false;
-    if (err instanceof PolyesterError) return err.retryable;
-    const ce = ConnectError.from(err);
-    return ce.code === Code.Unavailable || ce.code === Code.DeadlineExceeded;
+    const mapped = toPolyesterError(err);
+    if (mapped instanceof PolyesterError) return mapped.retryable;
+    const ce = ConnectError.from(mapped);
+    return (
+        ce.code === Code.Unavailable ||
+        ce.code === Code.DeadlineExceeded ||
+        ce.code === Code.ResourceExhausted ||
+        ce.code === Code.Aborted
+    );
 }
 
 /**

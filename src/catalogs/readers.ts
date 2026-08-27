@@ -503,6 +503,18 @@ class OrdersReader implements OrdersCatalogReader {
             return null;
         }
 
+        if (parsed.scaled > PROTOBUF_INT64_MAX) {
+            const maximum = scaledToDecimal(PROTOBUF_INT64_MAX, scale);
+            errors.push({
+                field: "quantity",
+                rule: "maxQty",
+                message: `quantity exceeds the wire-format maximum of ${maximum}`,
+                expected: maximum,
+                actual: quantity,
+            });
+            return null;
+        }
+
         const step = this.requireConstraintScaled(pair.stepSize, scale, "stepSize");
         if (step > 0n && parsed.scaled % step !== 0n) {
             errors.push({
@@ -539,6 +551,18 @@ class OrdersReader implements OrdersCatalogReader {
                 field: "price",
                 rule: "parse",
                 message: conversionFailureMessage("price", price, parsed.failure),
+                actual: price,
+            });
+            return null;
+        }
+
+        if (parsed.scaled > PROTOBUF_INT64_MAX) {
+            const maximum = scaledToDecimal(PROTOBUF_INT64_MAX, PRICE_SCALE);
+            errors.push({
+                field: "price",
+                rule: "maxPrice",
+                message: `price exceeds the wire-format maximum of ${maximum}`,
+                expected: maximum,
                 actual: price,
             });
             return null;

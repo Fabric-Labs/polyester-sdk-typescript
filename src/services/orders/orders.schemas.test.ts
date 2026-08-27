@@ -6,9 +6,10 @@ import { AccountCode, TransferCode } from "../../gen/ledger/v1/catalog_pb.js";
 import { CatalogConversionError, type EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
-import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
+import { PROTOBUF_INT32_MAX, PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import { formatId } from "../../utils/base58-id.js";
 import {
+    BaseOrdersFilterInputSchema,
     CancelAllOrdersInputSchema,
     CancelOrderInputSchema,
     createCreateOrderResultSchema,
@@ -17,6 +18,7 @@ import {
     createOrderSchema,
     createOrderTransferSchema,
     createPreviewOrderResultSchema,
+    GetOrderDetailsInputSchema,
     type ModifyOrderInput,
     type NewOrderInput,
     OrderHistoryInputSchema,
@@ -259,6 +261,17 @@ describe("OrderHistoryInputSchema", () => {
     });
 });
 
+describe("BaseOrdersFilterInputSchema", () => {
+    it("uses the bounded symbol ID schema for every list filter item", () => {
+        expect(
+            v.parse(BaseOrdersFilterInputSchema, { symbolId: [PROTOBUF_UINT32_MAX] }).symbolId,
+        ).toEqual([PROTOBUF_UINT32_MAX]);
+        expect(() => v.parse(BaseOrdersFilterInputSchema, { symbolId: [-1.5] })).toThrow();
+        expect(() => v.parse(BaseOrdersFilterInputSchema, { symbolId: [0] })).toThrow();
+        expect(() => v.parse(BaseOrdersFilterInputSchema, { symbolId: [Number.NaN] })).toThrow();
+    });
+});
+
 describe("CancelAllOrdersInputSchema", () => {
     it("uses the shared order request ID format", () => {
         expect(v.parse(CancelAllOrdersInputSchema, { requestId: " Az09._:/- " }).requestId).toBe(
@@ -317,7 +330,7 @@ describe("NewOrderInputSchema", () => {
             {
                 name: "limit",
                 input: {
-                    account: { subaccountId: "11" },
+                    account: { subaccountId: formatId(11n) },
                     symbolId: 1,
                     side: "buy",
                     qty: "0.5",
@@ -783,6 +796,29 @@ describe("NewOrderInputSchema", () => {
                 ...baseOrder,
                 risk: {
                     trailingStop: {
+                        trailingDistance: { kind: "none" },
+                    },
+                },
+            }),
+        ).toThrow();
+        expect(() =>
+            v.parse(schema, {
+                ...baseOrder,
+                risk: {
+                    trailingStop: {
+                        trailingDistance: {
+                            kind: "bps",
+                            bps: (PROTOBUF_INT32_MAX + 1n).toString(),
+                        },
+                    },
+                },
+            }),
+        ).toThrow();
+        expect(() =>
+            v.parse(schema, {
+                ...baseOrder,
+                risk: {
+                    trailingStop: {
                         trailingDistance: { kind: "ticks", ticks: "10" },
                     },
                 },
@@ -1115,7 +1151,7 @@ describe("ModifyOrderInputSchema", () => {
 
         expect(() =>
             v.parse(schema, {
-                orderId: "11",
+                orderId: formatId(11n),
                 clientOrderId: "client-1",
                 symbolId: 1,
                 newQty: "0.5",
@@ -1123,7 +1159,7 @@ describe("ModifyOrderInputSchema", () => {
         ).toThrow();
         expect(() =>
             v.parse(schema, {
-                orderId: "11",
+                orderId: formatId(11n),
                 symbolId: 1,
             }),
         ).toThrow();
@@ -1212,14 +1248,14 @@ describe("ModifyOrderInputSchema", () => {
 
         expect(() =>
             v.parse(schema, {
-                orderId: "11",
+                orderId: formatId(11n),
                 symbolId: 1,
                 risk: {},
             }),
         ).toThrow();
         expect(() =>
             v.parse(schema, {
-                orderId: "11",
+                orderId: formatId(11n),
                 symbolId: 1,
                 risk: {
                     takeProfit: {
@@ -1232,7 +1268,7 @@ describe("ModifyOrderInputSchema", () => {
         ).toThrow();
         expect(() =>
             v.parse(schema, {
-                orderId: "11",
+                orderId: formatId(11n),
                 symbolId: 1,
                 risk: {
                     stopLoss: {
@@ -1253,7 +1289,7 @@ describe("ModifyOrderInputSchema", () => {
         const schema = createModifyOrderInputSchema(testScales());
 
         const patch = v.parse(schema, {
-            orderId: "11",
+            orderId: formatId(11n),
             symbolId: 1,
             risk: {
                 takeProfit: {
@@ -1279,11 +1315,15 @@ describe("ModifyOrderInputSchema", () => {
 
 describe("CancelOrderInputSchema", () => {
     it("normalizes order id and client order id keys", () => {
-        expect(v.parse(CancelOrderInputSchema, { orderId: "11" })).toMatchObject({
+        expect(v.parse(CancelOrderInputSchema, { orderId: formatId(11n) })).toMatchObject({
             key: { case: "orderId", value: 11n },
         });
         expect(v.parse(CancelOrderInputSchema, { clientOrderId: " client-1 " })).toMatchObject({
             key: { case: "clientOrderId", value: "client-1" },
+        });
+        expect(formatId(58n)).toBe("21");
+        expect(v.parse(CancelOrderInputSchema, { orderId: formatId(58n) })).toMatchObject({
+            key: { case: "orderId", value: 58n },
         });
     });
 
@@ -1291,10 +1331,40 @@ describe("CancelOrderInputSchema", () => {
         expect(() => v.parse(CancelOrderInputSchema, {})).toThrow();
         expect(() =>
             v.parse(CancelOrderInputSchema, {
-                orderId: "11",
+                orderId: formatId(11n),
                 clientOrderId: "client-1",
             }),
         ).toThrow();
+    });
+
+    it("enforces public ID and symbol wire contracts", () => {
+        expect(() => v.parse(CancelOrderInputSchema, { orderId: formatId(0n) })).toThrow(
+            "orderId must be greater than zero",
+        );
+        expect(() =>
+            v.parse(CancelOrderInputSchema, {
+                clientOrderId: "界".repeat(72),
+            }),
+        ).toThrow();
+        expect(() =>
+            v.parse(CancelOrderInputSchema, {
+                orderId: formatId(11n),
+                symbolId: -1.5,
+            }),
+        ).toThrow();
+    });
+});
+
+describe("GetOrderDetailsInputSchema", () => {
+    it("uses the same bounded keys as order mutations", () => {
+        expect(v.parse(GetOrderDetailsInputSchema, { orderId: formatId(11n) }).key).toEqual({
+            case: "orderId",
+            value: 11n,
+        });
+        expect(() =>
+            v.parse(GetOrderDetailsInputSchema, { clientOrderId: "界".repeat(72) }),
+        ).toThrow();
+        expect(() => v.parse(GetOrderDetailsInputSchema, { orderId: formatId(0n) })).toThrow();
     });
 });
 
@@ -1412,6 +1482,13 @@ describe("OrderSchema", () => {
                                 },
                             },
                         },
+                        state: {
+                            status: ProtoRead.AttachedRiskLegState_Status.COMPLETED,
+                            armedTsNs: 1_000_000_123n,
+                            terminalTsNs: 2_000_000_456n,
+                            triggerId: 33n,
+                            childOrderId: 44n,
+                        },
                     },
                     stopLoss: {
                         policy: {
@@ -1422,6 +1499,19 @@ describe("OrderSchema", () => {
                                     value: {},
                                 },
                             },
+                        },
+                        state: {
+                            status: ProtoRead.AttachedRiskLegState_Status.ARMED,
+                            armedTsNs: 1_500_000_000n,
+                            terminalTsNs: 0n,
+                            triggerId: 55n,
+                        },
+                    },
+                    trailingStop: {
+                        policy: {
+                            trailingDistance: { case: "trailingDistanceBps", value: 50 },
+                            maxSlippage: { case: undefined, value: undefined },
+                            activationPriceTicks: 0n,
                         },
                     },
                     oco: false,
@@ -1435,12 +1525,30 @@ describe("OrderSchema", () => {
                 type: "limit_gtc",
                 price: "102.5",
             },
+            state: {
+                status: "completed",
+                armedTs: 1_000,
+                armedTsNs: "1000000123",
+                terminalTs: 2_000,
+                terminalTsNs: "2000000456",
+                triggerId: formatId(33n),
+                childOrderId: formatId(44n),
+            },
         });
         expect(order.attachedRisk?.stopLoss).toMatchObject({
             triggerPrice: "95",
             execution: {
                 type: "market_ioc",
             },
+            state: {
+                status: "armed",
+                armedTs: 1_500,
+                terminalTs: undefined,
+                triggerId: formatId(55n),
+            },
+        });
+        expect(order.attachedRisk?.trailingStop).toMatchObject({
+            trailingDistance: { kind: "bps", bps: 50 },
         });
     });
 
@@ -1547,12 +1655,29 @@ describe("OrderTransferSchema", () => {
 
         expect(transfer).toMatchObject({
             txId: "tx-1",
-            matchId: 5,
+            matchId: "5",
             assetId: 1,
             isDebit: false,
             amount: "1.5",
             timestamp: 1,
         });
+    });
+
+    it("preserves match ids beyond Number's safe integer range", () => {
+        const schema = createOrderTransferSchema();
+
+        const transfer = v.parse(schema, {
+            txId: "tx-large-match",
+            matchId: 9_007_199_254_740_993n,
+            assetId: 1,
+            amountE18: { hi: 0n, lo: 1n },
+            isDebit: false,
+            transferCode: TransferCode.INTERNAL_TRANSFER,
+            accountCode: AccountCode.TRADING,
+            tsNs: 0n,
+        });
+
+        expect(transfer.matchId).toBe("9007199254740993");
     });
 
     it("decodes retained trading-withdraw request fees", () => {

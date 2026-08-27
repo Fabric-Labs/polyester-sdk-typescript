@@ -9,6 +9,7 @@ import { createTestCatalog } from "../../testing/catalog.js";
 
 const catalogTradingGatewayAddress = "0xD3fecf5D39131e23b6B0f872cA0a21c8A5a30932" as const;
 import { unaryTransport, unaryTransportByMethod } from "../../testing/service-harness.js";
+import { formatId } from "../../utils/base58-id.js";
 import {
     TradingWithdrawsService,
     type TradingWithdrawWalletSigner,
@@ -173,7 +174,7 @@ describe("TradingWithdrawsService", () => {
                 idempotencyKey: " withdraw-1 ",
                 walletSigner: {
                     signerWallet: "0x1111111111111111111111111111111111111111",
-                    accountId: "1",
+                    accountId: formatId(1n),
                     signTypedData: vi.fn(async (value): Promise<`0x${string}`> => {
                         typedData = value;
                         return "0x1234";
@@ -230,7 +231,7 @@ describe("TradingWithdrawsService", () => {
             idempotencyKey: "withdraw-1",
             walletSigner: {
                 signerWallet: "0x1111111111111111111111111111111111111111",
-                accountId: "1",
+                accountId: formatId(1n),
                 signTypedData: vi.fn(async (value): Promise<`0x${string}`> => {
                     typedData = value;
                     return "0x1234";
@@ -255,14 +256,14 @@ describe("TradingWithdrawsService", () => {
 
         await expect(
             service.createToFunding({
-                account: { subaccountId: "2" },
+                account: { subaccountId: formatId(2n) },
                 assetId: 1,
                 quantity: "100",
                 destinationAddress: "funding",
                 idempotencyKey: "withdraw-1",
                 walletSigner: {
                     signerWallet: " 0x1111111111111111111111111111111111111111 ",
-                    accountId: "1",
+                    accountId: formatId(1n),
                     signTypedData: vi.fn(async (value): Promise<`0x${string}`> => {
                         typedData = value;
                         return "0x1234";
@@ -308,7 +309,7 @@ describe("TradingWithdrawsService", () => {
 
         await expect(
             service.createToExternalChain({
-                account: { subaccountId: "2" },
+                account: { subaccountId: formatId(2n) },
                 assetId: 1,
                 quantity: "1.25",
                 destinationChainId: 10_009,
@@ -316,7 +317,7 @@ describe("TradingWithdrawsService", () => {
                 idempotencyKey: " withdraw-external-1 ",
                 walletSigner: {
                     signerWallet: "0x1111111111111111111111111111111111111111",
-                    accountId: "1",
+                    accountId: formatId(1n),
                     signTypedData: vi.fn(async (value): Promise<`0x${string}`> => {
                         typedData = value;
                         return "0x1234";
@@ -363,7 +364,7 @@ describe("TradingWithdrawsService", () => {
                     idempotencyKey: "withdraw-funding",
                     walletSigner: {
                         signerWallet: "0x1111111111111111111111111111111111111111",
-                        accountId: "1",
+                        accountId: formatId(1n),
                         signTypedData,
                     },
                 }),
@@ -383,7 +384,7 @@ describe("TradingWithdrawsService", () => {
                     idempotencyKey: "withdraw-external",
                     walletSigner: {
                         signerWallet: "0x1111111111111111111111111111111111111111",
-                        accountId: "1",
+                        accountId: formatId(1n),
                         signTypedData,
                     },
                 }),

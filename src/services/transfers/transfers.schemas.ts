@@ -49,7 +49,7 @@ export const LedgerTransferSideSchema = v.object({
 
 export type LedgerTransferSide = v.InferOutput<typeof LedgerTransferSideSchema>;
 
-export function createLedgerTransferSchema(scales: SdkScales) {
+export function createLedgerTransferSchema(_scales: SdkScales) {
     return v.pipe(
         v.object({
             assetId: v.number(),
@@ -65,10 +65,8 @@ export function createLedgerTransferSchema(scales: SdkScales) {
             destination: v.optional(LedgerTransferSideSchema),
         }),
         v.transform((tr) => {
-            // Keep the catalog lookup for readiness/fallback parity; u128 amount fields are always E18 on the wire.
-            scales.ledgerAmount(tr.assetId);
             const amount = fromU128(tr.amountE18);
-            const linkIdNum = Number(tr.linkId ?? 0n);
+            const linkId = tr.linkId && tr.linkId > 0n ? tr.linkId.toString() : undefined;
 
             const output = {
                 assetId: tr.assetId,
@@ -91,7 +89,7 @@ export function createLedgerTransferSchema(scales: SdkScales) {
                 ),
                 timestamp: wireTimestampToMs(tr.tsUs),
                 isDebit: tr.isDebit,
-                linkId: linkIdNum || undefined,
+                linkId,
                 flowId: tr.flowId?.trim() ?? "",
             };
 

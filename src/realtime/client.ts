@@ -19,6 +19,10 @@ import type { ConnectChannelParams, PolyesterRealtime, SubscribeHandlers } from 
 const realtimeFetch = makeFetch();
 
 type CentrifugeCtor = typeof CentrifugeModule.Centrifuge;
+type CentrifugeModuleLoader = () => Promise<typeof CentrifugeModule>;
+
+const defaultCentrifugeModuleLoader: CentrifugeModuleLoader = () =>
+    import("centrifuge/build/protobuf");
 
 // Centrifuge's protobuf build embeds the protobuf.js runtime (~300 KB minified).
 // Loading it lazily keeps it out of the eager module graph on both the server
@@ -26,20 +30,41 @@ type CentrifugeCtor = typeof CentrifugeModule.Centrifuge;
 // app shell; it is only fetched when the first subscription attaches.
 let centrifugeCtorPromise: Promise<CentrifugeCtor> | null = null;
 let loadedCentrifugeCtor: CentrifugeCtor | null = null;
+let centrifugeModuleLoader = defaultCentrifugeModuleLoader;
 export function __setRealtimeCentrifugeForTests(Centrifuge: CentrifugeCtor | null): void {
     loadedCentrifugeCtor = Centrifuge;
     centrifugeCtorPromise = Centrifuge ? Promise.resolve(Centrifuge) : null;
 }
 
+/** Replaces the lazy Centrifuge module loader for isolated transport-load tests. */
+export function __setRealtimeCentrifugeLoaderForTests(loader: CentrifugeModuleLoader | null): void {
+    centrifugeModuleLoader = loader ?? defaultCentrifugeModuleLoader;
+    loadedCentrifugeCtor = null;
+    centrifugeCtorPromise = null;
+}
+
 function loadCentrifuge(): Promise<CentrifugeCtor> {
-    if ((import.meta as { env?: { SSR?: boolean } }).env?.SSR) {
+    if (
+        centrifugeModuleLoader === defaultCentrifugeModuleLoader &&
+        (import.meta as { env?: { SSR?: boolean } }).env?.SSR
+    ) {
         return Promise.reject(new Error("Realtime subscriptions are browser-only during SSR."));
     }
 
-    centrifugeCtorPromise ??= import("centrifuge/build/protobuf").then((mod) => {
-        loadedCentrifugeCtor = mod.Centrifuge;
-        return mod.Centrifuge;
-    });
+    if (!centrifugeCtorPromise) {
+        const loadAttempt = Promise.resolve().then(centrifugeModuleLoader);
+        const retryableLoad = loadAttempt.then(
+            (mod) => {
+                loadedCentrifugeCtor = mod.Centrifuge;
+                return mod.Centrifuge;
+            },
+            (error) => {
+                if (centrifugeCtorPromise === retryableLoad) centrifugeCtorPromise = null;
+                throw error;
+            },
+        );
+        centrifugeCtorPromise = retryableLoad;
+    }
     return centrifugeCtorPromise;
 }
 

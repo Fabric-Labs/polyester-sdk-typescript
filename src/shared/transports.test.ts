@@ -1,9 +1,16 @@
-import { createClient } from "@connectrpc/connect";
+import { createClient, type Interceptor } from "@connectrpc/connect";
+import { create, toJsonString } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { signAsync } from "@noble/ed25519";
 import * as Proto from "../gen/marketoverview/v1/marketoverview_pb.js";
 import { isRetryableError } from "../utils/errors.js";
-import { AuthenticationError, NetworkError, PolyesterError, TransientError } from "./errors.js";
+import {
+    AuthenticationError,
+    ConfigurationError,
+    NetworkError,
+    PolyesterError,
+    TransientError,
+} from "./errors.js";
 import {
     createApiKeyEd25519AuthHeaders,
     createTransports,
@@ -79,6 +86,95 @@ describe("createTransports", () => {
         const rejection = expect(client.listMarketOverview({})).rejects;
         await rejection.toBeInstanceOf(NetworkError);
         await rejection.toBeInstanceOf(PolyesterError);
+    });
+
+    it("maps JWT provider failures to AuthenticationError", async () => {
+        const cause = new Error("credential store unavailable");
+        const { authApi } = createTransports({
+            apiUrl: "https://api.test",
+            auth: {
+                kind: "jwt",
+                getToken: () => {
+                    throw cause;
+                },
+            },
+        });
+        const client = createClient(Proto.MarketOverviewService, authApi);
+
+        await expect(client.listMarketOverview({})).rejects.toMatchObject({
+            name: "AuthenticationError",
+            code: "UNAUTHENTICATED",
+            cause,
+        });
+    });
+
+    it("rejects invalid API key material as an SDK configuration error", async () => {
+        const { authApi } = createTransports({
+            apiUrl: "https://api.test",
+            auth: {
+                kind: "api-key-ed25519",
+                getKeyId: () => "ak_test",
+                getSecretKey: () => new Uint8Array(64),
+            },
+        });
+        const client = createClient(Proto.MarketOverviewService, authApi);
+
+        await expect(client.listMarketOverview({})).rejects.toBeInstanceOf(ConfigurationError);
+        await expect(client.listMarketOverview({})).rejects.toThrow(
+            "API key secret key must contain exactly 32 bytes",
+        );
+    });
+
+    it("signs the request after user interceptors finish mutating its message", async () => {
+        const secretKey = Uint8Array.from({ length: 32 }, (_, index) => index + 1);
+        const mutateMessage: Interceptor = (next) => async (request) => {
+            if (
+                !request.stream &&
+                "symbolId" in request.message &&
+                Array.isArray(request.message.symbolId)
+            ) {
+                request.message.symbolId.push(42);
+            }
+            return next(request);
+        };
+        let capturedHeaders: Headers | undefined;
+        vi.spyOn(globalThis, "fetch").mockImplementation(async (_input, init) => {
+            capturedHeaders = new Headers(init?.headers);
+            return new Response(JSON.stringify({ markets: [] }), {
+                headers: { "content-type": "application/json" },
+            });
+        });
+        const { authApi } = createTransports({
+            apiUrl: "https://api.test",
+            wireFormat: "json",
+            interceptors: [mutateMessage],
+            auth: {
+                kind: "api-key-ed25519",
+                getKeyId: () => "ak_test",
+                getSecretKey: () => secretKey,
+            },
+        });
+        const client = createClient(Proto.MarketOverviewService, authApi);
+
+        await client.listMarketOverview({ symbolId: [1] });
+
+        const timestamp = capturedHeaders?.get("X-API-TIMESTAMP");
+        if (!timestamp) throw new Error("Expected API key timestamp header");
+        const body = new TextEncoder().encode(
+            toJsonString(
+                Proto.ListMarketOverviewRequestSchema,
+                create(Proto.ListMarketOverviewRequestSchema, { symbolId: [1, 42] }),
+            ),
+        );
+        const hash = await crypto.subtle.digest("SHA-256", body);
+        const canonical = `${timestamp}\nPOST\n/marketoverview.v1.MarketOverviewService/ListMarketOverview\n\n${bytesToHex(
+            new Uint8Array(hash),
+        )}`;
+        const expectedSignature = bytesToHex(
+            await signAsync(new TextEncoder().encode(canonical), secretKey),
+        );
+
+        expect(capturedHeaders?.get("X-API-SIGNATURE")).toBe(expectedSignature);
     });
 });
 

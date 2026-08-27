@@ -59,8 +59,11 @@ export function parseTrailingDistanceInput(
     }
 
     const bps = parseOptionalPositiveIntLike(distance.bps);
-    if (bps === undefined || bps <= 0) {
-        throw new Error(`${fieldName}Bps must be a positive integer`);
+    if (bps === undefined || bps > Number(PROTOBUF_INT32_MAX)) {
+        throw new CatalogConversionError(
+            `${fieldName}.bps`,
+            `${fieldName}Bps must be a positive integer no greater than ${PROTOBUF_INT32_MAX}`,
+        );
     }
     return { case: "trailingDistanceBps", value: bps };
 }
@@ -90,7 +93,8 @@ export function parseSlippageInput<const TicksCase extends string, const BpsCase
 
     const bps = parseOptionalPositiveIntLike(slippage.bps);
     if (bps === undefined || bps <= 0 || exceedsMax(bps, options.maxBps)) {
-        throw new Error(
+        throw new CatalogConversionError(
+            `${options.fieldName}.bps`,
             `${options.fieldName}Bps must be ${
                 options.maxBps === undefined
                     ? "a positive integer"

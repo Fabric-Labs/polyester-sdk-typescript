@@ -19,4 +19,18 @@ describe("EventEmitter", () => {
         expect(laterListener).toHaveBeenCalledOnce();
         expect(laterListener).toHaveBeenCalledWith("ready");
     });
+
+    it("defers listeners re-armed during an emission until the next event", () => {
+        const emitter = new EventEmitter<TestEvents>();
+        const listener = vi.fn(() => {
+            emitter.once("update", listener);
+        });
+        emitter.once("update", listener);
+
+        emitter.emit("update", "first");
+        expect(listener).toHaveBeenCalledOnce();
+
+        emitter.emit("update", "second");
+        expect(listener).toHaveBeenCalledTimes(2);
+    });
 });

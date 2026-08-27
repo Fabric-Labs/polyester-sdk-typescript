@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import * as Proto from "../../gen/chain/guard/v1/guard_signer_pb.js";
+import { formatId } from "../../utils/base58-id.js";
 import {
     BatchSignProtectedActionInputSchema,
     GuardApprovalSchema,
@@ -11,7 +12,7 @@ import {
 describe("SignProtectedActionInputSchema", () => {
     it("maps protected actions and external whitelist args to proto shape", () => {
         const input = v.parse(SignProtectedActionInputSchema, {
-            account: { subaccountId: " 9 " },
+            account: { subaccountId: ` ${formatId(9n)} ` },
             action: "fundingAddExternalWhitelist",
             args: {
                 case: "externalWhitelist",
@@ -65,7 +66,7 @@ describe("SignProtectedActionInputSchema", () => {
 describe("BatchSignProtectedActionInputSchema", () => {
     it("maps each action and rejects empty batches", () => {
         const input = v.parse(BatchSignProtectedActionInputSchema, {
-            account: { subaccountId: "4" },
+            account: { subaccountId: formatId(4n) },
             actions: [
                 {
                     action: "fundingAddInternalWhitelist",

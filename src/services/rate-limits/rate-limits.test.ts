@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import * as Proto from "../../gen/ratelimit/v1/ratelimit_pb.js";
 import { subaccountResolverStub, unaryTransport } from "../../testing/service-harness.js";
+import { formatId } from "../../utils/base58-id.js";
 import { RateLimitService } from "./rate-limits.js";
 
 const effectiveFrom = { seconds: 1_700_000_000n, nanos: 0 };
@@ -69,7 +70,7 @@ describe("RateLimitService", () => {
                 publicApi: publicApi.transport,
                 authApi: authApi.transport,
             },
-            subaccountResolverStub("42"),
+            subaccountResolverStub(formatId(42n)),
         );
 
         await expect(service.getTradingLimits()).resolves.toEqual({
@@ -111,7 +112,7 @@ describe("RateLimitService", () => {
                 publicApi: publicApi.transport,
                 authApi: authApi.transport,
             },
-            subaccountResolverStub("42"),
+            subaccountResolverStub(formatId(42n)),
         );
 
         await expect(service.getTradingLimits({ account: "main" })).resolves.toMatchObject({

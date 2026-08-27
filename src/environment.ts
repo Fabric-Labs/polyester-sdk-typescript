@@ -73,7 +73,12 @@ function isLocalHost(hostname: string): boolean {
     return LOCAL_HOSTS.has(hostname);
 }
 
-function normalizeUrl(value: string, label: string, allowedProtocols: readonly string[]): string {
+function normalizeUrl(
+    value: string,
+    label: string,
+    allowedProtocols: readonly string[],
+    options?: { allowSearch?: boolean },
+): string {
     let url: URL;
     try {
         url = new URL(value);
@@ -89,6 +94,10 @@ function normalizeUrl(value: string, label: string, allowedProtocols: readonly s
         (url.protocol === "http:" || url.protocol === "ws:") && !isLocalHost(url.hostname);
     if (insecureRemote) {
         throw new ConfigurationError(`${label} must use a secure protocol for remote hosts.`);
+    }
+
+    if (options?.allowSearch === false && url.search) {
+        throw new ConfigurationError(`${label} must not include query parameters.`);
     }
 
     url.hash = "";
@@ -222,7 +231,9 @@ export function createPolyesterEnvironment(
     requireNonEmptyString(params.name, "name");
     requireObject(params.accountAbstraction, "accountAbstraction");
     requireObject(params.contracts, "contracts");
-    const apiUrl = normalizeUrl(params.apiUrl, "apiUrl", ["https:", "http:"]);
+    const apiUrl = normalizeUrl(params.apiUrl, "apiUrl", ["https:", "http:"], {
+        allowSearch: false,
+    });
     const websocketUrl = normalizeUrl(params.websocketUrl, "websocketUrl", ["wss:", "ws:"]);
     const rpcUrl = normalizeUrl(params.rpcUrl, "rpcUrl", ["https:", "http:"]);
     const bundlerUrl = normalizeUrl(params.accountAbstraction.bundlerUrl, "bundlerUrl", [

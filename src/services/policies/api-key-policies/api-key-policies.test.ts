@@ -1,6 +1,7 @@
 import * as Proto from "../../../gen/auth/v1/policies_pb.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../../shared/request-options.js";
 import { unaryTransport } from "../../../testing/service-harness.js";
+import { formatId } from "../../../utils/base58-id.js";
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import {
@@ -60,7 +61,7 @@ describe("ApiKeyPoliciesService", () => {
             },
         ]);
         await expect(
-            service.get({ policyId: " 7 ", keyId: " key-1 " }, { signal }),
+            service.get({ policyId: ` ${formatId(7n)} `, keyId: " key-1 " }, { signal }),
         ).resolves.toMatchObject({
             id: "8",
             name: "Restricted key",
@@ -78,7 +79,9 @@ describe("ApiKeyPoliciesService", () => {
         const transport = unaryTransport({});
         const service = new ApiKeyPoliciesService(transport.transport);
 
-        await expect(service.get({ policyId: "9" })).resolves.toEqual(DEFAULT_API_KEY_POLICY);
+        await expect(service.get({ policyId: formatId(9n) })).resolves.toEqual(
+            DEFAULT_API_KEY_POLICY,
+        );
         expect(transport.lastCall()?.message).toEqual({ policyId: 9n });
     });
 
@@ -110,7 +113,7 @@ describe("ApiKeyPoliciesService", () => {
                 run: () =>
                     service.update(
                         {
-                            policyId: "7",
+                            policyId: formatId(7n),
                             expectedRevision: "5",
                             name: "Updated",
                             spotMarketScope: "allowlist",
@@ -132,7 +135,7 @@ describe("ApiKeyPoliciesService", () => {
                 },
             },
             {
-                run: () => service.delete(" 7 ", { stepUpToken: " fresh-token " }),
+                run: () => service.delete(` ${formatId(7n)} `, { stepUpToken: " fresh-token " }),
                 expected: { policyId: 7n },
             },
             {
@@ -168,7 +171,7 @@ describe("ApiKeyPoliciesService", () => {
 
         expect(() =>
             v.parse(UpdateApiKeyPolicyInputSchema, {
-                policyId: "7",
+                policyId: formatId(7n),
                 expectedRevision: "5",
                 name: "Update",
                 dailyWithdrawLimit: 20,

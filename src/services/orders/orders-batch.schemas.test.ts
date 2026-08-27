@@ -75,7 +75,7 @@ describe("CancelAllAfter schemas", () => {
     it.each([0, 10, 120])("accepts timeoutSec %s", (timeoutSec) => {
         expect(
             v.parse(CancelAllAfterInputSchema, {
-                account: { subaccountId: "11" },
+                account: { subaccountId: formatId(11n) },
                 timeoutSec,
                 symbolId: 1,
                 side: "sell",
@@ -138,7 +138,7 @@ describe("CancelAllAfter schemas", () => {
 describe("batch create schemas", () => {
     it("reuses the single-order decimal contract for every item", () => {
         const input = v.parse(createBatchCreateOrdersInputSchema(testScales()), {
-            account: { subaccountId: "11" },
+            account: { subaccountId: formatId(11n) },
             requestId: " batch-create-1 ",
             items: [limitOrder("order-a"), limitOrder("order-b")],
         });
@@ -319,13 +319,13 @@ describe("batch create schemas", () => {
 
 describe("batch replace schemas", () => {
     it("encodes same-symbol replacement targets and decimal patches", () => {
-        const input = v.parse(createBatchReplaceOrdersInputSchema(testScales(), 1), {
-            account: { subaccountId: "11" },
+        const input = v.parse(createBatchReplaceOrdersInputSchema(testScales()), {
+            account: { subaccountId: formatId(11n) },
             symbolId: 1,
             requestId: " batch-replace-1 ",
             items: [
                 {
-                    orderId: "11",
+                    orderId: formatId(11n),
                     newPrice: "101.5",
                     newQty: "0.25",
                 },
@@ -358,19 +358,35 @@ describe("batch replace schemas", () => {
     });
 
     it("enforces the symbol, target, patch, uniqueness, and 1–50 item contract", () => {
-        const schema = createBatchReplaceOrdersInputSchema(testScales(), 1);
+        const schema = createBatchReplaceOrdersInputSchema(testScales());
         const item = {
-            orderId: "11",
+            orderId: formatId(11n),
             newQty: "0.25",
         };
 
-        expect(() => v.parse(schema, { symbolId: 2, items: [item] })).toThrow();
+        expect(
+            v.parse(schema, {
+                symbolId: PROTOBUF_UINT32_MAX,
+                items: [{ orderId: formatId(11n), newPrice: "1" }],
+            }).symbolId,
+        ).toBe(PROTOBUF_UINT32_MAX);
+        expect(() =>
+            v.parse(schema, { symbolId: PROTOBUF_UINT32_MAX + 1, items: [item] }),
+        ).toThrow();
         expect(() => v.parse(schema, { symbolId: 1, items: [] })).toThrow();
-        expect(() => v.parse(schema, { symbolId: 1, items: [{ orderId: "11" }] })).toThrow();
+        expect(() =>
+            v.parse(schema, { symbolId: 1, items: [{ orderId: formatId(11n) }] }),
+        ).toThrow();
         expect(() =>
             v.parse(schema, {
                 symbolId: 1,
-                items: [{ orderId: "11", clientOrderId: "order-a", newQty: "0.25" }],
+                items: [
+                    {
+                        orderId: formatId(11n),
+                        clientOrderId: "order-a",
+                        newQty: "0.25",
+                    },
+                ],
             }),
         ).toThrow();
         expect(() => v.parse(schema, { symbolId: 1, items: [item, item] })).toThrow(
@@ -495,8 +511,8 @@ describe("batch replace schemas", () => {
     it("normalizes durable status reads and validates their batch identity", () => {
         expect(
             v.parse(GetBatchReplaceStatusInputSchema, {
-                account: { subaccountId: "11" },
-                batchRequestId: "21",
+                account: { subaccountId: formatId(11n) },
+                batchRequestId: formatId(21n),
             }),
         ).toEqual({ subaccountId: 11n, batchRequestId: 21n });
         expect(() => v.parse(GetBatchReplaceStatusInputSchema, { batchRequestId: "0" })).toThrow();
@@ -557,7 +573,7 @@ describe("batch cancel schemas", () => {
         expect(
             v.parse(BatchCancelOrdersInputSchema, {
                 requestId: "batch-cancel-1",
-                items: [{ orderId: "11", symbolId: 1 }, { clientOrderId: "order-b" }],
+                items: [{ orderId: formatId(11n), symbolId: 1 }, { clientOrderId: "order-b" }],
             }),
         ).toMatchObject({
             requestId: "batch-cancel-1",
@@ -566,7 +582,7 @@ describe("batch cancel schemas", () => {
 
         expect(() =>
             v.parse(BatchCancelOrdersInputSchema, {
-                items: [{ orderId: "11", clientOrderId: "order-a" }],
+                items: [{ orderId: formatId(11n), clientOrderId: "order-a" }],
             }),
         ).toThrow();
         expect(() =>
@@ -588,6 +604,19 @@ describe("batch cancel schemas", () => {
                 items: Array.from({ length: 51 }, (_, index) => ({
                     orderId: String(index + 1),
                 })),
+            }),
+        ).toThrow();
+    });
+
+    it("enforces the uint32 ceiling on each optional symbol ID", () => {
+        expect(
+            v.parse(BatchCancelOrdersInputSchema, {
+                items: [{ orderId: formatId(11n), symbolId: PROTOBUF_UINT32_MAX }],
+            }).items[0]?.symbolId,
+        ).toBe(PROTOBUF_UINT32_MAX);
+        expect(() =>
+            v.parse(BatchCancelOrdersInputSchema, {
+                items: [{ orderId: formatId(11n), symbolId: PROTOBUF_UINT32_MAX + 1 }],
             }),
         ).toThrow();
     });

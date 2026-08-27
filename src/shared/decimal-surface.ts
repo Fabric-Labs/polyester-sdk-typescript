@@ -15,6 +15,8 @@ import {
 } from "../catalogs/decimal.js";
 import {
     CatalogConversionError,
+    CatalogLookupError,
+    CatalogNotReadyError,
     type ClientCatalog,
     type PairCatalogKey,
 } from "../catalogs/types.js";
@@ -50,8 +52,13 @@ export function createCatalogSdkScales(getCatalog: () => ClientCatalog): SdkScal
         price: () => PRICE_SCALE,
         baseQty: (pair) => requirePair(getCatalog(), pair).baseAsset.quantityScale,
         quoteAmount: (pair) => requirePair(getCatalog(), pair).quoteAsset.quantityScale,
-        ledgerAmount: (ledgerAssetId) =>
-            getCatalog().ledger.requireAssetByLedgerId(ledgerAssetId).quantityScale,
+        ledgerAmount: (ledgerAssetId) => {
+            const ledger = getCatalog().ledger;
+            if (!ledger.isKnownAssetId(ledgerAssetId)) {
+                throw new CatalogLookupError("ledger", "ledgerId", ledgerAssetId);
+            }
+            return ledger.requireAssetByLedgerId(ledgerAssetId).quantityScale;
+        },
         zippedAssetAmount: (zippedAssetId) =>
             getCatalog().zipper.requireAssetChainByZippedAssetId(zippedAssetId).asset.quantityScale,
     };
@@ -149,6 +156,8 @@ export interface ReadyGate {
     run(deliver: () => void): void;
 }
 
+const READY_GATE_MAX_PENDING_DELIVERIES = 1_024;
+
 /**
  * Orders event delivery behind catalog readiness. Events arriving before the
  * catalog can resolve scales are queued and flushed in arrival order once it
@@ -174,10 +183,12 @@ export function createReadyGate(
 
     ready().then(
         () => {
+            if (state !== "pending") return;
             state = "open";
             for (const deliver of queue.splice(0)) deliverIsolated(deliver);
         },
         (error) => {
+            if (state !== "pending") return;
             state = "failed";
             queue.length = 0;
             onError?.(error);
@@ -187,7 +198,15 @@ export function createReadyGate(
     return {
         run(deliver) {
             if (state === "open") deliverIsolated(deliver);
-            else if (state === "pending") queue.push(deliver);
+            else if (state === "pending") {
+                if (queue.length === READY_GATE_MAX_PENDING_DELIVERIES) {
+                    state = "failed";
+                    queue.length = 0;
+                    onError?.(new CatalogNotReadyError());
+                    return;
+                }
+                queue.push(deliver);
+            }
         },
     };
 }

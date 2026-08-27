@@ -120,7 +120,11 @@ class MockCentrifuge implements MockCentrifugeRecord {
     }
 }
 
-import { __setRealtimeCentrifugeForTests, RealtimeClient } from "./client.js";
+import {
+    __setRealtimeCentrifugeForTests,
+    __setRealtimeCentrifugeLoaderForTests,
+    RealtimeClient,
+} from "./client.js";
 import { OrderSchema } from "../gen/orders/v1/orders_read_pb.js";
 import { AuthenticationError } from "../shared/errors.js";
 
@@ -161,7 +165,35 @@ describe("RealtimeClient", () => {
 
     afterEach(() => {
         vi.restoreAllMocks();
+        __setRealtimeCentrifugeLoaderForTests(null);
+        __setRealtimeCentrifugeForTests(MockCentrifuge as never);
         centrifugeState.instances.length = 0;
+    });
+
+    it("retries loading the transport module after a chunk-load failure", async () => {
+        const loadFailure = new Error("chunk load failed");
+        const loader = vi
+            .fn()
+            .mockRejectedValueOnce(loadFailure)
+            .mockResolvedValue({ Centrifuge: MockCentrifuge });
+        __setRealtimeCentrifugeLoaderForTests(loader as never);
+        const firstError = vi.fn();
+
+        createPublicRealtimeClient().subscribe("public:first", {
+            onPublication: () => {},
+            onError: firstError,
+        });
+        await vi.waitFor(() => expect(firstError).toHaveBeenCalledOnce());
+        expect(firstError.mock.calls[0]?.[0]).toMatchObject({
+            type: "transport_load",
+            error: loadFailure,
+        });
+
+        createPublicRealtimeClient().subscribe("public:second", {
+            onPublication: () => {},
+        });
+        await vi.waitFor(() => expect(loader).toHaveBeenCalledTimes(2));
+        await vi.waitFor(() => expect(centrifugeState.instances).toHaveLength(1));
     });
 
     it("reports missing authentication through onError without throwing", async () => {

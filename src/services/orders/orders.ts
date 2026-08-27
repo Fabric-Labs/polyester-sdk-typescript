@@ -329,10 +329,7 @@ export class OrdersService {
             ...resolveAccountScopedInput(input, this.#resolver),
             requestId: input.requestId ?? createMutationRequestId(),
         };
-        const request = parse(
-            createBatchReplaceOrdersInputSchema(this.#scales, input.symbolId),
-            resolved,
-        );
+        const request = parse(createBatchReplaceOrdersInputSchema(this.#scales), resolved);
         const response = await this.#writeClient.batchReplaceOrders(
             removeUndefined(request),
             toConnectCallOptions(options),

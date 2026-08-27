@@ -45,7 +45,7 @@ const baseExternalEntry = {
 describe("CreateAddressBookEntryInputSchema", () => {
     it("normalizes external entries, tags, and public ID inputs", () => {
         const input = v.parse(CreateAddressBookEntryInputSchema, {
-            account: { subaccountId: " 42 " },
+            account: { subaccountId: ` ${formatId(42n)} ` },
             label: " Treasury ",
             note: " ops ",
             entry: {
@@ -53,7 +53,7 @@ describe("CreateAddressBookEntryInputSchema", () => {
                 polychainChainId: 8453,
                 address: " 0x0000000000000000000000000000000000000001 ",
             },
-            tagIds: [" 5 "],
+            tagIds: [` ${formatId(5n)} `],
             newTags: [{ name: " High value ", color: " amber " }],
         });
 
@@ -95,7 +95,7 @@ describe("address-book patch schemas", () => {
     it("builds tag updates without synthesizing label or note", () => {
         expect(
             v.parse(UpdateAddressBookEntryInputSchema, {
-                addressBookEntryId: "7",
+                addressBookEntryId: formatId(7n),
                 expectedRevision: "4",
                 tagIds: [],
                 newTags: [{ name: " Treasury ", color: " blue " }],
@@ -114,7 +114,7 @@ describe("address-book patch schemas", () => {
     it("appends newly created tags without replacing the current tag ids", () => {
         expect(
             v.parse(UpdateAddressBookEntryInputSchema, {
-                addressBookEntryId: "7",
+                addressBookEntryId: formatId(7n),
                 expectedRevision: "4",
                 newTags: [{ name: " Treasury " }],
             }),
@@ -155,14 +155,14 @@ describe("address-book patch schemas", () => {
 
         expect(() =>
             v.parse(UpdateAddressBookEntryInputSchema, {
-                addressBookEntryId: "7",
+                addressBookEntryId: formatId(7n),
                 expectedRevision: "4",
                 newTags: tenTags,
             }),
         ).not.toThrow();
         expect(() =>
             v.parse(UpdateAddressBookEntryInputSchema, {
-                addressBookEntryId: "7",
+                addressBookEntryId: formatId(7n),
                 expectedRevision: "4",
                 newTags: elevenTags,
             }),
@@ -172,7 +172,7 @@ describe("address-book patch schemas", () => {
     it("accepts exact tag text limits and rejects one character over", () => {
         expect(() =>
             v.parse(UpdateAddressBookEntryInputSchema, {
-                addressBookEntryId: "7",
+                addressBookEntryId: formatId(7n),
                 expectedRevision: "4",
                 newTags: [{ name: "n".repeat(48), color: "c".repeat(32) }],
             }),
@@ -184,7 +184,7 @@ describe("address-book patch schemas", () => {
         ]) {
             expect(() =>
                 v.parse(UpdateAddressBookEntryInputSchema, {
-                    addressBookEntryId: "7",
+                    addressBookEntryId: formatId(7n),
                     expectedRevision: "4",
                     newTags: [tag],
                 }),
@@ -193,7 +193,9 @@ describe("address-book patch schemas", () => {
     });
 
     it("distinguishes omitted tag fields from an explicit color clear", () => {
-        expect(v.parse(UpdateAddressBookTagInputSchema, { tagId: "5", color: "" })).toEqual({
+        expect(
+            v.parse(UpdateAddressBookTagInputSchema, { tagId: formatId(5n), color: "" }),
+        ).toEqual({
             tagId: 5n,
             color: "",
         });
@@ -203,7 +205,7 @@ describe("address-book patch schemas", () => {
 describe("ListTransferCounterpartiesInputSchema", () => {
     it("maps filters to proto enums and rejects invalid limits", () => {
         const input = v.parse(ListTransferCounterpartiesInputSchema, {
-            account: { subaccountId: "3" },
+            account: { subaccountId: formatId(3n) },
             direction: "withdrawTo",
             kind: "external",
             limit: 50,

@@ -52,7 +52,7 @@ describe("AddressBookService", () => {
         const service = new AddressBookService(
             transport.transport,
             realtimeClientStub().realtime,
-            subaccountResolverStub("42"),
+            subaccountResolverStub(formatId(42n)),
         );
 
         await expect(service.listEntries({ kind: "external" })).resolves.toMatchObject({
@@ -78,7 +78,7 @@ describe("AddressBookService", () => {
         const service = new AddressBookService(
             transport.transport,
             realtimeClientStub().realtime,
-            subaccountResolverStub("42"),
+            subaccountResolverStub(formatId(42n)),
         );
 
         await expect(
@@ -105,7 +105,7 @@ describe("AddressBookService", () => {
         const service = new AddressBookService(
             transport.transport,
             realtimeClientStub().realtime,
-            subaccountResolverStub("42"),
+            subaccountResolverStub(formatId(42n)),
         );
         const cases = [
             {
@@ -119,7 +119,7 @@ describe("AddressBookService", () => {
                                 polychainChainId: 8453,
                                 address: " 0x1111111111111111111111111111111111111111 ",
                             },
-                            tagIds: ["5"],
+                            tagIds: [formatId(5n)],
                             newTags: [{ name: " Treasury ", color: " blue " }],
                         },
                         { stepUpToken: " fresh-token " },
@@ -138,11 +138,11 @@ describe("AddressBookService", () => {
                 run: () =>
                     service.updateEntry(
                         {
-                            addressBookEntryId: "7",
+                            addressBookEntryId: formatId(7n),
                             expectedRevision: "4",
                             label: " Updated ",
                             note: " Note ",
-                            tagIds: ["5"],
+                            tagIds: [formatId(5n)],
                             newTags: [{ name: " Operations ", color: " green " }],
                         },
                         { stepUpToken: " fresh-token " },
@@ -163,7 +163,7 @@ describe("AddressBookService", () => {
             {
                 run: () =>
                     service.deleteEntry(
-                        { addressBookEntryId: "7" },
+                        { addressBookEntryId: formatId(7n) },
                         { stepUpToken: " fresh-token " },
                     ),
                 expected: { addressBookEntryId: 7n },
@@ -172,7 +172,10 @@ describe("AddressBookService", () => {
             {
                 run: () =>
                     service.copyEntry(
-                        { addressBookEntryId: "7", targetSubaccountId: "99" },
+                        {
+                            addressBookEntryId: formatId(7n),
+                            targetSubaccountId: formatId(99n),
+                        },
                         { stepUpToken: " fresh-token " },
                     ),
                 expected: { addressBookEntryId: 7n, targetSubaccountId: 99n },
@@ -190,14 +193,15 @@ describe("AddressBookService", () => {
             {
                 run: () =>
                     service.updateTag(
-                        { tagId: "5", name: " Ops ", color: " green " },
+                        { tagId: formatId(5n), name: " Ops ", color: " green " },
                         { stepUpToken: " fresh-token " },
                     ),
                 expected: { tagId: 5n, name: "Ops", color: "green" },
                 result: null,
             },
             {
-                run: () => service.deleteTag({ tagId: "5" }, { stepUpToken: " fresh-token " }),
+                run: () =>
+                    service.deleteTag({ tagId: formatId(5n) }, { stepUpToken: " fresh-token " }),
                 expected: { tagId: 5n },
                 result: undefined,
             },
@@ -220,7 +224,7 @@ describe("AddressBookService", () => {
         const transport = unaryTransport({ tag: tag() });
         const service = new AddressBookService(transport.transport, realtimeClientStub().realtime);
 
-        await service.updateTag({ tagId: "5", color: "" });
+        await service.updateTag({ tagId: formatId(5n), color: "" });
 
         expect(transport.lastCall()?.message).toEqual({ tagId: 5n, color: "" });
         expect(transport.lastCall()?.message).not.toHaveProperty("name");

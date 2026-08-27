@@ -8,8 +8,11 @@ import {
 } from "../../shared/account-scope.js";
 import { positiveDecimalInputToScaled, type SdkScales } from "../../shared/decimal-surface.js";
 import { CatalogConversionError } from "../../catalogs/types.js";
-import { PROTOBUF_INT32_MAX } from "../../shared/wire-bounds.js";
-import { parseOptionalPositiveIntLike } from "../../utils/numbers.js";
+import { PROTOBUF_INT32_MAX, PROTOBUF_INT64_MAX } from "../../shared/wire-bounds.js";
+import {
+    parseOptionalPositiveBigIntLike,
+    parseOptionalPositiveIntLike,
+} from "../../utils/numbers.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import {
     TRIGGER_EVENT_TYPE_VALUES,
@@ -34,6 +37,7 @@ import {
     type MaxSlippageOneof,
     type TrailingDistanceOneof,
 } from "./trigger-child-order.schemas.js";
+import { parseTrailingDistanceInput } from "../trailing-oneof-inputs.js";
 
 const TriggerTypeSchema = v.picklist(TRIGGER_TYPE_VALUES);
 const TriggerStatusFilterSchema = v.picklist(TRIGGER_STATUS_FILTER_VALUES);
@@ -76,25 +80,30 @@ const MaxSlippageInputSchema = v.union([
     NoneInputSchema,
 ]);
 
+const MaxSlippagePatchInputSchema = v.union([
+    PriceSlippageInputSchema,
+    BpsStringOrNumberInputSchema,
+]);
+
 function parseTrailingDistance(
     scales: SdkScales,
     distance: v.InferOutput<typeof TrailingDistanceInputSchema>,
 ): TrailingDistanceOneof {
-    if (distance.kind === "distance") {
-        return {
-            case: "trailingDistanceTicks",
-            value: positiveDecimalInputToScaled(
-                "trailingDistance.distance",
-                distance.distance,
-                scales.price(),
-            ),
-        };
+    return parseTrailingDistanceInput(scales, distance, "trailingDistance");
+}
+
+function parseTwapMilliseconds(
+    value: string | number,
+    fieldName: "durationMs" | "sliceIntervalMs",
+    minimum: bigint,
+): bigint {
+    const parsed = parseOptionalPositiveBigIntLike(value);
+    if (parsed === undefined || parsed < minimum || parsed > PROTOBUF_INT64_MAX) {
+        throw new Error(
+            `${fieldName} must be between ${minimum} and ${PROTOBUF_INT64_MAX} milliseconds`,
+        );
     }
-    const bps = parseOptionalPositiveIntLike(distance.bps);
-    if (bps === undefined || bps <= 0) {
-        throw new Error("trailingDistanceBps must be a positive integer");
-    }
-    return { case: "trailingDistanceBps", value: bps };
+    return parsed;
 }
 
 function parseMaxSlippage(
@@ -236,23 +245,11 @@ function createTwapTriggerInputSchema(scales: SdkScales) {
             side: TriggerSideInputSchema,
             durationMs: v.pipe(
                 v.union([v.pipe(v.string(), v.trim()), v.number()]),
-                v.transform((value) => {
-                    const durationMs = parseOptionalPositiveIntLike(value);
-                    if (!durationMs || durationMs < 1000) {
-                        throw new Error("durationMs must be at least 1000ms");
-                    }
-                    return BigInt(durationMs);
-                }),
+                v.transform((value) => parseTwapMilliseconds(value, "durationMs", 1_000n)),
             ),
             sliceIntervalMs: v.pipe(
                 v.union([v.pipe(v.string(), v.trim()), v.number()]),
-                v.transform((value) => {
-                    const sliceIntervalMs = parseOptionalPositiveIntLike(value);
-                    if (!sliceIntervalMs || sliceIntervalMs < 100) {
-                        throw new Error("sliceIntervalMs must be at least 100ms");
-                    }
-                    return BigInt(sliceIntervalMs);
-                }),
+                v.transform((value) => parseTwapMilliseconds(value, "sliceIntervalMs", 100n)),
             ),
             execution: TwapExecutionInputSchema,
         }),
@@ -340,6 +337,12 @@ function createLadderTriggerInputSchema(scales: SdkScales) {
                 },
             };
         }),
+        v.check(
+            (output) =>
+                output.trigger.strategy.value.priceMinTicks <
+                output.trigger.strategy.value.priceMaxTicks,
+            "priceMin must be less than priceMax",
+        ),
     );
 }
 
@@ -422,7 +425,7 @@ export function createModifyTriggerInputSchema(scales: SdkScales) {
             limitPrice: v.optional(DecimalInputStringSchema),
             trailingDistance: v.optional(TrailingDistanceInputSchema),
             activationPrice: v.optional(DecimalInputStringSchema),
-            maxSlippage: v.optional(MaxSlippageInputSchema),
+            maxSlippage: v.optional(MaxSlippagePatchInputSchema),
         }),
         v.check(
             (input) =>

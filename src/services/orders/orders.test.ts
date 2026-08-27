@@ -95,7 +95,7 @@ describe("OrdersService", () => {
     it("normalizes read requests, resolver defaults, and forwards signals", async () => {
         const controller = new AbortController();
         const resolver: SubaccountResolver = {
-            getDefaultSubaccountId: () => "11",
+            getDefaultSubaccountId: () => formatId(11n),
         };
         const transport = unaryTransportByMethod({
             getOpenOrders: {
@@ -121,7 +121,7 @@ describe("OrdersService", () => {
                     service.listOpen(
                         {
                             symbolId: [1],
-                            triggerId: "22",
+                            triggerId: formatId(22n),
                             side: "buy",
                             limit: 25,
                             pageToken: " cursor ",
@@ -148,7 +148,7 @@ describe("OrdersService", () => {
                     service.listHistory(
                         {
                             account: "main",
-                            triggerId: "22",
+                            triggerId: formatId(22n),
                             status: "FILLED",
                             startTsNs: " 100 ",
                             endTsNs: "200",
@@ -211,7 +211,7 @@ describe("OrdersService", () => {
         await expect(
             service.create(
                 {
-                    account: { subaccountId: "11" },
+                    account: { subaccountId: formatId(11n) },
                     symbolId: 1,
                     side: "buy",
                     qty: "1.500000000",
@@ -356,7 +356,11 @@ describe("OrdersService", () => {
         );
 
         await expect(
-            service.cancel({ orderId: "22", symbolId: 1, account: { subaccountId: "11" } }),
+            service.cancel({
+                orderId: formatId(22n),
+                symbolId: 1,
+                account: { subaccountId: formatId(11n) },
+            }),
         ).resolves.toMatchObject({
             status: "cancelled",
             ts: 1_786_023_715_943,
@@ -366,7 +370,7 @@ describe("OrdersService", () => {
             service.cancel({
                 clientOrderId: " client-1 ",
                 symbolId: 1,
-                account: { subaccountId: "11" },
+                account: { subaccountId: formatId(11n) },
             }),
         ).resolves.toMatchObject({
             status: "cancelled",
@@ -512,7 +516,7 @@ describe("OrdersService", () => {
         await expect(
             service.batchCreate(
                 {
-                    account: { subaccountId: "11" },
+                    account: { subaccountId: formatId(11n) },
                     requestId: " batch-create-1 ",
                     items: [
                         {
@@ -612,7 +616,7 @@ describe("OrdersService", () => {
 
         await expect(
             service.batchReplace({
-                account: { subaccountId: "11" },
+                account: { subaccountId: formatId(11n) },
                 symbolId: 1,
                 requestId: "batch-replace-1",
                 items: [
@@ -648,8 +652,8 @@ describe("OrdersService", () => {
 
         await expect(
             service.getBatchReplaceStatus({
-                account: { subaccountId: "11" },
-                batchRequestId: "21",
+                account: { subaccountId: formatId(11n) },
+                batchRequestId: formatId(21n),
             }),
         ).resolves.toMatchObject({
             batchRequestId: formatId(21n),
@@ -696,7 +700,7 @@ describe("OrdersService", () => {
         await expect(
             service.batchCancel({
                 requestId: "batch-cancel-1",
-                items: [{ orderId: "11", symbolId: 1 }, { clientOrderId: "order-b" }],
+                items: [{ orderId: formatId(11n), symbolId: 1 }, { clientOrderId: "order-b" }],
             }),
         ).resolves.toMatchObject({
             results: [
@@ -724,7 +728,7 @@ describe("OrdersService", () => {
 
     it("exposes cancelAllAfter and generates its wire-required request ID", async () => {
         const resolver: SubaccountResolver = {
-            getDefaultSubaccountId: () => "11",
+            getDefaultSubaccountId: () => formatId(11n),
         };
         const transport = unaryTransportByMethod({
             cancelAllAfter: {
@@ -783,7 +787,7 @@ describe("OrdersService", () => {
             testScales(),
         );
 
-        await expect(service.batchCancel({ items: [{ orderId: "11" }] })).rejects.toThrow(
+        await expect(service.batchCancel({ items: [{ orderId: formatId(11n) }] })).rejects.toThrow(
             "batchCancel returned 0 results for 1 requested items",
         );
     });
@@ -818,7 +822,7 @@ describe("OrdersService", () => {
             testScales(),
         );
 
-        await expect(service.getDetails({ orderId: "11" })).resolves.toBeNull();
+        await expect(service.getDetails({ orderId: formatId(11n) })).resolves.toBeNull();
     });
 
     it.each([
@@ -842,7 +846,7 @@ describe("OrdersService", () => {
             testScales(),
         );
 
-        await expect(service.getDetails({ orderId: "11" })).resolves.toBeNull();
+        await expect(service.getDetails({ orderId: formatId(11n) })).resolves.toBeNull();
     });
 
     it("preserves unrelated get order failures", async () => {
@@ -853,7 +857,9 @@ describe("OrdersService", () => {
             testScales(),
         );
 
-        await expect(service.getDetails({ orderId: "11" })).rejects.toThrow("database unavailable");
+        await expect(service.getDetails({ orderId: formatId(11n) })).rejects.toThrow(
+            "database unavailable",
+        );
     });
 
     it("parses populated order details responses to decimal strings", async () => {
@@ -897,7 +903,7 @@ describe("OrdersService", () => {
             testScales(),
         );
 
-        await expect(service.getDetails({ orderId: "11" })).resolves.toMatchObject({
+        await expect(service.getDetails({ orderId: formatId(11n) })).resolves.toMatchObject({
             order: {
                 clientOrderId: "client-1",
                 symbolId: 1,
