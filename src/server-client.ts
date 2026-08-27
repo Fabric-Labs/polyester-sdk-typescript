@@ -17,6 +17,7 @@ import { isJwtValid } from "./utils/jwt.js";
 import type { Me } from "./services/auth/auth.js";
 import type { PolyesterEnvironment } from "./environment.js";
 import { AuthenticationError, ConfigurationError } from "./shared/errors.js";
+import { toPolyesterError } from "./shared/connect-error-mapping.js";
 
 export type { ServerSessionSnapshot };
 
@@ -123,8 +124,9 @@ export class PolyesterServerClient extends PolyesterClient {
         try {
             return await this.auth.me();
         } catch (error) {
-            if (error instanceof AuthenticationError) return null;
-            throw error;
+            const mappedError = toPolyesterError(error);
+            if (mappedError instanceof AuthenticationError) return null;
+            throw mappedError;
         }
     }
 }

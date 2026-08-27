@@ -135,7 +135,7 @@ describe("PolyesterClient realtime auth", () => {
         });
     });
 
-    it("maps realtime JWT provider failures without resolving credentials from hasAuth", async () => {
+    it("maps a prefetched realtime JWT provider failure to AuthenticationError", async () => {
         const cause = new Error("credential store unavailable");
         const getToken = vi.fn(() => {
             throw cause;
@@ -150,7 +150,7 @@ describe("PolyesterClient realtime auth", () => {
         if (!config?.getAuthHeaders) throw new Error("Expected realtime auth headers");
 
         expect(config.hasAuth?.()).toBe(true);
-        expect(getToken).not.toHaveBeenCalled();
+        expect(getToken).toHaveBeenCalledOnce();
         let rejection: unknown;
         try {
             await config.getAuthHeaders({
@@ -169,7 +169,7 @@ describe("PolyesterClient realtime auth", () => {
         expect(getToken).toHaveBeenCalledOnce();
     });
 
-    it("accepts a missing realtime JWT credential without calling the provider twice", async () => {
+    it("reports a synchronous missing realtime JWT credential during preflight", () => {
         const getToken = vi.fn(() => null);
         const client = new PolyesterClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
@@ -180,14 +180,50 @@ describe("PolyesterClient realtime auth", () => {
         const config = realtimeConfigs[0];
         if (!config?.getAuthHeaders) throw new Error("Expected realtime auth headers");
 
+        expect(config.hasAuth?.()).toBe(false);
+        expect(getToken).toHaveBeenCalledOnce();
+    });
+
+    it("reuses a synchronous realtime JWT credential for the following request", async () => {
+        const getToken = vi.fn(() => "secret");
+        const client = new PolyesterClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            auth: { kind: "jwt", getToken },
+        });
+        void client.realtime;
+
+        const config = realtimeConfigs[0];
+        if (!config?.getAuthHeaders) throw new Error("Expected realtime auth headers");
+
         expect(config.hasAuth?.()).toBe(true);
-        expect(getToken).not.toHaveBeenCalled();
+        expect(config.hasAuth?.()).toBe(true);
         await expect(
             config.getAuthHeaders({
                 url: `${POLYESTER_TESTNET_ENVIRONMENT.apiUrl}/v1/rt/token`,
                 method: "GET",
             }),
-        ).resolves.toEqual({});
+        ).resolves.toEqual({ authorization: "Bearer secret" });
+        expect(getToken).toHaveBeenCalledOnce();
+    });
+
+    it("reuses an asynchronous realtime JWT credential for the following request", async () => {
+        const getToken = vi.fn(async () => "secret");
+        const client = new PolyesterClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            auth: { kind: "jwt", getToken },
+        });
+        void client.realtime;
+
+        const config = realtimeConfigs[0];
+        if (!config?.getAuthHeaders) throw new Error("Expected realtime auth headers");
+
+        expect(config.hasAuth?.()).toBe(true);
+        await expect(
+            config.getAuthHeaders({
+                url: `${POLYESTER_TESTNET_ENVIRONMENT.apiUrl}/v1/rt/token`,
+                method: "GET",
+            }),
+        ).resolves.toEqual({ authorization: "Bearer secret" });
         expect(getToken).toHaveBeenCalledOnce();
     });
 });
