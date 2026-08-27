@@ -98,6 +98,7 @@ function parseMaxSlippage(
         fieldName: "trailingStop.maxSlippage",
         ticksCase: "maxSlippageTicks",
         bpsCase: "maxSlippageBps",
+        maxBps: MAX_BPS,
     });
 }
 
@@ -141,6 +142,9 @@ function createRiskPolicyObjectInputSchema(scales: SdkScales) {
     const TakeProfitInputSchema = attachedTriggerInputSchema(scales, "takeProfit");
     const StopLossInputSchema = attachedTriggerInputSchema(scales, "stopLoss");
     const TrailingStopInputSchema = createTrailingStopInputSchema(scales);
+    const InactiveOcoInputSchema = v.optional(
+        v.literal(false, "oco requires takeProfit and exactly one stop leg"),
+    );
     return v.union([
         v.strictObject({
             takeProfit: TakeProfitInputSchema,
@@ -158,19 +162,19 @@ function createRiskPolicyObjectInputSchema(scales: SdkScales) {
             takeProfit: TakeProfitInputSchema,
             stopLoss: v.optional(v.never()),
             trailingStop: v.optional(v.never()),
-            oco: v.optional(v.boolean()),
+            oco: InactiveOcoInputSchema,
         }),
         v.strictObject({
             takeProfit: v.optional(v.never()),
             stopLoss: StopLossInputSchema,
             trailingStop: v.optional(v.never()),
-            oco: v.optional(v.boolean()),
+            oco: InactiveOcoInputSchema,
         }),
         v.strictObject({
             takeProfit: v.optional(v.never()),
             stopLoss: v.optional(v.never()),
             trailingStop: TrailingStopInputSchema,
-            oco: v.optional(v.boolean()),
+            oco: InactiveOcoInputSchema,
         }),
     ]);
 }
@@ -183,11 +187,10 @@ function transformRiskPolicyInput(input: RiskPolicyObjectInput) {
         : input.trailingStop
           ? ({ case: "trailingStop", value: input.trailingStop } as const)
           : ({ case: undefined, value: undefined } as const);
-    const oco = input.oco === true && !!input.takeProfit && stopLeg.case !== undefined;
     return {
         takeProfit: input.takeProfit,
         stopLeg,
-        oco,
+        oco: input.oco ?? false,
     };
 }
 

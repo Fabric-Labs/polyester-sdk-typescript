@@ -87,6 +87,26 @@ type _ValidNewOrderWithAttachedRisk = AssertNewOrderInput<{
     };
 }>;
 
+// @ts-expect-error OCO requires take-profit and exactly one stop leg
+type _InvalidNewOrderWithSingleLegOco = AssertNewOrderInput<{
+    symbolId: number;
+    side: "buy";
+    qty: string;
+    execution: {
+        type: "limit_gtc";
+        price: string;
+    };
+    risk: {
+        takeProfit: {
+            triggerPrice: string;
+            execution: {
+                type: "market_ioc";
+            };
+        };
+        oco: true;
+    };
+}>;
+
 // @ts-expect-error new order risk policies must include at least one leg
 type _InvalidNewOrderWithEmptyRisk = AssertNewOrderInput<{
     symbolId: number;
@@ -240,6 +260,15 @@ describe("OrderHistoryInputSchema", () => {
 });
 
 describe("CancelAllOrdersInputSchema", () => {
+    it("uses the shared order request ID format", () => {
+        expect(v.parse(CancelAllOrdersInputSchema, { requestId: " Az09._:/- " }).requestId).toBe(
+            "Az09._:/-",
+        );
+        expect(() =>
+            v.parse(CancelAllOrdersInputSchema, { requestId: "not a valid key!!!" }),
+        ).toThrow("requestId has an invalid format");
+    });
+
     it("accepts the uint32 symbol ID ceiling and rejects invalid IDs", () => {
         expect(
             v.parse(CancelAllOrdersInputSchema, { symbolId: PROTOBUF_UINT32_MAX }).symbolId,
@@ -668,6 +697,76 @@ describe("NewOrderInputSchema", () => {
                 },
             },
         });
+    });
+
+    it("caps attached trailing max slippage at 10,000 bps", () => {
+        const schema = createNewOrderInputSchema(testScales());
+        const order = {
+            symbolId: 1,
+            side: "buy",
+            qty: "0.5",
+            execution: { type: "limit_gtc", price: "100" },
+            risk: {
+                trailingStop: {
+                    trailingDistance: { kind: "distance", distance: "0.5" },
+                    maxSlippage: { kind: "bps", bps: 10_000 },
+                },
+            },
+        } as const;
+
+        expect(v.parse(schema, order).order.attachedRisk).toMatchObject({
+            stopLeg: {
+                case: "trailingStop",
+                value: { maxSlippage: { case: "maxSlippageBps", value: 10_000 } },
+            },
+        });
+        expect(() =>
+            v.parse(schema, {
+                ...order,
+                risk: {
+                    trailingStop: {
+                        ...order.risk.trailingStop,
+                        maxSlippage: { kind: "bps", bps: 10_001 },
+                    },
+                },
+            }),
+        ).toThrow("trailingStop.maxSlippageBps must be between 1 and 10000");
+    });
+
+    it("rejects OCO for a single attached risk leg", () => {
+        const schema = createNewOrderInputSchema(testScales());
+        const baseOrder = {
+            symbolId: 1,
+            side: "buy",
+            qty: "0.5",
+            execution: { type: "limit_gtc", price: "100" },
+        } as const;
+        const singleLegRisks = [
+            {
+                takeProfit: {
+                    triggerPrice: "101",
+                    execution: { type: "market_ioc" },
+                },
+                oco: true,
+            },
+            {
+                stopLoss: {
+                    triggerPrice: "95",
+                    execution: { type: "market_ioc" },
+                },
+                oco: true,
+            },
+            {
+                trailingStop: {
+                    trailingDistance: { kind: "bps", bps: 100 },
+                },
+                oco: true,
+            },
+        ] as const;
+
+        for (const risk of singleLegRisks) {
+            expect(() => v.parse(schema, { ...baseOrder, risk })).toThrow();
+        }
     });
 
     it("rejects unknown attached trailing risk variants and excess precision", () => {

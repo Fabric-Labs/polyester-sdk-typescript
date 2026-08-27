@@ -208,6 +208,21 @@ describe("batch create schemas", () => {
         expect(() => v.parse(schema, { items: [limitOrder("x".repeat(37))] })).toThrow();
     });
 
+    it("rejects duplicate non-empty client-order IDs while allowing empty or omitted IDs", () => {
+        const schema = createBatchCreateOrdersInputSchema(testScales());
+
+        expect(() =>
+            v.parse(schema, {
+                items: [limitOrder(" order-a "), limitOrder("order-a")],
+            }),
+        ).toThrow("Each non-empty batch create clientOrderId must be unique");
+        expect(() =>
+            v.parse(schema, {
+                items: [limitOrder(""), { ...limitOrder("order-b"), clientOrderId: undefined }],
+            }),
+        ).not.toThrow();
+    });
+
     it("surfaces rejections that carry no structured error detail", () => {
         const result = v.parse(createBatchCreateOrdersResultSchema(testScales(), [1]), {
             results: [
