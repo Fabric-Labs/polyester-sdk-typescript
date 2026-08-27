@@ -91,6 +91,18 @@ describe("AuthSessionStore", () => {
         expect(storage.clear).not.toHaveBeenCalled();
     });
 
+    it("keeps bearer tokens when the display session cookie is missing", () => {
+        const storage = createTestStorage("token-1");
+        const store = new AuthSessionStore({
+            environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+        });
+        vi.stubGlobal("document", { cookie: "" });
+
+        expect(store.getEnvironmentBoundToken(storage)).toBe("token-1");
+        expect(storage.clear).not.toHaveBeenCalled();
+        expect(storage.get()).toBe("token-1");
+    });
+
     it("clears configured token storage when the display session belongs to another environment", () => {
         const storage = createTestStorage("token-1");
         const store = new AuthSessionStore({

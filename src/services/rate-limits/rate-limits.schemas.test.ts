@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import * as Proto from "../../gen/ratelimit/v1/ratelimit_pb.js";
+import { formatId } from "../../utils/base58-id.js";
 import {
     GetTradingRateLimitsInputSchema,
     TradingRateLimitRuleSchema,
@@ -10,7 +11,7 @@ describe("GetTradingRateLimitsInputSchema", () => {
     it("maps account scope onto the proto request", () => {
         expect(
             v.parse(GetTradingRateLimitsInputSchema, {
-                account: { subaccountId: "42" },
+                account: { subaccountId: formatId(42n) },
             }),
         ).toEqual({ subaccountId: 42n });
     });

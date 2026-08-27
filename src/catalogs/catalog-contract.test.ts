@@ -325,6 +325,43 @@ describe("spot order constraints and validation", () => {
         ]);
     });
 
+    it("rejects quantity and price above their advertised int64 wire ceilings", () => {
+        const orders = catalog().orders;
+        const constraints = orders.getSpotOrderConstraints("BTC-USDC");
+
+        expect(
+            orders.validateSpotOrderDecimalInput({
+                pair: "BTC-USDC",
+                quantity: "92233720368.54775808",
+            }),
+        ).toEqual({
+            valid: false,
+            errors: [
+                expect.objectContaining({
+                    field: "quantity",
+                    rule: "maxQty",
+                    expected: constraints.maxQtyBase,
+                }),
+            ],
+        });
+        expect(
+            orders.validateSpotOrderDecimalInput({
+                pair: "BTC-USDC",
+                quantity: "0.5",
+                price: "9223372036854.775808",
+            }),
+        ).toEqual({
+            valid: false,
+            errors: [
+                expect.objectContaining({
+                    field: "price",
+                    rule: "maxPrice",
+                    expected: constraints.maxPrice,
+                }),
+            ],
+        });
+    });
+
     it("enforces min quantity and min notional when price is present", () => {
         const orders = catalog().orders;
 

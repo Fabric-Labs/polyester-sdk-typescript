@@ -133,7 +133,7 @@ describe("SubaccountsService", () => {
         const realtime = realtimeClientStub();
         const service = new SubaccountsService(transport.transport, realtime.realtime);
 
-        const result = await service.get({ subaccountId: " 42 " });
+        const result = await service.get({ subaccountId: ` ${formatId(42n)} ` });
         expect(result).toMatchObject({
             id: formatId(42n),
             policy: DEFAULT_SUBACCOUNT_POLICY,
@@ -172,7 +172,7 @@ describe("SubaccountsService", () => {
         const realtime = realtimeClientStub();
         const service = new SubaccountsService(transport.transport, realtime.realtime);
 
-        const result = await service.get({ subaccountId: "42" });
+        const result = await service.get({ subaccountId: formatId(42n) });
         expect(result).toMatchObject({
             policy: {
                 id: formatId(11n),
@@ -192,7 +192,7 @@ describe("SubaccountsService", () => {
         const realtime = realtimeClientStub();
         const service = new SubaccountsService(transport.transport, realtime.realtime);
 
-        await expect(service.get({ subaccountId: "42" })).rejects.toThrow(
+        await expect(service.get({ subaccountId: formatId(42n) })).rejects.toThrow(
             `Subaccount not found: ${formatId(42n)}`,
         );
     });
@@ -235,7 +235,7 @@ describe("SubaccountsService", () => {
                 run: () =>
                     service.update(
                         {
-                            subaccountId: "42",
+                            subaccountId: formatId(42n),
                             expectedRevision: "7",
                             label: "Disabled",
                             icon: "pause",
@@ -259,7 +259,7 @@ describe("SubaccountsService", () => {
             {
                 run: () =>
                     service.delete(
-                        { subaccountId: "42", expectedRevision: "7" },
+                        { subaccountId: formatId(42n), expectedRevision: "7" },
                         { stepUpToken: " fresh-token " },
                     ),
                 expected: {
@@ -272,7 +272,11 @@ describe("SubaccountsService", () => {
             {
                 run: () =>
                     service.inviteMember(
-                        { subaccountId: "42", granteeAccountId: "6", role: "trader" },
+                        {
+                            subaccountId: formatId(42n),
+                            granteeAccountId: formatId(6n),
+                            role: "trader",
+                        },
                         { stepUpToken: " fresh-token " },
                     ),
                 expected: {
@@ -284,7 +288,10 @@ describe("SubaccountsService", () => {
             {
                 run: () =>
                     service.removeMember(
-                        { subaccountId: "42", granteeAccountId: "6" },
+                        {
+                            subaccountId: formatId(42n),
+                            granteeAccountId: formatId(6n),
+                        },
                         { stepUpToken: " fresh-token " },
                     ),
                 expected: { subaccountId: 42n, granteeAccountId: 6n },
@@ -292,7 +299,11 @@ describe("SubaccountsService", () => {
             {
                 run: () =>
                     service.updateMemberRole(
-                        { subaccountId: "42", granteeAccountId: "6", role: "viewer" },
+                        {
+                            subaccountId: formatId(42n),
+                            granteeAccountId: formatId(6n),
+                            role: "viewer",
+                        },
                         { stepUpToken: " fresh-token " },
                     ),
                 expected: {
@@ -304,7 +315,7 @@ describe("SubaccountsService", () => {
             {
                 run: () =>
                     service.setMemberMfaRequirement(
-                        { subaccountId: "42", requireMemberMfa: true },
+                        { subaccountId: formatId(42n), requireMemberMfa: true },
                         { stepUpToken: " fresh-token " },
                     ),
                 expected: { subaccountId: 42n, requireMemberMfa: true },
@@ -312,7 +323,7 @@ describe("SubaccountsService", () => {
             {
                 run: () =>
                     service.respondInvite(
-                        { inviteId: "5", action: "accept" },
+                        { inviteId: formatId(5n), action: "accept" },
                         { stepUpToken: " fresh-token " },
                     ),
                 expected: { inviteId: 5n, action: Proto.SubaccountInviteAction.ACCEPT },
@@ -340,7 +351,11 @@ describe("SubaccountsService", () => {
             revision: "9",
         });
         await expect(
-            service.inviteMember({ subaccountId: "42", granteeAccountId: "6", role: "trader" }),
+            service.inviteMember({
+                subaccountId: formatId(42n),
+                granteeAccountId: formatId(6n),
+                role: "trader",
+            }),
         ).resolves.toMatchObject({ id: formatId(5n), status: "pending" });
     });
 
@@ -368,11 +383,15 @@ describe("SubaccountsService", () => {
         await expect(service.listInvites({ direction: "incoming" })).resolves.toMatchObject([
             { id: formatId(5n), role: "trader" },
         ]);
-        await expect(service.listMembers({ subaccountId: "42" })).resolves.toMatchObject([
+        await expect(service.listMembers({ subaccountId: formatId(42n) })).resolves.toMatchObject([
             { accountId: formatId(6n), role: "trader" },
         ]);
         await expect(
-            service.listEvents({ subaccountId: "42", limit: 25, pageToken: "cursor-1" }),
+            service.listEvents({
+                subaccountId: formatId(42n),
+                limit: 25,
+                pageToken: "cursor-1",
+            }),
         ).resolves.toEqual({
             events: [
                 {
@@ -399,7 +418,9 @@ describe("SubaccountsService", () => {
         const realtime = realtimeClientStub();
         const service = new SubaccountsService(transport.transport, realtime.realtime);
 
-        await expect(service.listEvents({ subaccountId: "42", limit })).rejects.toMatchObject({
+        await expect(
+            service.listEvents({ subaccountId: formatId(42n), limit }),
+        ).rejects.toMatchObject({
             name: "ValidationError",
         });
         expect(transport.unary).not.toHaveBeenCalled();

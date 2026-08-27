@@ -1,5 +1,6 @@
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { subaccountResolverStub, unaryTransport } from "../../testing/service-harness.js";
+import { formatId } from "../../utils/base58-id.js";
 import { describe, expect, it } from "vitest";
 import { DepositService } from "./deposit.js";
 
@@ -11,7 +12,10 @@ describe("DepositService", () => {
                 depositAddress: " 0x1111111111111111111111111111111111111111 ",
             },
         });
-        const service = new DepositService(transport.transport, subaccountResolverStub("42"));
+        const service = new DepositService(
+            transport.transport,
+            subaccountResolverStub(formatId(42n)),
+        );
 
         await expect(
             service.createAddress({ chainId: 8453 }, { stepUpToken: " fresh-token " }),
@@ -42,7 +46,10 @@ describe("DepositService", () => {
                 },
             ],
         });
-        const service = new DepositService(transport.transport, subaccountResolverStub("42"));
+        const service = new DepositService(
+            transport.transport,
+            subaccountResolverStub(formatId(42n)),
+        );
         const signal = new AbortController().signal;
 
         await expect(

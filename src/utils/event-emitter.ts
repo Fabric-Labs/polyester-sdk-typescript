@@ -37,7 +37,8 @@ export class EventEmitter<TEvents extends { [K in keyof TEvents]: unknown }> {
     emit<K extends keyof TEvents>(event: K, data: TEvents[K]): void {
         const callbacks = this.#listeners.get(event);
         if (callbacks) {
-            for (const callback of callbacks) {
+            const snapshot = Array.from(callbacks);
+            for (const callback of snapshot) {
                 try {
                     callback(data);
                 } catch {

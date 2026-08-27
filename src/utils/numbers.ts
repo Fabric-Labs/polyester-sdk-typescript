@@ -67,8 +67,30 @@ export function parseOptionalPositiveIntLike(
     value: string | number | undefined | null,
 ): number | undefined {
     if (value === undefined || value === null) return undefined;
-    const n = typeof value === "string" ? Number(value.trim()) : value;
-    return Number.isInteger(n) && n > 0 ? n : undefined;
+    if (typeof value === "string") {
+        const decimal = value.trim();
+        if (!/^\d+$/.test(decimal)) return undefined;
+        const parsed = Number(decimal);
+        return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : undefined;
+    }
+    return Number.isSafeInteger(value) && value > 0 ? value : undefined;
+}
+
+/**
+ * Parse a positive integer-like value without losing precision.
+ * Decimal strings may exceed JavaScript's safe-integer range; number inputs may not.
+ */
+export function parseOptionalPositiveBigIntLike(
+    value: string | number | undefined | null,
+): bigint | undefined {
+    if (value === undefined || value === null) return undefined;
+    if (typeof value === "number") {
+        return Number.isSafeInteger(value) && value > 0 ? BigInt(value) : undefined;
+    }
+    const decimal = value.trim();
+    if (!/^\d+$/.test(decimal)) return undefined;
+    const parsed = BigInt(decimal);
+    return parsed > 0n ? parsed : undefined;
 }
 
 /**

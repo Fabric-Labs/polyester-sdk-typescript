@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+    parseOptionalPositiveBigIntLike,
     parseOptionalPositiveIntLike,
     parseOptionalUint64Decimal,
     parseOptionalUint64DecimalStrict,
@@ -17,6 +18,25 @@ describe("parseOptionalPositiveIntLike", () => {
             expect(parseOptionalPositiveIntLike(value)).toBeUndefined();
         },
     );
+
+    it.each(["0x10", "1e2", "+20", "1_000", Number.MAX_SAFE_INTEGER + 1])(
+        "rejects non-decimal or unsafe integer input %j",
+        (value) => {
+            expect(parseOptionalPositiveIntLike(value)).toBeUndefined();
+        },
+    );
+});
+
+describe("parseOptionalPositiveBigIntLike", () => {
+    it("preserves large decimal strings", () => {
+        expect(parseOptionalPositiveBigIntLike(" 18446744073709551615 ")).toBe(
+            18_446_744_073_709_551_615n,
+        );
+    });
+
+    it.each(["0x10", "1e2", "1_000", 1e300])("rejects invalid input %j", (value) => {
+        expect(parseOptionalPositiveBigIntLike(value)).toBeUndefined();
+    });
 });
 
 describe("parseOptionalUint64DecimalStrict", () => {

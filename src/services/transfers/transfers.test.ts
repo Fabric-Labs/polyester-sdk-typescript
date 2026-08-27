@@ -2,27 +2,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { create } from "@bufbuild/protobuf";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { U128Schema } from "../../gen/polyester/type/v1/u128_pb.js";
-import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
-import { createTestCatalog } from "../../testing/catalog.js";
 import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import { TransfersService } from "./transfers.js";
-
-const usdt = {
-    symbol: "USDT",
-    ledgerId: 1,
-    name: "Tether",
-    quantityDisplayDecimals: 2,
-    quantityScale: 6,
-};
-
-function testScales() {
-    const catalog = createTestCatalog({ assets: [usdt] });
-    return createCatalogSdkScales(() => catalog);
-}
-
-const flushAsync = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 const onePointFiveE18 = 1_500_000_000_000_000_000n;
 const twoPointFiveE18 = 2_500_000_000_000_000_000n;
@@ -59,7 +42,7 @@ describe("TransfersService", () => {
     it("normalizes list inputs, resolver defaults, signals, and converts decimal amounts", async () => {
         const controller = new AbortController();
         const resolver: SubaccountResolver = {
-            getDefaultSubaccountId: () => "11",
+            getDefaultSubaccountId: () => formatId(11n),
         };
         const transport = unaryTransport({
             transfers: [transferRow()],
@@ -69,7 +52,6 @@ describe("TransfersService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             resolver,
-            testScales(),
         );
 
         await expect(
@@ -95,7 +77,7 @@ describe("TransfersService", () => {
                     timestamp: 1_781_190_257_836,
                     balanceAfter: "2.5",
                     isDebit: false,
-                    linkId: 22,
+                    linkId: "22",
                     flowId: "flow-1",
                     source: {
                         kind: "funding_account",
@@ -138,7 +120,6 @@ describe("TransfersService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             undefined,
-            testScales(),
         );
         const expected = { transfers: [], nextPageToken: "" };
 
@@ -159,7 +140,6 @@ describe("TransfersService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             undefined,
-            testScales(),
         );
 
         await expect(service.list({})).resolves.toEqual({
@@ -177,7 +157,6 @@ describe("TransfersService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             undefined,
-            testScales(),
         );
 
         const { transfers } = await service.list({});
@@ -194,7 +173,6 @@ describe("TransfersService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             undefined,
-            testScales(),
         );
 
         const { transfers } = await service.list({});
@@ -211,7 +189,6 @@ describe("TransfersService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             undefined,
-            testScales(),
         );
 
         await expect(service.list({})).resolves.toMatchObject({
@@ -233,7 +210,6 @@ describe("TransfersService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             undefined,
-            testScales(),
         );
 
         const { transfers } = await service.list({});
@@ -246,7 +222,7 @@ describe("TransfersService", () => {
             accountCode: "trading",
             timestamp: 1_781_190_257_836,
             isDebit: false,
-            linkId: 23,
+            linkId: "23",
             source: {
                 kind: "unspecified",
                 address: "",
@@ -267,19 +243,17 @@ describe("TransfersService", () => {
             transport.transport,
             realtimeClientStub().realtime,
             undefined,
-            testScales(),
         );
 
         await expect(service.list({})).rejects.toThrow();
     });
 
-    it("uses private transfer channels and parses realtime publications", async () => {
+    it("uses private transfer channels and delivers publications without catalog readiness", () => {
         const realtime = realtimeClientStub();
         const service = new TransfersService(
             unaryTransport({}).transport,
             realtime.realtime,
             undefined,
-            testScales(),
         );
         const onEvent = vi.fn();
         const onOpen = vi.fn();
@@ -304,7 +278,6 @@ describe("TransfersService", () => {
             error: { code: 0, message: "boom" },
         });
         realtime.params?.onPublication(transferRow());
-        await flushAsync();
 
         expect(onOpen).toHaveBeenCalledTimes(1);
         expect(onClose).toHaveBeenCalledTimes(1);
@@ -330,7 +303,6 @@ describe("TransfersService", () => {
                 tsUs: 1_700_000_000_123_456n,
             }),
         );
-        await flushAsync();
 
         expect(onEvent).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -342,7 +314,7 @@ describe("TransfersService", () => {
         expect(realtime.unsubscribe).toHaveBeenCalledTimes(1);
     });
 
-    it("routes malformed transfer publications to the subscription onError", async () => {
+    it("routes malformed transfer publications to the subscription onError", () => {
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const onError = vi.fn();
@@ -350,13 +322,11 @@ describe("TransfersService", () => {
             unaryTransport({}).transport,
             realtime.realtime,
             undefined,
-            testScales(),
         );
 
         service.subscribe({ accountId: "account-1", onEvent, onError });
 
         realtime.params?.onPublication(transferRow({ tsUs: undefined }));
-        await flushAsync();
 
         expect(onEvent).not.toHaveBeenCalled();
         expect(onError).toHaveBeenCalledWith({

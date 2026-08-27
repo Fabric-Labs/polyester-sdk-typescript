@@ -12,11 +12,7 @@ import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import {
-    createReadyGate,
-    decimalInputToScaled,
-    type SdkScales,
-} from "../../shared/decimal-surface.js";
+import { decimalInputToScaled, type SdkScales } from "../../shared/decimal-surface.js";
 import {
     formatOrderbookLevel,
     GetOrderbookInputSchema,
@@ -25,7 +21,6 @@ import {
     type OrderbookData,
 } from "./orderbook.schemas.js";
 import { orderbookWsChannelDepth } from "./orderbook.codecs.js";
-import { toBig } from "../../utils/u128.js";
 import { isResourceNotFoundError } from "../../utils/errors.js";
 import type * as v from "valibot";
 import { parse } from "../../shared/validation.js";
@@ -111,11 +106,6 @@ export class OrderbookService {
 
         const client = this.#client;
         const scales = this.#scales;
-        const gate = createReadyGate(
-            () => scales.ready(),
-            (error) => input.onError?.(publicationHandlerErrorContext(channel, error)),
-        );
-
         let bidsMap: BookSide = new Map();
         let asksMap: BookSide = new Map();
         let currentBookSeq = 0n;
@@ -162,14 +152,18 @@ export class OrderbookService {
             const agg: BookSide = new Map();
             for (const [priceTicks, qtyScaled] of map.entries()) {
                 if (qtyScaled <= 0n) continue;
-                const bucketPrice = (priceTicks / bucket) * bucket;
+                const bucketFloor = (priceTicks / bucket) * bucket;
+                const bucketPrice =
+                    side === "asks" && bucketFloor !== priceTicks
+                        ? bucketFloor + bucket
+                        : bucketFloor;
                 agg.set(bucketPrice, (agg.get(bucketPrice) ?? 0n) + qtyScaled);
             }
             return sideToUI(agg, side, limit);
         }
 
         function emit(): void {
-            gate.run(() => {
+            try {
                 input.onEvent({
                     symbolId,
                     depth: requestedDepth,
@@ -177,7 +171,9 @@ export class OrderbookService {
                     bids: sideToUIBucketed(bidsMap, "bids", requestedDepth, bucketTicks),
                     asks: sideToUIBucketed(asksMap, "asks", requestedDepth, bucketTicks),
                 });
-            });
+            } catch (error) {
+                input.onError?.(publicationHandlerErrorContext(channel, error));
+            }
         }
 
         function setBucket(bucket: string | null | undefined): void {
@@ -194,6 +190,7 @@ export class OrderbookService {
         }
 
         async function inputServiceFetch(): Promise<Proto.GetOrderBookResponse> {
+            await scales.ready();
             const validated = parse(GetOrderbookInputSchema, {
                 symbolId,
                 depth: channelDepth,
@@ -215,7 +212,9 @@ export class OrderbookService {
             }
         }
 
-        function handleDelta(delta: Proto.OrderBookDelta): void {
+        function handleDelta(delta: Proto.OrderBookDelta): boolean {
+            if (delta.bookSeqEnd <= currentBookSeq) return true;
+
             if (delta.reset) {
                 bidsMap.clear();
                 asksMap.clear();
@@ -224,16 +223,15 @@ export class OrderbookService {
 
             if (currentBookSeq !== 0n && delta.bookSeqStart > currentBookSeq + 1n) {
                 stream?.refreshSnapshot();
-                return;
+                return false;
             }
-
-            if (delta.bookSeqEnd <= currentBookSeq) return;
 
             applySideDelta(bidsMap, delta.bids);
             applySideDelta(asksMap, delta.asks);
 
             currentBookSeq = delta.bookSeqEnd > currentBookSeq ? delta.bookSeqEnd : currentBookSeq;
             emit();
+            return true;
         }
 
         setBucket(input.bucket);
@@ -243,22 +241,23 @@ export class OrderbookService {
             schema: Proto.OrderBookDeltaSchema,
             maxBufferedPublications: 200,
             snapshotErrorLog: "Failed to fetch orderbook",
+            snapshotRetry: { maxAttempts: 3, delayMs: 1_000 },
             fetchSnapshot: inputServiceFetch,
             readPublication: (delta) => [delta],
             applySnapshot: (snapshot, bufferedDeltas) => {
                 bidsMap = levelsToMap(snapshot.bids);
                 asksMap = levelsToMap(snapshot.asks);
-                currentBookSeq = toBig(snapshot.bookSeq);
+                currentBookSeq = snapshot.bookSeq;
                 emit();
                 for (const delta of bufferedDeltas) {
                     if (stream?.isDisposed()) return;
-                    handleDelta(delta);
+                    if (!handleDelta(delta)) return;
                 }
             },
             applyLivePublications: (deltas) => {
                 for (const delta of deltas) {
                     if (stream?.isDisposed()) return;
-                    handleDelta(delta);
+                    if (!handleDelta(delta)) return;
                 }
             },
             onOpen: input.onOpen,

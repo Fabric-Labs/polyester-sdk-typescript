@@ -29,10 +29,10 @@ export function createAuthTokenStorageSetOptions(token: string): AuthTokenStorag
         return { expiresAt: null, maxAgeSeconds: null };
     }
 
-    const nowSeconds = Math.floor(Date.now() / 1000);
+    const nowSeconds = Date.now() / 1000;
     return {
         expiresAt: new Date(exp * 1000),
-        maxAgeSeconds: Math.max(0, exp - nowSeconds),
+        maxAgeSeconds: Math.max(0, Math.floor(exp - nowSeconds)),
     };
 }
 

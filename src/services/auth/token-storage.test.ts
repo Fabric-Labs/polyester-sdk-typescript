@@ -109,4 +109,15 @@ describe("auth token storage", () => {
         expect(cookies.writes[0]).not.toContain("Max-Age=");
         expect(cookies.writes[0]).not.toContain("Expires=");
     });
+
+    it("uses an integer Max-Age for fractional JWT expiration timestamps", () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date("2026-01-01T00:00:00.250Z"));
+        const token = jwtWithExp(Date.now() / 1000 + 180.5);
+        const cookies = installCookieJar();
+        const storage = createCookieAuthTokenStorage();
+
+        expect(() => storage.set(token, createAuthTokenStorageSetOptions(token))).not.toThrow();
+        expect(cookies.writes[0]).toContain("Max-Age=180");
+    });
 });

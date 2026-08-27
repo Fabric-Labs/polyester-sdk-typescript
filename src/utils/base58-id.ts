@@ -28,7 +28,7 @@ function assertU64(x: bigint, label: string): bigint {
 export function idToBigInt(input: IdInput, label = "id"): bigint {
     if (typeof input === "bigint") return assertU64(input, label);
     if (typeof input === "number") {
-        if (!Number.isFinite(input) || input < 0 || !Number.isInteger(input)) {
+        if (!Number.isSafeInteger(input) || input < 0) {
             throw new ValidationError(`${label}: invalid number`);
         }
         return assertU64(BigInt(input), label);
@@ -36,10 +36,6 @@ export function idToBigInt(input: IdInput, label = "id"): bigint {
 
     const raw = input.trim();
     if (!raw) throw new ValidationError(`${label}: empty`);
-
-    // Heuristic: base58 strings are non-numeric and/or contain letters.
-    // If it's purely digits, treat as decimal uint64 (useful for debugging/tools).
-    if (/^\d+$/.test(raw)) return assertU64(BigInt(raw), label);
 
     return idParse(raw);
 }

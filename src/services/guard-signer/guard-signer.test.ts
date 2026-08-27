@@ -5,6 +5,7 @@ import {
     subaccountResolverStub,
     unaryTransport,
 } from "../../testing/service-harness.js";
+import { formatId } from "../../utils/base58-id.js";
 import { Code, ConnectError } from "@connectrpc/connect";
 import { describe, expect, it } from "vitest";
 import { GuardSignerService } from "./guard-signer.js";
@@ -30,7 +31,10 @@ describe("GuardSignerService", () => {
             },
         ];
         const transport = unaryTransport((_call, index) => responses[index] ?? {});
-        const service = new GuardSignerService(transport.transport, subaccountResolverStub("42"));
+        const service = new GuardSignerService(
+            transport.transport,
+            subaccountResolverStub(formatId(42n)),
+        );
         const cases = [
             {
                 run: () => service.createWallet({}, { stepUpToken: " fresh-token " }),
@@ -74,7 +78,10 @@ describe("GuardSignerService", () => {
             {},
         ];
         const transport = unaryTransport((_call, index) => responses[index] ?? {});
-        const service = new GuardSignerService(transport.transport, subaccountResolverStub("42"));
+        const service = new GuardSignerService(
+            transport.transport,
+            subaccountResolverStub(formatId(42n)),
+        );
         const signal = new AbortController().signal;
 
         await expect(service.getStatus({}, { signal })).resolves.toEqual({
@@ -106,7 +113,10 @@ describe("GuardSignerService", () => {
     it("normalizes single and batch protected action signing requests", async () => {
         const responses = [{ approval: approval() }, { approvals: [approval([1]), approval([2])] }];
         const transport = unaryTransport((_call, index) => responses[index] ?? {});
-        const service = new GuardSignerService(transport.transport, subaccountResolverStub("42"));
+        const service = new GuardSignerService(
+            transport.transport,
+            subaccountResolverStub(formatId(42n)),
+        );
 
         await expect(
             service.signProtectedAction(

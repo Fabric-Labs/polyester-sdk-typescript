@@ -301,6 +301,41 @@ describe("ZipperService", () => {
         unsubscribe();
     });
 
+    it("does not enter live mode when catalog readiness fails", async () => {
+        const realtime = realtimeClientStub();
+        const onEvent = vi.fn();
+        const onError = vi.fn();
+        const scales = {
+            ...testScales,
+            ready: async () => {
+                throw new Error("catalog unavailable");
+            },
+        };
+        const service = new ZipperService(
+            unaryTransport(supplyConfig(10_000_000n)).transport,
+            realtime.realtime,
+            scales,
+        );
+
+        const unsubscribe = service.subscribeZippedAssetSupply({ onEvent, onError });
+        realtime.params?.onConnected?.();
+        await flushAsync();
+        realtime.params?.onPublication(
+            create(Proto.ZippedAssetSupplyBatchSchema, {
+                updates: [{ zippedAssetId: 1001, supplyQ: 20_000_000n }],
+            }),
+        );
+
+        expect(onError).toHaveBeenCalledWith(
+            expect.objectContaining({
+                channel: "public:chain:zipped-asset:supply:proto",
+                type: "snapshot",
+            }),
+        );
+        expect(onEvent).not.toHaveBeenCalled();
+        unsubscribe();
+    });
+
     it("routes malformed supply publications to onError", async () => {
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();

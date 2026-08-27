@@ -30,7 +30,7 @@ vi.mock("./realtime/index.js", () => ({
 }));
 
 import { PolyesterClient } from "./core-client.js";
-import { ConfigurationError } from "./shared/errors.js";
+import { AuthenticationError, ConfigurationError } from "./shared/errors.js";
 
 function bytesToHex(bytes: Uint8Array): string {
     return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
@@ -133,6 +133,98 @@ describe("PolyesterClient realtime auth", () => {
             "X-API-TIMESTAMP": "1234567890",
             "X-API-SIGNATURE": expectedSignature,
         });
+    });
+
+    it("maps a prefetched realtime JWT provider failure to AuthenticationError", async () => {
+        const cause = new Error("credential store unavailable");
+        const getToken = vi.fn(() => {
+            throw cause;
+        });
+        const client = new PolyesterClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            auth: { kind: "jwt", getToken },
+        });
+        void client.realtime;
+
+        const config = realtimeConfigs[0];
+        if (!config?.getAuthHeaders) throw new Error("Expected realtime auth headers");
+
+        expect(config.hasAuth?.()).toBe(true);
+        expect(getToken).toHaveBeenCalledOnce();
+        let rejection: unknown;
+        try {
+            await config.getAuthHeaders({
+                url: `${POLYESTER_TESTNET_ENVIRONMENT.apiUrl}/v1/rt/token`,
+                method: "GET",
+            });
+        } catch (error) {
+            rejection = error;
+        }
+        expect(rejection).toBeInstanceOf(AuthenticationError);
+        expect(rejection).toMatchObject({
+            name: "AuthenticationError",
+            code: "UNAUTHENTICATED",
+            cause,
+        });
+        expect(getToken).toHaveBeenCalledOnce();
+    });
+
+    it("reports a synchronous missing realtime JWT credential during preflight", () => {
+        const getToken = vi.fn(() => null);
+        const client = new PolyesterClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            auth: { kind: "jwt", getToken },
+        });
+        void client.realtime;
+
+        const config = realtimeConfigs[0];
+        if (!config?.getAuthHeaders) throw new Error("Expected realtime auth headers");
+
+        expect(config.hasAuth?.()).toBe(false);
+        expect(getToken).toHaveBeenCalledOnce();
+    });
+
+    it("reuses a synchronous realtime JWT credential for the following request", async () => {
+        const getToken = vi.fn(() => "secret");
+        const client = new PolyesterClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            auth: { kind: "jwt", getToken },
+        });
+        void client.realtime;
+
+        const config = realtimeConfigs[0];
+        if (!config?.getAuthHeaders) throw new Error("Expected realtime auth headers");
+
+        expect(config.hasAuth?.()).toBe(true);
+        expect(config.hasAuth?.()).toBe(true);
+        await expect(
+            config.getAuthHeaders({
+                url: `${POLYESTER_TESTNET_ENVIRONMENT.apiUrl}/v1/rt/token`,
+                method: "GET",
+            }),
+        ).resolves.toEqual({ authorization: "Bearer secret" });
+        expect(getToken).toHaveBeenCalledOnce();
+    });
+
+    it("reuses an asynchronous realtime JWT credential for the following request", async () => {
+        const getToken = vi.fn(async () => "secret");
+        const client = new PolyesterClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            auth: { kind: "jwt", getToken },
+        });
+        void client.realtime;
+
+        const config = realtimeConfigs[0];
+        if (!config?.getAuthHeaders) throw new Error("Expected realtime auth headers");
+
+        expect(config.hasAuth?.()).toBe(true);
+        await expect(
+            config.getAuthHeaders({
+                url: `${POLYESTER_TESTNET_ENVIRONMENT.apiUrl}/v1/rt/token`,
+                method: "GET",
+            }),
+        ).resolves.toEqual({ authorization: "Bearer secret" });
+        expect(getToken).toHaveBeenCalledOnce();
     });
 });
 

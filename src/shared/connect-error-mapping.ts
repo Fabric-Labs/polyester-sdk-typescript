@@ -66,6 +66,14 @@ function safeRetryAfterMs(rateLimit: RateLimitDetail | undefined): number | unde
     return value <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(value) : undefined;
 }
 
+const HTTP_WEEKDAY = "(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)";
+const HTTP_WEEKDAY_LONG = "(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)";
+const HTTP_MONTH = "(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)";
+const HTTP_DATE_RE = new RegExp(
+    `^(?:${HTTP_WEEKDAY}, \\d{2} ${HTTP_MONTH} \\d{4} \\d{2}:\\d{2}:\\d{2} GMT|${HTTP_WEEKDAY_LONG}, \\d{2}-${HTTP_MONTH}-\\d{2} \\d{2}:\\d{2}:\\d{2} GMT|${HTTP_WEEKDAY} ${HTTP_MONTH} {1,2}\\d{1,2} \\d{2}:\\d{2}:\\d{2} \\d{4})$`,
+    "u",
+);
+
 /**
  * Returns the error message without the leading "[code] " prefix that
  * `ConnectError` prepends, e.g. "[invalid_argument] Insufficient funds."
@@ -95,8 +103,12 @@ export function detectMfaErrorKind(err: unknown): MfaErrorKind | null {
 function parseRetryAfterMs(ce: ConnectError): number | undefined {
     const value = ce.metadata.get("retry-after");
     if (!value) return undefined;
-    const seconds = Number(value);
-    if (Number.isFinite(seconds)) return Math.max(0, Math.round(seconds * 1000));
+    if (/^\d+$/u.test(value)) {
+        const seconds = BigInt(value);
+        const maxSafeSeconds = BigInt(Math.floor(Number.MAX_SAFE_INTEGER / 1000));
+        return seconds <= maxSafeSeconds ? Number(seconds) * 1000 : undefined;
+    }
+    if (!HTTP_DATE_RE.test(value)) return undefined;
     const date = Date.parse(value);
     if (!Number.isNaN(date)) return Math.max(0, date - Date.now());
     return undefined;

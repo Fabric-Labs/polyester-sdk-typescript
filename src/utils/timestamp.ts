@@ -12,10 +12,42 @@ export function toTimestamp({ seconds, nanos }: { seconds: bigint; nanos: number
  */
 export function tsNsToTimestamp(tsNs: bigint | undefined): Timestamp | undefined {
     if (tsNs === undefined) return undefined;
+
+    let seconds = tsNs / 1_000_000_000n;
+    let nanos = tsNs % 1_000_000_000n;
+    if (nanos < 0n) {
+        seconds -= 1n;
+        nanos += 1_000_000_000n;
+    }
+
     return toTimestamp({
-        seconds: tsNs / 1_000_000_000n,
-        nanos: Number(tsNs % 1_000_000_000n),
+        seconds,
+        nanos: Number(nanos),
     });
+}
+
+function timestampSeconds(value: unknown): bigint | null {
+    if (typeof value === "bigint") return value;
+    if (typeof value === "number") {
+        return Number.isSafeInteger(value) ? BigInt(value) : null;
+    }
+    if (typeof value !== "string") return null;
+
+    const trimmed = value.trim();
+    return /^-?\d+$/.test(trimmed) ? BigInt(trimmed) : null;
+}
+
+function timestampNanos(value: unknown): bigint | null {
+    if (value === undefined) return 0n;
+    if (
+        typeof value !== "number" ||
+        !Number.isInteger(value) ||
+        value < 0 ||
+        value >= 1_000_000_000
+    ) {
+        return null;
+    }
+    return BigInt(value);
 }
 
 /**
@@ -34,22 +66,13 @@ export function timestampToMs(value: unknown): number | null {
         return Number.isFinite(ms) ? ms : null;
     }
 
-    if (typeof value !== "object") return null;
-    const timestamp = value as Record<string, unknown>;
-    const rawSeconds = timestamp.seconds;
-    const rawNanos = timestamp.nanos;
+    if (typeof value !== "object" || !("seconds" in value)) return null;
 
-    let seconds: number | null = null;
-    if (typeof rawSeconds === "bigint") {
-        seconds = Number(rawSeconds);
-    } else if (typeof rawSeconds === "number") {
-        seconds = rawSeconds;
-    } else if (typeof rawSeconds === "string" && rawSeconds.trim().length > 0) {
-        const parsed = Number(rawSeconds);
-        seconds = Number.isFinite(parsed) ? parsed : null;
-    }
-    if (seconds == null || !Number.isFinite(seconds)) return null;
+    const seconds = timestampSeconds(value.seconds);
+    const nanos = timestampNanos("nanos" in value ? value.nanos : undefined);
+    if (seconds === null || nanos === null) return null;
 
-    const nanos = typeof rawNanos === "number" && Number.isFinite(rawNanos) ? rawNanos : 0;
-    return Math.trunc(seconds * 1000 + nanos / 1_000_000);
+    const milliseconds = (seconds * 1_000_000_000n + nanos) / 1_000_000n;
+    const output = Number(milliseconds);
+    return Number.isSafeInteger(output) ? output : null;
 }

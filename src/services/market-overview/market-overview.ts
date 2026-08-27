@@ -1,6 +1,5 @@
 import * as Proto from "../../gen/marketoverview/v1/marketoverview_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
-import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
@@ -10,7 +9,7 @@ import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import { createReadyGate, type SdkScales } from "../../shared/decimal-surface.js";
+import type { SdkScales } from "../../shared/decimal-surface.js";
 import {
     ListMarketOverviewInputSchema,
     createMarketOverviewSchema,
@@ -69,11 +68,6 @@ export class MarketOverviewService {
         const sparklineIntervals = input.sparklineIntervals ?? ["24h"];
         const listMarketOverview = this.list.bind(this);
         const schema = this.#marketOverviewSchema;
-        const gate = createReadyGate(
-            () => this.#scales.ready(),
-            (error) => input.onError?.(publicationHandlerErrorContext(channel, error)),
-        );
-
         function emit(): void {
             input.onEvent(Array.from(bySymbolId.values()));
         }
@@ -108,19 +102,16 @@ export class MarketOverviewService {
             snapshotErrorLog: "Failed to fetch market overview",
             fetchSnapshot,
             readPublication: (batch) => batch.markets ?? [],
+            bufferPublicationKey: (market) => market.symbolId,
             applySnapshot: (markets, bufferedMarkets) => {
-                gate.run(() => {
-                    bySymbolId.clear();
-                    applyMarkets(markets);
-                    applyMarkets(parseMarkets(bufferedMarkets));
-                    emit();
-                });
+                bySymbolId.clear();
+                applyMarkets(markets);
+                applyMarkets(parseMarkets(bufferedMarkets));
+                emit();
             },
             applyLivePublications: (markets) => {
-                gate.run(() => {
-                    applyMarkets(parseMarkets(markets));
-                    emit();
-                });
+                applyMarkets(parseMarkets(markets));
+                emit();
             },
             onOpen: input.onOpen,
             onClose: input.onClose,

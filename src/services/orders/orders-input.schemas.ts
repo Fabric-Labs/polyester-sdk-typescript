@@ -3,7 +3,6 @@ import { create } from "@bufbuild/protobuf";
 import * as v from "valibot";
 import { SideSchema, SymbolIdInputSchema } from "../shared.js";
 import { tsNsToMs } from "../../utils/time.js";
-import { idToBigInt } from "../../utils/base58-id.js";
 import {
     OptionalPublicIdSchema,
     OptionalTimestampMsSchema,
@@ -36,7 +35,9 @@ import {
     parseMarketMaxSlippage,
 } from "./orders-risk.schemas.js";
 import {
+    ClientOrderIdInputSchema,
     OptionalClientOrderIdInputSchema,
+    OrderIdInputSchema,
     OrderRequestIdInputSchema,
 } from "./orders-identifiers.schemas.js";
 import { OrderErrorDetailSchema } from "./order-errors.schemas.js";
@@ -47,7 +48,7 @@ const SelfTradePreventionModeSchema = v.picklist(SELF_TRADE_PREVENTION_MODE_VALU
 
 const BaseOrdersFilterInputEntries = {
     ...AccountScopeInputEntries,
-    symbolId: v.optional(v.array(v.number())),
+    symbolId: v.optional(v.array(SymbolIdInputSchema)),
     triggerId: optionalIdInputSchema("triggerId"),
     side: v.pipe(
         v.optional(SideSchema),
@@ -303,7 +304,7 @@ export function createNewOrderInputSchema(scales: SdkScales) {
 export type NewOrderInput = v.InferInput<ReturnType<typeof createNewOrderInputSchema>>;
 
 const CancelOrderScopeInputEntries = {
-    symbolId: v.optional(v.number()),
+    symbolId: v.optional(SymbolIdInputSchema),
     ...AccountScopeInputEntries,
 };
 
@@ -311,18 +312,13 @@ export const CancelOrderInputSchema = v.pipe(
     v.union([
         v.strictObject({
             ...CancelOrderScopeInputEntries,
-            orderId: v.pipe(
-                v.string(),
-                v.trim(),
-                v.minLength(1),
-                v.transform((v) => idToBigInt(v, "orderId")),
-            ),
+            orderId: OrderIdInputSchema,
             clientOrderId: v.optional(v.never()),
         }),
         v.strictObject({
             ...CancelOrderScopeInputEntries,
             orderId: v.optional(v.never()),
-            clientOrderId: v.pipe(v.string(), v.trim(), v.minLength(1)),
+            clientOrderId: ClientOrderIdInputSchema,
         }),
     ]),
     v.transform(({ orderId, clientOrderId, account, ...rest }) => {
@@ -395,22 +391,22 @@ export type CancelAllOrdersResponse = v.InferOutput<typeof CancelAllOrdersRespon
 
 export const GetOrderDetailsInputSchema = v.pipe(
     v.strictObject({
-        orderId: v.optional(v.pipe(v.string(), v.trim())),
-        clientOrderId: v.optional(v.pipe(v.string(), v.trim())),
+        orderId: v.optional(OrderIdInputSchema),
+        clientOrderId: v.optional(ClientOrderIdInputSchema),
         ...AccountScopeInputEntries,
         includeAttachedRisk: v.optional(v.boolean(), true),
         includeAttachedRiskState: v.optional(v.boolean(), true),
     }),
     v.check((input) => {
-        const hasOrderId = (input.orderId ?? "").length > 0;
-        const hasClientOrderId = (input.clientOrderId ?? "").length > 0;
+        const hasOrderId = input.orderId !== undefined;
+        const hasClientOrderId = input.clientOrderId !== undefined;
         return hasOrderId !== hasClientOrderId;
     }, "Provide exactly one of orderId or clientOrderId"),
     v.transform(({ account, orderId, clientOrderId, ...rest }) => {
-        const hasOrderId = (orderId ?? "").length > 0;
-        const key = hasOrderId
-            ? ({ case: "orderId", value: idToBigInt(orderId ?? "", "orderId") } as const)
-            : ({ case: "clientOrderId", value: clientOrderId ?? "" } as const);
+        const key =
+            orderId !== undefined
+                ? ({ case: "orderId", value: orderId } as const)
+                : ({ case: "clientOrderId", value: clientOrderId ?? "" } as const);
         return {
             ...rest,
             subaccountId: accountScopeToSubaccountId(account),

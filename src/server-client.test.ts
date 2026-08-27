@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Interceptor } from "@connectrpc/connect";
+import { Code, ConnectError, type Interceptor } from "@connectrpc/connect";
 import {
     createPolyesterServerClientFromCookies,
     createPolyesterServerClientFromRequest,
@@ -16,8 +16,13 @@ import type { Me } from "./services/auth/auth.js";
 import { MarketDataService } from "./services/market-data/index.js";
 import { ZipperService } from "./services/zipper/index.js";
 import { createTestCatalog } from "./testing/catalog.js";
-import { ConfigurationError } from "./shared/errors.js";
+import {
+    AuthenticationError,
+    ConfigurationError,
+    ServiceUnavailableError,
+} from "./shared/errors.js";
 import type { CatalogSnapshot, CatalogSnapshotCell, ClientCatalog } from "./catalogs/index.js";
+import { rejectingUnaryTransport, realtimeClientStub } from "./testing/service-harness.js";
 
 type ExpectFalse<T extends false> = T;
 type ExpectTrue<T extends true> = T;
@@ -572,7 +577,7 @@ describe("PolyesterServerClient.verifySession", () => {
         await expect(client.verifySession()).resolves.toBe(user);
     });
 
-    it("returns null when backend verification fails", async () => {
+    it("returns null when the backend rejects the session as unauthenticated", async () => {
         const client = createPolyesterServerClientFromCookies({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
             cookies: {
@@ -580,8 +585,55 @@ describe("PolyesterServerClient.verifySession", () => {
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
             },
         });
-        vi.spyOn(client.auth, "me").mockRejectedValue(new Error("unauthenticated"));
+        vi.spyOn(client.auth, "me").mockRejectedValue(
+            new AuthenticationError("Authentication required"),
+        );
 
         await expect(client.verifySession()).resolves.toBeNull();
+    });
+
+    it("returns null when an injected transport rejects with raw unauthenticated", async () => {
+        const transport = rejectingUnaryTransport(
+            new ConnectError("expired", Code.Unauthenticated),
+        );
+        const client = new PolyesterServerClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            auth: { kind: "jwt", getToken: validJwt },
+            transports: { publicApi: transport, authApi: transport },
+            realtimeClient: realtimeClientStub().realtime,
+        });
+
+        await expect(client.verifySession()).resolves.toBeNull();
+    });
+
+    it("preserves transient verification failures", async () => {
+        const client = createPolyesterServerClientFromCookies({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            cookies: {
+                [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
+                [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
+            },
+        });
+        const failure = new ServiceUnavailableError("Service unavailable");
+        vi.spyOn(client.auth, "me").mockRejectedValue(failure);
+
+        await expect(client.verifySession()).rejects.toBe(failure);
+    });
+
+    it("maps and rethrows other raw injected transport failures", async () => {
+        const transport = rejectingUnaryTransport(
+            new ConnectError("backend unavailable", Code.Unavailable),
+        );
+        const client = new PolyesterServerClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            auth: { kind: "jwt", getToken: validJwt },
+            transports: { publicApi: transport, authApi: transport },
+            realtimeClient: realtimeClientStub().realtime,
+        });
+
+        await expect(client.verifySession()).rejects.toMatchObject({
+            name: "ServiceUnavailableError",
+            message: "backend unavailable",
+        });
     });
 });

@@ -1,15 +1,15 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
-import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
+import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import { createReadyGate, type SdkScales } from "../../shared/decimal-surface.js";
+import type { SdkScales } from "../../shared/decimal-surface.js";
 import {
     type CandleColumnar,
     createCandleRowSchema,
@@ -138,23 +138,18 @@ export class CandlesService {
         });
         const protoTimeframe = TimeframeCodec.inputToProto[params.timeframe];
         const channel = `public:spot:market:candles:${params.timeframe}:${params.symbolId}:proto`;
-        const gate = createReadyGate(
-            () => this.#scales.ready(),
-            (error) => input.onError?.(publicationHandlerErrorContext(channel, error)),
-        );
-        return this.#realtime.connectProtoChannel({
+        return connectReadyGatedProtoChannel(this.#realtime, {
             channel,
             schema: Proto.CandlePointSchema,
+            ready: () => this.#scales.ready(),
             onPublication: (data) => {
-                gate.run(() => {
-                    const point = parse(CandlePointSchema, data);
-                    const candle = parse(schema, {
-                        ...point,
-                        symbolId: params.symbolId,
-                        timeframe: protoTimeframe,
-                    });
-                    input.onEvent(candle);
+                const point = parse(CandlePointSchema, data);
+                const candle = parse(schema, {
+                    ...point,
+                    symbolId: params.symbolId,
+                    timeframe: protoTimeframe,
                 });
+                input.onEvent(candle);
             },
             onConnected: input.onOpen,
             onDisconnected: input.onClose,

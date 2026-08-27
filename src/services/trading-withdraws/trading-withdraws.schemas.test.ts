@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
+import { formatId } from "../../utils/base58-id.js";
 import { WithdrawDestinationValidationCode } from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import {
     createCreateTradingWithdrawToExternalChainInputSchema,
@@ -32,7 +33,7 @@ const CreateTradingWithdrawToExternalChainInputSchema =
 describe("CreateTradingWithdrawToFundingInputSchema", () => {
     it("converts decimal quantities and source subaccount to proto fields", () => {
         const input = v.parse(CreateTradingWithdrawToFundingInputSchema, {
-            account: { subaccountId: "11" },
+            account: { subaccountId: formatId(11n) },
             assetId: 1,
             quantity: "1.25",
             idempotencyKey: " withdraw-1 ",
@@ -105,7 +106,7 @@ describe("CreateTradingWithdrawToFundingInputSchema", () => {
 describe("CreateTradingWithdrawToExternalChainInputSchema", () => {
     it("requires destination chain details and converts decimal quantities", () => {
         const input = v.parse(CreateTradingWithdrawToExternalChainInputSchema, {
-            account: { subaccountId: "11" },
+            account: { subaccountId: formatId(11n) },
             assetId: 1,
             quantity: "1.25",
             destinationChainId: 10_009,

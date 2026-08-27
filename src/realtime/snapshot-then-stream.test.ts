@@ -200,4 +200,36 @@ describe("snapshotThenStream", () => {
         expect(applySnapshot).toHaveBeenCalledWith(10, [7]);
         stream.unsubscribe();
     });
+
+    it("isolates snapshot application failures without misclassifying them as fetch failures", async () => {
+        const realtime = realtimeClientStub();
+        const cause = new Error("consumer failed");
+        const onError = vi.fn();
+        const stream = snapshotThenStream({
+            realtime: realtime.realtime,
+            channel: "public:test",
+            schema: Proto.ZippedAssetSupplyBatchSchema,
+            fetchSnapshot: async () => 1,
+            readPublication: () => [],
+            applySnapshot: () => {
+                throw cause;
+            },
+            applyLivePublications: vi.fn(),
+            onError,
+        });
+
+        realtime.params?.onConnected?.();
+        await flushAsync();
+
+        expect(stream.isReady()).toBe(true);
+        expect(onError).toHaveBeenCalledOnce();
+        expect(onError).toHaveBeenCalledWith(
+            expect.objectContaining({
+                channel: "public:test",
+                type: "publication_handler",
+                error: cause,
+            }),
+        );
+        stream.unsubscribe();
+    });
 });

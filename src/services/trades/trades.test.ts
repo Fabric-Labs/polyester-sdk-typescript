@@ -81,7 +81,7 @@ describe("TradesService", () => {
         const service = new TradesService(
             transport.transport,
             realtimeClientStub().realtime,
-            subaccountResolverStub("12"),
+            subaccountResolverStub(formatId(12n)),
             testScales(),
         );
 
@@ -154,7 +154,7 @@ describe("TradesService", () => {
         const service = new TradesService(
             transport.transport,
             realtimeClientStub().realtime,
-            subaccountResolverStub("12"),
+            subaccountResolverStub(formatId(12n)),
             testScales(),
         );
 

@@ -53,13 +53,14 @@ function testScales() {
 }
 
 async function flushMicrotasks(): Promise<void> {
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 10; i++) {
         await Promise.resolve();
     }
 }
 
 describe("OrderbookService", () => {
     afterEach(() => {
+        vi.useRealTimers();
         vi.restoreAllMocks();
     });
 
@@ -166,6 +167,47 @@ describe("OrderbookService", () => {
         await flushMicrotasks();
 
         expect(onEvent).not.toHaveBeenCalled();
+        subscription.unsubscribe();
+    });
+
+    it("makes catalog readiness part of the snapshot cycle", async () => {
+        let resolveReady: (() => void) | undefined;
+        const ready = new Promise<void>((resolve) => {
+            resolveReady = resolve;
+        });
+        const scales = { ...testScales(), ready: () => ready };
+        const realtime = realtimeClientStub();
+        const transport = unaryTransport({
+            symbolId: 101,
+            bookSeq: 1n,
+            bids: [],
+            asks: [],
+        });
+        const service = new OrderbookService(transport.transport, realtime.realtime, scales);
+        const onEvent = vi.fn();
+
+        const subscription = service.createSubscription({ symbolId: 101, onEvent });
+        realtime.params?.onConnected?.();
+        realtime.params?.onPublication(
+            create(Proto.OrderBookDeltaSchema, {
+                symbolId: 101,
+                bookSeqStart: 2n,
+                bookSeqEnd: 2n,
+            }),
+        );
+        await flushMicrotasks();
+
+        expect(transport.unary).not.toHaveBeenCalled();
+        expect(onEvent).not.toHaveBeenCalled();
+
+        resolveReady?.();
+        await ready;
+        await flushMicrotasks();
+
+        expect(transport.unary).toHaveBeenCalledOnce();
+        expect(onEvent).toHaveBeenLastCalledWith(
+            expect.objectContaining({ bookSeq: "2", symbolId: 101 }),
+        );
         subscription.unsubscribe();
     });
 
@@ -291,6 +333,143 @@ describe("OrderbookService", () => {
         realtime.params?.onDisconnected?.();
         expect(onClose).toHaveBeenCalledTimes(1);
 
+        subscription.unsubscribe();
+    });
+
+    it("floors bid buckets and ceils ask buckets so aggregation cannot cross the book", async () => {
+        const realtime = realtimeClientStub();
+        const transport = unaryTransport({
+            symbolId: 101,
+            bookSeq: 1n,
+            bids: [{ priceTicks: 100_040_000n, qtyScaled: 100_000_000n }],
+            asks: [{ priceTicks: 100_060_000n, qtyScaled: 50_000_000n }],
+        });
+        const service = new OrderbookService(transport.transport, realtime.realtime, testScales());
+        const onEvent = vi.fn();
+
+        const subscription = service.createSubscription({
+            symbolId: 101,
+            bucket: "0.1",
+            onEvent,
+        });
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+
+        expect(onEvent).toHaveBeenCalledWith(
+            expect.objectContaining({
+                bids: [expect.objectContaining({ price: "100" })],
+                asks: [expect.objectContaining({ price: "100.1" })],
+            }),
+        );
+        subscription.unsubscribe();
+    });
+
+    it("stops buffered replay after one sequence gap and fetches one replacement snapshot", async () => {
+        const realtime = realtimeClientStub();
+        const transport = unaryTransport({ symbolId: 101, bookSeq: 10n, bids: [], asks: [] });
+        const service = new OrderbookService(transport.transport, realtime.realtime, testScales());
+
+        const subscription = service.createSubscription({
+            symbolId: 101,
+            onEvent: vi.fn(),
+        });
+        realtime.params?.onConnected?.();
+        for (const sequence of [12n, 13n, 14n]) {
+            realtime.params?.onPublication(
+                create(Proto.OrderBookDeltaSchema, {
+                    symbolId: 101,
+                    bookSeqStart: sequence,
+                    bookSeqEnd: sequence,
+                }),
+            );
+        }
+        await flushMicrotasks();
+
+        expect(transport.unary).toHaveBeenCalledTimes(2);
+        subscription.unsubscribe();
+    });
+
+    it("retries a failed snapshot and replays deltas buffered during recovery", async () => {
+        vi.useFakeTimers();
+        const realtime = realtimeClientStub();
+        const transport = unaryTransport((_call, index) => {
+            if (index === 0) throw new Error("snapshot unavailable");
+            return { symbolId: 101, bookSeq: 10n, bids: [], asks: [] };
+        });
+        const service = new OrderbookService(transport.transport, realtime.realtime, testScales());
+        const onEvent = vi.fn();
+        const onError = vi.fn();
+
+        const subscription = service.createSubscription({
+            symbolId: 101,
+            onEvent,
+            onError,
+        });
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+
+        expect(onError).toHaveBeenCalledOnce();
+        expect(onEvent).not.toHaveBeenCalled();
+        realtime.params?.onPublication(
+            create(Proto.OrderBookDeltaSchema, {
+                symbolId: 101,
+                bookSeqStart: 11n,
+                bookSeqEnd: 11n,
+                bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
+            }),
+        );
+
+        await vi.advanceTimersByTimeAsync(1_000);
+        await flushMicrotasks();
+
+        expect(transport.unary).toHaveBeenCalledTimes(2);
+        expect(onEvent).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                bookSeq: "11",
+                bids: [expect.objectContaining({ price: "100", qty: "1" })],
+            }),
+        );
+        subscription.unsubscribe();
+    });
+
+    it("ignores stale reset deltas without rewinding a newer snapshot", async () => {
+        const realtime = realtimeClientStub();
+        const transport = unaryTransport({
+            symbolId: 101,
+            bookSeq: 100n,
+            bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
+            asks: [],
+        });
+        const service = new OrderbookService(transport.transport, realtime.realtime, testScales());
+        const onEvent = vi.fn();
+
+        const subscription = service.createSubscription({ symbolId: 101, onEvent });
+        realtime.params?.onConnected?.();
+        realtime.params?.onPublication(
+            create(Proto.OrderBookDeltaSchema, {
+                symbolId: 101,
+                bookSeqStart: 95n,
+                bookSeqEnd: 95n,
+                reset: true,
+            }),
+        );
+        realtime.params?.onPublication(
+            create(Proto.OrderBookDeltaSchema, {
+                symbolId: 101,
+                bookSeqStart: 96n,
+                bookSeqEnd: 96n,
+                bids: [{ priceTicks: 99_000_000n, qtyScaled: 100_000_000n }],
+            }),
+        );
+        await flushMicrotasks();
+
+        expect(onEvent).toHaveBeenCalledOnce();
+        expect(onEvent).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                bookSeq: "100",
+                bids: [expect.objectContaining({ price: "100", qty: "1" })],
+            }),
+        );
         subscription.unsubscribe();
     });
 

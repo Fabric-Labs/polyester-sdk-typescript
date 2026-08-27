@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
+import { formatId } from "../../utils/base58-id.js";
 import {
     createCreateInternalTransferInputSchema,
     createCreateInternalTransferResultSchema,
@@ -26,8 +27,8 @@ const CreateInternalTransferResultSchema = createCreateInternalTransferResultSch
 describe("CreateInternalTransferInputSchema", () => {
     it("converts decimal quantities and destination IDs to proto fields", () => {
         const input = v.parse(CreateInternalTransferInputSchema, {
-            account: { subaccountId: "11" },
-            destination: { type: "account", accountId: "22" },
+            account: { subaccountId: formatId(11n) },
+            destination: { type: "account", accountId: formatId(22n) },
             assetId: 1,
             quantity: "1.5",
             idempotencyKey: " transfer-1 ",
@@ -44,7 +45,7 @@ describe("CreateInternalTransferInputSchema", () => {
 
     it("converts subaccount destinations to the generated oneof case", () => {
         const input = v.parse(CreateInternalTransferInputSchema, {
-            destination: { type: "subaccount", subaccountId: "33" },
+            destination: { type: "subaccount", subaccountId: formatId(33n) },
             assetId: 1,
             quantity: "0.000001",
             idempotencyKey: "transfer-2",
@@ -90,7 +91,7 @@ describe("CreateInternalTransferInputSchema", () => {
         ).toThrow();
         expect(() =>
             v.parse(CreateInternalTransferInputSchema, {
-                destination: { type: "account", accountId: "22" },
+                destination: { type: "account", accountId: formatId(22n) },
                 assetId: 1,
                 quantity: "0",
                 idempotencyKey: "transfer-6",
@@ -98,7 +99,7 @@ describe("CreateInternalTransferInputSchema", () => {
         ).toThrow(/quantity must be greater than 0/);
         expect(() =>
             v.parse(CreateInternalTransferInputSchema, {
-                destination: { type: "account", accountId: "22" },
+                destination: { type: "account", accountId: formatId(22n) },
                 assetId: 1,
                 quantity: "1.2345678",
                 idempotencyKey: "transfer-7",
@@ -106,7 +107,7 @@ describe("CreateInternalTransferInputSchema", () => {
         ).toThrow(/quantity supports at most 6 decimal places/);
         expect(() =>
             v.parse(CreateInternalTransferInputSchema, {
-                destination: { type: "account", accountId: "22" },
+                destination: { type: "account", accountId: formatId(22n) },
                 assetId: 1,
                 quantity: "1",
                 idempotencyKey: "",

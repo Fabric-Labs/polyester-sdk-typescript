@@ -2,29 +2,12 @@ import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { TransferCode } from "../../gen/ledger/v1/catalog_pb.js";
-import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
-import { createTestCatalog } from "../../testing/catalog.js";
 import { formatId } from "../../utils/base58-id.js";
 import {
-    createLedgerTransferSchema,
+    LedgerTransferSchema,
     LedgerTransferSideSchema,
     ListTransfersInputSchema,
 } from "./transfers.schemas.js";
-
-const usdt = {
-    symbol: "USDT",
-    ledgerId: 1,
-    name: "Tether",
-    quantityDisplayDecimals: 2,
-    quantityScale: 6,
-};
-
-function testScales() {
-    const catalog = createTestCatalog({ assets: [usdt] });
-    return createCatalogSdkScales(() => catalog);
-}
-
-const LedgerTransferSchema = createLedgerTransferSchema(testScales());
 
 const onePointFiveE18 = 1_500_000_000_000_000_000n;
 const twoPointFiveE18 = 2_500_000_000_000_000_000n;
@@ -68,6 +51,16 @@ describe("LedgerTransferSchema", () => {
         });
 
         expect(transfer.balanceAfter).toBe("2.5");
+    });
+
+    it("preserves link ids beyond Number's safe integer range", () => {
+        const transfer = v.parse(LedgerTransferSchema, {
+            ...baseTransfer,
+            linkId: 9_007_199_254_740_993n,
+            tsUs: 0n,
+        });
+
+        expect(transfer.linkId).toBe("9007199254740993");
     });
 
     it("preserves unknown asset ids using the catalog fallback path", () => {
@@ -226,7 +219,7 @@ describe("LedgerTransferSchema", () => {
 describe("ListTransfersInputSchema", () => {
     it("applies defaults and converts IDs and page tokens to proto fields", () => {
         const input = v.parse(ListTransfersInputSchema, {
-            account: { subaccountId: "11" },
+            account: { subaccountId: formatId(11n) },
             pageToken: "cursor-1",
             timestampMin: 1_700_000_000_123,
             timestampMax: 1_700_000_001_123,

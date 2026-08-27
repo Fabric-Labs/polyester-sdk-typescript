@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createTestCatalog } from "../testing/catalog.js";
+import { createCatalogSdkScales } from "../shared/decimal-surface.js";
+import { CatalogLookupError } from "./types.js";
 import {
     resolveLedgerAssetByLedgerId,
     resolveZipperAssetByLedgerId,
@@ -45,6 +47,13 @@ describe("unknown asset catalog lookups", () => {
         expect(catalog.ledger.isKnownAssetId(0)).toBe(false);
         expect(catalog.ledger.isKnownAssetId(UNKNOWN_LEDGER_ASSET_ID)).toBe(false);
         expect(catalog.ledger.isKnownAssetId(404)).toBe(false);
+    });
+
+    it("fails closed when a decimal conversion asks for an unknown asset scale", () => {
+        const catalog = createTestCatalog({ assets: [] });
+        const scales = createCatalogSdkScales(() => catalog);
+
+        expect(() => scales.ledgerAmount(404)).toThrow(CatalogLookupError);
     });
 
     it("zipper.getAssetByLedgerId returns unknown asset for missing ids", () => {

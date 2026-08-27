@@ -9,7 +9,7 @@ import {
 } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
-import { tsNsToMs } from "../../utils/time.js";
+import { tsNsToMs, tsObjToMs } from "../../utils/time.js";
 import { formatId } from "../../utils/base58-id.js";
 import { SymbolIdInputSchema } from "../shared.js";
 import {
@@ -544,10 +544,10 @@ export function createTriggerSchema(scales: SdkScales) {
             ),
             configuration: transformTriggerConfiguration(t.configuration, scales),
             clientTriggerId: t.clientTriggerId,
-            createdTs: t.createdAt?.seconds ? Number(t.createdAt.seconds) * 1000 : undefined,
-            updatedTs: t.updatedAt?.seconds ? Number(t.updatedAt.seconds) * 1000 : undefined,
-            armedTs: t.armedAt?.seconds ? Number(t.armedAt.seconds) * 1000 : undefined,
-            completedTs: t.completedAt?.seconds ? Number(t.completedAt.seconds) * 1000 : undefined,
+            createdTs: t.createdAt ? tsObjToMs(t.createdAt) : undefined,
+            updatedTs: t.updatedAt ? tsObjToMs(t.updatedAt) : undefined,
+            armedTs: t.armedAt ? tsObjToMs(t.armedAt) : undefined,
+            completedTs: t.completedAt ? tsObjToMs(t.completedAt) : undefined,
             runtimeDetails: transformTriggerDetails(t.runtimeDetails, scales, t.symbolId),
         })),
     );

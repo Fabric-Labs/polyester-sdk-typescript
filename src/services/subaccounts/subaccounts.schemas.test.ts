@@ -59,7 +59,7 @@ describe("subaccount status schemas", () => {
         for (const status of ["active", "disabled", "deleted"] as const) {
             expect(
                 v.parse(UpdateSubaccountInputSchema, {
-                    subaccountId: "1",
+                    subaccountId: formatId(1n),
                     expectedRevision: "7",
                     status,
                 }).subaccount.status,
@@ -68,7 +68,7 @@ describe("subaccount status schemas", () => {
 
         expect(() =>
             v.parse(UpdateSubaccountInputSchema, {
-                subaccountId: "1",
+                subaccountId: formatId(1n),
                 expectedRevision: "7",
                 status: "frozen",
             }),
@@ -78,7 +78,7 @@ describe("subaccount status schemas", () => {
     it("builds a one-field patch without synthesizing omitted values", () => {
         expect(
             v.parse(UpdateSubaccountInputSchema, {
-                subaccountId: "1",
+                subaccountId: formatId(1n),
                 expectedRevision: "7",
                 label: "",
             }),

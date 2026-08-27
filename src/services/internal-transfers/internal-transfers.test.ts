@@ -3,6 +3,7 @@ import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import { unaryTransport } from "../../testing/service-harness.js";
+import { formatId } from "../../utils/base58-id.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import { InternalTransfersService } from "./internal-transfers.js";
 
@@ -38,7 +39,7 @@ describe("InternalTransfersService", () => {
     it("converts decimal quantities, resolver defaults, and mutation options", async () => {
         const controller = new AbortController();
         const resolver: SubaccountResolver = {
-            getDefaultSubaccountId: () => "11",
+            getDefaultSubaccountId: () => formatId(11n),
         };
         const transport = unaryTransport(acceptedTransfer);
         const service = new InternalTransfersService(transport.transport, resolver, testScales());
@@ -89,14 +90,14 @@ describe("InternalTransfersService", () => {
 
     it("treats explicit main scope as main account and bypasses the resolver", async () => {
         const resolver: SubaccountResolver = {
-            getDefaultSubaccountId: () => "11",
+            getDefaultSubaccountId: () => formatId(11n),
         };
         const transport = unaryTransport(acceptedTransfer);
         const service = new InternalTransfersService(transport.transport, resolver, testScales());
 
         await service.create({
             account: "main",
-            destination: { type: "account", accountId: "22" },
+            destination: { type: "account", accountId: formatId(22n) },
             assetId: 1,
             quantity: "0.000001",
             idempotencyKey: "transfer-2",
@@ -117,7 +118,7 @@ describe("InternalTransfersService", () => {
         const transport = unaryTransport(acceptedTransfer);
         const service = new InternalTransfersService(transport.transport, undefined, testScales());
         const base = {
-            destination: { type: "account", accountId: "22" } as const,
+            destination: { type: "account", accountId: formatId(22n) } as const,
             assetId: 1,
             idempotencyKey: "transfer-3",
         };
@@ -143,7 +144,7 @@ describe("InternalTransfersService", () => {
 
         await expect(
             service.create({
-                destination: { type: "account", accountId: "22" },
+                destination: { type: "account", accountId: formatId(22n) },
                 assetId: 1,
                 quantity: "1",
                 idempotencyKey: "transfer-3",

@@ -24,7 +24,7 @@ export interface SnapshotThenStreamInput<TSchema extends DescMessage, TSnapshot,
         maxAttempts: number;
         delayMs: number;
     };
-    snapshotFailureMode?: "wait" | "live";
+    snapshotFailureMode?: "wait" | "live" | ((error: unknown) => "wait" | "live");
     snapshotErrorLog?: string;
     fetchSnapshot: () => Promise<TSnapshot>;
     readPublication: (message: MessageShape<TSchema>) => readonly TPublication[];
@@ -79,7 +79,7 @@ export function snapshotThenStream<TSchema extends DescMessage, TSnapshot, TPubl
     function applyBufferedAsLive(): void {
         const buffered = takePendingPublications();
         if (buffered.length === 0) return;
-        params.applyLivePublications(buffered);
+        applyLivePublications(buffered);
     }
 
     function bufferPublications(publications: readonly TPublication[]): void {
@@ -119,6 +119,25 @@ export function snapshotThenStream<TSchema extends DescMessage, TSnapshot, TPubl
         );
     }
 
+    function applyLivePublications(publications: readonly TPublication[]): void {
+        try {
+            params.applyLivePublications(publications);
+        } catch (error) {
+            reportBufferedPublicationError(error);
+        }
+    }
+
+    function applySnapshot(
+        snapshot: TSnapshot,
+        bufferedPublications: readonly TPublication[],
+    ): void {
+        try {
+            params.applySnapshot(snapshot, bufferedPublications);
+        } catch (error) {
+            reportBufferedPublicationError(error);
+        }
+    }
+
     function scheduleSnapshotRetry(): void {
         const retry = params.snapshotRetry;
         if (!retry || retryAttempts >= retry.maxAttempts || disposed) return;
@@ -145,7 +164,7 @@ export function snapshotThenStream<TSchema extends DescMessage, TSnapshot, TPubl
                 if (disposed || generation !== refreshGeneration) return;
 
                 const buffered = takePendingPublications();
-                params.applySnapshot(snapshot, buffered);
+                applySnapshot(snapshot, buffered);
 
                 if (disposed || generation !== refreshGeneration) return;
                 ready = true;
@@ -154,13 +173,13 @@ export function snapshotThenStream<TSchema extends DescMessage, TSnapshot, TPubl
             .catch((error: unknown) => {
                 if (disposed || generation !== refreshGeneration) return;
                 reportSnapshotError(error);
-                if (params.snapshotFailureMode === "live") {
+                const failureMode =
+                    typeof params.snapshotFailureMode === "function"
+                        ? params.snapshotFailureMode(error)
+                        : params.snapshotFailureMode;
+                if (failureMode === "live") {
                     ready = true;
-                    try {
-                        applyBufferedAsLive();
-                    } catch (publicationError) {
-                        reportBufferedPublicationError(publicationError);
-                    }
+                    applyBufferedAsLive();
                 }
                 scheduleSnapshotRetry();
             });
@@ -178,7 +197,7 @@ export function snapshotThenStream<TSchema extends DescMessage, TSnapshot, TPubl
                 return;
             }
 
-            params.applyLivePublications(publications);
+            applyLivePublications(publications);
         },
         onConnected: () => {
             if (disposed) return;

@@ -94,7 +94,7 @@ describe("WhiteboardService", () => {
                     aclEntries: [
                         {
                             subjectType: "user",
-                            subjectId: " 99 ",
+                            subjectId: ` ${formatId(99n)} `,
                             role: "editor",
                         },
                     ],
@@ -207,7 +207,7 @@ describe("WhiteboardService", () => {
                 aclEntries: [
                     {
                         subjectType: "group",
-                        subjectId: "123",
+                        subjectId: formatId(123n),
                         role: "viewer",
                     },
                 ],
@@ -286,8 +286,8 @@ describe("WhiteboardService", () => {
             service.updateAcl({
                 boardId: "board-1",
                 aclEntries: [
-                    { subjectType: "user", subjectId: "1", role: "viewer" },
-                    { subjectType: "user", subjectId: "1", role: "editor" },
+                    { subjectType: "user", subjectId: formatId(1n), role: "viewer" },
+                    { subjectType: "user", subjectId: formatId(1n), role: "editor" },
                 ],
             }),
         ).rejects.toThrow("aclEntries must not contain duplicate subjects");
@@ -305,7 +305,7 @@ describe("whiteboard schemas", () => {
                 title: " Roadmap ",
                 audience: "followers",
                 defaultRole: "editor",
-                aclEntries: [{ subjectType: "group", subjectId: "4", role: "viewer" }],
+                aclEntries: [{ subjectType: "group", subjectId: formatId(4n), role: "viewer" }],
             }),
         ).toMatchObject({
             title: "Roadmap",
@@ -327,8 +327,8 @@ describe("whiteboard schemas", () => {
             v.parse(UpdateWhiteboardBoardAclInputSchema, {
                 boardId: "board-1",
                 aclEntries: [
-                    { subjectType: "user", subjectId: "1", role: "viewer" },
-                    { subjectType: "user", subjectId: "1", role: "editor" },
+                    { subjectType: "user", subjectId: formatId(1n), role: "viewer" },
+                    { subjectType: "user", subjectId: formatId(1n), role: "editor" },
                 ],
             }),
         ).toThrow("aclEntries must not contain duplicate subjects");

@@ -3,7 +3,13 @@ import type { Transport, Interceptor } from "@connectrpc/connect";
 import { toBinary, toJsonString } from "@bufbuild/protobuf";
 import { signAsync } from "@noble/ed25519";
 import { createErrorMappingTransport } from "./connect-error-mapping.js";
-import { ConfigurationError, isAbortError, NetworkError } from "./errors.js";
+import {
+    AuthenticationError,
+    ConfigurationError,
+    isAbortError,
+    NetworkError,
+    PolyesterError,
+} from "./errors.js";
 
 export { isAbortError };
 
@@ -98,7 +104,9 @@ export function createTransports(config: TransportConfig): Transports {
     );
 
     const authInterceptors = auth
-        ? [createAuthInterceptor(auth, { wireFormat }), ...interceptors]
+        ? auth.kind === "jwt"
+            ? [createAuthInterceptor(auth, { wireFormat }), ...interceptors]
+            : [...interceptors, createAuthInterceptor(auth, { wireFormat })]
         : interceptors;
     const authApi = createErrorMappingTransport(
         createConnectTransport({
@@ -152,8 +160,18 @@ export async function createApiKeyEd25519AuthHeaders(
     auth: ApiKeyEd25519AuthProvider,
     request: ApiKeyEd25519SigningRequest,
 ): Promise<Record<string, string>> {
-    const [keyId, secretKey] = await Promise.all([auth.getKeyId(), auth.getSecretKey()]);
+    let keyId: string | null;
+    let secretKey: Uint8Array | null;
+    try {
+        [keyId, secretKey] = await Promise.all([auth.getKeyId(), auth.getSecretKey()]);
+    } catch (cause) {
+        if (cause instanceof PolyesterError) throw cause;
+        throw new ConfigurationError("API key credential provider failed", { cause });
+    }
     if (!keyId || !secretKey) throw new ConfigurationError("Missing API key ID or secret key");
+    if (!(secretKey instanceof Uint8Array) || secretKey.byteLength !== 32) {
+        throw new ConfigurationError("API key secret key must contain exactly 32 bytes");
+    }
 
     const urlObj = new URL(request.url);
     const timestamp = request.timestamp ?? nextTimestamp();
@@ -172,6 +190,24 @@ export async function createApiKeyEd25519AuthHeaders(
 }
 
 /**
+ * Resolves a JWT credential and translates provider failures or invalid values
+ * into stable SDK errors.
+ */
+export async function resolveJwtToken(auth: JwtAuthProvider): Promise<string | null> {
+    let token: string | null;
+    try {
+        token = await auth.getToken();
+    } catch (cause) {
+        if (cause instanceof PolyesterError) throw cause;
+        throw new AuthenticationError("JWT token provider failed", { cause });
+    }
+    if (token !== null && typeof token !== "string") {
+        throw new ConfigurationError("JWT token provider must return a string or null");
+    }
+    return token;
+}
+
+/**
  * Creates an interceptor that attaches SDK authentication headers.
  */
 export function createAuthInterceptor(
@@ -181,23 +217,22 @@ export function createAuthInterceptor(
     return (next) => async (req) => {
         const wireFormat = options?.wireFormat ?? "binary";
         if (auth.kind === "jwt") {
-            const token = await auth.getToken();
+            const token = await resolveJwtToken(auth);
             if (token) {
                 req.header.set("Authorization", `Bearer ${token}`);
             }
         } else if (auth.kind === "api-key-ed25519") {
-            let bodyBytes: Uint8Array;
-            if (!req.stream) {
-                // unary request - serialize the message using the method's input schema
-                const inputSchema = req.method.input;
-                bodyBytes =
-                    wireFormat === "json"
-                        ? new TextEncoder().encode(toJsonString(inputSchema, req.message))
-                        : toBinary(inputSchema, req.message);
-            } else {
-                // stream request - empty body for signing (streams don't have a single body)
-                bodyBytes = new Uint8Array(0);
+            if (req.stream) {
+                throw new ConfigurationError(
+                    "API key authentication does not support streaming Connect RPCs",
+                );
             }
+            // Unary request: serialize the message using the method's input schema.
+            const inputSchema = req.method.input;
+            const bodyBytes =
+                wireFormat === "json"
+                    ? new TextEncoder().encode(toJsonString(inputSchema, req.message))
+                    : toBinary(inputSchema, req.message);
 
             const headers = await createApiKeyEd25519AuthHeaders(auth, {
                 url: req.url,

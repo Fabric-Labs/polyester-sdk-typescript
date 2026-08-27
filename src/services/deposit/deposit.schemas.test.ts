@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
+import { formatId } from "../../utils/base58-id.js";
 import {
     createCreateDepositAddressInputSchema,
     createListDepositAddressesInputSchema,
@@ -11,7 +12,7 @@ describe("CreateDepositAddressInputSchema", () => {
         const schema = createCreateDepositAddressInputSchema();
 
         const input = v.parse(schema, {
-            account: { subaccountId: " 7 " },
+            account: { subaccountId: ` ${formatId(7n)} ` },
             chainId: 8453,
         });
 

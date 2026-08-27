@@ -1,6 +1,5 @@
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
-import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
@@ -10,7 +9,8 @@ import {
     type PolyesterMutationOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import { createReadyGate, type SdkScales } from "../../shared/decimal-surface.js";
+import type { SdkScales } from "../../shared/decimal-surface.js";
+import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
 import {
     createCreateTriggerInputSchema,
     createModifyTriggerInputSchema,
@@ -59,15 +59,6 @@ export type {
 export interface ListTriggersResult {
     triggers: Trigger[];
     nextPageToken: string;
-}
-
-function hasKnownTriggerSymbol(scales: SdkScales, trigger: { symbolId: number }): boolean {
-    try {
-        scales.baseQty(trigger.symbolId);
-        return true;
-    } catch {
-        return false;
-    }
 }
 
 interface SubscribeTriggersInput extends BaseSubscribeInput<Trigger> {
@@ -152,10 +143,7 @@ export class TriggersService {
             toConnectCallOptions(options),
         );
         return {
-            triggers: parse(
-                v.array(this.#triggerSchema),
-                res.triggers.filter((trigger) => hasKnownTriggerSymbol(this.#scales, trigger)),
-            ),
+            triggers: parse(v.array(this.#triggerSchema), res.triggers),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -255,18 +243,13 @@ export class TriggersService {
      */
     subscribe(input: SubscribeTriggersInput): () => void {
         const channel = `private:spot:triggers:${input.accountId}:proto`;
-        const gate = createReadyGate(
-            () => this.#scales.ready(),
-            (error) => input.onError?.(publicationHandlerErrorContext(channel, error)),
-        );
-        return this.#realtime.connectProtoChannel({
+        return connectReadyGatedProtoChannel(this.#realtime, {
             channel,
             schema: Proto.TriggerSchema,
+            ready: () => this.#scales.ready(),
             onPublication: (data) => {
-                gate.run(() => {
-                    const trigger = parse(this.#triggerSchema, data);
-                    input.onEvent(trigger);
-                });
+                const trigger = parse(this.#triggerSchema, data);
+                input.onEvent(trigger);
             },
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
@@ -279,18 +262,13 @@ export class TriggersService {
      */
     subscribeEvents(input: SubscribeTriggerEventsInput): () => void {
         const channel = `private:spot:triggers:events:${input.accountId}:proto`;
-        const gate = createReadyGate(
-            () => this.#scales.ready(),
-            (error) => input.onError?.(publicationHandlerErrorContext(channel, error)),
-        );
-        return this.#realtime.connectProtoChannel({
+        return connectReadyGatedProtoChannel(this.#realtime, {
             channel,
             schema: Proto.TriggerEventSchema,
+            ready: () => this.#scales.ready(),
             onPublication: (data) => {
-                gate.run(() => {
-                    const event = parse(this.#triggerEventSchema, data);
-                    input.onEvent(event);
-                });
+                const event = parse(this.#triggerEventSchema, data);
+                input.onEvent(event);
             },
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),

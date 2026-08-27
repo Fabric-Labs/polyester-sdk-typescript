@@ -196,7 +196,7 @@ export function createOrderTransferSchema() {
             txId: v.string(),
             matchId: v.pipe(
                 v.bigint(),
-                v.transform((v) => Number(v)),
+                v.transform((value) => value.toString()),
             ),
             assetId: v.number(),
             amountE18: v.optional(

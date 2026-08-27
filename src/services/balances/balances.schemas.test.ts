@@ -3,6 +3,7 @@ import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { AccountCode } from "../../gen/ledger/v1/catalog_pb.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
+import { formatId } from "../../utils/base58-id.js";
 import {
     BalanceHistoryInputSchema,
     createBalanceHistoryResponseSchema,
@@ -139,7 +140,7 @@ describe("equity history response schema", () => {
 describe("balance history input schemas", () => {
     it("maps balance ranges, subaccounts, and defaults to proto inputs", () => {
         const input = v.parse(BalanceHistoryInputSchema, {
-            account: { subaccountId: " 12 " },
+            account: { subaccountId: ` ${formatId(12n)} ` },
             range: "90d",
         });
 

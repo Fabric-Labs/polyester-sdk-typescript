@@ -9,6 +9,7 @@ import {
     subaccountResolverStub,
     unaryTransport,
 } from "../../testing/service-harness.js";
+import { formatId } from "../../utils/base58-id.js";
 import { BalancesService } from "./balances.js";
 
 const usdt = {
@@ -54,17 +55,22 @@ describe("BalancesService", () => {
 
     it("normalizes list subaccount inputs, forwards signal, and converts ledger E18 wire balances", async () => {
         const cases = [
-            { name: "resolver default", input: {}, resolverDefault: "7", expected: 7n },
+            {
+                name: "resolver default",
+                input: {},
+                resolverDefault: formatId(7n),
+                expected: 7n,
+            },
             {
                 name: "explicit subaccount",
-                input: { account: { subaccountId: " 8 " } },
-                resolverDefault: "7",
+                input: { account: { subaccountId: ` ${formatId(8n)} ` } },
+                resolverDefault: formatId(7n),
                 expected: 8n,
             },
             {
                 name: "explicit main account",
                 input: { account: "main" },
-                resolverDefault: "7",
+                resolverDefault: formatId(7n),
                 expected: undefined,
             },
         ] as const;
@@ -161,7 +167,7 @@ describe("BalancesService", () => {
         );
 
         const history = await service.getBalanceHistory({
-            account: { subaccountId: " 9 " },
+            account: { subaccountId: ` ${formatId(9n)} ` },
             range: "7d",
             ledger: 1,
             accountCodes: ["trading"],
@@ -227,7 +233,7 @@ describe("BalancesService", () => {
         const service = new BalancesService(
             transport.transport,
             realtimeClientStub().realtime,
-            subaccountResolverStub("12"),
+            subaccountResolverStub(formatId(12n)),
             testScales(),
         );
 

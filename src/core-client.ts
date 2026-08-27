@@ -3,6 +3,7 @@ import { ConfigurationError } from "./shared/errors.js";
 import {
     createApiKeyEd25519AuthHeaders,
     createTransports,
+    resolveJwtToken,
     type Transports,
     type JwtAuthProvider,
     type ApiKeyEd25519AuthProvider,
@@ -51,19 +52,52 @@ function realtimeAuthFromProvider(
 ): Pick<RealtimeConfig, "getAuthHeaders" | "hasAuth"> {
     if (!auth) return {};
     if (auth.kind === "jwt") {
+        type CachedTokenResolution =
+            | { kind: "value"; value: ReturnType<JwtAuthProvider["getToken"]> }
+            | { kind: "error"; cause: unknown };
+
+        let cachedTokenResolution: CachedTokenResolution | undefined;
+
+        const prefetchToken = (): CachedTokenResolution => {
+            if (cachedTokenResolution) return cachedTokenResolution;
+
+            try {
+                const value = auth.getToken();
+                // Async providers cannot be preflighted synchronously. Attach a
+                // rejection observer while the credential waits for the request.
+                if (value !== null && typeof value !== "string") void value.catch(() => {});
+                cachedTokenResolution = { kind: "value", value };
+            } catch (cause) {
+                cachedTokenResolution = { kind: "error", cause };
+            }
+            return cachedTokenResolution;
+        };
+
+        const consumeToken = (): ReturnType<JwtAuthProvider["getToken"]> => {
+            const resolution = cachedTokenResolution;
+            cachedTokenResolution = undefined;
+
+            if (!resolution) return auth.getToken();
+            if (resolution.kind === "error") throw resolution.cause;
+            return resolution.value;
+        };
+        const cachedAuth = { kind: "jwt", getToken: consumeToken } satisfies JwtAuthProvider;
+
         return {
             getAuthHeaders: async () => {
-                const token = await auth.getToken();
+                const token = await resolveJwtToken(cachedAuth);
                 const headers: Record<string, string> = {};
                 if (token) headers.authorization = `Bearer ${token}`;
                 return headers;
             },
             hasAuth: () => {
-                // Only token getters that resolve synchronously can be checked here;
-                // async getters are assumed authenticated and fail at token fetch.
-                const token = auth.getToken();
-                if (token instanceof Promise) return true;
-                return typeof token === "string" && token.length > 0;
+                const resolution = prefetchToken();
+                if (resolution.kind === "error") return true;
+                if (resolution.value !== null && typeof resolution.value !== "string") return true;
+
+                const hasToken = resolution.value !== null && resolution.value.length > 0;
+                if (!hasToken) cachedTokenResolution = undefined;
+                return hasToken;
             },
         };
     }
@@ -447,7 +481,6 @@ export class PolyesterClient {
             this.transports.authApi,
             this.realtime,
             this.#getResolver(),
-            this.#getScales(),
         ));
     }
 

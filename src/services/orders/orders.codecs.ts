@@ -55,6 +55,18 @@ export const ORDER_TRIGGER_TYPE_VALUES = [
 ] as const;
 export type OrderTriggerType = (typeof ORDER_TRIGGER_TYPE_VALUES)[number];
 
+export const ATTACHED_RISK_LEG_STATUS_VALUES = [
+    "not_configured",
+    "created",
+    "armed",
+    "running",
+    "completed",
+    "canceled",
+    "failed",
+    "paused",
+] as const;
+export type AttachedRiskLegStatusValue = (typeof ATTACHED_RISK_LEG_STATUS_VALUES)[number];
+
 export const MODIFY_BEHAVIOR_VALUES = ["AMEND_OR_REPLACE", "AMEND_ONLY", "REPLACE_ONLY"] as const;
 export type ModifyBehaviorValue = (typeof MODIFY_BEHAVIOR_VALUES)[number];
 
@@ -115,6 +127,20 @@ export const OrderTriggerTypeCodec = {
         [ProtoRead.OrderTriggerType.TWAP]: "twap",
         [ProtoRead.OrderTriggerType.LADDER]: "ladder",
     } satisfies Record<ProtoRead.OrderTriggerType, OrderTriggerType>,
+} as const;
+
+export const AttachedRiskLegStatusCodec = {
+    protoToOutput: {
+        [ProtoRead.AttachedRiskLegState_Status.STATUS_UNSPECIFIED]: "unspecified",
+        [ProtoRead.AttachedRiskLegState_Status.NOT_CONFIGURED]: "not_configured",
+        [ProtoRead.AttachedRiskLegState_Status.CREATED]: "created",
+        [ProtoRead.AttachedRiskLegState_Status.ARMED]: "armed",
+        [ProtoRead.AttachedRiskLegState_Status.RUNNING]: "running",
+        [ProtoRead.AttachedRiskLegState_Status.COMPLETED]: "completed",
+        [ProtoRead.AttachedRiskLegState_Status.CANCELED]: "canceled",
+        [ProtoRead.AttachedRiskLegState_Status.FAILED]: "failed",
+        [ProtoRead.AttachedRiskLegState_Status.PAUSED]: "paused",
+    } satisfies ProtoToOutput<ProtoRead.AttachedRiskLegState_Status, AttachedRiskLegStatusValue>,
 } as const;
 
 export const ModifyBehaviorCodec = {

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { getJwtExpiration, isJwtValid } from "./jwt.js";
 
 const textEncoder = new TextEncoder();
@@ -37,6 +37,10 @@ function jwtWithUrlAlphabetPayload(exp: number): string {
     throw new Error("expected payload fixture to contain base64url characters");
 }
 
+afterEach(() => {
+    vi.useRealTimers();
+});
+
 describe("getJwtExpiration", () => {
     it("parses unpadded base64url payloads", () => {
         const exp = 2_000_000_000;
@@ -63,6 +67,12 @@ describe("getJwtExpiration", () => {
             getJwtExpiration(["header", base64UrlEncode("{"), "signature"].join(".")),
         ).toBeNull();
     });
+
+    it("returns null for non-finite expiration values", () => {
+        const token = ["header", base64UrlEncode('{"exp":1e400}'), "signature"].join(".");
+
+        expect(getJwtExpiration(token)).toBeNull();
+    });
 });
 
 describe("isJwtValid", () => {
@@ -88,5 +98,13 @@ describe("isJwtValid", () => {
         for (const value of invalidValues) {
             expect(isJwtValid(value)).toBe(false);
         }
+    });
+
+    it("expires a JWT at the start of its expiration second", () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date("2026-01-01T00:00:00.500Z"));
+        const exp = Date.parse("2026-01-01T00:00:00.000Z") / 1000;
+
+        expect(isJwtValid(jwtWithPayload({ exp }))).toBe(false);
     });
 });

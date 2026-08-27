@@ -8,17 +8,13 @@ import {
     type DepositWithdrawConfig,
     type ZippedAssetSupplyBatch,
 } from "./zipper.schemas.js";
-import {
-    publicationHandlerErrorContext,
-    type SdkSubscriptionErrorContext,
-} from "../../shared/subscription-errors.js";
 import { parse } from "../../shared/validation.js";
 import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
-import { createReadyGate, type SdkScales } from "../../shared/decimal-surface.js";
+import type { SdkScales } from "../../shared/decimal-surface.js";
 import { ConfigurationError } from "../../shared/errors.js";
 import { snapshotThenStream } from "../../realtime/snapshot-then-stream.js";
 
@@ -63,12 +59,7 @@ export class ZipperService {
 
         const channel = "public:chain:zipped-asset:supply:proto";
         const schema = createZippedAssetSupplyBatchSchema(scales);
-        const onError = (error: SdkSubscriptionErrorContext) => input.onError?.(error);
-        const gate = createReadyGate(
-            () => scales.ready(),
-            (error) => onError(publicationHandlerErrorContext(channel, error)),
-        );
-
+        let catalogReady = false;
         const parseBatch = (batch: Proto.ZippedAssetSupplyBatch): ZippedAssetSupplyBatch =>
             parse(schema, batch);
         const parseUpdates = (
@@ -82,34 +73,34 @@ export class ZipperService {
             schema: Proto.ZippedAssetSupplyBatchSchema,
             snapshotErrorLog: "Failed to fetch zipped asset supply",
             snapshotRetry: { maxAttempts: 3, delayMs: 1_000 },
-            snapshotFailureMode: "live",
-            fetchSnapshot: () => this.getDepositWithdrawConfig(),
+            snapshotFailureMode: () => (catalogReady ? "live" : "wait"),
+            fetchSnapshot: async () => {
+                await scales.ready();
+                catalogReady = true;
+                return this.getDepositWithdrawConfig();
+            },
             readPublication: (batch) => batch.updates,
             bufferPublicationKey: (update) => update.zippedAssetId,
             applySnapshot: (snapshot, bufferedUpdates) => {
-                gate.run(() => {
-                    const latestByZippedAssetId = new Map<number, string>();
-                    for (const asset of snapshot.assets) {
-                        for (const variant of asset.variants) {
-                            latestByZippedAssetId.set(variant.zippedAssetId, variant.supply);
-                        }
+                const latestByZippedAssetId = new Map<number, string>();
+                for (const asset of snapshot.assets) {
+                    for (const variant of asset.variants) {
+                        latestByZippedAssetId.set(variant.zippedAssetId, variant.supply);
                     }
-                    for (const update of parseUpdates(bufferedUpdates)) {
-                        latestByZippedAssetId.set(update.zippedAssetId, update.supply);
-                    }
-                    input.onEvent({
-                        updates: Array.from(latestByZippedAssetId, ([zippedAssetId, supply]) => ({
-                            zippedAssetId,
-                            supply,
-                        })),
-                    });
+                }
+                for (const update of parseUpdates(bufferedUpdates)) {
+                    latestByZippedAssetId.set(update.zippedAssetId, update.supply);
+                }
+                input.onEvent({
+                    updates: Array.from(latestByZippedAssetId, ([zippedAssetId, supply]) => ({
+                        zippedAssetId,
+                        supply,
+                    })),
                 });
             },
             applyLivePublications: (updates) => {
-                gate.run(() => {
-                    input.onEvent({
-                        updates: parseUpdates(updates),
-                    });
+                input.onEvent({
+                    updates: parseUpdates(updates),
                 });
             },
             onOpen: input.onOpen,

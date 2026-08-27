@@ -1,12 +1,14 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { create } from "@bufbuild/protobuf";
+import { TimestampSchema } from "@bufbuild/protobuf/wkt";
 import * as v from "valibot";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
-import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
+import { PROTOBUF_INT32_MAX, PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
+import { formatId } from "../../utils/base58-id.js";
 import {
     CreateTriggerResultSchema,
     ListTriggersInputSchema,
@@ -128,7 +130,7 @@ describe("ListTriggerEventsInputSchema", () => {
         >();
         expect(
             v.safeParse(ListTriggerEventsInputSchema, {
-                triggerId: "11",
+                triggerId: formatId(11n),
                 eventType: "unspecified",
             }).success,
         ).toBe(false);
@@ -137,7 +139,7 @@ describe("ListTriggerEventsInputSchema", () => {
     it("normalizes page tokens and maps event filters to protobuf values", () => {
         expect(
             v.parse(ListTriggerEventsInputSchema, {
-                triggerId: "11",
+                triggerId: formatId(11n),
                 eventType: "fired",
                 pageToken: " cursor-1 ",
             }),
@@ -146,13 +148,16 @@ describe("ListTriggerEventsInputSchema", () => {
             eventType: Proto.TriggerEventType.EVENT_FIRED,
             pageToken: "cursor-1",
         });
-        expect(v.parse(ListTriggerEventsInputSchema, { triggerId: "11" })).toMatchObject({
+        expect(v.parse(ListTriggerEventsInputSchema, { triggerId: formatId(11n) })).toMatchObject({
             triggerId: 11n,
             eventType: undefined,
             pageToken: "",
         });
         expect(
-            v.parse(ListTriggerEventsInputSchema, { triggerId: "11", eventType: "failed" }),
+            v.parse(ListTriggerEventsInputSchema, {
+                triggerId: formatId(11n),
+                eventType: "failed",
+            }),
         ).toMatchObject({ eventType: Proto.TriggerEventType.EVENT_FAILED });
     });
 });
@@ -403,6 +408,44 @@ describe("CreateTriggerInputSchema", () => {
         });
     });
 
+    it("accepts the int32 maximum slippage BPS and rejects one over", () => {
+        const schema = createCreateTriggerInputSchema(testScales());
+        const input = {
+            triggerType: "trailing_stop",
+            symbolId: 1,
+            qty: "0.25",
+            trailingDistance: { kind: "bps", bps: 150 },
+        } as const;
+
+        expect(
+            v.parse(schema, {
+                ...input,
+                maxSlippage: { kind: "bps", bps: PROTOBUF_INT32_MAX.toString() },
+            }),
+        ).toMatchObject({
+            trigger: {
+                strategy: {
+                    case: "trailingStop",
+                    value: {
+                        maxSlippage: {
+                            case: "maxSlippageBps",
+                            value: Number(PROTOBUF_INT32_MAX),
+                        },
+                    },
+                },
+            },
+        });
+        expect(() =>
+            v.parse(schema, {
+                ...input,
+                maxSlippage: {
+                    kind: "bps",
+                    bps: (PROTOBUF_INT32_MAX + 1n).toString(),
+                },
+            }),
+        ).toThrow(`maxSlippageBps must be between 1 and ${PROTOBUF_INT32_MAX}`);
+    });
+
     it("builds explicit TWAP execution and ladder strategies", () => {
         const schema = createCreateTriggerInputSchema(testScales());
 
@@ -489,7 +532,29 @@ describe("CreateTriggerInputSchema", () => {
                 sliceIntervalMs: 100,
                 execution: { type: "market_ioc" },
             }),
-        ).toThrow("durationMs must be at least 1000ms");
+        ).toThrow("durationMs must be between 1000");
+        expect(() =>
+            v.parse(schema, {
+                triggerType: "twap",
+                symbolId: 1,
+                side: "buy",
+                qty: "1",
+                durationMs: "9223372036854775808",
+                sliceIntervalMs: 100,
+                execution: { type: "market_ioc" },
+            }),
+        ).toThrow("durationMs must be between 1000");
+        expect(() =>
+            v.parse(schema, {
+                triggerType: "twap",
+                symbolId: 1,
+                side: "buy",
+                qty: "1",
+                durationMs: 1e300,
+                sliceIntervalMs: 100,
+                execution: { type: "market_ioc" },
+            }),
+        ).toThrow("durationMs must be between 1000");
         expect(() =>
             v.parse(schema, {
                 triggerType: "ladder",
@@ -501,6 +566,29 @@ describe("CreateTriggerInputSchema", () => {
                 levels: 1,
             }),
         ).toThrow("levels must be between 2 and 100");
+        expect(() =>
+            v.parse(schema, {
+                triggerType: "ladder",
+                symbolId: 1,
+                side: "buy",
+                qty: "1",
+                priceMin: "101",
+                priceMax: "101",
+                levels: 5,
+            }),
+        ).toThrow("priceMin must be less than priceMax");
+        expect(() =>
+            v.parse(schema, {
+                triggerType: "trailing_stop",
+                symbolId: 1,
+                side: "sell",
+                qty: "1",
+                trailingDistance: {
+                    kind: "bps",
+                    bps: (PROTOBUF_INT32_MAX + 1n).toString(),
+                },
+            }),
+        ).toThrow();
     });
 });
 
@@ -520,22 +608,22 @@ describe("ModifyTriggerInputSchema", () => {
     it("requires at least one patch field", () => {
         const schema = createModifyTriggerInputSchema(testScales());
 
-        expect(() => v.parse(schema, { triggerId: "11", symbolId: 1 })).toThrow(
+        expect(() => v.parse(schema, { triggerId: formatId(11n), symbolId: 1 })).toThrow(
             "At least one patch field is required",
         );
     });
 
-    it("converts decimal patch fields and normalizes empty oneofs", () => {
+    it("converts decimal patch fields", () => {
         const schema = createModifyTriggerInputSchema(testScales());
 
         expect(
             v.parse(schema, {
-                triggerId: "11",
+                triggerId: formatId(11n),
                 symbolId: 1,
-                account: { subaccountId: "22" },
+                account: { subaccountId: formatId(22n) },
                 triggerPrice: "101.25",
                 trailingDistance: { kind: "distance", distance: "0.5" },
-                maxSlippage: { kind: "none" },
+                maxSlippage: { kind: "bps", bps: 25 },
             }),
         ).toMatchObject({
             triggerId: 11n,
@@ -543,27 +631,66 @@ describe("ModifyTriggerInputSchema", () => {
             subaccountId: 22n,
             triggerPriceTicks: 101_250_000n,
             trailingDistance: { case: "trailingDistanceTicks", value: 500_000n },
-            maxSlippage: { case: undefined, value: undefined },
+            maxSlippage: { case: "maxSlippageBps", value: 25 },
         });
+    });
+
+    it("accepts the int32 maximum slippage BPS and rejects one over", () => {
+        const schema = createModifyTriggerInputSchema(testScales());
+        const input = { triggerId: formatId(11n), symbolId: 1 };
+
+        expect(
+            v.parse(schema, {
+                ...input,
+                maxSlippage: { kind: "bps", bps: PROTOBUF_INT32_MAX.toString() },
+            }).maxSlippage,
+        ).toEqual({ case: "maxSlippageBps", value: Number(PROTOBUF_INT32_MAX) });
+        expect(() =>
+            v.parse(schema, {
+                ...input,
+                maxSlippage: {
+                    kind: "bps",
+                    bps: (PROTOBUF_INT32_MAX + 1n).toString(),
+                },
+            }),
+        ).toThrow(`maxSlippageBps must be between 1 and ${PROTOBUF_INT32_MAX}`);
+    });
+
+    it("rejects patch variants that encode no wire field", () => {
+        const schema = createModifyTriggerInputSchema(testScales());
+
+        expect(() =>
+            v.parse(schema, {
+                triggerId: formatId(11n),
+                symbolId: 1,
+                maxSlippage: { kind: "none" },
+            }),
+        ).toThrow();
     });
 
     it("requires a positive symbol ID", () => {
         const schema = createModifyTriggerInputSchema(testScales());
 
-        expect(() => v.parse(schema, { triggerId: "11", triggerPrice: "101.25" })).toThrow();
         expect(() =>
-            v.parse(schema, { triggerId: "11", symbolId: 0, triggerPrice: "101.25" }),
+            v.parse(schema, { triggerId: formatId(11n), triggerPrice: "101.25" }),
+        ).toThrow();
+        expect(() =>
+            v.parse(schema, {
+                triggerId: formatId(11n),
+                symbolId: 0,
+                triggerPrice: "101.25",
+            }),
         ).toThrow();
         expect(
             v.parse(schema, {
-                triggerId: "11",
+                triggerId: formatId(11n),
                 symbolId: PROTOBUF_UINT32_MAX,
                 triggerPrice: "101.25",
             }).symbolId,
         ).toBe(PROTOBUF_UINT32_MAX);
         expect(() =>
             v.parse(schema, {
-                triggerId: "11",
+                triggerId: formatId(11n),
                 symbolId: PROTOBUF_UINT32_MAX + 1,
                 triggerPrice: "101.25",
             }),
@@ -573,24 +700,26 @@ describe("ModifyTriggerInputSchema", () => {
 
 describe("ResumeTriggerInputSchema", () => {
     it("requires and forwards a positive symbol ID", () => {
-        expect(() => v.parse(ResumeTriggerInputSchema, { triggerId: "11" })).toThrow();
-        expect(() => v.parse(ResumeTriggerInputSchema, { triggerId: "11", symbolId: 0 })).toThrow();
+        expect(() => v.parse(ResumeTriggerInputSchema, { triggerId: formatId(11n) })).toThrow();
+        expect(() =>
+            v.parse(ResumeTriggerInputSchema, { triggerId: formatId(11n), symbolId: 0 }),
+        ).toThrow();
         expect(
             v.parse(ResumeTriggerInputSchema, {
-                triggerId: "11",
+                triggerId: formatId(11n),
                 symbolId: 1,
-                account: { subaccountId: "22" },
+                account: { subaccountId: formatId(22n) },
             }),
         ).toEqual({ triggerId: 11n, symbolId: 1, subaccountId: 22n });
         expect(
             v.parse(ResumeTriggerInputSchema, {
-                triggerId: "11",
+                triggerId: formatId(11n),
                 symbolId: PROTOBUF_UINT32_MAX,
             }).symbolId,
         ).toBe(PROTOBUF_UINT32_MAX);
         expect(() =>
             v.parse(ResumeTriggerInputSchema, {
-                triggerId: "11",
+                triggerId: formatId(11n),
                 symbolId: PROTOBUF_UINT32_MAX + 1,
             }),
         ).toThrow();
@@ -624,6 +753,25 @@ describe("Trigger result and output schemas", () => {
             clientTriggerId: "trigger-client-1",
             acceptedAt: 1_250,
             acceptedAtNs: "1250000000",
+        });
+    });
+
+    it("preserves millisecond precision in trigger protobuf timestamps", () => {
+        const output = v.parse(
+            createTriggerSchema(testScales()),
+            baseWireTrigger({
+                createdAt: create(TimestampSchema, { seconds: 1n, nanos: 234_000_000 }),
+                updatedAt: create(TimestampSchema, { seconds: 2n, nanos: 345_000_000 }),
+                armedAt: create(TimestampSchema, { seconds: 3n, nanos: 456_000_000 }),
+                completedAt: create(TimestampSchema, { seconds: 4n, nanos: 567_000_000 }),
+            }),
+        );
+
+        expect(output).toMatchObject({
+            createdTs: 1_234,
+            updatedTs: 2_345,
+            armedTs: 3_456,
+            completedTs: 4_567,
         });
     });
 

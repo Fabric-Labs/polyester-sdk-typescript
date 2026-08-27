@@ -46,7 +46,7 @@ function stepUpHeader(call: { headers: HeadersInit | undefined } | undefined): s
 describe("ApiKeysService", () => {
     it("normalizes list subaccount scope and passes request signals", async () => {
         const resolver: SubaccountResolver = {
-            getDefaultSubaccountId: () => "42",
+            getDefaultSubaccountId: () => formatId(42n),
         };
         const cases = [
             {
@@ -54,7 +54,7 @@ describe("ApiKeysService", () => {
                 expectedSubaccountId: 42n,
             },
             {
-                input: { account: { subaccountId: " 7 " } },
+                input: { account: { subaccountId: ` ${formatId(7n)} ` } },
                 expectedSubaccountId: 7n,
             },
             {
@@ -199,7 +199,7 @@ describe("ApiKeysService", () => {
                 label: "Maker key",
                 icon: "wand",
                 color: "violet",
-                account: { subaccountId: " 9 " },
+                account: { subaccountId: ` ${formatId(9n)} ` },
                 publicKeyEd25519: publicKey,
             },
             { signal, stepUpToken: " create-token " },

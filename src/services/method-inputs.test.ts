@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import { SocialProvider } from "../gen/auth/v1/social_verification_pb.js";
+import { formatId } from "../utils/base58-id.js";
 import { ResolveAccountInputSchema } from "./accounts/accounts.schemas.js";
 import { ApiKeyIdInputSchema } from "./api-keys/api-keys.schemas.js";
 import { BalanceHistoryInputSchema, BalancesListInputSchema } from "./balances/balances.schemas.js";
@@ -32,7 +33,9 @@ describe("standard object method inputs", () => {
     });
 
     it("parses subaccount ID input", () => {
-        const input = v.parse(SubaccountIdInputSchema, { subaccountId: " 2 " });
+        const input = v.parse(SubaccountIdInputSchema, {
+            subaccountId: ` ${formatId(2n)} `,
+        });
 
         expect(input).toEqual({ subaccountId: 2n });
     });
@@ -58,11 +61,17 @@ describe("strict method inputs reject unknown keys", () => {
     });
 
     it("rejects unknown keys inside the account scope object", () => {
-        expect(v.parse(BalancesListInputSchema, { account: { subaccountId: "2" } })).toEqual({
-            account: { subaccountId: "2" },
+        expect(
+            v.parse(BalancesListInputSchema, {
+                account: { subaccountId: formatId(2n) },
+            }),
+        ).toEqual({
+            account: { subaccountId: formatId(2n) },
         });
         expect(() =>
-            v.parse(BalancesListInputSchema, { account: { subaccountId: "2", extra: true } }),
+            v.parse(BalancesListInputSchema, {
+                account: { subaccountId: formatId(2n), extra: true },
+            }),
         ).toThrow();
     });
 
@@ -89,7 +98,7 @@ describe("strict method inputs reject unknown keys", () => {
                 requestId: "req",
                 behavior: "amend_or_replace",
                 newClientOrderId: "c1",
-                orderId: "1",
+                orderId: formatId(1n),
                 clientOrderId: "c0",
                 newPrice: "1",
                 newQty: "2",

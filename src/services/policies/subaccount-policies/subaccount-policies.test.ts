@@ -1,6 +1,7 @@
 import * as Proto from "../../../gen/auth/v1/policies_pb.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../../shared/request-options.js";
 import { realtimeClientStub, unaryTransport } from "../../../testing/service-harness.js";
+import { formatId } from "../../../utils/base58-id.js";
 import { describe, expect, it, vi } from "vitest";
 import type { SubaccountResolver } from "../../subaccount-resolver.js";
 import { SubaccountPoliciesService } from "./subaccount-policies.js";
@@ -37,7 +38,7 @@ describe("SubaccountPoliciesService", () => {
         const signal = new AbortController().signal;
 
         await expect(
-            service.list({ account: { subaccountId: " 42 " } }, { signal }),
+            service.list({ account: { subaccountId: ` ${formatId(42n)} ` } }, { signal }),
         ).resolves.toMatchObject([
             {
                 id: "C",
@@ -49,7 +50,13 @@ describe("SubaccountPoliciesService", () => {
             },
         ]);
         await expect(
-            service.get({ policyId: " 11 ", account: { subaccountId: " 42 " } }, { signal }),
+            service.get(
+                {
+                    policyId: ` ${formatId(11n)} `,
+                    account: { subaccountId: ` ${formatId(42n)} ` },
+                },
+                { signal },
+            ),
         ).resolves.toMatchObject({
             id: "C",
             name: "Trading policy",
@@ -68,7 +75,7 @@ describe("SubaccountPoliciesService", () => {
         const realtime = realtimeClientStub();
         const service = new SubaccountPoliciesService(transport.transport, realtime.realtime);
 
-        await expect(service.get({ policyId: "11" })).resolves.toBeNull();
+        await expect(service.get({ policyId: formatId(11n) })).resolves.toBeNull();
         expect(transport.lastCall()?.message).toEqual({ policyId: 11n });
     });
 
@@ -76,7 +83,7 @@ describe("SubaccountPoliciesService", () => {
         const transport = unaryTransport({ policies: [] });
         const realtime = realtimeClientStub();
         const resolver: SubaccountResolver = {
-            getDefaultSubaccountId: () => "42",
+            getDefaultSubaccountId: () => formatId(42n),
         };
         const service = new SubaccountPoliciesService(
             transport.transport,
@@ -87,8 +94,8 @@ describe("SubaccountPoliciesService", () => {
         await service.list();
         await service.list({ account: "active" });
         await service.list({ account: "main" });
-        await service.list({ account: { subaccountId: "11" } });
-        await service.get({ policyId: "12", account: "active" });
+        await service.list({ account: { subaccountId: formatId(11n) } });
+        await service.get({ policyId: formatId(12n), account: "active" });
 
         expect(transport.calls.map((call) => call.message)).toEqual([
             { subaccountId: 42n },
@@ -113,7 +120,7 @@ describe("SubaccountPoliciesService", () => {
                             actions: ["read-balances", "read-spot"],
                             maxOrderSize: 25,
                             maxOpenOrders: 5,
-                            subaccountId: "42",
+                            subaccountId: formatId(42n),
                         },
                         { stepUpToken: " fresh-token " },
                     ),
@@ -132,7 +139,7 @@ describe("SubaccountPoliciesService", () => {
                 run: () =>
                     service.update(
                         {
-                            policyId: "11",
+                            policyId: formatId(11n),
                             expectedRevision: "6",
                             name: "Updated policy",
                             spotMarketScope: "allowlist",
@@ -156,14 +163,14 @@ describe("SubaccountPoliciesService", () => {
                 },
             },
             {
-                run: () => service.delete(" 11 ", { stepUpToken: " fresh-token " }),
+                run: () => service.delete(` ${formatId(11n)} `, { stepUpToken: " fresh-token " }),
                 expected: { policyId: 11n },
             },
             {
                 run: () =>
                     service.apply(
                         {
-                            subaccountId: "42",
+                            subaccountId: formatId(42n),
                             policyId: null,
                         },
                         { stepUpToken: " fresh-token " },
