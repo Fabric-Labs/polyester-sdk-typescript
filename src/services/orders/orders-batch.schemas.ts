@@ -97,6 +97,12 @@ export function createBatchCreateOrdersInputSchema(scales: SdkScales) {
                 v.maxLength(20, "Batch create accepts at most 20 orders."),
             ),
         }),
+        v.check((input) => {
+            const clientOrderIds = input.items
+                .map((item) => item.clientOrderId)
+                .filter((clientOrderId) => clientOrderId !== undefined && clientOrderId !== "");
+            return new Set(clientOrderIds).size === clientOrderIds.length;
+        }, "Each non-empty batch create clientOrderId must be unique."),
         v.transform(({ account, ...input }) => ({
             ...input,
             subaccountId: accountScopeToSubaccountId(account),

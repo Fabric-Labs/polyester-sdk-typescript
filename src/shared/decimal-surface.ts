@@ -4,8 +4,9 @@
  * The wire protocol carries scaled integers (price ticks, per-asset scaled
  * quantities); the public SDK surface carries plain decimal strings. Output
  * schemas convert exactly (no rounding, trailing zeros trimmed); input schemas
- * convert strictly — excess precision is an error, never rounded away. Scaled
- * integers must not escape through any service input or output.
+ * accept zero padding but reject fractional precision that remains above the
+ * scale after trailing zeros are removed. Scaled integers must not escape
+ * through any service input or output.
  */
 import {
     scaledToDecimal,
@@ -79,7 +80,7 @@ function conversionFailureMessage(
 
 /**
  * Input direction: strict decimal→scaled conversion. Throws
- * CatalogConversionError for non-decimal input or excess precision.
+ * CatalogConversionError for non-decimal input or inexact excess precision.
  */
 export function decimalInputToScaled(field: string, value: string, scale: number): bigint {
     const result = tryDecimalToScaled(value.trim(), scale);

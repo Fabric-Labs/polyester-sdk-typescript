@@ -189,7 +189,7 @@ describe("OrdersService", () => {
         ).not.toHaveProperty("subaccountId");
     });
 
-    it("converts decimal create inputs to wire scaled integers and forwards mutation options", async () => {
+    it("accepts exact zero-padded decimals and forwards scaled integers and mutation options", async () => {
         const controller = new AbortController();
         const transport = unaryTransportByMethod({
             createOrder: {
@@ -197,7 +197,7 @@ describe("OrdersService", () => {
                 clientOrderId: "client-1",
                 acceptedAt: { seconds: 1n, nanos: 250_000_000 },
                 acceptedAtTsNs: 1_250_000_000n,
-                resolvedBaseQtyScaled: 50_000_000n,
+                resolvedBaseQtyScaled: 150_000_000n,
                 submittedMaxQuoteDebitScaled: 125_500_000n,
             },
         });
@@ -214,10 +214,10 @@ describe("OrdersService", () => {
                     account: { subaccountId: "11" },
                     symbolId: 1,
                     side: "buy",
-                    qty: "0.5",
+                    qty: "1.500000000",
                     execution: {
                         type: "limit_gtc",
-                        price: "100.25",
+                        price: "100.2500000",
                         postOnly: true,
                     },
                     clientOrderId: " client-1 ",
@@ -230,7 +230,7 @@ describe("OrdersService", () => {
             clientOrderId: "client-1",
             acceptedAt: 1_250,
             acceptedAtNs: "1250000000",
-            resolvedBaseQty: "0.5",
+            resolvedBaseQty: "1.5",
             submittedMaxQuoteDebit: "125.5",
         });
 
@@ -245,7 +245,7 @@ describe("OrdersService", () => {
                 side: ProtoWrite.Side.BUY,
                 sizing: {
                     case: "baseQtyScaled",
-                    value: 50_000_000n,
+                    value: 150_000_000n,
                 },
                 execution: {
                     case: "limitGtc",
@@ -318,11 +318,16 @@ describe("OrdersService", () => {
             service.create({
                 symbolId: 1,
                 side: "buy",
+                qty: "1.500000001",
+                execution: { type: "limit_gtc", price: "100" },
+            }),
+        ).rejects.toThrow("qty supports at most 8 decimal places");
+        await expect(
+            service.create({
+                symbolId: 1,
+                side: "buy",
                 qty: "0.5",
-                execution: {
-                    type: "limit_gtc",
-                    price: "100.0000001",
-                },
+                execution: { type: "limit_gtc", price: "100.0000001" },
             }),
         ).rejects.toThrow("execution.price supports at most 6 decimal places");
         expect(transport.unary).not.toHaveBeenCalled();

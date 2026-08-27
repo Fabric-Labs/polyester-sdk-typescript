@@ -23,17 +23,19 @@ export type DecimalToScaledResult =
 
 /**
  * Strictly converts a non-negative decimal string into a scaled bigint.
- * Fails on anything that is not a plain decimal number or that carries more
- * fractional digits than the scale can represent. Never rounds.
+ * Fails on anything that is not a plain decimal number or whose fractional
+ * component still exceeds the scale after trailing zero padding is removed.
+ * Zero padding beyond the scale remains exact and is accepted. Never rounds.
  */
 export function tryDecimalToScaled(decimal: string, scale: number): DecimalToScaledResult {
     const raw = decimal.trim();
     if (!STRICT_DECIMAL_PATTERN.test(raw)) return { ok: false, failure: { reason: "invalid" } };
     const [intPart = "0", fracPart = ""] = raw.split(".");
-    if (fracPart.length > scale) {
+    const exactFraction = fracPart.replace(/0+$/, "");
+    if (exactFraction.length > scale) {
         return { ok: false, failure: { reason: "precision", maxDecimals: scale } };
     }
-    return { ok: true, scaled: BigInt(intPart + fracPart.padEnd(scale, "0")) };
+    return { ok: true, scaled: BigInt(intPart + exactFraction.padEnd(scale, "0")) };
 }
 
 /**

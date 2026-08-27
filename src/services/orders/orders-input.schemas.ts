@@ -35,7 +35,10 @@ import {
     createRiskPolicyInputSchema,
     parseMarketMaxSlippage,
 } from "./orders-risk.schemas.js";
-import { OptionalClientOrderIdInputSchema } from "./orders-identifiers.schemas.js";
+import {
+    OptionalClientOrderIdInputSchema,
+    OrderRequestIdInputSchema,
+} from "./orders-identifiers.schemas.js";
 import { OrderErrorDetailSchema } from "./order-errors.schemas.js";
 
 const OrderStatusSchema = v.picklist(ORDER_STATUS_FILTER_VALUES);
@@ -361,7 +364,7 @@ export const CancelAllOrdersInputSchema = v.pipe(
             v.transform((v) => (v ? OrderSideCodec.inputToProto[v] : undefined)),
         ),
         dryRun: v.optional(v.boolean(), false),
-        requestId: v.optional(v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(64))),
+        requestId: v.optional(OrderRequestIdInputSchema),
     }),
     v.transform(({ account, ...input }) => ({
         ...input,
