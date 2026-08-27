@@ -1,5 +1,31 @@
 # @polyester/sdk
 
+## 0.10.0
+
+### Minor Changes
+
+- Expose attached-risk leg lifecycle state, timestamps, trigger IDs, and child order IDs on order reads, and preserve both stop-loss and trailing-stop legs returned by the backend. ([#81](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/81))
+
+- Make public IDs round-trip as base58 strings, and preserve order-transfer match IDs and ledger-transfer link IDs as decimal strings without uint64 precision loss. ([#81](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/81))
+
+### Patch Changes
+
+- Bound catalog-readiness event queues without leaving subscriptions silently connected after continuity loss, let snapshot-backed feeds own coalescing and recovery, defer listeners added during an event until the next emission, and retry the lazy realtime transport import after a transient chunk-load failure. ([#81](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/81))
+
+- Keep ledger-transfer list and realtime data available without catalog readiness now that transfer amounts use the protocol's fixed E18 scale. ([#81](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/81))
+
+- Keep orderbook price buckets and sequence recovery correct by rounding asks upward, ignoring stale resets, stopping replay after a gap, and retrying failed snapshots. ([#81](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/81))
+
+- Preserve bearer authentication when the unsigned display-session cookie is missing, expire JWTs at their exact expiration time, serialize fractional JWT expirations with integer cookie lifetimes, and let server session verification distinguish unauthenticated sessions from transient API failures even when using injected transports. ([#81](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/81))
+
+- Reject invalid integer inputs, fail closed when a catalog-backed scale is unavailable, and make timestamp and u128 conversion exact at their wire boundaries. ([#81](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/81))
+
+- Reject malformed or out-of-range order and trigger inputs before protobuf encoding, including symbol IDs, client order IDs, trailing distances, maximum-slippage BPS, TWAP intervals, and ladder price ranges. ([#81](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/81))
+
+- Preserve trigger timestamp milliseconds, fail loudly for trigger symbols absent from the catalog, and align spot-order validation with advertised int64 wire ceilings. ([#81](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/81))
+
+- Return typed SDK errors for credential-provider failures across HTTP and realtime, reject private realtime subscriptions immediately when a synchronous JWT provider has no token, preserve JWT authentication visibility and overrides in user interceptors, validate Ed25519 secret keys before signing, sign API-key requests after user interceptors finalize unary messages, reject unsupported Connect stream signing, align raw retry classification with mapped errors, parse Retry-After safely, and reject query strings in Connect API base URLs. ([#81](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/81))
+
 ## 0.9.1
 
 ### Patch Changes
