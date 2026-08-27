@@ -1,17 +1,17 @@
 import * as Proto from "../../gen/orders/v1/orders_read_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
-import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
+import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import { createReadyGate, type SdkScales } from "../../shared/decimal-surface.js";
+import type { SdkScales } from "../../shared/decimal-surface.js";
 import { GetUserTradesInputSchema, createUserTradeSchema, type Trade } from "./trades.schemas.js";
 
 interface SubscribeTradesInput extends BaseSubscribeInput<Trade> {
@@ -66,18 +66,13 @@ export class TradesService {
      */
     subscribe(input: SubscribeTradesInput) {
         const channel = `private:spot:trades:${input.accountId}:proto`;
-        const gate = createReadyGate(
-            () => this.#scales.ready(),
-            (error) => input.onError?.(publicationHandlerErrorContext(channel, error)),
-        );
-        return this.#realtime.connectProtoChannel({
+        return connectReadyGatedProtoChannel(this.#realtime, {
             channel,
             schema: Proto.UserTradeSchema,
+            ready: () => this.#scales.ready(),
             onPublication: (data) => {
-                gate.run(() => {
-                    const trade = parse(this.#userTradeSchema, data);
-                    input.onEvent(trade);
-                });
+                const trade = parse(this.#userTradeSchema, data);
+                input.onEvent(trade);
             },
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),

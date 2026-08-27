@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import { AccountCode, TransferCode } from "../../gen/ledger/v1/catalog_pb.js";
-import type { EnrichedPairConfig } from "../../catalogs/index.js";
+import { CatalogNotReadyError, type EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { createTestCatalog } from "../../testing/catalog.js";
@@ -983,6 +983,37 @@ describe("OrdersService", () => {
 
         unsubscribe();
         expect(realtime.unsubscribe).toHaveBeenCalledTimes(1);
+    });
+
+    it("closes instead of silently dropping order transitions after readiness overflow", () => {
+        const readiness = new Promise<void>(() => {});
+        const scales = { ...testScales(), ready: () => readiness };
+        const realtime = realtimeClientStub();
+        const service = new OrdersService(
+            unaryTransportByMethod({}).transport,
+            realtime.realtime,
+            undefined,
+            scales,
+        );
+        const onEvent = vi.fn();
+        const onClose = vi.fn();
+        const onError = vi.fn();
+
+        service.subscribe({ accountId: "account-1", onEvent, onClose, onError });
+        for (let index = 0; index < 1_025; index++) {
+            realtime.params?.onPublication(protoOrder({ version: index }));
+        }
+
+        expect(onEvent).not.toHaveBeenCalled();
+        expect(onError).toHaveBeenCalledWith(
+            expect.objectContaining({
+                channel: "private:spot:orders:account-1:proto",
+                type: "publication_handler",
+                error: expect.any(CatalogNotReadyError),
+            }),
+        );
+        expect(realtime.unsubscribe).toHaveBeenCalledOnce();
+        expect(onClose).toHaveBeenCalledOnce();
     });
 
     it("rejects malformed backend payloads and routes malformed publications to onError", async () => {

@@ -108,6 +108,37 @@ describe("createTransports", () => {
         });
     });
 
+    it("makes JWT authentication visible to user interceptors", async () => {
+        let observedAuthorization: string | null = null;
+        let sentAuthorization: string | null = null;
+        const inspectAndOverrideAuth: Interceptor = (next) => async (request) => {
+            observedAuthorization = request.header.get("Authorization");
+            request.header.set("Authorization", "Bearer overridden");
+            return next(request);
+        };
+        vi.spyOn(globalThis, "fetch").mockImplementation(async (_input, init) => {
+            sentAuthorization = new Headers(init?.headers).get("Authorization");
+            return new Response(JSON.stringify({ markets: [] }), {
+                headers: { "content-type": "application/json" },
+            });
+        });
+        const { authApi } = createTransports({
+            apiUrl: "https://api.test",
+            wireFormat: "json",
+            interceptors: [inspectAndOverrideAuth],
+            auth: {
+                kind: "jwt",
+                getToken: () => "secret",
+            },
+        });
+        const client = createClient(Proto.MarketOverviewService, authApi);
+
+        await client.listMarketOverview({});
+
+        expect(observedAuthorization).toBe("Bearer secret");
+        expect(sentAuthorization).toBe("Bearer overridden");
+    });
+
     it("rejects invalid API key material as an SDK configuration error", async () => {
         const { authApi } = createTransports({
             apiUrl: "https://api.test",

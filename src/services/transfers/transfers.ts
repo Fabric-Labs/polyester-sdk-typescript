@@ -10,9 +10,8 @@ import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import { createReadyGate, type SdkScales } from "../../shared/decimal-surface.js";
 import {
-    createLedgerTransferSchema,
+    LedgerTransferSchema,
     ListTransfersInputSchema,
     type LedgerTransfer,
     type ListTransfersInput,
@@ -29,20 +28,15 @@ export class TransfersService {
     #client: Client<typeof Proto.LedgerReadService>;
     #realtime: PolyesterRealtime;
     #resolver?: SubaccountResolver;
-    #scales: SdkScales;
-    #ledgerTransferSchema: ReturnType<typeof createLedgerTransferSchema>;
 
     constructor(
         transport: Transport,
         realtime: PolyesterRealtime,
         resolver: SubaccountResolver | undefined,
-        scales: SdkScales,
     ) {
         this.#client = createClient(Proto.LedgerReadService, transport);
         this.#realtime = realtime;
         this.#resolver = resolver;
-        this.#scales = scales;
-        this.#ledgerTransferSchema = createLedgerTransferSchema(scales);
     }
 
     /**
@@ -52,11 +46,10 @@ export class TransfersService {
         input: ListTransfersInput = {},
         options?: PolyesterRequestOptions,
     ): Promise<{ transfers: LedgerTransfer[]; nextPageToken: string }> {
-        await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validatedInput = parse(ListTransfersInputSchema, resolved);
         const res = await this.#client.listTransfers(validatedInput, toConnectCallOptions(options));
-        const transfers = parse(v.array(this.#ledgerTransferSchema), res.transfers);
+        const transfers = parse(v.array(LedgerTransferSchema), res.transfers);
         return { transfers, nextPageToken: res.nextPageToken };
     }
 
@@ -65,18 +58,16 @@ export class TransfersService {
      */
     subscribe(input: SubscribeTransfersInput): () => void {
         const channel = `private:ledger:transfers:${input.accountId}:proto`;
-        const gate = createReadyGate(
-            () => this.#scales.ready(),
-            (error) => input.onError?.(publicationHandlerErrorContext(channel, error)),
-        );
         return this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.TransferRowSchema,
             onPublication: (m) => {
-                gate.run(() => {
-                    const tr = parse(this.#ledgerTransferSchema, m);
+                try {
+                    const tr = parse(LedgerTransferSchema, m);
                     input.onEvent(tr);
-                });
+                } catch (error) {
+                    input.onError?.(publicationHandlerErrorContext(channel, error));
+                }
             },
             onConnected: input.onOpen,
             onDisconnected: input.onClose,

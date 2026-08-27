@@ -2,29 +2,12 @@ import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { TransferCode } from "../../gen/ledger/v1/catalog_pb.js";
-import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
-import { createTestCatalog } from "../../testing/catalog.js";
 import { formatId } from "../../utils/base58-id.js";
 import {
-    createLedgerTransferSchema,
+    LedgerTransferSchema,
     LedgerTransferSideSchema,
     ListTransfersInputSchema,
 } from "./transfers.schemas.js";
-
-const usdt = {
-    symbol: "USDT",
-    ledgerId: 1,
-    name: "Tether",
-    quantityDisplayDecimals: 2,
-    quantityScale: 6,
-};
-
-function testScales() {
-    const catalog = createTestCatalog({ assets: [usdt] });
-    return createCatalogSdkScales(() => catalog);
-}
-
-const LedgerTransferSchema = createLedgerTransferSchema(testScales());
 
 const onePointFiveE18 = 1_500_000_000_000_000_000n;
 const twoPointFiveE18 = 2_500_000_000_000_000_000n;

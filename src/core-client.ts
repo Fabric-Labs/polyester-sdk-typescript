@@ -3,6 +3,7 @@ import { ConfigurationError } from "./shared/errors.js";
 import {
     createApiKeyEd25519AuthHeaders,
     createTransports,
+    resolveJwtToken,
     type Transports,
     type JwtAuthProvider,
     type ApiKeyEd25519AuthProvider,
@@ -53,18 +54,12 @@ function realtimeAuthFromProvider(
     if (auth.kind === "jwt") {
         return {
             getAuthHeaders: async () => {
-                const token = await auth.getToken();
+                const token = await resolveJwtToken(auth);
                 const headers: Record<string, string> = {};
                 if (token) headers.authorization = `Bearer ${token}`;
                 return headers;
             },
-            hasAuth: () => {
-                // Only token getters that resolve synchronously can be checked here;
-                // async getters are assumed authenticated and fail at token fetch.
-                const token = auth.getToken();
-                if (token instanceof Promise) return true;
-                return typeof token === "string" && token.length > 0;
-            },
+            hasAuth: () => true,
         };
     }
     return {
@@ -447,7 +442,6 @@ export class PolyesterClient {
             this.transports.authApi,
             this.realtime,
             this.#getResolver(),
-            this.#getScales(),
         ));
     }
 

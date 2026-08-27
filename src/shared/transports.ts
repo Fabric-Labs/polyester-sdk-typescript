@@ -104,7 +104,9 @@ export function createTransports(config: TransportConfig): Transports {
     );
 
     const authInterceptors = auth
-        ? [...interceptors, createAuthInterceptor(auth, { wireFormat })]
+        ? auth.kind === "jwt"
+            ? [createAuthInterceptor(auth, { wireFormat }), ...interceptors]
+            : [...interceptors, createAuthInterceptor(auth, { wireFormat })]
         : interceptors;
     const authApi = createErrorMappingTransport(
         createConnectTransport({
@@ -188,6 +190,24 @@ export async function createApiKeyEd25519AuthHeaders(
 }
 
 /**
+ * Resolves a JWT credential and translates provider failures or invalid values
+ * into stable SDK errors.
+ */
+export async function resolveJwtToken(auth: JwtAuthProvider): Promise<string | null> {
+    let token: string | null;
+    try {
+        token = await auth.getToken();
+    } catch (cause) {
+        if (cause instanceof PolyesterError) throw cause;
+        throw new AuthenticationError("JWT token provider failed", { cause });
+    }
+    if (token !== null && typeof token !== "string") {
+        throw new ConfigurationError("JWT token provider must return a string or null");
+    }
+    return token;
+}
+
+/**
  * Creates an interceptor that attaches SDK authentication headers.
  */
 export function createAuthInterceptor(
@@ -197,16 +217,7 @@ export function createAuthInterceptor(
     return (next) => async (req) => {
         const wireFormat = options?.wireFormat ?? "binary";
         if (auth.kind === "jwt") {
-            let token: string | null;
-            try {
-                token = await auth.getToken();
-            } catch (cause) {
-                if (cause instanceof PolyesterError) throw cause;
-                throw new AuthenticationError("JWT token provider failed", { cause });
-            }
-            if (token !== null && typeof token !== "string") {
-                throw new ConfigurationError("JWT token provider must return a string or null");
-            }
+            const token = await resolveJwtToken(auth);
             if (token) {
                 req.header.set("Authorization", `Bearer ${token}`);
             }

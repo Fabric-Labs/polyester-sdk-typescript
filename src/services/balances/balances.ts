@@ -1,9 +1,9 @@
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
-import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import type { PolyesterRealtime } from "../../realtime/index.js";
+import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import {
     toConnectCallOptions,
@@ -11,7 +11,7 @@ import {
 } from "../../shared/request-options.js";
 import { accountScopeToSubaccountId, type AccountScopedInput } from "../../shared/account-scope.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
-import { createReadyGate, type SdkScales } from "../../shared/decimal-surface.js";
+import type { SdkScales } from "../../shared/decimal-surface.js";
 import {
     BalanceHistoryInputSchema,
     BalancesListInputSchema,
@@ -112,18 +112,13 @@ export class BalancesService {
      */
     subscribe(input: SubscribeBalancesInput): () => void {
         const channel = `private:ledger:balances:${input.accountId}:proto`;
-        const gate = createReadyGate(
-            () => this.#scales.ready(),
-            (error) => input.onError?.(publicationHandlerErrorContext(channel, error)),
-        );
-        return this.#realtime.connectProtoChannel({
+        return connectReadyGatedProtoChannel(this.#realtime, {
             channel,
             schema: Proto.AssetBalanceSchema,
+            ready: () => this.#scales.ready(),
             onPublication: (data) => {
-                gate.run(() => {
-                    const b = parse(this.#ledgerBalanceSchema, data);
-                    input.onEvent(b);
-                });
+                const b = parse(this.#ledgerBalanceSchema, data);
+                input.onEvent(b);
             },
             onConnected: input.onOpen,
             onDisconnected: input.onClose,

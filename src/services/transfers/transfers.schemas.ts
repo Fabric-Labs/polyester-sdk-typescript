@@ -16,7 +16,7 @@ import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
-import { E18_SCALE, scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
+import { E18_SCALE, scaledToDecimalOutput } from "../../shared/decimal-surface.js";
 import { TransferSideKindCodec } from "./transfers.codecs.js";
 
 const U128Schema = v.object({
@@ -49,60 +49,59 @@ export const LedgerTransferSideSchema = v.object({
 
 export type LedgerTransferSide = v.InferOutput<typeof LedgerTransferSideSchema>;
 
-export function createLedgerTransferSchema(_scales: SdkScales) {
-    return v.pipe(
-        v.object({
-            assetId: v.number(),
-            amountE18: v.optional(U128Schema),
-            balanceAfterE18: v.optional(U128Schema),
-            isDebit: v.boolean(),
-            transferCode: v.number(),
-            accountCode: v.number(),
-            tsUs: WireTimestampInputSchema,
-            linkId: v.optional(v.bigint()),
-            flowId: v.optional(v.string()),
-            source: v.optional(LedgerTransferSideSchema),
-            destination: v.optional(LedgerTransferSideSchema),
-        }),
-        v.transform((tr) => {
-            const amount = fromU128(tr.amountE18);
-            const linkId = tr.linkId && tr.linkId > 0n ? tr.linkId.toString() : undefined;
+/** Parses ledger transfer rows whose monetary fields use the protocol's fixed E18 scale. */
+export const LedgerTransferSchema = v.pipe(
+    v.object({
+        assetId: v.number(),
+        amountE18: v.optional(U128Schema),
+        balanceAfterE18: v.optional(U128Schema),
+        isDebit: v.boolean(),
+        transferCode: v.number(),
+        accountCode: v.number(),
+        tsUs: WireTimestampInputSchema,
+        linkId: v.optional(v.bigint()),
+        flowId: v.optional(v.string()),
+        source: v.optional(LedgerTransferSideSchema),
+        destination: v.optional(LedgerTransferSideSchema),
+    }),
+    v.transform((tr) => {
+        const amount = fromU128(tr.amountE18);
+        const linkId = tr.linkId && tr.linkId > 0n ? tr.linkId.toString() : undefined;
 
-            const output = {
-                assetId: tr.assetId,
-                amount: scaledToDecimalOutput(amount, E18_SCALE),
-                balanceAfter:
-                    tr.balanceAfterE18 !== undefined
-                        ? scaledToDecimalOutput(fromU128(tr.balanceAfterE18), E18_SCALE)
-                        : undefined,
-                type: requiredEnumLabel(
-                    TransferCodeCodec.protoToOutput,
-                    tr.transferCode,
-                    "LedgerTransferSchema",
-                    "transfer code",
-                ),
-                accountCode: requiredEnumLabel(
-                    AccountCodeCodec.protoToOutput,
-                    tr.accountCode,
-                    "LedgerTransferSchema",
-                    "account code",
-                ),
-                timestamp: wireTimestampToMs(tr.tsUs),
-                isDebit: tr.isDebit,
-                linkId,
-                flowId: tr.flowId?.trim() ?? "",
-            };
+        const output = {
+            assetId: tr.assetId,
+            amount: scaledToDecimalOutput(amount, E18_SCALE),
+            balanceAfter:
+                tr.balanceAfterE18 !== undefined
+                    ? scaledToDecimalOutput(fromU128(tr.balanceAfterE18), E18_SCALE)
+                    : undefined,
+            type: requiredEnumLabel(
+                TransferCodeCodec.protoToOutput,
+                tr.transferCode,
+                "LedgerTransferSchema",
+                "transfer code",
+            ),
+            accountCode: requiredEnumLabel(
+                AccountCodeCodec.protoToOutput,
+                tr.accountCode,
+                "LedgerTransferSchema",
+                "account code",
+            ),
+            timestamp: wireTimestampToMs(tr.tsUs),
+            isDebit: tr.isDebit,
+            linkId,
+            flowId: tr.flowId?.trim() ?? "",
+        };
 
-            return {
-                ...output,
-                ...(tr.source ? { source: tr.source } : {}),
-                ...(tr.destination ? { destination: tr.destination } : {}),
-            };
-        }),
-    );
-}
+        return {
+            ...output,
+            ...(tr.source ? { source: tr.source } : {}),
+            ...(tr.destination ? { destination: tr.destination } : {}),
+        };
+    }),
+);
 
-export type LedgerTransfer = v.InferOutput<ReturnType<typeof createLedgerTransferSchema>>;
+export type LedgerTransfer = v.InferOutput<typeof LedgerTransferSchema>;
 
 export const ListTransfersInputSchema = v.pipe(
     v.strictObject({

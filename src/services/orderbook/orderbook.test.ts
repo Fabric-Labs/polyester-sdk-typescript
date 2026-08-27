@@ -53,7 +53,7 @@ function testScales() {
 }
 
 async function flushMicrotasks(): Promise<void> {
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 10; i++) {
         await Promise.resolve();
     }
 }
@@ -167,6 +167,47 @@ describe("OrderbookService", () => {
         await flushMicrotasks();
 
         expect(onEvent).not.toHaveBeenCalled();
+        subscription.unsubscribe();
+    });
+
+    it("makes catalog readiness part of the snapshot cycle", async () => {
+        let resolveReady: (() => void) | undefined;
+        const ready = new Promise<void>((resolve) => {
+            resolveReady = resolve;
+        });
+        const scales = { ...testScales(), ready: () => ready };
+        const realtime = realtimeClientStub();
+        const transport = unaryTransport({
+            symbolId: 101,
+            bookSeq: 1n,
+            bids: [],
+            asks: [],
+        });
+        const service = new OrderbookService(transport.transport, realtime.realtime, scales);
+        const onEvent = vi.fn();
+
+        const subscription = service.createSubscription({ symbolId: 101, onEvent });
+        realtime.params?.onConnected?.();
+        realtime.params?.onPublication(
+            create(Proto.OrderBookDeltaSchema, {
+                symbolId: 101,
+                bookSeqStart: 2n,
+                bookSeqEnd: 2n,
+            }),
+        );
+        await flushMicrotasks();
+
+        expect(transport.unary).not.toHaveBeenCalled();
+        expect(onEvent).not.toHaveBeenCalled();
+
+        resolveReady?.();
+        await ready;
+        await flushMicrotasks();
+
+        expect(transport.unary).toHaveBeenCalledOnce();
+        expect(onEvent).toHaveBeenLastCalledWith(
+            expect.objectContaining({ bookSeq: "2", symbolId: 101 }),
+        );
         subscription.unsubscribe();
     });
 

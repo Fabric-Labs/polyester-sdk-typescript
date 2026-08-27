@@ -1,18 +1,18 @@
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
 import { create } from "@bufbuild/protobuf";
-import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
 import {
     HeatmapService as HeatmapRpc,
     HeatmapLiveBucketSchema as ProtoHeatmapLiveBucketSchema,
     HeatmapTimeRangeSchema,
 } from "../../gen/marketdata/v1/heatmap_pb.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
+import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import { createReadyGate, type SdkScales } from "../../shared/decimal-surface.js";
+import type { SdkScales } from "../../shared/decimal-surface.js";
 import { HEATMAP_INTERVAL_VALUES, type HeatmapIntervalValue } from "./heatmap.codecs.js";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
@@ -100,18 +100,13 @@ export class HeatmapService implements OrderbookHeatmapProvider {
             interval: input.interval,
         });
         const channel = `public:spot:market:heatmap:${params.interval}:${params.symbolId}:proto`;
-        const gate = createReadyGate(
-            () => this.#scales.ready(),
-            (error) => input.onError?.(publicationHandlerErrorContext(channel, error)),
-        );
-        return this.#realtime.connectProtoChannel({
+        return connectReadyGatedProtoChannel(this.#realtime, {
             channel,
             schema: ProtoHeatmapLiveBucketSchema,
+            ready: () => this.#scales.ready(),
             onPublication: (data) => {
-                gate.run(() => {
-                    const bucket = parse(this.#liveBucketSchema, data);
-                    input.onEvent(bucket);
-                });
+                const bucket = parse(this.#liveBucketSchema, data);
+                input.onEvent(bucket);
             },
             onConnected: input.onOpen,
             onDisconnected: input.onClose,

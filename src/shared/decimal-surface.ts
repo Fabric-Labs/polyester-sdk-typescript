@@ -153,60 +153,77 @@ export function quantityInputToE18(params: {
 }
 
 export interface ReadyGate {
+    /** Queues or delivers one transition while the gate remains active. */
     run(deliver: () => void): void;
+    /** Drops pending transitions and permanently prevents future delivery. */
+    close(): void;
+}
+
+interface ReadyGateHandlers {
+    onDeliveryError?: (error: unknown) => void;
+    onTerminalError: (error: unknown) => void;
 }
 
 const READY_GATE_MAX_PENDING_DELIVERIES = 1_024;
 
 /**
- * Orders event delivery behind catalog readiness. Events arriving before the
+ * Transition event delivery behind catalog readiness. Events arriving before the
  * catalog can resolve scales are queued and flushed in arrival order once it
- * is ready; delivery errors (including post-flush ones) route to `onError`
- * instead of escaping into the transport, mirroring the realtime client's
- * consumer-handler isolation. If readiness itself fails, queued events are
- * dropped after `onError` fires — the stream cannot be decoded without scales.
+ * is ready. Delivery errors are isolated from the transport. Readiness failure
+ * or queue overflow is terminal because dropping an event would break stream
+ * continuity; the owning subscription must visibly terminate when notified.
  */
 export function createReadyGate(
     ready: () => Promise<void>,
-    onError?: (error: unknown) => void,
+    handlers: ReadyGateHandlers,
 ): ReadyGate {
-    let state: "pending" | "open" | "failed" = "pending";
+    let state: "pending" | "open" | "closed" = "pending";
     const queue: Array<() => void> = [];
 
     const deliverIsolated = (deliver: () => void) => {
         try {
             deliver();
         } catch (error) {
-            onError?.(error);
+            handlers.onDeliveryError?.(error);
         }
     };
 
-    ready().then(
-        () => {
-            if (state !== "pending") return;
-            state = "open";
-            for (const deliver of queue.splice(0)) deliverIsolated(deliver);
-        },
-        (error) => {
-            if (state !== "pending") return;
-            state = "failed";
-            queue.length = 0;
-            onError?.(error);
-        },
-    );
+    const closeWithError = (error: unknown) => {
+        if (state === "closed") return;
+        state = "closed";
+        queue.length = 0;
+        handlers.onTerminalError(error);
+    };
+
+    Promise.resolve()
+        .then(ready)
+        .then(
+            () => {
+                if (state !== "pending") return;
+                state = "open";
+                for (const deliver of queue.splice(0)) deliverIsolated(deliver);
+            },
+            (error) => {
+                if (state !== "pending") return;
+                closeWithError(error);
+            },
+        );
 
     return {
         run(deliver) {
             if (state === "open") deliverIsolated(deliver);
             else if (state === "pending") {
                 if (queue.length === READY_GATE_MAX_PENDING_DELIVERIES) {
-                    state = "failed";
-                    queue.length = 0;
-                    onError?.(new CatalogNotReadyError());
+                    closeWithError(new CatalogNotReadyError());
                     return;
                 }
                 queue.push(deliver);
             }
+        },
+        close() {
+            if (state === "closed") return;
+            state = "closed";
+            queue.length = 0;
         },
     };
 }

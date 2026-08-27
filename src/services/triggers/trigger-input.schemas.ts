@@ -7,7 +7,6 @@ import {
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
 import { positiveDecimalInputToScaled, type SdkScales } from "../../shared/decimal-surface.js";
-import { CatalogConversionError } from "../../catalogs/types.js";
 import { PROTOBUF_INT32_MAX, PROTOBUF_INT64_MAX } from "../../shared/wire-bounds.js";
 import {
     parseOptionalPositiveBigIntLike,
@@ -37,7 +36,7 @@ import {
     type MaxSlippageOneof,
     type TrailingDistanceOneof,
 } from "./trigger-child-order.schemas.js";
-import { parseTrailingDistanceInput } from "../trailing-oneof-inputs.js";
+import { parseSlippageInput, parseTrailingDistanceInput } from "../trailing-oneof-inputs.js";
 
 const TriggerTypeSchema = v.picklist(TRIGGER_TYPE_VALUES);
 const TriggerStatusFilterSchema = v.picklist(TRIGGER_STATUS_FILTER_VALUES);
@@ -110,28 +109,12 @@ function parseMaxSlippage(
     scales: SdkScales,
     slippage: v.InferOutput<typeof MaxSlippageInputSchema> | undefined,
 ): MaxSlippageOneof {
-    if (!slippage || slippage.kind === "none") {
-        return { case: undefined, value: undefined };
-    }
-    if (slippage.kind === "slippage") {
-        const ticks = positiveDecimalInputToScaled(
-            "maxSlippage.slippage",
-            slippage.slippage,
-            scales.price(),
-        );
-        if (ticks > PROTOBUF_INT32_MAX) {
-            throw new CatalogConversionError(
-                "maxSlippage.slippage",
-                `maxSlippage.slippage exceeds the maximum supported price distance: ${slippage.slippage}`,
-            );
-        }
-        return { case: "maxSlippageTicks", value: Number(ticks) };
-    }
-    const bps = parseOptionalPositiveIntLike(slippage.bps);
-    if (bps === undefined || bps <= 0) {
-        throw new Error("maxSlippageBps must be a positive integer");
-    }
-    return { case: "maxSlippageBps", value: bps };
+    return parseSlippageInput(scales, slippage, {
+        fieldName: "maxSlippage",
+        ticksCase: "maxSlippageTicks",
+        bpsCase: "maxSlippageBps",
+        maxBps: Number(PROTOBUF_INT32_MAX),
+    });
 }
 
 function createConditionalTriggerInputSchema<const TriggerType extends "stop_loss" | "take_profit">(

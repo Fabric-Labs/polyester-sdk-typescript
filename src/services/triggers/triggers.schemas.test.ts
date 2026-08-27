@@ -408,6 +408,44 @@ describe("CreateTriggerInputSchema", () => {
         });
     });
 
+    it("accepts the int32 maximum slippage BPS and rejects one over", () => {
+        const schema = createCreateTriggerInputSchema(testScales());
+        const input = {
+            triggerType: "trailing_stop",
+            symbolId: 1,
+            qty: "0.25",
+            trailingDistance: { kind: "bps", bps: 150 },
+        } as const;
+
+        expect(
+            v.parse(schema, {
+                ...input,
+                maxSlippage: { kind: "bps", bps: PROTOBUF_INT32_MAX.toString() },
+            }),
+        ).toMatchObject({
+            trigger: {
+                strategy: {
+                    case: "trailingStop",
+                    value: {
+                        maxSlippage: {
+                            case: "maxSlippageBps",
+                            value: Number(PROTOBUF_INT32_MAX),
+                        },
+                    },
+                },
+            },
+        });
+        expect(() =>
+            v.parse(schema, {
+                ...input,
+                maxSlippage: {
+                    kind: "bps",
+                    bps: (PROTOBUF_INT32_MAX + 1n).toString(),
+                },
+            }),
+        ).toThrow(`maxSlippageBps must be between 1 and ${PROTOBUF_INT32_MAX}`);
+    });
+
     it("builds explicit TWAP execution and ladder strategies", () => {
         const schema = createCreateTriggerInputSchema(testScales());
 
@@ -595,6 +633,27 @@ describe("ModifyTriggerInputSchema", () => {
             trailingDistance: { case: "trailingDistanceTicks", value: 500_000n },
             maxSlippage: { case: "maxSlippageBps", value: 25 },
         });
+    });
+
+    it("accepts the int32 maximum slippage BPS and rejects one over", () => {
+        const schema = createModifyTriggerInputSchema(testScales());
+        const input = { triggerId: formatId(11n), symbolId: 1 };
+
+        expect(
+            v.parse(schema, {
+                ...input,
+                maxSlippage: { kind: "bps", bps: PROTOBUF_INT32_MAX.toString() },
+            }).maxSlippage,
+        ).toEqual({ case: "maxSlippageBps", value: Number(PROTOBUF_INT32_MAX) });
+        expect(() =>
+            v.parse(schema, {
+                ...input,
+                maxSlippage: {
+                    kind: "bps",
+                    bps: (PROTOBUF_INT32_MAX + 1n).toString(),
+                },
+            }),
+        ).toThrow(`maxSlippageBps must be between 1 and ${PROTOBUF_INT32_MAX}`);
     });
 
     it("rejects patch variants that encode no wire field", () => {

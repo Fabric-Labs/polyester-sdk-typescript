@@ -12,11 +12,7 @@ import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import {
-    createReadyGate,
-    decimalInputToScaled,
-    type SdkScales,
-} from "../../shared/decimal-surface.js";
+import { decimalInputToScaled, type SdkScales } from "../../shared/decimal-surface.js";
 import {
     formatOrderbookLevel,
     GetOrderbookInputSchema,
@@ -110,11 +106,6 @@ export class OrderbookService {
 
         const client = this.#client;
         const scales = this.#scales;
-        const gate = createReadyGate(
-            () => scales.ready(),
-            (error) => input.onError?.(publicationHandlerErrorContext(channel, error)),
-        );
-
         let bidsMap: BookSide = new Map();
         let asksMap: BookSide = new Map();
         let currentBookSeq = 0n;
@@ -172,7 +163,7 @@ export class OrderbookService {
         }
 
         function emit(): void {
-            gate.run(() => {
+            try {
                 input.onEvent({
                     symbolId,
                     depth: requestedDepth,
@@ -180,7 +171,9 @@ export class OrderbookService {
                     bids: sideToUIBucketed(bidsMap, "bids", requestedDepth, bucketTicks),
                     asks: sideToUIBucketed(asksMap, "asks", requestedDepth, bucketTicks),
                 });
-            });
+            } catch (error) {
+                input.onError?.(publicationHandlerErrorContext(channel, error));
+            }
         }
 
         function setBucket(bucket: string | null | undefined): void {
@@ -197,6 +190,7 @@ export class OrderbookService {
         }
 
         async function inputServiceFetch(): Promise<Proto.GetOrderBookResponse> {
+            await scales.ready();
             const validated = parse(GetOrderbookInputSchema, {
                 symbolId,
                 depth: channelDepth,

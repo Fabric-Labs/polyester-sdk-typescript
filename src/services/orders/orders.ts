@@ -1,7 +1,6 @@
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import { createClient, type Client, type Transport } from "@connectrpc/connect";
-import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
@@ -12,8 +11,9 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
+import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
-import { createReadyGate, type SdkScales } from "../../shared/decimal-surface.js";
+import type { SdkScales } from "../../shared/decimal-surface.js";
 import { getOrderErrorDetail } from "../../utils/connect-order-errors.js";
 import { formatConnectError, isResourceNotFoundError } from "../../utils/errors.js";
 import {
@@ -422,18 +422,13 @@ export class OrdersService {
      */
     subscribe(input: SubscribeOrdersInput): () => void {
         const channel = `private:spot:orders:${input.accountId}:proto`;
-        const gate = createReadyGate(
-            () => this.#scales.ready(),
-            (error) => input.onError?.(publicationHandlerErrorContext(channel, error)),
-        );
-        return this.#realtime.connectProtoChannel({
+        return connectReadyGatedProtoChannel(this.#realtime, {
             channel,
             schema: ProtoRead.OrderSchema,
+            ready: () => this.#scales.ready(),
             onPublication: (data) => {
-                gate.run(() => {
-                    const order = parse(this.#orderSchema, data);
-                    input.onEvent(order);
-                });
+                const order = parse(this.#orderSchema, data);
+                input.onEvent(order);
             },
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
