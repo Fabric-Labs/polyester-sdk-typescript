@@ -37,12 +37,16 @@ import {
     SubaccountIdInputSchema,
     DeleteSubaccountInputSchema,
     SubaccountMutationResultSchema,
+    SubaccountRoleCatalogSchema,
+    EffectiveSubaccountPermissionsSchema,
     type CreateSubaccountResult,
     type Subaccount,
     type SubaccountMember,
     type SubaccountInvite,
     type SubaccountEvent,
     type SubaccountMutationResult,
+    type SubaccountRoleCatalog,
+    type EffectiveSubaccountPermissions,
 } from "./subaccounts.schemas.js";
 
 interface SubscribeSubaccountsInput extends BaseSubscribeInput<Subaccount> {
@@ -61,12 +65,14 @@ export class SubaccountsService {
 
     #client: Client<typeof Proto.SubaccountService>;
     #viewClient: Client<typeof Proto.SubaccountViewService>;
+    #roleClient: Client<typeof Proto.SubaccountRoleService>;
     #realtime: PolyesterRealtime;
 
     constructor(transport: Transport, realtime: PolyesterRealtime, resolver?: SubaccountResolver) {
         this.policies = new SubaccountPoliciesService(transport, realtime, resolver);
         this.#client = createClient(Proto.SubaccountService, transport);
         this.#viewClient = createClient(Proto.SubaccountViewService, transport);
+        this.#roleClient = createClient(Proto.SubaccountRoleService, transport);
         this.#realtime = realtime;
     }
 
@@ -231,6 +237,29 @@ export class SubaccountsService {
             toConnectCallOptions(options),
         );
         return parse(v.array(SubaccountInviteSchema), res.invites);
+    }
+
+    /**
+     * Returns the public built-in role and permission catalog with display metadata and per-role permission sets.
+     */
+    async listRoles(options?: PolyesterRequestOptions): Promise<SubaccountRoleCatalog> {
+        const res = await this.#roleClient.listSubaccountRoles({}, toConnectCallOptions(options));
+        return parse(SubaccountRoleCatalogSchema, res);
+    }
+
+    /**
+     * Returns the caller's current role, effective role-granted permissions, and attached policy ID for a subaccount.
+     */
+    async getEffectivePermissions(
+        input: v.InferInput<typeof SubaccountIdInputSchema>,
+        options?: PolyesterRequestOptions,
+    ): Promise<EffectiveSubaccountPermissions> {
+        const validatedInput = parse(SubaccountIdInputSchema, input);
+        const res = await this.#roleClient.getEffectiveSubaccountPermissions(
+            validatedInput,
+            toConnectCallOptions(options),
+        );
+        return parse(EffectiveSubaccountPermissionsSchema, res);
     }
 
     /**

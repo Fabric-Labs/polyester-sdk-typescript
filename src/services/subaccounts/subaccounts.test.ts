@@ -413,6 +413,85 @@ describe("SubaccountsService", () => {
         ]);
     });
 
+    it("lists the role catalog and parses permission/role definitions", async () => {
+        const transport = unaryTransport({
+            permissions: [
+                {
+                    permission: Proto.SubaccountPermission.TRADE_SPOT,
+                    displayName: "Trade spot",
+                    description: "Place and manage spot orders.",
+                    policyAction: ProtoPolicies.PolicyAction.TRADE_SPOT,
+                },
+                {
+                    permission: Proto.SubaccountPermission.READ_SUBACCOUNT,
+                    displayName: "Read sub-account",
+                    description: "Read sub-account metadata.",
+                    policyAction: ProtoPolicies.PolicyAction.UNSPECIFIED,
+                },
+            ],
+            roles: [
+                {
+                    role: Proto.SubaccountRole.TRADER,
+                    displayName: "Trader",
+                    description: "Trades spot.",
+                    assignable: true,
+                    permissions: [
+                        Proto.SubaccountPermission.READ_SUBACCOUNT,
+                        Proto.SubaccountPermission.TRADE_SPOT,
+                    ],
+                },
+            ],
+        } satisfies MessageInitShape<typeof Proto.ListSubaccountRolesResponseSchema>);
+        const realtime = realtimeClientStub();
+        const service = new SubaccountsService(transport.transport, realtime.realtime);
+
+        await expect(service.listRoles()).resolves.toEqual({
+            permissions: [
+                {
+                    permission: "trade_spot",
+                    displayName: "Trade spot",
+                    description: "Place and manage spot orders.",
+                    policyAction: "trade-spot",
+                },
+                {
+                    permission: "read_subaccount",
+                    displayName: "Read sub-account",
+                    description: "Read sub-account metadata.",
+                    policyAction: "unspecified",
+                },
+            ],
+            roles: [
+                {
+                    role: "trader",
+                    displayName: "Trader",
+                    description: "Trades spot.",
+                    assignable: true,
+                    permissions: ["read_subaccount", "trade_spot"],
+                },
+            ],
+        });
+        expect(transport.lastCall()?.message).toEqual({});
+    });
+
+    it("gets effective permissions for a subaccount and normalizes the request ID", async () => {
+        const transport = unaryTransport({
+            role: Proto.SubaccountRole.ADMIN,
+            permissions: [Proto.SubaccountPermission.READ_BALANCES],
+            subaccountPolicyId: 11n,
+        } satisfies MessageInitShape<typeof Proto.GetEffectiveSubaccountPermissionsResponseSchema>);
+        const realtime = realtimeClientStub();
+        const service = new SubaccountsService(transport.transport, realtime.realtime);
+
+        await expect(
+            service.getEffectivePermissions({ subaccountId: ` ${formatId(42n)} ` }),
+        ).resolves.toEqual({
+            role: "admin",
+            permissions: ["read_balances"],
+            subaccountPolicyId: formatId(11n),
+        });
+        expect(transport.lastCall()?.message).toEqual({ subaccountId: 42n });
+    });
+
     it.each([-1, 1.5])("rejects an invalid activity limit before transport: %s", async (limit) => {
         const transport = unaryTransport({});
         const realtime = realtimeClientStub();

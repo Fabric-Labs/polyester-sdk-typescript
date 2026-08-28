@@ -7,7 +7,11 @@ import { PolicyService } from "./gen/auth/v1/policies_pb.js";
 import { ProfileService } from "./gen/auth/v1/profile_pb.js";
 import { ResolveService } from "./gen/auth/v1/resolve_pb.js";
 import { SocialVerificationService } from "./gen/auth/v1/social_verification_pb.js";
-import { SubaccountService, SubaccountViewService } from "./gen/auth/v1/subaccounts_pb.js";
+import {
+    SubaccountRoleService,
+    SubaccountService,
+    SubaccountViewService,
+} from "./gen/auth/v1/subaccounts_pb.js";
 import { ChainAnalyticsService } from "./gen/chain/analytics/v1/analytics_read_pb.js";
 import { DepositAddressService } from "./gen/chain/deposit/v1/deposit_pb.js";
 import { GuardSignerService } from "./gen/chain/guard/v1/guard_signer_pb.js";
@@ -60,6 +64,7 @@ export const WIRED_SERVICE_DESCRIPTORS: readonly DescService[] = [
     RateLimitService,
     ResolveService,
     SocialVerificationService,
+    SubaccountRoleService,
     SubaccountService,
     SubaccountViewService,
     TriggersService,
