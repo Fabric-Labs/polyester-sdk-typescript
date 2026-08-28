@@ -6,7 +6,7 @@ import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobu
 import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import type { ApiKey } from "./api_keys_pb.js";
 import { file_auth_v1_api_keys } from "./api_keys_pb.js";
-import type { SubaccountPolicyView } from "./policies_pb.js";
+import type { PolicyAction, SubaccountPolicyView } from "./policies_pb.js";
 import { file_auth_v1_policies } from "./policies_pb.js";
 import type { FieldMask, Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_field_mask, file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
@@ -19,7 +19,199 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file auth/v1/subaccounts.proto.
  */
 export const file_auth_v1_subaccounts: GenFile = /*@__PURE__*/
-  fileDesc("ChlhdXRoL3YxL3N1YmFjY291bnRzLnByb3RvEgdhdXRoLnYxIlQKElN1YmFjY291bnRSb2xlVmlldxIVCg1zdWJhY2NvdW50X2lkGAEgASgGEicKBHJvbGUYAiABKA4yFy5hdXRoLnYxLlN1YmFjY291bnRSb2xlQgAiwAMKClN1YmFjY291bnQSCgoCaWQYASABKAYSJwoEcm9sZRgCIAEoDjIXLmF1dGgudjEuU3ViYWNjb3VudFJvbGVCABIPCgVsYWJlbBgDIAEoCUIAEg4KBGljb24YCiABKAlCABIPCgVjb2xvchgLIAEoCUIAEhAKBnN0YXR1cxgEIAEoCUIAEh0KFXNtYXJ0X2FjY291bnRfYWRkcmVzcxgFIAEoCRIWCg5vd25lcl91c2VybmFtZRgGIAEoCRIYChBvd25lcl9hdmF0YXJfdXJsGAcgASgJEigKIG93bmVyX3Jvb3Rfc21hcnRfYWNjb3VudF9hZGRyZXNzGAggASgJEhwKFHN1YmFjY291bnRfcG9saWN5X2lkGAkgASgGEhoKEnJlcXVpcmVfbWVtYmVyX21mYRgMIAEoCBIlChhzbWFydF9hY2NvdW50X3NhbHRfbm9uY2UYDSABKA1IAIgBARIuCgp1cGRhdGVkX2F0GA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghyZXZpc2lvbhgPIAEoBEIbChlfc21hcnRfYWNjb3VudF9zYWx0X25vbmNlIhgKFkxpc3RTdWJhY2NvdW50c1JlcXVlc3QiWgoXTGlzdFN1YmFjY291bnRzUmVzcG9uc2USKAoLc3ViYWNjb3VudHMYASADKAsyEy5hdXRoLnYxLlN1YmFjY291bnQSFQoNdG90YWxfY3JlYXRlZBgCIAEoDSLtAQoXQ3JlYXRlU3ViYWNjb3VudFJlcXVlc3QSDwoFbGFiZWwYASABKAlCABIOCgRpY29uGAcgASgJQgASDwoFY29sb3IYCCABKAlCABIfChVzbWFydF9hY2NvdW50X2FkZHJlc3MYAiABKAlCABIPCgVub25jZRgDIAEoCUIAEhMKCXNpZ25hdHVyZRgEIAEoCUIAEiUKFnByaW1hcnlfd2FsbGV0X2FkZHJlc3MYBSABKAlCAEgAiAEBEhcKD3dhbGxldF9wcm92aWRlchgGIAEoCUIZChdfcHJpbWFyeV93YWxsZXRfYWRkcmVzcyJ8ChhDcmVhdGVTdWJhY2NvdW50UmVzcG9uc2USFQoNc3ViYWNjb3VudF9pZBgBIAEoBhIVCg10b3RhbF9jcmVhdGVkGAIgASgNEiAKGHNtYXJ0X2FjY291bnRfc2FsdF9ub25jZRgDIAEoDRIQCghyZXZpc2lvbhgEIAEoBCJaChRTdWJhY2NvdW50VXBkYXRlU3BlYxIPCgVsYWJlbBgBIAEoCUIAEg4KBGljb24YAiABKAlCABIPCgVjb2xvchgDIAEoCUIAEhAKBnN0YXR1cxgEIAEoCUIAIrcBChdVcGRhdGVTdWJhY2NvdW50UmVxdWVzdBIXCg1zdWJhY2NvdW50X2lkGAEgASgGQgASMwoKc3ViYWNjb3VudBgCIAEoCzIdLmF1dGgudjEuU3ViYWNjb3VudFVwZGF0ZVNwZWNCABIxCgt1cGRhdGVfbWFzaxgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2tCABIbChFleHBlY3RlZF9yZXZpc2lvbhgEIAEoBEIAIkMKGFVwZGF0ZVN1YmFjY291bnRSZXNwb25zZRInCgpzdWJhY2NvdW50GAEgASgLMhMuYXV0aC52MS5TdWJhY2NvdW50Il8KKFNldFN1YmFjY291bnRNZW1iZXJNRkFSZXF1aXJlbWVudFJlcXVlc3QSFwoNc3ViYWNjb3VudF9pZBgBIAEoBkIAEhoKEnJlcXVpcmVfbWVtYmVyX21mYRgCIAEoCCIrCilTZXRTdWJhY2NvdW50TWVtYmVyTUZBUmVxdWlyZW1lbnRSZXNwb25zZSKuAQoUU3ViYWNjb3VudE1lbWJlclZpZXcSEgoKYWNjb3VudF9pZBgBIAEoBhInCgRyb2xlGAIgASgOMhcuYXV0aC52MS5TdWJhY2NvdW50Um9sZUIAEhAKCHVzZXJuYW1lGAMgASgJEh0KFXNtYXJ0X2FjY291bnRfYWRkcmVzcxgEIAEoCRISCgphdmF0YXJfdXJsGAUgASgJEhQKDG1mYV9lbnJvbGxlZBgGIAEoCCI3ChxMaXN0U3ViYWNjb3VudE1lbWJlcnNSZXF1ZXN0EhcKDXN1YmFjY291bnRfaWQYASABKAZCACJPCh1MaXN0U3ViYWNjb3VudE1lbWJlcnNSZXNwb25zZRIuCgdtZW1iZXJzGAEgAygLMh0uYXV0aC52MS5TdWJhY2NvdW50TWVtYmVyVmlldyJWCh1SZW1vdmVTdWJhY2NvdW50TWVtYmVyUmVxdWVzdBIXCg1zdWJhY2NvdW50X2lkGAEgASgGQgASHAoSZ3JhbnRlZV9hY2NvdW50X2lkGAIgASgGQgAiIAoeUmVtb3ZlU3ViYWNjb3VudE1lbWJlclJlc3BvbnNlIoMBCiFVcGRhdGVTdWJhY2NvdW50TWVtYmVyUm9sZVJlcXVlc3QSFwoNc3ViYWNjb3VudF9pZBgBIAEoBkIAEhwKEmdyYW50ZWVfYWNjb3VudF9pZBgCIAEoBkIAEicKBHJvbGUYAyABKA4yFy5hdXRoLnYxLlN1YmFjY291bnRSb2xlQgAiJAoiVXBkYXRlU3ViYWNjb3VudE1lbWJlclJvbGVSZXNwb25zZSLrAwoQU3ViYWNjb3VudEludml0ZRIKCgJpZBgBIAEoBhIVCg1zdWJhY2NvdW50X2lkGAIgASgGEhoKEmdyYW50ZWVfYWNjb3VudF9pZBgDIAEoBhIaChJpbnZpdGVyX2FjY291bnRfaWQYBCABKAYSJwoEcm9sZRgFIAEoDjIXLmF1dGgudjEuU3ViYWNjb3VudFJvbGVCABIvCgZzdGF0dXMYBiABKA4yHy5hdXRoLnYxLlN1YmFjY291bnRJbnZpdGVTdGF0dXMSLgoKY3JlYXRlZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMcmVzcG9uZGVkX2F0GAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIYChBncmFudGVlX3VzZXJuYW1lGAkgASgJEhgKEGludml0ZXJfdXNlcm5hbWUYCiABKAkSGAoQc3ViYWNjb3VudF9sYWJlbBgLIAEoCRIqCiJpbnZpdGVyX3Jvb3Rfc21hcnRfYWNjb3VudF9hZGRyZXNzGAwgASgJEioKImdyYW50ZWVfcm9vdF9zbWFydF9hY2NvdW50X2FkZHJlc3MYDSABKAkSGgoScmVxdWlyZV9tZW1iZXJfbWZhGA4gASgIIn8KHUludml0ZVN1YmFjY291bnRNZW1iZXJSZXF1ZXN0EhcKDXN1YmFjY291bnRfaWQYASABKAZCABIcChJncmFudGVlX2FjY291bnRfaWQYAiABKAZCABInCgRyb2xlGAMgASgOMhcuYXV0aC52MS5TdWJhY2NvdW50Um9sZUIAIksKHkludml0ZVN1YmFjY291bnRNZW1iZXJSZXNwb25zZRIpCgZpbnZpdGUYASABKAsyGS5hdXRoLnYxLlN1YmFjY291bnRJbnZpdGUiMwocTGlzdFN1YmFjY291bnRJbnZpdGVzUmVxdWVzdBITCglkaXJlY3Rpb24YASABKAlCACJLCh1MaXN0U3ViYWNjb3VudEludml0ZXNSZXNwb25zZRIqCgdpbnZpdGVzGAEgAygLMhkuYXV0aC52MS5TdWJhY2NvdW50SW52aXRlImYKHlJlc3BvbmRTdWJhY2NvdW50SW52aXRlUmVxdWVzdBIRCglpbnZpdGVfaWQYASABKAYSMQoGYWN0aW9uGAIgASgOMh8uYXV0aC52MS5TdWJhY2NvdW50SW52aXRlQWN0aW9uQgAiTAofUmVzcG9uZFN1YmFjY291bnRJbnZpdGVSZXNwb25zZRIpCgZpbnZpdGUYASABKAsyGS5hdXRoLnYxLlN1YmFjY291bnRJbnZpdGUiyAEKFEdldFN1YmFjY291bnRSZXF1ZXN0EhcKDXN1YmFjY291bnRfaWQYASABKAZCABIYChBpbmNsdWRlX2FwaV9rZXlzGAIgASgIEhcKD2luY2x1ZGVfbWVtYmVycxgDIAEoCBIXCg9pbmNsdWRlX2ludml0ZXMYBCABKAgSFgoOaW5jbHVkZV9wb2xpY3kYBSABKAgSGAoQaW5jbHVkZV9iYWxhbmNlcxgGIAEoCBIZChFpbnZpdGVzX2RpcmVjdGlvbhgHIAEoCSKlAgoVR2V0U3ViYWNjb3VudFJlc3BvbnNlEicKCnN1YmFjY291bnQYASABKAsyEy5hdXRoLnYxLlN1YmFjY291bnQSIQoIYXBpX2tleXMYAiADKAsyDy5hdXRoLnYxLkFwaUtleRIuCgdtZW1iZXJzGAMgAygLMh0uYXV0aC52MS5TdWJhY2NvdW50TWVtYmVyVmlldxIqCgdpbnZpdGVzGAQgAygLMhkuYXV0aC52MS5TdWJhY2NvdW50SW52aXRlEi0KBnBvbGljeRgFIAEoCzIdLmF1dGgudjEuU3ViYWNjb3VudFBvbGljeVZpZXcSNQoIYmFsYW5jZXMYBiABKAsyIy5sZWRnZXIucmVhZC52MS5HZXRCYWxhbmNlc1Jlc3BvbnNlIq8CCg1BY3Rpdml0eUV2ZW50Ei4KCmNyZWF0ZWRfYXQYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjIKC2VudGl0eV9raW5kGAMgASgOMhsuYXV0aC52MS5BY3Rpdml0eUVudGl0eUtpbmRCABI0CgxldmVudF9hY3Rpb24YBCABKA4yHC5hdXRoLnYxLkFjdGl2aXR5RXZlbnRBY3Rpb25CABIuCgZzb3VyY2UYBSABKA4yHC5hdXRoLnYxLkFjdGl2aXR5RXZlbnRTb3VyY2VCABIMCgJpcBgGIAEoCUIAEhQKCnVzZXJfYWdlbnQYByABKAlCABIYChBhY3Rvcl9hY2NvdW50X2lkGAggASgGEhYKDHBheWxvYWRfanNvbhgJIAEoCUIAIl0KG0xpc3RTdWJhY2NvdW50RXZlbnRzUmVxdWVzdBIXCg1zdWJhY2NvdW50X2lkGAEgASgGQgASDwoFbGltaXQYAiABKA1CABIUCgpwYWdlX3Rva2VuGAQgASgJQgAiYQocTGlzdFN1YmFjY291bnRFdmVudHNSZXNwb25zZRImCgZldmVudHMYASADKAsyFi5hdXRoLnYxLkFjdGl2aXR5RXZlbnQSGQoPbmV4dF9wYWdlX3Rva2VuGAMgASgJQgAqgwEKDlN1YmFjY291bnRSb2xlEh8KG1NVQkFDQ09VTlRfUk9MRV9VTlNQRUNJRklFRBAAEgoKBlZJRVdFUhABEgoKBlRSQURFUhACEhQKEExFVkVSQUdFRF9UUkFERVIQAxIMCghUUkVBU1VSWRAEEgkKBUFETUlOEAUSCQoFT1dORVIQBireAQoWU3ViYWNjb3VudEludml0ZVN0YXR1cxIoCiRTVUJBQ0NPVU5UX0lOVklURV9TVEFUVVNfVU5TUEVDSUZJRUQQABIkCiBTVUJBQ0NPVU5UX0lOVklURV9TVEFUVVNfUEVORElORxABEiUKIVNVQkFDQ09VTlRfSU5WSVRFX1NUQVRVU19BQ0NFUFRFRBACEiUKIVNVQkFDQ09VTlRfSU5WSVRFX1NUQVRVU19ERUNMSU5FRBADEiYKIlNVQkFDQ09VTlRfSU5WSVRFX1NUQVRVU19DQU5DRUxMRUQQBCqyAQoWU3ViYWNjb3VudEludml0ZUFjdGlvbhIoCiRTVUJBQ0NPVU5UX0lOVklURV9BQ1RJT05fVU5TUEVDSUZJRUQQABIjCh9TVUJBQ0NPVU5UX0lOVklURV9BQ1RJT05fQUNDRVBUEAESJAogU1VCQUNDT1VOVF9JTlZJVEVfQUNUSU9OX0RFQ0xJTkUQAhIjCh9TVUJBQ0NPVU5UX0lOVklURV9BQ1RJT05fQ0FOQ0VMEAMqvwIKEkFjdGl2aXR5RW50aXR5S2luZBIfChtBQ1RJVklUWV9FTlRJVFlfVU5TUEVDSUZJRUQQABIbChdBQ1RJVklUWV9FTlRJVFlfQUNDT1VOVBABEhsKF0FDVElWSVRZX0VOVElUWV9TRVNTSU9OEAISGwoXQUNUSVZJVFlfRU5USVRZX0FQSV9LRVkQAxIeChpBQ1RJVklUWV9FTlRJVFlfU1VCQUNDT1VOVBAEEhoKFkFDVElWSVRZX0VOVElUWV9NRU1CRVIQBRIaChZBQ1RJVklUWV9FTlRJVFlfUE9MSUNZEAYSGgoWQUNUSVZJVFlfRU5USVRZX0lOVklURRAHEhwKGEFDVElWSVRZX0VOVElUWV9TRUNVUklUWRAIEh8KG0FDVElWSVRZX0VOVElUWV9ERVNUSU5BVElPThAJKtgDChNBY3Rpdml0eUV2ZW50QWN0aW9uEh8KG0FDVElWSVRZX0FDVElPTl9VTlNQRUNJRklFRBAAEhsKF0FDVElWSVRZX0FDVElPTl9DUkVBVEVEEAESGwoXQUNUSVZJVFlfQUNUSU9OX1VQREFURUQQAhIbChdBQ1RJVklUWV9BQ1RJT05fREVMRVRFRBADEhsKF0FDVElWSVRZX0FDVElPTl9FTkFCTEVEEAQSHAoYQUNUSVZJVFlfQUNUSU9OX0RJU0FCTEVEEAUSGwoXQUNUSVZJVFlfQUNUSU9OX1JFTU9WRUQQBhIcChhBQ1RJVklUWV9BQ1RJT05fUk9MRV9TRVQQBxIcChhBQ1RJVklUWV9BQ1RJT05fUkVDRUlWRUQQCBIbChdBQ1RJVklUWV9BQ1RJT05fUkVQTElFRBAJEhoKFkFDVElWSVRZX0FDVElPTl9GQUlMRUQQChIbChdBQ1RJVklUWV9BQ1RJT05fUkVWT0tFRBALEhsKF0FDVElWSVRZX0FDVElPTl9CTE9DS0VEEAwSHwobQUNUSVZJVFlfQUNUSU9OX0hPTERfUExBQ0VEEA0SIQodQUNUSVZJVFlfQUNUSU9OX0hPTERfUkVMRUFTRUQQDiqEAQoTQWN0aXZpdHlFdmVudFNvdXJjZRIfChtBQ1RJVklUWV9TT1VSQ0VfVU5TUEVDSUZJRUQQABIXChNBQ1RJVklUWV9TT1VSQ0VfV0VCEAESGgoWQUNUSVZJVFlfU09VUkNFX01PQklMRRACEhcKE0FDVElWSVRZX1NPVVJDRV9BUEkQAzLSAQoVU3ViYWNjb3VudFZpZXdTZXJ2aWNlElAKDUdldFN1YmFjY291bnQSHS5hdXRoLnYxLkdldFN1YmFjY291bnRSZXF1ZXN0Gh4uYXV0aC52MS5HZXRTdWJhY2NvdW50UmVzcG9uc2UiABJnChZMaXN0U3ViYWNjb3VudEFjdGl2aXR5EiQuYXV0aC52MS5MaXN0U3ViYWNjb3VudEV2ZW50c1JlcXVlc3QaJS5hdXRoLnYxLkxpc3RTdWJhY2NvdW50RXZlbnRzUmVzcG9uc2UiADLHCAoRU3ViYWNjb3VudFNlcnZpY2USVgoPTGlzdFN1YmFjY291bnRzEh8uYXV0aC52MS5MaXN0U3ViYWNjb3VudHNSZXF1ZXN0GiAuYXV0aC52MS5MaXN0U3ViYWNjb3VudHNSZXNwb25zZSIAElkKEENyZWF0ZVN1YmFjY291bnQSIC5hdXRoLnYxLkNyZWF0ZVN1YmFjY291bnRSZXF1ZXN0GiEuYXV0aC52MS5DcmVhdGVTdWJhY2NvdW50UmVzcG9uc2UiABJZChBVcGRhdGVTdWJhY2NvdW50EiAuYXV0aC52MS5VcGRhdGVTdWJhY2NvdW50UmVxdWVzdBohLmF1dGgudjEuVXBkYXRlU3ViYWNjb3VudFJlc3BvbnNlIgASjAEKIVNldFN1YmFjY291bnRNZW1iZXJNRkFSZXF1aXJlbWVudBIxLmF1dGgudjEuU2V0U3ViYWNjb3VudE1lbWJlck1GQVJlcXVpcmVtZW50UmVxdWVzdBoyLmF1dGgudjEuU2V0U3ViYWNjb3VudE1lbWJlck1GQVJlcXVpcmVtZW50UmVzcG9uc2UiABJoChVMaXN0U3ViYWNjb3VudE1lbWJlcnMSJS5hdXRoLnYxLkxpc3RTdWJhY2NvdW50TWVtYmVyc1JlcXVlc3QaJi5hdXRoLnYxLkxpc3RTdWJhY2NvdW50TWVtYmVyc1Jlc3BvbnNlIgASawoWUmVtb3ZlU3ViYWNjb3VudE1lbWJlchImLmF1dGgudjEuUmVtb3ZlU3ViYWNjb3VudE1lbWJlclJlcXVlc3QaJy5hdXRoLnYxLlJlbW92ZVN1YmFjY291bnRNZW1iZXJSZXNwb25zZSIAEncKGlVwZGF0ZVN1YmFjY291bnRNZW1iZXJSb2xlEiouYXV0aC52MS5VcGRhdGVTdWJhY2NvdW50TWVtYmVyUm9sZVJlcXVlc3QaKy5hdXRoLnYxLlVwZGF0ZVN1YmFjY291bnRNZW1iZXJSb2xlUmVzcG9uc2UiABJrChZJbnZpdGVTdWJhY2NvdW50TWVtYmVyEiYuYXV0aC52MS5JbnZpdGVTdWJhY2NvdW50TWVtYmVyUmVxdWVzdBonLmF1dGgudjEuSW52aXRlU3ViYWNjb3VudE1lbWJlclJlc3BvbnNlIgASaAoVTGlzdFN1YmFjY291bnRJbnZpdGVzEiUuYXV0aC52MS5MaXN0U3ViYWNjb3VudEludml0ZXNSZXF1ZXN0GiYuYXV0aC52MS5MaXN0U3ViYWNjb3VudEludml0ZXNSZXNwb25zZSIAEm4KF1Jlc3BvbmRTdWJhY2NvdW50SW52aXRlEicuYXV0aC52MS5SZXNwb25kU3ViYWNjb3VudEludml0ZVJlcXVlc3QaKC5hdXRoLnYxLlJlc3BvbmRTdWJhY2NvdW50SW52aXRlUmVzcG9uc2UiAEI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2F1dGgvdjE7YXV0aHYxYgZwcm90bzM=", [file_auth_v1_api_keys, file_auth_v1_policies, file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_ledger_read_v1_ledger_read, file_polyester_api_options]);
+  fileDesc("ChlhdXRoL3YxL3N1YmFjY291bnRzLnByb3RvEgdhdXRoLnYxIrABCh5TdWJhY2NvdW50UGVybWlzc2lvbkRlZmluaXRpb24SMwoKcGVybWlzc2lvbhgBIAEoDjIdLmF1dGgudjEuU3ViYWNjb3VudFBlcm1pc3Npb25CABIUCgxkaXNwbGF5X25hbWUYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAkSLgoNcG9saWN5X2FjdGlvbhgEIAEoDjIVLmF1dGgudjEuUG9saWN5QWN0aW9uQgAiuAEKGFN1YmFjY291bnRSb2xlRGVmaW5pdGlvbhInCgRyb2xlGAEgASgOMhcuYXV0aC52MS5TdWJhY2NvdW50Um9sZUIAEhQKDGRpc3BsYXlfbmFtZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRISCgphc3NpZ25hYmxlGAQgASgIEjQKC3Blcm1pc3Npb25zGAUgAygOMh0uYXV0aC52MS5TdWJhY2NvdW50UGVybWlzc2lvbkIAIhwKGkxpc3RTdWJhY2NvdW50Um9sZXNSZXF1ZXN0Io0BChtMaXN0U3ViYWNjb3VudFJvbGVzUmVzcG9uc2USPAoLcGVybWlzc2lvbnMYASADKAsyJy5hdXRoLnYxLlN1YmFjY291bnRQZXJtaXNzaW9uRGVmaW5pdGlvbhIwCgVyb2xlcxgCIAMoCzIhLmF1dGgudjEuU3ViYWNjb3VudFJvbGVEZWZpbml0aW9uIkMKKEdldEVmZmVjdGl2ZVN1YmFjY291bnRQZXJtaXNzaW9uc1JlcXVlc3QSFwoNc3ViYWNjb3VudF9pZBgBIAEoBkIAIqgBCilHZXRFZmZlY3RpdmVTdWJhY2NvdW50UGVybWlzc2lvbnNSZXNwb25zZRInCgRyb2xlGAEgASgOMhcuYXV0aC52MS5TdWJhY2NvdW50Um9sZUIAEjQKC3Blcm1pc3Npb25zGAIgAygOMh0uYXV0aC52MS5TdWJhY2NvdW50UGVybWlzc2lvbkIAEhwKFHN1YmFjY291bnRfcG9saWN5X2lkGAMgASgGIlQKElN1YmFjY291bnRSb2xlVmlldxIVCg1zdWJhY2NvdW50X2lkGAEgASgGEicKBHJvbGUYAiABKA4yFy5hdXRoLnYxLlN1YmFjY291bnRSb2xlQgAiwAMKClN1YmFjY291bnQSCgoCaWQYASABKAYSJwoEcm9sZRgCIAEoDjIXLmF1dGgudjEuU3ViYWNjb3VudFJvbGVCABIPCgVsYWJlbBgDIAEoCUIAEg4KBGljb24YCiABKAlCABIPCgVjb2xvchgLIAEoCUIAEhAKBnN0YXR1cxgEIAEoCUIAEh0KFXNtYXJ0X2FjY291bnRfYWRkcmVzcxgFIAEoCRIWCg5vd25lcl91c2VybmFtZRgGIAEoCRIYChBvd25lcl9hdmF0YXJfdXJsGAcgASgJEigKIG93bmVyX3Jvb3Rfc21hcnRfYWNjb3VudF9hZGRyZXNzGAggASgJEhwKFHN1YmFjY291bnRfcG9saWN5X2lkGAkgASgGEhoKEnJlcXVpcmVfbWVtYmVyX21mYRgMIAEoCBIlChhzbWFydF9hY2NvdW50X3NhbHRfbm9uY2UYDSABKA1IAIgBARIuCgp1cGRhdGVkX2F0GA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghyZXZpc2lvbhgPIAEoBEIbChlfc21hcnRfYWNjb3VudF9zYWx0X25vbmNlIhgKFkxpc3RTdWJhY2NvdW50c1JlcXVlc3QiWgoXTGlzdFN1YmFjY291bnRzUmVzcG9uc2USKAoLc3ViYWNjb3VudHMYASADKAsyEy5hdXRoLnYxLlN1YmFjY291bnQSFQoNdG90YWxfY3JlYXRlZBgCIAEoDSLtAQoXQ3JlYXRlU3ViYWNjb3VudFJlcXVlc3QSDwoFbGFiZWwYASABKAlCABIOCgRpY29uGAcgASgJQgASDwoFY29sb3IYCCABKAlCABIfChVzbWFydF9hY2NvdW50X2FkZHJlc3MYAiABKAlCABIPCgVub25jZRgDIAEoCUIAEhMKCXNpZ25hdHVyZRgEIAEoCUIAEiUKFnByaW1hcnlfd2FsbGV0X2FkZHJlc3MYBSABKAlCAEgAiAEBEhcKD3dhbGxldF9wcm92aWRlchgGIAEoCUIZChdfcHJpbWFyeV93YWxsZXRfYWRkcmVzcyJ8ChhDcmVhdGVTdWJhY2NvdW50UmVzcG9uc2USFQoNc3ViYWNjb3VudF9pZBgBIAEoBhIVCg10b3RhbF9jcmVhdGVkGAIgASgNEiAKGHNtYXJ0X2FjY291bnRfc2FsdF9ub25jZRgDIAEoDRIQCghyZXZpc2lvbhgEIAEoBCJaChRTdWJhY2NvdW50VXBkYXRlU3BlYxIPCgVsYWJlbBgBIAEoCUIAEg4KBGljb24YAiABKAlCABIPCgVjb2xvchgDIAEoCUIAEhAKBnN0YXR1cxgEIAEoCUIAIrcBChdVcGRhdGVTdWJhY2NvdW50UmVxdWVzdBIXCg1zdWJhY2NvdW50X2lkGAEgASgGQgASMwoKc3ViYWNjb3VudBgCIAEoCzIdLmF1dGgudjEuU3ViYWNjb3VudFVwZGF0ZVNwZWNCABIxCgt1cGRhdGVfbWFzaxgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2tCABIbChFleHBlY3RlZF9yZXZpc2lvbhgEIAEoBEIAIkMKGFVwZGF0ZVN1YmFjY291bnRSZXNwb25zZRInCgpzdWJhY2NvdW50GAEgASgLMhMuYXV0aC52MS5TdWJhY2NvdW50Il8KKFNldFN1YmFjY291bnRNZW1iZXJNRkFSZXF1aXJlbWVudFJlcXVlc3QSFwoNc3ViYWNjb3VudF9pZBgBIAEoBkIAEhoKEnJlcXVpcmVfbWVtYmVyX21mYRgCIAEoCCIrCilTZXRTdWJhY2NvdW50TWVtYmVyTUZBUmVxdWlyZW1lbnRSZXNwb25zZSKuAQoUU3ViYWNjb3VudE1lbWJlclZpZXcSEgoKYWNjb3VudF9pZBgBIAEoBhInCgRyb2xlGAIgASgOMhcuYXV0aC52MS5TdWJhY2NvdW50Um9sZUIAEhAKCHVzZXJuYW1lGAMgASgJEh0KFXNtYXJ0X2FjY291bnRfYWRkcmVzcxgEIAEoCRISCgphdmF0YXJfdXJsGAUgASgJEhQKDG1mYV9lbnJvbGxlZBgGIAEoCCI3ChxMaXN0U3ViYWNjb3VudE1lbWJlcnNSZXF1ZXN0EhcKDXN1YmFjY291bnRfaWQYASABKAZCACJPCh1MaXN0U3ViYWNjb3VudE1lbWJlcnNSZXNwb25zZRIuCgdtZW1iZXJzGAEgAygLMh0uYXV0aC52MS5TdWJhY2NvdW50TWVtYmVyVmlldyJWCh1SZW1vdmVTdWJhY2NvdW50TWVtYmVyUmVxdWVzdBIXCg1zdWJhY2NvdW50X2lkGAEgASgGQgASHAoSZ3JhbnRlZV9hY2NvdW50X2lkGAIgASgGQgAiIAoeUmVtb3ZlU3ViYWNjb3VudE1lbWJlclJlc3BvbnNlIoMBCiFVcGRhdGVTdWJhY2NvdW50TWVtYmVyUm9sZVJlcXVlc3QSFwoNc3ViYWNjb3VudF9pZBgBIAEoBkIAEhwKEmdyYW50ZWVfYWNjb3VudF9pZBgCIAEoBkIAEicKBHJvbGUYAyABKA4yFy5hdXRoLnYxLlN1YmFjY291bnRSb2xlQgAiJAoiVXBkYXRlU3ViYWNjb3VudE1lbWJlclJvbGVSZXNwb25zZSLrAwoQU3ViYWNjb3VudEludml0ZRIKCgJpZBgBIAEoBhIVCg1zdWJhY2NvdW50X2lkGAIgASgGEhoKEmdyYW50ZWVfYWNjb3VudF9pZBgDIAEoBhIaChJpbnZpdGVyX2FjY291bnRfaWQYBCABKAYSJwoEcm9sZRgFIAEoDjIXLmF1dGgudjEuU3ViYWNjb3VudFJvbGVCABIvCgZzdGF0dXMYBiABKA4yHy5hdXRoLnYxLlN1YmFjY291bnRJbnZpdGVTdGF0dXMSLgoKY3JlYXRlZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMcmVzcG9uZGVkX2F0GAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIYChBncmFudGVlX3VzZXJuYW1lGAkgASgJEhgKEGludml0ZXJfdXNlcm5hbWUYCiABKAkSGAoQc3ViYWNjb3VudF9sYWJlbBgLIAEoCRIqCiJpbnZpdGVyX3Jvb3Rfc21hcnRfYWNjb3VudF9hZGRyZXNzGAwgASgJEioKImdyYW50ZWVfcm9vdF9zbWFydF9hY2NvdW50X2FkZHJlc3MYDSABKAkSGgoScmVxdWlyZV9tZW1iZXJfbWZhGA4gASgIIn8KHUludml0ZVN1YmFjY291bnRNZW1iZXJSZXF1ZXN0EhcKDXN1YmFjY291bnRfaWQYASABKAZCABIcChJncmFudGVlX2FjY291bnRfaWQYAiABKAZCABInCgRyb2xlGAMgASgOMhcuYXV0aC52MS5TdWJhY2NvdW50Um9sZUIAIksKHkludml0ZVN1YmFjY291bnRNZW1iZXJSZXNwb25zZRIpCgZpbnZpdGUYASABKAsyGS5hdXRoLnYxLlN1YmFjY291bnRJbnZpdGUiMwocTGlzdFN1YmFjY291bnRJbnZpdGVzUmVxdWVzdBITCglkaXJlY3Rpb24YASABKAlCACJLCh1MaXN0U3ViYWNjb3VudEludml0ZXNSZXNwb25zZRIqCgdpbnZpdGVzGAEgAygLMhkuYXV0aC52MS5TdWJhY2NvdW50SW52aXRlImYKHlJlc3BvbmRTdWJhY2NvdW50SW52aXRlUmVxdWVzdBIRCglpbnZpdGVfaWQYASABKAYSMQoGYWN0aW9uGAIgASgOMh8uYXV0aC52MS5TdWJhY2NvdW50SW52aXRlQWN0aW9uQgAiTAofUmVzcG9uZFN1YmFjY291bnRJbnZpdGVSZXNwb25zZRIpCgZpbnZpdGUYASABKAsyGS5hdXRoLnYxLlN1YmFjY291bnRJbnZpdGUiyAEKFEdldFN1YmFjY291bnRSZXF1ZXN0EhcKDXN1YmFjY291bnRfaWQYASABKAZCABIYChBpbmNsdWRlX2FwaV9rZXlzGAIgASgIEhcKD2luY2x1ZGVfbWVtYmVycxgDIAEoCBIXCg9pbmNsdWRlX2ludml0ZXMYBCABKAgSFgoOaW5jbHVkZV9wb2xpY3kYBSABKAgSGAoQaW5jbHVkZV9iYWxhbmNlcxgGIAEoCBIZChFpbnZpdGVzX2RpcmVjdGlvbhgHIAEoCSKlAgoVR2V0U3ViYWNjb3VudFJlc3BvbnNlEicKCnN1YmFjY291bnQYASABKAsyEy5hdXRoLnYxLlN1YmFjY291bnQSIQoIYXBpX2tleXMYAiADKAsyDy5hdXRoLnYxLkFwaUtleRIuCgdtZW1iZXJzGAMgAygLMh0uYXV0aC52MS5TdWJhY2NvdW50TWVtYmVyVmlldxIqCgdpbnZpdGVzGAQgAygLMhkuYXV0aC52MS5TdWJhY2NvdW50SW52aXRlEi0KBnBvbGljeRgFIAEoCzIdLmF1dGgudjEuU3ViYWNjb3VudFBvbGljeVZpZXcSNQoIYmFsYW5jZXMYBiABKAsyIy5sZWRnZXIucmVhZC52MS5HZXRCYWxhbmNlc1Jlc3BvbnNlIq8CCg1BY3Rpdml0eUV2ZW50Ei4KCmNyZWF0ZWRfYXQYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjIKC2VudGl0eV9raW5kGAMgASgOMhsuYXV0aC52MS5BY3Rpdml0eUVudGl0eUtpbmRCABI0CgxldmVudF9hY3Rpb24YBCABKA4yHC5hdXRoLnYxLkFjdGl2aXR5RXZlbnRBY3Rpb25CABIuCgZzb3VyY2UYBSABKA4yHC5hdXRoLnYxLkFjdGl2aXR5RXZlbnRTb3VyY2VCABIMCgJpcBgGIAEoCUIAEhQKCnVzZXJfYWdlbnQYByABKAlCABIYChBhY3Rvcl9hY2NvdW50X2lkGAggASgGEhYKDHBheWxvYWRfanNvbhgJIAEoCUIAIl0KG0xpc3RTdWJhY2NvdW50RXZlbnRzUmVxdWVzdBIXCg1zdWJhY2NvdW50X2lkGAEgASgGQgASDwoFbGltaXQYAiABKA1CABIUCgpwYWdlX3Rva2VuGAQgASgJQgAiYQocTGlzdFN1YmFjY291bnRFdmVudHNSZXNwb25zZRImCgZldmVudHMYASADKAsyFi5hdXRoLnYxLkFjdGl2aXR5RXZlbnQSGQoPbmV4dF9wYWdlX3Rva2VuGAMgASgJQgAqgwEKDlN1YmFjY291bnRSb2xlEh8KG1NVQkFDQ09VTlRfUk9MRV9VTlNQRUNJRklFRBAAEgoKBlZJRVdFUhABEgoKBlRSQURFUhACEhQKEExFVkVSQUdFRF9UUkFERVIQAxIMCghUUkVBU1VSWRAEEgkKBUFETUlOEAUSCQoFT1dORVIQBiqzCQoUU3ViYWNjb3VudFBlcm1pc3Npb24SJQohU1VCQUNDT1VOVF9QRVJNSVNTSU9OX1VOU1BFQ0lGSUVEEAASKQolU1VCQUNDT1VOVF9QRVJNSVNTSU9OX1JFQURfU1VCQUNDT1VOVBABEisKJ1NVQkFDQ09VTlRfUEVSTUlTU0lPTl9VUERBVEVfU1VCQUNDT1VOVBACEicKI1NVQkFDQ09VTlRfUEVSTUlTU0lPTl9SRUFEX0JBTEFOQ0VTEAMSIwofU1VCQUNDT1VOVF9QRVJNSVNTSU9OX1JFQURfU1BPVBAEEiQKIFNVQkFDQ09VTlRfUEVSTUlTU0lPTl9UUkFERV9TUE9UEAUSMQotU1VCQUNDT1VOVF9QRVJNSVNTSU9OX1JFQURfSU5URVJOQUxfVFJBTlNGRVJTEAYSKwonU1VCQUNDT1VOVF9QRVJNSVNTSU9OX0lOVEVSTkFMX1RSQU5TRkVSEAcSKwonU1VCQUNDT1VOVF9QRVJNSVNTSU9OX0VYVEVSTkFMX1dJVEhEUkFXEAgSKwonU1VCQUNDT1VOVF9QRVJNSVNTSU9OX1JFQURfQUREUkVTU19CT09LEAkSLQopU1VCQUNDT1VOVF9QRVJNSVNTSU9OX01BTkFHRV9BRERSRVNTX0JPT0sQChImCiJTVUJBQ0NPVU5UX1BFUk1JU1NJT05fUkVBRF9NRU1CRVJTEAsSKAokU1VCQUNDT1VOVF9QRVJNSVNTSU9OX01BTkFHRV9NRU1CRVJTEAwSJgoiU1VCQUNDT1VOVF9QRVJNSVNTSU9OX1JFQURfSU5WSVRFUxANEigKJFNVQkFDQ09VTlRfUEVSTUlTU0lPTl9NQU5BR0VfSU5WSVRFUxAOEicKI1NVQkFDQ09VTlRfUEVSTUlTU0lPTl9SRUFEX0FQSV9LRVlTEA8SKQolU1VCQUNDT1VOVF9QRVJNSVNTSU9OX01BTkFHRV9BUElfS0VZUxAQEjAKLFNVQkFDQ09VTlRfUEVSTUlTU0lPTl9SRUFEX1NVQkFDQ09VTlRfUE9MSUNZEBESMgouU1VCQUNDT1VOVF9QRVJNSVNTSU9OX01BTkFHRV9TVUJBQ0NPVU5UX1BPTElDWRASEicKI1NVQkFDQ09VTlRfUEVSTUlTU0lPTl9SRUFEX0FDVElWSVRZEBMSOAo0U1VCQUNDT1VOVF9QRVJNSVNTSU9OX1JFQURfQUNUSVZJVFlfU0VDVVJJVFlfREVUQUlMUxAUEjcKM1NVQkFDQ09VTlRfUEVSTUlTU0lPTl9NQU5BR0VfTUVNQkVSX01GQV9SRVFVSVJFTUVOVBAVEjAKLFNVQkFDQ09VTlRfUEVSTUlTU0lPTl9DUkVBVEVfREVQT1NJVF9BRERSRVNTEBYSMAosU1VCQUNDT1VOVF9QRVJNSVNTSU9OX1JFQURfREVQT1NJVF9BRERSRVNTRVMQFxIyCi5TVUJBQ0NPVU5UX1BFUk1JU1NJT05fUkVBRF9HVUFSRF9TSUdORVJfU1RBVFVTEBgSLQopU1VCQUNDT1VOVF9QRVJNSVNTSU9OX01BTkFHRV9HVUFSRF9TSUdORVIQGSreAQoWU3ViYWNjb3VudEludml0ZVN0YXR1cxIoCiRTVUJBQ0NPVU5UX0lOVklURV9TVEFUVVNfVU5TUEVDSUZJRUQQABIkCiBTVUJBQ0NPVU5UX0lOVklURV9TVEFUVVNfUEVORElORxABEiUKIVNVQkFDQ09VTlRfSU5WSVRFX1NUQVRVU19BQ0NFUFRFRBACEiUKIVNVQkFDQ09VTlRfSU5WSVRFX1NUQVRVU19ERUNMSU5FRBADEiYKIlNVQkFDQ09VTlRfSU5WSVRFX1NUQVRVU19DQU5DRUxMRUQQBCqyAQoWU3ViYWNjb3VudEludml0ZUFjdGlvbhIoCiRTVUJBQ0NPVU5UX0lOVklURV9BQ1RJT05fVU5TUEVDSUZJRUQQABIjCh9TVUJBQ0NPVU5UX0lOVklURV9BQ1RJT05fQUNDRVBUEAESJAogU1VCQUNDT1VOVF9JTlZJVEVfQUNUSU9OX0RFQ0xJTkUQAhIjCh9TVUJBQ0NPVU5UX0lOVklURV9BQ1RJT05fQ0FOQ0VMEAMqvwIKEkFjdGl2aXR5RW50aXR5S2luZBIfChtBQ1RJVklUWV9FTlRJVFlfVU5TUEVDSUZJRUQQABIbChdBQ1RJVklUWV9FTlRJVFlfQUNDT1VOVBABEhsKF0FDVElWSVRZX0VOVElUWV9TRVNTSU9OEAISGwoXQUNUSVZJVFlfRU5USVRZX0FQSV9LRVkQAxIeChpBQ1RJVklUWV9FTlRJVFlfU1VCQUNDT1VOVBAEEhoKFkFDVElWSVRZX0VOVElUWV9NRU1CRVIQBRIaChZBQ1RJVklUWV9FTlRJVFlfUE9MSUNZEAYSGgoWQUNUSVZJVFlfRU5USVRZX0lOVklURRAHEhwKGEFDVElWSVRZX0VOVElUWV9TRUNVUklUWRAIEh8KG0FDVElWSVRZX0VOVElUWV9ERVNUSU5BVElPThAJKtgDChNBY3Rpdml0eUV2ZW50QWN0aW9uEh8KG0FDVElWSVRZX0FDVElPTl9VTlNQRUNJRklFRBAAEhsKF0FDVElWSVRZX0FDVElPTl9DUkVBVEVEEAESGwoXQUNUSVZJVFlfQUNUSU9OX1VQREFURUQQAhIbChdBQ1RJVklUWV9BQ1RJT05fREVMRVRFRBADEhsKF0FDVElWSVRZX0FDVElPTl9FTkFCTEVEEAQSHAoYQUNUSVZJVFlfQUNUSU9OX0RJU0FCTEVEEAUSGwoXQUNUSVZJVFlfQUNUSU9OX1JFTU9WRUQQBhIcChhBQ1RJVklUWV9BQ1RJT05fUk9MRV9TRVQQBxIcChhBQ1RJVklUWV9BQ1RJT05fUkVDRUlWRUQQCBIbChdBQ1RJVklUWV9BQ1RJT05fUkVQTElFRBAJEhoKFkFDVElWSVRZX0FDVElPTl9GQUlMRUQQChIbChdBQ1RJVklUWV9BQ1RJT05fUkVWT0tFRBALEhsKF0FDVElWSVRZX0FDVElPTl9CTE9DS0VEEAwSHwobQUNUSVZJVFlfQUNUSU9OX0hPTERfUExBQ0VEEA0SIQodQUNUSVZJVFlfQUNUSU9OX0hPTERfUkVMRUFTRUQQDiqEAQoTQWN0aXZpdHlFdmVudFNvdXJjZRIfChtBQ1RJVklUWV9TT1VSQ0VfVU5TUEVDSUZJRUQQABIXChNBQ1RJVklUWV9TT1VSQ0VfV0VCEAESGgoWQUNUSVZJVFlfU09VUkNFX01PQklMRRACEhcKE0FDVElWSVRZX1NPVVJDRV9BUEkQAzLSAQoVU3ViYWNjb3VudFZpZXdTZXJ2aWNlElAKDUdldFN1YmFjY291bnQSHS5hdXRoLnYxLkdldFN1YmFjY291bnRSZXF1ZXN0Gh4uYXV0aC52MS5HZXRTdWJhY2NvdW50UmVzcG9uc2UiABJnChZMaXN0U3ViYWNjb3VudEFjdGl2aXR5EiQuYXV0aC52MS5MaXN0U3ViYWNjb3VudEV2ZW50c1JlcXVlc3QaJS5hdXRoLnYxLkxpc3RTdWJhY2NvdW50RXZlbnRzUmVzcG9uc2UiADLHCAoRU3ViYWNjb3VudFNlcnZpY2USVgoPTGlzdFN1YmFjY291bnRzEh8uYXV0aC52MS5MaXN0U3ViYWNjb3VudHNSZXF1ZXN0GiAuYXV0aC52MS5MaXN0U3ViYWNjb3VudHNSZXNwb25zZSIAElkKEENyZWF0ZVN1YmFjY291bnQSIC5hdXRoLnYxLkNyZWF0ZVN1YmFjY291bnRSZXF1ZXN0GiEuYXV0aC52MS5DcmVhdGVTdWJhY2NvdW50UmVzcG9uc2UiABJZChBVcGRhdGVTdWJhY2NvdW50EiAuYXV0aC52MS5VcGRhdGVTdWJhY2NvdW50UmVxdWVzdBohLmF1dGgudjEuVXBkYXRlU3ViYWNjb3VudFJlc3BvbnNlIgASjAEKIVNldFN1YmFjY291bnRNZW1iZXJNRkFSZXF1aXJlbWVudBIxLmF1dGgudjEuU2V0U3ViYWNjb3VudE1lbWJlck1GQVJlcXVpcmVtZW50UmVxdWVzdBoyLmF1dGgudjEuU2V0U3ViYWNjb3VudE1lbWJlck1GQVJlcXVpcmVtZW50UmVzcG9uc2UiABJoChVMaXN0U3ViYWNjb3VudE1lbWJlcnMSJS5hdXRoLnYxLkxpc3RTdWJhY2NvdW50TWVtYmVyc1JlcXVlc3QaJi5hdXRoLnYxLkxpc3RTdWJhY2NvdW50TWVtYmVyc1Jlc3BvbnNlIgASawoWUmVtb3ZlU3ViYWNjb3VudE1lbWJlchImLmF1dGgudjEuUmVtb3ZlU3ViYWNjb3VudE1lbWJlclJlcXVlc3QaJy5hdXRoLnYxLlJlbW92ZVN1YmFjY291bnRNZW1iZXJSZXNwb25zZSIAEncKGlVwZGF0ZVN1YmFjY291bnRNZW1iZXJSb2xlEiouYXV0aC52MS5VcGRhdGVTdWJhY2NvdW50TWVtYmVyUm9sZVJlcXVlc3QaKy5hdXRoLnYxLlVwZGF0ZVN1YmFjY291bnRNZW1iZXJSb2xlUmVzcG9uc2UiABJrChZJbnZpdGVTdWJhY2NvdW50TWVtYmVyEiYuYXV0aC52MS5JbnZpdGVTdWJhY2NvdW50TWVtYmVyUmVxdWVzdBonLmF1dGgudjEuSW52aXRlU3ViYWNjb3VudE1lbWJlclJlc3BvbnNlIgASaAoVTGlzdFN1YmFjY291bnRJbnZpdGVzEiUuYXV0aC52MS5MaXN0U3ViYWNjb3VudEludml0ZXNSZXF1ZXN0GiYuYXV0aC52MS5MaXN0U3ViYWNjb3VudEludml0ZXNSZXNwb25zZSIAEm4KF1Jlc3BvbmRTdWJhY2NvdW50SW52aXRlEicuYXV0aC52MS5SZXNwb25kU3ViYWNjb3VudEludml0ZVJlcXVlc3QaKC5hdXRoLnYxLlJlc3BvbmRTdWJhY2NvdW50SW52aXRlUmVzcG9uc2UiADKKAgoVU3ViYWNjb3VudFJvbGVTZXJ2aWNlEmIKE0xpc3RTdWJhY2NvdW50Um9sZXMSIy5hdXRoLnYxLkxpc3RTdWJhY2NvdW50Um9sZXNSZXF1ZXN0GiQuYXV0aC52MS5MaXN0U3ViYWNjb3VudFJvbGVzUmVzcG9uc2UiABKMAQohR2V0RWZmZWN0aXZlU3ViYWNjb3VudFBlcm1pc3Npb25zEjEuYXV0aC52MS5HZXRFZmZlY3RpdmVTdWJhY2NvdW50UGVybWlzc2lvbnNSZXF1ZXN0GjIuYXV0aC52MS5HZXRFZmZlY3RpdmVTdWJhY2NvdW50UGVybWlzc2lvbnNSZXNwb25zZSIAQjxaOmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vYXV0aC92MTthdXRodjFiBnByb3RvMw==", [file_auth_v1_api_keys, file_auth_v1_policies, file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_ledger_read_v1_ledger_read, file_polyester_api_options]);
+
+/**
+ * User-facing metadata for one stable sub-account permission.
+ *
+ * @generated from message auth.v1.SubaccountPermissionDefinition
+ */
+export type SubaccountPermissionDefinition = Message<"auth.v1.SubaccountPermissionDefinition"> & {
+  /**
+   * Stable permission identifier used by authorization and clients.
+   *
+   * @generated from field: auth.v1.SubaccountPermission permission = 1;
+   */
+  permission: SubaccountPermission;
+
+  /**
+   * Human-readable permission name.
+   *
+   * @generated from field: string display_name = 2;
+   */
+  displayName: string;
+
+  /**
+   * Human-readable explanation of the capability and its important boundaries.
+   *
+   * @generated from field: string description = 3;
+   */
+  description: string;
+
+  /**
+   * Policy action that can further restrict this permission. Unspecified means
+   * the permission is controlled by role and request context only.
+   *
+   * @generated from field: auth.v1.PolicyAction policy_action = 4;
+   */
+  policyAction: PolicyAction;
+};
+
+/**
+ * Describes the message auth.v1.SubaccountPermissionDefinition.
+ * Use `create(SubaccountPermissionDefinitionSchema)` to create a new message.
+ */
+export const SubaccountPermissionDefinitionSchema: GenMessage<SubaccountPermissionDefinition> = /*@__PURE__*/
+  messageDesc(file_auth_v1_subaccounts, 0);
+
+/**
+ * Authoritative definition of one built-in sub-account role.
+ *
+ * @generated from message auth.v1.SubaccountRoleDefinition
+ */
+export type SubaccountRoleDefinition = Message<"auth.v1.SubaccountRoleDefinition"> & {
+  /**
+   * Stable built-in role identifier.
+   *
+   * @generated from field: auth.v1.SubaccountRole role = 1;
+   */
+  role: SubaccountRole;
+
+  /**
+   * Human-readable role name.
+   *
+   * @generated from field: string display_name = 2;
+   */
+  displayName: string;
+
+  /**
+   * Human-readable summary of the role.
+   *
+   * @generated from field: string description = 3;
+   */
+  description: string;
+
+  /**
+   * Whether this role can be assigned to a delegated member.
+   *
+   * @generated from field: bool assignable = 4;
+   */
+  assignable: boolean;
+
+  /**
+   * Complete role-granted permission set in canonical permission order.
+   *
+   * @generated from field: repeated auth.v1.SubaccountPermission permissions = 5;
+   */
+  permissions: SubaccountPermission[];
+};
+
+/**
+ * Describes the message auth.v1.SubaccountRoleDefinition.
+ * Use `create(SubaccountRoleDefinitionSchema)` to create a new message.
+ */
+export const SubaccountRoleDefinitionSchema: GenMessage<SubaccountRoleDefinition> = /*@__PURE__*/
+  messageDesc(file_auth_v1_subaccounts, 1);
+
+/**
+ * Request for the public built-in sub-account role and permission catalog.
+ *
+ * @generated from message auth.v1.ListSubaccountRolesRequest
+ */
+export type ListSubaccountRolesRequest = Message<"auth.v1.ListSubaccountRolesRequest"> & {
+};
+
+/**
+ * Describes the message auth.v1.ListSubaccountRolesRequest.
+ * Use `create(ListSubaccountRolesRequestSchema)` to create a new message.
+ */
+export const ListSubaccountRolesRequestSchema: GenMessage<ListSubaccountRolesRequest> = /*@__PURE__*/
+  messageDesc(file_auth_v1_subaccounts, 2);
+
+/**
+ * Public built-in sub-account role and permission catalog.
+ *
+ * @generated from message auth.v1.ListSubaccountRolesResponse
+ */
+export type ListSubaccountRolesResponse = Message<"auth.v1.ListSubaccountRolesResponse"> & {
+  /**
+   * Stable permission metadata in canonical permission order.
+   *
+   * @generated from field: repeated auth.v1.SubaccountPermissionDefinition permissions = 1;
+   */
+  permissions: SubaccountPermissionDefinition[];
+
+  /**
+   * Built-in roles in display order from Owner through Viewer.
+   *
+   * @generated from field: repeated auth.v1.SubaccountRoleDefinition roles = 2;
+   */
+  roles: SubaccountRoleDefinition[];
+};
+
+/**
+ * Describes the message auth.v1.ListSubaccountRolesResponse.
+ * Use `create(ListSubaccountRolesResponseSchema)` to create a new message.
+ */
+export const ListSubaccountRolesResponseSchema: GenMessage<ListSubaccountRolesResponse> = /*@__PURE__*/
+  messageDesc(file_auth_v1_subaccounts, 3);
+
+/**
+ * Request for the authenticated caller's effective permissions on one sub-account.
+ *
+ * @generated from message auth.v1.GetEffectiveSubaccountPermissionsRequest
+ */
+export type GetEffectiveSubaccountPermissionsRequest = Message<"auth.v1.GetEffectiveSubaccountPermissionsRequest"> & {
+  /**
+   * Target sub-account (opaque ID).
+   *
+   * @generated from field: fixed64 subaccount_id = 1;
+   */
+  subaccountId: bigint;
+};
+
+/**
+ * Describes the message auth.v1.GetEffectiveSubaccountPermissionsRequest.
+ * Use `create(GetEffectiveSubaccountPermissionsRequestSchema)` to create a new message.
+ */
+export const GetEffectiveSubaccountPermissionsRequestSchema: GenMessage<GetEffectiveSubaccountPermissionsRequest> = /*@__PURE__*/
+  messageDesc(file_auth_v1_subaccounts, 4);
+
+/**
+ * Effective role-granted permissions for the caller on one sub-account.
+ *
+ * @generated from message auth.v1.GetEffectiveSubaccountPermissionsResponse
+ */
+export type GetEffectiveSubaccountPermissionsResponse = Message<"auth.v1.GetEffectiveSubaccountPermissionsResponse"> & {
+  /**
+   * Current role of the caller on the sub-account.
+   *
+   * @generated from field: auth.v1.SubaccountRole role = 1;
+   */
+  role: SubaccountRole;
+
+  /**
+   * Permissions allowed by the role and current sub-account policy. Resource
+   * state, MFA, limits, and other request context may still deny an operation.
+   *
+   * @generated from field: repeated auth.v1.SubaccountPermission permissions = 2;
+   */
+  permissions: SubaccountPermission[];
+
+  /**
+   * Attached sub-account policy identifier, or zero when no policy is attached.
+   *
+   * @generated from field: fixed64 subaccount_policy_id = 3;
+   */
+  subaccountPolicyId: bigint;
+};
+
+/**
+ * Describes the message auth.v1.GetEffectiveSubaccountPermissionsResponse.
+ * Use `create(GetEffectiveSubaccountPermissionsResponseSchema)` to create a new message.
+ */
+export const GetEffectiveSubaccountPermissionsResponseSchema: GenMessage<GetEffectiveSubaccountPermissionsResponse> = /*@__PURE__*/
+  messageDesc(file_auth_v1_subaccounts, 5);
 
 /**
  * Role summary for one sub-account visible to the caller.
@@ -47,7 +239,7 @@ export type SubaccountRoleView = Message<"auth.v1.SubaccountRoleView"> & {
  * Use `create(SubaccountRoleViewSchema)` to create a new message.
  */
 export const SubaccountRoleViewSchema: GenMessage<SubaccountRoleView> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 0);
+  messageDesc(file_auth_v1_subaccounts, 6);
 
 /**
  * Sub-account summary visible to the caller.
@@ -175,7 +367,7 @@ export type Subaccount = Message<"auth.v1.Subaccount"> & {
  * Use `create(SubaccountSchema)` to create a new message.
  */
 export const SubaccountSchema: GenMessage<Subaccount> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 1);
+  messageDesc(file_auth_v1_subaccounts, 7);
 
 /**
  * Request to list sub-accounts owned by or shared with the caller.
@@ -190,7 +382,7 @@ export type ListSubaccountsRequest = Message<"auth.v1.ListSubaccountsRequest"> &
  * Use `create(ListSubaccountsRequestSchema)` to create a new message.
  */
 export const ListSubaccountsRequestSchema: GenMessage<ListSubaccountsRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 2);
+  messageDesc(file_auth_v1_subaccounts, 8);
 
 /**
  * Response containing sub-accounts visible to the caller.
@@ -221,7 +413,7 @@ export type ListSubaccountsResponse = Message<"auth.v1.ListSubaccountsResponse">
  * Use `create(ListSubaccountsResponseSchema)` to create a new message.
  */
 export const ListSubaccountsResponseSchema: GenMessage<ListSubaccountsResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 3);
+  messageDesc(file_auth_v1_subaccounts, 9);
 
 /**
  * Request to create a new sub-account under the caller's root account.
@@ -292,7 +484,7 @@ export type CreateSubaccountRequest = Message<"auth.v1.CreateSubaccountRequest">
  * Use `create(CreateSubaccountRequestSchema)` to create a new message.
  */
 export const CreateSubaccountRequestSchema: GenMessage<CreateSubaccountRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 4);
+  messageDesc(file_auth_v1_subaccounts, 10);
 
 /**
  * Response returned after creating a sub-account.
@@ -338,7 +530,7 @@ export type CreateSubaccountResponse = Message<"auth.v1.CreateSubaccountResponse
  * Use `create(CreateSubaccountResponseSchema)` to create a new message.
  */
 export const CreateSubaccountResponseSchema: GenMessage<CreateSubaccountResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 5);
+  messageDesc(file_auth_v1_subaccounts, 11);
 
 /**
  * SubaccountUpdateSpec contains mutable display and status configuration.
@@ -380,7 +572,7 @@ export type SubaccountUpdateSpec = Message<"auth.v1.SubaccountUpdateSpec"> & {
  * Use `create(SubaccountUpdateSpecSchema)` to create a new message.
  */
 export const SubaccountUpdateSpecSchema: GenMessage<SubaccountUpdateSpec> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 6);
+  messageDesc(file_auth_v1_subaccounts, 12);
 
 /**
  * Request to change selected mutable fields for a sub-account.
@@ -423,7 +615,7 @@ export type UpdateSubaccountRequest = Message<"auth.v1.UpdateSubaccountRequest">
  * Use `create(UpdateSubaccountRequestSchema)` to create a new message.
  */
 export const UpdateSubaccountRequestSchema: GenMessage<UpdateSubaccountRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 7);
+  messageDesc(file_auth_v1_subaccounts, 13);
 
 /**
  * Response returned after updating a sub-account.
@@ -444,7 +636,7 @@ export type UpdateSubaccountResponse = Message<"auth.v1.UpdateSubaccountResponse
  * Use `create(UpdateSubaccountResponseSchema)` to create a new message.
  */
 export const UpdateSubaccountResponseSchema: GenMessage<UpdateSubaccountResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 8);
+  messageDesc(file_auth_v1_subaccounts, 14);
 
 /**
  * Request to update the delegated-member MFA requirement for a sub-account.
@@ -474,7 +666,7 @@ export type SetSubaccountMemberMFARequirementRequest = Message<"auth.v1.SetSubac
  * Use `create(SetSubaccountMemberMFARequirementRequestSchema)` to create a new message.
  */
 export const SetSubaccountMemberMFARequirementRequestSchema: GenMessage<SetSubaccountMemberMFARequirementRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 9);
+  messageDesc(file_auth_v1_subaccounts, 15);
 
 /**
  * Empty response returned after updating the delegated-member MFA requirement.
@@ -489,7 +681,7 @@ export type SetSubaccountMemberMFARequirementResponse = Message<"auth.v1.SetSuba
  * Use `create(SetSubaccountMemberMFARequirementResponseSchema)` to create a new message.
  */
 export const SetSubaccountMemberMFARequirementResponseSchema: GenMessage<SetSubaccountMemberMFARequirementResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 10);
+  messageDesc(file_auth_v1_subaccounts, 16);
 
 /**
  * Member summary for a root account with access to a sub-account.
@@ -545,7 +737,7 @@ export type SubaccountMemberView = Message<"auth.v1.SubaccountMemberView"> & {
  * Use `create(SubaccountMemberViewSchema)` to create a new message.
  */
 export const SubaccountMemberViewSchema: GenMessage<SubaccountMemberView> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 11);
+  messageDesc(file_auth_v1_subaccounts, 17);
 
 /**
  * Request to list members for a sub-account.
@@ -566,7 +758,7 @@ export type ListSubaccountMembersRequest = Message<"auth.v1.ListSubaccountMember
  * Use `create(ListSubaccountMembersRequestSchema)` to create a new message.
  */
 export const ListSubaccountMembersRequestSchema: GenMessage<ListSubaccountMembersRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 12);
+  messageDesc(file_auth_v1_subaccounts, 18);
 
 /**
  * Response containing the members of a sub-account.
@@ -587,7 +779,7 @@ export type ListSubaccountMembersResponse = Message<"auth.v1.ListSubaccountMembe
  * Use `create(ListSubaccountMembersResponseSchema)` to create a new message.
  */
 export const ListSubaccountMembersResponseSchema: GenMessage<ListSubaccountMembersResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 13);
+  messageDesc(file_auth_v1_subaccounts, 19);
 
 /**
  * Request to remove a delegated member from a sub-account.
@@ -615,7 +807,7 @@ export type RemoveSubaccountMemberRequest = Message<"auth.v1.RemoveSubaccountMem
  * Use `create(RemoveSubaccountMemberRequestSchema)` to create a new message.
  */
 export const RemoveSubaccountMemberRequestSchema: GenMessage<RemoveSubaccountMemberRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 14);
+  messageDesc(file_auth_v1_subaccounts, 20);
 
 /**
  * Empty response returned after removing a sub-account member.
@@ -630,7 +822,7 @@ export type RemoveSubaccountMemberResponse = Message<"auth.v1.RemoveSubaccountMe
  * Use `create(RemoveSubaccountMemberResponseSchema)` to create a new message.
  */
 export const RemoveSubaccountMemberResponseSchema: GenMessage<RemoveSubaccountMemberResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 15);
+  messageDesc(file_auth_v1_subaccounts, 21);
 
 /**
  * Request to change the role of an existing sub-account member without sending a new invitation.
@@ -665,7 +857,7 @@ export type UpdateSubaccountMemberRoleRequest = Message<"auth.v1.UpdateSubaccoun
  * Use `create(UpdateSubaccountMemberRoleRequestSchema)` to create a new message.
  */
 export const UpdateSubaccountMemberRoleRequestSchema: GenMessage<UpdateSubaccountMemberRoleRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 16);
+  messageDesc(file_auth_v1_subaccounts, 22);
 
 /**
  * Empty response returned after updating a member role.
@@ -680,7 +872,7 @@ export type UpdateSubaccountMemberRoleResponse = Message<"auth.v1.UpdateSubaccou
  * Use `create(UpdateSubaccountMemberRoleResponseSchema)` to create a new message.
  */
 export const UpdateSubaccountMemberRoleResponseSchema: GenMessage<UpdateSubaccountMemberRoleResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 17);
+  messageDesc(file_auth_v1_subaccounts, 23);
 
 /**
  * View of a pending or historical invitation to a sub-account.
@@ -794,7 +986,7 @@ export type SubaccountInvite = Message<"auth.v1.SubaccountInvite"> & {
  * Use `create(SubaccountInviteSchema)` to create a new message.
  */
 export const SubaccountInviteSchema: GenMessage<SubaccountInvite> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 18);
+  messageDesc(file_auth_v1_subaccounts, 24);
 
 /**
  * Request to invite another root account to a sub-account.
@@ -829,7 +1021,7 @@ export type InviteSubaccountMemberRequest = Message<"auth.v1.InviteSubaccountMem
  * Use `create(InviteSubaccountMemberRequestSchema)` to create a new message.
  */
 export const InviteSubaccountMemberRequestSchema: GenMessage<InviteSubaccountMemberRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 19);
+  messageDesc(file_auth_v1_subaccounts, 25);
 
 /**
  * Response containing the created or refreshed invitation.
@@ -850,7 +1042,7 @@ export type InviteSubaccountMemberResponse = Message<"auth.v1.InviteSubaccountMe
  * Use `create(InviteSubaccountMemberResponseSchema)` to create a new message.
  */
 export const InviteSubaccountMemberResponseSchema: GenMessage<InviteSubaccountMemberResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 20);
+  messageDesc(file_auth_v1_subaccounts, 26);
 
 /**
  * Request to list sub-account invitations.
@@ -859,7 +1051,9 @@ export const InviteSubaccountMemberResponseSchema: GenMessage<InviteSubaccountMe
  */
 export type ListSubaccountInvitesRequest = Message<"auth.v1.ListSubaccountInvitesRequest"> & {
   /**
-   * Optional direction filter. Use "incoming" for invites where the caller is grantee, "outgoing" for invites sent by the caller, or empty for both.
+   * Optional direction filter. Use "incoming" for invites where the caller is grantee,
+   * "outgoing" for all invites on sub-accounts the caller currently owns or administers,
+   * or empty for both scopes.
    *
    * @generated from field: string direction = 1;
    */
@@ -871,7 +1065,7 @@ export type ListSubaccountInvitesRequest = Message<"auth.v1.ListSubaccountInvite
  * Use `create(ListSubaccountInvitesRequestSchema)` to create a new message.
  */
 export const ListSubaccountInvitesRequestSchema: GenMessage<ListSubaccountInvitesRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 21);
+  messageDesc(file_auth_v1_subaccounts, 27);
 
 /**
  * Response containing sub-account invitations.
@@ -880,7 +1074,8 @@ export const ListSubaccountInvitesRequestSchema: GenMessage<ListSubaccountInvite
  */
 export type ListSubaccountInvitesResponse = Message<"auth.v1.ListSubaccountInvitesResponse"> & {
   /**
-   * Invitations for the caller, ordered newest first.
+   * Invitations visible to the caller, ordered newest first. Owners and admins
+   * see all invitations for sub-accounts they administer, regardless of inviter.
    *
    * @generated from field: repeated auth.v1.SubaccountInvite invites = 1;
    */
@@ -892,7 +1087,7 @@ export type ListSubaccountInvitesResponse = Message<"auth.v1.ListSubaccountInvit
  * Use `create(ListSubaccountInvitesResponseSchema)` to create a new message.
  */
 export const ListSubaccountInvitesResponseSchema: GenMessage<ListSubaccountInvitesResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 22);
+  messageDesc(file_auth_v1_subaccounts, 28);
 
 /**
  * Request to accept, decline, or cancel an invitation.
@@ -920,7 +1115,7 @@ export type RespondSubaccountInviteRequest = Message<"auth.v1.RespondSubaccountI
  * Use `create(RespondSubaccountInviteRequestSchema)` to create a new message.
  */
 export const RespondSubaccountInviteRequestSchema: GenMessage<RespondSubaccountInviteRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 23);
+  messageDesc(file_auth_v1_subaccounts, 29);
 
 /**
  * Response containing the updated invitation.
@@ -941,10 +1136,12 @@ export type RespondSubaccountInviteResponse = Message<"auth.v1.RespondSubaccount
  * Use `create(RespondSubaccountInviteResponseSchema)` to create a new message.
  */
 export const RespondSubaccountInviteResponseSchema: GenMessage<RespondSubaccountInviteResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 24);
+  messageDesc(file_auth_v1_subaccounts, 30);
 
 /**
- * Request for an aggregated sub-account read view.
+ * Request for an aggregated sub-account read view. Requested administrative
+ * sections unavailable to the caller are returned empty without failing an
+ * otherwise authorized sub-account read.
  *
  * @generated from message auth.v1.GetSubaccountRequest
  */
@@ -957,28 +1154,28 @@ export type GetSubaccountRequest = Message<"auth.v1.GetSubaccountRequest"> & {
   subaccountId: bigint;
 
   /**
-   * Include API keys scoped to this sub-account.
+   * Include API keys scoped to this sub-account. Only owner and admin callers receive API keys.
    *
    * @generated from field: bool include_api_keys = 2;
    */
   includeApiKeys: boolean;
 
   /**
-   * Include members for this sub-account. Only owner and admin callers receive members.
+   * Include current members for this sub-account. Every current member may receive the roster.
    *
    * @generated from field: bool include_members = 3;
    */
   includeMembers: boolean;
 
   /**
-   * Include invitations for the caller.
+   * Include invitations visible to the caller.
    *
    * @generated from field: bool include_invites = 4;
    */
   includeInvites: boolean;
 
   /**
-   * Include the attached sub-account policy, when one is attached.
+   * Include the attached sub-account policy, when one is attached. Every current member may receive it.
    *
    * @generated from field: bool include_policy = 5;
    */
@@ -1004,7 +1201,7 @@ export type GetSubaccountRequest = Message<"auth.v1.GetSubaccountRequest"> & {
  * Use `create(GetSubaccountRequestSchema)` to create a new message.
  */
 export const GetSubaccountRequestSchema: GenMessage<GetSubaccountRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 25);
+  messageDesc(file_auth_v1_subaccounts, 31);
 
 /**
  * Aggregated sub-account read view.
@@ -1020,28 +1217,28 @@ export type GetSubaccountResponse = Message<"auth.v1.GetSubaccountResponse"> & {
   subaccount?: Subaccount | undefined;
 
   /**
-   * API keys scoped to this sub-account when include_api_keys is true.
+   * API keys scoped to this sub-account when include_api_keys is true and the caller is owner or admin.
    *
    * @generated from field: repeated auth.v1.ApiKey api_keys = 2;
    */
   apiKeys: ApiKey[];
 
   /**
-   * Members for this sub-account when include_members is true and the caller is owner or admin.
+   * Current members for this sub-account when include_members is true and the caller is a current member.
    *
    * @generated from field: repeated auth.v1.SubaccountMemberView members = 3;
    */
   members: SubaccountMemberView[];
 
   /**
-   * Invitations for the caller when include_invites is true.
+   * Invitations visible to the caller when include_invites is true.
    *
    * @generated from field: repeated auth.v1.SubaccountInvite invites = 4;
    */
   invites: SubaccountInvite[];
 
   /**
-   * Attached policy when include_policy is true and the sub-account has a policy.
+   * Attached policy when include_policy is true, the caller is a current member, and the sub-account has a policy.
    *
    * @generated from field: auth.v1.SubaccountPolicyView policy = 5;
    */
@@ -1060,7 +1257,7 @@ export type GetSubaccountResponse = Message<"auth.v1.GetSubaccountResponse"> & {
  * Use `create(GetSubaccountResponseSchema)` to create a new message.
  */
 export const GetSubaccountResponseSchema: GenMessage<GetSubaccountResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 26);
+  messageDesc(file_auth_v1_subaccounts, 32);
 
 /**
  * Activity or audit event for a sub-account.
@@ -1130,7 +1327,7 @@ export type ActivityEvent = Message<"auth.v1.ActivityEvent"> & {
  * Use `create(ActivityEventSchema)` to create a new message.
  */
 export const ActivityEventSchema: GenMessage<ActivityEvent> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 27);
+  messageDesc(file_auth_v1_subaccounts, 33);
 
 /**
  * Request to list sub-account activity.
@@ -1167,7 +1364,7 @@ export type ListSubaccountEventsRequest = Message<"auth.v1.ListSubaccountEventsR
  * Use `create(ListSubaccountEventsRequestSchema)` to create a new message.
  */
 export const ListSubaccountEventsRequestSchema: GenMessage<ListSubaccountEventsRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 28);
+  messageDesc(file_auth_v1_subaccounts, 34);
 
 /**
  * Response containing sub-account activity events.
@@ -1195,7 +1392,7 @@ export type ListSubaccountEventsResponse = Message<"auth.v1.ListSubaccountEvents
  * Use `create(ListSubaccountEventsResponseSchema)` to create a new message.
  */
 export const ListSubaccountEventsResponseSchema: GenMessage<ListSubaccountEventsResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_subaccounts, 29);
+  messageDesc(file_auth_v1_subaccounts, 35);
 
 /**
  * Role granted to a root account on a sub-account.
@@ -1260,6 +1457,203 @@ export const SubaccountRoleSchema: GenEnum<SubaccountRole> = /*@__PURE__*/
   enumDesc(file_auth_v1_subaccounts, 0);
 
 /**
+ * A stable capability granted by a sub-account role. These values describe
+ * role authorization only; resource state, MFA, limits, and other request
+ * context may still deny an operation.
+ *
+ * @generated from enum auth.v1.SubaccountPermission
+ */
+export enum SubaccountPermission {
+  /**
+   * No permission selected.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * Read the sub-account and its non-sensitive metadata.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_READ_SUBACCOUNT = 1;
+   */
+  READ_SUBACCOUNT = 1,
+
+  /**
+   * Update sub-account metadata or lifecycle status.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_UPDATE_SUBACCOUNT = 2;
+   */
+  UPDATE_SUBACCOUNT = 2,
+
+  /**
+   * Read balances and equity.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_READ_BALANCES = 3;
+   */
+  READ_BALANCES = 3,
+
+  /**
+   * Read spot orders and trades.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_READ_SPOT = 4;
+   */
+  READ_SPOT = 4,
+
+  /**
+   * Place and manage spot orders and triggers.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_TRADE_SPOT = 5;
+   */
+  TRADE_SPOT = 5,
+
+  /**
+   * Read internal-transfer history.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_READ_INTERNAL_TRANSFERS = 6;
+   */
+  READ_INTERNAL_TRANSFERS = 6,
+
+  /**
+   * Create internal transfers.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_INTERNAL_TRANSFER = 7;
+   */
+  INTERNAL_TRANSFER = 7,
+
+  /**
+   * Withdraw value from Trading to an external destination.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_EXTERNAL_WITHDRAW = 8;
+   */
+  EXTERNAL_WITHDRAW = 8,
+
+  /**
+   * Read saved, recent, and whitelisted destinations.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_READ_ADDRESS_BOOK = 9;
+   */
+  READ_ADDRESS_BOOK = 9,
+
+  /**
+   * Create, update, delete, and copy saved destinations.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_MANAGE_ADDRESS_BOOK = 10;
+   */
+  MANAGE_ADDRESS_BOOK = 10,
+
+  /**
+   * Read the current member roster.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_READ_MEMBERS = 11;
+   */
+  READ_MEMBERS = 11,
+
+  /**
+   * Invite, remove, and change delegated members.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_MANAGE_MEMBERS = 12;
+   */
+  MANAGE_MEMBERS = 12,
+
+  /**
+   * Read pending and historical invitations for the sub-account.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_READ_INVITES = 13;
+   */
+  READ_INVITES = 13,
+
+  /**
+   * Cancel invitations for the sub-account.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_MANAGE_INVITES = 14;
+   */
+  MANAGE_INVITES = 14,
+
+  /**
+   * Read API keys and their attached policies for the sub-account.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_READ_API_KEYS = 15;
+   */
+  READ_API_KEYS = 15,
+
+  /**
+   * Create, update, and delete API keys for the sub-account.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_MANAGE_API_KEYS = 16;
+   */
+  MANAGE_API_KEYS = 16,
+
+  /**
+   * Read the policy attached to the sub-account.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_READ_SUBACCOUNT_POLICY = 17;
+   */
+  READ_SUBACCOUNT_POLICY = 17,
+
+  /**
+   * Create, update, attach, or replace policies for the sub-account, subject to owner-only policy safeguards.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_MANAGE_SUBACCOUNT_POLICY = 18;
+   */
+  MANAGE_SUBACCOUNT_POLICY = 18,
+
+  /**
+   * Read sub-account activity with role-appropriate redaction.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_READ_ACTIVITY = 19;
+   */
+  READ_ACTIVITY = 19,
+
+  /**
+   * Read unmasked security details in sub-account activity.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_READ_ACTIVITY_SECURITY_DETAILS = 20;
+   */
+  READ_ACTIVITY_SECURITY_DETAILS = 20,
+
+  /**
+   * Change the delegated-member MFA requirement.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_MANAGE_MEMBER_MFA_REQUIREMENT = 21;
+   */
+  MANAGE_MEMBER_MFA_REQUIREMENT = 21,
+
+  /**
+   * Create or retrieve a deposit address for the sub-account.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_CREATE_DEPOSIT_ADDRESS = 22;
+   */
+  CREATE_DEPOSIT_ADDRESS = 22,
+
+  /**
+   * List deposit addresses for the sub-account.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_READ_DEPOSIT_ADDRESSES = 23;
+   */
+  READ_DEPOSIT_ADDRESSES = 23,
+
+  /**
+   * Read Guard Signer wallet and on-chain status for the sub-account.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_READ_GUARD_SIGNER_STATUS = 24;
+   */
+  READ_GUARD_SIGNER_STATUS = 24,
+
+  /**
+   * Create, sign with, rotate, or export the sub-account Guard Signer wallet.
+   *
+   * @generated from enum value: SUBACCOUNT_PERMISSION_MANAGE_GUARD_SIGNER = 25;
+   */
+  MANAGE_GUARD_SIGNER = 25,
+}
+
+/**
+ * Describes the enum auth.v1.SubaccountPermission.
+ */
+export const SubaccountPermissionSchema: GenEnum<SubaccountPermission> = /*@__PURE__*/
+  enumDesc(file_auth_v1_subaccounts, 1);
+
+/**
  * Status of an invitation to join a sub-account.
  *
  * @generated from enum auth.v1.SubaccountInviteStatus
@@ -1305,7 +1699,7 @@ export enum SubaccountInviteStatus {
  * Describes the enum auth.v1.SubaccountInviteStatus.
  */
 export const SubaccountInviteStatusSchema: GenEnum<SubaccountInviteStatus> = /*@__PURE__*/
-  enumDesc(file_auth_v1_subaccounts, 1);
+  enumDesc(file_auth_v1_subaccounts, 2);
 
 /**
  * Action to take on a sub-account invitation.
@@ -1335,7 +1729,7 @@ export enum SubaccountInviteAction {
   DECLINE = 2,
 
   /**
-   * Cancel an outgoing invitation as the inviter.
+   * Cancel an invitation as a current owner or admin of its sub-account.
    *
    * @generated from enum value: SUBACCOUNT_INVITE_ACTION_CANCEL = 3;
    */
@@ -1346,7 +1740,7 @@ export enum SubaccountInviteAction {
  * Describes the enum auth.v1.SubaccountInviteAction.
  */
 export const SubaccountInviteActionSchema: GenEnum<SubaccountInviteAction> = /*@__PURE__*/
-  enumDesc(file_auth_v1_subaccounts, 2);
+  enumDesc(file_auth_v1_subaccounts, 3);
 
 /**
  * Entity category affected by an activity event.
@@ -1429,7 +1823,7 @@ export enum ActivityEntityKind {
  * Describes the enum auth.v1.ActivityEntityKind.
  */
 export const ActivityEntityKindSchema: GenEnum<ActivityEntityKind> = /*@__PURE__*/
-  enumDesc(file_auth_v1_subaccounts, 3);
+  enumDesc(file_auth_v1_subaccounts, 4);
 
 /**
  * Action recorded by an activity event.
@@ -1547,7 +1941,7 @@ export enum ActivityEventAction {
  * Describes the enum auth.v1.ActivityEventAction.
  */
 export const ActivityEventActionSchema: GenEnum<ActivityEventAction> = /*@__PURE__*/
-  enumDesc(file_auth_v1_subaccounts, 4);
+  enumDesc(file_auth_v1_subaccounts, 5);
 
 /**
  * Client channel from which an activity event originated.
@@ -1588,7 +1982,7 @@ export enum ActivityEventSource {
  * Describes the enum auth.v1.ActivityEventSource.
  */
 export const ActivityEventSourceSchema: GenEnum<ActivityEventSource> = /*@__PURE__*/
-  enumDesc(file_auth_v1_subaccounts, 5);
+  enumDesc(file_auth_v1_subaccounts, 6);
 
 /**
  * Read service for aggregated sub-account pages.
@@ -1666,7 +2060,7 @@ export const SubaccountService: GenService<{
     output: typeof SetSubaccountMemberMFARequirementResponseSchema;
   },
   /**
-   * List members for a sub-account (owner/admin only).
+   * List current members for a sub-account visible to any current member.
    *
    * @generated from rpc auth.v1.SubaccountService.ListSubaccountMembers
    */
@@ -1706,7 +2100,7 @@ export const SubaccountService: GenService<{
     output: typeof InviteSubaccountMemberResponseSchema;
   },
   /**
-   * List incoming/outgoing sub-account invitations.
+   * List incoming invitations and invitations for administered sub-accounts.
    *
    * @generated from rpc auth.v1.SubaccountService.ListSubaccountInvites
    */
@@ -1716,7 +2110,7 @@ export const SubaccountService: GenService<{
     output: typeof ListSubaccountInvitesResponseSchema;
   },
   /**
-   * Accept/decline an invite (grantee) or cancel an invite (inviter).
+   * Accept/decline an invite as the grantee, or cancel it as a current owner or admin.
    *
    * @generated from rpc auth.v1.SubaccountService.RespondSubaccountInvite
    */
@@ -1727,4 +2121,33 @@ export const SubaccountService: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_auth_v1_subaccounts, 1);
+
+/**
+ * Read-only discovery of built-in role capabilities and caller-effective permissions.
+ *
+ * @generated from service auth.v1.SubaccountRoleService
+ */
+export const SubaccountRoleService: GenService<{
+  /**
+   * List the authoritative built-in role and permission catalog. This metadata is public.
+   *
+   * @generated from rpc auth.v1.SubaccountRoleService.ListSubaccountRoles
+   */
+  listSubaccountRoles: {
+    methodKind: "unary";
+    input: typeof ListSubaccountRolesRequestSchema;
+    output: typeof ListSubaccountRolesResponseSchema;
+  },
+  /**
+   * Return the authenticated caller's effective permissions for one sub-account.
+   *
+   * @generated from rpc auth.v1.SubaccountRoleService.GetEffectiveSubaccountPermissions
+   */
+  getEffectiveSubaccountPermissions: {
+    methodKind: "unary";
+    input: typeof GetEffectiveSubaccountPermissionsRequestSchema;
+    output: typeof GetEffectiveSubaccountPermissionsResponseSchema;
+  },
+}> = /*@__PURE__*/
+  serviceDesc(file_auth_v1_subaccounts, 2);
 

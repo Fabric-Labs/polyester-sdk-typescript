@@ -226,14 +226,15 @@ export const CreateApiKeyResponseSchema: GenMessage<CreateApiKeyResponse> = /*@_
   messageDesc(file_auth_v1_api_keys, 2);
 
 /**
- * ListApiKeysRequest lists non-revoked API keys owned by the caller.
+ * ListApiKeysRequest lists non-revoked API keys visible to the caller.
  *
  * @generated from message auth.v1.ListApiKeysRequest
  */
 export type ListApiKeysRequest = Message<"auth.v1.ListApiKeysRequest"> & {
   /**
-   * Optional filter: only keys scoped to this sub-account (opaque ID). If unset,
-   * all non-revoked keys owned by the caller are returned.
+   * Optional filter: only keys scoped to this sub-account (opaque ID). The
+   * caller must own or administer the sub-account. If unset, only non-revoked
+   * keys owned by the caller are returned.
    *
    * @generated from field: optional fixed64 subaccount_id = 1;
    */
@@ -306,7 +307,7 @@ export const DeleteApiKeyResponseSchema: GenMessage<DeleteApiKeyResponse> = /*@_
   messageDesc(file_auth_v1_api_keys, 6);
 
 /**
- * GetApiKeyRequest returns a single API key owned by the caller's account.
+ * GetApiKeyRequest returns one API key visible to its owner or a sub-account admin.
  *
  * @generated from message auth.v1.GetApiKeyRequest
  */
@@ -328,7 +329,7 @@ export const GetApiKeyRequestSchema: GenMessage<GetApiKeyRequest> = /*@__PURE__*
   messageDesc(file_auth_v1_api_keys, 7);
 
 /**
- * GetApiKeyResponse returns one API key owned by the caller.
+ * GetApiKeyResponse returns one API key visible to the caller.
  *
  * @generated from message auth.v1.GetApiKeyResponse
  */
@@ -527,7 +528,7 @@ export const ApiKeyService: GenService<{
     output: typeof CreateApiKeyResponseSchema;
   },
   /**
-   * List non-revoked API keys owned by the caller, newest first.
+   * List non-revoked API keys visible to the caller, newest first.
    *
    * @generated from rpc auth.v1.ApiKeyService.ListApiKeys
    */
@@ -537,7 +538,7 @@ export const ApiKeyService: GenService<{
     output: typeof ListApiKeysResponseSchema;
   },
   /**
-   * Get a single API key owned by the caller.
+   * Get a single API key owned by the caller or scoped to a sub-account the caller administers.
    *
    * @generated from rpc auth.v1.ApiKeyService.GetApiKey
    */

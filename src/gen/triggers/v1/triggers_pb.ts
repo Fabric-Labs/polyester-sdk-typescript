@@ -979,8 +979,8 @@ export type ModifyTriggerRequest = Message<"triggers.v1.ModifyTriggerRequest"> &
   subaccountId?: bigint | undefined;
 
   /**
-   * Trading symbol numeric identifier. Required for API-key market policy;
-   * AAS verifies it against the stored trigger.
+   * Trading symbol numeric identifier. Required for API-key market policy and
+   * must match the stored trigger.
    *
    * @generated from field: uint32 symbol_id = 3;
    */
@@ -1196,8 +1196,8 @@ export type ResumeTriggerRequest = Message<"triggers.v1.ResumeTriggerRequest"> &
   subaccountId?: bigint | undefined;
 
   /**
-   * Trading symbol numeric identifier. Required for API-key market policy;
-   * AAS verifies it against the stored trigger.
+   * Trading symbol numeric identifier. Required for API-key market policy and
+   * must match the stored trigger.
    *
    * @generated from field: uint32 symbol_id = 3;
    */

@@ -1,4 +1,5 @@
 import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
+import * as ProtoPolicies from "../../gen/auth/v1/policies_pb.js";
 import * as v from "valibot";
 import {
     BigIntStringSchema,
@@ -12,6 +13,7 @@ import { tsObjToMs, tsObjToNsString } from "../../utils/time.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import {
     SubaccountRoleCodec,
+    SubaccountPermissionCodec,
     InviteActionCodec,
     InviteStatusCodec,
     SubaccountStatusCodec,
@@ -20,6 +22,7 @@ import {
     ActivityEventActionCodec,
     ActivityEventSourceCodec,
 } from "./subaccounts.codecs.js";
+import { PolicyActionCodec } from "../policies/shared.codecs.js";
 import { buildProtoPatch, defineProtoPatchFields } from "../../utils/proto-patch.js";
 
 const SUBACCOUNT_ROLE_VALUES = [
@@ -41,6 +44,68 @@ const ProtoSubaccountRoleSchema = v.pipe(
         requiredEnumLabel(SubaccountRoleCodec.protoToOutput, role, "SubaccountRoleSchema", "role"),
     ),
 );
+
+const ProtoSubaccountPermissionSchema = v.pipe(
+    v.enum(Proto.SubaccountPermission),
+    v.transform((permission) =>
+        requiredEnumLabel(
+            SubaccountPermissionCodec.protoToOutput,
+            permission,
+            "SubaccountPermissionSchema",
+            "permission",
+        ),
+    ),
+);
+
+export type SubaccountPermission = v.InferOutput<typeof ProtoSubaccountPermissionSchema>;
+
+export const SubaccountPermissionDefinitionSchema = v.object({
+    permission: ProtoSubaccountPermissionSchema,
+    displayName: v.optional(v.string(), ""),
+    description: v.optional(v.string(), ""),
+    policyAction: v.pipe(
+        v.enum(ProtoPolicies.PolicyAction),
+        v.transform((action) =>
+            requiredEnumLabel(
+                PolicyActionCodec.protoToOutput,
+                action,
+                "SubaccountPermissionDefinitionSchema",
+                "policy action",
+            ),
+        ),
+    ),
+});
+
+export type SubaccountPermissionDefinition = v.InferOutput<
+    typeof SubaccountPermissionDefinitionSchema
+>;
+
+export const SubaccountRoleDefinitionSchema = v.object({
+    role: ProtoSubaccountRoleSchema,
+    displayName: v.optional(v.string(), ""),
+    description: v.optional(v.string(), ""),
+    assignable: v.optional(v.boolean(), false),
+    permissions: v.optional(v.array(ProtoSubaccountPermissionSchema), []),
+});
+
+export type SubaccountRoleDefinition = v.InferOutput<typeof SubaccountRoleDefinitionSchema>;
+
+export const SubaccountRoleCatalogSchema = v.object({
+    permissions: v.optional(v.array(SubaccountPermissionDefinitionSchema), []),
+    roles: v.optional(v.array(SubaccountRoleDefinitionSchema), []),
+});
+
+export type SubaccountRoleCatalog = v.InferOutput<typeof SubaccountRoleCatalogSchema>;
+
+export const EffectiveSubaccountPermissionsSchema = v.object({
+    role: ProtoSubaccountRoleSchema,
+    permissions: v.optional(v.array(ProtoSubaccountPermissionSchema), []),
+    subaccountPolicyId: PublicIdSchema,
+});
+
+export type EffectiveSubaccountPermissions = v.InferOutput<
+    typeof EffectiveSubaccountPermissionsSchema
+>;
 
 export const CreateSubaccountInputSchema = v.strictObject({
     label: v.optional(v.string(), ""),

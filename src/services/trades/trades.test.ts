@@ -93,6 +93,7 @@ describe("TradesService", () => {
                 endTsNs: "200",
                 limit: 10,
                 pageToken: " next ",
+                afterMatchId: "21",
             },
             { signal: controller.signal },
         );
@@ -105,6 +106,7 @@ describe("TradesService", () => {
             endTsNs: 200n,
             limit: 10,
             pageToken: "next",
+            afterMatchId: 21n,
         });
         expect(transport.lastCall()?.signal).toBe(controller.signal);
         expect(result).toEqual({

@@ -1374,8 +1374,8 @@ export type ModifyOrderRequest = Message<"orders.v1.ModifyOrderRequest"> & {
   newClientOrderId: string;
 
   /**
-   * Trading symbol numeric identifier. Required so API-key market policy can
-   * be enforced before forwarding; AAS verifies it against the target order.
+   * Trading symbol numeric identifier. Required for API-key market policy and
+   * must match the target order.
    *
    * @generated from field: uint32 symbol_id = 10;
    */

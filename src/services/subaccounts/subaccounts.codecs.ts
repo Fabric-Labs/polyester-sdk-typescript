@@ -11,6 +11,35 @@ export const SUBACCOUNT_ROLE_VALUES = [
 ] as const;
 export type SubaccountRoleValue = (typeof SUBACCOUNT_ROLE_VALUES)[number];
 
+export const SUBACCOUNT_PERMISSION_VALUES = [
+    "read_subaccount",
+    "update_subaccount",
+    "read_balances",
+    "read_spot",
+    "trade_spot",
+    "read_internal_transfers",
+    "internal_transfer",
+    "external_withdraw",
+    "read_address_book",
+    "manage_address_book",
+    "read_members",
+    "manage_members",
+    "read_invites",
+    "manage_invites",
+    "read_api_keys",
+    "manage_api_keys",
+    "read_subaccount_policy",
+    "manage_subaccount_policy",
+    "read_activity",
+    "read_activity_security_details",
+    "manage_member_mfa_requirement",
+    "create_deposit_address",
+    "read_deposit_addresses",
+    "read_guard_signer_status",
+    "manage_guard_signer",
+] as const;
+export type SubaccountPermissionValue = (typeof SUBACCOUNT_PERMISSION_VALUES)[number];
+
 export const SUBACCOUNT_INVITE_ACTION_VALUES = ["accept", "decline", "cancel"] as const;
 export type SubaccountInviteActionValue = (typeof SUBACCOUNT_INVITE_ACTION_VALUES)[number];
 
@@ -84,6 +113,38 @@ export const SubaccountRoleCodec = {
         [Proto.SubaccountRole.TRADER]: "trader",
         [Proto.SubaccountRole.VIEWER]: "viewer",
     } satisfies ProtoToOutput<Proto.SubaccountRole, SubaccountRoleValue>,
+} as const;
+
+export const SubaccountPermissionCodec = {
+    protoToOutput: {
+        [Proto.SubaccountPermission.UNSPECIFIED]: "unspecified",
+        [Proto.SubaccountPermission.READ_SUBACCOUNT]: "read_subaccount",
+        [Proto.SubaccountPermission.UPDATE_SUBACCOUNT]: "update_subaccount",
+        [Proto.SubaccountPermission.READ_BALANCES]: "read_balances",
+        [Proto.SubaccountPermission.READ_SPOT]: "read_spot",
+        [Proto.SubaccountPermission.TRADE_SPOT]: "trade_spot",
+        [Proto.SubaccountPermission.READ_INTERNAL_TRANSFERS]: "read_internal_transfers",
+        [Proto.SubaccountPermission.INTERNAL_TRANSFER]: "internal_transfer",
+        [Proto.SubaccountPermission.EXTERNAL_WITHDRAW]: "external_withdraw",
+        [Proto.SubaccountPermission.READ_ADDRESS_BOOK]: "read_address_book",
+        [Proto.SubaccountPermission.MANAGE_ADDRESS_BOOK]: "manage_address_book",
+        [Proto.SubaccountPermission.READ_MEMBERS]: "read_members",
+        [Proto.SubaccountPermission.MANAGE_MEMBERS]: "manage_members",
+        [Proto.SubaccountPermission.READ_INVITES]: "read_invites",
+        [Proto.SubaccountPermission.MANAGE_INVITES]: "manage_invites",
+        [Proto.SubaccountPermission.READ_API_KEYS]: "read_api_keys",
+        [Proto.SubaccountPermission.MANAGE_API_KEYS]: "manage_api_keys",
+        [Proto.SubaccountPermission.READ_SUBACCOUNT_POLICY]: "read_subaccount_policy",
+        [Proto.SubaccountPermission.MANAGE_SUBACCOUNT_POLICY]: "manage_subaccount_policy",
+        [Proto.SubaccountPermission.READ_ACTIVITY]: "read_activity",
+        [Proto.SubaccountPermission.READ_ACTIVITY_SECURITY_DETAILS]:
+            "read_activity_security_details",
+        [Proto.SubaccountPermission.MANAGE_MEMBER_MFA_REQUIREMENT]: "manage_member_mfa_requirement",
+        [Proto.SubaccountPermission.CREATE_DEPOSIT_ADDRESS]: "create_deposit_address",
+        [Proto.SubaccountPermission.READ_DEPOSIT_ADDRESSES]: "read_deposit_addresses",
+        [Proto.SubaccountPermission.READ_GUARD_SIGNER_STATUS]: "read_guard_signer_status",
+        [Proto.SubaccountPermission.MANAGE_GUARD_SIGNER]: "manage_guard_signer",
+    } satisfies ProtoToOutput<Proto.SubaccountPermission, SubaccountPermissionValue>,
 } as const;
 
 export const InviteActionCodec = {

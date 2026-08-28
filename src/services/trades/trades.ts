@@ -42,7 +42,7 @@ export class TradesService {
     }
 
     /**
-     * Returns user trades for the resolved root account or subaccount, supporting symbol, side, time range, limit, and page token filters. Results include the next page token from GetUserTrades.
+     * Returns user trades for the resolved root account or subaccount, supporting symbol, side, time range, limit, page token, and after-match-ID replay cursor filters. Results include the next page token from GetUserTrades.
      */
     async list(
         input: v.InferInput<typeof GetUserTradesInputSchema> = {},

@@ -262,8 +262,10 @@ export const SubaccountPolicyViewSchema: GenMessage<SubaccountPolicyView> = /*@_
  */
 export type ListSubaccountPoliciesRequest = Message<"auth.v1.ListSubaccountPoliciesRequest"> & {
   /**
-   * Optional sub-account context for delegated administration. When omitted,
-   * only policies owned by the caller's root account are returned.
+   * Optional sub-account context. When provided, a current member may read the
+   * policy attached to that sub-account; the owner retains visibility of all
+   * policies owned by their root account. When omitted, only policies owned by
+   * the caller's root account are returned.
    *
    * @generated from field: optional fixed64 subaccount_id = 1;
    */
@@ -313,8 +315,10 @@ export type GetSubaccountPolicyRequest = Message<"auth.v1.GetSubaccountPolicyReq
   policyId: bigint;
 
   /**
-   * Optional sub-account context for delegated administration. When omitted,
-   * the policy must be owned by the caller's root account.
+   * Optional sub-account context. When provided, a current member may read the
+   * policy attached to that sub-account; the owner may also read another policy
+   * owned by their root account. When omitted, the policy must be owned by the
+   * caller's root account.
    *
    * @generated from field: optional fixed64 subaccount_id = 2;
    */

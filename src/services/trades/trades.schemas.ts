@@ -97,6 +97,7 @@ export const GetUserTradesInputSchema = v.pipe(
         endTsNs: optionalUint64DecimalFilterSchema("endTsNs"),
         limit: v.optional(v.number()),
         pageToken: v.optional(v.pipe(v.string(), v.trim())),
+        afterMatchId: optionalUint64DecimalFilterSchema("afterMatchId"),
     }),
     v.transform(({ account, ...input }) => ({
         ...input,
