@@ -9,7 +9,7 @@ const effectiveFrom = { seconds: 1_700_000_000n, nanos: 0 };
 function rule(overrides: Partial<Record<string, unknown>> = {}) {
     return {
         policyClass: Proto.TradingRateLimitClass.PLACE,
-        tier: 2,
+        vipTier: 2,
         quotaWeight: 100n,
         periodMs: 1000n,
         burstWeight: 20n,
@@ -22,7 +22,7 @@ describe("RateLimitService", () => {
         const publicApi = unaryTransport({
             policyVersion: 7n,
             effectiveFrom,
-            rules: [rule(), rule({ policyClass: Proto.TradingRateLimitClass.CANCEL, tier: 2 })],
+            rules: [rule(), rule({ policyClass: Proto.TradingRateLimitClass.CANCEL, vipTier: 2 })],
         });
         const authApi = unaryTransport({});
         const service = new RateLimitService({
@@ -37,14 +37,14 @@ describe("RateLimitService", () => {
             rules: [
                 {
                     policyClass: "trading_place",
-                    tier: 2,
+                    vipTier: 2,
                     quotaWeight: "100",
                     periodMs: "1000",
                     burstWeight: "20",
                 },
                 {
                     policyClass: "trading_cancel",
-                    tier: 2,
+                    vipTier: 2,
                     quotaWeight: "100",
                     periodMs: "1000",
                     burstWeight: "20",
@@ -79,7 +79,7 @@ describe("RateLimitService", () => {
             rules: [
                 {
                     policyClass: "trading_place",
-                    tier: 2,
+                    vipTier: 2,
                     quotaWeight: "100",
                     periodMs: "1000",
                     burstWeight: "20",
@@ -88,7 +88,7 @@ describe("RateLimitService", () => {
             apiKeyRules: [
                 {
                     policyClass: "trading_place",
-                    tier: 2,
+                    vipTier: 2,
                     quotaWeight: "10",
                     periodMs: "1000",
                     burstWeight: "2",

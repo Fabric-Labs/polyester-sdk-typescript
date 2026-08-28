@@ -258,7 +258,7 @@ describe("proto enum output decoding", () => {
         expect(
             v.parse(TradingRateLimitRuleSchema, {
                 policyClass: RateLimitProto.TradingRateLimitClass.UNSPECIFIED,
-                tier: 0,
+                vipTier: 0,
                 quotaWeight: 0n,
                 periodMs: 1000n,
                 burstWeight: 0n,

@@ -26,7 +26,7 @@ const TradingRateLimitClassOutputSchema = v.pipe(
 
 export const TradingRateLimitRuleSchema = v.object({
     policyClass: TradingRateLimitClassOutputSchema,
-    tier: VipTierNumberSchema,
+    vipTier: VipTierNumberSchema,
     quotaWeight: BigIntStringSchema,
     periodMs: BigIntStringSchema,
     burstWeight: BigIntStringSchema,
