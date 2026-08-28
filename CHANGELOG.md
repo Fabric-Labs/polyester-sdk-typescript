@@ -1,5 +1,17 @@
 # @polyester/sdk
 
+## 0.12.0
+
+### Minor Changes
+
+- feat(triggers): replace the free-form trigger event `reason` string with typed `cancelReason` and `failureReason` labels on trigger and trigger-event outputs. ([#86](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/86))
+
+### Patch Changes
+
+- feat(address-book): add a `minimumViewRevision` option to `getView` and expose `viewRevision` on views and invalidation events to support revision-aware refetching. ([#86](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/86))
+
+- feat(mfa): expose the MFA-elevated session details and access token returned when finishing TOTP and passkey enrollments. ([#86](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/86))
+
 ## 0.11.0
 
 ### Minor Changes
