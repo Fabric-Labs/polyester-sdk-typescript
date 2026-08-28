@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file triggers/v1/triggers.proto.
  */
 export const file_triggers_v1_triggers: GenFile = /*@__PURE__*/
-  fileDesc("Chp0cmlnZ2Vycy92MS90cmlnZ2Vycy5wcm90bxILdHJpZ2dlcnMudjEiEgoQVHJpZ2dlck1hcmtldElvYyI7Cg9UcmlnZ2VyTGltaXRHdGMSFQoLcHJpY2VfdGlja3MYASABKANCABIRCglwb3N0X29ubHkYAiABKAgiKAoPVHJpZ2dlckxpbWl0SW9jEhUKC3ByaWNlX3RpY2tzGAEgASgDQgAiKAoPVHJpZ2dlckxpbWl0Rm9rEhUKC3ByaWNlX3RpY2tzGAEgASgDQgAi+AEKGUNvbmRpdGlvbmFsQ2hpbGRFeGVjdXRpb24SMwoKbWFya2V0X2lvYxgBIAEoCzIdLnRyaWdnZXJzLnYxLlRyaWdnZXJNYXJrZXRJb2NIABIxCglsaW1pdF9ndGMYAiABKAsyHC50cmlnZ2Vycy52MS5UcmlnZ2VyTGltaXRHdGNIABIxCglsaW1pdF9pb2MYAyABKAsyHC50cmlnZ2Vycy52MS5UcmlnZ2VyTGltaXRJb2NIABIxCglsaW1pdF9mb2sYBCABKAsyHC50cmlnZ2Vycy52MS5UcmlnZ2VyTGltaXRGb2tIAEINCglleGVjdXRpb24SACKPAQoSQ29uZGl0aW9uYWxUcmlnZ2VyEh0KE3RyaWdnZXJfcHJpY2VfdGlja3MYASABKANCABIfCgRzaWRlGAIgASgOMg8ub3JkZXJzLnYxLlNpZGVCABI3CgVjaGlsZBgDIAEoCzImLnRyaWdnZXJzLnYxLkNvbmRpdGlvbmFsQ2hpbGRFeGVjdXRpb25CADoAIoUCChNUcmFpbGluZ1N0b3BUcmlnZ2VyEiMKF3RyYWlsaW5nX2Rpc3RhbmNlX3RpY2tzGAEgASgDQgBIABIhChV0cmFpbGluZ19kaXN0YW5jZV9icHMYAiABKAVCAEgAEiAKFmFjdGl2YXRpb25fcHJpY2VfdGlja3MYAyABKANCABIeChJtYXhfc2xpcHBhZ2VfdGlja3MYBCABKAVCAEgBEhwKEG1heF9zbGlwcGFnZV9icHMYBSABKAVCAEgBEh8KBHNpZGUYBiABKA4yDy5vcmRlcnMudjEuU2lkZUIAQhUKEXRyYWlsaW5nX2Rpc3RhbmNlEgBCDgoMbWF4X3NsaXBwYWdlIg8KDVR3YXBNYXJrZXRJb2MiJQoMVHdhcExpbWl0R3RjEhUKC3ByaWNlX3RpY2tzGAEgASgDQgAi0QEKC1R3YXBUcmlnZ2VyEh8KBHNpZGUYASABKA4yDy5vcmRlcnMudjEuU2lkZUIAEhMKC2R1cmF0aW9uX21zGAIgASgDEhkKEXNsaWNlX2ludGVydmFsX21zGAMgASgDEjAKCm1hcmtldF9pb2MYBCABKAsyGi50cmlnZ2Vycy52MS5Ud2FwTWFya2V0SW9jSAASLgoJbGltaXRfZ3RjGAUgASgLMhkudHJpZ2dlcnMudjEuVHdhcExpbWl0R3RjSAA6AEINCglleGVjdXRpb24SACKNAQoNTGFkZGVyVHJpZ2dlchIfCgRzaWRlGAEgASgOMg8ub3JkZXJzLnYxLlNpZGVCABIZCg9wcmljZV9taW5fdGlja3MYAiABKANCABIZCg9wcmljZV9tYXhfdGlja3MYAyABKANCABIQCgZsZXZlbHMYBCABKAVCABIRCglwb3N0X29ubHkYBSABKAg6ACLaAwoNVHJpZ2dlckludGVudBITCglzeW1ib2xfaWQYASABKA1CABIUCgpxdHlfc2NhbGVkGAIgASgDQgASKAoJZmVlX2Fzc2V0GAMgASgOMhMub3JkZXJzLnYxLkZlZUFzc2V0QgASSAoac2VsZl90cmFkZV9wcmV2ZW50aW9uX21vZGUYBCABKA4yIi5vcmRlcnMudjEuU2VsZlRyYWRlUHJldmVudGlvbk1vZGVCABIbChFjbGllbnRfdHJpZ2dlcl9pZBgFIAEoCUIAEjQKCXN0b3BfbG9zcxgKIAEoCzIfLnRyaWdnZXJzLnYxLkNvbmRpdGlvbmFsVHJpZ2dlckgAEjYKC3Rha2VfcHJvZml0GAsgASgLMh8udHJpZ2dlcnMudjEuQ29uZGl0aW9uYWxUcmlnZ2VySAASOQoNdHJhaWxpbmdfc3RvcBgMIAEoCzIgLnRyaWdnZXJzLnYxLlRyYWlsaW5nU3RvcFRyaWdnZXJIABIoCgR0d2FwGA0gASgLMhgudHJpZ2dlcnMudjEuVHdhcFRyaWdnZXJIABIsCgZsYWRkZXIYDiABKAsyGi50cmlnZ2Vycy52MS5MYWRkZXJUcmlnZ2VySABCDAoIc3RyYXRlZ3kSACJzChRDcmVhdGVUcmlnZ2VyUmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESLQoHdHJpZ2dlchgCIAEoCzIaLnRyaWdnZXJzLnYxLlRyaWdnZXJJbnRlbnRCAEIQCg5fc3ViYWNjb3VudF9pZCKSAQoVQ3JlYXRlVHJpZ2dlclJlc3BvbnNlEhIKCnRyaWdnZXJfaWQYASABKAYSGQoRY2xpZW50X3RyaWdnZXJfaWQYAiABKAkSLwoLYWNjZXB0ZWRfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhkKEWFjY2VwdGVkX2F0X3RzX25zGAQgASgEIlcKEUdldFRyaWdnZXJSZXF1ZXN0EhQKCnRyaWdnZXJfaWQYASABKAZCABIaCg1zdWJhY2NvdW50X2lkGAIgASgGSACIAQFCEAoOX3N1YmFjY291bnRfaWQiOwoSR2V0VHJpZ2dlclJlc3BvbnNlEiUKB3RyaWdnZXIYASABKAsyFC50cmlnZ2Vycy52MS5UcmlnZ2VyIpECChNMaXN0VHJpZ2dlcnNSZXF1ZXN0EhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBARITCglzeW1ib2xfaWQYAiABKA1CABIsCgZzdGF0dXMYAyADKA4yGi50cmlnZ2Vycy52MS5UcmlnZ2VyU3RhdHVzQgASMAoMdHJpZ2dlcl90eXBlGAQgASgOMhgudHJpZ2dlcnMudjEuVHJpZ2dlclR5cGVCABIcCg9wYXJlbnRfb3JkZXJfaWQYBSABKAZIAYgBARIPCgVsaW1pdBgKIAEoDUIAEhQKCnBhZ2VfdG9rZW4YDCABKAlCAEIQCg5fc3ViYWNjb3VudF9pZEISChBfcGFyZW50X29yZGVyX2lkIlkKFExpc3RUcmlnZ2Vyc1Jlc3BvbnNlEiYKCHRyaWdnZXJzGAEgAygLMhQudHJpZ2dlcnMudjEuVHJpZ2dlchIZCg9uZXh0X3BhZ2VfdG9rZW4YAyABKAlCACK6AQoYTGlzdFRyaWdnZXJFdmVudHNSZXF1ZXN0EhQKCnRyaWdnZXJfaWQYASABKAZCABIaCg1zdWJhY2NvdW50X2lkGAIgASgGSACIAQESDwoFbGltaXQYAyABKA1CABIzCgpldmVudF90eXBlGAQgASgOMh0udHJpZ2dlcnMudjEuVHJpZ2dlckV2ZW50VHlwZUIAEhQKCnBhZ2VfdG9rZW4YBSABKAlCAEIQCg5fc3ViYWNjb3VudF9pZCKvAgoMVHJpZ2dlckV2ZW50EhIKCnRyaWdnZXJfaWQYASABKAYSFQoNc3ViYWNjb3VudF9pZBgCIAEoBhIRCglzeW1ib2xfaWQYAyABKA0SLgoMdHJpZ2dlcl90eXBlGAQgASgOMhgudHJpZ2dlcnMudjEuVHJpZ2dlclR5cGUSMQoKZXZlbnRfdHlwZRgFIAEoDjIdLnRyaWdnZXJzLnYxLlRyaWdnZXJFdmVudFR5cGUSDQoFdHNfbnMYCiABKAQSEQoJY2hpbGRfc2VxGAsgASgFEhYKDmNoaWxkX29yZGVyX2lkGAwgASgGEh8KEGZpcmVfcHJpY2VfdGlja3MYDSABKANCAEgAiAEBEg4KBnJlYXNvbhgUIAEoCUITChFfZmlyZV9wcmljZV90aWNrcyJhChlMaXN0VHJpZ2dlckV2ZW50c1Jlc3BvbnNlEikKBmV2ZW50cxgBIAMoCzIZLnRyaWdnZXJzLnYxLlRyaWdnZXJFdmVudBIZCg9uZXh0X3BhZ2VfdG9rZW4YAyABKAlCACJaChRDYW5jZWxUcmlnZ2VyUmVxdWVzdBIUCgp0cmlnZ2VyX2lkGAEgASgGQgASGgoNc3ViYWNjb3VudF9pZBgCIAEoBkgAiAEBQhAKDl9zdWJhY2NvdW50X2lkIo4BChVDYW5jZWxUcmlnZ2VyUmVzcG9uc2USEgoKdHJpZ2dlcl9pZBgBIAEoBhIqCgZzdGF0dXMYAiABKA4yGi50cmlnZ2Vycy52MS5UcmlnZ2VyU3RhdHVzEiYKAnRzGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBINCgV0c19ucxgEIAEoBCLCAwoUTW9kaWZ5VHJpZ2dlclJlcXVlc3QSFAoKdHJpZ2dlcl9pZBgBIAEoBkIAEhoKDXN1YmFjY291bnRfaWQYAiABKAZIAogBARITCglzeW1ib2xfaWQYAyABKA1CABIgChN0cmlnZ2VyX3ByaWNlX3RpY2tzGAogASgDSAOIAQESHgoRbGltaXRfcHJpY2VfdGlja3MYCyABKANIBIgBARIhChd0cmFpbGluZ19kaXN0YW5jZV90aWNrcxgMIAEoA0gAEh8KFXRyYWlsaW5nX2Rpc3RhbmNlX2JwcxgNIAEoBUgAEiMKFmFjdGl2YXRpb25fcHJpY2VfdGlja3MYDiABKANIBYgBARIcChJtYXhfc2xpcHBhZ2VfdGlja3MYDyABKAVIARIaChBtYXhfc2xpcHBhZ2VfYnBzGBAgASgFSAFCEwoRdHJhaWxpbmdfZGlzdGFuY2VCDgoMbWF4X3NsaXBwYWdlQhAKDl9zdWJhY2NvdW50X2lkQhYKFF90cmlnZ2VyX3ByaWNlX3RpY2tzQhQKEl9saW1pdF9wcmljZV90aWNrc0IZChdfYWN0aXZhdGlvbl9wcmljZV90aWNrcyKOAQoVTW9kaWZ5VHJpZ2dlclJlc3BvbnNlEhIKCnRyaWdnZXJfaWQYASABKAYSKgoGc3RhdHVzGAIgASgOMhoudHJpZ2dlcnMudjEuVHJpZ2dlclN0YXR1cxImCgJ0cxgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDQoFdHNfbnMYBCABKAQiWQoTUGF1c2VUcmlnZ2VyUmVxdWVzdBIUCgp0cmlnZ2VyX2lkGAEgASgGQgASGgoNc3ViYWNjb3VudF9pZBgCIAEoBkgAiAEBQhAKDl9zdWJhY2NvdW50X2lkIo0BChRQYXVzZVRyaWdnZXJSZXNwb25zZRISCgp0cmlnZ2VyX2lkGAEgASgGEioKBnN0YXR1cxgCIAEoDjIaLnRyaWdnZXJzLnYxLlRyaWdnZXJTdGF0dXMSJgoCdHMYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg0KBXRzX25zGAQgASgEIm8KFFJlc3VtZVRyaWdnZXJSZXF1ZXN0EhQKCnRyaWdnZXJfaWQYASABKAZCABIaCg1zdWJhY2NvdW50X2lkGAIgASgGSACIAQESEwoJc3ltYm9sX2lkGAMgASgNQgBCEAoOX3N1YmFjY291bnRfaWQijgEKFVJlc3VtZVRyaWdnZXJSZXNwb25zZRISCgp0cmlnZ2VyX2lkGAEgASgGEioKBnN0YXR1cxgCIAEoDjIaLnRyaWdnZXJzLnYxLlRyaWdnZXJTdGF0dXMSJgoCdHMYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg0KBXRzX25zGAQgASgEIp8BCgtTdG9wRGV0YWlscxIbChN0cmlnZ2VyX3ByaWNlX3RpY2tzGAEgASgDEjsKFHRyaWdnZXJfcHJpY2Vfc291cmNlGAIgASgOMh0ub3JkZXJzLnYxLlRyaWdnZXJQcmljZVNvdXJjZRI2ChF0cmlnZ2VyX2RpcmVjdGlvbhgDIAEoDjIbLm9yZGVycy52MS5UcmlnZ2VyRGlyZWN0aW9uItICCg9UcmFpbGluZ0RldGFpbHMSHwoXdHJhaWxpbmdfZGlzdGFuY2VfdGlja3MYASABKAMSHgoWYWN0aXZhdGlvbl9wcmljZV90aWNrcxgCIAEoAxIYChBwZWFrX3ByaWNlX3RpY2tzGAMgASgDEhoKEnRyb3VnaF9wcmljZV90aWNrcxgEIAEoAxIdChV0cmFpbGluZ19kaXN0YW5jZV9icHMYBSABKAUSGgoSbWF4X3NsaXBwYWdlX3RpY2tzGAYgASgFEhgKEG1heF9zbGlwcGFnZV9icHMYByABKAUSOwoUdHJpZ2dlcl9wcmljZV9zb3VyY2UYCCABKA4yHS5vcmRlcnMudjEuVHJpZ2dlclByaWNlU291cmNlEjYKEXRyaWdnZXJfZGlyZWN0aW9uGAkgASgOMhsub3JkZXJzLnYxLlRyaWdnZXJEaXJlY3Rpb24ijAEKC1R3YXBEZXRhaWxzEhgKEHR3YXBfZHVyYXRpb25fbXMYASABKAMSHgoWdHdhcF9zbGljZV9pbnRlcnZhbF9tcxgCIAEoAxIRCglzbGljZV9pZHgYBCABKAUSEwoLc2xpY2VfY291bnQYBSABKAUSGwoTZXhlY3V0ZWRfcXR5X3NjYWxlZBgGIAEoAyKkAQoNTGFkZGVyRGV0YWlscxIeChZsYWRkZXJfcHJpY2VfbWluX3RpY2tzGAEgASgDEh4KFmxhZGRlcl9wcmljZV9tYXhfdGlja3MYAiABKAMSFQoNbGFkZGVyX2xldmVscxgDIAEoBRI8ChNsYWRkZXJfZGlzdHJpYnV0aW9uGAQgASgOMh8udHJpZ2dlcnMudjEuTGFkZGVyRGlzdHJpYnV0aW9uIukHCgdUcmlnZ2VyEhIKCnRyaWdnZXJfaWQYASABKAYSFQoNc3ViYWNjb3VudF9pZBgCIAEoBhIRCglzeW1ib2xfaWQYAyABKA0SKgoGc3RhdHVzGAUgASgOMhoudHJpZ2dlcnMudjEuVHJpZ2dlclN0YXR1cxIcCg9wYXJlbnRfb3JkZXJfaWQYBiABKAZIAogBARISCgpxdHlfc2NhbGVkGBQgASgDEiYKCWZlZV9hc3NldBgVIAEoDjITLm9yZGVycy52MS5GZWVBc3NldBJGChpzZWxmX3RyYWRlX3ByZXZlbnRpb25fbW9kZRgWIAEoDjIiLm9yZGVycy52MS5TZWxmVHJhZGVQcmV2ZW50aW9uTW9kZRI0CglzdG9wX2xvc3MYHiABKAsyHy50cmlnZ2Vycy52MS5Db25kaXRpb25hbFRyaWdnZXJIABI2Cgt0YWtlX3Byb2ZpdBgfIAEoCzIfLnRyaWdnZXJzLnYxLkNvbmRpdGlvbmFsVHJpZ2dlckgAEjkKDXRyYWlsaW5nX3N0b3AYICABKAsyIC50cmlnZ2Vycy52MS5UcmFpbGluZ1N0b3BUcmlnZ2VySAASKAoEdHdhcBghIAEoCzIYLnRyaWdnZXJzLnYxLlR3YXBUcmlnZ2VySAASLAoGbGFkZGVyGCIgASgLMhoudHJpZ2dlcnMudjEuTGFkZGVyVHJpZ2dlckgAEigKBHN0b3AYZCABKAsyGC50cmlnZ2Vycy52MS5TdG9wRGV0YWlsc0gBEjAKCHRyYWlsaW5nGGUgASgLMhwudHJpZ2dlcnMudjEuVHJhaWxpbmdEZXRhaWxzSAESLgoKdHdhcF9zdGF0ZRhmIAEoCzIYLnRyaWdnZXJzLnYxLlR3YXBEZXRhaWxzSAESMgoMbGFkZGVyX3N0YXRlGGcgASgLMhoudHJpZ2dlcnMudjEuTGFkZGVyRGV0YWlsc0gBEhkKEWNsaWVudF90cmlnZ2VyX2lkGDwgASgJEi4KCmNyZWF0ZWRfYXQYPSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCnVwZGF0ZWRfYXQYPiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGFybWVkX2F0GD8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxjb21wbGV0ZWRfYXQYQCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQg8KDWNvbmZpZ3VyYXRpb25CEQoPcnVudGltZV9kZXRhaWxzQhIKEF9wYXJlbnRfb3JkZXJfaWQqdAoLVHJpZ2dlclR5cGUSHAoYVFJJR0dFUl9UWVBFX1VOU1BFQ0lGSUVEEAASDQoJU1RPUF9MT1NTEAESDwoLVEFLRV9QUk9GSVQQAhIRCg1UUkFJTElOR19TVE9QEAMSCAoEVFdBUBAEEgoKBkxBRERFUhAFKrIBCg1UcmlnZ2VyU3RhdHVzEhYKElNUQVRVU19VTlNQRUNJRklFRBAAEhIKDlNUQVRVU19DUkVBVEVEEAESEAoMU1RBVFVTX0FSTUVEEAISEgoOU1RBVFVTX1JVTk5JTkcQAxIUChBTVEFUVVNfQ09NUExFVEVEEAQSEwoPU1RBVFVTX0NBTkNFTEVEEAUSEQoNU1RBVFVTX0ZBSUxFRBAGEhEKDVNUQVRVU19QQVVTRUQQBypzChBUcmlnZ2VyRXZlbnRUeXBlEhUKEUVWRU5UX1VOU1BFQ0lGSUVEEAASDwoLRVZFTlRfRklSRUQQARISCg5FVkVOVF9DQU5DRUxFRBACEhEKDUVWRU5UX1VQREFURUQQAxIQCgxFVkVOVF9GQUlMRUQQBCpsChJMYWRkZXJEaXN0cmlidXRpb24SIwofTEFEREVSX0RJU1RSSUJVVElPTl9VTlNQRUNJRklFRBAAEgoKBkxJTkVBUhABEg0KCUdFT01FVFJJQxACEhYKEldFSUdIVEVEX0ZBVk9SQUJMRRADMt4FCg9UcmlnZ2Vyc1NlcnZpY2USWAoNQ3JlYXRlVHJpZ2dlchIhLnRyaWdnZXJzLnYxLkNyZWF0ZVRyaWdnZXJSZXF1ZXN0GiIudHJpZ2dlcnMudjEuQ3JlYXRlVHJpZ2dlclJlc3BvbnNlIgASTwoKR2V0VHJpZ2dlchIeLnRyaWdnZXJzLnYxLkdldFRyaWdnZXJSZXF1ZXN0Gh8udHJpZ2dlcnMudjEuR2V0VHJpZ2dlclJlc3BvbnNlIgASVQoMTGlzdFRyaWdnZXJzEiAudHJpZ2dlcnMudjEuTGlzdFRyaWdnZXJzUmVxdWVzdBohLnRyaWdnZXJzLnYxLkxpc3RUcmlnZ2Vyc1Jlc3BvbnNlIgASZAoRTGlzdFRyaWdnZXJFdmVudHMSJS50cmlnZ2Vycy52MS5MaXN0VHJpZ2dlckV2ZW50c1JlcXVlc3QaJi50cmlnZ2Vycy52MS5MaXN0VHJpZ2dlckV2ZW50c1Jlc3BvbnNlIgASWAoNQ2FuY2VsVHJpZ2dlchIhLnRyaWdnZXJzLnYxLkNhbmNlbFRyaWdnZXJSZXF1ZXN0GiIudHJpZ2dlcnMudjEuQ2FuY2VsVHJpZ2dlclJlc3BvbnNlIgASWAoNTW9kaWZ5VHJpZ2dlchIhLnRyaWdnZXJzLnYxLk1vZGlmeVRyaWdnZXJSZXF1ZXN0GiIudHJpZ2dlcnMudjEuTW9kaWZ5VHJpZ2dlclJlc3BvbnNlIgASVQoMUGF1c2VUcmlnZ2VyEiAudHJpZ2dlcnMudjEuUGF1c2VUcmlnZ2VyUmVxdWVzdBohLnRyaWdnZXJzLnYxLlBhdXNlVHJpZ2dlclJlc3BvbnNlIgASWAoNUmVzdW1lVHJpZ2dlchIhLnRyaWdnZXJzLnYxLlJlc3VtZVRyaWdnZXJSZXF1ZXN0GiIudHJpZ2dlcnMudjEuUmVzdW1lVHJpZ2dlclJlc3BvbnNlIgBCRFpCZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi90cmlnZ2Vycy92MTt0cmlnZ2Vyc3YxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_orders_v1_orders]);
+  fileDesc("Chp0cmlnZ2Vycy92MS90cmlnZ2Vycy5wcm90bxILdHJpZ2dlcnMudjEiEgoQVHJpZ2dlck1hcmtldElvYyI7Cg9UcmlnZ2VyTGltaXRHdGMSFQoLcHJpY2VfdGlja3MYASABKANCABIRCglwb3N0X29ubHkYAiABKAgiKAoPVHJpZ2dlckxpbWl0SW9jEhUKC3ByaWNlX3RpY2tzGAEgASgDQgAiKAoPVHJpZ2dlckxpbWl0Rm9rEhUKC3ByaWNlX3RpY2tzGAEgASgDQgAi+AEKGUNvbmRpdGlvbmFsQ2hpbGRFeGVjdXRpb24SMwoKbWFya2V0X2lvYxgBIAEoCzIdLnRyaWdnZXJzLnYxLlRyaWdnZXJNYXJrZXRJb2NIABIxCglsaW1pdF9ndGMYAiABKAsyHC50cmlnZ2Vycy52MS5UcmlnZ2VyTGltaXRHdGNIABIxCglsaW1pdF9pb2MYAyABKAsyHC50cmlnZ2Vycy52MS5UcmlnZ2VyTGltaXRJb2NIABIxCglsaW1pdF9mb2sYBCABKAsyHC50cmlnZ2Vycy52MS5UcmlnZ2VyTGltaXRGb2tIAEINCglleGVjdXRpb24SACKPAQoSQ29uZGl0aW9uYWxUcmlnZ2VyEh0KE3RyaWdnZXJfcHJpY2VfdGlja3MYASABKANCABIfCgRzaWRlGAIgASgOMg8ub3JkZXJzLnYxLlNpZGVCABI3CgVjaGlsZBgDIAEoCzImLnRyaWdnZXJzLnYxLkNvbmRpdGlvbmFsQ2hpbGRFeGVjdXRpb25CADoAIoUCChNUcmFpbGluZ1N0b3BUcmlnZ2VyEiMKF3RyYWlsaW5nX2Rpc3RhbmNlX3RpY2tzGAEgASgDQgBIABIhChV0cmFpbGluZ19kaXN0YW5jZV9icHMYAiABKAVCAEgAEiAKFmFjdGl2YXRpb25fcHJpY2VfdGlja3MYAyABKANCABIeChJtYXhfc2xpcHBhZ2VfdGlja3MYBCABKAVCAEgBEhwKEG1heF9zbGlwcGFnZV9icHMYBSABKAVCAEgBEh8KBHNpZGUYBiABKA4yDy5vcmRlcnMudjEuU2lkZUIAQhUKEXRyYWlsaW5nX2Rpc3RhbmNlEgBCDgoMbWF4X3NsaXBwYWdlIg8KDVR3YXBNYXJrZXRJb2MiJQoMVHdhcExpbWl0R3RjEhUKC3ByaWNlX3RpY2tzGAEgASgDQgAi0QEKC1R3YXBUcmlnZ2VyEh8KBHNpZGUYASABKA4yDy5vcmRlcnMudjEuU2lkZUIAEhMKC2R1cmF0aW9uX21zGAIgASgDEhkKEXNsaWNlX2ludGVydmFsX21zGAMgASgDEjAKCm1hcmtldF9pb2MYBCABKAsyGi50cmlnZ2Vycy52MS5Ud2FwTWFya2V0SW9jSAASLgoJbGltaXRfZ3RjGAUgASgLMhkudHJpZ2dlcnMudjEuVHdhcExpbWl0R3RjSAA6AEINCglleGVjdXRpb24SACKNAQoNTGFkZGVyVHJpZ2dlchIfCgRzaWRlGAEgASgOMg8ub3JkZXJzLnYxLlNpZGVCABIZCg9wcmljZV9taW5fdGlja3MYAiABKANCABIZCg9wcmljZV9tYXhfdGlja3MYAyABKANCABIQCgZsZXZlbHMYBCABKAVCABIRCglwb3N0X29ubHkYBSABKAg6ACLaAwoNVHJpZ2dlckludGVudBITCglzeW1ib2xfaWQYASABKA1CABIUCgpxdHlfc2NhbGVkGAIgASgDQgASKAoJZmVlX2Fzc2V0GAMgASgOMhMub3JkZXJzLnYxLkZlZUFzc2V0QgASSAoac2VsZl90cmFkZV9wcmV2ZW50aW9uX21vZGUYBCABKA4yIi5vcmRlcnMudjEuU2VsZlRyYWRlUHJldmVudGlvbk1vZGVCABIbChFjbGllbnRfdHJpZ2dlcl9pZBgFIAEoCUIAEjQKCXN0b3BfbG9zcxgKIAEoCzIfLnRyaWdnZXJzLnYxLkNvbmRpdGlvbmFsVHJpZ2dlckgAEjYKC3Rha2VfcHJvZml0GAsgASgLMh8udHJpZ2dlcnMudjEuQ29uZGl0aW9uYWxUcmlnZ2VySAASOQoNdHJhaWxpbmdfc3RvcBgMIAEoCzIgLnRyaWdnZXJzLnYxLlRyYWlsaW5nU3RvcFRyaWdnZXJIABIoCgR0d2FwGA0gASgLMhgudHJpZ2dlcnMudjEuVHdhcFRyaWdnZXJIABIsCgZsYWRkZXIYDiABKAsyGi50cmlnZ2Vycy52MS5MYWRkZXJUcmlnZ2VySABCDAoIc3RyYXRlZ3kSACJzChRDcmVhdGVUcmlnZ2VyUmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESLQoHdHJpZ2dlchgCIAEoCzIaLnRyaWdnZXJzLnYxLlRyaWdnZXJJbnRlbnRCAEIQCg5fc3ViYWNjb3VudF9pZCKSAQoVQ3JlYXRlVHJpZ2dlclJlc3BvbnNlEhIKCnRyaWdnZXJfaWQYASABKAYSGQoRY2xpZW50X3RyaWdnZXJfaWQYAiABKAkSLwoLYWNjZXB0ZWRfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhkKEWFjY2VwdGVkX2F0X3RzX25zGAQgASgEIlcKEUdldFRyaWdnZXJSZXF1ZXN0EhQKCnRyaWdnZXJfaWQYASABKAZCABIaCg1zdWJhY2NvdW50X2lkGAIgASgGSACIAQFCEAoOX3N1YmFjY291bnRfaWQiOwoSR2V0VHJpZ2dlclJlc3BvbnNlEiUKB3RyaWdnZXIYASABKAsyFC50cmlnZ2Vycy52MS5UcmlnZ2VyIpECChNMaXN0VHJpZ2dlcnNSZXF1ZXN0EhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBARITCglzeW1ib2xfaWQYAiABKA1CABIsCgZzdGF0dXMYAyADKA4yGi50cmlnZ2Vycy52MS5UcmlnZ2VyU3RhdHVzQgASMAoMdHJpZ2dlcl90eXBlGAQgASgOMhgudHJpZ2dlcnMudjEuVHJpZ2dlclR5cGVCABIcCg9wYXJlbnRfb3JkZXJfaWQYBSABKAZIAYgBARIPCgVsaW1pdBgKIAEoDUIAEhQKCnBhZ2VfdG9rZW4YDCABKAlCAEIQCg5fc3ViYWNjb3VudF9pZEISChBfcGFyZW50X29yZGVyX2lkIlkKFExpc3RUcmlnZ2Vyc1Jlc3BvbnNlEiYKCHRyaWdnZXJzGAEgAygLMhQudHJpZ2dlcnMudjEuVHJpZ2dlchIZCg9uZXh0X3BhZ2VfdG9rZW4YAyABKAlCACK6AQoYTGlzdFRyaWdnZXJFdmVudHNSZXF1ZXN0EhQKCnRyaWdnZXJfaWQYASABKAZCABIaCg1zdWJhY2NvdW50X2lkGAIgASgGSACIAQESDwoFbGltaXQYAyABKA1CABIzCgpldmVudF90eXBlGAQgASgOMh0udHJpZ2dlcnMudjEuVHJpZ2dlckV2ZW50VHlwZUIAEhQKCnBhZ2VfdG9rZW4YBSABKAlCAEIQCg5fc3ViYWNjb3VudF9pZCKqAwoMVHJpZ2dlckV2ZW50EhIKCnRyaWdnZXJfaWQYASABKAYSFQoNc3ViYWNjb3VudF9pZBgCIAEoBhIRCglzeW1ib2xfaWQYAyABKA0SLgoMdHJpZ2dlcl90eXBlGAQgASgOMhgudHJpZ2dlcnMudjEuVHJpZ2dlclR5cGUSMQoKZXZlbnRfdHlwZRgFIAEoDjIdLnRyaWdnZXJzLnYxLlRyaWdnZXJFdmVudFR5cGUSDQoFdHNfbnMYCiABKAQSEQoJY2hpbGRfc2VxGAsgASgFEhYKDmNoaWxkX29yZGVyX2lkGAwgASgGEh8KEGZpcmVfcHJpY2VfdGlja3MYDSABKANCAEgBiAEBEjkKDWNhbmNlbF9yZWFzb24YFCABKA4yIC50cmlnZ2Vycy52MS5UcmlnZ2VyQ2FuY2VsUmVhc29uSAASOwoOZmFpbHVyZV9yZWFzb24YFSABKA4yIS50cmlnZ2Vycy52MS5UcmlnZ2VyRmFpbHVyZVJlYXNvbkgAQhEKD3Rlcm1pbmFsX3JlYXNvbkITChFfZmlyZV9wcmljZV90aWNrcyJhChlMaXN0VHJpZ2dlckV2ZW50c1Jlc3BvbnNlEikKBmV2ZW50cxgBIAMoCzIZLnRyaWdnZXJzLnYxLlRyaWdnZXJFdmVudBIZCg9uZXh0X3BhZ2VfdG9rZW4YAyABKAlCACJaChRDYW5jZWxUcmlnZ2VyUmVxdWVzdBIUCgp0cmlnZ2VyX2lkGAEgASgGQgASGgoNc3ViYWNjb3VudF9pZBgCIAEoBkgAiAEBQhAKDl9zdWJhY2NvdW50X2lkIo4BChVDYW5jZWxUcmlnZ2VyUmVzcG9uc2USEgoKdHJpZ2dlcl9pZBgBIAEoBhIqCgZzdGF0dXMYAiABKA4yGi50cmlnZ2Vycy52MS5UcmlnZ2VyU3RhdHVzEiYKAnRzGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBINCgV0c19ucxgEIAEoBCLCAwoUTW9kaWZ5VHJpZ2dlclJlcXVlc3QSFAoKdHJpZ2dlcl9pZBgBIAEoBkIAEhoKDXN1YmFjY291bnRfaWQYAiABKAZIAogBARITCglzeW1ib2xfaWQYAyABKA1CABIgChN0cmlnZ2VyX3ByaWNlX3RpY2tzGAogASgDSAOIAQESHgoRbGltaXRfcHJpY2VfdGlja3MYCyABKANIBIgBARIhChd0cmFpbGluZ19kaXN0YW5jZV90aWNrcxgMIAEoA0gAEh8KFXRyYWlsaW5nX2Rpc3RhbmNlX2JwcxgNIAEoBUgAEiMKFmFjdGl2YXRpb25fcHJpY2VfdGlja3MYDiABKANIBYgBARIcChJtYXhfc2xpcHBhZ2VfdGlja3MYDyABKAVIARIaChBtYXhfc2xpcHBhZ2VfYnBzGBAgASgFSAFCEwoRdHJhaWxpbmdfZGlzdGFuY2VCDgoMbWF4X3NsaXBwYWdlQhAKDl9zdWJhY2NvdW50X2lkQhYKFF90cmlnZ2VyX3ByaWNlX3RpY2tzQhQKEl9saW1pdF9wcmljZV90aWNrc0IZChdfYWN0aXZhdGlvbl9wcmljZV90aWNrcyKOAQoVTW9kaWZ5VHJpZ2dlclJlc3BvbnNlEhIKCnRyaWdnZXJfaWQYASABKAYSKgoGc3RhdHVzGAIgASgOMhoudHJpZ2dlcnMudjEuVHJpZ2dlclN0YXR1cxImCgJ0cxgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDQoFdHNfbnMYBCABKAQiWQoTUGF1c2VUcmlnZ2VyUmVxdWVzdBIUCgp0cmlnZ2VyX2lkGAEgASgGQgASGgoNc3ViYWNjb3VudF9pZBgCIAEoBkgAiAEBQhAKDl9zdWJhY2NvdW50X2lkIo0BChRQYXVzZVRyaWdnZXJSZXNwb25zZRISCgp0cmlnZ2VyX2lkGAEgASgGEioKBnN0YXR1cxgCIAEoDjIaLnRyaWdnZXJzLnYxLlRyaWdnZXJTdGF0dXMSJgoCdHMYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg0KBXRzX25zGAQgASgEIm8KFFJlc3VtZVRyaWdnZXJSZXF1ZXN0EhQKCnRyaWdnZXJfaWQYASABKAZCABIaCg1zdWJhY2NvdW50X2lkGAIgASgGSACIAQESEwoJc3ltYm9sX2lkGAMgASgNQgBCEAoOX3N1YmFjY291bnRfaWQijgEKFVJlc3VtZVRyaWdnZXJSZXNwb25zZRISCgp0cmlnZ2VyX2lkGAEgASgGEioKBnN0YXR1cxgCIAEoDjIaLnRyaWdnZXJzLnYxLlRyaWdnZXJTdGF0dXMSJgoCdHMYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg0KBXRzX25zGAQgASgEIp8BCgtTdG9wRGV0YWlscxIbChN0cmlnZ2VyX3ByaWNlX3RpY2tzGAEgASgDEjsKFHRyaWdnZXJfcHJpY2Vfc291cmNlGAIgASgOMh0ub3JkZXJzLnYxLlRyaWdnZXJQcmljZVNvdXJjZRI2ChF0cmlnZ2VyX2RpcmVjdGlvbhgDIAEoDjIbLm9yZGVycy52MS5UcmlnZ2VyRGlyZWN0aW9uItICCg9UcmFpbGluZ0RldGFpbHMSHwoXdHJhaWxpbmdfZGlzdGFuY2VfdGlja3MYASABKAMSHgoWYWN0aXZhdGlvbl9wcmljZV90aWNrcxgCIAEoAxIYChBwZWFrX3ByaWNlX3RpY2tzGAMgASgDEhoKEnRyb3VnaF9wcmljZV90aWNrcxgEIAEoAxIdChV0cmFpbGluZ19kaXN0YW5jZV9icHMYBSABKAUSGgoSbWF4X3NsaXBwYWdlX3RpY2tzGAYgASgFEhgKEG1heF9zbGlwcGFnZV9icHMYByABKAUSOwoUdHJpZ2dlcl9wcmljZV9zb3VyY2UYCCABKA4yHS5vcmRlcnMudjEuVHJpZ2dlclByaWNlU291cmNlEjYKEXRyaWdnZXJfZGlyZWN0aW9uGAkgASgOMhsub3JkZXJzLnYxLlRyaWdnZXJEaXJlY3Rpb24ijAEKC1R3YXBEZXRhaWxzEhgKEHR3YXBfZHVyYXRpb25fbXMYASABKAMSHgoWdHdhcF9zbGljZV9pbnRlcnZhbF9tcxgCIAEoAxIRCglzbGljZV9pZHgYBCABKAUSEwoLc2xpY2VfY291bnQYBSABKAUSGwoTZXhlY3V0ZWRfcXR5X3NjYWxlZBgGIAEoAyKkAQoNTGFkZGVyRGV0YWlscxIeChZsYWRkZXJfcHJpY2VfbWluX3RpY2tzGAEgASgDEh4KFmxhZGRlcl9wcmljZV9tYXhfdGlja3MYAiABKAMSFQoNbGFkZGVyX2xldmVscxgDIAEoBRI8ChNsYWRkZXJfZGlzdHJpYnV0aW9uGAQgASgOMh8udHJpZ2dlcnMudjEuTGFkZGVyRGlzdHJpYnV0aW9uIvQICgdUcmlnZ2VyEhIKCnRyaWdnZXJfaWQYASABKAYSFQoNc3ViYWNjb3VudF9pZBgCIAEoBhIRCglzeW1ib2xfaWQYAyABKA0SKgoGc3RhdHVzGAUgASgOMhoudHJpZ2dlcnMudjEuVHJpZ2dlclN0YXR1cxIcCg9wYXJlbnRfb3JkZXJfaWQYBiABKAZIA4gBARI5Cg1jYW5jZWxfcmVhc29uGAcgASgOMiAudHJpZ2dlcnMudjEuVHJpZ2dlckNhbmNlbFJlYXNvbkgAEjsKDmZhaWx1cmVfcmVhc29uGAggASgOMiEudHJpZ2dlcnMudjEuVHJpZ2dlckZhaWx1cmVSZWFzb25IABISCgpxdHlfc2NhbGVkGBQgASgDEiYKCWZlZV9hc3NldBgVIAEoDjITLm9yZGVycy52MS5GZWVBc3NldBJGChpzZWxmX3RyYWRlX3ByZXZlbnRpb25fbW9kZRgWIAEoDjIiLm9yZGVycy52MS5TZWxmVHJhZGVQcmV2ZW50aW9uTW9kZRI0CglzdG9wX2xvc3MYHiABKAsyHy50cmlnZ2Vycy52MS5Db25kaXRpb25hbFRyaWdnZXJIARI2Cgt0YWtlX3Byb2ZpdBgfIAEoCzIfLnRyaWdnZXJzLnYxLkNvbmRpdGlvbmFsVHJpZ2dlckgBEjkKDXRyYWlsaW5nX3N0b3AYICABKAsyIC50cmlnZ2Vycy52MS5UcmFpbGluZ1N0b3BUcmlnZ2VySAESKAoEdHdhcBghIAEoCzIYLnRyaWdnZXJzLnYxLlR3YXBUcmlnZ2VySAESLAoGbGFkZGVyGCIgASgLMhoudHJpZ2dlcnMudjEuTGFkZGVyVHJpZ2dlckgBEigKBHN0b3AYZCABKAsyGC50cmlnZ2Vycy52MS5TdG9wRGV0YWlsc0gCEjAKCHRyYWlsaW5nGGUgASgLMhwudHJpZ2dlcnMudjEuVHJhaWxpbmdEZXRhaWxzSAISLgoKdHdhcF9zdGF0ZRhmIAEoCzIYLnRyaWdnZXJzLnYxLlR3YXBEZXRhaWxzSAISMgoMbGFkZGVyX3N0YXRlGGcgASgLMhoudHJpZ2dlcnMudjEuTGFkZGVyRGV0YWlsc0gCEhkKEWNsaWVudF90cmlnZ2VyX2lkGDwgASgJEi4KCmNyZWF0ZWRfYXQYPSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCnVwZGF0ZWRfYXQYPiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGFybWVkX2F0GD8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxjb21wbGV0ZWRfYXQYQCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQhEKD3Rlcm1pbmFsX3JlYXNvbkIPCg1jb25maWd1cmF0aW9uQhEKD3J1bnRpbWVfZGV0YWlsc0ISChBfcGFyZW50X29yZGVyX2lkKnQKC1RyaWdnZXJUeXBlEhwKGFRSSUdHRVJfVFlQRV9VTlNQRUNJRklFRBAAEg0KCVNUT1BfTE9TUxABEg8KC1RBS0VfUFJPRklUEAISEQoNVFJBSUxJTkdfU1RPUBADEggKBFRXQVAQBBIKCgZMQURERVIQBSqyAQoNVHJpZ2dlclN0YXR1cxIWChJTVEFUVVNfVU5TUEVDSUZJRUQQABISCg5TVEFUVVNfQ1JFQVRFRBABEhAKDFNUQVRVU19BUk1FRBACEhIKDlNUQVRVU19SVU5OSU5HEAMSFAoQU1RBVFVTX0NPTVBMRVRFRBAEEhMKD1NUQVRVU19DQU5DRUxFRBAFEhEKDVNUQVRVU19GQUlMRUQQBhIRCg1TVEFUVVNfUEFVU0VEEAcqcwoQVHJpZ2dlckV2ZW50VHlwZRIVChFFVkVOVF9VTlNQRUNJRklFRBAAEg8KC0VWRU5UX0ZJUkVEEAESEgoORVZFTlRfQ0FOQ0VMRUQQAhIRCg1FVkVOVF9VUERBVEVEEAMSEAoMRVZFTlRfRkFJTEVEEAQqkQIKE1RyaWdnZXJDYW5jZWxSZWFzb24SJQohVFJJR0dFUl9DQU5DRUxfUkVBU09OX1VOU1BFQ0lGSUVEEAASJgoiVFJJR0dFUl9DQU5DRUxfUkVBU09OX1VTRVJfUkVRVUVTVBABEh0KGVRSSUdHRVJfQ0FOQ0VMX1JFQVNPTl9PQ08QAhIxCi1UUklHR0VSX0NBTkNFTF9SRUFTT05fUEFSRU5UX0NBTkNFTEVEX05PX0ZJTEwQAxIuCilUUklHR0VSX0NBTkNFTF9SRUFTT05fTUlTU0lOR19SRUFTT05fQ09ERRDmBxIpCiRUUklHR0VSX0NBTkNFTF9SRUFTT05fSU5URVJOQUxfRVJST1IQ5wcq5g4KFFRyaWdnZXJGYWlsdXJlUmVhc29uEiYKIlRSSUdHRVJfRkFJTFVSRV9SRUFTT05fVU5TUEVDSUZJRUQQABIpCiVUUklHR0VSX0ZBSUxVUkVfUkVBU09OX1VOS05PV05fU1lNQk9MEAESKAokVFJJR0dFUl9GQUlMVVJFX1JFQVNPTl9QQUlSX0RJU0FCTEVEEAISJwojVFJJR0dFUl9GQUlMVVJFX1JFQVNPTl9NSU5fTk9USU9OQUwQAxIkCiBUUklHR0VSX0ZBSUxVUkVfUkVBU09OX1RJQ0tfU0laRRAEEi0KKVRSSUdHRVJfRkFJTFVSRV9SRUFTT05fSU5TVUZGSUNJRU5UX0ZVTkRTEAUSJQohVFJJR0dFUl9GQUlMVVJFX1JFQVNPTl9SSVNLX0xJTUlUEAYSLgoqVFJJR0dFUl9GQUlMVVJFX1JFQVNPTl9EVVBMSUNBVEVfQ0xJRU5UX0lEEAcSKAokVFJJR0dFUl9GQUlMVVJFX1JFQVNPTl9NQVJLRVRfSEFMVEVEEAgSJgoiVFJJR0dFUl9GQUlMVVJFX1JFQVNPTl9FTkdJTkVfQlVTWRAJEioKJlRSSUdHRVJfRkFJTFVSRV9SRUFTT05fQUNDT1VOVF9VTktOT1dOEAoSKAokVFJJR0dFUl9GQUlMVVJFX1JFQVNPTl9PUkRFUl9VTktOT1dOEAsSKgomVFJJR0dFUl9GQUlMVVJFX1JFQVNPTl9QT1NUX09OTFlfQ1JPU1MQDBIuCipUUklHR0VSX0ZBSUxVUkVfUkVBU09OX1JFRFVDRV9PTkxZX0JMT0NLRUQQDRIvCitUUklHR0VSX0ZBSUxVUkVfUkVBU09OX1BSSUNFX0JBTkRfVklPTEFUSU9OEA4SLworVFJJR0dFUl9GQUlMVVJFX1JFQVNPTl9NQVJLRVRfQ0FQX1ZJT0xBVElPThAPEiUKIVRSSUdHRVJfRkFJTFVSRV9SRUFTT05fRU1QVFlfQk9PSxAQEjUKMVRSSUdHRVJfRkFJTFVSRV9SRUFTT05fRk9LX0lOU1VGRklDSUVOVF9MSVFVSURJVFkQERIwCixUUklHR0VSX0ZBSUxVUkVfUkVBU09OX0ZFRV9BU1NFVF9OT1RfQUxMT1dFRBASEjMKL1RSSUdHRVJfRkFJTFVSRV9SRUFTT05fTUFSS0VUX1BSSUNFX1VOQVZBSUxBQkxFEBMSJgoiVFJJR0dFUl9GQUlMVVJFX1JFQVNPTl9TVEFMRV9RVU9URRAUEicKI1RSSUdHRVJfRkFJTFVSRV9SRUFTT05fTUlOX1FVQU5USVRZEBUSJAogVFJJR0dFUl9GQUlMVVJFX1JFQVNPTl9TVEVQX1NJWkUQFhIpCiVUUklHR0VSX0ZBSUxVUkVfUkVBU09OX0lOVkFMSURfU0laSU5HEBcSNAowVFJJR0dFUl9GQUlMVVJFX1JFQVNPTl9NQVhfUVVPVEVfREVCSVRfVE9PX1NNQUxMEBgSLworVFJJR0dFUl9GQUlMVVJFX1JFQVNPTl9GRUVfQ0VJTElOR19FWENFRURFRBAZEjAKLFRSSUdHRVJfRkFJTFVSRV9SRUFTT05fVFJJR0dFUl9QUklDRV9JTlZBTElEECgSOwo3VFJJR0dFUl9GQUlMVVJFX1JFQVNPTl9UUklHR0VSX1BSSUNFX1NPVVJDRV9VTlNVUFBPUlRFRBApEjQKMFRSSUdHRVJfRkFJTFVSRV9SRUFTT05fVFJBSUxJTkdfRElTVEFOQ0VfSU5WQUxJRBAqEjgKNFRSSUdHRVJfRkFJTFVSRV9SRUFTT05fTU9ESUZJQ0FUSU9OX1JFUVVJUkVTX1JFUExBQ0UQKxIxCi1UUklHR0VSX0ZBSUxVUkVfUkVBU09OX09SREVSX0FMUkVBRFlfVEVSTUlOQUwQLBI5CjVUUklHR0VSX0ZBSUxVUkVfUkVBU09OX0NPTkZMSUNUX0lERU1QT1RFTkNZX0tFWV9SRVVTRRAtEicKI1RSSUdHRVJfRkFJTFVSRV9SRUFTT05fUkFURV9MSU1JVEVEEC4SMQotVFJJR0dFUl9GQUlMVVJFX1JFQVNPTl9QT0xJQ1lfU1BPVF9UUkFERV9ERU5ZEC8SLQopVFJJR0dFUl9GQUlMVVJFX1JFQVNPTl9QT0xJQ1lfTUFSS0VUX0RFTlkQMBIuCipUUklHR0VSX0ZBSUxVUkVfUkVBU09OX1BPTElDWV9NQVhfTk9USU9OQUwQMRIxCi1UUklHR0VSX0ZBSUxVUkVfUkVBU09OX1BPTElDWV9NQVhfT1BFTl9PUkRFUlMQMhIwCixUUklHR0VSX0ZBSUxVUkVfUkVBU09OX1BPTElDWV9UUkFESU5HX0hBTFRFRBAzEi8KKlRSSUdHRVJfRkFJTFVSRV9SRUFTT05fTUlTU0lOR19SRUFTT05fQ09ERRDmBxIqCiVUUklHR0VSX0ZBSUxVUkVfUkVBU09OX0lOVEVSTkFMX0VSUk9SEOcHKmwKEkxhZGRlckRpc3RyaWJ1dGlvbhIjCh9MQURERVJfRElTVFJJQlVUSU9OX1VOU1BFQ0lGSUVEEAASCgoGTElORUFSEAESDQoJR0VPTUVUUklDEAISFgoSV0VJR0hURURfRkFWT1JBQkxFEAMy3gUKD1RyaWdnZXJzU2VydmljZRJYCg1DcmVhdGVUcmlnZ2VyEiEudHJpZ2dlcnMudjEuQ3JlYXRlVHJpZ2dlclJlcXVlc3QaIi50cmlnZ2Vycy52MS5DcmVhdGVUcmlnZ2VyUmVzcG9uc2UiABJPCgpHZXRUcmlnZ2VyEh4udHJpZ2dlcnMudjEuR2V0VHJpZ2dlclJlcXVlc3QaHy50cmlnZ2Vycy52MS5HZXRUcmlnZ2VyUmVzcG9uc2UiABJVCgxMaXN0VHJpZ2dlcnMSIC50cmlnZ2Vycy52MS5MaXN0VHJpZ2dlcnNSZXF1ZXN0GiEudHJpZ2dlcnMudjEuTGlzdFRyaWdnZXJzUmVzcG9uc2UiABJkChFMaXN0VHJpZ2dlckV2ZW50cxIlLnRyaWdnZXJzLnYxLkxpc3RUcmlnZ2VyRXZlbnRzUmVxdWVzdBomLnRyaWdnZXJzLnYxLkxpc3RUcmlnZ2VyRXZlbnRzUmVzcG9uc2UiABJYCg1DYW5jZWxUcmlnZ2VyEiEudHJpZ2dlcnMudjEuQ2FuY2VsVHJpZ2dlclJlcXVlc3QaIi50cmlnZ2Vycy52MS5DYW5jZWxUcmlnZ2VyUmVzcG9uc2UiABJYCg1Nb2RpZnlUcmlnZ2VyEiEudHJpZ2dlcnMudjEuTW9kaWZ5VHJpZ2dlclJlcXVlc3QaIi50cmlnZ2Vycy52MS5Nb2RpZnlUcmlnZ2VyUmVzcG9uc2UiABJVCgxQYXVzZVRyaWdnZXISIC50cmlnZ2Vycy52MS5QYXVzZVRyaWdnZXJSZXF1ZXN0GiEudHJpZ2dlcnMudjEuUGF1c2VUcmlnZ2VyUmVzcG9uc2UiABJYCg1SZXN1bWVUcmlnZ2VyEiEudHJpZ2dlcnMudjEuUmVzdW1lVHJpZ2dlclJlcXVlc3QaIi50cmlnZ2Vycy52MS5SZXN1bWVUcmlnZ2VyUmVzcG9uc2UiAEJEWkJnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL3RyaWdnZXJzL3YxO3RyaWdnZXJzdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_orders_v1_orders]);
 
 /**
  * TriggerMarketIoc configures an immediate market child.
@@ -845,11 +845,27 @@ export type TriggerEvent = Message<"triggers.v1.TriggerEvent"> & {
   firePriceTicks?: bigint | undefined;
 
   /**
-   * Cancel or failure reason.
+   * Terminal reason for canceled or failed events. Other event types leave it unset.
    *
-   * @generated from field: string reason = 20;
+   * @generated from oneof triggers.v1.TriggerEvent.terminal_reason
    */
-  reason: string;
+  terminalReason: {
+    /**
+     * Why an admitted trigger was canceled.
+     *
+     * @generated from field: triggers.v1.TriggerCancelReason cancel_reason = 20;
+     */
+    value: TriggerCancelReason;
+    case: "cancelReason";
+  } | {
+    /**
+     * Why an admitted trigger failed.
+     *
+     * @generated from field: triggers.v1.TriggerFailureReason failure_reason = 21;
+     */
+    value: TriggerFailureReason;
+    case: "failureReason";
+  } | { case: undefined; value?: undefined };
 };
 
 /**
@@ -1505,6 +1521,29 @@ export type Trigger = Message<"triggers.v1.Trigger"> & {
   parentOrderId?: bigint | undefined;
 
   /**
+   * Terminal reason for canceled or failed triggers. Other statuses leave it unset.
+   *
+   * @generated from oneof triggers.v1.Trigger.terminal_reason
+   */
+  terminalReason: {
+    /**
+     * Why an admitted trigger was canceled.
+     *
+     * @generated from field: triggers.v1.TriggerCancelReason cancel_reason = 7;
+     */
+    value: TriggerCancelReason;
+    case: "cancelReason";
+  } | {
+    /**
+     * Why an admitted trigger failed.
+     *
+     * @generated from field: triggers.v1.TriggerFailureReason failure_reason = 8;
+     */
+    value: TriggerFailureReason;
+    case: "failureReason";
+  } | { case: undefined; value?: undefined };
+
+  /**
    * Child quantity scaled by the pair's base_quantity_scale from GetSpotConfig.
    *
    * @generated from field: int64 qty_scaled = 20;
@@ -1828,6 +1867,354 @@ export const TriggerEventTypeSchema: GenEnum<TriggerEventType> = /*@__PURE__*/
   enumDesc(file_triggers_v1_triggers, 2);
 
 /**
+ * TriggerCancelReason identifies why an admitted trigger became canceled.
+ *
+ * @generated from enum triggers.v1.TriggerCancelReason
+ */
+export enum TriggerCancelReason {
+  /**
+   * No cancellation reason was provided.
+   *
+   * @generated from enum value: TRIGGER_CANCEL_REASON_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * The user explicitly canceled the trigger.
+   *
+   * @generated from enum value: TRIGGER_CANCEL_REASON_USER_REQUEST = 1;
+   */
+  USER_REQUEST = 1,
+
+  /**
+   * A linked one-cancels-the-other trigger fired.
+   *
+   * @generated from enum value: TRIGGER_CANCEL_REASON_OCO = 2;
+   */
+  OCO = 2,
+
+  /**
+   * The parent order ended without a fill, so its attached trigger was canceled.
+   *
+   * @generated from enum value: TRIGGER_CANCEL_REASON_PARENT_CANCELED_NO_FILL = 3;
+   */
+  PARENT_CANCELED_NO_FILL = 3,
+
+  /**
+   * The terminal state did not contain a cancellation reason.
+   *
+   * @generated from enum value: TRIGGER_CANCEL_REASON_MISSING_REASON_CODE = 998;
+   */
+  MISSING_REASON_CODE = 998,
+
+  /**
+   * An internal invariant or processing failure canceled the trigger.
+   *
+   * @generated from enum value: TRIGGER_CANCEL_REASON_INTERNAL_ERROR = 999;
+   */
+  INTERNAL_ERROR = 999,
+}
+
+/**
+ * Describes the enum triggers.v1.TriggerCancelReason.
+ */
+export const TriggerCancelReasonSchema: GenEnum<TriggerCancelReason> = /*@__PURE__*/
+  enumDesc(file_triggers_v1_triggers, 3);
+
+/**
+ * TriggerFailureReason identifies why an admitted trigger became failed.
+ *
+ * @generated from enum triggers.v1.TriggerFailureReason
+ */
+export enum TriggerFailureReason {
+  /**
+   * No failure reason was provided.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * The requested trading pair was not recognized.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_UNKNOWN_SYMBOL = 1;
+   */
+  UNKNOWN_SYMBOL = 1,
+
+  /**
+   * The trading pair was not accepting new orders.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_PAIR_DISABLED = 2;
+   */
+  PAIR_DISABLED = 2,
+
+  /**
+   * The child order value was below the pair's minimum notional.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_MIN_NOTIONAL = 3;
+   */
+  MIN_NOTIONAL = 3,
+
+  /**
+   * The child order price was not aligned to the pair's tick size.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_TICK_SIZE = 4;
+   */
+  TICK_SIZE = 4,
+
+  /**
+   * The account did not have enough available funds for the child order.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_INSUFFICIENT_FUNDS = 5;
+   */
+  INSUFFICIENT_FUNDS = 5,
+
+  /**
+   * The child order would have exceeded an account risk limit.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_RISK_LIMIT = 6;
+   */
+  RISK_LIMIT = 6,
+
+  /**
+   * The child order reused a client order ID that was already accepted.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_DUPLICATE_CLIENT_ID = 7;
+   */
+  DUPLICATE_CLIENT_ID = 7,
+
+  /**
+   * Trading was halted for the requested market.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_MARKET_HALTED = 8;
+   */
+  MARKET_HALTED = 8,
+
+  /**
+   * The market could not accept the child order at that time.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_ENGINE_BUSY = 9;
+   */
+  ENGINE_BUSY = 9,
+
+  /**
+   * The account associated with the trigger was not recognized.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_ACCOUNT_UNKNOWN = 10;
+   */
+  ACCOUNT_UNKNOWN = 10,
+
+  /**
+   * An order referenced by the trigger was not found.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_ORDER_UNKNOWN = 11;
+   */
+  ORDER_UNKNOWN = 11,
+
+  /**
+   * The post-only child order would have immediately taken liquidity.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_POST_ONLY_CROSS = 12;
+   */
+  POST_ONLY_CROSS = 12,
+
+  /**
+   * The reduce-only child order would not have reduced the position.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_REDUCE_ONLY_BLOCKED = 13;
+   */
+  REDUCE_ONLY_BLOCKED = 13,
+
+  /**
+   * The child order price was outside the allowed market price band.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_PRICE_BAND_VIOLATION = 14;
+   */
+  PRICE_BAND_VIOLATION = 14,
+
+  /**
+   * The market child order exceeded the configured execution cap.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_MARKET_CAP_VIOLATION = 15;
+   */
+  MARKET_CAP_VIOLATION = 15,
+
+  /**
+   * The order book had no liquidity available for the child order.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_EMPTY_BOOK = 16;
+   */
+  EMPTY_BOOK = 16,
+
+  /**
+   * The order book could not fill the entire fill-or-kill child order.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_FOK_INSUFFICIENT_LIQUIDITY = 17;
+   */
+  FOK_INSUFFICIENT_LIQUIDITY = 17,
+
+  /**
+   * The selected fee asset was not permitted for the child order.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_FEE_ASSET_NOT_ALLOWED = 18;
+   */
+  FEE_ASSET_NOT_ALLOWED = 18,
+
+  /**
+   * A current market price was unavailable for sizing or validation.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_MARKET_PRICE_UNAVAILABLE = 19;
+   */
+  MARKET_PRICE_UNAVAILABLE = 19,
+
+  /**
+   * The quote used to size or validate the child order was no longer current.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_STALE_QUOTE = 20;
+   */
+  STALE_QUOTE = 20,
+
+  /**
+   * The child order quantity was below the pair's minimum quantity.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_MIN_QUANTITY = 21;
+   */
+  MIN_QUANTITY = 21,
+
+  /**
+   * The child order quantity was not aligned to the pair's step size.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_STEP_SIZE = 22;
+   */
+  STEP_SIZE = 22,
+
+  /**
+   * The child order sizing fields did not form a valid sizing request.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_INVALID_SIZING = 23;
+   */
+  INVALID_SIZING = 23,
+
+  /**
+   * The maximum quote debit could not fund the minimum valid child order.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_MAX_QUOTE_DEBIT_TOO_SMALL = 24;
+   */
+  MAX_QUOTE_DEBIT_TOO_SMALL = 24,
+
+  /**
+   * The applicable fee rate exceeded the maximum accepted by the trigger.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_FEE_CEILING_EXCEEDED = 25;
+   */
+  FEE_CEILING_EXCEEDED = 25,
+
+  /**
+   * The configured trigger price was invalid.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_TRIGGER_PRICE_INVALID = 40;
+   */
+  TRIGGER_PRICE_INVALID = 40,
+
+  /**
+   * The selected trigger price source was not supported.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_TRIGGER_PRICE_SOURCE_UNSUPPORTED = 41;
+   */
+  TRIGGER_PRICE_SOURCE_UNSUPPORTED = 41,
+
+  /**
+   * The configured trailing distance was invalid.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_TRAILING_DISTANCE_INVALID = 42;
+   */
+  TRAILING_DISTANCE_INVALID = 42,
+
+  /**
+   * The requested modification required replacing the trigger instead.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_MODIFICATION_REQUIRES_REPLACE = 43;
+   */
+  MODIFICATION_REQUIRES_REPLACE = 43,
+
+  /**
+   * The referenced order had already reached a terminal state.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_ORDER_ALREADY_TERMINAL = 44;
+   */
+  ORDER_ALREADY_TERMINAL = 44,
+
+  /**
+   * An idempotency key was reused with different request details.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_CONFLICT_IDEMPOTENCY_KEY_REUSE = 45;
+   */
+  CONFLICT_IDEMPOTENCY_KEY_REUSE = 45,
+
+  /**
+   * The request exceeded an applicable rate limit.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_RATE_LIMITED = 46;
+   */
+  RATE_LIMITED = 46,
+
+  /**
+   * Account policy did not permit spot trading.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_POLICY_SPOT_TRADE_DENY = 47;
+   */
+  POLICY_SPOT_TRADE_DENY = 47,
+
+  /**
+   * Account policy did not permit trading in this market.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_POLICY_MARKET_DENY = 48;
+   */
+  POLICY_MARKET_DENY = 48,
+
+  /**
+   * The child order would have exceeded the policy notional limit.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_POLICY_MAX_NOTIONAL = 49;
+   */
+  POLICY_MAX_NOTIONAL = 49,
+
+  /**
+   * The child order would have exceeded the policy open-order limit.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_POLICY_MAX_OPEN_ORDERS = 50;
+   */
+  POLICY_MAX_OPEN_ORDERS = 50,
+
+  /**
+   * Account policy had halted trading.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_POLICY_TRADING_HALTED = 51;
+   */
+  POLICY_TRADING_HALTED = 51,
+
+  /**
+   * The terminal state did not contain a failure reason.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_MISSING_REASON_CODE = 998;
+   */
+  MISSING_REASON_CODE = 998,
+
+  /**
+   * An internal invariant or processing failure caused the trigger to fail.
+   *
+   * @generated from enum value: TRIGGER_FAILURE_REASON_INTERNAL_ERROR = 999;
+   */
+  INTERNAL_ERROR = 999,
+}
+
+/**
+ * Describes the enum triggers.v1.TriggerFailureReason.
+ */
+export const TriggerFailureReasonSchema: GenEnum<TriggerFailureReason> = /*@__PURE__*/
+  enumDesc(file_triggers_v1_triggers, 4);
+
+/**
  * LadderDistribution defines how quantity is distributed across ladder levels.
  *
  * @generated from enum triggers.v1.LadderDistribution
@@ -1866,7 +2253,7 @@ export enum LadderDistribution {
  * Describes the enum triggers.v1.LadderDistribution.
  */
 export const LadderDistributionSchema: GenEnum<LadderDistribution> = /*@__PURE__*/
-  enumDesc(file_triggers_v1_triggers, 3);
+  enumDesc(file_triggers_v1_triggers, 5);
 
 /**
  * @generated from service triggers.v1.TriggersService

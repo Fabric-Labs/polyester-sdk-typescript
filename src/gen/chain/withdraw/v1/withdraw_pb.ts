@@ -407,8 +407,9 @@ export const WithdrawService: GenService<{
   },
   /**
    * Create or return one wallet/JWT withdraw from Trading.
-   * Own-account Trading to Funding accepts recent MFA; external, cross-owner,
-   * and delegated movements require a fresh single-use step-up.
+   * Root-owner Trading to Funding and root-owner withdrawals to explicitly
+   * whitelisted external destinations accept recent MFA. Other external,
+   * cross-owner, and delegated movements require a fresh single-use step-up.
    *
    * @generated from rpc chain.withdraw.v1.WithdrawService.CreateWalletTradingWithdraw
    */

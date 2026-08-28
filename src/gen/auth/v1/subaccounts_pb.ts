@@ -2110,7 +2110,8 @@ export const SubaccountService: GenService<{
     output: typeof ListSubaccountInvitesResponseSchema;
   },
   /**
-   * Accept/decline an invite as the grantee, or cancel it as a current owner or admin.
+   * Accept or decline an invite as the grantee, or cancel it as a current owner or admin.
+   * Acceptance requires an enrolled factor and a recently MFA-elevated session when the subaccount requires member MFA.
    *
    * @generated from rpc auth.v1.SubaccountService.RespondSubaccountInvite
    */

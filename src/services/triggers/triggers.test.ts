@@ -87,6 +87,7 @@ function trigger(overrides: Partial<Proto.Trigger> = {}): Proto.Trigger {
             },
         },
         clientTriggerId: "trigger-client-1",
+        terminalReason: { case: undefined },
         ...overrides,
     } as Proto.Trigger;
 }
@@ -102,7 +103,7 @@ function triggerEvent(overrides: Partial<Proto.TriggerEvent> = {}): Proto.Trigge
         childSeq: 1,
         childOrderId: 33n,
         firePriceTicks: 100_000_000n,
-        reason: "crossed",
+        terminalReason: { case: undefined },
         ...overrides,
     } as Proto.TriggerEvent;
 }
@@ -432,7 +433,8 @@ describe("TriggersService", () => {
                 {
                     eventType: "fired",
                     firePrice: "100",
-                    reason: "crossed",
+                    cancelReason: undefined,
+                    failureReason: undefined,
                 },
             ],
         });
@@ -751,7 +753,6 @@ describe("TriggersService", () => {
                 eventType: "fired",
                 symbolId: 1,
                 firePrice: "100",
-                reason: "crossed",
             }),
         );
 

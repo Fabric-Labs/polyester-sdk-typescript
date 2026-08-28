@@ -265,6 +265,7 @@ describe("AddressBookViewInvalidatedSchema", () => {
                 subaccountId: 2n,
             },
             invalidatedAt: { seconds: 1_700_000_010n, nanos: 500_000_000 },
+            viewRevision: 42n,
         });
 
         expect(event).toEqual({
@@ -274,6 +275,7 @@ describe("AddressBookViewInvalidatedSchema", () => {
                 subaccountId: formatId(2n),
             },
             invalidatedAt: 1_700_000_010_500,
+            viewRevision: "42",
         });
     });
 });

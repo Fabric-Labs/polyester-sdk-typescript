@@ -94,10 +94,22 @@ export const FinishTotpEnrollmentInputSchema = v.strictObject({
 
 export type FinishTotpEnrollmentInput = v.InferInput<typeof FinishTotpEnrollmentInputSchema>;
 
-export const FinishTotpEnrollmentResultSchema = v.object({
-    factor: v.optional(MfaFactorSchema),
-    recoveryCodes: v.optional(v.array(v.string()), []),
-});
+export const FinishTotpEnrollmentResultSchema = v.pipe(
+    v.object({
+        factor: v.optional(MfaFactorSchema),
+        recoveryCodes: v.optional(v.array(v.string()), []),
+        session: v.optional(MfaSessionInfoSchema),
+        accessToken: v.optional(v.string(), ""),
+        accessTokenExpiresAt: OptionalTimestampMsSchema,
+    }),
+    v.transform(({ factor, recoveryCodes, session, accessToken, accessTokenExpiresAt }) => ({
+        factor,
+        recoveryCodes,
+        session,
+        accessToken: accessToken.trim() || undefined,
+        accessTokenExpiresAtMs: accessTokenExpiresAt,
+    })),
+);
 
 export type FinishTotpEnrollmentResult = v.InferOutput<typeof FinishTotpEnrollmentResultSchema>;
 
@@ -122,10 +134,7 @@ export const FinishPasskeyEnrollmentInputSchema = v.strictObject({
 
 export type FinishPasskeyEnrollmentInput = v.InferInput<typeof FinishPasskeyEnrollmentInputSchema>;
 
-export const FinishPasskeyEnrollmentResultSchema = v.object({
-    factor: v.optional(MfaFactorSchema),
-    recoveryCodes: v.optional(v.array(v.string()), []),
-});
+export const FinishPasskeyEnrollmentResultSchema = FinishTotpEnrollmentResultSchema;
 
 export type FinishPasskeyEnrollmentResult = v.InferOutput<
     typeof FinishPasskeyEnrollmentResultSchema

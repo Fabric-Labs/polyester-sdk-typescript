@@ -111,6 +111,7 @@ function baseWireTrigger(overrides: Partial<Proto.Trigger> = {}): Proto.Trigger 
             },
         },
         clientTriggerId: "trigger-client-1",
+        terminalReason: { case: undefined },
         runtimeDetails: {
             case: "stop",
             value: {
@@ -981,7 +982,7 @@ describe("Trigger result and output schemas", () => {
                 childSeq: 1,
                 childOrderId: 0n,
                 firePriceTicks: 0n,
-                reason: "",
+                terminalReason: { case: undefined },
             }),
         ).toMatchObject({ eventType: "unspecified" });
     });
@@ -999,12 +1000,12 @@ describe("Trigger result and output schemas", () => {
                 tsNs: 1_000_000n,
                 childSeq: 1,
                 childOrderId: 33n,
-                reason: "",
+                terminalReason: { case: undefined },
             }),
         ).toMatchObject({ triggerType: "twap", firePrice: undefined });
     });
 
-    it("maps failed trigger events with their reason", () => {
+    it("maps failed trigger events with their typed failure reason", () => {
         const triggerEventSchema = createTriggerEventSchema(testScales());
 
         expect(
@@ -1017,12 +1018,54 @@ describe("Trigger result and output schemas", () => {
                 tsNs: 1_000_000n,
                 childSeq: 2,
                 childOrderId: 0n,
-                reason: "policy max open orders",
+                terminalReason: {
+                    case: "failureReason",
+                    value: Proto.TriggerFailureReason.POLICY_MAX_OPEN_ORDERS,
+                },
             }),
         ).toMatchObject({
             eventType: "failed",
-            reason: "policy max open orders",
+            cancelReason: undefined,
+            failureReason: "policy_max_open_orders",
             childOrderId: undefined,
         });
+    });
+
+    it("maps canceled trigger events and triggers with their typed cancel reason", () => {
+        const triggerEventSchema = createTriggerEventSchema(testScales());
+
+        expect(
+            v.parse(triggerEventSchema, {
+                triggerId: 11n,
+                subaccountId: 22n,
+                symbolId: 1,
+                triggerType: Proto.TriggerType.STOP_LOSS,
+                eventType: Proto.TriggerEventType.EVENT_CANCELED,
+                tsNs: 1_000_000n,
+                childSeq: 0,
+                childOrderId: 0n,
+                terminalReason: {
+                    case: "cancelReason",
+                    value: Proto.TriggerCancelReason.OCO,
+                },
+            }),
+        ).toMatchObject({
+            eventType: "canceled",
+            cancelReason: "oco",
+            failureReason: undefined,
+        });
+
+        expect(
+            v.parse(
+                createTriggerSchema(testScales()),
+                baseWireTrigger({
+                    status: Proto.TriggerStatus.STATUS_CANCELED,
+                    terminalReason: {
+                        case: "cancelReason",
+                        value: Proto.TriggerCancelReason.USER_REQUEST,
+                    },
+                }),
+            ),
+        ).toMatchObject({ status: "cancelled", cancelReason: "user_request" });
     });
 });
