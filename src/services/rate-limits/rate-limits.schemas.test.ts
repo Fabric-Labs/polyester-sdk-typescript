@@ -22,14 +22,14 @@ describe("TradingRateLimitRuleSchema", () => {
         expect(
             v.parse(TradingRateLimitRuleSchema, {
                 policyClass: Proto.TradingRateLimitClass.CANCEL,
-                tier: 10,
+                vipTier: 10,
                 quotaWeight: 5n,
                 periodMs: 250n,
                 burstWeight: 1n,
             }),
         ).toEqual({
             policyClass: "trading_cancel",
-            tier: 10,
+            vipTier: 10,
             quotaWeight: "5",
             periodMs: "250",
             burstWeight: "1",
@@ -40,7 +40,7 @@ describe("TradingRateLimitRuleSchema", () => {
         expect(
             v.parse(TradingRateLimitRuleSchema, {
                 policyClass: Proto.TradingRateLimitClass.UNSPECIFIED,
-                tier: 0,
+                vipTier: 0,
                 quotaWeight: 0n,
                 periodMs: 1000n,
                 burstWeight: 0n,
