@@ -1,5 +1,15 @@
 # @polyester/sdk
 
+## 0.13.0
+
+### Minor Changes
+
+- refactor(services): replace positional Connect transport constructor arguments with capability-scoped transport objects. Direct service construction now passes `{ authApi }`, `{ publicApi }`, or both as the first argument. ([#89](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/89))
+
+### Patch Changes
+
+- fix(subaccounts): route `listRoles` through the public transport without authentication headers while keeping caller-effective permission reads authenticated. ([#89](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/89))
+
 ## 0.12.0
 
 ### Minor Changes
