@@ -89,7 +89,7 @@ export class MfaService {
     }
 
     /**
-     * Verifies the first authenticator code, activates the factor, and returns one-time recovery codes that are only shown in this response.
+     * Verifies the first authenticator code, activates the factor, and returns one-time recovery codes that are only shown in this response, plus MFA-elevated session details and access token.
      */
     async finishTotpEnrollment(
         input: FinishTotpEnrollmentInput,
@@ -113,7 +113,7 @@ export class MfaService {
     }
 
     /**
-     * Verifies the passkey registration response, activates the factor, and returns one-time recovery codes.
+     * Verifies the passkey registration response, activates the factor, and returns one-time recovery codes plus MFA-elevated session details and access token.
      */
     async finishPasskeyEnrollment(
         input: FinishPasskeyEnrollmentInput,

@@ -274,10 +274,13 @@ export const GetAddressBookViewInputSchema = v.pipe(
     v.strictObject({
         ...AccountScopeInputEntries,
         limit: AddressBookViewLimitSchema,
+        /** Minimum `viewRevision` (from an invalidation event) the returned view must reach. */
+        minimumViewRevision: v.optional(positiveBigintStringInputSchema("minimumViewRevision")),
     }),
-    v.transform(({ account, limit }) => ({
+    v.transform(({ account, limit, minimumViewRevision }) => ({
         subaccountId: accountScopeToSubaccountId(account),
         limit,
+        minimumViewRevision,
     })),
 );
 
@@ -639,6 +642,7 @@ export const AddressBookViewSchema = v.object({
     tags: v.optional(v.array(AddressBookTagSummarySchema), []),
     withdrawWhitelist: v.optional(WithdrawWhitelistViewSchema),
     recentDestinationsTruncated: v.optional(v.boolean(), false),
+    viewRevision: v.optional(BigIntStringSchema, 0n),
 });
 
 export type AddressBookView = v.InferOutput<typeof AddressBookViewSchema>;
@@ -646,6 +650,7 @@ export type AddressBookView = v.InferOutput<typeof AddressBookViewSchema>;
 export const AddressBookViewInvalidatedSchema = v.object({
     scope: v.optional(AccountScopeSchema),
     invalidatedAt: RequiredTimestampMsSchema,
+    viewRevision: v.optional(BigIntStringSchema, 0n),
 });
 
 export type AddressBookViewInvalidated = v.InferOutput<typeof AddressBookViewInvalidatedSchema>;

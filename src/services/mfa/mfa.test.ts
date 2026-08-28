@@ -84,14 +84,23 @@ describe("MfaService", () => {
         {
             name: "finishTotpEnrollment",
             method: "finishTOTPEnrollment",
-            response: { factor, recoveryCodes: ["recovery-1"] },
+            response: {
+                factor,
+                recoveryCodes: ["recovery-1"],
+                accessToken: " elevated-token ",
+                accessTokenExpiresAt: { seconds: 9n },
+            },
             call: (service, options) =>
                 service.finishTotpEnrollment(
                     { enrollmentId: " enrollment-1 ", code: " 123456 " },
                     options,
                 ),
             expectedMessage: { enrollmentId: "enrollment-1", code: "123456" },
-            expectedResult: { recoveryCodes: ["recovery-1"] },
+            expectedResult: {
+                recoveryCodes: ["recovery-1"],
+                accessToken: "elevated-token",
+                accessTokenExpiresAtMs: 9_000,
+            },
         },
         {
             name: "beginPasskeyEnrollment",

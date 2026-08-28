@@ -337,9 +337,12 @@ describe("AddressBookService", () => {
             externalWhitelistRequired: true,
             activeEntries: [{ polychainChainId: 8453 }],
         });
-        await expect(service.getView({ limit: 50 })).resolves.toMatchObject({
+        await expect(
+            service.getView({ limit: 50, minimumViewRevision: "7" }),
+        ).resolves.toMatchObject({
             tags: [{ tagId: formatId(5n), name: "Treasury" }],
             withdrawWhitelist: { externalWhitelistRequired: true },
+            viewRevision: "0",
         });
 
         expect(transport.calls.map((call) => call.message)).toMatchObject([
@@ -351,7 +354,7 @@ describe("AddressBookService", () => {
             },
             { pageToken: "" },
             {},
-            { limit: 50 },
+            { limit: 50, minimumViewRevision: 7n },
         ]);
     });
 
@@ -403,6 +406,7 @@ describe("AddressBookService", () => {
                 subaccountId: formatId(2n),
             },
             invalidatedAt: 1_700_000_010_500,
+            viewRevision: "0",
         });
 
         unsubscribe();

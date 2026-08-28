@@ -275,6 +275,8 @@ export class AddressBookService {
 
     /**
      * Fetches the combined address-book view used by dashboards: books, saved entries, recent destinations, tags, and withdrawal whitelist status.
+     *
+     * Pass `minimumViewRevision` (from an invalidation event's `viewRevision`) to make the server wait for its projection to reach that revision instead of returning an older view.
      */
     async getView(
         input: GetAddressBookViewInput = {},
@@ -291,7 +293,7 @@ export class AddressBookService {
     /**
      * Subscribes to scoped address-book view invalidation signals for a root account.
      *
-     * Use `scope` and `invalidatedAt` for diagnostics and ordering, then refetch `getView` for the canonical aggregate (entries, tags, recent destinations, whitelist). Do not patch individual rows from these events.
+     * Use `scope` and `invalidatedAt` for diagnostics and ordering, then refetch `getView` for the canonical aggregate (entries, tags, recent destinations, whitelist), passing the event's `viewRevision` as `minimumViewRevision` to avoid reading an older view. Do not patch individual rows from these events.
      */
     subscribeViewInvalidations(input: SubscribeViewInvalidationsInput): () => void {
         const channel = `private:auth:address-books:${input.rootAccountPublicId}:proto`;

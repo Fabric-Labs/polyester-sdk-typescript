@@ -22,6 +22,8 @@ import {
     LadderDistributionCodec,
     TriggerSideCodec,
     TriggerEventTypeCodec,
+    TriggerCancelReasonCodec,
+    TriggerFailureReasonCodec,
 } from "./triggers.codecs.js";
 
 type TriggerPriceSourceLabel = "last" | "index" | "mark" | "unspecified";
@@ -309,6 +311,39 @@ function transformTriggerConfiguration(
     }
 }
 
+const TerminalReasonRawSchema = v.variant("case", [
+    v.object({ case: v.literal("cancelReason"), value: v.enum(Proto.TriggerCancelReason) }),
+    v.object({ case: v.literal("failureReason"), value: v.enum(Proto.TriggerFailureReason) }),
+    v.object({ case: v.undefined(), value: v.optional(v.undefined()) }),
+]);
+
+function transformTerminalReason(reason: v.InferOutput<typeof TerminalReasonRawSchema>) {
+    switch (reason.case) {
+        case "cancelReason":
+            return {
+                cancelReason: requiredEnumLabel(
+                    TriggerCancelReasonCodec.protoToOutput,
+                    reason.value,
+                    "TerminalReasonSchema",
+                    "cancel reason",
+                ),
+                failureReason: undefined,
+            };
+        case "failureReason":
+            return {
+                cancelReason: undefined,
+                failureReason: requiredEnumLabel(
+                    TriggerFailureReasonCodec.protoToOutput,
+                    reason.value,
+                    "TerminalReasonSchema",
+                    "failure reason",
+                ),
+            };
+        default:
+            return { cancelReason: undefined, failureReason: undefined };
+    }
+}
+
 const StopDetailsRawSchema = v.object({
     triggerPriceTicks: v.bigint(),
     triggerPriceSource: v.enum(ProtoOrders.TriggerPriceSource),
@@ -516,6 +551,7 @@ export function createTriggerSchema(scales: SdkScales) {
             updatedAt: v.optional(TimestampSchema),
             armedAt: v.optional(TimestampSchema),
             completedAt: v.optional(TimestampSchema),
+            terminalReason: TerminalReasonRawSchema,
             runtimeDetails: TriggerDetailsRawSchema,
         }),
         v.transform((t) => ({
@@ -548,6 +584,7 @@ export function createTriggerSchema(scales: SdkScales) {
             updatedTs: t.updatedAt ? tsObjToMs(t.updatedAt) : undefined,
             armedTs: t.armedAt ? tsObjToMs(t.armedAt) : undefined,
             completedTs: t.completedAt ? tsObjToMs(t.completedAt) : undefined,
+            ...transformTerminalReason(t.terminalReason),
             runtimeDetails: transformTriggerDetails(t.runtimeDetails, scales, t.symbolId),
         })),
     );
@@ -568,7 +605,7 @@ export function createTriggerEventSchema(scales: SdkScales) {
             childSeq: v.number(),
             childOrderId: v.bigint(),
             firePriceTicks: v.optional(v.bigint()),
-            reason: v.string(),
+            terminalReason: TerminalReasonRawSchema,
         }),
         v.transform((e) => ({
             triggerId: formatId(e.triggerId),
@@ -593,7 +630,7 @@ export function createTriggerEventSchema(scales: SdkScales) {
                 e.firePriceTicks !== undefined && e.firePriceTicks > 0n
                     ? scaledToDecimalOutput(e.firePriceTicks, scales.price())
                     : undefined,
-            reason: e.reason || undefined,
+            ...transformTerminalReason(e.terminalReason),
         })),
     );
 }
