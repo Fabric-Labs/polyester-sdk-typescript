@@ -1,5 +1,6 @@
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as Proto from "../../gen/transfer/v1/internal_transfer_pb.js";
+import type { AuthApiTransports } from "../../shared/transports.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import {
     toConnectCallOptions,
@@ -25,8 +26,12 @@ export class InternalTransfersService {
     #inputSchema: ReturnType<typeof createCreateInternalTransferInputSchema>;
     #resultSchema: ReturnType<typeof createCreateInternalTransferResultSchema>;
 
-    constructor(transport: Transport, resolver: SubaccountResolver | undefined, scales: SdkScales) {
-        this.#client = createClient(Proto.InternalTransferService, transport);
+    constructor(
+        transports: AuthApiTransports,
+        resolver: SubaccountResolver | undefined,
+        scales: SdkScales,
+    ) {
+        this.#client = createClient(Proto.InternalTransferService, transports.authApi);
         this.#resolver = resolver;
         this.#scales = scales;
         this.#inputSchema = createCreateInternalTransferInputSchema(scales);

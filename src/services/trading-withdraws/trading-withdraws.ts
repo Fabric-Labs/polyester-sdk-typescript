@@ -1,5 +1,5 @@
 import { ValidationError } from "../../shared/errors.js";
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import type { Address, Hex } from "viem";
 import {
     checksumEvmAddress,
@@ -18,6 +18,7 @@ import {
 } from "../../shared/request-options.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
+import type { AuthApiTransports } from "../../shared/transports.js";
 import { parse } from "../../shared/validation.js";
 import {
     createCreateTradingWithdrawToExternalChainInputSchema,
@@ -195,13 +196,13 @@ export class TradingWithdrawsService {
     >;
 
     constructor(
-        transport: Transport,
+        transports: AuthApiTransports,
         resolver: SubaccountResolver | undefined,
         signingConfig: TradingWithdrawSigningConfig,
         scales: SdkScales,
         catalog?: ClientCatalog,
     ) {
-        this.#client = createClient(Proto.WithdrawService, transport);
+        this.#client = createClient(Proto.WithdrawService, transports.authApi);
         this.#resolver = resolver;
         this.#signingConfig = signingConfig;
         this.#catalog = catalog;

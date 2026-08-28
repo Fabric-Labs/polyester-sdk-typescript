@@ -1,10 +1,11 @@
 import * as Proto from "../../gen/chain/analytics/v1/analytics_read_pb.js";
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
+import type { PublicApiTransports } from "../../shared/transports.js";
 import { parse } from "../../shared/validation.js";
 import {
     GetUnifiedAssetBalancesInputSchema,
@@ -28,8 +29,8 @@ export class ChainAnalyticsService {
     #client: Client<typeof Proto.ChainAnalyticsService>;
     #scales: SdkScales;
 
-    constructor(transport: Transport, scales: SdkScales) {
-        this.#client = createClient(Proto.ChainAnalyticsService, transport);
+    constructor(transports: PublicApiTransports, scales: SdkScales) {
+        this.#client = createClient(Proto.ChainAnalyticsService, transports.publicApi);
         this.#scales = scales;
     }
 

@@ -42,7 +42,11 @@ describe("InternalTransfersService", () => {
             getDefaultSubaccountId: () => formatId(11n),
         };
         const transport = unaryTransport(acceptedTransfer);
-        const service = new InternalTransfersService(transport.transport, resolver, testScales());
+        const service = new InternalTransfersService(
+            { authApi: transport.transport },
+            resolver,
+            testScales(),
+        );
 
         await expect(
             service.create(
@@ -93,7 +97,11 @@ describe("InternalTransfersService", () => {
             getDefaultSubaccountId: () => formatId(11n),
         };
         const transport = unaryTransport(acceptedTransfer);
-        const service = new InternalTransfersService(transport.transport, resolver, testScales());
+        const service = new InternalTransfersService(
+            { authApi: transport.transport },
+            resolver,
+            testScales(),
+        );
 
         await service.create({
             account: "main",
@@ -116,7 +124,11 @@ describe("InternalTransfersService", () => {
 
     it("rejects quantities that are invalid, non-positive, or too precise", async () => {
         const transport = unaryTransport(acceptedTransfer);
-        const service = new InternalTransfersService(transport.transport, undefined, testScales());
+        const service = new InternalTransfersService(
+            { authApi: transport.transport },
+            undefined,
+            testScales(),
+        );
         const base = {
             destination: { type: "account", accountId: formatId(22n) } as const,
             assetId: 1,
@@ -140,7 +152,11 @@ describe("InternalTransfersService", () => {
             ...acceptedTransfer,
             requestId: "",
         });
-        const service = new InternalTransfersService(transport.transport, undefined, testScales());
+        const service = new InternalTransfersService(
+            { authApi: transport.transport },
+            undefined,
+            testScales(),
+        );
 
         await expect(
             service.create({

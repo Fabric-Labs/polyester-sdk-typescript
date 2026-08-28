@@ -50,7 +50,7 @@ describe("ProfileService", () => {
                 usernameUnlocked: undefined,
             }),
         ]);
-        const service = new ProfileService(transport.transport, realtime.realtime);
+        const service = new ProfileService({ authApi: transport.transport }, realtime.realtime);
 
         await expect(service.get({ signal })).resolves.toMatchObject({
             username: "alice",
@@ -67,7 +67,7 @@ describe("ProfileService", () => {
     it("updates mutable profile fields without forwarding readonly fields", async () => {
         const realtime = realtimeClientStub();
         const transport = unaryTransportSequence([profile({ bio: "updated", website: "" })]);
-        const service = new ProfileService(transport.transport, realtime.realtime);
+        const service = new ProfileService({ authApi: transport.transport }, realtime.realtime);
 
         await expect(
             service.update(
@@ -105,7 +105,7 @@ describe("ProfileService", () => {
             },
             {},
         ]);
-        const service = new ProfileService(transport.transport, realtime.realtime);
+        const service = new ProfileService({ authApi: transport.transport }, realtime.realtime);
 
         await expect(service.getUsernameHistory({ signal })).resolves.toEqual([
             {
@@ -120,7 +120,10 @@ describe("ProfileService", () => {
 
     it("subscribes to public identity publications and parses events", () => {
         const realtime = realtimeClientStub();
-        const service = new ProfileService(unaryTransportSequence([]).transport, realtime.realtime);
+        const service = new ProfileService(
+            { authApi: unaryTransportSequence([]).transport },
+            realtime.realtime,
+        );
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();

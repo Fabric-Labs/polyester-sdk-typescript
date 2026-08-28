@@ -67,7 +67,11 @@ describe("ApiKeysService", () => {
             const signal = new AbortController().signal;
             const realtime = realtimeClientStub();
             const transport = unaryTransportSequence([{ apiKeys: [] }]);
-            const service = new ApiKeysService(transport.transport, realtime.realtime, resolver);
+            const service = new ApiKeysService(
+                { authApi: transport.transport },
+                realtime.realtime,
+                resolver,
+            );
 
             await expect(service.list(input, { signal })).resolves.toEqual([]);
 
@@ -89,7 +93,7 @@ describe("ApiKeysService", () => {
             { apiKey: apiKey({ lastUsedAt: { seconds: 2n, nanos: 0 } }) },
             {},
         ]);
-        const service = new ApiKeysService(transport.transport, realtime.realtime);
+        const service = new ApiKeysService({ authApi: transport.transport }, realtime.realtime);
 
         await expect(service.list()).resolves.toEqual([
             expect.objectContaining({
@@ -177,7 +181,7 @@ describe("ApiKeysService", () => {
         for (const { input, expected, absent } of updateCases) {
             const realtime = realtimeClientStub();
             const transport = unaryTransportSequence([{ apiKey: apiKey() }]);
-            const service = new ApiKeysService(transport.transport, realtime.realtime);
+            const service = new ApiKeysService({ authApi: transport.transport }, realtime.realtime);
 
             await service.update(input, { stepUpToken: " fresh-token " });
 
@@ -191,7 +195,7 @@ describe("ApiKeysService", () => {
         const signal = new AbortController().signal;
         const realtime = realtimeClientStub();
         const transport = unaryTransportSequence([{ apiKey: apiKey() }, {}, {}]);
-        const service = new ApiKeysService(transport.transport, realtime.realtime);
+        const service = new ApiKeysService({ authApi: transport.transport }, realtime.realtime);
 
         await service.get({ keyId: " key-1 " }, { signal });
         await service.create(
@@ -232,7 +236,7 @@ describe("ApiKeysService", () => {
                 }),
             },
         ]);
-        const service = new ApiKeysService(transport.transport, realtime.realtime);
+        const service = new ApiKeysService({ authApi: transport.transport }, realtime.realtime);
 
         await expect(service.get({ keyId: "ak_0123456789abcdef0123456789abcdef" })).rejects.toThrow(
             /received 999/,
@@ -241,7 +245,10 @@ describe("ApiKeysService", () => {
 
     it("subscribes to account API key publications and parses events", () => {
         const realtime = realtimeClientStub();
-        const service = new ApiKeysService(unaryTransportSequence([]).transport, realtime.realtime);
+        const service = new ApiKeysService(
+            { authApi: unaryTransportSequence([]).transport },
+            realtime.realtime,
+        );
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();

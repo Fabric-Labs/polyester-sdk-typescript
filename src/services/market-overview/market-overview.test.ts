@@ -93,7 +93,7 @@ describe("MarketOverviewService", () => {
     it("reports invalid inputs through the SDK error hierarchy", async () => {
         const transport = unaryTransport({});
         const service = new MarketOverviewService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtimeClientStub().realtime,
             testScales(),
         );
@@ -114,7 +114,7 @@ describe("MarketOverviewService", () => {
         const controller = new AbortController();
         const transport = unaryTransport({ markets: [market()], nextPageToken: "next-page" });
         const service = new MarketOverviewService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtimeClientStub().realtime,
             testScales(),
         );
@@ -172,7 +172,7 @@ describe("MarketOverviewService", () => {
     it("returns an empty list for empty market overview responses", async () => {
         const transport = unaryTransport({ markets: [], nextPageToken: "" });
         const service = new MarketOverviewService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtimeClientStub().realtime,
             testScales(),
         );
@@ -193,7 +193,7 @@ describe("MarketOverviewService", () => {
             nextPageToken: "",
         });
         const service = new MarketOverviewService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtimeClientStub().realtime,
             testScales(),
         );
@@ -216,7 +216,7 @@ describe("MarketOverviewService", () => {
             nextPageToken: "",
         });
         const service = new MarketOverviewService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtimeClientStub().realtime,
             testScales(),
         );
@@ -231,7 +231,7 @@ describe("MarketOverviewService", () => {
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const service = new MarketOverviewService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtime.realtime,
             testScales(),
         );
@@ -277,7 +277,7 @@ describe("MarketOverviewService", () => {
         const onEvent = vi.fn();
         const onClose = vi.fn();
         const service = new MarketOverviewService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtime.realtime,
             testScales(),
         );
@@ -310,7 +310,7 @@ describe("MarketOverviewService", () => {
         const realtime = realtimeClientStub();
         const onError = vi.fn();
         const service = new MarketOverviewService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtime.realtime,
             testScales(),
         );
@@ -337,7 +337,7 @@ describe("MarketOverviewService", () => {
         const realtime = realtimeClientStub();
         const onError = vi.fn();
         const service = new MarketOverviewService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtime.realtime,
             testScales(),
         );
@@ -367,7 +367,7 @@ describe("MarketOverviewService", () => {
         const onEvent = vi.fn();
         const onError = vi.fn();
         const service = new MarketOverviewService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtime.realtime,
             testScales(),
         );

@@ -1,7 +1,8 @@
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as Proto from "../../gen/collab/v1/whiteboard_pb.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import { parse } from "../../shared/validation.js";
+import type { AuthApiTransports } from "../../shared/transports.js";
 import {
     toConnectCallOptions,
     type PolyesterMutationOptions,
@@ -44,8 +45,8 @@ import {
 export class WhiteboardService {
     #client: Client<typeof Proto.WhiteboardService>;
 
-    constructor(transport: Transport) {
-        this.#client = createClient(Proto.WhiteboardService, transport);
+    constructor(transports: AuthApiTransports) {
+        this.#client = createClient(Proto.WhiteboardService, transports.authApi);
     }
 
     /**

@@ -1,5 +1,5 @@
 import * as Proto from "../../../gen/auth/v1/policies_pb.js";
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as v from "valibot";
 import { parse } from "../../../shared/validation.js";
 import { removeUndefined } from "../../../utils/remove-undefined.js";
@@ -10,6 +10,7 @@ import {
 } from "../../../shared/request-options.js";
 import type { BaseSubscribeInput } from "../../../shared/types.js";
 import type { PolyesterRealtime } from "../../../realtime/index.js";
+import type { AuthApiTransports } from "../../../shared/transports.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../../subaccount-resolver.js";
 import {
     SubaccountPolicySchema,
@@ -34,8 +35,12 @@ export class SubaccountPoliciesService {
     #realtime: PolyesterRealtime;
     #resolver?: SubaccountResolver;
 
-    constructor(transport: Transport, realtime: PolyesterRealtime, resolver?: SubaccountResolver) {
-        this.#client = createClient(Proto.PolicyService, transport);
+    constructor(
+        transports: AuthApiTransports,
+        realtime: PolyesterRealtime,
+        resolver?: SubaccountResolver,
+    ) {
+        this.#client = createClient(Proto.PolicyService, transports.authApi);
         this.#realtime = realtime;
         this.#resolver = resolver;
     }

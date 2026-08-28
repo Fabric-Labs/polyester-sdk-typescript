@@ -65,7 +65,7 @@ describe("MarketDataService", () => {
         const controller = new AbortController();
         const transport = unaryTransport({ trades: [marketTrade], nextPageToken: "next" });
         const service = new MarketDataService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtimeClientStub().realtime,
             testScales(),
         );
@@ -109,7 +109,7 @@ describe("MarketDataService", () => {
     it("returns an empty public trade list for empty backend rows", async () => {
         const transport = unaryTransport({ trades: [], nextPageToken: "" });
         const service = new MarketDataService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtimeClientStub().realtime,
             testScales(),
         );
@@ -126,7 +126,7 @@ describe("MarketDataService", () => {
             nextPageToken: "",
         });
         const service = new MarketDataService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtimeClientStub().realtime,
             testScales(),
         );
@@ -192,7 +192,7 @@ describe("MarketDataService", () => {
             },
         };
         const service = new MarketDataService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtimeClientStub().realtime,
             neverReadyScales,
         );
@@ -232,7 +232,7 @@ describe("MarketDataService", () => {
         const onClose = vi.fn();
         const onError = vi.fn();
         const service = new MarketDataService(
-            unaryTransport({}).transport,
+            { publicApi: unaryTransport({}).transport },
             realtime.realtime,
             testScales(),
         );
@@ -274,7 +274,7 @@ describe("MarketDataService", () => {
     it("uses the caller-provided subscription symbol id", () => {
         const realtime = realtimeClientStub();
         const service = new MarketDataService(
-            unaryTransport({}).transport,
+            { publicApi: unaryTransport({}).transport },
             realtime.realtime,
             testScales(),
         );
@@ -292,7 +292,7 @@ describe("MarketDataService", () => {
         const onEvent = vi.fn();
         const onError = vi.fn();
         const service = new MarketDataService(
-            unaryTransport({}).transport,
+            { publicApi: unaryTransport({}).transport },
             realtime.realtime,
             testScales(),
         );

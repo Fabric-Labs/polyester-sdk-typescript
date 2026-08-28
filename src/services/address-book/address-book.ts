@@ -1,5 +1,6 @@
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as Proto from "../../gen/auth/v1/address_book_pb.js";
+import type { AuthApiTransports } from "../../shared/transports.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import {
@@ -72,8 +73,12 @@ export class AddressBookService {
     #realtime: PolyesterRealtime;
     #resolver?: SubaccountResolver;
 
-    constructor(transport: Transport, realtime: PolyesterRealtime, resolver?: SubaccountResolver) {
-        this.#client = createClient(Proto.AddressBookService, transport);
+    constructor(
+        transports: AuthApiTransports,
+        realtime: PolyesterRealtime,
+        resolver?: SubaccountResolver,
+    ) {
+        this.#client = createClient(Proto.AddressBookService, transports.authApi);
         this.#realtime = realtime;
         this.#resolver = resolver;
     }

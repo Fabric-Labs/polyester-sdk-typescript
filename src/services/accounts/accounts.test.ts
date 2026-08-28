@@ -45,7 +45,7 @@ describe("AccountsService", () => {
         for (const { input, expected } of cases) {
             const signal = new AbortController().signal;
             const transport = unaryTransportSequence([{ matches: [] }]);
-            const service = new AccountsService(transport.transport);
+            const service = new AccountsService({ authApi: transport.transport });
 
             await expect(service.resolve(input, { signal })).resolves.toEqual([]);
 
@@ -69,7 +69,7 @@ describe("AccountsService", () => {
             },
             {},
         ]);
-        const service = new AccountsService(transport.transport);
+        const service = new AccountsService({ authApi: transport.transport });
 
         await expect(service.resolve({ query: "alice" })).resolves.toEqual([
             {
@@ -95,7 +95,7 @@ describe("AccountsService", () => {
                 ],
             },
         ]);
-        const service = new AccountsService(transport.transport);
+        const service = new AccountsService({ authApi: transport.transport });
 
         await expect(service.resolve({ query: "alice" })).rejects.toThrow();
     });

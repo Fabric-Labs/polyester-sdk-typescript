@@ -1,5 +1,6 @@
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as Proto from "../../gen/auth/v1/mfa_pb.js";
+import type { AuthApiTransports } from "../../shared/transports.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import {
     toConnectCallOptions,
@@ -64,8 +65,8 @@ import {
 export class MfaService {
     #client: Client<typeof Proto.MFAService>;
 
-    constructor(transport: Transport) {
-        this.#client = createClient(Proto.MFAService, transport);
+    constructor(transports: AuthApiTransports) {
+        this.#client = createClient(Proto.MFAService, transports.authApi);
     }
 
     /**

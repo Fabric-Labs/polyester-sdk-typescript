@@ -1,5 +1,6 @@
 import * as Proto from "../../../gen/auth/v1/policies_pb.js";
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
+import type { AuthApiTransports } from "../../../shared/transports.js";
 import type * as v from "valibot";
 import { parse } from "../../../shared/validation.js";
 import { removeUndefined } from "../../../utils/remove-undefined.js";
@@ -27,8 +28,8 @@ import { PolicyIdSchema } from "../shared.js";
 export class ApiKeyPoliciesService {
     #client: Client<typeof Proto.PolicyService>;
 
-    constructor(transport: Transport) {
-        this.#client = createClient(Proto.PolicyService, transport);
+    constructor(transports: AuthApiTransports) {
+        this.#client = createClient(Proto.PolicyService, transports.authApi);
     }
 
     /**

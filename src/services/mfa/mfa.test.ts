@@ -33,7 +33,7 @@ describe("MfaService", () => {
                 otpauthUri: "otpauth://totp/polyester",
             },
         });
-        const service = new MfaService(transport.transport);
+        const service = new MfaService({ authApi: transport.transport });
 
         await expect(
             service.beginTotpEnrollment(
@@ -312,7 +312,7 @@ describe("MfaService", () => {
         it(`normalizes ${testCase.name} calls and parses the response`, async () => {
             const controller = new AbortController();
             const transport = unaryTransportByMethod({ [testCase.method]: testCase.response });
-            const service = new MfaService(transport.transport);
+            const service = new MfaService({ authApi: transport.transport });
 
             const result = await testCase.call(service, { signal: controller.signal });
 
@@ -337,7 +337,7 @@ describe("MfaService", () => {
                 stepUpToken: undefined,
             },
         });
-        const service = new MfaService(transport.transport);
+        const service = new MfaService({ authApi: transport.transport });
 
         await expect(
             service.verifyTotpChallenge({ challengeId: "challenge-1", code: "123456" }),

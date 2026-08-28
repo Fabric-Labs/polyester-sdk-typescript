@@ -5,7 +5,7 @@ import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import type { Transports } from "../../shared/transports.js";
+import type { AuthAndPublicApiTransports } from "../../shared/transports.js";
 import { parse } from "../../shared/validation.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
@@ -25,7 +25,7 @@ export class RateLimitService {
     #authClient: Client<typeof Proto.RateLimitService>;
     #resolver?: SubaccountResolver;
 
-    constructor(transports: Transports, resolver?: SubaccountResolver) {
+    constructor(transports: AuthAndPublicApiTransports, resolver?: SubaccountResolver) {
         this.#publicClient = createClient(Proto.RateLimitService, transports.publicApi);
         this.#authClient = createClient(Proto.RateLimitService, transports.authApi);
         this.#resolver = resolver;

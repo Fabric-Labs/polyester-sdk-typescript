@@ -51,7 +51,7 @@ describe("LifecycleService", () => {
         ];
         const transport = unaryTransport((_call, index) => responses[index] ?? {});
         const realtime = realtimeClientStub();
-        const service = new LifecycleService(transport.transport, realtime.realtime);
+        const service = new LifecycleService({ publicApi: transport.transport }, realtime.realtime);
         const signal = new AbortController().signal;
 
         await expect(
@@ -108,7 +108,7 @@ describe("LifecycleService", () => {
     it("subscribes to public and private open-flow channels and parses publications", () => {
         const transport = unaryTransport({});
         const realtime = realtimeClientStub();
-        const service = new LifecycleService(transport.transport, realtime.realtime);
+        const service = new LifecycleService({ publicApi: transport.transport }, realtime.realtime);
         const onPublic = vi.fn();
         const onPrivate = vi.fn();
 
@@ -131,7 +131,7 @@ describe("LifecycleService", () => {
     it("subscribes to detail channels and no-ops invalid detail inputs before connecting", () => {
         const transport = unaryTransport({});
         const realtime = realtimeClientStub();
-        const service = new LifecycleService(transport.transport, realtime.realtime);
+        const service = new LifecycleService({ publicApi: transport.transport }, realtime.realtime);
         const onEvent = vi.fn();
 
         service.subscribeFlowDetail({ flowId: " flow-1 ", onEvent });

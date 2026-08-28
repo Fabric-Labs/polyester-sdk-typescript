@@ -37,7 +37,11 @@ describe("subscription input validation", () => {
 
     it("uses caller-provided market trade symbol ids for realtime routing", () => {
         const realtime = realtimeStub();
-        const service = new MarketDataService(noopTransport(), realtime.realtime, testScales());
+        const service = new MarketDataService(
+            { publicApi: noopTransport() },
+            realtime.realtime,
+            testScales(),
+        );
 
         service.subscribeTrades({
             symbolId: 999,
@@ -51,7 +55,11 @@ describe("subscription input validation", () => {
 
     it("uses caller-provided orderbook symbol ids for realtime routing", () => {
         const realtime = realtimeStub();
-        const service = new OrderbookService(noopTransport(), realtime.realtime, testScales());
+        const service = new OrderbookService(
+            { publicApi: noopTransport() },
+            realtime.realtime,
+            testScales(),
+        );
 
         service.subscribe({
             symbolId: 999,
@@ -67,7 +75,11 @@ describe("subscription input validation", () => {
 
     it("throws for unsupported candle subscription timeframes before connecting realtime", () => {
         const realtime = realtimeStub();
-        const service = new CandlesService(noopTransport(), realtime.realtime, testScales());
+        const service = new CandlesService(
+            { publicApi: noopTransport() },
+            realtime.realtime,
+            testScales(),
+        );
 
         expect(() =>
             service.subscribe({
@@ -88,7 +100,11 @@ describe("subscription input validation", () => {
 
     it("throws for unsupported heatmap intervals before connecting realtime", () => {
         const realtime = realtimeStub();
-        const service = new HeatmapService(noopTransport(), realtime.realtime, testScales());
+        const service = new HeatmapService(
+            { publicApi: noopTransport() },
+            realtime.realtime,
+            testScales(),
+        );
 
         expect(() =>
             service.subscribeLive({

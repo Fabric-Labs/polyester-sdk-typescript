@@ -4,6 +4,7 @@ import {
     createApiKeyEd25519AuthHeaders,
     createTransports,
     resolveJwtToken,
+    type AuthAndPublicApiTransports,
     type Transports,
     type JwtAuthProvider,
     type ApiKeyEd25519AuthProvider,
@@ -11,7 +12,7 @@ import {
 import { parsePolyesterEnvironment, type PolyesterEnvironment } from "./environment.js";
 import { AccountsService } from "./services/accounts/index.js";
 import { ApiKeysService } from "./services/api-keys/index.js";
-import { AuthService, type AuthServiceTransports } from "./services/auth/auth.js";
+import { AuthService } from "./services/auth/auth.js";
 import { SubaccountsService } from "./services/subaccounts/index.js";
 import { CandlesService } from "./services/candles/index.js";
 import { ChainAnalyticsService } from "./services/chain-analytics/index.js";
@@ -179,7 +180,7 @@ export function pickPolyesterCatalogConfig(
 }
 
 interface AuthServiceFactoryContext {
-    transports: AuthServiceTransports;
+    transports: AuthAndPublicApiTransports;
     realtime: PolyesterRealtime;
     subaccounts: SubaccountsService;
     environment: PolyesterEnvironment;
@@ -321,11 +322,11 @@ export class PolyesterClient {
                 this.#catalog = this.#configCatalog;
             } else {
                 const catalogRefreshMarketData = new MarketDataService(
-                    this.transports.publicApi,
+                    this.transports,
                     this.realtime,
                     this.#getScales(),
                 );
-                const catalogRefreshZipper = new ZipperService(this.transports.publicApi);
+                const catalogRefreshZipper = new ZipperService(this.transports);
                 this.#catalog = createPolyesterCatalog({
                     snapshot: this.#configCatalogSnapshot,
                     cell: this.#configCatalogCell,
@@ -357,25 +358,24 @@ export class PolyesterClient {
 
     get auth(): AuthService {
         if (!this.#auth) {
-            const { authApi, publicApi } = this.transports;
             this.#auth =
                 this.#createAuth?.({
-                    transports: { publicApi, authApi },
+                    transports: this.transports,
                     realtime: this.realtime,
                     subaccounts: this.subaccounts,
                     environment: this.#environment,
-                }) ?? new AuthService({ publicApi, authApi }, this.realtime);
+                }) ?? new AuthService(this.transports, this.realtime);
         }
         return this.#auth;
     }
 
     get accounts(): AccountsService {
-        return (this.#accounts ??= new AccountsService(this.transports.authApi));
+        return (this.#accounts ??= new AccountsService(this.transports));
     }
 
     get apiKeys(): ApiKeysService {
         return (this.#apiKeys ??= new ApiKeysService(
-            this.transports.authApi,
+            this.transports,
             this.realtime,
             this.#getResolver(),
         ));
@@ -383,7 +383,7 @@ export class PolyesterClient {
 
     get subaccounts(): SubaccountsService {
         return (this.#subaccounts ??= new SubaccountsService(
-            this.transports.authApi,
+            this.transports,
             this.realtime,
             this.#getResolver(),
         ));
@@ -391,7 +391,7 @@ export class PolyesterClient {
 
     get candles(): CandlesService {
         return (this.#candles ??= new CandlesService(
-            this.transports.publicApi,
+            this.transports,
             this.realtime,
             this.#getScales(),
         ));
@@ -399,14 +399,14 @@ export class PolyesterClient {
 
     get chainAnalytics(): ChainAnalyticsService {
         return (this.#chainAnalytics ??= new ChainAnalyticsService(
-            this.transports.publicApi,
+            this.transports,
             this.#getScales(),
         ));
     }
 
     get marketData(): MarketDataService {
         return (this.#marketData ??= new MarketDataService(
-            this.transports.publicApi,
+            this.transports,
             this.realtime,
             this.#getScales(),
         ));
@@ -414,7 +414,7 @@ export class PolyesterClient {
 
     get marketOverview(): MarketOverviewService {
         return (this.#marketOverview ??= new MarketOverviewService(
-            this.transports.publicApi,
+            this.transports,
             this.realtime,
             this.#getScales(),
         ));
@@ -422,7 +422,7 @@ export class PolyesterClient {
 
     get orderbook(): OrderbookService {
         return (this.#orderbook ??= new OrderbookService(
-            this.transports.publicApi,
+            this.transports,
             this.realtime,
             this.#getScales(),
         ));
@@ -430,19 +430,19 @@ export class PolyesterClient {
 
     get heatmap(): HeatmapService {
         return (this.#heatmap ??= new HeatmapService(
-            this.transports.publicApi,
+            this.transports,
             this.realtime,
             this.#getScales(),
         ));
     }
 
     get lifecycle(): LifecycleService {
-        return (this.#lifecycle ??= new LifecycleService(this.transports.publicApi, this.realtime));
+        return (this.#lifecycle ??= new LifecycleService(this.transports, this.realtime));
     }
 
     get trades(): TradesService {
         return (this.#trades ??= new TradesService(
-            this.transports.authApi,
+            this.transports,
             this.realtime,
             this.#getResolver(),
             this.#getScales(),
@@ -451,7 +451,7 @@ export class PolyesterClient {
 
     get orders(): OrdersService {
         return (this.#orders ??= new OrdersService(
-            this.transports.authApi,
+            this.transports,
             this.realtime,
             this.#getResolver(),
             this.#getScales(),
@@ -460,7 +460,7 @@ export class PolyesterClient {
 
     get triggers(): TriggersService {
         return (this.#triggers ??= new TriggersService(
-            this.transports.authApi,
+            this.transports,
             this.realtime,
             this.#getResolver(),
             this.#getScales(),
@@ -469,7 +469,7 @@ export class PolyesterClient {
 
     get balances(): BalancesService {
         return (this.#balances ??= new BalancesService(
-            this.transports.authApi,
+            this.transports,
             this.realtime,
             this.#getResolver(),
             this.#getScales(),
@@ -478,7 +478,7 @@ export class PolyesterClient {
 
     get transfers(): TransfersService {
         return (this.#transfers ??= new TransfersService(
-            this.transports.authApi,
+            this.transports,
             this.realtime,
             this.#getResolver(),
         ));
@@ -486,7 +486,7 @@ export class PolyesterClient {
 
     get internalTransfers(): InternalTransfersService {
         return (this.#internalTransfers ??= new InternalTransfersService(
-            this.transports.authApi,
+            this.transports,
             this.#getResolver(),
             this.#getScales(),
         ));
@@ -494,7 +494,7 @@ export class PolyesterClient {
 
     get tradingWithdraws(): TradingWithdrawsService {
         return (this.#tradingWithdraws ??= new TradingWithdrawsService(
-            this.transports.authApi,
+            this.transports,
             this.#getResolver(),
             {
                 chainId: this.#environment.chain.id,
@@ -506,63 +506,52 @@ export class PolyesterClient {
     }
 
     get deposit(): DepositService {
-        return (this.#deposit ??= new DepositService(this.transports.authApi, this.#getResolver()));
+        return (this.#deposit ??= new DepositService(this.transports, this.#getResolver()));
     }
 
     get addressBook(): AddressBookService {
         return (this.#addressBook ??= new AddressBookService(
-            this.transports.authApi,
+            this.transports,
             this.realtime,
             this.#getResolver(),
         ));
     }
 
     get guardSigner(): GuardSignerService {
-        return (this.#guardSigner ??= new GuardSignerService(
-            this.transports.authApi,
-            this.#getResolver(),
-        ));
+        return (this.#guardSigner ??= new GuardSignerService(this.transports, this.#getResolver()));
     }
 
     get socialVerification(): SocialVerificationService {
-        return (this.#socialVerification ??= new SocialVerificationService(
-            this.transports.authApi,
-        ));
+        return (this.#socialVerification ??= new SocialVerificationService(this.transports));
     }
 
     get whiteboard(): WhiteboardService {
-        return (this.#whiteboard ??= new WhiteboardService(this.transports.authApi));
+        return (this.#whiteboard ??= new WhiteboardService(this.transports));
     }
 
     get zipper(): ZipperService {
         return (this.#zipper ??= new ZipperService(
-            this.transports.publicApi,
+            this.transports,
             this.realtime,
             this.#getScales(),
         ));
     }
 
     get mfa(): MfaService {
-        return (this.#mfa ??= new MfaService(this.transports.authApi));
+        return (this.#mfa ??= new MfaService(this.transports));
     }
 
     get vip(): VipService {
-        return (this.#vip ??= new VipService({
-            publicApi: this.transports.publicApi,
-            authApi: this.transports.authApi,
-        }));
+        return (this.#vip ??= new VipService(this.transports));
     }
 
     get fees(): FeesService {
-        return (this.#fees ??= new FeesService(this.transports.authApi, this.#getResolver()));
+        return (this.#fees ??= new FeesService(this.transports, this.#getResolver()));
     }
 
     get tradingRateLimits(): RateLimitService {
         return (this.#tradingRateLimits ??= new RateLimitService(
-            {
-                publicApi: this.transports.publicApi,
-                authApi: this.transports.authApi,
-            },
+            this.transports,
             this.#getResolver(),
         ));
     }

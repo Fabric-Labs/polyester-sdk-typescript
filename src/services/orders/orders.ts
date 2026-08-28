@@ -1,6 +1,6 @@
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
@@ -15,6 +15,7 @@ import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscr
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import { getOrderErrorDetail } from "../../utils/connect-order-errors.js";
+import type { AuthApiTransports } from "../../shared/transports.js";
 import { formatConnectError, isResourceNotFoundError } from "../../utils/errors.js";
 import {
     OpenOrdersInputSchema,
@@ -118,13 +119,13 @@ export class OrdersService {
     #batchCreateOrdersInputSchema: ReturnType<typeof createBatchCreateOrdersInputSchema>;
 
     constructor(
-        transport: Transport,
+        transports: AuthApiTransports,
         realtime: PolyesterRealtime,
         resolver: SubaccountResolver | undefined,
         scales: SdkScales,
     ) {
-        this.#readClient = createClient(ProtoRead.OrdersReadService, transport);
-        this.#writeClient = createClient(ProtoWrite.OrdersService, transport);
+        this.#readClient = createClient(ProtoRead.OrdersReadService, transports.authApi);
+        this.#writeClient = createClient(ProtoWrite.OrdersService, transports.authApi);
         this.#realtime = realtime;
         this.#resolver = resolver;
         this.#scales = scales;

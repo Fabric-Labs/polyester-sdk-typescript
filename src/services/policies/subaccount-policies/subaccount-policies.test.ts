@@ -34,7 +34,10 @@ describe("SubaccountPoliciesService", () => {
         const responses = [{ policies: [subaccountPolicy()] }, { policy: subaccountPolicy() }];
         const transport = unaryTransport((_call, index) => responses[index] ?? {});
         const realtime = realtimeClientStub();
-        const service = new SubaccountPoliciesService(transport.transport, realtime.realtime);
+        const service = new SubaccountPoliciesService(
+            { authApi: transport.transport },
+            realtime.realtime,
+        );
         const signal = new AbortController().signal;
 
         await expect(
@@ -73,7 +76,10 @@ describe("SubaccountPoliciesService", () => {
     it("returns null for missing get responses", async () => {
         const transport = unaryTransport({});
         const realtime = realtimeClientStub();
-        const service = new SubaccountPoliciesService(transport.transport, realtime.realtime);
+        const service = new SubaccountPoliciesService(
+            { authApi: transport.transport },
+            realtime.realtime,
+        );
 
         await expect(service.get({ policyId: formatId(11n) })).resolves.toBeNull();
         expect(transport.lastCall()?.message).toEqual({ policyId: 11n });
@@ -86,7 +92,7 @@ describe("SubaccountPoliciesService", () => {
             getDefaultSubaccountId: () => formatId(42n),
         };
         const service = new SubaccountPoliciesService(
-            transport.transport,
+            { authApi: transport.transport },
             realtime.realtime,
             resolver,
         );
@@ -109,7 +115,10 @@ describe("SubaccountPoliciesService", () => {
     it("normalizes mutation requests and forwards step-up call metadata", async () => {
         const transport = unaryTransport({ policy: subaccountPolicy() });
         const realtime = realtimeClientStub();
-        const service = new SubaccountPoliciesService(transport.transport, realtime.realtime);
+        const service = new SubaccountPoliciesService(
+            { authApi: transport.transport },
+            realtime.realtime,
+        );
         const cases = [
             {
                 run: () =>
@@ -191,7 +200,10 @@ describe("SubaccountPoliciesService", () => {
     it("subscribes to account policy channels and parses publications", () => {
         const transport = unaryTransport({});
         const realtime = realtimeClientStub();
-        const service = new SubaccountPoliciesService(transport.transport, realtime.realtime);
+        const service = new SubaccountPoliciesService(
+            { authApi: transport.transport },
+            realtime.realtime,
+        );
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();

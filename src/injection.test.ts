@@ -73,6 +73,21 @@ describe("PolyesterClient injection hooks", () => {
         );
     });
 
+    it("routes the public subaccount role catalog through the public transport", async () => {
+        const publicApi = stubTransport();
+        const authApi = stubTransport();
+        const client = new PolyesterClient({
+            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            transports: { publicApi, authApi },
+            realtimeClient: stubRealtime(),
+        });
+
+        await expect(client.subaccounts.listRoles()).rejects.toThrow("unary not stubbed");
+
+        expect(publicApi.unary).toHaveBeenCalledOnce();
+        expect(authApi.unary).not.toHaveBeenCalled();
+    });
+
     it("RealtimeClient satisfies the PolyesterRealtime interface", () => {
         const realtime: PolyesterRealtime = new RealtimeClient({
             wsUrl: "wss://example.invalid/ws",

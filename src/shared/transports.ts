@@ -33,6 +33,15 @@ export interface Transports {
     publicApi: Transport;
 }
 
+/** Connect transports available to services that call authenticated APIs. */
+export type AuthApiTransports = Pick<Transports, "authApi">;
+
+/** Connect transports available to services that call public APIs. */
+export type PublicApiTransports = Pick<Transports, "publicApi">;
+
+/** Connect transports available to services that call both public and authenticated APIs. */
+export type AuthAndPublicApiTransports = Pick<Transports, "authApi" | "publicApi">;
+
 /**
  * Generic JWT auth for HTTP/Connect endpoints that follow the Bearer token contract.
  */

@@ -13,7 +13,7 @@ describe("DepositService", () => {
             },
         });
         const service = new DepositService(
-            transport.transport,
+            { authApi: transport.transport },
             subaccountResolverStub(formatId(42n)),
         );
 
@@ -32,7 +32,7 @@ describe("DepositService", () => {
 
     it("returns null when create responses omit the deposit address", async () => {
         const transport = unaryTransport({});
-        const service = new DepositService(transport.transport);
+        const service = new DepositService({ authApi: transport.transport });
 
         await expect(service.createAddress({ chainId: 1 })).resolves.toBeNull();
     });
@@ -47,7 +47,7 @@ describe("DepositService", () => {
             ],
         });
         const service = new DepositService(
-            transport.transport,
+            { authApi: transport.transport },
             subaccountResolverStub(formatId(42n)),
         );
         const signal = new AbortController().signal;

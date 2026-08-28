@@ -180,7 +180,7 @@ describe("HeatmapService", () => {
             const controller = new AbortController();
             const transport = unaryTransport(testCase.response);
             const service = new HeatmapService(
-                transport.transport,
+                { publicApi: transport.transport },
                 realtimeClientStub().realtime,
                 testScales(),
             );
@@ -235,7 +235,7 @@ describe("HeatmapService", () => {
             heatmapResponse({ interval: 999 as Proto.HeatmapInterval }),
         );
         const service = new HeatmapService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtimeClientStub().realtime,
             testScales(),
         );
@@ -252,7 +252,7 @@ describe("HeatmapService", () => {
         const onClose = vi.fn();
         const onError = vi.fn();
         const service = new HeatmapService(
-            unaryTransport({}).transport,
+            { publicApi: unaryTransport({}).transport },
             realtime.realtime,
             testScales(),
         );
@@ -305,7 +305,7 @@ describe("HeatmapService", () => {
     it("validates live subscription params before connecting realtime", () => {
         const realtime = realtimeClientStub();
         const service = new HeatmapService(
-            unaryTransport({}).transport,
+            { publicApi: unaryTransport({}).transport },
             realtime.realtime,
             testScales(),
         );
@@ -330,7 +330,7 @@ describe("HeatmapService", () => {
         const onEvent = vi.fn();
         const onError = vi.fn();
         const service = new HeatmapService(
-            unaryTransport({}).transport,
+            { publicApi: unaryTransport({}).transport },
             realtime.realtime,
             testScales(),
         );

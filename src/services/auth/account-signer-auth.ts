@@ -1,4 +1,4 @@
-import { AuthService, type AuthServiceTransports } from "./auth.js";
+import { AuthService } from "./auth.js";
 import { AuthenticationError, ConfigurationError } from "../../shared/errors.js";
 import { AuthSessionStore } from "./session.js";
 import type { AccountSigner, AccountSignerConfig, HexAddress } from "../../account-signer/types.js";
@@ -15,6 +15,7 @@ import type {
 } from "./session.types.js";
 import type { PolyesterRealtime } from "../../realtime/index.js";
 import type { PolyesterEnvironment } from "../../environment.js";
+import type { AuthAndPublicApiTransports } from "../../shared/transports.js";
 import {
     createAuthTokenStorageSetOptions,
     type AuthTokenStorage,
@@ -92,7 +93,7 @@ export class AccountSignerAuthService extends AuthService {
         tokenStorage,
         sessionStore,
     }: {
-        transports: AuthServiceTransports;
+        transports: AuthAndPublicApiTransports;
         accountSignerConfig?: AccountSignerConfig;
         environment: PolyesterEnvironment;
         subaccounts: SubaccountsService;

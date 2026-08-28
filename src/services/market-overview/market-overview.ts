@@ -1,5 +1,5 @@
 import * as Proto from "../../gen/marketoverview/v1/marketoverview_pb.js";
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
@@ -10,6 +10,7 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
+import type { PublicApiTransports } from "../../shared/transports.js";
 import {
     ListMarketOverviewInputSchema,
     createMarketOverviewSchema,
@@ -32,8 +33,8 @@ export class MarketOverviewService {
     #scales: SdkScales;
     #marketOverviewSchema: ReturnType<typeof createMarketOverviewSchema>;
 
-    constructor(transport: Transport, realtime: PolyesterRealtime, scales: SdkScales) {
-        this.#client = createClient(Proto.MarketOverviewService, transport);
+    constructor(transports: PublicApiTransports, realtime: PolyesterRealtime, scales: SdkScales) {
+        this.#client = createClient(Proto.MarketOverviewService, transports.publicApi);
         this.#realtime = realtime;
         this.#scales = scales;
         this.#marketOverviewSchema = createMarketOverviewSchema(scales);

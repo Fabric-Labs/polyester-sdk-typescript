@@ -1,5 +1,5 @@
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
@@ -10,6 +10,7 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
+import type { AuthApiTransports } from "../../shared/transports.js";
 import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
 import {
     createCreateTriggerInputSchema,
@@ -83,12 +84,12 @@ export class TriggersService {
     #triggerEventSchema: ReturnType<typeof createTriggerEventSchema>;
 
     constructor(
-        transport: Transport,
+        transports: AuthApiTransports,
         realtime: PolyesterRealtime,
         resolver: SubaccountResolver | undefined,
         scales: SdkScales,
     ) {
-        this.#client = createClient(Proto.TriggersService, transport);
+        this.#client = createClient(Proto.TriggersService, transports.authApi);
         this.#realtime = realtime;
         this.#resolver = resolver;
         this.#scales = scales;

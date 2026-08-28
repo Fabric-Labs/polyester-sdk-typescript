@@ -33,7 +33,7 @@ function apiKeyPolicy() {
 describe("ApiKeyPoliciesService", () => {
     it("returns the default API key policy without an RPC when no policy ID is supplied", async () => {
         const transport = unaryTransport({ policy: apiKeyPolicy() });
-        const service = new ApiKeyPoliciesService(transport.transport);
+        const service = new ApiKeyPoliciesService({ authApi: transport.transport });
 
         await expect(service.get({})).resolves.toEqual(DEFAULT_API_KEY_POLICY);
         expect(DEFAULT_API_KEY_POLICY).toMatchObject({
@@ -48,7 +48,7 @@ describe("ApiKeyPoliciesService", () => {
     it("normalizes list/get requests and parses policy responses", async () => {
         const responses = [{ policies: [apiKeyPolicy()] }, { policy: apiKeyPolicy() }];
         const transport = unaryTransport((_call, index) => responses[index] ?? {});
-        const service = new ApiKeyPoliciesService(transport.transport);
+        const service = new ApiKeyPoliciesService({ authApi: transport.transport });
         const signal = new AbortController().signal;
 
         await expect(service.list({ keyId: " key-1 " }, { signal })).resolves.toMatchObject([
@@ -77,7 +77,7 @@ describe("ApiKeyPoliciesService", () => {
 
     it("keeps missing get responses on the default policy contract", async () => {
         const transport = unaryTransport({});
-        const service = new ApiKeyPoliciesService(transport.transport);
+        const service = new ApiKeyPoliciesService({ authApi: transport.transport });
 
         await expect(service.get({ policyId: formatId(9n) })).resolves.toEqual(
             DEFAULT_API_KEY_POLICY,
@@ -87,7 +87,7 @@ describe("ApiKeyPoliciesService", () => {
 
     it("normalizes mutation requests and forwards step-up call metadata", async () => {
         const transport = unaryTransport({ policy: apiKeyPolicy() });
-        const service = new ApiKeyPoliciesService(transport.transport);
+        const service = new ApiKeyPoliciesService({ authApi: transport.transport });
         const cases = [
             {
                 run: () =>

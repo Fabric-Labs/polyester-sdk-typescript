@@ -1,5 +1,6 @@
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as ProtoResolve from "../../gen/auth/v1/resolve_pb.js";
+import type { AuthApiTransports } from "../../shared/transports.js";
 import { parse } from "../../shared/validation.js";
 import {
     toConnectCallOptions,
@@ -18,8 +19,8 @@ import {
 export class AccountsService {
     #client: Client<typeof ProtoResolve.ResolveService>;
 
-    constructor(transport: Transport) {
-        this.#client = createClient(ProtoResolve.ResolveService, transport);
+    constructor(transports: AuthApiTransports) {
+        this.#client = createClient(ProtoResolve.ResolveService, transports.authApi);
     }
 
     /**

@@ -101,7 +101,10 @@ describe("SubaccountsService", () => {
     it("lists subaccounts and propagates read call options", async () => {
         const transport = unaryTransport({ totalCreated: 3, subaccounts: [subaccount()] });
         const realtime = realtimeClientStub();
-        const service = new SubaccountsService(transport.transport, realtime.realtime);
+        const service = new SubaccountsService(
+            { publicApi: transport.transport, authApi: transport.transport },
+            realtime.realtime,
+        );
         const signal = new AbortController().signal;
 
         await expect(service.list({ signal })).resolves.toMatchObject({
@@ -131,7 +134,10 @@ describe("SubaccountsService", () => {
             invites: [invite(42n), invite(99n)],
         });
         const realtime = realtimeClientStub();
-        const service = new SubaccountsService(transport.transport, realtime.realtime);
+        const service = new SubaccountsService(
+            { publicApi: transport.transport, authApi: transport.transport },
+            realtime.realtime,
+        );
 
         const result = await service.get({ subaccountId: ` ${formatId(42n)} ` });
         expect(result).toMatchObject({
@@ -170,7 +176,10 @@ describe("SubaccountsService", () => {
             invites: [invite()],
         });
         const realtime = realtimeClientStub();
-        const service = new SubaccountsService(transport.transport, realtime.realtime);
+        const service = new SubaccountsService(
+            { publicApi: transport.transport, authApi: transport.transport },
+            realtime.realtime,
+        );
 
         const result = await service.get({ subaccountId: formatId(42n) });
         expect(result).toMatchObject({
@@ -190,7 +199,10 @@ describe("SubaccountsService", () => {
     it("throws when get omits the subaccount model", async () => {
         const transport = unaryTransport({});
         const realtime = realtimeClientStub();
-        const service = new SubaccountsService(transport.transport, realtime.realtime);
+        const service = new SubaccountsService(
+            { publicApi: transport.transport, authApi: transport.transport },
+            realtime.realtime,
+        );
 
         await expect(service.get({ subaccountId: formatId(42n) })).rejects.toThrow(
             `Subaccount not found: ${formatId(42n)}`,
@@ -207,7 +219,10 @@ describe("SubaccountsService", () => {
             subaccount: subaccount(),
         });
         const realtime = realtimeClientStub();
-        const service = new SubaccountsService(transport.transport, realtime.realtime);
+        const service = new SubaccountsService(
+            { publicApi: transport.transport, authApi: transport.transport },
+            realtime.realtime,
+        );
         const cases = [
             {
                 run: () =>
@@ -378,7 +393,10 @@ describe("SubaccountsService", () => {
         ];
         const transport = unaryTransport((_call, index) => responses[index] ?? {});
         const realtime = realtimeClientStub();
-        const service = new SubaccountsService(transport.transport, realtime.realtime);
+        const service = new SubaccountsService(
+            { publicApi: transport.transport, authApi: transport.transport },
+            realtime.realtime,
+        );
 
         await expect(service.listInvites({ direction: "incoming" })).resolves.toMatchObject([
             { id: formatId(5n), role: "trader" },
@@ -414,7 +432,7 @@ describe("SubaccountsService", () => {
     });
 
     it("lists the role catalog and parses permission/role definitions", async () => {
-        const transport = unaryTransport({
+        const publicApi = unaryTransport({
             permissions: [
                 {
                     permission: Proto.SubaccountPermission.TRADE_SPOT,
@@ -442,8 +460,12 @@ describe("SubaccountsService", () => {
                 },
             ],
         } satisfies MessageInitShape<typeof Proto.ListSubaccountRolesResponseSchema>);
+        const authApi = unaryTransport({});
         const realtime = realtimeClientStub();
-        const service = new SubaccountsService(transport.transport, realtime.realtime);
+        const service = new SubaccountsService(
+            { publicApi: publicApi.transport, authApi: authApi.transport },
+            realtime.realtime,
+        );
 
         await expect(service.listRoles()).resolves.toEqual({
             permissions: [
@@ -470,17 +492,22 @@ describe("SubaccountsService", () => {
                 },
             ],
         });
-        expect(transport.lastCall()?.message).toEqual({});
+        expect(publicApi.lastCall()?.message).toEqual({});
+        expect(authApi.calls).toHaveLength(0);
     });
 
     it("gets effective permissions for a subaccount and normalizes the request ID", async () => {
-        const transport = unaryTransport({
+        const publicApi = unaryTransport({});
+        const authApi = unaryTransport({
             role: Proto.SubaccountRole.ADMIN,
             permissions: [Proto.SubaccountPermission.READ_BALANCES],
             subaccountPolicyId: 11n,
         } satisfies MessageInitShape<typeof Proto.GetEffectiveSubaccountPermissionsResponseSchema>);
         const realtime = realtimeClientStub();
-        const service = new SubaccountsService(transport.transport, realtime.realtime);
+        const service = new SubaccountsService(
+            { publicApi: publicApi.transport, authApi: authApi.transport },
+            realtime.realtime,
+        );
 
         await expect(
             service.getEffectivePermissions({ subaccountId: ` ${formatId(42n)} ` }),
@@ -489,13 +516,17 @@ describe("SubaccountsService", () => {
             permissions: ["read_balances"],
             subaccountPolicyId: formatId(11n),
         });
-        expect(transport.lastCall()?.message).toEqual({ subaccountId: 42n });
+        expect(authApi.lastCall()?.message).toEqual({ subaccountId: 42n });
+        expect(publicApi.calls).toHaveLength(0);
     });
 
     it.each([-1, 1.5])("rejects an invalid activity limit before transport: %s", async (limit) => {
         const transport = unaryTransport({});
         const realtime = realtimeClientStub();
-        const service = new SubaccountsService(transport.transport, realtime.realtime);
+        const service = new SubaccountsService(
+            { publicApi: transport.transport, authApi: transport.transport },
+            realtime.realtime,
+        );
 
         await expect(
             service.listEvents({ subaccountId: formatId(42n), limit }),
@@ -508,7 +539,10 @@ describe("SubaccountsService", () => {
     it("subscribes to subaccount and API key channels and parses publications", () => {
         const transport = unaryTransport({});
         const realtime = realtimeClientStub();
-        const service = new SubaccountsService(transport.transport, realtime.realtime);
+        const service = new SubaccountsService(
+            { publicApi: transport.transport, authApi: transport.transport },
+            realtime.realtime,
+        );
         const onSubaccount = vi.fn();
         const onApiKey = vi.fn();
 

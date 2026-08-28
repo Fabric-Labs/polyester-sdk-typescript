@@ -321,7 +321,7 @@ describe("TriggersService", () => {
         for (const testCase of cases) {
             const transport = unaryTransportByMethod({ createTrigger: createResult });
             const service = new TriggersService(
-                transport.transport,
+                { authApi: transport.transport },
                 realtimeClientStub().realtime,
                 undefined,
                 testScales(),
@@ -351,7 +351,7 @@ describe("TriggersService", () => {
     it("rejects trailing-distance overflow with a typed validation error before transport", async () => {
         const transport = unaryTransportByMethod({ createTrigger: createResult });
         const service = new TriggersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -385,7 +385,7 @@ describe("TriggersService", () => {
             listTriggerEvents: { events: [triggerEvent()], nextPageToken: "event-page" },
         });
         const service = new TriggersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             resolver,
             testScales(),
@@ -469,12 +469,14 @@ describe("TriggersService", () => {
 
     it("fails loudly when a listed trigger needs a symbol absent from the catalog", async () => {
         const service = new TriggersService(
-            unaryTransportByMethod({
-                listTriggers: {
-                    triggers: [trigger(), trigger({ triggerId: 12n, symbolId: 999 })],
-                    nextPageToken: "",
-                },
-            }).transport,
+            {
+                authApi: unaryTransportByMethod({
+                    listTriggers: {
+                        triggers: [trigger(), trigger({ triggerId: 12n, symbolId: 999 })],
+                        nextPageToken: "",
+                    },
+                }).transport,
+            },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -494,9 +496,11 @@ describe("TriggersService", () => {
             },
         });
         const service = new TriggersService(
-            unaryTransportByMethod({
-                listTriggers: { triggers: [childlessTrigger], nextPageToken: "" },
-            }).transport,
+            {
+                authApi: unaryTransportByMethod({
+                    listTriggers: { triggers: [childlessTrigger], nextPageToken: "" },
+                }).transport,
+            },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -548,7 +552,7 @@ describe("TriggersService", () => {
             listTriggers: { triggers: [trigger(), trailing], nextPageToken: "" },
         });
         const service = new TriggersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -601,7 +605,7 @@ describe("TriggersService", () => {
             },
         });
         const service = new TriggersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -663,7 +667,7 @@ describe("TriggersService", () => {
     it("uses private trigger channels and parses trigger publications", async () => {
         const realtime = realtimeClientStub();
         const service = new TriggersService(
-            unaryTransportByMethod({}).transport,
+            { authApi: unaryTransportByMethod({}).transport },
             realtime.realtime,
             undefined,
             testScales(),
@@ -729,7 +733,7 @@ describe("TriggersService", () => {
     it("uses private trigger event channels and parses event publications", async () => {
         const realtime = realtimeClientStub();
         const service = new TriggersService(
-            unaryTransportByMethod({}).transport,
+            { authApi: unaryTransportByMethod({}).transport },
             realtime.realtime,
             undefined,
             testScales(),
@@ -775,7 +779,7 @@ describe("TriggersService", () => {
             },
         });
         const service = new TriggersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),

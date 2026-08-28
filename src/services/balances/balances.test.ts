@@ -81,7 +81,7 @@ describe("BalancesService", () => {
                 balances: [assetBalance(1, onePointFiveE18), assetBalance(999, onePointFiveE18)],
             });
             const service = new BalancesService(
-                transport.transport,
+                { authApi: transport.transport },
                 realtimeClientStub().realtime,
                 subaccountResolverStub(testCase.resolverDefault),
                 testScales(),
@@ -120,7 +120,7 @@ describe("BalancesService", () => {
             balances: [assetBalance(404, 1n)],
         });
         const service = new BalancesService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -160,7 +160,7 @@ describe("BalancesService", () => {
             ],
         });
         const service = new BalancesService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -197,7 +197,7 @@ describe("BalancesService", () => {
         async (ledger) => {
             const transport = unaryTransport({});
             const service = new BalancesService(
-                transport.transport,
+                { authApi: transport.transport },
                 realtimeClientStub().realtime,
                 undefined,
                 testScales(),
@@ -231,7 +231,7 @@ describe("BalancesService", () => {
             btcPricesQ: [65_000_123_456n],
         });
         const service = new BalancesService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             subaccountResolverStub(formatId(12n)),
             testScales(),
@@ -271,7 +271,7 @@ describe("BalancesService", () => {
             series: [],
         });
         const service = new BalancesService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -292,7 +292,7 @@ describe("BalancesService", () => {
             series: [],
         });
         const service = new BalancesService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -308,7 +308,7 @@ describe("BalancesService", () => {
         const onClose = vi.fn();
         const onError = vi.fn();
         const service = new BalancesService(
-            unaryTransport({}).transport,
+            { authApi: unaryTransport({}).transport },
             realtime.realtime,
             undefined,
             testScales(),
@@ -360,7 +360,7 @@ describe("BalancesService", () => {
         const onEvent = vi.fn();
         const onError = vi.fn();
         const service = new BalancesService(
-            unaryTransport({}).transport,
+            { authApi: unaryTransport({}).transport },
             realtime.realtime,
             undefined,
             testScales(),
