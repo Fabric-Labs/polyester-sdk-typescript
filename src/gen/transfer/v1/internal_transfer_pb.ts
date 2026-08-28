@@ -254,6 +254,9 @@ export const InternalTransferStatusSchema: GenEnum<InternalTransferStatus> = /*@
 export const InternalTransferService: GenService<{
   /**
    * Create or return one accepted Trading to Trading transfer.
+   * Root-owner same-owner transfers and root-owner transfers to explicitly
+   * whitelisted destinations accept recent MFA; delegated and other
+   * interactive transfers require fresh step-up.
    *
    * @generated from rpc transfer.v1.InternalTransferService.CreateInternalTransfer
    */
