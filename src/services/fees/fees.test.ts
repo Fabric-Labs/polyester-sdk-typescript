@@ -15,7 +15,10 @@ describe("FeesService", () => {
                 },
             ],
         });
-        const service = new FeesService(transport.transport, subaccountResolverStub(formatId(42n)));
+        const service = new FeesService(
+            { authApi: transport.transport },
+            subaccountResolverStub(formatId(42n)),
+        );
         const signal = new AbortController().signal;
 
         await expect(service.getSpotRates({ symbolIds: [101] }, { signal })).resolves.toEqual([
@@ -33,7 +36,10 @@ describe("FeesService", () => {
 
     it("lets explicit main scope force root scope and omits an empty symbol filter", async () => {
         const transport = unaryTransport({ feeRates: [] });
-        const service = new FeesService(transport.transport, subaccountResolverStub(formatId(42n)));
+        const service = new FeesService(
+            { authApi: transport.transport },
+            subaccountResolverStub(formatId(42n)),
+        );
 
         await expect(service.getSpotRates({ account: "main" })).resolves.toEqual([]);
         expect(transport.lastCall()?.message).toEqual({ symbolId: [] });

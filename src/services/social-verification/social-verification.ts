@@ -1,7 +1,8 @@
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as Proto from "../../gen/auth/v1/social_verification_pb.js";
 import type * as v from "valibot";
 import { parse } from "../../shared/validation.js";
+import type { AuthApiTransports } from "../../shared/transports.js";
 import {
     toConnectCallOptions,
     type PolyesterMutationOptions,
@@ -25,8 +26,8 @@ import {
 export class SocialVerificationService {
     #client: Client<typeof Proto.SocialVerificationService>;
 
-    constructor(transport: Transport) {
-        this.#client = createClient(Proto.SocialVerificationService, transport);
+    constructor(transports: AuthApiTransports) {
+        this.#client = createClient(Proto.SocialVerificationService, transports.authApi);
     }
 
     /**

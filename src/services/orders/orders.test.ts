@@ -108,7 +108,7 @@ describe("OrdersService", () => {
             },
         });
         const service = new OrdersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             resolver,
             testScales(),
@@ -202,7 +202,7 @@ describe("OrdersService", () => {
             },
         });
         const service = new OrdersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -271,7 +271,7 @@ describe("OrdersService", () => {
             },
         });
         const service = new OrdersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -308,7 +308,7 @@ describe("OrdersService", () => {
     it("rejects create inputs with excess decimal precision before calling the backend", async () => {
         const transport = unaryTransportByMethod({});
         const service = new OrdersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -349,7 +349,7 @@ describe("OrdersService", () => {
             },
         });
         const service = new OrdersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -438,7 +438,7 @@ describe("OrdersService", () => {
             },
         });
         const service = new OrdersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -472,7 +472,7 @@ describe("OrdersService", () => {
             },
         });
         const service = new OrdersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -507,7 +507,7 @@ describe("OrdersService", () => {
             },
         });
         const service = new OrdersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -608,7 +608,7 @@ describe("OrdersService", () => {
             },
         });
         const service = new OrdersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -691,7 +691,7 @@ describe("OrdersService", () => {
             },
         });
         const service = new OrdersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -739,7 +739,7 @@ describe("OrdersService", () => {
             },
         });
         const service = new OrdersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             resolver,
             testScales(),
@@ -781,7 +781,7 @@ describe("OrdersService", () => {
             },
         });
         const service = new OrdersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -795,7 +795,7 @@ describe("OrdersService", () => {
     it("returns null when get order details response omits the order", async () => {
         const transport = unaryTransportByMethod({ getOrder: {} });
         const service = new OrdersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -816,7 +816,9 @@ describe("OrdersService", () => {
 
     it("returns null when the backend reports that the order was not found", async () => {
         const service = new OrdersService(
-            rejectingUnaryTransport(new ConnectError("order not found", Code.Unknown)),
+            {
+                authApi: rejectingUnaryTransport(new ConnectError("order not found", Code.Unknown)),
+            },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -840,7 +842,7 @@ describe("OrdersService", () => {
         ],
     ])("returns null for a stable %s", async (_name, error) => {
         const service = new OrdersService(
-            rejectingUnaryTransport(error),
+            { authApi: rejectingUnaryTransport(error) },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -851,7 +853,11 @@ describe("OrdersService", () => {
 
     it("preserves unrelated get order failures", async () => {
         const service = new OrdersService(
-            rejectingUnaryTransport(new ConnectError("database unavailable", Code.Unknown)),
+            {
+                authApi: rejectingUnaryTransport(
+                    new ConnectError("database unavailable", Code.Unknown),
+                ),
+            },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -897,7 +903,7 @@ describe("OrdersService", () => {
             },
         });
         const service = new OrdersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -934,7 +940,7 @@ describe("OrdersService", () => {
     it("uses private order channels and parses realtime publications", async () => {
         const realtime = realtimeClientStub();
         const service = new OrdersService(
-            unaryTransportByMethod({}).transport,
+            { authApi: unaryTransportByMethod({}).transport },
             realtime.realtime,
             undefined,
             testScales(),
@@ -990,7 +996,7 @@ describe("OrdersService", () => {
         const scales = { ...testScales(), ready: () => readiness };
         const realtime = realtimeClientStub();
         const service = new OrdersService(
-            unaryTransportByMethod({}).transport,
+            { authApi: unaryTransportByMethod({}).transport },
             realtime.realtime,
             undefined,
             scales,
@@ -1024,7 +1030,7 @@ describe("OrdersService", () => {
             },
         });
         const service = new OrdersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -1036,7 +1042,7 @@ describe("OrdersService", () => {
         const onEvent = vi.fn();
         const onError = vi.fn();
         const subscriptionService = new OrdersService(
-            unaryTransportByMethod({}).transport,
+            { authApi: unaryTransportByMethod({}).transport },
             realtime.realtime,
             undefined,
             testScales(),

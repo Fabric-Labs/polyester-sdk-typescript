@@ -94,7 +94,7 @@ describe("ZipperService", () => {
             tsSec: 100n,
             polyesterChainId: 77,
         });
-        const service = new ZipperService(transport.transport);
+        const service = new ZipperService({ publicApi: transport.transport });
         const signal = new AbortController().signal;
 
         await expect(service.getDepositWithdrawConfig({ signal })).resolves.toMatchObject({
@@ -141,7 +141,7 @@ describe("ZipperService", () => {
         const onOpen = vi.fn();
         const onError = vi.fn();
         const service = new ZipperService(
-            unaryTransport(supplyConfig(10_000_000n)).transport,
+            { publicApi: unaryTransport(supplyConfig(10_000_000n)).transport },
             realtime.realtime,
             testScales,
         );
@@ -182,7 +182,7 @@ describe("ZipperService", () => {
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const service = new ZipperService(
-            unaryTransport(() => snapshot.promise).transport,
+            { publicApi: unaryTransport(() => snapshot.promise).transport },
             realtime.realtime,
             testScales,
         );
@@ -210,7 +210,7 @@ describe("ZipperService", () => {
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const service = new ZipperService(
-            unaryTransport(() => snapshot.promise).transport,
+            { publicApi: unaryTransport(() => snapshot.promise).transport },
             realtime.realtime,
             testScales,
         );
@@ -246,7 +246,11 @@ describe("ZipperService", () => {
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const onClose = vi.fn();
-        const service = new ZipperService(transport.transport, realtime.realtime, testScales);
+        const service = new ZipperService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales,
+        );
 
         service.subscribeZippedAssetSupply({ onEvent, onClose });
         realtime.params?.onConnected?.();
@@ -271,7 +275,7 @@ describe("ZipperService", () => {
         const onEvent = vi.fn();
         const onError = vi.fn();
         const service = new ZipperService(
-            unaryTransport(() => snapshot.promise).transport,
+            { publicApi: unaryTransport(() => snapshot.promise).transport },
             realtime.realtime,
             testScales,
         );
@@ -312,7 +316,7 @@ describe("ZipperService", () => {
             },
         };
         const service = new ZipperService(
-            unaryTransport(supplyConfig(10_000_000n)).transport,
+            { publicApi: unaryTransport(supplyConfig(10_000_000n)).transport },
             realtime.realtime,
             scales,
         );
@@ -341,7 +345,7 @@ describe("ZipperService", () => {
         const onEvent = vi.fn();
         const onError = vi.fn();
         const service = new ZipperService(
-            unaryTransport(supplyConfig(10_000_000n)).transport,
+            { publicApi: unaryTransport(supplyConfig(10_000_000n)).transport },
             realtime.realtime,
             testScales,
         );

@@ -83,7 +83,7 @@ describe("WhiteboardService", () => {
     it("normalizes create payloads and parses board details", async () => {
         const signal = new AbortController().signal;
         const transport = unaryTransportSequence([boardDetails()]);
-        const service = new WhiteboardService(transport.transport);
+        const service = new WhiteboardService({ authApi: transport.transport });
 
         await expect(
             service.create(
@@ -155,7 +155,7 @@ describe("WhiteboardService", () => {
             {},
             { boards: [{ board: board(), access: access() }] },
         ]);
-        const service = new WhiteboardService(transport.transport);
+        const service = new WhiteboardService({ authApi: transport.transport });
 
         await expect(service.get(" board-1 ", { signal })).resolves.toMatchObject({
             board: {
@@ -191,7 +191,7 @@ describe("WhiteboardService", () => {
 
     it("normalizes update and ACL replacement requests", async () => {
         const transport = unaryTransportSequence([boardDetails(), boardDetails()]);
-        const service = new WhiteboardService(transport.transport);
+        const service = new WhiteboardService({ authApi: transport.transport });
 
         await service.update(
             {
@@ -238,7 +238,7 @@ describe("WhiteboardService", () => {
 
     it("normalizes archive and mint join token requests", async () => {
         const transport = unaryTransportSequence([{}, joinToken()]);
-        const service = new WhiteboardService(transport.transport);
+        const service = new WhiteboardService({ authApi: transport.transport });
 
         const archiveResult = await service.archive(
             { boardId: " board-1 ", archived: false },
@@ -277,7 +277,7 @@ describe("WhiteboardService", () => {
             }),
             { aclEntries: [] },
         ]);
-        const service = new WhiteboardService(transport.transport);
+        const service = new WhiteboardService({ authApi: transport.transport });
 
         await expect(
             service.update({ boardId: "board-1" } as Parameters<WhiteboardService["update"]>[0]),

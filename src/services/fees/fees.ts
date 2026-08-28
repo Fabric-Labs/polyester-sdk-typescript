@@ -1,5 +1,6 @@
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as Proto from "../../gen/fees/v1/fees_pb.js";
+import type { AuthApiTransports } from "../../shared/transports.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import {
@@ -21,8 +22,8 @@ export class FeesService {
     #client: Client<typeof Proto.FeeService>;
     #resolver?: SubaccountResolver;
 
-    constructor(transport: Transport, resolver?: SubaccountResolver) {
-        this.#client = createClient(Proto.FeeService, transport);
+    constructor(transports: AuthApiTransports, resolver?: SubaccountResolver) {
+        this.#client = createClient(Proto.FeeService, transports.authApi);
         this.#resolver = resolver;
     }
 

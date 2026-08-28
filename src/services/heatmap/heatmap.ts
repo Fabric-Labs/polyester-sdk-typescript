@@ -1,4 +1,4 @@
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import { create } from "@bufbuild/protobuf";
 import {
     HeatmapService as HeatmapRpc,
@@ -13,6 +13,7 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
+import type { PublicApiTransports } from "../../shared/transports.js";
 import { HEATMAP_INTERVAL_VALUES, type HeatmapIntervalValue } from "./heatmap.codecs.js";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
@@ -52,8 +53,8 @@ export class HeatmapService implements OrderbookHeatmapProvider {
     #responseSchema: ReturnType<typeof createOrderbookHeatmapResponseSchema>;
     #liveBucketSchema: ReturnType<typeof createOrderbookHeatmapLiveBucketSchema>;
 
-    constructor(transport: Transport, realtime: PolyesterRealtime, scales: SdkScales) {
-        this.#client = createClient(HeatmapRpc, transport);
+    constructor(transports: PublicApiTransports, realtime: PolyesterRealtime, scales: SdkScales) {
+        this.#client = createClient(HeatmapRpc, transports.publicApi);
         this.#realtime = realtime;
         this.#scales = scales;
         this.#responseSchema = createOrderbookHeatmapResponseSchema(scales);

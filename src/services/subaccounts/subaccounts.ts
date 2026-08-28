@@ -1,6 +1,6 @@
 import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
 import * as ProtoApiKeys from "../../gen/auth/v1/api_keys_pb.js";
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import { type ApiKey, ApiKeySchema } from "../api-keys/index.js";
@@ -18,6 +18,7 @@ import {
     SubaccountPolicySchema,
 } from "../policies/subaccount-policies/index.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
+import type { AuthAndPublicApiTransports } from "../../shared/transports.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import {
     CreateSubaccountInputSchema,
@@ -58,21 +59,27 @@ interface SubscribeApiKeysInput extends BaseSubscribeInput<ApiKey> {
 }
 
 /**
- * Creates, manages, shares, audits, and subscribes to subaccounts visible to the authenticated caller.
+ * Reads the public role catalog and creates, manages, shares, audits, and subscribes to subaccounts visible to the authenticated caller.
  */
 export class SubaccountsService {
     readonly policies: SubaccountPoliciesService;
 
     #client: Client<typeof Proto.SubaccountService>;
     #viewClient: Client<typeof Proto.SubaccountViewService>;
-    #roleClient: Client<typeof Proto.SubaccountRoleService>;
+    #publicRoleClient: Client<typeof Proto.SubaccountRoleService>;
+    #authRoleClient: Client<typeof Proto.SubaccountRoleService>;
     #realtime: PolyesterRealtime;
 
-    constructor(transport: Transport, realtime: PolyesterRealtime, resolver?: SubaccountResolver) {
-        this.policies = new SubaccountPoliciesService(transport, realtime, resolver);
-        this.#client = createClient(Proto.SubaccountService, transport);
-        this.#viewClient = createClient(Proto.SubaccountViewService, transport);
-        this.#roleClient = createClient(Proto.SubaccountRoleService, transport);
+    constructor(
+        transports: AuthAndPublicApiTransports,
+        realtime: PolyesterRealtime,
+        resolver?: SubaccountResolver,
+    ) {
+        this.policies = new SubaccountPoliciesService(transports, realtime, resolver);
+        this.#client = createClient(Proto.SubaccountService, transports.authApi);
+        this.#viewClient = createClient(Proto.SubaccountViewService, transports.authApi);
+        this.#publicRoleClient = createClient(Proto.SubaccountRoleService, transports.publicApi);
+        this.#authRoleClient = createClient(Proto.SubaccountRoleService, transports.authApi);
         this.#realtime = realtime;
     }
 
@@ -243,7 +250,10 @@ export class SubaccountsService {
      * Returns the public built-in role and permission catalog with display metadata and per-role permission sets.
      */
     async listRoles(options?: PolyesterRequestOptions): Promise<SubaccountRoleCatalog> {
-        const res = await this.#roleClient.listSubaccountRoles({}, toConnectCallOptions(options));
+        const res = await this.#publicRoleClient.listSubaccountRoles(
+            {},
+            toConnectCallOptions(options),
+        );
         return parse(SubaccountRoleCatalogSchema, res);
     }
 
@@ -255,7 +265,7 @@ export class SubaccountsService {
         options?: PolyesterRequestOptions,
     ): Promise<EffectiveSubaccountPermissions> {
         const validatedInput = parse(SubaccountIdInputSchema, input);
-        const res = await this.#roleClient.getEffectiveSubaccountPermissions(
+        const res = await this.#authRoleClient.getEffectiveSubaccountPermissions(
             validatedInput,
             toConnectCallOptions(options),
         );

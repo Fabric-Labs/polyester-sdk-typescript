@@ -50,7 +50,7 @@ describe("AddressBookService", () => {
     it("uses resolver defaults for scoped list requests and trims mapped filters", async () => {
         const transport = unaryTransport({ entries: [entry()], nextPageToken: "next" });
         const service = new AddressBookService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             subaccountResolverStub(formatId(42n)),
         );
@@ -76,7 +76,7 @@ describe("AddressBookService", () => {
     it("lets explicit main scope force root scope over the resolver", async () => {
         const transport = unaryTransport({ destinations: [], nextPageToken: "" });
         const service = new AddressBookService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             subaccountResolverStub(formatId(42n)),
         );
@@ -103,7 +103,7 @@ describe("AddressBookService", () => {
         ];
         const transport = unaryTransport((_call, index) => responses[index] ?? {});
         const service = new AddressBookService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             subaccountResolverStub(formatId(42n)),
         );
@@ -222,7 +222,10 @@ describe("AddressBookService", () => {
 
     it("preserves omitted tag fields and transmits an explicit empty color", async () => {
         const transport = unaryTransport({ tag: tag() });
-        const service = new AddressBookService(transport.transport, realtimeClientStub().realtime);
+        const service = new AddressBookService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+        );
 
         await service.updateTag({ tagId: formatId(5n), color: "" });
 
@@ -302,7 +305,10 @@ describe("AddressBookService", () => {
             },
         ];
         const transport = unaryTransport((_call, index) => responses[index] ?? {});
-        const service = new AddressBookService(transport.transport, realtimeClientStub().realtime);
+        const service = new AddressBookService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+        );
 
         await expect(service.listBooks()).resolves.toMatchObject([
             { callerRole: "owner", label: "Main" },
@@ -360,7 +366,10 @@ describe("AddressBookService", () => {
 
     it("subscribeViewInvalidations parses scoped invalidation publications", () => {
         const realtime = realtimeClientStub();
-        const service = new AddressBookService(unaryTransport({}).transport, realtime.realtime);
+        const service = new AddressBookService(
+            { authApi: unaryTransport({}).transport },
+            realtime.realtime,
+        );
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();
@@ -415,7 +424,10 @@ describe("AddressBookService", () => {
 
     it("returns null when withdraw whitelist view is absent", async () => {
         const transport = unaryTransport({});
-        const service = new AddressBookService(transport.transport, realtimeClientStub().realtime);
+        const service = new AddressBookService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+        );
 
         await expect(service.getWithdrawWhitelistView()).resolves.toBeNull();
     });

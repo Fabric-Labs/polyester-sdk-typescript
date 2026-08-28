@@ -1,5 +1,5 @@
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import type { PolyesterRealtime } from "../../realtime/index.js";
@@ -12,6 +12,7 @@ import {
 import { accountScopeToSubaccountId, type AccountScopedInput } from "../../shared/account-scope.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
+import type { AuthApiTransports } from "../../shared/transports.js";
 import {
     BalanceHistoryInputSchema,
     BalancesListInputSchema,
@@ -43,12 +44,12 @@ export class BalancesService {
     #equityHistoryResponseSchema: ReturnType<typeof createEquityHistoryResponseSchema>;
 
     constructor(
-        transport: Transport,
+        transports: AuthApiTransports,
         realtime: PolyesterRealtime,
         resolver: SubaccountResolver | undefined,
         scales: SdkScales,
     ) {
-        this.#client = createClient(Proto.LedgerReadService, transport);
+        this.#client = createClient(Proto.LedgerReadService, transports.authApi);
         this.#realtime = realtime;
         this.#resolver = resolver;
         this.#scales = scales;

@@ -1,4 +1,4 @@
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
@@ -10,6 +10,7 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
+import type { PublicApiTransports } from "../../shared/transports.js";
 import {
     type CandleColumnar,
     createCandleRowSchema,
@@ -55,8 +56,8 @@ export class CandlesService {
     #columnarSchema: ReturnType<typeof createCandleColumnarSchema>;
     #columnarIntSchema: ReturnType<typeof createCandleColumnarIntSchema>;
 
-    constructor(transport: Transport, realtime: PolyesterRealtime, scales: SdkScales) {
-        this.#client = createClient(Proto.MarketDataService, transport);
+    constructor(transports: PublicApiTransports, realtime: PolyesterRealtime, scales: SdkScales) {
+        this.#client = createClient(Proto.MarketDataService, transports.publicApi);
         this.#realtime = realtime;
         this.#scales = scales;
         this.#rowSchema = createCandleRowSchema(scales);

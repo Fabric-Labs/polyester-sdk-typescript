@@ -82,7 +82,7 @@ describe("SocialVerificationService", () => {
                     }),
                 },
             ]);
-            const service = new SocialVerificationService(transport.transport);
+            const service = new SocialVerificationService({ authApi: transport.transport });
 
             await expect(
                 service.start(input, { signal, stepUpToken: " fresh-token " }),
@@ -112,7 +112,7 @@ describe("SocialVerificationService", () => {
             },
             {},
         ]);
-        const service = new SocialVerificationService(transport.transport);
+        const service = new SocialVerificationService({ authApi: transport.transport });
 
         await expect(
             service.markReady({ provider: "twitter" }, { stepUpToken: " ready-token " }),
@@ -157,7 +157,7 @@ describe("SocialVerificationService", () => {
                     verification: verification({ [field]: value }),
                 },
             ]);
-            const service = new SocialVerificationService(transport.transport);
+            const service = new SocialVerificationService({ authApi: transport.transport });
 
             await expect(service.get({ provider: "twitter" })).rejects.toThrow(message);
         }

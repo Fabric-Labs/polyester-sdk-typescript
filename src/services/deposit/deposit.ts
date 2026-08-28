@@ -1,5 +1,6 @@
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as Proto from "../../gen/chain/deposit/v1/deposit_pb.js";
+import type { AuthApiTransports } from "../../shared/transports.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import {
@@ -25,8 +26,8 @@ export class DepositService {
     #client: Client<typeof Proto.DepositAddressService>;
     #resolver?: SubaccountResolver;
 
-    constructor(transport: Transport, resolver?: SubaccountResolver) {
-        this.#client = createClient(Proto.DepositAddressService, transport);
+    constructor(transports: AuthApiTransports, resolver?: SubaccountResolver) {
+        this.#client = createClient(Proto.DepositAddressService, transports.authApi);
         this.#resolver = resolver;
     }
 

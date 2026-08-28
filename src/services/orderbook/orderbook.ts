@@ -1,6 +1,6 @@
 import { create } from "@bufbuild/protobuf";
 import * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
 import {
@@ -24,6 +24,7 @@ import { orderbookWsChannelDepth } from "./orderbook.codecs.js";
 import { isResourceNotFoundError } from "../../utils/errors.js";
 import type * as v from "valibot";
 import { parse } from "../../shared/validation.js";
+import type { PublicApiTransports } from "../../shared/transports.js";
 
 interface SubscribeOrderbookInput extends BaseSubscribeInput<OrderbookData> {
     symbolId: number;
@@ -53,8 +54,8 @@ export class OrderbookService {
     #realtime: PolyesterRealtime;
     #scales: SdkScales;
 
-    constructor(transport: Transport, realtime: PolyesterRealtime, scales: SdkScales) {
-        this.#client = createClient(Proto.OrderbookService, transport);
+    constructor(transports: PublicApiTransports, realtime: PolyesterRealtime, scales: SdkScales) {
+        this.#client = createClient(Proto.OrderbookService, transports.publicApi);
         this.#realtime = realtime;
         this.#scales = scales;
     }

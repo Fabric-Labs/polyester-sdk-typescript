@@ -57,7 +57,7 @@ function authFixture(accountSigner?: AccountSigner, tokenStorage?: AuthTokenStor
         subscribeEndpoint: `${POLYESTER_TESTNET_ENVIRONMENT.apiUrl}/v1/rt/subscribe`,
         hasAuth: () => false,
     });
-    const subaccounts = new SubaccountsService(authApi, realtime);
+    const subaccounts = new SubaccountsService({ publicApi, authApi }, realtime);
 
     const auth = new AccountSignerAuthService({
         transports: { publicApi, authApi },

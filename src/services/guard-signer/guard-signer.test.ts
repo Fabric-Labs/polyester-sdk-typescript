@@ -32,7 +32,7 @@ describe("GuardSignerService", () => {
         ];
         const transport = unaryTransport((_call, index) => responses[index] ?? {});
         const service = new GuardSignerService(
-            transport.transport,
+            { authApi: transport.transport },
             subaccountResolverStub(formatId(42n)),
         );
         const cases = [
@@ -79,7 +79,7 @@ describe("GuardSignerService", () => {
         ];
         const transport = unaryTransport((_call, index) => responses[index] ?? {});
         const service = new GuardSignerService(
-            transport.transport,
+            { authApi: transport.transport },
             subaccountResolverStub(formatId(42n)),
         );
         const signal = new AbortController().signal;
@@ -97,16 +97,16 @@ describe("GuardSignerService", () => {
         expect(transport.calls[0]?.signal).toBe(signal);
         expect(transport.calls[1]?.message).toEqual({});
 
-        const notFound = new GuardSignerService(
-            rejectingUnaryTransport(new ConnectError("missing", Code.NotFound)),
-        );
+        const notFound = new GuardSignerService({
+            authApi: rejectingUnaryTransport(new ConnectError("missing", Code.NotFound)),
+        });
         await expect(notFound.getStatus()).resolves.toBeNull();
 
-        const misclassifiedWalletNotFound = new GuardSignerService(
-            rejectingUnaryTransport(
+        const misclassifiedWalletNotFound = new GuardSignerService({
+            authApi: rejectingUnaryTransport(
                 new ConnectError("guard signer wallet not found", Code.Unknown),
             ),
-        );
+        });
         await expect(misclassifiedWalletNotFound.getStatus()).resolves.toBeNull();
     });
 
@@ -114,7 +114,7 @@ describe("GuardSignerService", () => {
         const responses = [{ approval: approval() }, { approvals: [approval([1]), approval([2])] }];
         const transport = unaryTransport((_call, index) => responses[index] ?? {});
         const service = new GuardSignerService(
-            transport.transport,
+            { authApi: transport.transport },
             subaccountResolverStub(formatId(42n)),
         );
 
@@ -195,7 +195,7 @@ describe("GuardSignerService", () => {
     it("returns null for missing single approvals and throws on mismatched batch approvals", async () => {
         const responses = [{}, { approvals: [approval()] }];
         const transport = unaryTransport((_call, index) => responses[index] ?? {});
-        const service = new GuardSignerService(transport.transport);
+        const service = new GuardSignerService({ authApi: transport.transport });
 
         await expect(
             service.signProtectedAction({ action: "fundingSetExternalWhitelistRequired" }),

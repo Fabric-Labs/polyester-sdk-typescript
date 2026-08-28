@@ -1,7 +1,7 @@
 import { create } from "@bufbuild/protobuf";
 import * as Proto from "../../gen/chain/zipper/v1/zipper_pb.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import {
     DepositWithdrawConfigSchema,
     createZippedAssetSupplyBatchSchema,
@@ -17,6 +17,7 @@ import type { BaseSubscribeInput } from "../../shared/types.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import { ConfigurationError } from "../../shared/errors.js";
 import { snapshotThenStream } from "../../realtime/snapshot-then-stream.js";
+import type { PublicApiTransports } from "../../shared/transports.js";
 
 export interface SubscribeZippedAssetSupplyInput extends BaseSubscribeInput<ZippedAssetSupplyBatch> {}
 
@@ -28,8 +29,8 @@ export class ZipperService {
     #realtime: PolyesterRealtime | undefined;
     #scales: SdkScales | undefined;
 
-    constructor(transport: Transport, realtime?: PolyesterRealtime, scales?: SdkScales) {
-        this.#client = createClient(Proto.ZipperService, transport);
+    constructor(transports: PublicApiTransports, realtime?: PolyesterRealtime, scales?: SdkScales) {
+        this.#client = createClient(Proto.ZipperService, transports.publicApi);
         this.#realtime = realtime;
         this.#scales = scales;
     }

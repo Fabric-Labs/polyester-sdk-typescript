@@ -1,5 +1,6 @@
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as Proto from "../../gen/auth/v1/api_keys_pb.js";
+import type { AuthApiTransports } from "../../shared/transports.js";
 import type * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
@@ -38,9 +39,13 @@ export class ApiKeysService {
     #realtime: PolyesterRealtime;
     #resolver?: SubaccountResolver;
 
-    constructor(transport: Transport, realtime: PolyesterRealtime, resolver?: SubaccountResolver) {
-        this.policies = new ApiKeyPoliciesService(transport);
-        this.#client = createClient(Proto.ApiKeyService, transport);
+    constructor(
+        transports: AuthApiTransports,
+        realtime: PolyesterRealtime,
+        resolver?: SubaccountResolver,
+    ) {
+        this.policies = new ApiKeyPoliciesService(transports);
+        this.#client = createClient(Proto.ApiKeyService, transports.authApi);
         this.#realtime = realtime;
         this.#resolver = resolver;
     }

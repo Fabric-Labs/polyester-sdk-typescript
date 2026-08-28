@@ -49,7 +49,7 @@ describe("TransfersService", () => {
             nextPageToken: "42",
         });
         const service = new TransfersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             resolver,
         );
@@ -117,7 +117,7 @@ describe("TransfersService", () => {
             nextPageToken: "",
         });
         const service = new TransfersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
         );
@@ -137,7 +137,7 @@ describe("TransfersService", () => {
             nextPageToken: "",
         });
         const service = new TransfersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
         );
@@ -154,7 +154,7 @@ describe("TransfersService", () => {
             nextPageToken: "",
         });
         const service = new TransfersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
         );
@@ -170,7 +170,7 @@ describe("TransfersService", () => {
             nextPageToken: "",
         });
         const service = new TransfersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
         );
@@ -186,7 +186,7 @@ describe("TransfersService", () => {
             nextPageToken: "",
         });
         const service = new TransfersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
         );
@@ -207,7 +207,7 @@ describe("TransfersService", () => {
             nextPageToken: "",
         });
         const service = new TransfersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
         );
@@ -240,7 +240,7 @@ describe("TransfersService", () => {
             nextPageToken: "",
         });
         const service = new TransfersService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
         );
@@ -251,7 +251,7 @@ describe("TransfersService", () => {
     it("uses private transfer channels and delivers publications without catalog readiness", () => {
         const realtime = realtimeClientStub();
         const service = new TransfersService(
-            unaryTransport({}).transport,
+            { authApi: unaryTransport({}).transport },
             realtime.realtime,
             undefined,
         );
@@ -319,7 +319,7 @@ describe("TransfersService", () => {
         const onEvent = vi.fn();
         const onError = vi.fn();
         const service = new TransfersService(
-            unaryTransport({}).transport,
+            { authApi: unaryTransport({}).transport },
             realtime.realtime,
             undefined,
         );

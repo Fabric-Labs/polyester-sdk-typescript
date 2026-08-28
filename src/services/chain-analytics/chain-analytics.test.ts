@@ -44,7 +44,7 @@ describe("ChainAnalyticsService", () => {
                 totalBalanceQ: [3_000_000n],
             },
         });
-        const service = new ChainAnalyticsService(transport.transport, testScales);
+        const service = new ChainAnalyticsService({ publicApi: transport.transport }, testScales);
         const signal = new AbortController().signal;
 
         await expect(

@@ -46,7 +46,7 @@ describe("TradingWithdrawsService", () => {
             },
         });
         const service = new TradingWithdrawsService(
-            transport.transport,
+            { authApi: transport.transport },
             undefined,
             signingConfig,
             testScales(),
@@ -86,7 +86,7 @@ describe("TradingWithdrawsService", () => {
             },
         });
         const service = new TradingWithdrawsService(
-            transport.transport,
+            { authApi: transport.transport },
             undefined,
             signingConfig,
             testScales(),
@@ -107,7 +107,7 @@ describe("TradingWithdrawsService", () => {
             createTradingWithdraw: { intentId: "intent-1" },
         });
         const service = new TradingWithdrawsService(
-            transport.transport,
+            { authApi: transport.transport },
             undefined,
             signingConfig,
             testScales(),
@@ -159,7 +159,7 @@ describe("TradingWithdrawsService", () => {
             createWalletTradingWithdraw: { intentId: "intent-1" },
         });
         const service = new TradingWithdrawsService(
-            transport.transport,
+            { authApi: transport.transport },
             undefined,
             signingConfig,
             testScales(),
@@ -217,7 +217,7 @@ describe("TradingWithdrawsService", () => {
             },
         });
         const service = new TradingWithdrawsService(
-            transport.transport,
+            { authApi: transport.transport },
             undefined,
             signingConfig,
             testScales(),
@@ -248,7 +248,7 @@ describe("TradingWithdrawsService", () => {
             createWalletTradingWithdraw: { intentId: "intent-1" },
         });
         const service = new TradingWithdrawsService(
-            transport.transport,
+            { authApi: transport.transport },
             undefined,
             signingConfig,
             testScales(),
@@ -301,7 +301,7 @@ describe("TradingWithdrawsService", () => {
             createWalletTradingWithdraw: { intentId: "intent-external-1" },
         });
         const service = new TradingWithdrawsService(
-            transport.transport,
+            { authApi: transport.transport },
             undefined,
             signingConfig,
             testScales(),
@@ -395,7 +395,7 @@ describe("TradingWithdrawsService", () => {
             return { intentId: "intent-1" };
         });
         const service = new TradingWithdrawsService(
-            transport.transport,
+            { authApi: transport.transport },
             undefined,
             signingConfig,
             testScales(),
@@ -420,7 +420,7 @@ describe("TradingWithdrawsService", () => {
     it("rejects quantities that are invalid, non-positive, or too precise before transport", async () => {
         const transport = unaryTransportByMethod({});
         const service = new TradingWithdrawsService(
-            transport.transport,
+            { authApi: transport.transport },
             undefined,
             signingConfig,
             testScales(),
@@ -446,7 +446,7 @@ describe("TradingWithdrawsService", () => {
     it("rejects requests without either a wallet signer or payload signature before transport", async () => {
         const transport = unaryTransportByMethod({});
         const service = new TradingWithdrawsService(
-            transport.transport,
+            { authApi: transport.transport },
             undefined,
             signingConfig,
             testScales(),
@@ -467,7 +467,7 @@ describe("TradingWithdrawsService", () => {
             createTradingWithdraw: { intentId: "" },
         });
         const service = new TradingWithdrawsService(
-            transport.transport,
+            { authApi: transport.transport },
             undefined,
             signingConfig,
             testScales(),

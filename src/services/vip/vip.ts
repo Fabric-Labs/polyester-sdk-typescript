@@ -4,7 +4,7 @@ import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import type { Transports } from "../../shared/transports.js";
+import type { AuthAndPublicApiTransports } from "../../shared/transports.js";
 import { parse } from "../../shared/validation.js";
 import {
     VipStatusSchema,
@@ -20,7 +20,7 @@ export class VipService {
     #publicClient: Client<typeof Proto.VIPService>;
     #authClient: Client<typeof Proto.VIPService>;
 
-    constructor(transports: Transports) {
+    constructor(transports: AuthAndPublicApiTransports) {
         this.#publicClient = createClient(Proto.VIPService, transports.publicApi);
         this.#authClient = createClient(Proto.VIPService, transports.authApi);
     }

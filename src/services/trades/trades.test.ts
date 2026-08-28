@@ -79,7 +79,7 @@ describe("TradesService", () => {
         const controller = new AbortController();
         const transport = unaryTransport({ trades: [userTrade], nextPageToken: "next-page" });
         const service = new TradesService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             subaccountResolverStub(formatId(12n)),
             testScales(),
@@ -137,7 +137,7 @@ describe("TradesService", () => {
             nextPageToken: "",
         });
         const service = new TradesService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -154,7 +154,7 @@ describe("TradesService", () => {
     it("omits undefined list fields and lets explicit main scope force root scope", async () => {
         const transport = unaryTransport({ trades: [], nextPageToken: "" });
         const service = new TradesService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             subaccountResolverStub(formatId(12n)),
             testScales(),
@@ -176,7 +176,7 @@ describe("TradesService", () => {
             nextPageToken: "",
         });
         const service = new TradesService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -191,7 +191,7 @@ describe("TradesService", () => {
             nextPageToken: "",
         });
         const service = new TradesService(
-            transport.transport,
+            { authApi: transport.transport },
             realtimeClientStub().realtime,
             undefined,
             testScales(),
@@ -207,7 +207,7 @@ describe("TradesService", () => {
         const onClose = vi.fn();
         const onError = vi.fn();
         const service = new TradesService(
-            unaryTransport({}).transport,
+            { authApi: unaryTransport({}).transport },
             realtime.realtime,
             undefined,
             testScales(),
@@ -255,7 +255,7 @@ describe("TradesService", () => {
 
     it("throws when a private subscription has neither authentication nor an error observer", () => {
         const service = new TradesService(
-            unaryTransport({}).transport,
+            { authApi: unaryTransport({}).transport },
             new RealtimeClient({
                 wsUrl: "wss://stream.example.test",
                 tokenEndpoint: "https://api.example.test/v1/rt/token",
@@ -277,7 +277,7 @@ describe("TradesService", () => {
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const service = new TradesService(
-            unaryTransport({}).transport,
+            { authApi: unaryTransport({}).transport },
             realtime.realtime,
             undefined,
             testScales(),
@@ -305,7 +305,7 @@ describe("TradesService", () => {
         const onEvent = vi.fn();
         const onError = vi.fn();
         const service = new TradesService(
-            unaryTransport({}).transport,
+            { authApi: unaryTransport({}).transport },
             realtime.realtime,
             undefined,
             testScales(),

@@ -76,7 +76,7 @@ describe("CandlesService", () => {
             candles: [candlePoint],
         });
         const service = new CandlesService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtimeClientStub().realtime,
             testScales(),
         );
@@ -124,7 +124,7 @@ describe("CandlesService", () => {
             timeframe: Proto.Timeframe.MIN_1,
         });
         const service = new CandlesService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtimeClientStub().realtime,
             testScales(),
         );
@@ -139,7 +139,7 @@ describe("CandlesService", () => {
             candles: [candlePoint],
         });
         const service = new CandlesService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtimeClientStub().realtime,
             testScales(),
         );
@@ -167,7 +167,7 @@ describe("CandlesService", () => {
             referenceVolume: [200_000_000n],
         });
         const service = new CandlesService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtimeClientStub().realtime,
             testScales(),
         );
@@ -216,7 +216,7 @@ describe("CandlesService", () => {
             volume: [5n],
         });
         const service = new CandlesService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtimeClientStub().realtime,
             testScales(),
         );
@@ -244,7 +244,7 @@ describe("CandlesService", () => {
             candles: [candlePoint],
         });
         const service = new CandlesService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtimeClientStub().realtime,
             testScales(),
         );
@@ -261,7 +261,7 @@ describe("CandlesService", () => {
         const onClose = vi.fn();
         const onError = vi.fn();
         const service = new CandlesService(
-            unaryTransport({}).transport,
+            { publicApi: unaryTransport({}).transport },
             realtime.realtime,
             testScales(),
         );
@@ -305,7 +305,7 @@ describe("CandlesService", () => {
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const service = new CandlesService(
-            unaryTransport({}).transport,
+            { publicApi: unaryTransport({}).transport },
             realtime.realtime,
             testScales(),
         );
@@ -332,7 +332,7 @@ describe("CandlesService", () => {
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const service = new CandlesService(
-            unaryTransport({}).transport,
+            { publicApi: unaryTransport({}).transport },
             realtime.realtime,
             testScales(),
         );
@@ -354,7 +354,7 @@ describe("CandlesService", () => {
     it("validates subscription params before connecting realtime", () => {
         const realtime = realtimeClientStub();
         const service = new CandlesService(
-            unaryTransport({}).transport,
+            { publicApi: unaryTransport({}).transport },
             realtime.realtime,
             testScales(),
         );
@@ -379,7 +379,7 @@ describe("CandlesService", () => {
         const onEvent = vi.fn();
         const onError = vi.fn();
         const service = new CandlesService(
-            unaryTransport({}).transport,
+            { publicApi: unaryTransport({}).transport },
             realtime.realtime,
             testScales(),
         );

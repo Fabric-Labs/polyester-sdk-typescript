@@ -1,5 +1,5 @@
 import * as Proto from "../../gen/orders/v1/orders_read_pb.js";
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
@@ -12,6 +12,7 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
+import type { AuthApiTransports } from "../../shared/transports.js";
 import { GetUserTradesInputSchema, createUserTradeSchema, type Trade } from "./trades.schemas.js";
 
 interface SubscribeTradesInput extends BaseSubscribeInput<Trade> {
@@ -29,12 +30,12 @@ export class TradesService {
     #userTradeSchema: ReturnType<typeof createUserTradeSchema>;
 
     constructor(
-        transport: Transport,
+        transports: AuthApiTransports,
         realtime: PolyesterRealtime,
         resolver: SubaccountResolver | undefined,
         scales: SdkScales,
     ) {
-        this.#client = createClient(Proto.OrdersReadService, transport);
+        this.#client = createClient(Proto.OrdersReadService, transports.authApi);
         this.#realtime = realtime;
         this.#resolver = resolver;
         this.#scales = scales;

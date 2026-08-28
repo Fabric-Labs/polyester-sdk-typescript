@@ -1,5 +1,6 @@
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as Proto from "../../../gen/auth/v1/profile_pb.js";
+import type { AuthApiTransports } from "../../../shared/transports.js";
 import * as v from "valibot";
 import { parse } from "../../../shared/validation.js";
 import { removeUndefined } from "../../../utils/remove-undefined.js";
@@ -29,8 +30,8 @@ export class ProfileService {
     #client: Client<typeof Proto.ProfileService>;
     #realtime: PolyesterRealtime;
 
-    constructor(transport: Transport, realtime: PolyesterRealtime) {
-        this.#client = createClient(Proto.ProfileService, transport);
+    constructor(transports: AuthApiTransports, realtime: PolyesterRealtime) {
+        this.#client = createClient(Proto.ProfileService, transports.authApi);
         this.#realtime = realtime;
     }
 

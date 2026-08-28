@@ -1,4 +1,4 @@
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import { create } from "@bufbuild/protobuf";
 import {
     FlowDetailViewSchema,
@@ -7,6 +7,7 @@ import {
     LifecycleReadService,
 } from "../../gen/chain/lifecycle/v1/lifecycle_read_pb.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
+import type { PublicApiTransports } from "../../shared/transports.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
     toConnectCallOptions,
@@ -49,8 +50,8 @@ export class LifecycleService {
     #client: Client<typeof LifecycleReadService>;
     #realtime: PolyesterRealtime;
 
-    constructor(transport: Transport, realtime: PolyesterRealtime) {
-        this.#client = createClient(LifecycleReadService, transport);
+    constructor(transports: PublicApiTransports, realtime: PolyesterRealtime) {
+        this.#client = createClient(LifecycleReadService, transports.publicApi);
         this.#realtime = realtime;
     }
 

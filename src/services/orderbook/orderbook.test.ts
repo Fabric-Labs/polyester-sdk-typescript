@@ -73,7 +73,7 @@ describe("OrderbookService", () => {
             asks: [{ priceTicks: 100_250_000n, qtyScaled: 50_000_000n }],
         });
         const service = new OrderbookService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtimeClientStub().realtime,
             testScales(),
         );
@@ -117,7 +117,7 @@ describe("OrderbookService", () => {
             asks: [],
         });
         const service = new OrderbookService(
-            transport.transport,
+            { publicApi: transport.transport },
             realtimeClientStub().realtime,
             testScales(),
         );
@@ -128,7 +128,7 @@ describe("OrderbookService", () => {
     it("reports snapshot failures without emitting an empty ready book", async () => {
         const realtime = realtimeClientStub();
         const service = new OrderbookService(
-            rejectingUnaryTransport(new Error("snapshot unavailable")),
+            { publicApi: rejectingUnaryTransport(new Error("snapshot unavailable")) },
             realtime.realtime,
             testScales(),
         );
@@ -183,7 +183,11 @@ describe("OrderbookService", () => {
             bids: [],
             asks: [],
         });
-        const service = new OrderbookService(transport.transport, realtime.realtime, scales);
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            scales,
+        );
         const onEvent = vi.fn();
 
         const subscription = service.createSubscription({ symbolId: 101, onEvent });
@@ -214,7 +218,11 @@ describe("OrderbookService", () => {
     it("treats a missing orderbook snapshot as an empty ready book", async () => {
         const realtime = realtimeClientStub();
         const service = new OrderbookService(
-            rejectingUnaryTransport(new ResourceNotFoundError("orderbook not found")),
+            {
+                publicApi: rejectingUnaryTransport(
+                    new ResourceNotFoundError("orderbook not found"),
+                ),
+            },
             realtime.realtime,
             testScales(),
         );
@@ -250,7 +258,11 @@ describe("OrderbookService", () => {
             bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
             asks: [{ priceTicks: 101_000_000n, qtyScaled: 50_000_000n }],
         });
-        const service = new OrderbookService(transport.transport, realtime.realtime, testScales());
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();
@@ -344,7 +356,11 @@ describe("OrderbookService", () => {
             bids: [{ priceTicks: 100_040_000n, qtyScaled: 100_000_000n }],
             asks: [{ priceTicks: 100_060_000n, qtyScaled: 50_000_000n }],
         });
-        const service = new OrderbookService(transport.transport, realtime.realtime, testScales());
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
         const onEvent = vi.fn();
 
         const subscription = service.createSubscription({
@@ -367,7 +383,11 @@ describe("OrderbookService", () => {
     it("stops buffered replay after one sequence gap and fetches one replacement snapshot", async () => {
         const realtime = realtimeClientStub();
         const transport = unaryTransport({ symbolId: 101, bookSeq: 10n, bids: [], asks: [] });
-        const service = new OrderbookService(transport.transport, realtime.realtime, testScales());
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
 
         const subscription = service.createSubscription({
             symbolId: 101,
@@ -396,7 +416,11 @@ describe("OrderbookService", () => {
             if (index === 0) throw new Error("snapshot unavailable");
             return { symbolId: 101, bookSeq: 10n, bids: [], asks: [] };
         });
-        const service = new OrderbookService(transport.transport, realtime.realtime, testScales());
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
         const onEvent = vi.fn();
         const onError = vi.fn();
 
@@ -440,7 +464,11 @@ describe("OrderbookService", () => {
             bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
             asks: [],
         });
-        const service = new OrderbookService(transport.transport, realtime.realtime, testScales());
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
         const onEvent = vi.fn();
 
         const subscription = service.createSubscription({ symbolId: 101, onEvent });
@@ -481,7 +509,11 @@ describe("OrderbookService", () => {
             bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
             asks: [],
         });
-        const service = new OrderbookService(transport.transport, realtime.realtime, testScales());
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
         const onEvent = vi.fn();
         const onError = vi.fn();
 
@@ -507,7 +539,11 @@ describe("OrderbookService", () => {
     it("routes an unpublished depth to the smallest published channel depth", async () => {
         const realtime = realtimeClientStub();
         const transport = unaryTransport({ symbolId: 101, bookSeq: 5n, bids: [], asks: [] });
-        const service = new OrderbookService(transport.transport, realtime.realtime, testScales());
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
 
         const subscription = service.createSubscription({
             symbolId: 101,
@@ -532,7 +568,11 @@ describe("OrderbookService", () => {
             qtyScaled: 1_000_000n,
         }));
         const transport = unaryTransport({ symbolId: 101, bookSeq: 7n, bids, asks: [] });
-        const service = new OrderbookService(transport.transport, realtime.realtime, testScales());
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
         const onEvent = vi.fn();
 
         const subscription = service.createSubscription({
@@ -552,7 +592,7 @@ describe("OrderbookService", () => {
     it("uses the caller-provided symbol id for realtime routing", () => {
         const realtime = realtimeClientStub();
         const service = new OrderbookService(
-            unaryTransport({}).transport,
+            { publicApi: unaryTransport({}).transport },
             realtime.realtime,
             testScales(),
         );

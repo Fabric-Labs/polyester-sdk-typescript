@@ -1,4 +1,4 @@
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as Proto from "../../gen/auth/v1/auth_pb.js";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
@@ -16,6 +16,7 @@ import {
 } from "../../shared/request-options.js";
 import { MfaSessionInfoSchema } from "../mfa/mfa.schemas.js";
 import type { PolyesterRealtime } from "../../realtime/index.js";
+import type { AuthAndPublicApiTransports } from "../../shared/transports.js";
 
 export const LoginWithWalletInputSchema = v.strictObject({
     smartAccountAddress: v.string(),
@@ -28,11 +29,6 @@ export const LoginWithWalletInputSchema = v.strictObject({
 });
 
 export type LoginWithWalletInput = v.InferInput<typeof LoginWithWalletInputSchema>;
-
-export interface AuthServiceTransports {
-    publicApi: Transport;
-    authApi: Transport;
-}
 
 const MeSchema = v.object({
     accountId: PublicIdSchema,
@@ -67,10 +63,10 @@ export class AuthService {
     #authClient: Client<typeof Proto.AuthService>;
     profile: ProfileService;
 
-    constructor(transports: AuthServiceTransports, realtime: PolyesterRealtime) {
+    constructor(transports: AuthAndPublicApiTransports, realtime: PolyesterRealtime) {
         this.#publicClient = createClient(Proto.AuthService, transports.publicApi);
         this.#authClient = createClient(Proto.AuthService, transports.authApi);
-        this.profile = new ProfileService(transports.authApi, realtime);
+        this.profile = new ProfileService(transports, realtime);
     }
 
     /**

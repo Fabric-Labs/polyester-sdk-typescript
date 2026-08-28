@@ -1,5 +1,6 @@
-import { createClient, type Client, type Transport } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import * as Proto from "../../gen/chain/guard/v1/guard_signer_pb.js";
+import type { AuthApiTransports } from "../../shared/transports.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import {
     toConnectCallOptions,
@@ -46,8 +47,8 @@ export class GuardSignerService {
     #client: Client<typeof Proto.GuardSignerService>;
     #resolver?: SubaccountResolver;
 
-    constructor(transport: Transport, resolver?: SubaccountResolver) {
-        this.#client = createClient(Proto.GuardSignerService, transport);
+    constructor(transports: AuthApiTransports, resolver?: SubaccountResolver) {
+        this.#client = createClient(Proto.GuardSignerService, transports.authApi);
         this.#resolver = resolver;
     }
 
