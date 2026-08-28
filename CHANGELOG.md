@@ -1,5 +1,17 @@
 # @polyester/sdk
 
+## 0.11.0
+
+### Minor Changes
+
+- feat(rate-limits): rename the trading rate-limit rule field from `tier` to `vipTier` so quota catalog rows match the VIP policy field name. ([#85](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/85))
+
+### Patch Changes
+
+- feat(subaccounts): add `listRoles` and `getEffectivePermissions` methods exposing the built-in role/permission catalog and the caller's effective role-granted permissions for a subaccount. ([#83](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/83))
+
+- feat(trades): add an `afterMatchId` replay-cursor filter to the user trades list method for gap-free backfill alongside the execution WebSocket. ([#83](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/83))
+
 ## 0.10.0
 
 ### Minor Changes
