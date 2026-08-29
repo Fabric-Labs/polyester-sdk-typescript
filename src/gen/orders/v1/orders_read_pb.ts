@@ -402,8 +402,8 @@ export type Order = Message<"orders.v1.Order"> & {
   postOnly: boolean;
 
   /**
-   * Original order quantity scaled by the pair's base_quantity_scale from
-   * GetSpotConfig for symbol_id.
+   * Current accepted total order quantity, updated by successful modifies,
+   * scaled by the pair's base_quantity_scale from GetSpotConfig for symbol_id.
    *
    * @generated from field: int64 orig_qty_scaled = 12;
    */

@@ -144,7 +144,7 @@ export function createOrderSchema(scales: SdkScales) {
                     "fee asset",
                 ),
                 postOnly: o.postOnly,
-                origQty: scaledToDecimalOutput(o.origQtyScaled, baseQtyScale),
+                totalQty: scaledToDecimalOutput(o.origQtyScaled, baseQtyScale),
                 cumQty: scaledToDecimalOutput(o.cumQtyScaled, baseQtyScale),
                 leavesQty: scaledToDecimalOutput(o.leavesQtyScaled, baseQtyScale),
                 avgPx: scaledToDecimalOutput(o.avgPriceTicks, scales.price()),

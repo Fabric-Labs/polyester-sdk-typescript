@@ -1398,22 +1398,28 @@ describe("OrderSchema", () => {
         };
     }
 
-    it("converts scaled wire quantities and prices to decimal strings", () => {
+    it("exposes the current accepted total quantity after modifies", () => {
         const schema = createOrderSchema(testScales());
 
         const order = v.parse(
             schema,
-            rawOrder({ cumQtyScaled: 50_000_000n, avgPriceTicks: 100_250_000n }),
+            rawOrder({
+                origQtyScaled: 125_000_000n,
+                cumQtyScaled: 50_000_000n,
+                leavesQtyScaled: 75_000_000n,
+                avgPriceTicks: 100_250_000n,
+            }),
         );
 
         expect(order).toMatchObject({
-            origQty: "1",
+            totalQty: "1.25",
             cumQty: "0.5",
-            leavesQty: "1",
+            leavesQty: "0.75",
             avgPx: "100.25",
             price: "100",
             version: 3,
         });
+        expect(order).not.toHaveProperty("origQty");
         expect(order.marketClientRefPrice).toBeUndefined();
     });
 
