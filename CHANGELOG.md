@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.14.0
+
+### Minor Changes
+
+- feat(orders): rename `Order.origQty` to `Order.totalQty` to represent the current accepted total after successful modifies. ([#91](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/91))
+
 ## 0.13.0
 
 ### Minor Changes
