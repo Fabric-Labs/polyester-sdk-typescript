@@ -914,7 +914,7 @@ describe("OrdersService", () => {
                 clientOrderId: "client-1",
                 symbolId: 1,
                 status: "filled",
-                origQty: "1",
+                totalQty: "1",
                 price: "100",
             },
             trades: [
@@ -982,7 +982,7 @@ describe("OrdersService", () => {
                 clientOrderId: "client-1",
                 symbolId: 1,
                 status: "filled",
-                origQty: "1",
+                totalQty: "1",
                 price: "100",
             }),
         );
