@@ -1221,7 +1221,9 @@ export type BatchCreateOrdersRequest = Message<"orders.v1.BatchCreateOrdersReque
   subaccountId?: bigint | undefined;
 
   /**
-   * Top-level idempotency key for the batch request.
+   * Required idempotency key for the entire ordered batch. Reusing it with the
+   * same payload returns the original outcome; reusing it with another payload
+   * is rejected.
    *
    * @generated from field: string request_id = 2;
    */
@@ -1229,7 +1231,8 @@ export type BatchCreateOrdersRequest = Message<"orders.v1.BatchCreateOrdersReque
 
   /**
    * Orders to create (max 20). Every item uses the same OrderIntent contract as
-   * single create.
+   * single create, but client_order_id remains optional because request_id is
+   * the idempotency boundary for the ordered batch.
    *
    * @generated from field: repeated orders.v1.OrderIntent items = 3;
    */
