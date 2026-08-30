@@ -1,5 +1,13 @@
 # @polyester/sdk
 
+## 0.14.1
+
+### Patch Changes
+
+- docs(orders): clarify batch-create idempotency and optional per-item client order IDs. ([#93](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/93))
+
+- feat(triggers): add explicit activation-price and max-slippage clearing to trigger modifications. ([#93](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/93))
+
 ## 0.14.0
 
 ### Minor Changes
