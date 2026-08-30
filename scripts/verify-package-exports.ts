@@ -117,6 +117,12 @@ try {
 declare const client: PolyesterClient;
 declare const modifyOrderInput: ModifyOrderInput;
 declare const modifyTriggerInput: ModifyTriggerInput;
+const clearTriggerInput: ModifyTriggerInput = {
+    triggerId: "P",
+    symbolId: 1,
+    activationPrice: { kind: "none" },
+    maxSlippage: { kind: "none" },
+};
 declare const pauseTriggerInput: PauseTriggerInput;
 declare const pauseTriggerResult: PauseTriggerResult;
 declare const resumeTriggerInput: ResumeTriggerInput;
@@ -148,6 +154,7 @@ async function verifyServiceInference(): Promise<void> {
 
     expectNotAny(modifyTriggerInput, true);
     await client.triggers.modify(modifyTriggerInput);
+    await client.triggers.modify(clearTriggerInput);
 
     expectNotAny(pauseTriggerInput, true);
     expectNotAny(pauseTriggerResult, true);

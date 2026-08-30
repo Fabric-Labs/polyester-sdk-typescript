@@ -82,7 +82,10 @@ const MaxSlippageInputSchema = v.union([
 const MaxSlippagePatchInputSchema = v.union([
     PriceSlippageInputSchema,
     BpsStringOrNumberInputSchema,
+    NoneInputSchema,
 ]);
+
+const ActivationPricePatchInputSchema = v.union([DecimalInputStringSchema, NoneInputSchema]);
 
 function parseTrailingDistance(
     scales: SdkScales,
@@ -115,6 +118,16 @@ function parseMaxSlippage(
         bpsCase: "maxSlippageBps",
         maxBps: Number(PROTOBUF_INT32_MAX),
     });
+}
+
+function parseMaxSlippagePatch(
+    scales: SdkScales,
+    slippage: v.InferOutput<typeof MaxSlippagePatchInputSchema>,
+): MaxSlippageOneof {
+    if (slippage.kind === "none") {
+        return { case: "maxSlippageTicks", value: 0 };
+    }
+    return parseMaxSlippage(scales, slippage);
 }
 
 function createConditionalTriggerInputSchema<const TriggerType extends "stop_loss" | "take_profit">(
@@ -407,7 +420,7 @@ export function createModifyTriggerInputSchema(scales: SdkScales) {
             triggerPrice: v.optional(DecimalInputStringSchema),
             limitPrice: v.optional(DecimalInputStringSchema),
             trailingDistance: v.optional(TrailingDistanceInputSchema),
-            activationPrice: v.optional(DecimalInputStringSchema),
+            activationPrice: v.optional(ActivationPricePatchInputSchema),
             maxSlippage: v.optional(MaxSlippagePatchInputSchema),
         }),
         v.check(
@@ -442,19 +455,25 @@ export function createModifyTriggerInputSchema(scales: SdkScales) {
             activationPriceTicks:
                 input.activationPrice === undefined
                     ? undefined
-                    : positiveDecimalInputToScaled(
-                          "activationPrice",
-                          input.activationPrice,
-                          scales.price(),
-                      ),
+                    : typeof input.activationPrice !== "string"
+                      ? 0n
+                      : positiveDecimalInputToScaled(
+                            "activationPrice",
+                            input.activationPrice,
+                            scales.price(),
+                        ),
             maxSlippage:
                 input.maxSlippage === undefined
                     ? ({ case: undefined, value: undefined } as const)
-                    : parseMaxSlippage(scales, input.maxSlippage),
+                    : parseMaxSlippagePatch(scales, input.maxSlippage),
         })),
     );
 }
 
+/**
+ * A trigger patch. Omitted fields remain unchanged; `{ kind: "none" }` clears
+ * `activationPrice` or `maxSlippage`.
+ */
 export type ModifyTriggerInput = v.InferInput<ReturnType<typeof createModifyTriggerInputSchema>>;
 
 export const ListTriggerEventsInputSchema = v.pipe(

@@ -34,6 +34,13 @@ type _ValidModifyTriggerWithSymbolId = AssertModifyTriggerInput<{
     triggerPrice: string;
 }>;
 
+type _ValidModifyTriggerClears = AssertModifyTriggerInput<{
+    triggerId: string;
+    symbolId: number;
+    activationPrice: { kind: "none" };
+    maxSlippage: { kind: "none" };
+}>;
+
 // @ts-expect-error trigger modify requires a symbol ID
 type _InvalidModifyTriggerWithoutSymbolId = AssertModifyTriggerInput<{
     triggerId: string;
@@ -657,16 +664,30 @@ describe("ModifyTriggerInputSchema", () => {
         ).toThrow(`maxSlippageBps must be between 1 and ${PROTOBUF_INT32_MAX}`);
     });
 
-    it("rejects patch variants that encode no wire field", () => {
+    it("distinguishes omitted fields from explicit activation-price and max-slippage clears", () => {
         const schema = createModifyTriggerInputSchema(testScales());
 
-        expect(() =>
+        expect(
             v.parse(schema, {
                 triggerId: formatId(11n),
                 symbolId: 1,
+                triggerPrice: "100",
+            }),
+        ).toMatchObject({
+            activationPriceTicks: undefined,
+            maxSlippage: { case: undefined, value: undefined },
+        });
+        expect(
+            v.parse(schema, {
+                triggerId: formatId(11n),
+                symbolId: 1,
+                activationPrice: { kind: "none" },
                 maxSlippage: { kind: "none" },
             }),
-        ).toThrow();
+        ).toMatchObject({
+            activationPriceTicks: 0n,
+            maxSlippage: { case: "maxSlippageTicks", value: 0 },
+        });
     });
 
     it("requires a positive symbol ID", () => {
