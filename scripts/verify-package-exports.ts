@@ -113,6 +113,7 @@ try {
     type ResumeTriggerInput,
     type ResumeTriggerResult,
 } from "@polyester/sdk";
+import { feesPb, tradingRateLimitPb, vipPb } from "@polyester/sdk/unstable/gen";
 
 declare const client: PolyesterClient;
 declare const modifyOrderInput: ModifyOrderInput;
@@ -133,6 +134,10 @@ type IsAny<T> = 0 extends 1 & T ? true : false;
 function expectNotAny<T>(_value: T, _proof: IsAny<T> extends true ? never : true): void {}
 
 async function verifyServiceInference(): Promise<void> {
+    expectNotAny(feesPb, true);
+    expectNotAny(tradingRateLimitPb, true);
+    expectNotAny(vipPb, true);
+
     const balances = await client.balances.list();
     expectType<LedgerBalance[]>(balances);
     expectNotAny(balances[0], true);

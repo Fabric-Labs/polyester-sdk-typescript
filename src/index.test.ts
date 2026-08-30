@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import * as generatedSdk from "./gen/index.js";
 import * as sdk from "./index.js";
 import * as smartAccountSdk from "./smart-account/index.js";
 
@@ -51,6 +52,18 @@ describe("public package entrypoint", () => {
                 OrderErrorDetailSchema: expect.anything(),
                 OrderSchema: expect.anything(),
                 TimeframeCodec: expect.anything(),
+            }),
+        );
+    });
+});
+
+describe("generated protobuf package entrypoint", () => {
+    it("retains generated namespaces added by earlier protobuf syncs", () => {
+        expect(generatedSdk).toEqual(
+            expect.objectContaining({
+                feesPb: expect.any(Object),
+                tradingRateLimitPb: expect.any(Object),
+                vipPb: expect.any(Object),
             }),
         );
     });
