@@ -1042,20 +1042,23 @@ export type ModifyTriggerRequest = Message<"triggers.v1.ModifyTriggerRequest"> &
   } | { case: undefined; value?: undefined };
 
   /**
-   * Updated activation price in quote units scaled by 1e6.
+   * Updated activation price in quote units scaled by 1e6. Set to zero to
+   * clear an existing activation price; omit to leave it unchanged.
    *
    * @generated from field: optional int64 activation_price_ticks = 14;
    */
   activationPriceTicks?: bigint | undefined;
 
   /**
-   * Optional price protection.
+   * Optional price protection. Select either field with a zero value to clear
+   * an existing max-slippage cap; omit the oneof to leave it unchanged.
    *
    * @generated from oneof triggers.v1.ModifyTriggerRequest.max_slippage
    */
   maxSlippage: {
     /**
-     * Updated maximum allowed slippage as a price delta in 1e-6 quote-unit ticks.
+     * Updated maximum allowed slippage as a price delta in 1e-6 quote-unit
+     * ticks. Set to zero to clear the cap.
      *
      * @generated from field: int32 max_slippage_ticks = 15;
      */
@@ -1063,7 +1066,8 @@ export type ModifyTriggerRequest = Message<"triggers.v1.ModifyTriggerRequest"> &
     case: "maxSlippageTicks";
   } | {
     /**
-     * Updated maximum allowed slippage in basis points (1 bp = 0.01%).
+     * Updated maximum allowed slippage in basis points (1 bp = 0.01%). Set to
+     * zero to clear the cap.
      *
      * @generated from field: int32 max_slippage_bps = 16;
      */

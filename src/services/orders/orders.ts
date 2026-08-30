@@ -224,7 +224,7 @@ export class OrdersService {
     }
 
     /**
-     * Places 1–20 spot orders in one best-effort request. Results preserve item order and report admission as accepted or rejected; accepted orders still require lifecycle reconciliation. Supply a clientOrderId for each item and a stable requestId when an ambiguous batch may be retried.
+     * Places 1–20 spot orders in one best-effort request. Results preserve item order and report admission as accepted or rejected; accepted orders still require lifecycle reconciliation. requestId is the idempotency boundary for the ordered batch and is generated when omitted; supply and reuse it when an ambiguous batch may be retried. Per-item clientOrderId values are optional correlation identifiers and must be unique when supplied.
      */
     async batchCreate(
         input: BatchCreateOrdersInput,

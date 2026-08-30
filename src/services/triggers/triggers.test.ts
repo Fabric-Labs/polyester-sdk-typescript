@@ -623,7 +623,8 @@ describe("TriggersService", () => {
                 symbolId: 1,
                 account: { subaccountId: formatId(11n) },
                 triggerPrice: "101.25",
-                maxSlippage: { kind: "bps", bps: 25 },
+                activationPrice: { kind: "none" },
+                maxSlippage: { kind: "none" },
             }),
         ).resolves.toMatchObject({ status: "armed", ts: 2, tsNs: "2000234" });
         await expect(
@@ -654,7 +655,8 @@ describe("TriggersService", () => {
             subaccountId: 11n,
             triggerPriceTicks: 101_250_000n,
             trailingDistance: { case: undefined, value: undefined },
-            maxSlippage: { case: "maxSlippageBps", value: 25 },
+            activationPriceTicks: 0n,
+            maxSlippage: { case: "maxSlippageTicks", value: 0 },
         });
         expect(
             transport.calls.find((call) => call.method.localName === "pauseTrigger")?.message,

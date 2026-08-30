@@ -166,7 +166,7 @@ export class TriggersService {
     }
 
     /**
-     * Applies a limited patch to an existing trigger. The symbol ID routes policy checks for exposure-increasing changes.
+     * Applies a limited patch to an existing trigger. Omit activationPrice or maxSlippage to leave it unchanged, or pass `{ kind: "none" }` to clear it. The symbol ID routes policy checks for exposure-increasing changes.
      */
     async modify(
         input: ModifyTriggerInput,
