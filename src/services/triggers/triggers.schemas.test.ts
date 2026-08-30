@@ -416,7 +416,7 @@ describe("CreateTriggerInputSchema", () => {
         });
     });
 
-    it("accepts the int32 maximum slippage BPS and rejects one over", () => {
+    it("accepts the 10000 bps slippage cap and rejects 10001", () => {
         const schema = createCreateTriggerInputSchema(testScales());
         const input = {
             triggerType: "trailing_stop",
@@ -428,7 +428,7 @@ describe("CreateTriggerInputSchema", () => {
         expect(
             v.parse(schema, {
                 ...input,
-                maxSlippage: { kind: "bps", bps: PROTOBUF_INT32_MAX.toString() },
+                maxSlippage: { kind: "bps", bps: 10_000 },
             }),
         ).toMatchObject({
             trigger: {
@@ -437,7 +437,7 @@ describe("CreateTriggerInputSchema", () => {
                     value: {
                         maxSlippage: {
                             case: "maxSlippageBps",
-                            value: Number(PROTOBUF_INT32_MAX),
+                            value: 10_000,
                         },
                     },
                 },
@@ -446,12 +446,9 @@ describe("CreateTriggerInputSchema", () => {
         expect(() =>
             v.parse(schema, {
                 ...input,
-                maxSlippage: {
-                    kind: "bps",
-                    bps: (PROTOBUF_INT32_MAX + 1n).toString(),
-                },
+                maxSlippage: { kind: "bps", bps: 10_001 },
             }),
-        ).toThrow(`maxSlippageBps must be between 1 and ${PROTOBUF_INT32_MAX}`);
+        ).toThrow("maxSlippageBps must be between 1 and 10000");
     });
 
     it("builds explicit TWAP execution and ladder strategies", () => {
@@ -643,25 +640,22 @@ describe("ModifyTriggerInputSchema", () => {
         });
     });
 
-    it("accepts the int32 maximum slippage BPS and rejects one over", () => {
+    it("accepts the 10000 bps slippage cap and rejects 10001", () => {
         const schema = createModifyTriggerInputSchema(testScales());
         const input = { triggerId: formatId(11n), symbolId: 1 };
 
         expect(
             v.parse(schema, {
                 ...input,
-                maxSlippage: { kind: "bps", bps: PROTOBUF_INT32_MAX.toString() },
+                maxSlippage: { kind: "bps", bps: 10_000 },
             }).maxSlippage,
-        ).toEqual({ case: "maxSlippageBps", value: Number(PROTOBUF_INT32_MAX) });
+        ).toEqual({ case: "maxSlippageBps", value: 10_000 });
         expect(() =>
             v.parse(schema, {
                 ...input,
-                maxSlippage: {
-                    kind: "bps",
-                    bps: (PROTOBUF_INT32_MAX + 1n).toString(),
-                },
+                maxSlippage: { kind: "bps", bps: 10_001 },
             }),
-        ).toThrow(`maxSlippageBps must be between 1 and ${PROTOBUF_INT32_MAX}`);
+        ).toThrow("maxSlippageBps must be between 1 and 10000");
     });
 
     it("distinguishes omitted fields from explicit activation-price and max-slippage clears", () => {

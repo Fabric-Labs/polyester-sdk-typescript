@@ -7,7 +7,7 @@ import {
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
 import { positiveDecimalInputToScaled, type SdkScales } from "../../shared/decimal-surface.js";
-import { PROTOBUF_INT32_MAX, PROTOBUF_INT64_MAX } from "../../shared/wire-bounds.js";
+import { PROTOBUF_INT64_MAX } from "../../shared/wire-bounds.js";
 import {
     parseOptionalPositiveBigIntLike,
     parseOptionalPositiveIntLike,
@@ -36,7 +36,11 @@ import {
     type MaxSlippageOneof,
     type TrailingDistanceOneof,
 } from "./trigger-child-order.schemas.js";
-import { parseSlippageInput, parseTrailingDistanceInput } from "../trailing-oneof-inputs.js";
+import {
+    MAX_SLIPPAGE_BPS,
+    parseSlippageInput,
+    parseTrailingDistanceInput,
+} from "../trailing-oneof-inputs.js";
 
 const TriggerTypeSchema = v.picklist(TRIGGER_TYPE_VALUES);
 const TriggerStatusFilterSchema = v.picklist(TRIGGER_STATUS_FILTER_VALUES);
@@ -116,7 +120,7 @@ function parseMaxSlippage(
         fieldName: "maxSlippage",
         ticksCase: "maxSlippageTicks",
         bpsCase: "maxSlippageBps",
-        maxBps: Number(PROTOBUF_INT32_MAX),
+        maxBps: MAX_SLIPPAGE_BPS,
     });
 }
 

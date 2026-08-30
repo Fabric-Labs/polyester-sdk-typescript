@@ -371,6 +371,27 @@ describe("TriggersService", () => {
         expect(transport.calls).toHaveLength(0);
     });
 
+    it("rejects trigger maxSlippage above 10000 bps before transport", async () => {
+        const transport = unaryTransportByMethod({ createTrigger: createResult });
+        const service = new TriggersService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await expect(
+            service.create({
+                triggerType: "trailing_stop",
+                symbolId: 1,
+                qty: "0.25",
+                trailingDistance: { kind: "bps", bps: 150 },
+                maxSlippage: { kind: "bps", bps: 10_001 },
+            }),
+        ).rejects.toBeInstanceOf(ValidationError);
+        expect(transport.calls).toHaveLength(0);
+    });
+
     it("normalizes reads and returns configuration separately from runtime state", async () => {
         const controller = new AbortController();
         const resolver: SubaccountResolver = {
