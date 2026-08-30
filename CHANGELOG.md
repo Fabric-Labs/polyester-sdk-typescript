@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.14.2
+
+### Patch Changes
+
+- Restore the `feesPb`, `tradingRateLimitPb`, and `vipPb` namespaces from the `unstable/gen` entrypoint. ([#95](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/95))
+
 ## 0.14.1
 
 ### Patch Changes

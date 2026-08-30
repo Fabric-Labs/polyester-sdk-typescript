@@ -1,6 +1,6 @@
 {
     "name": "@polyester/sdk",
-    "version": "0.14.1",
+    "version": "0.14.2",
     "private": false,
     "description": "TypeScript SDK providing access to APIs on Polyester Exchange.",
     "homepage": "https://github.com/Fabric-Labs/polyester-sdk-typescript#readme",
