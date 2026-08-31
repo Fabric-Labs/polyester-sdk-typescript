@@ -1,10 +1,6 @@
 import * as v from "valibot";
 import { formatId, idToBigInt } from "../utils/base58-id.js";
-import {
-    parseOptionalUint64DecimalStrict,
-    toBpsOrZero,
-    toIntOrZero,
-} from "../utils/numbers.js";
+import { parseOptionalUint64DecimalStrict, toBpsOrZero, toIntOrZero } from "../utils/numbers.js";
 import { tsNsToMs, tsObjToMs } from "../utils/time.js";
 import type { JsonObject } from "@bufbuild/protobuf";
 import { PROTOBUF_UINT32_MAX } from "./wire-bounds.js";
