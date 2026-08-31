@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.15.1
+
+### Patch Changes
+
+- feat(transfers): expose external chain IDs on transfer source and destination details. ([#99](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/99))
+
 ## 0.15.0
 
 ### Minor Changes
