@@ -1,4 +1,5 @@
 import { createClient, type Client } from "@connectrpc/connect";
+import { SymbolIdInputSchema } from "../shared.js";
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
@@ -40,7 +41,7 @@ interface SubscribeCandlesIntsInput extends BaseSubscribeInput<CandleInt> {
 }
 
 const SubscribeCandlesParamsSchema = v.object({
-    symbolId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+    symbolId: SymbolIdInputSchema,
     timeframe: TimeframeSchema,
 });
 

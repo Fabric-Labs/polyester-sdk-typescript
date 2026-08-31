@@ -14,7 +14,6 @@ import {
 } from "../shared.codecs.js";
 import { idToBigInt } from "../../../utils/base58-id.js";
 import {
-    OptionalNumberToBigIntOrZeroSchema,
     OptionalNumberToIntOrZeroSchema,
     OptionalPublicIdSchema,
     OptionalTimestampMsSchema,
@@ -28,7 +27,13 @@ import {
 } from "../../../shared/schemas.js";
 import { tsObjToMs, tsObjToNsString } from "../../../utils/time.js";
 import { toTimestamp } from "../../../utils/timestamp.js";
-import { toBigIntOrZero, toIntOrZero } from "../../../utils/numbers.js";
+import { toIntOrZero } from "../../../utils/numbers.js";
+import {
+    QUOTE_NOTIONAL_SCALE,
+    decimalInputToScaled,
+    scaledToDecimalOutput,
+} from "../../../shared/decimal-surface.js";
+import { PROTOBUF_UINT32_MAX } from "../../../shared/wire-bounds.js";
 import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
@@ -78,7 +83,7 @@ export const SubaccountPolicySchema = v.pipe(
         sourceTemplateId: OptionalPublicIdSchema,
         maxOrderNotional: v.pipe(
             v.bigint(),
-            v.transform((v) => Number(v)),
+            v.transform((value) => scaledToDecimalOutput(value, QUOTE_NOTIONAL_SCALE)),
         ),
         maxOpenOrders: v.number(),
         tradingHalted: v.boolean(),
@@ -99,6 +104,21 @@ export const SubaccountPolicySchema = v.pipe(
 
 export type SubaccountPolicy = v.InferOutput<typeof SubaccountPolicySchema>;
 
+/**
+ * Max spot order notional as a decimal USDT string (e.g. `"100000.5"`). The wire
+ * field is canonical quote microunits, so `"100000"` caps orders at 100,000 USDT.
+ * `"0"` means no cap.
+ */
+const MaxOrderSizeInputSchema = v.pipe(
+    v.string(),
+    v.transform((value) => decimalInputToScaled("maxOrderSize", value, QUOTE_NOTIONAL_SCALE)),
+);
+
+const OptionalMaxOrderSizeInputSchema = v.pipe(
+    v.optional(v.nullable(MaxOrderSizeInputSchema), null),
+    v.transform((value) => value ?? 0n),
+);
+
 const SubaccountPolicyInputBaseSchema = v.strictObject({
     name: v.string(),
     description: v.optional(v.string(), ""),
@@ -111,7 +131,7 @@ const SubaccountPolicyInputBaseSchema = v.strictObject({
         v.optional(v.array(PolicyActionEnumSchema), []),
         v.transform((v) => (v ?? []).map((action) => PolicyActionCodec.inputToProto[action])),
     ),
-    maxOrderSize: OptionalNumberToBigIntOrZeroSchema,
+    maxOrderSize: OptionalMaxOrderSizeInputSchema,
     maxOpenOrders: OptionalNumberToIntOrZeroSchema,
     tradingHalted: v.optional(v.boolean(), false),
     policyLocked: v.optional(v.boolean(), false),
@@ -163,8 +183,8 @@ const SubaccountPolicyPatchSchema = v.strictObject({
     spotMarkets: v.optional(v.array(SpotMarketRuleSchema)),
     spotMarketScope: v.optional(PolicyMarketScopeEnumSchema),
     actions: v.optional(v.array(PolicyActionEnumSchema)),
-    maxOrderSize: v.optional(v.nullable(v.number())),
-    maxOpenOrders: v.optional(v.nullable(v.number())),
+    maxOrderSize: v.optional(v.nullable(MaxOrderSizeInputSchema)),
+    maxOpenOrders: v.optional(v.nullable(v.pipe(v.number(), v.maxValue(PROTOBUF_UINT32_MAX)))),
     tradingHalted: v.optional(v.boolean()),
     policyLocked: v.optional(v.boolean()),
     reviewAt: v.optional(v.nullable(v.pipe(v.number(), v.integer(), v.minValue(0)))),
@@ -189,7 +209,7 @@ const SUBACCOUNT_POLICY_PATCH_FIELDS = defineProtoPatchFields<SubaccountPolicyPa
     },
     maxOrderSize: {
         path: "max_order_notional",
-        encode: (value) => ({ maxOrderNotional: toBigIntOrZero(value) }),
+        encode: (value) => ({ maxOrderNotional: value ?? 0n }),
     },
     maxOpenOrders: {
         path: "max_open_orders",
@@ -271,7 +291,7 @@ export const DEFAULT_SUBACCOUNT_POLICY: SubaccountPolicy = {
     spotMarkets: [],
     spotMarketScope: "all",
     actions: ["read-balances", "read-internal-transfers", "read-address-book", "read-spot"],
-    maxOrderSize: 0,
+    maxOrderSize: "0",
     maxOpenOrders: 0,
     tradingHalted: false,
     createdAt: DEFAULT_SUBACCOUNT_POLICY_UPDATED_AT,

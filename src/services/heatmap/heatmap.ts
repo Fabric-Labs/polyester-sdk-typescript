@@ -1,4 +1,5 @@
 import { createClient, type Client } from "@connectrpc/connect";
+import { SymbolIdInputSchema } from "../shared.js";
 import { create } from "@bufbuild/protobuf";
 import {
     HeatmapService as HeatmapRpc,
@@ -39,7 +40,7 @@ interface SubscribeHeatmapLiveInput extends BaseSubscribeInput<OrderbookHeatmapL
 }
 
 const SubscribeHeatmapLiveParamsSchema = v.object({
-    symbolId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+    symbolId: SymbolIdInputSchema,
     interval: v.picklist(HEATMAP_INTERVAL_VALUES),
 });
 

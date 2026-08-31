@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import { SymbolIdInputSchema } from "../shared.js";
 import type {
     HeatmapDepth,
     HeatmapInterval,
@@ -47,7 +48,7 @@ function timestampFromTsSec(tsSec: bigint): TimestampInit {
 
 export const GetOrderbookHeatmapInputSchema = v.pipe(
     v.object({
-        symbolId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+        symbolId: SymbolIdInputSchema,
         interval: IntervalInputSchema,
         depth: DepthInputSchema,
         quantityMode: QuantityModeInputSchema,

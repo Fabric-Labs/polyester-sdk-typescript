@@ -1,13 +1,9 @@
 import * as v from "valibot";
 import { formatId, idToBigInt } from "../utils/base58-id.js";
-import {
-    parseOptionalUint64DecimalStrict,
-    toBigIntOrZero,
-    toBpsOrZero,
-    toIntOrZero,
-} from "../utils/numbers.js";
+import { parseOptionalUint64DecimalStrict, toBpsOrZero, toIntOrZero } from "../utils/numbers.js";
 import { tsNsToMs, tsObjToMs } from "../utils/time.js";
 import type { JsonObject } from "@bufbuild/protobuf";
+import { PROTOBUF_UINT32_MAX } from "./wire-bounds.js";
 
 const UINT64_MAX = (1n << 64n) - 1n;
 const MS_TO_US = 1_000n;
@@ -32,13 +28,8 @@ export const OptionalTimestampMsSchema = v.pipe(
 
 export const OptionalNumberDefaultNullSchema = v.optional(v.nullable(v.number()), null);
 
-export const OptionalNumberToBigIntOrZeroSchema = v.pipe(
-    OptionalNumberDefaultNullSchema,
-    v.transform((value) => toBigIntOrZero(value)),
-);
-
 export const OptionalNumberToIntOrZeroSchema = v.pipe(
-    OptionalNumberDefaultNullSchema,
+    v.optional(v.nullable(v.pipe(v.number(), v.maxValue(PROTOBUF_UINT32_MAX))), null),
     v.transform((value) => toIntOrZero(value)),
 );
 

@@ -1,4 +1,5 @@
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
+import { SymbolIdInputSchema } from "../shared.js";
 import * as v from "valibot";
 import type { DecodedEnum } from "../../utils/types.js";
 import { OptionalTimestampSecondsInputSchema } from "../../shared/schemas.js";
@@ -185,7 +186,7 @@ export type CandleColumnarInt = v.InferOutput<ReturnType<typeof createCandleColu
 
 export const ListCandlesInputSchema = v.pipe(
     v.object({
-        symbolId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+        symbolId: SymbolIdInputSchema,
         timeframe: TimeframeInputSchema,
         limit: OptionalPositiveNumberSchema,
         includeIncomplete: v.optional(v.boolean(), false),

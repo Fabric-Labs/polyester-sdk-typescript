@@ -1,4 +1,5 @@
 import { bytesToHex } from "@noble/hashes/utils.js";
+import { PositiveUint32InputSchema } from "../shared.js";
 import * as v from "valibot";
 import { PROTECTED_ACTION_VALUES, ProtectedActionCodec } from "./guard-signer.codecs.js";
 import {
@@ -24,7 +25,7 @@ export type GuardSignerScopedInput = v.InferInput<typeof GuardSignerScopedInputS
 const ProtectedActionArgsInputSchema = v.variant("case", [
     v.strictObject({
         case: v.literal("externalWhitelist"),
-        polychainChainId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+        polychainChainId: PositiveUint32InputSchema,
         addresses: v.pipe(v.array(WhitelistAddressSchema), v.minLength(1)),
     }),
     v.strictObject({

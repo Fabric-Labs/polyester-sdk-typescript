@@ -1,15 +1,14 @@
 import * as v from "valibot";
+import { PositiveUint32InputSchema } from "../shared.js";
 import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
 
-const ChainIdSchema = v.pipe(v.number(), v.integer(), v.gtValue(0));
-
 export const CreateDepositAddressInputSchema = v.pipe(
     v.strictObject({
         ...AccountScopeInputEntries,
-        chainId: ChainIdSchema,
+        chainId: PositiveUint32InputSchema,
     }),
     v.transform(({ account, ...input }) => ({
         ...input,
@@ -31,7 +30,7 @@ export type CreateDepositAddressRequest = v.InferOutput<
 export const ListDepositAddressesInputSchema = v.pipe(
     v.strictObject({
         ...AccountScopeInputEntries,
-        chainId: v.optional(ChainIdSchema),
+        chainId: v.optional(PositiveUint32InputSchema),
     }),
     v.transform(({ account, ...input }) => ({
         ...input,
@@ -51,7 +50,7 @@ export type ListDepositAddressesRequest = v.InferOutput<
 >;
 
 export const DepositAddressSchema = v.object({
-    chainId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+    chainId: PositiveUint32InputSchema,
     depositAddress: v.pipe(v.string(), v.trim(), v.minLength(1)),
 });
 

@@ -13,7 +13,11 @@ import {
     scaledToDecimalOutput,
     type SdkScales,
 } from "../../shared/decimal-surface.js";
-import { parseSlippageInput, parseTrailingDistanceInput } from "../trailing-oneof-inputs.js";
+import {
+    MAX_SLIPPAGE_BPS,
+    parseSlippageInput,
+    parseTrailingDistanceInput,
+} from "../trailing-oneof-inputs.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import { formatId } from "../../utils/base58-id.js";
 import { tsNsToMs } from "../../utils/time.js";
@@ -78,7 +82,6 @@ export const MarketMaxSlippageSchema = v.union([
     NoneInputSchema,
 ]);
 
-const MAX_BPS = 10_000;
 const UNSET_TRAILING_STOP_MAX_SLIPPAGE: ProtoWrite.TrailingStopPolicy["maxSlippage"] = {
     case: undefined,
     value: undefined,
@@ -99,7 +102,7 @@ function parseMaxSlippage(
         fieldName: "trailingStop.maxSlippage",
         ticksCase: "maxSlippageTicks",
         bpsCase: "maxSlippageBps",
-        maxBps: MAX_BPS,
+        maxBps: MAX_SLIPPAGE_BPS,
     });
 }
 
@@ -111,7 +114,7 @@ export function parseMarketMaxSlippage(
         fieldName: "execution.maxSlippage",
         ticksCase: "maxSlippageTicks",
         bpsCase: "maxSlippageBps",
-        maxBps: MAX_BPS,
+        maxBps: MAX_SLIPPAGE_BPS,
     });
 }
 

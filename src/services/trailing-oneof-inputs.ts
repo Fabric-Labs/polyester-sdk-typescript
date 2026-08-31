@@ -5,6 +5,9 @@ import { PROTOBUF_INT32_MAX } from "../shared/wire-bounds.js";
 
 type PositiveIntLikeInput = string | number;
 
+/** Product-wide cap for bps slippage inputs (market IOC, attached and standalone trailing stops). */
+export const MAX_SLIPPAGE_BPS = 10_000;
+
 /**
  * Trailing distance and slippage inputs: absolute price distances and
  * slippages are decimal price strings (e.g. "0.50"), converted to wire ticks

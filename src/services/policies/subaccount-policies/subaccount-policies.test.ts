@@ -19,7 +19,7 @@ function subaccountPolicy() {
         actions: [Proto.PolicyAction.READ_BALANCES],
         isTemplate: false,
         sourceTemplateId: 0n,
-        maxOrderNotional: 25n,
+        maxOrderNotional: 25_000_000n,
         maxOpenOrders: 5,
         tradingHalted: false,
         locked: false,
@@ -46,7 +46,7 @@ describe("SubaccountPoliciesService", () => {
             {
                 id: "C",
                 actions: ["read-balances"],
-                maxOrderSize: 25,
+                maxOrderSize: "25",
                 createdAt: 1_234,
                 updatedAt: 2_345,
                 updatedAtNs: "2345678901",
@@ -127,7 +127,7 @@ describe("SubaccountPoliciesService", () => {
                             name: "Trading policy",
                             spotMarketScope: "all",
                             actions: ["read-balances", "read-spot"],
-                            maxOrderSize: 25,
+                            maxOrderSize: "25",
                             maxOpenOrders: 5,
                             subaccountId: formatId(42n),
                         },
@@ -138,7 +138,7 @@ describe("SubaccountPoliciesService", () => {
                         name: "Trading policy",
                         spotMarketScope: Proto.MarketScope_Value.ALL,
                         actions: [Proto.PolicyAction.READ_BALANCES, Proto.PolicyAction.READ_SPOT],
-                        maxOrderNotional: 25n,
+                        maxOrderNotional: 25_000_000n,
                         maxOpenOrders: 5,
                     },
                     subaccountId: 42n,
@@ -195,6 +195,55 @@ describe("SubaccountPoliciesService", () => {
             expect(new Headers(call?.headers).get(AUTH_STEP_UP_HEADER_NAME)).toBe("fresh-token");
             expect(call?.message).not.toHaveProperty("stepUpToken");
         }
+    });
+
+    it("scales maxOrderSize between decimal USDT and quote microunits", async () => {
+        const transport = unaryTransport({
+            policy: { ...subaccountPolicy(), maxOrderNotional: 100_000_000_000n },
+        });
+        const realtime = realtimeClientStub();
+        const service = new SubaccountPoliciesService(
+            { authApi: transport.transport },
+            realtime.realtime,
+        );
+
+        // A 100,000 USDT cap must reach the wire as 100,000,000,000 microunits,
+        // not as 100000 (which the engine reads as 0.1 USDT). See POLY-4796.
+        await expect(
+            service.create({
+                name: "Trading policy",
+                spotMarketScope: "all",
+                maxOrderSize: "100000",
+            }),
+        ).resolves.toMatchObject({ maxOrderSize: "100000" });
+        expect(transport.lastCall()?.message).toMatchObject({
+            policy: { maxOrderNotional: 100_000_000_000n },
+        });
+
+        await service.update({
+            policyId: formatId(11n),
+            expectedRevision: "6",
+            maxOrderSize: "100000.5",
+        });
+        expect(transport.lastCall()?.message).toMatchObject({
+            policy: { maxOrderNotional: 100_000_500_000n },
+            updateMask: { paths: ["max_order_notional"] },
+        });
+
+        // "0" is the no-cap sentinel and must stay 0 on the wire.
+        await service.create({ name: "No cap", spotMarketScope: "all", maxOrderSize: "0" });
+        expect(transport.lastCall()?.message).toMatchObject({
+            policy: { maxOrderNotional: 0n },
+        });
+
+        // Scaled integers must not be accepted as if they were USDT.
+        await expect(
+            service.create({
+                name: "Bad",
+                spotMarketScope: "all",
+                maxOrderSize: "1.0000005",
+            }),
+        ).rejects.toThrow();
     });
 
     it("subscribes to account policy channels and parses publications", () => {
