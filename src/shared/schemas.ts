@@ -2,7 +2,6 @@ import * as v from "valibot";
 import { formatId, idToBigInt } from "../utils/base58-id.js";
 import {
     parseOptionalUint64DecimalStrict,
-    toBigIntOrZero,
     toBpsOrZero,
     toIntOrZero,
 } from "../utils/numbers.js";
@@ -32,11 +31,6 @@ export const OptionalTimestampMsSchema = v.pipe(
 );
 
 export const OptionalNumberDefaultNullSchema = v.optional(v.nullable(v.number()), null);
-
-export const OptionalNumberToBigIntOrZeroSchema = v.pipe(
-    OptionalNumberDefaultNullSchema,
-    v.transform((value) => toBigIntOrZero(value)),
-);
 
 export const OptionalNumberToIntOrZeroSchema = v.pipe(
     v.optional(v.nullable(v.pipe(v.number(), v.maxValue(PROTOBUF_UINT32_MAX))), null),

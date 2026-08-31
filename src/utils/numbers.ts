@@ -142,16 +142,6 @@ export function parsePriceTicks(raw: string, fieldName: string): bigint {
 }
 
 /**
- * Coerce optional UI number into non-negative bigint (e.g. caps, limits).
- * @param value - The value to coerce.
- * @returns The coerced bigint.
- */
-export function toBigIntOrZero(value?: number | null): bigint {
-    if (value == null || Number.isNaN(value)) return 0n;
-    return BigInt(Math.max(0, Math.trunc(value)));
-}
-
-/**
  * Coerce optional UI number into non-negative integer.
  * @param value - The value to coerce.
  * @returns The coerced integer.

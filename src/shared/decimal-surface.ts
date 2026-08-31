@@ -27,6 +27,13 @@ import { PROTOBUF_INT64_MAX } from "./wire-bounds.js";
 export const E18_SCALE = 18;
 
 /**
+ * Policy notional caps (`max_order_notional`) are canonical quote microunits:
+ * one unit is 0.000001 USDT, per the `auth.v1` policy contract. Fixed by the
+ * protocol rather than per-pair, so it needs no catalog lookup.
+ */
+export const QUOTE_NOTIONAL_SCALE = 6;
+
+/**
  * Resolves wire scales for the SDK's internal decimal conversion. Backed by
  * the client catalog; `ready()` must be awaited before the synchronous lookups
  * are used so the catalog can answer them.

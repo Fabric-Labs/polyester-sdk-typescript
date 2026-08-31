@@ -2,4 +2,4 @@
 "@polyester/sdk": patch
 ---
 
-Reject inputs that overflow their protobuf `uint32` field with a typed validation error instead of failing open into an encode crash: deposit and address-book chain IDs, market-data/candles/heatmap symbol IDs, market-overview `limit`, and subaccount-policy `maxOpenOrders`
+fix(services): reject inputs that overflow their protobuf `uint32` field with a validation error, instead of accepting them and failing later in the encoder. Covers deposit and address-book chain IDs, market-data, candles and heatmap symbol IDs, `limit` on market overview, and `maxOpenOrders` on subaccount policies.
