@@ -29,6 +29,7 @@ function transferRow(overrides: Partial<Proto.TransferRow> = {}): Proto.Transfer
         destination: {
             kind: Proto.TransferSideKind.EXTERNAL_ADDRESS,
             address: "0x2222222222222222222222222222222222222222",
+            chainId: 8453,
         },
         ...overrides,
     } as Proto.TransferRow;
@@ -88,6 +89,7 @@ describe("TransfersService", () => {
                         kind: "external_address",
                         accountId: undefined,
                         address: "0x2222222222222222222222222222222222222222",
+                        chainId: 8453,
                     },
                 },
             ],
@@ -293,7 +295,7 @@ describe("TransfersService", () => {
                 balanceAfter: "2.5",
                 timestamp: 1_781_190_257_836,
                 source: expect.objectContaining({ kind: "funding_account" }),
-                destination: expect.objectContaining({ kind: "external_address" }),
+                destination: expect.objectContaining({ kind: "external_address", chainId: 8453 }),
             }),
         );
 

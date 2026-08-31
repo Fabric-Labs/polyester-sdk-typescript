@@ -141,8 +141,9 @@ describe("LedgerTransferSchema", () => {
                 address: "0x1111111111111111111111111111111111111111",
             },
             destination: {
-                kind: Proto.TransferSideKind.PRIVATE_COUNTERPARTY,
+                kind: Proto.TransferSideKind.EXTERNAL_ADDRESS,
                 address: "",
+                chainId: 8453,
             },
         });
 
@@ -152,9 +153,10 @@ describe("LedgerTransferSchema", () => {
             address: "0x1111111111111111111111111111111111111111",
         });
         expect(transfer.destination).toEqual({
-            kind: "private_counterparty",
+            kind: "external_address",
             accountId: undefined,
             address: "",
+            chainId: 8453,
         });
     });
 
