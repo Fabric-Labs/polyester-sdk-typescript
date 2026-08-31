@@ -45,6 +45,7 @@ export const LedgerTransferSideSchema = v.object({
     kind: TransferSideKindSchema,
     accountId: OptionalPublicIdSchema,
     address: v.optional(v.string(), ""),
+    chainId: v.optional(v.number()),
 });
 
 export type LedgerTransferSide = v.InferOutput<typeof LedgerTransferSideSchema>;
