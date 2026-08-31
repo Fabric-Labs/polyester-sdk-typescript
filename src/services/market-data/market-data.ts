@@ -1,4 +1,5 @@
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
+import { SymbolIdInputSchema } from "../shared.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
 import { createClient, type Client } from "@connectrpc/connect";
 import type { SdkSubscriptionErrorContext } from "../../shared/subscription-errors.js";
@@ -74,7 +75,7 @@ export class MarketDataService {
      * Subscribes to public trade prints on public:spot:market:trades:{symbolId}:proto for the requested symbol and emits parsed market trades.
      */
     subscribeTrades(input: SubscribeTradesInput): () => void {
-        const symbolId = parse(v.pipe(v.number(), v.integer(), v.gtValue(0)), input.symbolId);
+        const symbolId = parse(SymbolIdInputSchema, input.symbolId);
         const channel = `public:spot:market:trades:${symbolId}:proto`;
         const notifyError = (error: SdkSubscriptionErrorContext) => {
             if (isDev()) {

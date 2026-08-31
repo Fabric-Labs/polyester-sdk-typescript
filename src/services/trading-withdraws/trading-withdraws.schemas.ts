@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import { PositiveUint32InputSchema } from "../shared.js";
 import { quantityInputToE18, type SdkScales } from "../../shared/decimal-surface.js";
 import {
     AccountScopeInputEntries,
@@ -68,7 +69,7 @@ export function createCreateTradingWithdrawToFundingInputSchema(scales: SdkScale
     return v.pipe(
         v.strictObject({
             ...AccountScopeInputEntries,
-            assetId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+            assetId: PositiveUint32InputSchema,
             quantity: v.string(),
             idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
             destinationAddress: v.optional(v.pipe(v.string(), v.trim()), ""),
@@ -101,7 +102,7 @@ export function createCreateTradingWithdrawToExternalChainInputSchema(scales: Sd
     return v.pipe(
         v.strictObject({
             ...AccountScopeInputEntries,
-            assetId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+            assetId: PositiveUint32InputSchema,
             quantity: v.string(),
             destinationChainId: v.pipe(
                 v.number(),

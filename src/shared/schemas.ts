@@ -8,6 +8,7 @@ import {
 } from "../utils/numbers.js";
 import { tsNsToMs, tsObjToMs } from "../utils/time.js";
 import type { JsonObject } from "@bufbuild/protobuf";
+import { PROTOBUF_UINT32_MAX } from "./wire-bounds.js";
 
 const UINT64_MAX = (1n << 64n) - 1n;
 const MS_TO_US = 1_000n;
@@ -38,7 +39,7 @@ export const OptionalNumberToBigIntOrZeroSchema = v.pipe(
 );
 
 export const OptionalNumberToIntOrZeroSchema = v.pipe(
-    OptionalNumberDefaultNullSchema,
+    v.optional(v.nullable(v.pipe(v.number(), v.maxValue(PROTOBUF_UINT32_MAX))), null),
     v.transform((value) => toIntOrZero(value)),
 );
 

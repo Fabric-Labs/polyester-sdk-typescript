@@ -29,6 +29,7 @@ import {
 import { tsObjToMs, tsObjToNsString } from "../../../utils/time.js";
 import { toTimestamp } from "../../../utils/timestamp.js";
 import { toBigIntOrZero, toIntOrZero } from "../../../utils/numbers.js";
+import { PROTOBUF_UINT32_MAX } from "../../../shared/wire-bounds.js";
 import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
@@ -164,7 +165,7 @@ const SubaccountPolicyPatchSchema = v.strictObject({
     spotMarketScope: v.optional(PolicyMarketScopeEnumSchema),
     actions: v.optional(v.array(PolicyActionEnumSchema)),
     maxOrderSize: v.optional(v.nullable(v.number())),
-    maxOpenOrders: v.optional(v.nullable(v.number())),
+    maxOpenOrders: v.optional(v.nullable(v.pipe(v.number(), v.maxValue(PROTOBUF_UINT32_MAX)))),
     tradingHalted: v.optional(v.boolean()),
     policyLocked: v.optional(v.boolean()),
     reviewAt: v.optional(v.nullable(v.pipe(v.number(), v.integer(), v.minValue(0)))),

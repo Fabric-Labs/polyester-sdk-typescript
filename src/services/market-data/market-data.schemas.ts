@@ -1,5 +1,5 @@
 import * as v from "valibot";
-import { SideSchema } from "../shared.js";
+import { SideSchema, SymbolIdInputSchema } from "../shared.js";
 import {
     PAIR_STATUSES,
     type AssetConfig,
@@ -47,7 +47,7 @@ export type MarketTrade = v.InferOutput<ReturnType<typeof createMarketTradeSchem
 
 export const GetMarketTradesInputSchema = v.pipe(
     v.object({
-        symbolId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+        symbolId: SymbolIdInputSchema,
         side: v.optional(SideSchema),
         startTsNs: optionalUint64DecimalFilterSchema("startTsNs"),
         endTsNs: optionalUint64DecimalFilterSchema("endTsNs"),

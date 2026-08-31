@@ -2,6 +2,8 @@ import * as Proto from "../../gen/chain/analytics/v1/analytics_read_pb.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import * as v from "valibot";
+import { PositiveUint32InputSchema } from "../shared.js";
+import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import {
     CHAIN_ANALYTICS_RANGE_VALUES,
     ChainAnalyticsRangeCodec,
@@ -9,14 +11,11 @@ import {
 
 export { CHAIN_ANALYTICS_RANGE_VALUES } from "./chain-analytics.codecs.js";
 
-const maxUint32 = 4_294_967_295;
-
-const PositiveUint32Schema = v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(maxUint32));
 const NonNegativeUint32Schema = v.pipe(
     v.number(),
     v.integer(),
     v.minValue(0),
-    v.maxValue(maxUint32),
+    v.maxValue(PROTOBUF_UINT32_MAX),
 );
 const OptionalUint32Schema = v.optional(NonNegativeUint32Schema);
 
@@ -63,7 +62,7 @@ function scaledArray(values: readonly bigint[], scale: number): string[] {
 }
 
 export const GetZippedAssetSupplyInputSchema = v.strictObject({
-    zippedAssetId: PositiveUint32Schema,
+    zippedAssetId: PositiveUint32InputSchema,
     ...ChainAnalyticsWindowInputEntries,
 });
 
@@ -73,7 +72,7 @@ export const GetZippedAssetSupplyGroupInputSchema = v.strictObject({
 });
 
 export const GetUnifiedAssetBalancesInputSchema = v.strictObject({
-    assetId: PositiveUint32Schema,
+    assetId: PositiveUint32InputSchema,
     ...ChainAnalyticsWindowInputEntries,
 });
 

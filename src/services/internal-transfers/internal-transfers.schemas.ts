@@ -1,4 +1,5 @@
 import type { MessageInitShape } from "@bufbuild/protobuf";
+import { PositiveUint32InputSchema } from "../shared.js";
 import * as v from "valibot";
 import type * as Proto from "../../gen/transfer/v1/internal_transfer_pb.js";
 import { idInputSchema } from "../../shared/schemas.js";
@@ -68,7 +69,7 @@ export function createCreateInternalTransferInputSchema(scales: SdkScales) {
         v.strictObject({
             ...AccountScopeInputEntries,
             destination: InternalTransferDestinationInputSchema,
-            assetId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+            assetId: PositiveUint32InputSchema,
             quantity: v.string(),
             idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
         }),
@@ -125,7 +126,7 @@ export function createCreateInternalTransferResultSchema() {
             requestId: NonEmptyResponseStringSchema,
             transferId: NonEmptyResponseStringSchema,
             acceptedAtTsNs: v.bigint(),
-            assetId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+            assetId: PositiveUint32InputSchema,
             assetCode: NonEmptyResponseStringSchema,
             uAssetId: NonEmptyResponseStringSchema,
             amountE18: U128Schema,

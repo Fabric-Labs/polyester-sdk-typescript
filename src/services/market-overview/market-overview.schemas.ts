@@ -4,7 +4,7 @@ import { tsNsToMs } from "../../utils/time.js";
 import type { DecodedEnum } from "../../utils/types.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
-import { SymbolIdInputSchema } from "../shared.js";
+import { PositiveUint32InputSchema, SymbolIdInputSchema } from "../shared.js";
 import {
     SPARKLINE_INTERVAL_VALUES,
     MARKET_OVERVIEW_ORDER_BY_VALUES,
@@ -154,7 +154,7 @@ export type MarketOverviewBatch = {
 export const ListMarketOverviewInputSchema = v.pipe(
     v.strictObject({
         symbolIds: v.optional(v.array(SymbolIdInputSchema), []),
-        limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0)), 500),
+        limit: v.optional(PositiveUint32InputSchema, 500),
         pageToken: v.optional(v.pipe(v.string(), v.trim()), ""),
         orderBy: v.pipe(
             v.optional(MarketOverviewOrderBySchema, "volume_24h_quote"),

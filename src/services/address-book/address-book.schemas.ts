@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import { PositiveUint32InputSchema } from "../shared.js";
 import { parse } from "../../shared/validation.js";
 import * as Proto from "../../gen/auth/v1/address_book_pb.js";
 import { SubaccountRole } from "../../gen/auth/v1/subaccounts_pb.js";
@@ -75,7 +76,7 @@ export const CreateAddressBookEntryInputSchema = v.pipe(
         entry: v.variant("kind", [
             v.strictObject({
                 kind: v.literal("external"),
-                polychainChainId: v.pipe(v.number(), v.integer(), v.gtValue(0)),
+                polychainChainId: PositiveUint32InputSchema,
                 address: v.pipe(v.string(), v.trim(), v.minLength(1)),
             }),
             v.strictObject({
