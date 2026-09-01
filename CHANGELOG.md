@@ -1,5 +1,15 @@
 # @polyester/sdk
 
+## 0.16.0
+
+### Minor Changes
+
+- **Breaking:** Remove `subaccounts.delete()`, the `DeleteSubaccountInput` type and schema, and the `"deleted"` subaccount status. `auth.v1.SubaccountService` exposes no delete RPC, and both `Subaccount.status` and `SubaccountUpdateSpec.status` document only `"active"` and `"disabled"`, so `delete()` was sending a `status: "deleted"` update the backend does not accept. Use `subaccounts.update({ status: "disabled" })` instead; `status` on reads and updates is now `"active" | "disabled"`. ([#101](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/101))
+
+### Patch Changes
+
+- Omit attached-risk legs whose only content is a `not_configured` runtime state, so consumers do not mistake absent risk configuration for a configured leg. ([#103](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/103))
+
 ## 0.15.1
 
 ### Patch Changes
