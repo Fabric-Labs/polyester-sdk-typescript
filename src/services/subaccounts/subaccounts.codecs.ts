@@ -51,7 +51,7 @@ export const SUBACCOUNT_INVITE_STATUS_VALUES = [
 ] as const;
 export type SubaccountInviteStatusValue = (typeof SUBACCOUNT_INVITE_STATUS_VALUES)[number];
 
-export const SUBACCOUNT_STATUS_VALUES = ["active", "disabled", "deleted"] as const;
+export const SUBACCOUNT_STATUS_VALUES = ["active", "disabled"] as const;
 export type SubaccountStatusValue = (typeof SUBACCOUNT_STATUS_VALUES)[number];
 
 export const ACTIVITY_ENTITY_KIND_VALUES = [
@@ -92,7 +92,6 @@ type SubaccountStatusProto = Proto.SubaccountUpdateSpec["status"] & Proto.Subacc
 const SubaccountStatusProto = {
     ACTIVE: "active",
     DISABLED: "disabled",
-    DELETED: "deleted",
 } as const satisfies Record<string, SubaccountStatusProto>;
 
 export const SubaccountRoleCodec = {
@@ -169,12 +168,10 @@ export const SubaccountStatusCodec = {
     inputToProto: {
         active: SubaccountStatusProto.ACTIVE,
         disabled: SubaccountStatusProto.DISABLED,
-        deleted: SubaccountStatusProto.DELETED,
     } satisfies Record<SubaccountStatusValue, SubaccountStatusProto>,
     protoToOutput: {
         [SubaccountStatusProto.ACTIVE]: "active",
         [SubaccountStatusProto.DISABLED]: "disabled",
-        [SubaccountStatusProto.DELETED]: "deleted",
     } satisfies Record<SubaccountStatusProto, SubaccountStatusValue>,
 } as const;
 

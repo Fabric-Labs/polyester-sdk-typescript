@@ -36,7 +36,6 @@ import {
     SubaccountActivityEventSchema,
     SetSubaccountMemberMfaRequirementInputSchema,
     SubaccountIdInputSchema,
-    DeleteSubaccountInputSchema,
     SubaccountMutationResultSchema,
     SubaccountRoleCatalogSchema,
     EffectiveSubaccountPermissionsSchema,
@@ -156,7 +155,7 @@ export class SubaccountsService {
     }
 
     /**
-     * Updates mutable subaccount display/status fields such as label and active/disabled/deleted status.
+     * Updates mutable subaccount display/status fields such as label and active/disabled status.
      */
     async update(
         input: v.InferInput<typeof UpdateSubaccountInputSchema>,
@@ -300,27 +299,6 @@ export class SubaccountsService {
             toConnectCallOptions(options),
         );
         return parse(SubaccountInviteSchema, res.invite);
-    }
-
-    /**
-     * Soft-deletes a subaccount by updating its status to deleted.
-     */
-    async delete(
-        input: v.InferInput<typeof DeleteSubaccountInputSchema>,
-        options?: PolyesterMutationOptions,
-    ): Promise<Subaccount> {
-        const validatedInput = parse(DeleteSubaccountInputSchema, input);
-        const res = await this.#client.updateSubaccount(
-            {
-                subaccountId: validatedInput.subaccountId,
-                subaccount: { status: "deleted" },
-                updateMask: { paths: ["status"] },
-                expectedRevision: validatedInput.expectedRevision,
-            },
-            toConnectCallOptions(options),
-        );
-        if (!res.subaccount) throw new Error("Failed to delete subaccount");
-        return parse(SubaccountSchema, res.subaccount);
     }
 
     /**
