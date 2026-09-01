@@ -273,19 +273,6 @@ describe("SubaccountsService", () => {
             },
             {
                 run: () =>
-                    service.delete(
-                        { subaccountId: formatId(42n), expectedRevision: "7" },
-                        { stepUpToken: " fresh-token " },
-                    ),
-                expected: {
-                    subaccountId: 42n,
-                    subaccount: { status: "deleted" },
-                    updateMask: { paths: ["status"] },
-                    expectedRevision: 7n,
-                },
-            },
-            {
-                run: () =>
                     service.inviteMember(
                         {
                             subaccountId: formatId(42n),

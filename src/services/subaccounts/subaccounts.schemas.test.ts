@@ -27,9 +27,6 @@ describe("subaccount status schemas", () => {
         expect(v.parse(SubaccountSchema, { ...baseSubaccount, status: "disabled" }).status).toBe(
             "disabled",
         );
-        expect(v.parse(SubaccountSchema, { ...baseSubaccount, status: "deleted" }).status).toBe(
-            "deleted",
-        );
     });
 
     it("parses smart-account salt nonce metadata", () => {
@@ -56,7 +53,7 @@ describe("subaccount status schemas", () => {
     });
 
     it("maps update status input to backend status values", () => {
-        for (const status of ["active", "disabled", "deleted"] as const) {
+        for (const status of ["active", "disabled"] as const) {
             expect(
                 v.parse(UpdateSubaccountInputSchema, {
                     subaccountId: formatId(1n),

@@ -186,13 +186,6 @@ export const UpdateSubaccountInputSchema = v.pipe(
 
 export type UpdateSubaccountInput = v.InferInput<typeof UpdateSubaccountInputSchema>;
 
-export const DeleteSubaccountInputSchema = v.strictObject({
-    subaccountId: idInputSchema("subaccountId"),
-    expectedRevision: positiveBigintStringInputSchema("expectedRevision"),
-});
-
-export type DeleteSubaccountInput = v.InferInput<typeof DeleteSubaccountInputSchema>;
-
 export const InviteSubaccountMemberInputSchema = v.strictObject({
     subaccountId: idInputSchema("subaccountId"),
     granteeAccountId: idInputSchema("granteeAccountId"),
