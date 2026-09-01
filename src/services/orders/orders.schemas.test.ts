@@ -1558,6 +1558,67 @@ describe("OrderSchema", () => {
         });
     });
 
+    it("omits attached risk containing only not-configured states", () => {
+        const schema = createOrderSchema(testScales());
+        const notConfiguredState = {
+            status: ProtoRead.AttachedRiskLegState_Status.NOT_CONFIGURED,
+            armedTsNs: 0n,
+            terminalTsNs: 0n,
+        };
+
+        const order = v.parse(
+            schema,
+            rawOrder({
+                attachedRisk: {
+                    takeProfit: { state: notConfiguredState },
+                    stopLoss: { state: notConfiguredState },
+                    trailingStop: { state: notConfiguredState },
+                    oco: false,
+                },
+            }),
+        );
+
+        expect(order.attachedRisk).toBeUndefined();
+    });
+
+    it("omits a not-configured leg while preserving configured legs", () => {
+        const schema = createOrderSchema(testScales());
+
+        const order = v.parse(
+            schema,
+            rawOrder({
+                attachedRisk: {
+                    takeProfit: {
+                        state: {
+                            status: ProtoRead.AttachedRiskLegState_Status.NOT_CONFIGURED,
+                            armedTsNs: 0n,
+                            terminalTsNs: 0n,
+                        },
+                    },
+                    stopLoss: {
+                        state: {
+                            status: ProtoRead.AttachedRiskLegState_Status.ARMED,
+                            armedTsNs: 1_000_000_000n,
+                            terminalTsNs: 0n,
+                        },
+                    },
+                    trailingStop: {
+                        state: {
+                            status: ProtoRead.AttachedRiskLegState_Status.CREATED,
+                            armedTsNs: 0n,
+                            terminalTsNs: 0n,
+                        },
+                    },
+                    oco: false,
+                },
+            }),
+        );
+
+        expect(order.attachedRisk?.takeProfit).toBeUndefined();
+        expect(order.attachedRisk?.stopLoss?.state?.status).toBe("armed");
+        expect(order.attachedRisk?.trailingStop?.state?.status).toBe("created");
+    });
+
     it("decodes attached trailing risk to decimal distance and slippage variants", () => {
         const schema = createOrderSchema(testScales());
 

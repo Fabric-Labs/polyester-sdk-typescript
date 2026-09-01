@@ -400,7 +400,9 @@ export function formatAttachedRisk(
     if (!risk) return undefined;
 
     const takeProfit =
-        risk.takeProfit?.policy || risk.takeProfit?.state
+        risk.takeProfit?.policy ||
+        (risk.takeProfit?.state &&
+            risk.takeProfit.state.status !== ProtoRead.AttachedRiskLegState_Status.NOT_CONFIGURED)
             ? {
                   ...(risk.takeProfit.policy
                       ? formatRiskLeg(scales, risk.takeProfit.policy)
@@ -411,7 +413,9 @@ export function formatAttachedRisk(
               }
             : undefined;
     const stopLoss =
-        risk.stopLoss?.policy || risk.stopLoss?.state
+        risk.stopLoss?.policy ||
+        (risk.stopLoss?.state &&
+            risk.stopLoss.state.status !== ProtoRead.AttachedRiskLegState_Status.NOT_CONFIGURED)
             ? {
                   ...(risk.stopLoss.policy
                       ? formatRiskLeg(scales, risk.stopLoss.policy)
@@ -420,7 +424,9 @@ export function formatAttachedRisk(
               }
             : undefined;
     const trailingStop =
-        risk.trailingStop?.policy || risk.trailingStop?.state
+        risk.trailingStop?.policy ||
+        (risk.trailingStop?.state &&
+            risk.trailingStop.state.status !== ProtoRead.AttachedRiskLegState_Status.NOT_CONFIGURED)
             ? {
                   ...(risk.trailingStop.policy
                       ? {
