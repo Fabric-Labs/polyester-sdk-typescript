@@ -1558,6 +1558,29 @@ describe("OrderSchema", () => {
         });
     });
 
+    it("omits attached risk containing only not-configured states", () => {
+        const schema = createOrderSchema(testScales());
+        const notConfiguredState = {
+            status: ProtoRead.AttachedRiskLegState_Status.NOT_CONFIGURED,
+            armedTsNs: 0n,
+            terminalTsNs: 0n,
+        };
+
+        const order = v.parse(
+            schema,
+            rawOrder({
+                attachedRisk: {
+                    takeProfit: { state: notConfiguredState },
+                    stopLoss: { state: notConfiguredState },
+                    trailingStop: { state: notConfiguredState },
+                    oco: false,
+                },
+            }),
+        );
+
+        expect(order.attachedRisk).toBeUndefined();
+    });
+
     it("decodes attached trailing risk to decimal distance and slippage variants", () => {
         const schema = createOrderSchema(testScales());
 
