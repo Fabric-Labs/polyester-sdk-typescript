@@ -87,13 +87,6 @@ export type ActivityEventActionValue = (typeof ACTIVITY_EVENT_ACTION_VALUES)[num
 
 export const ACTIVITY_EVENT_SOURCE_VALUES = ["web", "mobile", "api"] as const;
 export type ActivityEventSourceValue = (typeof ACTIVITY_EVENT_SOURCE_VALUES)[number];
-type SubaccountStatusProto = Proto.SubaccountUpdateSpec["status"] & Proto.Subaccount["status"];
-
-const SubaccountStatusProto = {
-    ACTIVE: "active",
-    DISABLED: "disabled",
-} as const satisfies Record<string, SubaccountStatusProto>;
-
 export const SubaccountRoleCodec = {
     inputToProto: {
         owner: Proto.SubaccountRole.OWNER,
@@ -166,13 +159,14 @@ export const InviteStatusCodec = {
 
 export const SubaccountStatusCodec = {
     inputToProto: {
-        active: SubaccountStatusProto.ACTIVE,
-        disabled: SubaccountStatusProto.DISABLED,
-    } satisfies Record<SubaccountStatusValue, SubaccountStatusProto>,
+        active: Proto.SubaccountStatus.ACTIVE,
+        disabled: Proto.SubaccountStatus.DISABLED,
+    } satisfies InputToProto<SubaccountStatusValue, Proto.SubaccountStatus>,
     protoToOutput: {
-        [SubaccountStatusProto.ACTIVE]: "active",
-        [SubaccountStatusProto.DISABLED]: "disabled",
-    } satisfies Record<SubaccountStatusProto, SubaccountStatusValue>,
+        [Proto.SubaccountStatus.UNSPECIFIED]: "unspecified",
+        [Proto.SubaccountStatus.ACTIVE]: "active",
+        [Proto.SubaccountStatus.DISABLED]: "disabled",
+    } satisfies ProtoToOutput<Proto.SubaccountStatus, SubaccountStatusValue>,
 } as const;
 
 export const ActivityEntityKindCodec = {

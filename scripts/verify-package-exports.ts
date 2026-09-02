@@ -102,6 +102,8 @@ try {
         path.join(consumerDirectory, "index.ts"),
         `import {
     type AddressBookView,
+    type ClaimGeneratedUsernameInput,
+    type GeneratedUsernameOffer,
     type LedgerBalance,
     type LifecycleFlowSummary,
     type MarketOverview,
@@ -116,6 +118,7 @@ try {
 import { feesPb, tradingRateLimitPb, vipPb } from "@polyester/sdk/unstable/gen";
 
 declare const client: PolyesterClient;
+declare const claimGeneratedUsernameInput: ClaimGeneratedUsernameInput;
 declare const modifyOrderInput: ModifyOrderInput;
 declare const modifyTriggerInput: ModifyTriggerInput;
 const clearTriggerInput: ModifyTriggerInput = {
@@ -137,6 +140,11 @@ async function verifyServiceInference(): Promise<void> {
     expectNotAny(feesPb, true);
     expectNotAny(tradingRateLimitPb, true);
     expectNotAny(vipPb, true);
+
+    const usernameOffer = await client.auth.profile.generateUsernameOptions();
+    expectType<GeneratedUsernameOffer>(usernameOffer);
+    expectNotAny(usernameOffer, true);
+    await client.auth.profile.claimGeneratedUsername(claimGeneratedUsernameInput);
 
     const balances = await client.balances.list();
     expectType<LedgerBalance[]>(balances);

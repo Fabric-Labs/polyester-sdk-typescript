@@ -244,8 +244,15 @@ export const RespondSubaccountInviteInputSchema = v.strictObject({
 export type RespondSubaccountInviteInput = v.InferInput<typeof RespondSubaccountInviteInputSchema>;
 
 const ProtoSubaccountStatusSchema = v.pipe(
-    v.picklist(SUBACCOUNT_STATUS_VALUES),
-    v.transform((status) => SubaccountStatusCodec.protoToOutput[status]),
+    v.enum(Proto.SubaccountStatus),
+    v.transform((status) =>
+        requiredEnumLabel(
+            SubaccountStatusCodec.protoToOutput,
+            status,
+            "SubaccountSchema",
+            "status",
+        ),
+    ),
 );
 
 export type SubaccountStatus = v.InferOutput<typeof ProtoSubaccountStatusSchema>;

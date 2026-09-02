@@ -21,19 +21,25 @@ const baseSubaccount = {
 
 describe("subaccount status schemas", () => {
     it("exposes backend status values without display-name remapping", () => {
-        expect(v.parse(SubaccountSchema, { ...baseSubaccount, status: "active" }).status).toBe(
-            "active",
-        );
-        expect(v.parse(SubaccountSchema, { ...baseSubaccount, status: "disabled" }).status).toBe(
-            "disabled",
-        );
+        expect(
+            v.parse(SubaccountSchema, {
+                ...baseSubaccount,
+                status: Proto.SubaccountStatus.ACTIVE,
+            }).status,
+        ).toBe("active");
+        expect(
+            v.parse(SubaccountSchema, {
+                ...baseSubaccount,
+                status: Proto.SubaccountStatus.DISABLED,
+            }).status,
+        ).toBe("disabled");
     });
 
     it("parses smart-account salt nonce metadata", () => {
         expect(
             v.parse(SubaccountSchema, {
                 ...baseSubaccount,
-                status: "active",
+                status: Proto.SubaccountStatus.ACTIVE,
                 smartAccountSaltNonce: 7,
             }).smartAccountSaltNonce,
         ).toBe(7);
@@ -53,14 +59,19 @@ describe("subaccount status schemas", () => {
     });
 
     it("maps update status input to backend status values", () => {
-        for (const status of ["active", "disabled"] as const) {
+        const cases = [
+            ["active", Proto.SubaccountStatus.ACTIVE],
+            ["disabled", Proto.SubaccountStatus.DISABLED],
+        ] as const;
+
+        for (const [status, expected] of cases) {
             expect(
                 v.parse(UpdateSubaccountInputSchema, {
                     subaccountId: formatId(1n),
                     expectedRevision: "7",
                     status,
                 }).subaccount.status,
-            ).toBe(status);
+            ).toBe(expected);
         }
 
         expect(() =>
