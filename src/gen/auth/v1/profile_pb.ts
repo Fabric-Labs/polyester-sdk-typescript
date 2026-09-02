@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file auth/v1/profile.proto.
  */
 export const file_auth_v1_profile: GenFile = /*@__PURE__*/
-  fileDesc("ChVhdXRoL3YxL3Byb2ZpbGUucHJvdG8SB2F1dGgudjEidQoPQWNjb3VudElkZW50aXR5EhIKCmFjY291bnRfaWQYASABKAYSEgoIdXNlcm5hbWUYAiABKAlCABIUCgphdmF0YXJfdXJsGAMgASgJQgASJAoacm9vdF9zbWFydF9hY2NvdW50X2FkZHJlc3MYBCABKAlCACLNAgoLVXNlclByb2ZpbGUSEgoIdXNlcm5hbWUYASABKAlCABINCgNiaW8YAiABKAlCABIRCgd3ZWJzaXRlGAMgASgJQgASEQoHdHdpdHRlchgEIAEoCUIAEhgKEHR3aXR0ZXJfdmVyaWZpZWQYCCABKAgSEQoHZGlzY29yZBgJIAEoCUIAEhgKEGRpc2NvcmRfdmVyaWZpZWQYCiABKAgSFAoKYXZhdGFyX3VybBgFIAEoCUIAEi4KCmNyZWF0ZWRfYXQYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjsKF25leHRfdXNlcm5hbWVfY2hhbmdlX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCgh2aXBfdGllchgHIAEoBRIZChF1c2VybmFtZV91bmxvY2tlZBgLIAEoCCLGAQoQVXNlclByb2ZpbGVQYXRjaBIXCgh1c2VybmFtZRgBIAEoCUIASACIAQESEgoDYmlvGAIgASgJQgBIAYgBARIWCgd3ZWJzaXRlGAMgASgJQgBIAogBARIWCgd0d2l0dGVyGAQgASgJQgBIA4gBARIZCgphdmF0YXJfdXJsGAUgASgJQgBIBIgBAUILCglfdXNlcm5hbWVCBgoEX2Jpb0IKCghfd2Vic2l0ZUIKCghfdHdpdHRlckINCgtfYXZhdGFyX3VybCITChFHZXRQcm9maWxlUmVxdWVzdCJdChJQcm9maWxlRXJyb3JEZXRhaWwSJwoEY29kZRgBIAEoDjIZLmF1dGgudjEuUHJvZmlsZUVycm9yQ29kZRINCgVmaWVsZBgCIAEoCRIPCgdtZXNzYWdlGAMgASgJIlQKFFVzZXJuYW1lSGlzdG9yeUVudHJ5EhAKCHVzZXJuYW1lGAEgASgJEioKBnNldF9hdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiGwoZR2V0VXNlcm5hbWVIaXN0b3J5UmVxdWVzdCJMChpHZXRVc2VybmFtZUhpc3RvcnlSZXNwb25zZRIuCgdoaXN0b3J5GAEgAygLMh0uYXV0aC52MS5Vc2VybmFtZUhpc3RvcnlFbnRyeSqbAQoQUHJvZmlsZUVycm9yQ29kZRIXChNQUk9GSUxFX1VOU1BFQ0lGSUVEEAASGQoVUFJPRklMRV9JTlZBTElEX0ZJRUxEEAESGgoWUFJPRklMRV9GSUVMRF9UT09fTE9ORxACEhcKE1BST0ZJTEVfVVJMX0lOVkFMSUQQAxIeChpQUk9GSUxFX1VSTF9TQ0hFTUVfSU5WQUxJRBAEMvcBCg5Qcm9maWxlU2VydmljZRJACgpHZXRQcm9maWxlEhouYXV0aC52MS5HZXRQcm9maWxlUmVxdWVzdBoULmF1dGgudjEuVXNlclByb2ZpbGUiABJCCg1VcGRhdGVQcm9maWxlEhkuYXV0aC52MS5Vc2VyUHJvZmlsZVBhdGNoGhQuYXV0aC52MS5Vc2VyUHJvZmlsZSIAEl8KEkdldFVzZXJuYW1lSGlzdG9yeRIiLmF1dGgudjEuR2V0VXNlcm5hbWVIaXN0b3J5UmVxdWVzdBojLmF1dGgudjEuR2V0VXNlcm5hbWVIaXN0b3J5UmVzcG9uc2UiAEI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2F1dGgvdjE7YXV0aHYxYgZwcm90bzM=", [file_google_protobuf_timestamp]);
+  fileDesc("ChVhdXRoL3YxL3Byb2ZpbGUucHJvdG8SB2F1dGgudjEidQoPQWNjb3VudElkZW50aXR5EhIKCmFjY291bnRfaWQYASABKAYSEgoIdXNlcm5hbWUYAiABKAlCABIUCgphdmF0YXJfdXJsGAMgASgJQgASJAoacm9vdF9zbWFydF9hY2NvdW50X2FkZHJlc3MYBCABKAlCACLNAgoLVXNlclByb2ZpbGUSEgoIdXNlcm5hbWUYASABKAlCABINCgNiaW8YAiABKAlCABIRCgd3ZWJzaXRlGAMgASgJQgASEQoHdHdpdHRlchgEIAEoCUIAEhgKEHR3aXR0ZXJfdmVyaWZpZWQYCCABKAgSEQoHZGlzY29yZBgJIAEoCUIAEhgKEGRpc2NvcmRfdmVyaWZpZWQYCiABKAgSFAoKYXZhdGFyX3VybBgFIAEoCUIAEi4KCmNyZWF0ZWRfYXQYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjsKF25leHRfdXNlcm5hbWVfY2hhbmdlX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCgh2aXBfdGllchgHIAEoBRIZChF1c2VybmFtZV91bmxvY2tlZBgLIAEoCCLGAQoQVXNlclByb2ZpbGVQYXRjaBIXCgh1c2VybmFtZRgBIAEoCUIASACIAQESEgoDYmlvGAIgASgJQgBIAYgBARIWCgd3ZWJzaXRlGAMgASgJQgBIAogBARIWCgd0d2l0dGVyGAQgASgJQgBIA4gBARIZCgphdmF0YXJfdXJsGAUgASgJQgBIBIgBAUILCglfdXNlcm5hbWVCBgoEX2Jpb0IKCghfd2Vic2l0ZUIKCghfdHdpdHRlckINCgtfYXZhdGFyX3VybCITChFHZXRQcm9maWxlUmVxdWVzdCJdChJQcm9maWxlRXJyb3JEZXRhaWwSJwoEY29kZRgBIAEoDjIZLmF1dGgudjEuUHJvZmlsZUVycm9yQ29kZRINCgVmaWVsZBgCIAEoCRIPCgdtZXNzYWdlGAMgASgJIlQKFFVzZXJuYW1lSGlzdG9yeUVudHJ5EhAKCHVzZXJuYW1lGAEgASgJEioKBnNldF9hdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiGwoZR2V0VXNlcm5hbWVIaXN0b3J5UmVxdWVzdCJMChpHZXRVc2VybmFtZUhpc3RvcnlSZXNwb25zZRIuCgdoaXN0b3J5GAEgAygLMh0uYXV0aC52MS5Vc2VybmFtZUhpc3RvcnlFbnRyeSIgCh5HZW5lcmF0ZVVzZXJuYW1lT3B0aW9uc1JlcXVlc3QieQofR2VuZXJhdGVVc2VybmFtZU9wdGlvbnNSZXNwb25zZRIRCgl1c2VybmFtZXMYASADKAkSEwoLb2ZmZXJfdG9rZW4YAiABKAkSLgoKZXhwaXJlc19hdBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiTgodQ2xhaW1HZW5lcmF0ZWRVc2VybmFtZVJlcXVlc3QSFQoLb2ZmZXJfdG9rZW4YASABKAlCABIWCgxvcHRpb25faW5kZXgYAiABKA1CACqbAQoQUHJvZmlsZUVycm9yQ29kZRIXChNQUk9GSUxFX1VOU1BFQ0lGSUVEEAASGQoVUFJPRklMRV9JTlZBTElEX0ZJRUxEEAESGgoWUFJPRklMRV9GSUVMRF9UT09fTE9ORxACEhcKE1BST0ZJTEVfVVJMX0lOVkFMSUQQAxIeChpQUk9GSUxFX1VSTF9TQ0hFTUVfSU5WQUxJRBAEMsEDCg5Qcm9maWxlU2VydmljZRJACgpHZXRQcm9maWxlEhouYXV0aC52MS5HZXRQcm9maWxlUmVxdWVzdBoULmF1dGgudjEuVXNlclByb2ZpbGUiABJCCg1VcGRhdGVQcm9maWxlEhkuYXV0aC52MS5Vc2VyUHJvZmlsZVBhdGNoGhQuYXV0aC52MS5Vc2VyUHJvZmlsZSIAEl8KEkdldFVzZXJuYW1lSGlzdG9yeRIiLmF1dGgudjEuR2V0VXNlcm5hbWVIaXN0b3J5UmVxdWVzdBojLmF1dGgudjEuR2V0VXNlcm5hbWVIaXN0b3J5UmVzcG9uc2UiABJuChdHZW5lcmF0ZVVzZXJuYW1lT3B0aW9ucxInLmF1dGgudjEuR2VuZXJhdGVVc2VybmFtZU9wdGlvbnNSZXF1ZXN0GiguYXV0aC52MS5HZW5lcmF0ZVVzZXJuYW1lT3B0aW9uc1Jlc3BvbnNlIgASWAoWQ2xhaW1HZW5lcmF0ZWRVc2VybmFtZRImLmF1dGgudjEuQ2xhaW1HZW5lcmF0ZWRVc2VybmFtZVJlcXVlc3QaFC5hdXRoLnYxLlVzZXJQcm9maWxlIgBCPFo6Z2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9hdXRoL3YxO2F1dGh2MWIGcHJvdG8z", [file_google_protobuf_timestamp]);
 
 /**
  * AccountIdentity is a lightweight identity view for a root account.
@@ -339,6 +339,85 @@ export const GetUsernameHistoryResponseSchema: GenMessage<GetUsernameHistoryResp
   messageDesc(file_auth_v1_profile, 7);
 
 /**
+ * GenerateUsernameOptionsRequest requests a fresh set of generated usernames.
+ *
+ * @generated from message auth.v1.GenerateUsernameOptionsRequest
+ */
+export type GenerateUsernameOptionsRequest = Message<"auth.v1.GenerateUsernameOptionsRequest"> & {
+};
+
+/**
+ * Describes the message auth.v1.GenerateUsernameOptionsRequest.
+ * Use `create(GenerateUsernameOptionsRequestSchema)` to create a new message.
+ */
+export const GenerateUsernameOptionsRequestSchema: GenMessage<GenerateUsernameOptionsRequest> = /*@__PURE__*/
+  messageDesc(file_auth_v1_profile, 8);
+
+/**
+ * GenerateUsernameOptionsResponse contains five generated usernames that the
+ * caller may claim before the offer expires.
+ *
+ * @generated from message auth.v1.GenerateUsernameOptionsResponse
+ */
+export type GenerateUsernameOptionsResponse = Message<"auth.v1.GenerateUsernameOptionsResponse"> & {
+  /**
+   * Five distinct generated usernames available when this offer was created.
+   *
+   * @generated from field: repeated string usernames = 1;
+   */
+  usernames: string[];
+
+  /**
+   * Opaque proof required to claim one of the returned usernames.
+   *
+   * @generated from field: string offer_token = 2;
+   */
+  offerToken: string;
+
+  /**
+   * Time in UTC after which this offer can no longer be claimed.
+   *
+   * @generated from field: google.protobuf.Timestamp expires_at = 3;
+   */
+  expiresAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message auth.v1.GenerateUsernameOptionsResponse.
+ * Use `create(GenerateUsernameOptionsResponseSchema)` to create a new message.
+ */
+export const GenerateUsernameOptionsResponseSchema: GenMessage<GenerateUsernameOptionsResponse> = /*@__PURE__*/
+  messageDesc(file_auth_v1_profile, 9);
+
+/**
+ * ClaimGeneratedUsernameRequest selects one username from a generated offer.
+ *
+ * @generated from message auth.v1.ClaimGeneratedUsernameRequest
+ */
+export type ClaimGeneratedUsernameRequest = Message<"auth.v1.ClaimGeneratedUsernameRequest"> & {
+  /**
+   * Opaque proof returned with the generated username options.
+   *
+   * @generated from field: string offer_token = 1;
+   */
+  offerToken: string;
+
+  /**
+   * Zero-based position in the five returned username options.
+   *
+   * @generated from field: uint32 option_index = 2;
+   */
+  optionIndex: number;
+};
+
+/**
+ * Describes the message auth.v1.ClaimGeneratedUsernameRequest.
+ * Use `create(ClaimGeneratedUsernameRequestSchema)` to create a new message.
+ */
+export const ClaimGeneratedUsernameRequestSchema: GenMessage<ClaimGeneratedUsernameRequest> = /*@__PURE__*/
+  messageDesc(file_auth_v1_profile, 10);
+
+/**
  * High-level error codes for profile domain errors (ProfileService).
  *
  * @generated from enum auth.v1.ProfileErrorCode
@@ -423,6 +502,28 @@ export const ProfileService: GenService<{
     methodKind: "unary";
     input: typeof GetUsernameHistoryRequestSchema;
     output: typeof GetUsernameHistoryResponseSchema;
+  },
+  /**
+   * Generate five random username options for an account that has never
+   * claimed a username. Calling this method again returns a fresh set.
+   *
+   * @generated from rpc auth.v1.ProfileService.GenerateUsernameOptions
+   */
+  generateUsernameOptions: {
+    methodKind: "unary";
+    input: typeof GenerateUsernameOptionsRequestSchema;
+    output: typeof GenerateUsernameOptionsResponseSchema;
+  },
+  /**
+   * Claim one username by its position in a valid generated offer. The
+   * selected value comes from the offer and cannot be supplied directly.
+   *
+   * @generated from rpc auth.v1.ProfileService.ClaimGeneratedUsername
+   */
+  claimGeneratedUsername: {
+    methodKind: "unary";
+    input: typeof ClaimGeneratedUsernameRequestSchema;
+    output: typeof UserProfileSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_auth_v1_profile, 0);
