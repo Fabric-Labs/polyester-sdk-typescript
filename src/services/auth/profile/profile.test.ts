@@ -4,9 +4,12 @@ import * as Proto from "../../../gen/auth/v1/profile_pb.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../../shared/request-options.js";
 import { realtimeClientStub, unaryTransportSequence } from "../../../testing/service-harness.js";
 import { formatId } from "../../../utils/base58-id.js";
+import { PROTOBUF_UINT32_MAX } from "../../../shared/wire-bounds.js";
 import { ProfileService } from "./profile.js";
 import {
     AccountIdentitySchema,
+    ClaimGeneratedUsernameInputSchema,
+    GeneratedUsernameOfferSchema,
     ProfileSchema,
     UpdateProfileInputSchema,
 } from "./profile.schemas.js";
@@ -118,6 +121,41 @@ describe("ProfileService", () => {
         await expect(service.get()).rejects.toThrow();
     });
 
+    it("generates and claims a username offer", async () => {
+        const signal = new AbortController().signal;
+        const transport = unaryTransportSequence([
+            {
+                usernames: ["amber-fox", "brisk-owl", "calm-yak", "daring-ant", "eager-lynx"],
+                offerToken: "offer-1",
+                expiresAt: { seconds: 4n, nanos: 0 },
+            },
+            profile({ username: "calm-yak" }),
+        ]);
+        const service = new ProfileService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+        );
+
+        await expect(service.generateUsernameOptions({ signal })).resolves.toEqual({
+            usernames: ["amber-fox", "brisk-owl", "calm-yak", "daring-ant", "eager-lynx"],
+            offerToken: "offer-1",
+            expiresAt: 4000,
+        });
+        await expect(
+            service.claimGeneratedUsername(
+                { offerToken: "offer-1", optionIndex: 2 },
+                { stepUpToken: " fresh-token " },
+            ),
+        ).resolves.toMatchObject({ username: "calm-yak" });
+
+        expect(transport.calls[0]?.method.localName).toBe("generateUsernameOptions");
+        expect(transport.calls[0]?.message).toEqual({});
+        expect(transport.calls[0]?.signal).toBe(signal);
+        expect(transport.calls[1]?.method.localName).toBe("claimGeneratedUsername");
+        expect(transport.calls[1]?.message).toEqual({ offerToken: "offer-1", optionIndex: 2 });
+        expect(stepUpHeader(transport.calls[1])).toBe("fresh-token");
+    });
+
     it("subscribes to public identity publications and parses events", () => {
         const realtime = realtimeClientStub();
         const service = new ProfileService(
@@ -190,5 +228,26 @@ describe("profile schemas", () => {
             accountId: formatId(10n),
             rootSmartAccountAddress: "0xabc",
         });
+    });
+
+    it("accepts variable-length username offers and enforces the claim index wire bound", () => {
+        expect(
+            v.parse(GeneratedUsernameOfferSchema, {
+                usernames: ["one"],
+                offerToken: "offer-1",
+            }).usernames,
+        ).toEqual(["one"]);
+        expect(
+            v.parse(ClaimGeneratedUsernameInputSchema, {
+                offerToken: "offer-1",
+                optionIndex: PROTOBUF_UINT32_MAX,
+            }).optionIndex,
+        ).toBe(PROTOBUF_UINT32_MAX);
+        expect(() =>
+            v.parse(ClaimGeneratedUsernameInputSchema, {
+                offerToken: "offer-1",
+                optionIndex: PROTOBUF_UINT32_MAX + 1,
+            }),
+        ).toThrow();
     });
 });

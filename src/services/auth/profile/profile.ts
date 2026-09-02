@@ -11,10 +11,13 @@ import {
 } from "../../../shared/request-options.js";
 import {
     AccountIdentitySchema,
+    ClaimGeneratedUsernameInputSchema,
+    GeneratedUsernameOfferSchema,
     ProfileSchema,
     UpdateProfileInputSchema,
     UsernameHistoryEntrySchema,
     type AccountIdentity,
+    type GeneratedUsernameOffer,
     type Profile,
     type UsernameHistoryEntry,
 } from "./profile.schemas.js";
@@ -65,6 +68,31 @@ export class ProfileService {
     async getUsernameHistory(options?: PolyesterRequestOptions): Promise<UsernameHistoryEntry[]> {
         const res = await this.#client.getUsernameHistory({}, toConnectCallOptions(options));
         return parse(v.array(UsernameHistoryEntrySchema), res.history);
+    }
+
+    /**
+     * Returns five generated username options and the short-lived offer token required to claim one of them.
+     */
+    async generateUsernameOptions(
+        options?: PolyesterRequestOptions,
+    ): Promise<GeneratedUsernameOffer> {
+        const res = await this.#client.generateUsernameOptions({}, toConnectCallOptions(options));
+        return parse(GeneratedUsernameOfferSchema, res);
+    }
+
+    /**
+     * Claims one username from a generated offer by its zero-based option index.
+     */
+    async claimGeneratedUsername(
+        input: v.InferInput<typeof ClaimGeneratedUsernameInputSchema>,
+        options?: PolyesterMutationOptions,
+    ): Promise<Profile> {
+        const validatedInput = parse(ClaimGeneratedUsernameInputSchema, input);
+        const res = await this.#client.claimGeneratedUsername(
+            validatedInput,
+            toConnectCallOptions(options),
+        );
+        return parse(ProfileSchema, res);
     }
 
     /**

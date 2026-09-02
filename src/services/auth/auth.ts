@@ -4,7 +4,6 @@ import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import { ProfileService } from "./profile/profile.js";
 import {
-    OptionalPublicIdSchema,
     OptionalTimestampMsSchema,
     PublicIdSchema,
     TimestampSchema,
@@ -32,7 +31,7 @@ export type LoginWithWalletInput = v.InferInput<typeof LoginWithWalletInputSchem
 
 const MeSchema = v.object({
     accountId: PublicIdSchema,
-    apiKeyId: OptionalPublicIdSchema,
+    apiKeyId: v.optional(v.string()),
     username: v.string(),
     session: v.optional(MfaSessionInfoSchema),
 });

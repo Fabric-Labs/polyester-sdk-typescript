@@ -1,5 +1,7 @@
 export type {
     AccountIdentity,
+    ClaimGeneratedUsernameInput,
+    GeneratedUsernameOffer,
     Profile,
     UpdateProfileInput,
     UsernameHistoryEntry,

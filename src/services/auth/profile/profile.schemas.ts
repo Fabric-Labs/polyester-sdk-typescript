@@ -1,5 +1,10 @@
 import * as v from "valibot";
-import { PublicIdSchema, TimestampSchema } from "../../../shared/schemas.js";
+import {
+    OptionalTimestampMsSchema,
+    PublicIdSchema,
+    TimestampSchema,
+} from "../../../shared/schemas.js";
+import { PROTOBUF_UINT32_MAX } from "../../../shared/wire-bounds.js";
 import { tsObjToMs } from "../../../utils/time.js";
 
 export const ProfileSchema = v.object({
@@ -44,6 +49,21 @@ export const UsernameHistoryEntrySchema = v.object({
 });
 
 export type UsernameHistoryEntry = v.InferOutput<typeof UsernameHistoryEntrySchema>;
+
+export const GeneratedUsernameOfferSchema = v.object({
+    usernames: v.array(v.string()),
+    offerToken: v.pipe(v.string(), v.minLength(1)),
+    expiresAt: OptionalTimestampMsSchema,
+});
+
+export type GeneratedUsernameOffer = v.InferOutput<typeof GeneratedUsernameOfferSchema>;
+
+export const ClaimGeneratedUsernameInputSchema = v.strictObject({
+    offerToken: v.pipe(v.string(), v.minLength(1)),
+    optionIndex: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(PROTOBUF_UINT32_MAX)),
+});
+
+export type ClaimGeneratedUsernameInput = v.InferInput<typeof ClaimGeneratedUsernameInputSchema>;
 
 export const AccountIdentitySchema = v.object({
     accountId: PublicIdSchema,

@@ -9,7 +9,6 @@ import {
     SubaccountSchema,
     UpdateSubaccountInputSchema,
 } from "./subaccounts.schemas.js";
-import { SubaccountStatusCodec } from "./subaccounts.codecs.js";
 
 const baseSubaccount = {
     id: 1n,
@@ -60,14 +59,19 @@ describe("subaccount status schemas", () => {
     });
 
     it("maps update status input to backend status values", () => {
-        for (const status of ["active", "disabled"] as const) {
+        const cases = [
+            ["active", Proto.SubaccountStatus.ACTIVE],
+            ["disabled", Proto.SubaccountStatus.DISABLED],
+        ] as const;
+
+        for (const [status, expected] of cases) {
             expect(
                 v.parse(UpdateSubaccountInputSchema, {
                     subaccountId: formatId(1n),
                     expectedRevision: "7",
                     status,
                 }).subaccount.status,
-            ).toBe(SubaccountStatusCodec.inputToProto[status]);
+            ).toBe(expected);
         }
 
         expect(() =>
