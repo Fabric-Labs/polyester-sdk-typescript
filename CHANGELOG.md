@@ -1,5 +1,17 @@
 # @polyester/sdk
 
+## 0.17.0
+
+### Minor Changes
+
+- feat(auth)!: expose public API key identifiers as `ak_` handles in caller introspection. ([#105](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/105))
+
+- feat(subaccounts): expose typed lifecycle statuses for subaccount reads and updates. ([#104](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/104))
+
+### Patch Changes
+
+- feat(profile): add generated username offer and claim methods for onboarding. ([#105](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/105))
+
 ## 0.16.0
 
 ### Minor Changes
