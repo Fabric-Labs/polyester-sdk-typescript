@@ -87,6 +87,7 @@ export type ActivityEventActionValue = (typeof ACTIVITY_EVENT_ACTION_VALUES)[num
 
 export const ACTIVITY_EVENT_SOURCE_VALUES = ["web", "mobile", "api"] as const;
 export type ActivityEventSourceValue = (typeof ACTIVITY_EVENT_SOURCE_VALUES)[number];
+
 export const SubaccountRoleCodec = {
     inputToProto: {
         owner: Proto.SubaccountRole.OWNER,
