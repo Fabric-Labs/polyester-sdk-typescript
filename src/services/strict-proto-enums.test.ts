@@ -100,18 +100,18 @@ function whitelistStatusFromProto(status: AddressBookProto.DestinationWhitelistS
 }
 
 describe("proto enum output decoding", () => {
-    it("preserves subaccount role and invite status sent as unspecified", () => {
+    it("preserves subaccount role, lifecycle status, and invite status sent as unspecified", () => {
         expect(
             v.parse(SubaccountSchema, {
                 id: 1n,
                 role: SubaccountsProto.SubaccountRole.SUBACCOUNT_ROLE_UNSPECIFIED,
-                status: "active",
+                status: SubaccountsProto.SubaccountStatus.UNSPECIFIED,
                 smartAccountAddress: "0xabc",
                 ownerRootSmartAccountAddress: "0xabc",
                 subaccountPolicyId: 1n,
                 revision: 1n,
             }),
-        ).toMatchObject({ role: "unspecified" });
+        ).toMatchObject({ role: "unspecified", status: "unspecified" });
 
         expect(
             v.parse(SubaccountInviteSchema, {
