@@ -1870,6 +1870,8 @@ export const BatchCancelOrdersResponseSchema: GenMessage<BatchCancelOrdersRespon
   messageDesc(file_orders_v1_orders, 38);
 
 /**
+ * Side identifies whether an order buys or sells the base asset.
+ *
  * @generated from enum orders.v1.Side
  */
 export enum Side {
@@ -1902,6 +1904,8 @@ export const SideSchema: GenEnum<Side> = /*@__PURE__*/
   enumDesc(file_orders_v1_orders, 0);
 
 /**
+ * OrderType identifies whether an order uses limit-price or market execution.
+ *
  * @generated from enum orders.v1.OrderType
  */
 export enum OrderType {
@@ -1934,6 +1938,9 @@ export const OrderTypeSchema: GenEnum<OrderType> = /*@__PURE__*/
   enumDesc(file_orders_v1_orders, 1);
 
 /**
+ * TimeInForce controls how long an order may remain active and whether it must
+ * fill completely.
+ *
  * @generated from enum orders.v1.TimeInForce
  */
 export enum TimeInForce {
@@ -2007,6 +2014,9 @@ export const FeeAssetSchema: GenEnum<FeeAsset> = /*@__PURE__*/
   enumDesc(file_orders_v1_orders, 3);
 
 /**
+ * SelfTradePreventionMode controls which orders expire when they would trade
+ * against another order from the same account.
+ *
  * @generated from enum orders.v1.SelfTradePreventionMode
  */
 export enum SelfTradePreventionMode {
@@ -2166,18 +2176,22 @@ export enum ErrorCode {
   FEE_ASSET_NOT_ALLOWED = 15,
 
   /**
-   * Additional domain-specific codes used by the Orders API.
+   * Pair is disabled and does not accept orders.
    *
    * @generated from enum value: ERROR_CODE_PAIR_DISABLED = 16;
    */
   PAIR_DISABLED = 16,
 
   /**
+   * Referenced order could not be resolved.
+   *
    * @generated from enum value: ERROR_CODE_ORDER_UNKNOWN = 17;
    */
   ORDER_UNKNOWN = 17,
 
   /**
+   * Order processing failed because of an unexpected error.
+   *
    * @generated from enum value: ERROR_CODE_INTERNAL_ERROR = 18;
    */
   INTERNAL_ERROR = 18,
