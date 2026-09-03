@@ -8,6 +8,7 @@ import {
     realtimeClientStub,
     subaccountResolverStub,
     unaryTransport,
+    unaryTransportByMethod,
 } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
 import { BalancesService } from "./balances.js";
@@ -280,6 +281,90 @@ describe("BalancesService", () => {
         const history = await service.getEquityHistory({ range: "30d" });
 
         expect(history.btcPrices).toEqual([]);
+    });
+
+    it("returns root portfolio equity history and snapshot as public decimal and ID values", async () => {
+        const controller = new AbortController();
+        const transport = unaryTransportByMethod({
+            getPortfolioEquityHistorySeries: {
+                range: Proto.BalanceRange.DAY_7,
+                bucket: "1h",
+                startTsSec: 100,
+                endTsSec: 200,
+                quoteAsset: "USDT",
+                points: 2,
+                series: [
+                    {
+                        grouping: {
+                            case: "portfolioAccount",
+                            value: { accountId: 42n, remaining: false },
+                        },
+                        equityQ: [12_345n, -100n],
+                    },
+                    {
+                        grouping: {
+                            case: "portfolioAccount",
+                            value: { remaining: true },
+                        },
+                        equityQ: [50_000n, 0n],
+                    },
+                ],
+                btcPricesQ: [65_000_123_456n, 64_000_000_000n],
+            },
+            getPortfolioEquitySnapshot: {
+                quoteAsset: "USDT",
+                totalEquityQ: 1_000_000n,
+                accounts: [{ accountId: 42n, equityQ: 12_345n, topAssetIds: [1, 999] }],
+                assets: [{ assetId: 999, balanceQ: 123_456_789n, equityQ: -100n }],
+                btcPriceQ: 0n,
+            },
+        });
+        const service = new BalancesService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        const history = await service.getPortfolioEquityHistory(
+            { range: "7d" },
+            { signal: controller.signal },
+        );
+
+        expect(transport.calls[0]?.message).toEqual({ range: Proto.BalanceRange.DAY_7 });
+        expect(transport.calls[0]?.signal).toBe(controller.signal);
+        expect(history).toEqual({
+            range: "7d",
+            bucket: "1h",
+            startTsSec: 100,
+            endTsSec: 200,
+            quoteAsset: "USDT",
+            points: 2,
+            series: [
+                {
+                    grouping: {
+                        type: "portfolioAccount",
+                        accountId: formatId(42n),
+                        remaining: false,
+                    },
+                    equity: ["1.2345", "-0.01"],
+                },
+                {
+                    grouping: { type: "portfolioAccount", remaining: true },
+                    equity: ["5", "0"],
+                },
+            ],
+            btcPrices: ["65000.123456", "64000"],
+        });
+
+        await expect(service.getPortfolioEquitySnapshot()).resolves.toEqual({
+            quoteAsset: "USDT",
+            totalEquity: "100",
+            accounts: [{ accountId: formatId(42n), equity: "1.2345", topAssetIds: [1, 999] }],
+            assets: [{ assetId: 999, balance: "12.3456789", equity: "-0.01" }],
+            btcPrice: "0",
+        });
+        expect(transport.calls[1]?.message).toEqual({});
     });
 
     it("rejects balance history responses with unmapped backend enums", async () => {

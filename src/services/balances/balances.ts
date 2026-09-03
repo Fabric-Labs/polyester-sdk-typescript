@@ -17,14 +17,20 @@ import {
     BalanceHistoryInputSchema,
     BalancesListInputSchema,
     EquityHistoryInputSchema,
+    PortfolioEquityHistoryInputSchema,
     createBalanceHistoryResponseSchema,
     createEquityHistoryResponseSchema,
     createLedgerBalanceSchema,
+    createPortfolioEquityHistoryResponseSchema,
+    createPortfolioEquitySnapshotResponseSchema,
     type LedgerBalance,
     type BalanceHistoryInput,
     type BalanceHistoryResponse,
     type EquityHistoryInput,
     type EquityHistoryResponse,
+    type PortfolioEquityHistoryInput,
+    type PortfolioEquityHistoryResponse,
+    type PortfolioEquitySnapshotResponse,
 } from "./balances.schemas.js";
 
 interface SubscribeBalancesInput extends BaseSubscribeInput<LedgerBalance> {
@@ -42,6 +48,12 @@ export class BalancesService {
     #ledgerBalanceSchema: ReturnType<typeof createLedgerBalanceSchema>;
     #balanceHistoryResponseSchema: ReturnType<typeof createBalanceHistoryResponseSchema>;
     #equityHistoryResponseSchema: ReturnType<typeof createEquityHistoryResponseSchema>;
+    #portfolioEquityHistoryResponseSchema: ReturnType<
+        typeof createPortfolioEquityHistoryResponseSchema
+    >;
+    #portfolioEquitySnapshotResponseSchema: ReturnType<
+        typeof createPortfolioEquitySnapshotResponseSchema
+    >;
 
     constructor(
         transports: AuthApiTransports,
@@ -56,6 +68,10 @@ export class BalancesService {
         this.#ledgerBalanceSchema = createLedgerBalanceSchema();
         this.#balanceHistoryResponseSchema = createBalanceHistoryResponseSchema();
         this.#equityHistoryResponseSchema = createEquityHistoryResponseSchema(scales);
+        this.#portfolioEquityHistoryResponseSchema =
+            createPortfolioEquityHistoryResponseSchema(scales);
+        this.#portfolioEquitySnapshotResponseSchema =
+            createPortfolioEquitySnapshotResponseSchema(scales);
     }
 
     /**
@@ -106,6 +122,36 @@ export class BalancesService {
             toConnectCallOptions(options),
         );
         return parse(this.#equityHistoryResponseSchema, res);
+    }
+
+    /**
+     * Returns root portfolio equity history grouped by the master account, leading owned subaccounts, and an optional remaining-subaccounts series.
+     */
+    async getPortfolioEquityHistory(
+        input: PortfolioEquityHistoryInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<PortfolioEquityHistoryResponse> {
+        await this.#scales.ready();
+        const validated = parse(PortfolioEquityHistoryInputSchema, input);
+        const res = await this.#client.getPortfolioEquityHistorySeries(
+            validated,
+            toConnectCallOptions(options),
+        );
+        return parse(this.#portfolioEquityHistoryResponseSchema, res);
+    }
+
+    /**
+     * Returns current root portfolio equity grouped by logical account and asset.
+     */
+    async getPortfolioEquitySnapshot(
+        options?: PolyesterRequestOptions,
+    ): Promise<PortfolioEquitySnapshotResponse> {
+        await this.#scales.ready();
+        const res = await this.#client.getPortfolioEquitySnapshot(
+            {},
+            toConnectCallOptions(options),
+        );
+        return parse(this.#portfolioEquitySnapshotResponseSchema, res);
     }
 
     /**
