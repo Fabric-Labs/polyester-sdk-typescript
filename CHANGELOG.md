@@ -1,5 +1,15 @@
 # @polyester/sdk
 
+## 0.19.0
+
+### Minor Changes
+
+- fix(trades)!: `trades.list()` input is now a discriminated union. Passing `afterMatchId` requires a positive `symbolId`, matching the backend's `after_match_requires_symbol` rule; violating it is a compile error and an SDK `ValidationError` instead of a 400. ([#110](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/110))
+
+### Patch Changes
+
+- fix(market-overview): skip rows whose symbolId the catalog cannot resolve instead of failing the whole `list()` result or `subscribe()` snapshot; `subscribe()` now accepts an optional `symbolIds` filter forwarded to its snapshot request. ([#110](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/110))
+
 ## 0.18.0
 
 ### Minor Changes
