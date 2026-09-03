@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.19.1
+
+### Patch Changes
+
+- feat(balances): add root portfolio equity history and snapshot methods. ([#112](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/112))
+
 ## 0.19.0
 
 ### Minor Changes
