@@ -112,11 +112,14 @@ try {
     type PauseTriggerInput,
     type PauseTriggerResult,
     type PolyesterClient,
+    type PortfolioEquityHistoryResponse,
+    type PortfolioEquitySnapshotResponse,
     type ResumeTriggerInput,
     type ResumeTriggerResult,
 } from "@polyester/sdk";
 import {
     feesPb,
+    ledgerReadPb,
     ordersPb,
     resolvePb,
     subaccountsPb,
@@ -162,6 +165,7 @@ async function verifyServiceInference(): Promise<void> {
     expectType<subaccountsPb.SubaccountStatus>(subaccountsPb.SubaccountStatus.ACTIVE);
     expectNotAny(tradingRateLimitPb, true);
     expectNotAny(vipPb, true);
+    expectNotAny(ledgerReadPb.GetPortfolioEquitySnapshotResponseSchema, true);
 
     const usernameOffer = await client.auth.profile.generateUsernameOptions();
     expectType<GeneratedUsernameOffer>(usernameOffer);
@@ -171,6 +175,14 @@ async function verifyServiceInference(): Promise<void> {
     const balances = await client.balances.list();
     expectType<LedgerBalance[]>(balances);
     expectNotAny(balances[0], true);
+
+    const portfolioHistory = await client.balances.getPortfolioEquityHistory({ range: "1d" });
+    expectType<PortfolioEquityHistoryResponse>(portfolioHistory);
+    expectNotAny(portfolioHistory.series[0], true);
+
+    const portfolioSnapshot = await client.balances.getPortfolioEquitySnapshot();
+    expectType<PortfolioEquitySnapshotResponse>(portfolioSnapshot);
+    expectNotAny(portfolioSnapshot.accounts[0], true);
 
     const flows = (await client.lifecycle.listFlows({})).flows;
     expectType<LifecycleFlowSummary[]>(flows);

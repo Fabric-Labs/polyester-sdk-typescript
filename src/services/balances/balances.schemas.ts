@@ -14,6 +14,7 @@ import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
+import { PublicIdSchema } from "../../shared/schemas.js";
 
 /**
  * Equity history values are quoted in the response's quote currency at a fixed
@@ -80,6 +81,11 @@ export const BalanceRangeSchema = v.picklist(BALANCE_RANGES);
 
 export type BalanceRange = v.InferOutput<typeof BalanceRangeSchema>;
 
+const BalanceRangeInputSchema = v.pipe(
+    BalanceRangeSchema,
+    v.transform((value) => BalanceRangeCodec.inputToProto[value]),
+);
+
 export const EQUITY_GROUP_BYS = ["account", "asset"] as const;
 
 export const EquityGroupBySchema = v.picklist(EQUITY_GROUP_BYS);
@@ -89,10 +95,7 @@ export type EquityGroupBy = v.InferOutput<typeof EquityGroupBySchema>;
 export const BalanceHistoryInputSchema = v.pipe(
     v.strictObject({
         ...AccountScopeInputEntries,
-        range: v.pipe(
-            BalanceRangeSchema,
-            v.transform((v) => BalanceRangeCodec.inputToProto[v]),
-        ),
+        range: BalanceRangeInputSchema,
         ledger: v.optional(
             v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(4_294_967_295)),
             0,
@@ -170,10 +173,7 @@ export type BalanceHistoryResponse = v.InferOutput<
 export const EquityHistoryInputSchema = v.pipe(
     v.strictObject({
         ...AccountScopeInputEntries,
-        range: v.pipe(
-            BalanceRangeSchema,
-            v.transform((v) => BalanceRangeCodec.inputToProto[v]),
-        ),
+        range: BalanceRangeInputSchema,
         accountCodes: v.optional(
             v.array(
                 v.pipe(
@@ -195,6 +195,12 @@ export const EquityHistoryInputSchema = v.pipe(
 );
 
 export type EquityHistoryInput = v.InferInput<typeof EquityHistoryInputSchema>;
+
+export const PortfolioEquityHistoryInputSchema = v.strictObject({
+    range: BalanceRangeInputSchema,
+});
+
+export type PortfolioEquityHistoryInput = v.InferInput<typeof PortfolioEquityHistoryInputSchema>;
 
 const EquitySeriesGroupingSchema = v.union([
     v.object({
@@ -298,4 +304,128 @@ export function createEquityHistoryResponseSchema(scales: SdkScales) {
 export type EquitySeries = v.InferOutput<typeof EquitySeriesSchema>;
 export type EquityHistoryResponse = v.InferOutput<
     ReturnType<typeof createEquityHistoryResponseSchema>
+>;
+
+const PortfolioAccountGroupingSchema = v.variant("remaining", [
+    v.object({
+        accountId: PublicIdSchema,
+        remaining: v.literal(false),
+    }),
+    v.object({
+        accountId: v.optional(v.never()),
+        remaining: v.literal(true),
+    }),
+]);
+
+export type PortfolioEquitySeriesGrouping =
+    | { type: "portfolioAccount"; accountId: string; remaining: false }
+    | { type: "portfolioAccount"; accountId?: never; remaining: true };
+
+export const PortfolioEquitySeriesSchema = v.pipe(
+    v.object({
+        grouping: v.object({
+            case: v.literal("portfolioAccount"),
+            value: PortfolioAccountGroupingSchema,
+        }),
+        equityQ: v.array(v.bigint()),
+    }),
+    v.transform((series): { grouping: PortfolioEquitySeriesGrouping; equity: string[] } => ({
+        grouping: series.grouping.value.remaining
+            ? { type: "portfolioAccount", remaining: true }
+            : {
+                  type: "portfolioAccount",
+                  accountId: series.grouping.value.accountId,
+                  remaining: false,
+              },
+        equity: series.equityQ.map((value) => scaledToDecimalOutput(value, EQUITY_SCALE)),
+    })),
+);
+
+export function createPortfolioEquityHistoryResponseSchema(scales: SdkScales) {
+    return v.pipe(
+        v.object({
+            range: v.pipe(
+                v.enum(Proto.BalanceRange),
+                v.transform((value) =>
+                    requiredEnumLabel(
+                        BalanceRangeCodec.protoToOutput,
+                        value,
+                        "PortfolioEquityHistoryResponseSchema",
+                        "range",
+                    ),
+                ),
+            ),
+            bucket: v.string(),
+            startTsSec: v.number(),
+            endTsSec: v.number(),
+            quoteAsset: v.string(),
+            points: v.number(),
+            series: v.array(PortfolioEquitySeriesSchema),
+            btcPricesQ: v.optional(v.array(v.bigint()), []),
+        }),
+        v.transform((data) => ({
+            range: data.range,
+            bucket: data.bucket,
+            startTsSec: data.startTsSec,
+            endTsSec: data.endTsSec,
+            quoteAsset: data.quoteAsset,
+            points: data.points,
+            series: data.series,
+            btcPrices: data.btcPricesQ.map((value) => scaledToDecimalOutput(value, scales.price())),
+        })),
+    );
+}
+
+export type PortfolioEquitySeries = v.InferOutput<typeof PortfolioEquitySeriesSchema>;
+export type PortfolioEquityHistoryResponse = v.InferOutput<
+    ReturnType<typeof createPortfolioEquityHistoryResponseSchema>
+>;
+
+const PortfolioAccountEquitySchema = v.pipe(
+    v.object({
+        accountId: PublicIdSchema,
+        equityQ: v.bigint(),
+        topAssetIds: v.array(v.number()),
+    }),
+    v.transform((account) => ({
+        accountId: account.accountId,
+        equity: scaledToDecimalOutput(account.equityQ, EQUITY_SCALE),
+        topAssetIds: account.topAssetIds,
+    })),
+);
+
+const PortfolioAssetEquitySchema = v.pipe(
+    v.object({
+        assetId: v.number(),
+        balanceQ: v.bigint(),
+        equityQ: v.bigint(),
+    }),
+    v.transform((asset) => ({
+        assetId: asset.assetId,
+        balance: scaledToDecimalOutput(asset.balanceQ, BALANCE_HISTORY_SCALE),
+        equity: scaledToDecimalOutput(asset.equityQ, EQUITY_SCALE),
+    })),
+);
+
+export function createPortfolioEquitySnapshotResponseSchema(scales: SdkScales) {
+    return v.pipe(
+        v.object({
+            quoteAsset: v.string(),
+            totalEquityQ: v.bigint(),
+            accounts: v.array(PortfolioAccountEquitySchema),
+            assets: v.array(PortfolioAssetEquitySchema),
+            btcPriceQ: v.bigint(),
+        }),
+        v.transform((snapshot) => ({
+            quoteAsset: snapshot.quoteAsset,
+            totalEquity: scaledToDecimalOutput(snapshot.totalEquityQ, EQUITY_SCALE),
+            accounts: snapshot.accounts,
+            assets: snapshot.assets,
+            btcPrice: scaledToDecimalOutput(snapshot.btcPriceQ, scales.price()),
+        })),
+    );
+}
+
+export type PortfolioEquitySnapshotResponse = v.InferOutput<
+    ReturnType<typeof createPortfolioEquitySnapshotResponseSchema>
 >;

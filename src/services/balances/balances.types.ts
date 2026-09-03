@@ -7,5 +7,10 @@ export type {
     EquityHistoryResponse,
     EquitySeries,
     EquitySeriesGrouping,
+    PortfolioEquityHistoryInput,
+    PortfolioEquityHistoryResponse,
+    PortfolioEquitySeries,
+    PortfolioEquitySeriesGrouping,
+    PortfolioEquitySnapshotResponse,
     LedgerBalance,
 } from "./balances.schemas.js";
