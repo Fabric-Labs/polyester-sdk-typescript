@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file ledger/read/v1/ledger_read.proto.
  */
 export const file_ledger_read_v1_ledger_read: GenFile = /*@__PURE__*/
-  fileDesc("CiBsZWRnZXIvcmVhZC92MS9sZWRnZXJfcmVhZC5wcm90bxIObGVkZ2VyLnJlYWQudjEiQgoSR2V0QmFsYW5jZXNSZXF1ZXN0EhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBAUIQCg5fc3ViYWNjb3VudF9pZCL/AQoMQXNzZXRCYWxhbmNlEhAKCGFzc2V0X2lkGAEgASgNEigKB3RyYWRpbmcYAiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EigKB2Z1bmRpbmcYAyABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EikKCHJlc2VydmVkGAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIqCglhdmFpbGFibGUYBSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EhgKEHRyYWRpbmdfcmV2aXNpb24YBiABKAQSGAoQZnVuZGluZ19yZXZpc2lvbhgHIAEoBCJFChNHZXRCYWxhbmNlc1Jlc3BvbnNlEi4KCGJhbGFuY2VzGAEgAygLMhwubGVkZ2VyLnJlYWQudjEuQXNzZXRCYWxhbmNlIrYBChhHZXRCYWxhbmNlSGlzdG9yeVJlcXVlc3QSGgoNc3ViYWNjb3VudF9pZBgBIAEoBkgAiAEBEi0KBXJhbmdlGAIgASgOMhwubGVkZ2VyLnJlYWQudjEuQmFsYW5jZVJhbmdlQgASDgoGbGVkZ2VyGAMgASgNEi0KDWFjY291bnRfY29kZXMYBCADKA4yFi5sZWRnZXIudjEuQWNjb3VudENvZGVCEAoOX3N1YmFjY291bnRfaWQiYgoNQmFsYW5jZVNlcmllcxIQCghhc3NldF9pZBgBIAEoDRIsCgxhY2NvdW50X2NvZGUYAiABKA4yFi5sZWRnZXIudjEuQWNjb3VudENvZGUSEQoJYmFsYW5jZV9xGAMgAygEIsEBChlHZXRCYWxhbmNlSGlzdG9yeVJlc3BvbnNlEisKBXJhbmdlGAEgASgOMhwubGVkZ2VyLnJlYWQudjEuQmFsYW5jZVJhbmdlEg4KBmJ1Y2tldBgCIAEoCRIUCgxzdGFydF90c19zZWMYAyABKAcSEgoKZW5kX3RzX3NlYxgEIAEoBxIOCgZwb2ludHMYBSABKA0SLQoGc2VyaWVzGAYgAygLMh0ubGVkZ2VyLnJlYWQudjEuQmFsYW5jZVNlcmllcyI1Cg9BY2NvdW50R3JvdXBpbmcSFAoMYWNjb3VudF9jb2RlGAEgASgNEgwKBG5hbWUYAiABKAkiKwoNQXNzZXRHcm91cGluZxIKCgJpZBgBIAEoDRIOCgZzeW1ib2wYAiABKAki3AEKHUdldEVxdWl0eUhpc3RvcnlTZXJpZXNSZXF1ZXN0EhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBARItCgVyYW5nZRgCIAEoDjIcLmxlZGdlci5yZWFkLnYxLkJhbGFuY2VSYW5nZUIAEi0KDWFjY291bnRfY29kZXMYBCADKA4yFi5sZWRnZXIudjEuQWNjb3VudENvZGUSLwoIZ3JvdXBfYnkYBSABKA4yHS5sZWRnZXIucmVhZC52MS5FcXVpdHlHcm91cEJ5QhAKDl9zdWJhY2NvdW50X2lkIpABCgxFcXVpdHlTZXJpZXMSMgoHYWNjb3VudBgBIAEoCzIfLmxlZGdlci5yZWFkLnYxLkFjY291bnRHcm91cGluZ0gAEi4KBWFzc2V0GAMgASgLMh0ubGVkZ2VyLnJlYWQudjEuQXNzZXRHcm91cGluZ0gAEhAKCGVxdWl0eV9xGAIgAygSQgoKCGdyb3VwaW5nIvABCh5HZXRFcXVpdHlIaXN0b3J5U2VyaWVzUmVzcG9uc2USKwoFcmFuZ2UYASABKA4yHC5sZWRnZXIucmVhZC52MS5CYWxhbmNlUmFuZ2USDgoGYnVja2V0GAIgASgJEhQKDHN0YXJ0X3RzX3NlYxgDIAEoBxISCgplbmRfdHNfc2VjGAQgASgHEhMKC3F1b3RlX2Fzc2V0GAYgASgJEg4KBnBvaW50cxgHIAEoDRIsCgZzZXJpZXMYCCADKAsyHC5sZWRnZXIucmVhZC52MS5FcXVpdHlTZXJpZXMSFAoMYnRjX3ByaWNlc19xGAogAygDIucBChRMaXN0VHJhbnNmZXJzUmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESDwoFbGltaXQYAiABKA1CABIQCghyZXZlcnNlZBgDIAEoCBIRCgl0c19taW5fdXMYBCABKAQSEQoJdHNfbWF4X3VzGAUgASgEEjAKDXRyYW5zZmVyX2NvZGUYBiABKA4yFy5sZWRnZXIudjEuVHJhbnNmZXJDb2RlQgASDgoGbGVkZ2VyGAcgASgNEhQKCnBhZ2VfdG9rZW4YCSABKAlCADoAQhAKDl9zdWJhY2NvdW50X2lkIpsBCgxUcmFuc2ZlclNpZGUSLgoEa2luZBgBIAEoDjIgLmxlZGdlci5yZWFkLnYxLlRyYW5zZmVyU2lkZUtpbmQSFwoKYWNjb3VudF9pZBgCIAEoBkgAiAEBEg8KB2FkZHJlc3MYAyABKAkSFQoIY2hhaW5faWQYBCABKA1IAYgBAUINCgtfYWNjb3VudF9pZEILCglfY2hhaW5faWQiggMKC1RyYW5zZmVyUm93EhAKCGFzc2V0X2lkGAEgASgNEisKCmFtb3VudF9lMTgYAiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Ei4KDXRyYW5zZmVyX2NvZGUYAyABKA4yFy5sZWRnZXIudjEuVHJhbnNmZXJDb2RlEiwKDGFjY291bnRfY29kZRgEIAEoDjIWLmxlZGdlci52MS5BY2NvdW50Q29kZRINCgV0c191cxgFIAEoBBIyChFiYWxhbmNlX2FmdGVyX2UxOBgJIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSEAoIaXNfZGViaXQYCiABKAgSDwoHbGlua19pZBgLIAEoBBIPCgdmbG93X2lkGAwgASgJEiwKBnNvdXJjZRgNIAEoCzIcLmxlZGdlci5yZWFkLnYxLlRyYW5zZmVyU2lkZRIxCgtkZXN0aW5hdGlvbhgOIAEoCzIcLmxlZGdlci5yZWFkLnYxLlRyYW5zZmVyU2lkZSJiChVMaXN0VHJhbnNmZXJzUmVzcG9uc2USLgoJdHJhbnNmZXJzGAEgAygLMhsubGVkZ2VyLnJlYWQudjEuVHJhbnNmZXJSb3cSGQoPbmV4dF9wYWdlX3Rva2VuGAMgASgJQgAieQoQTGlzdEhvbGRzUmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESDwoFbGltaXQYAiABKA1CABIQCghyZXZlcnNlZBgDIAEoCBIUCgpwYWdlX3Rva2VuGAQgASgJQgBCEAoOX3N1YmFjY291bnRfaWQieQoHSG9sZFJvdxIPCgdob2xkX2lkGAEgASgGEjQKE2Ftb3VudF9yZXNlcnZlZF9lMTgYAiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EhAKCGFzc2V0X2lkGAMgASgNEhUKDWV4cGlyZXNfYXRfbnMYBCABKAQiVgoRTGlzdEhvbGRzUmVzcG9uc2USJgoFaG9sZHMYASADKAsyFy5sZWRnZXIucmVhZC52MS5Ib2xkUm93EhkKD25leHRfcGFnZV90b2tlbhgCIAEoCUIAIjYKC0Vycm9yRGV0YWlsEicKBGNvZGUYASABKA4yGS5sZWRnZXIucmVhZC52MS5FcnJvckNvZGUqbQoMQmFsYW5jZVJhbmdlEhUKEVJBTkdFX1VOU1BFQ0lGSUVEEAASCQoFREFZXzEQARIJCgVEQVlfNxACEgoKBkRBWV8zMBADEgoKBkRBWV85MBAEEgsKB0RBWV8xODAQBRILCgdEQVlfMzY1EAYqUwoNRXF1aXR5R3JvdXBCeRIYChRHUk9VUF9CWV9VTlNQRUNJRklFRBAAEhQKEEdST1VQX0JZX0FDQ09VTlQQARISCg5HUk9VUF9CWV9BU1NFVBACKrUBChBUcmFuc2ZlclNpZGVLaW5kEiIKHlRSQU5TRkVSX1NJREVfS0lORF9VTlNQRUNJRklFRBAAEhMKD0ZVTkRJTkdfQUNDT1VOVBABEhMKD1RSQURJTkdfQUNDT1VOVBACEhQKEEVYVEVSTkFMX0FERFJFU1MQAxIYChRQUklWQVRFX0NPVU5URVJQQVJUWRAEEg8KC0ZFRV9BQ0NPVU5UEAUSEgoOU1lTVEVNX0FDQ09VTlQQBiryAgoJRXJyb3JDb2RlEhoKFkVSUk9SX0NPREVfVU5TUEVDSUZJRUQQABIaChZFUlJPUl9DT0RFX0JBRF9SRVFVRVNUEAESHgoaRVJST1JfQ09ERV9VTkFVVEhFTlRJQ0FURUQQAhIgChxFUlJPUl9DT0RFX1BFUk1JU1NJT05fREVOSUVEEAMSGAoURVJST1JfQ09ERV9OT1RfRk9VTkQQBBIhCh1FUlJPUl9DT0RFX01JU1NJTkdfQUNDT1VOVF9JRBAFEiEKHUVSUk9SX0NPREVfSU5WQUxJRF9BQ0NPVU5UX0lEEAYSHQoZRVJST1JfQ09ERV9NSVNTSU5HX1dBTExFVBAHEiwKKEVSUk9SX0NPREVfV0FMTEVUX1JFU09MVVRJT05fVU5BVkFJTEFCTEUQCBIfChtFUlJPUl9DT0RFX1dBTExFVF9OT1RfRk9VTkQQCRIdChlFUlJPUl9DT0RFX1VQU1RSRUFNX0VSUk9SEAoyiAQKEUxlZGdlclJlYWRTZXJ2aWNlEmoKEUdldEJhbGFuY2VIaXN0b3J5EigubGVkZ2VyLnJlYWQudjEuR2V0QmFsYW5jZUhpc3RvcnlSZXF1ZXN0GikubGVkZ2VyLnJlYWQudjEuR2V0QmFsYW5jZUhpc3RvcnlSZXNwb25zZSIAEnkKFkdldEVxdWl0eUhpc3RvcnlTZXJpZXMSLS5sZWRnZXIucmVhZC52MS5HZXRFcXVpdHlIaXN0b3J5U2VyaWVzUmVxdWVzdBouLmxlZGdlci5yZWFkLnYxLkdldEVxdWl0eUhpc3RvcnlTZXJpZXNSZXNwb25zZSIAEl4KDUxpc3RUcmFuc2ZlcnMSJC5sZWRnZXIucmVhZC52MS5MaXN0VHJhbnNmZXJzUmVxdWVzdBolLmxlZGdlci5yZWFkLnYxLkxpc3RUcmFuc2ZlcnNSZXNwb25zZSIAElIKCUxpc3RIb2xkcxIgLmxlZGdlci5yZWFkLnYxLkxpc3RIb2xkc1JlcXVlc3QaIS5sZWRnZXIucmVhZC52MS5MaXN0SG9sZHNSZXNwb25zZSIAElgKC0dldEJhbGFuY2VzEiIubGVkZ2VyLnJlYWQudjEuR2V0QmFsYW5jZXNSZXF1ZXN0GiMubGVkZ2VyLnJlYWQudjEuR2V0QmFsYW5jZXNSZXNwb25zZSIAQkdaRWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vbGVkZ2VyL3JlYWQvdjE7bGVkZ2VycmR2MWIGcHJvdG8z", [file_ledger_v1_catalog, file_polyester_type_v1_u128]);
+  fileDesc("CiBsZWRnZXIvcmVhZC92MS9sZWRnZXJfcmVhZC5wcm90bxIObGVkZ2VyLnJlYWQudjEiQgoSR2V0QmFsYW5jZXNSZXF1ZXN0EhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBAUIQCg5fc3ViYWNjb3VudF9pZCL/AQoMQXNzZXRCYWxhbmNlEhAKCGFzc2V0X2lkGAEgASgNEigKB3RyYWRpbmcYAiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EigKB2Z1bmRpbmcYAyABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EikKCHJlc2VydmVkGAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIqCglhdmFpbGFibGUYBSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EhgKEHRyYWRpbmdfcmV2aXNpb24YBiABKAQSGAoQZnVuZGluZ19yZXZpc2lvbhgHIAEoBCJFChNHZXRCYWxhbmNlc1Jlc3BvbnNlEi4KCGJhbGFuY2VzGAEgAygLMhwubGVkZ2VyLnJlYWQudjEuQXNzZXRCYWxhbmNlIrYBChhHZXRCYWxhbmNlSGlzdG9yeVJlcXVlc3QSGgoNc3ViYWNjb3VudF9pZBgBIAEoBkgAiAEBEi0KBXJhbmdlGAIgASgOMhwubGVkZ2VyLnJlYWQudjEuQmFsYW5jZVJhbmdlQgASDgoGbGVkZ2VyGAMgASgNEi0KDWFjY291bnRfY29kZXMYBCADKA4yFi5sZWRnZXIudjEuQWNjb3VudENvZGVCEAoOX3N1YmFjY291bnRfaWQiYgoNQmFsYW5jZVNlcmllcxIQCghhc3NldF9pZBgBIAEoDRIsCgxhY2NvdW50X2NvZGUYAiABKA4yFi5sZWRnZXIudjEuQWNjb3VudENvZGUSEQoJYmFsYW5jZV9xGAMgAygEIsEBChlHZXRCYWxhbmNlSGlzdG9yeVJlc3BvbnNlEisKBXJhbmdlGAEgASgOMhwubGVkZ2VyLnJlYWQudjEuQmFsYW5jZVJhbmdlEg4KBmJ1Y2tldBgCIAEoCRIUCgxzdGFydF90c19zZWMYAyABKAcSEgoKZW5kX3RzX3NlYxgEIAEoBxIOCgZwb2ludHMYBSABKA0SLQoGc2VyaWVzGAYgAygLMh0ubGVkZ2VyLnJlYWQudjEuQmFsYW5jZVNlcmllcyI1Cg9BY2NvdW50R3JvdXBpbmcSFAoMYWNjb3VudF9jb2RlGAEgASgNEgwKBG5hbWUYAiABKAkiKwoNQXNzZXRHcm91cGluZxIKCgJpZBgBIAEoDRIOCgZzeW1ib2wYAiABKAkiVQoYUG9ydGZvbGlvQWNjb3VudEdyb3VwaW5nEhcKCmFjY291bnRfaWQYASABKAZIAIgBARIRCglyZW1haW5pbmcYAiABKAhCDQoLX2FjY291bnRfaWQi3AEKHUdldEVxdWl0eUhpc3RvcnlTZXJpZXNSZXF1ZXN0EhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBARItCgVyYW5nZRgCIAEoDjIcLmxlZGdlci5yZWFkLnYxLkJhbGFuY2VSYW5nZUIAEi0KDWFjY291bnRfY29kZXMYBCADKA4yFi5sZWRnZXIudjEuQWNjb3VudENvZGUSLwoIZ3JvdXBfYnkYBSABKA4yHS5sZWRnZXIucmVhZC52MS5FcXVpdHlHcm91cEJ5QhAKDl9zdWJhY2NvdW50X2lkItcBCgxFcXVpdHlTZXJpZXMSMgoHYWNjb3VudBgBIAEoCzIfLmxlZGdlci5yZWFkLnYxLkFjY291bnRHcm91cGluZ0gAEi4KBWFzc2V0GAMgASgLMh0ubGVkZ2VyLnJlYWQudjEuQXNzZXRHcm91cGluZ0gAEkUKEXBvcnRmb2xpb19hY2NvdW50GAQgASgLMigubGVkZ2VyLnJlYWQudjEuUG9ydGZvbGlvQWNjb3VudEdyb3VwaW5nSAASEAoIZXF1aXR5X3EYAiADKBJCCgoIZ3JvdXBpbmci8AEKHkdldEVxdWl0eUhpc3RvcnlTZXJpZXNSZXNwb25zZRIrCgVyYW5nZRgBIAEoDjIcLmxlZGdlci5yZWFkLnYxLkJhbGFuY2VSYW5nZRIOCgZidWNrZXQYAiABKAkSFAoMc3RhcnRfdHNfc2VjGAMgASgHEhIKCmVuZF90c19zZWMYBCABKAcSEwoLcXVvdGVfYXNzZXQYBiABKAkSDgoGcG9pbnRzGAcgASgNEiwKBnNlcmllcxgIIAMoCzIcLmxlZGdlci5yZWFkLnYxLkVxdWl0eVNlcmllcxIUCgxidGNfcHJpY2VzX3EYCiADKAMiVwomR2V0UG9ydGZvbGlvRXF1aXR5SGlzdG9yeVNlcmllc1JlcXVlc3QSLQoFcmFuZ2UYASABKA4yHC5sZWRnZXIucmVhZC52MS5CYWxhbmNlUmFuZ2VCACL5AQonR2V0UG9ydGZvbGlvRXF1aXR5SGlzdG9yeVNlcmllc1Jlc3BvbnNlEisKBXJhbmdlGAEgASgOMhwubGVkZ2VyLnJlYWQudjEuQmFsYW5jZVJhbmdlEg4KBmJ1Y2tldBgCIAEoCRIUCgxzdGFydF90c19zZWMYAyABKAcSEgoKZW5kX3RzX3NlYxgEIAEoBxITCgtxdW90ZV9hc3NldBgFIAEoCRIOCgZwb2ludHMYBiABKA0SLAoGc2VyaWVzGAcgAygLMhwubGVkZ2VyLnJlYWQudjEuRXF1aXR5U2VyaWVzEhQKDGJ0Y19wcmljZXNfcRgIIAMoAyJXChZQb3J0Zm9saW9BY2NvdW50RXF1aXR5EhIKCmFjY291bnRfaWQYASABKAYSEAoIZXF1aXR5X3EYAiABKBISFwoNdG9wX2Fzc2V0X2lkcxgDIAMoDUIAIk0KFFBvcnRmb2xpb0Fzc2V0RXF1aXR5EhAKCGFzc2V0X2lkGAEgASgNEhEKCWJhbGFuY2VfcRgCIAEoBBIQCghlcXVpdHlfcRgDIAEoEiIjCiFHZXRQb3J0Zm9saW9FcXVpdHlTbmFwc2hvdFJlcXVlc3Qi1gEKIkdldFBvcnRmb2xpb0VxdWl0eVNuYXBzaG90UmVzcG9uc2USEwoLcXVvdGVfYXNzZXQYASABKAkSFgoOdG90YWxfZXF1aXR5X3EYAiABKBISOAoIYWNjb3VudHMYAyADKAsyJi5sZWRnZXIucmVhZC52MS5Qb3J0Zm9saW9BY2NvdW50RXF1aXR5EjQKBmFzc2V0cxgEIAMoCzIkLmxlZGdlci5yZWFkLnYxLlBvcnRmb2xpb0Fzc2V0RXF1aXR5EhMKC2J0Y19wcmljZV9xGAUgASgDIucBChRMaXN0VHJhbnNmZXJzUmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESDwoFbGltaXQYAiABKA1CABIQCghyZXZlcnNlZBgDIAEoCBIRCgl0c19taW5fdXMYBCABKAQSEQoJdHNfbWF4X3VzGAUgASgEEjAKDXRyYW5zZmVyX2NvZGUYBiABKA4yFy5sZWRnZXIudjEuVHJhbnNmZXJDb2RlQgASDgoGbGVkZ2VyGAcgASgNEhQKCnBhZ2VfdG9rZW4YCSABKAlCADoAQhAKDl9zdWJhY2NvdW50X2lkIpsBCgxUcmFuc2ZlclNpZGUSLgoEa2luZBgBIAEoDjIgLmxlZGdlci5yZWFkLnYxLlRyYW5zZmVyU2lkZUtpbmQSFwoKYWNjb3VudF9pZBgCIAEoBkgAiAEBEg8KB2FkZHJlc3MYAyABKAkSFQoIY2hhaW5faWQYBCABKA1IAYgBAUINCgtfYWNjb3VudF9pZEILCglfY2hhaW5faWQiggMKC1RyYW5zZmVyUm93EhAKCGFzc2V0X2lkGAEgASgNEisKCmFtb3VudF9lMTgYAiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Ei4KDXRyYW5zZmVyX2NvZGUYAyABKA4yFy5sZWRnZXIudjEuVHJhbnNmZXJDb2RlEiwKDGFjY291bnRfY29kZRgEIAEoDjIWLmxlZGdlci52MS5BY2NvdW50Q29kZRINCgV0c191cxgFIAEoBBIyChFiYWxhbmNlX2FmdGVyX2UxOBgJIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSEAoIaXNfZGViaXQYCiABKAgSDwoHbGlua19pZBgLIAEoBBIPCgdmbG93X2lkGAwgASgJEiwKBnNvdXJjZRgNIAEoCzIcLmxlZGdlci5yZWFkLnYxLlRyYW5zZmVyU2lkZRIxCgtkZXN0aW5hdGlvbhgOIAEoCzIcLmxlZGdlci5yZWFkLnYxLlRyYW5zZmVyU2lkZSJiChVMaXN0VHJhbnNmZXJzUmVzcG9uc2USLgoJdHJhbnNmZXJzGAEgAygLMhsubGVkZ2VyLnJlYWQudjEuVHJhbnNmZXJSb3cSGQoPbmV4dF9wYWdlX3Rva2VuGAMgASgJQgAieQoQTGlzdEhvbGRzUmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESDwoFbGltaXQYAiABKA1CABIQCghyZXZlcnNlZBgDIAEoCBIUCgpwYWdlX3Rva2VuGAQgASgJQgBCEAoOX3N1YmFjY291bnRfaWQieQoHSG9sZFJvdxIPCgdob2xkX2lkGAEgASgGEjQKE2Ftb3VudF9yZXNlcnZlZF9lMTgYAiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EhAKCGFzc2V0X2lkGAMgASgNEhUKDWV4cGlyZXNfYXRfbnMYBCABKAQiVgoRTGlzdEhvbGRzUmVzcG9uc2USJgoFaG9sZHMYASADKAsyFy5sZWRnZXIucmVhZC52MS5Ib2xkUm93EhkKD25leHRfcGFnZV90b2tlbhgCIAEoCUIAIjYKC0Vycm9yRGV0YWlsEicKBGNvZGUYASABKA4yGS5sZWRnZXIucmVhZC52MS5FcnJvckNvZGUqbQoMQmFsYW5jZVJhbmdlEhUKEVJBTkdFX1VOU1BFQ0lGSUVEEAASCQoFREFZXzEQARIJCgVEQVlfNxACEgoKBkRBWV8zMBADEgoKBkRBWV85MBAEEgsKB0RBWV8xODAQBRILCgdEQVlfMzY1EAYqUwoNRXF1aXR5R3JvdXBCeRIYChRHUk9VUF9CWV9VTlNQRUNJRklFRBAAEhQKEEdST1VQX0JZX0FDQ09VTlQQARISCg5HUk9VUF9CWV9BU1NFVBACKrUBChBUcmFuc2ZlclNpZGVLaW5kEiIKHlRSQU5TRkVSX1NJREVfS0lORF9VTlNQRUNJRklFRBAAEhMKD0ZVTkRJTkdfQUNDT1VOVBABEhMKD1RSQURJTkdfQUNDT1VOVBACEhQKEEVYVEVSTkFMX0FERFJFU1MQAxIYChRQUklWQVRFX0NPVU5URVJQQVJUWRAEEg8KC0ZFRV9BQ0NPVU5UEAUSEgoOU1lTVEVNX0FDQ09VTlQQBiryAgoJRXJyb3JDb2RlEhoKFkVSUk9SX0NPREVfVU5TUEVDSUZJRUQQABIaChZFUlJPUl9DT0RFX0JBRF9SRVFVRVNUEAESHgoaRVJST1JfQ09ERV9VTkFVVEhFTlRJQ0FURUQQAhIgChxFUlJPUl9DT0RFX1BFUk1JU1NJT05fREVOSUVEEAMSGAoURVJST1JfQ09ERV9OT1RfRk9VTkQQBBIhCh1FUlJPUl9DT0RFX01JU1NJTkdfQUNDT1VOVF9JRBAFEiEKHUVSUk9SX0NPREVfSU5WQUxJRF9BQ0NPVU5UX0lEEAYSHQoZRVJST1JfQ09ERV9NSVNTSU5HX1dBTExFVBAHEiwKKEVSUk9SX0NPREVfV0FMTEVUX1JFU09MVVRJT05fVU5BVkFJTEFCTEUQCBIfChtFUlJPUl9DT0RFX1dBTExFVF9OT1RfRk9VTkQQCRIdChlFUlJPUl9DT0RFX1VQU1RSRUFNX0VSUk9SEAoypwYKEUxlZGdlclJlYWRTZXJ2aWNlEmoKEUdldEJhbGFuY2VIaXN0b3J5EigubGVkZ2VyLnJlYWQudjEuR2V0QmFsYW5jZUhpc3RvcnlSZXF1ZXN0GikubGVkZ2VyLnJlYWQudjEuR2V0QmFsYW5jZUhpc3RvcnlSZXNwb25zZSIAEnkKFkdldEVxdWl0eUhpc3RvcnlTZXJpZXMSLS5sZWRnZXIucmVhZC52MS5HZXRFcXVpdHlIaXN0b3J5U2VyaWVzUmVxdWVzdBouLmxlZGdlci5yZWFkLnYxLkdldEVxdWl0eUhpc3RvcnlTZXJpZXNSZXNwb25zZSIAEpQBCh9HZXRQb3J0Zm9saW9FcXVpdHlIaXN0b3J5U2VyaWVzEjYubGVkZ2VyLnJlYWQudjEuR2V0UG9ydGZvbGlvRXF1aXR5SGlzdG9yeVNlcmllc1JlcXVlc3QaNy5sZWRnZXIucmVhZC52MS5HZXRQb3J0Zm9saW9FcXVpdHlIaXN0b3J5U2VyaWVzUmVzcG9uc2UiABKFAQoaR2V0UG9ydGZvbGlvRXF1aXR5U25hcHNob3QSMS5sZWRnZXIucmVhZC52MS5HZXRQb3J0Zm9saW9FcXVpdHlTbmFwc2hvdFJlcXVlc3QaMi5sZWRnZXIucmVhZC52MS5HZXRQb3J0Zm9saW9FcXVpdHlTbmFwc2hvdFJlc3BvbnNlIgASXgoNTGlzdFRyYW5zZmVycxIkLmxlZGdlci5yZWFkLnYxLkxpc3RUcmFuc2ZlcnNSZXF1ZXN0GiUubGVkZ2VyLnJlYWQudjEuTGlzdFRyYW5zZmVyc1Jlc3BvbnNlIgASUgoJTGlzdEhvbGRzEiAubGVkZ2VyLnJlYWQudjEuTGlzdEhvbGRzUmVxdWVzdBohLmxlZGdlci5yZWFkLnYxLkxpc3RIb2xkc1Jlc3BvbnNlIgASWAoLR2V0QmFsYW5jZXMSIi5sZWRnZXIucmVhZC52MS5HZXRCYWxhbmNlc1JlcXVlc3QaIy5sZWRnZXIucmVhZC52MS5HZXRCYWxhbmNlc1Jlc3BvbnNlIgBCR1pFZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9sZWRnZXIvcmVhZC92MTtsZWRnZXJyZHYxYgZwcm90bzM=", [file_ledger_v1_catalog, file_polyester_type_v1_u128]);
 
 /**
  * @generated from message ledger.read.v1.GetBalancesRequest
@@ -322,6 +322,35 @@ export const AssetGroupingSchema: GenMessage<AssetGrouping> = /*@__PURE__*/
   messageDesc(file_ledger_read_v1_ledger_read, 7);
 
 /**
+ * Logical account grouping used by root portfolio equity history.
+ *
+ * @generated from message ledger.read.v1.PortfolioAccountGrouping
+ */
+export type PortfolioAccountGrouping = Message<"ledger.read.v1.PortfolioAccountGrouping"> & {
+  /**
+   * Public account or subaccount ID. Its encoded entity type distinguishes
+   * the master account from an owned subaccount. Omitted for Remaining.
+   *
+   * @generated from field: optional fixed64 account_id = 1;
+   */
+  accountId?: bigint | undefined;
+
+  /**
+   * True when this series combines all non-selected owned subaccounts.
+   *
+   * @generated from field: bool remaining = 2;
+   */
+  remaining: boolean;
+};
+
+/**
+ * Describes the message ledger.read.v1.PortfolioAccountGrouping.
+ * Use `create(PortfolioAccountGroupingSchema)` to create a new message.
+ */
+export const PortfolioAccountGroupingSchema: GenMessage<PortfolioAccountGrouping> = /*@__PURE__*/
+  messageDesc(file_ledger_read_v1_ledger_read, 8);
+
+/**
  * Equity history in USDT (or BTC via client-side conversion using btc_prices).
  * Values are derived from per-asset balances and market prices (close ticks).
  *
@@ -365,7 +394,7 @@ export type GetEquityHistorySeriesRequest = Message<"ledger.read.v1.GetEquityHis
  * Use `create(GetEquityHistorySeriesRequestSchema)` to create a new message.
  */
 export const GetEquityHistorySeriesRequestSchema: GenMessage<GetEquityHistorySeriesRequest> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 8);
+  messageDesc(file_ledger_read_v1_ledger_read, 9);
 
 /**
  * Columnar equity series payload (scaled integers).
@@ -375,7 +404,7 @@ export const GetEquityHistorySeriesRequestSchema: GenMessage<GetEquityHistorySer
  */
 export type EquitySeries = Message<"ledger.read.v1.EquitySeries"> & {
   /**
-   * Grouping identifier: either account or asset, depending on request group_by.
+   * Grouping identifier. The serving RPC documents which grouping is returned.
    *
    * @generated from oneof ledger.read.v1.EquitySeries.grouping
    */
@@ -395,6 +424,14 @@ export type EquitySeries = Message<"ledger.read.v1.EquitySeries"> & {
      */
     value: AssetGrouping;
     case: "asset";
+  } | {
+    /**
+     * set for root portfolio history
+     *
+     * @generated from field: ledger.read.v1.PortfolioAccountGrouping portfolio_account = 4;
+     */
+    value: PortfolioAccountGrouping;
+    case: "portfolioAccount";
   } | { case: undefined; value?: undefined };
 
   /**
@@ -411,7 +448,7 @@ export type EquitySeries = Message<"ledger.read.v1.EquitySeries"> & {
  * Use `create(EquitySeriesSchema)` to create a new message.
  */
 export const EquitySeriesSchema: GenMessage<EquitySeries> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 9);
+  messageDesc(file_ledger_read_v1_ledger_read, 10);
 
 /**
  * GetEquityHistorySeriesResponse returns aligned equity chart series.
@@ -482,7 +519,239 @@ export type GetEquityHistorySeriesResponse = Message<"ledger.read.v1.GetEquityHi
  * Use `create(GetEquityHistorySeriesResponseSchema)` to create a new message.
  */
 export const GetEquityHistorySeriesResponseSchema: GenMessage<GetEquityHistorySeriesResponse> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 10);
+  messageDesc(file_ledger_read_v1_ledger_read, 11);
+
+/**
+ * Requests root portfolio equity history.
+ *
+ * @generated from message ledger.read.v1.GetPortfolioEquityHistorySeriesRequest
+ */
+export type GetPortfolioEquityHistorySeriesRequest = Message<"ledger.read.v1.GetPortfolioEquityHistorySeriesRequest"> & {
+  /**
+   * History window to return. When unset/UNSPECIFIED, defaults to 1D.
+   *
+   * @generated from field: ledger.read.v1.BalanceRange range = 1;
+   */
+  range: BalanceRange;
+};
+
+/**
+ * Describes the message ledger.read.v1.GetPortfolioEquityHistorySeriesRequest.
+ * Use `create(GetPortfolioEquityHistorySeriesRequestSchema)` to create a new message.
+ */
+export const GetPortfolioEquityHistorySeriesRequestSchema: GenMessage<GetPortfolioEquityHistorySeriesRequest> = /*@__PURE__*/
+  messageDesc(file_ledger_read_v1_ledger_read, 12);
+
+/**
+ * Root portfolio equity history with aligned, implicit timestamps.
+ *
+ * @generated from message ledger.read.v1.GetPortfolioEquityHistorySeriesResponse
+ */
+export type GetPortfolioEquityHistorySeriesResponse = Message<"ledger.read.v1.GetPortfolioEquityHistorySeriesResponse"> & {
+  /**
+   * Resolved history window.
+   *
+   * @generated from field: ledger.read.v1.BalanceRange range = 1;
+   */
+  range: BalanceRange;
+
+  /**
+   * Sampling interval between points, such as "5m" or "1h".
+   *
+   * @generated from field: string bucket = 2;
+   */
+  bucket: string;
+
+  /**
+   * First point timestamp in seconds since epoch (UTC).
+   *
+   * @generated from field: fixed32 start_ts_sec = 3;
+   */
+  startTsSec: number;
+
+  /**
+   * Last point timestamp in seconds since epoch (UTC).
+   *
+   * @generated from field: fixed32 end_ts_sec = 4;
+   */
+  endTsSec: number;
+
+  /**
+   * Human-readable quote asset symbol (always "USDT").
+   *
+   * @generated from field: string quote_asset = 5;
+   */
+  quoteAsset: string;
+
+  /**
+   * Number of aligned points in each returned series.
+   *
+   * @generated from field: uint32 points = 6;
+   */
+  points: number;
+
+  /**
+   * Master account first, followed by up to nine owned subaccounts ordered by
+   * current equity descending, then Remaining when other subaccounts exist.
+   *
+   * @generated from field: repeated ledger.read.v1.EquitySeries series = 7;
+   */
+  series: EquitySeries[];
+
+  /**
+   * BTC-USDT close price at each timestamp, scaled by 1e6 (same as price_ticks).
+   * Enables client-side conversion to BTC denomination without refetch.
+   *
+   * @generated from field: repeated int64 btc_prices_q = 8;
+   */
+  btcPricesQ: bigint[];
+};
+
+/**
+ * Describes the message ledger.read.v1.GetPortfolioEquityHistorySeriesResponse.
+ * Use `create(GetPortfolioEquityHistorySeriesResponseSchema)` to create a new message.
+ */
+export const GetPortfolioEquityHistorySeriesResponseSchema: GenMessage<GetPortfolioEquityHistorySeriesResponse> = /*@__PURE__*/
+  messageDesc(file_ledger_read_v1_ledger_read, 13);
+
+/**
+ * Current equity for one logical account in the root portfolio.
+ *
+ * @generated from message ledger.read.v1.PortfolioAccountEquity
+ */
+export type PortfolioAccountEquity = Message<"ledger.read.v1.PortfolioAccountEquity"> & {
+  /**
+   * Public master-account or subaccount ID.
+   *
+   * @generated from field: fixed64 account_id = 1;
+   */
+  accountId: bigint;
+
+  /**
+   * Current equity in USDT scaled by 1e4 (4 decimals).
+   *
+   * @generated from field: sint64 equity_q = 2;
+   */
+  equityQ: bigint;
+
+  /**
+   * Up to three assets with the highest current equity value, ordered highest
+   * first. Assets without a current value are omitted.
+   *
+   * @generated from field: repeated uint32 top_asset_ids = 3;
+   */
+  topAssetIds: number[];
+};
+
+/**
+ * Describes the message ledger.read.v1.PortfolioAccountEquity.
+ * Use `create(PortfolioAccountEquitySchema)` to create a new message.
+ */
+export const PortfolioAccountEquitySchema: GenMessage<PortfolioAccountEquity> = /*@__PURE__*/
+  messageDesc(file_ledger_read_v1_ledger_read, 14);
+
+/**
+ * Current aggregate balance and equity for one asset in the root portfolio.
+ *
+ * @generated from message ledger.read.v1.PortfolioAssetEquity
+ */
+export type PortfolioAssetEquity = Message<"ledger.read.v1.PortfolioAssetEquity"> & {
+  /**
+   * Public unified asset ID.
+   *
+   * @generated from field: uint32 asset_id = 1;
+   */
+  assetId: number;
+
+  /**
+   * Combined Funding and Trading balance in asset units scaled by 1e7
+   * (7 decimals).
+   *
+   * @generated from field: uint64 balance_q = 2;
+   */
+  balanceQ: bigint;
+
+  /**
+   * Current equity in USDT scaled by 1e4 (4 decimals).
+   *
+   * @generated from field: sint64 equity_q = 3;
+   */
+  equityQ: bigint;
+};
+
+/**
+ * Describes the message ledger.read.v1.PortfolioAssetEquity.
+ * Use `create(PortfolioAssetEquitySchema)` to create a new message.
+ */
+export const PortfolioAssetEquitySchema: GenMessage<PortfolioAssetEquity> = /*@__PURE__*/
+  messageDesc(file_ledger_read_v1_ledger_read, 15);
+
+/**
+ * Requests a current root portfolio equity snapshot.
+ *
+ * @generated from message ledger.read.v1.GetPortfolioEquitySnapshotRequest
+ */
+export type GetPortfolioEquitySnapshotRequest = Message<"ledger.read.v1.GetPortfolioEquitySnapshotRequest"> & {
+};
+
+/**
+ * Describes the message ledger.read.v1.GetPortfolioEquitySnapshotRequest.
+ * Use `create(GetPortfolioEquitySnapshotRequestSchema)` to create a new message.
+ */
+export const GetPortfolioEquitySnapshotRequestSchema: GenMessage<GetPortfolioEquitySnapshotRequest> = /*@__PURE__*/
+  messageDesc(file_ledger_read_v1_ledger_read, 16);
+
+/**
+ * Current root portfolio equity, grouped by logical account and asset.
+ *
+ * @generated from message ledger.read.v1.GetPortfolioEquitySnapshotResponse
+ */
+export type GetPortfolioEquitySnapshotResponse = Message<"ledger.read.v1.GetPortfolioEquitySnapshotResponse"> & {
+  /**
+   * Human-readable quote asset symbol (always "USDT").
+   *
+   * @generated from field: string quote_asset = 1;
+   */
+  quoteAsset: string;
+
+  /**
+   * Current equity across the master account and all owned subaccounts in USDT,
+   * scaled by 1e4 (4 decimals).
+   *
+   * @generated from field: sint64 total_equity_q = 2;
+   */
+  totalEquityQ: bigint;
+
+  /**
+   * Master account first, followed by every owned subaccount ordered by current
+   * equity descending and public ID ascending for ties.
+   *
+   * @generated from field: repeated ledger.read.v1.PortfolioAccountEquity accounts = 3;
+   */
+  accounts: PortfolioAccountEquity[];
+
+  /**
+   * Non-zero asset balances ordered by current equity descending and public
+   * asset ID ascending for ties.
+   *
+   * @generated from field: repeated ledger.read.v1.PortfolioAssetEquity assets = 4;
+   */
+  assets: PortfolioAssetEquity[];
+
+  /**
+   * Current BTC-USDT price scaled by 1e6. Zero when unavailable.
+   *
+   * @generated from field: int64 btc_price_q = 5;
+   */
+  btcPriceQ: bigint;
+};
+
+/**
+ * Describes the message ledger.read.v1.GetPortfolioEquitySnapshotResponse.
+ * Use `create(GetPortfolioEquitySnapshotResponseSchema)` to create a new message.
+ */
+export const GetPortfolioEquitySnapshotResponseSchema: GenMessage<GetPortfolioEquitySnapshotResponse> = /*@__PURE__*/
+  messageDesc(file_ledger_read_v1_ledger_read, 17);
 
 /**
  * @generated from message ledger.read.v1.ListTransfersRequest
@@ -557,7 +826,7 @@ export type ListTransfersRequest = Message<"ledger.read.v1.ListTransfersRequest"
  * Use `create(ListTransfersRequestSchema)` to create a new message.
  */
 export const ListTransfersRequestSchema: GenMessage<ListTransfersRequest> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 11);
+  messageDesc(file_ledger_read_v1_ledger_read, 18);
 
 /**
  * TransferSide describes one side of a ledger transfer for display.
@@ -605,7 +874,7 @@ export type TransferSide = Message<"ledger.read.v1.TransferSide"> & {
  * Use `create(TransferSideSchema)` to create a new message.
  */
 export const TransferSideSchema: GenMessage<TransferSide> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 12);
+  messageDesc(file_ledger_read_v1_ledger_read, 19);
 
 /**
  * TransferRow describes one debit or credit leg of a ledger transfer.
@@ -699,7 +968,7 @@ export type TransferRow = Message<"ledger.read.v1.TransferRow"> & {
  * Use `create(TransferRowSchema)` to create a new message.
  */
 export const TransferRowSchema: GenMessage<TransferRow> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 13);
+  messageDesc(file_ledger_read_v1_ledger_read, 20);
 
 /**
  * ListTransfersResponse contains transfer rows and an optional continuation cursor.
@@ -727,7 +996,7 @@ export type ListTransfersResponse = Message<"ledger.read.v1.ListTransfersRespons
  * Use `create(ListTransfersResponseSchema)` to create a new message.
  */
 export const ListTransfersResponseSchema: GenMessage<ListTransfersResponse> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 14);
+  messageDesc(file_ledger_read_v1_ledger_read, 21);
 
 /**
  * @generated from message ledger.read.v1.ListHoldsRequest
@@ -770,7 +1039,7 @@ export type ListHoldsRequest = Message<"ledger.read.v1.ListHoldsRequest"> & {
  * Use `create(ListHoldsRequestSchema)` to create a new message.
  */
 export const ListHoldsRequestSchema: GenMessage<ListHoldsRequest> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 15);
+  messageDesc(file_ledger_read_v1_ledger_read, 22);
 
 /**
  * Hold row with compact integers and client-side resolution.
@@ -812,7 +1081,7 @@ export type HoldRow = Message<"ledger.read.v1.HoldRow"> & {
  * Use `create(HoldRowSchema)` to create a new message.
  */
 export const HoldRowSchema: GenMessage<HoldRow> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 16);
+  messageDesc(file_ledger_read_v1_ledger_read, 23);
 
 /**
  * @generated from message ledger.read.v1.ListHoldsResponse
@@ -838,7 +1107,7 @@ export type ListHoldsResponse = Message<"ledger.read.v1.ListHoldsResponse"> & {
  * Use `create(ListHoldsResponseSchema)` to create a new message.
  */
 export const ListHoldsResponseSchema: GenMessage<ListHoldsResponse> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 17);
+  messageDesc(file_ledger_read_v1_ledger_read, 24);
 
 /**
  * ErrorDetail is attached to ConnectRPC errors for structured error handling.
@@ -860,7 +1129,7 @@ export type ErrorDetail = Message<"ledger.read.v1.ErrorDetail"> & {
  * Use `create(ErrorDetailSchema)` to create a new message.
  */
 export const ErrorDetailSchema: GenMessage<ErrorDetail> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 18);
+  messageDesc(file_ledger_read_v1_ledger_read, 25);
 
 /**
  * Supported history windows for balance charts.
@@ -1123,6 +1392,30 @@ export const LedgerReadService: GenService<{
     methodKind: "unary";
     input: typeof GetEquityHistorySeriesRequestSchema;
     output: typeof GetEquityHistorySeriesResponseSchema;
+  },
+  /**
+   * Retrieve root portfolio equity history as master, top owned subaccounts,
+   * and an aggregate of the remaining owned subaccounts. Requires an
+   * interactive root-account session; API keys are not supported.
+   *
+   * @generated from rpc ledger.read.v1.LedgerReadService.GetPortfolioEquityHistorySeries
+   */
+  getPortfolioEquityHistorySeries: {
+    methodKind: "unary";
+    input: typeof GetPortfolioEquityHistorySeriesRequestSchema;
+    output: typeof GetPortfolioEquityHistorySeriesResponseSchema;
+  },
+  /**
+   * Retrieve current root portfolio equity grouped by logical account and
+   * asset. Requires an interactive root-account session; API keys are not
+   * supported.
+   *
+   * @generated from rpc ledger.read.v1.LedgerReadService.GetPortfolioEquitySnapshot
+   */
+  getPortfolioEquitySnapshot: {
+    methodKind: "unary";
+    input: typeof GetPortfolioEquitySnapshotRequestSchema;
+    output: typeof GetPortfolioEquitySnapshotResponseSchema;
   },
   /**
    * List finalized transfer history for an account.
