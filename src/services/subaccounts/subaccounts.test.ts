@@ -163,7 +163,7 @@ describe("SubaccountsService", () => {
             includeMembers: true,
             includeInvites: true,
             includePolicy: true,
-            invitesDirection: "outgoing",
+            invitesDirection: Proto.SubaccountInviteDirection.OUTGOING,
         });
     });
 
@@ -412,7 +412,7 @@ describe("SubaccountsService", () => {
         });
 
         expect(transport.calls.map((call) => call.message)).toEqual([
-            { direction: "incoming" },
+            { direction: Proto.SubaccountInviteDirection.INCOMING },
             { subaccountId: 42n },
             { subaccountId: 42n, limit: 25, pageToken: "cursor-1" },
         ]);

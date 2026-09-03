@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file auth/v1/resolve.proto.
  */
 export const file_auth_v1_resolve: GenFile = /*@__PURE__*/
-  fileDesc("ChVhdXRoL3YxL3Jlc29sdmUucHJvdG8SB2F1dGgudjEigwEKD1Jlc29sdmVkQWNjb3VudBIdChVzbWFydF9hY2NvdW50X2FkZHJlc3MYASABKAkSDAoEa2luZBgCIAEoCRIVCg1yb290X3VzZXJuYW1lGAMgASgJEhgKEHN1YmFjY291bnRfbGFiZWwYBCABKAkSEgoKYWNjb3VudF9pZBgFIAEoBiJrChVSZXNvbHZlQWNjb3VudFJlcXVlc3QSDwoFcXVlcnkYASABKAlCABIkCgRoaW50GAIgASgOMhQuYXV0aC52MS5SZXNvbHZlSGludEIAEhsKE2luY2x1ZGVfc3ViYWNjb3VudHMYAyABKAgiQwoWUmVzb2x2ZUFjY291bnRSZXNwb25zZRIpCgdtYXRjaGVzGAEgAygLMhguYXV0aC52MS5SZXNvbHZlZEFjY291bnQqVAoLUmVzb2x2ZUhpbnQSHAoYUkVTT0xWRV9ISU5UX1VOU1BFQ0lGSUVEEAASDAoIVVNFUk5BTUUQARIGCgJJRBACEhEKDVNNQVJUX0FDQ09VTlQQAzJlCg5SZXNvbHZlU2VydmljZRJTCg5SZXNvbHZlQWNjb3VudBIeLmF1dGgudjEuUmVzb2x2ZUFjY291bnRSZXF1ZXN0Gh8uYXV0aC52MS5SZXNvbHZlQWNjb3VudFJlc3BvbnNlIgBCPFo6Z2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9hdXRoL3YxO2F1dGh2MWIGcHJvdG8z");
+  fileDesc("ChVhdXRoL3YxL3Jlc29sdmUucHJvdG8SB2F1dGgudjEi1QEKD1Jlc29sdmVkQWNjb3VudBIdChVzbWFydF9hY2NvdW50X2FkZHJlc3MYASABKAkSLQoEa2luZBgCIAEoDjIdLmF1dGgudjEuUmVzb2x2ZWRBY2NvdW50LktpbmRCABIVCg1yb290X3VzZXJuYW1lGAMgASgJEhgKEHN1YmFjY291bnRfbGFiZWwYBCABKAkSEgoKYWNjb3VudF9pZBgFIAEoBiIvCgRLaW5kEhQKEEtJTkRfVU5TUEVDSUZJRUQQABIICgRST09UEAESBwoDU1VCEAIiawoVUmVzb2x2ZUFjY291bnRSZXF1ZXN0Eg8KBXF1ZXJ5GAEgASgJQgASJAoEaGludBgCIAEoDjIULmF1dGgudjEuUmVzb2x2ZUhpbnRCABIbChNpbmNsdWRlX3N1YmFjY291bnRzGAMgASgIIkMKFlJlc29sdmVBY2NvdW50UmVzcG9uc2USKQoHbWF0Y2hlcxgBIAMoCzIYLmF1dGgudjEuUmVzb2x2ZWRBY2NvdW50KlQKC1Jlc29sdmVIaW50EhwKGFJFU09MVkVfSElOVF9VTlNQRUNJRklFRBAAEgwKCFVTRVJOQU1FEAESBgoCSUQQAhIRCg1TTUFSVF9BQ0NPVU5UEAMyZQoOUmVzb2x2ZVNlcnZpY2USUwoOUmVzb2x2ZUFjY291bnQSHi5hdXRoLnYxLlJlc29sdmVBY2NvdW50UmVxdWVzdBofLmF1dGgudjEuUmVzb2x2ZUFjY291bnRSZXNwb25zZSIAQjxaOmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vYXV0aC92MTthdXRodjFiBnByb3RvMw==");
 
 /**
  * ResolvedAccount represents a lightweight view of a destination account for
@@ -29,11 +29,11 @@ export type ResolvedAccount = Message<"auth.v1.ResolvedAccount"> & {
   smartAccountAddress: string;
 
   /**
-   * Kind of account that owns this address: "root" or "sub".
+   * Category of account that owns this address.
    *
-   * @generated from field: string kind = 2;
+   * @generated from field: auth.v1.ResolvedAccount.Kind kind = 2;
    */
-  kind: string;
+  kind: ResolvedAccount_Kind;
 
   /**
    * Root account username for the result. For sub-account results, this is the
@@ -44,7 +44,7 @@ export type ResolvedAccount = Message<"auth.v1.ResolvedAccount"> & {
   rootUsername: string;
 
   /**
-   * Optional sub-account label when kind == "sub".
+   * Optional sub-account label when kind is SUB.
    *
    * @generated from field: string subaccount_label = 4;
    */
@@ -65,6 +65,40 @@ export type ResolvedAccount = Message<"auth.v1.ResolvedAccount"> & {
  */
 export const ResolvedAccountSchema: GenMessage<ResolvedAccount> = /*@__PURE__*/
   messageDesc(file_auth_v1_resolve, 0);
+
+/**
+ * Category of account that owns the resolved smart-account address.
+ *
+ * @generated from enum auth.v1.ResolvedAccount.Kind
+ */
+export enum ResolvedAccount_Kind {
+  /**
+   * Account kind was not provided.
+   *
+   * @generated from enum value: KIND_UNSPECIFIED = 0;
+   */
+  KIND_UNSPECIFIED = 0,
+
+  /**
+   * Root account.
+   *
+   * @generated from enum value: ROOT = 1;
+   */
+  ROOT = 1,
+
+  /**
+   * Sub-account.
+   *
+   * @generated from enum value: SUB = 2;
+   */
+  SUB = 2,
+}
+
+/**
+ * Describes the enum auth.v1.ResolvedAccount.Kind.
+ */
+export const ResolvedAccount_KindSchema: GenEnum<ResolvedAccount_Kind> = /*@__PURE__*/
+  enumDesc(file_auth_v1_resolve, 0, 0);
 
 /**
  * ResolveAccountRequest searches for a transfer or sharing destination by

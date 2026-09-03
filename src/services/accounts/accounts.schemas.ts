@@ -1,7 +1,8 @@
 import * as v from "valibot";
 import * as ProtoResolve from "../../gen/auth/v1/resolve_pb.js";
+import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import { PublicIdSchema } from "../../shared/schemas.js";
-import { ResolveHintCodec } from "./accounts.codecs.js";
+import { ResolvedAccountKindCodec, ResolveHintCodec } from "./accounts.codecs.js";
 
 function normalizeResolveHint(value?: string): ProtoResolve.ResolveHint {
     const raw = (value ?? "").trim();
@@ -25,7 +26,17 @@ export type ResolveAccountInput = v.InferInput<typeof ResolveAccountInputSchema>
 
 export const ResolvedAccountSchema = v.object({
     smartAccountAddress: v.string(),
-    kind: v.picklist(["root", "sub"]),
+    kind: v.pipe(
+        v.enum(ProtoResolve.ResolvedAccount_Kind),
+        v.transform((kind) =>
+            requiredEnumLabel(
+                ResolvedAccountKindCodec.protoToOutput,
+                kind,
+                "ResolvedAccountSchema",
+                "kind",
+            ),
+        ),
+    ),
     rootUsername: v.optional(v.string()),
     subaccountLabel: v.optional(v.string()),
     accountId: PublicIdSchema,

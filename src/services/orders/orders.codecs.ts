@@ -88,6 +88,37 @@ export type BatchReplaceItemAdmissionStatusValue =
 export const BATCH_REPLACE_PHASE_VALUES = ["admitted", "working", "rejected", "terminal"] as const;
 export type BatchReplacePhaseValue = (typeof BATCH_REPLACE_PHASE_VALUES)[number];
 
+export const CancelOrderStatusCodec = {
+    protoToOutput: {
+        [ProtoWrite.CancelOrderResponse_Status.STATUS_UNSPECIFIED]: "unspecified",
+        [ProtoWrite.CancelOrderResponse_Status.ACCEPTED]: "accepted",
+    } satisfies ProtoToOutput<ProtoWrite.CancelOrderResponse_Status, "accepted">,
+} as const;
+
+export const CancelAllOrdersStatusCodec = {
+    protoToOutput: {
+        [ProtoWrite.CancelAllOrdersResponse_Status.STATUS_UNSPECIFIED]: "unspecified",
+        [ProtoWrite.CancelAllOrdersResponse_Status.SUBMITTED]: "submitted",
+        [ProtoWrite.CancelAllOrdersResponse_Status.DRY_RUN]: "dry_run",
+    } satisfies ProtoToOutput<ProtoWrite.CancelAllOrdersResponse_Status, "submitted" | "dry_run">,
+} as const;
+
+export const CancelAllAfterStatusCodec = {
+    protoToOutput: {
+        [ProtoWrite.CancelAllAfterResponse_Status.STATUS_UNSPECIFIED]: "unspecified",
+        [ProtoWrite.CancelAllAfterResponse_Status.ARMED]: "armed",
+        [ProtoWrite.CancelAllAfterResponse_Status.DISABLED]: "disabled",
+    } satisfies ProtoToOutput<ProtoWrite.CancelAllAfterResponse_Status, "armed" | "disabled">,
+} as const;
+
+export const BatchCancelOrderStatusCodec = {
+    protoToOutput: {
+        [ProtoWrite.BatchCancelResultItem_Status.STATUS_UNSPECIFIED]: "unspecified",
+        [ProtoWrite.BatchCancelResultItem_Status.ACCEPTED]: "accepted",
+        [ProtoWrite.BatchCancelResultItem_Status.REJECTED]: "rejected",
+    } satisfies ProtoToOutput<ProtoWrite.BatchCancelResultItem_Status, "accepted" | "rejected">,
+} as const;
+
 export const OrderStatusFilterCodec = {
     inputToProto: {
         FILLED: ProtoRead.OrderStatus.FILLED,

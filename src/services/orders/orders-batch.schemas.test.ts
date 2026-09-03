@@ -119,7 +119,7 @@ describe("CancelAllAfter schemas", () => {
     it("normalizes dead-man timestamps without losing nanosecond precision", () => {
         expect(
             v.parse(CancelAllAfterResultSchema, {
-                status: "armed",
+                status: ProtoWrite.CancelAllAfterResponse_Status.ARMED,
                 effectiveTimeoutSec: 15,
                 expiresAtTsNs: 1_234_567_890n,
                 tsNs: 1_000_000_999n,
@@ -626,13 +626,13 @@ describe("batch cancel schemas", () => {
             v.parse(BatchCancelOrdersResultSchema, {
                 results: [
                     {
-                        status: "accepted",
+                        status: ProtoWrite.BatchCancelResultItem_Status.ACCEPTED,
                         orderId: 11n,
                         clientOrderId: "",
                         code: "",
                     },
                     {
-                        status: "rejected",
+                        status: ProtoWrite.BatchCancelResultItem_Status.REJECTED,
                         orderId: 0n,
                         clientOrderId: "order-b",
                         code: "ORDER_NOT_FOUND",

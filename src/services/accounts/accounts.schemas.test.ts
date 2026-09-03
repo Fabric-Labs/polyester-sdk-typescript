@@ -43,7 +43,7 @@ describe("ResolvedAccountSchema", () => {
     it("formats account IDs and preserves optional account labels", () => {
         const account = v.parse(ResolvedAccountSchema, {
             smartAccountAddress: "0x0000000000000000000000000000000000000001",
-            kind: "sub",
+            kind: ProtoResolve.ResolvedAccount_Kind.SUB,
             rootUsername: "alice",
             subaccountLabel: "Trading",
             accountId: 42n,
@@ -56,5 +56,13 @@ describe("ResolvedAccountSchema", () => {
             subaccountLabel: "Trading",
             accountId: formatId(42n),
         });
+
+        expect(() =>
+            v.parse(ResolvedAccountSchema, {
+                smartAccountAddress: "0x0000000000000000000000000000000000000001",
+                kind: 999,
+                accountId: 42n,
+            }),
+        ).toThrow();
     });
 });

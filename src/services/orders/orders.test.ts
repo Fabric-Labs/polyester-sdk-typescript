@@ -336,7 +336,7 @@ describe("OrdersService", () => {
     it("normalizes cancel and modify mutation payloads", async () => {
         const transport = unaryTransportByMethod({
             cancelOrder: {
-                status: "cancelled",
+                status: ProtoWrite.CancelOrderResponse_Status.ACCEPTED,
                 orderId: 22n,
                 tsNs: 1_786_023_715_943_284_847n,
             },
@@ -362,7 +362,7 @@ describe("OrdersService", () => {
                 account: { subaccountId: formatId(11n) },
             }),
         ).resolves.toMatchObject({
-            status: "cancelled",
+            status: "accepted",
             ts: 1_786_023_715_943,
             tsNs: "1786023715943284847",
         });
@@ -373,7 +373,7 @@ describe("OrdersService", () => {
                 account: { subaccountId: formatId(11n) },
             }),
         ).resolves.toMatchObject({
-            status: "cancelled",
+            status: "accepted",
             ts: 1_786_023_715_943,
             tsNs: "1786023715943284847",
         });
@@ -430,7 +430,7 @@ describe("OrdersService", () => {
     it("generates a request ID for cancelAll when omitted", async () => {
         const transport = unaryTransportByMethod({
             cancelAllOrders: {
-                status: "ok",
+                status: ProtoWrite.CancelAllOrdersResponse_Status.SUBMITTED,
                 matchedOrders: 2,
                 submittedCancels: 2,
                 failedCancels: 0,
@@ -445,7 +445,7 @@ describe("OrdersService", () => {
         );
 
         await expect(service.cancelAll({ symbolId: 1 })).resolves.toMatchObject({
-            status: "ok",
+            status: "submitted",
             matchedOrders: 2,
             submittedCancels: 2,
             failedCancels: 0,
@@ -464,7 +464,7 @@ describe("OrdersService", () => {
     it("preserves a caller-provided request ID for cancelAll", async () => {
         const transport = unaryTransportByMethod({
             cancelAllOrders: {
-                status: "ok",
+                status: ProtoWrite.CancelAllOrdersResponse_Status.SUBMITTED,
                 matchedOrders: 0,
                 submittedCancels: 0,
                 failedCancels: 0,
@@ -673,13 +673,13 @@ describe("OrdersService", () => {
             batchCancelOrders: {
                 results: [
                     {
-                        status: "accepted",
+                        status: ProtoWrite.BatchCancelResultItem_Status.ACCEPTED,
                         orderId: 11n,
                         clientOrderId: "",
                         code: "",
                     },
                     {
-                        status: "rejected",
+                        status: ProtoWrite.BatchCancelResultItem_Status.REJECTED,
                         orderId: 0n,
                         clientOrderId: "order-b",
                         code: "ORDER_NOT_FOUND",
@@ -732,7 +732,7 @@ describe("OrdersService", () => {
         };
         const transport = unaryTransportByMethod({
             cancelAllAfter: {
-                status: "armed",
+                status: ProtoWrite.CancelAllAfterResponse_Status.ARMED,
                 effectiveTimeoutSec: 15,
                 expiresAtTsNs: 20_000_000_456n,
                 tsNs: 5_000_000_123n,

@@ -16,6 +16,8 @@ import {
     SubaccountPermissionCodec,
     InviteActionCodec,
     InviteStatusCodec,
+    SubaccountInviteDirectionCodec,
+    SUBACCOUNT_INVITE_DIRECTION_VALUES,
     SubaccountStatusCodec,
     SUBACCOUNT_STATUS_VALUES,
     ActivityEntityKindCodec,
@@ -220,7 +222,10 @@ export type SetSubaccountMemberMfaRequirementInput = v.InferInput<
 >;
 
 export const ListSubaccountInvitesInputSchema = v.strictObject({
-    direction: v.optional(v.picklist(["incoming", "outgoing", ""]), ""),
+    direction: v.pipe(
+        v.optional(v.picklist(SUBACCOUNT_INVITE_DIRECTION_VALUES), ""),
+        v.transform((direction) => SubaccountInviteDirectionCodec.inputToProto[direction]),
+    ),
 });
 
 export type ListSubaccountInvitesInput = v.InferInput<typeof ListSubaccountInvitesInputSchema>;

@@ -18,6 +18,8 @@ import {
 } from "../../shared/decimal-surface.js";
 import {
     BatchReplaceAdmissionStatusCodec,
+    BatchCancelOrderStatusCodec,
+    CancelAllAfterStatusCodec,
     BatchReplaceItemAdmissionStatusCodec,
     BatchReplacePhaseCodec,
     OrderStatusCodec,
@@ -71,7 +73,17 @@ export type CancelAllAfterInput = v.InferInput<typeof CancelAllAfterInputSchema>
 
 export const CancelAllAfterResultSchema = v.pipe(
     v.object({
-        status: v.picklist(["armed", "disabled"]),
+        status: v.pipe(
+            v.enum(ProtoWrite.CancelAllAfterResponse_Status),
+            v.transform((status) =>
+                requiredEnumLabel(
+                    CancelAllAfterStatusCodec.protoToOutput,
+                    status,
+                    "CancelAllAfterResultSchema",
+                    "status",
+                ),
+            ),
+        ),
         effectiveTimeoutSec: v.pipe(v.number(), v.integer(), v.minValue(0)),
         expiresAtTsNs: v.bigint(),
         tsNs: v.bigint(),
@@ -539,7 +551,17 @@ export const BatchCancelOrdersInputSchema = v.pipe(
 export type BatchCancelOrdersInput = v.InferInput<typeof BatchCancelOrdersInputSchema>;
 
 const BatchCancelOrderResultSchema = v.object({
-    status: v.picklist(["accepted", "rejected"]),
+    status: v.pipe(
+        v.enum(ProtoWrite.BatchCancelResultItem_Status),
+        v.transform((status) =>
+            requiredEnumLabel(
+                BatchCancelOrderStatusCodec.protoToOutput,
+                status,
+                "BatchCancelOrderResultSchema",
+                "status",
+            ),
+        ),
+    ),
     orderId: OptionalPublicIdSchema,
     clientOrderId: v.string(),
     code: v.string(),
