@@ -1,7 +1,8 @@
 import * as Proto from "../../gen/marketoverview/v1/marketoverview_pb.js";
 import { createClient, type Client } from "@connectrpc/connect";
-import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
+import { CatalogLookupError } from "../../catalogs/types.js";
+import { isDev } from "../../utils/is-dev.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
 import { snapshotThenStream } from "../../realtime/snapshot-then-stream.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
@@ -20,6 +21,7 @@ import {
 } from "./market-overview.schemas.js";
 
 interface SubscribeMarketOverviewInput extends BaseSubscribeInput<MarketOverview[]> {
+    symbolIds?: number[];
     includeSparklines?: boolean;
     sparklineIntervals?: SparklineIntervalName[];
 }
@@ -54,9 +56,39 @@ export class MarketOverviewService {
             toConnectCallOptions(options),
         );
         return {
-            markets: parse(v.array(this.#marketOverviewSchema), res.markets),
+            markets: this.#decodeMarkets(res.markets),
             nextPageToken: res.nextPageToken,
         };
+    }
+
+    /**
+     * Decodes market rows, skipping any whose symbolId the catalog cannot resolve
+     * (unknown or disabled pairs the backend still reports). Other errors propagate.
+     */
+    #decodeMarkets(markets: readonly Proto.MarketOverview[]): MarketOverview[] {
+        const decoded: MarketOverview[] = [];
+        const skipped: number[] = [];
+        for (const m of markets) {
+            try {
+                decoded.push(parse(this.#marketOverviewSchema, m));
+            } catch (error) {
+                if (
+                    error instanceof CatalogLookupError &&
+                    error.domain === "market" &&
+                    error.lookup === "symbolId"
+                ) {
+                    skipped.push(m.symbolId);
+                    continue;
+                }
+                throw error;
+            }
+        }
+        if (skipped.length > 0 && isDev()) {
+            console.warn(
+                `[market-overview] skipped ${skipped.length} row(s) with unknown symbolId: ${skipped.join(", ")}`,
+            );
+        }
+        return decoded;
     }
 
     /**
@@ -68,7 +100,7 @@ export class MarketOverviewService {
         const includeSparklines = input.includeSparklines ?? true;
         const sparklineIntervals = input.sparklineIntervals ?? ["24h"];
         const listMarketOverview = this.list.bind(this);
-        const schema = this.#marketOverviewSchema;
+        const parseMarkets = this.#decodeMarkets.bind(this);
         function emit(): void {
             input.onEvent(Array.from(bySymbolId.values()));
         }
@@ -83,12 +115,9 @@ export class MarketOverviewService {
             }
         }
 
-        function parseMarkets(markets: readonly Proto.MarketOverview[]): MarketOverview[] {
-            return markets.map((m) => parse(schema, m));
-        }
-
         async function fetchSnapshot(): Promise<MarketOverview[]> {
             const result = await listMarketOverview({
+                symbolIds: input.symbolIds,
                 includeSparklines,
                 sparklineIntervals,
             });

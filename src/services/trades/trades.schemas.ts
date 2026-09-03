@@ -4,6 +4,7 @@ import { SideSchema } from "../shared.js";
 import { FeeAssetCodec, OrderSideCodec } from "../orders/orders.codecs.js";
 import { formatId } from "../../utils/base58-id.js";
 import { optionalUint64DecimalFilterSchema } from "../../shared/schemas.js";
+import { parseOptionalUint64DecimalStrict } from "../../utils/numbers.js";
 import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
@@ -77,33 +78,67 @@ export function createUserTradeSchema(scales: SdkScales) {
 /** A JSON-safe authenticated trade fill returned by the SDK. */
 export type Trade = v.InferOutput<ReturnType<typeof createUserTradeSchema>>;
 
+const AFTER_MATCH_REQUIRES_SYMBOL = "symbolId is required when afterMatchId is set";
+
+const SymbolIdStringSchema = v.pipe(
+    v.string(),
+    v.trim(),
+    v.transform((value) => Number(value)),
+);
+
+const GetUserTradesCommonEntries = {
+    ...AccountScopeInputEntries,
+    side: v.pipe(
+        v.optional(SideSchema),
+        v.transform((v) => (v ? TradeSideCodec.inputToProto[v] : undefined)),
+    ),
+    startTsNs: optionalUint64DecimalFilterSchema("startTsNs"),
+    endTsNs: optionalUint64DecimalFilterSchema("endTsNs"),
+    limit: v.optional(v.number()),
+    pageToken: v.optional(v.pipe(v.string(), v.trim())),
+};
+
+/** Browse mode: optional symbol filter, no replay cursor. */
+const BrowseUserTradesInputSchema = v.strictObject({
+    ...GetUserTradesCommonEntries,
+    symbolId: v.pipe(
+        v.optional(SymbolIdStringSchema),
+        v.transform((sid) =>
+            sid !== undefined && Number.isFinite(sid) && sid > 0 ? sid : undefined,
+        ),
+    ),
+    afterMatchId: v.optional(v.never()),
+});
+
+/** Replay mode: `afterMatchId` cursor, which the backend only accepts scoped to a symbol. */
+const ReplayUserTradesInputSchema = v.strictObject({
+    ...GetUserTradesCommonEntries,
+    symbolId: v.pipe(
+        SymbolIdStringSchema,
+        v.check((sid) => Number.isInteger(sid) && sid > 0, AFTER_MATCH_REQUIRES_SYMBOL),
+    ),
+    afterMatchId: v.pipe(
+        v.string(),
+        v.trim(),
+        v.minLength(1),
+        v.transform((value) => parseOptionalUint64DecimalStrict(value, "afterMatchId")),
+    ),
+});
+
 /** Validates filters accepted by {@link TradesService.list}. */
 export const GetUserTradesInputSchema = v.pipe(
-    v.strictObject({
-        ...AccountScopeInputEntries,
-        symbolId: v.pipe(
-            v.optional(v.pipe(v.string(), v.trim())),
-            v.transform((v) => {
-                if (!v) return undefined;
-                const sid = Number(v);
-                return Number.isFinite(sid) && sid > 0 ? sid : undefined;
-            }),
-        ),
-        side: v.pipe(
-            v.optional(SideSchema),
-            v.transform((v) => (v ? TradeSideCodec.inputToProto[v] : undefined)),
-        ),
-        startTsNs: optionalUint64DecimalFilterSchema("startTsNs"),
-        endTsNs: optionalUint64DecimalFilterSchema("endTsNs"),
-        limit: v.optional(v.number()),
-        pageToken: v.optional(v.pipe(v.string(), v.trim())),
-        afterMatchId: optionalUint64DecimalFilterSchema("afterMatchId"),
-    }),
+    v.union(
+        [BrowseUserTradesInputSchema, ReplayUserTradesInputSchema],
+        AFTER_MATCH_REQUIRES_SYMBOL,
+    ),
     v.transform(({ account, ...input }) => ({
         ...input,
         subaccountId: accountScopeToSubaccountId(account),
     })),
 );
 
-/** Filters accepted by {@link TradesService.list}. */
+/**
+ * Filters accepted by {@link TradesService.list}. Passing `afterMatchId` requires
+ * `symbolId`; the two shapes form a discriminated union so the constraint is a compile error.
+ */
 export type GetUserTradesInput = v.InferInput<typeof GetUserTradesInputSchema>;
