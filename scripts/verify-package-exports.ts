@@ -117,6 +117,8 @@ try {
 } from "@polyester/sdk";
 import {
     feesPb,
+    ordersPb,
+    resolvePb,
     subaccountsPb,
     tradingRateLimitPb,
     vipPb,
@@ -143,6 +145,20 @@ function expectNotAny<T>(_value: T, _proof: IsAny<T> extends true ? never : true
 
 async function verifyServiceInference(): Promise<void> {
     expectNotAny(feesPb, true);
+    expectType<resolvePb.ResolvedAccount_Kind>(resolvePb.ResolvedAccount_Kind.SUB);
+    expectType<subaccountsPb.SubaccountInviteDirection>(
+        subaccountsPb.SubaccountInviteDirection.OUTGOING,
+    );
+    expectType<ordersPb.CancelOrderResponse_Status>(ordersPb.CancelOrderResponse_Status.ACCEPTED);
+    expectType<ordersPb.CancelAllOrdersResponse_Status>(
+        ordersPb.CancelAllOrdersResponse_Status.SUBMITTED,
+    );
+    expectType<ordersPb.CancelAllAfterResponse_Status>(
+        ordersPb.CancelAllAfterResponse_Status.ARMED,
+    );
+    expectType<ordersPb.BatchCancelResultItem_Status>(
+        ordersPb.BatchCancelResultItem_Status.ACCEPTED,
+    );
     expectType<subaccountsPb.SubaccountStatus>(subaccountsPb.SubaccountStatus.ACTIVE);
     expectNotAny(tradingRateLimitPb, true);
     expectNotAny(vipPb, true);

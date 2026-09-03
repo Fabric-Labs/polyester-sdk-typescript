@@ -120,7 +120,7 @@ export class SubaccountsService {
                 includeMembers: true,
                 includeInvites: true,
                 includePolicy: true,
-                invitesDirection: "outgoing",
+                invitesDirection: Proto.SubaccountInviteDirection.OUTGOING,
             },
             toConnectCallOptions(options),
         );

@@ -51,6 +51,9 @@ export const SUBACCOUNT_INVITE_STATUS_VALUES = [
 ] as const;
 export type SubaccountInviteStatusValue = (typeof SUBACCOUNT_INVITE_STATUS_VALUES)[number];
 
+export const SUBACCOUNT_INVITE_DIRECTION_VALUES = ["", "incoming", "outgoing"] as const;
+export type SubaccountInviteDirectionValue = (typeof SUBACCOUNT_INVITE_DIRECTION_VALUES)[number];
+
 export const SUBACCOUNT_STATUS_VALUES = ["active", "disabled"] as const;
 export type SubaccountStatusValue = (typeof SUBACCOUNT_STATUS_VALUES)[number];
 
@@ -156,6 +159,14 @@ export const InviteStatusCodec = {
         [Proto.SubaccountInviteStatus.DECLINED]: "declined",
         [Proto.SubaccountInviteStatus.CANCELLED]: "cancelled",
     } satisfies ProtoToOutput<Proto.SubaccountInviteStatus, SubaccountInviteStatusValue>,
+} as const;
+
+export const SubaccountInviteDirectionCodec = {
+    inputToProto: {
+        "": Proto.SubaccountInviteDirection.DIRECTION_UNSPECIFIED,
+        incoming: Proto.SubaccountInviteDirection.INCOMING,
+        outgoing: Proto.SubaccountInviteDirection.OUTGOING,
+    } satisfies InputToProto<SubaccountInviteDirectionValue, Proto.SubaccountInviteDirection>,
 } as const;
 
 export const SubaccountStatusCodec = {

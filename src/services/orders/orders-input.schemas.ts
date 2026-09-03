@@ -3,6 +3,7 @@ import { create } from "@bufbuild/protobuf";
 import * as v from "valibot";
 import { SideSchema, SymbolIdInputSchema } from "../shared.js";
 import { tsNsToMs } from "../../utils/time.js";
+import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import {
     OptionalPublicIdSchema,
     OptionalTimestampMsSchema,
@@ -28,6 +29,8 @@ import {
     SELF_TRADE_PREVENTION_MODE_VALUES,
     FeeAssetCodec,
     SelfTradePreventionModeCodec,
+    CancelAllOrdersStatusCodec,
+    CancelOrderStatusCodec,
 } from "./orders.codecs.js";
 import {
     MarketMaxSlippageSchema,
@@ -338,7 +341,17 @@ export type CancelOrderInput = v.InferInput<typeof CancelOrderInputSchema>;
 
 export const CancelOrderResultSchema = v.pipe(
     v.object({
-        status: v.string(),
+        status: v.pipe(
+            v.enum(ProtoWrite.CancelOrderResponse_Status),
+            v.transform((status) =>
+                requiredEnumLabel(
+                    CancelOrderStatusCodec.protoToOutput,
+                    status,
+                    "CancelOrderResultSchema",
+                    "status",
+                ),
+            ),
+        ),
         orderId: PublicIdSchema,
         tsNs: v.bigint(),
     }),
@@ -372,7 +385,17 @@ export type CancelAllOrdersInput = v.InferInput<typeof CancelAllOrdersInputSchem
 
 export const CancelAllOrdersResponseSchema = v.pipe(
     v.object({
-        status: v.string(),
+        status: v.pipe(
+            v.enum(ProtoWrite.CancelAllOrdersResponse_Status),
+            v.transform((status) =>
+                requiredEnumLabel(
+                    CancelAllOrdersStatusCodec.protoToOutput,
+                    status,
+                    "CancelAllOrdersResponseSchema",
+                    "status",
+                ),
+            ),
+        ),
         matchedOrders: v.number(),
         submittedCancels: v.number(),
         failedCancels: v.number(),

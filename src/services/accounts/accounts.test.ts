@@ -60,7 +60,7 @@ describe("AccountsService", () => {
                 matches: [
                     {
                         smartAccountAddress: "0xabc",
-                        kind: "sub",
+                        kind: Proto.ResolvedAccount_Kind.SUB,
                         rootUsername: "alice",
                         subaccountLabel: "maker",
                         accountId: 42n,
@@ -89,7 +89,7 @@ describe("AccountsService", () => {
                 matches: [
                     {
                         smartAccountAddress: "0xabc",
-                        kind: "team",
+                        kind: 999,
                         accountId: 1n,
                     },
                 ],
