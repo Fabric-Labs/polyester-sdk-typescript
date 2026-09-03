@@ -1,5 +1,15 @@
 # @polyester/sdk
 
+## 0.18.0
+
+### Minor Changes
+
+- feat(orders): expose typed cancellation submission statuses across order cancellation methods. ([#108](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/108))
+
+- feat(accounts): expose typed resolved-account kinds from account resolution results. ([#108](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/108))
+
+- feat(subaccounts): encode typed invitation direction filters for invitation reads. ([#108](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/108))
+
 ## 0.17.0
 
 ### Minor Changes
