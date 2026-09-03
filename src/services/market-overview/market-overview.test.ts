@@ -1,7 +1,6 @@
 import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as Proto from "../../gen/marketoverview/v1/marketoverview_pb.js";
-import { CatalogLookupError } from "../../catalogs/types.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { PolyesterError, ValidationError } from "../../shared/errors.js";
 import { createTestCatalog } from "../../testing/catalog.js";
@@ -187,9 +186,9 @@ describe("MarketOverviewService", () => {
         });
     });
 
-    it("rejects market rows for unknown symbol ids during parse", async () => {
+    it("skips market rows for unknown symbol ids instead of failing the batch", async () => {
         const transport = unaryTransport({
-            markets: [market({ symbolId: 999 })],
+            markets: [market(), market({ symbolId: 999 })],
             nextPageToken: "",
         });
         const service = new MarketOverviewService(
@@ -198,7 +197,67 @@ describe("MarketOverviewService", () => {
             testScales(),
         );
 
-        await expect(service.list()).rejects.toThrow(CatalogLookupError);
+        const result = await service.list();
+
+        expect(result.markets).toEqual([expect.objectContaining({ symbolId: 101 })]);
+    });
+
+    it("skips live publications for unknown symbol ids and keeps streaming later updates", async () => {
+        const transport = unaryTransport({
+            markets: [market(), market({ symbolId: 999 })],
+            nextPageToken: "",
+        });
+        const realtime = realtimeClientStub();
+        const onEvent = vi.fn();
+        const onError = vi.fn();
+        const service = new MarketOverviewService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
+
+        service.subscribe({ onEvent, onError });
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+
+        expect(onEvent).toHaveBeenCalledTimes(1);
+        expect(onEvent.mock.calls[0]?.[0]).toEqual([expect.objectContaining({ symbolId: 101 })]);
+
+        realtime.params?.onPublication(
+            create(Proto.MarketOverviewBatchSchema, {
+                markets: [market({ symbolId: 999, lastPriceTicks: 5n })],
+                tsNs: 1n,
+            }),
+        );
+        realtime.params?.onPublication(
+            create(Proto.MarketOverviewBatchSchema, {
+                markets: [market({ lastPriceTicks: 2_000_000n })],
+                tsNs: 2n,
+            }),
+        );
+        await flushMicrotasks();
+
+        expect(onError).not.toHaveBeenCalled();
+        expect(onEvent).toHaveBeenCalledTimes(3);
+        expect(onEvent.mock.calls[2]?.[0]).toEqual([
+            expect.objectContaining({ symbolId: 101, lastPrice: "2" }),
+        ]);
+    });
+
+    it("forwards subscribe symbolIds to the snapshot request", async () => {
+        const transport = unaryTransport({ markets: [market()], nextPageToken: "" });
+        const realtime = realtimeClientStub();
+        const service = new MarketOverviewService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
+
+        service.subscribe({ symbolIds: [101], onEvent: vi.fn() });
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+
+        expect(transport.lastCall()?.message).toMatchObject({ symbolId: [101] });
     });
 
     it("rejects market rows with unmapped backend sparkline enums", async () => {

@@ -5,7 +5,7 @@ import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import { RealtimeClient } from "../../realtime/client.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
-import { AuthenticationError } from "../../shared/errors.js";
+import { AuthenticationError, ValidationError } from "../../shared/errors.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import {
     realtimeClientStub,
@@ -168,6 +168,59 @@ describe("TradesService", () => {
         const message = transport.lastCall()?.message as Record<string, unknown>;
         expect(message).toEqual({ symbolId: 101 });
         expect(Object.hasOwn(message, "subaccountId")).toBe(false);
+    });
+
+    it("rejects afterMatchId without a symbolId before any request", async () => {
+        const transport = unaryTransport({ trades: [], nextPageToken: "" });
+        const service = new TradesService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+        const rule = /symbolId is required when afterMatchId is set/;
+
+        await expect(
+            // @ts-expect-error afterMatchId requires symbolId
+            service.list({ afterMatchId: "10" }),
+        ).rejects.toThrow(ValidationError);
+        await expect(
+            // @ts-expect-error afterMatchId requires symbolId
+            service.list({ afterMatchId: "10" }),
+        ).rejects.toThrow(rule);
+        await expect(service.list({ afterMatchId: "10", symbolId: "0" })).rejects.toThrow(rule);
+        await expect(service.list({ afterMatchId: "10", symbolId: "" })).rejects.toThrow(rule);
+        expect(transport.unary).not.toHaveBeenCalled();
+    });
+
+    it("sends afterMatchId together with a positive symbolId", async () => {
+        const transport = unaryTransport({ trades: [], nextPageToken: "" });
+        const service = new TradesService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await service.list({ afterMatchId: "10", symbolId: "3" });
+
+        expect(transport.lastCall()?.message).toEqual({ symbolId: 3, afterMatchId: 10n });
+    });
+
+    it("keeps browsing without a cursor working with and without a symbolId", async () => {
+        const transport = unaryTransport({ trades: [], nextPageToken: "" });
+        const service = new TradesService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await service.list({ symbolId: "3" });
+        expect(transport.lastCall()?.message).toEqual({ symbolId: 3 });
+
+        await service.list({});
+        expect(transport.lastCall()?.message).toEqual({});
     });
 
     it("rejects user trades with unmapped backend side values", async () => {

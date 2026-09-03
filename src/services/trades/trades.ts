@@ -13,7 +13,12 @@ import {
 } from "../../shared/request-options.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import type { AuthApiTransports } from "../../shared/transports.js";
-import { GetUserTradesInputSchema, createUserTradeSchema, type Trade } from "./trades.schemas.js";
+import {
+    GetUserTradesInputSchema,
+    createUserTradeSchema,
+    type GetUserTradesInput,
+    type Trade,
+} from "./trades.schemas.js";
 
 interface SubscribeTradesInput extends BaseSubscribeInput<Trade> {
     accountId: string;
@@ -43,10 +48,10 @@ export class TradesService {
     }
 
     /**
-     * Returns user trades for the resolved root account or subaccount, supporting symbol, side, time range, limit, page token, and after-match-ID replay cursor filters. Results include the next page token from GetUserTrades.
+     * Returns user trades for the resolved root account or subaccount, supporting symbol, side, time range, limit, page token, and after-match-ID replay cursor filters. The `afterMatchId` cursor requires `symbolId`, enforced at the type and validation level. Results include the next page token from GetUserTrades.
      */
     async list(
-        input: v.InferInput<typeof GetUserTradesInputSchema> = {},
+        input: GetUserTradesInput = {},
         options?: PolyesterRequestOptions,
     ): Promise<{ trades: Trade[]; nextPageToken: string }> {
         await this.#scales.ready();
