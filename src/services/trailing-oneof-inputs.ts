@@ -8,6 +8,8 @@ type PositiveIntLikeInput = string | number;
 /** Product-wide cap for bps slippage inputs (market IOC, attached and standalone trailing stops). */
 export const MAX_SLIPPAGE_BPS = 10_000;
 
+const MAX_TRAILING_DISTANCE_BPS = 10_000;
+
 /**
  * Trailing distance and slippage inputs: absolute price distances and
  * slippages are decimal price strings (e.g. "0.50"), converted to wire ticks
@@ -62,10 +64,10 @@ export function parseTrailingDistanceInput(
     }
 
     const bps = parseOptionalPositiveIntLike(distance.bps);
-    if (bps === undefined || bps > Number(PROTOBUF_INT32_MAX)) {
+    if (bps === undefined || bps > MAX_TRAILING_DISTANCE_BPS) {
         throw new CatalogConversionError(
             `${fieldName}.bps`,
-            `${fieldName}Bps must be a positive integer no greater than ${PROTOBUF_INT32_MAX}`,
+            `${fieldName}Bps must be between 1 and ${MAX_TRAILING_DISTANCE_BPS}`,
         );
     }
     return { case: "trailingDistanceBps", value: bps };
