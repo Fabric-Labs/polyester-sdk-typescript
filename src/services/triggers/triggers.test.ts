@@ -6,7 +6,6 @@ import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { ValidationError } from "../../shared/errors.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
-import { PROTOBUF_INT32_MAX } from "../../shared/wire-bounds.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import { formatId } from "../../utils/base58-id.js";
 import { realtimeClientStub, unaryTransportByMethod } from "../../testing/service-harness.js";
@@ -348,7 +347,7 @@ describe("TriggersService", () => {
         expect(cases).toHaveLength(8);
     });
 
-    it("rejects trailing-distance overflow with a typed validation error before transport", async () => {
+    it("rejects trailing distance above 10000 bps before transport", async () => {
         const transport = unaryTransportByMethod({ createTrigger: createResult });
         const service = new TriggersService(
             { authApi: transport.transport },
@@ -364,7 +363,7 @@ describe("TriggersService", () => {
                 qty: "0.25",
                 trailingDistance: {
                     kind: "bps",
-                    bps: (PROTOBUF_INT32_MAX + 1n).toString(),
+                    bps: 10_001,
                 },
             }),
         ).rejects.toBeInstanceOf(ValidationError);

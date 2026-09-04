@@ -640,10 +640,22 @@ describe("ModifyTriggerInputSchema", () => {
         });
     });
 
-    it("accepts the 10000 bps slippage cap and rejects 10001", () => {
+    it("accepts the 10000 bps distance and slippage caps and rejects 10001", () => {
         const schema = createModifyTriggerInputSchema(testScales());
         const input = { triggerId: formatId(11n), symbolId: 1 };
 
+        expect(
+            v.parse(schema, {
+                ...input,
+                trailingDistance: { kind: "bps", bps: 10_000 },
+            }).trailingDistance,
+        ).toEqual({ case: "trailingDistanceBps", value: 10_000 });
+        expect(() =>
+            v.parse(schema, {
+                ...input,
+                trailingDistance: { kind: "bps", bps: 10_001 },
+            }),
+        ).toThrow("trailingDistanceBps must be between 1 and 10000");
         expect(
             v.parse(schema, {
                 ...input,
