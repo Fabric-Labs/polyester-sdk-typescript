@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.19.2
+
+### Patch Changes
+
+- fix(triggers): reject trailing-distance inputs above 10,000 bps before sending trigger requests. ([#114](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/114))
+
 ## 0.19.1
 
 ### Patch Changes
