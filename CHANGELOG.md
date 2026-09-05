@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.19.3
+
+### Patch Changes
+
+- Stop automatic realtime connection and subscription token retries for non-retryable SDK errors while preserving the original errors in `onError`. Transient failures retain Centrifuge backoff, and explicit private subscriptions can restart after authentication or request inputs are corrected. ([#116](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/116))
+
 ## 0.19.2
 
 ### Patch Changes
