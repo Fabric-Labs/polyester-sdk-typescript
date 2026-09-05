@@ -72,7 +72,10 @@ class MockSubscription implements MockSubscriptionRecord {
     }
 }
 
+class MockUnauthorizedError extends Error {}
+
 class MockCentrifuge implements MockCentrifugeRecord {
+    static UnauthorizedError = MockUnauthorizedError;
     subscriptions: MockSubscriptionRecord[] = [];
     removedSubscriptions: MockSubscriptionRecord[] = [];
     connectCalls = 0;
@@ -126,7 +129,60 @@ import {
     RealtimeClient,
 } from "./client.js";
 import { OrderSchema } from "../gen/orders/v1/orders_read_pb.js";
-import { AuthenticationError } from "../shared/errors.js";
+import {
+    AuthenticationError,
+    InternalServerError,
+    NetworkError,
+    PermissionError,
+    RequestError,
+    ResourceNotFoundError,
+} from "../shared/errors.js";
+
+class JsonReplyWebSocket {
+    binaryType = "";
+    onerror: ((event: unknown) => void) | null = null;
+    onclose: ((event: { code: number; reason: string }) => void) | null = null;
+    onmessage: ((event: { data: string }) => void) | null = null;
+    #onopen: (() => void) | null = null;
+
+    set onopen(handler: (() => void) | null) {
+        this.#onopen = handler;
+        queueMicrotask(() => this.#onopen?.());
+    }
+
+    close(): void {
+        this.onclose?.({ code: 1000, reason: "closed" });
+    }
+
+    send(data: string): void {
+        for (const command of data
+            .trim()
+            .split("\n")
+            .filter(Boolean)
+            .map(
+                (line) =>
+                    JSON.parse(line) as { id: number; connect?: unknown; subscribe?: unknown },
+            )) {
+            if (!command.connect && !command.subscribe) continue;
+            queueMicrotask(() => {
+                this.onmessage?.({
+                    data: JSON.stringify(
+                        command.connect
+                            ? { id: command.id, connect: { client: "test" } }
+                            : { id: command.id, subscribe: {} },
+                    ),
+                });
+            });
+        }
+    }
+}
+
+function useRealJsonCentrifuge(): void {
+    vi.stubGlobal("WebSocket", JsonReplyWebSocket);
+    // SAFETY: JSON and protobuf builds share the token state machine and public API;
+    // only their wire codecs and nominally typed private fields differ.
+    __setRealtimeCentrifugeLoaderForTests(() => import("centrifuge") as never);
+}
 
 async function waitForAsyncTokens(): Promise<void> {
     await Promise.resolve();
@@ -164,6 +220,8 @@ describe("RealtimeClient", () => {
     });
 
     afterEach(() => {
+        vi.useRealTimers();
+        vi.unstubAllGlobals();
         vi.restoreAllMocks();
         __setRealtimeCentrifugeLoaderForTests(null);
         __setRealtimeCentrifugeForTests(MockCentrifuge as never);
@@ -724,6 +782,295 @@ describe("RealtimeClient", () => {
             "Failed to fetch subscription token: 500",
         );
     });
+
+    it.each([
+        [400, RequestError],
+        [401, AuthenticationError],
+        [403, PermissionError],
+        [404, ResourceNotFoundError],
+        [500, InternalServerError],
+    ])(
+        "stops real Centrifuge connection-token retries after terminal HTTP %i",
+        async (status, ErrorType) => {
+            vi.useFakeTimers();
+            useRealJsonCentrifuge();
+            const fetchMock = vi
+                .spyOn(globalThis, "fetch")
+                .mockResolvedValue(new Response(null, { status }));
+            const onError = vi.fn();
+            const client = new RealtimeClient({
+                wsUrl: "wss://stream.example.test",
+                tokenEndpoint: "https://api.example.test/v1/rt/token",
+                subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+                hasAuth: () => true,
+            });
+
+            const unsubscribe = client.subscribe("private:test", {
+                onPublication: () => {},
+                onError,
+            });
+            await vi.dynamicImportSettled();
+            await vi.advanceTimersByTimeAsync(0);
+            expect(fetchMock).toHaveBeenCalledOnce();
+            await vi.advanceTimersByTimeAsync(60_000);
+
+            expect(fetchMock).toHaveBeenCalledOnce();
+            expect(onError).toHaveBeenCalledOnce();
+            expect(onError.mock.calls[0]?.[0]).toMatchObject({ type: "connection_token" });
+            expect(onError.mock.calls[0]?.[0].error).toBeInstanceOf(ErrorType);
+            unsubscribe();
+            await vi.advanceTimersByTimeAsync(0);
+        },
+    );
+
+    it("reports the same terminal SDK error instance to shared consumers", async () => {
+        const original = new RequestError("restricted subaccount");
+        const firstOnError = vi.fn();
+        const secondOnError = vi.fn();
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            getAuthHeaders: () => {
+                throw original;
+            },
+            hasAuth: () => true,
+        });
+
+        const firstUnsubscribe = client.subscribe("private:test", {
+            onPublication: () => {},
+            onError: firstOnError,
+        });
+        const secondUnsubscribe = client.subscribe("private:test", {
+            onPublication: () => {},
+            onError: secondOnError,
+        });
+        await waitForAsyncTokens();
+
+        expect(firstOnError.mock.calls[0]?.[0].error).toBe(original);
+        expect(secondOnError.mock.calls[0]?.[0].error).toBe(original);
+        firstUnsubscribe();
+        secondUnsubscribe();
+    });
+
+    it.each(
+        [408, 429, 502, 503, 504].flatMap((status) =>
+            ["connection", "subscription"].map((endpoint) => [status, endpoint] as const),
+        ),
+    )(
+        "keeps real Centrifuge retries for retryable HTTP %i %s-token failures",
+        async (status, endpoint) => {
+            vi.useFakeTimers();
+            useRealJsonCentrifuge();
+            let failures = 0;
+            const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+                const matches = String(input).includes("/subscribe")
+                    ? endpoint === "subscription"
+                    : endpoint === "connection";
+                if (matches && failures < 2) {
+                    failures++;
+                    return Promise.resolve(new Response(null, { status }));
+                }
+                return Promise.resolve(new Response(JSON.stringify({ token: "recovered" })));
+            });
+            const onError = vi.fn();
+            const onSubscribed = vi.fn();
+            const client = new RealtimeClient({
+                wsUrl: "wss://stream.example.test",
+                tokenEndpoint: "https://api.example.test/v1/rt/token",
+                subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+                hasAuth: () => true,
+            });
+
+            const unsubscribe = client.subscribe("private:test", {
+                onPublication: () => {},
+                onError,
+                onSubscribed,
+            });
+            await vi.dynamicImportSettled();
+            await vi.advanceTimersByTimeAsync(0);
+            expect(onSubscribed).not.toHaveBeenCalled();
+            await vi.advanceTimersByTimeAsync(4_001);
+
+            const endpointCalls = fetchMock.mock.calls.filter(([input]) =>
+                endpoint === "subscription"
+                    ? String(input).includes("/subscribe")
+                    : String(input).endsWith("/v1/rt/token"),
+            );
+            expect(endpointCalls).toHaveLength(3);
+            expect(onError.mock.calls[0]?.[0]).toMatchObject({
+                type: `${endpoint}_token`,
+            });
+            expect(onError.mock.calls[0]?.[0].error.retryable).toBe(true);
+            await waitForAsyncTokens();
+            expect(onSubscribed).toHaveBeenCalledOnce();
+            unsubscribe();
+            await vi.advanceTimersByTimeAsync(0);
+            await vi.advanceTimersByTimeAsync(60_000);
+            expect(fetchMock).toHaveBeenCalledTimes(4);
+            expect(client.totalConsumers).toBe(0);
+        },
+    );
+
+    it("retries network and untyped auth-provider token failures", async () => {
+        vi.useFakeTimers();
+        useRealJsonCentrifuge();
+        const networkFailure = new Error("offline");
+        const providerFailure = new Error("credential provider unavailable");
+        const fetchMock = vi
+            .spyOn(globalThis, "fetch")
+            .mockRejectedValueOnce(networkFailure)
+            .mockImplementation(() =>
+                Promise.resolve(new Response(JSON.stringify({ token: "recovered" }))),
+            );
+        const getAuthHeaders = vi.fn().mockRejectedValueOnce(providerFailure).mockResolvedValue({});
+        const onError = vi.fn();
+        const onSubscribed = vi.fn();
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            getAuthHeaders,
+            hasAuth: () => true,
+        });
+
+        const unsubscribe = client.subscribe("private:test", {
+            onPublication: () => {},
+            onError,
+            onSubscribed,
+        });
+        await vi.dynamicImportSettled();
+        await vi.advanceTimersByTimeAsync(0);
+        expect(getAuthHeaders).toHaveBeenCalledOnce();
+        await vi.advanceTimersByTimeAsync(4_000);
+
+        expect(getAuthHeaders).toHaveBeenCalledTimes(4);
+        expect(
+            fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/v1/rt/token")),
+        ).toHaveLength(2);
+        expect(onError.mock.calls.map(([ctx]) => ctx.type)).toEqual([
+            "connection_token",
+            "connection_token",
+        ]);
+        expect(onError.mock.calls[0]?.[0].error).toBe(providerFailure);
+        expect(onError.mock.calls[1]?.[0].error).toBeInstanceOf(NetworkError);
+        expect(onError.mock.calls[1]?.[0].error.cause).toBe(networkFailure);
+        expect(onSubscribed).toHaveBeenCalledOnce();
+        unsubscribe();
+        await vi.advanceTimersByTimeAsync(0);
+    });
+
+    it.each([
+        [400, RequestError],
+        [401, AuthenticationError],
+        [403, PermissionError],
+        [404, ResourceNotFoundError],
+        [500, InternalServerError],
+    ])(
+        "stops real Centrifuge subscription-token retries after terminal HTTP %i",
+        async (status, ErrorType) => {
+            vi.useFakeTimers();
+            useRealJsonCentrifuge();
+            const onError = vi.fn();
+            const fetchMock = vi
+                .spyOn(globalThis, "fetch")
+                .mockImplementation((input) =>
+                    Promise.resolve(
+                        String(input).includes("/subscribe")
+                            ? new Response(null, { status })
+                            : new Response(JSON.stringify({ token: "connection-token" })),
+                    ),
+                );
+            const client = new RealtimeClient({
+                wsUrl: "ws://stream.example.test",
+                tokenEndpoint: "https://api.example.test/v1/rt/token",
+                subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+                hasAuth: () => true,
+            });
+
+            const unsubscribe = client.subscribe("private:test", {
+                onPublication: () => {},
+                onError,
+            });
+            await vi.dynamicImportSettled();
+            await vi.advanceTimersByTimeAsync(0);
+            await vi.advanceTimersByTimeAsync(60_000);
+
+            const subscriptionCalls = fetchMock.mock.calls.filter(([input]) =>
+                String(input).includes("/subscribe"),
+            );
+            expect(subscriptionCalls).toHaveLength(1);
+            expect(onError).toHaveBeenCalledOnce();
+            expect(onError.mock.calls[0]?.[0]).toMatchObject({ type: "subscription_token" });
+            expect(onError.mock.calls[0]?.[0].error).toBeInstanceOf(ErrorType);
+            unsubscribe();
+            await vi.advanceTimersByTimeAsync(0);
+        },
+    );
+
+    it.each(
+        ["connection", "subscription"].flatMap((endpoint) =>
+            ["existing", "pending"].map((reuse) => [endpoint, reuse] as const),
+        ),
+    )(
+        "recovers %s-token failures after an explicit %s shared subscription",
+        async (endpoint, reuse) => {
+            vi.useFakeTimers();
+            useRealJsonCentrifuge();
+            let failed = false;
+            const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+                const matches = String(input).includes("/subscribe")
+                    ? endpoint === "subscription"
+                    : endpoint === "connection";
+                if (matches && !failed) {
+                    failed = true;
+                    return Promise.resolve(new Response(null, { status: 400 }));
+                }
+                return Promise.resolve(new Response(JSON.stringify({ token: "recovered" })));
+            });
+            const client = new RealtimeClient({
+                wsUrl: "wss://stream.example.test",
+                tokenEndpoint: "https://api.example.test/v1/rt/token",
+                subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+                hasAuth: () => true,
+            });
+
+            const firstUnsubscribe = client.subscribe("private:test", {
+                onPublication: () => {},
+                onError: () => {},
+            });
+            await vi.dynamicImportSettled();
+            await vi.advanceTimersByTimeAsync(0);
+            await vi.advanceTimersByTimeAsync(60_000);
+            const failedEndpointCalls = fetchMock.mock.calls.filter(([input]) =>
+                endpoint === "subscription"
+                    ? String(input).includes("/subscribe")
+                    : String(input).endsWith("/v1/rt/token"),
+            );
+            expect(failedEndpointCalls).toHaveLength(1);
+
+            if (reuse === "pending") firstUnsubscribe();
+            const onSubscribed = vi.fn();
+            const secondUnsubscribe = client.subscribe("private:test", {
+                onPublication: () => {},
+                onSubscribed,
+            });
+            await vi.advanceTimersByTimeAsync(0);
+            await waitForAsyncTokens();
+
+            expect(
+                fetchMock.mock.calls.filter(([input]) =>
+                    endpoint === "subscription"
+                        ? String(input).includes("/subscribe")
+                        : String(input).endsWith("/v1/rt/token"),
+                ),
+            ).toHaveLength(2);
+            expect(onSubscribed).toHaveBeenCalledOnce();
+            if (reuse === "existing") firstUnsubscribe();
+            secondUnsubscribe();
+            await vi.advanceTimersByTimeAsync(0);
+        },
+    );
 
     it("keeps realtime state scoped to each client instance", async () => {
         const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(() =>

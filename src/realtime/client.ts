@@ -11,7 +11,12 @@ import {
     fromCentrifugeSubscriptionError,
     type SdkSubscriptionErrorContext,
 } from "../shared/subscription-errors.js";
-import { AuthenticationError, errorFromHttpStatus, InternalServerError } from "../shared/errors.js";
+import {
+    AuthenticationError,
+    errorFromHttpStatus,
+    InternalServerError,
+    PolyesterError,
+} from "../shared/errors.js";
 import { makeFetch } from "../shared/transports.js";
 import { decodeProtoFrame } from "../utils/streams.js";
 import type { ConnectChannelParams, PolyesterRealtime, SubscribeHandlers } from "./types.js";
@@ -149,7 +154,11 @@ export class RealtimeClient implements PolyesterRealtime {
         }
     }
 
-    #subscriptionOpts(shared: SharedSubscription, attachmentEpoch: number) {
+    #subscriptionOpts(
+        Centrifuge: CentrifugeCtor,
+        shared: SharedSubscription,
+        attachmentEpoch: number,
+    ) {
         if (this.#channelKind(shared.channel) !== "private") return undefined;
         return {
             getToken: async () => {
@@ -172,6 +181,9 @@ export class RealtimeClient implements PolyesterRealtime {
                 } catch (error) {
                     if (shared.attachmentEpoch === attachmentEpoch) {
                         this.#emitSubscriptionError(shared, "subscription_token", error);
+                    }
+                    if (error instanceof PolyesterError && !error.retryable) {
+                        throw new Centrifuge.UnauthorizedError(error.message);
                     }
                     throw error;
                 }
@@ -230,6 +242,9 @@ export class RealtimeClient implements PolyesterRealtime {
                 } catch (error) {
                     if (this.#privateClient === client) {
                         this.#emitConnectionTokenError(error);
+                    }
+                    if (error instanceof PolyesterError && !error.retryable) {
+                        throw new Centrifuge.UnauthorizedError(error.message);
                     }
                     throw error;
                 }
@@ -339,7 +354,7 @@ export class RealtimeClient implements PolyesterRealtime {
 
         const sub = client.newSubscription(
             shared.channel,
-            this.#subscriptionOpts(shared, attachmentEpoch),
+            this.#subscriptionOpts(Centrifuge, shared, attachmentEpoch),
         );
         shared.sub = sub;
         shared.client = client;
@@ -529,7 +544,8 @@ export class RealtimeClient implements PolyesterRealtime {
     /**
      * Subscribes to a realtime channel and returns an unsubscribe function. Missing
      * authentication is reported to `onError`, or thrown synchronously when no error
-     * observer is provided.
+     * observer is provided. Non-retryable token failures stop automatic retries;
+     * calling subscribe again after correcting the failure restarts private realtime.
      */
     subscribe<T>(channel: string, handlers: SubscribeHandlers<T>): () => void {
         let shared: SharedSubscription;
@@ -589,6 +605,12 @@ export class RealtimeClient implements PolyesterRealtime {
         if (onSubscribed) shared.subscribedHandlers.add(onSubscribed);
         if (onUnsubscribed) shared.unsubscribedHandlers.add(onUnsubscribed);
         if (onError) shared.errorHandlers.add(onError);
+
+        // Only an explicit subscribe restarts terminal private token failures.
+        if (this.#channelKind(channel) === "private" && this.#hasAuth()) {
+            if (shared.client?.state === "disconnected") shared.client.connect();
+            if (shared.sub?.state === "unsubscribed") shared.sub.subscribe();
+        }
 
         let closed = false;
         if (onSubscribed && shared.sub?.state === "subscribed") {
