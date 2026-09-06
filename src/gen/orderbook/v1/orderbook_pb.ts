@@ -74,7 +74,9 @@ export const PriceLevelSchema: GenMessage<PriceLevel> = /*@__PURE__*/
 
 /**
  * GetOrderBookResponse is a depth snapshot for the binary (protobuf) API (scaled integers).
- * REST surfaces expose decimal strings via DTO conversion.
+ * REST surfaces expose decimal strings via DTO conversion. A configured symbol
+ * without an initialized book returns a successful snapshot with sequence zero
+ * and empty bid and ask collections.
  *
  * @generated from message orderbook.v1.GetOrderBookResponse
  */
@@ -94,14 +96,14 @@ export type GetOrderBookResponse = Message<"orderbook.v1.GetOrderBookResponse"> 
   bookSeq: bigint;
 
   /**
-   * Best bid first; descending price.
+   * Best bid first; descending price. Empty when there is no current liquidity.
    *
    * @generated from field: repeated orderbook.v1.PriceLevel bids = 3;
    */
   bids: PriceLevel[];
 
   /**
-   * Best ask first; ascending price.
+   * Best ask first; ascending price. Empty when there is no current liquidity.
    *
    * @generated from field: repeated orderbook.v1.PriceLevel asks = 4;
    */

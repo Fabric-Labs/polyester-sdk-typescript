@@ -266,13 +266,15 @@ export const GetSocialVerificationRequestSchema: GenMessage<GetSocialVerificatio
 
 /**
  * GetSocialVerificationResponse contains the caller's current social
- * verification state for one provider.
+ * verification state for one provider. A successful response with verification
+ * absent means the caller has not started verification for that provider.
  *
  * @generated from message auth.v1.GetSocialVerificationResponse
  */
 export type GetSocialVerificationResponse = Message<"auth.v1.GetSocialVerificationResponse"> & {
   /**
-   * Current verification state for the requested provider.
+   * Current verification state for the requested provider. Absent when no
+   * verification has been started.
    *
    * @generated from field: auth.v1.SocialVerification verification = 1;
    */

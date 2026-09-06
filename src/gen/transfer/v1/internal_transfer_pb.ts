@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file transfer/v1/internal_transfer.proto.
  */
 export const file_transfer_v1_internal_transfer: GenFile = /*@__PURE__*/
-  fileDesc("CiN0cmFuc2Zlci92MS9pbnRlcm5hbF90cmFuc2Zlci5wcm90bxILdHJhbnNmZXIudjEioQIKHUNyZWF0ZUludGVybmFsVHJhbnNmZXJSZXF1ZXN0EhcKDXN1YmFjY291bnRfaWQYASABKAZCABIiChZkZXN0aW5hdGlvbl9hY2NvdW50X2lkGAIgASgGQgBIABIlChlkZXN0aW5hdGlvbl9zdWJhY2NvdW50X2lkGAMgASgGQgBIABItCiFkZXN0aW5hdGlvbl9zbWFydF9hY2NvdW50X2FkZHJlc3MYBCABKAlCAEgAEhIKCGFzc2V0X2lkGAUgASgNQgASLQoKYW1vdW50X2UxOBgGIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjhCABIZCg9pZGVtcG90ZW5jeV9rZXkYByABKAlCAEIPCgtkZXN0aW5hdGlvbhIAInIKE1Jlc29sdmVkRGVzdGluYXRpb24SHgoWcm9vdF9hY2NvdW50X3B1YmxpY19pZBgBIAEoCRIcChRzdWJhY2NvdW50X3B1YmxpY19pZBgCIAEoCRIdChVzbWFydF9hY2NvdW50X2FkZHJlc3MYAyABKAkitwIKHkNyZWF0ZUludGVybmFsVHJhbnNmZXJSZXNwb25zZRISCgpyZXF1ZXN0X2lkGAEgASgJEhMKC3RyYW5zZmVyX2lkGAIgASgJEhkKEWFjY2VwdGVkX2F0X3RzX25zGAMgASgEEhAKCGFzc2V0X2lkGAQgASgNEhIKCmFzc2V0X2NvZGUYBSABKAkSEgoKdV9hc3NldF9pZBgGIAEoCRIrCgphbW91bnRfZTE4GAcgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBI1CgtkZXN0aW5hdGlvbhgIIAEoCzIgLnRyYW5zZmVyLnYxLlJlc29sdmVkRGVzdGluYXRpb24SMwoGc3RhdHVzGAkgASgOMiMudHJhbnNmZXIudjEuSW50ZXJuYWxUcmFuc2ZlclN0YXR1cyq1AQoWSW50ZXJuYWxUcmFuc2ZlclN0YXR1cxIoCiRJTlRFUk5BTF9UUkFOU0ZFUl9TVEFUVVNfVU5TUEVDSUZJRUQQABIlCiFJTlRFUk5BTF9UUkFOU0ZFUl9TVEFUVVNfQUNDRVBURUQQARIlCiFJTlRFUk5BTF9UUkFOU0ZFUl9TVEFUVVNfUkVKRUNURUQQAhIjCh9JTlRFUk5BTF9UUkFOU0ZFUl9TVEFUVVNfRkFJTEVEEAMyjgEKF0ludGVybmFsVHJhbnNmZXJTZXJ2aWNlEnMKFkNyZWF0ZUludGVybmFsVHJhbnNmZXISKi50cmFuc2Zlci52MS5DcmVhdGVJbnRlcm5hbFRyYW5zZmVyUmVxdWVzdBorLnRyYW5zZmVyLnYxLkNyZWF0ZUludGVybmFsVHJhbnNmZXJSZXNwb25zZSIAQkRaQmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vdHJhbnNmZXIvdjE7dHJhbnNmZXJ2MWIGcHJvdG8z", [file_polyester_api_options, file_polyester_type_v1_u128]);
+  fileDesc("CiN0cmFuc2Zlci92MS9pbnRlcm5hbF90cmFuc2Zlci5wcm90bxILdHJhbnNmZXIudjEioQIKHUNyZWF0ZUludGVybmFsVHJhbnNmZXJSZXF1ZXN0EhcKDXN1YmFjY291bnRfaWQYASABKAZCABIiChZkZXN0aW5hdGlvbl9hY2NvdW50X2lkGAIgASgGQgBIABIlChlkZXN0aW5hdGlvbl9zdWJhY2NvdW50X2lkGAMgASgGQgBIABItCiFkZXN0aW5hdGlvbl9zbWFydF9hY2NvdW50X2FkZHJlc3MYBCABKAlCAEgAEhIKCGFzc2V0X2lkGAUgASgNQgASLQoKYW1vdW50X2UxOBgGIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjhCABIZCg9pZGVtcG90ZW5jeV9rZXkYByABKAlCAEIPCgtkZXN0aW5hdGlvbhIAInIKE1Jlc29sdmVkRGVzdGluYXRpb24SHgoWcm9vdF9hY2NvdW50X3B1YmxpY19pZBgBIAEoCRIcChRzdWJhY2NvdW50X3B1YmxpY19pZBgCIAEoCRIdChVzbWFydF9hY2NvdW50X2FkZHJlc3MYAyABKAkiMwoLRXJyb3JEZXRhaWwSJAoEY29kZRgBIAEoDjIWLnRyYW5zZmVyLnYxLkVycm9yQ29kZSK3AgoeQ3JlYXRlSW50ZXJuYWxUcmFuc2ZlclJlc3BvbnNlEhIKCnJlcXVlc3RfaWQYASABKAkSEwoLdHJhbnNmZXJfaWQYAiABKAkSGQoRYWNjZXB0ZWRfYXRfdHNfbnMYAyABKAQSEAoIYXNzZXRfaWQYBCABKA0SEgoKYXNzZXRfY29kZRgFIAEoCRISCgp1X2Fzc2V0X2lkGAYgASgJEisKCmFtb3VudF9lMTgYByABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EjUKC2Rlc3RpbmF0aW9uGAggASgLMiAudHJhbnNmZXIudjEuUmVzb2x2ZWREZXN0aW5hdGlvbhIzCgZzdGF0dXMYCSABKA4yIy50cmFuc2Zlci52MS5JbnRlcm5hbFRyYW5zZmVyU3RhdHVzKukHCglFcnJvckNvZGUSGgoWRVJST1JfQ09ERV9VTlNQRUNJRklFRBAAEiEKHUVSUk9SX0NPREVfSU5TVUZGSUNJRU5UX0ZVTkRTEAESHgoaRVJST1JfQ09ERV9JTlZBTElEX1JFUVVFU1QQAhIeChpFUlJPUl9DT0RFX1VOQVVUSEVOVElDQVRFRBADEiAKHEVSUk9SX0NPREVfUEVSTUlTU0lPTl9ERU5JRUQQBBIiCh5FUlJPUl9DT0RFX1JBVEVfTElNSVRfRVhDRUVERUQQBRIiCh5FUlJPUl9DT0RFX1NFUlZJQ0VfVU5BVkFJTEFCTEUQBhIdChlFUlJPUl9DT0RFX0lOVEVSTkFMX0VSUk9SEAcSJAogRVJST1JfQ09ERV9JTlZBTElEX1NVQkFDQ09VTlRfSUQQCBIjCh9FUlJPUl9DT0RFX1NVQkFDQ09VTlRfTk9UX0ZPVU5EEAkSJgoiRVJST1JfQ09ERV9TT1VSQ0VfQUNDT1VOVF9JTkFDVElWRRAKEiAKHEVSUk9SX0NPREVfVU5TVVBQT1JURURfQVNTRVQQCxIdChlFUlJPUl9DT0RFX0lOVkFMSURfQU1PVU5UEAwSIgoeRVJST1JfQ09ERV9JTlZBTElEX0RFU1RJTkFUSU9OEA0SJAogRVJST1JfQ09ERV9ERVNUSU5BVElPTl9OT1RfRk9VTkQQDhIjCh9FUlJPUl9DT0RFX0RFU1RJTkFUSU9OX0lOQUNUSVZFEA8SJgoiRVJST1JfQ09ERV9TQU1FX1NPVVJDRV9ERVNUSU5BVElPThAQEioKJkVSUk9SX0NPREVfREVTVElOQVRJT05fTk9UX1dISVRFTElTVEVEEBESKAokRVJST1JfQ09ERV9TTUFSVF9BQ0NPVU5UX1VOQVZBSUxBQkxFEBISIgoeRVJST1JfQ09ERV9TVEVQX1VQX1VOQVZBSUxBQkxFEBMSIwofRVJST1JfQ09ERV9JREVNUE9URU5DWV9DT05GTElDVBAUEiIKHkVSUk9SX0NPREVfRlVORFNfTE9DS19DT05GTElDVBAVEicKI0VSUk9SX0NPREVfQ0FQSVRBTF9WSUVXX1VOQVZBSUxBQkxFEBYSKAokRVJST1JfQ09ERV9BQ0NPVU5UX1NIQVJEX1VOQVZBSUxBQkxFEBcSHAoYRVJST1JfQ09ERV9QT0xJQ1lfREVOSUVEEBgSIgoeRVJST1JfQ09ERV9GQUlMRURfUFJFQ09ORElUSU9OEBkSGAoURVJST1JfQ09ERV9OT1RfRk9VTkQQGhIXChNFUlJPUl9DT0RFX0NPTkZMSUNUEBsqtQEKFkludGVybmFsVHJhbnNmZXJTdGF0dXMSKAokSU5URVJOQUxfVFJBTlNGRVJfU1RBVFVTX1VOU1BFQ0lGSUVEEAASJQohSU5URVJOQUxfVFJBTlNGRVJfU1RBVFVTX0FDQ0VQVEVEEAESJQohSU5URVJOQUxfVFJBTlNGRVJfU1RBVFVTX1JFSkVDVEVEEAISIwofSU5URVJOQUxfVFJBTlNGRVJfU1RBVFVTX0ZBSUxFRBADMo4BChdJbnRlcm5hbFRyYW5zZmVyU2VydmljZRJzChZDcmVhdGVJbnRlcm5hbFRyYW5zZmVyEioudHJhbnNmZXIudjEuQ3JlYXRlSW50ZXJuYWxUcmFuc2ZlclJlcXVlc3QaKy50cmFuc2Zlci52MS5DcmVhdGVJbnRlcm5hbFRyYW5zZmVyUmVzcG9uc2UiAEJEWkJnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL3RyYW5zZmVyL3YxO3RyYW5zZmVydjFiBnByb3RvMw==", [file_polyester_api_options, file_polyester_type_v1_u128]);
 
 /**
  * CreateInternalTransferRequest creates or returns one accepted Trading
@@ -126,6 +126,27 @@ export const ResolvedDestinationSchema: GenMessage<ResolvedDestination> = /*@__P
   messageDesc(file_transfer_v1_internal_transfer, 1);
 
 /**
+ * ErrorDetail is attached to ConnectRPC errors for structured error handling.
+ *
+ * @generated from message transfer.v1.ErrorDetail
+ */
+export type ErrorDetail = Message<"transfer.v1.ErrorDetail"> & {
+  /**
+   * Stable error code matching the REST problem+json code field.
+   *
+   * @generated from field: transfer.v1.ErrorCode code = 1;
+   */
+  code: ErrorCode;
+};
+
+/**
+ * Describes the message transfer.v1.ErrorDetail.
+ * Use `create(ErrorDetailSchema)` to create a new message.
+ */
+export const ErrorDetailSchema: GenMessage<ErrorDetail> = /*@__PURE__*/
+  messageDesc(file_transfer_v1_internal_transfer, 2);
+
+/**
  * CreateInternalTransferResponse returns the accepted request and transfer
  * identifiers for later correlation.
  *
@@ -201,7 +222,217 @@ export type CreateInternalTransferResponse = Message<"transfer.v1.CreateInternal
  * Use `create(CreateInternalTransferResponseSchema)` to create a new message.
  */
 export const CreateInternalTransferResponseSchema: GenMessage<CreateInternalTransferResponse> = /*@__PURE__*/
-  messageDesc(file_transfer_v1_internal_transfer, 2);
+  messageDesc(file_transfer_v1_internal_transfer, 3);
+
+/**
+ * ErrorCode identifies stable, machine-readable Internal Transfer API errors.
+ * Values mirror the REST problem+json code field.
+ *
+ * @generated from enum transfer.v1.ErrorCode
+ */
+export enum ErrorCode {
+  /**
+   * No domain error code was provided.
+   *
+   * @generated from enum value: ERROR_CODE_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * The source account does not have enough available Trading balance.
+   *
+   * @generated from enum value: ERROR_CODE_INSUFFICIENT_FUNDS = 1;
+   */
+  INSUFFICIENT_FUNDS = 1,
+
+  /**
+   * Request payload or one of its fields is invalid.
+   *
+   * @generated from enum value: ERROR_CODE_INVALID_REQUEST = 2;
+   */
+  INVALID_REQUEST = 2,
+
+  /**
+   * Caller is not authenticated.
+   *
+   * @generated from enum value: ERROR_CODE_UNAUTHENTICATED = 3;
+   */
+  UNAUTHENTICATED = 3,
+
+  /**
+   * Caller is not permitted to create the transfer.
+   *
+   * @generated from enum value: ERROR_CODE_PERMISSION_DENIED = 4;
+   */
+  PERMISSION_DENIED = 4,
+
+  /**
+   * Request exceeded the applicable admission rate limit.
+   *
+   * @generated from enum value: ERROR_CODE_RATE_LIMIT_EXCEEDED = 5;
+   */
+  RATE_LIMIT_EXCEEDED = 5,
+
+  /**
+   * A required dependency is temporarily unavailable.
+   *
+   * @generated from enum value: ERROR_CODE_SERVICE_UNAVAILABLE = 6;
+   */
+  SERVICE_UNAVAILABLE = 6,
+
+  /**
+   * The request failed because of an unexpected server error.
+   *
+   * @generated from enum value: ERROR_CODE_INTERNAL_ERROR = 7;
+   */
+  INTERNAL_ERROR = 7,
+
+  /**
+   * The selected subaccount identifier is invalid.
+   *
+   * @generated from enum value: ERROR_CODE_INVALID_SUBACCOUNT_ID = 8;
+   */
+  INVALID_SUBACCOUNT_ID = 8,
+
+  /**
+   * The selected subaccount does not exist.
+   *
+   * @generated from enum value: ERROR_CODE_SUBACCOUNT_NOT_FOUND = 9;
+   */
+  SUBACCOUNT_NOT_FOUND = 9,
+
+  /**
+   * The source subaccount is not active.
+   *
+   * @generated from enum value: ERROR_CODE_SOURCE_ACCOUNT_INACTIVE = 10;
+   */
+  SOURCE_ACCOUNT_INACTIVE = 10,
+
+  /**
+   * The requested asset is not supported for internal transfers.
+   *
+   * @generated from enum value: ERROR_CODE_UNSUPPORTED_ASSET = 11;
+   */
+  UNSUPPORTED_ASSET = 11,
+
+  /**
+   * The transfer amount is invalid.
+   *
+   * @generated from enum value: ERROR_CODE_INVALID_AMOUNT = 12;
+   */
+  INVALID_AMOUNT = 12,
+
+  /**
+   * The destination identifier is invalid.
+   *
+   * @generated from enum value: ERROR_CODE_INVALID_DESTINATION = 13;
+   */
+  INVALID_DESTINATION = 13,
+
+  /**
+   * The destination account or smart account could not be found.
+   *
+   * @generated from enum value: ERROR_CODE_DESTINATION_NOT_FOUND = 14;
+   */
+  DESTINATION_NOT_FOUND = 14,
+
+  /**
+   * The destination subaccount is not active.
+   *
+   * @generated from enum value: ERROR_CODE_DESTINATION_INACTIVE = 15;
+   */
+  DESTINATION_INACTIVE = 15,
+
+  /**
+   * Source and destination resolve to the same account.
+   *
+   * @generated from enum value: ERROR_CODE_SAME_SOURCE_DESTINATION = 16;
+   */
+  SAME_SOURCE_DESTINATION = 16,
+
+  /**
+   * The destination is not present on the caller's internal whitelist.
+   *
+   * @generated from enum value: ERROR_CODE_DESTINATION_NOT_WHITELISTED = 17;
+   */
+  DESTINATION_NOT_WHITELISTED = 17,
+
+  /**
+   * A required source or destination smart-account address is unavailable.
+   *
+   * @generated from enum value: ERROR_CODE_SMART_ACCOUNT_UNAVAILABLE = 18;
+   */
+  SMART_ACCOUNT_UNAVAILABLE = 18,
+
+  /**
+   * Fresh step-up verification is temporarily unavailable.
+   *
+   * @generated from enum value: ERROR_CODE_STEP_UP_UNAVAILABLE = 19;
+   */
+  STEP_UP_UNAVAILABLE = 19,
+
+  /**
+   * The idempotency key was reused with different request data.
+   *
+   * @generated from enum value: ERROR_CODE_IDEMPOTENCY_CONFLICT = 20;
+   */
+  IDEMPOTENCY_CONFLICT = 20,
+
+  /**
+   * The funds lock conflicts with an existing or finalized reservation.
+   *
+   * @generated from enum value: ERROR_CODE_FUNDS_LOCK_CONFLICT = 21;
+   */
+  FUNDS_LOCK_CONFLICT = 21,
+
+  /**
+   * The authoritative capital view is not ready or is stale.
+   *
+   * @generated from enum value: ERROR_CODE_CAPITAL_VIEW_UNAVAILABLE = 22;
+   */
+  CAPITAL_VIEW_UNAVAILABLE = 22,
+
+  /**
+   * The account shard cannot currently accept fund movement.
+   *
+   * @generated from enum value: ERROR_CODE_ACCOUNT_SHARD_UNAVAILABLE = 23;
+   */
+  ACCOUNT_SHARD_UNAVAILABLE = 23,
+
+  /**
+   * A required account or API-key policy rejected the transfer.
+   *
+   * @generated from enum value: ERROR_CODE_POLICY_DENIED = 24;
+   */
+  POLICY_DENIED = 24,
+
+  /**
+   * A required precondition was not satisfied.
+   *
+   * @generated from enum value: ERROR_CODE_FAILED_PRECONDITION = 25;
+   */
+  FAILED_PRECONDITION = 25,
+
+  /**
+   * The requested resource was not found.
+   *
+   * @generated from enum value: ERROR_CODE_NOT_FOUND = 26;
+   */
+  NOT_FOUND = 26,
+
+  /**
+   * The request conflicts with existing state.
+   *
+   * @generated from enum value: ERROR_CODE_CONFLICT = 27;
+   */
+  CONFLICT = 27,
+}
+
+/**
+ * Describes the enum transfer.v1.ErrorCode.
+ */
+export const ErrorCodeSchema: GenEnum<ErrorCode> = /*@__PURE__*/
+  enumDesc(file_transfer_v1_internal_transfer, 0);
 
 /**
  * InternalTransferStatus is the public user-facing status for an internal
@@ -243,7 +474,7 @@ export enum InternalTransferStatus {
  * Describes the enum transfer.v1.InternalTransferStatus.
  */
 export const InternalTransferStatusSchema: GenEnum<InternalTransferStatus> = /*@__PURE__*/
-  enumDesc(file_transfer_v1_internal_transfer, 0);
+  enumDesc(file_transfer_v1_internal_transfer, 1);
 
 /**
  * InternalTransferService manages authenticated Trading to Trading internal

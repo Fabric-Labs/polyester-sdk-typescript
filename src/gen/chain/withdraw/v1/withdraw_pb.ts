@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file chain/withdraw/v1/withdraw.proto.
  */
 export const file_chain_withdraw_v1_withdraw: GenFile = /*@__PURE__*/
-  fileDesc("CiBjaGFpbi93aXRoZHJhdy92MS93aXRoZHJhdy5wcm90bxIRY2hhaW4ud2l0aGRyYXcudjEiMgodQ3JlYXRlVHJhZGluZ1dpdGhkcmF3UmVzcG9uc2USEQoJaW50ZW50X2lkGAEgASgJIjgKI0NyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhd1Jlc3BvbnNlEhEKCWludGVudF9pZBgBIAEoCSK4AgocVHJhZGluZ1dpdGhkcmF3SW50ZW50UGF5bG9hZBI6CgZhY3Rpb24YASABKA4yKC5jaGFpbi53aXRoZHJhdy52MS5UcmFkaW5nV2l0aGRyYXdBY3Rpb25CABISCghhc3NldF9pZBgCIAEoDUIAEhwKFGRlc3RpbmF0aW9uX2NoYWluX2lkGAMgASgEEi0KCmFtb3VudF9lMTgYBCABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4QgASGQoPZGVhZGxpbmVfdHNfc2VjGAUgASgEQgASKAoFbm9uY2UYBiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4QgASGwoTZGVzdGluYXRpb25fYWRkcmVzcxgHIAEoCRIZCg9pZGVtcG90ZW5jeV9rZXkYCCABKAlCACJ/ChxDcmVhdGVUcmFkaW5nV2l0aGRyYXdSZXF1ZXN0EkIKB3BheWxvYWQYASABKAsyLy5jaGFpbi53aXRoZHJhdy52MS5UcmFkaW5nV2l0aGRyYXdJbnRlbnRQYXlsb2FkQgASGwoRcGF5bG9hZF9zaWduYXR1cmUYAiABKAxCACK1AQoiQ3JlYXRlV2FsbGV0VHJhZGluZ1dpdGhkcmF3UmVxdWVzdBJCCgdwYXlsb2FkGAEgASgLMi8uY2hhaW4ud2l0aGRyYXcudjEuVHJhZGluZ1dpdGhkcmF3SW50ZW50UGF5bG9hZEIAEhUKDXN1YmFjY291bnRfaWQYAiABKAQSFwoNc2lnbmVyX3dhbGxldBgDIAEoCUIAEhsKEXBheWxvYWRfc2lnbmF0dXJlGAQgASgMQgAiYwoiVmFsaWRhdGVXaXRoZHJhd0Rlc3RpbmF0aW9uUmVxdWVzdBIeChRkZXN0aW5hdGlvbl9jaGFpbl9pZBgBIAEoBEIAEh0KE2Rlc3RpbmF0aW9uX2FkZHJlc3MYAiABKAlCACKwAQojVmFsaWRhdGVXaXRoZHJhd0Rlc3RpbmF0aW9uUmVzcG9uc2USDQoFdmFsaWQYASABKAgSQgoEY29kZRgCIAEoDjI0LmNoYWluLndpdGhkcmF3LnYxLldpdGhkcmF3RGVzdGluYXRpb25WYWxpZGF0aW9uQ29kZRIPCgdtZXNzYWdlGAMgASgJEiUKHWNhbm9uaWNhbF9kZXN0aW5hdGlvbl9hZGRyZXNzGAQgASgJKlYKFVRyYWRpbmdXaXRoZHJhd0FjdGlvbhIWChJBQ1RJT05fVU5TUEVDSUZJRUQQABIOCgpUT19GVU5ESU5HEAESFQoRVE9fRVhURVJOQUxfQ0hBSU4QAiq7AQohV2l0aGRyYXdEZXN0aW5hdGlvblZhbGlkYXRpb25Db2RlEhYKElJFU1VMVF9VTlNQRUNJRklFRBAAEgkKBVZBTElEEAESEwoPSU5WQUxJRF9BRERSRVNTEAISFQoRVU5TVVBQT1JURURfQ0hBSU4QAxIbChdQT0xZRVNURVJfU01BUlRfQUNDT1VOVBAEEhIKDlRPS0VOX0NPTlRSQUNUEAUSFgoSREVOWUxJU1RFRF9BRERSRVNTEAYysQMKD1dpdGhkcmF3U2VydmljZRKOAQobVmFsaWRhdGVXaXRoZHJhd0Rlc3RpbmF0aW9uEjUuY2hhaW4ud2l0aGRyYXcudjEuVmFsaWRhdGVXaXRoZHJhd0Rlc3RpbmF0aW9uUmVxdWVzdBo2LmNoYWluLndpdGhkcmF3LnYxLlZhbGlkYXRlV2l0aGRyYXdEZXN0aW5hdGlvblJlc3BvbnNlIgASfAoVQ3JlYXRlVHJhZGluZ1dpdGhkcmF3Ei8uY2hhaW4ud2l0aGRyYXcudjEuQ3JlYXRlVHJhZGluZ1dpdGhkcmF3UmVxdWVzdBowLmNoYWluLndpdGhkcmF3LnYxLkNyZWF0ZVRyYWRpbmdXaXRoZHJhd1Jlc3BvbnNlIgASjgEKG0NyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhdxI1LmNoYWluLndpdGhkcmF3LnYxLkNyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhd1JlcXVlc3QaNi5jaGFpbi53aXRoZHJhdy52MS5DcmVhdGVXYWxsZXRUcmFkaW5nV2l0aGRyYXdSZXNwb25zZSIAQk9aTWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vY2hhaW4vd2l0aGRyYXcvdjE7Y2hhaW53aXRoZHJhd3YxYgZwcm90bzM=", [file_polyester_api_options, file_polyester_type_v1_u128]);
+  fileDesc("CiBjaGFpbi93aXRoZHJhdy92MS93aXRoZHJhdy5wcm90bxIRY2hhaW4ud2l0aGRyYXcudjEiMgodQ3JlYXRlVHJhZGluZ1dpdGhkcmF3UmVzcG9uc2USEQoJaW50ZW50X2lkGAEgASgJIjgKI0NyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhd1Jlc3BvbnNlEhEKCWludGVudF9pZBgBIAEoCSI5CgtFcnJvckRldGFpbBIqCgRjb2RlGAEgASgOMhwuY2hhaW4ud2l0aGRyYXcudjEuRXJyb3JDb2RlIrgCChxUcmFkaW5nV2l0aGRyYXdJbnRlbnRQYXlsb2FkEjoKBmFjdGlvbhgBIAEoDjIoLmNoYWluLndpdGhkcmF3LnYxLlRyYWRpbmdXaXRoZHJhd0FjdGlvbkIAEhIKCGFzc2V0X2lkGAIgASgNQgASHAoUZGVzdGluYXRpb25fY2hhaW5faWQYAyABKAQSLQoKYW1vdW50X2UxOBgEIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjhCABIZCg9kZWFkbGluZV90c19zZWMYBSABKARCABIoCgVub25jZRgGIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjhCABIbChNkZXN0aW5hdGlvbl9hZGRyZXNzGAcgASgJEhkKD2lkZW1wb3RlbmN5X2tleRgIIAEoCUIAIn8KHENyZWF0ZVRyYWRpbmdXaXRoZHJhd1JlcXVlc3QSQgoHcGF5bG9hZBgBIAEoCzIvLmNoYWluLndpdGhkcmF3LnYxLlRyYWRpbmdXaXRoZHJhd0ludGVudFBheWxvYWRCABIbChFwYXlsb2FkX3NpZ25hdHVyZRgCIAEoDEIAIrUBCiJDcmVhdGVXYWxsZXRUcmFkaW5nV2l0aGRyYXdSZXF1ZXN0EkIKB3BheWxvYWQYASABKAsyLy5jaGFpbi53aXRoZHJhdy52MS5UcmFkaW5nV2l0aGRyYXdJbnRlbnRQYXlsb2FkQgASFQoNc3ViYWNjb3VudF9pZBgCIAEoBBIXCg1zaWduZXJfd2FsbGV0GAMgASgJQgASGwoRcGF5bG9hZF9zaWduYXR1cmUYBCABKAxCACJjCiJWYWxpZGF0ZVdpdGhkcmF3RGVzdGluYXRpb25SZXF1ZXN0Eh4KFGRlc3RpbmF0aW9uX2NoYWluX2lkGAEgASgEQgASHQoTZGVzdGluYXRpb25fYWRkcmVzcxgCIAEoCUIAIrABCiNWYWxpZGF0ZVdpdGhkcmF3RGVzdGluYXRpb25SZXNwb25zZRINCgV2YWxpZBgBIAEoCBJCCgRjb2RlGAIgASgOMjQuY2hhaW4ud2l0aGRyYXcudjEuV2l0aGRyYXdEZXN0aW5hdGlvblZhbGlkYXRpb25Db2RlEg8KB21lc3NhZ2UYAyABKAkSJQodY2Fub25pY2FsX2Rlc3RpbmF0aW9uX2FkZHJlc3MYBCABKAkq+gwKCUVycm9yQ29kZRIaChZFUlJPUl9DT0RFX1VOU1BFQ0lGSUVEEAASIQodRVJST1JfQ09ERV9JTlNVRkZJQ0lFTlRfRlVORFMQARIeChpFUlJPUl9DT0RFX0lOVkFMSURfUkVRVUVTVBACEh4KGkVSUk9SX0NPREVfVU5BVVRIRU5USUNBVEVEEAMSIAocRVJST1JfQ09ERV9QRVJNSVNTSU9OX0RFTklFRBAEEiIKHkVSUk9SX0NPREVfUkFURV9MSU1JVF9FWENFRURFRBAFEiIKHkVSUk9SX0NPREVfU0VSVklDRV9VTkFWQUlMQUJMRRAGEh0KGUVSUk9SX0NPREVfSU5URVJOQUxfRVJST1IQBxIkCiBFUlJPUl9DT0RFX0lOVkFMSURfU1VCQUNDT1VOVF9JRBAIEiMKH0VSUk9SX0NPREVfU1VCQUNDT1VOVF9OT1RfRk9VTkQQCRIdChlFUlJPUl9DT0RFX0lOVkFMSURfQUNUSU9OEAoSIQodRVJST1JfQ09ERV9VTlNVUFBPUlRFRF9MRURHRVIQCxIgChxFUlJPUl9DT0RFX1VOU1VQUE9SVEVEX0FTU0VUEAwSHQoZRVJST1JfQ09ERV9JTlZBTElEX0FNT1VOVBANEigKJEVSUk9SX0NPREVfSU5WQUxJRF9ERVNUSU5BVElPTl9DSEFJThAOEioKJkVSUk9SX0NPREVfSU5WQUxJRF9ERVNUSU5BVElPTl9BRERSRVNTEA8SMwovRVJST1JfQ09ERV9FWFRFUk5BTF9ERVNUSU5BVElPTl9OT1RfV0hJVEVMSVNURUQQEBIxCi1FUlJPUl9DT0RFX0lOVEVSTkFMX1JFQ0lQSUVOVF9OT1RfV0hJVEVMSVNURUQQERIjCh9FUlJPUl9DT0RFX0FNT1VOVF9CRUxPV19NSU5JTVVNEBISJAogRVJST1JfQ09ERV9BTU9VTlRfRVhDRUVEU19TVVBQTFkQExIvCitFUlJPUl9DT0RFX1NPVVJDRV9TTUFSVF9BQ0NPVU5UX1VOQVZBSUxBQkxFEBQSIQodRVJST1JfQ09ERV9TSUdOQVRVUkVfUkVRVUlSRUQQFRIrCidFUlJPUl9DT0RFX1NJR05BVFVSRV9TQ0hFTUVfVU5TVVBQT1JURUQQFhIkCiBFUlJPUl9DT0RFX1NJR05FUl9XQUxMRVRfSU5WQUxJRBAXEiUKIUVSUk9SX0NPREVfV0FMTEVUX0JJTkRJTkdfSU5WQUxJRBAYEiwKKEVSUk9SX0NPREVfV0FMTEVUX0JJTkRJTkdfU0NPUEVfTUlTTUFUQ0gQGRItCilFUlJPUl9DT0RFX1dBTExFVF9CSU5ESU5HX1NJR05FUl9NSVNNQVRDSBAaEiAKHEVSUk9SX0NPREVfQVBJX0tFWV9OT1RfRk9VTkQQGxImCiJFUlJPUl9DT0RFX0FQSV9LRVlfQklORElOR19JTlZBTElEEBwSLQopRVJST1JfQ09ERV9BUElfS0VZX0JJTkRJTkdfU0NPUEVfTUlTTUFUQ0gQHRIyCi5FUlJPUl9DT0RFX0FQSV9LRVlfQklORElOR19QVUJMSUNfS0VZX01JU01BVENIEB4SIwofRVJST1JfQ09ERV9JREVNUE9URU5DWV9DT05GTElDVBAfEiIKHkVSUk9SX0NPREVfRlVORFNfTE9DS19DT05GTElDVBAgEicKI0VSUk9SX0NPREVfQ0FQSVRBTF9WSUVXX1VOQVZBSUxBQkxFECESKQolRVJST1JfQ09ERV9DSEFJTl9NRVRBREFUQV9VTkFWQUlMQUJMRRAiEh4KGkVSUk9SX0NPREVfRkVFX1VOQVZBSUxBQkxFECMSIQodRVJST1JfQ09ERV9TVVBQTFlfVU5BVkFJTEFCTEUQJBIiCh5FUlJPUl9DT0RFX1NURVBfVVBfVU5BVkFJTEFCTEUQJRIxCi1FUlJPUl9DT0RFX0RFU1RJTkFUSU9OX1ZBTElEQVRJT05fVU5BVkFJTEFCTEUQJhIoCiRFUlJPUl9DT0RFX0FDQ09VTlRfU0hBUkRfVU5BVkFJTEFCTEUQJxIiCh5FUlJPUl9DT0RFX0ZBSUxFRF9QUkVDT05ESVRJT04QKBIYChRFUlJPUl9DT0RFX05PVF9GT1VORBApEhcKE0VSUk9SX0NPREVfQ09ORkxJQ1QQKipWChVUcmFkaW5nV2l0aGRyYXdBY3Rpb24SFgoSQUNUSU9OX1VOU1BFQ0lGSUVEEAASDgoKVE9fRlVORElORxABEhUKEVRPX0VYVEVSTkFMX0NIQUlOEAIquwEKIVdpdGhkcmF3RGVzdGluYXRpb25WYWxpZGF0aW9uQ29kZRIWChJSRVNVTFRfVU5TUEVDSUZJRUQQABIJCgVWQUxJRBABEhMKD0lOVkFMSURfQUREUkVTUxACEhUKEVVOU1VQUE9SVEVEX0NIQUlOEAMSGwoXUE9MWUVTVEVSX1NNQVJUX0FDQ09VTlQQBBISCg5UT0tFTl9DT05UUkFDVBAFEhYKEkRFTllMSVNURURfQUREUkVTUxAGMrEDCg9XaXRoZHJhd1NlcnZpY2USjgEKG1ZhbGlkYXRlV2l0aGRyYXdEZXN0aW5hdGlvbhI1LmNoYWluLndpdGhkcmF3LnYxLlZhbGlkYXRlV2l0aGRyYXdEZXN0aW5hdGlvblJlcXVlc3QaNi5jaGFpbi53aXRoZHJhdy52MS5WYWxpZGF0ZVdpdGhkcmF3RGVzdGluYXRpb25SZXNwb25zZSIAEnwKFUNyZWF0ZVRyYWRpbmdXaXRoZHJhdxIvLmNoYWluLndpdGhkcmF3LnYxLkNyZWF0ZVRyYWRpbmdXaXRoZHJhd1JlcXVlc3QaMC5jaGFpbi53aXRoZHJhdy52MS5DcmVhdGVUcmFkaW5nV2l0aGRyYXdSZXNwb25zZSIAEo4BChtDcmVhdGVXYWxsZXRUcmFkaW5nV2l0aGRyYXcSNS5jaGFpbi53aXRoZHJhdy52MS5DcmVhdGVXYWxsZXRUcmFkaW5nV2l0aGRyYXdSZXF1ZXN0GjYuY2hhaW4ud2l0aGRyYXcudjEuQ3JlYXRlV2FsbGV0VHJhZGluZ1dpdGhkcmF3UmVzcG9uc2UiAEJPWk1naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2NoYWluL3dpdGhkcmF3L3YxO2NoYWlud2l0aGRyYXd2MWIGcHJvdG8z", [file_polyester_api_options, file_polyester_type_v1_u128]);
 
 /**
  * CreateTradingWithdrawResponse returns the accepted durable intent identifier
@@ -60,6 +60,27 @@ export type CreateWalletTradingWithdrawResponse = Message<"chain.withdraw.v1.Cre
  */
 export const CreateWalletTradingWithdrawResponseSchema: GenMessage<CreateWalletTradingWithdrawResponse> = /*@__PURE__*/
   messageDesc(file_chain_withdraw_v1_withdraw, 1);
+
+/**
+ * ErrorDetail is attached to ConnectRPC errors for structured error handling.
+ *
+ * @generated from message chain.withdraw.v1.ErrorDetail
+ */
+export type ErrorDetail = Message<"chain.withdraw.v1.ErrorDetail"> & {
+  /**
+   * Stable error code matching the REST problem+json code field.
+   *
+   * @generated from field: chain.withdraw.v1.ErrorCode code = 1;
+   */
+  code: ErrorCode;
+};
+
+/**
+ * Describes the message chain.withdraw.v1.ErrorDetail.
+ * Use `create(ErrorDetailSchema)` to create a new message.
+ */
+export const ErrorDetailSchema: GenMessage<ErrorDetail> = /*@__PURE__*/
+  messageDesc(file_chain_withdraw_v1_withdraw, 2);
 
 /**
  * TradingWithdrawIntentPayload is the client-signed typed withdraw request.
@@ -140,7 +161,7 @@ export type TradingWithdrawIntentPayload = Message<"chain.withdraw.v1.TradingWit
  * Use `create(TradingWithdrawIntentPayloadSchema)` to create a new message.
  */
 export const TradingWithdrawIntentPayloadSchema: GenMessage<TradingWithdrawIntentPayload> = /*@__PURE__*/
-  messageDesc(file_chain_withdraw_v1_withdraw, 2);
+  messageDesc(file_chain_withdraw_v1_withdraw, 3);
 
 /**
  * CreateTradingWithdrawRequest creates or returns one durable backend-authorized
@@ -169,7 +190,7 @@ export type CreateTradingWithdrawRequest = Message<"chain.withdraw.v1.CreateTrad
  * Use `create(CreateTradingWithdrawRequestSchema)` to create a new message.
  */
 export const CreateTradingWithdrawRequestSchema: GenMessage<CreateTradingWithdrawRequest> = /*@__PURE__*/
-  messageDesc(file_chain_withdraw_v1_withdraw, 3);
+  messageDesc(file_chain_withdraw_v1_withdraw, 4);
 
 /**
  * CreateWalletTradingWithdrawRequest creates or returns one durable Trading
@@ -212,7 +233,7 @@ export type CreateWalletTradingWithdrawRequest = Message<"chain.withdraw.v1.Crea
  * Use `create(CreateWalletTradingWithdrawRequestSchema)` to create a new message.
  */
 export const CreateWalletTradingWithdrawRequestSchema: GenMessage<CreateWalletTradingWithdrawRequest> = /*@__PURE__*/
-  messageDesc(file_chain_withdraw_v1_withdraw, 4);
+  messageDesc(file_chain_withdraw_v1_withdraw, 5);
 
 /**
  * ValidateWithdrawDestinationRequest checks one external-chain
@@ -241,7 +262,7 @@ export type ValidateWithdrawDestinationRequest = Message<"chain.withdraw.v1.Vali
  * Use `create(ValidateWithdrawDestinationRequestSchema)` to create a new message.
  */
 export const ValidateWithdrawDestinationRequestSchema: GenMessage<ValidateWithdrawDestinationRequest> = /*@__PURE__*/
-  messageDesc(file_chain_withdraw_v1_withdraw, 5);
+  messageDesc(file_chain_withdraw_v1_withdraw, 6);
 
 /**
  * ValidateWithdrawDestinationResponse returns a user-safe validation
@@ -284,7 +305,322 @@ export type ValidateWithdrawDestinationResponse = Message<"chain.withdraw.v1.Val
  * Use `create(ValidateWithdrawDestinationResponseSchema)` to create a new message.
  */
 export const ValidateWithdrawDestinationResponseSchema: GenMessage<ValidateWithdrawDestinationResponse> = /*@__PURE__*/
-  messageDesc(file_chain_withdraw_v1_withdraw, 6);
+  messageDesc(file_chain_withdraw_v1_withdraw, 7);
+
+/**
+ * ErrorCode identifies stable, machine-readable Withdraw API errors.
+ * Values mirror the REST problem+json code field.
+ *
+ * @generated from enum chain.withdraw.v1.ErrorCode
+ */
+export enum ErrorCode {
+  /**
+   * No domain error code was provided.
+   *
+   * @generated from enum value: ERROR_CODE_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * The source account does not have enough available Trading balance.
+   *
+   * @generated from enum value: ERROR_CODE_INSUFFICIENT_FUNDS = 1;
+   */
+  INSUFFICIENT_FUNDS = 1,
+
+  /**
+   * Request payload or one of its fields is invalid.
+   *
+   * @generated from enum value: ERROR_CODE_INVALID_REQUEST = 2;
+   */
+  INVALID_REQUEST = 2,
+
+  /**
+   * Caller is not authenticated.
+   *
+   * @generated from enum value: ERROR_CODE_UNAUTHENTICATED = 3;
+   */
+  UNAUTHENTICATED = 3,
+
+  /**
+   * Caller is not permitted to perform the withdraw operation.
+   *
+   * @generated from enum value: ERROR_CODE_PERMISSION_DENIED = 4;
+   */
+  PERMISSION_DENIED = 4,
+
+  /**
+   * Request exceeded the applicable admission rate limit.
+   *
+   * @generated from enum value: ERROR_CODE_RATE_LIMIT_EXCEEDED = 5;
+   */
+  RATE_LIMIT_EXCEEDED = 5,
+
+  /**
+   * A required dependency is temporarily unavailable.
+   *
+   * @generated from enum value: ERROR_CODE_SERVICE_UNAVAILABLE = 6;
+   */
+  SERVICE_UNAVAILABLE = 6,
+
+  /**
+   * The request failed because of an unexpected server error.
+   *
+   * @generated from enum value: ERROR_CODE_INTERNAL_ERROR = 7;
+   */
+  INTERNAL_ERROR = 7,
+
+  /**
+   * The selected subaccount identifier is invalid.
+   *
+   * @generated from enum value: ERROR_CODE_INVALID_SUBACCOUNT_ID = 8;
+   */
+  INVALID_SUBACCOUNT_ID = 8,
+
+  /**
+   * The selected subaccount does not exist.
+   *
+   * @generated from enum value: ERROR_CODE_SUBACCOUNT_NOT_FOUND = 9;
+   */
+  SUBACCOUNT_NOT_FOUND = 9,
+
+  /**
+   * The requested withdraw action is invalid for this endpoint.
+   *
+   * @generated from enum value: ERROR_CODE_INVALID_ACTION = 10;
+   */
+  INVALID_ACTION = 10,
+
+  /**
+   * The requested ledger is not supported for withdrawals.
+   *
+   * @generated from enum value: ERROR_CODE_UNSUPPORTED_LEDGER = 11;
+   */
+  UNSUPPORTED_LEDGER = 11,
+
+  /**
+   * The requested asset or withdraw route is not supported.
+   *
+   * @generated from enum value: ERROR_CODE_UNSUPPORTED_ASSET = 12;
+   */
+  UNSUPPORTED_ASSET = 12,
+
+  /**
+   * The withdraw amount is invalid.
+   *
+   * @generated from enum value: ERROR_CODE_INVALID_AMOUNT = 13;
+   */
+  INVALID_AMOUNT = 13,
+
+  /**
+   * The destination chain is invalid.
+   *
+   * @generated from enum value: ERROR_CODE_INVALID_DESTINATION_CHAIN = 14;
+   */
+  INVALID_DESTINATION_CHAIN = 14,
+
+  /**
+   * The destination address is invalid.
+   *
+   * @generated from enum value: ERROR_CODE_INVALID_DESTINATION_ADDRESS = 15;
+   */
+  INVALID_DESTINATION_ADDRESS = 15,
+
+  /**
+   * The external destination is not whitelisted.
+   *
+   * @generated from enum value: ERROR_CODE_EXTERNAL_DESTINATION_NOT_WHITELISTED = 16;
+   */
+  EXTERNAL_DESTINATION_NOT_WHITELISTED = 16,
+
+  /**
+   * The internal funding recipient is not whitelisted.
+   *
+   * @generated from enum value: ERROR_CODE_INTERNAL_RECIPIENT_NOT_WHITELISTED = 17;
+   */
+  INTERNAL_RECIPIENT_NOT_WHITELISTED = 17,
+
+  /**
+   * The withdraw amount is below the configured minimum including fees.
+   *
+   * @generated from enum value: ERROR_CODE_AMOUNT_BELOW_MINIMUM = 18;
+   */
+  AMOUNT_BELOW_MINIMUM = 18,
+
+  /**
+   * The withdraw amount exceeds the available zipped-asset supply.
+   *
+   * @generated from enum value: ERROR_CODE_AMOUNT_EXCEEDS_SUPPLY = 19;
+   */
+  AMOUNT_EXCEEDS_SUPPLY = 19,
+
+  /**
+   * The source smart-account address is unavailable.
+   *
+   * @generated from enum value: ERROR_CODE_SOURCE_SMART_ACCOUNT_UNAVAILABLE = 20;
+   */
+  SOURCE_SMART_ACCOUNT_UNAVAILABLE = 20,
+
+  /**
+   * The required payload signature is missing.
+   *
+   * @generated from enum value: ERROR_CODE_SIGNATURE_REQUIRED = 21;
+   */
+  SIGNATURE_REQUIRED = 21,
+
+  /**
+   * The requested signature scheme is unsupported.
+   *
+   * @generated from enum value: ERROR_CODE_SIGNATURE_SCHEME_UNSUPPORTED = 22;
+   */
+  SIGNATURE_SCHEME_UNSUPPORTED = 22,
+
+  /**
+   * The wallet supplied as signer is invalid.
+   *
+   * @generated from enum value: ERROR_CODE_SIGNER_WALLET_INVALID = 23;
+   */
+  SIGNER_WALLET_INVALID = 23,
+
+  /**
+   * Wallet authorization binding verification failed.
+   *
+   * @generated from enum value: ERROR_CODE_WALLET_BINDING_INVALID = 24;
+   */
+  WALLET_BINDING_INVALID = 24,
+
+  /**
+   * Wallet authorization binding does not cover the requested scope.
+   *
+   * @generated from enum value: ERROR_CODE_WALLET_BINDING_SCOPE_MISMATCH = 25;
+   */
+  WALLET_BINDING_SCOPE_MISMATCH = 25,
+
+  /**
+   * Wallet authorization binding does not match the signer.
+   *
+   * @generated from enum value: ERROR_CODE_WALLET_BINDING_SIGNER_MISMATCH = 26;
+   */
+  WALLET_BINDING_SIGNER_MISMATCH = 26,
+
+  /**
+   * The API key could not be resolved.
+   *
+   * @generated from enum value: ERROR_CODE_API_KEY_NOT_FOUND = 27;
+   */
+  API_KEY_NOT_FOUND = 27,
+
+  /**
+   * API-key authorization binding verification failed.
+   *
+   * @generated from enum value: ERROR_CODE_API_KEY_BINDING_INVALID = 28;
+   */
+  API_KEY_BINDING_INVALID = 28,
+
+  /**
+   * API-key authorization binding does not cover the requested scope.
+   *
+   * @generated from enum value: ERROR_CODE_API_KEY_BINDING_SCOPE_MISMATCH = 29;
+   */
+  API_KEY_BINDING_SCOPE_MISMATCH = 29,
+
+  /**
+   * API-key authorization binding does not match the configured public key.
+   *
+   * @generated from enum value: ERROR_CODE_API_KEY_BINDING_PUBLIC_KEY_MISMATCH = 30;
+   */
+  API_KEY_BINDING_PUBLIC_KEY_MISMATCH = 30,
+
+  /**
+   * The idempotency key was reused with different request data.
+   *
+   * @generated from enum value: ERROR_CODE_IDEMPOTENCY_CONFLICT = 31;
+   */
+  IDEMPOTENCY_CONFLICT = 31,
+
+  /**
+   * The funds lock conflicts with an existing or finalized reservation.
+   *
+   * @generated from enum value: ERROR_CODE_FUNDS_LOCK_CONFLICT = 32;
+   */
+  FUNDS_LOCK_CONFLICT = 32,
+
+  /**
+   * The authoritative capital view is not ready or is stale.
+   *
+   * @generated from enum value: ERROR_CODE_CAPITAL_VIEW_UNAVAILABLE = 33;
+   */
+  CAPITAL_VIEW_UNAVAILABLE = 33,
+
+  /**
+   * Required chain or contract metadata is unavailable.
+   *
+   * @generated from enum value: ERROR_CODE_CHAIN_METADATA_UNAVAILABLE = 34;
+   */
+  CHAIN_METADATA_UNAVAILABLE = 34,
+
+  /**
+   * Required network fee data is unavailable.
+   *
+   * @generated from enum value: ERROR_CODE_FEE_UNAVAILABLE = 35;
+   */
+  FEE_UNAVAILABLE = 35,
+
+  /**
+   * Required zipped-asset supply data is unavailable.
+   *
+   * @generated from enum value: ERROR_CODE_SUPPLY_UNAVAILABLE = 36;
+   */
+  SUPPLY_UNAVAILABLE = 36,
+
+  /**
+   * Fresh step-up verification is temporarily unavailable.
+   *
+   * @generated from enum value: ERROR_CODE_STEP_UP_UNAVAILABLE = 37;
+   */
+  STEP_UP_UNAVAILABLE = 37,
+
+  /**
+   * Destination validation is temporarily unavailable.
+   *
+   * @generated from enum value: ERROR_CODE_DESTINATION_VALIDATION_UNAVAILABLE = 38;
+   */
+  DESTINATION_VALIDATION_UNAVAILABLE = 38,
+
+  /**
+   * The account shard cannot currently accept fund movement.
+   *
+   * @generated from enum value: ERROR_CODE_ACCOUNT_SHARD_UNAVAILABLE = 39;
+   */
+  ACCOUNT_SHARD_UNAVAILABLE = 39,
+
+  /**
+   * A required precondition was not satisfied.
+   *
+   * @generated from enum value: ERROR_CODE_FAILED_PRECONDITION = 40;
+   */
+  FAILED_PRECONDITION = 40,
+
+  /**
+   * The requested resource was not found.
+   *
+   * @generated from enum value: ERROR_CODE_NOT_FOUND = 41;
+   */
+  NOT_FOUND = 41,
+
+  /**
+   * The request conflicts with existing state.
+   *
+   * @generated from enum value: ERROR_CODE_CONFLICT = 42;
+   */
+  CONFLICT = 42,
+}
+
+/**
+ * Describes the enum chain.withdraw.v1.ErrorCode.
+ */
+export const ErrorCodeSchema: GenEnum<ErrorCode> = /*@__PURE__*/
+  enumDesc(file_chain_withdraw_v1_withdraw, 0);
 
 /**
  * TradingWithdrawAction identifies where funds should move from Trading.
@@ -312,7 +648,7 @@ export enum TradingWithdrawAction {
  * Describes the enum chain.withdraw.v1.TradingWithdrawAction.
  */
 export const TradingWithdrawActionSchema: GenEnum<TradingWithdrawAction> = /*@__PURE__*/
-  enumDesc(file_chain_withdraw_v1_withdraw, 0);
+  enumDesc(file_chain_withdraw_v1_withdraw, 1);
 
 /**
  * WithdrawDestinationValidationCode identifies the public outcome of an
@@ -376,7 +712,7 @@ export enum WithdrawDestinationValidationCode {
  * Describes the enum chain.withdraw.v1.WithdrawDestinationValidationCode.
  */
 export const WithdrawDestinationValidationCodeSchema: GenEnum<WithdrawDestinationValidationCode> = /*@__PURE__*/
-  enumDesc(file_chain_withdraw_v1_withdraw, 1);
+  enumDesc(file_chain_withdraw_v1_withdraw, 2);
 
 /**
  * WithdrawService manages authenticated chain-facing withdraw request intake.
