@@ -155,7 +155,10 @@ export const ListDepositAddressesResponseSchema: GenMessage<ListDepositAddresses
 export const DepositAddressService: GenService<{
   /**
    * Create or return the assigned deposit address for one target and source
-   * chain.
+   * chain. The acting caller's root account must have accepted the current
+   * terms, including requests using an API key or targeting a shared subaccount.
+   * Otherwise FailedPrecondition is returned. Listing and using existing deposit
+   * addresses remain available without acceptance.
    *
    * @generated from rpc chain.deposit.v1.DepositAddressService.CreateDepositAddress
    */
