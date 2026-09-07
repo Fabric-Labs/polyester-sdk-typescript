@@ -120,6 +120,12 @@ const ConditionalConfigurationRawSchema = v.object({
     ),
 });
 
+const MaxSlippageRawSchema = v.variant("case", [
+    v.object({ case: v.literal("maxSlippageTicks"), value: v.number() }),
+    v.object({ case: v.literal("maxSlippageBps"), value: v.number() }),
+    v.object({ case: v.undefined(), value: v.optional(v.undefined()) }),
+]);
+
 const TrailingConfigurationRawSchema = v.object({
     trailingDistance: v.variant("case", [
         v.object({ case: v.literal("trailingDistanceTicks"), value: v.bigint() }),
@@ -127,11 +133,7 @@ const TrailingConfigurationRawSchema = v.object({
         v.object({ case: v.undefined(), value: v.optional(v.undefined()) }),
     ]),
     activationPriceTicks: v.bigint(),
-    maxSlippage: v.variant("case", [
-        v.object({ case: v.literal("maxSlippageTicks"), value: v.number() }),
-        v.object({ case: v.literal("maxSlippageBps"), value: v.number() }),
-        v.object({ case: v.undefined(), value: v.optional(v.undefined()) }),
-    ]),
+    maxSlippage: MaxSlippageRawSchema,
     side: v.enum(ProtoOrders.Side),
 });
 
@@ -140,7 +142,10 @@ const TwapConfigurationRawSchema = v.object({
     durationMs: v.bigint(),
     sliceIntervalMs: v.bigint(),
     execution: v.variant("case", [
-        v.object({ case: v.literal("marketIoc"), value: v.object({}) }),
+        v.object({
+            case: v.literal("marketIoc"),
+            value: v.object({ maxSlippage: MaxSlippageRawSchema }),
+        }),
         v.object({
             case: v.literal("limitGtc"),
             value: v.object({ priceTicks: v.bigint() }),
@@ -252,21 +257,7 @@ function transformTriggerConfiguration(
                               scales.price(),
                           )
                         : undefined,
-                maxSlippage:
-                    configuration.value.maxSlippage.case === "maxSlippageTicks"
-                        ? {
-                              kind: "slippage" as const,
-                              slippage: scaledToDecimalOutput(
-                                  BigInt(configuration.value.maxSlippage.value),
-                                  scales.price(),
-                              ),
-                          }
-                        : configuration.value.maxSlippage.case === "maxSlippageBps"
-                          ? {
-                                kind: "bps" as const,
-                                bps: configuration.value.maxSlippage.value,
-                            }
-                          : { kind: "none" as const },
+                maxSlippage: formatMaxSlippage(configuration.value.maxSlippage, scales),
             };
         case "twap":
             return {
@@ -281,7 +272,13 @@ function transformTriggerConfiguration(
                 sliceIntervalMs: Number(configuration.value.sliceIntervalMs),
                 execution:
                     configuration.value.execution.case === "marketIoc"
-                        ? ({ type: "market_ioc" } as const)
+                        ? ({
+                              type: "market_ioc",
+                              maxSlippage: formatMaxSlippage(
+                                  configuration.value.execution.value.maxSlippage,
+                                  scales,
+                              ),
+                          } as const)
                         : configuration.value.execution.case === "limitGtc"
                           ? ({
                                 type: "limit_gtc",
@@ -309,6 +306,20 @@ function transformTriggerConfiguration(
         default:
             return { type: "unspecified" as const };
     }
+}
+
+function formatMaxSlippage(
+    maxSlippage: v.InferOutput<typeof MaxSlippageRawSchema>,
+    scales: SdkScales,
+) {
+    return maxSlippage.case === "maxSlippageTicks"
+        ? {
+              kind: "slippage" as const,
+              slippage: scaledToDecimalOutput(BigInt(maxSlippage.value), scales.price()),
+          }
+        : maxSlippage.case === "maxSlippageBps"
+          ? { kind: "bps" as const, bps: maxSlippage.value }
+          : { kind: "none" as const };
 }
 
 const TerminalReasonRawSchema = v.variant("case", [
@@ -375,6 +386,8 @@ const LadderDetailsRawSchema = v.object({
     ladderPriceMaxTicks: v.bigint(),
     ladderLevels: v.number(),
     ladderDistribution: v.enum(Proto.LadderDistribution),
+    executedQtyScaled: v.bigint(),
+    executedLevels: v.number(),
 });
 
 const TriggerDetailsRawSchema = v.variant("case", [
@@ -421,6 +434,10 @@ export type LadderDetailsOutput = {
     ladderPriceMax: string;
     ladderLevels: number;
     ladderDistribution: LadderDistributionLabel;
+    /** Cumulative filled child-order base quantity. */
+    executedQty: string;
+    /** Number of ladder levels with at least one fill. */
+    executedLevels: number;
 };
 
 export type TriggerDetailsOutput =
@@ -527,6 +544,11 @@ function transformTriggerDetails(
                     "TriggerDetailsSchema",
                     "ladder distribution",
                 ),
+                executedQty: scaledToDecimalOutput(
+                    details.value.executedQtyScaled,
+                    scales.baseQty(symbolId),
+                ),
+                executedLevels: details.value.executedLevels,
             };
         default:
             return { case: undefined };

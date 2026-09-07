@@ -1,5 +1,4 @@
 import { Code, ConnectError } from "@connectrpc/connect";
-import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
 import { getNormalizedConnectMessage, toPolyesterError } from "../shared/connect-error-mapping.js";
 import {
     isAbortError,
@@ -15,20 +14,6 @@ import {
     TimeoutError,
 } from "../shared/errors.js";
 
-function hasAuthErrorCode(err: unknown, code: AuthErrorCode): boolean {
-    return ConnectError.from(err)
-        .findDetails(AuthErrorDetailSchema)
-        .some((detail) => detail.code === code);
-}
-
-/**
- * Unwraps a typed SDK error to the underlying `ConnectError` (kept as `cause`)
- * so legacy heuristics keep working on raw backend details.
- */
-function unwrapCause(err: unknown): unknown {
-    return err instanceof PolyesterError && err.cause !== undefined ? err.cause : err;
-}
-
 /**
  * Whether the backend signalled that the requested resource does not exist.
  * Prefer `err instanceof ResourceNotFoundError`; this predicate also covers
@@ -38,12 +23,11 @@ export function isResourceNotFoundError(err: unknown): boolean {
     // Connect can re-wrap interceptor errors as an Unknown ConnectError whose
     // cause is the typed SDK error. Normalize first to recover that cause.
     const mapped = toPolyesterError(err);
-    if (mapped instanceof ResourceNotFoundError) return true;
-    if (mapped instanceof PolyesterError && mapped.cause === undefined) return false;
-    const target = unwrapCause(mapped);
     return (
-        hasAuthErrorCode(target, AuthErrorCode.AUTH_RESOURCE_NOT_FOUND) ||
-        ConnectError.from(target).code === Code.NotFound
+        mapped instanceof ResourceNotFoundError ||
+        (mapped instanceof PolyesterError &&
+            mapped.detail?.service === "auth" &&
+            mapped.detail.code === "AUTH_RESOURCE_NOT_FOUND")
     );
 }
 

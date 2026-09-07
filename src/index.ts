@@ -107,6 +107,7 @@ export {
 } from "./shared/errors.js";
 export type {
     PolyesterErrorCode,
+    PolyesterErrorDetail,
     PolyesterErrorOptions,
     RateLimitErrorOptions,
     MfaVerificationFailureReason,
@@ -129,7 +130,6 @@ export {
     isMfaEnrollmentRequiredError,
     isSessionElevationRequiredError,
 } from "./utils/connect-mfa-errors.js";
-export { getOrderErrorDetail, isStaleQuoteError } from "./utils/connect-order-errors.js";
 export {
     formatConnectError,
     formatUserFacingError,

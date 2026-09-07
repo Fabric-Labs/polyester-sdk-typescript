@@ -444,7 +444,7 @@ describe("OrdersService", () => {
             testScales(),
         );
 
-        await expect(service.cancelAll({ symbolId: 1 })).resolves.toMatchObject({
+        await expect(service.cancelAll({ symbolIds: [1] })).resolves.toMatchObject({
             status: "submitted",
             matchedOrders: 2,
             submittedCancels: 2,
@@ -454,7 +454,7 @@ describe("OrdersService", () => {
 
         const request = transport.lastCall()?.message;
         expect(request).toMatchObject({
-            symbolId: 1,
+            symbolIds: [1],
         });
         expect(request?.requestId).toEqual(expect.any(String));
         const requestId = request?.requestId as string;
@@ -478,10 +478,11 @@ describe("OrdersService", () => {
             testScales(),
         );
 
-        await service.cancelAll({ requestId: " retry-cancel-all-1 " });
+        await service.cancelAll({ symbolIds: [1, 2], requestId: " retry-cancel-all-1 " });
 
         const request = transport.lastCall()?.message;
         expect(request?.requestId).toBe("retry-cancel-all-1");
+        expect(request?.symbolIds).toEqual([1, 2]);
     });
 
     it("exposes batch create with shared account scope and decimal item conversion", async () => {

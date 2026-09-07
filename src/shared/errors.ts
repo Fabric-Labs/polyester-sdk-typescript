@@ -1,3 +1,5 @@
+import type { PolyesterErrorDetail } from "./error-detail.js";
+export type { PolyesterErrorDetail } from "./error-detail.js";
 import type { RateLimitDetail } from "./rate-limit.schemas.js";
 
 /**
@@ -16,21 +18,22 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * │   └── ServiceUnavailableError    SERVICE_UNAVAILABLE         true
  * ├── RequestError                   REQUEST_FAILED              false
  * │   ├── ValidationError            VALIDATION_FAILED           false
+ * │   │   ├── StaleQuoteError            STALE_QUOTE
+ * │   │   └── PolicyScopeMismatchError   POLICY_SCOPE_MISMATCH
  * │   ├── ResourceNotFoundError      RESOURCE_NOT_FOUND          false
  * │   ├── AlreadyExistsError         ALREADY_EXISTS              false
  * │   ├── PermissionError            PERMISSION_DENIED           false
  * │   ├── AuthenticationError        UNAUTHENTICATED             false
  * │   ├── PreconditionFailedError    PRECONDITION_FAILED         false
- * │   │   ├── RevisionConflictError      REVISION_CONFLICT
- * │   │   ├── PolicyInUseError           POLICY_IN_USE
- * │   │   └── PolicyLockedError          POLICY_LOCKED
- * │   ├── PolicyScopeMismatchError   POLICY_SCOPE_MISMATCH       false
+ * │   │   ├── RevisionConflictError          REVISION_CONFLICT
+ * │   │   ├── PolicyInUseError               POLICY_IN_USE
+ * │   │   ├── PolicyLockedError              POLICY_LOCKED
+ * │   │   └── MfaLastFactorRequiredError     MFA_LAST_FACTOR_REQUIRED
  * │   ├── ConfigurationError         INVALID_CONFIGURATION       false
  * │   ├── MfaRequiredError           MFA_REQUIRED                false
  * │   │   ├── MfaEnrollmentRequiredError     MFA_ENROLLMENT_REQUIRED
  * │   │   ├── StepUpRequiredError            STEP_UP_REQUIRED
  * │   │   └── SessionElevationRequiredError  SESSION_ELEVATION_REQUIRED
- * │   ├── MfaLastFactorRequiredError  MFA_LAST_FACTOR_REQUIRED       false
  * │   └── MfaVerificationError       MFA_VERIFICATION_FAILED     false
  * └── InternalServerError            INTERNAL_SERVER_ERROR       false
  * ```
@@ -88,6 +91,8 @@ export type PolyesterErrorCode =
 export interface PolyesterErrorOptions {
     /** Underlying error, typically the original `ConnectError` for RPC failures. */
     cause?: unknown;
+    /** Recognized structured backend rejection, decoded at the RPC boundary. */
+    detail?: PolyesterErrorDetail;
 }
 
 const CONNECT_ERROR_PREFIX_RE = /^(?:\[[a-z][a-z0-9_-]*]\s*)+/i;
@@ -108,10 +113,14 @@ export abstract class PolyesterError extends Error {
     abstract readonly code: string;
     /** Whether retrying the same operation may succeed. */
     abstract readonly retryable: boolean;
+    readonly detail: PolyesterErrorDetail | undefined;
 
     constructor(message: string, options?: PolyesterErrorOptions) {
         super(normalizeErrorMessage(message), options);
         this.name = "PolyesterError";
+        this.detail =
+            options?.detail ??
+            (options?.cause instanceof PolyesterError ? options.cause.detail : undefined);
     }
 }
 

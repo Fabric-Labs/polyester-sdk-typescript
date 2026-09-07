@@ -367,7 +367,7 @@ export type CancelOrderResult = v.InferOutput<typeof CancelOrderResultSchema>;
 export const CancelAllOrdersInputSchema = v.pipe(
     v.strictObject({
         ...AccountScopeInputEntries,
-        symbolId: v.optional(SymbolIdInputSchema),
+        symbolIds: v.optional(v.pipe(v.array(SymbolIdInputSchema), v.maxLength(100)), []),
         side: v.pipe(
             v.optional(SideSchema),
             v.transform((v) => (v ? OrderSideCodec.inputToProto[v] : undefined)),

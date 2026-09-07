@@ -29,7 +29,6 @@ describe("public package entrypoint", () => {
                 isPolicyInUseError: expect.any(Function),
                 isPolicyLockedError: expect.any(Function),
                 isPolicyScopeMismatchError: expect.any(Function),
-                getOrderErrorDetail: expect.any(Function),
             }),
         );
     });
