@@ -33,14 +33,12 @@ import {
     buildConditionalExecution,
     buildTriggerIntentBase,
     buildTwapExecution,
+    MaxSlippageInputSchema,
+    parseMaxSlippage,
     type MaxSlippageOneof,
     type TrailingDistanceOneof,
 } from "./trigger-child-order.schemas.js";
-import {
-    MAX_SLIPPAGE_BPS,
-    parseSlippageInput,
-    parseTrailingDistanceInput,
-} from "../trailing-oneof-inputs.js";
+import { parseTrailingDistanceInput } from "../trailing-oneof-inputs.js";
 
 const TriggerTypeSchema = v.picklist(TRIGGER_TYPE_VALUES);
 const TriggerStatusFilterSchema = v.picklist(TRIGGER_STATUS_FILTER_VALUES);
@@ -66,27 +64,9 @@ const PriceDistanceInputSchema = v.strictObject({
     distance: DecimalInputStringSchema,
 });
 
-/** Absolute price slippage, as a decimal price string (e.g. "0.25"). */
-const PriceSlippageInputSchema = v.strictObject({
-    kind: v.literal("slippage"),
-    slippage: DecimalInputStringSchema,
-});
-
 const TrailingDistanceInputSchema = v.union([
     PriceDistanceInputSchema,
     BpsStringOrNumberInputSchema,
-]);
-
-const MaxSlippageInputSchema = v.union([
-    PriceSlippageInputSchema,
-    BpsStringOrNumberInputSchema,
-    NoneInputSchema,
-]);
-
-const MaxSlippagePatchInputSchema = v.union([
-    PriceSlippageInputSchema,
-    BpsStringOrNumberInputSchema,
-    NoneInputSchema,
 ]);
 
 const ActivationPricePatchInputSchema = v.union([DecimalInputStringSchema, NoneInputSchema]);
@@ -112,21 +92,9 @@ function parseTwapMilliseconds(
     return parsed;
 }
 
-function parseMaxSlippage(
-    scales: SdkScales,
-    slippage: v.InferOutput<typeof MaxSlippageInputSchema> | undefined,
-): MaxSlippageOneof {
-    return parseSlippageInput(scales, slippage, {
-        fieldName: "maxSlippage",
-        ticksCase: "maxSlippageTicks",
-        bpsCase: "maxSlippageBps",
-        maxBps: MAX_SLIPPAGE_BPS,
-    });
-}
-
 function parseMaxSlippagePatch(
     scales: SdkScales,
-    slippage: v.InferOutput<typeof MaxSlippagePatchInputSchema>,
+    slippage: v.InferOutput<typeof MaxSlippageInputSchema>,
 ): MaxSlippageOneof {
     if (slippage.kind === "none") {
         return { case: "maxSlippageTicks", value: 0 };
@@ -425,7 +393,7 @@ export function createModifyTriggerInputSchema(scales: SdkScales) {
             limitPrice: v.optional(DecimalInputStringSchema),
             trailingDistance: v.optional(TrailingDistanceInputSchema),
             activationPrice: v.optional(ActivationPricePatchInputSchema),
-            maxSlippage: v.optional(MaxSlippagePatchInputSchema),
+            maxSlippage: v.optional(MaxSlippageInputSchema),
         }),
         v.check(
             (input) =>

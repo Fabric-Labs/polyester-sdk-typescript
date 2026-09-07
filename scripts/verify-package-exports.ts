@@ -101,9 +101,11 @@ try {
     fs.writeFileSync(
         path.join(consumerDirectory, "index.ts"),
         `import {
+    ValidationError,
     type AddressBookView,
     type ClaimGeneratedUsernameInput,
     type GeneratedUsernameOffer,
+    type LadderDetailsOutput,
     type LedgerBalance,
     type LifecycleFlowSummary,
     type MarketOverview,
@@ -112,6 +114,7 @@ try {
     type PauseTriggerInput,
     type PauseTriggerResult,
     type PolyesterClient,
+    type PolyesterErrorDetail,
     type PortfolioEquityHistoryResponse,
     type PortfolioEquitySnapshotResponse,
     type ResumeTriggerInput,
@@ -126,8 +129,10 @@ import {
     tradingRateLimitPb,
     vipPb,
 } from "@polyester/sdk/unstable/gen";
+import type { PolyesterErrorDetail as ErrorsPolyesterErrorDetail } from "@polyester/sdk/errors";
 
 declare const client: PolyesterClient;
+declare const ladderDetails: LadderDetailsOutput;
 declare const claimGeneratedUsernameInput: ClaimGeneratedUsernameInput;
 declare const modifyOrderInput: ModifyOrderInput;
 declare const modifyTriggerInput: ModifyTriggerInput;
@@ -147,6 +152,19 @@ type IsAny<T> = 0 extends 1 & T ? true : false;
 function expectNotAny<T>(_value: T, _proof: IsAny<T> extends true ? never : true): void {}
 
 async function verifyServiceInference(): Promise<void> {
+    const withdrawDetail: Extract<PolyesterErrorDetail, { service: "withdraw" }> = {
+        service: "withdraw",
+        code: "AMOUNT_BELOW_MINIMUM",
+    };
+    expectType<PolyesterErrorDetail>(withdrawDetail);
+    expectType<ErrorsPolyesterErrorDetail>(withdrawDetail);
+    const withdrawalError = new ValidationError("withdrawal rejected", { detail: withdrawDetail });
+    if (withdrawalError.detail?.service === "withdraw") {
+        expectType<Extract<PolyesterErrorDetail, { service: "withdraw" }>>(withdrawalError.detail);
+    }
+    // @ts-expect-error Each detail code belongs to its service.
+    const invalidWithdrawDetail: PolyesterErrorDetail = { service: "withdraw", code: "STALE_QUOTE" };
+    void invalidWithdrawDetail;
     expectNotAny(feesPb, true);
     expectType<resolvePb.ResolvedAccount_Kind>(resolvePb.ResolvedAccount_Kind.SUB);
     expectType<subaccountsPb.SubaccountInviteDirection>(
@@ -195,6 +213,21 @@ async function verifyServiceInference(): Promise<void> {
     const markets = (await client.marketOverview.list()).markets;
     expectType<MarketOverview[]>(markets);
     expectNotAny(markets[0], true);
+
+    expectType<string>(ladderDetails.executedQty);
+    expectType<number>(ladderDetails.executedLevels);
+    await client.triggers.create({
+        triggerType: "twap",
+        symbolId: 1,
+        side: "buy",
+        qty: "1",
+        durationMs: "60000",
+        sliceIntervalMs: 5000,
+        execution: { type: "market_ioc", maxSlippage: { kind: "bps", bps: 50 } },
+    });
+    await client.orders.cancelAll({ symbolIds: [1, 2] });
+    // @ts-expect-error Cancel-all uses the repeated symbolIds contract.
+    await client.orders.cancelAll({ symbolId: 1 });
 
     expectNotAny(modifyOrderInput, true);
     await client.orders.modify(modifyOrderInput);

@@ -253,7 +253,10 @@ describe("TriggersService", () => {
                     qty: "1",
                     durationMs: "60000",
                     sliceIntervalMs: 5000,
-                    execution: { type: "market_ioc" },
+                    execution: {
+                        type: "market_ioc",
+                        maxSlippage: { kind: "slippage", slippage: "0.25" },
+                    },
                     clientTriggerId: "trigger-client-6",
                 },
                 expectedStrategy: {
@@ -262,7 +265,10 @@ describe("TriggersService", () => {
                         side: ProtoOrders.Side.BUY,
                         durationMs: 60_000n,
                         sliceIntervalMs: 5_000n,
-                        execution: { case: "marketIoc" },
+                        execution: {
+                            case: "marketIoc",
+                            value: { maxSlippage: { case: "maxSlippageTicks", value: 250_000 } },
+                        },
                     },
                 },
             },

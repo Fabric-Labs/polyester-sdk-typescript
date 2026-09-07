@@ -284,13 +284,31 @@ describe("CancelAllOrdersInputSchema", () => {
 
     it("accepts the uint32 symbol ID ceiling and rejects invalid IDs", () => {
         expect(
-            v.parse(CancelAllOrdersInputSchema, { symbolId: PROTOBUF_UINT32_MAX }).symbolId,
-        ).toBe(PROTOBUF_UINT32_MAX);
-        expect(() => v.parse(CancelAllOrdersInputSchema, { symbolId: 0 })).toThrow();
+            v.parse(CancelAllOrdersInputSchema, { symbolIds: [PROTOBUF_UINT32_MAX] }).symbolIds,
+        ).toEqual([PROTOBUF_UINT32_MAX]);
+        expect(() => v.parse(CancelAllOrdersInputSchema, { symbolIds: [0] })).toThrow();
         expect(() =>
-            v.parse(CancelAllOrdersInputSchema, { symbolId: PROTOBUF_UINT32_MAX + 1 }),
+            v.parse(CancelAllOrdersInputSchema, { symbolIds: [PROTOBUF_UINT32_MAX + 1] }),
         ).toThrow();
         expect(() => v.parse(CancelAllOrdersInputSchema, { symbol: "BTC-USDT" })).toThrow();
+    });
+
+    it("maps bounded multi-symbol filters and preserves all-symbol cancellation", () => {
+        expect(v.parse(CancelAllOrdersInputSchema, {}).symbolIds).toEqual([]);
+        expect(v.parse(CancelAllOrdersInputSchema, { symbolIds: [] }).symbolIds).toEqual([]);
+        const symbolIds = [1, PROTOBUF_UINT32_MAX, 1];
+        expect(v.parse(CancelAllOrdersInputSchema, { symbolIds }).symbolIds).toEqual(symbolIds);
+        expect(
+            v.parse(CancelAllOrdersInputSchema, { symbolIds: Array(100).fill(1) }).symbolIds,
+        ).toHaveLength(100);
+        for (const input of [
+            { symbolIds: [0] },
+            { symbolIds: [PROTOBUF_UINT32_MAX + 1] },
+            { symbolIds: Array(101).fill(1) },
+            { symbolId: 1 },
+            { symbolId: 1, symbolIds: [] },
+        ])
+            expect(() => v.parse(CancelAllOrdersInputSchema, input)).toThrow();
     });
 
     it("rejects the removed maxOrders cap", () => {

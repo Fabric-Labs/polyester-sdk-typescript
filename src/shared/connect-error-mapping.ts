@@ -1,10 +1,5 @@
 import { Code, ConnectError, type Interceptor, type Transport } from "@connectrpc/connect";
-import * as v from "valibot";
-import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
-import {
-    ErrorCode as OrderErrorCode,
-    ErrorDetailSchema as OrderErrorDetailSchema,
-} from "../gen/orders/v1/orders_pb.js";
+import { parseConnectErrorDetail, type PolyesterErrorDetail } from "./error-detail.js";
 import {
     AlreadyExistsError,
     AuthenticationError,
@@ -33,31 +28,32 @@ import {
     TransientError,
     ValidationError,
 } from "./errors.js";
-import { RateLimitDetailSchema, type RateLimitDetail } from "./rate-limit.schemas.js";
+import type { RateLimitDetail } from "./rate-limit.schemas.js";
 
-function getAuthErrorDetails(err: unknown) {
-    return ConnectError.from(err).findDetails(AuthErrorDetailSchema);
-}
-
-function hasAuthErrorCode(err: unknown, code: AuthErrorCode): boolean {
-    return getAuthErrorDetails(err).some((detail) => detail.code === code);
-}
-
-function hasOrderErrorCode(err: unknown, code: OrderErrorCode): boolean {
-    return getOrderErrorDetails(err).some((detail) => detail.code === code);
-}
-
-function getOrderErrorDetails(err: unknown) {
-    return ConnectError.from(err).findDetails(OrderErrorDetailSchema);
-}
-
-function getRateLimitDetail(err: unknown): RateLimitDetail | undefined {
-    for (const orderDetail of getOrderErrorDetails(err)) {
-        if (!orderDetail.rateLimit) continue;
-        const result = v.safeParse(RateLimitDetailSchema, orderDetail.rateLimit);
-        if (result.success) return result.output;
+function hasTransientTransferError(detail: PolyesterErrorDetail | undefined): boolean {
+    if (detail?.service === "withdraw") {
+        return [
+            "SERVICE_UNAVAILABLE",
+            "SOURCE_SMART_ACCOUNT_UNAVAILABLE",
+            "CAPITAL_VIEW_UNAVAILABLE",
+            "CHAIN_METADATA_UNAVAILABLE",
+            "FEE_UNAVAILABLE",
+            "SUPPLY_UNAVAILABLE",
+            "STEP_UP_UNAVAILABLE",
+            "DESTINATION_VALIDATION_UNAVAILABLE",
+            "ACCOUNT_SHARD_UNAVAILABLE",
+        ].includes(detail.code);
     }
-    return undefined;
+    if (detail?.service === "internal_transfer") {
+        return [
+            "SERVICE_UNAVAILABLE",
+            "SMART_ACCOUNT_UNAVAILABLE",
+            "STEP_UP_UNAVAILABLE",
+            "CAPITAL_VIEW_UNAVAILABLE",
+            "ACCOUNT_SHARD_UNAVAILABLE",
+        ].includes(detail.code);
+    }
+    return false;
 }
 
 function safeRetryAfterMs(rateLimit: RateLimitDetail | undefined): number | undefined {
@@ -92,11 +88,16 @@ export type MfaErrorKind = "session-elevation" | "enrollment" | "step-up";
  * Classification is based only on stable structured auth error details.
  */
 export function detectMfaErrorKind(err: unknown): MfaErrorKind | null {
-    if (hasAuthErrorCode(err, AuthErrorCode.AUTH_MFA_ELEVATION_REQUIRED)) {
+    const mapped = toPolyesterError(err);
+    return mfaErrorKind(mapped instanceof PolyesterError ? mapped.detail : undefined);
+}
+
+function mfaErrorKind(detail: PolyesterErrorDetail | undefined): MfaErrorKind | null {
+    if (detail?.service === "auth" && detail.code === "AUTH_MFA_ELEVATION_REQUIRED") {
         return "session-elevation";
     }
-    if (hasAuthErrorCode(err, AuthErrorCode.AUTH_STEP_UP_REQUIRED)) return "step-up";
-    if (hasAuthErrorCode(err, AuthErrorCode.AUTH_MFA_NOT_ENROLLED)) return "enrollment";
+    if (detail?.service === "auth" && detail.code === "AUTH_STEP_UP_REQUIRED") return "step-up";
+    if (detail?.service === "auth" && detail.code === "AUTH_MFA_NOT_ENROLLED") return "enrollment";
     return null;
 }
 
@@ -126,43 +127,44 @@ const MFA_ERROR_CLASSES = {
  */
 export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
     const message = getNormalizedConnectMessage(ce);
-    const options: PolyesterErrorOptions = { cause: ce };
+    const detail = parseConnectErrorDetail(ce);
+    const options: PolyesterErrorOptions = { cause: ce, detail };
     const withFallback = (fallback: string) => message || fallback;
 
-    if (hasAuthErrorCode(ce, AuthErrorCode.AUTH_RESOURCE_NOT_FOUND)) {
+    if (detail?.service === "auth" && detail.code === "AUTH_RESOURCE_NOT_FOUND") {
         return new ResourceNotFoundError(withFallback("Resource not found."), options);
     }
 
-    if (hasAuthErrorCode(ce, AuthErrorCode.AUTH_REVISION_CONFLICT)) {
+    if (detail?.service === "auth" && detail.code === "AUTH_REVISION_CONFLICT") {
         return new RevisionConflictError(
             withFallback("Resource changed since it was last read."),
             options,
         );
     }
 
-    if (hasAuthErrorCode(ce, AuthErrorCode.AUTH_POLICY_IN_USE)) {
+    if (detail?.service === "auth" && detail.code === "AUTH_POLICY_IN_USE") {
         return new PolicyInUseError(withFallback("Policy is still in use."), options);
     }
-    if (hasAuthErrorCode(ce, AuthErrorCode.AUTH_POLICY_LOCKED)) {
+    if (detail?.service === "auth" && detail.code === "AUTH_POLICY_LOCKED") {
         return new PolicyLockedError(withFallback("Policy is locked."), options);
     }
-    if (hasAuthErrorCode(ce, AuthErrorCode.AUTH_POLICY_SCOPE_MISMATCH)) {
+    if (detail?.service === "auth" && detail.code === "AUTH_POLICY_SCOPE_MISMATCH") {
         return new PolicyScopeMismatchError(
             withFallback("Policy does not belong to the target account scope."),
             options,
         );
     }
-    if (hasAuthErrorCode(ce, AuthErrorCode.AUTH_MFA_LAST_FACTOR_REQUIRED)) {
+    if (detail?.service === "auth" && detail.code === "AUTH_MFA_LAST_FACTOR_REQUIRED") {
         return new MfaLastFactorRequiredError(
             withFallback("At least one active MFA factor must remain enrolled."),
             options,
         );
     }
-    if (hasAuthErrorCode(ce, AuthErrorCode.AUTH_INTERNAL_ERROR)) {
+    if (detail?.service === "auth" && detail.code === "AUTH_INTERNAL_ERROR") {
         return new InternalServerError(withFallback("Internal server error."), options);
     }
 
-    const mfaVerificationReason = getMfaVerificationFailureReason(ce);
+    const mfaVerificationReason = getMfaVerificationFailureReason(detail);
     if (mfaVerificationReason) {
         return new MfaVerificationError(
             withFallback("MFA verification failed."),
@@ -171,7 +173,7 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
         );
     }
 
-    const mfaKind = detectMfaErrorKind(ce);
+    const mfaKind = mfaErrorKind(detail);
     if (mfaKind) {
         return new MFA_ERROR_CLASSES[mfaKind](
             withFallback("Multi-factor authentication required."),
@@ -179,17 +181,27 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
         );
     }
 
-    if (hasOrderErrorCode(ce, OrderErrorCode.STALE_QUOTE)) {
+    if (detail?.service === "orders" && detail.code === "STALE_QUOTE") {
         return new StaleQuoteError(withFallback("The submitted market quote is stale."), options);
     }
 
-    const rateLimit = getRateLimitDetail(ce);
-    if (rateLimit || hasOrderErrorCode(ce, OrderErrorCode.RATE_LIMIT_EXCEEDED)) {
+    const rateLimit = detail?.service === "orders" ? detail.rateLimit : undefined;
+    if (
+        rateLimit ||
+        ((detail?.service === "orders" ||
+            detail?.service === "withdraw" ||
+            detail?.service === "internal_transfer") &&
+            detail.code === "RATE_LIMIT_EXCEEDED")
+    ) {
         return new RateLimitError(withFallback("Rate limit exceeded."), {
             ...options,
             rateLimit,
             retryAfterMs: safeRetryAfterMs(rateLimit) ?? parseRetryAfterMs(ce),
         });
+    }
+
+    if (hasTransientTransferError(detail)) {
+        return new ServiceUnavailableError(withFallback("Service unavailable."), options);
     }
 
     switch (ce.code) {
@@ -226,20 +238,22 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
     }
 }
 
-function getMfaVerificationFailureReason(err: unknown): MfaVerificationFailureReason | null {
-    if (hasAuthErrorCode(err, AuthErrorCode.AUTH_MFA_CHALLENGE_INVALID)) {
+function getMfaVerificationFailureReason(
+    detail: PolyesterErrorDetail | undefined,
+): MfaVerificationFailureReason | null {
+    if (detail?.service === "auth" && detail.code === "AUTH_MFA_CHALLENGE_INVALID") {
         return "challenge-invalid";
     }
-    if (hasAuthErrorCode(err, AuthErrorCode.AUTH_MFA_CHALLENGE_LOCKED)) {
+    if (detail?.service === "auth" && detail.code === "AUTH_MFA_CHALLENGE_LOCKED") {
         return "challenge-locked";
     }
-    if (hasAuthErrorCode(err, AuthErrorCode.AUTH_MFA_OTP_INVALID)) return "otp-invalid";
-    if (hasAuthErrorCode(err, AuthErrorCode.AUTH_MFA_RECOVERY_INVALID)) {
+    if (detail?.service === "auth" && detail.code === "AUTH_MFA_OTP_INVALID") return "otp-invalid";
+    if (detail?.service === "auth" && detail.code === "AUTH_MFA_RECOVERY_INVALID") {
         return "recovery-code-invalid";
     }
     if (
-        hasAuthErrorCode(err, AuthErrorCode.AUTH_MFA_PASSKEY_CREDENTIAL_INVALID) ||
-        hasAuthErrorCode(err, AuthErrorCode.AUTH_MFA_PASSKEY_VERIFY_FAILED)
+        (detail?.service === "auth" && detail.code === "AUTH_MFA_PASSKEY_CREDENTIAL_INVALID") ||
+        (detail?.service === "auth" && detail.code === "AUTH_MFA_PASSKEY_VERIFY_FAILED")
     ) {
         return "passkey-invalid";
     }

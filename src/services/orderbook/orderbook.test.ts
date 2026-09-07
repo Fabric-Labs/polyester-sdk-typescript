@@ -64,6 +64,21 @@ describe("OrderbookService", () => {
         vi.restoreAllMocks();
     });
 
+    it("accepts an uninitialized book as a successful empty snapshot", async () => {
+        const transport = unaryTransport({ symbolId: 101, bookSeq: 0n, bids: [], asks: [] });
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            testScales(),
+        );
+        await expect(service.get({ symbolId: 101 })).resolves.toMatchObject({
+            symbolId: 101,
+            bookSeq: "0",
+            bids: [],
+            asks: [],
+        });
+    });
+
     it("normalizes get requests, forwards signals, and parses snapshots into decimals", async () => {
         const controller = new AbortController();
         const transport = unaryTransport({

@@ -507,6 +507,63 @@ describe("CreateTriggerInputSchema", () => {
         });
     });
 
+    it("keeps TWAP market-slice slippage bounds distinct from omission", () => {
+        const schema = createCreateTriggerInputSchema(testScales());
+        const input = {
+            triggerType: "twap",
+            symbolId: 1,
+            side: "buy",
+            qty: "1",
+            durationMs: 60_000,
+            sliceIntervalMs: 5_000,
+        } as const;
+        const cases = [
+            {
+                execution: { type: "market_ioc" },
+                expected: { case: undefined },
+            },
+            {
+                execution: {
+                    type: "market_ioc",
+                    maxSlippage: { kind: "slippage", slippage: "2147.483647" },
+                },
+                expected: { case: "maxSlippageTicks", value: 2_147_483_647 },
+            },
+            {
+                execution: { type: "market_ioc", maxSlippage: { kind: "bps", bps: 0 } },
+                rejects: true,
+            },
+            {
+                execution: { type: "market_ioc", maxSlippage: { kind: "bps", bps: 10_001 } },
+                rejects: true,
+            },
+            {
+                execution: {
+                    type: "market_ioc",
+                    maxSlippage: { kind: "slippage", slippage: "2147.483648" },
+                },
+                rejects: true,
+            },
+        ] as const;
+
+        for (const testCase of cases) {
+            if ("rejects" in testCase) {
+                expect(() =>
+                    v.parse(schema, { ...input, execution: testCase.execution }),
+                ).toThrow();
+            } else {
+                expect(
+                    v.parse(schema, { ...input, execution: testCase.execution }).trigger.strategy,
+                ).toMatchObject({
+                    case: "twap",
+                    value: {
+                        execution: { case: "marketIoc", value: { maxSlippage: testCase.expected } },
+                    },
+                });
+            }
+        }
+    });
+
     it("rejects invalid precision, timing, and ladder bounds", () => {
         const schema = createCreateTriggerInputSchema(testScales());
         const baseStop = {
@@ -904,7 +961,9 @@ describe("Trigger result and output schemas", () => {
                         sliceIntervalMs: 5_000n,
                         execution: {
                             case: "marketIoc",
-                            value: create(Proto.TwapMarketIocSchema),
+                            value: create(Proto.TwapMarketIocSchema, {
+                                maxSlippage: { case: "maxSlippageBps", value: 125 },
+                            }),
                         },
                     }),
                 },
@@ -940,6 +999,8 @@ describe("Trigger result and output schemas", () => {
                         ladderPriceMaxTicks: 101_000_000n,
                         ladderLevels: 5,
                         ladderDistribution: Proto.LadderDistribution.LINEAR,
+                        executedQtyScaled: 25_000_000n,
+                        executedLevels: 2,
                     }),
                 },
             }),
@@ -952,7 +1013,7 @@ describe("Trigger result and output schemas", () => {
                 side: "buy",
                 durationMs: 60_000,
                 sliceIntervalMs: 5_000,
-                execution: { type: "market_ioc" },
+                execution: { type: "market_ioc", maxSlippage: { kind: "bps", bps: 125 } },
             },
             runtimeDetails: {
                 case: "twap",
@@ -976,6 +1037,8 @@ describe("Trigger result and output schemas", () => {
                 ladderPriceMax: "101",
                 ladderLevels: 5,
                 ladderDistribution: "linear",
+                executedQty: "0.25",
+                executedLevels: 2,
             },
         });
     });

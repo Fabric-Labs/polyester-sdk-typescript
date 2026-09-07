@@ -14,7 +14,8 @@ import type { PolyesterRealtime } from "../../realtime/types.js";
 import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
-import { getOrderErrorDetail } from "../../utils/connect-order-errors.js";
+import { toPolyesterError } from "../../shared/connect-error-mapping.js";
+import { PolyesterError } from "../../shared/errors.js";
 import type { AuthApiTransports } from "../../shared/transports.js";
 import { formatConnectError, isResourceNotFoundError } from "../../utils/errors.js";
 import {
@@ -77,9 +78,12 @@ function hasKnownOrderSymbol(scales: SdkScales, order: { symbolId: number }): bo
 const MISCLASSIFIED_ORDER_NOT_FOUND_MESSAGE = "order not found";
 
 function isOrderNotFoundError(error: unknown): boolean {
+    const mapped = toPolyesterError(error);
     return (
         isResourceNotFoundError(error) ||
-        getOrderErrorDetail(error)?.code === "NOT_FOUND" ||
+        (mapped instanceof PolyesterError &&
+            mapped.detail?.service === "orders" &&
+            mapped.detail.code === "NOT_FOUND") ||
         formatConnectError(error, "").toLowerCase() === MISCLASSIFIED_ORDER_NOT_FOUND_MESSAGE
     );
 }
@@ -357,7 +361,7 @@ export class OrdersService {
     }
 
     /**
-     * Cancels all matching open orders for the resolved account scope, optionally narrowed by symbol ID and side, with dry-run preview. A requestId is generated when omitted; provide a stable value when retrying the same logical bulk cancellation.
+     * Cancels all matching open orders for the resolved account scope, optionally narrowed by up to 100 symbol IDs and side, with dry-run preview. A requestId is generated when omitted; reuse it with the same criteria for retries. Completed results are retained for at least two minutes; use a fresh key for each new cancellation.
      */
     async cancelAll(
         input: v.InferInput<typeof CancelAllOrdersInputSchema>,

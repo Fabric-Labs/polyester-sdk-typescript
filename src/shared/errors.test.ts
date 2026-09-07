@@ -9,9 +9,17 @@ import {
 } from "../catalogs/types.js";
 import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
 import {
+    ErrorCode as WithdrawErrorCode,
+    ErrorDetailSchema as WithdrawErrorDetailSchema,
+} from "../gen/chain/withdraw/v1/withdraw_pb.js";
+import {
     ErrorCode as OrderErrorCode,
     ErrorDetailSchema as OrderErrorDetailSchema,
 } from "../gen/orders/v1/orders_pb.js";
+import {
+    ErrorCode as InternalTransferErrorCode,
+    ErrorDetailSchema as InternalTransferErrorDetailSchema,
+} from "../gen/transfer/v1/internal_transfer_pb.js";
 import {
     FailureReason,
     LimiterScope,
@@ -390,6 +398,13 @@ describe("connectErrorToPolyesterError", () => {
         const mapped = connectErrorToPolyesterError(raw);
 
         expect(mapped).toBeInstanceOf(RateLimitError);
+        expect(mapped.detail).toEqual({
+            service: "orders",
+            code: "RATE_LIMIT_EXCEEDED",
+            violations: [],
+            rateLimit: (mapped as RateLimitError).rateLimit,
+        });
+        expect(mapped.cause).toBe(raw);
         expect(mapped).toMatchObject({
             retryAfterMs: 1_500,
             rateLimit: {
@@ -404,6 +419,52 @@ describe("connectErrorToPolyesterError", () => {
                 refillModel: "rolling_window",
             },
         });
+    });
+
+    it("maps withdraw error details before generic gRPC handling", () => {
+        const rateLimited = new ConnectError("", Code.InvalidArgument, undefined, [
+            {
+                desc: WithdrawErrorDetailSchema,
+                value: create(WithdrawErrorDetailSchema, {
+                    code: WithdrawErrorCode.RATE_LIMIT_EXCEEDED,
+                }),
+            },
+        ]);
+        const unavailable = new ConnectError("", Code.InvalidArgument, undefined, [
+            {
+                desc: WithdrawErrorDetailSchema,
+                value: create(WithdrawErrorDetailSchema, {
+                    code: WithdrawErrorCode.DESTINATION_VALIDATION_UNAVAILABLE,
+                }),
+            },
+        ]);
+
+        expect(connectErrorToPolyesterError(rateLimited)).toBeInstanceOf(RateLimitError);
+        expect(connectErrorToPolyesterError(unavailable)).toBeInstanceOf(ServiceUnavailableError);
+        expect(isRetryableError(unavailable)).toBe(true);
+    });
+
+    it("maps internal transfer error details before generic gRPC handling", () => {
+        const rateLimited = new ConnectError("", Code.InvalidArgument, undefined, [
+            {
+                desc: InternalTransferErrorDetailSchema,
+                value: create(InternalTransferErrorDetailSchema, {
+                    code: InternalTransferErrorCode.RATE_LIMIT_EXCEEDED,
+                }),
+            },
+        ]);
+        const unavailable = new ConnectError("", Code.InvalidArgument, undefined, [
+            {
+                desc: InternalTransferErrorDetailSchema,
+                value: create(InternalTransferErrorDetailSchema, {
+                    code: InternalTransferErrorCode.CAPITAL_VIEW_UNAVAILABLE,
+                }),
+            },
+        ]);
+
+        expect(connectErrorToPolyesterError(rateLimited)).toBeInstanceOf(RateLimitError);
+        expect(connectErrorToPolyesterError(unavailable)).toBeInstanceOf(ServiceUnavailableError);
+        expect(isRetryableError(unavailable)).toBe(true);
     });
 });
 
@@ -425,6 +486,30 @@ describe("toPolyesterError", () => {
         });
         const ce = ConnectError.from(network);
         expect(toPolyesterError(ce)).toBe(network);
+    });
+
+    it("preserves structured details across SDK wrapping and Connect normalization", () => {
+        const raw = authDetailError(
+            "step up",
+            Code.PermissionDenied,
+            AuthErrorCode.AUTH_STEP_UP_REQUIRED,
+        );
+        const mapped = connectErrorToPolyesterError(raw);
+        expect(mapped.detail).toEqual({
+            service: "auth",
+            code: "AUTH_STEP_UP_REQUIRED",
+            message: "",
+        });
+        expect(mapped.retryable).toBe(false);
+        expect(mapped.cause).toBe(raw);
+        expect(toPolyesterError(ConnectError.from(mapped))).toBe(mapped);
+        const wrapped = new ValidationError("wrapped", { cause: mapped });
+        expect(wrapped.detail).toBe(mapped.detail);
+        expect(wrapped.cause).toBe(mapped);
+        expect(new NetworkError("offline").detail).toBeUndefined();
+        expect(
+            connectErrorToPolyesterError(new ConnectError("bad", Code.InvalidArgument)).detail,
+        ).toBeUndefined();
     });
 
     it("leaves unrelated errors untouched", () => {
@@ -685,19 +770,40 @@ describe("error mapping through transports", () => {
         // transports; we simulate by throwing from a handler.
         const { createErrorMappingInterceptor } = await import("./connect-error-mapping.js");
         const interceptor = createErrorMappingInterceptor();
+        const raw = new ConnectError("slow down", Code.ResourceExhausted, undefined, [
+            {
+                desc: WithdrawErrorDetailSchema,
+                value: create(WithdrawErrorDetailSchema, {
+                    code: WithdrawErrorCode.RATE_LIMIT_EXCEEDED,
+                }),
+            },
+        ]);
         const next = () => {
-            throw new ConnectError("slow down", Code.ResourceExhausted);
+            throw raw;
         };
         // @ts-expect-error minimal request stub; the interceptor only touches errors
-        await expect(interceptor(next)({})).rejects.toBeInstanceOf(RateLimitError);
+        await expect(interceptor(next)({})).rejects.toMatchObject({
+            code: "RATE_LIMITED",
+            retryable: true,
+            detail: { service: "withdraw", code: "RATE_LIMIT_EXCEEDED" },
+            cause: raw,
+        });
     });
 
     it("maps errors thrown mid-stream", async () => {
         const { createErrorMappingInterceptor } = await import("./connect-error-mapping.js");
         const interceptor = createErrorMappingInterceptor();
+        const raw = new ConnectError("down", Code.Unavailable, undefined, [
+            {
+                desc: InternalTransferErrorDetailSchema,
+                value: create(InternalTransferErrorDetailSchema, {
+                    code: InternalTransferErrorCode.CAPITAL_VIEW_UNAVAILABLE,
+                }),
+            },
+        ]);
         async function* failing() {
             yield 1;
-            throw new ConnectError("down", Code.Unavailable);
+            throw raw;
         }
         const next = () => Promise.resolve({ stream: true, message: failing() });
         // @ts-expect-error minimal request/response stubs
@@ -708,7 +814,12 @@ describe("error mapping through transports", () => {
             (async () => {
                 for await (const value of res.message) received.push(value);
             })(),
-        ).rejects.toBeInstanceOf(ServiceUnavailableError);
+        ).rejects.toMatchObject({
+            code: "SERVICE_UNAVAILABLE",
+            retryable: true,
+            detail: { service: "internal_transfer", code: "CAPITAL_VIEW_UNAVAILABLE" },
+            cause: raw,
+        });
         expect(received).toEqual([1]);
     });
 });

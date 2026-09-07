@@ -6,7 +6,8 @@ import {
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
 import { positiveDecimalInputToScaled, type SdkScales } from "../../shared/decimal-surface.js";
-import { SymbolIdInputSchema } from "../shared.js";
+import { BpsStringOrNumberInputSchema, NoneInputSchema, SymbolIdInputSchema } from "../shared.js";
+import { MAX_SLIPPAGE_BPS, parseSlippageInput } from "../trailing-oneof-inputs.js";
 import {
     FEE_ASSET_VALUES,
     FeeAssetCodec,
@@ -70,8 +71,22 @@ export const ConditionalExecutionInputSchema = v.variant("type", [
     ...LimitConditionalExecutionInputSchema.options,
 ]);
 
+const PriceSlippageInputSchema = v.strictObject({
+    kind: v.literal("slippage"),
+    slippage: DecimalInputStringSchema,
+});
+
+export const MaxSlippageInputSchema = v.union([
+    PriceSlippageInputSchema,
+    BpsStringOrNumberInputSchema,
+    NoneInputSchema,
+]);
+
 export const TwapExecutionInputSchema = v.variant("type", [
-    v.strictObject({ type: v.literal("market_ioc") }),
+    v.strictObject({
+        type: v.literal("market_ioc"),
+        maxSlippage: v.optional(MaxSlippageInputSchema),
+    }),
     v.strictObject({
         type: v.literal("limit_gtc"),
         price: DecimalInputStringSchema,
@@ -81,6 +96,18 @@ export const TwapExecutionInputSchema = v.variant("type", [
 type BaseTriggerInput = v.InferOutput<typeof BaseTriggerFieldsSchema>;
 type ConditionalExecutionInput = v.InferOutput<typeof ConditionalExecutionInputSchema>;
 type TwapExecutionInput = v.InferOutput<typeof TwapExecutionInputSchema>;
+
+export function parseMaxSlippage(
+    scales: SdkScales,
+    slippage: v.InferOutput<typeof MaxSlippageInputSchema> | undefined,
+): MaxSlippageOneof {
+    return parseSlippageInput(scales, slippage, {
+        fieldName: "maxSlippage",
+        ticksCase: "maxSlippageTicks",
+        bpsCase: "maxSlippageBps",
+        maxBps: MAX_SLIPPAGE_BPS,
+    });
+}
 
 export function buildTriggerIntentBase(input: BaseTriggerInput, scales: SdkScales) {
     return {
@@ -155,7 +182,9 @@ export function buildTwapExecution(input: TwapExecutionInput, scales: SdkScales)
     return input.type === "market_ioc"
         ? ({
               case: "marketIoc",
-              value: create(Proto.TwapMarketIocSchema),
+              value: create(Proto.TwapMarketIocSchema, {
+                  maxSlippage: parseMaxSlippage(scales, input.maxSlippage),
+              }),
           } as const)
         : ({
               case: "limitGtc",
