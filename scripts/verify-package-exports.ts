@@ -152,6 +152,12 @@ type IsAny<T> = 0 extends 1 & T ? true : false;
 function expectNotAny<T>(_value: T, _proof: IsAny<T> extends true ? never : true): void {}
 
 async function verifyServiceInference(): Promise<void> {
+    expectType<void>(await client.auth.acceptTerms());
+    expectType<boolean>((await client.auth.profile.get()).currentTermsAccepted);
+    const termsDetail: Extract<PolyesterErrorDetail, { service: "auth" }> = {
+        service: "auth", code: "AUTH_TERMS_NOT_ACCEPTED", message: "Accept terms",
+    };
+    expectType<ErrorsPolyesterErrorDetail>(termsDetail);
     const withdrawDetail: Extract<PolyesterErrorDetail, { service: "withdraw" }> = {
         service: "withdraw",
         code: "AMOUNT_BELOW_MINIMUM",

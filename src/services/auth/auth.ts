@@ -77,6 +77,16 @@ export class AuthService {
     }
 
     /**
+     * Records explicit consent to the current terms for the caller's root account.
+     * Call only after the user consents. Requires an interactive JWT session;
+     * API keys are not allowed. Repeated acceptance succeeds without changing
+     * the first acceptance time. No MFA is required.
+     */
+    async acceptTerms(options?: PolyesterMutationOptions): Promise<void> {
+        await this.#authClient.acceptTerms({}, toConnectCallOptions(options));
+    }
+
+    /**
      * Requests a short-lived nonce for the given smart-account EVM address.
      * The nonce is single-purpose, replaced by subsequent requests, and expires
      * after about five minutes. The optional expiry is milliseconds since the

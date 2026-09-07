@@ -219,6 +219,19 @@ describe("connectErrorToPolyesterError", () => {
         expect(connectErrorToPolyesterError(ce)).toBeInstanceOf(ResourceNotFoundError);
     });
 
+    it("preserves terms acceptance details as a non-retryable precondition failure", () => {
+        const raw = authDetailError(
+            "Accept the current terms.",
+            Code.FailedPrecondition,
+            AuthErrorCode.AUTH_TERMS_NOT_ACCEPTED,
+        );
+        const mapped = connectErrorToPolyesterError(raw);
+        expect(mapped).toBeInstanceOf(PreconditionFailedError);
+        expect(mapped.retryable).toBe(false);
+        expect(mapped.detail).toMatchObject({ service: "auth", code: "AUTH_TERMS_NOT_ACCEPTED" });
+        expect(mapped.cause).toBe(raw);
+    });
+
     it("maps revision-conflict details before generic aborted handling", () => {
         const raw = authDetailError("", Code.Aborted, AuthErrorCode.AUTH_REVISION_CONFLICT);
         const mapped = connectErrorToPolyesterError(raw);
