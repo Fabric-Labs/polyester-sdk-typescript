@@ -1,5 +1,25 @@
 # @polyester/sdk
 
+## 0.20.0
+
+### Minor Changes
+
+- feat(orders): replace `symbolId` with `symbolIds` in `orders.cancelAll()` to cancel orders across up to 100 symbols. Use `symbolIds: [id]` for one symbol; empty or omitted filters match all symbols. ([#118](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/118))
+
+- refactor(errors)!: remove `isStaleQuoteError()`. Use `error instanceof StaleQuoteError` for SDK failures, or inspect `error.detail` for the structured orders rejection code. ([#118](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/118))
+
+- feat(errors): expose recognized backend rejections as typed `PolyesterError.detail` values, discriminated by service. `getOrderErrorDetail()` is removed; read `error.detail` instead. ([#118](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/118))
+
+### Patch Changes
+
+- feat(orders): expose the `CANCEL_REQUEST_EXPIRED` rejection code when a cancellation exceeds its replay window. ([#118](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/118))
+
+- feat(triggers): expose `executedQty` and `executedLevels` on ladder runtime details. Quantity is a decimal base-asset amount, and levels count distinct levels with any fill, including partial fills. ([#118](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/118))
+
+- fix(transfers): map structured withdrawal and internal-transfer rate-limit errors to `RateLimitError` and temporary dependency failures to `ServiceUnavailableError`, preserving retryability when the transport status alone does not identify the failure. ([#118](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/118))
+
+- feat(triggers): add `execution.maxSlippage` to market IOC TWAPs, accepting a decimal price delta or 1 to 10,000 basis points. The protection applies to each slice; omitting it uses the pair default. ([#118](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/118))
+
 ## 0.19.3
 
 ### Patch Changes
