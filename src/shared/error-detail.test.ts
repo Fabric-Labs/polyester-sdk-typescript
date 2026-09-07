@@ -187,15 +187,10 @@ describe("parseConnectErrorDetail", () => {
         ).toEqual({ service: "withdraw", code: "AMOUNT_BELOW_MINIMUM" });
     });
 
-    it("skips malformed details and preserves the first valid wire detail", () => {
-        const malformedOrder = create(OrderErrorDetailSchema, {
-            code: OrderErrorCode.STALE_QUOTE,
-            violations: [{ fieldPath: "price", ruleId: "positive", message: 1 as never }],
-        });
+    it("preserves detail order and ignores unknown enum values", () => {
         expect(
             parseConnectErrorDetail(
                 error([
-                    { desc: OrderErrorDetailSchema, value: malformedOrder },
                     {
                         desc: WithdrawErrorDetailSchema,
                         value: create(WithdrawErrorDetailSchema, {

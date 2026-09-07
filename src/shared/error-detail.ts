@@ -68,11 +68,8 @@ function decodeDetail<Desc extends DescMessage>(
 ): MessageShape<Desc> | undefined {
     try {
         if ("desc" in detail) {
-            return detail.desc.typeName === schema.typeName
-                ? create(schema, detail.value as MessageInitShape<Desc>)
-                : undefined;
+            return create(schema, detail.value as MessageInitShape<Desc>);
         }
-        if (detail.type !== schema.typeName) return undefined;
         return fromBinary(schema, detail.value);
     } catch {
         return undefined;
@@ -82,56 +79,66 @@ function decodeDetail<Desc extends DescMessage>(
 /** Decodes the first valid backend rejection detail, preserving wire-detail order. */
 export function parseConnectErrorDetail(error: ConnectError): PolyesterErrorDetail | undefined {
     for (const raw of error.details) {
-        const auth = decodeDetail(raw, AuthErrorDetailSchema);
-        if (auth) {
-            const code = codeName(AuthErrorCode, auth.code);
-            if (code && typeof auth.message === "string") {
-                return { service: "auth", code, message: auth.message };
+        const typeName = "desc" in raw ? raw.desc.typeName : raw.type;
+        switch (typeName) {
+            case AuthErrorDetailSchema.typeName: {
+                const auth = decodeDetail(raw, AuthErrorDetailSchema);
+                if (!auth) break;
+                const code = codeName(AuthErrorCode, auth.code);
+                if (code) {
+                    return { service: "auth", code, message: auth.message };
+                }
+                break;
             }
-            continue;
-        }
-
-        const profile = decodeDetail(raw, ProfileErrorDetailSchema);
-        if (profile) {
-            const code = codeName(ProfileErrorCode, profile.code);
-            if (code && typeof profile.field === "string" && typeof profile.message === "string") {
-                return { service: "profile", code, field: profile.field, message: profile.message };
+            case ProfileErrorDetailSchema.typeName: {
+                const profile = decodeDetail(raw, ProfileErrorDetailSchema);
+                if (!profile) break;
+                const code = codeName(ProfileErrorCode, profile.code);
+                if (code) {
+                    return {
+                        service: "profile",
+                        code,
+                        field: profile.field,
+                        message: profile.message,
+                    };
+                }
+                break;
             }
-            continue;
-        }
-
-        const order = decodeDetail(raw, OrderErrorDetailSchema);
-        if (order) {
-            const parsed = v.safeParse(ParsedOrderErrorDetailSchema, order);
-            if (parsed.success) return { service: "orders", ...parsed.output };
-            continue;
-        }
-
-        const withdraw = decodeDetail(raw, WithdrawErrorDetailSchema);
-        if (withdraw) {
-            const code = codeName(WithdrawErrorCode, withdraw.code);
-            if (code) return { service: "withdraw", code };
-            continue;
-        }
-
-        const transfer = decodeDetail(raw, InternalTransferErrorDetailSchema);
-        if (transfer) {
-            const code = codeName(InternalTransferErrorCode, transfer.code);
-            if (code) return { service: "internal_transfer", code };
-            continue;
-        }
-
-        const ledger = decodeDetail(raw, LedgerErrorDetailSchema);
-        if (ledger) {
-            const code = codeName(LedgerErrorCode, ledger.code);
-            if (code) return { service: "ledger", code };
-            continue;
-        }
-
-        const marketOverview = decodeDetail(raw, MarketOverviewErrorDetailSchema);
-        if (marketOverview) {
-            const code = codeName(MarketOverviewErrorCode, marketOverview.code);
-            if (code) return { service: "market_overview", code };
+            case OrderErrorDetailSchema.typeName: {
+                const order = decodeDetail(raw, OrderErrorDetailSchema);
+                if (!order) break;
+                const parsed = v.safeParse(ParsedOrderErrorDetailSchema, order);
+                if (parsed.success) return { service: "orders", ...parsed.output };
+                break;
+            }
+            case WithdrawErrorDetailSchema.typeName: {
+                const withdraw = decodeDetail(raw, WithdrawErrorDetailSchema);
+                if (!withdraw) break;
+                const code = codeName(WithdrawErrorCode, withdraw.code);
+                if (code) return { service: "withdraw", code };
+                break;
+            }
+            case InternalTransferErrorDetailSchema.typeName: {
+                const transfer = decodeDetail(raw, InternalTransferErrorDetailSchema);
+                if (!transfer) break;
+                const code = codeName(InternalTransferErrorCode, transfer.code);
+                if (code) return { service: "internal_transfer", code };
+                break;
+            }
+            case LedgerErrorDetailSchema.typeName: {
+                const ledger = decodeDetail(raw, LedgerErrorDetailSchema);
+                if (!ledger) break;
+                const code = codeName(LedgerErrorCode, ledger.code);
+                if (code) return { service: "ledger", code };
+                break;
+            }
+            case MarketOverviewErrorDetailSchema.typeName: {
+                const marketOverview = decodeDetail(raw, MarketOverviewErrorDetailSchema);
+                if (!marketOverview) break;
+                const code = codeName(MarketOverviewErrorCode, marketOverview.code);
+                if (code) return { service: "market_overview", code };
+                break;
+            }
         }
     }
     return undefined;
