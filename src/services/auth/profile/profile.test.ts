@@ -60,6 +60,7 @@ describe("ProfileService", () => {
             twitterVerified: false,
             discordVerified: false,
             usernameUnlocked: false,
+            currentTermsAccepted: false,
             createdAt: 1000,
             nextUsernameChangeAt: 2000,
         });
@@ -69,7 +70,9 @@ describe("ProfileService", () => {
 
     it("updates mutable profile fields without forwarding readonly fields", async () => {
         const realtime = realtimeClientStub();
-        const transport = unaryTransportSequence([profile({ bio: "updated", website: "" })]);
+        const transport = unaryTransportSequence([
+            profile({ bio: "updated", website: "", currentTermsAccepted: true }),
+        ]);
         const service = new ProfileService({ authApi: transport.transport }, realtime.realtime);
 
         await expect(
@@ -77,6 +80,7 @@ describe("ProfileService", () => {
                 {
                     bio: "updated",
                     website: "",
+                    currentTermsAccepted: true,
                     vipTier: 99,
                     twitterVerified: true,
                 } as unknown as Parameters<ProfileService["update"]>[0],
@@ -85,6 +89,7 @@ describe("ProfileService", () => {
         ).resolves.toMatchObject({
             bio: "updated",
             website: "",
+            currentTermsAccepted: true,
         });
 
         expect(transport.calls[0]?.message).toEqual({

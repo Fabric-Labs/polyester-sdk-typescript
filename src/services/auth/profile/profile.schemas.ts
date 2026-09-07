@@ -26,6 +26,7 @@ export const ProfileSchema = v.object({
     ),
     vipTier: v.number(),
     usernameUnlocked: v.optional(v.boolean(), false),
+    currentTermsAccepted: v.optional(v.boolean(), false),
 });
 
 export type Profile = v.InferOutput<typeof ProfileSchema>;

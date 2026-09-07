@@ -518,7 +518,9 @@ export const ApiKeyStatusSchema: GenEnum<ApiKeyStatus> = /*@__PURE__*/
 export const ApiKeyService: GenService<{
   /**
    * Create a new API key for the caller. Account security settings may require
-   * MFA enrollment or a fresh step-up proof.
+   * MFA enrollment or a fresh step-up proof. The acting caller's root account
+   * must have accepted the current terms, including when targeting a shared
+   * subaccount; otherwise FailedPrecondition with AUTH_TERMS_NOT_ACCEPTED is returned.
    *
    * @generated from rpc auth.v1.ApiKeyService.CreateApiKey
    */

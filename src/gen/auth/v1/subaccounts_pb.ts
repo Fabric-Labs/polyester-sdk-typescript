@@ -2096,7 +2096,9 @@ export const SubaccountService: GenService<{
     output: typeof ListSubaccountsResponseSchema;
   },
   /**
-   * Create a new sub-account under the caller's root account.
+   * Create a new sub-account under the caller's root account. Requires current
+   * terms acceptance; otherwise FailedPrecondition with AUTH_TERMS_NOT_ACCEPTED
+   * is returned.
    *
    * @generated from rpc auth.v1.SubaccountService.CreateSubaccount
    */
