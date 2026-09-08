@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createPolyesterEnvironment, POLYESTER_TESTNET_ENVIRONMENT } from "./environment.js";
+import { createPolyesterEnvironment, POLYESTER_DEVNET_ENVIRONMENT } from "./environment.js";
 import { ConfigurationError } from "./shared/errors.js";
 
 const baseParams = {
@@ -8,13 +8,22 @@ const baseParams = {
     websocketUrl: "wss://api.example.test/",
     rpcUrl: "https://rpc.example.test/",
     chain: {
-        ...POLYESTER_TESTNET_ENVIRONMENT.chain,
+        ...POLYESTER_DEVNET_ENVIRONMENT.chain,
         id: 999_001,
         name: "Custom Polyester",
     },
-    accountAbstraction: POLYESTER_TESTNET_ENVIRONMENT.accountAbstraction,
-    contracts: POLYESTER_TESTNET_ENVIRONMENT.contracts,
+    accountAbstraction: POLYESTER_DEVNET_ENVIRONMENT.accountAbstraction,
+    contracts: POLYESTER_DEVNET_ENVIRONMENT.contracts,
 };
+
+describe("POLYESTER_DEVNET_ENVIRONMENT", () => {
+    it("identifies the bundled preset as Polyester devnet", () => {
+        expect(POLYESTER_DEVNET_ENVIRONMENT.name).toBe("polyester-devnet");
+        expect(POLYESTER_DEVNET_ENVIRONMENT.apiUrl).toBe("https://api-devnet.polyester.ai");
+        expect(POLYESTER_DEVNET_ENVIRONMENT.websocketUrl).toBe("wss://api-devnet.polyester.ai");
+        expect(POLYESTER_DEVNET_ENVIRONMENT.chain.name).toBe("Polyester Chain Devnet");
+    });
+});
 
 describe("createPolyesterEnvironment", () => {
     it.each([null, undefined])("rejects a missing configuration object", (params) => {

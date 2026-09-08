@@ -11,7 +11,7 @@ import {
     type CreateServerClientFromRequestParams,
     type PolyesterServerClientConfig,
 } from "./server-client.js";
-import { POLYESTER_TESTNET_ENVIRONMENT } from "./environment.js";
+import { POLYESTER_DEVNET_ENVIRONMENT } from "./environment.js";
 import type { Me } from "./services/auth/auth.js";
 import { MarketDataService } from "./services/market-data/index.js";
 import { ZipperService } from "./services/zipper/index.js";
@@ -28,13 +28,13 @@ type ExpectFalse<T extends false> = T;
 type ExpectTrue<T extends true> = T;
 
 type CatalogConflict = {
-    environment: typeof POLYESTER_TESTNET_ENVIRONMENT;
+    environment: typeof POLYESTER_DEVNET_ENVIRONMENT;
     catalog: ClientCatalog;
     catalogCell: CatalogSnapshotCell;
 };
 
 type CatalogHydration = {
-    environment: typeof POLYESTER_TESTNET_ENVIRONMENT;
+    environment: typeof POLYESTER_DEVNET_ENVIRONMENT;
     catalogSnapshot: CatalogSnapshot;
     catalogCell: CatalogSnapshotCell;
 };
@@ -95,7 +95,7 @@ function expiredJwt(): string {
 }
 
 function displaySessionCookie(
-    environmentFingerprint = POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+    environmentFingerprint = POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
 ): string {
     return JSON.stringify({
         environmentFingerprint,
@@ -123,7 +123,7 @@ function legacyDoubleEncodedDisplaySessionCookie(): string {
 function expectDisplaySession(session: ReturnType<typeof parseSessionCookie>): void {
     expect(session.hasDisplaySession).toBe(true);
     expect(session.bearerToken).toBeNull();
-    expect(session.environmentFingerprint).toBe(POLYESTER_TESTNET_ENVIRONMENT.fingerprint);
+    expect(session.environmentFingerprint).toBe(POLYESTER_DEVNET_ENVIRONMENT.fingerprint);
     expect(session.provider).toBe("metamask");
     expect(session.loginMethod).toBe("metamask");
     expect(session.accountAddresses).toEqual({
@@ -190,7 +190,7 @@ afterEach(async () => {
 
 describe("parseSessionCookie", () => {
     it("returns empty display and bearer state when no cookies are present", () => {
-        const session = parseSessionCookie({}, POLYESTER_TESTNET_ENVIRONMENT);
+        const session = parseSessionCookie({}, POLYESTER_DEVNET_ENVIRONMENT);
 
         expectEmptySession(session);
     });
@@ -200,7 +200,7 @@ describe("parseSessionCookie", () => {
             {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
             },
-            POLYESTER_TESTNET_ENVIRONMENT,
+            POLYESTER_DEVNET_ENVIRONMENT,
         );
 
         expectDisplaySession(session);
@@ -213,7 +213,7 @@ describe("parseSessionCookie", () => {
             },
         });
 
-        const session = parseSessionCookie(request, POLYESTER_TESTNET_ENVIRONMENT);
+        const session = parseSessionCookie(request, POLYESTER_DEVNET_ENVIRONMENT);
 
         expectDisplaySession(session);
     });
@@ -225,7 +225,7 @@ describe("parseSessionCookie", () => {
             },
         });
 
-        const session = parseSessionCookie(request, POLYESTER_TESTNET_ENVIRONMENT);
+        const session = parseSessionCookie(request, POLYESTER_DEVNET_ENVIRONMENT);
 
         expectDisplaySession(session);
     });
@@ -236,7 +236,7 @@ describe("parseSessionCookie", () => {
             {
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: token,
             },
-            POLYESTER_TESTNET_ENVIRONMENT,
+            POLYESTER_DEVNET_ENVIRONMENT,
         );
 
         expect(session.hasDisplaySession).toBe(false);
@@ -250,7 +250,7 @@ describe("parseSessionCookie", () => {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie("0xother"),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: token,
             },
-            POLYESTER_TESTNET_ENVIRONMENT,
+            POLYESTER_DEVNET_ENVIRONMENT,
         );
 
         expectEmptySession(session);
@@ -259,7 +259,7 @@ describe("parseSessionCookie", () => {
     it("ignores display session metadata that fails schema validation", () => {
         const token = validJwt();
         const invalidSession = {
-            environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+            environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
             provider: "metamask",
             loginMethod: "metamask",
             primaryWallet: "0xprimary",
@@ -277,7 +277,7 @@ describe("parseSessionCookie", () => {
                 [POLYESTER_SESSION_COOKIE_NAME]: JSON.stringify(invalidSession),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: token,
             },
-            POLYESTER_TESTNET_ENVIRONMENT,
+            POLYESTER_DEVNET_ENVIRONMENT,
         );
 
         expect(session).toEqual({
@@ -300,10 +300,10 @@ describe("PolyesterServerClient subaccount defaults", () => {
             {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
             },
-            POLYESTER_TESTNET_ENVIRONMENT,
+            POLYESTER_DEVNET_ENVIRONMENT,
         );
         const client = new TestablePolyesterServerClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             session,
         });
 
@@ -315,10 +315,10 @@ describe("PolyesterServerClient subaccount defaults", () => {
             {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
             },
-            POLYESTER_TESTNET_ENVIRONMENT,
+            POLYESTER_DEVNET_ENVIRONMENT,
         );
         const client = new TestablePolyesterServerClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             session,
             useDisplaySessionActiveAccountAsDefault: true,
         });
@@ -332,7 +332,7 @@ describe("PolyesterServerClient catalog refresh", () => {
         const refresh = mockCatalogRefreshEndpoints();
 
         new PolyesterServerClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
         });
 
         expect(refresh.getSpotConfig).not.toHaveBeenCalled();
@@ -344,7 +344,7 @@ describe("PolyesterServerClient catalog refresh", () => {
         const catalog = createTestCatalog();
 
         const client = new PolyesterServerClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             catalog,
         });
 
@@ -356,7 +356,7 @@ describe("PolyesterServerClient catalog refresh", () => {
     it("refreshes catalogs explicitly", async () => {
         const refresh = mockCatalogRefreshEndpoints();
         const client = new PolyesterServerClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
         });
 
         await client.catalog.refresh();
@@ -370,11 +370,11 @@ describe("PolyesterServerClient catalog refresh", () => {
 
         createPolyesterServerClientFromCookies({
             cookies: {},
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
         });
         createPolyesterServerClientFromRequest({
             request: new Request("https://example.test"),
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
         });
 
         expect(refresh.getSpotConfig).not.toHaveBeenCalled();
@@ -387,7 +387,7 @@ describe("createPolyesterServerClientFromCookies", () => {
         const passthroughInterceptor: Interceptor = (next) => (req) => next(req);
         const client = createPolyesterServerClientFromCookies({
             cookies: {},
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             interceptors: [passthroughInterceptor],
             wireFormat: "json",
             realtime: {
@@ -402,7 +402,7 @@ describe("createPolyesterServerClientFromCookies", () => {
     it("does not install an auth provider without cookies", () => {
         const client = createPolyesterServerClientFromCookies({
             cookies: {},
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
         });
 
         expect(client.hasDisplaySession).toBe(false);
@@ -413,7 +413,7 @@ describe("createPolyesterServerClientFromCookies", () => {
 
     it("keeps display session metadata without installing an auth provider", () => {
         const client = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
             },
@@ -427,7 +427,7 @@ describe("createPolyesterServerClientFromCookies", () => {
 
     it("installs an auth provider for a usable bearer token", () => {
         const client = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
@@ -442,7 +442,7 @@ describe("createPolyesterServerClientFromCookies", () => {
 
     it("does not install an auth provider for a bearer token bound to another environment", () => {
         const client = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie("0xother"),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
@@ -461,7 +461,7 @@ describe("createPolyesterServerClientFromCookies", () => {
             [POLYESTER_AUTH_TOKEN_COOKIE_NAME, validJwt()],
         ]);
         const client = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             cookies: {
                 get: (name) => {
                     const value = values.get(name);
@@ -479,7 +479,7 @@ describe("createPolyesterServerClientFromCookies", () => {
 
     it("installs an auth provider for a usable bearer token without a display session", () => {
         const client = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             cookies: {
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
             },
@@ -494,7 +494,7 @@ describe("createPolyesterServerClientFromCookies", () => {
     it("installs an auth provider from a request without a display session", () => {
         const token = validJwt();
         const client = createPolyesterServerClientFromRequest({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             request: new Request("https://example.test", {
                 headers: {
                     cookie: `${POLYESTER_AUTH_TOKEN_COOKIE_NAME}=${token}`,
@@ -510,14 +510,14 @@ describe("createPolyesterServerClientFromCookies", () => {
 
     it("does not install an auth provider for expired or malformed bearer tokens", () => {
         const expired = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: expiredJwt(),
             },
         });
         const malformed = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: "not-a-jwt",
@@ -537,12 +537,12 @@ describe("createPolyesterServerClientFromRequest configuration", () => {
     it("rejects a missing request with an SDK configuration error", () => {
         expect(() =>
             createPolyesterServerClientFromRequest({
-                environment: POLYESTER_TESTNET_ENVIRONMENT,
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
             } as never),
         ).toThrow(ConfigurationError);
         expect(() =>
             createPolyesterServerClientFromRequest({
-                environment: POLYESTER_TESTNET_ENVIRONMENT,
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
             } as never),
         ).toThrow("request is required and must be a Request.");
     });
@@ -555,7 +555,7 @@ describe("PolyesterServerClient.verifySession", () => {
 
     it("returns null when no auth provider is configured", async () => {
         const client = new PolyesterServerClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
         });
         const me = vi.spyOn(client.auth, "me");
 
@@ -565,7 +565,7 @@ describe("PolyesterServerClient.verifySession", () => {
 
     it("returns the current user when the backend verifies the session", async () => {
         const client = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
@@ -579,7 +579,7 @@ describe("PolyesterServerClient.verifySession", () => {
 
     it("returns null when the backend rejects the session as unauthenticated", async () => {
         const client = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
@@ -597,7 +597,7 @@ describe("PolyesterServerClient.verifySession", () => {
             new ConnectError("expired", Code.Unauthenticated),
         );
         const client = new PolyesterServerClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             auth: { kind: "jwt", getToken: validJwt },
             transports: { publicApi: transport, authApi: transport },
             realtimeClient: realtimeClientStub().realtime,
@@ -608,7 +608,7 @@ describe("PolyesterServerClient.verifySession", () => {
 
     it("preserves transient verification failures", async () => {
         const client = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             cookies: {
                 [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
                 [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
@@ -625,7 +625,7 @@ describe("PolyesterServerClient.verifySession", () => {
             new ConnectError("backend unavailable", Code.Unavailable),
         );
         const client = new PolyesterServerClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             auth: { kind: "jwt", getToken: validJwt },
             transports: { publicApi: transport, authApi: transport },
             realtimeClient: realtimeClientStub().realtime,

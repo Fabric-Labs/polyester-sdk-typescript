@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { keccak256, stringToBytes } from "viem";
-import { POLYESTER_TESTNET_ENVIRONMENT } from "../../environment.js";
+import { POLYESTER_DEVNET_ENVIRONMENT } from "../../environment.js";
 import * as Proto from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import { StepUpRequiredError } from "../../shared/errors.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
@@ -17,8 +17,8 @@ import {
 } from "./trading-withdraws.js";
 
 const signingConfig = {
-    chainId: POLYESTER_TESTNET_ENVIRONMENT.chain.id,
-    tradingGatewayAddress: POLYESTER_TESTNET_ENVIRONMENT.contracts.tradingGatewayAddress,
+    chainId: POLYESTER_DEVNET_ENVIRONMENT.chain.id,
+    tradingGatewayAddress: POLYESTER_DEVNET_ENVIRONMENT.contracts.tradingGatewayAddress,
 };
 
 const usdc = {
@@ -272,9 +272,9 @@ describe("TradingWithdrawsService", () => {
             }),
         ).resolves.toEqual({ intentId: "intent-1" });
 
-        expect(typedData?.domain.chainId).toBe(POLYESTER_TESTNET_ENVIRONMENT.chain.id);
+        expect(typedData?.domain.chainId).toBe(POLYESTER_DEVNET_ENVIRONMENT.chain.id);
         expect(typedData?.domain.verifyingContract).toBe(
-            POLYESTER_TESTNET_ENVIRONMENT.contracts.tradingGatewayAddress,
+            POLYESTER_DEVNET_ENVIRONMENT.contracts.tradingGatewayAddress,
         );
         expect(typedData?.message).toMatchObject({
             signerWallet: "0x1111111111111111111111111111111111111111",

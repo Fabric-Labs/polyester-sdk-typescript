@@ -17,16 +17,16 @@ Polyester accounts are smart accounts, so you bring an owner wallet and the SDK
 derives the account signer. Nothing gets deployed just to log in.
 
 ```ts
-import { PolyesterBrowserClient, POLYESTER_TESTNET_ENVIRONMENT } from "@polyester/sdk";
+import { PolyesterBrowserClient, POLYESTER_DEVNET_ENVIRONMENT } from "@polyester/sdk";
 import { createPolyesterAccountSigner } from "@polyester/sdk/account-signer";
 
 const accountSigner = createPolyesterAccountSigner({
-    environment: POLYESTER_TESTNET_ENVIRONMENT,
+    environment: POLYESTER_DEVNET_ENVIRONMENT,
     owner,
 });
 
 const client = new PolyesterBrowserClient({
-    environment: POLYESTER_TESTNET_ENVIRONMENT,
+    environment: POLYESTER_DEVNET_ENVIRONMENT,
     accountSigner,
 });
 
@@ -46,12 +46,12 @@ incoming request. Useful for SSR loaders and route handlers.
 ```ts
 import {
     createPolyesterServerClientFromRequest,
-    POLYESTER_TESTNET_ENVIRONMENT,
+    POLYESTER_DEVNET_ENVIRONMENT,
 } from "@polyester/sdk";
 
 const client = createPolyesterServerClientFromRequest({
     request,
-    environment: POLYESTER_TESTNET_ENVIRONMENT,
+    environment: POLYESTER_DEVNET_ENVIRONMENT,
 });
 
 if (client.hasUsableBearerToken) {
@@ -66,12 +66,12 @@ passing the store. For example, with current Next.js versions:
 import { cookies } from "next/headers";
 import {
     createPolyesterServerClientFromCookies,
-    POLYESTER_TESTNET_ENVIRONMENT,
+    POLYESTER_DEVNET_ENVIRONMENT,
 } from "@polyester/sdk";
 
 const client = createPolyesterServerClientFromCookies({
     cookies: await cookies(),
-    environment: POLYESTER_TESTNET_ENVIRONMENT,
+    environment: POLYESTER_DEVNET_ENVIRONMENT,
 });
 ```
 
@@ -88,10 +88,10 @@ For machine clients, pass an Ed25519 API key provider instead of a cookie
 session:
 
 ```ts
-import { PolyesterClient, POLYESTER_TESTNET_ENVIRONMENT } from "@polyester/sdk";
+import { PolyesterClient, POLYESTER_DEVNET_ENVIRONMENT } from "@polyester/sdk";
 
 const client = new PolyesterClient({
-    environment: POLYESTER_TESTNET_ENVIRONMENT,
+    environment: POLYESTER_DEVNET_ENVIRONMENT,
     auth: {
         kind: "api-key-ed25519",
         getKeyId: () => process.env.POLYESTER_API_KEY_ID ?? null,

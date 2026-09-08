@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { Transport } from "@connectrpc/connect";
-import { POLYESTER_TESTNET_ENVIRONMENT } from "./environment.js";
+import { POLYESTER_DEVNET_ENVIRONMENT } from "./environment.js";
 import { PolyesterClient } from "./core-client.js";
 import { RealtimeClient } from "./realtime/client.js";
 import type { PolyesterRealtime } from "./realtime/types.js";
@@ -37,7 +37,7 @@ describe("PolyesterClient injection hooks", () => {
 
         try {
             const client = new PolyesterClient({
-                environment: POLYESTER_TESTNET_ENVIRONMENT,
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
                 transports: { publicApi, authApi },
                 realtimeClient,
             });
@@ -58,7 +58,7 @@ describe("PolyesterClient injection hooks", () => {
     it("routes realtime subscriptions through the injected implementation", () => {
         const realtimeClient = stubRealtime();
         const client = new PolyesterClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             transports: { publicApi: stubTransport(), authApi: stubTransport() },
             realtimeClient,
         });
@@ -77,7 +77,7 @@ describe("PolyesterClient injection hooks", () => {
         const publicApi = stubTransport();
         const authApi = stubTransport();
         const client = new PolyesterClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             transports: { publicApi, authApi },
             realtimeClient: stubRealtime(),
         });

@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import type { AccountSigner } from "./types.js";
 import { resolveAccountSigner } from "./types.js";
 import { ConfigurationError } from "../shared/errors.js";
-import { POLYESTER_TESTNET_ENVIRONMENT } from "../environment.js";
+import { POLYESTER_DEVNET_ENVIRONMENT } from "../environment.js";
 
 const signer: AccountSigner = {
-    environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+    environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
     accountAddress: "0x1111111111111111111111111111111111111111",
     ownerAddress: "0x2222222222222222222222222222222222222222",
     signMessage: async () => "0x1234",

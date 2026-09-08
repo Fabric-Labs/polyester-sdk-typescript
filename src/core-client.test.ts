@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { signAsync } from "@noble/ed25519";
-import { POLYESTER_TESTNET_ENVIRONMENT } from "./environment.js";
+import { POLYESTER_DEVNET_ENVIRONMENT } from "./environment.js";
 import { createTestCatalog } from "./testing/catalog.js";
 import type { CatalogSnapshot } from "./catalogs/index.js";
 
@@ -69,7 +69,7 @@ describe("PolyesterClient configuration", () => {
         expect(
             () =>
                 new PolyesterClient({
-                    environment: POLYESTER_TESTNET_ENVIRONMENT,
+                    environment: POLYESTER_DEVNET_ENVIRONMENT,
                     wireFormat,
                 } as never),
         ).toThrow('wireFormat must be either "binary" or "json".');
@@ -82,7 +82,7 @@ describe("PolyesterClient configuration", () => {
             () =>
                 // @ts-expect-error catalog and catalogSnapshot are mutually exclusive
                 new PolyesterClient({
-                    environment: POLYESTER_TESTNET_ENVIRONMENT,
+                    environment: POLYESTER_DEVNET_ENVIRONMENT,
                     catalog,
                     catalogSnapshot: catalog.snapshot(),
                 }),
@@ -101,7 +101,7 @@ describe("PolyesterClient realtime auth", () => {
         const secretKey = Uint8Array.from({ length: 32 }, (_, i) => i + 1);
 
         const client = new PolyesterClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             auth: {
                 kind: "api-key-ed25519",
                 getKeyId: () => "ak_test",
@@ -116,7 +116,7 @@ describe("PolyesterClient realtime auth", () => {
         if (!config?.getAuthHeaders) throw new Error("Expected realtime auth headers");
 
         const headers = await config.getAuthHeaders({
-            url: `${POLYESTER_TESTNET_ENVIRONMENT.apiUrl}/v1/rt/subscribe?channel=private:spot:orders:acct-1:proto`,
+            url: `${POLYESTER_DEVNET_ENVIRONMENT.apiUrl}/v1/rt/subscribe?channel=private:spot:orders:acct-1:proto`,
             method: "GET",
         });
         const emptyHash = await crypto.subtle.digest("SHA-256", new Uint8Array(0));
@@ -141,7 +141,7 @@ describe("PolyesterClient realtime auth", () => {
             throw cause;
         });
         const client = new PolyesterClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             auth: { kind: "jwt", getToken },
         });
         void client.realtime;
@@ -154,7 +154,7 @@ describe("PolyesterClient realtime auth", () => {
         let rejection: unknown;
         try {
             await config.getAuthHeaders({
-                url: `${POLYESTER_TESTNET_ENVIRONMENT.apiUrl}/v1/rt/token`,
+                url: `${POLYESTER_DEVNET_ENVIRONMENT.apiUrl}/v1/rt/token`,
                 method: "GET",
             });
         } catch (error) {
@@ -172,7 +172,7 @@ describe("PolyesterClient realtime auth", () => {
     it("reports a synchronous missing realtime JWT credential during preflight", () => {
         const getToken = vi.fn(() => null);
         const client = new PolyesterClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             auth: { kind: "jwt", getToken },
         });
         void client.realtime;
@@ -187,7 +187,7 @@ describe("PolyesterClient realtime auth", () => {
     it("reuses a synchronous realtime JWT credential for the following request", async () => {
         const getToken = vi.fn(() => "secret");
         const client = new PolyesterClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             auth: { kind: "jwt", getToken },
         });
         void client.realtime;
@@ -199,7 +199,7 @@ describe("PolyesterClient realtime auth", () => {
         expect(config.hasAuth?.()).toBe(true);
         await expect(
             config.getAuthHeaders({
-                url: `${POLYESTER_TESTNET_ENVIRONMENT.apiUrl}/v1/rt/token`,
+                url: `${POLYESTER_DEVNET_ENVIRONMENT.apiUrl}/v1/rt/token`,
                 method: "GET",
             }),
         ).resolves.toEqual({ authorization: "Bearer secret" });
@@ -209,7 +209,7 @@ describe("PolyesterClient realtime auth", () => {
     it("reuses an asynchronous realtime JWT credential for the following request", async () => {
         const getToken = vi.fn(async () => "secret");
         const client = new PolyesterClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             auth: { kind: "jwt", getToken },
         });
         void client.realtime;
@@ -220,7 +220,7 @@ describe("PolyesterClient realtime auth", () => {
         expect(config.hasAuth?.()).toBe(true);
         await expect(
             config.getAuthHeaders({
-                url: `${POLYESTER_TESTNET_ENVIRONMENT.apiUrl}/v1/rt/token`,
+                url: `${POLYESTER_DEVNET_ENVIRONMENT.apiUrl}/v1/rt/token`,
                 method: "GET",
             }),
         ).resolves.toEqual({ authorization: "Bearer secret" });
@@ -239,7 +239,7 @@ describe("PolyesterClient catalog refresh", () => {
         const refresh = vi.spyOn(catalog, "refresh");
 
         new PolyesterClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             catalog,
         });
 
@@ -250,7 +250,7 @@ describe("PolyesterClient catalog refresh", () => {
         const snapshot = createTestCatalog().snapshot();
         let current: CatalogSnapshot | undefined;
         const client = new PolyesterClient({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             catalogSnapshot: snapshot,
             catalogCell: {
                 get: () => current,

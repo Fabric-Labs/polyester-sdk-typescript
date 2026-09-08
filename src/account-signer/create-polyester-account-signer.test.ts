@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { privateKeyToAccount } from "viem/accounts";
-import { POLYESTER_TESTNET_ENVIRONMENT } from "../environment.js";
+import { POLYESTER_DEVNET_ENVIRONMENT } from "../environment.js";
 import { createPolyesterAccountSigner } from "./create-polyester-account-signer.js";
 import { predictSafeAddress } from "./predict-safe-address.js";
 
@@ -11,7 +11,7 @@ const owner = privateKeyToAccount(
 describe("createPolyesterAccountSigner", () => {
     it("returns a deterministic account address and owner metadata for an environment", () => {
         const accountSigner = createPolyesterAccountSigner({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             owner,
             saltNonce: 7n,
         });
@@ -21,7 +21,7 @@ describe("createPolyesterAccountSigner", () => {
             safeModuleSetupAddress,
             safe4337ModuleAddress,
             multiSendAddress,
-        } = POLYESTER_TESTNET_ENVIRONMENT.accountAbstraction.safe;
+        } = POLYESTER_DEVNET_ENVIRONMENT.accountAbstraction.safe;
 
         expect(accountSigner.accountAddress).toBe(
             predictSafeAddress({
@@ -34,15 +34,13 @@ describe("createPolyesterAccountSigner", () => {
                 multiSendAddress,
             }),
         );
-        expect(accountSigner.environmentFingerprint).toBe(
-            POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
-        );
+        expect(accountSigner.environmentFingerprint).toBe(POLYESTER_DEVNET_ENVIRONMENT.fingerprint);
         expect(accountSigner.ownerAddress).toBe(owner.address);
     });
 
     it("returns ERC-6492 wrapped signatures for login messages", async () => {
         const accountSigner = createPolyesterAccountSigner({
-            environment: POLYESTER_TESTNET_ENVIRONMENT,
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
             owner,
         });
         const signature = await accountSigner.signMessage("Polyester Login\n\nNonce: test");
