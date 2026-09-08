@@ -1,7 +1,7 @@
 import type { Transport } from "@connectrpc/connect";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { AccountSigner } from "../../account-signer/index.js";
-import { POLYESTER_TESTNET_ENVIRONMENT } from "../../environment.js";
+import { POLYESTER_DEVNET_ENVIRONMENT } from "../../environment.js";
 import { RealtimeClient } from "../../realtime/index.js";
 import { formatId } from "../../utils/base58-id.js";
 import { SubaccountsService } from "../subaccounts/index.js";
@@ -52,9 +52,9 @@ function authFixture(accountSigner?: AccountSigner, tokenStorage?: AuthTokenStor
     const publicApi = noopTransport();
     const authApi = noopTransport();
     const realtime = new RealtimeClient({
-        wsUrl: POLYESTER_TESTNET_ENVIRONMENT.websocketUrl,
-        tokenEndpoint: `${POLYESTER_TESTNET_ENVIRONMENT.apiUrl}/v1/rt/token`,
-        subscribeEndpoint: `${POLYESTER_TESTNET_ENVIRONMENT.apiUrl}/v1/rt/subscribe`,
+        wsUrl: POLYESTER_DEVNET_ENVIRONMENT.websocketUrl,
+        tokenEndpoint: `${POLYESTER_DEVNET_ENVIRONMENT.apiUrl}/v1/rt/token`,
+        subscribeEndpoint: `${POLYESTER_DEVNET_ENVIRONMENT.apiUrl}/v1/rt/subscribe`,
         hasAuth: () => false,
     });
     const subaccounts = new SubaccountsService({ publicApi, authApi }, realtime);
@@ -62,7 +62,7 @@ function authFixture(accountSigner?: AccountSigner, tokenStorage?: AuthTokenStor
     const auth = new AccountSignerAuthService({
         transports: { publicApi, authApi },
         accountSignerConfig: accountSigner,
-        environment: POLYESTER_TESTNET_ENVIRONMENT,
+        environment: POLYESTER_DEVNET_ENVIRONMENT,
         subaccounts,
         realtime,
         tokenStorage: tokenStorage ?? createMemoryAuthTokenStorage(),
@@ -79,7 +79,7 @@ function signer(params: Partial<AccountSigner> = {}): AccountSigner {
     const signMessage = vi.fn(async (_message: string): Promise<`0x${string}`> => "0x1234");
 
     return {
-        environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+        environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
         accountAddress: "0x1111111111111111111111111111111111111111",
         ownerAddress: "0x2222222222222222222222222222222222222222",
         signMessage,
@@ -335,7 +335,7 @@ describe("AccountSignerAuthService", () => {
         const auth = authFixture(accountSigner, tokenStorage).auth;
         installDocument();
         polyesterSession.set({
-            environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+            environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
             provider: "turnkey",
             loginMethod: null,
             primaryWallet: accountSigner.ownerAddress ?? accountSigner.accountAddress,
@@ -369,7 +369,7 @@ describe("AccountSignerAuthService", () => {
         const auth = authFixture(accountSigner, tokenStorage).auth;
         installDocument();
         polyesterSession.set({
-            environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+            environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
             provider: "turnkey",
             loginMethod: null,
             primaryWallet: accountSigner.ownerAddress ?? accountSigner.accountAddress,
@@ -425,7 +425,7 @@ describe("AccountSignerAuthService", () => {
         const auth = authFixture(accountSigner, createTestStorage(token)).auth;
         installDocument();
         polyesterSession.set({
-            environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+            environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
             provider: "turnkey",
             loginMethod: null,
             primaryWallet: accountSigner.ownerAddress ?? accountSigner.accountAddress,

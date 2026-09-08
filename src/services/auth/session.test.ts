@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { POLYESTER_TESTNET_ENVIRONMENT } from "../../environment.js";
+import { POLYESTER_DEVNET_ENVIRONMENT } from "../../environment.js";
 import { POLYESTER_SESSION_COOKIE_NAME } from "./cookie-constants.js";
 import { AuthSessionStore, polyesterSession } from "./session.js";
 import type { SessionData } from "./session.types.js";
@@ -11,7 +11,7 @@ function sessionCookie(session: unknown): string {
 
 function validSession(): SessionData {
     return {
-        environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+        environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
         provider: "metamask",
         loginMethod: "metamask",
         primaryWallet: "0xprimary",
@@ -83,7 +83,7 @@ describe("AuthSessionStore", () => {
     it("returns environment-bound tokens when the display session matches", () => {
         const storage = createTestStorage("token-1");
         const store = new AuthSessionStore({
-            environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+            environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
         });
         vi.stubGlobal("document", { cookie: sessionCookie(validSession()) });
 
@@ -94,7 +94,7 @@ describe("AuthSessionStore", () => {
     it("keeps bearer tokens when the display session cookie is missing", () => {
         const storage = createTestStorage("token-1");
         const store = new AuthSessionStore({
-            environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+            environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
         });
         vi.stubGlobal("document", { cookie: "" });
 
@@ -106,7 +106,7 @@ describe("AuthSessionStore", () => {
     it("clears configured token storage when the display session belongs to another environment", () => {
         const storage = createTestStorage("token-1");
         const store = new AuthSessionStore({
-            environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+            environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
         });
         vi.stubGlobal("document", {
             cookie: sessionCookie({ ...validSession(), environmentFingerprint: "0xother" }),
@@ -121,7 +121,7 @@ describe("AuthSessionStore", () => {
         const session = validSession();
         vi.stubGlobal("document", { cookie: sessionCookie(session) });
         const store = new AuthSessionStore({
-            environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+            environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
         });
 
         store.setUsername("alice");
@@ -133,7 +133,7 @@ describe("AuthSessionStore", () => {
         const session = validSession();
         vi.stubGlobal("document", { cookie: sessionCookie(session) });
         const store = new AuthSessionStore({
-            environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+            environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
         });
 
         store.setUsername(null);
@@ -145,7 +145,7 @@ describe("AuthSessionStore", () => {
         const session = validSession();
         vi.stubGlobal("document", { cookie: sessionCookie(session) });
         const store = new AuthSessionStore({
-            environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+            environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
         });
 
         store.setActiveAccount({
@@ -168,7 +168,7 @@ describe("AuthSessionStore", () => {
         const session = validSession();
         vi.stubGlobal("document", { cookie: sessionCookie(session) });
         const store = new AuthSessionStore({
-            environmentFingerprint: POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+            environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
         });
 
         const ensured = store.ensureSession({

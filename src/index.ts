@@ -35,7 +35,7 @@ export type {
     ServerSessionSnapshot,
 } from "./server-client.js";
 
-export { POLYESTER_TESTNET_ENVIRONMENT, createPolyesterEnvironment } from "./environment.js";
+export { POLYESTER_DEVNET_ENVIRONMENT, createPolyesterEnvironment } from "./environment.js";
 export type {
     CreatePolyesterEnvironmentParams,
     PolyesterAccountAbstractionEnvironment,

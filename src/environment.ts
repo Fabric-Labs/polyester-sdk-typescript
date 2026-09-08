@@ -292,14 +292,14 @@ export function parsePolyesterEnvironment(environment: PolyesterEnvironment): Po
     return parsed;
 }
 
-export const POLYESTER_TESTNET_ENVIRONMENT = createPolyesterEnvironment({
-    name: "polyester-testnet",
+export const POLYESTER_DEVNET_ENVIRONMENT = createPolyesterEnvironment({
+    name: "polyester-devnet",
     apiUrl: "https://api-devnet.polyester.ai",
     websocketUrl: "wss://api-devnet.polyester.ai",
     rpcUrl: "https://rpc.polyester.tech",
     chain: {
         id: 888168,
-        name: "Polyester Chain Testnet",
+        name: "Polyester Chain Devnet",
         nativeCurrency: {
             decimals: 18,
             name: "POL",
