@@ -36,8 +36,8 @@ export type SocialVerification = Message<"auth.v1.SocialVerification"> & {
   provider: SocialProvider;
 
   /**
-   * Method used for this verification. If unspecified at start time, profile
-   * verification is used.
+   * Method used for this verification. If unspecified at start time, the
+   * provider default is used.
    *
    * @generated from field: auth.v1.SocialVerificationMethod method = 11;
    */
@@ -59,8 +59,9 @@ export type SocialVerification = Message<"auth.v1.SocialVerification"> & {
   providerUserId: string;
 
   /**
-   * Challenge code the user must place according to the verification method.
-   * Codes start with "poly_" and expire after 15 minutes.
+   * Challenge code the user must submit according to the verification method.
+   * Discord codes are returned only when a challenge is issued. Codes expire
+   * after 15 minutes.
    *
    * @generated from field: string challenge_code = 13;
    */
@@ -139,16 +140,17 @@ export type StartSocialVerificationRequest = Message<"auth.v1.StartSocialVerific
   provider: SocialProvider;
 
   /**
-   * Verification method. If unspecified, profile verification is used.
+   * Verification method. If unspecified, profile verification is used for
+   * X/Twitter and channel verification is used for Discord.
    *
    * @generated from field: auth.v1.SocialVerificationMethod method = 3;
    */
   method: SocialVerificationMethod;
 
   /**
-   * Provider handle the user claims. A leading "@" is accepted and removed.
-   * X/Twitter handles must be 1 to 15 letters, digits, or underscores.
-   * Other provider handles can be up to 64 characters.
+   * Provider handle the user claims. Required for X/Twitter and omitted for
+   * Discord, where the authenticated bot supplies the provider identity.
+   * A leading "@" is accepted and removed from X/Twitter handles.
    *
    * @generated from field: string handle = 2;
    */
@@ -169,7 +171,8 @@ export const StartSocialVerificationRequestSchema: GenMessage<StartSocialVerific
  */
 export type StartSocialVerificationResponse = Message<"auth.v1.StartSocialVerificationResponse"> & {
   /**
-   * Challenge code the user must place according to the verification method.
+   * Newly issued challenge code the user must submit according to the
+   * verification method.
    *
    * @generated from field: string challenge_code = 1;
    */

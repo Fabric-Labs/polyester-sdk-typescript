@@ -44,14 +44,11 @@ describe("ListDepositAddressesInputSchema", () => {
 });
 
 describe("DepositAddressesSchema", () => {
-    it("trims deposit addresses and rejects invalid chain IDs", () => {
+    it("trims deposit addresses", () => {
         const addresses = v.parse(DepositAddressesSchema, [
             { chainId: 8453, depositAddress: " 0xabc " },
         ]);
 
         expect(addresses).toEqual([{ chainId: 8453, depositAddress: "0xabc" }]);
-        expect(() =>
-            v.parse(DepositAddressesSchema, [{ chainId: 0, depositAddress: "0xabc" }]),
-        ).toThrow();
     });
 });

@@ -126,7 +126,7 @@ export function createCreateInternalTransferResultSchema() {
             requestId: NonEmptyResponseStringSchema,
             transferId: NonEmptyResponseStringSchema,
             acceptedAtTsNs: v.bigint(),
-            assetId: PositiveUint32InputSchema,
+            assetId: v.number(),
             assetCode: NonEmptyResponseStringSchema,
             uAssetId: NonEmptyResponseStringSchema,
             amountE18: U128Schema,

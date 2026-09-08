@@ -13,6 +13,10 @@ import {
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import type { PublicApiTransports } from "../../shared/transports.js";
 import {
+    SpotVolumeHistoryInputSchema,
+    SpotVolumeHistoryResponseSchema,
+    type SpotVolumeHistoryInput,
+    type SpotVolumeHistoryResponse,
     ListMarketOverviewInputSchema,
     createMarketOverviewSchema,
     type SparklineIntervalName,
@@ -59,6 +63,23 @@ export class MarketOverviewService {
             markets: this.#decodeMarkets(res.markets),
             nextPageToken: res.nextPageToken,
         };
+    }
+
+    /**
+     * Returns 97 aligned trailing-24h USD volume samples at 15-minute intervals.
+     * Empty symbolIds selects all pairs. Samples overlap and must not be summed
+     * as period volume. Unavailable valuations reject the request.
+     */
+    async getSpotVolumeHistory(
+        input: SpotVolumeHistoryInput = {},
+        options?: PolyesterRequestOptions,
+    ): Promise<SpotVolumeHistoryResponse> {
+        const validated = parse(SpotVolumeHistoryInputSchema, input);
+        const response = await this.#client.getSpotVolumeHistory(
+            validated,
+            toConnectCallOptions(options),
+        );
+        return parse(SpotVolumeHistoryResponseSchema, response);
     }
 
     /**

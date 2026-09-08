@@ -13,9 +13,7 @@ export function parse<const TSchema extends v.BaseSchema<unknown, unknown, v.Bas
     try {
         return v.parse(schema, input, config);
     } catch (error) {
-        if (v.isValiError(error)) {
-            throw new ValidationError(error.message, { cause: error });
-        }
+        if (v.isValiError(error)) throw new ValidationError(error.message, { cause: error });
         throw error;
     }
 }

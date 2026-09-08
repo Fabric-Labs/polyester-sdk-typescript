@@ -96,23 +96,34 @@ export type SocialVerification = Omit<SocialVerificationBase, "provider" | "meth
 };
 
 export const StartVerificationInputSchema = v.pipe(
-    v.strictObject({
-        provider: v.pipe(
-            SocialProviderSchema,
-            v.transform((v) => SocialProviderCodec.inputToProto[v]),
-        ),
-        handle: v.pipe(v.string(), v.transform(normalizeHandle), v.minLength(1), v.maxLength(64)),
-        method: v.pipe(
-            v.optional(SocialVerificationMethodSchema, "profile"),
-            v.transform((v) => SocialVerificationMethodCodec.inputToProto[v ?? "profile"]),
-        ),
-    }),
-    v.check(({ handle }) => !/[<>]/.test(handle), "Handle must not contain '<' or '>'"),
-    v.check(
-        ({ provider, handle }) =>
-            provider !== Proto.SocialProvider.TWITTER || TWITTER_HANDLE_PATTERN.test(handle),
-        "Twitter handle must be 1-15 letters, digits, or underscores",
-    ),
+    v.variant("provider", [
+        v.strictObject({
+            provider: v.literal("twitter"),
+            handle: v.pipe(
+                v.string(),
+                v.transform(normalizeHandle),
+                v.minLength(1),
+                v.regex(
+                    TWITTER_HANDLE_PATTERN,
+                    "Twitter handle must be 1-15 letters, digits, or underscores",
+                ),
+            ),
+            method: v.optional(v.literal("profile")),
+        }),
+        v.strictObject({
+            provider: v.literal("discord"),
+            method: v.optional(v.picklist(["channel", "dm"])),
+        }),
+    ]),
+    v.transform(({ provider, method, ...input }) => ({
+        ...input,
+        provider: SocialProviderCodec.inputToProto[provider],
+        // METHOD_UNSPECIFIED lets the API choose Twitter's profile or Discord's channel default.
+        method:
+            method === undefined
+                ? Proto.SocialVerificationMethod.METHOD_UNSPECIFIED
+                : SocialVerificationMethodCodec.inputToProto[method],
+    })),
 );
 
 export type StartVerificationInput = v.InferInput<typeof StartVerificationInputSchema>;

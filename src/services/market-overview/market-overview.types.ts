@@ -5,4 +5,7 @@ export type {
     MarketOverviewSort,
     MarketOverviewSparkline,
     SparklineIntervalName,
+    SpotPairVolumeSeries,
+    SpotVolumeHistoryInput,
+    SpotVolumeHistoryResponse,
 } from "./market-overview.schemas.js";

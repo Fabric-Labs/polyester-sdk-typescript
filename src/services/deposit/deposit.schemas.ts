@@ -50,7 +50,7 @@ export type ListDepositAddressesRequest = v.InferOutput<
 >;
 
 export const DepositAddressSchema = v.object({
-    chainId: PositiveUint32InputSchema,
+    chainId: v.number(),
     depositAddress: v.pipe(v.string(), v.trim(), v.minLength(1)),
 });
 

@@ -14,7 +14,7 @@ type StartVerificationCase = {
     input: Parameters<SocialVerificationService["start"]>[0];
     expected: {
         provider: Proto.SocialProvider;
-        handle: string;
+        handle?: string;
         method: Proto.SocialVerificationMethod;
     };
 };
@@ -52,19 +52,16 @@ describe("SocialVerificationService", () => {
                 expected: {
                     provider: Proto.SocialProvider.TWITTER,
                     handle: "Alice_1",
-                    method: Proto.SocialVerificationMethod.METHOD_PROFILE,
+                    method: Proto.SocialVerificationMethod.METHOD_UNSPECIFIED,
                 },
             },
             {
                 input: {
                     provider: "discord",
-                    handle: " fabric-labs ",
-                    method: "dm",
                 },
                 expected: {
                     provider: Proto.SocialProvider.DISCORD,
-                    handle: "fabric-labs",
-                    method: Proto.SocialVerificationMethod.METHOD_DM,
+                    method: Proto.SocialVerificationMethod.METHOD_UNSPECIFIED,
                 },
             },
         ];
@@ -91,11 +88,14 @@ describe("SocialVerificationService", () => {
                 expiresAt: { seconds: 2n, nanos: 0 },
                 verification: {
                     provider: input.provider,
-                    handle: expected.handle,
+                    ...(input.provider === "twitter" ? { handle: expected.handle } : {}),
                 },
             });
 
             expect(transport.calls[0]?.message).toMatchObject(expected);
+            if (expected.handle === undefined) {
+                expect(transport.calls[0]?.message).not.toHaveProperty("handle");
+            }
             expect(transport.calls[0]?.message).not.toHaveProperty("stepUpToken");
             expect(transport.calls[0]?.signal).toBe(signal);
             expect(stepUpHeader(transport.calls[0])).toBe("fresh-token");
@@ -178,17 +178,22 @@ describe("social verification schemas", () => {
         ).toEqual({
             provider: Proto.SocialProvider.TWITTER,
             handle: "Alice_1",
-            method: Proto.SocialVerificationMethod.METHOD_PROFILE,
+            method: Proto.SocialVerificationMethod.METHOD_UNSPECIFIED,
         });
 
-        const longHandle = `@${"a".repeat(64)}`;
+        expect(v.parse(StartVerificationInputSchema, { provider: "discord" })).toEqual({
+            provider: Proto.SocialProvider.DISCORD,
+            method: Proto.SocialVerificationMethod.METHOD_UNSPECIFIED,
+        });
+
         expect(
             v.parse(StartVerificationInputSchema, {
                 provider: "discord",
-                handle: longHandle,
+                method: "channel",
             }),
-        ).toMatchObject({
-            handle: "a".repeat(64),
+        ).toEqual({
+            provider: Proto.SocialProvider.DISCORD,
+            method: Proto.SocialVerificationMethod.METHOD_CHANNEL,
         });
     });
 
@@ -211,11 +216,14 @@ describe("social verification schemas", () => {
         ).toMatchObject({ status: "unspecified" });
     });
 
-    it("rejects handles outside the backend contract", () => {
+    it("rejects invalid handles and methods the provider does not support", () => {
         const cases = [
             { provider: "twitter" as const, handle: "sixteen_char_long" },
             { provider: "twitter" as const, handle: "not-valid" },
             { provider: "discord" as const, handle: "<script>" },
+            { provider: "twitter" as const, handle: "alice", method: "channel" },
+            { provider: "twitter" as const, handle: "alice", method: "dm" },
+            { provider: "discord" as const, method: "profile" },
         ];
 
         for (const input of cases) {

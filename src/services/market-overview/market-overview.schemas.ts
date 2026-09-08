@@ -58,15 +58,22 @@ export const MarketOverviewSortSchema = v.picklist(MARKET_OVERVIEW_SORT_VALUES);
 
 export type MarketOverviewSort = v.InferOutput<typeof MarketOverviewSortSchema>;
 
+/** USD amounts are always scaled by 1e6 on the wire. */
+const UsdVolumeSchema = v.pipe(
+    v.bigint(),
+    v.transform((value) => scaledToDecimalOutput(value, 6)),
+);
+
 const MarketOverviewRawSchema = v.object({
-    symbolId: SymbolIdInputSchema,
+    symbolId: v.number(),
     lastPriceTicks: v.bigint(),
     lastTradeTsNs: v.optional(v.bigint(), 0n),
     change24hBps: v.number(),
     high24hTicks: v.bigint(),
     low24hTicks: v.bigint(),
-    volume24hBaseScaled: v.bigint(),
-    volume24hQuoteScaled: v.bigint(),
+    volume24hBaseScaled: v.optional(v.bigint()),
+    volume24hQuoteScaled: v.optional(v.bigint()),
+    volume24hUsdScaled: v.optional(UsdVolumeSchema),
     listedTsNs: v.optional(v.bigint(), 0n),
     bestBidTicks: v.bigint(),
     bestBidQtyScaled: v.bigint(),
@@ -90,8 +97,15 @@ export function createMarketOverviewSchema(scales: SdkScales) {
                 change24hBps: m.change24hBps,
                 high24h: scaledToDecimalOutput(m.high24hTicks, priceScale),
                 low24h: scaledToDecimalOutput(m.low24hTicks, priceScale),
-                volume24hBase: scaledToDecimalOutput(m.volume24hBaseScaled, baseQtyScale),
-                volume24hQuote: scaledToDecimalOutput(m.volume24hQuoteScaled, quoteAmountScale),
+                volume24hBase:
+                    m.volume24hBaseScaled === undefined
+                        ? undefined
+                        : scaledToDecimalOutput(m.volume24hBaseScaled, baseQtyScale),
+                volume24hQuote:
+                    m.volume24hQuoteScaled === undefined
+                        ? undefined
+                        : scaledToDecimalOutput(m.volume24hQuoteScaled, quoteAmountScale),
+                volume24hUsd: m.volume24hUsdScaled,
                 listedTsMs: tsNsToMs(m.listedTsNs),
                 bestBid: scaledToDecimalOutput(m.bestBidTicks, priceScale),
                 bestBidQty: scaledToDecimalOutput(m.bestBidQtyScaled, baseQtyScale),
@@ -157,8 +171,8 @@ export const ListMarketOverviewInputSchema = v.pipe(
         limit: v.optional(PositiveUint32InputSchema, 500),
         pageToken: v.optional(v.pipe(v.string(), v.trim()), ""),
         orderBy: v.pipe(
-            v.optional(MarketOverviewOrderBySchema, "volume_24h_quote"),
-            v.transform((v) => MarketOverviewOrderByCodec.inputToProto[v ?? "volume_24h_quote"]),
+            v.optional(MarketOverviewOrderBySchema, "volume_24h_usd"),
+            v.transform((v) => MarketOverviewOrderByCodec.inputToProto[v ?? "volume_24h_usd"]),
         ),
         sort: v.pipe(
             v.optional(MarketOverviewSortSchema, "desc"),
@@ -176,3 +190,40 @@ export const ListMarketOverviewInputSchema = v.pipe(
 );
 
 export type ListMarketOverviewInput = v.InferInput<typeof ListMarketOverviewInputSchema>;
+
+export const SpotVolumeHistoryInputSchema = v.pipe(
+    v.strictObject({
+        symbolIds: v.optional(
+            v.pipe(
+                v.array(SymbolIdInputSchema),
+                v.transform((ids) => [...new Set(ids)]),
+                v.maxLength(2000),
+            ),
+            [],
+        ),
+    }),
+    v.transform(({ symbolIds }) => ({ symbolId: symbolIds })),
+);
+export type SpotVolumeHistoryInput = v.InferInput<typeof SpotVolumeHistoryInputSchema>;
+
+export const SpotPairVolumeSeriesSchema = v.pipe(
+    v.object({ symbolId: v.number(), volumeUsdScaled: v.array(UsdVolumeSchema) }),
+    v.transform(({ symbolId, volumeUsdScaled }) => ({ symbolId, volumeUsd: volumeUsdScaled })),
+);
+export type SpotPairVolumeSeries = v.InferOutput<typeof SpotPairVolumeSeriesSchema>;
+
+export const SpotVolumeHistoryResponseSchema = v.pipe(
+    v.object({
+        bucket: v.string(),
+        startTsSec: v.number(),
+        endTsSec: v.number(),
+        points: v.number(),
+        pairs: v.array(SpotPairVolumeSeriesSchema),
+        totalVolumeUsdScaled: v.array(UsdVolumeSchema),
+    }),
+    v.transform(({ totalVolumeUsdScaled, ...response }) => ({
+        ...response,
+        totalVolumeUsd: totalVolumeUsdScaled,
+    })),
+);
+export type SpotVolumeHistoryResponse = v.InferOutput<typeof SpotVolumeHistoryResponseSchema>;
