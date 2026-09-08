@@ -34,9 +34,7 @@ describe("createPolyesterAccountSigner", () => {
                 multiSendAddress,
             }),
         );
-        expect(accountSigner.environmentFingerprint).toBe(
-            POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
-        );
+        expect(accountSigner.environmentFingerprint).toBe(POLYESTER_DEVNET_ENVIRONMENT.fingerprint);
         expect(accountSigner.ownerAddress).toBe(owner.address);
     });
 
