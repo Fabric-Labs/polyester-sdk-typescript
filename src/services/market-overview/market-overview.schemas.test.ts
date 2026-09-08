@@ -143,6 +143,18 @@ describe("ListMarketOverviewInputSchema", () => {
         });
     });
 
+    it("defaults to USD volume sorting and rejects the removed quote-volume key", () => {
+        expect(v.parse(ListMarketOverviewInputSchema, {}).orderBy).toBe(
+            MarketOrderBy.ORDER_BY_VOLUME_24H_USD,
+        );
+        expect(v.parse(ListMarketOverviewInputSchema, { orderBy: "volume_24h_usd" }).orderBy).toBe(
+            MarketOrderBy.ORDER_BY_VOLUME_24H_USD,
+        );
+        expect(() =>
+            v.parse(ListMarketOverviewInputSchema, { orderBy: "volume_24h_quote" }),
+        ).toThrow();
+    });
+
     it("rejects invalid list input values", () => {
         const cases = [
             { symbols: [101] },

@@ -6,7 +6,7 @@ export type SparklineIntervalValue = (typeof SPARKLINE_INTERVAL_VALUES)[number];
 
 export const MARKET_OVERVIEW_ORDER_BY_VALUES = [
     "change_24h_bps",
-    "volume_24h_quote",
+    "volume_24h_usd",
     "last_price",
     "date_added",
 ] as const;
@@ -34,7 +34,7 @@ export const SparklineIntervalCodec = {
 export const MarketOverviewOrderByCodec = {
     inputToProto: {
         change_24h_bps: Proto.MarketOrderBy.ORDER_BY_CHANGE_24H_BPS,
-        volume_24h_quote: Proto.MarketOrderBy.ORDER_BY_VOLUME_24H_QUOTE,
+        volume_24h_usd: Proto.MarketOrderBy.ORDER_BY_VOLUME_24H_USD,
         last_price: Proto.MarketOrderBy.ORDER_BY_LAST_PRICE,
         date_added: Proto.MarketOrderBy.ORDER_BY_DATE_ADDED,
     } satisfies InputToProto<MarketOverviewOrderByValue, Proto.MarketOrderBy>,

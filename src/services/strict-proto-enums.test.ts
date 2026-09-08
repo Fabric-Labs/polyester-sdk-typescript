@@ -218,6 +218,7 @@ describe("proto enum output decoding", () => {
                 low: 0n,
                 close: 0n,
                 volume: 0n,
+                quoteVolume: "0",
             }),
         ).toMatchObject({ timeframe: "unspecified" });
 

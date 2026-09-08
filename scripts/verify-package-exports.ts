@@ -109,6 +109,8 @@ try {
     type LedgerBalance,
     type LifecycleFlowSummary,
     type MarketOverview,
+    type SpotVolumeHistoryResponse,
+    type SpotPairVolumeSeries,
     type ModifyOrderInput,
     type ModifyTriggerInput,
     type PauseTriggerInput,
@@ -219,6 +221,18 @@ async function verifyServiceInference(): Promise<void> {
     const markets = (await client.marketOverview.list()).markets;
     expectType<MarketOverview[]>(markets);
     expectNotAny(markets[0], true);
+    expectType<string | undefined>(markets[0]!.volume24hBase);
+    expectType<string | undefined>(markets[0]!.volume24hQuote);
+    expectType<string | undefined>(markets[0]!.volume24hUsd);
+    await client.marketOverview.list({ orderBy: "volume_24h_usd" });
+    // @ts-expect-error Quote-volume sorting was replaced by canonical USD volume.
+    await client.marketOverview.list({ orderBy: "volume_24h_quote" });
+    const volumeHistory = await client.marketOverview.getSpotVolumeHistory({ symbolIds: [1] });
+    expectType<SpotVolumeHistoryResponse>(volumeHistory);
+    expectType<SpotPairVolumeSeries[]>(volumeHistory.pairs);
+    expectType<string[]>(volumeHistory.totalVolumeUsd);
+    expectNotAny(volumeHistory, true);
+    await client.socialVerification.start({ provider: "discord" });
 
     expectType<string>(ladderDetails.executedQty);
     expectType<number>(ladderDetails.executedLevels);

@@ -60,6 +60,7 @@ const candlePoint = {
     low: 1_233_000n,
     close: 1_234_567n,
     volume: 123_456_789n,
+    quoteVolume: "152415.677625363",
     isClosed: true,
 };
 
@@ -113,6 +114,7 @@ describe("CandlesService", () => {
                 low: "1.233",
                 close: "1.234567",
                 volume: "1.23456789",
+                quoteVolume: "152415.677625363",
                 isClosed: true,
             },
         ]);
@@ -159,6 +161,7 @@ describe("CandlesService", () => {
             low: [900_000n],
             close: [1_250_000n],
             volume: [100_000_000n],
+            quoteVolume: ["125000000"],
             referenceTsSec: [90n],
             referenceOpen: [2_000_000n],
             referenceHigh: [2_500_000n],
@@ -192,6 +195,7 @@ describe("CandlesService", () => {
             low: ["0.9"],
             close: ["1.25"],
             volume: ["1"],
+            quoteVolume: ["125000000"],
             nextPageToken: "",
             reference: {
                 time: [90],
@@ -214,6 +218,7 @@ describe("CandlesService", () => {
             low: [3n],
             close: [4n],
             volume: [5n],
+            quoteVolume: ["0.00002"],
         });
         const service = new CandlesService(
             { publicApi: transport.transport },
@@ -232,6 +237,7 @@ describe("CandlesService", () => {
             low: ["0.000003"],
             close: ["0.000004"],
             volume: ["0.00000005"],
+            quoteVolume: ["0.00002"],
             nextPageToken: "",
             reference: null,
         });
@@ -294,6 +300,7 @@ describe("CandlesService", () => {
                 timeframe: "1m",
                 close: "1.234567",
                 volume: "1.23456789",
+                quoteVolume: "152415.677625363",
             }),
         );
 
@@ -324,6 +331,7 @@ describe("CandlesService", () => {
             low: "1.233",
             close: "1.234567",
             volume: "1.23456789",
+            quoteVolume: "152415.677625363",
             isClosed: true,
         });
     });

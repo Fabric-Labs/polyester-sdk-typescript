@@ -49,6 +49,7 @@ const CandleRowRawSchema = v.object({
     low: v.bigint(),
     close: v.bigint(),
     volume: v.bigint(),
+    quoteVolume: v.string(),
     isClosed: v.optional(v.boolean(), false),
 });
 
@@ -66,6 +67,7 @@ export function createCandleRowSchema(scales: SdkScales) {
                 low: scaledToDecimalOutput(data.low, priceScale),
                 close: scaledToDecimalOutput(data.close, priceScale),
                 volume: scaledToDecimalOutput(data.volume, scales.baseQty(data.symbolId)),
+                quoteVolume: data.quoteVolume,
                 isClosed: data.isClosed,
             };
         }),
@@ -81,6 +83,7 @@ export const CandlePointSchema = v.object({
     low: v.bigint(),
     close: v.bigint(),
     volume: v.bigint(),
+    quoteVolume: v.string(),
     isClosed: v.optional(v.boolean(), false),
 });
 
@@ -96,6 +99,7 @@ const CandleColumnarRawSchema = v.object({
     low: v.array(v.bigint()),
     close: v.array(v.bigint()),
     volume: v.array(v.bigint()),
+    quoteVolume: v.array(v.string()),
     referenceTsSec: v.optional(v.array(v.bigint()), []),
     referenceOpen: v.optional(v.array(v.bigint()), []),
     referenceHigh: v.optional(v.array(v.bigint()), []),
@@ -126,6 +130,7 @@ export function createCandleColumnarSchema(scales: SdkScales) {
                 low: scaledArrayToDecimal(d.low, priceScale),
                 close: scaledArrayToDecimal(d.close, priceScale),
                 volume: scaledArrayToDecimal(d.volume, volumeScale),
+                quoteVolume: d.quoteVolume,
                 nextPageToken: d.nextPageToken,
                 reference: hasReference
                     ? {
@@ -158,6 +163,7 @@ export function createCandleColumnarIntSchema(scales: SdkScales) {
                 low: scaledArrayToDecimal(d.low, priceScale),
                 close: scaledArrayToDecimal(d.close, priceScale),
                 volume: scaledArrayToDecimal(d.volume, volumeScale),
+                quoteVolume: d.quoteVolume,
                 nextPageToken: d.nextPageToken,
                 reference:
                     referenceTsSec.length > 0

@@ -1,4 +1,7 @@
 export type {
+    SpotVolumeHistoryInput,
+    SpotVolumeHistoryResponse,
+    SpotPairVolumeSeries,
     ListMarketOverviewInput,
     MarketOverview,
     MarketOverviewOrderBy,

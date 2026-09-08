@@ -31,7 +31,7 @@ export class SocialVerificationService {
     }
 
     /**
-     * Starts or restarts provider verification for a handle, normalizing leading @, defaulting to profile verification, and returning a poly_... challenge code that expires after about 15 minutes.
+     * Starts or restarts provider verification. Twitter requires a handle and strips a leading @; Discord gets its identity from the authenticated bot. An omitted method uses the provider default.
      */
     async start(
         input: StartVerificationInput,

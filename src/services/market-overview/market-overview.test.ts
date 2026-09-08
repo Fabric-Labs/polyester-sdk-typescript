@@ -89,6 +89,117 @@ describe("MarketOverviewService", () => {
         vi.restoreAllMocks();
     });
 
+    it("keeps absent and zero volumes distinct in snapshots and live updates", async () => {
+        const transport = unaryTransport({
+            markets: [create(Proto.MarketOverviewSchema, { symbolId: 101 })],
+            nextPageToken: "",
+        });
+        const realtime = realtimeClientStub();
+        const onEvent = vi.fn();
+        const service = new MarketOverviewService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
+        const stop = service.subscribe({ onEvent });
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+        expect(onEvent.mock.lastCall?.[0][0]).toMatchObject({
+            volume24hBase: undefined,
+            volume24hQuote: undefined,
+            volume24hUsd: undefined,
+        });
+        realtime.params?.onPublication(
+            create(Proto.MarketOverviewBatchSchema, {
+                markets: [
+                    create(Proto.MarketOverviewSchema, {
+                        symbolId: 101,
+                        volume24hBaseScaled: 0n,
+                        volume24hQuoteScaled: 0n,
+                        volume24hUsdScaled: 9_007_199_254_740_993n,
+                    }),
+                ],
+            }),
+        );
+        expect(onEvent.mock.lastCall?.[0][0]).toMatchObject({
+            volume24hBase: "0",
+            volume24hQuote: "0",
+            volume24hUsd: "9007199254.740993",
+        });
+        stop();
+    });
+
+    it("returns exact USD history without catalog lookup and forwards request options", async () => {
+        const values = Array.from({ length: 97 }, (_, i) =>
+            i === 0 ? 0n : 9_007_199_254_740_993n,
+        );
+        const transport = unaryTransport(
+            create(Proto.GetSpotVolumeHistoryResponseSchema, {
+                bucket: "15m",
+                startTsSec: 1_700_000_000,
+                endTsSec: 1_700_086_400,
+                points: 97,
+                pairs: [{ symbolId: 999, volumeUsdScaled: values }],
+                totalVolumeUsdScaled: values,
+            }),
+        );
+        const service = new MarketOverviewService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            testScales(),
+        );
+        const controller = new AbortController();
+        const result = await service.getSpotVolumeHistory(
+            { symbolIds: [999, 999] },
+            { signal: controller.signal },
+        );
+        expect(transport.lastCall()).toMatchObject({
+            method: { localName: "getSpotVolumeHistory" },
+            message: { symbolId: [999] },
+            signal: controller.signal,
+        });
+        expect(result).toMatchObject({
+            bucket: "15m",
+            startTsSec: 1_700_000_000,
+            endTsSec: 1_700_086_400,
+            points: 97,
+        });
+        expect(result.pairs[0]?.volumeUsd).toEqual(["0", ...Array(96).fill("9007199254.740993")]);
+        expect(result.totalVolumeUsd).toEqual(result.pairs[0]?.volumeUsd);
+        await service.getSpotVolumeHistory();
+        expect(transport.lastCall()?.message).toEqual({ symbolId: [] });
+    });
+
+    it("rejects invalid history filters before transport and propagates unavailable failures", async () => {
+        const failure = new Error("valuation unavailable");
+        const transport = unaryTransport(() => {
+            throw failure;
+        });
+        const service = new MarketOverviewService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            testScales(),
+        );
+        for (const symbolIds of [
+            [0],
+            [-1],
+            [1.5],
+            [4_294_967_296],
+            Array.from({ length: 2001 }, (_, i) => i + 1),
+        ]) {
+            await expect(service.getSpotVolumeHistory({ symbolIds })).rejects.toBeInstanceOf(
+                ValidationError,
+            );
+        }
+        expect(transport.unary).not.toHaveBeenCalled();
+        await expect(
+            service.getSpotVolumeHistory({
+                symbolIds: Array.from({ length: 2000 }, (_, i) => i + 1),
+            }),
+        ).rejects.toThrow("valuation unavailable");
+        expect(transport.unary).toHaveBeenCalledTimes(1);
+    });
+
     it("reports invalid inputs through the SDK error hierarchy", async () => {
         const transport = unaryTransport({});
         const service = new MarketOverviewService(
