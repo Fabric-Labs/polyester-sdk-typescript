@@ -109,8 +109,6 @@ try {
     type LedgerBalance,
     type LifecycleFlowSummary,
     type MarketOverview,
-    type SpotVolumeHistoryResponse,
-    type SpotPairVolumeSeries,
     type ModifyOrderInput,
     type ModifyTriggerInput,
     type PauseTriggerInput,
@@ -121,6 +119,8 @@ try {
     type PortfolioEquitySnapshotResponse,
     type ResumeTriggerInput,
     type ResumeTriggerResult,
+    type SpotPairVolumeSeries,
+    type SpotVolumeHistoryResponse,
 } from "@polyester/sdk";
 import {
     feesPb,

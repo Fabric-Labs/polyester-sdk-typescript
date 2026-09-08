@@ -108,11 +108,11 @@ export const StartVerificationInputSchema = v.pipe(
                     "Twitter handle must be 1-15 letters, digits, or underscores",
                 ),
             ),
-            method: v.optional(SocialVerificationMethodSchema),
+            method: v.optional(v.literal("profile")),
         }),
         v.strictObject({
             provider: v.literal("discord"),
-            method: v.optional(SocialVerificationMethodSchema),
+            method: v.optional(v.picklist(["channel", "dm"])),
         }),
     ]),
     v.transform(({ provider, method, ...input }) => ({

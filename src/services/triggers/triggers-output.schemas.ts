@@ -11,7 +11,6 @@ import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { tsNsToMs, tsObjToMs } from "../../utils/time.js";
 import { formatId } from "../../utils/base58-id.js";
-import { SymbolIdInputSchema } from "../shared.js";
 import {
     TriggerTypeCodec,
     TriggerStatusCodec,
@@ -561,7 +560,7 @@ export function createTriggerSchema(scales: SdkScales) {
         v.object({
             triggerId: v.bigint(),
             subaccountId: v.bigint(),
-            symbolId: SymbolIdInputSchema,
+            symbolId: v.number(),
             status: v.enum(Proto.TriggerStatus),
             parentOrderId: v.optional(v.bigint()),
             qtyScaled: v.bigint(),

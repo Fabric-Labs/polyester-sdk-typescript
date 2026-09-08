@@ -216,11 +216,14 @@ describe("social verification schemas", () => {
         ).toMatchObject({ status: "unspecified" });
     });
 
-    it("rejects Twitter handles outside the backend contract and Discord handles", () => {
+    it("rejects invalid handles and methods the provider does not support", () => {
         const cases = [
             { provider: "twitter" as const, handle: "sixteen_char_long" },
             { provider: "twitter" as const, handle: "not-valid" },
             { provider: "discord" as const, handle: "<script>" },
+            { provider: "twitter" as const, handle: "alice", method: "channel" },
+            { provider: "twitter" as const, handle: "alice", method: "dm" },
+            { provider: "discord" as const, method: "profile" },
         ];
 
         for (const input of cases) {

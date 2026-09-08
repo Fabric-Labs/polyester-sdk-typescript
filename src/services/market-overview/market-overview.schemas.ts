@@ -58,8 +58,14 @@ export const MarketOverviewSortSchema = v.picklist(MARKET_OVERVIEW_SORT_VALUES);
 
 export type MarketOverviewSort = v.InferOutput<typeof MarketOverviewSortSchema>;
 
+/** USD amounts are always scaled by 1e6 on the wire. */
+const UsdVolumeSchema = v.pipe(
+    v.bigint(),
+    v.transform((value) => scaledToDecimalOutput(value, 6)),
+);
+
 const MarketOverviewRawSchema = v.object({
-    symbolId: SymbolIdInputSchema,
+    symbolId: v.number(),
     lastPriceTicks: v.bigint(),
     lastTradeTsNs: v.optional(v.bigint(), 0n),
     change24hBps: v.number(),
@@ -67,7 +73,7 @@ const MarketOverviewRawSchema = v.object({
     low24hTicks: v.bigint(),
     volume24hBaseScaled: v.optional(v.bigint()),
     volume24hQuoteScaled: v.optional(v.bigint()),
-    volume24hUsdScaled: v.optional(v.bigint()),
+    volume24hUsdScaled: v.optional(UsdVolumeSchema),
     listedTsNs: v.optional(v.bigint(), 0n),
     bestBidTicks: v.bigint(),
     bestBidQtyScaled: v.bigint(),
@@ -99,10 +105,7 @@ export function createMarketOverviewSchema(scales: SdkScales) {
                     m.volume24hQuoteScaled === undefined
                         ? undefined
                         : scaledToDecimalOutput(m.volume24hQuoteScaled, quoteAmountScale),
-                volume24hUsd:
-                    m.volume24hUsdScaled === undefined
-                        ? undefined
-                        : scaledToDecimalOutput(m.volume24hUsdScaled, 6),
+                volume24hUsd: m.volume24hUsdScaled,
                 listedTsMs: tsNsToMs(m.listedTsNs),
                 bestBid: scaledToDecimalOutput(m.bestBidTicks, priceScale),
                 bestBidQty: scaledToDecimalOutput(m.bestBidQtyScaled, baseQtyScale),
@@ -203,13 +206,8 @@ export const SpotVolumeHistoryInputSchema = v.pipe(
 );
 export type SpotVolumeHistoryInput = v.InferInput<typeof SpotVolumeHistoryInputSchema>;
 
-const UsdVolumeSchema = v.pipe(
-    v.bigint(),
-    v.transform((value) => scaledToDecimalOutput(value, 6)),
-);
-
 export const SpotPairVolumeSeriesSchema = v.pipe(
-    v.object({ symbolId: SymbolIdInputSchema, volumeUsdScaled: v.array(UsdVolumeSchema) }),
+    v.object({ symbolId: v.number(), volumeUsdScaled: v.array(UsdVolumeSchema) }),
     v.transform(({ symbolId, volumeUsdScaled }) => ({ symbolId, volumeUsd: volumeUsdScaled })),
 );
 export type SpotPairVolumeSeries = v.InferOutput<typeof SpotPairVolumeSeriesSchema>;

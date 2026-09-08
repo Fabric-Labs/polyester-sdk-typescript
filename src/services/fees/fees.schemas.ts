@@ -30,7 +30,7 @@ export type GetSpotFeeRatesInput = v.InferInput<typeof GetSpotFeeRatesInputSchem
 export type GetSpotFeeRatesRequest = v.InferOutput<typeof GetSpotFeeRatesInputSchema>;
 
 export const SpotFeeRateSchema = v.object({
-    symbolId: SymbolIdInputSchema,
+    symbolId: v.number(),
     makerFeeRatePercent: DecimalStringSchema,
     takerFeeRatePercent: DecimalStringSchema,
     vipTier: VipTierNumberSchema,

@@ -31,7 +31,7 @@ export class SocialVerificationService {
     }
 
     /**
-     * Starts or restarts provider verification. Twitter requires a handle and strips a leading @; Discord gets its identity from the authenticated bot. An omitted method uses the provider default.
+     * Starts or restarts provider verification. Twitter requires a handle and strips a leading @; Discord gets its identity from the authenticated bot. An omitted method uses the provider default (Twitter profile, Discord channel). Discord returns an empty challengeCode when no new challenge is issued.
      */
     async start(
         input: StartVerificationInput,
