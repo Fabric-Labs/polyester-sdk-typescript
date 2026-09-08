@@ -1,5 +1,23 @@
 # @polyester/sdk
 
+## 0.21.0
+
+### Minor Changes
+
+- fix(social-verification)!: omit `handle` when starting Discord verification; the authenticated bot supplies the identity. Remove `handle` from Discord `start()` inputs. `method` is now provider-specific: Twitter accepts only `"profile"`, Discord accepts `"channel"` or `"dm"`. Omitted `method` uses the provider default: Twitter profile or Discord channel. ([#124](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/124))
+
+- feat(market-overview)!: expose `volume24hUsd` and preserve unavailable volumes in list and subscription responses. `volume24hBase` and `volume24hQuote` can now be `undefined` when scaled amounts overflow; `volume24hUsd` is `undefined` when reliable valuation is unavailable. Handle missing values separately from zero (`"0"`). ([#124](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/124))
+
+- feat(market-overview)!: replace `orderBy: "volume_24h_quote"` with `"volume_24h_usd"`. Market lists now default to descending canonical USD volume. ([#124](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/124))
+
+- Rename `POLYESTER_TESTNET_ENVIRONMENT` to `POLYESTER_DEVNET_ENVIRONMENT`. The bundled preset already targeted Polyester devnet (`api-devnet.polyester.ai`); the export, environment `name`, and chain `name` now match. Import `POLYESTER_DEVNET_ENVIRONMENT` instead. ([#122](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/122))
+
+### Patch Changes
+
+- feat(candles): expose exact decimal `quoteVolume` on candle rows and realtime updates, and aligned `quoteVolume` arrays on columnar responses. ([#124](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/124))
+
+- feat(market-overview): add `getSpotVolumeHistory()` for pair and total trailing-24h USD volume series as decimal strings. Accept up to 2,000 distinct `symbolIds`; empty or omitted filters select all pairs. The 97 samples overlap at 15-minute intervals and must not be summed as period volume. ([#124](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/124))
+
 ## 0.20.1
 
 ### Patch Changes
