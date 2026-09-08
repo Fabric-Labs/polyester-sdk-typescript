@@ -11,7 +11,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file marketoverview/v1/marketoverview.proto.
  */
 export const file_marketoverview_v1_marketoverview: GenFile = /*@__PURE__*/
-  fileDesc("CiZtYXJrZXRvdmVydmlldy92MS9tYXJrZXRvdmVydmlldy5wcm90bxIRbWFya2V0b3ZlcnZpZXcudjEiOQoLRXJyb3JEZXRhaWwSKgoEY29kZRgBIAEoDjIcLm1hcmtldG92ZXJ2aWV3LnYxLkVycm9yQ29kZSJaCglTcGFya2xpbmUSOAoIaW50ZXJ2YWwYASABKA4yJC5tYXJrZXRvdmVydmlldy52MS5TcGFya2xpbmVJbnRlcnZhbEIAEhMKC2Nsb3NlX3RpY2tzGAIgAygDIqwDCg5NYXJrZXRPdmVydmlldxIRCglzeW1ib2xfaWQYASABKA0SGAoQbGFzdF9wcmljZV90aWNrcxgDIAEoAxIYChBsYXN0X3RyYWRlX3RzX25zGAQgASgEEhYKDmNoYW5nZV8yNGhfYnBzGAUgASgFEhYKDmhpZ2hfMjRoX3RpY2tzGAYgASgDEhUKDWxvd18yNGhfdGlja3MYByABKAMSHgoWdm9sdW1lXzI0aF9iYXNlX3NjYWxlZBgIIAEoAxIfChd2b2x1bWVfMjRoX3F1b3RlX3NjYWxlZBgOIAEoAxIUCgxsaXN0ZWRfdHNfbnMYDyABKAQSFgoOYmVzdF9iaWRfdGlja3MYCSABKAMSGwoTYmVzdF9iaWRfcXR5X3NjYWxlZBgKIAEoAxIWCg5iZXN0X2Fza190aWNrcxgLIAEoAxIbChNiZXN0X2Fza19xdHlfc2NhbGVkGAwgASgDEjAKCnNwYXJrbGluZXMYDSADKAsyHC5tYXJrZXRvdmVydmlldy52MS5TcGFya2xpbmUSGQoRaW5kZXhfcHJpY2VfdGlja3MYECABKAMioAIKGUxpc3RNYXJrZXRPdmVydmlld1JlcXVlc3QSEwoJc3ltYm9sX2lkGAEgAygNQgASDwoFbGltaXQYAiABKA1CABIUCgpwYWdlX3Rva2VuGAMgASgJQgASNAoIb3JkZXJfYnkYBCABKA4yIC5tYXJrZXRvdmVydmlldy52MS5NYXJrZXRPcmRlckJ5QgASMAoEc29ydBgFIAEoDjIgLm1hcmtldG92ZXJ2aWV3LnYxLlNvcnREaXJlY3Rpb25CABIaChJpbmNsdWRlX3NwYXJrbGluZXMYBiABKAgSQwoTc3BhcmtsaW5lX2ludGVydmFscxgHIAMoDjIkLm1hcmtldG92ZXJ2aWV3LnYxLlNwYXJrbGluZUludGVydmFsQgAiawoaTGlzdE1hcmtldE92ZXJ2aWV3UmVzcG9uc2USMgoHbWFya2V0cxgBIAMoCzIhLm1hcmtldG92ZXJ2aWV3LnYxLk1hcmtldE92ZXJ2aWV3EhkKD25leHRfcGFnZV90b2tlbhgCIAEoCUIAIlgKE01hcmtldE92ZXJ2aWV3QmF0Y2gSMgoHbWFya2V0cxgBIAMoCzIhLm1hcmtldG92ZXJ2aWV3LnYxLk1hcmtldE92ZXJ2aWV3Eg0KBXRzX25zGAIgASgEKoABChFTcGFya2xpbmVJbnRlcnZhbBIiCh5TUEFSS0xJTkVfSU5URVJWQUxfVU5TUEVDSUZJRUQQABIQCgxTUEFSS0xJTkVfMUgQARIRCg1TUEFSS0xJTkVfMjRIEAISEAoMU1BBUktMSU5FXzFXEAMSEAoMU1BBUktMSU5FXzFNEAQqngEKDU1hcmtldE9yZGVyQnkSHwobTUFSS0VUX09SREVSX0JZX1VOU1BFQ0lGSUVEEAASGwoXT1JERVJfQllfQ0hBTkdFXzI0SF9CUFMQARIdChlPUkRFUl9CWV9WT0xVTUVfMjRIX1FVT1RFEAISFwoTT1JERVJfQllfTEFTVF9QUklDRRADEhcKE09SREVSX0JZX0RBVEVfQURERUQQBCpMCg1Tb3J0RGlyZWN0aW9uEh4KGlNPUlRfRElSRUNUSU9OX1VOU1BFQ0lGSUVEEAASDAoIU09SVF9BU0MQARINCglTT1JUX0RFU0MQAiq5AQoJRXJyb3JDb2RlEhoKFkVSUk9SX0NPREVfVU5TUEVDSUZJRUQQABIaChZFUlJPUl9DT0RFX0JBRF9SRVFVRVNUEAESHwobRVJST1JfQ09ERV9JTlZBTElEX0FSR1VNRU5UEAISGAoURVJST1JfQ09ERV9OT1RfRk9VTkQQAxIaChZFUlJPUl9DT0RFX1VOQVZBSUxBQkxFEAQSHQoZRVJST1JfQ09ERV9VUFNUUkVBTV9FUlJPUhAFMowBChVNYXJrZXRPdmVydmlld1NlcnZpY2UScwoSTGlzdE1hcmtldE92ZXJ2aWV3EiwubWFya2V0b3ZlcnZpZXcudjEuTGlzdE1hcmtldE92ZXJ2aWV3UmVxdWVzdBotLm1hcmtldG92ZXJ2aWV3LnYxLkxpc3RNYXJrZXRPdmVydmlld1Jlc3BvbnNlIgBCUFpOZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9tYXJrZXRvdmVydmlldy92MTttYXJrZXRvdmVydmlld3YxYgZwcm90bzM=", [file_polyester_api_options]);
+  fileDesc("CiZtYXJrZXRvdmVydmlldy92MS9tYXJrZXRvdmVydmlldy5wcm90bxIRbWFya2V0b3ZlcnZpZXcudjEiOQoLRXJyb3JEZXRhaWwSKgoEY29kZRgBIAEoDjIcLm1hcmtldG92ZXJ2aWV3LnYxLkVycm9yQ29kZSJaCglTcGFya2xpbmUSOAoIaW50ZXJ2YWwYASABKA4yJC5tYXJrZXRvdmVydmlldy52MS5TcGFya2xpbmVJbnRlcnZhbEIAEhMKC2Nsb3NlX3RpY2tzGAIgAygDIqsECg5NYXJrZXRPdmVydmlldxIRCglzeW1ib2xfaWQYASABKA0SGAoQbGFzdF9wcmljZV90aWNrcxgDIAEoAxIYChBsYXN0X3RyYWRlX3RzX25zGAQgASgEEhYKDmNoYW5nZV8yNGhfYnBzGAUgASgFEhYKDmhpZ2hfMjRoX3RpY2tzGAYgASgDEhUKDWxvd18yNGhfdGlja3MYByABKAMSIwoWdm9sdW1lXzI0aF9iYXNlX3NjYWxlZBgIIAEoA0gAiAEBEiQKF3ZvbHVtZV8yNGhfcXVvdGVfc2NhbGVkGA4gASgDSAGIAQESIgoVdm9sdW1lXzI0aF91c2Rfc2NhbGVkGBEgASgDSAKIAQESFAoMbGlzdGVkX3RzX25zGA8gASgEEhYKDmJlc3RfYmlkX3RpY2tzGAkgASgDEhsKE2Jlc3RfYmlkX3F0eV9zY2FsZWQYCiABKAMSFgoOYmVzdF9hc2tfdGlja3MYCyABKAMSGwoTYmVzdF9hc2tfcXR5X3NjYWxlZBgMIAEoAxIwCgpzcGFya2xpbmVzGA0gAygLMhwubWFya2V0b3ZlcnZpZXcudjEuU3BhcmtsaW5lEhkKEWluZGV4X3ByaWNlX3RpY2tzGBAgASgDQhkKF192b2x1bWVfMjRoX2Jhc2Vfc2NhbGVkQhoKGF92b2x1bWVfMjRoX3F1b3RlX3NjYWxlZEIYChZfdm9sdW1lXzI0aF91c2Rfc2NhbGVkIqACChlMaXN0TWFya2V0T3ZlcnZpZXdSZXF1ZXN0EhMKCXN5bWJvbF9pZBgBIAMoDUIAEg8KBWxpbWl0GAIgASgNQgASFAoKcGFnZV90b2tlbhgDIAEoCUIAEjQKCG9yZGVyX2J5GAQgASgOMiAubWFya2V0b3ZlcnZpZXcudjEuTWFya2V0T3JkZXJCeUIAEjAKBHNvcnQYBSABKA4yIC5tYXJrZXRvdmVydmlldy52MS5Tb3J0RGlyZWN0aW9uQgASGgoSaW5jbHVkZV9zcGFya2xpbmVzGAYgASgIEkMKE3NwYXJrbGluZV9pbnRlcnZhbHMYByADKA4yJC5tYXJrZXRvdmVydmlldy52MS5TcGFya2xpbmVJbnRlcnZhbEIAImsKGkxpc3RNYXJrZXRPdmVydmlld1Jlc3BvbnNlEjIKB21hcmtldHMYASADKAsyIS5tYXJrZXRvdmVydmlldy52MS5NYXJrZXRPdmVydmlldxIZCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCACJYChNNYXJrZXRPdmVydmlld0JhdGNoEjIKB21hcmtldHMYASADKAsyIS5tYXJrZXRvdmVydmlldy52MS5NYXJrZXRPdmVydmlldxINCgV0c19ucxgCIAEoBCIyChtHZXRTcG90Vm9sdW1lSGlzdG9yeVJlcXVlc3QSEwoJc3ltYm9sX2lkGAEgAygNQgAiRAoUU3BvdFBhaXJWb2x1bWVTZXJpZXMSEQoJc3ltYm9sX2lkGAEgASgNEhkKEXZvbHVtZV91c2Rfc2NhbGVkGAIgAygSIsEBChxHZXRTcG90Vm9sdW1lSGlzdG9yeVJlc3BvbnNlEg4KBmJ1Y2tldBgBIAEoCRIUCgxzdGFydF90c19zZWMYAiABKAcSEgoKZW5kX3RzX3NlYxgDIAEoBxIOCgZwb2ludHMYBCABKA0SNgoFcGFpcnMYBSADKAsyJy5tYXJrZXRvdmVydmlldy52MS5TcG90UGFpclZvbHVtZVNlcmllcxIfChd0b3RhbF92b2x1bWVfdXNkX3NjYWxlZBgGIAMoEiqAAQoRU3BhcmtsaW5lSW50ZXJ2YWwSIgoeU1BBUktMSU5FX0lOVEVSVkFMX1VOU1BFQ0lGSUVEEAASEAoMU1BBUktMSU5FXzFIEAESEQoNU1BBUktMSU5FXzI0SBACEhAKDFNQQVJLTElORV8xVxADEhAKDFNQQVJLTElORV8xTRAEKpwBCg1NYXJrZXRPcmRlckJ5Eh8KG01BUktFVF9PUkRFUl9CWV9VTlNQRUNJRklFRBAAEhsKF09SREVSX0JZX0NIQU5HRV8yNEhfQlBTEAESGwoXT1JERVJfQllfVk9MVU1FXzI0SF9VU0QQAhIXChNPUkRFUl9CWV9MQVNUX1BSSUNFEAMSFwoTT1JERVJfQllfREFURV9BRERFRBAEKkwKDVNvcnREaXJlY3Rpb24SHgoaU09SVF9ESVJFQ1RJT05fVU5TUEVDSUZJRUQQABIMCghTT1JUX0FTQxABEg0KCVNPUlRfREVTQxACKrkBCglFcnJvckNvZGUSGgoWRVJST1JfQ09ERV9VTlNQRUNJRklFRBAAEhoKFkVSUk9SX0NPREVfQkFEX1JFUVVFU1QQARIfChtFUlJPUl9DT0RFX0lOVkFMSURfQVJHVU1FTlQQAhIYChRFUlJPUl9DT0RFX05PVF9GT1VORBADEhoKFkVSUk9SX0NPREVfVU5BVkFJTEFCTEUQBBIdChlFUlJPUl9DT0RFX1VQU1RSRUFNX0VSUk9SEAUyhwIKFU1hcmtldE92ZXJ2aWV3U2VydmljZRJ5ChRHZXRTcG90Vm9sdW1lSGlzdG9yeRIuLm1hcmtldG92ZXJ2aWV3LnYxLkdldFNwb3RWb2x1bWVIaXN0b3J5UmVxdWVzdBovLm1hcmtldG92ZXJ2aWV3LnYxLkdldFNwb3RWb2x1bWVIaXN0b3J5UmVzcG9uc2UiABJzChJMaXN0TWFya2V0T3ZlcnZpZXcSLC5tYXJrZXRvdmVydmlldy52MS5MaXN0TWFya2V0T3ZlcnZpZXdSZXF1ZXN0Gi0ubWFya2V0b3ZlcnZpZXcudjEuTGlzdE1hcmtldE92ZXJ2aWV3UmVzcG9uc2UiAEJQWk5naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL21hcmtldG92ZXJ2aWV3L3YxO21hcmtldG92ZXJ2aWV3djFiBnByb3RvMw==", [file_polyester_api_options]);
 
 /**
  * ErrorDetail carries a typed domain error code for machine-readable handling.
@@ -111,19 +111,30 @@ export type MarketOverview = Message<"marketoverview.v1.MarketOverview"> & {
 
   /**
    * Rolling 24h base volume scaled by the pair's base_quantity_scale from
-   * GetSpotConfig.
+   * GetSpotConfig. Omitted if the amount exceeds the signed 64-bit range.
    *
-   * @generated from field: int64 volume_24h_base_scaled = 8;
+   * @generated from field: optional int64 volume_24h_base_scaled = 8;
    */
-  volume24hBaseScaled: bigint;
+  volume24hBaseScaled?: bigint | undefined;
 
   /**
    * Rolling 24h quote volume scaled by the pair's quote_quantity_scale from
-   * GetSpotConfig.
+   * GetSpotConfig. Omitted if the amount exceeds the signed 64-bit range.
    *
-   * @generated from field: int64 volume_24h_quote_scaled = 14;
+   * @generated from field: optional int64 volume_24h_quote_scaled = 14;
    */
-  volume24hQuoteScaled: bigint;
+  volume24hQuoteScaled?: bigint | undefined;
+
+  /**
+   * Rolling 24h USD volume, scaled by 1e6 (one unit is 0.000001 USD).
+   * Omitted if any contributing volume cannot be valued reliably. Quote volumes
+   * use execution prices; USD conversion uses historical quarter-hour marks.
+   * Covers the 24 hours ending at the latest completed UTC minute.
+   * Refreshed every 15 seconds after completed minutes become available.
+   *
+   * @generated from field: optional int64 volume_24h_usd_scaled = 17;
+   */
+  volume24hUsdScaled?: bigint | undefined;
 
   /**
    * Listing timestamp in nanoseconds since epoch.
@@ -215,7 +226,7 @@ export type ListMarketOverviewRequest = Message<"marketoverview.v1.ListMarketOve
   pageToken: string;
 
   /**
-   * Sort key. When unset/UNSPECIFIED, defaults to 24h quote volume.
+   * Sort key. When unset/UNSPECIFIED, defaults to descending 24h USD volume.
    *
    * @generated from field: marketoverview.v1.MarketOrderBy order_by = 4;
    */
@@ -307,6 +318,126 @@ export const MarketOverviewBatchSchema: GenMessage<MarketOverviewBatch> = /*@__P
   messageDesc(file_marketoverview_v1_marketoverview, 5);
 
 /**
+ * A finite spot-volume chart request; no pagination or arbitrary time range.
+ *
+ * @generated from message marketoverview.v1.GetSpotVolumeHistoryRequest
+ */
+export type GetSpotVolumeHistoryRequest = Message<"marketoverview.v1.GetSpotVolumeHistoryRequest"> & {
+  /**
+   * Pair IDs from GetSpotConfig; empty selects every configured pair separately.
+   * At most 2000 distinct positive IDs. Unknown IDs are rejected. If the full
+   * universe exceeds 2000 pairs, specify a filter; results are never truncated.
+   *
+   * @generated from field: repeated uint32 symbol_id = 1;
+   */
+  symbolId: number[];
+};
+
+/**
+ * Describes the message marketoverview.v1.GetSpotVolumeHistoryRequest.
+ * Use `create(GetSpotVolumeHistoryRequestSchema)` to create a new message.
+ */
+export const GetSpotVolumeHistoryRequestSchema: GenMessage<GetSpotVolumeHistoryRequest> = /*@__PURE__*/
+  messageDesc(file_marketoverview_v1_marketoverview, 6);
+
+/**
+ * One pair appears exactly once, regardless of its base and quote assets.
+ * REST renders the scaled amounts as decimal strings in volumeUsd.
+ *
+ * @generated from message marketoverview.v1.SpotPairVolumeSeries
+ */
+export type SpotPairVolumeSeries = Message<"marketoverview.v1.SpotPairVolumeSeries"> & {
+  /**
+   * Stable numeric pair ID; clients may group these series by base asset.
+   *
+   * @generated from field: uint32 symbol_id = 1;
+   */
+  symbolId: number;
+
+  /**
+   * Trailing-24h USD amounts scaled by 1e6, oldest first. Exactly points values,
+   * aligned with the shared response grid. Zero means no executed trades in
+   * the window. USD values round down once per contributing 15-minute bucket.
+   *
+   * @generated from field: repeated sint64 volume_usd_scaled = 2;
+   */
+  volumeUsdScaled: bigint[];
+};
+
+/**
+ * Describes the message marketoverview.v1.SpotPairVolumeSeries.
+ * Use `create(SpotPairVolumeSeriesSchema)` to create a new message.
+ */
+export const SpotPairVolumeSeriesSchema: GenMessage<SpotPairVolumeSeries> = /*@__PURE__*/
+  messageDesc(file_marketoverview_v1_marketoverview, 7);
+
+/**
+ * Aligned columnar trailing-24h USD series over the most recent 24 hours.
+ * The grid always contains 97 samples ending at the latest completed UTC
+ * quarter-hour. Index i maps to start_ts_sec + i * 900 seconds. Each sample
+ * covers [sample time - 24h, sample time); only the preceding 48 hours contribute.
+ * USD conversion uses the latest trustworthy quote/USD mark at or before each
+ * bucket's start. Stablecoin quotes also require historical USD prices.
+ * If any contributing trade cannot be valued, or a USD amount overflows,
+ * the RPC fails as unavailable; partial or zero-filled valuations are not returned.
+ * Intervals without executed trades are zero. Results may be reused for 15 seconds.
+ *
+ * @generated from message marketoverview.v1.GetSpotVolumeHistoryResponse
+ */
+export type GetSpotVolumeHistoryResponse = Message<"marketoverview.v1.GetSpotVolumeHistoryResponse"> & {
+  /**
+   * Sampling interval between points; currently always "15m".
+   *
+   * @generated from field: string bucket = 1;
+   */
+  bucket: string;
+
+  /**
+   * First sample timestamp in seconds since Unix epoch (UTC), inclusive.
+   *
+   * @generated from field: fixed32 start_ts_sec = 2;
+   */
+  startTsSec: number;
+
+  /**
+   * Last sample timestamp in seconds since Unix epoch (UTC), inclusive.
+   *
+   * @generated from field: fixed32 end_ts_sec = 3;
+   */
+  endTsSec: number;
+
+  /**
+   * Number of aligned values in every pair array and the total array; always 97.
+   *
+   * @generated from field: uint32 points = 4;
+   */
+  points: number;
+
+  /**
+   * Pairs ordered by ascending symbol_id; at most 2000, each included once.
+   *
+   * @generated from field: repeated marketoverview.v1.SpotPairVolumeSeries pairs = 5;
+   */
+  pairs: SpotPairVolumeSeries[];
+
+  /**
+   * Sum across selected pairs, USD scaled by 1e6. Exactly points values,
+   * oldest first. REST renders decimal strings in totalVolumeUsd.
+   * Do not sum overlapping trailing-24h samples to obtain period traded volume.
+   *
+   * @generated from field: repeated sint64 total_volume_usd_scaled = 6;
+   */
+  totalVolumeUsdScaled: bigint[];
+};
+
+/**
+ * Describes the message marketoverview.v1.GetSpotVolumeHistoryResponse.
+ * Use `create(GetSpotVolumeHistoryResponseSchema)` to create a new message.
+ */
+export const GetSpotVolumeHistoryResponseSchema: GenMessage<GetSpotVolumeHistoryResponse> = /*@__PURE__*/
+  messageDesc(file_marketoverview_v1_marketoverview, 8);
+
+/**
  * SparklineInterval identifies the time range and sampling resolution for a
  * sparkline.
  *
@@ -372,12 +503,11 @@ export enum MarketOrderBy {
   ORDER_BY_CHANGE_24H_BPS = 1,
 
   /**
-   * Sort by 24h quote volume scaled by the pair's quote_quantity_scale from
-   * GetSpotConfig.
+   * Sort by canonical USD 24h volume. Unvalued markets sort last in either direction.
    *
-   * @generated from enum value: ORDER_BY_VOLUME_24H_QUOTE = 2;
+   * @generated from enum value: ORDER_BY_VOLUME_24H_USD = 2;
    */
-  ORDER_BY_VOLUME_24H_QUOTE = 2,
+  ORDER_BY_VOLUME_24H_USD = 2,
 
   /**
    * Sort by last price in quote units scaled by 1e6.
@@ -481,6 +611,17 @@ export const ErrorCodeSchema: GenEnum<ErrorCode> = /*@__PURE__*/
  * @generated from service marketoverview.v1.MarketOverviewService
  */
 export const MarketOverviewService: GenService<{
+  /**
+   * Get aligned pair-level and total trailing-24h USD volume, sampled every
+   * 15 minutes over the latest day. Unavailable valuations fail the request.
+   *
+   * @generated from rpc marketoverview.v1.MarketOverviewService.GetSpotVolumeHistory
+   */
+  getSpotVolumeHistory: {
+    methodKind: "unary";
+    input: typeof GetSpotVolumeHistoryRequestSchema;
+    output: typeof GetSpotVolumeHistoryResponseSchema;
+  },
   /**
    * @generated from rpc marketoverview.v1.MarketOverviewService.ListMarketOverview
    */
