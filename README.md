@@ -5,6 +5,11 @@ balances, transfers, auth, and realtime streams over ConnectRPC.
 
 Works in browsers, Node, Bun, and edge runtimes. ESM only.
 
+Trading withdrawal payloads require WebCrypto `crypto.getRandomValues` to
+generate nonces. Automatically generated order mutation request IDs require
+`crypto.randomUUID` or `crypto.getRandomValues`; callers can also provide an
+explicit `requestId`. Missing secure randomness raises `ConfigurationError`.
+
 ## Install
 
 ```bash

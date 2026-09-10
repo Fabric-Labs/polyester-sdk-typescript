@@ -8,6 +8,7 @@ import {
 import type * as Proto from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import { WithdrawDestinationValidationCode } from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import { toU128, type U128Value } from "../../utils/u128.js";
+import { ConfigurationError } from "../../shared/errors.js";
 import {
     TradingWithdrawActionCodec,
     WithdrawDestinationValidationCodeCodec,
@@ -35,13 +36,12 @@ type CreateTradingWithdrawRequestBase = {
 function createNonce(): bigint {
     const random = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
     if (!random) {
-        const nonce = BigInt(Date.now());
-        return nonce === 0n ? 1n : nonce;
+        throw new ConfigurationError("Secure nonce generation requires crypto.getRandomValues.");
     }
 
     const bytes = new BigUint64Array(1);
     random(bytes);
-    const nonce = bytes[0] ?? BigInt(Date.now());
+    const nonce = bytes[0]!;
     return nonce === 0n ? 1n : nonce;
 }
 

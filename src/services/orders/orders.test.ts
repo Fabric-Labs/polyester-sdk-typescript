@@ -7,6 +7,7 @@ import { AccountCode, TransferCode } from "../../gen/ledger/v1/catalog_pb.js";
 import { CatalogNotReadyError, type EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
+import { ConfigurationError } from "../../shared/errors.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import {
     realtimeClientStub,
@@ -90,6 +91,7 @@ function protoOrder(overrides: Partial<ProtoRead.Order> = {}): ProtoRead.Order {
 describe("OrdersService", () => {
     afterEach(() => {
         vi.restoreAllMocks();
+        vi.unstubAllGlobals();
     });
 
     it("normalizes read requests, resolver defaults, and forwards signals", async () => {
@@ -428,6 +430,7 @@ describe("OrdersService", () => {
     });
 
     it("generates a request ID for cancelAll when omitted", async () => {
+        vi.stubGlobal("crypto", { randomUUID: () => "generated-request-id" });
         const transport = unaryTransportByMethod({
             cancelAllOrders: {
                 status: ProtoWrite.CancelAllOrdersResponse_Status.SUBMITTED,
@@ -456,12 +459,53 @@ describe("OrdersService", () => {
         expect(request).toMatchObject({
             symbolIds: [1],
         });
-        expect(request?.requestId).toEqual(expect.any(String));
-        const requestId = request?.requestId as string;
-        expect(requestId.length).toBeGreaterThan(0);
+        expect(request?.requestId).toBe("generated-request-id");
+    });
+
+    it("uses secure random bytes when randomUUID is unavailable", async () => {
+        vi.stubGlobal("crypto", {
+            getRandomValues: (bytes: Uint8Array) => {
+                bytes.fill(0xab);
+                return bytes;
+            },
+        });
+        const transport = unaryTransportByMethod({
+            cancelAllOrders: {
+                status: ProtoWrite.CancelAllOrdersResponse_Status.SUBMITTED,
+                matchedOrders: 0,
+                submittedCancels: 0,
+                failedCancels: 0,
+                tsNs: 1_000_000n,
+            },
+        });
+        const service = new OrdersService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await service.cancelAll({ symbolIds: [1] });
+
+        expect(transport.lastCall()?.message.requestId).toBe("abababababababababababababababab");
+    });
+
+    it("rejects generated request IDs when secure randomness is unavailable", async () => {
+        vi.stubGlobal("crypto", undefined);
+        const transport = unaryTransportByMethod({});
+        const service = new OrdersService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await expect(service.cancelAll({ symbolIds: [1] })).rejects.toThrow(ConfigurationError);
+        expect(transport.unary).not.toHaveBeenCalled();
     });
 
     it("preserves a caller-provided request ID for cancelAll", async () => {
+        vi.stubGlobal("crypto", undefined);
         const transport = unaryTransportByMethod({
             cancelAllOrders: {
                 status: ProtoWrite.CancelAllOrdersResponse_Status.SUBMITTED,
@@ -728,6 +772,7 @@ describe("OrdersService", () => {
     });
 
     it("exposes cancelAllAfter and generates its wire-required request ID", async () => {
+        vi.stubGlobal("crypto", { randomUUID: () => "test-request-id" });
         const resolver: SubaccountResolver = {
             getDefaultSubaccountId: () => formatId(11n),
         };
@@ -773,6 +818,7 @@ describe("OrdersService", () => {
     });
 
     it("rejects a batch response that omits per-item outcomes", async () => {
+        vi.stubGlobal("crypto", { randomUUID: () => "test-request-id" });
         const transport = unaryTransportByMethod({
             batchCancelOrders: {
                 results: [],

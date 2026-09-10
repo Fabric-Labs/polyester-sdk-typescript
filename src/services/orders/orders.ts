@@ -15,7 +15,7 @@ import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscr
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import { toPolyesterError } from "../../shared/connect-error-mapping.js";
-import { PolyesterError } from "../../shared/errors.js";
+import { ConfigurationError, PolyesterError } from "../../shared/errors.js";
 import type { AuthApiTransports } from "../../shared/transports.js";
 import { formatConnectError, isResourceNotFoundError } from "../../utils/errors.js";
 import {
@@ -93,9 +93,17 @@ interface SubscribeOrdersInput extends BaseSubscribeInput<Order> {
 }
 
 function createMutationRequestId(): string {
-    return (
-        globalThis.crypto?.randomUUID?.() ??
-        `req_${Date.now()}_${Math.random().toString(16).slice(2)}`
+    const crypto = globalThis.crypto;
+    if (crypto?.randomUUID) return crypto.randomUUID();
+
+    if (crypto?.getRandomValues) {
+        const bytes = new Uint8Array(16);
+        crypto.getRandomValues(bytes);
+        return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+    }
+
+    throw new ConfigurationError(
+        "Secure request ID generation requires crypto.randomUUID or crypto.getRandomValues.",
     );
 }
 
