@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.21.1
+
+### Patch Changes
+
+- Preserve `polyesterChainId` and pair quantity scales in reactive catalogs. ([#125](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/125))
+
 ## 0.21.0
 
 ### Minor Changes
