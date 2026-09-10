@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
+import { ConfigurationError } from "../../shared/errors.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import { formatId } from "../../utils/base58-id.js";
 import { WithdrawDestinationValidationCode } from "../../gen/chain/withdraw/v1/withdraw_pb.js";
@@ -30,8 +31,34 @@ const CreateTradingWithdrawToFundingInputSchema =
 const CreateTradingWithdrawToExternalChainInputSchema =
     createCreateTradingWithdrawToExternalChainInputSchema(testScales());
 
+afterEach(() => {
+    vi.unstubAllGlobals();
+});
+
+function stubSecureNonce(nonce: bigint): void {
+    vi.stubGlobal("crypto", {
+        getRandomValues: (values: BigUint64Array) => {
+            values[0] = nonce;
+            return values;
+        },
+    });
+}
+
 describe("CreateTradingWithdrawToFundingInputSchema", () => {
+    it("rejects payload creation when secure nonce generation is unavailable", () => {
+        vi.stubGlobal("crypto", {});
+
+        expect(() =>
+            v.parse(CreateTradingWithdrawToFundingInputSchema, {
+                assetId: 1,
+                quantity: "1",
+                idempotencyKey: "withdraw-crypto-unavailable",
+            }),
+        ).toThrow(ConfigurationError);
+    });
+
     it("converts decimal quantities and source subaccount to proto fields", () => {
+        stubSecureNonce(42n);
         const input = v.parse(CreateTradingWithdrawToFundingInputSchema, {
             account: { subaccountId: formatId(11n) },
             assetId: 1,
@@ -52,11 +79,13 @@ describe("CreateTradingWithdrawToFundingInputSchema", () => {
                 },
                 idempotencyKey: "withdraw-1",
                 destinationAddress: "0xabc123",
+                nonce: { hi: 0n, lo: 42n },
             },
         });
     });
 
     it("converts whole-number quantities at the E18 ledger scale", () => {
+        stubSecureNonce(0n);
         const input = v.parse(CreateTradingWithdrawToFundingInputSchema, {
             assetId: 1,
             quantity: "1",
@@ -69,6 +98,7 @@ describe("CreateTradingWithdrawToFundingInputSchema", () => {
         });
         expect(input.subaccountId).toBeUndefined();
         expect(input.payload.destinationAddress).toBe("");
+        expect(input.payload.nonce).toMatchObject({ hi: 0n, lo: 1n });
     });
 
     it("rejects invalid payloads", () => {
@@ -105,6 +135,7 @@ describe("CreateTradingWithdrawToFundingInputSchema", () => {
 
 describe("CreateTradingWithdrawToExternalChainInputSchema", () => {
     it("requires destination chain details and converts decimal quantities", () => {
+        stubSecureNonce(1n);
         const input = v.parse(CreateTradingWithdrawToExternalChainInputSchema, {
             account: { subaccountId: formatId(11n) },
             assetId: 1,
