@@ -11,7 +11,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file marketoverview/v1/marketoverview.proto.
  */
 export const file_marketoverview_v1_marketoverview: GenFile = /*@__PURE__*/
-  fileDesc("CiZtYXJrZXRvdmVydmlldy92MS9tYXJrZXRvdmVydmlldy5wcm90bxIRbWFya2V0b3ZlcnZpZXcudjEiOQoLRXJyb3JEZXRhaWwSKgoEY29kZRgBIAEoDjIcLm1hcmtldG92ZXJ2aWV3LnYxLkVycm9yQ29kZSJaCglTcGFya2xpbmUSOAoIaW50ZXJ2YWwYASABKA4yJC5tYXJrZXRvdmVydmlldy52MS5TcGFya2xpbmVJbnRlcnZhbEIAEhMKC2Nsb3NlX3RpY2tzGAIgAygDIqsECg5NYXJrZXRPdmVydmlldxIRCglzeW1ib2xfaWQYASABKA0SGAoQbGFzdF9wcmljZV90aWNrcxgDIAEoAxIYChBsYXN0X3RyYWRlX3RzX25zGAQgASgEEhYKDmNoYW5nZV8yNGhfYnBzGAUgASgFEhYKDmhpZ2hfMjRoX3RpY2tzGAYgASgDEhUKDWxvd18yNGhfdGlja3MYByABKAMSIwoWdm9sdW1lXzI0aF9iYXNlX3NjYWxlZBgIIAEoA0gAiAEBEiQKF3ZvbHVtZV8yNGhfcXVvdGVfc2NhbGVkGA4gASgDSAGIAQESIgoVdm9sdW1lXzI0aF91c2Rfc2NhbGVkGBEgASgDSAKIAQESFAoMbGlzdGVkX3RzX25zGA8gASgEEhYKDmJlc3RfYmlkX3RpY2tzGAkgASgDEhsKE2Jlc3RfYmlkX3F0eV9zY2FsZWQYCiABKAMSFgoOYmVzdF9hc2tfdGlja3MYCyABKAMSGwoTYmVzdF9hc2tfcXR5X3NjYWxlZBgMIAEoAxIwCgpzcGFya2xpbmVzGA0gAygLMhwubWFya2V0b3ZlcnZpZXcudjEuU3BhcmtsaW5lEhkKEWluZGV4X3ByaWNlX3RpY2tzGBAgASgDQhkKF192b2x1bWVfMjRoX2Jhc2Vfc2NhbGVkQhoKGF92b2x1bWVfMjRoX3F1b3RlX3NjYWxlZEIYChZfdm9sdW1lXzI0aF91c2Rfc2NhbGVkIqACChlMaXN0TWFya2V0T3ZlcnZpZXdSZXF1ZXN0EhMKCXN5bWJvbF9pZBgBIAMoDUIAEg8KBWxpbWl0GAIgASgNQgASFAoKcGFnZV90b2tlbhgDIAEoCUIAEjQKCG9yZGVyX2J5GAQgASgOMiAubWFya2V0b3ZlcnZpZXcudjEuTWFya2V0T3JkZXJCeUIAEjAKBHNvcnQYBSABKA4yIC5tYXJrZXRvdmVydmlldy52MS5Tb3J0RGlyZWN0aW9uQgASGgoSaW5jbHVkZV9zcGFya2xpbmVzGAYgASgIEkMKE3NwYXJrbGluZV9pbnRlcnZhbHMYByADKA4yJC5tYXJrZXRvdmVydmlldy52MS5TcGFya2xpbmVJbnRlcnZhbEIAImsKGkxpc3RNYXJrZXRPdmVydmlld1Jlc3BvbnNlEjIKB21hcmtldHMYASADKAsyIS5tYXJrZXRvdmVydmlldy52MS5NYXJrZXRPdmVydmlldxIZCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCACJYChNNYXJrZXRPdmVydmlld0JhdGNoEjIKB21hcmtldHMYASADKAsyIS5tYXJrZXRvdmVydmlldy52MS5NYXJrZXRPdmVydmlldxINCgV0c19ucxgCIAEoBCIyChtHZXRTcG90Vm9sdW1lSGlzdG9yeVJlcXVlc3QSEwoJc3ltYm9sX2lkGAEgAygNQgAiRAoUU3BvdFBhaXJWb2x1bWVTZXJpZXMSEQoJc3ltYm9sX2lkGAEgASgNEhkKEXZvbHVtZV91c2Rfc2NhbGVkGAIgAygSIsEBChxHZXRTcG90Vm9sdW1lSGlzdG9yeVJlc3BvbnNlEg4KBmJ1Y2tldBgBIAEoCRIUCgxzdGFydF90c19zZWMYAiABKAcSEgoKZW5kX3RzX3NlYxgDIAEoBxIOCgZwb2ludHMYBCABKA0SNgoFcGFpcnMYBSADKAsyJy5tYXJrZXRvdmVydmlldy52MS5TcG90UGFpclZvbHVtZVNlcmllcxIfChd0b3RhbF92b2x1bWVfdXNkX3NjYWxlZBgGIAMoEiqAAQoRU3BhcmtsaW5lSW50ZXJ2YWwSIgoeU1BBUktMSU5FX0lOVEVSVkFMX1VOU1BFQ0lGSUVEEAASEAoMU1BBUktMSU5FXzFIEAESEQoNU1BBUktMSU5FXzI0SBACEhAKDFNQQVJLTElORV8xVxADEhAKDFNQQVJLTElORV8xTRAEKpwBCg1NYXJrZXRPcmRlckJ5Eh8KG01BUktFVF9PUkRFUl9CWV9VTlNQRUNJRklFRBAAEhsKF09SREVSX0JZX0NIQU5HRV8yNEhfQlBTEAESGwoXT1JERVJfQllfVk9MVU1FXzI0SF9VU0QQAhIXChNPUkRFUl9CWV9MQVNUX1BSSUNFEAMSFwoTT1JERVJfQllfREFURV9BRERFRBAEKkwKDVNvcnREaXJlY3Rpb24SHgoaU09SVF9ESVJFQ1RJT05fVU5TUEVDSUZJRUQQABIMCghTT1JUX0FTQxABEg0KCVNPUlRfREVTQxACKrkBCglFcnJvckNvZGUSGgoWRVJST1JfQ09ERV9VTlNQRUNJRklFRBAAEhoKFkVSUk9SX0NPREVfQkFEX1JFUVVFU1QQARIfChtFUlJPUl9DT0RFX0lOVkFMSURfQVJHVU1FTlQQAhIYChRFUlJPUl9DT0RFX05PVF9GT1VORBADEhoKFkVSUk9SX0NPREVfVU5BVkFJTEFCTEUQBBIdChlFUlJPUl9DT0RFX1VQU1RSRUFNX0VSUk9SEAUyhwIKFU1hcmtldE92ZXJ2aWV3U2VydmljZRJ5ChRHZXRTcG90Vm9sdW1lSGlzdG9yeRIuLm1hcmtldG92ZXJ2aWV3LnYxLkdldFNwb3RWb2x1bWVIaXN0b3J5UmVxdWVzdBovLm1hcmtldG92ZXJ2aWV3LnYxLkdldFNwb3RWb2x1bWVIaXN0b3J5UmVzcG9uc2UiABJzChJMaXN0TWFya2V0T3ZlcnZpZXcSLC5tYXJrZXRvdmVydmlldy52MS5MaXN0TWFya2V0T3ZlcnZpZXdSZXF1ZXN0Gi0ubWFya2V0b3ZlcnZpZXcudjEuTGlzdE1hcmtldE92ZXJ2aWV3UmVzcG9uc2UiAEJQWk5naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL21hcmtldG92ZXJ2aWV3L3YxO21hcmtldG92ZXJ2aWV3djFiBnByb3RvMw==", [file_polyester_api_options]);
+  fileDesc("CiZtYXJrZXRvdmVydmlldy92MS9tYXJrZXRvdmVydmlldy5wcm90bxIRbWFya2V0b3ZlcnZpZXcudjEiOQoLRXJyb3JEZXRhaWwSKgoEY29kZRgBIAEoDjIcLm1hcmtldG92ZXJ2aWV3LnYxLkVycm9yQ29kZSJaCglTcGFya2xpbmUSOAoIaW50ZXJ2YWwYASABKA4yJC5tYXJrZXRvdmVydmlldy52MS5TcGFya2xpbmVJbnRlcnZhbEIAEhMKC2Nsb3NlX3RpY2tzGAIgAygDIqsECg5NYXJrZXRPdmVydmlldxIRCglzeW1ib2xfaWQYASABKA0SGAoQbGFzdF9wcmljZV90aWNrcxgDIAEoAxIYChBsYXN0X3RyYWRlX3RzX25zGAQgASgEEhYKDmNoYW5nZV8yNGhfYnBzGAUgASgFEhYKDmhpZ2hfMjRoX3RpY2tzGAYgASgDEhUKDWxvd18yNGhfdGlja3MYByABKAMSIwoWdm9sdW1lXzI0aF9iYXNlX3NjYWxlZBgIIAEoA0gAiAEBEiQKF3ZvbHVtZV8yNGhfcXVvdGVfc2NhbGVkGA4gASgDSAGIAQESIgoVdm9sdW1lXzI0aF91c2Rfc2NhbGVkGBEgASgDSAKIAQESFAoMbGlzdGVkX3RzX25zGA8gASgEEhYKDmJlc3RfYmlkX3RpY2tzGAkgASgDEhsKE2Jlc3RfYmlkX3F0eV9zY2FsZWQYCiABKAMSFgoOYmVzdF9hc2tfdGlja3MYCyABKAMSGwoTYmVzdF9hc2tfcXR5X3NjYWxlZBgMIAEoAxIwCgpzcGFya2xpbmVzGA0gAygLMhwubWFya2V0b3ZlcnZpZXcudjEuU3BhcmtsaW5lEhkKEWluZGV4X3ByaWNlX3RpY2tzGBAgASgDQhkKF192b2x1bWVfMjRoX2Jhc2Vfc2NhbGVkQhoKGF92b2x1bWVfMjRoX3F1b3RlX3NjYWxlZEIYChZfdm9sdW1lXzI0aF91c2Rfc2NhbGVkIqACChlMaXN0TWFya2V0T3ZlcnZpZXdSZXF1ZXN0EhMKCXN5bWJvbF9pZBgBIAMoDUIAEg8KBWxpbWl0GAIgASgNQgASFAoKcGFnZV90b2tlbhgDIAEoCUIAEjQKCG9yZGVyX2J5GAQgASgOMiAubWFya2V0b3ZlcnZpZXcudjEuTWFya2V0T3JkZXJCeUIAEjAKBHNvcnQYBSABKA4yIC5tYXJrZXRvdmVydmlldy52MS5Tb3J0RGlyZWN0aW9uQgASGgoSaW5jbHVkZV9zcGFya2xpbmVzGAYgASgIEkMKE3NwYXJrbGluZV9pbnRlcnZhbHMYByADKA4yJC5tYXJrZXRvdmVydmlldy52MS5TcGFya2xpbmVJbnRlcnZhbEIAImsKGkxpc3RNYXJrZXRPdmVydmlld1Jlc3BvbnNlEjIKB21hcmtldHMYASADKAsyIS5tYXJrZXRvdmVydmlldy52MS5NYXJrZXRPdmVydmlldxIZCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCACJYChNNYXJrZXRPdmVydmlld0JhdGNoEjIKB21hcmtldHMYASADKAsyIS5tYXJrZXRvdmVydmlldy52MS5NYXJrZXRPdmVydmlldxINCgV0c19ucxgCIAEoBCIyChtHZXRTcG90Vm9sdW1lSGlzdG9yeVJlcXVlc3QSEwoJc3ltYm9sX2lkGAEgAygNQgAiRAoUU3BvdFBhaXJWb2x1bWVTZXJpZXMSEQoJc3ltYm9sX2lkGAEgASgNEhkKEXZvbHVtZV91c2Rfc2NhbGVkGAIgAygSIsEBChxHZXRTcG90Vm9sdW1lSGlzdG9yeVJlc3BvbnNlEg4KBmJ1Y2tldBgBIAEoCRIUCgxzdGFydF90c19zZWMYAiABKAcSEgoKZW5kX3RzX3NlYxgDIAEoBxIOCgZwb2ludHMYBCABKA0SNgoFcGFpcnMYBSADKAsyJy5tYXJrZXRvdmVydmlldy52MS5TcG90UGFpclZvbHVtZVNlcmllcxIfChd0b3RhbF92b2x1bWVfdXNkX3NjYWxlZBgGIAMoEiJnChBDdXJyZW5jeU1ldGFkYXRhEgwKBGNvZGUYASABKAkSHAoUZGVmYXVsdF9lbmdsaXNoX25hbWUYAiABKAkSDgoGc3ltYm9sGAMgASgJEhcKD2ZyYWN0aW9uX2RpZ2l0cxgEIAEoDSIkCiJHZXRDdXJyZW5jeUNvbnZlcnNpb25Db25maWdSZXF1ZXN0IpIBCiNHZXRDdXJyZW5jeUNvbnZlcnNpb25Db25maWdSZXNwb25zZRIxCgRmaWF0GAEgAygLMiMubWFya2V0b3ZlcnZpZXcudjEuQ3VycmVuY3lNZXRhZGF0YRI4CgtzdGFibGVjb2lucxgCIAMoCzIjLm1hcmtldG92ZXJ2aWV3LnYxLkN1cnJlbmN5TWV0YWRhdGEiPAoSRmlhdENvbnZlcnNpb25SYXRlEgwKBGNvZGUYASABKAkSGAoQdW5pdHNfcGVyX3VzZF9lOBgCIAEoAyJ0ChZGaWF0Q29udmVyc2lvblNuYXBzaG90EjQKBXJhdGVzGAEgAygLMiUubWFya2V0b3ZlcnZpZXcudjEuRmlhdENvbnZlcnNpb25SYXRlEhUKDXNvdXJjZV90c19zZWMYAiABKAQSDQoFc3RhbGUYAyABKAgiZwoYU3RhYmxlY29pbkNvbnZlcnNpb25SYXRlEgwKBGNvZGUYASABKAkSFwoPdXNkX3Blcl91bml0X2U4GAIgASgDEhUKDXNvdXJjZV90c19zZWMYAyABKAQSDQoFc3RhbGUYBCABKAgiIwohR2V0Q3VycmVuY3lDb252ZXJzaW9uUmF0ZXNSZXF1ZXN0IrgBCiJHZXRDdXJyZW5jeUNvbnZlcnNpb25SYXRlc1Jlc3BvbnNlEjcKBGZpYXQYASABKAsyKS5tYXJrZXRvdmVydmlldy52MS5GaWF0Q29udmVyc2lvblNuYXBzaG90EkAKC3N0YWJsZWNvaW5zGAIgAygLMisubWFya2V0b3ZlcnZpZXcudjEuU3RhYmxlY29pbkNvbnZlcnNpb25SYXRlEhcKD3NuYXBzaG90X3RzX3NlYxgDIAEoBCqAAQoRU3BhcmtsaW5lSW50ZXJ2YWwSIgoeU1BBUktMSU5FX0lOVEVSVkFMX1VOU1BFQ0lGSUVEEAASEAoMU1BBUktMSU5FXzFIEAESEQoNU1BBUktMSU5FXzI0SBACEhAKDFNQQVJLTElORV8xVxADEhAKDFNQQVJLTElORV8xTRAEKpwBCg1NYXJrZXRPcmRlckJ5Eh8KG01BUktFVF9PUkRFUl9CWV9VTlNQRUNJRklFRBAAEhsKF09SREVSX0JZX0NIQU5HRV8yNEhfQlBTEAESGwoXT1JERVJfQllfVk9MVU1FXzI0SF9VU0QQAhIXChNPUkRFUl9CWV9MQVNUX1BSSUNFEAMSFwoTT1JERVJfQllfREFURV9BRERFRBAEKkwKDVNvcnREaXJlY3Rpb24SHgoaU09SVF9ESVJFQ1RJT05fVU5TUEVDSUZJRUQQABIMCghTT1JUX0FTQxABEg0KCVNPUlRfREVTQxACKrkBCglFcnJvckNvZGUSGgoWRVJST1JfQ09ERV9VTlNQRUNJRklFRBAAEhoKFkVSUk9SX0NPREVfQkFEX1JFUVVFU1QQARIfChtFUlJPUl9DT0RFX0lOVkFMSURfQVJHVU1FTlQQAhIYChRFUlJPUl9DT0RFX05PVF9GT1VORBADEhoKFkVSUk9SX0NPREVfVU5BVkFJTEFCTEUQBBIdChlFUlJPUl9DT0RFX1VQU1RSRUFNX0VSUk9SEAUypgQKFU1hcmtldE92ZXJ2aWV3U2VydmljZRKOAQobR2V0Q3VycmVuY3lDb252ZXJzaW9uQ29uZmlnEjUubWFya2V0b3ZlcnZpZXcudjEuR2V0Q3VycmVuY3lDb252ZXJzaW9uQ29uZmlnUmVxdWVzdBo2Lm1hcmtldG92ZXJ2aWV3LnYxLkdldEN1cnJlbmN5Q29udmVyc2lvbkNvbmZpZ1Jlc3BvbnNlIgASiwEKGkdldEN1cnJlbmN5Q29udmVyc2lvblJhdGVzEjQubWFya2V0b3ZlcnZpZXcudjEuR2V0Q3VycmVuY3lDb252ZXJzaW9uUmF0ZXNSZXF1ZXN0GjUubWFya2V0b3ZlcnZpZXcudjEuR2V0Q3VycmVuY3lDb252ZXJzaW9uUmF0ZXNSZXNwb25zZSIAEnkKFEdldFNwb3RWb2x1bWVIaXN0b3J5Ei4ubWFya2V0b3ZlcnZpZXcudjEuR2V0U3BvdFZvbHVtZUhpc3RvcnlSZXF1ZXN0Gi8ubWFya2V0b3ZlcnZpZXcudjEuR2V0U3BvdFZvbHVtZUhpc3RvcnlSZXNwb25zZSIAEnMKEkxpc3RNYXJrZXRPdmVydmlldxIsLm1hcmtldG92ZXJ2aWV3LnYxLkxpc3RNYXJrZXRPdmVydmlld1JlcXVlc3QaLS5tYXJrZXRvdmVydmlldy52MS5MaXN0TWFya2V0T3ZlcnZpZXdSZXNwb25zZSIAQlBaTmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vbWFya2V0b3ZlcnZpZXcvdjE7bWFya2V0b3ZlcnZpZXd2MWIGcHJvdG8z", [file_polyester_api_options]);
 
 /**
  * ErrorDetail carries a typed domain error code for machine-readable handling.
@@ -127,10 +127,9 @@ export type MarketOverview = Message<"marketoverview.v1.MarketOverview"> & {
 
   /**
    * Rolling 24h USD volume, scaled by 1e6 (one unit is 0.000001 USD).
-   * Omitted if any contributing volume cannot be valued reliably. Quote volumes
-   * use execution prices; USD conversion uses historical quarter-hour marks.
-   * Covers the 24 hours ending at the latest completed UTC minute.
-   * Refreshed every 15 seconds after completed minutes become available.
+   * Applies the current quote/USD conversion to the rolling quote volume.
+   * When conversion is unavailable, USDT and USDC are valued at USD parity.
+   * Omitted for other quote assets when a current conversion is unavailable.
    *
    * @generated from field: optional int64 volume_24h_usd_scaled = 17;
    */
@@ -376,8 +375,8 @@ export const SpotPairVolumeSeriesSchema: GenMessage<SpotPairVolumeSeries> = /*@_
  * The grid always contains 97 samples ending at the latest completed UTC
  * quarter-hour. Index i maps to start_ts_sec + i * 900 seconds. Each sample
  * covers [sample time - 24h, sample time); only the preceding 48 hours contribute.
- * USD conversion uses the latest trustworthy quote/USD mark at or before each
- * bucket's start. Stablecoin quotes also require historical USD prices.
+ * USD conversion uses historical quote/USD prices at each completed bucket
+ * boundary. When conversion is unavailable, USDT and USDC are valued at USD parity.
  * If any contributing trade cannot be valued, or a USD amount overflows,
  * the RPC fails as unavailable; partial or zero-filled valuations are not returned.
  * Intervals without executed trades are zero. Results may be reused for 15 seconds.
@@ -436,6 +435,252 @@ export type GetSpotVolumeHistoryResponse = Message<"marketoverview.v1.GetSpotVol
  */
 export const GetSpotVolumeHistoryResponseSchema: GenMessage<GetSpotVolumeHistoryResponse> = /*@__PURE__*/
   messageDesc(file_marketoverview_v1_marketoverview, 8);
+
+/**
+ * CurrencyMetadata supplies stable defaults for display conversion. Clients may
+ * localize names, symbols, and number formatting for the user's locale.
+ *
+ * @generated from message marketoverview.v1.CurrencyMetadata
+ */
+export type CurrencyMetadata = Message<"marketoverview.v1.CurrencyMetadata"> & {
+  /**
+   * Uppercase currency or stablecoin code, such as EUR or USDT.
+   *
+   * @generated from field: string code = 1;
+   */
+  code: string;
+
+  /**
+   * Default English display name.
+   *
+   * @generated from field: string default_english_name = 2;
+   */
+  defaultEnglishName: string;
+
+  /**
+   * Default English display symbol; the code is used where no distinct symbol exists.
+   *
+   * @generated from field: string symbol = 3;
+   */
+  symbol: string;
+
+  /**
+   * Default display fraction digits, including zero for currencies such as JPY.
+   * This is a formatting default, not rate precision, token decimals, or cash rounding.
+   * Stablecoins use two display fraction digits.
+   *
+   * @generated from field: uint32 fraction_digits = 4;
+   */
+  fractionDigits: number;
+};
+
+/**
+ * Describes the message marketoverview.v1.CurrencyMetadata.
+ * Use `create(CurrencyMetadataSchema)` to create a new message.
+ */
+export const CurrencyMetadataSchema: GenMessage<CurrencyMetadata> = /*@__PURE__*/
+  messageDesc(file_marketoverview_v1_marketoverview, 9);
+
+/**
+ * GetCurrencyConversionConfigRequest has no parameters.
+ *
+ * @generated from message marketoverview.v1.GetCurrencyConversionConfigRequest
+ */
+export type GetCurrencyConversionConfigRequest = Message<"marketoverview.v1.GetCurrencyConversionConfigRequest"> & {
+};
+
+/**
+ * Describes the message marketoverview.v1.GetCurrencyConversionConfigRequest.
+ * Use `create(GetCurrencyConversionConfigRequestSchema)` to create a new message.
+ */
+export const GetCurrencyConversionConfigRequestSchema: GenMessage<GetCurrencyConversionConfigRequest> = /*@__PURE__*/
+  messageDesc(file_marketoverview_v1_marketoverview, 10);
+
+/**
+ * GetCurrencyConversionConfigResponse contains finite, cacheable display metadata.
+ * It remains available before any rates have been observed.
+ *
+ * @generated from message marketoverview.v1.GetCurrencyConversionConfigResponse
+ */
+export type GetCurrencyConversionConfigResponse = Message<"marketoverview.v1.GetCurrencyConversionConfigResponse"> & {
+  /**
+   * Supported fiat currencies, including USD, ordered by code.
+   *
+   * @generated from field: repeated marketoverview.v1.CurrencyMetadata fiat = 1;
+   */
+  fiat: CurrencyMetadata[];
+
+  /**
+   * Supported stablecoins (USDC and USDT), ordered by code.
+   *
+   * @generated from field: repeated marketoverview.v1.CurrencyMetadata stablecoins = 2;
+   */
+  stablecoins: CurrencyMetadata[];
+};
+
+/**
+ * Describes the message marketoverview.v1.GetCurrencyConversionConfigResponse.
+ * Use `create(GetCurrencyConversionConfigResponseSchema)` to create a new message.
+ */
+export const GetCurrencyConversionConfigResponseSchema: GenMessage<GetCurrencyConversionConfigResponse> = /*@__PURE__*/
+  messageDesc(file_marketoverview_v1_marketoverview, 11);
+
+/**
+ * FiatConversionRate states the fiat currency units equal to one US dollar.
+ *
+ * @generated from message marketoverview.v1.FiatConversionRate
+ */
+export type FiatConversionRate = Message<"marketoverview.v1.FiatConversionRate"> & {
+  /**
+   * Supported fiat currency code.
+   *
+   * @generated from field: string code = 1;
+   */
+  code: string;
+
+  /**
+   * Fiat currency units per 1 USD, scaled by 1e8. USD has the identity value 1e8.
+   *
+   * @generated from field: int64 units_per_usd_e8 = 2;
+   */
+  unitsPerUsdE8: bigint;
+};
+
+/**
+ * Describes the message marketoverview.v1.FiatConversionRate.
+ * Use `create(FiatConversionRateSchema)` to create a new message.
+ */
+export const FiatConversionRateSchema: GenMessage<FiatConversionRate> = /*@__PURE__*/
+  messageDesc(file_marketoverview_v1_marketoverview, 12);
+
+/**
+ * FiatConversionSnapshot contains all supported fiat rates from one observation.
+ *
+ * @generated from message marketoverview.v1.FiatConversionSnapshot
+ */
+export type FiatConversionSnapshot = Message<"marketoverview.v1.FiatConversionSnapshot"> & {
+  /**
+   * Complete fiat rates, including USD, ordered by code.
+   *
+   * @generated from field: repeated marketoverview.v1.FiatConversionRate rates = 1;
+   */
+  rates: FiatConversionRate[];
+
+  /**
+   * Shared source observation time in seconds since the Unix epoch (UTC).
+   *
+   * @generated from field: uint64 source_ts_sec = 2;
+   */
+  sourceTsSec: bigint;
+
+  /**
+   * True once the source observation is at least two hours old.
+   *
+   * @generated from field: bool stale = 3;
+   */
+  stale: boolean;
+};
+
+/**
+ * Describes the message marketoverview.v1.FiatConversionSnapshot.
+ * Use `create(FiatConversionSnapshotSchema)` to create a new message.
+ */
+export const FiatConversionSnapshotSchema: GenMessage<FiatConversionSnapshot> = /*@__PURE__*/
+  messageDesc(file_marketoverview_v1_marketoverview, 13);
+
+/**
+ * StablecoinConversionRate states the observed USD value of one stablecoin unit.
+ *
+ * @generated from message marketoverview.v1.StablecoinConversionRate
+ */
+export type StablecoinConversionRate = Message<"marketoverview.v1.StablecoinConversionRate"> & {
+  /**
+   * Supported stablecoin code (USDC or USDT).
+   *
+   * @generated from field: string code = 1;
+   */
+  code: string;
+
+  /**
+   * USD per 1 stablecoin unit, scaled by 1e8. This is an observed price, not a fixed peg.
+   *
+   * @generated from field: int64 usd_per_unit_e8 = 2;
+   */
+  usdPerUnitE8: bigint;
+
+  /**
+   * This stablecoin's source observation time in seconds since the Unix epoch (UTC).
+   *
+   * @generated from field: uint64 source_ts_sec = 3;
+   */
+  sourceTsSec: bigint;
+
+  /**
+   * True once this stablecoin's source observation is at least five seconds old.
+   *
+   * @generated from field: bool stale = 4;
+   */
+  stale: boolean;
+};
+
+/**
+ * Describes the message marketoverview.v1.StablecoinConversionRate.
+ * Use `create(StablecoinConversionRateSchema)` to create a new message.
+ */
+export const StablecoinConversionRateSchema: GenMessage<StablecoinConversionRate> = /*@__PURE__*/
+  messageDesc(file_marketoverview_v1_marketoverview, 14);
+
+/**
+ * GetCurrencyConversionRatesRequest has no parameters.
+ *
+ * @generated from message marketoverview.v1.GetCurrencyConversionRatesRequest
+ */
+export type GetCurrencyConversionRatesRequest = Message<"marketoverview.v1.GetCurrencyConversionRatesRequest"> & {
+};
+
+/**
+ * Describes the message marketoverview.v1.GetCurrencyConversionRatesRequest.
+ * Use `create(GetCurrencyConversionRatesRequestSchema)` to create a new message.
+ */
+export const GetCurrencyConversionRatesRequestSchema: GenMessage<GetCurrencyConversionRatesRequest> = /*@__PURE__*/
+  messageDesc(file_marketoverview_v1_marketoverview, 15);
+
+/**
+ * GetCurrencyConversionRatesResponse groups rates by their USD conversion direction.
+ * Last-known observations remain available with staleness indicated. Before any
+ * observation is available, the request fails with unavailable (HTTP 503).
+ *
+ * @generated from message marketoverview.v1.GetCurrencyConversionRatesResponse
+ */
+export type GetCurrencyConversionRatesResponse = Message<"marketoverview.v1.GetCurrencyConversionRatesResponse"> & {
+  /**
+   * Complete fiat snapshot; absent until a complete snapshot has been observed.
+   *
+   * @generated from field: marketoverview.v1.FiatConversionSnapshot fiat = 1;
+   */
+  fiat?: FiatConversionSnapshot | undefined;
+
+  /**
+   * Observed stablecoin rates ordered by code. Unobserved stablecoins are omitted.
+   *
+   * @generated from field: repeated marketoverview.v1.StablecoinConversionRate stablecoins = 2;
+   */
+  stablecoins: StablecoinConversionRate[];
+
+  /**
+   * Response construction time in seconds since the Unix epoch (UTC).
+   *
+   * @generated from field: uint64 snapshot_ts_sec = 3;
+   */
+  snapshotTsSec: bigint;
+};
+
+/**
+ * Describes the message marketoverview.v1.GetCurrencyConversionRatesResponse.
+ * Use `create(GetCurrencyConversionRatesResponseSchema)` to create a new message.
+ */
+export const GetCurrencyConversionRatesResponseSchema: GenMessage<GetCurrencyConversionRatesResponse> = /*@__PURE__*/
+  messageDesc(file_marketoverview_v1_marketoverview, 16);
 
 /**
  * SparklineInterval identifies the time range and sampling resolution for a
@@ -611,6 +856,27 @@ export const ErrorCodeSchema: GenEnum<ErrorCode> = /*@__PURE__*/
  * @generated from service marketoverview.v1.MarketOverviewService
  */
 export const MarketOverviewService: GenService<{
+  /**
+   * Get supported fiat and stablecoin display metadata with default English names,
+   * symbols, and fraction digits. Clients may localize presentation.
+   *
+   * @generated from rpc marketoverview.v1.MarketOverviewService.GetCurrencyConversionConfig
+   */
+  getCurrencyConversionConfig: {
+    methodKind: "unary";
+    input: typeof GetCurrencyConversionConfigRequestSchema;
+    output: typeof GetCurrencyConversionConfigResponseSchema;
+  },
+  /**
+   * Get fiat units per USD and USD per stablecoin unit, grouped with source freshness.
+   *
+   * @generated from rpc marketoverview.v1.MarketOverviewService.GetCurrencyConversionRates
+   */
+  getCurrencyConversionRates: {
+    methodKind: "unary";
+    input: typeof GetCurrencyConversionRatesRequestSchema;
+    output: typeof GetCurrencyConversionRatesResponseSchema;
+  },
   /**
    * Get aligned pair-level and total trailing-24h USD volume, sampled every
    * 15 minutes over the latest day. Unavailable valuations fail the request.

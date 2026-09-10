@@ -220,7 +220,10 @@ export type OrderIntent = Message<"orders.v1.OrderIntent"> & {
   } | { case: undefined; value?: undefined };
 
   /**
-   * Optional client order identifier for idempotency.
+   * Optional account-scoped identifier for correlation, lookup, and cancellation.
+   * While this identifier is retained, reuse returns
+   * CONFLICT_DUPLICATE_CLIENT_ORDER_ID, even for identical input, a rejected
+   * request, or a terminal order. CreateOrder does not replay the earlier result.
    *
    * @generated from field: string client_order_id = 20;
    */
@@ -1319,17 +1322,17 @@ export type BatchCreateOrdersRequest = Message<"orders.v1.BatchCreateOrdersReque
 
   /**
    * Required idempotency key for the entire ordered batch. Reusing it with the
-   * same payload returns the original outcome; reusing it with another payload
-   * is rejected.
+   * same payload replays the original per-item results; reusing it with a
+   * different payload returns CONFLICT_IDEMPOTENCY_KEY_REUSE.
    *
    * @generated from field: string request_id = 2;
    */
   requestId: string;
 
   /**
-   * Orders to create (max 20). Every item uses the same OrderIntent contract as
-   * single create, but client_order_id remains optional because request_id is
-   * the idempotency boundary for the ordered batch.
+   * Orders to create (max 20). client_order_id is optional per item. For a new
+   * request_id, a reused client_order_id rejects only that item with
+   * CONFLICT_DUPLICATE_CLIENT_ORDER_ID; other valid items continue.
    *
    * @generated from field: repeated orders.v1.OrderIntent items = 3;
    */
