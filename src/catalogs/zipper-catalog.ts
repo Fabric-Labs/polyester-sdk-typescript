@@ -40,6 +40,8 @@ export interface ZipperCatalogData {
     readonly chains: readonly ZipperChainConfig[];
     readonly assets: readonly ZipperEnrichedAssetConfig[];
     readonly contracts: readonly ZipperChainContractConfig[];
+    /** Absent only in legacy or manually supplied catalog seeds. */
+    readonly polyesterChainId?: number;
     readonly tsMs?: number;
 }
 
@@ -49,6 +51,7 @@ export type ZipperCatalogSeed =
           readonly chains: readonly ZipperChainConfig[];
           readonly assets: readonly (ZipperAssetConfig | ZipperEnrichedAssetConfig)[];
           readonly contracts?: readonly ZipperChainContractConfig[];
+          readonly polyesterChainId?: number;
           readonly tsMs?: number;
       };
 
@@ -87,15 +90,7 @@ export function enrichZipperAssets(
 
             enrichedChains.push({
                 ...chain,
-                zippedAssetId: variant.zippedAssetId,
-                isNativeAsset: variant.isNativeAsset,
-                networkFee: variant.networkFee,
-                networkFeeTsSec: variant.networkFeeTsSec,
-                depositMinAmount: variant.depositMinAmount,
-                withdrawMinAmount: variant.withdrawMinAmount,
-                supply: variant.supply,
-                sourceToken: variant.sourceToken,
-                zToken: variant.zToken,
+                ...variant,
             });
         }
 
@@ -115,6 +110,7 @@ export function buildZipperCatalogData(seed: ZipperCatalogSeed): ZipperCatalogDa
         chains: Object.freeze(chains),
         assets: Object.freeze([...assets]),
         contracts: Object.freeze([...(seed.contracts ?? [])]),
+        polyesterChainId: seed.polyesterChainId,
         tsMs: seed.tsMs,
     });
 }

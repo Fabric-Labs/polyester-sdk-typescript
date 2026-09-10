@@ -1,10 +1,4 @@
-import type {
-    AssetConfig,
-    PairConfig,
-    PairMarketDataConfig,
-    PairStatus,
-    SpotConfig,
-} from "../shared/catalog-config.js";
+import type { AssetConfig, PairConfig, SpotConfig } from "../shared/catalog-config.js";
 
 export type { PairMarketDataConfig } from "../shared/catalog-config.js";
 
@@ -12,23 +6,22 @@ export type { PairMarketDataConfig } from "../shared/catalog-config.js";
  * Enriched pair config where baseAsset/quoteAsset are full AssetConfig objects
  * instead of just string identifiers.
  */
-export interface EnrichedPairConfig {
-    symbolId: number;
-    symbol: string;
+export interface EnrichedPairConfig extends Omit<
+    PairConfig,
+    | "baseAsset"
+    | "quoteAsset"
+    | "listingAt"
+    | "delistingAt"
+    | "baseQuantityScale"
+    | "quoteQuantityScale"
+> {
+    /** Optional only for snapshots created before quantity scales were retained. */
+    baseQuantityScale?: PairConfig["baseQuantityScale"];
+    quoteQuantityScale?: PairConfig["quoteQuantityScale"];
     baseAsset: AssetConfig;
     quoteAsset: AssetConfig;
-    tickSize: string;
-    stepSize: string;
-    minNotionalQuote: string;
-    minQtyBase: string;
-    allowBuyFeeFromBase: boolean;
-    defaultMarketSlippagePctBuy: number;
-    defaultMarketSlippagePctSell: number;
-    maxClientRefDriftPct: number;
-    marketdata?: PairMarketDataConfig;
     listingAt: number | null;
     delistingAt: number | null;
-    status: PairStatus;
 }
 
 export interface MarketCatalogData {
@@ -71,19 +64,9 @@ export function enrichMarketPairs(
         }
 
         enrichedPairs.push({
-            symbolId: pair.symbolId,
-            symbol: pair.symbol,
+            ...pair,
             baseAsset,
             quoteAsset,
-            tickSize: pair.tickSize,
-            stepSize: pair.stepSize,
-            minNotionalQuote: pair.minNotionalQuote,
-            minQtyBase: pair.minQtyBase,
-            allowBuyFeeFromBase: pair.allowBuyFeeFromBase,
-            defaultMarketSlippagePctBuy: pair.defaultMarketSlippagePctBuy,
-            defaultMarketSlippagePctSell: pair.defaultMarketSlippagePctSell,
-            maxClientRefDriftPct: pair.maxClientRefDriftPct,
-            marketdata: pair.marketdata,
             listingAt: pair.listingAt ?? null,
             delistingAt: pair.delistingAt ?? null,
             status: pair.status,

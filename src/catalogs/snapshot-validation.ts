@@ -32,6 +32,8 @@ const EnrichedPairConfigSchema = v.object({
     defaultMarketSlippagePctBuy: FiniteNumberSchema,
     defaultMarketSlippagePctSell: FiniteNumberSchema,
     maxClientRefDriftPct: FiniteNumberSchema,
+    baseQuantityScale: v.optional(IntegerSchema),
+    quoteQuantityScale: v.optional(IntegerSchema),
     marketdata: v.optional(PairMarketDataConfigSchema),
     listingAt: v.nullable(FiniteNumberSchema),
     delistingAt: v.nullable(FiniteNumberSchema),
@@ -90,7 +92,7 @@ const ZipperChainContractConfigSchema = v.object({
     version: IntegerSchema,
 });
 
-const CatalogSnapshotShapeSchema = v.object({
+export const CatalogSnapshotShapeSchema = v.object({
     source: v.picklist(["api", "snapshot"]),
     tsMs: FiniteNumberSchema,
     version: IntegerSchema,
@@ -103,6 +105,7 @@ const CatalogSnapshotShapeSchema = v.object({
         chains: v.array(ZipperChainConfigSchema),
         assets: v.array(ZipperEnrichedAssetConfigSchema),
         contracts: v.array(ZipperChainContractConfigSchema),
+        polyesterChainId: v.optional(IntegerSchema),
         tsMs: v.optional(FiniteNumberSchema),
     }),
 });
