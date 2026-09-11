@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.22.2
+
+### Patch Changes
+
+- Fix the testnet environment chain ID to `888169` and chain name to `Polyester Chain Testnet`. ([#133](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/133))
+
 ## 0.22.1
 
 ### Patch Changes
