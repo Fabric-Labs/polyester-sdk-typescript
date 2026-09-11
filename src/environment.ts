@@ -351,8 +351,8 @@ export const POLYESTER_TESTNET_ENVIRONMENT = createPolyesterEnvironment({
     websocketUrl: "wss://api-testnet.polyester.com",
     rpcUrl: "https://rpc.polyester.live",
     chain: {
-        id: 888168,
-        name: "Polyester Chain Devnet",
+        id: 888169,
+        name: "Polyester Chain Testnet",
         nativeCurrency: {
             decimals: 18,
             name: "POL",
