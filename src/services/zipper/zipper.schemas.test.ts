@@ -39,7 +39,6 @@ describe("DepositWithdrawConfigSchema", () => {
                 },
             ],
             tsSec: 1_700_000_000n,
-            polyesterChainId: 1,
         });
 
         expect(config).toEqual({
@@ -90,7 +89,6 @@ describe("DepositWithdrawConfigSchema", () => {
                     uAssetId: "",
                 },
             ],
-            polyesterChainId: 1,
             contracts: [],
             tsMs: 1_700_000_000_000,
         });
@@ -102,7 +100,6 @@ describe("DepositWithdrawConfigSchema", () => {
                 chains: [],
                 assets: [],
                 tsSec: 1_700_000_000,
-                polyesterChainId: 1,
             }),
         ).toThrow();
     });

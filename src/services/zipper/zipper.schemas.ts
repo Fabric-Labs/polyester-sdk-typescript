@@ -103,7 +103,6 @@ export const DepositWithdrawConfigSchema = v.pipe(
         chains: v.array(ZipperChainConfigSchema),
         assets: v.array(ZipperAssetConfigSchema),
         tsSec: v.bigint(),
-        polyesterChainId: v.number(),
         contracts: v.optional(v.array(ZipperChainContractConfigSchema), []),
     }),
     v.transform(({ tsSec, ...config }) => ({

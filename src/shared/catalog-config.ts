@@ -108,7 +108,6 @@ export interface ZipperChainContractConfig {
 export interface DepositWithdrawConfig {
     chains: ZipperChainConfig[];
     assets: ZipperAssetConfig[];
-    polyesterChainId: number;
     contracts: ZipperChainContractConfig[];
     tsMs: number;
 }

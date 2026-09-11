@@ -30,7 +30,6 @@ const marketRefreshConfig = {
 const zipperRefreshConfig = {
     chains: [],
     assets: [],
-    polyesterChainId: 0,
     contracts: [],
     tsMs: 0,
 } satisfies Awaited<ReturnType<CatalogRefreshSource["zipper"]>>;

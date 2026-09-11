@@ -2,7 +2,7 @@ import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as Proto from "../../gen/marketoverview/v1/marketoverview_pb.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
-import { PolyesterError, ValidationError } from "../../shared/errors.js";
+import { PolyesterError, ServiceUnavailableError, ValidationError } from "../../shared/errors.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
 import { MarketOverviewService } from "./market-overview.js";
@@ -87,6 +87,107 @@ async function flushMicrotasks(): Promise<void> {
 describe("MarketOverviewService", () => {
     afterEach(() => {
         vi.restoreAllMocks();
+    });
+
+    it("returns conversion metadata and exact directional rates without loading catalogs", async () => {
+        const transport = unaryTransport((call) =>
+            call.method.localName === "getCurrencyConversionConfig"
+                ? create(Proto.GetCurrencyConversionConfigResponseSchema, {
+                      fiat: [
+                          {
+                              code: "JPY",
+                              defaultEnglishName: "Japanese Yen",
+                              symbol: "¥",
+                              fractionDigits: 0,
+                          },
+                      ],
+                      stablecoins: [
+                          {
+                              code: "USDT",
+                              defaultEnglishName: "Tether",
+                              symbol: "USDT",
+                              fractionDigits: 2,
+                          },
+                      ],
+                  })
+                : create(Proto.GetCurrencyConversionRatesResponseSchema, {
+                      fiat: {
+                          rates: [{ code: "JPY", unitsPerUsdE8: 9_007_199_254_740_993n }],
+                          sourceTsSec: 10n,
+                          stale: true,
+                      },
+                      stablecoins: [
+                          {
+                              code: "USDT",
+                              usdPerUnitE8: 99_999_999n,
+                              sourceTsSec: 20n,
+                              stale: false,
+                          },
+                      ],
+                      snapshotTsSec: 21n,
+                  }),
+        );
+        const scales = testScales();
+        vi.spyOn(scales, "ready").mockRejectedValue(new Error("catalog unavailable"));
+        const service = new MarketOverviewService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            scales,
+        );
+        const signal = new AbortController().signal;
+        expect((await service.getCurrencyConversionConfig({ signal })).fiat[0]).toEqual({
+            code: "JPY",
+            defaultEnglishName: "Japanese Yen",
+            symbol: "¥",
+            fractionDigits: 0,
+        });
+        expect(transport.lastCall()).toMatchObject({ message: {}, signal });
+        expect(await service.getCurrencyConversionRates({ signal })).toEqual({
+            fiat: {
+                rates: [{ code: "JPY", unitsPerUsd: "90071992.54740993" }],
+                sourceTsMs: 10000,
+                stale: true,
+            },
+            stablecoins: [
+                { code: "USDT", usdPerUnit: "0.99999999", sourceTsMs: 20000, stale: false },
+            ],
+            snapshotTsMs: 21000,
+        });
+        expect(transport.lastCall()).toMatchObject({ message: {}, signal });
+        expect(scales.ready).not.toHaveBeenCalled();
+    });
+
+    it("preserves missing observations and recovers after an unavailable conversion request", async () => {
+        const failure = new ServiceUnavailableError("unavailable");
+        const transport = unaryTransport((_call, index) => {
+            if (index === 0) throw failure;
+            return create(Proto.GetCurrencyConversionRatesResponseSchema, { snapshotTsSec: 0n });
+        });
+        const service = new MarketOverviewService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            testScales(),
+        );
+        await expect(service.getCurrencyConversionRates()).rejects.toBe(failure);
+        await expect(service.getCurrencyConversionRates()).resolves.toEqual({
+            fiat: undefined,
+            stablecoins: [],
+            snapshotTsMs: 0,
+        });
+    });
+
+    it("rejects conversion timestamps that cannot be represented exactly in milliseconds", async () => {
+        const transport = unaryTransport(
+            create(Proto.GetCurrencyConversionRatesResponseSchema, {
+                snapshotTsSec: 9_007_199_254_741n,
+            }),
+        );
+        const service = new MarketOverviewService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            testScales(),
+        );
+        await expect(service.getCurrencyConversionRates()).rejects.toBeInstanceOf(ValidationError);
     });
 
     it("keeps absent and zero volumes distinct in snapshots and live updates", async () => {

@@ -13,6 +13,10 @@ import {
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import type { PublicApiTransports } from "../../shared/transports.js";
 import {
+    CurrencyConversionConfigSchema,
+    CurrencyConversionRatesSchema,
+    type CurrencyConversionConfig,
+    type CurrencyConversionRates,
     SpotVolumeHistoryInputSchema,
     SpotVolumeHistoryResponseSchema,
     type SpotVolumeHistoryInput,
@@ -80,6 +84,32 @@ export class MarketOverviewService {
             toConnectCallOptions(options),
         );
         return parse(SpotVolumeHistoryResponseSchema, response);
+    }
+
+    /** Returns cacheable display metadata, even before rates have been observed. */
+    async getCurrencyConversionConfig(
+        options?: PolyesterRequestOptions,
+    ): Promise<CurrencyConversionConfig> {
+        const response = await this.#client.getCurrencyConversionConfig(
+            {},
+            toConnectCallOptions(options),
+        );
+        return parse(CurrencyConversionConfigSchema, response);
+    }
+
+    /**
+     * Returns exact decimal rates with observation times and backend staleness flags.
+     * Fiat is units per USD; stablecoins are USD per unit. Unobserved rates remain absent.
+     * Rejects as unavailable before any observation exists.
+     */
+    async getCurrencyConversionRates(
+        options?: PolyesterRequestOptions,
+    ): Promise<CurrencyConversionRates> {
+        const response = await this.#client.getCurrencyConversionRates(
+            {},
+            toConnectCallOptions(options),
+        );
+        return parse(CurrencyConversionRatesSchema, response);
     }
 
     /**

@@ -1,4 +1,10 @@
 export type {
+    CurrencyMetadata,
+    CurrencyConversionConfig,
+    CurrencyConversionRates,
+    FiatConversionRate,
+    FiatConversionSnapshot,
+    StablecoinConversionRate,
     ListMarketOverviewInput,
     MarketOverview,
     MarketOverviewOrderBy,

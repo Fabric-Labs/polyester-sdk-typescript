@@ -102,6 +102,8 @@ try {
         path.join(consumerDirectory, "index.ts"),
         `import {
     ValidationError,
+    type CurrencyConversionConfig,
+    type CurrencyConversionRates,
     type AddressBookView,
     type ClaimGeneratedUsernameInput,
     type GeneratedUsernameOffer,
@@ -154,6 +156,11 @@ type IsAny<T> = 0 extends 1 & T ? true : false;
 function expectNotAny<T>(_value: T, _proof: IsAny<T> extends true ? never : true): void {}
 
 async function verifyServiceInference(): Promise<void> {
+    expectType<CurrencyConversionConfig>(await client.marketOverview.getCurrencyConversionConfig());
+    const conversion = await client.marketOverview.getCurrencyConversionRates();
+    expectType<CurrencyConversionRates>(conversion);
+    expectType<string | undefined>(conversion.fiat?.rates[0]?.unitsPerUsd);
+    expectType<string | undefined>(conversion.stablecoins[0]?.usdPerUnit);
     expectType<void>(await client.auth.acceptTerms());
     expectType<boolean>((await client.auth.profile.get()).currentTermsAccepted);
     const termsDetail: Extract<PolyesterErrorDetail, { service: "auth" }> = {

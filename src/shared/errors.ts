@@ -126,8 +126,9 @@ export abstract class PolyesterError extends Error {
 
 /**
  * A transient failure — the request may never have reached the backend or the
- * backend was temporarily unable to serve it. Safe to retry (use the same
- * `requestId`/`clientOrderId` for mutations; the backend dedupes).
+ * backend was temporarily unable to serve it. Follow the operation's retry
+ * contract: reuse requestId for idempotent mutations. For single-order creation,
+ * reconcile by clientOrderId; reusing it returns a conflict rather than replay.
  */
 export class TransientError extends PolyesterError {
     readonly code: string = "TRANSIENT_FAILURE";

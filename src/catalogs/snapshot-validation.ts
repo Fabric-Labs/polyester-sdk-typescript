@@ -105,7 +105,6 @@ export const CatalogSnapshotShapeSchema = v.object({
         chains: v.array(ZipperChainConfigSchema),
         assets: v.array(ZipperEnrichedAssetConfigSchema),
         contracts: v.array(ZipperChainContractConfigSchema),
-        polyesterChainId: v.optional(IntegerSchema),
         tsMs: v.optional(FiniteNumberSchema),
     }),
 });
