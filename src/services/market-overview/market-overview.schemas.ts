@@ -227,3 +227,68 @@ export const SpotVolumeHistoryResponseSchema = v.pipe(
     })),
 );
 export type SpotVolumeHistoryResponse = v.InferOutput<typeof SpotVolumeHistoryResponseSchema>;
+
+export const CurrencyMetadataSchema = v.object({
+    code: v.string(),
+    defaultEnglishName: v.string(),
+    symbol: v.string(),
+    fractionDigits: v.number(),
+});
+export type CurrencyMetadata = v.InferOutput<typeof CurrencyMetadataSchema>;
+
+export const CurrencyConversionConfigSchema = v.object({
+    fiat: v.array(CurrencyMetadataSchema),
+    stablecoins: v.array(CurrencyMetadataSchema),
+});
+export type CurrencyConversionConfig = v.InferOutput<typeof CurrencyConversionConfigSchema>;
+
+const ConversionRateSchema = v.pipe(
+    v.bigint(),
+    v.transform((value) => scaledToDecimalOutput(value, 8)),
+);
+const ConversionTimestampSchema = v.pipe(
+    v.bigint(),
+    v.transform((value) => Number(value * 1000n)),
+    v.safeInteger(),
+);
+
+export const FiatConversionRateSchema = v.pipe(
+    v.object({ code: v.string(), unitsPerUsdE8: ConversionRateSchema }),
+    v.transform(({ code, unitsPerUsdE8 }) => ({ code, unitsPerUsd: unitsPerUsdE8 })),
+);
+export type FiatConversionRate = v.InferOutput<typeof FiatConversionRateSchema>;
+
+export const FiatConversionSnapshotSchema = v.pipe(
+    v.object({
+        rates: v.array(FiatConversionRateSchema),
+        sourceTsSec: ConversionTimestampSchema,
+        stale: v.boolean(),
+    }),
+    v.transform(({ sourceTsSec, ...snapshot }) => ({ ...snapshot, sourceTsMs: sourceTsSec })),
+);
+export type FiatConversionSnapshot = v.InferOutput<typeof FiatConversionSnapshotSchema>;
+
+export const StablecoinConversionRateSchema = v.pipe(
+    v.object({
+        code: v.string(),
+        usdPerUnitE8: ConversionRateSchema,
+        sourceTsSec: ConversionTimestampSchema,
+        stale: v.boolean(),
+    }),
+    v.transform(({ usdPerUnitE8, sourceTsSec, ...rate }) => ({
+        ...rate,
+        usdPerUnit: usdPerUnitE8,
+        sourceTsMs: sourceTsSec,
+    })),
+);
+export type StablecoinConversionRate = v.InferOutput<typeof StablecoinConversionRateSchema>;
+
+export const CurrencyConversionRatesSchema = v.pipe(
+    v.object({
+        fiat: v.optional(FiatConversionSnapshotSchema),
+        stablecoins: v.array(StablecoinConversionRateSchema),
+        snapshotTsSec: ConversionTimestampSchema,
+    }),
+    v.transform(({ snapshotTsSec, ...response }) => ({ ...response, snapshotTsMs: snapshotTsSec })),
+);
+export type CurrencyConversionRates = v.InferOutput<typeof CurrencyConversionRatesSchema>;

@@ -172,7 +172,6 @@ function mockCatalogRefreshEndpoints(): {
             .mockResolvedValue({
                 chains: [],
                 assets: [],
-                polyesterChainId: 0,
                 contracts: [],
                 tsMs: 0,
             }),

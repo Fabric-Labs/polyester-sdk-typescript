@@ -33,7 +33,6 @@ function supplyConfig(supplyQ: bigint) {
         ],
         contracts: [],
         tsSec: 100n,
-        polyesterChainId: 77,
     };
 }
 
@@ -92,14 +91,12 @@ describe("ZipperService", () => {
             ],
             contracts: [{ name: "Gateway", address: "0x3333333333333333333333333333333333333333" }],
             tsSec: 100n,
-            polyesterChainId: 77,
         });
         const service = new ZipperService({ publicApi: transport.transport });
         const signal = new AbortController().signal;
 
         await expect(service.getDepositWithdrawConfig({ signal })).resolves.toMatchObject({
             tsMs: 100000,
-            polyesterChainId: 77,
             chains: [{ chainId: 8453, nativeChainId: "", isCaseSensitive: false }],
             assets: [
                 {

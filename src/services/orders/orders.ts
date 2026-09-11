@@ -215,7 +215,7 @@ export class OrdersService {
     }
 
     /**
-     * Places a spot order with an explicit market-IOC, limit-GTC, limit-IOC, or limit-FOK execution policy and optional attached risk controls. clientOrderId is the caller-controlled idempotency key and should be reused only for the same logical order.
+     * Places a spot order with an explicit market-IOC, limit-GTC, limit-IOC, or limit-FOK execution policy and optional attached risk controls. clientOrderId is an account-scoped correlation, lookup, and cancellation identifier. Reuse while retained returns CONFLICT_DUPLICATE_CLIENT_ORDER_ID, including after rejection or completion; it does not replay the earlier result.
      */
     async create(
         input: NewOrderInput,

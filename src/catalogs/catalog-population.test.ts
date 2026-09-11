@@ -57,7 +57,6 @@ function configs() {
     const zipper = v.parse(
         DepositWithdrawConfigSchema,
         create(GetDepositWithdrawConfigResponseSchema, {
-            polyesterChainId: 777,
             tsSec: 456n,
             chains: [
                 {
@@ -155,9 +154,6 @@ describe("catalog population", () => {
             baseQuantityScale: 8,
             quoteQuantityScale: 6,
         });
-        zipper.polyesterChainId = 888;
-        await catalog.refresh();
-        expect(catalog.snapshot().zipper.polyesterChainId).toBe(888);
     });
 
     it("validates newly retained fields in hydrated snapshots", async () => {
@@ -166,12 +162,6 @@ describe("catalog population", () => {
             refresh: { market: async () => market, zipper: async () => zipper },
         });
         const snapshot = await catalog.refresh();
-        expect(() =>
-            createCatalogSnapshotReader({
-                ...snapshot,
-                zipper: { ...snapshot.zipper, polyesterChainId: "bad" },
-            } as never),
-        ).toThrow();
         expect(() =>
             createCatalogSnapshotReader({
                 ...snapshot,

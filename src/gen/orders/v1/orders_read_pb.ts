@@ -346,7 +346,8 @@ export type Order = Message<"orders.v1.Order"> & {
   symbolId: number;
 
   /**
-   * Client-provided id for idempotency/correlation (may be empty).
+   * Client-provided, account-scoped identifier for correlation, lookup, and
+   * cancellation. Empty when none was supplied.
    *
    * @generated from field: string client_order_id = 4;
    */
