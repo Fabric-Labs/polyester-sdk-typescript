@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.22.1
+
+### Patch Changes
+
+- Export `POLYESTER_TESTNET_ENVIRONMENT` from the SDK package entrypoint so consumers can import the testnet preset alongside devnet. ([#131](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/131))
+
 ## 0.22.0
 
 ### Minor Changes
