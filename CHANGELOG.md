@@ -1,5 +1,17 @@
 # @polyester/sdk
 
+## 0.22.0
+
+### Minor Changes
+
+- feat(sdk)!: add currency conversion config and rates; remove `polyesterChainId` from Zipper config and catalogs. ([#129](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/129))
+
+- feat: add testnet environment ([#130](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/130))
+
+### Patch Changes
+
+- Require Web Crypto for generated trading-withdraw nonces and order mutation request IDs, with a secure random-byte fallback when `randomUUID` is unavailable. ([#127](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/127))
+
 ## 0.21.1
 
 ### Patch Changes
