@@ -1,5 +1,5 @@
 ---
-"@polyester/sdk": minor
+"@polyester/sdk": patch
 ---
 
-Add `POLYESTER_TESTNET_ENVIRONMENT` as a public export alongside the devnet preset, providing the Polyester testnet endpoints and contract configuration.
+Export `POLYESTER_TESTNET_ENVIRONMENT` from the SDK package entrypoint so consumers can import the testnet preset alongside devnet.
