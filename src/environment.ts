@@ -345,8 +345,6 @@ export const POLYESTER_DEVNET_ENVIRONMENT = createPolyesterEnvironment({
     },
 });
 
-
-
 export const POLYESTER_TESTNET_ENVIRONMENT = createPolyesterEnvironment({
     name: "polyester-testnet",
     apiUrl: "https://api-testnet.polyester.com",
