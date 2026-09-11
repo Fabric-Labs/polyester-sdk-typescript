@@ -313,7 +313,7 @@ export const POLYESTER_DEVNET_ENVIRONMENT = createPolyesterEnvironment({
         blockExplorers: {
             default: {
                 name: "Polyester Scan",
-                url: "https://polyesterscan.com",
+                url: "https://devnet.polyesterscan.com",
             },
         },
         contracts: {
@@ -342,5 +342,58 @@ export const POLYESTER_DEVNET_ENVIRONMENT = createPolyesterEnvironment({
     },
     contracts: {
         tradingGatewayAddress: "0xD3fecf5D39131e23b6B0f872cA0a21c8A5a30932",
+    },
+});
+
+export const POLYESTER_TESTNET_ENVIRONMENT = createPolyesterEnvironment({
+    name: "polyester-testnet",
+    apiUrl: "https://api-testnet.polyester.com",
+    websocketUrl: "wss://api-testnet.polyester.com",
+    rpcUrl: "https://rpc.polyester.live",
+    chain: {
+        id: 888168,
+        name: "Polyester Chain Devnet",
+        nativeCurrency: {
+            decimals: 18,
+            name: "POL",
+            symbol: "POL",
+        },
+        rpcUrls: {
+            default: {
+                http: ["https://rpc.polyester.live"],
+            },
+        },
+        blockExplorers: {
+            default: {
+                name: "Polyester Scan",
+                url: "https://testnet.polyesterscan.com",
+            },
+        },
+        contracts: {
+            multicall3: {
+                address: "0xF35A6AE5408fa1356064849D0BC3855f801aa6aC",
+                blockCreated: 179823,
+            },
+        },
+    },
+    accountAbstraction: {
+        bundlerUrl: "https://bundler.polyester.live",
+        paymasterUrl: "https://paymaster.polyester.live",
+        entryPoint: {
+            address: "0x35c524a72ffb4D348d616cDD340D176c8f3C8B2C",
+            version: "0.7",
+        },
+        safe: {
+            version: "1.4.1",
+            safeModuleSetupAddress: "0xdA9510c95Ab50EAd5A3DD28FA6BACce497dCF1fB",
+            safe4337ModuleAddress: "0xE278E4BCb71b095f7dAaa1bcEc1950696Fc40C74",
+            safeProxyFactoryAddress: "0x2b8250158D58dD6D5e89313fa940586C9054A547",
+            safeSingletonAddress: "0x6f00AB12B6A8aFf400F14f4Cd738549f0F53390d",
+            multiSendAddress: "0xA38fEFA19ff5d8E3d988b2a0e6C8A2ae099fd97D",
+            multiSendCallOnlyAddress: "0xE99b6c6d550B322347EeE11f4e8643377D8475A8",
+        },
+    },
+    contracts: {
+        tradingGatewayAddress: "0x20ef1BCeE69D73Ce1649E688dAA9A7AcF441f0EE",
     },
 });
