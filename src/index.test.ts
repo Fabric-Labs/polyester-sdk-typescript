@@ -12,6 +12,7 @@ describe("public package entrypoint", () => {
                 PolyesterBrowserClient: expect.any(Function),
                 PolyesterServerClient: expect.any(Function),
                 POLYESTER_DEVNET_ENVIRONMENT: expect.any(Object),
+                POLYESTER_TESTNET_ENVIRONMENT: expect.any(Object),
                 createCookieAuthTokenStorage: expect.any(Function),
                 createMemoryAuthTokenStorage: expect.any(Function),
                 createPolyesterEnvironment: expect.any(Function),
