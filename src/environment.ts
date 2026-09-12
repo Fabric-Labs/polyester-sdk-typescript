@@ -371,7 +371,7 @@ export const POLYESTER_TESTNET_ENVIRONMENT = createPolyesterEnvironment({
         },
         contracts: {
             multicall3: {
-                address: "0xF35A6AE5408fa1356064849D0BC3855f801aa6aC",
+                address: "0xfc9B0991DC84E419C9b164dE89795958a5B0A0cF",
                 blockCreated: 179823,
             },
         },
