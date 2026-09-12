@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.22.3
+
+### Patch Changes
+
+- Point the testnet Multicall3 address at the verified deployment `0xfc9B0991DC84E419C9b164dE89795958a5B0A0cF` (block 179823). ([#135](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/135))
+
 ## 0.22.2
 
 ### Patch Changes
