@@ -194,7 +194,7 @@ export const CreateTradingWithdrawRequestSchema: GenMessage<CreateTradingWithdra
 
 /**
  * CreateWalletTradingWithdrawRequest creates or returns one durable Trading
- * withdraw intent from typed frontend fields plus a wallet EIP-712 signature.
+ * withdraw intent from typed frontend fields plus a wallet personal_sign signature.
  *
  * @generated from message chain.withdraw.v1.CreateWalletTradingWithdrawRequest
  */
@@ -221,7 +221,7 @@ export type CreateWalletTradingWithdrawRequest = Message<"chain.withdraw.v1.Crea
   signerWallet: string;
 
   /**
-   * Wallet EIP-712 signature over the typed withdraw payload.
+   * Wallet EIP-191 personal_sign signature over the canonical withdraw authorization message.
    *
    * @generated from field: bytes payload_signature = 4;
    */
