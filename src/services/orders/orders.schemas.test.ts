@@ -1374,6 +1374,28 @@ describe("CancelOrderInputSchema", () => {
 });
 
 describe("GetOrderDetailsInputSchema", () => {
+    it.each([0, -1, 1.5, 1001, Infinity, NaN])("rejects execution page limit %s", (limit) => {
+        expect(() =>
+            v.parse(GetOrderDetailsInputSchema, { orderId: formatId(11n), limit }),
+        ).toThrow();
+    });
+
+    it.each([1, 1000])("accepts execution page limit %s", (limit) => {
+        expect(v.parse(GetOrderDetailsInputSchema, { orderId: formatId(11n), limit }).limit).toBe(
+            limit,
+        );
+    });
+
+    it("preserves state-only polling and rejects pagination with disabled history", () => {
+        const input = { orderId: formatId(11n), includeExecutionHistory: false };
+        expect(v.parse(GetOrderDetailsInputSchema, input).includeExecutionHistory).toBe(false);
+        for (const pagination of [{ limit: 1 }, { pageToken: "next" }, { pageToken: "" }]) {
+            expect(() =>
+                v.parse(GetOrderDetailsInputSchema, { ...input, ...pagination }),
+            ).toThrow();
+        }
+    });
+
     it("uses the same bounded keys as order mutations", () => {
         expect(v.parse(GetOrderDetailsInputSchema, { orderId: formatId(11n) }).key).toEqual({
             case: "orderId",
@@ -1729,6 +1751,7 @@ describe("OrderTransferSchema", () => {
 
         const transfer = v.parse(schema, {
             txId: "tx-1",
+            symbolId: 1,
             matchId: 5n,
             assetId: 1,
             amountE18: { hi: 0n, lo: 1_500_000_000_000_000_000n },
@@ -1740,6 +1763,7 @@ describe("OrderTransferSchema", () => {
 
         expect(transfer).toMatchObject({
             txId: "tx-1",
+            symbolId: 1,
             matchId: "5",
             assetId: 1,
             isDebit: false,
@@ -1753,6 +1777,7 @@ describe("OrderTransferSchema", () => {
 
         const transfer = v.parse(schema, {
             txId: "tx-large-match",
+            symbolId: 1,
             matchId: 9_007_199_254_740_993n,
             assetId: 1,
             amountE18: { hi: 0n, lo: 1n },
@@ -1770,6 +1795,7 @@ describe("OrderTransferSchema", () => {
 
         const transfer = v.parse(schema, {
             txId: "tx-2",
+            symbolId: 1,
             matchId: 6n,
             assetId: 1,
             amountE18: { hi: 0n, lo: 1n },

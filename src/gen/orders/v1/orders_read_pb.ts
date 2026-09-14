@@ -16,7 +16,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file orders/v1/orders_read.proto.
  */
 export const file_orders_v1_orders_read: GenFile = /*@__PURE__*/
-  fileDesc("ChtvcmRlcnMvdjEvb3JkZXJzX3JlYWQucHJvdG8SCW9yZGVycy52MSLdAQoLT3JkZXJPcmlnaW4SLAoFc2NvcGUYASABKA4yGy5vcmRlcnMudjEuT3JkZXJPcmlnaW5TY29wZUIAEjMKDHRyaWdnZXJfdHlwZRgCIAEoDjIbLm9yZGVycy52MS5PcmRlclRyaWdnZXJUeXBlQgASFwoKdHJpZ2dlcl9pZBgDIAEoBkgAiAEBEhwKD3BhcmVudF9vcmRlcl9pZBgEIAEoBkgBiAEBEhEKCWNoaWxkX3NlcRgFIAEoDUINCgtfdHJpZ2dlcl9pZEISChBfcGFyZW50X29yZGVyX2lkIuYCChRBdHRhY2hlZFJpc2tMZWdTdGF0ZRI4CgZzdGF0dXMYASABKA4yJi5vcmRlcnMudjEuQXR0YWNoZWRSaXNrTGVnU3RhdGUuU3RhdHVzQgASEwoLYXJtZWRfdHNfbnMYAiABKAQSFgoOdGVybWluYWxfdHNfbnMYAyABKAQSFwoKdHJpZ2dlcl9pZBgEIAEoBkgAiAEBEhsKDmNoaWxkX29yZGVyX2lkGAUgASgGSAGIAQEijgEKBlN0YXR1cxIWChJTVEFUVVNfVU5TUEVDSUZJRUQQABISCg5OT1RfQ09ORklHVVJFRBABEgsKB0NSRUFURUQQAhIJCgVBUk1FRBADEgsKB1JVTk5JTkcQBBINCglDT01QTEVURUQQBRIMCghDQU5DRUxFRBAGEgoKBkZBSUxFRBAHEgoKBlBBVVNFRBAIQg0KC190cmlnZ2VyX2lkQhEKD19jaGlsZF9vcmRlcl9pZCJ1ChZBdHRhY2hlZFJpc2tUYWtlUHJvZml0EisKBnBvbGljeRgBIAEoCzIbLm9yZGVycy52MS5UYWtlUHJvZml0UG9saWN5Ei4KBXN0YXRlGAIgASgLMh8ub3JkZXJzLnYxLkF0dGFjaGVkUmlza0xlZ1N0YXRlInEKFEF0dGFjaGVkUmlza1N0b3BMb3NzEikKBnBvbGljeRgBIAEoCzIZLm9yZGVycy52MS5TdG9wTG9zc1BvbGljeRIuCgVzdGF0ZRgCIAEoCzIfLm9yZGVycy52MS5BdHRhY2hlZFJpc2tMZWdTdGF0ZSJ5ChhBdHRhY2hlZFJpc2tUcmFpbGluZ1N0b3ASLQoGcG9saWN5GAEgASgLMh0ub3JkZXJzLnYxLlRyYWlsaW5nU3RvcFBvbGljeRIuCgVzdGF0ZRgCIAEoCzIfLm9yZGVycy52MS5BdHRhY2hlZFJpc2tMZWdTdGF0ZSLDAQoMQXR0YWNoZWRSaXNrEjYKC3Rha2VfcHJvZml0GAEgASgLMiEub3JkZXJzLnYxLkF0dGFjaGVkUmlza1Rha2VQcm9maXQSMgoJc3RvcF9sb3NzGAIgASgLMh8ub3JkZXJzLnYxLkF0dGFjaGVkUmlza1N0b3BMb3NzEjoKDXRyYWlsaW5nX3N0b3AYAyABKAsyIy5vcmRlcnMudjEuQXR0YWNoZWRSaXNrVHJhaWxpbmdTdG9wEgsKA29jbxgEIAEoCCKQBwoFT3JkZXISEAoIb3JkZXJfaWQYASABKAYSEQoJc3ltYm9sX2lkGAMgASgNEhkKD2NsaWVudF9vcmRlcl9pZBgEIAEoCUIAEh8KBHNpZGUYBSABKA4yDy5vcmRlcnMudjEuU2lkZUIAEiYKBnN0YXR1cxgGIAEoDjIWLm9yZGVycy52MS5PcmRlclN0YXR1cxIoCgpvcmRlcl90eXBlGAcgASgOMhQub3JkZXJzLnYxLk9yZGVyVHlwZRItCg10aW1lX2luX2ZvcmNlGAggASgOMhYub3JkZXJzLnYxLlRpbWVJbkZvcmNlEkYKGnNlbGZfdHJhZGVfcHJldmVudGlvbl9tb2RlGAkgASgOMiIub3JkZXJzLnYxLlNlbGZUcmFkZVByZXZlbnRpb25Nb2RlEiYKCWZlZV9hc3NldBgKIAEoDjITLm9yZGVycy52MS5GZWVBc3NldBIRCglwb3N0X29ubHkYCyABKAgSFwoPb3JpZ19xdHlfc2NhbGVkGAwgASgDEhYKDmN1bV9xdHlfc2NhbGVkGA0gASgDEhkKEWxlYXZlc19xdHlfc2NhbGVkGBQgASgDEhcKD2F2Z19wcmljZV90aWNrcxgOIAEoAxITCgtwcmljZV90aWNrcxgPIAEoAxIVCg1jcmVhdGVkX3RzX25zGBAgASgEEhYKDnRlcm1pbmFsX3RzX25zGBEgASgEEhwKFHRlcm1pbmFsX3JlYXNvbl9jb2RlGBIgASgNEhcKD3Rlcm1pbmFsX3JlYXNvbhgTIAEoCRIuCg1hdHRhY2hlZF9yaXNrGBUgASgLMhcub3JkZXJzLnYxLkF0dGFjaGVkUmlzaxImCgZvcmlnaW4YFiABKAsyFi5vcmRlcnMudjEuT3JkZXJPcmlnaW4SJQodbWFya2V0X2NsaWVudF9yZWZfcHJpY2VfdGlja3MYFyABKAMSIQoZbWFya2V0X21heF9zbGlwcGFnZV90aWNrcxgYIAEoBRIfChdtYXJrZXRfbWF4X3NsaXBwYWdlX2JwcxgZIAEoBRIRCgd2ZXJzaW9uGBogASgNQgASGAoQYmF0Y2hfcmVxdWVzdF9pZBgbIAEoBhItCiBzdWJtaXR0ZWRfbWF4X3F1b3RlX2RlYml0X3NjYWxlZBgcIAEoA0gAiAEBQiMKIV9zdWJtaXR0ZWRfbWF4X3F1b3RlX2RlYml0X3NjYWxlZCLZAgoJVXNlclRyYWRlEhEKCXN5bWJvbF9pZBgCIAEoDRIQCghtYXRjaF9pZBgDIAEoBBIQCghvcmRlcl9pZBgEIAEoBhIfCgRzaWRlGAUgASgOMg8ub3JkZXJzLnYxLlNpZGVCABIQCghpc19tYWtlchgGIAEoCBITCgtwcmljZV90aWNrcxgHIAEoAxISCgpxdHlfc2NhbGVkGAggASgDEi8KDmZlZV9hbW91bnRfZTE4GAkgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBImCglmZWVfYXNzZXQYCiABKA4yEy5vcmRlcnMudjEuRmVlQXNzZXQSOgoZcmVmZXJyYWxfc2hhcmVfYW1vdW50X2UxOBgMIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSDQoFdHNfbnMYDSABKAQSFQoNZmVlX2lzX3JlYmF0ZRgOIAEoCCLuAQoNT3JkZXJUcmFuc2ZlchIQCghtYXRjaF9pZBgBIAEoBBIQCghhc3NldF9pZBgCIAEoDRIrCgphbW91bnRfZTE4GAMgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIQCghpc19kZWJpdBgFIAEoCBIuCg10cmFuc2Zlcl9jb2RlGAYgASgOMhcubGVkZ2VyLnYxLlRyYW5zZmVyQ29kZRIsCgxhY2NvdW50X2NvZGUYByABKA4yFi5sZWRnZXIudjEuQWNjb3VudENvZGUSDQoFdHNfbnMYCCABKAQSDQoFdHhfaWQYCSABKAki5AIKFEdldE9wZW5PcmRlcnNSZXF1ZXN0EhwKDXN1YmFjY291bnRfaWQYASABKAZCAEgAiAEBEhMKCXN5bWJvbF9pZBgCIAMoDUIAEh8KBHNpZGUYAyABKA4yDy5vcmRlcnMudjEuU2lkZUIAEhQKBWxpbWl0GAogASgNQgBIAYgBARIUCgpwYWdlX3Rva2VuGAsgASgJQgASIgoVaW5jbHVkZV9hdHRhY2hlZF9yaXNrGAwgASgISAKIAQESKAobaW5jbHVkZV9hdHRhY2hlZF9yaXNrX3N0YXRlGA0gASgISAOIAQESGQoKdHJpZ2dlcl9pZBgOIAEoBkIASASIAQFCEAoOX3N1YmFjY291bnRfaWRCCAoGX2xpbWl0QhgKFl9pbmNsdWRlX2F0dGFjaGVkX3Jpc2tCHgocX2luY2x1ZGVfYXR0YWNoZWRfcmlza19zdGF0ZUINCgtfdHJpZ2dlcl9pZCJUChVHZXRPcGVuT3JkZXJzUmVzcG9uc2USIAoGb3JkZXJzGAEgAygLMhAub3JkZXJzLnYxLk9yZGVyEhkKD25leHRfcGFnZV90b2tlbhgCIAEoCUIAIuIDChZHZXRPcmRlckhpc3RvcnlSZXF1ZXN0EhwKDXN1YmFjY291bnRfaWQYASABKAZCAEgAiAEBEhMKCXN5bWJvbF9pZBgCIAMoDUIAEh8KBHNpZGUYAyABKA4yDy5vcmRlcnMudjEuU2lkZUIAEigKBnN0YXR1cxgEIAEoDjIWLm9yZGVycy52MS5PcmRlclN0YXR1c0IAEhgKC3N0YXJ0X3RzX25zGAogASgESAGIAQESFgoJZW5kX3RzX25zGAsgASgESAKIAQESFAoFbGltaXQYDCABKA1CAEgDiAEBEhQKCnBhZ2VfdG9rZW4YDSABKAlCABIiChVpbmNsdWRlX2F0dGFjaGVkX3Jpc2sYDiABKAhIBIgBARIoChtpbmNsdWRlX2F0dGFjaGVkX3Jpc2tfc3RhdGUYDyABKAhIBYgBARIZCgp0cmlnZ2VyX2lkGBAgASgGQgBIBogBAToAQhAKDl9zdWJhY2NvdW50X2lkQg4KDF9zdGFydF90c19uc0IMCgpfZW5kX3RzX25zQggKBl9saW1pdEIYChZfaW5jbHVkZV9hdHRhY2hlZF9yaXNrQh4KHF9pbmNsdWRlX2F0dGFjaGVkX3Jpc2tfc3RhdGVCDQoLX3RyaWdnZXJfaWQiVgoXR2V0T3JkZXJIaXN0b3J5UmVzcG9uc2USIAoGb3JkZXJzGAEgAygLMhAub3JkZXJzLnYxLk9yZGVyEhkKD25leHRfcGFnZV90b2tlbhgCIAEoCUIAIrYCChRHZXRVc2VyVHJhZGVzUmVxdWVzdBIcCg1zdWJhY2NvdW50X2lkGAEgASgGQgBIAIgBARITCglzeW1ib2xfaWQYAiABKA1CABIfCgRzaWRlGAMgASgOMg8ub3JkZXJzLnYxLlNpZGVCABIYCgtzdGFydF90c19ucxgKIAEoBEgBiAEBEhYKCWVuZF90c19ucxgLIAEoBEgCiAEBEhQKBWxpbWl0GAwgASgNQgBIA4gBARIUCgpwYWdlX3Rva2VuGA0gASgJQgASHQoOYWZ0ZXJfbWF0Y2hfaWQYDiABKARCAEgEiAEBOgBCEAoOX3N1YmFjY291bnRfaWRCDgoMX3N0YXJ0X3RzX25zQgwKCl9lbmRfdHNfbnNCCAoGX2xpbWl0QhEKD19hZnRlcl9tYXRjaF9pZCJYChVHZXRVc2VyVHJhZGVzUmVzcG9uc2USJAoGdHJhZGVzGAEgAygLMhQub3JkZXJzLnYxLlVzZXJUcmFkZRIZCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCACKFAgoPR2V0T3JkZXJSZXF1ZXN0EhwKDXN1YmFjY291bnRfaWQYASABKAZCAEgBiAEBEhQKCG9yZGVyX2lkGAIgASgGQgBIABIbCg9jbGllbnRfb3JkZXJfaWQYAyABKAlCAEgAEiIKFWluY2x1ZGVfYXR0YWNoZWRfcmlzaxgKIAEoCEgCiAEBEigKG2luY2x1ZGVfYXR0YWNoZWRfcmlza19zdGF0ZRgLIAEoCEgDiAEBQgcKA2tleRIAQhAKDl9zdWJhY2NvdW50X2lkQhgKFl9pbmNsdWRlX2F0dGFjaGVkX3Jpc2tCHgocX2luY2x1ZGVfYXR0YWNoZWRfcmlza19zdGF0ZSKGAQoQR2V0T3JkZXJSZXNwb25zZRIfCgVvcmRlchgBIAEoCzIQLm9yZGVycy52MS5PcmRlchIkCgZ0cmFkZXMYAiADKAsyFC5vcmRlcnMudjEuVXNlclRyYWRlEisKCXRyYW5zZmVycxgDIAMoCzIYLm9yZGVycy52MS5PcmRlclRyYW5zZmVyImoKHEdldEJhdGNoUmVwbGFjZVN0YXR1c1JlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASACIAQESGgoQYmF0Y2hfcmVxdWVzdF9pZBgCIAEoBkIAQhAKDl9zdWJhY2NvdW50X2lkIuABChZCYXRjaFJlcGxhY2VTdGF0dXNJdGVtEhIKCml0ZW1faW5kZXgYASABKA0SKwoFcGhhc2UYAiABKA4yHC5vcmRlcnMudjEuQmF0Y2hSZXBsYWNlUGhhc2USFAoMb2xkX29yZGVyX2lkGAMgASgGEhwKFHJlcGxhY2VtZW50X29yZGVyX2lkGAQgASgGEiwKDG9yZGVyX3N0YXR1cxgFIAEoDjIWLm9yZGVycy52MS5PcmRlclN0YXR1cxIMCgRjb2RlGAYgASgJEhUKDXVwZGF0ZWRfdHNfbnMYByABKAQijAIKHUdldEJhdGNoUmVwbGFjZVN0YXR1c1Jlc3BvbnNlEhgKEGJhdGNoX3JlcXVlc3RfaWQYASABKAYSQAoQYWRtaXNzaW9uX3N0YXR1cxgCIAEoDjImLm9yZGVycy52MS5CYXRjaFJlcGxhY2VBZG1pc3Npb25TdGF0dXMSMAoFaXRlbXMYAyADKAsyIS5vcmRlcnMudjEuQmF0Y2hSZXBsYWNlU3RhdHVzSXRlbRIWCg5hY2NlcHRlZF9jb3VudBgEIAEoDRIWCg5yZWplY3RlZF9jb3VudBgFIAEoDRIWCg5hY2NlcHRlZF90c19ucxgGIAEoBBIVCg11cGRhdGVkX3RzX25zGAcgASgEKoEBCgtPcmRlclN0YXR1cxIcChhPUkRFUl9TVEFUVVNfVU5TUEVDSUZJRUQQABILCgdQRU5ESU5HEAESEgoOUEVORElOR19DQU5DRUwQAhILCgdXT1JLSU5HEAMSCgoGRklMTEVEEAQSDAoIQ0FOQ0VMRUQQBRIMCghSRUpFQ1RFRBAGKr8BChFCYXRjaFJlcGxhY2VQaGFzZRIjCh9CQVRDSF9SRVBMQUNFX1BIQVNFX1VOU1BFQ0lGSUVEEAASIAocQkFUQ0hfUkVQTEFDRV9QSEFTRV9BRE1JVFRFRBABEh8KG0JBVENIX1JFUExBQ0VfUEhBU0VfV09SS0lORxACEiAKHEJBVENIX1JFUExBQ0VfUEhBU0VfUkVKRUNURUQQAxIgChxCQVRDSF9SRVBMQUNFX1BIQVNFX1RFUk1JTkFMEAQqeQoQT3JkZXJPcmlnaW5TY29wZRIiCh5PUkRFUl9PUklHSU5fU0NPUEVfVU5TUEVDSUZJRUQQABIKCgZESVJFQ1QQARIRCg1BVFRBQ0hFRF9SSVNLEAISFgoSU1RBTkRBTE9ORV9UUklHR0VSEAMSCgoGU1lTVEVNEAQqfwoQT3JkZXJUcmlnZ2VyVHlwZRIiCh5PUkRFUl9UUklHR0VSX1RZUEVfVU5TUEVDSUZJRUQQABINCglTVE9QX0xPU1MQARIPCgtUQUtFX1BST0ZJVBACEhEKDVRSQUlMSU5HX1NUT1AQAxIICgRUV0FQEAQSCgoGTEFEREVSEAUy0AMKEU9yZGVyc1JlYWRTZXJ2aWNlElQKDUdldE9wZW5PcmRlcnMSHy5vcmRlcnMudjEuR2V0T3Blbk9yZGVyc1JlcXVlc3QaIC5vcmRlcnMudjEuR2V0T3Blbk9yZGVyc1Jlc3BvbnNlIgASWgoPR2V0T3JkZXJIaXN0b3J5EiEub3JkZXJzLnYxLkdldE9yZGVySGlzdG9yeVJlcXVlc3QaIi5vcmRlcnMudjEuR2V0T3JkZXJIaXN0b3J5UmVzcG9uc2UiABJUCg1HZXRVc2VyVHJhZGVzEh8ub3JkZXJzLnYxLkdldFVzZXJUcmFkZXNSZXF1ZXN0GiAub3JkZXJzLnYxLkdldFVzZXJUcmFkZXNSZXNwb25zZSIAEkUKCEdldE9yZGVyEhoub3JkZXJzLnYxLkdldE9yZGVyUmVxdWVzdBobLm9yZGVycy52MS5HZXRPcmRlclJlc3BvbnNlIgASbAoVR2V0QmF0Y2hSZXBsYWNlU3RhdHVzEicub3JkZXJzLnYxLkdldEJhdGNoUmVwbGFjZVN0YXR1c1JlcXVlc3QaKC5vcmRlcnMudjEuR2V0QmF0Y2hSZXBsYWNlU3RhdHVzUmVzcG9uc2UiAEJAWj5naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL29yZGVycy92MTtvcmRlcnN2MWIGcHJvdG8z", [file_ledger_v1_catalog, file_orders_v1_orders, file_polyester_type_v1_u128]);
+  fileDesc("ChtvcmRlcnMvdjEvb3JkZXJzX3JlYWQucHJvdG8SCW9yZGVycy52MSLdAQoLT3JkZXJPcmlnaW4SLAoFc2NvcGUYASABKA4yGy5vcmRlcnMudjEuT3JkZXJPcmlnaW5TY29wZUIAEjMKDHRyaWdnZXJfdHlwZRgCIAEoDjIbLm9yZGVycy52MS5PcmRlclRyaWdnZXJUeXBlQgASFwoKdHJpZ2dlcl9pZBgDIAEoBkgAiAEBEhwKD3BhcmVudF9vcmRlcl9pZBgEIAEoBkgBiAEBEhEKCWNoaWxkX3NlcRgFIAEoDUINCgtfdHJpZ2dlcl9pZEISChBfcGFyZW50X29yZGVyX2lkIuYCChRBdHRhY2hlZFJpc2tMZWdTdGF0ZRI4CgZzdGF0dXMYASABKA4yJi5vcmRlcnMudjEuQXR0YWNoZWRSaXNrTGVnU3RhdGUuU3RhdHVzQgASEwoLYXJtZWRfdHNfbnMYAiABKAQSFgoOdGVybWluYWxfdHNfbnMYAyABKAQSFwoKdHJpZ2dlcl9pZBgEIAEoBkgAiAEBEhsKDmNoaWxkX29yZGVyX2lkGAUgASgGSAGIAQEijgEKBlN0YXR1cxIWChJTVEFUVVNfVU5TUEVDSUZJRUQQABISCg5OT1RfQ09ORklHVVJFRBABEgsKB0NSRUFURUQQAhIJCgVBUk1FRBADEgsKB1JVTk5JTkcQBBINCglDT01QTEVURUQQBRIMCghDQU5DRUxFRBAGEgoKBkZBSUxFRBAHEgoKBlBBVVNFRBAIQg0KC190cmlnZ2VyX2lkQhEKD19jaGlsZF9vcmRlcl9pZCJ1ChZBdHRhY2hlZFJpc2tUYWtlUHJvZml0EisKBnBvbGljeRgBIAEoCzIbLm9yZGVycy52MS5UYWtlUHJvZml0UG9saWN5Ei4KBXN0YXRlGAIgASgLMh8ub3JkZXJzLnYxLkF0dGFjaGVkUmlza0xlZ1N0YXRlInEKFEF0dGFjaGVkUmlza1N0b3BMb3NzEikKBnBvbGljeRgBIAEoCzIZLm9yZGVycy52MS5TdG9wTG9zc1BvbGljeRIuCgVzdGF0ZRgCIAEoCzIfLm9yZGVycy52MS5BdHRhY2hlZFJpc2tMZWdTdGF0ZSJ5ChhBdHRhY2hlZFJpc2tUcmFpbGluZ1N0b3ASLQoGcG9saWN5GAEgASgLMh0ub3JkZXJzLnYxLlRyYWlsaW5nU3RvcFBvbGljeRIuCgVzdGF0ZRgCIAEoCzIfLm9yZGVycy52MS5BdHRhY2hlZFJpc2tMZWdTdGF0ZSLDAQoMQXR0YWNoZWRSaXNrEjYKC3Rha2VfcHJvZml0GAEgASgLMiEub3JkZXJzLnYxLkF0dGFjaGVkUmlza1Rha2VQcm9maXQSMgoJc3RvcF9sb3NzGAIgASgLMh8ub3JkZXJzLnYxLkF0dGFjaGVkUmlza1N0b3BMb3NzEjoKDXRyYWlsaW5nX3N0b3AYAyABKAsyIy5vcmRlcnMudjEuQXR0YWNoZWRSaXNrVHJhaWxpbmdTdG9wEgsKA29jbxgEIAEoCCIyCgxPcmRlckxpbmVhZ2USDAoCaWQYASABKAZCABIUCgpnZW5lcmF0aW9uGAIgASgNQgAi3gcKBU9yZGVyEhAKCG9yZGVyX2lkGAEgASgGEhEKCXN5bWJvbF9pZBgDIAEoDRIZCg9jbGllbnRfb3JkZXJfaWQYBCABKAlCABIfCgRzaWRlGAUgASgOMg8ub3JkZXJzLnYxLlNpZGVCABImCgZzdGF0dXMYBiABKA4yFi5vcmRlcnMudjEuT3JkZXJTdGF0dXMSKAoKb3JkZXJfdHlwZRgHIAEoDjIULm9yZGVycy52MS5PcmRlclR5cGUSLQoNdGltZV9pbl9mb3JjZRgIIAEoDjIWLm9yZGVycy52MS5UaW1lSW5Gb3JjZRJGChpzZWxmX3RyYWRlX3ByZXZlbnRpb25fbW9kZRgJIAEoDjIiLm9yZGVycy52MS5TZWxmVHJhZGVQcmV2ZW50aW9uTW9kZRImCglmZWVfYXNzZXQYCiABKA4yEy5vcmRlcnMudjEuRmVlQXNzZXQSEQoJcG9zdF9vbmx5GAsgASgIEhcKD29yaWdfcXR5X3NjYWxlZBgMIAEoAxIWCg5jdW1fcXR5X3NjYWxlZBgNIAEoAxIZChFsZWF2ZXNfcXR5X3NjYWxlZBgUIAEoAxIXCg9hdmdfcHJpY2VfdGlja3MYDiABKAMSEwoLcHJpY2VfdGlja3MYDyABKAMSFQoNY3JlYXRlZF90c19ucxgQIAEoBBIWCg50ZXJtaW5hbF90c19ucxgRIAEoBBIcChR0ZXJtaW5hbF9yZWFzb25fY29kZRgSIAEoDRIXCg90ZXJtaW5hbF9yZWFzb24YEyABKAkSLgoNYXR0YWNoZWRfcmlzaxgVIAEoCzIXLm9yZGVycy52MS5BdHRhY2hlZFJpc2sSJgoGb3JpZ2luGBYgASgLMhYub3JkZXJzLnYxLk9yZGVyT3JpZ2luEiUKHW1hcmtldF9jbGllbnRfcmVmX3ByaWNlX3RpY2tzGBcgASgDEiEKGW1hcmtldF9tYXhfc2xpcHBhZ2VfdGlja3MYGCABKAUSHwoXbWFya2V0X21heF9zbGlwcGFnZV9icHMYGSABKAUSEQoHdmVyc2lvbhgaIAEoDUIAEhgKEGJhdGNoX3JlcXVlc3RfaWQYGyABKAYSLQogc3VibWl0dGVkX21heF9xdW90ZV9kZWJpdF9zY2FsZWQYHCABKANIAIgBARIoCgdsaW5lYWdlGB8gASgLMhcub3JkZXJzLnYxLk9yZGVyTGluZWFnZUIjCiFfc3VibWl0dGVkX21heF9xdW90ZV9kZWJpdF9zY2FsZWRKBAgdEB5KBAgeEB9SCmxpbmVhZ2VfaWRSCmdlbmVyYXRpb24ipwMKCVVzZXJUcmFkZRIRCglzeW1ib2xfaWQYAiABKA0SEAoIbWF0Y2hfaWQYAyABKAQSEAoIb3JkZXJfaWQYBCABKAYSHwoEc2lkZRgFIAEoDjIPLm9yZGVycy52MS5TaWRlQgASEAoIaXNfbWFrZXIYBiABKAgSEwoLcHJpY2VfdGlja3MYByABKAMSEgoKcXR5X3NjYWxlZBgIIAEoAxIvCg5mZWVfYW1vdW50X2UxOBgJIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSJgoJZmVlX2Fzc2V0GAogASgOMhMub3JkZXJzLnYxLkZlZUFzc2V0EjoKGXJlZmVycmFsX3NoYXJlX2Ftb3VudF9lMTgYDCABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Eg0KBXRzX25zGA0gASgEEhUKDWZlZV9pc19yZWJhdGUYDiABKAgSKAoHbGluZWFnZRgRIAEoCzIXLm9yZGVycy52MS5PcmRlckxpbmVhZ2VKBAgPEBBKBAgQEBFSCmxpbmVhZ2VfaWRSCmdlbmVyYXRpb24igQIKDU9yZGVyVHJhbnNmZXISEAoIbWF0Y2hfaWQYASABKAQSEQoJc3ltYm9sX2lkGAogASgNEhAKCGFzc2V0X2lkGAIgASgNEisKCmFtb3VudF9lMTgYAyABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EhAKCGlzX2RlYml0GAUgASgIEi4KDXRyYW5zZmVyX2NvZGUYBiABKA4yFy5sZWRnZXIudjEuVHJhbnNmZXJDb2RlEiwKDGFjY291bnRfY29kZRgHIAEoDjIWLmxlZGdlci52MS5BY2NvdW50Q29kZRINCgV0c19ucxgIIAEoBBINCgV0eF9pZBgJIAEoCSLkAgoUR2V0T3Blbk9yZGVyc1JlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASACIAQESEwoJc3ltYm9sX2lkGAIgAygNQgASHwoEc2lkZRgDIAEoDjIPLm9yZGVycy52MS5TaWRlQgASFAoFbGltaXQYCiABKA1CAEgBiAEBEhQKCnBhZ2VfdG9rZW4YCyABKAlCABIiChVpbmNsdWRlX2F0dGFjaGVkX3Jpc2sYDCABKAhIAogBARIoChtpbmNsdWRlX2F0dGFjaGVkX3Jpc2tfc3RhdGUYDSABKAhIA4gBARIZCgp0cmlnZ2VyX2lkGA4gASgGQgBIBIgBAUIQCg5fc3ViYWNjb3VudF9pZEIICgZfbGltaXRCGAoWX2luY2x1ZGVfYXR0YWNoZWRfcmlza0IeChxfaW5jbHVkZV9hdHRhY2hlZF9yaXNrX3N0YXRlQg0KC190cmlnZ2VyX2lkIlQKFUdldE9wZW5PcmRlcnNSZXNwb25zZRIgCgZvcmRlcnMYASADKAsyEC5vcmRlcnMudjEuT3JkZXISGQoPbmV4dF9wYWdlX3Rva2VuGAIgASgJQgAi4gMKFkdldE9yZGVySGlzdG9yeVJlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASACIAQESEwoJc3ltYm9sX2lkGAIgAygNQgASHwoEc2lkZRgDIAEoDjIPLm9yZGVycy52MS5TaWRlQgASKAoGc3RhdHVzGAQgASgOMhYub3JkZXJzLnYxLk9yZGVyU3RhdHVzQgASGAoLc3RhcnRfdHNfbnMYCiABKARIAYgBARIWCgllbmRfdHNfbnMYCyABKARIAogBARIUCgVsaW1pdBgMIAEoDUIASAOIAQESFAoKcGFnZV90b2tlbhgNIAEoCUIAEiIKFWluY2x1ZGVfYXR0YWNoZWRfcmlzaxgOIAEoCEgEiAEBEigKG2luY2x1ZGVfYXR0YWNoZWRfcmlza19zdGF0ZRgPIAEoCEgFiAEBEhkKCnRyaWdnZXJfaWQYECABKAZCAEgGiAEBOgBCEAoOX3N1YmFjY291bnRfaWRCDgoMX3N0YXJ0X3RzX25zQgwKCl9lbmRfdHNfbnNCCAoGX2xpbWl0QhgKFl9pbmNsdWRlX2F0dGFjaGVkX3Jpc2tCHgocX2luY2x1ZGVfYXR0YWNoZWRfcmlza19zdGF0ZUINCgtfdHJpZ2dlcl9pZCJWChdHZXRPcmRlckhpc3RvcnlSZXNwb25zZRIgCgZvcmRlcnMYASADKAsyEC5vcmRlcnMudjEuT3JkZXISGQoPbmV4dF9wYWdlX3Rva2VuGAIgASgJQgAizAMKFEdldFVzZXJUcmFkZXNSZXF1ZXN0EhwKDXN1YmFjY291bnRfaWQYASABKAZCAEgBiAEBEhMKCXN5bWJvbF9pZBgCIAEoDUIAEh8KBHNpZGUYAyABKA4yDy5vcmRlcnMudjEuU2lkZUIAEhgKC3N0YXJ0X3RzX25zGAogASgESAKIAQESFgoJZW5kX3RzX25zGAsgASgESAOIAQESFAoFbGltaXQYDCABKA1CAEgEiAEBEhQKCnBhZ2VfdG9rZW4YDSABKAlCABIdCg5hZnRlcl9tYXRjaF9pZBgOIAEoBEIASAWIAQESFAoIb3JkZXJfaWQYDyABKAZCAEgAEhYKCmxpbmVhZ2VfaWQYECABKAZCAEgAEiEKEnRocm91Z2hfZ2VuZXJhdGlvbhgRIAEoDUIASAaIAQESGQoRaW5jbHVkZV90cmFuc2ZlcnMYEiABKAg6AEIRCg9leGVjdXRpb25fc2NvcGVCEAoOX3N1YmFjY291bnRfaWRCDgoMX3N0YXJ0X3RzX25zQgwKCl9lbmRfdHNfbnNCCAoGX2xpbWl0QhEKD19hZnRlcl9tYXRjaF9pZEIVChNfdGhyb3VnaF9nZW5lcmF0aW9uIoUBChVHZXRVc2VyVHJhZGVzUmVzcG9uc2USJAoGdHJhZGVzGAEgAygLMhQub3JkZXJzLnYxLlVzZXJUcmFkZRIZCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCABIrCgl0cmFuc2ZlcnMYAyADKAsyGC5vcmRlcnMudjEuT3JkZXJUcmFuc2ZlciKDAwoPR2V0T3JkZXJSZXF1ZXN0EhwKDXN1YmFjY291bnRfaWQYASABKAZCAEgBiAEBEhQKCG9yZGVyX2lkGAIgASgGQgBIABIbCg9jbGllbnRfb3JkZXJfaWQYAyABKAlCAEgAEiIKFWluY2x1ZGVfYXR0YWNoZWRfcmlzaxgKIAEoCEgCiAEBEigKG2luY2x1ZGVfYXR0YWNoZWRfcmlza19zdGF0ZRgLIAEoCEgDiAEBEiYKGWluY2x1ZGVfZXhlY3V0aW9uX2hpc3RvcnkYDCABKAhIBIgBARIUCgVsaW1pdBgNIAEoDUIASAWIAQESFAoKcGFnZV90b2tlbhgOIAEoCUIAOgBCBwoDa2V5EgBCEAoOX3N1YmFjY291bnRfaWRCGAoWX2luY2x1ZGVfYXR0YWNoZWRfcmlza0IeChxfaW5jbHVkZV9hdHRhY2hlZF9yaXNrX3N0YXRlQhwKGl9pbmNsdWRlX2V4ZWN1dGlvbl9oaXN0b3J5QggKBl9saW1pdCKhAQoQR2V0T3JkZXJSZXNwb25zZRIfCgVvcmRlchgBIAEoCzIQLm9yZGVycy52MS5PcmRlchIkCgZ0cmFkZXMYAiADKAsyFC5vcmRlcnMudjEuVXNlclRyYWRlEisKCXRyYW5zZmVycxgDIAMoCzIYLm9yZGVycy52MS5PcmRlclRyYW5zZmVyEhkKD25leHRfcGFnZV90b2tlbhgGIAEoCUIAImoKHEdldEJhdGNoUmVwbGFjZVN0YXR1c1JlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASACIAQESGgoQYmF0Y2hfcmVxdWVzdF9pZBgCIAEoBkIAQhAKDl9zdWJhY2NvdW50X2lkIuABChZCYXRjaFJlcGxhY2VTdGF0dXNJdGVtEhIKCml0ZW1faW5kZXgYASABKA0SKwoFcGhhc2UYAiABKA4yHC5vcmRlcnMudjEuQmF0Y2hSZXBsYWNlUGhhc2USFAoMb2xkX29yZGVyX2lkGAMgASgGEhwKFHJlcGxhY2VtZW50X29yZGVyX2lkGAQgASgGEiwKDG9yZGVyX3N0YXR1cxgFIAEoDjIWLm9yZGVycy52MS5PcmRlclN0YXR1cxIMCgRjb2RlGAYgASgJEhUKDXVwZGF0ZWRfdHNfbnMYByABKAQijAIKHUdldEJhdGNoUmVwbGFjZVN0YXR1c1Jlc3BvbnNlEhgKEGJhdGNoX3JlcXVlc3RfaWQYASABKAYSQAoQYWRtaXNzaW9uX3N0YXR1cxgCIAEoDjImLm9yZGVycy52MS5CYXRjaFJlcGxhY2VBZG1pc3Npb25TdGF0dXMSMAoFaXRlbXMYAyADKAsyIS5vcmRlcnMudjEuQmF0Y2hSZXBsYWNlU3RhdHVzSXRlbRIWCg5hY2NlcHRlZF9jb3VudBgEIAEoDRIWCg5yZWplY3RlZF9jb3VudBgFIAEoDRIWCg5hY2NlcHRlZF90c19ucxgGIAEoBBIVCg11cGRhdGVkX3RzX25zGAcgASgEKoEBCgtPcmRlclN0YXR1cxIcChhPUkRFUl9TVEFUVVNfVU5TUEVDSUZJRUQQABILCgdQRU5ESU5HEAESEgoOUEVORElOR19DQU5DRUwQAhILCgdXT1JLSU5HEAMSCgoGRklMTEVEEAQSDAoIQ0FOQ0VMRUQQBRIMCghSRUpFQ1RFRBAGKr8BChFCYXRjaFJlcGxhY2VQaGFzZRIjCh9CQVRDSF9SRVBMQUNFX1BIQVNFX1VOU1BFQ0lGSUVEEAASIAocQkFUQ0hfUkVQTEFDRV9QSEFTRV9BRE1JVFRFRBABEh8KG0JBVENIX1JFUExBQ0VfUEhBU0VfV09SS0lORxACEiAKHEJBVENIX1JFUExBQ0VfUEhBU0VfUkVKRUNURUQQAxIgChxCQVRDSF9SRVBMQUNFX1BIQVNFX1RFUk1JTkFMEAQqeQoQT3JkZXJPcmlnaW5TY29wZRIiCh5PUkRFUl9PUklHSU5fU0NPUEVfVU5TUEVDSUZJRUQQABIKCgZESVJFQ1QQARIRCg1BVFRBQ0hFRF9SSVNLEAISFgoSU1RBTkRBTE9ORV9UUklHR0VSEAMSCgoGU1lTVEVNEAQqfwoQT3JkZXJUcmlnZ2VyVHlwZRIiCh5PUkRFUl9UUklHR0VSX1RZUEVfVU5TUEVDSUZJRUQQABINCglTVE9QX0xPU1MQARIPCgtUQUtFX1BST0ZJVBACEhEKDVRSQUlMSU5HX1NUT1AQAxIICgRUV0FQEAQSCgoGTEFEREVSEAUy0AMKEU9yZGVyc1JlYWRTZXJ2aWNlElQKDUdldE9wZW5PcmRlcnMSHy5vcmRlcnMudjEuR2V0T3Blbk9yZGVyc1JlcXVlc3QaIC5vcmRlcnMudjEuR2V0T3Blbk9yZGVyc1Jlc3BvbnNlIgASWgoPR2V0T3JkZXJIaXN0b3J5EiEub3JkZXJzLnYxLkdldE9yZGVySGlzdG9yeVJlcXVlc3QaIi5vcmRlcnMudjEuR2V0T3JkZXJIaXN0b3J5UmVzcG9uc2UiABJUCg1HZXRVc2VyVHJhZGVzEh8ub3JkZXJzLnYxLkdldFVzZXJUcmFkZXNSZXF1ZXN0GiAub3JkZXJzLnYxLkdldFVzZXJUcmFkZXNSZXNwb25zZSIAEkUKCEdldE9yZGVyEhoub3JkZXJzLnYxLkdldE9yZGVyUmVxdWVzdBobLm9yZGVycy52MS5HZXRPcmRlclJlc3BvbnNlIgASbAoVR2V0QmF0Y2hSZXBsYWNlU3RhdHVzEicub3JkZXJzLnYxLkdldEJhdGNoUmVwbGFjZVN0YXR1c1JlcXVlc3QaKC5vcmRlcnMudjEuR2V0QmF0Y2hSZXBsYWNlU3RhdHVzUmVzcG9uc2UiAEJAWj5naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL29yZGVycy92MTtvcmRlcnN2MWIGcHJvdG8z", [file_ledger_v1_catalog, file_orders_v1_orders, file_polyester_type_v1_u128]);
 
 /**
  * OrderOrigin explains why an order exists and where it came from.
@@ -326,6 +326,35 @@ export const AttachedRiskSchema: GenMessage<AttachedRisk> = /*@__PURE__*/
   messageDesc(file_orders_v1_orders_read, 5);
 
 /**
+ * OrderLineage identifies a logical order and one of its accepted generations.
+ *
+ * @generated from message orders.v1.OrderLineage
+ */
+export type OrderLineage = Message<"orders.v1.OrderLineage"> & {
+  /**
+   * Stable logical-order ID: the first generation's public order ID.
+   * Replace preserves this ID; an independent new order starts a new lineage.
+   *
+   * @generated from field: fixed64 id = 1;
+   */
+  id: bigint;
+
+  /**
+   * One-based replacement generation, distinct from per-order state version.
+   *
+   * @generated from field: uint32 generation = 2;
+   */
+  generation: number;
+};
+
+/**
+ * Describes the message orders.v1.OrderLineage.
+ * Use `create(OrderLineageSchema)` to create a new message.
+ */
+export const OrderLineageSchema: GenMessage<OrderLineage> = /*@__PURE__*/
+  messageDesc(file_orders_v1_orders_read, 6);
+
+/**
  * Order is the Connect-facing order view with compact binary fields.
  *
  * @generated from message orders.v1.Order
@@ -411,8 +440,8 @@ export type Order = Message<"orders.v1.Order"> & {
   origQtyScaled: bigint;
 
   /**
-   * Cumulative filled quantity scaled by the pair's base_quantity_scale from
-   * GetSpotConfig for symbol_id.
+   * Cumulative filled quantity across the lineage through this generation,
+   * scaled by the pair's base_quantity_scale from GetSpotConfig for symbol_id.
    *
    * @generated from field: int64 cum_qty_scaled = 13;
    */
@@ -427,7 +456,8 @@ export type Order = Message<"orders.v1.Order"> & {
   leavesQtyScaled: bigint;
 
   /**
-   * Average fill price in quote units scaled by 1e6. Zero if no fills.
+   * Average execution price across the lineage through this generation,
+   * in quote units scaled by 1e6. Zero if no fills.
    *
    * @generated from field: int64 avg_price_ticks = 14;
    */
@@ -529,6 +559,13 @@ export type Order = Message<"orders.v1.Order"> & {
    * @generated from field: optional int64 submitted_max_quote_debit_scaled = 28;
    */
   submittedMaxQuoteDebitScaled?: bigint | undefined;
+
+  /**
+   * Logical-order identity and requested generation. Always populated by order reads.
+   *
+   * @generated from field: orders.v1.OrderLineage lineage = 31;
+   */
+  lineage?: OrderLineage | undefined;
 };
 
 /**
@@ -536,7 +573,7 @@ export type Order = Message<"orders.v1.Order"> & {
  * Use `create(OrderSchema)` to create a new message.
  */
 export const OrderSchema: GenMessage<Order> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 6);
+  messageDesc(file_orders_v1_orders_read, 7);
 
 /**
  * UserTrade is the Connect-facing per-user trade fill view.
@@ -628,6 +665,14 @@ export type UserTrade = Message<"orders.v1.UserTrade"> & {
    * @generated from field: bool fee_is_rebate = 14;
    */
   feeIsRebate: boolean;
+
+  /**
+   * Logical-order identity and the generation that executed this fill.
+   * Always populated by execution reads; order_id retains its original identity.
+   *
+   * @generated from field: orders.v1.OrderLineage lineage = 17;
+   */
+  lineage?: OrderLineage | undefined;
 };
 
 /**
@@ -635,7 +680,7 @@ export type UserTrade = Message<"orders.v1.UserTrade"> & {
  * Use `create(UserTradeSchema)` to create a new message.
  */
 export const UserTradeSchema: GenMessage<UserTrade> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 7);
+  messageDesc(file_orders_v1_orders_read, 8);
 
 /**
  * OrderTransfer is the Connect-facing minimal per-leg transfer view.
@@ -644,11 +689,18 @@ export const UserTradeSchema: GenMessage<UserTrade> = /*@__PURE__*/
  */
 export type OrderTransfer = Message<"orders.v1.OrderTransfer"> & {
   /**
-   * Match identifier that linked this transfer to an execution.
+   * Match identifier that linked this transfer to an execution, scoped by symbol_id.
    *
    * @generated from field: uint64 match_id = 1;
    */
   matchId: bigint;
+
+  /**
+   * Market of the execution; together with match_id identifies its match.
+   *
+   * @generated from field: uint32 symbol_id = 10;
+   */
+  symbolId: number;
 
   /**
    * Asset identifier for the transferred asset.
@@ -705,7 +757,7 @@ export type OrderTransfer = Message<"orders.v1.OrderTransfer"> & {
  * Use `create(OrderTransferSchema)` to create a new message.
  */
 export const OrderTransferSchema: GenMessage<OrderTransfer> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 8);
+  messageDesc(file_orders_v1_orders_read, 9);
 
 /**
  * GetOpenOrdersRequest lists currently non-terminal orders for an account.
@@ -778,7 +830,7 @@ export type GetOpenOrdersRequest = Message<"orders.v1.GetOpenOrdersRequest"> & {
  * Use `create(GetOpenOrdersRequestSchema)` to create a new message.
  */
 export const GetOpenOrdersRequestSchema: GenMessage<GetOpenOrdersRequest> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 9);
+  messageDesc(file_orders_v1_orders_read, 10);
 
 /**
  * GetOpenOrdersResponse returns open orders and an optional next-page cursor.
@@ -806,7 +858,7 @@ export type GetOpenOrdersResponse = Message<"orders.v1.GetOpenOrdersResponse"> &
  * Use `create(GetOpenOrdersResponseSchema)` to create a new message.
  */
 export const GetOpenOrdersResponseSchema: GenMessage<GetOpenOrdersResponse> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 10);
+  messageDesc(file_orders_v1_orders_read, 11);
 
 /**
  * GetOrderHistoryRequest lists terminal orders for an account.
@@ -900,7 +952,7 @@ export type GetOrderHistoryRequest = Message<"orders.v1.GetOrderHistoryRequest">
  * Use `create(GetOrderHistoryRequestSchema)` to create a new message.
  */
 export const GetOrderHistoryRequestSchema: GenMessage<GetOrderHistoryRequest> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 11);
+  messageDesc(file_orders_v1_orders_read, 12);
 
 /**
  * GetOrderHistoryResponse returns historical orders and an optional next-page cursor.
@@ -928,7 +980,7 @@ export type GetOrderHistoryResponse = Message<"orders.v1.GetOrderHistoryResponse
  * Use `create(GetOrderHistoryResponseSchema)` to create a new message.
  */
 export const GetOrderHistoryResponseSchema: GenMessage<GetOrderHistoryResponse> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 12);
+  messageDesc(file_orders_v1_orders_read, 13);
 
 /**
  * GetUserTradesRequest lists trade fills for an account.
@@ -995,6 +1047,44 @@ export type GetUserTradesRequest = Message<"orders.v1.GetUserTradesRequest"> & {
    * @generated from field: optional uint64 after_match_id = 14;
    */
   afterMatchId?: bigint | undefined;
+
+  /**
+   * Optional execution scope. Omitting it returns all matching account fills.
+   *
+   * @generated from oneof orders.v1.GetUserTradesRequest.execution_scope
+   */
+  executionScope: {
+    /**
+     * Exactly this physical order's executions; never includes predecessors.
+     *
+     * @generated from field: fixed64 order_id = 15;
+     */
+    value: bigint;
+    case: "orderId";
+  } | {
+    /**
+     * Executions across this logical order's accepted generations.
+     *
+     * @generated from field: fixed64 lineage_id = 16;
+     */
+    value: bigint;
+    case: "lineageId";
+  } | { case: undefined; value?: undefined };
+
+  /**
+   * Inclusive generation ceiling. Does not freeze an actively filling generation.
+   *
+   * @generated from field: optional uint32 through_generation = 17;
+   */
+  throughGeneration?: number | undefined;
+
+  /**
+   * Include account settlement legs linked to matches on this page.
+   * Legs may repeat across pages when two fills share a match; deduplicate by tx_id.
+   *
+   * @generated from field: bool include_transfers = 18;
+   */
+  includeTransfers: boolean;
 };
 
 /**
@@ -1002,7 +1092,7 @@ export type GetUserTradesRequest = Message<"orders.v1.GetUserTradesRequest"> & {
  * Use `create(GetUserTradesRequestSchema)` to create a new message.
  */
 export const GetUserTradesRequestSchema: GenMessage<GetUserTradesRequest> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 13);
+  messageDesc(file_orders_v1_orders_read, 14);
 
 /**
  * GetUserTradesResponse returns user trade fills and an optional next-page cursor.
@@ -1011,7 +1101,8 @@ export const GetUserTradesRequestSchema: GenMessage<GetUserTradesRequest> = /*@_
  */
 export type GetUserTradesResponse = Message<"orders.v1.GetUserTradesResponse"> & {
   /**
-   * Trades ordered newest-first.
+   * Trades ordered by timestamp, symbol, match and physical order, descending.
+   * Projection is eventual: an empty page is not proof of order-state reconciliation.
    *
    * @generated from field: repeated orders.v1.UserTrade trades = 1;
    */
@@ -1023,6 +1114,13 @@ export type GetUserTradesResponse = Message<"orders.v1.GetUserTradesResponse"> &
    * @generated from field: string next_page_token = 2;
    */
   nextPageToken: string;
+
+  /**
+   * Settlement legs for matches represented on this page, when requested.
+   *
+   * @generated from field: repeated orders.v1.OrderTransfer transfers = 3;
+   */
+  transfers: OrderTransfer[];
 };
 
 /**
@@ -1030,10 +1128,10 @@ export type GetUserTradesResponse = Message<"orders.v1.GetUserTradesResponse"> &
  * Use `create(GetUserTradesResponseSchema)` to create a new message.
  */
 export const GetUserTradesResponseSchema: GenMessage<GetUserTradesResponse> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 14);
+  messageDesc(file_orders_v1_orders_read, 15);
 
 /**
- * GetOrderRequest retrieves a single order and related execution context.
+ * GetOrderRequest retrieves one physical order and a bounded page of its lineage executions.
  *
  * @generated from message orders.v1.GetOrderRequest
  */
@@ -1081,6 +1179,29 @@ export type GetOrderRequest = Message<"orders.v1.GetOrderRequest"> & {
    * @generated from field: optional bool include_attached_risk_state = 11;
    */
   includeAttachedRiskState?: boolean | undefined;
+
+  /**
+   * Include a page of lineage trades and their settlement transfers (default true).
+   * Set false for state-only polling; limit and page_token must then be omitted.
+   *
+   * @generated from field: optional bool include_execution_history = 12;
+   */
+  includeExecutionHistory?: boolean | undefined;
+
+  /**
+   * Maximum executions to return (1-1000, default 100).
+   *
+   * @generated from field: optional uint32 limit = 13;
+   */
+  limit?: number | undefined;
+
+  /**
+   * Execution cursor from this order's previous response. Use order_id rather
+   * than a reused client_order_id to keep the requested generation stable.
+   *
+   * @generated from field: string page_token = 14;
+   */
+  pageToken: string;
 };
 
 /**
@@ -1088,10 +1209,12 @@ export type GetOrderRequest = Message<"orders.v1.GetOrderRequest"> & {
  * Use `create(GetOrderRequestSchema)` to create a new message.
  */
 export const GetOrderRequestSchema: GenMessage<GetOrderRequest> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 15);
+  messageDesc(file_orders_v1_orders_read, 16);
 
 /**
- * GetOrderResponse returns the order plus related trades and transfer legs.
+ * GetOrderResponse returns order details and a bounded execution page.
+ * Order state, trades and transfers are eventually consistent;
+ * one page's execution quantities need not equal the order's cumulative quantity.
  *
  * @generated from message orders.v1.GetOrderResponse
  */
@@ -1104,18 +1227,28 @@ export type GetOrderResponse = Message<"orders.v1.GetOrderResponse"> & {
   order?: Order | undefined;
 
   /**
-   * User trade fills for the order, ordered newest-first.
+   * Lineage executions through the requested generation, newest first, retaining
+   * original executing order IDs. Omitted when execution history is disabled.
    *
    * @generated from field: repeated orders.v1.UserTrade trades = 2;
    */
   trades: UserTrade[];
 
   /**
-   * Transfer legs linked to the order's matches, ordered newest-first.
+   * Account settlement legs for matches on this page. Deduplicate by tx_id when
+   * multiple execution pages contain legs of the same match.
    *
    * @generated from field: repeated orders.v1.OrderTransfer transfers = 3;
    */
   transfers: OrderTransfer[];
+
+  /**
+   * Cursor for the next execution page. Empty when no further rows are visible;
+   * this is not a settlement or order-state reconciliation watermark.
+   *
+   * @generated from field: string next_page_token = 6;
+   */
+  nextPageToken: string;
 };
 
 /**
@@ -1123,7 +1256,7 @@ export type GetOrderResponse = Message<"orders.v1.GetOrderResponse"> & {
  * Use `create(GetOrderResponseSchema)` to create a new message.
  */
 export const GetOrderResponseSchema: GenMessage<GetOrderResponse> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 16);
+  messageDesc(file_orders_v1_orders_read, 17);
 
 /**
  * GetBatchReplaceStatusRequest retrieves one admitted batch by server identity.
@@ -1151,7 +1284,7 @@ export type GetBatchReplaceStatusRequest = Message<"orders.v1.GetBatchReplaceSta
  * Use `create(GetBatchReplaceStatusRequestSchema)` to create a new message.
  */
 export const GetBatchReplaceStatusRequestSchema: GenMessage<GetBatchReplaceStatusRequest> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 17);
+  messageDesc(file_orders_v1_orders_read, 18);
 
 /**
  * BatchReplaceStatusItem is the index-stable execution status for one replacement.
@@ -1214,7 +1347,7 @@ export type BatchReplaceStatusItem = Message<"orders.v1.BatchReplaceStatusItem">
  * Use `create(BatchReplaceStatusItemSchema)` to create a new message.
  */
 export const BatchReplaceStatusItemSchema: GenMessage<BatchReplaceStatusItem> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 18);
+  messageDesc(file_orders_v1_orders_read, 19);
 
 /**
  * GetBatchReplaceStatusResponse returns durable batch and per-item finality.
@@ -1277,7 +1410,7 @@ export type GetBatchReplaceStatusResponse = Message<"orders.v1.GetBatchReplaceSt
  * Use `create(GetBatchReplaceStatusResponseSchema)` to create a new message.
  */
 export const GetBatchReplaceStatusResponseSchema: GenMessage<GetBatchReplaceStatusResponse> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 19);
+  messageDesc(file_orders_v1_orders_read, 20);
 
 /**
  * OrderStatus is specific to the read API (write API uses simple "accepted" status string).
@@ -1520,7 +1653,8 @@ export const OrdersReadService: GenService<{
   },
   /**
    * Retrieve per-user trade fills for an account.
-   * Supports optional subaccount, symbol, side, and time-range filters with cursor pagination.
+   * Supports exact physical-order or logical-lineage scope, an inclusive generation
+   * cutoff, and subaccount, symbol, side and time filters with cursor pagination.
    *
    * @generated from rpc orders.v1.OrdersReadService.GetUserTrades
    */
@@ -1530,7 +1664,8 @@ export const OrdersReadService: GenService<{
     output: typeof GetUserTradesResponseSchema;
   },
   /**
-   * Retrieve a single order by order ID or client order ID, including related user trades and ledger transfers.
+   * Retrieve order state and a bounded page of its lineage executions by order or client order ID.
+   * Use GetUserTrades for paginated execution history and optional settlement legs.
    * Recent accepted orders may wait briefly for read availability; retry UNAVAILABLE with the same lookup key.
    *
    * @generated from rpc orders.v1.OrdersReadService.GetOrder

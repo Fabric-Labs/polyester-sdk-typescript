@@ -1,3 +1,4 @@
+import { createOrderTransferSchema, type OrderTransfer } from "../orders/orders-output.schemas.js";
 import * as Proto from "../../gen/orders/v1/orders_read_pb.js";
 import { createClient, type Client } from "@connectrpc/connect";
 import * as v from "valibot";
@@ -49,11 +50,13 @@ export class TradesService {
 
     /**
      * Returns user trades for the resolved root account or subaccount, supporting symbol, side, time range, limit, page token, and after-match-ID replay cursor filters. The `afterMatchId` cursor requires `symbolId`, enforced at the type and validation level. Results include the next page token from GetUserTrades.
+     * Scope executions to an order or lineage, optionally through a generation. Requested transfers
+     * belong to matches on this page; deduplicate them across pages by txId.
      */
     async list(
         input: GetUserTradesInput = {},
         options?: PolyesterRequestOptions,
-    ): Promise<{ trades: Trade[]; nextPageToken: string }> {
+    ): Promise<{ trades: Trade[]; transfers: OrderTransfer[]; nextPageToken: string }> {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validatedInput = parse(GetUserTradesInputSchema, resolved);
@@ -63,6 +66,7 @@ export class TradesService {
         );
         return {
             trades: parse(v.array(this.#userTradeSchema), res.trades),
+            transfers: parse(v.array(createOrderTransferSchema()), res.transfers ?? []),
             nextPageToken: res.nextPageToken,
         };
     }

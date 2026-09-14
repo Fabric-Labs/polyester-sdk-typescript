@@ -28,6 +28,7 @@ export type {
     OrderErrorDetail,
     OrderIntentInput,
     Order,
+    OrderLineage,
     OrderDetails,
     OrderHistoryInput,
     OrderTransfer,

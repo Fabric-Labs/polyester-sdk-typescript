@@ -128,6 +128,7 @@ import {
     feesPb,
     ledgerReadPb,
     ordersPb,
+    ordersReadPb,
     resolvePb,
     subaccountsPb,
     tradingRateLimitPb,
@@ -156,6 +157,24 @@ type IsAny<T> = 0 extends 1 & T ? true : false;
 function expectNotAny<T>(_value: T, _proof: IsAny<T> extends true ? never : true): void {}
 
 async function verifyServiceInference(): Promise<void> {
+    const details = await client.orders.getDetails({ orderId: "P", limit: 100, pageToken: "next" });
+    if (details) {
+        expectType<string>(details.nextPageToken);
+        expectType<import("@polyester/sdk").OrderLineage | undefined>(details.order.lineage);
+        expectType<string | undefined>(details.trades[0]?.lineage?.id);
+        expectType<number | undefined>(details.transfers[0]?.symbolId);
+    }
+    await client.orders.getDetails({ orderId: "P", includeExecutionHistory: false });
+    const executions = await client.trades.list({ lineageId: "P", throughGeneration: 2, includeTransfers: true });
+    expectType<import("@polyester/sdk").OrderTransfer[]>(executions.transfers);
+    expectType<number | undefined>(executions.trades[0]?.lineage?.generation);
+    await client.trades.list({ orderId: "P" });
+    // @ts-expect-error Execution scopes are mutually exclusive.
+    client.trades.list({ orderId: "P", lineageId: "Q" });
+    // @ts-expect-error Replay requires a symbol.
+    client.trades.list({ afterMatchId: "1" });
+    expectNotAny(ordersReadPb.OrderLineageSchema, true);
+
     const challengeInput: import("@polyester/sdk").CreateWalletChallengeInput = {
         smartAccountAddress: "0x1111111111111111111111111111111111111111",
         signerAddress: "0x1111111111111111111111111111111111111111",
