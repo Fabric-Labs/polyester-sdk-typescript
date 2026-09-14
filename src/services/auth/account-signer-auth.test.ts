@@ -156,6 +156,26 @@ describe("AccountSignerAuthService", () => {
         expect(accountSigner.signMessage).not.toHaveBeenCalled();
     });
 
+    it("reuses the login origin for refresh and subaccount challenges outside a browser", async () => {
+        vi.stubGlobal("location", undefined);
+        const accountSigner = signer();
+        const auth = authService(accountSigner);
+        const { createWalletChallenge } = mockLogin(auth);
+        await auth.login({ uri: "https://app.example", provider: "other" });
+        await auth.refreshSession();
+        expect(createWalletChallenge).toHaveBeenLastCalledWith(
+            expect.objectContaining({ uri: "https://app.example", purpose: "login" }),
+        );
+        await auth.refreshSession({ uri: "https://other.example" });
+        expect(createWalletChallenge).toHaveBeenLastCalledWith(
+            expect.objectContaining({ uri: "https://other.example" }),
+        );
+        await auth.logout();
+        await expect(auth.login({ provider: "other" })).rejects.toThrow(
+            "Pass uri outside a browser",
+        );
+    });
+
     it("does not sign or commit a session after challenge failure and can retry", async () => {
         const accountSigner = signer();
         const tokenStorage = createTestStorage();

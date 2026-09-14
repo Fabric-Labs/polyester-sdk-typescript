@@ -1,6 +1,7 @@
 import {
     WalletAddressSchema,
     WalletChallengeMessageSchema,
+    WalletSignatureSchema,
 } from "../auth/wallet-challenge.schemas.js";
 import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
 import * as ProtoPolicies from "../../gen/auth/v1/policies_pb.js";
@@ -119,7 +120,7 @@ export const CreateSubaccountInputSchema = v.strictObject({
     color: v.optional(v.string(), ""),
     smartAccountAddress: WalletAddressSchema,
     message: WalletChallengeMessageSchema,
-    signature: v.pipe(v.string(), v.minLength(1)),
+    signature: WalletSignatureSchema,
 });
 
 export type CreateSubaccountInput = v.InferInput<typeof CreateSubaccountInputSchema>;

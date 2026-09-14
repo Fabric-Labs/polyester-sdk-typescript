@@ -51,7 +51,7 @@ export interface CreateSubaccountParams {
     accountSigner: AccountSigner;
     /** Optional human-readable label for this subaccount */
     label?: string;
-    /** Browser origin requesting the signature; defaults to location.origin in browsers. */
+    /** Browser origin requesting the signature; defaults to location.origin in browsers. Required outside browsers. */
     uri?: string;
 }
 
@@ -81,6 +81,7 @@ export class AccountSignerAuthService extends AuthService {
     #subaccounts: SubaccountsService;
     #walletProvider: "metamask" | "turnkey" | "other" | undefined = undefined;
     #loginMethod: AuthLoginMethod | null = null;
+    #challengeUri: string | undefined = undefined;
     #environmentFingerprint: string;
     #tokenStorage: AuthTokenStorage;
     #sessionStore: AuthSessionStore;
@@ -165,10 +166,11 @@ export class AccountSignerAuthService extends AuthService {
         const smartAccountAddress = accountSigner.accountAddress;
         const ownerAddress = accountSigner.ownerAddress ?? accountSigner.accountAddress;
 
+        const uri = resolveChallengeUri(options.uri ?? this.#challengeUri);
         const { message } = await this.createWalletChallenge({
             smartAccountAddress,
             signerAddress: accountSigner.accountAddress,
-            uri: resolveChallengeUri(options.uri),
+            uri,
             purpose: "login",
         });
         const signature = await accountSigner.signMessage(message);
@@ -211,6 +213,7 @@ export class AccountSignerAuthService extends AuthService {
         this.#activeAccountId = activeAccount?.accountId ?? response.accountId;
         this.#walletProvider = provider;
         this.#loginMethod = resolvedLoginMethod;
+        this.#challengeUri = uri;
         this.#accountIdentity = this.#identityFromSigner(accountSigner);
 
         this.#notifyStateChange();
@@ -329,6 +332,7 @@ export class AccountSignerAuthService extends AuthService {
         this.#mainAccountId = null;
         this.#activeAccountId = null;
         this.#loginMethod = null;
+        this.#challengeUri = undefined;
         this.#accountIdentity = null;
 
         this.#sessionStore.clear();
@@ -346,6 +350,7 @@ export class AccountSignerAuthService extends AuthService {
         this.#mainAccountId = null;
         this.#activeAccountId = null;
         this.#loginMethod = null;
+        this.#challengeUri = undefined;
         this.#accountIdentity = null;
         this.#notifyStateChange();
         if (shouldEmitLoggedOut) {
@@ -366,6 +371,7 @@ export class AccountSignerAuthService extends AuthService {
      * Refreshes the active account-signer session and updates persisted auth state.
      */
     async refreshSession(params?: {
+        /** Overrides the origin remembered from login. */
         uri?: string;
         provider?: "metamask" | "turnkey" | "other";
         loginMethod?: AuthLoginMethod | null;
@@ -440,7 +446,7 @@ export class AccountSignerAuthService extends AuthService {
         const { message } = await this.createWalletChallenge({
             smartAccountAddress: accountSigner.accountAddress,
             signerAddress: accountSigner.accountAddress,
-            uri: resolveChallengeUri(params.uri),
+            uri: resolveChallengeUri(params.uri ?? this.#challengeUri),
             purpose: "create_subaccount",
         });
         const signature = await accountSigner.signMessage(message);

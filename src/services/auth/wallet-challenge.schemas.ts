@@ -10,18 +10,10 @@ export const WalletChallengeUriSchema = v.pipe(
     v.string(),
     v.maxLength(2048),
     v.check((value) => {
+        if (!/^https?:\/\/[^/?#\s\\]+$/.test(value)) return false;
         try {
             const url = new URL(value);
-            return (
-                (url.protocol === "https:" || url.protocol === "http:") &&
-                url.origin !== "null" &&
-                !url.username &&
-                !url.password &&
-                url.pathname === "/" &&
-                !url.search &&
-                !url.hash &&
-                /^https?:\/\/[^/?#\s\\]+$/.test(value)
-            );
+            return !url.username && !url.password;
         } catch {
             return false;
         }

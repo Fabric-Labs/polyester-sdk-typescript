@@ -188,21 +188,17 @@ describe("wallet challenges", () => {
         }
     });
 
-    it("preserves universal signatures with the distinct login and subaccount bounds", () => {
+    it("preserves universal signatures up to 8192 characters for login and subaccount inputs", () => {
         const input = {
             smartAccountAddress: challengeInput.smartAccountAddress,
             message: "message",
             signature: "a".repeat(8192),
         };
-        expect(parse(LoginWithWalletInputSchema, input).signature).toHaveLength(8192);
-        expect(() =>
-            parse(LoginWithWalletInputSchema, { ...input, signature: input.signature + "a" }),
-        ).toThrow(ValidationError);
-        expect(
-            parse(CreateSubaccountInputSchema, { ...input, signature: input.signature + "a" })
-                .signature,
-        ).toHaveLength(8193);
         for (const schema of [LoginWithWalletInputSchema, CreateSubaccountInputSchema]) {
+            expect(parse(schema, input).signature).toHaveLength(8192);
+            expect(() => parse(schema, { ...input, signature: input.signature + "a" })).toThrow(
+                ValidationError,
+            );
             expect(() => parse(schema, { ...input, signature: "" })).toThrow(ValidationError);
         }
     });
