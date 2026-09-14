@@ -184,12 +184,15 @@ describe("GetUserTradesInputSchema", () => {
     });
 
     it("rejects incompatible execution scopes and invalid generation bounds", () => {
-        expect(() =>
-            v.parse(GetUserTradesInputSchema, {
-                orderId: formatId(5n),
-                lineageId: formatId(6n),
-            }),
-        ).toThrow("Provide at most one of orderId or lineageId");
+        for (const filters of [{}, { symbolId: "1", afterMatchId: "1" }]) {
+            expect(() =>
+                v.parse(GetUserTradesInputSchema, {
+                    ...filters,
+                    orderId: formatId(5n),
+                    lineageId: formatId(6n),
+                }),
+            ).toThrow("Provide at most one of orderId or lineageId");
+        }
         expect(() => v.parse(GetUserTradesInputSchema, { limit: 0 })).toThrow();
         expect(() => v.parse(GetUserTradesInputSchema, { limit: 1001 })).toThrow();
         expect(() =>

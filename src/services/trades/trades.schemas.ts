@@ -129,16 +129,6 @@ function userTradesScopeSchemas<const TEntries extends v.ObjectEntries>(entries:
             lineageId: positiveOrderIdInputSchema("lineageId"),
             throughGeneration: ThroughGenerationSchema,
         }),
-        // Typed-but-failing branch so the union reports the scope conflict instead of the cursor message.
-        v.pipe(
-            v.strictObject({
-                ...entries,
-                orderId: positiveOrderIdInputSchema("orderId"),
-                lineageId: positiveOrderIdInputSchema("lineageId"),
-                throughGeneration: ThroughGenerationSchema,
-            }),
-            v.check(() => false, EXECUTION_SCOPE_CONFLICT),
-        ),
     ] as const;
 }
 
@@ -175,9 +165,15 @@ const ReplayUserTradesInputSchema = v.union(
 
 /** Validates filters accepted by {@link TradesService.list}. */
 export const GetUserTradesInputSchema = v.pipe(
-    v.union(
-        [BrowseUserTradesInputSchema, ReplayUserTradesInputSchema],
-        AFTER_MATCH_REQUIRES_SYMBOL,
+    v.union([BrowseUserTradesInputSchema, ReplayUserTradesInputSchema], ({ input }) =>
+        typeof input === "object" &&
+        input !== null &&
+        "orderId" in input &&
+        input.orderId !== undefined &&
+        "lineageId" in input &&
+        input.lineageId !== undefined
+            ? EXECUTION_SCOPE_CONFLICT
+            : AFTER_MATCH_REQUIRES_SYMBOL,
     ),
     v.transform(({ account, orderId, lineageId, ...input }) => {
         const executionScope =
