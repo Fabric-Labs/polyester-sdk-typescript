@@ -20,7 +20,7 @@ export interface AccountSigner {
     /** The owner/EOA address (optional metadata about the controlling signer) */
     readonly ownerAddress?: HexAddress;
 
-    /** Sign a message and return the signature */
+    /** Sign the exact UTF-8 message with EIP-191 semantics for accountAddress (including smart-account wrapping when required). */
     signMessage(message: string): Promise<Hex>;
 }
 

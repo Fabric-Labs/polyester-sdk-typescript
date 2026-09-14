@@ -156,6 +156,19 @@ type IsAny<T> = 0 extends 1 & T ? true : false;
 function expectNotAny<T>(_value: T, _proof: IsAny<T> extends true ? never : true): void {}
 
 async function verifyServiceInference(): Promise<void> {
+    const challengeInput: import("@polyester/sdk").CreateWalletChallengeInput = {
+        smartAccountAddress: "0x1111111111111111111111111111111111111111",
+        signerAddress: "0x1111111111111111111111111111111111111111",
+        uri: "https://app.example", purpose: "login",
+    };
+    const challenge = await client.auth.createWalletChallenge(challengeInput);
+    expectType<import("@polyester/sdk").WalletChallenge>(challenge);
+    expectType<import("@polyester/sdk").WalletChallengePurpose>(challengeInput.purpose);
+    expectType<string>(challenge.message);
+    expectType<number | undefined>(challenge.expiresAt);
+    // @ts-expect-error Nonce authentication was removed from the protocol.
+    client.auth.requestLoginNonce(challengeInput.smartAccountAddress);
+
     expectType<CurrencyConversionConfig>(await client.marketOverview.getCurrencyConversionConfig());
     const conversion = await client.marketOverview.getCurrencyConversionRates();
     expectType<CurrencyConversionRates>(conversion);

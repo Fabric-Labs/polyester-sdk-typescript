@@ -5,4 +5,11 @@ export type {
     LoginOptions,
     LoginResult,
 } from "./account-signer-auth.js";
-export type { LoginWithWalletInput, LoginWithWalletResponse, Me, Nonce } from "./auth.js";
+export type {
+    LoginWithWalletInput,
+    LoginWithWalletResponse,
+    Me,
+    WalletChallenge,
+    WalletChallengePurpose,
+    CreateWalletChallengeInput,
+} from "./auth.js";

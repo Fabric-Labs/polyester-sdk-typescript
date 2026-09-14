@@ -1,6 +1,7 @@
 import { createClient, type Client } from "@connectrpc/connect";
 import * as Proto from "../../gen/auth/v1/auth_pb.js";
 import * as v from "valibot";
+import { ValidationError } from "../../shared/errors.js";
 import { parse } from "../../shared/validation.js";
 import { ProfileService } from "./profile/profile.js";
 import {
@@ -17,13 +18,28 @@ import { MfaSessionInfoSchema } from "../mfa/mfa.schemas.js";
 import type { PolyesterRealtime } from "../../realtime/index.js";
 import type { AuthAndPublicApiTransports } from "../../shared/transports.js";
 
+import {
+    WalletAddressSchema,
+    WalletChallengeUriSchema,
+    WalletChallengeMessageSchema,
+    WalletSignatureSchema,
+} from "./wallet-challenge.schemas.js";
+
+export const CreateWalletChallengeInputSchema = v.strictObject({
+    smartAccountAddress: WalletAddressSchema,
+    signerAddress: WalletAddressSchema,
+    uri: WalletChallengeUriSchema,
+    purpose: v.picklist(["login", "create_subaccount"]),
+});
+export type CreateWalletChallengeInput = v.InferInput<typeof CreateWalletChallengeInputSchema>;
+export type WalletChallengePurpose = CreateWalletChallengeInput["purpose"];
+
 export const LoginWithWalletInputSchema = v.strictObject({
-    smartAccountAddress: v.string(),
-    nonce: v.string(),
-    signature: v.string(),
+    smartAccountAddress: WalletAddressSchema,
+    message: WalletChallengeMessageSchema,
+    signature: WalletSignatureSchema,
     userAgent: v.optional(v.string(), ""),
     ip: v.optional(v.string(), ""),
-    primaryWalletAddress: v.optional(v.string(), ""),
     walletProvider: v.optional(v.string(), ""),
 });
 
@@ -47,12 +63,12 @@ const LoginWithWalletResponseSchema = v.object({
 
 export type LoginWithWalletResponse = v.InferOutput<typeof LoginWithWalletResponseSchema>;
 
-const NonceSchema = v.object({
-    nonce: v.string(),
+const WalletChallengeSchema = v.object({
+    message: WalletChallengeMessageSchema,
     expiresAt: OptionalTimestampMsSchema,
 });
 
-export type Nonce = v.InferOutput<typeof NonceSchema>;
+export type WalletChallenge = v.InferOutput<typeof WalletChallengeSchema>;
 
 /**
  * Handles wallet-based authentication, caller introspection, and authenticated profile operations.
@@ -87,26 +103,39 @@ export class AuthService {
     }
 
     /**
-     * Requests a short-lived nonce for the given smart-account EVM address.
-     * The nonce is single-purpose, replaced by subsequent requests, and expires
-     * after about five minutes. The optional expiry is milliseconds since the
-     * Unix epoch.
+     * Requests a server-issued SIWE message. Sign its exact UTF-8 bytes with
+     * personal_sign; do not hash or reconstruct it. Expiry is epoch milliseconds.
      */
-    async requestLoginNonce(
-        smartAccountAddress: string,
+    async createWalletChallenge(
+        input: CreateWalletChallengeInput,
         options?: PolyesterRequestOptions,
-    ): Promise<Nonce> {
+    ): Promise<WalletChallenge> {
+        const validated = parse(CreateWalletChallengeInputSchema, input);
+        if (
+            validated.purpose === "create_subaccount" &&
+            validated.signerAddress.toLowerCase() !== validated.smartAccountAddress.toLowerCase()
+        ) {
+            throw new ValidationError(
+                "Subaccount challenge signer must equal the smart account address.",
+            );
+        }
         return parse(
-            NonceSchema,
-            await this.#publicClient.getNonce(
-                { smartAccountAddress },
+            WalletChallengeSchema,
+            await this.#publicClient.createWalletChallenge(
+                {
+                    ...validated,
+                    purpose:
+                        validated.purpose === "login"
+                            ? Proto.WalletChallengePurpose.LOGIN
+                            : Proto.WalletChallengePurpose.CREATE_SUBACCOUNT,
+                },
                 toConnectCallOptions(options),
             ),
         );
     }
 
     /**
-     * Exchanges a signed login nonce for an authenticated session token and account identity returned by the auth API.
+     * Exchanges a signed SIWE message for an authenticated session token and account identity returned by the auth API.
      */
     protected async loginWithWallet(
         input: LoginWithWalletInput,

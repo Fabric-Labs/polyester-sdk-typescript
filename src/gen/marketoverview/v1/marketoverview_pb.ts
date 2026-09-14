@@ -458,7 +458,8 @@ export type CurrencyMetadata = Message<"marketoverview.v1.CurrencyMetadata"> & {
   defaultEnglishName: string;
 
   /**
-   * Default English display symbol; the code is used where no distinct symbol exists.
+   * Representative local display symbol; multiple currencies may share a symbol.
+   * Uses the code when the selected local display data has no distinct visible symbol.
    *
    * @generated from field: string symbol = 3;
    */

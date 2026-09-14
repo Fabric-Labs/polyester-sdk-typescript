@@ -5,6 +5,11 @@ import {
     unaryTransportSequence,
 } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
+import { WalletChallengePurpose } from "../../gen/auth/v1/auth_pb.js";
+import { ValidationError, ServiceUnavailableError } from "../../shared/errors.js";
+import { LoginWithWalletInputSchema } from "./auth.js";
+import { CreateSubaccountInputSchema } from "../subaccounts/subaccounts.schemas.js";
+import { parse } from "../../shared/validation.js";
 import { AuthService } from "./auth.js";
 
 describe("AuthService", () => {
@@ -59,9 +64,9 @@ describe("AuthService", () => {
         });
     });
 
-    it("returns a JSON-safe epoch-millisecond nonce expiry", async () => {
+    it("returns a JSON-safe epoch-millisecond challenge expiry", async () => {
         const transport = unaryTransport({
-            nonce: "nonce-1",
+            message: "server message",
             expiresAt: { seconds: 1_785_940_604n, nanos: 369_342_000 },
         });
         const service = new AuthService(
@@ -69,11 +74,144 @@ describe("AuthService", () => {
             realtimeClientStub().realtime,
         );
 
-        const nonce = await service.requestLoginNonce("0x1234");
+        const challenge = await service.createWalletChallenge({
+            smartAccountAddress: "0x1111111111111111111111111111111111111111",
+            signerAddress: "0x1111111111111111111111111111111111111111",
+            uri: "https://app.example",
+            purpose: "login",
+        });
 
-        expect(nonce).toEqual({ nonce: "nonce-1", expiresAt: 1_785_940_604_369 });
-        expectTypeOf(nonce.expiresAt).toEqualTypeOf<number | undefined>();
-        expect(new Date(nonce.expiresAt ?? NaN).getTime()).toBe(1_785_940_604_369);
-        expect(JSON.stringify(nonce)).toBe('{"nonce":"nonce-1","expiresAt":1785940604369}');
+        expect(challenge).toEqual({ message: "server message", expiresAt: 1_785_940_604_369 });
+        expectTypeOf(challenge.expiresAt).toEqualTypeOf<number | undefined>();
+        expect(new Date(challenge.expiresAt ?? NaN).getTime()).toBe(1_785_940_604_369);
+        expect(JSON.stringify(challenge)).toBe(
+            '{"message":"server message","expiresAt":1785940604369}',
+        );
+    });
+});
+
+const challengeInput = {
+    smartAccountAddress: "0x1111111111111111111111111111111111111111",
+    signerAddress: "0x1111111111111111111111111111111111111111",
+    uri: "https://app.example:8443",
+    purpose: "login" as const,
+};
+
+function challengeService(response: Parameters<typeof unaryTransport>[0]) {
+    const publicApi = unaryTransport(response);
+    const authApi = unaryTransport({});
+    const service = new AuthService(
+        { publicApi: publicApi.transport, authApi: authApi.transport },
+        realtimeClientStub().realtime,
+    );
+    return { service, publicApi, authApi };
+}
+
+describe("wallet challenges", () => {
+    it("maps both purposes through the public transport and preserves exact message bytes", async () => {
+        const message = "  server SIWE message ☃\nwith final newline\n";
+        const { service, publicApi, authApi } = challengeService({ message });
+        const signal = new AbortController().signal;
+        await expect(service.createWalletChallenge(challengeInput, { signal })).resolves.toEqual({
+            message,
+        });
+        await service.createWalletChallenge({ ...challengeInput, purpose: "create_subaccount" });
+        expect(publicApi.calls[0]).toMatchObject({
+            method: { localName: "createWalletChallenge" },
+            signal,
+            message: { ...challengeInput, purpose: WalletChallengePurpose.LOGIN },
+        });
+        expect(publicApi.calls[1]?.message).toMatchObject({
+            purpose: WalletChallengePurpose.CREATE_SUBACCOUNT,
+        });
+        expect(authApi.calls).toHaveLength(0);
+    });
+
+    it.each([
+        "https://app.example/path",
+        "https://app.example/",
+        "https://app.example?q=1",
+        "https://app.example#fragment",
+        "https://user:pass@app.example",
+        "file:///tmp",
+        "not-an-origin",
+    ])("rejects invalid origin %s before transport", async (uri) => {
+        const { service, publicApi } = challengeService({ message: "message" });
+        await expect(
+            service.createWalletChallenge({ ...challengeInput, uri }),
+        ).rejects.toBeInstanceOf(ValidationError);
+        expect(publicApi.calls).toHaveLength(0);
+    });
+
+    it("rejects subaccount signer mismatch and unspecified or unknown purposes before transport", async () => {
+        const { service, publicApi } = challengeService({ message: "message" });
+        await expect(
+            service.createWalletChallenge({
+                ...challengeInput,
+                purpose: "create_subaccount",
+                signerAddress: "0x2222222222222222222222222222222222222222",
+            }),
+        ).rejects.toBeInstanceOf(ValidationError);
+        for (const purpose of [undefined, "unknown", 0]) {
+            await expect(
+                // @ts-expect-error Exercise untyped consumers.
+                service.createWalletChallenge({ ...challengeInput, purpose }),
+            ).rejects.toBeInstanceOf(ValidationError);
+        }
+        expect(publicApi.calls).toHaveLength(0);
+    });
+
+    it("enforces the 4096-byte message bound for responses and both consuming inputs", async () => {
+        const atLimit = "é".repeat(2048);
+        const overLimit = atLimit + "a";
+        const { service } = challengeService((_call, index) => ({
+            message: index === 0 ? atLimit : overLimit,
+        }));
+        await expect(service.createWalletChallenge(challengeInput)).resolves.toMatchObject({
+            message: atLimit,
+        });
+        await expect(service.createWalletChallenge(challengeInput)).rejects.toBeInstanceOf(
+            ValidationError,
+        );
+        const input = {
+            smartAccountAddress: challengeInput.smartAccountAddress,
+            message: atLimit,
+            signature: "0x1234",
+        };
+        for (const schema of [LoginWithWalletInputSchema, CreateSubaccountInputSchema]) {
+            expect(parse(schema, input).message).toBe(atLimit);
+            expect(() => parse(schema, { ...input, message: overLimit })).toThrow(ValidationError);
+            expect(() => parse(schema, { ...input, nonce: "obsolete" })).toThrow(ValidationError);
+            expect(() =>
+                parse(schema, { ...input, primaryWalletAddress: challengeInput.signerAddress }),
+            ).toThrow(ValidationError);
+        }
+    });
+
+    it("preserves universal signatures up to 8192 characters for login and subaccount inputs", () => {
+        const input = {
+            smartAccountAddress: challengeInput.smartAccountAddress,
+            message: "message",
+            signature: "a".repeat(8192),
+        };
+        for (const schema of [LoginWithWalletInputSchema, CreateSubaccountInputSchema]) {
+            expect(parse(schema, input).signature).toHaveLength(8192);
+            expect(() => parse(schema, { ...input, signature: input.signature + "a" })).toThrow(
+                ValidationError,
+            );
+            expect(() => parse(schema, { ...input, signature: "" })).toThrow(ValidationError);
+        }
+    });
+
+    it("preserves typed failures and permits a subsequent challenge request", async () => {
+        const failure = new ServiceUnavailableError("temporarily unavailable");
+        const { service } = challengeService((_call, index) => {
+            if (index === 0) throw failure;
+            return { message: "fresh challenge" };
+        });
+        await expect(service.createWalletChallenge(challengeInput)).rejects.toBe(failure);
+        await expect(service.createWalletChallenge(challengeInput)).resolves.toMatchObject({
+            message: "fresh challenge",
+        });
     });
 });
