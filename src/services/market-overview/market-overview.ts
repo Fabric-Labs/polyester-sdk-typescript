@@ -148,6 +148,7 @@ export class MarketOverviewService {
     subscribe(input: SubscribeMarketOverviewInput): () => void {
         const channel = "public:spot:market_overview:updates:proto";
         const bySymbolId = new Map<number, MarketOverview>();
+        const symbolIds = new Set(input.symbolIds);
         const includeSparklines = input.includeSparklines ?? true;
         const sparklineIntervals = input.sparklineIntervals ?? ["24h"];
         const listMarketOverview = this.list.bind(this);
@@ -156,13 +157,13 @@ export class MarketOverviewService {
             input.onEvent(Array.from(bySymbolId.values()));
         }
 
-        function handleMarketUpdate(m: MarketOverview): void {
-            bySymbolId.set(m.symbolId, m);
+        function matchesSymbol(market: { symbolId: number }): boolean {
+            return symbolIds.size === 0 || symbolIds.has(market.symbolId);
         }
 
         function applyMarkets(markets: readonly MarketOverview[]): void {
             for (const market of markets) {
-                handleMarketUpdate(market);
+                if (matchesSymbol(market)) bySymbolId.set(market.symbolId, market);
             }
         }
 
@@ -182,7 +183,7 @@ export class MarketOverviewService {
             maxBufferedPublications: 2000,
             snapshotErrorLog: "Failed to fetch market overview",
             fetchSnapshot,
-            readPublication: (batch) => batch.markets ?? [],
+            readPublication: (batch) => batch.markets.filter(matchesSymbol),
             bufferPublicationKey: (market) => market.symbolId,
             applySnapshot: (markets, bufferedMarkets) => {
                 bySymbolId.clear();
