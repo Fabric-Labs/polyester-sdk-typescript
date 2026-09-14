@@ -417,9 +417,18 @@ export const GetOrderDetailsInputSchema = v.pipe(
         orderId: v.optional(OrderIdInputSchema),
         clientOrderId: v.optional(ClientOrderIdInputSchema),
         ...AccountScopeInputEntries,
+        includeExecutionHistory: v.optional(v.boolean()),
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(1000))),
+        pageToken: v.optional(v.pipe(v.string(), v.trim())),
         includeAttachedRisk: v.optional(v.boolean(), true),
         includeAttachedRiskState: v.optional(v.boolean(), true),
     }),
+    v.check(
+        (input) =>
+            input.includeExecutionHistory !== false ||
+            (input.limit === undefined && input.pageToken === undefined),
+        "limit and pageToken must be omitted when includeExecutionHistory is false",
+    ),
     v.check((input) => {
         const hasOrderId = input.orderId !== undefined;
         const hasClientOrderId = input.clientOrderId !== undefined;

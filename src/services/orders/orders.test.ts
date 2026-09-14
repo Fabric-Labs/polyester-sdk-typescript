@@ -861,6 +861,61 @@ describe("OrdersService", () => {
         });
     });
 
+    it("serializes bounded execution-history detail requests", async () => {
+        const controller = new AbortController();
+        const transport = unaryTransportByMethod({ getOrder: {} });
+        const service = new OrdersService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await expect(
+            service.getDetails(
+                {
+                    orderId: formatId(11n),
+                    includeExecutionHistory: true,
+                    limit: 1_000,
+                    pageToken: " execution-cursor ",
+                },
+                { signal: controller.signal },
+            ),
+        ).resolves.toBeNull();
+
+        expect(transport.lastCall()).toMatchObject({
+            signal: controller.signal,
+            message: {
+                key: { case: "orderId", value: 11n },
+                includeExecutionHistory: true,
+                limit: 1_000,
+                pageToken: "execution-cursor",
+                includeAttachedRisk: true,
+                includeAttachedRiskState: true,
+            },
+        });
+    });
+
+    it("rejects invalid or state-only execution-history pagination before requesting", async () => {
+        const transport = unaryTransportByMethod({ getOrder: {} });
+        const service = new OrdersService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+        const orderId = formatId(11n);
+
+        await expect(service.getDetails({ orderId, limit: 0 })).rejects.toThrow();
+        await expect(service.getDetails({ orderId, limit: 1_001 })).rejects.toThrow();
+        await expect(
+            service.getDetails({ orderId, includeExecutionHistory: false, pageToken: "cursor" }),
+        ).rejects.toThrow(
+            "limit and pageToken must be omitted when includeExecutionHistory is false",
+        );
+        expect(transport.unary).not.toHaveBeenCalled();
+    });
+
     it("returns null when the backend reports that the order was not found", async () => {
         const service = new OrdersService(
             {
@@ -918,7 +973,10 @@ describe("OrdersService", () => {
     it("parses populated order details responses to decimal strings", async () => {
         const transport = unaryTransportByMethod({
             getOrder: {
-                order: protoOrder({ status: ProtoRead.OrderStatus.FILLED }),
+                order: protoOrder({
+                    status: ProtoRead.OrderStatus.FILLED,
+                    lineage: create(ProtoRead.OrderLineageSchema, { id: 7n, generation: 2 }),
+                }),
                 trades: [
                     {
                         orderId: 11n,
@@ -933,12 +991,14 @@ describe("OrdersService", () => {
                         referralShareAmountE18: { hi: 0n, lo: 250_000_000_000_000n },
                         tsNs: 1_000_000n,
                         feeIsRebate: true,
+                        lineage: { id: 7n, generation: 1 },
                     },
                 ],
                 transfers: [
                     {
                         txId: "tx-1",
                         matchId: 5n,
+                        symbolId: 1,
                         assetId: 1,
                         amountE18: { hi: 0n, lo: 1_500_000_000_000_000_000n },
                         isDebit: false,
@@ -947,6 +1007,7 @@ describe("OrdersService", () => {
                         tsNs: 1_000_000n,
                     },
                 ],
+                nextPageToken: "execution-next",
             },
         });
         const service = new OrdersService(
@@ -963,6 +1024,7 @@ describe("OrdersService", () => {
                 status: "filled",
                 totalQty: "1",
                 price: "100",
+                lineage: { id: formatId(7n), generation: 2 },
             },
             trades: [
                 expect.objectContaining({
@@ -971,17 +1033,37 @@ describe("OrdersService", () => {
                     fee: "0.00125",
                     referralShare: "0.00025",
                     feeIsRebate: true,
+                    lineage: { id: formatId(7n), generation: 1 },
                 }),
             ],
             transfers: [
                 expect.objectContaining({
                     txId: "tx-1",
                     assetId: 1,
+                    symbolId: 1,
                     // BTC (ledgerId 1) quantityScale 8: 150000000n -> "1.5".
                     amount: "1.5",
                 }),
             ],
+            nextPageToken: "execution-next",
         });
+    });
+
+    it("keeps orders without lineage metadata compatible with older responses", async () => {
+        const transport = unaryTransportByMethod({
+            getOrder: { order: protoOrder(), trades: [], transfers: [], nextPageToken: "" },
+        });
+        const service = new OrdersService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        const details = await service.getDetails({ orderId: formatId(11n) });
+
+        expect(details?.order).not.toHaveProperty("lineage");
+        expect(details).toMatchObject({ trades: [], transfers: [], nextPageToken: "" });
     });
 
     it("uses private order channels and parses realtime publications", async () => {
@@ -1014,7 +1096,12 @@ describe("OrdersService", () => {
             type: "transport",
             error: { code: 0, message: "boom" },
         });
-        realtime.params?.onPublication(protoOrder({ status: ProtoRead.OrderStatus.FILLED }));
+        realtime.params?.onPublication(
+            protoOrder({
+                status: ProtoRead.OrderStatus.FILLED,
+                lineage: create(ProtoRead.OrderLineageSchema, { id: 7n, generation: 2 }),
+            }),
+        );
         await flushAsync();
 
         expect(onOpen).toHaveBeenCalledTimes(1);
@@ -1031,6 +1118,7 @@ describe("OrdersService", () => {
                 status: "filled",
                 totalQty: "1",
                 price: "100",
+                lineage: { id: formatId(7n), generation: 2 },
             }),
         );
 

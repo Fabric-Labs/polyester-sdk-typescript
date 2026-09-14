@@ -407,7 +407,11 @@ export class OrdersService {
     }
 
     /**
-     * Fetches one order by id or client order id and returns its order, trades, and transfer details when found. Returns null when the requested order is not found.
+     * Fetches one physical order and a bounded page of lineage executions through its generation.
+     * Pass nextPageToken as pageToken with the same orderId to continue; deduplicate transfers by txId.
+     * Set includeExecutionHistory to false for state-only polling, omitting limit and pageToken.
+     * Execution pages are eventually consistent and need not reconcile with cumulative order quantities.
+     * Returns null when the requested order is not found.
      */
     async getDetails(
         input: v.InferInput<typeof GetOrderDetailsInputSchema>,

@@ -112,6 +112,14 @@ describe("UserTradeSchema", () => {
         expect(parsed.feeIsRebate).toBe(true);
     });
 
+    it("projects optional order lineage", () => {
+        const schema = createUserTradeSchema(testScales());
+
+        expect(v.parse(schema, trade({ lineage: { id: 9n, generation: 2 } }))).toMatchObject({
+            lineage: { id: formatId(9n), generation: 2 },
+        });
+    });
+
     it("preserves user trades with an unspecified backend fee asset", () => {
         const schema = createUserTradeSchema(testScales());
 
@@ -148,5 +156,56 @@ describe("GetUserTradesInputSchema", () => {
     it("rejects invalid supplied timestamp filters", () => {
         expect(() => v.parse(GetUserTradesInputSchema, { startTsNs: "not-a-ts" })).toThrow();
         expect(() => v.parse(GetUserTradesInputSchema, { endTsNs: "12.3" })).toThrow();
+    });
+
+    it("maps physical-order and lineage scopes to the generated oneof", () => {
+        expect(
+            v.parse(GetUserTradesInputSchema, { orderId: formatId(5n), throughGeneration: 3 }),
+        ).toMatchObject({
+            executionScope: { case: "orderId", value: 5n },
+            throughGeneration: 3,
+        });
+        expect(
+            v.parse(GetUserTradesInputSchema, {
+                lineageId: formatId(6n),
+                throughGeneration: 3,
+            }),
+        ).toMatchObject({
+            executionScope: { case: "lineageId", value: 6n },
+            throughGeneration: 3,
+        });
+    });
+
+    it("preserves omitted transfers and passes an explicit transfer request", () => {
+        expect(v.parse(GetUserTradesInputSchema, {}).includeTransfers).toBeUndefined();
+        expect(v.parse(GetUserTradesInputSchema, { includeTransfers: true })).toMatchObject({
+            includeTransfers: true,
+        });
+    });
+
+    it("rejects incompatible execution scopes and invalid generation bounds", () => {
+        for (const filters of [{}, { symbolId: "1", afterMatchId: "1" }]) {
+            expect(() =>
+                v.parse(GetUserTradesInputSchema, {
+                    ...filters,
+                    orderId: formatId(5n),
+                    lineageId: formatId(6n),
+                }),
+            ).toThrow("Provide at most one of orderId or lineageId");
+        }
+        expect(() => v.parse(GetUserTradesInputSchema, { limit: 0 })).toThrow();
+        expect(() => v.parse(GetUserTradesInputSchema, { limit: 1001 })).toThrow();
+        expect(() =>
+            v.parse(GetUserTradesInputSchema, { lineageId: formatId(6n), throughGeneration: 0 }),
+        ).toThrow();
+        expect(() =>
+            v.parse(GetUserTradesInputSchema, { lineageId: formatId(6n), throughGeneration: 1.5 }),
+        ).toThrow();
+        expect(() =>
+            v.parse(GetUserTradesInputSchema, {
+                lineageId: formatId(6n),
+                throughGeneration: 4_294_967_296,
+            }),
+        ).toThrow();
     });
 });
