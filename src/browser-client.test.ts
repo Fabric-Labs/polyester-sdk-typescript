@@ -84,7 +84,9 @@ function installCookieJar(): { jar: Map<string, string>; writes: string[] } {
 }
 
 function mockClientLogin(client: PolyesterBrowserClient, accessToken: string) {
-    vi.spyOn(client.auth, "requestLoginNonce").mockResolvedValue({ nonce: "nonce-1" });
+    vi.spyOn(client.auth, "createWalletChallenge").mockResolvedValue({
+        message: "server-issued message ☃\nexact bytes",
+    });
     return vi
         .spyOn(
             client.auth as unknown as {
@@ -259,7 +261,7 @@ describe("PolyesterBrowserClient", () => {
         const token = jwtWithExp(Math.floor(Date.now() / 1000) + 3600);
         mockClientLogin(client, token);
 
-        await client.auth.login({ provider: "turnkey" });
+        await client.auth.login({ uri: "https://app.example", provider: "turnkey" });
 
         expect(cookies.jar.has(POLYESTER_AUTH_TOKEN_COOKIE_NAME)).toBe(false);
         expect(client.auth.getSessionTimeToExpiry()).toBeGreaterThan(0);
@@ -274,7 +276,7 @@ describe("PolyesterBrowserClient", () => {
         });
         const token = jwtWithExp(Math.floor(Date.now() / 1000) + 3600);
         mockClientLogin(client, token);
-        await client.auth.login({ provider: "turnkey" });
+        await client.auth.login({ uri: "https://app.example", provider: "turnkey" });
 
         client.auth.syncSessionUsername("alice");
 
@@ -303,7 +305,7 @@ describe("PolyesterBrowserClient", () => {
         const token = jwtWithExp(Math.floor(Date.now() / 1000) + 120);
         mockClientLogin(client, token);
 
-        await client.auth.login({ provider: "turnkey" });
+        await client.auth.login({ uri: "https://app.example", provider: "turnkey" });
 
         expect(cookies.jar.get(POLYESTER_AUTH_TOKEN_COOKIE_NAME)).toBe(token);
         expect(
@@ -379,13 +381,13 @@ describe("PolyesterBrowserClient", () => {
         });
         mockClientLogin(client, jwtWithExp(Math.floor(Date.now() / 1000) + 3600));
         client.setAccountSigner(rootSigner);
-        await client.auth.login({ provider: "turnkey" });
+        await client.auth.login({ uri: "https://app.example", provider: "turnkey" });
 
         await expect(
             client.auth.createSubaccount({
+                uri: "https://app.example",
                 accountSigner: subaccountSigner,
                 label: "Trading",
-                walletProvider: "turnkey",
             }),
         ).resolves.toEqual({
             subaccountId: "subaccount-1",
@@ -396,10 +398,8 @@ describe("PolyesterBrowserClient", () => {
         expect(create).toHaveBeenCalledWith({
             label: "Trading",
             smartAccountAddress: subaccountSigner.accountAddress,
-            nonce: "nonce-1",
+            message: "server-issued message ☃\nexact bytes",
             signature: "0xsignature",
-            primaryWalletAddress: rootSigner.ownerAddress,
-            walletProvider: "turnkey",
         });
     });
 });

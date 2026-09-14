@@ -41,6 +41,8 @@ export interface LoginOptions {
      * The wallet provider to use for login.
      */
     provider: "metamask" | "turnkey" | "other";
+    /** Browser origin requesting the signature; defaults to location.origin in browsers. Required outside browsers. */
+    uri?: string;
     loginMethod?: AuthLoginMethod | null;
 }
 
@@ -49,8 +51,8 @@ export interface CreateSubaccountParams {
     accountSigner: AccountSigner;
     /** Optional human-readable label for this subaccount */
     label?: string;
-    /** Wallet provider hint (e.g. "turnkey", "metamask"). Defaults to "wallet" */
-    walletProvider?: string;
+    /** Browser origin requesting the signature; defaults to location.origin in browsers. Required outside browsers. */
+    uri?: string;
 }
 
 export interface CreateSubaccountResult {
@@ -79,6 +81,7 @@ export class AccountSignerAuthService extends AuthService {
     #subaccounts: SubaccountsService;
     #walletProvider: "metamask" | "turnkey" | "other" | undefined = undefined;
     #loginMethod: AuthLoginMethod | null = null;
+    #challengeUri: string | undefined = undefined;
     #environmentFingerprint: string;
     #tokenStorage: AuthTokenStorage;
     #sessionStore: AuthSessionStore;
@@ -140,7 +143,7 @@ export class AccountSignerAuthService extends AuthService {
     }
 
     /**
-     * Signs a short-lived login nonce with the configured account signer, exchanges it for a session token, and stores the hydrated account/subaccount session state.
+     * Signs a server-issued SIWE message with the configured account signer, exchanges it for a session token, and stores the hydrated account/subaccount session state.
      */
     async login(options: LoginOptions): Promise<LoginResult> {
         return this.#login(options);
@@ -163,16 +166,19 @@ export class AccountSignerAuthService extends AuthService {
         const smartAccountAddress = accountSigner.accountAddress;
         const ownerAddress = accountSigner.ownerAddress ?? accountSigner.accountAddress;
 
-        const { nonce } = await this.requestLoginNonce(smartAccountAddress);
-
-        const message = `Polyester Login\n\nNonce: ${nonce}`;
+        const uri = resolveChallengeUri(options.uri ?? this.#challengeUri);
+        const { message } = await this.createWalletChallenge({
+            smartAccountAddress,
+            signerAddress: accountSigner.accountAddress,
+            uri,
+            purpose: "login",
+        });
         const signature = await accountSigner.signMessage(message);
 
         const response = await this.loginWithWallet({
             smartAccountAddress,
-            nonce,
+            message,
             signature,
-            primaryWalletAddress: ownerAddress,
             walletProvider: provider,
         });
 
@@ -207,6 +213,7 @@ export class AccountSignerAuthService extends AuthService {
         this.#activeAccountId = activeAccount?.accountId ?? response.accountId;
         this.#walletProvider = provider;
         this.#loginMethod = resolvedLoginMethod;
+        this.#challengeUri = uri;
         this.#accountIdentity = this.#identityFromSigner(accountSigner);
 
         this.#notifyStateChange();
@@ -325,6 +332,7 @@ export class AccountSignerAuthService extends AuthService {
         this.#mainAccountId = null;
         this.#activeAccountId = null;
         this.#loginMethod = null;
+        this.#challengeUri = undefined;
         this.#accountIdentity = null;
 
         this.#sessionStore.clear();
@@ -342,6 +350,7 @@ export class AccountSignerAuthService extends AuthService {
         this.#mainAccountId = null;
         this.#activeAccountId = null;
         this.#loginMethod = null;
+        this.#challengeUri = undefined;
         this.#accountIdentity = null;
         this.#notifyStateChange();
         if (shouldEmitLoggedOut) {
@@ -362,6 +371,8 @@ export class AccountSignerAuthService extends AuthService {
      * Refreshes the active account-signer session and updates persisted auth state.
      */
     async refreshSession(params?: {
+        /** Overrides the origin remembered from login. */
+        uri?: string;
         provider?: "metamask" | "turnkey" | "other";
         loginMethod?: AuthLoginMethod | null;
     }): Promise<LoginResult> {
@@ -373,6 +384,7 @@ export class AccountSignerAuthService extends AuthService {
         return this.#login(
             {
                 provider: this.#resolveRefreshProvider(params?.provider),
+                uri: params?.uri,
                 loginMethod: params?.loginMethod ?? this.#loginMethod,
             },
             currentSession?.activeAccount,
@@ -428,30 +440,22 @@ export class AccountSignerAuthService extends AuthService {
             );
         }
 
-        const { accountSigner, label = "", walletProvider = "wallet" } = params;
+        const { accountSigner, label = "" } = params;
         this.#assertAccountSignerEnvironment(accountSigner);
 
-        // request nonce for the subaccount's smart account address
-        const { nonce } = await this.requestLoginNonce(accountSigner.accountAddress);
-
-        // sign canonical login message with the subaccount account signer
-        const message = `Polyester Login\n\nNonce: ${nonce}`;
+        const { message } = await this.createWalletChallenge({
+            smartAccountAddress: accountSigner.accountAddress,
+            signerAddress: accountSigner.accountAddress,
+            uri: resolveChallengeUri(params.uri ?? this.#challengeUri),
+            purpose: "create_subaccount",
+        });
         const signature = await accountSigner.signMessage(message);
-
-        // use main account signer's owner address for primary wallet reference
-        const primaryWalletAddress =
-            this.#accountSigner?.ownerAddress ??
-            accountSigner.ownerAddress ??
-            this.#accountSigner?.accountAddress ??
-            "";
 
         const response = await this.#subaccounts.create({
             label,
             smartAccountAddress: accountSigner.accountAddress,
-            nonce,
+            message,
             signature,
-            primaryWalletAddress,
-            walletProvider,
         });
 
         return {
@@ -540,4 +544,13 @@ export class AccountSignerAuthService extends AuthService {
     #getEnvironmentSession(): SessionData | null {
         return this.#sessionStore.get();
     }
+}
+
+function resolveChallengeUri(uri: string | undefined): string {
+    const resolved = uri ?? (typeof location === "undefined" ? undefined : location.origin);
+    if (!resolved)
+        throw new ConfigurationError(
+            "Wallet authentication requires a browser origin URI. Pass uri outside a browser.",
+        );
+    return resolved;
 }

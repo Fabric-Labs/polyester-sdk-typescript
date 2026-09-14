@@ -77,8 +77,8 @@ describe("strict method inputs reject unknown keys", () => {
 
     it("rejects unknown keys on mutating inputs", () => {
         const create = {
-            smartAccountAddress: "0xabc",
-            nonce: "1",
+            smartAccountAddress: "0x1111111111111111111111111111111111111111",
+            message: "server message",
             signature: "0xsig",
         };
         expect(() => v.parse(CreateSubaccountInputSchema, create)).not.toThrow();

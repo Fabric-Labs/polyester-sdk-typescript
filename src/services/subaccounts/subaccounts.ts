@@ -140,7 +140,7 @@ export class SubaccountsService {
     }
 
     /**
-     * Creates a new subaccount under the caller's root account using a smart-account address, nonce, and signature proof.
+     * Creates a new subaccount under the caller's root account using a smart-account address, server-issued SIWE message, and signature proof.
      */
     async create(
         input: v.InferInput<typeof CreateSubaccountInputSchema>,

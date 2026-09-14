@@ -1,3 +1,8 @@
+import {
+    WalletAddressSchema,
+    WalletChallengeMessageSchema,
+    WalletSignatureSchema,
+} from "../auth/wallet-challenge.schemas.js";
 import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
 import * as ProtoPolicies from "../../gen/auth/v1/policies_pb.js";
 import * as v from "valibot";
@@ -113,11 +118,9 @@ export const CreateSubaccountInputSchema = v.strictObject({
     label: v.optional(v.string(), ""),
     icon: v.optional(v.string(), ""),
     color: v.optional(v.string(), ""),
-    smartAccountAddress: v.string(),
-    nonce: v.string(),
-    signature: v.string(),
-    primaryWalletAddress: v.optional(v.string(), ""),
-    walletProvider: v.optional(v.string(), ""),
+    smartAccountAddress: WalletAddressSchema,
+    message: WalletChallengeMessageSchema,
+    signature: WalletSignatureSchema,
 });
 
 export type CreateSubaccountInput = v.InferInput<typeof CreateSubaccountInputSchema>;

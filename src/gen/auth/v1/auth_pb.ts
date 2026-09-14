@@ -14,46 +14,69 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file auth/v1/auth.proto.
  */
 export const file_auth_v1_auth: GenFile = /*@__PURE__*/
-  fileDesc("ChJhdXRoL3YxL2F1dGgucHJvdG8SB2F1dGgudjEiMgoPR2V0Tm9uY2VSZXF1ZXN0Eh8KFXNtYXJ0X2FjY291bnRfYWRkcmVzcxgBIAEoCUIAIlEKEEdldE5vbmNlUmVzcG9uc2USDQoFbm9uY2UYASABKAkSLgoKZXhwaXJlc19hdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiwAEKFkxvZ2luV2l0aFdhbGxldFJlcXVlc3QSHwoVc21hcnRfYWNjb3VudF9hZGRyZXNzGAEgASgJQgASDwoFbm9uY2UYAiABKAlCABITCglzaWduYXR1cmUYAyABKAlCABIUCgp1c2VyX2FnZW50GAQgASgJQgASDAoCaXAYBSABKAlCABIgChZwcmltYXJ5X3dhbGxldF9hZGRyZXNzGAYgASgJQgASGQoPd2FsbGV0X3Byb3ZpZGVyGAcgASgJQgAirAEKF0xvZ2luV2l0aFdhbGxldFJlc3BvbnNlEhQKDGFjY2Vzc190b2tlbhgBIAEoCRIuCgpleHBpcmVzX2F0GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBISCgphY2NvdW50X2lkGAogASgGEhAKCHVzZXJuYW1lGA0gASgJEiUKB3Nlc3Npb24YFCABKAsyFC5hdXRoLnYxLlNlc3Npb25JbmZvIgsKCU1lUmVxdWVzdCKnAQoKTWVSZXNwb25zZRISCgphY2NvdW50X2lkGAEgASgGEhkKCmFwaV9rZXlfaWQYCiABKAlCAEgAiAEBEhAKCHVzZXJuYW1lGAsgASgJEiIKGnJvb3Rfc21hcnRfYWNjb3VudF9hZGRyZXNzGAwgASgJEiUKB3Nlc3Npb24YFCABKAsyFC5hdXRoLnYxLlNlc3Npb25JbmZvQg0KC19hcGlfa2V5X2lkIkgKD0F1dGhFcnJvckRldGFpbBIkCgRjb2RlGAEgASgOMhYuYXV0aC52MS5BdXRoRXJyb3JDb2RlEg8KB21lc3NhZ2UYAiABKAkiFAoSQWNjZXB0VGVybXNSZXF1ZXN0IhUKE0FjY2VwdFRlcm1zUmVzcG9uc2UqhQoKDUF1dGhFcnJvckNvZGUSFAoQQVVUSF9VTlNQRUNJRklFRBAAEhkKFUFVVEhfVVNFUk5BTUVfSU5WQUxJRBABEhcKE0FVVEhfVVNFUk5BTUVfVEFLRU4QAhIaChZBVVRIX1VTRVJOQU1FX0NPT0xET1dOEAMSIAocQVVUSF9VU0VSTkFNRV9GRUFUVVJFX0xPQ0tFRBAEEhoKFkFVVEhfVVNFUk5BTUVfUkVTRVJWRUQQBRIYChRBVVRIX0lOVkFMSURfUkVRVUVTVBAGEiAKHEFVVEhfQVVUSEVOVElDQVRJT05fUkVRVUlSRUQQBxIhCh1BVVRIX1NFU1NJT05fS0lORF9OT1RfQUxMT1dFRBAIEhwKGEFVVEhfV0FMTEVUX0xPR0lOX0ZBSUxFRBAJEhsKF0FVVEhfUkVTT1VSQ0VfTk9UX0ZPVU5EEAoSIQodQVVUSF9TVUJBQ0NPVU5UX0FDQ0VTU19ERU5JRUQQCxIeChpBVVRIX0FQSV9LRVlfQUNDRVNTX0RFTklFRBAMEioKJkFVVEhfQVBJX0tFWV9JTlZBTElEX1NUQVRVU19UUkFOU0lUSU9OEA4SFwoTQVVUSF9QT0xJQ1lfSU5WQUxJRBAPEiUKIUFVVEhfU01BUlRfQUNDT1VOVF9BTFJFQURZX0xJTktFRBAQEh0KGUFVVEhfSU5WSVRFX0FDQ0VTU19ERU5JRUQQERIdChlBVVRIX0lOVklURV9JTlZBTElEX1NUQVRFEBISFQoRQVVUSF9NRkFfRElTQUJMRUQQExIZChVBVVRIX01GQV9OT1RfRU5ST0xMRUQQFBIcChhBVVRIX01GQV9TRVNTSU9OX0lOVkFMSUQQFRIgChxBVVRIX01GQV9DSEFMTEVOR0VfTk9UX0ZPVU5EEBYSHgoaQVVUSF9NRkFfQ0hBTExFTkdFX0lOVkFMSUQQFxIdChlBVVRIX01GQV9DSEFMTEVOR0VfTE9DS0VEEBgSGAoUQVVUSF9NRkFfT1RQX0lOVkFMSUQQGRIdChlBVVRIX01GQV9SRUNPVkVSWV9JTlZBTElEEBoSIgoeQVVUSF9NRkFfUEFTU0tFWV9OT1RfQVZBSUxBQkxFEBsSJwojQVVUSF9NRkFfUEFTU0tFWV9DUkVERU5USUFMX0lOVkFMSUQQHBIiCh5BVVRIX01GQV9QQVNTS0VZX1ZFUklGWV9GQUlMRUQQHRInCiNBVVRIX01GQV9FTlJPTExNRU5UX0JJTkRJTkdfSU5WQUxJRBAeEhkKFUFVVEhfU1RFUF9VUF9SRVFVSVJFRBAfEiIKHkFVVEhfU1RFUF9VUF9QUk9PRl9VTkFWQUlMQUJMRRAgEiAKHEFVVEhfU1RFUF9VUF9BTFJFQURZX0NMQUlNRUQQIRIWChJBVVRIX1BPTElDWV9JTl9VU0UQIhIWChJBVVRIX1BPTElDWV9MT0NLRUQQIxIeChpBVVRIX1BPTElDWV9TQ09QRV9NSVNNQVRDSBAkEhoKFkFVVEhfUkVWSVNJT05fQ09ORkxJQ1QQJRIfChtBVVRIX01GQV9FTEVWQVRJT05fUkVRVUlSRUQQJhIhCh1BVVRIX01GQV9MQVNUX0ZBQ1RPUl9SRVFVSVJFRBAnEhcKE0FVVEhfSU5URVJOQUxfRVJST1IQKBIbChdBVVRIX1RFUk1TX05PVF9BQ0NFUFRFRBApMqgCCgtBdXRoU2VydmljZRJBCghHZXROb25jZRIYLmF1dGgudjEuR2V0Tm9uY2VSZXF1ZXN0GhkuYXV0aC52MS5HZXROb25jZVJlc3BvbnNlIgASVgoPTG9naW5XaXRoV2FsbGV0Eh8uYXV0aC52MS5Mb2dpbldpdGhXYWxsZXRSZXF1ZXN0GiAuYXV0aC52MS5Mb2dpbldpdGhXYWxsZXRSZXNwb25zZSIAEk0KC0FjY2VwdFRlcm1zEhsuYXV0aC52MS5BY2NlcHRUZXJtc1JlcXVlc3QaHC5hdXRoLnYxLkFjY2VwdFRlcm1zUmVzcG9uc2UiA5ACAhIvCgJNZRISLmF1dGgudjEuTWVSZXF1ZXN0GhMuYXV0aC52MS5NZVJlc3BvbnNlIgBCPFo6Z2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9hdXRoL3YxO2F1dGh2MWIGcHJvdG8z", [file_auth_v1_mfa, file_google_protobuf_timestamp]);
+  fileDesc("ChJhdXRoL3YxL2F1dGgucHJvdG8SB2F1dGgudjEinAEKHENyZWF0ZVdhbGxldENoYWxsZW5nZVJlcXVlc3QSHwoVc21hcnRfYWNjb3VudF9hZGRyZXNzGAEgASgJQgASGAoOc2lnbmVyX2FkZHJlc3MYAiABKAlCABINCgN1cmkYAyABKAlCABIyCgdwdXJwb3NlGAQgASgOMh8uYXV0aC52MS5XYWxsZXRDaGFsbGVuZ2VQdXJwb3NlQgAiYAodQ3JlYXRlV2FsbGV0Q2hhbGxlbmdlUmVzcG9uc2USDwoHbWVzc2FnZRgBIAEoCRIuCgpleHBpcmVzX2F0GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCKgAQoWTG9naW5XaXRoV2FsbGV0UmVxdWVzdBIfChVzbWFydF9hY2NvdW50X2FkZHJlc3MYASABKAlCABITCglzaWduYXR1cmUYAyABKAlCABIUCgp1c2VyX2FnZW50GAQgASgJQgASDAoCaXAYBSABKAlCABIZCg93YWxsZXRfcHJvdmlkZXIYByABKAlCABIRCgdtZXNzYWdlGAggASgJQgAirAEKF0xvZ2luV2l0aFdhbGxldFJlc3BvbnNlEhQKDGFjY2Vzc190b2tlbhgBIAEoCRIuCgpleHBpcmVzX2F0GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBISCgphY2NvdW50X2lkGAogASgGEhAKCHVzZXJuYW1lGA0gASgJEiUKB3Nlc3Npb24YFCABKAsyFC5hdXRoLnYxLlNlc3Npb25JbmZvIgsKCU1lUmVxdWVzdCKnAQoKTWVSZXNwb25zZRISCgphY2NvdW50X2lkGAEgASgGEhkKCmFwaV9rZXlfaWQYCiABKAlCAEgAiAEBEhAKCHVzZXJuYW1lGAsgASgJEiIKGnJvb3Rfc21hcnRfYWNjb3VudF9hZGRyZXNzGAwgASgJEiUKB3Nlc3Npb24YFCABKAsyFC5hdXRoLnYxLlNlc3Npb25JbmZvQg0KC19hcGlfa2V5X2lkIkgKD0F1dGhFcnJvckRldGFpbBIkCgRjb2RlGAEgASgOMhYuYXV0aC52MS5BdXRoRXJyb3JDb2RlEg8KB21lc3NhZ2UYAiABKAkiFAoSQWNjZXB0VGVybXNSZXF1ZXN0IhUKE0FjY2VwdFRlcm1zUmVzcG9uc2UqWAoWV2FsbGV0Q2hhbGxlbmdlUHVycG9zZRIcChhXQUxMRVRfUFJPT0ZfVU5TUEVDSUZJRUQQABIJCgVMT0dJThABEhUKEUNSRUFURV9TVUJBQ0NPVU5UEAIqhQoKDUF1dGhFcnJvckNvZGUSFAoQQVVUSF9VTlNQRUNJRklFRBAAEhkKFUFVVEhfVVNFUk5BTUVfSU5WQUxJRBABEhcKE0FVVEhfVVNFUk5BTUVfVEFLRU4QAhIaChZBVVRIX1VTRVJOQU1FX0NPT0xET1dOEAMSIAocQVVUSF9VU0VSTkFNRV9GRUFUVVJFX0xPQ0tFRBAEEhoKFkFVVEhfVVNFUk5BTUVfUkVTRVJWRUQQBRIYChRBVVRIX0lOVkFMSURfUkVRVUVTVBAGEiAKHEFVVEhfQVVUSEVOVElDQVRJT05fUkVRVUlSRUQQBxIhCh1BVVRIX1NFU1NJT05fS0lORF9OT1RfQUxMT1dFRBAIEhwKGEFVVEhfV0FMTEVUX0xPR0lOX0ZBSUxFRBAJEhsKF0FVVEhfUkVTT1VSQ0VfTk9UX0ZPVU5EEAoSIQodQVVUSF9TVUJBQ0NPVU5UX0FDQ0VTU19ERU5JRUQQCxIeChpBVVRIX0FQSV9LRVlfQUNDRVNTX0RFTklFRBAMEioKJkFVVEhfQVBJX0tFWV9JTlZBTElEX1NUQVRVU19UUkFOU0lUSU9OEA4SFwoTQVVUSF9QT0xJQ1lfSU5WQUxJRBAPEiUKIUFVVEhfU01BUlRfQUNDT1VOVF9BTFJFQURZX0xJTktFRBAQEh0KGUFVVEhfSU5WSVRFX0FDQ0VTU19ERU5JRUQQERIdChlBVVRIX0lOVklURV9JTlZBTElEX1NUQVRFEBISFQoRQVVUSF9NRkFfRElTQUJMRUQQExIZChVBVVRIX01GQV9OT1RfRU5ST0xMRUQQFBIcChhBVVRIX01GQV9TRVNTSU9OX0lOVkFMSUQQFRIgChxBVVRIX01GQV9DSEFMTEVOR0VfTk9UX0ZPVU5EEBYSHgoaQVVUSF9NRkFfQ0hBTExFTkdFX0lOVkFMSUQQFxIdChlBVVRIX01GQV9DSEFMTEVOR0VfTE9DS0VEEBgSGAoUQVVUSF9NRkFfT1RQX0lOVkFMSUQQGRIdChlBVVRIX01GQV9SRUNPVkVSWV9JTlZBTElEEBoSIgoeQVVUSF9NRkFfUEFTU0tFWV9OT1RfQVZBSUxBQkxFEBsSJwojQVVUSF9NRkFfUEFTU0tFWV9DUkVERU5USUFMX0lOVkFMSUQQHBIiCh5BVVRIX01GQV9QQVNTS0VZX1ZFUklGWV9GQUlMRUQQHRInCiNBVVRIX01GQV9FTlJPTExNRU5UX0JJTkRJTkdfSU5WQUxJRBAeEhkKFUFVVEhfU1RFUF9VUF9SRVFVSVJFRBAfEiIKHkFVVEhfU1RFUF9VUF9QUk9PRl9VTkFWQUlMQUJMRRAgEiAKHEFVVEhfU1RFUF9VUF9BTFJFQURZX0NMQUlNRUQQIRIWChJBVVRIX1BPTElDWV9JTl9VU0UQIhIWChJBVVRIX1BPTElDWV9MT0NLRUQQIxIeChpBVVRIX1BPTElDWV9TQ09QRV9NSVNNQVRDSBAkEhoKFkFVVEhfUkVWSVNJT05fQ09ORkxJQ1QQJRIfChtBVVRIX01GQV9FTEVWQVRJT05fUkVRVUlSRUQQJhIhCh1BVVRIX01GQV9MQVNUX0ZBQ1RPUl9SRVFVSVJFRBAnEhcKE0FVVEhfSU5URVJOQUxfRVJST1IQKBIbChdBVVRIX1RFUk1TX05PVF9BQ0NFUFRFRBApMs8CCgtBdXRoU2VydmljZRJoChVDcmVhdGVXYWxsZXRDaGFsbGVuZ2USJS5hdXRoLnYxLkNyZWF0ZVdhbGxldENoYWxsZW5nZVJlcXVlc3QaJi5hdXRoLnYxLkNyZWF0ZVdhbGxldENoYWxsZW5nZVJlc3BvbnNlIgASVgoPTG9naW5XaXRoV2FsbGV0Eh8uYXV0aC52MS5Mb2dpbldpdGhXYWxsZXRSZXF1ZXN0GiAuYXV0aC52MS5Mb2dpbldpdGhXYWxsZXRSZXNwb25zZSIAEk0KC0FjY2VwdFRlcm1zEhsuYXV0aC52MS5BY2NlcHRUZXJtc1JlcXVlc3QaHC5hdXRoLnYxLkFjY2VwdFRlcm1zUmVzcG9uc2UiA5ACAhIvCgJNZRISLmF1dGgudjEuTWVSZXF1ZXN0GhMuYXV0aC52MS5NZVJlc3BvbnNlIgBCPFo6Z2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9hdXRoL3YxO2F1dGh2MWIGcHJvdG8z", [file_auth_v1_mfa, file_google_protobuf_timestamp]);
 
 /**
- * GetNonceRequest requests a short-lived login nonce for a smart-account
- * address. The wallet must sign a message containing this nonce before login.
+ * CreateWalletChallengeRequest requests a short-lived EIP-4361 message whose
+ * exact UTF-8 bytes must be signed by the wallet.
  *
- * @generated from message auth.v1.GetNonceRequest
+ * @generated from message auth.v1.CreateWalletChallengeRequest
  */
-export type GetNonceRequest = Message<"auth.v1.GetNonceRequest"> & {
+export type CreateWalletChallengeRequest = Message<"auth.v1.CreateWalletChallengeRequest"> & {
   /**
-   * Smart-account EVM address, formatted as 0x plus 40 hex characters.
+   * Smart-account EVM address being authenticated, formatted as 0x plus 40 hex characters.
    *
    * @generated from field: string smart_account_address = 1;
    */
   smartAccountAddress: string;
+
+  /**
+   * EVM address selected in the wallet and written into the EIP-4361 message.
+   * For CREATE_SUBACCOUNT, this must equal smart_account_address.
+   *
+   * @generated from field: string signer_address = 2;
+   */
+  signerAddress: string;
+
+  /**
+   * Browser origin URI requesting the signature, including scheme and optional
+   * port but no path, query, fragment, or user information.
+   *
+   * @generated from field: string uri = 3;
+   */
+  uri: string;
+
+  /**
+   * Operation for which the challenge may be consumed.
+   *
+   * @generated from field: auth.v1.WalletChallengePurpose purpose = 4;
+   */
+  purpose: WalletChallengePurpose;
 };
 
 /**
- * Describes the message auth.v1.GetNonceRequest.
- * Use `create(GetNonceRequestSchema)` to create a new message.
+ * Describes the message auth.v1.CreateWalletChallengeRequest.
+ * Use `create(CreateWalletChallengeRequestSchema)` to create a new message.
  */
-export const GetNonceRequestSchema: GenMessage<GetNonceRequest> = /*@__PURE__*/
+export const CreateWalletChallengeRequestSchema: GenMessage<CreateWalletChallengeRequest> = /*@__PURE__*/
   messageDesc(file_auth_v1_auth, 0);
 
 /**
- * GetNonceResponse contains the nonce that must be signed for wallet login.
+ * CreateWalletChallengeResponse contains the canonical EIP-4361 message.
  *
- * @generated from message auth.v1.GetNonceResponse
+ * @generated from message auth.v1.CreateWalletChallengeResponse
  */
-export type GetNonceResponse = Message<"auth.v1.GetNonceResponse"> & {
+export type CreateWalletChallengeResponse = Message<"auth.v1.CreateWalletChallengeResponse"> & {
   /**
-   * Random login nonce. The nonce is single-purpose and is replaced by each new
-   * nonce request for the same smart-account address.
+   * Canonical EIP-4361 message. Sign these UTF-8 bytes exactly once with
+   * personal_sign; do not hash, alter, or reconstruct the message.
    *
-   * @generated from field: string nonce = 1;
+   * @generated from field: string message = 1;
    */
-  nonce: string;
+  message: string;
 
   /**
-   * Time in UTC when the nonce expires. Login nonces expire after 5 minutes.
+   * Time in UTC when the challenge expires. Wallet challenges expire after 5 minutes.
    *
    * @generated from field: google.protobuf.Timestamp expires_at = 2;
    */
@@ -61,36 +84,29 @@ export type GetNonceResponse = Message<"auth.v1.GetNonceResponse"> & {
 };
 
 /**
- * Describes the message auth.v1.GetNonceResponse.
- * Use `create(GetNonceResponseSchema)` to create a new message.
+ * Describes the message auth.v1.CreateWalletChallengeResponse.
+ * Use `create(CreateWalletChallengeResponseSchema)` to create a new message.
  */
-export const GetNonceResponseSchema: GenMessage<GetNonceResponse> = /*@__PURE__*/
+export const CreateWalletChallengeResponseSchema: GenMessage<CreateWalletChallengeResponse> = /*@__PURE__*/
   messageDesc(file_auth_v1_auth, 1);
 
 /**
- * LoginWithWalletRequest completes smart-account wallet login using a signed
- * nonce.
+ * LoginWithWalletRequest completes smart-account wallet login using the exact
+ * server-issued EIP-4361 message and its signature.
  *
  * @generated from message auth.v1.LoginWithWalletRequest
  */
 export type LoginWithWalletRequest = Message<"auth.v1.LoginWithWalletRequest"> & {
   /**
-   * Smart-account EVM address that produced the signature, formatted as 0x plus
-   * 40 hex characters.
+   * Smart-account EVM address bound into the challenge resource, formatted as
+   * 0x plus 40 hex characters.
    *
    * @generated from field: string smart_account_address = 1;
    */
   smartAccountAddress: string;
 
   /**
-   * Nonce returned by GetNonce. The nonce must be unused and not expired.
-   *
-   * @generated from field: string nonce = 2;
-   */
-  nonce: string;
-
-  /**
-   * Signature over the canonical login message containing the nonce. Maximum
+   * Signature over message using EIP-191 personal_sign semantics. Maximum
    * length is 8192 characters to support universal wallet signatures.
    *
    * @generated from field: string signature = 3;
@@ -114,20 +130,19 @@ export type LoginWithWalletRequest = Message<"auth.v1.LoginWithWalletRequest"> &
   ip: string;
 
   /**
-   * Optional primary wallet address that controls this smart account, formatted
-   * as 0x plus 40 hex characters. This value is metadata and is not used for
-   * signature verification.
-   *
-   * @generated from field: string primary_wallet_address = 6;
-   */
-  primaryWalletAddress: string;
-
-  /**
-   * Optional provider hint for the primary wallet. Maximum length is 32 characters.
+   * Optional provider hint for the signing wallet. Maximum length is 32 characters.
    *
    * @generated from field: string wallet_provider = 7;
    */
   walletProvider: string;
+
+  /**
+   * Exact EIP-4361 message returned by CreateWalletChallenge. Maximum length is
+   * 4096 UTF-8 bytes.
+   *
+   * @generated from field: string message = 8;
+   */
+  message: string;
 };
 
 /**
@@ -313,6 +328,40 @@ export type AcceptTermsResponse = Message<"auth.v1.AcceptTermsResponse"> & {
  */
 export const AcceptTermsResponseSchema: GenMessage<AcceptTermsResponse> = /*@__PURE__*/
   messageDesc(file_auth_v1_auth, 8);
+
+/**
+ * Purpose for a server-issued wallet challenge.
+ *
+ * @generated from enum auth.v1.WalletChallengePurpose
+ */
+export enum WalletChallengePurpose {
+  /**
+   * No wallet challenge purpose was specified.
+   *
+   * @generated from enum value: WALLET_PROOF_UNSPECIFIED = 0;
+   */
+  WALLET_PROOF_UNSPECIFIED = 0,
+
+  /**
+   * Authenticate the wallet and create a Polyester session.
+   *
+   * @generated from enum value: LOGIN = 1;
+   */
+  LOGIN = 1,
+
+  /**
+   * Prove control of a new smart account before creating a sub-account.
+   *
+   * @generated from enum value: CREATE_SUBACCOUNT = 2;
+   */
+  CREATE_SUBACCOUNT = 2,
+}
+
+/**
+ * Describes the enum auth.v1.WalletChallengePurpose.
+ */
+export const WalletChallengePurposeSchema: GenEnum<WalletChallengePurpose> = /*@__PURE__*/
+  enumDesc(file_auth_v1_auth, 0);
 
 /**
  * High-level error codes for authentication and account-domain failures.
@@ -612,7 +661,7 @@ export enum AuthErrorCode {
  * Describes the enum auth.v1.AuthErrorCode.
  */
 export const AuthErrorCodeSchema: GenEnum<AuthErrorCode> = /*@__PURE__*/
-  enumDesc(file_auth_v1_auth, 0);
+  enumDesc(file_auth_v1_auth, 1);
 
 /**
  * AuthService manages wallet login, explicit terms consent, and caller authentication context.
@@ -621,17 +670,17 @@ export const AuthErrorCodeSchema: GenEnum<AuthErrorCode> = /*@__PURE__*/
  */
 export const AuthService: GenService<{
   /**
-   * Get a short-lived login nonce.
+   * Create a short-lived EIP-4361 wallet challenge.
    *
-   * @generated from rpc auth.v1.AuthService.GetNonce
+   * @generated from rpc auth.v1.AuthService.CreateWalletChallenge
    */
-  getNonce: {
+  createWalletChallenge: {
     methodKind: "unary";
-    input: typeof GetNonceRequestSchema;
-    output: typeof GetNonceResponseSchema;
+    input: typeof CreateWalletChallengeRequestSchema;
+    output: typeof CreateWalletChallengeResponseSchema;
   },
   /**
-   * Verify a signed nonce and issue an access token. Login and account creation
+   * Verify a signed EIP-4361 message and issue an access token. Login and account creation
    * do not accept terms; explicit consent is recorded only by AcceptTerms.
    *
    * @generated from rpc auth.v1.AuthService.LoginWithWallet
