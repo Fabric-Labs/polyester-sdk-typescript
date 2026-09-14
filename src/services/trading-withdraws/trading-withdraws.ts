@@ -1,12 +1,7 @@
 import { ValidationError } from "../../shared/errors.js";
 import { createClient, type Client } from "@connectrpc/connect";
 import type { Address, Hex } from "viem";
-import {
-    checksumEvmAddress,
-    evmHexToBytes,
-    evmUtf8ToBytes,
-    keccak256Hex,
-} from "../../utils/evm.js";
+import { checksumEvmAddress, evmHexToBytes } from "../../utils/evm.js";
 import type { ClientCatalog } from "../../catalogs/types.js";
 import * as Proto from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import { idToBigInt } from "../../utils/base58-id.js";
@@ -36,13 +31,16 @@ import {
     type ValidateWithdrawDestinationInput,
     type ValidateWithdrawDestinationResult,
 } from "./trading-withdraws.schemas.js";
-
-export type TradingWithdrawWalletTypedData = ReturnType<typeof buildTradingWithdrawWalletTypedData>;
+import { buildTradingWithdrawWalletMessage } from "./wallet-message.js";
 
 export type TradingWithdrawWalletSigner = {
     signerWallet: string;
     accountId: string;
-    signTypedData: (typedData: TradingWithdrawWalletTypedData) => Promise<Hex>;
+    /**
+     * Signs the UTF-8 message directly using EIP-191 personal_sign, without pre-hashing or switching chains.
+     * For a viem account, use `(message) => account.signMessage({ message })`.
+     */
+    signMessage: (message: string) => Promise<Hex>;
 };
 
 export type TradingWithdrawSigningConfig = {
@@ -70,11 +68,6 @@ export type PreparedTradingWithdraw = Readonly<{
 type TradingWithdrawRequest =
     | CreateTradingWithdrawToFundingRequest
     | CreateTradingWithdrawToExternalChainRequest;
-
-function fromU128(value: TradingWithdrawIntentPayloadRequest["amountE18"] | undefined): bigint {
-    if (!value) return 0n;
-    return (value.hi << 64n) + value.lo;
-}
 
 function resolveTradingWithdrawTargetAccountId(params: {
     subaccountId: bigint | undefined;
@@ -105,76 +98,28 @@ async function resolveTradingWithdrawSigningConfig(params: {
     }
 }
 
-function buildTradingWithdrawWalletTypedData(params: {
-    signingConfig: TradingWithdrawSigningConfig;
-    payload: TradingWithdrawIntentPayloadRequest;
-    signerWallet: Address;
-    accountId: bigint;
-    targetAccountId: bigint;
-}) {
-    const payload = params.payload;
-    const destinationAddress = (payload.destinationAddress ?? "").trim();
-    const idempotencyKey = payload.idempotencyKey.trim();
-
-    return {
-        domain: {
-            name: "Polyester Trading Withdraw",
-            version: "1",
-            chainId: params.signingConfig.chainId,
-            verifyingContract: params.signingConfig.tradingGatewayAddress,
-        },
-        types: {
-            WalletTradingWithdraw: [
-                { name: "signerWallet", type: "address" },
-                { name: "actionType", type: "uint8" },
-                { name: "accountId", type: "uint64" },
-                { name: "targetAccountId", type: "uint64" },
-                { name: "assetId", type: "uint32" },
-                { name: "destinationChainId", type: "uint64" },
-                { name: "amountQ", type: "uint128" },
-                { name: "destinationHash", type: "bytes32" },
-                { name: "deadlineTsSec", type: "uint256" },
-                { name: "nonce", type: "uint128" },
-                { name: "idempotencyKeyHash", type: "bytes32" },
-            ],
-        },
-        primaryType: "WalletTradingWithdraw",
-        message: {
-            signerWallet: params.signerWallet,
-            actionType: payload.action,
-            accountId: params.accountId,
-            targetAccountId: params.targetAccountId,
-            assetId: payload.assetId,
-            destinationChainId: payload.destinationChainId ?? 0n,
-            amountQ: fromU128(payload.amountE18),
-            destinationHash: keccak256Hex(evmUtf8ToBytes(destinationAddress)),
-            deadlineTsSec: payload.deadlineTsSec,
-            nonce: fromU128(payload.nonce),
-            idempotencyKeyHash: keccak256Hex(evmUtf8ToBytes(idempotencyKey)),
-        },
-    } as const;
-}
-
 async function resolveWalletSignature(params: {
     signingConfig: TradingWithdrawSigningConfig;
     payload: TradingWithdrawIntentPayloadRequest;
     walletSigner: TradingWithdrawWalletSigner;
     targetAccountId: bigint;
 }): Promise<{ signerWallet: string; payloadSignature: Uint8Array }> {
-    const signerWallet = params.walletSigner.signerWallet.trim();
-    if (!signerWallet.startsWith("0x")) {
-        throw new ValidationError("Trading withdraw signer wallet is required.");
-    }
+    const signerWallet = params.walletSigner.signerWallet.trim().toLowerCase();
     const accountId = idToBigInt(params.walletSigner.accountId, "accountId");
-    const signature = await params.walletSigner.signTypedData(
-        buildTradingWithdrawWalletTypedData({
+    const signature = await params.walletSigner.signMessage(
+        buildTradingWithdrawWalletMessage({
             signingConfig: params.signingConfig,
             payload: params.payload,
-            signerWallet: signerWallet as Address,
+            signerWallet,
             accountId,
             targetAccountId: params.targetAccountId,
         }),
     );
+    if (!/^0x[0-9a-fA-F]{128}(?:00|01|1[bBcC])$/.test(signature)) {
+        throw new ValidationError(
+            "Trading withdraw wallet signature must be 65 bytes with recovery byte 0, 1, 27, or 28.",
+        );
+    }
     return {
         signerWallet,
         payloadSignature: evmHexToBytes(signature),
@@ -182,7 +127,7 @@ async function resolveWalletSignature(params: {
 }
 
 /**
- * Creates durable Trading withdrawal intents to Funding using API signatures or wallet EIP-712 signatures.
+ * Creates durable Trading withdrawal intents to Funding using API signatures or wallet EIP-191 signatures.
  */
 export class TradingWithdrawsService {
     #client: Client<typeof Proto.WithdrawService>;
@@ -228,7 +173,7 @@ export class TradingWithdrawsService {
     }
 
     /**
-     * Builds a Trading-to-Funding withdraw intent payload with asset id, decimal amount, destination address, five-minute deadline, nonce, and idempotency key. If a wallet signer is provided, it signs EIP-712 typed data and calls the wallet endpoint; otherwise a payload signature is required for the backend-authorized endpoint.
+     * Builds a Trading-to-Funding withdraw intent payload with asset id, decimal amount, destination address, five-minute deadline, nonce, and idempotency key. If a wallet signer is provided, it signs the canonical EIP-191 message and calls the wallet endpoint; otherwise a payload signature is required for the backend-authorized endpoint.
      */
     async createToFunding(
         input: CreateTradingWithdrawToFundingServiceInput,
@@ -253,7 +198,7 @@ export class TradingWithdrawsService {
     }
 
     /**
-     * Builds a Trading-to-external-chain withdraw intent payload with asset id, decimal gross amount, destination network, destination address, five-minute deadline, nonce, and idempotency key. If a wallet signer is provided, it signs EIP-712 typed data and calls the wallet endpoint; otherwise a payload signature is required for the backend-authorized endpoint.
+     * Builds a Trading-to-external-chain withdraw intent payload with asset id, decimal gross amount, destination network, destination address, five-minute deadline, nonce, and idempotency key. If a wallet signer is provided, it signs the canonical EIP-191 message and calls the wallet endpoint; otherwise a payload signature is required for the backend-authorized endpoint.
      */
     async createToExternalChain(
         input: CreateTradingWithdrawToExternalChainServiceInput,
