@@ -114,6 +114,7 @@ export function formatConnectError(
  * returns the caller-owned fallback.
  */
 function userFacingTransportMessage(error: unknown): string | undefined {
+    if (isAbortError(error)) return "Request canceled.";
     if (error instanceof RateLimitError) {
         return "You've made too many requests. Wait a moment and try again.";
     }
