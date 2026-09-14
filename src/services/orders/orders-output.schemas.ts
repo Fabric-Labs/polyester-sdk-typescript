@@ -1,3 +1,4 @@
+import { OrderLineageSchema } from "./order-lineage.schemas.js";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import * as v from "valibot";
@@ -69,6 +70,7 @@ export function createOrderSchema(scales: SdkScales) {
     return v.pipe(
         v.object({
             orderId: v.bigint(),
+            lineage: v.optional(OrderLineageSchema),
             symbolId: v.number(),
             clientOrderId: v.string(),
             side: v.enum(ProtoWrite.Side),
@@ -110,6 +112,7 @@ export function createOrderSchema(scales: SdkScales) {
             );
             return {
                 orderId: formatId(o.orderId),
+                ...(o.lineage === undefined ? {} : { lineage: o.lineage }),
                 symbolId: o.symbolId,
                 clientOrderId: o.clientOrderId,
                 status: isPartial ? ("partial" as const) : o.status,
@@ -198,6 +201,7 @@ export function createOrderTransferSchema() {
                 v.bigint(),
                 v.transform((value) => value.toString()),
             ),
+            symbolId: v.number(),
             assetId: v.number(),
             amountE18: v.optional(
                 v.object({
@@ -213,6 +217,7 @@ export function createOrderTransferSchema() {
         v.transform((tr) => ({
             txId: tr.txId,
             matchId: tr.matchId,
+            symbolId: tr.symbolId,
             assetId: tr.assetId,
             isDebit: tr.isDebit,
             timestamp: tsNsToMs(tr.tsNs),
@@ -237,6 +242,7 @@ export type OrderTransfer = v.InferOutput<ReturnType<typeof createOrderTransferS
 
 export function createOrderDetailsSchema(scales: SdkScales) {
     return v.object({
+        nextPageToken: v.optional(v.string(), ""),
         order: createOrderSchema(scales),
         trades: v.optional(v.array(createUserTradeSchema(scales)), []),
         transfers: v.optional(v.array(createOrderTransferSchema()), []),

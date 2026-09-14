@@ -82,3 +82,5 @@ export type {
     TakeProfitInput,
     TrailingStopInput,
 } from "./orders-risk.schemas.js";
+
+export { OrderLineageSchema, type OrderLineage } from "./order-lineage.schemas.js";

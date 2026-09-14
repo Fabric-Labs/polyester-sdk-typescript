@@ -5,6 +5,7 @@ import { FeeAssetCodec, OrderSideCodec } from "../orders/orders.codecs.js";
 import { formatId } from "../../utils/base58-id.js";
 import { optionalUint64DecimalFilterSchema } from "../../shared/schemas.js";
 import { parseOptionalUint64DecimalStrict } from "../../utils/numbers.js";
+import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
@@ -13,6 +14,8 @@ import { TradeSideCodec } from "./trades.codecs.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import { E18_SCALE, scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { fromU128 } from "../../utils/u128.js";
+import { OrderLineageSchema } from "../orders/order-lineage.schemas.js";
+import { positiveOrderIdInputSchema } from "../orders/orders-identifiers.schemas.js";
 
 const U128Schema = v.object({
     hi: v.bigint(),
@@ -35,6 +38,7 @@ export function createUserTradeSchema(scales: SdkScales) {
             feeIsRebate: v.boolean(),
             tsNs: v.bigint(),
             matchId: v.bigint(),
+            lineage: v.optional(OrderLineageSchema),
         }),
         v.transform((t) => {
             const feeAsset = requiredEnumLabel(
@@ -70,6 +74,7 @@ export function createUserTradeSchema(scales: SdkScales) {
                 tsIso: tsNsToISO(t.tsNs),
                 tsMs: tsNsToMs(t.tsNs),
                 matchId: t.matchId.toString(),
+                ...(t.lineage === undefined ? {} : { lineage: t.lineage }),
             };
         }),
     );
@@ -79,6 +84,7 @@ export function createUserTradeSchema(scales: SdkScales) {
 export type Trade = v.InferOutput<ReturnType<typeof createUserTradeSchema>>;
 
 const AFTER_MATCH_REQUIRES_SYMBOL = "symbolId is required when afterMatchId is set";
+const EXECUTION_SCOPE_CONFLICT = "Provide at most one of orderId or lineageId";
 
 const SymbolIdStringSchema = v.pipe(
     v.string(),
@@ -94,36 +100,78 @@ const GetUserTradesCommonEntries = {
     ),
     startTsNs: optionalUint64DecimalFilterSchema("startTsNs"),
     endTsNs: optionalUint64DecimalFilterSchema("endTsNs"),
-    limit: v.optional(v.number()),
+    limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(1000))),
     pageToken: v.optional(v.pipe(v.string(), v.trim())),
+    includeTransfers: v.optional(v.boolean()),
 };
 
-/** Browse mode: optional symbol filter, no replay cursor. */
-const BrowseUserTradesInputSchema = v.strictObject({
-    ...GetUserTradesCommonEntries,
-    symbolId: v.pipe(
-        v.optional(SymbolIdStringSchema),
-        v.transform((sid) =>
-            sid !== undefined && Number.isFinite(sid) && sid > 0 ? sid : undefined,
+const ThroughGenerationSchema = v.optional(
+    v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(PROTOBUF_UINT32_MAX)),
+);
+
+function userTradesScopeSchemas<const TEntries extends v.ObjectEntries>(entries: TEntries) {
+    return [
+        v.strictObject({
+            ...entries,
+            orderId: v.optional(v.never()),
+            lineageId: v.optional(v.never()),
+            throughGeneration: ThroughGenerationSchema,
+        }),
+        v.strictObject({
+            ...entries,
+            orderId: positiveOrderIdInputSchema("orderId"),
+            lineageId: v.optional(v.never()),
+            throughGeneration: ThroughGenerationSchema,
+        }),
+        v.strictObject({
+            ...entries,
+            orderId: v.optional(v.never()),
+            lineageId: positiveOrderIdInputSchema("lineageId"),
+            throughGeneration: ThroughGenerationSchema,
+        }),
+        // Typed-but-failing branch so the union reports the scope conflict instead of the cursor message.
+        v.pipe(
+            v.strictObject({
+                ...entries,
+                orderId: positiveOrderIdInputSchema("orderId"),
+                lineageId: positiveOrderIdInputSchema("lineageId"),
+                throughGeneration: ThroughGenerationSchema,
+            }),
+            v.check(() => false, EXECUTION_SCOPE_CONFLICT),
         ),
-    ),
-    afterMatchId: v.optional(v.never()),
-});
+    ] as const;
+}
+
+/** Browse mode: optional symbol filter, no replay cursor. */
+const BrowseUserTradesInputSchema = v.union(
+    userTradesScopeSchemas({
+        ...GetUserTradesCommonEntries,
+        symbolId: v.pipe(
+            v.optional(SymbolIdStringSchema),
+            v.transform((sid) =>
+                sid !== undefined && Number.isFinite(sid) && sid > 0 ? sid : undefined,
+            ),
+        ),
+        afterMatchId: v.optional(v.never()),
+    }),
+);
 
 /** Replay mode: `afterMatchId` cursor, which the backend only accepts scoped to a symbol. */
-const ReplayUserTradesInputSchema = v.strictObject({
-    ...GetUserTradesCommonEntries,
-    symbolId: v.pipe(
-        SymbolIdStringSchema,
-        v.check((sid) => Number.isInteger(sid) && sid > 0, AFTER_MATCH_REQUIRES_SYMBOL),
-    ),
-    afterMatchId: v.pipe(
-        v.string(),
-        v.trim(),
-        v.minLength(1),
-        v.transform((value) => parseOptionalUint64DecimalStrict(value, "afterMatchId")),
-    ),
-});
+const ReplayUserTradesInputSchema = v.union(
+    userTradesScopeSchemas({
+        ...GetUserTradesCommonEntries,
+        symbolId: v.pipe(
+            SymbolIdStringSchema,
+            v.check((sid) => Number.isInteger(sid) && sid > 0, AFTER_MATCH_REQUIRES_SYMBOL),
+        ),
+        afterMatchId: v.pipe(
+            v.string(),
+            v.trim(),
+            v.minLength(1),
+            v.transform((value) => parseOptionalUint64DecimalStrict(value, "afterMatchId")),
+        ),
+    }),
+);
 
 /** Validates filters accepted by {@link TradesService.list}. */
 export const GetUserTradesInputSchema = v.pipe(
@@ -131,10 +179,19 @@ export const GetUserTradesInputSchema = v.pipe(
         [BrowseUserTradesInputSchema, ReplayUserTradesInputSchema],
         AFTER_MATCH_REQUIRES_SYMBOL,
     ),
-    v.transform(({ account, ...input }) => ({
-        ...input,
-        subaccountId: accountScopeToSubaccountId(account),
-    })),
+    v.transform(({ account, orderId, lineageId, ...input }) => {
+        const executionScope =
+            orderId !== undefined
+                ? ({ case: "orderId" as const, value: orderId } as const)
+                : lineageId !== undefined
+                  ? ({ case: "lineageId" as const, value: lineageId } as const)
+                  : undefined;
+        return {
+            ...input,
+            executionScope,
+            subaccountId: accountScopeToSubaccountId(account),
+        };
+    }),
 );
 
 /**

@@ -2,6 +2,7 @@ import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
+import { AccountCode, TransferCode } from "../../gen/ledger/v1/catalog_pb.js";
 import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import { RealtimeClient } from "../../realtime/client.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
@@ -128,6 +129,73 @@ describe("TradesService", () => {
                     matchId: "22",
                 }),
             ],
+            transfers: [],
+        });
+    });
+
+    it("serializes lineage execution filters and projects transfers", async () => {
+        const transport = unaryTransport({
+            trades: [{ ...userTrade, lineage: { id: 7n, generation: 2 } }],
+            transfers: [
+                {
+                    txId: "tx-1",
+                    matchId: 22n,
+                    symbolId: 101,
+                    assetId: 1,
+                    amountE18: { hi: 0n, lo: 1_500_000_000_000_000_000n },
+                    isDebit: false,
+                    transferCode: TransferCode.INTERNAL_TRANSFER,
+                    accountCode: AccountCode.TRADING,
+                    tsNs: 1_000_000n,
+                },
+            ],
+            nextPageToken: "next-page",
+        });
+        const service = new TradesService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        const result = await service.list({
+            lineageId: formatId(7n),
+            throughGeneration: 2,
+            includeTransfers: true,
+        });
+
+        expect(transport.lastCall()?.message).toEqual({
+            executionScope: { case: "lineageId", value: 7n },
+            throughGeneration: 2,
+            includeTransfers: true,
+        });
+        expect(result).toMatchObject({
+            nextPageToken: "next-page",
+            trades: [expect.objectContaining({ lineage: { id: formatId(7n), generation: 2 } })],
+            transfers: [
+                expect.objectContaining({
+                    txId: "tx-1",
+                    matchId: "22",
+                    symbolId: 101,
+                    amount: "1.5",
+                }),
+            ],
+        });
+    });
+
+    it("serializes a physical-order execution scope", async () => {
+        const transport = unaryTransport({ trades: [], transfers: [], nextPageToken: "" });
+        const service = new TradesService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await service.list({ orderId: formatId(2n) });
+
+        expect(transport.lastCall()?.message).toEqual({
+            executionScope: { case: "orderId", value: 2n },
         });
     });
 
@@ -149,6 +217,7 @@ describe("TradesService", () => {
             feeAsset: "base",
             fee: "0.001",
         });
+        expect(result.transfers).toEqual([]);
     });
 
     it("omits undefined list fields and lets explicit main scope force root scope", async () => {
@@ -162,6 +231,7 @@ describe("TradesService", () => {
 
         await expect(service.list({ account: "main", symbolId: "101" })).resolves.toEqual({
             trades: [],
+            transfers: [],
             nextPageToken: "",
         });
 
@@ -204,7 +274,10 @@ describe("TradesService", () => {
 
         await service.list({ afterMatchId: "10", symbolId: "3" });
 
-        expect(transport.lastCall()?.message).toEqual({ symbolId: 3, afterMatchId: 10n });
+        expect(transport.lastCall()?.message).toEqual({
+            symbolId: 3,
+            afterMatchId: 10n,
+        });
     });
 
     it("keeps browsing without a cursor working with and without a symbolId", async () => {
@@ -281,7 +354,12 @@ describe("TradesService", () => {
         realtime.params?.onDisconnected?.();
         const error = { channel: "c", type: "decode", error: { code: 1, message: "bad" } };
         realtime.params?.onError?.(error);
-        realtime.params?.onPublication(create(ProtoRead.UserTradeSchema, userTrade));
+        realtime.params?.onPublication(
+            create(ProtoRead.UserTradeSchema, {
+                ...userTrade,
+                lineage: { id: 7n, generation: 2 },
+            }),
+        );
         await flushAsync();
 
         expect(onOpen).toHaveBeenCalledTimes(1);
@@ -299,6 +377,7 @@ describe("TradesService", () => {
                 referralShare: "0.00025",
                 feeIsRebate: false,
                 tsNs: "1700000000000000000",
+                lineage: { id: formatId(7n), generation: 2 },
             }),
         );
 
