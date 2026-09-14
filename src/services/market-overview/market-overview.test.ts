@@ -472,6 +472,76 @@ describe("MarketOverviewService", () => {
         expect(transport.lastCall()?.message).toMatchObject({ symbolId: [101] });
     });
 
+    describe.each([
+        { symbolIds: [101], expected: [101] },
+        { symbolIds: [], expected: [101, 202] },
+        { symbolIds: undefined, expected: [101, 202] },
+    ])("subscription filter $symbolIds", ({ symbolIds, expected }) => {
+        it.each(["live", "buffered", "reconnect"])(
+            "honors the filter for %s publications",
+            async (phase) => {
+                const snapshot = deferred<Record<string, unknown>>();
+                const transport = unaryTransport((_call, index) =>
+                    phase === "buffered" || (phase === "reconnect" && index > 0)
+                        ? snapshot.promise
+                        : { markets: [market()], nextPageToken: "" },
+                );
+                const realtime = realtimeClientStub();
+                const onEvent = vi.fn();
+                const onError = vi.fn();
+                const scales = createCatalogSdkScales(() =>
+                    createTestCatalog({
+                        assets: [BTC, USDT, { ...BTC, symbol: "ETH", ledgerId: 3 }],
+                        pairs: [
+                            BTC_USDT,
+                            { ...BTC_USDT, symbolId: 202, symbol: "ETH-USDT", baseAsset: "ETH" },
+                        ],
+                    }),
+                );
+                const service = new MarketOverviewService(
+                    { publicApi: transport.transport },
+                    realtime.realtime,
+                    scales,
+                );
+                const stop = service.subscribe({ symbolIds, onEvent, onError });
+                try {
+                    realtime.params?.onConnected?.();
+                    await flushMicrotasks();
+                    expect(transport.lastCall()?.message).toMatchObject({
+                        symbolId: symbolIds ?? [],
+                    });
+                    if (phase !== "buffered") {
+                        expect(onEvent.mock.lastCall?.[0]).toEqual([
+                            expect.objectContaining({ symbolId: 101 }),
+                        ]);
+                    }
+                    if (phase === "reconnect") {
+                        realtime.params?.onDisconnected?.();
+                        realtime.params?.onConnected?.();
+                        await flushMicrotasks();
+                    }
+                    realtime.params?.onPublication(
+                        create(Proto.MarketOverviewBatchSchema, {
+                            markets: [
+                                market({ lastPriceTicks: 1_100_000n }),
+                                market({ symbolId: 202 }),
+                            ],
+                        }),
+                    );
+                    snapshot.resolve({ markets: [market()], nextPageToken: "" });
+                    await flushMicrotasks();
+                    expect(onError).not.toHaveBeenCalled();
+                    expect(
+                        onEvent.mock.lastCall?.[0].map((row: { symbolId: number }) => row.symbolId),
+                    ).toEqual(expected);
+                    expect(onEvent.mock.lastCall?.[0][0].lastPrice).toBe("1.1");
+                } finally {
+                    stop();
+                }
+            },
+        );
+    });
+
     it("rejects market rows with unmapped backend sparkline enums", async () => {
         const transport = unaryTransport({
             markets: [
