@@ -1,5 +1,13 @@
 # @polyester/sdk
 
+## 0.23.0
+
+### Minor Changes
+
+- Replace nonce authentication with server-issued SIWE challenges for wallet login and subaccount creation. ([#138](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/138))
+
+- Replace wallet Trading withdrawal `signTypedData` with EIP-191 `signMessage` authorization. ([#137](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/137))
+
 ## 0.22.3
 
 ### Patch Changes
