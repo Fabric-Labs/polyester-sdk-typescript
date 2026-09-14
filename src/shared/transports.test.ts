@@ -1,9 +1,17 @@
-import { createClient, type Interceptor } from "@connectrpc/connect";
+import {
+    Code,
+    ConnectError,
+    createClient,
+    type Interceptor,
+    type Transport,
+} from "@connectrpc/connect";
 import { create, toJsonString } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { signAsync } from "@noble/ed25519";
+import { RateLimitService } from "../gen/ratelimit/v1/ratelimit_pb.js";
+import { createErrorMappingTransport } from "./connect-error-mapping.js";
 import * as Proto from "../gen/marketoverview/v1/marketoverview_pb.js";
-import { isRetryableError } from "../utils/errors.js";
+import { formatUserFacingError, isRetryableError } from "../utils/errors.js";
 import {
     AuthenticationError,
     ConfigurationError,
@@ -288,5 +296,117 @@ describe("isRetryableError", () => {
 
         expect(err).toBeInstanceOf(TransientError);
         expect(isRetryableError(err)).toBe(true);
+    });
+});
+
+describe("caller cancellation through transports", () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    it.each(["default", "custom", "pre", "timeout", "api-key", "jwt-pre"] as const)(
+        "classifies %s cancellation without retrying",
+        async (kind) => {
+            const controller = new AbortController();
+            const preAborted = kind === "pre" || kind === "jwt-pre";
+            if (preAborted) controller.abort();
+            const signal = kind === "timeout" ? AbortSignal.timeout(10) : controller.signal;
+            let fetchAborted = false;
+            const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(
+                (_input, init) =>
+                    new Promise<Response>((_resolve, reject) => {
+                        const fetchSignal = init!.signal!;
+                        const abort = () => {
+                            fetchAborted = true;
+                            reject(fetchSignal.reason);
+                        };
+                        if (fetchSignal.aborted) abort();
+                        else fetchSignal.addEventListener("abort", abort, { once: true });
+                        if (kind !== "timeout") {
+                            queueMicrotask(() => {
+                                if (kind === "custom") controller.abort(new Error("route change"));
+                                else controller.abort();
+                            });
+                        }
+                    }),
+            );
+            const getToken = vi.fn(() => "fixture-token");
+            const transports = createTransports({
+                apiUrl: "https://api.test",
+                auth:
+                    kind === "api-key"
+                        ? {
+                              kind: "api-key-ed25519",
+                              getKeyId: () => "fixture-key",
+                              getSecretKey: () => new Uint8Array(32).fill(1),
+                          }
+                        : { kind: "jwt", getToken },
+            });
+            const client = createClient(
+                RateLimitService,
+                kind === "api-key" || kind === "jwt-pre"
+                    ? transports.authApi
+                    : transports.publicApi,
+            );
+            const error = await client
+                .getRateLimitConfig({}, { signal })
+                .catch((error: unknown) => error);
+            expect(isAbortError(error)).toBe(true);
+            expect(isRetryableError(error)).toBe(false);
+            expect(error).not.toBeInstanceOf(ConfigurationError);
+            expect(formatUserFacingError(error, "Backend failed.")).toBe("Request canceled.");
+            expect(fetchMock).toHaveBeenCalledTimes(preAborted ? 0 : 1);
+            expect(fetchAborted).toBe(!preAborted);
+            if (kind === "jwt-pre") expect(getToken).not.toHaveBeenCalled();
+            if (kind === "default" || preAborted) expect(error).toBe(signal.reason);
+        },
+    );
+
+    it("does not classify a server cancellation as a caller abort", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(
+            new Response(JSON.stringify({ code: "canceled", message: "Server canceled." }), {
+                status: 499,
+                headers: { "content-type": "application/json" },
+            }),
+        );
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(RateLimitService, publicApi);
+        const error = await client
+            .getRateLimitConfig({}, { signal: new AbortController().signal })
+            .catch((error: unknown) => error);
+        expect(error).toBeInstanceOf(ConnectError);
+        expect(isAbortError(error)).toBe(false);
+        expect(isRetryableError(error)).toBe(false);
+    });
+
+    it("normalizes cancellation while consuming a stream", async () => {
+        const controller = new AbortController();
+        const transport: Transport = {
+            unary: vi.fn(),
+            async stream(method) {
+                return {
+                    stream: true,
+                    service: method.parent,
+                    method,
+                    header: new Headers(),
+                    trailer: new Headers(),
+                    message: (async function* () {
+                        yield create(method.output);
+                        controller.abort(new Error("route change"));
+                        throw new ConnectError("canceled", Code.Canceled);
+                    })(),
+                };
+            },
+        };
+        const response = await createErrorMappingTransport(transport).stream(
+            { ...RateLimitService.method.getRateLimitConfig, methodKind: "server_streaming" },
+            controller.signal,
+            undefined,
+            undefined,
+            (async function* () {})(),
+        );
+        const iterator = response.message[Symbol.asyncIterator]();
+        expect((await iterator.next()).done).toBe(false);
+        const error = await iterator.next().catch((error: unknown) => error);
+        expect(isAbortError(error)).toBe(true);
+        expect(isRetryableError(error)).toBe(false);
     });
 });

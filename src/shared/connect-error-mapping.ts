@@ -287,11 +287,28 @@ export function toPolyesterError(err: unknown): unknown {
     return err;
 }
 
-async function* mapStreamErrors<T>(source: AsyncIterable<T>): AsyncIterable<T> {
+function callerAbortError(signal: AbortSignal): DOMException {
+    const reason: unknown = signal.reason;
+    return reason instanceof DOMException && reason.name === "AbortError"
+        ? reason
+        : new DOMException("Request canceled.", "AbortError");
+}
+
+function toTransportError(err: unknown, signal?: AbortSignal): unknown {
+    if (signal?.aborted && err instanceof ConnectError && err.code === Code.Canceled) {
+        return callerAbortError(signal);
+    }
+    return toPolyesterError(err);
+}
+
+async function* mapStreamErrors<T>(
+    source: AsyncIterable<T>,
+    signal?: AbortSignal,
+): AsyncIterable<T> {
     try {
         yield* source;
     } catch (err) {
-        throw toPolyesterError(err);
+        throw toTransportError(err, signal);
     }
 }
 
@@ -321,6 +338,7 @@ export function createErrorMappingInterceptor(): Interceptor {
 export function createErrorMappingTransport(transport: Transport): Transport {
     return {
         async unary(method, signal, timeoutMs, header, input, contextValues) {
+            if (signal?.aborted) throw callerAbortError(signal);
             try {
                 return await transport.unary(
                     method,
@@ -331,10 +349,11 @@ export function createErrorMappingTransport(transport: Transport): Transport {
                     contextValues,
                 );
             } catch (error) {
-                throw toPolyesterError(error);
+                throw toTransportError(error, signal);
             }
         },
         async stream(method, signal, timeoutMs, header, input, contextValues) {
+            if (signal?.aborted) throw callerAbortError(signal);
             try {
                 const response = await transport.stream(
                     method,
@@ -344,9 +363,9 @@ export function createErrorMappingTransport(transport: Transport): Transport {
                     input,
                     contextValues,
                 );
-                return { ...response, message: mapStreamErrors(response.message) };
+                return { ...response, message: mapStreamErrors(response.message, signal) };
             } catch (error) {
-                throw toPolyesterError(error);
+                throw toTransportError(error, signal);
             }
         },
     };
