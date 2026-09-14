@@ -11,5 +11,4 @@ export type {
     PreparedTradingWithdraw,
     TradingWithdrawSigningConfig,
     TradingWithdrawWalletSigner,
-    TradingWithdrawWalletTypedData,
 } from "./trading-withdraws.js";
