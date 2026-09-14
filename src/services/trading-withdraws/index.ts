@@ -5,7 +5,6 @@ export {
     type PreparedTradingWithdraw,
     type TradingWithdrawSigningConfig,
     type TradingWithdrawWalletSigner,
-    type TradingWithdrawWalletTypedData,
 } from "./trading-withdraws.js";
 export {
     TRADING_WITHDRAW_ACTION_VALUES,

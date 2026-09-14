@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { keccak256, stringToBytes } from "viem";
+import { bytesToHex, recoverMessageAddress } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
 import { POLYESTER_DEVNET_ENVIRONMENT } from "../../environment.js";
 import * as Proto from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import { StepUpRequiredError } from "../../shared/errors.js";
@@ -10,16 +11,14 @@ import { createTestCatalog } from "../../testing/catalog.js";
 const catalogTradingGatewayAddress = "0xD3fecf5D39131e23b6B0f872cA0a21c8A5a30932" as const;
 import { unaryTransport, unaryTransportByMethod } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
-import {
-    TradingWithdrawsService,
-    type TradingWithdrawWalletSigner,
-    type TradingWithdrawWalletTypedData,
-} from "./trading-withdraws.js";
+import { TradingWithdrawsService, type TradingWithdrawWalletSigner } from "./trading-withdraws.js";
 
 const signingConfig = {
     chainId: POLYESTER_DEVNET_ENVIRONMENT.chain.id,
     tradingGatewayAddress: POLYESTER_DEVNET_ENVIRONMENT.contracts.tradingGatewayAddress,
 };
+
+const validWalletSignature = `0x${"11".repeat(64)}1b` as const;
 
 const usdc = {
     symbol: "USDC",
@@ -154,7 +153,7 @@ describe("TradingWithdrawsService", () => {
     });
 
     it("omits subaccountId for root-account wallet withdraws", async () => {
-        let typedData: TradingWithdrawWalletTypedData | undefined;
+        let message: string | undefined;
         const transport = unaryTransportByMethod({
             createWalletTradingWithdraw: { intentId: "intent-1" },
         });
@@ -175,28 +174,26 @@ describe("TradingWithdrawsService", () => {
                 walletSigner: {
                     signerWallet: "0x1111111111111111111111111111111111111111",
                     accountId: formatId(1n),
-                    signTypedData: vi.fn(async (value): Promise<`0x${string}`> => {
-                        typedData = value;
-                        return "0x1234";
+                    signMessage: vi.fn(async (value): Promise<`0x${string}`> => {
+                        message = value;
+                        return validWalletSignature;
                     }),
                 },
             }),
         ).resolves.toEqual({ intentId: "intent-1" });
 
-        expect(typedData?.message).toMatchObject({
-            accountId: 1n,
-            targetAccountId: 1n,
-            destinationChainId: 0n,
-            destinationHash: keccak256(stringToBytes("funding")),
-            idempotencyKeyHash: keccak256(stringToBytes("withdraw-1")),
-        });
+        expect(message).toContain("Action: TO_FUNDING\n");
+        expect(message).toContain("Account ID: 1\nTarget Account ID: 1\n");
+        expect(message).toContain("Destination Chain ID: 0\n");
+        expect(message).toContain("Destination: funding\n");
+        expect(message).toContain("Idempotency Key: withdraw-1");
 
         const captured = transport.lastCall();
         expect(captured?.message).not.toHaveProperty("subaccountId");
     });
 
-    it("prefers catalog trading gateway metadata for wallet typed data", async () => {
-        let typedData: TradingWithdrawWalletTypedData | undefined;
+    it("prefers catalog trading gateway metadata for wallet messages", async () => {
+        let message: string | undefined;
         const transport = unaryTransportByMethod({
             createWalletTradingWithdraw: { intentId: "intent-1" },
         });
@@ -232,18 +229,20 @@ describe("TradingWithdrawsService", () => {
             walletSigner: {
                 signerWallet: "0x1111111111111111111111111111111111111111",
                 accountId: formatId(1n),
-                signTypedData: vi.fn(async (value): Promise<`0x${string}`> => {
-                    typedData = value;
-                    return "0x1234";
+                signMessage: vi.fn(async (value): Promise<`0x${string}`> => {
+                    message = value;
+                    return validWalletSignature;
                 }),
             },
         });
 
-        expect(typedData?.domain.verifyingContract).toBe(catalogTradingGatewayAddress);
+        expect(message).toContain(
+            `Verifying Contract: ${catalogTradingGatewayAddress.toLowerCase()}\n`,
+        );
     });
 
-    it("uses environment signing config for wallet typed data and wallet requests", async () => {
-        let typedData: TradingWithdrawWalletTypedData | undefined;
+    it("uses environment signing config for wallet messages and wallet requests", async () => {
+        let message: string | undefined;
         const transport = unaryTransportByMethod({
             createWalletTradingWithdraw: { intentId: "intent-1" },
         });
@@ -264,39 +263,77 @@ describe("TradingWithdrawsService", () => {
                 walletSigner: {
                     signerWallet: " 0x1111111111111111111111111111111111111111 ",
                     accountId: formatId(1n),
-                    signTypedData: vi.fn(async (value): Promise<`0x${string}`> => {
-                        typedData = value;
-                        return "0x1234";
+                    signMessage: vi.fn(async (value): Promise<`0x${string}`> => {
+                        message = value;
+                        return validWalletSignature;
                     }),
                 },
             }),
         ).resolves.toEqual({ intentId: "intent-1" });
 
-        expect(typedData?.domain.chainId).toBe(POLYESTER_DEVNET_ENVIRONMENT.chain.id);
-        expect(typedData?.domain.verifyingContract).toBe(
-            POLYESTER_DEVNET_ENVIRONMENT.contracts.tradingGatewayAddress,
+        expect(message).toContain("Environment: polyester\n");
+        expect(message).toContain("Signer Wallet: 0x1111111111111111111111111111111111111111\n");
+        expect(message).toContain("Target Account ID: 2\n");
+        expect(message).toContain("Amount E18: 100000000000000000000\n");
+        expect(message).toContain(`Polyester Chain ID: ${POLYESTER_DEVNET_ENVIRONMENT.chain.id}\n`);
+        expect(message).toContain(
+            `Verifying Contract: ${POLYESTER_DEVNET_ENVIRONMENT.contracts.tradingGatewayAddress.toLowerCase()}\n`,
         );
-        expect(typedData?.message).toMatchObject({
-            signerWallet: "0x1111111111111111111111111111111111111111",
-            actionType: Proto.TradingWithdrawAction.TO_FUNDING,
-            accountId: 1n,
-            targetAccountId: 2n,
-            assetId: 1,
-            destinationChainId: 0n,
-            // EIP-712 field is amountQ; value is ledger E18 scale (proto amount_e18).
-            amountQ: 100_000_000_000_000_000_000n,
-        });
         const captured = transport.lastCall();
         expect(captured?.method.localName).toBe("createWalletTradingWithdraw");
         expect(captured?.message).toMatchObject({
             subaccountId: 2n,
             signerWallet: "0x1111111111111111111111111111111111111111",
-            payloadSignature: new Uint8Array([0x12, 0x34]),
+            payloadSignature: new Uint8Array([...Array.from({ length: 64 }, () => 0x11), 0x1b]),
         });
     });
 
+    it("signs the service message with EIP-191 and forwards the recoverable signature", async () => {
+        const account = privateKeyToAccount(`0x${"00".repeat(31)}01`);
+        let signedMessage: string | undefined;
+        const transport = unaryTransportByMethod({
+            createWalletTradingWithdraw: { intentId: "intent-1" },
+        });
+        const service = new TradingWithdrawsService(
+            { authApi: transport.transport },
+            undefined,
+            signingConfig,
+            testScales(),
+        );
+
+        await service.createToFunding({
+            account: "main",
+            assetId: 1,
+            quantity: "100",
+            destinationAddress: "funding",
+            idempotencyKey: "withdraw-1",
+            walletSigner: {
+                signerWallet: account.address,
+                accountId: formatId(1n),
+                signMessage: async (message) => {
+                    signedMessage = message;
+                    return account.signMessage({ message });
+                },
+            },
+        });
+
+        const payloadSignature = (
+            transport.lastCall()?.message as {
+                payloadSignature?: Uint8Array;
+            }
+        )?.payloadSignature;
+        expect(signedMessage).toBeDefined();
+        expect(payloadSignature).toHaveLength(65);
+        await expect(
+            recoverMessageAddress({
+                message: signedMessage!,
+                signature: bytesToHex(payloadSignature!),
+            }),
+        ).resolves.toBe(account.address);
+    });
+
     it("builds wallet-signed external-chain withdraw requests", async () => {
-        let typedData: TradingWithdrawWalletTypedData | undefined;
+        let message: string | undefined;
         const transport = unaryTransportByMethod({
             createWalletTradingWithdraw: { intentId: "intent-external-1" },
         });
@@ -318,23 +355,20 @@ describe("TradingWithdrawsService", () => {
                 walletSigner: {
                     signerWallet: "0x1111111111111111111111111111111111111111",
                     accountId: formatId(1n),
-                    signTypedData: vi.fn(async (value): Promise<`0x${string}`> => {
-                        typedData = value;
-                        return "0x1234";
+                    signMessage: vi.fn(async (value): Promise<`0x${string}`> => {
+                        message = value;
+                        return validWalletSignature;
                     }),
                 },
             }),
         ).resolves.toEqual({ intentId: "intent-external-1" });
 
-        expect(typedData?.message).toMatchObject({
-            actionType: Proto.TradingWithdrawAction.TO_EXTERNAL_CHAIN,
-            targetAccountId: 2n,
-            assetId: 1,
-            destinationChainId: 10_009n,
-            amountQ: 1_250_000_000_000_000_000n,
-            destinationHash: keccak256(stringToBytes("rAddress:123")),
-            idempotencyKeyHash: keccak256(stringToBytes("withdraw-external-1")),
-        });
+        expect(message).toContain("Action: TO_EXTERNAL_CHAIN\n");
+        expect(message).toContain("Target Account ID: 2\n");
+        expect(message).toContain("Destination Chain ID: 10009\n");
+        expect(message).toContain("Amount E18: 1250000000000000000\n");
+        expect(message).toContain("Destination: rAddress:123\n");
+        expect(message).toContain("Idempotency Key: withdraw-external-1");
 
         const captured = transport.lastCall();
         const payload = (captured?.message as { payload?: Proto.TradingWithdrawIntentPayload })
@@ -354,7 +388,7 @@ describe("TradingWithdrawsService", () => {
             name: "Funding",
             prepare: (
                 service: TradingWithdrawsService,
-                signTypedData: TradingWithdrawWalletSigner["signTypedData"],
+                signMessage: TradingWithdrawWalletSigner["signMessage"],
             ) =>
                 service.prepareToFunding({
                     account: "main",
@@ -365,7 +399,7 @@ describe("TradingWithdrawsService", () => {
                     walletSigner: {
                         signerWallet: "0x1111111111111111111111111111111111111111",
                         accountId: formatId(1n),
-                        signTypedData,
+                        signMessage,
                     },
                 }),
         },
@@ -373,7 +407,7 @@ describe("TradingWithdrawsService", () => {
             name: "external-chain",
             prepare: (
                 service: TradingWithdrawsService,
-                signTypedData: TradingWithdrawWalletSigner["signTypedData"],
+                signMessage: TradingWithdrawWalletSigner["signMessage"],
             ) =>
                 service.prepareToExternalChain({
                     account: "main",
@@ -385,7 +419,7 @@ describe("TradingWithdrawsService", () => {
                     walletSigner: {
                         signerWallet: "0x1111111111111111111111111111111111111111",
                         accountId: formatId(1n),
-                        signTypedData,
+                        signMessage,
                     },
                 }),
         },
@@ -400,15 +434,15 @@ describe("TradingWithdrawsService", () => {
             signingConfig,
             testScales(),
         );
-        const signTypedData = vi.fn(async (): Promise<`0x${string}`> => "0x1234");
-        const prepared = await prepare(service, signTypedData);
+        const signMessage = vi.fn(async (): Promise<`0x${string}`> => validWalletSignature);
+        const prepared = await prepare(service, signMessage);
 
         await expect(prepared.submit()).rejects.toBeInstanceOf(StepUpRequiredError);
         await expect(prepared.submit({ stepUpToken: "fresh-token" })).resolves.toEqual({
             intentId: "intent-1",
         });
 
-        expect(signTypedData).toHaveBeenCalledOnce();
+        expect(signMessage).toHaveBeenCalledOnce();
         expect(transport.calls).toHaveLength(2);
         expect(transport.calls[1]?.message).toEqual(transport.calls[0]?.message);
         expect(new Headers(transport.calls[0]?.headers).get(AUTH_STEP_UP_HEADER_NAME)).toBeNull();
@@ -461,6 +495,160 @@ describe("TradingWithdrawsService", () => {
         ).rejects.toThrow("Trading withdraw requires a wallet signer or payload signature.");
         expect(transport.unary).not.toHaveBeenCalled();
     });
+
+    it.each([
+        {
+            name: "embedded control in destination",
+            destinationAddress: "funding\u0000",
+        },
+        { name: "line feed in destination", destinationAddress: "funding\nnext" },
+        {
+            name: "carriage return in destination",
+            destinationAddress: "funding\rnext",
+        },
+        { name: "tab in destination", destinationAddress: "funding\tnext" },
+        {
+            name: "C1 control in destination",
+            destinationAddress: "funding\u0085next",
+        },
+        {
+            name: "unpaired surrogate in destination",
+            destinationAddress: "funding\ud800",
+        },
+        {
+            name: "embedded control in idempotency key",
+            idempotencyKey: "withdraw\u0001",
+        },
+        { name: "line feed in idempotency key", idempotencyKey: "withdraw\nnext" },
+        {
+            name: "carriage return in idempotency key",
+            idempotencyKey: "withdraw\rnext",
+        },
+        { name: "tab in idempotency key", idempotencyKey: "withdraw\tnext" },
+        {
+            name: "C1 control in idempotency key",
+            idempotencyKey: "withdraw\u0085next",
+        },
+        {
+            name: "unpaired surrogate in idempotency key",
+            idempotencyKey: "withdraw\ud800",
+        },
+    ])(
+        "rejects a wallet request with $name before signing or transport",
+        async ({ name: _, ...input }) => {
+            const transport = unaryTransportByMethod({});
+            const signMessage = vi.fn(async (): Promise<`0x${string}`> => validWalletSignature);
+            const service = new TradingWithdrawsService(
+                { authApi: transport.transport },
+                undefined,
+                signingConfig,
+                testScales(),
+            );
+
+            await expect(
+                service.createToFunding({
+                    account: "main",
+                    assetId: 1,
+                    quantity: "100",
+                    destinationAddress: "funding",
+                    idempotencyKey: "withdraw-1",
+                    ...input,
+                    walletSigner: {
+                        signerWallet: "0x1111111111111111111111111111111111111111",
+                        accountId: formatId(1n),
+                        signMessage,
+                    },
+                }),
+            ).rejects.toThrow(/valid UTF-8 without control characters/);
+
+            expect(signMessage).not.toHaveBeenCalled();
+            expect(transport.unary).not.toHaveBeenCalled();
+        },
+    );
+
+    it.each([
+        {
+            name: "malformed signer wallet",
+            signerWallet: "not-an-address",
+            signature: validWalletSignature,
+        },
+        {
+            name: "short signature",
+            signerWallet: "0x1111111111111111111111111111111111111111",
+            signature: "0x1234",
+        },
+        {
+            name: "signature with invalid recovery id",
+            signerWallet: "0x1111111111111111111111111111111111111111",
+            signature: `0x${"11".repeat(64)}02`,
+        },
+    ])("rejects $name before transport", async ({ signerWallet, signature }) => {
+        const transport = unaryTransportByMethod({});
+        const service = new TradingWithdrawsService(
+            { authApi: transport.transport },
+            undefined,
+            signingConfig,
+            testScales(),
+        );
+
+        await expect(
+            service.createToFunding({
+                account: "main",
+                assetId: 1,
+                quantity: "100",
+                idempotencyKey: "withdraw-1",
+                walletSigner: {
+                    signerWallet,
+                    accountId: formatId(1n),
+                    signMessage: vi.fn(
+                        async (): Promise<`0x${string}`> => signature as `0x${string}`,
+                    ),
+                },
+            }),
+        ).rejects.toThrow();
+
+        expect(transport.unary).not.toHaveBeenCalled();
+    });
+
+    it.each(["00", "01", "1b", "1c"])(
+        "accepts a 65-byte wallet signature with recovery byte 0x%s",
+        async (recoveryByte) => {
+            const transport = unaryTransportByMethod({
+                createWalletTradingWithdraw: { intentId: "intent-1" },
+            });
+            const service = new TradingWithdrawsService(
+                { authApi: transport.transport },
+                undefined,
+                signingConfig,
+                testScales(),
+            );
+            const signature = `0x${"11".repeat(64)}${recoveryByte}` as `0x${string}`;
+
+            await expect(
+                service.createToFunding({
+                    account: "main",
+                    assetId: 1,
+                    quantity: "100",
+                    idempotencyKey: "withdraw-1",
+                    walletSigner: {
+                        signerWallet: "0x1111111111111111111111111111111111111111",
+                        accountId: formatId(1n),
+                        signMessage: vi.fn(async (): Promise<`0x${string}`> => signature),
+                    },
+                }),
+            ).resolves.toEqual({ intentId: "intent-1" });
+
+            expect(
+                (transport.lastCall()?.message as { payloadSignature?: Uint8Array })
+                    ?.payloadSignature,
+            ).toEqual(
+                new Uint8Array([
+                    ...Array.from({ length: 64 }, () => 0x11),
+                    Number.parseInt(recoveryByte, 16),
+                ]),
+            );
+        },
+    );
 
     it("rejects malformed backend withdraw responses", async () => {
         const transport = unaryTransportByMethod({
