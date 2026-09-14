@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.23.1
+
+### Patch Changes
+
+- Update devnet and testnet API and WebSocket URLs. ([#141](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/141))
+
 ## 0.23.0
 
 ### Minor Changes
