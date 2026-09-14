@@ -88,9 +88,9 @@ function signer(params: Partial<AccountSigner> = {}): AccountSigner {
 }
 
 function mockLogin(auth: AccountSignerAuthService) {
-    const requestLoginNonce = vi
-        .spyOn(auth, "requestLoginNonce")
-        .mockResolvedValue({ nonce: "nonce-1" });
+    const createWalletChallenge = vi
+        .spyOn(auth, "createWalletChallenge")
+        .mockResolvedValue({ message: "server-issued message ☃\nexact bytes" });
     const loginWithWallet = vi
         .spyOn(
             auth as unknown as {
@@ -108,13 +108,14 @@ function mockLogin(auth: AccountSignerAuthService) {
             },
         });
 
-    return { requestLoginNonce, loginWithWallet };
+    return { createWalletChallenge, loginWithWallet };
 }
 
 describe("AccountSignerAuthService", () => {
     afterEach(() => {
         polyesterSession.clear();
         vi.restoreAllMocks();
+        vi.unstubAllGlobals();
         vi.useRealTimers();
         if (originalDocument) {
             Object.defineProperty(globalThis, "document", originalDocument);
@@ -123,20 +124,76 @@ describe("AccountSignerAuthService", () => {
         }
     });
 
+    it("uses the current browser origin for login, refresh, and subaccount challenges", async () => {
+        vi.stubGlobal("location", { origin: "https://browser.example:8443" });
+        const accountSigner = signer();
+        const { auth, subaccounts } = authFixture(accountSigner);
+        const { createWalletChallenge } = mockLogin(auth);
+        vi.spyOn(subaccounts, "create").mockResolvedValue({
+            subaccountId: "sub",
+            totalCreated: 1,
+            smartAccountSaltNonce: 1,
+            revision: "1",
+        });
+        await auth.login({ provider: "other" });
+        await auth.refreshSession();
+        await auth.createSubaccount({ accountSigner });
+        expect(createWalletChallenge).toHaveBeenCalledTimes(3);
+        for (const [input] of createWalletChallenge.mock.calls) {
+            expect(input.uri).toBe("https://browser.example:8443");
+        }
+    });
+
+    it("requires an explicit origin outside a browser before requesting or signing a challenge", async () => {
+        vi.stubGlobal("location", undefined);
+        const accountSigner = signer();
+        const auth = authService(accountSigner);
+        const { createWalletChallenge } = mockLogin(auth);
+        await expect(auth.login({ provider: "other" })).rejects.toThrow(
+            "Pass uri outside a browser",
+        );
+        expect(createWalletChallenge).not.toHaveBeenCalled();
+        expect(accountSigner.signMessage).not.toHaveBeenCalled();
+    });
+
+    it("does not sign or commit a session after challenge failure and can retry", async () => {
+        const accountSigner = signer();
+        const tokenStorage = createTestStorage();
+        const auth = authFixture(accountSigner, tokenStorage).auth;
+        const { createWalletChallenge, loginWithWallet } = mockLogin(auth);
+        const failure = new Error("challenge unavailable");
+        createWalletChallenge.mockRejectedValueOnce(failure);
+        await expect(auth.login({ uri: "https://app.example", provider: "other" })).rejects.toBe(
+            failure,
+        );
+        expect(accountSigner.signMessage).not.toHaveBeenCalled();
+        expect(loginWithWallet).not.toHaveBeenCalled();
+        expect(tokenStorage.set).not.toHaveBeenCalled();
+        await auth.login({ uri: "https://app.example", provider: "other" });
+        expect(accountSigner.signMessage).toHaveBeenCalledOnce();
+        expect(tokenStorage.set).toHaveBeenCalledOnce();
+    });
+
     it("maps account signer fields to the backend wallet login payload", async () => {
         const accountSigner = signer();
         const auth = authService(accountSigner);
-        const { requestLoginNonce, loginWithWallet } = mockLogin(auth);
+        const { createWalletChallenge, loginWithWallet } = mockLogin(auth);
 
-        await auth.login({ provider: "turnkey" });
+        await auth.login({ uri: "https://app.example", provider: "turnkey" });
 
-        expect(requestLoginNonce).toHaveBeenCalledWith(accountSigner.accountAddress);
-        expect(accountSigner.signMessage).toHaveBeenCalledWith("Polyester Login\n\nNonce: nonce-1");
+        expect(createWalletChallenge).toHaveBeenCalledWith({
+            smartAccountAddress: accountSigner.accountAddress,
+            signerAddress: accountSigner.accountAddress,
+            uri: "https://app.example",
+            purpose: "login",
+        });
+        expect(accountSigner.signMessage).toHaveBeenCalledWith(
+            "server-issued message ☃\nexact bytes",
+        );
         expect(loginWithWallet).toHaveBeenCalledWith({
             smartAccountAddress: accountSigner.accountAddress,
-            nonce: "nonce-1",
+            message: "server-issued message ☃\nexact bytes",
             signature: "0x1234",
-            primaryWalletAddress: accountSigner.ownerAddress,
             walletProvider: "turnkey",
         });
         expect(auth.getState()).toMatchObject({
@@ -152,27 +209,30 @@ describe("AccountSignerAuthService", () => {
             ownerAddress: "0x4444444444444444444444444444444444444444",
         });
         const auth = authService(accountSigner);
-        const { requestLoginNonce, loginWithWallet } = mockLogin(auth);
+        const { createWalletChallenge, loginWithWallet } = mockLogin(auth);
 
-        await auth.login({ provider: "metamask" });
+        await auth.login({ uri: "https://app.example", provider: "metamask" });
 
-        expect(requestLoginNonce).toHaveBeenCalledWith(accountSigner.accountAddress);
+        expect(createWalletChallenge).toHaveBeenCalledWith({
+            smartAccountAddress: accountSigner.accountAddress,
+            signerAddress: accountSigner.accountAddress,
+            uri: "https://app.example",
+            purpose: "login",
+        });
         expect(loginWithWallet.mock.calls[0]?.[0]).toMatchObject({
             smartAccountAddress: accountSigner.accountAddress,
-            primaryWalletAddress: accountSigner.ownerAddress,
         });
     });
 
-    it("uses accountAddress as primary wallet metadata when ownerAddress is absent", async () => {
+    it("authenticates the account when ownerAddress is absent", async () => {
         const accountSigner = signer({ ownerAddress: undefined });
         const auth = authService(accountSigner);
         const { loginWithWallet } = mockLogin(auth);
 
-        await auth.login({ provider: "other" });
+        await auth.login({ uri: "https://app.example", provider: "other" });
 
         expect(loginWithWallet.mock.calls[0]?.[0]).toMatchObject({
             smartAccountAddress: accountSigner.accountAddress,
-            primaryWalletAddress: accountSigner.accountAddress,
         });
     });
 
@@ -184,12 +244,17 @@ describe("AccountSignerAuthService", () => {
             accountAddress: "0x5555555555555555555555555555555555555555",
         });
         const auth = authService(initialSigner);
-        const { requestLoginNonce } = mockLogin(auth);
+        const { createWalletChallenge } = mockLogin(auth);
 
         auth.setAccountSigner(replacementSigner);
-        await auth.login({ provider: "other" });
+        await auth.login({ uri: "https://app.example", provider: "other" });
 
-        expect(requestLoginNonce).toHaveBeenCalledWith(replacementSigner.accountAddress);
+        expect(createWalletChallenge).toHaveBeenCalledWith({
+            smartAccountAddress: replacementSigner.accountAddress,
+            signerAddress: replacementSigner.accountAddress,
+            uri: "https://app.example",
+            purpose: "login",
+        });
     });
 
     it("stores login tokens through the configured token storage", async () => {
@@ -198,7 +263,7 @@ describe("AccountSignerAuthService", () => {
         const auth = authFixture(accountSigner, tokenStorage).auth;
         mockLogin(auth);
 
-        await auth.login({ provider: "turnkey" });
+        await auth.login({ uri: "https://app.example", provider: "turnkey" });
 
         expect(tokenStorage.set).toHaveBeenCalledWith("token-1", {
             expiresAt: null,
@@ -212,7 +277,7 @@ describe("AccountSignerAuthService", () => {
         const auth = authFixture(accountSigner, tokenStorage).auth;
         const { loginWithWallet } = mockLogin(auth);
 
-        await auth.login({ provider: "turnkey" });
+        await auth.login({ uri: "https://app.example", provider: "turnkey" });
         loginWithWallet.mockResolvedValueOnce({
             accessToken: "token-2",
             accountId: "account-1",
@@ -222,7 +287,7 @@ describe("AccountSignerAuthService", () => {
                 nanos: 0,
             },
         });
-        await auth.refreshSession();
+        await auth.refreshSession({ uri: "https://app.example" });
 
         expect(tokenStorage.set).toHaveBeenNthCalledWith(1, "token-1", {
             expiresAt: null,
@@ -240,7 +305,7 @@ describe("AccountSignerAuthService", () => {
         const { loginWithWallet } = mockLogin(auth);
         installDocument();
 
-        await auth.login({ provider: "turnkey" });
+        await auth.login({ uri: "https://app.example", provider: "turnkey" });
         auth.switchAccount("sub-1", {
             label: "Operations",
             smartAccountAddress: "0x3333333333333333333333333333333333333333",
@@ -252,7 +317,7 @@ describe("AccountSignerAuthService", () => {
             expiresAt: { seconds: 2n, nanos: 0 },
         });
 
-        await auth.refreshSession();
+        await auth.refreshSession({ uri: "https://app.example" });
 
         expect(auth.getState().activeAccount).toMatchObject({
             accountId: "sub-1",
@@ -273,7 +338,7 @@ describe("AccountSignerAuthService", () => {
         const { loginWithWallet } = mockLogin(auth);
         installDocument();
 
-        await auth.login({ provider: "turnkey" });
+        await auth.login({ uri: "https://app.example", provider: "turnkey" });
         auth.switchAccount("sub-1", { label: "Operations" });
         loginWithWallet.mockResolvedValueOnce({
             accessToken: "token-2",
@@ -282,7 +347,7 @@ describe("AccountSignerAuthService", () => {
             expiresAt: { seconds: 2n, nanos: 0 },
         });
 
-        await auth.refreshSession();
+        await auth.refreshSession({ uri: "https://app.example" });
 
         expect(auth.getState().activeAccount).toMatchObject({
             accountId: "account-2",
@@ -303,7 +368,7 @@ describe("AccountSignerAuthService", () => {
         const disconnectPrivate = vi.spyOn(realtime, "disconnectPrivate");
         mockLogin(auth);
 
-        await auth.login({ provider: "turnkey" });
+        await auth.login({ uri: "https://app.example", provider: "turnkey" });
         await auth.logout();
 
         expect(tokenStorage.clear).toHaveBeenCalledTimes(1);
@@ -315,7 +380,7 @@ describe("AccountSignerAuthService", () => {
         const auth = authFixture(signer(), tokenStorage).auth;
         const laterListener = vi.fn();
         mockLogin(auth);
-        await auth.login({ provider: "turnkey" });
+        await auth.login({ uri: "https://app.example", provider: "turnkey" });
 
         auth.events.on("loggedOut", () => {
             throw new Error("listener failed");
@@ -397,11 +462,18 @@ describe("AccountSignerAuthService", () => {
             mainAccountId: "account-1",
         });
 
-        const { requestLoginNonce } = mockLogin(auth);
-        await auth.login({ provider: "turnkey" });
+        const { createWalletChallenge } = mockLogin(auth);
+        await auth.login({ uri: "https://app.example", provider: "turnkey" });
 
-        expect(requestLoginNonce).toHaveBeenCalledWith(accountSigner.accountAddress);
-        expect(accountSigner.signMessage).toHaveBeenCalledWith("Polyester Login\n\nNonce: nonce-1");
+        expect(createWalletChallenge).toHaveBeenCalledWith({
+            smartAccountAddress: accountSigner.accountAddress,
+            signerAddress: accountSigner.accountAddress,
+            uri: "https://app.example",
+            purpose: "login",
+        });
+        expect(accountSigner.signMessage).toHaveBeenCalledWith(
+            "server-issued message ☃\nexact bytes",
+        );
         expect(auth.getAccountSigner()).toBe(accountSigner);
     });
 
@@ -435,15 +507,15 @@ describe("AccountSignerAuthService", () => {
         expect(auth.getSessionTimeToExpiry()).toBe(90_000);
     });
 
-    it("rejects a signer from another environment before requesting a nonce", async () => {
+    it("rejects a signer from another environment before requesting a challenge", async () => {
         const accountSigner = signer({ environmentFingerprint: "0xother" });
         const auth = authService(accountSigner);
-        const requestLoginNonce = vi.spyOn(auth, "requestLoginNonce");
+        const createWalletChallenge = vi.spyOn(auth, "createWalletChallenge");
 
-        await expect(auth.login({ provider: "other" })).rejects.toThrow(
+        await expect(auth.login({ uri: "https://app.example", provider: "other" })).rejects.toThrow(
             "Account signer environment does not match client environment.",
         );
-        expect(requestLoginNonce).not.toHaveBeenCalled();
+        expect(createWalletChallenge).not.toHaveBeenCalled();
     });
 
     it("creates a subaccount with the provided account signer", async () => {
@@ -454,10 +526,10 @@ describe("AccountSignerAuthService", () => {
         });
         const { auth: subaccountAuth, subaccounts } = authFixture(rootSigner);
         mockLogin(subaccountAuth);
-        await subaccountAuth.login({ provider: "turnkey" });
-        const subaccountRequestLoginNonce = vi
-            .spyOn(subaccountAuth, "requestLoginNonce")
-            .mockResolvedValue({ nonce: "sub-nonce" });
+        await subaccountAuth.login({ uri: "https://app.example", provider: "turnkey" });
+        const subaccountCreateWalletChallenge = vi
+            .spyOn(subaccountAuth, "createWalletChallenge")
+            .mockResolvedValue({ message: "subaccount server message" });
         const create = vi.spyOn(subaccounts, "create");
         const subaccountId = formatId(123n);
 
@@ -470,27 +542,28 @@ describe("AccountSignerAuthService", () => {
 
         await expect(
             subaccountAuth.createSubaccount({
+                uri: "https://app.example",
                 accountSigner: subaccountSigner,
                 label: "Trading",
-                walletProvider: "turnkey",
             }),
         ).resolves.toEqual({ subaccountId, smartAccountSaltNonce: 1, revision: "9" });
 
-        expect(subaccountRequestLoginNonce).toHaveBeenCalledWith(subaccountSigner.accountAddress);
-        expect(subaccountSigner.signMessage).toHaveBeenCalledWith(
-            "Polyester Login\n\nNonce: sub-nonce",
-        );
+        expect(subaccountCreateWalletChallenge).toHaveBeenCalledWith({
+            smartAccountAddress: subaccountSigner.accountAddress,
+            signerAddress: subaccountSigner.accountAddress,
+            uri: "https://app.example",
+            purpose: "create_subaccount",
+        });
+        expect(subaccountSigner.signMessage).toHaveBeenCalledWith("subaccount server message");
         expect(create).toHaveBeenCalledWith({
             label: "Trading",
             smartAccountAddress: subaccountSigner.accountAddress,
-            nonce: "sub-nonce",
+            message: "subaccount server message",
             signature: "0x1234",
-            primaryWalletAddress: rootSigner.ownerAddress,
-            walletProvider: "turnkey",
         });
     });
 
-    it("falls back to param account signer ownerAddress when main signer is absent", async () => {
+    it("creates a subaccount when the main signer is absent", async () => {
         const rootSigner = signer();
         const subaccountSigner = signer({
             accountAddress: "0x6666666666666666666666666666666666666666",
@@ -498,11 +571,11 @@ describe("AccountSignerAuthService", () => {
         });
         const { auth: subaccountAuth, subaccounts } = authFixture(rootSigner);
         mockLogin(subaccountAuth);
-        await subaccountAuth.login({ provider: "turnkey" });
+        await subaccountAuth.login({ uri: "https://app.example", provider: "turnkey" });
         subaccountAuth.setAccountSigner(null);
-        const subaccountRequestLoginNonce = vi
-            .spyOn(subaccountAuth, "requestLoginNonce")
-            .mockResolvedValue({ nonce: "sub-nonce" });
+        const subaccountCreateWalletChallenge = vi
+            .spyOn(subaccountAuth, "createWalletChallenge")
+            .mockResolvedValue({ message: "subaccount server message" });
         const create = vi.spyOn(subaccounts, "create");
         const subaccountId = formatId(123n);
 
@@ -515,20 +588,23 @@ describe("AccountSignerAuthService", () => {
 
         await expect(
             subaccountAuth.createSubaccount({
+                uri: "https://app.example",
                 accountSigner: subaccountSigner,
                 label: "Trading",
-                walletProvider: "metamask",
             }),
         ).resolves.toEqual({ subaccountId, smartAccountSaltNonce: 1, revision: "9" });
 
-        expect(subaccountRequestLoginNonce).toHaveBeenCalledWith(subaccountSigner.accountAddress);
+        expect(subaccountCreateWalletChallenge).toHaveBeenCalledWith({
+            smartAccountAddress: subaccountSigner.accountAddress,
+            signerAddress: subaccountSigner.accountAddress,
+            uri: "https://app.example",
+            purpose: "create_subaccount",
+        });
         expect(create).toHaveBeenCalledWith({
             label: "Trading",
             smartAccountAddress: subaccountSigner.accountAddress,
-            nonce: "sub-nonce",
+            message: "subaccount server message",
             signature: "0x1234",
-            primaryWalletAddress: subaccountSigner.ownerAddress,
-            walletProvider: "metamask",
         });
     });
 });

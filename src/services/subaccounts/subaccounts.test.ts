@@ -232,7 +232,7 @@ describe("SubaccountsService", () => {
                             icon: "chart",
                             color: "green",
                             smartAccountAddress: "0x1111111111111111111111111111111111111111",
-                            nonce: "nonce",
+                            message: "server message",
                             signature: "signature",
                         },
                         { stepUpToken: " fresh-token " },
@@ -242,7 +242,7 @@ describe("SubaccountsService", () => {
                     icon: "chart",
                     color: "green",
                     smartAccountAddress: "0x1111111111111111111111111111111111111111",
-                    nonce: "nonce",
+                    message: "server message",
                     signature: "signature",
                 },
             },
@@ -343,7 +343,7 @@ describe("SubaccountsService", () => {
             service.create({
                 label: "Trading",
                 smartAccountAddress: "0x1111111111111111111111111111111111111111",
-                nonce: "nonce",
+                message: "server message",
                 signature: "signature",
             }),
         ).resolves.toEqual({
