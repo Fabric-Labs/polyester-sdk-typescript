@@ -135,39 +135,43 @@ describe("PolyesterClient realtime auth", () => {
         });
     });
 
-    it("maps a prefetched realtime JWT provider failure to AuthenticationError", async () => {
-        const cause = new Error("credential store unavailable");
-        const getToken = vi.fn(() => {
-            throw cause;
-        });
-        const client = new PolyesterClient({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            auth: { kind: "jwt", getToken },
-        });
-        void client.realtime;
-
-        const config = realtimeConfigs[0];
-        if (!config?.getAuthHeaders) throw new Error("Expected realtime auth headers");
-
-        expect(config.hasAuth?.()).toBe(true);
-        expect(getToken).toHaveBeenCalledOnce();
-        let rejection: unknown;
-        try {
-            await config.getAuthHeaders({
-                url: `${POLYESTER_DEVNET_ENVIRONMENT.apiUrl}/v1/rt/token`,
-                method: "GET",
+    it.each(["synchronous", "asynchronous"])(
+        "maps a %s realtime JWT provider failure to AuthenticationError",
+        async (provider) => {
+            const cause = new Error("credential store unavailable");
+            const getToken = vi.fn(() => {
+                if (provider === "asynchronous") return Promise.reject(cause);
+                throw cause;
             });
-        } catch (error) {
-            rejection = error;
-        }
-        expect(rejection).toBeInstanceOf(AuthenticationError);
-        expect(rejection).toMatchObject({
-            name: "AuthenticationError",
-            code: "UNAUTHENTICATED",
-            cause,
-        });
-        expect(getToken).toHaveBeenCalledOnce();
-    });
+            const client = new PolyesterClient({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                auth: { kind: "jwt", getToken },
+            });
+            void client.realtime;
+
+            const config = realtimeConfigs[0];
+            if (!config?.getAuthHeaders) throw new Error("Expected realtime auth headers");
+
+            expect(config.hasAuth?.()).toBe(true);
+            expect(getToken).toHaveBeenCalledOnce();
+            let rejection: unknown;
+            try {
+                await config.getAuthHeaders({
+                    url: `${POLYESTER_DEVNET_ENVIRONMENT.apiUrl}/v1/rt/token`,
+                    method: "GET",
+                });
+            } catch (error) {
+                rejection = error;
+            }
+            expect(rejection).toBeInstanceOf(AuthenticationError);
+            expect(rejection).toMatchObject({
+                name: "AuthenticationError",
+                code: "UNAUTHENTICATED",
+                cause,
+            });
+            expect(getToken).toHaveBeenCalledTimes(2);
+        },
+    );
 
     it("reports a synchronous missing realtime JWT credential during preflight", () => {
         const getToken = vi.fn(() => null);
@@ -184,8 +188,8 @@ describe("PolyesterClient realtime auth", () => {
         expect(getToken).toHaveBeenCalledOnce();
     });
 
-    it("reuses a synchronous realtime JWT credential for the following request", async () => {
-        const getToken = vi.fn(() => "secret");
+    it("reads the current synchronous realtime JWT credential for each request", async () => {
+        const getToken = vi.fn(() => "secret").mockReturnValueOnce("old-secret");
         const client = new PolyesterClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,
             auth: { kind: "jwt", getToken },
@@ -203,11 +207,11 @@ describe("PolyesterClient realtime auth", () => {
                 method: "GET",
             }),
         ).resolves.toEqual({ authorization: "Bearer secret" });
-        expect(getToken).toHaveBeenCalledOnce();
+        expect(getToken).toHaveBeenCalledTimes(3);
     });
 
-    it("reuses an asynchronous realtime JWT credential for the following request", async () => {
-        const getToken = vi.fn(async () => "secret");
+    it("reads the current asynchronous realtime JWT credential for each request", async () => {
+        const getToken = vi.fn(async () => "secret").mockResolvedValueOnce("old-secret");
         const client = new PolyesterClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,
             auth: { kind: "jwt", getToken },
@@ -224,7 +228,7 @@ describe("PolyesterClient realtime auth", () => {
                 method: "GET",
             }),
         ).resolves.toEqual({ authorization: "Bearer secret" });
-        expect(getToken).toHaveBeenCalledOnce();
+        expect(getToken).toHaveBeenCalledTimes(2);
     });
 });
 
