@@ -1,0 +1,53 @@
+name: Preview package
+
+on:
+    workflow_dispatch:
+    pull_request:
+
+permissions:
+    contents: read
+
+concurrency:
+    group: preview-package-${{ github.event_name }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+
+            - name: Set up Node.js
+              uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+              with:
+                  node-version-file: .node-version
+                  registry-url: https://registry.npmjs.org
+
+            - name: Set up Bun
+              uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+              with:
+                  bun-version-file: .bun-version
+
+            - name: Install dependencies
+              run: bun install --frozen-lockfile
+
+            - name: Verify generated descriptors are stripped
+              run: |
+                  bun scripts/strip-descriptor-options.ts
+                  git diff --exit-code -- src/gen
+
+            - name: Check SDK
+              run: bun run ci
+
+            - name: Publish preview package
+              id: publish
+              run: bun run pkg-pr-new publish
+
+            - name: Show preview package
+              env:
+                  PREVIEW_URL: ${{ steps.publish.outputs.urls }}
+              run: |
+                  printf '## Preview package\n\n[%s](%s)\n\n```sh\nbun add @polyester/sdk@%s\n```\n' \
+                      "$PREVIEW_URL" "$PREVIEW_URL" "$PREVIEW_URL" >> "$GITHUB_STEP_SUMMARY"
