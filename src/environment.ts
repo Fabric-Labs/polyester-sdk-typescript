@@ -294,8 +294,8 @@ export function parsePolyesterEnvironment(environment: PolyesterEnvironment): Po
 
 export const POLYESTER_DEVNET_ENVIRONMENT = createPolyesterEnvironment({
     name: "polyester-devnet",
-    apiUrl: "https://api-devnet.polyester.ai",
-    websocketUrl: "wss://api-devnet.polyester.ai",
+    apiUrl: "https://api.devnet.polyester.com",
+    websocketUrl: "wss://api.devnet.polyester.com",
     rpcUrl: "https://rpc.polyester.tech",
     chain: {
         id: 888168,
@@ -347,8 +347,8 @@ export const POLYESTER_DEVNET_ENVIRONMENT = createPolyesterEnvironment({
 
 export const POLYESTER_TESTNET_ENVIRONMENT = createPolyesterEnvironment({
     name: "polyester-testnet",
-    apiUrl: "https://api-testnet.polyester.com",
-    websocketUrl: "wss://api-testnet.polyester.com",
+    apiUrl: "https://api.testnet.polyester.com",
+    websocketUrl: "wss://api.testnet.polyester.com",
     rpcUrl: "https://rpc.polyester.live",
     chain: {
         id: 888169,

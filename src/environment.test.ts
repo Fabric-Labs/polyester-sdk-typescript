@@ -19,8 +19,8 @@ const baseParams = {
 describe("POLYESTER_DEVNET_ENVIRONMENT", () => {
     it("identifies the bundled preset as Polyester devnet", () => {
         expect(POLYESTER_DEVNET_ENVIRONMENT.name).toBe("polyester-devnet");
-        expect(POLYESTER_DEVNET_ENVIRONMENT.apiUrl).toBe("https://api-devnet.polyester.ai");
-        expect(POLYESTER_DEVNET_ENVIRONMENT.websocketUrl).toBe("wss://api-devnet.polyester.ai");
+        expect(POLYESTER_DEVNET_ENVIRONMENT.apiUrl).toBe("https://api.devnet.polyester.com");
+        expect(POLYESTER_DEVNET_ENVIRONMENT.websocketUrl).toBe("wss://api.devnet.polyester.com");
         expect(POLYESTER_DEVNET_ENVIRONMENT.chain.name).toBe("Polyester Chain Devnet");
     });
 });
