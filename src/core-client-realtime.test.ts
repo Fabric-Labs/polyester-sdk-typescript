@@ -55,11 +55,12 @@ describe("PolyesterClient realtime authentication", () => {
             }),
         );
         let jwt: string | null = "JWT-1";
+        const getToken = vi.fn(() => (provider === "asynchronous" ? Promise.resolve(jwt) : jwt));
         const client = new PolyesterClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,
             auth: {
                 kind: "jwt",
-                getToken: () => (provider === "asynchronous" ? Promise.resolve(jwt) : jwt),
+                getToken,
             },
         });
         const subscribe = () =>
@@ -68,14 +69,17 @@ describe("PolyesterClient realtime authentication", () => {
             subscribe();
             await Promise.all(tokenRequests);
             expect(bearers).toEqual(["Bearer JWT-1", "Bearer JWT-1"]);
+            expect(getToken).toHaveBeenCalledTimes(3);
             const refreshToken = () =>
                 (refresh === "connection" ? connectionOptions : subscriptionOptions).getToken();
             subscribe();
             expect(tokenRequests).toHaveLength(2);
+            expect(getToken).toHaveBeenCalledTimes(3);
             jwt = "JWT-2";
             await refreshToken();
             expect(bearers.at(-1)).toBe("Bearer JWT-2");
             subscribe();
+            expect(getToken).toHaveBeenCalledTimes(4);
             jwt = null;
             await refreshToken();
             expect(bearers.at(-1)).toBeNull();

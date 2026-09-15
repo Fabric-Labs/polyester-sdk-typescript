@@ -228,6 +228,36 @@ describe("RealtimeClient", () => {
         centrifugeState.instances.length = 0;
     });
 
+    it("rechecks authentication after the transport loads", async () => {
+        let finishLoading!: () => void;
+        const loaded = new Promise<void>((resolve) => {
+            finishLoading = resolve;
+        });
+        __setRealtimeCentrifugeLoaderForTests(async () => {
+            await loaded;
+            return { Centrifuge: MockCentrifuge } as never;
+        });
+        let authenticated = true;
+        const hasAuth = vi.fn(() => authenticated);
+        const onError = vi.fn();
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            hasAuth,
+        });
+        client.subscribe("private:test", { onPublication: () => {}, onError });
+        expect(hasAuth).toHaveBeenCalledOnce();
+        authenticated = false;
+        finishLoading();
+        await vi.waitFor(() => expect(onError).toHaveBeenCalledOnce());
+        expect(onError.mock.calls[0]?.[0].error).toBeInstanceOf(AuthenticationError);
+        expect(hasAuth).toHaveBeenCalledTimes(2);
+        expect(centrifugeState.instances).toHaveLength(0);
+        expect(client.activeChannels).toBe(0);
+        client.disconnect();
+    });
+
     it("retries loading the transport module after a chunk-load failure", async () => {
         const loadFailure = new Error("chunk load failed");
         const loader = vi
