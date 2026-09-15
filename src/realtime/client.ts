@@ -279,15 +279,6 @@ export class RealtimeClient implements PolyesterRealtime {
         return this.#publicClient ?? this.#createPublicClient(Centrifuge);
     }
 
-    #ensurePrivateClient(Centrifuge: CentrifugeCtor): Centrifuge {
-        if (!this.#hasAuth()) {
-            throw new AuthenticationError(
-                "Cannot create authenticated realtime client without authentication",
-            );
-        }
-        return this.#privateClient ?? this.#createPrivateClient(Centrifuge);
-    }
-
     #assertChannelAuth(channel: string): void {
         if (this.#channelKind(channel) === "private" && !this.#hasAuth()) {
             throw new AuthenticationError(
@@ -297,9 +288,8 @@ export class RealtimeClient implements PolyesterRealtime {
     }
 
     #ensureClientForChannel(Centrifuge: CentrifugeCtor, channel: string): Centrifuge {
-        this.#assertChannelAuth(channel);
         if (this.#channelKind(channel) === "private") {
-            return this.#ensurePrivateClient(Centrifuge);
+            return this.#privateClient ?? this.#createPrivateClient(Centrifuge);
         }
 
         return this.#ensurePublicClient(Centrifuge);
@@ -346,6 +336,7 @@ export class RealtimeClient implements PolyesterRealtime {
         if (this.#sharedSubs.get(shared.channel) !== shared) return;
 
         try {
+            this.#assertChannelAuth(shared.channel);
             this.#attachSubscriptionNow(Centrifuge, shared, attachmentEpoch);
         } catch (error) {
             this.#sharedSubs.delete(shared.channel);
@@ -653,9 +644,14 @@ export class RealtimeClient implements PolyesterRealtime {
         if (onError) shared.errorHandlers.add(onError);
 
         // Only an explicit subscribe restarts terminal private token failures.
-        if (this.#channelKind(channel) === "private" && this.#hasAuth()) {
-            if (shared.client?.state === "disconnected") shared.client.connect();
-            if (shared.sub?.state === "unsubscribed") shared.sub.subscribe();
+        if (this.#channelKind(channel) === "private") {
+            const reconnect = shared.client?.state === "disconnected";
+            const resubscribe = shared.sub?.state === "unsubscribed";
+            // hasAuth() reads the token provider, so only call it when a restart is possible.
+            if ((reconnect || resubscribe) && this.#hasAuth()) {
+                if (reconnect) shared.client?.connect();
+                if (resubscribe) shared.sub?.subscribe();
+            }
         }
 
         let closed = false;
