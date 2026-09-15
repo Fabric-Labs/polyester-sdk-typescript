@@ -203,7 +203,7 @@ describe("AccountSignerAuthService", () => {
 
         expect(createWalletChallenge).toHaveBeenCalledWith({
             smartAccountAddress: accountSigner.accountAddress,
-            signerAddress: accountSigner.accountAddress,
+            signerAddress: accountSigner.ownerAddress,
             uri: "https://app.example",
             purpose: "login",
         });
@@ -223,7 +223,7 @@ describe("AccountSignerAuthService", () => {
         });
     });
 
-    it("does not substitute ownerAddress for accountAddress", async () => {
+    it("declares the distinct EOA as the LOGIN signer and keeps the Safe as the smart account on login and refresh", async () => {
         const accountSigner = signer({
             accountAddress: "0x3333333333333333333333333333333333333333",
             ownerAddress: "0x4444444444444444444444444444444444444444",
@@ -232,6 +232,36 @@ describe("AccountSignerAuthService", () => {
         const { createWalletChallenge, loginWithWallet } = mockLogin(auth);
 
         await auth.login({ uri: "https://app.example", provider: "metamask" });
+        await auth.refreshSession();
+
+        expect(createWalletChallenge).toHaveBeenCalledTimes(2);
+        for (const [input] of createWalletChallenge.mock.calls) {
+            expect(input).toEqual({
+                smartAccountAddress: "0x3333333333333333333333333333333333333333",
+                signerAddress: "0x4444444444444444444444444444444444444444",
+                uri: "https://app.example",
+                purpose: "login",
+            });
+        }
+        expect(accountSigner.signMessage).toHaveBeenCalledTimes(2);
+        expect(accountSigner.signMessage).toHaveBeenCalledWith(
+            "server-issued message ☃\nexact bytes",
+        );
+        for (const [input] of loginWithWallet.mock.calls) {
+            expect(input).toMatchObject({
+                smartAccountAddress: "0x3333333333333333333333333333333333333333",
+                message: "server-issued message ☃\nexact bytes",
+                signature: "0x1234",
+            });
+        }
+    });
+
+    it("signs the LOGIN challenge with accountAddress when ownerAddress is absent", async () => {
+        const accountSigner = signer({ ownerAddress: undefined });
+        const auth = authService(accountSigner);
+        const { createWalletChallenge, loginWithWallet } = mockLogin(auth);
+
+        await auth.login({ uri: "https://app.example", provider: "other" });
 
         expect(createWalletChallenge).toHaveBeenCalledWith({
             smartAccountAddress: accountSigner.accountAddress,
@@ -239,18 +269,6 @@ describe("AccountSignerAuthService", () => {
             uri: "https://app.example",
             purpose: "login",
         });
-        expect(loginWithWallet.mock.calls[0]?.[0]).toMatchObject({
-            smartAccountAddress: accountSigner.accountAddress,
-        });
-    });
-
-    it("authenticates the account when ownerAddress is absent", async () => {
-        const accountSigner = signer({ ownerAddress: undefined });
-        const auth = authService(accountSigner);
-        const { loginWithWallet } = mockLogin(auth);
-
-        await auth.login({ uri: "https://app.example", provider: "other" });
-
         expect(loginWithWallet.mock.calls[0]?.[0]).toMatchObject({
             smartAccountAddress: accountSigner.accountAddress,
         });
@@ -271,7 +289,7 @@ describe("AccountSignerAuthService", () => {
 
         expect(createWalletChallenge).toHaveBeenCalledWith({
             smartAccountAddress: replacementSigner.accountAddress,
-            signerAddress: replacementSigner.accountAddress,
+            signerAddress: replacementSigner.ownerAddress,
             uri: "https://app.example",
             purpose: "login",
         });
@@ -487,7 +505,7 @@ describe("AccountSignerAuthService", () => {
 
         expect(createWalletChallenge).toHaveBeenCalledWith({
             smartAccountAddress: accountSigner.accountAddress,
-            signerAddress: accountSigner.accountAddress,
+            signerAddress: accountSigner.ownerAddress,
             uri: "https://app.example",
             purpose: "login",
         });
