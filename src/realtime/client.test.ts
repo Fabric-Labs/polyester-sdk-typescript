@@ -139,6 +139,13 @@ import {
 } from "../shared/errors.js";
 
 class JsonReplyWebSocket {
+    static instances: JsonReplyWebSocket[] = [];
+    channels = new Set<string>();
+
+    constructor() {
+        JsonReplyWebSocket.instances.push(this);
+    }
+
     binaryType = "";
     onerror: ((event: unknown) => void) | null = null;
     onclose: ((event: { code: number; reason: string }) => void) | null = null;
@@ -150,8 +157,8 @@ class JsonReplyWebSocket {
         queueMicrotask(() => this.#onopen?.());
     }
 
-    close(): void {
-        this.onclose?.({ code: 1000, reason: "closed" });
+    close(code = 1000, reason = "closed"): void {
+        this.onclose?.({ code, reason });
     }
 
     send(data: string): void {
@@ -161,9 +168,14 @@ class JsonReplyWebSocket {
             .filter(Boolean)
             .map(
                 (line) =>
-                    JSON.parse(line) as { id: number; connect?: unknown; subscribe?: unknown },
+                    JSON.parse(line) as {
+                        id: number;
+                        connect?: unknown;
+                        subscribe?: { channel: string };
+                    },
             )) {
             if (!command.connect && !command.subscribe) continue;
+            if (command.subscribe) this.channels.add(command.subscribe.channel);
             queueMicrotask(() => {
                 this.onmessage?.({
                     data: JSON.stringify(
@@ -220,6 +232,7 @@ describe("RealtimeClient", () => {
     });
 
     afterEach(() => {
+        JsonReplyWebSocket.instances.length = 0;
         vi.useRealTimers();
         vi.unstubAllGlobals();
         vi.restoreAllMocks();
@@ -381,9 +394,260 @@ describe("RealtimeClient", () => {
 
         expect(instance.connectCalls).toBe(1);
 
-        instance.emit("disconnected");
+        instance.emit("disconnected", { code: 4500, reason: "session revoked" });
 
         expect(instance.connectCalls).toBe(1);
+    });
+
+    it.each([3500, 3999, 4500, 4999])(
+        "closes only the affected connection on real Centrifuge terminal disconnect %i",
+        async (code) => {
+            vi.useFakeTimers();
+            useRealJsonCentrifuge();
+            vi.spyOn(globalThis, "fetch").mockImplementation(() =>
+                Promise.resolve(Response.json({ token: "fixture-token" })),
+            );
+            const client = new RealtimeClient({
+                wsUrl: "wss://stream.example.test",
+                tokenEndpoint: "https://api.example.test/token",
+                subscribeEndpoint: "https://api.example.test/subscribe",
+                hasAuth: () => true,
+            });
+            const publicError = vi.fn();
+            const publicClose = vi.fn();
+            client.subscribe("public:test", {
+                onPublication: () => {},
+                onError: publicError,
+                onUnsubscribed: publicClose,
+            });
+            const privateErrors = [vi.fn(), vi.fn(), vi.fn()];
+            const privateCloses = [vi.fn(), vi.fn(), vi.fn()];
+            const handles = privateErrors.map((onError, index) =>
+                client.subscribe(index === 2 ? "private:second" : "private:first", {
+                    onPublication: () => {},
+                    onError,
+                    onUnsubscribed: privateCloses[index],
+                }),
+            );
+            await vi.dynamicImportSettled();
+            await vi.advanceTimersByTimeAsync(0);
+            const socket = JsonReplyWebSocket.instances.find((ws) =>
+                ws.channels.has("private:first"),
+            );
+            expect(socket).toBeDefined();
+            socket!.close(code, "session revoked");
+            await vi.advanceTimersByTimeAsync(60_000);
+
+            for (let index = 0; index < privateErrors.length; index++) {
+                expect(privateErrors[index]).toHaveBeenCalledExactlyOnceWith({
+                    channel: index === 2 ? "private:second" : "private:first",
+                    type: "disconnected",
+                    error: { code, message: "session revoked" },
+                });
+                expect(privateCloses[index]).toHaveBeenCalledOnce();
+            }
+            expect(publicError).not.toHaveBeenCalled();
+            expect(publicClose).not.toHaveBeenCalled();
+            expect(JsonReplyWebSocket.instances).toHaveLength(2);
+            expect(client.activeChannels).toBe(1);
+            expect(client.totalConsumers).toBe(1);
+            handles.forEach((unsubscribe) => unsubscribe());
+            await vi.advanceTimersByTimeAsync(0);
+            expect(client.activeChannels).toBe(1);
+            client.disconnect();
+        },
+    );
+
+    it.each(["disconnect", "unsubscribe"])(
+        "allows immediate resubscription from a real terminal %s callback",
+        async (kind) => {
+            vi.useFakeTimers();
+            useRealJsonCentrifuge();
+            const client = createPublicRealtimeClient();
+            const onClose = vi.fn();
+            const replacementOpen = vi.fn();
+            const onError = vi.fn(() => {
+                expect(client.activeChannels).toBe(0);
+                client.subscribe("public:test", {
+                    onPublication: () => {},
+                    onSubscribed: replacementOpen,
+                });
+            });
+            const oldUnsubscribe = client.subscribe("public:test", {
+                onPublication: () => {},
+                onError,
+                onUnsubscribed: onClose,
+            });
+            await vi.dynamicImportSettled();
+            await vi.advanceTimersByTimeAsync(0);
+            const socket = JsonReplyWebSocket.instances[0]!;
+            if (kind === "disconnect") {
+                socket.close(4500, "session revoked");
+            } else {
+                socket.onmessage?.({
+                    data: JSON.stringify({
+                        push: {
+                            channel: "public:test",
+                            unsubscribe: { code: 2000, reason: "permission revoked" },
+                        },
+                    }),
+                });
+            }
+            await vi.advanceTimersByTimeAsync(0);
+            expect(onError).toHaveBeenCalledExactlyOnceWith({
+                channel: "public:test",
+                type: kind === "disconnect" ? "disconnected" : "unsubscribed",
+                error:
+                    kind === "disconnect"
+                        ? { code: 4500, message: "session revoked" }
+                        : { code: 2000, message: "permission revoked" },
+            });
+            expect(onClose).toHaveBeenCalledOnce();
+            expect(replacementOpen).toHaveBeenCalledOnce();
+            oldUnsubscribe();
+            await vi.advanceTimersByTimeAsync(0);
+            expect(client.activeChannels).toBe(1);
+            expect(client.totalConsumers).toBe(1);
+            client.disconnect();
+        },
+    );
+
+    it("keeps sibling channels live after a real terminal server unsubscribe", async () => {
+        vi.useFakeTimers();
+        useRealJsonCentrifuge();
+        const client = createPublicRealtimeClient();
+        const onError = vi.fn();
+        const onClose = vi.fn();
+        const siblingPublication = vi.fn();
+        const siblingError = vi.fn();
+        const siblingClose = vi.fn();
+        client.subscribe("public:closed", {
+            onPublication: () => {},
+            onError,
+            onUnsubscribed: onClose,
+        });
+        client.subscribe("public:live", {
+            onPublication: siblingPublication,
+            onError: siblingError,
+            onUnsubscribed: siblingClose,
+        });
+        await vi.dynamicImportSettled();
+        await vi.advanceTimersByTimeAsync(0);
+        const socket = JsonReplyWebSocket.instances[0]!;
+        socket.onmessage?.({
+            data: JSON.stringify({
+                push: {
+                    channel: "public:closed",
+                    unsubscribe: { code: 2000, reason: "permission revoked" },
+                },
+            }),
+        });
+        await vi.advanceTimersByTimeAsync(0);
+        socket.onmessage?.({
+            data: JSON.stringify({
+                push: {
+                    channel: "public:live",
+                    pub: { data: "fresh" },
+                },
+            }),
+        });
+        await vi.advanceTimersByTimeAsync(0);
+        expect(onError).toHaveBeenCalledExactlyOnceWith({
+            channel: "public:closed",
+            type: "unsubscribed",
+            error: { code: 2000, message: "permission revoked" },
+        });
+        expect(onClose).toHaveBeenCalledOnce();
+        expect(siblingPublication).toHaveBeenCalledExactlyOnceWith("fresh");
+        expect(siblingError).not.toHaveBeenCalled();
+        expect(siblingClose).not.toHaveBeenCalled();
+        expect(client.activeChannels).toBe(1);
+        expect(client.totalConsumers).toBe(1);
+        expect(JsonReplyWebSocket.instances).toHaveLength(1);
+        client.disconnect();
+    });
+
+    it("cleans pending teardowns on a terminal disconnect without notifying disposed consumers", async () => {
+        const client = createPublicRealtimeClient();
+        const onError = vi.fn();
+        const onClose = vi.fn();
+        const unsubscribe = client.subscribe("public:test", {
+            onPublication: () => {},
+            onError,
+            onUnsubscribed: onClose,
+        });
+        unsubscribe();
+        firstInstance().emit("disconnected", { code: 4500, reason: "revoked" });
+        client.subscribe("public:test", { onPublication: () => {} });
+        await waitForAsyncTokens();
+        expect(onError).not.toHaveBeenCalled();
+        expect(onClose).not.toHaveBeenCalled();
+        expect(centrifugeState.instances).toHaveLength(2);
+        expect(client.activeChannels).toBe(1);
+        expect(client.totalConsumers).toBe(1);
+        client.disconnect();
+    });
+
+    it("preserves real reconnects and keeps caller teardown silent", async () => {
+        vi.useFakeTimers();
+        useRealJsonCentrifuge();
+        const client = createPublicRealtimeClient();
+        const onError = vi.fn();
+        const onClose = vi.fn();
+        const onOpen = vi.fn();
+        const unsubscribe = client.subscribe("public:test", {
+            onPublication: () => {},
+            onSubscribed: onOpen,
+            onUnsubscribed: onClose,
+            onError,
+        });
+        await vi.dynamicImportSettled();
+        await vi.advanceTimersByTimeAsync(0);
+        JsonReplyWebSocket.instances[0]!.close(3000, "temporary interruption");
+        await vi.advanceTimersByTimeAsync(4_001);
+        expect(onOpen).toHaveBeenCalledTimes(2);
+        expect(client.activeChannels).toBe(1);
+        expect(onError).not.toHaveBeenCalled();
+        expect(onClose).not.toHaveBeenCalled();
+        unsubscribe();
+        await vi.advanceTimersByTimeAsync(0);
+        expect(onError).not.toHaveBeenCalled();
+        expect(onClose).not.toHaveBeenCalled();
+        expect(client.activeChannels).toBe(0);
+    });
+
+    it("finishes terminal cleanup before callbacks resubscribe to another affected channel", async () => {
+        const client = createPublicRealtimeClient();
+        const secondClose = vi.fn();
+        const replacementPublication = vi.fn();
+        const firstClose = vi.fn();
+        client.subscribe("public:first", {
+            onPublication: () => {},
+            onError: () => {
+                client.subscribe("public:second", { onPublication: replacementPublication });
+                throw new Error("consumer failure");
+            },
+            onUnsubscribed: firstClose,
+        });
+        const oldUnsubscribe = client.subscribe("public:second", {
+            onPublication: () => {},
+            onUnsubscribed: secondClose,
+        });
+        const oldClient = firstInstance();
+        oldClient.emit("disconnected", { code: 4500, reason: "revoked" });
+        expect(firstClose).toHaveBeenCalledOnce();
+        expect(secondClose).toHaveBeenCalledOnce();
+        expect(client.activeChannels).toBe(1);
+        expect(client.totalConsumers).toBe(1);
+        oldUnsubscribe();
+        oldClient.emit("disconnected", { code: 4500, reason: "stale" });
+        await waitForAsyncTokens();
+        expect(client.activeChannels).toBe(1);
+        const replacement = centrifugeState.instances[1]!;
+        firstSubscription(replacement).emit("publication", { data: "fresh" });
+        expect(replacementPublication).toHaveBeenCalledExactlyOnceWith("fresh");
+        expect(secondClose).toHaveBeenCalledOnce();
+        client.disconnect();
     });
 
     it("keeps public and private subscriptions on stable clients", async () => {
