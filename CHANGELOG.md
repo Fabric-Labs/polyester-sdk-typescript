@@ -1,5 +1,15 @@
 # @polyester/sdk
 
+## 0.24.1
+
+### Patch Changes
+
+- Notify consumers of terminal realtime server disconnects and unsubscribes with their code and reason, and remove stopped channels from active tracking. ([#148](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/148))
+
+- Read the current JWT provider value for every realtime token request so additional subscribers cannot retain stale credentials after token rotation or logout. ([#149](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/149))
+
+- Declare the account signer's `ownerAddress` (the connected EOA) as the LOGIN challenge `signerAddress` instead of the Safe `accountAddress`, so wallet login and session refresh authenticate a Safe smart account with a distinct EOA signer. Subaccount creation challenges are unchanged. ([#151](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/151))
+
 ## 0.24.0
 
 ### Minor Changes
