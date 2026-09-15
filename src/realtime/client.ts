@@ -96,7 +96,6 @@ type ResolvedRealtimeConfig = Pick<
 
 export type { ConnectChannelParams, PolyesterRealtime, SubscribeHandlers } from "./types.js";
 
-type ConnectionHandler = { onConnected?: () => void; onDisconnected?: () => void };
 type PublicationHandler<T = unknown> = (data: T) => void;
 type ErrorHandler = (ctx: SdkSubscriptionErrorContext) => void;
 type RealtimeClientKind = "public" | "private";
@@ -120,7 +119,6 @@ interface SharedSubscription {
 export class RealtimeClient implements PolyesterRealtime {
     #publicClient: Centrifuge | null = null;
     #privateClient: Centrifuge | null = null;
-    #connectionHandlers = new Set<ConnectionHandler>();
     #sharedSubs = new Map<string, SharedSubscription>();
     #pendingTeardowns = new Map<string, SharedSubscription>();
     readonly #config: ResolvedRealtimeConfig;
@@ -203,13 +201,18 @@ export class RealtimeClient implements PolyesterRealtime {
         const client = new Centrifuge(this.#config.wsUrl);
         this.#publicClient = client;
 
-        client.on("connected", () => {
-            if (this.#publicClient !== client) return;
-            for (const h of this.#connectionHandlers) h.onConnected?.();
-        });
-        client.on("disconnected", () => {
-            if (this.#publicClient !== client) return;
-            for (const h of this.#connectionHandlers) h.onDisconnected?.();
+        client.on("disconnected", (ctx) => {
+            // Codes 0 (disconnectCalled) and 1 (unauthorized) are handled elsewhere;
+            // every other disconnected event is terminal.
+            if (this.#publicClient !== client || ctx.code <= 1) return;
+            this.#publicClient = null;
+            this.#terminateSubscriptions(
+                [...this.#sharedSubs.values(), ...this.#pendingTeardowns.values()].filter(
+                    (shared) => shared.client === client,
+                ),
+                "disconnected",
+                ctx,
+            );
         });
 
         client.connect();
@@ -254,13 +257,18 @@ export class RealtimeClient implements PolyesterRealtime {
         client = new Centrifuge(this.#config.wsUrl, opts);
         this.#privateClient = client;
 
-        client.on("connected", () => {
-            if (this.#privateClient !== client) return;
-            for (const h of this.#connectionHandlers) h.onConnected?.();
-        });
-        client.on("disconnected", () => {
-            if (this.#privateClient !== client) return;
-            for (const h of this.#connectionHandlers) h.onDisconnected?.();
+        client.on("disconnected", (ctx) => {
+            // Codes 0 (disconnectCalled) and 1 (unauthorized) are handled elsewhere;
+            // every other disconnected event is terminal.
+            if (this.#privateClient !== client || ctx.code <= 1) return;
+            this.#privateClient = null;
+            this.#terminateSubscriptions(
+                [...this.#sharedSubs.values(), ...this.#pendingTeardowns.values()].filter(
+                    (shared) => shared.client === client,
+                ),
+                "disconnected",
+                ctx,
+            );
         });
 
         client.connect();
@@ -368,8 +376,12 @@ export class RealtimeClient implements PolyesterRealtime {
             const subscriptionEpoch = ++shared.subscriptionEpoch;
             for (const handler of shared.subscribedHandlers) handler(subscriptionEpoch);
         });
-        sub.on("unsubscribed", () => {
+        sub.on("unsubscribed", (ctx) => {
             if (shared.sub !== sub || shared.attachmentEpoch !== attachmentEpoch) return;
+            if (ctx.code >= 2000 && ctx.code < 2500) {
+                this.#terminateSubscriptions([shared], "unsubscribed", ctx);
+                return;
+            }
             for (const handler of shared.unsubscribedHandlers) handler();
         });
         sub.on("error", (ctx: SubscriptionErrorContext) => {
@@ -446,6 +458,41 @@ export class RealtimeClient implements PolyesterRealtime {
         }
     }
 
+    #terminateSubscriptions(
+        subscriptions: SharedSubscription[],
+        type: "disconnected" | "unsubscribed",
+        ctx: { code: number; reason: string },
+    ): void {
+        const notifications = subscriptions.map((shared) => ({
+            error: createSdkSubscriptionErrorContext(shared.channel, type, {
+                code: ctx.code,
+                message: ctx.reason,
+            }),
+            errorHandlers: [...shared.errorHandlers],
+            closeHandlers: [...shared.unsubscribedHandlers],
+        }));
+
+        // Finish cleanup for every affected channel before callbacks can resubscribe.
+        for (const shared of subscriptions) {
+            if (this.#sharedSubs.get(shared.channel) === shared) {
+                this.#sharedSubs.delete(shared.channel);
+            }
+            if (this.#pendingTeardowns.get(shared.channel) === shared) {
+                this.#pendingTeardowns.delete(shared.channel);
+            }
+            this.#teardownSubscription(shared);
+            shared.publicationHandlers.clear();
+            shared.subscribedHandlers.clear();
+            shared.unsubscribedHandlers.clear();
+            shared.errorHandlers.clear();
+        }
+
+        for (const { error, errorHandlers, closeHandlers } of notifications) {
+            for (const handler of errorHandlers) handler(error);
+            for (const handler of closeHandlers) handler();
+        }
+    }
+
     #teardownSubscription(shared: SharedSubscription): void {
         const sub = shared.sub;
         const client = shared.client;
@@ -516,7 +563,6 @@ export class RealtimeClient implements PolyesterRealtime {
         } catch {
             // noop
         }
-        this.#connectionHandlers.clear();
     }
 
     #disconnectPrivate(): void {
