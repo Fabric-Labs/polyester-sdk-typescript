@@ -1,7 +1,6 @@
 import { fromBinary, type DescMessage, type MessageShape } from "@bufbuild/protobuf";
 import type {
     Centrifuge,
-    DisconnectedContext,
     SubscriptionErrorContext,
     PublicationContext,
     Subscription,
@@ -203,7 +202,9 @@ export class RealtimeClient implements PolyesterRealtime {
         this.#publicClient = client;
 
         client.on("disconnected", (ctx) => {
-            if (this.#publicClient !== client || ctx.code < 3000) return;
+            // Codes 0 (disconnectCalled) and 1 (unauthorized) are handled elsewhere;
+            // every other disconnected event is terminal.
+            if (this.#publicClient !== client || ctx.code <= 1) return;
             this.#publicClient = null;
             this.#terminateSubscriptions(
                 [...this.#sharedSubs.values(), ...this.#pendingTeardowns.values()].filter(
@@ -257,7 +258,9 @@ export class RealtimeClient implements PolyesterRealtime {
         this.#privateClient = client;
 
         client.on("disconnected", (ctx) => {
-            if (this.#privateClient !== client || ctx.code < 3000) return;
+            // Codes 0 (disconnectCalled) and 1 (unauthorized) are handled elsewhere;
+            // every other disconnected event is terminal.
+            if (this.#privateClient !== client || ctx.code <= 1) return;
             this.#privateClient = null;
             this.#terminateSubscriptions(
                 [...this.#sharedSubs.values(), ...this.#pendingTeardowns.values()].filter(
@@ -458,7 +461,7 @@ export class RealtimeClient implements PolyesterRealtime {
     #terminateSubscriptions(
         subscriptions: SharedSubscription[],
         type: "disconnected" | "unsubscribed",
-        ctx: DisconnectedContext,
+        ctx: { code: number; reason: string },
     ): void {
         const notifications = subscriptions.map((shared) => ({
             error: createSdkSubscriptionErrorContext(shared.channel, type, {

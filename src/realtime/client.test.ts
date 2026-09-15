@@ -567,6 +567,36 @@ describe("RealtimeClient", () => {
         client.disconnect();
     });
 
+    it.each([2, 3])("treats client-local terminal disconnect code %i as terminal", (code) => {
+        const client = createPublicRealtimeClient();
+        const onError = vi.fn();
+        const onClose = vi.fn();
+        client.subscribe("public:test", {
+            onPublication: () => {},
+            onError,
+            onUnsubscribed: onClose,
+        });
+        firstInstance().emit("disconnected", { code, reason: "bad protocol" });
+        expect(onError).toHaveBeenCalledExactlyOnceWith({
+            channel: "public:test",
+            type: "disconnected",
+            error: { code, message: "bad protocol" },
+        });
+        expect(onClose).toHaveBeenCalledOnce();
+        expect(client.isConnected).toBe(false);
+        expect(client.activeChannels).toBe(0);
+    });
+
+    it("keeps subscriptions tracked on an unauthorized disconnect", () => {
+        const client = createPublicRealtimeClient();
+        const onError = vi.fn();
+        client.subscribe("public:test", { onPublication: () => {}, onError });
+        firstInstance().emit("disconnected", { code: 1, reason: "unauthorized" });
+        expect(onError).not.toHaveBeenCalled();
+        expect(client.activeChannels).toBe(1);
+        client.disconnect();
+    });
+
     it("cleans pending teardowns on a terminal disconnect without notifying disposed consumers", async () => {
         const client = createPublicRealtimeClient();
         const onError = vi.fn();
