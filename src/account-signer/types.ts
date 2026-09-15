@@ -17,7 +17,7 @@ export interface AccountSigner {
     /** The smart account address (used for authentication and trading) */
     readonly accountAddress: HexAddress;
 
-    /** The owner/EOA address (optional metadata about the controlling signer) */
+    /** The owner/EOA address. Declared as the LOGIN challenge signer when present; otherwise accountAddress signs. */
     readonly ownerAddress?: HexAddress;
 
     /** Sign the exact UTF-8 message with EIP-191 semantics for accountAddress (including smart-account wrapping when required). */
