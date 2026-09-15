@@ -47,7 +47,11 @@ export type AuthAndPublicApiTransports = Pick<Transports, "authApi" | "publicApi
  */
 export interface JwtAuthProvider {
     kind: "jwt";
-    /** Typically wraps the configured browser auth token storage. */
+    /**
+     * Typically wraps the configured browser auth token storage. The SDK reads
+     * the current value for every request and for every realtime auth check, so
+     * keep this cheap and return the freshest credential rather than caching.
+     */
     getToken: () => string | null | Promise<string | null>;
 }
 
