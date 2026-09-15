@@ -1,5 +1,17 @@
 # @polyester/sdk
 
+## 0.24.0
+
+### Minor Changes
+
+- Add order lineage, paginated execution history, and settlement transfers to order and trade reads. ([#143](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/143))
+
+### Patch Changes
+
+- Honor market overview subscription symbol filters in live and buffered updates. ([#144](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/144))
+
+- Normalize caller transport cancellations so `isAbortError` recognizes them, prevent pre-aborted requests from starting, and format cancellations as "Request canceled." ([#145](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/145))
+
 ## 0.23.1
 
 ### Patch Changes
