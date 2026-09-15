@@ -169,7 +169,7 @@ export class AccountSignerAuthService extends AuthService {
         const uri = resolveChallengeUri(options.uri ?? this.#challengeUri);
         const { message } = await this.createWalletChallenge({
             smartAccountAddress,
-            signerAddress: accountSigner.accountAddress,
+            signerAddress: ownerAddress,
             uri,
             purpose: "login",
         });
