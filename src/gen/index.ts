@@ -21,6 +21,7 @@ export * as lifecycleTypesPb from "./chain/lifecycle/v1/types_pb.js";
 export * as withdrawPb from "./chain/withdraw/v1/withdraw_pb.js";
 export * as zipperReasonPb from "./chain/zipper/v1/reason_pb.js";
 export * as zipperPb from "./chain/zipper/v1/zipper_pb.js";
+export * as claimsPb from "./claims/v1/claims_pb.js";
 export * as whiteboardPb from "./collab/v1/whiteboard_pb.js";
 export * as feesPb from "./fees/v1/fees_pb.js";
 export * as layoutPb from "./layout/v1/layout_pb.js";
