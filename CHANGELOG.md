@@ -1,5 +1,15 @@
 # @polyester/sdk
 
+## 0.25.0
+
+### Minor Changes
+
+- Add daily reward claim status and claiming, and support good-til-date limit orders with expiry validation and order expiry output. ([#152](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/152))
+
+- Decode unknown proto enum values on read paths as `"unspecified"` instead of throwing a `ValidationError`. When the server adds a new enum member that this SDK build does not know, the affected field now degrades to `"unspecified"` and the rest of the payload stays readable. Public output unions are unchanged since they already included `"unspecified"`. ([#152](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/152))
+
+- Validate wallet login signatures as 65-byte hexadecimal EOA signatures while preserving universal signature support for subaccount creation. ([#152](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/152))
+
 ## 0.24.1
 
 ### Patch Changes
