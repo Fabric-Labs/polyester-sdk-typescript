@@ -3,7 +3,7 @@ import { tsNsToISO, tsNsToMs } from "../../utils/time.js";
 import { SideSchema } from "../shared.js";
 import { FeeAssetCodec, OrderSideCodec } from "../orders/orders.codecs.js";
 import { formatId } from "../../utils/base58-id.js";
-import { optionalUint64DecimalFilterSchema } from "../../shared/schemas.js";
+import { optionalUint64DecimalFilterSchema, U128Schema } from "../../shared/schemas.js";
 import { parseOptionalUint64DecimalStrict } from "../../utils/numbers.js";
 import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import {
@@ -16,11 +16,6 @@ import { E18_SCALE, scaledToDecimalOutput, type SdkScales } from "../../shared/d
 import { fromU128 } from "../../utils/u128.js";
 import { OrderLineageSchema } from "../orders/order-lineage.schemas.js";
 import { positiveOrderIdInputSchema } from "../orders/orders-identifiers.schemas.js";
-
-const U128Schema = v.object({
-    hi: v.bigint(),
-    lo: v.bigint(),
-});
 
 /** Parses a generated user-trade fill into the SDK's JSON-safe public shape. */
 export function createUserTradeSchema(scales: SdkScales) {

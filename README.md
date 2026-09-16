@@ -18,30 +18,36 @@ npm install @polyester/sdk
 
 ## Browser
 
-Polyester accounts are smart accounts, so you bring an owner wallet and the SDK
-derives the account signer. Nothing gets deployed just to log in.
+Polyester accounts are smart accounts. You bring an owner wallet, the SDK
+derives the smart account address, and the owner EOA signs the login challenge.
+Nothing gets deployed just to log in.
 
 ```ts
 import { PolyesterBrowserClient, POLYESTER_DEVNET_ENVIRONMENT } from "@polyester/sdk";
+import type { AccountSigner } from "@polyester/sdk";
 import { createPolyesterAccountSigner } from "@polyester/sdk/account-signer";
 
-const accountSigner = createPolyesterAccountSigner({
-    environment: POLYESTER_DEVNET_ENVIRONMENT,
-    owner,
-});
+const environment = POLYESTER_DEVNET_ENVIRONMENT;
+const { accountAddress } = createPolyesterAccountSigner({ environment, owner });
 
-const client = new PolyesterBrowserClient({
-    environment: POLYESTER_DEVNET_ENVIRONMENT,
-    accountSigner,
-});
+const accountSigner: AccountSigner = {
+    environmentFingerprint: environment.fingerprint,
+    accountAddress,
+    ownerAddress: owner.address,
+    // Login expects a raw 65-byte EIP-191 signature from the owner EOA.
+    signMessage: (message) => owner.signMessage({ message }),
+};
+
+const client = new PolyesterBrowserClient({ environment, accountSigner });
 
 await client.auth.login({ provider: "turnkey" });
 
 const { orders } = await client.orders.listOpen();
 ```
 
-See [docs/browser-login.md](docs/browser-login.md) for how account identity and
-owner metadata relate.
+`createPolyesterAccountSigner` on its own returns Safe/ERC-6492 wrapped
+signatures. Those are accepted for subaccount creation but rejected by login,
+which is why the quickstart only uses it to derive the account address.
 
 ## Server
 

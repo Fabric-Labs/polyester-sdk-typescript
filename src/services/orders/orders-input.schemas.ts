@@ -3,6 +3,7 @@ import { create } from "@bufbuild/protobuf";
 import * as v from "valibot";
 import { SideSchema, SymbolIdInputSchema } from "../shared.js";
 import { tsNsToMs } from "../../utils/time.js";
+import { msToTimestamp } from "../../utils/timestamp.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import {
     OptionalPublicIdSchema,
@@ -105,6 +106,23 @@ export const OrderHistoryInputSchema = v.pipe(
 export type OrderHistoryInput = v.InferInput<typeof OrderHistoryInputSchema>;
 
 const DecimalInputStringSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
+
+/**
+ * The wire contract stores GTD expiries as signed Unix nanoseconds. The public
+ * `execution.expireAt` surface is integer epoch milliseconds, so these are the
+ * inclusive millisecond values that remain representable by that contract.
+ * The 1s..30d lead-time window is enforced server-side; checking it here
+ * against the client clock would only add skew-dependent false rejections.
+ */
+const GTD_EXPIRE_AT_MIN_MS = -9_223_372_036_854;
+const GTD_EXPIRE_AT_MAX_MS = 9_223_372_036_854;
+
+const GtdExpireAtSchema = v.pipe(
+    v.number(),
+    v.integer(),
+    v.minValue(GTD_EXPIRE_AT_MIN_MS),
+    v.maxValue(GTD_EXPIRE_AT_MAX_MS),
+);
 
 function createOrderIntentBaseEntries(scales: SdkScales) {
     return {
@@ -262,6 +280,23 @@ function createOrderExecutionInputSchema(scales: SdkScales) {
                 value: create(ProtoWrite.LimitGtcSchema, {
                     priceTicks: priceToTicks("execution.price", price),
                     postOnly,
+                }),
+            })),
+        ),
+        v.pipe(
+            v.strictObject({
+                type: v.literal("limit_gtd"),
+                price: DecimalInputStringSchema,
+                /** Exact UTC expiry as integer epoch milliseconds. */
+                expireAt: GtdExpireAtSchema,
+                postOnly: v.optional(v.boolean(), false),
+            }),
+            v.transform(({ price, expireAt, postOnly }) => ({
+                case: "limitGtd" as const,
+                value: create(ProtoWrite.LimitGtdSchema, {
+                    priceTicks: priceToTicks("execution.price", price),
+                    postOnly,
+                    expireAt: msToTimestamp(expireAt),
                 }),
             })),
         ),

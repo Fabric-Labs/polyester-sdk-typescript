@@ -14,7 +14,7 @@ import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
-import { PublicIdSchema } from "../../shared/schemas.js";
+import { PublicIdSchema, U128Schema } from "../../shared/schemas.js";
 
 /**
  * Equity history values are quoted in the response's quote currency at a fixed
@@ -27,11 +27,6 @@ const EQUITY_SCALE = 4;
  * asset units scaled by 1e7"), unlike live ledger balances which use E18.
  */
 const BALANCE_HISTORY_SCALE = 7;
-
-const U128Schema = v.object({
-    hi: v.bigint(),
-    lo: v.bigint(),
-});
 
 /**
  * AssetBalance u128 fields on the ledger wire are always 18-decimal scaled

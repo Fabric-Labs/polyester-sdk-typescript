@@ -1,6 +1,6 @@
 import * as Proto from "../../gen/auth/v1/api_keys_pb.js";
 import * as v from "valibot";
-import { toTimestamp } from "../../utils/timestamp.js";
+import { msToTimestamp } from "../../utils/timestamp.js";
 import { tsObjToMs, tsObjToNsString } from "../../utils/time.js";
 import {
     OptionalPublicIdSchema,
@@ -87,13 +87,7 @@ const API_KEY_PATCH_FIELDS = defineProtoPatchFields<ApiKeyPatch>()({
         path: "expires_at",
         encode: (expiresAtIso) => {
             if (expiresAtIso === null) return {};
-            const expiresAtMs = new Date(expiresAtIso).getTime();
-            return {
-                expiresAt: toTimestamp({
-                    seconds: BigInt(Math.floor(expiresAtMs / 1000)),
-                    nanos: (expiresAtMs % 1000) * 1_000_000,
-                }),
-            };
+            return { expiresAt: msToTimestamp(new Date(expiresAtIso).getTime()) };
         },
     },
 });

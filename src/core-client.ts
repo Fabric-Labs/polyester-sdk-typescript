@@ -35,6 +35,7 @@ import { SocialVerificationService } from "./services/social-verification/index.
 import { WhiteboardService } from "./services/whiteboard/index.js";
 import { ZipperService } from "./services/zipper/index.js";
 import { MfaService } from "./services/mfa/index.js";
+import { ClaimsService } from "./services/claims/index.js";
 import { VipService } from "./services/vip/index.js";
 import { FeesService } from "./services/fees/index.js";
 import { RateLimitService } from "./services/rate-limits/index.js";
@@ -241,6 +242,7 @@ export class PolyesterClient {
     #whiteboard: WhiteboardService | undefined;
     #zipper: ZipperService | undefined;
     #mfa: MfaService | undefined;
+    #claims: ClaimsService | undefined;
     #vip: VipService | undefined;
     #fees: FeesService | undefined;
     #tradingRateLimits: RateLimitService | undefined;
@@ -513,6 +515,10 @@ export class PolyesterClient {
 
     get mfa(): MfaService {
         return (this.#mfa ??= new MfaService(this.transports));
+    }
+
+    get claims(): ClaimsService {
+        return (this.#claims ??= new ClaimsService(this.transports));
     }
 
     get vip(): VipService {

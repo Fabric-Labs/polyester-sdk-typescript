@@ -11,6 +11,7 @@ import { wireTimestampToMs } from "../../utils/time.js";
 import {
     OptionalPublicIdSchema,
     OptionalTimestampMsToUsInputSchema,
+    U128Schema,
 } from "../../shared/schemas.js";
 import {
     AccountScopeInputEntries,
@@ -18,11 +19,6 @@ import {
 } from "../../shared/account-scope.js";
 import { E18_SCALE, scaledToDecimalOutput } from "../../shared/decimal-surface.js";
 import { TransferSideKindCodec } from "./transfers.codecs.js";
-
-const U128Schema = v.object({
-    hi: v.bigint(),
-    lo: v.bigint(),
-});
 
 const WireTimestampInputSchema = v.union([
     v.bigint(),

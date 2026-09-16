@@ -4,7 +4,7 @@ import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import * as v from "valibot";
 import { tsNsToMs } from "../../utils/time.js";
 import { formatId } from "../../utils/base58-id.js";
-import { OptionalPublicIdSchema } from "../../shared/schemas.js";
+import { OptionalPublicIdSchema, OptionalTimestampMsSchema } from "../../shared/schemas.js";
 import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
 import { E18_SCALE, scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { createUserTradeSchema } from "../trades/trades.schemas.js";
@@ -97,6 +97,7 @@ export function createOrderSchema(scales: SdkScales) {
             version: v.pipe(v.number(), v.integer(), v.minValue(0)),
             batchRequestId: v.bigint(),
             submittedMaxQuoteDebitScaled: v.optional(v.bigint()),
+            expireAt: OptionalTimestampMsSchema,
         }),
         v.transform((o) => {
             const isPartial = o.status === "working" && o.cumQtyScaled > 0n;
@@ -169,6 +170,7 @@ export function createOrderSchema(scales: SdkScales) {
                               scales.quoteAmount(o.symbolId),
                           ),
                       }),
+                ...(o.expireAt === undefined ? {} : { expireAt: o.expireAt }),
                 version: o.version,
             };
         }),

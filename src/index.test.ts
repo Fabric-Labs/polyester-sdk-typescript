@@ -64,6 +64,7 @@ describe("generated protobuf package entrypoint", () => {
                 feesPb: expect.any(Object),
                 tradingRateLimitPb: expect.any(Object),
                 vipPb: expect.any(Object),
+                claimsPb: expect.any(Object),
             }),
         );
     });

@@ -7,8 +7,10 @@ export type HexAddress = `0x${string}`;
 /**
  * Minimal account signer interface for SDK operations.
  *
- * The SDK authenticates the Polyester smart account address. The owner address
- * is optional metadata about the EOA or custody provider that controls it.
+ * The SDK authenticates the Polyester smart account address. When ownerAddress
+ * is present it is declared as the LOGIN challenge signer, and signMessage must
+ * return that EOA's raw 65-byte EIP-191 signature: login rejects Safe/ERC-6492
+ * wrapped signatures. Subaccount creation accepts either form.
  */
 export interface AccountSigner {
     /** Fingerprint of the PolyesterEnvironment this signer was created for */
@@ -20,7 +22,11 @@ export interface AccountSigner {
     /** The owner/EOA address. Declared as the LOGIN challenge signer when present; otherwise accountAddress signs. */
     readonly ownerAddress?: HexAddress;
 
-    /** Sign the exact UTF-8 message with EIP-191 semantics for accountAddress (including smart-account wrapping when required). */
+    /**
+     * Sign the exact UTF-8 message with EIP-191 semantics. For login this must be
+     * the owner EOA's raw 65-byte signature (0x + 130 hex chars), not a
+     * smart-account wrapped one.
+     */
     signMessage(message: string): Promise<Hex>;
 }
 
