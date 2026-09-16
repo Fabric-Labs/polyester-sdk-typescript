@@ -1,8 +1,7 @@
 import * as v from "valibot";
 import { fromU128 } from "../../utils/u128.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabel, enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import type { DecodedEnum } from "../../utils/types.js";
-import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import {
     AccountCodeCodec,
     ACCOUNT_CODE_VALUES,
@@ -14,7 +13,7 @@ import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
-import { PublicIdSchema } from "../../shared/schemas.js";
+import { PublicIdSchema, U128Schema } from "../../shared/schemas.js";
 
 /**
  * Equity history values are quoted in the response's quote currency at a fixed
@@ -27,11 +26,6 @@ const EQUITY_SCALE = 4;
  * asset units scaled by 1e7"), unlike live ledger balances which use E18.
  */
 const BALANCE_HISTORY_SCALE = 7;
-
-const U128Schema = v.object({
-    hi: v.bigint(),
-    lo: v.bigint(),
-});
 
 /**
  * AssetBalance u128 fields on the ledger wire are always 18-decimal scaled
@@ -127,17 +121,7 @@ const BalanceSeriesSchema = v.object({
 export function createBalanceHistoryResponseSchema() {
     return v.pipe(
         v.object({
-            range: v.pipe(
-                v.enum(Proto.BalanceRange),
-                v.transform((v) =>
-                    requiredEnumLabel(
-                        BalanceRangeCodec.protoToOutput,
-                        v,
-                        "BalanceHistoryResponseSchema",
-                        "range",
-                    ),
-                ),
-            ),
+            range: enumLabelSchema(BalanceRangeCodec.protoToOutput),
             bucket: v.string(),
             startTsSec: v.number(),
             endTsSec: v.number(),
@@ -153,12 +137,7 @@ export function createBalanceHistoryResponseSchema() {
             series: data.series.map((s) => {
                 return {
                     assetId: s.assetId,
-                    accountCode: requiredEnumLabel(
-                        AccountCodeCodec.protoToOutput,
-                        s.accountCode,
-                        "BalanceHistoryResponseSchema",
-                        "account code",
-                    ),
+                    accountCode: enumLabel(AccountCodeCodec.protoToOutput, s.accountCode),
                     balance: s.balanceQ.map((b) => scaledToDecimalOutput(b, BALANCE_HISTORY_SCALE)),
                 };
             }),
@@ -242,11 +221,9 @@ export const EquitySeriesSchema = v.pipe(
             return {
                 grouping: {
                     type: "account",
-                    accountCode: requiredEnumLabel(
+                    accountCode: enumLabel(
                         AccountCodeCodec.protoToOutput,
                         series.grouping.value.accountCode,
-                        "EquitySeriesSchema",
-                        "account code",
                     ),
                     name: series.grouping.value.name,
                 },
@@ -268,17 +245,7 @@ export const EquitySeriesSchema = v.pipe(
 export function createEquityHistoryResponseSchema(scales: SdkScales) {
     return v.pipe(
         v.object({
-            range: v.pipe(
-                v.enum(Proto.BalanceRange),
-                v.transform((v) =>
-                    requiredEnumLabel(
-                        BalanceRangeCodec.protoToOutput,
-                        v,
-                        "EquityHistoryResponseSchema",
-                        "range",
-                    ),
-                ),
-            ),
+            range: enumLabelSchema(BalanceRangeCodec.protoToOutput),
             bucket: v.string(),
             startTsSec: v.number(),
             endTsSec: v.number(),
@@ -344,17 +311,7 @@ export const PortfolioEquitySeriesSchema = v.pipe(
 export function createPortfolioEquityHistoryResponseSchema(scales: SdkScales) {
     return v.pipe(
         v.object({
-            range: v.pipe(
-                v.enum(Proto.BalanceRange),
-                v.transform((value) =>
-                    requiredEnumLabel(
-                        BalanceRangeCodec.protoToOutput,
-                        value,
-                        "PortfolioEquityHistoryResponseSchema",
-                        "range",
-                    ),
-                ),
-            ),
+            range: enumLabelSchema(BalanceRangeCodec.protoToOutput),
             bucket: v.string(),
             startTsSec: v.number(),
             endTsSec: v.number(),

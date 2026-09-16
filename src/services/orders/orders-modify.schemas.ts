@@ -9,7 +9,7 @@ import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import { MODIFY_BEHAVIOR_VALUES, ModifyActionCodec, ModifyBehaviorCodec } from "./orders.codecs.js";
 import { createRequiredRiskPolicyInputSchema } from "./orders-risk.schemas.js";
 import {
@@ -194,17 +194,7 @@ export type ModifyOrderInput = v.InferInput<ReturnType<typeof createModifyOrderI
 
 export const ModifyOrderResultSchema = v.pipe(
     v.object({
-        actionTaken: v.pipe(
-            v.enum(ProtoWrite.ModifyActionTaken),
-            v.transform((v) =>
-                requiredEnumLabel(
-                    ModifyActionCodec.protoToOutput,
-                    v,
-                    "ModifyOrderResultSchema",
-                    "action taken",
-                ),
-            ),
-        ),
+        actionTaken: enumLabelSchema(ModifyActionCodec.protoToOutput),
         oldOrderId: PublicIdSchema,
         finalOrderId: PublicIdSchema,
         code: v.string(),

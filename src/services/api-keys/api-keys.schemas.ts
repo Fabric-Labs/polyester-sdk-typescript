@@ -1,6 +1,5 @@
-import * as Proto from "../../gen/auth/v1/api_keys_pb.js";
 import * as v from "valibot";
-import { toTimestamp } from "../../utils/timestamp.js";
+import { msToTimestamp } from "../../utils/timestamp.js";
 import { tsObjToMs, tsObjToNsString } from "../../utils/time.js";
 import {
     OptionalPublicIdSchema,
@@ -14,7 +13,7 @@ import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import { bytesToHex } from "@noble/hashes/utils.js";
 import {
     API_KEY_STATUS_VALUES,
@@ -87,13 +86,7 @@ const API_KEY_PATCH_FIELDS = defineProtoPatchFields<ApiKeyPatch>()({
         path: "expires_at",
         encode: (expiresAtIso) => {
             if (expiresAtIso === null) return {};
-            const expiresAtMs = new Date(expiresAtIso).getTime();
-            return {
-                expiresAt: toTimestamp({
-                    seconds: BigInt(Math.floor(expiresAtMs / 1000)),
-                    nanos: (expiresAtMs % 1000) * 1_000_000,
-                }),
-            };
+            return { expiresAt: msToTimestamp(new Date(expiresAtIso).getTime()) };
         },
     },
 });
@@ -157,17 +150,7 @@ export const ApiKeySchema = v.pipe(
                 return ms ? new Date(ms).toISOString() : undefined;
             }),
         ),
-        status: v.pipe(
-            v.enum(Proto.ApiKeyStatus),
-            v.transform((v) =>
-                requiredEnumLabel(
-                    ApiKeyStatusCodec.protoToOutput,
-                    v,
-                    "PolyesterClient.ApiKeySchema",
-                    "status",
-                ),
-            ),
-        ),
+        status: enumLabelSchema(ApiKeyStatusCodec.protoToOutput),
         createdByActor: v.string(),
         revision: BigIntStringSchema,
     }),

@@ -132,26 +132,23 @@ describe("SocialVerificationService", () => {
         expect(transport.calls[1]?.signal).toBe(signal);
     });
 
-    it("rejects malformed backend verification enums", async () => {
+    it("maps unknown backend verification enums to unspecified", async () => {
         const cases = [
             {
                 field: "provider",
                 value: 999 as Proto.SocialProvider,
-                message: "invalid provider 999",
             },
             {
                 field: "method",
                 value: 999 as Proto.SocialVerificationMethod,
-                message: "invalid method 999",
             },
             {
                 field: "status",
                 value: 999 as Proto.SocialVerificationStatus,
-                message: "invalid status 999",
             },
         ];
 
-        for (const { field, value, message } of cases) {
+        for (const { field, value } of cases) {
             const transport = unaryTransportSequence([
                 {
                     verification: verification({ [field]: value }),
@@ -159,7 +156,9 @@ describe("SocialVerificationService", () => {
             ]);
             const service = new SocialVerificationService({ authApi: transport.transport });
 
-            await expect(service.get({ provider: "twitter" })).rejects.toThrow(message);
+            await expect(service.get({ provider: "twitter" })).resolves.toMatchObject({
+                verification: { [field]: "unspecified" },
+            });
         }
     });
 });

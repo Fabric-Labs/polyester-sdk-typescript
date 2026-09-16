@@ -59,16 +59,20 @@ function wrapErc6492Signature(factoryAddress: Address, factoryCalldata: Hex, sig
 }
 
 /**
- * Creates an AccountSigner for Polyester authentication without any RPC calls.
+ * Derives the Polyester Safe smart account address and a Safe/ERC-6492 signer
+ * without any RPC calls.
  *
- * This computes the Safe smart account address deterministically and produces
- * ERC-6492 wrapped signatures for counterfactual verification. The signature
- * matches what toSafeSmartAccount.signMessage() would produce for an undeployed Safe.
+ * The returned signMessage produces ERC-6492 wrapped signatures matching what
+ * toSafeSmartAccount.signMessage() would produce for an undeployed Safe. That
+ * form is accepted for subaccount creation but NOT for login, which requires the
+ * owner EOA's raw 65-byte EIP-191 signature. For login, use this only to derive
+ * accountAddress and build an AccountSigner whose signMessage calls
+ * owner.signMessage directly (see the README quickstart).
  *
  * For actual chain interactions (UserOperations), use createPolyesterSmartAccount instead.
  *
  * @param params - Owner account and optional salt nonce
- * @returns An AccountSigner that can be used for authentication
+ * @returns An AccountSigner with the derived Safe address and a wrapped signer
  */
 export function createPolyesterAccountSigner(
     params: CreatePolyesterAccountSignerParams,

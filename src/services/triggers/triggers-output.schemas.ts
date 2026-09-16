@@ -1,5 +1,3 @@
-import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
-import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as v from "valibot";
 import {
     BigIntStringSchema,
@@ -7,7 +5,7 @@ import {
     TimestampSchema,
     PublicIdSchema,
 } from "../../shared/schemas.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabel, enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { tsNsToMs, tsObjToMs } from "../../utils/time.js";
 import { formatId } from "../../utils/base58-id.js";
@@ -31,17 +29,7 @@ type TriggerDirectionLabel = "above" | "below" | "unspecified";
 
 type LadderDistributionLabel = "linear" | "geometric" | "weighted_favorable" | "unspecified";
 
-const TriggerResultStatusSchema = v.pipe(
-    v.enum(Proto.TriggerStatus),
-    v.transform((status) =>
-        requiredEnumLabel(
-            TriggerStatusCodec.protoToOutput,
-            status,
-            "TriggerResultSchema",
-            "status",
-        ),
-    ),
-);
+const TriggerResultStatusSchema = enumLabelSchema(TriggerStatusCodec.protoToOutput);
 
 const TriggerMutationResultBaseSchema = v.pipe(
     v.object({
@@ -111,7 +99,7 @@ const ConditionalExecutionRawSchema = v.variant("case", [
 
 const ConditionalConfigurationRawSchema = v.object({
     triggerPriceTicks: v.bigint(),
-    side: v.enum(ProtoOrders.Side),
+    side: v.number(),
     child: v.optional(
         v.object({
             execution: ConditionalExecutionRawSchema,
@@ -133,11 +121,11 @@ const TrailingConfigurationRawSchema = v.object({
     ]),
     activationPriceTicks: v.bigint(),
     maxSlippage: MaxSlippageRawSchema,
-    side: v.enum(ProtoOrders.Side),
+    side: v.number(),
 });
 
 const TwapConfigurationRawSchema = v.object({
-    side: v.enum(ProtoOrders.Side),
+    side: v.number(),
     durationMs: v.bigint(),
     sliceIntervalMs: v.bigint(),
     execution: v.variant("case", [
@@ -154,7 +142,7 @@ const TwapConfigurationRawSchema = v.object({
 });
 
 const LadderConfigurationRawSchema = v.object({
-    side: v.enum(ProtoOrders.Side),
+    side: v.number(),
     priceMinTicks: v.bigint(),
     priceMaxTicks: v.bigint(),
     levels: v.number(),
@@ -210,12 +198,7 @@ function transformTriggerConfiguration(
                     configuration.case === "stopLoss"
                         ? ("stop_loss" as const)
                         : ("take_profit" as const),
-                side: requiredEnumLabel(
-                    TriggerSideCodec.protoToOutput,
-                    configuration.value.side,
-                    "TriggerConfigurationSchema",
-                    "side",
-                ),
+                side: enumLabel(TriggerSideCodec.protoToOutput, configuration.value.side),
                 triggerPrice: scaledToDecimalOutput(
                     configuration.value.triggerPriceTicks,
                     scales.price(),
@@ -228,12 +211,7 @@ function transformTriggerConfiguration(
         case "trailingStop":
             return {
                 type: "trailing_stop" as const,
-                side: requiredEnumLabel(
-                    TriggerSideCodec.protoToOutput,
-                    configuration.value.side,
-                    "TriggerConfigurationSchema",
-                    "side",
-                ),
+                side: enumLabel(TriggerSideCodec.protoToOutput, configuration.value.side),
                 trailingDistance:
                     configuration.value.trailingDistance.case === "trailingDistanceTicks"
                         ? {
@@ -261,12 +239,7 @@ function transformTriggerConfiguration(
         case "twap":
             return {
                 type: "twap" as const,
-                side: requiredEnumLabel(
-                    TriggerSideCodec.protoToOutput,
-                    configuration.value.side,
-                    "TriggerConfigurationSchema",
-                    "side",
-                ),
+                side: enumLabel(TriggerSideCodec.protoToOutput, configuration.value.side),
                 durationMs: Number(configuration.value.durationMs),
                 sliceIntervalMs: Number(configuration.value.sliceIntervalMs),
                 execution:
@@ -291,12 +264,7 @@ function transformTriggerConfiguration(
         case "ladder":
             return {
                 type: "ladder" as const,
-                side: requiredEnumLabel(
-                    TriggerSideCodec.protoToOutput,
-                    configuration.value.side,
-                    "TriggerConfigurationSchema",
-                    "side",
-                ),
+                side: enumLabel(TriggerSideCodec.protoToOutput, configuration.value.side),
                 priceMin: scaledToDecimalOutput(configuration.value.priceMinTicks, scales.price()),
                 priceMax: scaledToDecimalOutput(configuration.value.priceMaxTicks, scales.price()),
                 levels: configuration.value.levels,
@@ -322,8 +290,8 @@ function formatMaxSlippage(
 }
 
 const TerminalReasonRawSchema = v.variant("case", [
-    v.object({ case: v.literal("cancelReason"), value: v.enum(Proto.TriggerCancelReason) }),
-    v.object({ case: v.literal("failureReason"), value: v.enum(Proto.TriggerFailureReason) }),
+    v.object({ case: v.literal("cancelReason"), value: v.number() }),
+    v.object({ case: v.literal("failureReason"), value: v.number() }),
     v.object({ case: v.undefined(), value: v.optional(v.undefined()) }),
 ]);
 
@@ -331,23 +299,13 @@ function transformTerminalReason(reason: v.InferOutput<typeof TerminalReasonRawS
     switch (reason.case) {
         case "cancelReason":
             return {
-                cancelReason: requiredEnumLabel(
-                    TriggerCancelReasonCodec.protoToOutput,
-                    reason.value,
-                    "TerminalReasonSchema",
-                    "cancel reason",
-                ),
+                cancelReason: enumLabel(TriggerCancelReasonCodec.protoToOutput, reason.value),
                 failureReason: undefined,
             };
         case "failureReason":
             return {
                 cancelReason: undefined,
-                failureReason: requiredEnumLabel(
-                    TriggerFailureReasonCodec.protoToOutput,
-                    reason.value,
-                    "TerminalReasonSchema",
-                    "failure reason",
-                ),
+                failureReason: enumLabel(TriggerFailureReasonCodec.protoToOutput, reason.value),
             };
         default:
             return { cancelReason: undefined, failureReason: undefined };
@@ -356,8 +314,8 @@ function transformTerminalReason(reason: v.InferOutput<typeof TerminalReasonRawS
 
 const StopDetailsRawSchema = v.object({
     triggerPriceTicks: v.bigint(),
-    triggerPriceSource: v.enum(ProtoOrders.TriggerPriceSource),
-    triggerDirection: v.enum(ProtoOrders.TriggerDirection),
+    triggerPriceSource: v.number(),
+    triggerDirection: v.number(),
 });
 
 const TrailingDetailsRawSchema = v.object({
@@ -368,8 +326,8 @@ const TrailingDetailsRawSchema = v.object({
     trailingDistanceBps: v.number(),
     maxSlippageTicks: v.number(),
     maxSlippageBps: v.number(),
-    triggerPriceSource: v.enum(ProtoOrders.TriggerPriceSource),
-    triggerDirection: v.enum(ProtoOrders.TriggerDirection),
+    triggerPriceSource: v.number(),
+    triggerDirection: v.number(),
 });
 
 const TwapDetailsRawSchema = v.object({
@@ -384,7 +342,7 @@ const LadderDetailsRawSchema = v.object({
     ladderPriceMinTicks: v.bigint(),
     ladderPriceMaxTicks: v.bigint(),
     ladderLevels: v.number(),
-    ladderDistribution: v.enum(Proto.LadderDistribution),
+    ladderDistribution: v.number(),
     executedQtyScaled: v.bigint(),
     executedLevels: v.number(),
 });
@@ -459,17 +417,13 @@ function transformTriggerDetails(
                     details.value.triggerPriceTicks,
                     scales.price(),
                 ),
-                triggerPriceSource: requiredEnumLabel(
+                triggerPriceSource: enumLabel(
                     TriggerPriceSourceCodec.protoToOutput,
                     details.value.triggerPriceSource,
-                    "TriggerDetailsSchema",
-                    "trigger price source",
                 ),
-                triggerDirection: requiredEnumLabel(
+                triggerDirection: enumLabel(
                     TriggerDirectionCodec.protoToOutput,
                     details.value.triggerDirection,
-                    "TriggerDetailsSchema",
-                    "trigger direction",
                 ),
             };
         case "trailing":
@@ -500,17 +454,13 @@ function transformTriggerDetails(
                           )
                         : undefined,
                 maxSlippageBps: details.value.maxSlippageBps,
-                triggerPriceSource: requiredEnumLabel(
+                triggerPriceSource: enumLabel(
                     TriggerPriceSourceCodec.protoToOutput,
                     details.value.triggerPriceSource,
-                    "TriggerDetailsSchema",
-                    "trigger price source",
                 ),
-                triggerDirection: requiredEnumLabel(
+                triggerDirection: enumLabel(
                     TriggerDirectionCodec.protoToOutput,
                     details.value.triggerDirection,
-                    "TriggerDetailsSchema",
-                    "trigger direction",
                 ),
             };
         case "twapState":
@@ -537,11 +487,9 @@ function transformTriggerDetails(
                     scales.price(),
                 ),
                 ladderLevels: details.value.ladderLevels,
-                ladderDistribution: requiredEnumLabel(
+                ladderDistribution: enumLabel(
                     LadderDistributionCodec.protoToOutput,
                     details.value.ladderDistribution,
-                    "TriggerDetailsSchema",
-                    "ladder distribution",
                 ),
                 executedQty: scaledToDecimalOutput(
                     details.value.executedQtyScaled,
@@ -561,11 +509,11 @@ export function createTriggerSchema(scales: SdkScales) {
             triggerId: v.bigint(),
             subaccountId: v.bigint(),
             symbolId: v.number(),
-            status: v.enum(Proto.TriggerStatus),
+            status: v.number(),
             parentOrderId: v.optional(v.bigint()),
             qtyScaled: v.bigint(),
-            feeAsset: v.enum(ProtoOrders.FeeAsset),
-            selfTradePreventionMode: v.enum(ProtoOrders.SelfTradePreventionMode),
+            feeAsset: v.number(),
+            selfTradePreventionMode: v.number(),
             configuration: TriggerConfigurationRawSchema,
             clientTriggerId: v.string(),
             createdAt: v.optional(TimestampSchema),
@@ -579,25 +527,13 @@ export function createTriggerSchema(scales: SdkScales) {
             triggerId: formatId(t.triggerId),
             subaccountId: formatId(t.subaccountId),
             symbolId: t.symbolId,
-            status: requiredEnumLabel(
-                TriggerStatusCodec.protoToOutput,
-                t.status,
-                "TriggerSchema",
-                "status",
-            ),
+            status: enumLabel(TriggerStatusCodec.protoToOutput, t.status),
             parentOrderId: t.parentOrderId ? formatId(t.parentOrderId) : undefined,
             qty: scaledToDecimalOutput(t.qtyScaled, scales.baseQty(t.symbolId)),
-            feeAsset: requiredEnumLabel(
-                FeeAssetCodec.protoToOutput,
-                t.feeAsset,
-                "TriggerSchema",
-                "fee asset",
-            ),
-            selfTradePreventionMode: requiredEnumLabel(
+            feeAsset: enumLabel(FeeAssetCodec.protoToOutput, t.feeAsset),
+            selfTradePreventionMode: enumLabel(
                 SelfTradePreventionModeCodec.protoToOutput,
                 t.selfTradePreventionMode,
-                "TriggerSchema",
-                "STP mode",
             ),
             configuration: transformTriggerConfiguration(t.configuration, scales),
             clientTriggerId: t.clientTriggerId,
@@ -620,8 +556,8 @@ export function createTriggerEventSchema(scales: SdkScales) {
             triggerId: v.bigint(),
             subaccountId: v.bigint(),
             symbolId: v.number(),
-            triggerType: v.enum(Proto.TriggerType),
-            eventType: v.enum(Proto.TriggerEventType),
+            triggerType: v.number(),
+            eventType: v.number(),
             tsNs: v.bigint(),
             childSeq: v.number(),
             childOrderId: v.bigint(),
@@ -632,18 +568,8 @@ export function createTriggerEventSchema(scales: SdkScales) {
             triggerId: formatId(e.triggerId),
             subaccountId: formatId(e.subaccountId),
             symbolId: e.symbolId,
-            triggerType: requiredEnumLabel(
-                TriggerTypeCodec.protoToOutput,
-                e.triggerType,
-                "TriggerEventSchema",
-                "trigger type",
-            ),
-            eventType: requiredEnumLabel(
-                TriggerEventTypeCodec.protoToOutput,
-                e.eventType,
-                "TriggerEventSchema",
-                "event type",
-            ),
+            triggerType: enumLabel(TriggerTypeCodec.protoToOutput, e.triggerType),
+            eventType: enumLabel(TriggerEventTypeCodec.protoToOutput, e.eventType),
             ts: tsNsToMs(e.tsNs),
             childSeq: e.childSeq,
             childOrderId: e.childOrderId > 0n ? formatId(e.childOrderId) : undefined,

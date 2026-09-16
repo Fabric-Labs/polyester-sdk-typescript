@@ -1,5 +1,4 @@
 import * as v from "valibot";
-import * as Proto from "../../gen/auth/v1/policies_pb.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import { SymbolIdInputSchema } from "../shared.js";
 
@@ -20,9 +19,9 @@ export const POLICY_ACTIONS = [
 
 export const POLICY_MARKET_SCOPES = ["all", "allowlist"] as const;
 
-export const ProtoPolicyActionEnumSchema = v.enum(Proto.PolicyAction);
+export const ProtoPolicyActionEnumSchema = v.number();
 export const PolicyActionEnumSchema = v.picklist(POLICY_ACTIONS);
-export const ProtoPolicyMarketScopeEnumSchema = v.enum(Proto.MarketScope_Value);
+export const ProtoPolicyMarketScopeEnumSchema = v.number();
 export const PolicyMarketScopeEnumSchema = v.picklist(POLICY_MARKET_SCOPES);
 export type PolicyMarketScope = v.InferOutput<typeof PolicyMarketScopeEnumSchema>;
 

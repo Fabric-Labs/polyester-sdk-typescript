@@ -83,7 +83,7 @@ describe("AccountsService", () => {
         await expect(service.resolve({ query: "missing" })).resolves.toEqual([]);
     });
 
-    it("rejects malformed resolve responses", async () => {
+    it("maps unknown resolved account kinds to unspecified", async () => {
         const transport = unaryTransportSequence([
             {
                 matches: [
@@ -97,7 +97,9 @@ describe("AccountsService", () => {
         ]);
         const service = new AccountsService({ authApi: transport.transport });
 
-        await expect(service.resolve({ query: "alice" })).rejects.toThrow();
+        await expect(service.resolve({ query: "alice" })).resolves.toMatchObject([
+            { kind: "unspecified" },
+        ]);
     });
 });
 

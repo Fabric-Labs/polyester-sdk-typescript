@@ -293,7 +293,9 @@ describe("WhiteboardService", () => {
         ).rejects.toThrow("aclEntries must not contain duplicate subjects");
         expect(transport.calls).toHaveLength(0);
 
-        await expect(service.get("board-1")).rejects.toThrow(/received 999/);
+        await expect(service.get("board-1")).resolves.toMatchObject({
+            board: { audience: "unspecified" },
+        });
         await expect(service.get("board-1")).rejects.toThrow();
     });
 });

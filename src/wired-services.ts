@@ -18,6 +18,7 @@ import { GuardSignerService } from "./gen/chain/guard/v1/guard_signer_pb.js";
 import { LifecycleReadService } from "./gen/chain/lifecycle/v1/lifecycle_read_pb.js";
 import { WithdrawService } from "./gen/chain/withdraw/v1/withdraw_pb.js";
 import { ZipperService } from "./gen/chain/zipper/v1/zipper_pb.js";
+import { ClaimsService } from "./gen/claims/v1/claims_pb.js";
 import { WhiteboardService } from "./gen/collab/v1/whiteboard_pb.js";
 import { FeeService } from "./gen/fees/v1/fees_pb.js";
 import { LedgerReadService } from "./gen/ledger/read/v1/ledger_read_pb.js";
@@ -46,6 +47,7 @@ export const WIRED_SERVICE_DESCRIPTORS: readonly DescService[] = [
     ApiKeyService,
     AuthService,
     ChainAnalyticsService,
+    ClaimsService,
     DepositAddressService,
     FeeService,
     GuardSignerService,

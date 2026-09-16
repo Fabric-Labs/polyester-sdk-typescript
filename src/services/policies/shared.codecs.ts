@@ -1,5 +1,5 @@
 import * as Proto from "../../gen/auth/v1/policies_pb.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabel } from "../../shared/proto-enum-codec.js";
 import type { DecodedEnum, ProtoToOutput } from "../../utils/types.js";
 
 export const POLICY_ACTION_LABELS = [
@@ -56,25 +56,13 @@ export const PolicyActionCodec = {
 /**
  * Returns the display label for a policy market scope.
  */
-export function policyMarketScopeLabelFor(
-    value: Proto.MarketScope_Value,
-): DecodedEnum<PolicyMarketScopeLabel> {
-    return requiredEnumLabel(
-        PolicyMarketScopeCodec.protoToOutput,
-        value,
-        "PolicyMarketScopeCodec",
-        "market scope",
-    );
+export function policyMarketScopeLabelFor(value: number): DecodedEnum<PolicyMarketScopeLabel> {
+    return enumLabel(PolicyMarketScopeCodec.protoToOutput, value);
 }
 
 /**
  * Returns the display label for a policy action.
  */
-export function policyActionLabelFor(value: Proto.PolicyAction): DecodedEnum<PolicyActionLabel> {
-    return requiredEnumLabel(
-        PolicyActionCodec.protoToOutput,
-        value,
-        "PolicyActionCodec",
-        "policy action",
-    );
+export function policyActionLabelFor(value: number): DecodedEnum<PolicyActionLabel> {
+    return enumLabel(PolicyActionCodec.protoToOutput, value);
 }

@@ -1,7 +1,7 @@
 import * as v from "valibot";
 import * as Proto from "../gen/polyester/ratelimit/v1/types_pb.js";
 import type { ProtoToOutput } from "../utils/types.js";
-import { requiredEnumLabel } from "./proto-enum-codec.js";
+import { enumLabelSchema } from "./proto-enum-codec.js";
 import { OptionalBigIntStringSchema } from "./schemas.js";
 
 const RATE_LIMIT_FAILURE_REASON_VALUES = [
@@ -109,55 +109,15 @@ const RateLimitRefillModelCodec = {
 
 /** Parses protobuf quota state into the stable SDK rate-limit detail shape. */
 export const RateLimitDetailSchema = v.object({
-    reason: v.pipe(
-        v.enum(Proto.FailureReason),
-        v.transform((reason) =>
-            requiredEnumLabel(
-                RateLimitFailureReasonCodec.protoToOutput,
-                reason,
-                "RateLimitDetailSchema",
-                "reason",
-            ),
-        ),
-    ),
+    reason: enumLabelSchema(RateLimitFailureReasonCodec.protoToOutput),
     limit: OptionalBigIntStringSchema,
     remaining: OptionalBigIntStringSchema,
     retryAfterMs: OptionalBigIntStringSchema,
     policyVersion: OptionalBigIntStringSchema,
     operationId: v.string(),
-    policyClass: v.pipe(
-        v.enum(Proto.PolicyClass),
-        v.transform((policyClass) =>
-            requiredEnumLabel(
-                RateLimitPolicyClassCodec.protoToOutput,
-                policyClass,
-                "RateLimitDetailSchema",
-                "policyClass",
-            ),
-        ),
-    ),
-    scope: v.pipe(
-        v.enum(Proto.LimiterScope),
-        v.transform((scope) =>
-            requiredEnumLabel(
-                RateLimitScopeCodec.protoToOutput,
-                scope,
-                "RateLimitDetailSchema",
-                "scope",
-            ),
-        ),
-    ),
-    refillModel: v.pipe(
-        v.enum(Proto.RefillModel),
-        v.transform((refillModel) =>
-            requiredEnumLabel(
-                RateLimitRefillModelCodec.protoToOutput,
-                refillModel,
-                "RateLimitDetailSchema",
-                "refillModel",
-            ),
-        ),
-    ),
+    policyClass: enumLabelSchema(RateLimitPolicyClassCodec.protoToOutput),
+    scope: enumLabelSchema(RateLimitScopeCodec.protoToOutput),
+    refillModel: enumLabelSchema(RateLimitRefillModelCodec.protoToOutput),
 });
 
 /** Structured quota state exposed by order rejections and {@link RateLimitError}. */

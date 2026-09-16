@@ -2,7 +2,7 @@ import type { MessageInitShape } from "@bufbuild/protobuf";
 import { PositiveUint32InputSchema } from "../shared.js";
 import * as v from "valibot";
 import type * as Proto from "../../gen/transfer/v1/internal_transfer_pb.js";
-import { idInputSchema } from "../../shared/schemas.js";
+import { idInputSchema, U128Schema } from "../../shared/schemas.js";
 import { tsNsToMs } from "../../utils/time.js";
 import {
     E18_SCALE,
@@ -16,11 +16,6 @@ import {
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
 import { fromU128, toU128 } from "../../utils/u128.js";
-
-const U128Schema = v.object({
-    hi: v.bigint(),
-    lo: v.bigint(),
-});
 
 const IdSchema = idInputSchema;
 

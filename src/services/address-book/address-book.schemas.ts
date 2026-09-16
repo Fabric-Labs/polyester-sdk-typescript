@@ -1,8 +1,6 @@
 import * as v from "valibot";
 import { PositiveUint32InputSchema } from "../shared.js";
 import { parse } from "../../shared/validation.js";
-import * as Proto from "../../gen/auth/v1/address_book_pb.js";
-import { SubaccountRole } from "../../gen/auth/v1/subaccounts_pb.js";
 import {
     OptionalTimestampMsSchema,
     BigIntStringSchema,
@@ -16,7 +14,7 @@ import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import {
     ADDRESS_BOOK_ENTRY_KIND_VALUES,
     AccountScopeTypeCodec,
@@ -293,17 +291,7 @@ const CountSchema = v.pipe(
 );
 
 const AccountScopeSchema = v.object({
-    scopeType: v.pipe(
-        v.enum(Proto.AccountScopeType),
-        v.transform((value) =>
-            requiredEnumLabel(
-                AccountScopeTypeCodec.protoToOutput,
-                value,
-                "PolyesterClient.AccountScopeSchema",
-                "scope type",
-            ),
-        ),
-    ),
+    scopeType: enumLabelSchema(AccountScopeTypeCodec.protoToOutput),
     rootAccountId: PublicIdSchema,
     subaccountId: PublicIdSchema,
 });
@@ -316,17 +304,7 @@ const ExternalWithdrawAddressSchema = v.object({
 const InternalTransferAccountSchema = v.object({
     rootAccountId: PublicIdSchema,
     targetAccountId: PublicIdSchema,
-    targetScopeType: v.pipe(
-        v.enum(Proto.AccountScopeType),
-        v.transform((value) =>
-            requiredEnumLabel(
-                AccountScopeTypeCodec.protoToOutput,
-                value,
-                "PolyesterClient.InternalTransferAccountSchema",
-                "target scope type",
-            ),
-        ),
-    ),
+    targetScopeType: enumLabelSchema(AccountScopeTypeCodec.protoToOutput),
     smartAccountAddress: v.string(),
     rootUsername: v.string(),
     subaccountLabel: v.string(),
@@ -338,55 +316,19 @@ const AddressBookEntryValueSchema = v.variant("case", [
     v.object({ case: v.undefined(), value: v.optional(v.undefined()) }),
 ]);
 
-const DestinationWhitelistStatusSchema = v.pipe(
-    v.enum(Proto.DestinationWhitelistStatus),
-    v.transform((value) =>
-        requiredEnumLabel(
-            DestinationWhitelistStatusCodec.protoToOutput,
-            value,
-            "PolyesterClient.DestinationWhitelistStatusSchema",
-            "whitelist status",
-        ),
-    ),
+const DestinationWhitelistStatusSchema = enumLabelSchema(
+    DestinationWhitelistStatusCodec.protoToOutput,
 );
 
-const AddressBookEntryKindSchema = v.pipe(
-    v.enum(Proto.AddressBookEntryKind),
-    v.transform((value) =>
-        requiredEnumLabel(
-            AddressBookEntryKindCodec.protoToOutput,
-            value,
-            "PolyesterClient.AddressBookEntryKindSchema",
-            "entry kind",
-        ),
-    ),
-);
+const AddressBookEntryKindSchema = enumLabelSchema(AddressBookEntryKindCodec.protoToOutput);
 
-const TransferCounterpartyDirectionSchema = v.pipe(
-    v.enum(Proto.TransferCounterpartyDirection),
-    v.transform((value) =>
-        requiredEnumLabel(
-            TransferCounterpartyDirectionCodec.protoToOutput,
-            value,
-            "PolyesterClient.TransferCounterpartyDirectionSchema",
-            "direction",
-        ),
-    ),
+const TransferCounterpartyDirectionSchema = enumLabelSchema(
+    TransferCounterpartyDirectionCodec.protoToOutput,
 );
 
 export const AddressBookSchema = v.object({
     scope: v.optional(AccountScopeSchema),
-    callerRole: v.pipe(
-        v.enum(SubaccountRole),
-        v.transform((role) =>
-            requiredEnumLabel(
-                SubaccountRoleCodec.protoToOutput,
-                role,
-                "AddressBookEntrySchema",
-                "caller role",
-            ),
-        ),
-    ),
+    callerRole: enumLabelSchema(SubaccountRoleCodec.protoToOutput),
     label: v.string(),
     ownerUsername: v.string(),
     smartAccountAddress: v.string(),
@@ -471,33 +413,13 @@ export const InternalTransferWhitelistEntrySchema = v.object({
     scope: v.optional(AccountScopeSchema),
     rootAccountId: PublicIdSchema,
     targetAccountId: PublicIdSchema,
-    targetScopeType: v.pipe(
-        v.enum(Proto.AccountScopeType),
-        v.transform((value) =>
-            requiredEnumLabel(
-                AccountScopeTypeCodec.protoToOutput,
-                value,
-                "PolyesterClient.InternalTransferWhitelistEntrySchema",
-                "target scope type",
-            ),
-        ),
-    ),
+    targetScopeType: enumLabelSchema(AccountScopeTypeCodec.protoToOutput),
     smartAccountAddress: v.string(),
     rootUsername: v.string(),
     subaccountLabel: v.string(),
     createdAt: TimestampMsSchema,
     updatedAt: TimestampMsSchema,
-    resolutionStatus: v.pipe(
-        v.enum(Proto.InternalWhitelistResolutionStatus),
-        v.transform((value) =>
-            requiredEnumLabel(
-                InternalWhitelistResolutionStatusCodec.protoToOutput,
-                value,
-                "PolyesterClient.InternalTransferWhitelistEntrySchema",
-                "resolution status",
-            ),
-        ),
-    ),
+    resolutionStatus: enumLabelSchema(InternalWhitelistResolutionStatusCodec.protoToOutput),
 });
 
 export type InternalTransferWhitelistEntry = v.InferOutput<
@@ -560,17 +482,7 @@ export const AddressBookEntriesViewSchema = v.object({
                 whitelistStatus: DestinationWhitelistStatusSchema,
                 rootAccountId: PublicIdSchema,
                 targetAccountId: PublicIdSchema,
-                targetScopeType: v.pipe(
-                    v.enum(Proto.AccountScopeType),
-                    v.transform((value) =>
-                        requiredEnumLabel(
-                            AccountScopeTypeCodec.protoToOutput,
-                            value,
-                            "PolyesterClient.AddressBookEntriesViewSchema",
-                            "target scope type",
-                        ),
-                    ),
-                ),
+                targetScopeType: enumLabelSchema(AccountScopeTypeCodec.protoToOutput),
                 smartAccountAddress: v.string(),
                 rootUsername: v.string(),
                 subaccountLabel: v.string(),
@@ -612,17 +524,7 @@ export const AddressBookRecentDestinationsViewSchema = v.object({
                 lastSeenAt: TimestampMsSchema,
                 rootAccountId: PublicIdSchema,
                 targetAccountId: PublicIdSchema,
-                targetScopeType: v.pipe(
-                    v.enum(Proto.AccountScopeType),
-                    v.transform((value) =>
-                        requiredEnumLabel(
-                            AccountScopeTypeCodec.protoToOutput,
-                            value,
-                            "PolyesterClient.AddressBookRecentDestinationsViewSchema",
-                            "target scope type",
-                        ),
-                    ),
-                ),
+                targetScopeType: enumLabelSchema(AccountScopeTypeCodec.protoToOutput),
                 smartAccountAddress: v.string(),
                 rootUsername: v.string(),
                 subaccountLabel: v.string(),

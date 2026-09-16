@@ -125,6 +125,7 @@ try {
     type SpotVolumeHistoryResponse,
 } from "@polyester/sdk";
 import {
+    claimsPb,
     feesPb,
     ledgerReadPb,
     ordersPb,
@@ -157,6 +158,28 @@ type IsAny<T> = 0 extends 1 & T ? true : false;
 function expectNotAny<T>(_value: T, _proof: IsAny<T> extends true ? never : true): void {}
 
 async function verifyServiceInference(): Promise<void> {
+    const dailyClaim = await client.claims.getDailyClaimStatus();
+    expectType<import("@polyester/sdk").DailyClaimStatus>(dailyClaim);
+    expectNotAny(dailyClaim, true);
+    expectType<import("@polyester/sdk").DailyClaimState>(dailyClaim.state);
+    expectType<string | undefined>(dailyClaim.rewards[0]?.amount);
+    expectType<number | undefined>(dailyClaim.resetAt);
+    expectType<import("@polyester/sdk").ClaimCampaign | undefined>(dailyClaim.campaign);
+    const claimed = await client.claims.claimDailyReward();
+    expectType<import("@polyester/sdk").ClaimDailyRewardResult>(claimed);
+    expectNotAny(claimed, true);
+    expectType<string | undefined>(claimed.transfers[0]?.transferId);
+    expectNotAny(claimsPb.ClaimsService, true);
+    const gtdOrder: import("@polyester/sdk").NewOrderInput = {
+        symbolId: 1,
+        side: "buy",
+        qty: "1",
+        execution: { type: "limit_gtd", price: "100", expireAt: Date.now() + 60_000, postOnly: true },
+    };
+    await client.orders.create(gtdOrder);
+    const gtdOrders = await client.orders.listOpen({ symbolId: [1] });
+    expectType<number | undefined>(gtdOrders.orders[0]?.expireAt);
+
     const details = await client.orders.getDetails({ orderId: "P", limit: 100, pageToken: "next" });
     if (details) {
         expectType<string>(details.nextPageToken);
