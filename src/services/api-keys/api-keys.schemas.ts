@@ -1,4 +1,3 @@
-import * as Proto from "../../gen/auth/v1/api_keys_pb.js";
 import * as v from "valibot";
 import { msToTimestamp } from "../../utils/timestamp.js";
 import { tsObjToMs, tsObjToNsString } from "../../utils/time.js";
@@ -14,7 +13,7 @@ import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import { bytesToHex } from "@noble/hashes/utils.js";
 import {
     API_KEY_STATUS_VALUES,
@@ -151,17 +150,7 @@ export const ApiKeySchema = v.pipe(
                 return ms ? new Date(ms).toISOString() : undefined;
             }),
         ),
-        status: v.pipe(
-            v.enum(Proto.ApiKeyStatus),
-            v.transform((v) =>
-                requiredEnumLabel(
-                    ApiKeyStatusCodec.protoToOutput,
-                    v,
-                    "PolyesterClient.ApiKeySchema",
-                    "status",
-                ),
-            ),
-        ),
+        status: enumLabelSchema(ApiKeyStatusCodec.protoToOutput),
         createdByActor: v.string(),
         revision: BigIntStringSchema,
     }),

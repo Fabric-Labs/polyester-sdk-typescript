@@ -53,8 +53,8 @@ describe("OrderErrorDetailSchema", () => {
         });
     });
 
-    it("rejects unknown rate-limit enum values", () => {
-        expect(() =>
+    it("maps unknown rate-limit enum values to unspecified", () => {
+        expect(
             v.parse(OrderErrorDetailSchema, {
                 code: ProtoWrite.ErrorCode.RATE_LIMIT_EXCEEDED,
                 violations: [],
@@ -66,6 +66,6 @@ describe("OrderErrorDetailSchema", () => {
                     refillModel: ProtoRateLimit.RefillModel.CONTINUOUS,
                 },
             }),
-        ).toThrow();
+        ).toMatchObject({ rateLimit: { reason: "unspecified" } });
     });
 });

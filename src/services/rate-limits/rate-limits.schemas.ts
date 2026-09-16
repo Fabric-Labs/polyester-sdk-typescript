@@ -1,28 +1,16 @@
 import * as v from "valibot";
-import * as Proto from "../../gen/ratelimit/v1/ratelimit_pb.js";
 import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import { BigIntStringSchema, TimestampMsSchema } from "../../shared/schemas.js";
 import { VipTierNumberSchema } from "../vip/vip.schemas.js";
-import { TradingRateLimitClassCodec, type TradingRateLimitClass } from "./rate-limits.codecs.js";
+import { TradingRateLimitClassCodec } from "./rate-limits.codecs.js";
 
 export type { TradingRateLimitClass } from "./rate-limits.codecs.js";
 
-const TradingRateLimitClassOutputSchema = v.pipe(
-    v.enum(Proto.TradingRateLimitClass),
-    v.transform(
-        (value): TradingRateLimitClass =>
-            requiredEnumLabel(
-                TradingRateLimitClassCodec.protoToOutput,
-                value,
-                "TradingRateLimitRuleSchema",
-                "policyClass",
-            ),
-    ),
-);
+const TradingRateLimitClassOutputSchema = enumLabelSchema(TradingRateLimitClassCodec.protoToOutput);
 
 export const TradingRateLimitRuleSchema = v.object({
     policyClass: TradingRateLimitClassOutputSchema,

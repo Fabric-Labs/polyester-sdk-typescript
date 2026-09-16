@@ -3,8 +3,6 @@ import {
     WalletChallengeMessageSchema,
     WalletSignatureSchema,
 } from "../auth/wallet-challenge.schemas.js";
-import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
-import * as ProtoPolicies from "../../gen/auth/v1/policies_pb.js";
 import * as v from "valibot";
 import {
     BigIntStringSchema,
@@ -15,7 +13,7 @@ import {
     positiveBigintStringInputSchema,
 } from "../../shared/schemas.js";
 import { tsObjToMs, tsObjToNsString } from "../../utils/time.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabel, enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import {
     SubaccountRoleCodec,
     SubaccountPermissionCodec,
@@ -45,24 +43,9 @@ export const SubaccountRoleSchema = v.picklist(SUBACCOUNT_ROLE_VALUES);
 
 export type SubaccountRole = v.InferOutput<typeof SubaccountRoleSchema>;
 
-const ProtoSubaccountRoleSchema = v.pipe(
-    v.enum(Proto.SubaccountRole),
-    v.transform((role) =>
-        requiredEnumLabel(SubaccountRoleCodec.protoToOutput, role, "SubaccountRoleSchema", "role"),
-    ),
-);
+const ProtoSubaccountRoleSchema = enumLabelSchema(SubaccountRoleCodec.protoToOutput);
 
-const ProtoSubaccountPermissionSchema = v.pipe(
-    v.enum(Proto.SubaccountPermission),
-    v.transform((permission) =>
-        requiredEnumLabel(
-            SubaccountPermissionCodec.protoToOutput,
-            permission,
-            "SubaccountPermissionSchema",
-            "permission",
-        ),
-    ),
-);
+const ProtoSubaccountPermissionSchema = enumLabelSchema(SubaccountPermissionCodec.protoToOutput);
 
 export type SubaccountPermission = v.InferOutput<typeof ProtoSubaccountPermissionSchema>;
 
@@ -70,17 +53,7 @@ export const SubaccountPermissionDefinitionSchema = v.object({
     permission: ProtoSubaccountPermissionSchema,
     displayName: v.optional(v.string(), ""),
     description: v.optional(v.string(), ""),
-    policyAction: v.pipe(
-        v.enum(ProtoPolicies.PolicyAction),
-        v.transform((action) =>
-            requiredEnumLabel(
-                PolicyActionCodec.protoToOutput,
-                action,
-                "SubaccountPermissionDefinitionSchema",
-                "policy action",
-            ),
-        ),
-    ),
+    policyAction: enumLabelSchema(PolicyActionCodec.protoToOutput),
 });
 
 export type SubaccountPermissionDefinition = v.InferOutput<
@@ -239,7 +212,7 @@ const InviteStatusSchema = v.picklist(["pending", "accepted", "declined", "cance
 
 export type SubaccountInviteStatus = v.InferOutput<typeof InviteStatusSchema>;
 
-const ProtoInviteStatusSchema = v.enum(Proto.SubaccountInviteStatus);
+const ProtoInviteStatusSchema = v.number();
 
 export const RespondSubaccountInviteInputSchema = v.strictObject({
     inviteId: idInputSchema("inviteId"),
@@ -251,17 +224,7 @@ export const RespondSubaccountInviteInputSchema = v.strictObject({
 
 export type RespondSubaccountInviteInput = v.InferInput<typeof RespondSubaccountInviteInputSchema>;
 
-const ProtoSubaccountStatusSchema = v.pipe(
-    v.enum(Proto.SubaccountStatus),
-    v.transform((status) =>
-        requiredEnumLabel(
-            SubaccountStatusCodec.protoToOutput,
-            status,
-            "SubaccountSchema",
-            "status",
-        ),
-    ),
-);
+const ProtoSubaccountStatusSchema = enumLabelSchema(SubaccountStatusCodec.protoToOutput);
 
 export type SubaccountStatus = v.InferOutput<typeof ProtoSubaccountStatusSchema>;
 
@@ -312,14 +275,7 @@ export const SubaccountInviteSchema = v.pipe(
         role: ProtoSubaccountRoleSchema,
         status: v.pipe(
             ProtoInviteStatusSchema,
-            v.transform((v) =>
-                requiredEnumLabel(
-                    InviteStatusCodec.protoToOutput,
-                    v,
-                    "SubaccountInviteSchema",
-                    "status",
-                ),
-            ),
+            v.transform((v) => enumLabel(InviteStatusCodec.protoToOutput, v)),
         ),
         createdAt: OptionalTimestampMsSchema,
         respondedAt: OptionalTimestampMsSchema,
@@ -359,39 +315,9 @@ export type SubaccountActivityInput = v.InferInput<typeof SubaccountActivityInpu
 
 export const SubaccountActivityEventSchema = v.object({
     createdAt: OptionalTimestampMsSchema,
-    entityKind: v.pipe(
-        v.enum(Proto.ActivityEntityKind),
-        v.transform((value) =>
-            requiredEnumLabel(
-                ActivityEntityKindCodec.protoToOutput,
-                value,
-                "SubaccountActivityEventSchema",
-                "entity kind",
-            ),
-        ),
-    ),
-    eventAction: v.pipe(
-        v.enum(Proto.ActivityEventAction),
-        v.transform((value) =>
-            requiredEnumLabel(
-                ActivityEventActionCodec.protoToOutput,
-                value,
-                "SubaccountActivityEventSchema",
-                "event action",
-            ),
-        ),
-    ),
-    source: v.pipe(
-        v.enum(Proto.ActivityEventSource),
-        v.transform((value) =>
-            requiredEnumLabel(
-                ActivityEventSourceCodec.protoToOutput,
-                value,
-                "SubaccountActivityEventSchema",
-                "source",
-            ),
-        ),
-    ),
+    entityKind: enumLabelSchema(ActivityEntityKindCodec.protoToOutput),
+    eventAction: enumLabelSchema(ActivityEventActionCodec.protoToOutput),
+    source: enumLabelSchema(ActivityEventSourceCodec.protoToOutput),
     ip: v.optional(v.string()),
     userAgent: v.optional(v.string()),
     actorAccountId: PublicIdSchema,

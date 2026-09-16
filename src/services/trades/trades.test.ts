@@ -296,7 +296,7 @@ describe("TradesService", () => {
         expect(transport.lastCall()?.message).toEqual({});
     });
 
-    it("rejects user trades with unmapped backend side values", async () => {
+    it("maps unmapped backend side values to unspecified", async () => {
         const transport = unaryTransport({
             trades: [{ ...userTrade, side: 999 as ProtoOrders.Side }],
             nextPageToken: "",
@@ -308,7 +308,9 @@ describe("TradesService", () => {
             testScales(),
         );
 
-        await expect(service.list()).rejects.toThrow(/\[UserTradeSchema\]: invalid side 999/);
+        await expect(service.list()).resolves.toMatchObject({
+            trades: [expect.objectContaining({ sideLabel: "unspecified" })],
+        });
     });
 
     it("rejects user trades whose symbol is unknown to the catalog", async () => {
@@ -432,7 +434,7 @@ describe("TradesService", () => {
         expect(onEvent.mock.calls[1]?.[0]).toMatchObject({ matchId: "23" });
     });
 
-    it("routes malformed trade publications to the subscription onError", async () => {
+    it("delivers trade publications with unmapped enums as unspecified", async () => {
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const onError = vi.fn();
@@ -453,11 +455,7 @@ describe("TradesService", () => {
         );
         await flushAsync();
 
-        expect(onEvent).not.toHaveBeenCalled();
-        expect(onError.mock.calls[0]?.[0]).toMatchObject({
-            channel: "private:spot:trades:acct-1:proto",
-            type: "publication_handler",
-        });
-        expect(onError.mock.calls[0]?.[0].error.message).toMatch(/invalid side 999/);
+        expect(onError).not.toHaveBeenCalled();
+        expect(onEvent).toHaveBeenCalledWith(expect.objectContaining({ sideLabel: "unspecified" }));
     });
 });

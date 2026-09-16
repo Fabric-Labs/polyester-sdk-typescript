@@ -6,7 +6,7 @@ import type {
     HeatmapQuantityMode,
 } from "../../gen/marketdata/v1/heatmap_pb.js";
 import { OptionalTimestampSecondsInputSchema } from "../../shared/schemas.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabel } from "../../shared/proto-enum-codec.js";
 import type { DecodedEnum } from "../../utils/types.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import {
@@ -86,22 +86,12 @@ export const GetOrderbookHeatmapInputSchema = v.pipe(
     }),
 );
 
-function requiredIntervalLabelFor(value: number): DecodedEnum<HeatmapIntervalValue> {
-    return requiredEnumLabel(
-        HeatmapIntervalCodec.protoToOutput,
-        value,
-        "OrderbookHeatmapResponseSchema",
-        "interval",
-    );
+function intervalLabelFor(value: number): DecodedEnum<HeatmapIntervalValue> {
+    return enumLabel(HeatmapIntervalCodec.protoToOutput, value);
 }
 
-function requiredQuantityModeLabelFor(value: number): DecodedEnum<HeatmapQuantityModeValue> {
-    return requiredEnumLabel(
-        HeatmapQuantityModeCodec.protoToOutput,
-        value,
-        "OrderbookHeatmapResponseSchema",
-        "quantity mode",
-    );
+function quantityModeLabelFor(value: number): DecodedEnum<HeatmapQuantityModeValue> {
+    return enumLabel(HeatmapQuantityModeCodec.protoToOutput, value);
 }
 
 const TimestampSecondsSchema = v.pipe(
@@ -196,7 +186,7 @@ export type OrderbookHeatmapDeltaBucket = ReturnType<typeof convertHeatmapDeltaB
 
 const OrderbookHeatmapLiveBucketRawSchema = v.object({
     symbolId: v.number(),
-    interval: v.pipe(v.number(), v.transform(requiredIntervalLabelFor)),
+    interval: v.pipe(v.number(), v.transform(intervalLabelFor)),
     tsSec: TimestampSecondsSchema,
     isFinal: v.boolean(),
     bids: v.optional(OrderbookHeatmapLevelsRawSchema),
@@ -204,7 +194,7 @@ const OrderbookHeatmapLiveBucketRawSchema = v.object({
     updatesInBucket: v.number(),
     bookSeqStart: Uint64StringSchema,
     bookSeqEnd: Uint64StringSchema,
-    quantityMode: v.pipe(v.number(), v.transform(requiredQuantityModeLabelFor)),
+    quantityMode: v.pipe(v.number(), v.transform(quantityModeLabelFor)),
     effectiveBinTicks: v.bigint(),
 });
 
@@ -263,17 +253,10 @@ export type OrderbookHeatmapDeltaChain = ReturnType<typeof convertHeatmapDeltaCh
 
 const OrderbookHeatmapResponseRawSchema = v.object({
     symbolId: v.number(),
-    interval: v.pipe(v.number(), v.transform(requiredIntervalLabelFor)),
+    interval: v.pipe(v.number(), v.transform(intervalLabelFor)),
     depth: v.pipe(
         v.number(),
-        v.transform((value) =>
-            requiredEnumLabel(
-                HeatmapDepthCodec.protoToOutput,
-                value,
-                "OrderbookHeatmapResponseSchema",
-                "depth",
-            ),
-        ),
+        v.transform((value) => enumLabel(HeatmapDepthCodec.protoToOutput, value)),
     ),
     chain: v.optional(OrderbookHeatmapDeltaChainRawSchema),
     lastPersistedTsSec: TimestampSecondsSchema,
@@ -281,7 +264,7 @@ const OrderbookHeatmapResponseRawSchema = v.object({
     hasLiveAnchor: v.boolean(),
     nextPageToken: v.optional(v.string(), ""),
     serverTimeSec: TimestampSecondsSchema,
-    quantityMode: v.pipe(v.number(), v.transform(requiredQuantityModeLabelFor)),
+    quantityMode: v.pipe(v.number(), v.transform(quantityModeLabelFor)),
     liveBucket: v.optional(OrderbookHeatmapLiveBucketRawSchema),
 });
 

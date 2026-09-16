@@ -746,13 +746,8 @@ describe("TriggersService", () => {
         realtime.params?.onPublication(trigger({ status: 999 as Proto.TriggerStatus }));
         await flushAsync();
 
-        expect(onError).toHaveBeenCalledWith(
-            expect.objectContaining({
-                channel: "private:spot:triggers:account-1:proto",
-                type: "publication_handler",
-            }),
-        );
-        expect(onEvent).toHaveBeenCalledTimes(1);
+        expect(onEvent).toHaveBeenCalledTimes(2);
+        expect(onEvent.mock.calls[1]?.[0]).toMatchObject({ status: "unspecified" });
 
         unsubscribe();
         expect(realtime.unsubscribe).toHaveBeenCalledTimes(1);
@@ -791,16 +786,12 @@ describe("TriggersService", () => {
         realtime.params?.onPublication(triggerEvent({ eventType: 999 as Proto.TriggerEventType }));
         await flushAsync();
 
-        expect(onError).toHaveBeenCalledWith(
-            expect.objectContaining({
-                channel: "private:spot:triggers:events:account-1:proto",
-                type: "publication_handler",
-            }),
-        );
-        expect(onEvent).toHaveBeenCalledTimes(1);
+        expect(onError).not.toHaveBeenCalled();
+        expect(onEvent).toHaveBeenCalledTimes(2);
+        expect(onEvent.mock.calls[1]?.[0]).toMatchObject({ eventType: "unspecified" });
     });
 
-    it("rejects invalid create input and malformed backend trigger responses", async () => {
+    it("rejects invalid create input and maps unknown trigger status to unspecified", async () => {
         const transport = unaryTransportByMethod({
             getTrigger: {
                 trigger: trigger({ status: 999 as Proto.TriggerStatus }),
@@ -826,6 +817,8 @@ describe("TriggersService", () => {
         ).rejects.toThrow();
         expect(transport.unary).not.toHaveBeenCalled();
 
-        await expect(service.get({ triggerId: formatId(22n) })).rejects.toThrow();
+        await expect(service.get({ triggerId: formatId(22n) })).resolves.toMatchObject({
+            status: "unspecified",
+        });
     });
 });

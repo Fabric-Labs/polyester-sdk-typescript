@@ -1,6 +1,5 @@
-import * as Proto from "../../gen/chain/analytics/v1/analytics_read_pb.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import * as v from "valibot";
 import { PositiveUint32InputSchema } from "../shared.js";
 import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
@@ -28,17 +27,7 @@ const ChainAnalyticsRangeInputSchema = v.pipe(
     v.transform((value) => ChainAnalyticsRangeCodec.inputToProto[value]),
 );
 
-const ChainAnalyticsRangeOutputSchema = v.pipe(
-    v.enum(Proto.ChainAnalyticsRange),
-    v.transform((value) =>
-        requiredEnumLabel(
-            ChainAnalyticsRangeCodec.protoToOutput,
-            value,
-            "ChainAnalyticsRangeSchema",
-            "range",
-        ),
-    ),
-);
+const ChainAnalyticsRangeOutputSchema = enumLabelSchema(ChainAnalyticsRangeCodec.protoToOutput);
 
 const OptionalBucketInputSchema = v.optional(v.pipe(v.string(), v.trim()), "");
 

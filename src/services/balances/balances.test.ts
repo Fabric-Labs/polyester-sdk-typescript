@@ -367,7 +367,7 @@ describe("BalancesService", () => {
         expect(transport.calls[1]?.message).toEqual({});
     });
 
-    it("rejects balance history responses with unmapped backend enums", async () => {
+    it("maps unmapped backend balance ranges to unspecified", async () => {
         const transport = unaryTransport({
             range: 999 as Proto.BalanceRange,
             bucket: "1h",
@@ -383,7 +383,9 @@ describe("BalancesService", () => {
             testScales(),
         );
 
-        await expect(service.getBalanceHistory({ range: "1d" })).rejects.toThrow(/received 999/);
+        await expect(service.getBalanceHistory({ range: "1d" })).resolves.toMatchObject({
+            range: "unspecified",
+        });
     });
 
     it("wires balance subscriptions and parses publications to decimal strings", async () => {

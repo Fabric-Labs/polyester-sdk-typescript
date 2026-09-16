@@ -1,12 +1,11 @@
 import * as v from "valibot";
-import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { fromU128 } from "../../utils/u128.js";
 import {
     AccountCodeCodec,
     TRANSFER_CODE_VALUES,
     TransferCodeCodec,
 } from "../../shared/ledger-codes.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabel, enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import { wireTimestampToMs } from "../../utils/time.js";
 import {
     OptionalPublicIdSchema,
@@ -30,12 +29,7 @@ const WireTimestampInputSchema = v.union([
     ),
 ]);
 
-const TransferSideKindSchema = v.pipe(
-    v.enum(Proto.TransferSideKind),
-    v.transform((kind) =>
-        requiredEnumLabel(TransferSideKindCodec.protoToOutput, kind, "TransferSideSchema", "kind"),
-    ),
-);
+const TransferSideKindSchema = enumLabelSchema(TransferSideKindCodec.protoToOutput);
 
 export const LedgerTransferSideSchema = v.object({
     kind: TransferSideKindSchema,
@@ -72,18 +66,8 @@ export const LedgerTransferSchema = v.pipe(
                 tr.balanceAfterE18 !== undefined
                     ? scaledToDecimalOutput(fromU128(tr.balanceAfterE18), E18_SCALE)
                     : undefined,
-            type: requiredEnumLabel(
-                TransferCodeCodec.protoToOutput,
-                tr.transferCode,
-                "LedgerTransferSchema",
-                "transfer code",
-            ),
-            accountCode: requiredEnumLabel(
-                AccountCodeCodec.protoToOutput,
-                tr.accountCode,
-                "LedgerTransferSchema",
-                "account code",
-            ),
+            type: enumLabel(TransferCodeCodec.protoToOutput, tr.transferCode),
+            accountCode: enumLabel(AccountCodeCodec.protoToOutput, tr.accountCode),
             timestamp: wireTimestampToMs(tr.tsUs),
             isDebit: tr.isDebit,
             linkId,

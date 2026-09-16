@@ -542,7 +542,7 @@ describe("MarketOverviewService", () => {
         );
     });
 
-    it("rejects market rows with unmapped backend sparkline enums", async () => {
+    it("maps unmapped backend sparkline intervals to unspecified", async () => {
         const transport = unaryTransport({
             markets: [
                 market({
@@ -562,7 +562,9 @@ describe("MarketOverviewService", () => {
             testScales(),
         );
 
-        await expect(service.list()).rejects.toThrow(/received 999/);
+        await expect(service.list()).resolves.toMatchObject({
+            markets: [{ sparklines: [{ interval: "unspecified" }] }],
+        });
     });
 
     it("buffers subscription publications until the initial snapshot resolves", async () => {
@@ -702,7 +704,7 @@ describe("MarketOverviewService", () => {
         });
     });
 
-    it("routes malformed market overview publications to the error callback after snapshot readiness", async () => {
+    it("delivers publications with unmapped enums as unspecified after snapshot readiness", async () => {
         const transport = unaryTransport({ markets: [market()], nextPageToken: "next-page" });
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
@@ -736,12 +738,10 @@ describe("MarketOverviewService", () => {
         );
         await flushMicrotasks();
 
-        expect(onEvent).toHaveBeenCalledTimes(1);
-        expect(onError).toHaveBeenCalledTimes(1);
-        expect(onError.mock.calls[0]?.[0]).toMatchObject({
-            channel: "public:spot:market_overview:updates:proto",
-            type: "publication_handler",
-        });
-        expect(onError.mock.calls[0]?.[0].error.message).toMatch(/received 999/);
+        expect(onError).not.toHaveBeenCalled();
+        expect(onEvent).toHaveBeenCalledTimes(2);
+        expect(onEvent.mock.calls[1]?.[0]).toMatchObject([
+            { sparklines: [{ interval: "unspecified" }] },
+        ]);
     });
 });

@@ -4,7 +4,7 @@ import * as v from "valibot";
 import { SideSchema, SymbolIdInputSchema } from "../shared.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { msToTimestamp } from "../../utils/timestamp.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import {
     OptionalPublicIdSchema,
     OptionalTimestampMsSchema,
@@ -376,17 +376,7 @@ export type CancelOrderInput = v.InferInput<typeof CancelOrderInputSchema>;
 
 export const CancelOrderResultSchema = v.pipe(
     v.object({
-        status: v.pipe(
-            v.enum(ProtoWrite.CancelOrderResponse_Status),
-            v.transform((status) =>
-                requiredEnumLabel(
-                    CancelOrderStatusCodec.protoToOutput,
-                    status,
-                    "CancelOrderResultSchema",
-                    "status",
-                ),
-            ),
-        ),
+        status: enumLabelSchema(CancelOrderStatusCodec.protoToOutput),
         orderId: PublicIdSchema,
         tsNs: v.bigint(),
     }),
@@ -420,17 +410,7 @@ export type CancelAllOrdersInput = v.InferInput<typeof CancelAllOrdersInputSchem
 
 export const CancelAllOrdersResponseSchema = v.pipe(
     v.object({
-        status: v.pipe(
-            v.enum(ProtoWrite.CancelAllOrdersResponse_Status),
-            v.transform((status) =>
-                requiredEnumLabel(
-                    CancelAllOrdersStatusCodec.protoToOutput,
-                    status,
-                    "CancelAllOrdersResponseSchema",
-                    "status",
-                ),
-            ),
-        ),
+        status: enumLabelSchema(CancelAllOrdersStatusCodec.protoToOutput),
         matchedOrders: v.number(),
         submittedCancels: v.number(),
         failedCancels: v.number(),

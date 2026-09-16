@@ -1,11 +1,9 @@
 import { OrderLineageSchema } from "./order-lineage.schemas.js";
-import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
-import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import * as v from "valibot";
 import { tsNsToMs } from "../../utils/time.js";
 import { formatId } from "../../utils/base58-id.js";
 import { OptionalPublicIdSchema, OptionalTimestampMsSchema } from "../../shared/schemas.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabel, enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import { E18_SCALE, scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { createUserTradeSchema } from "../trades/trades.schemas.js";
 import { fromU128 } from "../../utils/u128.js";
@@ -26,41 +24,11 @@ import {
     formatMarketMaxSlippage,
 } from "./orders-risk.schemas.js";
 
-const OrderStatusOutputSchema = v.pipe(
-    v.enum(ProtoRead.OrderStatus),
-    v.transform((status) =>
-        requiredEnumLabel(
-            OrderStatusCodec.protoToOutput,
-            status,
-            "PolyesterClient.OrderSchema",
-            "status",
-        ),
-    ),
-);
+const OrderStatusOutputSchema = enumLabelSchema(OrderStatusCodec.protoToOutput);
 
 const ReadOrderOriginSchema = v.object({
-    scope: v.pipe(
-        v.enum(ProtoRead.OrderOriginScope),
-        v.transform((v) =>
-            requiredEnumLabel(
-                OrderOriginScopeCodec.protoToOutput,
-                v,
-                "ReadOrderOriginSchema",
-                "scope",
-            ),
-        ),
-    ),
-    triggerType: v.pipe(
-        v.enum(ProtoRead.OrderTriggerType),
-        v.transform((v) =>
-            requiredEnumLabel(
-                OrderTriggerTypeCodec.protoToOutput,
-                v,
-                "ReadOrderOriginSchema",
-                "trigger type",
-            ),
-        ),
-    ),
+    scope: enumLabelSchema(OrderOriginScopeCodec.protoToOutput),
+    triggerType: enumLabelSchema(OrderTriggerTypeCodec.protoToOutput),
     triggerId: OptionalPublicIdSchema,
     parentOrderId: OptionalPublicIdSchema,
     childSeq: v.number(),
@@ -73,7 +41,7 @@ export function createOrderSchema(scales: SdkScales) {
             lineage: v.optional(OrderLineageSchema),
             symbolId: v.number(),
             clientOrderId: v.string(),
-            side: v.enum(ProtoWrite.Side),
+            side: v.number(),
             status: OrderStatusOutputSchema,
             orderType: v.number(),
             timeInForce: v.number(),
@@ -117,36 +85,14 @@ export function createOrderSchema(scales: SdkScales) {
                 symbolId: o.symbolId,
                 clientOrderId: o.clientOrderId,
                 status: isPartial ? ("partial" as const) : o.status,
-                side: requiredEnumLabel(
-                    OrderSideCodec.protoToOutput,
-                    o.side,
-                    "OrderSchema",
-                    "side",
-                ),
-                orderType: requiredEnumLabel(
-                    OrderTypeCodec.protoToOutput,
-                    o.orderType,
-                    "OrderSchema",
-                    "order type",
-                ),
-                timeInForce: requiredEnumLabel(
-                    TimeInForceCodec.protoToOutput,
-                    o.timeInForce,
-                    "OrderSchema",
-                    "time in force",
-                ),
-                selfTradePreventionMode: requiredEnumLabel(
+                side: enumLabel(OrderSideCodec.protoToOutput, o.side),
+                orderType: enumLabel(OrderTypeCodec.protoToOutput, o.orderType),
+                timeInForce: enumLabel(TimeInForceCodec.protoToOutput, o.timeInForce),
+                selfTradePreventionMode: enumLabel(
                     SelfTradePreventionModeCodec.protoToOutput,
                     o.selfTradePreventionMode,
-                    "OrderSchema",
-                    "STP mode",
                 ),
-                feeAsset: requiredEnumLabel(
-                    FeeAssetCodec.protoToOutput,
-                    o.feeAsset,
-                    "OrderSchema",
-                    "fee asset",
-                ),
+                feeAsset: enumLabel(FeeAssetCodec.protoToOutput, o.feeAsset),
                 postOnly: o.postOnly,
                 totalQty: scaledToDecimalOutput(o.origQtyScaled, baseQtyScale),
                 cumQty: scaledToDecimalOutput(o.cumQtyScaled, baseQtyScale),
@@ -224,18 +170,8 @@ export function createOrderTransferSchema() {
             isDebit: tr.isDebit,
             timestamp: tsNsToMs(tr.tsNs),
             amount: scaledToDecimalOutput(fromU128(tr.amountE18), E18_SCALE),
-            type: requiredEnumLabel(
-                TransferCodeCodec.protoToOutput,
-                tr.transferCode,
-                "OrderTransferSchema",
-                "transfer code",
-            ),
-            accountCode: requiredEnumLabel(
-                AccountCodeCodec.protoToOutput,
-                tr.accountCode,
-                "OrderTransferSchema",
-                "account code",
-            ),
+            type: enumLabel(TransferCodeCodec.protoToOutput, tr.transferCode),
+            accountCode: enumLabel(AccountCodeCodec.protoToOutput, tr.accountCode),
         })),
     );
 }

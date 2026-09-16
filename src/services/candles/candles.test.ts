@@ -243,7 +243,7 @@ describe("CandlesService", () => {
         });
     });
 
-    it("rejects candle responses with unmapped backend enums", async () => {
+    it("maps unmapped backend timeframes to unspecified", async () => {
         const transport = unaryTransport({
             symbolId: 101,
             timeframe: 999 as Proto.Timeframe,
@@ -255,9 +255,9 @@ describe("CandlesService", () => {
             testScales(),
         );
 
-        await expect(service.list({ symbolId: 101, timeframe: "1m" })).rejects.toThrow(
-            /received 999/,
-        );
+        await expect(service.list({ symbolId: 101, timeframe: "1m" })).resolves.toMatchObject([
+            { timeframe: "unspecified" },
+        ]);
     });
 
     it("wires row candle subscriptions and parses point publications", async () => {

@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import * as Proto from "../../gen/claims/v1/claims_pb.js";
-import { ValidationError } from "../../shared/errors.js";
 import { unaryTransport } from "../../testing/service-harness.js";
 import { ClaimsService } from "./claims.js";
 
@@ -59,10 +58,12 @@ describe("ClaimsService", () => {
         expect(authApi.lastCall()?.signal).toBe(signal);
     });
 
-    it("rejects unknown server states as an SDK ValidationError", async () => {
+    it("maps unknown server states to unspecified", async () => {
         const authApi = unaryTransport({ state: 99, rewards: [], claimId: "" });
         const service = new ClaimsService({ authApi: authApi.transport });
 
-        await expect(service.getDailyClaimStatus()).rejects.toBeInstanceOf(ValidationError);
+        await expect(service.getDailyClaimStatus()).resolves.toMatchObject({
+            state: "unspecified",
+        });
     });
 });

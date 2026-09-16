@@ -1,6 +1,6 @@
 import * as v from "valibot";
 import { TimestampSchema } from "../../shared/schemas.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabel } from "../../shared/proto-enum-codec.js";
 import type { DecodedEnum } from "../../utils/types.js";
 import * as Proto from "../../gen/auth/v1/social_verification_pb.js";
 import {
@@ -42,27 +42,12 @@ export function transformVerification(
     if (!v) return undefined;
     return {
         id: v.id,
-        provider: requiredEnumLabel(
-            SocialProviderCodec.protoToOutput,
-            v.provider,
-            "SocialVerificationSchema",
-            "provider",
-        ),
-        method: requiredEnumLabel(
-            SocialVerificationMethodCodec.protoToOutput,
-            v.method,
-            "SocialVerificationSchema",
-            "method",
-        ),
+        provider: enumLabel(SocialProviderCodec.protoToOutput, v.provider),
+        method: enumLabel(SocialVerificationMethodCodec.protoToOutput, v.method),
         handle: v.handle,
         providerUserId: v.providerUserId,
         challengeCode: v.challengeCode,
-        status: requiredEnumLabel(
-            SocialVerificationStatusCodec.protoToOutput,
-            v.status,
-            "SocialVerificationSchema",
-            "status",
-        ),
+        status: enumLabel(SocialVerificationStatusCodec.protoToOutput, v.status),
         requestedAt: v.requestedAt,
         expiresAt: v.expiresAt,
         verifiedAt: v.verifiedAt,

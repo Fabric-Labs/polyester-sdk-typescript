@@ -230,7 +230,7 @@ describe("HeatmapService", () => {
         }
     });
 
-    it("rejects heatmap responses with unmapped backend enums", async () => {
+    it("maps unmapped backend heatmap intervals to unspecified", async () => {
         const transport = unaryTransport(
             heatmapResponse({ interval: 999 as Proto.HeatmapInterval }),
         );
@@ -242,7 +242,7 @@ describe("HeatmapService", () => {
 
         await expect(
             service.getOrderbookHeatmap({ symbolId: 101, limit: 100, startTsSec: 100 }),
-        ).rejects.toThrow(/\[OrderbookHeatmapResponseSchema\]: invalid interval 999/);
+        ).resolves.toMatchObject({ interval: "unspecified" });
     });
 
     it("wires live subscriptions and parses live buckets into decimals", async () => {
@@ -325,7 +325,7 @@ describe("HeatmapService", () => {
         expect(realtime.connectProtoChannel).not.toHaveBeenCalled();
     });
 
-    it("routes live publications with unmapped backend enums to the error callback", async () => {
+    it("delivers live publications with unmapped enums as unspecified", async () => {
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const onError = vi.fn();
@@ -345,14 +345,9 @@ describe("HeatmapService", () => {
         );
         await flushMicrotasks();
 
-        expect(onEvent).not.toHaveBeenCalled();
-        expect(onError).toHaveBeenCalledTimes(1);
-        expect(onError.mock.calls[0]?.[0]).toMatchObject({
-            channel: "public:spot:market:heatmap:1s:101:proto",
-            type: "publication_handler",
-        });
-        expect(onError.mock.calls[0]?.[0].error.message).toMatch(
-            /\[OrderbookHeatmapResponseSchema\]: invalid quantity mode 999/,
+        expect(onError).not.toHaveBeenCalled();
+        expect(onEvent).toHaveBeenCalledWith(
+            expect.objectContaining({ quantityMode: "unspecified" }),
         );
     });
 });

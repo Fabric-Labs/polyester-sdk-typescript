@@ -500,12 +500,12 @@ describe("batch replace schemas", () => {
                 results: [response.results[1], response.results[0]],
             }),
         ).toThrow("Batch replace results must preserve request item order");
-        expect(() =>
+        expect(
             v.parse(BatchReplaceOrdersResultSchema, {
                 ...response,
                 status: 999,
             }),
-        ).toThrow();
+        ).toMatchObject({ status: "unspecified" });
     });
 
     it("normalizes durable status reads and validates their batch identity", () => {
@@ -559,12 +559,12 @@ describe("batch replace schemas", () => {
             updatedTs: 4_000,
             updatedTsNs: "4000000123",
         });
-        expect(() =>
+        expect(
             v.parse(GetBatchReplaceStatusResultSchema, {
                 ...response,
                 items: [{ ...response.items[0], phase: 999 }],
             }),
-        ).toThrow();
+        ).toMatchObject({ items: [{ phase: "unspecified" }] });
     });
 });
 

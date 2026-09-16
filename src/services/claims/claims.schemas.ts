@@ -1,34 +1,13 @@
 import * as v from "valibot";
-import * as Proto from "../../gen/claims/v1/claims_pb.js";
 import { E18_SCALE, scaledToDecimalOutput } from "../../shared/decimal-surface.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import { OptionalTimestampMsSchema, U128Schema } from "../../shared/schemas.js";
 import { fromU128 } from "../../utils/u128.js";
 import { ClaimPolicyCodec, DailyClaimStateCodec } from "./claims.codecs.js";
 
-const DailyClaimStateSchema = v.pipe(
-    v.enum(Proto.DailyClaimState),
-    v.transform((state) =>
-        requiredEnumLabel(
-            DailyClaimStateCodec.protoToOutput,
-            state,
-            "DailyClaimStateSchema",
-            "state",
-        ),
-    ),
-);
+const DailyClaimStateSchema = enumLabelSchema(DailyClaimStateCodec.protoToOutput);
 
-const ClaimPolicySchema = v.pipe(
-    v.enum(Proto.ClaimPolicy),
-    v.transform((claimPolicy) =>
-        requiredEnumLabel(
-            ClaimPolicyCodec.protoToOutput,
-            claimPolicy,
-            "ClaimPolicySchema",
-            "claimPolicy",
-        ),
-    ),
-);
+const ClaimPolicySchema = enumLabelSchema(ClaimPolicyCodec.protoToOutput);
 
 export const ClaimCampaignSchema = v.object({
     campaignId: v.string(),

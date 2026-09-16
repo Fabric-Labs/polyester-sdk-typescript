@@ -1,6 +1,5 @@
 import * as v from "valibot";
 import * as Proto from "../../gen/chain/lifecycle/v1/types_pb.js";
-import * as ProtoRead from "../../gen/chain/lifecycle/v1/lifecycle_read_pb.js";
 import {
     LIFECYCLE_FLOW_KIND_VALUES,
     LIFECYCLE_FLOW_STATE_VALUES,
@@ -30,7 +29,7 @@ import {
 } from "./lifecycle.codecs.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import { fromU128 } from "../../utils/u128.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import { PublicIdSchema } from "../../shared/schemas.js";
 import { E18_SCALE, scaledToDecimalOutput } from "../../shared/decimal-surface.js";
 
@@ -141,78 +140,17 @@ const LifecycleAssetIdsSchema = v.object({
     unifiedAssetId: v.pipe(v.number(), v.integer(), v.minValue(0)),
 });
 
-const LifecycleFlowStepEnumSchema = v.pipe(
-    v.enum(ProtoRead.FlowStep),
-    v.transform((v) =>
-        requiredEnumLabel(
-            LifecycleFlowStepCodec.protoToOutput,
-            v,
-            "LifecycleFlowStepSchema",
-            "step",
-        ),
-    ),
-);
-const LifecycleSourceEnumSchema = v.pipe(
-    v.enum(Proto.LifecycleSource),
-    v.transform((v) =>
-        requiredEnumLabel(LifecycleSourceCodec.protoToOutput, v, "LifecycleSourceSchema", "source"),
-    ),
-);
-const LifecycleFlowKindEnumSchema = v.pipe(
-    v.enum(Proto.FlowKind),
-    v.transform((v) =>
-        requiredEnumLabel(
-            LifecycleFlowKindCodec.protoToOutput,
-            v,
-            "LifecycleFlowKindSchema",
-            "flow kind",
-        ),
-    ),
-);
+const LifecycleFlowStepEnumSchema = enumLabelSchema(LifecycleFlowStepCodec.protoToOutput);
+const LifecycleSourceEnumSchema = enumLabelSchema(LifecycleSourceCodec.protoToOutput);
+const LifecycleFlowKindEnumSchema = enumLabelSchema(LifecycleFlowKindCodec.protoToOutput);
 
-const LifecycleFlowDomainEnumSchema = v.pipe(
-    v.enum(Proto.FlowDomain),
-    v.transform((v) =>
-        requiredEnumLabel(
-            LifecycleFlowDomainCodec.protoToOutput,
-            v,
-            "LifecycleFlowDomainSchema",
-            "flow domain",
-        ),
-    ),
+const LifecycleFlowDomainEnumSchema = enumLabelSchema(LifecycleFlowDomainCodec.protoToOutput);
+const LifecycleFlowStateEnumSchema = enumLabelSchema(LifecycleFlowStateCodec.protoToOutput);
+const LifecycleFlowStepActivityKindEnumSchema = enumLabelSchema(
+    LifecycleFlowStepActivityKindCodec.protoToOutput,
 );
-const LifecycleFlowStateEnumSchema = v.pipe(
-    v.enum(Proto.FlowState),
-    v.transform((v) =>
-        requiredEnumLabel(
-            LifecycleFlowStateCodec.protoToOutput,
-            v,
-            "LifecycleFlowStateSchema",
-            "flow state",
-        ),
-    ),
-);
-const LifecycleFlowStepActivityKindEnumSchema = v.pipe(
-    v.enum(ProtoRead.FlowStepActivityKind),
-    v.transform((v) =>
-        requiredEnumLabel(
-            LifecycleFlowStepActivityKindCodec.protoToOutput,
-            v,
-            "LifecycleFlowStepActivityKindSchema",
-            "activity kind",
-        ),
-    ),
-);
-const LifecycleFlowTimelineStatusEnumSchema = v.pipe(
-    v.enum(ProtoRead.FlowTimelineStatus),
-    v.transform((v) =>
-        requiredEnumLabel(
-            LifecycleFlowTimelineStatusCodec.protoToOutput,
-            v,
-            "LifecycleFlowTimelineStatusSchema",
-            "timeline status",
-        ),
-    ),
+const LifecycleFlowTimelineStatusEnumSchema = enumLabelSchema(
+    LifecycleFlowTimelineStatusCodec.protoToOutput,
 );
 /**
  * `REASON_UNSPECIFIED` (0) is the normal wire value for flows without a
@@ -228,16 +166,8 @@ const LifecycleReasonEnumSchema = v.pipe(
     v.minValue(0),
     v.transform((value) => lifecycleReasonFromCode(value)),
 );
-const LifecycleRequestFeeStatusEnumSchema = v.pipe(
-    v.enum(Proto.RequestFeeStatus),
-    v.transform((v) =>
-        requiredEnumLabel(
-            LifecycleRequestFeeStatusCodec.protoToOutput,
-            v,
-            "LifecycleRequestFeeStatusSchema",
-            "request fee status",
-        ),
-    ),
+const LifecycleRequestFeeStatusEnumSchema = enumLabelSchema(
+    LifecycleRequestFeeStatusCodec.protoToOutput,
 );
 const LifecycleMsSchema = v.pipe(
     v.bigint(),

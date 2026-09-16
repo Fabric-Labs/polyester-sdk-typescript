@@ -1205,7 +1205,7 @@ describe("OrdersService", () => {
         expect(onClose).toHaveBeenCalledOnce();
     });
 
-    it("rejects malformed backend payloads and routes malformed publications to onError", async () => {
+    it("maps unknown order statuses to unspecified in reads and publications", async () => {
         const transport = unaryTransportByMethod({
             getOpenOrders: {
                 orders: [protoOrder({ status: 999 as ProtoRead.OrderStatus })],
@@ -1219,7 +1219,9 @@ describe("OrdersService", () => {
             testScales(),
         );
 
-        await expect(service.listOpen()).rejects.toThrow();
+        await expect(service.listOpen()).resolves.toMatchObject({
+            orders: [{ status: "unspecified" }],
+        });
 
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
@@ -1235,12 +1237,7 @@ describe("OrdersService", () => {
         realtime.params?.onPublication(protoOrder({ status: 999 as ProtoRead.OrderStatus }));
         await flushAsync();
 
-        expect(onEvent).not.toHaveBeenCalled();
-        expect(onError).toHaveBeenCalledWith(
-            expect.objectContaining({
-                channel: "private:spot:orders:account-1:proto",
-                type: "publication_handler",
-            }),
-        );
+        expect(onError).not.toHaveBeenCalled();
+        expect(onEvent).toHaveBeenCalledWith(expect.objectContaining({ status: "unspecified" }));
     });
 });

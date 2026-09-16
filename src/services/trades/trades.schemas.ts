@@ -11,7 +11,7 @@ import {
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
 import { TradeSideCodec } from "./trades.codecs.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabel } from "../../shared/proto-enum-codec.js";
 import { E18_SCALE, scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { fromU128 } from "../../utils/u128.js";
 import { OrderLineageSchema } from "../orders/order-lineage.schemas.js";
@@ -36,21 +36,11 @@ export function createUserTradeSchema(scales: SdkScales) {
             lineage: v.optional(OrderLineageSchema),
         }),
         v.transform((t) => {
-            const feeAsset = requiredEnumLabel(
-                FeeAssetCodec.protoToOutput,
-                t.feeAsset,
-                "UserTradeSchema",
-                "fee asset",
-            );
+            const feeAsset = enumLabel(FeeAssetCodec.protoToOutput, t.feeAsset);
             return {
                 orderId: formatId(t.orderId),
                 symbolId: t.symbolId,
-                sideLabel: requiredEnumLabel(
-                    OrderSideCodec.protoToOutput,
-                    t.side,
-                    "UserTradeSchema",
-                    "side",
-                ),
+                sideLabel: enumLabel(OrderSideCodec.protoToOutput, t.side),
                 liquidityLabel: t.isMaker ? ("maker" as const) : ("taker" as const),
                 feeAsset,
                 qty: scaledToDecimalOutput(t.qtyScaled, scales.baseQty(t.symbolId)),
