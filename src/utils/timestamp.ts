@@ -26,6 +26,14 @@ export function tsNsToTimestamp(tsNs: bigint | undefined): Timestamp | undefined
     });
 }
 
+/**
+ * Converts integer epoch milliseconds to a proto Timestamp. Handles negative
+ * values, unlike naive `(ms % 1000) * 1e6` nanos math.
+ */
+export function msToTimestamp(ms: number): Timestamp {
+    return tsNsToTimestamp(BigInt(ms) * 1_000_000n) as Timestamp;
+}
+
 function timestampSeconds(value: unknown): bigint | null {
     if (typeof value === "bigint") return value;
     if (typeof value === "number") {

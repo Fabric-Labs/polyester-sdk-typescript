@@ -1,11 +1,10 @@
-import * as Proto from "../../gen/collab/v1/whiteboard_pb.js";
 import * as v from "valibot";
 import {
     JsonObjectSchema,
     OptionalTimestampMsSchema,
     PublicIdSchema,
 } from "../../shared/schemas.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabel, enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import {
     WHITEBOARD_ACL_SUBJECT_TYPE_VALUES,
     WHITEBOARD_AUDIENCE_VALUES,
@@ -17,13 +16,8 @@ import {
 } from "./whiteboard.codecs.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 
-function requiredRoleLabelFor(value: Proto.BoardRole) {
-    return requiredEnumLabel(
-        WhiteboardRoleCodec.protoToOutput,
-        value,
-        "WhiteboardRoleSchema",
-        "role",
-    );
+function roleLabelFor(value: number) {
+    return enumLabel(WhiteboardRoleCodec.protoToOutput, value);
 }
 
 const WhiteboardIdSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
@@ -160,26 +154,16 @@ export const WhiteboardPermissionsSchema = v.object({
 export type WhiteboardPermissions = v.InferOutput<typeof WhiteboardPermissionsSchema>;
 
 export const WhiteboardAccessSchema = v.object({
-    role: v.pipe(v.enum(Proto.BoardRole), v.transform(requiredRoleLabelFor)),
+    role: v.pipe(v.number(), v.transform(roleLabelFor)),
     permissions: v.optional(WhiteboardPermissionsSchema),
 });
 
 export type WhiteboardAccess = v.InferOutput<typeof WhiteboardAccessSchema>;
 
 export const WhiteboardAclEntrySchema = v.object({
-    subjectType: v.pipe(
-        v.enum(Proto.BoardAclSubjectType),
-        v.transform((value) =>
-            requiredEnumLabel(
-                WhiteboardAclSubjectTypeCodec.protoToOutput,
-                value,
-                "WhiteboardAclSubjectTypeSchema",
-                "subject type",
-            ),
-        ),
-    ),
+    subjectType: enumLabelSchema(WhiteboardAclSubjectTypeCodec.protoToOutput),
     subjectId: PublicIdSchema,
-    role: v.pipe(v.enum(Proto.BoardRole), v.transform(requiredRoleLabelFor)),
+    role: v.pipe(v.number(), v.transform(roleLabelFor)),
 });
 
 export type WhiteboardAclEntry = v.InferOutput<typeof WhiteboardAclEntrySchema>;
@@ -189,18 +173,8 @@ export const WhiteboardBoardSchema = v.pipe(
         boardId: v.string(),
         ownerAccountId: PublicIdSchema,
         title: v.string(),
-        audience: v.pipe(
-            v.enum(Proto.BoardAudience),
-            v.transform((value) =>
-                requiredEnumLabel(
-                    WhiteboardAudienceCodec.protoToOutput,
-                    value,
-                    "WhiteboardAudienceSchema",
-                    "audience",
-                ),
-            ),
-        ),
-        defaultRole: v.pipe(v.enum(Proto.BoardRole), v.transform(requiredRoleLabelFor)),
+        audience: enumLabelSchema(WhiteboardAudienceCodec.protoToOutput),
+        defaultRole: v.pipe(v.number(), v.transform(roleLabelFor)),
         accessVersion: Uint64StringSchema,
         initialSnapshot: v.optional(WhiteboardSnapshotSchema),
         createdAt: OptionalTimestampMsSchema,
@@ -262,7 +236,7 @@ export type ArchiveWhiteboardBoardResult = v.InferOutput<typeof ArchiveWhiteboar
 
 export const WhiteboardPresencePayloadSchema = v.object({
     accountId: PublicIdSchema,
-    role: v.pipe(v.enum(Proto.BoardRole), v.transform(requiredRoleLabelFor)),
+    role: v.pipe(v.number(), v.transform(roleLabelFor)),
 });
 
 export type WhiteboardPresencePayload = v.InferOutput<typeof WhiteboardPresencePayloadSchema>;

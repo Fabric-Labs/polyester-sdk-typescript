@@ -26,7 +26,7 @@ import {
     positiveBigintStringInputSchema,
 } from "../../../shared/schemas.js";
 import { tsObjToMs, tsObjToNsString } from "../../../utils/time.js";
-import { toTimestamp } from "../../../utils/timestamp.js";
+import { msToTimestamp } from "../../../utils/timestamp.js";
 import { toIntOrZero } from "../../../utils/numbers.js";
 import {
     QUOTE_NOTIONAL_SCALE,
@@ -142,10 +142,7 @@ const SubaccountPolicyInputBaseSchema = v.strictObject({
 
 function timestampFromMs(value: number | null | undefined) {
     if (value == null) return undefined;
-    return toTimestamp({
-        seconds: BigInt(Math.floor(value / 1000)),
-        nanos: (value % 1000) * 1_000_000,
-    });
+    return msToTimestamp(value);
 }
 
 function createSubaccountPolicyBaseTransform(

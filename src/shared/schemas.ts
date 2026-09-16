@@ -11,6 +11,11 @@ const MS_TO_NS = 1_000_000n;
 const MAX_UINT64_TIMESTAMP_MS_US = Number(UINT64_MAX / MS_TO_US);
 const MAX_UINT64_TIMESTAMP_MS = Number(UINT64_MAX / MS_TO_NS);
 
+export const U128Schema = v.object({
+    hi: v.bigint(),
+    lo: v.bigint(),
+});
+
 export const TimestampSchema = v.object({
     seconds: v.bigint(),
     nanos: v.optional(v.number(), 0),

@@ -263,6 +263,54 @@ describe("OrdersService", () => {
         });
     });
 
+    it("sends GTD expiry timestamps and rejects out-of-range expiries before transport", async () => {
+        const transport = unaryTransportByMethod({
+            createOrder: {
+                orderId: 11n,
+                clientOrderId: "",
+                acceptedAtTsNs: 0n,
+                resolvedBaseQtyScaled: 50_000_000n,
+            },
+        });
+        const service = new OrdersService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+        const expireAt = 1_758_024_000_001;
+        await service.create({
+            symbolId: 1,
+            side: "buy",
+            qty: "0.5",
+            execution: { type: "limit_gtd", price: "100.25", expireAt },
+        });
+        expect(transport.lastCall()).toMatchObject({
+            method: { localName: "createOrder" },
+            message: {
+                order: {
+                    execution: {
+                        case: "limitGtd",
+                        value: {
+                            priceTicks: 100_250_000n,
+                            expireAt: { seconds: 1_758_024_000n, nanos: 1_000_000 },
+                        },
+                    },
+                },
+            },
+        });
+
+        await expect(
+            service.create({
+                symbolId: 1,
+                side: "buy",
+                qty: "0.5",
+                execution: { type: "limit_gtd", price: "100", expireAt: 9_223_372_036_855 },
+            }),
+        ).rejects.toThrow();
+        expect(transport.unary).toHaveBeenCalledTimes(1);
+    });
+
     it("previews max-quote BUY sizing without creating an order", async () => {
         const transport = unaryTransportByMethod({
             previewOrder: {
@@ -1157,7 +1205,7 @@ describe("OrdersService", () => {
         expect(onClose).toHaveBeenCalledOnce();
     });
 
-    it("rejects malformed backend payloads and routes malformed publications to onError", async () => {
+    it("maps unknown order statuses to unspecified in reads and publications", async () => {
         const transport = unaryTransportByMethod({
             getOpenOrders: {
                 orders: [protoOrder({ status: 999 as ProtoRead.OrderStatus })],
@@ -1171,7 +1219,9 @@ describe("OrdersService", () => {
             testScales(),
         );
 
-        await expect(service.listOpen()).rejects.toThrow();
+        await expect(service.listOpen()).resolves.toMatchObject({
+            orders: [{ status: "unspecified" }],
+        });
 
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
@@ -1187,12 +1237,7 @@ describe("OrdersService", () => {
         realtime.params?.onPublication(protoOrder({ status: 999 as ProtoRead.OrderStatus }));
         await flushAsync();
 
-        expect(onEvent).not.toHaveBeenCalled();
-        expect(onError).toHaveBeenCalledWith(
-            expect.objectContaining({
-                channel: "private:spot:orders:account-1:proto",
-                type: "publication_handler",
-            }),
-        );
+        expect(onError).not.toHaveBeenCalled();
+        expect(onEvent).toHaveBeenCalledWith(expect.objectContaining({ status: "unspecified" }));
     });
 });

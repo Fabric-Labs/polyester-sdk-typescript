@@ -13,7 +13,7 @@ import * as HeatmapProto from "../gen/marketdata/v1/heatmap_pb.js";
 import * as MarketDataProto from "../gen/marketdata/v1/marketdata_pb.js";
 import * as OrdersProto from "../gen/orders/v1/orders_pb.js";
 import * as RateLimitProto from "../gen/ratelimit/v1/ratelimit_pb.js";
-import { requiredEnumLabel } from "../shared/proto-enum-codec.js";
+import { enumLabel } from "../shared/proto-enum-codec.js";
 import {
     AddressBookEntryKindCodec,
     DestinationWhitelistStatusCodec,
@@ -82,21 +82,11 @@ const CandleRowSchema = createCandleRowSchema(testScales);
 const OrderbookHeatmapResponseSchema = createOrderbookHeatmapResponseSchema(testScales);
 
 function kindFromProto(kind: AddressBookProto.AddressBookEntryKind) {
-    return requiredEnumLabel(
-        AddressBookEntryKindCodec.protoToOutput,
-        kind,
-        "PolyesterClient.AddressBookEntryKindSchema",
-        "entry kind",
-    );
+    return enumLabel(AddressBookEntryKindCodec.protoToOutput, kind);
 }
 
 function whitelistStatusFromProto(status: AddressBookProto.DestinationWhitelistStatus) {
-    return requiredEnumLabel(
-        DestinationWhitelistStatusCodec.protoToOutput,
-        status,
-        "PolyesterClient.DestinationWhitelistStatusSchema",
-        "whitelist status",
-    );
+    return enumLabel(DestinationWhitelistStatusCodec.protoToOutput, status);
 }
 
 describe("proto enum output decoding", () => {
@@ -267,14 +257,12 @@ describe("proto enum output decoding", () => {
         ).toMatchObject({ policyClass: "unspecified" });
     });
 
-    it("still rejects truly unknown nonzero enum values", () => {
-        expect(() => kindFromProto(999 as AddressBookProto.AddressBookEntryKind)).toThrow(
-            "invalid entry kind 999",
-        );
-        expect(() =>
+    it("maps unknown nonzero enum values to unspecified instead of failing the decode", () => {
+        expect(kindFromProto(999 as AddressBookProto.AddressBookEntryKind)).toBe("unspecified");
+        expect(
             v.parse(WhiteboardAccessSchema, {
                 role: 999 as WhiteboardProto.BoardRole,
             }),
-        ).toThrow(/received 999/);
+        ).toMatchObject({ role: "unspecified" });
     });
 });

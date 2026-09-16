@@ -227,7 +227,7 @@ describe("ApiKeysService", () => {
         expect(stepUpHeader(transport.calls[2])).toBe("delete-token");
     });
 
-    it("rejects malformed API key responses", async () => {
+    it("maps unknown API key statuses to unspecified", async () => {
         const realtime = realtimeClientStub();
         const transport = unaryTransportSequence([
             {
@@ -238,9 +238,9 @@ describe("ApiKeysService", () => {
         ]);
         const service = new ApiKeysService({ authApi: transport.transport }, realtime.realtime);
 
-        await expect(service.get({ keyId: "ak_0123456789abcdef0123456789abcdef" })).rejects.toThrow(
-            /received 999/,
-        );
+        await expect(
+            service.get({ keyId: "ak_0123456789abcdef0123456789abcdef" }),
+        ).resolves.toMatchObject({ status: "unspecified" });
     });
 
     it("subscribes to account API key publications and parses events", () => {
@@ -284,8 +284,9 @@ describe("ApiKeysService", () => {
                 publicKeyHex: "010203",
             }),
         );
-        expect(() => params.onPublication(apiKey({ status: 999 as Proto.ApiKeyStatus }))).toThrow(
-            /received 999/,
+        params.onPublication(apiKey({ status: 999 as Proto.ApiKeyStatus }));
+        expect(onEvent).toHaveBeenLastCalledWith(
+            expect.objectContaining({ status: "unspecified" }),
         );
     });
 });

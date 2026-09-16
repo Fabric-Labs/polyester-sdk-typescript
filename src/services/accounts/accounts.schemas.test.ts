@@ -57,12 +57,12 @@ describe("ResolvedAccountSchema", () => {
             accountId: formatId(42n),
         });
 
-        expect(() =>
+        expect(
             v.parse(ResolvedAccountSchema, {
                 smartAccountAddress: "0x0000000000000000000000000000000000000001",
                 kind: 999,
                 accountId: 42n,
             }),
-        ).toThrow();
+        ).toMatchObject({ kind: "unspecified" });
     });
 });

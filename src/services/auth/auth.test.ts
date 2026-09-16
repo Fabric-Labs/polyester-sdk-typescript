@@ -176,7 +176,7 @@ describe("wallet challenges", () => {
         const input = {
             smartAccountAddress: challengeInput.smartAccountAddress,
             message: atLimit,
-            signature: "0x1234",
+            signature: "0x" + "a".repeat(130),
         };
         for (const schema of [LoginWithWalletInputSchema, CreateSubaccountInputSchema]) {
             expect(parse(schema, input).message).toBe(atLimit);
@@ -188,19 +188,43 @@ describe("wallet challenges", () => {
         }
     });
 
-    it("preserves universal signatures up to 8192 characters for login and subaccount inputs", () => {
+    it("requires a 65-byte hexadecimal EOA signature for login", () => {
+        const input = {
+            smartAccountAddress: challengeInput.smartAccountAddress,
+            message: "message",
+            signature: "a".repeat(130),
+        };
+        expect(parse(LoginWithWalletInputSchema, input).signature).toBe(input.signature);
+        expect(
+            parse(LoginWithWalletInputSchema, { ...input, signature: `0x${input.signature}` })
+                .signature,
+        ).toBe(`0x${input.signature}`);
+        for (const signature of [
+            "a".repeat(128),
+            "a".repeat(132),
+            "g".repeat(130),
+            "a".repeat(8192),
+            "",
+        ]) {
+            expect(() => parse(LoginWithWalletInputSchema, { ...input, signature })).toThrow(
+                ValidationError,
+            );
+        }
+    });
+
+    it("preserves universal signatures up to 8192 characters for subaccount creation", () => {
         const input = {
             smartAccountAddress: challengeInput.smartAccountAddress,
             message: "message",
             signature: "a".repeat(8192),
         };
-        for (const schema of [LoginWithWalletInputSchema, CreateSubaccountInputSchema]) {
-            expect(parse(schema, input).signature).toHaveLength(8192);
-            expect(() => parse(schema, { ...input, signature: input.signature + "a" })).toThrow(
-                ValidationError,
-            );
-            expect(() => parse(schema, { ...input, signature: "" })).toThrow(ValidationError);
-        }
+        expect(parse(CreateSubaccountInputSchema, input).signature).toHaveLength(8192);
+        expect(() =>
+            parse(CreateSubaccountInputSchema, { ...input, signature: input.signature + "a" }),
+        ).toThrow(ValidationError);
+        expect(() => parse(CreateSubaccountInputSchema, { ...input, signature: "" })).toThrow(
+            ValidationError,
+        );
     });
 
     it("preserves typed failures and permits a subsequent challenge request", async () => {

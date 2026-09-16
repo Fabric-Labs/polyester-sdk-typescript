@@ -22,7 +22,6 @@ import {
     WalletAddressSchema,
     WalletChallengeUriSchema,
     WalletChallengeMessageSchema,
-    WalletSignatureSchema,
 } from "./wallet-challenge.schemas.js";
 
 export const CreateWalletChallengeInputSchema = v.strictObject({
@@ -34,10 +33,19 @@ export const CreateWalletChallengeInputSchema = v.strictObject({
 export type CreateWalletChallengeInput = v.InferInput<typeof CreateWalletChallengeInputSchema>;
 export type WalletChallengePurpose = CreateWalletChallengeInput["purpose"];
 
+/** An EIP-191 EOA signature: 65 hexadecimal bytes, with an optional 0x prefix. */
+const LoginEoaSignatureSchema = v.pipe(
+    v.string(),
+    v.regex(
+        /^(?:0x)?[0-9a-fA-F]{130}$/,
+        "Login signature must be a 65-byte hexadecimal EOA signature.",
+    ),
+);
+
 export const LoginWithWalletInputSchema = v.strictObject({
     smartAccountAddress: WalletAddressSchema,
     message: WalletChallengeMessageSchema,
-    signature: WalletSignatureSchema,
+    signature: LoginEoaSignatureSchema,
     userAgent: v.optional(v.string(), ""),
     ip: v.optional(v.string(), ""),
     walletProvider: v.optional(v.string(), ""),

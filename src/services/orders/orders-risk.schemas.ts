@@ -18,7 +18,7 @@ import {
     parseSlippageInput,
     parseTrailingDistanceInput,
 } from "../trailing-oneof-inputs.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabel } from "../../shared/proto-enum-codec.js";
 import { formatId } from "../../utils/base58-id.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { AttachedRiskLegStatusCodec } from "./orders.codecs.js";
@@ -270,7 +270,7 @@ const ReadTrailingStopPolicySchema = v.object({
 });
 
 const ReadAttachedRiskLegStateSchema = v.object({
-    status: v.enum(ProtoRead.AttachedRiskLegState_Status),
+    status: v.number(),
     armedTsNs: v.bigint(),
     terminalTsNs: v.bigint(),
     triggerId: v.optional(v.bigint()),
@@ -326,12 +326,7 @@ function formatRiskLeg(
 
 function formatRiskLegState(state: v.InferOutput<typeof ReadAttachedRiskLegStateSchema>) {
     return {
-        status: requiredEnumLabel(
-            AttachedRiskLegStatusCodec.protoToOutput,
-            state.status,
-            "AttachedRiskLegStateSchema",
-            "status",
-        ),
+        status: enumLabel(AttachedRiskLegStatusCodec.protoToOutput, state.status),
         armedTs: state.armedTsNs > 0n ? tsNsToMs(state.armedTsNs) : undefined,
         armedTsNs: state.armedTsNs > 0n ? state.armedTsNs.toString() : undefined,
         terminalTs: state.terminalTsNs > 0n ? tsNsToMs(state.terminalTsNs) : undefined,

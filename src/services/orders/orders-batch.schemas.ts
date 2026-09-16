@@ -1,5 +1,4 @@
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
-import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import { create } from "@bufbuild/protobuf";
 import * as v from "valibot";
 import {
@@ -7,7 +6,7 @@ import {
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
 import { OptionalPublicIdSchema, PublicIdSchema, idInputSchema } from "../../shared/schemas.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { formatId } from "../../utils/base58-id.js";
 import { SideSchema, SymbolIdInputSchema } from "../shared.js";
@@ -73,17 +72,7 @@ export type CancelAllAfterInput = v.InferInput<typeof CancelAllAfterInputSchema>
 
 export const CancelAllAfterResultSchema = v.pipe(
     v.object({
-        status: v.pipe(
-            v.enum(ProtoWrite.CancelAllAfterResponse_Status),
-            v.transform((status) =>
-                requiredEnumLabel(
-                    CancelAllAfterStatusCodec.protoToOutput,
-                    status,
-                    "CancelAllAfterResultSchema",
-                    "status",
-                ),
-            ),
-        ),
+        status: enumLabelSchema(CancelAllAfterStatusCodec.protoToOutput),
         effectiveTimeoutSec: v.pipe(v.number(), v.integer(), v.minValue(0)),
         expiresAtTsNs: v.bigint(),
         tsNs: v.bigint(),
@@ -357,17 +346,7 @@ export type BatchReplaceOrdersInput = {
 const BatchReplaceAdmissionItemSchema = v.pipe(
     v.object({
         itemIndex: BatchItemIndexSchema,
-        status: v.pipe(
-            v.enum(ProtoWrite.BatchReplaceItemAdmissionStatus),
-            v.transform((status) =>
-                requiredEnumLabel(
-                    BatchReplaceItemAdmissionStatusCodec.protoToOutput,
-                    status,
-                    "BatchReplaceAdmissionItemSchema",
-                    "status",
-                ),
-            ),
-        ),
+        status: enumLabelSchema(BatchReplaceItemAdmissionStatusCodec.protoToOutput),
         oldOrderId: OptionalPublicIdSchema,
         replacementOrderId: OptionalPublicIdSchema,
         clientOrderId: v.string(),
@@ -385,17 +364,7 @@ export type BatchReplaceAdmissionItem = v.InferOutput<typeof BatchReplaceAdmissi
 export const BatchReplaceOrdersResultSchema = v.pipe(
     v.object({
         batchRequestId: PositivePublicIdSchema,
-        status: v.pipe(
-            v.enum(ProtoWrite.BatchReplaceAdmissionStatus),
-            v.transform((status) =>
-                requiredEnumLabel(
-                    BatchReplaceAdmissionStatusCodec.protoToOutput,
-                    status,
-                    "BatchReplaceOrdersResultSchema",
-                    "status",
-                ),
-            ),
-        ),
+        status: enumLabelSchema(BatchReplaceAdmissionStatusCodec.protoToOutput),
         results: v.array(BatchReplaceAdmissionItemSchema),
         acceptedCount: BatchCountSchema,
         rejectedCount: BatchCountSchema,
@@ -437,30 +406,10 @@ export type GetBatchReplaceStatusInput = v.InferInput<typeof GetBatchReplaceStat
 const BatchReplaceStatusItemSchema = v.pipe(
     v.object({
         itemIndex: BatchItemIndexSchema,
-        phase: v.pipe(
-            v.enum(ProtoRead.BatchReplacePhase),
-            v.transform((phase) =>
-                requiredEnumLabel(
-                    BatchReplacePhaseCodec.protoToOutput,
-                    phase,
-                    "BatchReplaceStatusItemSchema",
-                    "phase",
-                ),
-            ),
-        ),
+        phase: enumLabelSchema(BatchReplacePhaseCodec.protoToOutput),
         oldOrderId: OptionalPublicIdSchema,
         replacementOrderId: OptionalPublicIdSchema,
-        orderStatus: v.pipe(
-            v.enum(ProtoRead.OrderStatus),
-            v.transform((status) =>
-                requiredEnumLabel(
-                    OrderStatusCodec.protoToOutput,
-                    status,
-                    "BatchReplaceStatusItemSchema",
-                    "order status",
-                ),
-            ),
-        ),
+        orderStatus: enumLabelSchema(OrderStatusCodec.protoToOutput),
         code: v.string(),
         updatedTsNs: v.bigint(),
     }),
@@ -475,17 +424,7 @@ const BatchReplaceStatusItemSchema = v.pipe(
 export const GetBatchReplaceStatusResultSchema = v.pipe(
     v.object({
         batchRequestId: PositivePublicIdSchema,
-        admissionStatus: v.pipe(
-            v.enum(ProtoWrite.BatchReplaceAdmissionStatus),
-            v.transform((status) =>
-                requiredEnumLabel(
-                    BatchReplaceAdmissionStatusCodec.protoToOutput,
-                    status,
-                    "GetBatchReplaceStatusResultSchema",
-                    "admission status",
-                ),
-            ),
-        ),
+        admissionStatus: enumLabelSchema(BatchReplaceAdmissionStatusCodec.protoToOutput),
         items: v.array(BatchReplaceStatusItemSchema),
         acceptedCount: BatchCountSchema,
         rejectedCount: BatchCountSchema,
@@ -551,17 +490,7 @@ export const BatchCancelOrdersInputSchema = v.pipe(
 export type BatchCancelOrdersInput = v.InferInput<typeof BatchCancelOrdersInputSchema>;
 
 const BatchCancelOrderResultSchema = v.object({
-    status: v.pipe(
-        v.enum(ProtoWrite.BatchCancelResultItem_Status),
-        v.transform((status) =>
-            requiredEnumLabel(
-                BatchCancelOrderStatusCodec.protoToOutput,
-                status,
-                "BatchCancelOrderResultSchema",
-                "status",
-            ),
-        ),
-    ),
+    status: enumLabelSchema(BatchCancelOrderStatusCodec.protoToOutput),
     orderId: OptionalPublicIdSchema,
     clientOrderId: v.string(),
     code: v.string(),

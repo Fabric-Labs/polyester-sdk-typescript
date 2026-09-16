@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { signAsync } from "@noble/ed25519";
 import { POLYESTER_DEVNET_ENVIRONMENT } from "./environment.js";
 import { createTestCatalog } from "./testing/catalog.js";
+import { unaryTransport } from "./testing/service-harness.js";
+import { DailyClaimState } from "./gen/claims/v1/claims_pb.js";
 import type { CatalogSnapshot } from "./catalogs/index.js";
 
 type RealtimeAuthRequest = {
@@ -266,5 +268,31 @@ describe("PolyesterClient catalog refresh", () => {
 
         expect(client.catalog.snapshot()).toBe(snapshot);
         expect(current).toBe(snapshot);
+    });
+});
+
+describe("PolyesterClient claims", () => {
+    it("routes claims through the authenticated transport without a catalog or realtime connection", async () => {
+        const authApi = unaryTransport({
+            state: DailyClaimState.CLAIM_UNAVAILABLE,
+            rewards: [],
+            claimId: "",
+        });
+        const publicApi = unaryTransport({});
+        const client = new PolyesterClient({
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
+            transports: { authApi: authApi.transport, publicApi: publicApi.transport },
+        });
+        const realtimeCount = realtimeConfigs.length;
+        const signal = new AbortController().signal;
+
+        expect(client.claims).toBe(client.claims);
+        await client.claims.getDailyClaimStatus({ signal });
+
+        expect(authApi.lastCall()?.method.parent.typeName).toBe("claims.v1.ClaimsService");
+        expect(authApi.lastCall()?.method.localName).toBe("getDailyClaimStatus");
+        expect(authApi.lastCall()?.signal).toBe(signal);
+        expect(publicApi.calls).toHaveLength(0);
+        expect(realtimeConfigs).toHaveLength(realtimeCount);
     });
 });

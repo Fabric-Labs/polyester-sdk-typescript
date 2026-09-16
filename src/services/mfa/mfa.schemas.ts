@@ -1,7 +1,6 @@
 import * as v from "valibot";
-import * as Proto from "../../gen/auth/v1/mfa_pb.js";
 import { JsonObjectSchema, OptionalTimestampMsSchema } from "../../shared/schemas.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabel, enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import {
     MfaChallengePurposeCodec,
     MfaFactorTypeCodec,
@@ -12,17 +11,7 @@ import {
 export const MfaSessionInfoSchema = v.pipe(
     v.object({
         sessionId: v.string(),
-        sessionLevel: v.pipe(
-            v.enum(Proto.SessionLevel),
-            v.transform((v) =>
-                requiredEnumLabel(
-                    SessionLevelCodec.protoToOutput,
-                    v,
-                    "PolyesterClient.MfaSessionInfoSchema",
-                    "sessionLevel",
-                ),
-            ),
-        ),
+        sessionLevel: enumLabelSchema(SessionLevelCodec.protoToOutput),
         authenticationMethods: v.optional(v.array(v.string()), []),
         authTime: OptionalTimestampMsSchema,
     }),
@@ -39,17 +28,7 @@ export type MfaSessionInfo = v.InferOutput<typeof MfaSessionInfoSchema>;
 export const MfaFactorSchema = v.pipe(
     v.object({
         factorId: v.string(),
-        factorType: v.pipe(
-            v.enum(Proto.MFAFactorType),
-            v.transform((v) =>
-                requiredEnumLabel(
-                    MfaFactorTypeCodec.protoToOutput,
-                    v,
-                    "PolyesterClient.MfaFactorSchema",
-                    "factorType",
-                ),
-            ),
-        ),
+        factorType: enumLabelSchema(MfaFactorTypeCodec.protoToOutput),
         label: v.string(),
         createdAt: OptionalTimestampMsSchema,
         lastUsedAt: OptionalTimestampMsSchema,
@@ -154,17 +133,8 @@ export type BeginMfaChallengeInput = v.InferInput<typeof BeginMfaChallengeInputS
 export const BeginMfaChallengeResultSchema = v.object({
     challengeId: v.string(),
     allowedFactorTypes: v.pipe(
-        v.array(v.enum(Proto.MFAFactorType)),
-        v.transform((arr) =>
-            arr.map((t) =>
-                requiredEnumLabel(
-                    MfaFactorTypeCodec.protoToOutput,
-                    t,
-                    "PolyesterClient.BeginMfaChallengeResultSchema",
-                    "allowed factor type",
-                ),
-            ),
-        ),
+        v.array(v.number()),
+        v.transform((arr) => arr.map((t) => enumLabel(MfaFactorTypeCodec.protoToOutput, t))),
     ),
     publicKey: v.optional(JsonObjectSchema),
     expiresAt: OptionalTimestampMsSchema,

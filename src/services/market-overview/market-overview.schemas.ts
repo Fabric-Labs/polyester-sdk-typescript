@@ -1,8 +1,7 @@
-import * as Proto from "../../gen/marketoverview/v1/marketoverview_pb.js";
 import * as v from "valibot";
 import { tsNsToMs } from "../../utils/time.js";
 import type { DecodedEnum } from "../../utils/types.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { PositiveUint32InputSchema, SymbolIdInputSchema } from "../shared.js";
 import {
@@ -31,17 +30,7 @@ export const SparklineIntervalSchema = v.picklist(SPARKLINE_INTERVAL_VALUES);
 export type SparklineIntervalName = v.InferOutput<typeof SparklineIntervalSchema>;
 
 const MarketOverviewSparklineRawSchema = v.object({
-    interval: v.pipe(
-        v.enum(Proto.SparklineInterval),
-        v.transform((value) =>
-            requiredEnumLabel(
-                SparklineIntervalCodec.protoToOutput,
-                value,
-                "MarketOverviewSparklineSchema",
-                "interval",
-            ),
-        ),
-    ),
+    interval: enumLabelSchema(SparklineIntervalCodec.protoToOutput),
     closeTicks: v.array(v.bigint()),
 });
 

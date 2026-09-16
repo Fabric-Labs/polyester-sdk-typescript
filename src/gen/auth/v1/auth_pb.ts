@@ -31,8 +31,10 @@ export type CreateWalletChallengeRequest = Message<"auth.v1.CreateWalletChalleng
   smartAccountAddress: string;
 
   /**
-   * EVM address selected in the wallet and written into the EIP-4361 message.
-   * For CREATE_SUBACCOUNT, this must equal smart_account_address.
+   * Address whose signature authorizes the challenge and that is written into
+   * the EIP-4361 message. For LOGIN, this must be an EOA that controls the
+   * target smart account. For CREATE_SUBACCOUNT, this must equal
+   * smart_account_address.
    *
    * @generated from field: string signer_address = 2;
    */
@@ -106,8 +108,9 @@ export type LoginWithWalletRequest = Message<"auth.v1.LoginWithWalletRequest"> &
   smartAccountAddress: string;
 
   /**
-   * Signature over message using EIP-191 personal_sign semantics. Maximum
-   * length is 8192 characters to support universal wallet signatures.
+   * EOA signature over message using EIP-191 personal_sign semantics. A valid
+   * value is 65 bytes of hexadecimal with an optional 0x prefix. Requests are
+   * limited to 8192 characters.
    *
    * @generated from field: string signature = 3;
    */

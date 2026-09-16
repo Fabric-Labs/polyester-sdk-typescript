@@ -432,6 +432,33 @@ describe("NewOrderInputSchema", () => {
         expect(defaultedInput.order.selfTradePreventionMode).toBeUndefined();
     });
 
+    it("encodes GTD limits with the exact timestamp contract and int64 range", () => {
+        const schema = createNewOrderInputSchema(testScales());
+        const gtd = (expireAt: number) =>
+            v.parse(schema, {
+                symbolId: 1,
+                side: "buy",
+                qty: "0.5",
+                execution: { type: "limit_gtd", price: "100.25", postOnly: true, expireAt },
+            }).order.execution;
+
+        expect(gtd(1_758_024_000_000)).toMatchObject({
+            case: "limitGtd",
+            value: {
+                priceTicks: 100_250_000n,
+                postOnly: true,
+                expireAt: { seconds: 1_758_024_000n, nanos: 0 },
+            },
+        });
+        expect(gtd(-9_223_372_036_854)).toMatchObject({
+            value: { expireAt: { seconds: -9_223_372_037n, nanos: 146_000_000 } },
+        });
+        expect(gtd(9_223_372_036_854).case).toBe("limitGtd");
+        expect(() => gtd(-9_223_372_036_855)).toThrow();
+        expect(() => gtd(9_223_372_036_855)).toThrow();
+        expect(() => gtd(1.5)).toThrow();
+    });
+
     it("accepts the int64 price ceiling and rejects one tick above it", () => {
         const schema = createNewOrderInputSchema(testScales());
         const order = {
@@ -1476,6 +1503,21 @@ describe("OrderSchema", () => {
         const order = v.parse(schema, rawOrder({ marketClientRefPriceTicks: 99_500_000n }));
 
         expect(order.marketClientRefPrice).toBe("99.5");
+    });
+
+    it("exposes GTD expiry in milliseconds and omits it for other orders", () => {
+        const schema = createOrderSchema(testScales());
+
+        expect(
+            v.parse(
+                schema,
+                rawOrder({
+                    timeInForce: ProtoWrite.TimeInForce.GTD,
+                    expireAt: { seconds: 20n, nanos: 123_456_789 },
+                }),
+            ),
+        ).toMatchObject({ timeInForce: "GTD", expireAt: 20_123 });
+        expect(v.parse(schema, rawOrder())).not.toHaveProperty("expireAt");
     });
 
     it("exposes batch identity and submitted max-quote sizing when present", () => {

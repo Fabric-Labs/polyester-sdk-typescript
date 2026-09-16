@@ -1,9 +1,8 @@
-import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
 import { SymbolIdInputSchema } from "../shared.js";
 import * as v from "valibot";
 import type { DecodedEnum } from "../../utils/types.js";
 import { OptionalTimestampSecondsInputSchema } from "../../shared/schemas.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabel } from "../../shared/proto-enum-codec.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { TIMEFRAMES, TimeframeCodec } from "./candles.codecs.js";
 
@@ -11,13 +10,8 @@ export const TimeframeSchema = v.picklist(TIMEFRAMES);
 
 export type Timeframe = v.InferOutput<typeof TimeframeSchema>;
 
-function timeframeFromProto(value: Proto.Timeframe, schemaName: string): DecodedEnum<Timeframe> {
-    return requiredEnumLabel(
-        TimeframeCodec.protoToOutput,
-        value,
-        `CandlesService.${schemaName}`,
-        "timeframe",
-    );
+function timeframeFromProto(value: number): DecodedEnum<Timeframe> {
+    return enumLabel(TimeframeCodec.protoToOutput, value);
 }
 
 const TimeframeInputSchema = v.pipe(
@@ -40,8 +34,8 @@ function timestampFromTsSec(tsSec: bigint): TimestampInit {
 const CandleRowRawSchema = v.object({
     symbolId: v.number(),
     timeframe: v.pipe(
-        v.enum(Proto.Timeframe),
-        v.transform((v) => timeframeFromProto(v, "CandleRowSchema")),
+        v.number(),
+        v.transform((v) => timeframeFromProto(v)),
     ),
     tsSec: v.bigint(),
     open: v.bigint(),
@@ -90,8 +84,8 @@ export const CandlePointSchema = v.object({
 const CandleColumnarRawSchema = v.object({
     symbolId: v.number(),
     timeframe: v.pipe(
-        v.enum(Proto.Timeframe),
-        v.transform((v) => timeframeFromProto(v, "CandleColumnarSchema")),
+        v.number(),
+        v.transform((v) => timeframeFromProto(v)),
     ),
     tsSec: v.array(v.bigint()),
     open: v.array(v.bigint()),

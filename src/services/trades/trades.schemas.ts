@@ -3,7 +3,7 @@ import { tsNsToISO, tsNsToMs } from "../../utils/time.js";
 import { SideSchema } from "../shared.js";
 import { FeeAssetCodec, OrderSideCodec } from "../orders/orders.codecs.js";
 import { formatId } from "../../utils/base58-id.js";
-import { optionalUint64DecimalFilterSchema } from "../../shared/schemas.js";
+import { optionalUint64DecimalFilterSchema, U128Schema } from "../../shared/schemas.js";
 import { parseOptionalUint64DecimalStrict } from "../../utils/numbers.js";
 import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import {
@@ -11,16 +11,11 @@ import {
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
 import { TradeSideCodec } from "./trades.codecs.js";
-import { requiredEnumLabel } from "../../shared/proto-enum-codec.js";
+import { enumLabel } from "../../shared/proto-enum-codec.js";
 import { E18_SCALE, scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { fromU128 } from "../../utils/u128.js";
 import { OrderLineageSchema } from "../orders/order-lineage.schemas.js";
 import { positiveOrderIdInputSchema } from "../orders/orders-identifiers.schemas.js";
-
-const U128Schema = v.object({
-    hi: v.bigint(),
-    lo: v.bigint(),
-});
 
 /** Parses a generated user-trade fill into the SDK's JSON-safe public shape. */
 export function createUserTradeSchema(scales: SdkScales) {
@@ -41,21 +36,11 @@ export function createUserTradeSchema(scales: SdkScales) {
             lineage: v.optional(OrderLineageSchema),
         }),
         v.transform((t) => {
-            const feeAsset = requiredEnumLabel(
-                FeeAssetCodec.protoToOutput,
-                t.feeAsset,
-                "UserTradeSchema",
-                "fee asset",
-            );
+            const feeAsset = enumLabel(FeeAssetCodec.protoToOutput, t.feeAsset);
             return {
                 orderId: formatId(t.orderId),
                 symbolId: t.symbolId,
-                sideLabel: requiredEnumLabel(
-                    OrderSideCodec.protoToOutput,
-                    t.side,
-                    "UserTradeSchema",
-                    "side",
-                ),
+                sideLabel: enumLabel(OrderSideCodec.protoToOutput, t.side),
                 liquidityLabel: t.isMaker ? ("maker" as const) : ("taker" as const),
                 feeAsset,
                 qty: scaledToDecimalOutput(t.qtyScaled, scales.baseQty(t.symbolId)),
