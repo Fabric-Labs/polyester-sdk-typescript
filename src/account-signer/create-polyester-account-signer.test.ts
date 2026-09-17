@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { privateKeyToAccount } from "viem/accounts";
-import { POLYESTER_DEVNET_ENVIRONMENT } from "../environment.js";
+import { createPolyesterEnvironment, POLYESTER_DEVNET_ENVIRONMENT } from "../environment.js";
 import { createPolyesterAccountSigner } from "./create-polyester-account-signer.js";
 import { predictSafeAddress } from "./predict-safe-address.js";
 
@@ -36,6 +36,22 @@ describe("createPolyesterAccountSigner", () => {
         );
         expect(accountSigner.environmentFingerprint).toBe(POLYESTER_DEVNET_ENVIRONMENT.fingerprint);
         expect(accountSigner.ownerAddress).toBe(owner.address);
+    });
+
+    it("keeps signer identity across global and regional gateways", () => {
+        const regional = createPolyesterEnvironment({
+            ...POLYESTER_DEVNET_ENVIRONMENT,
+            apiUrl: "https://iad.api.devnet.polyester.com",
+            websocketUrl: "wss://iad.api.devnet.polyester.com",
+        });
+        const globalSigner = createPolyesterAccountSigner({
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
+            owner,
+        });
+        const regionalSigner = createPolyesterAccountSigner({ environment: regional, owner });
+        expect(globalSigner.environmentFingerprint).toBe(regional.fingerprint);
+        expect(regionalSigner.environmentFingerprint).toBe(globalSigner.environmentFingerprint);
+        expect(regionalSigner.accountAddress).toBe(globalSigner.accountAddress);
     });
 
     it("returns ERC-6492 wrapped signatures for login messages", async () => {
