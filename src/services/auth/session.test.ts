@@ -1,7 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { POLYESTER_DEVNET_ENVIRONMENT } from "../../environment.js";
-import { POLYESTER_SESSION_COOKIE_NAME } from "./cookie-constants.js";
-import { AuthSessionStore, polyesterSession } from "./session.js";
+import { createPolyesterEnvironment, POLYESTER_DEVNET_ENVIRONMENT } from "../../environment.js";
+import {
+    POLYESTER_AUTH_TOKEN_COOKIE_NAME,
+    POLYESTER_SESSION_COOKIE_NAME,
+} from "./cookie-constants.js";
+import {
+    AuthSessionStore,
+    polyesterSession,
+    parseServerSessionSnapshot,
+    emptyServerSessionSnapshot,
+} from "./session.js";
 import type { SessionData } from "./session.types.js";
 import type { AuthTokenStorage } from "./token-storage.js";
 
@@ -41,6 +49,13 @@ function createTestStorage(initialToken: string | null) {
 describe("polyesterSession", () => {
     afterEach(() => {
         vi.unstubAllGlobals();
+    });
+
+    it("ignores the previous display-session cookie version", () => {
+        vi.stubGlobal("document", {
+            cookie: `polyester_session_3=${encodeURIComponent(JSON.stringify(validSession()))}`,
+        });
+        expect(polyesterSession.get()).toBeNull();
     });
 
     it("returns schema-valid display session data from cookies", () => {
@@ -182,5 +197,48 @@ describe("AuthSessionStore", () => {
 
         expect(ensured).toEqual({ ...session, username: "alice" });
         expect(store.get()).toEqual(ensured);
+    });
+});
+
+// Captured from the URL-inclusive formula before the identity change.
+const legacyDevnetFingerprint =
+    "0xcf37f208361309f72495de61387ea46d6a339bf35d848138caf9b51d7b8fb38d";
+
+describe("server session environment identity", () => {
+    afterEach(() => {
+        vi.restoreAllMocks();
+        vi.unstubAllGlobals();
+    });
+
+    it("rejects old URL-inclusive fingerprints in server snapshots", () => {
+        expect(
+            parseServerSessionSnapshot(
+                {
+                    [POLYESTER_SESSION_COOKIE_NAME]: JSON.stringify({
+                        ...validSession(),
+                        environmentFingerprint: legacyDevnetFingerprint,
+                    }),
+                    [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: "token-1",
+                },
+                POLYESTER_DEVNET_ENVIRONMENT,
+            ),
+        ).toEqual(emptyServerSessionSnapshot());
+    });
+
+    it("retains server sessions across regional gateways", () => {
+        const regional = createPolyesterEnvironment({
+            ...POLYESTER_DEVNET_ENVIRONMENT,
+            apiUrl: "https://iad.api.devnet.polyester.com",
+            websocketUrl: "wss://tyo.api.devnet.polyester.com",
+        });
+        expect(
+            parseServerSessionSnapshot(
+                {
+                    [POLYESTER_SESSION_COOKIE_NAME]: JSON.stringify(validSession()),
+                    [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: "token-1",
+                },
+                regional,
+            ),
+        ).toMatchObject({ hasDisplaySession: true, bearerToken: "token-1" });
     });
 });
