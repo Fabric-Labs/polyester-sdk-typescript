@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.25.1
+
+### Patch Changes
+
+- Preserve auth sessions across regional gateways and bump the display-session cookie version. ([#154](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/154))
+
 ## 0.25.0
 
 ### Minor Changes
