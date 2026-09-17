@@ -197,8 +197,6 @@ function normalizeChain(chain: Chain, rpcUrl: string): Chain {
 }
 
 function environmentFingerprint(input: {
-    apiUrl: string;
-    websocketUrl: string;
     rpcUrl: string;
     chainId: number;
     accountAbstraction: PolyesterAccountAbstractionEnvironment;
@@ -207,8 +205,6 @@ function environmentFingerprint(input: {
     return keccak256Hex(
         evmUtf8ToBytes(
             JSON.stringify({
-                apiUrl: input.apiUrl,
-                websocketUrl: input.websocketUrl,
                 rpcUrl: input.rpcUrl,
                 chainId: input.chainId,
                 bundlerUrl: input.accountAbstraction.bundlerUrl,
@@ -258,8 +254,6 @@ export function createPolyesterEnvironment(
         ),
     });
     const fingerprint = environmentFingerprint({
-        apiUrl,
-        websocketUrl,
         rpcUrl,
         chainId: chain.id,
         accountAbstraction,

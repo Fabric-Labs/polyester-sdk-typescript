@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { POLYESTER_AUTH_TOKEN_COOKIE_NAME } from "./cookie-constants.js";
+import { createPolyesterEnvironment, POLYESTER_DEVNET_ENVIRONMENT } from "../../environment.js";
+import {
+    POLYESTER_AUTH_TOKEN_COOKIE_NAME,
+    POLYESTER_SESSION_COOKIE_NAME,
+} from "./cookie-constants.js";
+import { AuthSessionStore } from "./session.js";
 import {
     createAuthTokenStorageSetOptions,
     createCookieAuthTokenStorage,
@@ -58,6 +63,35 @@ function installCookieJar(): { jar: Map<string, string>; writes: string[] } {
     });
 
     return { jar, writes };
+}
+
+function devnetEnvironment(apiUrl: string, websocketUrl: string) {
+    return createPolyesterEnvironment({
+        name: POLYESTER_DEVNET_ENVIRONMENT.name,
+        apiUrl,
+        websocketUrl,
+        rpcUrl: POLYESTER_DEVNET_ENVIRONMENT.rpcUrl,
+        chain: POLYESTER_DEVNET_ENVIRONMENT.chain,
+        accountAbstraction: POLYESTER_DEVNET_ENVIRONMENT.accountAbstraction,
+        contracts: POLYESTER_DEVNET_ENVIRONMENT.contracts,
+    });
+}
+
+function sessionCookie(fingerprint: string): string {
+    return encodeURIComponent(
+        JSON.stringify({
+            environmentFingerprint: fingerprint,
+            provider: "metamask",
+            loginMethod: "metamask",
+            primaryWallet: "0xprimary",
+            smartAccount: "0xsmart",
+            activeAccount: {
+                accountId: "main-1",
+                isMain: true,
+                mainAccountId: "main-1",
+            },
+        }),
+    );
 }
 
 afterEach(() => {
@@ -119,5 +153,65 @@ describe("auth token storage", () => {
 
         expect(() => storage.set(token, createAuthTokenStorageSetOptions(token))).not.toThrow();
         expect(cookies.writes[0]).toContain("Max-Age=180");
+    });
+
+    it("keeps the auth token when only the API and WebSocket gateways change", () => {
+        const cookies = installCookieJar();
+        const global = devnetEnvironment(
+            "https://api.devnet.polyester.com",
+            "wss://api.devnet.polyester.com",
+        );
+        const regional = devnetEnvironment(
+            "https://iad.api.devnet.polyester.com",
+            "wss://iad.api.devnet.polyester.com",
+        );
+        const storage = createCookieAuthTokenStorage();
+
+        storage.set("token-1", createAuthTokenStorageSetOptions("token-1"));
+        cookies.jar.set(POLYESTER_SESSION_COOKIE_NAME, sessionCookie(global.fingerprint));
+
+        expect(
+            new AuthSessionStore({
+                environmentFingerprint: regional.fingerprint,
+            }).getEnvironmentBoundToken(storage),
+        ).toBe("token-1");
+        expect(cookies.jar.get(POLYESTER_AUTH_TOKEN_COOKIE_NAME)).toBe("token-1");
+        expect(cookies.jar.get(POLYESTER_SESSION_COOKIE_NAME)).toBe(
+            sessionCookie(regional.fingerprint),
+        );
+    });
+
+    it("clears both cookies for an old URL-inclusive fingerprint", () => {
+        const cookies = installCookieJar();
+        const storage = createCookieAuthTokenStorage();
+        const legacyDevnetFingerprint =
+            "0xcf37f208361309f72495de61387ea46d6a339bf35d848138caf9b51d7b8fb38d";
+
+        storage.set("token-1", createAuthTokenStorageSetOptions("token-1"));
+        cookies.jar.set(POLYESTER_SESSION_COOKIE_NAME, sessionCookie(legacyDevnetFingerprint));
+
+        expect(
+            new AuthSessionStore({
+                environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
+            }).getEnvironmentBoundToken(storage),
+        ).toBeNull();
+        expect(cookies.jar.has(POLYESTER_AUTH_TOKEN_COOKIE_NAME)).toBe(false);
+        expect(cookies.jar.has(POLYESTER_SESSION_COOKIE_NAME)).toBe(false);
+    });
+
+    it("clears both cookies when the display session has a foreign fingerprint", () => {
+        const cookies = installCookieJar();
+        const storage = createCookieAuthTokenStorage();
+
+        storage.set("token-1", createAuthTokenStorageSetOptions("token-1"));
+        cookies.jar.set(POLYESTER_SESSION_COOKIE_NAME, sessionCookie("0xforeign"));
+
+        expect(
+            new AuthSessionStore({
+                environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
+            }).getEnvironmentBoundToken(storage),
+        ).toBeNull();
+        expect(cookies.jar.has(POLYESTER_AUTH_TOKEN_COOKIE_NAME)).toBe(false);
+        expect(cookies.jar.has(POLYESTER_SESSION_COOKIE_NAME)).toBe(false);
     });
 });

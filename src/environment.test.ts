@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { createPolyesterEnvironment, POLYESTER_DEVNET_ENVIRONMENT } from "./environment.js";
+import {
+    createPolyesterEnvironment,
+    parsePolyesterEnvironment,
+    POLYESTER_DEVNET_ENVIRONMENT,
+    POLYESTER_TESTNET_ENVIRONMENT,
+} from "./environment.js";
 import { ConfigurationError } from "./shared/errors.js";
+import { evmUtf8ToBytes, keccak256Hex } from "./utils/evm.js";
 
 const baseParams = {
     name: "custom",
@@ -15,6 +21,24 @@ const baseParams = {
     accountAbstraction: POLYESTER_DEVNET_ENVIRONMENT.accountAbstraction,
     contracts: POLYESTER_DEVNET_ENVIRONMENT.contracts,
 };
+
+function legacyFingerprint(environment: ReturnType<typeof createPolyesterEnvironment>) {
+    return keccak256Hex(
+        evmUtf8ToBytes(
+            JSON.stringify({
+                apiUrl: environment.apiUrl,
+                websocketUrl: environment.websocketUrl,
+                rpcUrl: environment.rpcUrl,
+                chainId: environment.chain.id,
+                bundlerUrl: environment.accountAbstraction.bundlerUrl,
+                paymasterUrl: environment.accountAbstraction.paymasterUrl,
+                entryPoint: environment.accountAbstraction.entryPoint,
+                safe: environment.accountAbstraction.safe,
+                contracts: environment.contracts,
+            }),
+        ),
+    );
+}
 
 describe("POLYESTER_DEVNET_ENVIRONMENT", () => {
     it("identifies the bundled preset as Polyester devnet", () => {
@@ -77,6 +101,59 @@ describe("createPolyesterEnvironment", () => {
         expect(first.fingerprint).not.toBe(second.fingerprint);
     });
 
+    it("does not bind identity to API or WebSocket gateway URLs", () => {
+        const globalGateway = createPolyesterEnvironment(baseParams);
+        const regionalApiGateway = createPolyesterEnvironment({
+            ...baseParams,
+            apiUrl: "https://iad.api.example.test",
+        });
+        const regionalWebSocketGateway = createPolyesterEnvironment({
+            ...baseParams,
+            websocketUrl: "wss://iad.api.example.test",
+        });
+
+        expect(regionalApiGateway.fingerprint).toBe(globalGateway.fingerprint);
+        expect(regionalWebSocketGateway.fingerprint).toBe(globalGateway.fingerprint);
+    });
+
+    it("binds identity to RPC, chain, account abstraction, and contracts", () => {
+        const environment = createPolyesterEnvironment(baseParams);
+
+        expect(
+            createPolyesterEnvironment({ ...baseParams, rpcUrl: "https://rpc-2.example.test" })
+                .fingerprint,
+        ).not.toBe(environment.fingerprint);
+        expect(
+            createPolyesterEnvironment({
+                ...baseParams,
+                chain: { ...baseParams.chain, id: baseParams.chain.id + 1 },
+            }).fingerprint,
+        ).not.toBe(environment.fingerprint);
+        expect(
+            createPolyesterEnvironment({
+                ...baseParams,
+                accountAbstraction: {
+                    ...baseParams.accountAbstraction,
+                    bundlerUrl: "https://bundler-2.example.test",
+                },
+            }).fingerprint,
+        ).not.toBe(environment.fingerprint);
+        expect(
+            createPolyesterEnvironment({
+                ...baseParams,
+                contracts: {
+                    tradingGatewayAddress: "0x3333333333333333333333333333333333333333",
+                },
+            }).fingerprint,
+        ).not.toBe(environment.fingerprint);
+    });
+
+    it("keeps bundled network presets distinct", () => {
+        expect(POLYESTER_DEVNET_ENVIRONMENT.fingerprint).not.toBe(
+            POLYESTER_TESTNET_ENVIRONMENT.fingerprint,
+        );
+    });
+
     it("rejects insecure remote URLs", () => {
         expect(() =>
             createPolyesterEnvironment({
@@ -115,5 +192,22 @@ describe("createPolyesterEnvironment", () => {
                 },
             }),
         ).toThrow("contracts.tradingGatewayAddress must be a valid address.");
+    });
+});
+
+describe("parsePolyesterEnvironment", () => {
+    it("accepts the current fingerprint and rejects the stale URL-inclusive fingerprint", () => {
+        const environment = createPolyesterEnvironment({
+            ...baseParams,
+            apiUrl: "https://iad.api.example.test",
+        });
+
+        expect(parsePolyesterEnvironment(environment)).toEqual(environment);
+        expect(() =>
+            parsePolyesterEnvironment({
+                ...environment,
+                fingerprint: legacyFingerprint(environment),
+            }),
+        ).toThrow("environment.fingerprint must match the environment configuration.");
     });
 });
