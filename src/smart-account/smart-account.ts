@@ -1,30 +1,37 @@
 import type { Address, LocalAccount, PublicClient } from "viem";
 import { createPublicClient, http } from "viem";
-import type { EstimateUserOperationGasParameters } from "viem/account-abstraction";
-import { estimateUserOperationGas, prepareUserOperation } from "viem/account-abstraction";
+import type {
+    EstimateUserOperationGasParameters,
+    GetPaymasterDataParameters,
+    GetPaymasterStubDataParameters,
+    UserOperation,
+} from "viem/account-abstraction";
+import {
+    estimateUserOperationGas,
+    formatUserOperationRequest,
+    prepareUserOperation,
+} from "viem/account-abstraction";
 import { createSmartAccountClient } from "permissionless";
+import { getUserOperationStatus } from "permissionless/actions/pimlico";
 import { toSafeSmartAccount } from "permissionless/accounts";
 import { createPimlicoClient } from "permissionless/clients/pimlico";
 import type { PolyesterEnvironment } from "../environment.js";
 import { predictSafeAddress } from "../account-signer/predict-safe-address.js";
 
 export type SafeSmartAccountInstance = Awaited<ReturnType<typeof toSafeSmartAccount>>;
-export type PolyesterSmartAccountClient = ReturnType<typeof createPolyesterSmartAccountClient>;
+export type PolyesterSmartAccountClient = ReturnType<typeof buildPolyesterSmartAccountClient>;
 
 const smartAccountEnvironmentFingerprints = new WeakMap<SafeSmartAccountInstance, string>();
-const smartAccountClientGasPricePrimers = new WeakMap<object, () => Promise<unknown>>();
+const smartAccountClientPrimers = new WeakMap<object, () => Promise<unknown>>();
+const smartAccountClientGasPriceResets = new WeakMap<object, () => void>();
+const smartAccountClients = new WeakMap<
+    SafeSmartAccountInstance,
+    Map<string, PolyesterSmartAccountClient>
+>();
+const USER_OPERATION_GAS_PRICE_TTL_MS = 60_000;
 const USER_OPERATION_GAS_BUFFER_BPS = 2_000n;
 const USER_OPERATION_MIN_GAS_BUFFER = 50_000n;
-const USER_OPERATION_GAS_PRICE_TTL_MS = 10_000;
-const USER_OPERATION_RECEIPT_POLLING_INTERVAL_MS = 1_000;
-
-type PolyesterUserOperationGas = {
-    callGasLimit?: bigint;
-    preVerificationGas?: bigint;
-    verificationGasLimit?: bigint;
-    paymasterPostOpGasLimit?: bigint;
-    paymasterVerificationGasLimit?: bigint;
-};
+const USER_OPERATION_RECEIPT_POLLING_INTERVAL_MS = 250;
 
 export interface CreateSmartAccountParams {
     environment: PolyesterEnvironment;
@@ -95,14 +102,17 @@ export async function createPolyesterSmartAccount({
 }
 
 export interface PolyesterSmartAccountClientOptions {
-    /** How long a fetched gas price is reused, in milliseconds. Defaults to 10s. */
+    /** How long a fetched gas price is reused, in milliseconds. Defaults to 60s. */
     gasPriceCacheTtlMs?: number;
-    /** How often to poll for UserOperation receipts, in milliseconds. Defaults to 1s. */
+    /** How often to poll for UserOperation inclusion, in milliseconds. Defaults to 250ms. */
     pollingIntervalMs?: number;
 }
 
 /**
- * Creates a viem client bound to a Polyester smart account.
+ * Creates a viem client bound to a Polyester smart account. Memoized per
+ * (account, environment): repeat calls return the same client, so the gas
+ * price cache and warmed connections survive across submissions. The first
+ * call's options win.
  */
 export function createPolyesterSmartAccountClient(
     account: SafeSmartAccountInstance,
@@ -112,10 +122,6 @@ export function createPolyesterSmartAccountClient(
     },
 ) {
     const { environment, options } = params;
-    const {
-        gasPriceCacheTtlMs = USER_OPERATION_GAS_PRICE_TTL_MS,
-        pollingIntervalMs = USER_OPERATION_RECEIPT_POLLING_INTERVAL_MS,
-    } = options ?? {};
     const accountEnvironmentFingerprint = smartAccountEnvironmentFingerprints.get(account);
     if (
         accountEnvironmentFingerprint &&
@@ -123,6 +129,25 @@ export function createPolyesterSmartAccountClient(
     ) {
         throw new Error("Smart account environment does not match client environment.");
     }
+    let clients = smartAccountClients.get(account);
+    if (!clients) smartAccountClients.set(account, (clients = new Map()));
+    let client = clients.get(environment.fingerprint);
+    if (!client) {
+        client = buildPolyesterSmartAccountClient(account, environment, options);
+        clients.set(environment.fingerprint, client);
+    }
+    return client;
+}
+
+function buildPolyesterSmartAccountClient(
+    account: SafeSmartAccountInstance,
+    environment: PolyesterEnvironment,
+    options: PolyesterSmartAccountClientOptions | undefined,
+) {
+    const {
+        gasPriceCacheTtlMs = USER_OPERATION_GAS_PRICE_TTL_MS,
+        pollingIntervalMs = USER_OPERATION_RECEIPT_POLLING_INTERVAL_MS,
+    } = options ?? {};
 
     const paymaster = createPimlicoClient({
         chain: environment.chain,
@@ -130,25 +155,47 @@ export function createPolyesterSmartAccountClient(
         entryPoint: environment.accountAbstraction.entryPoint,
     });
 
-    let cachedGasPrice:
-        | { fetchedAt: number; result: ReturnType<typeof paymaster.getUserOperationGasPrice> }
-        | undefined;
-    const getGasPrice = () => {
-        if (!cachedGasPrice || Date.now() - cachedGasPrice.fetchedAt >= gasPriceCacheTtlMs) {
-            const result = paymaster.getUserOperationGasPrice();
-            const entry = { fetchedAt: Date.now(), result };
-            cachedGasPrice = entry;
-            result.catch(() => {
-                if (cachedGasPrice === entry) cachedGasPrice = undefined;
-            });
-        }
-        return cachedGasPrice.result;
-    };
+    const gasPrice = cachedForTtl(() => paymaster.getUserOperationGasPrice(), gasPriceCacheTtlMs);
+    const getGasPrice = gasPrice.get;
+    // The stub is a per-paymaster constant (address + dummy signature), so it
+    // is cached like the gas price and primed by warm-up.
+    const { get: getStubData } = cachedForTtl(
+        () =>
+            paymaster.getPaymasterStubData({
+                chainId: environment.chain.id,
+                entryPointAddress: environment.accountAbstraction.entryPoint.address,
+                sender: account.address,
+                nonce: 0n,
+                callData: "0x",
+                maxFeePerGas: 0n,
+                maxPriorityFeePerGas: 0n,
+            }),
+        gasPriceCacheTtlMs,
+    );
 
     const client = createSmartAccountClient({
         account,
         chain: environment.chain,
-        paymaster,
+        paymaster: {
+            getPaymasterStubData: async (_parameters: GetPaymasterStubDataParameters) => {
+                const { sponsor: _sponsor, ...stub } = await getStubData();
+                return stub;
+            },
+            // `pm_sponsorUserOperation` replaces `pm_getPaymasterData`: it signs
+            // over the (already buffered) account gas limits it receives and
+            // sets its own paymaster limits. Nothing may adjust gas afterwards.
+            getPaymasterData: async (parameters: GetPaymasterDataParameters) => {
+                // viem hands over every original parameter (`calls`, `chainId`,
+                // ...); the paymaster rejects unknown keys, so keep only
+                // UserOperation fields.
+                return paymaster.sponsorUserOperation({
+                    userOperation: formatUserOperationRequest(
+                        parameters as unknown as UserOperation<"0.7">,
+                    ) as unknown as UserOperation<"0.7">,
+                    paymasterContext: parameters.context,
+                });
+            },
+        },
         bundlerTransport: http(environment.accountAbstraction.bundlerUrl),
         pollingInterval: pollingIntervalMs,
         userOperation: {
@@ -156,7 +203,7 @@ export function createPolyesterSmartAccountClient(
             // Single prepare pass: viem resolves gas estimation via
             // `getAction(client, estimateUserOperationGas, ...)`, so handing
             // `prepareUserOperation` a client whose estimate action buffers the
-            // result makes the buffered limits flow into `pm_getPaymasterData`
+            // result makes the buffered limits flow into the sponsor call
             // before signing — the sponsorship signature commits to them.
             prepareUserOperation: (prepareClient, prepareParameters) => {
                 const bufferingClient = {
@@ -175,23 +222,32 @@ export function createPolyesterSmartAccountClient(
             },
         },
     });
-    smartAccountClientGasPricePrimers.set(client, getGasPrice);
+    smartAccountClientPrimers.set(client, () => Promise.allSettled([getGasPrice(), getStubData()]));
+    smartAccountClientGasPriceResets.set(client, gasPrice.clear);
     return client;
 }
 
-/**
- * Warms the network path for an upcoming submission: primes the gas-price
- * cache and opens connections to the RPC endpoint. Never throws; the nonce is
- * intentionally not cached — fetching it here is connection warm-up only.
- */
-export async function warmPolyesterSmartAccountClient(
-    client: PolyesterSmartAccountClient,
-): Promise<void> {
-    await Promise.allSettled([
-        smartAccountClientGasPricePrimers.get(client)?.(),
-        client.account.getNonce(),
-        client.account.isDeployed(),
-    ]);
+/** Memoizes a promise-returning fetch for `ttlMs`; a rejected fetch is not cached. */
+function cachedForTtl<T>(
+    fetch: () => Promise<T>,
+    ttlMs: number,
+): { get: () => Promise<T>; clear: () => void } {
+    let cached: { fetchedAt: number; result: Promise<T> } | undefined;
+    return {
+        get: () => {
+            if (!cached || Date.now() - cached.fetchedAt >= ttlMs) {
+                const entry = { fetchedAt: Date.now(), result: fetch() };
+                cached = entry;
+                entry.result.catch(() => {
+                    if (cached === entry) cached = undefined;
+                });
+            }
+            return cached.result;
+        },
+        clear: () => {
+            cached = undefined;
+        },
+    };
 }
 
 function addUserOperationGasBuffer(gas: bigint): bigint {
@@ -204,7 +260,13 @@ function addUserOperationGasBuffer(gas: bigint): bigint {
     );
 }
 
-function bufferPolyesterUserOperationGas<T extends PolyesterUserOperationGas>(gas: T): T {
+/**
+ * Pads account gas limits (+20%, 50k floor) before sponsorship. Paymaster
+ * limits are left alone: the paymaster sets and signs its own.
+ */
+function bufferPolyesterUserOperationGas<
+    T extends { callGasLimit?: bigint; preVerificationGas?: bigint; verificationGasLimit?: bigint },
+>(gas: T): T {
     return {
         ...gas,
         ...(typeof gas.callGasLimit === "bigint"
@@ -216,18 +278,26 @@ function bufferPolyesterUserOperationGas<T extends PolyesterUserOperationGas>(ga
         ...(typeof gas.verificationGasLimit === "bigint"
             ? { verificationGasLimit: addUserOperationGasBuffer(gas.verificationGasLimit) }
             : {}),
-        ...(typeof gas.paymasterPostOpGasLimit === "bigint"
-            ? { paymasterPostOpGasLimit: addUserOperationGasBuffer(gas.paymasterPostOpGasLimit) }
-            : {}),
-        ...(typeof gas.paymasterVerificationGasLimit === "bigint"
-            ? {
-                  paymasterVerificationGasLimit: addUserOperationGasBuffer(
-                      gas.paymasterVerificationGasLimit,
-                  ),
-              }
-            : {}),
     };
 }
+
+/**
+ * Warms the network path for an upcoming submission: primes the gas-price and
+ * paymaster-stub caches and opens connections to the RPC endpoint. Never
+ * throws; the nonce is intentionally not cached — fetching it here is
+ * connection warm-up only.
+ */
+export async function warmPolyesterSmartAccountClient(
+    client: PolyesterSmartAccountClient,
+): Promise<void> {
+    await Promise.allSettled([
+        smartAccountClientPrimers.get(client)?.(),
+        client.account.getNonce(),
+        client.account.isDeployed(),
+    ]);
+}
+
+export type PolyesterUserOperationPhase = "prepare" | "sign" | "send" | "receipt";
 
 export interface SendPolyesterUserOperationOptions {
     /**
@@ -235,6 +305,13 @@ export interface SendPolyesterUserOperationOptions {
      * sign the fully prepared operation — the prepare→sign boundary.
      */
     onWalletSignatureRequested?: () => void;
+    /**
+     * Reports how long each submission phase took. `prepare` covers nonce,
+     * fees and sponsorship; `sign` the wallet signature; `send`
+     * `eth_sendUserOperation`. Pass the same callback to
+     * {@link waitForPolyesterUserOperationReceipt} to get `receipt`.
+     */
+    onPhase?: (phase: PolyesterUserOperationPhase, ms: number) => void;
 }
 
 export async function sendPolyesterUserOperation(
@@ -242,21 +319,96 @@ export async function sendPolyesterUserOperation(
     parameters: Parameters<PolyesterSmartAccountClient["sendUserOperation"]>[0],
     options: SendPolyesterUserOperationOptions = {},
 ): Promise<Awaited<ReturnType<PolyesterSmartAccountClient["sendUserOperation"]>>> {
-    const { onWalletSignatureRequested } = options;
-    if (!onWalletSignatureRequested) return client.sendUserOperation(parameters);
+    try {
+        return await sendInstrumentedUserOperation(client, parameters, options);
+    } catch (error) {
+        // A cached gas price the bundler rejected as too low would otherwise
+        // be reused on retry for the rest of its TTL. Any failure clears it;
+        // the cost is one extra price fetch on the next attempt.
+        smartAccountClientGasPriceResets.get(client)?.();
+        throw error;
+    }
+}
+
+async function sendInstrumentedUserOperation(
+    client: PolyesterSmartAccountClient,
+    parameters: Parameters<PolyesterSmartAccountClient["sendUserOperation"]>[0],
+    { onWalletSignatureRequested, onPhase }: SendPolyesterUserOperationOptions,
+) {
+    if (!onWalletSignatureRequested && !onPhase) return client.sendUserOperation(parameters);
 
     const account =
         (parameters as { account?: SafeSmartAccountInstance }).account ?? client.account;
-    return client.sendUserOperation({
+    let phaseStartedAt = Date.now();
+    const endPhase = (phase: PolyesterUserOperationPhase) => {
+        const now = Date.now();
+        onPhase?.(phase, now - phaseStartedAt);
+        phaseStartedAt = now;
+    };
+    const hash = await client.sendUserOperation({
         ...parameters,
         account: {
             ...account,
-            signUserOperation: (
+            signUserOperation: async (
                 userOperation: Parameters<SafeSmartAccountInstance["signUserOperation"]>[0],
             ) => {
-                onWalletSignatureRequested();
-                return account.signUserOperation(userOperation);
+                endPhase("prepare");
+                onWalletSignatureRequested?.();
+                const signature = await account.signUserOperation(userOperation);
+                endPhase("sign");
+                return signature;
             },
         },
     } as Parameters<PolyesterSmartAccountClient["sendUserOperation"]>[0]);
+    endPhase("send");
+    return hash;
+}
+
+export interface WaitForPolyesterUserOperationReceiptOptions {
+    /** Overall deadline in milliseconds. Defaults to viem's 120s. */
+    timeoutMs?: number;
+    /** Receives `("receipt", ms)` once the receipt is available. */
+    onPhase?: SendPolyesterUserOperationOptions["onPhase"];
+}
+
+/**
+ * Waits for a UserOperation to land. Polls the bundler's cheap
+ * `pimlico_getUserOperationStatus` at the client's polling interval, checking
+ * immediately, and only fetches the receipt once the bundler reports it has
+ * been mined. Status lives in bundler memory, so `not_found` (e.g. after a
+ * bundler restart) also checks the chain for a receipt.
+ */
+export async function waitForPolyesterUserOperationReceipt(
+    client: PolyesterSmartAccountClient,
+    hash: `0x${string}`,
+    options: WaitForPolyesterUserOperationReceiptOptions = {},
+): Promise<Awaited<ReturnType<PolyesterSmartAccountClient["waitForUserOperationReceipt"]>>> {
+    const { timeoutMs = 120_000, onPhase } = options;
+    const startedAt = Date.now();
+    const deadline = startedAt + timeoutMs;
+    for (;;) {
+        const { status } = await getUserOperationStatus(client as never, { hash });
+        if (status === "included" || status === "failed" || status === "reverted") break;
+        if (status === "rejected") {
+            throw new Error(`UserOperation ${hash} was rejected by the bundler.`);
+        }
+        if (status === "not_found") {
+            const receipt = await client.getUserOperationReceipt({ hash }).catch(() => undefined);
+            if (receipt) {
+                onPhase?.("receipt", Date.now() - startedAt);
+                return receipt;
+            }
+        }
+        const remaining = deadline - Date.now();
+        if (remaining <= 0) throw new Error(`Timed out waiting for UserOperation ${hash}.`);
+        await new Promise((resolve) =>
+            setTimeout(resolve, Math.min(client.pollingInterval, remaining)),
+        );
+    }
+    const receipt = await client.waitForUserOperationReceipt({
+        hash,
+        timeout: Math.max(deadline - Date.now(), 1),
+    });
+    onPhase?.("receipt", Date.now() - startedAt);
+    return receipt;
 }
