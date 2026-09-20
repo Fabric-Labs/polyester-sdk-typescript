@@ -39,9 +39,9 @@ const BUFFERED_ACCOUNT_GAS = {
     verificationGasLimit: numberToHex(528_196n),
 };
 // The live paymaster sets its own paymaster limits regardless of input.
-const SPONSORED_PAYMASTER_GAS = {
-    paymasterVerificationGasLimit: numberToHex(40_262n),
-    paymasterPostOpGasLimit: numberToHex(1n),
+const FINAL_PAYMASTER_GAS = {
+    paymasterVerificationGasLimit: numberToHex(50_000n),
+    paymasterPostOpGasLimit: numberToHex(100_000n),
 };
 
 function rpcResult(method: string, params: readonly Record<string, string>[]): unknown {
@@ -53,7 +53,7 @@ function rpcResult(method: string, params: readonly Record<string, string>[]): u
             if (data.startsWith(PROXY_CREATION_CODE_SELECTOR)) {
                 return encodeAbiParameters([{ type: "bytes" }], ["0x60806040"]);
             }
-            if (data.startsWith(GET_NONCE_SELECTOR)) return `0x${"00".repeat(32)}`;
+            if (data.startsWith(GET_NONCE_SELECTOR)) return numberToHex(7n, { size: 32 });
             throw new Error(`unexpected eth_call: ${data}`);
         }
         case "eth_getCode":
@@ -66,17 +66,19 @@ function rpcResult(method: string, params: readonly Record<string, string>[]): u
             };
             return { slow: fee, standard: fee, fast: fee };
         }
-        case "pm_getPaymasterStubData":
+        case "pm_getPaymasterStubData": {
+            const op = params[0] ?? {};
             return {
                 paymaster: PAYMASTER_ADDRESS,
-                paymasterData: "0xdead",
+                paymasterData: `0xstub${(op.nonce ?? "0x0").slice(2)}${(op.callData ?? "0x").slice(2, 10)}`,
                 paymasterVerificationGasLimit: numberToHex(50_000n),
                 paymasterPostOpGasLimit: numberToHex(100_000n),
                 isFinal: false,
             };
+        }
         case "eth_estimateUserOperationGas":
             return ESTIMATED_GAS;
-        case "pm_sponsorUserOperation": {
+        case "pm_getPaymasterData": {
             // Mirrors the live paymaster: account limits are honored as sent,
             // paymaster limits are replaced.
             const op = params[0] ?? {};
@@ -84,9 +86,9 @@ function rpcResult(method: string, params: readonly Record<string, string>[]): u
                 callGasLimit: op.callGasLimit,
                 preVerificationGas: op.preVerificationGas,
                 verificationGasLimit: op.verificationGasLimit,
-                ...SPONSORED_PAYMASTER_GAS,
+                ...FINAL_PAYMASTER_GAS,
                 paymaster: PAYMASTER_ADDRESS,
-                paymasterData: "0xbeef",
+                paymasterData: `0xdata${(op.nonce ?? "0x0").slice(2)}${(op.callData ?? "0x").slice(2, 10)}`,
             };
         }
         case "eth_sendUserOperation":
@@ -189,7 +191,7 @@ const sendParameters = {
 } as never;
 
 describe("sendPolyesterUserOperation", () => {
-    it("estimates, buffers account gas, then sponsors once with the buffered limits", async () => {
+    it("buffers account gas and preserves stub paymaster limits for getPaymasterData with the real UserOp", async () => {
         const { client } = await setup();
 
         await expect(sendPolyesterUserOperation(client, sendParameters)).resolves.toBe(
@@ -198,28 +200,32 @@ describe("sendPolyesterUserOperation", () => {
 
         expect(byMethod("pm_getPaymasterStubData")).toHaveLength(1);
         expect(byMethod("eth_estimateUserOperationGas")).toHaveLength(1);
-        expect(byMethod("pm_sponsorUserOperation")).toHaveLength(1);
-        expect(byMethod("pm_getPaymasterData")).toHaveLength(0);
+        expect(byMethod("pm_sponsorUserOperation")).toHaveLength(0);
+        expect(byMethod("pm_getPaymasterData")).toHaveLength(1);
         expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(1);
         expect(byMethod("eth_sendUserOperation")).toHaveLength(1);
         expect(nonceReads()).toHaveLength(1);
 
-        // The sponsor request carries buffered account limits, the fee fields
-        // and stub signature it signs over, and only UserOperation keys (the
-        // paymaster rejects `calls`, `chainId`, ...).
-        const sponsorRequest = byMethod("pm_sponsorUserOperation")[0]?.params[0];
-        expect(sponsorRequest).toMatchObject(BUFFERED_ACCOUNT_GAS);
-        expect(sponsorRequest?.maxFeePerGas).toBe(numberToHex(1_000_000_000n));
-        expect(sponsorRequest?.signature?.length).toBeGreaterThan(2);
-        expect(Object.keys(sponsorRequest ?? {})).not.toContain("calls");
-        expect(Object.keys(sponsorRequest ?? {})).not.toContain("chainId");
+        const stub = byMethod("pm_getPaymasterStubData")[0]?.params[0];
+        expect(BigInt(stub!.nonce!)).not.toBe(0n);
+        expect(stub?.callData).not.toBe("0x");
+        const dataRequest = byMethod("pm_getPaymasterData")[0]?.params[0];
+        // Viem preserves the stub's paymaster limits over the buffered estimate.
+        expect(dataRequest).toMatchObject({
+            ...BUFFERED_ACCOUNT_GAS,
+            paymasterVerificationGasLimit: numberToHex(50_000n),
+            paymasterPostOpGasLimit: numberToHex(100_000n),
+        });
+        expect(dataRequest?.maxFeePerGas).toBe(numberToHex(1_000_000_000n));
+        expect(dataRequest?.signature?.length).toBeGreaterThan(2);
+        expect(Object.keys(dataRequest ?? {})).not.toContain("calls");
+        expect(Object.keys(dataRequest ?? {})).not.toContain("chainId");
 
-        // What the sponsor signed is exactly what gets submitted.
         const signedOperation = byMethod("eth_sendUserOperation")[0]?.params[0];
         expect(signedOperation).toMatchObject({
             ...BUFFERED_ACCOUNT_GAS,
-            ...SPONSORED_PAYMASTER_GAS,
-            paymasterData: "0xbeef",
+            ...FINAL_PAYMASTER_GAS,
+            paymasterData: `0xdata${dataRequest!.nonce!.slice(2)}${dataRequest!.callData!.slice(2, 10)}`,
         });
         expect(signedOperation?.signature?.length).toBeGreaterThan(2);
     });
@@ -240,10 +246,10 @@ describe("sendPolyesterUserOperation", () => {
 
         await sendPolyesterUserOperation(client, sendParameters);
         expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(2);
-        expect(byMethod("pm_getPaymasterStubData")).toHaveLength(2);
+        expect(byMethod("pm_getPaymasterStubData")).toHaveLength(3);
     });
 
-    it("keeps both caches when the wallet prompt is cancelled before signing", async () => {
+    it("keeps the gas-price cache when the wallet prompt is cancelled before signing", async () => {
         const { account, client } = await setup();
         await warmPolyesterSmartAccountClient(client);
         account.signUserOperation = (() =>
@@ -269,13 +275,52 @@ describe("sendPolyesterUserOperation", () => {
         expect(byMethod("eth_sendUserOperation")).toHaveLength(1);
     });
 
-    it("reuses the cached paymaster stub across submissions", async () => {
+    it("fetches a stub with each submission's nonce and calldata", async () => {
+        const { client } = await setup();
+        await warmPolyesterSmartAccountClient(client);
+        expect(byMethod("pm_getPaymasterStubData")).toHaveLength(0);
+        await sendPolyesterUserOperation(client, sendParameters);
+        await sendPolyesterUserOperation(client, {
+            nonce: 8n,
+            calls: [{ to: PAYMASTER_ADDRESS, data: "0x1234" }],
+        });
+        const stubs = byMethod("pm_getPaymasterStubData");
+        const estimates = byMethod("eth_estimateUserOperationGas");
+        const sends = byMethod("eth_sendUserOperation");
+        expect(stubs).toHaveLength(2);
+        expect(estimates).toHaveLength(2);
+        expect(byMethod("pm_getPaymasterData")).toHaveLength(2);
+        expect(byMethod("pm_sponsorUserOperation")).toHaveLength(0);
+        expect(stubs[0]?.params[0]?.nonce).toBe(numberToHex(7n));
+        expect(stubs[1]?.params[0]?.nonce).toBe(numberToHex(8n));
+        expect(stubs[0]?.params[0]?.callData).not.toBe(stubs[1]?.params[0]?.callData);
+        for (const [index, request] of stubs.entries()) {
+            const stub = request.params[0]!;
+            expect(stub).toMatchObject({
+                nonce: sends[index]?.params[0]?.nonce,
+                callData: sends[index]?.params[0]?.callData,
+            });
+            expect(estimates[index]?.params[0]?.paymasterData).toBe(
+                `0xstub${stub.nonce!.slice(2)}${stub.callData!.slice(2, 10)}`,
+            );
+        }
+    });
+
+    it("does not estimate against a synthetic nonce=0 empty-calldata stub", async () => {
         const { client } = await setup();
         await sendPolyesterUserOperation(client, sendParameters);
-        await sendPolyesterUserOperation(client, sendParameters);
-        expect(byMethod("pm_getPaymasterStubData")).toHaveLength(1);
-        expect(byMethod("eth_estimateUserOperationGas")).toHaveLength(2);
-        expect(byMethod("pm_sponsorUserOperation")).toHaveLength(2);
+        const stub = byMethod("pm_getPaymasterStubData")[0]?.params[0];
+        expect(BigInt(stub!.nonce!)).not.toBe(0n);
+        expect(stub?.callData).not.toBe("0x");
+        expect(BigInt(stub!.maxFeePerGas!)).not.toBe(0n);
+        expect(byMethod("pm_sponsorUserOperation")).toHaveLength(0);
+        expect(byMethod("pm_getPaymasterData")).toHaveLength(1);
+        const data = byMethod("pm_getPaymasterData")[0]?.params[0];
+        const sendOp = byMethod("eth_sendUserOperation")[0]?.params[0];
+        expect(sendOp?.paymasterData).toBe(
+            `0xdata${data!.nonce!.slice(2)}${data!.callData!.slice(2, 10)}`,
+        );
+        expect(sendOp?.paymasterData?.startsWith("0xdata")).toBe(true);
     });
 
     it("fires onWalletSignatureRequested once, after all prep and before signing", async () => {
@@ -300,7 +345,7 @@ describe("sendPolyesterUserOperation", () => {
             "pimlico_getUserOperationGasPrice",
             "pm_getPaymasterStubData",
             "eth_estimateUserOperationGas",
-            "pm_sponsorUserOperation",
+            "pm_getPaymasterData",
         ]) {
             expect(order.lastIndexOf(method), method).toBeLessThan(callbackIndex);
         }
@@ -519,15 +564,18 @@ describe("warmPolyesterSmartAccountClient", () => {
             vi.setSystemTime(Date.now() + 59_999);
             await warmPolyesterSmartAccountClient(client);
             expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(1);
-            expect(byMethod("pm_getPaymasterStubData")).toHaveLength(1);
+            expect(byMethod("pm_getPaymasterStubData")).toHaveLength(0);
             expect(nonceReads()).toHaveLength(2);
+            await sendPolyesterUserOperation(client, sendParameters);
+            expect(byMethod("pm_getPaymasterStubData")).toHaveLength(1);
 
             vi.setSystemTime(Date.now() + 2);
             await warmPolyesterSmartAccountClient(client);
             expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(2);
-            // The stub is a constant: it never expires on the gas-price TTL.
             expect(byMethod("pm_getPaymasterStubData")).toHaveLength(1);
-            expect(nonceReads()).toHaveLength(3);
+            expect(nonceReads()).toHaveLength(4);
+            await sendPolyesterUserOperation(client, sendParameters);
+            expect(byMethod("pm_getPaymasterStubData")).toHaveLength(2);
 
             vi.setSystemTime(Date.now() + 60_001);
             failGasPrice = true;
