@@ -507,6 +507,62 @@ describe("createPolyesterServerClientFromCookies", () => {
         expect(client.hasAuthProvider).toBe(true);
     });
 
+    it("reads only port-scoped local cookies from a request, including custom token names", () => {
+        const token = validJwt();
+        const request = new Request("http://localhost:3001", {
+            headers: {
+                cookie: [
+                    "polyester_session_4=legacy-session",
+                    "polyester_auth_token=legacy-token",
+                    `polyester_session_4_port_3001=${displaySessionCookie()}`,
+                    `custom_auth_port_3001=${token}`,
+                ].join("; "),
+            },
+        });
+
+        const client = createPolyesterServerClientFromRequest({
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
+            request,
+            tokenCookieName: "custom_auth",
+        });
+
+        expect(client.hasDisplaySession).toBe(true);
+        expect(client.session.bearerToken).toBe(token);
+        expect(client.hasAuthProvider).toBe(true);
+    });
+
+    it.each([
+        ["http://localhost", "80"],
+        ["https://localhost", "443"],
+    ])("derives default port for %s", (url, port) => {
+        const token = validJwt();
+        const client = createPolyesterServerClientFromRequest({
+            request: new Request(url, {
+                headers: { cookie: `custom_auth_port_${port}=${token}; custom_auth=legacy` },
+            }),
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
+            tokenCookieName: "custom_auth",
+        });
+        expect(client.session.bearerToken).toBe(token);
+    });
+
+    it("reads local framework cookie stores only when given their request location", () => {
+        const token = validJwt();
+        const client = createPolyesterServerClientFromCookies({
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
+            cookieLocation: new URL("http://localhost:3000"),
+            cookies: {
+                polyester_session_4: "legacy-session",
+                polyester_auth_token: "legacy-token",
+                polyester_session_4_port_3000: displaySessionCookie(),
+                polyester_auth_token_port_3000: token,
+            },
+        });
+
+        expect(client.hasDisplaySession).toBe(true);
+        expect(client.session.bearerToken).toBe(token);
+    });
+
     it("does not install an auth provider for expired or malformed bearer tokens", () => {
         const expired = createPolyesterServerClientFromCookies({
             environment: POLYESTER_DEVNET_ENVIRONMENT,

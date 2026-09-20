@@ -1,11 +1,12 @@
-import type { Transport } from "@connectrpc/connect";
+import { Code, ConnectError, type Transport } from "@connectrpc/connect";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { AccountSigner } from "../../account-signer/index.js";
+import type { AccountSigner, AccountSignerConfig } from "../../account-signer/index.js";
 import { POLYESTER_DEVNET_ENVIRONMENT } from "../../environment.js";
 import { RealtimeClient } from "../../realtime/index.js";
 import { formatId } from "../../utils/base58-id.js";
 import { SubaccountsService } from "../subaccounts/index.js";
 import { AccountSignerAuthService } from "./account-signer-auth.js";
+import { AuthenticationError, ServiceUnavailableError } from "../../shared/errors.js";
 import type { LoginWithWalletInput, LoginWithWalletResponse } from "./auth.js";
 import { polyesterSession } from "./session.js";
 import { createMemoryAuthTokenStorage, type AuthTokenStorage } from "./token-storage.js";
@@ -48,7 +49,17 @@ function createTestStorage(initialToken: string | null = null) {
     } satisfies AuthTokenStorage;
 }
 
-function authFixture(accountSigner?: AccountSigner, tokenStorage?: AuthTokenStorage) {
+function deferred<T>() {
+    let resolve!: (value: T) => void;
+    let reject!: (reason?: unknown) => void;
+    const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+        resolve = resolvePromise;
+        reject = rejectPromise;
+    });
+    return { promise, resolve, reject };
+}
+
+function authFixture(accountSigner?: AccountSignerConfig, tokenStorage?: AuthTokenStorage) {
     const publicApi = noopTransport();
     const authApi = noopTransport();
     const realtime = new RealtimeClient({
@@ -465,6 +476,201 @@ describe("AccountSignerAuthService", () => {
         });
     });
 
+    it("keeps a valid session after a transient restore failure", async () => {
+        const accountSigner = signer();
+        const token = jwtWithExp(Math.floor(Date.now() / 1000) + 3600);
+        const tokenStorage = createTestStorage(token);
+        const { auth, realtime } = authFixture(accountSigner, tokenStorage);
+        const disconnectPrivate = vi.spyOn(realtime, "disconnectPrivate");
+        installDocument();
+        polyesterSession.set({
+            environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
+            provider: "turnkey",
+            loginMethod: null,
+            primaryWallet: accountSigner.ownerAddress ?? accountSigner.accountAddress,
+            smartAccount: accountSigner.accountAddress,
+        });
+        auth.hydrateAuthState({ mainAccountId: "account-1", username: "user" });
+        const stateChange = vi.fn();
+        const loggedOut = vi.fn();
+        auth.events.on("stateChange", stateChange);
+        auth.events.on("loggedOut", loggedOut);
+        vi.spyOn(auth, "me").mockRejectedValue(
+            new ServiceUnavailableError("temporarily unavailable"),
+        );
+
+        await expect(auth.restoreSession()).rejects.toBeInstanceOf(ServiceUnavailableError);
+
+        expect(tokenStorage.get()).toBe(token);
+        expect(tokenStorage.clear).not.toHaveBeenCalled();
+        expect(disconnectPrivate).not.toHaveBeenCalled();
+        expect(polyesterSession.get()).not.toBeNull();
+        expect(auth.getState().isAuthenticated).toBe(true);
+        expect(stateChange).not.toHaveBeenCalled();
+        expect(loggedOut).not.toHaveBeenCalled();
+    });
+
+    it("does not let a stale restore rejection clear a newer login", async () => {
+        const accountSigner = signer();
+        const previousToken = jwtWithExp(Math.floor(Date.now() / 1000) + 3600);
+        const freshToken = jwtWithExp(Math.floor(Date.now() / 1000) + 7200);
+        const tokenStorage = createTestStorage(previousToken);
+        const { auth } = authFixture(accountSigner, tokenStorage);
+        installDocument();
+        polyesterSession.set({
+            environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
+            provider: "turnkey",
+            loginMethod: null,
+            primaryWallet: accountSigner.ownerAddress ?? accountSigner.accountAddress,
+            smartAccount: accountSigner.accountAddress,
+        });
+        const restore = deferred<{ accountId: string; username: string }>();
+        vi.spyOn(auth, "me").mockReturnValue(restore.promise);
+        const { loginWithWallet } = mockLogin(auth);
+        loginWithWallet.mockResolvedValue({
+            accessToken: freshToken,
+            accountId: "fresh-account",
+            username: "fresh-user",
+        });
+
+        const restoring = auth.restoreSession();
+        await auth.login({ uri: "https://app.example", provider: "turnkey" });
+        restore.reject(new AuthenticationError("session rejected"));
+
+        await expect(restoring).resolves.toBeNull();
+        expect(tokenStorage.get()).toBe(freshToken);
+        expect(auth.getState()).toMatchObject({
+            isAuthenticated: true,
+            mainAccountId: "fresh-account",
+        });
+        expect(polyesterSession.get()?.username).toBe("fresh-user");
+    });
+
+    it("does not let an older login replace a newer login", async () => {
+        installDocument();
+        const accountSigner = signer();
+        const { auth } = authFixture(accountSigner);
+        const firstResponse = deferred<LoginWithWalletResponse>();
+        const freshToken = jwtWithExp(Math.floor(Date.now() / 1000) + 7200);
+        const { loginWithWallet } = mockLogin(auth);
+        loginWithWallet
+            .mockImplementationOnce(() => firstResponse.promise)
+            .mockResolvedValueOnce({
+                accessToken: freshToken,
+                accountId: "fresh-account",
+                username: "fresh-user",
+            });
+
+        const firstLogin = auth.login({ uri: "https://app.example", provider: "turnkey" });
+        await Promise.resolve();
+        const secondLogin = auth.login({ uri: "https://app.example", provider: "turnkey" });
+        await secondLogin;
+        firstResponse.resolve({
+            accessToken: jwtWithExp(Math.floor(Date.now() / 1000) + 3600),
+            accountId: "old-account",
+            username: "old-user",
+        });
+
+        await expect(firstLogin).rejects.toMatchObject({ name: "AbortError" });
+        expect(auth.getState()).toMatchObject({
+            isAuthenticated: true,
+            mainAccountId: "fresh-account",
+        });
+        expect(polyesterSession.get()?.username).toBe("fresh-user");
+    });
+
+    it.each(["success", "rejection"])(
+        "ignores stale restore %s after token replacement",
+        async (outcome) => {
+            installDocument();
+            const previous = jwtWithExp(Math.floor(Date.now() / 1000) + 3600);
+            const fresh = jwtWithExp(Math.floor(Date.now() / 1000) + 7200);
+            const storage = createTestStorage(previous);
+            const { auth } = authFixture(signer(), storage);
+            const pending = deferred<{ accountId: string; username: string }>();
+            vi.spyOn(auth, "me").mockReturnValue(pending.promise);
+            const stateChange = vi.fn();
+            const loggedOut = vi.fn();
+            auth.events.on("stateChange", stateChange);
+            auth.events.on("loggedOut", loggedOut);
+            const restoring = auth.restoreSession();
+            storage.set(fresh);
+            if (outcome === "success") pending.resolve({ accountId: "old", username: "old" });
+            else pending.reject(new AuthenticationError("rejected"));
+            await expect(restoring).resolves.toBeNull();
+            expect(storage.get()).toBe(fresh);
+            expect(stateChange).not.toHaveBeenCalled();
+            expect(loggedOut).not.toHaveBeenCalled();
+        },
+    );
+
+    it("does not let delayed signer resolution overwrite a fresh login", async () => {
+        installDocument();
+        const pendingSigner = deferred<AccountSigner>();
+        const token = jwtWithExp(Math.floor(Date.now() / 1000) + 3600);
+        const storage = createTestStorage(token);
+        const { auth } = authFixture(() => pendingSigner.promise, storage);
+        vi.spyOn(auth, "me").mockResolvedValue({ accountId: "old", username: "old" });
+        const restoring = auth.restoreSession();
+        await Promise.resolve();
+        const freshSigner = signer({
+            accountAddress: "0x3333333333333333333333333333333333333333",
+        });
+        auth.setAccountSigner(freshSigner);
+        const { loginWithWallet } = mockLogin(auth);
+        loginWithWallet.mockResolvedValue({
+            accessToken: token,
+            accountId: "fresh",
+            username: "fresh",
+        });
+        await auth.login({ provider: "other", uri: "https://app.example" });
+        pendingSigner.resolve(signer());
+        await expect(restoring).resolves.toBeNull();
+        expect(auth.getAccountSigner()).toBe(freshSigner);
+        expect(auth.getState().mainAccountId).toBe("fresh");
+    });
+
+    it.each(["rejected", "expired-during-request"])(
+        "clears genuine %s sessions and emits logout",
+        async (reason) => {
+            vi.useFakeTimers();
+            const token = jwtWithExp(Math.floor(Date.now() / 1000) + 60);
+            const storage = createTestStorage(token);
+            const { auth } = authFixture(signer(), storage);
+            auth.hydrateAuthState({ mainAccountId: "account-1", username: "user" });
+            const stateChange = vi.fn();
+            const loggedOut = vi.fn();
+            auth.events.on("stateChange", stateChange);
+            auth.events.on("loggedOut", loggedOut);
+            const pending = deferred<{ accountId: string; username: string }>();
+            vi.spyOn(auth, "me").mockReturnValue(pending.promise);
+            const restoring = auth.restoreSession();
+            if (reason === "rejected")
+                pending.reject(new ConnectError("rejected", Code.Unauthenticated));
+            else {
+                vi.advanceTimersByTime(61000);
+                pending.resolve({ accountId: "account-1", username: "user" });
+            }
+            await expect(restoring).resolves.toBeNull();
+            expect(storage.get()).toBeNull();
+            expect(auth.getState().isAuthenticated).toBe(false);
+            expect(stateChange).toHaveBeenCalledOnce();
+            expect(loggedOut).toHaveBeenCalledOnce();
+        },
+    );
+
+    it("does not clear bearer authentication when signer restoration fails", async () => {
+        const storage = createTestStorage(jwtWithExp(Math.floor(Date.now() / 1000) + 3600));
+        const failure = new AuthenticationError("signer unavailable");
+        const { auth } = authFixture(async () => {
+            throw failure;
+        }, storage);
+        vi.spyOn(auth, "me").mockResolvedValue({ accountId: "account-1", username: "user" });
+        await expect(auth.restoreSession()).rejects.toBe(failure);
+        expect(storage.clear).not.toHaveBeenCalled();
+        expect(auth.getState().isAuthenticated).toBe(false);
+    });
+
     it("hydrates identity without exposing a fake account signer", async () => {
         const accountSigner = signer();
         const token = jwtWithExp(Math.floor(Date.now() / 1000) + 3600);
@@ -520,6 +726,7 @@ describe("AccountSignerAuthService", () => {
         const tokenStorage = createTestStorage(token);
         const { auth, realtime } = authFixture(signer(), tokenStorage);
         const disconnectPrivate = vi.spyOn(realtime, "disconnectPrivate");
+        vi.spyOn(auth, "me").mockRejectedValue(new AuthenticationError("session rejected"));
 
         await expect(auth.restoreSession()).resolves.toBeNull();
 
@@ -543,6 +750,12 @@ describe("AccountSignerAuthService", () => {
         });
 
         expect(auth.getSessionTimeToExpiry()).toBe(90_000);
+    });
+
+    it("reports zero session lifetime for a malformed stored token", () => {
+        const auth = authFixture(signer(), createTestStorage("not-a-jwt")).auth;
+
+        expect(auth.getSessionTimeToExpiry()).toBe(0);
     });
 
     it("rejects a signer from another environment before requesting a challenge", async () => {
