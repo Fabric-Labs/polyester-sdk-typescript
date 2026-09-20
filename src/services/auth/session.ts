@@ -10,6 +10,8 @@ import {
     POLYESTER_AUTH_TOKEN_COOKIE_NAME,
     POLYESTER_SESSION_COOKIE_NAME,
     POLYESTER_LOGIN_COOKIE_MAX_AGE,
+    resolveAuthCookieName,
+    type AuthCookieLocation,
 } from "./cookie-constants.js";
 import { SessionCodec } from "./session-codec.js";
 import type { PolyesterEnvironment } from "../../environment.js";
@@ -25,6 +27,14 @@ export type { ActiveAccountInfo, AuthLoginMethod, ServerSessionSnapshot, Session
 
 export interface SessionCookieOptions {
     maxAgeSeconds?: number | null;
+}
+
+/** Options for reading browser auth cookies from a server runtime. */
+export interface ServerSessionCookieOptions {
+    /** Location of the page or request that supplied the cookies. */
+    cookieLocation?: AuthCookieLocation;
+    /** Base name configured for the browser bearer-token cookie. */
+    tokenCookieName?: string;
 }
 
 export interface CommitLoginSessionParams {
@@ -62,7 +72,7 @@ class PolyesterSessionManager {
      */
     set(session: SessionData, options?: SessionCookieOptions): void {
         setCookie({
-            name: POLYESTER_SESSION_COOKIE_NAME,
+            name: resolveAuthCookieName(POLYESTER_SESSION_COOKIE_NAME),
             value: SessionCodec.encode(session),
             options: {
                 path: "/",
@@ -82,7 +92,7 @@ class PolyesterSessionManager {
      * Returns the current session state, or null when no session is active.
      */
     get(): SessionData | null {
-        const value = getCookie(POLYESTER_SESSION_COOKIE_NAME);
+        const value = getCookie(resolveAuthCookieName(POLYESTER_SESSION_COOKIE_NAME));
         if (!value) {
             this.#lastRawValue = null;
             this.#lastDecoded = null;
@@ -107,7 +117,7 @@ class PolyesterSessionManager {
      * Clears the current session state.
      */
     clear(): void {
-        deleteCookie(POLYESTER_SESSION_COOKIE_NAME);
+        deleteCookie(resolveAuthCookieName(POLYESTER_SESSION_COOKIE_NAME));
     }
 }
 
@@ -132,9 +142,22 @@ export function emptyServerSessionSnapshot(): ServerSessionSnapshot {
 export function parseServerSessionSnapshot(
     cookies: CookieGetter,
     environment: PolyesterEnvironment,
+    options: ServerSessionCookieOptions = {},
 ): ServerSessionSnapshot {
-    const sessionValue = getCookieValue(cookies, POLYESTER_SESSION_COOKIE_NAME);
-    const bearerToken = getCookieValue(cookies, POLYESTER_AUTH_TOKEN_COOKIE_NAME) ?? null;
+    const cookieLocation =
+        options.cookieLocation ?? (cookies instanceof Request ? new URL(cookies.url) : undefined);
+    const sessionValue = getCookieValue(
+        cookies,
+        resolveAuthCookieName(POLYESTER_SESSION_COOKIE_NAME, cookieLocation),
+    );
+    const bearerToken =
+        getCookieValue(
+            cookies,
+            resolveAuthCookieName(
+                options.tokenCookieName ?? POLYESTER_AUTH_TOKEN_COOKIE_NAME,
+                cookieLocation,
+            ),
+        ) ?? null;
     const session = sessionValue ? SessionCodec.decode(sessionValue) : null;
 
     if (!session) {
@@ -176,7 +199,7 @@ export class AuthSessionStore {
         const session = this.#session.get();
         if (!session) return null;
         if (session.environmentFingerprint !== this.#environmentFingerprint) {
-            this.#session.clear();
+            // Retain the binding until the token read can discard both cookies.
             return null;
         }
         return session;

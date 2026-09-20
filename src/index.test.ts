@@ -14,6 +14,7 @@ describe("public package entrypoint", () => {
                 POLYESTER_DEVNET_ENVIRONMENT: expect.any(Object),
                 POLYESTER_TESTNET_ENVIRONMENT: expect.any(Object),
                 createCookieAuthTokenStorage: expect.any(Function),
+                resolveAuthCookieName: expect.any(Function),
                 createMemoryAuthTokenStorage: expect.any(Function),
                 createPolyesterEnvironment: expect.any(Function),
                 createPolyesterServerClientFromCookies: expect.any(Function),

@@ -89,6 +89,19 @@ describe("polyesterSession", () => {
 });
 
 describe("AuthSessionStore", () => {
+    it("retains mismatch evidence across a display-session read", () => {
+        vi.stubGlobal("document", {
+            cookie: sessionCookie({ ...validSession(), environmentFingerprint: "foreign" }),
+        });
+        const store = new AuthSessionStore({
+            environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
+        });
+        const storage = createTestStorage("foreign-token");
+        expect(store.get()).toBeNull();
+        expect(store.getEnvironmentBoundToken(storage)).toBeNull();
+        expect(storage.get()).toBeNull();
+    });
+
     afterEach(() => {
         polyesterSession.clear();
         vi.restoreAllMocks();

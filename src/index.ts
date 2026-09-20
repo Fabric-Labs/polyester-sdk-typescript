@@ -16,6 +16,7 @@ export type {
     AuthTokenStorageSetOptions,
     CookieAuthTokenStorageOptions,
 } from "./services/auth/token-storage.js";
+export type { ServerSessionCookieOptions } from "./services/auth/session.js";
 
 export {
     PolyesterServerClient,
@@ -27,7 +28,9 @@ export {
 export {
     POLYESTER_AUTH_TOKEN_COOKIE_NAME,
     POLYESTER_SESSION_COOKIE_NAME,
+    resolveAuthCookieName,
 } from "./services/auth/cookie-constants.js";
+export type { AuthCookieLocation } from "./services/auth/cookie-constants.js";
 export type {
     CreateServerClientFromCookiesParams,
     CreateServerClientFromRequestParams,

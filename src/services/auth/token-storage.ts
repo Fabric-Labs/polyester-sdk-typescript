@@ -1,6 +1,6 @@
 import { CookieManager } from "../../utils/cookies.js";
 import { getJwtExpiration } from "../../utils/jwt.js";
-import { POLYESTER_AUTH_TOKEN_COOKIE_NAME } from "./cookie-constants.js";
+import { POLYESTER_AUTH_TOKEN_COOKIE_NAME, resolveAuthCookieName } from "./cookie-constants.js";
 
 export interface AuthTokenStorageSetOptions {
     expiresAt: Date | null;
@@ -61,12 +61,14 @@ export function createCookieAuthTokenStorage(
 ): AuthTokenStorage {
     const cookieName = options.cookieName ?? POLYESTER_AUTH_TOKEN_COOKIE_NAME;
     const path = options.path ?? "/";
-    const cookie = new CookieManager({ name: cookieName });
+    // Resolve for every operation so test/browser navigation to another local
+    // port cannot read, overwrite, or delete this port's sibling cookie.
+    const cookie = () => new CookieManager({ name: resolveAuthCookieName(cookieName) });
 
     return {
-        get: () => cookie.get(),
+        get: () => cookie().get(),
         set: (token: string, setOptions: AuthTokenStorageSetOptions) => {
-            cookie.set(token, {
+            cookie().set(token, {
                 path,
                 secure: options.secure,
                 sameSite: options.sameSite,
@@ -75,7 +77,7 @@ export function createCookieAuthTokenStorage(
             });
         },
         clear: () => {
-            cookie.clear({ path });
+            cookie().clear({ path });
         },
     };
 }

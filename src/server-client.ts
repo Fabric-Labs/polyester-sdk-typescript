@@ -7,9 +7,14 @@ import {
 import {
     POLYESTER_AUTH_TOKEN_COOKIE_NAME,
     POLYESTER_SESSION_COOKIE_NAME,
+    type AuthCookieLocation,
 } from "./services/auth/cookie-constants.js";
 import type { ServerSessionSnapshot } from "./services/auth/session.types.js";
-import { emptyServerSessionSnapshot, parseServerSessionSnapshot } from "./services/auth/session.js";
+import {
+    emptyServerSessionSnapshot,
+    parseServerSessionSnapshot,
+    type ServerSessionCookieOptions,
+} from "./services/auth/session.js";
 import type { CookieGetter } from "./utils/cookies.js";
 import type { JwtAuthProvider, ApiKeyEd25519AuthProvider } from "./shared/transports.js";
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";
@@ -27,8 +32,9 @@ export type { ServerSessionSnapshot };
 export function parseSessionCookie(
     cookies: CookieGetter,
     environment: PolyesterEnvironment,
+    options?: ServerSessionCookieOptions,
 ): ServerSessionSnapshot {
-    return parseServerSessionSnapshot(cookies, environment);
+    return parseServerSessionSnapshot(cookies, environment, options);
 }
 
 /** Configuration for the server Polyester client. */
@@ -156,6 +162,14 @@ export type CreateServerClientFromCookiesParams =
          */
         cookies: CookieGetter;
         /**
+         * The page or request location that supplied `cookies`. Required for
+         * local framework cookie stores so their port-scoped auth cookies can
+         * be parsed; a `Request` source derives this from `request.url`.
+         */
+        cookieLocation?: AuthCookieLocation;
+        /** Base name configured for the browser bearer-token cookie. */
+        tokenCookieName?: string;
+        /**
          * Use unsigned display-session `activeAccount` as the default subaccount for
          * calls that omit `subaccountId`. This is caller intent from UI hydration,
          * not proof of authority; backend authorization remains authoritative.
@@ -167,6 +181,8 @@ export type CreateServerClientFromCookiesParams =
 export type CreateServerClientFromRequestParams =
     ServerClientFactoryBaseConfig<PolyesterClientBaseConfig> & {
         request: Request;
+        /** Base name configured for the browser bearer-token cookie. */
+        tokenCookieName?: string;
         /**
          * Use unsigned display-session `activeAccount` as the default subaccount for
          * calls that omit `subaccountId`. This is caller intent from UI hydration,
@@ -181,7 +197,10 @@ export type CreateServerClientFromRequestParams =
 export function createPolyesterServerClientFromCookies(
     params: CreateServerClientFromCookiesParams,
 ): PolyesterServerClient {
-    const session = parseSessionCookie(params.cookies, params.environment);
+    const session = parseSessionCookie(params.cookies, params.environment, {
+        cookieLocation: params.cookieLocation,
+        tokenCookieName: params.tokenCookieName,
+    });
     const auth = isJwtValid(session.bearerToken)
         ? ({
               kind: "jwt",
@@ -214,6 +233,8 @@ export function createPolyesterServerClientFromRequest(
     }
     return createPolyesterServerClientFromCookies({
         cookies: params.request,
+        cookieLocation: new URL(params.request.url),
+        tokenCookieName: params.tokenCookieName,
         environment: params.environment,
         interceptors: params.interceptors,
         wireFormat: params.wireFormat,
@@ -231,8 +252,9 @@ export function createPolyesterServerClientFromRequest(
 export function getBearerTokenFromCookies(
     cookies: CookieGetter,
     environment: PolyesterEnvironment,
+    options?: ServerSessionCookieOptions,
 ): string | null {
-    return parseSessionCookie(cookies, environment).bearerToken;
+    return parseSessionCookie(cookies, environment, options).bearerToken;
 }
 
 export { POLYESTER_AUTH_TOKEN_COOKIE_NAME, POLYESTER_SESSION_COOKIE_NAME };
