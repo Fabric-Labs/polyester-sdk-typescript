@@ -26,19 +26,19 @@ const smartAccountClientPrimers = new WeakMap<object, () => Promise<unknown>>();
 const smartAccountClientCacheResets = new WeakMap<object, () => void>();
 const smartAccountClients = new WeakMap<
     SafeSmartAccountInstance,
-    Map<string, { client: PolyesterSmartAccountClient; optionsKey: string }>
+    Map<string, PolyesterSmartAccountClient>
 >();
 const USER_OPERATION_GAS_PRICE_TTL_MS = 60_000;
 const USER_OPERATION_GAS_BUFFER_BPS = 2_000n;
 const USER_OPERATION_MIN_GAS_BUFFER = 50_000n;
 const USER_OPERATION_RECEIPT_POLLING_INTERVAL_MS = 250;
 /**
- * `not_found` also covers ops rejected during validation, which never get a
- * receipt. After this many consecutive `not_found` polls with no receipt on
- * chain (5s at the default interval) the wait gives up instead of running
- * out the full timeout.
+ * While the bundler reports `not_found`, the chain is checked for a receipt
+ * on every Nth poll (once per second at the default interval). `not_found` is
+ * not definitive — a bundler restart forgets ops whose bundle is still
+ * pending — so polling continues until the deadline.
  */
-const MAX_CONSECUTIVE_NOT_FOUND_POLLS = 20;
+const NOT_FOUND_RECEIPT_CHECK_EVERY = 4;
 
 export interface CreateSmartAccountParams {
     environment: PolyesterEnvironment;
@@ -117,9 +117,8 @@ export interface PolyesterSmartAccountClientOptions {
 
 /**
  * Creates a viem client bound to a Polyester smart account. Memoized per
- * (account, environment): repeat calls return the same client, so the gas
- * price cache and warmed connections survive across submissions. Passing
- * different options for an already-created client throws.
+ * (account, environment, options): repeat calls return the same client, so
+ * the gas price cache and warmed connections survive across submissions.
  */
 export function createPolyesterSmartAccountClient(
     account: SafeSmartAccountInstance,
@@ -138,21 +137,16 @@ export function createPolyesterSmartAccountClient(
     }
     let clients = smartAccountClients.get(account);
     if (!clients) smartAccountClients.set(account, (clients = new Map()));
-    const optionsKey = JSON.stringify([
+    const key = JSON.stringify([
+        environment.fingerprint,
         options?.gasPriceCacheTtlMs ?? USER_OPERATION_GAS_PRICE_TTL_MS,
         options?.pollingIntervalMs ?? USER_OPERATION_RECEIPT_POLLING_INTERVAL_MS,
     ]);
-    const existing = clients.get(environment.fingerprint);
-    if (existing) {
-        if (existing.optionsKey !== optionsKey) {
-            throw new Error(
-                "Smart account client already exists for this account and environment with different options.",
-            );
-        }
-        return existing.client;
+    let client = clients.get(key);
+    if (!client) {
+        client = buildPolyesterSmartAccountClient(account, environment, options);
+        clients.set(key, client);
     }
-    const client = buildPolyesterSmartAccountClient(account, environment, options);
-    clients.set(environment.fingerprint, { client, optionsKey });
     return client;
 }
 
@@ -339,13 +333,41 @@ export async function sendPolyesterUserOperation(
     parameters: Parameters<PolyesterSmartAccountClient["sendUserOperation"]>[0],
     options: SendPolyesterUserOperationOptions = {},
 ): Promise<Awaited<ReturnType<PolyesterSmartAccountClient["sendUserOperation"]>>> {
+    const { onWalletSignatureRequested, onPhase } = options;
+    const account =
+        (parameters as { account?: SafeSmartAccountInstance }).account ?? client.account;
+    let phaseStartedAt = Date.now();
+    const endPhase = (phase: PolyesterUserOperationPhase) => {
+        const now = Date.now();
+        reportPhase(onPhase, phase, now - phaseStartedAt);
+        phaseStartedAt = now;
+    };
+    let signed = false;
     try {
-        return await sendInstrumentedUserOperation(client, parameters, options);
+        const hash = await client.sendUserOperation({
+            ...parameters,
+            account: {
+                ...account,
+                signUserOperation: async (
+                    userOperation: Parameters<SafeSmartAccountInstance["signUserOperation"]>[0],
+                ) => {
+                    endPhase("prepare");
+                    onWalletSignatureRequested?.();
+                    const signature = await account.signUserOperation(userOperation);
+                    signed = true;
+                    endPhase("sign");
+                    return signature;
+                },
+            },
+        } as Parameters<PolyesterSmartAccountClient["sendUserOperation"]>[0]);
+        endPhase("send");
+        return hash;
     } catch (error) {
-        // A cached gas price the bundler rejected as too low (or a stale
-        // paymaster stub) would otherwise be reused on retry. Any failure
-        // clears both; the cost is one extra fetch each on the next attempt.
-        smartAccountClientCacheResets.get(client)?.();
+        // Only a failure after signing (i.e. from `eth_sendUserOperation`) can
+        // mean the bundler rejected the cached gas price or stub. Earlier
+        // failures — a cancelled wallet prompt above all — keep both caches so
+        // the retry stays cheap.
+        if (signed) smartAccountClientCacheResets.get(client)?.();
         throw error;
     }
 }
@@ -363,40 +385,6 @@ function reportPhase(
     }
 }
 
-async function sendInstrumentedUserOperation(
-    client: PolyesterSmartAccountClient,
-    parameters: Parameters<PolyesterSmartAccountClient["sendUserOperation"]>[0],
-    { onWalletSignatureRequested, onPhase }: SendPolyesterUserOperationOptions,
-) {
-    if (!onWalletSignatureRequested && !onPhase) return client.sendUserOperation(parameters);
-
-    const account =
-        (parameters as { account?: SafeSmartAccountInstance }).account ?? client.account;
-    let phaseStartedAt = Date.now();
-    const endPhase = (phase: PolyesterUserOperationPhase) => {
-        const now = Date.now();
-        reportPhase(onPhase, phase, now - phaseStartedAt);
-        phaseStartedAt = now;
-    };
-    const hash = await client.sendUserOperation({
-        ...parameters,
-        account: {
-            ...account,
-            signUserOperation: async (
-                userOperation: Parameters<SafeSmartAccountInstance["signUserOperation"]>[0],
-            ) => {
-                endPhase("prepare");
-                onWalletSignatureRequested?.();
-                const signature = await account.signUserOperation(userOperation);
-                endPhase("sign");
-                return signature;
-            },
-        },
-    } as Parameters<PolyesterSmartAccountClient["sendUserOperation"]>[0]);
-    endPhase("send");
-    return hash;
-}
-
 export interface WaitForPolyesterUserOperationReceiptOptions {
     /** Overall deadline in milliseconds. Defaults to viem's 120s. */
     timeoutMs?: number;
@@ -409,8 +397,8 @@ export interface WaitForPolyesterUserOperationReceiptOptions {
  * `pimlico_getUserOperationStatus` at the client's polling interval, checking
  * immediately, and only fetches the receipt once the bundler reports it has
  * been mined. Status lives in bundler memory, so `not_found` (e.g. after a
- * bundler restart) also checks the chain for a receipt. `timeoutMs` bounds
- * every request, not just the gaps between them.
+ * bundler restart) also checks the chain for a receipt until the deadline.
+ * `timeoutMs` bounds every request, not just the gaps between them.
  */
 export async function waitForPolyesterUserOperationReceipt(
     client: PolyesterSmartAccountClient,
@@ -451,20 +439,17 @@ export async function waitForPolyesterUserOperationReceipt(
             throw new Error(`UserOperation ${hash} was rejected by the bundler.`);
         }
         if (status === "not_found") {
-            const receipt = await untilDeadline(() =>
-                client.getUserOperationReceipt({ hash }),
-            ).catch((error: Error) => {
-                if (error.name === "UserOperationReceiptNotFoundError") return undefined;
-                throw error;
-            });
-            if (receipt) {
-                reportPhase(onPhase, "receipt", Date.now() - startedAt);
-                return receipt;
-            }
-            if (++consecutiveNotFound >= MAX_CONSECUTIVE_NOT_FOUND_POLLS) {
-                throw new Error(
-                    `UserOperation ${hash} is unknown to the bundler and has no receipt; it was likely rejected during validation.`,
-                );
+            if (consecutiveNotFound++ % NOT_FOUND_RECEIPT_CHECK_EVERY === 0) {
+                const receipt = await untilDeadline(() =>
+                    client.getUserOperationReceipt({ hash }),
+                ).catch((error: Error) => {
+                    if (error.name === "UserOperationReceiptNotFoundError") return undefined;
+                    throw error;
+                });
+                if (receipt) {
+                    reportPhase(onPhase, "receipt", Date.now() - startedAt);
+                    return receipt;
+                }
             }
         } else {
             consecutiveNotFound = 0;

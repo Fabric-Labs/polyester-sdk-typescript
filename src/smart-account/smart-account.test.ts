@@ -9,7 +9,6 @@ import {
     waitForPolyesterUserOperationReceipt,
     warmPolyesterSmartAccountClient,
 } from "./smart-account.js";
-import { preloadSmartAccountSdk } from "./index.js";
 
 const GET_NONCE_SELECTOR = toFunctionSelector(
     "function getNonce(address, uint192) view returns (uint256)",
@@ -244,6 +243,20 @@ describe("sendPolyesterUserOperation", () => {
         expect(byMethod("pm_getPaymasterStubData")).toHaveLength(2);
     });
 
+    it("keeps both caches when the wallet prompt is cancelled before signing", async () => {
+        const { account, client } = await setup();
+        await warmPolyesterSmartAccountClient(client);
+        account.signUserOperation = (() =>
+            Promise.reject(new Error("user rejected"))) as typeof account.signUserOperation;
+
+        await expect(sendPolyesterUserOperation(client, sendParameters)).rejects.toThrow(
+            /user rejected/,
+        );
+        await warmPolyesterSmartAccountClient(client);
+        expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(1);
+        expect(byMethod("pm_getPaymasterStubData")).toHaveLength(1);
+    });
+
     it("still returns the hash when an onPhase observer throws", async () => {
         const { client } = await setup();
         await expect(
@@ -354,19 +367,40 @@ describe("waitForPolyesterUserOperationReceipt", () => {
         expect(byMethod("eth_getUserOperationReceipt")).toHaveLength(0);
     });
 
-    it("gives up after 20 consecutive not_found polls with no receipt", async () => {
+    it("keeps polling an unknown operation until the deadline, checking the chain once a second", async () => {
+        const { client } = await setup();
+        statusQueue = Array.from({ length: 30 }, () => "not_found");
+        // Receipt appears on the 6th chain check, i.e. the 21st poll.
+        receiptQueue = [null, null, null, null, null, { success: true, logs: [] }];
+
+        vi.useFakeTimers();
+        try {
+            const pending = waitForPolyesterUserOperationReceipt(client, USER_OPERATION_HASH);
+            await vi.advanceTimersByTimeAsync(250 * 20);
+            expect(await pending).toMatchObject({ success: true });
+            expect(byMethod("pimlico_getUserOperationStatus")).toHaveLength(21);
+            expect(byMethod("eth_getUserOperationReceipt")).toHaveLength(6);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
+    it("times out an operation the bundler never learns about", async () => {
         const { client } = await setup();
         statusQueue = Array.from({ length: 30 }, () => "not_found");
         receiptQueue = Array.from({ length: 30 }, () => null);
 
         vi.useFakeTimers();
         try {
-            const pending = waitForPolyesterUserOperationReceipt(client, USER_OPERATION_HASH);
-            const assertion = expect(pending).rejects.toThrow(/unknown to the bundler/);
-            await vi.advanceTimersByTimeAsync(250 * 25);
+            const pending = waitForPolyesterUserOperationReceipt(client, USER_OPERATION_HASH, {
+                timeoutMs: 2_000,
+            });
+            const assertion = expect(pending).rejects.toThrow(/Timed out/);
+            await vi.advanceTimersByTimeAsync(2_500);
             await assertion;
-            expect(byMethod("pimlico_getUserOperationStatus")).toHaveLength(20);
-            expect(byMethod("eth_getUserOperationReceipt")).toHaveLength(20);
+            // Polls at 0, 250, ..., 1750ms; chain checked on polls 1 and 5.
+            expect(byMethod("pimlico_getUserOperationStatus")).toHaveLength(8);
+            expect(byMethod("eth_getUserOperationReceipt")).toHaveLength(2);
         } finally {
             vi.useRealTimers();
         }
@@ -384,14 +418,20 @@ describe("waitForPolyesterUserOperationReceipt", () => {
 
     it("falls back to the chain receipt when the bundler no longer knows the operation", async () => {
         const { client } = await setup();
-        statusQueue = ["not_found", "not_found", "not_found"];
+        statusQueue = Array.from({ length: 10 }, () => "not_found");
         receiptQueue = [null, { success: true, logs: [] }];
 
-        const receipt = await waitForPolyesterUserOperationReceipt(client, USER_OPERATION_HASH);
-
-        expect(receipt).toMatchObject({ success: true });
-        expect(byMethod("pimlico_getUserOperationStatus")).toHaveLength(2);
-        expect(byMethod("eth_getUserOperationReceipt")).toHaveLength(2);
+        vi.useFakeTimers();
+        try {
+            const pending = waitForPolyesterUserOperationReceipt(client, USER_OPERATION_HASH);
+            await vi.advanceTimersByTimeAsync(250 * 4);
+            expect(await pending).toMatchObject({ success: true });
+            // Chain checked on polls 1 and 5.
+            expect(byMethod("pimlico_getUserOperationStatus")).toHaveLength(5);
+            expect(byMethod("eth_getUserOperationReceipt")).toHaveLength(2);
+        } finally {
+            vi.useRealTimers();
+        }
     });
 
     it("rejects when the bundler rejects the operation and drops the cached gas price", async () => {
@@ -411,7 +451,7 @@ describe("waitForPolyesterUserOperationReceipt", () => {
 });
 
 describe("createPolyesterSmartAccountClient", () => {
-    it("returns the same client per account and environment; different options throw", async () => {
+    it("returns the same client per account, environment and options", async () => {
         const { account, client } = await setup();
         expect(client.pollingInterval).toBe(250);
 
@@ -420,12 +460,18 @@ describe("createPolyesterSmartAccountClient", () => {
             options: { pollingIntervalMs: 250, gasPriceCacheTtlMs: 60_000 },
         });
         expect(again).toBe(client);
-        expect(() =>
+        const tuned = createPolyesterSmartAccountClient(account, {
+            environment,
+            options: { pollingIntervalMs: 5_000 },
+        });
+        expect(tuned).not.toBe(client);
+        expect(tuned.pollingInterval).toBe(5_000);
+        expect(
             createPolyesterSmartAccountClient(account, {
                 environment,
                 options: { pollingIntervalMs: 5_000 },
             }),
-        ).toThrow(/different options/);
+        ).toBe(tuned);
 
         await warmPolyesterSmartAccountClient(client);
         await warmPolyesterSmartAccountClient(again);
@@ -461,14 +507,6 @@ describe("createPolyesterSmartAccountClient", () => {
         } finally {
             vi.useRealTimers();
         }
-    });
-});
-
-describe("preloadSmartAccountSdk", () => {
-    it("resolves without touching the network", async () => {
-        requests.length = 0;
-        await expect(preloadSmartAccountSdk()).resolves.toBeUndefined();
-        expect(requests).toHaveLength(0);
     });
 });
 
