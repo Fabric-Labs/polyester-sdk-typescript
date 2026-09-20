@@ -6,6 +6,7 @@ import {
     createPolyesterSmartAccount,
     createPolyesterSmartAccountClient,
     sendPolyesterUserOperation,
+    waitForPolyesterUserOperationReceipt,
     warmPolyesterSmartAccountClient,
 } from "./smart-account.js";
 
@@ -16,10 +17,32 @@ const PROXY_CREATION_CODE_SELECTOR = toFunctionSelector(
     "function proxyCreationCode() pure returns (bytes)",
 );
 const PAYMASTER_ADDRESS = "0x2222222222222222222222222222222222222222";
-const USER_OPERATION_HASH = `0x${"11".repeat(32)}`;
+const USER_OPERATION_HASH = `0x${"11".repeat(32)}` as const;
 
 const requests: { method: string; params: readonly Record<string, string>[] }[] = [];
 let failGasPrice = false;
+let failSend = false;
+let statusDelayMs = 0;
+let statusQueue: string[] = [];
+let receiptQueue: (object | null)[] = [];
+// Bundler estimate, then the +20% / 50k-floor buffer the client applies.
+const ESTIMATED_GAS = {
+    callGasLimit: numberToHex(16_323n),
+    preVerificationGas: numberToHex(61_806n),
+    verificationGasLimit: numberToHex(440_164n),
+    paymasterVerificationGasLimit: numberToHex(40_262n),
+    paymasterPostOpGasLimit: numberToHex(1n),
+};
+const BUFFERED_ACCOUNT_GAS = {
+    callGasLimit: numberToHex(66_323n),
+    preVerificationGas: numberToHex(111_806n),
+    verificationGasLimit: numberToHex(528_196n),
+};
+// The live paymaster sets its own paymaster limits regardless of input.
+const SPONSORED_PAYMASTER_GAS = {
+    paymasterVerificationGasLimit: numberToHex(40_262n),
+    paymasterPostOpGasLimit: numberToHex(1n),
+};
 
 function rpcResult(method: string, params: readonly Record<string, string>[]): unknown {
     switch (method) {
@@ -44,19 +67,35 @@ function rpcResult(method: string, params: readonly Record<string, string>[]): u
             return { slow: fee, standard: fee, fast: fee };
         }
         case "pm_getPaymasterStubData":
-            return { paymaster: PAYMASTER_ADDRESS, paymasterData: "0xdead" };
-        case "eth_estimateUserOperationGas":
             return {
-                callGasLimit: numberToHex(100_000n),
-                preVerificationGas: numberToHex(50_000n),
-                verificationGasLimit: numberToHex(500_000n),
-                paymasterVerificationGasLimit: numberToHex(100_000n),
-                paymasterPostOpGasLimit: numberToHex(200_000n),
+                paymaster: PAYMASTER_ADDRESS,
+                paymasterData: "0xdead",
+                paymasterVerificationGasLimit: numberToHex(50_000n),
+                paymasterPostOpGasLimit: numberToHex(100_000n),
+                isFinal: false,
             };
-        case "pm_getPaymasterData":
-            return { paymaster: PAYMASTER_ADDRESS, paymasterData: "0xbeef" };
+        case "eth_estimateUserOperationGas":
+            return ESTIMATED_GAS;
+        case "pm_sponsorUserOperation": {
+            // Mirrors the live paymaster: account limits are honored as sent,
+            // paymaster limits are replaced.
+            const op = params[0] ?? {};
+            return {
+                callGasLimit: op.callGasLimit,
+                preVerificationGas: op.preVerificationGas,
+                verificationGasLimit: op.verificationGasLimit,
+                ...SPONSORED_PAYMASTER_GAS,
+                paymaster: PAYMASTER_ADDRESS,
+                paymasterData: "0xbeef",
+            };
+        }
         case "eth_sendUserOperation":
+            if (failSend) throw new Error("maxFeePerGas too low");
             return USER_OPERATION_HASH;
+        case "pimlico_getUserOperationStatus":
+            return { status: statusQueue.shift() ?? "included", transactionHash: null };
+        case "eth_getUserOperationReceipt":
+            return receiptQueue.length > 0 ? receiptQueue.shift() : { success: true, logs: [] };
         default:
             throw new Error(`unexpected method: ${method}`);
     }
@@ -75,6 +114,9 @@ beforeAll(() => {
             params?: Record<string, string>[];
         };
         requests.push({ method, params });
+        if (method === "pimlico_getUserOperationStatus" && statusDelayMs > 0) {
+            await new Promise((resolve) => setTimeout(resolve, statusDelayMs));
+        }
         let payload: unknown;
         try {
             payload = { jsonrpc: "2.0", id, result: rpcResult(method, params) };
@@ -129,6 +171,9 @@ async function setup() {
     const account = await createPolyesterSmartAccount({ environment, owner });
     const client = createPolyesterSmartAccountClient(account, { environment });
     requests.length = 0;
+    statusQueue = [];
+    receiptQueue = [];
+    statusDelayMs = 0;
     return { account, client };
 }
 
@@ -144,33 +189,93 @@ const sendParameters = {
 } as never;
 
 describe("sendPolyesterUserOperation", () => {
-    it("submits in a single prepare pass with buffered gas committed to the paymaster", async () => {
+    it("estimates, buffers account gas, then sponsors once with the buffered limits", async () => {
         const { client } = await setup();
 
         await expect(sendPolyesterUserOperation(client, sendParameters)).resolves.toBe(
             USER_OPERATION_HASH,
         );
 
-        expect(byMethod("eth_estimateUserOperationGas")).toHaveLength(1);
         expect(byMethod("pm_getPaymasterStubData")).toHaveLength(1);
-        expect(byMethod("pm_getPaymasterData")).toHaveLength(1);
+        expect(byMethod("eth_estimateUserOperationGas")).toHaveLength(1);
+        expect(byMethod("pm_sponsorUserOperation")).toHaveLength(1);
+        expect(byMethod("pm_getPaymasterData")).toHaveLength(0);
         expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(1);
-        expect(byMethod("eth_getCode")).toHaveLength(1);
         expect(byMethod("eth_sendUserOperation")).toHaveLength(1);
         expect(nonceReads()).toHaveLength(1);
 
-        // Estimated limits +20% with a 50k floor.
-        const buffered = {
-            callGasLimit: numberToHex(150_000n),
-            preVerificationGas: numberToHex(100_000n),
-            verificationGasLimit: numberToHex(600_000n),
-            paymasterVerificationGasLimit: numberToHex(150_000n),
-            paymasterPostOpGasLimit: numberToHex(250_000n),
-        };
-        expect(byMethod("pm_getPaymasterData")[0]?.params[0]).toMatchObject(buffered);
+        // The sponsor request carries buffered account limits, the fee fields
+        // and stub signature it signs over, and only UserOperation keys (the
+        // paymaster rejects `calls`, `chainId`, ...).
+        const sponsorRequest = byMethod("pm_sponsorUserOperation")[0]?.params[0];
+        expect(sponsorRequest).toMatchObject(BUFFERED_ACCOUNT_GAS);
+        expect(sponsorRequest?.maxFeePerGas).toBe(numberToHex(1_000_000_000n));
+        expect(sponsorRequest?.signature?.length).toBeGreaterThan(2);
+        expect(Object.keys(sponsorRequest ?? {})).not.toContain("calls");
+        expect(Object.keys(sponsorRequest ?? {})).not.toContain("chainId");
+
+        // What the sponsor signed is exactly what gets submitted.
         const signedOperation = byMethod("eth_sendUserOperation")[0]?.params[0];
-        expect(signedOperation).toMatchObject({ ...buffered, paymasterData: "0xbeef" });
+        expect(signedOperation).toMatchObject({
+            ...BUFFERED_ACCOUNT_GAS,
+            ...SPONSORED_PAYMASTER_GAS,
+            paymasterData: "0xbeef",
+        });
         expect(signedOperation?.signature?.length).toBeGreaterThan(2);
+    });
+
+    it("clears the cached gas price when a submission fails, so a retry refetches it", async () => {
+        const { client } = await setup();
+        await sendPolyesterUserOperation(client, sendParameters);
+        expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(1);
+
+        failSend = true;
+        try {
+            await expect(sendPolyesterUserOperation(client, sendParameters)).rejects.toThrow();
+        } finally {
+            failSend = false;
+        }
+        // Still cached during the failed attempt itself.
+        expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(1);
+
+        await sendPolyesterUserOperation(client, sendParameters);
+        expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(2);
+        expect(byMethod("pm_getPaymasterStubData")).toHaveLength(2);
+    });
+
+    it("keeps both caches when the wallet prompt is cancelled before signing", async () => {
+        const { account, client } = await setup();
+        await warmPolyesterSmartAccountClient(client);
+        account.signUserOperation = (() =>
+            Promise.reject(new Error("user rejected"))) as typeof account.signUserOperation;
+
+        await expect(sendPolyesterUserOperation(client, sendParameters)).rejects.toThrow(
+            /user rejected/,
+        );
+        await warmPolyesterSmartAccountClient(client);
+        expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(1);
+        expect(byMethod("pm_getPaymasterStubData")).toHaveLength(1);
+    });
+
+    it("still returns the hash when an onPhase observer throws", async () => {
+        const { client } = await setup();
+        await expect(
+            sendPolyesterUserOperation(client, sendParameters, {
+                onPhase: () => {
+                    throw new Error("telemetry down");
+                },
+            }),
+        ).resolves.toBe(USER_OPERATION_HASH);
+        expect(byMethod("eth_sendUserOperation")).toHaveLength(1);
+    });
+
+    it("reuses the cached paymaster stub across submissions", async () => {
+        const { client } = await setup();
+        await sendPolyesterUserOperation(client, sendParameters);
+        await sendPolyesterUserOperation(client, sendParameters);
+        expect(byMethod("pm_getPaymasterStubData")).toHaveLength(1);
+        expect(byMethod("eth_estimateUserOperationGas")).toHaveLength(2);
+        expect(byMethod("pm_sponsorUserOperation")).toHaveLength(2);
     });
 
     it("fires onWalletSignatureRequested once, after all prep and before signing", async () => {
@@ -195,25 +300,199 @@ describe("sendPolyesterUserOperation", () => {
             "pimlico_getUserOperationGasPrice",
             "pm_getPaymasterStubData",
             "eth_estimateUserOperationGas",
-            "pm_getPaymasterData",
+            "pm_sponsorUserOperation",
         ]) {
             expect(order.lastIndexOf(method), method).toBeLessThan(callbackIndex);
         }
         expect(order[callbackIndex + 1]).toBe("signUserOperation");
         expect(order.indexOf("eth_sendUserOperation")).toBeGreaterThan(callbackIndex);
     });
+
+    it("reports prepare, sign and send phase durations in order", async () => {
+        const { account, client } = await setup();
+        const originalSign = account.signUserOperation;
+        account.signUserOperation = (async (userOperation) => {
+            await new Promise((resolve) => setTimeout(resolve, 20));
+            return originalSign(userOperation);
+        }) as typeof account.signUserOperation;
+        const phases: [string, number][] = [];
+
+        await sendPolyesterUserOperation(client, sendParameters, {
+            onPhase: (phase, ms) => phases.push([phase, ms]),
+        });
+
+        expect(phases.map(([phase]) => phase)).toEqual(["prepare", "sign", "send"]);
+        for (const [, ms] of phases) expect(ms).toBeGreaterThanOrEqual(0);
+        expect(phases[1]?.[1]).toBeGreaterThanOrEqual(15);
+    });
+});
+
+describe("waitForPolyesterUserOperationReceipt", () => {
+    it("checks status immediately and only fetches the receipt once included", async () => {
+        const { client } = await setup();
+        statusQueue = ["not_submitted", "submitted", "included"];
+        const phases: [string, number][] = [];
+
+        vi.useFakeTimers();
+        try {
+            const pending = waitForPolyesterUserOperationReceipt(client, USER_OPERATION_HASH, {
+                onPhase: (phase, ms) => phases.push([phase, ms]),
+            });
+            // First status check happens before any timer fires.
+            await vi.advanceTimersByTimeAsync(0);
+            expect(byMethod("pimlico_getUserOperationStatus")).toHaveLength(1);
+            await vi.advanceTimersByTimeAsync(249);
+            expect(byMethod("pimlico_getUserOperationStatus")).toHaveLength(1);
+            await vi.advanceTimersByTimeAsync(1);
+            expect(byMethod("pimlico_getUserOperationStatus")).toHaveLength(2);
+            expect(byMethod("eth_getUserOperationReceipt")).toHaveLength(0);
+            await vi.advanceTimersByTimeAsync(250);
+            expect(byMethod("pimlico_getUserOperationStatus")).toHaveLength(3);
+
+            const receipt = await pending;
+            expect(receipt).toMatchObject({ success: true });
+            expect(byMethod("eth_getUserOperationReceipt")).toHaveLength(1);
+            expect(phases).toEqual([["receipt", 500]]);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
+    it("fails fast on `failed`: the bundle reverted, so no receipt will exist", async () => {
+        const { client } = await setup();
+        statusQueue = ["failed"];
+        await expect(
+            waitForPolyesterUserOperationReceipt(client, USER_OPERATION_HASH),
+        ).rejects.toThrow(/bundle transaction reverted/);
+        expect(byMethod("eth_getUserOperationReceipt")).toHaveLength(0);
+    });
+
+    it("keeps polling an unknown operation until the deadline, checking the chain once a second", async () => {
+        const { client } = await setup();
+        statusQueue = Array.from({ length: 30 }, () => "not_found");
+        // Receipt appears on the 6th chain check, i.e. the 21st poll.
+        receiptQueue = [null, null, null, null, null, { success: true, logs: [] }];
+
+        vi.useFakeTimers();
+        try {
+            const pending = waitForPolyesterUserOperationReceipt(client, USER_OPERATION_HASH);
+            await vi.advanceTimersByTimeAsync(250 * 20);
+            expect(await pending).toMatchObject({ success: true });
+            expect(byMethod("pimlico_getUserOperationStatus")).toHaveLength(21);
+            expect(byMethod("eth_getUserOperationReceipt")).toHaveLength(6);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
+    it("times out an operation the bundler never learns about", async () => {
+        const { client } = await setup();
+        statusQueue = Array.from({ length: 30 }, () => "not_found");
+        receiptQueue = Array.from({ length: 30 }, () => null);
+
+        vi.useFakeTimers();
+        try {
+            const pending = waitForPolyesterUserOperationReceipt(client, USER_OPERATION_HASH, {
+                timeoutMs: 2_000,
+            });
+            const assertion = expect(pending).rejects.toThrow(/Timed out/);
+            await vi.advanceTimersByTimeAsync(2_500);
+            await assertion;
+            // Polls at 0, 250, ..., 1750ms; chain checked on polls 1 and 5.
+            expect(byMethod("pimlico_getUserOperationStatus")).toHaveLength(8);
+            expect(byMethod("eth_getUserOperationReceipt")).toHaveLength(2);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
+    it("enforces timeoutMs across in-flight requests, not just between polls", async () => {
+        const { client } = await setup();
+        statusDelayMs = 200;
+        const startedAt = Date.now();
+        await expect(
+            waitForPolyesterUserOperationReceipt(client, USER_OPERATION_HASH, { timeoutMs: 20 }),
+        ).rejects.toThrow(/Timed out/);
+        expect(Date.now() - startedAt).toBeLessThan(150);
+    });
+
+    it("falls back to the chain receipt when the bundler no longer knows the operation", async () => {
+        const { client } = await setup();
+        statusQueue = Array.from({ length: 10 }, () => "not_found");
+        receiptQueue = [null, { success: true, logs: [] }];
+
+        vi.useFakeTimers();
+        try {
+            const pending = waitForPolyesterUserOperationReceipt(client, USER_OPERATION_HASH);
+            await vi.advanceTimersByTimeAsync(250 * 4);
+            expect(await pending).toMatchObject({ success: true });
+            // Chain checked on polls 1 and 5.
+            expect(byMethod("pimlico_getUserOperationStatus")).toHaveLength(5);
+            expect(byMethod("eth_getUserOperationReceipt")).toHaveLength(2);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
+    it("rejects when the bundler rejects the operation and drops the cached gas price", async () => {
+        const { client } = await setup();
+        await warmPolyesterSmartAccountClient(client);
+        expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(1);
+
+        statusQueue = ["rejected"];
+        await expect(
+            waitForPolyesterUserOperationReceipt(client, USER_OPERATION_HASH),
+        ).rejects.toThrow(/rejected/);
+        expect(byMethod("eth_getUserOperationReceipt")).toHaveLength(0);
+
+        await warmPolyesterSmartAccountClient(client);
+        expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(2);
+    });
 });
 
 describe("createPolyesterSmartAccountClient", () => {
-    it("lets consumers override the gas price cache TTL and polling interval", async () => {
+    it("returns the same client per account, environment and options", async () => {
         const { account, client } = await setup();
-        expect(client.pollingInterval).toBe(1_000);
+        expect(client.pollingInterval).toBe(250);
 
+        const again = createPolyesterSmartAccountClient(account, {
+            environment,
+            options: { pollingIntervalMs: 250, gasPriceCacheTtlMs: 60_000 },
+        });
+        expect(again).toBe(client);
         const tuned = createPolyesterSmartAccountClient(account, {
             environment,
-            options: { gasPriceCacheTtlMs: 5_000, pollingIntervalMs: 250 },
+            options: { pollingIntervalMs: 5_000 },
         });
-        expect(tuned.pollingInterval).toBe(250);
+        expect(tuned).not.toBe(client);
+        expect(tuned.pollingInterval).toBe(5_000);
+        expect(
+            createPolyesterSmartAccountClient(account, {
+                environment,
+                options: { pollingIntervalMs: 5_000 },
+            }),
+        ).toBe(tuned);
+
+        await warmPolyesterSmartAccountClient(client);
+        await warmPolyesterSmartAccountClient(again);
+        expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(1);
+
+        const other = await createPolyesterSmartAccount({
+            environment,
+            owner: privateKeyToAccount(`0x${"00".repeat(31)}02`),
+        });
+        expect(createPolyesterSmartAccountClient(other, { environment })).not.toBe(client);
+    });
+
+    it("lets consumers override the gas price cache TTL and polling interval", async () => {
+        const owner = privateKeyToAccount(`0x${"00".repeat(31)}03`);
+        const account = await createPolyesterSmartAccount({ environment, owner });
+        requests.length = 0;
+        const tuned = createPolyesterSmartAccountClient(account, {
+            environment,
+            options: { gasPriceCacheTtlMs: 5_000, pollingIntervalMs: 1_000 },
+        });
+        expect(tuned.pollingInterval).toBe(1_000);
 
         vi.useFakeTimers({ toFake: ["Date"] });
         try {
@@ -232,23 +511,33 @@ describe("createPolyesterSmartAccountClient", () => {
 });
 
 describe("warmPolyesterSmartAccountClient", () => {
-    it("caches the gas price within the TTL, refetches after it, and never caches the nonce", async () => {
+    it("caches the gas price for 60s, refetches after it, and never caches the nonce", async () => {
         const { client } = await setup();
         vi.useFakeTimers({ toFake: ["Date"] });
         try {
             await warmPolyesterSmartAccountClient(client);
+            vi.setSystemTime(Date.now() + 59_999);
             await warmPolyesterSmartAccountClient(client);
             expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(1);
+            expect(byMethod("pm_getPaymasterStubData")).toHaveLength(1);
             expect(nonceReads()).toHaveLength(2);
 
-            vi.setSystemTime(Date.now() + 10_001);
+            vi.setSystemTime(Date.now() + 2);
             await warmPolyesterSmartAccountClient(client);
             expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(2);
+            // The stub is a constant: it never expires on the gas-price TTL.
+            expect(byMethod("pm_getPaymasterStubData")).toHaveLength(1);
             expect(nonceReads()).toHaveLength(3);
 
-            vi.setSystemTime(Date.now() + 10_001);
+            vi.setSystemTime(Date.now() + 60_001);
             failGasPrice = true;
             await expect(warmPolyesterSmartAccountClient(client)).resolves.toBeUndefined();
+            expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(3);
+
+            // A failed fetch is not cached: the next warm-up retries.
+            failGasPrice = false;
+            await warmPolyesterSmartAccountClient(client);
+            expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(4);
         } finally {
             failGasPrice = false;
             vi.useRealTimers();
