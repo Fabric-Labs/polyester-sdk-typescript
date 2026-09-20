@@ -1,5 +1,6 @@
-import { AuthService } from "./auth.js";
+import { AuthService, type LoginWithWalletResponse } from "./auth.js";
 import { AuthenticationError, ConfigurationError } from "../../shared/errors.js";
+import { toPolyesterError } from "../../shared/connect-error-mapping.js";
 import { AuthSessionStore } from "./session.js";
 import type { AccountSigner, AccountSignerConfig, HexAddress } from "../../account-signer/types.js";
 import { assertAccountSigner, resolveAccountSigner } from "../../account-signer/types.js";
@@ -86,6 +87,9 @@ export class AccountSignerAuthService extends AuthService {
     #tokenStorage: AuthTokenStorage;
     #sessionStore: AuthSessionStore;
     #realtime: PolyesterRealtime;
+    // Every asynchronous auth transition captures this generation. A later login,
+    // logout, signer change, or restore makes older work observational only.
+    #authOperationGeneration = 0;
 
     constructor({
         transports,
@@ -130,6 +134,7 @@ export class AccountSignerAuthService extends AuthService {
      */
     setAccountSigner(accountSigner: AccountSigner | null): void {
         if (accountSigner) this.#assertAccountSignerEnvironment(accountSigner);
+        this.#beginAuthOperation();
         this.#accountSigner = accountSigner;
         this.#accountIdentity = accountSigner ? this.#identityFromSigner(accountSigner) : null;
         this.#notifyStateChange();
@@ -153,6 +158,8 @@ export class AccountSignerAuthService extends AuthService {
         options: LoginOptions,
         previousActiveAccount?: ActiveAccountInfo,
     ): Promise<LoginResult> {
+        const generation = this.#beginAuthOperation();
+        const startingToken = this.#tokenStorage.get();
         const { provider, loginMethod } = options;
 
         const accountSigner = await this.#resolveAccountSigner();
@@ -182,6 +189,9 @@ export class AccountSignerAuthService extends AuthService {
             walletProvider: provider,
         });
 
+        if (!this.#isCurrentAuthOperation(generation, startingToken)) {
+            throw new DOMException("Authentication operation superseded", "AbortError");
+        }
         const environmentSession = this.#getEnvironmentSession();
         const resolvedLoginMethod =
             loginMethod ??
@@ -214,6 +224,7 @@ export class AccountSignerAuthService extends AuthService {
         this.#walletProvider = provider;
         this.#loginMethod = resolvedLoginMethod;
         this.#challengeUri = uri;
+        this.#accountSigner = accountSigner;
         this.#accountIdentity = this.#identityFromSigner(accountSigner);
 
         this.#notifyStateChange();
@@ -223,24 +234,14 @@ export class AccountSignerAuthService extends AuthService {
             username: response.username,
         });
 
-        const expiresAt = response.expiresAt
-            ? new Date(
-                  Number(response.expiresAt.seconds) * 1000 +
-                      (response.expiresAt.nanos ?? 0) / 1_000_000,
-              )
-            : new Date();
-
-        return {
-            accountId: response.accountId,
-            username: response.username,
-            expiresAt,
-        };
+        return this.#loginResult(response);
     }
 
     /**
      * Builds auth state from a session token and optional active account override.
      */
     hydrateAuthState(state: AuthHydrationData): void {
+        this.#beginAuthOperation();
         const existingToken = this.#getEnvironmentBoundToken();
         if (!existingToken || !isJwtValid(existingToken)) return;
 
@@ -265,67 +266,81 @@ export class AccountSignerAuthService extends AuthService {
      * Loads the stored token, validates that it still belongs to this environment, and restores auth state when possible.
      */
     async restoreSession(): Promise<{ accountId: string; username: string } | null> {
+        const generation = this.#beginAuthOperation();
         const existingToken = this.#getEnvironmentBoundToken();
 
         if (!existingToken || !isJwtValid(existingToken)) {
-            this.#clearExpiredSessionState();
+            if (this.#isCurrentAuthOperation(generation)) this.#clearExpiredSessionState();
             return null;
         }
 
+        let me: Awaited<ReturnType<AuthService["me"]>>;
         try {
-            const me = await this.me();
-            this.#isAuthenticated = true;
-            this.#mainAccountId = me.accountId;
-
-            // preserve active account if already set (e.g. via hydration), otherwise use main
-            const existingSession = this.#getEnvironmentSession();
-            this.#walletProvider = existingSession?.provider ?? this.#walletProvider;
-            this.#loginMethod = existingSession?.loginMethod ?? this.#loginMethod;
-            if (!this.#activeAccountId) {
-                this.#activeAccountId = existingSession?.activeAccount?.accountId ?? me.accountId;
+            me = await this.me();
+        } catch (error) {
+            if (!this.#isCurrentAuthOperation(generation, existingToken)) return null;
+            const mappedError = toPolyesterError(error);
+            if (mappedError instanceof AuthenticationError) {
+                this.#clearExpiredSessionState();
+                return null;
             }
+            throw mappedError;
+        }
+        if (!this.#isCurrentAuthOperation(generation, existingToken)) return null;
 
-            // use existing account signer if set, otherwise try to resolve from config
-            if (!this.#accountSigner) {
-                this.#accountSigner = await resolveAccountSigner(this.#accountSignerConfig);
-                if (this.#accountSigner) {
-                    this.#assertAccountSignerEnvironment(this.#accountSigner);
-                    this.#accountIdentity = this.#identityFromSigner(this.#accountSigner);
-                }
+        let accountSigner = this.#accountSigner;
+        if (!accountSigner) {
+            try {
+                accountSigner = await resolveAccountSigner(this.#accountSignerConfig);
+            } catch (error) {
+                if (!this.#isCurrentAuthOperation(generation, existingToken)) return null;
+                throw error;
             }
+            if (!this.#isCurrentAuthOperation(generation, existingToken)) return null;
+            if (accountSigner) this.#assertAccountSignerEnvironment(accountSigner);
+        }
 
-            // keep the display session available for SSR hydration
-            if (this.#accountSigner?.accountAddress) {
-                const session = this.#sessionStore.ensureSession(
-                    {
-                        provider: this.#walletProvider ? this.#walletProvider : "other",
-                        loginMethod:
-                            this.#loginMethod ??
-                            (this.#walletProvider === "metamask" ? "metamask" : null),
-                        primaryWallet:
-                            this.#accountSigner.ownerAddress ?? this.#accountSigner.accountAddress,
-                        smartAccount: this.#accountSigner.accountAddress,
-                        accountId: me.accountId,
-                        username: me.username ?? undefined,
-                    },
-                    { maxAgeSeconds: this.#getCurrentTokenStorageOptions().maxAgeSeconds },
-                );
-                this.#walletProvider = session.provider;
-                this.#loginMethod = session.loginMethod ?? this.#loginMethod;
-            }
-
-            this.#notifyStateChange();
-            return { accountId: me.accountId, username: me.username };
-        } catch {
+        if (!isJwtValid(existingToken) || this.#getEnvironmentBoundToken() !== existingToken) {
             this.#clearExpiredSessionState();
             return null;
         }
+
+        const existingSession = this.#getEnvironmentSession();
+        const walletProvider = existingSession?.provider ?? this.#walletProvider;
+        const loginMethod = existingSession?.loginMethod ?? this.#loginMethod;
+        const activeAccountId =
+            this.#activeAccountId ?? existingSession?.activeAccount?.accountId ?? me.accountId;
+
+        // Publish runtime state only after asynchronous restoration has completed.
+        if (accountSigner) {
+            this.#sessionStore.ensureSession(
+                {
+                    provider: walletProvider ?? "other",
+                    loginMethod: loginMethod ?? (walletProvider === "metamask" ? "metamask" : null),
+                    primaryWallet: accountSigner.ownerAddress ?? accountSigner.accountAddress,
+                    smartAccount: accountSigner.accountAddress,
+                    accountId: me.accountId,
+                    username: me.username ?? undefined,
+                },
+                { maxAgeSeconds: this.#getCurrentTokenStorageOptions().maxAgeSeconds },
+            );
+            this.#accountSigner = accountSigner;
+            this.#accountIdentity = this.#identityFromSigner(accountSigner);
+        }
+        this.#isAuthenticated = true;
+        this.#mainAccountId = me.accountId;
+        this.#activeAccountId = activeAccountId;
+        this.#walletProvider = walletProvider ?? (accountSigner ? "other" : undefined);
+        this.#loginMethod = loginMethod;
+        this.#notifyStateChange();
+        return { accountId: me.accountId, username: me.username };
     }
 
     /**
      * Clears stored auth state and removes the persisted auth token.
      */
     async logout(): Promise<void> {
+        this.#beginAuthOperation();
         this.#realtime.disconnectPrivate();
         this.#tokenStorage.clear();
         this.#isAuthenticated = false;
@@ -363,7 +378,7 @@ export class AccountSignerAuthService extends AuthService {
      */
     getSessionTimeToExpiry(): number {
         const token = this.#getEnvironmentBoundToken();
-        if (!token) return 0;
+        if (!token || !isJwtValid(token)) return 0;
         return getJwtTimeToExpiry(token);
     }
 
@@ -497,14 +512,34 @@ export class AccountSignerAuthService extends AuthService {
         const resolved = await resolveAccountSigner(this.#accountSignerConfig);
         if (resolved) {
             this.#assertAccountSignerEnvironment(resolved);
-            this.#accountSigner = resolved;
-            this.#accountIdentity = this.#identityFromSigner(resolved);
         }
-        return this.#accountSigner;
+        return resolved;
     }
 
     #notifyStateChange(): void {
         this.events.emit("stateChange", this.getState());
+    }
+
+    #beginAuthOperation(): number {
+        this.#authOperationGeneration += 1;
+        return this.#authOperationGeneration;
+    }
+
+    #isCurrentAuthOperation(generation: number, token?: string | null): boolean {
+        return (
+            generation === this.#authOperationGeneration &&
+            (token === undefined || this.#tokenStorage.get() === token)
+        );
+    }
+
+    #loginResult(response: LoginWithWalletResponse): LoginResult {
+        const expiresAt = response.expiresAt
+            ? new Date(
+                  Number(response.expiresAt.seconds) * 1000 +
+                      (response.expiresAt.nanos ?? 0) / 1_000_000,
+              )
+            : new Date();
+        return { accountId: response.accountId, username: response.username, expiresAt };
     }
 
     #getEnvironmentBoundToken(): string | null {
