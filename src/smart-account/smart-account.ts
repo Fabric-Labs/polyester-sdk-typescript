@@ -1,16 +1,7 @@
 import type { Address, LocalAccount, PublicClient } from "viem";
 import { createPublicClient, http, withTimeout } from "viem";
-import type {
-    EstimateUserOperationGasParameters,
-    GetPaymasterDataParameters,
-    GetPaymasterStubDataParameters,
-    UserOperation,
-} from "viem/account-abstraction";
-import {
-    estimateUserOperationGas,
-    formatUserOperationRequest,
-    prepareUserOperation,
-} from "viem/account-abstraction";
+import type { EstimateUserOperationGasParameters } from "viem/account-abstraction";
+import { estimateUserOperationGas, prepareUserOperation } from "viem/account-abstraction";
 import { createSmartAccountClient } from "permissionless";
 import { getUserOperationStatus } from "permissionless/actions/pimlico";
 import { toSafeSmartAccount } from "permissionless/accounts";
@@ -168,44 +159,13 @@ function buildPolyesterSmartAccountClient(
 
     const gasPrice = cachedForTtl(() => paymaster.getUserOperationGasPrice(), gasPriceCacheTtlMs);
     const getGasPrice = gasPrice.get;
-    // The stub is a per-paymaster constant (address + dummy signature): fetched
-    // once, primed by warm-up, and only dropped when a submission fails.
-    // `paymasterContext` is not forwarded to it; no Polyester paymaster
-    // policy keys off context, and the sponsor call below does forward it.
-    const stubData = cachedForTtl(
-        () =>
-            paymaster.getPaymasterStubData({
-                chainId: environment.chain.id,
-                entryPointAddress: environment.accountAbstraction.entryPoint.address,
-                sender: account.address,
-                nonce: 0n,
-                callData: "0x",
-                maxFeePerGas: 0n,
-                maxPriorityFeePerGas: 0n,
-            }),
-        Number.POSITIVE_INFINITY,
-    );
-    const getStubData = stubData.get;
 
     const client = createSmartAccountClient({
         account,
         chain: environment.chain,
         paymaster: {
-            getPaymasterStubData: (_parameters: GetPaymasterStubDataParameters) => getStubData(),
-            // `pm_sponsorUserOperation` replaces `pm_getPaymasterData`: it signs
-            // over the (already buffered) account gas limits it receives and
-            // sets its own paymaster limits. Nothing may adjust gas afterwards.
-            getPaymasterData: async (parameters: GetPaymasterDataParameters) => {
-                // viem hands over every original parameter (`calls`, `chainId`,
-                // ...); the paymaster rejects unknown keys, so keep only
-                // UserOperation fields.
-                return paymaster.sponsorUserOperation({
-                    userOperation: formatUserOperationRequest(
-                        parameters as unknown as UserOperation<"0.7">,
-                    ) as unknown as UserOperation<"0.7">,
-                    paymasterContext: parameters.context,
-                });
-            },
+            getPaymasterStubData: (parameters) => paymaster.getPaymasterStubData(parameters),
+            getPaymasterData: (parameters) => paymaster.getPaymasterData(parameters),
         },
         bundlerTransport: http(environment.accountAbstraction.bundlerUrl),
         pollingInterval: pollingIntervalMs,
@@ -214,7 +174,7 @@ function buildPolyesterSmartAccountClient(
             // Single prepare pass: viem resolves gas estimation via
             // `getAction(client, estimateUserOperationGas, ...)`, so handing
             // `prepareUserOperation` a client whose estimate action buffers the
-            // result makes the buffered limits flow into the sponsor call
+            // result makes the buffered limits flow into getPaymasterData
             // before signing — the sponsorship signature commits to them.
             prepareUserOperation: (prepareClient, prepareParameters) => {
                 const bufferingClient = {
@@ -233,10 +193,9 @@ function buildPolyesterSmartAccountClient(
             },
         },
     });
-    smartAccountClientPrimers.set(client, () => Promise.allSettled([getGasPrice(), getStubData()]));
+    smartAccountClientPrimers.set(client, () => Promise.allSettled([getGasPrice()]));
     smartAccountClientCacheResets.set(client, () => {
         gasPrice.clear();
-        stubData.clear();
     });
     return client;
 }
@@ -275,11 +234,16 @@ function addUserOperationGasBuffer(gas: bigint): bigint {
 }
 
 /**
- * Pads account gas limits (+20%, 50k floor) before sponsorship. Paymaster
- * limits are left alone: the paymaster sets and signs its own.
+ * Pads account and paymaster gas limits (+20%, 50k floor) before getPaymasterData.
  */
 function bufferPolyesterUserOperationGas<
-    T extends { callGasLimit?: bigint; preVerificationGas?: bigint; verificationGasLimit?: bigint },
+    T extends {
+        callGasLimit?: bigint;
+        preVerificationGas?: bigint;
+        verificationGasLimit?: bigint;
+        paymasterPostOpGasLimit?: bigint;
+        paymasterVerificationGasLimit?: bigint;
+    },
 >(gas: T): T {
     return {
         ...gas,
@@ -292,12 +256,22 @@ function bufferPolyesterUserOperationGas<
         ...(typeof gas.verificationGasLimit === "bigint"
             ? { verificationGasLimit: addUserOperationGasBuffer(gas.verificationGasLimit) }
             : {}),
+        ...(typeof gas.paymasterPostOpGasLimit === "bigint"
+            ? { paymasterPostOpGasLimit: addUserOperationGasBuffer(gas.paymasterPostOpGasLimit) }
+            : {}),
+        ...(typeof gas.paymasterVerificationGasLimit === "bigint"
+            ? {
+                  paymasterVerificationGasLimit: addUserOperationGasBuffer(
+                      gas.paymasterVerificationGasLimit,
+                  ),
+              }
+            : {}),
     };
 }
 
 /**
- * Warms the network path for an upcoming submission: primes the gas-price and
- * paymaster-stub caches and opens connections to the RPC endpoint. Never
+ * Warms the network path for an upcoming submission: primes the gas-price
+ * cache and opens connections to the RPC endpoint. Never
  * throws; the nonce is intentionally not cached — fetching it here is
  * connection warm-up only.
  */
@@ -364,8 +338,8 @@ export async function sendPolyesterUserOperation(
         return hash;
     } catch (error) {
         // Only a failure after signing (i.e. from `eth_sendUserOperation`) can
-        // mean the bundler rejected the cached gas price or stub. Earlier
-        // failures — a cancelled wallet prompt above all — keep both caches so
+        // mean the bundler rejected the cached gas price. Earlier
+        // failures — a cancelled wallet prompt above all — keep the cache so
         // the retry stays cheap.
         if (signed) smartAccountClientCacheResets.get(client)?.();
         throw error;
