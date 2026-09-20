@@ -1,5 +1,13 @@
 # @polyester/sdk
 
+## 0.26.1
+
+### Patch Changes
+
+- Fix UserOperations accepted then rejected by the bundler by using per-operation paymaster stubs and `pm_getPaymasterData`. ([#160](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/160))
+
+- Restore paymaster gas estimate buffering (+20%, 50k floor), while preserving stub-provided limits during preparation. ([#160](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/160))
+
 ## 0.26.0
 
 ### Minor Changes
