@@ -1,5 +1,31 @@
 # @polyester/sdk
 
+## 0.26.0
+
+### Minor Changes
+
+- Memoize `createPolyesterSmartAccountClient` per account, environment and options so the gas price cache and warmed connections survive across submissions. ([#157](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/157))
+
+- Add `waitForPolyesterUserOperationReceipt`, which polls `pimlico_getUserOperationStatus` at a 250ms default interval, fetches the receipt only once included, fails fast on `rejected` or `failed`, and keeps checking the chain for operations the bundler reports as `not_found`. The client default `pollingInterval` is now 250ms, so viem's built-in `waitForUserOperationReceipt` also polls four times as often. ([#157](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/157))
+
+- Sponsor smart-account UserOperations with `pm_sponsorUserOperation` instead of `pm_getPaymasterData`, signing over client-buffered account gas limits, and cache the paymaster stub so warm-up removes one round trip per submission. The stub is fetched once with a synthetic operation and reused, which relies on the Polyester paymaster returning constant stub data regardless of the operation or context. ([#157](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/157))
+
+- Add an `onPhase` timing hook to `sendPolyesterUserOperation` and `waitForPolyesterUserOperationReceipt` reporting `prepare`, `sign`, `send`, and `receipt` durations. Observer errors never affect the result. ([#157](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/157))
+
+### Patch Changes
+
+- Raise the smart-account gas price cache TTL from 10s to 60s. `sendPolyesterUserOperation` clears the cache when submission fails after signing, and `waitForPolyesterUserOperationReceipt` clears it on a bundler `rejected` status. ([#157](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/157))
+
+- Return zero from `getSessionTimeToExpiry()` for malformed JWTs even when their payload contains a future expiration. ([#159](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/159))
+
+- Scope local bearer and display-session cookies by port across browser storage and server parsing, including default ports and custom bearer-cookie names. Framework cookie stores must provide `cookieLocation`; local sessions do not fall back to shared legacy cookies. ([#159](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/159))
+
+- Retain foreign environment fingerprints during display-session reads so the next bearer-token read can reject and clear the mismatched session. ([#159](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/159))
+
+- Prevent superseded restoration, login, and refresh operations from clearing or overwriting a newer session. Superseded restores return `null`, and superseded logins reject with `AbortError`. ([#159](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/159))
+
+- Preserve authentication when session restoration fails because of a transient request or signer initialization error. Propagate these failures for retry while continuing to clear expired or backend-rejected sessions. ([#159](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/159))
+
 ## 0.25.1
 
 ### Patch Changes
