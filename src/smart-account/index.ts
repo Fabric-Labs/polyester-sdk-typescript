@@ -18,8 +18,12 @@ export type {
 } from "./smart-account.js";
 
 /**
- * Resolves once this subpath (and the permissionless/viem graph beneath it)
- * has been evaluated. Call it early, e.g. on form mount, so the code is
- * already loaded by the time a user submits.
+ * Resolves once the smart-account implementation (and the permissionless/viem
+ * graph beneath it) has been loaded and evaluated. Call it early, e.g. on
+ * form mount, so the code is already there by the time a user submits. The
+ * dynamic import keeps the dependency even when a bundler tree-shakes every
+ * other export from this subpath.
  */
-export async function preloadSmartAccountSdk(): Promise<void> {}
+export async function preloadSmartAccountSdk(): Promise<void> {
+    await import("./smart-account.js");
+}
