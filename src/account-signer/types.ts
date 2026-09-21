@@ -25,7 +25,9 @@ export interface AccountSigner {
     /**
      * Sign the exact UTF-8 message with EIP-191 semantics. For login this must be
      * the owner EOA's raw 65-byte signature (0x + 130 hex chars), not a
-     * smart-account wrapped one.
+     * smart-account wrapped one. Login SIWE uses Ethereum mainnet (1); wallet
+     * adapters must select that network before signing when required (e.g. Phantom).
+     * This does not change the Polyester environment used for Safe signing.
      */
     signMessage(message: string): Promise<Hex>;
 }

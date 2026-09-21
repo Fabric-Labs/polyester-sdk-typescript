@@ -110,6 +110,9 @@ export class AuthService {
     /**
      * Requests a server-issued SIWE login message. Sign its exact UTF-8 bytes with
      * personal_sign; do not hash or reconstruct it. Expiry is epoch milliseconds.
+     * The backend sets SIWE Chain ID to Ethereum mainnet (1) and binds the
+     * Polyester chain in Resources. Do not send a chain ID or rewrite either binding.
+     * Wallet adapters must select Ethereum mainnet before signing if required by the wallet.
      * Subaccount creation uses `subaccounts.createChallenge` instead.
      */
     async createWalletChallenge(

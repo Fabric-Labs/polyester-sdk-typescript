@@ -65,6 +65,23 @@ describe("polyesterSession", () => {
         expect(polyesterSession.get()).toEqual(session);
     });
 
+    it("preserves Phantom provider metadata in browser and server sessions", () => {
+        const session = { ...validSession(), provider: "phantom", loginMethod: "phantom" } as const;
+        const cookie = sessionCookie(session);
+        vi.stubGlobal("document", { cookie });
+
+        expect(polyesterSession.get()).toEqual(session);
+        expect(
+            parseServerSessionSnapshot(
+                { [POLYESTER_SESSION_COOKIE_NAME]: JSON.stringify(session) },
+                POLYESTER_DEVNET_ENVIRONMENT,
+            ),
+        ).toMatchObject({
+            provider: "phantom",
+            loginMethod: "phantom",
+        });
+    });
+
     it("accepts Rabby as a wallet login method", () => {
         const session = { ...validSession(), provider: "other", loginMethod: "rabby" } as const;
         vi.stubGlobal("document", { cookie: sessionCookie(session) });

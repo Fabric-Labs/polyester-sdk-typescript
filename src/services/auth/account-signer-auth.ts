@@ -41,7 +41,7 @@ export interface LoginOptions {
     /**
      * The wallet provider to use for login.
      */
-    provider: "metamask" | "turnkey" | "other";
+    provider: SessionData["provider"];
     /** Browser origin requesting the signature; defaults to location.origin in browsers. Required outside browsers. */
     uri?: string;
     loginMethod?: AuthLoginMethod | null;
@@ -88,7 +88,7 @@ export class AccountSignerAuthService extends AuthService {
     #mainAccountId: string | null = null;
     #activeAccountId: string | null = null;
     #subaccounts: SubaccountsService;
-    #walletProvider: "metamask" | "turnkey" | "other" | undefined = undefined;
+    #walletProvider: SessionData["provider"] | undefined = undefined;
     #loginMethod: AuthLoginMethod | null = null;
     #challengeUri: string | undefined = undefined;
     #environmentFingerprint: string;
@@ -204,7 +204,7 @@ export class AccountSignerAuthService extends AuthService {
             loginMethod ??
             this.#loginMethod ??
             environmentSession?.loginMethod ??
-            (provider === "metamask" ? "metamask" : null);
+            (provider === "metamask" || provider === "phantom" ? provider : null);
 
         const tokenOptions = createAuthTokenStorageSetOptions(response.accessToken);
         const activeAccount =
@@ -395,7 +395,7 @@ export class AccountSignerAuthService extends AuthService {
     async refreshSession(params?: {
         /** Overrides the origin remembered from login. */
         uri?: string;
-        provider?: "metamask" | "turnkey" | "other";
+        provider?: SessionData["provider"];
         loginMethod?: AuthLoginMethod | null;
     }): Promise<LoginResult> {
         if (!this.#isAuthenticated) {
@@ -577,9 +577,7 @@ export class AccountSignerAuthService extends AuthService {
         return createAuthTokenStorageSetOptions(token);
     }
 
-    #resolveRefreshProvider(
-        provider?: "metamask" | "turnkey" | "other",
-    ): "metamask" | "turnkey" | "other" {
+    #resolveRefreshProvider(provider?: SessionData["provider"]): SessionData["provider"] {
         return (
             provider ?? this.#walletProvider ?? this.#getEnvironmentSession()?.provider ?? "other"
         );
