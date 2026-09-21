@@ -1,6 +1,7 @@
 import {
     WalletAddressSchema,
     WalletChallengeMessageSchema,
+    WalletChallengeUriSchema,
     WalletSignatureSchema,
 } from "../auth/wallet-challenge.schemas.js";
 import * as v from "valibot";
@@ -86,6 +87,25 @@ export const EffectiveSubaccountPermissionsSchema = v.object({
 export type EffectiveSubaccountPermissions = v.InferOutput<
     typeof EffectiveSubaccountPermissionsSchema
 >;
+
+export const CreateSubaccountChallengeInputSchema = v.strictObject({
+    ownerAddress: WalletAddressSchema,
+    uri: WalletChallengeUriSchema,
+});
+
+export type CreateSubaccountChallengeInput = v.InferInput<
+    typeof CreateSubaccountChallengeInputSchema
+>;
+
+export const SubaccountChallengeSchema = v.object({
+    message: WalletChallengeMessageSchema,
+    smartAccountAddress: WalletAddressSchema,
+    smartAccountSaltNonce: v.number(),
+    expiresAt: OptionalTimestampMsSchema,
+    polyesterChainId: v.pipe(v.bigint(), v.transform(Number)),
+});
+
+export type SubaccountChallenge = v.InferOutput<typeof SubaccountChallengeSchema>;
 
 export const CreateSubaccountInputSchema = v.strictObject({
     label: v.optional(v.string(), ""),

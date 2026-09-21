@@ -78,7 +78,6 @@ describe("AuthService", () => {
             smartAccountAddress: "0x1111111111111111111111111111111111111111",
             signerAddress: "0x1111111111111111111111111111111111111111",
             uri: "https://app.example",
-            purpose: "login",
         });
 
         expect(challenge).toEqual({ message: "server message", expiresAt: 1_785_940_604_369 });
@@ -94,7 +93,6 @@ const challengeInput = {
     smartAccountAddress: "0x1111111111111111111111111111111111111111",
     signerAddress: "0x1111111111111111111111111111111111111111",
     uri: "https://app.example:8443",
-    purpose: "login" as const,
 };
 
 function challengeService(response: Parameters<typeof unaryTransport>[0]) {
@@ -108,21 +106,17 @@ function challengeService(response: Parameters<typeof unaryTransport>[0]) {
 }
 
 describe("wallet challenges", () => {
-    it("maps both purposes through the public transport and preserves exact message bytes", async () => {
+    it("maps login challenges through the public transport and preserves exact message bytes", async () => {
         const message = "  server SIWE message ☃\nwith final newline\n";
         const { service, publicApi, authApi } = challengeService({ message });
         const signal = new AbortController().signal;
         await expect(service.createWalletChallenge(challengeInput, { signal })).resolves.toEqual({
             message,
         });
-        await service.createWalletChallenge({ ...challengeInput, purpose: "create_subaccount" });
         expect(publicApi.calls[0]).toMatchObject({
             method: { localName: "createWalletChallenge" },
             signal,
             message: { ...challengeInput, purpose: WalletChallengePurpose.LOGIN },
-        });
-        expect(publicApi.calls[1]?.message).toMatchObject({
-            purpose: WalletChallengePurpose.CREATE_SUBACCOUNT,
         });
         expect(authApi.calls).toHaveLength(0);
     });
@@ -143,16 +137,9 @@ describe("wallet challenges", () => {
         expect(publicApi.calls).toHaveLength(0);
     });
 
-    it("rejects subaccount signer mismatch and unspecified or unknown purposes before transport", async () => {
+    it("rejects the removed purpose field before transport", async () => {
         const { service, publicApi } = challengeService({ message: "message" });
-        await expect(
-            service.createWalletChallenge({
-                ...challengeInput,
-                purpose: "create_subaccount",
-                signerAddress: "0x2222222222222222222222222222222222222222",
-            }),
-        ).rejects.toBeInstanceOf(ValidationError);
-        for (const purpose of [undefined, "unknown", 0]) {
+        for (const purpose of ["login", "create_subaccount"]) {
             await expect(
                 // @ts-expect-error Exercise untyped consumers.
                 service.createWalletChallenge({ ...challengeInput, purpose }),

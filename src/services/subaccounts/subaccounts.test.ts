@@ -361,6 +361,45 @@ describe("SubaccountsService", () => {
         ).resolves.toMatchObject({ id: formatId(5n), status: "pending" });
     });
 
+    it("requests a subaccount challenge and normalizes the response", async () => {
+        const transport = unaryTransport({
+            message: "authorize subaccount ☃",
+            smartAccountAddress: "0x4444444444444444444444444444444444444444",
+            smartAccountSaltNonce: 3,
+            expiresAt: { seconds: 5n, nanos: 0 },
+            polyesterChainId: 8453n,
+        });
+        const service = new SubaccountsService(
+            { publicApi: transport.transport, authApi: transport.transport },
+            realtimeClientStub().realtime,
+        );
+        await expect(
+            service.createChallenge({
+                ownerAddress: "0x2222222222222222222222222222222222222222",
+                uri: "https://app.example:8443",
+            }),
+        ).resolves.toEqual({
+            message: "authorize subaccount ☃",
+            smartAccountAddress: "0x4444444444444444444444444444444444444444",
+            smartAccountSaltNonce: 3,
+            expiresAt: 5_000,
+            polyesterChainId: 8453,
+        });
+        expect(transport.lastCall()).toMatchObject({
+            method: { localName: "createSubaccountChallenge" },
+            message: {
+                ownerAddress: "0x2222222222222222222222222222222222222222",
+                uri: "https://app.example:8443",
+            },
+        });
+        await expect(
+            service.createChallenge({
+                ownerAddress: "0x2222222222222222222222222222222222222222",
+                uri: "https://app.example/path",
+            }),
+        ).rejects.toThrow();
+    });
+
     it("normalizes list invite/member/activity requests and parses responses", async () => {
         const responses = [
             { invites: [invite()] },

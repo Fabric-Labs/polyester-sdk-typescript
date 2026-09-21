@@ -69,6 +69,7 @@ import {
     RequestError,
     ResourceNotFoundError,
     RevisionConflictError,
+    SubaccountChallengeInvalidError,
     ServiceUnavailableError,
     SessionElevationRequiredError,
     StepUpRequiredError,
@@ -230,6 +231,21 @@ describe("connectErrorToPolyesterError", () => {
         expect(mapped.retryable).toBe(false);
         expect(mapped.detail).toMatchObject({ service: "auth", code: "AUTH_TERMS_NOT_ACCEPTED" });
         expect(mapped.cause).toBe(raw);
+    });
+
+    it("maps stale subaccount challenge details regardless of gRPC code", () => {
+        const raw = authDetailError(
+            "",
+            Code.FailedPrecondition,
+            AuthErrorCode.AUTH_SUBACCOUNT_CHALLENGE_INVALID,
+        );
+        const mapped = connectErrorToPolyesterError(raw);
+
+        expect(mapped).toBeInstanceOf(SubaccountChallengeInvalidError);
+        expect(mapped).toBeInstanceOf(PreconditionFailedError);
+        expect(mapped.code).toBe("SUBACCOUNT_CHALLENGE_INVALID");
+        expect(mapped.retryable).toBe(false);
+        expect(mapped.message).toBe("Subaccount challenge is expired, replaced, or invalid.");
     });
 
     it("maps revision-conflict details before generic aborted handling", () => {

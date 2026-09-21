@@ -28,6 +28,7 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * │   │   ├── RevisionConflictError          REVISION_CONFLICT
  * │   │   ├── PolicyInUseError               POLICY_IN_USE
  * │   │   ├── PolicyLockedError              POLICY_LOCKED
+ * │   │   ├── SubaccountChallengeInvalidError SUBACCOUNT_CHALLENGE_INVALID
  * │   │   └── MfaLastFactorRequiredError     MFA_LAST_FACTOR_REQUIRED
  * │   ├── ConfigurationError         INVALID_CONFIGURATION       false
  * │   ├── MfaRequiredError           MFA_REQUIRED                false
@@ -287,6 +288,19 @@ export class RevisionConflictError extends PreconditionFailedError {
     constructor(message: string, options?: PolyesterErrorOptions) {
         super(message, options);
         this.name = "RevisionConflictError";
+    }
+}
+
+/**
+ * The subaccount authorization is expired, replaced by a newer challenge, replayed,
+ * or otherwise invalid. Request a fresh challenge via `subaccounts.createChallenge`.
+ */
+export class SubaccountChallengeInvalidError extends PreconditionFailedError {
+    override readonly code: string = "SUBACCOUNT_CHALLENGE_INVALID";
+
+    constructor(message: string, options?: PolyesterErrorOptions) {
+        super(message, options);
+        this.name = "SubaccountChallengeInvalidError";
     }
 }
 

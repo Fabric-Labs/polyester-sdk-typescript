@@ -11,7 +11,7 @@ import { file_google_protobuf_descriptor } from "@bufbuild/protobuf/wkt";
  * Describes the file polyester/api/options.proto.
  */
 export const file_polyester_api_options: GenFile = /*@__PURE__*/
-  fileDesc("Chtwb2x5ZXN0ZXIvYXBpL29wdGlvbnMucHJvdG8SDXBvbHllc3Rlci5hcGkqYQoOTUZBUmVxdWlyZW1lbnQSEwoPTUZBX1VOU1BFQ0lGSUVEEAASDgoKTUZBX1JFQ0VOVBABEhUKEU1GQV9GUkVTSF9TVEVQX1VQEAISEwoPTUZBX0NPTkRJVElPTkFMEAM6OAoGcHVibGljEh4uZ29vZ2xlLnByb3RvYnVmLk1ldGhvZE9wdGlvbnMY0YYDIAEoCFIGcHVibGljOjgKBmhpZGRlbhIeLmdvb2dsZS5wcm90b2J1Zi5NZXRob2RPcHRpb25zGNKGAyABKAhSBmhpZGRlbjpoCg9tZmFfcmVxdWlyZW1lbnQSHi5nb29nbGUucHJvdG9idWYuTWV0aG9kT3B0aW9ucxjThgMgASgOMh0ucG9seWVzdGVyLmFwaS5NRkFSZXF1aXJlbWVudFIObWZhUmVxdWlyZW1lbnRCSlpIZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9wb2x5ZXN0ZXIvYXBpO3BvbHllc3RlcmFwaXYxYgZwcm90bzM=", [file_google_protobuf_descriptor]);
+  fileDesc("Chtwb2x5ZXN0ZXIvYXBpL29wdGlvbnMucHJvdG8SDXBvbHllc3Rlci5hcGkqYQoOTUZBUmVxdWlyZW1lbnQSEwoPTUZBX1VOU1BFQ0lGSUVEEAASDgoKTUZBX1JFQ0VOVBABEhUKEU1GQV9GUkVTSF9TVEVQX1VQEAISEwoPTUZBX0NPTkRJVElPTkFMEAMqTAoUQXV0aGVudGljYXRpb25NZXRob2QSFAoQQVVUSF9VTlNQRUNJRklFRBAAEhEKDVNFU1NJT05fVE9LRU4QARILCgdBUElfS0VZEAI6OAoGcHVibGljEh4uZ29vZ2xlLnByb3RvYnVmLk1ldGhvZE9wdGlvbnMY0YYDIAEoCFIGcHVibGljOjgKBmhpZGRlbhIeLmdvb2dsZS5wcm90b2J1Zi5NZXRob2RPcHRpb25zGNKGAyABKAhSBmhpZGRlbjpoCg9tZmFfcmVxdWlyZW1lbnQSHi5nb29nbGUucHJvdG9idWYuTWV0aG9kT3B0aW9ucxjThgMgASgOMh0ucG9seWVzdGVyLmFwaS5NRkFSZXF1aXJlbWVudFIObWZhUmVxdWlyZW1lbnQ6fAoWYXV0aGVudGljYXRpb25fbWV0aG9kcxIeLmdvb2dsZS5wcm90b2J1Zi5NZXRob2RPcHRpb25zGNSGAyADKA4yIy5wb2x5ZXN0ZXIuYXBpLkF1dGhlbnRpY2F0aW9uTWV0aG9kUhVhdXRoZW50aWNhdGlvbk1ldGhvZHNCSlpIZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9wb2x5ZXN0ZXIvYXBpO3BvbHllc3RlcmFwaXYxYgZwcm90bzM=", [file_google_protobuf_descriptor]);
 
 /**
  * MFARequirement describes the interactive MFA assurance documented for an RPC.
@@ -55,6 +55,40 @@ export const MFARequirementSchema: GenEnum<MFARequirement> = /*@__PURE__*/
   enumDesc(file_polyester_api_options, 0);
 
 /**
+ * AuthenticationMethod identifies a credential type accepted by an RPC.
+ *
+ * @generated from enum polyester.api.AuthenticationMethod
+ */
+export enum AuthenticationMethod {
+  /**
+   * No authentication method was specified.
+   *
+   * @generated from enum value: AUTH_UNSPECIFIED = 0;
+   */
+  AUTH_UNSPECIFIED = 0,
+
+  /**
+   * A bearer token for an interactive user session.
+   *
+   * @generated from enum value: SESSION_TOKEN = 1;
+   */
+  SESSION_TOKEN = 1,
+
+  /**
+   * A signed API key request.
+   *
+   * @generated from enum value: API_KEY = 2;
+   */
+  API_KEY = 2,
+}
+
+/**
+ * Describes the enum polyester.api.AuthenticationMethod.
+ */
+export const AuthenticationMethodSchema: GenEnum<AuthenticationMethod> = /*@__PURE__*/
+  enumDesc(file_polyester_api_options, 1);
+
+/**
  * When true, this RPC is publicly accessible (no auth required).
  *
  * @generated from extension: bool public = 50001;
@@ -79,4 +113,14 @@ export const hidden: GenExtension<MethodOptions, boolean> = /*@__PURE__*/
  */
 export const mfa_requirement: GenExtension<MethodOptions, MFARequirement> = /*@__PURE__*/
   extDesc(file_polyester_api_options, 2);
+
+/**
+ * Credential types accepted by this RPC. When omitted on a protected RPC,
+ * documentation defaults to session tokens and API keys. Public RPCs expose
+ * no authentication methods. This metadata does not enforce runtime authorization.
+ *
+ * @generated from extension: repeated polyester.api.AuthenticationMethod authentication_methods = 50004;
+ */
+export const authentication_methods: GenExtension<MethodOptions, AuthenticationMethod[]> = /*@__PURE__*/
+  extDesc(file_polyester_api_options, 3);
 

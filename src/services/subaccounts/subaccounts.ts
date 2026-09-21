@@ -21,8 +21,10 @@ import type { BaseSubscribeInput } from "../../shared/types.js";
 import type { AuthAndPublicApiTransports } from "../../shared/transports.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import {
+    CreateSubaccountChallengeInputSchema,
     CreateSubaccountInputSchema,
     CreateSubaccountResultSchema,
+    SubaccountChallengeSchema,
     UpdateSubaccountInputSchema,
     InviteSubaccountMemberInputSchema,
     RemoveSubaccountMemberInputSchema,
@@ -40,6 +42,7 @@ import {
     SubaccountRoleCatalogSchema,
     EffectiveSubaccountPermissionsSchema,
     type CreateSubaccountResult,
+    type SubaccountChallenge,
     type Subaccount,
     type SubaccountMember,
     type SubaccountInvite,
@@ -83,7 +86,7 @@ export class SubaccountsService {
     }
 
     /**
-     * Returns subaccounts owned by or shared with the caller plus totalCreated, including soft-deleted count metadata useful for deriving future smart-account salts.
+     * Returns subaccounts owned by or shared with the caller plus totalCreated, including soft-deleted ones. Use `createChallenge` for the canonical next smart-account address and salt.
      */
     async list(options?: PolyesterRequestOptions): Promise<{
         totalCreated: number;
@@ -140,7 +143,24 @@ export class SubaccountsService {
     }
 
     /**
-     * Creates a new subaccount under the caller's root account using a smart-account address, server-issued SIWE message, and signature proof.
+     * Requests the canonical next smart account and a short-lived EIP-191 authorization message
+     * bound to the authenticated root and the selected owner EOA. Sign the exact message through
+     * the returned smart account, then pass it to `create`. A new challenge replaces the previous one.
+     */
+    async createChallenge(
+        input: v.InferInput<typeof CreateSubaccountChallengeInputSchema>,
+        options?: PolyesterRequestOptions,
+    ): Promise<SubaccountChallenge> {
+        const validatedInput = parse(CreateSubaccountChallengeInputSchema, input);
+        const res = await this.#client.createSubaccountChallenge(
+            validatedInput,
+            toConnectCallOptions(options),
+        );
+        return parse(SubaccountChallengeSchema, res);
+    }
+
+    /**
+     * Creates a new subaccount under the caller's root account using the smart-account address, message, and smart-account signature from `createChallenge`.
      */
     async create(
         input: v.InferInput<typeof CreateSubaccountInputSchema>,

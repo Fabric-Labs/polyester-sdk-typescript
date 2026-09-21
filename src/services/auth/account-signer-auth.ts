@@ -6,7 +6,7 @@ import type { AccountSigner, AccountSignerConfig, HexAddress } from "../../accou
 import { assertAccountSigner, resolveAccountSigner } from "../../account-signer/types.js";
 import { EventEmitter } from "../../utils/event-emitter.js";
 import { isJwtValid, getJwtTimeToExpiry } from "../../utils/jwt.js";
-import type { SubaccountsService } from "../subaccounts/index.js";
+import type { SubaccountChallenge, SubaccountsService } from "../subaccounts/index.js";
 import type {
     AuthState,
     AuthHydrationData,
@@ -48,12 +48,20 @@ export interface LoginOptions {
 }
 
 export interface CreateSubaccountParams {
-    /** The account signer for the new subaccount (caller derives this, e.g. via Turnkey saltNonce) */
-    accountSigner: AccountSigner;
+    /**
+     * Signer for the new subaccount, or a factory that derives it from the server challenge
+     * (for example via Turnkey with `challenge.smartAccountSaltNonce`). Its accountAddress must
+     * equal `challenge.smartAccountAddress`.
+     */
+    accountSigner:
+        | AccountSigner
+        | ((challenge: SubaccountChallenge) => AccountSigner | Promise<AccountSigner>);
     /** Optional human-readable label for this subaccount */
     label?: string;
     /** Browser origin requesting the signature; defaults to location.origin in browsers. Required outside browsers. */
     uri?: string;
+    /** Root owner EOA bound to the authenticated account; defaults to the configured signer's owner. */
+    ownerAddress?: HexAddress;
 }
 
 export interface CreateSubaccountResult {
@@ -178,7 +186,6 @@ export class AccountSignerAuthService extends AuthService {
             smartAccountAddress,
             signerAddress: ownerAddress,
             uri,
-            purpose: "login",
         });
         const signature = await accountSigner.signMessage(message);
 
@@ -455,21 +462,39 @@ export class AccountSignerAuthService extends AuthService {
             );
         }
 
-        const { accountSigner, label = "" } = params;
-        this.#assertAccountSignerEnvironment(accountSigner);
+        const identity = this.#accountSigner ?? this.#accountIdentity;
+        const ownerAddress =
+            params.ownerAddress ?? identity?.ownerAddress ?? identity?.accountAddress;
+        if (!ownerAddress) {
+            throw new ConfigurationError(
+                "No root owner address available. Pass ownerAddress or configure an account signer.",
+            );
+        }
 
-        const { message } = await this.createWalletChallenge({
-            smartAccountAddress: accountSigner.accountAddress,
-            signerAddress: accountSigner.accountAddress,
+        const { label = "" } = params;
+        const challenge = await this.#subaccounts.createChallenge({
+            ownerAddress,
             uri: resolveChallengeUri(params.uri ?? this.#challengeUri),
-            purpose: "create_subaccount",
         });
-        const signature = await accountSigner.signMessage(message);
+        const accountSigner =
+            typeof params.accountSigner === "function"
+                ? await params.accountSigner(challenge)
+                : params.accountSigner;
+        this.#assertAccountSignerEnvironment(accountSigner);
+        if (
+            accountSigner.accountAddress.toLowerCase() !==
+            challenge.smartAccountAddress.toLowerCase()
+        ) {
+            throw new ConfigurationError(
+                `Subaccount signer address ${accountSigner.accountAddress} does not match the server-derived smart account ${challenge.smartAccountAddress}.`,
+            );
+        }
+        const signature = await accountSigner.signMessage(challenge.message);
 
         const response = await this.#subaccounts.create({
             label,
-            smartAccountAddress: accountSigner.accountAddress,
-            message,
+            smartAccountAddress: challenge.smartAccountAddress,
+            message: challenge.message,
             signature,
         });
 

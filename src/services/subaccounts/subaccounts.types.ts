@@ -1,4 +1,5 @@
 export type {
+    CreateSubaccountChallengeInput,
     CreateSubaccountInput,
     CreateSubaccountResult,
     CreateSubaccountResult as CreateSubaccountServiceResult,
@@ -10,6 +11,7 @@ export type {
     SetSubaccountMemberMfaRequirementInput,
     Subaccount,
     SubaccountActivityInput,
+    SubaccountChallenge,
     SubaccountEvent,
     SubaccountIdInput,
     SubaccountInvite,
