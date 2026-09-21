@@ -110,8 +110,9 @@ export type MarketOverview = Message<"marketoverview.v1.MarketOverview"> & {
   low24hTicks: bigint;
 
   /**
-   * Rolling 24h base volume scaled by the pair's base_quantity_scale from
-   * GetSpotConfig. Omitted if the amount exceeds the signed 64-bit range.
+   * Rolling 24h base volume scaled by the base asset's
+   * market_data_volume_scale from GetSpotConfig. Omitted if the amount exceeds
+   * the signed 64-bit range.
    *
    * @generated from field: optional int64 volume_24h_base_scaled = 8;
    */
