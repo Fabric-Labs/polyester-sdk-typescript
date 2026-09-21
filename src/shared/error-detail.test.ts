@@ -8,6 +8,10 @@ import {
     ErrorDetailSchema as WithdrawErrorDetailSchema,
 } from "../gen/chain/withdraw/v1/withdraw_pb.js";
 import {
+    ErrorCode as ClaimsErrorCode,
+    ErrorDetailSchema as ClaimsErrorDetailSchema,
+} from "../gen/claims/v1/claims_pb.js";
+import {
     ErrorCode as LedgerErrorCode,
     ErrorDetailSchema as LedgerErrorDetailSchema,
 } from "../gen/ledger/read/v1/ledger_read_pb.js";
@@ -164,6 +168,18 @@ describe("parseConnectErrorDetail", () => {
                 ]),
             ),
         ).toEqual({ service: "market_overview", code: "UPSTREAM_ERROR" });
+        expect(
+            parseConnectErrorDetail(
+                error([
+                    {
+                        desc: ClaimsErrorDetailSchema,
+                        value: create(ClaimsErrorDetailSchema, {
+                            code: ClaimsErrorCode.CLAIM_UNAVAILABLE,
+                        }),
+                    },
+                ]),
+            ),
+        ).toEqual({ service: "claims", code: "CLAIM_UNAVAILABLE" });
     });
 
     it("decodes wire details and skips invalid wire payloads", () => {

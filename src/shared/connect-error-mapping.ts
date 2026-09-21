@@ -53,6 +53,9 @@ function hasTransientTransferError(detail: PolyesterErrorDetail | undefined): bo
             "ACCOUNT_SHARD_UNAVAILABLE",
         ].includes(detail.code);
     }
+    if (detail?.service === "claims") {
+        return ["SERVICE_UNAVAILABLE", "CLAIM_TEMPORARILY_UNAVAILABLE"].includes(detail.code);
+    }
     return false;
 }
 
@@ -190,7 +193,8 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
         rateLimit ||
         ((detail?.service === "orders" ||
             detail?.service === "withdraw" ||
-            detail?.service === "internal_transfer") &&
+            detail?.service === "internal_transfer" ||
+            detail?.service === "claims") &&
             detail.code === "RATE_LIMIT_EXCEEDED")
     ) {
         return new RateLimitError(withFallback("Rate limit exceeded."), {

@@ -205,9 +205,17 @@ async function verifyServiceInference(): Promise<void> {
     };
     const challenge = await client.auth.createWalletChallenge(challengeInput);
     expectType<import("@polyester/sdk").WalletChallenge>(challenge);
-    expectType<import("@polyester/sdk").WalletChallengePurpose>(challengeInput.purpose);
+    expectType<import("@polyester/sdk").WalletChallengePurpose | undefined>(challengeInput.purpose);
     expectType<string>(challenge.message);
     expectType<number | undefined>(challenge.expiresAt);
+    const subaccountChallenge = await client.subaccounts.createChallenge({
+        ownerAddress: challengeInput.signerAddress,
+        uri: challengeInput.uri,
+    });
+    expectType<import("@polyester/sdk").SubaccountChallenge>(subaccountChallenge);
+    expectType<number>(subaccountChallenge.smartAccountSaltNonce);
+    // @ts-expect-error Subaccount challenges no longer use the wallet-challenge purpose.
+    client.auth.createWalletChallenge({ ...challengeInput, purpose: "create_subaccount" });
     // @ts-expect-error Nonce authentication was removed from the protocol.
     client.auth.requestLoginNonce(challengeInput.smartAccountAddress);
 

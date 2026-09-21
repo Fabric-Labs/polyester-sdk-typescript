@@ -1,7 +1,6 @@
 import { createClient, type Client } from "@connectrpc/connect";
 import * as Proto from "../../gen/auth/v1/auth_pb.js";
 import * as v from "valibot";
-import { ValidationError } from "../../shared/errors.js";
 import { parse } from "../../shared/validation.js";
 import { ProfileService } from "./profile/profile.js";
 import {
@@ -28,10 +27,10 @@ export const CreateWalletChallengeInputSchema = v.strictObject({
     smartAccountAddress: WalletAddressSchema,
     signerAddress: WalletAddressSchema,
     uri: WalletChallengeUriSchema,
-    purpose: v.picklist(["login", "create_subaccount"]),
+    purpose: v.optional(v.picklist(["login"]), "login"),
 });
 export type CreateWalletChallengeInput = v.InferInput<typeof CreateWalletChallengeInputSchema>;
-export type WalletChallengePurpose = CreateWalletChallengeInput["purpose"];
+export type WalletChallengePurpose = NonNullable<CreateWalletChallengeInput["purpose"]>;
 
 /** An EIP-191 EOA signature: 65 hexadecimal bytes, with an optional 0x prefix. */
 const LoginEoaSignatureSchema = v.pipe(
@@ -111,32 +110,19 @@ export class AuthService {
     }
 
     /**
-     * Requests a server-issued SIWE message. Sign its exact UTF-8 bytes with
+     * Requests a server-issued SIWE login message. Sign its exact UTF-8 bytes with
      * personal_sign; do not hash or reconstruct it. Expiry is epoch milliseconds.
+     * Subaccount creation uses `subaccounts.createChallenge` instead.
      */
     async createWalletChallenge(
         input: CreateWalletChallengeInput,
         options?: PolyesterRequestOptions,
     ): Promise<WalletChallenge> {
         const validated = parse(CreateWalletChallengeInputSchema, input);
-        if (
-            validated.purpose === "create_subaccount" &&
-            validated.signerAddress.toLowerCase() !== validated.smartAccountAddress.toLowerCase()
-        ) {
-            throw new ValidationError(
-                "Subaccount challenge signer must equal the smart account address.",
-            );
-        }
         return parse(
             WalletChallengeSchema,
             await this.#publicClient.createWalletChallenge(
-                {
-                    ...validated,
-                    purpose:
-                        validated.purpose === "login"
-                            ? Proto.WalletChallengePurpose.LOGIN
-                            : Proto.WalletChallengePurpose.CREATE_SUBACCOUNT,
-                },
+                { ...validated, purpose: Proto.WalletChallengePurpose.LOGIN },
                 toConnectCallOptions(options),
             ),
         );

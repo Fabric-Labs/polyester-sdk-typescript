@@ -10,6 +10,10 @@ import * as v from "valibot";
 import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
 import { ProfileErrorCode, ProfileErrorDetailSchema } from "../gen/auth/v1/profile_pb.js";
 import {
+    ErrorCode as ClaimsErrorCode,
+    ErrorDetailSchema as ClaimsErrorDetailSchema,
+} from "../gen/claims/v1/claims_pb.js";
+import {
     ErrorCode as WithdrawErrorCode,
     ErrorDetailSchema as WithdrawErrorDetailSchema,
 } from "../gen/chain/withdraw/v1/withdraw_pb.js";
@@ -51,7 +55,8 @@ export type PolyesterErrorDetail =
     | {
           service: "market_overview";
           code: NamedCode<typeof MarketOverviewErrorCode>;
-      };
+      }
+    | { service: "claims"; code: NamedCode<typeof ClaimsErrorCode> };
 
 function codeName<Enum extends Record<number, string>>(
     codes: Enum,
@@ -137,6 +142,13 @@ export function parseConnectErrorDetail(error: ConnectError): PolyesterErrorDeta
                 if (!marketOverview) break;
                 const code = codeName(MarketOverviewErrorCode, marketOverview.code);
                 if (code) return { service: "market_overview", code };
+                break;
+            }
+            case ClaimsErrorDetailSchema.typeName: {
+                const claims = decodeDetail(raw, ClaimsErrorDetailSchema);
+                if (!claims) break;
+                const code = codeName(ClaimsErrorCode, claims.code);
+                if (code) return { service: "claims", code };
                 break;
             }
         }

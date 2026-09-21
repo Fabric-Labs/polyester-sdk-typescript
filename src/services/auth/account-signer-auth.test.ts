@@ -6,7 +6,11 @@ import { RealtimeClient } from "../../realtime/index.js";
 import { formatId } from "../../utils/base58-id.js";
 import { SubaccountsService } from "../subaccounts/index.js";
 import { AccountSignerAuthService } from "./account-signer-auth.js";
-import { AuthenticationError, ServiceUnavailableError } from "../../shared/errors.js";
+import {
+    AuthenticationError,
+    ConfigurationError,
+    ServiceUnavailableError,
+} from "../../shared/errors.js";
 import type { LoginWithWalletInput, LoginWithWalletResponse } from "./auth.js";
 import { polyesterSession } from "./session.js";
 import { createMemoryAuthTokenStorage, type AuthTokenStorage } from "./token-storage.js";
@@ -98,6 +102,16 @@ function signer(params: Partial<AccountSigner> = {}): AccountSigner {
     };
 }
 
+function mockSubaccountChallenge(subaccounts: SubaccountsService, smartAccountAddress: string) {
+    return vi.spyOn(subaccounts, "createChallenge").mockResolvedValue({
+        message: "subaccount server message",
+        smartAccountAddress,
+        smartAccountSaltNonce: 1,
+        expiresAt: 1_000,
+        polyesterChainId: 1,
+    });
+}
+
 function mockLogin(auth: AccountSignerAuthService) {
     const createWalletChallenge = vi
         .spyOn(auth, "createWalletChallenge")
@@ -140,6 +154,7 @@ describe("AccountSignerAuthService", () => {
         const accountSigner = signer();
         const { auth, subaccounts } = authFixture(accountSigner);
         const { createWalletChallenge } = mockLogin(auth);
+        const createChallenge = mockSubaccountChallenge(subaccounts, accountSigner.accountAddress);
         vi.spyOn(subaccounts, "create").mockResolvedValue({
             subaccountId: "sub",
             totalCreated: 1,
@@ -149,8 +164,12 @@ describe("AccountSignerAuthService", () => {
         await auth.login({ provider: "other" });
         await auth.refreshSession();
         await auth.createSubaccount({ accountSigner });
-        expect(createWalletChallenge).toHaveBeenCalledTimes(3);
-        for (const [input] of createWalletChallenge.mock.calls) {
+        expect(createWalletChallenge).toHaveBeenCalledTimes(2);
+        expect(createChallenge).toHaveBeenCalledTimes(1);
+        for (const [input] of [
+            ...createWalletChallenge.mock.calls,
+            ...createChallenge.mock.calls,
+        ]) {
             expect(input.uri).toBe("https://browser.example:8443");
         }
     });
@@ -778,9 +797,10 @@ describe("AccountSignerAuthService", () => {
         const { auth: subaccountAuth, subaccounts } = authFixture(rootSigner);
         mockLogin(subaccountAuth);
         await subaccountAuth.login({ uri: "https://app.example", provider: "turnkey" });
-        const subaccountCreateWalletChallenge = vi
-            .spyOn(subaccountAuth, "createWalletChallenge")
-            .mockResolvedValue({ message: "subaccount server message" });
+        const createChallenge = mockSubaccountChallenge(
+            subaccounts,
+            subaccountSigner.accountAddress,
+        );
         const create = vi.spyOn(subaccounts, "create");
         const subaccountId = formatId(123n);
 
@@ -799,11 +819,9 @@ describe("AccountSignerAuthService", () => {
             }),
         ).resolves.toEqual({ subaccountId, smartAccountSaltNonce: 1, revision: "9" });
 
-        expect(subaccountCreateWalletChallenge).toHaveBeenCalledWith({
-            smartAccountAddress: subaccountSigner.accountAddress,
-            signerAddress: subaccountSigner.accountAddress,
+        expect(createChallenge).toHaveBeenCalledWith({
+            ownerAddress: rootSigner.ownerAddress,
             uri: "https://app.example",
-            purpose: "create_subaccount",
         });
         expect(subaccountSigner.signMessage).toHaveBeenCalledWith("subaccount server message");
         expect(create).toHaveBeenCalledWith({
@@ -824,9 +842,16 @@ describe("AccountSignerAuthService", () => {
         mockLogin(subaccountAuth);
         await subaccountAuth.login({ uri: "https://app.example", provider: "turnkey" });
         subaccountAuth.setAccountSigner(null);
-        const subaccountCreateWalletChallenge = vi
-            .spyOn(subaccountAuth, "createWalletChallenge")
-            .mockResolvedValue({ message: "subaccount server message" });
+        await expect(
+            subaccountAuth.createSubaccount({
+                uri: "https://app.example",
+                accountSigner: subaccountSigner,
+            }),
+        ).rejects.toBeInstanceOf(ConfigurationError);
+        const createChallenge = mockSubaccountChallenge(
+            subaccounts,
+            subaccountSigner.accountAddress,
+        );
         const create = vi.spyOn(subaccounts, "create");
         const subaccountId = formatId(123n);
 
@@ -842,14 +867,13 @@ describe("AccountSignerAuthService", () => {
                 uri: "https://app.example",
                 accountSigner: subaccountSigner,
                 label: "Trading",
+                ownerAddress: rootSigner.ownerAddress,
             }),
         ).resolves.toEqual({ subaccountId, smartAccountSaltNonce: 1, revision: "9" });
 
-        expect(subaccountCreateWalletChallenge).toHaveBeenCalledWith({
-            smartAccountAddress: subaccountSigner.accountAddress,
-            signerAddress: subaccountSigner.accountAddress,
+        expect(createChallenge).toHaveBeenCalledWith({
+            ownerAddress: rootSigner.ownerAddress,
             uri: "https://app.example",
-            purpose: "create_subaccount",
         });
         expect(create).toHaveBeenCalledWith({
             label: "Trading",
@@ -857,5 +881,42 @@ describe("AccountSignerAuthService", () => {
             message: "subaccount server message",
             signature: "0x1234",
         });
+    });
+
+    it("derives the subaccount signer from the server challenge and rejects address mismatches", async () => {
+        const rootSigner = signer();
+        const subaccountSigner = signer({
+            accountAddress: "0x6666666666666666666666666666666666666666",
+        });
+        const { auth: subaccountAuth, subaccounts } = authFixture(rootSigner);
+        mockLogin(subaccountAuth);
+        await subaccountAuth.login({ uri: "https://app.example", provider: "turnkey" });
+        mockSubaccountChallenge(subaccounts, subaccountSigner.accountAddress);
+        const create = vi.spyOn(subaccounts, "create").mockResolvedValue({
+            subaccountId: "sub",
+            totalCreated: 1,
+            smartAccountSaltNonce: 1,
+            revision: "9",
+        });
+        const factory = vi.fn(async (challenge: { smartAccountSaltNonce: number }) => {
+            expect(challenge.smartAccountSaltNonce).toBe(1);
+            return subaccountSigner;
+        });
+
+        await subaccountAuth.createSubaccount({
+            uri: "https://app.example",
+            accountSigner: factory,
+        });
+        expect(factory).toHaveBeenCalledTimes(1);
+        expect(create).toHaveBeenCalledTimes(1);
+
+        await expect(
+            subaccountAuth.createSubaccount({
+                uri: "https://app.example",
+                accountSigner: rootSigner,
+            }),
+        ).rejects.toBeInstanceOf(ConfigurationError);
+        expect(rootSigner.signMessage).toHaveBeenCalledTimes(1);
+        expect(create).toHaveBeenCalledTimes(1);
     });
 });

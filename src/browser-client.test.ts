@@ -516,6 +516,13 @@ describe("PolyesterBrowserClient", () => {
             smartAccountSaltNonce: 1,
             revision: "9",
         });
+        const createChallenge = vi.spyOn(client.subaccounts, "createChallenge").mockResolvedValue({
+            message: "subaccount server message",
+            smartAccountAddress: subaccountSigner.accountAddress,
+            smartAccountSaltNonce: 1,
+            expiresAt: 1_000,
+            polyesterChainId: 1,
+        });
         mockClientLogin(client, jwtWithExp(Math.floor(Date.now() / 1000) + 3600));
         client.setAccountSigner(rootSigner);
         await client.auth.login({ uri: "https://app.example", provider: "turnkey" });
@@ -532,10 +539,14 @@ describe("PolyesterBrowserClient", () => {
             revision: "9",
         });
 
+        expect(createChallenge).toHaveBeenCalledWith({
+            ownerAddress: rootSigner.ownerAddress,
+            uri: "https://app.example",
+        });
         expect(create).toHaveBeenCalledWith({
             label: "Trading",
             smartAccountAddress: subaccountSigner.accountAddress,
-            message: "server-issued message ☃\nexact bytes",
+            message: "subaccount server message",
             signature: "0xsignature",
         });
     });

@@ -1551,6 +1551,18 @@ describe("OrderSchema", () => {
         expect(order.status).toBe("partial");
     });
 
+    it("exposes the inherited replacement fill quantity, defaulting to zero", () => {
+        const schema = createOrderSchema(testScales());
+
+        expect(v.parse(schema, rawOrder()).inheritedCumQty).toBe("0");
+        expect(
+            v.parse(
+                schema,
+                rawOrder({ cumQtyScaled: 50_000_000n, inheritedCumQtyScaled: 20_000_000n }),
+            ).inheritedCumQty,
+        ).toBe("0.2");
+    });
+
     it("decodes attached risk legs to explicit execution variants", () => {
         const schema = createOrderSchema(testScales());
 
