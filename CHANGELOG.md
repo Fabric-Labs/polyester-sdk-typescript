@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.27.1
+
+### Patch Changes
+
+- Accept `phantom` as a wallet provider in login and refresh, preserving its metadata in browser and server sessions. ([#164](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/164))
+
 ## 0.27.0
 
 ### Minor Changes
