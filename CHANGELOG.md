@@ -1,5 +1,21 @@
 # @polyester/sdk
 
+## 0.27.0
+
+### Minor Changes
+
+- Add `subaccounts.createChallenge`, which returns the server-derived smart account address, salt nonce, and EIP-191 authorization. `auth.createSubaccount` now uses it and accepts a signer or a signer factory plus an optional `ownerAddress`. ([#162](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/162))
+
+- Remove the `purpose` field from `auth.createWalletChallenge`; wallet challenges are login-only. ([#162](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/162))
+
+### Patch Changes
+
+- Decode structured `claims` error details, mapping rate-limit and temporarily-unavailable codes to the typed retryable errors. ([#162](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/162))
+
+- Expose `inheritedCumQty` on orders, the filled quantity carried over from predecessors when a replacement was accepted. ([#162](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/162))
+
+- Map `AUTH_SUBACCOUNT_CHALLENGE_INVALID` to the new `SubaccountChallengeInvalidError` so callers can reissue a stale subaccount challenge. ([#162](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/162))
+
 ## 0.26.1
 
 ### Patch Changes
