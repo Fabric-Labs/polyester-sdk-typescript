@@ -186,7 +186,6 @@ export class AccountSignerAuthService extends AuthService {
             smartAccountAddress,
             signerAddress: ownerAddress,
             uri,
-            purpose: "login",
         });
         const signature = await accountSigner.signMessage(message);
 

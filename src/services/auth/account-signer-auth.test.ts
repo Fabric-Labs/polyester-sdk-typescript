@@ -194,7 +194,7 @@ describe("AccountSignerAuthService", () => {
         await auth.login({ uri: "https://app.example", provider: "other" });
         await auth.refreshSession();
         expect(createWalletChallenge).toHaveBeenLastCalledWith(
-            expect.objectContaining({ uri: "https://app.example", purpose: "login" }),
+            expect.objectContaining({ uri: "https://app.example" }),
         );
         await auth.refreshSession({ uri: "https://other.example" });
         expect(createWalletChallenge).toHaveBeenLastCalledWith(
@@ -235,7 +235,6 @@ describe("AccountSignerAuthService", () => {
             smartAccountAddress: accountSigner.accountAddress,
             signerAddress: accountSigner.ownerAddress,
             uri: "https://app.example",
-            purpose: "login",
         });
         expect(accountSigner.signMessage).toHaveBeenCalledWith(
             "server-issued message ☃\nexact bytes",
@@ -270,7 +269,6 @@ describe("AccountSignerAuthService", () => {
                 smartAccountAddress: "0x3333333333333333333333333333333333333333",
                 signerAddress: "0x4444444444444444444444444444444444444444",
                 uri: "https://app.example",
-                purpose: "login",
             });
         }
         expect(accountSigner.signMessage).toHaveBeenCalledTimes(2);
@@ -297,7 +295,6 @@ describe("AccountSignerAuthService", () => {
             smartAccountAddress: accountSigner.accountAddress,
             signerAddress: accountSigner.accountAddress,
             uri: "https://app.example",
-            purpose: "login",
         });
         expect(loginWithWallet.mock.calls[0]?.[0]).toMatchObject({
             smartAccountAddress: accountSigner.accountAddress,
@@ -321,7 +318,6 @@ describe("AccountSignerAuthService", () => {
             smartAccountAddress: replacementSigner.accountAddress,
             signerAddress: replacementSigner.ownerAddress,
             uri: "https://app.example",
-            purpose: "login",
         });
     });
 
@@ -732,7 +728,6 @@ describe("AccountSignerAuthService", () => {
             smartAccountAddress: accountSigner.accountAddress,
             signerAddress: accountSigner.ownerAddress,
             uri: "https://app.example",
-            purpose: "login",
         });
         expect(accountSigner.signMessage).toHaveBeenCalledWith(
             "server-issued message ☃\nexact bytes",

@@ -78,7 +78,6 @@ describe("AuthService", () => {
             smartAccountAddress: "0x1111111111111111111111111111111111111111",
             signerAddress: "0x1111111111111111111111111111111111111111",
             uri: "https://app.example",
-            purpose: "login",
         });
 
         expect(challenge).toEqual({ message: "server message", expiresAt: 1_785_940_604_369 });
@@ -94,7 +93,6 @@ const challengeInput = {
     smartAccountAddress: "0x1111111111111111111111111111111111111111",
     signerAddress: "0x1111111111111111111111111111111111111111",
     uri: "https://app.example:8443",
-    purpose: "login" as const,
 };
 
 function challengeService(response: Parameters<typeof unaryTransport>[0]) {
@@ -115,15 +113,10 @@ describe("wallet challenges", () => {
         await expect(service.createWalletChallenge(challengeInput, { signal })).resolves.toEqual({
             message,
         });
-        const { purpose: _purpose, ...withoutPurpose } = challengeInput;
-        await service.createWalletChallenge(withoutPurpose);
         expect(publicApi.calls[0]).toMatchObject({
             method: { localName: "createWalletChallenge" },
             signal,
             message: { ...challengeInput, purpose: WalletChallengePurpose.LOGIN },
-        });
-        expect(publicApi.calls[1]?.message).toMatchObject({
-            purpose: WalletChallengePurpose.LOGIN,
         });
         expect(authApi.calls).toHaveLength(0);
     });
@@ -144,9 +137,9 @@ describe("wallet challenges", () => {
         expect(publicApi.calls).toHaveLength(0);
     });
 
-    it("rejects the removed subaccount purpose and unknown purposes before transport", async () => {
+    it("rejects the removed purpose field before transport", async () => {
         const { service, publicApi } = challengeService({ message: "message" });
-        for (const purpose of ["create_subaccount", "unknown", 0]) {
+        for (const purpose of ["login", "create_subaccount"]) {
             await expect(
                 // @ts-expect-error Exercise untyped consumers.
                 service.createWalletChallenge({ ...challengeInput, purpose }),

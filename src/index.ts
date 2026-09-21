@@ -108,6 +108,7 @@ export {
     SessionElevationRequiredError,
     StaleQuoteError,
     StepUpRequiredError,
+    SubaccountChallengeInvalidError,
     TimeoutError,
     TransientError,
     ValidationError,

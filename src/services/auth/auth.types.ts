@@ -10,6 +10,5 @@ export type {
     LoginWithWalletResponse,
     Me,
     WalletChallenge,
-    WalletChallengePurpose,
     CreateWalletChallengeInput,
 } from "./auth.js";

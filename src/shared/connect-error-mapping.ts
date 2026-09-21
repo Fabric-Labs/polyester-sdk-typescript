@@ -23,6 +23,7 @@ import {
     ServiceUnavailableError,
     SessionElevationRequiredError,
     StaleQuoteError,
+    SubaccountChallengeInvalidError,
     StepUpRequiredError,
     TimeoutError,
     TransientError,
@@ -30,7 +31,7 @@ import {
 } from "./errors.js";
 import type { RateLimitDetail } from "./rate-limit.schemas.js";
 
-function hasTransientTransferError(detail: PolyesterErrorDetail | undefined): boolean {
+function hasTransientServiceError(detail: PolyesterErrorDetail | undefined): boolean {
     if (detail?.service === "withdraw") {
         return [
             "SERVICE_UNAVAILABLE",
@@ -145,6 +146,12 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
         );
     }
 
+    if (detail?.service === "auth" && detail.code === "AUTH_SUBACCOUNT_CHALLENGE_INVALID") {
+        return new SubaccountChallengeInvalidError(
+            withFallback("Subaccount challenge is expired, replaced, or invalid."),
+            options,
+        );
+    }
     if (detail?.service === "auth" && detail.code === "AUTH_POLICY_IN_USE") {
         return new PolicyInUseError(withFallback("Policy is still in use."), options);
     }
@@ -204,7 +211,7 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
         });
     }
 
-    if (hasTransientTransferError(detail)) {
+    if (hasTransientServiceError(detail)) {
         return new ServiceUnavailableError(withFallback("Service unavailable."), options);
     }
 

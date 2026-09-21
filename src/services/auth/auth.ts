@@ -27,10 +27,8 @@ export const CreateWalletChallengeInputSchema = v.strictObject({
     smartAccountAddress: WalletAddressSchema,
     signerAddress: WalletAddressSchema,
     uri: WalletChallengeUriSchema,
-    purpose: v.optional(v.picklist(["login"]), "login"),
 });
 export type CreateWalletChallengeInput = v.InferInput<typeof CreateWalletChallengeInputSchema>;
-export type WalletChallengePurpose = NonNullable<CreateWalletChallengeInput["purpose"]>;
 
 /** An EIP-191 EOA signature: 65 hexadecimal bytes, with an optional 0x prefix. */
 const LoginEoaSignatureSchema = v.pipe(

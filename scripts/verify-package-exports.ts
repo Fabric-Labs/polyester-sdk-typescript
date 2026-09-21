@@ -201,11 +201,10 @@ async function verifyServiceInference(): Promise<void> {
     const challengeInput: import("@polyester/sdk").CreateWalletChallengeInput = {
         smartAccountAddress: "0x1111111111111111111111111111111111111111",
         signerAddress: "0x1111111111111111111111111111111111111111",
-        uri: "https://app.example", purpose: "login",
+        uri: "https://app.example",
     };
     const challenge = await client.auth.createWalletChallenge(challengeInput);
     expectType<import("@polyester/sdk").WalletChallenge>(challenge);
-    expectType<import("@polyester/sdk").WalletChallengePurpose | undefined>(challengeInput.purpose);
     expectType<string>(challenge.message);
     expectType<number | undefined>(challenge.expiresAt);
     const subaccountChallenge = await client.subaccounts.createChallenge({
@@ -214,8 +213,8 @@ async function verifyServiceInference(): Promise<void> {
     });
     expectType<import("@polyester/sdk").SubaccountChallenge>(subaccountChallenge);
     expectType<number>(subaccountChallenge.smartAccountSaltNonce);
-    // @ts-expect-error Subaccount challenges no longer use the wallet-challenge purpose.
-    client.auth.createWalletChallenge({ ...challengeInput, purpose: "create_subaccount" });
+    // @ts-expect-error Wallet challenges are login-only; the purpose field was removed.
+    client.auth.createWalletChallenge({ ...challengeInput, purpose: "login" });
     // @ts-expect-error Nonce authentication was removed from the protocol.
     client.auth.requestLoginNonce(challengeInput.smartAccountAddress);
 
