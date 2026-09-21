@@ -26,7 +26,7 @@ export type AuthLoginMethod =
  */
 export interface SessionData {
     environmentFingerprint: string;
-    provider: "metamask" | "turnkey" | "other";
+    provider: "metamask" | "phantom" | "turnkey" | "other";
     loginMethod: AuthLoginMethod | null;
     primaryWallet: string;
     smartAccount: string;

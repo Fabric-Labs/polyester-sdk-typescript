@@ -1,5 +1,9 @@
 import { Code, ConnectError, type Transport } from "@connectrpc/connect";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { verifyMessage } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { unaryTransport } from "../../testing/service-harness.js";
+import { WalletChallengePurpose } from "../../gen/auth/v1/auth_pb.js";
 import type { AccountSigner, AccountSignerConfig } from "../../account-signer/index.js";
 import { POLYESTER_DEVNET_ENVIRONMENT } from "../../environment.js";
 import { RealtimeClient } from "../../realtime/index.js";
@@ -63,8 +67,11 @@ function deferred<T>() {
     return { promise, resolve, reject };
 }
 
-function authFixture(accountSigner?: AccountSignerConfig, tokenStorage?: AuthTokenStorage) {
-    const publicApi = noopTransport();
+function authFixture(
+    accountSigner?: AccountSignerConfig,
+    tokenStorage?: AuthTokenStorage,
+    publicApi: Transport = noopTransport(),
+) {
     const authApi = noopTransport();
     const realtime = new RealtimeClient({
         wsUrl: POLYESTER_DEVNET_ENVIRONMENT.websocketUrl,
@@ -222,6 +229,73 @@ describe("AccountSignerAuthService", () => {
         await auth.login({ uri: "https://app.example", provider: "other" });
         expect(accountSigner.signMessage).toHaveBeenCalledOnce();
         expect(tokenStorage.set).toHaveBeenCalledOnce();
+    });
+
+    it("preserves chain-1 SIWE and Polyester resources through Phantom login and refresh", async () => {
+        installDocument();
+        const owner = privateKeyToAccount(`0x${"11".repeat(32)}`);
+        const accountSigner = signer({
+            ownerAddress: owner.address,
+            signMessage: vi.fn((message: string) => owner.signMessage({ message })),
+        });
+        const message = [
+            "app.example wants you to sign in with your Ethereum account:",
+            owner.address,
+            "",
+            "Sign in to Polyester.",
+            "",
+            "URI: https://app.example",
+            "Version: 1",
+            "Chain ID: 1",
+            "Nonce: abcdef123456",
+            "Issued At: 2026-09-21T14:00:00.000Z",
+            "Resources:",
+            `- urn:polyester:${POLYESTER_DEVNET_ENVIRONMENT.chain.id}:login:${accountSigner.accountAddress}`,
+        ].join("\n");
+        const publicApi = unaryTransport(async (call) => {
+            if (call.method.localName === "createWalletChallenge") return { message };
+            expect(call.method.localName).toBe("loginWithWallet");
+            const payload = call.message as { message: string; signature: `0x${string}` };
+            expect(payload.message).toBe(message);
+            expect(await verifyMessage({ address: owner.address, ...payload })).toBe(true);
+            return {
+                accessToken: jwtWithExp(Math.floor(Date.now() / 1000) + 3600),
+                accountId: 1n,
+                username: "phantom-user",
+            };
+        });
+        const { auth } = authFixture(accountSigner, undefined, publicApi.transport);
+
+        expect(POLYESTER_DEVNET_ENVIRONMENT.chain.id).not.toBe(1);
+        await auth.login({ uri: "https://app.example", provider: "phantom" });
+        await auth.refreshSession();
+
+        expect(accountSigner.signMessage).toHaveBeenCalledTimes(2);
+        expect(accountSigner.signMessage).toHaveBeenNthCalledWith(1, message);
+        expect(accountSigner.signMessage).toHaveBeenNthCalledWith(2, message);
+        expect(publicApi.calls).toHaveLength(4);
+        for (const call of publicApi.calls) {
+            if (call.method.localName === "createWalletChallenge") {
+                expect(call.message).toEqual({
+                    smartAccountAddress: accountSigner.accountAddress,
+                    signerAddress: owner.address,
+                    uri: "https://app.example",
+                    purpose: WalletChallengePurpose.LOGIN,
+                });
+            } else {
+                expect(call.message).toMatchObject({
+                    smartAccountAddress: accountSigner.accountAddress,
+                    message,
+                    walletProvider: "phantom",
+                });
+            }
+        }
+        expect(polyesterSession.get()).toMatchObject({
+            environmentFingerprint: POLYESTER_DEVNET_ENVIRONMENT.fingerprint,
+            provider: "phantom",
+            loginMethod: "phantom",
+        });
+        expect(auth.getState().isAuthenticated).toBe(true);
     });
 
     it("maps account signer fields to the backend wallet login payload", async () => {

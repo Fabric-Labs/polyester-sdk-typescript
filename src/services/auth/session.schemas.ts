@@ -20,7 +20,7 @@ export const ActiveAccountInfoSchema = v.object({
 
 export const SessionDataSchema = v.object({
     environmentFingerprint: v.string(),
-    provider: v.picklist(["metamask", "turnkey", "other"]),
+    provider: v.picklist(["metamask", "phantom", "turnkey", "other"]),
     loginMethod: v.nullable(AuthLoginMethodSchema),
     primaryWallet: v.string(),
     smartAccount: v.string(),
