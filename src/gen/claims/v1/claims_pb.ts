@@ -6,6 +6,7 @@ import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobu
 import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
+import { file_polyester_api_options } from "../../polyester/api/options_pb.js";
 import type { U128 } from "../../polyester/type/v1/u128_pb.js";
 import { file_polyester_type_v1_u128 } from "../../polyester/type/v1/u128_pb.js";
 import type { Message } from "@bufbuild/protobuf";
@@ -14,7 +15,32 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file claims/v1/claims.proto.
  */
 export const file_claims_v1_claims: GenFile = /*@__PURE__*/
-  fileDesc("ChZjbGFpbXMvdjEvY2xhaW1zLnByb3RvEgljbGFpbXMudjEidQoNQ2xhaW1DYW1wYWlnbhITCgtjYW1wYWlnbl9pZBgBIAEoCRIMCgRuYW1lGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEiwKDGNsYWltX3BvbGljeRgEIAEoDjIWLmNsYWltcy52MS5DbGFpbVBvbGljeSJlChBEYWlseUNsYWltUmV3YXJkEhAKCGFzc2V0X2lkGAEgASgNEhIKCmFzc2V0X2NvZGUYAiABKAkSKwoKYW1vdW50X2UxOBgDIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgiHAoaR2V0RGFpbHlDbGFpbVN0YXR1c1JlcXVlc3Qi4gEKG0dldERhaWx5Q2xhaW1TdGF0dXNSZXNwb25zZRIpCgVzdGF0ZRgBIAEoDjIaLmNsYWltcy52MS5EYWlseUNsYWltU3RhdGUSLAoIcmVzZXRfYXQYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKB3Jld2FyZHMYAyADKAsyGy5jbGFpbXMudjEuRGFpbHlDbGFpbVJld2FyZBIQCghjbGFpbV9pZBgEIAEoCRIqCghjYW1wYWlnbhgFIAEoCzIYLmNsYWltcy52MS5DbGFpbUNhbXBhaWduIhkKF0NsYWltRGFpbHlSZXdhcmRSZXF1ZXN0IjsKEkRhaWx5Q2xhaW1UcmFuc2ZlchIQCghhc3NldF9pZBgBIAEoDRITCgt0cmFuc2Zlcl9pZBgCIAEoCSLBAgoYQ2xhaW1EYWlseVJld2FyZFJlc3BvbnNlEhAKCGNsYWltX2lkGAEgASgJEikKBXN0YXRlGAIgASgOMhouY2xhaW1zLnYxLkRhaWx5Q2xhaW1TdGF0ZRIuCgpjbGFpbWVkX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCgdyZXdhcmRzGAQgAygLMhsuY2xhaW1zLnYxLkRhaWx5Q2xhaW1SZXdhcmQSMAoJdHJhbnNmZXJzGAUgAygLMh0uY2xhaW1zLnYxLkRhaWx5Q2xhaW1UcmFuc2ZlchIsCghyZXNldF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKgoIY2FtcGFpZ24YByABKAsyGC5jbGFpbXMudjEuQ2xhaW1DYW1wYWlnbio0CgtDbGFpbVBvbGljeRIWChJQT0xJQ1lfVU5TUEVDSUZJRUQQABINCglVVENfREFJTFkQASp9Cg9EYWlseUNsYWltU3RhdGUSFQoRQ0xBSU1fVU5TUEVDSUZJRUQQABITCg9DTEFJTV9BVkFJTEFCTEUQARIUChBDTEFJTV9QUk9DRVNTSU5HEAISEQoNQ0xBSU1fQ0xBSU1FRBADEhUKEUNMQUlNX1VOQVZBSUxBQkxFEAQy1gEKDUNsYWltc1NlcnZpY2USZgoTR2V0RGFpbHlDbGFpbVN0YXR1cxIlLmNsYWltcy52MS5HZXREYWlseUNsYWltU3RhdHVzUmVxdWVzdBomLmNsYWltcy52MS5HZXREYWlseUNsYWltU3RhdHVzUmVzcG9uc2UiABJdChBDbGFpbURhaWx5UmV3YXJkEiIuY2xhaW1zLnYxLkNsYWltRGFpbHlSZXdhcmRSZXF1ZXN0GiMuY2xhaW1zLnYxLkNsYWltRGFpbHlSZXdhcmRSZXNwb25zZSIAQkBaPmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vY2xhaW1zL3YxO2NsYWltc3YxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_type_v1_u128]);
+  fileDesc("ChZjbGFpbXMvdjEvY2xhaW1zLnByb3RvEgljbGFpbXMudjEiMQoLRXJyb3JEZXRhaWwSIgoEY29kZRgBIAEoDjIULmNsYWltcy52MS5FcnJvckNvZGUidQoNQ2xhaW1DYW1wYWlnbhITCgtjYW1wYWlnbl9pZBgBIAEoCRIMCgRuYW1lGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEiwKDGNsYWltX3BvbGljeRgEIAEoDjIWLmNsYWltcy52MS5DbGFpbVBvbGljeSJlChBEYWlseUNsYWltUmV3YXJkEhAKCGFzc2V0X2lkGAEgASgNEhIKCmFzc2V0X2NvZGUYAiABKAkSKwoKYW1vdW50X2UxOBgDIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgiHAoaR2V0RGFpbHlDbGFpbVN0YXR1c1JlcXVlc3Qi4gEKG0dldERhaWx5Q2xhaW1TdGF0dXNSZXNwb25zZRIpCgVzdGF0ZRgBIAEoDjIaLmNsYWltcy52MS5EYWlseUNsYWltU3RhdGUSLAoIcmVzZXRfYXQYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKB3Jld2FyZHMYAyADKAsyGy5jbGFpbXMudjEuRGFpbHlDbGFpbVJld2FyZBIQCghjbGFpbV9pZBgEIAEoCRIqCghjYW1wYWlnbhgFIAEoCzIYLmNsYWltcy52MS5DbGFpbUNhbXBhaWduIhkKF0NsYWltRGFpbHlSZXdhcmRSZXF1ZXN0IjsKEkRhaWx5Q2xhaW1UcmFuc2ZlchIQCghhc3NldF9pZBgBIAEoDRITCgt0cmFuc2Zlcl9pZBgCIAEoCSLBAgoYQ2xhaW1EYWlseVJld2FyZFJlc3BvbnNlEhAKCGNsYWltX2lkGAEgASgJEikKBXN0YXRlGAIgASgOMhouY2xhaW1zLnYxLkRhaWx5Q2xhaW1TdGF0ZRIuCgpjbGFpbWVkX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCgdyZXdhcmRzGAQgAygLMhsuY2xhaW1zLnYxLkRhaWx5Q2xhaW1SZXdhcmQSMAoJdHJhbnNmZXJzGAUgAygLMh0uY2xhaW1zLnYxLkRhaWx5Q2xhaW1UcmFuc2ZlchIsCghyZXNldF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKgoIY2FtcGFpZ24YByABKAsyGC5jbGFpbXMudjEuQ2xhaW1DYW1wYWlnbiqfAwoJRXJyb3JDb2RlEhoKFkVSUk9SX0NPREVfVU5TUEVDSUZJRUQQABIsCihFUlJPUl9DT0RFX0NMQUlNX1RFTVBPUkFSSUxZX1VOQVZBSUxBQkxFEAESHgoaRVJST1JfQ09ERV9VTkFVVEhFTlRJQ0FURUQQAhIiCh5FUlJPUl9DT0RFX1JBVEVfTElNSVRfRVhDRUVERUQQAxIgChxFUlJPUl9DT0RFX0NMQUlNX1VOQVZBSUxBQkxFEAQSFwoTRVJST1JfQ09ERV9DT05GTElDVBAFEh4KGkVSUk9SX0NPREVfSU5WQUxJRF9SRVFVRVNUEAYSIAocRVJST1JfQ09ERV9SRVFVRVNUX1RPT19MQVJHRRAHEiIKHkVSUk9SX0NPREVfU0VSVklDRV9VTkFWQUlMQUJMRRAIEh0KGUVSUk9SX0NPREVfSU5URVJOQUxfRVJST1IQCRIgChxFUlJPUl9DT0RFX1BFUk1JU1NJT05fREVOSUVEEAoSIgoeRVJST1JfQ09ERV9GQUlMRURfUFJFQ09ORElUSU9OEAsqNAoLQ2xhaW1Qb2xpY3kSFgoSUE9MSUNZX1VOU1BFQ0lGSUVEEAASDQoJVVRDX0RBSUxZEAEqfQoPRGFpbHlDbGFpbVN0YXRlEhUKEUNMQUlNX1VOU1BFQ0lGSUVEEAASEwoPQ0xBSU1fQVZBSUxBQkxFEAESFAoQQ0xBSU1fUFJPQ0VTU0lORxACEhEKDUNMQUlNX0NMQUlNRUQQAxIVChFDTEFJTV9VTkFWQUlMQUJMRRAEMtYBCg1DbGFpbXNTZXJ2aWNlEmYKE0dldERhaWx5Q2xhaW1TdGF0dXMSJS5jbGFpbXMudjEuR2V0RGFpbHlDbGFpbVN0YXR1c1JlcXVlc3QaJi5jbGFpbXMudjEuR2V0RGFpbHlDbGFpbVN0YXR1c1Jlc3BvbnNlIgASXQoQQ2xhaW1EYWlseVJld2FyZBIiLmNsYWltcy52MS5DbGFpbURhaWx5UmV3YXJkUmVxdWVzdBojLmNsYWltcy52MS5DbGFpbURhaWx5UmV3YXJkUmVzcG9uc2UiAEJAWj5naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2NsYWltcy92MTtjbGFpbXN2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options, file_polyester_type_v1_u128]);
+
+/**
+ * ErrorDetail is attached to ConnectRPC errors for structured error handling.
+ * Application errors use these codes, with REST spelling defined above.
+ * Cancellation and deadline errors use their transport codes without this detail.
+ * Protocol decoding, routing, readiness, and network failures may occur before
+ * application error handling and are not guaranteed to include this detail.
+ *
+ * @generated from message claims.v1.ErrorDetail
+ */
+export type ErrorDetail = Message<"claims.v1.ErrorDetail"> & {
+  /**
+   * Stable error code matching the REST problem+json code field.
+   *
+   * @generated from field: claims.v1.ErrorCode code = 1;
+   */
+  code: ErrorCode;
+};
+
+/**
+ * Describes the message claims.v1.ErrorDetail.
+ * Use `create(ErrorDetailSchema)` to create a new message.
+ */
+export const ErrorDetailSchema: GenMessage<ErrorDetail> = /*@__PURE__*/
+  messageDesc(file_claims_v1_claims, 0);
 
 /**
  * ClaimCampaign identifies the campaign associated with a reward or claim.
@@ -56,7 +82,7 @@ export type ClaimCampaign = Message<"claims.v1.ClaimCampaign"> & {
  * Use `create(ClaimCampaignSchema)` to create a new message.
  */
 export const ClaimCampaignSchema: GenMessage<ClaimCampaign> = /*@__PURE__*/
-  messageDesc(file_claims_v1_claims, 0);
+  messageDesc(file_claims_v1_claims, 1);
 
 /**
  * DailyClaimReward describes one asset and amount offered or granted by a claim.
@@ -91,7 +117,7 @@ export type DailyClaimReward = Message<"claims.v1.DailyClaimReward"> & {
  * Use `create(DailyClaimRewardSchema)` to create a new message.
  */
 export const DailyClaimRewardSchema: GenMessage<DailyClaimReward> = /*@__PURE__*/
-  messageDesc(file_claims_v1_claims, 1);
+  messageDesc(file_claims_v1_claims, 2);
 
 /**
  * GetDailyClaimStatusRequest retrieves today's reward and claim status for the authenticated root account.
@@ -106,7 +132,7 @@ export type GetDailyClaimStatusRequest = Message<"claims.v1.GetDailyClaimStatusR
  * Use `create(GetDailyClaimStatusRequestSchema)` to create a new message.
  */
 export const GetDailyClaimStatusRequestSchema: GenMessage<GetDailyClaimStatusRequest> = /*@__PURE__*/
-  messageDesc(file_claims_v1_claims, 2);
+  messageDesc(file_claims_v1_claims, 3);
 
 /**
  * GetDailyClaimStatusResponse contains the reward and claim status for the current UTC day.
@@ -155,7 +181,7 @@ export type GetDailyClaimStatusResponse = Message<"claims.v1.GetDailyClaimStatus
  * Use `create(GetDailyClaimStatusResponseSchema)` to create a new message.
  */
 export const GetDailyClaimStatusResponseSchema: GenMessage<GetDailyClaimStatusResponse> = /*@__PURE__*/
-  messageDesc(file_claims_v1_claims, 3);
+  messageDesc(file_claims_v1_claims, 4);
 
 /**
  * ClaimDailyRewardRequest claims today's reward for the authenticated root account.
@@ -170,7 +196,7 @@ export type ClaimDailyRewardRequest = Message<"claims.v1.ClaimDailyRewardRequest
  * Use `create(ClaimDailyRewardRequestSchema)` to create a new message.
  */
 export const ClaimDailyRewardRequestSchema: GenMessage<ClaimDailyRewardRequest> = /*@__PURE__*/
-  messageDesc(file_claims_v1_claims, 4);
+  messageDesc(file_claims_v1_claims, 5);
 
 /**
  * DailyClaimTransfer identifies the transfer created for one claimed asset.
@@ -198,7 +224,7 @@ export type DailyClaimTransfer = Message<"claims.v1.DailyClaimTransfer"> & {
  * Use `create(DailyClaimTransferSchema)` to create a new message.
  */
 export const DailyClaimTransferSchema: GenMessage<DailyClaimTransfer> = /*@__PURE__*/
-  messageDesc(file_claims_v1_claims, 5);
+  messageDesc(file_claims_v1_claims, 6);
 
 /**
  * ClaimDailyRewardResponse contains the result of claiming today's reward.
@@ -261,7 +287,105 @@ export type ClaimDailyRewardResponse = Message<"claims.v1.ClaimDailyRewardRespon
  * Use `create(ClaimDailyRewardResponseSchema)` to create a new message.
  */
 export const ClaimDailyRewardResponseSchema: GenMessage<ClaimDailyRewardResponse> = /*@__PURE__*/
-  messageDesc(file_claims_v1_claims, 6);
+  messageDesc(file_claims_v1_claims, 7);
+
+/**
+ * ErrorCode identifies stable, machine-readable Claims API errors.
+ * Values mirror the REST problem+json code field after removing ERROR_CODE_.
+ *
+ * @generated from enum claims.v1.ErrorCode
+ */
+export enum ErrorCode {
+  /**
+   * No domain error code was provided.
+   *
+   * @generated from enum value: ERROR_CODE_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * The claim reward is temporarily unavailable. Please try again later.
+   *
+   * @generated from enum value: ERROR_CODE_CLAIM_TEMPORARILY_UNAVAILABLE = 1;
+   */
+  CLAIM_TEMPORARILY_UNAVAILABLE = 1,
+
+  /**
+   * A valid session is required. API keys cannot access claims.
+   *
+   * @generated from enum value: ERROR_CODE_UNAUTHENTICATED = 2;
+   */
+  UNAUTHENTICATED = 2,
+
+  /**
+   * The applicable request rate limit was exceeded.
+   *
+   * @generated from enum value: ERROR_CODE_RATE_LIMIT_EXCEEDED = 3;
+   */
+  RATE_LIMIT_EXCEEDED = 3,
+
+  /**
+   * No reward is available for the current UTC day.
+   *
+   * @generated from enum value: ERROR_CODE_CLAIM_UNAVAILABLE = 4;
+   */
+  CLAIM_UNAVAILABLE = 4,
+
+  /**
+   * The request encountered concurrent claim activity. Retry the request.
+   *
+   * @generated from enum value: ERROR_CODE_CONFLICT = 5;
+   */
+  CONFLICT = 5,
+
+  /**
+   * The request payload is invalid.
+   *
+   * @generated from enum value: ERROR_CODE_INVALID_REQUEST = 6;
+   */
+  INVALID_REQUEST = 6,
+
+  /**
+   * The REST request body exceeds the 1 KiB limit.
+   *
+   * @generated from enum value: ERROR_CODE_REQUEST_TOO_LARGE = 7;
+   */
+  REQUEST_TOO_LARGE = 7,
+
+  /**
+   * The service is temporarily unable to complete the request.
+   *
+   * @generated from enum value: ERROR_CODE_SERVICE_UNAVAILABLE = 8;
+   */
+  SERVICE_UNAVAILABLE = 8,
+
+  /**
+   * The request failed because of an unexpected server error.
+   *
+   * @generated from enum value: ERROR_CODE_INTERNAL_ERROR = 9;
+   */
+  INTERNAL_ERROR = 9,
+
+  /**
+   * The claim request was not permitted.
+   *
+   * @generated from enum value: ERROR_CODE_PERMISSION_DENIED = 10;
+   */
+  PERMISSION_DENIED = 10,
+
+  /**
+   * A required condition for completing the claim was not satisfied.
+   *
+   * @generated from enum value: ERROR_CODE_FAILED_PRECONDITION = 11;
+   */
+  FAILED_PRECONDITION = 11,
+}
+
+/**
+ * Describes the enum claims.v1.ErrorCode.
+ */
+export const ErrorCodeSchema: GenEnum<ErrorCode> = /*@__PURE__*/
+  enumDesc(file_claims_v1_claims, 0);
 
 /**
  * ClaimPolicy controls how often a recipient may claim from a campaign.
@@ -288,7 +412,7 @@ export enum ClaimPolicy {
  * Describes the enum claims.v1.ClaimPolicy.
  */
 export const ClaimPolicySchema: GenEnum<ClaimPolicy> = /*@__PURE__*/
-  enumDesc(file_claims_v1_claims, 0);
+  enumDesc(file_claims_v1_claims, 1);
 
 /**
  * DailyClaimState describes today's claim.
@@ -336,7 +460,7 @@ export enum DailyClaimState {
  * Describes the enum claims.v1.DailyClaimState.
  */
 export const DailyClaimStateSchema: GenEnum<DailyClaimState> = /*@__PURE__*/
-  enumDesc(file_claims_v1_claims, 1);
+  enumDesc(file_claims_v1_claims, 2);
 
 /**
  * ClaimsService provides daily campaign rewards. A session JWT is required; API keys are not accepted.
