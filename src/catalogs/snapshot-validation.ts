@@ -13,6 +13,7 @@ const AssetConfigSchema = v.object({
     name: v.string(),
     quantityDisplayDecimals: IntegerSchema,
     quantityScale: IntegerSchema,
+    marketDataVolumeScale: v.optional(IntegerSchema),
 });
 
 const PairMarketDataConfigSchema = v.object({
@@ -34,6 +35,7 @@ const EnrichedPairConfigSchema = v.object({
     maxClientRefDriftPct: FiniteNumberSchema,
     baseQuantityScale: v.optional(IntegerSchema),
     quoteQuantityScale: v.optional(IntegerSchema),
+    referencePriceScale: v.optional(IntegerSchema),
     marketdata: v.optional(PairMarketDataConfigSchema),
     listingAt: v.nullable(FiniteNumberSchema),
     delistingAt: v.nullable(FiniteNumberSchema),

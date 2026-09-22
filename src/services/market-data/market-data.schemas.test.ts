@@ -154,6 +154,7 @@ describe("market data schemas", () => {
                     name: "Bitcoin",
                     quantityDisplayDecimals: 8,
                     quantityScale: 8,
+                    marketDataVolumeScale: 4,
                 },
             ],
             pairs: [
@@ -169,6 +170,7 @@ describe("market data schemas", () => {
                     allowBuyFeeFromBase: false,
                     baseQuantityScale: 8,
                     quoteQuantityScale: 6,
+                    referencePriceScale: 8,
                     listingAt: { seconds: 1_700_000_000n, nanos: 0 },
                     status: Proto.PairStatus.ENABLED,
                 },
@@ -182,9 +184,11 @@ describe("market data schemas", () => {
             name: "Bitcoin",
             quantityDisplayDecimals: 8,
             quantityScale: 8,
+            marketDataVolumeScale: 4,
         });
         expect(config.pairs[0]).toMatchObject({
             symbolId: 101,
+            referencePriceScale: 8,
             defaultMarketSlippagePctBuy: 0,
             defaultMarketSlippagePctSell: 0,
             maxClientRefDriftPct: 0,
@@ -192,5 +196,43 @@ describe("market data schemas", () => {
             status: "enabled",
         });
         expect(config.tsSec).toBe(123_000);
+    });
+
+    it("bounds market-data scales to 0..18 and defaults absent scales to 0", () => {
+        const asset = {
+            asset: "BTC",
+            ledgerId: 1,
+            name: "Bitcoin",
+            quantityDisplayDecimals: 8,
+            quantityScale: 8,
+        };
+        const pair = {
+            symbolId: 101,
+            symbol: "BTC-USDT",
+            baseAsset: "BTC",
+            quoteAsset: "USDT",
+            tickSize: "0.000001",
+            stepSize: "0.00000001",
+            minNotionalQuote: "1",
+            minQtyBase: "0.00000001",
+            allowBuyFeeFromBase: false,
+            baseQuantityScale: 8,
+            quoteQuantityScale: 6,
+            status: Proto.PairStatus.ENABLED,
+        };
+        const parse = (assets: unknown[], pairs: unknown[]) =>
+            v.parse(SpotConfigSchema, { assets, pairs, tsSec: 0n });
+
+        expect(parse([asset], [pair])).toMatchObject({
+            assets: [{ marketDataVolumeScale: 0 }],
+            pairs: [{ referencePriceScale: 0 }],
+        });
+        expect(parse([{ ...asset, marketDataVolumeScale: 18 }], [])).toMatchObject({
+            assets: [{ marketDataVolumeScale: 18 }],
+        });
+        expect(() => parse([{ ...asset, marketDataVolumeScale: 19 }], [])).toThrow();
+        expect(() => parse([{ ...asset, marketDataVolumeScale: -1 }], [])).toThrow();
+        expect(() => parse([{ ...asset, marketDataVolumeScale: 1.5 }], [])).toThrow();
+        expect(() => parse([asset], [{ ...pair, referencePriceScale: 19 }])).toThrow();
     });
 });

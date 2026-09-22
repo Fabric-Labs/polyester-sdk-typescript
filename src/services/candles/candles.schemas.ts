@@ -60,7 +60,7 @@ export function createCandleRowSchema(scales: SdkScales) {
                 high: scaledToDecimalOutput(data.high, priceScale),
                 low: scaledToDecimalOutput(data.low, priceScale),
                 close: scaledToDecimalOutput(data.close, priceScale),
-                volume: scaledToDecimalOutput(data.volume, scales.baseQty(data.symbolId)),
+                volume: scaledToDecimalOutput(data.volume, scales.marketDataVolume(data.symbolId)),
                 quoteVolume: data.quoteVolume,
                 isClosed: data.isClosed,
             };
@@ -112,7 +112,8 @@ export function createCandleColumnarSchema(scales: SdkScales) {
         CandleColumnarRawSchema,
         v.transform((d) => {
             const priceScale = scales.price();
-            const volumeScale = scales.baseQty(d.symbolId);
+            const referencePriceScale = scales.referencePrice(d.symbolId);
+            const volumeScale = scales.marketDataVolume(d.symbolId);
             const referenceTsSec = d.referenceTsSec ?? [];
             const hasReference = referenceTsSec.length > 0;
             return {
@@ -129,10 +130,10 @@ export function createCandleColumnarSchema(scales: SdkScales) {
                 reference: hasReference
                     ? {
                           time: referenceTsSec.map((t) => Number(t)),
-                          open: scaledArrayToDecimal(d.referenceOpen ?? [], priceScale),
-                          high: scaledArrayToDecimal(d.referenceHigh ?? [], priceScale),
-                          low: scaledArrayToDecimal(d.referenceLow ?? [], priceScale),
-                          close: scaledArrayToDecimal(d.referenceClose ?? [], priceScale),
+                          open: scaledArrayToDecimal(d.referenceOpen ?? [], referencePriceScale),
+                          high: scaledArrayToDecimal(d.referenceHigh ?? [], referencePriceScale),
+                          low: scaledArrayToDecimal(d.referenceLow ?? [], referencePriceScale),
+                          close: scaledArrayToDecimal(d.referenceClose ?? [], referencePriceScale),
                           volume: scaledArrayToDecimal(d.referenceVolume ?? [], volumeScale),
                       }
                     : null,
@@ -146,7 +147,8 @@ export function createCandleColumnarIntSchema(scales: SdkScales) {
         CandleColumnarRawSchema,
         v.transform((d) => {
             const priceScale = scales.price();
-            const volumeScale = scales.baseQty(d.symbolId);
+            const referencePriceScale = scales.referencePrice(d.symbolId);
+            const volumeScale = scales.marketDataVolume(d.symbolId);
             const referenceTsSec = d.referenceTsSec ?? [];
             return {
                 symbolId: d.symbolId,
@@ -163,10 +165,19 @@ export function createCandleColumnarIntSchema(scales: SdkScales) {
                     referenceTsSec.length > 0
                         ? {
                               tsSec: referenceTsSec.map((t) => Number(t)),
-                              open: scaledArrayToDecimal(d.referenceOpen ?? [], priceScale),
-                              high: scaledArrayToDecimal(d.referenceHigh ?? [], priceScale),
-                              low: scaledArrayToDecimal(d.referenceLow ?? [], priceScale),
-                              close: scaledArrayToDecimal(d.referenceClose ?? [], priceScale),
+                              open: scaledArrayToDecimal(
+                                  d.referenceOpen ?? [],
+                                  referencePriceScale,
+                              ),
+                              high: scaledArrayToDecimal(
+                                  d.referenceHigh ?? [],
+                                  referencePriceScale,
+                              ),
+                              low: scaledArrayToDecimal(d.referenceLow ?? [], referencePriceScale),
+                              close: scaledArrayToDecimal(
+                                  d.referenceClose ?? [],
+                                  referencePriceScale,
+                              ),
                               volume: scaledArrayToDecimal(d.referenceVolume ?? [], volumeScale),
                           }
                         : null,
