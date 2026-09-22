@@ -24,6 +24,8 @@ export interface AssetConfig {
     name: string;
     quantityDisplayDecimals: number;
     quantityScale: number;
+    /** Scale for public candle and market-overview base volume. Absent on older snapshots. */
+    marketDataVolumeScale?: number;
 }
 
 export interface PairConfig {
@@ -42,6 +44,8 @@ export interface PairConfig {
     marketdata?: PairMarketDataConfig;
     baseQuantityScale: number;
     quoteQuantityScale: number;
+    /** Scale for composite reference candle prices. Absent on older snapshots. */
+    referencePriceScale?: number;
     listingAt?: number | null;
     delistingAt?: number | null;
     status: PairStatus;

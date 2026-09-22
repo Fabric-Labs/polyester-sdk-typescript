@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file marketdata/v1/marketdata.proto.
  */
 export const file_marketdata_v1_marketdata: GenFile = /*@__PURE__*/
-  fileDesc("Ch5tYXJrZXRkYXRhL3YxL21hcmtldGRhdGEucHJvdG8SDW1hcmtldGRhdGEudjEi2QEKEEdldFRyYWRlc1JlcXVlc3QSEwoJc3ltYm9sX2lkGAEgASgNQgASDwoFbGltaXQYAiABKA1CABIuCgpzdGFydF90aW1lGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKQoEc2lkZRgFIAEoDjIZLm1hcmtldGRhdGEudjEuU2lkZUZpbHRlckIAEhQKCnBhZ2VfdG9rZW4YBiABKAlCADoAInoKC01hcmtldFRyYWRlEhEKCXN5bWJvbF9pZBgBIAEoDRIQCghtYXRjaF9pZBgCIAEoBBIOCgZpc19idXkYAyABKAgSEwoLcHJpY2VfdGlja3MYBCABKAMSEgoKcXR5X3NjYWxlZBgFIAEoAxINCgV0c19ucxgGIAEoBCJaChFHZXRUcmFkZXNSZXNwb25zZRIqCgZ0cmFkZXMYASADKAsyGi5tYXJrZXRkYXRhLnYxLk1hcmtldFRyYWRlEhkKD25leHRfcGFnZV90b2tlbhgCIAEoCUIAIpUCChFHZXRDYW5kbGVzUmVxdWVzdBITCglzeW1ib2xfaWQYASABKA1CABItCgl0aW1lZnJhbWUYAiABKA4yGC5tYXJrZXRkYXRhLnYxLlRpbWVmcmFtZUIAEg8KBWxpbWl0GAMgASgNQgASLgoKc3RhcnRfdGltZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmluY2x1ZGVfaW5jb21wbGV0ZRgGIAEoCBIZChFpbmNsdWRlX3JlZmVyZW5jZRgHIAEoCBIUCgpwYWdlX3Rva2VuGAggASgJQgA6ACKcAgoYR2V0Q2FuZGxlc0NvbHVtbnNSZXF1ZXN0EhMKCXN5bWJvbF9pZBgBIAEoDUIAEi0KCXRpbWVmcmFtZRgCIAEoDjIYLm1hcmtldGRhdGEudjEuVGltZWZyYW1lQgASDwoFbGltaXQYAyABKA1CABIuCgpzdGFydF90aW1lGAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSaW5jbHVkZV9pbmNvbXBsZXRlGAYgASgIEhkKEWluY2x1ZGVfcmVmZXJlbmNlGAcgASgIEhQKCnBhZ2VfdG9rZW4YCCABKAlCADoAIo4BCgtDYW5kbGVQb2ludBIOCgZ0c19zZWMYASABKAQSDAoEb3BlbhgCIAEoAxIMCgRoaWdoGAMgASgDEgsKA2xvdxgEIAEoAxINCgVjbG9zZRgFIAEoAxIOCgZ2b2x1bWUYBiABKAMSEQoJaXNfY2xvc2VkGAcgASgIEhQKDHF1b3RlX3ZvbHVtZRgIIAEoCSLTAQoSR2V0Q2FuZGxlc1Jlc3BvbnNlEhEKCXN5bWJvbF9pZBgBIAEoDRIrCgl0aW1lZnJhbWUYAiABKA4yGC5tYXJrZXRkYXRhLnYxLlRpbWVmcmFtZRIrCgdjYW5kbGVzGAMgAygLMhoubWFya2V0ZGF0YS52MS5DYW5kbGVQb2ludBI1ChFyZWZlcmVuY2VfY2FuZGxlcxgEIAMoCzIaLm1hcmtldGRhdGEudjEuQ2FuZGxlUG9pbnQSGQoPbmV4dF9wYWdlX3Rva2VuGAUgASgJQgAi+AIKGUdldENhbmRsZXNDb2x1bW5zUmVzcG9uc2USEQoJc3ltYm9sX2lkGAEgASgNEisKCXRpbWVmcmFtZRgCIAEoDjIYLm1hcmtldGRhdGEudjEuVGltZWZyYW1lEg4KBnRzX3NlYxgDIAMoBBIMCgRvcGVuGAQgAygDEgwKBGhpZ2gYBSADKAMSCwoDbG93GAYgAygDEg0KBWNsb3NlGAcgAygDEg4KBnZvbHVtZRgIIAMoAxIYChByZWZlcmVuY2VfdHNfc2VjGAkgAygEEhYKDnJlZmVyZW5jZV9vcGVuGAogAygDEhYKDnJlZmVyZW5jZV9oaWdoGAsgAygDEhUKDXJlZmVyZW5jZV9sb3cYDCADKAMSFwoPcmVmZXJlbmNlX2Nsb3NlGA0gAygDEhgKEHJlZmVyZW5jZV92b2x1bWUYDiADKAMSGQoPbmV4dF9wYWdlX3Rva2VuGA8gASgJQgASFAoMcXVvdGVfdm9sdW1lGBAgAygJIrYBCgZDYW5kbGUSEQoJc3ltYm9sX2lkGAEgASgNEisKCXRpbWVmcmFtZRgCIAEoDjIYLm1hcmtldGRhdGEudjEuVGltZWZyYW1lEg4KBnRzX3NlYxgDIAEoBBIMCgRvcGVuGAQgASgDEgwKBGhpZ2gYBSABKAMSCwoDbG93GAYgASgDEg0KBWNsb3NlGAcgASgDEg4KBnZvbHVtZRgIIAEoAxIUCgxxdW90ZV92b2x1bWUYCSABKAkieAoLQXNzZXRDb25maWcSDQoFYXNzZXQYASABKAkSEQoJbGVkZ2VyX2lkGAIgASgNEgwKBG5hbWUYAyABKAkSIQoZcXVhbnRpdHlfZGlzcGxheV9kZWNpbWFscxgEIAEoDRIWCg5xdWFudGl0eV9zY2FsZRgFIAEoDSI3ChRQYWlyTWFya2V0ZGF0YUNvbmZpZxIfChdvcmRlcmJvb2tfcHJpY2VfYnVja2V0cxgBIAMoASLHBAoKUGFpckNvbmZpZxIRCglzeW1ib2xfaWQYASABKA0SDgoGc3ltYm9sGAIgASgJEhIKCmJhc2VfYXNzZXQYAyABKAkSEwoLcXVvdGVfYXNzZXQYBCABKAkSEQoJdGlja19zaXplGAUgASgJEhEKCXN0ZXBfc2l6ZRgGIAEoCRIaChJtaW5fbm90aW9uYWxfcXVvdGUYByABKAkSFAoMbWluX3F0eV9iYXNlGAggASgJEh8KF2FsbG93X2J1eV9mZWVfZnJvbV9iYXNlGAkgASgIEhsKE2Jhc2VfcXVhbnRpdHlfc2NhbGUYCiABKA0SHAoUcXVvdGVfcXVhbnRpdHlfc2NhbGUYCyABKA0SNwoKbWFya2V0ZGF0YRgMIAEoCzIjLm1hcmtldGRhdGEudjEuUGFpck1hcmtldGRhdGFDb25maWcSLgoKbGlzdGluZ19hdBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMZGVsaXN0aW5nX2F0GA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIpCgZzdGF0dXMYDyABKA4yGS5tYXJrZXRkYXRhLnYxLlBhaXJTdGF0dXMSJwofZGVmYXVsdF9tYXJrZXRfc2xpcHBhZ2VfYnBzX2J1eRgQIAEoBRIoCiBkZWZhdWx0X21hcmtldF9zbGlwcGFnZV9icHNfc2VsbBgRIAEoBRIgChhtYXhfY2xpZW50X3JlZl9kcmlmdF9icHMYEiABKAUiFgoUR2V0U3BvdENvbmZpZ1JlcXVlc3QifQoVR2V0U3BvdENvbmZpZ1Jlc3BvbnNlEioKBmFzc2V0cxgBIAMoCzIaLm1hcmtldGRhdGEudjEuQXNzZXRDb25maWcSKAoFcGFpcnMYAiADKAsyGS5tYXJrZXRkYXRhLnYxLlBhaXJDb25maWcSDgoGdHNfc2VjGAMgASgEKjUKClNpZGVGaWx0ZXISFAoQU0lERV9VTlNQRUNJRklFRBAAEgcKA0JVWRABEggKBFNFTEwQAiqoAQoJVGltZWZyYW1lEhkKFVRJTUVGUkFNRV9VTlNQRUNJRklFRBAAEgkKBVNFQ18xEAESCQoFTUlOXzEQAhIJCgVNSU5fNRADEgoKBk1JTl8xNRAEEgoKBk1JTl8zMBAFEgoKBkhPVVJfMRAGEgoKBkhPVVJfNBAHEgkKBURBWV8xEAgSCwoHSE9VUl8xMhAJEgoKBldFRUtfMRAKEgsKB01PTlRIXzEQCyqxAQoKUGFpclN0YXR1cxIbChdQQUlSX1NUQVRVU19VTlNQRUNJRklFRBAAEhcKE1BBSVJfU1RBVFVTX0VOQUJMRUQQARIYChRQQUlSX1NUQVRVU19ESVNBQkxFRBACEhsKF1BBSVJfU1RBVFVTX0NBTkNFTF9PTkxZEAMSGQoVUEFJUl9TVEFUVVNfUE9TVF9PTkxZEAQSGwoXUEFJUl9TVEFUVVNfUkVEVUNFX09OTFkQBTKCAwoRTWFya2V0RGF0YVNlcnZpY2USUAoJR2V0VHJhZGVzEh8ubWFya2V0ZGF0YS52MS5HZXRUcmFkZXNSZXF1ZXN0GiAubWFya2V0ZGF0YS52MS5HZXRUcmFkZXNSZXNwb25zZSIAElMKCkdldENhbmRsZXMSIC5tYXJrZXRkYXRhLnYxLkdldENhbmRsZXNSZXF1ZXN0GiEubWFya2V0ZGF0YS52MS5HZXRDYW5kbGVzUmVzcG9uc2UiABJoChFHZXRDYW5kbGVzQ29sdW1ucxInLm1hcmtldGRhdGEudjEuR2V0Q2FuZGxlc0NvbHVtbnNSZXF1ZXN0GigubWFya2V0ZGF0YS52MS5HZXRDYW5kbGVzQ29sdW1uc1Jlc3BvbnNlIgASXAoNR2V0U3BvdENvbmZpZxIjLm1hcmtldGRhdGEudjEuR2V0U3BvdENvbmZpZ1JlcXVlc3QaJC5tYXJrZXRkYXRhLnYxLkdldFNwb3RDb25maWdSZXNwb25zZSIAQkhaRmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vbWFya2V0ZGF0YS92MTttYXJrZXRkYXRhdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("Ch5tYXJrZXRkYXRhL3YxL21hcmtldGRhdGEucHJvdG8SDW1hcmtldGRhdGEudjEi2QEKEEdldFRyYWRlc1JlcXVlc3QSEwoJc3ltYm9sX2lkGAEgASgNQgASDwoFbGltaXQYAiABKA1CABIuCgpzdGFydF90aW1lGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKQoEc2lkZRgFIAEoDjIZLm1hcmtldGRhdGEudjEuU2lkZUZpbHRlckIAEhQKCnBhZ2VfdG9rZW4YBiABKAlCADoAInoKC01hcmtldFRyYWRlEhEKCXN5bWJvbF9pZBgBIAEoDRIQCghtYXRjaF9pZBgCIAEoBBIOCgZpc19idXkYAyABKAgSEwoLcHJpY2VfdGlja3MYBCABKAMSEgoKcXR5X3NjYWxlZBgFIAEoAxINCgV0c19ucxgGIAEoBCJaChFHZXRUcmFkZXNSZXNwb25zZRIqCgZ0cmFkZXMYASADKAsyGi5tYXJrZXRkYXRhLnYxLk1hcmtldFRyYWRlEhkKD25leHRfcGFnZV90b2tlbhgCIAEoCUIAIpUCChFHZXRDYW5kbGVzUmVxdWVzdBITCglzeW1ib2xfaWQYASABKA1CABItCgl0aW1lZnJhbWUYAiABKA4yGC5tYXJrZXRkYXRhLnYxLlRpbWVmcmFtZUIAEg8KBWxpbWl0GAMgASgNQgASLgoKc3RhcnRfdGltZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmluY2x1ZGVfaW5jb21wbGV0ZRgGIAEoCBIZChFpbmNsdWRlX3JlZmVyZW5jZRgHIAEoCBIUCgpwYWdlX3Rva2VuGAggASgJQgA6ACKcAgoYR2V0Q2FuZGxlc0NvbHVtbnNSZXF1ZXN0EhMKCXN5bWJvbF9pZBgBIAEoDUIAEi0KCXRpbWVmcmFtZRgCIAEoDjIYLm1hcmtldGRhdGEudjEuVGltZWZyYW1lQgASDwoFbGltaXQYAyABKA1CABIuCgpzdGFydF90aW1lGAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSaW5jbHVkZV9pbmNvbXBsZXRlGAYgASgIEhkKEWluY2x1ZGVfcmVmZXJlbmNlGAcgASgIEhQKCnBhZ2VfdG9rZW4YCCABKAlCADoAIo4BCgtDYW5kbGVQb2ludBIOCgZ0c19zZWMYASABKAQSDAoEb3BlbhgCIAEoAxIMCgRoaWdoGAMgASgDEgsKA2xvdxgEIAEoAxINCgVjbG9zZRgFIAEoAxIOCgZ2b2x1bWUYBiABKAMSEQoJaXNfY2xvc2VkGAcgASgIEhQKDHF1b3RlX3ZvbHVtZRgIIAEoCSLTAQoSR2V0Q2FuZGxlc1Jlc3BvbnNlEhEKCXN5bWJvbF9pZBgBIAEoDRIrCgl0aW1lZnJhbWUYAiABKA4yGC5tYXJrZXRkYXRhLnYxLlRpbWVmcmFtZRIrCgdjYW5kbGVzGAMgAygLMhoubWFya2V0ZGF0YS52MS5DYW5kbGVQb2ludBI1ChFyZWZlcmVuY2VfY2FuZGxlcxgEIAMoCzIaLm1hcmtldGRhdGEudjEuQ2FuZGxlUG9pbnQSGQoPbmV4dF9wYWdlX3Rva2VuGAUgASgJQgAi+AIKGUdldENhbmRsZXNDb2x1bW5zUmVzcG9uc2USEQoJc3ltYm9sX2lkGAEgASgNEisKCXRpbWVmcmFtZRgCIAEoDjIYLm1hcmtldGRhdGEudjEuVGltZWZyYW1lEg4KBnRzX3NlYxgDIAMoBBIMCgRvcGVuGAQgAygDEgwKBGhpZ2gYBSADKAMSCwoDbG93GAYgAygDEg0KBWNsb3NlGAcgAygDEg4KBnZvbHVtZRgIIAMoAxIYChByZWZlcmVuY2VfdHNfc2VjGAkgAygEEhYKDnJlZmVyZW5jZV9vcGVuGAogAygDEhYKDnJlZmVyZW5jZV9oaWdoGAsgAygDEhUKDXJlZmVyZW5jZV9sb3cYDCADKAMSFwoPcmVmZXJlbmNlX2Nsb3NlGA0gAygDEhgKEHJlZmVyZW5jZV92b2x1bWUYDiADKAMSGQoPbmV4dF9wYWdlX3Rva2VuGA8gASgJQgASFAoMcXVvdGVfdm9sdW1lGBAgAygJIrYBCgZDYW5kbGUSEQoJc3ltYm9sX2lkGAEgASgNEisKCXRpbWVmcmFtZRgCIAEoDjIYLm1hcmtldGRhdGEudjEuVGltZWZyYW1lEg4KBnRzX3NlYxgDIAEoBBIMCgRvcGVuGAQgASgDEgwKBGhpZ2gYBSABKAMSCwoDbG93GAYgASgDEg0KBWNsb3NlGAcgASgDEg4KBnZvbHVtZRgIIAEoAxIUCgxxdW90ZV92b2x1bWUYCSABKAkimgEKC0Fzc2V0Q29uZmlnEg0KBWFzc2V0GAEgASgJEhEKCWxlZGdlcl9pZBgCIAEoDRIMCgRuYW1lGAMgASgJEiEKGXF1YW50aXR5X2Rpc3BsYXlfZGVjaW1hbHMYBCABKA0SFgoOcXVhbnRpdHlfc2NhbGUYBSABKA0SIAoYbWFya2V0X2RhdGFfdm9sdW1lX3NjYWxlGAYgASgNIjcKFFBhaXJNYXJrZXRkYXRhQ29uZmlnEh8KF29yZGVyYm9va19wcmljZV9idWNrZXRzGAEgAygBIuYECgpQYWlyQ29uZmlnEhEKCXN5bWJvbF9pZBgBIAEoDRIOCgZzeW1ib2wYAiABKAkSEgoKYmFzZV9hc3NldBgDIAEoCRITCgtxdW90ZV9hc3NldBgEIAEoCRIRCgl0aWNrX3NpemUYBSABKAkSEQoJc3RlcF9zaXplGAYgASgJEhoKEm1pbl9ub3Rpb25hbF9xdW90ZRgHIAEoCRIUCgxtaW5fcXR5X2Jhc2UYCCABKAkSHwoXYWxsb3dfYnV5X2ZlZV9mcm9tX2Jhc2UYCSABKAgSGwoTYmFzZV9xdWFudGl0eV9zY2FsZRgKIAEoDRIcChRxdW90ZV9xdWFudGl0eV9zY2FsZRgLIAEoDRI3CgptYXJrZXRkYXRhGAwgASgLMiMubWFya2V0ZGF0YS52MS5QYWlyTWFya2V0ZGF0YUNvbmZpZxIuCgpsaXN0aW5nX2F0GA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxkZWxpc3RpbmdfYXQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEikKBnN0YXR1cxgPIAEoDjIZLm1hcmtldGRhdGEudjEuUGFpclN0YXR1cxInCh9kZWZhdWx0X21hcmtldF9zbGlwcGFnZV9icHNfYnV5GBAgASgFEigKIGRlZmF1bHRfbWFya2V0X3NsaXBwYWdlX2Jwc19zZWxsGBEgASgFEiAKGG1heF9jbGllbnRfcmVmX2RyaWZ0X2JwcxgSIAEoBRIdChVyZWZlcmVuY2VfcHJpY2Vfc2NhbGUYEyABKA0iFgoUR2V0U3BvdENvbmZpZ1JlcXVlc3QifQoVR2V0U3BvdENvbmZpZ1Jlc3BvbnNlEioKBmFzc2V0cxgBIAMoCzIaLm1hcmtldGRhdGEudjEuQXNzZXRDb25maWcSKAoFcGFpcnMYAiADKAsyGS5tYXJrZXRkYXRhLnYxLlBhaXJDb25maWcSDgoGdHNfc2VjGAMgASgEKjUKClNpZGVGaWx0ZXISFAoQU0lERV9VTlNQRUNJRklFRBAAEgcKA0JVWRABEggKBFNFTEwQAiqoAQoJVGltZWZyYW1lEhkKFVRJTUVGUkFNRV9VTlNQRUNJRklFRBAAEgkKBVNFQ18xEAESCQoFTUlOXzEQAhIJCgVNSU5fNRADEgoKBk1JTl8xNRAEEgoKBk1JTl8zMBAFEgoKBkhPVVJfMRAGEgoKBkhPVVJfNBAHEgkKBURBWV8xEAgSCwoHSE9VUl8xMhAJEgoKBldFRUtfMRAKEgsKB01PTlRIXzEQCyqxAQoKUGFpclN0YXR1cxIbChdQQUlSX1NUQVRVU19VTlNQRUNJRklFRBAAEhcKE1BBSVJfU1RBVFVTX0VOQUJMRUQQARIYChRQQUlSX1NUQVRVU19ESVNBQkxFRBACEhsKF1BBSVJfU1RBVFVTX0NBTkNFTF9PTkxZEAMSGQoVUEFJUl9TVEFUVVNfUE9TVF9PTkxZEAQSGwoXUEFJUl9TVEFUVVNfUkVEVUNFX09OTFkQBTKCAwoRTWFya2V0RGF0YVNlcnZpY2USUAoJR2V0VHJhZGVzEh8ubWFya2V0ZGF0YS52MS5HZXRUcmFkZXNSZXF1ZXN0GiAubWFya2V0ZGF0YS52MS5HZXRUcmFkZXNSZXNwb25zZSIAElMKCkdldENhbmRsZXMSIC5tYXJrZXRkYXRhLnYxLkdldENhbmRsZXNSZXF1ZXN0GiEubWFya2V0ZGF0YS52MS5HZXRDYW5kbGVzUmVzcG9uc2UiABJoChFHZXRDYW5kbGVzQ29sdW1ucxInLm1hcmtldGRhdGEudjEuR2V0Q2FuZGxlc0NvbHVtbnNSZXF1ZXN0GigubWFya2V0ZGF0YS52MS5HZXRDYW5kbGVzQ29sdW1uc1Jlc3BvbnNlIgASXAoNR2V0U3BvdENvbmZpZxIjLm1hcmtldGRhdGEudjEuR2V0U3BvdENvbmZpZ1JlcXVlc3QaJC5tYXJrZXRkYXRhLnYxLkdldFNwb3RDb25maWdSZXNwb25zZSIAQkhaRmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vbWFya2V0ZGF0YS92MTttYXJrZXRkYXRhdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * GetTradesRequest selects recent public trades for one spot market.
@@ -355,36 +355,37 @@ export type CandlePoint = Message<"marketdata.v1.CandlePoint"> & {
   tsSec: bigint;
 
   /**
-   * Opening price in quote units scaled by 1e6.
+   * Opening price in quote units. Primary candles use scale 6; composite
+   * reference candles use the pair's reference_price_scale from GetSpotConfig.
    *
    * @generated from field: int64 open = 2;
    */
   open: bigint;
 
   /**
-   * Highest traded price in quote units scaled by 1e6.
+   * Highest traded price, using the same scale as open.
    *
    * @generated from field: int64 high = 3;
    */
   high: bigint;
 
   /**
-   * Lowest traded price in quote units scaled by 1e6.
+   * Lowest traded price, using the same scale as open.
    *
    * @generated from field: int64 low = 4;
    */
   low: bigint;
 
   /**
-   * Closing price in quote units scaled by 1e6.
+   * Closing price, using the same scale as open.
    *
    * @generated from field: int64 close = 5;
    */
   close: bigint;
 
   /**
-   * Traded base-asset quantity scaled by the market's base asset quantity_scale
-   * from GetSpotConfig.
+   * Traded base-asset quantity scaled by the base asset's
+   * market_data_volume_scale from GetSpotConfig.
    *
    * @generated from field: int64 volume = 6;
    */
@@ -499,36 +500,40 @@ export type GetCandlesColumnsResponse = Message<"marketdata.v1.GetCandlesColumns
   tsSec: bigint[];
 
   /**
-   * Opening prices in quote units scaled by 1e6.
+   * Opening primary-market prices use scale 6. Reference prices use the pair's
+   * reference_price_scale from GetSpotConfig.
    *
    * @generated from field: repeated int64 open = 4;
    */
   open: bigint[];
 
   /**
-   * Highest traded prices in quote units scaled by 1e6.
+   * Highest primary-market prices use scale 6. Reference prices use the pair's
+   * reference_price_scale from GetSpotConfig.
    *
    * @generated from field: repeated int64 high = 5;
    */
   high: bigint[];
 
   /**
-   * Lowest traded prices in quote units scaled by 1e6.
+   * Lowest primary-market prices use scale 6. Reference prices use the pair's
+   * reference_price_scale from GetSpotConfig.
    *
    * @generated from field: repeated int64 low = 6;
    */
   low: bigint[];
 
   /**
-   * Closing prices in quote units scaled by 1e6.
+   * Closing primary-market prices use scale 6. Reference prices use the pair's
+   * reference_price_scale from GetSpotConfig.
    *
    * @generated from field: repeated int64 close = 7;
    */
   close: bigint[];
 
   /**
-   * Traded base-asset quantities scaled by the pair's base_quantity_scale from
-   * GetSpotConfig.
+   * Traded base-asset quantities scaled by the base asset's
+   * market_data_volume_scale from GetSpotConfig.
    *
    * @generated from field: repeated int64 volume = 8;
    */
@@ -543,36 +548,36 @@ export type GetCandlesColumnsResponse = Message<"marketdata.v1.GetCandlesColumns
   referenceTsSec: bigint[];
 
   /**
-   * Reference opening prices in quote units scaled by 1e6.
+   * Reference opening prices use the pair's reference_price_scale.
    *
    * @generated from field: repeated int64 reference_open = 10;
    */
   referenceOpen: bigint[];
 
   /**
-   * Reference high prices in quote units scaled by 1e6.
+   * Reference high prices use the pair's reference_price_scale.
    *
    * @generated from field: repeated int64 reference_high = 11;
    */
   referenceHigh: bigint[];
 
   /**
-   * Reference low prices in quote units scaled by 1e6.
+   * Reference low prices use the pair's reference_price_scale.
    *
    * @generated from field: repeated int64 reference_low = 12;
    */
   referenceLow: bigint[];
 
   /**
-   * Reference closing prices in quote units scaled by 1e6.
+   * Reference closing prices use the pair's reference_price_scale.
    *
    * @generated from field: repeated int64 reference_close = 13;
    */
   referenceClose: bigint[];
 
   /**
-   * Reference traded base-asset quantities scaled by the pair's
-   * base_quantity_scale from GetSpotConfig.
+   * Reference traded base-asset quantities use the base asset's
+   * market_data_volume_scale from GetSpotConfig.
    *
    * @generated from field: repeated int64 reference_volume = 14;
    */
@@ -628,36 +633,36 @@ export type Candle = Message<"marketdata.v1.Candle"> & {
   tsSec: bigint;
 
   /**
-   * opening price in quote units scaled by 1e6
+   * opening primary-market price in scale 6
    *
    * @generated from field: int64 open = 4;
    */
   open: bigint;
 
   /**
-   * highest traded price in quote units scaled by 1e6
+   * highest primary-market price in scale 6
    *
    * @generated from field: int64 high = 5;
    */
   high: bigint;
 
   /**
-   * lowest traded price in quote units scaled by 1e6
+   * lowest primary-market price in scale 6
    *
    * @generated from field: int64 low = 6;
    */
   low: bigint;
 
   /**
-   * closing price in quote units scaled by 1e6
+   * closing primary-market price in scale 6
    *
    * @generated from field: int64 close = 7;
    */
   close: bigint;
 
   /**
-   * Traded base-asset quantity scaled by the pair's base_quantity_scale from
-   * GetSpotConfig.
+   * Traded base-asset quantity scaled by the base asset's
+   * market_data_volume_scale from GetSpotConfig.
    *
    * @generated from field: int64 volume = 8;
    */
@@ -720,6 +725,13 @@ export type AssetConfig = Message<"marketdata.v1.AssetConfig"> & {
    * @generated from field: uint32 quantity_scale = 5;
    */
   quantityScale: number;
+
+  /**
+   * Integer scale for public candle and market-overview base volume (0..18).
+   *
+   * @generated from field: uint32 market_data_volume_scale = 6;
+   */
+  marketDataVolumeScale: number;
 };
 
 /**
@@ -891,6 +903,14 @@ export type PairConfig = Message<"marketdata.v1.PairConfig"> & {
    * @generated from field: int32 max_client_ref_drift_bps = 18;
    */
   maxClientRefDriftBps: number;
+
+  /**
+   * Integer scale for composite reference prices in candle responses (0..18).
+   * Primary market and execution prices continue to use scale 6.
+   *
+   * @generated from field: uint32 reference_price_scale = 19;
+   */
+  referencePriceScale: number;
 };
 
 /**
@@ -1167,8 +1187,10 @@ export const MarketDataService: GenService<{
   },
   /**
    * GetCandlesColumns returns OHLCV candles in a columnar representation optimized for charting.
-   * This method is intended for ConnectRPC clients and returns scaled integers:
-   * OHLC prices use 1e6 quote-unit scale, and volumes use base_quantity_scale.
+   * This method is intended for ConnectRPC clients and returns scaled integers.
+   * Primary OHLC prices use scale 6, reference OHLC prices use the pair's
+   * reference_price_scale, and volumes use the base asset's
+   * market_data_volume_scale from GetSpotConfig.
    *
    * @generated from rpc marketdata.v1.MarketDataService.GetCandlesColumns
    */

@@ -75,6 +75,9 @@ export type GetMarketTradesRequest = v.InferOutput<
     ReturnType<typeof createGetMarketTradesInputSchema>
 >;
 
+/** Integer wire scales are protocol-bounded to 0..18 decimal places. */
+const WireScaleSchema = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(18));
+
 export const AssetConfigSchema = v.pipe(
     v.object({
         /**
@@ -97,6 +100,10 @@ export const AssetConfigSchema = v.pipe(
          * Fixed integer scaling for quantities/amounts in this asset (0..18).
          */
         quantityScale: v.number(),
+        /**
+         * Integer scale for public candle and market-overview base volume (0..18).
+         */
+        marketDataVolumeScale: v.optional(WireScaleSchema, 0),
     }),
     v.transform((a) => ({
         symbol: a.asset,
@@ -104,6 +111,7 @@ export const AssetConfigSchema = v.pipe(
         name: a.name,
         quantityDisplayDecimals: a.quantityDisplayDecimals,
         quantityScale: a.quantityScale,
+        marketDataVolumeScale: a.marketDataVolumeScale,
     })),
 );
 
@@ -192,6 +200,11 @@ export const PairConfigSchema = v.pipe(
          * Quote asset quantity scale copied from AssetConfig.quantityScale.
          */
         quoteQuantityScale: v.number(),
+        /**
+         * Integer scale for composite reference prices in candle responses (0..18).
+         * Primary market and execution prices continue to use scale 6.
+         */
+        referencePriceScale: v.optional(WireScaleSchema, 0),
         /**
          * Optional scheduled listing timestamp (UTC).
          */

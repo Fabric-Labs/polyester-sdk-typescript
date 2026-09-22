@@ -208,6 +208,56 @@ describe("CandlesService", () => {
         });
     });
 
+    it("scales volume by marketDataVolumeScale and reference prices by referencePriceScale", async () => {
+        const transport = unaryTransport({
+            symbolId: 101,
+            timeframe: Proto.Timeframe.HOUR_1,
+            tsSec: [100n],
+            open: [1_000_000n],
+            high: [1_500_000n],
+            low: [900_000n],
+            close: [1_250_000n],
+            volume: [12_345n],
+            quoteVolume: ["1"],
+            referenceTsSec: [90n],
+            referenceOpen: [200_000_000n],
+            referenceHigh: [250_000_000n],
+            referenceLow: [190_000_000n],
+            referenceClose: [225_000_000n],
+            referenceVolume: [20_000n],
+        });
+        const scales = createCatalogSdkScales(() =>
+            createTestCatalog({
+                assets: [{ ...BTC, marketDataVolumeScale: 4 }, USDT],
+                pairs: [{ ...BTC_USDT, referencePriceScale: 8 }],
+            }),
+        );
+        const service = new CandlesService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            scales,
+        );
+
+        const columnar = await service.listColumnar({
+            symbolId: 101,
+            timeframe: "1h",
+            includeReference: true,
+        });
+
+        expect(columnar).toMatchObject({
+            open: ["1"],
+            close: ["1.25"],
+            volume: ["1.2345"],
+            reference: {
+                open: ["2"],
+                high: ["2.5"],
+                low: ["1.9"],
+                close: ["2.25"],
+                volume: ["2"],
+            },
+        });
+    });
+
     it("parses integer columnar responses and defaults missing reference arrays to null", async () => {
         const transport = unaryTransport({
             symbolId: 101,

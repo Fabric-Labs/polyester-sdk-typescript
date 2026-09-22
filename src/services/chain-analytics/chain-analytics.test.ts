@@ -11,6 +11,8 @@ const testScales = {
     quoteAmount: () => 6,
     ledgerAmount: () => 6,
     zippedAssetAmount: () => 6,
+    marketDataVolume: () => 6,
+    referencePrice: () => 6,
 } satisfies SdkScales;
 
 describe("ChainAnalyticsService", () => {

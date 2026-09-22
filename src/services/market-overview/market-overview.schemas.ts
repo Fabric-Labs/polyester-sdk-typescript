@@ -79,6 +79,7 @@ export function createMarketOverviewSchema(scales: SdkScales) {
             const priceScale = scales.price();
             const baseQtyScale = scales.baseQty(m.symbolId);
             const quoteAmountScale = scales.quoteAmount(m.symbolId);
+            const volumeScale = scales.marketDataVolume(m.symbolId);
             return {
                 symbolId: m.symbolId,
                 lastPrice: scaledToDecimalOutput(m.lastPriceTicks, priceScale),
@@ -89,7 +90,7 @@ export function createMarketOverviewSchema(scales: SdkScales) {
                 volume24hBase:
                     m.volume24hBaseScaled === undefined
                         ? undefined
-                        : scaledToDecimalOutput(m.volume24hBaseScaled, baseQtyScale),
+                        : scaledToDecimalOutput(m.volume24hBaseScaled, volumeScale),
                 volume24hQuote:
                     m.volume24hQuoteScaled === undefined
                         ? undefined

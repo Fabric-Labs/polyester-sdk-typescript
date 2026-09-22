@@ -43,6 +43,10 @@ export interface SdkScales {
     price(): number;
     baseQty(pair: PairCatalogKey): number;
     quoteAmount(pair: PairCatalogKey): number;
+    /** Base volume in public candles and market overview; falls back to the base quantity scale. */
+    marketDataVolume(pair: PairCatalogKey): number;
+    /** Composite reference candle prices; falls back to the primary price scale. */
+    referencePrice(pair: PairCatalogKey): number;
     ledgerAmount(ledgerAssetId: number): number;
     zippedAssetAmount(zippedAssetId: number): number;
 }
@@ -59,6 +63,12 @@ export function createCatalogSdkScales(getCatalog: () => ClientCatalog): SdkScal
         price: () => PRICE_SCALE,
         baseQty: (pair) => requirePair(getCatalog(), pair).baseAsset.quantityScale,
         quoteAmount: (pair) => requirePair(getCatalog(), pair).quoteAsset.quantityScale,
+        marketDataVolume: (pair) => {
+            const { baseAsset } = requirePair(getCatalog(), pair);
+            return baseAsset.marketDataVolumeScale ?? baseAsset.quantityScale;
+        },
+        referencePrice: (pair) =>
+            requirePair(getCatalog(), pair).referencePriceScale ?? PRICE_SCALE,
         ledgerAmount: (ledgerAssetId) => {
             const ledger = getCatalog().ledger;
             if (!ledger.isKnownAssetId(ledgerAssetId)) {

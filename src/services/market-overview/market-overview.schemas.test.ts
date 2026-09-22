@@ -108,6 +108,28 @@ describe("MarketOverviewSchema", () => {
         expect(unavailableIndexPrice.indexPrice).toBeUndefined();
     });
 
+    it("scales 24h base volume by marketDataVolumeScale, not the quantity scale", () => {
+        const schema = createMarketOverviewSchema(
+            createCatalogSdkScales(() =>
+                createTestCatalog({
+                    assets: [{ ...BTC, marketDataVolumeScale: 4 }, USDT],
+                    pairs: [BTC_USDT],
+                }),
+            ),
+        );
+        const market = v.parse(
+            schema,
+            create(MarketOverviewSchema, {
+                symbolId: 101,
+                volume24hBaseScaled: 12_345n,
+                bestBidQtyScaled: 12_345n,
+            }),
+        );
+
+        expect(market.volume24hBase).toBe("1.2345");
+        expect(market.bestBidQty).toBe("0.00012345");
+    });
+
     it("computes display-only 24h change from decimal sparkline closes", () => {
         const market: Pick<MarketOverview, "change24hBps" | "listedTsMs" | "sparklines"> = {
             change24hBps: 0,

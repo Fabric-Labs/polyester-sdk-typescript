@@ -190,6 +190,12 @@ describe("MarketDataService", () => {
             zippedAssetAmount: () => {
                 throw new Error("getSpotConfig must not use scales");
             },
+            marketDataVolume: () => {
+                throw new Error("getSpotConfig must not use scales");
+            },
+            referencePrice: () => {
+                throw new Error("getSpotConfig must not use scales");
+            },
         };
         const service = new MarketDataService(
             { publicApi: transport.transport },
