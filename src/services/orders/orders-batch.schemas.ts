@@ -21,6 +21,7 @@ import {
     CancelAllAfterStatusCodec,
     BatchReplaceItemAdmissionStatusCodec,
     BatchReplacePhaseCodec,
+    ModifyActionCodec,
     OrderStatusCodec,
     OrderSideCodec,
 } from "./orders.codecs.js";
@@ -349,6 +350,7 @@ const BatchReplaceAdmissionItemSchema = v.pipe(
         status: enumLabelSchema(BatchReplaceItemAdmissionStatusCodec.protoToOutput),
         oldOrderId: OptionalPublicIdSchema,
         replacementOrderId: OptionalPublicIdSchema,
+        actionTaken: enumLabelSchema(ModifyActionCodec.protoToOutput),
         clientOrderId: v.string(),
         code: v.string(),
         error: v.optional(OrderErrorDetailSchema),
@@ -409,6 +411,7 @@ const BatchReplaceStatusItemSchema = v.pipe(
         phase: enumLabelSchema(BatchReplacePhaseCodec.protoToOutput),
         oldOrderId: OptionalPublicIdSchema,
         replacementOrderId: OptionalPublicIdSchema,
+        actionTaken: enumLabelSchema(ModifyActionCodec.protoToOutput),
         orderStatus: enumLabelSchema(OrderStatusCodec.protoToOutput),
         code: v.string(),
         updatedTsNs: v.bigint(),

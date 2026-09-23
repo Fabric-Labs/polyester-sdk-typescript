@@ -177,6 +177,12 @@ async function verifyServiceInference(): Promise<void> {
         execution: { type: "limit_gtd", price: "100", expireAt: Date.now() + 60_000, postOnly: true },
     };
     await client.orders.create(gtdOrder);
+    const replacement = await client.orders.batchReplace({ symbolId: 1, items: [{ orderId: "P", newQty: "1" }] });
+    expectType<"AMENDED" | "REPLACED" | "unspecified" | undefined>(replacement.results[0]?.actionTaken);
+    expectNotAny(replacement.results[0]?.actionTaken, true);
+    const replacementStatus = await client.orders.getBatchReplaceStatus({ batchRequestId: "P" });
+    expectType<"AMENDED" | "REPLACED" | "unspecified" | undefined>(replacementStatus.items[0]?.actionTaken);
+    expectNotAny(replacementStatus.items[0]?.actionTaken, true);
     const gtdOrders = await client.orders.listOpen({ symbolId: [1] });
     expectType<number | undefined>(gtdOrders.orders[0]?.expireAt);
 

@@ -672,6 +672,7 @@ describe("OrdersService", () => {
                         status: ProtoWrite.BatchReplaceItemAdmissionStatus.ADMITTED,
                         oldOrderId: 11n,
                         replacementOrderId: 12n,
+                        actionTaken: ProtoWrite.ModifyActionTaken.REPLACED,
                         clientOrderId: "order-a-v2",
                         code: "",
                     },
@@ -689,6 +690,7 @@ describe("OrdersService", () => {
                         phase: ProtoRead.BatchReplacePhase.WORKING,
                         oldOrderId: 11n,
                         replacementOrderId: 12n,
+                        actionTaken: ProtoWrite.ModifyActionTaken.REPLACED,
                         orderStatus: ProtoRead.OrderStatus.WORKING,
                         code: "",
                         updatedTsNs: 3_000_000_456n,
@@ -723,7 +725,7 @@ describe("OrdersService", () => {
         ).resolves.toMatchObject({
             batchRequestId: formatId(21n),
             status: "admitted",
-            results: [{ itemIndex: 0, status: "admitted" }],
+            results: [{ itemIndex: 0, status: "admitted", actionTaken: "REPLACED" }],
             acceptedTsNs: "2000000123",
         });
 
@@ -751,7 +753,9 @@ describe("OrdersService", () => {
         ).resolves.toMatchObject({
             batchRequestId: formatId(21n),
             admissionStatus: "admitted",
-            items: [{ itemIndex: 0, phase: "working", orderStatus: "working" }],
+            items: [
+                { itemIndex: 0, phase: "working", orderStatus: "working", actionTaken: "REPLACED" },
+            ],
             acceptedTsNs: "2000000123",
             updatedTsNs: "3000000456",
         });
