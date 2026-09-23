@@ -194,7 +194,7 @@ export type SubaccountPolicyView = Message<"auth.v1.SubaccountPolicyView"> & {
   /**
    * When true, new orders and exposure-increasing order or trigger changes are
    * rejected regardless of other settings. Existing orders and triggers may
-   * still be canceled or paused.
+   * still be canceled or paused by an otherwise authorized caller.
    *
    * @generated from field: bool trading_halted = 23;
    */
@@ -417,7 +417,7 @@ export type SubaccountPolicySpec = Message<"auth.v1.SubaccountPolicySpec"> & {
   /**
    * When true, new orders and exposure-increasing order or trigger changes are
    * rejected regardless of other settings. Existing orders and triggers may
-   * still be canceled or paused.
+   * still be canceled or paused by an otherwise authorized caller.
    *
    * @generated from field: bool trading_halted = 21;
    */
@@ -1117,9 +1117,11 @@ export enum PolicyAction {
   UNSPECIFIED = 0,
 
   /**
-   * Allow placing and modifying spot orders and triggers, including reading
-   * spot orders and trades. Cancellation and pausing remain available as
-   * safety actions.
+   * Allow all spot order mutations: create, modify, replace, cancel, batch
+   * operations, live cancel-all, and arming or disabling cancel-all-after.
+   * Includes reading spot orders and trades and placing or modifying triggers.
+   * Authorized cancellation remains available when trading activity is disabled;
+   * this does not grant mutation access to a read-only API key.
    *
    * @generated from enum value: TRADE_SPOT = 1;
    */
@@ -1149,7 +1151,8 @@ export enum PolicyAction {
   READ_BALANCES = 5,
 
   /**
-   * Allow reading spot orders and trades (no write).
+   * Allow reading spot orders and trades, subscriptions, and cancel-all dry-run.
+   * Strictly non-mutating: cancellation and cancel-all-after changes require TRADE_SPOT.
    *
    * @generated from enum value: READ_SPOT = 6;
    */
