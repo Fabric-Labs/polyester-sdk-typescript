@@ -1,5 +1,15 @@
 # @polyester/sdk
 
+## 0.27.3
+
+### Patch Changes
+
+- Expose `actionTaken` on batch replacement admission and status items so callers can distinguish successor replacements from cancel-only outcomes. Clarify single-order timeout reconciliation and the 15-minute batch-create replay window. ([#168](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/168))
+
+- Encode and decode trading prices, price deltas, and slippage ticks at scale 9 instead of 6. Price inputs now accept up to nine decimal places, and absolute max-slippage values are capped at `2.147483647` quote units by the int32 wire field. ([#170](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/170))
+
+- Expose the current trailing threshold as `triggerPrice` on trailing trigger runtime details, and add the `activated` trigger event type for list filters and event output. ([#170](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/170))
+
 ## 0.27.2
 
 ### Patch Changes
