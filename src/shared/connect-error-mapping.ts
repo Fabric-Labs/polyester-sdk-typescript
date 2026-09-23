@@ -3,7 +3,9 @@ import { parseConnectErrorDetail, type PolyesterErrorDetail } from "./error-deta
 import {
     AlreadyExistsError,
     AuthenticationError,
+    errorFromHttpStatus,
     InternalServerError,
+    NotImplementedError,
     isAbortError,
     MfaEnrollmentRequiredError,
     MfaLastFactorRequiredError,
@@ -135,6 +137,17 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
     const options: PolyesterErrorOptions = { cause: ce, detail };
     const withFallback = (fallback: string) => message || fallback;
 
+    // Connect reports non-Connect HTTP error bodies as "HTTP <status>" with a lossy
+    // code (e.g. 501 → Unknown), so map the real status. Bare 404 keeps Connect's
+    // Unimplemented: it means the route is missing, not the resource.
+    const httpStatus = /^HTTP (\d{3})$/u.exec(ce.rawMessage)?.[1];
+    if (!detail && httpStatus && httpStatus !== "404") {
+        return errorFromHttpStatus(Number(httpStatus), message, {
+            ...options,
+            retryAfterMs: parseRetryAfterMs(ce),
+        });
+    }
+
     if (detail?.service === "auth" && detail.code === "AUTH_RESOURCE_NOT_FOUND") {
         return new ResourceNotFoundError(withFallback("Resource not found."), options);
     }
@@ -238,6 +251,8 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
             return new TimeoutError(withFallback("Request timed out."), options);
         case Code.Unavailable:
             return new ServiceUnavailableError(withFallback("Service unavailable."), options);
+        case Code.Unimplemented:
+            return new NotImplementedError(withFallback("Operation not implemented."), options);
         case Code.Aborted:
             return new TransientError(withFallback("Operation aborted by the backend."), options);
         default:

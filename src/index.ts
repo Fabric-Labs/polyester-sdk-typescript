@@ -94,6 +94,7 @@ export {
     MfaVerificationError,
     NetworkError,
     normalizeErrorMessage,
+    NotImplementedError,
     PermissionError,
     PolicyInUseError,
     PolicyLockedError,
