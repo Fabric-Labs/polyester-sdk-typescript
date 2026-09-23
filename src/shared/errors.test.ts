@@ -54,6 +54,7 @@ import {
     ConfigurationError,
     errorFromHttpStatus,
     InternalServerError,
+    NotImplementedError,
     MfaEnrollmentRequiredError,
     MfaLastFactorRequiredError,
     MfaRequiredError,
@@ -190,7 +191,7 @@ describe("connectErrorToPolyesterError", () => {
         [Code.Aborted, TransientError],
         [Code.Internal, InternalServerError],
         [Code.Unknown, InternalServerError],
-        [Code.Unimplemented, InternalServerError],
+        [Code.Unimplemented, NotImplementedError],
     ];
 
     it.each(cases)("maps gRPC code %s", (code, expected) => {
@@ -781,6 +782,9 @@ describe("predicates over typed and raw errors", () => {
 
 describe("errorFromHttpStatus", () => {
     it("maps common statuses", () => {
+        expect(errorFromHttpStatus(400, "m")).toBeInstanceOf(ValidationError);
+        expect(errorFromHttpStatus(412, "m")).toBeInstanceOf(PreconditionFailedError);
+        expect(errorFromHttpStatus(422, "m")).toBeInstanceOf(ValidationError);
         expect(errorFromHttpStatus(401, "m")).toBeInstanceOf(AuthenticationError);
         expect(errorFromHttpStatus(403, "m")).toBeInstanceOf(PermissionError);
         expect(errorFromHttpStatus(404, "m")).toBeInstanceOf(ResourceNotFoundError);
@@ -789,6 +793,7 @@ describe("errorFromHttpStatus", () => {
         expect(errorFromHttpStatus(429, "m")).toBeInstanceOf(RateLimitError);
         expect(errorFromHttpStatus(418, "m")).toBeInstanceOf(RequestError);
         expect(errorFromHttpStatus(500, "m")).toBeInstanceOf(InternalServerError);
+        expect(errorFromHttpStatus(501, "m")).toBeInstanceOf(NotImplementedError);
         expect(errorFromHttpStatus(503, "m")).toBeInstanceOf(ServiceUnavailableError);
     });
 });

@@ -21,6 +21,7 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * │   │   ├── StaleQuoteError            STALE_QUOTE
  * │   │   └── PolicyScopeMismatchError   POLICY_SCOPE_MISMATCH
  * │   ├── ResourceNotFoundError      RESOURCE_NOT_FOUND          false
+ * │   ├── NotImplementedError        NOT_IMPLEMENTED             false
  * │   ├── AlreadyExistsError         ALREADY_EXISTS              false
  * │   ├── PermissionError            PERMISSION_DENIED           false
  * │   ├── AuthenticationError        UNAUTHENTICATED             false
@@ -68,6 +69,7 @@ export type PolyesterErrorCode =
     | "VALIDATION_FAILED"
     | "STALE_QUOTE"
     | "RESOURCE_NOT_FOUND"
+    | "NOT_IMPLEMENTED"
     | "ALREADY_EXISTS"
     | "PERMISSION_DENIED"
     | "UNAUTHENTICATED"
@@ -235,6 +237,16 @@ export class ResourceNotFoundError extends RequestError {
     constructor(message: string, options?: PolyesterErrorOptions) {
         super(message, options);
         this.name = "ResourceNotFoundError";
+    }
+}
+
+/** The backend does not implement the requested operation (HTTP 501 / Connect `unimplemented`). */
+export class NotImplementedError extends RequestError {
+    override readonly code: string = "NOT_IMPLEMENTED";
+
+    constructor(message: string, options?: PolyesterErrorOptions) {
+        super(message, options);
+        this.name = "NotImplementedError";
     }
 }
 
@@ -450,14 +462,17 @@ export function isAbortError(err: unknown): boolean {
 export function errorFromHttpStatus(
     status: number,
     message: string,
-    options?: PolyesterErrorOptions,
+    options?: RateLimitErrorOptions,
 ): PolyesterError {
+    if (status === 400 || status === 422) return new ValidationError(message, options);
     if (status === 401) return new AuthenticationError(message, options);
     if (status === 403) return new PermissionError(message, options);
     if (status === 404) return new ResourceNotFoundError(message, options);
     if (status === 408) return new TimeoutError(message, options);
     if (status === 409) return new AlreadyExistsError(message, options);
+    if (status === 412) return new PreconditionFailedError(message, options);
     if (status === 429) return new RateLimitError(message, options);
+    if (status === 501) return new NotImplementedError(message, options);
     if (status === 502 || status === 503 || status === 504) {
         return new ServiceUnavailableError(message, options);
     }

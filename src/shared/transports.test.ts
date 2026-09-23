@@ -15,9 +15,15 @@ import { formatUserFacingError, isRetryableError } from "../utils/errors.js";
 import {
     AuthenticationError,
     ConfigurationError,
+    InternalServerError,
     NetworkError,
+    NotImplementedError,
     PolyesterError,
+    PreconditionFailedError,
+    RateLimitError,
+    TimeoutError,
     TransientError,
+    ValidationError,
 } from "./errors.js";
 import {
     createApiKeyEd25519AuthHeaders,
@@ -84,6 +90,35 @@ describe("createTransports", () => {
         const rejection = expect(client.listMarketOverview({})).rejects;
         await rejection.toBeInstanceOf(AuthenticationError);
         await rejection.toBeInstanceOf(PolyesterError);
+    });
+
+    it.each([
+        [400, ValidationError],
+        [404, NotImplementedError],
+        [408, TimeoutError],
+        [412, PreconditionFailedError],
+        [500, InternalServerError],
+        [501, NotImplementedError],
+    ])("maps bare HTTP %i responses by status", async (status, expected) => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(
+            new Response("nope", { status, headers: { "content-type": "text/plain" } }),
+        );
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        await expect(client.listMarketOverview({})).rejects.toBeInstanceOf(expected);
+    });
+
+    it("maps bare HTTP 429 responses to RateLimitError with retry-after", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(
+            new Response(null, { status: 429, headers: { "retry-after": "2" } }),
+        );
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        const rejection = expect(client.listMarketOverview({})).rejects;
+        await rejection.toBeInstanceOf(RateLimitError);
+        await rejection.toMatchObject({ retryAfterMs: 2000 });
     });
 
     it("preserves SDK network errors outside Connect's call runner", async () => {
