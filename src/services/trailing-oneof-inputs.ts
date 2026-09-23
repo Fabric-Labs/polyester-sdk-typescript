@@ -1,7 +1,6 @@
 import { positiveDecimalInputToScaled, type SdkScales } from "../shared/decimal-surface.js";
 import { CatalogConversionError } from "../catalogs/types.js";
 import { parseOptionalPositiveIntLike } from "../utils/numbers.js";
-import { PROTOBUF_INT32_MAX } from "../shared/wire-bounds.js";
 
 type PositiveIntLikeInput = string | number;
 
@@ -33,7 +32,7 @@ type TrailingDistanceOneof =
     | UnsetOneof;
 
 type SlippageOneof<TicksCase extends string, BpsCase extends string> =
-    | { case: TicksCase; value: number }
+    | { case: TicksCase; value: bigint }
     | { case: BpsCase; value: number }
     | UnsetOneof;
 
@@ -82,18 +81,14 @@ export function parseSlippageInput<const TicksCase extends string, const BpsCase
         return { case: undefined, value: undefined };
     }
     if (slippage.kind === "slippage") {
-        const ticks = positiveDecimalInputToScaled(
-            `${options.fieldName}.slippage`,
-            slippage.slippage,
-            scales.price(),
-        );
-        if (ticks > PROTOBUF_INT32_MAX) {
-            throw new CatalogConversionError(
+        return {
+            case: options.ticksCase,
+            value: positiveDecimalInputToScaled(
                 `${options.fieldName}.slippage`,
-                `${options.fieldName}.slippage exceeds the maximum supported price distance: ${slippage.slippage}`,
-            );
-        }
-        return { case: options.ticksCase, value: Number(ticks) };
+                slippage.slippage,
+                scales.price(),
+            ),
+        };
     }
 
     const bps = parseOptionalPositiveIntLike(slippage.bps);

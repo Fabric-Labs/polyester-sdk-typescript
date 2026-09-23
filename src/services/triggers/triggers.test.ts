@@ -240,7 +240,7 @@ describe("TriggersService", () => {
                         side: ProtoOrders.Side.SELL,
                         trailingDistance: { case: "trailingDistanceBps", value: 150 },
                         activationPriceTicks: 99_000_000_000n,
-                        maxSlippage: { case: "maxSlippageTicks", value: 250_000_000 },
+                        maxSlippage: { case: "maxSlippageTicks", value: 250_000_000n },
                     },
                 },
             },
@@ -268,7 +268,7 @@ describe("TriggersService", () => {
                         execution: {
                             case: "marketIoc",
                             value: {
-                                maxSlippage: { case: "maxSlippageTicks", value: 250_000_000 },
+                                maxSlippage: { case: "maxSlippageTicks", value: 250_000_000n },
                             },
                         },
                     },
@@ -569,7 +569,7 @@ describe("TriggersService", () => {
                     peakPriceTicks: 100_500_000_000n,
                     troughPriceTicks: 0n,
                     trailingDistanceBps: 200,
-                    maxSlippageTicks: 0,
+                    maxSlippageTicks: 0n,
                     maxSlippageBps: 0,
                     triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
                     triggerDirection: ProtoOrders.TriggerDirection.TRIGGER_DIRECTION_UNSPECIFIED,
@@ -684,7 +684,7 @@ describe("TriggersService", () => {
             triggerPriceTicks: 101_250_000_000n,
             trailingDistance: { case: undefined, value: undefined },
             activationPriceTicks: 0n,
-            maxSlippage: { case: "maxSlippageTicks", value: 0 },
+            maxSlippage: { case: "maxSlippageTicks", value: 0n },
         });
         expect(
             transport.calls.find((call) => call.method.localName === "pauseTrigger")?.message,

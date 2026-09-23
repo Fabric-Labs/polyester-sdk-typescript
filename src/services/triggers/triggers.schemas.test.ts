@@ -7,7 +7,11 @@ import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
-import { PROTOBUF_INT32_MAX, PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
+import {
+    PROTOBUF_INT32_MAX,
+    PROTOBUF_INT64_MAX,
+    PROTOBUF_UINT32_MAX,
+} from "../../shared/wire-bounds.js";
 import { formatId } from "../../utils/base58-id.js";
 import {
     CreateTriggerResultSchema,
@@ -409,7 +413,7 @@ describe("CreateTriggerInputSchema", () => {
                         side: ProtoOrders.Side.SELL,
                         trailingDistance: { case: "trailingDistanceBps", value: 150 },
                         activationPriceTicks: 99_000_000_000n,
-                        maxSlippage: { case: "maxSlippageTicks", value: 250_000_000 },
+                        maxSlippage: { case: "maxSlippageTicks", value: 250_000_000n },
                     },
                 },
             },
@@ -525,9 +529,9 @@ describe("CreateTriggerInputSchema", () => {
             {
                 execution: {
                     type: "market_ioc",
-                    maxSlippage: { kind: "slippage", slippage: "2.147483647" },
+                    maxSlippage: { kind: "slippage", slippage: "9223372036.854775807" },
                 },
-                expected: { case: "maxSlippageTicks", value: 2_147_483_647 },
+                expected: { case: "maxSlippageTicks", value: PROTOBUF_INT64_MAX },
             },
             {
                 execution: { type: "market_ioc", maxSlippage: { kind: "bps", bps: 0 } },
@@ -540,7 +544,7 @@ describe("CreateTriggerInputSchema", () => {
             {
                 execution: {
                     type: "market_ioc",
-                    maxSlippage: { kind: "slippage", slippage: "2.147483648" },
+                    maxSlippage: { kind: "slippage", slippage: "9223372036.854775808" },
                 },
                 rejects: true,
             },
@@ -749,7 +753,7 @@ describe("ModifyTriggerInputSchema", () => {
             }),
         ).toMatchObject({
             activationPriceTicks: 0n,
-            maxSlippage: { case: "maxSlippageTicks", value: 0 },
+            maxSlippage: { case: "maxSlippageTicks", value: 0n },
         });
     });
 
@@ -905,7 +909,7 @@ describe("Trigger result and output schemas", () => {
                         side: ProtoOrders.Side.SELL,
                         trailingDistance: { case: "trailingDistanceBps", value: 200 },
                         activationPriceTicks: 99_000_000_000n,
-                        maxSlippage: { case: "maxSlippageTicks", value: 250_000_000 },
+                        maxSlippage: { case: "maxSlippageTicks", value: 250_000_000n },
                     }),
                 },
                 runtimeDetails: {
@@ -916,7 +920,7 @@ describe("Trigger result and output schemas", () => {
                         peakPriceTicks: 100_500_000_000n,
                         troughPriceTicks: 0n,
                         trailingDistanceBps: 200,
-                        maxSlippageTicks: 250_000_000,
+                        maxSlippageTicks: 250_000_000n,
                         maxSlippageBps: 0,
                         triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
                         triggerDirection:

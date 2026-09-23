@@ -6,7 +6,11 @@ import { AccountCode, TransferCode } from "../../gen/ledger/v1/catalog_pb.js";
 import { CatalogConversionError, type EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
-import { PROTOBUF_INT32_MAX, PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
+import {
+    PROTOBUF_INT32_MAX,
+    PROTOBUF_INT64_MAX,
+    PROTOBUF_UINT32_MAX,
+} from "../../shared/wire-bounds.js";
 import { formatId } from "../../utils/base58-id.js";
 import {
     BaseOrdersFilterInputSchema,
@@ -751,7 +755,7 @@ describe("NewOrderInputSchema", () => {
             stopLeg: {
                 case: "trailingStop",
                 value: {
-                    maxSlippage: { case: "maxSlippageTicks", value: 250_000_000 },
+                    maxSlippage: { case: "maxSlippageTicks", value: 250_000_000n },
                 },
             },
         });
@@ -906,11 +910,11 @@ describe("NewOrderInputSchema", () => {
                 risk: {
                     trailingStop: {
                         trailingDistance: { kind: "distance", distance: "0.5" },
-                        maxSlippage: { kind: "slippage", slippage: "10000" },
+                        maxSlippage: { kind: "slippage", slippage: "9223372036.854775808" },
                     },
                 },
             }),
-        ).toThrow("trailingStop.maxSlippage.slippage exceeds the maximum supported price distance");
+        ).toThrow("trailingStop.maxSlippage.slippage exceeds the maximum supported value");
     });
 
     it("converts decimal market max slippage and rejects oversized values", () => {
@@ -935,7 +939,7 @@ describe("NewOrderInputSchema", () => {
             value: {
                 maxSlippage: {
                     case: "maxSlippageTicks",
-                    value: 250_000_000,
+                    value: 250_000_000n,
                 },
             },
         });
@@ -945,14 +949,14 @@ describe("NewOrderInputSchema", () => {
                 ...baseOrder,
                 execution: {
                     type: "market_ioc",
-                    maxSlippage: { kind: "slippage", slippage: "2.147483647" },
+                    maxSlippage: { kind: "slippage", slippage: "9223372036.854775807" },
                 },
             }).order.execution,
         ).toMatchObject({
             value: {
                 maxSlippage: {
                     case: "maxSlippageTicks",
-                    value: 2_147_483_647,
+                    value: PROTOBUF_INT64_MAX,
                 },
             },
         });
@@ -961,7 +965,7 @@ describe("NewOrderInputSchema", () => {
                 ...baseOrder,
                 execution: {
                     type: "market_ioc",
-                    maxSlippage: { kind: "slippage", slippage: "2.147483648" },
+                    maxSlippage: { kind: "slippage", slippage: "9223372036.854775808" },
                 },
             }),
         ).toThrow("execution.maxSlippage.slippage");
@@ -993,10 +997,10 @@ describe("NewOrderInputSchema", () => {
                 ...baseOrder,
                 execution: {
                     type: "market_ioc",
-                    maxSlippage: { kind: "slippage", slippage: "10000" },
+                    maxSlippage: { kind: "slippage", slippage: "9223372036.854775808" },
                 },
             }),
-        ).toThrow("execution.maxSlippage.slippage exceeds the maximum supported price distance");
+        ).toThrow("execution.maxSlippage.slippage exceeds the maximum supported value");
         expect(() =>
             v.parse(schema, {
                 ...baseOrder,
@@ -1457,7 +1461,7 @@ describe("OrderSchema", () => {
             terminalTsNs: 0n,
             terminalReasonCode: 0,
             marketClientRefPriceTicks: 0n,
-            marketMaxSlippageTicks: 0,
+            marketMaxSlippageTicks: 0n,
             marketMaxSlippageBps: 0,
             version: 3,
             batchRequestId: 0n,
@@ -1726,7 +1730,7 @@ describe("OrderSchema", () => {
                                 case: "trailingDistanceTicks",
                                 value: 500_000_000n,
                             },
-                            maxSlippage: { case: "maxSlippageTicks", value: 250_000_000 },
+                            maxSlippage: { case: "maxSlippageTicks", value: 250_000_000n },
                             activationPriceTicks: 99_000_000_000n,
                         },
                     },
@@ -1767,7 +1771,7 @@ describe("OrderSchema", () => {
     it("decodes market max slippage ticks to a decimal slippage variant", () => {
         const schema = createOrderSchema(testScales());
 
-        const ticksOrder = v.parse(schema, rawOrder({ marketMaxSlippageTicks: 250_000_000 }));
+        const ticksOrder = v.parse(schema, rawOrder({ marketMaxSlippageTicks: 250_000_000n }));
         expect(ticksOrder.marketMaxSlippage).toEqual({ kind: "slippage", slippage: "0.25" });
 
         const bpsOrder = v.parse(schema, rawOrder({ marketMaxSlippageBps: 25 }));

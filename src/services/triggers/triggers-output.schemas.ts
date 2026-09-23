@@ -108,7 +108,7 @@ const ConditionalConfigurationRawSchema = v.object({
 });
 
 const MaxSlippageRawSchema = v.variant("case", [
-    v.object({ case: v.literal("maxSlippageTicks"), value: v.number() }),
+    v.object({ case: v.literal("maxSlippageTicks"), value: v.bigint() }),
     v.object({ case: v.literal("maxSlippageBps"), value: v.number() }),
     v.object({ case: v.undefined(), value: v.optional(v.undefined()) }),
 ]);
@@ -282,7 +282,7 @@ function formatMaxSlippage(
     return maxSlippage.case === "maxSlippageTicks"
         ? {
               kind: "slippage" as const,
-              slippage: scaledToDecimalOutput(BigInt(maxSlippage.value), scales.price()),
+              slippage: scaledToDecimalOutput(maxSlippage.value, scales.price()),
           }
         : maxSlippage.case === "maxSlippageBps"
           ? { kind: "bps" as const, bps: maxSlippage.value }
@@ -324,7 +324,7 @@ const TrailingDetailsRawSchema = v.object({
     peakPriceTicks: v.bigint(),
     troughPriceTicks: v.bigint(),
     trailingDistanceBps: v.number(),
-    maxSlippageTicks: v.number(),
+    maxSlippageTicks: v.bigint(),
     maxSlippageBps: v.number(),
     triggerPriceSource: v.number(),
     triggerDirection: v.number(),
@@ -450,11 +450,8 @@ function transformTriggerDetails(
                         ? scaledToDecimalOutput(details.value.troughPriceTicks, scales.price())
                         : undefined,
                 maxSlippage:
-                    details.value.maxSlippageTicks > 0
-                        ? scaledToDecimalOutput(
-                              BigInt(details.value.maxSlippageTicks),
-                              scales.price(),
-                          )
+                    details.value.maxSlippageTicks > 0n
+                        ? scaledToDecimalOutput(details.value.maxSlippageTicks, scales.price())
                         : undefined,
                 maxSlippageBps: details.value.maxSlippageBps,
                 triggerPriceSource: enumLabel(

@@ -239,7 +239,7 @@ describe("spot order constraints and validation", () => {
             maxPrice: "9223372036.854775807",
             maxQtyBase: "92233720368.54775807",
             maxNotionalQuote: "9223372036854.775807",
-            maxQuoteSlippage: "2.147483647",
+            maxQuoteSlippage: "9223372036.854775807",
             priceScale: 9,
             quantityScale: 8,
             quoteAmountScale: 6,
