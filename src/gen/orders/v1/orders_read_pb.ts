@@ -470,14 +470,14 @@ export type Order = Message<"orders.v1.Order"> & {
 
   /**
    * Average execution price across the lineage through this generation,
-   * in quote units scaled by 1e6. Zero if no fills.
+   * in quote units scaled by 1e9. Zero if no fills.
    *
    * @generated from field: int64 avg_price_ticks = 14;
    */
   avgPriceTicks: bigint;
 
   /**
-   * Limit price in quote units scaled by 1e6. Zero for MARKET orders.
+   * Limit price in quote units scaled by 1e9. Zero for MARKET orders.
    *
    * @generated from field: int64 price_ticks = 15;
    */
@@ -529,14 +529,14 @@ export type Order = Message<"orders.v1.Order"> & {
 
   /**
    * Optional client-side reference price used for MARKET slippage protection,
-   * in quote units scaled by 1e6.
+   * in quote units scaled by 1e9.
    *
    * @generated from field: int64 market_client_ref_price_ticks = 23;
    */
   marketClientRefPriceTicks: bigint;
 
   /**
-   * Optional MARKET max slippage as a price delta in 1e-6 quote-unit ticks.
+   * Optional MARKET max slippage as a price delta in 1e-9 quote-unit ticks.
    *
    * @generated from field: int32 market_max_slippage_ticks = 24;
    */
@@ -640,7 +640,7 @@ export type UserTrade = Message<"orders.v1.UserTrade"> & {
   isMaker: boolean;
 
   /**
-   * Execution price in quote units scaled by 1e6.
+   * Execution price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 7;
    */

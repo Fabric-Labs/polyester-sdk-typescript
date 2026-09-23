@@ -507,7 +507,7 @@ export type GetEquityHistorySeriesResponse = Message<"ledger.read.v1.GetEquityHi
   series: EquitySeries[];
 
   /**
-   * BTC-USDT close price at each timestamp, scaled by 1e6 (same as price_ticks).
+   * BTC-USDT close price at each timestamp, scaled by 1e9 (same as price_ticks).
    * Enables client-side conversion to BTC denomination without refetch.
    *
    * @generated from field: repeated int64 btc_prices_q = 10;
@@ -600,7 +600,7 @@ export type GetPortfolioEquityHistorySeriesResponse = Message<"ledger.read.v1.Ge
   series: EquitySeries[];
 
   /**
-   * BTC-USDT close price at each timestamp, scaled by 1e6 (same as price_ticks).
+   * BTC-USDT close price at each timestamp, scaled by 1e9 (same as price_ticks).
    * Enables client-side conversion to BTC denomination without refetch.
    *
    * @generated from field: repeated int64 btc_prices_q = 8;
@@ -740,7 +740,7 @@ export type GetPortfolioEquitySnapshotResponse = Message<"ledger.read.v1.GetPort
   assets: PortfolioAssetEquity[];
 
   /**
-   * Current BTC-USDT price scaled by 1e6. Zero when unavailable.
+   * Current BTC-USDT price scaled by 1e9. Zero when unavailable.
    *
    * @generated from field: int64 btc_price_q = 5;
    */

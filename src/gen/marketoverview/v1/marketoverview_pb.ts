@@ -48,7 +48,7 @@ export type Sparkline = Message<"marketoverview.v1.Sparkline"> & {
   interval: SparklineInterval;
 
   /**
-   * Newest-first close prices in quote units scaled by 1e6.
+   * Newest-first close prices in quote units scaled by 1e9.
    *
    * @generated from field: repeated int64 close_ticks = 2;
    */
@@ -74,7 +74,7 @@ export type MarketOverview = Message<"marketoverview.v1.MarketOverview"> & {
   symbolId: number;
 
   /**
-   * Last traded price in quote units scaled by 1e6.
+   * Last traded price in quote units scaled by 1e9.
    *
    * @generated from field: int64 last_price_ticks = 3;
    */
@@ -96,14 +96,14 @@ export type MarketOverview = Message<"marketoverview.v1.MarketOverview"> & {
 
   /**
    * Rolling 24h stats.
-   * Highest traded price in the 24h window, in quote units scaled by 1e6.
+   * Highest traded price in the 24h window, in quote units scaled by 1e9.
    *
    * @generated from field: int64 high_24h_ticks = 6;
    */
   high24hTicks: bigint;
 
   /**
-   * Lowest traded price in the 24h window, in quote units scaled by 1e6.
+   * Lowest traded price in the 24h window, in quote units scaled by 1e9.
    *
    * @generated from field: int64 low_24h_ticks = 7;
    */
@@ -144,7 +144,7 @@ export type MarketOverview = Message<"marketoverview.v1.MarketOverview"> & {
   listedTsNs: bigint;
 
   /**
-   * Current best bid price in quote units scaled by 1e6.
+   * Current best bid price in quote units scaled by 1e9.
    *
    * @generated from field: int64 best_bid_ticks = 9;
    */
@@ -159,7 +159,7 @@ export type MarketOverview = Message<"marketoverview.v1.MarketOverview"> & {
   bestBidQtyScaled: bigint;
 
   /**
-   * Current best ask price in quote units scaled by 1e6.
+   * Current best ask price in quote units scaled by 1e9.
    *
    * @generated from field: int64 best_ask_ticks = 11;
    */
@@ -181,7 +181,7 @@ export type MarketOverview = Message<"marketoverview.v1.MarketOverview"> & {
   sparklines: Sparkline[];
 
   /**
-   * Current multi-venue index price in quote units scaled by 1e6.
+   * Current multi-venue index price in quote units scaled by 1e9.
    * Zero when no fresh, valid index price is available.
    *
    * @generated from field: int64 index_price_ticks = 16;
@@ -757,7 +757,7 @@ export enum MarketOrderBy {
   ORDER_BY_VOLUME_24H_USD = 2,
 
   /**
-   * Sort by last price in quote units scaled by 1e6.
+   * Sort by last price in quote units scaled by 1e9.
    *
    * @generated from enum value: ORDER_BY_LAST_PRICE = 3;
    */

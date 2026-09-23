@@ -51,7 +51,7 @@ export const GetOrderBookRequestSchema: GenMessage<GetOrderBookRequest> = /*@__P
  */
 export type PriceLevel = Message<"orderbook.v1.PriceLevel"> & {
   /**
-   * Price in quote units scaled by 1e6.
+   * Price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */

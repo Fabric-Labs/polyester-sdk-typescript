@@ -30,7 +30,7 @@ export type MarketIoc = Message<"orders.v1.MarketIoc"> & {
    */
   maxSlippage: {
     /**
-     * Maximum allowed slippage as a price delta in 1e-6 quote-unit ticks.
+     * Maximum allowed slippage as a price delta in 1e-9 quote-unit ticks.
      *
      * @generated from field: int32 max_slippage_ticks = 1;
      */
@@ -47,7 +47,7 @@ export type MarketIoc = Message<"orders.v1.MarketIoc"> & {
   } | { case: undefined; value?: undefined };
 
   /**
-   * Optional client reference price in quote units scaled by 1e6. When
+   * Optional client reference price in quote units scaled by 1e9. When
    * omitted, admission uses server-side reference pricing.
    *
    * @generated from field: int64 client_ref_price_ticks = 3;
@@ -69,7 +69,7 @@ export const MarketIocSchema: GenMessage<MarketIoc> = /*@__PURE__*/
  */
 export type LimitGtc = Message<"orders.v1.LimitGtc"> & {
   /**
-   * Limit price in quote units scaled by 1e6.
+   * Limit price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */
@@ -99,7 +99,7 @@ export const LimitGtcSchema: GenMessage<LimitGtc> = /*@__PURE__*/
  */
 export type LimitGtd = Message<"orders.v1.LimitGtd"> & {
   /**
-   * Limit price in quote units scaled by 1e6.
+   * Limit price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */
@@ -136,7 +136,7 @@ export const LimitGtdSchema: GenMessage<LimitGtd> = /*@__PURE__*/
  */
 export type LimitIoc = Message<"orders.v1.LimitIoc"> & {
   /**
-   * Limit price in quote units scaled by 1e6.
+   * Limit price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */
@@ -157,7 +157,7 @@ export const LimitIocSchema: GenMessage<LimitIoc> = /*@__PURE__*/
  */
 export type LimitFok = Message<"orders.v1.LimitFok"> & {
   /**
-   * Limit price in quote units scaled by 1e6.
+   * Limit price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */
@@ -484,7 +484,7 @@ export type PreviewOrderResponse = Message<"orders.v1.PreviewOrderResponse"> & {
   resolvedBaseQtyScaled?: bigint | undefined;
 
   /**
-   * Protective execution boundary in quote units scaled by 1e6. This is not an
+   * Protective execution boundary in quote units scaled by 1e9. This is not an
    * expected fill price. Present when price protection was resolved.
    *
    * @generated from field: optional int64 protected_price_bound_ticks = 4;
@@ -719,7 +719,7 @@ export const RiskMarketIocSchema: GenMessage<RiskMarketIoc> = /*@__PURE__*/
  */
 export type RiskLimitGtc = Message<"orders.v1.RiskLimitGtc"> & {
   /**
-   * Limit price in quote units scaled by 1e6.
+   * Limit price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */
@@ -777,7 +777,7 @@ export const RiskExecutionSchema: GenMessage<RiskExecution> = /*@__PURE__*/
  */
 export type TakeProfitPolicy = Message<"orders.v1.TakeProfitPolicy"> & {
   /**
-   * Trigger price in quote units scaled by 1e6.
+   * Trigger price in quote units scaled by 1e9.
    *
    * @generated from field: int64 trigger_price_ticks = 1;
    */
@@ -806,7 +806,7 @@ export const TakeProfitPolicySchema: GenMessage<TakeProfitPolicy> = /*@__PURE__*
  */
 export type StopLossPolicy = Message<"orders.v1.StopLossPolicy"> & {
   /**
-   * Trigger price in quote units scaled by 1e6.
+   * Trigger price in quote units scaled by 1e9.
    *
    * @generated from field: int64 trigger_price_ticks = 1;
    */
@@ -842,7 +842,7 @@ export type TrailingStopPolicy = Message<"orders.v1.TrailingStopPolicy"> & {
    */
   trailingDistance: {
     /**
-     * Trailing distance as a price delta in 1e-6 quote-unit ticks.
+     * Trailing distance as a price delta in 1e-9 quote-unit ticks.
      *
      * @generated from field: int64 trailing_distance_ticks = 1;
      */
@@ -869,7 +869,7 @@ export type TrailingStopPolicy = Message<"orders.v1.TrailingStopPolicy"> & {
    */
   maxSlippage: {
     /**
-     * Maximum allowed slippage as a price delta in 1e-6 quote-unit ticks.
+     * Maximum allowed slippage as a price delta in 1e-9 quote-unit ticks.
      *
      * @generated from field: int32 max_slippage_ticks = 6;
      */
@@ -888,7 +888,7 @@ export type TrailingStopPolicy = Message<"orders.v1.TrailingStopPolicy"> & {
   /**
    * Optional activation price: trailing only starts after this price is
    * reached. If omitted, trailing starts immediately after the parent order
-   * fills. Expressed in quote units scaled by 1e6.
+   * fills. Expressed in quote units scaled by 1e9.
    *
    * @generated from field: int64 activation_price_ticks = 3;
    */
@@ -1492,7 +1492,7 @@ export type ModifyOrderRequest = Message<"orders.v1.ModifyOrderRequest"> & {
 
   /**
    * Patch fields (presence-based).
-   * New limit price in quote units scaled by 1e6. Required for price changes.
+   * New limit price in quote units scaled by 1e9. Required for price changes.
    *
    * @generated from field: optional int64 new_price_ticks = 5;
    */
@@ -1649,7 +1649,7 @@ export type BatchReplaceOrderItem = Message<"orders.v1.BatchReplaceOrderItem"> &
   } | { case: undefined; value?: undefined };
 
   /**
-   * New limit price in quote units scaled by 1e6.
+   * New limit price in quote units scaled by 1e9.
    *
    * @generated from field: optional int64 new_price_ticks = 3;
    */

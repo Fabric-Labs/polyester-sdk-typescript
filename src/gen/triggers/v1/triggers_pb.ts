@@ -38,7 +38,7 @@ export const TriggerMarketIocSchema: GenMessage<TriggerMarketIoc> = /*@__PURE__*
  */
 export type TriggerLimitGtc = Message<"triggers.v1.TriggerLimitGtc"> & {
   /**
-   * Limit price in quote units scaled by 1e6.
+   * Limit price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */
@@ -66,7 +66,7 @@ export const TriggerLimitGtcSchema: GenMessage<TriggerLimitGtc> = /*@__PURE__*/
  */
 export type TriggerLimitIoc = Message<"triggers.v1.TriggerLimitIoc"> & {
   /**
-   * Limit price in quote units scaled by 1e6.
+   * Limit price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */
@@ -87,7 +87,7 @@ export const TriggerLimitIocSchema: GenMessage<TriggerLimitIoc> = /*@__PURE__*/
  */
 export type TriggerLimitFok = Message<"triggers.v1.TriggerLimitFok"> & {
   /**
-   * Limit price in quote units scaled by 1e6.
+   * Limit price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */
@@ -160,7 +160,7 @@ export const ConditionalChildExecutionSchema: GenMessage<ConditionalChildExecuti
  */
 export type ConditionalTrigger = Message<"triggers.v1.ConditionalTrigger"> & {
   /**
-   * Trigger threshold in quote units scaled by 1e6.
+   * Trigger threshold in quote units scaled by 1e9.
    *
    * @generated from field: int64 trigger_price_ticks = 1;
    */
@@ -203,7 +203,7 @@ export type TrailingStopTrigger = Message<"triggers.v1.TrailingStopTrigger"> & {
    */
   trailingDistance: {
     /**
-     * Distance as a price delta in 1e-6 quote-unit ticks.
+     * Distance as a price delta in 1e-9 quote-unit ticks.
      *
      * @generated from field: int64 trailing_distance_ticks = 1;
      */
@@ -220,7 +220,7 @@ export type TrailingStopTrigger = Message<"triggers.v1.TrailingStopTrigger"> & {
   } | { case: undefined; value?: undefined };
 
   /**
-   * Optional activation price in quote units scaled by 1e6.
+   * Optional activation price in quote units scaled by 1e9.
    *
    * @generated from field: int64 activation_price_ticks = 3;
    */
@@ -233,7 +233,7 @@ export type TrailingStopTrigger = Message<"triggers.v1.TrailingStopTrigger"> & {
    */
   maxSlippage: {
     /**
-     * Maximum slippage as a price delta in 1e-6 quote-unit ticks.
+     * Maximum slippage as a price delta in 1e-9 quote-unit ticks.
      *
      * @generated from field: int32 max_slippage_ticks = 4;
      */
@@ -280,7 +280,7 @@ export type TwapMarketIoc = Message<"triggers.v1.TwapMarketIoc"> & {
    */
   maxSlippage: {
     /**
-     * Maximum adverse price delta per slice in 1e-6 quote-unit ticks.
+     * Maximum adverse price delta per slice in 1e-9 quote-unit ticks.
      *
      * @generated from field: int32 max_slippage_ticks = 1;
      */
@@ -312,7 +312,7 @@ export const TwapMarketIocSchema: GenMessage<TwapMarketIoc> = /*@__PURE__*/
  */
 export type TwapLimitGtc = Message<"triggers.v1.TwapLimitGtc"> & {
   /**
-   * Slice limit price in quote units scaled by 1e6.
+   * Slice limit price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */
@@ -399,14 +399,14 @@ export type LadderTrigger = Message<"triggers.v1.LadderTrigger"> & {
   side: Side;
 
   /**
-   * Minimum generated level price in quote units scaled by 1e6.
+   * Minimum generated level price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_min_ticks = 2;
    */
   priceMinTicks: bigint;
 
   /**
-   * Maximum generated level price in quote units scaled by 1e6.
+   * Maximum generated level price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_max_ticks = 3;
    */
@@ -863,7 +863,7 @@ export type TriggerEvent = Message<"triggers.v1.TriggerEvent"> & {
 
   /**
    * Price that caused a conditional trigger to fire, in quote units scaled by
-   * 1e6. Absent for time-scheduled triggers such as TWAP.
+   * 1e9. Absent for time-scheduled triggers such as TWAP.
    *
    * @generated from field: optional int64 fire_price_ticks = 13;
    */
@@ -1030,14 +1030,14 @@ export type ModifyTriggerRequest = Message<"triggers.v1.ModifyTriggerRequest"> &
   /**
    * Patch fields for safe price, trailing-distance, and slippage edits.
    * For stop/take-profit:
-   * Updated trigger price in quote units scaled by 1e6.
+   * Updated trigger price in quote units scaled by 1e9.
    *
    * @generated from field: optional int64 trigger_price_ticks = 10;
    */
   triggerPriceTicks?: bigint | undefined;
 
   /**
-   * Updated limit price in quote units scaled by 1e6 for LIMIT child orders.
+   * Updated limit price in quote units scaled by 1e9 for LIMIT child orders.
    *
    * @generated from field: optional int64 limit_price_ticks = 11;
    */
@@ -1050,7 +1050,7 @@ export type ModifyTriggerRequest = Message<"triggers.v1.ModifyTriggerRequest"> &
    */
   trailingDistance: {
     /**
-     * Updated trailing distance as a price delta in 1e-6 quote-unit ticks.
+     * Updated trailing distance as a price delta in 1e-9 quote-unit ticks.
      *
      * @generated from field: int64 trailing_distance_ticks = 12;
      */
@@ -1067,7 +1067,7 @@ export type ModifyTriggerRequest = Message<"triggers.v1.ModifyTriggerRequest"> &
   } | { case: undefined; value?: undefined };
 
   /**
-   * Updated activation price in quote units scaled by 1e6. Set to zero to
+   * Updated activation price in quote units scaled by 1e9. Set to zero to
    * clear an existing activation price; omit to leave it unchanged.
    *
    * @generated from field: optional int64 activation_price_ticks = 14;
@@ -1082,7 +1082,7 @@ export type ModifyTriggerRequest = Message<"triggers.v1.ModifyTriggerRequest"> &
    */
   maxSlippage: {
     /**
-     * Updated maximum allowed slippage as a price delta in 1e-6 quote-unit
+     * Updated maximum allowed slippage as a price delta in 1e-9 quote-unit
      * ticks. Set to zero to clear the cap.
      *
      * @generated from field: int32 max_slippage_ticks = 15;
@@ -1305,7 +1305,7 @@ export const ResumeTriggerResponseSchema: GenMessage<ResumeTriggerResponse> = /*
  */
 export type StopDetails = Message<"triggers.v1.StopDetails"> & {
   /**
-   * Trigger threshold price in quote units scaled by 1e6.
+   * Trigger threshold price in quote units scaled by 1e9.
    *
    * @generated from field: int64 trigger_price_ticks = 1;
    */
@@ -1341,7 +1341,7 @@ export const StopDetailsSchema: GenMessage<StopDetails> = /*@__PURE__*/
  */
 export type TrailingDetails = Message<"triggers.v1.TrailingDetails"> & {
   /**
-   * Trailing distance as a price delta in 1e-6 quote-unit ticks.
+   * Trailing distance as a price delta in 1e-9 quote-unit ticks.
    *
    * @generated from field: int64 trailing_distance_ticks = 1;
    */
@@ -1349,21 +1349,21 @@ export type TrailingDetails = Message<"triggers.v1.TrailingDetails"> & {
 
   /**
    * Optional activation price: trailing only starts after this price is
-   * reached. Expressed in quote units scaled by 1e6.
+   * reached. Expressed in quote units scaled by 1e9.
    *
    * @generated from field: int64 activation_price_ticks = 2;
    */
   activationPriceTicks: bigint;
 
   /**
-   * Current peak price in quote units scaled by 1e6 for sell trailing stops.
+   * Current peak price in quote units scaled by 1e9 for sell trailing stops.
    *
    * @generated from field: int64 peak_price_ticks = 3;
    */
   peakPriceTicks: bigint;
 
   /**
-   * Current trough price in quote units scaled by 1e6 for buy trailing stops.
+   * Current trough price in quote units scaled by 1e9 for buy trailing stops.
    *
    * @generated from field: int64 trough_price_ticks = 4;
    */
@@ -1377,7 +1377,7 @@ export type TrailingDetails = Message<"triggers.v1.TrailingDetails"> & {
   trailingDistanceBps: number;
 
   /**
-   * Optional maximum allowed slippage as a price delta in 1e-6 quote-unit ticks.
+   * Optional maximum allowed slippage as a price delta in 1e-9 quote-unit ticks.
    *
    * @generated from field: int32 max_slippage_ticks = 6;
    */
@@ -1407,7 +1407,7 @@ export type TrailingDetails = Message<"triggers.v1.TrailingDetails"> & {
   triggerDirection: TriggerDirection;
 
   /**
-   * Current trailing trigger threshold in quote units scaled by 1e6. This is
+   * Current trailing trigger threshold in quote units scaled by 1e9. This is
    * evaluator-authored runtime state and moves when the peak or trough changes.
    * It is absent until the trailing trigger is armed and a positive threshold exists.
    *
@@ -1480,14 +1480,14 @@ export const TwapDetailsSchema: GenMessage<TwapDetails> = /*@__PURE__*/
  */
 export type LadderDetails = Message<"triggers.v1.LadderDetails"> & {
   /**
-   * Minimum price in quote units scaled by 1e6 for the ladder range.
+   * Minimum price in quote units scaled by 1e9 for the ladder range.
    *
    * @generated from field: int64 ladder_price_min_ticks = 1;
    */
   ladderPriceMinTicks: bigint;
 
   /**
-   * Maximum price in quote units scaled by 1e6 for the ladder range.
+   * Maximum price in quote units scaled by 1e9 for the ladder range.
    *
    * @generated from field: int64 ladder_price_max_ticks = 2;
    */
