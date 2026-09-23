@@ -74,7 +74,7 @@ function protoOrder(overrides: Partial<ProtoRead.Order> = {}): ProtoRead.Order {
         cumQtyScaled: 0n,
         leavesQtyScaled: 100_000_000n,
         avgPriceTicks: 0n,
-        priceTicks: 100_000_000n,
+        priceTicks: 100_000_000_000n,
         createdTsNs: 1_000_000n,
         terminalTsNs: 0n,
         terminalReason: "",
@@ -219,7 +219,7 @@ describe("OrdersService", () => {
                     qty: "1.500000000",
                     execution: {
                         type: "limit_gtc",
-                        price: "100.2500000",
+                        price: "100.2500000000",
                         postOnly: true,
                     },
                     clientOrderId: " client-1 ",
@@ -252,7 +252,7 @@ describe("OrdersService", () => {
                 execution: {
                     case: "limitGtc",
                     value: {
-                        priceTicks: 100_250_000n,
+                        priceTicks: 100_250_000_000n,
                         postOnly: true,
                     },
                 },
@@ -292,7 +292,7 @@ describe("OrdersService", () => {
                     execution: {
                         case: "limitGtd",
                         value: {
-                            priceTicks: 100_250_000n,
+                            priceTicks: 100_250_000_000n,
                             expireAt: { seconds: 1_758_024_000n, nanos: 1_000_000 },
                         },
                     },
@@ -315,7 +315,7 @@ describe("OrdersService", () => {
         const transport = unaryTransportByMethod({
             previewOrder: {
                 resolvedBaseQtyScaled: 50_000_000n,
-                protectedPriceBoundTicks: 100_250_000n,
+                protectedPriceBoundTicks: 100_250_000_000n,
                 evaluatedAt: { seconds: 1n, nanos: 250_000_000 },
                 admissible: true,
             },
@@ -377,9 +377,9 @@ describe("OrdersService", () => {
                 symbolId: 1,
                 side: "buy",
                 qty: "0.5",
-                execution: { type: "limit_gtc", price: "100.0000001" },
+                execution: { type: "limit_gtc", price: "100.0000000001" },
             }),
-        ).rejects.toThrow("execution.price supports at most 6 decimal places");
+        ).rejects.toThrow("execution.price supports at most 9 decimal places");
         expect(transport.unary).not.toHaveBeenCalled();
     });
 
@@ -654,7 +654,7 @@ describe("OrdersService", () => {
                     },
                     execution: {
                         case: "limitGtc",
-                        value: { priceTicks: 100_250_000n },
+                        value: { priceTicks: 100_250_000_000n },
                     },
                 },
             ],
@@ -1036,7 +1036,7 @@ describe("OrdersService", () => {
                         matchId: 5n,
                         side: ProtoWrite.Side.BUY,
                         isMaker: true,
-                        priceTicks: 100_000_000n,
+                        priceTicks: 100_000_000_000n,
                         qtyScaled: 50_000_000n,
                         feeAmountE18: { hi: 0n, lo: 1_250_000_000_000_000n },
                         feeAsset: ProtoWrite.FeeAsset.QUOTE,

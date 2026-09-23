@@ -63,7 +63,7 @@ const userTrade = {
     isMaker: true,
     feeAsset: ProtoOrders.FeeAsset.QUOTE,
     qtyScaled: 123_456_789n,
-    priceTicks: 1_234_567n,
+    priceTicks: 1_234_567_000n,
     feeAmountE18: { hi: 0n, lo: 1_000_000_000_000_000n },
     referralShareAmountE18: { hi: 0n, lo: 250_000_000_000_000n },
     feeIsRebate: false,

@@ -130,18 +130,6 @@ export function parseQtyScaled(raw: string, scale: number, fieldName: string): b
 }
 
 /**
- * Parse a price scaled to 6 decimal places.
- * @param raw - The raw string to parse.
- * @param fieldName - The name of the field to parse.
- * @returns The parsed bigint.
- * @throws An error if the field is required and not provided.
- * @throws An error if the field is not a positive number.
- */
-export function parsePriceTicks(raw: string, fieldName: string): bigint {
-    return decimalToScaledInt(raw, 6, fieldName);
-}
-
-/**
  * Coerce optional UI number into non-negative integer.
  * @param value - The value to coerce.
  * @returns The coerced integer.

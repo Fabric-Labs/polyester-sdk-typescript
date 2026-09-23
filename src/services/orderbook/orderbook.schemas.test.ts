@@ -95,7 +95,7 @@ describe("OrderbookDataSchema", () => {
         expect(
             formatOrderbookLevel(
                 {
-                    priceTicks: 100_000_000n,
+                    priceTicks: 100_000_000_000n,
                     qtyScaled: 123_456_789n,
                 },
                 testScales(),
@@ -114,8 +114,8 @@ describe("OrderbookDataSchema", () => {
             symbolId: 101,
             depth: 50,
             bookSeq: 12n,
-            bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
-            asks: [{ priceTicks: 100_250_000n, qtyScaled: 50_000_000n }],
+            bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
+            asks: [{ priceTicks: 100_250_000_000n, qtyScaled: 50_000_000n }],
         });
 
         expect(data).toMatchObject({
@@ -135,7 +135,7 @@ describe("OrderbookDataSchema", () => {
                 symbolId: 101,
                 depth: 50,
                 bookSeq: 12n,
-                bids: [{ priceTicks: 100_000_000n }],
+                bids: [{ priceTicks: 100_000_000_000n }],
                 asks: [],
             }),
         ).toThrow();

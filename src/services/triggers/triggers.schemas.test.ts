@@ -107,12 +107,12 @@ function baseWireTrigger(overrides: Partial<Proto.Trigger> = {}): Proto.Trigger 
         configuration: {
             case: "stopLoss",
             value: {
-                triggerPriceTicks: 100_000_000n,
+                triggerPriceTicks: 100_000_000_000n,
                 side: ProtoOrders.Side.SELL,
                 child: {
                     execution: {
                         case: "limitGtc",
-                        value: { priceTicks: 99_500_000n, postOnly: false },
+                        value: { priceTicks: 99_500_000_000n, postOnly: false },
                     },
                 },
             },
@@ -122,7 +122,7 @@ function baseWireTrigger(overrides: Partial<Proto.Trigger> = {}): Proto.Trigger 
         runtimeDetails: {
             case: "stop",
             value: {
-                triggerPriceTicks: 100_000_000n,
+                triggerPriceTicks: 100_000_000_000n,
                 triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
                 triggerDirection: ProtoOrders.TriggerDirection.BELOW,
             },
@@ -134,7 +134,7 @@ function baseWireTrigger(overrides: Partial<Proto.Trigger> = {}): Proto.Trigger 
 describe("ListTriggerEventsInputSchema", () => {
     it("exposes only supported event filters", () => {
         expectTypeOf<ListTriggerEventsInput["eventType"]>().toEqualTypeOf<
-            "fired" | "canceled" | "updated" | "failed" | undefined
+            "fired" | "canceled" | "updated" | "failed" | "activated" | undefined
         >();
         expect(
             v.safeParse(ListTriggerEventsInputSchema, {
@@ -246,7 +246,7 @@ describe("CreateTriggerInputSchema", () => {
                         child: {
                             execution: {
                                 case: "limitGtc",
-                                value: { priceTicks: 99_500_000n, postOnly: true },
+                                value: { priceTicks: 99_500_000_000n, postOnly: true },
                             },
                         },
                     },
@@ -268,7 +268,7 @@ describe("CreateTriggerInputSchema", () => {
                         child: {
                             execution: {
                                 case: "limitIoc",
-                                value: { priceTicks: 100_500_000n },
+                                value: { priceTicks: 100_500_000_000n },
                             },
                         },
                     },
@@ -290,7 +290,7 @@ describe("CreateTriggerInputSchema", () => {
                         child: {
                             execution: {
                                 case: "limitFok",
-                                value: { priceTicks: 101_500_000n },
+                                value: { priceTicks: 101_500_000_000n },
                             },
                         },
                     },
@@ -310,8 +310,8 @@ describe("CreateTriggerInputSchema", () => {
                         value: {
                             triggerPriceTicks:
                                 testCase.input.triggerType === "stop_loss"
-                                    ? 100_000_000n
-                                    : 101_000_000n,
+                                    ? 100_000_000_000n
+                                    : 101_000_000_000n,
                             side:
                                 testCase.input.side === "sell"
                                     ? ProtoOrders.Side.SELL
@@ -393,7 +393,7 @@ describe("CreateTriggerInputSchema", () => {
                         side: ProtoOrders.Side.SELL,
                         trailingDistance: {
                             case: "trailingDistanceTicks",
-                            value: 500_000n,
+                            value: 500_000_000n,
                         },
                         activationPriceTicks: 0n,
                         maxSlippage: { case: "maxSlippageBps", value: 125 },
@@ -408,8 +408,8 @@ describe("CreateTriggerInputSchema", () => {
                     value: {
                         side: ProtoOrders.Side.SELL,
                         trailingDistance: { case: "trailingDistanceBps", value: 150 },
-                        activationPriceTicks: 99_000_000n,
-                        maxSlippage: { case: "maxSlippageTicks", value: 250_000 },
+                        activationPriceTicks: 99_000_000_000n,
+                        maxSlippage: { case: "maxSlippageTicks", value: 250_000_000 },
                     },
                 },
             },
@@ -474,7 +474,7 @@ describe("CreateTriggerInputSchema", () => {
                         sliceIntervalMs: 5_000n,
                         execution: {
                             case: "limitGtc",
-                            value: { priceTicks: 100_250_000n },
+                            value: { priceTicks: 100_250_000_000n },
                         },
                     },
                 },
@@ -497,8 +497,8 @@ describe("CreateTriggerInputSchema", () => {
                     case: "ladder",
                     value: {
                         side: ProtoOrders.Side.BUY,
-                        priceMinTicks: 99_000_000n,
-                        priceMaxTicks: 101_000_000n,
+                        priceMinTicks: 99_000_000_000n,
+                        priceMaxTicks: 101_000_000_000n,
                         levels: 5,
                         postOnly: true,
                     },
@@ -525,7 +525,7 @@ describe("CreateTriggerInputSchema", () => {
             {
                 execution: {
                     type: "market_ioc",
-                    maxSlippage: { kind: "slippage", slippage: "2147.483647" },
+                    maxSlippage: { kind: "slippage", slippage: "2.147483647" },
                 },
                 expected: { case: "maxSlippageTicks", value: 2_147_483_647 },
             },
@@ -540,7 +540,7 @@ describe("CreateTriggerInputSchema", () => {
             {
                 execution: {
                     type: "market_ioc",
-                    maxSlippage: { kind: "slippage", slippage: "2147.483648" },
+                    maxSlippage: { kind: "slippage", slippage: "2.147483648" },
                 },
                 rejects: true,
             },
@@ -581,9 +581,9 @@ describe("CreateTriggerInputSchema", () => {
         expect(() =>
             v.parse(schema, {
                 ...baseStop,
-                execution: { type: "limit_gtc", price: "99.5000001" },
+                execution: { type: "limit_gtc", price: "99.5000000001" },
             }),
-        ).toThrow("execution.price supports at most 6 decimal places");
+        ).toThrow("execution.price supports at most 9 decimal places");
         expect(() =>
             v.parse(schema, {
                 triggerType: "twap",
@@ -691,8 +691,8 @@ describe("ModifyTriggerInputSchema", () => {
             triggerId: 11n,
             symbolId: 1,
             subaccountId: 22n,
-            triggerPriceTicks: 101_250_000n,
-            trailingDistance: { case: "trailingDistanceTicks", value: 500_000n },
+            triggerPriceTicks: 101_250_000_000n,
+            trailingDistance: { case: "trailingDistanceTicks", value: 500_000_000n },
             maxSlippage: { case: "maxSlippageBps", value: 25 },
         });
     });
@@ -904,19 +904,19 @@ describe("Trigger result and output schemas", () => {
                     value: create(Proto.TrailingStopTriggerSchema, {
                         side: ProtoOrders.Side.SELL,
                         trailingDistance: { case: "trailingDistanceBps", value: 200 },
-                        activationPriceTicks: 99_000_000n,
-                        maxSlippage: { case: "maxSlippageTicks", value: 250_000 },
+                        activationPriceTicks: 99_000_000_000n,
+                        maxSlippage: { case: "maxSlippageTicks", value: 250_000_000 },
                     }),
                 },
                 runtimeDetails: {
                     case: "trailing",
                     value: create(Proto.TrailingDetailsSchema, {
                         trailingDistanceTicks: 0n,
-                        activationPriceTicks: 99_000_000n,
-                        peakPriceTicks: 100_500_000n,
+                        activationPriceTicks: 99_000_000_000n,
+                        peakPriceTicks: 100_500_000_000n,
                         troughPriceTicks: 0n,
                         trailingDistanceBps: 200,
-                        maxSlippageTicks: 250_000,
+                        maxSlippageTicks: 250_000_000,
                         maxSlippageBps: 0,
                         triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
                         triggerDirection:
@@ -943,7 +943,31 @@ describe("Trigger result and output schemas", () => {
                 troughPrice: undefined,
                 maxSlippage: "0.25",
                 triggerDirection: "unspecified",
+                triggerPrice: undefined,
             },
+        });
+    });
+
+    it("exposes the armed trailing trigger threshold at the price scale", () => {
+        const output = v.parse(
+            createTriggerSchema(testScales()),
+            baseWireTrigger({
+                status: Proto.TriggerStatus.STATUS_ARMED,
+                runtimeDetails: {
+                    case: "trailing",
+                    value: create(Proto.TrailingDetailsSchema, {
+                        trailingDistanceTicks: 500_000_000n,
+                        peakPriceTicks: 100_500_000_000n,
+                        triggerPriceTicks: 100_000_000_001n,
+                    }),
+                },
+            }),
+        );
+
+        expect(output.runtimeDetails).toMatchObject({
+            case: "trailing",
+            peakPrice: "100.5",
+            triggerPrice: "100.000000001",
         });
     });
 
@@ -986,8 +1010,8 @@ describe("Trigger result and output schemas", () => {
                     case: "ladder",
                     value: create(Proto.LadderTriggerSchema, {
                         side: ProtoOrders.Side.SELL,
-                        priceMinTicks: 99_000_000n,
-                        priceMaxTicks: 101_000_000n,
+                        priceMinTicks: 99_000_000_000n,
+                        priceMaxTicks: 101_000_000_000n,
                         levels: 5,
                         postOnly: true,
                     }),
@@ -995,8 +1019,8 @@ describe("Trigger result and output schemas", () => {
                 runtimeDetails: {
                     case: "ladderState",
                     value: create(Proto.LadderDetailsSchema, {
-                        ladderPriceMinTicks: 99_000_000n,
-                        ladderPriceMaxTicks: 101_000_000n,
+                        ladderPriceMinTicks: 99_000_000_000n,
+                        ladderPriceMaxTicks: 101_000_000_000n,
                         ladderLevels: 5,
                         ladderDistribution: Proto.LadderDistribution.LINEAR,
                         executedQtyScaled: 25_000_000n,
@@ -1075,6 +1099,22 @@ describe("Trigger result and output schemas", () => {
                 terminalReason: { case: undefined },
             }),
         ).toMatchObject({ eventType: "unspecified" });
+    });
+
+    it("maps trailing activation events", () => {
+        expect(
+            v.parse(createTriggerEventSchema(testScales()), {
+                triggerId: 11n,
+                subaccountId: 22n,
+                symbolId: 1,
+                triggerType: Proto.TriggerType.TRAILING_STOP,
+                eventType: Proto.TriggerEventType.EVENT_ACTIVATED,
+                tsNs: 1_000_000n,
+                childSeq: 0,
+                childOrderId: 0n,
+                terminalReason: { case: undefined },
+            }),
+        ).toMatchObject({ eventType: "activated", childOrderId: undefined });
     });
 
     it("accepts TWAP events without a conditional fire price", () => {

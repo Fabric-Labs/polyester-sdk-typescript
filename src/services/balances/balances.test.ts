@@ -229,7 +229,7 @@ describe("BalancesService", () => {
                     equityQ: [100n, -25_000n],
                 },
             ],
-            btcPricesQ: [65_000_123_456n],
+            btcPricesQ: [65_000_123_456_000n],
         });
         const service = new BalancesService(
             { authApi: transport.transport },
@@ -257,7 +257,7 @@ describe("BalancesService", () => {
                 equity: ["0.01", "-2.5"],
             },
         ]);
-        // Price-tick scale (1e6).
+        // Price-tick scale (1e9).
         expect(history.btcPrices).toEqual(["65000.123456"]);
     });
 
@@ -309,7 +309,7 @@ describe("BalancesService", () => {
                         equityQ: [50_000n, 0n],
                     },
                 ],
-                btcPricesQ: [65_000_123_456n, 64_000_000_000n],
+                btcPricesQ: [65_000_123_456_000n, 64_000_000_000_000n],
             },
             getPortfolioEquitySnapshot: {
                 quoteAsset: "USDT",

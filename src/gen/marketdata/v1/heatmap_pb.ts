@@ -122,7 +122,7 @@ export const GetOrderbookHeatmapRequestSchema: GenMessage<GetOrderbookHeatmapReq
  */
 export type HeatmapLevels = Message<"marketdata.v1.HeatmapLevels"> & {
   /**
-   * Price levels in quote units scaled by 1e6.
+   * Price levels in quote units scaled by 1e9.
    *
    * @generated from field: repeated int64 price_ticks = 1;
    */
@@ -154,7 +154,7 @@ export const HeatmapLevelsSchema: GenMessage<HeatmapLevels> = /*@__PURE__*/
  */
 export type HeatmapDeltaLevels = Message<"marketdata.v1.HeatmapDeltaLevels"> & {
   /**
-   * Price levels in quote units scaled by 1e6.
+   * Price levels in quote units scaled by 1e9.
    *
    * @generated from field: repeated int64 price_ticks = 1;
    */
@@ -191,21 +191,21 @@ export type HeatmapKeyframe = Message<"marketdata.v1.HeatmapKeyframe"> & {
   tsSec: bigint;
 
   /**
-   * Best bid price in quote units scaled by 1e6.
+   * Best bid price in quote units scaled by 1e9.
    *
    * @generated from field: int64 best_bid_ticks = 2;
    */
   bestBidTicks: bigint;
 
   /**
-   * Best ask price in quote units scaled by 1e6.
+   * Best ask price in quote units scaled by 1e9.
    *
    * @generated from field: int64 best_ask_ticks = 3;
    */
   bestAskTicks: bigint;
 
   /**
-   * Mid price in quote units scaled by 1e6.
+   * Mid price in quote units scaled by 1e9.
    *
    * @generated from field: int64 mid_ticks = 4;
    */
@@ -375,7 +375,7 @@ export type HeatmapLiveBucket = Message<"marketdata.v1.HeatmapLiveBucket"> & {
   quantityMode: HeatmapQuantityMode;
 
   /**
-   * Effective bin stride for this symbol as a price delta in 1e-6 quote-unit
+   * Effective bin stride for this symbol as a price delta in 1e-9 quote-unit
    * ticks.
    *
    * @generated from field: uint64 effective_bin_ticks = 11;

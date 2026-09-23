@@ -110,7 +110,7 @@ export type MarketTrade = Message<"marketdata.v1.MarketTrade"> & {
   isBuy: boolean;
 
   /**
-   * Trade price in quote-asset units scaled by 1e6.
+   * Trade price in quote-asset units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 4;
    */
@@ -355,7 +355,7 @@ export type CandlePoint = Message<"marketdata.v1.CandlePoint"> & {
   tsSec: bigint;
 
   /**
-   * Opening price in quote units. Primary candles use scale 6; composite
+   * Opening price in quote units. Primary candles use scale 9; composite
    * reference candles use the pair's reference_price_scale from GetSpotConfig.
    *
    * @generated from field: int64 open = 2;
@@ -500,7 +500,7 @@ export type GetCandlesColumnsResponse = Message<"marketdata.v1.GetCandlesColumns
   tsSec: bigint[];
 
   /**
-   * Opening primary-market prices use scale 6. Reference prices use the pair's
+   * Opening primary-market prices use scale 9. Reference prices use the pair's
    * reference_price_scale from GetSpotConfig.
    *
    * @generated from field: repeated int64 open = 4;
@@ -508,7 +508,7 @@ export type GetCandlesColumnsResponse = Message<"marketdata.v1.GetCandlesColumns
   open: bigint[];
 
   /**
-   * Highest primary-market prices use scale 6. Reference prices use the pair's
+   * Highest primary-market prices use scale 9. Reference prices use the pair's
    * reference_price_scale from GetSpotConfig.
    *
    * @generated from field: repeated int64 high = 5;
@@ -516,7 +516,7 @@ export type GetCandlesColumnsResponse = Message<"marketdata.v1.GetCandlesColumns
   high: bigint[];
 
   /**
-   * Lowest primary-market prices use scale 6. Reference prices use the pair's
+   * Lowest primary-market prices use scale 9. Reference prices use the pair's
    * reference_price_scale from GetSpotConfig.
    *
    * @generated from field: repeated int64 low = 6;
@@ -524,7 +524,7 @@ export type GetCandlesColumnsResponse = Message<"marketdata.v1.GetCandlesColumns
   low: bigint[];
 
   /**
-   * Closing primary-market prices use scale 6. Reference prices use the pair's
+   * Closing primary-market prices use scale 9. Reference prices use the pair's
    * reference_price_scale from GetSpotConfig.
    *
    * @generated from field: repeated int64 close = 7;
@@ -633,28 +633,28 @@ export type Candle = Message<"marketdata.v1.Candle"> & {
   tsSec: bigint;
 
   /**
-   * opening primary-market price in scale 6
+   * opening primary-market price in scale 9
    *
    * @generated from field: int64 open = 4;
    */
   open: bigint;
 
   /**
-   * highest primary-market price in scale 6
+   * highest primary-market price in scale 9
    *
    * @generated from field: int64 high = 5;
    */
   high: bigint;
 
   /**
-   * lowest primary-market price in scale 6
+   * lowest primary-market price in scale 9
    *
    * @generated from field: int64 low = 6;
    */
   low: bigint;
 
   /**
-   * closing primary-market price in scale 6
+   * closing primary-market price in scale 9
    *
    * @generated from field: int64 close = 7;
    */
@@ -799,7 +799,7 @@ export type PairConfig = Message<"marketdata.v1.PairConfig"> & {
 
   /**
    * Minimum allowed price increment as a decimal string in quote-asset units.
-   * Prices use 6 decimal places in scaled integer fields; for example "0.01"
+   * Prices use 9 decimal places in scaled integer fields; for example "0.01"
    * means orders must be priced in 0.01 quote-asset increments.
    *
    * @generated from field: string tick_size = 5;
@@ -906,7 +906,7 @@ export type PairConfig = Message<"marketdata.v1.PairConfig"> & {
 
   /**
    * Integer scale for composite reference prices in candle responses (0..18).
-   * Primary market and execution prices continue to use scale 6.
+   * Primary market and execution prices use the fixed scale 9.
    *
    * @generated from field: uint32 reference_price_scale = 19;
    */
@@ -1188,7 +1188,7 @@ export const MarketDataService: GenService<{
   /**
    * GetCandlesColumns returns OHLCV candles in a columnar representation optimized for charting.
    * This method is intended for ConnectRPC clients and returns scaled integers.
-   * Primary OHLC prices use scale 6, reference OHLC prices use the pair's
+   * Primary OHLC prices use scale 9, reference OHLC prices use the pair's
    * reference_price_scale, and volumes use the base asset's
    * market_data_volume_scale from GetSpotConfig.
    *

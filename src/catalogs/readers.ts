@@ -45,8 +45,8 @@ import {
 import { parseCatalogSnapshot } from "./snapshot-validation.js";
 import { PROTOBUF_INT32_MAX, PROTOBUF_INT64_MAX } from "../shared/wire-bounds.js";
 
-/** Price ticks are always quoted at 6 decimal places. */
-export const PRICE_SCALE = 6;
+/** Price ticks are always quoted at 9 decimal places. */
+export const PRICE_SCALE = 9;
 
 type SnapshotGetter = () => CatalogSnapshot;
 

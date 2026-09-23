@@ -155,7 +155,7 @@ describe("batch create schemas", () => {
                     },
                     execution: {
                         case: "limitGtc",
-                        value: { priceTicks: 100_250_000n },
+                        value: { priceTicks: 100_250_000_000n },
                     },
                 },
                 {
@@ -345,7 +345,7 @@ describe("batch replace schemas", () => {
         expect(input.items).toMatchObject([
             {
                 key: { case: "orderId", value: 11n },
-                newPriceTicks: 101_500_000n,
+                newPriceTicks: 101_500_000_000n,
                 newQtyScaled: 25_000_000n,
                 newClientOrderId: "",
             },

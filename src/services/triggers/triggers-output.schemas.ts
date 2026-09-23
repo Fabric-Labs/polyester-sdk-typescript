@@ -328,6 +328,7 @@ const TrailingDetailsRawSchema = v.object({
     maxSlippageBps: v.number(),
     triggerPriceSource: v.number(),
     triggerDirection: v.number(),
+    triggerPriceTicks: v.optional(v.bigint()),
 });
 
 const TwapDetailsRawSchema = v.object({
@@ -373,6 +374,8 @@ export type TrailingDetailsOutput = {
     maxSlippageBps: number;
     triggerPriceSource: TriggerPriceSourceLabel;
     triggerDirection: TriggerDirectionLabel;
+    /** Current trailing threshold; absent until the trigger is armed. Moves with the peak or trough. */
+    triggerPrice: string | undefined;
 };
 
 export type TwapDetailsOutput = {
@@ -462,6 +465,11 @@ function transformTriggerDetails(
                     TriggerDirectionCodec.protoToOutput,
                     details.value.triggerDirection,
                 ),
+                triggerPrice:
+                    details.value.triggerPriceTicks !== undefined &&
+                    details.value.triggerPriceTicks > 0n
+                        ? scaledToDecimalOutput(details.value.triggerPriceTicks, scales.price())
+                        : undefined,
             };
         case "twapState":
             return {
