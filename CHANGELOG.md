@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.28.0
+
+### Minor Changes
+
+- Map HTTP 501 and Connect `unimplemented` to the new `NotImplementedError` instead of `InternalServerError`. Bare HTTP error responses without a Connect body now map by their status code instead of collapsing to `InternalServerError`. ([#171](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/171))
+
 ## 0.27.3
 
 ### Patch Changes
