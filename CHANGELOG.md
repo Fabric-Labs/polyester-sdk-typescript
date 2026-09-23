@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.28.1
+
+### Patch Changes
+
+- Encode and decode absolute max-slippage ticks as int64 `bigint` values instead of int32 numbers. Absolute slippage inputs now accept values up to the int64 price ceiling, and `maxQuoteSlippage` on spot order constraints reports that ceiling instead of `2.147483647`. ([#173](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/173))
+
 ## 0.28.0
 
 ### Minor Changes
