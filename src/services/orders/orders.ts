@@ -215,7 +215,7 @@ export class OrdersService {
     }
 
     /**
-     * Places a spot order with an explicit market-IOC, limit-GTC, limit-IOC, or limit-FOK execution policy and optional attached risk controls. clientOrderId is an account-scoped correlation, lookup, and cancellation identifier. Reuse while retained returns CONFLICT_DUPLICATE_CLIENT_ORDER_ID, including after rejection or completion; it does not replay the earlier result.
+     * Places a spot order with an explicit market-IOC, limit-GTC, limit-IOC, or limit-FOK execution policy and optional attached risk controls. clientOrderId is an account-scoped correlation, lookup, and cancellation identifier. Reuse while retained returns CONFLICT_DUPLICATE_CLIENT_ORDER_ID, including after rejection or completion; it does not replay the earlier result. After an ambiguous timeout, reconcile through get using clientOrderId; an immediate lookup miss does not prove admission failed. Without clientOrderId, the outcome may remain unknown.
      */
     async create(
         input: NewOrderInput,
@@ -236,7 +236,7 @@ export class OrdersService {
     }
 
     /**
-     * Places 1–20 spot orders in one best-effort request. Results preserve item order and report admission as accepted or rejected; accepted orders still require lifecycle reconciliation. requestId is the idempotency boundary for the ordered batch and is generated when omitted; supply and reuse it when an ambiguous batch may be retried. Per-item clientOrderId values are optional correlation identifiers and must be unique when supplied.
+     * Places 1–20 spot orders in one best-effort request. Results preserve item order and report admission as accepted or rejected; accepted orders still require lifecycle reconciliation. requestId is the idempotency boundary for the ordered batch and is generated when omitted; supply and reuse it when an ambiguous batch may be retried. The same payload and account-scoped requestId replay the original results and timestamp within 15 minutes; a different payload during that window returns CONFLICT_IDEMPOTENCY_KEY_REUSE. Per-item clientOrderId values are optional correlation identifiers and must be unique when supplied.
      */
     async batchCreate(
         input: BatchCreateOrdersInput,
@@ -328,7 +328,7 @@ export class OrdersService {
     }
 
     /**
-     * Replaces 1–50 same-symbol orders and returns an index-stable durable admission receipt. Reuse requestId only when retrying the same logical batch; use the returned batchRequestId for later status reads.
+     * Replaces 1–50 same-symbol orders and returns an index-stable durable admission receipt. Reuse requestId only when retrying the same logical batch; use the returned batchRequestId for later status reads. An AMENDED actionTaken is cancel-only with no successor; keep tracking oldOrderId until its terminal state is confirmed.
      */
     async batchReplace(
         input: BatchReplaceOrdersInput,
@@ -353,7 +353,7 @@ export class OrdersService {
     }
 
     /**
-     * Reads the durable per-item execution status for a batch replacement receipt.
+     * Reads the durable per-item execution status for a batch replacement receipt. For cancel-only AMENDED items, orderStatus describes oldOrderId and replacementOrderId is undefined.
      */
     async getBatchReplaceStatus(
         input: GetBatchReplaceStatusInput,

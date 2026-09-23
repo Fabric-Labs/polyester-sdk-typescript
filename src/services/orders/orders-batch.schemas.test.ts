@@ -419,6 +419,7 @@ describe("batch replace schemas", () => {
                     status: ProtoWrite.BatchReplaceItemAdmissionStatus.ADMITTED,
                     oldOrderId: 11n,
                     replacementOrderId: 12n,
+                    actionTaken: ProtoWrite.ModifyActionTaken.REPLACED,
                     clientOrderId: "order-a-v2",
                     code: "",
                 },
@@ -427,6 +428,7 @@ describe("batch replace schemas", () => {
                     status: ProtoWrite.BatchReplaceItemAdmissionStatus.REJECTED,
                     oldOrderId: 13n,
                     replacementOrderId: 0n,
+                    actionTaken: ProtoWrite.ModifyActionTaken.MODIFY_ACTION_UNSPECIFIED,
                     clientOrderId: "order-b",
                     code: "INVALID_ORDER_STATE",
                     error: {
@@ -459,6 +461,7 @@ describe("batch replace schemas", () => {
                     status: "admitted",
                     oldOrderId: formatId(11n),
                     replacementOrderId: formatId(12n),
+                    actionTaken: "REPLACED",
                     clientOrderId: "order-a-v2",
                     code: undefined,
                 },
@@ -467,6 +470,7 @@ describe("batch replace schemas", () => {
                     status: "rejected",
                     oldOrderId: formatId(13n),
                     replacementOrderId: undefined,
+                    actionTaken: "unspecified",
                     clientOrderId: "order-b",
                     code: "INVALID_ORDER_STATE",
                     error: {
@@ -508,6 +512,64 @@ describe("batch replace schemas", () => {
         ).toMatchObject({ status: "unspecified" });
     });
 
+    it.each([
+        [ProtoWrite.ModifyActionTaken.AMENDED, "AMENDED"],
+        [ProtoWrite.ModifyActionTaken.MODIFY_ACTION_UNSPECIFIED, "unspecified"],
+        [999, "unspecified"],
+    ])(
+        "preserves cancel-only IDs and decodes action %s on both response paths",
+        (actionTaken, expected) => {
+            const item = {
+                itemIndex: 0,
+                oldOrderId: 11n,
+                replacementOrderId: 0n,
+                actionTaken,
+                code: "",
+            };
+            const receipt = v.parse(BatchReplaceOrdersResultSchema, {
+                batchRequestId: 21n,
+                status: ProtoWrite.BatchReplaceAdmissionStatus.ADMITTED,
+                results: [
+                    {
+                        ...item,
+                        status: ProtoWrite.BatchReplaceItemAdmissionStatus.ADMITTED,
+                        clientOrderId: "original",
+                    },
+                ],
+                acceptedCount: 1,
+                rejectedCount: 0,
+                acceptedTsNs: 3_000_000n,
+            });
+            const status = v.parse(GetBatchReplaceStatusResultSchema, {
+                batchRequestId: 21n,
+                admissionStatus: ProtoWrite.BatchReplaceAdmissionStatus.ADMITTED,
+                items: [
+                    {
+                        ...item,
+                        phase: ProtoRead.BatchReplacePhase.TERMINAL,
+                        orderStatus: ProtoRead.OrderStatus.CANCELED,
+                        updatedTsNs: 4_000_000n,
+                    },
+                ],
+                acceptedCount: 1,
+                rejectedCount: 0,
+                acceptedTsNs: 3_000_000n,
+                updatedTsNs: 4_000_000n,
+            });
+            const expectedItem = {
+                oldOrderId: formatId(11n),
+                replacementOrderId: undefined,
+                actionTaken: expected,
+            };
+            expect(receipt.results[0]).toMatchObject(expectedItem);
+            expect(status.items[0]).toMatchObject({
+                ...expectedItem,
+                phase: "terminal",
+                orderStatus: "canceled",
+            });
+        },
+    );
+
     it("normalizes durable status reads and validates their batch identity", () => {
         expect(
             v.parse(GetBatchReplaceStatusInputSchema, {
@@ -526,6 +588,7 @@ describe("batch replace schemas", () => {
                     phase: ProtoRead.BatchReplacePhase.WORKING,
                     oldOrderId: 11n,
                     replacementOrderId: 12n,
+                    actionTaken: ProtoWrite.ModifyActionTaken.REPLACED,
                     orderStatus: ProtoRead.OrderStatus.WORKING,
                     code: "",
                     updatedTsNs: 4_000_000_123n,
@@ -546,6 +609,7 @@ describe("batch replace schemas", () => {
                     phase: "working",
                     oldOrderId: formatId(11n),
                     replacementOrderId: formatId(12n),
+                    actionTaken: "REPLACED",
                     orderStatus: "working",
                     code: undefined,
                     updatedTs: 4_000,
