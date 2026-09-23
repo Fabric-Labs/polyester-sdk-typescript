@@ -80,7 +80,7 @@ function protoOrder(overrides: Partial<ProtoRead.Order> = {}): ProtoRead.Order {
         terminalReason: "",
         terminalReasonCode: 0,
         marketClientRefPriceTicks: 0n,
-        marketMaxSlippageTicks: 0,
+        marketMaxSlippageTicks: 0n,
         marketMaxSlippageBps: 0,
         version: 3,
         batchRequestId: 0n,

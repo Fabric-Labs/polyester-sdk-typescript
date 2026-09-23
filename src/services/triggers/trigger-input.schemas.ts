@@ -97,7 +97,7 @@ function parseMaxSlippagePatch(
     slippage: v.InferOutput<typeof MaxSlippageInputSchema>,
 ): MaxSlippageOneof {
     if (slippage.kind === "none") {
-        return { case: "maxSlippageTicks", value: 0 };
+        return { case: "maxSlippageTicks", value: 0n };
     }
     return parseMaxSlippage(scales, slippage);
 }

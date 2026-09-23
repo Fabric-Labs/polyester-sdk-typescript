@@ -264,7 +264,7 @@ const ReadTrailingStopPolicySchema = v.object({
     }),
     maxSlippage: v.object({
         case: v.union([v.literal("maxSlippageTicks"), v.literal("maxSlippageBps"), v.undefined()]),
-        value: v.optional(v.union([v.number(), v.undefined()])),
+        value: v.optional(v.union([v.bigint(), v.number(), v.undefined()])),
     }),
     activationPriceTicks: v.bigint(),
 });
@@ -362,10 +362,10 @@ function formatTrailingMaxSlippage(
     scales: SdkScales,
     slippage: v.InferOutput<typeof ReadTrailingStopPolicySchema>["maxSlippage"],
 ): TrailingMaxSlippage | undefined {
-    if (slippage.case === "maxSlippageTicks" && typeof slippage.value === "number") {
+    if (slippage.case === "maxSlippageTicks" && typeof slippage.value === "bigint") {
         return {
             kind: "slippage",
-            slippage: scaledToDecimalOutput(BigInt(slippage.value), scales.price()),
+            slippage: scaledToDecimalOutput(slippage.value, scales.price()),
         };
     }
     if (slippage.case === "maxSlippageBps" && typeof slippage.value === "number") {
@@ -376,11 +376,11 @@ function formatTrailingMaxSlippage(
 
 export function formatMarketMaxSlippage(
     scales: SdkScales,
-    ticks: number,
+    ticks: bigint,
     bps: number,
 ): MarketMaxSlippage | undefined {
-    if (ticks > 0) {
-        return { kind: "slippage", slippage: scaledToDecimalOutput(BigInt(ticks), scales.price()) };
+    if (ticks > 0n) {
+        return { kind: "slippage", slippage: scaledToDecimalOutput(ticks, scales.price()) };
     }
     if (bps > 0) {
         return { kind: "bps", bps };

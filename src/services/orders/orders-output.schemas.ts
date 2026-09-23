@@ -61,7 +61,7 @@ export function createOrderSchema(scales: SdkScales) {
             attachedRisk: v.optional(ReadAttachedRiskSchema),
             origin: v.optional(ReadOrderOriginSchema),
             marketClientRefPriceTicks: v.bigint(),
-            marketMaxSlippageTicks: v.number(),
+            marketMaxSlippageTicks: v.bigint(),
             marketMaxSlippageBps: v.number(),
             version: v.pipe(v.number(), v.integer(), v.minValue(0)),
             batchRequestId: v.bigint(),

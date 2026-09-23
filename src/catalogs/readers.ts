@@ -43,7 +43,7 @@ import {
     type ZipperCatalogReader,
 } from "./types.js";
 import { parseCatalogSnapshot } from "./snapshot-validation.js";
-import { PROTOBUF_INT32_MAX, PROTOBUF_INT64_MAX } from "../shared/wire-bounds.js";
+import { PROTOBUF_INT64_MAX } from "../shared/wire-bounds.js";
 
 /** Price ticks are always quoted at 9 decimal places. */
 export const PRICE_SCALE = 9;
@@ -456,7 +456,7 @@ class OrdersReader implements OrdersCatalogReader {
             maxPrice: scaledToDecimal(PROTOBUF_INT64_MAX, priceScale),
             maxQtyBase: scaledToDecimal(PROTOBUF_INT64_MAX, quantityScale),
             maxNotionalQuote: scaledToDecimal(PROTOBUF_INT64_MAX, quoteAmountScale),
-            maxQuoteSlippage: scaledToDecimal(PROTOBUF_INT32_MAX, priceScale),
+            maxQuoteSlippage: scaledToDecimal(PROTOBUF_INT64_MAX, priceScale),
             priceScale,
             quantityScale,
             quoteAmountScale,
