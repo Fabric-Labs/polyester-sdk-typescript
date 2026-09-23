@@ -84,8 +84,8 @@ describe("OrderbookService", () => {
         const transport = unaryTransport({
             symbolId: 101,
             bookSeq: 12n,
-            bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
-            asks: [{ priceTicks: 100_250_000n, qtyScaled: 50_000_000n }],
+            bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
+            asks: [{ priceTicks: 100_250_000_000n, qtyScaled: 50_000_000n }],
         });
         const service = new OrderbookService(
             { publicApi: transport.transport },
@@ -128,7 +128,7 @@ describe("OrderbookService", () => {
         const transport = unaryTransport({
             symbolId: 101,
             bookSeq: 12n,
-            bids: [{ priceTicks: 100_000_000n }],
+            bids: [{ priceTicks: 100_000_000_000n }],
             asks: [],
         });
         const service = new OrderbookService(
@@ -270,8 +270,8 @@ describe("OrderbookService", () => {
         const transport = unaryTransport({
             symbolId: 101,
             bookSeq: 1n,
-            bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
-            asks: [{ priceTicks: 101_000_000n, qtyScaled: 50_000_000n }],
+            bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
+            asks: [{ priceTicks: 101_000_000_000n, qtyScaled: 50_000_000n }],
         });
         const service = new OrderbookService(
             { publicApi: transport.transport },
@@ -337,8 +337,8 @@ describe("OrderbookService", () => {
                 symbolId: 1,
                 bookSeqStart: 2n,
                 bookSeqEnd: 2n,
-                bids: [{ priceTicks: 100_500_000n, qtyScaled: 25_000_000n }],
-                asks: [{ priceTicks: 101_000_000n, qtyScaled: 0n }],
+                bids: [{ priceTicks: 100_500_000_000n, qtyScaled: 25_000_000n }],
+                asks: [{ priceTicks: 101_000_000_000n, qtyScaled: 0n }],
                 reset: false,
             }),
         );
@@ -368,8 +368,8 @@ describe("OrderbookService", () => {
         const transport = unaryTransport({
             symbolId: 101,
             bookSeq: 1n,
-            bids: [{ priceTicks: 100_040_000n, qtyScaled: 100_000_000n }],
-            asks: [{ priceTicks: 100_060_000n, qtyScaled: 50_000_000n }],
+            bids: [{ priceTicks: 100_040_000_000n, qtyScaled: 100_000_000n }],
+            asks: [{ priceTicks: 100_060_000_000n, qtyScaled: 50_000_000n }],
         });
         const service = new OrderbookService(
             { publicApi: transport.transport },
@@ -454,7 +454,7 @@ describe("OrderbookService", () => {
                 symbolId: 101,
                 bookSeqStart: 11n,
                 bookSeqEnd: 11n,
-                bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
+                bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
             }),
         );
 
@@ -476,7 +476,7 @@ describe("OrderbookService", () => {
         const transport = unaryTransport({
             symbolId: 101,
             bookSeq: 100n,
-            bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
+            bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
             asks: [],
         });
         const service = new OrderbookService(
@@ -501,7 +501,7 @@ describe("OrderbookService", () => {
                 symbolId: 101,
                 bookSeqStart: 96n,
                 bookSeqEnd: 96n,
-                bids: [{ priceTicks: 99_000_000n, qtyScaled: 100_000_000n }],
+                bids: [{ priceTicks: 99_000_000_000n, qtyScaled: 100_000_000n }],
             }),
         );
         await flushMicrotasks();
@@ -521,7 +521,7 @@ describe("OrderbookService", () => {
         const transport = unaryTransport({
             symbolId: 999,
             bookSeq: 1n,
-            bids: [{ priceTicks: 100_000_000n, qtyScaled: 100_000_000n }],
+            bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
             asks: [],
         });
         const service = new OrderbookService(
@@ -579,7 +579,7 @@ describe("OrderbookService", () => {
     it("slices the deeper feed back down to the requested depth", async () => {
         const realtime = realtimeClientStub();
         const bids = Array.from({ length: 20 }, (_, i) => ({
-            priceTicks: BigInt(100_000_000 - i * 100),
+            priceTicks: BigInt(100_000_000_000 - i * 100_000),
             qtyScaled: 1_000_000n,
         }));
         const transport = unaryTransport({ symbolId: 101, bookSeq: 7n, bids, asks: [] });

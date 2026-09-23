@@ -311,6 +311,14 @@ async function verifyServiceInference(): Promise<void> {
 
     expectType<string>(ladderDetails.executedQty);
     expectType<number>(ladderDetails.executedLevels);
+    const triggerEvents = await client.triggers.listEvents({ triggerId: "T", eventType: "activated" });
+    expectType<"fired" | "canceled" | "updated" | "failed" | "activated" | "unspecified" | undefined>(
+        triggerEvents.events[0]?.eventType,
+    );
+    const trailingTrigger = await client.triggers.get({ triggerId: "T" });
+    if (trailingTrigger?.runtimeDetails.case === "trailing") {
+        expectType<string | undefined>(trailingTrigger.runtimeDetails.triggerPrice);
+    }
     await client.triggers.create({
         triggerType: "twap",
         symbolId: 1,

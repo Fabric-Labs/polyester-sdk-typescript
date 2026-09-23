@@ -112,10 +112,10 @@ function catalog() {
 describe("market conversions", () => {
     it("strictly parses decimal prices into ticks", () => {
         expect(catalog().market.decimalPriceToTicks("65000.01", "BTC-USDC")).toEqual({
-            scaledValue: "65000010000",
+            scaledValue: "65000010000000",
             decimal: "65000.01",
             display: "65000.01",
-            scale: 6,
+            scale: 9,
         });
     });
 
@@ -124,8 +124,8 @@ describe("market conversions", () => {
         expect(() => market.decimalPriceToTicks("", "BTC-USDC")).toThrow(CatalogConversionError);
         expect(() => market.decimalPriceToTicks("abc", "BTC-USDC")).toThrow(CatalogConversionError);
         expect(() => market.decimalPriceToTicks("-1", "BTC-USDC")).toThrow(CatalogConversionError);
-        expect(() => market.decimalPriceToTicks("1.1234567", "BTC-USDC")).toThrow(
-            "price supports at most 6 decimal places",
+        expect(() => market.decimalPriceToTicks("1.1234567891", "BTC-USDC")).toThrow(
+            "price supports at most 9 decimal places",
         );
         expect(() => market.decimalQuantityToScaled("0.123456789", 7)).toThrow(
             "quantity supports at most 8 decimal places",
@@ -168,8 +168,10 @@ describe("market conversions", () => {
     });
 
     it("derives price display precision from the tick size", () => {
-        expect(catalog().market.priceTicksToDisplayString("65000019999", 7)).toBe("65000.02");
-        expect(catalog().market.priceTicksToDecimalString("65000019999", 7)).toBe("65000.019999");
+        expect(catalog().market.priceTicksToDisplayString("65000019999999", 7)).toBe("65000.02");
+        expect(catalog().market.priceTicksToDecimalString("65000019999999", 7)).toBe(
+            "65000.019999999",
+        );
     });
 
     it("handles negative scaled values for decimal and display strings", () => {
@@ -180,7 +182,7 @@ describe("market conversions", () => {
 
     it("truncates without rounding in input normalizers", () => {
         const market = catalog().market;
-        expect(market.normalizePriceInput("65000.0199999", "BTC-USDC")).toBe("65000.019999");
+        expect(market.normalizePriceInput("65000.0199999999", "BTC-USDC")).toBe("65000.019999999");
         expect(market.normalizeQuantityInput("1.234567899", 7)).toBe("1.23456789");
         expect(market.normalizeQuoteAmountInput("10.0000009", 7)).toBe("10");
         expect(market.normalizeQuantityInput(".5", 7)).toBe("0.5");
@@ -234,11 +236,11 @@ describe("spot order constraints and validation", () => {
             stepSize: "0.0001",
             minQtyBase: "0.0001",
             minNotionalQuote: "10",
-            maxPrice: "9223372036854.775807",
+            maxPrice: "9223372036.854775807",
             maxQtyBase: "92233720368.54775807",
             maxNotionalQuote: "9223372036854.775807",
-            maxQuoteSlippage: "2147.483647",
-            priceScale: 6,
+            maxQuoteSlippage: "2.147483647",
+            priceScale: 9,
             quantityScale: 8,
             quoteAmountScale: 6,
             priceDisplayDecimals: 2,
@@ -269,7 +271,7 @@ describe("spot order constraints and validation", () => {
         ).toBe(9_223_372_036_854_775_807n);
 
         expect(() =>
-            positiveDecimalInputToScaled("price", "9223372036854.775808", constraints.priceScale),
+            positiveDecimalInputToScaled("price", "9223372036.854775808", constraints.priceScale),
         ).toThrow(CatalogConversionError);
         expect(() =>
             positiveDecimalInputToScaled(
@@ -348,7 +350,7 @@ describe("spot order constraints and validation", () => {
             orders.validateSpotOrderDecimalInput({
                 pair: "BTC-USDC",
                 quantity: "0.5",
-                price: "9223372036854.775808",
+                price: "9223372036.854775808",
             }),
         ).toEqual({
             valid: false,

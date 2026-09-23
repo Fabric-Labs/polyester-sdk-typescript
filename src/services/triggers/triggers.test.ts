@@ -64,13 +64,13 @@ function trigger(overrides: Partial<Proto.Trigger> = {}): Proto.Trigger {
         configuration: {
             case: "stopLoss",
             value: {
-                triggerPriceTicks: 100_000_000n,
+                triggerPriceTicks: 100_000_000_000n,
                 side: ProtoOrders.Side.SELL,
                 child: {
                     execution: {
                         case: "limitGtc",
                         value: {
-                            priceTicks: 99_500_000n,
+                            priceTicks: 99_500_000_000n,
                             postOnly: false,
                         },
                     },
@@ -80,7 +80,7 @@ function trigger(overrides: Partial<Proto.Trigger> = {}): Proto.Trigger {
         runtimeDetails: {
             case: "stop",
             value: {
-                triggerPriceTicks: 100_000_000n,
+                triggerPriceTicks: 100_000_000_000n,
                 triggerPriceSource: ProtoOrders.TriggerPriceSource.LAST_PRICE,
                 triggerDirection: ProtoOrders.TriggerDirection.BELOW,
             },
@@ -101,7 +101,7 @@ function triggerEvent(overrides: Partial<Proto.TriggerEvent> = {}): Proto.Trigge
         tsNs: 1_700_000_000_123_456_789n,
         childSeq: 1,
         childOrderId: 33n,
-        firePriceTicks: 100_000_000n,
+        firePriceTicks: 100_000_000_000n,
         terminalReason: { case: undefined },
         ...overrides,
     } as Proto.TriggerEvent;
@@ -140,7 +140,7 @@ describe("TriggersService", () => {
                 expectedStrategy: {
                     case: "stopLoss",
                     value: {
-                        triggerPriceTicks: 100_000_000n,
+                        triggerPriceTicks: 100_000_000_000n,
                         side: ProtoOrders.Side.SELL,
                         child: { execution: { case: "marketIoc" } },
                     },
@@ -160,12 +160,12 @@ describe("TriggersService", () => {
                 expectedStrategy: {
                     case: "stopLoss",
                     value: {
-                        triggerPriceTicks: 99_000_000n,
+                        triggerPriceTicks: 99_000_000_000n,
                         side: ProtoOrders.Side.SELL,
                         child: {
                             execution: {
                                 case: "limitGtc",
-                                value: { priceTicks: 98_500_000n, postOnly: true },
+                                value: { priceTicks: 98_500_000_000n, postOnly: true },
                             },
                         },
                     },
@@ -185,12 +185,12 @@ describe("TriggersService", () => {
                 expectedStrategy: {
                     case: "takeProfit",
                     value: {
-                        triggerPriceTicks: 101_000_000n,
+                        triggerPriceTicks: 101_000_000_000n,
                         side: ProtoOrders.Side.SELL,
                         child: {
                             execution: {
                                 case: "limitIoc",
-                                value: { priceTicks: 100_500_000n },
+                                value: { priceTicks: 100_500_000_000n },
                             },
                         },
                     },
@@ -212,12 +212,12 @@ describe("TriggersService", () => {
                 expectedStrategy: {
                     case: "takeProfit",
                     value: {
-                        triggerPriceTicks: 101_000_000n,
+                        triggerPriceTicks: 101_000_000_000n,
                         side: ProtoOrders.Side.BUY,
                         child: {
                             execution: {
                                 case: "limitFok",
-                                value: { priceTicks: 101_500_000n },
+                                value: { priceTicks: 101_500_000_000n },
                             },
                         },
                     },
@@ -239,8 +239,8 @@ describe("TriggersService", () => {
                     value: {
                         side: ProtoOrders.Side.SELL,
                         trailingDistance: { case: "trailingDistanceBps", value: 150 },
-                        activationPriceTicks: 99_000_000n,
-                        maxSlippage: { case: "maxSlippageTicks", value: 250_000 },
+                        activationPriceTicks: 99_000_000_000n,
+                        maxSlippage: { case: "maxSlippageTicks", value: 250_000_000 },
                     },
                 },
             },
@@ -267,7 +267,9 @@ describe("TriggersService", () => {
                         sliceIntervalMs: 5_000n,
                         execution: {
                             case: "marketIoc",
-                            value: { maxSlippage: { case: "maxSlippageTicks", value: 250_000 } },
+                            value: {
+                                maxSlippage: { case: "maxSlippageTicks", value: 250_000_000 },
+                            },
                         },
                     },
                 },
@@ -292,7 +294,7 @@ describe("TriggersService", () => {
                         sliceIntervalMs: 5_000n,
                         execution: {
                             case: "limitGtc",
-                            value: { priceTicks: 100_250_000n },
+                            value: { priceTicks: 100_250_000_000n },
                         },
                     },
                 },
@@ -314,8 +316,8 @@ describe("TriggersService", () => {
                     case: "ladder",
                     value: {
                         side: ProtoOrders.Side.BUY,
-                        priceMinTicks: 99_000_000n,
-                        priceMaxTicks: 101_000_000n,
+                        priceMinTicks: 99_000_000_000n,
+                        priceMaxTicks: 101_000_000_000n,
                         levels: 5,
                         postOnly: true,
                     },
@@ -516,7 +518,7 @@ describe("TriggersService", () => {
             configuration: {
                 case: "stopLoss",
                 value: create(Proto.ConditionalTriggerSchema, {
-                    triggerPriceTicks: 100_000_000n,
+                    triggerPriceTicks: 100_000_000_000n,
                     side: ProtoOrders.Side.SELL,
                 }),
             },
@@ -564,7 +566,7 @@ describe("TriggersService", () => {
                 value: create(Proto.TrailingDetailsSchema, {
                     trailingDistanceTicks: 0n,
                     activationPriceTicks: 0n,
-                    peakPriceTicks: 100_500_000n,
+                    peakPriceTicks: 100_500_000_000n,
                     troughPriceTicks: 0n,
                     trailingDistanceBps: 200,
                     maxSlippageTicks: 0,
@@ -679,7 +681,7 @@ describe("TriggersService", () => {
             triggerId: 22n,
             symbolId: 1,
             subaccountId: 11n,
-            triggerPriceTicks: 101_250_000n,
+            triggerPriceTicks: 101_250_000_000n,
             trailingDistance: { case: undefined, value: undefined },
             activationPriceTicks: 0n,
             maxSlippage: { case: "maxSlippageTicks", value: 0 },

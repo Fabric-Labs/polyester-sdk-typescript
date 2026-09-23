@@ -77,13 +77,13 @@ function liveBucket(overrides: Partial<HeatmapLiveBucketInit> = {}): HeatmapLive
         interval: Proto.HeatmapInterval.INTERVAL_1S,
         tsSec: 120n,
         isFinal: false,
-        bids: { priceTicks: [100n], qtyScaled: [2n] },
-        asks: { priceTicks: [101n], qtyScaled: [3n] },
+        bids: { priceTicks: [100_000n], qtyScaled: [2n] },
+        asks: { priceTicks: [101_000n], qtyScaled: [3n] },
         updatesInBucket: 4,
         bookSeqStart: 10n,
         bookSeqEnd: 11n,
         quantityMode: Proto.HeatmapQuantityMode.CLOSE,
-        effectiveBinTicks: 1n,
+        effectiveBinTicks: 1_000n,
         ...overrides,
     };
 }
@@ -96,18 +96,18 @@ function heatmapResponse(overrides: Record<string, unknown> = {}) {
         chain: {
             baseKeyframe: {
                 tsSec: 100n,
-                bestBidTicks: 100n,
-                bestAskTicks: 101n,
-                midTicks: 100n,
-                bids: { priceTicks: [100n], qtyScaled: [2n] },
-                asks: { priceTicks: [101n], qtyScaled: [3n] },
+                bestBidTicks: 100_000n,
+                bestAskTicks: 101_000n,
+                midTicks: 100_000n,
+                bids: { priceTicks: [100_000n], qtyScaled: [2n] },
+                asks: { priceTicks: [101_000n], qtyScaled: [3n] },
                 bookSeq: 10n,
             },
             deltas: [
                 {
                     tsSec: 110n,
-                    bids: { priceTicks: [99n], qtyScaled: [1n] },
-                    asks: { priceTicks: [102n], qtyScaled: [4n] },
+                    bids: { priceTicks: [99_000n], qtyScaled: [1n] },
+                    asks: { priceTicks: [102_000n], qtyScaled: [4n] },
                     updatesInBucket: 2,
                     bookSeqStart: 11n,
                     bookSeqEnd: 12n,

@@ -51,7 +51,7 @@ const marketTrade = {
     symbolId: 101,
     matchId: 22n,
     isBuy: false,
-    priceTicks: 1_234_567n,
+    priceTicks: 1_234_567_000n,
     qtyScaled: 123_456_789n,
     tsNs: 1_700_000_000_000_000_000n,
 };

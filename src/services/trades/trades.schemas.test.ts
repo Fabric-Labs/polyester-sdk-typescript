@@ -53,7 +53,7 @@ function trade(overrides: Record<string, unknown> = {}) {
         isMaker: false,
         feeAsset: ProtoOrders.FeeAsset.QUOTE,
         qtyScaled: 1234n,
-        priceTicks: 1_000_000n,
+        priceTicks: 1_000_000_000n,
         feeAmountE18: { hi: 0n, lo: 123n },
         referralShareAmountE18: { hi: 0n, lo: 45n },
         feeIsRebate: true,

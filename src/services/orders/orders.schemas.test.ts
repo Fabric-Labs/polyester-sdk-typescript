@@ -371,7 +371,7 @@ describe("NewOrderInputSchema", () => {
                         execution: {
                             case: "limitGtc",
                             value: {
-                                priceTicks: 100_250_000n,
+                                priceTicks: 100_250_000_000n,
                                 postOnly: false,
                             },
                         },
@@ -406,7 +406,7 @@ describe("NewOrderInputSchema", () => {
                                     case: "maxSlippageBps",
                                     value: 150,
                                 },
-                                clientRefPriceTicks: 99_500_000n,
+                                clientRefPriceTicks: 99_500_000_000n,
                             },
                         },
                     },
@@ -445,7 +445,7 @@ describe("NewOrderInputSchema", () => {
         expect(gtd(1_758_024_000_000)).toMatchObject({
             case: "limitGtd",
             value: {
-                priceTicks: 100_250_000n,
+                priceTicks: 100_250_000_000n,
                 postOnly: true,
                 expireAt: { seconds: 1_758_024_000n, nanos: 0 },
             },
@@ -470,19 +470,19 @@ describe("NewOrderInputSchema", () => {
         expect(
             v.parse(schema, {
                 ...order,
-                execution: { type: "limit_gtc", price: "9223372036854.775807" },
+                execution: { type: "limit_gtc", price: "9223372036.854775807" },
             }).order.execution,
         ).toMatchObject({ value: { priceTicks: 9_223_372_036_854_775_807n } });
         expect(() =>
             v.parse(schema, {
                 ...order,
-                execution: { type: "limit_gtc", price: "9223372036854.775808" },
+                execution: { type: "limit_gtc", price: "9223372036.854775808" },
             }),
         ).toThrow(CatalogConversionError);
         expect(() =>
             v.parse(schema, {
                 ...order,
-                execution: { type: "limit_gtc", price: "9223372036854.775808" },
+                execution: { type: "limit_gtc", price: "9223372036.854775808" },
             }),
         ).toThrow("execution.price exceeds the maximum supported value");
     });
@@ -521,7 +521,7 @@ describe("NewOrderInputSchema", () => {
                 ...order,
                 risk: {
                     takeProfit: {
-                        triggerPrice: "9223372036854.775807",
+                        triggerPrice: "9223372036.854775807",
                         execution: { type: "market_ioc" },
                     },
                 },
@@ -532,7 +532,7 @@ describe("NewOrderInputSchema", () => {
                 ...order,
                 risk: {
                     takeProfit: {
-                        triggerPrice: "9223372036854.775808",
+                        triggerPrice: "9223372036.854775808",
                         execution: { type: "market_ioc" },
                     },
                 },
@@ -543,7 +543,7 @@ describe("NewOrderInputSchema", () => {
                 ...order,
                 risk: {
                     takeProfit: {
-                        triggerPrice: "9223372036854.775808",
+                        triggerPrice: "9223372036.854775808",
                         execution: { type: "market_ioc" },
                     },
                 },
@@ -655,7 +655,7 @@ describe("NewOrderInputSchema", () => {
 
         expect(output.order.execution).toMatchObject({
             case: expectedCase,
-            value: { priceTicks: 100_250_000n },
+            value: { priceTicks: 100_250_000_000n },
         });
     });
 
@@ -682,18 +682,18 @@ describe("NewOrderInputSchema", () => {
 
         expect(input.order.attachedRisk).toMatchObject({
             takeProfit: {
-                triggerPriceTicks: 101_500_000n,
+                triggerPriceTicks: 101_500_000_000n,
                 child: {
                     execution: {
                         case: "limitGtc",
-                        value: { priceTicks: 102_250_000n },
+                        value: { priceTicks: 102_250_000_000n },
                     },
                 },
             },
             stopLeg: {
                 case: "stopLoss",
                 value: {
-                    triggerPriceTicks: 95_000_000n,
+                    triggerPriceTicks: 95_000_000_000n,
                     child: {
                         execution: {
                             case: "marketIoc",
@@ -727,9 +727,9 @@ describe("NewOrderInputSchema", () => {
             stopLeg: {
                 case: "trailingStop",
                 value: {
-                    trailingDistance: { case: "trailingDistanceTicks", value: 500_000n },
+                    trailingDistance: { case: "trailingDistanceTicks", value: 500_000_000n },
                     maxSlippage: { case: "maxSlippageBps", value: 25 },
-                    activationPriceTicks: 99_000_000n,
+                    activationPriceTicks: 99_000_000_000n,
                 },
             },
         });
@@ -751,7 +751,7 @@ describe("NewOrderInputSchema", () => {
             stopLeg: {
                 case: "trailingStop",
                 value: {
-                    maxSlippage: { case: "maxSlippageTicks", value: 250_000 },
+                    maxSlippage: { case: "maxSlippageTicks", value: 250_000_000 },
                 },
             },
         });
@@ -895,11 +895,11 @@ describe("NewOrderInputSchema", () => {
                 ...baseOrder,
                 risk: {
                     trailingStop: {
-                        trailingDistance: { kind: "distance", distance: "0.0000001" },
+                        trailingDistance: { kind: "distance", distance: "0.0000000001" },
                     },
                 },
             }),
-        ).toThrow("trailingStop.trailingDistance.distance supports at most 6 decimal places");
+        ).toThrow("trailingStop.trailingDistance.distance supports at most 9 decimal places");
         expect(() =>
             v.parse(schema, {
                 ...baseOrder,
@@ -935,7 +935,7 @@ describe("NewOrderInputSchema", () => {
             value: {
                 maxSlippage: {
                     case: "maxSlippageTicks",
-                    value: 250_000,
+                    value: 250_000_000,
                 },
             },
         });
@@ -945,7 +945,7 @@ describe("NewOrderInputSchema", () => {
                 ...baseOrder,
                 execution: {
                     type: "market_ioc",
-                    maxSlippage: { kind: "slippage", slippage: "2147.483647" },
+                    maxSlippage: { kind: "slippage", slippage: "2.147483647" },
                 },
             }).order.execution,
         ).toMatchObject({
@@ -961,7 +961,7 @@ describe("NewOrderInputSchema", () => {
                 ...baseOrder,
                 execution: {
                     type: "market_ioc",
-                    maxSlippage: { kind: "slippage", slippage: "2147.483648" },
+                    maxSlippage: { kind: "slippage", slippage: "2.147483648" },
                 },
             }),
         ).toThrow("execution.maxSlippage.slippage");
@@ -1047,9 +1047,9 @@ describe("NewOrderInputSchema", () => {
         expect(() =>
             v.parse(schema, {
                 ...baseOrder,
-                execution: { type: "limit_gtc", price: "100.0000001" },
+                execution: { type: "limit_gtc", price: "100.0000000001" },
             }),
-        ).toThrow("execution.price supports at most 6 decimal places");
+        ).toThrow("execution.price supports at most 9 decimal places");
         expect(() =>
             v.parse(schema, {
                 ...baseOrder,
@@ -1130,7 +1130,7 @@ describe("create result and preview schemas", () => {
     it("normalizes truthful preview admission fields", () => {
         const result = v.parse(createPreviewOrderResultSchema(testScales(), 1), {
             resolvedBaseQtyScaled: 50_000_000n,
-            protectedPriceBoundTicks: 100_250_000n,
+            protectedPriceBoundTicks: 100_250_000_000n,
             evaluatedAt: { seconds: 1n, nanos: 250_000_000 },
             admissible: true,
         });
@@ -1254,7 +1254,7 @@ describe("ModifyOrderInputSchema", () => {
 
         expect(patch).toMatchObject({
             key: { case: "clientOrderId", value: "client-1" },
-            newPriceTicks: 101_250_000n,
+            newPriceTicks: 101_250_000_000n,
             newAttachedRisk: {},
             behavior: ProtoWrite.ModifyBehavior.AMEND_OR_REPLACE,
             symbolId: 1,
@@ -1346,11 +1346,11 @@ describe("ModifyOrderInputSchema", () => {
 
         expect(patch.newAttachedRisk).toMatchObject({
             takeProfit: {
-                triggerPriceTicks: 105_000_000n,
+                triggerPriceTicks: 105_000_000_000n,
                 child: {
                     execution: {
                         case: "limitGtc",
-                        value: { priceTicks: 105_500_000n },
+                        value: { priceTicks: 105_500_000_000n },
                     },
                 },
             },
@@ -1452,7 +1452,7 @@ describe("OrderSchema", () => {
             cumQtyScaled: 0n,
             leavesQtyScaled: 100_000_000n,
             avgPriceTicks: 0n,
-            priceTicks: 100_000_000n,
+            priceTicks: 100_000_000_000n,
             createdTsNs: 1_000_000n,
             terminalTsNs: 0n,
             terminalReasonCode: 0,
@@ -1474,7 +1474,7 @@ describe("OrderSchema", () => {
                 origQtyScaled: 125_000_000n,
                 cumQtyScaled: 50_000_000n,
                 leavesQtyScaled: 75_000_000n,
-                avgPriceTicks: 100_250_000n,
+                avgPriceTicks: 100_250_000_000n,
             }),
         );
 
@@ -1500,7 +1500,7 @@ describe("OrderSchema", () => {
     it("emits the market client reference price only when set", () => {
         const schema = createOrderSchema(testScales());
 
-        const order = v.parse(schema, rawOrder({ marketClientRefPriceTicks: 99_500_000n }));
+        const order = v.parse(schema, rawOrder({ marketClientRefPriceTicks: 99_500_000_000n }));
 
         expect(order.marketClientRefPrice).toBe("99.5");
     });
@@ -1572,12 +1572,12 @@ describe("OrderSchema", () => {
                 attachedRisk: {
                     takeProfit: {
                         policy: {
-                            triggerPriceTicks: 101_000_000n,
+                            triggerPriceTicks: 101_000_000_000n,
                             child: {
                                 execution: {
                                     case: "limitGtc",
                                     value: {
-                                        priceTicks: 102_500_000n,
+                                        priceTicks: 102_500_000_000n,
                                     },
                                 },
                             },
@@ -1592,7 +1592,7 @@ describe("OrderSchema", () => {
                     },
                     stopLoss: {
                         policy: {
-                            triggerPriceTicks: 95_000_000n,
+                            triggerPriceTicks: 95_000_000_000n,
                             child: {
                                 execution: {
                                     case: "marketIoc",
@@ -1724,10 +1724,10 @@ describe("OrderSchema", () => {
                         policy: {
                             trailingDistance: {
                                 case: "trailingDistanceTicks",
-                                value: 500_000n,
+                                value: 500_000_000n,
                             },
-                            maxSlippage: { case: "maxSlippageTicks", value: 250_000 },
-                            activationPriceTicks: 99_000_000n,
+                            maxSlippage: { case: "maxSlippageTicks", value: 250_000_000 },
+                            activationPriceTicks: 99_000_000_000n,
                         },
                     },
                     oco: false,
@@ -1767,7 +1767,7 @@ describe("OrderSchema", () => {
     it("decodes market max slippage ticks to a decimal slippage variant", () => {
         const schema = createOrderSchema(testScales());
 
-        const ticksOrder = v.parse(schema, rawOrder({ marketMaxSlippageTicks: 250_000 }));
+        const ticksOrder = v.parse(schema, rawOrder({ marketMaxSlippageTicks: 250_000_000 }));
         expect(ticksOrder.marketMaxSlippage).toEqual({ kind: "slippage", slippage: "0.25" });
 
         const bpsOrder = v.parse(schema, rawOrder({ marketMaxSlippageBps: 25 }));

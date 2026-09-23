@@ -202,7 +202,7 @@ export const PairConfigSchema = v.pipe(
         quoteQuantityScale: v.number(),
         /**
          * Integer scale for composite reference prices in candle responses (0..18).
-         * Primary market and execution prices continue to use scale 6.
+         * Primary market and execution prices use the fixed scale 9.
          */
         referencePriceScale: v.optional(WireScaleSchema, 0),
         /**

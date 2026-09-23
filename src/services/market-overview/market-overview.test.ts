@@ -50,19 +50,19 @@ function testScales() {
 function market(overrides: Record<string, unknown> = {}) {
     return {
         symbolId: 101,
-        lastPriceTicks: 1_234_567n,
+        lastPriceTicks: 1_234_567_000n,
         lastTradeTsNs: 1_700_000_000_000_000_000n,
         change24hBps: 123,
-        high24hTicks: 2_000_000n,
-        low24hTicks: 1_000_000n,
+        high24hTicks: 2_000_000_000n,
+        low24hTicks: 1_000_000_000n,
         volume24hBaseScaled: 123_456_789n,
         volume24hQuoteScaled: 987_654_321n,
         listedTsNs: 1_600_000_000_000_000_000n,
-        bestBidTicks: 1_200_000n,
+        bestBidTicks: 1_200_000_000n,
         bestBidQtyScaled: 10_000_000n,
-        bestAskTicks: 1_300_000n,
+        bestAskTicks: 1_300_000_000n,
         bestAskQtyScaled: 20_000_000n,
-        indexPriceTicks: 1_250_000n,
+        indexPriceTicks: 1_250_000_000n,
         sparklines: [],
         ...overrides,
     };
@@ -437,13 +437,13 @@ describe("MarketOverviewService", () => {
 
         realtime.params?.onPublication(
             create(Proto.MarketOverviewBatchSchema, {
-                markets: [market({ symbolId: 999, lastPriceTicks: 5n })],
+                markets: [market({ symbolId: 999, lastPriceTicks: 5_000n })],
                 tsNs: 1n,
             }),
         );
         realtime.params?.onPublication(
             create(Proto.MarketOverviewBatchSchema, {
-                markets: [market({ lastPriceTicks: 2_000_000n })],
+                markets: [market({ lastPriceTicks: 2_000_000_000n })],
                 tsNs: 2n,
             }),
         );
@@ -523,7 +523,7 @@ describe("MarketOverviewService", () => {
                     realtime.params?.onPublication(
                         create(Proto.MarketOverviewBatchSchema, {
                             markets: [
-                                market({ lastPriceTicks: 1_100_000n }),
+                                market({ lastPriceTicks: 1_100_000_000n }),
                                 market({ symbolId: 202 }),
                             ],
                         }),
@@ -549,7 +549,7 @@ describe("MarketOverviewService", () => {
                     sparklines: [
                         {
                             interval: 999 as Proto.SparklineInterval,
-                            closeTicks: [1n],
+                            closeTicks: [1_000n],
                         },
                     ],
                 }),
@@ -597,7 +597,7 @@ describe("MarketOverviewService", () => {
 
         realtime.params?.onPublication(
             create(Proto.MarketOverviewBatchSchema, {
-                markets: [market({ lastPriceTicks: 2_000_000n })],
+                markets: [market({ lastPriceTicks: 2_000_000_000n })],
                 tsNs: 1n,
             }),
         );
@@ -605,7 +605,10 @@ describe("MarketOverviewService", () => {
         expect(onOpen).toHaveBeenCalledTimes(1);
         expect(onEvent).not.toHaveBeenCalled();
 
-        snapshot.resolve({ markets: [market({ lastPriceTicks: 1_000_000n })], nextPageToken: "" });
+        snapshot.resolve({
+            markets: [market({ lastPriceTicks: 1_000_000_000n })],
+            nextPageToken: "",
+        });
         await flushMicrotasks();
 
         expect(onEvent).toHaveBeenCalledTimes(1);
@@ -728,7 +731,7 @@ describe("MarketOverviewService", () => {
                         sparklines: [
                             {
                                 interval: 999 as Proto.SparklineInterval,
-                                closeTicks: [1n],
+                                closeTicks: [1_000n],
                             },
                         ],
                     }),

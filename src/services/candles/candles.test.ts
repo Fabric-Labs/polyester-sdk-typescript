@@ -55,10 +55,10 @@ async function flushMicrotasks(): Promise<void> {
 
 const candlePoint = {
     tsSec: 100n,
-    open: 1_234_000n,
-    high: 1_235_000n,
-    low: 1_233_000n,
-    close: 1_234_567n,
+    open: 1_234_000_000n,
+    high: 1_235_000_000n,
+    low: 1_233_000_000n,
+    close: 1_234_567_000n,
     volume: 123_456_789n,
     quoteVolume: "152415.677625363",
     isClosed: true,
@@ -156,17 +156,17 @@ describe("CandlesService", () => {
             symbolId: 101,
             timeframe: Proto.Timeframe.HOUR_1,
             tsSec: [100n],
-            open: [1_000_000n],
-            high: [1_500_000n],
-            low: [900_000n],
-            close: [1_250_000n],
+            open: [1_000_000_000n],
+            high: [1_500_000_000n],
+            low: [900_000_000n],
+            close: [1_250_000_000n],
             volume: [100_000_000n],
             quoteVolume: ["125000000"],
             referenceTsSec: [90n],
-            referenceOpen: [2_000_000n],
-            referenceHigh: [2_500_000n],
-            referenceLow: [1_900_000n],
-            referenceClose: [2_250_000n],
+            referenceOpen: [2_000_000_000n],
+            referenceHigh: [2_500_000_000n],
+            referenceLow: [1_900_000_000n],
+            referenceClose: [2_250_000_000n],
             referenceVolume: [200_000_000n],
         });
         const service = new CandlesService(
@@ -213,10 +213,10 @@ describe("CandlesService", () => {
             symbolId: 101,
             timeframe: Proto.Timeframe.HOUR_1,
             tsSec: [100n],
-            open: [1_000_000n],
-            high: [1_500_000n],
-            low: [900_000n],
-            close: [1_250_000n],
+            open: [1_000_000_000n],
+            high: [1_500_000_000n],
+            low: [900_000_000n],
+            close: [1_250_000_000n],
             volume: [12_345n],
             quoteVolume: ["1"],
             referenceTsSec: [90n],
@@ -263,10 +263,10 @@ describe("CandlesService", () => {
             symbolId: 101,
             timeframe: Proto.Timeframe.SEC_1,
             tsSec: [100n],
-            open: [1n],
-            high: [2n],
-            low: [3n],
-            close: [4n],
+            open: [1_000n],
+            high: [2_000n],
+            low: [3_000n],
+            close: [4_000n],
             volume: [5n],
             quoteVolume: ["0.00002"],
         });
@@ -398,7 +398,7 @@ describe("CandlesService", () => {
         service.subscribe({ symbolId: 101, timeframe: "1m", onEvent });
         realtime.params?.onPublication(create(Proto.CandlePointSchema, candlePoint));
         realtime.params?.onPublication(
-            create(Proto.CandlePointSchema, { ...candlePoint, close: 1_300_000n }),
+            create(Proto.CandlePointSchema, { ...candlePoint, close: 1_300_000_000n }),
         );
 
         expect(onEvent).not.toHaveBeenCalled();

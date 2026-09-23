@@ -124,7 +124,7 @@ describe("equity history response schema", () => {
                     equityQ: [12_345n, -100n],
                 },
             ],
-            btcPricesQ: [65_000_123_456n],
+            btcPricesQ: [65_000_123_456_000n],
         });
 
         expect(history.series).toEqual([

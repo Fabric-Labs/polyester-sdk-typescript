@@ -62,23 +62,23 @@ describe("MarketOverviewSchema", () => {
         const schema = createMarketOverviewSchema(testScales());
         const market = v.parse(schema, {
             symbolId: 101,
-            lastPriceTicks: 1_234_567_890n,
+            lastPriceTicks: 1_234_567_890_000n,
             lastTradeTsNs: 1_700_000_000_123_456_789n,
             change24hBps: 123,
-            high24hTicks: 2_000_123_456n,
-            low24hTicks: 999_999_999n,
+            high24hTicks: 2_000_123_456_000n,
+            low24hTicks: 999_999_999_000n,
             volume24hBaseScaled: 123_456_789n,
             volume24hQuoteScaled: 987_654_321n,
             listedTsNs: 1_700_000_000_000_000_000n,
-            bestBidTicks: 1_234_500_001n,
+            bestBidTicks: 1_234_500_001_000n,
             bestBidQtyScaled: 12_345_678n,
-            bestAskTicks: 1_234_600_002n,
+            bestAskTicks: 1_234_600_002_000n,
             bestAskQtyScaled: 23_456_789n,
-            indexPriceTicks: 1_234_550_003n,
+            indexPriceTicks: 1_234_550_003_000n,
             sparklines: [
                 {
                     interval: SparklineInterval.SPARKLINE_24H,
-                    closeTicks: [1_010_000n, 1_000_001n],
+                    closeTicks: [1_010_000_000n, 1_000_001_000n],
                 },
             ],
         });
