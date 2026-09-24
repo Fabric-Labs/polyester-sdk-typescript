@@ -1,5 +1,17 @@
 # @polyester/sdk
 
+## 0.29.0
+
+### Minor Changes
+
+- Decode address-book account scopes as the `AddressBookAccountScope` union keyed by `scopeType`. Root scopes no longer expose the wire placeholder `subaccountId` (previously `"1"`), subaccount scopes always include `subaccountId`, and unspecified scopes include it only when non-zero. Narrow on `scopeType` before reading `scope.subaccountId`. ([#175](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/175))
+
+- `ApiKey.policyId` is now `""` instead of `undefined` when no policy is attached, matching `DEFAULT_API_KEY_POLICY.id` so keys can be matched to policies by ID. `apiKeyPolicies.get({ policyId: "" })` now returns the default policy instead of throwing. Replace any `policyId === undefined` checks with `!policyId`. ([#175](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/175))
+
+### Patch Changes
+
+- Format an unset `subaccountPolicyId` as `""` instead of `"1"`, so subaccounts on the placeholder policy match its `""` ID ([#175](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/175))
+
 ## 0.28.1
 
 ### Patch Changes
