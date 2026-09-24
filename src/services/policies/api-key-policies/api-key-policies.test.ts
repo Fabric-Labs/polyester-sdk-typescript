@@ -36,6 +36,8 @@ describe("ApiKeyPoliciesService", () => {
         const service = new ApiKeyPoliciesService({ authApi: transport.transport });
 
         await expect(service.get({})).resolves.toEqual(DEFAULT_API_KEY_POLICY);
+        // An API key with no policy decodes `policyId` as "", which must round-trip here.
+        await expect(service.get({ policyId: "" })).resolves.toEqual(DEFAULT_API_KEY_POLICY);
         expect(DEFAULT_API_KEY_POLICY).toMatchObject({
             createdAt: 0,
             updatedAt: 0,

@@ -93,6 +93,12 @@ export const PublicIdSchema = v.pipe(
     v.transform((value) => formatId(value)),
 );
 
+/** Like `PublicIdSchema`, but formats the proto unset value `0n` as `""`. */
+export const PublicIdOrEmptySchema = v.pipe(
+    v.bigint(),
+    v.transform((value) => (value === 0n ? "" : formatId(value))),
+);
+
 export const OptionalPublicIdSchema = v.pipe(
     v.optional(v.bigint()),
     v.transform((value) => (value ? formatId(value) : undefined)),

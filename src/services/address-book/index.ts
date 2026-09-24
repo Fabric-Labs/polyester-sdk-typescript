@@ -20,6 +20,7 @@ export {
 } from "./address-book.codecs.js";
 export type {
     AddressBook,
+    AddressBookAccountScope,
     AddressBookEntries,
     AddressBookEntry,
     AddressBookTag,

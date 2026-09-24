@@ -246,6 +246,40 @@ describe("AddressBookEntrySchema", () => {
         });
     });
 
+    it("omits the wire-zero subaccount ID from root scopes", () => {
+        const entry = v.parse(AddressBookEntrySchema, {
+            ...baseExternalEntry,
+            scope: {
+                scopeType: Proto.AccountScopeType.SCOPE_ROOT,
+                rootAccountId: 1n,
+                subaccountId: 0n,
+            },
+        });
+
+        expect(entry.scope).toStrictEqual({ scopeType: "root", rootAccountId: formatId(1n) });
+    });
+
+    it("decodes subaccount scopes with their subaccount ID", () => {
+        expect(v.parse(AddressBookEntrySchema, baseExternalEntry).scope).toStrictEqual({
+            scopeType: "subaccount",
+            rootAccountId: formatId(1n),
+            subaccountId: formatId(2n),
+        });
+    });
+
+    it("preserves unspecified scopes without inventing a subaccount ID", () => {
+        expect(
+            v.parse(AddressBookEntrySchema, {
+                ...baseExternalEntry,
+                scope: {
+                    scopeType: Proto.AccountScopeType.SCOPE_UNSPECIFIED,
+                    rootAccountId: 1n,
+                    subaccountId: 0n,
+                },
+            }).scope,
+        ).toStrictEqual({ scopeType: "unspecified", rootAccountId: formatId(1n) });
+    });
+
     it("preserves proto-zero enum values as unspecified", () => {
         expect(
             v.parse(AddressBookEntrySchema, {

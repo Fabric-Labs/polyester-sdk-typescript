@@ -3,6 +3,7 @@ import { msToTimestamp } from "../../utils/timestamp.js";
 import { tsObjToMs, tsObjToNsString } from "../../utils/time.js";
 import {
     OptionalPublicIdSchema,
+    PublicIdOrEmptySchema,
     OptionalTimestampMsSchema,
     BigIntStringSchema,
     TimestampMsSchema,
@@ -138,7 +139,8 @@ export const ApiKeySchema = v.pipe(
         color: v.optional(v.string(), ""),
         ipWhitelist: v.optional(v.array(v.string()), []),
         subaccountId: OptionalPublicIdSchema,
-        policyId: OptionalPublicIdSchema,
+        // Unset decodes to "", matching DEFAULT_API_KEY_POLICY.id.
+        policyId: v.optional(PublicIdOrEmptySchema, 0n),
         createdAt: TimestampMsSchema,
         updatedAt: v.optional(TimestampSchema),
         lastUsedAt: OptionalTimestampMsSchema,
