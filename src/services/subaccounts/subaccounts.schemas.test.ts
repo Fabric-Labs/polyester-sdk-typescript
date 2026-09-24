@@ -5,6 +5,7 @@ import { formatId } from "../../utils/base58-id.js";
 import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
 import {
     CreateSubaccountResultSchema,
+    EffectiveSubaccountPermissionsSchema,
     SubaccountMutationResultSchema,
     SubaccountSchema,
     UpdateSubaccountInputSchema,
@@ -18,6 +19,30 @@ const baseSubaccount = {
     subaccountPolicyId: 1n,
     revision: 1n,
 };
+
+describe("subaccount policy IDs", () => {
+    it("formats the unset placeholder policy ID as an empty string", () => {
+        expect(
+            v.parse(SubaccountSchema, {
+                ...baseSubaccount,
+                status: Proto.SubaccountStatus.ACTIVE,
+                subaccountPolicyId: 0n,
+            }).subaccountPolicyId,
+        ).toBe("");
+        expect(
+            v.parse(EffectiveSubaccountPermissionsSchema, {
+                role: Proto.SubaccountRole.ADMIN,
+                subaccountPolicyId: 0n,
+            }).subaccountPolicyId,
+        ).toBe("");
+        expect(
+            v.parse(SubaccountSchema, {
+                ...baseSubaccount,
+                status: Proto.SubaccountStatus.ACTIVE,
+            }).subaccountPolicyId,
+        ).toBe(formatId(1n));
+    });
+});
 
 describe("subaccount status schemas", () => {
     it("exposes backend status values without display-name remapping", () => {

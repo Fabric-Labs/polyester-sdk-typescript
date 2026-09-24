@@ -1,6 +1,7 @@
 import * as v from "valibot";
 import { PositiveUint32InputSchema } from "../shared.js";
 import { parse } from "../../shared/validation.js";
+import { formatId } from "../../utils/base58-id.js";
 import {
     OptionalTimestampMsSchema,
     BigIntStringSchema,
@@ -290,11 +291,28 @@ const CountSchema = v.pipe(
     v.transform((value) => Number(value)),
 );
 
-const AccountScopeSchema = v.object({
-    scopeType: enumLabelSchema(AccountScopeTypeCodec.protoToOutput),
-    rootAccountId: PublicIdSchema,
-    subaccountId: PublicIdSchema,
-});
+export type AddressBookAccountScope =
+    | { scopeType: "root"; rootAccountId: string }
+    | { scopeType: "subaccount"; rootAccountId: string; subaccountId: string }
+    | { scopeType: "unspecified"; rootAccountId: string; subaccountId?: string };
+
+// Root scopes carry `subaccountId: 0n` on the wire, which is not a real ID.
+const AccountScopeSchema = v.pipe(
+    v.object({
+        scopeType: enumLabelSchema(AccountScopeTypeCodec.protoToOutput),
+        rootAccountId: PublicIdSchema,
+        subaccountId: v.bigint(),
+    }),
+    v.transform(({ scopeType, rootAccountId, subaccountId }): AddressBookAccountScope => {
+        if (scopeType === "root") return { scopeType, rootAccountId };
+        if (scopeType === "subaccount") {
+            return { scopeType, rootAccountId, subaccountId: formatId(subaccountId) };
+        }
+        return subaccountId
+            ? { scopeType, rootAccountId, subaccountId: formatId(subaccountId) }
+            : { scopeType, rootAccountId };
+    }),
+);
 
 const ExternalWithdrawAddressSchema = v.object({
     polychainChainId: v.pipe(v.number(), v.integer()),

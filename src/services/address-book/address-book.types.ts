@@ -1,5 +1,6 @@
 export type {
     AddressBook,
+    AddressBookAccountScope,
     AddressBookEntries,
     AddressBookEntriesView,
     AddressBookEntry,

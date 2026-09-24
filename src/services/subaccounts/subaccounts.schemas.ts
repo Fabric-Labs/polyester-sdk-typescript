@@ -8,6 +8,7 @@ import * as v from "valibot";
 import {
     BigIntStringSchema,
     OptionalTimestampMsSchema,
+    PublicIdOrEmptySchema,
     PublicIdSchema,
     TimestampSchema,
     idInputSchema,
@@ -81,7 +82,7 @@ export type SubaccountRoleCatalog = v.InferOutput<typeof SubaccountRoleCatalogSc
 export const EffectiveSubaccountPermissionsSchema = v.object({
     role: ProtoSubaccountRoleSchema,
     permissions: v.optional(v.array(ProtoSubaccountPermissionSchema), []),
-    subaccountPolicyId: PublicIdSchema,
+    subaccountPolicyId: PublicIdOrEmptySchema,
 });
 
 export type EffectiveSubaccountPermissions = v.InferOutput<
@@ -261,7 +262,7 @@ export const SubaccountSchema = v.pipe(
         ownerUsername: v.optional(v.string(), ""),
         ownerAvatarUrl: v.optional(v.string(), ""),
         ownerRootSmartAccountAddress: v.string(),
-        subaccountPolicyId: PublicIdSchema,
+        subaccountPolicyId: PublicIdOrEmptySchema,
         requireMemberMfa: v.optional(v.boolean(), false),
         updatedAt: v.optional(TimestampSchema),
         revision: BigIntStringSchema,

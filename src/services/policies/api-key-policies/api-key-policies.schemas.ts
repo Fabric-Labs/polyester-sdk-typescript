@@ -36,7 +36,7 @@ export type ListApiKeyPoliciesInput = v.InferInput<typeof ListApiKeyPoliciesInpu
 
 export const GetApiKeyPolicyInputSchema = v.pipe(
     v.strictObject({
-        policyId: v.optional(v.pipe(v.string(), v.trim(), v.minLength(1))),
+        policyId: v.optional(v.pipe(v.string(), v.trim())),
         keyId: OptionalApiKeyContextSchema,
     }),
     v.transform(({ policyId, keyId }) => ({

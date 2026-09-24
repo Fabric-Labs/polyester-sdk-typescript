@@ -113,6 +113,7 @@ describe("ApiKeysService", () => {
             service.get({ keyId: " ak_0123456789abcdef0123456789abcdef " }),
         ).resolves.toMatchObject({
             lastUsedAt: 2000,
+            policyId: "",
         });
         await expect(
             service.get({ keyId: "ak_ffffffffffffffffffffffffffffffff" }),
