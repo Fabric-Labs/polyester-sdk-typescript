@@ -70,6 +70,7 @@ export type Trade = v.InferOutput<ReturnType<typeof createUserTradeSchema>>;
 
 const AFTER_MATCH_REQUIRES_SYMBOL = "symbolId is required when afterMatchId is set";
 const EXECUTION_SCOPE_CONFLICT = "Provide at most one of orderId or lineageId";
+const THROUGH_GENERATION_REQUIRES_LINEAGE = "throughGeneration requires lineageId";
 
 const SymbolIdStringSchema = v.pipe(
     v.string(),
@@ -100,13 +101,13 @@ function userTradesScopeSchemas<const TEntries extends v.ObjectEntries>(entries:
             ...entries,
             orderId: v.optional(v.never()),
             lineageId: v.optional(v.never()),
-            throughGeneration: ThroughGenerationSchema,
+            throughGeneration: v.optional(v.never()),
         }),
         v.strictObject({
             ...entries,
             orderId: positiveOrderIdInputSchema("orderId"),
             lineageId: v.optional(v.never()),
-            throughGeneration: ThroughGenerationSchema,
+            throughGeneration: v.optional(v.never()),
         }),
         v.strictObject({
             ...entries,
@@ -150,16 +151,16 @@ const ReplayUserTradesInputSchema = v.union(
 
 /** Validates filters accepted by {@link TradesService.list}. */
 export const GetUserTradesInputSchema = v.pipe(
-    v.union([BrowseUserTradesInputSchema, ReplayUserTradesInputSchema], ({ input }) =>
-        typeof input === "object" &&
-        input !== null &&
-        "orderId" in input &&
-        input.orderId !== undefined &&
-        "lineageId" in input &&
-        input.lineageId !== undefined
-            ? EXECUTION_SCOPE_CONFLICT
-            : AFTER_MATCH_REQUIRES_SYMBOL,
-    ),
+    v.union([BrowseUserTradesInputSchema, ReplayUserTradesInputSchema], ({ input }) => {
+        const filters = typeof input === "object" && input !== null ? input : {};
+        const has = (key: string) =>
+            key in filters && (filters as Record<string, unknown>)[key] !== undefined;
+        if (has("orderId") && has("lineageId")) return EXECUTION_SCOPE_CONFLICT;
+        if (has("throughGeneration") && !has("lineageId")) {
+            return THROUGH_GENERATION_REQUIRES_LINEAGE;
+        }
+        return AFTER_MATCH_REQUIRES_SYMBOL;
+    }),
     v.transform(({ account, orderId, lineageId, ...input }) => {
         const executionScope =
             orderId !== undefined
@@ -177,6 +178,7 @@ export const GetUserTradesInputSchema = v.pipe(
 
 /**
  * Filters accepted by {@link TradesService.list}. Passing `afterMatchId` requires
- * `symbolId`; the two shapes form a discriminated union so the constraint is a compile error.
+ * `symbolId`, and `throughGeneration` requires `lineageId`; the shapes form a discriminated
+ * union so both constraints are compile errors.
  */
 export type GetUserTradesInput = v.InferInput<typeof GetUserTradesInputSchema>;

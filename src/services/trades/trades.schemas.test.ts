@@ -159,11 +159,8 @@ describe("GetUserTradesInputSchema", () => {
     });
 
     it("maps physical-order and lineage scopes to the generated oneof", () => {
-        expect(
-            v.parse(GetUserTradesInputSchema, { orderId: formatId(5n), throughGeneration: 3 }),
-        ).toMatchObject({
+        expect(v.parse(GetUserTradesInputSchema, { orderId: formatId(5n) })).toMatchObject({
             executionScope: { case: "orderId", value: 5n },
-            throughGeneration: 3,
         });
         expect(
             v.parse(GetUserTradesInputSchema, {
@@ -192,6 +189,15 @@ describe("GetUserTradesInputSchema", () => {
                     lineageId: formatId(6n),
                 }),
             ).toThrow("Provide at most one of orderId or lineageId");
+            for (const scope of [{}, { orderId: formatId(5n) }]) {
+                expect(() =>
+                    v.parse(GetUserTradesInputSchema, {
+                        ...filters,
+                        ...scope,
+                        throughGeneration: 3,
+                    }),
+                ).toThrow("throughGeneration requires lineageId");
+            }
         }
         expect(() => v.parse(GetUserTradesInputSchema, { limit: 0 })).toThrow();
         expect(() => v.parse(GetUserTradesInputSchema, { limit: 1001 })).toThrow();

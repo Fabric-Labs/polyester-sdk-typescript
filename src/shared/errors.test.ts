@@ -13,6 +13,10 @@ import {
     ErrorDetailSchema as WithdrawErrorDetailSchema,
 } from "../gen/chain/withdraw/v1/withdraw_pb.js";
 import {
+    ErrorCode as ClaimsErrorCode,
+    ErrorDetailSchema as ClaimsErrorDetailSchema,
+} from "../gen/claims/v1/claims_pb.js";
+import {
     ErrorCode as OrderErrorCode,
     ErrorDetailSchema as OrderErrorDetailSchema,
 } from "../gen/orders/v1/orders_pb.js";
@@ -232,6 +236,29 @@ describe("connectErrorToPolyesterError", () => {
         expect(mapped.retryable).toBe(false);
         expect(mapped.detail).toMatchObject({ service: "auth", code: "AUTH_TERMS_NOT_ACCEPTED" });
         expect(mapped.cause).toBe(raw);
+    });
+
+    it("preserves claim social verification details as a non-retryable precondition failure", () => {
+        const raw = new ConnectError(
+            "Verify an X or Discord account.",
+            Code.FailedPrecondition,
+            undefined,
+            [
+                {
+                    desc: ClaimsErrorDetailSchema,
+                    value: create(ClaimsErrorDetailSchema, {
+                        code: ClaimsErrorCode.SOCIAL_VERIFICATION_REQUIRED,
+                    }),
+                },
+            ],
+        );
+        const mapped = connectErrorToPolyesterError(raw);
+        expect(mapped).toBeInstanceOf(PreconditionFailedError);
+        expect(mapped.retryable).toBe(false);
+        expect(mapped.detail).toEqual({
+            service: "claims",
+            code: "SOCIAL_VERIFICATION_REQUIRED",
+        });
     });
 
     it("maps stale subaccount challenge details regardless of gRPC code", () => {
