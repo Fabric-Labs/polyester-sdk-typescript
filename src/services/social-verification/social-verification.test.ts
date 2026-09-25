@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
+import { AuthErrorCode } from "../../gen/auth/v1/auth_pb.js";
 import * as Proto from "../../gen/auth/v1/social_verification_pb.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { unaryTransportSequence } from "../../testing/service-harness.js";
@@ -213,6 +214,26 @@ describe("social verification schemas", () => {
                 }) as Proto.SocialVerification,
             ),
         ).toMatchObject({ status: "unspecified" });
+    });
+
+    it("decodes typed verification failures and maps unset or unknown codes to unspecified", () => {
+        const cases = [
+            [AuthErrorCode.AUTH_SOCIAL_ACCOUNT_ALREADY_LINKED, "social_account_already_linked"],
+            [AuthErrorCode.AUTH_UNSPECIFIED, "unspecified"],
+            [999, "unspecified"],
+            [undefined, "unspecified"],
+        ] as const;
+
+        for (const [errorCode, expected] of cases) {
+            expect(
+                transformVerification(
+                    verification({
+                        status: Proto.SocialVerificationStatus.STATUS_FAILED,
+                        errorCode,
+                    }) as Proto.SocialVerification,
+                )?.errorCode,
+            ).toBe(expected);
+        }
     });
 
     it("rejects invalid handles and methods the provider does not support", () => {

@@ -261,6 +261,25 @@ describe("connectErrorToPolyesterError", () => {
         });
     });
 
+    it("maps social-account-already-linked details to a non-retryable error regardless of gRPC code", () => {
+        const raw = authDetailError(
+            "",
+            Code.Aborted,
+            AuthErrorCode.AUTH_SOCIAL_ACCOUNT_ALREADY_LINKED,
+        );
+        const mapped = connectErrorToPolyesterError(raw);
+
+        expect(mapped).toBeInstanceOf(AlreadyExistsError);
+        expect(mapped.retryable).toBe(false);
+        expect(mapped.detail).toMatchObject({
+            service: "auth",
+            code: "AUTH_SOCIAL_ACCOUNT_ALREADY_LINKED",
+        });
+        expect(mapped.message).toBe(
+            "Social account is already linked to another Polyester account.",
+        );
+    });
+
     it("maps stale subaccount challenge details regardless of gRPC code", () => {
         const raw = authDetailError(
             "",

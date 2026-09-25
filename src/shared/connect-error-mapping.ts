@@ -165,6 +165,12 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
             options,
         );
     }
+    if (detail?.service === "auth" && detail.code === "AUTH_SOCIAL_ACCOUNT_ALREADY_LINKED") {
+        return new AlreadyExistsError(
+            withFallback("Social account is already linked to another Polyester account."),
+            options,
+        );
+    }
     if (detail?.service === "auth" && detail.code === "AUTH_POLICY_IN_USE") {
         return new PolicyInUseError(withFallback("Policy is still in use."), options);
     }
