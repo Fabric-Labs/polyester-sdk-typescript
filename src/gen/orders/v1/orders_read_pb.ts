@@ -1074,6 +1074,7 @@ export type GetUserTradesRequest = Message<"orders.v1.GetUserTradesRequest"> & {
 
   /**
    * Optional execution scope. Omitting it returns all matching account fills.
+   * order_id and lineage_id are mutually exclusive.
    *
    * @generated from oneof orders.v1.GetUserTradesRequest.execution_scope
    */
@@ -1096,7 +1097,8 @@ export type GetUserTradesRequest = Message<"orders.v1.GetUserTradesRequest"> & {
   } | { case: undefined; value?: undefined };
 
   /**
-   * Inclusive generation ceiling. Does not freeze an actively filling generation.
+   * Inclusive generation ceiling; requires lineage_id.
+   * Does not freeze an actively filling generation.
    *
    * @generated from field: optional uint32 through_generation = 17;
    */
