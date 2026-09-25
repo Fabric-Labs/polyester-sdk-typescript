@@ -3,6 +3,7 @@ export type {
     SocialProviderInput,
     SocialProvider,
     SocialVerification,
+    SocialVerificationErrorCode,
     SocialVerificationMethod,
     SocialVerificationStatus,
     StartVerificationInput,

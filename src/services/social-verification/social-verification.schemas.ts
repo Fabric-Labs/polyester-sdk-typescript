@@ -5,15 +5,18 @@ import type { DecodedEnum } from "../../utils/types.js";
 import * as Proto from "../../gen/auth/v1/social_verification_pb.js";
 import {
     SOCIAL_PROVIDER_VALUES,
+    SOCIAL_VERIFICATION_ERROR_CODE_VALUES,
     SOCIAL_VERIFICATION_METHOD_VALUES,
     SOCIAL_VERIFICATION_STATUS_VALUES,
     SocialProviderCodec,
+    SocialVerificationErrorCodeCodec,
     SocialVerificationMethodCodec,
     SocialVerificationStatusCodec,
 } from "./social-verification.codecs.js";
 
 export {
     SOCIAL_PROVIDER_VALUES,
+    SOCIAL_VERIFICATION_ERROR_CODE_VALUES,
     SOCIAL_VERIFICATION_METHOD_VALUES,
     SOCIAL_VERIFICATION_STATUS_VALUES,
 } from "./social-verification.codecs.js";
@@ -23,6 +26,9 @@ export type SocialProvider = v.InferInput<typeof SocialProviderSchema>;
 
 export const SocialVerificationMethodSchema = v.picklist(SOCIAL_VERIFICATION_METHOD_VALUES);
 export type SocialVerificationMethod = v.InferInput<typeof SocialVerificationMethodSchema>;
+
+export const SocialVerificationErrorCodeSchema = v.picklist(SOCIAL_VERIFICATION_ERROR_CODE_VALUES);
+export type SocialVerificationErrorCode = v.InferOutput<typeof SocialVerificationErrorCodeSchema>;
 
 export const SocialVerificationStatusSchema = v.picklist(SOCIAL_VERIFICATION_STATUS_VALUES);
 export type SocialVerificationStatus = v.InferOutput<typeof SocialVerificationStatusSchema>;
@@ -53,6 +59,7 @@ export function transformVerification(
         verifiedAt: v.verifiedAt,
         attempts: v.attempts,
         lastError: v.lastError,
+        errorCode: enumLabel(SocialVerificationErrorCodeCodec.protoToOutput, v.errorCode),
         updatedAt: v.updatedAt,
     };
 }
@@ -78,6 +85,13 @@ export type SocialVerification = Omit<SocialVerificationBase, "provider" | "meth
     provider: DecodedEnum<SocialProvider>;
     method: DecodedEnum<SocialVerificationMethod>;
     status: DecodedEnum<SocialVerificationStatus>;
+    /**
+     * Machine-readable failure for the current state; branch on this, not `lastError`.
+     * `"unspecified"` when no typed failure applies or the code is newer than this SDK.
+     * `"social_account_already_linked"` is non-retryable for this account: send the
+     * user to the account already linked to that identity instead of restarting.
+     */
+    errorCode: DecodedEnum<SocialVerificationErrorCode>;
 };
 
 export const StartVerificationInputSchema = v.pipe(
