@@ -2,13 +2,14 @@ import { createConnectTransport } from "@connectrpc/connect-web";
 import type { Transport, Interceptor } from "@connectrpc/connect";
 import { toBinary, toJsonString } from "@bufbuild/protobuf";
 import { signAsync } from "@noble/ed25519";
-import { createErrorMappingTransport } from "./connect-error-mapping.js";
+import { createErrorMappingTransport, TIMESTAMP_SKEW_CODE } from "./connect-error-mapping.js";
 import {
     AuthenticationError,
     ConfigurationError,
     isAbortError,
     NetworkError,
     PolyesterError,
+    TimestampSkewError,
 } from "./errors.js";
 
 export { isAbortError };
@@ -58,6 +59,11 @@ export interface JwtAuthProvider {
 /**
  * Generic Ed25519 API key auth for HTTP/Connect endpoints that follow the
  * X-API-KEY-ID / X-API-TIMESTAMP / X-API-SIGNATURE contract.
+ *
+ * Each request is signed immediately before dispatch, but the runtime's fetch
+ * may still queue it (connection limits). Bound concurrency for large bursts;
+ * a request that waits past the backend's skew window fails with a retryable
+ * `TimestampSkewError`, and retrying signs it again.
  */
 export interface ApiKeyEd25519AuthProvider {
     kind: "api-key-ed25519";
@@ -82,23 +88,47 @@ export function makeFetch(): typeof fetch {
             // Normalize headers into a mutable Headers object
             const headers = new Headers(init?.headers);
 
+            let res: Response;
             try {
-                const res = await fetch(input, {
+                res = await fetch(input, {
                     ...init,
                     headers,
                     redirect: "manual",
                 });
-
-                return res;
             } catch (err) {
                 if (isAbortError(err)) throw err;
                 throw new NetworkError("Transport request failed", { cause: err });
             }
+            // Connect discards non-Connect error bodies, so surface the problem+json
+            // skew code here before it collapses into a bare HTTP status error.
+            if (await isTimestampSkewProblem(res)) {
+                throw new TimestampSkewError(
+                    "API key timestamp is outside the allowed skew window.",
+                );
+            }
+            return res;
         },
         fetch,
     );
 
     return wrappedFetch;
+}
+
+async function isTimestampSkewProblem(res: Response): Promise<boolean> {
+    if (res.ok || !res.headers.get("content-type")?.includes("application/problem+json")) {
+        return false;
+    }
+    try {
+        const body: unknown = await res.clone().json();
+        return (
+            typeof body === "object" &&
+            body !== null &&
+            "code" in body &&
+            body.code === TIMESTAMP_SKEW_CODE
+        );
+    } catch {
+        return false;
+    }
 }
 
 /**

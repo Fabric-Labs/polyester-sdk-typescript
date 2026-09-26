@@ -15,6 +15,7 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * │   ├── NetworkError               NETWORK_ERROR               true
  * │   ├── TimeoutError               TIMEOUT                     true
  * │   ├── RateLimitError             RATE_LIMITED                true
+ * │   ├── TimestampSkewError         TIMESTAMP_SKEW              true
  * │   └── ServiceUnavailableError    SERVICE_UNAVAILABLE         true
  * ├── RequestError                   REQUEST_FAILED              false
  * │   ├── ValidationError            VALIDATION_FAILED           false
@@ -64,6 +65,7 @@ export type PolyesterErrorCode =
     | "NETWORK_ERROR"
     | "TIMEOUT"
     | "RATE_LIMITED"
+    | "TIMESTAMP_SKEW"
     | "SERVICE_UNAVAILABLE"
     | "REQUEST_FAILED"
     | "VALIDATION_FAILED"
@@ -183,6 +185,21 @@ export class RateLimitError extends TransientError {
         this.name = "RateLimitError";
         this.retryAfterMs = options?.retryAfterMs;
         this.rateLimit = options?.rateLimit;
+    }
+}
+
+/**
+ * The API-key signature timestamp fell outside the backend's skew window, e.g.
+ * because the request waited too long in the runtime's fetch queue during a
+ * large concurrent burst, or the local clock drifted. Retrying the call signs
+ * it again with a fresh timestamp; bound concurrency if it recurs.
+ */
+export class TimestampSkewError extends TransientError {
+    override readonly code: string = "TIMESTAMP_SKEW";
+
+    constructor(message: string, options?: PolyesterErrorOptions) {
+        super(message, options);
+        this.name = "TimestampSkewError";
     }
 }
 

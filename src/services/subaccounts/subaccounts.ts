@@ -251,7 +251,8 @@ export class SubaccountsService {
     }
 
     /**
-     * Returns incoming, outgoing, or all subaccount invitations for the caller, newest first.
+     * Returns the caller's subaccount invitations, newest first. Omit `direction` to include both
+     * incoming and outgoing invitations, or pass `"incoming"` or `"outgoing"` to filter.
      */
     async listInvites(
         input: v.InferInput<typeof ListSubaccountInvitesInputSchema>,
