@@ -1,5 +1,19 @@
 # @polyester/sdk
 
+## 0.29.1
+
+### Patch Changes
+
+- Surface the claims `SOCIAL_VERIFICATION_REQUIRED` error code as a non-retryable `PreconditionFailedError` detail when a daily reward claim needs a verified X or Discord account. ([#177](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/177))
+
+- Expose `SocialVerification.errorCode` (`"social_account_already_linked"`, `"unspecified"` when no typed failure applies) and map `AUTH_SOCIAL_ACCOUNT_ALREADY_LINKED` RPC failures to a non-retryable `AlreadyExistsError`. Treat an already-linked verification as final for the current account: direct the user to the Polyester account already linked to that social identity instead of restarting verification. ([#180](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/180))
+
+- Clarify `subaccounts.listInvites` docs: omit `direction` to list both incoming and outgoing invitations, or pass `"incoming"` or `"outgoing"` to filter. `"all"` is not an accepted value. ([#181](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/181))
+
+- Map API-key `TIMESTAMP_SKEW` rejections to a new retryable `TimestampSkewError` (`code: "TIMESTAMP_SKEW"`) instead of a generic non-retryable `AuthenticationError`. This covers both `application/problem+json` and Connect error responses. Retrying the call signs it again with a fresh timestamp. For large bursts of API-key requests, bound concurrency so requests don't wait in the runtime's fetch queue past the skew window. ([#181](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/181))
+
+- Require `lineageId` when passing `throughGeneration` to `trades.list`. Combining `throughGeneration` with `orderId` or no execution scope now fails validation and type checking instead of reaching the backend. ([#177](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/177))
+
 ## 0.29.0
 
 ### Minor Changes
