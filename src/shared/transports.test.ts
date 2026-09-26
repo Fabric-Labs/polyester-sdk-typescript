@@ -22,6 +22,7 @@ import {
     PreconditionFailedError,
     RateLimitError,
     TimeoutError,
+    TimestampSkewError,
     TransientError,
     ValidationError,
 } from "./errors.js";
@@ -107,6 +108,44 @@ describe("createTransports", () => {
         const client = createClient(Proto.MarketOverviewService, publicApi);
 
         await expect(client.listMarketOverview({})).rejects.toBeInstanceOf(expected);
+    });
+
+    it.each([
+        [
+            "problem+json",
+            new Response(JSON.stringify({ code: "TIMESTAMP_SKEW", status: 401, title: "Skew" }), {
+                status: 401,
+                headers: { "content-type": "application/problem+json" },
+            }),
+        ],
+        [
+            "Connect",
+            new Response(JSON.stringify({ code: "invalid_argument", message: "TIMESTAMP_SKEW" }), {
+                status: 400,
+                headers: { "content-type": "application/json" },
+            }),
+        ],
+    ])("maps %s TIMESTAMP_SKEW responses to a retryable TimestampSkewError", async (_, res) => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(res);
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        const rejection = expect(client.listMarketOverview({})).rejects;
+        await rejection.toBeInstanceOf(TimestampSkewError);
+        await rejection.toMatchObject({ code: "TIMESTAMP_SKEW", retryable: true });
+    });
+
+    it("keeps other problem+json 401 responses as AuthenticationError", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(
+            new Response(JSON.stringify({ code: "UNAUTHENTICATED", status: 401 }), {
+                status: 401,
+                headers: { "content-type": "application/problem+json" },
+            }),
+        );
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        await expect(client.listMarketOverview({})).rejects.toBeInstanceOf(AuthenticationError);
     });
 
     it("maps bare HTTP 429 responses to RateLimitError with retry-after", async () => {

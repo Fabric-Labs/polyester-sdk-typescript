@@ -111,6 +111,7 @@ export {
     StepUpRequiredError,
     SubaccountChallengeInvalidError,
     TimeoutError,
+    TimestampSkewError,
     TransientError,
     ValidationError,
 } from "./shared/errors.js";

@@ -28,10 +28,14 @@ import {
     SubaccountChallengeInvalidError,
     StepUpRequiredError,
     TimeoutError,
+    TimestampSkewError,
     TransientError,
     ValidationError,
 } from "./errors.js";
 import type { RateLimitDetail } from "./rate-limit.schemas.js";
+
+/** Backend code for API-key signatures whose timestamp is outside the skew window. */
+export const TIMESTAMP_SKEW_CODE = "TIMESTAMP_SKEW";
 
 function hasTransientServiceError(detail: PolyesterErrorDetail | undefined): boolean {
     if (detail?.service === "withdraw") {
@@ -136,6 +140,13 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
     const detail = parseConnectErrorDetail(ce);
     const options: PolyesterErrorOptions = { cause: ce, detail };
     const withFallback = (fallback: string) => message || fallback;
+
+    if (ce.rawMessage === TIMESTAMP_SKEW_CODE) {
+        return new TimestampSkewError(
+            "API key timestamp is outside the allowed skew window.",
+            options,
+        );
+    }
 
     // Connect reports non-Connect HTTP error bodies as "HTTP <status>" with a lossy
     // code (e.g. 501 → Unknown), so map the real status. Bare 404 keeps Connect's

@@ -6,6 +6,7 @@ import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
 import {
     CreateSubaccountResultSchema,
     EffectiveSubaccountPermissionsSchema,
+    ListSubaccountInvitesInputSchema,
     SubaccountMutationResultSchema,
     SubaccountSchema,
     UpdateSubaccountInputSchema,
@@ -125,5 +126,23 @@ describe("subaccount status schemas", () => {
 
     it("keeps empty mutation responses as result objects", () => {
         expect(v.parse(SubaccountMutationResultSchema, {})).toEqual({});
+    });
+});
+
+describe("ListSubaccountInvitesInputSchema", () => {
+    it("maps omitted direction to both directions and filters incoming or outgoing", () => {
+        const cases = [
+            [{}, Proto.SubaccountInviteDirection.DIRECTION_UNSPECIFIED],
+            [{ direction: "incoming" }, Proto.SubaccountInviteDirection.INCOMING],
+            [{ direction: "outgoing" }, Proto.SubaccountInviteDirection.OUTGOING],
+        ] as const;
+
+        for (const [input, expected] of cases) {
+            expect(v.parse(ListSubaccountInvitesInputSchema, input)).toEqual({
+                direction: expected,
+            });
+        }
+
+        expect(() => v.parse(ListSubaccountInvitesInputSchema, { direction: "all" })).toThrow();
     });
 });
