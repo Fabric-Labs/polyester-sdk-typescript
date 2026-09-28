@@ -109,6 +109,7 @@ export const TRIGGER_FAILURE_REASON_LABEL_VALUES = [
     "policy_max_notional",
     "policy_max_open_orders",
     "policy_trading_halted",
+    "max_slippage_invalid",
     "missing_reason_code",
     "internal_error",
 ] as const;
@@ -238,6 +239,7 @@ export const TriggerFailureReasonCodec = {
         [Proto.TriggerFailureReason.POLICY_MAX_NOTIONAL]: "policy_max_notional",
         [Proto.TriggerFailureReason.POLICY_MAX_OPEN_ORDERS]: "policy_max_open_orders",
         [Proto.TriggerFailureReason.POLICY_TRADING_HALTED]: "policy_trading_halted",
+        [Proto.TriggerFailureReason.MAX_SLIPPAGE_INVALID]: "max_slippage_invalid",
         [Proto.TriggerFailureReason.MISSING_REASON_CODE]: "missing_reason_code",
         [Proto.TriggerFailureReason.INTERNAL_ERROR]: "internal_error",
     } satisfies ProtoToOutput<Proto.TriggerFailureReason, TriggerFailureReasonLabelValue>,
