@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.29.2
+
+### Patch Changes
+
+- Decode the `MAX_SLIPPAGE_INVALID` trigger failure as `failureReason: "max_slippage_invalid"` instead of `"unspecified"`. Triggers fail with this reason when their maximum slippage cannot produce a valid execution price bound. ([#182](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/182))
+
 ## 0.29.1
 
 ### Patch Changes
