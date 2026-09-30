@@ -49,6 +49,11 @@
             "import": "./dist/account-signer/index.js",
             "default": "./dist/account-signer/index.js"
         },
+        "./services/*": {
+            "types": "./dist/services/*/service.d.ts",
+            "import": "./dist/services/*/service.js",
+            "default": "./dist/services/*/service.js"
+        },
         "./unstable/gen": {
             "types": "./dist/gen/index.d.ts",
             "import": "./dist/gen/index.js",
@@ -112,6 +117,7 @@
         "oxfmt": "0.61.0",
         "oxlint": "1.76.0",
         "pkg-pr-new": "0.0.88",
+        "rolldown": "1.2.2",
         "tsdown": "0.22.14",
         "typescript": "6.0.3",
         "vitest": "4.1.11"

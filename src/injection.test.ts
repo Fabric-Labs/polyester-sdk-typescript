@@ -1,7 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import type { Transport } from "@connectrpc/connect";
 import { POLYESTER_DEVNET_ENVIRONMENT } from "./environment.js";
-import { PolyesterClient } from "./core-client.js";
+import { PolyesterClient } from "./client.js";
+import { PolyesterCore } from "./core-client.js";
+import { marketDataService } from "./services/market-data/service.js";
+import { subaccountsService } from "./services/subaccounts/service.js";
+
 import { RealtimeClient } from "./realtime/client.js";
 import type { PolyesterRealtime } from "./realtime/types.js";
 
@@ -27,74 +31,85 @@ function stubRealtime(): PolyesterRealtime {
     };
 }
 
-describe("PolyesterClient injection hooks", () => {
-    it("uses injected transports and realtime client without constructing its own", async () => {
-        const publicApi = stubTransport();
-        const authApi = stubTransport();
-        const realtimeClient = stubRealtime();
-        const fetchSpy = vi.fn();
-        vi.stubGlobal("fetch", fetchSpy);
+// The full client and the tree-shakable core share one implementation; every
+// behavior here must hold for both.
+describe.each([
+    ["PolyesterClient", PolyesterClient],
+    ["PolyesterCore", PolyesterCore],
+] as const)("%s", (_name, Client) => {
+    describe("PolyesterClient injection hooks", () => {
+        it("uses injected transports and realtime client without constructing its own", async () => {
+            const publicApi = stubTransport();
+            const authApi = stubTransport();
+            const realtimeClient = stubRealtime();
+            const fetchSpy = vi.fn();
+            vi.stubGlobal("fetch", fetchSpy);
 
-        try {
-            const client = new PolyesterClient({
+            try {
+                const client = new Client({
+                    environment: POLYESTER_DEVNET_ENVIRONMENT,
+                    transports: { publicApi, authApi },
+                    realtimeClient,
+                });
+
+                expect(client.realtime).toBe(realtimeClient);
+
+                // Public-transport service calls hit the injected transport.
+                await expect(marketDataService(client).getSpotConfig()).rejects.toThrow(
+                    "unary not stubbed",
+                );
+                expect(publicApi.unary).toHaveBeenCalledTimes(1);
+
+                // No network traffic from construction or the failed call.
+                expect(fetchSpy).not.toHaveBeenCalled();
+            } finally {
+                vi.unstubAllGlobals();
+            }
+        });
+
+        it("routes realtime subscriptions through the injected implementation", () => {
+            const realtimeClient = stubRealtime();
+            const client = new Client({
                 environment: POLYESTER_DEVNET_ENVIRONMENT,
-                transports: { publicApi, authApi },
+                transports: { publicApi: stubTransport(), authApi: stubTransport() },
                 realtimeClient,
             });
 
-            expect(client.realtime).toBe(realtimeClient);
-
-            // Public-transport service calls hit the injected transport.
-            await expect(client.marketData.getSpotConfig()).rejects.toThrow("unary not stubbed");
-            expect(publicApi.unary).toHaveBeenCalledTimes(1);
-
-            // No network traffic from construction or the failed call.
-            expect(fetchSpy).not.toHaveBeenCalled();
-        } finally {
-            vi.unstubAllGlobals();
-        }
-    });
-
-    it("routes realtime subscriptions through the injected implementation", () => {
-        const realtimeClient = stubRealtime();
-        const client = new PolyesterClient({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            transports: { publicApi: stubTransport(), authApi: stubTransport() },
-            realtimeClient,
+            const unsubscribe = client.realtime.subscribe("public:test", {
+                onPublication: () => {},
+            });
+            unsubscribe();
+            expect(realtimeClient.subscribe).toHaveBeenCalledWith(
+                "public:test",
+                expect.objectContaining({ onPublication: expect.any(Function) }),
+            );
         });
 
-        const unsubscribe = client.realtime.subscribe("public:test", {
-            onPublication: () => {},
-        });
-        unsubscribe();
-        expect(realtimeClient.subscribe).toHaveBeenCalledWith(
-            "public:test",
-            expect.objectContaining({ onPublication: expect.any(Function) }),
-        );
-    });
+        it("routes the public subaccount role catalog through the public transport", async () => {
+            const publicApi = stubTransport();
+            const authApi = stubTransport();
+            const client = new Client({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                transports: { publicApi, authApi },
+                realtimeClient: stubRealtime(),
+            });
 
-    it("routes the public subaccount role catalog through the public transport", async () => {
-        const publicApi = stubTransport();
-        const authApi = stubTransport();
-        const client = new PolyesterClient({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            transports: { publicApi, authApi },
-            realtimeClient: stubRealtime(),
+            await expect(subaccountsService(client).listRoles()).rejects.toThrow(
+                "unary not stubbed",
+            );
+
+            expect(publicApi.unary).toHaveBeenCalledOnce();
+            expect(authApi.unary).not.toHaveBeenCalled();
         });
 
-        await expect(client.subaccounts.listRoles()).rejects.toThrow("unary not stubbed");
-
-        expect(publicApi.unary).toHaveBeenCalledOnce();
-        expect(authApi.unary).not.toHaveBeenCalled();
-    });
-
-    it("RealtimeClient satisfies the PolyesterRealtime interface", () => {
-        const realtime: PolyesterRealtime = new RealtimeClient({
-            wsUrl: "wss://example.invalid/ws",
-            tokenEndpoint: "https://example.invalid/token",
-            subscribeEndpoint: "https://example.invalid/subscribe",
+        it("RealtimeClient satisfies the PolyesterRealtime interface", () => {
+            const realtime: PolyesterRealtime = new RealtimeClient({
+                wsUrl: "wss://example.invalid/ws",
+                tokenEndpoint: "https://example.invalid/token",
+                subscribeEndpoint: "https://example.invalid/subscribe",
+            });
+            expect(realtime.isConnected).toBe(false);
+            expect(realtime.activeChannels).toBe(0);
         });
-        expect(realtime.isConnected).toBe(false);
-        expect(realtime.activeChannels).toBe(0);
     });
 });

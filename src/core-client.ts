@@ -10,35 +10,8 @@ import {
     type ApiKeyEd25519AuthProvider,
 } from "./shared/transports.js";
 import { parsePolyesterEnvironment, type PolyesterEnvironment } from "./environment.js";
-import { AccountsService } from "./services/accounts/index.js";
-import { ApiKeysService } from "./services/api-keys/index.js";
 import { AuthService } from "./services/auth/auth.js";
-import { SubaccountsService } from "./services/subaccounts/index.js";
-import { CandlesService } from "./services/candles/index.js";
-import { ChainAnalyticsService } from "./services/chain-analytics/index.js";
-import { MarketDataService } from "./services/market-data/index.js";
-import { MarketOverviewService } from "./services/market-overview/index.js";
-import { OrderbookService } from "./services/orderbook/index.js";
-import { HeatmapService } from "./services/heatmap/index.js";
-import { LifecycleService } from "./services/lifecycle/index.js";
-import { TradesService } from "./services/trades/index.js";
-import { OrdersService } from "./services/orders/index.js";
-import { TriggersService } from "./services/triggers/index.js";
-import { BalancesService } from "./services/balances/index.js";
-import { TransfersService } from "./services/transfers/index.js";
-import { InternalTransfersService } from "./services/internal-transfers/index.js";
-import { TradingWithdrawsService } from "./services/trading-withdraws/index.js";
-import { DepositService } from "./services/deposit/index.js";
-import { AddressBookService } from "./services/address-book/index.js";
-import { GuardSignerService } from "./services/guard-signer/index.js";
-import { SocialVerificationService } from "./services/social-verification/index.js";
-import { WhiteboardService } from "./services/whiteboard/index.js";
-import { ZipperService } from "./services/zipper/index.js";
-import { MfaService } from "./services/mfa/index.js";
-import { ClaimsService } from "./services/claims/index.js";
-import { VipService } from "./services/vip/index.js";
-import { FeesService } from "./services/fees/index.js";
-import { RateLimitService } from "./services/rate-limits/index.js";
+import type { SubaccountsService } from "./services/subaccounts/subaccounts.js";
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";
 import {
     createPolyesterCatalog,
@@ -163,8 +136,9 @@ export function pickPolyesterCatalogConfig(
 interface AuthServiceFactoryContext {
     transports: AuthAndPublicApiTransports;
     realtime: PolyesterRealtime;
-    subaccounts: SubaccountsService;
     environment: PolyesterEnvironment;
+    /** Loads this client's subaccounts service on demand, keeping it out of the core bundle. */
+    loadSubaccounts: () => Promise<SubaccountsService>;
 }
 
 interface PolyesterClientRuntimeConfig {
@@ -201,14 +175,48 @@ export function parsePolyesterClientConfig<TConfig extends PolyesterClientBaseCo
     return Object.assign({}, config, { environment });
 }
 
+/** Client internals handed to service factories created with {@link defineService}. */
+export interface ServiceContext {
+    readonly transports: Transports;
+    readonly environment: PolyesterEnvironment;
+    readonly realtime: PolyesterRealtime;
+    readonly catalog: ClientCatalog;
+    readonly scales: SdkScales;
+    readonly resolver: SubaccountResolver | undefined;
+}
+
+const serviceContexts = new WeakMap<PolyesterCore, ServiceContext>();
+
 /**
- * Base SDK client that wires transports, realtime, catalogs, and all public service clients for a Polyester environment.
- *
- * Services are constructed lazily on first property access (and memoized) so
- * that creating a client — which happens for every SSR request in server
- * hooks — only pays for the services the caller actually touches.
+ * Defines a service accessor that lazily creates one service instance per client.
+ * Accessors live in their own modules, so bundles only include the services they call.
  */
-export class PolyesterClient {
+export function defineService<TService>(
+    create: (context: ServiceContext) => TService,
+): (client: PolyesterCore) => TService {
+    const instances = new WeakMap<PolyesterCore, TService>();
+    return (client) => {
+        let service = instances.get(client);
+        if (service === undefined) {
+            const context = serviceContexts.get(client);
+            if (!context) throw new ConfigurationError("Expected a Polyester client.");
+            service = create(context);
+            instances.set(client, service);
+        }
+        return service;
+    };
+}
+
+/**
+ * Tree-shakable SDK client core: wires transports, realtime, catalogs, and auth
+ * for a Polyester environment. Other services are reached through their
+ * `@polyester/sdk/services/*` accessors, e.g. `ordersService(core)`, so bundles
+ * only include the services they use. `PolyesterClient` adds a getter for every service.
+ *
+ * Everything is constructed lazily on first access (and memoized) so that creating a
+ * client — which happens for every SSR request in server hooks — stays cheap.
+ */
+export class PolyesterCore {
     protected readonly transports: Transports;
 
     readonly #environment: PolyesterEnvironment;
@@ -225,36 +233,7 @@ export class PolyesterClient {
     #scales: SdkScales | undefined;
     #resolver: SubaccountResolver | undefined;
     #resolverInitialized = false;
-
     #auth: AuthService | undefined;
-    #accounts: AccountsService | undefined;
-    #apiKeys: ApiKeysService | undefined;
-    #subaccounts: SubaccountsService | undefined;
-    #candles: CandlesService | undefined;
-    #chainAnalytics: ChainAnalyticsService | undefined;
-    #marketData: MarketDataService | undefined;
-    #marketOverview: MarketOverviewService | undefined;
-    #orderbook: OrderbookService | undefined;
-    #heatmap: HeatmapService | undefined;
-    #lifecycle: LifecycleService | undefined;
-    #trades: TradesService | undefined;
-    #orders: OrdersService | undefined;
-    #triggers: TriggersService | undefined;
-    #balances: BalancesService | undefined;
-    #transfers: TransfersService | undefined;
-    #internalTransfers: InternalTransfersService | undefined;
-    #tradingWithdraws: TradingWithdrawsService | undefined;
-    #deposit: DepositService | undefined;
-    #addressBook: AddressBookService | undefined;
-    #guardSigner: GuardSignerService | undefined;
-    #socialVerification: SocialVerificationService | undefined;
-    #whiteboard: WhiteboardService | undefined;
-    #zipper: ZipperService | undefined;
-    #mfa: MfaService | undefined;
-    #claims: ClaimsService | undefined;
-    #vip: VipService | undefined;
-    #fees: FeesService | undefined;
-    #tradingRateLimits: RateLimitService | undefined;
 
     constructor(config: PolyesterClientConfig, runtime: PolyesterClientRuntimeConfig = {}) {
         const parsedConfig = parsePolyesterClientConfig(config);
@@ -280,6 +259,18 @@ export class PolyesterClient {
         this.#configCatalogSnapshot = config.catalogSnapshot;
         this.#configCatalogCell = config.catalogCell;
         this.#createAuth = runtime.createAuth;
+
+        // Getters keep realtime, catalog, and scales lazy until a service needs them.
+        const context = { transports: this.transports, environment } as ServiceContext;
+        serviceContexts.set(
+            this,
+            Object.defineProperties(context, {
+                realtime: { get: () => this.realtime },
+                catalog: { get: () => this.catalog },
+                scales: { get: () => this.#getScales() },
+                resolver: { get: () => this.#getResolver() },
+            }),
+        );
     }
 
     get realtime(): PolyesterRealtime {
@@ -307,18 +298,21 @@ export class PolyesterClient {
             if (this.#configCatalog) {
                 this.#catalog = this.#configCatalog;
             } else {
-                const catalogRefreshMarketData = new MarketDataService(
-                    this.transports,
-                    this.realtime,
-                    this.#getScales(),
-                );
-                const catalogRefreshZipper = new ZipperService(this.transports);
+                // Refresh is async and rare, so its services load on demand rather
+                // than pinning market data and zipper into every bundle.
                 this.#catalog = createPolyesterCatalog({
                     snapshot: this.#configCatalogSnapshot,
                     cell: this.#configCatalogCell,
                     refresh: {
-                        market: () => catalogRefreshMarketData.getSpotConfig(),
-                        zipper: () => catalogRefreshZipper.getDepositWithdrawConfig(),
+                        market: async () => {
+                            const { marketDataService } =
+                                await import("./services/market-data/service.js");
+                            return marketDataService(this).getSpotConfig();
+                        },
+                        zipper: async () => {
+                            const { zipperService } = await import("./services/zipper/service.js");
+                            return zipperService(this).getDepositWithdrawConfig();
+                        },
                     },
                 });
             }
@@ -348,202 +342,15 @@ export class PolyesterClient {
                 this.#createAuth?.({
                     transports: this.transports,
                     realtime: this.realtime,
-                    subaccounts: this.subaccounts,
                     environment: this.#environment,
+                    loadSubaccounts: async () => {
+                        const { subaccountsService } =
+                            await import("./services/subaccounts/service.js");
+                        return subaccountsService(this);
+                    },
                 }) ?? new AuthService(this.transports, this.realtime);
         }
         return this.#auth;
-    }
-
-    get accounts(): AccountsService {
-        return (this.#accounts ??= new AccountsService(this.transports));
-    }
-
-    get apiKeys(): ApiKeysService {
-        return (this.#apiKeys ??= new ApiKeysService(
-            this.transports,
-            this.realtime,
-            this.#getResolver(),
-        ));
-    }
-
-    get subaccounts(): SubaccountsService {
-        return (this.#subaccounts ??= new SubaccountsService(
-            this.transports,
-            this.realtime,
-            this.#getResolver(),
-        ));
-    }
-
-    get candles(): CandlesService {
-        return (this.#candles ??= new CandlesService(
-            this.transports,
-            this.realtime,
-            this.#getScales(),
-        ));
-    }
-
-    get chainAnalytics(): ChainAnalyticsService {
-        return (this.#chainAnalytics ??= new ChainAnalyticsService(
-            this.transports,
-            this.#getScales(),
-        ));
-    }
-
-    get marketData(): MarketDataService {
-        return (this.#marketData ??= new MarketDataService(
-            this.transports,
-            this.realtime,
-            this.#getScales(),
-        ));
-    }
-
-    get marketOverview(): MarketOverviewService {
-        return (this.#marketOverview ??= new MarketOverviewService(
-            this.transports,
-            this.realtime,
-            this.#getScales(),
-        ));
-    }
-
-    get orderbook(): OrderbookService {
-        return (this.#orderbook ??= new OrderbookService(
-            this.transports,
-            this.realtime,
-            this.#getScales(),
-        ));
-    }
-
-    get heatmap(): HeatmapService {
-        return (this.#heatmap ??= new HeatmapService(
-            this.transports,
-            this.realtime,
-            this.#getScales(),
-        ));
-    }
-
-    get lifecycle(): LifecycleService {
-        return (this.#lifecycle ??= new LifecycleService(this.transports, this.realtime));
-    }
-
-    get trades(): TradesService {
-        return (this.#trades ??= new TradesService(
-            this.transports,
-            this.realtime,
-            this.#getResolver(),
-            this.#getScales(),
-        ));
-    }
-
-    get orders(): OrdersService {
-        return (this.#orders ??= new OrdersService(
-            this.transports,
-            this.realtime,
-            this.#getResolver(),
-            this.#getScales(),
-        ));
-    }
-
-    get triggers(): TriggersService {
-        return (this.#triggers ??= new TriggersService(
-            this.transports,
-            this.realtime,
-            this.#getResolver(),
-            this.#getScales(),
-        ));
-    }
-
-    get balances(): BalancesService {
-        return (this.#balances ??= new BalancesService(
-            this.transports,
-            this.realtime,
-            this.#getResolver(),
-            this.#getScales(),
-        ));
-    }
-
-    get transfers(): TransfersService {
-        return (this.#transfers ??= new TransfersService(
-            this.transports,
-            this.realtime,
-            this.#getResolver(),
-        ));
-    }
-
-    get internalTransfers(): InternalTransfersService {
-        return (this.#internalTransfers ??= new InternalTransfersService(
-            this.transports,
-            this.#getResolver(),
-            this.#getScales(),
-        ));
-    }
-
-    get tradingWithdraws(): TradingWithdrawsService {
-        return (this.#tradingWithdraws ??= new TradingWithdrawsService(
-            this.transports,
-            this.#getResolver(),
-            {
-                chainId: this.#environment.chain.id,
-                tradingGatewayAddress: this.#environment.contracts.tradingGatewayAddress,
-            },
-            this.#getScales(),
-            this.catalog,
-        ));
-    }
-
-    get deposit(): DepositService {
-        return (this.#deposit ??= new DepositService(this.transports, this.#getResolver()));
-    }
-
-    get addressBook(): AddressBookService {
-        return (this.#addressBook ??= new AddressBookService(
-            this.transports,
-            this.realtime,
-            this.#getResolver(),
-        ));
-    }
-
-    get guardSigner(): GuardSignerService {
-        return (this.#guardSigner ??= new GuardSignerService(this.transports, this.#getResolver()));
-    }
-
-    get socialVerification(): SocialVerificationService {
-        return (this.#socialVerification ??= new SocialVerificationService(this.transports));
-    }
-
-    get whiteboard(): WhiteboardService {
-        return (this.#whiteboard ??= new WhiteboardService(this.transports));
-    }
-
-    get zipper(): ZipperService {
-        return (this.#zipper ??= new ZipperService(
-            this.transports,
-            this.realtime,
-            this.#getScales(),
-        ));
-    }
-
-    get mfa(): MfaService {
-        return (this.#mfa ??= new MfaService(this.transports));
-    }
-
-    get claims(): ClaimsService {
-        return (this.#claims ??= new ClaimsService(this.transports));
-    }
-
-    get vip(): VipService {
-        return (this.#vip ??= new VipService(this.transports));
-    }
-
-    get fees(): FeesService {
-        return (this.#fees ??= new FeesService(this.transports, this.#getResolver()));
-    }
-
-    get tradingRateLimits(): RateLimitService {
-        return (this.#tradingRateLimits ??= new RateLimitService(
-            this.transports,
-            this.#getResolver(),
-        ));
     }
 
     /**

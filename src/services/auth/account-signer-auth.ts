@@ -70,6 +70,9 @@ export interface CreateSubaccountResult {
     revision: string;
 }
 
+/** A subaccounts service, or a loader that resolves it when a subaccount is first created. */
+export type SubaccountsServiceSource = SubaccountsService | (() => Promise<SubaccountsService>);
+
 interface AccountIdentity {
     accountAddress: HexAddress;
     ownerAddress?: HexAddress;
@@ -87,7 +90,7 @@ export class AccountSignerAuthService extends AuthService {
     #isAuthenticated = false;
     #mainAccountId: string | null = null;
     #activeAccountId: string | null = null;
-    #subaccounts: SubaccountsService;
+    #subaccounts: SubaccountsServiceSource;
     #walletProvider: SessionData["provider"] | undefined = undefined;
     #loginMethod: AuthLoginMethod | null = null;
     #challengeUri: string | undefined = undefined;
@@ -111,7 +114,7 @@ export class AccountSignerAuthService extends AuthService {
         transports: AuthAndPublicApiTransports;
         accountSignerConfig?: AccountSignerConfig;
         environment: PolyesterEnvironment;
-        subaccounts: SubaccountsService;
+        subaccounts: SubaccountsServiceSource;
         realtime: PolyesterRealtime;
         tokenStorage: AuthTokenStorage;
         sessionStore?: AuthSessionStore;
@@ -472,7 +475,9 @@ export class AccountSignerAuthService extends AuthService {
         }
 
         const { label = "" } = params;
-        const challenge = await this.#subaccounts.createChallenge({
+        const subaccounts =
+            typeof this.#subaccounts === "function" ? await this.#subaccounts() : this.#subaccounts;
+        const challenge = await subaccounts.createChallenge({
             ownerAddress,
             uri: resolveChallengeUri(params.uri ?? this.#challengeUri),
         });
@@ -491,7 +496,7 @@ export class AccountSignerAuthService extends AuthService {
         }
         const signature = await accountSigner.signMessage(challenge.message);
 
-        const response = await this.#subaccounts.create({
+        const response = await subaccounts.create({
             label,
             smartAccountAddress: challenge.smartAccountAddress,
             message: challenge.message,

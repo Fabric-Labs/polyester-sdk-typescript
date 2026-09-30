@@ -1,7 +1,6 @@
 import { createConnectTransport } from "@connectrpc/connect-web";
 import type { Transport, Interceptor } from "@connectrpc/connect";
 import { toBinary, toJsonString } from "@bufbuild/protobuf";
-import { signAsync } from "@noble/ed25519";
 import { createErrorMappingTransport, TIMESTAMP_SKEW_CODE } from "./connect-error-mapping.js";
 import {
     AuthenticationError,
@@ -230,6 +229,8 @@ export async function createApiKeyEd25519AuthHeaders(
     const canonicalQuery = canonicalQueryString(urlObj.searchParams);
     const canonical = `${timestamp}\n${request.method}\n${urlObj.pathname}\n${canonicalQuery}\n${bodyHash}`;
     const msgBytes = new TextEncoder().encode(canonical);
+    // Loaded on demand: browser clients authenticate with JWTs and never sign.
+    const { signAsync } = await import("@noble/ed25519");
     const sig = await signAsync(msgBytes, secretKey);
     const signatureHex = Array.from(sig, (b: number) => b.toString(16).padStart(2, "0")).join("");
 

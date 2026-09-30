@@ -11,6 +11,12 @@ describe("public package entrypoint", () => {
                 PolyesterClient: expect.any(Function),
                 PolyesterBrowserClient: expect.any(Function),
                 PolyesterServerClient: expect.any(Function),
+                PolyesterCore: expect.any(Function),
+                PolyesterBrowserCore: expect.any(Function),
+                PolyesterServerCore: expect.any(Function),
+                createPolyesterServerCoreFromCookies: expect.any(Function),
+                createPolyesterServerCoreFromRequest: expect.any(Function),
+                loadErrorDetailDecoders: expect.any(Function),
                 POLYESTER_DEVNET_ENVIRONMENT: expect.any(Object),
                 POLYESTER_TESTNET_ENVIRONMENT: expect.any(Object),
                 createCookieAuthTokenStorage: expect.any(Function),
@@ -40,6 +46,9 @@ describe("public package entrypoint", () => {
             expect.objectContaining({
                 AuthService: expect.any(Function),
                 OrdersService: expect.any(Function),
+                // service accessors live on the ./services/* subpaths
+                ordersService: expect.any(Function),
+                defineService: expect.any(Function),
                 WhiteboardProtoService: expect.anything(),
                 // moved to the ./account-signer subpath so its viem graph stays
                 // out of bundles that import the root barrel

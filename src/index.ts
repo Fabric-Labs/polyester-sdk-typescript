@@ -1,4 +1,8 @@
-export { PolyesterClient } from "./core-client.js";
+// Full clients expose a getter per service. The cores are tree-shakable: pair
+// them with `@polyester/sdk/services/*` accessors, e.g. `ordersService(core)`.
+export { PolyesterClient } from "./client.js";
+export type { PolyesterServices } from "./client.js";
+export { PolyesterCore } from "./core-client.js";
 export type {
     PolyesterClientBaseConfig,
     PolyesterClientConfig,
@@ -6,7 +10,8 @@ export type {
 } from "./core-client.js";
 
 export { PolyesterBrowserClient } from "./browser-client.js";
-export type { PolyesterBrowserClientConfig } from "./browser-client.js";
+export { PolyesterBrowserCore } from "./browser-core.js";
+export type { PolyesterBrowserClientConfig } from "./browser-core.js";
 export {
     createCookieAuthTokenStorage,
     createMemoryAuthTokenStorage,
@@ -23,6 +28,11 @@ export {
     createPolyesterServerClientFromCookies,
     createPolyesterServerClientFromRequest,
 } from "./server-client.js";
+export {
+    PolyesterServerCore,
+    createPolyesterServerCoreFromCookies,
+    createPolyesterServerCoreFromRequest,
+} from "./server-core.js";
 // Re-exported from their leaf module (not server-client.js) so barrel
 // consumers that only need cookie names never retain the client graph.
 export {
@@ -36,7 +46,7 @@ export type {
     CreateServerClientFromRequestParams,
     PolyesterServerClientConfig,
     ServerSessionSnapshot,
-} from "./server-client.js";
+} from "./server-core.js";
 
 export {
     POLYESTER_DEVNET_ENVIRONMENT,
@@ -134,6 +144,7 @@ export {
     createErrorMappingInterceptor,
     toPolyesterError,
 } from "./shared/connect-error-mapping.js";
+export { loadErrorDetailDecoders } from "./shared/error-detail.js";
 export {
     isFreshStepUpRequiredError,
     isMfaLastFactorRequiredError,

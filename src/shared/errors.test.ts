@@ -1,6 +1,6 @@
 import { create } from "@bufbuild/protobuf";
 import { Code, ConnectError } from "@connectrpc/connect";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import {
     CatalogConversionError,
     CatalogLookupError,
@@ -8,6 +8,7 @@ import {
     CatalogValidationFailedError,
 } from "../catalogs/types.js";
 import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
+import { loadErrorDetailDecoders } from "./error-detail.js";
 import {
     ErrorCode as WithdrawErrorCode,
     ErrorDetailSchema as WithdrawErrorDetailSchema,
@@ -88,6 +89,10 @@ function authDetailError(message: string, code: Code, authCode: AuthErrorCode): 
         { desc: AuthErrorDetailSchema, value: create(AuthErrorDetailSchema, { code: authCode }) },
     ]);
 }
+
+// These tests cover mapping, not loading: SDK transports load detail decoders
+// on demand (see error-detail.test.ts and transports.test.ts).
+beforeAll(() => loadErrorDetailDecoders());
 
 describe("error hierarchy", () => {
     it("splits on retryability", () => {

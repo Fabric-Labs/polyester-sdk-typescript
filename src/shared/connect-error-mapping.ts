@@ -1,5 +1,9 @@
 import { Code, ConnectError, type Interceptor, type Transport } from "@connectrpc/connect";
-import { parseConnectErrorDetail, type PolyesterErrorDetail } from "./error-detail.js";
+import {
+    loadErrorDetailDecoders,
+    parseConnectErrorDetail,
+    type PolyesterErrorDetail,
+} from "./error-detail.js";
 import {
     AlreadyExistsError,
     AuthenticationError,
@@ -337,10 +341,11 @@ function callerAbortError(signal: AbortSignal): DOMException {
         : new DOMException("Request canceled.", "AbortError");
 }
 
-function toTransportError(err: unknown, signal?: AbortSignal): unknown {
+async function toTransportError(err: unknown, signal?: AbortSignal): Promise<unknown> {
     if (signal?.aborted && err instanceof ConnectError && err.code === Code.Canceled) {
         return callerAbortError(signal);
     }
+    await loadErrorDetailDecoders(err);
     return toPolyesterError(err);
 }
 
@@ -351,7 +356,7 @@ async function* mapStreamErrors<T>(
     try {
         yield* source;
     } catch (err) {
-        throw toTransportError(err, signal);
+        throw await toTransportError(err, signal);
     }
 }
 
@@ -369,6 +374,7 @@ export function createErrorMappingInterceptor(): Interceptor {
             }
             return res;
         } catch (err) {
+            await loadErrorDetailDecoders(err);
             throw toPolyesterError(err);
         }
     };
@@ -392,7 +398,7 @@ export function createErrorMappingTransport(transport: Transport): Transport {
                     contextValues,
                 );
             } catch (error) {
-                throw toTransportError(error, signal);
+                throw await toTransportError(error, signal);
             }
         },
         async stream(method, signal, timeoutMs, header, input, contextValues) {
@@ -408,7 +414,7 @@ export function createErrorMappingTransport(transport: Transport): Transport {
                 );
                 return { ...response, message: mapStreamErrors(response.message, signal) };
             } catch (error) {
-                throw toTransportError(error, signal);
+                throw await toTransportError(error, signal);
             }
         },
     };

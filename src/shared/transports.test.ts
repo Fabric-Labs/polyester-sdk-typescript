@@ -5,9 +5,10 @@ import {
     type Interceptor,
     type Transport,
 } from "@connectrpc/connect";
-import { create, toJsonString } from "@bufbuild/protobuf";
+import { create, toBinary, toJsonString } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { signAsync } from "@noble/ed25519";
+import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
 import { RateLimitService } from "../gen/ratelimit/v1/ratelimit_pb.js";
 import { createErrorMappingTransport } from "./connect-error-mapping.js";
 import * as Proto from "../gen/marketoverview/v1/marketoverview_pb.js";
@@ -21,6 +22,7 @@ import {
     PolyesterError,
     PreconditionFailedError,
     RateLimitError,
+    RevisionConflictError,
     TimeoutError,
     TimestampSkewError,
     TransientError,
@@ -391,6 +393,46 @@ describe("isRetryableError", () => {
 
         expect(err).toBeInstanceOf(TransientError);
         expect(isRetryableError(err)).toBe(true);
+    });
+});
+
+describe("error details through transports", () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    it("loads wire-format detail descriptors on demand before mapping", async () => {
+        const detail = toBinary(
+            AuthErrorDetailSchema,
+            create(AuthErrorDetailSchema, {
+                code: AuthErrorCode.AUTH_REVISION_CONFLICT,
+                message: "stale",
+            }),
+        );
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(
+            new Response(
+                JSON.stringify({
+                    code: "failed_precondition",
+                    message: "stale",
+                    details: [
+                        {
+                            type: AuthErrorDetailSchema.typeName,
+                            value: btoa(String.fromCharCode(...detail)).replace(/=+$/u, ""),
+                        },
+                    ],
+                }),
+                { status: 400, headers: { "content-type": "application/json" } },
+            ),
+        );
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const error = await createClient(RateLimitService, publicApi)
+            .getRateLimitConfig({})
+            .catch((error: unknown) => error);
+
+        expect(error).toBeInstanceOf(RevisionConflictError);
+        expect((error as RevisionConflictError).detail).toEqual({
+            service: "auth",
+            code: "AUTH_REVISION_CONFLICT",
+            message: "stale",
+        });
     });
 });
 

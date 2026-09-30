@@ -5,35 +5,17 @@ import {
     type MessageInitShape,
     type MessageShape,
 } from "@bufbuild/protobuf";
-import type { ConnectError } from "@connectrpc/connect";
-import * as v from "valibot";
-import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
-import { ProfileErrorCode, ProfileErrorDetailSchema } from "../gen/auth/v1/profile_pb.js";
-import {
-    ErrorCode as ClaimsErrorCode,
-    ErrorDetailSchema as ClaimsErrorDetailSchema,
-} from "../gen/claims/v1/claims_pb.js";
-import {
-    ErrorCode as WithdrawErrorCode,
-    ErrorDetailSchema as WithdrawErrorDetailSchema,
-} from "../gen/chain/withdraw/v1/withdraw_pb.js";
-import {
-    ErrorCode as LedgerErrorCode,
-    ErrorDetailSchema as LedgerErrorDetailSchema,
-} from "../gen/ledger/read/v1/ledger_read_pb.js";
-import {
-    ErrorCode as MarketOverviewErrorCode,
-    ErrorDetailSchema as MarketOverviewErrorDetailSchema,
-} from "../gen/marketoverview/v1/marketoverview_pb.js";
-import { ErrorDetailSchema as OrderErrorDetailSchema } from "../gen/orders/v1/orders_pb.js";
-import {
-    ErrorCode as InternalTransferErrorCode,
-    ErrorDetailSchema as InternalTransferErrorDetailSchema,
-} from "../gen/transfer/v1/internal_transfer_pb.js";
-import {
-    OrderErrorDetailSchema as ParsedOrderErrorDetailSchema,
-    type OrderErrorDetail,
-} from "../services/orders/order-errors.schemas.js";
+import { ConnectError } from "@connectrpc/connect";
+// Type-only: decoders (and the descriptors they need) load on demand, so the
+// transport layer doesn't pin every service's file descriptors into the bundle.
+import type { AuthErrorCode } from "../gen/auth/v1/auth_pb.js";
+import type { ProfileErrorCode } from "../gen/auth/v1/profile_pb.js";
+import type { ErrorCode as ClaimsErrorCode } from "../gen/claims/v1/claims_pb.js";
+import type { ErrorCode as WithdrawErrorCode } from "../gen/chain/withdraw/v1/withdraw_pb.js";
+import type { ErrorCode as LedgerErrorCode } from "../gen/ledger/read/v1/ledger_read_pb.js";
+import type { ErrorCode as MarketOverviewErrorCode } from "../gen/marketoverview/v1/marketoverview_pb.js";
+import type { ErrorCode as InternalTransferErrorCode } from "../gen/transfer/v1/internal_transfer_pb.js";
+import type { OrderErrorDetail } from "../services/orders/order-errors.schemas.js";
 
 type NamedCode<Enum extends Record<number, string>> = keyof Enum;
 
@@ -58,7 +40,57 @@ export type PolyesterErrorDetail =
       }
     | { service: "claims"; code: NamedCode<typeof ClaimsErrorCode> };
 
-function codeName<Enum extends Record<number, string>>(
+export type ConnectErrorDetail = ConnectError["details"][number];
+
+type ErrorDetailDecoder = (raw: ConnectErrorDetail) => PolyesterErrorDetail | undefined;
+
+/** Loads each known detail decoder, keyed by its protobuf type name. */
+const DECODER_LOADERS: Record<string, () => Promise<{ decode: ErrorDetailDecoder }>> = {
+    "auth.v1.AuthErrorDetail": () => import("./error-details/auth.js"),
+    "auth.v1.ProfileErrorDetail": () => import("./error-details/profile.js"),
+    "orders.v1.ErrorDetail": () => import("./error-details/orders.js"),
+    "chain.withdraw.v1.ErrorDetail": () => import("./error-details/withdraw.js"),
+    "transfer.v1.ErrorDetail": () => import("./error-details/internal-transfer.js"),
+    "ledger.read.v1.ErrorDetail": () => import("./error-details/ledger.js"),
+    "marketoverview.v1.ErrorDetail": () => import("./error-details/market-overview.js"),
+    "claims.v1.ErrorDetail": () => import("./error-details/claims.js"),
+};
+
+/** Known detail type names, exposed so tests can pin them to the generated descriptors. */
+export const ERROR_DETAIL_TYPE_NAMES: readonly string[] = Object.keys(DECODER_LOADERS);
+
+const decoders = new Map<string, ErrorDetailDecoder>();
+
+function detailTypeName(raw: ConnectErrorDetail): string {
+    return "desc" in raw ? raw.desc.typeName : raw.type;
+}
+
+/**
+ * Loads the decoders for the details on `error`, or every decoder when called
+ * without an error. SDK transports call this before mapping errors; call it
+ * yourself before synchronously mapping a `ConnectError` that did not come
+ * through an SDK transport.
+ */
+export async function loadErrorDetailDecoders(error?: unknown): Promise<void> {
+    let typeNames: readonly string[];
+    if (error === undefined) typeNames = ERROR_DETAIL_TYPE_NAMES;
+    else if (error instanceof ConnectError) typeNames = error.details.map(detailTypeName);
+    else return;
+
+    await Promise.all(
+        typeNames.map(async (typeName) => {
+            const load = DECODER_LOADERS[typeName];
+            if (!load || decoders.has(typeName)) return;
+            try {
+                decoders.set(typeName, (await load()).decode);
+            } catch {
+                // A failed chunk load only costs the structured detail; the error still maps.
+            }
+        }),
+    );
+}
+
+export function codeName<Enum extends Record<number, string>>(
     codes: Enum,
     code: number,
 ): NamedCode<Enum> | undefined {
@@ -67,8 +99,8 @@ function codeName<Enum extends Record<number, string>>(
     return typeof name === "string" ? (name as NamedCode<Enum>) : undefined;
 }
 
-function decodeDetail<Desc extends DescMessage>(
-    detail: ConnectError["details"][number],
+export function decodeDetail<Desc extends DescMessage>(
+    detail: ConnectErrorDetail,
     schema: Desc,
 ): MessageShape<Desc> | undefined {
     try {
@@ -81,77 +113,14 @@ function decodeDetail<Desc extends DescMessage>(
     }
 }
 
-/** Decodes the first valid backend rejection detail, preserving wire-detail order. */
+/**
+ * Decodes the first valid backend rejection detail, preserving wire-detail order.
+ * Details decode once {@link loadErrorDetailDecoders} has loaded their decoders.
+ */
 export function parseConnectErrorDetail(error: ConnectError): PolyesterErrorDetail | undefined {
     for (const raw of error.details) {
-        const typeName = "desc" in raw ? raw.desc.typeName : raw.type;
-        switch (typeName) {
-            case AuthErrorDetailSchema.typeName: {
-                const auth = decodeDetail(raw, AuthErrorDetailSchema);
-                if (!auth) break;
-                const code = codeName(AuthErrorCode, auth.code);
-                if (code) {
-                    return { service: "auth", code, message: auth.message };
-                }
-                break;
-            }
-            case ProfileErrorDetailSchema.typeName: {
-                const profile = decodeDetail(raw, ProfileErrorDetailSchema);
-                if (!profile) break;
-                const code = codeName(ProfileErrorCode, profile.code);
-                if (code) {
-                    return {
-                        service: "profile",
-                        code,
-                        field: profile.field,
-                        message: profile.message,
-                    };
-                }
-                break;
-            }
-            case OrderErrorDetailSchema.typeName: {
-                const order = decodeDetail(raw, OrderErrorDetailSchema);
-                if (!order) break;
-                const parsed = v.safeParse(ParsedOrderErrorDetailSchema, order);
-                if (parsed.success) return { service: "orders", ...parsed.output };
-                break;
-            }
-            case WithdrawErrorDetailSchema.typeName: {
-                const withdraw = decodeDetail(raw, WithdrawErrorDetailSchema);
-                if (!withdraw) break;
-                const code = codeName(WithdrawErrorCode, withdraw.code);
-                if (code) return { service: "withdraw", code };
-                break;
-            }
-            case InternalTransferErrorDetailSchema.typeName: {
-                const transfer = decodeDetail(raw, InternalTransferErrorDetailSchema);
-                if (!transfer) break;
-                const code = codeName(InternalTransferErrorCode, transfer.code);
-                if (code) return { service: "internal_transfer", code };
-                break;
-            }
-            case LedgerErrorDetailSchema.typeName: {
-                const ledger = decodeDetail(raw, LedgerErrorDetailSchema);
-                if (!ledger) break;
-                const code = codeName(LedgerErrorCode, ledger.code);
-                if (code) return { service: "ledger", code };
-                break;
-            }
-            case MarketOverviewErrorDetailSchema.typeName: {
-                const marketOverview = decodeDetail(raw, MarketOverviewErrorDetailSchema);
-                if (!marketOverview) break;
-                const code = codeName(MarketOverviewErrorCode, marketOverview.code);
-                if (code) return { service: "market_overview", code };
-                break;
-            }
-            case ClaimsErrorDetailSchema.typeName: {
-                const claims = decodeDetail(raw, ClaimsErrorDetailSchema);
-                if (!claims) break;
-                const code = codeName(ClaimsErrorCode, claims.code);
-                if (code) return { service: "claims", code };
-                break;
-            }
-        }
+        const detail = decoders.get(detailTypeName(raw))?.(raw);
+        if (detail) return detail;
     }
     return undefined;
 }
