@@ -1,5 +1,19 @@
 # @polyester/sdk
 
+## 0.30.0
+
+### Minor Changes
+
+- Add a `fetch` option to the client config, `createPolyesterServerClientFromCookies`, and `createPolyesterServerClientFromRequest` for sending SDK HTTP requests through a custom fetch implementation. SDK auth, error mapping, and timestamp-skew detection still apply. Defaults to the global `fetch`. ([#184](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/184))
+
+- Add tree-shakable client cores. `PolyesterCore`, `PolyesterBrowserCore`, and `PolyesterServerCore` (plus `createPolyesterServerCoreFromCookies`/`FromRequest`) wire transports, realtime, catalogs, and auth, and reach every other service through `@polyester/sdk/services/*` accessors such as `ordersService(core)`, so bundles only include the services they call. The full clients are unchanged and return the same instances as the accessors (`client.orders === ordersService(client)`). ([#186](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/186))
+
+  Error-detail decoders and API-key signing now load on demand. SDK transports load decoders before mapping errors; call `loadErrorDetailDecoders(error)` before synchronously mapping a raw `ConnectError` that did not come through an SDK transport, or `loadErrorDetailDecoders()` to preload all of them.
+
+### Patch Changes
+
+- Throw a retryable `NetworkError` when the global `fetch` resolves without a `Response` (for example, when a browser extension patches `fetch`) instead of crashing with a `TypeError` while checking for timestamp-skew errors. ([#184](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/184))
+
 ## 0.29.2
 
 ### Patch Changes
