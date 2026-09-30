@@ -71,6 +71,7 @@ export class PolyesterServerCore extends PolyesterCore {
             interceptors: config.interceptors,
             auth,
             wireFormat: config.wireFormat,
+            fetch: config.fetch,
             realtime: config.realtime,
             ...pickPolyesterCatalogConfig(config),
             transports: config.transports,
@@ -146,6 +147,7 @@ type ServerClientFactoryBaseConfig<TConfig> = TConfig extends PolyesterClientBas
           | "interceptors"
           | "realtime"
           | "wireFormat"
+          | "fetch"
           | "catalog"
           | "catalogSnapshot"
           | "catalogCell"
@@ -215,6 +217,7 @@ export function serverClientConfigFromCookies(
         interceptors: params.interceptors,
         session,
         wireFormat: params.wireFormat,
+        fetch: params.fetch,
         realtime: params.realtime,
         ...pickPolyesterCatalogConfig(params),
         transports: params.transports,
@@ -240,6 +243,7 @@ export function serverClientConfigFromRequest(
         environment: params.environment,
         interceptors: params.interceptors,
         wireFormat: params.wireFormat,
+        fetch: params.fetch,
         realtime: params.realtime,
         ...pickPolyesterCatalogConfig(params),
         transports: params.transports,

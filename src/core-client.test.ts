@@ -86,6 +86,16 @@ describe.each([
             ).toThrow('wireFormat must be either "binary" or "json".');
         });
 
+        it("rejects a non-function fetch", () => {
+            expect(
+                () =>
+                    new Client({
+                        environment: POLYESTER_DEVNET_ENVIRONMENT,
+                        fetch: "fetch",
+                    } as never),
+            ).toThrow("fetch must be a function.");
+        });
+
         it("rejects providing both catalog and catalogSnapshot", () => {
             const catalog = createTestCatalog();
 
