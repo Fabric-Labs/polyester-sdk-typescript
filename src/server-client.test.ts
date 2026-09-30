@@ -507,6 +507,20 @@ describe("createPolyesterServerClientFromCookies", () => {
         expect(client.hasAuthProvider).toBe(true);
     });
 
+    it("forwards a custom fetch from a request", async () => {
+        const customFetch = vi.fn<typeof fetch>().mockRejectedValue(new TypeError("offline"));
+        const client = createPolyesterServerClientFromRequest({
+            environment: POLYESTER_DEVNET_ENVIRONMENT,
+            request: new Request("https://example.test", {
+                headers: { cookie: `${POLYESTER_AUTH_TOKEN_COOKIE_NAME}=${validJwt()}` },
+            }),
+            fetch: customFetch,
+        });
+
+        await expect(client.auth.me()).rejects.toThrow();
+        expect(customFetch).toHaveBeenCalled();
+    });
+
     it("reads only port-scoped local cookies from a request, including custom token names", () => {
         const token = validJwt();
         const request = new Request("http://localhost:3001", {
