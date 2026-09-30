@@ -65,6 +65,14 @@ describe("makeFetch", () => {
         });
     });
 
+    it("rejects with NetworkError when a patched fetch resolves without a response", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(undefined as unknown as Response);
+
+        const rejection = expect(makeFetch()("https://api.test")).rejects;
+        await rejection.toBeInstanceOf(NetworkError);
+        await rejection.toMatchObject({ retryable: true });
+    });
+
     it("passes through real HTTP 500 responses", async () => {
         const response = new Response("Backend failed", { status: 500 });
         vi.spyOn(globalThis, "fetch").mockResolvedValue(response);
@@ -76,6 +84,19 @@ describe("makeFetch", () => {
 describe("createTransports", () => {
     afterEach(() => {
         vi.restoreAllMocks();
+    });
+
+    it("routes requests through a custom fetch instead of the global one", async () => {
+        const globalFetch = vi.spyOn(globalThis, "fetch");
+        const customFetch = vi
+            .fn<typeof fetch>()
+            .mockResolvedValue(new Response(null, { status: 500 }));
+        const { publicApi } = createTransports({ apiUrl: "https://api.test", fetch: customFetch });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        await expect(client.listMarketOverview({})).rejects.toBeInstanceOf(InternalServerError);
+        expect(customFetch).toHaveBeenCalledOnce();
+        expect(globalFetch).not.toHaveBeenCalled();
     });
 
     it("preserves mapped SDK errors outside Connect's call runner", async () => {

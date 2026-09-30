@@ -100,6 +100,12 @@ interface PolyesterClientCommonConfig {
      */
     wireFormat?: "binary" | "json";
     /**
+     * Custom fetch implementation for SDK HTTP requests. Defaults to the global
+     * `fetch`, resolved on each request. Ignored when `transports` is
+     * provided.
+     */
+    fetch?: typeof fetch;
+    /**
      * Advanced: inject pre-built Connect transports (in-memory mocks, custom
      * stacks). When provided, the SDK does not build its own transports and the
      * built-in auth/error-mapping interceptors are NOT applied — the injected
@@ -182,6 +188,9 @@ export function parsePolyesterClientConfig<TConfig extends PolyesterClientBaseCo
     ) {
         throw new ConfigurationError('wireFormat must be either "binary" or "json".');
     }
+    if (config.fetch !== undefined && typeof config.fetch !== "function") {
+        throw new ConfigurationError("fetch must be a function.");
+    }
     if (config.catalog && config.catalogSnapshot) {
         throw new ConfigurationError("Provide either catalog or catalogSnapshot, not both.");
     }
@@ -260,6 +269,7 @@ export class PolyesterClient {
                 interceptors,
                 auth: config.auth,
                 wireFormat: config.wireFormat,
+                fetch: config.fetch,
             });
 
         this.#environment = environment;

@@ -56,6 +56,7 @@ export class PolyesterBrowserClient extends PolyesterClient {
                 interceptors: config.interceptors,
                 auth: { kind: "jwt", getToken },
                 wireFormat: config.wireFormat,
+                fetch: config.fetch,
                 ...pickPolyesterCatalogConfig(config),
                 transports: config.transports,
                 realtimeClient: config.realtimeClient,

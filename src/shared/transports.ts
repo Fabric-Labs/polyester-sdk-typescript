@@ -27,6 +27,11 @@ export interface TransportConfig {
      * Use `json` for the API Playground visualization.
      */
     wireFormat?: ConnectWireFormat;
+    /**
+     * Custom fetch implementation for SDK HTTP requests. Defaults to the global
+     * `fetch`, resolved on each request.
+     */
+    fetch?: typeof fetch;
 }
 
 export interface Transports {
@@ -82,15 +87,15 @@ export interface ApiKeyEd25519SigningRequest {
 /**
  * Returns the fetch implementation used by SDK transports.
  */
-export function makeFetch(): typeof fetch {
+export function makeFetch(fetchImpl?: typeof fetch): typeof fetch {
     const wrappedFetch = Object.assign(
         async (input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => {
             // Normalize headers into a mutable Headers object
             const headers = new Headers(init?.headers);
 
-            let res: Response;
+            let res: Response | undefined;
             try {
-                res = await fetch(input, {
+                res = await (fetchImpl ?? fetch)(input, {
                     ...init,
                     headers,
                     redirect: "manual",
@@ -99,6 +104,9 @@ export function makeFetch(): typeof fetch {
                 if (isAbortError(err)) throw err;
                 throw new NetworkError("Transport request failed", { cause: err });
             }
+            // A custom or patched fetch (browser extensions, monitoring scripts) can
+            // resolve without a Response.
+            if (!res) throw new NetworkError("Transport request returned no response");
             // Connect discards non-Connect error bodies, so surface the problem+json
             // skew code here before it collapses into a bare HTTP status error.
             if (await isTimestampSkewProblem(res)) {
@@ -135,14 +143,14 @@ async function isTimestampSkewProblem(res: Response): Promise<boolean> {
  * Creates Connect transports for SDK service clients.
  */
 export function createTransports(config: TransportConfig): Transports {
-    const { apiUrl, interceptors = [], auth, wireFormat = "binary" } = config;
+    const { apiUrl, interceptors = [], auth, wireFormat = "binary", fetch: fetchImpl } = config;
     const useBinaryFormat = wireFormat === "binary";
     const publicApi = createErrorMappingTransport(
         createConnectTransport({
             baseUrl: apiUrl,
             useBinaryFormat,
             interceptors,
-            fetch: makeFetch(),
+            fetch: makeFetch(fetchImpl),
         }),
     );
 
@@ -156,7 +164,7 @@ export function createTransports(config: TransportConfig): Transports {
             baseUrl: apiUrl,
             useBinaryFormat,
             interceptors: authInterceptors,
-            fetch: makeFetch(),
+            fetch: makeFetch(fetchImpl),
         }),
     );
 
