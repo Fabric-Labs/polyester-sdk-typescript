@@ -3,14 +3,19 @@ import { Code, ConnectError, type Interceptor } from "@connectrpc/connect";
 import {
     createPolyesterServerClientFromCookies,
     createPolyesterServerClientFromRequest,
-    parseSessionCookie,
     PolyesterServerClient,
-    POLYESTER_AUTH_TOKEN_COOKIE_NAME,
-    POLYESTER_SESSION_COOKIE_NAME,
     type CreateServerClientFromCookiesParams,
     type CreateServerClientFromRequestParams,
     type PolyesterServerClientConfig,
 } from "./server-client.js";
+import {
+    createPolyesterServerCoreFromCookies,
+    createPolyesterServerCoreFromRequest,
+    parseSessionCookie,
+    PolyesterServerCore,
+    POLYESTER_AUTH_TOKEN_COOKIE_NAME,
+    POLYESTER_SESSION_COOKIE_NAME,
+} from "./server-core.js";
 import { POLYESTER_DEVNET_ENVIRONMENT } from "./environment.js";
 import type { Me } from "./services/auth/auth.js";
 import { MarketDataService } from "./services/market-data/index.js";
@@ -153,7 +158,7 @@ function expectEmptySession(session: ReturnType<typeof parseSessionCookie>): voi
     expect(session).toEqual(emptySessionShape);
 }
 
-class TestablePolyesterServerClient extends PolyesterServerClient {
+class TestablePolyesterServerClient extends PolyesterServerCore {
     getDefaultSubaccountIdForTest(): string | null {
         return this.createSubaccountResolver().getDefaultSubaccountId();
     }
@@ -286,409 +291,426 @@ describe("parseSessionCookie", () => {
     });
 });
 
-describe("PolyesterServerClient subaccount defaults", () => {
-    it("rejects a non-object configuration with an SDK configuration error", () => {
-        expect(() => new PolyesterServerClient(null as never)).toThrow(ConfigurationError);
-        expect(() => new PolyesterServerClient(null as never)).toThrow(
-            "Client configuration must be an object.",
-        );
-    });
-
-    it("does not use display-session active account as a server default unless opted in", () => {
-        const session = parseSessionCookie(
-            {
-                [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
-            },
-            POLYESTER_DEVNET_ENVIRONMENT,
-        );
-        const client = new TestablePolyesterServerClient({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            session,
+// The full client and the tree-shakable core share one implementation; every
+// behavior here must hold for both.
+describe.each([
+    {
+        name: "PolyesterServerClient",
+        ServerClient: PolyesterServerClient,
+        fromCookies: createPolyesterServerClientFromCookies,
+        fromRequest: createPolyesterServerClientFromRequest,
+    },
+    {
+        name: "PolyesterServerCore",
+        ServerClient: PolyesterServerCore,
+        fromCookies: createPolyesterServerCoreFromCookies,
+        fromRequest: createPolyesterServerCoreFromRequest,
+    },
+] as const)("$name", ({ ServerClient, fromCookies, fromRequest }) => {
+    describe("PolyesterServerClient subaccount defaults", () => {
+        it("rejects a non-object configuration with an SDK configuration error", () => {
+            expect(() => new ServerClient(null as never)).toThrow(ConfigurationError);
+            expect(() => new ServerClient(null as never)).toThrow(
+                "Client configuration must be an object.",
+            );
         });
 
-        expect(client.getDefaultSubaccountIdForTest()).toBeNull();
-    });
-
-    it("uses display-session active account as a server default when explicitly opted in", () => {
-        const session = parseSessionCookie(
-            {
-                [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
-            },
-            POLYESTER_DEVNET_ENVIRONMENT,
-        );
-        const client = new TestablePolyesterServerClient({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            session,
-            useDisplaySessionActiveAccountAsDefault: true,
-        });
-
-        expect(client.getDefaultSubaccountIdForTest()).toBe("sub-1");
-    });
-});
-
-describe("PolyesterServerClient catalog refresh", () => {
-    it("does not refresh catalogs during construction", () => {
-        const refresh = mockCatalogRefreshEndpoints();
-
-        new PolyesterServerClient({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-        });
-
-        expect(refresh.getSpotConfig).not.toHaveBeenCalled();
-        expect(refresh.getDepositWithdrawConfig).not.toHaveBeenCalled();
-    });
-
-    it("uses an injected catalog without starting runtime refresh", () => {
-        const refresh = mockCatalogRefreshEndpoints();
-        const catalog = createTestCatalog();
-
-        const client = new PolyesterServerClient({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            catalog,
-        });
-
-        expect(client.catalog).toBe(catalog);
-        expect(refresh.getSpotConfig).not.toHaveBeenCalled();
-        expect(refresh.getDepositWithdrawConfig).not.toHaveBeenCalled();
-    });
-
-    it("refreshes catalogs explicitly", async () => {
-        const refresh = mockCatalogRefreshEndpoints();
-        const client = new PolyesterServerClient({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-        });
-
-        await client.catalog.refresh();
-
-        expect(refresh.getSpotConfig).toHaveBeenCalledTimes(1);
-        expect(refresh.getDepositWithdrawConfig).toHaveBeenCalledTimes(1);
-    });
-
-    it("server helpers do not refresh catalogs during construction", () => {
-        const refresh = mockCatalogRefreshEndpoints();
-
-        createPolyesterServerClientFromCookies({
-            cookies: {},
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-        });
-        createPolyesterServerClientFromRequest({
-            request: new Request("https://example.test"),
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-        });
-
-        expect(refresh.getSpotConfig).not.toHaveBeenCalled();
-        expect(refresh.getDepositWithdrawConfig).not.toHaveBeenCalled();
-    });
-});
-
-describe("createPolyesterServerClientFromCookies", () => {
-    it("accepts shared transport and realtime config", () => {
-        const passthroughInterceptor: Interceptor = (next) => (req) => next(req);
-        const client = createPolyesterServerClientFromCookies({
-            cookies: {},
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            interceptors: [passthroughInterceptor],
-            wireFormat: "json",
-            realtime: {
-                getAuthHeaders: () => ({ authorization: "Bearer test" }),
-                hasAuth: () => true,
-            },
-        });
-
-        expect(client).toBeInstanceOf(PolyesterServerClient);
-    });
-
-    it("does not install an auth provider without cookies", () => {
-        const client = createPolyesterServerClientFromCookies({
-            cookies: {},
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-        });
-
-        expect(client.hasDisplaySession).toBe(false);
-        expect(client.hasBearerToken).toBe(false);
-        expect(client.hasUsableBearerToken).toBe(false);
-        expect(client.hasAuthProvider).toBe(false);
-    });
-
-    it("keeps display session metadata without installing an auth provider", () => {
-        const client = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            cookies: {
-                [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
-            },
-        });
-
-        expect(client.hasDisplaySession).toBe(true);
-        expect(client.hasBearerToken).toBe(false);
-        expect(client.hasUsableBearerToken).toBe(false);
-        expect(client.hasAuthProvider).toBe(false);
-    });
-
-    it("installs an auth provider for a usable bearer token", () => {
-        const client = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            cookies: {
-                [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
-                [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
-            },
-        });
-
-        expect(client.hasDisplaySession).toBe(true);
-        expect(client.hasBearerToken).toBe(true);
-        expect(client.hasUsableBearerToken).toBe(true);
-        expect(client.hasAuthProvider).toBe(true);
-    });
-
-    it("does not install an auth provider for a bearer token bound to another environment", () => {
-        const client = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            cookies: {
-                [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie("0xother"),
-                [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
-            },
-        });
-
-        expect(client.hasDisplaySession).toBe(false);
-        expect(client.hasBearerToken).toBe(false);
-        expect(client.hasUsableBearerToken).toBe(false);
-        expect(client.hasAuthProvider).toBe(false);
-    });
-
-    it("accepts framework cookie getters that return cookie objects", () => {
-        const values = new Map([
-            [POLYESTER_SESSION_COOKIE_NAME, displaySessionCookie()],
-            [POLYESTER_AUTH_TOKEN_COOKIE_NAME, validJwt()],
-        ]);
-        const client = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            cookies: {
-                get: (name) => {
-                    const value = values.get(name);
-                    return value === undefined ? undefined : { name, value };
+        it("does not use display-session active account as a server default unless opted in", () => {
+            const session = parseSessionCookie(
+                {
+                    [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
                 },
-            },
+                POLYESTER_DEVNET_ENVIRONMENT,
+            );
+            const client = new TestablePolyesterServerClient({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                session,
+            });
+
+            expect(client.getDefaultSubaccountIdForTest()).toBeNull();
         });
 
-        expect(client.session.username).toBe("hunter");
-        expect(client.hasDisplaySession).toBe(true);
-        expect(client.hasBearerToken).toBe(true);
-        expect(client.hasUsableBearerToken).toBe(true);
-        expect(client.hasAuthProvider).toBe(true);
+        it("uses display-session active account as a server default when explicitly opted in", () => {
+            const session = parseSessionCookie(
+                {
+                    [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
+                },
+                POLYESTER_DEVNET_ENVIRONMENT,
+            );
+            const client = new TestablePolyesterServerClient({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                session,
+                useDisplaySessionActiveAccountAsDefault: true,
+            });
+
+            expect(client.getDefaultSubaccountIdForTest()).toBe("sub-1");
+        });
     });
 
-    it("installs an auth provider for a usable bearer token without a display session", () => {
-        const client = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            cookies: {
-                [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
-            },
+    describe("PolyesterServerClient catalog refresh", () => {
+        it("does not refresh catalogs during construction", () => {
+            const refresh = mockCatalogRefreshEndpoints();
+
+            new ServerClient({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+            });
+
+            expect(refresh.getSpotConfig).not.toHaveBeenCalled();
+            expect(refresh.getDepositWithdrawConfig).not.toHaveBeenCalled();
         });
 
-        expect(client.hasDisplaySession).toBe(false);
-        expect(client.hasBearerToken).toBe(true);
-        expect(client.hasUsableBearerToken).toBe(true);
-        expect(client.hasAuthProvider).toBe(true);
+        it("uses an injected catalog without starting runtime refresh", () => {
+            const refresh = mockCatalogRefreshEndpoints();
+            const catalog = createTestCatalog();
+
+            const client = new ServerClient({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                catalog,
+            });
+
+            expect(client.catalog).toBe(catalog);
+            expect(refresh.getSpotConfig).not.toHaveBeenCalled();
+            expect(refresh.getDepositWithdrawConfig).not.toHaveBeenCalled();
+        });
+
+        it("refreshes catalogs explicitly", async () => {
+            const refresh = mockCatalogRefreshEndpoints();
+            const client = new ServerClient({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+            });
+
+            await client.catalog.refresh();
+
+            expect(refresh.getSpotConfig).toHaveBeenCalledTimes(1);
+            expect(refresh.getDepositWithdrawConfig).toHaveBeenCalledTimes(1);
+        });
+
+        it("server helpers do not refresh catalogs during construction", () => {
+            const refresh = mockCatalogRefreshEndpoints();
+
+            fromCookies({
+                cookies: {},
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+            });
+            fromRequest({
+                request: new Request("https://example.test"),
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+            });
+
+            expect(refresh.getSpotConfig).not.toHaveBeenCalled();
+            expect(refresh.getDepositWithdrawConfig).not.toHaveBeenCalled();
+        });
     });
 
-    it("installs an auth provider from a request without a display session", () => {
-        const token = validJwt();
-        const client = createPolyesterServerClientFromRequest({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            request: new Request("https://example.test", {
+    describe("createPolyesterServerClientFromCookies", () => {
+        it("accepts shared transport and realtime config", () => {
+            const passthroughInterceptor: Interceptor = (next) => (req) => next(req);
+            const client = fromCookies({
+                cookies: {},
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                interceptors: [passthroughInterceptor],
+                wireFormat: "json",
+                realtime: {
+                    getAuthHeaders: () => ({ authorization: "Bearer test" }),
+                    hasAuth: () => true,
+                },
+            });
+
+            expect(client).toBeInstanceOf(ServerClient);
+        });
+
+        it("does not install an auth provider without cookies", () => {
+            const client = fromCookies({
+                cookies: {},
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+            });
+
+            expect(client.hasDisplaySession).toBe(false);
+            expect(client.hasBearerToken).toBe(false);
+            expect(client.hasUsableBearerToken).toBe(false);
+            expect(client.hasAuthProvider).toBe(false);
+        });
+
+        it("keeps display session metadata without installing an auth provider", () => {
+            const client = fromCookies({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                cookies: {
+                    [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
+                },
+            });
+
+            expect(client.hasDisplaySession).toBe(true);
+            expect(client.hasBearerToken).toBe(false);
+            expect(client.hasUsableBearerToken).toBe(false);
+            expect(client.hasAuthProvider).toBe(false);
+        });
+
+        it("installs an auth provider for a usable bearer token", () => {
+            const client = fromCookies({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                cookies: {
+                    [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
+                    [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
+                },
+            });
+
+            expect(client.hasDisplaySession).toBe(true);
+            expect(client.hasBearerToken).toBe(true);
+            expect(client.hasUsableBearerToken).toBe(true);
+            expect(client.hasAuthProvider).toBe(true);
+        });
+
+        it("does not install an auth provider for a bearer token bound to another environment", () => {
+            const client = fromCookies({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                cookies: {
+                    [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie("0xother"),
+                    [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
+                },
+            });
+
+            expect(client.hasDisplaySession).toBe(false);
+            expect(client.hasBearerToken).toBe(false);
+            expect(client.hasUsableBearerToken).toBe(false);
+            expect(client.hasAuthProvider).toBe(false);
+        });
+
+        it("accepts framework cookie getters that return cookie objects", () => {
+            const values = new Map([
+                [POLYESTER_SESSION_COOKIE_NAME, displaySessionCookie()],
+                [POLYESTER_AUTH_TOKEN_COOKIE_NAME, validJwt()],
+            ]);
+            const client = fromCookies({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                cookies: {
+                    get: (name) => {
+                        const value = values.get(name);
+                        return value === undefined ? undefined : { name, value };
+                    },
+                },
+            });
+
+            expect(client.session.username).toBe("hunter");
+            expect(client.hasDisplaySession).toBe(true);
+            expect(client.hasBearerToken).toBe(true);
+            expect(client.hasUsableBearerToken).toBe(true);
+            expect(client.hasAuthProvider).toBe(true);
+        });
+
+        it("installs an auth provider for a usable bearer token without a display session", () => {
+            const client = fromCookies({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                cookies: {
+                    [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
+                },
+            });
+
+            expect(client.hasDisplaySession).toBe(false);
+            expect(client.hasBearerToken).toBe(true);
+            expect(client.hasUsableBearerToken).toBe(true);
+            expect(client.hasAuthProvider).toBe(true);
+        });
+
+        it("installs an auth provider from a request without a display session", () => {
+            const token = validJwt();
+            const client = fromRequest({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                request: new Request("https://example.test", {
+                    headers: {
+                        cookie: `${POLYESTER_AUTH_TOKEN_COOKIE_NAME}=${token}`,
+                    },
+                }),
+            });
+
+            expect(client.hasDisplaySession).toBe(false);
+            expect(client.hasBearerToken).toBe(true);
+            expect(client.hasUsableBearerToken).toBe(true);
+            expect(client.hasAuthProvider).toBe(true);
+        });
+
+        it("reads only port-scoped local cookies from a request, including custom token names", () => {
+            const token = validJwt();
+            const request = new Request("http://localhost:3001", {
                 headers: {
-                    cookie: `${POLYESTER_AUTH_TOKEN_COOKIE_NAME}=${token}`,
+                    cookie: [
+                        "polyester_session_4=legacy-session",
+                        "polyester_auth_token=legacy-token",
+                        `polyester_session_4_port_3001=${displaySessionCookie()}`,
+                        `custom_auth_port_3001=${token}`,
+                    ].join("; "),
                 },
-            }),
-        });
+            });
 
-        expect(client.hasDisplaySession).toBe(false);
-        expect(client.hasBearerToken).toBe(true);
-        expect(client.hasUsableBearerToken).toBe(true);
-        expect(client.hasAuthProvider).toBe(true);
-    });
-
-    it("reads only port-scoped local cookies from a request, including custom token names", () => {
-        const token = validJwt();
-        const request = new Request("http://localhost:3001", {
-            headers: {
-                cookie: [
-                    "polyester_session_4=legacy-session",
-                    "polyester_auth_token=legacy-token",
-                    `polyester_session_4_port_3001=${displaySessionCookie()}`,
-                    `custom_auth_port_3001=${token}`,
-                ].join("; "),
-            },
-        });
-
-        const client = createPolyesterServerClientFromRequest({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            request,
-            tokenCookieName: "custom_auth",
-        });
-
-        expect(client.hasDisplaySession).toBe(true);
-        expect(client.session.bearerToken).toBe(token);
-        expect(client.hasAuthProvider).toBe(true);
-    });
-
-    it.each([
-        ["http://localhost", "80"],
-        ["https://localhost", "443"],
-    ])("derives default port for %s", (url, port) => {
-        const token = validJwt();
-        const client = createPolyesterServerClientFromRequest({
-            request: new Request(url, {
-                headers: { cookie: `custom_auth_port_${port}=${token}; custom_auth=legacy` },
-            }),
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            tokenCookieName: "custom_auth",
-        });
-        expect(client.session.bearerToken).toBe(token);
-    });
-
-    it("reads local framework cookie stores only when given their request location", () => {
-        const token = validJwt();
-        const client = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            cookieLocation: new URL("http://localhost:3000"),
-            cookies: {
-                polyester_session_4: "legacy-session",
-                polyester_auth_token: "legacy-token",
-                polyester_session_4_port_3000: displaySessionCookie(),
-                polyester_auth_token_port_3000: token,
-            },
-        });
-
-        expect(client.hasDisplaySession).toBe(true);
-        expect(client.session.bearerToken).toBe(token);
-    });
-
-    it("does not install an auth provider for expired or malformed bearer tokens", () => {
-        const expired = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            cookies: {
-                [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
-                [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: expiredJwt(),
-            },
-        });
-        const malformed = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            cookies: {
-                [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
-                [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: "not-a-jwt",
-            },
-        });
-
-        expect(expired.hasBearerToken).toBe(true);
-        expect(expired.hasUsableBearerToken).toBe(false);
-        expect(expired.hasAuthProvider).toBe(false);
-        expect(malformed.hasBearerToken).toBe(true);
-        expect(malformed.hasUsableBearerToken).toBe(false);
-        expect(malformed.hasAuthProvider).toBe(false);
-    });
-});
-
-describe("createPolyesterServerClientFromRequest configuration", () => {
-    it("rejects a missing request with an SDK configuration error", () => {
-        expect(() =>
-            createPolyesterServerClientFromRequest({
+            const client = fromRequest({
                 environment: POLYESTER_DEVNET_ENVIRONMENT,
-            } as never),
-        ).toThrow(ConfigurationError);
-        expect(() =>
-            createPolyesterServerClientFromRequest({
+                request,
+                tokenCookieName: "custom_auth",
+            });
+
+            expect(client.hasDisplaySession).toBe(true);
+            expect(client.session.bearerToken).toBe(token);
+            expect(client.hasAuthProvider).toBe(true);
+        });
+
+        it.each([
+            ["http://localhost", "80"],
+            ["https://localhost", "443"],
+        ])("derives default port for %s", (url, port) => {
+            const token = validJwt();
+            const client = fromRequest({
+                request: new Request(url, {
+                    headers: { cookie: `custom_auth_port_${port}=${token}; custom_auth=legacy` },
+                }),
                 environment: POLYESTER_DEVNET_ENVIRONMENT,
-            } as never),
-        ).toThrow("request is required and must be a Request.");
-    });
-});
-
-describe("PolyesterServerClient.verifySession", () => {
-    afterEach(() => {
-        vi.restoreAllMocks();
-    });
-
-    it("returns null when no auth provider is configured", async () => {
-        const client = new PolyesterServerClient({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-        });
-        const me = vi.spyOn(client.auth, "me");
-
-        await expect(client.verifySession()).resolves.toBeNull();
-        expect(me).not.toHaveBeenCalled();
-    });
-
-    it("returns the current user when the backend verifies the session", async () => {
-        const client = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            cookies: {
-                [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
-                [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
-            },
-        });
-        const user: Me = { accountId: "account-1", username: "hunter" };
-        vi.spyOn(client.auth, "me").mockResolvedValue(user);
-
-        await expect(client.verifySession()).resolves.toBe(user);
-    });
-
-    it("returns null when the backend rejects the session as unauthenticated", async () => {
-        const client = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            cookies: {
-                [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
-                [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
-            },
-        });
-        vi.spyOn(client.auth, "me").mockRejectedValue(
-            new AuthenticationError("Authentication required"),
-        );
-
-        await expect(client.verifySession()).resolves.toBeNull();
-    });
-
-    it("returns null when an injected transport rejects with raw unauthenticated", async () => {
-        const transport = rejectingUnaryTransport(
-            new ConnectError("expired", Code.Unauthenticated),
-        );
-        const client = new PolyesterServerClient({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            auth: { kind: "jwt", getToken: validJwt },
-            transports: { publicApi: transport, authApi: transport },
-            realtimeClient: realtimeClientStub().realtime,
+                tokenCookieName: "custom_auth",
+            });
+            expect(client.session.bearerToken).toBe(token);
         });
 
-        await expect(client.verifySession()).resolves.toBeNull();
-    });
+        it("reads local framework cookie stores only when given their request location", () => {
+            const token = validJwt();
+            const client = fromCookies({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                cookieLocation: new URL("http://localhost:3000"),
+                cookies: {
+                    polyester_session_4: "legacy-session",
+                    polyester_auth_token: "legacy-token",
+                    polyester_session_4_port_3000: displaySessionCookie(),
+                    polyester_auth_token_port_3000: token,
+                },
+            });
 
-    it("preserves transient verification failures", async () => {
-        const client = createPolyesterServerClientFromCookies({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            cookies: {
-                [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
-                [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
-            },
-        });
-        const failure = new ServiceUnavailableError("Service unavailable");
-        vi.spyOn(client.auth, "me").mockRejectedValue(failure);
-
-        await expect(client.verifySession()).rejects.toBe(failure);
-    });
-
-    it("maps and rethrows other raw injected transport failures", async () => {
-        const transport = rejectingUnaryTransport(
-            new ConnectError("backend unavailable", Code.Unavailable),
-        );
-        const client = new PolyesterServerClient({
-            environment: POLYESTER_DEVNET_ENVIRONMENT,
-            auth: { kind: "jwt", getToken: validJwt },
-            transports: { publicApi: transport, authApi: transport },
-            realtimeClient: realtimeClientStub().realtime,
+            expect(client.hasDisplaySession).toBe(true);
+            expect(client.session.bearerToken).toBe(token);
         });
 
-        await expect(client.verifySession()).rejects.toMatchObject({
-            name: "ServiceUnavailableError",
-            message: "backend unavailable",
+        it("does not install an auth provider for expired or malformed bearer tokens", () => {
+            const expired = fromCookies({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                cookies: {
+                    [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
+                    [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: expiredJwt(),
+                },
+            });
+            const malformed = fromCookies({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                cookies: {
+                    [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
+                    [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: "not-a-jwt",
+                },
+            });
+
+            expect(expired.hasBearerToken).toBe(true);
+            expect(expired.hasUsableBearerToken).toBe(false);
+            expect(expired.hasAuthProvider).toBe(false);
+            expect(malformed.hasBearerToken).toBe(true);
+            expect(malformed.hasUsableBearerToken).toBe(false);
+            expect(malformed.hasAuthProvider).toBe(false);
+        });
+    });
+
+    describe("createPolyesterServerClientFromRequest configuration", () => {
+        it("rejects a missing request with an SDK configuration error", () => {
+            expect(() =>
+                fromRequest({
+                    environment: POLYESTER_DEVNET_ENVIRONMENT,
+                } as never),
+            ).toThrow(ConfigurationError);
+            expect(() =>
+                fromRequest({
+                    environment: POLYESTER_DEVNET_ENVIRONMENT,
+                } as never),
+            ).toThrow("request is required and must be a Request.");
+        });
+    });
+
+    describe("PolyesterServerClient.verifySession", () => {
+        afterEach(() => {
+            vi.restoreAllMocks();
+        });
+
+        it("returns null when no auth provider is configured", async () => {
+            const client = new ServerClient({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+            });
+            const me = vi.spyOn(client.auth, "me");
+
+            await expect(client.verifySession()).resolves.toBeNull();
+            expect(me).not.toHaveBeenCalled();
+        });
+
+        it("returns the current user when the backend verifies the session", async () => {
+            const client = fromCookies({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                cookies: {
+                    [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
+                    [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
+                },
+            });
+            const user: Me = { accountId: "account-1", username: "hunter" };
+            vi.spyOn(client.auth, "me").mockResolvedValue(user);
+
+            await expect(client.verifySession()).resolves.toBe(user);
+        });
+
+        it("returns null when the backend rejects the session as unauthenticated", async () => {
+            const client = fromCookies({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                cookies: {
+                    [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
+                    [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
+                },
+            });
+            vi.spyOn(client.auth, "me").mockRejectedValue(
+                new AuthenticationError("Authentication required"),
+            );
+
+            await expect(client.verifySession()).resolves.toBeNull();
+        });
+
+        it("returns null when an injected transport rejects with raw unauthenticated", async () => {
+            const transport = rejectingUnaryTransport(
+                new ConnectError("expired", Code.Unauthenticated),
+            );
+            const client = new ServerClient({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                auth: { kind: "jwt", getToken: validJwt },
+                transports: { publicApi: transport, authApi: transport },
+                realtimeClient: realtimeClientStub().realtime,
+            });
+
+            await expect(client.verifySession()).resolves.toBeNull();
+        });
+
+        it("preserves transient verification failures", async () => {
+            const client = fromCookies({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                cookies: {
+                    [POLYESTER_SESSION_COOKIE_NAME]: displaySessionCookie(),
+                    [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
+                },
+            });
+            const failure = new ServiceUnavailableError("Service unavailable");
+            vi.spyOn(client.auth, "me").mockRejectedValue(failure);
+
+            await expect(client.verifySession()).rejects.toBe(failure);
+        });
+
+        it("maps and rethrows other raw injected transport failures", async () => {
+            const transport = rejectingUnaryTransport(
+                new ConnectError("backend unavailable", Code.Unavailable),
+            );
+            const client = new ServerClient({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                auth: { kind: "jwt", getToken: validJwt },
+                transports: { publicApi: transport, authApi: transport },
+                realtimeClient: realtimeClientStub().realtime,
+            });
+
+            await expect(client.verifySession()).rejects.toMatchObject({
+                name: "ServiceUnavailableError",
+                message: "backend unavailable",
+            });
         });
     });
 });

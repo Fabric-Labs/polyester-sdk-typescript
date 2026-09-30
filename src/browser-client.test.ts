@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Interceptor } from "@connectrpc/connect";
 import type { AccountSigner } from "./account-signer/index.js";
 import { PolyesterBrowserClient } from "./browser-client.js";
+import { PolyesterBrowserCore } from "./browser-core.js";
 import { POLYESTER_DEVNET_ENVIRONMENT, POLYESTER_TESTNET_ENVIRONMENT } from "./environment.js";
 import { AccountSignerAuthService } from "./services/auth/account-signer-auth.js";
 import type { LoginWithWalletInput, LoginWithWalletResponse } from "./services/auth/auth.js";
@@ -17,6 +18,7 @@ import {
     type AuthTokenStorage,
 } from "./services/auth/token-storage.js";
 import { MarketDataService } from "./services/market-data/index.js";
+import { subaccountsService } from "./services/subaccounts/service.js";
 import { ZipperService } from "./services/zipper/index.js";
 import { createTestCatalog } from "./testing/catalog.js";
 import type { CatalogSnapshot } from "./catalogs/index.js";
@@ -94,7 +96,7 @@ function installBrowserLocation(port: string): void {
     });
 }
 
-function mockClientLogin(client: PolyesterBrowserClient, accessToken: string) {
+function mockClientLogin(client: PolyesterBrowserCore, accessToken: string) {
     vi.spyOn(client.auth, "createWalletChallenge").mockResolvedValue({
         message: "server-issued message ☃\nexact bytes",
     });
@@ -143,7 +145,12 @@ function mockCatalogRefreshEndpoints(): {
     };
 }
 
-describe("PolyesterBrowserClient", () => {
+// The full client and the tree-shakable core share one implementation; every
+// behavior here must hold for both.
+describe.each([
+    ["PolyesterBrowserClient", PolyesterBrowserClient],
+    ["PolyesterBrowserCore", PolyesterBrowserCore],
+] as const)("%s", (_name, BrowserClient) => {
     beforeEach(() => {
         vi.clearAllMocks();
     });
@@ -165,15 +172,15 @@ describe("PolyesterBrowserClient", () => {
     });
 
     it("rejects a non-object configuration with an SDK configuration error", () => {
-        expect(() => new PolyesterBrowserClient(null as never)).toThrow(ConfigurationError);
-        expect(() => new PolyesterBrowserClient(null as never)).toThrow(
+        expect(() => new BrowserClient(null as never)).toThrow(ConfigurationError);
+        expect(() => new BrowserClient(null as never)).toThrow(
             "Client configuration must be an object.",
         );
     });
 
     it("accepts an accountSigner config", () => {
         const accountSigner = signer("0x1111111111111111111111111111111111111111");
-        const client = new PolyesterBrowserClient({
+        const client = new BrowserClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,
             accountSigner,
         });
@@ -185,7 +192,7 @@ describe("PolyesterBrowserClient", () => {
     it("does not refresh catalogs during construction", () => {
         const refresh = mockCatalogRefreshEndpoints();
 
-        new PolyesterBrowserClient({
+        new BrowserClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,
         });
 
@@ -197,7 +204,7 @@ describe("PolyesterBrowserClient", () => {
         const refresh = mockCatalogRefreshEndpoints();
         const catalog = createTestCatalog();
 
-        const client = new PolyesterBrowserClient({
+        const client = new BrowserClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,
             catalog,
         });
@@ -213,7 +220,7 @@ describe("PolyesterBrowserClient", () => {
         expect(
             () =>
                 // @ts-expect-error catalog and catalogCell are mutually exclusive
-                new PolyesterBrowserClient({
+                new BrowserClient({
                     environment: POLYESTER_DEVNET_ENVIRONMENT,
                     catalog,
                     catalogCell: { get: () => undefined, set: () => {} },
@@ -224,7 +231,7 @@ describe("PolyesterBrowserClient", () => {
     it("routes the client-built catalog through an injected catalogCell", async () => {
         mockCatalogRefreshEndpoints();
         let current: CatalogSnapshot | undefined;
-        const client = new PolyesterBrowserClient({
+        const client = new BrowserClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,
             catalogCell: {
                 get: () => current,
@@ -242,7 +249,7 @@ describe("PolyesterBrowserClient", () => {
 
     it("refreshes catalogs explicitly", async () => {
         const refresh = mockCatalogRefreshEndpoints();
-        const client = new PolyesterBrowserClient({
+        const client = new BrowserClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,
         });
 
@@ -254,7 +261,7 @@ describe("PolyesterBrowserClient", () => {
 
     it("accepts shared transport and realtime config", () => {
         const passthroughInterceptor: Interceptor = (next) => (req) => next(req);
-        const client = new PolyesterBrowserClient({
+        const client = new BrowserClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,
             interceptors: [passthroughInterceptor],
             wireFormat: "json",
@@ -270,7 +277,7 @@ describe("PolyesterBrowserClient", () => {
     it("uses memory token storage by default without writing the bearer token cookie", async () => {
         const cookies = installCookieJar();
         const accountSigner = signer("0x1111111111111111111111111111111111111111");
-        const client = new PolyesterBrowserClient({
+        const client = new BrowserClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,
             accountSigner,
         });
@@ -286,7 +293,7 @@ describe("PolyesterBrowserClient", () => {
     it("uses a synchronized username on the next server render", async () => {
         const cookies = installCookieJar();
         const accountSigner = signer("0x1111111111111111111111111111111111111111");
-        const client = new PolyesterBrowserClient({
+        const client = new BrowserClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,
             accountSigner,
         });
@@ -313,7 +320,7 @@ describe("PolyesterBrowserClient", () => {
         vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
         const cookies = installCookieJar();
         const accountSigner = signer("0x1111111111111111111111111111111111111111");
-        const client = new PolyesterBrowserClient({
+        const client = new BrowserClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,
             accountSigner,
             tokenStorage: createCookieAuthTokenStorage(),
@@ -338,7 +345,7 @@ describe("PolyesterBrowserClient", () => {
 
         installBrowserLocation("3000");
         const firstStorage = createCookieAuthTokenStorage();
-        const firstClient = new PolyesterBrowserClient({
+        const firstClient = new BrowserClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,
             accountSigner: firstSigner,
             tokenStorage: firstStorage,
@@ -353,7 +360,7 @@ describe("PolyesterBrowserClient", () => {
 
         installBrowserLocation("3001");
         const secondStorage = createCookieAuthTokenStorage({ cookieName: "custom_auth" });
-        const secondClient = new PolyesterBrowserClient({
+        const secondClient = new BrowserClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
             accountSigner: {
                 ...firstSigner,
@@ -389,7 +396,7 @@ describe("PolyesterBrowserClient", () => {
             activeAccount: { mainAccountId: "account-2" },
         });
         installBrowserLocation("3000");
-        const reloaded = new PolyesterBrowserClient({
+        const reloaded = new BrowserClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,
             tokenStorage: createCookieAuthTokenStorage(),
         });
@@ -418,7 +425,7 @@ describe("PolyesterBrowserClient", () => {
         );
         const otherCookie = "untouched-port-token";
         cookies.jar.set("polyester_auth_token_port_3002", otherCookie);
-        const foreignClient = new PolyesterBrowserClient({
+        const foreignClient = new BrowserClient({
             environment: POLYESTER_TESTNET_ENVIRONMENT,
             tokenStorage: createCookieAuthTokenStorage(),
         });
@@ -453,7 +460,7 @@ describe("PolyesterBrowserClient", () => {
     it("reports unauthenticated private realtime subscriptions through onError", async () => {
         const tokenStorage = createTestStorage();
         const onError = vi.fn();
-        const client = new PolyesterBrowserClient({
+        const client = new BrowserClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,
             tokenStorage,
         });
@@ -479,7 +486,7 @@ describe("PolyesterBrowserClient", () => {
     });
 
     it("updates the auth account signer via setAccountSigner", () => {
-        const client = new PolyesterBrowserClient({
+        const client = new BrowserClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,
         });
         const accountSigner = signer("0x3333333333333333333333333333333333333333");
@@ -491,7 +498,7 @@ describe("PolyesterBrowserClient", () => {
     });
 
     it("rejects an account signer from another environment", () => {
-        const client = new PolyesterBrowserClient({
+        const client = new BrowserClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,
         });
         const accountSigner = {
@@ -504,25 +511,27 @@ describe("PolyesterBrowserClient", () => {
         );
     });
 
-    it("wires browser auth to the client subaccounts service during construction", async () => {
-        const client = new PolyesterBrowserClient({
+    it("loads the client subaccounts service for browser auth on demand", async () => {
+        const client = new BrowserClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,
         });
         const rootSigner = signer("0x1111111111111111111111111111111111111111");
         const subaccountSigner = signer("0x4444444444444444444444444444444444444444");
-        const create = vi.spyOn(client.subaccounts, "create").mockResolvedValue({
+        const create = vi.spyOn(subaccountsService(client), "create").mockResolvedValue({
             subaccountId: "subaccount-1",
             totalCreated: 1,
             smartAccountSaltNonce: 1,
             revision: "9",
         });
-        const createChallenge = vi.spyOn(client.subaccounts, "createChallenge").mockResolvedValue({
-            message: "subaccount server message",
-            smartAccountAddress: subaccountSigner.accountAddress,
-            smartAccountSaltNonce: 1,
-            expiresAt: 1_000,
-            polyesterChainId: 1,
-        });
+        const createChallenge = vi
+            .spyOn(subaccountsService(client), "createChallenge")
+            .mockResolvedValue({
+                message: "subaccount server message",
+                smartAccountAddress: subaccountSigner.accountAddress,
+                smartAccountSaltNonce: 1,
+                expiresAt: 1_000,
+                polyesterChainId: 1,
+            });
         mockClientLogin(client, jwtWithExp(Math.floor(Date.now() / 1000) + 3600));
         client.setAccountSigner(rootSigner);
         await client.auth.login({ uri: "https://app.example", provider: "turnkey" });

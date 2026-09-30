@@ -136,6 +136,8 @@ import {
     vipPb,
 } from "@polyester/sdk/unstable/gen";
 import type { PolyesterErrorDetail as ErrorsPolyesterErrorDetail } from "@polyester/sdk/errors";
+import { ordersService } from "@polyester/sdk/services/orders";
+import { tradingRateLimitsService } from "@polyester/sdk/services/rate-limits";
 
 declare const client: PolyesterClient;
 declare const ladderDetails: LadderDetailsOutput;
@@ -368,7 +370,22 @@ async function verifyServiceInference(): Promise<void> {
     });
 }
 
+declare const browserCore: import("@polyester/sdk").PolyesterBrowserCore;
+declare const serverCore: import("@polyester/sdk").PolyesterServerCore;
+
+async function verifyCoreServiceAccessors(): Promise<void> {
+    expectType<typeof client.orders>(ordersService(browserCore));
+    expectNotAny(ordersService(browserCore), true);
+    await ordersService(serverCore).cancelAll({ symbolIds: [1] });
+    expectType<typeof client.tradingRateLimits>(tradingRateLimitsService(client));
+    expectType<import("@polyester/sdk").AuthState>(browserCore.auth.getState());
+    expectType<boolean>(serverCore.hasDisplaySession);
+    // @ts-expect-error Cores only expose services through their accessors.
+    void browserCore.orders;
+}
+
 void verifyServiceInference;
+void verifyCoreServiceAccessors;
 `,
     );
 

@@ -11,6 +11,7 @@ export default defineConfig({
         "src/gen/index.ts",
         "src/gen/**/*_pb.ts",
         "src/wired-services.ts",
+        "src/services/*/service.ts",
     ],
     format: "esm",
     target: "es2022",

@@ -1,6 +1,6 @@
 import { create, toBinary } from "@bufbuild/protobuf";
 import { Code, ConnectError } from "@connectrpc/connect";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
 import { ProfileErrorCode, ProfileErrorDetailSchema } from "../gen/auth/v1/profile_pb.js";
 import {
@@ -33,7 +33,11 @@ import {
     ErrorCode as InternalTransferErrorCode,
     ErrorDetailSchema as InternalTransferErrorDetailSchema,
 } from "../gen/transfer/v1/internal_transfer_pb.js";
-import { parseConnectErrorDetail } from "./error-detail.js";
+import {
+    ERROR_DETAIL_TYPE_NAMES,
+    loadErrorDetailDecoders,
+    parseConnectErrorDetail,
+} from "./error-detail.js";
 
 function error(details: ConnectError["details"]): ConnectError {
     const result = new ConnectError("rejected", Code.InvalidArgument);
@@ -41,7 +45,44 @@ function error(details: ConnectError["details"]): ConnectError {
     return result;
 }
 
+describe("loadErrorDetailDecoders", () => {
+    it("decodes a detail only after its decoder loads", async () => {
+        vi.resetModules();
+        const fresh = await import("./error-detail.js");
+        const rejected = error([
+            {
+                desc: ClaimsErrorDetailSchema,
+                value: create(ClaimsErrorDetailSchema, { code: ClaimsErrorCode.CLAIM_UNAVAILABLE }),
+            },
+        ]);
+        expect(fresh.parseConnectErrorDetail(rejected)).toBeUndefined();
+
+        await fresh.loadErrorDetailDecoders(rejected);
+
+        expect(fresh.parseConnectErrorDetail(rejected)).toEqual({
+            service: "claims",
+            code: "CLAIM_UNAVAILABLE",
+        });
+    });
+
+    it("ignores unknown detail types and non-Connect errors", async () => {
+        vi.resetModules();
+        const fresh = await import("./error-detail.js");
+        await fresh.loadErrorDetailDecoders(new Error("plain"));
+        await fresh.loadErrorDetailDecoders(
+            error([{ type: "unknown.ErrorDetail", value: new Uint8Array() }]),
+        );
+        expect(
+            fresh.parseConnectErrorDetail(
+                error([{ type: "unknown.ErrorDetail", value: new Uint8Array() }]),
+            ),
+        ).toBeUndefined();
+    });
+});
+
 describe("parseConnectErrorDetail", () => {
+    beforeAll(() => loadErrorDetailDecoders());
+
     it("returns typed details for every backend service", () => {
         expect(
             parseConnectErrorDetail(
@@ -180,6 +221,23 @@ describe("parseConnectErrorDetail", () => {
                 ]),
             ),
         ).toEqual({ service: "claims", code: "CLAIM_UNAVAILABLE" });
+    });
+
+    it("pins every loadable type name to its generated descriptor", () => {
+        expect([...ERROR_DETAIL_TYPE_NAMES].sort()).toEqual(
+            [
+                AuthErrorDetailSchema,
+                ProfileErrorDetailSchema,
+                OrderErrorDetailSchema,
+                WithdrawErrorDetailSchema,
+                InternalTransferErrorDetailSchema,
+                LedgerErrorDetailSchema,
+                MarketOverviewErrorDetailSchema,
+                ClaimsErrorDetailSchema,
+            ]
+                .map((schema) => schema.typeName)
+                .sort(),
+        );
     });
 
     it("decodes wire details and skips invalid wire payloads", () => {

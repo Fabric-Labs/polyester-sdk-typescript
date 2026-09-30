@@ -15,6 +15,7 @@ import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscr
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import { toPolyesterError } from "../../shared/connect-error-mapping.js";
+import { loadErrorDetailDecoders } from "../../shared/error-detail.js";
 import { ConfigurationError, PolyesterError } from "../../shared/errors.js";
 import type { AuthApiTransports } from "../../shared/transports.js";
 import { formatConnectError, isResourceNotFoundError } from "../../utils/errors.js";
@@ -427,6 +428,8 @@ export class OrdersService {
                 toConnectCallOptions(options),
             );
         } catch (error) {
+            // Injected transports skip SDK error mapping, so load the detail decoder here.
+            await loadErrorDetailDecoders(error);
             if (isOrderNotFoundError(error)) return null;
             throw error;
         }
