@@ -13,10 +13,10 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rewards/v1/rewards.proto.
  */
 export const file_rewards_v1_rewards: GenFile = /*@__PURE__*/
-  fileDesc("ChhyZXdhcmRzL3YxL3Jld2FyZHMucHJvdG8SCnJld2FyZHMudjEiqgIKC1Jld2FyZEF3YXJkEhAKCGF3YXJkX2lkGAEgASgJEhMKC2NhbXBhaWduX2lkGAIgASgJEhUKDWNhbXBhaWduX25hbWUYAyABKAkSEAoIYXNzZXRfaWQYBCABKA0SGQoRYW1vdW50X2Jhc2VfdW5pdHMYBSABKAkSPwoSZnVsZmlsbG1lbnRfbWV0aG9kGAYgASgOMiMucmV3YXJkcy52MS5SZXdhcmRGdWxmaWxsbWVudE1ldGhvZBI9ChFmdWxmaWxsbWVudF9zdGF0ZRgHIAEoDjIiLnJld2FyZHMudjEuUmV3YXJkRnVsZmlsbG1lbnRTdGF0ZRIwCgxwdWJsaXNoZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIkIKGUxpc3RNeVJld2FyZEF3YXJkc1JlcXVlc3QSDwoFbGltaXQYASABKA1CABIUCgpwYWdlX3Rva2VuGAIgASgJQgAiXgoaTGlzdE15UmV3YXJkQXdhcmRzUmVzcG9uc2USJwoGYXdhcmRzGAEgAygLMhcucmV3YXJkcy52MS5SZXdhcmRBd2FyZBIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkqXQoXUmV3YXJkRnVsZmlsbG1lbnRNZXRob2QSFgoSTUVUSE9EX1VOU1BFQ0lGSUVEEAASFAoQRVhURVJOQUxfVEVTVE5FVBABEhQKEElOVEVSTkFMX1RSQURJTkcQAiqDAQoWUmV3YXJkRnVsZmlsbG1lbnRTdGF0ZRIVChFTVEFURV9VTlNQRUNJRklFRBAAEhgKFEFXQUlUSU5HX0RFU1RJTkFUSU9OEAESFAoQUkVBRFlfRk9SX1BBWU9VVBACEggKBFBBSUQQAxIKCgZGQUlMRUQQBBIMCghDQU5DRUxFRBAFMn4KFVJld2FyZENhbXBhaWduU2VydmljZRJlChJMaXN0TXlSZXdhcmRBd2FyZHMSJS5yZXdhcmRzLnYxLkxpc3RNeVJld2FyZEF3YXJkc1JlcXVlc3QaJi5yZXdhcmRzLnYxLkxpc3RNeVJld2FyZEF3YXJkc1Jlc3BvbnNlIgBCQlpAZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9yZXdhcmRzL3YxO3Jld2FyZHN2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChhyZXdhcmRzL3YxL3Jld2FyZHMucHJvdG8SCnJld2FyZHMudjEijgMKC1Jld2FyZEF3YXJkEhAKCGF3YXJkX2lkGAEgASgJEhMKC2NhbXBhaWduX2lkGAIgASgJEhUKDWNhbXBhaWduX25hbWUYAyABKAkSEAoIYXNzZXRfaWQYBCABKA0SGQoRYW1vdW50X2Jhc2VfdW5pdHMYBSABKAkSPwoSZnVsZmlsbG1lbnRfbWV0aG9kGAYgASgOMiMucmV3YXJkcy52MS5SZXdhcmRGdWxmaWxsbWVudE1ldGhvZBI9ChFmdWxmaWxsbWVudF9zdGF0ZRgHIAEoDjIiLnJld2FyZHMudjEuUmV3YXJkRnVsZmlsbG1lbnRTdGF0ZRIwCgxwdWJsaXNoZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KB25ldHdvcmsYCSABKAkSHAoUZnVsZmlsbG1lbnRfcmV2aXNpb24YCiABKAQSGwoTZGVzdGluYXRpb25fYWRkcmVzcxgLIAEoCRIWCg50cmFuc2FjdGlvbl9pZBgMIAEoCSKFAQodU2V0TXlSZXdhcmREZXN0aW5hdGlvblJlcXVlc3QSEgoIYXdhcmRfaWQYASABKAlCABIdChNkZXN0aW5hdGlvbl9hZGRyZXNzGAIgASgJQgASGwoRZXhwZWN0ZWRfcmV2aXNpb24YAyABKARCABIUCgpyZXF1ZXN0X2lkGAQgASgJQgAiSAoeU2V0TXlSZXdhcmREZXN0aW5hdGlvblJlc3BvbnNlEiYKBWF3YXJkGAEgASgLMhcucmV3YXJkcy52MS5SZXdhcmRBd2FyZCJCChlMaXN0TXlSZXdhcmRBd2FyZHNSZXF1ZXN0Eg8KBWxpbWl0GAEgASgNQgASFAoKcGFnZV90b2tlbhgCIAEoCUIAIl4KGkxpc3RNeVJld2FyZEF3YXJkc1Jlc3BvbnNlEicKBmF3YXJkcxgBIAMoCzIXLnJld2FyZHMudjEuUmV3YXJkQXdhcmQSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJKl0KF1Jld2FyZEZ1bGZpbGxtZW50TWV0aG9kEhYKEk1FVEhPRF9VTlNQRUNJRklFRBAAEhQKEEVYVEVSTkFMX1RFU1RORVQQARIUChBJTlRFUk5BTF9UUkFESU5HEAIqgwEKFlJld2FyZEZ1bGZpbGxtZW50U3RhdGUSFQoRU1RBVEVfVU5TUEVDSUZJRUQQABIYChRBV0FJVElOR19ERVNUSU5BVElPThABEhQKEFJFQURZX0ZPUl9QQVlPVVQQAhIICgRQQUlEEAMSCgoGRkFJTEVEEAQSDAoIQ0FOQ0VMRUQQBTLxAQoVUmV3YXJkQ2FtcGFpZ25TZXJ2aWNlEmUKEkxpc3RNeVJld2FyZEF3YXJkcxIlLnJld2FyZHMudjEuTGlzdE15UmV3YXJkQXdhcmRzUmVxdWVzdBomLnJld2FyZHMudjEuTGlzdE15UmV3YXJkQXdhcmRzUmVzcG9uc2UiABJxChZTZXRNeVJld2FyZERlc3RpbmF0aW9uEikucmV3YXJkcy52MS5TZXRNeVJld2FyZERlc3RpbmF0aW9uUmVxdWVzdBoqLnJld2FyZHMudjEuU2V0TXlSZXdhcmREZXN0aW5hdGlvblJlc3BvbnNlIgBCQlpAZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9yZXdhcmRzL3YxO3Jld2FyZHN2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
- * RewardAward is a published immutable award for the authenticated root account.
+ * RewardAward contains immutable published terms and current delivery details for the authenticated root account.
  *
  * @generated from message rewards.v1.RewardAward
  */
@@ -76,6 +76,34 @@ export type RewardAward = Message<"rewards.v1.RewardAward"> & {
    * @generated from field: google.protobuf.Timestamp published_at = 8;
    */
   publishedAt?: Timestamp | undefined;
+
+  /**
+   * Campaign payout network. Interpret destination_address in this network.
+   *
+   * @generated from field: string network = 9;
+   */
+  network: string;
+
+  /**
+   * Current fulfillment revision for optimistic concurrency.
+   *
+   * @generated from field: uint64 fulfillment_revision = 10;
+   */
+  fulfillmentRevision: bigint;
+
+  /**
+   * Recipient payout destination once submitted. Empty until provided.
+   *
+   * @generated from field: string destination_address = 11;
+   */
+  destinationAddress: string;
+
+  /**
+   * External transaction identifier once staff records delivery. Empty until delivered.
+   *
+   * @generated from field: string transaction_id = 12;
+   */
+  transactionId: string;
 };
 
 /**
@@ -84,6 +112,69 @@ export type RewardAward = Message<"rewards.v1.RewardAward"> & {
  */
 export const RewardAwardSchema: GenMessage<RewardAward> = /*@__PURE__*/
   messageDesc(file_rewards_v1_rewards, 0);
+
+/**
+ * SetMyRewardDestinationRequest records the authenticated recipient's payout destination.
+ *
+ * @generated from message rewards.v1.SetMyRewardDestinationRequest
+ */
+export type SetMyRewardDestinationRequest = Message<"rewards.v1.SetMyRewardDestinationRequest"> & {
+  /**
+   * Award owned by the authenticated root account.
+   *
+   * @generated from field: string award_id = 1;
+   */
+  awardId: string;
+
+  /**
+   * Destination address interpreted according to the award campaign's network.
+   *
+   * @generated from field: string destination_address = 2;
+   */
+  destinationAddress: string;
+
+  /**
+   * Fulfillment revision observed by the recipient.
+   *
+   * @generated from field: uint64 expected_revision = 3;
+   */
+  expectedRevision: bigint;
+
+  /**
+   * Client-generated idempotency identifier. Maximum 128 characters.
+   *
+   * @generated from field: string request_id = 4;
+   */
+  requestId: string;
+};
+
+/**
+ * Describes the message rewards.v1.SetMyRewardDestinationRequest.
+ * Use `create(SetMyRewardDestinationRequestSchema)` to create a new message.
+ */
+export const SetMyRewardDestinationRequestSchema: GenMessage<SetMyRewardDestinationRequest> = /*@__PURE__*/
+  messageDesc(file_rewards_v1_rewards, 1);
+
+/**
+ * SetMyRewardDestinationResponse returns the updated award.
+ *
+ * @generated from message rewards.v1.SetMyRewardDestinationResponse
+ */
+export type SetMyRewardDestinationResponse = Message<"rewards.v1.SetMyRewardDestinationResponse"> & {
+  /**
+   * Award with the persisted destination and updated fulfillment state.
+   *
+   * @generated from field: rewards.v1.RewardAward award = 1;
+   */
+  award?: RewardAward | undefined;
+};
+
+/**
+ * Describes the message rewards.v1.SetMyRewardDestinationResponse.
+ * Use `create(SetMyRewardDestinationResponseSchema)` to create a new message.
+ */
+export const SetMyRewardDestinationResponseSchema: GenMessage<SetMyRewardDestinationResponse> = /*@__PURE__*/
+  messageDesc(file_rewards_v1_rewards, 2);
 
 /**
  * ListMyRewardAwardsRequest requests a page of awards for the authenticated root account.
@@ -111,7 +202,7 @@ export type ListMyRewardAwardsRequest = Message<"rewards.v1.ListMyRewardAwardsRe
  * Use `create(ListMyRewardAwardsRequestSchema)` to create a new message.
  */
 export const ListMyRewardAwardsRequestSchema: GenMessage<ListMyRewardAwardsRequest> = /*@__PURE__*/
-  messageDesc(file_rewards_v1_rewards, 1);
+  messageDesc(file_rewards_v1_rewards, 3);
 
 /**
  * ListMyRewardAwardsResponse contains newest awards first.
@@ -139,7 +230,7 @@ export type ListMyRewardAwardsResponse = Message<"rewards.v1.ListMyRewardAwardsR
  * Use `create(ListMyRewardAwardsResponseSchema)` to create a new message.
  */
 export const ListMyRewardAwardsResponseSchema: GenMessage<ListMyRewardAwardsResponse> = /*@__PURE__*/
-  messageDesc(file_rewards_v1_rewards, 2);
+  messageDesc(file_rewards_v1_rewards, 4);
 
 /**
  * RewardFulfillmentMethod identifies how an award will be delivered.
@@ -227,6 +318,16 @@ export const RewardCampaignService: GenService<{
     methodKind: "unary";
     input: typeof ListMyRewardAwardsRequestSchema;
     output: typeof ListMyRewardAwardsResponseSchema;
+  },
+  /**
+   * Record a write-once external payout destination for an award owned by the authenticated root account.
+   *
+   * @generated from rpc rewards.v1.RewardCampaignService.SetMyRewardDestination
+   */
+  setMyRewardDestination: {
+    methodKind: "unary";
+    input: typeof SetMyRewardDestinationRequestSchema;
+    output: typeof SetMyRewardDestinationResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_rewards_v1_rewards, 0);
