@@ -131,6 +131,7 @@ import {
     ordersPb,
     ordersReadPb,
     resolvePb,
+    rewardsPb,
     subaccountsPb,
     tradingRateLimitPb,
     vipPb,
@@ -172,6 +173,14 @@ async function verifyServiceInference(): Promise<void> {
     expectNotAny(claimed, true);
     expectType<string | undefined>(claimed.transfers[0]?.transferId);
     expectNotAny(claimsPb.ClaimsService, true);
+    const rewardAwards = await client.rewards.listMyRewardAwards({ limit: 100, pageToken: "next" });
+    expectType<import("@polyester/sdk").ListMyRewardAwardsResult>(rewardAwards);
+    expectNotAny(rewardAwards, true);
+    expectType<string | undefined>(rewardAwards.awards[0]?.amountBaseUnits);
+    expectType<import("@polyester/sdk").RewardFulfillmentState | undefined>(rewardAwards.awards[0]?.fulfillmentState);
+    expectType<import("@polyester/sdk").RewardFulfillmentMethod | undefined>(rewardAwards.awards[0]?.fulfillmentMethod);
+    expectType<number | undefined>(rewardAwards.awards[0]?.publishedAt);
+    expectNotAny(rewardsPb.RewardCampaignService, true);
     const gtdOrder: import("@polyester/sdk").NewOrderInput = {
         symbolId: 1,
         side: "buy",
