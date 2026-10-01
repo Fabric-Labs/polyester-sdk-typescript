@@ -215,6 +215,7 @@ export type * from "./services/policies/api-key-policies/api-key-policies.types.
 export type * from "./services/policies/policies.types.js";
 export type * from "./services/policies/subaccount-policies/subaccount-policies.types.js";
 export type * from "./services/rate-limits/rate-limits.types.js";
+export type * from "./services/rewards/rewards.types.js";
 export type * from "./services/social-verification/social-verification.types.js";
 export type * from "./services/subaccounts/subaccounts.types.js";
 export type * from "./services/trades/trades.types.js";

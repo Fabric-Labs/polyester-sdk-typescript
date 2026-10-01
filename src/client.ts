@@ -18,6 +18,7 @@ import { mfaService } from "./services/mfa/service.js";
 import { orderbookService } from "./services/orderbook/service.js";
 import { ordersService } from "./services/orders/service.js";
 import { tradingRateLimitsService } from "./services/rate-limits/service.js";
+import { rewardsService } from "./services/rewards/service.js";
 import { socialVerificationService } from "./services/social-verification/service.js";
 import { subaccountsService } from "./services/subaccounts/service.js";
 import { tradesService } from "./services/trades/service.js";
@@ -55,6 +56,7 @@ export const POLYESTER_SERVICES = {
     zipper: zipperService,
     mfa: mfaService,
     claims: claimsService,
+    rewards: rewardsService,
     vip: vipService,
     fees: feesService,
     tradingRateLimits: tradingRateLimitsService,
