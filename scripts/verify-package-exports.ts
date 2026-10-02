@@ -173,13 +173,21 @@ async function verifyServiceInference(): Promise<void> {
     expectNotAny(claimed, true);
     expectType<string | undefined>(claimed.transfers[0]?.transferId);
     expectNotAny(claimsPb.ClaimsService, true);
-    const rewardAwards = await client.rewards.listMyRewardAwards({ limit: 100, pageToken: "next" });
-    expectType<import("@polyester/sdk").ListMyRewardAwardsResult>(rewardAwards);
+    const rewardAwards = await client.rewards.listAwards({ limit: 100, pageToken: "next" });
+    expectType<import("@polyester/sdk").ListRewardAwardsResult>(rewardAwards);
     expectNotAny(rewardAwards, true);
     expectType<string | undefined>(rewardAwards.awards[0]?.amountBaseUnits);
     expectType<import("@polyester/sdk").RewardFulfillmentState | undefined>(rewardAwards.awards[0]?.fulfillmentState);
     expectType<import("@polyester/sdk").RewardFulfillmentMethod | undefined>(rewardAwards.awards[0]?.fulfillmentMethod);
     expectType<number | undefined>(rewardAwards.awards[0]?.publishedAt);
+    expectType<string | undefined>(rewardAwards.awards[0]?.fulfillmentRevision);
+    const rewardDestination = await client.rewards.setDestination(
+        { awardId: "award-1", destinationAddress: "0xabc", expectedRevision: "1", requestId: "req-1" },
+        { stepUpToken: "step-up" },
+    );
+    expectType<import("@polyester/sdk").SetRewardDestinationResult>(rewardDestination);
+    expectNotAny(rewardDestination, true);
+    expectType<string>(rewardDestination.award.destinationAddress);
     expectNotAny(rewardsPb.RewardCampaignService, true);
     const gtdOrder: import("@polyester/sdk").NewOrderInput = {
         symbolId: 1,
