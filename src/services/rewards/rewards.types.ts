@@ -1,6 +1,8 @@
 export type {
-    ListMyRewardAwardsInput,
-    ListMyRewardAwardsResult,
+    ListRewardAwardsInput,
+    ListRewardAwardsResult,
     RewardAward,
+    SetRewardDestinationInput,
+    SetRewardDestinationResult,
 } from "./rewards.schemas.js";
 export type { RewardFulfillmentMethod, RewardFulfillmentState } from "./rewards.codecs.js";
