@@ -1,5 +1,13 @@
 # @polyester/sdk
 
+## 0.30.1
+
+### Patch Changes
+
+- Add `rewards.listAwards` (also `rewardsService(core)` from `@polyester/sdk/services/rewards`) to list published reward campaign awards for the authenticated root account, newest first. Each award includes its campaign, asset, exact `amountBaseUnits`, `fulfillmentMethod`, `fulfillmentState`, `publishedAt`, payout `network`, `fulfillmentRevision`, `destinationAddress`, and `transactionId`. `limit` accepts 0 through 100 (0 or omitted uses 50), and `pageToken` is capped at 256 characters. Requires a session token; API keys are not accepted. ([#187](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/187))
+
+- Add `rewards.setDestination` to record a write-once payout destination for an award owned by the authenticated root account. Pass the award's `fulfillmentRevision` as `expectedRevision` (a positive decimal string) and a client-generated `requestId` (1 through 128 characters, reused on retry); `awardId` accepts 1 through 128 characters and `destinationAddress` 1 through 512. Requires a session token and a fresh step-up proof via `stepUpToken`; it does not execute a transfer or mark the award delivered. ([#189](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/189))
+
 ## 0.30.0
 
 ### Minor Changes
