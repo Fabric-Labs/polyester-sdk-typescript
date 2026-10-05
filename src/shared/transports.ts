@@ -1,15 +1,22 @@
 import { createConnectTransport } from "@connectrpc/connect-web";
 import type { Transport, Interceptor } from "@connectrpc/connect";
 import { toBinary, toJsonString } from "@bufbuild/protobuf";
-import { createErrorMappingTransport, TIMESTAMP_SKEW_CODE } from "./connect-error-mapping.js";
+import {
+    createErrorMappingTransport,
+    responseCorrelation,
+    TIMESTAMP_SKEW_CODE,
+} from "./connect-error-mapping.js";
 import {
     AuthenticationError,
     ConfigurationError,
     isAbortError,
+    isTimeoutAbortError,
     NetworkError,
     PolyesterError,
+    TimeoutError,
     TimestampSkewError,
 } from "./errors.js";
+import { observeServerDate } from "./server-clock.js";
 
 export { isAbortError };
 
@@ -99,18 +106,29 @@ export function makeFetch(fetchImpl?: typeof fetch): typeof fetch {
                     headers,
                     redirect: "manual",
                 });
+                // Connect rejects non-Connect error responses without reading the
+                // body, then aborts the request with its ConnectError. Any reader
+                // still on that body (e.g. fetch instrumentation reading a clone)
+                // would reject with the raw ConnectError, unhandled. Buffer error
+                // bodies so the stream is complete before Connect aborts.
+                if (res && res.status >= 400) res = new Response(await res.arrayBuffer(), res);
             } catch (err) {
                 if (isAbortError(err)) throw err;
+                if (isTimeoutAbortError(err)) {
+                    throw new TimeoutError("Request timed out.", { cause: err });
+                }
                 throw new NetworkError("Transport request failed", { cause: err });
             }
             // A custom or patched fetch (browser extensions, monitoring scripts) can
             // resolve without a Response.
             if (!res) throw new NetworkError("Transport request returned no response");
+            observeServerDate(res.headers.get("date"));
             // Connect discards non-Connect error bodies, so surface the problem+json
             // skew code here before it collapses into a bare HTTP status error.
             if (await isTimestampSkewProblem(res)) {
                 throw new TimestampSkewError(
                     "API key timestamp is outside the allowed skew window.",
+                    { status: res.status, ...responseCorrelation(res.headers) },
                 );
             }
             return res;

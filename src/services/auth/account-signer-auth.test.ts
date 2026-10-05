@@ -14,6 +14,7 @@ import {
     AuthenticationError,
     ConfigurationError,
     ServiceUnavailableError,
+    WalletChallengeExpiredError,
 } from "../../shared/errors.js";
 import type { LoginWithWalletInput, LoginWithWalletResponse } from "./auth.js";
 import { polyesterSession } from "./session.js";
@@ -114,7 +115,7 @@ function mockSubaccountChallenge(subaccounts: SubaccountsService, smartAccountAd
         message: "subaccount server message",
         smartAccountAddress,
         smartAccountSaltNonce: 1,
-        expiresAt: 1_000,
+        expiresAt: Date.now() + 5 * 60_000,
         polyesterChainId: 1,
     });
 }
@@ -179,6 +180,28 @@ describe("AccountSignerAuthService", () => {
         ]) {
             expect(input.uri).toBe("https://browser.example:8443");
         }
+    });
+
+    it("rejects a wallet challenge that expired while the user was signing", async () => {
+        vi.useFakeTimers({ toFake: ["Date"] });
+        vi.stubGlobal("location", { origin: "https://browser.example" });
+        const accountSigner = signer({
+            signMessage: vi.fn(async () => {
+                vi.setSystemTime(Date.now() + 6 * 60_000);
+                return "0x1234" as const;
+            }),
+        });
+        const auth = authService(accountSigner);
+        const { createWalletChallenge, loginWithWallet } = mockLogin(auth);
+        createWalletChallenge.mockResolvedValue({
+            message: "server-issued message",
+            expiresAt: Date.now() + 5 * 60_000,
+        });
+
+        const error = await auth.login({ provider: "other" }).catch((error: unknown) => error);
+        expect(error).toBeInstanceOf(WalletChallengeExpiredError);
+        expect(error).toBeInstanceOf(AuthenticationError);
+        expect(loginWithWallet).not.toHaveBeenCalled();
     });
 
     it("requires an explicit origin outside a browser before requesting or signing a challenge", async () => {

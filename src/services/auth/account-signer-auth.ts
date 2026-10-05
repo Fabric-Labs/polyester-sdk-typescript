@@ -1,5 +1,11 @@
 import { AuthService, type LoginWithWalletResponse } from "./auth.js";
-import { AuthenticationError, ConfigurationError } from "../../shared/errors.js";
+import {
+    AuthenticationError,
+    ConfigurationError,
+    SubaccountChallengeInvalidError,
+    WalletChallengeExpiredError,
+} from "../../shared/errors.js";
+import { serverNowMs } from "../../shared/server-clock.js";
 import { toPolyesterError } from "../../shared/connect-error-mapping.js";
 import { AuthSessionStore } from "./session.js";
 import type { AccountSigner, AccountSignerConfig, HexAddress } from "../../account-signer/types.js";
@@ -185,12 +191,17 @@ export class AccountSignerAuthService extends AuthService {
         const ownerAddress = accountSigner.ownerAddress ?? accountSigner.accountAddress;
 
         const uri = resolveChallengeUri(options.uri ?? this.#challengeUri);
-        const { message } = await this.createWalletChallenge({
+        const { message, expiresAt } = await this.createWalletChallenge({
             smartAccountAddress,
             signerAddress: ownerAddress,
             uri,
         });
         const signature = await accountSigner.signMessage(message);
+        if (isChallengeExpired(expiresAt)) {
+            throw new WalletChallengeExpiredError(
+                "Wallet login challenge expired before it was signed. Start the login again.",
+            );
+        }
 
         const response = await this.loginWithWallet({
             smartAccountAddress,
@@ -495,6 +506,11 @@ export class AccountSignerAuthService extends AuthService {
             );
         }
         const signature = await accountSigner.signMessage(challenge.message);
+        if (isChallengeExpired(challenge.expiresAt)) {
+            throw new SubaccountChallengeInvalidError(
+                "Subaccount challenge expired before it was signed. Request a fresh challenge.",
+            );
+        }
 
         const response = await subaccounts.create({
             label,
@@ -607,6 +623,10 @@ export class AccountSignerAuthService extends AuthService {
     #getEnvironmentSession(): SessionData | null {
         return this.#sessionStore.get();
     }
+}
+
+function isChallengeExpired(expiresAtMs: number | undefined): boolean {
+    return expiresAtMs !== undefined && serverNowMs() >= expiresAtMs;
 }
 
 function resolveChallengeUri(uri: string | undefined): string {

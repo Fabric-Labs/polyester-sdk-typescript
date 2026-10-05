@@ -1,4 +1,5 @@
-import { ValidationError } from "../../shared/errors.js";
+import { ValidationError, WithdrawDeadlineExpiredError } from "../../shared/errors.js";
+import { serverNowMs } from "../../shared/server-clock.js";
 import { createClient, type Client } from "@connectrpc/connect";
 import type { Address, Hex } from "viem";
 import { checksumEvmAddress, evmHexToBytes } from "../../utils/evm.js";
@@ -58,6 +59,11 @@ export type CreateTradingWithdrawToExternalChainServiceInput =
     };
 
 export type PreparedTradingWithdraw = Readonly<{
+    /**
+     * When the signed deadline lapses, on the server clock. After this, `submit`
+     * throws `WithdrawDeadlineExpiredError`; prepare and sign again.
+     */
+    expiresAt: Date;
     /**
      * Submits the exact payload and signature produced during preparation.
      * Repeated calls only change transport options such as the step-up token.
@@ -226,6 +232,14 @@ export class TradingWithdrawsService {
         validated: TradingWithdrawRequest,
         walletSigner: TradingWithdrawWalletSigner | undefined,
     ): Promise<PreparedTradingWithdraw> {
+        const expiresAt = new Date(Number(validated.payload.deadlineTsSec) * 1000);
+        const assertNotExpired = () => {
+            if (serverNowMs() >= expiresAt.getTime()) {
+                throw new WithdrawDeadlineExpiredError(
+                    "Withdraw signature deadline has passed. Prepare the withdraw again.",
+                );
+            }
+        };
         if (walletSigner) {
             const signingConfig = await resolveTradingWithdrawSigningConfig({
                 fallback: this.#signingConfig,
@@ -249,7 +263,9 @@ export class TradingWithdrawsService {
                 payloadSignature: walletSignature.payloadSignature,
             });
             return {
+                expiresAt,
                 submit: async (options) => {
+                    assertNotExpired();
                     const response = await this.#client.createWalletTradingWithdraw(
                         request,
                         toConnectCallOptions(options),
@@ -270,7 +286,9 @@ export class TradingWithdrawsService {
             payloadSignature: validated.payloadSignature,
         });
         return {
+            expiresAt,
             submit: async (options) => {
+                assertNotExpired();
                 const response = await this.#client.createTradingWithdraw(
                     request,
                     toConnectCallOptions(options),

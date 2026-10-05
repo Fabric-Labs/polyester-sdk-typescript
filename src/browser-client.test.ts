@@ -529,7 +529,7 @@ describe.each([
                 message: "subaccount server message",
                 smartAccountAddress: subaccountSigner.accountAddress,
                 smartAccountSaltNonce: 1,
-                expiresAt: 1_000,
+                expiresAt: Date.now() + 5 * 60_000,
                 polyesterChainId: 1,
             });
         mockClientLogin(client, jwtWithExp(Math.floor(Date.now() / 1000) + 3600));

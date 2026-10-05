@@ -9,6 +9,7 @@ import type * as Proto from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import { WithdrawDestinationValidationCode } from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import { toU128, type U128Value } from "../../utils/u128.js";
 import { ConfigurationError } from "../../shared/errors.js";
+import { serverNowMs } from "../../shared/server-clock.js";
 import {
     TradingWithdrawActionCodec,
     WithdrawDestinationValidationCodeCodec,
@@ -58,7 +59,7 @@ function createTradingWithdrawPayload(input: {
         assetId: input.assetId,
         destinationChainId: input.destinationChainId,
         amountE18: toU128(input.quantityScaled),
-        deadlineTsSec: BigInt(Math.floor(Date.now() / 1000) + DEFAULT_DEADLINE_SECONDS),
+        deadlineTsSec: BigInt(Math.floor(serverNowMs() / 1000) + DEFAULT_DEADLINE_SECONDS),
         nonce: toU128(createNonce()),
         destinationAddress: input.destinationAddress,
         idempotencyKey: input.idempotencyKey,

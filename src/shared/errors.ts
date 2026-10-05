@@ -26,11 +26,13 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * │   ├── AlreadyExistsError         ALREADY_EXISTS              false
  * │   ├── PermissionError            PERMISSION_DENIED           false
  * │   ├── AuthenticationError        UNAUTHENTICATED             false
+ * │   │   └── WalletChallengeExpiredError    WALLET_CHALLENGE_EXPIRED
  * │   ├── PreconditionFailedError    PRECONDITION_FAILED         false
  * │   │   ├── RevisionConflictError          REVISION_CONFLICT
  * │   │   ├── PolicyInUseError               POLICY_IN_USE
  * │   │   ├── PolicyLockedError              POLICY_LOCKED
  * │   │   ├── SubaccountChallengeInvalidError SUBACCOUNT_CHALLENGE_INVALID
+ * │   │   ├── WithdrawDeadlineExpiredError   WITHDRAW_DEADLINE_EXPIRED
  * │   │   └── MfaLastFactorRequiredError     MFA_LAST_FACTOR_REQUIRED
  * │   ├── ConfigurationError         INVALID_CONFIGURATION       false
  * │   ├── MfaRequiredError           MFA_REQUIRED                false
@@ -44,7 +46,8 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * Catalog errors (`CatalogLookupError`, `CatalogConversionError`, …) plug into
  * the same tree under `RequestError`/`ValidationError`.
  *
- * Errors mapped from RPC failures keep the original `ConnectError` as `cause`.
+ * Errors mapped from RPC failures keep the original `ConnectError` as `cause`
+ * and carry the response's `status` and correlation headers when available.
  *
  * @example
  * ```ts
@@ -75,8 +78,10 @@ export type PolyesterErrorCode =
     | "ALREADY_EXISTS"
     | "PERMISSION_DENIED"
     | "UNAUTHENTICATED"
+    | "WALLET_CHALLENGE_EXPIRED"
     | "PRECONDITION_FAILED"
     | "REVISION_CONFLICT"
+    | "WITHDRAW_DEADLINE_EXPIRED"
     | "POLICY_IN_USE"
     | "POLICY_LOCKED"
     | "POLICY_SCOPE_MISMATCH"
@@ -98,6 +103,14 @@ export interface PolyesterErrorOptions {
     cause?: unknown;
     /** Recognized structured backend rejection, decoded at the RPC boundary. */
     detail?: PolyesterErrorDetail;
+    /** HTTP status of the failed response. */
+    status?: number;
+    /** Backend request ID (`x-request-id`), falling back to the Cloudflare `cf-ray` ID. */
+    requestId?: string;
+    /** Cloudflare `cf-ray` response header. */
+    cfRay?: string;
+    /** `x-polyester-edge` response header. */
+    polyesterEdge?: string;
 }
 
 const CONNECT_ERROR_PREFIX_RE = /^(?:\[[a-z][a-z0-9_-]*]\s*)+/i;
@@ -119,13 +132,31 @@ export abstract class PolyesterError extends Error {
     /** Whether retrying the same operation may succeed. */
     abstract readonly retryable: boolean;
     readonly detail: PolyesterErrorDetail | undefined;
+    /**
+     * HTTP status of the failed response. For Connect errors that carry no raw
+     * HTTP status, the Connect protocol's status for the error code.
+     */
+    readonly status: number | undefined;
+    /**
+     * Correlation ID for support and logs: the backend `x-request-id`, falling
+     * back to the Cloudflare `cf-ray` ID. Browsers only see these headers when
+     * the API exposes them via CORS.
+     */
+    readonly requestId: string | undefined;
+    /** Cloudflare `cf-ray` response header. */
+    readonly cfRay: string | undefined;
+    /** `x-polyester-edge` response header. */
+    readonly polyesterEdge: string | undefined;
 
     constructor(message: string, options?: PolyesterErrorOptions) {
         super(normalizeErrorMessage(message), options);
         this.name = "PolyesterError";
-        this.detail =
-            options?.detail ??
-            (options?.cause instanceof PolyesterError ? options.cause.detail : undefined);
+        const inherited = options?.cause instanceof PolyesterError ? options.cause : undefined;
+        this.detail = options?.detail ?? inherited?.detail;
+        this.status = options?.status ?? inherited?.status;
+        this.requestId = options?.requestId ?? inherited?.requestId;
+        this.cfRay = options?.cfRay ?? inherited?.cfRay;
+        this.polyesterEdge = options?.polyesterEdge ?? inherited?.polyesterEdge;
     }
 }
 
@@ -297,6 +328,19 @@ export class AuthenticationError extends RequestError {
     }
 }
 
+/**
+ * The signed wallet login challenge expired before it was submitted (challenges
+ * last five minutes). Start the login again to request a fresh challenge.
+ */
+export class WalletChallengeExpiredError extends AuthenticationError {
+    override readonly code: string = "WALLET_CHALLENGE_EXPIRED";
+
+    constructor(message: string, options?: PolyesterErrorOptions) {
+        super(message, options);
+        this.name = "WalletChallengeExpiredError";
+    }
+}
+
 /** The system is not in a state that allows this operation (e.g. insufficient balance). */
 export class PreconditionFailedError extends RequestError {
     override readonly code: string = "PRECONDITION_FAILED";
@@ -330,6 +374,19 @@ export class SubaccountChallengeInvalidError extends PreconditionFailedError {
     constructor(message: string, options?: PolyesterErrorOptions) {
         super(message, options);
         this.name = "SubaccountChallengeInvalidError";
+    }
+}
+
+/**
+ * The prepared withdraw's signed deadline has passed, so the backend would
+ * reject it. Prepare (and sign) the withdraw again.
+ */
+export class WithdrawDeadlineExpiredError extends PreconditionFailedError {
+    override readonly code: string = "WITHDRAW_DEADLINE_EXPIRED";
+
+    constructor(message: string, options?: PolyesterErrorOptions) {
+        super(message, options);
+        this.name = "WithdrawDeadlineExpiredError";
     }
 }
 
@@ -473,6 +530,11 @@ export class InternalServerError extends PolyesterError {
  */
 export function isAbortError(err: unknown): boolean {
     return err instanceof DOMException && err.name === "AbortError";
+}
+
+/** Checks whether an error is the `TimeoutError` raised by `AbortSignal.timeout()`. */
+export function isTimeoutAbortError(err: unknown): boolean {
+    return err instanceof DOMException && err.name === "TimeoutError";
 }
 
 /** Maps a plain HTTP status code onto the SDK error tree. */

@@ -1,4 +1,5 @@
 import { Code, ConnectError, type Interceptor, type Transport } from "@connectrpc/connect";
+import { codeToHttpStatus } from "@connectrpc/connect/protocol-connect";
 import {
     loadErrorDetailDecoders,
     parseConnectErrorDetail,
@@ -11,6 +12,7 @@ import {
     InternalServerError,
     NotImplementedError,
     isAbortError,
+    isTimeoutAbortError,
     MfaEnrollmentRequiredError,
     MfaLastFactorRequiredError,
     MfaVerificationError,
@@ -135,6 +137,29 @@ const MFA_ERROR_CLASSES = {
     "step-up": StepUpRequiredError,
 } as const;
 
+/** Correlation fields read from response headers, for {@link PolyesterError}. */
+export function responseCorrelation(
+    headers: Headers,
+): Pick<PolyesterErrorOptions, "requestId" | "cfRay" | "polyesterEdge"> {
+    const cfRay = headers.get("cf-ray") ?? undefined;
+    return {
+        requestId: headers.get("x-request-id") ?? cfRay,
+        cfRay,
+        polyesterEdge: headers.get("x-polyester-edge") ?? undefined,
+    };
+}
+
+// Connect servers send the HTTP status mapped from the error code. Client-side
+// failures (timeouts, fetch errors) carry no response metadata and no status.
+function responseStatusFromCode(ce: ConnectError): number | undefined {
+    return ce.metadata.keys().next().done ? undefined : codeToHttpStatus(ce.code);
+}
+
+// Runtimes word AbortSignal.timeout() reasons differently ("signal timed out",
+// "The operation timed out.", "The operation was aborted due to timeout"), and
+// ConnectError.from keeps only the message.
+const TIMEOUT_ABORT_MESSAGE_RE = /timed out|due to timeout/iu;
+
 /**
  * Maps a `ConnectError` from the Polyester backend onto the typed
  * {@link PolyesterError} tree. The original error is preserved as `cause`.
@@ -142,7 +167,13 @@ const MFA_ERROR_CLASSES = {
 export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
     const message = getNormalizedConnectMessage(ce);
     const detail = parseConnectErrorDetail(ce);
-    const options: PolyesterErrorOptions = { cause: ce, detail };
+    const httpStatus = /^HTTP (\d{3})$/u.exec(ce.rawMessage)?.[1];
+    const options: PolyesterErrorOptions = {
+        cause: ce,
+        detail,
+        status: httpStatus ? Number(httpStatus) : responseStatusFromCode(ce),
+        ...responseCorrelation(ce.metadata),
+    };
     const withFallback = (fallback: string) => message || fallback;
 
     if (ce.rawMessage === TIMESTAMP_SKEW_CODE) {
@@ -155,7 +186,6 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
     // Connect reports non-Connect HTTP error bodies as "HTTP <status>" with a lossy
     // code (e.g. 501 → Unknown), so map the real status. Bare 404 keeps Connect's
     // Unimplemented: it means the route is missing, not the resource.
-    const httpStatus = /^HTTP (\d{3})$/u.exec(ce.rawMessage)?.[1];
     if (!detail && httpStatus && httpStatus !== "404") {
         return errorFromHttpStatus(Number(httpStatus), message, {
             ...options,
@@ -321,12 +351,19 @@ function findPolyesterErrorInCauseChain(err: unknown): PolyesterError | null {
  * Converts any RPC-layer failure into its typed SDK error. Abort errors and
  * caller-cancelled requests pass through unchanged, as do errors that are
  * already typed (e.g. a `NetworkError` from the SDK fetch wrapper).
+ * `AbortSignal.timeout()` expiries on signals the caller did not pass (e.g. one
+ * an interceptor added) become {@link TimeoutError}.
  */
 export function toPolyesterError(err: unknown): unknown {
     if (err instanceof PolyesterError) return err;
+    if (isTimeoutAbortError(err)) return new TimeoutError("Request timed out.", { cause: err });
     if (isAbortError(err)) return err;
     if (err instanceof ConnectError) {
-        if (err.code === Code.Canceled) return err;
+        if (err.code === Code.Canceled) {
+            return TIMEOUT_ABORT_MESSAGE_RE.test(err.rawMessage)
+                ? new TimeoutError("Request timed out.", { cause: err })
+                : err;
+        }
         const wrapped = findPolyesterErrorInCauseChain(err);
         if (wrapped) return wrapped;
         return connectErrorToPolyesterError(err);

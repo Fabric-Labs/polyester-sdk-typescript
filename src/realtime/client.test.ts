@@ -1031,7 +1031,12 @@ describe("RealtimeClient", () => {
         vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
             const url = String(input);
             if (url.endsWith("/v1/rt/token")) {
-                return Promise.resolve(new Response(null, { status: 500 }));
+                return Promise.resolve(
+                    new Response(null, {
+                        status: 500,
+                        headers: { "x-request-id": "req_token_500" },
+                    }),
+                );
             }
             return Promise.resolve(
                 new Response(JSON.stringify({ token: "subscription-token" }), {
@@ -1065,6 +1070,10 @@ describe("RealtimeClient", () => {
         expect(onError.mock.calls[0]?.[0].error.message).toBe(
             "Failed to fetch connection token: 500",
         );
+        expect(onError.mock.calls[0]?.[0].error).toMatchObject({
+            status: 500,
+            requestId: "req_token_500",
+        });
     });
 
     it("reports subscription token failures to that channel error handler", async () => {

@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import {
     Code,
     ConnectError,
@@ -6,11 +7,13 @@ import {
     type Transport,
 } from "@connectrpc/connect";
 import { create, toBinary, toJsonString } from "@bufbuild/protobuf";
+import { createServer, type ServerResponse } from "node:http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { signAsync } from "@noble/ed25519";
 import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
 import { RateLimitService } from "../gen/ratelimit/v1/ratelimit_pb.js";
-import { createErrorMappingTransport } from "./connect-error-mapping.js";
+import { createErrorMappingTransport, toPolyesterError } from "./connect-error-mapping.js";
+import { serverNowMs } from "./server-clock.js";
 import * as Proto from "../gen/marketoverview/v1/marketoverview_pb.js";
 import { formatUserFacingError, isRetryableError } from "../utils/errors.js";
 import {
@@ -23,6 +26,7 @@ import {
     PreconditionFailedError,
     RateLimitError,
     RevisionConflictError,
+    ServiceUnavailableError,
     TimeoutError,
     TimestampSkewError,
     TransientError,
@@ -52,6 +56,31 @@ describe("makeFetch", () => {
         expect(isAbortError(abortError)).toBe(true);
     });
 
+    it("maps AbortSignal.timeout() expiries to TimeoutError", async () => {
+        const cause = new DOMException("signal timed out", "TimeoutError");
+        vi.spyOn(globalThis, "fetch").mockRejectedValue(cause);
+
+        const rejection = expect(makeFetch()("https://api.test")).rejects;
+        await rejection.toBeInstanceOf(TimeoutError);
+        await rejection.toMatchObject({ cause, retryable: true });
+    });
+
+    it("learns the server clock offset from the Date header", async () => {
+        const serverDate = new Date(Math.floor(Date.now() / 1000) * 1000 - 10 * 60_000);
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(
+            new Response(null, { headers: { date: serverDate.toUTCString() } }),
+        );
+
+        await makeFetch()("https://api.test");
+        expect(Math.abs(serverNowMs() - serverDate.getTime())).toBeLessThan(1_000);
+
+        vi.mocked(globalThis.fetch).mockResolvedValue(
+            new Response(null, { headers: { date: new Date().toUTCString() } }),
+        );
+        await makeFetch()("https://api.test");
+        expect(Math.abs(serverNowMs() - Date.now())).toBeLessThan(1_000);
+    });
+
     it("wraps transport failures with the original cause", async () => {
         const cause = new TypeError("Failed to fetch");
         vi.spyOn(globalThis, "fetch").mockRejectedValue(cause);
@@ -75,11 +104,18 @@ describe("makeFetch", () => {
         await rejection.toMatchObject({ retryable: true });
     });
 
-    it("passes through real HTTP 500 responses", async () => {
-        const response = new Response("Backend failed", { status: 500 });
+    it("passes through real HTTP 500 responses with the body buffered", async () => {
+        const response = new Response("Backend failed", {
+            status: 500,
+            headers: { "x-request-id": "req_0123456789" },
+        });
         vi.spyOn(globalThis, "fetch").mockResolvedValue(response);
 
-        await expect(makeFetch()("https://api.test")).resolves.toBe(response);
+        const res = await makeFetch()("https://api.test");
+        expect(response.bodyUsed).toBe(true);
+        expect(res.status).toBe(500);
+        expect(res.headers.get("x-request-id")).toBe("req_0123456789");
+        await expect(res.text()).resolves.toBe("Backend failed");
     });
 });
 
@@ -181,6 +217,148 @@ describe("createTransports", () => {
         const rejection = expect(client.listMarketOverview({})).rejects;
         await rejection.toBeInstanceOf(RateLimitError);
         await rejection.toMatchObject({ retryAfterMs: 2000 });
+    });
+
+    it("maps an interceptor-added AbortSignal.timeout() to TimeoutError", async () => {
+        vi.spyOn(globalThis, "fetch").mockImplementation(
+            (_input, init) =>
+                new Promise<Response>((_resolve, reject) => {
+                    const signal = init!.signal!;
+                    signal.addEventListener("abort", () => reject(signal.reason), { once: true });
+                }),
+        );
+        const timeoutInterceptor: Interceptor = (next) => (req) =>
+            next({ ...req, signal: AbortSignal.any([req.signal, AbortSignal.timeout(5)]) });
+        const { publicApi } = createTransports({
+            apiUrl: "https://api.test",
+            interceptors: [timeoutInterceptor],
+        });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        const rejection = expect(client.listMarketOverview({})).rejects;
+        await rejection.toBeInstanceOf(TimeoutError);
+        await rejection.toMatchObject({ code: "TIMEOUT", retryable: true });
+    });
+
+    it("maps canceled ConnectErrors from timeout aborts to TimeoutError", () => {
+        for (const message of [
+            "The operation was aborted due to timeout",
+            "signal timed out",
+            "The operation timed out.",
+        ]) {
+            const cause = ConnectError.from(new DOMException(message, "TimeoutError"));
+            expect(cause.code).toBe(Code.Canceled);
+            const error = toPolyesterError(cause);
+            expect(error).toBeInstanceOf(TimeoutError);
+            expect(error).toMatchObject({ cause });
+        }
+        const aborted = ConnectError.from(new DOMException("signal is aborted", "AbortError"));
+        expect(toPolyesterError(aborted)).toBe(aborted);
+    });
+
+    it("captures status and correlation headers from bare HTTP errors", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(
+            new Response("upstream error", {
+                status: 500,
+                headers: {
+                    "content-type": "text/plain",
+                    "cf-ray": "8c1f2a3b4d5e6f70-SJC",
+                    "x-polyester-edge": "edge-sjc-1",
+                },
+            }),
+        );
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        await expect(client.listMarketOverview({})).rejects.toMatchObject({
+            status: 500,
+            requestId: "8c1f2a3b4d5e6f70-SJC",
+            cfRay: "8c1f2a3b4d5e6f70-SJC",
+            polyesterEdge: "edge-sjc-1",
+        });
+    });
+
+    it("prefers x-request-id and derives status from Connect error codes", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(
+            new Response(JSON.stringify({ code: "resource_exhausted", message: "Slow down." }), {
+                status: 429,
+                headers: {
+                    "content-type": "application/json",
+                    "x-request-id": "req_0123456789",
+                    "cf-ray": "8c1f2a3b4d5e6f70-SJC",
+                },
+            }),
+        );
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        const rejection = expect(client.listMarketOverview({})).rejects;
+        await rejection.toBeInstanceOf(RateLimitError);
+        await rejection.toMatchObject({
+            status: 429,
+            requestId: "req_0123456789",
+            cfRay: "8c1f2a3b4d5e6f70-SJC",
+        });
+    });
+
+    it("leaves status unset for client-side failures", async () => {
+        vi.spyOn(globalThis, "fetch").mockRejectedValue(new TypeError("Failed to fetch"));
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        await expect(client.listMarketOverview({})).rejects.toMatchObject({
+            status: undefined,
+            requestId: undefined,
+        });
+    });
+
+    it.each([
+        {
+            name: "a non-Connect error response",
+            expected: ServiceUnavailableError,
+            respond: (res: ServerResponse) => {
+                res.writeHead(502, { "content-type": "text/html" });
+                res.write("<html>");
+                setTimeout(() => res.end("</html>"), 20);
+            },
+        },
+        {
+            name: "a Connect error response",
+            expected: InternalServerError,
+            respond: (res: ServerResponse) => {
+                res.writeHead(500, { "content-type": "application/json" });
+                res.end(JSON.stringify({ code: "internal", message: "boom" }));
+            },
+        },
+    ])("leaves no unhandled rejection for $name", async ({ expected, respond }) => {
+        // Real HTTP so Connect's post-error abort reaches the response body.
+        const server = createServer((_req, res) => respond(res));
+        await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+        const { port } = server.address() as { port: number };
+        const unhandled: unknown[] = [];
+        const onUnhandled = (reason: unknown) => unhandled.push(reason);
+        process.on("unhandledRejection", onUnhandled);
+        try {
+            // Mimics fetch instrumentation that reads a clone of every response.
+            const instrumentedFetch: typeof fetch = async (input, init) => {
+                const res = await fetch(input, init);
+                void res.clone().text();
+                return res;
+            };
+            const { publicApi } = createTransports({
+                apiUrl: `http://127.0.0.1:${port}`,
+                wireFormat: "json",
+                fetch: instrumentedFetch,
+            });
+            const client = createClient(Proto.MarketOverviewService, publicApi);
+
+            await expect(client.listMarketOverview({})).rejects.toBeInstanceOf(expected);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+            expect(unhandled).toEqual([]);
+        } finally {
+            process.off("unhandledRejection", onUnhandled);
+            server.close();
+        }
     });
 
     it("preserves SDK network errors outside Connect's call runner", async () => {
