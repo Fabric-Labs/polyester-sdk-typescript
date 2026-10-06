@@ -211,6 +211,7 @@ describe("createTransports", () => {
 
         const rejection = expect(client.listMarketOverview({})).rejects;
         await rejection.toBeInstanceOf(WithdrawDeadlineExpiredError);
+        await rejection.toBeInstanceOf(ValidationError);
         await rejection.toMatchObject({ code: "WITHDRAW_DEADLINE_EXPIRED", status: 400 });
     });
 
@@ -298,6 +299,15 @@ describe("createTransports", () => {
         }
         const aborted = ConnectError.from(new DOMException("signal is aborted", "AbortError"));
         expect(toPolyesterError(aborted)).toBe(aborted);
+    });
+
+    it("passes through server-sent canceled errors that mention a timeout", () => {
+        const serverCanceled = new ConnectError(
+            "upstream request timed out",
+            Code.Canceled,
+            new Headers({ "x-request-id": "req-1" }),
+        );
+        expect(toPolyesterError(serverCanceled)).toBe(serverCanceled);
     });
 
     it("captures status and correlation headers from bare HTTP errors", async () => {

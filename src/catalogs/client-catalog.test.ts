@@ -132,17 +132,6 @@ function refreshSource(overrides: Partial<CatalogRefreshSource> = {}): CatalogRe
 }
 
 describe("createPolyesterCatalog", () => {
-    it("passes request options to both refresh sources", async () => {
-        const refresh = refreshSource();
-        const catalog = createPolyesterCatalog({ refresh });
-        const options = { timeoutMs: 5_000 };
-
-        await catalog.refresh(options);
-
-        expect(refresh.market).toHaveBeenCalledWith(options);
-        expect(refresh.zipper).toHaveBeenCalledWith(options);
-    });
-
     it("rejects a null options object", () => {
         expect(() => createPolyesterCatalog(null as never)).toThrow(ConfigurationError);
         expect(() => createPolyesterCatalog(null as never)).toThrow(

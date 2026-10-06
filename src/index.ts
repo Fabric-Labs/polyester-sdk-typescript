@@ -98,6 +98,7 @@ export {
     errorFromHttpStatus,
     InternalServerError,
     isAbortError,
+    isTimeoutAbortError,
     MfaEnrollmentRequiredError,
     MfaLastFactorRequiredError,
     MfaRequiredError,

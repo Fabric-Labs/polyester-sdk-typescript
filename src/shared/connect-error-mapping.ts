@@ -1,5 +1,4 @@
 import { Code, ConnectError, type Interceptor, type Transport } from "@connectrpc/connect";
-import { codeToHttpStatus } from "@connectrpc/connect/protocol-connect";
 import {
     loadErrorDetailDecoders,
     parseConnectErrorDetail,
@@ -153,15 +152,41 @@ export function responseCorrelation(
     };
 }
 
-// Connect servers send the HTTP status mapped from the error code. Client-side
-// failures (timeouts, fetch errors) carry no response metadata and no status.
+// Client-side failures (timeouts, fetch errors, aborts) carry no response metadata.
+function hasResponseMetadata(ce: ConnectError): boolean {
+    return !ce.metadata.keys().next().done;
+}
+
+// HTTP status Connect servers send for each error code
+// (https://connectrpc.com/docs/protocol#error-codes). Connect's own
+// codeToHttpStatus is internal and outside its semver.
+const CONNECT_CODE_HTTP_STATUS: Record<Code, number> = {
+    [Code.Canceled]: 499,
+    [Code.Unknown]: 500,
+    [Code.InvalidArgument]: 400,
+    [Code.DeadlineExceeded]: 504,
+    [Code.NotFound]: 404,
+    [Code.AlreadyExists]: 409,
+    [Code.PermissionDenied]: 403,
+    [Code.ResourceExhausted]: 429,
+    [Code.FailedPrecondition]: 400,
+    [Code.Aborted]: 409,
+    [Code.OutOfRange]: 400,
+    [Code.Unimplemented]: 501,
+    [Code.Internal]: 500,
+    [Code.Unavailable]: 503,
+    [Code.DataLoss]: 500,
+    [Code.Unauthenticated]: 401,
+};
+
 function responseStatusFromCode(ce: ConnectError): number | undefined {
-    return ce.metadata.keys().next().done ? undefined : codeToHttpStatus(ce.code);
+    return hasResponseMetadata(ce) ? CONNECT_CODE_HTTP_STATUS[ce.code] : undefined;
 }
 
 // Runtimes word AbortSignal.timeout() reasons differently ("signal timed out",
 // "The operation timed out.", "The operation was aborted due to timeout"), and
-// ConnectError.from keeps only the message.
+// ConnectError.from keeps only the message. Only matched on client-side cancels,
+// so a server-sent `canceled` mentioning a timeout passes through.
 const TIMEOUT_ABORT_MESSAGE_RE = /timed out|due to timeout/iu;
 
 /**
@@ -372,7 +397,7 @@ export function toPolyesterError(err: unknown): unknown {
     if (isAbortError(err)) return err;
     if (err instanceof ConnectError) {
         if (err.code === Code.Canceled) {
-            return TIMEOUT_ABORT_MESSAGE_RE.test(err.rawMessage)
+            return !hasResponseMetadata(err) && TIMEOUT_ABORT_MESSAGE_RE.test(err.rawMessage)
                 ? new TimeoutError("Request timed out.", { cause: err })
                 : err;
         }

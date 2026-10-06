@@ -232,9 +232,9 @@ export class TradingWithdrawsService {
         validated: TradingWithdrawRequest,
         walletSigner: TradingWithdrawWalletSigner | undefined,
     ): Promise<PreparedTradingWithdraw> {
-        const expiresAt = new Date(Number(validated.payload.deadlineTsSec) * 1000);
+        const expiresAtMs = Number(validated.payload.deadlineTsSec) * 1000;
         const assertNotExpired = () => {
-            if (serverNowMs() >= expiresAt.getTime()) {
+            if (serverNowMs() >= expiresAtMs) {
                 throw new WithdrawDeadlineExpiredError(
                     "Withdraw signature deadline has passed. Prepare the withdraw again.",
                 );
@@ -263,7 +263,7 @@ export class TradingWithdrawsService {
                 payloadSignature: walletSignature.payloadSignature,
             });
             return {
-                expiresAt,
+                expiresAt: new Date(expiresAtMs),
                 submit: async (options) => {
                     assertNotExpired();
                     const response = await this.#client.createWalletTradingWithdraw(
@@ -286,7 +286,7 @@ export class TradingWithdrawsService {
             payloadSignature: validated.payloadSignature,
         });
         return {
-            expiresAt,
+            expiresAt: new Date(expiresAtMs),
             submit: async (options) => {
                 assertNotExpired();
                 const response = await this.#client.createTradingWithdraw(

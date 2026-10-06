@@ -106,6 +106,8 @@ export function makeFetch(fetchImpl?: typeof fetch): typeof fetch {
                     headers,
                     redirect: "manual",
                 });
+                // Sample before buffering so body transfer time doesn't skew it.
+                observeServerDate(res?.headers.get("date") ?? null);
                 // Connect rejects non-Connect error responses without reading the
                 // body, then aborts the request with its ConnectError. Any reader
                 // still on that body (e.g. fetch instrumentation reading a clone)
@@ -122,7 +124,6 @@ export function makeFetch(fetchImpl?: typeof fetch): typeof fetch {
             // A custom or patched fetch (browser extensions, monitoring scripts) can
             // resolve without a Response.
             if (!res) throw new NetworkError("Transport request returned no response");
-            observeServerDate(res.headers.get("date"));
             // Connect discards non-Connect error bodies, so surface the problem+json
             // skew code here before it collapses into a bare HTTP status error.
             if (await isTimestampSkewProblem(res)) {

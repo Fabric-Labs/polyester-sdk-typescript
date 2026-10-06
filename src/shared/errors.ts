@@ -20,6 +20,7 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * ├── RequestError                   REQUEST_FAILED              false
  * │   ├── ValidationError            VALIDATION_FAILED           false
  * │   │   ├── StaleQuoteError            STALE_QUOTE
+ * │   │   ├── WithdrawDeadlineExpiredError WITHDRAW_DEADLINE_EXPIRED
  * │   │   └── PolicyScopeMismatchError   POLICY_SCOPE_MISMATCH
  * │   ├── ResourceNotFoundError      RESOURCE_NOT_FOUND          false
  * │   ├── NotImplementedError        NOT_IMPLEMENTED             false
@@ -32,7 +33,6 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * │   │   ├── PolicyInUseError               POLICY_IN_USE
  * │   │   ├── PolicyLockedError              POLICY_LOCKED
  * │   │   ├── SubaccountChallengeInvalidError SUBACCOUNT_CHALLENGE_INVALID
- * │   │   ├── WithdrawDeadlineExpiredError   WITHDRAW_DEADLINE_EXPIRED
  * │   │   └── MfaLastFactorRequiredError     MFA_LAST_FACTOR_REQUIRED
  * │   ├── ConfigurationError         INVALID_CONFIGURATION       false
  * │   ├── MfaRequiredError           MFA_REQUIRED                false
@@ -73,6 +73,7 @@ export type PolyesterErrorCode =
     | "REQUEST_FAILED"
     | "VALIDATION_FAILED"
     | "STALE_QUOTE"
+    | "WITHDRAW_DEADLINE_EXPIRED"
     | "RESOURCE_NOT_FOUND"
     | "NOT_IMPLEMENTED"
     | "ALREADY_EXISTS"
@@ -81,7 +82,6 @@ export type PolyesterErrorCode =
     | "WALLET_CHALLENGE_EXPIRED"
     | "PRECONDITION_FAILED"
     | "REVISION_CONFLICT"
-    | "WITHDRAW_DEADLINE_EXPIRED"
     | "POLICY_IN_USE"
     | "POLICY_LOCKED"
     | "POLICY_SCOPE_MISMATCH"
@@ -278,6 +278,23 @@ export class StaleQuoteError extends ValidationError {
     }
 }
 
+/**
+ * The prepared withdraw's signed deadline has passed, so the backend would
+ * reject it. Prepare (and sign) the withdraw again.
+ *
+ * Thrown by `submit` before sending once the deadline has passed, and when the
+ * backend rejects the deadline as expired: one that lapsed in flight, or one
+ * signed from a device clock running behind while the server clock was unknown.
+ */
+export class WithdrawDeadlineExpiredError extends ValidationError {
+    override readonly code: string = "WITHDRAW_DEADLINE_EXPIRED";
+
+    constructor(message: string, options?: PolyesterErrorOptions) {
+        super(message, options);
+        this.name = "WithdrawDeadlineExpiredError";
+    }
+}
+
 /** The requested resource does not exist (or is not visible to the caller). */
 export class ResourceNotFoundError extends RequestError {
     override readonly code: string = "RESOURCE_NOT_FOUND";
@@ -377,24 +394,6 @@ export class SubaccountChallengeInvalidError extends PreconditionFailedError {
     constructor(message: string, options?: PolyesterErrorOptions) {
         super(message, options);
         this.name = "SubaccountChallengeInvalidError";
-    }
-}
-
-/**
- * The prepared withdraw's signed deadline has passed, so the backend would
- * reject it. Prepare (and sign) the withdraw again.
- *
- * Thrown by `submit` before sending once the deadline has passed by the server
- * clock, and when the backend rejects the deadline as expired (for example a
- * deadline that lapsed in flight, or one signed from a device clock running
- * behind before the server clock was learned).
- */
-export class WithdrawDeadlineExpiredError extends PreconditionFailedError {
-    override readonly code: string = "WITHDRAW_DEADLINE_EXPIRED";
-
-    constructor(message: string, options?: PolyesterErrorOptions) {
-        super(message, options);
-        this.name = "WithdrawDeadlineExpiredError";
     }
 }
 
