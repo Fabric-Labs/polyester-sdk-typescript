@@ -5,7 +5,7 @@ import {
     SubaccountChallengeInvalidError,
     WalletChallengeExpiredError,
 } from "../../shared/errors.js";
-import { serverNowMs } from "../../shared/server-clock.js";
+import { knownServerNowMs } from "../../shared/server-clock.js";
 import { toPolyesterError } from "../../shared/connect-error-mapping.js";
 import { AuthSessionStore } from "./session.js";
 import type { AccountSigner, AccountSignerConfig, HexAddress } from "../../account-signer/types.js";
@@ -625,8 +625,11 @@ export class AccountSignerAuthService extends AuthService {
     }
 }
 
+// Skipped until the server clock is known: the device clock alone can be
+// minutes off, and the backend still enforces the expiry.
 function isChallengeExpired(expiresAtMs: number | undefined): boolean {
-    return expiresAtMs !== undefined && serverNowMs() >= expiresAtMs;
+    const now = knownServerNowMs();
+    return expiresAtMs !== undefined && now !== undefined && now >= expiresAtMs;
 }
 
 function resolveChallengeUri(uri: string | undefined): string {

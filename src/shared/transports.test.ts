@@ -14,6 +14,7 @@ import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js"
 import { RateLimitService } from "../gen/ratelimit/v1/ratelimit_pb.js";
 import { createErrorMappingTransport, toPolyesterError } from "./connect-error-mapping.js";
 import { serverNowMs } from "./server-clock.js";
+import { toConnectCallOptions } from "./request-options.js";
 import * as Proto from "../gen/marketoverview/v1/marketoverview_pb.js";
 import { formatUserFacingError, isRetryableError } from "../utils/errors.js";
 import {
@@ -31,6 +32,7 @@ import {
     TimestampSkewError,
     TransientError,
     ValidationError,
+    WithdrawDeadlineExpiredError,
 } from "./errors.js";
 import {
     createApiKeyEd25519AuthHeaders,
@@ -194,6 +196,24 @@ describe("createTransports", () => {
         await rejection.toMatchObject({ code: "TIMESTAMP_SKEW", retryable: true });
     });
 
+    it("maps backend withdraw deadline rejections to WithdrawDeadlineExpiredError", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(
+            new Response(
+                JSON.stringify({
+                    code: "invalid_argument",
+                    message: "deadline_ts_sec has expired",
+                }),
+                { status: 400, headers: { "content-type": "application/json" } },
+            ),
+        );
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        const rejection = expect(client.listMarketOverview({})).rejects;
+        await rejection.toBeInstanceOf(WithdrawDeadlineExpiredError);
+        await rejection.toMatchObject({ code: "WITHDRAW_DEADLINE_EXPIRED", status: 400 });
+    });
+
     it("keeps other problem+json 401 responses as AuthenticationError", async () => {
         vi.spyOn(globalThis, "fetch").mockResolvedValue(
             new Response(JSON.stringify({ code: "UNAUTHENTICATED", status: 401 }), {
@@ -236,6 +256,30 @@ describe("createTransports", () => {
         const client = createClient(Proto.MarketOverviewService, publicApi);
 
         const rejection = expect(client.listMarketOverview({})).rejects;
+        await rejection.toBeInstanceOf(TimeoutError);
+        await rejection.toMatchObject({ code: "TIMEOUT", retryable: true });
+    });
+
+    it.each([
+        { source: "timeoutMs option", options: () => ({ timeoutMs: 5 }) },
+        {
+            source: "caller AbortSignal.timeout()",
+            options: () => ({ signal: AbortSignal.timeout(5) }),
+        },
+    ])("maps a $source expiry to TimeoutError", async ({ options }) => {
+        vi.spyOn(globalThis, "fetch").mockImplementation(
+            (_input, init) =>
+                new Promise<Response>((_resolve, reject) => {
+                    const signal = init!.signal!;
+                    signal.addEventListener("abort", () => reject(signal.reason), { once: true });
+                }),
+        );
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        const rejection = expect(
+            client.listMarketOverview({}, toConnectCallOptions(options())),
+        ).rejects;
         await rejection.toBeInstanceOf(TimeoutError);
         await rejection.toMatchObject({ code: "TIMEOUT", retryable: true });
     });
@@ -617,13 +661,13 @@ describe("error details through transports", () => {
 describe("caller cancellation through transports", () => {
     afterEach(() => vi.restoreAllMocks());
 
-    it.each(["default", "custom", "pre", "timeout", "api-key", "jwt-pre"] as const)(
+    it.each(["default", "custom", "pre", "api-key", "jwt-pre"] as const)(
         "classifies %s cancellation without retrying",
         async (kind) => {
             const controller = new AbortController();
             const preAborted = kind === "pre" || kind === "jwt-pre";
             if (preAborted) controller.abort();
-            const signal = kind === "timeout" ? AbortSignal.timeout(10) : controller.signal;
+            const signal = controller.signal;
             let fetchAborted = false;
             const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(
                 (_input, init) =>
@@ -635,12 +679,10 @@ describe("caller cancellation through transports", () => {
                         };
                         if (fetchSignal.aborted) abort();
                         else fetchSignal.addEventListener("abort", abort, { once: true });
-                        if (kind !== "timeout") {
-                            queueMicrotask(() => {
-                                if (kind === "custom") controller.abort(new Error("route change"));
-                                else controller.abort();
-                            });
-                        }
+                        queueMicrotask(() => {
+                            if (kind === "custom") controller.abort(new Error("route change"));
+                            else controller.abort();
+                        });
                     }),
             );
             const getToken = vi.fn(() => "fixture-token");

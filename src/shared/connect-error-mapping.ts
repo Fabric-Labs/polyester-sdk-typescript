@@ -37,11 +37,15 @@ import {
     TimestampSkewError,
     TransientError,
     ValidationError,
+    WithdrawDeadlineExpiredError,
 } from "./errors.js";
 import type { RateLimitDetail } from "./rate-limit.schemas.js";
 
 /** Backend code for API-key signatures whose timestamp is outside the skew window. */
 export const TIMESTAMP_SKEW_CODE = "TIMESTAMP_SKEW";
+
+// The withdraw service has no structured code for this; match its message.
+const WITHDRAW_DEADLINE_EXPIRED_MESSAGE = "deadline_ts_sec has expired";
 
 function hasTransientServiceError(detail: PolyesterErrorDetail | undefined): boolean {
     if (detail?.service === "withdraw") {
@@ -179,6 +183,13 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
     if (ce.rawMessage === TIMESTAMP_SKEW_CODE) {
         return new TimestampSkewError(
             "API key timestamp is outside the allowed skew window.",
+            options,
+        );
+    }
+
+    if (ce.code === Code.InvalidArgument && ce.rawMessage === WITHDRAW_DEADLINE_EXPIRED_MESSAGE) {
+        return new WithdrawDeadlineExpiredError(
+            "Withdraw signature deadline has passed. Prepare the withdraw again.",
             options,
         );
     }
@@ -351,8 +362,9 @@ function findPolyesterErrorInCauseChain(err: unknown): PolyesterError | null {
  * Converts any RPC-layer failure into its typed SDK error. Abort errors and
  * caller-cancelled requests pass through unchanged, as do errors that are
  * already typed (e.g. a `NetworkError` from the SDK fetch wrapper).
- * `AbortSignal.timeout()` expiries on signals the caller did not pass (e.g. one
- * an interceptor added) become {@link TimeoutError}.
+ * `AbortSignal.timeout()` expiries become {@link TimeoutError}, whether the
+ * timeout signal was passed by the caller or added by an interceptor. Prefer the
+ * `timeoutMs` request option, which Connect reports as `DeadlineExceeded`.
  */
 export function toPolyesterError(err: unknown): unknown {
     if (err instanceof PolyesterError) return err;
@@ -371,8 +383,10 @@ export function toPolyesterError(err: unknown): unknown {
     return err;
 }
 
-function callerAbortError(signal: AbortSignal): DOMException {
+function callerAbortError(signal: AbortSignal): DOMException | TimeoutError {
     const reason: unknown = signal.reason;
+    if (isTimeoutAbortError(reason))
+        return new TimeoutError("Request timed out.", { cause: reason });
     return reason instanceof DOMException && reason.name === "AbortError"
         ? reason
         : new DOMException("Request canceled.", "AbortError");

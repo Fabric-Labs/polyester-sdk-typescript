@@ -304,14 +304,14 @@ export class PolyesterCore {
                     snapshot: this.#configCatalogSnapshot,
                     cell: this.#configCatalogCell,
                     refresh: {
-                        market: async () => {
+                        market: async (options) => {
                             const { marketDataService } =
                                 await import("./services/market-data/service.js");
-                            return marketDataService(this).getSpotConfig();
+                            return marketDataService(this).getSpotConfig(options);
                         },
-                        zipper: async () => {
+                        zipper: async (options) => {
                             const { zipperService } = await import("./services/zipper/service.js");
-                            return zipperService(this).getDepositWithdrawConfig();
+                            return zipperService(this).getDepositWithdrawConfig(options);
                         },
                     },
                 });

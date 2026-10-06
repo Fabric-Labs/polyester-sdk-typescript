@@ -7,6 +7,7 @@ import type {
     ZipperChainContractConfig,
 } from "../shared/catalog-config.js";
 import { RequestError, ValidationError } from "../shared/errors.js";
+import type { PolyesterRequestOptions } from "../shared/request-options.js";
 import type { EnrichedPairConfig, MarketCatalogData } from "./market-data-catalog.js";
 import type {
     ZipperCatalogData,
@@ -155,7 +156,11 @@ export interface ClientCatalog extends CatalogReader {
     ready(): Promise<CatalogSnapshot | null>;
     /** Resolves the current snapshot, starting a refresh when the catalog is empty. */
     ensureReady(): Promise<CatalogSnapshot>;
-    refresh(): Promise<CatalogSnapshot>;
+    /**
+     * Fetches a fresh snapshot. Calls made while a refresh is in flight share it,
+     * along with the options of the call that started it.
+     */
+    refresh(options?: PolyesterRequestOptions): Promise<CatalogSnapshot>;
     setSnapshot(snapshot: CatalogSnapshot): void;
 }
 
@@ -174,8 +179,8 @@ export type CatalogState =
     | { status: "stale"; source: CatalogStateSource; error: unknown };
 
 export interface CatalogRefreshSource {
-    market(): Promise<SpotConfig>;
-    zipper(): Promise<DepositWithdrawConfig>;
+    market(options?: PolyesterRequestOptions): Promise<SpotConfig>;
+    zipper(options?: PolyesterRequestOptions): Promise<DepositWithdrawConfig>;
 }
 
 /**

@@ -9,6 +9,7 @@ import type {
 } from "./types.js";
 import { CatalogNotReadyError } from "./types.js";
 import { ConfigurationError } from "../shared/errors.js";
+import type { PolyesterRequestOptions } from "../shared/request-options.js";
 import { parseCatalogSnapshot } from "./snapshot-validation.js";
 
 export function createPolyesterCatalog(options: CreatePolyesterCatalogOptions = {}): ClientCatalog {
@@ -49,7 +50,7 @@ export function createPolyesterCatalog(options: CreatePolyesterCatalogOptions = 
         stateValue = { status: "fresh", source: parsed.source };
     }
 
-    function refresh(): Promise<CatalogSnapshot> {
+    function refresh(requestOptions?: PolyesterRequestOptions): Promise<CatalogSnapshot> {
         if (options.refresh === false || options.refresh === undefined) {
             const current = getCurrent();
             if (!current) return Promise.reject(new CatalogNotReadyError());
@@ -58,7 +59,10 @@ export function createPolyesterCatalog(options: CreatePolyesterCatalogOptions = 
         if (refreshInFlight) return refreshInFlight;
 
         stateValue = { status: "refreshing", previousSource: currentSource() };
-        refreshInFlight = Promise.all([options.refresh.market(), options.refresh.zipper()])
+        refreshInFlight = Promise.all([
+            options.refresh.market(requestOptions),
+            options.refresh.zipper(requestOptions),
+        ])
             .then(([marketSeed, zipperSeed]) => {
                 const snapshot = buildCatalogSnapshot({
                     market: marketSeed,

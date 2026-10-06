@@ -331,6 +331,9 @@ export class AuthenticationError extends RequestError {
 /**
  * The signed wallet login challenge expired before it was submitted (challenges
  * last five minutes). Start the login again to request a fresh challenge.
+ *
+ * Client-side check only: the backend has no distinct code for an expired
+ * challenge, so a rejection from the server is a plain {@link AuthenticationError}.
  */
 export class WalletChallengeExpiredError extends AuthenticationError {
     override readonly code: string = "WALLET_CHALLENGE_EXPIRED";
@@ -380,6 +383,11 @@ export class SubaccountChallengeInvalidError extends PreconditionFailedError {
 /**
  * The prepared withdraw's signed deadline has passed, so the backend would
  * reject it. Prepare (and sign) the withdraw again.
+ *
+ * Thrown by `submit` before sending once the deadline has passed by the server
+ * clock, and when the backend rejects the deadline as expired (for example a
+ * deadline that lapsed in flight, or one signed from a device clock running
+ * behind before the server clock was learned).
  */
 export class WithdrawDeadlineExpiredError extends PreconditionFailedError {
     override readonly code: string = "WITHDRAW_DEADLINE_EXPIRED";
