@@ -165,6 +165,12 @@ export function parseCatalogSnapshot(value: unknown): CatalogSnapshot {
     return snapshot;
 }
 
+/** Caches a snapshot built only from already-parsed parts so later parses skip validation. */
+export function markCatalogSnapshotParsed(snapshot: CatalogSnapshot): CatalogSnapshot {
+    parsedSnapshots.set(snapshot, snapshot);
+    return snapshot;
+}
+
 /** Parses supply updates before they can advance a snapshot's version or timestamp. */
 export function parseZippedAssetSupplyCatalogUpdates(
     value: unknown,
