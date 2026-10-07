@@ -8,6 +8,12 @@ import {
 } from "./types.js";
 import { ValidationError } from "../shared/errors.js";
 import { positiveDecimalInputToScaled } from "../shared/decimal-surface.js";
+import * as v from "valibot";
+
+vi.mock("valibot", async (importOriginal) => {
+    const actual = await importOriginal<typeof v>();
+    return { ...actual, safeParse: vi.fn(actual.safeParse) };
+});
 
 const BTC = {
     symbol: "BTC",
@@ -470,6 +476,25 @@ describe("zipper lookups", () => {
         expect(catalogs.patchZipperCatalogSupply(next, [{ zippedAssetId: 902, supply: "5" }])).toBe(
             next,
         );
+    });
+
+    it("keeps patched supply snapshots cached and structurally shared through setSnapshot", () => {
+        const client = catalog();
+        const snapshot = client.snapshot();
+        const unchanged = catalogs.patchZipperCatalogSupply(snapshot, [
+            { zippedAssetId: 901, supply: "1.23" },
+        ]);
+        expect(unchanged).toBe(snapshot);
+
+        const next = catalogs.patchZipperCatalogSupply(snapshot, [
+            { zippedAssetId: 901, supply: "9.87" },
+        ]);
+        vi.mocked(v.safeParse).mockClear();
+        client.setSnapshot(next);
+
+        expect(client.snapshot()).toBe(next);
+        expect(client.snapshot().market).toBe(snapshot.market);
+        expect(v.safeParse).not.toHaveBeenCalled();
     });
 });
 
