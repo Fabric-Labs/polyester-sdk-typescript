@@ -1,5 +1,11 @@
 # @polyester/sdk
 
+## 0.30.2
+
+### Patch Changes
+
+- `patchZipperCatalogSupply` caches the snapshot it returns as already validated, so passing it to `catalog.setSnapshot` no longer re-validates the whole catalog on every supply update. ([#191](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/191))
+
 ## 0.30.1
 
 ### Patch Changes
