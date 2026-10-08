@@ -668,10 +668,7 @@ describe("MarketOverviewService", () => {
         expect(onError).toHaveBeenCalledWith({
             channel: "public:spot:market_overview:updates:proto",
             type: "snapshot",
-            error: {
-                code: 0,
-                message: "snapshot unavailable",
-            },
+            error: expect.objectContaining({ message: "snapshot unavailable" }),
         });
     });
 
@@ -700,10 +697,7 @@ describe("MarketOverviewService", () => {
         expect(onError).toHaveBeenCalledWith({
             channel: "public:spot:market_overview:updates:proto",
             type: "snapshot",
-            error: {
-                code: 0,
-                message: "reconnect snapshot unavailable",
-            },
+            error: expect.objectContaining({ message: "reconnect snapshot unavailable" }),
         });
     });
 

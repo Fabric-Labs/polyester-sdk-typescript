@@ -274,7 +274,7 @@ describe("SubaccountPoliciesService", () => {
         realtime.params?.onError?.({
             channel: "private:auth:subaccount-policies:acct-1:proto",
             type: "transport",
-            error: { code: 1, message: "failed" },
+            error: new Error("failed"),
         });
         realtime.params?.onPublication(subaccountPolicy() as never);
 
