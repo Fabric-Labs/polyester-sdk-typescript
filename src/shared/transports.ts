@@ -108,12 +108,15 @@ export function makeFetch(fetchImpl?: typeof fetch): typeof fetch {
                 });
                 // Sample before buffering so body transfer time doesn't skew it.
                 observeServerDate(res?.headers.get("date") ?? null);
-                // Connect rejects non-Connect error responses without reading the
-                // body, then aborts the request with its ConnectError. Any reader
-                // still on that body (e.g. fetch instrumentation reading a clone)
-                // would reject with the raw ConnectError, unhandled. Buffer error
-                // bodies so the stream is complete before Connect aborts.
-                if (res && res.status >= 400) res = new Response(await res.arrayBuffer(), res);
+                // Connect rejects anything but a 200 with a Connect content type
+                // without reading the body, then aborts the request with its
+                // ConnectError. Any reader still on that body (e.g. fetch
+                // instrumentation reading a clone) would reject with the raw
+                // ConnectError, unhandled. Buffer those bodies so the stream is
+                // complete before Connect aborts.
+                if (res?.body && !isConnectResponse(res)) {
+                    res = new Response(await res.arrayBuffer(), res);
+                }
             } catch (err) {
                 if (isAbortError(err)) throw err;
                 if (isTimeoutAbortError(err)) {
@@ -138,6 +141,14 @@ export function makeFetch(fetchImpl?: typeof fetch): typeof fetch {
     );
 
     return wrappedFetch;
+}
+
+const CONNECT_CONTENT_TYPE_RE = /^application\/(?:connect\+)?(?:json|proto)\s*(?:;|$)/iu;
+
+function isConnectResponse(res: Response): boolean {
+    return (
+        res.status === 200 && CONNECT_CONTENT_TYPE_RE.test(res.headers.get("content-type") ?? "")
+    );
 }
 
 async function isTimestampSkewProblem(res: Response): Promise<boolean> {

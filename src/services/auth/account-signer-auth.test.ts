@@ -186,6 +186,8 @@ describe("AccountSignerAuthService", () => {
     it.each([
         { clock: "known", expired: true },
         { clock: "unknown", expired: false },
+        // The device clock runs 26 minutes behind, but the SIWE `Issued At` sets the server clock.
+        { clock: "issued-at", expired: true },
     ])(
         "checks wallet challenge expiry after signing only when the server clock is $clock",
         async ({ clock, expired }) => {
@@ -202,9 +204,13 @@ describe("AccountSignerAuthService", () => {
             });
             const auth = authService(accountSigner);
             const { createWalletChallenge, loginWithWallet } = mockLogin(auth);
+            const serverNow = Date.now() + (clock === "issued-at" ? 26 * 60_000 : 0);
             createWalletChallenge.mockResolvedValue({
-                message: "server-issued message",
-                expiresAt: Date.now() + 5 * 60_000,
+                message:
+                    clock === "issued-at"
+                        ? `Nonce: abc\nIssued At: ${new Date(serverNow).toISOString()}\nResources:`
+                        : "server-issued message",
+                expiresAt: serverNow + 5 * 60_000,
             });
 
             const error = await auth.login({ provider: "other" }).catch((error: unknown) => error);

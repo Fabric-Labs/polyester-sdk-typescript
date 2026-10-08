@@ -384,6 +384,24 @@ describe("createTransports", () => {
                 res.end(JSON.stringify({ code: "internal", message: "boom" }));
             },
         },
+        {
+            name: "a 200 non-Connect response",
+            expected: InternalServerError,
+            respond: (res: ServerResponse) => {
+                res.writeHead(200, { "content-type": "text/html" });
+                res.write("<html>");
+                setTimeout(() => res.end("</html>"), 20);
+            },
+        },
+        {
+            name: "a redirect response",
+            expected: NetworkError,
+            respond: (res: ServerResponse) => {
+                res.writeHead(302, { location: "/elsewhere", "content-type": "text/html" });
+                res.write("<html>");
+                setTimeout(() => res.end("</html>"), 20);
+            },
+        },
     ])("leaves no unhandled rejection for $name", async ({ expected, respond }) => {
         // Real HTTP so Connect's post-error abort reaches the response body.
         const server = createServer((_req, res) => respond(res));
@@ -726,6 +744,21 @@ describe("caller cancellation through transports", () => {
             if (kind === "default" || preAborted) expect(error).toBe(signal.reason);
         },
     );
+
+    it("rejects an already-expired timeout signal as a non-retryable abort", async () => {
+        const signal = AbortSignal.timeout(1);
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        const fetchMock = vi.spyOn(globalThis, "fetch");
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(RateLimitService, publicApi);
+
+        const error = await client
+            .getRateLimitConfig({}, { signal })
+            .catch((error: unknown) => error);
+        expect(isAbortError(error)).toBe(true);
+        expect(isRetryableError(error)).toBe(false);
+        expect(fetchMock).not.toHaveBeenCalled();
+    });
 
     it("does not classify a server cancellation as a caller abort", async () => {
         vi.spyOn(globalThis, "fetch").mockResolvedValue(

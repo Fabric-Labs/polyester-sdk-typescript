@@ -5,7 +5,7 @@ import {
     SubaccountChallengeInvalidError,
     WalletChallengeExpiredError,
 } from "../../shared/errors.js";
-import { knownServerNowMs } from "../../shared/server-clock.js";
+import { knownServerNowMs, observeServerTime } from "../../shared/server-clock.js";
 import { toPolyesterError } from "../../shared/connect-error-mapping.js";
 import { AuthSessionStore } from "./session.js";
 import type { AccountSigner, AccountSignerConfig, HexAddress } from "../../account-signer/types.js";
@@ -196,6 +196,7 @@ export class AccountSignerAuthService extends AuthService {
             signerAddress: ownerAddress,
             uri,
         });
+        observeChallengeIssuedAt(message);
         const signature = await accountSigner.signMessage(message);
         if (isChallengeExpired(expiresAt)) {
             throw new WalletChallengeExpiredError(
@@ -505,6 +506,7 @@ export class AccountSignerAuthService extends AuthService {
                 `Subaccount signer address ${accountSigner.accountAddress} does not match the server-derived smart account ${challenge.smartAccountAddress}.`,
             );
         }
+        observeChallengeIssuedAt(challenge.message);
         const signature = await accountSigner.signMessage(challenge.message);
         if (isChallengeExpired(challenge.expiresAt)) {
             throw new SubaccountChallengeInvalidError(
@@ -623,6 +625,15 @@ export class AccountSignerAuthService extends AuthService {
     #getEnvironmentSession(): SessionData | null {
         return this.#sessionStore.get();
     }
+}
+
+const SIWE_ISSUED_AT_RE = /^Issued At: (\S+)$/mu;
+
+// The EIP-4361 `Issued At` is server time at issue, so it sets the server clock
+// even when CORS hides the response `Date` header.
+function observeChallengeIssuedAt(message: string): void {
+    const issuedAt = SIWE_ISSUED_AT_RE.exec(message)?.[1];
+    if (issuedAt) observeServerTime(Date.parse(issuedAt));
 }
 
 // Skipped until the server clock is known: the device clock alone can be

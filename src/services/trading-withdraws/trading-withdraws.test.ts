@@ -494,6 +494,34 @@ describe("TradingWithdrawsService", () => {
             );
             expect(transport.calls).toHaveLength(1);
         });
+
+        it("signs a caller-supplied deadline", async () => {
+            const transport = unaryTransportByMethod({
+                createTradingWithdraw: { intentId: "intent-1" },
+            });
+            const service = new TradingWithdrawsService(
+                { authApi: transport.transport },
+                undefined,
+                signingConfig,
+                testScales(),
+            );
+            const deadline = new Date(Date.now() + 15 * 60_000 + 500);
+
+            const prepared = await service.prepareToFunding({
+                assetId: 1,
+                quantity: "10",
+                idempotencyKey: "withdraw-deadline",
+                payloadSignature: new Uint8Array([1]),
+                deadline,
+            });
+            const deadlineSec = Math.floor(deadline.getTime() / 1000);
+            expect(prepared.expiresAt.getTime()).toBe(deadlineSec * 1000);
+            await prepared.submit();
+            const payload = (
+                transport.lastCall()?.message as { payload?: Proto.TradingWithdrawIntentPayload }
+            )?.payload;
+            expect(payload?.deadlineTsSec).toBe(BigInt(deadlineSec));
+        });
     });
 
     it("rejects quantities that are invalid, non-positive, or too precise before transport", async () => {

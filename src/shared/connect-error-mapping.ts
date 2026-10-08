@@ -412,6 +412,13 @@ function callerAbortError(signal: AbortSignal): DOMException | TimeoutError {
     const reason: unknown = signal.reason;
     if (isTimeoutAbortError(reason))
         return new TimeoutError("Request timed out.", { cause: reason });
+    return preAbortedError(signal);
+}
+
+// A signal that fired before the call started is a cancellation even when it was
+// a timeout: a retryable TimeoutError would let retry loops spin on a dead signal.
+function preAbortedError(signal: AbortSignal): DOMException {
+    const reason: unknown = signal.reason;
     return reason instanceof DOMException && reason.name === "AbortError"
         ? reason
         : new DOMException("Request canceled.", "AbortError");
@@ -463,7 +470,7 @@ export function createErrorMappingInterceptor(): Interceptor {
 export function createErrorMappingTransport(transport: Transport): Transport {
     return {
         async unary(method, signal, timeoutMs, header, input, contextValues) {
-            if (signal?.aborted) throw callerAbortError(signal);
+            if (signal?.aborted) throw preAbortedError(signal);
             try {
                 return await transport.unary(
                     method,
@@ -478,7 +485,7 @@ export function createErrorMappingTransport(transport: Transport): Transport {
             }
         },
         async stream(method, signal, timeoutMs, header, input, contextValues) {
-            if (signal?.aborted) throw callerAbortError(signal);
+            if (signal?.aborted) throw preAbortedError(signal);
             try {
                 const response = await transport.stream(
                     method,

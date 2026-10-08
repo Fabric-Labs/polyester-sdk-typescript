@@ -124,6 +124,8 @@ export {
     TimeoutError,
     TimestampSkewError,
     TransientError,
+    UserOperationAlreadyKnownError,
+    UserOperationNotExecutedError,
     ValidationError,
     WalletChallengeExpiredError,
     WithdrawDeadlineExpiredError,

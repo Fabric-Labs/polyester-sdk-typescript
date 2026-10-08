@@ -25,6 +25,7 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * │   ├── ResourceNotFoundError      RESOURCE_NOT_FOUND          false
  * │   ├── NotImplementedError        NOT_IMPLEMENTED             false
  * │   ├── AlreadyExistsError         ALREADY_EXISTS              false
+ * │   │   └── UserOperationAlreadyKnownError USER_OPERATION_ALREADY_KNOWN
  * │   ├── PermissionError            PERMISSION_DENIED           false
  * │   ├── AuthenticationError        UNAUTHENTICATED             false
  * │   │   └── WalletChallengeExpiredError    WALLET_CHALLENGE_EXPIRED
@@ -39,7 +40,8 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * │   │   ├── MfaEnrollmentRequiredError     MFA_ENROLLMENT_REQUIRED
  * │   │   ├── StepUpRequiredError            STEP_UP_REQUIRED
  * │   │   └── SessionElevationRequiredError  SESSION_ELEVATION_REQUIRED
- * │   └── MfaVerificationError       MFA_VERIFICATION_FAILED     false
+ * │   ├── MfaVerificationError       MFA_VERIFICATION_FAILED     false
+ * │   └── UserOperationNotExecutedError USER_OPERATION_NOT_EXECUTED false
  * └── InternalServerError            INTERNAL_SERVER_ERROR       false
  * ```
  *
@@ -77,6 +79,8 @@ export type PolyesterErrorCode =
     | "RESOURCE_NOT_FOUND"
     | "NOT_IMPLEMENTED"
     | "ALREADY_EXISTS"
+    | "USER_OPERATION_ALREADY_KNOWN"
+    | "USER_OPERATION_NOT_EXECUTED"
     | "PERMISSION_DENIED"
     | "UNAUTHENTICATED"
     | "WALLET_CHALLENGE_EXPIRED"
@@ -325,6 +329,22 @@ export class AlreadyExistsError extends RequestError {
     }
 }
 
+/**
+ * The bundler already holds this exact UserOperation (it answered "Already
+ * known"), so the earlier submission is still pending. Wait on `userOpHash`
+ * instead of signing again; a new operation would execute a second time.
+ */
+export class UserOperationAlreadyKnownError extends AlreadyExistsError {
+    override readonly code: string = "USER_OPERATION_ALREADY_KNOWN";
+    readonly userOpHash: `0x${string}`;
+
+    constructor(message: string, userOpHash: `0x${string}`, options?: PolyesterErrorOptions) {
+        super(message, options);
+        this.name = "UserOperationAlreadyKnownError";
+        this.userOpHash = userOpHash;
+    }
+}
+
 /** The caller is authenticated but not allowed to perform this operation. */
 export class PermissionError extends RequestError {
     override readonly code: string = "PERMISSION_DENIED";
@@ -565,4 +585,29 @@ export function errorFromHttpStatus(
     if (status >= 500) return new InternalServerError(message, options);
     if (status >= 400) return new RequestError(message, options);
     return new NetworkError(message, options);
+}
+
+/**
+ * The bundler reported a UserOperation as definitively not executed, so nothing
+ * moved on chain: `rejected` (dropped by the bundler, often for a fee below the
+ * current price) or `failed` (its bundle transaction reverted). Submitting a
+ * fresh operation is safe.
+ */
+export class UserOperationNotExecutedError extends RequestError {
+    override readonly code: string = "USER_OPERATION_NOT_EXECUTED";
+    readonly userOpHash: `0x${string}`;
+    /** The bundler's `pimlico_getUserOperationStatus` result. */
+    readonly bundlerStatus: "rejected" | "failed";
+
+    constructor(
+        message: string,
+        userOpHash: `0x${string}`,
+        bundlerStatus: "rejected" | "failed",
+        options?: PolyesterErrorOptions,
+    ) {
+        super(message, options);
+        this.name = "UserOperationNotExecutedError";
+        this.userOpHash = userOpHash;
+        this.bundlerStatus = bundlerStatus;
+    }
 }
