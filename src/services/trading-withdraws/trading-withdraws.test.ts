@@ -480,7 +480,8 @@ describe("TradingWithdrawsService", () => {
                 payloadSignature: new Uint8Array([1]),
             });
             const deadlineMs = Date.parse("2026-10-03T12:15:00Z");
-            expect(prepared.expiresAt.getTime()).toBe(deadlineMs);
+            expect(prepared.deadline.getTime()).toBe(deadlineMs);
+            expect(prepared.isExpired()).toBe(false);
 
             await expect(prepared.submit()).resolves.toEqual({ intentId: "intent-1" });
             const payload = (
@@ -489,10 +490,40 @@ describe("TradingWithdrawsService", () => {
             expect(payload?.deadlineTsSec).toBe(BigInt(deadlineMs / 1000));
 
             vi.setSystemTime(new Date("2026-10-03T12:05:00Z"));
+            expect(prepared.isExpired()).toBe(true);
             await expect(prepared.submit({ stepUpToken: "late" })).rejects.toBeInstanceOf(
                 WithdrawDeadlineExpiredError,
             );
             expect(transport.calls).toHaveLength(1);
+        });
+
+        it("exposes the signed deadline so callers can re-prepare a stale withdraw", async () => {
+            vi.useFakeTimers({ now: new Date("2026-01-01T00:00:00Z") });
+            const transport = unaryTransport(() => ({ intentId: "intent-1" }));
+            const service = new TradingWithdrawsService(
+                { authApi: transport.transport },
+                undefined,
+                signingConfig,
+                testScales(),
+            );
+            const prepared = await service.prepareToFunding({
+                account: "main",
+                assetId: 1,
+                quantity: "10",
+                idempotencyKey: "withdraw-deadline",
+                payloadSignature: new Uint8Array([1]),
+            });
+
+            expect(prepared.deadline).toEqual(new Date("2026-01-01T00:05:00Z"));
+            expect(prepared.isExpired()).toBe(false);
+            await vi.advanceTimersByTimeAsync(3 * 60_000);
+            expect(prepared.isExpired()).toBe(false);
+            await vi.advanceTimersByTimeAsync(60_000);
+            expect(prepared.isExpired()).toBe(true);
+
+            await prepared.submit();
+            const request = transport.lastCall()?.message as Proto.CreateTradingWithdrawRequest;
+            expect(request.payload?.deadlineTsSec).toBe(BigInt(prepared.deadline.getTime() / 1000));
         });
 
         it("signs a caller-supplied deadline", async () => {
@@ -510,12 +541,13 @@ describe("TradingWithdrawsService", () => {
             const prepared = await service.prepareToFunding({
                 assetId: 1,
                 quantity: "10",
+                destinationAddress: "funding",
                 idempotencyKey: "withdraw-deadline",
                 payloadSignature: new Uint8Array([1]),
                 deadline,
             });
             const deadlineSec = Math.floor(deadline.getTime() / 1000);
-            expect(prepared.expiresAt.getTime()).toBe(deadlineSec * 1000);
+            expect(prepared.deadline.getTime()).toBe(deadlineSec * 1000);
             await prepared.submit();
             const payload = (
                 transport.lastCall()?.message as { payload?: Proto.TradingWithdrawIntentPayload }

@@ -134,6 +134,7 @@ import {
     InternalServerError,
     NetworkError,
     PermissionError,
+    RealtimeError,
     RequestError,
     ResourceNotFoundError,
 } from "../shared/errors.js";
@@ -472,7 +473,11 @@ describe("RealtimeClient", () => {
                 expect(privateErrors[index]).toHaveBeenCalledExactlyOnceWith({
                     channel: index === 2 ? "private:second" : "private:first",
                     type: "disconnected",
-                    error: { code, message: "session revoked" },
+                    error: expect.objectContaining({
+                        realtimeCode: code,
+                        message: "session revoked",
+                        retryable: false,
+                    }),
                 });
                 expect(privateCloses[index]).toHaveBeenCalledOnce();
             }
@@ -527,10 +532,11 @@ describe("RealtimeClient", () => {
             expect(onError).toHaveBeenCalledExactlyOnceWith({
                 channel: "public:test",
                 type: kind === "disconnect" ? "disconnected" : "unsubscribed",
-                error:
+                error: expect.objectContaining(
                     kind === "disconnect"
-                        ? { code: 4500, message: "session revoked" }
-                        : { code: 2000, message: "permission revoked" },
+                        ? { realtimeCode: 4500, message: "session revoked" }
+                        : { realtimeCode: 2000, message: "permission revoked" },
+                ),
             });
             expect(onClose).toHaveBeenCalledOnce();
             expect(replacementOpen).toHaveBeenCalledOnce();
@@ -585,7 +591,11 @@ describe("RealtimeClient", () => {
         expect(onError).toHaveBeenCalledExactlyOnceWith({
             channel: "public:closed",
             type: "unsubscribed",
-            error: { code: 2000, message: "permission revoked" },
+            error: expect.objectContaining({
+                realtimeCode: 2000,
+                message: "permission revoked",
+                retryable: false,
+            }),
         });
         expect(onClose).toHaveBeenCalledOnce();
         expect(siblingPublication).toHaveBeenCalledExactlyOnceWith("fresh");
@@ -610,7 +620,7 @@ describe("RealtimeClient", () => {
         expect(onError).toHaveBeenCalledExactlyOnceWith({
             channel: "public:test",
             type: "disconnected",
-            error: { code, message: "bad protocol" },
+            error: expect.objectContaining({ realtimeCode: code, message: "bad protocol" }),
         });
         expect(onClose).toHaveBeenCalledOnce();
         expect(client.isConnected).toBe(false);
@@ -888,6 +898,27 @@ describe("RealtimeClient", () => {
 
         expect(onConnected).toHaveBeenCalledTimes(2);
         expect(onDisconnected).not.toHaveBeenCalled();
+    });
+
+    it("wraps raw Centrifuge subscription errors as retryable RealtimeErrors", () => {
+        const client = createPublicRealtimeClient();
+        const onError = vi.fn();
+        client.subscribe("public:test", { onPublication: vi.fn(), onError });
+
+        firstSubscription().emit("error", {
+            channel: "public:test",
+            type: "subscribe",
+            error: { code: 109, message: "token expired", temporary: false },
+        });
+
+        const ctx = onError.mock.calls[0]?.[0];
+        expect(ctx).toMatchObject({ channel: "public:test", type: "subscribe" });
+        expect(ctx.error).toBeInstanceOf(RealtimeError);
+        expect(ctx.error).toMatchObject({
+            message: "token expired",
+            realtimeCode: 109,
+            retryable: true,
+        });
     });
 
     it("does not report readiness until the channel subscription is confirmed", async () => {

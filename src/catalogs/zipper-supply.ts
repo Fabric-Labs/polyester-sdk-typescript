@@ -1,5 +1,6 @@
 import type { CatalogSnapshot } from "./types.js";
 import {
+    markCatalogSnapshotParsed,
     parseCatalogSnapshot,
     parseZippedAssetSupplyCatalogUpdates,
 } from "./snapshot-validation.js";
@@ -39,7 +40,7 @@ export function patchZipperCatalogSupply(
     if (!changed) return parsedSnapshot;
     const nowMs = Date.now();
 
-    return {
+    return markCatalogSnapshotParsed({
         ...parsedSnapshot,
         tsMs: nowMs,
         version: parsedSnapshot.version + 1,
@@ -48,5 +49,5 @@ export function patchZipperCatalogSupply(
             tsMs: nowMs,
             assets,
         },
-    };
+    });
 }

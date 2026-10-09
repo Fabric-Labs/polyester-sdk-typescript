@@ -163,10 +163,7 @@ describe("OrderbookService", () => {
         expect(onError).toHaveBeenCalledTimes(1);
         expect(onError.mock.calls[0]?.[0]).toMatchObject({
             type: "snapshot",
-            error: {
-                code: 0,
-                message: "snapshot unavailable",
-            },
+            error: expect.objectContaining({ message: "snapshot unavailable" }),
         });
 
         realtime.params?.onPublication(
@@ -296,10 +293,11 @@ describe("OrderbookService", () => {
         expect(realtime.params?.channel).toBe("public:spot:orderbook:deltas:depth:500:101:proto");
         expect(realtime.params?.schema).toBe(Proto.OrderBookDeltaSchema);
         realtime.params?.onConnected?.();
+        const transportError = new Error("boom");
         realtime.params?.onError?.({
             channel: "channel",
             type: "transport",
-            error: { code: 0, message: "boom" },
+            error: transportError,
         });
 
         await flushMicrotasks();
@@ -317,7 +315,7 @@ describe("OrderbookService", () => {
         expect(onError).toHaveBeenCalledWith({
             channel: "channel",
             type: "transport",
-            error: { code: 0, message: "boom" },
+            error: transportError,
         });
         expect(onEvent).toHaveBeenLastCalledWith(
             expect.objectContaining({

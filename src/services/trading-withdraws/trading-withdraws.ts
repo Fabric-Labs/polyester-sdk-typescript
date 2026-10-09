@@ -59,17 +59,43 @@ export type CreateTradingWithdrawToExternalChainServiceInput =
     };
 
 export type PreparedTradingWithdraw = Readonly<{
+    /** When the backend stops accepting this signed request. */
+    deadline: Date;
     /**
-     * When the signed deadline lapses, on the server clock. After this, `submit`
-     * throws `WithdrawDeadlineExpiredError`; prepare and sign again.
+     * True once the deadline is less than a minute away, on the server clock. Prepare
+     * again (same input, same idempotency key) instead of submitting, e.g. after a
+     * slow MFA enrollment. Once the deadline itself passes, `submit` throws
+     * `WithdrawDeadlineExpiredError`.
      */
-    expiresAt: Date;
+    isExpired: () => boolean;
     /**
      * Submits the exact payload and signature produced during preparation.
      * Repeated calls only change transport options such as the step-up token.
      */
     submit: (options?: PolyesterMutationOptions) => Promise<CreateTradingWithdrawResult>;
 }>;
+
+// Leaves room for the request to reach the backend and for modest clock skew.
+const PREPARED_WITHDRAW_EXPIRY_MARGIN_MS = 60_000;
+
+function preparedWithdraw(
+    payload: TradingWithdrawIntentPayloadRequest,
+    submit: PreparedTradingWithdraw["submit"],
+): PreparedTradingWithdraw {
+    const deadline = new Date(Number(payload.deadlineTsSec) * 1000);
+    return {
+        deadline,
+        isExpired: () => serverNowMs() >= deadline.getTime() - PREPARED_WITHDRAW_EXPIRY_MARGIN_MS,
+        submit: async (options) => {
+            if (serverNowMs() >= deadline.getTime()) {
+                throw new WithdrawDeadlineExpiredError(
+                    "Withdraw signature deadline has passed. Prepare the withdraw again.",
+                );
+            }
+            return submit(options);
+        },
+    };
+}
 
 type TradingWithdrawRequest =
     | CreateTradingWithdrawToFundingRequest
@@ -232,14 +258,6 @@ export class TradingWithdrawsService {
         validated: TradingWithdrawRequest,
         walletSigner: TradingWithdrawWalletSigner | undefined,
     ): Promise<PreparedTradingWithdraw> {
-        const expiresAtMs = Number(validated.payload.deadlineTsSec) * 1000;
-        const assertNotExpired = () => {
-            if (serverNowMs() >= expiresAtMs) {
-                throw new WithdrawDeadlineExpiredError(
-                    "Withdraw signature deadline has passed. Prepare the withdraw again.",
-                );
-            }
-        };
         if (walletSigner) {
             const signingConfig = await resolveTradingWithdrawSigningConfig({
                 fallback: this.#signingConfig,
@@ -262,17 +280,13 @@ export class TradingWithdrawsService {
                 signerWallet: walletSignature.signerWallet,
                 payloadSignature: walletSignature.payloadSignature,
             });
-            return {
-                expiresAt: new Date(expiresAtMs),
-                submit: async (options) => {
-                    assertNotExpired();
-                    const response = await this.#client.createWalletTradingWithdraw(
-                        request,
-                        toConnectCallOptions(options),
-                    );
-                    return parse(CreateWalletTradingWithdrawResultSchema, response);
-                },
-            };
+            return preparedWithdraw(validated.payload, async (options) => {
+                const response = await this.#client.createWalletTradingWithdraw(
+                    request,
+                    toConnectCallOptions(options),
+                );
+                return parse(CreateWalletTradingWithdrawResultSchema, response);
+            });
         }
 
         if (!validated.payloadSignature) {
@@ -285,16 +299,12 @@ export class TradingWithdrawsService {
             payload: validated.payload,
             payloadSignature: validated.payloadSignature,
         });
-        return {
-            expiresAt: new Date(expiresAtMs),
-            submit: async (options) => {
-                assertNotExpired();
-                const response = await this.#client.createTradingWithdraw(
-                    request,
-                    toConnectCallOptions(options),
-                );
-                return parse(CreateTradingWithdrawResultSchema, response);
-            },
-        };
+        return preparedWithdraw(validated.payload, async (options) => {
+            const response = await this.#client.createTradingWithdraw(
+                request,
+                toConnectCallOptions(options),
+            );
+            return parse(CreateTradingWithdrawResultSchema, response);
+        });
     }
 }

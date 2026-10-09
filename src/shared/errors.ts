@@ -42,7 +42,8 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * │   │   └── SessionElevationRequiredError  SESSION_ELEVATION_REQUIRED
  * │   ├── MfaVerificationError       MFA_VERIFICATION_FAILED     false
  * │   └── UserOperationNotExecutedError USER_OPERATION_NOT_EXECUTED false
- * └── InternalServerError            INTERNAL_SERVER_ERROR       false
+ * ├── InternalServerError            INTERNAL_SERVER_ERROR       false
+ * └── RealtimeError                  REALTIME_ERROR              varies
  * ```
  *
  * Catalog errors (`CatalogLookupError`, `CatalogConversionError`, …) plug into
@@ -97,6 +98,7 @@ export type PolyesterErrorCode =
     | "MFA_LAST_FACTOR_REQUIRED"
     | "MFA_VERIFICATION_FAILED"
     | "INTERNAL_SERVER_ERROR"
+    | "REALTIME_ERROR"
     | "CATALOG_LOOKUP_MISS"
     | "CATALOG_NOT_READY"
     | "CATALOG_CONVERSION_INVALID"
@@ -528,6 +530,31 @@ export class InternalServerError extends PolyesterError {
     constructor(message: string, options?: PolyesterErrorOptions) {
         super(message, options);
         this.name = "InternalServerError";
+    }
+}
+
+export interface RealtimeErrorOptions extends PolyesterErrorOptions {
+    /** Centrifugo protocol, disconnect, or unsubscribe code; 0 when none applies. */
+    realtimeCode?: number;
+    /** True when the realtime client is already retrying on its own. */
+    retryable?: boolean;
+}
+
+/**
+ * A realtime subscription failure reported by the server or the websocket
+ * client. `retryable` errors (e.g. code 109, token expired) are being retried
+ * automatically; only non-retryable ones end the subscription.
+ */
+export class RealtimeError extends PolyesterError {
+    readonly code = "REALTIME_ERROR" as const;
+    readonly retryable: boolean;
+    readonly realtimeCode: number;
+
+    constructor(message: string, options?: RealtimeErrorOptions) {
+        super(message, options);
+        this.name = "RealtimeError";
+        this.realtimeCode = options?.realtimeCode ?? 0;
+        this.retryable = options?.retryable ?? false;
     }
 }
 

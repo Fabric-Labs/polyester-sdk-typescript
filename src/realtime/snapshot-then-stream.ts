@@ -65,7 +65,7 @@ export function snapshotThenStream<TSchema extends DescMessage, TSnapshot, TPubl
             createSdkSubscriptionErrorContext(
                 params.channel,
                 "snapshot",
-                formatConnectError(error, "snapshot failed"),
+                error instanceof Error ? error : formatConnectError(error, "snapshot failed"),
             ),
         );
     }

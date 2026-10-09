@@ -113,6 +113,7 @@ export {
     PolyesterError,
     PreconditionFailedError,
     RateLimitError,
+    RealtimeError,
     RequestError,
     ResourceNotFoundError,
     RevisionConflictError,
@@ -135,6 +136,7 @@ export type {
     PolyesterErrorDetail,
     PolyesterErrorOptions,
     RateLimitErrorOptions,
+    RealtimeErrorOptions,
     MfaVerificationFailureReason,
 } from "./shared/errors.js";
 export type {
