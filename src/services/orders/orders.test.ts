@@ -1146,7 +1146,7 @@ describe("OrdersService", () => {
         realtime.params?.onError?.({
             channel: "channel",
             type: "transport",
-            error: { code: 0, message: "boom" },
+            error: new Error("boom"),
         });
         realtime.params?.onPublication(
             protoOrder({
@@ -1161,7 +1161,7 @@ describe("OrdersService", () => {
         expect(onError).toHaveBeenCalledWith({
             channel: "channel",
             type: "transport",
-            error: { code: 0, message: "boom" },
+            error: new Error("boom"),
         });
         expect(onEvent).toHaveBeenCalledWith(
             expect.objectContaining({

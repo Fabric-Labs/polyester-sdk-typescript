@@ -101,6 +101,9 @@ export class AccountSignerAuthService extends AuthService {
     // Every asynchronous auth transition captures this generation. A later login,
     // logout, signer change, or restore makes older work observational only.
     #authOperationGeneration = 0;
+    // A login or refresh in flight is about to replace the token, so a 401 for
+    // the outgoing token must not end the session underneath it.
+    #loginsInFlight = 0;
 
     constructor({
         transports,
@@ -166,6 +169,18 @@ export class AccountSignerAuthService extends AuthService {
     }
 
     async #login(
+        options: LoginOptions,
+        previousActiveAccount?: ActiveAccountInfo,
+    ): Promise<LoginResult> {
+        this.#loginsInFlight += 1;
+        try {
+            return await this.#performLogin(options, previousActiveAccount);
+        } finally {
+            this.#loginsInFlight -= 1;
+        }
+    }
+
+    async #performLogin(
         options: LoginOptions,
         previousActiveAccount?: ActiveAccountInfo,
     ): Promise<LoginResult> {
@@ -364,6 +379,17 @@ export class AccountSignerAuthService extends AuthService {
 
         this.#notifyStateChange();
         this.events.emit("loggedOut", undefined);
+    }
+
+    /**
+     * Ends the session after the backend rejected `token` as unauthenticated (revoked,
+     * or expired despite a lagging local clock). Ignored when the token has since been
+     * replaced or a login/refresh is in flight. Browser clients call this automatically.
+     */
+    handleRejectedToken(token: string): void {
+        if (this.#loginsInFlight > 0 || this.#getEnvironmentBoundToken() !== token) return;
+        this.#beginAuthOperation();
+        this.#clearExpiredSessionState();
     }
 
     #clearExpiredSessionState(): void {

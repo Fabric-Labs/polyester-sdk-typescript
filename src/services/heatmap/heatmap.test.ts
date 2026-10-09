@@ -271,7 +271,7 @@ describe("HeatmapService", () => {
 
         realtime.params?.onConnected?.();
         realtime.params?.onDisconnected?.();
-        const error = { channel: "c", type: "decode", error: { code: 1, message: "bad" } };
+        const error = { channel: "c", type: "decode", error: new Error("bad") };
         realtime.params?.onError?.(error);
         realtime.params?.onPublication(
             create(

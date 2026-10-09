@@ -485,6 +485,79 @@ describe.each([
         expect(tokenStorage.get).toHaveBeenCalled();
     });
 
+    describe("when the backend rejects the session token", () => {
+        function connectErrorResponse(status: number, code: string) {
+            return vi.fn(
+                async () =>
+                    new Response(JSON.stringify({ code, message: "rejected" }), {
+                        status,
+                        headers: { "content-type": "application/json" },
+                    }),
+            );
+        }
+
+        async function loggedInClient(fetch: typeof globalThis.fetch) {
+            const client = new BrowserClient({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                accountSigner: signer("0x1111111111111111111111111111111111111111"),
+                fetch,
+            });
+            const login = mockClientLogin(client, jwtWithExp(Math.floor(Date.now() / 1000) + 3600));
+            await client.auth.login({ uri: "https://app.example", provider: "turnkey" });
+            const loggedOut = vi.fn();
+            client.auth.events.on("loggedOut", loggedOut);
+            return { client, login, loggedOut };
+        }
+
+        it("ends the session and emits loggedOut on a 401", async () => {
+            const { client, loggedOut } = await loggedInClient(
+                connectErrorResponse(401, "unauthenticated"),
+            );
+
+            await expect(client.auth.me()).rejects.toThrow("rejected");
+
+            expect(loggedOut).toHaveBeenCalledOnce();
+            expect(client.auth.getState().isAuthenticated).toBe(false);
+            expect(client.auth.getSessionTimeToExpiry()).toBe(0);
+        });
+
+        it("keeps the session on permission-denied rejections such as MFA step-up", async () => {
+            const { client, loggedOut } = await loggedInClient(
+                connectErrorResponse(403, "permission_denied"),
+            );
+
+            await expect(client.auth.me()).rejects.toThrow("rejected");
+
+            expect(loggedOut).not.toHaveBeenCalled();
+            expect(client.auth.getState().isAuthenticated).toBe(true);
+        });
+
+        it("lets an in-flight refresh replace the rejected token", async () => {
+            const { client, login, loggedOut } = await loggedInClient(
+                connectErrorResponse(401, "unauthenticated"),
+            );
+            let releaseLogin!: () => void;
+            const freshToken = jwtWithExp(Math.floor(Date.now() / 1000) + 7200);
+            login.mockImplementationOnce(async () => {
+                await new Promise<void>((resolve) => (releaseLogin = resolve));
+                return {
+                    accessToken: freshToken,
+                    accountId: "account-1",
+                    username: "hunter",
+                    expiresAt: { seconds: 1n, nanos: 0 },
+                };
+            });
+
+            const refresh = client.auth.refreshSession({ uri: "https://app.example" });
+            await expect(client.auth.me()).rejects.toThrow("rejected");
+            releaseLogin();
+            await refresh;
+
+            expect(loggedOut).not.toHaveBeenCalled();
+            expect(client.auth.getState().isAuthenticated).toBe(true);
+        });
+    });
+
     it("updates the auth account signer via setAccountSigner", () => {
         const client = new BrowserClient({
             environment: POLYESTER_DEVNET_ENVIRONMENT,

@@ -12,6 +12,34 @@ import {
     type AuthTokenStorage,
 } from "./services/auth/token-storage.js";
 import { AuthSessionStore } from "./services/auth/session.js";
+import type { Interceptor } from "@connectrpc/connect";
+import { toPolyesterError } from "./shared/connect-error-mapping.js";
+import { loadErrorDetailDecoders } from "./shared/error-detail.js";
+import { AuthenticationError } from "./shared/errors.js";
+
+/**
+ * Ends the session when the backend rejects the bearer token a request actually sent.
+ * Sits just inside the JWT auth interceptor so it sees the attached header.
+ */
+function createRejectedTokenInterceptor(
+    getAuth: () => AccountSignerAuthService | undefined,
+): Interceptor {
+    return (next) => async (req) => {
+        try {
+            return await next(req);
+        } catch (error) {
+            const token = req.header.get("Authorization")?.replace(/^Bearer /u, "");
+            if (token) {
+                // Decoders let MFA and other auth-detail rejections map to their own classes.
+                await loadErrorDetailDecoders(error);
+                if (toPolyesterError(error) instanceof AuthenticationError) {
+                    getAuth()?.handleRejectedToken(token);
+                }
+            }
+            throw error;
+        }
+    };
+}
 
 type BrowserClientBaseConfig<TConfig> = TConfig extends PolyesterClientBaseConfig
     ? Omit<TConfig, "auth">
@@ -51,11 +79,15 @@ export class PolyesterBrowserCore extends PolyesterCore {
             environmentFingerprint: config.environment.fingerprint,
         });
         const getToken = () => sessionStore.getEnvironmentBoundToken(tokenStorage);
+        let auth: AccountSignerAuthService | undefined;
 
         super(
             {
                 environment: config.environment,
-                interceptors: config.interceptors,
+                interceptors: [
+                    createRejectedTokenInterceptor(() => auth),
+                    ...(config.interceptors ?? []),
+                ],
                 auth: { kind: "jwt", getToken },
                 wireFormat: config.wireFormat,
                 fetch: config.fetch,
@@ -69,7 +101,7 @@ export class PolyesterBrowserCore extends PolyesterCore {
             },
             {
                 createAuth: ({ transports, realtime, loadSubaccounts, environment }) =>
-                    new AccountSignerAuthService({
+                    (auth = new AccountSignerAuthService({
                         transports,
                         accountSignerConfig: config.accountSigner,
                         environment,
@@ -77,7 +109,7 @@ export class PolyesterBrowserCore extends PolyesterCore {
                         realtime,
                         tokenStorage,
                         sessionStore,
-                    }),
+                    })),
             },
         );
     }
