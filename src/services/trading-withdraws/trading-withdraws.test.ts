@@ -4,7 +4,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import { POLYESTER_DEVNET_ENVIRONMENT } from "../../environment.js";
 import * as Proto from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import { StepUpRequiredError, WithdrawDeadlineExpiredError } from "../../shared/errors.js";
-import { observeServerDate } from "../../shared/server-clock.js";
+import { observeServerTime, resetServerClock } from "../../shared/server-clock.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
@@ -455,13 +455,13 @@ describe("TradingWithdrawsService", () => {
     describe("deadline", () => {
         afterEach(() => {
             vi.useRealTimers();
-            observeServerDate(new Date().toUTCString());
+            resetServerClock();
         });
 
         it("builds the deadline from server time and refuses to submit once it lapses", async () => {
             vi.useFakeTimers({ toFake: ["Date"], now: new Date("2026-10-03T12:00:00Z") });
             // Device clock is 10 minutes behind the server.
-            observeServerDate(new Date("2026-10-03T12:10:00Z").toUTCString());
+            observeServerTime(Date.parse("2026-10-03T12:10:00Z"));
             const transport = unaryTransportByMethod({
                 createTradingWithdraw: { intentId: "intent-1" },
             });

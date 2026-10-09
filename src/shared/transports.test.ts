@@ -13,7 +13,6 @@ import { signAsync } from "@noble/ed25519";
 import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
 import { RateLimitService } from "../gen/ratelimit/v1/ratelimit_pb.js";
 import { createErrorMappingTransport, toPolyesterError } from "./connect-error-mapping.js";
-import { serverNowMs } from "./server-clock.js";
 import { toConnectCallOptions } from "./request-options.js";
 import * as Proto from "../gen/marketoverview/v1/marketoverview_pb.js";
 import { formatUserFacingError, isRetryableError } from "../utils/errors.js";
@@ -65,22 +64,6 @@ describe("makeFetch", () => {
         const rejection = expect(makeFetch()("https://api.test")).rejects;
         await rejection.toBeInstanceOf(TimeoutError);
         await rejection.toMatchObject({ cause, retryable: true });
-    });
-
-    it("learns the server clock offset from the Date header", async () => {
-        const serverDate = new Date(Math.floor(Date.now() / 1000) * 1000 - 10 * 60_000);
-        vi.spyOn(globalThis, "fetch").mockResolvedValue(
-            new Response(null, { headers: { date: serverDate.toUTCString() } }),
-        );
-
-        await makeFetch()("https://api.test");
-        expect(Math.abs(serverNowMs() - serverDate.getTime())).toBeLessThan(1_000);
-
-        vi.mocked(globalThis.fetch).mockResolvedValue(
-            new Response(null, { headers: { date: new Date().toUTCString() } }),
-        );
-        await makeFetch()("https://api.test");
-        expect(Math.abs(serverNowMs() - Date.now())).toBeLessThan(1_000);
     });
 
     it("wraps transport failures with the original cause", async () => {
@@ -310,37 +293,24 @@ describe("createTransports", () => {
         expect(toPolyesterError(serverCanceled)).toBe(serverCanceled);
     });
 
-    it("captures status and correlation headers from bare HTTP errors", async () => {
+    it("captures status from bare HTTP errors", async () => {
         vi.spyOn(globalThis, "fetch").mockResolvedValue(
             new Response("upstream error", {
                 status: 500,
-                headers: {
-                    "content-type": "text/plain",
-                    "cf-ray": "8c1f2a3b4d5e6f70-SJC",
-                    "x-polyester-edge": "edge-sjc-1",
-                },
+                headers: { "content-type": "text/plain" },
             }),
         );
         const { publicApi } = createTransports({ apiUrl: "https://api.test" });
         const client = createClient(Proto.MarketOverviewService, publicApi);
 
-        await expect(client.listMarketOverview({})).rejects.toMatchObject({
-            status: 500,
-            requestId: "8c1f2a3b4d5e6f70-SJC",
-            cfRay: "8c1f2a3b4d5e6f70-SJC",
-            polyesterEdge: "edge-sjc-1",
-        });
+        await expect(client.listMarketOverview({})).rejects.toMatchObject({ status: 500 });
     });
 
-    it("prefers x-request-id and derives status from Connect error codes", async () => {
+    it("derives status from Connect error codes", async () => {
         vi.spyOn(globalThis, "fetch").mockResolvedValue(
             new Response(JSON.stringify({ code: "resource_exhausted", message: "Slow down." }), {
                 status: 429,
-                headers: {
-                    "content-type": "application/json",
-                    "x-request-id": "req_0123456789",
-                    "cf-ray": "8c1f2a3b4d5e6f70-SJC",
-                },
+                headers: { "content-type": "application/json" },
             }),
         );
         const { publicApi } = createTransports({ apiUrl: "https://api.test" });
@@ -348,11 +318,7 @@ describe("createTransports", () => {
 
         const rejection = expect(client.listMarketOverview({})).rejects;
         await rejection.toBeInstanceOf(RateLimitError);
-        await rejection.toMatchObject({
-            status: 429,
-            requestId: "req_0123456789",
-            cfRay: "8c1f2a3b4d5e6f70-SJC",
-        });
+        await rejection.toMatchObject({ status: 429 });
     });
 
     it("leaves status unset for client-side failures", async () => {
@@ -360,10 +326,7 @@ describe("createTransports", () => {
         const { publicApi } = createTransports({ apiUrl: "https://api.test" });
         const client = createClient(Proto.MarketOverviewService, publicApi);
 
-        await expect(client.listMarketOverview({})).rejects.toMatchObject({
-            status: undefined,
-            requestId: undefined,
-        });
+        await expect(client.listMarketOverview({})).rejects.toMatchObject({ status: undefined });
     });
 
     it.each([

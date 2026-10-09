@@ -1,13 +1,6 @@
 // Device clocks drift; server-checked deadlines and expiries use this offset,
-// learned from API response `Date` headers and server-issued timestamps such as
-// a wallet challenge's `Issued At`. Cross-origin browsers only see the header
-// when the API lists `Date` in Access-Control-Expose-Headers.
+// learned from server-issued timestamps such as a wallet challenge's `Issued At`.
 let serverOffsetMs: number | undefined;
-
-/** Learns the server clock offset from an HTTP `Date` response header. */
-export function observeServerDate(value: string | null): void {
-    if (value) observeServerTime(Date.parse(value));
-}
 
 /** Learns the server clock offset from a server timestamp just received, in epoch ms. */
 export function observeServerTime(serverMs: number): void {
@@ -20,8 +13,8 @@ export function serverNowMs(): number {
 }
 
 /**
- * Server time in epoch milliseconds, or `undefined` before any `Date` header has
- * been seen. Use this to compare against server-issued timestamps, where an
+ * Server time in epoch milliseconds, or `undefined` before any server timestamp
+ * has been seen. Use this to compare against server-issued timestamps, where an
  * uncorrected device clock would give false expiries.
  */
 export function knownServerNowMs(): number | undefined {

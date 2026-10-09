@@ -1,11 +1,7 @@
 import { createConnectTransport } from "@connectrpc/connect-web";
 import type { Transport, Interceptor } from "@connectrpc/connect";
 import { toBinary, toJsonString } from "@bufbuild/protobuf";
-import {
-    createErrorMappingTransport,
-    responseCorrelation,
-    TIMESTAMP_SKEW_CODE,
-} from "./connect-error-mapping.js";
+import { createErrorMappingTransport, TIMESTAMP_SKEW_CODE } from "./connect-error-mapping.js";
 import {
     AuthenticationError,
     ConfigurationError,
@@ -16,7 +12,6 @@ import {
     TimeoutError,
     TimestampSkewError,
 } from "./errors.js";
-import { observeServerDate } from "./server-clock.js";
 
 export { isAbortError };
 
@@ -106,8 +101,6 @@ export function makeFetch(fetchImpl?: typeof fetch): typeof fetch {
                     headers,
                     redirect: "manual",
                 });
-                // Sample before buffering so body transfer time doesn't skew it.
-                observeServerDate(res?.headers.get("date") ?? null);
                 // Connect rejects anything but a 200 with a Connect content type
                 // without reading the body, then aborts the request with its
                 // ConnectError. Any reader still on that body (e.g. fetch
@@ -132,7 +125,7 @@ export function makeFetch(fetchImpl?: typeof fetch): typeof fetch {
             if (await isTimestampSkewProblem(res)) {
                 throw new TimestampSkewError(
                     "API key timestamp is outside the allowed skew window.",
-                    { status: res.status, ...responseCorrelation(res.headers) },
+                    { status: res.status },
                 );
             }
             return res;

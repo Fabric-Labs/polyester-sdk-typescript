@@ -17,7 +17,7 @@ import {
     WalletChallengeExpiredError,
 } from "../../shared/errors.js";
 import type { LoginWithWalletInput, LoginWithWalletResponse } from "./auth.js";
-import { observeServerDate, resetServerClock } from "../../shared/server-clock.js";
+import { observeServerTime, resetServerClock } from "../../shared/server-clock.js";
 import { polyesterSession } from "./session.js";
 import { createMemoryAuthTokenStorage, type AuthTokenStorage } from "./token-storage.js";
 
@@ -194,7 +194,7 @@ describe("AccountSignerAuthService", () => {
             vi.useFakeTimers({ toFake: ["Date"] });
             vi.stubGlobal("location", { origin: "https://browser.example" });
             resetServerClock();
-            if (clock === "known") observeServerDate(new Date().toUTCString());
+            if (clock === "known") observeServerTime(Date.now());
             const accountSigner = signer({
                 signMessage: vi.fn(async () => {
                     // Signing outlasts the challenge, or the device clock runs fast.

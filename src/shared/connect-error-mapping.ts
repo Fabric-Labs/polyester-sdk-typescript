@@ -140,18 +140,6 @@ const MFA_ERROR_CLASSES = {
     "step-up": StepUpRequiredError,
 } as const;
 
-/** Correlation fields read from response headers, for {@link PolyesterError}. */
-export function responseCorrelation(
-    headers: Headers,
-): Pick<PolyesterErrorOptions, "requestId" | "cfRay" | "polyesterEdge"> {
-    const cfRay = headers.get("cf-ray") ?? undefined;
-    return {
-        requestId: headers.get("x-request-id") ?? cfRay,
-        cfRay,
-        polyesterEdge: headers.get("x-polyester-edge") ?? undefined,
-    };
-}
-
 // Client-side failures (timeouts, fetch errors, aborts) carry no response metadata.
 function hasResponseMetadata(ce: ConnectError): boolean {
     return !ce.metadata.keys().next().done;
@@ -201,7 +189,6 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
         cause: ce,
         detail,
         status: httpStatus ? Number(httpStatus) : responseStatusFromCode(ce),
-        ...responseCorrelation(ce.metadata),
     };
     const withFallback = (fallback: string) => message || fallback;
 

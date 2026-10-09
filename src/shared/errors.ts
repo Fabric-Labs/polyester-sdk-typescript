@@ -49,7 +49,7 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * the same tree under `RequestError`/`ValidationError`.
  *
  * Errors mapped from RPC failures keep the original `ConnectError` as `cause`
- * and carry the response's `status` and correlation headers when available.
+ * and carry the response's `status` when available.
  *
  * @example
  * ```ts
@@ -109,12 +109,6 @@ export interface PolyesterErrorOptions {
     detail?: PolyesterErrorDetail;
     /** HTTP status of the failed response. */
     status?: number;
-    /** Backend request ID (`x-request-id`), falling back to the Cloudflare `cf-ray` ID. */
-    requestId?: string;
-    /** Cloudflare `cf-ray` response header. */
-    cfRay?: string;
-    /** `x-polyester-edge` response header. */
-    polyesterEdge?: string;
 }
 
 const CONNECT_ERROR_PREFIX_RE = /^(?:\[[a-z][a-z0-9_-]*]\s*)+/i;
@@ -141,16 +135,6 @@ export abstract class PolyesterError extends Error {
      * HTTP status, the Connect protocol's status for the error code.
      */
     readonly status: number | undefined;
-    /**
-     * Correlation ID for support and logs: the backend `x-request-id`, falling
-     * back to the Cloudflare `cf-ray` ID. Browsers only see these headers when
-     * the API exposes them via CORS.
-     */
-    readonly requestId: string | undefined;
-    /** Cloudflare `cf-ray` response header. */
-    readonly cfRay: string | undefined;
-    /** `x-polyester-edge` response header. */
-    readonly polyesterEdge: string | undefined;
 
     constructor(message: string, options?: PolyesterErrorOptions) {
         super(normalizeErrorMessage(message), options);
@@ -158,9 +142,6 @@ export abstract class PolyesterError extends Error {
         const inherited = options?.cause instanceof PolyesterError ? options.cause : undefined;
         this.detail = options?.detail ?? inherited?.detail;
         this.status = options?.status ?? inherited?.status;
-        this.requestId = options?.requestId ?? inherited?.requestId;
-        this.cfRay = options?.cfRay ?? inherited?.cfRay;
-        this.polyesterEdge = options?.polyesterEdge ?? inherited?.polyesterEdge;
     }
 }
 

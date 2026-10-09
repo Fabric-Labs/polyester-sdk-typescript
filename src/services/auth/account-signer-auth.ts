@@ -629,8 +629,7 @@ export class AccountSignerAuthService extends AuthService {
 
 const SIWE_ISSUED_AT_RE = /^Issued At: (\S+)$/mu;
 
-// The EIP-4361 `Issued At` is server time at issue, so it sets the server clock
-// even when CORS hides the response `Date` header.
+// The EIP-4361 `Issued At` is server time at issue, so it sets the server clock.
 function observeChallengeIssuedAt(message: string): void {
     const issuedAt = SIWE_ISSUED_AT_RE.exec(message)?.[1];
     if (issuedAt) observeServerTime(Date.parse(issuedAt));

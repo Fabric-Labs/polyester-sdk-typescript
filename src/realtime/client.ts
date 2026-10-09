@@ -17,7 +17,6 @@ import {
     InternalServerError,
     PolyesterError,
 } from "../shared/errors.js";
-import { responseCorrelation } from "../shared/connect-error-mapping.js";
 import { makeFetch } from "../shared/transports.js";
 import { decodeProtoFrame } from "../utils/streams.js";
 import type { ConnectChannelParams, PolyesterRealtime, SubscribeHandlers } from "./types.js";
@@ -170,7 +169,7 @@ export class RealtimeClient implements PolyesterRealtime {
                         throw errorFromHttpStatus(
                             res.status,
                             `Failed to fetch subscription token: ${res.status}`,
-                            { status: res.status, ...responseCorrelation(res.headers) },
+                            { status: res.status },
                         );
                     }
                     const json = (await res.json()) as { token?: string };
@@ -237,7 +236,7 @@ export class RealtimeClient implements PolyesterRealtime {
                         throw errorFromHttpStatus(
                             res.status,
                             `Failed to fetch connection token: ${res.status}`,
-                            { status: res.status, ...responseCorrelation(res.headers) },
+                            { status: res.status },
                         );
                     }
                     const json = (await res.json()) as { token?: string };
