@@ -1096,6 +1096,7 @@ describe("RealtimeClient", () => {
         expect(onError.mock.calls[0]?.[0].error.message).toBe(
             "Failed to fetch connection token: 500",
         );
+        expect(onError.mock.calls[0]?.[0].error).toMatchObject({ status: 500 });
     });
 
     it("reports subscription token failures to that channel error handler", async () => {

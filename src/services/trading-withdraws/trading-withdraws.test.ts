@@ -1,9 +1,10 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { bytesToHex, recoverMessageAddress } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { POLYESTER_DEVNET_ENVIRONMENT } from "../../environment.js";
 import * as Proto from "../../gen/chain/withdraw/v1/withdraw_pb.js";
-import { StepUpRequiredError } from "../../shared/errors.js";
+import { StepUpRequiredError, WithdrawDeadlineExpiredError } from "../../shared/errors.js";
+import { observeServerTime, resetServerClock } from "../../shared/server-clock.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
@@ -451,9 +452,53 @@ describe("TradingWithdrawsService", () => {
         );
     });
 
-    it("exposes the signed deadline so callers can re-prepare a stale withdraw", async () => {
-        vi.useFakeTimers({ now: new Date("2026-01-01T00:00:00Z") });
-        try {
+    describe("deadline", () => {
+        afterEach(() => {
+            vi.useRealTimers();
+            resetServerClock();
+        });
+
+        it("builds the deadline from server time and refuses to submit once it lapses", async () => {
+            vi.useFakeTimers({ toFake: ["Date"], now: new Date("2026-10-03T12:00:00Z") });
+            // Device clock is 10 minutes behind the server.
+            observeServerTime(Date.parse("2026-10-03T12:10:00Z"));
+            const transport = unaryTransportByMethod({
+                createTradingWithdraw: { intentId: "intent-1" },
+            });
+            const service = new TradingWithdrawsService(
+                { authApi: transport.transport },
+                undefined,
+                signingConfig,
+                testScales(),
+            );
+
+            const prepared = await service.prepareToFunding({
+                assetId: 1,
+                quantity: "10",
+                destinationAddress: "funding",
+                idempotencyKey: "withdraw-deadline",
+                payloadSignature: new Uint8Array([1]),
+            });
+            const deadlineMs = Date.parse("2026-10-03T12:15:00Z");
+            expect(prepared.deadline.getTime()).toBe(deadlineMs);
+            expect(prepared.isExpired()).toBe(false);
+
+            await expect(prepared.submit()).resolves.toEqual({ intentId: "intent-1" });
+            const payload = (
+                transport.lastCall()?.message as { payload?: Proto.TradingWithdrawIntentPayload }
+            )?.payload;
+            expect(payload?.deadlineTsSec).toBe(BigInt(deadlineMs / 1000));
+
+            vi.setSystemTime(new Date("2026-10-03T12:05:00Z"));
+            expect(prepared.isExpired()).toBe(true);
+            await expect(prepared.submit({ stepUpToken: "late" })).rejects.toBeInstanceOf(
+                WithdrawDeadlineExpiredError,
+            );
+            expect(transport.calls).toHaveLength(1);
+        });
+
+        it("exposes the signed deadline so callers can re-prepare a stale withdraw", async () => {
+            vi.useFakeTimers({ now: new Date("2026-01-01T00:00:00Z") });
             const transport = unaryTransport(() => ({ intentId: "intent-1" }));
             const service = new TradingWithdrawsService(
                 { authApi: transport.transport },
@@ -479,9 +524,36 @@ describe("TradingWithdrawsService", () => {
             await prepared.submit();
             const request = transport.lastCall()?.message as Proto.CreateTradingWithdrawRequest;
             expect(request.payload?.deadlineTsSec).toBe(BigInt(prepared.deadline.getTime() / 1000));
-        } finally {
-            vi.useRealTimers();
-        }
+        });
+
+        it("signs a caller-supplied deadline", async () => {
+            const transport = unaryTransportByMethod({
+                createTradingWithdraw: { intentId: "intent-1" },
+            });
+            const service = new TradingWithdrawsService(
+                { authApi: transport.transport },
+                undefined,
+                signingConfig,
+                testScales(),
+            );
+            const deadline = new Date(Date.now() + 15 * 60_000 + 500);
+
+            const prepared = await service.prepareToFunding({
+                assetId: 1,
+                quantity: "10",
+                destinationAddress: "funding",
+                idempotencyKey: "withdraw-deadline",
+                payloadSignature: new Uint8Array([1]),
+                deadline,
+            });
+            const deadlineSec = Math.floor(deadline.getTime() / 1000);
+            expect(prepared.deadline.getTime()).toBe(deadlineSec * 1000);
+            await prepared.submit();
+            const payload = (
+                transport.lastCall()?.message as { payload?: Proto.TradingWithdrawIntentPayload }
+            )?.payload;
+            expect(payload?.deadlineTsSec).toBe(BigInt(deadlineSec));
+        });
     });
 
     it("rejects quantities that are invalid, non-positive, or too precise before transport", async () => {

@@ -14,8 +14,10 @@ import {
     AuthenticationError,
     ConfigurationError,
     ServiceUnavailableError,
+    WalletChallengeExpiredError,
 } from "../../shared/errors.js";
 import type { LoginWithWalletInput, LoginWithWalletResponse } from "./auth.js";
+import { observeServerTime, resetServerClock } from "../../shared/server-clock.js";
 import { polyesterSession } from "./session.js";
 import { createMemoryAuthTokenStorage, type AuthTokenStorage } from "./token-storage.js";
 
@@ -114,7 +116,7 @@ function mockSubaccountChallenge(subaccounts: SubaccountsService, smartAccountAd
         message: "subaccount server message",
         smartAccountAddress,
         smartAccountSaltNonce: 1,
-        expiresAt: 1_000,
+        expiresAt: Date.now() + 5 * 60_000,
         polyesterChainId: 1,
     });
 }
@@ -180,6 +182,49 @@ describe("AccountSignerAuthService", () => {
             expect(input.uri).toBe("https://browser.example:8443");
         }
     });
+
+    it.each([
+        { clock: "known", expired: true },
+        { clock: "unknown", expired: false },
+        // The device clock runs 26 minutes behind, but the SIWE `Issued At` sets the server clock.
+        { clock: "issued-at", expired: true },
+    ])(
+        "checks wallet challenge expiry after signing only when the server clock is $clock",
+        async ({ clock, expired }) => {
+            vi.useFakeTimers({ toFake: ["Date"] });
+            vi.stubGlobal("location", { origin: "https://browser.example" });
+            resetServerClock();
+            if (clock === "known") observeServerTime(Date.now());
+            const accountSigner = signer({
+                signMessage: vi.fn(async () => {
+                    // Signing outlasts the challenge, or the device clock runs fast.
+                    vi.setSystemTime(Date.now() + 6 * 60_000);
+                    return "0x1234" as const;
+                }),
+            });
+            const auth = authService(accountSigner);
+            const { createWalletChallenge, loginWithWallet } = mockLogin(auth);
+            const serverNow = Date.now() + (clock === "issued-at" ? 26 * 60_000 : 0);
+            createWalletChallenge.mockResolvedValue({
+                message:
+                    clock === "issued-at"
+                        ? `Nonce: abc\nIssued At: ${new Date(serverNow).toISOString()}\nResources:`
+                        : "server-issued message",
+                expiresAt: serverNow + 5 * 60_000,
+            });
+
+            const error = await auth.login({ provider: "other" }).catch((error: unknown) => error);
+            if (expired) {
+                expect(error).toBeInstanceOf(WalletChallengeExpiredError);
+                expect(error).toBeInstanceOf(AuthenticationError);
+                expect(loginWithWallet).not.toHaveBeenCalled();
+            } else {
+                // The device clock alone can't prove expiry; the backend decides.
+                expect(error).not.toBeInstanceOf(WalletChallengeExpiredError);
+                expect(loginWithWallet).toHaveBeenCalledOnce();
+            }
+        },
+    );
 
     it("requires an explicit origin outside a browser before requesting or signing a challenge", async () => {
         vi.stubGlobal("location", undefined);

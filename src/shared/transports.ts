@@ -6,8 +6,10 @@ import {
     AuthenticationError,
     ConfigurationError,
     isAbortError,
+    isTimeoutAbortError,
     NetworkError,
     PolyesterError,
+    TimeoutError,
     TimestampSkewError,
 } from "./errors.js";
 
@@ -99,8 +101,20 @@ export function makeFetch(fetchImpl?: typeof fetch): typeof fetch {
                     headers,
                     redirect: "manual",
                 });
+                // Connect rejects anything but a 200 with a Connect content type
+                // without reading the body, then aborts the request with its
+                // ConnectError. Any reader still on that body (e.g. fetch
+                // instrumentation reading a clone) would reject with the raw
+                // ConnectError, unhandled. Buffer those bodies so the stream is
+                // complete before Connect aborts.
+                if (res?.body && !isConnectResponse(res)) {
+                    res = new Response(await res.arrayBuffer(), res);
+                }
             } catch (err) {
                 if (isAbortError(err)) throw err;
+                if (isTimeoutAbortError(err)) {
+                    throw new TimeoutError("Request timed out.", { cause: err });
+                }
                 throw new NetworkError("Transport request failed", { cause: err });
             }
             // A custom or patched fetch (browser extensions, monitoring scripts) can
@@ -111,6 +125,7 @@ export function makeFetch(fetchImpl?: typeof fetch): typeof fetch {
             if (await isTimestampSkewProblem(res)) {
                 throw new TimestampSkewError(
                     "API key timestamp is outside the allowed skew window.",
+                    { status: res.status },
                 );
             }
             return res;
@@ -119,6 +134,14 @@ export function makeFetch(fetchImpl?: typeof fetch): typeof fetch {
     );
 
     return wrappedFetch;
+}
+
+const CONNECT_CONTENT_TYPE_RE = /^application\/(?:connect\+)?(?:json|proto)\s*(?:;|$)/iu;
+
+function isConnectResponse(res: Response): boolean {
+    return (
+        res.status === 200 && CONNECT_CONTENT_TYPE_RE.test(res.headers.get("content-type") ?? "")
+    );
 }
 
 async function isTimestampSkewProblem(res: Response): Promise<boolean> {

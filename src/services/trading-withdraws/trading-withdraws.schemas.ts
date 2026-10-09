@@ -9,6 +9,7 @@ import type * as Proto from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import { WithdrawDestinationValidationCode } from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import { toU128, type U128Value } from "../../utils/u128.js";
 import { ConfigurationError } from "../../shared/errors.js";
+import { serverNowMs } from "../../shared/server-clock.js";
 import {
     TradingWithdrawActionCodec,
     WithdrawDestinationValidationCodeCodec,
@@ -52,13 +53,18 @@ function createTradingWithdrawPayload(input: {
     quantityScaled: bigint;
     destinationAddress: string;
     idempotencyKey: string;
+    deadline: Date | undefined;
 }): TradingWithdrawIntentPayloadRequest {
     return {
         action: input.action,
         assetId: input.assetId,
         destinationChainId: input.destinationChainId,
         amountE18: toU128(input.quantityScaled),
-        deadlineTsSec: BigInt(Math.floor(Date.now() / 1000) + DEFAULT_DEADLINE_SECONDS),
+        deadlineTsSec: BigInt(
+            input.deadline
+                ? Math.floor(input.deadline.getTime() / 1000)
+                : Math.floor(serverNowMs() / 1000) + DEFAULT_DEADLINE_SECONDS,
+        ),
         nonce: toU128(createNonce()),
         destinationAddress: input.destinationAddress,
         idempotencyKey: input.idempotencyKey,
@@ -75,6 +81,11 @@ export function createCreateTradingWithdrawToFundingInputSchema(scales: SdkScale
             destinationAddress: v.optional(v.pipe(v.string(), v.trim()), ""),
             signerWallet: v.optional(v.pipe(v.string(), v.trim()), ""),
             payloadSignature: v.optional(v.instance(Uint8Array)),
+            /**
+             * When the signed authorization lapses. Defaults to five minutes from now
+             * on the server clock when known, else the device clock.
+             */
+            deadline: v.optional(v.date()),
         }),
         v.transform((input): CreateTradingWithdrawRequestBase => {
             const quantityScaled = quantityInputToE18({
@@ -92,6 +103,7 @@ export function createCreateTradingWithdrawToFundingInputSchema(scales: SdkScale
                     quantityScaled,
                     destinationAddress: input.destinationAddress,
                     idempotencyKey: input.idempotencyKey,
+                    deadline: input.deadline,
                 }),
             };
         }),
@@ -114,6 +126,11 @@ export function createCreateTradingWithdrawToExternalChainInputSchema(scales: Sd
             idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
             signerWallet: v.optional(v.pipe(v.string(), v.trim()), ""),
             payloadSignature: v.optional(v.instance(Uint8Array)),
+            /**
+             * When the signed authorization lapses. Defaults to five minutes from now
+             * on the server clock when known, else the device clock.
+             */
+            deadline: v.optional(v.date()),
         }),
         v.transform((input): CreateTradingWithdrawRequestBase => {
             const quantityScaled = quantityInputToE18({
@@ -131,6 +148,7 @@ export function createCreateTradingWithdrawToExternalChainInputSchema(scales: Sd
                     quantityScaled,
                     destinationAddress: input.destinationAddress,
                     idempotencyKey: input.idempotencyKey,
+                    deadline: input.deadline,
                 }),
             };
         }),

@@ -6,6 +6,7 @@ export {
     waitForPolyesterUserOperationReceipt,
     warmPolyesterSmartAccountClient,
 } from "./smart-account.js";
+export { UserOperationAlreadyKnownError, UserOperationNotExecutedError } from "../shared/errors.js";
 export type {
     CreateSmartAccountParams,
     PredictPolyesterSmartAccountAddressParams,

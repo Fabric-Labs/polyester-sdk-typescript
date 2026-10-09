@@ -20,12 +20,15 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * ├── RequestError                   REQUEST_FAILED              false
  * │   ├── ValidationError            VALIDATION_FAILED           false
  * │   │   ├── StaleQuoteError            STALE_QUOTE
+ * │   │   ├── WithdrawDeadlineExpiredError WITHDRAW_DEADLINE_EXPIRED
  * │   │   └── PolicyScopeMismatchError   POLICY_SCOPE_MISMATCH
  * │   ├── ResourceNotFoundError      RESOURCE_NOT_FOUND          false
  * │   ├── NotImplementedError        NOT_IMPLEMENTED             false
  * │   ├── AlreadyExistsError         ALREADY_EXISTS              false
+ * │   │   └── UserOperationAlreadyKnownError USER_OPERATION_ALREADY_KNOWN
  * │   ├── PermissionError            PERMISSION_DENIED           false
  * │   ├── AuthenticationError        UNAUTHENTICATED             false
+ * │   │   └── WalletChallengeExpiredError    WALLET_CHALLENGE_EXPIRED
  * │   ├── PreconditionFailedError    PRECONDITION_FAILED         false
  * │   │   ├── RevisionConflictError          REVISION_CONFLICT
  * │   │   ├── PolicyInUseError               POLICY_IN_USE
@@ -37,7 +40,8 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * │   │   ├── MfaEnrollmentRequiredError     MFA_ENROLLMENT_REQUIRED
  * │   │   ├── StepUpRequiredError            STEP_UP_REQUIRED
  * │   │   └── SessionElevationRequiredError  SESSION_ELEVATION_REQUIRED
- * │   └── MfaVerificationError       MFA_VERIFICATION_FAILED     false
+ * │   ├── MfaVerificationError       MFA_VERIFICATION_FAILED     false
+ * │   └── UserOperationNotExecutedError USER_OPERATION_NOT_EXECUTED false
  * ├── InternalServerError            INTERNAL_SERVER_ERROR       false
  * └── RealtimeError                  REALTIME_ERROR              varies
  * ```
@@ -45,7 +49,8 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * Catalog errors (`CatalogLookupError`, `CatalogConversionError`, …) plug into
  * the same tree under `RequestError`/`ValidationError`.
  *
- * Errors mapped from RPC failures keep the original `ConnectError` as `cause`.
+ * Errors mapped from RPC failures keep the original `ConnectError` as `cause`
+ * and carry the response's `status` when available.
  *
  * @example
  * ```ts
@@ -71,11 +76,15 @@ export type PolyesterErrorCode =
     | "REQUEST_FAILED"
     | "VALIDATION_FAILED"
     | "STALE_QUOTE"
+    | "WITHDRAW_DEADLINE_EXPIRED"
     | "RESOURCE_NOT_FOUND"
     | "NOT_IMPLEMENTED"
     | "ALREADY_EXISTS"
+    | "USER_OPERATION_ALREADY_KNOWN"
+    | "USER_OPERATION_NOT_EXECUTED"
     | "PERMISSION_DENIED"
     | "UNAUTHENTICATED"
+    | "WALLET_CHALLENGE_EXPIRED"
     | "PRECONDITION_FAILED"
     | "REVISION_CONFLICT"
     | "POLICY_IN_USE"
@@ -100,6 +109,8 @@ export interface PolyesterErrorOptions {
     cause?: unknown;
     /** Recognized structured backend rejection, decoded at the RPC boundary. */
     detail?: PolyesterErrorDetail;
+    /** HTTP status of the failed response. */
+    status?: number;
 }
 
 const CONNECT_ERROR_PREFIX_RE = /^(?:\[[a-z][a-z0-9_-]*]\s*)+/i;
@@ -121,13 +132,18 @@ export abstract class PolyesterError extends Error {
     /** Whether retrying the same operation may succeed. */
     abstract readonly retryable: boolean;
     readonly detail: PolyesterErrorDetail | undefined;
+    /**
+     * HTTP status of the failed response. For Connect errors that carry no raw
+     * HTTP status, the Connect protocol's status for the error code.
+     */
+    readonly status: number | undefined;
 
     constructor(message: string, options?: PolyesterErrorOptions) {
         super(normalizeErrorMessage(message), options);
         this.name = "PolyesterError";
-        this.detail =
-            options?.detail ??
-            (options?.cause instanceof PolyesterError ? options.cause.detail : undefined);
+        const inherited = options?.cause instanceof PolyesterError ? options.cause : undefined;
+        this.detail = options?.detail ?? inherited?.detail;
+        this.status = options?.status ?? inherited?.status;
     }
 }
 
@@ -249,6 +265,23 @@ export class StaleQuoteError extends ValidationError {
     }
 }
 
+/**
+ * The prepared withdraw's signed deadline has passed, so the backend would
+ * reject it. Prepare (and sign) the withdraw again.
+ *
+ * Thrown by `submit` before sending once the deadline has passed, and when the
+ * backend rejects the deadline as expired: one that lapsed in flight, or one
+ * signed from a device clock running behind while the server clock was unknown.
+ */
+export class WithdrawDeadlineExpiredError extends ValidationError {
+    override readonly code: string = "WITHDRAW_DEADLINE_EXPIRED";
+
+    constructor(message: string, options?: PolyesterErrorOptions) {
+        super(message, options);
+        this.name = "WithdrawDeadlineExpiredError";
+    }
+}
+
 /** The requested resource does not exist (or is not visible to the caller). */
 export class ResourceNotFoundError extends RequestError {
     override readonly code: string = "RESOURCE_NOT_FOUND";
@@ -279,6 +312,22 @@ export class AlreadyExistsError extends RequestError {
     }
 }
 
+/**
+ * The bundler already holds this exact UserOperation (it answered "Already
+ * known"), so the earlier submission is still pending. Wait on `userOpHash`
+ * instead of signing again; a new operation would execute a second time.
+ */
+export class UserOperationAlreadyKnownError extends AlreadyExistsError {
+    override readonly code: string = "USER_OPERATION_ALREADY_KNOWN";
+    readonly userOpHash: `0x${string}`;
+
+    constructor(message: string, userOpHash: `0x${string}`, options?: PolyesterErrorOptions) {
+        super(message, options);
+        this.name = "UserOperationAlreadyKnownError";
+        this.userOpHash = userOpHash;
+    }
+}
+
 /** The caller is authenticated but not allowed to perform this operation. */
 export class PermissionError extends RequestError {
     override readonly code: string = "PERMISSION_DENIED";
@@ -296,6 +345,22 @@ export class AuthenticationError extends RequestError {
     constructor(message: string, options?: PolyesterErrorOptions) {
         super(message, options);
         this.name = "AuthenticationError";
+    }
+}
+
+/**
+ * The signed wallet login challenge expired before it was submitted (challenges
+ * last five minutes). Start the login again to request a fresh challenge.
+ *
+ * Client-side check only: the backend has no distinct code for an expired
+ * challenge, so a rejection from the server is a plain {@link AuthenticationError}.
+ */
+export class WalletChallengeExpiredError extends AuthenticationError {
+    override readonly code: string = "WALLET_CHALLENGE_EXPIRED";
+
+    constructor(message: string, options?: PolyesterErrorOptions) {
+        super(message, options);
+        this.name = "WalletChallengeExpiredError";
     }
 }
 
@@ -502,6 +567,11 @@ export function isAbortError(err: unknown): boolean {
     return err instanceof DOMException && err.name === "AbortError";
 }
 
+/** Checks whether an error is the `TimeoutError` raised by `AbortSignal.timeout()`. */
+export function isTimeoutAbortError(err: unknown): boolean {
+    return err instanceof DOMException && err.name === "TimeoutError";
+}
+
 /** Maps a plain HTTP status code onto the SDK error tree. */
 export function errorFromHttpStatus(
     status: number,
@@ -523,4 +593,29 @@ export function errorFromHttpStatus(
     if (status >= 500) return new InternalServerError(message, options);
     if (status >= 400) return new RequestError(message, options);
     return new NetworkError(message, options);
+}
+
+/**
+ * The bundler reported a UserOperation as definitively not executed, so nothing
+ * moved on chain: `rejected` (dropped by the bundler, often for a fee below the
+ * current price) or `failed` (its bundle transaction reverted). Submitting a
+ * fresh operation is safe.
+ */
+export class UserOperationNotExecutedError extends RequestError {
+    override readonly code: string = "USER_OPERATION_NOT_EXECUTED";
+    readonly userOpHash: `0x${string}`;
+    /** The bundler's `pimlico_getUserOperationStatus` result. */
+    readonly bundlerStatus: "rejected" | "failed";
+
+    constructor(
+        message: string,
+        userOpHash: `0x${string}`,
+        bundlerStatus: "rejected" | "failed",
+        options?: PolyesterErrorOptions,
+    ) {
+        super(message, options);
+        this.name = "UserOperationNotExecutedError";
+        this.userOpHash = userOpHash;
+        this.bundlerStatus = bundlerStatus;
+    }
 }

@@ -1,4 +1,5 @@
-import { ValidationError } from "../../shared/errors.js";
+import { ValidationError, WithdrawDeadlineExpiredError } from "../../shared/errors.js";
+import { serverNowMs } from "../../shared/server-clock.js";
 import { createClient, type Client } from "@connectrpc/connect";
 import type { Address, Hex } from "viem";
 import { checksumEvmAddress, evmHexToBytes } from "../../utils/evm.js";
@@ -61,8 +62,10 @@ export type PreparedTradingWithdraw = Readonly<{
     /** When the backend stops accepting this signed request. */
     deadline: Date;
     /**
-     * True once the deadline is less than a minute away. Prepare again (same input,
-     * same idempotency key) instead of submitting, e.g. after a slow MFA enrollment.
+     * True once the deadline is less than a minute away, on the server clock. Prepare
+     * again (same input, same idempotency key) instead of submitting, e.g. after a
+     * slow MFA enrollment. Once the deadline itself passes, `submit` throws
+     * `WithdrawDeadlineExpiredError`.
      */
     isExpired: () => boolean;
     /**
@@ -82,8 +85,15 @@ function preparedWithdraw(
     const deadline = new Date(Number(payload.deadlineTsSec) * 1000);
     return {
         deadline,
-        isExpired: () => Date.now() >= deadline.getTime() - PREPARED_WITHDRAW_EXPIRY_MARGIN_MS,
-        submit,
+        isExpired: () => serverNowMs() >= deadline.getTime() - PREPARED_WITHDRAW_EXPIRY_MARGIN_MS,
+        submit: async (options) => {
+            if (serverNowMs() >= deadline.getTime()) {
+                throw new WithdrawDeadlineExpiredError(
+                    "Withdraw signature deadline has passed. Prepare the withdraw again.",
+                );
+            }
+            return submit(options);
+        },
     };
 }
 
