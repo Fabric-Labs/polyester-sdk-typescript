@@ -23,6 +23,7 @@ import {
     CreateWalletTradingWithdrawResultSchema,
     ValidateWithdrawDestinationInputSchema,
     ValidateWithdrawDestinationResultSchema,
+    renewTradingWithdrawPayload,
     type CreateTradingWithdrawResult,
     type CreateTradingWithdrawToExternalChainInput,
     type CreateTradingWithdrawToExternalChainRequest,
@@ -59,40 +60,57 @@ export type CreateTradingWithdrawToExternalChainServiceInput =
     };
 
 export type PreparedTradingWithdraw = Readonly<{
-    /** When the backend stops accepting this signed request. */
+    /** When the backend stops accepting the currently signed request. */
     deadline: Date;
     /**
-     * True once the deadline is less than a minute away, on the server clock. Prepare
-     * again (same input, same idempotency key) instead of submitting, e.g. after a
-     * slow MFA enrollment. Once the deadline itself passes, `submit` throws
-     * `WithdrawDeadlineExpiredError`.
+     * True once the deadline is less than a minute away, on the server clock. Wallet-signed
+     * withdraws sign again on `submit` from then on, so callers can keep resubmitting the
+     * same prepared withdraw, e.g. after a slow MFA step-up. Payload-signed withdraws
+     * cannot be signed again: prepare again (same input, same idempotency key) instead.
      */
     isExpired: () => boolean;
     /**
-     * Submits the exact payload and signature produced during preparation.
-     * Repeated calls only change transport options such as the step-up token.
+     * Submits the payload and signature produced during preparation. Repeated calls only
+     * change transport options such as the step-up token, unless the deadline is near:
+     * wallet-signed withdraws then sign a fresh deadline and nonce with the same idempotency
+     * key, and payload-signed withdraws throw `WithdrawDeadlineExpiredError` once it passes.
      */
     submit: (options?: PolyesterMutationOptions) => Promise<CreateTradingWithdrawResult>;
 }>;
 
+type SignedTradingWithdraw = {
+    payload: TradingWithdrawIntentPayloadRequest;
+    send: (options?: PolyesterMutationOptions) => Promise<CreateTradingWithdrawResult>;
+};
+
 // Leaves room for the request to reach the backend and for modest clock skew.
 const PREPARED_WITHDRAW_EXPIRY_MARGIN_MS = 60_000;
 
+function deadlineMs(payload: TradingWithdrawIntentPayloadRequest): number {
+    return Number(payload.deadlineTsSec) * 1000;
+}
+
 function preparedWithdraw(
-    payload: TradingWithdrawIntentPayloadRequest,
-    submit: PreparedTradingWithdraw["submit"],
+    signed: SignedTradingWithdraw,
+    resign?: (payload: TradingWithdrawIntentPayloadRequest) => Promise<SignedTradingWithdraw>,
 ): PreparedTradingWithdraw {
-    const deadline = new Date(Number(payload.deadlineTsSec) * 1000);
+    let current = signed;
+    const isExpired = () =>
+        serverNowMs() >= deadlineMs(current.payload) - PREPARED_WITHDRAW_EXPIRY_MARGIN_MS;
     return {
-        deadline,
-        isExpired: () => serverNowMs() >= deadline.getTime() - PREPARED_WITHDRAW_EXPIRY_MARGIN_MS,
+        get deadline() {
+            return new Date(deadlineMs(current.payload));
+        },
+        isExpired,
         submit: async (options) => {
-            if (serverNowMs() >= deadline.getTime()) {
+            if (resign && isExpired()) {
+                current = await resign(renewTradingWithdrawPayload(current.payload));
+            } else if (serverNowMs() >= deadlineMs(current.payload)) {
                 throw new WithdrawDeadlineExpiredError(
                     "Withdraw signature deadline has passed. Prepare the withdraw again.",
                 );
             }
-            return submit(options);
+            return current.send(options);
         },
     };
 }
@@ -267,26 +285,33 @@ export class TradingWithdrawsService {
                 subaccountId: validated.subaccountId,
                 rootAccountId: walletSigner.accountId,
             });
-
-            const walletSignature = await resolveWalletSignature({
-                signingConfig,
-                payload: validated.payload,
-                walletSigner,
-                targetAccountId,
-            });
-            const request = removeUndefined({
-                payload: validated.payload,
-                subaccountId: validated.subaccountId,
-                signerWallet: walletSignature.signerWallet,
-                payloadSignature: walletSignature.payloadSignature,
-            });
-            return preparedWithdraw(validated.payload, async (options) => {
-                const response = await this.#client.createWalletTradingWithdraw(
-                    request,
-                    toConnectCallOptions(options),
-                );
-                return parse(CreateWalletTradingWithdrawResultSchema, response);
-            });
+            const sign = async (
+                payload: TradingWithdrawIntentPayloadRequest,
+            ): Promise<SignedTradingWithdraw> => {
+                const walletSignature = await resolveWalletSignature({
+                    signingConfig,
+                    payload,
+                    walletSigner,
+                    targetAccountId,
+                });
+                const request = removeUndefined({
+                    payload,
+                    subaccountId: validated.subaccountId,
+                    signerWallet: walletSignature.signerWallet,
+                    payloadSignature: walletSignature.payloadSignature,
+                });
+                return {
+                    payload,
+                    send: async (options) => {
+                        const response = await this.#client.createWalletTradingWithdraw(
+                            request,
+                            toConnectCallOptions(options),
+                        );
+                        return parse(CreateWalletTradingWithdrawResultSchema, response);
+                    },
+                };
+            };
+            return preparedWithdraw(await sign(validated.payload), sign);
         }
 
         if (!validated.payloadSignature) {
@@ -299,12 +324,15 @@ export class TradingWithdrawsService {
             payload: validated.payload,
             payloadSignature: validated.payloadSignature,
         });
-        return preparedWithdraw(validated.payload, async (options) => {
-            const response = await this.#client.createTradingWithdraw(
-                request,
-                toConnectCallOptions(options),
-            );
-            return parse(CreateTradingWithdrawResultSchema, response);
+        return preparedWithdraw({
+            payload: validated.payload,
+            send: async (options) => {
+                const response = await this.#client.createTradingWithdraw(
+                    request,
+                    toConnectCallOptions(options),
+                );
+                return parse(CreateTradingWithdrawResultSchema, response);
+            },
         });
     }
 }

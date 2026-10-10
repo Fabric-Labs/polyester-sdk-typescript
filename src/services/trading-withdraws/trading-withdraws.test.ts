@@ -526,6 +526,56 @@ describe("TradingWithdrawsService", () => {
             expect(request.payload?.deadlineTsSec).toBe(BigInt(prepared.deadline.getTime() / 1000));
         });
 
+        it("signs a fresh deadline when a wallet withdraw is resubmitted after a slow step-up", async () => {
+            vi.useFakeTimers({ toFake: ["Date"], now: new Date("2026-10-03T10:50:23Z") });
+            const transport = unaryTransport((_call, index) => {
+                if (index === 0) throw new StepUpRequiredError("Fresh verification required.");
+                return { intentId: "intent-1" };
+            });
+            const service = new TradingWithdrawsService(
+                { authApi: transport.transport },
+                undefined,
+                signingConfig,
+                testScales(),
+            );
+            const signMessage = vi.fn(async (): Promise<`0x${string}`> => validWalletSignature);
+            const prepared = await service.prepareToFunding({
+                account: "main",
+                assetId: 1,
+                quantity: "10",
+                destinationAddress: "funding",
+                idempotencyKey: "withdraw-step-up",
+                walletSigner: {
+                    signerWallet: "0x1111111111111111111111111111111111111111",
+                    accountId: formatId(1n),
+                    signMessage,
+                },
+            });
+            await expect(prepared.submit()).rejects.toBeInstanceOf(StepUpRequiredError);
+
+            // MFA takes almost five minutes; the 10:55:23 deadline is under a minute away.
+            vi.setSystemTime(new Date("2026-10-03T10:55:19Z"));
+            expect(prepared.isExpired()).toBe(true);
+            await expect(prepared.submit({ stepUpToken: "fresh-token" })).resolves.toEqual({
+                intentId: "intent-1",
+            });
+
+            expect(signMessage).toHaveBeenCalledTimes(2);
+            const [first, retry] = transport.calls.map(
+                (call) => call.message as Proto.CreateWalletTradingWithdrawRequest,
+            );
+            expect(first?.payload?.deadlineTsSec).toBe(
+                BigInt(Date.parse("2026-10-03T10:55:23Z") / 1000),
+            );
+            expect(retry?.payload?.deadlineTsSec).toBe(
+                BigInt(Date.parse("2026-10-03T11:00:19Z") / 1000),
+            );
+            expect(retry?.payload?.nonce).not.toEqual(first?.payload?.nonce);
+            expect(retry?.payload?.idempotencyKey).toBe("withdraw-step-up");
+            expect(prepared.deadline).toEqual(new Date("2026-10-03T11:00:19Z"));
+            expect(prepared.isExpired()).toBe(false);
+        });
+
         it("signs a caller-supplied deadline", async () => {
             const transport = unaryTransportByMethod({
                 createTradingWithdraw: { intentId: "intent-1" },

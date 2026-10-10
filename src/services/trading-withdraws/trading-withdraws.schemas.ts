@@ -71,6 +71,17 @@ function createTradingWithdrawPayload(input: {
     };
 }
 
+/** The same withdraw with a fresh default deadline and nonce, for signing again. */
+export function renewTradingWithdrawPayload(
+    payload: TradingWithdrawIntentPayloadRequest,
+): TradingWithdrawIntentPayloadRequest {
+    return {
+        ...payload,
+        deadlineTsSec: BigInt(Math.floor(serverNowMs() / 1000) + DEFAULT_DEADLINE_SECONDS),
+        nonce: toU128(createNonce()),
+    };
+}
+
 export function createCreateTradingWithdrawToFundingInputSchema(scales: SdkScales) {
     return v.pipe(
         v.strictObject({
