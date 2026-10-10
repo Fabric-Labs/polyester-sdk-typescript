@@ -3,6 +3,7 @@ import path from "node:path";
 import { rolldown } from "rolldown";
 import { describe, expect, it } from "vitest";
 import { POLYESTER_SERVICES } from "../src/client.js";
+import { POLYESTER_SERVER_SERVICES } from "../src/server-client.js";
 
 /**
  * Bundles small apps against `src/` and inspects the entry chunk (what a page
@@ -116,12 +117,28 @@ describe("core tree-shaking", () => {
         expect(modules).toContain("services/orders/orders.ts");
         expect(modules).toContain("services/triggers/triggers.ts");
         expect(modules).toContain("services/subaccounts/subaccounts.ts");
+        // Server-only: the broker API must never ship to a browser.
+        expect(modules).not.toContain("services/quickswap/quickswap.ts");
+        expect(modules).not.toContain("gen/swap/quickswap/v1/quickswap_pb.ts");
+    });
+
+    it("adds the server-only QuickSwap service to the full server client", async () => {
+        const modules = await entryModules(`
+            import { PolyesterServerClient, POLYESTER_TESTNET_ENVIRONMENT } from "@sdk/index.ts";
+            console.log(new PolyesterServerClient({ environment: POLYESTER_TESTNET_ENVIRONMENT }));
+        `);
+
+        expect(modules).toContain("services/quickswap/quickswap.ts");
+        expect(modules).toContain("gen/swap/quickswap/v1/quickswap_pb.ts");
     });
 });
 
 describe("service accessor modules", () => {
     it("gives the full clients a getter for every service accessor module", async () => {
-        const accessors = new Set<unknown>(Object.values(POLYESTER_SERVICES));
+        const accessors = new Set<unknown>([
+            ...Object.values(POLYESTER_SERVICES),
+            ...Object.values(POLYESTER_SERVER_SERVICES),
+        ]);
         const modules = readdirSync(path.join(SRC_DIR, "services"), { withFileTypes: true }).filter(
             (entry) =>
                 entry.isDirectory() &&
@@ -137,6 +154,14 @@ describe("service accessor modules", () => {
             for (const accessor of Object.values(exports)) {
                 expect(accessors.has(accessor), `services/${name}/service.ts`).toBe(true);
             }
+        }
+    });
+});
+
+describe("server-only service accessors", () => {
+    it("keeps them out of the accessors the browser client shares", () => {
+        for (const name of Object.keys(POLYESTER_SERVER_SERVICES)) {
+            expect(Object.keys(POLYESTER_SERVICES)).not.toContain(name);
         }
     });
 });

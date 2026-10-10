@@ -30,6 +30,7 @@ import { OrdersService } from "./gen/orders/v1/orders_pb.js";
 import { OrdersReadService } from "./gen/orders/v1/orders_read_pb.js";
 import { RateLimitService } from "./gen/ratelimit/v1/ratelimit_pb.js";
 import { RewardCampaignService } from "./gen/rewards/v1/rewards_pb.js";
+import { QuickSwapService } from "./gen/swap/quickswap/v1/quickswap_pb.js";
 import { InternalTransferService } from "./gen/transfer/v1/internal_transfer_pb.js";
 import { TriggersService } from "./gen/triggers/v1/triggers_pb.js";
 import { VIPService } from "./gen/vip/v1/vip_pb.js";
@@ -64,6 +65,7 @@ export const WIRED_SERVICE_DESCRIPTORS: readonly DescService[] = [
     OrdersService,
     PolicyService,
     ProfileService,
+    QuickSwapService,
     RateLimitService,
     ResolveService,
     RewardCampaignService,

@@ -111,6 +111,47 @@ const client = new PolyesterClient({
 });
 ```
 
+## QuickSwap broker API
+
+Brokers swap an end user's external deposit into external withdrawals. The
+broker API key is a server credential, so QuickSwap exists only on
+`PolyesterServerClient`; browser clients have no `quickSwap` and do not accept
+the `broker-api-key` provider. The SDK sends the key as
+`Authorization: Bearer <key>` on QuickSwap requests only.
+
+```ts
+import { PolyesterServerClient, POLYESTER_DEVNET_ENVIRONMENT } from "@polyester/sdk";
+
+const client = new PolyesterServerClient({
+    environment: POLYESTER_DEVNET_ENVIRONMENT,
+    auth: { kind: "broker-api-key", key: process.env.POLYESTER_BROKER_API_KEY! },
+});
+
+const terms = {
+    sourceZippedAssetId: 11,
+    destinationZippedAssetId: 22,
+    basis: "source_amount",
+    amount: { baseUnits: "150000000", decimals: 8 },
+    protection: { kind: "max_slippage", bps: 50 },
+    execution: { type: "market" },
+} as const;
+
+const quote = await client.quickSwap.quote({ terms });
+const swap = await client.quickSwap.create({
+    idempotencyKey: "order-1",
+    terms,
+    destinationAddress,
+    returnAddress,
+});
+const latest = await client.quickSwap.get({ swapId: swap.swapId });
+```
+
+`create` is idempotent per key: resolve an unknown outcome by repeating the same
+input or with `client.quickSwap.lookup({ idempotencyKey })`. Rejections carry a
+`quickswap` error detail, for example `AMOUNT_OUT_OF_RANGE` with
+`minDepositAmount` and `maxDepositAmount`, or `IDEMPOTENCY_CONFLICT` and
+`ADDRESS_UNAVAILABLE` with the existing `swapId`.
+
 ## Realtime
 
 Subscriptions start connecting immediately and return their own unsubscribe

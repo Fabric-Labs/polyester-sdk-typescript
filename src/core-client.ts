@@ -122,9 +122,7 @@ export type PolyesterClientBaseConfig = PolyesterClientCommonConfig & PolyesterC
 export type PolyesterClientConfig = PolyesterClientBaseConfig;
 
 /** Preserves the exclusive catalog configuration while projecting client config fields. */
-export function pickPolyesterCatalogConfig(
-    config: PolyesterClientBaseConfig,
-): PolyesterCatalogConfig {
+export function pickPolyesterCatalogConfig(config: PolyesterCatalogConfig): PolyesterCatalogConfig {
     return config.catalog === undefined
         ? {
               catalogSnapshot: config.catalogSnapshot,
@@ -145,12 +143,17 @@ interface PolyesterClientRuntimeConfig {
     createAuth?: (context: AuthServiceFactoryContext) => AuthService;
 }
 
+/** Client configuration whose `auth` a client constructor narrows or widens itself. */
+type PolyesterClientConfigWithAnyAuth<TConfig> = TConfig extends PolyesterClientBaseConfig
+    ? Omit<TConfig, "auth"> & { auth?: unknown }
+    : never;
+
 /**
  * Parses the configuration shared by every public client constructor.
  */
-export function parsePolyesterClientConfig<TConfig extends PolyesterClientBaseConfig>(
-    config: TConfig,
-): TConfig {
+export function parsePolyesterClientConfig<
+    TConfig extends PolyesterClientConfigWithAnyAuth<PolyesterClientBaseConfig>,
+>(config: TConfig): TConfig {
     if (typeof config !== "object" || config === null || Array.isArray(config)) {
         throw new ConfigurationError("Client configuration must be an object.");
     }

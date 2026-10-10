@@ -28,6 +28,7 @@ export {
     createPolyesterServerClientFromCookies,
     createPolyesterServerClientFromRequest,
 } from "./server-client.js";
+export type { PolyesterServerServices } from "./server-client.js";
 export {
     PolyesterServerCore,
     createPolyesterServerCoreFromCookies,
@@ -79,6 +80,8 @@ export type {
     JwtAuthProvider,
     Transports,
 } from "./shared/transports.js";
+// Type only: the provider is a plain object that only server client configs accept.
+export type { BrokerApiKeyAuthProvider } from "./shared/broker-auth.js";
 export type {
     ConnectChannelParams,
     PolyesterRealtime,
@@ -130,6 +133,7 @@ export type {
     PolyesterErrorCode,
     PolyesterErrorDetail,
     PolyesterErrorOptions,
+    QuickSwapErrorTokenAmount,
     RateLimitErrorOptions,
     RealtimeErrorOptions,
     MfaVerificationFailureReason,
@@ -217,6 +221,7 @@ export type * from "./services/policies/api-key-policies/api-key-policies.types.
 export type * from "./services/policies/policies.types.js";
 export type * from "./services/policies/subaccount-policies/subaccount-policies.types.js";
 export type * from "./services/rate-limits/rate-limits.types.js";
+export type * from "./services/quickswap/quickswap.types.js";
 export type * from "./services/rewards/rewards.types.js";
 export type * from "./services/social-verification/social-verification.types.js";
 export type * from "./services/subaccounts/subaccounts.types.js";
