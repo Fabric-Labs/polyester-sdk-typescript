@@ -38,7 +38,7 @@ import {
     type MaxSlippageOneof,
     type TrailingDistanceOneof,
 } from "./trigger-child-order.schemas.js";
-import { parseTrailingDistanceInput } from "../trailing-oneof-inputs.js";
+import { MAX_SELLING_SLIPPAGE_BPS, parseTrailingDistanceInput } from "../trailing-oneof-inputs.js";
 
 const TriggerTypeSchema = v.picklist(TRIGGER_TYPE_VALUES);
 const TriggerStatusFilterSchema = v.picklist(TRIGGER_STATUS_FILTER_VALUES);
@@ -99,7 +99,8 @@ function parseMaxSlippagePatch(
     if (slippage.kind === "none") {
         return { case: "maxSlippageTicks", value: 0n };
     }
-    return parseMaxSlippage(scales, slippage);
+    // Only trailing stops take a slippage patch, and they always sell.
+    return parseMaxSlippage(scales, slippage, MAX_SELLING_SLIPPAGE_BPS);
 }
 
 function createConditionalTriggerInputSchema<const TriggerType extends "stop_loss" | "take_profit">(
@@ -195,7 +196,11 @@ function createTrailingStopTriggerInputSchema(scales: SdkScales) {
                                           input.activationPrice,
                                           scales.price(),
                                       ),
-                            maxSlippage: parseMaxSlippage(scales, input.maxSlippage),
+                            maxSlippage: parseMaxSlippage(
+                                scales,
+                                input.maxSlippage,
+                                MAX_SELLING_SLIPPAGE_BPS,
+                            ),
                             side: ProtoOrders.Side.SELL,
                         },
                     } as const,

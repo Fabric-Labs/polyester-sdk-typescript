@@ -12,6 +12,7 @@ import {
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import type { AuthApiTransports } from "../../shared/transports.js";
 import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
+import { deliverBatch } from "../../shared/subscription-errors.js";
 import {
     createCreateTriggerInputSchema,
     createModifyTriggerInputSchema,
@@ -260,17 +261,22 @@ export class TriggersService {
 
     /**
      * Subscribes to private trigger lifecycle events on private:spot:triggers:events:{accountId}:proto and emits parsed trigger event records.
+     * Each publication batches events, emitted one at a time; `(triggerId, eventType, childSeq,
+     * tsNs)` identifies an event, and a repeated identity replaces the earlier copy.
      */
     subscribeEvents(input: SubscribeTriggerEventsInput): () => void {
         const channel = `private:spot:triggers:events:${input.accountId}:proto`;
         return connectReadyGatedProtoChannel(this.#realtime, {
             channel,
-            schema: Proto.TriggerEventSchema,
+            schema: Proto.TriggerEventBatchSchema,
             ready: () => this.#scales.ready(),
-            onPublication: (data) => {
-                const event = parse(this.#triggerEventSchema, data);
-                input.onEvent(event);
-            },
+            onPublication: (batch) =>
+                deliverBatch(
+                    channel,
+                    batch.events,
+                    (event) => input.onEvent(parse(this.#triggerEventSchema, event)),
+                    input.onError,
+                ),
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
             onError: input.onError,

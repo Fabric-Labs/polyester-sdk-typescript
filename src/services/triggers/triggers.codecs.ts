@@ -66,6 +66,7 @@ export const TRIGGER_CANCEL_REASON_LABEL_VALUES = [
     "user_request",
     "oco",
     "parent_canceled_no_fill",
+    "self_trade_prevention",
     "missing_reason_code",
     "internal_error",
 ] as const;
@@ -192,6 +193,7 @@ export const TriggerCancelReasonCodec = {
         [Proto.TriggerCancelReason.USER_REQUEST]: "user_request",
         [Proto.TriggerCancelReason.OCO]: "oco",
         [Proto.TriggerCancelReason.PARENT_CANCELED_NO_FILL]: "parent_canceled_no_fill",
+        [Proto.TriggerCancelReason.SELF_TRADE_PREVENTION]: "self_trade_prevention",
         [Proto.TriggerCancelReason.MISSING_REASON_CODE]: "missing_reason_code",
         [Proto.TriggerCancelReason.INTERNAL_ERROR]: "internal_error",
     } satisfies ProtoToOutput<Proto.TriggerCancelReason, TriggerCancelReasonLabelValue>,

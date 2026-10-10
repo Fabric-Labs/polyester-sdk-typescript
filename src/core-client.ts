@@ -118,13 +118,15 @@ type PolyesterCatalogConfig =
 /** Configuration shared by every Polyester client. */
 export type PolyesterClientBaseConfig = PolyesterClientCommonConfig & PolyesterCatalogConfig;
 
+/** Shared configuration for clients that define their own `auth` providers. */
+export type PolyesterClientConfigWithoutAuth = Omit<PolyesterClientCommonConfig, "auth"> &
+    PolyesterCatalogConfig;
+
 /** Configuration for the base Polyester client. */
 export type PolyesterClientConfig = PolyesterClientBaseConfig;
 
 /** Preserves the exclusive catalog configuration while projecting client config fields. */
-export function pickPolyesterCatalogConfig(
-    config: PolyesterClientBaseConfig,
-): PolyesterCatalogConfig {
+export function pickPolyesterCatalogConfig(config: PolyesterCatalogConfig): PolyesterCatalogConfig {
     return config.catalog === undefined
         ? {
               catalogSnapshot: config.catalogSnapshot,
@@ -148,7 +150,7 @@ interface PolyesterClientRuntimeConfig {
 /**
  * Parses the configuration shared by every public client constructor.
  */
-export function parsePolyesterClientConfig<TConfig extends PolyesterClientBaseConfig>(
+export function parsePolyesterClientConfig<TConfig extends PolyesterClientConfigWithoutAuth>(
     config: TConfig,
 ): TConfig {
     if (typeof config !== "object" || config === null || Array.isArray(config)) {

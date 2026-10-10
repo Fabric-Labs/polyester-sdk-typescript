@@ -30,9 +30,14 @@ import {
     RefillModel,
 } from "../gen/polyester/ratelimit/v1/types_pb.js";
 import {
+    ErrorCode as QuickSwapErrorCode,
+    ErrorDetailSchema as QuickSwapErrorDetailSchema,
+} from "../gen/swap/quickswap/v1/quickswap_pb.js";
+import {
     ErrorCode as InternalTransferErrorCode,
     ErrorDetailSchema as InternalTransferErrorDetailSchema,
 } from "../gen/transfer/v1/internal_transfer_pb.js";
+import { formatId } from "../utils/base58-id.js";
 import {
     ERROR_DETAIL_TYPE_NAMES,
     loadErrorDetailDecoders,
@@ -221,6 +226,48 @@ describe("parseConnectErrorDetail", () => {
                 ]),
             ),
         ).toEqual({ service: "claims", code: "CLAIM_UNAVAILABLE" });
+        expect(
+            parseConnectErrorDetail(
+                error([
+                    {
+                        desc: QuickSwapErrorDetailSchema,
+                        value: create(QuickSwapErrorDetailSchema, {
+                            code: QuickSwapErrorCode.AMOUNT_OUT_OF_RANGE,
+                            minDepositAmount: { baseUnits: "100000", decimals: 8 },
+                            maxDepositAmount: { baseUnits: "250000000", decimals: 8 },
+                        }),
+                    },
+                ]),
+            ),
+        ).toEqual({
+            service: "quickswap",
+            code: "AMOUNT_OUT_OF_RANGE",
+            swapId: undefined,
+            minDepositAmount: { baseUnits: "100000", decimals: 8 },
+            maxDepositAmount: { baseUnits: "250000000", decimals: 8 },
+        });
+        expect(
+            parseConnectErrorDetail(
+                error([
+                    {
+                        type: QuickSwapErrorDetailSchema.typeName,
+                        value: toBinary(
+                            QuickSwapErrorDetailSchema,
+                            create(QuickSwapErrorDetailSchema, {
+                                code: QuickSwapErrorCode.IDEMPOTENCY_CONFLICT,
+                                swapId: 42n,
+                            }),
+                        ),
+                    },
+                ]),
+            ),
+        ).toEqual({
+            service: "quickswap",
+            code: "IDEMPOTENCY_CONFLICT",
+            swapId: formatId(42n),
+            minDepositAmount: undefined,
+            maxDepositAmount: undefined,
+        });
     });
 
     it("pins every loadable type name to its generated descriptor", () => {
@@ -234,6 +281,7 @@ describe("parseConnectErrorDetail", () => {
                 LedgerErrorDetailSchema,
                 MarketOverviewErrorDetailSchema,
                 ClaimsErrorDetailSchema,
+                QuickSwapErrorDetailSchema,
             ]
                 .map((schema) => schema.typeName)
                 .sort(),

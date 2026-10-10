@@ -420,7 +420,7 @@ describe("CreateTriggerInputSchema", () => {
         });
     });
 
-    it("accepts the 10000 bps slippage cap and rejects 10001", () => {
+    it("caps trailing-stop slippage at 9999 bps because the stop sells", () => {
         const schema = createCreateTriggerInputSchema(testScales());
         const input = {
             triggerType: "trailing_stop",
@@ -432,7 +432,7 @@ describe("CreateTriggerInputSchema", () => {
         expect(
             v.parse(schema, {
                 ...input,
-                maxSlippage: { kind: "bps", bps: 10_000 },
+                maxSlippage: { kind: "bps", bps: 9_999 },
             }),
         ).toMatchObject({
             trigger: {
@@ -441,7 +441,7 @@ describe("CreateTriggerInputSchema", () => {
                     value: {
                         maxSlippage: {
                             case: "maxSlippageBps",
-                            value: 10_000,
+                            value: 9_999,
                         },
                     },
                 },
@@ -450,9 +450,9 @@ describe("CreateTriggerInputSchema", () => {
         expect(() =>
             v.parse(schema, {
                 ...input,
-                maxSlippage: { kind: "bps", bps: 10_001 },
+                maxSlippage: { kind: "bps", bps: 10_000 },
             }),
-        ).toThrow("maxSlippageBps must be between 1 and 10000");
+        ).toThrow("maxSlippageBps must be between 1 and 9999");
     });
 
     it("builds explicit TWAP execution and ladder strategies", () => {
@@ -701,7 +701,7 @@ describe("ModifyTriggerInputSchema", () => {
         });
     });
 
-    it("accepts the 10000 bps distance and slippage caps and rejects 10001", () => {
+    it("accepts a 10000 bps distance, caps the selling stop's slippage at 9999 bps", () => {
         const schema = createModifyTriggerInputSchema(testScales());
         const input = { triggerId: formatId(11n), symbolId: 1 };
 
@@ -720,15 +720,15 @@ describe("ModifyTriggerInputSchema", () => {
         expect(
             v.parse(schema, {
                 ...input,
-                maxSlippage: { kind: "bps", bps: 10_000 },
+                maxSlippage: { kind: "bps", bps: 9_999 },
             }).maxSlippage,
-        ).toEqual({ case: "maxSlippageBps", value: 10_000 });
+        ).toEqual({ case: "maxSlippageBps", value: 9_999 });
         expect(() =>
             v.parse(schema, {
                 ...input,
-                maxSlippage: { kind: "bps", bps: 10_001 },
+                maxSlippage: { kind: "bps", bps: 10_000 },
             }),
-        ).toThrow("maxSlippageBps must be between 1 and 10000");
+        ).toThrow("maxSlippageBps must be between 1 and 9999");
     });
 
     it("distinguishes omitted fields from explicit activation-price and max-slippage clears", () => {
@@ -1201,5 +1201,18 @@ describe("Trigger result and output schemas", () => {
                 }),
             ),
         ).toMatchObject({ status: "cancelled", cancelReason: "user_request" });
+
+        expect(
+            v.parse(
+                createTriggerSchema(testScales()),
+                baseWireTrigger({
+                    status: Proto.TriggerStatus.STATUS_CANCELED,
+                    terminalReason: {
+                        case: "cancelReason",
+                        value: Proto.TriggerCancelReason.SELF_TRADE_PREVENTION,
+                    },
+                }),
+            ),
+        ).toMatchObject({ status: "cancelled", cancelReason: "self_trade_prevention" });
     });
 });

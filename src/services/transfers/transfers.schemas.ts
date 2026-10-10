@@ -54,12 +54,14 @@ export const LedgerTransferSchema = v.pipe(
         flowId: v.optional(v.string()),
         source: v.optional(LedgerTransferSideSchema),
         destination: v.optional(LedgerTransferSideSchema),
+        transferId: v.optional(v.string(), ""),
     }),
     v.transform((tr) => {
         const amount = fromU128(tr.amountE18);
         const linkId = tr.linkId && tr.linkId > 0n ? tr.linkId.toString() : undefined;
 
         const output = {
+            transferId: tr.transferId,
             assetId: tr.assetId,
             amount: scaledToDecimalOutput(amount, E18_SCALE),
             balanceAfter:

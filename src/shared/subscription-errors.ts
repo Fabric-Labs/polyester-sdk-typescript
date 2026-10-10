@@ -42,6 +42,25 @@ export function publicationHandlerErrorContext(
 }
 
 /**
+ * Delivers every event of one batch publication in order. A failing event is
+ * reported on its own, so it does not drop the rest of the batch.
+ */
+export function deliverBatch<T>(
+    channel: string,
+    events: readonly T[],
+    deliver: (event: T) => void,
+    onError: ((error: SdkSubscriptionErrorContext) => void) | undefined,
+): void {
+    for (const event of events) {
+        try {
+            deliver(event);
+        } catch (error) {
+            onError?.(publicationHandlerErrorContext(channel, error));
+        }
+    }
+}
+
+/**
  * Centrifuge emits plain `{ code, message, temporary }` objects despite its types, and
  * only emits subscription `error` events for failures it retries itself; fatal ones
  * arrive as `unsubscribed`.

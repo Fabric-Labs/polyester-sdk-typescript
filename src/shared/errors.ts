@@ -323,8 +323,10 @@ export class RevisionConflictError extends PreconditionFailedError {
 }
 
 /**
- * The subaccount authorization is expired, replaced by a newer challenge, replayed,
- * or otherwise invalid. Request a fresh challenge via `subaccounts.createChallenge`.
+ * The subaccount authorization is expired, replaced by a newer challenge, already
+ * consumed, or has an invalid signature. Request a fresh challenge via
+ * `subaccounts.createChallenge`. Temporary verification failures surface as
+ * `ServiceUnavailableError` instead; retry those with the same signed challenge.
  */
 export class SubaccountChallengeInvalidError extends PreconditionFailedError {
     override readonly code: string = "SUBACCOUNT_CHALLENGE_INVALID";

@@ -1,6 +1,6 @@
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { createClient, type Client } from "@connectrpc/connect";
-import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
+import { deliverBatch } from "../../shared/subscription-errors.js";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import type { PolyesterRealtime } from "../../realtime/index.js";
@@ -56,20 +56,21 @@ export class TransfersService {
 
     /**
      * Subscribes to private ledger transfer updates on private:ledger:transfers:{accountId}:proto and emits parsed transfer rows.
+     * Each publication batches transfer legs, emitted one at a time; `(transferId, accountCode,
+     * isDebit)` identifies a leg, and a repeated identity replaces the earlier copy.
      */
     subscribe(input: SubscribeTransfersInput): () => void {
         const channel = `private:ledger:transfers:${input.accountId}:proto`;
         return this.#realtime.connectProtoChannel({
             channel,
-            schema: Proto.TransferRowSchema,
-            onPublication: (m) => {
-                try {
-                    const tr = parse(LedgerTransferSchema, m);
-                    input.onEvent(tr);
-                } catch (error) {
-                    input.onError?.(publicationHandlerErrorContext(channel, error));
-                }
-            },
+            schema: Proto.TransferRowBatchSchema,
+            onPublication: (batch) =>
+                deliverBatch(
+                    channel,
+                    batch.events,
+                    (row) => input.onEvent(parse(LedgerTransferSchema, row)),
+                    input.onError,
+                ),
             onConnected: input.onOpen,
             onDisconnected: input.onClose,
             onError: input.onError,

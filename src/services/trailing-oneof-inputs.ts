@@ -7,6 +7,9 @@ type PositiveIntLikeInput = string | number;
 /** Product-wide cap for bps slippage inputs (market IOC, attached and standalone trailing stops). */
 export const MAX_SLIPPAGE_BPS = 10_000;
 
+/** Cap for a market order or trailing stop that sells: 100% would leave it no positive price. */
+export const MAX_SELLING_SLIPPAGE_BPS = MAX_SLIPPAGE_BPS - 1;
+
 const MAX_TRAILING_DISTANCE_BPS = 10_000;
 
 /**

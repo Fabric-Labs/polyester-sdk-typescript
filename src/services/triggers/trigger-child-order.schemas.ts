@@ -100,12 +100,13 @@ type TwapExecutionInput = v.InferOutput<typeof TwapExecutionInputSchema>;
 export function parseMaxSlippage(
     scales: SdkScales,
     slippage: v.InferOutput<typeof MaxSlippageInputSchema> | undefined,
+    maxBps = MAX_SLIPPAGE_BPS,
 ): MaxSlippageOneof {
     return parseSlippageInput(scales, slippage, {
         fieldName: "maxSlippage",
         ticksCase: "maxSlippageTicks",
         bpsCase: "maxSlippageBps",
-        maxBps: MAX_SLIPPAGE_BPS,
+        maxBps,
     });
 }
 

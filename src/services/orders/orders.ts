@@ -173,7 +173,7 @@ export class OrdersService {
     }
 
     /**
-     * Returns historical orders for the resolved account scope, supporting symbol IDs, trigger ID, side, status, time range, pagination, and attached-risk filters. Results are paginated with the backend nextPageToken.
+     * Returns historical orders for the resolved account scope, supporting symbol IDs, trigger ID, side, status, time range, pagination, and attached-risk filters. A page may hold fewer orders than requested, or none: keep calling with the returned nextPageToken until it is empty.
      */
     async listHistory(
         input: v.InferInput<typeof OrderHistoryInputSchema> = {},
