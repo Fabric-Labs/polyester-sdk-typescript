@@ -877,7 +877,9 @@ export type TrailingStopPolicy = Message<"orders.v1.TrailingStopPolicy"> & {
     case: "maxSlippageTicks";
   } | {
     /**
-     * Maximum allowed slippage in basis points (1 bp = 0.01%).
+     * Maximum allowed slippage in basis points (1 bp = 0.01%). A trailing stop
+     * that sells, which is the case when the parent order buys, accepts values
+     * below 10000; a 100% cap would leave it no positive price to sell at.
      *
      * @generated from field: int32 max_slippage_bps = 7;
      */
@@ -1024,21 +1026,29 @@ export type CancelAllOrdersResponse = Message<"orders.v1.CancelAllOrdersResponse
   status: CancelAllOrdersResponse_Status;
 
   /**
-   * Number of orders that matched the filter.
+   * Number of open orders that matched the filter when the request was
+   * accepted, including orders whose cancellation was already in progress.
+   * Orders placed after acceptance are not counted. Unless `dry_run` is set,
+   * equals `submitted_cancels` plus `failed_cancels`.
    *
    * @generated from field: uint32 matched_orders = 2;
    */
   matchedOrders: number;
 
   /**
-   * Number of cancel requests submitted for processing.
+   * Number of matched orders submitted for cancellation, including orders
+   * whose cancellation was already in progress. Each moves to `CANCELED`
+   * asynchronously after the response. Zero when `dry_run` is set.
    *
    * @generated from field: uint32 submitted_cancels = 3;
    */
   submittedCancels: number;
 
   /**
-   * Number of cancels that could not be submitted (already canceled, etc.).
+   * Number of matched orders that could not be submitted for cancellation
+   * because the cancel-all could not be recorded for their symbol. This
+   * request does not cancel them; send a new cancel-all with a new
+   * `request_id` if they are still open. Zero when `dry_run` is set.
    *
    * @generated from field: uint32 failed_cancels = 4;
    */
@@ -1706,14 +1716,16 @@ export type BatchReplaceAdmissionItem = Message<"orders.v1.BatchReplaceAdmission
   status: BatchReplaceItemAdmissionStatus;
 
   /**
-   * Original order targeted by the replacement.
+   * Original order targeted by the replacement: the requested order ID, or the
+   * order the requested client order ID names. Rejected items keep it too. Unset
+   * only when the requested client order ID names no order.
    *
    * @generated from field: fixed64 old_order_id = 3;
    */
   oldOrderId: bigint;
 
   /**
-   * Assigned successor order ID. Zero for cancel-only outcomes or rejection before assignment.
+   * Assigned successor order ID. Unset for cancel-only outcomes and rejected items.
    *
    * @generated from field: fixed64 replacement_order_id = 4;
    */
@@ -2329,7 +2341,11 @@ export enum ErrorCode {
   QTY_STEP_SIZE = 8,
 
   /**
-   * Client order ID is already in use for a different active order.
+   * Client order ID is already in use on this account, by an open order or by
+   * an order that ended recently; an ended order keeps its client order ID
+   * reserved for at least 15 minutes. Reuse returns this code even with the
+   * same payload. Use GetOrder to reconcile, then retry with a new client
+   * order ID.
    *
    * @generated from enum value: ERROR_CODE_CONFLICT_DUPLICATE_CLIENT_ORDER_ID = 9;
    */
@@ -2693,14 +2709,20 @@ export enum ErrorCode {
   TRIGGER_NOT_MODIFIABLE = 46,
 
   /**
-   * Duplicate client trigger ID was reused with a different trigger payload.
+   * Client trigger ID is already used, either by a trigger with a different
+   * payload or by an earlier create that failed or was rolled back. List
+   * triggers to reconcile by client trigger ID, then retry with a new client
+   * trigger ID.
    *
    * @generated from enum value: ERROR_CODE_CONFLICT_DUPLICATE_CLIENT_TRIGGER_ID = 47;
    */
   CONFLICT_DUPLICATE_CLIENT_TRIGGER_ID = 47,
 
   /**
-   * Trailing-stop max slippage (ticks or bps) is invalid.
+   * Max slippage (ticks or bps) is out of range or leaves no valid execution
+   * price bound. Applies to market orders and to standalone and attached
+   * trailing stops, on create and on modify; for example, a 10000 bps cap on a
+   * market order or trailing stop that sells.
    *
    * @generated from enum value: ERROR_CODE_MAX_SLIPPAGE_INVALID = 48;
    */
