@@ -68,11 +68,14 @@ export type PolyesterServices = {
 };
 
 /** Defines a lazy getter per service, so the full clients stay in sync with the accessors. */
-export function installServiceGetters(target: abstract new (...args: never[]) => PolyesterCore) {
-    for (const [name, service] of Object.entries(POLYESTER_SERVICES)) {
+export function installServiceGetters<TCore extends PolyesterCore>(
+    target: abstract new (...args: never[]) => TCore,
+    services: Readonly<Record<string, (client: TCore) => unknown>> = POLYESTER_SERVICES,
+) {
+    for (const [name, service] of Object.entries(services)) {
         Object.defineProperty(target.prototype, name, {
             configurable: true,
-            get(this: PolyesterCore) {
+            get(this: TCore) {
                 return service(this);
             },
         });

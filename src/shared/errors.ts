@@ -1,5 +1,5 @@
 import type { PolyesterErrorDetail } from "./error-detail.js";
-export type { PolyesterErrorDetail } from "./error-detail.js";
+export type { PolyesterErrorDetail, QuickSwapErrorTokenAmount } from "./error-detail.js";
 import type { RateLimitDetail } from "./rate-limit.schemas.js";
 
 /**

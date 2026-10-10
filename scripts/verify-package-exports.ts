@@ -138,6 +138,7 @@ import {
 } from "@polyester/sdk/unstable/gen";
 import type { PolyesterErrorDetail as ErrorsPolyesterErrorDetail } from "@polyester/sdk/errors";
 import { ordersService } from "@polyester/sdk/services/orders";
+import { quickSwapService } from "@polyester/sdk/services/quickswap";
 import { tradingRateLimitsService } from "@polyester/sdk/services/rate-limits";
 
 declare const client: PolyesterClient;
@@ -401,8 +402,73 @@ async function verifyCoreServiceAccessors(): Promise<void> {
     void browserCore.orders;
 }
 
+declare const serverClient: import("@polyester/sdk").PolyesterServerClient;
+declare const browserClient: import("@polyester/sdk").PolyesterBrowserClient;
+declare const environment: import("@polyester/sdk").PolyesterEnvironment;
+
+async function verifyServerOnlyQuickSwap(): Promise<void> {
+    const brokerAuth: import("@polyester/sdk").BrokerApiKeyAuthProvider = {
+        kind: "broker-api-key",
+        key: "broker-key",
+    };
+    const brokerClient = new (await import("@polyester/sdk")).PolyesterServerClient({
+        environment,
+        auth: brokerAuth,
+    });
+    const terms: import("@polyester/sdk").QuickSwapTermsInput = {
+        sourceZippedAssetId: 1,
+        destinationZippedAssetId: 2,
+        basis: "source_amount",
+        amount: { baseUnits: "100000000", decimals: 8 },
+        protection: { kind: "max_slippage", bps: 50 },
+        execution: { type: "twap", durationMs: 3_600_000, sliceIntervalMs: 60_000 },
+    };
+    const quote = await brokerClient.quickSwap.quote({ terms });
+    expectType<import("@polyester/sdk").QuickSwapQuote>(quote);
+    expectNotAny(quote, true);
+    const quickSwap = await serverClient.quickSwap.create({
+        idempotencyKey: "order-1",
+        terms,
+        destinationAddress: "destination",
+        returnAddress: "return",
+        refund: { zippedAssetId: 3, address: "refund" },
+    });
+    expectType<import("@polyester/sdk").QuickSwap>(quickSwap);
+    expectNotAny(quickSwap, true);
+    expectType<import("@polyester/sdk").QuickSwapStatus | "unspecified">(quickSwap.status);
+    expectType<boolean>(quickSwap.isTerminal);
+    await serverClient.quickSwap.get({ swapId: quickSwap.swapId });
+    await serverClient.quickSwap.lookup({ idempotencyKey: "order-1" });
+    expectType<typeof serverClient.quickSwap>(quickSwapService(serverCore));
+    // @ts-expect-error QuickSwap is server-only.
+    void browserClient.quickSwap;
+    // @ts-expect-error QuickSwap is server-only.
+    void client.quickSwap;
+    // @ts-expect-error The accessor only accepts server cores.
+    quickSwapService(browserCore);
+    new (await import("@polyester/sdk")).PolyesterBrowserClient({
+        environment,
+        // @ts-expect-error Broker keys are server credentials.
+        auth: brokerAuth,
+    });
+    new (await import("@polyester/sdk")).PolyesterClient({
+        environment,
+        // @ts-expect-error Broker keys are server credentials.
+        auth: brokerAuth,
+    });
+
+    const detail = new ValidationError("rejected").detail;
+    if (detail?.service === "quickswap" && detail.code === "AMOUNT_OUT_OF_RANGE") {
+        expectType<import("@polyester/sdk").QuickSwapErrorTokenAmount | undefined>(
+            detail.minDepositAmount,
+        );
+        expectType<string | undefined>(detail.swapId);
+    }
+}
+
 void verifyServiceInference;
 void verifyCoreServiceAccessors;
+void verifyServerOnlyQuickSwap;
 `,
     );
 
