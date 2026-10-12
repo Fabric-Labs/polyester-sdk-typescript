@@ -1,7 +1,9 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { encodeAbiParameters, numberToHex, toFunctionSelector } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
+import { formatUserOperation, getUserOperationHash } from "viem/account-abstraction";
 import { createPolyesterEnvironment } from "../environment.js";
+import { UserOperationAlreadyKnownError, UserOperationNotExecutedError } from "./index.js";
 import {
     createPolyesterSmartAccount,
     createPolyesterSmartAccountClient,
@@ -22,6 +24,7 @@ const USER_OPERATION_HASH = `0x${"11".repeat(32)}` as const;
 const requests: { method: string; params: readonly Record<string, string>[] }[] = [];
 let failGasPrice = false;
 let failSend = false;
+let sendAlreadyKnown = false;
 let statusDelayMs = 0;
 let statusQueue: string[] = [];
 let receiptQueue: (object | null)[] = [];
@@ -120,6 +123,17 @@ beforeAll(() => {
             await new Promise((resolve) => setTimeout(resolve, statusDelayMs));
         }
         let payload: unknown;
+        if (method === "eth_sendUserOperation" && sendAlreadyKnown) {
+            // What the bundler answers when this exact UserOperation is already pending.
+            return new Response(
+                JSON.stringify({
+                    jsonrpc: "2.0",
+                    id,
+                    error: { code: -32602, message: "Already known" },
+                }),
+                { headers: { "content-type": "application/json" } },
+            );
+        }
         try {
             payload = { jsonrpc: "2.0", id, result: rpcResult(method, params) };
         } catch (error) {
@@ -247,6 +261,32 @@ describe("sendPolyesterUserOperation", () => {
         await sendPolyesterUserOperation(client, sendParameters);
         expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(2);
         expect(byMethod("pm_getPaymasterStubData")).toHaveLength(3);
+    });
+
+    it("throws the computed hash when the bundler already knows the UserOperation", async () => {
+        const { client } = await setup();
+        await sendPolyesterUserOperation(client, sendParameters);
+
+        sendAlreadyKnown = true;
+        let error: unknown;
+        try {
+            error = await sendPolyesterUserOperation(client, sendParameters).catch((e) => e);
+        } finally {
+            sendAlreadyKnown = false;
+        }
+
+        const sent = byMethod("eth_sendUserOperation")[1]?.params[0];
+        expect(error).toBeInstanceOf(UserOperationAlreadyKnownError);
+        expect((error as UserOperationAlreadyKnownError).userOpHash).toBe(
+            getUserOperationHash({
+                chainId: environment.chain.id,
+                entryPointAddress: environment.accountAbstraction.entryPoint.address,
+                entryPointVersion: "0.7",
+                userOperation: formatUserOperation(sent as never),
+            }),
+        );
+        // Not a fee rejection: the gas-price cache survives.
+        expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(1);
     });
 
     it("keeps the gas-price cache when the wallet prompt is cancelled before signing", async () => {
@@ -408,7 +448,13 @@ describe("waitForPolyesterUserOperationReceipt", () => {
         statusQueue = ["failed"];
         await expect(
             waitForPolyesterUserOperationReceipt(client, USER_OPERATION_HASH),
-        ).rejects.toThrow(/bundle transaction reverted/);
+        ).rejects.toThrow(
+            expect.objectContaining({
+                constructor: UserOperationNotExecutedError,
+                userOpHash: USER_OPERATION_HASH,
+                bundlerStatus: "failed",
+            }),
+        );
         expect(byMethod("eth_getUserOperationReceipt")).toHaveLength(0);
     });
 
@@ -487,7 +533,13 @@ describe("waitForPolyesterUserOperationReceipt", () => {
         statusQueue = ["rejected"];
         await expect(
             waitForPolyesterUserOperationReceipt(client, USER_OPERATION_HASH),
-        ).rejects.toThrow(/rejected/);
+        ).rejects.toThrow(
+            expect.objectContaining({
+                constructor: UserOperationNotExecutedError,
+                userOpHash: USER_OPERATION_HASH,
+                bundlerStatus: "rejected",
+            }),
+        );
         expect(byMethod("eth_getUserOperationReceipt")).toHaveLength(0);
 
         await warmPolyesterSmartAccountClient(client);

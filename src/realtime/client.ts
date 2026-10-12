@@ -169,6 +169,7 @@ export class RealtimeClient implements PolyesterRealtime {
                         throw errorFromHttpStatus(
                             res.status,
                             `Failed to fetch subscription token: ${res.status}`,
+                            { status: res.status },
                         );
                     }
                     const json = (await res.json()) as { token?: string };
@@ -235,6 +236,7 @@ export class RealtimeClient implements PolyesterRealtime {
                         throw errorFromHttpStatus(
                             res.status,
                             `Failed to fetch connection token: ${res.status}`,
+                            { status: res.status },
                         );
                     }
                     const json = (await res.json()) as { token?: string };

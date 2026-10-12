@@ -98,6 +98,7 @@ export {
     errorFromHttpStatus,
     InternalServerError,
     isAbortError,
+    isTimeoutAbortError,
     MfaEnrollmentRequiredError,
     MfaLastFactorRequiredError,
     MfaRequiredError,
@@ -124,7 +125,10 @@ export {
     TimeoutError,
     TimestampSkewError,
     TransientError,
+    UserOperationAlreadyKnownError,
+    UserOperationNotExecutedError,
     ValidationError,
+    WithdrawDeadlineExpiredError,
 } from "./shared/errors.js";
 export type {
     PolyesterErrorCode,

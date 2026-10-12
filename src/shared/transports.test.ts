@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import {
     Code,
     ConnectError,
@@ -6,11 +7,13 @@ import {
     type Transport,
 } from "@connectrpc/connect";
 import { create, toBinary, toJsonString } from "@bufbuild/protobuf";
+import { createServer, type ServerResponse } from "node:http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { signAsync } from "@noble/ed25519";
 import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
 import { RateLimitService } from "../gen/ratelimit/v1/ratelimit_pb.js";
-import { createErrorMappingTransport } from "./connect-error-mapping.js";
+import { createErrorMappingTransport, toPolyesterError } from "./connect-error-mapping.js";
+import { toConnectCallOptions } from "./request-options.js";
 import * as Proto from "../gen/marketoverview/v1/marketoverview_pb.js";
 import { formatUserFacingError, isRetryableError } from "../utils/errors.js";
 import {
@@ -23,10 +26,12 @@ import {
     PreconditionFailedError,
     RateLimitError,
     RevisionConflictError,
+    ServiceUnavailableError,
     TimeoutError,
     TimestampSkewError,
     TransientError,
     ValidationError,
+    WithdrawDeadlineExpiredError,
 } from "./errors.js";
 import {
     createApiKeyEd25519AuthHeaders,
@@ -52,6 +57,15 @@ describe("makeFetch", () => {
         expect(isAbortError(abortError)).toBe(true);
     });
 
+    it("maps AbortSignal.timeout() expiries to TimeoutError", async () => {
+        const cause = new DOMException("signal timed out", "TimeoutError");
+        vi.spyOn(globalThis, "fetch").mockRejectedValue(cause);
+
+        const rejection = expect(makeFetch()("https://api.test")).rejects;
+        await rejection.toBeInstanceOf(TimeoutError);
+        await rejection.toMatchObject({ cause, retryable: true });
+    });
+
     it("wraps transport failures with the original cause", async () => {
         const cause = new TypeError("Failed to fetch");
         vi.spyOn(globalThis, "fetch").mockRejectedValue(cause);
@@ -75,11 +89,18 @@ describe("makeFetch", () => {
         await rejection.toMatchObject({ retryable: true });
     });
 
-    it("passes through real HTTP 500 responses", async () => {
-        const response = new Response("Backend failed", { status: 500 });
+    it("passes through real HTTP 500 responses with the body buffered", async () => {
+        const response = new Response("Backend failed", {
+            status: 500,
+            headers: { "x-request-id": "req_0123456789" },
+        });
         vi.spyOn(globalThis, "fetch").mockResolvedValue(response);
 
-        await expect(makeFetch()("https://api.test")).resolves.toBe(response);
+        const res = await makeFetch()("https://api.test");
+        expect(response.bodyUsed).toBe(true);
+        expect(res.status).toBe(500);
+        expect(res.headers.get("x-request-id")).toBe("req_0123456789");
+        await expect(res.text()).resolves.toBe("Backend failed");
     });
 });
 
@@ -158,6 +179,25 @@ describe("createTransports", () => {
         await rejection.toMatchObject({ code: "TIMESTAMP_SKEW", retryable: true });
     });
 
+    it("maps backend withdraw deadline rejections to WithdrawDeadlineExpiredError", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(
+            new Response(
+                JSON.stringify({
+                    code: "invalid_argument",
+                    message: "deadline_ts_sec has expired",
+                }),
+                { status: 400, headers: { "content-type": "application/json" } },
+            ),
+        );
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        const rejection = expect(client.listMarketOverview({})).rejects;
+        await rejection.toBeInstanceOf(WithdrawDeadlineExpiredError);
+        await rejection.toBeInstanceOf(ValidationError);
+        await rejection.toMatchObject({ code: "WITHDRAW_DEADLINE_EXPIRED", status: 400 });
+    });
+
     it("keeps other problem+json 401 responses as AuthenticationError", async () => {
         vi.spyOn(globalThis, "fetch").mockResolvedValue(
             new Response(JSON.stringify({ code: "UNAUTHENTICATED", status: 401 }), {
@@ -181,6 +221,179 @@ describe("createTransports", () => {
         const rejection = expect(client.listMarketOverview({})).rejects;
         await rejection.toBeInstanceOf(RateLimitError);
         await rejection.toMatchObject({ retryAfterMs: 2000 });
+    });
+
+    it("maps an interceptor-added AbortSignal.timeout() to TimeoutError", async () => {
+        vi.spyOn(globalThis, "fetch").mockImplementation(
+            (_input, init) =>
+                new Promise<Response>((_resolve, reject) => {
+                    const signal = init!.signal!;
+                    signal.addEventListener("abort", () => reject(signal.reason), { once: true });
+                }),
+        );
+        const timeoutInterceptor: Interceptor = (next) => (req) =>
+            next({ ...req, signal: AbortSignal.any([req.signal, AbortSignal.timeout(5)]) });
+        const { publicApi } = createTransports({
+            apiUrl: "https://api.test",
+            interceptors: [timeoutInterceptor],
+        });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        const rejection = expect(client.listMarketOverview({})).rejects;
+        await rejection.toBeInstanceOf(TimeoutError);
+        await rejection.toMatchObject({ code: "TIMEOUT", retryable: true });
+    });
+
+    it.each([
+        { source: "timeoutMs option", options: () => ({ timeoutMs: 5 }) },
+        {
+            source: "caller AbortSignal.timeout()",
+            options: () => ({ signal: AbortSignal.timeout(5) }),
+        },
+    ])("maps a $source expiry to TimeoutError", async ({ options }) => {
+        vi.spyOn(globalThis, "fetch").mockImplementation(
+            (_input, init) =>
+                new Promise<Response>((_resolve, reject) => {
+                    const signal = init!.signal!;
+                    signal.addEventListener("abort", () => reject(signal.reason), { once: true });
+                }),
+        );
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        const rejection = expect(
+            client.listMarketOverview({}, toConnectCallOptions(options())),
+        ).rejects;
+        await rejection.toBeInstanceOf(TimeoutError);
+        await rejection.toMatchObject({ code: "TIMEOUT", retryable: true });
+    });
+
+    it("maps canceled ConnectErrors from timeout aborts to TimeoutError", () => {
+        for (const message of [
+            "The operation was aborted due to timeout",
+            "signal timed out",
+            "The operation timed out.",
+        ]) {
+            const cause = ConnectError.from(new DOMException(message, "TimeoutError"));
+            expect(cause.code).toBe(Code.Canceled);
+            const error = toPolyesterError(cause);
+            expect(error).toBeInstanceOf(TimeoutError);
+            expect(error).toMatchObject({ cause });
+        }
+        const aborted = ConnectError.from(new DOMException("signal is aborted", "AbortError"));
+        expect(toPolyesterError(aborted)).toBe(aborted);
+    });
+
+    it("passes through server-sent canceled errors that mention a timeout", () => {
+        const serverCanceled = new ConnectError(
+            "upstream request timed out",
+            Code.Canceled,
+            new Headers({ "x-request-id": "req-1" }),
+        );
+        expect(toPolyesterError(serverCanceled)).toBe(serverCanceled);
+    });
+
+    it("captures status from bare HTTP errors", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(
+            new Response("upstream error", {
+                status: 500,
+                headers: { "content-type": "text/plain" },
+            }),
+        );
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        await expect(client.listMarketOverview({})).rejects.toMatchObject({ status: 500 });
+    });
+
+    it("derives status from Connect error codes", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(
+            new Response(JSON.stringify({ code: "resource_exhausted", message: "Slow down." }), {
+                status: 429,
+                headers: { "content-type": "application/json" },
+            }),
+        );
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        const rejection = expect(client.listMarketOverview({})).rejects;
+        await rejection.toBeInstanceOf(RateLimitError);
+        await rejection.toMatchObject({ status: 429 });
+    });
+
+    it("leaves status unset for client-side failures", async () => {
+        vi.spyOn(globalThis, "fetch").mockRejectedValue(new TypeError("Failed to fetch"));
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        await expect(client.listMarketOverview({})).rejects.toMatchObject({ status: undefined });
+    });
+
+    it.each([
+        {
+            name: "a non-Connect error response",
+            expected: ServiceUnavailableError,
+            respond: (res: ServerResponse) => {
+                res.writeHead(502, { "content-type": "text/html" });
+                res.write("<html>");
+                setTimeout(() => res.end("</html>"), 20);
+            },
+        },
+        {
+            name: "a Connect error response",
+            expected: InternalServerError,
+            respond: (res: ServerResponse) => {
+                res.writeHead(500, { "content-type": "application/json" });
+                res.end(JSON.stringify({ code: "internal", message: "boom" }));
+            },
+        },
+        {
+            name: "a 200 non-Connect response",
+            expected: InternalServerError,
+            respond: (res: ServerResponse) => {
+                res.writeHead(200, { "content-type": "text/html" });
+                res.write("<html>");
+                setTimeout(() => res.end("</html>"), 20);
+            },
+        },
+        {
+            name: "a redirect response",
+            expected: NetworkError,
+            respond: (res: ServerResponse) => {
+                res.writeHead(302, { location: "/elsewhere", "content-type": "text/html" });
+                res.write("<html>");
+                setTimeout(() => res.end("</html>"), 20);
+            },
+        },
+    ])("leaves no unhandled rejection for $name", async ({ expected, respond }) => {
+        // Real HTTP so Connect's post-error abort reaches the response body.
+        const server = createServer((_req, res) => respond(res));
+        await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+        const { port } = server.address() as { port: number };
+        const unhandled: unknown[] = [];
+        const onUnhandled = (reason: unknown) => unhandled.push(reason);
+        process.on("unhandledRejection", onUnhandled);
+        try {
+            // Mimics fetch instrumentation that reads a clone of every response.
+            const instrumentedFetch: typeof fetch = async (input, init) => {
+                const res = await fetch(input, init);
+                void res.clone().text();
+                return res;
+            };
+            const { publicApi } = createTransports({
+                apiUrl: `http://127.0.0.1:${port}`,
+                wireFormat: "json",
+                fetch: instrumentedFetch,
+            });
+            const client = createClient(Proto.MarketOverviewService, publicApi);
+
+            await expect(client.listMarketOverview({})).rejects.toBeInstanceOf(expected);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+            expect(unhandled).toEqual([]);
+        } finally {
+            process.off("unhandledRejection", onUnhandled);
+            server.close();
+        }
     });
 
     it("preserves SDK network errors outside Connect's call runner", async () => {
@@ -439,13 +652,13 @@ describe("error details through transports", () => {
 describe("caller cancellation through transports", () => {
     afterEach(() => vi.restoreAllMocks());
 
-    it.each(["default", "custom", "pre", "timeout", "api-key", "jwt-pre"] as const)(
+    it.each(["default", "custom", "pre", "api-key", "jwt-pre"] as const)(
         "classifies %s cancellation without retrying",
         async (kind) => {
             const controller = new AbortController();
             const preAborted = kind === "pre" || kind === "jwt-pre";
             if (preAborted) controller.abort();
-            const signal = kind === "timeout" ? AbortSignal.timeout(10) : controller.signal;
+            const signal = controller.signal;
             let fetchAborted = false;
             const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(
                 (_input, init) =>
@@ -457,12 +670,10 @@ describe("caller cancellation through transports", () => {
                         };
                         if (fetchSignal.aborted) abort();
                         else fetchSignal.addEventListener("abort", abort, { once: true });
-                        if (kind !== "timeout") {
-                            queueMicrotask(() => {
-                                if (kind === "custom") controller.abort(new Error("route change"));
-                                else controller.abort();
-                            });
-                        }
+                        queueMicrotask(() => {
+                            if (kind === "custom") controller.abort(new Error("route change"));
+                            else controller.abort();
+                        });
                     }),
             );
             const getToken = vi.fn(() => "fixture-token");
@@ -496,6 +707,21 @@ describe("caller cancellation through transports", () => {
             if (kind === "default" || preAborted) expect(error).toBe(signal.reason);
         },
     );
+
+    it("rejects an already-expired timeout signal as a non-retryable abort", async () => {
+        const signal = AbortSignal.timeout(1);
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        const fetchMock = vi.spyOn(globalThis, "fetch");
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(RateLimitService, publicApi);
+
+        const error = await client
+            .getRateLimitConfig({}, { signal })
+            .catch((error: unknown) => error);
+        expect(isAbortError(error)).toBe(true);
+        expect(isRetryableError(error)).toBe(false);
+        expect(fetchMock).not.toHaveBeenCalled();
+    });
 
     it("does not classify a server cancellation as a caller abort", async () => {
         vi.spyOn(globalThis, "fetch").mockResolvedValue(

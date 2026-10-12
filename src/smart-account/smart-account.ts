@@ -1,13 +1,18 @@
 import type { Address, LocalAccount, PublicClient } from "viem";
-import { createPublicClient, http, withTimeout } from "viem";
-import type { EstimateUserOperationGasParameters } from "viem/account-abstraction";
-import { estimateUserOperationGas, prepareUserOperation } from "viem/account-abstraction";
+import { BaseError, createPublicClient, http, withTimeout } from "viem";
+import type { EstimateUserOperationGasParameters, UserOperation } from "viem/account-abstraction";
+import {
+    estimateUserOperationGas,
+    getUserOperationHash,
+    prepareUserOperation,
+} from "viem/account-abstraction";
 import { createSmartAccountClient } from "permissionless";
 import { getUserOperationStatus } from "permissionless/actions/pimlico";
 import { toSafeSmartAccount } from "permissionless/accounts";
 import { createPimlicoClient } from "permissionless/clients/pimlico";
 import type { PolyesterEnvironment } from "../environment.js";
 import { predictSafeAddress } from "../account-signer/predict-safe-address.js";
+import { UserOperationAlreadyKnownError, UserOperationNotExecutedError } from "../shared/errors.js";
 
 export type SafeSmartAccountInstance = Awaited<ReturnType<typeof toSafeSmartAccount>>;
 export type PolyesterSmartAccountClient = ReturnType<typeof buildPolyesterSmartAccountClient>;
@@ -316,7 +321,7 @@ export async function sendPolyesterUserOperation(
         reportPhase(onPhase, phase, now - phaseStartedAt);
         phaseStartedAt = now;
     };
-    let signed = false;
+    let signedUserOperation: UserOperation | undefined;
     try {
         const hash = await client.sendUserOperation({
             ...parameters,
@@ -328,7 +333,7 @@ export async function sendPolyesterUserOperation(
                     endPhase("prepare");
                     onWalletSignatureRequested?.();
                     const signature = await account.signUserOperation(userOperation);
-                    signed = true;
+                    signedUserOperation = userOperation as UserOperation;
                     endPhase("sign");
                     return signature;
                 },
@@ -337,13 +342,38 @@ export async function sendPolyesterUserOperation(
         endPhase("send");
         return hash;
     } catch (error) {
+        if (!signedUserOperation) throw error;
+        // "Already known": this exact operation is already in the bundler's
+        // mempool (e.g. a replayed send). Its hash is deterministic, so the
+        // caller can wait on it rather than sign a second operation.
+        if (isAlreadyKnownError(error)) {
+            const userOpHash = getUserOperationHash({
+                chainId: client.chain.id,
+                entryPointAddress: account.entryPoint.address,
+                entryPointVersion: account.entryPoint.version,
+                userOperation: signedUserOperation,
+            });
+            throw new UserOperationAlreadyKnownError(
+                `UserOperation ${userOpHash} is already pending.`,
+                userOpHash,
+                { cause: error },
+            );
+        }
         // Only a failure after signing (i.e. from `eth_sendUserOperation`) can
         // mean the bundler rejected the cached gas price. Earlier
         // failures — a cancelled wallet prompt above all — keep the cache so
         // the retry stays cheap.
-        if (signed) smartAccountClientCacheResets.get(client)?.();
+        smartAccountClientCacheResets.get(client)?.();
         throw error;
     }
+}
+
+function isAlreadyKnownError(error: unknown): boolean {
+    return (
+        error instanceof BaseError &&
+        error.walk((cause) => /\balready known\b/iu.test((cause as BaseError).details ?? "")) !==
+            null
+    );
 }
 
 /** Observers must never affect the result: a throwing `onPhase` is swallowed. */
@@ -403,14 +433,20 @@ export async function waitForPolyesterUserOperationReceipt(
             return receipt;
         }
         if (status === "failed") {
-            throw new Error(
+            throw new UserOperationNotExecutedError(
                 `UserOperation ${hash} was bundled but the bundle transaction reverted; it was not executed.`,
+                hash,
+                "failed",
             );
         }
         if (status === "rejected") {
             // Re-simulation failures are often fee-too-low: drop cached prices.
             smartAccountClientCacheResets.get(client)?.();
-            throw new Error(`UserOperation ${hash} was rejected by the bundler.`);
+            throw new UserOperationNotExecutedError(
+                `UserOperation ${hash} was rejected by the bundler; it was not executed.`,
+                hash,
+                "rejected",
+            );
         }
         if (status === "not_found") {
             if (consecutiveNotFound++ % NOT_FOUND_RECEIPT_CHECK_EVERY === 0) {
