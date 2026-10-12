@@ -9,7 +9,6 @@ import type * as Proto from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import { WithdrawDestinationValidationCode } from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import { toU128, type U128Value } from "../../utils/u128.js";
 import { ConfigurationError } from "../../shared/errors.js";
-import { serverNowMs } from "../../shared/server-clock.js";
 import {
     TradingWithdrawActionCodec,
     WithdrawDestinationValidationCodeCodec,
@@ -63,7 +62,7 @@ function createTradingWithdrawPayload(input: {
         deadlineTsSec: BigInt(
             input.deadline
                 ? Math.floor(input.deadline.getTime() / 1000)
-                : Math.floor(serverNowMs() / 1000) + DEFAULT_DEADLINE_SECONDS,
+                : Math.floor(Date.now() / 1000) + DEFAULT_DEADLINE_SECONDS,
         ),
         nonce: toU128(createNonce()),
         destinationAddress: input.destinationAddress,
@@ -77,7 +76,7 @@ export function renewTradingWithdrawPayload(
 ): TradingWithdrawIntentPayloadRequest {
     return {
         ...payload,
-        deadlineTsSec: BigInt(Math.floor(serverNowMs() / 1000) + DEFAULT_DEADLINE_SECONDS),
+        deadlineTsSec: BigInt(Math.floor(Date.now() / 1000) + DEFAULT_DEADLINE_SECONDS),
         nonce: toU128(createNonce()),
     };
 }
@@ -94,7 +93,7 @@ export function createCreateTradingWithdrawToFundingInputSchema(scales: SdkScale
             payloadSignature: v.optional(v.instance(Uint8Array)),
             /**
              * When the signed authorization lapses. Defaults to five minutes from now
-             * on the server clock when known, else the device clock.
+             * on the device clock.
              */
             deadline: v.optional(v.date()),
         }),
@@ -139,7 +138,7 @@ export function createCreateTradingWithdrawToExternalChainInputSchema(scales: Sd
             payloadSignature: v.optional(v.instance(Uint8Array)),
             /**
              * When the signed authorization lapses. Defaults to five minutes from now
-             * on the server clock when known, else the device clock.
+             * on the device clock.
              */
             deadline: v.optional(v.date()),
         }),

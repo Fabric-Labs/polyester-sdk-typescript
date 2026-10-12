@@ -28,7 +28,6 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * │   │   └── UserOperationAlreadyKnownError USER_OPERATION_ALREADY_KNOWN
  * │   ├── PermissionError            PERMISSION_DENIED           false
  * │   ├── AuthenticationError        UNAUTHENTICATED             false
- * │   │   └── WalletChallengeExpiredError    WALLET_CHALLENGE_EXPIRED
  * │   ├── PreconditionFailedError    PRECONDITION_FAILED         false
  * │   │   ├── RevisionConflictError          REVISION_CONFLICT
  * │   │   ├── PolicyInUseError               POLICY_IN_USE
@@ -84,7 +83,6 @@ export type PolyesterErrorCode =
     | "USER_OPERATION_NOT_EXECUTED"
     | "PERMISSION_DENIED"
     | "UNAUTHENTICATED"
-    | "WALLET_CHALLENGE_EXPIRED"
     | "PRECONDITION_FAILED"
     | "REVISION_CONFLICT"
     | "POLICY_IN_USE"
@@ -271,7 +269,7 @@ export class StaleQuoteError extends ValidationError {
  *
  * Thrown by `submit` before sending once the deadline has passed, and when the
  * backend rejects the deadline as expired: one that lapsed in flight, or one
- * signed from a device clock running behind while the server clock was unknown.
+ * signed from a device clock running behind the server's.
  */
 export class WithdrawDeadlineExpiredError extends ValidationError {
     override readonly code: string = "WITHDRAW_DEADLINE_EXPIRED";
@@ -345,22 +343,6 @@ export class AuthenticationError extends RequestError {
     constructor(message: string, options?: PolyesterErrorOptions) {
         super(message, options);
         this.name = "AuthenticationError";
-    }
-}
-
-/**
- * The signed wallet login challenge expired before it was submitted (challenges
- * last five minutes). Start the login again to request a fresh challenge.
- *
- * Client-side check only: the backend has no distinct code for an expired
- * challenge, so a rejection from the server is a plain {@link AuthenticationError}.
- */
-export class WalletChallengeExpiredError extends AuthenticationError {
-    override readonly code: string = "WALLET_CHALLENGE_EXPIRED";
-
-    constructor(message: string, options?: PolyesterErrorOptions) {
-        super(message, options);
-        this.name = "WalletChallengeExpiredError";
     }
 }
 

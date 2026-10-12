@@ -1,5 +1,4 @@
 import { ValidationError, WithdrawDeadlineExpiredError } from "../../shared/errors.js";
-import { serverNowMs } from "../../shared/server-clock.js";
 import { createClient, type Client } from "@connectrpc/connect";
 import type { Address, Hex } from "viem";
 import { checksumEvmAddress, evmHexToBytes } from "../../utils/evm.js";
@@ -63,7 +62,7 @@ export type PreparedTradingWithdraw = Readonly<{
     /** When the backend stops accepting the currently signed request. */
     deadline: Date;
     /**
-     * True once the deadline is less than a minute away, on the server clock. Wallet-signed
+     * True once the deadline is less than a minute away. Wallet-signed
      * withdraws sign again on `submit` from then on, so callers can keep resubmitting the
      * same prepared withdraw, e.g. after a slow MFA step-up. Payload-signed withdraws
      * cannot be signed again: prepare again (same input, same idempotency key) instead.
@@ -96,7 +95,7 @@ function preparedWithdraw(
 ): PreparedTradingWithdraw {
     let current = signed;
     const isExpired = () =>
-        serverNowMs() >= deadlineMs(current.payload) - PREPARED_WITHDRAW_EXPIRY_MARGIN_MS;
+        Date.now() >= deadlineMs(current.payload) - PREPARED_WITHDRAW_EXPIRY_MARGIN_MS;
     return {
         get deadline() {
             return new Date(deadlineMs(current.payload));
@@ -105,7 +104,7 @@ function preparedWithdraw(
         submit: async (options) => {
             if (resign && isExpired()) {
                 current = await resign(renewTradingWithdrawPayload(current.payload));
-            } else if (serverNowMs() >= deadlineMs(current.payload)) {
+            } else if (Date.now() >= deadlineMs(current.payload)) {
                 throw new WithdrawDeadlineExpiredError(
                     "Withdraw signature deadline has passed. Prepare the withdraw again.",
                 );

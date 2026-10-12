@@ -4,7 +4,6 @@ import { privateKeyToAccount } from "viem/accounts";
 import { POLYESTER_DEVNET_ENVIRONMENT } from "../../environment.js";
 import * as Proto from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import { StepUpRequiredError, WithdrawDeadlineExpiredError } from "../../shared/errors.js";
-import { observeServerTime, resetServerClock } from "../../shared/server-clock.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
@@ -455,13 +454,10 @@ describe("TradingWithdrawsService", () => {
     describe("deadline", () => {
         afterEach(() => {
             vi.useRealTimers();
-            resetServerClock();
         });
 
-        it("builds the deadline from server time and refuses to submit once it lapses", async () => {
+        it("builds a five-minute deadline and refuses to submit once it lapses", async () => {
             vi.useFakeTimers({ toFake: ["Date"], now: new Date("2026-10-03T12:00:00Z") });
-            // Device clock is 10 minutes behind the server.
-            observeServerTime(Date.parse("2026-10-03T12:10:00Z"));
             const transport = unaryTransportByMethod({
                 createTradingWithdraw: { intentId: "intent-1" },
             });
@@ -479,7 +475,7 @@ describe("TradingWithdrawsService", () => {
                 idempotencyKey: "withdraw-deadline",
                 payloadSignature: new Uint8Array([1]),
             });
-            const deadlineMs = Date.parse("2026-10-03T12:15:00Z");
+            const deadlineMs = Date.parse("2026-10-03T12:05:00Z");
             expect(prepared.deadline.getTime()).toBe(deadlineMs);
             expect(prepared.isExpired()).toBe(false);
 

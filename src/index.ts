@@ -128,7 +128,6 @@ export {
     UserOperationAlreadyKnownError,
     UserOperationNotExecutedError,
     ValidationError,
-    WalletChallengeExpiredError,
     WithdrawDeadlineExpiredError,
 } from "./shared/errors.js";
 export type {
