@@ -761,38 +761,48 @@ describe("NewOrderInputSchema", () => {
         });
     });
 
-    it("caps attached trailing max slippage at 10,000 bps", () => {
+    it("caps bps slippage below 10,000 on the selling leg only", () => {
         const schema = createNewOrderInputSchema(testScales());
-        const order = {
+        const sellingMessage =
+            "maxSlippageBps must be between 1 and 9999 for a market order or trailing stop that sells";
+        const withTrailingBps = (side: "buy" | "sell", bps: number) => ({
             symbolId: 1,
-            side: "buy",
+            side,
             qty: "0.5",
             execution: { type: "limit_gtc", price: "100" },
             risk: {
                 trailingStop: {
                     trailingDistance: { kind: "distance", distance: "0.5" },
-                    maxSlippage: { kind: "bps", bps: 10_000 },
+                    maxSlippage: { kind: "bps", bps },
                 },
-            },
-        } as const;
-
-        expect(v.parse(schema, order).order.attachedRisk).toMatchObject({
-            stopLeg: {
-                case: "trailingStop",
-                value: { maxSlippage: { case: "maxSlippageBps", value: 10_000 } },
             },
         });
-        expect(() =>
-            v.parse(schema, {
-                ...order,
-                risk: {
-                    trailingStop: {
-                        ...order.risk.trailingStop,
-                        maxSlippage: { kind: "bps", bps: 10_001 },
-                    },
-                },
-            }),
-        ).toThrow("trailingStop.maxSlippageBps must be between 1 and 10000");
+        const marketWithBps = (side: "buy" | "sell", bps: number) => ({
+            symbolId: 1,
+            side,
+            qty: "0.5",
+            execution: { type: "market_ioc", maxSlippage: { kind: "bps", bps } },
+        });
+
+        // A buy's attached trailing stop sells; a sell's buys.
+        expect(v.parse(schema, withTrailingBps("buy", 9_999)).order.attachedRisk).toMatchObject({
+            stopLeg: { value: { maxSlippage: { case: "maxSlippageBps", value: 9_999 } } },
+        });
+        expect(() => v.parse(schema, withTrailingBps("buy", 10_000))).toThrow(sellingMessage);
+        expect(v.parse(schema, withTrailingBps("sell", 10_000)).order.attachedRisk).toMatchObject({
+            stopLeg: { value: { maxSlippage: { case: "maxSlippageBps", value: 10_000 } } },
+        });
+        expect(() => v.parse(schema, withTrailingBps("sell", 10_001))).toThrow(
+            "trailingStop.maxSlippageBps must be between 1 and 10000",
+        );
+
+        expect(v.parse(schema, marketWithBps("sell", 9_999)).order.execution).toMatchObject({
+            value: { maxSlippage: { case: "maxSlippageBps", value: 9_999 } },
+        });
+        expect(() => v.parse(schema, marketWithBps("sell", 10_000))).toThrow(sellingMessage);
+        expect(v.parse(schema, marketWithBps("buy", 10_000)).order.execution).toMatchObject({
+            value: { maxSlippage: { case: "maxSlippageBps", value: 10_000 } },
+        });
     });
 
     it("rejects OCO for a single attached risk leg", () => {

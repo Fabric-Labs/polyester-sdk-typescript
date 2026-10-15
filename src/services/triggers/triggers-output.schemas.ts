@@ -576,6 +576,7 @@ export function createTriggerEventSchema(scales: SdkScales) {
             triggerType: enumLabel(TriggerTypeCodec.protoToOutput, e.triggerType),
             eventType: enumLabel(TriggerEventTypeCodec.protoToOutput, e.eventType),
             ts: tsNsToMs(e.tsNs),
+            tsNs: e.tsNs.toString(),
             childSeq: e.childSeq,
             childOrderId: e.childOrderId > 0n ? formatId(e.childOrderId) : undefined,
             firePrice:

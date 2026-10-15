@@ -21,6 +21,7 @@ function transferRow(overrides: Partial<Proto.TransferRow> = {}): Proto.Transfer
         tsUs: 1_781_190_257_836_112n,
         linkId: 22n,
         flowId: " flow-1 ",
+        transferId: "340282366920938463463374607431768211455",
         source: {
             kind: Proto.TransferSideKind.FUNDING_ACCOUNT,
             accountId: 11n,
@@ -71,6 +72,7 @@ describe("TransfersService", () => {
         ).resolves.toEqual({
             transfers: [
                 {
+                    transferId: "340282366920938463463374607431768211455",
                     assetId: 1,
                     amount: "1.5",
                     type: "internal_transfer",
@@ -271,7 +273,7 @@ describe("TransfersService", () => {
         });
 
         expect(realtime.params?.channel).toBe("private:ledger:transfers:account-1:proto");
-        expect(realtime.params?.schema).toBe(Proto.TransferRowSchema);
+        expect(realtime.params?.schema).toBe(Proto.TransferRowBatchSchema);
         realtime.params?.onConnected?.();
         realtime.params?.onDisconnected?.();
         realtime.params?.onError?.({
@@ -279,7 +281,7 @@ describe("TransfersService", () => {
             type: "transport",
             error: new Error("boom"),
         });
-        realtime.params?.onPublication(transferRow());
+        realtime.params?.onPublication({ events: [transferRow()] } as Proto.TransferRowBatch);
 
         expect(onOpen).toHaveBeenCalledTimes(1);
         expect(onClose).toHaveBeenCalledTimes(1);
@@ -290,6 +292,7 @@ describe("TransfersService", () => {
         });
         expect(onEvent).toHaveBeenCalledWith(
             expect.objectContaining({
+                transferId: "340282366920938463463374607431768211455",
                 assetId: 1,
                 amount: "1.5",
                 balanceAfter: "2.5",
@@ -300,11 +303,9 @@ describe("TransfersService", () => {
         );
 
         onEvent.mockClear();
-        realtime.params?.onPublication(
-            transferRow({
-                tsUs: 1_700_000_000_123_456n,
-            }),
-        );
+        realtime.params?.onPublication({
+            events: [transferRow({ tsUs: 1_700_000_000_123_456n })],
+        } as Proto.TransferRowBatch);
 
         expect(onEvent).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -328,9 +329,13 @@ describe("TransfersService", () => {
 
         service.subscribe({ accountId: "account-1", onEvent, onError });
 
-        realtime.params?.onPublication(transferRow({ tsUs: undefined }));
+        realtime.params?.onPublication({
+            events: [transferRow({ tsUs: undefined }), transferRow()],
+        } as Proto.TransferRowBatch);
 
-        expect(onEvent).not.toHaveBeenCalled();
+        // The malformed leg is reported on its own; the rest of the batch still arrives.
+        expect(onEvent).toHaveBeenCalledTimes(1);
+        expect(onError).toHaveBeenCalledTimes(1);
         expect(onError).toHaveBeenCalledWith({
             channel: "private:ledger:transfers:account-1:proto",
             type: "publication_handler",

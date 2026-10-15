@@ -666,7 +666,8 @@ export enum AuthErrorCode {
   AUTH_SOCIAL_VERIFICATION_INVALID_STATE = 43,
 
   /**
-   * Sub-account authorization is expired, replaced, replayed, or invalid.
+   * Sub-account authorization is expired, replaced, consumed, or has an invalid signature.
+   * Temporary verification failures return Unavailable; retry the same signed challenge.
    *
    * @generated from enum value: AUTH_SUBACCOUNT_CHALLENGE_INVALID = 44;
    */

@@ -45,6 +45,7 @@ import {
     OrderRequestIdInputSchema,
 } from "./orders-identifiers.schemas.js";
 import { OrderErrorDetailSchema } from "./order-errors.schemas.js";
+import { MAX_SELLING_SLIPPAGE_BPS } from "../trailing-oneof-inputs.js";
 
 const OrderStatusSchema = v.picklist(ORDER_STATUS_FILTER_VALUES);
 const FeeAssetSchema = v.picklist(FEE_ASSET_VALUES);
@@ -147,6 +148,25 @@ function createOrderIntentBaseEntries(scales: SdkScales) {
 
 type ParsedOrderIntentInput = v.InferOutput<ReturnType<typeof createOrderIntentInputObjectSchema>>;
 
+type SellingSlippageInput = {
+    side: ProtoWrite.Side;
+    execution: v.InferOutput<ReturnType<typeof createOrderExecutionInputSchema>>;
+    risk?: v.InferOutput<ReturnType<typeof createRiskPolicyInputSchema>>;
+};
+
+const SELLING_SLIPPAGE_MESSAGE = `maxSlippageBps must be between 1 and ${MAX_SELLING_SLIPPAGE_BPS} for a market order or trailing stop that sells`;
+
+/** Checks the bps cap of the order's selling leg: a market sell, or the trailing stop of a buy. */
+function sellingSlippageWithinCap(input: SellingSlippageInput): boolean {
+    const slippage =
+        input.side === ProtoWrite.Side.SELL && input.execution.case === "marketIoc"
+            ? input.execution.value.maxSlippage
+            : input.side === ProtoWrite.Side.BUY && input.risk?.stopLeg.case === "trailingStop"
+              ? input.risk.stopLeg.value.maxSlippage
+              : undefined;
+    return slippage?.case !== "maxSlippageBps" || slippage.value <= MAX_SELLING_SLIPPAGE_BPS;
+}
+
 function createOrderIntentInputObjectSchema(scales: SdkScales) {
     const baseEntries = createOrderIntentBaseEntries(scales);
     return v.pipe(
@@ -176,6 +196,7 @@ function createOrderIntentInputObjectSchema(scales: SdkScales) {
                 input.feeAsset === ProtoWrite.FeeAsset.QUOTE,
             "SELL orders must use the quote fee asset",
         ),
+        v.check((input) => sellingSlippageWithinCap(input), SELLING_SLIPPAGE_MESSAGE),
     );
 }
 
@@ -211,6 +232,7 @@ function createScopedOrderIntentInputObjectSchema(scales: SdkScales) {
                 input.feeAsset === ProtoWrite.FeeAsset.QUOTE,
             "SELL orders must use the quote fee asset",
         ),
+        v.check((input) => sellingSlippageWithinCap(input), SELLING_SLIPPAGE_MESSAGE),
     );
 }
 

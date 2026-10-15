@@ -130,6 +130,7 @@ import {
     ledgerReadPb,
     ordersPb,
     ordersReadPb,
+    quickswapPb,
     resolvePb,
     rewardsPb,
     subaccountsPb,
@@ -189,6 +190,7 @@ async function verifyServiceInference(): Promise<void> {
     expectNotAny(rewardDestination, true);
     expectType<string>(rewardDestination.award.destinationAddress);
     expectNotAny(rewardsPb.RewardCampaignService, true);
+    expectNotAny(quickswapPb.QuickSwapService, true);
     const gtdOrder: import("@polyester/sdk").NewOrderInput = {
         symbolId: 1,
         side: "buy",

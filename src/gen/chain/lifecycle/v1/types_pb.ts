@@ -338,7 +338,7 @@ export enum LifecycleSource {
   SOURCE_UNSPECIFIED = 0,
 
   /**
-   * Off-chain relayer or source-chain watcher.
+   * Source-chain observation of the external transaction.
    *
    * @generated from enum value: SOURCE_RELAYER = 1;
    */

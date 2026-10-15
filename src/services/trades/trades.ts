@@ -7,6 +7,7 @@ import { removeUndefined } from "../../utils/remove-undefined.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
 import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
+import { deliverBatch } from "../../shared/subscription-errors.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
     toConnectCallOptions,
@@ -73,17 +74,22 @@ export class TradesService {
 
     /**
      * Subscribes to private user trade updates on private:spot:trades:{accountId}:proto and emits parsed fills.
+     * Each publication batches fills, emitted one at a time; `(matchId, orderId)` identifies a
+     * fill, and a repeated identity replaces the earlier copy.
      */
     subscribe(input: SubscribeTradesInput) {
         const channel = `private:spot:trades:${input.accountId}:proto`;
         return connectReadyGatedProtoChannel(this.#realtime, {
             channel,
-            schema: Proto.UserTradeSchema,
+            schema: Proto.UserTradeBatchSchema,
             ready: () => this.#scales.ready(),
-            onPublication: (data) => {
-                const trade = parse(this.#userTradeSchema, data);
-                input.onEvent(trade);
-            },
+            onPublication: (batch) =>
+                deliverBatch(
+                    channel,
+                    batch.events,
+                    (trade) => input.onEvent(parse(this.#userTradeSchema, trade)),
+                    input.onError,
+                ),
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
             onError: input.onError,

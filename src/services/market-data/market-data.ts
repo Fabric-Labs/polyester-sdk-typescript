@@ -2,7 +2,10 @@ import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
 import { SymbolIdInputSchema } from "../shared.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
 import { createClient, type Client } from "@connectrpc/connect";
-import type { SdkSubscriptionErrorContext } from "../../shared/subscription-errors.js";
+import {
+    deliverBatch,
+    type SdkSubscriptionErrorContext,
+} from "../../shared/subscription-errors.js";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
@@ -73,6 +76,8 @@ export class MarketDataService {
 
     /**
      * Subscribes to public trade prints on public:spot:market:trades:{symbolId}:proto for the requested symbol and emits parsed market trades.
+     * Each publication batches trades, emitted one at a time in execution order; a trade
+     * whose `matchId` was already emitted replaces the earlier copy.
      */
     subscribeTrades(input: SubscribeTradesInput): () => void {
         const symbolId = parse(SymbolIdInputSchema, input.symbolId);
@@ -85,12 +90,15 @@ export class MarketDataService {
         };
         return connectReadyGatedProtoChannel(this.#realtime, {
             channel,
-            schema: Proto.MarketTradeSchema,
+            schema: Proto.MarketTradeBatchSchema,
             ready: () => this.#scales.ready(),
-            onPublication: (data) => {
-                const trade = parse(this.#marketTradeSchema, data);
-                input.onEvent(trade);
-            },
+            onPublication: (batch) =>
+                deliverBatch(
+                    channel,
+                    batch.events,
+                    (trade) => input.onEvent(parse(this.#marketTradeSchema, trade)),
+                    notifyError,
+                ),
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
             onError: notifyError,

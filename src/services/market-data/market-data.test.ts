@@ -252,18 +252,21 @@ describe("MarketDataService", () => {
         });
 
         expect(realtime.params?.channel).toBe("public:spot:market:trades:101:proto");
-        expect(realtime.params?.schema).toBe(Proto.MarketTradeSchema);
+        expect(realtime.params?.schema).toBe(Proto.MarketTradeBatchSchema);
 
         realtime.params?.onConnected?.();
         realtime.params?.onDisconnected?.();
         const error = { channel: "c", type: "decode", error: new Error("bad") };
         realtime.params?.onError?.(error);
-        realtime.params?.onPublication(create(Proto.MarketTradeSchema, marketTrade));
+        realtime.params?.onPublication(
+            create(Proto.MarketTradeBatchSchema, { events: [marketTrade, marketTrade] }),
+        );
         await flushAsync();
 
         expect(onOpen).toHaveBeenCalledTimes(1);
         expect(onClose).toHaveBeenCalledTimes(1);
         expect(onError).toHaveBeenCalledWith(error);
+        expect(onEvent).toHaveBeenCalledTimes(2);
         expect(onEvent).toHaveBeenCalledWith(
             expect.objectContaining({
                 symbolId: 101,
@@ -305,13 +308,16 @@ describe("MarketDataService", () => {
 
         service.subscribeTrades({ symbolId: 101, onEvent, onError });
 
-        realtime.params?.onPublication({
-            ...marketTrade,
-            qtyScaled: "bad",
-        } as never);
+        realtime.params?.onPublication(
+            create(Proto.MarketTradeBatchSchema, {
+                events: [{ ...marketTrade, qtyScaled: "bad" } as never, marketTrade],
+            }),
+        );
         await flushAsync();
 
-        expect(onEvent).not.toHaveBeenCalled();
+        // The malformed trade is reported on its own; the rest of the batch still arrives.
+        expect(onEvent).toHaveBeenCalledTimes(1);
+        expect(onError).toHaveBeenCalledTimes(1);
         expect(onError.mock.calls[0]?.[0]).toMatchObject({
             channel: "public:spot:market:trades:101:proto",
             type: "publication_handler",

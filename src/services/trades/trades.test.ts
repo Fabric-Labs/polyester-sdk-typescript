@@ -350,16 +350,15 @@ describe("TradesService", () => {
         });
 
         expect(realtime.params?.channel).toBe("private:spot:trades:acct-1:proto");
-        expect(realtime.params?.schema).toBe(ProtoRead.UserTradeSchema);
+        expect(realtime.params?.schema).toBe(ProtoRead.UserTradeBatchSchema);
 
         realtime.params?.onConnected?.();
         realtime.params?.onDisconnected?.();
         const error = { channel: "c", type: "decode", error: new Error("bad") };
         realtime.params?.onError?.(error);
         realtime.params?.onPublication(
-            create(ProtoRead.UserTradeSchema, {
-                ...userTrade,
-                lineage: { id: 7n, generation: 2 },
+            create(ProtoRead.UserTradeBatchSchema, {
+                events: [{ ...userTrade, lineage: { id: 7n, generation: 2 } }],
             }),
         );
         await flushAsync();
@@ -420,18 +419,23 @@ describe("TradesService", () => {
         service.subscribe({ accountId: "acct-1", onEvent });
 
         // Published synchronously after subscribing — before catalog readiness
-        // resolves — so both must queue and then flush in arrival order.
-        realtime.params?.onPublication(create(ProtoRead.UserTradeSchema, userTrade));
+        // resolves — so both must queue and then flush in arrival and array order.
         realtime.params?.onPublication(
-            create(ProtoRead.UserTradeSchema, { ...userTrade, matchId: 23n }),
+            create(ProtoRead.UserTradeBatchSchema, {
+                events: [userTrade, { ...userTrade, matchId: 23n }],
+            }),
+        );
+        realtime.params?.onPublication(
+            create(ProtoRead.UserTradeBatchSchema, { events: [{ ...userTrade, matchId: 24n }] }),
         );
         expect(onEvent).not.toHaveBeenCalled();
 
         await flushAsync();
 
-        expect(onEvent).toHaveBeenCalledTimes(2);
+        expect(onEvent).toHaveBeenCalledTimes(3);
         expect(onEvent.mock.calls[0]?.[0]).toMatchObject({ matchId: "22" });
         expect(onEvent.mock.calls[1]?.[0]).toMatchObject({ matchId: "23" });
+        expect(onEvent.mock.calls[2]?.[0]).toMatchObject({ matchId: "24" });
     });
 
     it("delivers trade publications with unmapped enums as unspecified", async () => {
@@ -448,9 +452,8 @@ describe("TradesService", () => {
         service.subscribe({ accountId: "acct-1", onEvent, onError });
 
         realtime.params?.onPublication(
-            create(ProtoRead.UserTradeSchema, {
-                ...userTrade,
-                side: 999 as ProtoOrders.Side,
+            create(ProtoRead.UserTradeBatchSchema, {
+                events: [{ ...userTrade, side: 999 as ProtoOrders.Side }],
             }),
         );
         await flushAsync();

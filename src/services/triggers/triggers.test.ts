@@ -773,8 +773,10 @@ describe("TriggersService", () => {
         });
 
         expect(realtime.params?.channel).toBe("private:spot:triggers:events:account-1:proto");
-        expect(realtime.params?.schema).toBe(Proto.TriggerEventSchema);
-        realtime.params?.onPublication(triggerEvent());
+        expect(realtime.params?.schema).toBe(Proto.TriggerEventBatchSchema);
+        realtime.params?.onPublication(
+            create(Proto.TriggerEventBatchSchema, { events: [triggerEvent()] }),
+        );
         await flushAsync();
 
         expect(onEvent).toHaveBeenCalledWith(
@@ -782,10 +784,15 @@ describe("TriggersService", () => {
                 eventType: "fired",
                 symbolId: 1,
                 firePrice: "100",
+                tsNs: "1700000000123456789",
             }),
         );
 
-        realtime.params?.onPublication(triggerEvent({ eventType: 999 as Proto.TriggerEventType }));
+        realtime.params?.onPublication(
+            create(Proto.TriggerEventBatchSchema, {
+                events: [triggerEvent({ eventType: 999 as Proto.TriggerEventType })],
+            }),
+        );
         await flushAsync();
 
         expect(onError).not.toHaveBeenCalled();

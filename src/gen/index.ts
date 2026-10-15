@@ -40,6 +40,7 @@ export * as rateLimitPb from "./polyester/ratelimit/v1/types_pb.js";
 export * as u128Pb from "./polyester/type/v1/u128_pb.js";
 export * as tradingRateLimitPb from "./ratelimit/v1/ratelimit_pb.js";
 export * as rewardsPb from "./rewards/v1/rewards_pb.js";
+export * as quickswapPb from "./swap/quickswap/v1/quickswap_pb.js";
 export * as tradeWsPb from "./tradews/v1/trade_ws_pb.js";
 export * as internalTransferPb from "./transfer/v1/internal_transfer_pb.js";
 export * as triggersPb from "./triggers/v1/triggers_pb.js";

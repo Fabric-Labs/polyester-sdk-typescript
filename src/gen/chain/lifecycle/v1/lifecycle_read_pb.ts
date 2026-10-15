@@ -1292,7 +1292,7 @@ export enum FlowStep {
   UNSPECIFIED = 0,
 
   /**
-   * External-chain / relayer source tracking before Polyester can continue.
+   * External-chain source tracking before Polyester can continue.
    *
    * @generated from enum value: FLOW_STEP_SOURCE = 1;
    */
