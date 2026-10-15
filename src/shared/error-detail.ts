@@ -14,10 +14,8 @@ import type { ErrorCode as ClaimsErrorCode } from "../gen/claims/v1/claims_pb.js
 import type { ErrorCode as WithdrawErrorCode } from "../gen/chain/withdraw/v1/withdraw_pb.js";
 import type { ErrorCode as LedgerErrorCode } from "../gen/ledger/read/v1/ledger_read_pb.js";
 import type { ErrorCode as MarketOverviewErrorCode } from "../gen/marketoverview/v1/marketoverview_pb.js";
-import type { ErrorCode as QuickSwapErrorCode } from "../gen/swap/quickswap/v1/quickswap_pb.js";
 import type { ErrorCode as InternalTransferErrorCode } from "../gen/transfer/v1/internal_transfer_pb.js";
 import type { OrderErrorDetail } from "../services/orders/order-errors.schemas.js";
-import type { QuickSwapTokenAmount } from "../services/quickswap/quickswap.schemas.js";
 
 type NamedCode<Enum extends Record<number, string>> = keyof Enum;
 
@@ -40,17 +38,7 @@ export type PolyesterErrorDetail =
           service: "market_overview";
           code: NamedCode<typeof MarketOverviewErrorCode>;
       }
-    | { service: "claims"; code: NamedCode<typeof ClaimsErrorCode> }
-    | {
-          service: "quickswap";
-          code: NamedCode<typeof QuickSwapErrorCode>;
-          /** QuickSwap bound to the request's idempotency key, e.g. on `IDEMPOTENCY_CONFLICT`. */
-          swapId?: string;
-          /** `AMOUNT_OUT_OF_RANGE` only: smallest deposit that currently quotes, in source units. */
-          minDepositAmount?: QuickSwapTokenAmount;
-          /** `AMOUNT_OUT_OF_RANGE` only: largest deposit that quotes, in source units. */
-          maxDepositAmount?: QuickSwapTokenAmount;
-      };
+    | { service: "claims"; code: NamedCode<typeof ClaimsErrorCode> };
 
 export type ConnectErrorDetail = ConnectError["details"][number];
 
@@ -66,7 +54,6 @@ const DECODER_LOADERS: Record<string, () => Promise<{ decode: ErrorDetailDecoder
     "ledger.read.v1.ErrorDetail": () => import("./error-details/ledger.js"),
     "marketoverview.v1.ErrorDetail": () => import("./error-details/market-overview.js"),
     "claims.v1.ErrorDetail": () => import("./error-details/claims.js"),
-    "swap.quickswap.v1.ErrorDetail": () => import("./error-details/quickswap.js"),
 };
 
 /** Known detail type names, exposed so tests can pin them to the generated descriptors. */

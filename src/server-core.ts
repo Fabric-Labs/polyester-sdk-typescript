@@ -3,7 +3,6 @@ import {
     pickPolyesterCatalogConfig,
     PolyesterCore,
     type PolyesterClientBaseConfig,
-    type PolyesterClientConfigWithoutAuth,
 } from "./core-client.js";
 import {
     POLYESTER_AUTH_TOKEN_COOKIE_NAME,
@@ -18,10 +17,6 @@ import {
 } from "./services/auth/session.js";
 import type { CookieGetter } from "./utils/cookies.js";
 import type { JwtAuthProvider, ApiKeyEd25519AuthProvider } from "./shared/transports.js";
-import {
-    createBrokerApiKeyInterceptor,
-    type BrokerApiKeyAuthProvider,
-} from "./shared/broker-auth.js";
 import type { SubaccountResolver } from "./services/subaccount-resolver.js";
 import { isJwtValid } from "./utils/jwt.js";
 import type { Me } from "./services/auth/auth.js";
@@ -43,12 +38,9 @@ export function parseSessionCookie(
 }
 
 /** Configuration for the server Polyester client. */
-export type PolyesterServerClientConfig = PolyesterClientConfigWithoutAuth & {
-    /**
-     * Auth provider config for HTTP/Connect endpoints. A `broker-api-key`
-     * authenticates the QuickSwap broker API only and is not a user session.
-     */
-    auth?: JwtAuthProvider | ApiKeyEd25519AuthProvider | BrokerApiKeyAuthProvider;
+export type PolyesterServerClientConfig = PolyesterClientBaseConfig & {
+    /** Auth provider config for HTTP/Connect endpoints. */
+    auth?: JwtAuthProvider | ApiKeyEd25519AuthProvider;
     /** Bearer authentication and display-only session data parsed from cookies. */
     session?: ServerSessionSnapshot;
     /**
@@ -72,14 +64,11 @@ export class PolyesterServerCore extends PolyesterCore {
 
     constructor(config: PolyesterServerClientConfig) {
         config = parsePolyesterClientConfig(config);
-        const brokerAuth = config.auth?.kind === "broker-api-key" ? config.auth : undefined;
-        const auth = config.auth?.kind === "broker-api-key" ? undefined : config.auth;
+        const auth = config.auth ?? undefined;
 
         super({
             environment: config.environment,
-            interceptors: brokerAuth
-                ? [createBrokerApiKeyInterceptor(brokerAuth), ...(config.interceptors ?? [])]
-                : config.interceptors,
+            interceptors: config.interceptors,
             auth,
             wireFormat: config.wireFormat,
             fetch: config.fetch,
@@ -113,7 +102,6 @@ export class PolyesterServerCore extends PolyesterCore {
         };
     }
 
-    /** Whether a user credential is configured; a broker API key is not one. */
     get hasAuthProvider(): boolean {
         return this.#hasAuthProvider;
     }

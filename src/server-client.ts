@@ -1,5 +1,4 @@
 import { installServiceGetters, type PolyesterServices } from "./client.js";
-import { quickSwapService } from "./services/quickswap/service.js";
 import {
     PolyesterServerCore,
     serverClientConfigFromCookies,
@@ -15,24 +14,8 @@ export type {
     ServerSessionSnapshot,
 } from "./server-core.js";
 
-/**
- * Server-only service accessors, keyed by getter name. They stay out of
- * `POLYESTER_SERVICES`, which the browser client shares, because their
- * credentials must never reach a browser.
- */
-export const POLYESTER_SERVER_SERVICES = {
-    quickSwap: quickSwapService,
-};
-
-/** Getters only the server client has. */
-export type PolyesterServerServices = {
-    readonly [K in keyof typeof POLYESTER_SERVER_SERVICES]: ReturnType<
-        (typeof POLYESTER_SERVER_SERVICES)[K]
-    >;
-};
-
 // oxlint-disable-next-line typescript/no-unsafe-declaration-merging -- getters are installed below
-export interface PolyesterServerClient extends PolyesterServices, PolyesterServerServices {}
+export interface PolyesterServerClient extends PolyesterServices {}
 
 /**
  * Server-side SDK client that can parse display-session cookies and verify
@@ -42,7 +25,6 @@ export interface PolyesterServerClient extends PolyesterServices, PolyesterServe
 export class PolyesterServerClient extends PolyesterServerCore {
     static {
         installServiceGetters(this);
-        installServiceGetters(this, POLYESTER_SERVER_SERVICES);
     }
 }
 
