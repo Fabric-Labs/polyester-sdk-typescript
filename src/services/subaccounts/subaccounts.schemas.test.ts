@@ -45,6 +45,22 @@ describe("subaccount policy IDs", () => {
     });
 });
 
+describe("subaccount permission schemas", () => {
+    it("maps auto-withdraw and swap permissions to output labels", () => {
+        expect(
+            v.parse(EffectiveSubaccountPermissionsSchema, {
+                role: Proto.SubaccountRole.TREASURY,
+                subaccountPolicyId: 1n,
+                permissions: [
+                    Proto.SubaccountPermission.READ_AUTO_WITHDRAW,
+                    Proto.SubaccountPermission.MANAGE_AUTO_WITHDRAW,
+                    Proto.SubaccountPermission.SWAP,
+                ],
+            }).permissions,
+        ).toEqual(["read_auto_withdraw", "manage_auto_withdraw", "swap"]);
+    });
+});
+
 describe("subaccount status schemas", () => {
     it("exposes backend status values without display-name remapping", () => {
         expect(
