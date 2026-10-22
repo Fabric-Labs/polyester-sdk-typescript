@@ -125,15 +125,18 @@ try {
     type SpotVolumeHistoryResponse,
 } from "@polyester/sdk";
 import {
+    autoWithdrawPb,
     claimsPb,
     feesPb,
     ledgerReadPb,
     ordersPb,
     ordersReadPb,
+    quickswapBrokerPb,
     quickswapPb,
     resolvePb,
     rewardsPb,
     subaccountsPb,
+    swapPb,
     tradingRateLimitPb,
     vipPb,
 } from "@polyester/sdk/unstable/gen";
@@ -191,6 +194,9 @@ async function verifyServiceInference(): Promise<void> {
     expectType<string>(rewardDestination.award.destinationAddress);
     expectNotAny(rewardsPb.RewardCampaignService, true);
     expectNotAny(quickswapPb.QuickSwapService, true);
+    expectNotAny(quickswapBrokerPb.QuickSwapBrokerService, true);
+    expectNotAny(swapPb.SwapService, true);
+    expectNotAny(autoWithdrawPb.AutoWithdrawService, true);
     const gtdOrder: import("@polyester/sdk").NewOrderInput = {
         symbolId: 1,
         side: "buy",

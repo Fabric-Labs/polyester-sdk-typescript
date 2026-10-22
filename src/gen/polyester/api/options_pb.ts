@@ -82,8 +82,8 @@ export enum AuthenticationMethod {
   API_KEY = 2,
 
   /**
-   * A broker API key, sent as a bearer token. Brokers receive it at
-   * onboarding; it is not an account API key.
+   * A broker API key, sent as a bearer token. A broker's members create it
+   * in the QuickSwap broker API; it is not an account API key.
    *
    * @generated from enum value: BROKER_API_KEY = 3;
    */

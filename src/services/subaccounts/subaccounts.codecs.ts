@@ -37,6 +37,9 @@ export const SUBACCOUNT_PERMISSION_VALUES = [
     "read_deposit_addresses",
     "read_guard_signer_status",
     "manage_guard_signer",
+    "read_auto_withdraw",
+    "manage_auto_withdraw",
+    "swap",
 ] as const;
 export type SubaccountPermissionValue = (typeof SUBACCOUNT_PERMISSION_VALUES)[number];
 
@@ -140,6 +143,9 @@ export const SubaccountPermissionCodec = {
         [Proto.SubaccountPermission.READ_DEPOSIT_ADDRESSES]: "read_deposit_addresses",
         [Proto.SubaccountPermission.READ_GUARD_SIGNER_STATUS]: "read_guard_signer_status",
         [Proto.SubaccountPermission.MANAGE_GUARD_SIGNER]: "manage_guard_signer",
+        [Proto.SubaccountPermission.READ_AUTO_WITHDRAW]: "read_auto_withdraw",
+        [Proto.SubaccountPermission.MANAGE_AUTO_WITHDRAW]: "manage_auto_withdraw",
+        [Proto.SubaccountPermission.SWAP]: "swap",
     } satisfies ProtoToOutput<Proto.SubaccountPermission, SubaccountPermissionValue>,
 } as const;
 

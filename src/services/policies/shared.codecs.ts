@@ -11,6 +11,9 @@ export const POLICY_ACTION_LABELS = [
     "read-internal-transfers",
     "read-address-book",
     "manage-address-book",
+    "read-auto-withdraw",
+    "manage-auto-withdraw",
+    "swap",
 ] as const;
 export type PolicyActionLabel = (typeof POLICY_ACTION_LABELS)[number];
 
@@ -40,6 +43,9 @@ export const PolicyActionCodec = {
         [Proto.PolicyAction.READ_INTERNAL_TRANSFERS]: "read-internal-transfers",
         [Proto.PolicyAction.READ_ADDRESS_BOOK]: "read-address-book",
         [Proto.PolicyAction.MANAGE_ADDRESS_BOOK]: "manage-address-book",
+        [Proto.PolicyAction.READ_AUTO_WITHDRAW]: "read-auto-withdraw",
+        [Proto.PolicyAction.MANAGE_AUTO_WITHDRAW]: "manage-auto-withdraw",
+        [Proto.PolicyAction.SWAP]: "swap",
     } satisfies ProtoToOutput<Proto.PolicyAction, PolicyActionLabel>,
     inputToProto: {
         "trade-spot": Proto.PolicyAction.TRADE_SPOT,
@@ -50,6 +56,9 @@ export const PolicyActionCodec = {
         "read-internal-transfers": Proto.PolicyAction.READ_INTERNAL_TRANSFERS,
         "read-address-book": Proto.PolicyAction.READ_ADDRESS_BOOK,
         "manage-address-book": Proto.PolicyAction.MANAGE_ADDRESS_BOOK,
+        "read-auto-withdraw": Proto.PolicyAction.READ_AUTO_WITHDRAW,
+        "manage-auto-withdraw": Proto.PolicyAction.MANAGE_AUTO_WITHDRAW,
+        swap: Proto.PolicyAction.SWAP,
     } satisfies Record<PolicyActionLabel, Proto.PolicyAction>,
 } as const;
 
