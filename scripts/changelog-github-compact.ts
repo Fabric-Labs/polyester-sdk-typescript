@@ -5,9 +5,15 @@
  * Emits `- summary ([#123](pr-url))` instead of the default
  * `- [#123] [`sha`] Thanks [@user]! - summary`.
  *
- * Loaded by `@changesets/cli` through `.changeset/changelog-github-compact.cjs`.
+ * `@changesets/cli` 3 `import()`s this file directly from `.changeset/config.json`;
+ * Node strips the types at load time.
  */
-import { getInfo, getInfoFromPullRequest } from "@changesets/get-github-info";
+import {
+    getCommitInfo,
+    getPullRequestInfo,
+    type CommitInfo,
+    type PullRequestInfo,
+} from "@changesets/get-github-info";
 
 const REPO_PATTERN = /^[\w.-]+\/[\w.-]+$/;
 const ISSUE_HINT_PATTERN = /(?<=\( ?(?:fix|fixes|see) )(#\d+)(?= ?\))/g;
@@ -16,7 +22,7 @@ const COMMIT_HEADER_PATTERN = /^\s*commit:\s*([^\s]+)/im;
 const AUTHOR_HEADER_PATTERN = /^\s*(?:author|user):\s*@?([^\s]+)/gim;
 
 const CONFIG_HINT =
-    'Please provide a repo to this changelog generator like this:\n"changelog": ["./changelog-github-compact.cjs", { "repo": "org/repo" }]';
+    'Please provide a repo to this changelog generator like this:\n"changelog": ["../scripts/changelog-github-compact.ts", { "repo": "org/repo" }]';
 
 /**
  * Thrown when `.changeset/config.json` is missing a valid `{ repo }` option.
@@ -27,18 +33,6 @@ export class ChangelogConfigError extends Error {
     constructor(message: string) {
         super(message);
         this.name = "ChangelogConfigError";
-    }
-}
-
-/**
- * Thrown when `@changesets/get-github-info` returns a shape we cannot use.
- */
-export class ChangelogGitHubInfoError extends Error {
-    readonly _tag = "ChangelogGitHubInfoError";
-
-    constructor(message: string, options?: { cause?: unknown }) {
-        super(message, options);
-        this.name = "ChangelogGitHubInfoError";
     }
 }
 
@@ -142,7 +136,7 @@ export function createChangelogFunctions(github: GitHubInfoLookup): ChangelogFun
                 : links.commit
                   ? ` (${links.commit})`
                   : "";
-            const rest = futureLines.map((line) => `  ${line}`).join("\n");
+            const rest = futureLines.map((line) => (line ? `  ${line}` : "")).join("\n");
             return `\n- ${firstLine}${suffix}\n${rest}`;
         },
         async getDependencyReleaseLine(changesets, dependenciesUpdated, options) {
@@ -179,10 +173,10 @@ export function createChangelogFunctions(github: GitHubInfoLookup): ChangelogFun
 /** Changeset changelog functions wired to `@changesets/get-github-info`. */
 const changelogFunctions = createChangelogFunctions({
     async getInfo(request) {
-        return parseGitHubInfo(await getInfo(request));
+        return toGitHubInfo(await getCommitInfo(request));
     },
     async getInfoFromPullRequest(request) {
-        return parseGitHubInfo(await getInfoFromPullRequest(request));
+        return toGitHubInfo(await getPullRequestInfo(request));
     },
 });
 
@@ -244,34 +238,13 @@ async function resolveLinks(
     return links;
 }
 
-function parseGitHubInfo(value: unknown): GitHubInfo {
-    if (typeof value !== "object" || value === null || !("links" in value)) {
-        throw new ChangelogGitHubInfoError("GitHub info is missing links");
-    }
-    const links = value.links;
-    if (typeof links !== "object" || links === null) {
-        throw new ChangelogGitHubInfoError("GitHub info links are invalid");
-    }
+/** Missing commits or PRs resolve to `undefined`, which leaves the line unsuffixed. */
+function toGitHubInfo(info: CommitInfo | PullRequestInfo | undefined): GitHubInfo {
     return {
         links: {
-            commit: parseLink(links, "commit"),
-            pull: parseLink(links, "pull"),
-            user: parseLink(links, "user"),
+            commit: info?.commit?.markdownLink ?? null,
+            pull: info?.pull?.markdownLink ?? null,
+            user: info?.author?.markdownLink ?? null,
         },
     };
-}
-
-function parseLink(links: object, key: "commit" | "pull" | "user"): string | null {
-    const record: Record<string, unknown> = {};
-    for (const [entryKey, entryValue] of Object.entries(links)) {
-        record[entryKey] = entryValue;
-    }
-    const value = record[key];
-    if (value === null || value === undefined) {
-        return null;
-    }
-    if (typeof value !== "string") {
-        throw new ChangelogGitHubInfoError(`GitHub info ${key} link must be a string or null`);
-    }
-    return value;
 }

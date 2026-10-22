@@ -1,6 +1,3 @@
-import { createRequire } from "node:module";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
     ChangelogConfigError,
@@ -146,7 +143,7 @@ describe("getReleaseLine", () => {
             OPTIONS,
         );
 
-        expect(line).toBe("\n- feat: add VIP tiers.\n  \n  Includes catalog + status.");
+        expect(line).toBe("\n- feat: add VIP tiers.\n\n  Includes catalog + status.");
     });
 });
 
@@ -170,15 +167,12 @@ describe("getDependencyReleaseLine", () => {
     });
 });
 
-describe("changeset CJS entry", () => {
-    it("exports getReleaseLine and getDependencyReleaseLine via require", () => {
-        const required = createRequire(import.meta.url)(
-            path.resolve(
-                path.dirname(fileURLToPath(import.meta.url)),
-                "../.changeset/changelog-github-compact.cjs",
-            ),
-        );
-        expect(hasChangelogFunctions(required)).toBe(true);
+describe("changeset config entry", () => {
+    it("default-exports the changelog functions named in .changeset/config.json", async () => {
+        const config = await import("../.changeset/config.json", { with: { type: "json" } });
+        expect(config.default.changelog[0]).toBe("../scripts/changelog-github-compact.ts");
+        const loaded = await import("./changelog-github-compact.js");
+        expect(hasChangelogFunctions(loaded.default)).toBe(true);
     });
 });
 
