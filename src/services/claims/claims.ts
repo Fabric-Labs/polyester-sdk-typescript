@@ -8,14 +8,16 @@ import {
 import type { AuthApiTransports } from "../../shared/transports.js";
 import { parse } from "../../shared/validation.js";
 import {
+    ClaimDailyRewardInputSchema,
     ClaimDailyRewardResultSchema,
     DailyClaimStatusSchema,
+    type ClaimDailyRewardInput,
     type ClaimDailyRewardResult,
     type DailyClaimStatus,
 } from "./claims.schemas.js";
 
 /**
- * Reads and claims daily campaign rewards for the authenticated root account.
+ * Reads and claims daily campaign rewards for the authenticated root account or a subaccount it owns.
  * The server accepts session JWTs for this service; API keys are not accepted.
  */
 export class ClaimsService {
@@ -31,9 +33,20 @@ export class ClaimsService {
         return parse(DailyClaimStatusSchema, response);
     }
 
-    /** Claims the current UTC day's reward. Retrying returns the same claim. */
-    async claimDailyReward(options?: PolyesterMutationOptions): Promise<ClaimDailyRewardResult> {
-        const response = await this.#client.claimDailyReward({}, toConnectCallOptions(options));
+    /**
+     * Claims the current UTC day's reward, paid to the root account or to `subaccountId` when it
+     * names a subaccount the root account owns. The destination is fixed by the first claim of the
+     * day; retrying returns the same claim and destination.
+     */
+    async claimDailyReward(
+        input: ClaimDailyRewardInput = {},
+        options?: PolyesterMutationOptions,
+    ): Promise<ClaimDailyRewardResult> {
+        const { subaccountId } = parse(ClaimDailyRewardInputSchema, input);
+        const response = await this.#client.claimDailyReward(
+            { subaccountId },
+            toConnectCallOptions(options),
+        );
         return parse(ClaimDailyRewardResultSchema, response);
     }
 }
