@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file swap/quickswap/v1/quickswap.proto.
  */
 export const file_swap_quickswap_v1_quickswap: GenFile = /*@__PURE__*/
-  fileDesc("CiFzd2FwL3F1aWNrc3dhcC92MS9xdWlja3N3YXAucHJvdG8SEXN3YXAucXVpY2tzd2FwLnYxIjcKC1Rva2VuQW1vdW50EhQKCmJhc2VfdW5pdHMYASABKAlCABISCghkZWNpbWFscxgCIAEoDUIAInEKClByb3RlY3Rpb24SHAoQbWF4X3NsaXBwYWdlX2JwcxgBIAEoDUIASAASOgoObWluX2Ftb3VudF9vdXQYAiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudEIASABCCQoFYm91bmQSACIRCg9NYXJrZXRFeGVjdXRpb24iRQoNVHdhcEV4ZWN1dGlvbhIVCgtkdXJhdGlvbl9tcxgBIAEoBEIAEhsKEXNsaWNlX2ludGVydmFsX21zGAIgASgEQgA6ACKBAQoJRXhlY3V0aW9uEjQKBm1hcmtldBgBIAEoCzIiLnN3YXAucXVpY2tzd2FwLnYxLk1hcmtldEV4ZWN1dGlvbkgAEjAKBHR3YXAYAiABKAsyIC5zd2FwLnF1aWNrc3dhcC52MS5Ud2FwRXhlY3V0aW9uSABCDAoIc3RyYXRlZ3kSACKlAgoOUXVpY2tTd2FwVGVybXMSIAoWc291cmNlX3ppcHBlZF9hc3NldF9pZBgBIAEoDUIAEiUKG2Rlc3RpbmF0aW9uX3ppcHBlZF9hc3NldF9pZBgCIAEoDUIAEi4KBWJhc2lzGAMgASgOMh0uc3dhcC5xdWlja3N3YXAudjEuUXVvdGVCYXNpc0IAEjAKBmFtb3VudBgEIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50QgASMwoKcHJvdGVjdGlvbhgFIAEoCzIdLnN3YXAucXVpY2tzd2FwLnYxLlByb3RlY3Rpb25CABIxCglleGVjdXRpb24YBiABKAsyHC5zd2FwLnF1aWNrc3dhcC52MS5FeGVjdXRpb25CADoAIn0KCFF1b3RlRmVlEigKBGtpbmQYASABKA4yGi5zd2FwLnF1aWNrc3dhcC52MS5GZWVLaW5kEhcKD3ppcHBlZF9hc3NldF9pZBgCIAEoDRIuCgZhbW91bnQYAyABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudCLwAwoOUXVpY2tTd2FwUXVvdGUSNgoOZGVwb3NpdF9hbW91bnQYASABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI7ChNleHBlY3RlZF9hbW91bnRfb3V0GAIgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSNgoObWluX2Ftb3VudF9vdXQYAyABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBIQCghtaW5fcmF0ZRgEIAEoCRI6ChJtaW5fZGVwb3NpdF9hbW91bnQYBSABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI6ChJtYXhfZGVwb3NpdF9hbW91bnQYBiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBIdChVpbnRlcm1lZGlhdGVfYXNzZXRfaWQYByABKA0SKQoEZmVlcxgIIAMoCzIbLnN3YXAucXVpY2tzd2FwLnYxLlF1b3RlRmVlEi0KCXF1b3RlZF9hdBgJIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKZXhwaXJlc19hdBgKIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiigEKCVNjcmVlbmluZxIVCg1zb3VyY2Vfd2FsbGV0GAIgASgJSgQIARACSgQIAxAIUgRtb2RlUgx3YWxsZXRfc3RhdGVSDWRlcG9zaXRfc3RhdGVSGW9ic2VydmVkX3NvdXJjZV9hZGRyZXNzZXNSD3NvdXJjZV9taXNtYXRjaFILc2NyZWVuZWRfYXQiyQIKE0RlcG9zaXRJbnN0cnVjdGlvbnMSDwoHYWRkcmVzcxgBIAEoCRIMCgRtZW1vGAIgASgJEhcKD3ppcHBlZF9hc3NldF9pZBgDIAEoDRItCglpc3N1ZWRfYXQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjYKEmZ1bmRpbmdfZXhwaXJlc19hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASNgoSYWRkcmVzc19yZXRpcmVzX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI9Cg1hZGRyZXNzX3N0YXRlGAcgASgOMiYuc3dhcC5xdWlja3N3YXAudjEuRGVwb3NpdEFkZHJlc3NTdGF0ZRIcChRtaW5fbmF0aXZlX2dhc19saW1pdBgIIAEoBCLYAwoHRGVwb3NpdBINCgVpbmRleBgBIAEoDRIPCgd0eF9oYXNoGAIgASgJEhsKE3R4X29jY3VycmVuY2VfaW5kZXgYAyABKAQSFwoPemlwcGVkX2Fzc2V0X2lkGAQgASgNEi4KBmFtb3VudBgFIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EjoKC2Rpc3Bvc2l0aW9uGAggASgOMiUuc3dhcC5xdWlja3N3YXAudjEuRGVwb3NpdERpc3Bvc2l0aW9uEjIKBnJlYXNvbhgJIAEoDjIiLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFJlYXNvbhIVCg1jb25maXJtYXRpb25zGAogASgNEh4KFnJlcXVpcmVkX2NvbmZpcm1hdGlvbnMYCyABKA0SLwoLZGV0ZWN0ZWRfYXQYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi8KC2NyZWRpdGVkX2F0GA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIPCgdmbG93X2lkGA4gASgJSgQIBhAHSgQIBxAIUhBzb3VyY2VfYWRkcmVzc2VzUg9zY3JlZW5pbmdfc3RhdGUitwMKEUV4ZWN1dGlvblByb2dyZXNzEjQKDGlucHV0X2Ftb3VudBgBIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EjYKDmV4ZWN1dGVkX2lucHV0GAIgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSNQoNb3V0cHV0X2Ftb3VudBgDIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50Ej4KFmludGVybWVkaWF0ZV9yZW1haW5kZXIYBCABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBIYChBjb21wbGV0ZWRfc2xpY2VzGAUgASgNEhQKDHRvdGFsX3NsaWNlcxgGIAEoDRIuCgpzdGFydGVkX2F0GAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghkZWFkbGluZRgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLZmluaXNoZWRfYXQYCSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIvADCgpXaXRoZHJhd2FsEg0KBWluZGV4GAEgASgNEi8KBHJvbGUYAiABKA4yIS5zd2FwLnF1aWNrc3dhcC52MS5XaXRoZHJhd2FsUm9sZRIVCg1kZXBvc2l0X2luZGV4GAMgASgNEhcKD3ppcHBlZF9hc3NldF9pZBgEIAEoDRIPCgdhZGRyZXNzGAUgASgJEgwKBG1lbW8YBiABKAkSLgoGYW1vdW50GAcgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSMwoLbmV0d29ya19mZWUYCCABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBIxCgVzdGF0ZRgJIAEoDjIiLnN3YXAucXVpY2tzd2FwLnYxLldpdGhkcmF3YWxTdGF0ZRIPCgd0eF9oYXNoGAogASgJEjAKDHN1Ym1pdHRlZF9hdBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMZmluYWxpemVkX2F0GAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIPCgdmbG93X2lkGA0gASgJEjUKDXVuc2VudF9hbW91bnQYDiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudCKrCAoJUXVpY2tTd2FwEg8KB3N3YXBfaWQYASABKAYSFwoPaWRlbXBvdGVuY3lfa2V5GAIgASgJEjIKBnN0YXR1cxgDIAEoDjIiLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFN0YXR1cxIyCgZyZWFzb24YBCABKA4yIi5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBSZWFzb24SEwoLaXNfdGVybWluYWwYBSABKAgSMAoFdGVybXMYBiABKAsyIS5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBUZXJtcxIbChNkZXN0aW5hdGlvbl9hZGRyZXNzGAcgASgJEhgKEGRlc3RpbmF0aW9uX21lbW8YCCABKAkSFgoOcmV0dXJuX2FkZHJlc3MYCSABKAkSEwoLcmV0dXJuX21lbW8YCiABKAkSHgoWcmVmdW5kX3ppcHBlZF9hc3NldF9pZBgLIAEoDRIWCg5yZWZ1bmRfYWRkcmVzcxgMIAEoCRITCgtyZWZ1bmRfbWVtbxgNIAEoCRIwCgVxdW90ZRgOIAEoCzIhLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFF1b3RlEkQKFGRlcG9zaXRfaW5zdHJ1Y3Rpb25zGA8gASgLMiYuc3dhcC5xdWlja3N3YXAudjEuRGVwb3NpdEluc3RydWN0aW9ucxIvCglzY3JlZW5pbmcYECABKAsyHC5zd2FwLnF1aWNrc3dhcC52MS5TY3JlZW5pbmcSLAoIZGVwb3NpdHMYESADKAsyGi5zd2FwLnF1aWNrc3dhcC52MS5EZXBvc2l0EhoKEmRlcG9zaXRzX3RydW5jYXRlZBgSIAEoCBI3CglleGVjdXRpb24YFCABKAsyJC5zd2FwLnF1aWNrc3dhcC52MS5FeGVjdXRpb25Qcm9ncmVzcxIyCgt3aXRoZHJhd2FscxgVIAMoCzIdLnN3YXAucXVpY2tzd2FwLnYxLldpdGhkcmF3YWwSHQoVd2l0aGRyYXdhbHNfdHJ1bmNhdGVkGBYgASgIEi4KCmNyZWF0ZWRfYXQYFyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCnVwZGF0ZWRfYXQYGCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi8KC3Rlcm1pbmFsX2F0GBkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIPCgd2ZXJzaW9uGBogASgEEjUKCmFmZmlsaWF0ZXMYGyADKAsyIS5zd2FwLnF1aWNrc3dhcC52MS5BZmZpbGlhdGVTaGFyZRIcChRmZWVfc2NoZWR1bGVfdmVyc2lvbhgcIAEoBEoECBMQFFIYY2FwYWNpdHlfd2FpdF9leHBpcmVzX2F0IksKFVF1b3RlUXVpY2tTd2FwUmVxdWVzdBIyCgV0ZXJtcxgBIAEoCzIhLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFRlcm1zQgAiSgoWUXVvdGVRdWlja1N3YXBSZXNwb25zZRIwCgVxdW90ZRgBIAEoCzIhLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFF1b3RlIjsKDkFmZmlsaWF0ZVNoYXJlEhQKCmFjY291bnRfaWQYASABKAZCABITCglzaGFyZV9wcG0YAiABKA1CACL4AgoWQ3JlYXRlUXVpY2tTd2FwUmVxdWVzdBIZCg9pZGVtcG90ZW5jeV9rZXkYASABKAlCABIyCgV0ZXJtcxgCIAEoCzIhLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFRlcm1zQgASHQoTZGVzdGluYXRpb25fYWRkcmVzcxgDIAEoCUIAEhoKEGRlc3RpbmF0aW9uX21lbW8YBCABKAlCABIYCg5yZXR1cm5fYWRkcmVzcxgFIAEoCUIAEhUKC3JldHVybl9tZW1vGAYgASgJQgASHgoWcmVmdW5kX3ppcHBlZF9hc3NldF9pZBgHIAEoDRIYCg5yZWZ1bmRfYWRkcmVzcxgIIAEoCUIAEhUKC3JlZnVuZF9tZW1vGAkgASgJQgASFwoNc291cmNlX3dhbGxldBgKIAEoCUIAEjcKCmFmZmlsaWF0ZXMYCyADKAsyIS5zd2FwLnF1aWNrc3dhcC52MS5BZmZpbGlhdGVTaGFyZUIAOgAiSwoXQ3JlYXRlUXVpY2tTd2FwUmVzcG9uc2USMAoKcXVpY2tfc3dhcBgBIAEoCzIcLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcCJVChNHZXRRdWlja1N3YXBSZXF1ZXN0EhMKB3N3YXBfaWQYASABKAZCAEgAEhsKD2lkZW1wb3RlbmN5X2tleRgCIAEoCUIASABCDAoIc2VsZWN0b3ISACJIChRHZXRRdWlja1N3YXBSZXNwb25zZRIwCgpxdWlja19zd2FwGAEgASgLMhwuc3dhcC5xdWlja3N3YXAudjEuUXVpY2tTd2FwIsIBCgtFcnJvckRldGFpbBIqCgRjb2RlGAEgASgOMhwuc3dhcC5xdWlja3N3YXAudjEuRXJyb3JDb2RlEg8KB3N3YXBfaWQYAiABKAYSOgoSbWluX2RlcG9zaXRfYW1vdW50GAMgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSOgoSbWF4X2RlcG9zaXRfYW1vdW50GAQgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQqTgoKUXVvdGVCYXNpcxIVChFCQVNJU19VTlNQRUNJRklFRBAAEhEKDVNPVVJDRV9BTU9VTlQQARIWChJERVNUSU5BVElPTl9BTU9VTlQQAipoCgdGZWVLaW5kEhMKD0ZFRV9VTlNQRUNJRklFRBAAEgsKB1NFUlZJQ0UQARIOCgpJTlRFR1JBVE9SEAISEwoPREVQT1NJVF9ORVRXT1JLEAMSFgoSV0lUSERSQVdBTF9ORVRXT1JLEAQqWAoTRGVwb3NpdEFkZHJlc3NTdGF0ZRIXChNBRERSRVNTX1VOU1BFQ0lGSUVEEAASCgoGQUNUSVZFEAESDwoLUkVGVU5EX01PREUQAhILCgdSRVRJUkVEEAMqggEKEkRlcG9zaXREaXNwb3NpdGlvbhIbChdESVNQT1NJVElPTl9VTlNQRUNJRklFRBAAEg4KCkVWQUxVQVRJTkcQARIMCghFTElHSUJMRRACEg8KC1JFVFVSTl9PTkxZEAMSCwoHT05fSE9MRBAEEhMKD01BTlVBTF9SRUNPVkVSWRAFKrwECg9RdWlja1N3YXBSZWFzb24SFgoSUkVBU09OX1VOU1BFQ0lGSUVEEAASGwoXU09VUkNFX1NDUkVFTklOR19GQUlMRUQQARIYChRDQVBBQ0lUWV9VTkFWQUlMQUJMRRAEEhYKElBST1RFQ1RJT05fTk9UX01FVBAHEh4KGkVYRUNVVElPTl9ERUFETElORV9SRUFDSEVEEAgSEAoMTEFURV9ERVBPU0lUEAkSGQoVREVQT1NJVF9CRUxPV19NSU5JTVVNEAsSGQoVREVQT1NJVF9BQk9WRV9NQVhJTVVNEAwSDwoLV1JPTkdfQVNTRVQQDRIYChRGVU5ESU5HX1dJTkRPV19FTkRFRBAPEhUKEVdJVEhEUkFXQUxfRkFJTEVEEBASFwoTT1VUQ09NRV9SRUNPTkNJTElORxAREhwKGFNPVVJDRV9TQ1JFRU5JTkdfQkxPQ0tFRBAUEhgKFFJFRlVORF9CRUxPV19NSU5JTVVNEBUiBAgCEAIiBAgDEAMiBAgFEAUiBAgGEAYiBAgKEAoiBAgOEA4iBAgSEBIiBAgTEBMqD1NPVVJDRV9NSVNNQVRDSCoQU09VUkNFX0FNQklHVU9VUyoVQ0FQQUNJVFlfV0FJVF9FWFBJUkVEKhRQUkVQQVJBVElPTl9SRVRSWUlORyoSQURESVRJT05BTF9ERVBPU0lUKhNDQU5DRUxMRURfQllfQlJPS0VSKg5SRVRVUk5fQkxPQ0tFRCoOQUZURVJfREVMRVRJT04qTwoOV2l0aGRyYXdhbFJvbGUSFAoQUk9MRV9VTlNQRUNJRklFRBAAEg8KC0RFU1RJTkFUSU9OEAESCgoGUkVGVU5EEAISCgoGUkVUVVJOEAMqcQoPV2l0aGRyYXdhbFN0YXRlEhoKFldJVEhEUkFXQUxfVU5TUEVDSUZJRUQQABIKCgZRVUVVRUQQARINCglTVUJNSVRURUQQAhINCglGSU5BTElaRUQQAxIKCgZGQUlMRUQQBBIMCghOT1RfU0VOVBAFKr8CCg9RdWlja1N3YXBTdGF0dXMSFgoSU1RBVFVTX1VOU1BFQ0lGSUVEEAASDgoKQUxMT0NBVElORxACEhQKEEFXQUlUSU5HX0RFUE9TSVQQAxIYChRXQUlUSU5HX0ZPUl9DQVBBQ0lUWRAEEhUKEVBSRVBBUklOR19ERVBPU0lUEAUSDgoKQ09ORklSTUlORxAGEgwKCENSRURJVEVEEAcSDQoJRVhFQ1VUSU5HEAgSDgoKUEFZSU5HX09VVBAJEg0KCVJFRlVORElORxAKEg0KCVJFVFVSTklORxALEggKBEhFTEQQDBINCglDT01QTEVURUQQDRIMCghSRUZVTkRFRBAOEgwKCFJFVFVSTkVEEA8SCwoHRVhQSVJFRBAQIgQIARABIgQIERARKglTQ1JFRU5JTkcqCUNBTkNFTExFRCriAwoJRXJyb3JDb2RlEhUKEUVSUk9SX1VOU1BFQ0lGSUVEEAASFQoRUk9VVEVfVU5TVVBQT1JURUQQARIXChNBTU9VTlRfT1VUX09GX1JBTkdFEAISFQoRREVDSU1BTFNfTUlTTUFUQ0gQAxIfChtERVNUSU5BVElPTl9BRERSRVNTX0lOVkFMSUQQBBIaChZSRVRVUk5fQUREUkVTU19JTlZBTElEEAUSGwoXUkVGVU5EX0FERFJFU1NfUkVRVUlSRUQQBhIaChZSRUZVTkRfQUREUkVTU19JTlZBTElEEAcSGQoVU09VUkNFX1dBTExFVF9JTlZBTElEEAgSFQoRUVVPVEVfVU5BVkFJTEFCTEUQCxIbChdQUk9URUNUSU9OX1VOQUNISUVWQUJMRRAMEhcKE0FERFJFU1NfVU5BVkFJTEFCTEUQDRIYChRJREVNUE9URU5DWV9DT05GTElDVBAOEhIKDlNXQVBfTk9UX0ZPVU5EEA8SFgoSQUZGSUxJQVRFU19JTlZBTElEEBEiBAgJEAkiBAgKEAoiBAgQEBAqGVNPVVJDRV9TQ1JFRU5JTkdfUkVKRUNURUQqFVNDUkVFTklOR19VTkFWQUlMQUJMRSoPTk9UX0NBTkNFTExBQkxFMsoCChBRdWlja1N3YXBTZXJ2aWNlEmcKDlF1b3RlUXVpY2tTd2FwEiguc3dhcC5xdWlja3N3YXAudjEuUXVvdGVRdWlja1N3YXBSZXF1ZXN0Gikuc3dhcC5xdWlja3N3YXAudjEuUXVvdGVRdWlja1N3YXBSZXNwb25zZSIAEmoKD0NyZWF0ZVF1aWNrU3dhcBIpLnN3YXAucXVpY2tzd2FwLnYxLkNyZWF0ZVF1aWNrU3dhcFJlcXVlc3QaKi5zd2FwLnF1aWNrc3dhcC52MS5DcmVhdGVRdWlja1N3YXBSZXNwb25zZSIAEmEKDEdldFF1aWNrU3dhcBImLnN3YXAucXVpY2tzd2FwLnYxLkdldFF1aWNrU3dhcFJlcXVlc3QaJy5zd2FwLnF1aWNrc3dhcC52MS5HZXRRdWlja1N3YXBSZXNwb25zZSIAQktaSWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vc3dhcC9xdWlja3N3YXAvdjE7cXVpY2tzd2FwdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("CiFzd2FwL3F1aWNrc3dhcC92MS9xdWlja3N3YXAucHJvdG8SEXN3YXAucXVpY2tzd2FwLnYxIjcKC1Rva2VuQW1vdW50EhQKCmJhc2VfdW5pdHMYASABKAlCABISCghkZWNpbWFscxgCIAEoDUIAInEKClByb3RlY3Rpb24SHAoQbWF4X3NsaXBwYWdlX2JwcxgBIAEoDUIASAASOgoObWluX2Ftb3VudF9vdXQYAiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudEIASABCCQoFYm91bmQSACIRCg9NYXJrZXRFeGVjdXRpb24iRQoNVHdhcEV4ZWN1dGlvbhIVCgtkdXJhdGlvbl9tcxgBIAEoBEIAEhsKEXNsaWNlX2ludGVydmFsX21zGAIgASgEQgA6ACKBAQoJRXhlY3V0aW9uEjQKBm1hcmtldBgBIAEoCzIiLnN3YXAucXVpY2tzd2FwLnYxLk1hcmtldEV4ZWN1dGlvbkgAEjAKBHR3YXAYAiABKAsyIC5zd2FwLnF1aWNrc3dhcC52MS5Ud2FwRXhlY3V0aW9uSABCDAoIc3RyYXRlZ3kSACKlAgoOUXVpY2tTd2FwVGVybXMSIAoWc291cmNlX3ppcHBlZF9hc3NldF9pZBgBIAEoDUIAEiUKG2Rlc3RpbmF0aW9uX3ppcHBlZF9hc3NldF9pZBgCIAEoDUIAEi4KBWJhc2lzGAMgASgOMh0uc3dhcC5xdWlja3N3YXAudjEuUXVvdGVCYXNpc0IAEjAKBmFtb3VudBgEIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50QgASMwoKcHJvdGVjdGlvbhgFIAEoCzIdLnN3YXAucXVpY2tzd2FwLnYxLlByb3RlY3Rpb25CABIxCglleGVjdXRpb24YBiABKAsyHC5zd2FwLnF1aWNrc3dhcC52MS5FeGVjdXRpb25CADoAIp4BCghRdW90ZUZlZRIoCgRraW5kGAEgASgOMhouc3dhcC5xdWlja3N3YXAudjEuRmVlS2luZBIXCg96aXBwZWRfYXNzZXRfaWQYAiABKA0SLgoGYW1vdW50GAMgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSCwoDYnBzGAQgASgNEhIKCmFjY291bnRfaWQYBSABKAYi8AMKDlF1aWNrU3dhcFF1b3RlEjYKDmRlcG9zaXRfYW1vdW50GAEgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSOwoTZXhwZWN0ZWRfYW1vdW50X291dBgCIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EjYKDm1pbl9hbW91bnRfb3V0GAMgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSEAoIbWluX3JhdGUYBCABKAkSOgoSbWluX2RlcG9zaXRfYW1vdW50GAUgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSOgoSbWF4X2RlcG9zaXRfYW1vdW50GAYgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSHQoVaW50ZXJtZWRpYXRlX2Fzc2V0X2lkGAcgASgNEikKBGZlZXMYCCADKAsyGy5zd2FwLnF1aWNrc3dhcC52MS5RdW90ZUZlZRItCglxdW90ZWRfYXQYCSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmV4cGlyZXNfYXQYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIooBCglTY3JlZW5pbmcSFQoNc291cmNlX3dhbGxldBgCIAEoCUoECAEQAkoECAMQCFIEbW9kZVIMd2FsbGV0X3N0YXRlUg1kZXBvc2l0X3N0YXRlUhlvYnNlcnZlZF9zb3VyY2VfYWRkcmVzc2VzUg9zb3VyY2VfbWlzbWF0Y2hSC3NjcmVlbmVkX2F0IskCChNEZXBvc2l0SW5zdHJ1Y3Rpb25zEg8KB2FkZHJlc3MYASABKAkSDAoEbWVtbxgCIAEoCRIXCg96aXBwZWRfYXNzZXRfaWQYAyABKA0SLQoJaXNzdWVkX2F0GAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2ChJmdW5kaW5nX2V4cGlyZXNfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjYKEmFkZHJlc3NfcmV0aXJlc19hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASPQoNYWRkcmVzc19zdGF0ZRgHIAEoDjImLnN3YXAucXVpY2tzd2FwLnYxLkRlcG9zaXRBZGRyZXNzU3RhdGUSHAoUbWluX25hdGl2ZV9nYXNfbGltaXQYCCABKAQi2AMKB0RlcG9zaXQSDQoFaW5kZXgYASABKA0SDwoHdHhfaGFzaBgCIAEoCRIbChN0eF9vY2N1cnJlbmNlX2luZGV4GAMgASgEEhcKD3ppcHBlZF9hc3NldF9pZBgEIAEoDRIuCgZhbW91bnQYBSABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI6CgtkaXNwb3NpdGlvbhgIIAEoDjIlLnN3YXAucXVpY2tzd2FwLnYxLkRlcG9zaXREaXNwb3NpdGlvbhIyCgZyZWFzb24YCSABKA4yIi5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBSZWFzb24SFQoNY29uZmlybWF0aW9ucxgKIAEoDRIeChZyZXF1aXJlZF9jb25maXJtYXRpb25zGAsgASgNEi8KC2RldGVjdGVkX2F0GAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgtjcmVkaXRlZF9hdBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDwoHZmxvd19pZBgOIAEoCUoECAYQB0oECAcQCFIQc291cmNlX2FkZHJlc3Nlc1IPc2NyZWVuaW5nX3N0YXRlIrcDChFFeGVjdXRpb25Qcm9ncmVzcxI0CgxpbnB1dF9hbW91bnQYASABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI2Cg5leGVjdXRlZF9pbnB1dBgCIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EjUKDW91dHB1dF9hbW91bnQYAyABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI+ChZpbnRlcm1lZGlhdGVfcmVtYWluZGVyGAQgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSGAoQY29tcGxldGVkX3NsaWNlcxgFIAEoDRIUCgx0b3RhbF9zbGljZXMYBiABKA0SLgoKc3RhcnRlZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZGVhZGxpbmUYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi8KC2ZpbmlzaGVkX2F0GAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCLwAwoKV2l0aGRyYXdhbBINCgVpbmRleBgBIAEoDRIvCgRyb2xlGAIgASgOMiEuc3dhcC5xdWlja3N3YXAudjEuV2l0aGRyYXdhbFJvbGUSFQoNZGVwb3NpdF9pbmRleBgDIAEoDRIXCg96aXBwZWRfYXNzZXRfaWQYBCABKA0SDwoHYWRkcmVzcxgFIAEoCRIMCgRtZW1vGAYgASgJEi4KBmFtb3VudBgHIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EjMKC25ldHdvcmtfZmVlGAggASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSMQoFc3RhdGUYCSABKA4yIi5zd2FwLnF1aWNrc3dhcC52MS5XaXRoZHJhd2FsU3RhdGUSDwoHdHhfaGFzaBgKIAEoCRIwCgxzdWJtaXR0ZWRfYXQYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGZpbmFsaXplZF9hdBgMIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDwoHZmxvd19pZBgNIAEoCRI1Cg11bnNlbnRfYW1vdW50GA4gASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQi6wgKCVF1aWNrU3dhcBIPCgdzd2FwX2lkGAEgASgGEhcKD2lkZW1wb3RlbmN5X2tleRgCIAEoCRIyCgZzdGF0dXMYAyABKA4yIi5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBTdGF0dXMSMgoGcmVhc29uGAQgASgOMiIuc3dhcC5xdWlja3N3YXAudjEuUXVpY2tTd2FwUmVhc29uEhMKC2lzX3Rlcm1pbmFsGAUgASgIEjAKBXRlcm1zGAYgASgLMiEuc3dhcC5xdWlja3N3YXAudjEuUXVpY2tTd2FwVGVybXMSGwoTZGVzdGluYXRpb25fYWRkcmVzcxgHIAEoCRIYChBkZXN0aW5hdGlvbl9tZW1vGAggASgJEhYKDnJldHVybl9hZGRyZXNzGAkgASgJEhMKC3JldHVybl9tZW1vGAogASgJEh4KFnJlZnVuZF96aXBwZWRfYXNzZXRfaWQYCyABKA0SFgoOcmVmdW5kX2FkZHJlc3MYDCABKAkSEwoLcmVmdW5kX21lbW8YDSABKAkSMAoFcXVvdGUYDiABKAsyIS5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBRdW90ZRJEChRkZXBvc2l0X2luc3RydWN0aW9ucxgPIAEoCzImLnN3YXAucXVpY2tzd2FwLnYxLkRlcG9zaXRJbnN0cnVjdGlvbnMSLwoJc2NyZWVuaW5nGBAgASgLMhwuc3dhcC5xdWlja3N3YXAudjEuU2NyZWVuaW5nEiwKCGRlcG9zaXRzGBEgAygLMhouc3dhcC5xdWlja3N3YXAudjEuRGVwb3NpdBIaChJkZXBvc2l0c190cnVuY2F0ZWQYEiABKAgSNwoJZXhlY3V0aW9uGBQgASgLMiQuc3dhcC5xdWlja3N3YXAudjEuRXhlY3V0aW9uUHJvZ3Jlc3MSMgoLd2l0aGRyYXdhbHMYFSADKAsyHS5zd2FwLnF1aWNrc3dhcC52MS5XaXRoZHJhd2FsEh0KFXdpdGhkcmF3YWxzX3RydW5jYXRlZBgWIAEoCBIuCgpjcmVhdGVkX2F0GBcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgp1cGRhdGVkX2F0GBggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgt0ZXJtaW5hbF9hdBgZIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDwoHdmVyc2lvbhgaIAEoBBIcChRmZWVfc2NoZWR1bGVfdmVyc2lvbhgcIAEoBBIuCgRmZWVzGB0gASgLMiAuc3dhcC5xdWlja3N3YXAudjEuUmVxdWVzdGVkRmVlcxIzCgxjaGFyZ2VkX2ZlZXMYHiADKAsyHS5zd2FwLnF1aWNrc3dhcC52MS5DaGFyZ2VkRmVlSgQIExAUSgQIGxAcUhhjYXBhY2l0eV93YWl0X2V4cGlyZXNfYXRSCmFmZmlsaWF0ZXMiWgoNUmVxdWVzdGVkRmVlcxISCgpicm9rZXJfYnBzGAEgASgNEjUKCmFmZmlsaWF0ZXMYAiADKAsyIS5zd2FwLnF1aWNrc3dhcC52MS5BZmZpbGlhdGVTaGFyZSKMAQoKQ2hhcmdlZEZlZRIoCgRraW5kGAEgASgOMhouc3dhcC5xdWlja3N3YXAudjEuRmVlS2luZBISCgphY2NvdW50X2lkGAIgASgGEhAKCGFzc2V0X2lkGAMgASgNEi4KBmFtb3VudBgEIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50IpYBChVRdW90ZVF1aWNrU3dhcFJlcXVlc3QSMgoFdGVybXMYASABKAsyIS5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBUZXJtc0IAEhIKCmJyb2tlcl9icHMYAiABKA0SNQoKYWZmaWxpYXRlcxgDIAMoCzIhLnN3YXAucXVpY2tzd2FwLnYxLkFmZmlsaWF0ZVNoYXJlIkoKFlF1b3RlUXVpY2tTd2FwUmVzcG9uc2USMAoFcXVvdGUYASABKAsyIS5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBRdW90ZSIxCg5BZmZpbGlhdGVTaGFyZRISCgphY2NvdW50X2lkGAEgASgGEgsKA2JwcxgCIAEoDSKKAwoWQ3JlYXRlUXVpY2tTd2FwUmVxdWVzdBIZCg9pZGVtcG90ZW5jeV9rZXkYASABKAlCABIyCgV0ZXJtcxgCIAEoCzIhLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFRlcm1zQgASHQoTZGVzdGluYXRpb25fYWRkcmVzcxgDIAEoCUIAEhoKEGRlc3RpbmF0aW9uX21lbW8YBCABKAlCABIYCg5yZXR1cm5fYWRkcmVzcxgFIAEoCUIAEhUKC3JldHVybl9tZW1vGAYgASgJQgASHgoWcmVmdW5kX3ppcHBlZF9hc3NldF9pZBgHIAEoDRIYCg5yZWZ1bmRfYWRkcmVzcxgIIAEoCUIAEhUKC3JlZnVuZF9tZW1vGAkgASgJQgASFwoNc291cmNlX3dhbGxldBgKIAEoCUIAEjUKCmFmZmlsaWF0ZXMYCyADKAsyIS5zd2FwLnF1aWNrc3dhcC52MS5BZmZpbGlhdGVTaGFyZRISCgpicm9rZXJfYnBzGAwgASgNOgAiSwoXQ3JlYXRlUXVpY2tTd2FwUmVzcG9uc2USMAoKcXVpY2tfc3dhcBgBIAEoCzIcLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcCJVChNHZXRRdWlja1N3YXBSZXF1ZXN0EhMKB3N3YXBfaWQYASABKAZCAEgAEhsKD2lkZW1wb3RlbmN5X2tleRgCIAEoCUIASABCDAoIc2VsZWN0b3ISACJIChRHZXRRdWlja1N3YXBSZXNwb25zZRIwCgpxdWlja19zd2FwGAEgASgLMhwuc3dhcC5xdWlja3N3YXAudjEuUXVpY2tTd2FwIsIBCgtFcnJvckRldGFpbBIqCgRjb2RlGAEgASgOMhwuc3dhcC5xdWlja3N3YXAudjEuRXJyb3JDb2RlEg8KB3N3YXBfaWQYAiABKAYSOgoSbWluX2RlcG9zaXRfYW1vdW50GAMgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSOgoSbWF4X2RlcG9zaXRfYW1vdW50GAQgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQqTgoKUXVvdGVCYXNpcxIVChFCQVNJU19VTlNQRUNJRklFRBAAEhEKDVNPVVJDRV9BTU9VTlQQARIWChJERVNUSU5BVElPTl9BTU9VTlQQAipzCgdGZWVLaW5kEhMKD0ZFRV9VTlNQRUNJRklFRBAAEgsKB1NFUlZJQ0UQARIKCgZCUk9LRVIQAhINCglBRkZJTElBVEUQAxITCg9ERVBPU0lUX05FVFdPUksQBBIWChJXSVRIRFJBV0FMX05FVFdPUksQBSpYChNEZXBvc2l0QWRkcmVzc1N0YXRlEhcKE0FERFJFU1NfVU5TUEVDSUZJRUQQABIKCgZBQ1RJVkUQARIPCgtSRUZVTkRfTU9ERRACEgsKB1JFVElSRUQQAyqCAQoSRGVwb3NpdERpc3Bvc2l0aW9uEhsKF0RJU1BPU0lUSU9OX1VOU1BFQ0lGSUVEEAASDgoKRVZBTFVBVElORxABEgwKCEVMSUdJQkxFEAISDwoLUkVUVVJOX09OTFkQAxILCgdPTl9IT0xEEAQSEwoPTUFOVUFMX1JFQ09WRVJZEAUqvAQKD1F1aWNrU3dhcFJlYXNvbhIWChJSRUFTT05fVU5TUEVDSUZJRUQQABIbChdTT1VSQ0VfU0NSRUVOSU5HX0ZBSUxFRBABEhgKFENBUEFDSVRZX1VOQVZBSUxBQkxFEAQSFgoSUFJPVEVDVElPTl9OT1RfTUVUEAcSHgoaRVhFQ1VUSU9OX0RFQURMSU5FX1JFQUNIRUQQCBIQCgxMQVRFX0RFUE9TSVQQCRIZChVERVBPU0lUX0JFTE9XX01JTklNVU0QCxIZChVERVBPU0lUX0FCT1ZFX01BWElNVU0QDBIPCgtXUk9OR19BU1NFVBANEhgKFEZVTkRJTkdfV0lORE9XX0VOREVEEA8SFQoRV0lUSERSQVdBTF9GQUlMRUQQEBIXChNPVVRDT01FX1JFQ09OQ0lMSU5HEBESHAoYU09VUkNFX1NDUkVFTklOR19CTE9DS0VEEBQSGAoUUkVGVU5EX0JFTE9XX01JTklNVU0QFSIECAIQAiIECAMQAyIECAUQBSIECAYQBiIECAoQCiIECA4QDiIECBIQEiIECBMQEyoPU09VUkNFX01JU01BVENIKhBTT1VSQ0VfQU1CSUdVT1VTKhVDQVBBQ0lUWV9XQUlUX0VYUElSRUQqFFBSRVBBUkFUSU9OX1JFVFJZSU5HKhJBRERJVElPTkFMX0RFUE9TSVQqE0NBTkNFTExFRF9CWV9CUk9LRVIqDlJFVFVSTl9CTE9DS0VEKg5BRlRFUl9ERUxFVElPTipPCg5XaXRoZHJhd2FsUm9sZRIUChBST0xFX1VOU1BFQ0lGSUVEEAASDwoLREVTVElOQVRJT04QARIKCgZSRUZVTkQQAhIKCgZSRVRVUk4QAypxCg9XaXRoZHJhd2FsU3RhdGUSGgoWV0lUSERSQVdBTF9VTlNQRUNJRklFRBAAEgoKBlFVRVVFRBABEg0KCVNVQk1JVFRFRBACEg0KCUZJTkFMSVpFRBADEgoKBkZBSUxFRBAEEgwKCE5PVF9TRU5UEAUqvwIKD1F1aWNrU3dhcFN0YXR1cxIWChJTVEFUVVNfVU5TUEVDSUZJRUQQABIOCgpBTExPQ0FUSU5HEAISFAoQQVdBSVRJTkdfREVQT1NJVBADEhgKFFdBSVRJTkdfRk9SX0NBUEFDSVRZEAQSFQoRUFJFUEFSSU5HX0RFUE9TSVQQBRIOCgpDT05GSVJNSU5HEAYSDAoIQ1JFRElURUQQBxINCglFWEVDVVRJTkcQCBIOCgpQQVlJTkdfT1VUEAkSDQoJUkVGVU5ESU5HEAoSDQoJUkVUVVJOSU5HEAsSCAoESEVMRBAMEg0KCUNPTVBMRVRFRBANEgwKCFJFRlVOREVEEA4SDAoIUkVUVVJORUQQDxILCgdFWFBJUkVEEBAiBAgBEAEiBAgREBEqCVNDUkVFTklORyoJQ0FOQ0VMTEVEKr8GCglFcnJvckNvZGUSFQoRRVJST1JfVU5TUEVDSUZJRUQQABIVChFST1VURV9VTlNVUFBPUlRFRBABEhcKE0FNT1VOVF9PVVRfT0ZfUkFOR0UQAhIVChFERUNJTUFMU19NSVNNQVRDSBADEh8KG0RFU1RJTkFUSU9OX0FERFJFU1NfSU5WQUxJRBAEEhoKFlJFVFVSTl9BRERSRVNTX0lOVkFMSUQQBRIbChdSRUZVTkRfQUREUkVTU19SRVFVSVJFRBAGEhoKFlJFRlVORF9BRERSRVNTX0lOVkFMSUQQBxIZChVTT1VSQ0VfV0FMTEVUX0lOVkFMSUQQCBIVChFRVU9URV9VTkFWQUlMQUJMRRALEhsKF1BST1RFQ1RJT05fVU5BQ0hJRVZBQkxFEAwSFwoTQUREUkVTU19VTkFWQUlMQUJMRRANEhgKFElERU1QT1RFTkNZX0NPTkZMSUNUEA4SEgoOU1dBUF9OT1RfRk9VTkQQDxITCg9CUk9LRVJfRElTQUJMRUQQEhIQCgxCUk9LRVJfTElNSVQQExIbChdBRkZJTElBVEVfVkFVTFRfVU5LTk9XThAUEhQKEEJST0tFUl9OT1RfRk9VTkQQFRIRCg1BQ1RJT05fREVOSUVEEBYSFAoQU1RFUF9VUF9SRVFVSVJFRBAXEhMKD1ZBVUxUX05PVF9GT1VORBAYEhEKDUtFWV9OT1RfRk9VTkQQGRINCglLRVlfTElNSVQQGhIMCghMQVNUX0tFWRAbEhQKEE1FTUJFUl9OT1RfRk9VTkQQHBISCg5BTFJFQURZX01FTUJFUhAdEhMKD09XTkVSX0lNTVVUQUJMRRAeEhQKEElOVklURV9OT1RfRk9VTkQQHxIQCgxGRUVTX0lOVkFMSUQQIBIUChBTVEFUU19JTkNPTVBMRVRFECESFAoQQUREUkVTU19DT05GTElDVBAiIgQICRAJIgQIChAKIgQIEBAQIgQIERARKhlTT1VSQ0VfU0NSRUVOSU5HX1JFSkVDVEVEKhVTQ1JFRU5JTkdfVU5BVkFJTEFCTEUqD05PVF9DQU5DRUxMQUJMRSoSQUZGSUxJQVRFU19JTlZBTElEMsoCChBRdWlja1N3YXBTZXJ2aWNlEmcKDlF1b3RlUXVpY2tTd2FwEiguc3dhcC5xdWlja3N3YXAudjEuUXVvdGVRdWlja1N3YXBSZXF1ZXN0Gikuc3dhcC5xdWlja3N3YXAudjEuUXVvdGVRdWlja1N3YXBSZXNwb25zZSIAEmoKD0NyZWF0ZVF1aWNrU3dhcBIpLnN3YXAucXVpY2tzd2FwLnYxLkNyZWF0ZVF1aWNrU3dhcFJlcXVlc3QaKi5zd2FwLnF1aWNrc3dhcC52MS5DcmVhdGVRdWlja1N3YXBSZXNwb25zZSIAEmEKDEdldFF1aWNrU3dhcBImLnN3YXAucXVpY2tzd2FwLnYxLkdldFF1aWNrU3dhcFJlcXVlc3QaJy5zd2FwLnF1aWNrc3dhcC52MS5HZXRRdWlja1N3YXBSZXNwb25zZSIAQktaSWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vc3dhcC9xdWlja3N3YXAvdjE7cXVpY2tzd2FwdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * TokenAmount is an exact token amount in the token's smallest unit.
@@ -247,10 +247,12 @@ export const QuickSwapTermsSchema: GenMessage<QuickSwapTerms> = /*@__PURE__*/
   messageDesc(file_swap_quickswap_v1_quickswap, 5);
 
 /**
- * QuoteFee is one fee component of a quote. Trading fees (SERVICE and
- * INTEGRATOR) are charged when each leg settles, in the asset that leg
- * receives: the base asset on a buy, the quote asset on a sell. A bridge has
- * no settlement; its fees are charged at payout, in the destination asset.
+ * QuoteFee is one fee component of a quote. Trading fees (SERVICE, BROKER
+ * and AFFILIATE) are charged when each leg settles, in the asset that leg
+ * receives: the base asset on a buy, the quote asset on a sell. Each is
+ * computed on its own from what the leg receives and rounded down when
+ * charged. A bridge has no settlement; its fees are charged at payout, in
+ * the destination asset.
  *
  * @generated from message swap.quickswap.v1.QuoteFee
  */
@@ -280,6 +282,22 @@ export type QuoteFee = Message<"swap.quickswap.v1.QuoteFee"> & {
    * @generated from field: swap.quickswap.v1.TokenAmount amount = 3;
    */
   amount?: TokenAmount | undefined;
+
+  /**
+   * Rate of a trading fee in basis points of what the leg receives; zero for
+   * a network fee.
+   *
+   * @generated from field: uint32 bps = 4;
+   */
+  bps: number;
+
+  /**
+   * AFFILIATE only: public sub-account ID of the affiliate vault credited
+   * with the fee; zero for every other kind.
+   *
+   * @generated from field: fixed64 account_id = 5;
+   */
+  accountId: bigint;
 };
 
 /**
@@ -353,8 +371,9 @@ export type QuickSwapQuote = Message<"swap.quickswap.v1.QuickSwapQuote"> & {
 
   /**
    * Published minimum deposit, in source token units, compared with the
-   * deposit before its network fee. A smaller deposit is held
-   * (DEPOSIT_BELOW_MINIMUM). It is never below the source network's minimum
+   * deposit before its network fee. A smaller deposit is returned to
+   * return_address (DEPOSIT_BELOW_MINIMUM). It is never below the source
+   * network's minimum
    * (AssetChainVariant.deposit_min_amount in the config), and differs from
    * ErrorDetail.min_deposit_amount, the smallest deposit that currently
    * quotes.
@@ -386,9 +405,10 @@ export type QuickSwapQuote = Message<"swap.quickswap.v1.QuickSwapQuote"> & {
   intermediateAssetId: number;
 
   /**
-   * Quoted fee components for deposit_amount: service and integrator fees in
-   * route order (a bridge has one pair, charged at payout), then network fees.
-   * Zero fees are omitted.
+   * Quoted fee components for deposit_amount: each leg's service, broker and
+   * affiliate fees, in that order, legs in route order (a bridge has one set,
+   * charged at payout), then network fees. Affiliates are in ascending
+   * account_id order. Zero fees are omitted.
    *
    * @generated from field: repeated swap.quickswap.v1.QuoteFee fees = 8;
    */
@@ -662,8 +682,8 @@ export type ExecutionProgress = Message<"swap.quickswap.v1.ExecutionProgress"> &
   executedInput?: TokenAmount | undefined;
 
   /**
-   * Destination amount acquired so far after service and integrator fees and
-   * before withdrawal network fees, in destination token units. Zero for a
+   * Destination amount acquired so far after service, broker and affiliate
+   * fees and before withdrawal network fees, in destination token units. Zero for a
    * bridge: its destination withdrawal pays the credit less its fees.
    *
    * @generated from field: swap.quickswap.v1.TokenAmount output_amount = 3;
@@ -1058,20 +1078,29 @@ export type QuickSwap = Message<"swap.quickswap.v1.QuickSwap"> & {
   version: bigint;
 
   /**
-   * Affiliate shares of the broker fee, as requested.
-   *
-   * @generated from field: repeated swap.quickswap.v1.AffiliateShare affiliates = 27;
-   */
-  affiliates: AffiliateShare[];
-
-  /**
    * Fee schedule version fixed at creation. Every execution or bridge payout
-   * of this QuickSwap is charged that version's service and integrator fees,
-   * whatever later versions change.
+   * of this QuickSwap is charged that version's service fees, whatever later
+   * versions change.
    *
    * @generated from field: uint64 fee_schedule_version = 28;
    */
   feeScheduleVersion: bigint;
+
+  /**
+   * Broker and affiliate fees as requested, fixed at creation.
+   *
+   * @generated from field: swap.quickswap.v1.RequestedFees fees = 29;
+   */
+  fees?: RequestedFees | undefined;
+
+  /**
+   * Broker and affiliate fees charged so far, as settled: one entry per fee
+   * kind, credited vault and asset, in kind, then account_id, then asset_id
+   * order. Grows while the QuickSwap executes or pays out a bridge.
+   *
+   * @generated from field: repeated swap.quickswap.v1.ChargedFee charged_fees = 30;
+   */
+  chargedFees: ChargedFee[];
 };
 
 /**
@@ -1082,7 +1111,83 @@ export const QuickSwapSchema: GenMessage<QuickSwap> = /*@__PURE__*/
   messageDesc(file_swap_quickswap_v1_quickswap, 13);
 
 /**
- * QuoteQuickSwapRequest prices terms without reserving anything.
+ * RequestedFees are the broker and affiliate fees a QuickSwap request set,
+ * charged on top of the service fee.
+ *
+ * @generated from message swap.quickswap.v1.RequestedFees
+ */
+export type RequestedFees = Message<"swap.quickswap.v1.RequestedFees"> & {
+  /**
+   * Broker fee in basis points of what each leg receives, credited to the
+   * broker's default vault.
+   *
+   * @generated from field: uint32 broker_bps = 1;
+   */
+  brokerBps: number;
+
+  /**
+   * Affiliate fees, in ascending account_id order.
+   *
+   * @generated from field: repeated swap.quickswap.v1.AffiliateShare affiliates = 2;
+   */
+  affiliates: AffiliateShare[];
+};
+
+/**
+ * Describes the message swap.quickswap.v1.RequestedFees.
+ * Use `create(RequestedFeesSchema)` to create a new message.
+ */
+export const RequestedFeesSchema: GenMessage<RequestedFees> = /*@__PURE__*/
+  messageDesc(file_swap_quickswap_v1_quickswap, 14);
+
+/**
+ * ChargedFee is what one vault has been credited with for a QuickSwap in
+ * one asset, from settled fills and bridge payouts.
+ *
+ * @generated from message swap.quickswap.v1.ChargedFee
+ */
+export type ChargedFee = Message<"swap.quickswap.v1.ChargedFee"> & {
+  /**
+   * BROKER or AFFILIATE.
+   *
+   * @generated from field: swap.quickswap.v1.FeeKind kind = 1;
+   */
+  kind: FeeKind;
+
+  /**
+   * Public sub-account ID of the credited vault: the default vault for
+   * BROKER, the affiliate vault for AFFILIATE.
+   *
+   * @generated from field: fixed64 account_id = 2;
+   */
+  accountId: bigint;
+
+  /**
+   * Asset credited, as an AssetConfig.ledger_id from
+   * GET /v1/chain/deposit-withdraw/config.
+   *
+   * @generated from field: uint32 asset_id = 3;
+   */
+  assetId: number;
+
+  /**
+   * Amount credited, in base units of 18 decimals.
+   *
+   * @generated from field: swap.quickswap.v1.TokenAmount amount = 4;
+   */
+  amount?: TokenAmount | undefined;
+};
+
+/**
+ * Describes the message swap.quickswap.v1.ChargedFee.
+ * Use `create(ChargedFeeSchema)` to create a new message.
+ */
+export const ChargedFeeSchema: GenMessage<ChargedFee> = /*@__PURE__*/
+  messageDesc(file_swap_quickswap_v1_quickswap, 15);
+
+/**
+ * QuoteQuickSwapRequest prices terms, with the broker and affiliate fees,
+ * without reserving anything.
  *
  * @generated from message swap.quickswap.v1.QuoteQuickSwapRequest
  */
@@ -1093,6 +1198,24 @@ export type QuoteQuickSwapRequest = Message<"swap.quickswap.v1.QuoteQuickSwapReq
    * @generated from field: swap.quickswap.v1.QuickSwapTerms terms = 1;
    */
   terms?: QuickSwapTerms | undefined;
+
+  /**
+   * Broker fee in basis points of what each leg receives, charged on top of
+   * the service fee and credited to the broker's default vault; 0 for none.
+   * broker_bps and the affiliates' bps total at most 300. Fees outside these
+   * rules fail with FEES_INVALID.
+   *
+   * @generated from field: uint32 broker_bps = 2;
+   */
+  brokerBps: number;
+
+  /**
+   * Affiliate fees, each charged on top and credited to its affiliate vault:
+   * at most three distinct vaults.
+   *
+   * @generated from field: repeated swap.quickswap.v1.AffiliateShare affiliates = 3;
+   */
+  affiliates: AffiliateShare[];
 };
 
 /**
@@ -1100,7 +1223,7 @@ export type QuoteQuickSwapRequest = Message<"swap.quickswap.v1.QuoteQuickSwapReq
  * Use `create(QuoteQuickSwapRequestSchema)` to create a new message.
  */
 export const QuoteQuickSwapRequestSchema: GenMessage<QuoteQuickSwapRequest> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 14);
+  messageDesc(file_swap_quickswap_v1_quickswap, 16);
 
 /**
  * QuoteQuickSwapResponse is an indicative quote.
@@ -1122,29 +1245,31 @@ export type QuoteQuickSwapResponse = Message<"swap.quickswap.v1.QuoteQuickSwapRe
  * Use `create(QuoteQuickSwapResponseSchema)` to create a new message.
  */
 export const QuoteQuickSwapResponseSchema: GenMessage<QuoteQuickSwapResponse> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 15);
+  messageDesc(file_swap_quickswap_v1_quickswap, 17);
 
 /**
- * AffiliateShare pays one affiliate a fraction of the broker's integrator fee.
- * The broker keeps whatever the shares leave.
+ * AffiliateShare credits one affiliate vault, a sub-account the broker owns,
+ * with a fee charged on top of the service and broker fees.
  *
  * @generated from message swap.quickswap.v1.AffiliateShare
  */
 export type AffiliateShare = Message<"swap.quickswap.v1.AffiliateShare"> & {
   /**
-   * Public account ID of the affiliate's account, credited with the share. It
-   * must not be the broker's own payout account.
+   * Public sub-account ID of an active affiliate vault of the broker
+   * (QuickSwapBrokerService.CreateAffiliateVault). Create the vault first: an
+   * unknown, disabled or other broker's vault, or the default vault, fails
+   * with AFFILIATE_VAULT_UNKNOWN.
    *
    * @generated from field: fixed64 account_id = 1;
    */
   accountId: bigint;
 
   /**
-   * Share of the integrator fee in parts per million, from 1 to 1000000.
+   * Fee in basis points of what each leg receives, from 1 to 300.
    *
-   * @generated from field: uint32 share_ppm = 2;
+   * @generated from field: uint32 bps = 2;
    */
-  sharePpm: number;
+  bps: number;
 };
 
 /**
@@ -1152,7 +1277,7 @@ export type AffiliateShare = Message<"swap.quickswap.v1.AffiliateShare"> & {
  * Use `create(AffiliateShareSchema)` to create a new message.
  */
 export const AffiliateShareSchema: GenMessage<AffiliateShare> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 16);
+  messageDesc(file_swap_quickswap_v1_quickswap, 18);
 
 /**
  * CreateQuickSwapRequest creates, or returns, the QuickSwap for one
@@ -1169,7 +1294,7 @@ export type CreateQuickSwapRequest = Message<"swap.quickswap.v1.CreateQuickSwapR
    * IDEMPOTENCY_CONFLICT. Requests are compared after every valid address and
    * memo is put in its network's canonical form, so the same address in
    * another case or encoding is the same request; affiliate order is
-   * ignored; every other field must be equal.
+   * ignored; every other field, the fees included, must be equal.
    *
    * @generated from field: string idempotency_key = 1;
    */
@@ -1253,13 +1378,22 @@ export type CreateQuickSwapRequest = Message<"swap.quickswap.v1.CreateQuickSwapR
   sourceWallet: string;
 
   /**
-   * Optional affiliates paid from the broker's integrator fee: at most four
-   * distinct accounts whose shares total at most 1000000 ppm. Empty means the
-   * broker keeps the whole integrator fee. The quote shows the total fee only.
+   * Affiliate fees, each charged on top and credited to its affiliate vault:
+   * at most three distinct vaults. Fixed at creation with broker_bps.
    *
    * @generated from field: repeated swap.quickswap.v1.AffiliateShare affiliates = 11;
    */
   affiliates: AffiliateShare[];
+
+  /**
+   * Broker fee in basis points of what each leg receives, charged on top of
+   * the service fee and credited to the broker's default vault; 0 for none.
+   * broker_bps and the affiliates' bps total at most 300. Fees outside these
+   * rules fail with FEES_INVALID.
+   *
+   * @generated from field: uint32 broker_bps = 12;
+   */
+  brokerBps: number;
 };
 
 /**
@@ -1267,7 +1401,7 @@ export type CreateQuickSwapRequest = Message<"swap.quickswap.v1.CreateQuickSwapR
  * Use `create(CreateQuickSwapRequestSchema)` to create a new message.
  */
 export const CreateQuickSwapRequestSchema: GenMessage<CreateQuickSwapRequest> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 17);
+  messageDesc(file_swap_quickswap_v1_quickswap, 19);
 
 /**
  * CreateQuickSwapResponse returns the QuickSwap bound to the idempotency key.
@@ -1289,7 +1423,7 @@ export type CreateQuickSwapResponse = Message<"swap.quickswap.v1.CreateQuickSwap
  * Use `create(CreateQuickSwapResponseSchema)` to create a new message.
  */
 export const CreateQuickSwapResponseSchema: GenMessage<CreateQuickSwapResponse> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 18);
+  messageDesc(file_swap_quickswap_v1_quickswap, 20);
 
 /**
  * GetQuickSwapRequest selects one of the broker's QuickSwaps.
@@ -1327,7 +1461,7 @@ export type GetQuickSwapRequest = Message<"swap.quickswap.v1.GetQuickSwapRequest
  * Use `create(GetQuickSwapRequestSchema)` to create a new message.
  */
 export const GetQuickSwapRequestSchema: GenMessage<GetQuickSwapRequest> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 19);
+  messageDesc(file_swap_quickswap_v1_quickswap, 21);
 
 /**
  * GetQuickSwapResponse returns one QuickSwap.
@@ -1348,7 +1482,7 @@ export type GetQuickSwapResponse = Message<"swap.quickswap.v1.GetQuickSwapRespon
  * Use `create(GetQuickSwapResponseSchema)` to create a new message.
  */
 export const GetQuickSwapResponseSchema: GenMessage<GetQuickSwapResponse> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 20);
+  messageDesc(file_swap_quickswap_v1_quickswap, 22);
 
 /**
  * ErrorDetail is attached to QuickSwap errors. ConnectRPC clients receive it
@@ -1382,7 +1516,8 @@ export type ErrorDetail = Message<"swap.quickswap.v1.ErrorDetail"> & {
    * the route with the requested protection, in source token units, whatever
    * the request's basis. It moves with prices and network fees; show it as
    * guidance, not a guarantee. A deposit below QuickSwapQuote.min_deposit_amount
-   * is held. Unset for other codes and when no deposit currently quotes.
+   * is returned to return_address (DEPOSIT_BELOW_MINIMUM). Unset for other
+   * codes and when no deposit currently quotes.
    *
    * @generated from field: swap.quickswap.v1.TokenAmount min_deposit_amount = 3;
    */
@@ -1403,7 +1538,7 @@ export type ErrorDetail = Message<"swap.quickswap.v1.ErrorDetail"> & {
  * Use `create(ErrorDetailSchema)` to create a new message.
  */
 export const ErrorDetailSchema: GenMessage<ErrorDetail> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 21);
+  messageDesc(file_swap_quickswap_v1_quickswap, 23);
 
 /**
  * QuoteBasis states which side of the swap the request amount denominates.
@@ -1444,7 +1579,7 @@ export const QuoteBasisSchema: GenEnum<QuoteBasis> = /*@__PURE__*/
   enumDesc(file_swap_quickswap_v1_quickswap, 0);
 
 /**
- * FeeKind identifies one component of the quoted fees.
+ * FeeKind identifies one component of a QuickSwap's fees.
  *
  * @generated from enum swap.quickswap.v1.FeeKind
  */
@@ -1457,7 +1592,7 @@ export enum FeeKind {
   FEE_UNSPECIFIED = 0,
 
   /**
-   * Polyester fee of one trading leg: the leg's pair fee in basis points of
+   * Service fee of one trading leg: the leg's pair fee in basis points of
    * what the leg receives. A two-leg route has one per leg. On a bridge, the
    * one bridge fee in basis points of the credited amount, charged at payout.
    *
@@ -1466,29 +1601,37 @@ export enum FeeKind {
   SERVICE = 1,
 
   /**
-   * Broker fee of one trading leg: the broker's fee on the leg's pair in basis
-   * points of what the leg receives, including any affiliate shares paid from
-   * it. A two-leg route has one per leg. On a bridge, the broker's one bridge
-   * fee in basis points of the credited amount, charged at payout.
+   * Broker fee of one trading leg, the request's broker_bps of what the leg
+   * receives, credited to the broker's default vault. A two-leg route has one
+   * per leg; a bridge has one, on the credited amount, charged at payout.
    *
-   * @generated from enum value: INTEGRATOR = 2;
+   * @generated from enum value: BROKER = 2;
    */
-  INTEGRATOR = 2,
+  BROKER = 2,
+
+  /**
+   * Affiliate fee of one trading leg, one affiliate's bps of what the leg
+   * receives, credited to that affiliate vault. Each affiliate has one per
+   * leg; on a bridge one, on the credited amount, charged at payout.
+   *
+   * @generated from enum value: AFFILIATE = 3;
+   */
+  AFFILIATE = 3,
 
   /**
    * Network fee withheld from the deposit before it is credited.
    *
-   * @generated from enum value: DEPOSIT_NETWORK = 3;
+   * @generated from enum value: DEPOSIT_NETWORK = 4;
    */
-  DEPOSIT_NETWORK = 3,
+  DEPOSIT_NETWORK = 4,
 
   /**
    * Estimated network fee for a withdrawal. The actual fee is charged at
    * withdrawal time and reported on the withdrawal.
    *
-   * @generated from enum value: WITHDRAWAL_NETWORK = 4;
+   * @generated from enum value: WITHDRAWAL_NETWORK = 5;
    */
-  WITHDRAWAL_NETWORK = 4,
+  WITHDRAWAL_NETWORK = 5,
 }
 
 /**
@@ -1574,8 +1717,10 @@ export enum DepositDisposition {
   /**
    * Not accepted: it is returned to return_address and never executes. A
    * deposit found ineligible after it was credited, such as a late deposit
-   * (LATE_DEPOSIT) or one above max_deposit_amount (DEPOSIT_ABOVE_MAXIMUM),
-   * keeps credited_at and is returned from its credit.
+   * (LATE_DEPOSIT), one below min_deposit_amount (DEPOSIT_BELOW_MINIMUM) or
+   * above max_deposit_amount (DEPOSIT_ABOVE_MAXIMUM), or one of the wrong
+   * asset or network (WRONG_ASSET), keeps credited_at and is returned from its
+   * credit.
    *
    * @generated from enum value: RETURN_ONLY = 3;
    */
@@ -1662,9 +1807,11 @@ export enum QuickSwapReason {
   LATE_DEPOSIT = 9,
 
   /**
-   * The deposit is below the published min_deposit_amount. It is held, not
-   * executed or returned automatically. The broker contacts Polyester broker
-   * support with the swap_id.
+   * The deposit is below the published min_deposit_amount. It is not
+   * executed: it is returned to return_address, and the QuickSwap shows
+   * RETURNING and RETURNED with this reason. A deposit that cannot be returned
+   * on the network it was received on is held (HELD with this reason); the
+   * broker contacts Polyester broker support with the swap_id.
    *
    * @generated from enum value: DEPOSIT_BELOW_MINIMUM = 11;
    */
@@ -1679,9 +1826,13 @@ export enum QuickSwapReason {
   DEPOSIT_ABOVE_MAXIMUM = 12,
 
   /**
-   * The deposit is not the quoted source asset. It is held, not executed or
-   * returned automatically. The broker contacts Polyester broker support
-   * with the swap_id.
+   * The deposit is not the quoted source asset or network. It is not
+   * executed: it is returned to return_address on the network and in the
+   * asset it was received in, and the QuickSwap shows RETURNING and RETURNED
+   * with this reason. A deposit that cannot be returned there, such as one
+   * received on a network where return_address is not valid, is held (HELD
+   * with this reason); the broker contacts Polyester broker support with the
+   * swap_id.
    *
    * @generated from enum value: WRONG_ASSET = 13;
    */
@@ -1766,7 +1917,8 @@ export enum WithdrawalRole {
 
   /**
    * Source funds that were not accepted or not traded, to return_address on
-   * the source network.
+   * the network and in the asset they were received in: the source network,
+   * or for a wrong asset the network it was sent on.
    *
    * @generated from enum value: RETURN = 3;
    */
@@ -2106,13 +2258,144 @@ export enum ErrorCode {
   SWAP_NOT_FOUND = 15,
 
   /**
-   * affiliates are not valid: an account named twice, shares totalling more
-   * than 1000000 ppm, an unknown account or the broker's own payout account;
-   * or affiliates are not enabled for the broker.
+   * The broker is disabled: quotes and creates are refused. Reads and
+   * QuickSwaps already created continue.
    *
-   * @generated from enum value: AFFILIATES_INVALID = 17;
+   * @generated from enum value: BROKER_DISABLED = 18;
    */
-  AFFILIATES_INVALID = 17,
+  BROKER_DISABLED = 18,
+
+  /**
+   * A broker limit was reached: the unfunded QuickSwaps held at once, the
+   * QuickSwaps created per hour, the request rate of the API key, or the
+   * affiliate vaults the broker may create. Nothing is bound to the key. A
+   * funded or expired QuickSwap frees an unfunded slot; when the response
+   * carries a Retry-After header, retry after that many seconds.
+   *
+   * @generated from enum value: BROKER_LIMIT = 19;
+   */
+  BROKER_LIMIT = 19,
+
+  /**
+   * An affiliate names a vault that is not an active affiliate vault of the
+   * broker: unknown, not yet created, disabled, another broker's, or the
+   * default vault. Nothing is bound to the key; create or enable the vault
+   * and repeat the request.
+   *
+   * @generated from enum value: AFFILIATE_VAULT_UNKNOWN = 20;
+   */
+  AFFILIATE_VAULT_UNKNOWN = 20,
+
+  /**
+   * No broker with this name has the caller as its key or member.
+   *
+   * @generated from enum value: BROKER_NOT_FOUND = 21;
+   */
+  BROKER_NOT_FOUND = 21,
+
+  /**
+   * The caller's role, or a broker API key, may not perform the action.
+   *
+   * @generated from enum value: ACTION_DENIED = 22;
+   */
+  ACTION_DENIED = 22,
+
+  /**
+   * The action needs a fresh step-up proof of the acting member in the
+   * X-Auth-Step-Up header, and none was sent or it was already used or
+   * expired. Complete an MFA challenge for fresh step-up and repeat the
+   * request with the new proof.
+   *
+   * @generated from enum value: STEP_UP_REQUIRED = 23;
+   */
+  STEP_UP_REQUIRED = 23,
+
+  /**
+   * The broker has no affiliate vault with this ID.
+   *
+   * @generated from enum value: VAULT_NOT_FOUND = 24;
+   */
+  VAULT_NOT_FOUND = 24,
+
+  /**
+   * The broker has no API key with this ID, or it no longer works.
+   *
+   * @generated from enum value: KEY_NOT_FOUND = 25;
+   */
+  KEY_NOT_FOUND = 25,
+
+  /**
+   * The broker would have more than two working API keys. Revoke one first.
+   *
+   * @generated from enum value: KEY_LIMIT = 26;
+   */
+  KEY_LIMIT = 26,
+
+  /**
+   * The key is the broker's last key that works without an expiry; create
+   * another key first.
+   *
+   * @generated from enum value: LAST_KEY = 27;
+   */
+  LAST_KEY = 27,
+
+  /**
+   * The person is not a member of the broker and has no pending invite, or
+   * the account does not exist.
+   *
+   * @generated from enum value: MEMBER_NOT_FOUND = 28;
+   */
+  MEMBER_NOT_FOUND = 28,
+
+  /**
+   * The person is already a member of the broker.
+   *
+   * @generated from enum value: ALREADY_MEMBER = 29;
+   */
+  ALREADY_MEMBER = 29,
+
+  /**
+   * The Owner cannot be removed or given another role; transfer ownership
+   * instead.
+   *
+   * @generated from enum value: OWNER_IMMUTABLE = 30;
+   */
+  OWNER_IMMUTABLE = 30,
+
+  /**
+   * No pending invite with this ID is addressed to the caller.
+   *
+   * @generated from enum value: INVITE_NOT_FOUND = 31;
+   */
+  INVITE_NOT_FOUND = 31,
+
+  /**
+   * The fees are not valid: more than three affiliates, an affiliate without
+   * a valid account_id or with bps outside 1 to 300, a vault named twice, or
+   * broker_bps and the affiliates' bps totalling more than 300.
+   *
+   * @generated from enum value: FEES_INVALID = 32;
+   */
+  FEES_INVALID = 32,
+
+  /**
+   * The broker stats cannot be read: a QuickSwap in the window, named by
+   * ErrorDetail.swap_id, is missing a record they need. Contact Polyester
+   * broker support with the swap_id.
+   *
+   * @generated from enum value: STATS_INCOMPLETE = 33;
+   */
+  STATS_INCOMPLETE = 33,
+
+  /**
+   * The QuickSwap (swap_id in the error) cannot be issued a deposit address
+   * and never gets one, so nothing can be deposited to it. Create a new
+   * QuickSwap with a new idempotency key, and report the swap_id to Polyester
+   * broker support.
+   *
+   * @generated from enum value: ADDRESS_CONFLICT = 34;
+   */
+  ADDRESS_CONFLICT = 34,
 }
 
 /**
@@ -2129,8 +2412,9 @@ export const ErrorCodeSchema: GenEnum<ErrorCode> = /*@__PURE__*/
  * own QuickSwaps.
  *
  * The broker API key is a server credential. Call this API from the broker's
- * backend, never from a browser or mobile app. Polyester issues keys at
- * broker onboarding; contact Polyester to obtain or rotate one.
+ * backend, never from a browser or mobile app. The broker's members create,
+ * rotate and revoke keys with QuickSwapBrokerService, and a key may rotate
+ * itself.
  *
  * A QuickSwap's status advances as the deposit and execution progress; poll
  * GetQuickSwap to follow it, at most once every 5 seconds per QuickSwap while
@@ -2138,9 +2422,11 @@ export const ErrorCodeSchema: GenEnum<ErrorCode> = /*@__PURE__*/
  *
  * REST errors are application/problem+json (see ErrorDetail) with these HTTP
  * statuses: 400 for INVALID_ARGUMENT and FAILED_PRECONDITION, 401 for
- * UNAUTHENTICATED, 404 for NOT_FOUND, 409 for IDEMPOTENCY_CONFLICT, 413 when
- * a request body is too large, 429 when the caller is rate limited, 500 for
- * an internal error, 503 for UNAVAILABLE and 504 for DEADLINE_EXCEEDED.
+ * UNAUTHENTICATED, 403 for PERMISSION_DENIED, 404 for NOT_FOUND, 409 for
+ * IDEMPOTENCY_CONFLICT, 413 when a request body is too large, 429 for
+ * RESOURCE_EXHAUSTED (with a Retry-After header when the request rate was
+ * exceeded), 500 for an internal error, 503 for UNAVAILABLE and 504 for
+ * DEADLINE_EXCEEDED.
  *
  * @generated from service swap.quickswap.v1.QuickSwapService
  */
@@ -2151,10 +2437,13 @@ export const QuickSwapService: GenService<{
    * address.
    *
    * Errors:
-   * - INVALID_ARGUMENT: malformed request, AMOUNT_OUT_OF_RANGE or
-   *   DECIMALS_MISMATCH.
-   * - FAILED_PRECONDITION: ROUTE_UNSUPPORTED or PROTECTION_UNACHIEVABLE.
+   * - INVALID_ARGUMENT: malformed request, AMOUNT_OUT_OF_RANGE,
+   *   DECIMALS_MISMATCH or FEES_INVALID.
+   * - FAILED_PRECONDITION: ROUTE_UNSUPPORTED, PROTECTION_UNACHIEVABLE or
+   *   AFFILIATE_VAULT_UNKNOWN.
    * - UNAVAILABLE: QUOTE_UNAVAILABLE; retry later.
+   * - PERMISSION_DENIED: BROKER_DISABLED.
+   * - RESOURCE_EXHAUSTED: BROKER_LIMIT, the quote request rate of the key.
    * - UNAUTHENTICATED: missing or invalid broker API key.
    *
    * @generated from rpc swap.quickswap.v1.QuickSwapService.QuoteQuickSwap
@@ -2174,15 +2463,19 @@ export const QuickSwapService: GenService<{
    * Errors:
    * - INVALID_ARGUMENT: malformed request, AMOUNT_OUT_OF_RANGE,
    *   DECIMALS_MISMATCH, DESTINATION_ADDRESS_INVALID, RETURN_ADDRESS_INVALID,
-   *   REFUND_ADDRESS_INVALID, SOURCE_WALLET_INVALID or AFFILIATES_INVALID.
+   *   REFUND_ADDRESS_INVALID, SOURCE_WALLET_INVALID or FEES_INVALID.
    * - FAILED_PRECONDITION: ROUTE_UNSUPPORTED, PROTECTION_UNACHIEVABLE,
-   *   REFUND_ADDRESS_REQUIRED, or AFFILIATES_INVALID when affiliates are not
-   *   enabled for the broker; nothing is bound to the key.
+   *   REFUND_ADDRESS_REQUIRED or AFFILIATE_VAULT_UNKNOWN; nothing is bound to
+   *   the key.
    * - ALREADY_EXISTS: IDEMPOTENCY_CONFLICT; the original QuickSwap stands.
    * - UNAVAILABLE: ADDRESS_UNAVAILABLE; the QuickSwap is kept and gets its
    *   address automatically; follow it with GetQuickSwap or the same request.
+   * - ABORTED: ADDRESS_CONFLICT; the QuickSwap never gets an address; create
+   *   a new one with a new idempotency key.
    * - UNAVAILABLE, DEADLINE_EXCEEDED: unknown outcome or QUOTE_UNAVAILABLE;
    *   retry the same request.
+   * - PERMISSION_DENIED: BROKER_DISABLED; nothing is bound to the key.
+   * - RESOURCE_EXHAUSTED: BROKER_LIMIT; nothing is bound to the key.
    * - UNAUTHENTICATED: missing or invalid broker API key.
    *
    * @generated from rpc swap.quickswap.v1.QuickSwapService.CreateQuickSwap
@@ -2199,6 +2492,7 @@ export const QuickSwapService: GenService<{
    * Errors:
    * - INVALID_ARGUMENT: malformed selector.
    * - NOT_FOUND: SWAP_NOT_FOUND.
+   * - RESOURCE_EXHAUSTED: BROKER_LIMIT, the read request rate of the key.
    * - UNAUTHENTICATED: missing or invalid broker API key.
    *
    * @generated from rpc swap.quickswap.v1.QuickSwapService.GetQuickSwap

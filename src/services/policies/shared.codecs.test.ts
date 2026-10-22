@@ -24,6 +24,9 @@ const policyActionCases = [
     [Proto.PolicyAction.READ_INTERNAL_TRANSFERS, "read-internal-transfers"],
     [Proto.PolicyAction.READ_ADDRESS_BOOK, "read-address-book"],
     [Proto.PolicyAction.MANAGE_ADDRESS_BOOK, "manage-address-book"],
+    [Proto.PolicyAction.READ_AUTO_WITHDRAW, "read-auto-withdraw"],
+    [Proto.PolicyAction.MANAGE_AUTO_WITHDRAW, "manage-auto-withdraw"],
+    [Proto.PolicyAction.SWAP, "swap"],
 ] as const;
 
 describe("PolicyMarketScopeCodec", () => {

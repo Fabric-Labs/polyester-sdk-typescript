@@ -15,6 +15,9 @@ export const POLICY_ACTIONS = [
     "read-internal-transfers",
     "read-address-book",
     "manage-address-book",
+    "read-auto-withdraw",
+    "manage-auto-withdraw",
+    "swap",
 ] as const;
 
 export const POLICY_MARKET_SCOPES = ["all", "allowlist"] as const;
