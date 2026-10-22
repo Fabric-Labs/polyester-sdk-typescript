@@ -172,10 +172,16 @@ async function verifyServiceInference(): Promise<void> {
     expectType<string | undefined>(dailyClaim.rewards[0]?.amount);
     expectType<number | undefined>(dailyClaim.resetAt);
     expectType<import("@polyester/sdk").ClaimCampaign | undefined>(dailyClaim.campaign);
+    expectType<string | undefined>(dailyClaim.subaccountId);
     const claimed = await client.claims.claimDailyReward();
     expectType<import("@polyester/sdk").ClaimDailyRewardResult>(claimed);
     expectNotAny(claimed, true);
     expectType<string | undefined>(claimed.transfers[0]?.transferId);
+    const claimedToSubaccount = await client.claims.claimDailyReward(
+        { subaccountId: "2" } satisfies import("@polyester/sdk").ClaimDailyRewardInput,
+        { signal: new AbortController().signal },
+    );
+    expectType<string | undefined>(claimedToSubaccount.subaccountId);
     expectNotAny(claimsPb.ClaimsService, true);
     const rewardAwards = await client.rewards.listAwards({ limit: 100, pageToken: "next" });
     expectType<import("@polyester/sdk").ListRewardAwardsResult>(rewardAwards);

@@ -1,7 +1,12 @@
 import * as v from "valibot";
 import { E18_SCALE, scaledToDecimalOutput } from "../../shared/decimal-surface.js";
 import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
-import { OptionalTimestampMsSchema, U128Schema } from "../../shared/schemas.js";
+import {
+    OptionalPublicIdSchema,
+    OptionalTimestampMsSchema,
+    optionalSubaccountIdInputSchema,
+    U128Schema,
+} from "../../shared/schemas.js";
 import { fromU128 } from "../../utils/u128.js";
 import { ClaimPolicyCodec, DailyClaimStateCodec } from "./claims.codecs.js";
 
@@ -45,6 +50,7 @@ export const DailyClaimStatusSchema = v.object({
     rewards: v.optional(v.array(DailyClaimRewardSchema), []),
     claimId: v.string(),
     campaign: v.optional(ClaimCampaignSchema),
+    subaccountId: OptionalPublicIdSchema,
 });
 
 export type DailyClaimStatus = v.InferOutput<typeof DailyClaimStatusSchema>;
@@ -57,6 +63,18 @@ export const ClaimDailyRewardResultSchema = v.object({
     transfers: v.optional(v.array(DailyClaimTransferSchema), []),
     resetAt: OptionalTimestampMsSchema,
     campaign: v.optional(ClaimCampaignSchema),
+    subaccountId: OptionalPublicIdSchema,
 });
 
 export type ClaimDailyRewardResult = v.InferOutput<typeof ClaimDailyRewardResultSchema>;
+
+// The wire treats `0n` as "pay the root account", so an id that decodes to zero
+// must fail here instead of silently redirecting the reward.
+export const ClaimDailyRewardInputSchema = v.strictObject({
+    subaccountId: v.pipe(
+        optionalSubaccountIdInputSchema(),
+        v.check((value) => value !== 0n, "subaccountId: must be greater than zero"),
+    ),
+});
+
+export type ClaimDailyRewardInput = v.InferInput<typeof ClaimDailyRewardInputSchema>;

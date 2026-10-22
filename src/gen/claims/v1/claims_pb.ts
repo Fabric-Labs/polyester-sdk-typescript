@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file claims/v1/claims.proto.
  */
 export const file_claims_v1_claims: GenFile = /*@__PURE__*/
-  fileDesc("ChZjbGFpbXMvdjEvY2xhaW1zLnByb3RvEgljbGFpbXMudjEiMQoLRXJyb3JEZXRhaWwSIgoEY29kZRgBIAEoDjIULmNsYWltcy52MS5FcnJvckNvZGUidQoNQ2xhaW1DYW1wYWlnbhITCgtjYW1wYWlnbl9pZBgBIAEoCRIMCgRuYW1lGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEiwKDGNsYWltX3BvbGljeRgEIAEoDjIWLmNsYWltcy52MS5DbGFpbVBvbGljeSJlChBEYWlseUNsYWltUmV3YXJkEhAKCGFzc2V0X2lkGAEgASgNEhIKCmFzc2V0X2NvZGUYAiABKAkSKwoKYW1vdW50X2UxOBgDIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgiHAoaR2V0RGFpbHlDbGFpbVN0YXR1c1JlcXVlc3Qi4gEKG0dldERhaWx5Q2xhaW1TdGF0dXNSZXNwb25zZRIpCgVzdGF0ZRgBIAEoDjIaLmNsYWltcy52MS5EYWlseUNsYWltU3RhdGUSLAoIcmVzZXRfYXQYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKB3Jld2FyZHMYAyADKAsyGy5jbGFpbXMudjEuRGFpbHlDbGFpbVJld2FyZBIQCghjbGFpbV9pZBgEIAEoCRIqCghjYW1wYWlnbhgFIAEoCzIYLmNsYWltcy52MS5DbGFpbUNhbXBhaWduIhkKF0NsYWltRGFpbHlSZXdhcmRSZXF1ZXN0IjsKEkRhaWx5Q2xhaW1UcmFuc2ZlchIQCghhc3NldF9pZBgBIAEoDRITCgt0cmFuc2Zlcl9pZBgCIAEoCSLBAgoYQ2xhaW1EYWlseVJld2FyZFJlc3BvbnNlEhAKCGNsYWltX2lkGAEgASgJEikKBXN0YXRlGAIgASgOMhouY2xhaW1zLnYxLkRhaWx5Q2xhaW1TdGF0ZRIuCgpjbGFpbWVkX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCgdyZXdhcmRzGAQgAygLMhsuY2xhaW1zLnYxLkRhaWx5Q2xhaW1SZXdhcmQSMAoJdHJhbnNmZXJzGAUgAygLMh0uY2xhaW1zLnYxLkRhaWx5Q2xhaW1UcmFuc2ZlchIsCghyZXNldF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKgoIY2FtcGFpZ24YByABKAsyGC5jbGFpbXMudjEuQ2xhaW1DYW1wYWlnbirMAwoJRXJyb3JDb2RlEhoKFkVSUk9SX0NPREVfVU5TUEVDSUZJRUQQABIsCihFUlJPUl9DT0RFX0NMQUlNX1RFTVBPUkFSSUxZX1VOQVZBSUxBQkxFEAESHgoaRVJST1JfQ09ERV9VTkFVVEhFTlRJQ0FURUQQAhIiCh5FUlJPUl9DT0RFX1JBVEVfTElNSVRfRVhDRUVERUQQAxIgChxFUlJPUl9DT0RFX0NMQUlNX1VOQVZBSUxBQkxFEAQSFwoTRVJST1JfQ09ERV9DT05GTElDVBAFEh4KGkVSUk9SX0NPREVfSU5WQUxJRF9SRVFVRVNUEAYSIAocRVJST1JfQ09ERV9SRVFVRVNUX1RPT19MQVJHRRAHEiIKHkVSUk9SX0NPREVfU0VSVklDRV9VTkFWQUlMQUJMRRAIEh0KGUVSUk9SX0NPREVfSU5URVJOQUxfRVJST1IQCRIgChxFUlJPUl9DT0RFX1BFUk1JU1NJT05fREVOSUVEEAoSIgoeRVJST1JfQ09ERV9GQUlMRURfUFJFQ09ORElUSU9OEAsSKwonRVJST1JfQ09ERV9TT0NJQUxfVkVSSUZJQ0FUSU9OX1JFUVVJUkVEEAwqNAoLQ2xhaW1Qb2xpY3kSFgoSUE9MSUNZX1VOU1BFQ0lGSUVEEAASDQoJVVRDX0RBSUxZEAEqfQoPRGFpbHlDbGFpbVN0YXRlEhUKEUNMQUlNX1VOU1BFQ0lGSUVEEAASEwoPQ0xBSU1fQVZBSUxBQkxFEAESFAoQQ0xBSU1fUFJPQ0VTU0lORxACEhEKDUNMQUlNX0NMQUlNRUQQAxIVChFDTEFJTV9VTkFWQUlMQUJMRRAEMtYBCg1DbGFpbXNTZXJ2aWNlEmYKE0dldERhaWx5Q2xhaW1TdGF0dXMSJS5jbGFpbXMudjEuR2V0RGFpbHlDbGFpbVN0YXR1c1JlcXVlc3QaJi5jbGFpbXMudjEuR2V0RGFpbHlDbGFpbVN0YXR1c1Jlc3BvbnNlIgASXQoQQ2xhaW1EYWlseVJld2FyZBIiLmNsYWltcy52MS5DbGFpbURhaWx5UmV3YXJkUmVxdWVzdBojLmNsYWltcy52MS5DbGFpbURhaWx5UmV3YXJkUmVzcG9uc2UiAEJAWj5naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2NsYWltcy92MTtjbGFpbXN2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options, file_polyester_type_v1_u128]);
+  fileDesc("ChZjbGFpbXMvdjEvY2xhaW1zLnByb3RvEgljbGFpbXMudjEiMQoLRXJyb3JEZXRhaWwSIgoEY29kZRgBIAEoDjIULmNsYWltcy52MS5FcnJvckNvZGUidQoNQ2xhaW1DYW1wYWlnbhITCgtjYW1wYWlnbl9pZBgBIAEoCRIMCgRuYW1lGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEiwKDGNsYWltX3BvbGljeRgEIAEoDjIWLmNsYWltcy52MS5DbGFpbVBvbGljeSJlChBEYWlseUNsYWltUmV3YXJkEhAKCGFzc2V0X2lkGAEgASgNEhIKCmFzc2V0X2NvZGUYAiABKAkSKwoKYW1vdW50X2UxOBgDIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgiHAoaR2V0RGFpbHlDbGFpbVN0YXR1c1JlcXVlc3Qi+QEKG0dldERhaWx5Q2xhaW1TdGF0dXNSZXNwb25zZRIpCgVzdGF0ZRgBIAEoDjIaLmNsYWltcy52MS5EYWlseUNsYWltU3RhdGUSLAoIcmVzZXRfYXQYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKB3Jld2FyZHMYAyADKAsyGy5jbGFpbXMudjEuRGFpbHlDbGFpbVJld2FyZBIQCghjbGFpbV9pZBgEIAEoCRIqCghjYW1wYWlnbhgFIAEoCzIYLmNsYWltcy52MS5DbGFpbUNhbXBhaWduEhUKDXN1YmFjY291bnRfaWQYBiABKAYiMgoXQ2xhaW1EYWlseVJld2FyZFJlcXVlc3QSFwoNc3ViYWNjb3VudF9pZBgBIAEoBkIAIjsKEkRhaWx5Q2xhaW1UcmFuc2ZlchIQCghhc3NldF9pZBgBIAEoDRITCgt0cmFuc2Zlcl9pZBgCIAEoCSLYAgoYQ2xhaW1EYWlseVJld2FyZFJlc3BvbnNlEhAKCGNsYWltX2lkGAEgASgJEikKBXN0YXRlGAIgASgOMhouY2xhaW1zLnYxLkRhaWx5Q2xhaW1TdGF0ZRIuCgpjbGFpbWVkX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCgdyZXdhcmRzGAQgAygLMhsuY2xhaW1zLnYxLkRhaWx5Q2xhaW1SZXdhcmQSMAoJdHJhbnNmZXJzGAUgAygLMh0uY2xhaW1zLnYxLkRhaWx5Q2xhaW1UcmFuc2ZlchIsCghyZXNldF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKgoIY2FtcGFpZ24YByABKAsyGC5jbGFpbXMudjEuQ2xhaW1DYW1wYWlnbhIVCg1zdWJhY2NvdW50X2lkGAggASgGKpUECglFcnJvckNvZGUSGgoWRVJST1JfQ09ERV9VTlNQRUNJRklFRBAAEiwKKEVSUk9SX0NPREVfQ0xBSU1fVEVNUE9SQVJJTFlfVU5BVkFJTEFCTEUQARIeChpFUlJPUl9DT0RFX1VOQVVUSEVOVElDQVRFRBACEiIKHkVSUk9SX0NPREVfUkFURV9MSU1JVF9FWENFRURFRBADEiAKHEVSUk9SX0NPREVfQ0xBSU1fVU5BVkFJTEFCTEUQBBIXChNFUlJPUl9DT0RFX0NPTkZMSUNUEAUSHgoaRVJST1JfQ09ERV9JTlZBTElEX1JFUVVFU1QQBhIgChxFUlJPUl9DT0RFX1JFUVVFU1RfVE9PX0xBUkdFEAcSIgoeRVJST1JfQ09ERV9TRVJWSUNFX1VOQVZBSUxBQkxFEAgSHQoZRVJST1JfQ09ERV9JTlRFUk5BTF9FUlJPUhAJEiAKHEVSUk9SX0NPREVfUEVSTUlTU0lPTl9ERU5JRUQQChIiCh5FUlJPUl9DT0RFX0ZBSUxFRF9QUkVDT05ESVRJT04QCxIrCidFUlJPUl9DT0RFX1NPQ0lBTF9WRVJJRklDQVRJT05fUkVRVUlSRUQQDBIjCh9FUlJPUl9DT0RFX1NVQkFDQ09VTlRfTk9UX0ZPVU5EEA0SIgoeRVJST1JfQ09ERV9TVUJBQ0NPVU5UX0lOQUNUSVZFEA4qNAoLQ2xhaW1Qb2xpY3kSFgoSUE9MSUNZX1VOU1BFQ0lGSUVEEAASDQoJVVRDX0RBSUxZEAEqfQoPRGFpbHlDbGFpbVN0YXRlEhUKEUNMQUlNX1VOU1BFQ0lGSUVEEAASEwoPQ0xBSU1fQVZBSUxBQkxFEAESFAoQQ0xBSU1fUFJPQ0VTU0lORxACEhEKDUNMQUlNX0NMQUlNRUQQAxIVChFDTEFJTV9VTkFWQUlMQUJMRRAEMtYBCg1DbGFpbXNTZXJ2aWNlEmYKE0dldERhaWx5Q2xhaW1TdGF0dXMSJS5jbGFpbXMudjEuR2V0RGFpbHlDbGFpbVN0YXR1c1JlcXVlc3QaJi5jbGFpbXMudjEuR2V0RGFpbHlDbGFpbVN0YXR1c1Jlc3BvbnNlIgASXQoQQ2xhaW1EYWlseVJld2FyZBIiLmNsYWltcy52MS5DbGFpbURhaWx5UmV3YXJkUmVxdWVzdBojLmNsYWltcy52MS5DbGFpbURhaWx5UmV3YXJkUmVzcG9uc2UiAEJAWj5naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2NsYWltcy92MTtjbGFpbXN2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options, file_polyester_type_v1_u128]);
 
 /**
  * ErrorDetail is attached to ConnectRPC errors for structured error handling.
@@ -174,6 +174,14 @@ export type GetDailyClaimStatusResponse = Message<"claims.v1.GetDailyClaimStatus
    * @generated from field: claims.v1.ClaimCampaign campaign = 5;
    */
   campaign?: ClaimCampaign | undefined;
+
+  /**
+   * Subaccount public id that receives today's claimed reward. Zero or omitted when no claim
+   * has been created yet or when the reward is paid to the root account.
+   *
+   * @generated from field: fixed64 subaccount_id = 6;
+   */
+  subaccountId: bigint;
 };
 
 /**
@@ -189,6 +197,15 @@ export const GetDailyClaimStatusResponseSchema: GenMessage<GetDailyClaimStatusRe
  * @generated from message claims.v1.ClaimDailyRewardRequest
  */
 export type ClaimDailyRewardRequest = Message<"claims.v1.ClaimDailyRewardRequest"> & {
+  /**
+   * Optional public id of a subaccount owned by the authenticated root account that receives
+   * the reward. When omitted, the reward is paid to the root account. Subaccounts shared with
+   * the caller but owned by another root account cannot be selected. The destination is fixed
+   * when today's claim is created; retries return the existing claim and its destination.
+   *
+   * @generated from field: fixed64 subaccount_id = 1;
+   */
+  subaccountId: bigint;
 };
 
 /**
@@ -280,6 +297,14 @@ export type ClaimDailyRewardResponse = Message<"claims.v1.ClaimDailyRewardRespon
    * @generated from field: claims.v1.ClaimCampaign campaign = 7;
    */
   campaign?: ClaimCampaign | undefined;
+
+  /**
+   * Subaccount public id that receives this claim's reward. Zero or omitted when the reward is
+   * paid to the root account.
+   *
+   * @generated from field: fixed64 subaccount_id = 8;
+   */
+  subaccountId: bigint;
 };
 
 /**
@@ -386,6 +411,20 @@ export enum ErrorCode {
    * @generated from enum value: ERROR_CODE_SOCIAL_VERIFICATION_REQUIRED = 12;
    */
   SOCIAL_VERIFICATION_REQUIRED = 12,
+
+  /**
+   * The selected subaccount does not exist or is not owned by the authenticated root account.
+   *
+   * @generated from enum value: ERROR_CODE_SUBACCOUNT_NOT_FOUND = 13;
+   */
+  SUBACCOUNT_NOT_FOUND = 13,
+
+  /**
+   * The selected subaccount is owned by the authenticated root account but is not active.
+   *
+   * @generated from enum value: ERROR_CODE_SUBACCOUNT_INACTIVE = 14;
+   */
+  SUBACCOUNT_INACTIVE = 14,
 }
 
 /**
@@ -486,7 +525,7 @@ export const ClaimsService: GenService<{
     output: typeof GetDailyClaimStatusResponseSchema;
   },
   /**
-   * Claim today's reward once for the authenticated root account. All reward assets are transferred together, and retries return the same claim.
+   * Claim today's reward once for the authenticated root account, paid to the root account or to a subaccount it owns. All reward assets are transferred together, and retries return the same claim.
    *
    * @generated from rpc claims.v1.ClaimsService.ClaimDailyReward
    */

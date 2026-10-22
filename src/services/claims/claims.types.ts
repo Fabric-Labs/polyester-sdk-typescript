@@ -1,5 +1,6 @@
 export type {
     ClaimCampaign,
+    ClaimDailyRewardInput,
     ClaimDailyRewardResult,
     DailyClaimReward,
     DailyClaimStatus,
