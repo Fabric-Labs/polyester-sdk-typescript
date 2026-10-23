@@ -770,6 +770,78 @@ describe("PrivateOrderStream", () => {
         expect(handlers.onError).not.toHaveBeenCalled();
         expect(ws.closed).toBeUndefined();
     });
+
+    it("keeps a subscription its consumer opens again from onDisconnected after a terminal close", async () => {
+        const { stream, handlers } = setup();
+        const ws = await confirm();
+        let replacement: ReturnType<typeof subscriber> | undefined;
+        handlers.onDisconnected.mockImplementation(() => {
+            replacement = subscriber(stream);
+        });
+
+        ws.serverClose(4403);
+
+        expect(handlers.onDisconnected).toHaveBeenCalledOnce();
+        expect(replacement?.handlers.onDisconnected).not.toHaveBeenCalled();
+        expect(replacement?.handlers.onError).not.toHaveBeenCalled();
+        expect(stream.activeChannels).toBe(1);
+        await openAll();
+        expect(FakeWebSocket.instances).toHaveLength(2);
+        expect(FakeWebSocket.instances[1]!.ops("subscribe")).toHaveLength(1);
+    });
+
+    it("does not report an error to a subscription opened from onError", async () => {
+        const { stream, handlers } = setup();
+        const ws = await confirm();
+        let other: ReturnType<typeof subscriber> | undefined;
+        handlers.onError.mockImplementationOnce(() => {
+            other = subscriber(stream, OTHER_ACCOUNT);
+        });
+
+        ws.onmessage?.({ data: "not binary" });
+
+        expect(handlers.onError).toHaveBeenCalledWith(expect.objectContaining({ type: "decode" }));
+        expect(other?.handlers.onError).not.toHaveBeenCalled();
+    });
+
+    it("reports a missing global WebSocket after connect returns", async () => {
+        vi.stubGlobal("WebSocket", undefined);
+        const { handlers } = setup();
+
+        expect(handlers.onError).not.toHaveBeenCalled();
+        expect(handlers.onDisconnected).not.toHaveBeenCalled();
+        await flush();
+        expect(handlers.onError).toHaveBeenCalledWith(
+            expect.objectContaining({ type: "connection_token" }),
+        );
+        expect(handlers.onDisconnected).toHaveBeenCalledOnce();
+    });
+
+    it("delivers nothing more once a consumer disconnects the stream mid-delivery", async () => {
+        const { stream, handlers } = setup();
+        const ws = await confirm();
+        const other = subscriber(stream);
+        await flush();
+        handlers.onEvent.mockImplementation(() => stream.disconnect());
+
+        snapshot(ws, "s1", "c1");
+
+        expect(handlers.onEvent).toHaveBeenCalledOnce();
+        expect(other.handlers.onEvent).not.toHaveBeenCalled();
+    });
+
+    it("stops catching a late consumer up once it disconnects the stream", async () => {
+        const { stream } = setup();
+        const ws = await confirm();
+        snapshot(ws, "s1", "c1");
+        ws.receive("s1", 4n, { case: "unavailable", value: {} });
+        const late = subscriber(stream);
+        late.handlers.onConnected.mockImplementation(() => stream.disconnect());
+        await flush();
+
+        expect(late.handlers.onConnected).toHaveBeenCalledOnce();
+        expect(late.handlers.onEvent).not.toHaveBeenCalled();
+    });
 });
 
 describe("RealtimeClient.connectPrivateOrders", () => {
@@ -914,7 +986,7 @@ describe("RealtimeClient.connectPrivateOrders", () => {
         expect(FakeWebSocket.instances).toHaveLength(0);
     });
 
-    it("leaves no unhandled rejection when torn down while the stream module fails to load", async () => {
+    it("reports a stream module load failure only to consumers that were not torn down", async () => {
         vi.resetModules();
         vi.doMock("./private-orders.js", () => {
             throw new Error("chunk load failed");
@@ -930,16 +1002,21 @@ describe("RealtimeClient.connectPrivateOrders", () => {
                 privateWsUrl: "wss://api.test/v1/ws/private",
                 hasAuth: () => true,
             });
-            const onError = vi.fn();
-            client.connectPrivateOrders({ accountId: ACCOUNT, onEvent: vi.fn(), onError });
+            const torn = { onError: vi.fn(), onDisconnected: vi.fn() };
+            client.connectPrivateOrders({ accountId: ACCOUNT, onEvent: vi.fn(), ...torn });
             client.disconnectPrivate();
+            const live = { onError: vi.fn(), onDisconnected: vi.fn() };
+            client.connectPrivateOrders({ accountId: ACCOUNT, onEvent: vi.fn(), ...live });
             await vi.waitFor(() =>
-                expect(onError).toHaveBeenCalledWith(
+                expect(live.onError).toHaveBeenCalledWith(
                     expect.objectContaining({ type: "transport_load" }),
                 ),
             );
             await tick();
 
+            expect(live.onDisconnected).toHaveBeenCalledOnce();
+            expect(torn.onError).not.toHaveBeenCalled();
+            expect(torn.onDisconnected).not.toHaveBeenCalled();
             expect(unhandled).not.toHaveBeenCalled();
         } finally {
             process.off("unhandledRejection", unhandled);

@@ -804,7 +804,7 @@ export class RealtimeClient implements PolyesterRealtime {
             },
             (error) => {
                 if (this.#privateOrdersLoading === loading) this.#privateOrdersLoading = null;
-                if (closed) return;
+                if (closed || epoch !== this.#privateOrdersEpoch) return;
                 const ctx = createSdkSubscriptionErrorContext(channel, "transport_load", error);
                 this.#callErrorHandler(params.onError, ctx);
                 this.#callConsumerHandler(

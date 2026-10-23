@@ -155,7 +155,11 @@ export class PrivateOrderStream {
 
     /** Closes the connection and drops every subscription without callbacks. */
     disconnect(): void {
-        for (const s of this.#subs.values()) this.#clearRetry(s);
+        for (const s of this.#subs.values()) {
+            this.#clearRetry(s);
+            // A consumer that disconnects mid-delivery stops deliveries to the rest.
+            s.consumers.clear();
+        }
         this.#subs.clear();
         this.#shutdown();
     }
@@ -188,9 +192,12 @@ export class PrivateOrderStream {
     #open(): void {
         const WebSocketCtor = globalThis.WebSocket;
         if (!WebSocketCtor) {
-            this.#terminateAll(
-                "connection_token",
-                new ConfigurationError("The private order stream requires a global WebSocket."),
+            // Reported after connect() returns, like every other connection failure.
+            queueMicrotask(() =>
+                this.#terminateAll(
+                    "connection_token",
+                    new ConfigurationError("The private order stream requires a global WebSocket."),
+                ),
             );
             return;
         }
@@ -633,8 +640,9 @@ export class PrivateOrderStream {
         for (const c of consumers) this.#call(s.channel, c, () => c.params.onDisconnected?.());
     }
 
+    /** Spares subscriptions that consumers open from its callbacks. */
     #terminateAll(type: string, error: unknown): void {
-        for (const s of this.#subs.values()) this.#terminate(s, type, error);
+        for (const s of [...this.#subs.values()]) this.#terminate(s, type, error);
     }
 
     #send(ws: WebSocket, op: ClientOp): void {
@@ -658,7 +666,7 @@ export class PrivateOrderStream {
     }
 
     #reportAll(type: string, error: unknown): void {
-        for (const s of this.#subs.values()) this.#report(s, type, error);
+        for (const s of [...this.#subs.values()]) this.#report(s, type, error);
     }
 
     /** Delivers to each caught-up consumer still attached when its turn comes. */
