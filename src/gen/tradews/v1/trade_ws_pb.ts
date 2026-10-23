@@ -4,7 +4,7 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { CancelAllOrdersRequest, CancelAllOrdersResponse, CancelOrderRequest, CancelOrderResponse, CreateOrderRequest, CreateOrderResponse, ErrorDetail, ModifyOrderRequest, ModifyOrderResponse } from "../../orders/v1/orders_pb.js";
+import type { BatchCancelOrdersRequest, BatchCancelOrdersResponse, BatchCreateOrdersRequest, BatchCreateOrdersResponse, BatchReplaceOrdersRequest, BatchReplaceOrdersResponse, CancelAllOrdersRequest, CancelAllOrdersResponse, CancelOrderRequest, CancelOrderResponse, CreateOrderRequest, CreateOrderResponse, ErrorDetail, ModifyOrderRequest, ModifyOrderResponse } from "../../orders/v1/orders_pb.js";
 import { file_orders_v1_orders } from "../../orders/v1/orders_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file tradews/v1/trade_ws.proto.
  */
 export const file_tradews_v1_trade_ws: GenFile = /*@__PURE__*/
-  fileDesc("Chl0cmFkZXdzL3YxL3RyYWRlX3dzLnByb3RvEgp0cmFkZXdzLnYxIssCCgtDbGllbnRGcmFtZRILCgNzZXEYASABKAQSFgoOY29ycmVsYXRpb25faWQYAiABKAkSJwoEcGluZxgKIAEoCzIXLnRyYWRld3MudjEuUGluZ1JlcXVlc3RIABI1CgxjcmVhdGVfb3JkZXIYCyABKAsyHS5vcmRlcnMudjEuQ3JlYXRlT3JkZXJSZXF1ZXN0SAASNQoMY2FuY2VsX29yZGVyGAwgASgLMh0ub3JkZXJzLnYxLkNhbmNlbE9yZGVyUmVxdWVzdEgAEjUKDG1vZGlmeV9vcmRlchgNIAEoCzIdLm9yZGVycy52MS5Nb2RpZnlPcmRlclJlcXVlc3RIABI+ChFjYW5jZWxfYWxsX29yZGVycxgOIAEoCzIhLm9yZGVycy52MS5DYW5jZWxBbGxPcmRlcnNSZXF1ZXN0SABCCQoHcGF5bG9hZCIeCgtQaW5nUmVxdWVzdBIPCgdwYXlsb2FkGAEgASgMIqQCCgtTZXJ2ZXJGcmFtZRILCgNzZXEYASABKAQSFgoOY29ycmVsYXRpb25faWQYAiABKAkSKAoEcG9uZxgKIAEoCzIYLnRyYWRld3MudjEuUG9uZ1Jlc3BvbnNlSAASJgoDYWNrGAsgASgLMhcudHJhZGV3cy52MS5BY2tSZXNwb25zZUgAEisKBnJlamVjdBgMIAEoCzIZLnRyYWRld3MudjEuQ29tbWFuZFJlamVjdEgAEjAKCG92ZXJsb2FkGA0gASgLMhwudHJhZGV3cy52MS5PdmVybG9hZFJlc3BvbnNlSAASNAoIdGVybWluYWwYDiABKAsyIC50cmFkZXdzLnYxLlRlcm1pbmFsU2Vzc2lvbkV2ZW50SABCCQoHcGF5bG9hZCIfCgxQb25nUmVzcG9uc2USDwoHcGF5bG9hZBgBIAEoDCKAAgoLQWNrUmVzcG9uc2USNgoMY3JlYXRlX29yZGVyGAEgASgLMh4ub3JkZXJzLnYxLkNyZWF0ZU9yZGVyUmVzcG9uc2VIABI2CgxjYW5jZWxfb3JkZXIYAiABKAsyHi5vcmRlcnMudjEuQ2FuY2VsT3JkZXJSZXNwb25zZUgAEjYKDG1vZGlmeV9vcmRlchgDIAEoCzIeLm9yZGVycy52MS5Nb2RpZnlPcmRlclJlc3BvbnNlSAASPwoRY2FuY2VsX2FsbF9vcmRlcnMYBCABKAsyIi5vcmRlcnMudjEuQ2FuY2VsQWxsT3JkZXJzUmVzcG9uc2VIAEIICgZyZXN1bHQiVAoNQ29tbWFuZFJlamVjdBIMCgRjb2RlGAEgASgJEg4KBmRldGFpbBgCIAEoCRIlCgVlcnJvchgDIAEoCzIWLm9yZGVycy52MS5FcnJvckRldGFpbCIwChBPdmVybG9hZFJlc3BvbnNlEgwKBGNvZGUYASABKAkSDgoGZGV0YWlsGAIgASgJIjQKFFRlcm1pbmFsU2Vzc2lvbkV2ZW50EgwKBGNvZGUYASABKAkSDgoGZGV0YWlsGAIgASgJQkJaQGdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vdHJhZGV3cy92MTt0cmFkZXdzdjFiBnByb3RvMw==", [file_orders_v1_orders]);
+  fileDesc("Chl0cmFkZXdzL3YxL3RyYWRlX3dzLnByb3RvEgp0cmFkZXdzLnYxIpkECgtDbGllbnRGcmFtZRILCgNzZXEYASABKAQSFgoOY29ycmVsYXRpb25faWQYAiABKAkSJwoEcGluZxgKIAEoCzIXLnRyYWRld3MudjEuUGluZ1JlcXVlc3RIABI1CgxjcmVhdGVfb3JkZXIYCyABKAsyHS5vcmRlcnMudjEuQ3JlYXRlT3JkZXJSZXF1ZXN0SAASNQoMY2FuY2VsX29yZGVyGAwgASgLMh0ub3JkZXJzLnYxLkNhbmNlbE9yZGVyUmVxdWVzdEgAEjUKDG1vZGlmeV9vcmRlchgNIAEoCzIdLm9yZGVycy52MS5Nb2RpZnlPcmRlclJlcXVlc3RIABI+ChFjYW5jZWxfYWxsX29yZGVycxgOIAEoCzIhLm9yZGVycy52MS5DYW5jZWxBbGxPcmRlcnNSZXF1ZXN0SAASQgoTYmF0Y2hfY3JlYXRlX29yZGVycxgPIAEoCzIjLm9yZGVycy52MS5CYXRjaENyZWF0ZU9yZGVyc1JlcXVlc3RIABJEChRiYXRjaF9yZXBsYWNlX29yZGVycxgQIAEoCzIkLm9yZGVycy52MS5CYXRjaFJlcGxhY2VPcmRlcnNSZXF1ZXN0SAASQgoTYmF0Y2hfY2FuY2VsX29yZGVycxgRIAEoCzIjLm9yZGVycy52MS5CYXRjaENhbmNlbE9yZGVyc1JlcXVlc3RIAEIJCgdwYXlsb2FkIh4KC1BpbmdSZXF1ZXN0Eg8KB3BheWxvYWQYASABKAwipAIKC1NlcnZlckZyYW1lEgsKA3NlcRgBIAEoBBIWCg5jb3JyZWxhdGlvbl9pZBgCIAEoCRIoCgRwb25nGAogASgLMhgudHJhZGV3cy52MS5Qb25nUmVzcG9uc2VIABImCgNhY2sYCyABKAsyFy50cmFkZXdzLnYxLkFja1Jlc3BvbnNlSAASKwoGcmVqZWN0GAwgASgLMhkudHJhZGV3cy52MS5Db21tYW5kUmVqZWN0SAASMAoIb3ZlcmxvYWQYDSABKAsyHC50cmFkZXdzLnYxLk92ZXJsb2FkUmVzcG9uc2VIABI0Cgh0ZXJtaW5hbBgOIAEoCzIgLnRyYWRld3MudjEuVGVybWluYWxTZXNzaW9uRXZlbnRIAEIJCgdwYXlsb2FkIh8KDFBvbmdSZXNwb25zZRIPCgdwYXlsb2FkGAEgASgMItEDCgtBY2tSZXNwb25zZRI2CgxjcmVhdGVfb3JkZXIYASABKAsyHi5vcmRlcnMudjEuQ3JlYXRlT3JkZXJSZXNwb25zZUgAEjYKDGNhbmNlbF9vcmRlchgCIAEoCzIeLm9yZGVycy52MS5DYW5jZWxPcmRlclJlc3BvbnNlSAASNgoMbW9kaWZ5X29yZGVyGAMgASgLMh4ub3JkZXJzLnYxLk1vZGlmeU9yZGVyUmVzcG9uc2VIABI/ChFjYW5jZWxfYWxsX29yZGVycxgEIAEoCzIiLm9yZGVycy52MS5DYW5jZWxBbGxPcmRlcnNSZXNwb25zZUgAEkMKE2JhdGNoX2NyZWF0ZV9vcmRlcnMYBSABKAsyJC5vcmRlcnMudjEuQmF0Y2hDcmVhdGVPcmRlcnNSZXNwb25zZUgAEkUKFGJhdGNoX3JlcGxhY2Vfb3JkZXJzGAYgASgLMiUub3JkZXJzLnYxLkJhdGNoUmVwbGFjZU9yZGVyc1Jlc3BvbnNlSAASQwoTYmF0Y2hfY2FuY2VsX29yZGVycxgHIAEoCzIkLm9yZGVycy52MS5CYXRjaENhbmNlbE9yZGVyc1Jlc3BvbnNlSABCCAoGcmVzdWx0IlQKDUNvbW1hbmRSZWplY3QSDAoEY29kZRgBIAEoCRIOCgZkZXRhaWwYAiABKAkSJQoFZXJyb3IYAyABKAsyFi5vcmRlcnMudjEuRXJyb3JEZXRhaWwiMAoQT3ZlcmxvYWRSZXNwb25zZRIMCgRjb2RlGAEgASgJEg4KBmRldGFpbBgCIAEoCSI0ChRUZXJtaW5hbFNlc3Npb25FdmVudBIMCgRjb2RlGAEgASgJEg4KBmRldGFpbBgCIAEoCUJCWkBnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL3RyYWRld3MvdjE7dHJhZGV3c3YxYgZwcm90bzM=", [file_orders_v1_orders]);
 
 /**
  * ClientFrame is the protobuf write-websocket envelope. Its payloads reuse the
@@ -79,6 +79,38 @@ export type ClientFrame = Message<"tradews.v1.ClientFrame"> & {
      */
     value: CancelAllOrdersRequest;
     case: "cancelAllOrders";
+  } | {
+    /**
+     * Batch create command using the public Orders API request contract: up
+     * to 20 orders, each admitted or rejected on its own. request_id is the
+     * same account-scoped idempotency key as the Orders API's: resending the
+     * same request_id and items, over this WebSocket or the Orders API,
+     * replays the original per-item results instead of creating orders again.
+     *
+     * @generated from field: orders.v1.BatchCreateOrdersRequest batch_create_orders = 15;
+     */
+    value: BatchCreateOrdersRequest;
+    case: "batchCreateOrders";
+  } | {
+    /**
+     * Batch replace command using the public Orders API request contract: up
+     * to 50 replacements of orders on one trading pair, under the same
+     * request_id idempotency as the Orders API.
+     *
+     * @generated from field: orders.v1.BatchReplaceOrdersRequest batch_replace_orders = 16;
+     */
+    value: BatchReplaceOrdersRequest;
+    case: "batchReplaceOrders";
+  } | {
+    /**
+     * Batch cancel command using the public Orders API request contract: up
+     * to 50 cancellations, each accepted or rejected on its own, under the
+     * same request_id idempotency as the Orders API.
+     *
+     * @generated from field: orders.v1.BatchCancelOrdersRequest batch_cancel_orders = 17;
+     */
+    value: BatchCancelOrdersRequest;
+    case: "batchCancelOrders";
   } | { case: undefined; value?: undefined };
 };
 
@@ -143,7 +175,8 @@ export type ServerFrame = Message<"tradews.v1.ServerFrame"> & {
     case: "pong";
   } | {
     /**
-     * Successful command acknowledgement.
+     * Successful command acknowledgement. A batch acknowledgement carries
+     * each item's own result, accepted or rejected.
      *
      * @generated from field: tradews.v1.AckResponse ack = 11;
      */
@@ -151,7 +184,11 @@ export type ServerFrame = Message<"tradews.v1.ServerFrame"> & {
     case: "ack";
   } | {
     /**
-     * Command-level reject with a stable machine-readable code.
+     * Command-level reject with a stable machine-readable code. A batch
+     * rejected as busy (ENGINE_BUSY or UNAVAILABLE), or one whose
+     * acknowledgement never arrived, may have taken effect for some items:
+     * resend it with the same request_id and items to resolve or replay it,
+     * and do not assume it placed or canceled no orders.
      *
      * @generated from field: tradews.v1.CommandReject reject = 12;
      */
@@ -245,6 +282,33 @@ export type AckResponse = Message<"tradews.v1.AckResponse"> & {
      */
     value: CancelAllOrdersResponse;
     case: "cancelAllOrders";
+  } | {
+    /**
+     * Batch create response with one result per requested order, in request
+     * order. A rejected item carries its typed error; the others still count.
+     *
+     * @generated from field: orders.v1.BatchCreateOrdersResponse batch_create_orders = 5;
+     */
+    value: BatchCreateOrdersResponse;
+    case: "batchCreateOrders";
+  } | {
+    /**
+     * Batch replace admission receipt with one result per requested
+     * replacement, in request order.
+     *
+     * @generated from field: orders.v1.BatchReplaceOrdersResponse batch_replace_orders = 6;
+     */
+    value: BatchReplaceOrdersResponse;
+    case: "batchReplaceOrders";
+  } | {
+    /**
+     * Batch cancel response with one result per requested cancellation, in
+     * request order.
+     *
+     * @generated from field: orders.v1.BatchCancelOrdersResponse batch_cancel_orders = 7;
+     */
+    value: BatchCancelOrdersResponse;
+    case: "batchCancelOrders";
   } | { case: undefined; value?: undefined };
 };
 

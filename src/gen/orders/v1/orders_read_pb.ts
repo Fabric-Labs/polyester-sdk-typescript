@@ -313,7 +313,9 @@ export type AttachedRisk = Message<"orders.v1.AttachedRisk"> & {
   trailingStop?: AttachedRiskTrailingStop | undefined;
 
   /**
-   * True when the take-profit and stop leg are linked as one-cancels-the-other.
+   * True while both the take-profit and a stop leg (stop-loss or trailing
+   * stop) are present and linked as one-cancels-the-other. False once either
+   * leg is removed; a leg canceled because the other fired stays present.
    *
    * @generated from field: bool oco = 4;
    */
@@ -514,7 +516,10 @@ export type Order = Message<"orders.v1.Order"> & {
 
   /**
    * Attached risk controls + runtime state on the parent order.
-   * Empty when no attached risk exists.
+   * Empty when no attached risk exists. Order reads include it only when the
+   * request asks for it (include_attached_risk, include_attached_risk_state):
+   * an omission on request, never a removal. The private WebSocket always
+   * carries it in full, as a read asking for both does.
    *
    * @generated from field: orders.v1.AttachedRisk attached_risk = 21;
    */
@@ -551,8 +556,11 @@ export type Order = Message<"orders.v1.Order"> & {
   marketMaxSlippageBps: number;
 
   /**
-   * Per-order state version. Starts at 1 and increases for every published
-   * state change. Use this field to reconcile API and realtime updates.
+   * Per-order state version: 0 while the order is accepted but not yet on
+   * the book (status PENDING), then 1 from its first book state and higher
+   * for every later published state change. A higher version is always
+   * newer, and two copies of an order with the same version are identical,
+   * so use this field to reconcile API and realtime updates.
    *
    * @generated from field: uint32 version = 26;
    */

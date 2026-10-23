@@ -11,7 +11,10 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
-import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
+import { connectReadyGated } from "../../realtime/ready-gated-subscription.js";
+import type { PrivateOrdersEvent } from "../../realtime/private-orders.js";
+import { deliverBatch } from "../../shared/subscription-errors.js";
+import { formatId, idToBigInt } from "../../utils/base58-id.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import { toPolyesterError } from "../../shared/connect-error-mapping.js";
@@ -89,8 +92,23 @@ function isOrderNotFoundError(error: unknown): boolean {
     );
 }
 
-interface SubscribeOrdersInput extends BaseSubscribeInput<Order> {
+export interface SubscribeOrdersInput extends BaseSubscribeInput<Order> {
+    /** The account's base58 public ID, the root account's or a sub-account's. */
     accountId: string;
+    /**
+     * The account's full live view: open orders, orders not yet on the book, and
+     * recently ended orders. Sent when the subscription starts and whenever the
+     * server replaces its state; replace local order state with it. When omitted,
+     * each snapshot order goes to `onEvent` instead.
+     */
+    onSnapshot?: (orders: Order[]) => void;
+    /**
+     * Orders that left the live view and remain only in history. Not cancellations.
+     * Without `onSnapshot`, also the orders a resync snapshot no longer contains.
+     */
+    onRemoved?: (orderIds: string[]) => void;
+    /** `true` while the account's live view is behind; `false` once it caught up. */
+    onStale?: (stale: boolean) => void;
 }
 
 function createMutationRequestId(): string {
@@ -438,21 +456,76 @@ export class OrdersService {
     }
 
     /**
-     * Subscribes to private order updates on private:spot:orders:{accountId}:proto and emits parsed order records until the returned unsubscribe function is called.
+     * Streams an account's orders over the private WebSocket until the returned unsubscribe
+     * function is called. Each changed order arrives complete through `onEvent`; keep the
+     * copy with the higher `version`, since equal versions are identical. Gaps, expired
+     * tokens, and reconnects resume from the last applied position automatically.
+     * Throws ValidationError when `accountId` is not a base58 public ID.
      */
     subscribe(input: SubscribeOrdersInput): () => void {
-        const channel = `private:spot:orders:${input.accountId}:proto`;
-        return connectReadyGatedProtoChannel(this.#realtime, {
-            channel,
-            schema: ProtoRead.OrderSchema,
-            ready: () => this.#scales.ready(),
-            onPublication: (data) => {
-                const order = parse(this.#orderSchema, data);
-                input.onEvent(order);
+        idToBigInt(input.accountId, "accountId");
+        const channel = `private:spot:orders:${input.accountId}`;
+        const onError = input.onError;
+        const known = (orders: ProtoRead.Order[]) =>
+            orders.filter((o) => hasKnownOrderSymbol(this.#scales, o));
+        // Order IDs in the live view, so a snapshot can report orders that left it while
+        // their removal was not delivered (a resync after an expired cursor).
+        const live = new Set<bigint>();
+        return connectReadyGated<PrivateOrdersEvent>(
+            {
+                channel,
+                ready: () => this.#scales.ready(),
+                onPublication: (event) => {
+                    if (event.type === "stale") {
+                        input.onStale?.(event.stale);
+                        return;
+                    }
+                    if (event.type === "snapshot") {
+                        const ids = new Set(event.orders.map((o) => o.orderId));
+                        const removed = [...live].filter((id) => !ids.has(id));
+                        live.clear();
+                        for (const id of ids) live.add(id);
+                        if (input.onSnapshot) {
+                            input.onSnapshot(
+                                known(event.orders).map((o) => parse(this.#orderSchema, o)),
+                            );
+                            return;
+                        }
+                        deliverBatch(
+                            channel,
+                            known(event.orders),
+                            (o) => input.onEvent(parse(this.#orderSchema, o)),
+                            onError,
+                        );
+                        if (removed.length > 0)
+                            input.onRemoved?.(removed.map((id) => formatId(id)));
+                        return;
+                    }
+                    const { unit } = event;
+                    for (const o of unit.orders) live.add(o.orderId);
+                    for (const id of unit.removedOrderIds) live.delete(id);
+                    deliverBatch(
+                        channel,
+                        known(unit.orders),
+                        (o) => input.onEvent(parse(this.#orderSchema, o)),
+                        onError,
+                    );
+                    if (unit.removedOrderIds.length > 0) {
+                        input.onRemoved?.(unit.removedOrderIds.map((id) => formatId(id)));
+                    }
+                },
+                onConnected: () => input.onOpen?.(),
+                onDisconnected: () => input.onClose?.(),
+                onError,
             },
-            onConnected: () => input.onOpen?.(),
-            onDisconnected: () => input.onClose?.(),
-            onError: input.onError,
-        });
+            (handlers) =>
+                this.#realtime.connectPrivateOrders({
+                    accountId: input.accountId,
+                    onEvent: handlers.onPublication,
+                    onConnected: handlers.onConnected,
+                    onDisconnected: handlers.onDisconnected,
+                    onError: handlers.onError,
+                }),
+        );
     }
 }

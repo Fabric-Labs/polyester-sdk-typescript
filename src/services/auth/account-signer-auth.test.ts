@@ -77,6 +77,7 @@ function authFixture(
         wsUrl: POLYESTER_DEVNET_ENVIRONMENT.websocketUrl,
         tokenEndpoint: `${POLYESTER_DEVNET_ENVIRONMENT.apiUrl}/v1/rt/token`,
         subscribeEndpoint: `${POLYESTER_DEVNET_ENVIRONMENT.apiUrl}/v1/rt/subscribe`,
+        privateWsUrl: "wss://api.example.test/v1/ws/private",
         hasAuth: () => false,
     });
     const subaccounts = new SubaccountsService({ publicApi, authApi }, realtime);

@@ -129,6 +129,7 @@ import {
     RealtimeClient,
 } from "./client.js";
 import { OrderSchema } from "../gen/orders/v1/orders_read_pb.js";
+import { formatId } from "../utils/base58-id.js";
 import {
     AuthenticationError,
     InternalServerError,
@@ -207,6 +208,7 @@ function createPublicRealtimeClient(): RealtimeClient {
         wsUrl: "wss://stream.example.test",
         tokenEndpoint: "https://api.example.test/v1/rt/token",
         subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+        privateWsUrl: "wss://api.example.test/v1/ws/private",
     });
 }
 
@@ -258,6 +260,7 @@ describe("RealtimeClient", () => {
             wsUrl: "wss://stream.example.test",
             tokenEndpoint: "https://api.example.test/v1/rt/token",
             subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
             hasAuth,
         });
         client.subscribe("private:test", { onPublication: () => {}, onError });
@@ -442,6 +445,7 @@ describe("RealtimeClient", () => {
                 wsUrl: "wss://stream.example.test",
                 tokenEndpoint: "https://api.example.test/token",
                 subscribeEndpoint: "https://api.example.test/subscribe",
+                privateWsUrl: "wss://api.example.test/v1/ws/private",
                 hasAuth: () => true,
             });
             const publicError = vi.fn();
@@ -736,6 +740,7 @@ describe("RealtimeClient", () => {
             wsUrl: "wss://stream.example.test",
             tokenEndpoint: "https://api.example.test/v1/rt/token",
             subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
             getAuthHeaders: () => ({ authorization: "Bearer upgraded-token" }),
             hasAuth: () => hasAuth,
         });
@@ -781,6 +786,7 @@ describe("RealtimeClient", () => {
             wsUrl: "wss://stream.example.test",
             tokenEndpoint: "https://api.example.test/v1/rt/token",
             subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
             getAuthHeaders: () => ({ authorization: "Bearer scoped-token" }),
             hasAuth: () => true,
         });
@@ -822,6 +828,7 @@ describe("RealtimeClient", () => {
             wsUrl: "wss://stream.example.test",
             tokenEndpoint: "https://api.example.test/v1/rt/token",
             subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
             getAuthHeaders: () => ({ authorization: "Bearer scoped-token" }),
             hasAuth: () => true,
         });
@@ -1012,6 +1019,7 @@ describe("RealtimeClient", () => {
             wsUrl: "wss://stream.example.test",
             tokenEndpoint: "https://api.example.test/v1/rt/token",
             subscribeEndpoint: "https://api.example.test/custom/subscribe?existing=1",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
             getAuthHeaders: (request) => {
                 authRequests.push({ url: String(request.url), method: request.method });
                 return { authorization: "Bearer scoped-token" };
@@ -1076,6 +1084,7 @@ describe("RealtimeClient", () => {
             wsUrl: "wss://stream.example.test",
             tokenEndpoint: "https://api.example.test/v1/rt/token",
             subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
             getAuthHeaders: () => ({ authorization: "Bearer scoped-token" }),
             hasAuth: () => true,
         });
@@ -1117,6 +1126,7 @@ describe("RealtimeClient", () => {
             wsUrl: "wss://stream.example.test",
             tokenEndpoint: "https://api.example.test/v1/rt/token",
             subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
             getAuthHeaders: () => ({ authorization: "Bearer scoped-token" }),
             hasAuth: () => true,
         });
@@ -1158,6 +1168,7 @@ describe("RealtimeClient", () => {
                 wsUrl: "wss://stream.example.test",
                 tokenEndpoint: "https://api.example.test/v1/rt/token",
                 subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+                privateWsUrl: "wss://api.example.test/v1/ws/private",
                 hasAuth: () => true,
             });
 
@@ -1187,6 +1198,7 @@ describe("RealtimeClient", () => {
             wsUrl: "wss://stream.example.test",
             tokenEndpoint: "https://api.example.test/v1/rt/token",
             subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
             getAuthHeaders: () => {
                 throw original;
             },
@@ -1235,6 +1247,7 @@ describe("RealtimeClient", () => {
                 wsUrl: "wss://stream.example.test",
                 tokenEndpoint: "https://api.example.test/v1/rt/token",
                 subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+                privateWsUrl: "wss://api.example.test/v1/ws/private",
                 hasAuth: () => true,
             });
 
@@ -1286,6 +1299,7 @@ describe("RealtimeClient", () => {
             wsUrl: "wss://stream.example.test",
             tokenEndpoint: "https://api.example.test/v1/rt/token",
             subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
             getAuthHeaders,
             hasAuth: () => true,
         });
@@ -1341,6 +1355,7 @@ describe("RealtimeClient", () => {
                 wsUrl: "ws://stream.example.test",
                 tokenEndpoint: "https://api.example.test/v1/rt/token",
                 subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+                privateWsUrl: "wss://api.example.test/v1/ws/private",
                 hasAuth: () => true,
             });
 
@@ -1388,6 +1403,7 @@ describe("RealtimeClient", () => {
                 wsUrl: "wss://stream.example.test",
                 tokenEndpoint: "https://api.example.test/v1/rt/token",
                 subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+                privateWsUrl: "wss://api.example.test/v1/ws/private",
                 hasAuth: () => true,
             });
 
@@ -1441,6 +1457,7 @@ describe("RealtimeClient", () => {
             wsUrl: "wss://one.example.test",
             tokenEndpoint: "https://one.example.test/v1/rt/token",
             subscribeEndpoint: "https://one.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
             getAuthHeaders: () => ({ authorization: "Bearer one" }),
             hasAuth: () => true,
         });
@@ -1448,6 +1465,7 @@ describe("RealtimeClient", () => {
             wsUrl: "wss://two.example.test",
             tokenEndpoint: "https://two.example.test/v1/rt/token",
             subscribeEndpoint: "https://two.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
             getAuthHeaders: () => ({ authorization: "Bearer two" }),
             hasAuth: () => true,
         });
@@ -1476,5 +1494,45 @@ describe("RealtimeClient", () => {
             "https://two.example.test/v1/rt/token",
             "https://two.example.test/v1/rt/subscribe?channel=private%3Asecond%3Aproto",
         ]);
+    });
+
+    it("keeps private order streams open when the last Centrifugo channel unsubscribes", async () => {
+        class IdleWebSocket {
+            static instances: IdleWebSocket[] = [];
+            readyState = 0;
+            binaryType = "";
+            closeCode: number | undefined;
+            onopen: (() => void) | null = null;
+            onmessage: ((event: unknown) => void) | null = null;
+            onclose: ((event: unknown) => void) | null = null;
+            constructor() {
+                IdleWebSocket.instances.push(this);
+            }
+            send(): void {}
+            close(code = 1000): void {
+                this.closeCode = code;
+            }
+        }
+        vi.stubGlobal("WebSocket", IdleWebSocket);
+        vi.spyOn(globalThis, "fetch").mockImplementation(async () => Response.json({ token: "t" }));
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
+            hasAuth: () => true,
+        });
+        const onDisconnected = vi.fn();
+
+        const unsubscribePublic = client.subscribe("public:test", { onPublication: () => {} });
+        client.connectPrivateOrders({ accountId: formatId(42n), onEvent: vi.fn(), onDisconnected });
+        await vi.waitFor(() => expect(IdleWebSocket.instances).toHaveLength(1));
+        unsubscribePublic();
+        await waitForAsyncTokens();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect(firstInstance().disconnectCalls).toBe(1);
+        expect(IdleWebSocket.instances[0]!.closeCode).toBeUndefined();
+        expect(onDisconnected).not.toHaveBeenCalled();
     });
 });

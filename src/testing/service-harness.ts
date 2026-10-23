@@ -105,9 +105,11 @@ export function realtimeClientStub(): {
     realtime: RealtimeClient;
     connectProtoChannel: ReturnType<typeof vi.fn>;
     params: Parameters<RealtimeClient["connectProtoChannel"]>[0] | undefined;
+    privateOrdersParams: Parameters<RealtimeClient["connectPrivateOrders"]>[0] | undefined;
     unsubscribe: ReturnType<typeof vi.fn>;
 } {
     let params: Parameters<RealtimeClient["connectProtoChannel"]>[0] | undefined;
+    let privateOrdersParams: Parameters<RealtimeClient["connectPrivateOrders"]>[0] | undefined;
     const unsubscribe = vi.fn();
     const connectProtoChannel = vi.fn(
         (nextParams: Parameters<RealtimeClient["connectProtoChannel"]>[0]) => {
@@ -115,14 +117,24 @@ export function realtimeClientStub(): {
             return unsubscribe;
         },
     );
+    const connectPrivateOrders = vi.fn(
+        (nextParams: Parameters<RealtimeClient["connectPrivateOrders"]>[0]) => {
+            privateOrdersParams = nextParams;
+            return unsubscribe;
+        },
+    );
 
     return {
         realtime: {
             connectProtoChannel,
+            connectPrivateOrders,
         } as unknown as RealtimeClient,
         connectProtoChannel,
         get params() {
             return params;
+        },
+        get privateOrdersParams() {
+            return privateOrdersParams;
         },
         unsubscribe,
     };

@@ -393,6 +393,7 @@ describe("TradesService", () => {
                 wsUrl: "wss://stream.example.test",
                 tokenEndpoint: "https://api.example.test/v1/rt/token",
                 subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+                privateWsUrl: "wss://api.example.test/v1/ws/private",
             }),
             undefined,
             testScales(),

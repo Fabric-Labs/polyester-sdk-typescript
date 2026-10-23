@@ -19,7 +19,9 @@ import {
 } from "../shared/errors.js";
 import { makeFetch } from "../shared/transports.js";
 import { decodeProtoFrame } from "../utils/streams.js";
+import { idToBigInt } from "../utils/base58-id.js";
 import type { ConnectChannelParams, PolyesterRealtime, SubscribeHandlers } from "./types.js";
+import type { ConnectPrivateOrdersParams, PrivateOrderStream } from "./private-orders.js";
 
 const realtimeFetch = makeFetch();
 
@@ -82,13 +84,15 @@ export interface RealtimeConfig {
     wsUrl: string;
     tokenEndpoint: string;
     subscribeEndpoint: string;
+    /** Private WebSocket endpoint for account order streams (`/v1/ws/private`). */
+    privateWsUrl: string;
     getAuthHeaders?: (request: RealtimeAuthRequest) => Promise<HeadersInit> | HeadersInit;
     hasAuth?: () => boolean;
 }
 
 type ResolvedRealtimeConfig = Pick<
     RealtimeConfig,
-    "wsUrl" | "tokenEndpoint" | "subscribeEndpoint"
+    "wsUrl" | "tokenEndpoint" | "subscribeEndpoint" | "privateWsUrl"
 > & {
     getAuthHeaders: (request: RealtimeAuthRequest) => Promise<HeadersInit> | HeadersInit;
     hasAuth: () => boolean;
@@ -121,6 +125,10 @@ export class RealtimeClient implements PolyesterRealtime {
     #privateClient: Centrifuge | null = null;
     #sharedSubs = new Map<string, SharedSubscription>();
     #pendingTeardowns = new Map<string, SharedSubscription>();
+    // Loaded on first use: the stream's protobuf graph (orders included) stays out of the app shell.
+    #privateOrdersLoading: Promise<PrivateOrderStream> | null = null;
+    #privateOrders: PrivateOrderStream | null = null;
+    #privateOrdersEpoch = 0;
     readonly #config: ResolvedRealtimeConfig;
 
     constructor(config: RealtimeConfig) {
@@ -128,6 +136,7 @@ export class RealtimeClient implements PolyesterRealtime {
             wsUrl: config.wsUrl,
             tokenEndpoint: config.tokenEndpoint,
             subscribeEndpoint: config.subscribeEndpoint,
+            privateWsUrl: config.privateWsUrl,
             getAuthHeaders: config.getAuthHeaders ?? (() => ({})),
             hasAuth: config.hasAuth ?? (() => false),
         };
@@ -135,6 +144,29 @@ export class RealtimeClient implements PolyesterRealtime {
 
     async #getAuthHeaders(request: RealtimeAuthRequest): Promise<HeadersInit> {
         return this.#config.getAuthHeaders(request);
+    }
+
+    async #fetchToken(url: string | URL, kind: "connection" | "subscription"): Promise<string> {
+        const headers = await this.#getAuthHeaders({ url, method: "GET" });
+        const res = await realtimeFetch(url, { headers });
+        if (!res.ok) {
+            throw errorFromHttpStatus(res.status, `Failed to fetch ${kind} token: ${res.status}`, {
+                status: res.status,
+            });
+        }
+        const json = (await res.json()) as { token?: string };
+        if (!json?.token) {
+            throw new InternalServerError(
+                `${kind === "connection" ? "Connection" : "Subscription"} token response had no token`,
+            );
+        }
+        return json.token;
+    }
+
+    #fetchSubscriptionToken(channel: string): Promise<string> {
+        const url = new URL(this.#config.subscribeEndpoint);
+        url.searchParams.set("channel", channel);
+        return this.#fetchToken(url, "subscription");
     }
 
     #emitSubscriptionError(shared: SharedSubscription, type: string, error: unknown): void {
@@ -161,22 +193,7 @@ export class RealtimeClient implements PolyesterRealtime {
         return {
             getToken: async () => {
                 try {
-                    const url = new URL(this.#config.subscribeEndpoint);
-                    url.searchParams.set("channel", shared.channel);
-                    const headers = await this.#getAuthHeaders({ url, method: "GET" });
-                    const res = await realtimeFetch(url, { headers });
-                    if (!res.ok) {
-                        throw errorFromHttpStatus(
-                            res.status,
-                            `Failed to fetch subscription token: ${res.status}`,
-                            { status: res.status },
-                        );
-                    }
-                    const json = (await res.json()) as { token?: string };
-                    if (!json?.token) {
-                        throw new InternalServerError("Subscription token response had no token");
-                    }
-                    return json.token;
+                    return await this.#fetchSubscriptionToken(shared.channel);
                 } catch (error) {
                     if (shared.attachmentEpoch === attachmentEpoch) {
                         this.#emitSubscriptionError(shared, "subscription_token", error);
@@ -225,25 +242,7 @@ export class RealtimeClient implements PolyesterRealtime {
         const opts = {
             getToken: async () => {
                 try {
-                    const headers = await this.#getAuthHeaders({
-                        url: this.#config.tokenEndpoint,
-                        method: "GET",
-                    });
-                    const res = await realtimeFetch(this.#config.tokenEndpoint, {
-                        headers,
-                    });
-                    if (!res.ok) {
-                        throw errorFromHttpStatus(
-                            res.status,
-                            `Failed to fetch connection token: ${res.status}`,
-                            { status: res.status },
-                        );
-                    }
-                    const json = (await res.json()) as { token?: string };
-                    if (!json?.token) {
-                        throw new InternalServerError("Connection token response had no token");
-                    }
-                    return json.token;
+                    return await this.#fetchToken(this.#config.tokenEndpoint, "connection");
                 } catch (error) {
                     if (this.#privateClient === client) {
                         this.#emitConnectionTokenError(error);
@@ -537,7 +536,19 @@ export class RealtimeClient implements PolyesterRealtime {
         }
     }
 
+    /** Consumers still waiting for the stream module see the new epoch and never connect. */
+    #disconnectPrivateOrders(): void {
+        this.#privateOrdersEpoch++;
+        this.#privateOrders?.disconnect();
+    }
+
     #disconnect(): void {
+        this.#disconnectPrivateOrders();
+        this.#disconnectCentrifuge();
+    }
+
+    /** Leaves private order streams alone: they run on their own socket. */
+    #disconnectCentrifuge(): void {
         const publicClient = this.#publicClient;
         const privateClient = this.#privateClient;
 
@@ -559,6 +570,7 @@ export class RealtimeClient implements PolyesterRealtime {
     }
 
     #disconnectPrivate(): void {
+        this.#disconnectPrivateOrders();
         const privateClient = this.#privateClient;
         this.#privateClient = null;
 
@@ -689,7 +701,7 @@ export class RealtimeClient implements PolyesterRealtime {
                     this.#teardownSubscription(shared);
 
                     if (this.#sharedSubs.size === 0 && this.#pendingTeardowns.size === 0) {
-                        this.#disconnect();
+                        this.#disconnectCentrifuge();
                     }
                 });
             }
@@ -756,6 +768,60 @@ export class RealtimeClient implements PolyesterRealtime {
     }
 
     /**
+     * Streams one account's orders over the private WebSocket. Missing authentication
+     * is reported to `onError`, or thrown synchronously when no error observer is provided.
+     * Throws ValidationError when `accountId` is not a base58 public ID.
+     */
+    connectPrivateOrders(params: ConnectPrivateOrdersParams): () => void {
+        idToBigInt(params.accountId, "accountId");
+        const channel = `private:spot:orders:${params.accountId}`;
+        if (!this.#hasAuth()) {
+            const error = new AuthenticationError(
+                `Cannot subscribe to private channel "${channel}" without authentication`,
+            );
+            if (!params.onError) throw error;
+            const ctx = createSdkSubscriptionErrorContext(channel, "auth", error);
+            queueMicrotask(() => this.#callErrorHandler(params.onError, ctx));
+            return () => {};
+        }
+        // Once loaded, connect at once: an unsubscribe and resubscribe in one tick keeps the stream.
+        if (this.#privateOrders) return this.#privateOrders.connect(params);
+        const loading = (this.#privateOrdersLoading ??= import("./private-orders.js").then(
+            ({ PrivateOrderStream }) =>
+                (this.#privateOrders = new PrivateOrderStream({
+                    url: this.#config.privateWsUrl,
+                    fetchConnectToken: () =>
+                        this.#fetchToken(this.#config.tokenEndpoint, "connection"),
+                    fetchSubscribeToken: (ch) => this.#fetchSubscriptionToken(ch),
+                })),
+        ));
+        const epoch = this.#privateOrdersEpoch;
+        let closed = false;
+        let stop: (() => void) | undefined;
+        loading.then(
+            (stream) => {
+                if (!closed && epoch === this.#privateOrdersEpoch) stop = stream.connect(params);
+            },
+            (error) => {
+                if (this.#privateOrdersLoading === loading) this.#privateOrdersLoading = null;
+                if (closed || epoch !== this.#privateOrdersEpoch) return;
+                const ctx = createSdkSubscriptionErrorContext(channel, "transport_load", error);
+                this.#callErrorHandler(params.onError, ctx);
+                this.#callConsumerHandler(
+                    channel,
+                    "unsubscribed_handler",
+                    () => params.onDisconnected?.(),
+                    params.onError,
+                );
+            },
+        );
+        return () => {
+            closed = true;
+            stop?.();
+        };
+    }
+
+    /**
      * Disconnects the realtime client from all active channels.
      */
     disconnect(): void {
@@ -770,15 +836,19 @@ export class RealtimeClient implements PolyesterRealtime {
     }
 
     get isConnected(): boolean {
-        return this.#publicClient !== null || this.#privateClient !== null;
+        return (
+            this.#publicClient !== null ||
+            this.#privateClient !== null ||
+            (this.#privateOrders?.activeChannels ?? 0) > 0
+        );
     }
 
     get activeChannels(): number {
-        return this.#sharedSubs.size;
+        return this.#sharedSubs.size + (this.#privateOrders?.activeChannels ?? 0);
     }
 
     get totalConsumers(): number {
-        let total = 0;
+        let total = this.#privateOrders?.totalConsumers ?? 0;
         for (const shared of this.#sharedSubs.values()) {
             total += shared.consumers;
         }

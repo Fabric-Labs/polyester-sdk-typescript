@@ -1,5 +1,6 @@
 import type { DescMessage, MessageShape } from "@bufbuild/protobuf";
 import type { SdkSubscriptionErrorContext } from "../shared/subscription-errors.js";
+import type { ConnectPrivateOrdersParams } from "./private-orders.js";
 
 export interface SubscribeHandlers<T> {
     onPublication: (data: T) => void;
@@ -32,6 +33,8 @@ export interface PolyesterRealtime {
     connectChannel<T extends DescMessage>(params: ConnectChannelParams<T>): () => void;
     /** Connects to a realtime channel that emits protobuf messages. */
     connectProtoChannel<T extends DescMessage>(params: ConnectChannelParams<T>): () => void;
+    /** Streams one account's orders over the private WebSocket. */
+    connectPrivateOrders(params: ConnectPrivateOrdersParams): () => void;
     /** Disconnects from all active channels. */
     disconnect(): void;
     /** Disconnects authenticated realtime state without touching public channels. */
