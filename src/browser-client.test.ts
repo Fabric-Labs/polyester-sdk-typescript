@@ -509,16 +509,31 @@ describe.each([
             return { client, login, loggedOut };
         }
 
-        it("ends the session and emits loggedOut on a 401", async () => {
-            const { client, loggedOut } = await loggedInClient(
-                connectErrorResponse(401, "unauthenticated"),
-            );
+        it("confirms concurrent 401s with one me() and ends the session once", async () => {
+            const fetch = connectErrorResponse(401, "unauthenticated");
+            const { client, loggedOut } = await loggedInClient(fetch);
+
+            await Promise.all([
+                expect(client.auth.me()).rejects.toThrow("rejected"),
+                expect(client.auth.me()).rejects.toThrow("rejected"),
+            ]);
+
+            await vi.waitFor(() => expect(loggedOut).toHaveBeenCalledOnce());
+            // Two rejected calls plus a single confirming me().
+            expect(fetch).toHaveBeenCalledTimes(3);
+            expect(client.auth.getState().isAuthenticated).toBe(false);
+            expect(client.auth.getSessionTimeToExpiry()).toBe(0);
+        });
+
+        it("ignores 401s on requests that carried no token", async () => {
+            const fetch = connectErrorResponse(401, "unauthenticated");
+            const client = new BrowserClient({ environment: POLYESTER_DEVNET_ENVIRONMENT, fetch });
+            const handleRejectedToken = vi.spyOn(client.auth, "handleRejectedToken");
 
             await expect(client.auth.me()).rejects.toThrow("rejected");
 
-            expect(loggedOut).toHaveBeenCalledOnce();
-            expect(client.auth.getState().isAuthenticated).toBe(false);
-            expect(client.auth.getSessionTimeToExpiry()).toBe(0);
+            expect(handleRejectedToken).not.toHaveBeenCalled();
+            expect(fetch).toHaveBeenCalledOnce();
         });
 
         it("keeps the session on permission-denied rejections such as MFA step-up", async () => {
