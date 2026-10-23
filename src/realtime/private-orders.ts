@@ -52,8 +52,15 @@ export interface PrivateOrderStreamConfig {
 
 type ClientOp = MessageInitShape<typeof ClientMessageSchema>["op"];
 
-interface StreamSubscription {
+interface Consumer {
     params: ConnectPrivateOrdersParams;
+    /** False until a consumer that joined a running subscription received its current state. */
+    caughtUp: boolean;
+}
+
+/** One server subscription per account, shared by every consumer of that account. */
+interface StreamSubscription {
+    consumers: Set<Consumer>;
     channel: string;
     account: bigint;
     /** Server subscription ID; empty until Subscribed. */
@@ -62,9 +69,11 @@ interface StreamSubscription {
     /** Last applied resume position, carried across resubscribes and reconnects. */
     cursor: string;
     staged: Order[] | null;
-    /** The last connection state the consumer was told about. */
+    /** The account's live view as last applied, for consumers that join later; null before the first snapshot. */
+    orders: Map<bigint, Order> | null;
+    /** The last connection state consumers were told about. */
     state: "pending" | "connected" | "disconnected";
-    /** The consumer was told the view is stale and not yet that it caught up. */
+    /** Consumers were told the view is stale and not yet that it caught up. */
     stale: boolean;
     /** Subscribe attempts since the subscription last delivered data; drives retry backoff. */
     retries: number;
@@ -90,7 +99,8 @@ function isTerminalTokenError(error: unknown): boolean {
  */
 export class PrivateOrderStream {
     readonly #config: PrivateOrderStreamConfig;
-    readonly #subs = new Set<StreamSubscription>();
+    /** Keyed by channel. A subscription whose last consumer left stays until the next microtask. */
+    readonly #subs = new Map<string, StreamSubscription>();
     readonly #pending = new Map<string, PendingRequest>();
     readonly #bySub = new Map<string, StreamSubscription>();
     /** IDs of Unsubscribe requests awaiting their answer. */
@@ -113,31 +123,65 @@ export class PrivateOrderStream {
 
     /** Throws ValidationError when accountId is not a base58 public ID. */
     connect(params: ConnectPrivateOrdersParams): () => void {
-        // ponytail: one server subscription per consumer; share by account if 64 per connection gets tight.
+        const channel = `private:spot:orders:${params.accountId}`;
+        const account = idToBigInt(params.accountId, "accountId");
+        const existing = this.#subs.get(channel);
+        if (existing) {
+            const consumer: Consumer = { params, caughtUp: false };
+            existing.consumers.add(consumer);
+            queueMicrotask(() => this.#catchUp(existing, consumer));
+            return () => this.#remove(existing, consumer);
+        }
+        const consumer: Consumer = { params, caughtUp: true };
         const s: StreamSubscription = {
-            params,
-            channel: `private:spot:orders:${params.accountId}`,
-            account: idToBigInt(params.accountId, "accountId"),
+            consumers: new Set([consumer]),
+            channel,
+            account,
             sub: "",
             seq: 0n,
             cursor: "",
             staged: null,
+            orders: null,
             state: "pending",
             stale: false,
             retries: 0,
             retryTimer: null,
         };
-        this.#subs.add(s);
+        this.#subs.set(channel, s);
         if (this.#ws && this.#authSent) void this.#subscribe(this.#ws, s);
         else if (!this.#ws && !this.#connecting && !this.#reconnectTimer) this.#open();
-        return () => this.#remove(s);
+        return () => this.#remove(s, consumer);
     }
 
     /** Closes the connection and drops every subscription without callbacks. */
     disconnect(): void {
-        for (const s of this.#subs) this.#clearRetry(s);
+        for (const s of this.#subs.values()) this.#clearRetry(s);
         this.#subs.clear();
         this.#shutdown();
+    }
+
+    /** Accounts with at least one consumer. */
+    get activeChannels(): number {
+        let count = 0;
+        for (const s of this.#subs.values()) if (s.consumers.size > 0) count++;
+        return count;
+    }
+
+    get totalConsumers(): number {
+        let count = 0;
+        for (const s of this.#subs.values()) count += s.consumers.size;
+        return count;
+    }
+
+    /** Gives a consumer that joined a running subscription what the others already know. */
+    #catchUp(s: StreamSubscription, c: Consumer): void {
+        if (!this.#isCurrent(s) || !s.consumers.has(c)) return;
+        c.caughtUp = true;
+        const { params } = c;
+        if (s.state === "connected") this.#deliverTo(s, c, () => params.onConnected?.());
+        const orders = s.orders && [...s.orders.values()];
+        if (orders) this.#deliverTo(s, c, () => params.onEvent({ type: "snapshot", orders }));
+        if (s.stale) this.#deliverTo(s, c, () => params.onEvent({ type: "stale", stale: true }));
     }
 
     /** Fetches the connect token first: the server closes a socket that sends no Auth within 5 seconds. */
@@ -156,7 +200,14 @@ export class PrivateOrderStream {
             (token) => {
                 if (generation !== this.#generation) return;
                 this.#connecting = false;
-                const ws = new WebSocketCtor(this.#config.url, PRIVATE_WS_SUBPROTOCOL);
+                let ws: WebSocket;
+                try {
+                    ws = new WebSocketCtor(this.#config.url, PRIVATE_WS_SUBPROTOCOL);
+                } catch (error) {
+                    // A bad URL or a blocked insecure socket fails the same way on every retry.
+                    this.#terminateAll("connection", error);
+                    return;
+                }
                 ws.binaryType = "arraybuffer";
                 this.#ws = ws;
                 this.#authSent = false;
@@ -182,7 +233,7 @@ export class PrivateOrderStream {
         this.#authSent = true;
         this.#authSentAt = Date.now();
         this.#armHeartbeat(ws);
-        for (const s of this.#subs) void this.#subscribe(ws, s);
+        for (const s of this.#subs.values()) void this.#subscribe(ws, s);
     }
 
     async #reauthenticate(ws: WebSocket): Promise<void> {
@@ -196,8 +247,12 @@ export class PrivateOrderStream {
         }
     }
 
+    #isCurrent(s: StreamSubscription): boolean {
+        return this.#subs.get(s.channel) === s;
+    }
+
     async #subscribe(ws: WebSocket, s: StreamSubscription): Promise<void> {
-        if (!this.#subs.has(s)) return;
+        if (!this.#isCurrent(s)) return;
         const id = this.#nextRequestId();
         this.#pending.set(id, { kind: "subscribe", s });
         let token: string;
@@ -227,7 +282,7 @@ export class PrivateOrderStream {
         s.retryTimer = setTimeout(
             () => {
                 s.retryTimer = null;
-                if (this.#ws === ws && this.#subs.has(s) && !s.sub) void this.#subscribe(ws, s);
+                if (this.#ws === ws && this.#isCurrent(s) && !s.sub) void this.#subscribe(ws, s);
             },
             backoffMs(s.retries++),
         );
@@ -268,10 +323,15 @@ export class PrivateOrderStream {
         s.staged = null;
         if (s.retries > 0) {
             this.#retrySubscribe(ws, s);
-            return;
+        } else {
+            s.retries = 1;
+            void this.#subscribe(ws, s);
         }
-        s.retries = 1;
-        void this.#subscribe(ws, s);
+        // Consumers see the gap as a close and the replacement's Subscribed as a reopen.
+        if (s.state === "connected") {
+            s.state = "disconnected";
+            this.#deliver(s, (p) => p.onDisconnected?.());
+        }
     }
 
     #unsubscribe(ws: WebSocket, sub: string): void {
@@ -314,12 +374,12 @@ export class PrivateOrderStream {
                 this.#bySub.set(msg.sub, s);
                 if (s.state !== "connected") {
                     s.state = "connected";
-                    this.#deliver(s, () => s.params.onConnected?.());
+                    this.#deliver(s, (p) => p.onConnected?.());
                 }
                 // A new subscription reports Unavailable itself if its view is still behind.
                 if (s.stale) {
                     s.stale = false;
-                    this.#deliver(s, () => s.params.onEvent({ type: "stale", stale: false }));
+                    this.#deliver(s, (p) => p.onEvent({ type: "stale", stale: false }));
                 }
                 return;
             }
@@ -364,24 +424,32 @@ export class PrivateOrderStream {
                 }
                 s.cursor = frame.value.cursor;
                 s.retries = 0;
-                this.#deliver(s, () => s.params.onEvent({ type: "snapshot", orders }));
+                s.orders = new Map(orders.map((o) => [o.orderId, o]));
+                this.#deliver(s, (p) => p.onEvent({ type: "snapshot", orders }));
                 return;
             }
             case "unit": {
                 const unit = frame.value;
                 s.cursor = unit.nextCursor;
                 s.retries = 0;
-                this.#deliver(s, () => s.params.onEvent({ type: "unit", unit }));
+                for (const o of unit.orders) s.orders?.set(o.orderId, o);
+                for (const id of unit.removedOrderIds) s.orders?.delete(id);
+                this.#deliver(s, (p) => p.onEvent({ type: "unit", unit }));
                 return;
             }
             case "covered":
                 s.cursor = frame.value.cursor;
+                s.retries = 0;
+                return;
+            case "ready":
+                // A resumed subscription on a quiet account delivers no data, only this.
+                s.retries = 0;
                 return;
             case "unavailable":
             case "available": {
                 const stale = frame.case === "unavailable";
                 s.stale = stale;
-                this.#deliver(s, () => s.params.onEvent({ type: "stale", stale }));
+                this.#deliver(s, (p) => p.onEvent({ type: "stale", stale }));
                 return;
             }
             case "subscribeExpiring":
@@ -403,6 +471,8 @@ export class PrivateOrderStream {
     ): void {
         if (error.id && this.#unsubscribing.delete(error.id)) return;
         const request = error.id ? this.#pending.get(error.id) : undefined;
+        // The answer to a request already answered, or whose subscription has since gone.
+        if (error.id && !request) return;
         if (request) this.#pending.delete(error.id);
         const s = request?.s ?? this.#bySub.get(sub);
         const realtimeError = new RealtimeError(
@@ -439,20 +509,22 @@ export class PrivateOrderStream {
         if (stable) this.#reconnectAttempt = 0;
         if (this.#subs.size === 0) return;
 
-        const terminal = TERMINAL_CLOSE_CODES.has(code);
-        const error = new RealtimeError(reason || `Private WebSocket closed with code ${code}`, {
-            realtimeCode: code,
-            retryable: !terminal,
-        });
-        if (terminal) {
+        if (TERMINAL_CLOSE_CODES.has(code)) {
+            const error = new RealtimeError(
+                reason || `Private WebSocket closed with code ${code}`,
+                {
+                    realtimeCode: code,
+                    retryable: false,
+                },
+            );
             this.#terminateAll("disconnected", error);
             return;
         }
-        for (const s of this.#subs) {
-            this.#report(s, "disconnected", error);
+        // A close that reconnects is not an error, like a Centrifugo reconnect.
+        for (const s of this.#subs.values()) {
             if (s.state === "connected") {
                 s.state = "disconnected";
-                this.#deliver(s, () => s.params.onDisconnected?.());
+                this.#deliver(s, (p) => p.onDisconnected?.());
             }
         }
         if (this.#subs.size === 0) return;
@@ -497,7 +569,7 @@ export class PrivateOrderStream {
         this.#pending.clear();
         this.#bySub.clear();
         this.#unsubscribing.clear();
-        for (const s of this.#subs) {
+        for (const s of this.#subs.values()) {
             this.#clearRetry(s);
             s.sub = "";
             s.seq = 0n;
@@ -525,8 +597,18 @@ export class PrivateOrderStream {
         }
     }
 
-    #remove(s: StreamSubscription): void {
-        if (!this.#subs.delete(s)) return;
+    /** Drops a consumer; the server subscription goes a microtask later unless another joined. */
+    #remove(s: StreamSubscription, c: Consumer): void {
+        if (!s.consumers.delete(c) || s.consumers.size > 0) return;
+        queueMicrotask(() => {
+            if (s.consumers.size === 0) this.#teardown(s);
+        });
+    }
+
+    #teardown(s: StreamSubscription): void {
+        if (!this.#isCurrent(s)) return;
+        this.#subs.delete(s.channel);
+        s.consumers.clear();
         this.#clearRetry(s);
         const ws = this.#ws;
         if (ws && s.sub) {
@@ -541,16 +623,18 @@ export class PrivateOrderStream {
     }
 
     #terminate(s: StreamSubscription, type: string, error: unknown): void {
-        if (!this.#subs.has(s)) return;
+        if (!this.#isCurrent(s)) return;
         this.#report(s, type, error);
-        this.#remove(s);
-        if (s.state === "disconnected") return;
+        // Tell every consumer that has not been told it is disconnected.
+        const told = s.state === "disconnected";
+        const consumers = [...s.consumers].filter((c) => !c.caughtUp || !told);
         s.state = "disconnected";
-        this.#deliver(s, () => s.params.onDisconnected?.());
+        this.#teardown(s);
+        for (const c of consumers) this.#call(s.channel, c, () => c.params.onDisconnected?.());
     }
 
     #terminateAll(type: string, error: unknown): void {
-        for (const s of this.#subs) this.#terminate(s, type, error);
+        for (const s of this.#subs.values()) this.#terminate(s, type, error);
     }
 
     #send(ws: WebSocket, op: ClientOp): void {
@@ -563,23 +647,37 @@ export class PrivateOrderStream {
     }
 
     #report(s: StreamSubscription, type: string, error: unknown): void {
-        try {
-            s.params.onError?.(createSdkSubscriptionErrorContext(s.channel, type, error));
-        } catch {
-            // Keep consumer error-handler failures isolated from the stream.
+        const ctx = createSdkSubscriptionErrorContext(s.channel, type, error);
+        for (const c of s.consumers) {
+            try {
+                c.params.onError?.(ctx);
+            } catch {
+                // Keep consumer error-handler failures isolated from the stream.
+            }
         }
     }
 
     #reportAll(type: string, error: unknown): void {
-        for (const s of this.#subs) this.#report(s, type, error);
+        for (const s of this.#subs.values()) this.#report(s, type, error);
     }
 
-    #deliver(s: StreamSubscription, deliver: () => void): void {
+    /** Delivers to each caught-up consumer still attached when its turn comes. */
+    #deliver(s: StreamSubscription, deliver: (params: ConnectPrivateOrdersParams) => void): void {
+        for (const c of s.consumers) {
+            if (c.caughtUp) this.#deliverTo(s, c, () => deliver(c.params));
+        }
+    }
+
+    #deliverTo(s: StreamSubscription, c: Consumer, deliver: () => void): void {
+        if (s.consumers.has(c)) this.#call(s.channel, c, deliver);
+    }
+
+    #call(channel: string, c: Consumer, deliver: () => void): void {
         try {
             deliver();
         } catch (error) {
             try {
-                s.params.onError?.(publicationHandlerErrorContext(s.channel, error));
+                c.params.onError?.(publicationHandlerErrorContext(channel, error));
             } catch {
                 // noop
             }

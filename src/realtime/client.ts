@@ -13,7 +13,6 @@ import {
 } from "../shared/subscription-errors.js";
 import {
     AuthenticationError,
-    ConfigurationError,
     errorFromHttpStatus,
     InternalServerError,
     PolyesterError,
@@ -86,7 +85,7 @@ export interface RealtimeConfig {
     tokenEndpoint: string;
     subscribeEndpoint: string;
     /** Private WebSocket endpoint for account order streams (`/v1/ws/private`). */
-    privateWsUrl?: string;
+    privateWsUrl: string;
     getAuthHeaders?: (request: RealtimeAuthRequest) => Promise<HeadersInit> | HeadersInit;
     hasAuth?: () => boolean;
 }
@@ -127,7 +126,8 @@ export class RealtimeClient implements PolyesterRealtime {
     #sharedSubs = new Map<string, SharedSubscription>();
     #pendingTeardowns = new Map<string, SharedSubscription>();
     // Loaded on first use: the stream's protobuf graph (orders included) stays out of the app shell.
-    #privateOrders: Promise<PrivateOrderStream> | null = null;
+    #privateOrdersLoading: Promise<PrivateOrderStream> | null = null;
+    #privateOrders: PrivateOrderStream | null = null;
     #privateOrdersEpoch = 0;
     readonly #config: ResolvedRealtimeConfig;
 
@@ -536,9 +536,10 @@ export class RealtimeClient implements PolyesterRealtime {
         }
     }
 
+    /** Consumers still waiting for the stream module see the new epoch and never connect. */
     #disconnectPrivateOrders(): void {
         this.#privateOrdersEpoch++;
-        void this.#privateOrders?.then((stream) => stream.disconnect());
+        this.#privateOrders?.disconnect();
     }
 
     #disconnect(): void {
@@ -774,10 +775,6 @@ export class RealtimeClient implements PolyesterRealtime {
     connectPrivateOrders(params: ConnectPrivateOrdersParams): () => void {
         idToBigInt(params.accountId, "accountId");
         const channel = `private:spot:orders:${params.accountId}`;
-        const privateWsUrl = this.#config.privateWsUrl;
-        if (!privateWsUrl) {
-            throw new ConfigurationError("Realtime config has no privateWsUrl for order streams.");
-        }
         if (!this.#hasAuth()) {
             const error = new AuthenticationError(
                 `Cannot subscribe to private channel "${channel}" without authentication`,
@@ -787,14 +784,16 @@ export class RealtimeClient implements PolyesterRealtime {
             queueMicrotask(() => this.#callErrorHandler(params.onError, ctx));
             return () => {};
         }
-        const loading = (this.#privateOrders ??= import("./private-orders.js").then(
+        // Once loaded, connect at once: an unsubscribe and resubscribe in one tick keeps the stream.
+        if (this.#privateOrders) return this.#privateOrders.connect(params);
+        const loading = (this.#privateOrdersLoading ??= import("./private-orders.js").then(
             ({ PrivateOrderStream }) =>
-                new PrivateOrderStream({
-                    url: privateWsUrl,
+                (this.#privateOrders = new PrivateOrderStream({
+                    url: this.#config.privateWsUrl,
                     fetchConnectToken: () =>
                         this.#fetchToken(this.#config.tokenEndpoint, "connection"),
                     fetchSubscribeToken: (ch) => this.#fetchSubscriptionToken(ch),
-                }),
+                })),
         ));
         const epoch = this.#privateOrdersEpoch;
         let closed = false;
@@ -804,7 +803,7 @@ export class RealtimeClient implements PolyesterRealtime {
                 if (!closed && epoch === this.#privateOrdersEpoch) stop = stream.connect(params);
             },
             (error) => {
-                if (this.#privateOrders === loading) this.#privateOrders = null;
+                if (this.#privateOrdersLoading === loading) this.#privateOrdersLoading = null;
                 if (closed) return;
                 const ctx = createSdkSubscriptionErrorContext(channel, "transport_load", error);
                 this.#callErrorHandler(params.onError, ctx);
@@ -837,15 +836,19 @@ export class RealtimeClient implements PolyesterRealtime {
     }
 
     get isConnected(): boolean {
-        return this.#publicClient !== null || this.#privateClient !== null;
+        return (
+            this.#publicClient !== null ||
+            this.#privateClient !== null ||
+            (this.#privateOrders?.activeChannels ?? 0) > 0
+        );
     }
 
     get activeChannels(): number {
-        return this.#sharedSubs.size;
+        return this.#sharedSubs.size + (this.#privateOrders?.activeChannels ?? 0);
     }
 
     get totalConsumers(): number {
-        let total = 0;
+        let total = this.#privateOrders?.totalConsumers ?? 0;
         for (const shared of this.#sharedSubs.values()) {
             total += shared.consumers;
         }

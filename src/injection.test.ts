@@ -108,6 +108,7 @@ describe.each([
                 wsUrl: "wss://example.invalid/ws",
                 tokenEndpoint: "https://example.invalid/token",
                 subscribeEndpoint: "https://example.invalid/subscribe",
+                privateWsUrl: "wss://api.example.test/v1/ws/private",
             });
             expect(realtime.isConnected).toBe(false);
             expect(realtime.activeChannels).toBe(0);
