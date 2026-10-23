@@ -104,6 +104,7 @@ export class AccountSignerAuthService extends AuthService {
     // A login or refresh in flight is about to replace the token, so a 401 for
     // the outgoing token must not end the session underneath it.
     #loginsInFlight = 0;
+    #rejectedTokenCheck: Promise<void> | null = null;
 
     constructor({
         transports,
@@ -383,13 +384,33 @@ export class AccountSignerAuthService extends AuthService {
 
     /**
      * Ends the session after the backend rejected `token` as unauthenticated (revoked,
-     * or expired despite a lagging local clock). Ignored when the token has since been
-     * replaced or a login/refresh is in flight. Browser clients call this automatically.
+     * or expired despite a lagging local clock), once `me()` confirms the rejection so
+     * one misbehaving endpoint cannot sign the user out. Ignored when the token has
+     * since been replaced or a login/refresh is in flight; concurrent rejections share
+     * one confirmation. Browser clients call this automatically.
      */
-    handleRejectedToken(token: string): void {
-        if (this.#loginsInFlight > 0 || this.#getEnvironmentBoundToken() !== token) return;
+    handleRejectedToken(token: string): Promise<void> {
+        if (!this.#isRejectableToken(token)) return Promise.resolve();
+        // The confirming me() may itself be rejected and re-enter here; it joins this check.
+        return (this.#rejectedTokenCheck ??= this.#confirmRejectedToken(token).finally(() => {
+            this.#rejectedTokenCheck = null;
+        }));
+    }
+
+    async #confirmRejectedToken(token: string): Promise<void> {
+        try {
+            await this.me();
+            return;
+        } catch (error) {
+            if (!(toPolyesterError(error) instanceof AuthenticationError)) return;
+        }
+        if (!this.#isRejectableToken(token)) return;
         this.#beginAuthOperation();
         this.#clearExpiredSessionState();
+    }
+
+    #isRejectableToken(token: string): boolean {
+        return this.#loginsInFlight === 0 && this.#getEnvironmentBoundToken() === token;
     }
 
     #clearExpiredSessionState(): void {

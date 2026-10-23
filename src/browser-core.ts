@@ -33,7 +33,8 @@ function createRejectedTokenInterceptor(
                 // Decoders let MFA and other auth-detail rejections map to their own classes.
                 await loadErrorDetailDecoders(error);
                 if (toPolyesterError(error) instanceof AuthenticationError) {
-                    getAuth()?.handleRejectedToken(token);
+                    // Not awaited: the confirming me() passes through here too.
+                    void getAuth()?.handleRejectedToken(token);
                 }
             }
             throw error;

@@ -988,4 +988,86 @@ describe("AccountSignerAuthService", () => {
         expect(rootSigner.signMessage).toHaveBeenCalledTimes(1);
         expect(create).toHaveBeenCalledTimes(1);
     });
+
+    describe("handleRejectedToken", () => {
+        function rejectedSession() {
+            const token = jwtWithExp(Math.floor(Date.now() / 1000) + 3600);
+            const tokenStorage = createTestStorage(token);
+            const { auth } = authFixture(signer(), tokenStorage);
+            installDocument();
+            auth.hydrateAuthState({ mainAccountId: "account-1", username: "hunter" });
+            const loggedOut = vi.fn();
+            auth.events.on("loggedOut", loggedOut);
+            const me = vi.spyOn(auth, "me");
+            return { auth, token, tokenStorage, loggedOut, me };
+        }
+
+        it("ends the session once when me() confirms the rejection", async () => {
+            const { auth, token, tokenStorage, loggedOut, me } = rejectedSession();
+            me.mockRejectedValue(new AuthenticationError("HTTP 401"));
+
+            await Promise.all([auth.handleRejectedToken(token), auth.handleRejectedToken(token)]);
+            await auth.handleRejectedToken(token);
+
+            expect(me).toHaveBeenCalledOnce();
+            expect(loggedOut).toHaveBeenCalledOnce();
+            expect(tokenStorage.get()).toBeNull();
+            expect(auth.getState().isAuthenticated).toBe(false);
+        });
+
+        it("keeps the session when me() still accepts the token", async () => {
+            const { auth, token, loggedOut, me } = rejectedSession();
+            me.mockResolvedValue({ accountId: "account-1", username: "hunter" });
+
+            await auth.handleRejectedToken(token);
+
+            expect(me).toHaveBeenCalledOnce();
+            expect(loggedOut).not.toHaveBeenCalled();
+            expect(auth.getState().isAuthenticated).toBe(true);
+        });
+
+        it("keeps the session when me() fails for a non-auth reason", async () => {
+            const { auth, token, loggedOut, me } = rejectedSession();
+            me.mockRejectedValue(new ServiceUnavailableError("temporarily unavailable"));
+
+            await auth.handleRejectedToken(token);
+
+            expect(loggedOut).not.toHaveBeenCalled();
+            expect(auth.getState().isAuthenticated).toBe(true);
+        });
+
+        it("ignores a token that is no longer current", async () => {
+            const { auth, loggedOut, me } = rejectedSession();
+
+            await auth.handleRejectedToken(jwtWithExp(Math.floor(Date.now() / 1000) + 60));
+
+            expect(me).not.toHaveBeenCalled();
+            expect(loggedOut).not.toHaveBeenCalled();
+            expect(auth.getState().isAuthenticated).toBe(true);
+        });
+
+        it("keeps a token replaced while me() was confirming", async () => {
+            const { auth, token, tokenStorage, loggedOut, me } = rejectedSession();
+            me.mockImplementation(async () => {
+                tokenStorage.set(jwtWithExp(Math.floor(Date.now() / 1000) + 7200));
+                throw new AuthenticationError("HTTP 401");
+            });
+
+            await auth.handleRejectedToken(token);
+
+            expect(loggedOut).not.toHaveBeenCalled();
+            expect(auth.getState().isAuthenticated).toBe(true);
+        });
+
+        it("ignores rejections after logout", async () => {
+            const { auth, token, loggedOut, me } = rejectedSession();
+            await auth.logout();
+            loggedOut.mockClear();
+
+            await auth.handleRejectedToken(token);
+
+            expect(me).not.toHaveBeenCalled();
+            expect(loggedOut).not.toHaveBeenCalled();
+        });
+    });
 });
