@@ -527,6 +527,8 @@ export class PrivateOrderStream {
             this.#terminateAll("disconnected", error);
             return;
         }
+        // Scheduled first, so a subscription opened from onDisconnected waits for it.
+        this.#scheduleReconnect();
         // A close that reconnects is not an error, like a Centrifugo reconnect.
         for (const s of this.#subs.values()) {
             if (s.state === "connected") {
@@ -534,8 +536,6 @@ export class PrivateOrderStream {
                 this.#deliver(s, (p) => p.onDisconnected?.());
             }
         }
-        if (this.#subs.size === 0) return;
-        this.#scheduleReconnect();
     }
 
     #scheduleReconnect(): void {
@@ -656,7 +656,9 @@ export class PrivateOrderStream {
 
     #report(s: StreamSubscription, type: string, error: unknown): void {
         const ctx = createSdkSubscriptionErrorContext(s.channel, type, error);
-        for (const c of s.consumers) {
+        // Only consumers present when the error happened, and still attached.
+        for (const c of [...s.consumers]) {
+            if (!s.consumers.has(c)) continue;
             try {
                 c.params.onError?.(ctx);
             } catch {

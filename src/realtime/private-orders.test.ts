@@ -804,6 +804,36 @@ describe("PrivateOrderStream", () => {
         expect(other?.handlers.onError).not.toHaveBeenCalled();
     });
 
+    it("backs off a reconnect when a consumer subscribes from onDisconnected", async () => {
+        vi.spyOn(Math, "random").mockReturnValue(0);
+        const { stream, handlers } = setup();
+        const ws = await confirm();
+        handlers.onDisconnected.mockImplementation(() => subscriber(stream, OTHER_ACCOUNT));
+
+        ws.serverClose(1001);
+        await flush();
+        expect(FakeWebSocket.instances).toHaveLength(1);
+
+        await vi.advanceTimersByTimeAsync(500);
+        expect(FakeWebSocket.instances).toHaveLength(2);
+        await vi.advanceTimersByTimeAsync(20_000);
+        expect(FakeWebSocket.instances).toHaveLength(2);
+    });
+
+    it("does not report an error to a consumer that joins the account from onError", async () => {
+        const { stream, handlers } = setup();
+        const ws = await confirm();
+        let other: ReturnType<typeof subscriber> | undefined;
+        handlers.onError.mockImplementationOnce(() => {
+            other = subscriber(stream);
+        });
+
+        ws.onmessage?.({ data: "not binary" });
+
+        expect(handlers.onError).toHaveBeenCalledOnce();
+        expect(other?.handlers.onError).not.toHaveBeenCalled();
+    });
+
     it("reports a missing global WebSocket after connect returns", async () => {
         vi.stubGlobal("WebSocket", undefined);
         const { handlers } = setup();
