@@ -102,7 +102,10 @@ export interface SubscribeOrdersInput extends BaseSubscribeInput<Order> {
      * each snapshot order goes to `onEvent` instead.
      */
     onSnapshot?: (orders: Order[]) => void;
-    /** Orders that left the live view and remain only in history. Not cancellations. */
+    /**
+     * Orders that left the live view and remain only in history. Not cancellations.
+     * Without `onSnapshot`, also the orders a resync snapshot no longer contains.
+     */
     onRemoved?: (orderIds: string[]) => void;
     /** `true` while the account's live view is behind; `false` once it caught up. */
     onStale?: (stale: boolean) => void;
@@ -463,6 +466,11 @@ export class OrdersService {
         idToBigInt(input.accountId, "accountId");
         const channel = `private:spot:orders:${input.accountId}`;
         const onError = input.onError;
+        const known = (orders: ProtoRead.Order[]) =>
+            orders.filter((o) => hasKnownOrderSymbol(this.#scales, o));
+        // Order IDs in the live view, so a snapshot can report orders that left it while
+        // their removal was not delivered (a resync after an expired cursor).
+        const live = new Set<bigint>();
         return connectReadyGated<PrivateOrdersEvent>(
             {
                 channel,
@@ -473,25 +481,32 @@ export class OrdersService {
                         return;
                     }
                     if (event.type === "snapshot") {
-                        const known = event.orders.filter((o) =>
-                            hasKnownOrderSymbol(this.#scales, o),
-                        );
+                        const ids = new Set(event.orders.map((o) => o.orderId));
+                        const removed = [...live].filter((id) => !ids.has(id));
+                        live.clear();
+                        for (const id of ids) live.add(id);
                         if (input.onSnapshot) {
-                            input.onSnapshot(known.map((o) => parse(this.#orderSchema, o)));
-                        } else {
-                            deliverBatch(
-                                channel,
-                                known,
-                                (o) => input.onEvent(parse(this.#orderSchema, o)),
-                                onError,
+                            input.onSnapshot(
+                                known(event.orders).map((o) => parse(this.#orderSchema, o)),
                             );
+                            return;
                         }
+                        deliverBatch(
+                            channel,
+                            known(event.orders),
+                            (o) => input.onEvent(parse(this.#orderSchema, o)),
+                            onError,
+                        );
+                        if (removed.length > 0)
+                            input.onRemoved?.(removed.map((id) => formatId(id)));
                         return;
                     }
                     const { unit } = event;
+                    for (const o of unit.orders) live.add(o.orderId);
+                    for (const id of unit.removedOrderIds) live.delete(id);
                     deliverBatch(
                         channel,
-                        unit.orders,
+                        known(unit.orders),
                         (o) => input.onEvent(parse(this.#orderSchema, o)),
                         onError,
                     );

@@ -543,6 +543,11 @@ export class RealtimeClient implements PolyesterRealtime {
 
     #disconnect(): void {
         this.#disconnectPrivateOrders();
+        this.#disconnectCentrifuge();
+    }
+
+    /** Leaves private order streams alone: they run on their own socket. */
+    #disconnectCentrifuge(): void {
         const publicClient = this.#publicClient;
         const privateClient = this.#privateClient;
 
@@ -695,7 +700,7 @@ export class RealtimeClient implements PolyesterRealtime {
                     this.#teardownSubscription(shared);
 
                     if (this.#sharedSubs.size === 0 && this.#pendingTeardowns.size === 0) {
-                        this.#disconnect();
+                        this.#disconnectCentrifuge();
                     }
                 });
             }

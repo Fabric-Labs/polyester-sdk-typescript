@@ -9,7 +9,7 @@ import {
     Unsubscribed_Reason,
     type ClientMessage,
 } from "../gen/privatews/v1/private_ws_pb.js";
-import { AuthenticationError, RealtimeError } from "../shared/errors.js";
+import { AuthenticationError, NetworkError, RealtimeError } from "../shared/errors.js";
 import { formatId } from "../utils/base58-id.js";
 import { RealtimeClient } from "./client.js";
 import { PRIVATE_WS_SUBPROTOCOL, PrivateOrderStream } from "./private-orders.js";
@@ -69,9 +69,14 @@ const ACCOUNT = formatId(42n);
 const flush = () => vi.advanceTimersByTimeAsync(0);
 const order = (orderId: bigint) => create(OrderSchema, { orderId, symbolId: 1, version: 1 });
 
-function setup(overrides: { fetchConnectToken?: () => Promise<string> } = {}) {
+function setup(
+    overrides: {
+        fetchConnectToken?: () => Promise<string>;
+        fetchSubscribeToken?: (channel: string) => Promise<string>;
+    } = {},
+) {
     const fetchConnectToken = vi.fn(overrides.fetchConnectToken ?? (async () => "connect-token"));
-    const fetchSubscribeToken = vi.fn(async () => "sub-token");
+    const fetchSubscribeToken = vi.fn(overrides.fetchSubscribeToken ?? (async () => "sub-token"));
     const stream = new PrivateOrderStream({
         url: "wss://api.test/v1/ws/private",
         fetchConnectToken,
@@ -87,8 +92,27 @@ function setup(overrides: { fetchConnectToken?: () => Promise<string> } = {}) {
     return { stream, handlers, unsubscribe, fetchConnectToken, fetchSubscribeToken };
 }
 
+function subscriber(stream: PrivateOrderStream) {
+    const handlers = {
+        onEvent: vi.fn(),
+        onConnected: vi.fn(),
+        onDisconnected: vi.fn(),
+        onError: vi.fn(),
+    };
+    const unsubscribe = stream.connect({ accountId: ACCOUNT, ...handlers });
+    return { handlers, unsubscribe };
+}
+
+/** Opens every socket that has not opened yet, then lets token fetches settle. */
+async function openAll(): Promise<void> {
+    await flush();
+    for (const ws of FakeWebSocket.instances) if (ws.readyState === 0) ws.open();
+    await flush();
+}
+
 /** Opens the latest socket and confirms the newest subscribe request as `sub`. */
 async function confirm(sub = "s1"): Promise<FakeWebSocket> {
+    await flush();
     const ws = FakeWebSocket.instances.at(-1)!;
     if (ws.readyState === 0) ws.open();
     await flush();
@@ -107,10 +131,12 @@ describe("PrivateOrderStream", () => {
     afterEach(() => {
         vi.useRealTimers();
         vi.unstubAllGlobals();
+        vi.restoreAllMocks();
     });
 
     it("authenticates, subscribes, and installs paged snapshots whole", async () => {
         const { handlers, fetchSubscribeToken } = setup();
+        await flush();
         const ws = FakeWebSocket.instances[0]!;
         expect(ws.url).toBe("wss://api.test/v1/ws/private");
         expect(ws.protocol).toBe(PRIVATE_WS_SUBPROTOCOL);
@@ -217,10 +243,10 @@ describe("PrivateOrderStream", () => {
         expect(error).toBeInstanceOf(RealtimeError);
         expect(error).toMatchObject({ realtimeCode: 1001, retryable: true });
 
-        // The first retry waits 250-500 ms: half the 500 ms base plus jitter.
-        await vi.advanceTimersByTimeAsync(249);
+        // The first retry waits 0.5-1 s: the 500 ms base plus jitter.
+        await vi.advanceTimersByTimeAsync(499);
         expect(FakeWebSocket.instances).toHaveLength(1);
-        await vi.advanceTimersByTimeAsync(251);
+        await vi.advanceTimersByTimeAsync(501);
         expect(FakeWebSocket.instances).toHaveLength(2);
 
         const second = await confirm("s2");
@@ -240,12 +266,13 @@ describe("PrivateOrderStream", () => {
 
         await vi.advanceTimersByTimeAsync(1);
         expect(ws.closed).toMatchObject({ code: 4000 });
-        await vi.advanceTimersByTimeAsync(500);
+        await vi.advanceTimersByTimeAsync(1_000);
         expect(FakeWebSocket.instances).toHaveLength(2);
     });
 
     it("retries an unreadable cursor fresh and ends a forbidden subscription", async () => {
         const { handlers } = setup();
+        await flush();
         const ws = FakeWebSocket.instances[0]!;
         ws.open();
         await flush();
@@ -276,7 +303,6 @@ describe("PrivateOrderStream", () => {
                 throw new AuthenticationError("signed out");
             },
         });
-        FakeWebSocket.instances[0]!.open();
         await flush();
         await vi.advanceTimersByTimeAsync(20_000);
 
@@ -284,7 +310,7 @@ describe("PrivateOrderStream", () => {
             expect.objectContaining({ type: "connection_token" }),
         );
         expect(handlers.onDisconnected).toHaveBeenCalledOnce();
-        expect(FakeWebSocket.instances).toHaveLength(1);
+        expect(FakeWebSocket.instances).toHaveLength(0);
     });
 
     it("unsubscribes on the server and closes the idle connection", async () => {
@@ -294,6 +320,227 @@ describe("PrivateOrderStream", () => {
 
         expect(ws.ops("unsubscribe")).toEqual([expect.objectContaining({ sub: "s1" })]);
         expect(ws.closed).toMatchObject({ code: 1000 });
+    });
+
+    it("unsubscribes a subscription the server confirms after its consumer left", async () => {
+        const { stream } = setup();
+        const ws = await confirm("s1");
+        const late = subscriber(stream);
+        await flush();
+        const request = ws.ops("subscribe").at(-1) as { id: string };
+        late.unsubscribe();
+
+        ws.receive("s2", 0n, { case: "subscribed", value: { id: request.id, account: 42n } });
+
+        expect(ws.ops("unsubscribe")).toEqual([expect.objectContaining({ sub: "s2" })]);
+        expect(late.handlers.onConnected).not.toHaveBeenCalled();
+    });
+
+    it("does not refresh or revive a subscription removed while its token was loading", async () => {
+        let resolveRefresh: (token: string) => void = () => {};
+        const { stream, fetchSubscribeToken } = setup();
+        const ws = await confirm("s1");
+        const other = subscriber(stream);
+        await confirm("s2");
+        fetchSubscribeToken.mockImplementationOnce(
+            () => new Promise<string>((resolve) => (resolveRefresh = resolve)),
+        );
+
+        ws.receive("s2", 0n, { case: "subscribeExpiring", value: { expiresTsSec: 1n } });
+        await flush();
+        other.unsubscribe();
+        resolveRefresh("late-token");
+        await flush();
+
+        expect(ws.ops("subscribeRefresh")).toEqual([]);
+        expect(ws.ops("subscribe")).toHaveLength(2);
+    });
+
+    it("clears a stale view when a replacement subscription starts", async () => {
+        const { handlers } = setup();
+        const first = await confirm("s1");
+        first.receive("s1", 1n, { case: "unavailable", value: {} });
+        first.serverClose(1001);
+        await vi.advanceTimersByTimeAsync(10_000);
+        await confirm("s2");
+
+        expect(
+            handlers.onEvent.mock.calls
+                .map(([event]) => event)
+                .filter((event) => event.type === "stale")
+                .map((event) => event.stale),
+        ).toEqual([true, false]);
+    });
+
+    it.each([4400, 4403])("stops instead of reconnecting after close code %i", async (code) => {
+        const { handlers, fetchConnectToken } = setup();
+        const ws = await confirm();
+        ws.serverClose(code);
+        await vi.advanceTimersByTimeAsync(60_000);
+
+        expect(FakeWebSocket.instances).toHaveLength(1);
+        expect(fetchConnectToken).toHaveBeenCalledOnce();
+        expect(handlers.onDisconnected).toHaveBeenCalledOnce();
+        const [{ error }] = handlers.onError.mock.calls.at(-1)!;
+        expect(error).toMatchObject({ realtimeCode: code, retryable: false });
+    });
+
+    it("fetches the connect token before opening the socket", async () => {
+        let resolveToken: (token: string) => void = () => {};
+        setup({ fetchConnectToken: () => new Promise((resolve) => (resolveToken = resolve)) });
+        await vi.advanceTimersByTimeAsync(10_000);
+        expect(FakeWebSocket.instances).toHaveLength(0);
+
+        resolveToken("connect-token");
+        await flush();
+        const ws = FakeWebSocket.instances[0]!;
+        ws.open();
+        expect(ws.sent[0]!.op).toMatchObject({ case: "auth", value: { token: "connect-token" } });
+    });
+
+    it("waits at least 0.5 seconds before the first reconnect", async () => {
+        vi.spyOn(Math, "random").mockReturnValue(0);
+        setup();
+        const ws = await confirm();
+        ws.serverClose(1001);
+
+        await vi.advanceTimersByTimeAsync(499);
+        expect(FakeWebSocket.instances).toHaveLength(1);
+        await vi.advanceTimersByTimeAsync(1);
+        await flush();
+        expect(FakeWebSocket.instances).toHaveLength(2);
+    });
+
+    it("keeps backing off when connections authenticate and then close right away", async () => {
+        vi.spyOn(Math, "random").mockReturnValue(0);
+        setup();
+        const first = await confirm();
+        first.receive("", 0n, { case: "authenticated", value: { expiresTsSec: 1n } });
+        first.serverClose(4408);
+        await vi.advanceTimersByTimeAsync(500);
+        await openAll();
+        const second = FakeWebSocket.instances[1]!;
+        second.receive("", 0n, { case: "authenticated", value: { expiresTsSec: 1n } });
+        second.serverClose(4408);
+
+        await vi.advanceTimersByTimeAsync(999);
+        expect(FakeWebSocket.instances).toHaveLength(2);
+        await vi.advanceTimersByTimeAsync(1);
+        await flush();
+        expect(FakeWebSocket.instances).toHaveLength(3);
+    });
+
+    it("retries a connect token failure that is not an SDK error", async () => {
+        let calls = 0;
+        const { handlers, fetchConnectToken } = setup({
+            fetchConnectToken: async () => {
+                if (calls++ === 0) throw new SyntaxError("Unexpected token <");
+                return "connect-token";
+            },
+        });
+        await openAll();
+        await vi.advanceTimersByTimeAsync(10_000);
+        await openAll();
+
+        expect(fetchConnectToken).toHaveBeenCalledTimes(2);
+        expect(handlers.onDisconnected).not.toHaveBeenCalled();
+        expect(FakeWebSocket.instances.at(-1)!.ops("subscribe")).toHaveLength(1);
+    });
+
+    it("resubscribes when the server ends a subscription for any reason", async () => {
+        setup();
+        const ws = await confirm();
+        ws.receive("s1", 1n, { case: "snapshotBegin", value: {} });
+        ws.receive("s1", 2n, { case: "snapshotEnd", value: { cursor: "c1", count: 0 } });
+        ws.receive("s1", 0n, {
+            case: "unsubscribed",
+            value: { reason: Unsubscribed_Reason.REASON_UNSPECIFIED },
+        });
+        await flush();
+
+        expect(ws.ops("subscribe")).toHaveLength(2);
+        expect(ws.ops("subscribe").at(-1)).toMatchObject({ cursor: "c1" });
+    });
+
+    it("backs off resubscribes that keep failing before delivering anything", async () => {
+        vi.spyOn(Math, "random").mockReturnValue(0);
+        setup();
+        const ws = await confirm("s1");
+        ws.receive("s1", 1n, { case: "snapshotBegin", value: {} });
+        ws.receive("s1", 2n, { case: "snapshotEnd", value: { cursor: "c1", count: 1 } });
+        await flush();
+        expect(ws.ops("subscribe")).toHaveLength(2);
+
+        await confirm("s2");
+        ws.receive("s2", 1n, { case: "snapshotBegin", value: {} });
+        ws.receive("s2", 2n, { case: "snapshotEnd", value: { cursor: "c1", count: 1 } });
+        await flush();
+        expect(ws.ops("subscribe")).toHaveLength(2);
+
+        await vi.advanceTimersByTimeAsync(1_000);
+        await flush();
+        expect(ws.ops("subscribe")).toHaveLength(3);
+    });
+
+    it("releases a refresh request once the server confirms it", async () => {
+        const { handlers } = setup();
+        const ws = await confirm("s1");
+        ws.receive("s1", 0n, { case: "subscribeExpiring", value: { expiresTsSec: 1n } });
+        await flush();
+        const refresh = ws.ops("subscribeRefresh")[0] as { id: string };
+        ws.receive("s1", 0n, { case: "subscribeRefreshed", value: { id: refresh.id } });
+
+        // A late reply to the same ID no longer matches a pending refresh.
+        ws.receive("s1", 0n, {
+            case: "error",
+            value: { id: refresh.id, code: RequestError_Code.FORBIDDEN },
+        });
+        expect(handlers.onError).toHaveBeenCalledWith(expect.objectContaining({ type: "request" }));
+    });
+
+    it("notifies a terminal failure after a reconnect only once", async () => {
+        const { handlers, fetchConnectToken } = setup();
+        const ws = await confirm();
+        ws.serverClose(1001);
+        fetchConnectToken.mockImplementation(async () => {
+            throw new AuthenticationError("signed out");
+        });
+        await vi.advanceTimersByTimeAsync(10_000);
+        await openAll();
+
+        expect(handlers.onError).toHaveBeenCalledWith(
+            expect.objectContaining({ type: "connection_token" }),
+        );
+        expect(handlers.onDisconnected).toHaveBeenCalledOnce();
+    });
+
+    it("does not report errors for its own unsubscribe to other subscriptions", async () => {
+        const { stream, handlers } = setup();
+        const ws = await confirm("s1");
+        const other = subscriber(stream);
+        await confirm("s2");
+        ws.receive("s1", 2n, { case: "covered", value: { cursor: "c1" } });
+        const unsubscribe = ws.ops("unsubscribe")[0] as { id: string };
+
+        ws.receive("s1", 0n, {
+            case: "error",
+            value: { id: unsubscribe.id, code: RequestError_Code.SUBSCRIPTION_UNKNOWN },
+        });
+
+        expect(handlers.onError).not.toHaveBeenCalled();
+        expect(other.handlers.onError).not.toHaveBeenCalled();
+    });
+
+    it("cancels a pending subscribe token retry on unsubscribe", async () => {
+        const { unsubscribe } = setup({
+            fetchSubscribeToken: async () => {
+                throw new NetworkError("offline");
+            },
+        });
+        await openAll();
+        unsubscribe();
+
+        expect(vi.getTimerCount()).toBe(0);
     });
 });
 

@@ -129,6 +129,7 @@ import {
     RealtimeClient,
 } from "./client.js";
 import { OrderSchema } from "../gen/orders/v1/orders_read_pb.js";
+import { formatId } from "../utils/base58-id.js";
 import {
     AuthenticationError,
     InternalServerError,
@@ -1476,5 +1477,45 @@ describe("RealtimeClient", () => {
             "https://two.example.test/v1/rt/token",
             "https://two.example.test/v1/rt/subscribe?channel=private%3Asecond%3Aproto",
         ]);
+    });
+
+    it("keeps private order streams open when the last Centrifugo channel unsubscribes", async () => {
+        class IdleWebSocket {
+            static instances: IdleWebSocket[] = [];
+            readyState = 0;
+            binaryType = "";
+            closeCode: number | undefined;
+            onopen: (() => void) | null = null;
+            onmessage: ((event: unknown) => void) | null = null;
+            onclose: ((event: unknown) => void) | null = null;
+            constructor() {
+                IdleWebSocket.instances.push(this);
+            }
+            send(): void {}
+            close(code = 1000): void {
+                this.closeCode = code;
+            }
+        }
+        vi.stubGlobal("WebSocket", IdleWebSocket);
+        vi.spyOn(globalThis, "fetch").mockImplementation(async () => Response.json({ token: "t" }));
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
+            hasAuth: () => true,
+        });
+        const onDisconnected = vi.fn();
+
+        const unsubscribePublic = client.subscribe("public:test", { onPublication: () => {} });
+        client.connectPrivateOrders({ accountId: formatId(42n), onEvent: vi.fn(), onDisconnected });
+        await vi.waitFor(() => expect(IdleWebSocket.instances).toHaveLength(1));
+        unsubscribePublic();
+        await waitForAsyncTokens();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect(firstInstance().disconnectCalls).toBe(1);
+        expect(IdleWebSocket.instances[0]!.closeCode).toBeUndefined();
+        expect(onDisconnected).not.toHaveBeenCalled();
     });
 });

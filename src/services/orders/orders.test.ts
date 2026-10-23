@@ -1214,6 +1214,59 @@ describe("OrdersService", () => {
         ]);
     });
 
+    it("reports orders missing from a resync snapshot as removed when onSnapshot is omitted", async () => {
+        const realtime = realtimeClientStub();
+        const service = new OrdersService(
+            { authApi: unaryTransportByMethod({}).transport },
+            realtime.realtime,
+            undefined,
+            testScales(),
+        );
+        const onRemoved = vi.fn();
+        service.subscribe({ accountId: formatId(42n), onEvent: vi.fn(), onRemoved });
+        const params = realtime.privateOrdersParams!;
+
+        params.onEvent({
+            type: "snapshot",
+            orders: [protoOrder({ orderId: 1n }), protoOrder({ orderId: 2n })],
+        });
+        params.onEvent({
+            type: "unit",
+            unit: create(PrivateWs.UnitSchema, { orders: [protoOrder({ orderId: 3n })] }),
+        });
+        params.onEvent({
+            type: "snapshot",
+            orders: [protoOrder({ orderId: 2n }), protoOrder({ orderId: 3n })],
+        });
+        await flushAsync();
+
+        expect(onRemoved.mock.calls).toEqual([[[formatId(1n)]]]);
+    });
+
+    it("skips unit orders for unknown symbols like snapshot orders", async () => {
+        const realtime = realtimeClientStub();
+        const service = new OrdersService(
+            { authApi: unaryTransportByMethod({}).transport },
+            realtime.realtime,
+            undefined,
+            testScales(),
+        );
+        const onEvent = vi.fn();
+        const onError = vi.fn();
+        service.subscribe({ accountId: formatId(42n), onEvent, onError });
+
+        realtime.privateOrdersParams!.onEvent({
+            type: "unit",
+            unit: create(PrivateWs.UnitSchema, {
+                orders: [protoOrder({ orderId: 1n }), protoOrder({ orderId: 2n, symbolId: 999 })],
+            }),
+        });
+        await flushAsync();
+
+        expect(onError).not.toHaveBeenCalled();
+        expect(onEvent.mock.calls.map(([order]) => order.orderId)).toEqual([formatId(1n)]);
+    });
+
     it("maps unknown order statuses to unspecified in reads", async () => {
         const transport = unaryTransportByMethod({
             getOpenOrders: {
