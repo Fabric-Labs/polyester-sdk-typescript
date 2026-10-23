@@ -81,7 +81,9 @@ export type {
 } from "./shared/transports.js";
 export type {
     ConnectChannelParams,
+    ConnectPrivateOrdersParams,
     PolyesterRealtime,
+    PrivateOrdersEvent,
     SubscribeHandlers,
 } from "./realtime/index.js";
 export type { SdkSubscriptionErrorContext } from "./shared/subscription-errors.js";

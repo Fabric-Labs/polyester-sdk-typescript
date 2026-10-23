@@ -3,11 +3,12 @@ import { Code, ConnectError } from "@connectrpc/connect";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
+import * as PrivateWs from "../../gen/privatews/v1/private_ws_pb.js";
 import { AccountCode, TransferCode } from "../../gen/ledger/v1/catalog_pb.js";
 import { CatalogNotReadyError, type EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
-import { ConfigurationError } from "../../shared/errors.js";
+import { ConfigurationError, ValidationError } from "../../shared/errors.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import {
     realtimeClientStub,
@@ -1118,7 +1119,73 @@ describe("OrdersService", () => {
         expect(details).toMatchObject({ trades: [], transfers: [], nextPageToken: "" });
     });
 
-    it("uses private order channels and parses realtime publications", async () => {
+    it("streams account orders over the private WebSocket", async () => {
+        const realtime = realtimeClientStub();
+        const service = new OrdersService(
+            { authApi: unaryTransportByMethod({}).transport },
+            realtime.realtime,
+            undefined,
+            testScales(),
+        );
+        const accountId = formatId(42n);
+        const onEvent = vi.fn();
+        const onSnapshot = vi.fn();
+        const onRemoved = vi.fn();
+        const onStale = vi.fn();
+        const onOpen = vi.fn();
+        const onClose = vi.fn();
+
+        const unsubscribe = service.subscribe({
+            accountId,
+            onEvent,
+            onSnapshot,
+            onRemoved,
+            onStale,
+            onOpen,
+            onClose,
+        });
+
+        const params = realtime.privateOrdersParams!;
+        expect(params.accountId).toBe(accountId);
+        params.onConnected?.();
+        params.onEvent({ type: "snapshot", orders: [protoOrder({ version: 0 })] });
+        params.onEvent({
+            type: "unit",
+            unit: create(PrivateWs.UnitSchema, {
+                orders: [
+                    protoOrder({
+                        status: ProtoRead.OrderStatus.FILLED,
+                        lineage: create(ProtoRead.OrderLineageSchema, { id: 7n, generation: 2 }),
+                    }),
+                ],
+                removedOrderIds: [12n],
+            }),
+        });
+        params.onEvent({ type: "stale", stale: true });
+        params.onDisconnected?.();
+        await flushAsync();
+
+        expect(onOpen).toHaveBeenCalledOnce();
+        expect(onSnapshot).toHaveBeenCalledWith([expect.objectContaining({ version: 0 })]);
+        expect(onEvent).toHaveBeenCalledOnce();
+        expect(onEvent).toHaveBeenCalledWith(
+            expect.objectContaining({
+                clientOrderId: "client-1",
+                status: "filled",
+                totalQty: "1",
+                price: "100",
+                lineage: { id: formatId(7n), generation: 2 },
+            }),
+        );
+        expect(onRemoved).toHaveBeenCalledWith([formatId(12n)]);
+        expect(onStale).toHaveBeenCalledWith(true);
+        expect(onClose).toHaveBeenCalledOnce();
+
+        unsubscribe();
+        expect(realtime.unsubscribe).toHaveBeenCalledOnce();
+    });
+
+    it("sends snapshot orders to onEvent when onSnapshot is omitted", async () => {
         const realtime = realtimeClientStub();
         const service = new OrdersService(
             { authApi: unaryTransportByMethod({}).transport },
@@ -1127,89 +1194,27 @@ describe("OrdersService", () => {
             testScales(),
         );
         const onEvent = vi.fn();
-        const onOpen = vi.fn();
-        const onClose = vi.fn();
         const onError = vi.fn();
+        service.subscribe({ accountId: formatId(42n), onEvent, onError });
 
-        const unsubscribe = service.subscribe({
-            accountId: "account-1",
-            onEvent,
-            onOpen,
-            onClose,
-            onError,
+        realtime.privateOrdersParams!.onEvent({
+            type: "snapshot",
+            orders: [
+                protoOrder({ orderId: 1n }),
+                protoOrder({ orderId: 2n, symbolId: 999 }),
+                protoOrder({ orderId: 3n, status: 999 as ProtoRead.OrderStatus }),
+            ],
         });
-
-        expect(realtime.params?.channel).toBe("private:spot:orders:account-1:proto");
-        expect(realtime.params?.schema).toBe(ProtoRead.OrderSchema);
-        realtime.params?.onConnected?.();
-        realtime.params?.onDisconnected?.();
-        realtime.params?.onError?.({
-            channel: "channel",
-            type: "transport",
-            error: new Error("boom"),
-        });
-        realtime.params?.onPublication(
-            protoOrder({
-                status: ProtoRead.OrderStatus.FILLED,
-                lineage: create(ProtoRead.OrderLineageSchema, { id: 7n, generation: 2 }),
-            }),
-        );
         await flushAsync();
 
-        expect(onOpen).toHaveBeenCalledTimes(1);
-        expect(onClose).toHaveBeenCalledTimes(1);
-        expect(onError).toHaveBeenCalledWith({
-            channel: "channel",
-            type: "transport",
-            error: new Error("boom"),
-        });
-        expect(onEvent).toHaveBeenCalledWith(
-            expect.objectContaining({
-                clientOrderId: "client-1",
-                symbolId: 1,
-                status: "filled",
-                totalQty: "1",
-                price: "100",
-                lineage: { id: formatId(7n), generation: 2 },
-            }),
-        );
-
-        unsubscribe();
-        expect(realtime.unsubscribe).toHaveBeenCalledTimes(1);
+        expect(onError).not.toHaveBeenCalled();
+        expect(onEvent.mock.calls.map(([order]) => [order.orderId, order.status])).toEqual([
+            [formatId(1n), "working"],
+            [formatId(3n), "unspecified"],
+        ]);
     });
 
-    it("closes instead of silently dropping order transitions after readiness overflow", () => {
-        const readiness = new Promise<void>(() => {});
-        const scales = { ...testScales(), ready: () => readiness };
-        const realtime = realtimeClientStub();
-        const service = new OrdersService(
-            { authApi: unaryTransportByMethod({}).transport },
-            realtime.realtime,
-            undefined,
-            scales,
-        );
-        const onEvent = vi.fn();
-        const onClose = vi.fn();
-        const onError = vi.fn();
-
-        service.subscribe({ accountId: "account-1", onEvent, onClose, onError });
-        for (let index = 0; index < 1_025; index++) {
-            realtime.params?.onPublication(protoOrder({ version: index }));
-        }
-
-        expect(onEvent).not.toHaveBeenCalled();
-        expect(onError).toHaveBeenCalledWith(
-            expect.objectContaining({
-                channel: "private:spot:orders:account-1:proto",
-                type: "publication_handler",
-                error: expect.any(CatalogNotReadyError),
-            }),
-        );
-        expect(realtime.unsubscribe).toHaveBeenCalledOnce();
-        expect(onClose).toHaveBeenCalledOnce();
-    });
-
-    it("maps unknown order statuses to unspecified in reads and publications", async () => {
+    it("maps unknown order statuses to unspecified in reads", async () => {
         const transport = unaryTransportByMethod({
             getOpenOrders: {
                 orders: [protoOrder({ status: 999 as ProtoRead.OrderStatus })],
@@ -1226,22 +1231,54 @@ describe("OrdersService", () => {
         await expect(service.listOpen()).resolves.toMatchObject({
             orders: [{ status: "unspecified" }],
         });
+    });
 
+    it("rejects account IDs that are not base58 public IDs", () => {
         const realtime = realtimeClientStub();
-        const onEvent = vi.fn();
-        const onError = vi.fn();
-        const subscriptionService = new OrdersService(
+        const service = new OrdersService(
             { authApi: unaryTransportByMethod({}).transport },
             realtime.realtime,
             undefined,
             testScales(),
         );
-        subscriptionService.subscribe({ accountId: "account-1", onEvent, onError });
 
-        realtime.params?.onPublication(protoOrder({ status: 999 as ProtoRead.OrderStatus }));
-        await flushAsync();
+        expect(() => service.subscribe({ accountId: "account-1", onEvent: vi.fn() })).toThrow(
+            ValidationError,
+        );
+        expect(realtime.privateOrdersParams).toBeUndefined();
+    });
 
-        expect(onError).not.toHaveBeenCalled();
-        expect(onEvent).toHaveBeenCalledWith(expect.objectContaining({ status: "unspecified" }));
+    it("closes instead of silently dropping order transitions after readiness overflow", () => {
+        const readiness = new Promise<void>(() => {});
+        const scales = { ...testScales(), ready: () => readiness };
+        const realtime = realtimeClientStub();
+        const service = new OrdersService(
+            { authApi: unaryTransportByMethod({}).transport },
+            realtime.realtime,
+            undefined,
+            scales,
+        );
+        const onEvent = vi.fn();
+        const onClose = vi.fn();
+        const onError = vi.fn();
+
+        service.subscribe({ accountId: formatId(42n), onEvent, onClose, onError });
+        for (let index = 0; index < 1_025; index++) {
+            realtime.privateOrdersParams!.onEvent({
+                type: "unit",
+                unit: create(PrivateWs.UnitSchema, { orders: [protoOrder({ version: index })] }),
+            });
+        }
+
+        expect(onEvent).not.toHaveBeenCalled();
+        expect(onError).toHaveBeenCalledWith(
+            expect.objectContaining({
+                channel: `private:spot:orders:${formatId(42n)}`,
+                type: "publication_handler",
+                error: expect.any(CatalogNotReadyError),
+            }),
+        );
+        expect(realtime.unsubscribe).toHaveBeenCalledOnce();
+        expect(onClose).toHaveBeenCalledOnce();
     });
 });

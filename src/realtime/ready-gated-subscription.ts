@@ -7,6 +7,20 @@ type ReadyGatedProtoChannelParams<TSchema extends DescMessage> = ConnectChannelP
     ready: () => Promise<void>;
 };
 
+type ReadyGatedParams<T> = {
+    channel: string;
+    ready: () => Promise<void>;
+    onPublication: (data: T) => void;
+    onConnected?: () => void;
+    onDisconnected?: () => void;
+    onError?: ConnectChannelParams<DescMessage>["onError"];
+};
+
+type GatedHandlers<T> = Required<
+    Pick<ReadyGatedParams<T>, "onPublication" | "onConnected" | "onDisconnected">
+> &
+    Pick<ReadyGatedParams<T>, "onError">;
+
 /**
  * Connects a transition feed whose publications require asynchronous catalog
  * readiness. If readiness fails or its bounded pre-ready queue overflows, the
@@ -16,6 +30,20 @@ type ReadyGatedProtoChannelParams<TSchema extends DescMessage> = ConnectChannelP
 export function connectReadyGatedProtoChannel<TSchema extends DescMessage>(
     realtime: PolyesterRealtime,
     params: ReadyGatedProtoChannelParams<TSchema>,
+): () => void {
+    return connectReadyGated(params, (handlers) =>
+        realtime.connectProtoChannel({
+            channel: params.channel,
+            schema: params.schema,
+            ...handlers,
+        }),
+    );
+}
+
+/** {@link connectReadyGatedProtoChannel} over any subscription the caller opens. */
+export function connectReadyGated<T>(
+    params: ReadyGatedParams<T>,
+    connect: (handlers: GatedHandlers<T>) => () => void,
 ): () => void {
     let unsubscribeRealtime: (() => void) | undefined;
     let unsubscribeAfterConnect = false;
@@ -56,9 +84,7 @@ export function connectReadyGatedProtoChannel<TSchema extends DescMessage>(
     });
 
     try {
-        unsubscribeRealtime = realtime.connectProtoChannel({
-            channel: params.channel,
-            schema: params.schema,
+        unsubscribeRealtime = connect({
             onPublication: (data) => gate.run(() => params.onPublication(data)),
             onConnected: () => {
                 if (state === "active") params.onConnected?.();

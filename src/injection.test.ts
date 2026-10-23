@@ -23,6 +23,7 @@ function stubRealtime(): PolyesterRealtime {
         subscribe: vi.fn(() => () => {}),
         connectChannel: vi.fn(() => () => {}),
         connectProtoChannel: vi.fn(() => () => {}),
+        connectPrivateOrders: vi.fn(() => () => {}),
         disconnect: vi.fn(),
         disconnectPrivate: vi.fn(),
         isConnected: false,

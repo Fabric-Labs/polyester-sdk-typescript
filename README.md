@@ -148,6 +148,13 @@ await client.orders.create(order);
 
 Call `unsubscribe()` when the subscription is no longer needed.
 
+`client.orders.subscribe` streams over the private WebSocket (`/v1/ws/private`).
+Each changed order arrives complete through `onEvent`; keep the copy with the
+higher `version`. Pass `onSnapshot` to receive the account's full live view when
+the subscription starts and whenever the server replaces it, and `onStale` to show
+when that view is temporarily behind. Gaps, expired tokens, and reconnects resume
+from the last applied position on their own.
+
 ## Entry points
 
 | Import                          | Contains                                        |

@@ -284,6 +284,7 @@ export class PolyesterCore {
                     wsUrl: environment.websocketUrl,
                     tokenEndpoint: `${environment.apiUrl}/v1/rt/token`,
                     subscribeEndpoint: `${environment.apiUrl}/v1/rt/subscribe`,
+                    privateWsUrl: `${environment.apiUrl.replace(/^http/, "ws")}/v1/ws/private`,
                     getAuthHeaders:
                         this.#realtimeConfig?.getAuthHeaders ?? realtimeAuth.getAuthHeaders,
                     hasAuth: this.#realtimeConfig?.hasAuth ?? realtimeAuth.hasAuth,
