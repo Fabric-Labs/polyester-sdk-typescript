@@ -1,5 +1,51 @@
 # @polyester/sdk
 
+## 0.32.0
+
+### Minor Changes
+
+- Add a `timeoutMs` request option, passed to Connect as the call deadline, so timed-out requests reject with `TimeoutError`. It must be a positive integer of at most 2147483647; other values throw `ValidationError`. `AbortSignal.timeout()` expiries also map to `TimeoutError`, whether the signal comes from the caller or an interceptor; previously they rejected as an abort or as a `ConnectError` with `Code.Canceled`. A caller signal that already expired before the call started still rejects as a non-retryable abort, so retry loops stop instead of spinning on it. `isTimeoutAbortError` is exported alongside `isAbortError`. ([#190](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/190))
+
+- `claims.claimDailyReward` takes an input object before the request options, so `claimDailyReward({ subaccountId })` pays the daily reward to a subaccount owned by the authenticated root account. Omit `subaccountId` to pay the root account as before. Breaking: pass request options as the second argument, as in `claimDailyReward({}, { signal })`; options passed first now throw `ValidationError`. A `subaccountId` that decodes to zero also throws `ValidationError` instead of silently paying the root account. The first claim of the day fixes the destination, and retries return that claim and its destination. `DailyClaimStatus` and `ClaimDailyRewardResult` add `subaccountId`, which is `undefined` when the reward goes to the root account. Claims errors add `SUBACCOUNT_NOT_FOUND` and `SUBACCOUNT_INACTIVE`. ([#202](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/202))
+
+- Stream `orders.subscribe` over the private WebSocket (`/v1/ws/private`), since the realtime channels `private:spot:orders:<account>` (JSON and `:proto`) and `private:spot:orders:batch-replace:<account>` are no longer served. `onEvent` still receives each changed order complete; keep the copy with the higher `version`. A new order now arrives with `version` 0 while it is still pending. Orders on symbols missing from the catalog are skipped, as order reads already do, instead of reaching `onError`. New optional callbacks: `onSnapshot` receives the account's full live view when the subscription starts and after a server resync, and it takes over snapshot orders from `onEvent`. `onRemoved` receives IDs of orders that left the live view, including, without `onSnapshot`, orders missing from a resync snapshot. `onStale` reports when that view is temporarily behind. Subscriptions to the same account share one server subscription, and one that joins later starts from the current live view; a connection carries up to 64 accounts. The stream resumes from its last cursor after a sequence gap, an expired token, a dropped heartbeat, or a reconnect, reporting each interruption through `onClose` and `onOpen` rather than `onError`; token fetch failures along the way still reach `onError`. Reconnects back off from 0.5 to 10 seconds with jitter; close codes 4400 and 4403 end the stream instead. ([#203](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/203))
+
+  Breaking: `orders.subscribe` throws `ValidationError` unless `accountId` is the account's base58 public ID. Custom `PolyesterRealtime` implementations passed as `realtimeClient` must add `connectPrivateOrders`.
+
+  Sync the public protobuf contract to `1b5658621d0ea5b356a69cc14402605ab72b5712`:
+
+  - Add the `privatews.v1` messages as `privateWsPb` in `@polyester/sdk/unstable/gen`, and the trade WebSocket batch create, replace, and cancel commands.
+  - `OrderErrorCode` gains the new order validation, capacity, auction, trigger, TWAP, ladder, batch, and Quick Swap codes. `TRIGGER_CANCEL_REJECTED` is removed: a refused trigger cancel now returns `TRIGGER_STATUS_INVALID` or `TRIGGER_NOT_MODIFIABLE`.
+  - Trigger `failureReason` labels add the new trigger failure reasons, each the lowercased reason name, such as `duplicate_order_id` and `market_quote_stale`.
+  - Withdraw errors add `AMOUNT_EXCEEDS_ROUTE_PRECISION`, returned before any funds are reserved when an external-chain `amount_e18` is finer than the destination token's decimals. Round the amount down before signing.
+- `sendPolyesterUserOperation` throws `UserOperationSendTimeoutError` (code `USER_OPERATION_SEND_TIMEOUT`, not retryable) when `eth_sendUserOperation` times out after signing. The bundler may still have accepted the operation, so the error carries its deterministic `userOpHash`: wait on it with `waitForPolyesterUserOperationReceipt` instead of signing again. Bundler requests now time out after 30s instead of viem's 10s default. ([#205](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/205))
+
+### Patch Changes
+
+- Browser clients now confirm a backend session rejection with `me()` before ending the session, so one endpoint wrongly answering `unauthenticated` no longer signs the user out. When `me()` is also rejected, the session ends and `loggedOut` is emitted once. Concurrent rejections, including the confirming `me()` itself, share a single check. Rejections for a token that is no longer current (refreshed, replaced, or after logout), and requests sent without a token, are still ignored. `AccountSignerAuthService.handleRejectedToken` now returns a promise that settles when the check completes. ([#204](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/204))
+
+- Errors mapped from failed responses now carry the HTTP `status`, including realtime token request failures. ([#190](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/190))
+
+- Decode market trade, user fill, ledger transfer, and trigger event subscriptions as the batched publications the realtime channels now send, and emit each event in order through the existing `onEvent`. Previously a batch decoded as a single event, dropping or zeroing the rest, or failed with a decode error. A malformed event is reported through `onError` without dropping the rest of its batch. `LedgerTransfer` adds `transferId`, an unsigned 128-bit decimal string shared by both legs of a transfer, and `TriggerEvent` adds the exact `tsNs`, so subscribers can replace repeated events by their identity. ([#195](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/195))
+
+- Reject a 10000 bps max slippage on a market order or trailing stop that sells, which the backend rejects with `MAX_SLIPPAGE_INVALID`. Sell market orders, the attached trailing stop of a buy order, and standalone trailing-stop triggers, including `triggers.modify`, now accept 1 through 9999 bps; buy market orders and the attached trailing stop of a sell order still accept 10000. ([#195](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/195))
+
+- Sync the protobufs for Swaps, auto-withdraw, and the QuickSwap broker API, exported from `@polyester/sdk/unstable/gen` as `swapPb`, `autoWithdrawPb`, and `quickswapBrokerPb`. The SDK does not wire these services yet. Policy actions add `read-auto-withdraw`, `manage-auto-withdraw`, and `swap`, and sub-account permissions add `read_auto_withdraw`, `manage_auto_withdraw`, and `swap`, so policies and roles that grant them decode with their labels instead of as unknown. Order errors add `ERROR_CODE_MAX_QTY` and `ERROR_CODE_MAX_NOTIONAL`, and withdraw errors add `ERROR_CODE_INVALID_AUTO_WITHDRAW_SCHEDULE`. ([#200](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/200))
+
+- Decode the `SELF_TRADE_PREVENTION` trigger cancel reason as `cancelReason: "self_trade_prevention"` instead of `"unspecified"`. Triggers report it when self-trade prevention canceled their child orders. ([#195](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/195))
+
+- Fix raw `ConnectError`s surfacing as unhandled promise rejections when the backend or a proxy returns a non-Connect response (for example a gateway 502, a redirect, or an HTML page with status 200). The SDK now buffers those response bodies before Connect aborts the request. ([#190](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/190))
+
+- `sendPolyesterUserOperation` throws `UserOperationAlreadyKnownError` (code `USER_OPERATION_ALREADY_KNOWN`, an `AlreadyExistsError` subclass) when the bundler answers "Already known", meaning the identical operation is already pending. Its `userOpHash` is that pending operation's hash: wait on its receipt instead of signing again. Previously this surfaced as a raw viem RPC error. ([#190](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/190))
+
+- `waitForPolyesterUserOperationReceipt` throws `UserOperationNotExecutedError` (code `USER_OPERATION_NOT_EXECUTED`) instead of a plain `Error` when the bundler reports the operation `rejected` or `failed`. It carries `userOpHash` and `bundlerStatus`; either status means the operation was not executed and nothing moved. Both new UserOperation errors are exported from the root, `@polyester/sdk/errors`, and `@polyester/sdk/smart-account`. ([#190](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/190))
+
+- `PreparedTradingWithdraw.submit` throws `WithdrawDeadlineExpiredError` once the deadline has passed instead of sending a request the backend would reject. The backend's `deadline_ts_sec has expired` rejection also maps to `WithdrawDeadlineExpiredError`, a `ValidationError` subclass, instead of a generic `ValidationError`. ([#190](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/190))
+
+  Trading withdraw inputs accept an optional `deadline` to sign a different expiry.
+
+  Wallet-signed withdraws sign a fresh deadline and nonce, with the same idempotency key, when `submit` is called within a minute of the deadline, so a retry after a slow MFA step-up just works; `deadline` then reflects the new signature. Payload-signed withdraws can't be signed again: prepare them again before resubmitting.
+
 ## 0.31.0
 
 ### Minor Changes
