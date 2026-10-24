@@ -1,5 +1,5 @@
 import type { Address, LocalAccount, PublicClient } from "viem";
-import { BaseError, createPublicClient, http, withTimeout } from "viem";
+import { BaseError, createPublicClient, http, TimeoutError, withTimeout } from "viem";
 import type { EstimateUserOperationGasParameters, UserOperation } from "viem/account-abstraction";
 import {
     estimateUserOperationGas,
@@ -12,7 +12,11 @@ import { toSafeSmartAccount } from "permissionless/accounts";
 import { createPimlicoClient } from "permissionless/clients/pimlico";
 import type { PolyesterEnvironment } from "../environment.js";
 import { predictSafeAddress } from "../account-signer/predict-safe-address.js";
-import { UserOperationAlreadyKnownError, UserOperationNotExecutedError } from "../shared/errors.js";
+import {
+    UserOperationAlreadyKnownError,
+    UserOperationNotExecutedError,
+    UserOperationSendTimeoutError,
+} from "../shared/errors.js";
 
 export type SafeSmartAccountInstance = Awaited<ReturnType<typeof toSafeSmartAccount>>;
 export type PolyesterSmartAccountClient = ReturnType<typeof buildPolyesterSmartAccountClient>;
@@ -28,6 +32,12 @@ const USER_OPERATION_GAS_PRICE_TTL_MS = 60_000;
 const USER_OPERATION_GAS_BUFFER_BPS = 2_000n;
 const USER_OPERATION_MIN_GAS_BUFFER = 50_000n;
 const USER_OPERATION_RECEIPT_POLLING_INTERVAL_MS = 250;
+/**
+ * Bundler request deadline. viem's 10s default is shorter than
+ * `eth_sendUserOperation` takes under load, and viem never retries that
+ * method, so a slow but successful send would surface as a timeout.
+ */
+const BUNDLER_REQUEST_TIMEOUT_MS = 30_000;
 /**
  * While the bundler reports `not_found`, the chain is checked for a receipt
  * on every Nth poll (once per second at the default interval). `not_found` is
@@ -172,7 +182,9 @@ function buildPolyesterSmartAccountClient(
             getPaymasterStubData: (parameters) => paymaster.getPaymasterStubData(parameters),
             getPaymasterData: (parameters) => paymaster.getPaymasterData(parameters),
         },
-        bundlerTransport: http(environment.accountAbstraction.bundlerUrl),
+        bundlerTransport: http(environment.accountAbstraction.bundlerUrl, {
+            timeout: BUNDLER_REQUEST_TIMEOUT_MS,
+        }),
         pollingInterval: pollingIntervalMs,
         userOperation: {
             estimateFeesPerGas: async () => (await getGasPrice()).fast,
@@ -342,20 +354,34 @@ export async function sendPolyesterUserOperation(
         endPhase("send");
         return hash;
     } catch (error) {
-        if (!signedUserOperation) throw error;
-        // "Already known": this exact operation is already in the bundler's
-        // mempool (e.g. a replayed send). Its hash is deterministic, so the
+        const userOperation = signedUserOperation;
+        if (!userOperation) throw error;
+        // The operation's hash is deterministic, so in both cases below the
         // caller can wait on it rather than sign a second operation.
-        if (isAlreadyKnownError(error)) {
-            const userOpHash = getUserOperationHash({
+        const userOpHash = () =>
+            getUserOperationHash({
                 chainId: client.chain.id,
                 entryPointAddress: account.entryPoint.address,
                 entryPointVersion: account.entryPoint.version,
-                userOperation: signedUserOperation,
+                userOperation,
             });
+        // "Already known": this exact operation is already in the bundler's
+        // mempool (e.g. a replayed send).
+        if (isAlreadyKnownError(error)) {
+            const hash = userOpHash();
             throw new UserOperationAlreadyKnownError(
-                `UserOperation ${userOpHash} is already pending.`,
-                userOpHash,
+                `UserOperation ${hash} is already pending.`,
+                hash,
+                { cause: error },
+            );
+        }
+        // A timeout leaves the outcome unknown: the bundler may have accepted
+        // the operation after the deadline. It says nothing about the gas price.
+        if (isTimeoutError(error)) {
+            const hash = userOpHash();
+            throw new UserOperationSendTimeoutError(
+                `Sending UserOperation ${hash} timed out; it may still be pending.`,
+                hash,
                 { cause: error },
             );
         }
@@ -373,6 +399,12 @@ function isAlreadyKnownError(error: unknown): boolean {
         error instanceof BaseError &&
         error.walk((cause) => /\balready known\b/iu.test((cause as BaseError).details ?? "")) !==
             null
+    );
+}
+
+function isTimeoutError(error: unknown): boolean {
+    return (
+        error instanceof BaseError && error.walk((cause) => cause instanceof TimeoutError) !== null
     );
 }
 

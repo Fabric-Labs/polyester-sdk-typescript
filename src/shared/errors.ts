@@ -40,6 +40,7 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * │   │   ├── StepUpRequiredError            STEP_UP_REQUIRED
  * │   │   └── SessionElevationRequiredError  SESSION_ELEVATION_REQUIRED
  * │   ├── MfaVerificationError       MFA_VERIFICATION_FAILED     false
+ * │   ├── UserOperationSendTimeoutError USER_OPERATION_SEND_TIMEOUT false
  * │   └── UserOperationNotExecutedError USER_OPERATION_NOT_EXECUTED false
  * ├── InternalServerError            INTERNAL_SERVER_ERROR       false
  * └── RealtimeError                  REALTIME_ERROR              varies
@@ -80,6 +81,7 @@ export type PolyesterErrorCode =
     | "NOT_IMPLEMENTED"
     | "ALREADY_EXISTS"
     | "USER_OPERATION_ALREADY_KNOWN"
+    | "USER_OPERATION_SEND_TIMEOUT"
     | "USER_OPERATION_NOT_EXECUTED"
     | "PERMISSION_DENIED"
     | "UNAUTHENTICATED"
@@ -322,6 +324,23 @@ export class UserOperationAlreadyKnownError extends AlreadyExistsError {
     constructor(message: string, userOpHash: `0x${string}`, options?: PolyesterErrorOptions) {
         super(message, options);
         this.name = "UserOperationAlreadyKnownError";
+        this.userOpHash = userOpHash;
+    }
+}
+
+/**
+ * `eth_sendUserOperation` timed out after the UserOperation was signed. The
+ * bundler may still have accepted it, so the outcome is unknown rather than
+ * rejected. Wait on `userOpHash` instead of signing again; a new operation
+ * could execute a second time. Not retryable for the same reason.
+ */
+export class UserOperationSendTimeoutError extends RequestError {
+    override readonly code: string = "USER_OPERATION_SEND_TIMEOUT";
+    readonly userOpHash: `0x${string}`;
+
+    constructor(message: string, userOpHash: `0x${string}`, options?: PolyesterErrorOptions) {
+        super(message, options);
+        this.name = "UserOperationSendTimeoutError";
         this.userOpHash = userOpHash;
     }
 }

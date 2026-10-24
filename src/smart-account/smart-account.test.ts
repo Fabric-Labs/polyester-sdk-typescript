@@ -1,9 +1,13 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { encodeAbiParameters, numberToHex, toFunctionSelector } from "viem";
+import { encodeAbiParameters, numberToHex, TimeoutError, toFunctionSelector } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { formatUserOperation, getUserOperationHash } from "viem/account-abstraction";
 import { createPolyesterEnvironment } from "../environment.js";
-import { UserOperationAlreadyKnownError, UserOperationNotExecutedError } from "./index.js";
+import {
+    UserOperationAlreadyKnownError,
+    UserOperationNotExecutedError,
+    UserOperationSendTimeoutError,
+} from "./index.js";
 import {
     createPolyesterSmartAccount,
     createPolyesterSmartAccountClient,
@@ -25,6 +29,7 @@ const requests: { method: string; params: readonly Record<string, string>[] }[] 
 let failGasPrice = false;
 let failSend = false;
 let sendAlreadyKnown = false;
+let sendTimesOut = false;
 let statusDelayMs = 0;
 let statusQueue: string[] = [];
 let receiptQueue: (object | null)[] = [];
@@ -123,6 +128,10 @@ beforeAll(() => {
             await new Promise((resolve) => setTimeout(resolve, statusDelayMs));
         }
         let payload: unknown;
+        if (method === "eth_sendUserOperation" && sendTimesOut) {
+            // What viem's http transport throws once the request deadline passes.
+            throw new TimeoutError({ body: { method }, url: "https://bundler.test" });
+        }
         if (method === "eth_sendUserOperation" && sendAlreadyKnown) {
             // What the bundler answers when this exact UserOperation is already pending.
             return new Response(
@@ -278,6 +287,33 @@ describe("sendPolyesterUserOperation", () => {
         const sent = byMethod("eth_sendUserOperation")[1]?.params[0];
         expect(error).toBeInstanceOf(UserOperationAlreadyKnownError);
         expect((error as UserOperationAlreadyKnownError).userOpHash).toBe(
+            getUserOperationHash({
+                chainId: environment.chain.id,
+                entryPointAddress: environment.accountAbstraction.entryPoint.address,
+                entryPointVersion: "0.7",
+                userOperation: formatUserOperation(sent as never),
+            }),
+        );
+        // Not a fee rejection: the gas-price cache survives.
+        expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(1);
+    });
+
+    it("throws the computed hash when sending a signed UserOperation times out", async () => {
+        const { client } = await setup();
+        await sendPolyesterUserOperation(client, sendParameters);
+
+        sendTimesOut = true;
+        let error: unknown;
+        try {
+            error = await sendPolyesterUserOperation(client, sendParameters).catch((e) => e);
+        } finally {
+            sendTimesOut = false;
+        }
+
+        const sent = byMethod("eth_sendUserOperation")[1]?.params[0];
+        expect(error).toBeInstanceOf(UserOperationSendTimeoutError);
+        expect((error as UserOperationSendTimeoutError).retryable).toBe(false);
+        expect((error as UserOperationSendTimeoutError).userOpHash).toBe(
             getUserOperationHash({
                 chainId: environment.chain.id,
                 entryPointAddress: environment.accountAbstraction.entryPoint.address,
