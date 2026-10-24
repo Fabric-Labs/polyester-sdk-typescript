@@ -129,6 +129,7 @@ export {
     TransientError,
     UserOperationAlreadyKnownError,
     UserOperationNotExecutedError,
+    UserOperationSendTimeoutError,
     ValidationError,
     WithdrawDeadlineExpiredError,
 } from "./shared/errors.js";
