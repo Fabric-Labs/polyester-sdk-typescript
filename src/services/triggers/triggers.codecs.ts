@@ -161,6 +161,7 @@ export const TRIGGER_FAILURE_REASON_LABEL_VALUES = [
     "post_only_not_allowed_in_auction",
     "twap_capacity_reached",
     "order_limits_unavailable",
+    "child_order_inconsistent",
     "missing_reason_code",
     "internal_error",
 ] as const;
@@ -344,6 +345,7 @@ export const TriggerFailureReasonCodec = {
             "post_only_not_allowed_in_auction",
         [Proto.TriggerFailureReason.TWAP_CAPACITY_REACHED]: "twap_capacity_reached",
         [Proto.TriggerFailureReason.ORDER_LIMITS_UNAVAILABLE]: "order_limits_unavailable",
+        [Proto.TriggerFailureReason.CHILD_ORDER_INCONSISTENT]: "child_order_inconsistent",
         [Proto.TriggerFailureReason.MISSING_REASON_CODE]: "missing_reason_code",
         [Proto.TriggerFailureReason.INTERNAL_ERROR]: "internal_error",
     } satisfies ProtoToOutput<Proto.TriggerFailureReason, TriggerFailureReasonLabelValue>,

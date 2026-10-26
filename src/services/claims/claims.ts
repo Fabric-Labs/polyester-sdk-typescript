@@ -27,7 +27,11 @@ export class ClaimsService {
         this.#client = createClient(Proto.ClaimsService, transports.authApi);
     }
 
-    /** Returns the current UTC day's available or existing claim and its reset time. */
+    /**
+     * Returns the current UTC day's available or existing claim and its reset time. A
+     * `payout_delayed` claim is recorded and paid automatically once payouts resume;
+     * `payoutDelayReason` names the cause, such as `CLAIM_PAYOUT_UNAVAILABLE`.
+     */
     async getDailyClaimStatus(options?: PolyesterRequestOptions): Promise<DailyClaimStatus> {
         const response = await this.#client.getDailyClaimStatus({}, toConnectCallOptions(options));
         return parse(DailyClaimStatusSchema, response);

@@ -7,6 +7,7 @@ export const DAILY_CLAIM_STATE_VALUES = [
     "processing",
     "claimed",
     "unavailable",
+    "payout_delayed",
 ] as const;
 export type DailyClaimState = (typeof DAILY_CLAIM_STATE_VALUES)[number];
 
@@ -20,6 +21,7 @@ export const DailyClaimStateCodec = {
         [Proto.DailyClaimState.CLAIM_PROCESSING]: "processing",
         [Proto.DailyClaimState.CLAIM_CLAIMED]: "claimed",
         [Proto.DailyClaimState.CLAIM_UNAVAILABLE]: "unavailable",
+        [Proto.DailyClaimState.CLAIM_PAYOUT_DELAYED]: "payout_delayed",
     } satisfies ProtoToOutput<Proto.DailyClaimState, DailyClaimState>,
 } as const;
 

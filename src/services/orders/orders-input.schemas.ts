@@ -151,19 +151,16 @@ type ParsedOrderIntentInput = v.InferOutput<ReturnType<typeof createOrderIntentI
 type SellingSlippageInput = {
     side: ProtoWrite.Side;
     execution: v.InferOutput<ReturnType<typeof createOrderExecutionInputSchema>>;
-    risk?: v.InferOutput<ReturnType<typeof createRiskPolicyInputSchema>>;
 };
 
-const SELLING_SLIPPAGE_MESSAGE = `maxSlippageBps must be between 1 and ${MAX_SELLING_SLIPPAGE_BPS} for a market order or trailing stop that sells`;
+const SELLING_SLIPPAGE_MESSAGE = `maxSlippageBps must be between 1 and ${MAX_SELLING_SLIPPAGE_BPS} for a market order that sells`;
 
-/** Checks the bps cap of the order's selling leg: a market sell, or the trailing stop of a buy. */
+/** Checks the bps cap of a market sell; attached trailing stops are capped when parsed. */
 function sellingSlippageWithinCap(input: SellingSlippageInput): boolean {
     const slippage =
         input.side === ProtoWrite.Side.SELL && input.execution.case === "marketIoc"
             ? input.execution.value.maxSlippage
-            : input.side === ProtoWrite.Side.BUY && input.risk?.stopLeg.case === "trailingStop"
-              ? input.risk.stopLeg.value.maxSlippage
-              : undefined;
+            : undefined;
     return slippage?.case !== "maxSlippageBps" || slippage.value <= MAX_SELLING_SLIPPAGE_BPS;
 }
 
@@ -437,6 +434,12 @@ export const CancelAllOrdersResponseSchema = v.pipe(
         submittedCancels: v.number(),
         failedCancels: v.number(),
         tsNs: v.bigint(),
+        cancelledOrders: v.optional(
+            v.array(v.object({ orderId: PublicIdSchema, clientOrderId: v.string() })),
+            [],
+        ),
+        totalCancelled: v.optional(v.number(), 0),
+        truncated: v.optional(v.boolean(), false),
     }),
     v.transform((o) => ({
         status: o.status,
@@ -444,6 +447,9 @@ export const CancelAllOrdersResponseSchema = v.pipe(
         submittedCancels: o.submittedCancels,
         failedCancels: o.failedCancels,
         ts: tsNsToMs(o.tsNs),
+        cancelledOrders: o.cancelledOrders,
+        totalCancelled: o.totalCancelled,
+        truncated: o.truncated,
     })),
 );
 

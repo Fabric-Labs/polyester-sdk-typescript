@@ -2,6 +2,7 @@ export type {
     ClaimCampaign,
     ClaimDailyRewardInput,
     ClaimDailyRewardResult,
+    ClaimPayoutDelayReason,
     DailyClaimReward,
     DailyClaimStatus,
     DailyClaimTransfer,

@@ -1,4 +1,7 @@
 import * as v from "valibot";
+import * as Proto from "../../gen/vip/v1/vip_pb.js";
+import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
+import type { ProtoToOutput } from "../../utils/types.js";
 import {
     BigIntStringSchema,
     OptionalTimestampMsSchema,
@@ -48,6 +51,33 @@ export const VipTierCatalogSchema = v.object({
 
 export type VipTierCatalog = v.InferOutput<typeof VipTierCatalogSchema>;
 
+export const VIP_METRIC_STATUS_VALUES = [
+    "unspecified",
+    "complete",
+    "price_unavailable",
+    "incomplete_history",
+] as const;
+export type VipMetricStatus = (typeof VIP_METRIC_STATUS_VALUES)[number];
+
+const VipMetricStatusToOutput = {
+    [Proto.VIPMetricStatus.METRIC_UNSPECIFIED]: "unspecified",
+    [Proto.VIPMetricStatus.COMPLETE]: "complete",
+    [Proto.VIPMetricStatus.PRICE_UNAVAILABLE]: "price_unavailable",
+    [Proto.VIPMetricStatus.INCOMPLETE_HISTORY]: "incomplete_history",
+} satisfies ProtoToOutput<Proto.VIPMetricStatus, VipMetricStatus>;
+
+/**
+ * How complete a rolling 30-day qualification metric is. With `price_unavailable`,
+ * `settledVolume30dUsd` is a lower bound that leaves out executions without a USD price.
+ */
+export const VipMetricQualitySchema = v.object({
+    status: enumLabelSchema(VipMetricStatusToOutput),
+    /** Hourly buckets of the 720-hour window that are missing or incomplete. */
+    incompleteHours: v.number(),
+});
+
+export type VipMetricQuality = v.InferOutput<typeof VipMetricQualitySchema>;
+
 export const VipStatusSchema = v.object({
     tier: VipTierNumberSchema,
     volumeTier: VipTierNumberSchema,
@@ -60,6 +90,8 @@ export const VipStatusSchema = v.object({
     evaluatedAt: OptionalTimestampMsSchema,
     metricsAsOf: OptionalTimestampMsSchema,
     nextTierThresholds: v.optional(NextVipTierThresholdsSchema),
+    settledVolumeQuality: v.optional(VipMetricQualitySchema),
+    averageAopQuality: v.optional(VipMetricQualitySchema),
 });
 
 export type VipStatus = v.InferOutput<typeof VipStatusSchema>;

@@ -1,4 +1,5 @@
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
+import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as v from "valibot";
 import { create } from "@bufbuild/protobuf";
 import {
@@ -7,7 +8,11 @@ import {
 } from "../../shared/account-scope.js";
 import { positiveDecimalInputToScaled, type SdkScales } from "../../shared/decimal-surface.js";
 import { BpsStringOrNumberInputSchema, NoneInputSchema, SymbolIdInputSchema } from "../shared.js";
-import { MAX_SLIPPAGE_BPS, parseSlippageInput } from "../trailing-oneof-inputs.js";
+import {
+    MAX_SELLING_SLIPPAGE_BPS,
+    MAX_SLIPPAGE_BPS,
+    parseSlippageInput,
+} from "../trailing-oneof-inputs.js";
 import {
     FEE_ASSET_VALUES,
     FeeAssetCodec,
@@ -46,11 +51,25 @@ export const TriggerSideInputSchema = v.pipe(
     v.transform((value) => TriggerSideCodec.inputToProto[value]),
 );
 
-export const MarketIocConditionalExecutionInputSchema = v.strictObject({
-    type: v.literal("market_ioc"),
+const PriceSlippageInputSchema = v.strictObject({
+    kind: v.literal("slippage"),
+    slippage: DecimalInputStringSchema,
 });
 
-export const LimitConditionalExecutionInputSchema = v.variant("type", [
+export const MaxSlippageInputSchema = v.union([
+    PriceSlippageInputSchema,
+    BpsStringOrNumberInputSchema,
+    NoneInputSchema,
+]);
+
+/** Omit `maxSlippage` to use the pair's default market slippage for the child's side. */
+export const MarketIocConditionalExecutionInputSchema = v.strictObject({
+    type: v.literal("market_ioc"),
+    maxSlippage: v.optional(MaxSlippageInputSchema),
+});
+
+export const ConditionalExecutionInputSchema = v.variant("type", [
+    MarketIocConditionalExecutionInputSchema,
     v.strictObject({
         type: v.literal("limit_gtc"),
         price: DecimalInputStringSchema,
@@ -64,22 +83,6 @@ export const LimitConditionalExecutionInputSchema = v.variant("type", [
         type: v.literal("limit_fok"),
         price: DecimalInputStringSchema,
     }),
-]);
-
-export const ConditionalExecutionInputSchema = v.variant("type", [
-    MarketIocConditionalExecutionInputSchema,
-    ...LimitConditionalExecutionInputSchema.options,
-]);
-
-const PriceSlippageInputSchema = v.strictObject({
-    kind: v.literal("slippage"),
-    slippage: DecimalInputStringSchema,
-});
-
-export const MaxSlippageInputSchema = v.union([
-    PriceSlippageInputSchema,
-    BpsStringOrNumberInputSchema,
-    NoneInputSchema,
 ]);
 
 export const TwapExecutionInputSchema = v.variant("type", [
@@ -127,13 +130,25 @@ export function buildTriggerIntentBase(input: BaseTriggerInput, scales: SdkScale
     };
 }
 
-export function buildConditionalExecution(input: ConditionalExecutionInput, scales: SdkScales) {
+export function buildConditionalExecution(
+    input: ConditionalExecutionInput,
+    scales: SdkScales,
+    side: ProtoOrders.Side,
+) {
     switch (input.type) {
         case "market_ioc":
             return {
                 execution: {
                     case: "marketIoc",
-                    value: create(Proto.TriggerMarketIocSchema),
+                    value: create(Proto.TriggerMarketIocSchema, {
+                        maxSlippage: parseMaxSlippage(
+                            scales,
+                            input.maxSlippage,
+                            side === ProtoOrders.Side.SELL
+                                ? MAX_SELLING_SLIPPAGE_BPS
+                                : MAX_SLIPPAGE_BPS,
+                        ),
+                    }),
                 },
             } as const;
         case "limit_gtc":

@@ -255,7 +255,7 @@ export class OrdersService {
     }
 
     /**
-     * Places 1–20 spot orders in one best-effort request. Results preserve item order and report admission as accepted or rejected; accepted orders still require lifecycle reconciliation. requestId is the idempotency boundary for the ordered batch and is generated when omitted; supply and reuse it when an ambiguous batch may be retried. The same payload and account-scoped requestId replay the original results and timestamp within 15 minutes; a different payload during that window returns CONFLICT_IDEMPOTENCY_KEY_REUSE. Per-item clientOrderId values are optional correlation identifiers and must be unique when supplied.
+     * Places 1–20 spot orders in one best-effort request. Results preserve item order and report admission as accepted or rejected; accepted orders still require lifecycle reconciliation. requestId is the idempotency boundary for the ordered batch and is generated when omitted; supply and reuse it when an ambiguous batch may be retried. The same payload and account-scoped requestId replay the original results and timestamp for 60 seconds from acceptance; a different payload during that window returns CONFLICT_IDEMPOTENCY_KEY_REUSE. Per-item clientOrderId values are optional correlation identifiers and must be unique when supplied.
      */
     async batchCreate(
         input: BatchCreateOrdersInput,
@@ -389,6 +389,7 @@ export class OrdersService {
 
     /**
      * Cancels all matching open orders for the resolved account scope, optionally narrowed by up to 100 symbol IDs and side, with dry-run preview. A requestId is generated when omitted; reuse it with the same criteria for retries. Completed results are retained for at least two minutes; use a fresh key for each new cancellation.
+     * `cancelledOrders` lists up to 200 of the orders whose cancellation was requested, oldest first; `truncated` is true when `totalCancelled` counts more. Read each order's final state from `orders.subscribe` or the order reads.
      */
     async cancelAll(
         input: v.InferInput<typeof CancelAllOrdersInputSchema>,

@@ -6,6 +6,26 @@ import { ClaimDailyRewardResultSchema, DailyClaimStatusSchema } from "./claims.s
 const resetAt = { seconds: 1_700_000_000n, nanos: 0 };
 
 describe("DailyClaimStatusSchema", () => {
+    it("decodes a delayed payout and its reason, leaving unset or unknown reasons undefined", () => {
+        const status = (payoutDelayReason?: number) =>
+            v.parse(DailyClaimStatusSchema, {
+                state: Proto.DailyClaimState.CLAIM_PAYOUT_DELAYED,
+                claimId: "claim-1",
+                payoutDelayReason,
+            });
+
+        expect(status(Proto.ErrorCode.CLAIM_PAYOUT_UNAVAILABLE)).toMatchObject({
+            state: "payout_delayed",
+            payoutDelayReason: "CLAIM_PAYOUT_UNAVAILABLE",
+        });
+        expect(status(Proto.ErrorCode.CLAIM_TEMPORARILY_UNAVAILABLE).payoutDelayReason).toBe(
+            "CLAIM_TEMPORARILY_UNAVAILABLE",
+        );
+        expect(status(Proto.ErrorCode.UNSPECIFIED).payoutDelayReason).toBeUndefined();
+        expect(status().payoutDelayReason).toBeUndefined();
+        expect(status(999).payoutDelayReason).toBeUndefined();
+    });
+
     it("decodes status, campaign, timestamps, and fixed-E18 rewards", () => {
         expect(
             v.parse(DailyClaimStatusSchema, {
