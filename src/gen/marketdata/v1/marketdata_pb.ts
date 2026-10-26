@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file marketdata/v1/marketdata.proto.
  */
 export const file_marketdata_v1_marketdata: GenFile = /*@__PURE__*/
-  fileDesc("Ch5tYXJrZXRkYXRhL3YxL21hcmtldGRhdGEucHJvdG8SDW1hcmtldGRhdGEudjEi2QEKEEdldFRyYWRlc1JlcXVlc3QSEwoJc3ltYm9sX2lkGAEgASgNQgASDwoFbGltaXQYAiABKA1CABIuCgpzdGFydF90aW1lGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKQoEc2lkZRgFIAEoDjIZLm1hcmtldGRhdGEudjEuU2lkZUZpbHRlckIAEhQKCnBhZ2VfdG9rZW4YBiABKAlCADoAInoKC01hcmtldFRyYWRlEhEKCXN5bWJvbF9pZBgBIAEoDRIQCghtYXRjaF9pZBgCIAEoBBIOCgZpc19idXkYAyABKAgSEwoLcHJpY2VfdGlja3MYBCABKAMSEgoKcXR5X3NjYWxlZBgFIAEoAxINCgV0c19ucxgGIAEoBCI+ChBNYXJrZXRUcmFkZUJhdGNoEioKBmV2ZW50cxgBIAMoCzIaLm1hcmtldGRhdGEudjEuTWFya2V0VHJhZGUiWgoRR2V0VHJhZGVzUmVzcG9uc2USKgoGdHJhZGVzGAEgAygLMhoubWFya2V0ZGF0YS52MS5NYXJrZXRUcmFkZRIZCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCACKVAgoRR2V0Q2FuZGxlc1JlcXVlc3QSEwoJc3ltYm9sX2lkGAEgASgNQgASLQoJdGltZWZyYW1lGAIgASgOMhgubWFya2V0ZGF0YS52MS5UaW1lZnJhbWVCABIPCgVsaW1pdBgDIAEoDUIAEi4KCnN0YXJ0X3RpbWUYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGVuZF90aW1lGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJpbmNsdWRlX2luY29tcGxldGUYBiABKAgSGQoRaW5jbHVkZV9yZWZlcmVuY2UYByABKAgSFAoKcGFnZV90b2tlbhgIIAEoCUIAOgAinAIKGEdldENhbmRsZXNDb2x1bW5zUmVxdWVzdBITCglzeW1ib2xfaWQYASABKA1CABItCgl0aW1lZnJhbWUYAiABKA4yGC5tYXJrZXRkYXRhLnYxLlRpbWVmcmFtZUIAEg8KBWxpbWl0GAMgASgNQgASLgoKc3RhcnRfdGltZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmluY2x1ZGVfaW5jb21wbGV0ZRgGIAEoCBIZChFpbmNsdWRlX3JlZmVyZW5jZRgHIAEoCBIUCgpwYWdlX3Rva2VuGAggASgJQgA6ACKOAQoLQ2FuZGxlUG9pbnQSDgoGdHNfc2VjGAEgASgEEgwKBG9wZW4YAiABKAMSDAoEaGlnaBgDIAEoAxILCgNsb3cYBCABKAMSDQoFY2xvc2UYBSABKAMSDgoGdm9sdW1lGAYgASgDEhEKCWlzX2Nsb3NlZBgHIAEoCBIUCgxxdW90ZV92b2x1bWUYCCABKAki0wEKEkdldENhbmRsZXNSZXNwb25zZRIRCglzeW1ib2xfaWQYASABKA0SKwoJdGltZWZyYW1lGAIgASgOMhgubWFya2V0ZGF0YS52MS5UaW1lZnJhbWUSKwoHY2FuZGxlcxgDIAMoCzIaLm1hcmtldGRhdGEudjEuQ2FuZGxlUG9pbnQSNQoRcmVmZXJlbmNlX2NhbmRsZXMYBCADKAsyGi5tYXJrZXRkYXRhLnYxLkNhbmRsZVBvaW50EhkKD25leHRfcGFnZV90b2tlbhgFIAEoCUIAIvgCChlHZXRDYW5kbGVzQ29sdW1uc1Jlc3BvbnNlEhEKCXN5bWJvbF9pZBgBIAEoDRIrCgl0aW1lZnJhbWUYAiABKA4yGC5tYXJrZXRkYXRhLnYxLlRpbWVmcmFtZRIOCgZ0c19zZWMYAyADKAQSDAoEb3BlbhgEIAMoAxIMCgRoaWdoGAUgAygDEgsKA2xvdxgGIAMoAxINCgVjbG9zZRgHIAMoAxIOCgZ2b2x1bWUYCCADKAMSGAoQcmVmZXJlbmNlX3RzX3NlYxgJIAMoBBIWCg5yZWZlcmVuY2Vfb3BlbhgKIAMoAxIWCg5yZWZlcmVuY2VfaGlnaBgLIAMoAxIVCg1yZWZlcmVuY2VfbG93GAwgAygDEhcKD3JlZmVyZW5jZV9jbG9zZRgNIAMoAxIYChByZWZlcmVuY2Vfdm9sdW1lGA4gAygDEhkKD25leHRfcGFnZV90b2tlbhgPIAEoCUIAEhQKDHF1b3RlX3ZvbHVtZRgQIAMoCSK2AQoGQ2FuZGxlEhEKCXN5bWJvbF9pZBgBIAEoDRIrCgl0aW1lZnJhbWUYAiABKA4yGC5tYXJrZXRkYXRhLnYxLlRpbWVmcmFtZRIOCgZ0c19zZWMYAyABKAQSDAoEb3BlbhgEIAEoAxIMCgRoaWdoGAUgASgDEgsKA2xvdxgGIAEoAxINCgVjbG9zZRgHIAEoAxIOCgZ2b2x1bWUYCCABKAMSFAoMcXVvdGVfdm9sdW1lGAkgASgJIpoBCgtBc3NldENvbmZpZxINCgVhc3NldBgBIAEoCRIRCglsZWRnZXJfaWQYAiABKA0SDAoEbmFtZRgDIAEoCRIhChlxdWFudGl0eV9kaXNwbGF5X2RlY2ltYWxzGAQgASgNEhYKDnF1YW50aXR5X3NjYWxlGAUgASgNEiAKGG1hcmtldF9kYXRhX3ZvbHVtZV9zY2FsZRgGIAEoDSI3ChRQYWlyTWFya2V0ZGF0YUNvbmZpZxIfChdvcmRlcmJvb2tfcHJpY2VfYnVja2V0cxgBIAMoASLmBAoKUGFpckNvbmZpZxIRCglzeW1ib2xfaWQYASABKA0SDgoGc3ltYm9sGAIgASgJEhIKCmJhc2VfYXNzZXQYAyABKAkSEwoLcXVvdGVfYXNzZXQYBCABKAkSEQoJdGlja19zaXplGAUgASgJEhEKCXN0ZXBfc2l6ZRgGIAEoCRIaChJtaW5fbm90aW9uYWxfcXVvdGUYByABKAkSFAoMbWluX3F0eV9iYXNlGAggASgJEh8KF2FsbG93X2J1eV9mZWVfZnJvbV9iYXNlGAkgASgIEhsKE2Jhc2VfcXVhbnRpdHlfc2NhbGUYCiABKA0SHAoUcXVvdGVfcXVhbnRpdHlfc2NhbGUYCyABKA0SNwoKbWFya2V0ZGF0YRgMIAEoCzIjLm1hcmtldGRhdGEudjEuUGFpck1hcmtldGRhdGFDb25maWcSLgoKbGlzdGluZ19hdBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMZGVsaXN0aW5nX2F0GA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIpCgZzdGF0dXMYDyABKA4yGS5tYXJrZXRkYXRhLnYxLlBhaXJTdGF0dXMSJwofZGVmYXVsdF9tYXJrZXRfc2xpcHBhZ2VfYnBzX2J1eRgQIAEoBRIoCiBkZWZhdWx0X21hcmtldF9zbGlwcGFnZV9icHNfc2VsbBgRIAEoBRIgChhtYXhfY2xpZW50X3JlZl9kcmlmdF9icHMYEiABKAUSHQoVcmVmZXJlbmNlX3ByaWNlX3NjYWxlGBMgASgNIhYKFEdldFNwb3RDb25maWdSZXF1ZXN0In0KFUdldFNwb3RDb25maWdSZXNwb25zZRIqCgZhc3NldHMYASADKAsyGi5tYXJrZXRkYXRhLnYxLkFzc2V0Q29uZmlnEigKBXBhaXJzGAIgAygLMhkubWFya2V0ZGF0YS52MS5QYWlyQ29uZmlnEg4KBnRzX3NlYxgDIAEoBCo1CgpTaWRlRmlsdGVyEhQKEFNJREVfVU5TUEVDSUZJRUQQABIHCgNCVVkQARIICgRTRUxMEAIqqAEKCVRpbWVmcmFtZRIZChVUSU1FRlJBTUVfVU5TUEVDSUZJRUQQABIJCgVTRUNfMRABEgkKBU1JTl8xEAISCQoFTUlOXzUQAxIKCgZNSU5fMTUQBBIKCgZNSU5fMzAQBRIKCgZIT1VSXzEQBhIKCgZIT1VSXzQQBxIJCgVEQVlfMRAIEgsKB0hPVVJfMTIQCRIKCgZXRUVLXzEQChILCgdNT05USF8xEAsqsQEKClBhaXJTdGF0dXMSGwoXUEFJUl9TVEFUVVNfVU5TUEVDSUZJRUQQABIXChNQQUlSX1NUQVRVU19FTkFCTEVEEAESGAoUUEFJUl9TVEFUVVNfRElTQUJMRUQQAhIbChdQQUlSX1NUQVRVU19DQU5DRUxfT05MWRADEhkKFVBBSVJfU1RBVFVTX1BPU1RfT05MWRAEEhsKF1BBSVJfU1RBVFVTX1JFRFVDRV9PTkxZEAUyggMKEU1hcmtldERhdGFTZXJ2aWNlElAKCUdldFRyYWRlcxIfLm1hcmtldGRhdGEudjEuR2V0VHJhZGVzUmVxdWVzdBogLm1hcmtldGRhdGEudjEuR2V0VHJhZGVzUmVzcG9uc2UiABJTCgpHZXRDYW5kbGVzEiAubWFya2V0ZGF0YS52MS5HZXRDYW5kbGVzUmVxdWVzdBohLm1hcmtldGRhdGEudjEuR2V0Q2FuZGxlc1Jlc3BvbnNlIgASaAoRR2V0Q2FuZGxlc0NvbHVtbnMSJy5tYXJrZXRkYXRhLnYxLkdldENhbmRsZXNDb2x1bW5zUmVxdWVzdBooLm1hcmtldGRhdGEudjEuR2V0Q2FuZGxlc0NvbHVtbnNSZXNwb25zZSIAElwKDUdldFNwb3RDb25maWcSIy5tYXJrZXRkYXRhLnYxLkdldFNwb3RDb25maWdSZXF1ZXN0GiQubWFya2V0ZGF0YS52MS5HZXRTcG90Q29uZmlnUmVzcG9uc2UiAEJIWkZnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL21hcmtldGRhdGEvdjE7bWFya2V0ZGF0YXYxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("Ch5tYXJrZXRkYXRhL3YxL21hcmtldGRhdGEucHJvdG8SDW1hcmtldGRhdGEudjEiiQIKEEdldFRyYWRlc1JlcXVlc3QSEwoJc3ltYm9sX2lkGAEgASgNQgASDwoFbGltaXQYAiABKA1CABIuCgpzdGFydF90aW1lGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKQoEc2lkZRgFIAEoDjIZLm1hcmtldGRhdGEudjEuU2lkZUZpbHRlckIAEhQKCnBhZ2VfdG9rZW4YBiABKAlCABIbCg5hZnRlcl90cmFkZV9pZBgHIAEoBEgAiAEBOgBCEQoPX2FmdGVyX3RyYWRlX2lkInoKC01hcmtldFRyYWRlEhEKCXN5bWJvbF9pZBgBIAEoDRIQCghtYXRjaF9pZBgCIAEoBBIOCgZpc19idXkYAyABKAgSEwoLcHJpY2VfdGlja3MYBCABKAMSEgoKcXR5X3NjYWxlZBgFIAEoAxINCgV0c19ucxgGIAEoBCI+ChBNYXJrZXRUcmFkZUJhdGNoEioKBmV2ZW50cxgBIAMoCzIaLm1hcmtldGRhdGEudjEuTWFya2V0VHJhZGUiNQoNVHJhZGVFcG9jaEVuZBINCgVlcG9jaBgBIAEoBBIVCg1sYXN0X3RyYWRlX2lkGAIgASgEIswBChFHZXRUcmFkZXNSZXNwb25zZRIqCgZ0cmFkZXMYASADKAsyGi5tYXJrZXRkYXRhLnYxLk1hcmtldFRyYWRlEhkKD25leHRfcGFnZV90b2tlbhgCIAEoCUIAEiEKGWNvbXBsZXRlX3Rocm91Z2hfdHJhZGVfaWQYAyABKAQSGwoTbmV4dF9hZnRlcl90cmFkZV9pZBgEIAEoBBIwCgplcG9jaF9lbmRzGAUgAygLMhwubWFya2V0ZGF0YS52MS5UcmFkZUVwb2NoRW5kIpUCChFHZXRDYW5kbGVzUmVxdWVzdBITCglzeW1ib2xfaWQYASABKA1CABItCgl0aW1lZnJhbWUYAiABKA4yGC5tYXJrZXRkYXRhLnYxLlRpbWVmcmFtZUIAEg8KBWxpbWl0GAMgASgNQgASLgoKc3RhcnRfdGltZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmluY2x1ZGVfaW5jb21wbGV0ZRgGIAEoCBIZChFpbmNsdWRlX3JlZmVyZW5jZRgHIAEoCBIUCgpwYWdlX3Rva2VuGAggASgJQgA6ACKcAgoYR2V0Q2FuZGxlc0NvbHVtbnNSZXF1ZXN0EhMKCXN5bWJvbF9pZBgBIAEoDUIAEi0KCXRpbWVmcmFtZRgCIAEoDjIYLm1hcmtldGRhdGEudjEuVGltZWZyYW1lQgASDwoFbGltaXQYAyABKA1CABIuCgpzdGFydF90aW1lGAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSaW5jbHVkZV9pbmNvbXBsZXRlGAYgASgIEhkKEWluY2x1ZGVfcmVmZXJlbmNlGAcgASgIEhQKCnBhZ2VfdG9rZW4YCCABKAlCADoAIo4BCgtDYW5kbGVQb2ludBIOCgZ0c19zZWMYASABKAQSDAoEb3BlbhgCIAEoAxIMCgRoaWdoGAMgASgDEgsKA2xvdxgEIAEoAxINCgVjbG9zZRgFIAEoAxIOCgZ2b2x1bWUYBiABKAMSEQoJaXNfY2xvc2VkGAcgASgIEhQKDHF1b3RlX3ZvbHVtZRgIIAEoCSLTAQoSR2V0Q2FuZGxlc1Jlc3BvbnNlEhEKCXN5bWJvbF9pZBgBIAEoDRIrCgl0aW1lZnJhbWUYAiABKA4yGC5tYXJrZXRkYXRhLnYxLlRpbWVmcmFtZRIrCgdjYW5kbGVzGAMgAygLMhoubWFya2V0ZGF0YS52MS5DYW5kbGVQb2ludBI1ChFyZWZlcmVuY2VfY2FuZGxlcxgEIAMoCzIaLm1hcmtldGRhdGEudjEuQ2FuZGxlUG9pbnQSGQoPbmV4dF9wYWdlX3Rva2VuGAUgASgJQgAi+AIKGUdldENhbmRsZXNDb2x1bW5zUmVzcG9uc2USEQoJc3ltYm9sX2lkGAEgASgNEisKCXRpbWVmcmFtZRgCIAEoDjIYLm1hcmtldGRhdGEudjEuVGltZWZyYW1lEg4KBnRzX3NlYxgDIAMoBBIMCgRvcGVuGAQgAygDEgwKBGhpZ2gYBSADKAMSCwoDbG93GAYgAygDEg0KBWNsb3NlGAcgAygDEg4KBnZvbHVtZRgIIAMoAxIYChByZWZlcmVuY2VfdHNfc2VjGAkgAygEEhYKDnJlZmVyZW5jZV9vcGVuGAogAygDEhYKDnJlZmVyZW5jZV9oaWdoGAsgAygDEhUKDXJlZmVyZW5jZV9sb3cYDCADKAMSFwoPcmVmZXJlbmNlX2Nsb3NlGA0gAygDEhgKEHJlZmVyZW5jZV92b2x1bWUYDiADKAMSGQoPbmV4dF9wYWdlX3Rva2VuGA8gASgJQgASFAoMcXVvdGVfdm9sdW1lGBAgAygJIrYBCgZDYW5kbGUSEQoJc3ltYm9sX2lkGAEgASgNEisKCXRpbWVmcmFtZRgCIAEoDjIYLm1hcmtldGRhdGEudjEuVGltZWZyYW1lEg4KBnRzX3NlYxgDIAEoBBIMCgRvcGVuGAQgASgDEgwKBGhpZ2gYBSABKAMSCwoDbG93GAYgASgDEg0KBWNsb3NlGAcgASgDEg4KBnZvbHVtZRgIIAEoAxIUCgxxdW90ZV92b2x1bWUYCSABKAkimgEKC0Fzc2V0Q29uZmlnEg0KBWFzc2V0GAEgASgJEhEKCWxlZGdlcl9pZBgCIAEoDRIMCgRuYW1lGAMgASgJEiEKGXF1YW50aXR5X2Rpc3BsYXlfZGVjaW1hbHMYBCABKA0SFgoOcXVhbnRpdHlfc2NhbGUYBSABKA0SIAoYbWFya2V0X2RhdGFfdm9sdW1lX3NjYWxlGAYgASgNIjcKFFBhaXJNYXJrZXRkYXRhQ29uZmlnEh8KF29yZGVyYm9va19wcmljZV9idWNrZXRzGAEgAygBIuYECgpQYWlyQ29uZmlnEhEKCXN5bWJvbF9pZBgBIAEoDRIOCgZzeW1ib2wYAiABKAkSEgoKYmFzZV9hc3NldBgDIAEoCRITCgtxdW90ZV9hc3NldBgEIAEoCRIRCgl0aWNrX3NpemUYBSABKAkSEQoJc3RlcF9zaXplGAYgASgJEhoKEm1pbl9ub3Rpb25hbF9xdW90ZRgHIAEoCRIUCgxtaW5fcXR5X2Jhc2UYCCABKAkSHwoXYWxsb3dfYnV5X2ZlZV9mcm9tX2Jhc2UYCSABKAgSGwoTYmFzZV9xdWFudGl0eV9zY2FsZRgKIAEoDRIcChRxdW90ZV9xdWFudGl0eV9zY2FsZRgLIAEoDRI3CgptYXJrZXRkYXRhGAwgASgLMiMubWFya2V0ZGF0YS52MS5QYWlyTWFya2V0ZGF0YUNvbmZpZxIuCgpsaXN0aW5nX2F0GA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxkZWxpc3RpbmdfYXQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEikKBnN0YXR1cxgPIAEoDjIZLm1hcmtldGRhdGEudjEuUGFpclN0YXR1cxInCh9kZWZhdWx0X21hcmtldF9zbGlwcGFnZV9icHNfYnV5GBAgASgFEigKIGRlZmF1bHRfbWFya2V0X3NsaXBwYWdlX2Jwc19zZWxsGBEgASgFEiAKGG1heF9jbGllbnRfcmVmX2RyaWZ0X2JwcxgSIAEoBRIdChVyZWZlcmVuY2VfcHJpY2Vfc2NhbGUYEyABKA0iFgoUR2V0U3BvdENvbmZpZ1JlcXVlc3QifQoVR2V0U3BvdENvbmZpZ1Jlc3BvbnNlEioKBmFzc2V0cxgBIAMoCzIaLm1hcmtldGRhdGEudjEuQXNzZXRDb25maWcSKAoFcGFpcnMYAiADKAsyGS5tYXJrZXRkYXRhLnYxLlBhaXJDb25maWcSDgoGdHNfc2VjGAMgASgEKjUKClNpZGVGaWx0ZXISFAoQU0lERV9VTlNQRUNJRklFRBAAEgcKA0JVWRABEggKBFNFTEwQAiriAQoJVGltZWZyYW1lEhkKFVRJTUVGUkFNRV9VTlNQRUNJRklFRBAAEgkKBVNFQ18xEAESCQoFTUlOXzEQAhIJCgVNSU5fMxAMEgkKBU1JTl81EAMSCgoGTUlOXzE1EAQSCgoGTUlOXzMwEAUSCgoGSE9VUl8xEAYSCgoGSE9VUl8yEA0SCgoGSE9VUl80EAcSCgoGSE9VUl82EA4SCgoGSE9VUl84EA8SCwoHSE9VUl8xMhAJEgkKBURBWV8xEAgSCQoFREFZXzMQEBIKCgZXRUVLXzEQChILCgdNT05USF8xEAsqsQEKClBhaXJTdGF0dXMSGwoXUEFJUl9TVEFUVVNfVU5TUEVDSUZJRUQQABIXChNQQUlSX1NUQVRVU19FTkFCTEVEEAESGAoUUEFJUl9TVEFUVVNfRElTQUJMRUQQAhIbChdQQUlSX1NUQVRVU19DQU5DRUxfT05MWRADEhkKFVBBSVJfU1RBVFVTX1BPU1RfT05MWRAEEhsKF1BBSVJfU1RBVFVTX1JFRFVDRV9PTkxZEAUyggMKEU1hcmtldERhdGFTZXJ2aWNlElAKCUdldFRyYWRlcxIfLm1hcmtldGRhdGEudjEuR2V0VHJhZGVzUmVxdWVzdBogLm1hcmtldGRhdGEudjEuR2V0VHJhZGVzUmVzcG9uc2UiABJTCgpHZXRDYW5kbGVzEiAubWFya2V0ZGF0YS52MS5HZXRDYW5kbGVzUmVxdWVzdBohLm1hcmtldGRhdGEudjEuR2V0Q2FuZGxlc1Jlc3BvbnNlIgASaAoRR2V0Q2FuZGxlc0NvbHVtbnMSJy5tYXJrZXRkYXRhLnYxLkdldENhbmRsZXNDb2x1bW5zUmVxdWVzdBooLm1hcmtldGRhdGEudjEuR2V0Q2FuZGxlc0NvbHVtbnNSZXNwb25zZSIAElwKDUdldFNwb3RDb25maWcSIy5tYXJrZXRkYXRhLnYxLkdldFNwb3RDb25maWdSZXF1ZXN0GiQubWFya2V0ZGF0YS52MS5HZXRTcG90Q29uZmlnUmVzcG9uc2UiAEJIWkZnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL21hcmtldGRhdGEvdjE7bWFya2V0ZGF0YXYxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * GetTradesRequest selects recent public trades for one spot market.
@@ -21,6 +21,10 @@ export const file_marketdata_v1_marketdata: GenFile = /*@__PURE__*/
  * Results are ordered newest-first by execution timestamp, with match_id as a
  * tie-breaker. When both start_time and end_time are set, both bounds are
  * inclusive.
+ *
+ * With after_trade_id set, the request instead walks the symbol's trades by
+ * trade identifier (match_id), oldest first and gap-free, to backfill trades
+ * missed on a live stream: see after_trade_id.
  *
  * @generated from message marketdata.v1.GetTradesRequest
  */
@@ -70,6 +74,20 @@ export type GetTradesRequest = Message<"marketdata.v1.GetTradesRequest"> & {
    * @generated from field: string page_token = 6;
    */
   pageToken: string;
+
+  /**
+   * Exclusive trade-identifier cursor for gap-free backfill. When set, the
+   * results are the symbol's trades with match_id greater than
+   * after_trade_id, ascending by match_id, up to limit, and only trades at or
+   * below the response's complete_through_trade_id: every page is gap-free.
+   * Trade identifiers order trades across epochs too, so a walk crosses
+   * epoch ends without a gap. Pass 0 to start from the symbol's first trade,
+   * then the response's next_after_trade_id. Cannot be combined with
+   * start_time, end_time, side or page_token.
+   *
+   * @generated from field: optional uint64 after_trade_id = 7;
+   */
+  afterTradeId?: bigint | undefined;
 };
 
 /**
@@ -168,6 +186,38 @@ export const MarketTradeBatchSchema: GenMessage<MarketTradeBatch> = /*@__PURE__*
   messageDesc(file_marketdata_v1_marketdata, 2);
 
 /**
+ * TradeEpochEnd reports where one epoch of a symbol's trade identifiers
+ * ended. Trade identifiers of epoch e are greater than (e-1) * 2^40 and less
+ * than e * 2^40; a later epoch's identifiers are greater than every earlier
+ * epoch's.
+ *
+ * @generated from message marketdata.v1.TradeEpochEnd
+ */
+export type TradeEpochEnd = Message<"marketdata.v1.TradeEpochEnd"> & {
+  /**
+   * The epoch.
+   *
+   * @generated from field: uint64 epoch = 1;
+   */
+  epoch: bigint;
+
+  /**
+   * match_id of the epoch's last trade; (epoch-1) * 2^40 when the epoch
+   * ended without trades.
+   *
+   * @generated from field: uint64 last_trade_id = 2;
+   */
+  lastTradeId: bigint;
+};
+
+/**
+ * Describes the message marketdata.v1.TradeEpochEnd.
+ * Use `create(TradeEpochEndSchema)` to create a new message.
+ */
+export const TradeEpochEndSchema: GenMessage<TradeEpochEnd> = /*@__PURE__*/
+  messageDesc(file_marketdata_v1_marketdata, 3);
+
+/**
  * GetTradesResponse contains public trades for one spot market.
  *
  * @generated from message marketdata.v1.GetTradesResponse
@@ -175,18 +225,55 @@ export const MarketTradeBatchSchema: GenMessage<MarketTradeBatch> = /*@__PURE__*
 export type GetTradesResponse = Message<"marketdata.v1.GetTradesResponse"> & {
   /**
    * Trades ordered newest-first by execution timestamp, with match_id as a
-   * tie-breaker.
+   * tie-breaker; with after_trade_id, ascending by match_id.
    *
    * @generated from field: repeated marketdata.v1.MarketTrade trades = 1;
    */
   trades: MarketTrade[];
 
   /**
-   * Opaque cursor for the next page. Empty when no more results exist.
+   * Opaque cursor for the next page. Empty when no more results exist, and
+   * always empty with after_trade_id.
    *
    * @generated from field: string next_page_token = 2;
    */
   nextPageToken: string;
+
+  /**
+   * Set only with after_trade_id; 0 otherwise. Every trade of the symbol
+   * with match_id at or below this value exists and is returned by this
+   * method. Identifiers in that range that no trade has, the rest of an
+   * ended epoch and every identifier below a later epoch's first, are
+   * covered too. Newer trades may exist that are not available here yet; it
+   * only grows.
+   *
+   * @generated from field: uint64 complete_through_trade_id = 3;
+   */
+  completeThroughTradeId: bigint;
+
+  /**
+   * Set only with after_trade_id; 0 otherwise. The after_trade_id of the
+   * next call; it never moves backwards. On a full page (limit trades) it is
+   * the last trade's match_id. Otherwise it is the greater of after_trade_id
+   * and complete_through_trade_id, so a walk progresses across epoch ends
+   * and empty epochs without trades to carry it. When it equals the
+   * request's after_trade_id, nothing newer is available yet: retry later
+   * with backoff.
+   *
+   * @generated from field: uint64 next_after_trade_id = 4;
+   */
+  nextAfterTradeId: bigint;
+
+  /**
+   * Set only with after_trade_id. Every epoch whose last trade (or, for an
+   * epoch without trades, its start) lies between after_trade_id and
+   * next_after_trade_id, both inclusive, ascending by epoch. A page that
+   * ends exactly on an epoch's last trade is followed by a page that still
+   * reports that epoch's end.
+   *
+   * @generated from field: repeated marketdata.v1.TradeEpochEnd epoch_ends = 5;
+   */
+  epochEnds: TradeEpochEnd[];
 };
 
 /**
@@ -194,7 +281,7 @@ export type GetTradesResponse = Message<"marketdata.v1.GetTradesResponse"> & {
  * Use `create(GetTradesResponseSchema)` to create a new message.
  */
 export const GetTradesResponseSchema: GenMessage<GetTradesResponse> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_marketdata, 3);
+  messageDesc(file_marketdata_v1_marketdata, 4);
 
 /**
  * GetCandlesRequest selects a spot market candle series.
@@ -279,7 +366,7 @@ export type GetCandlesRequest = Message<"marketdata.v1.GetCandlesRequest"> & {
  * Use `create(GetCandlesRequestSchema)` to create a new message.
  */
 export const GetCandlesRequestSchema: GenMessage<GetCandlesRequest> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_marketdata, 4);
+  messageDesc(file_marketdata_v1_marketdata, 5);
 
 /**
  * GetCandlesColumnsRequest selects a spot market candle series for columnar output.
@@ -364,7 +451,7 @@ export type GetCandlesColumnsRequest = Message<"marketdata.v1.GetCandlesColumnsR
  * Use `create(GetCandlesColumnsRequestSchema)` to create a new message.
  */
 export const GetCandlesColumnsRequestSchema: GenMessage<GetCandlesColumnsRequest> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_marketdata, 5);
+  messageDesc(file_marketdata_v1_marketdata, 6);
 
 /**
  * CandlePoint is one OHLCV bucket represented with scaled integers.
@@ -420,8 +507,8 @@ export type CandlePoint = Message<"marketdata.v1.CandlePoint"> & {
   volume: bigint;
 
   /**
-   * True only for WebSocket terminal updates of a closed bucket.
-   * Historical API rows and current open-candle rows set this to false.
+   * True for a closed candle bucket, including historical API rows and
+   * WebSocket terminal updates. False only while the bucket is still open.
    *
    * @generated from field: bool is_closed = 7;
    */
@@ -441,7 +528,7 @@ export type CandlePoint = Message<"marketdata.v1.CandlePoint"> & {
  * Use `create(CandlePointSchema)` to create a new message.
  */
 export const CandlePointSchema: GenMessage<CandlePoint> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_marketdata, 6);
+  messageDesc(file_marketdata_v1_marketdata, 7);
 
 /**
  * GetCandlesResponse contains OHLCV candles for one spot market and timeframe.
@@ -495,7 +582,7 @@ export type GetCandlesResponse = Message<"marketdata.v1.GetCandlesResponse"> & {
  * Use `create(GetCandlesResponseSchema)` to create a new message.
  */
 export const GetCandlesResponseSchema: GenMessage<GetCandlesResponse> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_marketdata, 7);
+  messageDesc(file_marketdata_v1_marketdata, 8);
 
 /**
  * GetCandlesColumnsResponse returns the same candle series as GetCandles but in columnar form.
@@ -631,7 +718,7 @@ export type GetCandlesColumnsResponse = Message<"marketdata.v1.GetCandlesColumns
  * Use `create(GetCandlesColumnsResponseSchema)` to create a new message.
  */
 export const GetCandlesColumnsResponseSchema: GenMessage<GetCandlesColumnsResponse> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_marketdata, 8);
+  messageDesc(file_marketdata_v1_marketdata, 9);
 
 /**
  * Candle represents a single OHLCV bucket for a symbol and timeframe.
@@ -709,7 +796,7 @@ export type Candle = Message<"marketdata.v1.Candle"> & {
  * Use `create(CandleSchema)` to create a new message.
  */
 export const CandleSchema: GenMessage<Candle> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_marketdata, 9);
+  messageDesc(file_marketdata_v1_marketdata, 10);
 
 /**
  * AssetConfig describes one spot asset returned by GetSpotConfig.
@@ -767,7 +854,7 @@ export type AssetConfig = Message<"marketdata.v1.AssetConfig"> & {
  * Use `create(AssetConfigSchema)` to create a new message.
  */
 export const AssetConfigSchema: GenMessage<AssetConfig> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_marketdata, 10);
+  messageDesc(file_marketdata_v1_marketdata, 11);
 
 /**
  * PairMarketdataConfig describes market-data display settings for a spot pair.
@@ -789,7 +876,7 @@ export type PairMarketdataConfig = Message<"marketdata.v1.PairMarketdataConfig">
  * Use `create(PairMarketdataConfigSchema)` to create a new message.
  */
 export const PairMarketdataConfigSchema: GenMessage<PairMarketdataConfig> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_marketdata, 11);
+  messageDesc(file_marketdata_v1_marketdata, 12);
 
 /**
  * PairConfig describes one spot trading pair and its trading constraints.
@@ -946,7 +1033,7 @@ export type PairConfig = Message<"marketdata.v1.PairConfig"> & {
  * Use `create(PairConfigSchema)` to create a new message.
  */
 export const PairConfigSchema: GenMessage<PairConfig> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_marketdata, 12);
+  messageDesc(file_marketdata_v1_marketdata, 13);
 
 /**
  * GetSpotConfigRequest has no parameters.
@@ -961,7 +1048,7 @@ export type GetSpotConfigRequest = Message<"marketdata.v1.GetSpotConfigRequest">
  * Use `create(GetSpotConfigRequestSchema)` to create a new message.
  */
 export const GetSpotConfigRequestSchema: GenMessage<GetSpotConfigRequest> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_marketdata, 13);
+  messageDesc(file_marketdata_v1_marketdata, 14);
 
 /**
  * GetSpotConfigResponse contains a cacheable spot reference-data snapshot.
@@ -996,7 +1083,7 @@ export type GetSpotConfigResponse = Message<"marketdata.v1.GetSpotConfigResponse
  * Use `create(GetSpotConfigResponseSchema)` to create a new message.
  */
 export const GetSpotConfigResponseSchema: GenMessage<GetSpotConfigResponse> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_marketdata, 14);
+  messageDesc(file_marketdata_v1_marketdata, 15);
 
 /**
  * SideFilter controls which aggressor side of trades to return.
@@ -1035,8 +1122,12 @@ export const SideFilterSchema: GenEnum<SideFilter> = /*@__PURE__*/
 /**
  * Timeframe represents an OHLCV candle bucket.
  *
- * Most values are fixed-duration buckets. `MONTH_1` is calendar-based (UTC
- * month boundaries).
+ * All buckets are in UTC; daylight saving time never shifts a boundary.
+ * Fixed-duration buckets start at whole multiples of their duration since
+ * 1970-01-01T00:00:00Z, so every bucket up to 1 day starts on a UTC midnight
+ * boundary and `DAY_3` buckets start every third day counted from
+ * 1970-01-01. `WEEK_1` buckets start on Monday 00:00 UTC. `MONTH_1` is
+ * calendar-based (UTC month boundaries). Values are listed shortest first.
  *
  * @generated from enum marketdata.v1.Timeframe
  */
@@ -1059,6 +1150,13 @@ export enum Timeframe {
    * @generated from enum value: MIN_1 = 2;
    */
   MIN_1 = 2,
+
+  /**
+   * 3 minutes
+   *
+   * @generated from enum value: MIN_3 = 12;
+   */
+  MIN_3 = 12,
 
   /**
    * 5 minutes
@@ -1089,6 +1187,13 @@ export enum Timeframe {
   HOUR_1 = 6,
 
   /**
+   * 2 hours
+   *
+   * @generated from enum value: HOUR_2 = 13;
+   */
+  HOUR_2 = 13,
+
+  /**
    * 4 hours
    *
    * @generated from enum value: HOUR_4 = 7;
@@ -1096,11 +1201,18 @@ export enum Timeframe {
   HOUR_4 = 7,
 
   /**
-   * 1 day
+   * 6 hours
    *
-   * @generated from enum value: DAY_1 = 8;
+   * @generated from enum value: HOUR_6 = 14;
    */
-  DAY_1 = 8,
+  HOUR_6 = 14,
+
+  /**
+   * 8 hours
+   *
+   * @generated from enum value: HOUR_8 = 15;
+   */
+  HOUR_8 = 15,
 
   /**
    * 12 hours
@@ -1110,7 +1222,21 @@ export enum Timeframe {
   HOUR_12 = 9,
 
   /**
-   * 1 week
+   * 1 day
+   *
+   * @generated from enum value: DAY_1 = 8;
+   */
+  DAY_1 = 8,
+
+  /**
+   * 3 days, counted from 1970-01-01 UTC
+   *
+   * @generated from enum value: DAY_3 = 16;
+   */
+  DAY_3 = 16,
+
+  /**
+   * 1 week, starting Monday 00:00 UTC
    *
    * @generated from enum value: WEEK_1 = 10;
    */
@@ -1192,7 +1318,9 @@ export const MarketDataService: GenService<{
   /**
    * Retrieve recent public trades for a spot market.
    * Results are ordered newest-first and support optional aggressor side,
-   * inclusive time-range, and opaque keyset pagination filters.
+   * inclusive time-range, and opaque keyset pagination filters. With
+   * after_trade_id, it walks the symbol's trades by trade identifier,
+   * oldest first and gap-free, to backfill trades missed on a live stream.
    *
    * @generated from rpc marketdata.v1.MarketDataService.GetTrades
    */

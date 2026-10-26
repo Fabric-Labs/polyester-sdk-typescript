@@ -23,6 +23,8 @@ import {
     type SpotConfig,
     SpotConfigSchema,
     type MarketTrade,
+    TradeBackfillSchema,
+    type TradeBackfill,
 } from "./market-data.schemas.js";
 import { isDev } from "../../utils/is-dev.js";
 
@@ -48,17 +50,28 @@ export class MarketDataService {
 
     /**
      * Returns recent public trades for one spot market, ordered newest-first by execution timestamp with match id as a tie-breaker. Supports limit, time bounds, side filtering, and match-id pagination.
+     *
+     * With `afterTradeId`, it instead walks the symbol's trades by `matchId`, oldest first and
+     * gap-free, to backfill trades missed on a live stream, and the result carries `backfill`.
+     * Start from `"0"`, then pass `backfill.nextAfterTradeId`; when it equals the `afterTradeId`
+     * sent, nothing newer is available yet, so retry later with backoff. `afterTradeId` cannot
+     * be combined with `side`, `startTsNs`, `endTsNs` or `pageToken`.
      */
     async listTrades(
         input: GetMarketTradesInput,
         options?: PolyesterRequestOptions,
-    ): Promise<{ trades: MarketTrade[]; nextPageToken: string }> {
+    ): Promise<{ trades: MarketTrade[]; nextPageToken: string; backfill?: TradeBackfill }> {
         await this.#scales.ready();
         const validatedInput = parse(GetMarketTradesInputSchema, input);
         const res = await this.#client.getTrades(validatedInput, toConnectCallOptions(options));
+        const trades = parse(v.array(this.#marketTradeSchema), res.trades);
+        if (validatedInput.afterTradeId === undefined) {
+            return { trades, nextPageToken: res.nextPageToken };
+        }
         return {
-            trades: parse(v.array(this.#marketTradeSchema), res.trades),
+            trades,
             nextPageToken: res.nextPageToken,
+            backfill: parse(TradeBackfillSchema, res),
         };
     }
 

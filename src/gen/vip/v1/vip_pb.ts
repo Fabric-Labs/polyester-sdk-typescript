@@ -2,8 +2,8 @@
 // @generated from file vip/v1/vip.proto (package vip.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import { file_polyester_api_options } from "../../polyester/api/options_pb.js";
@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file vip/v1/vip.proto.
  */
 export const file_vip_v1_vip: GenFile = /*@__PURE__*/
-  fileDesc("ChB2aXAvdjEvdmlwLnByb3RvEgZ2aXAudjEitQEKB1ZJUFRpZXISDgoEdGllchgBIAEoDUIAEh4KFHZvbHVtZV90aHJlc2hvbGRfdXNkGAIgASgJQgASIAoRYW9wX3RocmVzaG9sZF91c2QYAyABKAlCAEgAiAEBEiAKFm1ha2VyX2ZlZV9yYXRlX3BlcmNlbnQYBCABKAlCABIgChZ0YWtlcl9mZWVfcmF0ZV9wZXJjZW50GAUgASgJQgBCFAoSX2FvcF90aHJlc2hvbGRfdXNkIhUKE0xpc3RWSVBUaWVyc1JlcXVlc3QiqgEKFExpc3RWSVBUaWVyc1Jlc3BvbnNlEhgKDnBvbGljeV92ZXJzaW9uGAEgASgEQgASNAoOZWZmZWN0aXZlX2Zyb20YAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgASIAoWcmV0ZW50aW9uX3RocmVzaG9sZF9icBgDIAEoDUIAEiAKBXRpZXJzGAQgAygLMg8udmlwLnYxLlZJUFRpZXJCACJkChVOZXh0VklQVGllclRocmVzaG9sZHMSDgoEdGllchgBIAEoDUIAEh4KFHZvbHVtZV90aHJlc2hvbGRfdXNkGAIgASgJQgASGwoRYW9wX3RocmVzaG9sZF91c2QYAyABKAlCACIVChNHZXRWSVBTdGF0dXNSZXF1ZXN0It8EChRHZXRWSVBTdGF0dXNSZXNwb25zZRIOCgR0aWVyGAEgASgNQgASFQoLdm9sdW1lX3RpZXIYAiABKA1CABISCghhb3BfdGllchgDIAEoDUIAEiUKFnNldHRsZWRfdm9sdW1lXzMwZF91c2QYBCABKAlCAEgAiAEBEiIKE2F2ZXJhZ2VfYW9wXzMwZF91c2QYBSABKAlCAEgBiAEBEhgKDnBvbGljeV92ZXJzaW9uGAYgASgEQgASOwoVcG9saWN5X2VmZmVjdGl2ZV9mcm9tGAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIAEjcKDmVmZmVjdGl2ZV9mcm9tGAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgCiAEBEjUKDGV2YWx1YXRlZF9hdBgJIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBIA4gBARI2Cg1tZXRyaWNzX2FzX29mGAogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgEiAEBEkAKFG5leHRfdGllcl90aHJlc2hvbGRzGAsgASgLMh0udmlwLnYxLk5leHRWSVBUaWVyVGhyZXNob2xkc0gFiAEBQhkKF19zZXR0bGVkX3ZvbHVtZV8zMGRfdXNkQhYKFF9hdmVyYWdlX2FvcF8zMGRfdXNkQhEKD19lZmZlY3RpdmVfZnJvbUIPCg1fZXZhbHVhdGVkX2F0QhAKDl9tZXRyaWNzX2FzX29mQhcKFV9uZXh0X3RpZXJfdGhyZXNob2xkczKmAQoKVklQU2VydmljZRJLCgxMaXN0VklQVGllcnMSGy52aXAudjEuTGlzdFZJUFRpZXJzUmVxdWVzdBocLnZpcC52MS5MaXN0VklQVGllcnNSZXNwb25zZSIAEksKDEdldFZJUFN0YXR1cxIbLnZpcC52MS5HZXRWSVBTdGF0dXNSZXF1ZXN0GhwudmlwLnYxLkdldFZJUFN0YXR1c1Jlc3BvbnNlIgBCOlo4Z2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi92aXAvdjE7dmlwdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChB2aXAvdjEvdmlwLnByb3RvEgZ2aXAudjEitQEKB1ZJUFRpZXISDgoEdGllchgBIAEoDUIAEh4KFHZvbHVtZV90aHJlc2hvbGRfdXNkGAIgASgJQgASIAoRYW9wX3RocmVzaG9sZF91c2QYAyABKAlCAEgAiAEBEiAKFm1ha2VyX2ZlZV9yYXRlX3BlcmNlbnQYBCABKAlCABIgChZ0YWtlcl9mZWVfcmF0ZV9wZXJjZW50GAUgASgJQgBCFAoSX2FvcF90aHJlc2hvbGRfdXNkIhUKE0xpc3RWSVBUaWVyc1JlcXVlc3QiqgEKFExpc3RWSVBUaWVyc1Jlc3BvbnNlEhgKDnBvbGljeV92ZXJzaW9uGAEgASgEQgASNAoOZWZmZWN0aXZlX2Zyb20YAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgASIAoWcmV0ZW50aW9uX3RocmVzaG9sZF9icBgDIAEoDUIAEiAKBXRpZXJzGAQgAygLMg8udmlwLnYxLlZJUFRpZXJCACJkChVOZXh0VklQVGllclRocmVzaG9sZHMSDgoEdGllchgBIAEoDUIAEh4KFHZvbHVtZV90aHJlc2hvbGRfdXNkGAIgASgJQgASGwoRYW9wX3RocmVzaG9sZF91c2QYAyABKAlCACJZChBWSVBNZXRyaWNRdWFsaXR5EikKBnN0YXR1cxgBIAEoDjIXLnZpcC52MS5WSVBNZXRyaWNTdGF0dXNCABIaChBpbmNvbXBsZXRlX2hvdXJzGAIgASgNQgAiFQoTR2V0VklQU3RhdHVzUmVxdWVzdCLQBQoUR2V0VklQU3RhdHVzUmVzcG9uc2USDgoEdGllchgBIAEoDUIAEhUKC3ZvbHVtZV90aWVyGAIgASgNQgASEgoIYW9wX3RpZXIYAyABKA1CABIlChZzZXR0bGVkX3ZvbHVtZV8zMGRfdXNkGAQgASgJQgBIAIgBARIiChNhdmVyYWdlX2FvcF8zMGRfdXNkGAUgASgJQgBIAYgBARIYCg5wb2xpY3lfdmVyc2lvbhgGIAEoBEIAEjsKFXBvbGljeV9lZmZlY3RpdmVfZnJvbRgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCABI3Cg5lZmZlY3RpdmVfZnJvbRgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBIAogBARI1CgxldmFsdWF0ZWRfYXQYCSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wSAOIAQESNgoNbWV0cmljc19hc19vZhgKIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBIBIgBARJAChRuZXh0X3RpZXJfdGhyZXNob2xkcxgLIAEoCzIdLnZpcC52MS5OZXh0VklQVGllclRocmVzaG9sZHNIBYgBARI4ChZzZXR0bGVkX3ZvbHVtZV9xdWFsaXR5GAwgASgLMhgudmlwLnYxLlZJUE1ldHJpY1F1YWxpdHkSNQoTYXZlcmFnZV9hb3BfcXVhbGl0eRgNIAEoCzIYLnZpcC52MS5WSVBNZXRyaWNRdWFsaXR5QhkKF19zZXR0bGVkX3ZvbHVtZV8zMGRfdXNkQhYKFF9hdmVyYWdlX2FvcF8zMGRfdXNkQhEKD19lZmZlY3RpdmVfZnJvbUIPCg1fZXZhbHVhdGVkX2F0QhAKDl9tZXRyaWNzX2FzX29mQhcKFV9uZXh0X3RpZXJfdGhyZXNob2xkcypmCg9WSVBNZXRyaWNTdGF0dXMSFgoSTUVUUklDX1VOU1BFQ0lGSUVEEAASDAoIQ09NUExFVEUQARIVChFQUklDRV9VTkFWQUlMQUJMRRACEhYKEklOQ09NUExFVEVfSElTVE9SWRADMqYBCgpWSVBTZXJ2aWNlEksKDExpc3RWSVBUaWVycxIbLnZpcC52MS5MaXN0VklQVGllcnNSZXF1ZXN0GhwudmlwLnYxLkxpc3RWSVBUaWVyc1Jlc3BvbnNlIgASSwoMR2V0VklQU3RhdHVzEhsudmlwLnYxLkdldFZJUFN0YXR1c1JlcXVlc3QaHC52aXAudjEuR2V0VklQU3RhdHVzUmVzcG9uc2UiAEI6WjhnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL3ZpcC92MTt2aXB2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * VIPTier describes one row in a complete VIP0 through VIP10 policy catalog.
@@ -171,6 +171,36 @@ export const NextVIPTierThresholdsSchema: GenMessage<NextVIPTierThresholds> = /*
   messageDesc(file_vip_v1_vip, 3);
 
 /**
+ * VIPMetricQuality explains the completeness of one rolling 30-day
+ * qualification metric.
+ *
+ * @generated from message vip.v1.VIPMetricQuality
+ */
+export type VIPMetricQuality = Message<"vip.v1.VIPMetricQuality"> & {
+  /**
+   * Completeness status of the metric.
+   *
+   * @generated from field: vip.v1.VIPMetricStatus status = 1;
+   */
+  status: VIPMetricStatus;
+
+  /**
+   * Number of hourly buckets in the rolling 720-hour window that are missing
+   * or incomplete. Zero when status is COMPLETE.
+   *
+   * @generated from field: uint32 incomplete_hours = 2;
+   */
+  incompleteHours: number;
+};
+
+/**
+ * Describes the message vip.v1.VIPMetricQuality.
+ * Use `create(VIPMetricQualitySchema)` to create a new message.
+ */
+export const VIPMetricQualitySchema: GenMessage<VIPMetricQuality> = /*@__PURE__*/
+  messageDesc(file_vip_v1_vip, 4);
+
+/**
  * GetVIPStatusRequest requests VIP status for the authenticated caller's root
  * account. All subaccounts inherit that root status, so this request has no
  * subaccount selector.
@@ -185,7 +215,7 @@ export type GetVIPStatusRequest = Message<"vip.v1.GetVIPStatusRequest"> & {
  * Use `create(GetVIPStatusRequestSchema)` to create a new message.
  */
 export const GetVIPStatusRequestSchema: GenMessage<GetVIPStatusRequest> = /*@__PURE__*/
-  messageDesc(file_vip_v1_vip, 4);
+  messageDesc(file_vip_v1_vip, 5);
 
 /**
  * GetVIPStatusResponse contains the authenticated caller-root VIP assignment
@@ -219,8 +249,11 @@ export type GetVIPStatusResponse = Message<"vip.v1.GetVIPStatusResponse"> & {
 
   /**
    * Rolling 30-day settled spot volume in USD, encoded as a non-negative
-   * base-10 decimal string without separators or a currency symbol. Omitted
-   * when complete qualification metrics are unavailable for the assignment.
+   * base-10 decimal string without separators or a currency symbol. When
+   * settled_volume_quality.status is PRICE_UNAVAILABLE, this is a lower bound
+   * that excludes executions without an admissible USD reference price.
+   * Omitted when settled_volume_quality is omitted or its status is
+   * INCOMPLETE_HISTORY.
    *
    * @generated from field: optional string settled_volume_30d_usd = 4;
    */
@@ -229,7 +262,7 @@ export type GetVIPStatusResponse = Message<"vip.v1.GetVIPStatusResponse"> & {
   /**
    * Rolling 30-day average portfolio value in USD, encoded as a non-negative
    * base-10 decimal string without separators or a currency symbol. Omitted
-   * when complete qualification metrics are unavailable for the assignment.
+   * unless average_aop_quality.status is COMPLETE.
    *
    * @generated from field: optional string average_aop_30d_usd = 5;
    */
@@ -267,7 +300,7 @@ export type GetVIPStatusResponse = Message<"vip.v1.GetVIPStatusResponse"> & {
 
   /**
    * UTC cutoff of the rolling metrics used for this assignment. Omitted when
-   * complete qualification metrics are unavailable.
+   * neither settled_volume_30d_usd nor average_aop_30d_usd is present.
    *
    * @generated from field: optional google.protobuf.Timestamp metrics_as_of = 10;
    */
@@ -280,6 +313,27 @@ export type GetVIPStatusResponse = Message<"vip.v1.GetVIPStatusResponse"> & {
    * @generated from field: optional vip.v1.NextVIPTierThresholds next_tier_thresholds = 11;
    */
   nextTierThresholds?: NextVIPTierThresholds | undefined;
+
+  /**
+   * Completeness of the rolling 30-day settled spot volume. An incomplete
+   * volume metric can raise the volume tier when its proven lower bound meets
+   * a higher threshold, but it never lowers the tier. Omitted when the
+   * assignment carries no automatic qualification evidence, such as the
+   * default VIP0 tier of a new account.
+   *
+   * @generated from field: vip.v1.VIPMetricQuality settled_volume_quality = 12;
+   */
+  settledVolumeQuality?: VIPMetricQuality | undefined;
+
+  /**
+   * Completeness of the rolling 30-day average portfolio value. An incomplete
+   * average portfolio value keeps its previous tier. Omitted when the
+   * assignment carries no automatic qualification evidence, such as the
+   * default VIP0 tier of a new account.
+   *
+   * @generated from field: vip.v1.VIPMetricQuality average_aop_quality = 13;
+   */
+  averageAopQuality?: VIPMetricQuality | undefined;
 };
 
 /**
@@ -287,7 +341,52 @@ export type GetVIPStatusResponse = Message<"vip.v1.GetVIPStatusResponse"> & {
  * Use `create(GetVIPStatusResponseSchema)` to create a new message.
  */
 export const GetVIPStatusResponseSchema: GenMessage<GetVIPStatusResponse> = /*@__PURE__*/
-  messageDesc(file_vip_v1_vip, 5);
+  messageDesc(file_vip_v1_vip, 6);
+
+/**
+ * VIPMetricStatus describes how complete one rolling 30-day qualification
+ * metric is.
+ *
+ * @generated from enum vip.v1.VIPMetricStatus
+ */
+export enum VIPMetricStatus {
+  /**
+   * No metric status was specified.
+   *
+   * @generated from enum value: METRIC_UNSPECIFIED = 0;
+   */
+  METRIC_UNSPECIFIED = 0,
+
+  /**
+   * Every hour in the rolling window has complete evidence.
+   *
+   * @generated from enum value: COMPLETE = 1;
+   */
+  COMPLETE = 1,
+
+  /**
+   * Every hour in the rolling window is present, but some hours contain
+   * executions or holdings without an admissible USD reference price at the
+   * required time. Those contributions are not estimated.
+   *
+   * @generated from enum value: PRICE_UNAVAILABLE = 2;
+   */
+  PRICE_UNAVAILABLE = 2,
+
+  /**
+   * Some hours in the rolling window are missing or contain other incomplete
+   * evidence.
+   *
+   * @generated from enum value: INCOMPLETE_HISTORY = 3;
+   */
+  INCOMPLETE_HISTORY = 3,
+}
+
+/**
+ * Describes the enum vip.v1.VIPMetricStatus.
+ */
+export const VIPMetricStatusSchema: GenEnum<VIPMetricStatus> = /*@__PURE__*/
+  enumDesc(file_vip_v1_vip, 0);
 
 /**
  * VIPService serves public VIP policy reference data and the authenticated

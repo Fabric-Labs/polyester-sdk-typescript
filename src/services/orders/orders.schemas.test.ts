@@ -761,10 +761,8 @@ describe("NewOrderInputSchema", () => {
         });
     });
 
-    it("caps bps slippage below 10,000 on the selling leg only", () => {
+    it("caps bps slippage below 10,000 on a market sell and any attached trailing stop", () => {
         const schema = createNewOrderInputSchema(testScales());
-        const sellingMessage =
-            "maxSlippageBps must be between 1 and 9999 for a market order or trailing stop that sells";
         const withTrailingBps = (side: "buy" | "sell", bps: number) => ({
             symbolId: 1,
             side,
@@ -784,22 +782,22 @@ describe("NewOrderInputSchema", () => {
             execution: { type: "market_ioc", maxSlippage: { kind: "bps", bps } },
         });
 
-        // A buy's attached trailing stop sells; a sell's buys.
-        expect(v.parse(schema, withTrailingBps("buy", 9_999)).order.attachedRisk).toMatchObject({
-            stopLeg: { value: { maxSlippage: { case: "maxSlippageBps", value: 9_999 } } },
-        });
-        expect(() => v.parse(schema, withTrailingBps("buy", 10_000))).toThrow(sellingMessage);
-        expect(v.parse(schema, withTrailingBps("sell", 10_000)).order.attachedRisk).toMatchObject({
-            stopLeg: { value: { maxSlippage: { case: "maxSlippageBps", value: 10_000 } } },
-        });
-        expect(() => v.parse(schema, withTrailingBps("sell", 10_001))).toThrow(
-            "trailingStop.maxSlippageBps must be between 1 and 10000",
-        );
+        // A buy's attached trailing stop sells and a sell's buys; both take 1 to 9999.
+        for (const side of ["buy", "sell"] as const) {
+            expect(v.parse(schema, withTrailingBps(side, 9_999)).order.attachedRisk).toMatchObject({
+                stopLeg: { value: { maxSlippage: { case: "maxSlippageBps", value: 9_999 } } },
+            });
+            expect(() => v.parse(schema, withTrailingBps(side, 10_000))).toThrow(
+                "trailingStop.maxSlippageBps must be between 1 and 9999",
+            );
+        }
 
         expect(v.parse(schema, marketWithBps("sell", 9_999)).order.execution).toMatchObject({
             value: { maxSlippage: { case: "maxSlippageBps", value: 9_999 } },
         });
-        expect(() => v.parse(schema, marketWithBps("sell", 10_000))).toThrow(sellingMessage);
+        expect(() => v.parse(schema, marketWithBps("sell", 10_000))).toThrow(
+            "maxSlippageBps must be between 1 and 9999 for a market order that sells",
+        );
         expect(v.parse(schema, marketWithBps("buy", 10_000)).order.execution).toMatchObject({
             value: { maxSlippage: { case: "maxSlippageBps", value: 10_000 } },
         });

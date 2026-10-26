@@ -1,3 +1,5 @@
+import { PROTOBUF_UINT64_MAX } from "../shared/wire-bounds.js";
+
 // Shared numeric helpers for gRPC/Connect clients.
 
 /**
@@ -12,7 +14,11 @@ export function parseRequiredUint64Decimal(raw: string, fieldName: string): bigi
     const s = (raw ?? "").trim();
     if (!s) throw new Error(`${fieldName} is required`);
     if (!/^[0-9]+$/.test(s)) throw new Error(`${fieldName} must be a positive integer`);
-    return BigInt(s);
+    const value = BigInt(s);
+    if (value > PROTOBUF_UINT64_MAX) {
+        throw new Error(`${fieldName} must be at most ${PROTOBUF_UINT64_MAX}`);
+    }
+    return value;
 }
 
 /**
@@ -39,7 +45,11 @@ export function parseOptionalUint64DecimalStrict(
     const s = (raw ?? "").trim();
     if (!s) return;
     if (!/^[0-9]+$/.test(s)) throw new Error(`${fieldName} must be a positive integer`);
-    return BigInt(s);
+    const value = BigInt(s);
+    if (value > PROTOBUF_UINT64_MAX) {
+        throw new Error(`${fieldName} must be at most ${PROTOBUF_UINT64_MAX}`);
+    }
+    return value;
 }
 
 /**

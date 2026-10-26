@@ -487,6 +487,12 @@ describe("OrdersService", () => {
                 submittedCancels: 2,
                 failedCancels: 0,
                 tsNs: 1_000_000n,
+                cancelledOrders: [
+                    { orderId: 7n, clientOrderId: "client-7" },
+                    { orderId: 9n, clientOrderId: "" },
+                ],
+                totalCancelled: 2,
+                truncated: false,
             },
         });
         const service = new OrdersService(
@@ -496,12 +502,18 @@ describe("OrdersService", () => {
             testScales(),
         );
 
-        await expect(service.cancelAll({ symbolIds: [1] })).resolves.toMatchObject({
+        await expect(service.cancelAll({ symbolIds: [1] })).resolves.toEqual({
             status: "submitted",
             matchedOrders: 2,
             submittedCancels: 2,
             failedCancels: 0,
             ts: 1,
+            cancelledOrders: [
+                { orderId: formatId(7n), clientOrderId: "client-7" },
+                { orderId: formatId(9n), clientOrderId: "" },
+            ],
+            totalCancelled: 2,
+            truncated: false,
         });
 
         const request = transport.lastCall()?.message;

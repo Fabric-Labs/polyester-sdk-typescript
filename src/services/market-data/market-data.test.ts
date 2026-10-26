@@ -106,6 +106,61 @@ describe("MarketDataService", () => {
         });
     });
 
+    it("walks trades gap-free from afterTradeId and returns the backfill cursor", async () => {
+        const transport = unaryTransport({
+            trades: [marketTrade],
+            nextPageToken: "",
+            completeThroughTradeId: 1_099_511_627_776n,
+            nextAfterTradeId: 1_099_511_627_776n,
+            epochEnds: [{ epoch: 1n, lastTradeId: 22n }],
+        });
+        const service = new MarketDataService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            testScales(),
+        );
+
+        const result = await service.listTrades({ symbolId: 101, afterTradeId: "0", limit: 10 });
+
+        expect(transport.lastCall()?.message).toMatchObject({ symbolId: 101, afterTradeId: 0n });
+        expect(result).toEqual({
+            trades: [expect.objectContaining({ matchId: "22" })],
+            nextPageToken: "",
+            backfill: {
+                completeThroughTradeId: "1099511627776",
+                nextAfterTradeId: "1099511627776",
+                epochEnds: [{ epoch: "1", lastTradeId: "22" }],
+            },
+        });
+    });
+
+    it("rejects afterTradeId combined with time, side or page filters, or past uint64", async () => {
+        const transport = unaryTransport({ trades: [], nextPageToken: "" });
+        const service = new MarketDataService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            testScales(),
+        );
+        const conflicts = [
+            { side: "buy" },
+            { startTsNs: "1" },
+            { endTsNs: "1" },
+            { pageToken: "cursor" },
+        ] as const;
+
+        for (const conflict of conflicts) {
+            await expect(
+                service.listTrades({ symbolId: 101, afterTradeId: "5", ...conflict }),
+            ).rejects.toThrow(
+                "afterTradeId cannot be combined with side, startTsNs, endTsNs or pageToken",
+            );
+        }
+        await expect(
+            service.listTrades({ symbolId: 101, afterTradeId: "18446744073709551616" }),
+        ).rejects.toThrow("afterTradeId must be at most 18446744073709551615");
+        expect(transport.lastCall()).toBeUndefined();
+    });
+
     it("returns an empty public trade list for empty backend rows", async () => {
         const transport = unaryTransport({ trades: [], nextPageToken: "" });
         const service = new MarketDataService(

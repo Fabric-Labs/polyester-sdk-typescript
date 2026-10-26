@@ -27,7 +27,6 @@ import {
     BaseTriggerFieldsSchema,
     ConditionalExecutionInputSchema,
     DecimalInputStringSchema,
-    LimitConditionalExecutionInputSchema,
     TriggerSideInputSchema,
     TwapExecutionInputSchema,
     buildConditionalExecution,
@@ -99,7 +98,8 @@ function parseMaxSlippagePatch(
     if (slippage.kind === "none") {
         return { case: "maxSlippageTicks", value: 0n };
     }
-    // Only trailing stops take a slippage patch, and they always sell.
+    // The patch does not say what it modifies, so it takes the cap shared by
+    // trailing stops and sells; a buy market child's 10000 bps needs creation.
     return parseMaxSlippage(scales, slippage, MAX_SELLING_SLIPPAGE_BPS);
 }
 
@@ -121,21 +121,22 @@ function createConditionalTriggerInputSchema<const TriggerType extends "stop_los
     const buyInputSchema = v.strictObject({
         ...sharedEntries,
         side: v.literal("buy"),
-        execution: LimitConditionalExecutionInputSchema,
+        execution: ConditionalExecutionInputSchema,
     });
 
     function transformInput(
         input: v.InferOutput<typeof sellInputSchema> | v.InferOutput<typeof buyInputSchema>,
     ) {
         const { subaccountId, intent } = buildTriggerIntentBase(input, scales);
+        const side = TriggerSideCodec.inputToProto[input.side];
         const strategy = {
             triggerPriceTicks: positiveDecimalInputToScaled(
                 "triggerPrice",
                 input.triggerPrice,
                 scales.price(),
             ),
-            side: TriggerSideCodec.inputToProto[input.side],
-            child: buildConditionalExecution(input.execution, scales),
+            side,
+            child: buildConditionalExecution(input.execution, scales, side),
         };
         return {
             subaccountId,
@@ -166,48 +167,84 @@ function createConditionalTriggerInputSchema<const TriggerType extends "stop_los
 }
 
 function createTrailingStopTriggerInputSchema(scales: SdkScales) {
-    return v.pipe(
-        v.strictObject({
-            ...BaseTriggerFieldsSchema.entries,
-            triggerType: v.literal("trailing_stop"),
-            trailingDistance: TrailingDistanceInputSchema,
-            activationPrice: v.optional(DecimalInputStringSchema),
-            maxSlippage: v.optional(MaxSlippageInputSchema),
-        }),
-        v.check(
-            (input) => input.feeAsset === ProtoOrders.FeeAsset.QUOTE,
-            "Trailing-stop triggers must use the quote fee asset",
+    const sharedEntries = {
+        ...BaseTriggerFieldsSchema.entries,
+        triggerType: v.literal("trailing_stop"),
+        trailingDistance: TrailingDistanceInputSchema,
+        activationPrice: v.optional(DecimalInputStringSchema),
+        maxSlippage: v.optional(MaxSlippageInputSchema),
+    };
+    const sellInputSchema = v.strictObject({
+        ...sharedEntries,
+        side: v.optional(v.literal("sell"), "sell"),
+        limitPrice: v.optional(v.never()),
+    });
+    // A buy's child never pays more than `limitPrice`, which also sizes its reserved funds.
+    const buyInputSchema = v.strictObject({
+        ...sharedEntries,
+        side: v.literal("buy"),
+        limitPrice: DecimalInputStringSchema,
+    });
+
+    function transformInput(
+        input: v.InferOutput<typeof sellInputSchema> | v.InferOutput<typeof buyInputSchema>,
+    ) {
+        const { subaccountId, intent } = buildTriggerIntentBase(input, scales);
+        return {
+            subaccountId,
+            trigger: {
+                ...intent,
+                strategy: {
+                    case: "trailingStop",
+                    value: {
+                        trailingDistance: parseTrailingDistance(scales, input.trailingDistance),
+                        activationPriceTicks:
+                            input.activationPrice === undefined
+                                ? 0n
+                                : positiveDecimalInputToScaled(
+                                      "activationPrice",
+                                      input.activationPrice,
+                                      scales.price(),
+                                  ),
+                        maxSlippage: parseMaxSlippage(
+                            scales,
+                            input.maxSlippage,
+                            MAX_SELLING_SLIPPAGE_BPS,
+                        ),
+                        side: TriggerSideCodec.inputToProto[input.side],
+                        limitPriceTicks:
+                            input.limitPrice === undefined
+                                ? 0n
+                                : positiveDecimalInputToScaled(
+                                      "limitPrice",
+                                      input.limitPrice,
+                                      scales.price(),
+                                  ),
+                    },
+                } as const,
+            },
+        };
+    }
+
+    return [
+        v.pipe(
+            sellInputSchema,
+            v.check(
+                (input) => input.feeAsset === ProtoOrders.FeeAsset.QUOTE,
+                "SELL triggers must use the quote fee asset",
+            ),
+            v.transform((input: v.InferOutput<typeof sellInputSchema>) => transformInput(input)),
         ),
-        v.transform((input) => {
-            const { subaccountId, intent } = buildTriggerIntentBase(input, scales);
-            return {
-                subaccountId,
-                trigger: {
-                    ...intent,
-                    strategy: {
-                        case: "trailingStop",
-                        value: {
-                            trailingDistance: parseTrailingDistance(scales, input.trailingDistance),
-                            activationPriceTicks:
-                                input.activationPrice === undefined
-                                    ? 0n
-                                    : positiveDecimalInputToScaled(
-                                          "activationPrice",
-                                          input.activationPrice,
-                                          scales.price(),
-                                      ),
-                            maxSlippage: parseMaxSlippage(
-                                scales,
-                                input.maxSlippage,
-                                MAX_SELLING_SLIPPAGE_BPS,
-                            ),
-                            side: ProtoOrders.Side.SELL,
-                        },
-                    } as const,
-                },
-            };
-        }),
-    );
+        v.pipe(
+            buyInputSchema,
+            v.transform((input: v.InferOutput<typeof buyInputSchema>) => transformInput(input)),
+            v.check(
+                ({ trigger: { strategy } }) =>
+                    strategy.value.activationPriceTicks <= strategy.value.limitPriceTicks,
+                "limitPrice must be at least activationPrice",
+            ),
+        ),
+    ] as const;
 }
 
 function createTwapTriggerInputSchema(scales: SdkScales) {
@@ -324,7 +361,7 @@ export function createCreateTriggerInputSchema(scales: SdkScales) {
     return v.union([
         ...createConditionalTriggerInputSchema(scales, "stop_loss"),
         ...createConditionalTriggerInputSchema(scales, "take_profit"),
-        createTrailingStopTriggerInputSchema(scales),
+        ...createTrailingStopTriggerInputSchema(scales),
         createTwapTriggerInputSchema(scales),
         createLadderTriggerInputSchema(scales),
     ]);
@@ -395,7 +432,6 @@ export function createModifyTriggerInputSchema(scales: SdkScales) {
             ...TriggerScopedInputEntries,
             symbolId: SymbolIdInputSchema,
             triggerPrice: v.optional(DecimalInputStringSchema),
-            limitPrice: v.optional(DecimalInputStringSchema),
             trailingDistance: v.optional(TrailingDistanceInputSchema),
             activationPrice: v.optional(ActivationPricePatchInputSchema),
             maxSlippage: v.optional(MaxSlippageInputSchema),
@@ -403,7 +439,6 @@ export function createModifyTriggerInputSchema(scales: SdkScales) {
         v.check(
             (input) =>
                 input.triggerPrice !== undefined ||
-                input.limitPrice !== undefined ||
                 input.trailingDistance !== undefined ||
                 input.activationPrice !== undefined ||
                 input.maxSlippage !== undefined,
@@ -421,10 +456,6 @@ export function createModifyTriggerInputSchema(scales: SdkScales) {
                           input.triggerPrice,
                           scales.price(),
                       ),
-            limitPriceTicks:
-                input.limitPrice === undefined
-                    ? undefined
-                    : positiveDecimalInputToScaled("limitPrice", input.limitPrice, scales.price()),
             trailingDistance:
                 input.trailingDistance === undefined
                     ? ({ case: undefined, value: undefined } as const)
@@ -449,7 +480,9 @@ export function createModifyTriggerInputSchema(scales: SdkScales) {
 
 /**
  * A trigger patch. Omitted fields remain unchanged; `{ kind: "none" }` clears
- * `activationPrice` or `maxSlippage`.
+ * `activationPrice` or `maxSlippage`. A cleared `maxSlippage` on a market child
+ * falls back to the pair's default market slippage. A child's limit price is
+ * fixed at creation: cancel the trigger and create a new one to change it.
  */
 export type ModifyTriggerInput = v.InferInput<ReturnType<typeof createModifyTriggerInputSchema>>;
 

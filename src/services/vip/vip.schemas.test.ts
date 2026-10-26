@@ -154,6 +154,25 @@ describe("NextVipTierThresholdsSchema", () => {
 });
 
 describe("VipStatusSchema", () => {
+    it("parses qualification metric quality, including statuses this build does not know", () => {
+        const status = v.parse(VipStatusSchema, {
+            tier: 1,
+            volumeTier: 1,
+            aopTier: 0,
+            settledVolume30dUsd: "125000",
+            policyVersion: 1n,
+            policyEffectiveFrom: effectiveFrom,
+            settledVolumeQuality: { status: 2, incompleteHours: 3 },
+            averageAopQuality: { status: 99, incompleteHours: 720 },
+        });
+
+        expect(status.settledVolumeQuality).toEqual({
+            status: "price_unavailable",
+            incompleteHours: 3,
+        });
+        expect(status.averageAopQuality).toEqual({ status: "unspecified", incompleteHours: 720 });
+    });
+
     it("omits optional qualification fields when the backend leaves them unset", () => {
         expect(
             v.parse(VipStatusSchema, {

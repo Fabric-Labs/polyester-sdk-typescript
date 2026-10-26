@@ -2,9 +2,22 @@ import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
+import { TIMEFRAMES, TimeframeCodec } from "./candles.codecs.js";
 import { createListCandlesInputSchema } from "./candles.schemas.js";
 
 describe("ListCandlesInputSchema", () => {
+    it("round-trips every timeframe label, including 3m, 2h, 6h, 8h and 3d", () => {
+        const schema = createListCandlesInputSchema();
+
+        expect(v.parse(schema, { symbolId: 1, timeframe: "3d" }).timeframe).toBe(
+            Proto.Timeframe.DAY_3,
+        );
+        for (const timeframe of TIMEFRAMES) {
+            const proto = v.parse(schema, { symbolId: 1, timeframe }).timeframe;
+            expect(TimeframeCodec.protoToOutput[proto]).toBe(timeframe);
+        }
+    });
+
     it("maps explicit timeframe values to proto values", () => {
         const schema = createListCandlesInputSchema();
         const input = v.parse(schema, {

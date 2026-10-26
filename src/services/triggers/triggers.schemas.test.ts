@@ -175,8 +175,15 @@ describe("ListTriggerEventsInputSchema", () => {
 });
 
 describe("CreateTriggerInputSchema", () => {
-    it("exposes side-safe conditional child execution types", () => {
-        type ExpectedBuyExecution =
+    it("exposes the same conditional child execution types on either side", () => {
+        type ExpectedExecution =
+            | {
+                  type: "market_ioc";
+                  maxSlippage?:
+                      | { kind: "slippage"; slippage: string }
+                      | { kind: "bps"; bps: string | number }
+                      | { kind: "none" };
+              }
             | { type: "limit_gtc"; price: string; postOnly?: boolean }
             | { type: "limit_ioc"; price: string }
             | { type: "limit_fok"; price: string };
@@ -193,9 +200,9 @@ describe("CreateTriggerInputSchema", () => {
             { triggerType: "stop_loss"; side: "sell" }
         >;
 
-        expectTypeOf<BuyStopLossInput["execution"]>().toEqualTypeOf<ExpectedBuyExecution>();
-        expectTypeOf<BuyTakeProfitInput["execution"]>().toEqualTypeOf<ExpectedBuyExecution>();
-        expectTypeOf<{ type: "market_ioc" }>().toMatchTypeOf<SellStopLossInput["execution"]>();
+        expectTypeOf<BuyStopLossInput["execution"]>().toEqualTypeOf<ExpectedExecution>();
+        expectTypeOf<BuyTakeProfitInput["execution"]>().toEqualTypeOf<ExpectedExecution>();
+        expectTypeOf<SellStopLossInput["execution"]>().toEqualTypeOf<ExpectedExecution>();
     });
 
     it("requires a positive uint32 symbol ID and forwards its exact maximum", () => {
@@ -328,20 +335,62 @@ describe("CreateTriggerInputSchema", () => {
         }
     });
 
-    it("rejects BUY market children for stop-loss and take-profit triggers", () => {
+    it("caps a market child's bps slippage at 10000 for a buy and 9999 for a sell", () => {
         const schema = createCreateTriggerInputSchema(testScales());
 
         for (const triggerType of ["stop_loss", "take_profit"] as const) {
-            expect(() =>
+            const input = {
+                triggerType,
+                symbolId: 1,
+                qty: "0.5",
+                triggerPrice: "100",
+            } as const;
+            const withSlippage = (side: "buy" | "sell", bps: number) =>
                 v.parse(schema, {
-                    triggerType,
-                    symbolId: 1,
-                    side: "buy",
-                    qty: "0.5",
-                    triggerPrice: "100",
-                    execution: { type: "market_ioc" },
-                }),
-            ).toThrow();
+                    ...input,
+                    side,
+                    execution: { type: "market_ioc", maxSlippage: { kind: "bps", bps } },
+                });
+
+            expect(withSlippage("buy", 10_000).trigger.strategy).toMatchObject({
+                value: {
+                    side: ProtoOrders.Side.BUY,
+                    child: {
+                        execution: {
+                            case: "marketIoc",
+                            value: { maxSlippage: { case: "maxSlippageBps", value: 10_000 } },
+                        },
+                    },
+                },
+            });
+            expect(() => withSlippage("buy", 10_001)).toThrow(
+                "maxSlippageBps must be between 1 and 10000",
+            );
+            expect(withSlippage("sell", 9_999).trigger.strategy).toMatchObject({
+                value: {
+                    child: {
+                        execution: {
+                            value: { maxSlippage: { case: "maxSlippageBps", value: 9_999 } },
+                        },
+                    },
+                },
+            });
+            expect(() => withSlippage("sell", 10_000)).toThrow(
+                "maxSlippageBps must be between 1 and 9999",
+            );
+            expect(
+                v.parse(schema, { ...input, side: "buy", execution: { type: "market_ioc" } })
+                    .trigger.strategy,
+            ).toMatchObject({
+                value: {
+                    child: {
+                        execution: {
+                            case: "marketIoc",
+                            value: { maxSlippage: { case: undefined } },
+                        },
+                    },
+                },
+            });
         }
     });
 
@@ -420,13 +469,61 @@ describe("CreateTriggerInputSchema", () => {
         });
     });
 
-    it("caps trailing-stop slippage at 9999 bps because the stop sells", () => {
+    it("builds a buy trailing stop with its maximum price", () => {
+        const schema = createCreateTriggerInputSchema(testScales());
+        const input = {
+            triggerType: "trailing_stop",
+            symbolId: 1,
+            side: "buy",
+            qty: "0.25",
+            feeAsset: "base",
+            trailingDistance: { kind: "bps", bps: 150 },
+            activationPrice: "99",
+            limitPrice: "101.5",
+        } as const;
+
+        expect(v.parse(schema, input).trigger.strategy).toMatchObject({
+            case: "trailingStop",
+            value: {
+                side: ProtoOrders.Side.BUY,
+                activationPriceTicks: 99_000_000_000n,
+                limitPriceTicks: 101_500_000_000n,
+            },
+        });
+        expect(v.parse(schema, { ...input, limitPrice: "99" }).trigger.strategy).toMatchObject({
+            value: { limitPriceTicks: 99_000_000_000n },
+        });
+        expect(() => v.parse(schema, { ...input, limitPrice: "98.99" })).toThrow(
+            "limitPrice must be at least activationPrice",
+        );
+        const { limitPrice: _limitPrice, ...withoutLimitPrice } = input;
+        expect(() => v.parse(schema, withoutLimitPrice)).toThrow();
+    });
+
+    it("rejects a maximum price on a sell trailing stop", () => {
         const schema = createCreateTriggerInputSchema(testScales());
         const input = {
             triggerType: "trailing_stop",
             symbolId: 1,
             qty: "0.25",
             trailingDistance: { kind: "bps", bps: 150 },
+        } as const;
+
+        expect(v.parse(schema, { ...input, side: "sell" }).trigger.strategy).toMatchObject({
+            value: { side: ProtoOrders.Side.SELL, limitPriceTicks: 0n },
+        });
+        expect(() => v.parse(schema, { ...input, limitPrice: "101" })).toThrow();
+        expect(() => v.parse(schema, { ...input, side: "sell", limitPrice: "101" })).toThrow();
+    });
+
+    it.each(["buy", "sell"] as const)("caps a %s trailing stop's slippage at 9999 bps", (side) => {
+        const schema = createCreateTriggerInputSchema(testScales());
+        const input = {
+            triggerType: "trailing_stop",
+            symbolId: 1,
+            qty: "0.25",
+            trailingDistance: { kind: "bps", bps: 150 },
+            ...(side === "buy" ? { side, limitPrice: "101" } : { side }),
         } as const;
 
         expect(
@@ -731,6 +828,14 @@ describe("ModifyTriggerInputSchema", () => {
         ).toThrow("maxSlippageBps must be between 1 and 9999");
     });
 
+    it("rejects a child limit price patch, which is fixed at creation", () => {
+        const schema = createModifyTriggerInputSchema(testScales());
+
+        expect(() =>
+            v.parse(schema, { triggerId: formatId(11n), symbolId: 1, limitPrice: "101" }),
+        ).toThrow();
+    });
+
     it("distinguishes omitted fields from explicit activation-price and max-slippage clears", () => {
         const schema = createModifyTriggerInputSchema(testScales());
 
@@ -949,6 +1054,53 @@ describe("Trigger result and output schemas", () => {
                 triggerDirection: "unspecified",
                 triggerPrice: undefined,
             },
+        });
+    });
+
+    it("converts a buy trailing stop's maximum price and a market child's slippage cap", () => {
+        const trailing = v.parse(
+            createTriggerSchema(testScales()),
+            baseWireTrigger({
+                configuration: {
+                    case: "trailingStop",
+                    value: create(Proto.TrailingStopTriggerSchema, {
+                        side: ProtoOrders.Side.BUY,
+                        trailingDistance: { case: "trailingDistanceBps", value: 200 },
+                        limitPriceTicks: 101_500_000_000n,
+                    }),
+                },
+            }),
+        );
+        const stopLoss = v.parse(
+            createTriggerSchema(testScales()),
+            baseWireTrigger({
+                configuration: {
+                    case: "stopLoss",
+                    value: create(Proto.ConditionalTriggerSchema, {
+                        side: ProtoOrders.Side.BUY,
+                        triggerPriceTicks: 100_000_000_000n,
+                        child: {
+                            execution: {
+                                case: "marketIoc",
+                                value: create(Proto.TriggerMarketIocSchema, {
+                                    maxSlippage: { case: "maxSlippageBps", value: 10_000 },
+                                }),
+                            },
+                        },
+                    }),
+                },
+            }),
+        );
+
+        expect(trailing.configuration).toMatchObject({
+            type: "trailing_stop",
+            side: "buy",
+            limitPrice: "101.5",
+        });
+        expect(stopLoss.configuration).toMatchObject({
+            type: "stop_loss",
+            side: "buy",
+            execution: { type: "market_ioc", maxSlippage: { kind: "bps", bps: 10_000 } },
         });
     });
 

@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import * as Proto from "../../gen/claims/v1/claims_pb.js";
 import { E18_SCALE, scaledToDecimalOutput } from "../../shared/decimal-surface.js";
 import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import {
@@ -13,6 +14,20 @@ import { ClaimPolicyCodec, DailyClaimStateCodec } from "./claims.codecs.js";
 const DailyClaimStateSchema = enumLabelSchema(DailyClaimStateCodec.protoToOutput);
 
 const ClaimPolicySchema = enumLabelSchema(ClaimPolicyCodec.protoToOutput);
+
+/** A claims error code name, as on `PolyesterError.detail.code` for the claims service. */
+export type ClaimPayoutDelayReason = Exclude<keyof typeof Proto.ErrorCode, "UNSPECIFIED">;
+
+// Unset, and values this build does not know, decode as `undefined`; the
+// `payout_delayed` state alone still says the payout is delayed.
+const PayoutDelayReasonSchema = v.pipe(
+    v.optional(v.number(), Proto.ErrorCode.UNSPECIFIED),
+    v.transform((value) =>
+        value === Proto.ErrorCode.UNSPECIFIED
+            ? undefined
+            : (Proto.ErrorCode[value] as ClaimPayoutDelayReason | undefined),
+    ),
+);
 
 export const ClaimCampaignSchema = v.object({
     campaignId: v.string(),
@@ -51,6 +66,7 @@ export const DailyClaimStatusSchema = v.object({
     claimId: v.string(),
     campaign: v.optional(ClaimCampaignSchema),
     subaccountId: OptionalPublicIdSchema,
+    payoutDelayReason: PayoutDelayReasonSchema,
 });
 
 export type DailyClaimStatus = v.InferOutput<typeof DailyClaimStatusSchema>;

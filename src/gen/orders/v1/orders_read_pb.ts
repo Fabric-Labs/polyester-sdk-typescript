@@ -313,9 +313,10 @@ export type AttachedRisk = Message<"orders.v1.AttachedRisk"> & {
   trailingStop?: AttachedRiskTrailingStop | undefined;
 
   /**
-   * True while both the take-profit and a stop leg (stop-loss or trailing
-   * stop) are present and linked as one-cancels-the-other. False once either
-   * leg is removed; a leg canceled because the other fired stays present.
+   * True while the parent's legs were placed with oco and both the
+   * take-profit and a stop leg (stop-loss or trailing stop) are present.
+   * False once either leg is removed. A leg that ended, including one
+   * canceled with TRIGGER_CANCEL_REASON_OCO, stays present.
    *
    * @generated from field: bool oco = 4;
    */
@@ -1326,6 +1327,8 @@ export const GetOrderResponseSchema: GenMessage<GetOrderResponse> = /*@__PURE__*
 
 /**
  * GetBatchReplaceStatusRequest retrieves one admitted batch by server identity.
+ * Batch admission replay lasts 60 seconds from acceptance. If status is
+ * unavailable, reconcile the individual orders; absence does not prove rejection.
  *
  * @generated from message orders.v1.GetBatchReplaceStatusRequest
  */

@@ -74,10 +74,16 @@ export type PauseTriggerResult = v.InferOutput<typeof PauseTriggerResultSchema>;
 export const ResumeTriggerResultSchema = TriggerMutationResultBaseSchema;
 export type ResumeTriggerResult = v.InferOutput<typeof ResumeTriggerResultSchema>;
 
+const MaxSlippageRawSchema = v.variant("case", [
+    v.object({ case: v.literal("maxSlippageTicks"), value: v.bigint() }),
+    v.object({ case: v.literal("maxSlippageBps"), value: v.number() }),
+    v.object({ case: v.undefined(), value: v.optional(v.undefined()) }),
+]);
+
 const ConditionalExecutionRawSchema = v.variant("case", [
     v.object({
         case: v.literal("marketIoc"),
-        value: v.object({}),
+        value: v.object({ maxSlippage: v.optional(MaxSlippageRawSchema, { case: undefined }) }),
     }),
     v.object({
         case: v.literal("limitGtc"),
@@ -107,12 +113,6 @@ const ConditionalConfigurationRawSchema = v.object({
     ),
 });
 
-const MaxSlippageRawSchema = v.variant("case", [
-    v.object({ case: v.literal("maxSlippageTicks"), value: v.bigint() }),
-    v.object({ case: v.literal("maxSlippageBps"), value: v.number() }),
-    v.object({ case: v.undefined(), value: v.optional(v.undefined()) }),
-]);
-
 const TrailingConfigurationRawSchema = v.object({
     trailingDistance: v.variant("case", [
         v.object({ case: v.literal("trailingDistanceTicks"), value: v.bigint() }),
@@ -122,6 +122,7 @@ const TrailingConfigurationRawSchema = v.object({
     activationPriceTicks: v.bigint(),
     maxSlippage: MaxSlippageRawSchema,
     side: v.number(),
+    limitPriceTicks: v.optional(v.bigint(), 0n),
 });
 
 const TwapConfigurationRawSchema = v.object({
@@ -164,7 +165,10 @@ function transformConditionalExecution(
 ) {
     switch (execution.case) {
         case "marketIoc":
-            return { type: "market_ioc" } as const;
+            return {
+                type: "market_ioc",
+                maxSlippage: formatMaxSlippage(execution.value.maxSlippage, scales),
+            } as const;
         case "limitGtc":
             return {
                 type: "limit_gtc",
@@ -235,6 +239,10 @@ function transformTriggerConfiguration(
                           )
                         : undefined,
                 maxSlippage: formatMaxSlippage(configuration.value.maxSlippage, scales),
+                limitPrice:
+                    configuration.value.limitPriceTicks > 0n
+                        ? scaledToDecimalOutput(configuration.value.limitPriceTicks, scales.price())
+                        : undefined,
             };
         case "twap":
             return {

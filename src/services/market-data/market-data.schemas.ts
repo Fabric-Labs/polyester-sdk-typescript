@@ -53,7 +53,17 @@ export const GetMarketTradesInputSchema = v.pipe(
         endTsNs: optionalUint64DecimalFilterSchema("endTsNs"),
         limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(1_000))),
         pageToken: v.optional(v.pipe(v.string(), v.trim()), ""),
+        afterTradeId: optionalUint64DecimalFilterSchema("afterTradeId"),
     }),
+    v.check(
+        (input) =>
+            input.afterTradeId === undefined ||
+            (input.side === undefined &&
+                input.startTsNs === undefined &&
+                input.endTsNs === undefined &&
+                input.pageToken === ""),
+        "afterTradeId cannot be combined with side, startTsNs, endTsNs or pageToken",
+    ),
     v.transform((input) => ({
         symbolId: input.symbolId,
         side: input.side ? SideFilterCodec.inputToProto[input.side] : undefined,
@@ -61,8 +71,32 @@ export const GetMarketTradesInputSchema = v.pipe(
         endTime: tsNsToTimestamp(input.endTsNs),
         limit: input.limit,
         pageToken: input.pageToken,
+        afterTradeId: input.afterTradeId,
     })),
 );
+
+/** Cursor fields of a gap-free `afterTradeId` backfill page. */
+export const TradeBackfillSchema = v.object({
+    completeThroughTradeId: v.pipe(
+        v.bigint(),
+        v.transform((value) => value.toString()),
+    ),
+    nextAfterTradeId: v.pipe(
+        v.bigint(),
+        v.transform((value) => value.toString()),
+    ),
+    epochEnds: v.array(
+        v.pipe(
+            v.object({ epoch: v.bigint(), lastTradeId: v.bigint() }),
+            v.transform(({ epoch, lastTradeId }) => ({
+                epoch: epoch.toString(),
+                lastTradeId: lastTradeId.toString(),
+            })),
+        ),
+    ),
+});
+
+export type TradeBackfill = v.InferOutput<typeof TradeBackfillSchema>;
 
 export function createGetMarketTradesInputSchema() {
     return GetMarketTradesInputSchema;

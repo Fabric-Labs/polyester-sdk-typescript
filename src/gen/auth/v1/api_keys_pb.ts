@@ -88,8 +88,9 @@ export type ApiKey = Message<"auth.v1.ApiKey"> & {
   createdAt?: Timestamp | undefined;
 
   /**
-   * Last time in UTC when this key authenticated a request. Omitted when the
-   * key has not been used.
+   * Approximate last time in UTC when this key authenticated a request,
+   * recorded at most about once a minute; it may lag recent use by a few
+   * minutes. Omitted when no use has been recorded.
    *
    * @generated from field: google.protobuf.Timestamp last_used_at = 21;
    */
@@ -152,7 +153,8 @@ export const ApiKeySchema: GenMessage<ApiKey> = /*@__PURE__*/
  */
 export type CreateApiKeyRequest = Message<"auth.v1.CreateApiKeyRequest"> & {
   /**
-   * Human-readable label for the key. Required; 1 to 64 characters.
+   * Human-readable label for the key. Required; 1 to 64 characters, and must
+   * not contain '<' or '>'.
    *
    * @generated from field: string label = 1;
    */
@@ -357,6 +359,7 @@ export const GetApiKeyResponseSchema: GenMessage<GetApiKeyResponse> = /*@__PURE_
 export type ApiKeyUpdateSpec = Message<"auth.v1.ApiKeyUpdateSpec"> & {
   /**
    * Human-friendly label for the key. Empty clears the label when selected.
+   * Must not contain '<' or '>'.
    *
    * @generated from field: string label = 1;
    */

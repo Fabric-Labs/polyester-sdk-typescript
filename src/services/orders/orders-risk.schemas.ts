@@ -14,6 +14,7 @@ import {
     type SdkScales,
 } from "../../shared/decimal-surface.js";
 import {
+    MAX_SELLING_SLIPPAGE_BPS,
     MAX_SLIPPAGE_BPS,
     parseSlippageInput,
     parseTrailingDistanceInput,
@@ -102,7 +103,7 @@ function parseMaxSlippage(
         fieldName: "trailingStop.maxSlippage",
         ticksCase: "maxSlippageTicks",
         bpsCase: "maxSlippageBps",
-        maxBps: MAX_SLIPPAGE_BPS,
+        maxBps: MAX_SELLING_SLIPPAGE_BPS,
     });
 }
 
