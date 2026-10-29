@@ -109,20 +109,22 @@ describe("createTransports", () => {
         vi.restoreAllMocks();
     });
 
-    it.each([
-        ["https://api.devnet.polyester.com", "GET"],
-        ["https://api.testnet.polyester.com", "POST"],
-    ])("sends side-effect-free public catalogs from %s as %s", async (apiUrl, method) => {
-        const customFetch = vi
-            .fn<typeof fetch>()
-            .mockResolvedValue(new Response(null, { status: 500 }));
-        const { publicApi } = createTransports({ apiUrl, fetch: customFetch });
-        const client = createClient(RateLimitService, publicApi);
+    it.each(["https://api.devnet.polyester.com", "https://api.testnet.polyester.com"])(
+        "sends side-effect-free public catalogs from %s as GET",
+        async (apiUrl) => {
+            const customFetch = vi
+                .fn<typeof fetch>()
+                .mockResolvedValue(new Response(null, { status: 500 }));
+            const { publicApi } = createTransports({ apiUrl, fetch: customFetch });
+            const client = createClient(RateLimitService, publicApi);
 
-        await expect(client.getRateLimitConfig({})).rejects.toBeInstanceOf(InternalServerError);
-        await expect(client.getTradingRateLimits({})).rejects.toBeInstanceOf(InternalServerError);
-        expect(customFetch.mock.calls.map(([, init]) => init?.method)).toEqual([method, "POST"]);
-    });
+            await expect(client.getRateLimitConfig({})).rejects.toBeInstanceOf(InternalServerError);
+            await expect(client.getTradingRateLimits({})).rejects.toBeInstanceOf(
+                InternalServerError,
+            );
+            expect(customFetch.mock.calls.map(([, init]) => init?.method)).toEqual(["GET", "POST"]);
+        },
+    );
 
     it("routes requests through a custom fetch instead of the global one", async () => {
         const globalFetch = vi.spyOn(globalThis, "fetch");
