@@ -109,8 +109,9 @@ export type ListDepositAddressesRequest = Message<"chain.deposit.v1.ListDepositA
 
   /**
    * Optional PolyChain-registered source chain id filter. When omitted, the
-   * response returns all known deposit addresses for the selected target,
-   * ordered by ascending chain id.
+   * response returns the known deposit addresses for the selected target on
+   * chains that currently accept deposits, ordered by ascending chain id. A
+   * chain whose deposits are unavailable returns FailedPrecondition.
    *
    * @generated from field: uint32 chain_id = 2;
    */
@@ -126,7 +127,8 @@ export const ListDepositAddressesRequestSchema: GenMessage<ListDepositAddressesR
 
 /**
  * ListDepositAddressesResponse returns the known deposit addresses for the
- * selected target, ordered by ascending chain id.
+ * selected target on chains that currently accept deposits, ordered by
+ * ascending chain id.
  *
  * @generated from message chain.deposit.v1.ListDepositAddressesResponse
  */
@@ -158,7 +160,8 @@ export const DepositAddressService: GenService<{
    * chain. The acting caller's root account must have accepted the current
    * terms, including requests using an API key or targeting a shared subaccount.
    * Otherwise FailedPrecondition is returned. Listing and using existing deposit
-   * addresses remain available without acceptance.
+   * addresses remain available without acceptance. FailedPrecondition is also
+   * returned when deposits on the requested chain are unavailable.
    *
    * @generated from rpc chain.deposit.v1.DepositAddressService.CreateDepositAddress
    */
@@ -168,8 +171,9 @@ export const DepositAddressService: GenService<{
     output: typeof CreateDepositAddressResponseSchema;
   },
   /**
-   * List known deposit addresses for one target. Results are served from
-   * Polyester-owned state rather than a live upstream read.
+   * List known deposit addresses for one target on chains that currently
+   * accept deposits. Results are served from Polyester-owned state rather than
+   * a live upstream read.
    *
    * @generated from rpc chain.deposit.v1.DepositAddressService.ListDepositAddresses
    */
