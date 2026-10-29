@@ -161,6 +161,10 @@ async function isTimestampSkewProblem(res: Response): Promise<boolean> {
     }
 }
 
+// ponytail: testnet rejects ConnectRPC GET until its next release; delete this
+// gate once testnet ships it.
+const POST_ONLY_API_URL = "https://api.testnet.polyester.com";
+
 /**
  * Creates Connect transports for SDK service clients.
  */
@@ -171,6 +175,9 @@ export function createTransports(config: TransportConfig): Transports {
         createConnectTransport({
             baseUrl: apiUrl,
             useBinaryFormat,
+            // Side-effect-free public catalogs (GetRateLimitConfig, ListVIPTiers) go
+            // over cacheable GET; every other method stays POST.
+            useHttpGet: !apiUrl.startsWith(POST_ONLY_API_URL),
             interceptors,
             fetch: makeFetch(fetchImpl),
         }),

@@ -45,8 +45,8 @@ type _ValidModifyTriggerClears = AssertModifyTriggerInput<{
     maxSlippage: { kind: "none" };
 }>;
 
-// @ts-expect-error trigger modify requires a symbol ID
-type _InvalidModifyTriggerWithoutSymbolId = AssertModifyTriggerInput<{
+// Omitting the symbol ID targets the trigger's own market.
+type _ValidModifyTriggerWithoutSymbolId = AssertModifyTriggerInput<{
     triggerId: string;
     triggerPrice: string;
 }>;
@@ -56,8 +56,7 @@ type _ValidResumeTriggerWithSymbolId = AssertResumeTriggerInput<{
     symbolId: number;
 }>;
 
-// @ts-expect-error trigger resume requires a symbol ID
-type _InvalidResumeTriggerWithoutSymbolId = AssertResumeTriggerInput<{
+type _ValidResumeTriggerWithoutSymbolId = AssertResumeTriggerInput<{
     triggerId: string;
 }>;
 
@@ -500,6 +499,38 @@ describe("CreateTriggerInputSchema", () => {
         expect(() => v.parse(schema, withoutLimitPrice)).toThrow();
     });
 
+    it("sends the trigger price source and rejects the unsupported mark price", () => {
+        const schema = createCreateTriggerInputSchema(testScales());
+        const stopLoss = {
+            triggerType: "stop_loss",
+            symbolId: 1,
+            side: "sell",
+            qty: "0.25",
+            triggerPrice: "95",
+            execution: { type: "market_ioc" },
+        } as const;
+        const trailingStop = {
+            triggerType: "trailing_stop",
+            symbolId: 1,
+            qty: "0.25",
+            trailingDistance: { kind: "bps", bps: 150 },
+        } as const;
+
+        // Omitted leaves the wire default, which watches the last price.
+        expect(v.parse(schema, stopLoss).trigger.strategy.value).toMatchObject({
+            triggerPriceSource: undefined,
+        });
+        expect(
+            v.parse(schema, { ...stopLoss, triggerPriceSource: "index" }).trigger.strategy.value,
+        ).toMatchObject({ triggerPriceSource: ProtoOrders.TriggerPriceSource.INDEX_PRICE });
+        expect(
+            v.parse(schema, { ...trailingStop, triggerPriceSource: "index" }).trigger.strategy
+                .value,
+        ).toMatchObject({ triggerPriceSource: ProtoOrders.TriggerPriceSource.INDEX_PRICE });
+        expect(() => v.parse(schema, { ...stopLoss, triggerPriceSource: "mark" })).toThrow();
+        expect(() => v.parse(schema, { ...trailingStop, triggerPriceSource: "mark" })).toThrow();
+    });
+
     it("rejects a maximum price on a sell trailing stop", () => {
         const schema = createCreateTriggerInputSchema(testScales());
         const input = {
@@ -862,12 +893,12 @@ describe("ModifyTriggerInputSchema", () => {
         });
     });
 
-    it("requires a positive symbol ID", () => {
+    it("defaults an omitted symbol ID to the trigger's market and bounds a given one", () => {
         const schema = createModifyTriggerInputSchema(testScales());
 
-        expect(() =>
-            v.parse(schema, { triggerId: formatId(11n), triggerPrice: "101.25" }),
-        ).toThrow();
+        expect(v.parse(schema, { triggerId: formatId(11n), triggerPrice: "101.25" }).symbolId).toBe(
+            0,
+        );
         expect(() =>
             v.parse(schema, {
                 triggerId: formatId(11n),
@@ -893,8 +924,11 @@ describe("ModifyTriggerInputSchema", () => {
 });
 
 describe("ResumeTriggerInputSchema", () => {
-    it("requires and forwards a positive symbol ID", () => {
-        expect(() => v.parse(ResumeTriggerInputSchema, { triggerId: formatId(11n) })).toThrow();
+    it("forwards an optional positive symbol ID", () => {
+        expect(v.parse(ResumeTriggerInputSchema, { triggerId: formatId(11n) })).toEqual({
+            triggerId: 11n,
+            subaccountId: undefined,
+        });
         expect(() =>
             v.parse(ResumeTriggerInputSchema, { triggerId: formatId(11n), symbolId: 0 }),
         ).toThrow();

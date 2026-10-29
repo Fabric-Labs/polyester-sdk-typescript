@@ -117,6 +117,7 @@ export {
     RateLimitError,
     RealtimeError,
     RequestError,
+    OutcomeUnknownError,
     ResourceNotFoundError,
     RevisionConflictError,
     ServiceUnavailableError,

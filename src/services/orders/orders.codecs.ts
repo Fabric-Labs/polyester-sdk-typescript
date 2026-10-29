@@ -103,6 +103,18 @@ export const CancelAllOrdersStatusCodec = {
     } satisfies ProtoToOutput<ProtoWrite.CancelAllOrdersResponse_Status, "submitted" | "dry_run">,
 } as const;
 
+export const CancelAllListingStatusCodec = {
+    protoToOutput: {
+        [ProtoWrite.CancelAllOrdersResponse_ListingStatus.LISTING_UNSPECIFIED]: "unspecified",
+        [ProtoWrite.CancelAllOrdersResponse_ListingStatus.INCLUDED]: "included",
+        [ProtoWrite.CancelAllOrdersResponse_ListingStatus.NOT_RETAINED_READ_OPEN_ORDERS]:
+            "not_retained_read_open_orders",
+    } satisfies ProtoToOutput<
+        ProtoWrite.CancelAllOrdersResponse_ListingStatus,
+        "included" | "not_retained_read_open_orders"
+    >,
+} as const;
+
 export const CancelAllAfterStatusCodec = {
     protoToOutput: {
         [ProtoWrite.CancelAllAfterResponse_Status.STATUS_UNSPECIFIED]: "unspecified",

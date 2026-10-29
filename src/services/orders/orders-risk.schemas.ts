@@ -22,7 +22,8 @@ import {
 import { enumLabel } from "../../shared/proto-enum-codec.js";
 import { formatId } from "../../utils/base58-id.js";
 import { tsNsToMs } from "../../utils/time.js";
-import { AttachedRiskLegStatusCodec } from "./orders.codecs.js";
+import { AttachedRiskLegStatusCodec, TriggerPriceSourceCodec } from "./orders.codecs.js";
+import { TriggerPriceSourceInputSchema } from "./order-enums.codecs.js";
 
 const DecimalInputStringSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
 
@@ -39,6 +40,7 @@ function attachedTriggerInputSchema(scales: SdkScales, fieldPrefix: "takeProfit"
                     price: DecimalInputStringSchema,
                 }),
             ]),
+            triggerPriceSource: TriggerPriceSourceInputSchema,
         }),
         v.transform((input) => {
             const execution: ProtoWrite.RiskExecution["execution"] =
@@ -64,6 +66,7 @@ function attachedTriggerInputSchema(scales: SdkScales, fieldPrefix: "takeProfit"
                     scales.price(),
                 ),
                 child: { execution },
+                triggerPriceSource: input.triggerPriceSource,
             };
         }),
     );
@@ -125,6 +128,7 @@ function createTrailingStopInputSchema(scales: SdkScales) {
             trailingDistance: TrailingDistanceSchema,
             maxSlippage: v.optional(MaxSlippageSchema),
             activationPrice: v.optional(DecimalInputStringSchema),
+            triggerPriceSource: TriggerPriceSourceInputSchema,
         }),
         v.transform((input) => ({
             trailingDistance: parseTrailingDistance(scales, input.trailingDistance),
@@ -139,6 +143,7 @@ function createTrailingStopInputSchema(scales: SdkScales) {
                           input.activationPrice,
                           scales.price(),
                       ),
+            triggerPriceSource: input.triggerPriceSource,
         })),
     );
 }
@@ -245,11 +250,13 @@ const ReadRiskExecutionSchema = v.object({
 const ReadTakeProfitPolicySchema = v.object({
     triggerPriceTicks: v.bigint(),
     child: ReadRiskExecutionSchema,
+    triggerPriceSource: v.optional(v.number(), 0),
 });
 
 const ReadStopLossPolicySchema = v.object({
     triggerPriceTicks: v.bigint(),
     child: ReadRiskExecutionSchema,
+    triggerPriceSource: v.optional(v.number(), 0),
 });
 
 const ReadTrailingStopPolicySchema = v.object({
@@ -268,6 +275,7 @@ const ReadTrailingStopPolicySchema = v.object({
         value: v.optional(v.union([v.bigint(), v.number(), v.undefined()])),
     }),
     activationPriceTicks: v.bigint(),
+    triggerPriceSource: v.optional(v.number(), 0),
 });
 
 const ReadAttachedRiskLegStateSchema = v.object({
@@ -322,6 +330,10 @@ function formatRiskLeg(
     return {
         triggerPrice: scaledToDecimalOutput(leg.triggerPriceTicks, scales.price()),
         execution: formatRiskExecution(scales, leg.child),
+        triggerPriceSource: enumLabel(
+            TriggerPriceSourceCodec.protoToOutput,
+            leg.triggerPriceSource,
+        ),
     };
 }
 
@@ -441,6 +453,10 @@ export function formatAttachedRisk(
                                           scales.price(),
                                       )
                                     : undefined,
+                            triggerPriceSource: enumLabel(
+                                TriggerPriceSourceCodec.protoToOutput,
+                                risk.trailingStop.policy.triggerPriceSource,
+                            ),
                         }
                       : undefined),
                   state: risk.trailingStop.state

@@ -31,6 +31,7 @@ import {
     FeeAssetCodec,
     SelfTradePreventionModeCodec,
     CancelAllOrdersStatusCodec,
+    CancelAllListingStatusCodec,
     CancelOrderStatusCodec,
 } from "./orders.codecs.js";
 import {
@@ -440,6 +441,7 @@ export const CancelAllOrdersResponseSchema = v.pipe(
         ),
         totalCancelled: v.optional(v.number(), 0),
         truncated: v.optional(v.boolean(), false),
+        listingStatus: v.optional(enumLabelSchema(CancelAllListingStatusCodec.protoToOutput), 0),
     }),
     v.transform((o) => ({
         status: o.status,
@@ -450,6 +452,7 @@ export const CancelAllOrdersResponseSchema = v.pipe(
         cancelledOrders: o.cancelledOrders,
         totalCancelled: o.totalCancelled,
         truncated: o.truncated,
+        listingStatus: o.listingStatus,
     })),
 );
 

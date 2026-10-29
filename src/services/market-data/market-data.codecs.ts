@@ -18,5 +18,6 @@ export const PairStatusCodec = {
         [Proto.PairStatus.CANCEL_ONLY]: "cancel_only",
         [Proto.PairStatus.POST_ONLY]: "post_only",
         [Proto.PairStatus.REDUCE_ONLY]: "reduce_only",
+        [Proto.PairStatus.HALTED]: "halted",
     },
 } as const;

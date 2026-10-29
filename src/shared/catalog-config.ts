@@ -8,6 +8,7 @@ export type PairStatus =
     | "cancel_only"
     | "post_only"
     | "reduce_only"
+    | "halted"
     | "unknown";
 
 export const PAIR_STATUSES = [
@@ -16,6 +17,7 @@ export const PAIR_STATUSES = [
     "cancel_only",
     "post_only",
     "reduce_only",
+    "halted",
 ] as const satisfies readonly PairStatus[];
 
 export interface AssetConfig {

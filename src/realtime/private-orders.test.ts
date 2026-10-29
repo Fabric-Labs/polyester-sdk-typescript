@@ -6,6 +6,7 @@ import {
     ClientMessageSchema,
     RequestError_Code,
     ServerMessageSchema,
+    UnavailableReason,
     Unsubscribed_Reason,
     type ClientMessage,
 } from "../gen/privatews/v1/private_ws_pb.js";
@@ -573,6 +574,34 @@ describe("PrivateOrderStream", () => {
         ws.receive("s1", 6n, { case: "unit", value: { nextCursor: "c3", orders: [order(4n)] } });
         expect(late.handlers.onEvent).toHaveBeenCalledTimes(3);
         expect(handlers.onEvent).toHaveBeenCalledTimes(4);
+    });
+
+    it("narrows an order-unavailable view to its order IDs, also for a late consumer", async () => {
+        const { stream, handlers } = setup();
+        const ws = await confirm("s1");
+        snapshot(ws, "s1", "c1", [order(1n), order(2n)]);
+        ws.receive("s1", 4n, {
+            case: "unavailable",
+            value: { reason: UnavailableReason.ORDER_UNAVAILABLE, orderIds: [2n] },
+        });
+
+        const late = subscriber(stream);
+        await flush();
+        ws.receive("s1", 5n, {
+            case: "unavailable",
+            value: { reason: UnavailableReason.FAILOVER },
+        });
+
+        const stale = (calls: { type: string }[][]) =>
+            calls.map(([event]) => event).filter((event) => event?.type === "stale");
+        expect(stale(handlers.onEvent.mock.calls)).toEqual([
+            { type: "stale", stale: true, orderIds: [2n] },
+            { type: "stale", stale: true },
+        ]);
+        expect(stale(late.handlers.onEvent.mock.calls)).toEqual([
+            { type: "stale", stale: true, orderIds: [2n] },
+            { type: "stale", stale: true },
+        ]);
     });
 
     it("keeps a shared subscription until its last consumer leaves", async () => {
