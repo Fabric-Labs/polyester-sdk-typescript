@@ -803,6 +803,38 @@ describe("NewOrderInputSchema", () => {
         });
     });
 
+    it("sends an attached leg's trigger price source and rejects the unsupported mark price", () => {
+        const schema = createNewOrderInputSchema(testScales());
+        const order = (risk: object) =>
+            v.parse(schema, {
+                symbolId: 1,
+                side: "buy",
+                qty: "0.5",
+                execution: { type: "limit_gtc", price: "100" },
+                risk,
+            }).order.attachedRisk;
+        const takeProfit = { triggerPrice: "101", execution: { type: "market_ioc" } };
+
+        // Omitted leaves the wire default, which watches the last price.
+        expect(order({ takeProfit })?.takeProfit?.triggerPriceSource).toBeUndefined();
+        expect(
+            order({
+                takeProfit: { ...takeProfit, triggerPriceSource: "index" },
+                trailingStop: {
+                    trailingDistance: { kind: "bps", bps: 50 },
+                    triggerPriceSource: "last",
+                },
+            }),
+        ).toMatchObject({
+            takeProfit: { triggerPriceSource: ProtoWrite.TriggerPriceSource.INDEX_PRICE },
+            stopLeg: {
+                case: "trailingStop",
+                value: { triggerPriceSource: ProtoWrite.TriggerPriceSource.LAST_PRICE },
+            },
+        });
+        expect(() => order({ stopLoss: { ...takeProfit, triggerPriceSource: "mark" } })).toThrow();
+    });
+
     it("rejects OCO for a single attached risk leg", () => {
         const schema = createNewOrderInputSchema(testScales());
         const baseOrder = {
@@ -1624,6 +1656,7 @@ describe("OrderSchema", () => {
                             trailingDistance: { case: "trailingDistanceBps", value: 50 },
                             maxSlippage: { case: undefined, value: undefined },
                             activationPriceTicks: 0n,
+                            triggerPriceSource: ProtoWrite.TriggerPriceSource.INDEX_PRICE,
                         },
                     },
                     oco: false,
@@ -1661,7 +1694,9 @@ describe("OrderSchema", () => {
         });
         expect(order.attachedRisk?.trailingStop).toMatchObject({
             trailingDistance: { kind: "bps", bps: 50 },
+            triggerPriceSource: "index",
         });
+        expect(order.attachedRisk?.stopLoss?.triggerPriceSource).toBe("unspecified");
     });
 
     it("omits attached risk containing only not-configured states", () => {

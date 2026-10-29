@@ -65,6 +65,7 @@ import {
     MfaRequiredError,
     MfaVerificationError,
     NetworkError,
+    OutcomeUnknownError,
     PermissionError,
     PolicyInUseError,
     PolicyLockedError,
@@ -324,6 +325,18 @@ describe("connectErrorToPolyesterError", () => {
         expect(mapped.cause).toBe(raw);
     });
 
+    it("maps temporarily unavailable auth details to a retryable error regardless of gRPC code", () => {
+        const raw = authDetailError(
+            "",
+            Code.FailedPrecondition,
+            AuthErrorCode.AUTH_TEMPORARILY_UNAVAILABLE,
+        );
+        const mapped = connectErrorToPolyesterError(raw);
+
+        expect(mapped).toBeInstanceOf(ServiceUnavailableError);
+        expect(mapped.retryable).toBe(true);
+    });
+
     it("keeps unstructured aborted errors transient", () => {
         const mapped = connectErrorToPolyesterError(new ConnectError("aborted", Code.Aborted));
 
@@ -452,6 +465,34 @@ describe("connectErrorToPolyesterError", () => {
             expect((mapped as RateLimitError).retryAfterMs).toBeUndefined();
         },
     );
+
+    it.each([
+        OrderErrorCode.ORDER_CREATE_OUTCOME_UNKNOWN,
+        OrderErrorCode.TRIGGER_CREATE_OUTCOME_UNKNOWN,
+        OrderErrorCode.ORDER_CANCEL_OUTCOME_UNKNOWN,
+        OrderErrorCode.ORDER_MODIFY_OUTCOME_UNKNOWN,
+        OrderErrorCode.TRIGGER_CONTROL_OUTCOME_UNKNOWN,
+    ])("maps order outcome-unknown code %s to a non-retryable error", (code) => {
+        const raw = new ConnectError("not confirmed", Code.DeadlineExceeded, undefined, [
+            { desc: OrderErrorDetailSchema, value: create(OrderErrorDetailSchema, { code }) },
+        ]);
+        const mapped = connectErrorToPolyesterError(raw);
+
+        expect(mapped).toBeInstanceOf(OutcomeUnknownError);
+        expect(mapped).not.toBeInstanceOf(TimeoutError);
+        expect(mapped.retryable).toBe(false);
+        expect(isRetryableError(raw)).toBe(false);
+        expect(mapped.detail).toMatchObject({ service: "orders", code: OrderErrorCode[code] });
+    });
+
+    it("keeps a deadline without an outcome-unknown detail a retryable timeout", () => {
+        const mapped = connectErrorToPolyesterError(
+            new ConnectError("slow", Code.DeadlineExceeded),
+        );
+
+        expect(mapped).toBeInstanceOf(TimeoutError);
+        expect(mapped.retryable).toBe(true);
+    });
 
     it("maps structured rate-limit details and prefers their retry guidance", () => {
         const rateLimit = create(RateLimitDetailSchema, {

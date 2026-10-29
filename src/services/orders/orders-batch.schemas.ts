@@ -77,9 +77,23 @@ export const CancelAllAfterResultSchema = v.pipe(
         effectiveTimeoutSec: v.pipe(v.number(), v.integer(), v.minValue(0)),
         expiresAtTsNs: v.bigint(),
         tsNs: v.bigint(),
+        effectiveScope: v.optional(
+            v.object({ accountId: v.bigint(), symbolId: v.number(), side: v.number() }),
+        ),
     }),
-    v.transform(({ expiresAtTsNs, tsNs, ...result }) => ({
+    v.transform(({ expiresAtTsNs, tsNs, effectiveScope, ...result }) => ({
         ...result,
+        // Absent while disabled; an unset symbol or side covers all of them.
+        effectiveScope: effectiveScope && {
+            accountId: formatId(effectiveScope.accountId),
+            symbolId: effectiveScope.symbolId || undefined,
+            side:
+                effectiveScope.side === ProtoWrite.Side.BUY
+                    ? ("buy" as const)
+                    : effectiveScope.side === ProtoWrite.Side.SELL
+                      ? ("sell" as const)
+                      : undefined,
+        },
         expiresAt: tsNsToMs(expiresAtTsNs),
         expiresAtNs: expiresAtTsNs.toString(),
         ts: tsNsToMs(tsNs),

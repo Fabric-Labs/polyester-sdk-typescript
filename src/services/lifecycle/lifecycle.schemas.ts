@@ -273,6 +273,8 @@ export const LifecycleFlowStepActivitySchema = v.pipe(
     v.object({
         sequence: v.pipe(v.number(), v.integer(), v.minValue(0)),
         txRef: v.string(),
+        /** Chain holding `txRef`; a `GetDepositWithdrawConfig` chain ID, 0 when `txRef` is not a chain transaction. */
+        txChainId: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 0),
         occurredAtUnixMs: LifecycleMsSchema,
         lifecycleSource: LifecycleSourceEnumSchema,
         lifecycleReason: LifecycleReasonEnumSchema,
@@ -300,6 +302,8 @@ export const LifecycleFlowStepSchema = v.pipe(
         amountE18: v.optional(LifecycleAmountSchema),
         requestFee: v.optional(LifecycleRequestFeeSchema),
         milestoneTxRef: v.string(),
+        /** Chain holding `milestoneTxRef`; a `GetDepositWithdrawConfig` chain ID, 0 when it is not a chain transaction. */
+        milestoneTxChainId: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 0),
         lifecycleSource: LifecycleSourceEnumSchema,
         lifecycleReason: LifecycleReasonEnumSchema,
         zipperReason: v.optional(LifecycleZipperReasonSchema),
@@ -371,6 +375,8 @@ export const LifecycleFlowSummarySchema = v.pipe(
         currentProgress: v.optional(LifecycleFlowSummaryProgressSchema),
         progressTimeline: v.optional(v.array(LifecycleFlowTimelineItemSchema), []),
         estimatedCompletionUnixMs: LifecycleMsSchema,
+        /** An open flow has stalled well past its current step's expected time; `estimatedCompletionUnixMs` is 0 meanwhile. */
+        isDelayed: v.optional(v.boolean(), false),
     }),
     v.transform((value) => renameAmountE18(value)),
 );

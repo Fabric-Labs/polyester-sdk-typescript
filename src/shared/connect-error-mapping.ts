@@ -17,6 +17,7 @@ import {
     MfaVerificationError,
     type MfaVerificationFailureReason,
     normalizeErrorMessage,
+    OutcomeUnknownError,
     PermissionError,
     PolicyInUseError,
     PolicyLockedError,
@@ -71,6 +72,10 @@ function hasTransientServiceError(detail: PolyesterErrorDetail | undefined): boo
     }
     if (detail?.service === "claims") {
         return ["SERVICE_UNAVAILABLE", "CLAIM_TEMPORARILY_UNAVAILABLE"].includes(detail.code);
+    }
+    // The account request changed nothing; the same request can be retried.
+    if (detail?.service === "auth") {
+        return detail.code === "AUTH_TEMPORARILY_UNAVAILABLE";
     }
     return false;
 }
@@ -274,6 +279,15 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
     if (mfaKind) {
         return new MFA_ERROR_CLASSES[mfaKind](
             withFallback("Multi-factor authentication required."),
+            options,
+        );
+    }
+
+    // Checked before rate limits and the transport code: these arrive as
+    // DeadlineExceeded, which would otherwise map to a retryable TimeoutError.
+    if (detail?.service === "orders" && detail.code.endsWith("_OUTCOME_UNKNOWN")) {
+        return new OutcomeUnknownError(
+            withFallback("Outcome unknown; read the current state before retrying."),
             options,
         );
     }

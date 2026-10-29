@@ -23,6 +23,7 @@ import {
     TriggerStatusCodec,
 } from "./triggers.codecs.js";
 import { BpsStringOrNumberInputSchema, NoneInputSchema, SymbolIdInputSchema } from "../shared.js";
+import { TriggerPriceSourceInputSchema } from "../orders/order-enums.codecs.js";
 import {
     BaseTriggerFieldsSchema,
     ConditionalExecutionInputSchema,
@@ -111,6 +112,7 @@ function createConditionalTriggerInputSchema<const TriggerType extends "stop_los
         ...BaseTriggerFieldsSchema.entries,
         triggerType: v.literal(triggerType),
         triggerPrice: DecimalInputStringSchema,
+        triggerPriceSource: TriggerPriceSourceInputSchema,
     };
 
     const sellInputSchema = v.strictObject({
@@ -137,6 +139,7 @@ function createConditionalTriggerInputSchema<const TriggerType extends "stop_los
             ),
             side,
             child: buildConditionalExecution(input.execution, scales, side),
+            triggerPriceSource: input.triggerPriceSource,
         };
         return {
             subaccountId,
@@ -173,6 +176,7 @@ function createTrailingStopTriggerInputSchema(scales: SdkScales) {
         trailingDistance: TrailingDistanceInputSchema,
         activationPrice: v.optional(DecimalInputStringSchema),
         maxSlippage: v.optional(MaxSlippageInputSchema),
+        triggerPriceSource: TriggerPriceSourceInputSchema,
     };
     const sellInputSchema = v.strictObject({
         ...sharedEntries,
@@ -220,6 +224,7 @@ function createTrailingStopTriggerInputSchema(scales: SdkScales) {
                                       input.limitPrice,
                                       scales.price(),
                                   ),
+                        triggerPriceSource: input.triggerPriceSource,
                     },
                 } as const,
             },
@@ -417,20 +422,21 @@ export type PauseTriggerInput = v.InferInput<typeof PauseTriggerInputSchema>;
 export const ResumeTriggerInputSchema = v.pipe(
     v.strictObject({
         ...TriggerScopedInputEntries,
-        symbolId: SymbolIdInputSchema,
+        symbolId: v.optional(SymbolIdInputSchema),
     }),
     v.transform(({ account, ...input }) => ({
         ...input,
         subaccountId: accountScopeToSubaccountId(account),
     })),
 );
+/** Omitting `symbolId` uses the trigger's own market; when set, it must be that market. */
 export type ResumeTriggerInput = v.InferInput<typeof ResumeTriggerInputSchema>;
 
 export function createModifyTriggerInputSchema(scales: SdkScales) {
     return v.pipe(
         v.strictObject({
             ...TriggerScopedInputEntries,
-            symbolId: SymbolIdInputSchema,
+            symbolId: v.optional(SymbolIdInputSchema),
             triggerPrice: v.optional(DecimalInputStringSchema),
             trailingDistance: v.optional(TrailingDistanceInputSchema),
             activationPrice: v.optional(ActivationPricePatchInputSchema),
@@ -447,7 +453,8 @@ export function createModifyTriggerInputSchema(scales: SdkScales) {
         v.transform(({ account, ...input }) => ({
             triggerId: input.triggerId,
             subaccountId: accountScopeToSubaccountId(account),
-            symbolId: input.symbolId,
+            // Zero targets the trigger's own market.
+            symbolId: input.symbolId ?? 0,
             triggerPriceTicks:
                 input.triggerPrice === undefined
                     ? undefined
@@ -481,7 +488,8 @@ export function createModifyTriggerInputSchema(scales: SdkScales) {
 /**
  * A trigger patch. Omitted fields remain unchanged; `{ kind: "none" }` clears
  * `activationPrice` or `maxSlippage`. A cleared `maxSlippage` on a market child
- * falls back to the pair's default market slippage. A child's limit price is
+ * falls back to the pair's default market slippage. Omitting `symbolId` uses
+ * the trigger's own market; when set, it must be that market. A child's limit price is
  * fixed at creation: cancel the trigger and create a new one to change it.
  */
 export type ModifyTriggerInput = v.InferInput<ReturnType<typeof createModifyTriggerInputSchema>>;

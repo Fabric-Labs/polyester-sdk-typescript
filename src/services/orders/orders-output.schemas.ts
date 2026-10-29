@@ -186,6 +186,7 @@ export function createOrderDetailsSchema(scales: SdkScales) {
         order: createOrderSchema(scales),
         trades: v.optional(v.array(createUserTradeSchema(scales)), []),
         transfers: v.optional(v.array(createOrderTransferSchema()), []),
+        executionsComplete: v.optional(v.boolean(), false),
     });
 }
 

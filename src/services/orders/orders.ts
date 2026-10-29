@@ -107,8 +107,12 @@ export interface SubscribeOrdersInput extends BaseSubscribeInput<Order> {
      * Without `onSnapshot`, also the orders a resync snapshot no longer contains.
      */
     onRemoved?: (orderIds: string[]) => void;
-    /** `true` while the account's live view is behind; `false` once it caught up. */
-    onStale?: (stale: boolean) => void;
+    /**
+     * `true` while the account's live view is behind; `false` once it caught up.
+     * `orderIds`, when set, names the only orders whose rows show an earlier state;
+     * the rest of the view is current. A later call replaces the earlier one.
+     */
+    onStale?: (stale: boolean, orderIds?: string[]) => void;
 }
 
 function createMutationRequestId(): string {
@@ -390,6 +394,7 @@ export class OrdersService {
     /**
      * Cancels all matching open orders for the resolved account scope, optionally narrowed by up to 100 symbol IDs and side, with dry-run preview. A requestId is generated when omitted; reuse it with the same criteria for retries. Completed results are retained for at least two minutes; use a fresh key for each new cancellation.
      * `cancelledOrders` lists up to 200 of the orders whose cancellation was requested, oldest first; `truncated` is true when `totalCancelled` counts more. Read each order's final state from `orders.subscribe` or the order reads.
+     * A retry with the same requestId and criteria returns the original counts with `listingStatus: "not_retained_read_open_orders"` and an empty `cancelledOrders`, which does not mean nothing was canceled; read open orders instead.
      */
     async cancelAll(
         input: v.InferInput<typeof CancelAllOrdersInputSchema>,
@@ -408,7 +413,7 @@ export class OrdersService {
     }
 
     /**
-     * Arms, refreshes, or disables the account dead-man switch, optionally scoped by symbol ID and side. timeoutSec 0 disables it; 10–120 arms it. Generate a new requestId for each deliberate heartbeat, but reuse the same ID when retrying one ambiguous heartbeat.
+     * Arms, refreshes, or disables the account dead-man switch, optionally scoped by symbol ID and side. timeoutSec 0 disables it; 10–120 arms it. An armed switch returns its recorded `effectiveScope`. Generate a new requestId for each deliberate heartbeat, but reuse the same ID when retrying one ambiguous heartbeat.
      */
     async cancelAllAfter(
         input: CancelAllAfterInput,
@@ -431,6 +436,7 @@ export class OrdersService {
      * Pass nextPageToken as pageToken with the same orderId to continue; deduplicate transfers by txId.
      * Set includeExecutionHistory to false for state-only polling, omitting limit and pageToken.
      * Execution pages are eventually consistent and need not reconcile with cumulative order quantities.
+     * `executionsComplete` is true once the trades across every page add up to the filled quantity; while false, read again for the rest.
      * Returns null when the requested order is not found.
      */
     async getDetails(
@@ -478,7 +484,10 @@ export class OrdersService {
                 ready: () => this.#scales.ready(),
                 onPublication: (event) => {
                     if (event.type === "stale") {
-                        input.onStale?.(event.stale);
+                        input.onStale?.(
+                            event.stale,
+                            event.orderIds?.map((id) => formatId(id)),
+                        );
                         return;
                     }
                     if (event.type === "snapshot") {

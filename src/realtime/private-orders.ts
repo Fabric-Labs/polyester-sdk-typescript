@@ -30,8 +30,11 @@ export type PrivateOrdersEvent =
     | { type: "snapshot"; orders: Order[] }
     /** One change, applied whole. */
     | { type: "unit"; unit: Unit }
-    /** The account's live view is temporarily behind (`true`) or caught up (`false`). */
-    | { type: "stale"; stale: boolean };
+    /**
+     * The account's live view is temporarily behind (`true`) or caught up (`false`).
+     * `orderIds`, when set, names the only orders behind; the rest of the view is current.
+     */
+    | { type: "stale"; stale: boolean; orderIds?: bigint[] };
 
 export interface ConnectPrivateOrdersParams {
     /** The account's base58 public ID. */
@@ -73,8 +76,8 @@ interface StreamSubscription {
     orders: Map<bigint, Order> | null;
     /** The last connection state consumers were told about. */
     state: "pending" | "connected" | "disconnected";
-    /** Consumers were told the view is stale and not yet that it caught up. */
-    stale: boolean;
+    /** What consumers were last told is stale, until they are told it caught up. */
+    stale: { orderIds?: bigint[] } | null;
     /** Subscribe attempts since the subscription last delivered data; drives retry backoff. */
     retries: number;
     retryTimer: ReturnType<typeof setTimeout> | null;
@@ -143,7 +146,7 @@ export class PrivateOrderStream {
             staged: null,
             orders: null,
             state: "pending",
-            stale: false,
+            stale: null,
             retries: 0,
             retryTimer: null,
         };
@@ -185,7 +188,9 @@ export class PrivateOrderStream {
         if (s.state === "connected") this.#deliverTo(s, c, () => params.onConnected?.());
         const orders = s.orders && [...s.orders.values()];
         if (orders) this.#deliverTo(s, c, () => params.onEvent({ type: "snapshot", orders }));
-        if (s.stale) this.#deliverTo(s, c, () => params.onEvent({ type: "stale", stale: true }));
+        const { stale } = s;
+        if (stale)
+            this.#deliverTo(s, c, () => params.onEvent({ type: "stale", stale: true, ...stale }));
     }
 
     /** Fetches the connect token first: the server closes a socket that sends no Auth within 5 seconds. */
@@ -385,7 +390,7 @@ export class PrivateOrderStream {
                 }
                 // A new subscription reports Unavailable itself if its view is still behind.
                 if (s.stale) {
-                    s.stale = false;
+                    s.stale = null;
                     this.#deliver(s, (p) => p.onEvent({ type: "stale", stale: false }));
                 }
                 return;
@@ -452,13 +457,18 @@ export class PrivateOrderStream {
                 // A resumed subscription on a quiet account delivers no data, only this.
                 s.retries = 0;
                 return;
-            case "unavailable":
-            case "available": {
-                const stale = frame.case === "unavailable";
+            case "unavailable": {
+                // A later Unavailable replaces the earlier one; order IDs narrow it to those orders.
+                const { orderIds } = frame.value;
+                const stale = orderIds.length > 0 ? { orderIds } : {};
                 s.stale = stale;
-                this.#deliver(s, (p) => p.onEvent({ type: "stale", stale }));
+                this.#deliver(s, (p) => p.onEvent({ type: "stale", stale: true, ...stale }));
                 return;
             }
+            case "available":
+                s.stale = null;
+                this.#deliver(s, (p) => p.onEvent({ type: "stale", stale: false }));
+                return;
             case "subscribeExpiring":
                 void this.#refresh(ws, s);
                 return;

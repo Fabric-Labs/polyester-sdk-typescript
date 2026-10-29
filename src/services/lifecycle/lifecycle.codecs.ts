@@ -57,6 +57,7 @@ export const LIFECYCLE_REASON_VALUES = [
     "trading_withdraw_policy_denied",
     "trading_withdraw_contract_reverted",
     "trading_withdraw_execution_failed",
+    "deposit_source_not_confirmed",
 ] as const;
 /**
  * Catalog labels plus a code-preserving fallback for wire values the generated
@@ -88,6 +89,7 @@ export const LIFECYCLE_SOURCE_VALUES = [
     "polyester_chain",
     "executor",
     "ledger",
+    "lifecycle",
 ] as const;
 export type LifecycleSourceValue = (typeof LIFECYCLE_SOURCE_VALUES)[number];
 
@@ -215,6 +217,7 @@ export const LifecycleReasonCodec = {
         [LifecycleReason.TRADING_WITHDRAW_POLICY_DENIED]: "trading_withdraw_policy_denied",
         [LifecycleReason.TRADING_WITHDRAW_CONTRACT_REVERTED]: "trading_withdraw_contract_reverted",
         [LifecycleReason.TRADING_WITHDRAW_EXECUTION_FAILED]: "trading_withdraw_execution_failed",
+        [LifecycleReason.DEPOSIT_SOURCE_NOT_CONFIRMED]: "deposit_source_not_confirmed",
     } satisfies Record<LifecycleReason, LifecycleReasonValue>,
 } as const;
 
@@ -269,6 +272,7 @@ export const LifecycleSourceCodec = {
         [LifecycleSource.SOURCE_POLYESTER_CHAIN]: "polyester_chain",
         [LifecycleSource.SOURCE_EXECUTOR]: "executor",
         [LifecycleSource.SOURCE_LEDGER]: "ledger",
+        [LifecycleSource.SOURCE_LIFECYCLE]: "lifecycle",
     } satisfies Record<LifecycleSource, LifecycleSourceValue>,
 } as const;
 

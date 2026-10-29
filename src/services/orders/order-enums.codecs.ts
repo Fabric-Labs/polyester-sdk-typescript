@@ -1,4 +1,5 @@
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
+import * as v from "valibot";
 import type { InputToProto, ProtoToOutput } from "../../utils/types.js";
 
 export const ORDER_SIDE_VALUES = ["buy", "sell"] as const;
@@ -103,3 +104,14 @@ export const TriggerPriceSourceCodec = {
         [ProtoWrite.TriggerPriceSource.MARK_PRICE]: "mark",
     } satisfies ProtoToOutput<ProtoWrite.TriggerPriceSource, TriggerPriceSourceValue>,
 } as const;
+
+/**
+ * Price a trigger watches: `"last"` traded price (the default when omitted) or
+ * the market's `"index"` price. Spot markets do not support the mark price.
+ */
+export const TriggerPriceSourceInputSchema = v.optional(
+    v.pipe(
+        v.picklist(["last", "index"]),
+        v.transform((source) => TriggerPriceSourceCodec.inputToProto[source]),
+    ),
+);

@@ -167,7 +167,7 @@ export class TriggersService {
     }
 
     /**
-     * Applies a limited patch to an existing trigger. Omit activationPrice or maxSlippage to leave it unchanged, or pass `{ kind: "none" }` to clear it. The symbol ID routes policy checks for exposure-increasing changes.
+     * Applies a limited patch to an existing trigger. Omit activationPrice or maxSlippage to leave it unchanged, or pass `{ kind: "none" }` to clear it. An optional symbol ID must name the trigger's own market; an API key limited to specific markets must pass it.
      */
     async modify(
         input: ModifyTriggerInput,
@@ -197,7 +197,7 @@ export class TriggersService {
     }
 
     /**
-     * Resumes a paused trigger using its symbol ID for policy checks.
+     * Resumes a paused trigger. An optional symbol ID must name the trigger's own market; an API key limited to specific markets must pass it.
      */
     async resume(
         input: ResumeTriggerInput,

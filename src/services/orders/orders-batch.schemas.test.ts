@@ -133,6 +133,28 @@ describe("CancelAllAfter schemas", () => {
             tsNs: "1000000999",
         });
     });
+
+    it("decodes the armed switch's recorded scope, leaving unset symbol and side open", () => {
+        const scope = (symbolId: number, side: ProtoWrite.Side) =>
+            v.parse(CancelAllAfterResultSchema, {
+                status: ProtoWrite.CancelAllAfterResponse_Status.ARMED,
+                effectiveTimeoutSec: 15,
+                expiresAtTsNs: 0n,
+                tsNs: 0n,
+                effectiveScope: { accountId: 42n, symbolId, side },
+            }).effectiveScope;
+
+        expect(scope(7, ProtoWrite.Side.SELL)).toEqual({
+            accountId: formatId(42n),
+            symbolId: 7,
+            side: "sell",
+        });
+        expect(scope(0, ProtoWrite.Side.SIDE_UNSPECIFIED)).toEqual({
+            accountId: formatId(42n),
+            symbolId: undefined,
+            side: undefined,
+        });
+    });
 });
 
 describe("batch create schemas", () => {

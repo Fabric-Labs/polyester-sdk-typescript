@@ -493,6 +493,7 @@ describe("OrdersService", () => {
                 ],
                 totalCancelled: 2,
                 truncated: false,
+                listingStatus: ProtoWrite.CancelAllOrdersResponse_ListingStatus.INCLUDED,
             },
         });
         const service = new OrdersService(
@@ -514,6 +515,7 @@ describe("OrdersService", () => {
             ],
             totalCancelled: 2,
             truncated: false,
+            listingStatus: "included",
         });
 
         const request = transport.lastCall()?.message;
@@ -1174,6 +1176,7 @@ describe("OrdersService", () => {
             }),
         });
         params.onEvent({ type: "stale", stale: true });
+        params.onEvent({ type: "stale", stale: true, orderIds: [12n] });
         params.onDisconnected?.();
         await flushAsync();
 
@@ -1190,7 +1193,8 @@ describe("OrdersService", () => {
             }),
         );
         expect(onRemoved).toHaveBeenCalledWith([formatId(12n)]);
-        expect(onStale).toHaveBeenCalledWith(true);
+        expect(onStale).toHaveBeenNthCalledWith(1, true, undefined);
+        expect(onStale).toHaveBeenNthCalledWith(2, true, [formatId(12n)]);
         expect(onClose).toHaveBeenCalledOnce();
 
         unsubscribe();
