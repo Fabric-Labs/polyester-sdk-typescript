@@ -33,6 +33,7 @@ vi.mock("./realtime/index.js", () => ({
 
 import { PolyesterClient } from "./client.js";
 import { PolyesterCore } from "./core-client.js";
+import { checkpointsService } from "./services/checkpoints/service.js";
 import { claimsService } from "./services/claims/service.js";
 
 import { AuthenticationError, ConfigurationError } from "./shared/errors.js";
@@ -317,6 +318,23 @@ describe.each([
             expect(authApi.lastCall()?.signal).toBe(signal);
             expect(publicApi.calls).toHaveLength(0);
             expect(realtimeConfigs).toHaveLength(realtimeCount);
+        });
+
+        it("routes checkpoints through the authenticated transport", async () => {
+            const authApi = unaryTransport({ checkpoints: [] });
+            const publicApi = unaryTransport({});
+            const client = new Client({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                transports: { authApi: authApi.transport, publicApi: publicApi.transport },
+            });
+
+            expect(checkpointsService(client)).toBe(checkpointsService(client));
+            await expect(checkpointsService(client).list()).resolves.toEqual([]);
+
+            expect(authApi.lastCall()?.method.parent.typeName).toBe(
+                "checkpoints.v1.CheckpointService",
+            );
+            expect(publicApi.calls).toHaveLength(0);
         });
     });
 });

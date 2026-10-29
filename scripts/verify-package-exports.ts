@@ -126,6 +126,7 @@ try {
 } from "@polyester/sdk";
 import {
     autoWithdrawPb,
+    checkpointsPb,
     claimsPb,
     feesPb,
     ledgerReadPb,
@@ -183,6 +184,18 @@ async function verifyServiceInference(): Promise<void> {
     );
     expectType<string | undefined>(claimedToSubaccount.subaccountId);
     expectNotAny(claimsPb.ClaimsService, true);
+    const checkpoints = await client.checkpoints.list(
+        { subaccountId: "2" } satisfies import("@polyester/sdk").ListCheckpointsInput,
+        { signal: new AbortController().signal },
+    );
+    expectType<import("@polyester/sdk").Checkpoint[]>(checkpoints);
+    expectNotAny(checkpoints, true);
+    expectType<number | undefined>(checkpoints[0]?.trades);
+    expectType<string | undefined>(checkpoints[0]?.seasonResultUsd);
+    expectType<number[][] | undefined>(checkpoints[0]?.tradesByWeekdayHour);
+    expectType<import("@polyester/sdk").CheckpointBadge | undefined>(checkpoints[0]?.badges[0]?.badge);
+    expectType<import("@polyester/sdk").CheckpointField | undefined>(checkpoints[0]?.incomplete[0]);
+    expectNotAny(checkpointsPb.CheckpointService, true);
     const rewardAwards = await client.rewards.listAwards({ limit: 100, pageToken: "next" });
     expectType<import("@polyester/sdk").ListRewardAwardsResult>(rewardAwards);
     expectNotAny(rewardAwards, true);

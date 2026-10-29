@@ -5,6 +5,7 @@ import { apiKeysService } from "./services/api-keys/service.js";
 import { balancesService } from "./services/balances/service.js";
 import { candlesService } from "./services/candles/service.js";
 import { chainAnalyticsService } from "./services/chain-analytics/service.js";
+import { checkpointsService } from "./services/checkpoints/service.js";
 import { claimsService } from "./services/claims/service.js";
 import { depositService } from "./services/deposit/service.js";
 import { feesService } from "./services/fees/service.js";
@@ -56,6 +57,7 @@ export const POLYESTER_SERVICES = {
     zipper: zipperService,
     mfa: mfaService,
     claims: claimsService,
+    checkpoints: checkpointsService,
     rewards: rewardsService,
     vip: vipService,
     fees: feesService,

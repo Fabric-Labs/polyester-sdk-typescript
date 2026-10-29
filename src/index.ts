@@ -209,6 +209,7 @@ export type * from "./services/auth/profile/profile.types.js";
 export type * from "./services/balances/balances.types.js";
 export type * from "./services/candles/candles.types.js";
 export type * from "./services/chain-analytics/chain-analytics.types.js";
+export type * from "./services/checkpoints/checkpoints.types.js";
 export type * from "./services/claims/claims.types.js";
 export type * from "./services/deposit/deposit.types.js";
 export type * from "./services/fees/fees.types.js";
