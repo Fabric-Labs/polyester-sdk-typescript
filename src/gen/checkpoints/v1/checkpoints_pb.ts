@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file checkpoints/v1/checkpoints.proto.
  */
 export const file_checkpoints_v1_checkpoints: GenFile = /*@__PURE__*/
-  fileDesc("CiBjaGVja3BvaW50cy92MS9jaGVja3BvaW50cy5wcm90bxIOY2hlY2twb2ludHMudjEiagoLVm9sdW1lUG9pbnQSKQoDZGF5GAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIAEgsKA3VzZBgCIAEoCRITCgthcHByb3hpbWF0ZRgDIAEoCBIOCgZ0cmFkZXMYBCABKAQiYwoTUG9ydGZvbGlvVmFsdWVQb2ludBIqCgRob3VyGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIAEgsKA3VzZBgCIAEoCRITCgthcHByb3hpbWF0ZRgDIAEoCCIgCg1XZWVrZGF5VHJhZGVzEg8KBWhvdXJzGAEgAygEQgAiVQoMUGFpckFjdGl2aXR5EhEKCXN5bWJvbF9pZBgBIAEoDRIOCgZzeW1ib2wYAiABKAkSEgoKdm9sdW1lX3VzZBgDIAEoCRIOCgZ0cmFkZXMYBCABKAQifAoMQmlnZ2VzdFRyYWRlEhEKCXN5bWJvbF9pZBgBIAEoDRIOCgZzeW1ib2wYAiABKAkSHwoEc2lkZRgDIAEoDjIPLm9yZGVycy52MS5TaWRlQgASKAoCYXQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgAiMAoPT3JkZXJUeXBlQ291bnRzEg0KBWxpbWl0GAEgASgEEg4KBm1hcmtldBgCIAEoBCJHChFUaW1lSW5Gb3JjZUNvdW50cxILCgNndGMYASABKAQSCwoDaW9jGAIgASgEEgsKA2ZvaxgDIAEoBBILCgNndGQYBCABKAQibgoPT3JkZXJUb29sQ291bnRzEhEKCXN0b3BfbG9zcxgBIAEoBBITCgt0YWtlX3Byb2ZpdBgCIAEoBBIVCg10cmFpbGluZ19zdG9wGAMgASgEEgwKBHR3YXAYBCABKAQSDgoGbGFkZGVyGAUgASgEIi0KDVZJUFRpZXJDaGFuZ2USDAoEZGF0ZRgBIAEoCRIOCgR0aWVyGAIgASgNQgAicAoLRWFybmVkQmFkZ2USMAoFYmFkZ2UYASABKA4yHy5jaGVja3BvaW50cy52MS5DaGVja3BvaW50QmFkZ2VCABIvCgllYXJuZWRfYXQYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgAiRgoLQXNzZXRBbW91bnQSDQoFYXNzZXQYASABKAkSDgoGYW1vdW50GAIgASgJEhAKA3VzZBgDIAEoCUgAiAEBQgYKBF91c2QiNAoJRmxvd1RvdGFsEg0KBWNvdW50GAEgASgEEhAKA3VzZBgCIAEoCUgAiAEBQgYKBF91c2QiZQoJQ2hhaW5GbG93EhoKEnBvbHllc3Rlcl9jaGFpbl9pZBgBIAEoDRISCgpjaGFpbl9uYW1lGAIgASgJEigKBXRvdGFsGAMgASgLMhkuY2hlY2twb2ludHMudjEuRmxvd1RvdGFsInwKEkZ1bmRpbmdGbG93U3VtbWFyeRINCgVjb3VudBgBIAEoBBIpCgZjaGFpbnMYAiADKAsyGS5jaGVja3BvaW50cy52MS5DaGFpbkZsb3cSLAoHYW1vdW50cxgDIAMoCzIbLmNoZWNrcG9pbnRzLnYxLkFzc2V0QW1vdW50InQKCkZ1bmRpbmdEYXkSDAoEZGF0ZRgBIAEoCRIYCgtkZXBvc2l0X3VzZBgCIAEoCUgAiAEBEhsKDndpdGhkcmF3YWxfdXNkGAMgASgJSAGIAQFCDgoMX2RlcG9zaXRfdXNkQhEKD193aXRoZHJhd2FsX3VzZCKAEQoKQ2hlY2twb2ludBIQCgZudW1iZXIYASABKA1CABIyCgxzZWFzb25fc3RhcnQYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgASMAoKc2Vhc29uX2VuZBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCABIuCgh0YWtlbl9hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCABISCgp2b2x1bWVfdXNkGAUgASgJEg4KBnRyYWRlcxgGIAEoBBIOCgZvcmRlcnMYByABKAQSEwoLZGF5c19hY3RpdmUYCCABKA0SFgoObG9uZ2VzdF9zdHJlYWsYCSABKA0SLwoJdG9wX3BhaXJzGAogAygLMhwuY2hlY2twb2ludHMudjEuUGFpckFjdGl2aXR5EhYKDm1hcmtldHNfdHJhZGVkGAsgASgNEhQKDG1ha2VyX3RyYWRlcxgMIAEoBBIUCgx0YWtlcl90cmFkZXMYDSABKAQSEwoLc2VsZl90cmFkZXMYDiABKAQSPwoWdHJhZGVzX2J5X3dlZWtkYXlfaG91chgPIAMoCzIdLmNoZWNrcG9pbnRzLnYxLldlZWtkYXlUcmFkZXNCABIxCgxkYWlseV92b2x1bWUYECADKAsyGy5jaGVja3BvaW50cy52MS5Wb2x1bWVQb2ludBIZChFiaWdnZXN0X3RyYWRlX3VzZBgRIAEoCRIzCg1iaWdnZXN0X3RyYWRlGBIgASgLMhwuY2hlY2twb2ludHMudjEuQmlnZ2VzdFRyYWRlEjQKC29yZGVyX3R5cGVzGBMgASgLMh8uY2hlY2twb2ludHMudjEuT3JkZXJUeXBlQ291bnRzEjgKDXRpbWVfaW5fZm9yY2UYFCABKAsyIS5jaGVja3BvaW50cy52MS5UaW1lSW5Gb3JjZUNvdW50cxIuCgV0b29scxgVIAEoCzIfLmNoZWNrcG9pbnRzLnYxLk9yZGVyVG9vbENvdW50cxIRCglwb3N0X29ubHkYFiABKAQSDgoGYW1lbmRzGBcgASgEEhUKDWZpbGxlZF9vcmRlcnMYGCABKAQSHwoXcGFydGlhbGx5X2ZpbGxlZF9vcmRlcnMYGSABKAQSFwoPY2FuY2VsZWRfb3JkZXJzGBogASgEEhcKD3JlamVjdGVkX29yZGVycxgbIAEoBBIRCglmaWxsX3JhdGUYHCABKAkSFAoMY2FuY2VsX3JhdGlvGB0gASgJEiEKFG1lZGlhbl9saW1pdF9yZXN0X21zGB4gASgESACIAQESMgoOZmlyc3RfdHJhZGVfYXQYHyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKC2J1c2llc3RfZGF5GCAgASgJSAGIAQESIwoUbW9zdF9hY3RpdmVfaG91cl91dGMYISABKA1CAEgCiAEBEiAKFnZpcF90aWVyX2F0X2NoZWNrcG9pbnQYIiABKA1CABIXCg1wZWFrX3ZpcF90aWVyGCMgASgNQgASMwoMdmlwX3RpbWVsaW5lGCQgAygLMh0uY2hlY2twb2ludHMudjEuVklQVGllckNoYW5nZRIrCgZiYWRnZXMYJSADKAsyGy5jaGVja3BvaW50cy52MS5FYXJuZWRCYWRnZRI8Cg9wb3J0Zm9saW9fdmFsdWUYJiADKAsyIy5jaGVja3BvaW50cy52MS5Qb3J0Zm9saW9WYWx1ZVBvaW50EjUKEHRyYWRpbmdfYmFsYW5jZXMYJyADKAsyGy5jaGVja3BvaW50cy52MS5Bc3NldEFtb3VudBI1ChBmdW5kaW5nX2JhbGFuY2VzGCggAygLMhsuY2hlY2twb2ludHMudjEuQXNzZXRBbW91bnQSNAoIZGVwb3NpdHMYKSABKAsyIi5jaGVja3BvaW50cy52MS5GdW5kaW5nRmxvd1N1bW1hcnkSNwoLd2l0aGRyYXdhbHMYKiABKAsyIi5jaGVja3BvaW50cy52MS5GdW5kaW5nRmxvd1N1bW1hcnkSMgoOZnVuZGluZ19ieV9kYXkYKyADKAsyGi5jaGVja3BvaW50cy52MS5GdW5kaW5nRGF5Ei8KDHRyYW5zZmVyc19pbhgsIAEoCzIZLmNoZWNrcG9pbnRzLnYxLkZsb3dUb3RhbBIwCg10cmFuc2ZlcnNfb3V0GC0gASgLMhkuY2hlY2twb2ludHMudjEuRmxvd1RvdGFsEhoKEmludGVybmFsX3RyYW5zZmVycxguIAEoBBIUCgxkYWlseV9jbGFpbXMYLyABKAQSOAoTZGFpbHlfY2xhaW1fYW1vdW50cxgwIAMoCzIbLmNoZWNrcG9pbnRzLnYxLkFzc2V0QW1vdW50EhcKCmluZmxvd191c2QYMSABKAlIA4gBARIYCgtvdXRmbG93X3VzZBgyIAEoCUgEiAEBEhsKDm5ldF9pbmZsb3dfdXNkGDMgASgJSAWIAQESHAoPZmluYWxfdmFsdWVfdXNkGDQgASgJSAaIAQESHgoRc2Vhc29uX3Jlc3VsdF91c2QYNSABKAlIB4gBARITCgtzdWJhY2NvdW50cxg2IAEoBBIzCgppbmNvbXBsZXRlGDcgAygOMh8uY2hlY2twb2ludHMudjEuQ2hlY2twb2ludEZpZWxkQhcKFV9tZWRpYW5fbGltaXRfcmVzdF9tc0IOCgxfYnVzaWVzdF9kYXlCFwoVX21vc3RfYWN0aXZlX2hvdXJfdXRjQg0KC19pbmZsb3dfdXNkQg4KDF9vdXRmbG93X3VzZEIRCg9fbmV0X2luZmxvd191c2RCEgoQX2ZpbmFsX3ZhbHVlX3VzZEIUChJfc2Vhc29uX3Jlc3VsdF91c2QiSgoYTGlzdE15Q2hlY2twb2ludHNSZXF1ZXN0EhwKDXN1YmFjY291bnRfaWQYASABKAZCAEgAiAEBQhAKDl9zdWJhY2NvdW50X2lkIkwKGUxpc3RNeUNoZWNrcG9pbnRzUmVzcG9uc2USLwoLY2hlY2twb2ludHMYASADKAsyGi5jaGVja3BvaW50cy52MS5DaGVja3BvaW50KskBCg9DaGVja3BvaW50QmFkZ2USFQoRQkFER0VfVU5TUEVDSUZJRUQQABIPCgtGSVJTVF9UUkFERRABEhQKEFNFVkVOX0RBWV9TVFJFQUsQAhIRCg1USFJFRV9NQVJLRVRTEAMSEwoPVk9MVU1FXzEwMDBfVVNEEAQSEgoOSFVORFJFRF9UUkFERVMQBRIPCgtURU5fTUFSS0VUUxAGEhUKEVRISVJUWV9EQVlfU1RSRUFLEAcSFAoQRVZFUllfT1JERVJfVE9PTBAIKs4CCg9DaGVja3BvaW50RmllbGQSFQoRRklFTERfVU5TUEVDSUZJRUQQABIKCgZWT0xVTUUQARINCglUT1BfUEFJUlMQAhIPCgtPUkRFUl9UWVBFUxADEhEKDVRJTUVfSU5fRk9SQ0UQBBIQCgxPUkRFUl9TVEFUVVMQBRIJCgVUT09MUxAGEhUKEU1FRElBTl9MSU1JVF9SRVNUEAcSDAoIREVQT1NJVFMQCBIPCgtXSVRIRFJBV0FMUxAJEhYKEklOVEVSTkFMX1RSQU5TRkVSUxAKEhcKE0RBSUxZX0NMQUlNX0FNT1VOVFMQCxITCg9QT1JURk9MSU9fVkFMVUUQDBIUChBUUkFESU5HX0JBTEFOQ0VTEA0SFAoQRlVORElOR19CQUxBTkNFUxAOEg0KCVRSQU5TRkVSUxAPEhEKDVNFQVNPTl9SRVNVTFQQEDKCAQoRQ2hlY2twb2ludFNlcnZpY2USbQoRTGlzdE15Q2hlY2twb2ludHMSKC5jaGVja3BvaW50cy52MS5MaXN0TXlDaGVja3BvaW50c1JlcXVlc3QaKS5jaGVja3BvaW50cy52MS5MaXN0TXlDaGVja3BvaW50c1Jlc3BvbnNlIgOQAgFCSlpIZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9jaGVja3BvaW50cy92MTtjaGVja3BvaW50c3YxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_orders_v1_orders, file_polyester_api_options]);
+  fileDesc("CiBjaGVja3BvaW50cy92MS9jaGVja3BvaW50cy5wcm90bxIOY2hlY2twb2ludHMudjEiagoLVm9sdW1lUG9pbnQSKQoDZGF5GAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIAEgsKA3VzZBgCIAEoCRITCgthcHByb3hpbWF0ZRgDIAEoCBIOCgZ0cmFkZXMYBCABKAQiYwoTUG9ydGZvbGlvVmFsdWVQb2ludBIqCgRob3VyGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIAEgsKA3VzZBgCIAEoCRITCgthcHByb3hpbWF0ZRgDIAEoCCIgCg1XZWVrZGF5VHJhZGVzEg8KBWhvdXJzGAEgAygEQgAiVQoMUGFpckFjdGl2aXR5EhEKCXN5bWJvbF9pZBgBIAEoDRIOCgZzeW1ib2wYAiABKAkSEgoKdm9sdW1lX3VzZBgDIAEoCRIOCgZ0cmFkZXMYBCABKAQifAoMQmlnZ2VzdFRyYWRlEhEKCXN5bWJvbF9pZBgBIAEoDRIOCgZzeW1ib2wYAiABKAkSHwoEc2lkZRgDIAEoDjIPLm9yZGVycy52MS5TaWRlQgASKAoCYXQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgAiMAoPT3JkZXJUeXBlQ291bnRzEg0KBWxpbWl0GAEgASgEEg4KBm1hcmtldBgCIAEoBCJHChFUaW1lSW5Gb3JjZUNvdW50cxILCgNndGMYASABKAQSCwoDaW9jGAIgASgEEgsKA2ZvaxgDIAEoBBILCgNndGQYBCABKAQibgoPT3JkZXJUb29sQ291bnRzEhEKCXN0b3BfbG9zcxgBIAEoBBITCgt0YWtlX3Byb2ZpdBgCIAEoBBIVCg10cmFpbGluZ19zdG9wGAMgASgEEgwKBHR3YXAYBCABKAQSDgoGbGFkZGVyGAUgASgEIi0KDVZJUFRpZXJDaGFuZ2USDAoEZGF0ZRgBIAEoCRIOCgR0aWVyGAIgASgNQgAicAoLRWFybmVkQmFkZ2USMAoFYmFkZ2UYASABKA4yHy5jaGVja3BvaW50cy52MS5DaGVja3BvaW50QmFkZ2VCABIvCgllYXJuZWRfYXQYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgAiYwoLQXNzZXRBbW91bnQSDQoFYXNzZXQYASABKAkSDgoGYW1vdW50GAIgASgJEhAKA3VzZBgDIAEoCUgAiAEBEhsKE2V4Y2x1ZGVkX2Zyb21fdmFsdWUYBCABKAhCBgoEX3VzZCI0CglGbG93VG90YWwSDQoFY291bnQYASABKAQSEAoDdXNkGAIgASgJSACIAQFCBgoEX3VzZCJlCglDaGFpbkZsb3cSGgoScG9seWVzdGVyX2NoYWluX2lkGAEgASgNEhIKCmNoYWluX25hbWUYAiABKAkSKAoFdG90YWwYAyABKAsyGS5jaGVja3BvaW50cy52MS5GbG93VG90YWwifAoSRnVuZGluZ0Zsb3dTdW1tYXJ5Eg0KBWNvdW50GAEgASgEEikKBmNoYWlucxgCIAMoCzIZLmNoZWNrcG9pbnRzLnYxLkNoYWluRmxvdxIsCgdhbW91bnRzGAMgAygLMhsuY2hlY2twb2ludHMudjEuQXNzZXRBbW91bnQidAoKRnVuZGluZ0RheRIMCgRkYXRlGAEgASgJEhgKC2RlcG9zaXRfdXNkGAIgASgJSACIAQESGwoOd2l0aGRyYXdhbF91c2QYAyABKAlIAYgBAUIOCgxfZGVwb3NpdF91c2RCEQoPX3dpdGhkcmF3YWxfdXNkIoARCgpDaGVja3BvaW50EhAKBm51bWJlchgBIAEoDUIAEjIKDHNlYXNvbl9zdGFydBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCABIwCgpzZWFzb25fZW5kGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIAEi4KCHRha2VuX2F0GAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIAEhIKCnZvbHVtZV91c2QYBSABKAkSDgoGdHJhZGVzGAYgASgEEg4KBm9yZGVycxgHIAEoBBITCgtkYXlzX2FjdGl2ZRgIIAEoDRIWCg5sb25nZXN0X3N0cmVhaxgJIAEoDRIvCgl0b3BfcGFpcnMYCiADKAsyHC5jaGVja3BvaW50cy52MS5QYWlyQWN0aXZpdHkSFgoObWFya2V0c190cmFkZWQYCyABKA0SFAoMbWFrZXJfdHJhZGVzGAwgASgEEhQKDHRha2VyX3RyYWRlcxgNIAEoBBITCgtzZWxmX3RyYWRlcxgOIAEoBBI/ChZ0cmFkZXNfYnlfd2Vla2RheV9ob3VyGA8gAygLMh0uY2hlY2twb2ludHMudjEuV2Vla2RheVRyYWRlc0IAEjEKDGRhaWx5X3ZvbHVtZRgQIAMoCzIbLmNoZWNrcG9pbnRzLnYxLlZvbHVtZVBvaW50EhkKEWJpZ2dlc3RfdHJhZGVfdXNkGBEgASgJEjMKDWJpZ2dlc3RfdHJhZGUYEiABKAsyHC5jaGVja3BvaW50cy52MS5CaWdnZXN0VHJhZGUSNAoLb3JkZXJfdHlwZXMYEyABKAsyHy5jaGVja3BvaW50cy52MS5PcmRlclR5cGVDb3VudHMSOAoNdGltZV9pbl9mb3JjZRgUIAEoCzIhLmNoZWNrcG9pbnRzLnYxLlRpbWVJbkZvcmNlQ291bnRzEi4KBXRvb2xzGBUgASgLMh8uY2hlY2twb2ludHMudjEuT3JkZXJUb29sQ291bnRzEhEKCXBvc3Rfb25seRgWIAEoBBIOCgZhbWVuZHMYFyABKAQSFQoNZmlsbGVkX29yZGVycxgYIAEoBBIfChdwYXJ0aWFsbHlfZmlsbGVkX29yZGVycxgZIAEoBBIXCg9jYW5jZWxlZF9vcmRlcnMYGiABKAQSFwoPcmVqZWN0ZWRfb3JkZXJzGBsgASgEEhEKCWZpbGxfcmF0ZRgcIAEoCRIUCgxjYW5jZWxfcmF0aW8YHSABKAkSIQoUbWVkaWFuX2xpbWl0X3Jlc3RfbXMYHiABKARIAIgBARIyCg5maXJzdF90cmFkZV9hdBgfIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGAoLYnVzaWVzdF9kYXkYICABKAlIAYgBARIjChRtb3N0X2FjdGl2ZV9ob3VyX3V0YxghIAEoDUIASAKIAQESIAoWdmlwX3RpZXJfYXRfY2hlY2twb2ludBgiIAEoDUIAEhcKDXBlYWtfdmlwX3RpZXIYIyABKA1CABIzCgx2aXBfdGltZWxpbmUYJCADKAsyHS5jaGVja3BvaW50cy52MS5WSVBUaWVyQ2hhbmdlEisKBmJhZGdlcxglIAMoCzIbLmNoZWNrcG9pbnRzLnYxLkVhcm5lZEJhZGdlEjwKD3BvcnRmb2xpb192YWx1ZRgmIAMoCzIjLmNoZWNrcG9pbnRzLnYxLlBvcnRmb2xpb1ZhbHVlUG9pbnQSNQoQdHJhZGluZ19iYWxhbmNlcxgnIAMoCzIbLmNoZWNrcG9pbnRzLnYxLkFzc2V0QW1vdW50EjUKEGZ1bmRpbmdfYmFsYW5jZXMYKCADKAsyGy5jaGVja3BvaW50cy52MS5Bc3NldEFtb3VudBI0CghkZXBvc2l0cxgpIAEoCzIiLmNoZWNrcG9pbnRzLnYxLkZ1bmRpbmdGbG93U3VtbWFyeRI3Cgt3aXRoZHJhd2FscxgqIAEoCzIiLmNoZWNrcG9pbnRzLnYxLkZ1bmRpbmdGbG93U3VtbWFyeRIyCg5mdW5kaW5nX2J5X2RheRgrIAMoCzIaLmNoZWNrcG9pbnRzLnYxLkZ1bmRpbmdEYXkSLwoMdHJhbnNmZXJzX2luGCwgASgLMhkuY2hlY2twb2ludHMudjEuRmxvd1RvdGFsEjAKDXRyYW5zZmVyc19vdXQYLSABKAsyGS5jaGVja3BvaW50cy52MS5GbG93VG90YWwSGgoSaW50ZXJuYWxfdHJhbnNmZXJzGC4gASgEEhQKDGRhaWx5X2NsYWltcxgvIAEoBBI4ChNkYWlseV9jbGFpbV9hbW91bnRzGDAgAygLMhsuY2hlY2twb2ludHMudjEuQXNzZXRBbW91bnQSFwoKaW5mbG93X3VzZBgxIAEoCUgDiAEBEhgKC291dGZsb3dfdXNkGDIgASgJSASIAQESGwoObmV0X2luZmxvd191c2QYMyABKAlIBYgBARIcCg9maW5hbF92YWx1ZV91c2QYNCABKAlIBogBARIeChFzZWFzb25fcmVzdWx0X3VzZBg1IAEoCUgHiAEBEhMKC3N1YmFjY291bnRzGDYgASgEEjMKCmluY29tcGxldGUYNyADKA4yHy5jaGVja3BvaW50cy52MS5DaGVja3BvaW50RmllbGRCFwoVX21lZGlhbl9saW1pdF9yZXN0X21zQg4KDF9idXNpZXN0X2RheUIXChVfbW9zdF9hY3RpdmVfaG91cl91dGNCDQoLX2luZmxvd191c2RCDgoMX291dGZsb3dfdXNkQhEKD19uZXRfaW5mbG93X3VzZEISChBfZmluYWxfdmFsdWVfdXNkQhQKEl9zZWFzb25fcmVzdWx0X3VzZCJKChhMaXN0TXlDaGVja3BvaW50c1JlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASACIAQFCEAoOX3N1YmFjY291bnRfaWQiTAoZTGlzdE15Q2hlY2twb2ludHNSZXNwb25zZRIvCgtjaGVja3BvaW50cxgBIAMoCzIaLmNoZWNrcG9pbnRzLnYxLkNoZWNrcG9pbnQqyQEKD0NoZWNrcG9pbnRCYWRnZRIVChFCQURHRV9VTlNQRUNJRklFRBAAEg8KC0ZJUlNUX1RSQURFEAESFAoQU0VWRU5fREFZX1NUUkVBSxACEhEKDVRIUkVFX01BUktFVFMQAxITCg9WT0xVTUVfMTAwMF9VU0QQBBISCg5IVU5EUkVEX1RSQURFUxAFEg8KC1RFTl9NQVJLRVRTEAYSFQoRVEhJUlRZX0RBWV9TVFJFQUsQBxIUChBFVkVSWV9PUkRFUl9UT09MEAgqzgIKD0NoZWNrcG9pbnRGaWVsZBIVChFGSUVMRF9VTlNQRUNJRklFRBAAEgoKBlZPTFVNRRABEg0KCVRPUF9QQUlSUxACEg8KC09SREVSX1RZUEVTEAMSEQoNVElNRV9JTl9GT1JDRRAEEhAKDE9SREVSX1NUQVRVUxAFEgkKBVRPT0xTEAYSFQoRTUVESUFOX0xJTUlUX1JFU1QQBxIMCghERVBPU0lUUxAIEg8KC1dJVEhEUkFXQUxTEAkSFgoSSU5URVJOQUxfVFJBTlNGRVJTEAoSFwoTREFJTFlfQ0xBSU1fQU1PVU5UUxALEhMKD1BPUlRGT0xJT19WQUxVRRAMEhQKEFRSQURJTkdfQkFMQU5DRVMQDRIUChBGVU5ESU5HX0JBTEFOQ0VTEA4SDQoJVFJBTlNGRVJTEA8SEQoNU0VBU09OX1JFU1VMVBAQMoIBChFDaGVja3BvaW50U2VydmljZRJtChFMaXN0TXlDaGVja3BvaW50cxIoLmNoZWNrcG9pbnRzLnYxLkxpc3RNeUNoZWNrcG9pbnRzUmVxdWVzdBopLmNoZWNrcG9pbnRzLnYxLkxpc3RNeUNoZWNrcG9pbnRzUmVzcG9uc2UiA5ACAUJKWkhnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2NoZWNrcG9pbnRzL3YxO2NoZWNrcG9pbnRzdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_orders_v1_orders, file_polyester_api_options]);
 
 /**
  * VolumePoint is the trading activity of one UTC day.
@@ -407,11 +407,21 @@ export type AssetAmount = Message<"checkpoints.v1.AssetAmount"> & {
   /**
    * USD value, encoded as a base-10 decimal string without separators or a
    * currency symbol. Omitted when the asset had no USD price at the required
-   * time.
+   * time, and always when excluded_from_value is true.
    *
    * @generated from field: optional string usd = 3;
    */
   usd?: string | undefined;
+
+  /**
+   * True when the asset does not count toward account value, for example a
+   * test token that cannot be traded. It is listed by amount only, has no
+   * USD value and is left out of every USD total, which it never makes
+   * approximate or omitted.
+   *
+   * @generated from field: bool excluded_from_value = 4;
+   */
+  excludedFromValue: boolean;
 };
 
 /**
@@ -429,16 +439,18 @@ export const AssetAmountSchema: GenMessage<AssetAmount> = /*@__PURE__*/
  */
 export type FlowTotal = Message<"checkpoints.v1.FlowTotal"> & {
   /**
-   * Number of operations.
+   * Number of operations, including operations in assets excluded from
+   * value.
    *
    * @generated from field: uint64 count = 1;
    */
   count: bigint;
 
   /**
-   * USD total, encoded as a non-negative base-10 decimal string without
-   * separators or a currency symbol. Omitted when any operation had no USD
-   * value.
+   * USD total over assets that count toward account value, encoded as a
+   * non-negative base-10 decimal string without separators or a currency
+   * symbol. Assets excluded from value add nothing. Omitted when any other
+   * operation had no USD value.
    *
    * @generated from field: optional string usd = 2;
    */
@@ -511,7 +523,7 @@ export type FundingFlowSummary = Message<"checkpoints.v1.FundingFlowSummary"> & 
 
   /**
    * Totals per asset, by asset ascending, each valued in USD when it was
-   * made.
+   * made. Assets excluded from value are listed by amount only.
    *
    * @generated from field: repeated checkpoints.v1.AssetAmount amounts = 3;
    */
@@ -526,7 +538,8 @@ export const FundingFlowSummarySchema: GenMessage<FundingFlowSummary> = /*@__PUR
   messageDesc(file_checkpoints_v1_checkpoints, 13);
 
 /**
- * FundingDay is the deposit and withdrawal value of one UTC day.
+ * FundingDay is the deposit and withdrawal value of one UTC day, over assets
+ * that count toward account value; assets excluded from value add nothing.
  *
  * @generated from message checkpoints.v1.FundingDay
  */
@@ -854,7 +867,8 @@ export type Checkpoint = Message<"checkpoints.v1.Checkpoint"> & {
 
   /**
    * Trading balance per asset at the end of the season, valued in USD at that
-   * time. Shown for the record only.
+   * time; assets excluded from value are listed by amount only. Shown for
+   * the record only.
    *
    * @generated from field: repeated checkpoints.v1.AssetAmount trading_balances = 39;
    */
@@ -862,7 +876,8 @@ export type Checkpoint = Message<"checkpoints.v1.Checkpoint"> & {
 
   /**
    * Funding balance per asset at the end of the season, valued in USD at that
-   * time. Shown for the record only.
+   * time; assets excluded from value are listed by amount only. Shown for
+   * the record only.
    *
    * @generated from field: repeated checkpoints.v1.AssetAmount funding_balances = 40;
    */
@@ -920,7 +935,7 @@ export type Checkpoint = Message<"checkpoints.v1.Checkpoint"> & {
 
   /**
    * Daily claim totals per asset, by asset ascending, each valued in USD
-   * when it was paid.
+   * when it was paid. Assets excluded from value are listed by amount only.
    *
    * @generated from field: repeated checkpoints.v1.AssetAmount daily_claim_amounts = 48;
    */
@@ -928,9 +943,10 @@ export type Checkpoint = Message<"checkpoints.v1.Checkpoint"> & {
 
   /**
    * USD value brought in during the season: daily claim payouts, deposits
-   * and transfers in, each valued when it happened. Encoded as a
-   * non-negative base-10 decimal string without separators or a currency
-   * symbol. Omitted when any part had no USD value.
+   * and transfers in, each valued when it happened, over assets that count
+   * toward account value; assets excluded from value add nothing. Encoded as
+   * a non-negative base-10 decimal string without separators or a currency
+   * symbol. Omitted when any other part had no USD value.
    *
    * @generated from field: optional string inflow_usd = 49;
    */
@@ -938,9 +954,10 @@ export type Checkpoint = Message<"checkpoints.v1.Checkpoint"> & {
 
   /**
    * USD value taken out during the season: withdrawals and transfers out,
-   * each valued when it happened. Encoded as a non-negative base-10 decimal
-   * string without separators or a currency symbol. Omitted when any part had
-   * no USD value.
+   * each valued when it happened, over assets that count toward account
+   * value; assets excluded from value add nothing. Encoded as a non-negative
+   * base-10 decimal string without separators or a currency symbol. Omitted
+   * when any other part had no USD value.
    *
    * @generated from field: optional string outflow_usd = 50;
    */
@@ -955,9 +972,10 @@ export type Checkpoint = Message<"checkpoints.v1.Checkpoint"> & {
   netInflowUsd?: string | undefined;
 
   /**
-   * USD value of all trading and funding balances at the end of the season,
-   * encoded as a base-10 decimal string. Omitted when any balance had no USD
-   * value.
+   * USD value of all trading and funding balances at the end of the season
+   * that count toward account value, encoded as a base-10 decimal string.
+   * Assets excluded from value add nothing. Omitted when any other balance
+   * had no USD value.
    *
    * @generated from field: optional string final_value_usd = 52;
    */

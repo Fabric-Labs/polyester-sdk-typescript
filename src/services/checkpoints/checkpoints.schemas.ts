@@ -119,12 +119,23 @@ export const CheckpointEarnedBadgeSchema = v.object({
 
 export type CheckpointEarnedBadge = v.InferOutput<typeof CheckpointEarnedBadgeSchema>;
 
-/** `usd` is `undefined` when the asset had no USD price at the required time; it is not zero. */
-export const CheckpointAssetAmountSchema = v.object({
-    asset: v.string(),
-    amount: SignedDecimalSchema,
-    usd: v.optional(SignedDecimalSchema),
-});
+/**
+ * `usd` is `undefined` when the asset had no USD price at the required time; it is not zero.
+ * `excludedFromValue` marks an asset that is not account equity, such as a testnet faucet
+ * token: it is listed by amount only, never has `usd`, and is left out of every USD total.
+ */
+export const CheckpointAssetAmountSchema = v.pipe(
+    v.object({
+        asset: v.string(),
+        amount: SignedDecimalSchema,
+        usd: v.optional(SignedDecimalSchema),
+        excludedFromValue: v.boolean(),
+    }),
+    v.check(
+        (amount) => !amount.excludedFromValue || amount.usd === undefined,
+        "usd: must be absent for an asset excluded from value",
+    ),
+);
 
 export type CheckpointAssetAmount = v.InferOutput<typeof CheckpointAssetAmountSchema>;
 

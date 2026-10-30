@@ -39,6 +39,14 @@ export interface PairConfig {
     stepSize: string;
     minNotionalQuote: string;
     minQtyBase: string;
+    /** Largest limit order quantity in base units; absent when the pair has no maximum. */
+    maxLimitQtyBase?: string;
+    /** Largest market order quantity in base units; absent when the pair has no maximum. */
+    maxMarketQtyBase?: string;
+    /** Largest order notional in quote units; absent when the pair has no maximum. */
+    maxOrderNotionalQuote?: string;
+    /** Default resting-order limit for a typical account on this pair. Absent on older snapshots. */
+    maxOpenOrdersPerPair?: number;
     allowBuyFeeFromBase: boolean;
     defaultMarketSlippagePctBuy: number;
     defaultMarketSlippagePctSell: number;
@@ -56,6 +64,8 @@ export interface PairConfig {
 export interface SpotConfig {
     assets: AssetConfig[];
     pairs: PairConfig[];
+    /** Default resting-order limit for a typical account across all pairs. Absent on older snapshots. */
+    maxOpenOrdersTotal?: number;
     tsSec: number;
 }
 

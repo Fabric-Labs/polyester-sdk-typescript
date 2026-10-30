@@ -235,4 +235,57 @@ describe("market data schemas", () => {
         expect(() => parse([{ ...asset, marketDataVolumeScale: 1.5 }], [])).toThrow();
         expect(() => parse([asset], [{ ...pair, referencePriceScale: 19 }])).toThrow();
     });
+
+    it("parses published order limits and rejects malformed ones", () => {
+        const pair = {
+            symbolId: 101,
+            symbol: "BTC-USDT",
+            baseAsset: "BTC",
+            quoteAsset: "USDT",
+            tickSize: "0.000001",
+            stepSize: "0.00000001",
+            minNotionalQuote: "1",
+            minQtyBase: "0.00000001",
+            allowBuyFeeFromBase: false,
+            baseQuantityScale: 8,
+            quoteQuantityScale: 6,
+            status: Proto.PairStatus.ENABLED,
+        };
+        const parse = (pairs: unknown[], maxOpenOrdersTotal?: number) =>
+            v.parse(SpotConfigSchema, { assets: [], pairs, maxOpenOrdersTotal, tsSec: 0n });
+
+        const config = parse(
+            [
+                {
+                    ...pair,
+                    maxLimitQtyBase: "100",
+                    maxMarketQtyBase: "25.5",
+                    maxOrderNotionalQuote: "1000000",
+                    maxOpenOrdersPerPair: 200,
+                },
+                { ...pair, symbolId: 102 },
+            ],
+            1000,
+        );
+
+        expect(config).toMatchObject({
+            maxOpenOrdersTotal: 1000,
+            pairs: [
+                {
+                    maxLimitQtyBase: "100",
+                    maxMarketQtyBase: "25.5",
+                    maxOrderNotionalQuote: "1000000",
+                    maxOpenOrdersPerPair: 200,
+                },
+                { maxOpenOrdersPerPair: 0 },
+            ],
+        });
+        expect(config.pairs[1]).not.toHaveProperty("maxLimitQtyBase");
+        expect(config.pairs[1]).not.toHaveProperty("maxMarketQtyBase");
+        expect(config.pairs[1]).not.toHaveProperty("maxOrderNotionalQuote");
+        expect(() => parse([{ ...pair, maxLimitQtyBase: "-1" }])).toThrow();
+        expect(() => parse([{ ...pair, maxOrderNotionalQuote: "1e6" }])).toThrow();
+        expect(() => parse([{ ...pair, maxOpenOrdersPerPair: -1 }])).toThrow();
+        expect(() => parse([], 1.5)).toThrow();
+    });
 });
