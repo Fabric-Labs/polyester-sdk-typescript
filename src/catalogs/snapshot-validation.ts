@@ -29,6 +29,10 @@ const EnrichedPairConfigSchema = v.object({
     stepSize: v.string(),
     minNotionalQuote: v.string(),
     minQtyBase: v.string(),
+    maxLimitQtyBase: v.optional(v.string()),
+    maxMarketQtyBase: v.optional(v.string()),
+    maxOrderNotionalQuote: v.optional(v.string()),
+    maxOpenOrdersPerPair: v.optional(IntegerSchema),
     allowBuyFeeFromBase: v.boolean(),
     defaultMarketSlippagePctBuy: FiniteNumberSchema,
     defaultMarketSlippagePctSell: FiniteNumberSchema,
@@ -101,6 +105,7 @@ export const CatalogSnapshotShapeSchema = v.object({
     market: v.object({
         assets: v.array(AssetConfigSchema),
         pairs: v.array(EnrichedPairConfigSchema),
+        maxOpenOrdersTotal: v.optional(IntegerSchema),
         tsSec: v.optional(FiniteNumberSchema),
     }),
     zipper: v.object({

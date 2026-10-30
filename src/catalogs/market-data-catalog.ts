@@ -27,6 +27,7 @@ export interface EnrichedPairConfig extends Omit<
 export interface MarketCatalogData {
     readonly assets: readonly AssetConfig[];
     readonly pairs: readonly EnrichedPairConfig[];
+    readonly maxOpenOrdersTotal?: number;
     readonly tsSec?: number;
 }
 
@@ -35,6 +36,7 @@ export type MarketCatalogSeed =
     | {
           readonly assets: readonly AssetConfig[];
           readonly pairs: readonly (PairConfig | EnrichedPairConfig)[];
+          readonly maxOpenOrdersTotal?: number;
           readonly tsSec?: number;
       };
 
@@ -82,6 +84,7 @@ export function buildMarketCatalogData(seed: MarketCatalogSeed): MarketCatalogDa
     return Object.freeze({
         assets: Object.freeze(assets),
         pairs: Object.freeze([...pairs]),
+        maxOpenOrdersTotal: seed.maxOpenOrdersTotal,
         tsSec: seed.tsSec,
     });
 }

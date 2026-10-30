@@ -81,6 +81,24 @@ describe("CheckpointsService", () => {
         expect(authApi.lastCall()?.signal).toBe(signal);
     });
 
+    it("lists an asset excluded from value by amount only", async () => {
+        const { service } = serviceReturning(
+            checkpoint({
+                fundingBalances: [
+                    { asset: "FAUCET", amount: "500", excludedFromValue: true },
+                    { asset: "USDT", amount: "10", usd: "10" },
+                ],
+            }),
+        );
+
+        const [first] = await service.list();
+
+        expect(first?.fundingBalances).toEqual([
+            { asset: "FAUCET", amount: "500", excludedFromValue: true },
+            { asset: "USDT", amount: "10", usd: "10", excludedFromValue: false },
+        ]);
+    });
+
     it("sends the subaccount and returns an empty list", async () => {
         const { authApi, service } = serviceReturning();
 
@@ -121,6 +139,14 @@ describe("CheckpointsService", () => {
             },
         ],
         ["count past the safe integer range", { trades: BigInt(Number.MAX_SAFE_INTEGER) + 1n }],
+        [
+            "USD value on an asset excluded from value",
+            {
+                fundingBalances: [
+                    { asset: "FAUCET", amount: "500", usd: "1", excludedFromValue: true },
+                ],
+            },
+        ],
     ] satisfies [string, CheckpointInit][])("rejects a %s", async (_name, overrides) => {
         const { service } = serviceReturning(checkpoint(overrides));
 

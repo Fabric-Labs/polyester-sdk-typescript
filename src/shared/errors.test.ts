@@ -8,6 +8,7 @@ import {
     CatalogValidationFailedError,
 } from "../catalogs/types.js";
 import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
+import { formatId } from "../utils/base58-id.js";
 import { loadErrorDetailDecoders } from "./error-detail.js";
 import {
     ErrorCode as WithdrawErrorCode,
@@ -483,6 +484,28 @@ describe("connectErrorToPolyesterError", () => {
         expect(mapped.retryable).toBe(false);
         expect(isRetryableError(raw)).toBe(false);
         expect(mapped.detail).toMatchObject({ service: "orders", code: OrderErrorCode[code] });
+    });
+
+    it("exposes the existing order on a duplicate client order ID conflict", () => {
+        const detail = (existingOrderId?: bigint) =>
+            connectErrorToPolyesterError(
+                new ConnectError("duplicate", Code.AlreadyExists, undefined, [
+                    {
+                        desc: OrderErrorDetailSchema,
+                        value: create(OrderErrorDetailSchema, {
+                            code: OrderErrorCode.CONFLICT_DUPLICATE_CLIENT_ORDER_ID,
+                            existingOrderId,
+                        }),
+                    },
+                ]),
+            ).detail;
+
+        expect(detail(42n)).toMatchObject({
+            service: "orders",
+            code: "CONFLICT_DUPLICATE_CLIENT_ORDER_ID",
+            existingOrderId: formatId(42n),
+        });
+        expect(detail()).not.toHaveProperty("existingOrderId");
     });
 
     it("keeps a deadline without an outcome-unknown detail a retryable timeout", () => {

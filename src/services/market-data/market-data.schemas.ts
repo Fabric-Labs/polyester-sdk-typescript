@@ -12,6 +12,7 @@ import { tsNsToMs } from "../../utils/time.js";
 import { timestampToMs, tsNsToTimestamp } from "../../utils/timestamp.js";
 import { optionalUint64DecimalFilterSchema } from "../../shared/schemas.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
+import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import { PairStatusCodec, SideFilterCodec } from "./market-data.codecs.js";
 
 export type { AssetConfig, PairConfig, PairMarketDataConfig, PairStatus, SpotConfig };
@@ -111,6 +112,11 @@ export type GetMarketTradesRequest = v.InferOutput<
 
 /** Integer wire scales are protocol-bounded to 0..18 decimal places. */
 const WireScaleSchema = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(18));
+const OptionalDecimalLimitSchema = v.optional(v.pipe(v.string(), v.regex(/^\d+(\.\d+)?$/)));
+const OpenOrdersLimitSchema = v.optional(
+    v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(PROTOBUF_UINT32_MAX)),
+    0,
+);
 
 export const AssetConfigSchema = v.pipe(
     v.object({
@@ -200,6 +206,26 @@ export const PairConfigSchema = v.pipe(
          * Minimum quantity you can order in base currency terms. If it's "0.001" for BTC, smallest order is 0.001 BTC.
          */
         minQtyBase: v.string(),
+        /**
+         * Largest quantity of one limit order in base units. A replace is checked on its
+         * new total less the filled quantity. Absent when the pair has no maximum.
+         */
+        maxLimitQtyBase: OptionalDecimalLimitSchema,
+        /**
+         * Largest quantity of one market order in base units, after converting a
+         * quote-sized order to base. Absent when the pair has no maximum.
+         */
+        maxMarketQtyBase: OptionalDecimalLimitSchema,
+        /**
+         * Largest notional of one order in quote units: quantity times limit price, or
+         * times protection price for a market order. Absent when the pair has no maximum.
+         */
+        maxOrderNotionalQuote: OptionalDecimalLimitSchema,
+        /**
+         * Default resting-order limit (GTC and GTD) for a typical account on this pair.
+         * An account may have a lower limit of its own.
+         */
+        maxOpenOrdersPerPair: OpenOrdersLimitSchema,
 
         /**
          * Controls whether trading fee can be deducted from what you receive when buying.
@@ -278,6 +304,11 @@ export const PairConfigSchema = v.pipe(
 export const SpotConfigSchema = v.object({
     assets: v.array(AssetConfigSchema),
     pairs: v.array(PairConfigSchema),
+    /**
+     * Default resting-order limit (GTC and GTD) for a typical account across all pairs.
+     * An account may have a lower limit of its own.
+     */
+    maxOpenOrdersTotal: OpenOrdersLimitSchema,
     tsSec: v.pipe(
         v.bigint(),
         v.transform((v) => Number(v) * 1000),

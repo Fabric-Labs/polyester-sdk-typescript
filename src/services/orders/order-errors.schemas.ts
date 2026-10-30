@@ -1,6 +1,7 @@
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import * as v from "valibot";
 import { RateLimitDetailSchema } from "../../shared/rate-limit.schemas.js";
+import { OptionalPublicIdSchema } from "../../shared/schemas.js";
 
 export type OrderErrorCode = keyof typeof ProtoWrite.ErrorCode;
 
@@ -25,6 +26,8 @@ export const OrderErrorDetailSchema = v.object({
         }),
     ),
     rateLimit: v.optional(RateLimitDetailSchema),
+    /** Order holding the client order ID on a `CONFLICT_DUPLICATE_CLIENT_ORDER_ID` rejection, when known. */
+    existingOrderId: OptionalPublicIdSchema,
 });
 
 export type OrderErrorDetail = v.InferOutput<typeof OrderErrorDetailSchema>;
