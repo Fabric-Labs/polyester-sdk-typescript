@@ -467,6 +467,22 @@ describe("connectErrorToPolyesterError", () => {
         },
     );
 
+    it("maps OVERLOADED order admission to a retryable rate limit without a wait hint", () => {
+        // Nothing was admitted, so a retry cannot duplicate the request.
+        const raw = new ConnectError("overloaded", Code.ResourceExhausted, undefined, [
+            {
+                desc: OrderErrorDetailSchema,
+                value: create(OrderErrorDetailSchema, { code: OrderErrorCode.OVERLOADED }),
+            },
+        ]);
+        const mapped = connectErrorToPolyesterError(raw);
+
+        expect(mapped).toBeInstanceOf(RateLimitError);
+        expect(mapped.retryable).toBe(true);
+        expect((mapped as RateLimitError).retryAfterMs).toBeUndefined();
+        expect(mapped.detail).toMatchObject({ service: "orders", code: "OVERLOADED" });
+    });
+
     it.each([
         OrderErrorCode.ORDER_CREATE_OUTCOME_UNKNOWN,
         OrderErrorCode.TRIGGER_CREATE_OUTCOME_UNKNOWN,

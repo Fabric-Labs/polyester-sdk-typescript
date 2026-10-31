@@ -45,6 +45,8 @@ export interface PairConfig {
     maxMarketQtyBase?: string;
     /** Largest order notional in quote units; absent when the pair has no maximum. */
     maxOrderNotionalQuote?: string;
+    /** Largest market order notional in quote units; absent when the pair has no maximum. */
+    maxMarketNotionalQuote?: string;
     /** Default resting-order limit for a typical account on this pair. Absent on older snapshots. */
     maxOpenOrdersPerPair?: number;
     allowBuyFeeFromBase: boolean;
