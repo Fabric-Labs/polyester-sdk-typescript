@@ -2987,7 +2987,10 @@ export enum ErrorCode {
   VALIDATION_ERROR = 66,
 
   /**
-   * This edge is at its bounded concurrent BatchReplace admission capacity.
+   * The account already has its maximum order requests in flight; nothing was
+   * admitted. ConnectRPC returns RESOURCE_EXHAUSTED (HTTP 429); REST returns
+   * HTTP 503. No Retry-After or RateLimit-* headers are supplied. Retry after
+   * one of the outstanding requests completes.
    *
    * @generated from enum value: ERROR_CODE_OVERLOADED = 67;
    */

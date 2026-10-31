@@ -261,6 +261,7 @@ describe("market data schemas", () => {
                     maxLimitQtyBase: "100",
                     maxMarketQtyBase: "25.5",
                     maxOrderNotionalQuote: "1000000",
+                    maxMarketNotionalQuote: "250000.5",
                     maxOpenOrdersPerPair: 200,
                 },
                 { ...pair, symbolId: 102 },
@@ -275,6 +276,7 @@ describe("market data schemas", () => {
                     maxLimitQtyBase: "100",
                     maxMarketQtyBase: "25.5",
                     maxOrderNotionalQuote: "1000000",
+                    maxMarketNotionalQuote: "250000.5",
                     maxOpenOrdersPerPair: 200,
                 },
                 { maxOpenOrdersPerPair: 0 },
@@ -283,8 +285,11 @@ describe("market data schemas", () => {
         expect(config.pairs[1]).not.toHaveProperty("maxLimitQtyBase");
         expect(config.pairs[1]).not.toHaveProperty("maxMarketQtyBase");
         expect(config.pairs[1]).not.toHaveProperty("maxOrderNotionalQuote");
+        expect(config.pairs[1]).not.toHaveProperty("maxMarketNotionalQuote");
         expect(() => parse([{ ...pair, maxLimitQtyBase: "-1" }])).toThrow();
         expect(() => parse([{ ...pair, maxOrderNotionalQuote: "1e6" }])).toThrow();
+        expect(() => parse([{ ...pair, maxMarketNotionalQuote: "-5" }])).toThrow();
+        expect(() => parse([{ ...pair, maxMarketNotionalQuote: "" }])).toThrow();
         expect(() => parse([{ ...pair, maxOpenOrdersPerPair: -1 }])).toThrow();
         expect(() => parse([], 1.5)).toThrow();
     });

@@ -32,6 +32,7 @@ const EnrichedPairConfigSchema = v.object({
     maxLimitQtyBase: v.optional(v.string()),
     maxMarketQtyBase: v.optional(v.string()),
     maxOrderNotionalQuote: v.optional(v.string()),
+    maxMarketNotionalQuote: v.optional(v.string()),
     maxOpenOrdersPerPair: v.optional(IntegerSchema),
     allowBuyFeeFromBase: v.boolean(),
     defaultMarketSlippagePctBuy: FiniteNumberSchema,
