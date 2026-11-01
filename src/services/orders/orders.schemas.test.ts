@@ -1499,7 +1499,8 @@ describe("OrderSchema", () => {
             priceTicks: 100_000_000_000n,
             createdTsNs: 1_000_000n,
             terminalTsNs: 0n,
-            terminalReasonCode: 0,
+            rejectReason: 0,
+            cancelReason: 0,
             marketClientRefPriceTicks: 0n,
             marketMaxSlippageTicks: 0n,
             marketMaxSlippageBps: 0,
@@ -1508,6 +1509,45 @@ describe("OrderSchema", () => {
             ...overrides,
         };
     }
+
+    it("names why a rejected or canceled order ended and omits both reasons otherwise", () => {
+        const schema = createOrderSchema(testScales());
+
+        const working = v.parse(schema, rawOrder());
+        expect(working).not.toHaveProperty("rejectReason");
+        expect(working).not.toHaveProperty("cancelReason");
+        expect(
+            v.parse(
+                schema,
+                rawOrder({
+                    status: ProtoRead.OrderStatus.REJECTED,
+                    rejectReason: ProtoWrite.ErrorCode.TWAP_CAPACITY_REACHED,
+                }),
+            ),
+        ).toMatchObject({ status: "rejected", rejectReason: "TWAP_CAPACITY_REACHED" });
+        expect(
+            v.parse(
+                schema,
+                rawOrder({
+                    status: ProtoRead.OrderStatus.CANCELED,
+                    cancelReason: ProtoRead.CancelReason.STP_EXPIRE_MAKER,
+                }),
+            ),
+        ).toMatchObject({ status: "canceled", cancelReason: "stp_expire_maker" });
+    });
+
+    it("reads reasons newer than this build as a generic refusal or cancel", () => {
+        const order = v.parse(
+            createOrderSchema(testScales()),
+            rawOrder({
+                status: ProtoRead.OrderStatus.REJECTED,
+                rejectReason: 999,
+                cancelReason: 999,
+            }),
+        );
+
+        expect(order).toMatchObject({ rejectReason: "UNSPECIFIED", cancelReason: "unspecified" });
+    });
 
     it("exposes the current accepted total quantity after modifies", () => {
         const schema = createOrderSchema(testScales());

@@ -22,6 +22,7 @@ import {
 } from "./orderbook.schemas.js";
 import { orderbookWsChannelDepth } from "./orderbook.codecs.js";
 import { isResourceNotFoundError } from "../../utils/errors.js";
+import { ServiceUnavailableError } from "../../shared/errors.js";
 import type * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import type { PublicApiTransports } from "../../shared/transports.js";
@@ -62,6 +63,7 @@ export class OrderbookService {
 
     /**
      * Fetches a spot order book depth snapshot for a symbol ID and requested depth, returning best bids and asks with the backend book sequence.
+     * When `available` is false the book is being built or was invalidated: its levels are unknown, not empty, so read it again later instead of treating empty sides as no liquidity.
      */
     async get(
         input: v.InferInput<typeof GetOrderbookInputSchema>,
@@ -77,6 +79,7 @@ export class OrderbookService {
             symbolId: res.symbolId,
             depth: validated.depth,
             bookSeq: res.bookSeq,
+            available: isBookAvailable(res),
             bids: res.bids,
             asks: res.asks,
         });
@@ -90,7 +93,7 @@ export class OrderbookService {
     }
 
     /**
-     * Creates a stateful order book subscription that first fetches a snapshot, buffers proto deltas from public:spot:orderbook:deltas:depth:{depth}:{symbolId}:proto, applies sequence-checked updates, and refetches on observed sequence gaps or reconnects. The returned handle can unsubscribe or change local price bucket aggregation without reconnecting.
+     * Creates a stateful order book subscription that first fetches a snapshot, buffers proto deltas from public:spot:orderbook:deltas:depth:{depth}:{symbolId}:proto, applies sequence-checked updates, and refetches on observed sequence gaps or reconnects. A snapshot whose book is not available fails with ServiceUnavailableError through onError and is retried; no event is emitted until a snapshot is available. The returned handle can unsubscribe or change local price bucket aggregation without reconnecting.
      *
      * `depth` is clamped to [1, 500] and rides the smallest published channel depth that covers it (see ORDERBOOK_WS_DEPTHS); levels are sliced back to the requested depth locally.
      *
@@ -169,6 +172,7 @@ export class OrderbookService {
                     symbolId,
                     depth: requestedDepth,
                     bookSeq: currentBookSeq.toString(),
+                    available: true,
                     bids: sideToUIBucketed(bidsMap, "bids", requestedDepth, bucketTicks),
                     asks: sideToUIBucketed(asksMap, "asks", requestedDepth, bucketTicks),
                 });
@@ -196,8 +200,9 @@ export class OrderbookService {
                 symbolId,
                 depth: channelDepth,
             });
+            let res: Proto.GetOrderBookResponse;
             try {
-                return await client.getOrderBook({
+                res = await client.getOrderBook({
                     symbolId: validated.symbolId,
                     depth: validated.protoDepth,
                 });
@@ -207,10 +212,18 @@ export class OrderbookService {
                 return create(Proto.GetOrderBookResponseSchema, {
                     symbolId,
                     bookSeq: 0n,
+                    available: true,
                     bids: [],
                     asks: [],
                 });
             }
+            // An unavailable book's levels are unknown, not empty: fail the snapshot so it is retried.
+            if (!isBookAvailable(res)) {
+                throw new ServiceUnavailableError(
+                    `Order book for symbol ${symbolId} is not available yet`,
+                );
+            }
+            return res;
         }
 
         function handleDelta(delta: Proto.OrderBookDelta): boolean {
@@ -272,4 +285,12 @@ export class OrderbookService {
 
         return { unsubscribe: dispose, setBucket };
     }
+}
+
+/**
+ * Whether a snapshot's levels are the book. A snapshot carrying levels is current even with
+ * `available` false, which is how servers that predate the field encode every snapshot.
+ */
+function isBookAvailable(res: Proto.GetOrderBookResponse): boolean {
+    return res.available || res.bids.length > 0 || res.asks.length > 0;
 }

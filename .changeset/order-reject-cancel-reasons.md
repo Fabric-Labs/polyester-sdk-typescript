@@ -1,0 +1,5 @@
+---
+"@polyester/sdk": minor
+---
+
+Breaking: order reads drop `terminalReason` and `terminalReasonCode`. A rejected order carries `rejectReason`, the `OrderErrorCode` the Orders API returns for the same refusal, such as `"TWAP_CAPACITY_REACHED"`. A canceled order carries `cancelReason`, such as `"user_request"`, `"ioc_remainder"`, `"stp_expire_maker"`, `"replaced"`, `"gtd_expired"`, `"pair_drain"` (market disabled), `"cancel_all_after"` or `"twap_rollover"`. Both are omitted for every other status. A code newer than this build reads as `"UNSPECIFIED"` or `"unspecified"`: treat it as a generic refusal or cancel. On `orders.subscribe`, order updates drop `reasonCode`: read `rejectReason` for a rejected order and `cancelReason` for a canceled order or for the replaced update of the order a replace ended. `OrderErrorCode` adds `ATTACHED_LEGS_EXCEEDED`, `FEE_ASSET_INVALID`, `FEE_CEILING_INVALID`, `UNSUPPORTED_FIELD_SET`, `TRIGGER_FIRE_LIMIT_REACHED`, `CONDITION_FLAGS_INVALID`, `CONDITION_PARAMETER_SET`, `TWAP_CAPACITY_REACHED` and `CHILD_ORDER_INCONSISTENT`.

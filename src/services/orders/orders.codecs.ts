@@ -45,6 +45,48 @@ export const ORDER_ORIGIN_SCOPE_VALUES = [
 ] as const;
 export type OrderOriginScope = (typeof ORDER_ORIGIN_SCOPE_VALUES)[number];
 
+export const ORDER_CANCEL_REASON_VALUES = [
+    "user_request",
+    "ioc_remainder",
+    "market_remainder",
+    "stp_expire_maker",
+    "stp_expire_taker",
+    "stp_expire_both",
+    "replaced",
+    "gtd_expired",
+    "qty_at_or_below_filled",
+    "pair_drain",
+    "attached_risk_refused",
+    "cancel_all_after",
+    "account_repair",
+    "twap_rollover",
+    "strategy_cancel",
+    "system",
+] as const;
+export type OrderCancelReasonValue = (typeof ORDER_CANCEL_REASON_VALUES)[number];
+
+export const OrderCancelReasonCodec = {
+    protoToOutput: {
+        [ProtoRead.CancelReason.UNSPECIFIED]: "unspecified",
+        [ProtoRead.CancelReason.USER_REQUEST]: "user_request",
+        [ProtoRead.CancelReason.IOC_REMAINDER]: "ioc_remainder",
+        [ProtoRead.CancelReason.MARKET_REMAINDER]: "market_remainder",
+        [ProtoRead.CancelReason.STP_EXPIRE_MAKER]: "stp_expire_maker",
+        [ProtoRead.CancelReason.STP_EXPIRE_TAKER]: "stp_expire_taker",
+        [ProtoRead.CancelReason.STP_EXPIRE_BOTH]: "stp_expire_both",
+        [ProtoRead.CancelReason.REPLACED]: "replaced",
+        [ProtoRead.CancelReason.GTD_EXPIRED]: "gtd_expired",
+        [ProtoRead.CancelReason.QTY_AT_OR_BELOW_FILLED]: "qty_at_or_below_filled",
+        [ProtoRead.CancelReason.PAIR_DRAIN]: "pair_drain",
+        [ProtoRead.CancelReason.ATTACHED_RISK_REFUSED]: "attached_risk_refused",
+        [ProtoRead.CancelReason.CANCEL_ALL_AFTER]: "cancel_all_after",
+        [ProtoRead.CancelReason.ACCOUNT_REPAIR]: "account_repair",
+        [ProtoRead.CancelReason.TWAP_ROLLOVER]: "twap_rollover",
+        [ProtoRead.CancelReason.STRATEGY_CANCEL]: "strategy_cancel",
+        [ProtoRead.CancelReason.SYSTEM]: "system",
+    } satisfies ProtoToOutput<ProtoRead.CancelReason, OrderCancelReasonValue>,
+} as const;
+
 export const ORDER_TRIGGER_TYPE_VALUES = [
     "unspecified",
     "stop_loss",

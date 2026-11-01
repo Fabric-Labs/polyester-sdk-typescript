@@ -2,7 +2,7 @@ import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
-import { ResourceNotFoundError } from "../../shared/errors.js";
+import { ResourceNotFoundError, ServiceUnavailableError } from "../../shared/errors.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import {
     realtimeClientStub,
@@ -64,7 +64,7 @@ describe("OrderbookService", () => {
         vi.restoreAllMocks();
     });
 
-    it("accepts an uninitialized book as a successful empty snapshot", async () => {
+    it("reports a book that is being built as unavailable rather than empty", async () => {
         const transport = unaryTransport({ symbolId: 101, bookSeq: 0n, bids: [], asks: [] });
         const service = new OrderbookService(
             { publicApi: transport.transport },
@@ -74,9 +74,25 @@ describe("OrderbookService", () => {
         await expect(service.get({ symbolId: 101 })).resolves.toMatchObject({
             symbolId: 101,
             bookSeq: "0",
+            available: false,
             bids: [],
             asks: [],
         });
+    });
+
+    it("treats a snapshot carrying levels as available when the server omits the flag", async () => {
+        const transport = unaryTransport({
+            symbolId: 101,
+            bookSeq: 3n,
+            bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
+            asks: [],
+        });
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            testScales(),
+        );
+        await expect(service.get({ symbolId: 101 })).resolves.toMatchObject({ available: true });
     });
 
     it("normalizes get requests, forwards signals, and parses snapshots into decimals", async () => {
@@ -84,6 +100,7 @@ describe("OrderbookService", () => {
         const transport = unaryTransport({
             symbolId: 101,
             bookSeq: 12n,
+            available: true,
             bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
             asks: [{ priceTicks: 100_250_000_000n, qtyScaled: 50_000_000n }],
         });
@@ -128,6 +145,7 @@ describe("OrderbookService", () => {
         const transport = unaryTransport({
             symbolId: 101,
             bookSeq: 12n,
+            available: true,
             bids: [{ priceTicks: 100_000_000_000n }],
             asks: [],
         });
@@ -192,6 +210,7 @@ describe("OrderbookService", () => {
         const transport = unaryTransport({
             symbolId: 101,
             bookSeq: 1n,
+            available: true,
             bids: [],
             asks: [],
         });
@@ -256,6 +275,7 @@ describe("OrderbookService", () => {
             symbolId: 101,
             depth: 50,
             bookSeq: "0",
+            available: true,
             bids: [],
             asks: [],
         });
@@ -267,6 +287,7 @@ describe("OrderbookService", () => {
         const transport = unaryTransport({
             symbolId: 101,
             bookSeq: 1n,
+            available: true,
             bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
             asks: [{ priceTicks: 101_000_000_000n, qtyScaled: 50_000_000n }],
         });
@@ -366,6 +387,7 @@ describe("OrderbookService", () => {
         const transport = unaryTransport({
             symbolId: 101,
             bookSeq: 1n,
+            available: true,
             bids: [{ priceTicks: 100_040_000_000n, qtyScaled: 100_000_000n }],
             asks: [{ priceTicks: 100_060_000_000n, qtyScaled: 50_000_000n }],
         });
@@ -395,7 +417,13 @@ describe("OrderbookService", () => {
 
     it("stops buffered replay after one sequence gap and fetches one replacement snapshot", async () => {
         const realtime = realtimeClientStub();
-        const transport = unaryTransport({ symbolId: 101, bookSeq: 10n, bids: [], asks: [] });
+        const transport = unaryTransport({
+            symbolId: 101,
+            bookSeq: 10n,
+            available: true,
+            bids: [],
+            asks: [],
+        });
         const service = new OrderbookService(
             { publicApi: transport.transport },
             realtime.realtime,
@@ -427,7 +455,7 @@ describe("OrderbookService", () => {
         const realtime = realtimeClientStub();
         const transport = unaryTransport((_call, index) => {
             if (index === 0) throw new Error("snapshot unavailable");
-            return { symbolId: 101, bookSeq: 10n, bids: [], asks: [] };
+            return { symbolId: 101, bookSeq: 10n, available: true, bids: [], asks: [] };
         });
         const service = new OrderbookService(
             { publicApi: transport.transport },
@@ -469,11 +497,59 @@ describe("OrderbookService", () => {
         subscription.unsubscribe();
     });
 
+    it("retries an unavailable snapshot instead of emitting an empty book", async () => {
+        vi.useFakeTimers();
+        const realtime = realtimeClientStub();
+        const transport = unaryTransport((_call, index) =>
+            index === 0
+                ? { symbolId: 101, bookSeq: 0n, available: false, bids: [], asks: [] }
+                : {
+                      symbolId: 101,
+                      bookSeq: 4n,
+                      available: true,
+                      bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
+                      asks: [],
+                  },
+        );
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
+        const onEvent = vi.fn();
+        const onError = vi.fn();
+
+        const subscription = service.createSubscription({ symbolId: 101, onEvent, onError });
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+
+        expect(onEvent).not.toHaveBeenCalled();
+        expect(onError).toHaveBeenCalledOnce();
+        expect(onError.mock.calls[0]?.[0]).toMatchObject({
+            error: expect.any(ServiceUnavailableError),
+        });
+
+        await vi.advanceTimersByTimeAsync(1_000);
+        await flushMicrotasks();
+
+        expect(transport.unary).toHaveBeenCalledTimes(2);
+        expect(onEvent).toHaveBeenCalledOnce();
+        expect(onEvent).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                bookSeq: "4",
+                available: true,
+                bids: [expect.objectContaining({ price: "100", qty: "1" })],
+            }),
+        );
+        subscription.unsubscribe();
+    });
+
     it("ignores stale reset deltas without rewinding a newer snapshot", async () => {
         const realtime = realtimeClientStub();
         const transport = unaryTransport({
             symbolId: 101,
             bookSeq: 100n,
+            available: true,
             bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
             asks: [],
         });
@@ -519,6 +595,7 @@ describe("OrderbookService", () => {
         const transport = unaryTransport({
             symbolId: 999,
             bookSeq: 1n,
+            available: true,
             bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
             asks: [],
         });
@@ -551,7 +628,13 @@ describe("OrderbookService", () => {
 
     it("routes an unpublished depth to the smallest published channel depth", async () => {
         const realtime = realtimeClientStub();
-        const transport = unaryTransport({ symbolId: 101, bookSeq: 5n, bids: [], asks: [] });
+        const transport = unaryTransport({
+            symbolId: 101,
+            bookSeq: 5n,
+            available: true,
+            bids: [],
+            asks: [],
+        });
         const service = new OrderbookService(
             { publicApi: transport.transport },
             realtime.realtime,
@@ -580,7 +663,13 @@ describe("OrderbookService", () => {
             priceTicks: BigInt(100_000_000_000 - i * 100_000),
             qtyScaled: 1_000_000n,
         }));
-        const transport = unaryTransport({ symbolId: 101, bookSeq: 7n, bids, asks: [] });
+        const transport = unaryTransport({
+            symbolId: 101,
+            bookSeq: 7n,
+            available: true,
+            bids,
+            asks: [],
+        });
         const service = new OrderbookService(
             { publicApi: transport.transport },
             realtime.realtime,

@@ -1,4 +1,6 @@
+import { ErrorCode } from "../../gen/orders/v1/orders_pb.js";
 import { OrderLineageSchema } from "./order-lineage.schemas.js";
+import type { OrderErrorCode } from "./order-errors.schemas.js";
 import * as v from "valibot";
 import { tsNsToMs } from "../../utils/time.js";
 import { formatId } from "../../utils/base58-id.js";
@@ -10,6 +12,7 @@ import { fromU128 } from "../../utils/u128.js";
 import { AccountCodeCodec, TransferCodeCodec } from "../../shared/ledger-codes.js";
 import {
     FeeAssetCodec,
+    OrderCancelReasonCodec,
     OrderOriginScopeCodec,
     OrderSideCodec,
     OrderStatusCodec,
@@ -56,8 +59,8 @@ export function createOrderSchema(scales: SdkScales) {
             priceTicks: v.bigint(),
             createdTsNs: v.bigint(),
             terminalTsNs: v.bigint(),
-            terminalReason: v.optional(v.string(), ""),
-            terminalReasonCode: v.number(),
+            rejectReason: v.optional(v.number(), 0),
+            cancelReason: v.optional(v.number(), 0),
             attachedRisk: v.optional(ReadAttachedRiskSchema),
             origin: v.optional(ReadOrderOriginSchema),
             marketClientRefPriceTicks: v.bigint(),
@@ -103,8 +106,17 @@ export function createOrderSchema(scales: SdkScales) {
                 price: scaledToDecimalOutput(o.priceTicks, scales.price()),
                 createdTs: tsNsToMs(o.createdTsNs),
                 terminalTs: tsNsToMs(o.terminalTsNs),
-                terminalReason: humanizeTerminalReason(o.terminalReason),
-                terminalReasonCode: o.terminalReasonCode,
+                ...(o.rejectReason === 0
+                    ? {}
+                    : { rejectReason: orderRejectReason(o.rejectReason) }),
+                ...(o.cancelReason === 0
+                    ? {}
+                    : {
+                          cancelReason: enumLabel(
+                              OrderCancelReasonCodec.protoToOutput,
+                              o.cancelReason,
+                          ),
+                      }),
                 attachedRisk: formatAttachedRisk(scales, o.attachedRisk),
                 ...(o.origin ? { origin: o.origin } : {}),
                 ...(marketClientRefPrice ? { marketClientRefPrice } : {}),
@@ -125,20 +137,13 @@ export function createOrderSchema(scales: SdkScales) {
     );
 }
 
-function humanizeTerminalReason(raw: string | null | undefined): string {
-    const key = (raw ?? "").trim();
-    if (!key) return "";
-    const uppercaseAcronyms = ["GTC", "IOC", "FOK", "DAY", "GTD", "STP"];
-    return key
-        .split("_")
-        .filter(Boolean)
-        .map((part) => {
-            const upper = part.toUpperCase();
-            if (uppercaseAcronyms.includes(upper)) return upper;
-            return upper[0] ? upper[0] + upper.slice(1).toLowerCase() : "";
-        })
-        .filter(Boolean)
-        .join(" ");
+/**
+ * A REJECTED order's refusal, named like the error the Orders API returns for it. A code
+ * newer than this build reads as `"UNSPECIFIED"`: treat it as a generic refusal.
+ */
+function orderRejectReason(code: number): OrderErrorCode {
+    const name: unknown = ErrorCode[code];
+    return typeof name === "string" ? (name as OrderErrorCode) : "UNSPECIFIED";
 }
 
 export type Order = v.InferOutput<ReturnType<typeof createOrderSchema>>;

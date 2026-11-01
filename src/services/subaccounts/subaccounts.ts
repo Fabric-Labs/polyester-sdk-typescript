@@ -100,7 +100,7 @@ export class SubaccountsService {
     }
 
     /**
-     * Fetches an aggregated subaccount dashboard view with subaccount details, policy, API keys, balances, members, and outgoing invites; throws if the subaccount is missing.
+     * Fetches an aggregated subaccount dashboard view with subaccount details, policy, API keys, members, and outgoing invites; throws if the subaccount is missing.
      */
     async get(
         input: v.InferInput<typeof SubaccountIdInputSchema>,
@@ -119,7 +119,6 @@ export class SubaccountsService {
             {
                 subaccountId: validatedInput.subaccountId,
                 includeApiKeys: true,
-                includeBalances: true,
                 includeMembers: true,
                 includeInvites: true,
                 includePolicy: true,

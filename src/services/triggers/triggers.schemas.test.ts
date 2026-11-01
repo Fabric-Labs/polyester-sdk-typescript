@@ -122,6 +122,7 @@ function baseWireTrigger(overrides: Partial<Proto.Trigger> = {}): Proto.Trigger 
         },
         clientTriggerId: "trigger-client-1",
         terminalReason: { case: undefined },
+        version: 1,
         runtimeDetails: {
             case: "stop",
             value: {

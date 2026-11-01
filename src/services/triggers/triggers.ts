@@ -242,6 +242,8 @@ export class TriggersService {
 
     /**
      * Subscribes to private trigger state updates on private:spot:triggers:{accountId}:proto and emits parsed trigger records.
+     * Keep the copy of each trigger with the highest `version`, across list reads and updates, and ignore any copy whose
+     * version is not higher than the one you hold: a reconnect can repeat an earlier state, and list results can lag.
      */
     subscribe(input: SubscribeTriggersInput): () => void {
         const channel = `private:spot:triggers:${input.accountId}:proto`;

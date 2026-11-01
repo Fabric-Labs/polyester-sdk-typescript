@@ -49,7 +49,6 @@ describe("public package entrypoint", () => {
                 // service accessors live on the ./services/* subpaths
                 ordersService: expect.any(Function),
                 defineService: expect.any(Function),
-                WhiteboardProtoService: expect.anything(),
                 // moved to the ./account-signer subpath so its viem graph stays
                 // out of bundles that import the root barrel
                 createPolyesterAccountSigner: expect.any(Function),

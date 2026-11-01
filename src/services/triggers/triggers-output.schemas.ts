@@ -535,6 +535,7 @@ export function createTriggerSchema(scales: SdkScales) {
             completedAt: v.optional(TimestampSchema),
             terminalReason: TerminalReasonRawSchema,
             runtimeDetails: TriggerDetailsRawSchema,
+            version: v.pipe(v.number(), v.integer(), v.minValue(0)),
         }),
         v.transform((t) => ({
             triggerId: formatId(t.triggerId),
@@ -556,6 +557,7 @@ export function createTriggerSchema(scales: SdkScales) {
             completedTs: t.completedAt ? tsObjToMs(t.completedAt) : undefined,
             ...transformTerminalReason(t.terminalReason),
             runtimeDetails: transformTriggerDetails(t.runtimeDetails, scales, t.symbolId),
+            version: t.version,
         })),
     );
 }

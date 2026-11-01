@@ -46,6 +46,8 @@ export function createOrderbookDataSchema(scales: SdkScales, symbolId: number) {
             symbolId: v.literal(symbolId),
             depth: v.number(),
             bookSeq: v.bigint(),
+            /** False while the book is being built or after it was invalidated: its levels are unknown, not empty. */
+            available: v.boolean(),
             bids: v.array(OrderbookLevelInputSchema),
             asks: v.array(OrderbookLevelInputSchema),
         }),
