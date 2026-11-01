@@ -222,6 +222,13 @@ export const PairConfigSchema = v.pipe(
          */
         maxOrderNotionalQuote: OptionalDecimalLimitSchema,
         /**
+         * Largest notional of one market order in quote units, compared exactly with no
+         * rounding. A buy is valued at its protection price and a sell at its reference
+         * price (the touch or the client's reference price), before slippage. An order
+         * above it is rejected with `MAX_NOTIONAL`. Absent when the pair has no maximum.
+         */
+        maxMarketNotionalQuote: OptionalDecimalLimitSchema,
+        /**
          * Default resting-order limit (GTC and GTD) for a typical account on this pair.
          * An account may have a lower limit of its own.
          */
