@@ -3,7 +3,7 @@
     "gen": "src/gen"
   },
   "protoRepo": "Fabric-Labs/polyester-proto",
-  "publicDescriptorSha256": "b0b0790541bb44c0fc743960e92875cb8437f06948137fc0f2ff6e2052f7b276",
+  "publicDescriptorSha256": "889fc9f579d5f9f5730326916ee08ad1a685fa754a1079353b028867915a43b5",
   "schemaVersion": 1,
   "sdk": "typescript"
 }

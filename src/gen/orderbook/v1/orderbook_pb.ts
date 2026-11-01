@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file orderbook/v1/orderbook.proto.
  */
 export const file_orderbook_v1_orderbook: GenFile = /*@__PURE__*/
-  fileDesc("ChxvcmRlcmJvb2svdjEvb3JkZXJib29rLnByb3RvEgxvcmRlcmJvb2sudjEiUAoTR2V0T3JkZXJCb29rUmVxdWVzdBITCglzeW1ib2xfaWQYASABKA1CABIkCgVkZXB0aBgCIAEoDjITLm9yZGVyYm9vay52MS5EZXB0aEIAIjUKClByaWNlTGV2ZWwSEwoLcHJpY2VfdGlja3MYASABKAMSEgoKcXR5X3NjYWxlZBgCIAEoAyKzAQoUR2V0T3JkZXJCb29rUmVzcG9uc2USEQoJc3ltYm9sX2lkGAEgASgNEhAKCGJvb2tfc2VxGAIgASgEEiYKBGJpZHMYAyADKAsyGC5vcmRlcmJvb2sudjEuUHJpY2VMZXZlbBImCgRhc2tzGAQgAygLMhgub3JkZXJib29rLnYxLlByaWNlTGV2ZWwSJgoCdHMYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wItgBCg5PcmRlckJvb2tEZWx0YRIRCglzeW1ib2xfaWQYASABKA0SFgoOYm9va19zZXFfc3RhcnQYAiABKAQSFAoMYm9va19zZXFfZW5kGAMgASgEEiYKBGJpZHMYBCADKAsyGC5vcmRlcmJvb2sudjEuUHJpY2VMZXZlbBImCgRhc2tzGAUgAygLMhgub3JkZXJib29rLnYxLlByaWNlTGV2ZWwSDQoFcmVzZXQYBiABKAgSJgoCdHMYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wKp8BCgVEZXB0aBIVChFERVBUSF9VTlNQRUNJRklFRBAAEgsKB0RFUFRIXzEQARILCgdERVBUSF81EAISDAoIREVQVEhfMTAQAxIMCghERVBUSF8yMBAEEgwKCERFUFRIXzUwEAUSDQoJREVQVEhfMTAwEAYSDQoJREVQVEhfMjAwEAcSDQoJREVQVEhfNTAwEAgSDgoKREVQVEhfMTAwMBAJMmsKEE9yZGVyYm9va1NlcnZpY2USVwoMR2V0T3JkZXJCb29rEiEub3JkZXJib29rLnYxLkdldE9yZGVyQm9va1JlcXVlc3QaIi5vcmRlcmJvb2sudjEuR2V0T3JkZXJCb29rUmVzcG9uc2UiAEJGWkRnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL29yZGVyYm9vay92MTtvcmRlcmJvb2t2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChxvcmRlcmJvb2svdjEvb3JkZXJib29rLnByb3RvEgxvcmRlcmJvb2sudjEiUAoTR2V0T3JkZXJCb29rUmVxdWVzdBITCglzeW1ib2xfaWQYASABKA1CABIkCgVkZXB0aBgCIAEoDjITLm9yZGVyYm9vay52MS5EZXB0aEIAIjUKClByaWNlTGV2ZWwSEwoLcHJpY2VfdGlja3MYASABKAMSEgoKcXR5X3NjYWxlZBgCIAEoAyLGAQoUR2V0T3JkZXJCb29rUmVzcG9uc2USEQoJc3ltYm9sX2lkGAEgASgNEhAKCGJvb2tfc2VxGAIgASgEEiYKBGJpZHMYAyADKAsyGC5vcmRlcmJvb2sudjEuUHJpY2VMZXZlbBImCgRhc2tzGAQgAygLMhgub3JkZXJib29rLnYxLlByaWNlTGV2ZWwSJgoCdHMYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhEKCWF2YWlsYWJsZRgGIAEoCCLYAQoOT3JkZXJCb29rRGVsdGESEQoJc3ltYm9sX2lkGAEgASgNEhYKDmJvb2tfc2VxX3N0YXJ0GAIgASgEEhQKDGJvb2tfc2VxX2VuZBgDIAEoBBImCgRiaWRzGAQgAygLMhgub3JkZXJib29rLnYxLlByaWNlTGV2ZWwSJgoEYXNrcxgFIAMoCzIYLm9yZGVyYm9vay52MS5QcmljZUxldmVsEg0KBXJlc2V0GAYgASgIEiYKAnRzGAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCqfAQoFRGVwdGgSFQoRREVQVEhfVU5TUEVDSUZJRUQQABILCgdERVBUSF8xEAESCwoHREVQVEhfNRACEgwKCERFUFRIXzEwEAMSDAoIREVQVEhfMjAQBBIMCghERVBUSF81MBAFEg0KCURFUFRIXzEwMBAGEg0KCURFUFRIXzIwMBAHEg0KCURFUFRIXzUwMBAIEg4KCkRFUFRIXzEwMDAQCTJrChBPcmRlcmJvb2tTZXJ2aWNlElcKDEdldE9yZGVyQm9vaxIhLm9yZGVyYm9vay52MS5HZXRPcmRlckJvb2tSZXF1ZXN0GiIub3JkZXJib29rLnYxLkdldE9yZGVyQm9va1Jlc3BvbnNlIgBCRlpEZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9vcmRlcmJvb2svdjE7b3JkZXJib29rdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * GetOrderBookRequest describes a ConnectRPC snapshot request.
@@ -75,8 +75,9 @@ export const PriceLevelSchema: GenMessage<PriceLevel> = /*@__PURE__*/
 /**
  * GetOrderBookResponse is a depth snapshot for the binary (protobuf) API (scaled integers).
  * REST surfaces expose decimal strings via DTO conversion. A configured symbol
- * without an initialized book returns a successful snapshot with sequence zero
- * and empty bid and ask collections.
+ * whose book is being built, or was invalidated, returns a successful snapshot
+ * with available false and no levels: its book is unknown, not empty. Read
+ * available before treating empty sides as no liquidity.
  *
  * @generated from message orderbook.v1.GetOrderBookResponse
  */
@@ -96,14 +97,16 @@ export type GetOrderBookResponse = Message<"orderbook.v1.GetOrderBookResponse"> 
   bookSeq: bigint;
 
   /**
-   * Best bid first; descending price. Empty when there is no current liquidity.
+   * Best bid first; descending price. When available is true, empty means no
+   * current liquidity; when it is false, always empty.
    *
    * @generated from field: repeated orderbook.v1.PriceLevel bids = 3;
    */
   bids: PriceLevel[];
 
   /**
-   * Best ask first; ascending price. Empty when there is no current liquidity.
+   * Best ask first; ascending price. When available is true, empty means no
+   * current liquidity; when it is false, always empty.
    *
    * @generated from field: repeated orderbook.v1.PriceLevel asks = 4;
    */
@@ -115,6 +118,16 @@ export type GetOrderBookResponse = Message<"orderbook.v1.GetOrderBookResponse"> 
    * @generated from field: google.protobuf.Timestamp ts = 5;
    */
   ts?: Timestamp | undefined;
+
+  /**
+   * True when the book is current: bids and asks are its levels, and empty
+   * sides mean no liquidity. False while the book is being built or after it
+   * was invalidated: its levels are unknown, not empty, and the response
+   * carries none. Request the snapshot again later.
+   *
+   * @generated from field: bool available = 6;
+   */
+  available: boolean;
 };
 
 /**
