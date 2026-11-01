@@ -234,5 +234,4 @@ export type * from "./services/trading-withdraws/trading-withdraws.types.js";
 export type * from "./services/transfers/transfers.types.js";
 export type * from "./services/triggers/triggers.types.js";
 export type * from "./services/vip/vip.types.js";
-export type * from "./services/whiteboard/whiteboard.types.js";
 export type * from "./services/zipper/zipper.types.js";

@@ -114,6 +114,7 @@ describe("OrderbookDataSchema", () => {
             symbolId: 101,
             depth: 50,
             bookSeq: 12n,
+            available: true,
             bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
             asks: [{ priceTicks: 100_250_000_000n, qtyScaled: 50_000_000n }],
         });
@@ -135,6 +136,7 @@ describe("OrderbookDataSchema", () => {
                 symbolId: 101,
                 depth: 50,
                 bookSeq: 12n,
+                available: true,
                 bids: [{ priceTicks: 100_000_000_000n }],
                 asks: [],
             }),

@@ -7,7 +7,6 @@ import * as MfaProto from "../gen/auth/v1/mfa_pb.js";
 import * as SocialProto from "../gen/auth/v1/social_verification_pb.js";
 import * as SubaccountsProto from "../gen/auth/v1/subaccounts_pb.js";
 import * as LifecycleProto from "../gen/chain/lifecycle/v1/types_pb.js";
-import * as WhiteboardProto from "../gen/collab/v1/whiteboard_pb.js";
 import * as LedgerReadProto from "../gen/ledger/read/v1/ledger_read_pb.js";
 import * as HeatmapProto from "../gen/marketdata/v1/heatmap_pb.js";
 import * as MarketDataProto from "../gen/marketdata/v1/marketdata_pb.js";
@@ -34,7 +33,6 @@ import {
     SubaccountSchema,
 } from "./subaccounts/subaccounts.schemas.js";
 import { TradingRateLimitRuleSchema } from "./rate-limits/rate-limits.schemas.js";
-import { WhiteboardAccessSchema } from "./whiteboard/whiteboard.schemas.js";
 
 const timestamp = { seconds: 0n, nanos: 0 };
 const testScales = createCatalogSdkScales(() =>
@@ -141,14 +139,6 @@ describe("proto enum output decoding", () => {
                     .DESTINATION_WHITELIST_STATUS_UNSPECIFIED,
             ),
         ).toBe("unspecified");
-    });
-
-    it("preserves whiteboard roles sent as unspecified", () => {
-        expect(
-            v.parse(WhiteboardAccessSchema, {
-                role: WhiteboardProto.BoardRole.ROLE_UNSPECIFIED,
-            }),
-        ).toEqual({ role: "unspecified" });
     });
 
     it("preserves social verification enums sent as unspecified", () => {
@@ -259,10 +249,5 @@ describe("proto enum output decoding", () => {
 
     it("maps unknown nonzero enum values to unspecified instead of failing the decode", () => {
         expect(kindFromProto(999 as AddressBookProto.AddressBookEntryKind)).toBe("unspecified");
-        expect(
-            v.parse(WhiteboardAccessSchema, {
-                role: 999 as WhiteboardProto.BoardRole,
-            }),
-        ).toMatchObject({ role: "unspecified" });
     });
 });

@@ -137,7 +137,8 @@ export type MarketOverview = Message<"marketoverview.v1.MarketOverview"> & {
   volume24hUsdScaled?: bigint | undefined;
 
   /**
-   * Listing timestamp in nanoseconds since epoch.
+   * Listing timestamp in nanoseconds since epoch. 0 when the pair has no
+   * listing time.
    *
    * @generated from field: uint64 listed_ts_ns = 15;
    */

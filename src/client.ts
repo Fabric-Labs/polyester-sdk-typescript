@@ -27,7 +27,6 @@ import { tradingWithdrawsService } from "./services/trading-withdraws/service.js
 import { transfersService } from "./services/transfers/service.js";
 import { triggersService } from "./services/triggers/service.js";
 import { vipService } from "./services/vip/service.js";
-import { whiteboardService } from "./services/whiteboard/service.js";
 import { zipperService } from "./services/zipper/service.js";
 
 /** Every service accessor, keyed by its getter name on the full clients. */
@@ -53,7 +52,6 @@ export const POLYESTER_SERVICES = {
     addressBook: addressBookService,
     guardSigner: guardSignerService,
     socialVerification: socialVerificationService,
-    whiteboard: whiteboardService,
     zipper: zipperService,
     mfa: mfaService,
     claims: claimsService,

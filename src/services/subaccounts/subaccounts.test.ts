@@ -159,7 +159,6 @@ describe("SubaccountsService", () => {
         expect(transport.lastCall()?.message).toEqual({
             subaccountId: 42n,
             includeApiKeys: true,
-            includeBalances: true,
             includeMembers: true,
             includeInvites: true,
             includePolicy: true,

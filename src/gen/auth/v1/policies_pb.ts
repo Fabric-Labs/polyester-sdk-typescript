@@ -1174,7 +1174,8 @@ export enum PolicyAction {
 
   /**
    * Allow creating, updating, deleting, and copying saved destination entries,
-   * including reading the address book.
+   * including reading the address book. Address-book writes accept only a
+   * session token, so on an API-key policy this grants address-book reads only.
    *
    * @generated from enum value: MANAGE_ADDRESS_BOOK = 12;
    */

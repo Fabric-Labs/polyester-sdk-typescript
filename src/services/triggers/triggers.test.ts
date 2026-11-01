@@ -87,6 +87,7 @@ function trigger(overrides: Partial<Proto.Trigger> = {}): Proto.Trigger {
         },
         clientTriggerId: "trigger-client-1",
         terminalReason: { case: undefined },
+        version: 1,
         ...overrides,
     } as Proto.Trigger;
 }
