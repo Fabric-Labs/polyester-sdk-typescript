@@ -61,15 +61,16 @@ jobs:
               run: bun run ci
 
             - name: Create release pull request or publish to npm
-              uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d
+              uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51
               with:
-                  commit: "chore(release): version polyester sdk"
-                  title: "chore(release): version polyester sdk"
-                  version: bun run version-packages
-                  publish: bun run release
-                  commitMode: github-api
-                  createGithubReleases: true
+                  commit-message: "chore(release): version polyester sdk"
+                  pr-title: "chore(release): version polyester sdk"
+                  version-script: bun run version-packages
+                  publish-script: bun run release
+                  create-github-releases: true
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
               env:
+                  # The changelog generator reads PR links with this token.
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     devnet:
