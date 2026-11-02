@@ -772,6 +772,7 @@ describe("NewOrderInputSchema", () => {
                 trailingStop: {
                     trailingDistance: { kind: "distance", distance: "0.5" },
                     maxSlippage: { kind: "bps", bps },
+                    ...(side === "sell" ? { limitPrice: "110" } : {}),
                 },
             },
         });
@@ -801,6 +802,43 @@ describe("NewOrderInputSchema", () => {
         expect(v.parse(schema, marketWithBps("buy", 10_000)).order.execution).toMatchObject({
             value: { maxSlippage: { case: "maxSlippageBps", value: 10_000 } },
         });
+    });
+
+    it("sends a selling order's attached trailing stop buy-back limit price", () => {
+        const schema = createNewOrderInputSchema(testScales());
+        const order = (side: "buy" | "sell", trailingStop: object) =>
+            v.parse(schema, {
+                symbolId: 1,
+                side,
+                qty: "0.5",
+                execution: { type: "limit_gtc", price: "100" },
+                risk: {
+                    trailingStop: { trailingDistance: { kind: "bps", bps: 50 }, ...trailingStop },
+                },
+            }).order.attachedRisk;
+
+        expect(order("sell", { limitPrice: "105.5", activationPrice: "101" })).toMatchObject({
+            stopLeg: {
+                case: "trailingStop",
+                value: {
+                    limitPriceTicks: 105_500_000_000n,
+                    activationPriceTicks: 101_000_000_000n,
+                },
+            },
+        });
+        expect(order("buy", {})).toMatchObject({
+            stopLeg: { case: "trailingStop", value: { limitPriceTicks: 0n } },
+        });
+        expect(() => order("sell", {})).toThrow(
+            "risk.trailingStop.limitPrice is required when the order sells and must be unset when it buys",
+        );
+        expect(() => order("buy", { limitPrice: "105" })).toThrow(
+            "risk.trailingStop.limitPrice is required when the order sells and must be unset when it buys",
+        );
+        expect(() => order("sell", { limitPrice: "0" })).toThrow();
+        expect(() => order("sell", { limitPrice: "100", activationPrice: "101" })).toThrow(
+            "trailingStop.limitPrice must be at least trailingStop.activationPrice",
+        );
     });
 
     it("sends an attached leg's trigger price source and rejects the unsupported mark price", () => {
@@ -1330,6 +1368,27 @@ describe("ModifyOrderInputSchema", () => {
                 newPrice: "100.001",
             }),
         ).not.toThrow();
+    });
+
+    it("passes an attached trailing stop's limit price through, leaving the side rule to the server", () => {
+        const schema = createModifyOrderInputSchema(testScales());
+
+        expect(
+            v.parse(schema, {
+                clientOrderId: "client-1",
+                symbolId: 1,
+                risk: {
+                    trailingStop: {
+                        trailingDistance: { kind: "bps", bps: 50 },
+                        limitPrice: "105",
+                    },
+                },
+            }),
+        ).toMatchObject({
+            newAttachedRisk: {
+                stopLeg: { case: "trailingStop", value: { limitPriceTicks: 105_000_000_000n } },
+            },
+        });
     });
 
     it("rejects invalid risk patch states", () => {

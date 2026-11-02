@@ -36,6 +36,8 @@ import {
 } from "./orders.codecs.js";
 import {
     MarketMaxSlippageSchema,
+    ATTACHED_TRAILING_LIMIT_SIDE_MESSAGE,
+    attachedTrailingLimitMatchesSide,
     createRiskPolicyInputSchema,
     parseMarketMaxSlippage,
 } from "./orders-risk.schemas.js";
@@ -195,6 +197,10 @@ function createOrderIntentInputObjectSchema(scales: SdkScales) {
             "SELL orders must use the quote fee asset",
         ),
         v.check((input) => sellingSlippageWithinCap(input), SELLING_SLIPPAGE_MESSAGE),
+        v.check(
+            (input) => attachedTrailingLimitMatchesSide(input),
+            ATTACHED_TRAILING_LIMIT_SIDE_MESSAGE,
+        ),
     );
 }
 
@@ -231,6 +237,10 @@ function createScopedOrderIntentInputObjectSchema(scales: SdkScales) {
             "SELL orders must use the quote fee asset",
         ),
         v.check((input) => sellingSlippageWithinCap(input), SELLING_SLIPPAGE_MESSAGE),
+        v.check(
+            (input) => attachedTrailingLimitMatchesSide(input),
+            ATTACHED_TRAILING_LIMIT_SIDE_MESSAGE,
+        ),
     );
 }
 

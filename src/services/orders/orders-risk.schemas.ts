@@ -19,6 +19,7 @@ import {
     parseSlippageInput,
     parseTrailingDistanceInput,
 } from "../trailing-oneof-inputs.js";
+import { CatalogConversionError } from "../../catalogs/types.js";
 import { enumLabel } from "../../shared/proto-enum-codec.js";
 import { formatId } from "../../utils/base58-id.js";
 import { tsNsToMs } from "../../utils/time.js";
@@ -128,23 +129,43 @@ function createTrailingStopInputSchema(scales: SdkScales) {
             trailingDistance: TrailingDistanceSchema,
             maxSlippage: v.optional(MaxSlippageSchema),
             activationPrice: v.optional(DecimalInputStringSchema),
+            // The most a buy-back pays per unit: required when the parent order sells, unset when it buys.
+            limitPrice: v.optional(DecimalInputStringSchema),
             triggerPriceSource: TriggerPriceSourceInputSchema,
         }),
-        v.transform((input) => ({
-            trailingDistance: parseTrailingDistance(scales, input.trailingDistance),
-            maxSlippage: input.maxSlippage
-                ? parseMaxSlippage(scales, input.maxSlippage)
-                : UNSET_TRAILING_STOP_MAX_SLIPPAGE,
-            activationPriceTicks:
+        v.transform((input) => {
+            const activationPriceTicks =
                 input.activationPrice === undefined
                     ? 0n
                     : positiveDecimalInputToScaled(
                           "trailingStop.activationPrice",
                           input.activationPrice,
                           scales.price(),
-                      ),
-            triggerPriceSource: input.triggerPriceSource,
-        })),
+                      );
+            const limitPriceTicks =
+                input.limitPrice === undefined
+                    ? 0n
+                    : positiveDecimalInputToScaled(
+                          "trailingStop.limitPrice",
+                          input.limitPrice,
+                          scales.price(),
+                      );
+            if (limitPriceTicks !== 0n && activationPriceTicks > limitPriceTicks) {
+                throw new CatalogConversionError(
+                    "trailingStop.limitPrice",
+                    "trailingStop.limitPrice must be at least trailingStop.activationPrice",
+                );
+            }
+            return {
+                trailingDistance: parseTrailingDistance(scales, input.trailingDistance),
+                maxSlippage: input.maxSlippage
+                    ? parseMaxSlippage(scales, input.maxSlippage)
+                    : UNSET_TRAILING_STOP_MAX_SLIPPAGE,
+                activationPriceTicks,
+                limitPriceTicks,
+                triggerPriceSource: input.triggerPriceSource,
+            };
+        }),
     );
 }
 
@@ -202,6 +223,21 @@ function transformRiskPolicyInput(input: RiskPolicyObjectInput) {
         stopLeg,
         oco: input.oco ?? false,
     };
+}
+
+export const ATTACHED_TRAILING_LIMIT_SIDE_MESSAGE =
+    "risk.trailingStop.limitPrice is required when the order sells and must be unset when it buys";
+
+/** An attached trailing stop buys back a SELL order's fill, so only then does it carry a limit price. */
+export function attachedTrailingLimitMatchesSide(input: {
+    side: ProtoWrite.Side;
+    risk?: ReturnType<typeof transformRiskPolicyInput>;
+}): boolean {
+    const stopLeg = input.risk?.stopLeg;
+    if (stopLeg?.case !== "trailingStop") {
+        return true;
+    }
+    return (stopLeg.value.limitPriceTicks !== 0n) === (input.side === ProtoWrite.Side.SELL);
 }
 
 export function createRiskPolicyInputSchema(scales: SdkScales) {
