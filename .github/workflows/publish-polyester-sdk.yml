@@ -107,3 +107,9 @@ jobs:
                   fi
                   bunx changeset version --snapshot devnet
                   bunx changeset publish --tag devnet --no-git-tag
+
+                  # Prerelease so `Latest` stays on the real release; notes are the snapshot's CHANGELOG section.
+                  VERSION=$(node -p 'require("./package.json").version')
+                  awk -v v="## $VERSION" '$0==v{f=1;next} /^## /{f=0} f' CHANGELOG.md > devnet-notes.md
+                  gh release create "v$VERSION" --target "$GITHUB_SHA" --prerelease --latest=false \
+                      --title "v$VERSION" --notes-file devnet-notes.md
