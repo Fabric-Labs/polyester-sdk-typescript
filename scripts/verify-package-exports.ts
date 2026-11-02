@@ -126,6 +126,7 @@ try {
 } from "@polyester/sdk";
 import {
     autoWithdrawPb,
+    changelogPb,
     checkpointsPb,
     claimsPb,
     feesPb,
@@ -196,6 +197,25 @@ async function verifyServiceInference(): Promise<void> {
     expectType<import("@polyester/sdk").CheckpointBadge | undefined>(checkpoints[0]?.badges[0]?.badge);
     expectType<import("@polyester/sdk").CheckpointField | undefined>(checkpoints[0]?.incomplete[0]);
     expectNotAny(checkpointsPb.CheckpointService, true);
+    const changelogChanges = await client.changelog.listChanges(
+        {
+            categories: ["breaking_change"],
+            startTime: 1_700_000_000_000,
+            sort: "asc",
+        } satisfies import("@polyester/sdk").ListChangelogChangesInput,
+        { signal: new AbortController().signal },
+    );
+    expectType<import("@polyester/sdk").ListChangelogChangesResult>(changelogChanges);
+    expectNotAny(changelogChanges, true);
+    expectType<string | undefined>(changelogChanges.changes[0]?.id);
+    expectType<number | undefined>(changelogChanges.changes[0]?.publishedAt);
+    expectType<import("@polyester/sdk").ChangelogChangeCategory | "unspecified" | undefined>(
+        changelogChanges.changes[0]?.category,
+    );
+    const changelogPost = await client.changelog.getPost({ slug: "2026-11-02" });
+    expectType<import("@polyester/sdk").ChangelogPost>(changelogPost);
+    expectType<import("@polyester/sdk").ChangelogSection[]>(changelogPost.sections);
+    expectNotAny(changelogPb.ChangelogService, true);
     const rewardAwards = await client.rewards.listAwards({ limit: 100, pageToken: "next" });
     expectType<import("@polyester/sdk").ListRewardAwardsResult>(rewardAwards);
     expectNotAny(rewardAwards, true);

@@ -75,6 +75,7 @@ describe("generated protobuf package entrypoint", () => {
                 vipPb: expect.any(Object),
                 claimsPb: expect.any(Object),
                 checkpointsPb: expect.any(Object),
+                changelogPb: expect.any(Object),
                 rewardsPb: expect.any(Object),
             }),
         );
