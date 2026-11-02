@@ -138,7 +138,7 @@ function baseWireTrigger(overrides: Partial<Proto.Trigger> = {}): Proto.Trigger 
 describe("ListTriggerEventsInputSchema", () => {
     it("exposes only supported event filters", () => {
         expectTypeOf<ListTriggerEventsInput["eventType"]>().toEqualTypeOf<
-            "fired" | "canceled" | "updated" | "failed" | "activated" | undefined
+            "fired" | "canceled" | "updated" | "failed" | "activated" | "armed" | undefined
         >();
         expect(
             v.safeParse(ListTriggerEventsInputSchema, {
@@ -171,6 +171,12 @@ describe("ListTriggerEventsInputSchema", () => {
                 eventType: "failed",
             }),
         ).toMatchObject({ eventType: Proto.TriggerEventType.EVENT_FAILED });
+        expect(
+            v.parse(ListTriggerEventsInputSchema, {
+                triggerId: formatId(11n),
+                eventType: "armed",
+            }),
+        ).toMatchObject({ eventType: Proto.TriggerEventType.EVENT_ARMED });
     });
 });
 
@@ -1306,6 +1312,22 @@ describe("Trigger result and output schemas", () => {
                 terminalReason: { case: undefined },
             }),
         ).toMatchObject({ eventType: "activated", childOrderId: undefined });
+    });
+
+    it("maps attached leg armed events", () => {
+        expect(
+            v.parse(createTriggerEventSchema(testScales()), {
+                triggerId: 11n,
+                subaccountId: 22n,
+                symbolId: 1,
+                triggerType: Proto.TriggerType.TAKE_PROFIT,
+                eventType: Proto.TriggerEventType.EVENT_ARMED,
+                tsNs: 1_000_000n,
+                childSeq: 0,
+                childOrderId: 0n,
+                terminalReason: { case: undefined },
+            }),
+        ).toMatchObject({ eventType: "armed", childOrderId: undefined });
     });
 
     it("accepts TWAP events without a conditional fire price", () => {

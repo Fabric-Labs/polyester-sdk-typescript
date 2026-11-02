@@ -56,6 +56,7 @@ export const TRIGGER_EVENT_TYPE_VALUES = [
     "updated",
     "failed",
     "activated",
+    "armed",
 ] as const;
 export type TriggerEventTypeValue = (typeof TRIGGER_EVENT_TYPE_VALUES)[number];
 
@@ -235,6 +236,7 @@ export const TriggerEventTypeCodec = {
         updated: Proto.TriggerEventType.EVENT_UPDATED,
         failed: Proto.TriggerEventType.EVENT_FAILED,
         activated: Proto.TriggerEventType.EVENT_ACTIVATED,
+        armed: Proto.TriggerEventType.EVENT_ARMED,
     } satisfies InputToProto<TriggerEventTypeValue, Proto.TriggerEventType>,
     protoToOutput: {
         [Proto.TriggerEventType.EVENT_UNSPECIFIED]: "unspecified",
@@ -243,6 +245,7 @@ export const TriggerEventTypeCodec = {
         [Proto.TriggerEventType.EVENT_UPDATED]: "updated",
         [Proto.TriggerEventType.EVENT_FAILED]: "failed",
         [Proto.TriggerEventType.EVENT_ACTIVATED]: "activated",
+        [Proto.TriggerEventType.EVENT_ARMED]: "armed",
     } satisfies ProtoToOutput<Proto.TriggerEventType, TriggerEventTypeLabelValue>,
 } as const;
 
