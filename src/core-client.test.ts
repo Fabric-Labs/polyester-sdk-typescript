@@ -33,6 +33,7 @@ vi.mock("./realtime/index.js", () => ({
 
 import { PolyesterClient } from "./client.js";
 import { PolyesterCore } from "./core-client.js";
+import { changelogService } from "./services/changelog/service.js";
 import { checkpointsService } from "./services/checkpoints/service.js";
 import { claimsService } from "./services/claims/service.js";
 
@@ -335,6 +336,26 @@ describe.each([
                 "checkpoints.v1.CheckpointService",
             );
             expect(publicApi.calls).toHaveLength(0);
+        });
+
+        it("routes changelog through the public transport", async () => {
+            const authApi = unaryTransport({});
+            const publicApi = unaryTransport({ posts: [], nextPageToken: "" });
+            const client = new Client({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                transports: { authApi: authApi.transport, publicApi: publicApi.transport },
+            });
+
+            expect(changelogService(client)).toBe(changelogService(client));
+            await expect(changelogService(client).listPosts()).resolves.toEqual({
+                posts: [],
+                nextPageToken: "",
+            });
+
+            expect(publicApi.lastCall()?.method.parent.typeName).toBe(
+                "changelog.v1.ChangelogService",
+            );
+            expect(authApi.calls).toHaveLength(0);
         });
     });
 });
