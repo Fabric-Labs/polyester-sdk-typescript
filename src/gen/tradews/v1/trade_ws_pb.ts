@@ -94,8 +94,9 @@ export type ClientFrame = Message<"tradews.v1.ClientFrame"> & {
   } | {
     /**
      * Batch replace command using the public Orders API request contract: up
-     * to 50 replacements of orders on one trading pair, under the same
-     * request_id idempotency as the Orders API.
+     * to 50 orders on one trading pair, each amended in place or replaced as
+     * the Orders API decides, under the same request_id idempotency as the
+     * Orders API.
      *
      * @generated from field: orders.v1.BatchReplaceOrdersRequest batch_replace_orders = 16;
      */

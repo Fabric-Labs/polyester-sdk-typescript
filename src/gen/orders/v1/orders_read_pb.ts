@@ -41,7 +41,8 @@ export type OrderOrigin = Message<"orders.v1.OrderOrigin"> & {
   scope: OrderOriginScope;
 
   /**
-   * Trigger strategy that created this order, or unspecified for direct orders.
+   * Trigger strategy that created this order. Not set for direct orders; JSON
+   * and REST responses then omit it.
    *
    * @generated from field: orders.v1.OrderTriggerType trigger_type = 2;
    */
@@ -1399,14 +1400,14 @@ export type BatchReplaceStatusItem = Message<"orders.v1.BatchReplaceStatusItem">
   oldOrderId: bigint;
 
   /**
-   * Assigned successor order ID. Zero for cancel-only outcomes or rejection before assignment.
+   * Assigned successor order ID. Zero for an amended item or rejection before assignment.
    *
    * @generated from field: fixed64 replacement_order_id = 4;
    */
   replacementOrderId: bigint;
 
   /**
-   * Current successor status, or original order status for a cancel-only outcome, when available.
+   * Current successor status, or the amended order's status, when available.
    *
    * @generated from field: orders.v1.OrderStatus order_status = 5;
    */
@@ -1427,8 +1428,8 @@ export type BatchReplaceStatusItem = Message<"orders.v1.BatchReplaceStatusItem">
   updatedTsNs: bigint;
 
   /**
-   * REPLACED admits a successor. AMENDED is cancel-only: no successor exists and
-   * order_status describes old_order_id. Unspecified for rejected items.
+   * REPLACED admits a successor. AMENDED keeps the order under old_order_id with
+   * no successor, and order_status describes it. Unspecified for rejected items.
    *
    * @generated from field: orders.v1.ModifyActionTaken action_taken = 8;
    */
@@ -1728,14 +1729,14 @@ export enum BatchReplacePhase {
   UNSPECIFIED = 0,
 
   /**
-   * The operation was admitted and handed to execution, including cancel-only outcomes.
+   * The operation was admitted and handed to execution, amended items included.
    *
    * @generated from enum value: BATCH_REPLACE_PHASE_ADMITTED = 1;
    */
   ADMITTED = 1,
 
   /**
-   * The successor order is active.
+   * The successor order, or the amended order, is active.
    *
    * @generated from enum value: BATCH_REPLACE_PHASE_WORKING = 2;
    */
@@ -1749,7 +1750,7 @@ export enum BatchReplacePhase {
   REJECTED = 3,
 
   /**
-   * The successor, or original order for a cancel-only outcome, reached a terminal state.
+   * The successor, or the amended order, reached a terminal state.
    *
    * @generated from enum value: BATCH_REPLACE_PHASE_TERMINAL = 4;
    */
