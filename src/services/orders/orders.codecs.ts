@@ -61,6 +61,7 @@ export const ORDER_CANCEL_REASON_VALUES = [
     "account_repair",
     "twap_rollover",
     "strategy_cancel",
+    "market_halted",
     "system",
 ] as const;
 export type OrderCancelReasonValue = (typeof ORDER_CANCEL_REASON_VALUES)[number];
@@ -83,6 +84,7 @@ export const OrderCancelReasonCodec = {
         [ProtoRead.CancelReason.ACCOUNT_REPAIR]: "account_repair",
         [ProtoRead.CancelReason.TWAP_ROLLOVER]: "twap_rollover",
         [ProtoRead.CancelReason.STRATEGY_CANCEL]: "strategy_cancel",
+        [ProtoRead.CancelReason.MARKET_HALTED]: "market_halted",
         [ProtoRead.CancelReason.SYSTEM]: "system",
     } satisfies ProtoToOutput<ProtoRead.CancelReason, OrderCancelReasonValue>,
 } as const;

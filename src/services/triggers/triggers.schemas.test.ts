@@ -1423,5 +1423,18 @@ describe("Trigger result and output schemas", () => {
                 }),
             ),
         ).toMatchObject({ status: "cancelled", cancelReason: "self_trade_prevention" });
+
+        expect(
+            v.parse(
+                createTriggerSchema(testScales()),
+                baseWireTrigger({
+                    status: Proto.TriggerStatus.STATUS_CANCELED,
+                    terminalReason: {
+                        case: "cancelReason",
+                        value: Proto.TriggerCancelReason.MARKET_HALTED,
+                    },
+                }),
+            ),
+        ).toMatchObject({ status: "cancelled", cancelReason: "market_halted" });
     });
 });

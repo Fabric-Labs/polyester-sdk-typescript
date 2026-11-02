@@ -1593,6 +1593,15 @@ describe("OrderSchema", () => {
                 }),
             ),
         ).toMatchObject({ status: "canceled", cancelReason: "stp_expire_maker" });
+        expect(
+            v.parse(
+                schema,
+                rawOrder({
+                    status: ProtoRead.OrderStatus.CANCELED,
+                    cancelReason: ProtoRead.CancelReason.MARKET_HALTED,
+                }),
+            ),
+        ).toMatchObject({ status: "canceled", cancelReason: "market_halted" });
     });
 
     it("reads reasons newer than this build as a generic refusal or cancel", () => {

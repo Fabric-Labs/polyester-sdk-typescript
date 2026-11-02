@@ -73,6 +73,7 @@ export const TRIGGER_CANCEL_REASON_LABEL_VALUES = [
     "pair_drain_twap",
     "pair_drain_ladder",
     "pair_drain_attached_leg",
+    "market_halted",
     "missing_reason_code",
     "internal_error",
 ] as const;
@@ -261,6 +262,7 @@ export const TriggerCancelReasonCodec = {
         [Proto.TriggerCancelReason.PAIR_DRAIN_TWAP]: "pair_drain_twap",
         [Proto.TriggerCancelReason.PAIR_DRAIN_LADDER]: "pair_drain_ladder",
         [Proto.TriggerCancelReason.PAIR_DRAIN_ATTACHED_LEG]: "pair_drain_attached_leg",
+        [Proto.TriggerCancelReason.MARKET_HALTED]: "market_halted",
         [Proto.TriggerCancelReason.MISSING_REASON_CODE]: "missing_reason_code",
         [Proto.TriggerCancelReason.INTERNAL_ERROR]: "internal_error",
     } satisfies ProtoToOutput<Proto.TriggerCancelReason, TriggerCancelReasonLabelValue>,
