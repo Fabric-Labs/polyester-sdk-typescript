@@ -107,3 +107,22 @@ jobs:
                   fi
                   bunx changeset version --snapshot devnet
                   bunx changeset publish --tag devnet --no-git-tag
+
+                  # One rolling prerelease per target version (v0.33.0-devnet), moved to each new snapshot.
+                  # Prerelease so `Latest` stays on the real release; notes are the snapshot's CHANGELOG section.
+                  VERSION=$(node -p 'require("./package.json").version')
+                  TAG="v${VERSION%%-devnet*}-devnet"
+                  awk -v v="## $VERSION" '$0==v{f=1;next} /^## /{f=0} f' CHANGELOG.md > devnet-notes.md
+                  gh release delete "$TAG" --cleanup-tag --yes || true
+                  gh release create "$TAG" --target "$GITHUB_SHA" --prerelease --latest=false \
+                      --title "v$VERSION" --notes-file devnet-notes.md
+
+                  # Drop devnet releases orphaned by a mid-cycle target bump (0.32.2-devnet → 0.33.0-devnet):
+                  # not the current tag and their version never shipped. Shipped cycles keep theirs.
+                  # ponytail: scans the newest 100 releases; strays are always recent.
+                  gh release list --limit 100 --json tagName --jq '.[].tagName | select(endswith("-devnet"))' |
+                      while read -r OLD; do
+                          [ "$OLD" = "$TAG" ] && continue
+                          gh release view "${OLD%-devnet}" >/dev/null 2>&1 && continue
+                          gh release delete "$OLD" --cleanup-tag --yes
+                      done
