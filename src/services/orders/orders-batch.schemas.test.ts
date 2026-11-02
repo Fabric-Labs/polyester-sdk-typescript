@@ -210,6 +210,31 @@ describe("batch create schemas", () => {
         });
     });
 
+    it("requires a selling item's attached trailing stop limit price", () => {
+        const schema = createBatchCreateOrdersInputSchema(testScales());
+        const sell = (trailingStop: object) => ({
+            ...limitOrder("order-sell"),
+            side: "sell" as const,
+            risk: { trailingStop: { trailingDistance: { kind: "bps", bps: 50 }, ...trailingStop } },
+        });
+
+        expect(v.parse(schema, { items: [sell({ limitPrice: "105" })] })).toMatchObject({
+            items: [
+                {
+                    attachedRisk: {
+                        stopLeg: {
+                            case: "trailingStop",
+                            value: { limitPriceTicks: 105_000_000_000n },
+                        },
+                    },
+                },
+            ],
+        });
+        expect(() => v.parse(schema, { items: [sell({})] })).toThrow(
+            "risk.trailingStop.limitPrice is required when the order sells and must be unset when it buys",
+        );
+    });
+
     it("enforces the 1–20 item contract", () => {
         const schema = createBatchCreateOrdersInputSchema(testScales());
 
