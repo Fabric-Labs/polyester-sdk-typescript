@@ -206,6 +206,7 @@ export type * from "./services/address-book/address-book.types.js";
 export type * from "./services/api-keys/api-keys.types.js";
 export type * from "./services/auth/auth.types.js";
 export type * from "./services/auth/profile/profile.types.js";
+export type * from "./services/auto-withdraw/auto-withdraw.types.js";
 export type * from "./services/balances/balances.types.js";
 export type * from "./services/candles/candles.types.js";
 export type * from "./services/chain-analytics/chain-analytics.types.js";

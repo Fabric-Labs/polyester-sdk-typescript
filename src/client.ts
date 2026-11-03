@@ -2,6 +2,7 @@ import { PolyesterCore } from "./core-client.js";
 import { accountsService } from "./services/accounts/service.js";
 import { addressBookService } from "./services/address-book/service.js";
 import { apiKeysService } from "./services/api-keys/service.js";
+import { autoWithdrawService } from "./services/auto-withdraw/service.js";
 import { balancesService } from "./services/balances/service.js";
 import { candlesService } from "./services/candles/service.js";
 import { chainAnalyticsService } from "./services/chain-analytics/service.js";
@@ -49,6 +50,7 @@ export const POLYESTER_SERVICES = {
     transfers: transfersService,
     internalTransfers: internalTransfersService,
     tradingWithdraws: tradingWithdrawsService,
+    autoWithdraw: autoWithdrawService,
     deposit: depositService,
     addressBook: addressBookService,
     guardSigner: guardSignerService,

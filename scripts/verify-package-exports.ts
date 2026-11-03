@@ -143,6 +143,7 @@ import {
     vipPb,
 } from "@polyester/sdk/unstable/gen";
 import type { PolyesterErrorDetail as ErrorsPolyesterErrorDetail } from "@polyester/sdk/errors";
+import { autoWithdrawService } from "@polyester/sdk/services/auto-withdraw";
 import { ordersService } from "@polyester/sdk/services/orders";
 import { tradingRateLimitsService } from "@polyester/sdk/services/rate-limits";
 
@@ -236,6 +237,35 @@ async function verifyServiceInference(): Promise<void> {
     expectNotAny(quickswapBrokerPb.QuickSwapBrokerService, true);
     expectNotAny(swapPb.SwapService, true);
     expectNotAny(autoWithdrawPb.AutoWithdrawService, true);
+    const autoWithdrawRule = await client.autoWithdraw.setRule(
+        {
+            account: "main",
+            expectedVersion: 0,
+            schedule: { cadence: "weekly", weekday: "friday", minuteOfDay: 540 },
+            destinations: [
+                {
+                    assetId: 1,
+                    destinationChainId: 8453,
+                    destinationAddress: "0xabc",
+                    minAmount: "10",
+                    maxAmount: "1000",
+                },
+            ],
+            minUsdValue: null,
+        } satisfies import("@polyester/sdk").SetAutoWithdrawRuleInput,
+        { stepUpToken: "step-up" },
+    );
+    expectType<import("@polyester/sdk").AutoWithdrawRule>(autoWithdrawRule);
+    expectNotAny(autoWithdrawRule, true);
+    expectType<import("@polyester/sdk").AutoWithdrawSchedule>(autoWithdrawRule.schedule);
+    expectType<string | null>(autoWithdrawRule.minUsdValue);
+    expectType<import("@polyester/sdk").AutoWithdrawRule | null>(await client.autoWithdraw.getRule());
+    const autoWithdrawRuns = await client.autoWithdraw.listRuns({ limit: 20, pageToken: "" });
+    expectType<import("@polyester/sdk").ListAutoWithdrawRunsResult>(autoWithdrawRuns);
+    expectType<import("@polyester/sdk").AutoWithdrawRunState | "unspecified" | undefined>(
+        autoWithdrawRuns.runs[0]?.state,
+    );
+    expectType<string | undefined>(autoWithdrawRuns.runs[0]?.steps[0]?.amount);
     const gtdOrder: import("@polyester/sdk").NewOrderInput = {
         symbolId: 1,
         side: "buy",
@@ -442,6 +472,7 @@ async function verifyCoreServiceAccessors(): Promise<void> {
     expectNotAny(ordersService(browserCore), true);
     await ordersService(serverCore).cancelAll({ symbolIds: [1] });
     expectType<typeof client.tradingRateLimits>(tradingRateLimitsService(client));
+    expectType<typeof client.autoWithdraw>(autoWithdrawService(browserCore));
     expectType<import("@polyester/sdk").AuthState>(browserCore.auth.getState());
     expectType<boolean>(serverCore.hasDisplaySession);
     // @ts-expect-error Cores only expose services through their accessors.

@@ -16,6 +16,7 @@ import { ChainAnalyticsService } from "./gen/chain/analytics/v1/analytics_read_p
 import { DepositAddressService } from "./gen/chain/deposit/v1/deposit_pb.js";
 import { GuardSignerService } from "./gen/chain/guard/v1/guard_signer_pb.js";
 import { LifecycleReadService } from "./gen/chain/lifecycle/v1/lifecycle_read_pb.js";
+import { AutoWithdrawService } from "./gen/chain/withdraw/v1/auto_withdraw_pb.js";
 import { WithdrawService } from "./gen/chain/withdraw/v1/withdraw_pb.js";
 import { ZipperService } from "./gen/chain/zipper/v1/zipper_pb.js";
 import { ChangelogService } from "./gen/changelog/v1/changelog_pb.js";
@@ -48,6 +49,7 @@ export const WIRED_SERVICE_DESCRIPTORS: readonly DescService[] = [
     AddressBookService,
     ApiKeyService,
     AuthService,
+    AutoWithdrawService,
     ChainAnalyticsService,
     ChangelogService,
     CheckpointService,
