@@ -216,6 +216,9 @@ async function verifyServiceInference(): Promise<void> {
     const changelogPost = await client.changelog.getPost({ slug: "2026-11-02" });
     expectType<import("@polyester/sdk").ChangelogPost>(changelogPost);
     expectType<import("@polyester/sdk").ChangelogSection[]>(changelogPost.sections);
+    expectType<import("@polyester/sdk").ChangelogSurface | "unspecified" | undefined>(
+        changelogPost.sections[0]?.surface,
+    );
     expectNotAny(changelogPb.ChangelogService, true);
     const rewardAwards = await client.rewards.listAwards({ limit: 100, pageToken: "next" });
     expectType<import("@polyester/sdk").ListRewardAwardsResult>(rewardAwards);
@@ -288,6 +291,10 @@ async function verifyServiceInference(): Promise<void> {
         expectType<import("@polyester/sdk").OrderLineage | undefined>(details.order.lineage);
         expectType<string | undefined>(details.trades[0]?.lineage?.id);
         expectType<number | undefined>(details.transfers[0]?.symbolId);
+        expectType<string>(details.order.cumQuote);
+        expectType<{ amount: string; isRebate: boolean; qty: string } | undefined>(
+            details.order.feeTotal,
+        );
     }
     await client.orders.getDetails({ orderId: "P", includeExecutionHistory: false });
     const executions = await client.trades.list({ lineageId: "P", throughGeneration: 2, includeTransfers: true });
@@ -408,8 +415,11 @@ async function verifyServiceInference(): Promise<void> {
     expectType<string>(ladderDetails.executedQty);
     expectType<number>(ladderDetails.executedLevels);
     const triggerEvents = await client.triggers.listEvents({ triggerId: "T", eventType: "activated" });
-    expectType<"fired" | "canceled" | "updated" | "failed" | "activated" | "armed" | "unspecified" | undefined>(
+    expectType<"fired" | "canceled" | "updated" | "failed" | "activated" | "armed" | "fire_refused" | "unspecified" | undefined>(
         triggerEvents.events[0]?.eventType,
+    );
+    expectType<import("@polyester/sdk").TriggerEvent["failureReason"]>(
+        triggerEvents.events[0]?.fireRefusalReason,
     );
     const trailingTrigger = await client.triggers.get({ triggerId: "T" });
     if (trailingTrigger?.runtimeDetails.case === "trailing") {

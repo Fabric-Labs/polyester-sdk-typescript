@@ -4,7 +4,11 @@ import type { OrderErrorCode } from "./order-errors.schemas.js";
 import * as v from "valibot";
 import { tsNsToMs } from "../../utils/time.js";
 import { formatId } from "../../utils/base58-id.js";
-import { OptionalPublicIdSchema, OptionalTimestampMsSchema } from "../../shared/schemas.js";
+import {
+    OptionalPublicIdSchema,
+    OptionalTimestampMsSchema,
+    U128Schema,
+} from "../../shared/schemas.js";
 import { enumLabel, enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import { E18_SCALE, scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { createUserTradeSchema } from "../trades/trades.schemas.js";
@@ -56,6 +60,15 @@ export function createOrderSchema(scales: SdkScales) {
             inheritedCumQtyScaled: v.optional(v.bigint(), 0n),
             leavesQtyScaled: v.bigint(),
             avgPriceTicks: v.bigint(),
+            avgPriceE18: v.optional(U128Schema),
+            cumNotional: v.optional(U128Schema),
+            feeTotal: v.optional(
+                v.object({
+                    amountE18: v.optional(U128Schema),
+                    isRebate: v.boolean(),
+                    qtyScaled: v.bigint(),
+                }),
+            ),
             priceTicks: v.bigint(),
             createdTsNs: v.bigint(),
             terminalTsNs: v.bigint(),
@@ -102,7 +115,26 @@ export function createOrderSchema(scales: SdkScales) {
                 cumQty: scaledToDecimalOutput(o.cumQtyScaled, baseQtyScale),
                 inheritedCumQty: scaledToDecimalOutput(o.inheritedCumQtyScaled, baseQtyScale),
                 leavesQty: scaledToDecimalOutput(o.leavesQtyScaled, baseQtyScale),
-                avgPx: scaledToDecimalOutput(o.avgPriceTicks, scales.price()),
+                avgPx:
+                    o.avgPriceE18 === undefined
+                        ? scaledToDecimalOutput(o.avgPriceTicks, scales.price())
+                        : scaledToDecimalOutput(fromU128(o.avgPriceE18), E18_SCALE),
+                cumQuote: scaledToDecimalOutput(
+                    fromU128(o.cumNotional),
+                    scales.price() + baseQtyScale,
+                ),
+                ...(o.feeTotal === undefined
+                    ? {}
+                    : {
+                          feeTotal: {
+                              amount: scaledToDecimalOutput(
+                                  fromU128(o.feeTotal.amountE18),
+                                  E18_SCALE,
+                              ),
+                              isRebate: o.feeTotal.isRebate,
+                              qty: scaledToDecimalOutput(o.feeTotal.qtyScaled, baseQtyScale),
+                          },
+                      }),
                 price: scaledToDecimalOutput(o.priceTicks, scales.price()),
                 createdTs: tsNsToMs(o.createdTsNs),
                 terminalTs: tsNsToMs(o.terminalTsNs),

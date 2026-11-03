@@ -197,7 +197,10 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
     };
     const withFallback = (fallback: string) => message || fallback;
 
-    if (ce.rawMessage === TIMESTAMP_SKEW_CODE) {
+    if (
+        ce.rawMessage === TIMESTAMP_SKEW_CODE ||
+        (detail?.service === "auth" && detail.code === "AUTH_TIMESTAMP_SKEW")
+    ) {
         return new TimestampSkewError(
             "API key timestamp is outside the allowed skew window.",
             options,

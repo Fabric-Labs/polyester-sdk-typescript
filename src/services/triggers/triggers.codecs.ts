@@ -57,6 +57,7 @@ export const TRIGGER_EVENT_TYPE_VALUES = [
     "failed",
     "activated",
     "armed",
+    "fire_refused",
 ] as const;
 export type TriggerEventTypeValue = (typeof TRIGGER_EVENT_TYPE_VALUES)[number];
 
@@ -172,6 +173,7 @@ export const TRIGGER_FAILURE_REASON_LABEL_VALUES = [
     "index_price_unavailable",
     "trigger_would_trigger_immediately",
     "max_open_orders_per_pair",
+    "account_repairing",
     "missing_reason_code",
     "internal_error",
 ] as const;
@@ -238,6 +240,7 @@ export const TriggerEventTypeCodec = {
         failed: Proto.TriggerEventType.EVENT_FAILED,
         activated: Proto.TriggerEventType.EVENT_ACTIVATED,
         armed: Proto.TriggerEventType.EVENT_ARMED,
+        fire_refused: Proto.TriggerEventType.EVENT_FIRE_REFUSED,
     } satisfies InputToProto<TriggerEventTypeValue, Proto.TriggerEventType>,
     protoToOutput: {
         [Proto.TriggerEventType.EVENT_UNSPECIFIED]: "unspecified",
@@ -247,6 +250,7 @@ export const TriggerEventTypeCodec = {
         [Proto.TriggerEventType.EVENT_FAILED]: "failed",
         [Proto.TriggerEventType.EVENT_ACTIVATED]: "activated",
         [Proto.TriggerEventType.EVENT_ARMED]: "armed",
+        [Proto.TriggerEventType.EVENT_FIRE_REFUSED]: "fire_refused",
     } satisfies ProtoToOutput<Proto.TriggerEventType, TriggerEventTypeLabelValue>,
 } as const;
 
@@ -368,6 +372,7 @@ export const TriggerFailureReasonCodec = {
         [Proto.TriggerFailureReason.TRIGGER_WOULD_TRIGGER_IMMEDIATELY]:
             "trigger_would_trigger_immediately",
         [Proto.TriggerFailureReason.MAX_OPEN_ORDERS_PER_PAIR]: "max_open_orders_per_pair",
+        [Proto.TriggerFailureReason.ACCOUNT_REPAIRING]: "account_repairing",
         [Proto.TriggerFailureReason.MISSING_REASON_CODE]: "missing_reason_code",
         [Proto.TriggerFailureReason.INTERNAL_ERROR]: "internal_error",
     } satisfies ProtoToOutput<Proto.TriggerFailureReason, TriggerFailureReasonLabelValue>,

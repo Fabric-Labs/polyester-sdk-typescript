@@ -138,7 +138,14 @@ function baseWireTrigger(overrides: Partial<Proto.Trigger> = {}): Proto.Trigger 
 describe("ListTriggerEventsInputSchema", () => {
     it("exposes only supported event filters", () => {
         expectTypeOf<ListTriggerEventsInput["eventType"]>().toEqualTypeOf<
-            "fired" | "canceled" | "updated" | "failed" | "activated" | "armed" | undefined
+            | "fired"
+            | "canceled"
+            | "updated"
+            | "failed"
+            | "activated"
+            | "armed"
+            | "fire_refused"
+            | undefined
         >();
         expect(
             v.safeParse(ListTriggerEventsInputSchema, {
@@ -1312,6 +1319,33 @@ describe("Trigger result and output schemas", () => {
                 terminalReason: { case: undefined },
             }),
         ).toMatchObject({ eventType: "activated", childOrderId: undefined });
+    });
+
+    it("maps fire refused events with their reason, keeping unknown reasons", () => {
+        const schema = createTriggerEventSchema(testScales());
+        const refused = (fireRefusalReason?: number) =>
+            v.parse(schema, {
+                triggerId: 11n,
+                subaccountId: 22n,
+                symbolId: 1,
+                triggerType: Proto.TriggerType.STOP_LOSS,
+                eventType: Proto.TriggerEventType.EVENT_FIRE_REFUSED,
+                tsNs: 1_000_000n,
+                childSeq: 2,
+                childOrderId: 0n,
+                terminalReason: { case: undefined },
+                fireRefusalReason,
+            });
+
+        expect(refused(Proto.TriggerFailureReason.ACCOUNT_REPAIRING)).toMatchObject({
+            eventType: "fire_refused",
+            childSeq: 2,
+            childOrderId: undefined,
+            failureReason: undefined,
+            fireRefusalReason: "account_repairing",
+        });
+        expect(refused(212)).toMatchObject({ fireRefusalReason: "unspecified" });
+        expect(refused()).toMatchObject({ fireRefusalReason: undefined });
     });
 
     it("maps attached leg armed events", () => {

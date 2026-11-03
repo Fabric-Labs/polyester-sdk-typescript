@@ -73,6 +73,7 @@ describe("ChangelogService", () => {
                 sections: [
                     {
                         heading: "API",
+                        surface: Proto.Surface.MARKET_DATA,
                         changes: [
                             change({ surfaces: [99 as Proto.Surface], actionRequired: true }),
                         ],
@@ -89,6 +90,7 @@ describe("ChangelogService", () => {
             sections: [
                 {
                     heading: "API",
+                    surface: "market_data",
                     changes: [
                         {
                             id: formatId(42n),

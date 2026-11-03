@@ -1642,6 +1642,36 @@ describe("OrderSchema", () => {
         expect(order.marketClientRefPrice).toBeUndefined();
     });
 
+    it("reads exact execution totals without a float", () => {
+        const schema = createOrderSchema(testScales());
+
+        const order = v.parse(
+            schema,
+            rawOrder({
+                cumQtyScaled: 4_148_504n,
+                avgPriceTicks: 2_908n,
+                avgPriceE18: { hi: 0n, lo: 2_908_714_285_714n },
+                cumNotional: { hi: 17n, lo: 7_963_446_064_217_622_528n },
+                feeTotal: {
+                    amountE18: { hi: 0n, lo: 964_674_285_951_840_000n },
+                    isRebate: false,
+                    qtyScaled: 4_148_504n,
+                },
+            }),
+        );
+
+        expect(order).toMatchObject({
+            cumQty: "0.04148504",
+            avgPx: "0.000002908714285714",
+            cumQuote: "3215.5809531728",
+            feeTotal: { amount: "0.96467428595184", isRebate: false, qty: "0.04148504" },
+        });
+
+        const unfilled = v.parse(schema, rawOrder({ avgPriceTicks: 100_250_000_000n }));
+        expect(unfilled).toMatchObject({ avgPx: "100.25", cumQuote: "0" });
+        expect(unfilled).not.toHaveProperty("feeTotal");
+    });
+
     it("accepts unset wire versions and rejects non-integers", () => {
         const schema = createOrderSchema(testScales());
 
