@@ -183,6 +183,7 @@ export type CreateTradingWithdrawRequest = Message<"chain.withdraw.v1.CreateTrad
 
   /**
    * User/API signature over deterministic TradingWithdrawIntentPayload bytes.
+   * Must not be empty.
    *
    * @generated from field: bytes payload_signature = 2;
    */
@@ -225,7 +226,8 @@ export type CreateWalletTradingWithdrawRequest = Message<"chain.withdraw.v1.Crea
   signerWallet: string;
 
   /**
-   * Wallet EIP-191 personal_sign signature over the canonical withdraw authorization message.
+   * Wallet EIP-191 personal_sign signature over the canonical withdraw
+   * authorization message. Must not be empty.
    *
    * @generated from field: bytes payload_signature = 4;
    */

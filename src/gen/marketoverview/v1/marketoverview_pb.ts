@@ -89,6 +89,11 @@ export type MarketOverview = Message<"marketoverview.v1.MarketOverview"> & {
 
   /**
    * Rolling 24h change expressed in basis points (bp). Example: +123 = +1.23%.
+   * Measured from the 24h open to the last price, at minute granularity: the
+   * 24h open is the price at the start of the minute that contains the time
+   * 24h ago or, for a market that first traded later, its first trade. 0 when
+   * the market has no trade yet (its last trade timestamp is 0 too) and until
+   * its first minute of trading has ended.
    *
    * @generated from field: int32 change_24h_bps = 5;
    */

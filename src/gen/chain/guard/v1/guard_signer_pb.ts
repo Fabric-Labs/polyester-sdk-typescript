@@ -84,7 +84,7 @@ export type GuardApproval = Message<"chain.guard.v1.GuardApproval"> & {
   deadlineUnix: bigint;
 
   /**
-   * EIP-712 signature over the guard approval message.
+   * EIP-712 signature over the guard approval message. Must not be empty.
    *
    * @generated from field: bytes signature = 3;
    */

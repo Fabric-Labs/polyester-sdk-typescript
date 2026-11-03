@@ -548,7 +548,8 @@ export type CreateSubaccountRequest = Message<"auth.v1.CreateSubaccountRequest">
   smartAccountAddress: string;
 
   /**
-   * Exact EIP-191 authorization returned by CreateSubaccountChallenge.
+   * Exact EIP-191 authorization returned by CreateSubaccountChallenge. Maximum
+   * length is 4096 UTF-8 bytes.
    *
    * @generated from field: string message = 3;
    */
@@ -1382,7 +1383,8 @@ export type ActivityEvent = Message<"auth.v1.ActivityEvent"> & {
   actorAccountId: bigint;
 
   /**
-   * Structured event details as a JSON string. Maximum 64 KiB.
+   * Structured event details as a JSON string. Maximum 64 KiB (65536 UTF-8
+   * bytes).
    *
    * @generated from field: string payload_json = 9;
    */
