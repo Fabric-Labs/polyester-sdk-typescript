@@ -125,6 +125,13 @@ export const SubaccountIdInputSchema = v.strictObject({
 
 export type SubaccountIdInput = v.InferInput<typeof SubaccountIdInputSchema>;
 
+export const GetSubaccountInputSchema = v.strictObject({
+    subaccountId: idInputSchema("subaccountId"),
+    includeBalances: v.optional(v.boolean()),
+});
+
+export type GetSubaccountInput = v.InferInput<typeof GetSubaccountInputSchema>;
+
 export const CreateSubaccountResultSchema = v.object({
     subaccountId: PublicIdSchema,
     totalCreated: v.number(),

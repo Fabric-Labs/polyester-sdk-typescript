@@ -1602,6 +1602,15 @@ describe("OrderSchema", () => {
                 }),
             ),
         ).toMatchObject({ status: "canceled", cancelReason: "market_halted" });
+        expect(
+            v.parse(
+                schema,
+                rawOrder({
+                    status: ProtoRead.OrderStatus.CANCELED,
+                    cancelReason: ProtoRead.CancelReason.ATTACHED_EXIT_FIRED,
+                }),
+            ),
+        ).toMatchObject({ status: "canceled", cancelReason: "attached_exit_fired" });
     });
 
     it("reads reasons newer than this build as a generic refusal or cancel", () => {

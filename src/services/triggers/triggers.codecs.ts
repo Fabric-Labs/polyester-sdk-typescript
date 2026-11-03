@@ -174,6 +174,7 @@ export const TRIGGER_FAILURE_REASON_LABEL_VALUES = [
     "trigger_would_trigger_immediately",
     "max_open_orders_per_pair",
     "account_repairing",
+    "self_trade_prevented",
     "missing_reason_code",
     "internal_error",
 ] as const;
@@ -373,6 +374,7 @@ export const TriggerFailureReasonCodec = {
             "trigger_would_trigger_immediately",
         [Proto.TriggerFailureReason.MAX_OPEN_ORDERS_PER_PAIR]: "max_open_orders_per_pair",
         [Proto.TriggerFailureReason.ACCOUNT_REPAIRING]: "account_repairing",
+        [Proto.TriggerFailureReason.SELF_TRADE_PREVENTED]: "self_trade_prevented",
         [Proto.TriggerFailureReason.MISSING_REASON_CODE]: "missing_reason_code",
         [Proto.TriggerFailureReason.INTERNAL_ERROR]: "internal_error",
     } satisfies ProtoToOutput<Proto.TriggerFailureReason, TriggerFailureReasonLabelValue>,

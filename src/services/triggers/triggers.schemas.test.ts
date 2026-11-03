@@ -1344,6 +1344,10 @@ describe("Trigger result and output schemas", () => {
             failureReason: undefined,
             fireRefusalReason: "account_repairing",
         });
+        expect(refused(Proto.TriggerFailureReason.SELF_TRADE_PREVENTED)).toMatchObject({
+            eventType: "fire_refused",
+            fireRefusalReason: "self_trade_prevented",
+        });
         expect(refused(212)).toMatchObject({ fireRefusalReason: "unspecified" });
         expect(refused()).toMatchObject({ fireRefusalReason: undefined });
     });
