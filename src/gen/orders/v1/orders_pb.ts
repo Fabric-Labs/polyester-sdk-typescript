@@ -211,6 +211,9 @@ export type OrderIntent = Message<"orders.v1.OrderIntent"> & {
     /**
      * Hard all-in quote debit limit scaled by the pair's quote_quantity_scale
      * from GetSpotConfig. Valid only for BUY market IOC and BUY limit IOC.
+     * The order spends up to this amount at the prices it fills at. Once what
+     * is left buys no further quantity step, it ends FILLED; if the book or
+     * its price limit stops it first, its remainder is canceled.
      *
      * @generated from field: int64 max_quote_debit_scaled = 4;
      */
@@ -545,7 +548,9 @@ export type CancelOrderRequest = Message<"orders.v1.CancelOrderRequest"> & {
   /**
    * Optional trading symbol numeric identifier. When set, it must match the
    * order's symbol, or the order is reported unknown (ERROR_CODE_ORDER_UNKNOWN)
-   * and nothing is canceled. When omitted, the order's own symbol is used.
+   * and nothing is canceled. An order that ended a while ago may instead be
+   * reported ended (ERROR_CODE_ORDER_ALREADY_TERMINAL). When omitted, the
+   * order's own symbol is used.
    *
    * @generated from field: uint32 symbol_id = 3;
    */
@@ -1075,6 +1080,9 @@ export const RiskPolicySchema: GenMessage<RiskPolicy> = /*@__PURE__*/
 
 /**
  * CancelAllOrdersRequest cancels all matching open orders for an account.
+ * It cancels orders only, never triggers: see CancelAllOrders for what
+ * happens to stop-loss, take-profit and trailing stops, TWAPs, ladders and
+ * attached legs, and how to stop them too.
  *
  * @generated from message orders.v1.CancelAllOrdersRequest
  */
@@ -1172,9 +1180,10 @@ export type CancelAllOrdersResponse = Message<"orders.v1.CancelAllOrdersResponse
 
   /**
    * Number of open orders that matched the filter when the request was
-   * accepted, including orders whose cancellation was already in progress.
-   * Orders placed after acceptance are not counted. Unless `dry_run` is set,
-   * equals `submitted_cancels` plus `failed_cancels`.
+   * accepted, including orders whose cancellation was already in progress
+   * and open orders that triggers placed. Triggers themselves are never
+   * counted. Orders placed after acceptance are not counted. Unless
+   * `dry_run` is set, equals `submitted_cancels` plus `failed_cancels`.
    *
    * @generated from field: uint32 matched_orders = 2;
    */
@@ -1332,6 +1341,8 @@ export const CancelAllOrdersResponse_ListingStatusSchema: GenEnum<CancelAllOrder
 
 /**
  * CancelAllAfterRequest arms/disables a dead-man switch for automatic cancel-all.
+ * When the switch fires, it cancels what a CancelAllOrders with the same
+ * scope cancels: open orders, never triggers. See CancelAllAfter.
  *
  * @generated from message orders.v1.CancelAllAfterRequest
  */
@@ -1384,8 +1395,10 @@ export const CancelAllAfterRequestSchema: GenMessage<CancelAllAfterRequest> = /*
 
 /**
  * DeadManSwitchScope describes the recorded scope of an armed dead-man switch.
- * Expiry cancels working orders in this scope, including working child orders.
- * Waiting triggers remain active and may create further orders.
+ * Expiry cancels working orders in this scope, including orders that
+ * triggers placed. It cancels no trigger: armed stop-loss, take-profit and
+ * trailing stops and running TWAPs remain active and may create further
+ * orders after expiry. Cancel them with TriggersService.CancelTrigger.
  *
  * @generated from message orders.v1.DeadManSwitchScope
  */
@@ -4343,6 +4356,14 @@ export const OrdersService: GenService<{
    * Cancels an existing order by id or client order id.
    * REST clients submit base58 order IDs. ConnectRPC clients submit fixed64
    * order IDs.
+   * A cancel of an order that has already ended returns
+   * ERROR_CODE_ORDER_ALREADY_TERMINAL, including a cancel retried after a
+   * timeout once the order has ended: treat it as already done. A repeat
+   * while an earlier cancel of the order is still in progress is accepted
+   * again and changes nothing. A client order ID keeps naming its order for
+   * at least a minute after the order ends; a cancel by client order ID sent
+   * later may return ERROR_CODE_ORDER_UNKNOWN instead. Retry by order ID, or
+   * read the order, to tell an ended order from an unknown one.
    *
    * @generated from rpc orders.v1.OrdersService.CancelOrder
    */
@@ -4358,6 +4379,30 @@ export const OrdersService: GenService<{
    * lists up to 200 of them, oldest first, with the total count.
    * Final state is confirmed via the order update stream or read path.
    *
+   * It cancels orders, not triggers. Open orders that triggers placed match
+   * like any other order and are canceled: a TWAP's working slice, a
+   * ladder's levels, the order a fired stop placed, and the working exit of
+   * an attached take-profit, stop-loss or trailing stop. The triggers
+   * themselves are not canceled, and their reserved funds stay reserved:
+   * - A stop-loss, take-profit or trailing stop that has not fired stays
+   *   armed and places its order when its condition is met.
+   * - A TWAP keeps running and places its next slice when it is due.
+   * - A ladder ends once none of its levels remains open: canceled when
+   *   none of them filled, completed when any did.
+   * - An attached leg whose working exit is canceled ends canceled, and so
+   *   do the parent's other legs when oco is set. Attached legs without a
+   *   working exit keep protecting the parent's filled position, even when
+   *   the parent order itself is canceled; they end only if the parent is
+   *   canceled before any fill.
+   * - A paused trigger stays paused and can be resumed.
+   *
+   * To stop all automated trading, cancel each live trigger with
+   * TriggersService.CancelTrigger, then cancel the orders: a trigger that
+   * fires before its cancel places an order that the cancel-all then
+   * cancels. TriggersService.ListTriggers with the statuses STATUS_CREATED,
+   * STATUS_ARMED, STATUS_RUNNING and STATUS_PAUSED lists the live triggers,
+   * attached legs included.
+   *
    * @generated from rpc orders.v1.OrdersService.CancelAllOrders
    */
   cancelAllOrders: {
@@ -4368,6 +4413,13 @@ export const OrdersService: GenService<{
   /**
    * Set cancel-all-after (dead-man switch).
    * Arms or disables automatic cancel-all if heartbeat is not refreshed before expiry.
+   * When the switch fires, it cancels what CancelAllOrders with the same
+   * symbol and side scope cancels: open orders, including those that
+   * triggers placed, and no trigger. Armed stop-loss, take-profit and
+   * trailing stops, running TWAPs and attached legs without a working exit
+   * stay active and can place new orders after it fires, exactly as after
+   * CancelAllOrders. The switch does not stop them: only
+   * TriggersService.CancelTrigger cancels a trigger.
    *
    * @generated from rpc orders.v1.OrdersService.CancelAllAfter
    */

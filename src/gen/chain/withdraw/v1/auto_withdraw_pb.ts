@@ -913,7 +913,10 @@ export const AutoWithdrawStepStateSchema: GenEnum<AutoWithdrawStepState> = /*@__
  * withdraw path, only to destinations on the account's external withdraw
  * whitelist. Changing a
  * rule requires a person with withdraw rights and a fresh single-use MFA
- * step-up; API keys can read rules and runs but never change them.
+ * step-up; API keys can read rules and runs but never change them. An API
+ * key reads only when its policy grants READ_AUTO_WITHDRAW (or
+ * MANAGE_AUTO_WITHDRAW), and only its own account: a root-account key reads
+ * the root account, and a subaccount key reads its subaccount.
  *
  * @generated from service chain.withdraw.v1.AutoWithdrawService
  */
@@ -945,6 +948,12 @@ export const AutoWithdrawService: GenService<{
   /**
    * Read the account's latest rule version.
    *
+   * An API key needs READ_AUTO_WITHDRAW in its policy and reads only its own
+   * account. Both refusals answer PERMISSION_DENIED: a key whose policy lacks
+   * the action gets "api key policy does not allow READ_AUTO_WITHDRAW", and a
+   * key that names an account other than its own, such as a root-account key
+   * naming a subaccount, gets "api key target scope mismatch".
+   *
    * @generated from rpc chain.withdraw.v1.AutoWithdrawService.GetAutoWithdrawRule
    */
   getAutoWithdrawRule: {
@@ -954,6 +963,12 @@ export const AutoWithdrawService: GenService<{
   },
   /**
    * List the account's auto-withdraw runs with their payouts, newest first.
+   *
+   * An API key needs READ_AUTO_WITHDRAW in its policy and reads only its own
+   * account. Both refusals answer PERMISSION_DENIED: a key whose policy lacks
+   * the action gets "api key policy does not allow READ_AUTO_WITHDRAW", and a
+   * key that names an account other than its own, such as a root-account key
+   * naming a subaccount, gets "api key target scope mismatch".
    *
    * @generated from rpc chain.withdraw.v1.AutoWithdrawService.ListAutoWithdrawRuns
    */

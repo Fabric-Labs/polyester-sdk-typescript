@@ -578,6 +578,7 @@ export function createTriggerEventSchema(scales: SdkScales) {
             childOrderId: v.bigint(),
             firePriceTicks: v.optional(v.bigint()),
             terminalReason: TerminalReasonRawSchema,
+            fireRefusalReason: v.optional(v.number()),
         }),
         v.transform((e) => ({
             triggerId: formatId(e.triggerId),
@@ -594,6 +595,11 @@ export function createTriggerEventSchema(scales: SdkScales) {
                     ? scaledToDecimalOutput(e.firePriceTicks, scales.price())
                     : undefined,
             ...transformTerminalReason(e.terminalReason),
+            /** Why a `fire_refused` attempt was refused; the trigger stayed live. */
+            fireRefusalReason:
+                e.fireRefusalReason === undefined
+                    ? undefined
+                    : enumLabel(TriggerFailureReasonCodec.protoToOutput, e.fireRefusalReason),
         })),
     );
 }

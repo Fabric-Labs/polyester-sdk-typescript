@@ -109,7 +109,8 @@ export type ExternalWithdrawAddress = Message<"auth.v1.ExternalWithdrawAddress">
   polychainChainId: number;
 
   /**
-   * Destination address on the selected external network.
+   * Destination address on the selected external network: 1-256 characters,
+   * without whitespace or angle brackets.
    *
    * @generated from field: string address = 2;
    */
@@ -440,7 +441,8 @@ export type ExternalAddressBookEntry = Message<"auth.v1.ExternalAddressBookEntry
   polychainChainId: number;
 
   /**
-   * Destination address on the selected external network.
+   * Destination address on the selected external network: 1-256 characters,
+   * without whitespace or angle brackets.
    *
    * @generated from field: string address = 8;
    */
@@ -768,7 +770,8 @@ export type ExternalRecentDestination = Message<"auth.v1.ExternalRecentDestinati
   polychainChainId: number;
 
   /**
-   * Destination address on the selected external network.
+   * Destination address on the selected external network: 1-256 characters,
+   * without whitespace or angle brackets.
    *
    * @generated from field: string address = 8;
    */

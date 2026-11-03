@@ -1339,7 +1339,7 @@ export type CreateQuickSwapRequest = Message<"swap.quickswap.v1.CreateQuickSwapR
 
   /**
    * Recipient of the swap output on the destination network, in its native
-   * text form without memo.
+   * text form without memo: 1-256 UTF-8 bytes.
    *
    * @generated from field: string destination_address = 3;
    */
@@ -1347,7 +1347,8 @@ export type CreateQuickSwapRequest = Message<"swap.quickswap.v1.CreateQuickSwapR
 
   /**
    * Destination tag or memo for destination_address. Required when the
-   * destination network needs one; must be empty otherwise.
+   * destination network needs one; must be empty otherwise. At most 128 UTF-8
+   * bytes.
    *
    * @generated from field: string destination_memo = 4;
    */
@@ -1355,8 +1356,9 @@ export type CreateQuickSwapRequest = Message<"swap.quickswap.v1.CreateQuickSwapR
 
   /**
    * Recipient of returned source funds on the source network, in its native
-   * text form without memo. Deposits that are not accepted, and source funds
-   * that are not traded, go here; never to an observed sender.
+   * text form without memo: 1-256 UTF-8 bytes. Deposits that are not
+   * accepted, and source funds that are not traded, go here; never to an
+   * observed sender.
    *
    * @generated from field: string return_address = 5;
    */
@@ -1364,7 +1366,7 @@ export type CreateQuickSwapRequest = Message<"swap.quickswap.v1.CreateQuickSwapR
 
   /**
    * Destination tag or memo for return_address. Required when the source
-   * network needs one; must be empty otherwise.
+   * network needs one; must be empty otherwise. At most 128 UTF-8 bytes.
    *
    * @generated from field: string return_memo = 6;
    */
@@ -1384,7 +1386,7 @@ export type CreateQuickSwapRequest = Message<"swap.quickswap.v1.CreateQuickSwapR
 
   /**
    * Recipient of refunded intermediate asset on the refund route's network,
-   * in its native text form without memo.
+   * in its native text form without memo. At most 256 UTF-8 bytes.
    *
    * @generated from field: string refund_address = 8;
    */
@@ -1392,7 +1394,7 @@ export type CreateQuickSwapRequest = Message<"swap.quickswap.v1.CreateQuickSwapR
 
   /**
    * Destination tag or memo for refund_address. Required when the refund
-   * network needs one; must be empty otherwise.
+   * network needs one; must be empty otherwise. At most 128 UTF-8 bytes.
    *
    * @generated from field: string refund_memo = 9;
    */
@@ -1400,8 +1402,8 @@ export type CreateQuickSwapRequest = Message<"swap.quickswap.v1.CreateQuickSwapR
 
   /**
    * Optional source wallet the end user will deposit from, for brokers that
-   * know it in advance. It must be a valid address on the source network and
-   * is shown on the QuickSwap.
+   * know it in advance. It must be a valid address on the source network, at
+   * most 256 UTF-8 bytes, and is shown on the QuickSwap.
    *
    * @generated from field: string source_wallet = 10;
    */

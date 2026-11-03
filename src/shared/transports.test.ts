@@ -664,6 +664,42 @@ describe("error details through transports", () => {
             message: "stale",
         });
     });
+
+    it("maps a Connect AUTH_TIMESTAMP_SKEW detail to a retryable TimestampSkewError", async () => {
+        const detail = toBinary(
+            AuthErrorDetailSchema,
+            create(AuthErrorDetailSchema, {
+                code: AuthErrorCode.AUTH_TIMESTAMP_SKEW,
+                message: "API key timestamp is outside the allowed window",
+            }),
+        );
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(
+            new Response(
+                JSON.stringify({
+                    code: "unauthenticated",
+                    message: "API key timestamp is outside the allowed window",
+                    details: [
+                        {
+                            type: AuthErrorDetailSchema.typeName,
+                            value: btoa(String.fromCharCode(...detail)).replace(/=+$/u, ""),
+                        },
+                    ],
+                }),
+                { status: 401, headers: { "content-type": "application/json" } },
+            ),
+        );
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const error = await createClient(RateLimitService, publicApi)
+            .getRateLimitConfig({})
+            .catch((error: unknown) => error);
+
+        expect(error).toBeInstanceOf(TimestampSkewError);
+        expect(error).toMatchObject({
+            code: "TIMESTAMP_SKEW",
+            retryable: true,
+            detail: { service: "auth", code: "AUTH_TIMESTAMP_SKEW" },
+        });
+    });
 });
 
 describe("caller cancellation through transports", () => {

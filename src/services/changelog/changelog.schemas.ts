@@ -92,9 +92,11 @@ export const ChangelogChangeSchema = v.object({
 
 export type ChangelogChange = v.InferOutput<typeof ChangelogChangeSchema>;
 
+/** `surface` is the product area the section covers, `"unspecified"` when it spans several. */
 export const ChangelogSectionSchema = v.object({
     heading: v.string(),
     summary: v.optional(v.string()),
+    surface: enumLabelSchema(ChangelogSurfaceCodec.protoToOutput),
     changes: v.optional(v.array(ChangelogChangeSchema), []),
 });
 

@@ -19,7 +19,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file orders/v1/orders_read.proto.
  */
 export const file_orders_v1_orders_read: GenFile = /*@__PURE__*/
-  fileDesc("ChtvcmRlcnMvdjEvb3JkZXJzX3JlYWQucHJvdG8SCW9yZGVycy52MSLdAQoLT3JkZXJPcmlnaW4SLAoFc2NvcGUYASABKA4yGy5vcmRlcnMudjEuT3JkZXJPcmlnaW5TY29wZUIAEjMKDHRyaWdnZXJfdHlwZRgCIAEoDjIbLm9yZGVycy52MS5PcmRlclRyaWdnZXJUeXBlQgASFwoKdHJpZ2dlcl9pZBgDIAEoBkgAiAEBEhwKD3BhcmVudF9vcmRlcl9pZBgEIAEoBkgBiAEBEhEKCWNoaWxkX3NlcRgFIAEoDUINCgtfdHJpZ2dlcl9pZEISChBfcGFyZW50X29yZGVyX2lkIuYCChRBdHRhY2hlZFJpc2tMZWdTdGF0ZRI4CgZzdGF0dXMYASABKA4yJi5vcmRlcnMudjEuQXR0YWNoZWRSaXNrTGVnU3RhdGUuU3RhdHVzQgASEwoLYXJtZWRfdHNfbnMYAiABKAQSFgoOdGVybWluYWxfdHNfbnMYAyABKAQSFwoKdHJpZ2dlcl9pZBgEIAEoBkgAiAEBEhsKDmNoaWxkX29yZGVyX2lkGAUgASgGSAGIAQEijgEKBlN0YXR1cxIWChJTVEFUVVNfVU5TUEVDSUZJRUQQABISCg5OT1RfQ09ORklHVVJFRBABEgsKB0NSRUFURUQQAhIJCgVBUk1FRBADEgsKB1JVTk5JTkcQBBINCglDT01QTEVURUQQBRIMCghDQU5DRUxFRBAGEgoKBkZBSUxFRBAHEgoKBlBBVVNFRBAIQg0KC190cmlnZ2VyX2lkQhEKD19jaGlsZF9vcmRlcl9pZCJ1ChZBdHRhY2hlZFJpc2tUYWtlUHJvZml0EisKBnBvbGljeRgBIAEoCzIbLm9yZGVycy52MS5UYWtlUHJvZml0UG9saWN5Ei4KBXN0YXRlGAIgASgLMh8ub3JkZXJzLnYxLkF0dGFjaGVkUmlza0xlZ1N0YXRlInEKFEF0dGFjaGVkUmlza1N0b3BMb3NzEikKBnBvbGljeRgBIAEoCzIZLm9yZGVycy52MS5TdG9wTG9zc1BvbGljeRIuCgVzdGF0ZRgCIAEoCzIfLm9yZGVycy52MS5BdHRhY2hlZFJpc2tMZWdTdGF0ZSJ5ChhBdHRhY2hlZFJpc2tUcmFpbGluZ1N0b3ASLQoGcG9saWN5GAEgASgLMh0ub3JkZXJzLnYxLlRyYWlsaW5nU3RvcFBvbGljeRIuCgVzdGF0ZRgCIAEoCzIfLm9yZGVycy52MS5BdHRhY2hlZFJpc2tMZWdTdGF0ZSLDAQoMQXR0YWNoZWRSaXNrEjYKC3Rha2VfcHJvZml0GAEgASgLMiEub3JkZXJzLnYxLkF0dGFjaGVkUmlza1Rha2VQcm9maXQSMgoJc3RvcF9sb3NzGAIgASgLMh8ub3JkZXJzLnYxLkF0dGFjaGVkUmlza1N0b3BMb3NzEjoKDXRyYWlsaW5nX3N0b3AYAyABKAsyIy5vcmRlcnMudjEuQXR0YWNoZWRSaXNrVHJhaWxpbmdTdG9wEgsKA29jbxgEIAEoCCIyCgxPcmRlckxpbmVhZ2USDAoCaWQYASABKAZCABIUCgpnZW5lcmF0aW9uGAIgASgNQgAiiAkKBU9yZGVyEhAKCG9yZGVyX2lkGAEgASgGEhEKCXN5bWJvbF9pZBgDIAEoDRIZCg9jbGllbnRfb3JkZXJfaWQYBCABKAlCABIfCgRzaWRlGAUgASgOMg8ub3JkZXJzLnYxLlNpZGVCABImCgZzdGF0dXMYBiABKA4yFi5vcmRlcnMudjEuT3JkZXJTdGF0dXMSKAoKb3JkZXJfdHlwZRgHIAEoDjIULm9yZGVycy52MS5PcmRlclR5cGUSLQoNdGltZV9pbl9mb3JjZRgIIAEoDjIWLm9yZGVycy52MS5UaW1lSW5Gb3JjZRJGChpzZWxmX3RyYWRlX3ByZXZlbnRpb25fbW9kZRgJIAEoDjIiLm9yZGVycy52MS5TZWxmVHJhZGVQcmV2ZW50aW9uTW9kZRImCglmZWVfYXNzZXQYCiABKA4yEy5vcmRlcnMudjEuRmVlQXNzZXQSEQoJcG9zdF9vbmx5GAsgASgIEhcKD29yaWdfcXR5X3NjYWxlZBgMIAEoAxIWCg5jdW1fcXR5X3NjYWxlZBgNIAEoAxIgChhpbmhlcml0ZWRfY3VtX3F0eV9zY2FsZWQYISABKAMSGQoRbGVhdmVzX3F0eV9zY2FsZWQYFCABKAMSFwoPYXZnX3ByaWNlX3RpY2tzGA4gASgDEhMKC3ByaWNlX3RpY2tzGA8gASgDEhUKDWNyZWF0ZWRfdHNfbnMYECABKAQSFgoOdGVybWluYWxfdHNfbnMYESABKAQSKwoNcmVqZWN0X3JlYXNvbhgiIAEoDjIULm9yZGVycy52MS5FcnJvckNvZGUSLgoNY2FuY2VsX3JlYXNvbhgjIAEoDjIXLm9yZGVycy52MS5DYW5jZWxSZWFzb24SLgoNYXR0YWNoZWRfcmlzaxgVIAEoCzIXLm9yZGVycy52MS5BdHRhY2hlZFJpc2sSJgoGb3JpZ2luGBYgASgLMhYub3JkZXJzLnYxLk9yZGVyT3JpZ2luEiUKHW1hcmtldF9jbGllbnRfcmVmX3ByaWNlX3RpY2tzGBcgASgDEiEKGW1hcmtldF9tYXhfc2xpcHBhZ2VfdGlja3MYGCABKAMSHwoXbWFya2V0X21heF9zbGlwcGFnZV9icHMYGSABKAUSEQoHdmVyc2lvbhgaIAEoDUIAEhgKEGJhdGNoX3JlcXVlc3RfaWQYGyABKAYSLQogc3VibWl0dGVkX21heF9xdW90ZV9kZWJpdF9zY2FsZWQYHCABKANIAIgBARIoCgdsaW5lYWdlGB8gASgLMhcub3JkZXJzLnYxLk9yZGVyTGluZWFnZRItCglleHBpcmVfYXQYICABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQiMKIV9zdWJtaXR0ZWRfbWF4X3F1b3RlX2RlYml0X3NjYWxlZEoECBIQE0oECBMQFEoECB0QHkoECB4QH1IUdGVybWluYWxfcmVhc29uX2NvZGVSD3Rlcm1pbmFsX3JlYXNvblIKbGluZWFnZV9pZFIKZ2VuZXJhdGlvbiKnAwoJVXNlclRyYWRlEhEKCXN5bWJvbF9pZBgCIAEoDRIQCghtYXRjaF9pZBgDIAEoBBIQCghvcmRlcl9pZBgEIAEoBhIfCgRzaWRlGAUgASgOMg8ub3JkZXJzLnYxLlNpZGVCABIQCghpc19tYWtlchgGIAEoCBITCgtwcmljZV90aWNrcxgHIAEoAxISCgpxdHlfc2NhbGVkGAggASgDEi8KDmZlZV9hbW91bnRfZTE4GAkgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBImCglmZWVfYXNzZXQYCiABKA4yEy5vcmRlcnMudjEuRmVlQXNzZXQSOgoZcmVmZXJyYWxfc2hhcmVfYW1vdW50X2UxOBgMIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSDQoFdHNfbnMYDSABKAQSFQoNZmVlX2lzX3JlYmF0ZRgOIAEoCBIoCgdsaW5lYWdlGBEgASgLMhcub3JkZXJzLnYxLk9yZGVyTGluZWFnZUoECA8QEEoECBAQEVIKbGluZWFnZV9pZFIKZ2VuZXJhdGlvbiI2Cg5Vc2VyVHJhZGVCYXRjaBIkCgZldmVudHMYASADKAsyFC5vcmRlcnMudjEuVXNlclRyYWRlIoECCg1PcmRlclRyYW5zZmVyEhAKCG1hdGNoX2lkGAEgASgEEhEKCXN5bWJvbF9pZBgKIAEoDRIQCghhc3NldF9pZBgCIAEoDRIrCgphbW91bnRfZTE4GAMgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIQCghpc19kZWJpdBgFIAEoCBIuCg10cmFuc2Zlcl9jb2RlGAYgASgOMhcubGVkZ2VyLnYxLlRyYW5zZmVyQ29kZRIsCgxhY2NvdW50X2NvZGUYByABKA4yFi5sZWRnZXIudjEuQWNjb3VudENvZGUSDQoFdHNfbnMYCCABKAQSDQoFdHhfaWQYCSABKAki5AIKFEdldE9wZW5PcmRlcnNSZXF1ZXN0EhwKDXN1YmFjY291bnRfaWQYASABKAZCAEgAiAEBEhMKCXN5bWJvbF9pZBgCIAMoDUIAEh8KBHNpZGUYAyABKA4yDy5vcmRlcnMudjEuU2lkZUIAEhQKBWxpbWl0GAogASgNQgBIAYgBARIUCgpwYWdlX3Rva2VuGAsgASgJQgASIgoVaW5jbHVkZV9hdHRhY2hlZF9yaXNrGAwgASgISAKIAQESKAobaW5jbHVkZV9hdHRhY2hlZF9yaXNrX3N0YXRlGA0gASgISAOIAQESGQoKdHJpZ2dlcl9pZBgOIAEoBkIASASIAQFCEAoOX3N1YmFjY291bnRfaWRCCAoGX2xpbWl0QhgKFl9pbmNsdWRlX2F0dGFjaGVkX3Jpc2tCHgocX2luY2x1ZGVfYXR0YWNoZWRfcmlza19zdGF0ZUINCgtfdHJpZ2dlcl9pZCJUChVHZXRPcGVuT3JkZXJzUmVzcG9uc2USIAoGb3JkZXJzGAEgAygLMhAub3JkZXJzLnYxLk9yZGVyEhkKD25leHRfcGFnZV90b2tlbhgCIAEoCUIAIuIDChZHZXRPcmRlckhpc3RvcnlSZXF1ZXN0EhwKDXN1YmFjY291bnRfaWQYASABKAZCAEgAiAEBEhMKCXN5bWJvbF9pZBgCIAMoDUIAEh8KBHNpZGUYAyABKA4yDy5vcmRlcnMudjEuU2lkZUIAEigKBnN0YXR1cxgEIAEoDjIWLm9yZGVycy52MS5PcmRlclN0YXR1c0IAEhgKC3N0YXJ0X3RzX25zGAogASgESAGIAQESFgoJZW5kX3RzX25zGAsgASgESAKIAQESFAoFbGltaXQYDCABKA1CAEgDiAEBEhQKCnBhZ2VfdG9rZW4YDSABKAlCABIiChVpbmNsdWRlX2F0dGFjaGVkX3Jpc2sYDiABKAhIBIgBARIoChtpbmNsdWRlX2F0dGFjaGVkX3Jpc2tfc3RhdGUYDyABKAhIBYgBARIZCgp0cmlnZ2VyX2lkGBAgASgGQgBIBogBAToAQhAKDl9zdWJhY2NvdW50X2lkQg4KDF9zdGFydF90c19uc0IMCgpfZW5kX3RzX25zQggKBl9saW1pdEIYChZfaW5jbHVkZV9hdHRhY2hlZF9yaXNrQh4KHF9pbmNsdWRlX2F0dGFjaGVkX3Jpc2tfc3RhdGVCDQoLX3RyaWdnZXJfaWQiVgoXR2V0T3JkZXJIaXN0b3J5UmVzcG9uc2USIAoGb3JkZXJzGAEgAygLMhAub3JkZXJzLnYxLk9yZGVyEhkKD25leHRfcGFnZV90b2tlbhgCIAEoCUIAIswDChRHZXRVc2VyVHJhZGVzUmVxdWVzdBIcCg1zdWJhY2NvdW50X2lkGAEgASgGQgBIAYgBARITCglzeW1ib2xfaWQYAiABKA1CABIfCgRzaWRlGAMgASgOMg8ub3JkZXJzLnYxLlNpZGVCABIYCgtzdGFydF90c19ucxgKIAEoBEgCiAEBEhYKCWVuZF90c19ucxgLIAEoBEgDiAEBEhQKBWxpbWl0GAwgASgNQgBIBIgBARIUCgpwYWdlX3Rva2VuGA0gASgJQgASHQoOYWZ0ZXJfbWF0Y2hfaWQYDiABKARCAEgFiAEBEhQKCG9yZGVyX2lkGA8gASgGQgBIABIWCgpsaW5lYWdlX2lkGBAgASgGQgBIABIhChJ0aHJvdWdoX2dlbmVyYXRpb24YESABKA1CAEgGiAEBEhkKEWluY2x1ZGVfdHJhbnNmZXJzGBIgASgIOgBCEQoPZXhlY3V0aW9uX3Njb3BlQhAKDl9zdWJhY2NvdW50X2lkQg4KDF9zdGFydF90c19uc0IMCgpfZW5kX3RzX25zQggKBl9saW1pdEIRCg9fYWZ0ZXJfbWF0Y2hfaWRCFQoTX3Rocm91Z2hfZ2VuZXJhdGlvbiKFAQoVR2V0VXNlclRyYWRlc1Jlc3BvbnNlEiQKBnRyYWRlcxgBIAMoCzIULm9yZGVycy52MS5Vc2VyVHJhZGUSGQoPbmV4dF9wYWdlX3Rva2VuGAIgASgJQgASKwoJdHJhbnNmZXJzGAMgAygLMhgub3JkZXJzLnYxLk9yZGVyVHJhbnNmZXIigwMKD0dldE9yZGVyUmVxdWVzdBIcCg1zdWJhY2NvdW50X2lkGAEgASgGQgBIAYgBARIUCghvcmRlcl9pZBgCIAEoBkIASAASGwoPY2xpZW50X29yZGVyX2lkGAMgASgJQgBIABIiChVpbmNsdWRlX2F0dGFjaGVkX3Jpc2sYCiABKAhIAogBARIoChtpbmNsdWRlX2F0dGFjaGVkX3Jpc2tfc3RhdGUYCyABKAhIA4gBARImChlpbmNsdWRlX2V4ZWN1dGlvbl9oaXN0b3J5GAwgASgISASIAQESFAoFbGltaXQYDSABKA1CAEgFiAEBEhQKCnBhZ2VfdG9rZW4YDiABKAlCADoAQgcKA2tleRIAQhAKDl9zdWJhY2NvdW50X2lkQhgKFl9pbmNsdWRlX2F0dGFjaGVkX3Jpc2tCHgocX2luY2x1ZGVfYXR0YWNoZWRfcmlza19zdGF0ZUIcChpfaW5jbHVkZV9leGVjdXRpb25faGlzdG9yeUIICgZfbGltaXQivgEKEEdldE9yZGVyUmVzcG9uc2USHwoFb3JkZXIYASABKAsyEC5vcmRlcnMudjEuT3JkZXISJAoGdHJhZGVzGAIgAygLMhQub3JkZXJzLnYxLlVzZXJUcmFkZRIrCgl0cmFuc2ZlcnMYAyADKAsyGC5vcmRlcnMudjEuT3JkZXJUcmFuc2ZlchIZCg9uZXh0X3BhZ2VfdG9rZW4YBiABKAlCABIbChNleGVjdXRpb25zX2NvbXBsZXRlGAcgASgIImoKHEdldEJhdGNoUmVwbGFjZVN0YXR1c1JlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASACIAQESGgoQYmF0Y2hfcmVxdWVzdF9pZBgCIAEoBkIAQhAKDl9zdWJhY2NvdW50X2lkIpQCChZCYXRjaFJlcGxhY2VTdGF0dXNJdGVtEhIKCml0ZW1faW5kZXgYASABKA0SKwoFcGhhc2UYAiABKA4yHC5vcmRlcnMudjEuQmF0Y2hSZXBsYWNlUGhhc2USFAoMb2xkX29yZGVyX2lkGAMgASgGEhwKFHJlcGxhY2VtZW50X29yZGVyX2lkGAQgASgGEiwKDG9yZGVyX3N0YXR1cxgFIAEoDjIWLm9yZGVycy52MS5PcmRlclN0YXR1cxIMCgRjb2RlGAYgASgJEhUKDXVwZGF0ZWRfdHNfbnMYByABKAQSMgoMYWN0aW9uX3Rha2VuGAggASgOMhwub3JkZXJzLnYxLk1vZGlmeUFjdGlvblRha2VuIowCCh1HZXRCYXRjaFJlcGxhY2VTdGF0dXNSZXNwb25zZRIYChBiYXRjaF9yZXF1ZXN0X2lkGAEgASgGEkAKEGFkbWlzc2lvbl9zdGF0dXMYAiABKA4yJi5vcmRlcnMudjEuQmF0Y2hSZXBsYWNlQWRtaXNzaW9uU3RhdHVzEjAKBWl0ZW1zGAMgAygLMiEub3JkZXJzLnYxLkJhdGNoUmVwbGFjZVN0YXR1c0l0ZW0SFgoOYWNjZXB0ZWRfY291bnQYBCABKA0SFgoOcmVqZWN0ZWRfY291bnQYBSABKA0SFgoOYWNjZXB0ZWRfdHNfbnMYBiABKAQSFQoNdXBkYXRlZF90c19ucxgHIAEoBCqBAQoLT3JkZXJTdGF0dXMSHAoYT1JERVJfU1RBVFVTX1VOU1BFQ0lGSUVEEAASCwoHUEVORElORxABEhIKDlBFTkRJTkdfQ0FOQ0VMEAISCwoHV09SS0lORxADEgoKBkZJTExFRBAEEgwKCENBTkNFTEVEEAUSDAoIUkVKRUNURUQQBiruBAoMQ2FuY2VsUmVhc29uEh0KGUNBTkNFTF9SRUFTT05fVU5TUEVDSUZJRUQQABIeChpDQU5DRUxfUkVBU09OX1VTRVJfUkVRVUVTVBABEh8KG0NBTkNFTF9SRUFTT05fSU9DX1JFTUFJTkRFUhACEiIKHkNBTkNFTF9SRUFTT05fTUFSS0VUX1JFTUFJTkRFUhADEiIKHkNBTkNFTF9SRUFTT05fU1RQX0VYUElSRV9NQUtFUhAEEiIKHkNBTkNFTF9SRUFTT05fU1RQX0VYUElSRV9UQUtFUhAFEiEKHUNBTkNFTF9SRUFTT05fU1RQX0VYUElSRV9CT1RIEAYSGgoWQ0FOQ0VMX1JFQVNPTl9SRVBMQUNFRBAHEh0KGUNBTkNFTF9SRUFTT05fR1REX0VYUElSRUQQCBIoCiRDQU5DRUxfUkVBU09OX1FUWV9BVF9PUl9CRUxPV19GSUxMRUQQCRIcChhDQU5DRUxfUkVBU09OX1BBSVJfRFJBSU4QChInCiNDQU5DRUxfUkVBU09OX0FUVEFDSEVEX1JJU0tfUkVGVVNFRBALEiIKHkNBTkNFTF9SRUFTT05fQ0FOQ0VMX0FMTF9BRlRFUhAMEiAKHENBTkNFTF9SRUFTT05fQUNDT1VOVF9SRVBBSVIQDRIfChtDQU5DRUxfUkVBU09OX1RXQVBfUk9MTE9WRVIQDhIhCh1DQU5DRUxfUkVBU09OX1NUUkFURUdZX0NBTkNFTBAPEhgKFENBTkNFTF9SRUFTT05fU1lTVEVNEBASHwobQ0FOQ0VMX1JFQVNPTl9NQVJLRVRfSEFMVEVEEBEqvwEKEUJhdGNoUmVwbGFjZVBoYXNlEiMKH0JBVENIX1JFUExBQ0VfUEhBU0VfVU5TUEVDSUZJRUQQABIgChxCQVRDSF9SRVBMQUNFX1BIQVNFX0FETUlUVEVEEAESHwobQkFUQ0hfUkVQTEFDRV9QSEFTRV9XT1JLSU5HEAISIAocQkFUQ0hfUkVQTEFDRV9QSEFTRV9SRUpFQ1RFRBADEiAKHEJBVENIX1JFUExBQ0VfUEhBU0VfVEVSTUlOQUwQBCp5ChBPcmRlck9yaWdpblNjb3BlEiIKHk9SREVSX09SSUdJTl9TQ09QRV9VTlNQRUNJRklFRBAAEgoKBkRJUkVDVBABEhEKDUFUVEFDSEVEX1JJU0sQAhIWChJTVEFOREFMT05FX1RSSUdHRVIQAxIKCgZTWVNURU0QBCp/ChBPcmRlclRyaWdnZXJUeXBlEiIKHk9SREVSX1RSSUdHRVJfVFlQRV9VTlNQRUNJRklFRBAAEg0KCVNUT1BfTE9TUxABEg8KC1RBS0VfUFJPRklUEAISEQoNVFJBSUxJTkdfU1RPUBADEggKBFRXQVAQBBIKCgZMQURERVIQBTLSAwoRT3JkZXJzUmVhZFNlcnZpY2USVAoNR2V0T3Blbk9yZGVycxIfLm9yZGVycy52MS5HZXRPcGVuT3JkZXJzUmVxdWVzdBogLm9yZGVycy52MS5HZXRPcGVuT3JkZXJzUmVzcG9uc2UiABJaCg9HZXRPcmRlckhpc3RvcnkSIS5vcmRlcnMudjEuR2V0T3JkZXJIaXN0b3J5UmVxdWVzdBoiLm9yZGVycy52MS5HZXRPcmRlckhpc3RvcnlSZXNwb25zZSIAElQKDUdldFVzZXJUcmFkZXMSHy5vcmRlcnMudjEuR2V0VXNlclRyYWRlc1JlcXVlc3QaIC5vcmRlcnMudjEuR2V0VXNlclRyYWRlc1Jlc3BvbnNlIgASRQoIR2V0T3JkZXISGi5vcmRlcnMudjEuR2V0T3JkZXJSZXF1ZXN0Ghsub3JkZXJzLnYxLkdldE9yZGVyUmVzcG9uc2UiABJsChVHZXRCYXRjaFJlcGxhY2VTdGF0dXMSJy5vcmRlcnMudjEuR2V0QmF0Y2hSZXBsYWNlU3RhdHVzUmVxdWVzdBooLm9yZGVycy52MS5HZXRCYXRjaFJlcGxhY2VTdGF0dXNSZXNwb25zZSIAGgBCQFo+Z2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9vcmRlcnMvdjE7b3JkZXJzdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_ledger_v1_catalog, file_orders_v1_orders, file_polyester_api_options, file_polyester_type_v1_u128]);
+  fileDesc("ChtvcmRlcnMvdjEvb3JkZXJzX3JlYWQucHJvdG8SCW9yZGVycy52MSLdAQoLT3JkZXJPcmlnaW4SLAoFc2NvcGUYASABKA4yGy5vcmRlcnMudjEuT3JkZXJPcmlnaW5TY29wZUIAEjMKDHRyaWdnZXJfdHlwZRgCIAEoDjIbLm9yZGVycy52MS5PcmRlclRyaWdnZXJUeXBlQgASFwoKdHJpZ2dlcl9pZBgDIAEoBkgAiAEBEhwKD3BhcmVudF9vcmRlcl9pZBgEIAEoBkgBiAEBEhEKCWNoaWxkX3NlcRgFIAEoDUINCgtfdHJpZ2dlcl9pZEISChBfcGFyZW50X29yZGVyX2lkIuYCChRBdHRhY2hlZFJpc2tMZWdTdGF0ZRI4CgZzdGF0dXMYASABKA4yJi5vcmRlcnMudjEuQXR0YWNoZWRSaXNrTGVnU3RhdGUuU3RhdHVzQgASEwoLYXJtZWRfdHNfbnMYAiABKAQSFgoOdGVybWluYWxfdHNfbnMYAyABKAQSFwoKdHJpZ2dlcl9pZBgEIAEoBkgAiAEBEhsKDmNoaWxkX29yZGVyX2lkGAUgASgGSAGIAQEijgEKBlN0YXR1cxIWChJTVEFUVVNfVU5TUEVDSUZJRUQQABISCg5OT1RfQ09ORklHVVJFRBABEgsKB0NSRUFURUQQAhIJCgVBUk1FRBADEgsKB1JVTk5JTkcQBBINCglDT01QTEVURUQQBRIMCghDQU5DRUxFRBAGEgoKBkZBSUxFRBAHEgoKBlBBVVNFRBAIQg0KC190cmlnZ2VyX2lkQhEKD19jaGlsZF9vcmRlcl9pZCJ1ChZBdHRhY2hlZFJpc2tUYWtlUHJvZml0EisKBnBvbGljeRgBIAEoCzIbLm9yZGVycy52MS5UYWtlUHJvZml0UG9saWN5Ei4KBXN0YXRlGAIgASgLMh8ub3JkZXJzLnYxLkF0dGFjaGVkUmlza0xlZ1N0YXRlInEKFEF0dGFjaGVkUmlza1N0b3BMb3NzEikKBnBvbGljeRgBIAEoCzIZLm9yZGVycy52MS5TdG9wTG9zc1BvbGljeRIuCgVzdGF0ZRgCIAEoCzIfLm9yZGVycy52MS5BdHRhY2hlZFJpc2tMZWdTdGF0ZSJ5ChhBdHRhY2hlZFJpc2tUcmFpbGluZ1N0b3ASLQoGcG9saWN5GAEgASgLMh0ub3JkZXJzLnYxLlRyYWlsaW5nU3RvcFBvbGljeRIuCgVzdGF0ZRgCIAEoCzIfLm9yZGVycy52MS5BdHRhY2hlZFJpc2tMZWdTdGF0ZSLDAQoMQXR0YWNoZWRSaXNrEjYKC3Rha2VfcHJvZml0GAEgASgLMiEub3JkZXJzLnYxLkF0dGFjaGVkUmlza1Rha2VQcm9maXQSMgoJc3RvcF9sb3NzGAIgASgLMh8ub3JkZXJzLnYxLkF0dGFjaGVkUmlza1N0b3BMb3NzEjoKDXRyYWlsaW5nX3N0b3AYAyABKAsyIy5vcmRlcnMudjEuQXR0YWNoZWRSaXNrVHJhaWxpbmdTdG9wEgsKA29jbxgEIAEoCCIyCgxPcmRlckxpbmVhZ2USDAoCaWQYASABKAZCABIUCgpnZW5lcmF0aW9uGAIgASgNQgAiYwoNT3JkZXJGZWVUb3RhbBIrCgphbW91bnRfZTE4GAEgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIRCglpc19yZWJhdGUYAiABKAgSEgoKcXR5X3NjYWxlZBgDIAEoAyKUCgoFT3JkZXISEAoIb3JkZXJfaWQYASABKAYSEQoJc3ltYm9sX2lkGAMgASgNEhkKD2NsaWVudF9vcmRlcl9pZBgEIAEoCUIAEh8KBHNpZGUYBSABKA4yDy5vcmRlcnMudjEuU2lkZUIAEiYKBnN0YXR1cxgGIAEoDjIWLm9yZGVycy52MS5PcmRlclN0YXR1cxIoCgpvcmRlcl90eXBlGAcgASgOMhQub3JkZXJzLnYxLk9yZGVyVHlwZRItCg10aW1lX2luX2ZvcmNlGAggASgOMhYub3JkZXJzLnYxLlRpbWVJbkZvcmNlEkYKGnNlbGZfdHJhZGVfcHJldmVudGlvbl9tb2RlGAkgASgOMiIub3JkZXJzLnYxLlNlbGZUcmFkZVByZXZlbnRpb25Nb2RlEiYKCWZlZV9hc3NldBgKIAEoDjITLm9yZGVycy52MS5GZWVBc3NldBIRCglwb3N0X29ubHkYCyABKAgSFwoPb3JpZ19xdHlfc2NhbGVkGAwgASgDEhYKDmN1bV9xdHlfc2NhbGVkGA0gASgDEiAKGGluaGVyaXRlZF9jdW1fcXR5X3NjYWxlZBghIAEoAxIZChFsZWF2ZXNfcXR5X3NjYWxlZBgUIAEoAxIXCg9hdmdfcHJpY2VfdGlja3MYDiABKAMSLgoNYXZnX3ByaWNlX2UxOBgkIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSLQoMY3VtX25vdGlvbmFsGCUgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIrCglmZWVfdG90YWwYJiABKAsyGC5vcmRlcnMudjEuT3JkZXJGZWVUb3RhbBITCgtwcmljZV90aWNrcxgPIAEoAxIVCg1jcmVhdGVkX3RzX25zGBAgASgEEhYKDnRlcm1pbmFsX3RzX25zGBEgASgEEisKDXJlamVjdF9yZWFzb24YIiABKA4yFC5vcmRlcnMudjEuRXJyb3JDb2RlEi4KDWNhbmNlbF9yZWFzb24YIyABKA4yFy5vcmRlcnMudjEuQ2FuY2VsUmVhc29uEi4KDWF0dGFjaGVkX3Jpc2sYFSABKAsyFy5vcmRlcnMudjEuQXR0YWNoZWRSaXNrEiYKBm9yaWdpbhgWIAEoCzIWLm9yZGVycy52MS5PcmRlck9yaWdpbhIlCh1tYXJrZXRfY2xpZW50X3JlZl9wcmljZV90aWNrcxgXIAEoAxIhChltYXJrZXRfbWF4X3NsaXBwYWdlX3RpY2tzGBggASgDEh8KF21hcmtldF9tYXhfc2xpcHBhZ2VfYnBzGBkgASgFEhEKB3ZlcnNpb24YGiABKA1CABIYChBiYXRjaF9yZXF1ZXN0X2lkGBsgASgGEi0KIHN1Ym1pdHRlZF9tYXhfcXVvdGVfZGViaXRfc2NhbGVkGBwgASgDSACIAQESKAoHbGluZWFnZRgfIAEoCzIXLm9yZGVycy52MS5PcmRlckxpbmVhZ2USLQoJZXhwaXJlX2F0GCAgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIjCiFfc3VibWl0dGVkX21heF9xdW90ZV9kZWJpdF9zY2FsZWRKBAgSEBNKBAgTEBRKBAgdEB5KBAgeEB9SFHRlcm1pbmFsX3JlYXNvbl9jb2RlUg90ZXJtaW5hbF9yZWFzb25SCmxpbmVhZ2VfaWRSCmdlbmVyYXRpb24ipwMKCVVzZXJUcmFkZRIRCglzeW1ib2xfaWQYAiABKA0SEAoIbWF0Y2hfaWQYAyABKAQSEAoIb3JkZXJfaWQYBCABKAYSHwoEc2lkZRgFIAEoDjIPLm9yZGVycy52MS5TaWRlQgASEAoIaXNfbWFrZXIYBiABKAgSEwoLcHJpY2VfdGlja3MYByABKAMSEgoKcXR5X3NjYWxlZBgIIAEoAxIvCg5mZWVfYW1vdW50X2UxOBgJIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSJgoJZmVlX2Fzc2V0GAogASgOMhMub3JkZXJzLnYxLkZlZUFzc2V0EjoKGXJlZmVycmFsX3NoYXJlX2Ftb3VudF9lMTgYDCABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Eg0KBXRzX25zGA0gASgEEhUKDWZlZV9pc19yZWJhdGUYDiABKAgSKAoHbGluZWFnZRgRIAEoCzIXLm9yZGVycy52MS5PcmRlckxpbmVhZ2VKBAgPEBBKBAgQEBFSCmxpbmVhZ2VfaWRSCmdlbmVyYXRpb24iNgoOVXNlclRyYWRlQmF0Y2gSJAoGZXZlbnRzGAEgAygLMhQub3JkZXJzLnYxLlVzZXJUcmFkZSKBAgoNT3JkZXJUcmFuc2ZlchIQCghtYXRjaF9pZBgBIAEoBBIRCglzeW1ib2xfaWQYCiABKA0SEAoIYXNzZXRfaWQYAiABKA0SKwoKYW1vdW50X2UxOBgDIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSEAoIaXNfZGViaXQYBSABKAgSLgoNdHJhbnNmZXJfY29kZRgGIAEoDjIXLmxlZGdlci52MS5UcmFuc2ZlckNvZGUSLAoMYWNjb3VudF9jb2RlGAcgASgOMhYubGVkZ2VyLnYxLkFjY291bnRDb2RlEg0KBXRzX25zGAggASgEEg0KBXR4X2lkGAkgASgJIuQCChRHZXRPcGVuT3JkZXJzUmVxdWVzdBIcCg1zdWJhY2NvdW50X2lkGAEgASgGQgBIAIgBARITCglzeW1ib2xfaWQYAiADKA1CABIfCgRzaWRlGAMgASgOMg8ub3JkZXJzLnYxLlNpZGVCABIUCgVsaW1pdBgKIAEoDUIASAGIAQESFAoKcGFnZV90b2tlbhgLIAEoCUIAEiIKFWluY2x1ZGVfYXR0YWNoZWRfcmlzaxgMIAEoCEgCiAEBEigKG2luY2x1ZGVfYXR0YWNoZWRfcmlza19zdGF0ZRgNIAEoCEgDiAEBEhkKCnRyaWdnZXJfaWQYDiABKAZCAEgEiAEBQhAKDl9zdWJhY2NvdW50X2lkQggKBl9saW1pdEIYChZfaW5jbHVkZV9hdHRhY2hlZF9yaXNrQh4KHF9pbmNsdWRlX2F0dGFjaGVkX3Jpc2tfc3RhdGVCDQoLX3RyaWdnZXJfaWQiVAoVR2V0T3Blbk9yZGVyc1Jlc3BvbnNlEiAKBm9yZGVycxgBIAMoCzIQLm9yZGVycy52MS5PcmRlchIZCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCACLiAwoWR2V0T3JkZXJIaXN0b3J5UmVxdWVzdBIcCg1zdWJhY2NvdW50X2lkGAEgASgGQgBIAIgBARITCglzeW1ib2xfaWQYAiADKA1CABIfCgRzaWRlGAMgASgOMg8ub3JkZXJzLnYxLlNpZGVCABIoCgZzdGF0dXMYBCABKA4yFi5vcmRlcnMudjEuT3JkZXJTdGF0dXNCABIYCgtzdGFydF90c19ucxgKIAEoBEgBiAEBEhYKCWVuZF90c19ucxgLIAEoBEgCiAEBEhQKBWxpbWl0GAwgASgNQgBIA4gBARIUCgpwYWdlX3Rva2VuGA0gASgJQgASIgoVaW5jbHVkZV9hdHRhY2hlZF9yaXNrGA4gASgISASIAQESKAobaW5jbHVkZV9hdHRhY2hlZF9yaXNrX3N0YXRlGA8gASgISAWIAQESGQoKdHJpZ2dlcl9pZBgQIAEoBkIASAaIAQE6AEIQCg5fc3ViYWNjb3VudF9pZEIOCgxfc3RhcnRfdHNfbnNCDAoKX2VuZF90c19uc0IICgZfbGltaXRCGAoWX2luY2x1ZGVfYXR0YWNoZWRfcmlza0IeChxfaW5jbHVkZV9hdHRhY2hlZF9yaXNrX3N0YXRlQg0KC190cmlnZ2VyX2lkIlYKF0dldE9yZGVySGlzdG9yeVJlc3BvbnNlEiAKBm9yZGVycxgBIAMoCzIQLm9yZGVycy52MS5PcmRlchIZCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCACLMAwoUR2V0VXNlclRyYWRlc1JlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASAGIAQESEwoJc3ltYm9sX2lkGAIgASgNQgASHwoEc2lkZRgDIAEoDjIPLm9yZGVycy52MS5TaWRlQgASGAoLc3RhcnRfdHNfbnMYCiABKARIAogBARIWCgllbmRfdHNfbnMYCyABKARIA4gBARIUCgVsaW1pdBgMIAEoDUIASASIAQESFAoKcGFnZV90b2tlbhgNIAEoCUIAEh0KDmFmdGVyX21hdGNoX2lkGA4gASgEQgBIBYgBARIUCghvcmRlcl9pZBgPIAEoBkIASAASFgoKbGluZWFnZV9pZBgQIAEoBkIASAASIQoSdGhyb3VnaF9nZW5lcmF0aW9uGBEgASgNQgBIBogBARIZChFpbmNsdWRlX3RyYW5zZmVycxgSIAEoCDoAQhEKD2V4ZWN1dGlvbl9zY29wZUIQCg5fc3ViYWNjb3VudF9pZEIOCgxfc3RhcnRfdHNfbnNCDAoKX2VuZF90c19uc0IICgZfbGltaXRCEQoPX2FmdGVyX21hdGNoX2lkQhUKE190aHJvdWdoX2dlbmVyYXRpb24ihQEKFUdldFVzZXJUcmFkZXNSZXNwb25zZRIkCgZ0cmFkZXMYASADKAsyFC5vcmRlcnMudjEuVXNlclRyYWRlEhkKD25leHRfcGFnZV90b2tlbhgCIAEoCUIAEisKCXRyYW5zZmVycxgDIAMoCzIYLm9yZGVycy52MS5PcmRlclRyYW5zZmVyIoMDCg9HZXRPcmRlclJlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASAGIAQESFAoIb3JkZXJfaWQYAiABKAZCAEgAEhsKD2NsaWVudF9vcmRlcl9pZBgDIAEoCUIASAASIgoVaW5jbHVkZV9hdHRhY2hlZF9yaXNrGAogASgISAKIAQESKAobaW5jbHVkZV9hdHRhY2hlZF9yaXNrX3N0YXRlGAsgASgISAOIAQESJgoZaW5jbHVkZV9leGVjdXRpb25faGlzdG9yeRgMIAEoCEgEiAEBEhQKBWxpbWl0GA0gASgNQgBIBYgBARIUCgpwYWdlX3Rva2VuGA4gASgJQgA6AEIHCgNrZXkSAEIQCg5fc3ViYWNjb3VudF9pZEIYChZfaW5jbHVkZV9hdHRhY2hlZF9yaXNrQh4KHF9pbmNsdWRlX2F0dGFjaGVkX3Jpc2tfc3RhdGVCHAoaX2luY2x1ZGVfZXhlY3V0aW9uX2hpc3RvcnlCCAoGX2xpbWl0Ir4BChBHZXRPcmRlclJlc3BvbnNlEh8KBW9yZGVyGAEgASgLMhAub3JkZXJzLnYxLk9yZGVyEiQKBnRyYWRlcxgCIAMoCzIULm9yZGVycy52MS5Vc2VyVHJhZGUSKwoJdHJhbnNmZXJzGAMgAygLMhgub3JkZXJzLnYxLk9yZGVyVHJhbnNmZXISGQoPbmV4dF9wYWdlX3Rva2VuGAYgASgJQgASGwoTZXhlY3V0aW9uc19jb21wbGV0ZRgHIAEoCCJqChxHZXRCYXRjaFJlcGxhY2VTdGF0dXNSZXF1ZXN0EhwKDXN1YmFjY291bnRfaWQYASABKAZCAEgAiAEBEhoKEGJhdGNoX3JlcXVlc3RfaWQYAiABKAZCAEIQCg5fc3ViYWNjb3VudF9pZCKUAgoWQmF0Y2hSZXBsYWNlU3RhdHVzSXRlbRISCgppdGVtX2luZGV4GAEgASgNEisKBXBoYXNlGAIgASgOMhwub3JkZXJzLnYxLkJhdGNoUmVwbGFjZVBoYXNlEhQKDG9sZF9vcmRlcl9pZBgDIAEoBhIcChRyZXBsYWNlbWVudF9vcmRlcl9pZBgEIAEoBhIsCgxvcmRlcl9zdGF0dXMYBSABKA4yFi5vcmRlcnMudjEuT3JkZXJTdGF0dXMSDAoEY29kZRgGIAEoCRIVCg11cGRhdGVkX3RzX25zGAcgASgEEjIKDGFjdGlvbl90YWtlbhgIIAEoDjIcLm9yZGVycy52MS5Nb2RpZnlBY3Rpb25UYWtlbiKMAgodR2V0QmF0Y2hSZXBsYWNlU3RhdHVzUmVzcG9uc2USGAoQYmF0Y2hfcmVxdWVzdF9pZBgBIAEoBhJAChBhZG1pc3Npb25fc3RhdHVzGAIgASgOMiYub3JkZXJzLnYxLkJhdGNoUmVwbGFjZUFkbWlzc2lvblN0YXR1cxIwCgVpdGVtcxgDIAMoCzIhLm9yZGVycy52MS5CYXRjaFJlcGxhY2VTdGF0dXNJdGVtEhYKDmFjY2VwdGVkX2NvdW50GAQgASgNEhYKDnJlamVjdGVkX2NvdW50GAUgASgNEhYKDmFjY2VwdGVkX3RzX25zGAYgASgEEhUKDXVwZGF0ZWRfdHNfbnMYByABKAQqgQEKC09yZGVyU3RhdHVzEhwKGE9SREVSX1NUQVRVU19VTlNQRUNJRklFRBAAEgsKB1BFTkRJTkcQARISCg5QRU5ESU5HX0NBTkNFTBACEgsKB1dPUktJTkcQAxIKCgZGSUxMRUQQBBIMCghDQU5DRUxFRBAFEgwKCFJFSkVDVEVEEAYq7gQKDENhbmNlbFJlYXNvbhIdChlDQU5DRUxfUkVBU09OX1VOU1BFQ0lGSUVEEAASHgoaQ0FOQ0VMX1JFQVNPTl9VU0VSX1JFUVVFU1QQARIfChtDQU5DRUxfUkVBU09OX0lPQ19SRU1BSU5ERVIQAhIiCh5DQU5DRUxfUkVBU09OX01BUktFVF9SRU1BSU5ERVIQAxIiCh5DQU5DRUxfUkVBU09OX1NUUF9FWFBJUkVfTUFLRVIQBBIiCh5DQU5DRUxfUkVBU09OX1NUUF9FWFBJUkVfVEFLRVIQBRIhCh1DQU5DRUxfUkVBU09OX1NUUF9FWFBJUkVfQk9USBAGEhoKFkNBTkNFTF9SRUFTT05fUkVQTEFDRUQQBxIdChlDQU5DRUxfUkVBU09OX0dURF9FWFBJUkVEEAgSKAokQ0FOQ0VMX1JFQVNPTl9RVFlfQVRfT1JfQkVMT1dfRklMTEVEEAkSHAoYQ0FOQ0VMX1JFQVNPTl9QQUlSX0RSQUlOEAoSJwojQ0FOQ0VMX1JFQVNPTl9BVFRBQ0hFRF9SSVNLX1JFRlVTRUQQCxIiCh5DQU5DRUxfUkVBU09OX0NBTkNFTF9BTExfQUZURVIQDBIgChxDQU5DRUxfUkVBU09OX0FDQ09VTlRfUkVQQUlSEA0SHwobQ0FOQ0VMX1JFQVNPTl9UV0FQX1JPTExPVkVSEA4SIQodQ0FOQ0VMX1JFQVNPTl9TVFJBVEVHWV9DQU5DRUwQDxIYChRDQU5DRUxfUkVBU09OX1NZU1RFTRAQEh8KG0NBTkNFTF9SRUFTT05fTUFSS0VUX0hBTFRFRBARKr8BChFCYXRjaFJlcGxhY2VQaGFzZRIjCh9CQVRDSF9SRVBMQUNFX1BIQVNFX1VOU1BFQ0lGSUVEEAASIAocQkFUQ0hfUkVQTEFDRV9QSEFTRV9BRE1JVFRFRBABEh8KG0JBVENIX1JFUExBQ0VfUEhBU0VfV09SS0lORxACEiAKHEJBVENIX1JFUExBQ0VfUEhBU0VfUkVKRUNURUQQAxIgChxCQVRDSF9SRVBMQUNFX1BIQVNFX1RFUk1JTkFMEAQqeQoQT3JkZXJPcmlnaW5TY29wZRIiCh5PUkRFUl9PUklHSU5fU0NPUEVfVU5TUEVDSUZJRUQQABIKCgZESVJFQ1QQARIRCg1BVFRBQ0hFRF9SSVNLEAISFgoSU1RBTkRBTE9ORV9UUklHR0VSEAMSCgoGU1lTVEVNEAQqfwoQT3JkZXJUcmlnZ2VyVHlwZRIiCh5PUkRFUl9UUklHR0VSX1RZUEVfVU5TUEVDSUZJRUQQABINCglTVE9QX0xPU1MQARIPCgtUQUtFX1BST0ZJVBACEhEKDVRSQUlMSU5HX1NUT1AQAxIICgRUV0FQEAQSCgoGTEFEREVSEAUy0gMKEU9yZGVyc1JlYWRTZXJ2aWNlElQKDUdldE9wZW5PcmRlcnMSHy5vcmRlcnMudjEuR2V0T3Blbk9yZGVyc1JlcXVlc3QaIC5vcmRlcnMudjEuR2V0T3Blbk9yZGVyc1Jlc3BvbnNlIgASWgoPR2V0T3JkZXJIaXN0b3J5EiEub3JkZXJzLnYxLkdldE9yZGVySGlzdG9yeVJlcXVlc3QaIi5vcmRlcnMudjEuR2V0T3JkZXJIaXN0b3J5UmVzcG9uc2UiABJUCg1HZXRVc2VyVHJhZGVzEh8ub3JkZXJzLnYxLkdldFVzZXJUcmFkZXNSZXF1ZXN0GiAub3JkZXJzLnYxLkdldFVzZXJUcmFkZXNSZXNwb25zZSIAEkUKCEdldE9yZGVyEhoub3JkZXJzLnYxLkdldE9yZGVyUmVxdWVzdBobLm9yZGVycy52MS5HZXRPcmRlclJlc3BvbnNlIgASbAoVR2V0QmF0Y2hSZXBsYWNlU3RhdHVzEicub3JkZXJzLnYxLkdldEJhdGNoUmVwbGFjZVN0YXR1c1JlcXVlc3QaKC5vcmRlcnMudjEuR2V0QmF0Y2hSZXBsYWNlU3RhdHVzUmVzcG9uc2UiABoAQkBaPmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vb3JkZXJzL3YxO29yZGVyc3YxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_ledger_v1_catalog, file_orders_v1_orders, file_polyester_api_options, file_polyester_type_v1_u128]);
 
 /**
  * OrderOrigin explains why an order exists and where it came from.
@@ -362,6 +362,51 @@ export const OrderLineageSchema: GenMessage<OrderLineage> = /*@__PURE__*/
   messageDesc(file_orders_v1_orders_read, 6);
 
 /**
+ * OrderFeeTotal is the total fee of an order's fills, net of rebates, as
+ * settled. A fill's fee is recorded shortly after the fill executes, so the
+ * total can trail the fills the order shows: qty_scaled says which fills it
+ * covers.
+ *
+ * @generated from message orders.v1.OrderFeeTotal
+ */
+export type OrderFeeTotal = Message<"orders.v1.OrderFeeTotal"> & {
+  /**
+   * Net fee magnitude in fixed 18-decimal units of the order's fee_asset:
+   * the fees of the covered fills less their rebates. Zero when they charged
+   * no fee.
+   *
+   * @generated from field: polyester.type.v1.U128 amount_e18 = 1;
+   */
+  amountE18?: U128 | undefined;
+
+  /**
+   * True when the covered fills' rebates exceed their fees, so the amount
+   * was credited to the account rather than charged.
+   *
+   * @generated from field: bool is_rebate = 2;
+   */
+  isRebate: boolean;
+
+  /**
+   * Executed quantity of the fills the total covers, scaled by the pair's
+   * base_quantity_scale from GetSpotConfig. Equal to the order's
+   * cum_qty_scaled once every fill's fee is recorded. While a fill is still
+   * being recorded the two differ, and a later read of the order includes
+   * it.
+   *
+   * @generated from field: int64 qty_scaled = 3;
+   */
+  qtyScaled: bigint;
+};
+
+/**
+ * Describes the message orders.v1.OrderFeeTotal.
+ * Use `create(OrderFeeTotalSchema)` to create a new message.
+ */
+export const OrderFeeTotalSchema: GenMessage<OrderFeeTotal> = /*@__PURE__*/
+  messageDesc(file_orders_v1_orders_read, 7);
+
+/**
  * Order is the Connect-facing order view with compact binary fields.
  *
  * @generated from message orders.v1.Order
@@ -475,11 +520,56 @@ export type Order = Message<"orders.v1.Order"> & {
 
   /**
    * Average execution price across the lineage through this generation,
-   * in quote units scaled by 1e9. Zero if no fills.
+   * in quote units scaled by 1e9, rounded down. Zero if no fills.
+   * avg_price_e18 carries the exact average.
    *
    * @generated from field: int64 avg_price_ticks = 14;
    */
   avgPriceTicks: bigint;
+
+  /**
+   * Average execution price across the lineage through this generation, in
+   * quote units scaled by 1e18: the exact executed quote amount divided by
+   * cum_qty_scaled, rounded half to even at the 18th decimal. Unset if no
+   * fills.
+   *
+   * @generated from field: polyester.type.v1.U128 avg_price_e18 = 36;
+   */
+  avgPriceE18?: U128 | undefined;
+
+  /**
+   * Exact quote amount of the fills across the lineage through this
+   * generation, before fees: the sum over the fills of their quantity,
+   * scaled as cum_qty_scaled, times their price in quote units scaled by
+   * 1e9. It is in quote units scaled by 10^(9 + base_quantity_scale), with
+   * the pair's base_quantity_scale from GetSpotConfig for symbol_id; REST
+   * shows it in quote units. avg_price_e18 is this amount over
+   * cum_qty_scaled. Unset if no fills. A fill settles its quote rounded down
+   * to 18 decimal places, which is this amount exactly unless
+   * base_quantity_scale is above 9.
+   *
+   * For a BUY sized by a quote amount (submitted_max_quote_debit_scaled),
+   * the quote the order used is this amount plus fee_total's amount_e18
+   * when fee_asset is QUOTE, or minus it when fee_total's is_rebate is true,
+   * since a rebate is credited; it is this amount alone when fee_asset is
+   * BASE, whose fee is taken from the base received. What it left unspent is
+   * submitted_max_quote_debit_scaled less the quote it used.
+   *
+   * @generated from field: polyester.type.v1.U128 cum_notional = 37;
+   */
+  cumNotional?: U128 | undefined;
+
+  /**
+   * Total fee of the fills across the lineage through this generation, net
+   * of rebates, in the order's fee asset. Order history reads and
+   * single-order reads that include execution history (the default) carry
+   * it. It can trail the order's fills: its quantity shows which fills it
+   * covers. Open-order reads, single-order reads without execution history
+   * and private stream order updates leave it unset.
+   *
+   * @generated from field: orders.v1.OrderFeeTotal fee_total = 38;
+   */
+  feeTotal?: OrderFeeTotal | undefined;
 
   /**
    * Limit price in quote units scaled by 1e9. Zero for MARKET orders.
@@ -610,7 +700,7 @@ export type Order = Message<"orders.v1.Order"> & {
  * Use `create(OrderSchema)` to create a new message.
  */
 export const OrderSchema: GenMessage<Order> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 7);
+  messageDesc(file_orders_v1_orders_read, 8);
 
 /**
  * UserTrade is the Connect-facing per-user trade fill view.
@@ -717,7 +807,7 @@ export type UserTrade = Message<"orders.v1.UserTrade"> & {
  * Use `create(UserTradeSchema)` to create a new message.
  */
 export const UserTradeSchema: GenMessage<UserTrade> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 8);
+  messageDesc(file_orders_v1_orders_read, 9);
 
 /**
  * UserTradeBatch is one realtime publication on an account's trade stream:
@@ -747,7 +837,7 @@ export type UserTradeBatch = Message<"orders.v1.UserTradeBatch"> & {
  * Use `create(UserTradeBatchSchema)` to create a new message.
  */
 export const UserTradeBatchSchema: GenMessage<UserTradeBatch> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 9);
+  messageDesc(file_orders_v1_orders_read, 10);
 
 /**
  * OrderTransfer is the Connect-facing minimal per-leg transfer view.
@@ -824,7 +914,7 @@ export type OrderTransfer = Message<"orders.v1.OrderTransfer"> & {
  * Use `create(OrderTransferSchema)` to create a new message.
  */
 export const OrderTransferSchema: GenMessage<OrderTransfer> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 10);
+  messageDesc(file_orders_v1_orders_read, 11);
 
 /**
  * GetOpenOrdersRequest lists currently non-terminal orders for an account.
@@ -897,7 +987,7 @@ export type GetOpenOrdersRequest = Message<"orders.v1.GetOpenOrdersRequest"> & {
  * Use `create(GetOpenOrdersRequestSchema)` to create a new message.
  */
 export const GetOpenOrdersRequestSchema: GenMessage<GetOpenOrdersRequest> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 11);
+  messageDesc(file_orders_v1_orders_read, 12);
 
 /**
  * GetOpenOrdersResponse returns open orders and an optional next-page cursor.
@@ -925,7 +1015,7 @@ export type GetOpenOrdersResponse = Message<"orders.v1.GetOpenOrdersResponse"> &
  * Use `create(GetOpenOrdersResponseSchema)` to create a new message.
  */
 export const GetOpenOrdersResponseSchema: GenMessage<GetOpenOrdersResponse> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 12);
+  messageDesc(file_orders_v1_orders_read, 13);
 
 /**
  * GetOrderHistoryRequest lists terminal orders for an account.
@@ -1019,7 +1109,7 @@ export type GetOrderHistoryRequest = Message<"orders.v1.GetOrderHistoryRequest">
  * Use `create(GetOrderHistoryRequestSchema)` to create a new message.
  */
 export const GetOrderHistoryRequestSchema: GenMessage<GetOrderHistoryRequest> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 13);
+  messageDesc(file_orders_v1_orders_read, 14);
 
 /**
  * GetOrderHistoryResponse returns historical orders and an optional next-page cursor.
@@ -1049,7 +1139,7 @@ export type GetOrderHistoryResponse = Message<"orders.v1.GetOrderHistoryResponse
  * Use `create(GetOrderHistoryResponseSchema)` to create a new message.
  */
 export const GetOrderHistoryResponseSchema: GenMessage<GetOrderHistoryResponse> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 14);
+  messageDesc(file_orders_v1_orders_read, 15);
 
 /**
  * GetUserTradesRequest lists trade fills for an account.
@@ -1163,7 +1253,7 @@ export type GetUserTradesRequest = Message<"orders.v1.GetUserTradesRequest"> & {
  * Use `create(GetUserTradesRequestSchema)` to create a new message.
  */
 export const GetUserTradesRequestSchema: GenMessage<GetUserTradesRequest> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 15);
+  messageDesc(file_orders_v1_orders_read, 16);
 
 /**
  * GetUserTradesResponse returns user trade fills and an optional next-page cursor.
@@ -1199,7 +1289,7 @@ export type GetUserTradesResponse = Message<"orders.v1.GetUserTradesResponse"> &
  * Use `create(GetUserTradesResponseSchema)` to create a new message.
  */
 export const GetUserTradesResponseSchema: GenMessage<GetUserTradesResponse> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 16);
+  messageDesc(file_orders_v1_orders_read, 17);
 
 /**
  * GetOrderRequest retrieves one physical order and a bounded page of its lineage executions.
@@ -1280,7 +1370,7 @@ export type GetOrderRequest = Message<"orders.v1.GetOrderRequest"> & {
  * Use `create(GetOrderRequestSchema)` to create a new message.
  */
 export const GetOrderRequestSchema: GenMessage<GetOrderRequest> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 17);
+  messageDesc(file_orders_v1_orders_read, 18);
 
 /**
  * GetOrderResponse returns order details and a bounded execution page.
@@ -1340,7 +1430,7 @@ export type GetOrderResponse = Message<"orders.v1.GetOrderResponse"> & {
  * Use `create(GetOrderResponseSchema)` to create a new message.
  */
 export const GetOrderResponseSchema: GenMessage<GetOrderResponse> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 18);
+  messageDesc(file_orders_v1_orders_read, 19);
 
 /**
  * GetBatchReplaceStatusRequest retrieves one admitted batch by server identity.
@@ -1370,7 +1460,7 @@ export type GetBatchReplaceStatusRequest = Message<"orders.v1.GetBatchReplaceSta
  * Use `create(GetBatchReplaceStatusRequestSchema)` to create a new message.
  */
 export const GetBatchReplaceStatusRequestSchema: GenMessage<GetBatchReplaceStatusRequest> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 19);
+  messageDesc(file_orders_v1_orders_read, 20);
 
 /**
  * BatchReplaceStatusItem is the index-stable execution status for one replacement.
@@ -1441,7 +1531,7 @@ export type BatchReplaceStatusItem = Message<"orders.v1.BatchReplaceStatusItem">
  * Use `create(BatchReplaceStatusItemSchema)` to create a new message.
  */
 export const BatchReplaceStatusItemSchema: GenMessage<BatchReplaceStatusItem> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 20);
+  messageDesc(file_orders_v1_orders_read, 21);
 
 /**
  * GetBatchReplaceStatusResponse returns durable batch and per-item finality.
@@ -1504,7 +1594,7 @@ export type GetBatchReplaceStatusResponse = Message<"orders.v1.GetBatchReplaceSt
  * Use `create(GetBatchReplaceStatusResponseSchema)` to create a new message.
  */
 export const GetBatchReplaceStatusResponseSchema: GenMessage<GetBatchReplaceStatusResponse> = /*@__PURE__*/
-  messageDesc(file_orders_v1_orders_read, 21);
+  messageDesc(file_orders_v1_orders_read, 22);
 
 /**
  * OrderStatus is specific to the read API (write API uses simple "accepted" status string).
@@ -1541,7 +1631,10 @@ export enum OrderStatus {
   WORKING = 3,
 
   /**
-   * Fully filled (no remaining quantity).
+   * Fully filled (no remaining quantity). A buy sized by a quote amount
+   * (max_quote_debit_scaled) is fully filled once it has spent that amount:
+   * what is left of it buys no further quantity step at the next price the
+   * order could fill at. Its quantity is then what it bought.
    *
    * @generated from enum value: FILLED = 4;
    */
@@ -1592,15 +1685,20 @@ export enum CancelReason {
   USER_REQUEST = 1,
 
   /**
-   * The unfilled remainder of an immediate-or-cancel order.
+   * The unfilled remainder of an immediate-or-cancel order. A buy sized by a
+   * quote amount (max_quote_debit_scaled) that spends that amount ends
+   * FILLED instead.
    *
    * @generated from enum value: CANCEL_REASON_IOC_REMAINDER = 2;
    */
   IOC_REMAINDER = 2,
 
   /**
-   * The unfilled remainder of a market order: the book ran out, or the next
-   * price was past the order's protection price.
+   * The unfilled remainder of a market order: the book ran out, the next
+   * price was past the order's protection price, or the order reached the
+   * market's maximum order quantity. A market buy sized by a quote amount
+   * (max_quote_debit_scaled) that spends that amount, so that what is left
+   * buys no further quantity step, ends FILLED instead.
    *
    * @generated from enum value: CANCEL_REASON_MARKET_REMAINDER = 3;
    */
