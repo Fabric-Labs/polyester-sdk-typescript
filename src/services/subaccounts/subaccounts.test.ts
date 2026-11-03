@@ -154,6 +154,7 @@ describe("SubaccountsService", () => {
                 },
             ],
         });
+        expect(result).not.toHaveProperty("balances");
         expect(() => JSON.stringify(result)).not.toThrow();
 
         expect(transport.lastCall()?.message).toEqual({
@@ -193,6 +194,43 @@ describe("SubaccountsService", () => {
             members: [{ accountId: formatId(6n), role: "trader", mfaEnrolled: true }],
         });
         expect(() => JSON.stringify(result)).not.toThrow();
+    });
+
+    it("requests and parses balances only when includeBalances is set", async () => {
+        const transport = unaryTransport({
+            subaccount: subaccount(),
+            balances: {
+                balances: [
+                    {
+                        assetId: 1,
+                        trading: { hi: 0n, lo: 1_500_000_000_000_000_000n },
+                        funding: { hi: 0n, lo: 0n },
+                        reserved: { hi: 0n, lo: 0n },
+                        available: { hi: 0n, lo: 1_500_000_000_000_000_000n },
+                        tradingRevision: 3n,
+                    },
+                ],
+            },
+        });
+        const realtime = realtimeClientStub();
+        const service = new SubaccountsService(
+            { publicApi: transport.transport, authApi: transport.transport },
+            realtime.realtime,
+        );
+
+        const result = await service.get({ subaccountId: formatId(42n), includeBalances: true });
+        expect(transport.lastCall()?.message).toMatchObject({ includeBalances: true });
+        expect(result.balances).toEqual([
+            {
+                assetId: 1,
+                trading: "1.5",
+                funding: "0",
+                reserved: "0",
+                available: "1.5",
+                tradingRevision: "3",
+                fundingRevision: "0",
+            },
+        ]);
     });
 
     it("throws when get omits the subaccount model", async () => {

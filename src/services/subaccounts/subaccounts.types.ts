@@ -4,6 +4,7 @@ export type {
     CreateSubaccountResult,
     CreateSubaccountResult as CreateSubaccountServiceResult,
     EffectiveSubaccountPermissions,
+    GetSubaccountInput,
     InviteSubaccountMemberInput,
     ListSubaccountInvitesInput,
     RemoveSubaccountMemberInput,

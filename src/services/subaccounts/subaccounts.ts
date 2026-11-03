@@ -17,6 +17,7 @@ import {
     type SubaccountPolicy,
     SubaccountPolicySchema,
 } from "../policies/subaccount-policies/index.js";
+import { createLedgerBalanceSchema, type LedgerBalance } from "../balances/balances.schemas.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import type { AuthAndPublicApiTransports } from "../../shared/transports.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
@@ -38,6 +39,7 @@ import {
     SubaccountActivityEventSchema,
     SetSubaccountMemberMfaRequirementInputSchema,
     SubaccountIdInputSchema,
+    GetSubaccountInputSchema,
     SubaccountMutationResultSchema,
     SubaccountRoleCatalogSchema,
     EffectiveSubaccountPermissionsSchema,
@@ -101,9 +103,15 @@ export class SubaccountsService {
 
     /**
      * Fetches an aggregated subaccount dashboard view with subaccount details, policy, API keys, members, and outgoing invites; throws if the subaccount is missing.
+     *
+     * `includeBalances: true` also returns the sub-account's current `balances`, in the shape of
+     * `balances.list`. It needs the READ_BALANCES action on the sub-account (its role, any attached
+     * policy and, for an API key, the key's policy), or the call fails with PermissionDenied. When
+     * balances cannot be read right now the call fails with the retryable
+     * `AUTH_TEMPORARILY_UNAVAILABLE`; retry the same call.
      */
     async get(
-        input: v.InferInput<typeof SubaccountIdInputSchema>,
+        input: v.InferInput<typeof GetSubaccountInputSchema>,
         options?: PolyesterRequestOptions,
     ): Promise<
         Subaccount & {
@@ -111,10 +119,12 @@ export class SubaccountsService {
             policy: SubaccountPolicy;
             members: SubaccountMember[];
             invites: SubaccountInvite[];
+            balances?: LedgerBalance[];
         }
     > {
-        const validatedInput = parse(SubaccountIdInputSchema, input);
+        const validatedInput = parse(GetSubaccountInputSchema, input);
         const subaccountId = formatId(validatedInput.subaccountId);
+        const includeBalances = validatedInput.includeBalances === true;
         const res = await this.#viewClient.getSubaccount(
             {
                 subaccountId: validatedInput.subaccountId,
@@ -123,6 +133,7 @@ export class SubaccountsService {
                 includeInvites: true,
                 includePolicy: true,
                 invitesDirection: Proto.SubaccountInviteDirection.OUTGOING,
+                ...(includeBalances && { includeBalances }),
             },
             toConnectCallOptions(options),
         );
@@ -138,6 +149,9 @@ export class SubaccountsService {
             invites: v
                 .parse(v.optional(v.array(SubaccountInviteSchema), []), res.invites)
                 .filter((invite) => invite.subaccountId === subaccountId),
+            ...(includeBalances && {
+                balances: parse(v.array(createLedgerBalanceSchema()), res.balances?.balances ?? []),
+            }),
         };
     }
 
