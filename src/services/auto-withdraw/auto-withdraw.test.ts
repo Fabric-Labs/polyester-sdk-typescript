@@ -7,9 +7,12 @@ import { ErrorCode, ErrorDetailSchema } from "../../gen/chain/withdraw/v1/withdr
 import { createErrorMappingTransport } from "../../shared/connect-error-mapping.js";
 import {
     PreconditionFailedError,
+    RateLimitError,
     RevisionConflictError,
+    ServiceUnavailableError,
     SessionElevationRequiredError,
     StepUpRequiredError,
+    TransientError,
     ValidationError,
 } from "../../shared/errors.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
@@ -329,7 +332,7 @@ describe("AutoWithdrawService step-up", () => {
 
         const stepUp = rejectingService(authError(AuthErrorCode.AUTH_STEP_UP_REQUIRED));
         const err = await stepUp.setRule(setInput()).catch((e: unknown) => e);
-        expect(err).toBeInstanceOf(StepUpRequiredError);
+        expect.soft(err).toBeInstanceOf(StepUpRequiredError);
         expect(isFreshStepUpRequiredError(err)).toBe(true);
 
         const elevation = rejectingService(authError(AuthErrorCode.AUTH_MFA_ELEVATION_REQUIRED));
@@ -361,6 +364,60 @@ describe("AutoWithdrawService version conflicts", () => {
                 expect(isRevisionConflictError(err)).toBe(true);
                 expect((err as RevisionConflictError).retryable).toBe(false);
                 expect((err as RevisionConflictError).cause).toBe(error);
+            }
+        }
+    });
+
+    it("keeps the typed error of an Aborted that carries a detail", async () => {
+        const authAborted = (code: AuthErrorCode) =>
+            new ConnectError("verification required", Code.Aborted, undefined, [
+                { desc: AuthErrorDetailSchema, value: create(AuthErrorDetailSchema, { code }) },
+            ]);
+        const cases: [ConnectError, (err: unknown) => void][] = [
+            [
+                authAborted(AuthErrorCode.AUTH_STEP_UP_REQUIRED),
+                (err) => {
+                    expect.soft(err).toBeInstanceOf(StepUpRequiredError);
+                    expect.soft(isFreshStepUpRequiredError(err)).toBe(true);
+                },
+            ],
+            [
+                authAborted(AuthErrorCode.AUTH_MFA_ELEVATION_REQUIRED),
+                (err) => expect.soft(err).toBeInstanceOf(SessionElevationRequiredError),
+            ],
+            [
+                withdrawError(Code.Aborted, ErrorCode.STEP_UP_UNAVAILABLE),
+                (err) => {
+                    expect.soft(err).toBeInstanceOf(ServiceUnavailableError);
+                    expect.soft((err as ServiceUnavailableError).retryable).toBe(true);
+                },
+            ],
+            [
+                withdrawError(Code.Aborted, ErrorCode.RATE_LIMIT_EXCEEDED),
+                (err) => expect.soft(err).toBeInstanceOf(RateLimitError),
+            ],
+            [
+                withdrawError(Code.Aborted, ErrorCode.FUNDS_LOCK_CONFLICT),
+                (err) => expect.soft(err).toBeInstanceOf(TransientError),
+            ],
+            [
+                // A detail the SDK cannot decode is not a bare Aborted either.
+                Object.assign(new ConnectError("aborted", Code.Aborted), {
+                    details: [{ type: "example.v1.UnknownDetail", value: new Uint8Array() }],
+                }),
+                (err) => expect.soft(err).toBeInstanceOf(TransientError),
+            ],
+        ];
+
+        for (const [error, check] of cases) {
+            const service = rejectingService(error);
+            for (const call of [
+                () => service.setRule(setInput({ expectedVersion: 2 })),
+                () => service.disableRule({ expectedVersion: 2 }),
+            ]) {
+                const err = await call().catch((e: unknown) => e);
+                expect.soft(err, error.rawMessage).not.toBeInstanceOf(RevisionConflictError);
+                check(err);
             }
         }
     });

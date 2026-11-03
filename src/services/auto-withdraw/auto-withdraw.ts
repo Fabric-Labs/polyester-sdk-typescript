@@ -38,7 +38,9 @@ function rethrowVersionConflict(err: unknown): never {
         mapped instanceof PolyesterError &&
         !(mapped instanceof RevisionConflictError) &&
         ((mapped.detail?.service === "withdraw" && mapped.detail.code === "CONFLICT") ||
-            (mapped.cause instanceof ConnectError && mapped.cause.code === Code.Aborted))
+            (mapped.cause instanceof ConnectError &&
+                mapped.cause.code === Code.Aborted &&
+                mapped.cause.details.length === 0))
     ) {
         throw new RevisionConflictError(
             mapped.message || "Auto-withdraw rule changed since it was last read.",
@@ -54,7 +56,8 @@ function rethrowVersionConflict(err: unknown): never {
  * destinations on the account's external withdraw whitelist. API keys can read rules and runs;
  * changing a rule needs a session login with withdraw rights and a fresh single-use step-up
  * token (`stepUpToken`). A missing step-up throws `StepUpRequiredError` or
- * `SessionElevationRequiredError`, so `withStepUp` can retry.
+ * `SessionElevationRequiredError`; check `isFreshStepUpRequiredError` before retrying with a new
+ * token.
  */
 export class AutoWithdrawService {
     #client: Client<typeof Proto.AutoWithdrawService>;
