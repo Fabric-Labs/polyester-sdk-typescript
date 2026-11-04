@@ -23,8 +23,9 @@ export const file_transfer_v1_internal_transfer: GenFile = /*@__PURE__*/
  */
 export type CreateInternalTransferRequest = Message<"transfer.v1.CreateInternalTransferRequest"> & {
   /**
-   * Optional source subaccount public id. When omitted, the authenticated
-   * caller's root account is used as the source account.
+   * Optional source public subaccount ID. When omitted, subaccount-scoped API
+   * keys use their bound subaccount; other callers use their authenticated
+   * root account.
    *
    * @generated from field: fixed64 subaccount_id = 1;
    */
@@ -393,7 +394,7 @@ export enum ErrorCode {
   CAPITAL_VIEW_UNAVAILABLE = 22,
 
   /**
-   * The account shard cannot currently accept fund movement.
+   * Funds movement for this account is temporarily unavailable. Retry later.
    *
    * @generated from enum value: ERROR_CODE_ACCOUNT_SHARD_UNAVAILABLE = 23;
    */

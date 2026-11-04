@@ -594,7 +594,7 @@ export enum ErrorCode {
   DESTINATION_VALIDATION_UNAVAILABLE = 38,
 
   /**
-   * The account shard cannot currently accept fund movement.
+   * Funds movement for this account is temporarily unavailable. Retry later.
    *
    * @generated from enum value: ERROR_CODE_ACCOUNT_SHARD_UNAVAILABLE = 39;
    */

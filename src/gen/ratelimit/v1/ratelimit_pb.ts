@@ -129,8 +129,9 @@ export const GetRateLimitConfigResponseSchema: GenMessage<GetRateLimitConfigResp
  */
 export type GetTradingRateLimitsRequest = Message<"ratelimit.v1.GetTradingRateLimitsRequest"> & {
   /**
-   * Optional subaccount public identifier. When omitted, the authenticated
-   * caller's root account is used.
+   * Optional public subaccount ID. When omitted, subaccount-scoped API keys
+   * use their bound subaccount; other callers use their authenticated root
+   * account.
    *
    * @generated from field: optional fixed64 subaccount_id = 1;
    */

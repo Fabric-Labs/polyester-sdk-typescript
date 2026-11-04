@@ -371,7 +371,8 @@ export const GetCandlesRequestSchema: GenMessage<GetCandlesRequest> = /*@__PURE_
 /**
  * GetCandlesColumnsRequest selects a spot market candle series for columnar output.
  *
- * The response is ordered oldest-first for efficient chart ingestion. When both
+ * Each response page is ordered oldest-first. Pagination selects the newest
+ * eligible closed candles first and continues toward older candles. When both
  * start_time and end_time are set, both bounds are inclusive.
  *
  * @generated from message marketdata.v1.GetCandlesColumnsRequest
@@ -417,9 +418,8 @@ export type GetCandlesColumnsRequest = Message<"marketdata.v1.GetCandlesColumnsR
   endTime?: Timestamp | undefined;
 
   /**
-   * Include the current open candle when it is available and inside the
-   * requested range.
-   * The open candle is prepended to the newest-first candle list and does not
+   * Include the current open candle when available and inside the requested
+   * range. It appears last in the oldest-first response columns and does not
    * count toward the closed-candle limit.
    *
    * @generated from field: bool include_incomplete = 6;
@@ -437,9 +437,9 @@ export type GetCandlesColumnsRequest = Message<"marketdata.v1.GetCandlesColumnsR
   includeReference: boolean;
 
   /**
-   * Opaque keyset cursor from a previous response. The cursor is exclusive and
-   * bound to symbol, timeframe, time bounds, and oldest-first candle ordering.
-   * Inclusion flags and columnar response shape may change between pages.
+   * Opaque exclusive keyset cursor for older closed candles, bound to symbol,
+   * timeframe, and time bounds. Columns within each page are ordered oldest-first.
+   * Inclusion flags and response shape may change between pages.
    *
    * @generated from field: string page_token = 8;
    */
@@ -597,7 +597,8 @@ export const GetCandlesResponseSchema: GenMessage<GetCandlesResponse> = /*@__PUR
  * GetCandlesColumnsResponse returns the same candle series as GetCandles but in columnar form.
  * This is optimized for charting clients that ingest arrays of each field (binary only).
  *
- * Ordering: values are returned oldest-first (ascending ts_sec).
+ * Ordering: values within each page are oldest-first (ascending ts_sec).
+ * Continuation pages contain older candles.
  *
  * @generated from message marketdata.v1.GetCandlesColumnsResponse
  */
@@ -844,9 +845,10 @@ export type AssetConfig = Message<"marketdata.v1.AssetConfig"> & {
   quantityDisplayDecimals: number;
 
   /**
-   * Integer scale for quantities and balances in this asset (0..18).
-   * A scale of 8 means one whole asset is represented as 100000000 in scaled
-   * integer fields such as qty_scaled.
+   * Decimal scale (0..18) for this asset's order quantities and other fields
+   * that explicitly reference quantity_scale. A scale of 8 represents one whole
+   * asset as 100000000 in those fields. Account balance amounts use fixed
+   * 18-decimal units independently of this value.
    *
    * @generated from field: uint32 quantity_scale = 5;
    */
@@ -1059,10 +1061,11 @@ export type PairConfig = Message<"marketdata.v1.PairConfig"> & {
   maxMarketQtyBase?: string | undefined;
 
   /**
-   * Largest notional of one order, as a decimal string in quote-asset units:
-   * its quantity times its limit price, or times its protection price for a
-   * market order, compared exactly with no rounding. An order above it is
-   * rejected with MAX_NOTIONAL. Absent when the pair has no maximum.
+   * Maximum per-order notional as a decimal string in quote-asset units.
+   * Base-sized orders are checked using quantity times limit price, or market
+   * protection price, without rounding. For quote-sized buys, the entire all-in
+   * maximum quote debit must also fit this maximum. Exceeding it returns
+   * MAX_NOTIONAL. Absent when no maximum is configured.
    *
    * @generated from field: optional string max_order_notional_quote = 22;
    */
@@ -1082,12 +1085,12 @@ export type PairConfig = Message<"marketdata.v1.PairConfig"> & {
   maxOpenOrdersPerPair: number;
 
   /**
-   * Largest notional of one market order, as a decimal string in quote-asset
-   * units, compared exactly with no rounding. A market order is valued at the
-   * top of the price range it may trade in: a buy at its protection price and
-   * a sell at its reference price, the touch or the client's reference price,
-   * before slippage. An order above it is rejected with MAX_NOTIONAL. Absent
-   * when the pair has no maximum.
+   * Additional maximum notional for market orders as a decimal string in
+   * quote-asset units. Base-sized market orders are valued at the buy protection
+   * price or the sell reference price before slippage, without rounding. For
+   * quote-sized market buys, the entire all-in maximum quote debit must also fit
+   * this maximum. Exceeding it returns MAX_NOTIONAL. Absent when no maximum is
+   * configured.
    *
    * @generated from field: optional string max_market_notional_quote = 24;
    */

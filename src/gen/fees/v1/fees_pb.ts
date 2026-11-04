@@ -4,6 +4,8 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { Timestamp } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import { file_polyester_api_options } from "../../polyester/api/options_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
@@ -11,11 +13,12 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file fees/v1/fees.proto.
  */
 export const file_fees_v1_fees: GenFile = /*@__PURE__*/
-  fileDesc("ChJmZWVzL3YxL2ZlZXMucHJvdG8SB2ZlZXMudjEiegoLU3BvdEZlZVJhdGUSEwoJc3ltYm9sX2lkGAEgASgNQgASIAoWbWFrZXJfZmVlX3JhdGVfcGVyY2VudBgDIAEoCUIAEiAKFnRha2VyX2ZlZV9yYXRlX3BlcmNlbnQYBCABKAlCABISCgh2aXBfdGllchgFIAEoDUIAIl0KFkdldFNwb3RGZWVSYXRlc1JlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASACIAQESEwoJc3ltYm9sX2lkGAIgAygNQgBCEAoOX3N1YmFjY291bnRfaWQiQgoXR2V0U3BvdEZlZVJhdGVzUmVzcG9uc2USJwoJZmVlX3JhdGVzGAEgAygLMhQuZmVlcy52MS5TcG90RmVlUmF0ZTJmCgpGZWVTZXJ2aWNlElYKD0dldFNwb3RGZWVSYXRlcxIfLmZlZXMudjEuR2V0U3BvdEZlZVJhdGVzUmVxdWVzdBogLmZlZXMudjEuR2V0U3BvdEZlZVJhdGVzUmVzcG9uc2UiABoAQjxaOmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vZmVlcy92MTtmZWVzdjFiBnByb3RvMw==", [file_polyester_api_options]);
+  fileDesc("ChJmZWVzL3YxL2ZlZXMucHJvdG8SB2ZlZXMudjEizAIKC1Nwb3RGZWVSYXRlEhMKCXN5bWJvbF9pZBgBIAEoDUIAEiAKFm1ha2VyX2ZlZV9yYXRlX3BlcmNlbnQYAyABKAlCABIgChZ0YWtlcl9mZWVfcmF0ZV9wZXJjZW50GAQgASgJQgASEgoIdmlwX3RpZXIYBSABKA1CABIiChhyZXNlcnZlX2ZlZV9yYXRlX3BlcmNlbnQYBiABKAlCABIsCiJwb3N0X29ubHlfcmVzZXJ2ZV9mZWVfcmF0ZV9wZXJjZW50GAcgASgJQgASMgoJYnJlYWtkb3duGAggASgLMh0uZmVlcy52MS5TcG90RmVlUmF0ZUJyZWFrZG93bkIAEjcKDm5leHRfY2hhbmdlX2F0GAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgAiAEBQhEKD19uZXh0X2NoYW5nZV9hdCK7AgoUU3BvdEZlZVJhdGVCcmVha2Rvd24SJQobdGllcl9tYWtlcl9mZWVfcmF0ZV9wZXJjZW50GAEgASgJQgASJQobdGllcl90YWtlcl9mZWVfcmF0ZV9wZXJjZW50GAIgASgJQgASOgoRbWFya2V0X211bHRpcGxpZXIYAyABKAsyGi5mZWVzLnYxLlNwb3RGZWVNdWx0aXBsaWVySACIAQESMwoRYWNjb3VudF9kaXNjb3VudHMYBCADKAsyGC5mZWVzLnYxLlNwb3RGZWVEaXNjb3VudBI4ChFyZWZlcnJhbF9kaXNjb3VudBgFIAEoCzIYLmZlZXMudjEuU3BvdEZlZURpc2NvdW50SAGIAQFCFAoSX21hcmtldF9tdWx0aXBsaWVyQhQKEl9yZWZlcnJhbF9kaXNjb3VudCLZAQoRU3BvdEZlZU11bHRpcGxpZXISIgoYbWFrZXJfbXVsdGlwbGllcl9wZXJjZW50GAEgASgJQgASIgoYdGFrZXJfbXVsdGlwbGllcl9wZXJjZW50GAIgASgJQgASNAoOZWZmZWN0aXZlX2Zyb20YAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgASNQoMZWZmZWN0aXZlX3RvGAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgAiAEBQg8KDV9lZmZlY3RpdmVfdG8i6AEKD1Nwb3RGZWVEaXNjb3VudBIgChZtYWtlcl9kaXNjb3VudF9wZXJjZW50GAEgASgJQgASIAoWdGFrZXJfZGlzY291bnRfcGVyY2VudBgCIAEoCUIAEhMKC2FsbF9tYXJrZXRzGAMgASgIEjQKDmVmZmVjdGl2ZV9mcm9tGAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIAEjUKDGVmZmVjdGl2ZV90bxgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBIAIgBAUIPCg1fZWZmZWN0aXZlX3RvIl0KFkdldFNwb3RGZWVSYXRlc1JlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASACIAQESEwoJc3ltYm9sX2lkGAIgAygNQgBCEAoOX3N1YmFjY291bnRfaWQiQgoXR2V0U3BvdEZlZVJhdGVzUmVzcG9uc2USJwoJZmVlX3JhdGVzGAEgAygLMhQuZmVlcy52MS5TcG90RmVlUmF0ZTJmCgpGZWVTZXJ2aWNlElYKD0dldFNwb3RGZWVSYXRlcxIfLmZlZXMudjEuR2V0U3BvdEZlZVJhdGVzUmVxdWVzdBogLmZlZXMudjEuR2V0U3BvdEZlZVJhdGVzUmVzcG9uc2UiABoAQjxaOmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vZmVlcy92MTtmZWVzdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
- * SpotFeeRate describes the effective maker and taker rates for one spot
- * market and account target.
+ * SpotFeeRate describes, for one spot market and account target, the
+ * effective maker and taker rates, the rates an order reserves its fee at,
+ * and the components the effective rates are computed from.
  *
  * @generated from message fees.v1.SpotFeeRate
  */
@@ -29,7 +32,8 @@ export type SpotFeeRate = Message<"fees.v1.SpotFeeRate"> & {
 
   /**
    * Effective maker fee rate encoded as a base-10 percentage string without a
-   * percent sign. Values are between -100 and 100 inclusive.
+   * percent sign. Values are between -100 and 100 inclusive. It is computed
+   * from breakdown as SpotFeeRateBreakdown describes.
    *
    * @generated from field: string maker_fee_rate_percent = 3;
    */
@@ -37,7 +41,8 @@ export type SpotFeeRate = Message<"fees.v1.SpotFeeRate"> & {
 
   /**
    * Effective taker fee rate encoded as a non-negative base-10 percentage
-   * string without a percent sign. Values are between 0 and 100 inclusive.
+   * string without a percent sign. Values are between 0 and 100 inclusive. It
+   * is computed from breakdown as SpotFeeRateBreakdown describes.
    *
    * @generated from field: string taker_fee_rate_percent = 4;
    */
@@ -49,6 +54,57 @@ export type SpotFeeRate = Message<"fees.v1.SpotFeeRate"> & {
    * @generated from field: uint32 vip_tier = 5;
    */
   vipTier: number;
+
+  /**
+   * Fee rate a new order on this market reserves its fee at when the fee is
+   * paid in the quote asset, encoded as a non-negative base-10 percentage
+   * string without a percent sign, between 0 and 100 inclusive. It is the
+   * highest maker or taker rate of every VIP tier under the fee schedule in
+   * force on this market, so it is at least the effective rates and
+   * discounts never lower it. A buy limit order that pays its fee in the
+   * quote asset reserves N + F, computed in units of 10^-18 of the quote
+   * asset whatever the quote asset's own decimals: N is its price times its
+   * quantity rounded up to 10^-18, and F is N times this rate rounded up to
+   * 10^-18. It has sufficient quote balance when N + F is at most the
+   * available quote balance, compared in the same 10^-18 units; other order
+   * validation and market limits still apply. A post-only limit order
+   * reserves at post_only_reserve_fee_rate_percent instead, and a buy sized
+   * by a quote amount reserves at the lower of this rate and
+   * taker_fee_rate_percent. Fills charge the effective rate, and the rest of
+   * the reserve is released as the order fills or ends.
+   *
+   * @generated from field: string reserve_fee_rate_percent = 6;
+   */
+  reserveFeeRatePercent: string;
+
+  /**
+   * Fee rate a new post-only limit order on this market reserves its fee at
+   * when the fee is paid in the quote asset, encoded as a non-negative
+   * base-10 percentage string without a percent sign, between 0 and 100
+   * inclusive: the highest maker rate of every VIP tier under the fee
+   * schedule in force on this market, as reserve_fee_rate_percent describes.
+   *
+   * @generated from field: string post_only_reserve_fee_rate_percent = 7;
+   */
+  postOnlyReserveFeeRatePercent: string;
+
+  /**
+   * Components of the effective maker and taker rates in force.
+   *
+   * @generated from field: fees.v1.SpotFeeRateBreakdown breakdown = 8;
+   */
+  breakdown?: SpotFeeRateBreakdown | undefined;
+
+  /**
+   * Earliest scheduled time at which a component of these rates starts or
+   * ends: a fee schedule or discount in breakdown ending, or a VIP tier, fee
+   * policy, fee schedule or discount not yet in force starting. The effective
+   * and reserve rates can change then, or stay the same. Omitted when no
+   * change is scheduled.
+   *
+   * @generated from field: optional google.protobuf.Timestamp next_change_at = 9;
+   */
+  nextChangeAt?: Timestamp | undefined;
 };
 
 /**
@@ -59,6 +115,189 @@ export const SpotFeeRateSchema: GenMessage<SpotFeeRate> = /*@__PURE__*/
   messageDesc(file_fees_v1_fees, 0);
 
 /**
+ * SpotFeeRateBreakdown lists the components of one market's effective fee
+ * rates in force. A client reproduces maker_fee_rate_percent and
+ * taker_fee_rate_percent exactly by applying the steps below to the maker
+ * and the taker rate separately, in this order, in integer arithmetic. Work
+ * in units of 0.0000001 percent: write every rate as an integer R, the
+ * percentage times 10,000,000. Write every multiplier and discount as an
+ * integer M or D, the percentage times 100. trunc(x / 10000) divides and
+ * rounds toward zero.
+ *
+ * 1. Start from the VIP tier rate: R = tier_maker_fee_rate_percent or
+ *    tier_taker_fee_rate_percent.
+ * 2. When market_multiplier is set, multiply by it:
+ *    R = trunc((R × M + 5000) / 10000).
+ * 3. When R is above 0, let D be the highest maker or taker discount of
+ *    account_discounts, 0 when the list is empty. When D is above 0, apply
+ *    it: R = trunc((R × (10000 − D) + 5000) / 10000).
+ * 4. When R is above 0 and referral_discount is set with a maker or taker
+ *    discount D above 0, apply it the same way:
+ *    R = trunc((R × (10000 − D) + 5000) / 10000).
+ *
+ * The result is the effective rate times 10,000,000. The steps multiply: a
+ * 10% account discount and a 20% referral discount on a 0.1% rate leave
+ * 0.1% × 0.9 × 0.8 = 0.072%. A negative maker rate is a rebate, which only
+ * the multiplier scales.
+ *
+ * @generated from message fees.v1.SpotFeeRateBreakdown
+ */
+export type SpotFeeRateBreakdown = Message<"fees.v1.SpotFeeRateBreakdown"> & {
+  /**
+   * Maker fee rate of the account's VIP tier under the fee policy in force,
+   * before the market multiplier and discounts, encoded as a base-10
+   * percentage string without a percent sign. Values are between -100 and
+   * 100 inclusive; a negative rate is a rebate.
+   *
+   * @generated from field: string tier_maker_fee_rate_percent = 1;
+   */
+  tierMakerFeeRatePercent: string;
+
+  /**
+   * Taker fee rate of the account's VIP tier under the fee policy in force,
+   * before the market multiplier and discounts, encoded as a non-negative
+   * base-10 percentage string without a percent sign, between 0 and 100
+   * inclusive.
+   *
+   * @generated from field: string tier_taker_fee_rate_percent = 2;
+   */
+  tierTakerFeeRatePercent: string;
+
+  /**
+   * Fee schedule multipliers in force on this market. Omitted when none is
+   * in force, which leaves the tier rates unchanged.
+   *
+   * @generated from field: optional fees.v1.SpotFeeMultiplier market_multiplier = 3;
+   */
+  marketMultiplier?: SpotFeeMultiplier | undefined;
+
+  /**
+   * Account discounts in force on this market, in no particular order. The
+   * highest maker discount and the highest taker discount apply, each
+   * possibly from a different discount.
+   *
+   * @generated from field: repeated fees.v1.SpotFeeDiscount account_discounts = 4;
+   */
+  accountDiscounts: SpotFeeDiscount[];
+
+  /**
+   * Referral discount in force for the account. Omitted when none is in
+   * force.
+   *
+   * @generated from field: optional fees.v1.SpotFeeDiscount referral_discount = 5;
+   */
+  referralDiscount?: SpotFeeDiscount | undefined;
+};
+
+/**
+ * Describes the message fees.v1.SpotFeeRateBreakdown.
+ * Use `create(SpotFeeRateBreakdownSchema)` to create a new message.
+ */
+export const SpotFeeRateBreakdownSchema: GenMessage<SpotFeeRateBreakdown> = /*@__PURE__*/
+  messageDesc(file_fees_v1_fees, 1);
+
+/**
+ * SpotFeeMultiplier is the fee schedule of one market, which scales the VIP
+ * tier rates.
+ *
+ * @generated from message fees.v1.SpotFeeMultiplier
+ */
+export type SpotFeeMultiplier = Message<"fees.v1.SpotFeeMultiplier"> & {
+  /**
+   * Maker rate multiplier encoded as a base-10 percentage string without a
+   * percent sign, between 0 and 100 inclusive with at most two decimals.
+   *
+   * @generated from field: string maker_multiplier_percent = 1;
+   */
+  makerMultiplierPercent: string;
+
+  /**
+   * Taker rate multiplier encoded as a base-10 percentage string without a
+   * percent sign, between 0 and 100 inclusive with at most two decimals.
+   *
+   * @generated from field: string taker_multiplier_percent = 2;
+   */
+  takerMultiplierPercent: string;
+
+  /**
+   * Time from which the fee schedule is in force, inclusive.
+   *
+   * @generated from field: google.protobuf.Timestamp effective_from = 3;
+   */
+  effectiveFrom?: Timestamp | undefined;
+
+  /**
+   * Time at which the fee schedule ends, exclusive. Omitted when it has no
+   * scheduled end.
+   *
+   * @generated from field: optional google.protobuf.Timestamp effective_to = 4;
+   */
+  effectiveTo?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message fees.v1.SpotFeeMultiplier.
+ * Use `create(SpotFeeMultiplierSchema)` to create a new message.
+ */
+export const SpotFeeMultiplierSchema: GenMessage<SpotFeeMultiplier> = /*@__PURE__*/
+  messageDesc(file_fees_v1_fees, 2);
+
+/**
+ * SpotFeeDiscount is one fee discount of the account's.
+ *
+ * @generated from message fees.v1.SpotFeeDiscount
+ */
+export type SpotFeeDiscount = Message<"fees.v1.SpotFeeDiscount"> & {
+  /**
+   * Maker fee discount encoded as a base-10 percentage string without a
+   * percent sign, with at most two decimals. It lowers a positive maker rate
+   * only.
+   *
+   * @generated from field: string maker_discount_percent = 1;
+   */
+  makerDiscountPercent: string;
+
+  /**
+   * Taker fee discount encoded as a base-10 percentage string without a
+   * percent sign, with at most two decimals.
+   *
+   * @generated from field: string taker_discount_percent = 2;
+   */
+  takerDiscountPercent: string;
+
+  /**
+   * True when the discount applies to every spot market; false when it
+   * applies to selected markets, this one included. A referral discount
+   * always applies to every spot market.
+   *
+   * @generated from field: bool all_markets = 3;
+   */
+  allMarkets: boolean;
+
+  /**
+   * Time from which the discount is in force, inclusive.
+   *
+   * @generated from field: google.protobuf.Timestamp effective_from = 4;
+   */
+  effectiveFrom?: Timestamp | undefined;
+
+  /**
+   * Time at which the discount ends, exclusive. Omitted when it has no
+   * scheduled end.
+   *
+   * @generated from field: optional google.protobuf.Timestamp effective_to = 5;
+   */
+  effectiveTo?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message fees.v1.SpotFeeDiscount.
+ * Use `create(SpotFeeDiscountSchema)` to create a new message.
+ */
+export const SpotFeeDiscountSchema: GenMessage<SpotFeeDiscount> = /*@__PURE__*/
+  messageDesc(file_fees_v1_fees, 3);
+
+/**
  * GetSpotFeeRatesRequest requests effective spot fee rates for one account
  * target and an optional set of markets.
  *
@@ -66,8 +305,9 @@ export const SpotFeeRateSchema: GenMessage<SpotFeeRate> = /*@__PURE__*/
  */
 export type GetSpotFeeRatesRequest = Message<"fees.v1.GetSpotFeeRatesRequest"> & {
   /**
-   * Optional subaccount public identifier. When omitted, the authenticated
-   * caller's root account is used.
+   * Optional public subaccount ID. When omitted, subaccount-scoped API keys
+   * use their bound subaccount; other callers use their authenticated root
+   * account.
    *
    * @generated from field: optional fixed64 subaccount_id = 1;
    */
@@ -88,11 +328,11 @@ export type GetSpotFeeRatesRequest = Message<"fees.v1.GetSpotFeeRatesRequest"> &
  * Use `create(GetSpotFeeRatesRequestSchema)` to create a new message.
  */
 export const GetSpotFeeRatesRequestSchema: GenMessage<GetSpotFeeRatesRequest> = /*@__PURE__*/
-  messageDesc(file_fees_v1_fees, 1);
+  messageDesc(file_fees_v1_fees, 4);
 
 /**
- * GetSpotFeeRatesResponse contains effective spot fee rates ordered by numeric
- * market identifier ascending.
+ * GetSpotFeeRatesResponse contains spot fee rates ordered by numeric market
+ * identifier ascending.
  *
  * @generated from message fees.v1.GetSpotFeeRatesResponse
  */
@@ -112,7 +352,7 @@ export type GetSpotFeeRatesResponse = Message<"fees.v1.GetSpotFeeRatesResponse">
  * Use `create(GetSpotFeeRatesResponseSchema)` to create a new message.
  */
 export const GetSpotFeeRatesResponseSchema: GenMessage<GetSpotFeeRatesResponse> = /*@__PURE__*/
-  messageDesc(file_fees_v1_fees, 2);
+  messageDesc(file_fees_v1_fees, 5);
 
 /**
  * FeeService serves authenticated effective spot trading fee rates.
@@ -121,8 +361,9 @@ export const GetSpotFeeRatesResponseSchema: GenMessage<GetSpotFeeRatesResponse> 
  */
 export const FeeService: GenService<{
   /**
-   * Get effective maker and taker fee rates for the authenticated caller's
-   * root account or selected subaccount.
+   * Get effective maker and taker fee rates, the rates an order reserves its
+   * fee at, and the components of the effective rates for the authenticated
+   * caller's root account or selected subaccount.
    *
    * @generated from rpc fees.v1.FeeService.GetSpotFeeRates
    */
