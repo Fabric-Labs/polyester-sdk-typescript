@@ -269,18 +269,12 @@ describe("TradesService", () => {
             undefined,
             testScales(),
         );
-        for (const symbolId of [0, -1, 1.5]) {
+        for (const symbolId of [0, -1, 1.5, "1" as unknown as number]) {
             for (const cursor of [{}, { afterMatchId: "10" }]) {
                 const error = await service.list({ ...cursor, symbolId }).catch((e: unknown) => e);
                 expect(error).toBeInstanceOf(ValidationError);
                 expect((error as Error).message).not.toMatch(/afterMatchId/);
             }
-        }
-        for (const cursor of [{}, { afterMatchId: "10" }]) {
-            await expect(
-                // @ts-expect-error symbolId is a number
-                service.list({ ...cursor, symbolId: "1" }),
-            ).rejects.toThrow("symbolId must be a positive integer");
         }
         expect(transport.unary).not.toHaveBeenCalled();
     });

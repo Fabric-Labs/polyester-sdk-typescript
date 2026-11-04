@@ -71,7 +71,6 @@ export type Trade = v.InferOutput<ReturnType<typeof createUserTradeSchema>>;
 const AFTER_MATCH_REQUIRES_SYMBOL = "symbolId is required when afterMatchId is set";
 const EXECUTION_SCOPE_CONFLICT = "Provide at most one of orderId or lineageId";
 const THROUGH_GENERATION_REQUIRES_LINEAGE = "throughGeneration requires lineageId";
-const SYMBOL_ID_INVALID = "symbolId must be a positive integer";
 const INVALID_FILTERS = "Invalid trade filters";
 
 const GetUserTradesCommonEntries = {
@@ -146,9 +145,6 @@ export const GetUserTradesInputSchema = v.pipe(
         if (has("orderId") && has("lineageId")) return EXECUTION_SCOPE_CONFLICT;
         if (has("throughGeneration") && !has("lineageId")) {
             return THROUGH_GENERATION_REQUIRES_LINEAGE;
-        }
-        if (has("symbolId") && !v.is(SymbolIdInputSchema, filters.symbolId)) {
-            return SYMBOL_ID_INVALID;
         }
         if (has("afterMatchId") && !has("symbolId")) return AFTER_MATCH_REQUIRES_SYMBOL;
         return INVALID_FILTERS;
