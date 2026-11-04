@@ -515,7 +515,7 @@ export const LadderTriggerSchema: GenMessage<LadderTrigger> = /*@__PURE__*/
   messageDesc(file_triggers_v1_triggers, 10);
 
 /**
- * TriggerIntent contains one standalone trigger's immutable configuration.
+ * TriggerIntent contains one standalone trigger's initial configuration.
  *
  * @generated from message triggers.v1.TriggerIntent
  */
@@ -634,7 +634,9 @@ export const TriggerIntentSchema: GenMessage<TriggerIntent> = /*@__PURE__*/
  */
 export type CreateTriggerRequest = Message<"triggers.v1.CreateTriggerRequest"> & {
   /**
-   * Target sub-account. When omitted, uses the caller's root account.
+   * Optional public subaccount ID. When omitted, subaccount-scoped API keys
+   * use their bound subaccount; other callers use their authenticated root
+   * account.
    *
    * @generated from field: optional fixed64 subaccount_id = 1;
    */
@@ -712,7 +714,9 @@ export type GetTriggerRequest = Message<"triggers.v1.GetTriggerRequest"> & {
   triggerId: bigint;
 
   /**
-   * Optional sub-account for authorization.
+   * Optional public subaccount ID for authorization. When omitted,
+   * subaccount-scoped API keys use their bound subaccount; other callers use
+   * their authenticated root account.
    *
    * @generated from field: optional fixed64 subaccount_id = 2;
    */
@@ -754,8 +758,9 @@ export const GetTriggerResponseSchema: GenMessage<GetTriggerResponse> = /*@__PUR
  */
 export type ListTriggersRequest = Message<"triggers.v1.ListTriggersRequest"> & {
   /**
-   * Optional sub-account to list triggers for. When empty or omitted, uses the
-   * caller's root account.
+   * Optional public subaccount ID. When omitted, subaccount-scoped API keys
+   * use their bound subaccount; other callers use their authenticated root
+   * account.
    *
    * @generated from field: optional fixed64 subaccount_id = 1;
    */
@@ -856,8 +861,9 @@ export type ListTriggerEventsRequest = Message<"triggers.v1.ListTriggerEventsReq
   triggerId: bigint;
 
   /**
-   * Optional sub-account (authorization). When empty or omitted, uses the
-   * caller's root account.
+   * Optional public subaccount ID. When omitted, subaccount-scoped API keys
+   * use their bound subaccount; other callers use their authenticated root
+   * account.
    *
    * @generated from field: optional fixed64 subaccount_id = 2;
    */
@@ -1082,7 +1088,9 @@ export type CancelTriggerRequest = Message<"triggers.v1.CancelTriggerRequest"> &
   triggerId: bigint;
 
   /**
-   * Optional sub-account for authorization.
+   * Optional public subaccount ID for authorization. When omitted,
+   * subaccount-scoped API keys use their bound subaccount; other callers use
+   * their authenticated root account.
    *
    * @generated from field: optional fixed64 subaccount_id = 2;
    */
@@ -1154,7 +1162,9 @@ export type ModifyTriggerRequest = Message<"triggers.v1.ModifyTriggerRequest"> &
   triggerId: bigint;
 
   /**
-   * Optional sub-account for authorization.
+   * Optional public subaccount ID for authorization. When omitted,
+   * subaccount-scoped API keys use their bound subaccount; other callers use
+   * their authenticated root account.
    *
    * @generated from field: optional fixed64 subaccount_id = 2;
    */
@@ -1325,7 +1335,9 @@ export type PauseTriggerRequest = Message<"triggers.v1.PauseTriggerRequest"> & {
   triggerId: bigint;
 
   /**
-   * Optional sub-account for authorization.
+   * Optional public subaccount ID for authorization. When omitted,
+   * subaccount-scoped API keys use their bound subaccount; other callers use
+   * their authenticated root account.
    *
    * @generated from field: optional fixed64 subaccount_id = 2;
    */
@@ -1397,7 +1409,9 @@ export type ResumeTriggerRequest = Message<"triggers.v1.ResumeTriggerRequest"> &
   triggerId: bigint;
 
   /**
-   * Optional sub-account for authorization.
+   * Optional public subaccount ID for authorization. When omitted,
+   * subaccount-scoped API keys use their bound subaccount; other callers use
+   * their authenticated root account.
    *
    * @generated from field: optional fixed64 subaccount_id = 2;
    */
@@ -1790,8 +1804,9 @@ export type Trigger = Message<"triggers.v1.Trigger"> & {
   selfTradePreventionMode: SelfTradePreventionMode;
 
   /**
-   * Immutable strategy configuration. The selected variant is the trigger
-   * category and uses the same shape accepted by CreateTrigger.
+   * Current strategy configuration, including successfully applied
+   * modifications. The selected variant identifies the trigger category and
+   * uses the same shape accepted by CreateTrigger.
    *
    * @generated from oneof triggers.v1.Trigger.configuration
    */
@@ -2042,11 +2057,11 @@ export enum TriggerStatus {
    * Trigger was canceled. The cancel reason states why, for example a user
    * request or another attached leg's exit closing its parent's position. A
    * ladder is canceled when the ladder itself is canceled. A ladder whose
-   * child orders were canceled with none filled, for example one by one, with
-   * a cancel-all or by the dead man's switch, is canceled too, with a user
+   * child orders the user canceled with none filled, one by one, with a
+   * cancel-all or by the dead man's switch, is canceled too, with a user
    * request reason, once none of them remains open. A ladder whose child
-   * orders were canceled only by self-trade prevention, with none filled,
-   * completes instead.
+   * orders were canceled only by self-trade prevention, or by the exchange
+   * while it recovered the account, with none filled, completes instead.
    *
    * @generated from enum value: STATUS_CANCELED = 5;
    */
@@ -2145,11 +2160,12 @@ export enum TriggerEventType {
    * attached take-profit, stop-loss or trailing stop whose order self-trade
    * prevention expired against another of the account's resting orders stays
    * live too (TRIGGER_FAILURE_REASON_SELF_TRADE_PREVENTED), reported once
-   * while that order blocks it; it fires again at a new trade at or beyond its
-   * trigger price, or once the other order is no longer at the best price. Not
-   * terminal: the trigger keeps its
-   * status. child_seq names the refused attempt, which placed no child order,
-   * and fire_refusal_reason says why; the next fire takes the next child_seq.
+   * while that order blocks it. New trades and price updates do not fire it
+   * while the other order is first in line at the best price; once that order
+   * is gone or no longer first there, it fires again if its trigger condition
+   * still holds. Not terminal: the trigger keeps its status. child_seq names
+   * the refused attempt, which placed no child order, and fire_refusal_reason
+   * says why; the next fire takes the next child_seq.
    * With TRIGGER_FAILURE_REASON_SELF_TRADE_PREVENTED, child_seq names the
    * expired child order instead, which was placed and canceled by self-trade
    * prevention. A refusal that ends the trigger is EVENT_FAILED instead.
@@ -2953,11 +2969,11 @@ export enum TriggerFailureReason {
   INDEX_PRICE_UNAVAILABLE = 241,
 
   /**
-   * The trigger price was already reached by the price the trigger watches
-   * when the trigger was submitted (at or past it), so the trigger would have
-   * fired at once. It never armed and sent no order; its reserved funds were
-   * released. A price that reaches the trigger price after submission fires
-   * the trigger normally.
+   * The trigger price, or a trailing stop's activation price, was already
+   * reached by the price the trigger watches when the trigger was submitted
+   * (at or past it), so the trigger would have fired or activated at once. It
+   * never armed and sent no order; its reserved funds were released. A price
+   * that reaches it after submission fires or activates the trigger normally.
    *
    * @generated from enum value: TRIGGER_FAILURE_REASON_TRIGGER_WOULD_TRIGGER_IMMEDIATELY = 244;
    */
@@ -2967,9 +2983,10 @@ export enum TriggerFailureReason {
    * Self-trade prevention expired the order of an attached take-profit,
    * stop-loss or trailing stop because it would have traded with another of
    * the account's resting orders. Reported only as a fire refusal reason
-   * (EVENT_FIRE_REFUSED): the attached order stays active and fires again at a
-   * new trade at or beyond its trigger price, or once the other order is no
-   * longer at the best price.
+   * (EVENT_FIRE_REFUSED): the attached order stays active. New trades and price
+   * updates do not fire it while the other order is first in line at the best
+   * price; once that order is gone or no longer first there, it fires again if
+   * its trigger condition still holds.
    *
    * @generated from enum value: TRIGGER_FAILURE_REASON_SELF_TRADE_PREVENTED = 249;
    */
@@ -3072,7 +3089,10 @@ export const TriggersService: GenService<{
     output: typeof ListTriggersResponseSchema;
   },
   /**
-   * List trigger events (append-only history).
+   * List trigger events (append-only history). A trigger the caller cannot
+   * read (no such trigger, another account's, or one outside the selected
+   * sub-account) answers NOT_FOUND, as GetTrigger does. A trigger the caller
+   * can read that has no event yet answers an empty list.
    *
    * @generated from rpc triggers.v1.TriggersService.ListTriggerEvents
    */

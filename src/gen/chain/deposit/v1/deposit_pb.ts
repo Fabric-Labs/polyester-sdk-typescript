@@ -49,8 +49,9 @@ export const DepositAddressSchema: GenMessage<DepositAddress> = /*@__PURE__*/
  */
 export type CreateDepositAddressRequest = Message<"chain.deposit.v1.CreateDepositAddressRequest"> & {
   /**
-   * Optional subaccount public id. When omitted, the authenticated caller's
-   * root account is used as the target account.
+   * Optional public subaccount ID. When omitted, subaccount-scoped API keys
+   * use their bound subaccount; other callers use their authenticated root
+   * account.
    *
    * @generated from field: fixed64 subaccount_id = 1;
    */
@@ -101,8 +102,9 @@ export const CreateDepositAddressResponseSchema: GenMessage<CreateDepositAddress
  */
 export type ListDepositAddressesRequest = Message<"chain.deposit.v1.ListDepositAddressesRequest"> & {
   /**
-   * Optional subaccount public id. When omitted, the authenticated caller's
-   * root account is used as the target account.
+   * Optional public subaccount ID. When omitted, subaccount-scoped API keys
+   * use their bound subaccount; other callers use their authenticated root
+   * account.
    *
    * @generated from field: fixed64 subaccount_id = 1;
    */
