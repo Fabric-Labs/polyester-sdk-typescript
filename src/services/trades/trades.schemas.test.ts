@@ -181,7 +181,7 @@ describe("GetUserTradesInputSchema", () => {
     });
 
     it("rejects incompatible execution scopes and invalid generation bounds", () => {
-        for (const filters of [{}, { symbolId: "1", afterMatchId: "1" }]) {
+        for (const filters of [{}, { symbolId: 1, afterMatchId: "1" }]) {
             expect(() =>
                 v.parse(GetUserTradesInputSchema, {
                     ...filters,

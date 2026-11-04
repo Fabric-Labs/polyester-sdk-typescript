@@ -88,7 +88,7 @@ describe("TradesService", () => {
 
         const result = await service.list(
             {
-                symbolId: " 101 ",
+                symbolId: 101,
                 side: "sell",
                 startTsNs: "100",
                 endTsNs: "200",
@@ -229,7 +229,7 @@ describe("TradesService", () => {
             testScales(),
         );
 
-        await expect(service.list({ account: "main", symbolId: "101" })).resolves.toEqual({
+        await expect(service.list({ account: "main", symbolId: 101 })).resolves.toEqual({
             trades: [],
             transfers: [],
             nextPageToken: "",
@@ -258,8 +258,24 @@ describe("TradesService", () => {
             // @ts-expect-error afterMatchId requires symbolId
             service.list({ afterMatchId: "10" }),
         ).rejects.toThrow(rule);
-        await expect(service.list({ afterMatchId: "10", symbolId: "0" })).rejects.toThrow(rule);
-        await expect(service.list({ afterMatchId: "10", symbolId: "" })).rejects.toThrow(rule);
+        expect(transport.unary).not.toHaveBeenCalled();
+    });
+
+    it("rejects a symbolId that is not a positive integer without blaming afterMatchId", async () => {
+        const transport = unaryTransport({ trades: [], nextPageToken: "" });
+        const service = new TradesService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+        for (const symbolId of [0, -1, 1.5, "1" as unknown as number]) {
+            for (const cursor of [{}, { afterMatchId: "10" }]) {
+                const error = await service.list({ ...cursor, symbolId }).catch((e: unknown) => e);
+                expect(error).toBeInstanceOf(ValidationError);
+                expect((error as Error).message).not.toMatch(/afterMatchId/);
+            }
+        }
         expect(transport.unary).not.toHaveBeenCalled();
     });
 
@@ -272,7 +288,7 @@ describe("TradesService", () => {
             testScales(),
         );
 
-        await service.list({ afterMatchId: "10", symbolId: "3" });
+        await service.list({ afterMatchId: "10", symbolId: 3 });
 
         expect(transport.lastCall()?.message).toEqual({
             symbolId: 3,
@@ -289,7 +305,7 @@ describe("TradesService", () => {
             testScales(),
         );
 
-        await service.list({ symbolId: "3" });
+        await service.list({ symbolId: 3 });
         expect(transport.lastCall()?.message).toEqual({ symbolId: 3 });
 
         await service.list({});

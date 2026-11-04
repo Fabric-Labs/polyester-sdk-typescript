@@ -1,6 +1,6 @@
 import * as v from "valibot";
 import { tsNsToISO, tsNsToMs } from "../../utils/time.js";
-import { SideSchema } from "../shared.js";
+import { SideSchema, SymbolIdInputSchema } from "../shared.js";
 import { FeeAssetCodec, OrderSideCodec } from "../orders/orders.codecs.js";
 import { formatId } from "../../utils/base58-id.js";
 import { optionalUint64DecimalFilterSchema, U128Schema } from "../../shared/schemas.js";
@@ -71,12 +71,7 @@ export type Trade = v.InferOutput<ReturnType<typeof createUserTradeSchema>>;
 const AFTER_MATCH_REQUIRES_SYMBOL = "symbolId is required when afterMatchId is set";
 const EXECUTION_SCOPE_CONFLICT = "Provide at most one of orderId or lineageId";
 const THROUGH_GENERATION_REQUIRES_LINEAGE = "throughGeneration requires lineageId";
-
-const SymbolIdStringSchema = v.pipe(
-    v.string(),
-    v.trim(),
-    v.transform((value) => Number(value)),
-);
+const INVALID_FILTERS = "Invalid trade filters";
 
 const GetUserTradesCommonEntries = {
     ...AccountScopeInputEntries,
@@ -122,12 +117,7 @@ function userTradesScopeSchemas<const TEntries extends v.ObjectEntries>(entries:
 const BrowseUserTradesInputSchema = v.union(
     userTradesScopeSchemas({
         ...GetUserTradesCommonEntries,
-        symbolId: v.pipe(
-            v.optional(SymbolIdStringSchema),
-            v.transform((sid) =>
-                sid !== undefined && Number.isFinite(sid) && sid > 0 ? sid : undefined,
-            ),
-        ),
+        symbolId: v.optional(SymbolIdInputSchema),
         afterMatchId: v.optional(v.never()),
     }),
 );
@@ -136,10 +126,7 @@ const BrowseUserTradesInputSchema = v.union(
 const ReplayUserTradesInputSchema = v.union(
     userTradesScopeSchemas({
         ...GetUserTradesCommonEntries,
-        symbolId: v.pipe(
-            SymbolIdStringSchema,
-            v.check((sid) => Number.isInteger(sid) && sid > 0, AFTER_MATCH_REQUIRES_SYMBOL),
-        ),
+        symbolId: SymbolIdInputSchema,
         afterMatchId: v.pipe(
             v.string(),
             v.trim(),
@@ -152,14 +139,15 @@ const ReplayUserTradesInputSchema = v.union(
 /** Validates filters accepted by {@link TradesService.list}. */
 export const GetUserTradesInputSchema = v.pipe(
     v.union([BrowseUserTradesInputSchema, ReplayUserTradesInputSchema], ({ input }) => {
-        const filters = typeof input === "object" && input !== null ? input : {};
-        const has = (key: string) =>
-            key in filters && (filters as Record<string, unknown>)[key] !== undefined;
+        const filters: Record<string, unknown> =
+            typeof input === "object" && input !== null ? { ...input } : {};
+        const has = (key: string) => filters[key] !== undefined;
         if (has("orderId") && has("lineageId")) return EXECUTION_SCOPE_CONFLICT;
         if (has("throughGeneration") && !has("lineageId")) {
             return THROUGH_GENERATION_REQUIRES_LINEAGE;
         }
-        return AFTER_MATCH_REQUIRES_SYMBOL;
+        if (has("afterMatchId") && !has("symbolId")) return AFTER_MATCH_REQUIRES_SYMBOL;
+        return INVALID_FILTERS;
     }),
     v.transform(({ account, orderId, lineageId, ...input }) => {
         const executionScope =
