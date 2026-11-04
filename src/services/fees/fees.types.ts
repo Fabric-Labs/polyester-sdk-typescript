@@ -1,1 +1,6 @@
-export type { GetSpotFeeRatesInput, SpotFeeRate } from "./fees.schemas.js";
+export type {
+    GetSpotFeeRatesInput,
+    SpotFeeDiscount,
+    SpotFeeRate,
+    SpotFeeRateBreakdown,
+} from "./fees.schemas.js";

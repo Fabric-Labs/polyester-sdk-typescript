@@ -12,6 +12,13 @@ describe("FeesService", () => {
                     makerFeeRatePercent: "0.02",
                     takerFeeRatePercent: "0.05",
                     vipTier: 2,
+                    reserveFeeRatePercent: "0.1",
+                    postOnlyReserveFeeRatePercent: "0.04",
+                    breakdown: {
+                        tierMakerFeeRatePercent: "0.02",
+                        tierTakerFeeRatePercent: "0.05",
+                        accountDiscounts: [],
+                    },
                 },
             ],
         });
@@ -27,6 +34,16 @@ describe("FeesService", () => {
                 makerFeeRatePercent: "0.02",
                 takerFeeRatePercent: "0.05",
                 vipTier: 2,
+                reserveFeeRatePercent: "0.1",
+                postOnlyReserveFeeRatePercent: "0.04",
+                breakdown: {
+                    tierMakerFeeRatePercent: "0.02",
+                    tierTakerFeeRatePercent: "0.05",
+                    marketMultiplier: undefined,
+                    accountDiscounts: [],
+                    referralDiscount: undefined,
+                },
+                nextChangeAt: undefined,
             },
         ]);
 

@@ -28,7 +28,7 @@ export class FeesService {
     }
 
     /**
-     * Returns effective maker and taker spot fee rates for the resolved account target, optionally filtered by market identifier.
+     * Returns effective maker and taker spot fee rates, the rates an order reserves its fee at, and the components of the effective rates for the resolved account target, optionally filtered by market identifier.
      */
     async getSpotRates(
         input: GetSpotFeeRatesInput = {},

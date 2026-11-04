@@ -46,19 +46,63 @@ describe("GetSpotFeeRatesInputSchema", () => {
 });
 
 describe("SpotFeeRateSchema", () => {
-    it("parses an effective spot fee row", () => {
-        expect(
-            v.parse(SpotFeeRateSchema, {
-                symbolId: 101,
-                makerFeeRatePercent: "-0.01",
-                takerFeeRatePercent: "0.05",
-                vipTier: 0,
-            }),
-        ).toEqual({
-            symbolId: 101,
-            makerFeeRatePercent: "-0.01",
-            takerFeeRatePercent: "0.05",
-            vipTier: 0,
+    const ts = (seconds: number) => ({ seconds: BigInt(seconds), nanos: 0 });
+    const discount = {
+        makerDiscountPercent: "10",
+        takerDiscountPercent: "10",
+        allMarkets: false,
+        effectiveFrom: ts(1_700_000_000),
+    };
+    const row = {
+        symbolId: 101,
+        makerFeeRatePercent: "-0.01",
+        takerFeeRatePercent: "0.072",
+        vipTier: 0,
+        reserveFeeRatePercent: "0.1",
+        postOnlyReserveFeeRatePercent: "0.02",
+        breakdown: {
+            tierMakerFeeRatePercent: "-0.01",
+            tierTakerFeeRatePercent: "0.1",
+            marketMultiplier: {
+                makerMultiplierPercent: "100",
+                takerMultiplierPercent: "100",
+                effectiveFrom: ts(1_700_000_000),
+                effectiveTo: ts(1_800_000_000),
+            },
+            accountDiscounts: [discount],
+            referralDiscount: { ...discount, takerDiscountPercent: "20", allMarkets: true },
+        },
+        nextChangeAt: ts(1_800_000_000),
+    };
+
+    it("parses reserve rates, the rate breakdown and timestamps as Unix ms", () => {
+        expect(v.parse(SpotFeeRateSchema, row)).toEqual({
+            ...row,
+            breakdown: {
+                ...row.breakdown,
+                marketMultiplier: {
+                    makerMultiplierPercent: "100",
+                    takerMultiplierPercent: "100",
+                    effectiveFrom: 1_700_000_000_000,
+                    effectiveTo: 1_800_000_000_000,
+                },
+                accountDiscounts: [
+                    { ...discount, effectiveFrom: 1_700_000_000_000, effectiveTo: undefined },
+                ],
+                referralDiscount: {
+                    ...discount,
+                    takerDiscountPercent: "20",
+                    allMarkets: true,
+                    effectiveFrom: 1_700_000_000_000,
+                    effectiveTo: undefined,
+                },
+            },
+            nextChangeAt: 1_800_000_000_000,
         });
+    });
+
+    it("rejects a row without reserve rates or a breakdown", () => {
+        expect(() => v.parse(SpotFeeRateSchema, { ...row, reserveFeeRatePercent: "" })).toThrow();
+        expect(() => v.parse(SpotFeeRateSchema, { ...row, breakdown: undefined })).toThrow();
     });
 });
