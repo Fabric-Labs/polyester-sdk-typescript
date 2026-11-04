@@ -311,6 +311,7 @@ const ReadTrailingStopPolicySchema = v.object({
         value: v.optional(v.union([v.bigint(), v.number(), v.undefined()])),
     }),
     activationPriceTicks: v.bigint(),
+    limitPriceTicks: v.optional(v.bigint(), 0n),
     triggerPriceSource: v.optional(v.number(), 0),
 });
 
@@ -486,6 +487,13 @@ export function formatAttachedRisk(
                                 risk.trailingStop.policy.activationPriceTicks > 0n
                                     ? scaledToDecimalOutput(
                                           risk.trailingStop.policy.activationPriceTicks,
+                                          scales.price(),
+                                      )
+                                    : undefined,
+                            limitPrice:
+                                risk.trailingStop.policy.limitPriceTicks > 0n
+                                    ? scaledToDecimalOutput(
+                                          risk.trailingStop.policy.limitPriceTicks,
                                           scales.price(),
                                       )
                                     : undefined,

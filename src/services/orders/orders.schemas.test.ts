@@ -1846,6 +1846,50 @@ describe("OrderSchema", () => {
         expect(order.attachedRisk?.stopLoss?.triggerPriceSource).toBe("unspecified");
     });
 
+    it("decodes a selling order's trailing stop buy-back limit price so it survives a modify", () => {
+        const schema = createOrderSchema(testScales());
+        const trailingStopOf = (side: ProtoWrite.Side, limitPriceTicks: bigint) =>
+            v.parse(
+                schema,
+                rawOrder({
+                    side,
+                    attachedRisk: {
+                        trailingStop: {
+                            policy: {
+                                trailingDistance: { case: "trailingDistanceBps", value: 50 },
+                                maxSlippage: { case: undefined, value: undefined },
+                                activationPriceTicks: 101_000_000_000n,
+                                limitPriceTicks,
+                                triggerPriceSource: ProtoWrite.TriggerPriceSource.LAST_PRICE,
+                            },
+                        },
+                        oco: false,
+                    },
+                }),
+            ).attachedRisk?.trailingStop;
+
+        const sell = trailingStopOf(ProtoWrite.Side.SELL, 105_500_000_000n);
+        expect(sell).toMatchObject({ activationPrice: "101", limitPrice: "105.5" });
+        expect(trailingStopOf(ProtoWrite.Side.BUY, 0n)?.limitPrice).toBeUndefined();
+
+        const modify = v.parse(createModifyOrderInputSchema(testScales()), {
+            orderId: formatId(11n),
+            symbolId: 1,
+            risk: {
+                trailingStop: {
+                    trailingDistance: sell!.trailingDistance,
+                    activationPrice: sell!.activationPrice,
+                    limitPrice: sell!.limitPrice,
+                    triggerPriceSource: "last",
+                },
+            },
+        });
+        expect(modify.newAttachedRisk?.stopLeg).toMatchObject({
+            case: "trailingStop",
+            value: { limitPriceTicks: 105_500_000_000n },
+        });
+    });
+
     it("omits attached risk containing only not-configured states", () => {
         const schema = createOrderSchema(testScales());
         const notConfiguredState = {
