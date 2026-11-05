@@ -1,4 +1,4 @@
-import { create } from "@bufbuild/protobuf";
+import { create, type MessageInitShape } from "@bufbuild/protobuf";
 import { Code, ConnectError } from "@connectrpc/connect";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
@@ -59,8 +59,10 @@ function testScales() {
 
 const flushAsync = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
-function protoOrder(overrides: Partial<ProtoRead.Order> = {}): ProtoRead.Order {
-    return {
+function protoOrder(
+    overrides: MessageInitShape<typeof ProtoRead.OrderSchema> = {},
+): ProtoRead.Order {
+    return create(ProtoRead.OrderSchema, {
         orderId: 11n,
         symbolId: 1,
         clientOrderId: "client-1",
@@ -86,7 +88,7 @@ function protoOrder(overrides: Partial<ProtoRead.Order> = {}): ProtoRead.Order {
         version: 3,
         batchRequestId: 0n,
         ...overrides,
-    } as ProtoRead.Order;
+    });
 }
 
 describe("OrdersService", () => {

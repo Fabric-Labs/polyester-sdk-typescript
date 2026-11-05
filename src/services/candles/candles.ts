@@ -14,11 +14,9 @@ import type { SdkScales } from "../../shared/decimal-surface.js";
 import type { PublicApiTransports } from "../../shared/transports.js";
 import {
     type CandleColumnar,
-    createCandleRowSchema,
-    createCandleRowIntSchema,
+    formatCandleRow,
     createCandleColumnarSchema,
     createCandleColumnarIntSchema,
-    CandlePointSchema,
     TimeframeSchema,
     type Candle,
     type CandleInt,
@@ -52,8 +50,6 @@ export class CandlesService {
     #client: Client<typeof Proto.MarketDataService>;
     #realtime: PolyesterRealtime;
     #scales: SdkScales;
-    #rowSchema: ReturnType<typeof createCandleRowSchema>;
-    #rowIntSchema: ReturnType<typeof createCandleRowIntSchema>;
     #columnarSchema: ReturnType<typeof createCandleColumnarSchema>;
     #columnarIntSchema: ReturnType<typeof createCandleColumnarIntSchema>;
 
@@ -61,8 +57,6 @@ export class CandlesService {
         this.#client = createClient(Proto.MarketDataService, transports.publicApi);
         this.#realtime = realtime;
         this.#scales = scales;
-        this.#rowSchema = createCandleRowSchema(scales);
-        this.#rowIntSchema = createCandleRowIntSchema(scales);
         this.#columnarSchema = createCandleColumnarSchema(scales);
         this.#columnarIntSchema = createCandleColumnarIntSchema(scales);
     }
@@ -74,13 +68,8 @@ export class CandlesService {
         const validatedInput = parse(ListCandlesInputSchema, input);
         await this.#scales.ready();
         const res = await this.#client.getCandles(validatedInput, toConnectCallOptions(options));
-        const candles = parse(v.optional(v.array(CandlePointSchema), []), res.candles);
-        return candles.map((c) =>
-            parse(this.#rowSchema, {
-                ...c,
-                symbolId: res.symbolId,
-                timeframe: res.timeframe,
-            }),
+        return (res.candles ?? []).map((c) =>
+            formatCandleRow(this.#scales, c, res.symbolId, res.timeframe),
         );
     }
 
@@ -120,20 +109,18 @@ export class CandlesService {
      * Subscribes to live candle updates on public:spot:market:candles:{timeframe}:{symbolId}:proto and emits row-form candles.
      */
     subscribe(input: SubscribeCandlesInput): () => void {
-        return this.#subscribeWithSchema(input, this.#rowSchema);
+        return this.#subscribeRows(input);
     }
 
     /**
      * Subscribes to the same live candle channel as subscribe and emits row candles parsed through the row-int schema.
      */
     subscribeInts(input: SubscribeCandlesIntsInput): () => void {
-        return this.#subscribeWithSchema(input, this.#rowIntSchema);
+        return this.#subscribeRows(input);
     }
 
-    #subscribeWithSchema(
-        input: SubscribeCandlesInput | SubscribeCandlesIntsInput,
-        schema: ReturnType<typeof createCandleRowSchema>,
-    ): () => void {
+    #subscribeRows(input: SubscribeCandlesInput | SubscribeCandlesIntsInput): () => void {
+        const scales = this.#scales;
         const params = parse(SubscribeCandlesParamsSchema, {
             symbolId: input.symbolId,
             timeframe: input.timeframe,
@@ -145,13 +132,7 @@ export class CandlesService {
             schema: Proto.CandlePointSchema,
             ready: () => this.#scales.ready(),
             onPublication: (data) => {
-                const point = parse(CandlePointSchema, data);
-                const candle = parse(schema, {
-                    ...point,
-                    symbolId: params.symbolId,
-                    timeframe: protoTimeframe,
-                });
-                input.onEvent(candle);
+                input.onEvent(formatCandleRow(scales, data, params.symbolId, protoTimeframe));
             },
             onConnected: input.onOpen,
             onDisconnected: input.onClose,

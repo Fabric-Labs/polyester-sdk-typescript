@@ -1,7 +1,7 @@
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import { createClient, type Client } from "@connectrpc/connect";
-import * as v from "valibot";
+import type * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
@@ -45,7 +45,7 @@ import {
     type CreateOrderResult,
     type ModifyOrderResult,
     type OrderDetails,
-    createOrderSchema,
+    formatOrder,
     createOrderDetailsSchema,
     CancelAllAfterInputSchema,
     CancelAllAfterResultSchema,
@@ -147,7 +147,6 @@ export class OrdersService {
     #realtime: PolyesterRealtime;
     #resolver?: SubaccountResolver;
     #scales: SdkScales;
-    #orderSchema: ReturnType<typeof createOrderSchema>;
     #orderDetailsSchema: ReturnType<typeof createOrderDetailsSchema>;
     #newOrderInputSchema: ReturnType<typeof createNewOrderInputSchema>;
     #modifyOrderInputSchema: ReturnType<typeof createModifyOrderInputSchema>;
@@ -164,7 +163,6 @@ export class OrdersService {
         this.#realtime = realtime;
         this.#resolver = resolver;
         this.#scales = scales;
-        this.#orderSchema = createOrderSchema(scales);
         this.#orderDetailsSchema = createOrderDetailsSchema(scales);
         this.#newOrderInputSchema = createNewOrderInputSchema(scales);
         this.#modifyOrderInputSchema = createModifyOrderInputSchema(scales);
@@ -186,10 +184,9 @@ export class OrdersService {
             toConnectCallOptions(options),
         );
         return {
-            orders: parse(
-                v.array(this.#orderSchema),
-                res.orders.filter((order) => hasKnownOrderSymbol(this.#scales, order)),
-            ),
+            orders: res.orders
+                .filter((order) => hasKnownOrderSymbol(this.#scales, order))
+                .map((order) => formatOrder(this.#scales, order)),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -209,10 +206,9 @@ export class OrdersService {
             toConnectCallOptions(options),
         );
         return {
-            orders: parse(
-                v.array(this.#orderSchema),
-                res.orders.filter((order) => hasKnownOrderSymbol(this.#scales, order)),
-            ),
+            orders: res.orders
+                .filter((order) => hasKnownOrderSymbol(this.#scales, order))
+                .map((order) => formatOrder(this.#scales, order)),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -497,14 +493,14 @@ export class OrdersService {
                         for (const id of ids) live.add(id);
                         if (input.onSnapshot) {
                             input.onSnapshot(
-                                known(event.orders).map((o) => parse(this.#orderSchema, o)),
+                                known(event.orders).map((o) => formatOrder(this.#scales, o)),
                             );
                             return;
                         }
                         deliverBatch(
                             channel,
                             known(event.orders),
-                            (o) => input.onEvent(parse(this.#orderSchema, o)),
+                            (o) => input.onEvent(formatOrder(this.#scales, o)),
                             onError,
                         );
                         if (removed.length > 0)
@@ -517,7 +513,7 @@ export class OrdersService {
                     deliverBatch(
                         channel,
                         known(unit.orders),
-                        (o) => input.onEvent(parse(this.#orderSchema, o)),
+                        (o) => input.onEvent(formatOrder(this.#scales, o)),
                         onError,
                     );
                     if (unit.removedOrderIds.length > 0) {

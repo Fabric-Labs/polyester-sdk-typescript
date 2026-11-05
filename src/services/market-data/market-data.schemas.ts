@@ -18,29 +18,37 @@ import { PairStatusCodec, SideFilterCodec } from "./market-data.codecs.js";
 export type { AssetConfig, PairConfig, PairMarketDataConfig, PairStatus, SpotConfig };
 export { PAIR_STATUSES };
 
+const MarketTradeFieldsSchema = v.object({
+    symbolId: v.number(),
+    matchId: v.bigint(),
+    isBuy: v.boolean(),
+    priceTicks: v.bigint(),
+    qtyScaled: v.bigint(),
+    tsNs: v.optional(v.bigint(), 0n),
+});
+
+/** Formats a market trade; protobuf-decoded trades can be passed directly, they need no re-validation. */
+export function formatMarketTrade(
+    scales: SdkScales,
+    t: v.InferOutput<typeof MarketTradeFieldsSchema>,
+) {
+    const sideLabel: v.InferOutput<typeof SideSchema> = t.isBuy ? "buy" : "sell";
+    return {
+        symbolId: t.symbolId,
+        matchId: t.matchId.toString(),
+        isBuy: t.isBuy,
+        sideLabel,
+        qty: scaledToDecimalOutput(t.qtyScaled, scales.baseQty(t.symbolId)),
+        price: scaledToDecimalOutput(t.priceTicks, scales.price()),
+        tsNs: t.tsNs.toString(),
+        tsMs: tsNsToMs(t.tsNs),
+    };
+}
+
 export function createMarketTradeSchema(scales: SdkScales) {
     return v.pipe(
-        v.object({
-            symbolId: v.number(),
-            matchId: v.bigint(),
-            isBuy: v.boolean(),
-            priceTicks: v.bigint(),
-            qtyScaled: v.bigint(),
-            tsNs: v.optional(v.bigint(), 0n),
-        }),
-        v.transform((t) => {
-            const sideLabel: v.InferOutput<typeof SideSchema> = t.isBuy ? "buy" : "sell";
-            return {
-                symbolId: t.symbolId,
-                matchId: t.matchId.toString(),
-                isBuy: t.isBuy,
-                sideLabel,
-                qty: scaledToDecimalOutput(t.qtyScaled, scales.baseQty(t.symbolId)),
-                price: scaledToDecimalOutput(t.priceTicks, scales.price()),
-                tsNs: t.tsNs.toString(),
-                tsMs: tsNsToMs(t.tsNs),
-            };
-        }),
+        MarketTradeFieldsSchema,
+        v.transform((t) => formatMarketTrade(scales, t)),
     );
 }
 

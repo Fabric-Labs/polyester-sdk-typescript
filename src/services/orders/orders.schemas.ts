@@ -72,6 +72,7 @@ export {
     createOrderDetailsSchema,
     createOrderSchema,
     createOrderTransferSchema,
+    formatOrder,
 } from "./orders-output.schemas.js";
 export type { Order, OrderDetails, OrderTransfer } from "./orders-output.schemas.js";
 

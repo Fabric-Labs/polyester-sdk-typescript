@@ -17,7 +17,7 @@ import type { SdkScales } from "../../shared/decimal-surface.js";
 import type { AuthApiTransports } from "../../shared/transports.js";
 import {
     GetUserTradesInputSchema,
-    createUserTradeSchema,
+    formatUserTrade,
     type GetUserTradesInput,
     type Trade,
 } from "./trades.schemas.js";
@@ -34,7 +34,6 @@ export class TradesService {
     #realtime: PolyesterRealtime;
     #resolver?: SubaccountResolver;
     #scales: SdkScales;
-    #userTradeSchema: ReturnType<typeof createUserTradeSchema>;
 
     constructor(
         transports: AuthApiTransports,
@@ -46,7 +45,6 @@ export class TradesService {
         this.#realtime = realtime;
         this.#resolver = resolver;
         this.#scales = scales;
-        this.#userTradeSchema = createUserTradeSchema(scales);
     }
 
     /**
@@ -66,7 +64,7 @@ export class TradesService {
             toConnectCallOptions(options),
         );
         return {
-            trades: parse(v.array(this.#userTradeSchema), res.trades),
+            trades: res.trades.map((trade) => formatUserTrade(this.#scales, trade)),
             transfers: parse(v.array(createOrderTransferSchema()), res.transfers ?? []),
             nextPageToken: res.nextPageToken,
         };
@@ -87,7 +85,7 @@ export class TradesService {
                 deliverBatch(
                     channel,
                     batch.events,
-                    (trade) => input.onEvent(parse(this.#userTradeSchema, trade)),
+                    (trade) => input.onEvent(formatUserTrade(this.#scales, trade)),
                     input.onError,
                 ),
             onConnected: () => input.onOpen?.(),

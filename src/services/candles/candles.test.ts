@@ -432,7 +432,7 @@ describe("CandlesService", () => {
         expect(realtime.connectProtoChannel).not.toHaveBeenCalled();
     });
 
-    it("routes malformed candle publications to the subscription error callback", async () => {
+    it("routes candles that fail to format to the subscription error callback", async () => {
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const onError = vi.fn();
@@ -442,22 +442,18 @@ describe("CandlesService", () => {
             testScales(),
         );
 
-        service.subscribe({ symbolId: 101, timeframe: "1m", onEvent, onError });
+        // A symbol missing from the catalog has no volume scale.
+        service.subscribe({ symbolId: 999, timeframe: "1m", onEvent, onError });
 
-        realtime.params?.onPublication({
-            ...candlePoint,
-            open: "bad",
-        } as never);
+        realtime.params?.onPublication(candlePoint as never);
         await flushMicrotasks();
 
         expect(onEvent).not.toHaveBeenCalled();
         expect(onError).toHaveBeenCalledTimes(1);
         expect(onError.mock.calls[0]?.[0]).toMatchObject({
-            channel: "public:spot:market:candles:1m:101:proto",
+            channel: "public:spot:market:candles:1m:999:proto",
             type: "publication_handler",
         });
-        expect(onError.mock.calls[0]?.[0].error.message).toMatch(
-            /Invalid type: Expected bigint but received "bad"/,
-        );
+        expect(onError.mock.calls[0]?.[0].error.message).toMatch(/999/);
     });
 });
