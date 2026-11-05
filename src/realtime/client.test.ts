@@ -381,7 +381,7 @@ describe("RealtimeClient", () => {
 
         await waitForAsyncTokens();
 
-        expect(client.isConnected).toBe(false);
+        expect(client.connection.public.state).toBe("disconnected");
         expect(client.activeChannels).toBe(0);
         expect(client.totalConsumers).toBe(0);
         expect(subscription.unsubscribeCalls).toBe(0);
@@ -399,7 +399,7 @@ describe("RealtimeClient", () => {
         const secondUnsubscribe = client.subscribe("public:test", { onPublication: () => {} });
 
         expect(instance.subscriptions).toHaveLength(1);
-        expect(client.isConnected).toBe(true);
+        expect(client.connection.public.state).toBe("connecting");
         expect(client.activeChannels).toBe(1);
         expect(client.totalConsumers).toBe(1);
 
@@ -409,7 +409,7 @@ describe("RealtimeClient", () => {
         expect(subscription.unsubscribeCalls).toBe(0);
         expect(instance.removedSubscriptions).toHaveLength(0);
         expect(instance.disconnectCalls).toBe(0);
-        expect(client.isConnected).toBe(true);
+        expect(client.connection.public.state).toBe("connecting");
         expect(client.activeChannels).toBe(1);
         expect(client.totalConsumers).toBe(1);
 
@@ -627,8 +627,80 @@ describe("RealtimeClient", () => {
             error: expect.objectContaining({ realtimeCode: code, message: "bad protocol" }),
         });
         expect(onClose).toHaveBeenCalledOnce();
-        expect(client.isConnected).toBe(false);
+        expect(client.connection.public).toEqual({
+            state: "disconnected",
+            error: expect.objectContaining({ realtimeCode: code, message: "bad protocol" }),
+        });
         expect(client.activeChannels).toBe(0);
+    });
+
+    it("reports a socket that cannot connect once per outage and clears it on connect", () => {
+        const client = createPublicRealtimeClient();
+        const changes: unknown[] = [];
+        client.onConnectionChange(() => {
+            throw new Error("listener failure stays isolated");
+        });
+        client.onConnectionChange((connection) => changes.push(connection.public));
+        const onError = vi.fn();
+        const onSubscribed = vi.fn();
+        client.subscribe("public:test", { onPublication: () => {}, onError, onSubscribed });
+        client.subscribe("public:other", { onPublication: () => {} });
+        const instance = firstInstance();
+        const transportClosed = {
+            type: "transport",
+            error: { code: 2, message: "transport closed" },
+        };
+
+        expect(client.connection.public).toEqual({ state: "connecting", error: null });
+
+        instance.emit("error", transportClosed);
+        instance.emit("error", transportClosed);
+        instance.emit("error", { type: "refresh", error: { code: 100, message: "ignored" } });
+
+        expect(onError).toHaveBeenCalledExactlyOnceWith({
+            channel: "public:test",
+            type: "transport",
+            error: expect.objectContaining({
+                message: "Realtime public connection failed: transport closed",
+                realtimeCode: 2,
+                retryable: true,
+            }),
+        });
+        const failure = onError.mock.calls[0]?.[0].error;
+        expect(client.connection.public).toEqual({ state: "connecting", error: failure });
+        expect(client.connection.private).toEqual({ state: "disconnected", error: null });
+
+        instance.emit("state", { newState: "connected", oldState: "connecting" });
+        expect(client.connection.public).toEqual({ state: "connected", error: null });
+
+        // A dropped socket is a new outage: its first failed reconnect reports again.
+        instance.emit("state", { newState: "connecting", oldState: "connected" });
+        instance.emit("error", transportClosed);
+        expect(onError).toHaveBeenCalledTimes(2);
+
+        expect(changes).toEqual([
+            { state: "connecting", error: null },
+            { state: "connecting", error: failure },
+            { state: "connected", error: null },
+            { state: "connecting", error: null },
+            { state: "connecting", error: expect.objectContaining({ realtimeCode: 2 }) },
+        ]);
+
+        client.disconnect();
+        expect(client.connection.public).toEqual({ state: "disconnected", error: null });
+        expect(changes).toHaveLength(6);
+    });
+
+    it("stops calling a connection listener after it unsubscribes", () => {
+        const client = createPublicRealtimeClient();
+        const listener = vi.fn();
+        const stop = client.onConnectionChange(listener);
+        client.subscribe("public:test", { onPublication: () => {} });
+        stop();
+        firstInstance().emit("state", { newState: "connected", oldState: "connecting" });
+
+        expect(listener).toHaveBeenCalledOnce();
+        expect(client.connection.public.state).toBe("connected");
     });
 
     it("keeps subscriptions tracked on an unauthorized disconnect", () => {
@@ -802,14 +874,15 @@ describe("RealtimeClient", () => {
 
         expect(publicInstance.disconnectCalls).toBe(1);
         expect(privateInstance.disconnectCalls).toBe(0);
-        expect(client.isConnected).toBe(true);
+        expect(client.connection.public.state).toBe("disconnected");
+        expect(client.connection.private.state).toBe("connecting");
         expect(client.activeChannels).toBe(1);
 
         unsubscribePrivate();
         await waitForAsyncTokens();
 
         expect(privateInstance.disconnectCalls).toBe(1);
-        expect(client.isConnected).toBe(false);
+        expect(client.connection.private.state).toBe("disconnected");
         expect(client.activeChannels).toBe(0);
     });
 
@@ -845,7 +918,8 @@ describe("RealtimeClient", () => {
 
         expect(publicInstance.disconnectCalls).toBe(0);
         expect(privateInstance.disconnectCalls).toBe(1);
-        expect(client.isConnected).toBe(true);
+        expect(client.connection.public.state).toBe("connecting");
+        expect(client.connection.private.state).toBe("disconnected");
         expect(client.activeChannels).toBe(1);
 
         publicSubscription.emit("publication", { data: "public-after-private-disconnect" });
@@ -1106,6 +1180,19 @@ describe("RealtimeClient", () => {
             "Failed to fetch connection token: 500",
         );
         expect(onError.mock.calls[0]?.[0].error).toMatchObject({ status: 500 });
+
+        // Centrifuge then emits a connectToken error: it marks the private socket as
+        // failing without reporting the same failure to the channel a second time.
+        instance.emit("error", {
+            type: "connectToken",
+            error: { code: 5, message: "Error: Failed to fetch connection token: 500" },
+        });
+        expect(onError).toHaveBeenCalledOnce();
+        expect(client.connection.private).toEqual({
+            state: "connecting",
+            error: expect.objectContaining({ realtimeCode: 5, retryable: true }),
+        });
+        expect(client.connection.public).toEqual({ state: "disconnected", error: null });
     });
 
     it("reports subscription token failures to that channel error handler", async () => {

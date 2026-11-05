@@ -84,6 +84,9 @@ export type {
     ConnectPrivateOrdersParams,
     PolyesterRealtime,
     PrivateOrdersEvent,
+    RealtimeConnection,
+    RealtimeConnectionState,
+    RealtimeConnectionStatus,
     SubscribeHandlers,
 } from "./realtime/index.js";
 export type { SdkSubscriptionErrorContext } from "./shared/subscription-errors.js";

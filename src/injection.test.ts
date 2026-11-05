@@ -26,7 +26,11 @@ function stubRealtime(): PolyesterRealtime {
         connectPrivateOrders: vi.fn(() => () => {}),
         disconnect: vi.fn(),
         disconnectPrivate: vi.fn(),
-        isConnected: false,
+        connection: {
+            public: { state: "disconnected", error: null },
+            private: { state: "disconnected", error: null },
+        },
+        onConnectionChange: vi.fn(() => () => {}),
         activeChannels: 0,
         totalConsumers: 0,
     };
@@ -110,7 +114,7 @@ describe.each([
                 subscribeEndpoint: "https://example.invalid/subscribe",
                 privateWsUrl: "wss://api.example.test/v1/ws/private",
             });
-            expect(realtime.isConnected).toBe(false);
+            expect(realtime.connection.public.state).toBe("disconnected");
             expect(realtime.activeChannels).toBe(0);
         });
     });
