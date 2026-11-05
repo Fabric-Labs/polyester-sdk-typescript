@@ -146,6 +146,8 @@ export class RealtimeClient implements PolyesterRealtime {
     #privateOrdersEpoch = 0;
     #connection: RealtimeConnection = { public: DISCONNECTED, private: DISCONNECTED };
     #connectionListeners = new Set<(connection: RealtimeConnection) => void>();
+    /** Outage errors already sent to channels as `"transport"`; replayed to late subscribers. */
+    #transportErrors = new WeakSet<Error>();
     /** Token requests wait until then after a 429 with `Retry-After`. */
     #tokenRetryAt = 0;
     readonly #config: ResolvedRealtimeConfig;
@@ -171,8 +173,10 @@ export class RealtimeClient implements PolyesterRealtime {
      * transport's own reconnect backoff still applies on top.
      */
     async #fetchToken(url: string | URL, kind: "connection" | "subscription"): Promise<string> {
-        const wait = this.#tokenRetryAt - Date.now();
-        if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
+        // Recheck after each wait: another request's 429 may have pushed the deadline out.
+        for (let wait; (wait = this.#tokenRetryAt - Date.now()) > 0;) {
+            await new Promise((resolve) => setTimeout(resolve, wait));
+        }
         const headers = await this.#getAuthHeaders({ url, method: "GET" });
         const res = await realtimeFetch(url, { headers });
         if (!res.ok) {
@@ -303,12 +307,14 @@ export class RealtimeClient implements PolyesterRealtime {
     #watchClient(client: Centrifuge, kind: RealtimeClientKind): void {
         this.#setConnection(kind, { state: "connecting", error: null });
 
-        client.on("state", ({ newState }) => {
-            if (this.#currentClient(kind) !== client) return;
+        client.on("state", ({ newState, oldState }) => {
+            // `disconnected` is recorded by the handlers below, which know the reason.
+            if (this.#currentClient(kind) !== client || newState === "disconnected") return;
+            // A restart after a terminal close starts a new outage.
             const { error } = this.#connection[kind];
             this.#setConnection(kind, {
                 state: newState,
-                error: newState === "connected" ? null : error,
+                error: newState === "connected" || oldState === "disconnected" ? null : error,
             });
         });
 
@@ -317,9 +323,11 @@ export class RealtimeClient implements PolyesterRealtime {
         client.on("error", (ctx: ErrorContext) => {
             if (this.#currentClient(kind) !== client || !CONNECT_FAILURE_TYPES.has(ctx.type))
                 return;
+            const { code, message } = ctx.error as { code?: unknown; message?: unknown };
+            // 109: the cached token expired; Centrifuge fetches a new one and reconnects.
+            if (ctx.type === "connect" && code === 109) return;
             // Report the first failure of an outage only, not every reconnect retry.
             if (this.#connection[kind].error) return;
-            const { code, message } = ctx.error as { code?: unknown; message?: unknown };
             const error = new RealtimeError(
                 `Realtime ${kind} connection failed: ${typeof message === "string" && message ? message : ctx.type}`,
                 { realtimeCode: typeof code === "number" ? code : 0, retryable: true },
@@ -327,6 +335,7 @@ export class RealtimeClient implements PolyesterRealtime {
             this.#setConnection(kind, { state: "connecting", error });
             // Private channels already receive connection token failures as "connection_token".
             if (ctx.type === "connectToken") return;
+            this.#transportErrors.add(error);
             // Collect first: a handler that resubscribes re-adds its channel to the map.
             const affected = [...this.#sharedSubs.values()].filter(
                 (shared) => shared.client === client,
@@ -335,17 +344,19 @@ export class RealtimeClient implements PolyesterRealtime {
         });
 
         client.on("disconnected", (ctx) => {
-            // Codes 0 (disconnectCalled) and 1 (unauthorized) are handled elsewhere;
-            // every other disconnected event is terminal.
-            if (this.#currentClient(kind) !== client || ctx.code <= 1) return;
-            if (kind === "private") this.#privateClient = null;
-            else this.#publicClient = null;
+            // Code 0 (disconnectCalled) comes from our own teardown, which drops the client first.
+            if (this.#currentClient(kind) !== client || ctx.code === 0) return;
             this.#setConnection(kind, {
                 state: "disconnected",
                 error: new RealtimeError(ctx.reason || "Realtime connection closed", {
                     realtimeCode: ctx.code,
                 }),
             });
+            // Code 1 (unauthorized): channels already got the token error, and an explicit
+            // subscribe() restarts this client, so keep it and its subscriptions.
+            if (ctx.code === 1) return;
+            if (kind === "private") this.#privateClient = null;
+            else this.#publicClient = null;
             this.#terminateSubscriptions(
                 [...this.#sharedSubs.values(), ...this.#pendingTeardowns.values()].filter(
                     (shared) => shared.client === client,
@@ -754,6 +765,15 @@ export class RealtimeClient implements PolyesterRealtime {
         }
 
         let closed = false;
+        // Joining a socket that is already failing: this consumer missed the outage's one report.
+        const outage = this.#connection[this.#channelKind(channel)].error;
+        if (onError && outage && this.#transportErrors.has(outage)) {
+            const ctx = createSdkSubscriptionErrorContext(channel, "transport", outage);
+            queueMicrotask(() => {
+                if (closed || this.#connection[this.#channelKind(channel)].error !== outage) return;
+                onError(ctx);
+            });
+        }
         if (onSubscribed && shared.sub?.state === "subscribed") {
             const subscriptionEpoch = shared.subscriptionEpoch;
             queueMicrotask(() => {

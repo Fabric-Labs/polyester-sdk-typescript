@@ -704,13 +704,91 @@ describe("RealtimeClient", () => {
         expect(client.connection.public.state).toBe("connected");
     });
 
+    it("reports the current outage to consumers that join a failing socket", async () => {
+        const client = createPublicRealtimeClient();
+        client.subscribe("public:first", { onPublication: () => {} });
+        const instance = firstInstance();
+        const transportClosed = { type: "transport", error: { code: 2, message: "closed" } };
+        instance.emit("error", transportClosed);
+        const failure = client.connection.public.error;
+
+        const late = vi.fn();
+        const sameChannel = vi.fn();
+        const leftEarly = vi.fn();
+        client.subscribe("public:late", { onPublication: () => {}, onError: late });
+        client.subscribe("public:first", { onPublication: () => {}, onError: sameChannel });
+        client.subscribe("public:gone", { onPublication: () => {}, onError: leftEarly })();
+        await waitForAsyncTokens();
+        instance.emit("error", transportClosed);
+
+        const report = { type: "transport", error: failure };
+        expect(late).toHaveBeenCalledExactlyOnceWith({ channel: "public:late", ...report });
+        expect(sameChannel).toHaveBeenCalledExactlyOnceWith({ channel: "public:first", ...report });
+        expect(leftEarly).not.toHaveBeenCalled();
+
+        // Recovered: a new consumer has nothing to replay.
+        instance.emit("state", { newState: "connected", oldState: "connecting" });
+        const afterRecovery = vi.fn();
+        client.subscribe("public:after", { onPublication: () => {}, onError: afterRecovery });
+        await waitForAsyncTokens();
+        expect(afterRecovery).not.toHaveBeenCalled();
+        client.disconnect();
+    });
+
+    it("does not report an expired connection token as an outage", () => {
+        const client = createPublicRealtimeClient();
+        const onError = vi.fn();
+        client.subscribe("public:test", { onPublication: () => {}, onError });
+        firstInstance().emit("error", {
+            type: "connect",
+            error: { code: 109, message: "token expired" },
+        });
+
+        expect(onError).not.toHaveBeenCalled();
+        expect(client.connection.public).toEqual({ state: "connecting", error: null });
+        client.disconnect();
+    });
+
+    it("records a terminal close once, with its reason", () => {
+        const client = createPublicRealtimeClient();
+        const changes: unknown[] = [];
+        client.subscribe("public:test", { onPublication: () => {}, onError: () => {} });
+        client.onConnectionChange((connection) => changes.push(connection.public));
+        const instance = firstInstance();
+        // Centrifuge emits `state` before `disconnected`.
+        instance.emit("state", { newState: "disconnected", oldState: "connected" });
+        instance.emit("disconnected", { code: 3500, reason: "go away" });
+
+        expect(changes).toEqual([
+            {
+                state: "disconnected",
+                error: expect.objectContaining({ realtimeCode: 3500, message: "go away" }),
+            },
+        ]);
+    });
+
     it("keeps subscriptions tracked on an unauthorized disconnect", () => {
         const client = createPublicRealtimeClient();
         const onError = vi.fn();
         client.subscribe("public:test", { onPublication: () => {}, onError });
-        firstInstance().emit("disconnected", { code: 1, reason: "unauthorized" });
+        const instance = firstInstance();
+        instance.emit("error", { type: "transport", error: { code: 2, message: "closed" } });
+        onError.mockClear();
+        instance.emit("state", { newState: "disconnected", oldState: "connecting" });
+        instance.emit("disconnected", { code: 1, reason: "unauthorized" });
         expect(onError).not.toHaveBeenCalled();
         expect(client.activeChannels).toBe(1);
+        // The status says why it stopped instead of keeping the earlier retryable failure.
+        expect(client.connection.public).toEqual({
+            state: "disconnected",
+            error: expect.objectContaining({ realtimeCode: 1, retryable: false }),
+        });
+
+        // A restart is a new outage: its first failure reports again.
+        instance.emit("state", { newState: "connecting", oldState: "disconnected" });
+        expect(client.connection.public).toEqual({ state: "connecting", error: null });
+        instance.emit("error", { type: "transport", error: { code: 2, message: "closed" } });
+        expect(onError).toHaveBeenCalledOnce();
         client.disconnect();
     });
 
@@ -1239,6 +1317,47 @@ describe("RealtimeClient", () => {
         await vi.advanceTimersByTimeAsync(1);
         await expect(instance.tokenPromise).resolves.toBe("rt-token");
         expect(connectionTokenFetches()).toBe(2);
+    });
+
+    it("keeps a waiting token request behind a Retry-After that grows while it waits", async () => {
+        vi.useFakeTimers();
+        let answerConnectionToken!: (res: Response) => void;
+        let subscriptionCalls = 0;
+        vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+            if (String(input).includes("/v1/rt/token")) {
+                return new Promise((resolve) => (answerConnectionToken = resolve));
+            }
+            if (subscriptionCalls++ === 0) {
+                return Promise.resolve(
+                    new Response("{}", { status: 429, headers: { "retry-after": "2" } }),
+                );
+            }
+            return Promise.resolve(new Response(JSON.stringify({ token: "sub-token" })));
+        });
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
+            hasAuth: () => true,
+        });
+        client.subscribe("private:test", { onPublication: () => {}, onError: () => {} });
+        const subscription = firstSubscription();
+        await vi.advanceTimersByTimeAsync(0);
+        expect(subscriptionCalls).toBe(1);
+
+        // Retry while the 2s window is open, then a slower 429 extends it to 11s.
+        subscription.subscribe();
+        await vi.advanceTimersByTimeAsync(1000);
+        answerConnectionToken(
+            new Response("{}", { status: 429, headers: { "retry-after": "10" } }),
+        );
+        await vi.advanceTimersByTimeAsync(9_999);
+        expect(subscriptionCalls).toBe(1);
+
+        await vi.advanceTimersByTimeAsync(1);
+        expect(subscriptionCalls).toBe(2);
+        client.disconnect();
     });
 
     it("holds real Centrifuge reconnects to Retry-After, then connects and clears the error", async () => {
