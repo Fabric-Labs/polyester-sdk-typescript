@@ -1,5 +1,17 @@
 # @polyester/sdk
 
+## 0.34.0
+
+### Minor Changes
+
+- **Breaking:** every SDK label, key and filter value now uses the `canceled` spelling. Trigger status (output and the `triggers.list` `status` filter), sub-account invite status and social-verification status change from `"cancelled"` to `"canceled"`, matching order status and trigger events. The `orders.cancelAll` result renames `cancelledOrders` to `canceledOrders` and `totalCancelled` to `totalCanceled`. There are no aliases: update any code that compares against `"cancelled"` or reads the old keys. ([#230](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/230))
+
+### Patch Changes
+
+- Order, trade, market trade, balance and candle streams (and their list reads) no longer re-validate protobuf-decoded messages with Valibot before formatting them. Payloads are unchanged; per-message formatting is roughly 1.5-2.5x faster. ([#231](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/231))
+
+- `ValidationError` messages name the field that failed. When an input matches none of the shapes a method accepts, the message now comes from the closest shape and is prefixed with its path, such as `items.0.symbolId: Invalid key: Expected "symbolId" but received undefined` for `orders.batchCreate` with `symbolId` on the request instead of each item. Before, this was the generic `Invalid type: Expected Object but received Object`. The same applies to an unsupported `execution.clientRefPrice` on `orders.create`, and `triggers.create` now reports `sliceIntervalMs cannot exceed durationMs` for a TWAP. Messages that already name their field are unchanged. ([#228](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/228))
+
 ## 0.33.0
 
 ### Minor Changes
