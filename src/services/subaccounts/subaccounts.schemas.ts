@@ -236,7 +236,7 @@ export type ListSubaccountInvitesInput = v.InferInput<typeof ListSubaccountInvit
 
 const InviteActionSchema = v.picklist(["accept", "decline", "cancel"]);
 
-const InviteStatusSchema = v.picklist(["pending", "accepted", "declined", "cancelled"]);
+const InviteStatusSchema = v.picklist(["pending", "accepted", "declined", "canceled"]);
 
 export type SubaccountInviteStatus = v.InferOutput<typeof InviteStatusSchema>;
 

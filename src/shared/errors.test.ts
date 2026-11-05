@@ -637,8 +637,8 @@ describe("toPolyesterError", () => {
         const abort = new DOMException("aborted", "AbortError");
         expect(toPolyesterError(abort)).toBe(abort);
 
-        const cancelled = new ConnectError("cancelled", Code.Canceled);
-        expect(toPolyesterError(cancelled)).toBe(cancelled);
+        const canceled = new ConnectError("canceled", Code.Canceled);
+        expect(toPolyesterError(canceled)).toBe(canceled);
     });
 
     it("unwraps a typed error from the ConnectError cause chain", () => {

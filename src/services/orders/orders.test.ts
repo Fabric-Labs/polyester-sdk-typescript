@@ -576,11 +576,11 @@ describe("OrdersService", () => {
             submittedCancels: 2,
             failedCancels: 0,
             ts: 1,
-            cancelledOrders: [
+            canceledOrders: [
                 { orderId: formatId(7n), clientOrderId: "client-7" },
                 { orderId: formatId(9n), clientOrderId: "" },
             ],
-            totalCancelled: 2,
+            totalCanceled: 2,
             truncated: false,
             listingStatus: "included",
         });

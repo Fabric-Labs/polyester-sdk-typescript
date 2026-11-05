@@ -11,6 +11,7 @@ import {
     SubaccountSchema,
     UpdateSubaccountInputSchema,
 } from "./subaccounts.schemas.js";
+import { InviteStatusCodec } from "./subaccounts.codecs.js";
 
 const baseSubaccount = {
     id: 1n,
@@ -59,6 +60,12 @@ describe("subaccount status schemas", () => {
                 status: Proto.SubaccountStatus.DISABLED,
             }).status,
         ).toBe("disabled");
+    });
+
+    it("labels a canceled invite with the canceled spelling", () => {
+        expect(InviteStatusCodec.protoToOutput[Proto.SubaccountInviteStatus.CANCELLED]).toBe(
+            "canceled",
+        );
     });
 
     it("parses smart-account salt nonce metadata", () => {

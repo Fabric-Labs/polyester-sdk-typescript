@@ -216,6 +216,16 @@ describe("social verification schemas", () => {
         ).toMatchObject({ status: "unspecified" });
     });
 
+    it("labels a canceled verification with the canceled spelling", () => {
+        expect(
+            transformVerification(
+                verification({
+                    status: Proto.SocialVerificationStatus.STATUS_CANCELLED,
+                }) as Proto.SocialVerification,
+            ),
+        ).toMatchObject({ status: "canceled" });
+    });
+
     it("decodes typed verification failures and maps unset or unknown codes to unspecified", () => {
         const cases = [
             [AuthErrorCode.AUTH_SOCIAL_ACCOUNT_ALREADY_LINKED, "social_account_already_linked"],

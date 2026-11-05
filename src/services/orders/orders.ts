@@ -393,8 +393,8 @@ export class OrdersService {
 
     /**
      * Cancels all matching open orders for the resolved account scope, optionally narrowed by up to 100 symbol IDs and side, with dry-run preview. A requestId is generated when omitted; reuse it with the same criteria for retries. Completed results are retained for at least two minutes; use a fresh key for each new cancellation.
-     * `cancelledOrders` lists up to 200 of the orders whose cancellation was requested, oldest first; `truncated` is true when `totalCancelled` counts more. Read each order's final state from `orders.subscribe` or the order reads.
-     * A retry with the same requestId and criteria returns the original counts with `listingStatus: "not_retained_read_open_orders"` and an empty `cancelledOrders`, which does not mean nothing was canceled; read open orders instead.
+     * `canceledOrders` lists up to 200 of the orders whose cancellation was requested, oldest first; `truncated` is true when `totalCanceled` counts more. Read each order's final state from `orders.subscribe` or the order reads.
+     * A retry with the same requestId and criteria returns the original counts with `listingStatus: "not_retained_read_open_orders"` and an empty `canceledOrders`, which does not mean nothing was canceled; read open orders instead.
      */
     async cancelAll(
         input: v.InferInput<typeof CancelAllOrdersInputSchema>,
