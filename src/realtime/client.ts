@@ -307,10 +307,11 @@ export class RealtimeClient implements PolyesterRealtime {
             this.#setConnection(kind, { state: "connecting", error });
             // Private channels already receive connection token failures as "connection_token".
             if (ctx.type === "connectToken") return;
-            for (const shared of [...this.#sharedSubs.values()]) {
-                if (shared.client === client)
-                    this.#emitSubscriptionError(shared, "transport", error);
-            }
+            // Collect first: a handler that resubscribes re-adds its channel to the map.
+            const affected = [...this.#sharedSubs.values()].filter(
+                (shared) => shared.client === client,
+            );
+            for (const shared of affected) this.#emitSubscriptionError(shared, "transport", error);
         });
 
         client.on("disconnected", (ctx) => {
