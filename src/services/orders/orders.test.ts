@@ -356,6 +356,73 @@ describe("OrdersService", () => {
         });
     });
 
+    it("names the failing field when an order intent union fails", async () => {
+        const transport = unaryTransportByMethod({});
+        const service = new OrdersService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await expect(
+            service.batchCreate({
+                symbolId: 1,
+                items: [
+                    {
+                        side: "buy",
+                        qty: "0.0005",
+                        execution: { type: "limit_gtc", price: "64000" },
+                    },
+                ],
+            } as never),
+        ).rejects.toThrow(
+            'items.0.symbolId: Invalid key: Expected "symbolId" but received undefined',
+        );
+        await expect(
+            service.create({
+                symbolId: 1,
+                side: "buy",
+                qty: "0.0005",
+                execution: { type: "limit_gtc", price: "64000", clientRefPrice: "64000" },
+            } as never),
+        ).rejects.toThrow(
+            'execution.clientRefPrice: Invalid key: Expected never but received "clientRefPrice"',
+        );
+        expect(transport.unary).not.toHaveBeenCalled();
+    });
+
+    it("names unknown top-level keys and keeps field-named messages on batch inputs", async () => {
+        const transport = unaryTransportByMethod({});
+        const service = new OrdersService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await expect(
+            service.batchCreate({
+                symbolId: 1,
+                items: [
+                    {
+                        symbolId: 1,
+                        side: "buy",
+                        qty: "0.0005",
+                        execution: { type: "limit_gtc", price: "64000" },
+                    },
+                ],
+            } as never),
+        ).rejects.toThrow('symbolId: Invalid key: Expected never but received "symbolId"');
+        await expect(
+            service.batchReplace({
+                symbolId: 1,
+                items: [{ orderId: formatId(0n), newQty: "0.25" }],
+            }),
+        ).rejects.toThrow(/^items\.orderId must be greater than zero$/);
+        expect(transport.unary).not.toHaveBeenCalled();
+    });
+
     it("rejects create inputs with excess decimal precision before calling the backend", async () => {
         const transport = unaryTransportByMethod({});
         const service = new OrdersService(
