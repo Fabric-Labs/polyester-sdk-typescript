@@ -356,6 +356,29 @@ describe("TriggersService", () => {
         expect(cases).toHaveLength(8);
     });
 
+    it("names the failing rule when a TWAP slice interval exceeds its duration", async () => {
+        const transport = unaryTransportByMethod({ createTrigger: createResult });
+        const service = new TriggersService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await expect(
+            service.create({
+                triggerType: "twap",
+                symbolId: 1,
+                side: "buy",
+                qty: "1",
+                durationMs: 1_000,
+                sliceIntervalMs: 5_000,
+                execution: { type: "limit_gtc", price: "100" },
+            }),
+        ).rejects.toThrow("sliceIntervalMs cannot exceed durationMs");
+        expect(transport.calls).toHaveLength(0);
+    });
+
     it("rejects trailing distance above 10000 bps before transport", async () => {
         const transport = unaryTransportByMethod({ createTrigger: createResult });
         const service = new TriggersService(
