@@ -990,11 +990,9 @@ describe("RealtimeClient.connectPrivateOrders", () => {
         client.connectPrivateOrders({ accountId: ACCOUNT, onEvent: vi.fn() });
         await liveSocket();
 
-        expect(client.isConnected).toBe(true);
         expect(client.activeChannels).toBe(1);
         expect(client.totalConsumers).toBe(1);
         client.disconnect();
-        expect(client.isConnected).toBe(false);
         expect(client.activeChannels).toBe(0);
     });
 

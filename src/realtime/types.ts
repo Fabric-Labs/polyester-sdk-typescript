@@ -20,6 +20,25 @@ export interface ConnectChannelParams<T extends DescMessage> {
     onError?: (ctx: SdkSubscriptionErrorContext) => void;
 }
 
+export type RealtimeConnectionState = "connecting" | "connected" | "disconnected";
+
+export interface RealtimeConnectionStatus {
+    /** `"disconnected"` also means no socket is open because no channel needs one. */
+    readonly state: RealtimeConnectionState;
+    /**
+     * The first failure of the current outage, or `null`. Set while the socket cannot
+     * connect (it keeps retrying in `"connecting"`) or after it closed for good, and
+     * cleared once it connects.
+     */
+    readonly error: Error | null;
+}
+
+/** Status of the public and the private Centrifuge sockets. Replaced, never mutated. */
+export interface RealtimeConnection {
+    readonly public: RealtimeConnectionStatus;
+    readonly private: RealtimeConnectionStatus;
+}
+
 /**
  * Structural realtime contract consumed by SDK services. The default
  * implementation is the Centrifuge-backed {@link ../realtime/client.js RealtimeClient};
@@ -39,7 +58,10 @@ export interface PolyesterRealtime {
     disconnect(): void;
     /** Disconnects authenticated realtime state without touching public channels. */
     disconnectPrivate(): void;
-    readonly isConnected: boolean;
+    /** Socket status; private order streams run on their own socket and are not included. */
+    readonly connection: RealtimeConnection;
+    /** Calls `listener` with the new {@link RealtimeConnection} on every change. Returns an unsubscribe function. */
+    onConnectionChange(listener: (connection: RealtimeConnection) => void): () => void;
     readonly activeChannels: number;
     readonly totalConsumers: number;
 }
