@@ -1084,7 +1084,7 @@ describe("Trigger result and output schemas", () => {
         );
 
         expect(output).toMatchObject({
-            status: "cancelled",
+            status: "canceled",
             configuration: {
                 type: "trailing_stop",
                 side: "sell",
@@ -1447,7 +1447,7 @@ describe("Trigger result and output schemas", () => {
                     },
                 }),
             ),
-        ).toMatchObject({ status: "cancelled", cancelReason: "user_request" });
+        ).toMatchObject({ status: "canceled", cancelReason: "user_request" });
 
         expect(
             v.parse(
@@ -1460,7 +1460,7 @@ describe("Trigger result and output schemas", () => {
                     },
                 }),
             ),
-        ).toMatchObject({ status: "cancelled", cancelReason: "self_trade_prevention" });
+        ).toMatchObject({ status: "canceled", cancelReason: "self_trade_prevention" });
 
         expect(
             v.parse(
@@ -1473,6 +1473,6 @@ describe("Trigger result and output schemas", () => {
                     },
                 }),
             ),
-        ).toMatchObject({ status: "cancelled", cancelReason: "market_halted" });
+        ).toMatchObject({ status: "canceled", cancelReason: "market_halted" });
     });
 });

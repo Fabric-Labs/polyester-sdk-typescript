@@ -451,7 +451,7 @@ describe("TriggersService", () => {
                 {
                     parentOrderId: formatId(33n),
                     symbolId: 1,
-                    status: ["armed", "paused"],
+                    status: ["armed", "paused", "canceled"],
                     triggerType: "twap",
                 },
                 { signal: controller.signal },
@@ -502,7 +502,11 @@ describe("TriggersService", () => {
                 subaccountId: 11n,
                 parentOrderId: 33n,
                 symbolId: 1,
-                status: [Proto.TriggerStatus.STATUS_ARMED, Proto.TriggerStatus.STATUS_PAUSED],
+                status: [
+                    Proto.TriggerStatus.STATUS_ARMED,
+                    Proto.TriggerStatus.STATUS_PAUSED,
+                    Proto.TriggerStatus.STATUS_CANCELED,
+                ],
                 triggerType: Proto.TriggerType.TWAP,
                 limit: 50,
                 pageToken: "",
@@ -617,7 +621,7 @@ describe("TriggersService", () => {
                     runtimeDetails: { case: "stop", triggerPrice: "100" },
                 },
                 {
-                    status: "cancelled",
+                    status: "canceled",
                     configuration: {
                         type: "trailing_stop",
                         side: "sell",
@@ -668,7 +672,7 @@ describe("TriggersService", () => {
                 { triggerId: formatId(22n), account: { subaccountId: formatId(11n) } },
                 { stepUpToken: " fresh " },
             ),
-        ).resolves.toMatchObject({ status: "cancelled", ts: 1, tsNs: "1000123" });
+        ).resolves.toMatchObject({ status: "canceled", ts: 1, tsNs: "1000123" });
         await expect(
             service.modify({
                 triggerId: formatId(22n),

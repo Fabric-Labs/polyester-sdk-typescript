@@ -389,7 +389,7 @@ function findPolyesterErrorInCauseChain(err: unknown): PolyesterError | null {
 
 /**
  * Converts any RPC-layer failure into its typed SDK error. Abort errors and
- * caller-cancelled requests pass through unchanged, as do errors that are
+ * caller-canceled requests pass through unchanged, as do errors that are
  * already typed (e.g. a `NetworkError` from the SDK fetch wrapper).
  * `AbortSignal.timeout()` expiries become {@link TimeoutError}, whether the
  * timeout signal was passed by the caller or added by an interceptor. Prefer the

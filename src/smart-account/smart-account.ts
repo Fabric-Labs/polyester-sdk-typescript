@@ -387,7 +387,7 @@ export async function sendPolyesterUserOperation(
         }
         // Only a failure after signing (i.e. from `eth_sendUserOperation`) can
         // mean the bundler rejected the cached gas price. Earlier
-        // failures — a cancelled wallet prompt above all — keep the cache so
+        // failures — a canceled wallet prompt above all — keep the cache so
         // the retry stays cheap.
         smartAccountClientCacheResets.get(client)?.();
         throw error;

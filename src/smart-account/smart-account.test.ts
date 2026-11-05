@@ -325,7 +325,7 @@ describe("sendPolyesterUserOperation", () => {
         expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(1);
     });
 
-    it("keeps the gas-price cache when the wallet prompt is cancelled before signing", async () => {
+    it("keeps the gas-price cache when the wallet prompt is canceled before signing", async () => {
         const { account, client } = await setup();
         await warmPolyesterSmartAccountClient(client);
         account.signUserOperation = (() =>

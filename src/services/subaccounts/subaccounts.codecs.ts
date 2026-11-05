@@ -50,7 +50,7 @@ export const SUBACCOUNT_INVITE_STATUS_VALUES = [
     "pending",
     "accepted",
     "declined",
-    "cancelled",
+    "canceled",
 ] as const;
 export type SubaccountInviteStatusValue = (typeof SUBACCOUNT_INVITE_STATUS_VALUES)[number];
 
@@ -163,7 +163,7 @@ export const InviteStatusCodec = {
         [Proto.SubaccountInviteStatus.PENDING]: "pending",
         [Proto.SubaccountInviteStatus.ACCEPTED]: "accepted",
         [Proto.SubaccountInviteStatus.DECLINED]: "declined",
-        [Proto.SubaccountInviteStatus.CANCELLED]: "cancelled",
+        [Proto.SubaccountInviteStatus.CANCELLED]: "canceled",
     } satisfies ProtoToOutput<Proto.SubaccountInviteStatus, SubaccountInviteStatusValue>,
 } as const;
 

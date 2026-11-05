@@ -15,7 +15,7 @@ export const SOCIAL_VERIFICATION_STATUS_VALUES = [
     "verified",
     "failed",
     "expired",
-    "cancelled",
+    "canceled",
 ] as const;
 export type SocialVerificationStatusValue = (typeof SOCIAL_VERIFICATION_STATUS_VALUES)[number];
 
@@ -54,7 +54,7 @@ export const SocialVerificationStatusCodec = {
         [Proto.SocialVerificationStatus.STATUS_VERIFIED]: "verified",
         [Proto.SocialVerificationStatus.STATUS_FAILED]: "failed",
         [Proto.SocialVerificationStatus.STATUS_EXPIRED]: "expired",
-        [Proto.SocialVerificationStatus.STATUS_CANCELLED]: "cancelled",
+        [Proto.SocialVerificationStatus.STATUS_CANCELLED]: "canceled",
     } satisfies ProtoToOutput<Proto.SocialVerificationStatus, SocialVerificationStatusValue>,
 } as const;
 

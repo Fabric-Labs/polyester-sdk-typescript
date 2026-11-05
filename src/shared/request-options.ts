@@ -4,7 +4,7 @@ export interface PolyesterRequestOptions {
     signal?: AbortSignal;
     /**
      * Deadline for the call in milliseconds, a positive integer of at most
-     * 2147483647. When it passes, the request is cancelled and
+     * 2147483647. When it passes, the request is canceled and
      * rejects with `TimeoutError`. Also sent to the backend as the Connect
      * deadline. Other values throw `ValidationError`.
      */
