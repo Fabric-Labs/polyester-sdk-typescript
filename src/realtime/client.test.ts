@@ -29,6 +29,7 @@ interface MockCentrifugeRecord {
     handlers: Map<string, MockEventHandler[]>;
     on: (event: string, handler: MockEventHandler) => void;
     emit: (event: string, ...args: unknown[]) => void;
+    connect: () => void;
 }
 
 const centrifugeState = {
@@ -1193,6 +1194,96 @@ describe("RealtimeClient", () => {
             error: expect.objectContaining({ realtimeCode: 5, retryable: true }),
         });
         expect(client.connection.public).toEqual({ state: "disconnected", error: null });
+    });
+
+    it("waits out Retry-After on a rate-limited token before requesting another", async () => {
+        vi.useFakeTimers();
+        const fetchSpy = vi
+            .spyOn(globalThis, "fetch")
+            .mockResolvedValueOnce(
+                new Response("{}", { status: 429, headers: { "retry-after": "2" } }),
+            )
+            .mockImplementation(() =>
+                Promise.resolve(
+                    new Response(JSON.stringify({ token: "rt-token" }), {
+                        headers: { "content-type": "application/json" },
+                        status: 200,
+                    }),
+                ),
+            );
+        const onError = vi.fn();
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
+            hasAuth: () => true,
+        });
+        client.subscribe("private:test", { onPublication: () => {}, onError });
+        const instance = firstInstance();
+
+        await expect(instance.tokenPromise).rejects.toMatchObject({
+            name: "RateLimitError",
+            retryAfterMs: 2000,
+        });
+        expect(onError.mock.calls[0]?.[0]).toMatchObject({ type: "connection_token" });
+
+        const connectionTokenFetches = () =>
+            fetchSpy.mock.calls.filter(([url]) => String(url).includes("/v1/rt/token")).length;
+
+        // Centrifuge reconnects sooner than the server asked: the token request waits.
+        instance.connect();
+        await vi.advanceTimersByTimeAsync(1999);
+        expect(connectionTokenFetches()).toBe(1);
+
+        await vi.advanceTimersByTimeAsync(1);
+        await expect(instance.tokenPromise).resolves.toBe("rt-token");
+        expect(connectionTokenFetches()).toBe(2);
+    });
+
+    it("holds real Centrifuge reconnects to Retry-After, then connects and clears the error", async () => {
+        vi.stubGlobal("WebSocket", JsonReplyWebSocket);
+        // Load before faking timers: a dynamic import does not settle under fake timers.
+        __setRealtimeCentrifugeForTests((await import("centrifuge")).Centrifuge as never);
+        vi.useFakeTimers();
+        let tokenCalls = 0;
+        vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+            if (String(input).includes("/v1/rt/token") && tokenCalls++ === 0) {
+                return Promise.resolve(
+                    new Response("{}", { status: 429, headers: { "retry-after": "5" } }),
+                );
+            }
+            return Promise.resolve(
+                new Response(JSON.stringify({ token: "rt-token" }), {
+                    headers: { "content-type": "application/json" },
+                    status: 200,
+                }),
+            );
+        });
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
+            hasAuth: () => true,
+        });
+        const onSubscribed = vi.fn();
+        client.subscribe("private:test", { onPublication: () => {}, onSubscribed });
+
+        // Centrifuge's own backoff retries within ~1s; the token request waits for 5s.
+        await vi.advanceTimersByTimeAsync(4_900);
+        expect(tokenCalls).toBe(1);
+        expect(JsonReplyWebSocket.instances).toHaveLength(0);
+        expect(client.connection.private).toEqual({
+            state: "connecting",
+            error: expect.objectContaining({ realtimeCode: 5, retryable: true }),
+        });
+
+        await vi.advanceTimersByTimeAsync(200);
+        expect(tokenCalls).toBe(2);
+        expect(client.connection.private).toEqual({ state: "connected", error: null });
+        expect(onSubscribed).toHaveBeenCalledOnce();
+        client.disconnect();
     });
 
     it("reports subscription token failures to that channel error handler", async () => {

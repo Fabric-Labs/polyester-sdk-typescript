@@ -19,6 +19,7 @@ import {
     PolyesterError,
     RealtimeError,
 } from "../shared/errors.js";
+import { parseRetryAfterHeader } from "../shared/connect-error-mapping.js";
 import { makeFetch } from "../shared/transports.js";
 import { decodeProtoFrame } from "../utils/streams.js";
 import { idToBigInt } from "../utils/base58-id.js";
@@ -32,6 +33,8 @@ import type {
 import type { ConnectPrivateOrdersParams, PrivateOrderStream } from "./private-orders.js";
 
 const realtimeFetch = makeFetch();
+// ponytail: caps a bogus or huge Retry-After; a longer server window just answers 429 again with a new hint.
+const MAX_RETRY_AFTER_MS = 60_000;
 
 type CentrifugeCtor = typeof CentrifugeModule.Centrifuge;
 type CentrifugeModuleLoader = () => Promise<typeof CentrifugeModule>;
@@ -143,6 +146,8 @@ export class RealtimeClient implements PolyesterRealtime {
     #privateOrdersEpoch = 0;
     #connection: RealtimeConnection = { public: DISCONNECTED, private: DISCONNECTED };
     #connectionListeners = new Set<(connection: RealtimeConnection) => void>();
+    /** Token requests wait until then after a 429 with `Retry-After`. */
+    #tokenRetryAt = 0;
     readonly #config: ResolvedRealtimeConfig;
 
     constructor(config: RealtimeConfig) {
@@ -160,12 +165,27 @@ export class RealtimeClient implements PolyesterRealtime {
         return this.#config.getAuthHeaders(request);
     }
 
+    /**
+     * Every realtime token request (connection, subscription, private order stream)
+     * comes through here, so one wait honors `Retry-After` for all of them; the
+     * transport's own reconnect backoff still applies on top.
+     */
     async #fetchToken(url: string | URL, kind: "connection" | "subscription"): Promise<string> {
+        const wait = this.#tokenRetryAt - Date.now();
+        if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
         const headers = await this.#getAuthHeaders({ url, method: "GET" });
         const res = await realtimeFetch(url, { headers });
         if (!res.ok) {
+            const retryAfterMs = parseRetryAfterHeader(res.headers.get("retry-after"));
+            if (res.status === 429 && retryAfterMs !== undefined) {
+                this.#tokenRetryAt = Math.max(
+                    this.#tokenRetryAt,
+                    Date.now() + Math.min(retryAfterMs, MAX_RETRY_AFTER_MS),
+                );
+            }
             throw errorFromHttpStatus(res.status, `Failed to fetch ${kind} token: ${res.status}`, {
                 status: res.status,
+                retryAfterMs,
             });
         }
         const json = (await res.json()) as { token?: string };
