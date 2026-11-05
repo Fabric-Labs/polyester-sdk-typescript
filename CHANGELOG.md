@@ -1,5 +1,37 @@
 # @polyester/sdk
 
+## 0.33.0
+
+### Minor Changes
+
+- Breaking: the holds list is removed. `ledgerReadPb` in `@polyester/sdk/unstable/gen` drops `LedgerReadService.ListHolds`, `ListHoldsRequest`, `ListHoldsResponse` and `HoldRow`. Read held amounts from each asset's `reserved` amount in `balances.list`. ([#225](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/225))
+
+- `trades.list` takes `symbolId` as a number, like every other symbol filter and like the `symbolId` on returned trades, orders and triggers. A string, `0`, negative or fractional `symbolId` is rejected. "symbolId is required when afterMatchId is set" now appears only when `afterMatchId` is set without `symbolId`. ([#226](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/226))
+
+### Patch Changes
+
+- API key refusals on ConnectRPC now carry an auth `detail.code` that names the reason: `AUTH_SIGNATURE_INVALID`, `AUTH_TIMESTAMP_SKEW`, `AUTH_MISSING_HEADERS`, `AUTH_KEY_EXPIRED`, `AUTH_KEY_DISABLED`, `AUTH_IP_NOT_ALLOWED` or `AUTH_API_KEY_NOT_ACCEPTED`. `AUTH_TIMESTAMP_SKEW` still maps to the retryable `TimestampSkewError`, and a retry signs the request again. ([#223](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/223))
+
+- Attached take-profit, stop-loss and trailing stop exits never trade with the order they protect. Order `cancelReason` adds `attached_exit_fired`: the exit fired while the order still rested, so its unfilled remainder was canceled first. Fills before the cancel stand. Trigger failure reasons add `self_trade_prevented`, reported only as a `"fire_refused"` event's `fireRefusalReason`: self-trade prevention expired the exit's order against another of the account's resting orders, and the trigger stays live and fires again. That event's `childSeq` names the expired child order. ([#224](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/224))
+
+- An order's `attachedRisk.trailingStop` now carries `limitPrice`, the most its buy-back pays per unit, set when the order sells and `undefined` when it buys. Previously it was dropped, so a selling order's trailing stop read back and passed to `modifyOrder` lost its limit price and was rejected with a bad-price error. ([#227](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/227))
+
+- Add `autoWithdraw`, which manages an account's scheduled auto-withdraw rule: `getRule`, `setRule`, `disableRule` and `listRuns`. `setRule` and `disableRule` need a fresh `stepUpToken`, and a stale `expectedVersion` throws `RevisionConflictError`. ([#222](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/222))
+
+- Changelog surfaces add `market_data`, `quickswap` and `rewards`, for output and for `listChanges` filters. Each post section has a `surface`, the product area it covers, or `"unspecified"` when it covers more than one. ([#223](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/223))
+
+- Order and trigger `cancelReason` add `market_halted`: the exchange halted the market and canceled every open order and trigger of it, attached take-profit and stop-loss included, and released their reserved funds. Fills before the cancel stand, and the market refuses new orders until it trades again. Show it as "market halted", not as a user cancel. ([#221](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/221))
+
+- Orders carry their exact execution totals. `avgPx` is now the exact average execution price, up to 18 decimal places instead of rounded down to 9. `cumQuote` is the quote amount the fills used before fees, `"0"` with no fills. `feeTotal` (`{ amount, isRebate, qty }`) is the net fee in the order's `feeAsset`: order history and `getDetails` include it, open orders leave it out. It covers every fill once `feeTotal.qty` equals `cumQty`. ([#223](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/223))
+
+- Add `changelog`, a public reader for the environment's product changelog: `listPosts`, `getPost({ slug })` and `listChanges`, which filters changes by category, audience, surface and time. The generated protobufs are exported as `changelogPb`. ([#218](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/218))
+
+- `fees.getSpotRates` rows add `reserveFeeRatePercent` and `postOnlyReserveFeeRatePercent`, the rates a new order reserves its quote-asset fee at: the highest rate of any VIP tier on the market, so at least the effective rates. Size buy orders by the reserve rate, not the effective one. `breakdown` lists the components of the effective rates: the VIP tier rates, an optional `marketMultiplier`, `accountDiscounts` (`[]` when none) and an optional `referralDiscount`, with `effectiveFrom` and `effectiveTo` in Unix milliseconds. `nextChangeAt` is when a component next starts or ends, or `undefined` when no change is scheduled. ([#225](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/225))
+
+- `subaccounts.get` accepts `includeBalances: true` and then returns the sub-account's current `balances`, in the shape of `balances.list`. It needs the read-balances action on the sub-account or fails with PermissionDenied. When balances cannot be read right now it fails with the retryable `AUTH_TEMPORARILY_UNAVAILABLE`. Without `includeBalances`, `get` is unchanged and returns no `balances`. ([#224](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/224))
+
+- Trigger events add the `"fire_refused"` event type: a fire was refused and the trigger stayed live, so it is not terminal. The event's `fireRefusalReason` says why, using the trigger failure reason labels. `listEvents` accepts `eventType: "fire_refused"` as a filter, and trigger failure reasons add `account_repairing`. ([#223](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/223))
+
 ## 0.32.1
 
 ### Patch Changes
