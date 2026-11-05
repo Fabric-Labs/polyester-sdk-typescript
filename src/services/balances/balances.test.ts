@@ -457,7 +457,7 @@ describe("BalancesService", () => {
 
         realtime.params?.onPublication({
             assetId: 1,
-            trading: { hi: 0n, lo: "bad" },
+            trading: { hi: 1n << 64n, lo: 0n },
         } as never);
         await flushAsync();
 
@@ -467,7 +467,7 @@ describe("BalancesService", () => {
             type: "publication_handler",
         });
         expect(onError.mock.calls[0]?.[0].error.message).toMatch(
-            /Invalid type: Expected bigint but received "bad"/,
+            /U128 hi must be between 0 and 2\^64 - 1/,
         );
     });
 });

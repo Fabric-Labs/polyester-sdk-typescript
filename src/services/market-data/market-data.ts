@@ -6,7 +6,6 @@ import {
     deliverBatch,
     type SdkSubscriptionErrorContext,
 } from "../../shared/subscription-errors.js";
-import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
@@ -18,7 +17,7 @@ import type { SdkScales } from "../../shared/decimal-surface.js";
 import type { PublicApiTransports } from "../../shared/transports.js";
 import {
     GetMarketTradesInputSchema,
-    createMarketTradeSchema,
+    formatMarketTrade,
     type GetMarketTradesInput,
     type SpotConfig,
     SpotConfigSchema,
@@ -39,13 +38,11 @@ export class MarketDataService {
     #client: Client<typeof Proto.MarketDataService>;
     #realtime: PolyesterRealtime;
     #scales: SdkScales;
-    #marketTradeSchema: ReturnType<typeof createMarketTradeSchema>;
 
     constructor(transports: PublicApiTransports, realtime: PolyesterRealtime, scales: SdkScales) {
         this.#client = createClient(Proto.MarketDataService, transports.publicApi);
         this.#realtime = realtime;
         this.#scales = scales;
-        this.#marketTradeSchema = createMarketTradeSchema(scales);
     }
 
     /**
@@ -64,7 +61,7 @@ export class MarketDataService {
         await this.#scales.ready();
         const validatedInput = parse(GetMarketTradesInputSchema, input);
         const res = await this.#client.getTrades(validatedInput, toConnectCallOptions(options));
-        const trades = parse(v.array(this.#marketTradeSchema), res.trades);
+        const trades = res.trades.map((trade) => formatMarketTrade(this.#scales, trade));
         if (validatedInput.afterTradeId === undefined) {
             return { trades, nextPageToken: res.nextPageToken };
         }
@@ -109,7 +106,7 @@ export class MarketDataService {
                 deliverBatch(
                     channel,
                     batch.events,
-                    (trade) => input.onEvent(parse(this.#marketTradeSchema, trade)),
+                    (trade) => input.onEvent(formatMarketTrade(this.#scales, trade)),
                     notifyError,
                 ),
             onConnected: () => input.onOpen?.(),

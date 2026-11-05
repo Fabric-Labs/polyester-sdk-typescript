@@ -351,7 +351,7 @@ describe("MarketDataService", () => {
         expect(realtime.params?.channel).toBe("public:spot:market:trades:999:proto");
     });
 
-    it("routes malformed public trade publications to the subscription onError", async () => {
+    it("routes trades that fail to format to the subscription onError", async () => {
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
         const onError = vi.fn();
@@ -365,7 +365,7 @@ describe("MarketDataService", () => {
 
         realtime.params?.onPublication(
             create(Proto.MarketTradeBatchSchema, {
-                events: [{ ...marketTrade, qtyScaled: "bad" } as never, marketTrade],
+                events: [{ ...marketTrade, symbolId: 999 }, marketTrade],
             }),
         );
         await flushAsync();
@@ -377,8 +377,6 @@ describe("MarketDataService", () => {
             channel: "public:spot:market:trades:101:proto",
             type: "publication_handler",
         });
-        expect(onError.mock.calls[0]?.[0].error.message).toMatch(
-            /Invalid type: Expected bigint but received "bad"/,
-        );
+        expect(onError.mock.calls[0]?.[0].error.message).toMatch(/market symbolId not found: 999/);
     });
 });

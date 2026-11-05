@@ -1,4 +1,6 @@
 import * as v from "valibot";
+import type * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
+import { parse } from "../../shared/validation.js";
 import { tsNsToISO, tsNsToMs } from "../../utils/time.js";
 import { SideSchema, SymbolIdInputSchema } from "../shared.js";
 import { FeeAssetCodec, OrderSideCodec } from "../orders/orders.codecs.js";
@@ -17,52 +19,68 @@ import { fromU128 } from "../../utils/u128.js";
 import { OrderLineageSchema } from "../orders/order-lineage.schemas.js";
 import { positiveOrderIdInputSchema } from "../orders/orders-identifiers.schemas.js";
 
+const UserTradeFieldsSchema = v.object({
+    orderId: v.bigint(),
+    symbolId: v.number(),
+    side: v.number(),
+    isMaker: v.boolean(),
+    feeAsset: v.number(),
+    qtyScaled: v.bigint(),
+    priceTicks: v.bigint(),
+    feeAmountE18: v.optional(U128Schema),
+    referralShareAmountE18: v.optional(U128Schema),
+    feeIsRebate: v.boolean(),
+    tsNs: v.bigint(),
+    matchId: v.bigint(),
+    lineage: v.optional(OrderLineageSchema),
+});
+
+type UserTradeFields = v.InferOutput<typeof UserTradeFieldsSchema>;
+
+// `lineage` is separate so the fast path can pass a proto message without copying it.
+function toUserTrade(
+    scales: SdkScales,
+    t: Omit<UserTradeFields, "lineage">,
+    lineage: UserTradeFields["lineage"],
+) {
+    const feeAsset = enumLabel(FeeAssetCodec.protoToOutput, t.feeAsset);
+    return {
+        orderId: formatId(t.orderId),
+        symbolId: t.symbolId,
+        sideLabel: enumLabel(OrderSideCodec.protoToOutput, t.side),
+        liquidityLabel: t.isMaker ? ("maker" as const) : ("taker" as const),
+        feeAsset,
+        qty: scaledToDecimalOutput(t.qtyScaled, scales.baseQty(t.symbolId)),
+        price: scaledToDecimalOutput(t.priceTicks, scales.price()),
+        fee: scaledToDecimalOutput(fromU128(t.feeAmountE18), E18_SCALE),
+        ...(t.referralShareAmountE18 === undefined
+            ? {}
+            : {
+                  referralShare: scaledToDecimalOutput(
+                      fromU128(t.referralShareAmountE18),
+                      E18_SCALE,
+                  ),
+              }),
+        feeIsRebate: t.feeIsRebate,
+        tsNs: t.tsNs.toString(),
+        tsIso: tsNsToISO(t.tsNs),
+        tsMs: tsNsToMs(t.tsNs),
+        matchId: t.matchId.toString(),
+        ...(lineage === undefined ? {} : { lineage }),
+    };
+}
+
 /** Parses a generated user-trade fill into the SDK's JSON-safe public shape. */
 export function createUserTradeSchema(scales: SdkScales) {
     return v.pipe(
-        v.object({
-            orderId: v.bigint(),
-            symbolId: v.number(),
-            side: v.number(),
-            isMaker: v.boolean(),
-            feeAsset: v.number(),
-            qtyScaled: v.bigint(),
-            priceTicks: v.bigint(),
-            feeAmountE18: v.optional(U128Schema),
-            referralShareAmountE18: v.optional(U128Schema),
-            feeIsRebate: v.boolean(),
-            tsNs: v.bigint(),
-            matchId: v.bigint(),
-            lineage: v.optional(OrderLineageSchema),
-        }),
-        v.transform((t) => {
-            const feeAsset = enumLabel(FeeAssetCodec.protoToOutput, t.feeAsset);
-            return {
-                orderId: formatId(t.orderId),
-                symbolId: t.symbolId,
-                sideLabel: enumLabel(OrderSideCodec.protoToOutput, t.side),
-                liquidityLabel: t.isMaker ? ("maker" as const) : ("taker" as const),
-                feeAsset,
-                qty: scaledToDecimalOutput(t.qtyScaled, scales.baseQty(t.symbolId)),
-                price: scaledToDecimalOutput(t.priceTicks, scales.price()),
-                fee: scaledToDecimalOutput(fromU128(t.feeAmountE18), E18_SCALE),
-                ...(t.referralShareAmountE18 === undefined
-                    ? {}
-                    : {
-                          referralShare: scaledToDecimalOutput(
-                              fromU128(t.referralShareAmountE18),
-                              E18_SCALE,
-                          ),
-                      }),
-                feeIsRebate: t.feeIsRebate,
-                tsNs: t.tsNs.toString(),
-                tsIso: tsNsToISO(t.tsNs),
-                tsMs: tsNsToMs(t.tsNs),
-                matchId: t.matchId.toString(),
-                ...(t.lineage === undefined ? {} : { lineage: t.lineage }),
-            };
-        }),
+        UserTradeFieldsSchema,
+        v.transform((t) => toUserTrade(scales, t, t.lineage)),
     );
+}
+
+/** Formats a protobuf-decoded fill like {@link createUserTradeSchema} without re-validating it. */
+export function formatUserTrade(scales: SdkScales, t: ProtoRead.UserTrade): Trade {
+    return toUserTrade(scales, t, t.lineage && parse(OrderLineageSchema, t.lineage));
 }
 
 /** A JSON-safe authenticated trade fill returned by the SDK. */

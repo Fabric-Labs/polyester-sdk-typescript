@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import type * as ProtoLedgerRead from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { fromU128 } from "../../utils/u128.js";
 import { enumLabel, enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import type { DecodedEnum } from "../../utils/types.js";
@@ -32,35 +33,49 @@ const BALANCE_HISTORY_SCALE = 7;
  * (PolyesterChain base units), independent of per-asset quantityScale used
  * elsewhere for order quantities and transfer inputs.
  */
+const LedgerBalanceFieldsSchema = v.object({
+    assetId: v.number(),
+    trading: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
+    funding: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
+    reserved: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
+    available: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
+    tradingRevision: v.pipe(
+        v.optional(v.bigint(), 0n),
+        v.transform((value) => value.toString()),
+    ),
+    fundingRevision: v.pipe(
+        v.optional(v.bigint(), 0n),
+        v.transform((value) => value.toString()),
+    ),
+});
+
+function toLedgerBalance(b: v.InferOutput<typeof LedgerBalanceFieldsSchema>) {
+    return {
+        assetId: b.assetId,
+        funding: scaledToDecimalOutput(b.funding ?? 0n, E18_SCALE),
+        trading: scaledToDecimalOutput(b.trading ?? 0n, E18_SCALE),
+        reserved: scaledToDecimalOutput(b.reserved ?? 0n, E18_SCALE),
+        available: scaledToDecimalOutput(b.available ?? 0n, E18_SCALE),
+        tradingRevision: b.tradingRevision,
+        fundingRevision: b.fundingRevision,
+    };
+}
+
 export function createLedgerBalanceSchema() {
-    return v.pipe(
-        v.object({
-            assetId: v.number(),
-            trading: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
-            funding: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
-            reserved: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
-            available: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
-            tradingRevision: v.pipe(
-                v.optional(v.bigint(), 0n),
-                v.transform((value) => value.toString()),
-            ),
-            fundingRevision: v.pipe(
-                v.optional(v.bigint(), 0n),
-                v.transform((value) => value.toString()),
-            ),
-        }),
-        v.transform((b) => {
-            return {
-                assetId: b.assetId,
-                funding: scaledToDecimalOutput(b.funding ?? 0n, E18_SCALE),
-                trading: scaledToDecimalOutput(b.trading ?? 0n, E18_SCALE),
-                reserved: scaledToDecimalOutput(b.reserved ?? 0n, E18_SCALE),
-                available: scaledToDecimalOutput(b.available ?? 0n, E18_SCALE),
-                tradingRevision: b.tradingRevision,
-                fundingRevision: b.fundingRevision,
-            };
-        }),
-    );
+    return v.pipe(LedgerBalanceFieldsSchema, v.transform(toLedgerBalance));
+}
+
+/** Formats a protobuf-decoded balance like {@link createLedgerBalanceSchema} without re-validating it. */
+export function formatLedgerBalance(b: ProtoLedgerRead.AssetBalance): LedgerBalance {
+    return toLedgerBalance({
+        assetId: b.assetId,
+        trading: fromU128(b.trading),
+        funding: fromU128(b.funding),
+        reserved: fromU128(b.reserved),
+        available: fromU128(b.available),
+        tradingRevision: (b.tradingRevision ?? 0n).toString(),
+        fundingRevision: (b.fundingRevision ?? 0n).toString(),
+    });
 }
 
 export type LedgerBalance = v.InferOutput<ReturnType<typeof createLedgerBalanceSchema>>;

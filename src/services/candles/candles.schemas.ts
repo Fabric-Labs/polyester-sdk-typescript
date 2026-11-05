@@ -1,5 +1,6 @@
 import { SymbolIdInputSchema } from "../shared.js";
 import * as v from "valibot";
+import type * as ProtoMarketData from "../../gen/marketdata/v1/marketdata_pb.js";
 import type { DecodedEnum } from "../../utils/types.js";
 import { OptionalTimestampSecondsInputSchema } from "../../shared/schemas.js";
 import { enumLabel } from "../../shared/proto-enum-codec.js";
@@ -47,25 +48,51 @@ const CandleRowRawSchema = v.object({
     isClosed: v.optional(v.boolean(), false),
 });
 
+function toCandleRow(scales: SdkScales, data: v.InferOutput<typeof CandleRowRawSchema>) {
+    const priceScale = scales.price();
+    return {
+        symbolId: data.symbolId,
+        timeframe: data.timeframe,
+        time: Number(data.tsSec),
+        open: scaledToDecimalOutput(data.open, priceScale),
+        high: scaledToDecimalOutput(data.high, priceScale),
+        low: scaledToDecimalOutput(data.low, priceScale),
+        close: scaledToDecimalOutput(data.close, priceScale),
+        volume: scaledToDecimalOutput(data.volume, scales.marketDataVolume(data.symbolId)),
+        quoteVolume: data.quoteVolume,
+        isClosed: data.isClosed,
+    };
+}
+
 export function createCandleRowSchema(scales: SdkScales) {
     return v.pipe(
         CandleRowRawSchema,
-        v.transform((data) => {
-            const priceScale = scales.price();
-            return {
-                symbolId: data.symbolId,
-                timeframe: data.timeframe,
-                time: Number(data.tsSec),
-                open: scaledToDecimalOutput(data.open, priceScale),
-                high: scaledToDecimalOutput(data.high, priceScale),
-                low: scaledToDecimalOutput(data.low, priceScale),
-                close: scaledToDecimalOutput(data.close, priceScale),
-                volume: scaledToDecimalOutput(data.volume, scales.marketDataVolume(data.symbolId)),
-                quoteVolume: data.quoteVolume,
-                isClosed: data.isClosed,
-            };
-        }),
+        v.transform((data) => toCandleRow(scales, data)),
     );
+}
+
+/**
+ * Formats a protobuf-decoded candle point like {@link createCandleRowSchema} without
+ * re-validating it. `timeframe` is the proto enum value of the series.
+ */
+export function formatCandleRow(
+    scales: SdkScales,
+    point: ProtoMarketData.CandlePoint,
+    symbolId: number,
+    timeframe: number,
+): Candle {
+    return toCandleRow(scales, {
+        symbolId,
+        timeframe: timeframeFromProto(timeframe),
+        tsSec: point.tsSec,
+        open: point.open,
+        high: point.high,
+        low: point.low,
+        close: point.close,
+        volume: point.volume,
+        quoteVolume: point.quoteVolume,
+        isClosed: point.isClosed ?? false,
+    });
 }
 
 export const createCandleRowIntSchema = createCandleRowSchema;

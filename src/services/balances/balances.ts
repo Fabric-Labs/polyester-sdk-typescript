@@ -1,6 +1,5 @@
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { createClient, type Client } from "@connectrpc/connect";
-import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import type { PolyesterRealtime } from "../../realtime/index.js";
 import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
@@ -20,7 +19,7 @@ import {
     PortfolioEquityHistoryInputSchema,
     createBalanceHistoryResponseSchema,
     createEquityHistoryResponseSchema,
-    createLedgerBalanceSchema,
+    formatLedgerBalance,
     createPortfolioEquityHistoryResponseSchema,
     createPortfolioEquitySnapshotResponseSchema,
     type LedgerBalance,
@@ -45,7 +44,6 @@ export class BalancesService {
     #realtime: PolyesterRealtime;
     #resolver?: SubaccountResolver;
     #scales: SdkScales;
-    #ledgerBalanceSchema: ReturnType<typeof createLedgerBalanceSchema>;
     #balanceHistoryResponseSchema: ReturnType<typeof createBalanceHistoryResponseSchema>;
     #equityHistoryResponseSchema: ReturnType<typeof createEquityHistoryResponseSchema>;
     #portfolioEquityHistoryResponseSchema: ReturnType<
@@ -65,7 +63,6 @@ export class BalancesService {
         this.#realtime = realtime;
         this.#resolver = resolver;
         this.#scales = scales;
-        this.#ledgerBalanceSchema = createLedgerBalanceSchema();
         this.#balanceHistoryResponseSchema = createBalanceHistoryResponseSchema();
         this.#equityHistoryResponseSchema = createEquityHistoryResponseSchema(scales);
         this.#portfolioEquityHistoryResponseSchema =
@@ -90,7 +87,7 @@ export class BalancesService {
             },
             toConnectCallOptions(options),
         );
-        return parse(v.array(this.#ledgerBalanceSchema), res.balances);
+        return res.balances.map(formatLedgerBalance);
     }
 
     /**
@@ -164,8 +161,7 @@ export class BalancesService {
             schema: Proto.AssetBalanceSchema,
             ready: () => this.#scales.ready(),
             onPublication: (data) => {
-                const b = parse(this.#ledgerBalanceSchema, data);
-                input.onEvent(b);
+                input.onEvent(formatLedgerBalance(data));
             },
             onConnected: input.onOpen,
             onDisconnected: input.onClose,
