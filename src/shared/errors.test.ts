@@ -84,7 +84,10 @@ import {
     TimeoutError,
     TransientError,
     ValidationError,
+    type PolyesterErrorCode,
 } from "./errors.js";
+import * as errorsModule from "./errors.js";
+import * as catalogTypesModule from "../catalogs/types.js";
 
 function authDetailError(message: string, code: Code, authCode: AuthErrorCode): ConnectError {
     return new ConnectError(message, code, undefined, [
@@ -149,6 +152,67 @@ describe("error hierarchy", () => {
         expect(new PolicyScopeMismatchError("p").code).toBe("POLICY_SCOPE_MISMATCH");
         expect(new ConfigurationError("c").code).toBe("INVALID_CONFIGURATION");
         expect(new MfaVerificationError("m", "otp-invalid").code).toBe("MFA_VERIFICATION_FAILED");
+    });
+
+    it("lists every built-in error code in PolyesterErrorCode", () => {
+        const unionCodes: Record<PolyesterErrorCode, true> = {
+            TRANSIENT_FAILURE: true,
+            NETWORK_ERROR: true,
+            TIMEOUT: true,
+            RATE_LIMITED: true,
+            TIMESTAMP_SKEW: true,
+            SERVICE_UNAVAILABLE: true,
+            REQUEST_FAILED: true,
+            VALIDATION_FAILED: true,
+            STALE_QUOTE: true,
+            WITHDRAW_DEADLINE_EXPIRED: true,
+            RESOURCE_NOT_FOUND: true,
+            NOT_IMPLEMENTED: true,
+            ALREADY_EXISTS: true,
+            USER_OPERATION_ALREADY_KNOWN: true,
+            USER_OPERATION_SEND_TIMEOUT: true,
+            OUTCOME_UNKNOWN: true,
+            USER_OPERATION_NOT_EXECUTED: true,
+            PERMISSION_DENIED: true,
+            UNAUTHENTICATED: true,
+            PRECONDITION_FAILED: true,
+            REVISION_CONFLICT: true,
+            SUBACCOUNT_CHALLENGE_INVALID: true,
+            POLICY_IN_USE: true,
+            POLICY_LOCKED: true,
+            POLICY_SCOPE_MISMATCH: true,
+            INVALID_CONFIGURATION: true,
+            MFA_REQUIRED: true,
+            MFA_ENROLLMENT_REQUIRED: true,
+            STEP_UP_REQUIRED: true,
+            SESSION_ELEVATION_REQUIRED: true,
+            MFA_LAST_FACTOR_REQUIRED: true,
+            MFA_VERIFICATION_FAILED: true,
+            INTERNAL_SERVER_ERROR: true,
+            REALTIME_ERROR: true,
+            CATALOG_LOOKUP_MISS: true,
+            CATALOG_NOT_READY: true,
+            CATALOG_CONVERSION_INVALID: true,
+            CATALOG_VALIDATION_FAILED: true,
+        };
+        // constructors that need more than a message
+        const ctorArgs: Record<string, unknown[]> = {
+            CatalogConversionError: ["price", "bad"],
+            CatalogLookupError: ["market", "pair", "BTC-USD"],
+            CatalogValidationFailedError: [[]],
+            MfaVerificationError: ["m", "otp-invalid"],
+            UserOperationNotExecutedError: ["m", "0x00", "rejected"],
+        };
+
+        const classCodes = new Set<string>();
+        for (const [name, value] of Object.entries({ ...errorsModule, ...catalogTypesModule })) {
+            if (typeof value !== "function" || value === PolyesterError) continue;
+            if (!(value.prototype instanceof PolyesterError)) continue;
+            const err = Reflect.construct(value, ctorArgs[name] ?? ["m"]) as PolyesterError;
+            classCodes.add(err.code);
+        }
+
+        expect([...classCodes].sort()).toEqual(Object.keys(unionCodes).sort());
     });
 
     it("groups MFA flows under MfaRequiredError", () => {

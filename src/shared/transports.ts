@@ -171,8 +171,8 @@ export function createTransports(config: TransportConfig): Transports {
         createConnectTransport({
             baseUrl: apiUrl,
             useBinaryFormat,
-            // Side-effect-free public catalogs (GetRateLimitConfig, ListVIPTiers) go
-            // over cacheable GET; every other method stays POST.
+            // methods whose proto declares idempotency_level = NO_SIDE_EFFECTS go over
+            // cacheable GET; every other method stays POST. authApi never uses GET.
             useHttpGet: true,
             interceptors,
             fetch: makeFetch(fetchImpl),

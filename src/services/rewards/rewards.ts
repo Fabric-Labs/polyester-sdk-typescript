@@ -30,7 +30,7 @@ export class RewardsService {
     }
 
     /**
-     * Returns published awards newest first. `limit` is 0 through 100 (0 or omitted uses 50); pass the previous `nextPageToken` as `pageToken` to continue. An empty `nextPageToken` means no more awards.
+     * Returns published awards newest first. `limit` is 0 through 100 (0 or omitted uses 50); pass the previous `nextPageToken` as `pageToken` to continue. An empty `nextPageToken` means no more awards. When `awardsMayChange` is false, polling cannot surface new awards or changes until a new campaign is created.
      */
     async listAwards(
         input: ListRewardAwardsInput = {},

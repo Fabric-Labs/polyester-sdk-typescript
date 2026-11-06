@@ -255,7 +255,7 @@ export class OrdersService {
     }
 
     /**
-     * Places 1–20 spot orders in one best-effort request. Results preserve item order and report admission as accepted or rejected; accepted orders still require lifecycle reconciliation. requestId is the idempotency boundary for the ordered batch and is generated when omitted; supply and reuse it when an ambiguous batch may be retried. The same payload and account-scoped requestId replay the original results and timestamp for 60 seconds from acceptance; a different payload during that window returns CONFLICT_IDEMPOTENCY_KEY_REUSE. Per-item clientOrderId values are optional correlation identifiers and must be unique when supplied.
+     * Places 1–20 spot orders in one best-effort request. Results preserve item order and report admission as accepted or rejected; accepted orders still require lifecycle reconciliation. requestId is the idempotency boundary for the ordered batch and is generated when omitted; supply and reuse it when an ambiguous batch may be retried. Reusing the account-scoped requestId with the same payload within 15 minutes returns each decided item's original result and result time and retries items still unresolved, never admitting an item twice; a different payload during that window returns CONFLICT_IDEMPOTENCY_KEY_REUSE. After 15 minutes the ID is free and a repeat can place its orders again, so read the items back instead of repeating an older batch. Per-item clientOrderId values are optional correlation identifiers and must be unique when supplied.
      */
     async batchCreate(
         input: BatchCreateOrdersInput,
