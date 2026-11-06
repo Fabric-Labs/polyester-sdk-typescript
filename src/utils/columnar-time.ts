@@ -18,8 +18,10 @@ export function columnarTimestampSecAt(window: ColumnarTimeWindow, index: number
     const endTsSec = Number(window.endTsSec);
     if (!Number.isFinite(startTsSec) || !Number.isFinite(endTsSec)) return null;
     if (endTsSec < startTsSec) return null;
+    if (points === 1) return startTsSec;
 
-    return startTsSec + index * ((endTsSec - startTsSec) / points);
+    // endTsSec is the last point's own timestamp, so points span points - 1 steps.
+    return startTsSec + (index * (endTsSec - startTsSec)) / (points - 1);
 }
 
 export function expandColumnarTimestampsSec(
