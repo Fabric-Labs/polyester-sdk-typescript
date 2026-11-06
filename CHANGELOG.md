@@ -1,5 +1,21 @@
 # @polyester/sdk
 
+## 0.34.1
+
+### Patch Changes
+
+- The `orders.batchCreate` JSDoc now gives the batch's 15-minute idempotency window. It previously said 60 seconds, which is the `batchReplace` window. Within 15 minutes, a retry with the same `requestId` and payload returns each decided item's original result and retries the unresolved ones. After that the ID is free, and a repeat can place its orders again. ([#235](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/235))
+
+- `Checkpoint` now carries `openingValueUsd`, the season-end USD value of the holdings restored when the season opened (`"0"` when it opened with no balances, `undefined` when a restored balance had no USD value). With it, `seasonResultUsd` reconciles as `finalValueUsd - openingValueUsd - netInflowUsd`. ([#235](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/235))
+
+- `expandColumnarTimestampsSec` and `columnarTimestampSecAt` now end at `endTsSec`, so the last columnar history point is no longer one bucket early. ([#233](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/233))
+
+- `rewards.listAwards` now returns `awardsMayChange`. It is `true` while a campaign can still publish awards or one of the account's awards is awaiting a destination, ready for payout, or failed and retryable. When it is `false`, polling cannot return new awards or award changes until a new campaign is created. ([#235](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/235))
+
+- `PolyesterErrorCode` now includes `"SUBACCOUNT_CHALLENGE_INVALID"`, the code `SubaccountChallengeInvalidError` already carries, so an exhaustive `switch` over the union covers it. ([#235](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/235))
+
+- `Subaccount` records now carry `removed`. `subaccounts.subscribe` emits `removed: true` (with `role: "unspecified"`) when the caller loses access to a subaccount, for example after the owner removes them as a member, so drop it from local state. List and get responses always return `false`. Access and role changes do not bump `revision` or `updatedAt`, so apply them in arrival order. ([#235](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/235))
+
 ## 0.34.0
 
 ### Minor Changes
