@@ -614,7 +614,16 @@ describe("SubaccountsService", () => {
         expect(realtime.params?.schema).toBe(Proto.SubaccountSchema);
         realtime.params?.onPublication(subaccount() as never);
         expect(onSubaccount).toHaveBeenCalledWith(
-            expect.objectContaining({ id: formatId(42n), role: "owner" }),
+            expect.objectContaining({ id: formatId(42n), role: "owner", removed: false }),
+        );
+
+        realtime.params?.onPublication({
+            ...subaccount(),
+            role: Proto.SubaccountRole.SUBACCOUNT_ROLE_UNSPECIFIED,
+            removed: true,
+        } as never);
+        expect(onSubaccount).toHaveBeenLastCalledWith(
+            expect.objectContaining({ id: formatId(42n), role: "unspecified", removed: true }),
         );
 
         service.subscribeApiKeys({ accountId: "acct-1", onEvent: onApiKey });

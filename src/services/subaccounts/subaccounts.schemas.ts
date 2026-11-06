@@ -273,6 +273,13 @@ export const SubaccountSchema = v.pipe(
         requireMemberMfa: v.optional(v.boolean(), false),
         updatedAt: v.optional(TimestampSchema),
         revision: BigIntStringSchema,
+        /**
+         * Only realtime updates set this: the caller lost access, so drop the subaccount from
+         * local state. `role` is `"unspecified"` when it is true. Access and role changes leave
+         * `revision` and `updatedAt` unchanged, so apply them in arrival order rather than
+         * gating them on those fields.
+         */
+        removed: v.optional(v.boolean(), false),
     }),
     v.transform(({ updatedAt, ...subaccount }) => ({
         ...subaccount,

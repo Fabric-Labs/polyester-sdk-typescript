@@ -43,6 +43,13 @@ export type RewardAward = v.InferOutput<typeof RewardAwardSchema>;
 export const ListRewardAwardsResultSchema = v.object({
     awards: v.optional(v.array(RewardAwardSchema), []),
     nextPageToken: v.string(),
+    /**
+     * True while a campaign can still publish awards or one of this account's awards is awaiting
+     * a destination, ready for payout, or failed and retryable. When false, polling cannot return
+     * new awards or award changes until a new campaign is created, so check again on the next
+     * page load or focus instead.
+     */
+    awardsMayChange: v.boolean(),
 });
 
 export type ListRewardAwardsResult = v.InferOutput<typeof ListRewardAwardsResultSchema>;

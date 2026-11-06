@@ -22,7 +22,11 @@ const award = {
 
 describe("RewardsService", () => {
     it("lists awards through the authenticated transport", async () => {
-        const authApi = unaryTransport({ awards: [award], nextPageToken: "next" });
+        const authApi = unaryTransport({
+            awards: [award],
+            nextPageToken: "next",
+            awardsMayChange: true,
+        });
         const service = new RewardsService({ authApi: authApi.transport });
         const signal = new AbortController().signal;
 
@@ -46,6 +50,7 @@ describe("RewardsService", () => {
                 },
             ],
             nextPageToken: "next",
+            awardsMayChange: true,
         });
 
         expect(authApi.lastCall()?.method.parent.typeName).toBe("rewards.v1.RewardCampaignService");
@@ -57,12 +62,14 @@ describe("RewardsService", () => {
         const authApi = unaryTransport({
             awards: [{ ...award, fulfillmentMethod: 99, fulfillmentState: 99 }],
             nextPageToken: "",
+            awardsMayChange: false,
         });
         const service = new RewardsService({ authApi: authApi.transport });
 
         await expect(service.listAwards()).resolves.toMatchObject({
             awards: [{ fulfillmentMethod: "unspecified", fulfillmentState: "unspecified" }],
             nextPageToken: "",
+            awardsMayChange: false,
         });
         expect(authApi.lastCall()?.message).toEqual({ pageToken: "" });
     });
@@ -74,7 +81,7 @@ describe("RewardsService", () => {
         { name: "page token over 256 characters", input: { pageToken: "x".repeat(257) } },
         { name: "unknown key", input: { pagetoken: "next" } },
     ])("rejects $name before calling the server", async ({ input }) => {
-        const authApi = unaryTransport({ awards: [], nextPageToken: "" });
+        const authApi = unaryTransport({ awards: [], nextPageToken: "", awardsMayChange: false });
         const service = new RewardsService({ authApi: authApi.transport });
 
         await expect(service.listAwards(input as never)).rejects.toBeInstanceOf(ValidationError);

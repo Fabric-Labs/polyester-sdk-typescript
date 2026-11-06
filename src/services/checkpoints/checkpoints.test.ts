@@ -99,6 +99,34 @@ describe("CheckpointsService", () => {
         ]);
     });
 
+    it("returns the opening value that reconciles the season result", async () => {
+        const { service } = serviceReturning(
+            checkpoint({
+                netInflowUsd: "100",
+                finalValueUsd: "450",
+                openingValueUsd: "300",
+                seasonResultUsd: "50",
+            }),
+        );
+
+        const [first] = await service.list();
+
+        expect(first).toMatchObject({
+            netInflowUsd: "100",
+            finalValueUsd: "450",
+            openingValueUsd: "300",
+            seasonResultUsd: "50",
+        });
+    });
+
+    it("leaves the opening value absent when the backend omits it", async () => {
+        const { service } = serviceReturning(checkpoint());
+
+        const [first] = await service.list();
+
+        expect(first).not.toHaveProperty("openingValueUsd");
+    });
+
     it("sends the subaccount and returns an empty list", async () => {
         const { authApi, service } = serviceReturning();
 
@@ -120,6 +148,7 @@ describe("CheckpointsService", () => {
         ["hour above 23", { mostActiveHourUtc: 24 }],
         ["fill rate above 1", { fillRate: "1.01" }],
         ["negative volume", { volumeUsd: "-1" }],
+        ["negative opening value", { openingValueUsd: "-1" }],
         ["non-decimal USD value", { inflowUsd: "1e3" }],
         ["malformed busiest day", { busiestDay: "2023-13-01" }],
         [

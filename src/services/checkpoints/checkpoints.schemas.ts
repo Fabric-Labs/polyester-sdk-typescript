@@ -239,6 +239,12 @@ export const CheckpointSchema = v.object({
     outflowUsd: v.optional(UnsignedDecimalSchema),
     netInflowUsd: v.optional(SignedDecimalSchema),
     finalValueUsd: v.optional(SignedDecimalSchema),
+    /**
+     * Holdings restored when the season opened, valued at season end like `finalValueUsd`;
+     * `"0"` when the season opened with no balances.
+     */
+    openingValueUsd: v.optional(UnsignedDecimalSchema),
+    /** `finalValueUsd` minus `openingValueUsd` minus `netInflowUsd`; absent when any of them is. */
     seasonResultUsd: v.optional(SignedDecimalSchema),
     subaccounts: CountSchema,
     /** Values computed from partial evidence; show them with an approximation marker. */

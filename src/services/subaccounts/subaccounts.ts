@@ -354,7 +354,7 @@ export class SubaccountsService {
     }
 
     /**
-     * Subscribes to private subaccount updates for an account and emits normalized subaccount records.
+     * Subscribes to private subaccount updates for an account and emits normalized subaccount records. A record with `removed: true` means the caller lost access to that subaccount; remove it locally. Losing access also ends the caller's subscriptions to that subaccount's channels.
      */
     subscribe(input: SubscribeSubaccountsInput) {
         const channel = `private:auth:subaccounts:${input.accountId}:proto`;
