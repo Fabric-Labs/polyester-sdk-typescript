@@ -208,7 +208,8 @@ export const MarketOverviewSchema: GenMessage<MarketOverview> = /*@__PURE__*/
 export type ListMarketOverviewRequest = Message<"marketoverview.v1.ListMarketOverviewRequest"> & {
   /**
    * Filter by stable numeric pair IDs from GetSpotConfig. When empty, returns
-   * all enabled markets.
+   * every configured market, including disabled ones. Markets whose delisting
+   * time has passed are never returned.
    *
    * @generated from field: repeated uint32 symbol_id = 1;
    */

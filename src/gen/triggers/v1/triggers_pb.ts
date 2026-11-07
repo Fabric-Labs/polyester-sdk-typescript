@@ -1118,7 +1118,7 @@ export type CancelTriggerResponse = Message<"triggers.v1.CancelTriggerResponse">
   triggerId: bigint;
 
   /**
-   * Final status (should be STATUS_CANCELED).
+   * The trigger's status after the cancel, which is always canceled.
    *
    * @generated from field: triggers.v1.TriggerStatus status = 2;
    */
