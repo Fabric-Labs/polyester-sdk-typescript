@@ -143,6 +143,8 @@ import {
 
 class JsonReplyWebSocket {
     static instances: JsonReplyWebSocket[] = [];
+    /** While set, every new socket closes before it opens, like an unreachable host. */
+    static refuse = false;
     channels = new Set<string>();
 
     constructor() {
@@ -157,6 +159,10 @@ class JsonReplyWebSocket {
 
     set onopen(handler: (() => void) | null) {
         this.#onopen = handler;
+        if (JsonReplyWebSocket.refuse) {
+            queueMicrotask(() => this.onclose?.({ code: 1006, reason: "" }));
+            return;
+        }
         queueMicrotask(() => this.#onopen?.());
     }
 
@@ -237,6 +243,7 @@ describe("RealtimeClient", () => {
 
     afterEach(() => {
         JsonReplyWebSocket.instances.length = 0;
+        JsonReplyWebSocket.refuse = false;
         vi.useRealTimers();
         vi.unstubAllGlobals();
         vi.restoreAllMocks();
@@ -635,7 +642,7 @@ describe("RealtimeClient", () => {
         expect(client.activeChannels).toBe(0);
     });
 
-    it("reports a socket that cannot connect once per outage and clears it on connect", () => {
+    it("reports a socket that cannot connect once per outage and clears it on connect", async () => {
         const client = createPublicRealtimeClient();
         const changes: unknown[] = [];
         client.onConnectionChange(() => {
@@ -653,10 +660,12 @@ describe("RealtimeClient", () => {
         };
 
         expect(client.connection.public).toEqual({ state: "connecting", error: null });
+        await waitForAsyncTokens();
 
         instance.emit("error", transportClosed);
         instance.emit("error", transportClosed);
         instance.emit("error", { type: "refresh", error: { code: 100, message: "ignored" } });
+        await waitForAsyncTokens();
 
         expect(onError).toHaveBeenCalledExactlyOnceWith({
             channel: "public:test",
@@ -673,11 +682,14 @@ describe("RealtimeClient", () => {
 
         instance.emit("state", { newState: "connected", oldState: "connecting" });
         expect(client.connection.public).toEqual({ state: "connected", error: null });
+        await waitForAsyncTokens();
 
         // A dropped socket is a new outage: its first failed reconnect reports again.
         instance.emit("state", { newState: "connecting", oldState: "connected" });
+        await waitForAsyncTokens();
         instance.emit("error", transportClosed);
         expect(onError).toHaveBeenCalledTimes(2);
+        await waitForAsyncTokens();
 
         expect(changes).toEqual([
             { state: "connecting", error: null },
@@ -689,16 +701,19 @@ describe("RealtimeClient", () => {
 
         client.disconnect();
         expect(client.connection.public).toEqual({ state: "disconnected", error: null });
+        await waitForAsyncTokens();
         expect(changes).toHaveLength(6);
     });
 
-    it("stops calling a connection listener after it unsubscribes", () => {
+    it("stops calling a connection listener after it unsubscribes", async () => {
         const client = createPublicRealtimeClient();
         const listener = vi.fn();
         const stop = client.onConnectionChange(listener);
         client.subscribe("public:test", { onPublication: () => {} });
+        await waitForAsyncTokens();
         stop();
         firstInstance().emit("state", { newState: "connected", oldState: "connecting" });
+        await waitForAsyncTokens();
 
         expect(listener).toHaveBeenCalledOnce();
         expect(client.connection.public.state).toBe("connected");
@@ -749,7 +764,7 @@ describe("RealtimeClient", () => {
         client.disconnect();
     });
 
-    it("records a terminal close once, with its reason", () => {
+    it("records a terminal close once, with its reason", async () => {
         const client = createPublicRealtimeClient();
         const changes: unknown[] = [];
         client.subscribe("public:test", { onPublication: () => {}, onError: () => {} });
@@ -758,6 +773,7 @@ describe("RealtimeClient", () => {
         // Centrifuge emits `state` before `disconnected`.
         instance.emit("state", { newState: "disconnected", oldState: "connected" });
         instance.emit("disconnected", { code: 3500, reason: "go away" });
+        await waitForAsyncTokens();
 
         expect(changes).toEqual([
             {
@@ -767,10 +783,17 @@ describe("RealtimeClient", () => {
         ]);
     });
 
-    it("keeps subscriptions tracked on an unauthorized disconnect", () => {
-        const client = createPublicRealtimeClient();
+    it("keeps private subscriptions tracked on an unauthorized disconnect", () => {
+        vi.spyOn(globalThis, "fetch").mockReturnValue(new Promise(() => {}));
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
+            hasAuth: () => true,
+        });
         const onError = vi.fn();
-        client.subscribe("public:test", { onPublication: () => {}, onError });
+        client.subscribe("private:test", { onPublication: () => {}, onError });
         const instance = firstInstance();
         instance.emit("error", { type: "transport", error: { code: 2, message: "closed" } });
         onError.mockClear();
@@ -779,16 +802,280 @@ describe("RealtimeClient", () => {
         expect(onError).not.toHaveBeenCalled();
         expect(client.activeChannels).toBe(1);
         // The status says why it stopped instead of keeping the earlier retryable failure.
-        expect(client.connection.public).toEqual({
+        expect(client.connection.private).toEqual({
             state: "disconnected",
             error: expect.objectContaining({ realtimeCode: 1, retryable: false }),
         });
 
         // A restart is a new outage: its first failure reports again.
         instance.emit("state", { newState: "connecting", oldState: "disconnected" });
-        expect(client.connection.public).toEqual({ state: "connecting", error: null });
+        expect(client.connection.private).toEqual({ state: "connecting", error: null });
         instance.emit("error", { type: "transport", error: { code: 2, message: "closed" } });
         expect(onError).toHaveBeenCalledOnce();
+        client.disconnect();
+    });
+
+    it("closes public channels on an unauthorized disconnect, since nothing restarts them", () => {
+        const client = createPublicRealtimeClient();
+        const onError = vi.fn();
+        const onClose = vi.fn();
+        client.subscribe("public:test", {
+            onPublication: () => {},
+            onError,
+            onUnsubscribed: onClose,
+        });
+        firstInstance().emit("disconnected", { code: 1, reason: "unauthorized" });
+
+        expect(onError).toHaveBeenCalledWith(expect.objectContaining({ type: "disconnected" }));
+        expect(onClose).toHaveBeenCalledOnce();
+        expect(client.activeChannels).toBe(0);
+        // The next subscriber gets a new socket instead of the dead one.
+        client.subscribe("public:test", { onPublication: () => {} });
+        expect(centrifugeState.instances).toHaveLength(2);
+        client.disconnect();
+    });
+
+    it("sends a socket failure that follows a token failure to every private channel", async () => {
+        vi.spyOn(globalThis, "fetch").mockReturnValue(new Promise(() => {}));
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
+            hasAuth: () => true,
+        });
+        const early = vi.fn();
+        client.subscribe("private:early", { onPublication: () => {}, onError: early });
+        const instance = firstInstance();
+        instance.emit("error", { type: "connectToken", error: { code: 5, message: "503" } });
+        const late = vi.fn();
+        client.subscribe("private:late", { onPublication: () => {}, onError: late });
+        await waitForAsyncTokens();
+        expect(late).not.toHaveBeenCalled();
+
+        // The token request then succeeds but the socket keeps failing.
+        const transportClosed = { type: "transport", error: { code: 2, message: "closed" } };
+        instance.emit("error", transportClosed);
+        instance.emit("error", transportClosed);
+        instance.emit("error", { type: "connectToken", error: { code: 5, message: "503" } });
+
+        for (const onError of [early, late]) {
+            expect(onError).toHaveBeenCalledExactlyOnceWith(
+                expect.objectContaining({
+                    type: "transport",
+                    error: expect.objectContaining({ realtimeCode: 2 }),
+                }),
+            );
+        }
+        expect(client.connection.private.error).toMatchObject({ realtimeCode: 2 });
+        client.disconnect();
+    });
+
+    it("delivers one outage report to a consumer that resubscribes from onError", async () => {
+        const client = createPublicRealtimeClient();
+        const replacement = vi.fn();
+        const stop = client.subscribe("public:test", {
+            onPublication: () => {},
+            onError: () => {
+                stop();
+                client.subscribe("public:test", { onPublication: () => {}, onError: replacement });
+            },
+        });
+        firstInstance().emit("error", { type: "transport", error: { code: 2, message: "closed" } });
+        await waitForAsyncTokens();
+
+        expect(replacement).toHaveBeenCalledOnce();
+        client.disconnect();
+    });
+
+    it("lets a connection listener disconnect, and later listeners see only the current status", async () => {
+        const client = createPublicRealtimeClient();
+        client.onConnectionChange(({ public: status }) => {
+            if (status.state === "connecting") client.disconnect();
+        });
+        const seen: string[] = [];
+        client.onConnectionChange(({ public: status }) => seen.push(status.state));
+        client.subscribe("public:test", { onPublication: () => {} });
+        await waitForAsyncTokens();
+
+        expect(firstInstance().disconnectCalls).toBe(1);
+        expect(client.activeChannels).toBe(0);
+        expect(seen).toEqual(["disconnected"]);
+        expect(client.connection.public.state).toBe("disconnected");
+    });
+
+    it("gives a listener that resubscribes on a terminal close a new socket", async () => {
+        const client = createPublicRealtimeClient();
+        client.subscribe("public:a", { onPublication: () => {}, onError: () => {} });
+        const onError = vi.fn();
+        const stop = client.onConnectionChange(({ public: status }) => {
+            if (status.state !== "disconnected") return;
+            stop();
+            client.subscribe("public:b", { onPublication: () => {}, onError });
+        });
+        firstInstance().emit("disconnected", { code: 3500, reason: "go away" });
+        await waitForAsyncTokens();
+
+        expect(centrifugeState.instances).toHaveLength(2);
+        expect(centrifugeState.instances[1]?.connectCalls).toBe(1);
+        expect(onError).not.toHaveBeenCalled();
+        expect(client.activeChannels).toBe(1);
+        client.disconnect();
+    });
+
+    it("skips consumers that an earlier handler unsubscribed during the delivery", () => {
+        const client = createPublicRealtimeClient();
+        const calls: string[] = [];
+        let stopSameChannel = () => {};
+        let stopOtherChannel = () => {};
+        client.subscribe("public:a", {
+            onPublication: () => {},
+            onError: () => {
+                calls.push("first");
+                stopSameChannel();
+                stopOtherChannel();
+            },
+        });
+        stopSameChannel = client.subscribe("public:a", {
+            onPublication: () => {},
+            onError: () => calls.push("same channel"),
+        });
+        stopOtherChannel = client.subscribe("public:b", {
+            onPublication: () => {},
+            onError: () => calls.push("other channel"),
+        });
+        firstInstance().emit("error", { type: "transport", error: { code: 2, message: "closed" } });
+
+        expect(calls).toEqual(["first"]);
+        client.disconnect();
+    });
+
+    it("skips channels that an earlier handler disconnected during the delivery", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}", { status: 403 }));
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
+            hasAuth: () => true,
+        });
+        const calls: string[] = [];
+        // Logging out from the first error must not reach the second channel.
+        client.subscribe("private:a", {
+            onPublication: () => {},
+            onError: () => {
+                calls.push("a");
+                client.disconnectPrivate();
+            },
+        });
+        client.subscribe("private:b", { onPublication: () => {}, onError: () => calls.push("b") });
+        await expect(firstInstance().tokenPromise).rejects.toBeInstanceOf(MockUnauthorizedError);
+        expect(calls).toEqual(["a"]);
+
+        const publicCalls: string[] = [];
+        client.subscribe("public:a", {
+            onPublication: () => {},
+            onError: () => {
+                publicCalls.push("a");
+                client.disconnect();
+            },
+        });
+        client.subscribe("public:b", {
+            onPublication: () => {},
+            onError: () => publicCalls.push("b"),
+        });
+        centrifugeState.instances.at(-1)?.emit("error", {
+            type: "transport",
+            error: { code: 2, message: "closed" },
+        });
+        expect(publicCalls).toEqual(["a"]);
+    });
+
+    it("finishes a connection status delivery when a listener replaces itself", async () => {
+        const client = createPublicRealtimeClient();
+        let calls = 0;
+        let stop = () => {};
+        const listen = () => {
+            stop = client.onConnectionChange(() => {
+                // Bound the probe so a regression fails instead of hanging.
+                if (++calls > 5) return;
+                stop();
+                listen();
+            });
+        };
+        listen();
+        client.subscribe("public:test", { onPublication: () => {} });
+        await waitForAsyncTokens();
+
+        expect(calls).toBe(1);
+        client.disconnect();
+    });
+
+    it("finishes a connection token delivery when a consumer replaces itself from onError", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}", { status: 401 }));
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
+            hasAuth: () => true,
+        });
+        let calls = 0;
+        const listen = () => {
+            const stop = client.subscribe("private:orders", {
+                onPublication: () => {},
+                onError: (ctx) => {
+                    // Bound the probe so a regression fails instead of hanging.
+                    if (ctx.type !== "connection_token" || ++calls > 5) return;
+                    stop();
+                    listen();
+                },
+            });
+        };
+        listen();
+        await expect(firstInstance().tokenPromise).rejects.toBeInstanceOf(MockUnauthorizedError);
+
+        expect(calls).toBe(1);
+        expect(client.activeChannels).toBe(1);
+        client.disconnect();
+    });
+
+    it("records a rejected connection token, not 'unauthorized', when it stops the private socket", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}", { status: 500 }));
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
+            hasAuth: () => true,
+        });
+        client.subscribe("private:orders", { onPublication: () => {}, onError: () => {} });
+        const instance = firstInstance();
+        await expect(instance.tokenPromise).rejects.toBeInstanceOf(MockUnauthorizedError);
+        instance.emit("disconnected", { code: 1, reason: "unauthorized" });
+
+        expect(client.connection.private).toEqual({
+            state: "disconnected",
+            error: expect.objectContaining({
+                name: "InternalServerError",
+                message: "Failed to fetch connection token: 500",
+            }),
+        });
+        client.disconnect();
+    });
+
+    it("delivers one outage report to a consumer added to another channel during the broadcast", async () => {
+        const client = createPublicRealtimeClient();
+        const late = vi.fn();
+        client.subscribe("public:a", {
+            onPublication: () => {},
+            onError: () => client.subscribe("public:b", { onPublication: () => {}, onError: late }),
+        });
+        client.subscribe("public:b", { onPublication: () => {}, onError: () => {} });
+        firstInstance().emit("error", { type: "transport", error: { code: 2, message: "closed" } });
+        await waitForAsyncTokens();
+
+        expect(late).toHaveBeenCalledOnce();
         client.disconnect();
     });
 
@@ -811,6 +1098,96 @@ describe("RealtimeClient", () => {
         expect(client.activeChannels).toBe(1);
         expect(client.totalConsumers).toBe(1);
         client.disconnect();
+    });
+
+    it("reports a real socket that cannot connect once per channel, late subscribers included", async () => {
+        vi.useFakeTimers();
+        useRealJsonCentrifuge();
+        JsonReplyWebSocket.refuse = true;
+        const client = createPublicRealtimeClient();
+        const early = vi.fn();
+        const onOpen = vi.fn();
+        client.subscribe("public:early", {
+            onPublication: () => {},
+            onError: early,
+            onSubscribed: onOpen,
+        });
+        await vi.dynamicImportSettled();
+        await vi.advanceTimersByTimeAsync(0);
+        const late = vi.fn();
+        client.subscribe("public:late", { onPublication: () => {}, onError: late });
+        await vi.advanceTimersByTimeAsync(10_000);
+
+        expect(JsonReplyWebSocket.instances.length).toBeGreaterThan(2);
+        for (const onError of [early, late]) {
+            expect(onError).toHaveBeenCalledExactlyOnceWith(
+                expect.objectContaining({
+                    type: "transport",
+                    error: expect.objectContaining({ retryable: true }),
+                }),
+            );
+        }
+        expect(client.connection.public).toEqual({
+            state: "connecting",
+            error: expect.any(RealtimeError),
+        });
+
+        JsonReplyWebSocket.refuse = false;
+        await vi.advanceTimersByTimeAsync(20_000);
+        expect(onOpen).toHaveBeenCalledOnce();
+        expect(client.connection.public).toEqual({ state: "connected", error: null });
+        client.disconnect();
+    });
+
+    it("skips real channels that an earlier outage handler disconnected", async () => {
+        vi.useFakeTimers();
+        useRealJsonCentrifuge();
+        JsonReplyWebSocket.refuse = true;
+        const client = createPublicRealtimeClient();
+        const calls: string[] = [];
+        client.subscribe("public:a", {
+            onPublication: () => {},
+            onError: () => {
+                calls.push("a");
+                client.disconnect();
+            },
+        });
+        client.subscribe("public:b", { onPublication: () => {}, onError: () => calls.push("b") });
+        await vi.dynamicImportSettled();
+        await vi.advanceTimersByTimeAsync(0);
+        const attempts = JsonReplyWebSocket.instances.length;
+        await vi.advanceTimersByTimeAsync(30_000);
+
+        expect(calls).toEqual(["a"]);
+        expect(client.connection.public).toEqual({ state: "disconnected", error: null });
+        // Nothing is left retrying behind the SDK's back.
+        expect(JsonReplyWebSocket.instances).toHaveLength(attempts);
+    });
+
+    it("lets real connection listeners replace themselves and disconnect once connected", async () => {
+        vi.useFakeTimers();
+        useRealJsonCentrifuge();
+        const client = createPublicRealtimeClient();
+        const states: string[] = [];
+        let stop = () => {};
+        const listen = () => {
+            stop = client.onConnectionChange(({ public: status }) => {
+                // Bound the probe so a regression fails instead of hanging.
+                if (states.push(status.state) > 5) return;
+                stop();
+                // Disconnecting here runs inside Centrifuge's connect handling unless deferred.
+                if (status.state === "connected") client.disconnect();
+                else listen();
+            });
+        };
+        listen();
+        client.subscribe("public:test", { onPublication: () => {} });
+        await vi.dynamicImportSettled();
+        await vi.advanceTimersByTimeAsync(100);
+
+        expect(states).toEqual(["connecting", "connected"]);
+        expect(client.connection.public).toEqual({ state: "disconnected", error: null });
+        expect(client.activeChannels).toBe(0);
     });
 
     it("preserves real reconnects and keeps caller teardown silent", async () => {
@@ -839,6 +1216,34 @@ describe("RealtimeClient", () => {
         expect(onError).not.toHaveBeenCalled();
         expect(onClose).not.toHaveBeenCalled();
         expect(client.activeChannels).toBe(0);
+    });
+
+    it("tells every closed channel on a terminal close, but not consumers unsubscribed meanwhile", () => {
+        const client = createPublicRealtimeClient();
+        const calls: string[] = [];
+        let stopB = () => {};
+        client.subscribe("public:a", {
+            onPublication: () => {},
+            onError: () => {
+                calls.push("a error");
+                stopB();
+                // The others really closed, so a disconnect here does not hide that from them.
+                client.disconnect();
+            },
+        });
+        stopB = client.subscribe("public:b", {
+            onPublication: () => {},
+            onError: () => calls.push("b error"),
+            onUnsubscribed: () => calls.push("b close"),
+        });
+        client.subscribe("public:c", {
+            onPublication: () => {},
+            onError: () => calls.push("c error"),
+            onUnsubscribed: () => calls.push("c close"),
+        });
+        firstInstance().emit("disconnected", { code: 3501, reason: "bad request" });
+
+        expect(calls).toEqual(["a error", "c error", "c close"]);
     });
 
     it("finishes terminal cleanup before callbacks resubscribe to another affected channel", async () => {
@@ -1317,6 +1722,42 @@ describe("RealtimeClient", () => {
         await vi.advanceTimersByTimeAsync(1);
         await expect(instance.tokenPromise).resolves.toBe("rt-token");
         expect(connectionTokenFetches()).toBe(2);
+    });
+
+    it("rechecks Retry-After once slow auth headers resolve", async () => {
+        vi.useFakeTimers();
+        let releaseHeaders: (() => void) | undefined;
+        const fetches: { url: string; time: number }[] = [];
+        vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+            fetches.push({ url: String(input), time: Date.now() });
+            return Promise.resolve(
+                String(input).includes("/v1/rt/token")
+                    ? new Response("{}", { status: 429, headers: { "retry-after": "5" } })
+                    : new Response(JSON.stringify({ token: "sub-token" })),
+            );
+        });
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
+            hasAuth: () => true,
+            // The first subscription headers are slow; the connection token's 429 lands meanwhile.
+            getAuthHeaders: ({ url }) =>
+                String(url).includes("/v1/rt/subscribe") && !releaseHeaders
+                    ? new Promise((resolve) => (releaseHeaders = () => resolve({})))
+                    : {},
+        });
+        client.subscribe("private:test", { onPublication: () => {}, onError: () => {} });
+        await vi.advanceTimersByTimeAsync(0);
+        releaseHeaders?.();
+        await vi.advanceTimersByTimeAsync(4_999);
+        const subscriptionFetches = () => fetches.filter((f) => f.url.includes("/subscribe"));
+        expect(subscriptionFetches()).toHaveLength(0);
+
+        await vi.advanceTimersByTimeAsync(1);
+        expect(subscriptionFetches()).toHaveLength(1);
+        client.disconnect();
     });
 
     it("keeps a waiting token request behind a Retry-After that grows while it waits", async () => {

@@ -151,7 +151,9 @@ Call `unsubscribe()` when the subscription is no longer needed.
 A socket that cannot connect keeps retrying. On its first failed attempt, every
 channel on it gets one `onError` with `type: "transport"` and a retryable
 `RealtimeError`, and a channel subscribed while it is still failing gets the same
-error right away; the next `onOpen` means it recovered. To show connection status
+error right away; the next `onOpen` means it recovered. On the private socket, a
+failed connection token request is reported as `type: "connection_token"` on each
+attempt instead. To show connection status
 on its own, read `client.realtime.connection`, which holds `{ state, error }` for
 the public and the private socket, and watch it with
 `client.realtime.onConnectionChange(listener)`, which returns an unsubscribe

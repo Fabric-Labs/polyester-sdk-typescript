@@ -26,9 +26,9 @@ export interface RealtimeConnectionStatus {
     /** `"disconnected"` also means no socket is open because no channel needs one. */
     readonly state: RealtimeConnectionState;
     /**
-     * The first failure of the current outage, or `null`. Set while the socket cannot
-     * connect (it keeps retrying in `"connecting"`) or after it closed for good, and
-     * cleared once it connects.
+     * Why the socket is not connected, or `null`. Set on the first failure of an outage
+     * while the socket keeps retrying in `"connecting"` (a socket failure after a connection
+     * token failure replaces it), or after it closed for good; cleared once it connects.
      */
     readonly error: Error | null;
 }
@@ -60,7 +60,7 @@ export interface PolyesterRealtime {
     disconnectPrivate(): void;
     /** Socket status; private order streams run on their own socket and are not included. */
     readonly connection: RealtimeConnection;
-    /** Calls `listener` with the new {@link RealtimeConnection} on every change. Returns an unsubscribe function. */
+    /** Calls `listener` with the current {@link RealtimeConnection} after it changes, in a microtask; a status replaced before then is skipped. Returns an unsubscribe function. */
     onConnectionChange(listener: (connection: RealtimeConnection) => void): () => void;
     readonly activeChannels: number;
     readonly totalConsumers: number;

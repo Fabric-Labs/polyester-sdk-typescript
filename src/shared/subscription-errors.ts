@@ -7,6 +7,8 @@ export type SdkSubscriptionErrorContext = {
     /**
      * Always an `Error`. Server and websocket failures arrive as {@link RealtimeError};
      * skip reporting when `retryable` is true, the realtime client is already retrying.
+     * A `"transport"` error is retryable too, but the channel gets no data until the socket
+     * recovers, so show it rather than ignore it.
      */
     error: Error;
 };
