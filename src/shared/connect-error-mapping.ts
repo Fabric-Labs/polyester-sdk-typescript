@@ -126,7 +126,11 @@ function mfaErrorKind(detail: PolyesterErrorDetail | undefined): MfaErrorKind | 
 }
 
 function parseRetryAfterMs(ce: ConnectError): number | undefined {
-    const value = ce.metadata.get("retry-after");
+    return parseRetryAfterHeader(ce.metadata.get("retry-after"));
+}
+
+/** Parses an HTTP `Retry-After` value (delay seconds or HTTP date) into milliseconds. */
+export function parseRetryAfterHeader(value: string | null): number | undefined {
     if (!value) return undefined;
     if (/^\d+$/u.test(value)) {
         const seconds = BigInt(value);

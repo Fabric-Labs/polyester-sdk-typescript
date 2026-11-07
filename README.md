@@ -148,6 +148,18 @@ await client.orders.create(order);
 
 Call `unsubscribe()` when the subscription is no longer needed.
 
+A socket that cannot connect keeps retrying. On its first failed attempt, every
+channel on it gets one `onError` with `type: "transport"` and a retryable
+`RealtimeError`, and a channel subscribed while it is still failing gets the same
+error right away; the next `onOpen` means it recovered. On the private socket, a
+failed connection token request is reported as `type: "connection_token"` on each
+attempt instead. To show connection status
+on its own, read `client.realtime.connection`, which holds `{ state, error }` for
+the public and the private socket, and watch it with
+`client.realtime.onConnectionChange(listener)`, which returns an unsubscribe
+function. `state` is `"connecting"`, `"connected"` or `"disconnected"`; a socket
+that is `"connecting"` with an `error` is failing, not just slow.
+
 `client.orders.subscribe` streams over the private WebSocket (`/v1/ws/private`).
 Each changed order arrives complete through `onEvent`; keep the copy with the
 higher `version`. Pass `onSnapshot` to receive the account's full live view when

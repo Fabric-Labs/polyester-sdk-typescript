@@ -1,6 +1,7 @@
 import { fromBinary, type DescMessage, type MessageShape } from "@bufbuild/protobuf";
 import type {
     Centrifuge,
+    ErrorContext,
     SubscriptionErrorContext,
     PublicationContext,
     Subscription,
@@ -16,14 +17,24 @@ import {
     errorFromHttpStatus,
     InternalServerError,
     PolyesterError,
+    RealtimeError,
 } from "../shared/errors.js";
+import { parseRetryAfterHeader } from "../shared/connect-error-mapping.js";
 import { makeFetch } from "../shared/transports.js";
 import { decodeProtoFrame } from "../utils/streams.js";
 import { idToBigInt } from "../utils/base58-id.js";
-import type { ConnectChannelParams, PolyesterRealtime, SubscribeHandlers } from "./types.js";
+import type {
+    ConnectChannelParams,
+    PolyesterRealtime,
+    RealtimeConnection,
+    RealtimeConnectionStatus,
+    SubscribeHandlers,
+} from "./types.js";
 import type { ConnectPrivateOrdersParams, PrivateOrderStream } from "./private-orders.js";
 
 const realtimeFetch = makeFetch();
+// ponytail: caps a bogus or huge Retry-After; a longer server window just answers 429 again with a new hint.
+const MAX_RETRY_AFTER_MS = 60_000;
 
 type CentrifugeCtor = typeof CentrifugeModule.Centrifuge;
 type CentrifugeModuleLoader = () => Promise<typeof CentrifugeModule>;
@@ -104,6 +115,10 @@ type PublicationHandler<T = unknown> = (data: T) => void;
 type ErrorHandler = (ctx: SdkSubscriptionErrorContext) => void;
 type RealtimeClientKind = "public" | "private";
 
+const DISCONNECTED: RealtimeConnectionStatus = { state: "disconnected", error: null };
+/** Centrifuge client `error` types that mean a connect attempt failed; each retry emits one. */
+const CONNECT_FAILURE_TYPES = new Set(["transport", "connect", "connectToken", "connectData"]);
+
 interface SharedSubscription {
     channel: string;
     sub: Subscription | null;
@@ -129,6 +144,14 @@ export class RealtimeClient implements PolyesterRealtime {
     #privateOrdersLoading: Promise<PrivateOrderStream> | null = null;
     #privateOrders: PrivateOrderStream | null = null;
     #privateOrdersEpoch = 0;
+    #connection: RealtimeConnection = { public: DISCONNECTED, private: DISCONNECTED };
+    #connectionListeners = new Set<(connection: RealtimeConnection) => void>();
+    /** Outage errors already sent to channels as `"transport"`; replayed to late subscribers. */
+    #transportErrors = new WeakSet<Error>();
+    /** The non-retryable connection token failure that stops the private socket (code 1). */
+    #privateTokenFailure: Error | null = null;
+    /** Token requests wait until then after a 429 with `Retry-After`. */
+    #tokenRetryAt = 0;
     readonly #config: ResolvedRealtimeConfig;
 
     constructor(config: RealtimeConfig) {
@@ -146,12 +169,32 @@ export class RealtimeClient implements PolyesterRealtime {
         return this.#config.getAuthHeaders(request);
     }
 
+    /**
+     * Every realtime token request (connection, subscription, private order stream)
+     * comes through here, so one wait honors `Retry-After` for all of them; the
+     * transport's own reconnect backoff still applies on top.
+     */
     async #fetchToken(url: string | URL, kind: "connection" | "subscription"): Promise<string> {
-        const headers = await this.#getAuthHeaders({ url, method: "GET" });
+        // Recheck after each await: another request's 429 may have pushed the deadline out.
+        let headers: HeadersInit;
+        do {
+            for (let wait; (wait = this.#tokenRetryAt - Date.now()) > 0;) {
+                await new Promise((resolve) => setTimeout(resolve, wait));
+            }
+            headers = await this.#getAuthHeaders({ url, method: "GET" });
+        } while (this.#tokenRetryAt > Date.now());
         const res = await realtimeFetch(url, { headers });
         if (!res.ok) {
+            const retryAfterMs = parseRetryAfterHeader(res.headers.get("retry-after"));
+            if (res.status === 429 && retryAfterMs !== undefined) {
+                this.#tokenRetryAt = Math.max(
+                    this.#tokenRetryAt,
+                    Date.now() + Math.min(retryAfterMs, MAX_RETRY_AFTER_MS),
+                );
+            }
             throw errorFromHttpStatus(res.status, `Failed to fetch ${kind} token: ${res.status}`, {
                 status: res.status,
+                retryAfterMs,
             });
         }
         const json = (await res.json()) as { token?: string };
@@ -169,19 +212,32 @@ export class RealtimeClient implements PolyesterRealtime {
         return this.#fetchToken(url, "subscription");
     }
 
-    #emitSubscriptionError(shared: SharedSubscription, type: string, error: unknown): void {
-        const ctx = createSdkSubscriptionErrorContext(shared.channel, type, error);
-        for (const handler of shared.errorHandlers) {
-            handler(ctx);
+    /**
+     * Delivers to the consumers registered when it starts: one a handler adds (a resubscribe)
+     * is not part of it, and one a handler removes is skipped.
+     */
+    #emitErrors(recipients: SharedSubscription[], type: string, error: unknown): void {
+        const deliveries = recipients.map((shared) => ({
+            shared,
+            ctx: createSdkSubscriptionErrorContext(shared.channel, type, error),
+            handlers: Array.from(shared.errorHandlers),
+        }));
+        for (const { shared, ctx, handlers } of deliveries) {
+            for (const handler of handlers) {
+                if (shared.errorHandlers.has(handler)) handler(ctx);
+            }
         }
     }
 
+    #emitSubscriptionError(shared: SharedSubscription, type: string, error: unknown): void {
+        this.#emitErrors([shared], type, error);
+    }
+
     #emitConnectionTokenError(error: unknown): void {
-        for (const shared of this.#sharedSubs.values()) {
-            if (this.#channelKind(shared.channel) === "private") {
-                this.#emitSubscriptionError(shared, "connection_token", error);
-            }
-        }
+        const privateSubs = [...this.#sharedSubs.values()].filter(
+            (shared) => this.#channelKind(shared.channel) === "private",
+        );
+        this.#emitErrors(privateSubs, "connection_token", error);
     }
 
     #subscriptionOpts(
@@ -218,21 +274,7 @@ export class RealtimeClient implements PolyesterRealtime {
     #createPublicClient(Centrifuge: CentrifugeCtor): Centrifuge {
         const client = new Centrifuge(this.#config.wsUrl);
         this.#publicClient = client;
-
-        client.on("disconnected", (ctx) => {
-            // Codes 0 (disconnectCalled) and 1 (unauthorized) are handled elsewhere;
-            // every other disconnected event is terminal.
-            if (this.#publicClient !== client || ctx.code <= 1) return;
-            this.#publicClient = null;
-            this.#terminateSubscriptions(
-                [...this.#sharedSubs.values(), ...this.#pendingTeardowns.values()].filter(
-                    (shared) => shared.client === client,
-                ),
-                "disconnected",
-                ctx,
-            );
-        });
-
+        this.#watchClient(client, "public");
         client.connect();
         return client;
     }
@@ -248,6 +290,7 @@ export class RealtimeClient implements PolyesterRealtime {
                         this.#emitConnectionTokenError(error);
                     }
                     if (error instanceof PolyesterError && !error.retryable) {
+                        if (this.#privateClient === client) this.#privateTokenFailure = error;
                         throw new Centrifuge.UnauthorizedError(error.message);
                     }
                     throw error;
@@ -257,12 +300,101 @@ export class RealtimeClient implements PolyesterRealtime {
 
         client = new Centrifuge(this.#config.wsUrl, opts);
         this.#privateClient = client;
+        this.#privateTokenFailure = null;
+        this.#watchClient(client, "private");
+        client.connect();
+        return client;
+    }
+
+    #currentClient(kind: RealtimeClientKind): Centrifuge | null {
+        return kind === "private" ? this.#privateClient : this.#publicClient;
+    }
+
+    #setConnection(kind: RealtimeClientKind, status: RealtimeConnectionStatus): void {
+        const current = this.#connection[kind];
+        if (current.state === status.state && current.error === status.error) return;
+        this.#connection = { ...this.#connection, [kind]: status };
+        const connection = this.#connection;
+        // Notify once Centrifuge has finished its transition, so a listener can disconnect or
+        // subscribe safely. A newer status replaces this one, even mid-delivery.
+        // Snapshot: a listener added during delivery (one replacing itself) waits for the next change.
+        queueMicrotask(() => {
+            for (const listener of Array.from(this.#connectionListeners)) {
+                if (this.#connection !== connection) return;
+                if (!this.#connectionListeners.has(listener)) continue;
+                try {
+                    listener(connection);
+                } catch {
+                    // Keep one listener from starving the others.
+                }
+            }
+        });
+    }
+
+    #watchClient(client: Centrifuge, kind: RealtimeClientKind): void {
+        this.#setConnection(kind, { state: "connecting", error: null });
+
+        client.on("state", ({ newState, oldState }) => {
+            // `disconnected` is recorded by the handlers below, which know the reason.
+            if (this.#currentClient(kind) !== client || newState === "disconnected") return;
+            // A restart after a terminal close starts a new outage.
+            const { error } = this.#connection[kind];
+            this.#setConnection(kind, {
+                state: newState,
+                error: newState === "connected" || oldState === "disconnected" ? null : error,
+            });
+        });
+
+        // Centrifuge stays in "connecting" across failed attempts, so the `connecting`
+        // event fires once; each failed attempt arrives as a client `error` instead.
+        client.on("error", (ctx: ErrorContext) => {
+            if (this.#currentClient(kind) !== client || !CONNECT_FAILURE_TYPES.has(ctx.type))
+                return;
+            const { code, message } = ctx.error as { code?: unknown; message?: unknown };
+            // 109: the cached token expired; Centrifuge fetches a new one and reconnects.
+            if (ctx.type === "connect" && code === 109) return;
+            // Report the first failure of an outage only, not every reconnect retry. A token
+            // failure only marks the status (private channels get "connection_token" from
+            // getToken), so a socket failure after one is still sent to channels.
+            const current = this.#connection[kind].error;
+            if (current && (ctx.type === "connectToken" || this.#transportErrors.has(current)))
+                return;
+            const error = new RealtimeError(
+                `Realtime ${kind} connection failed: ${typeof message === "string" && message ? message : ctx.type}`,
+                { realtimeCode: typeof code === "number" ? code : 0, retryable: true },
+            );
+            this.#setConnection(kind, { state: "connecting", error });
+            // Private channels already receive connection token failures as "connection_token".
+            if (ctx.type === "connectToken") return;
+            this.#transportErrors.add(error);
+            // A consumer added by a handler gets the replay in subscribe() instead.
+            const affected = [...this.#sharedSubs.values()].filter(
+                (shared) => shared.client === client,
+            );
+            this.#emitErrors(affected, "transport", error);
+        });
 
         client.on("disconnected", (ctx) => {
-            // Codes 0 (disconnectCalled) and 1 (unauthorized) are handled elsewhere;
-            // every other disconnected event is terminal.
-            if (this.#privateClient !== client || ctx.code <= 1) return;
-            this.#privateClient = null;
+            // Code 0 (disconnectCalled) comes from our own teardown, which drops the client first.
+            if (this.#currentClient(kind) !== client || ctx.code === 0) return;
+            // Centrifuge reports a rejected private token as "unauthorized"; record the real failure.
+            const tokenFailure =
+                kind === "private" && ctx.code === 1 ? this.#privateTokenFailure : null;
+            if (kind === "private") this.#privateTokenFailure = null;
+            this.#setConnection(kind, {
+                state: "disconnected",
+                error:
+                    tokenFailure ??
+                    new RealtimeError(ctx.reason || "Realtime connection closed", {
+                        realtimeCode: ctx.code,
+                    }),
+            });
+            // Code 1 (unauthorized) on the private socket: channels already got the token
+            // error, and an explicit subscribe() restarts this client, so keep it. The public
+            // socket has no token to fix, so there it is terminal like any other close.
+            if (ctx.code === 1 && kind === "private") return;
+            if (kind === "private") this.#privateClient = null;
+            else this.#publicClient = null;
             this.#terminateSubscriptions(
                 [...this.#sharedSubs.values(), ...this.#pendingTeardowns.values()].filter(
                     (shared) => shared.client === client,
@@ -271,9 +403,6 @@ export class RealtimeClient implements PolyesterRealtime {
                 ctx,
             );
         });
-
-        client.connect();
-        return client;
     }
 
     #ensurePublicClient(Centrifuge: CentrifugeCtor): Centrifuge {
@@ -473,16 +602,21 @@ export class RealtimeClient implements PolyesterRealtime {
                 this.#pendingTeardowns.delete(shared.channel);
             }
             this.#teardownSubscription(shared);
-            shared.publicationHandlers.clear();
-            shared.subscribedHandlers.clear();
-            shared.unsubscribedHandlers.clear();
-            shared.errorHandlers.clear();
+            this.#dropConsumers(shared);
         }
 
         for (const { error, errorHandlers, closeHandlers } of notifications) {
             for (const handler of errorHandlers) handler(error);
             for (const handler of closeHandlers) handler();
         }
+    }
+
+    /** Forgets a dropped channel's consumers, so an error delivery in progress skips them. */
+    #dropConsumers(shared: SharedSubscription): void {
+        shared.publicationHandlers.clear();
+        shared.subscribedHandlers.clear();
+        shared.unsubscribedHandlers.clear();
+        shared.errorHandlers.clear();
     }
 
     #teardownSubscription(shared: SharedSubscription): void {
@@ -522,12 +656,14 @@ export class RealtimeClient implements PolyesterRealtime {
     #disconnectClientIfIdle(kind: RealtimeClientKind): void {
         if (this.#hasChannelsForKind(kind)) return;
 
-        const client = kind === "private" ? this.#privateClient : this.#publicClient;
+        const client = this.#currentClient(kind);
         if (kind === "private") {
             this.#privateClient = null;
         } else {
             this.#publicClient = null;
         }
+        // A terminal close already recorded its error and dropped the client.
+        if (client) this.#setConnection(kind, DISCONNECTED);
 
         try {
             client?.disconnect();
@@ -552,10 +688,15 @@ export class RealtimeClient implements PolyesterRealtime {
         const publicClient = this.#publicClient;
         const privateClient = this.#privateClient;
 
+        for (const shared of [...this.#sharedSubs.values(), ...this.#pendingTeardowns.values()]) {
+            this.#dropConsumers(shared);
+        }
         this.#pendingTeardowns.clear();
         this.#sharedSubs.clear();
         this.#publicClient = null;
         this.#privateClient = null;
+        if (publicClient) this.#setConnection("public", DISCONNECTED);
+        if (privateClient) this.#setConnection("private", DISCONNECTED);
 
         try {
             publicClient?.disconnect();
@@ -573,16 +714,19 @@ export class RealtimeClient implements PolyesterRealtime {
         this.#disconnectPrivateOrders();
         const privateClient = this.#privateClient;
         this.#privateClient = null;
+        if (privateClient) this.#setConnection("private", DISCONNECTED);
 
         for (const [channel, shared] of this.#sharedSubs) {
             if (this.#channelKind(channel) !== "private") continue;
             this.#sharedSubs.delete(channel);
             this.#teardownSubscription(shared);
+            this.#dropConsumers(shared);
         }
         for (const [channel, shared] of this.#pendingTeardowns) {
             if (this.#channelKind(channel) !== "private") continue;
             this.#pendingTeardowns.delete(channel);
             this.#teardownSubscription(shared);
+            this.#dropConsumers(shared);
         }
 
         try {
@@ -617,8 +761,12 @@ export class RealtimeClient implements PolyesterRealtime {
         const subscribedHandler = handlers.onSubscribed;
         const unsubscribedHandler = handlers.onUnsubscribed;
 
+        // Set by the returned unsubscribe: a delivery already under way skips this consumer.
+        let closed = false;
         const onError: ErrorHandler | undefined = errorHandler
-            ? (ctx) => this.#callErrorHandler(errorHandler, ctx)
+            ? (ctx) => {
+                  if (!closed) this.#callErrorHandler(errorHandler, ctx);
+              }
             : undefined;
         const onPub: PublicationHandler = (data) => {
             this.#callConsumerHandler(
@@ -642,13 +790,15 @@ export class RealtimeClient implements PolyesterRealtime {
               }
             : undefined;
         const onUnsubscribed = unsubscribedHandler
-            ? () =>
+            ? () => {
+                  if (closed) return;
                   this.#callConsumerHandler(
                       channel,
                       "unsubscribed_handler",
                       unsubscribedHandler,
                       onError,
-                  )
+                  );
+              }
             : undefined;
 
         shared.publicationHandlers.add(onPub);
@@ -668,7 +818,15 @@ export class RealtimeClient implements PolyesterRealtime {
             }
         }
 
-        let closed = false;
+        // Joining a socket that is already failing: this consumer missed the outage's one report.
+        const outage = this.#connection[this.#channelKind(channel)].error;
+        if (onError && outage && this.#transportErrors.has(outage)) {
+            const ctx = createSdkSubscriptionErrorContext(channel, "transport", outage);
+            queueMicrotask(() => {
+                if (closed || this.#connection[this.#channelKind(channel)].error !== outage) return;
+                onError(ctx);
+            });
+        }
         if (onSubscribed && shared.sub?.state === "subscribed") {
             const subscriptionEpoch = shared.subscriptionEpoch;
             queueMicrotask(() => {
@@ -835,12 +993,19 @@ export class RealtimeClient implements PolyesterRealtime {
         this.#disconnectPrivate();
     }
 
-    get isConnected(): boolean {
-        return (
-            this.#publicClient !== null ||
-            this.#privateClient !== null ||
-            (this.#privateOrders?.activeChannels ?? 0) > 0
-        );
+    /**
+     * Status of the public and private sockets. A socket that cannot connect stays
+     * `"connecting"` with `error` set, and every channel on it gets one `"transport"`
+     * error per outage. Private order streams run on their own socket and are not included.
+     */
+    get connection(): RealtimeConnection {
+        return this.#connection;
+    }
+
+    /** Calls `listener` with the current {@link connection} after it changes, in a microtask; a status replaced before then is skipped. Returns an unsubscribe function. */
+    onConnectionChange(listener: (connection: RealtimeConnection) => void): () => void {
+        this.#connectionListeners.add(listener);
+        return () => this.#connectionListeners.delete(listener);
     }
 
     get activeChannels(): number {
