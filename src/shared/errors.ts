@@ -23,6 +23,7 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * │   │   ├── WithdrawDeadlineExpiredError WITHDRAW_DEADLINE_EXPIRED
  * │   │   └── PolicyScopeMismatchError   POLICY_SCOPE_MISMATCH
  * │   ├── ResourceNotFoundError      RESOURCE_NOT_FOUND          false
+ * │   ├── RequestTooLargeError       REQUEST_TOO_LARGE           false
  * │   ├── NotImplementedError        NOT_IMPLEMENTED             false
  * │   ├── AlreadyExistsError         ALREADY_EXISTS              false
  * │   │   └── UserOperationAlreadyKnownError USER_OPERATION_ALREADY_KNOWN
@@ -79,6 +80,7 @@ export type PolyesterErrorCode =
     | "STALE_QUOTE"
     | "WITHDRAW_DEADLINE_EXPIRED"
     | "RESOURCE_NOT_FOUND"
+    | "REQUEST_TOO_LARGE"
     | "NOT_IMPLEMENTED"
     | "ALREADY_EXISTS"
     | "USER_OPERATION_ALREADY_KNOWN"
@@ -282,6 +284,19 @@ export class WithdrawDeadlineExpiredError extends ValidationError {
     constructor(message: string, options?: PolyesterErrorOptions) {
         super(message, options);
         this.name = "WithdrawDeadlineExpiredError";
+    }
+}
+
+/**
+ * The request body was over the endpoint's size limit (HTTP 413). The limit is
+ * fixed per endpoint, so the same request fails again; send a smaller one.
+ */
+export class RequestTooLargeError extends RequestError {
+    override readonly code: string = "REQUEST_TOO_LARGE";
+
+    constructor(message: string, options?: PolyesterErrorOptions) {
+        super(message, options);
+        this.name = "RequestTooLargeError";
     }
 }
 
@@ -606,6 +621,7 @@ export function errorFromHttpStatus(
     if (status === 408) return new TimeoutError(message, options);
     if (status === 409) return new AlreadyExistsError(message, options);
     if (status === 412) return new PreconditionFailedError(message, options);
+    if (status === 413) return new RequestTooLargeError(message, options);
     if (status === 429) return new RateLimitError(message, options);
     if (status === 501) return new NotImplementedError(message, options);
     if (status === 502 || status === 503 || status === 504) {

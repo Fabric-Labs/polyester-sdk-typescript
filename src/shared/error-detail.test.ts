@@ -27,6 +27,7 @@ import {
     FailureReason,
     LimiterScope,
     PolicyClass,
+    RateLimitDetailSchema,
     RefillModel,
 } from "../gen/polyester/ratelimit/v1/types_pb.js";
 import {
@@ -234,6 +235,7 @@ describe("parseConnectErrorDetail", () => {
                 LedgerErrorDetailSchema,
                 MarketOverviewErrorDetailSchema,
                 ClaimsErrorDetailSchema,
+                RateLimitDetailSchema,
             ]
                 .map((schema) => schema.typeName)
                 .sort(),

@@ -1441,9 +1441,16 @@ export const GetOrderResponseSchema: GenMessage<GetOrderResponse> = /*@__PURE__*
   messageDesc(file_orders_v1_orders_read, 19);
 
 /**
- * GetBatchReplaceStatusRequest retrieves one admitted batch by server identity.
- * Batch admission replay lasts 60 seconds from acceptance. If status is
- * unavailable, reconcile the individual orders; absence does not prove rejection.
+ * GetBatchReplaceStatusRequest retrieves one accepted batch by server identity.
+ * A batch's status is retained for 60 seconds from its acceptance, the same
+ * time-limited window in which an identical retry replays its admission. It
+ * is readable as soon as BatchReplaceOrders returns; each item's execution
+ * phase then advances asynchronously. UNAVAILABLE means the status cannot be
+ * established yet: retry the same request within the window. NOT_FOUND means
+ * the account has no retained batch with this identity: none was accepted for
+ * it, or the window ended. NOT_FOUND never proves that a replacement was
+ * rejected. After the window, reconcile the individual orders, and never
+ * submit an accepted batch again because its status is not found.
  *
  * @generated from message orders.v1.GetBatchReplaceStatusRequest
  */
@@ -1521,7 +1528,11 @@ export type BatchReplaceStatusItem = Message<"orders.v1.BatchReplaceStatusItem">
   code: string;
 
   /**
-   * Latest status timestamp in nanoseconds since epoch.
+   * Latest status timestamp in nanoseconds since epoch. For an item refused
+   * after its admission, this is when the refusal was recorded, or a later
+   * time at which the service recovered and observed it, so two reads may
+   * show different times for the same refusal. Do not use it to identify the
+   * refusal.
    *
    * @generated from field: uint64 updated_ts_ns = 7;
    */
@@ -1544,7 +1555,8 @@ export const BatchReplaceStatusItemSchema: GenMessage<BatchReplaceStatusItem> = 
   messageDesc(file_orders_v1_orders_read, 21);
 
 /**
- * GetBatchReplaceStatusResponse returns durable batch and per-item finality.
+ * GetBatchReplaceStatusResponse returns a batch's admission and each item's
+ * current execution phase.
  *
  * @generated from message orders.v1.GetBatchReplaceStatusResponse
  */
@@ -1592,7 +1604,9 @@ export type GetBatchReplaceStatusResponse = Message<"orders.v1.GetBatchReplaceSt
   acceptedTsNs: bigint;
 
   /**
-   * Latest batch status timestamp in nanoseconds since epoch.
+   * Latest batch status timestamp in nanoseconds since epoch: the latest of
+   * its acceptance and its items' update times, so it can show a recovery
+   * time as an item's can.
    *
    * @generated from field: uint64 updated_ts_ns = 7;
    */
@@ -2054,7 +2068,9 @@ export const OrdersReadService: GenService<{
     output: typeof GetOrderResponseSchema;
   },
   /**
-   * Retrieve durable execution status for one admitted batch replacement.
+   * Retrieve the execution status of one accepted batch replacement, retained
+   * for 60 seconds from its acceptance. Retry UNAVAILABLE with the same
+   * request; NOT_FOUND means no retained batch, never a rejected replacement.
    *
    * @generated from rpc orders.v1.OrdersReadService.GetBatchReplaceStatus
    */

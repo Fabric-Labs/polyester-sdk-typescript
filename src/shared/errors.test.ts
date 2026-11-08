@@ -190,6 +190,7 @@ describe("error hierarchy", () => {
             MFA_VERIFICATION_FAILED: true,
             INTERNAL_SERVER_ERROR: true,
             REALTIME_ERROR: true,
+            REQUEST_TOO_LARGE: true,
             CATALOG_LOOKUP_MISS: true,
             CATALOG_NOT_READY: true,
             CATALOG_CONVERSION_INVALID: true,
@@ -349,6 +350,20 @@ describe("connectErrorToPolyesterError", () => {
         expect(mapped.message).toBe(
             "Social account is already linked to another Polyester account.",
         );
+    });
+
+    it("maps wallet-already-linked logins to a terminal AlreadyExistsError", () => {
+        const mapped = connectErrorToPolyesterError(
+            authDetailError("", Code.AlreadyExists, AuthErrorCode.AUTH_WALLET_ALREADY_LINKED),
+        );
+
+        expect(mapped).toBeInstanceOf(AlreadyExistsError);
+        expect(mapped.retryable).toBe(false);
+        expect(mapped.detail).toMatchObject({
+            service: "auth",
+            code: "AUTH_WALLET_ALREADY_LINKED",
+        });
+        expect(mapped.message).toBe("Wallet is already linked to another Polyester account.");
     });
 
     it("maps stale subaccount challenge details regardless of gRPC code", () => {
@@ -979,6 +994,7 @@ describe("errorFromHttpStatus", () => {
     it("maps common statuses", () => {
         expect(errorFromHttpStatus(400, "m")).toBeInstanceOf(ValidationError);
         expect(errorFromHttpStatus(412, "m")).toBeInstanceOf(PreconditionFailedError);
+        expect(errorFromHttpStatus(413, "m")).toBeInstanceOf(errorsModule.RequestTooLargeError);
         expect(errorFromHttpStatus(422, "m")).toBeInstanceOf(ValidationError);
         expect(errorFromHttpStatus(401, "m")).toBeInstanceOf(AuthenticationError);
         expect(errorFromHttpStatus(403, "m")).toBeInstanceOf(PermissionError);

@@ -120,6 +120,7 @@ export {
     RateLimitError,
     RealtimeError,
     RequestError,
+    RequestTooLargeError,
     OutcomeUnknownError,
     ResourceNotFoundError,
     RevisionConflictError,

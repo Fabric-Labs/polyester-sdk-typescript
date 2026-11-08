@@ -27,6 +27,8 @@ const summary = create(Proto.PostSummarySchema, {
     title: "November 2",
     introduction: "Intro",
     publishedAt: ts(1_700_000_000),
+    updatedAt: ts(1_700_086_400),
+    revision: 2,
     changeCount: 1,
     newFeatureCount: 1,
 });
@@ -50,6 +52,8 @@ describe("ChangelogService", () => {
                     title: "November 2",
                     introduction: "Intro",
                     publishedAt: 1_700_000_000_000,
+                    updatedAt: 1_700_086_400_000,
+                    revision: 2,
                     coverageCutoff: undefined,
                     changeCount: 1,
                     breakingChangeCount: 0,
@@ -87,6 +91,8 @@ describe("ChangelogService", () => {
         expect(post).toMatchObject({
             slug: "2026-11-02",
             publishedAt: 1_700_000_000_000,
+            updatedAt: 1_700_086_400_000,
+            revision: 2,
             sections: [
                 {
                     heading: "API",

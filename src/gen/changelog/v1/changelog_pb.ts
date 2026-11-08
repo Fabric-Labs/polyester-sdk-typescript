@@ -13,16 +13,17 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file changelog/v1/changelog.proto.
  */
 export const file_changelog_v1_changelog: GenFile = /*@__PURE__*/
-  fileDesc("ChxjaGFuZ2Vsb2cvdjEvY2hhbmdlbG9nLnByb3RvEgxjaGFuZ2Vsb2cudjEiqwIKBkNoYW5nZRIKCgJpZBgBIAEoBhINCgV0aXRsZRgCIAEoCRIPCgdzdW1tYXJ5GAMgASgJEhQKB2RldGFpbHMYBCABKAlIAIgBARIuCghjYXRlZ29yeRgFIAEoDjIcLmNoYW5nZWxvZy52MS5DaGFuZ2VDYXRlZ29yeRIXCg9hY3Rpb25fcmVxdWlyZWQYBiABKAgSHwoSbWlncmF0aW9uX2d1aWRhbmNlGAcgASgJSAGIAQESKQoJYXVkaWVuY2VzGAggAygOMhYuY2hhbmdlbG9nLnYxLkF1ZGllbmNlEicKCHN1cmZhY2VzGAkgAygOMhUuY2hhbmdlbG9nLnYxLlN1cmZhY2VCCgoIX2RldGFpbHNCFQoTX21pZ3JhdGlvbl9ndWlkYW5jZSKLAQoHU2VjdGlvbhIPCgdoZWFkaW5nGAEgASgJEhQKB3N1bW1hcnkYAiABKAlIAIgBARIlCgdjaGFuZ2VzGAMgAygLMhQuY2hhbmdlbG9nLnYxLkNoYW5nZRImCgdzdXJmYWNlGAQgASgOMhUuY2hhbmdlbG9nLnYxLlN1cmZhY2VCCgoIX3N1bW1hcnkiyAIKC1Bvc3RTdW1tYXJ5EgwKBHNsdWcYASABKAkSDQoFdGl0bGUYAiABKAkSFAoMaW50cm9kdWN0aW9uGAMgASgJEjAKDHB1Ymxpc2hlZF9hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMwoPY292ZXJhZ2VfY3V0b2ZmGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIUCgxjaGFuZ2VfY291bnQYBiABKA0SHQoVYnJlYWtpbmdfY2hhbmdlX2NvdW50GAcgASgNEh0KFWFjdGlvbl9yZXF1aXJlZF9jb3VudBgIIAEoDRIZChFuZXdfZmVhdHVyZV9jb3VudBgJIAEoDRIZChFpbXByb3ZlbWVudF9jb3VudBgKIAEoDRIVCg1idWdfZml4X2NvdW50GAsgASgNIlsKBFBvc3QSKgoHc3VtbWFyeRgBIAEoCzIZLmNoYW5nZWxvZy52MS5Qb3N0U3VtbWFyeRInCghzZWN0aW9ucxgCIAMoCzIVLmNoYW5nZWxvZy52MS5TZWN0aW9uIjkKEExpc3RQb3N0c1JlcXVlc3QSDwoFbGltaXQYASABKA1CABIUCgpwYWdlX3Rva2VuGAIgASgJQgAiVgoRTGlzdFBvc3RzUmVzcG9uc2USKAoFcG9zdHMYASADKAsyGS5jaGFuZ2Vsb2cudjEuUG9zdFN1bW1hcnkSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIiAKDkdldFBvc3RSZXF1ZXN0Eg4KBHNsdWcYASABKAlCACIzCg9HZXRQb3N0UmVzcG9uc2USIAoEcG9zdBgBIAEoCzISLmNoYW5nZWxvZy52MS5Qb3N0IpsDChJMaXN0Q2hhbmdlc1JlcXVlc3QSMgoKY2F0ZWdvcmllcxgBIAMoDjIcLmNoYW5nZWxvZy52MS5DaGFuZ2VDYXRlZ29yeUIAEhwKD2FjdGlvbl9yZXF1aXJlZBgCIAEoCEgAiAEBEikKCHN1cmZhY2VzGAMgAygOMhUuY2hhbmdlbG9nLnYxLlN1cmZhY2VCABIrCglhdWRpZW5jZXMYBCADKA4yFi5jaGFuZ2Vsb2cudjEuQXVkaWVuY2VCABIuCgpzdGFydF90aW1lGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoJcG9zdF9zbHVnGAcgASgJQgASKwoEc29ydBgIIAEoDjIbLmNoYW5nZWxvZy52MS5Tb3J0RGlyZWN0aW9uQgASDwoFbGltaXQYCSABKA1CABIUCgpwYWdlX3Rva2VuGAogASgJQgA6AEISChBfYWN0aW9uX3JlcXVpcmVkIpEBCgtDaGFuZ2VFbnRyeRIkCgZjaGFuZ2UYASABKAsyFC5jaGFuZ2Vsb2cudjEuQ2hhbmdlEhEKCXBvc3Rfc2x1ZxgCIAEoCRIwCgxwdWJsaXNoZWRfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhcKD3NlY3Rpb25faGVhZGluZxgEIAEoCSJaChNMaXN0Q2hhbmdlc1Jlc3BvbnNlEioKB2NoYW5nZXMYASADKAsyGS5jaGFuZ2Vsb2cudjEuQ2hhbmdlRW50cnkSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJKm4KDkNoYW5nZUNhdGVnb3J5EhgKFENBVEVHT1JZX1VOU1BFQ0lGSUVEEAASEwoPQlJFQUtJTkdfQ0hBTkdFEAESDwoLTkVXX0ZFQVRVUkUQAhIPCgtJTVBST1ZFTUVOVBADEgsKB0JVR19GSVgQBCpjCghBdWRpZW5jZRIYChRBVURJRU5DRV9VTlNQRUNJRklFRBAAEg0KCUFMTF9VU0VSUxABEgsKB1RSQURFUlMQAhIRCg1NQVJLRVRfTUFLRVJTEAMSDgoKREVWRUxPUEVSUxAEKq8BCgdTdXJmYWNlEhcKE1NVUkZBQ0VfVU5TUEVDSUZJRUQQABILCgdUUkFESU5HEAESCwoHRlVORElORxACEgwKCEFDQ09VTlRTEAMSBwoDQVBJEAQSDAoIRVhQTE9SRVIQBRIRCg1ET0NVTUVOVEFUSU9OEAYSDAoIUExBVEZPUk0QBxIPCgtNQVJLRVRfREFUQRAIEg0KCVFVSUNLU1dBUBAJEgsKB1JFV0FSRFMQCipMCg1Tb3J0RGlyZWN0aW9uEh4KGlNPUlRfRElSRUNUSU9OX1VOU1BFQ0lGSUVEEAASDAoIU09SVF9BU0MQARINCglTT1JUX0RFU0MQAjKNAgoQQ2hhbmdlbG9nU2VydmljZRJRCglMaXN0UG9zdHMSHi5jaGFuZ2Vsb2cudjEuTGlzdFBvc3RzUmVxdWVzdBofLmNoYW5nZWxvZy52MS5MaXN0UG9zdHNSZXNwb25zZSIDkAIBEksKB0dldFBvc3QSHC5jaGFuZ2Vsb2cudjEuR2V0UG9zdFJlcXVlc3QaHS5jaGFuZ2Vsb2cudjEuR2V0UG9zdFJlc3BvbnNlIgOQAgESVwoLTGlzdENoYW5nZXMSIC5jaGFuZ2Vsb2cudjEuTGlzdENoYW5nZXNSZXF1ZXN0GiEuY2hhbmdlbG9nLnYxLkxpc3RDaGFuZ2VzUmVzcG9uc2UiA5ACARoAQkZaRGdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vY2hhbmdlbG9nL3YxO2NoYW5nZWxvZ3YxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChxjaGFuZ2Vsb2cvdjEvY2hhbmdlbG9nLnByb3RvEgxjaGFuZ2Vsb2cudjEiqwIKBkNoYW5nZRIKCgJpZBgBIAEoBhINCgV0aXRsZRgCIAEoCRIPCgdzdW1tYXJ5GAMgASgJEhQKB2RldGFpbHMYBCABKAlIAIgBARIuCghjYXRlZ29yeRgFIAEoDjIcLmNoYW5nZWxvZy52MS5DaGFuZ2VDYXRlZ29yeRIXCg9hY3Rpb25fcmVxdWlyZWQYBiABKAgSHwoSbWlncmF0aW9uX2d1aWRhbmNlGAcgASgJSAGIAQESKQoJYXVkaWVuY2VzGAggAygOMhYuY2hhbmdlbG9nLnYxLkF1ZGllbmNlEicKCHN1cmZhY2VzGAkgAygOMhUuY2hhbmdlbG9nLnYxLlN1cmZhY2VCCgoIX2RldGFpbHNCFQoTX21pZ3JhdGlvbl9ndWlkYW5jZSKLAQoHU2VjdGlvbhIPCgdoZWFkaW5nGAEgASgJEhQKB3N1bW1hcnkYAiABKAlIAIgBARIlCgdjaGFuZ2VzGAMgAygLMhQuY2hhbmdlbG9nLnYxLkNoYW5nZRImCgdzdXJmYWNlGAQgASgOMhUuY2hhbmdlbG9nLnYxLlN1cmZhY2VCCgoIX3N1bW1hcnkiigMKC1Bvc3RTdW1tYXJ5EgwKBHNsdWcYASABKAkSDQoFdGl0bGUYAiABKAkSFAoMaW50cm9kdWN0aW9uGAMgASgJEjAKDHB1Ymxpc2hlZF9hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMwoPY292ZXJhZ2VfY3V0b2ZmGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIUCgxjaGFuZ2VfY291bnQYBiABKA0SHQoVYnJlYWtpbmdfY2hhbmdlX2NvdW50GAcgASgNEh0KFWFjdGlvbl9yZXF1aXJlZF9jb3VudBgIIAEoDRIZChFuZXdfZmVhdHVyZV9jb3VudBgJIAEoDRIZChFpbXByb3ZlbWVudF9jb3VudBgKIAEoDRIVCg1idWdfZml4X2NvdW50GAsgASgNEi4KCnVwZGF0ZWRfYXQYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCHJldmlzaW9uGA0gASgNIlsKBFBvc3QSKgoHc3VtbWFyeRgBIAEoCzIZLmNoYW5nZWxvZy52MS5Qb3N0U3VtbWFyeRInCghzZWN0aW9ucxgCIAMoCzIVLmNoYW5nZWxvZy52MS5TZWN0aW9uIjkKEExpc3RQb3N0c1JlcXVlc3QSDwoFbGltaXQYASABKA1CABIUCgpwYWdlX3Rva2VuGAIgASgJQgAiVgoRTGlzdFBvc3RzUmVzcG9uc2USKAoFcG9zdHMYASADKAsyGS5jaGFuZ2Vsb2cudjEuUG9zdFN1bW1hcnkSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIiAKDkdldFBvc3RSZXF1ZXN0Eg4KBHNsdWcYASABKAlCACIzCg9HZXRQb3N0UmVzcG9uc2USIAoEcG9zdBgBIAEoCzISLmNoYW5nZWxvZy52MS5Qb3N0IpsDChJMaXN0Q2hhbmdlc1JlcXVlc3QSMgoKY2F0ZWdvcmllcxgBIAMoDjIcLmNoYW5nZWxvZy52MS5DaGFuZ2VDYXRlZ29yeUIAEhwKD2FjdGlvbl9yZXF1aXJlZBgCIAEoCEgAiAEBEikKCHN1cmZhY2VzGAMgAygOMhUuY2hhbmdlbG9nLnYxLlN1cmZhY2VCABIrCglhdWRpZW5jZXMYBCADKA4yFi5jaGFuZ2Vsb2cudjEuQXVkaWVuY2VCABIuCgpzdGFydF90aW1lGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoJcG9zdF9zbHVnGAcgASgJQgASKwoEc29ydBgIIAEoDjIbLmNoYW5nZWxvZy52MS5Tb3J0RGlyZWN0aW9uQgASDwoFbGltaXQYCSABKA1CABIUCgpwYWdlX3Rva2VuGAogASgJQgA6AEISChBfYWN0aW9uX3JlcXVpcmVkIpEBCgtDaGFuZ2VFbnRyeRIkCgZjaGFuZ2UYASABKAsyFC5jaGFuZ2Vsb2cudjEuQ2hhbmdlEhEKCXBvc3Rfc2x1ZxgCIAEoCRIwCgxwdWJsaXNoZWRfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhcKD3NlY3Rpb25faGVhZGluZxgEIAEoCSJaChNMaXN0Q2hhbmdlc1Jlc3BvbnNlEioKB2NoYW5nZXMYASADKAsyGS5jaGFuZ2Vsb2cudjEuQ2hhbmdlRW50cnkSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJKm4KDkNoYW5nZUNhdGVnb3J5EhgKFENBVEVHT1JZX1VOU1BFQ0lGSUVEEAASEwoPQlJFQUtJTkdfQ0hBTkdFEAESDwoLTkVXX0ZFQVRVUkUQAhIPCgtJTVBST1ZFTUVOVBADEgsKB0JVR19GSVgQBCpjCghBdWRpZW5jZRIYChRBVURJRU5DRV9VTlNQRUNJRklFRBAAEg0KCUFMTF9VU0VSUxABEgsKB1RSQURFUlMQAhIRCg1NQVJLRVRfTUFLRVJTEAMSDgoKREVWRUxPUEVSUxAEKq8BCgdTdXJmYWNlEhcKE1NVUkZBQ0VfVU5TUEVDSUZJRUQQABILCgdUUkFESU5HEAESCwoHRlVORElORxACEgwKCEFDQ09VTlRTEAMSBwoDQVBJEAQSDAoIRVhQTE9SRVIQBRIRCg1ET0NVTUVOVEFUSU9OEAYSDAoIUExBVEZPUk0QBxIPCgtNQVJLRVRfREFUQRAIEg0KCVFVSUNLU1dBUBAJEgsKB1JFV0FSRFMQCipMCg1Tb3J0RGlyZWN0aW9uEh4KGlNPUlRfRElSRUNUSU9OX1VOU1BFQ0lGSUVEEAASDAoIU09SVF9BU0MQARINCglTT1JUX0RFU0MQAjKNAgoQQ2hhbmdlbG9nU2VydmljZRJRCglMaXN0UG9zdHMSHi5jaGFuZ2Vsb2cudjEuTGlzdFBvc3RzUmVxdWVzdBofLmNoYW5nZWxvZy52MS5MaXN0UG9zdHNSZXNwb25zZSIDkAIBEksKB0dldFBvc3QSHC5jaGFuZ2Vsb2cudjEuR2V0UG9zdFJlcXVlc3QaHS5jaGFuZ2Vsb2cudjEuR2V0UG9zdFJlc3BvbnNlIgOQAgESVwoLTGlzdENoYW5nZXMSIC5jaGFuZ2Vsb2cudjEuTGlzdENoYW5nZXNSZXF1ZXN0GiEuY2hhbmdlbG9nLnYxLkxpc3RDaGFuZ2VzUmVzcG9uc2UiA5ACARoAQkZaRGdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vY2hhbmdlbG9nL3YxO2NoYW5nZWxvZ3YxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
- * Change is one announced change. Published content never changes.
+ * Change is one announced change. A republished post may reword or withdraw it.
  *
  * @generated from message changelog.v1.Change
  */
 export type Change = Message<"changelog.v1.Change"> & {
   /**
-   * Stable opaque 64-bit identifier, identical across environments.
+   * Stable opaque 64-bit identifier, identical across environments and across
+   * revisions of a post.
    *
    * @generated from field: fixed64 id = 1;
    */
@@ -142,7 +143,8 @@ export const SectionSchema: GenMessage<Section> = /*@__PURE__*/
  */
 export type PostSummary = Message<"changelog.v1.PostSummary"> & {
   /**
-   * Stable post identifier, unique within this environment.
+   * Stable post identifier, unique within this environment. It never changes
+   * when the post is republished.
    *
    * @generated from field: string slug = 1;
    */
@@ -163,7 +165,7 @@ export type PostSummary = Message<"changelog.v1.PostSummary"> & {
   introduction: string;
 
   /**
-   * Publication time.
+   * Time of first publication. It never changes when the post is republished.
    *
    * @generated from field: google.protobuf.Timestamp published_at = 4;
    */
@@ -217,6 +219,21 @@ export type PostSummary = Message<"changelog.v1.PostSummary"> & {
    * @generated from field: uint32 bug_fix_count = 11;
    */
   bugFixCount: number;
+
+  /**
+   * When the current revision was published; equals published_at for revision 1.
+   *
+   * @generated from field: google.protobuf.Timestamp updated_at = 12;
+   */
+  updatedAt?: Timestamp | undefined;
+
+  /**
+   * Published revision, starting at 1. Each republication of the post, for
+   * example to correct its copy or withdraw a change, increments it.
+   *
+   * @generated from field: uint32 revision = 13;
+   */
+  revision: number;
 };
 
 /**
@@ -227,7 +244,7 @@ export const PostSummarySchema: GenMessage<PostSummary> = /*@__PURE__*/
   messageDesc(file_changelog_v1_changelog, 2);
 
 /**
- * Post is one complete published post.
+ * Post is one complete published post at its current revision.
  *
  * @generated from message changelog.v1.Post
  */
@@ -428,7 +445,10 @@ export type ListChangesRequest = Message<"changelog.v1.ListChangesRequest"> & {
 
   /**
    * Opaque, keyset-backed, exclusive cursor from a previous response. Reuse
-   * it only with the same filters, time bounds and sort.
+   * it only with the same filters, time bounds and sort. When the post it
+   * points into was republished since, paging restarts at the first change of
+   * that post's current revision, so changes of that post can appear again;
+   * match them by id.
    *
    * @generated from field: string page_token = 10;
    */
@@ -463,7 +483,7 @@ export type ChangeEntry = Message<"changelog.v1.ChangeEntry"> & {
   postSlug: string;
 
   /**
-   * Publication time of the announcing post.
+   * Time of first publication of the announcing post.
    *
    * @generated from field: google.protobuf.Timestamp published_at = 3;
    */
@@ -742,7 +762,8 @@ export const SortDirectionSchema: GenEnum<SortDirection> = /*@__PURE__*/
 export const ChangelogService: GenService<{
   /**
    * List published post summaries, newest first. Use limit 1 to poll for the
-   * latest post.
+   * latest post. To follow edits to published posts, compare each post's
+   * revision.
    *
    * @generated from rpc changelog.v1.ChangelogService.ListPosts
    */
@@ -752,7 +773,7 @@ export const ChangelogService: GenService<{
     output: typeof ListPostsResponseSchema;
   },
   /**
-   * Get one complete published post by slug.
+   * Get one complete published post by slug, at its current revision.
    *
    * @generated from rpc changelog.v1.ChangelogService.GetPost
    */

@@ -2096,6 +2096,8 @@ export const BatchReplaceAdmissionItemSchema: GenMessage<BatchReplaceAdmissionIt
  * each item is amended in place or replaced as ModifyOrder decides by default.
  * Identical retries replay the admission result for 60 seconds from acceptance;
  * a different payload under the same key conflicts. Use a fresh key for a new batch.
+ * Read the batch's status with GetBatchReplaceStatus within the same window;
+ * after it, reconcile the individual orders and never resubmit an accepted batch.
  *
  * @generated from message orders.v1.BatchReplaceOrdersRequest
  */
