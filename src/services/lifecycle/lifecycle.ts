@@ -57,6 +57,11 @@ export class LifecycleService {
 
     /**
      * Returns paginated lifecycle flow summaries filtered by kind, state, scope, account selector, transaction reference, chain ids, and asset ids. The response is ordered by the selected timestamp and includes an opaque next page token.
+     *
+     * With an `accountSelector`, the list holds the flows the account owns and the
+     * transfers it receives from other accounts; each row's `participation` says which.
+     * Pass `participation: "owner"` for the owned flows only. A `pageToken` only resumes
+     * the request it came from: change nothing but `limit` between pages.
      */
     async listFlows(
         input: ListLifecycleFlowsInput,

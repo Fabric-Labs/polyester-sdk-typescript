@@ -1,7 +1,9 @@
 import * as v from "valibot";
 import * as Proto from "../../gen/chain/lifecycle/v1/types_pb.js";
+import { FlowParticipation } from "../../gen/chain/lifecycle/v1/lifecycle_read_pb.js";
 import {
     LIFECYCLE_FLOW_KIND_VALUES,
+    LIFECYCLE_FLOW_PARTICIPATION_VALUES,
     LIFECYCLE_FLOW_STATE_VALUES,
     LIFECYCLE_LIST_SCOPE_VALUES,
     LIFECYCLE_LIST_ORDER_BY_VALUES,
@@ -9,6 +11,7 @@ import {
     LIFECYCLE_TX_LOOKUP_KIND_VALUES,
     LifecycleFlowDomainCodec,
     LifecycleFlowKindCodec,
+    LifecycleFlowParticipationCodec,
     lifecycleReasonFromCode,
     LifecycleFlowStateCodec,
     LifecycleFlowStepActivityKindCodec,
@@ -20,6 +23,7 @@ import {
     LifecycleSortCodec,
     LifecycleSourceCodec,
     LifecycleTxLookupKindCodec,
+    type LifecycleFlowParticipationValue,
     type LifecycleReasonValue,
     type LifecycleListOrderByValue,
     type LifecycleListScopeValue,
@@ -143,6 +147,9 @@ const LifecycleAssetIdsSchema = v.object({
 const LifecycleFlowStepEnumSchema = enumLabelSchema(LifecycleFlowStepCodec.protoToOutput);
 const LifecycleSourceEnumSchema = enumLabelSchema(LifecycleSourceCodec.protoToOutput);
 const LifecycleFlowKindEnumSchema = enumLabelSchema(LifecycleFlowKindCodec.protoToOutput);
+const LifecycleFlowParticipationEnumSchema = enumLabelSchema(
+    LifecycleFlowParticipationCodec.protoToOutput,
+);
 
 const LifecycleFlowDomainEnumSchema = enumLabelSchema(LifecycleFlowDomainCodec.protoToOutput);
 const LifecycleFlowStateEnumSchema = enumLabelSchema(LifecycleFlowStateCodec.protoToOutput);
@@ -209,6 +216,19 @@ export const ListLifecycleFlowsInputSchema = v.pipe(
             v.transform((v) => LifecycleListScopeCodec.inputToProto[v ?? "all"]),
         ),
         accountSelector: v.optional(LifecycleAccountSelectorInputSchema),
+        /**
+         * Narrows an account's list to the flows it owns (`"owner"`, the list before
+         * received transfers were added) or the transfers it receives (`"recipient"`).
+         * Omit for both. Requires `accountSelector`.
+         */
+        participation: v.pipe(
+            v.optional(v.picklist(LIFECYCLE_FLOW_PARTICIPATION_VALUES)),
+            v.transform((value) =>
+                value
+                    ? LifecycleFlowParticipationCodec.inputToProto[value]
+                    : FlowParticipation.PARTICIPATION_UNSPECIFIED,
+            ),
+        ),
         polyesterChainIds: v.optional(v.array(Uint32Schema)),
         zippedAssetIds: v.optional(v.array(Uint32Schema)),
         unifiedAssetIds: v.optional(v.array(Uint32Schema)),
@@ -218,6 +238,12 @@ export const ListLifecycleFlowsInputSchema = v.pipe(
             v.transform((value) => LifecycleListOrderByCodec.inputToProto[value]),
         ),
     }),
+    v.check(
+        (value) =>
+            // Absent or unspecified participation (0) needs no selector.
+            !value.participation || value.accountSelector !== undefined,
+        "participation requires accountSelector.",
+    ),
     v.transform((value) => {
         return {
             limit: value.limit,
@@ -227,6 +253,7 @@ export const ListLifecycleFlowsInputSchema = v.pipe(
             txRef: value.txRef,
             scope: value.scope,
             accountSelector: value.accountSelector,
+            participation: value.participation,
             polyesterChainIds: value.polyesterChainIds,
             zippedAssetIds: value.zippedAssetIds,
             unifiedAssetIds: value.unifiedAssetIds,
@@ -377,6 +404,15 @@ export const LifecycleFlowSummarySchema = v.pipe(
         estimatedCompletionUnixMs: LifecycleMsSchema,
         /** An open flow has stalled well past its current step's expected time; `estimatedCompletionUnixMs` is 0 meanwhile. */
         isDelayed: v.optional(v.boolean(), false),
+        /**
+         * How the listed account takes part: `"owner"` for its own flows, including a
+         * transfer it sent, `"recipient"` for a transfer another account sent it.
+         * `"unspecified"` outside an account-scoped `listFlows`.
+         */
+        participation: v.optional(
+            LifecycleFlowParticipationEnumSchema,
+            FlowParticipation.PARTICIPATION_UNSPECIFIED,
+        ),
     }),
     v.transform((value) => renameAmountE18(value)),
 );
@@ -482,6 +518,7 @@ export type LifecycleReason = LifecycleReasonValue;
 export type LifecycleZipperReason = v.InferOutput<typeof LifecycleZipperReasonSchema>;
 export type LifecycleListOrderBy = LifecycleListOrderByValue;
 export type LifecycleListScope = LifecycleListScopeValue;
+export type LifecycleFlowParticipation = LifecycleFlowParticipationValue;
 export type LifecycleSort = LifecycleSortValue;
 export type LifecycleTxLookupKind = LifecycleTxLookupKindValue;
 export type LifecycleRequestFeeStatus = LifecycleRequestFeeStatusValue;

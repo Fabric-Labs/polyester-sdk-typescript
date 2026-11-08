@@ -7,6 +7,7 @@ import {
     RequestFeeStatus,
 } from "../../gen/chain/lifecycle/v1/types_pb.js";
 import {
+    FlowParticipation,
     FlowStep,
     FlowStepActivityKind,
     FlowTimelineStatus,
@@ -33,6 +34,9 @@ export type LifecycleFlowStateValue = (typeof LIFECYCLE_FLOW_STATE_VALUES)[numbe
 
 export const LIFECYCLE_LIST_SCOPE_VALUES = ["all", "open", "terminal"] as const;
 export type LifecycleListScopeValue = (typeof LIFECYCLE_LIST_SCOPE_VALUES)[number];
+
+export const LIFECYCLE_FLOW_PARTICIPATION_VALUES = ["owner", "recipient"] as const;
+export type LifecycleFlowParticipationValue = (typeof LIFECYCLE_FLOW_PARTICIPATION_VALUES)[number];
 
 export const LIFECYCLE_TX_LOOKUP_KIND_VALUES = ["source", "any"] as const;
 export type LifecycleTxLookupKindValue = (typeof LIFECYCLE_TX_LOOKUP_KIND_VALUES)[number];
@@ -177,6 +181,18 @@ export const LifecycleListScopeCodec = {
         [ListScope.LIST_OPEN_ONLY]: "open",
         [ListScope.LIST_TERMINAL_ONLY]: "terminal",
     } satisfies ProtoToOutput<ListScope, LifecycleListScopeValue>,
+} as const;
+
+export const LifecycleFlowParticipationCodec = {
+    inputToProto: {
+        owner: FlowParticipation.PARTICIPATION_OWNER,
+        recipient: FlowParticipation.PARTICIPATION_RECIPIENT,
+    } satisfies InputToProto<LifecycleFlowParticipationValue, FlowParticipation>,
+    protoToOutput: {
+        [FlowParticipation.PARTICIPATION_UNSPECIFIED]: "unspecified",
+        [FlowParticipation.PARTICIPATION_OWNER]: "owner",
+        [FlowParticipation.PARTICIPATION_RECIPIENT]: "recipient",
+    } satisfies ProtoToOutput<FlowParticipation, LifecycleFlowParticipationValue>,
 } as const;
 
 export const LifecycleSortCodec = {

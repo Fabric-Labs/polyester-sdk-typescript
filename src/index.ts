@@ -119,6 +119,7 @@ export {
     PreconditionFailedError,
     RateLimitError,
     RealtimeError,
+    RequestDeadlineExceededError,
     RequestError,
     RequestTooLargeError,
     OutcomeUnknownError,

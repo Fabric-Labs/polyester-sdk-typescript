@@ -87,6 +87,7 @@ describe("ListLifecycleFlowsInputSchema", () => {
                 case: "ownerAccountId",
                 value: 11n,
             },
+            participation: undefined,
             polyesterChainIds: [8453],
             zippedAssetIds: [1001],
             unifiedAssetIds: [42],
@@ -102,6 +103,25 @@ describe("ListLifecycleFlowsInputSchema", () => {
         expect(input.orderBy).toBe(ProtoRead.ListOrderBy.ORDER_BY_LAST_ACTIVITY);
         expect(() => v.parse(ListLifecycleFlowsInputSchema, { reversed: true })).toThrow();
         expect(() => v.parse(ListLifecycleFlowsInputSchema, { orderBy: "updated_at" })).toThrow();
+    });
+
+    it("maps participation and requires an account selector for it", () => {
+        const accountSelector = { kind: "accountId", accountId: formatId(11n) } as const;
+
+        expect(
+            v.parse(ListLifecycleFlowsInputSchema, { accountSelector, participation: "owner" })
+                .participation,
+        ).toBe(ProtoRead.FlowParticipation.PARTICIPATION_OWNER);
+        expect(
+            v.parse(ListLifecycleFlowsInputSchema, { accountSelector, participation: "recipient" })
+                .participation,
+        ).toBe(ProtoRead.FlowParticipation.PARTICIPATION_RECIPIENT);
+        expect(() =>
+            v.parse(ListLifecycleFlowsInputSchema, { participation: "recipient" }),
+        ).toThrow("participation requires accountSelector.");
+        expect(() =>
+            v.parse(ListLifecycleFlowsInputSchema, { accountSelector, participation: "both" }),
+        ).toThrow();
     });
 
     it("maps owner account selectors explicitly", () => {
@@ -238,6 +258,17 @@ describe("LifecycleFlowSummarySchema", () => {
         });
         expect(flow).not.toHaveProperty("amountE18");
         expect(flow.requestFee).not.toHaveProperty("amountE18");
+    });
+
+    it("labels each row's participation and keeps unscoped rows unspecified", () => {
+        const schema = createLifecycleFlowSummarySchema();
+        const parse = (participation?: ProtoRead.FlowParticipation) =>
+            v.parse(schema, { ...baseFlowSummary, participation }).participation;
+
+        expect(parse(ProtoRead.FlowParticipation.PARTICIPATION_OWNER)).toBe("owner");
+        expect(parse(ProtoRead.FlowParticipation.PARTICIPATION_RECIPIENT)).toBe("recipient");
+        expect(parse(ProtoRead.FlowParticipation.PARTICIPATION_UNSPECIFIED)).toBe("unspecified");
+        expect(parse()).toBe("unspecified");
     });
 
     it("keeps amount absent when the wire amountE18 field is unset", () => {

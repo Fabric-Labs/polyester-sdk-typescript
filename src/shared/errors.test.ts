@@ -74,6 +74,7 @@ import {
     PolyesterError,
     PreconditionFailedError,
     RateLimitError,
+    RequestDeadlineExceededError,
     RequestError,
     ResourceNotFoundError,
     RevisionConflictError,
@@ -82,6 +83,7 @@ import {
     SessionElevationRequiredError,
     StepUpRequiredError,
     TimeoutError,
+    TimestampSkewError,
     TransientError,
     ValidationError,
     type PolyesterErrorCode,
@@ -161,6 +163,7 @@ describe("error hierarchy", () => {
             TIMEOUT: true,
             RATE_LIMITED: true,
             TIMESTAMP_SKEW: true,
+            REQUEST_DEADLINE_EXCEEDED: true,
             SERVICE_UNAVAILABLE: true,
             REQUEST_FAILED: true,
             VALIDATION_FAILED: true,
@@ -560,6 +563,59 @@ describe("connectErrorToPolyesterError", () => {
         expect(mapped.retryable).toBe(true);
         expect((mapped as RateLimitError).retryAfterMs).toBeUndefined();
         expect(mapped.detail).toMatchObject({ service: "orders", code: "OVERLOADED" });
+    });
+
+    it("maps a receive window that ended before admission to a retryable re-sign error", () => {
+        // Nothing was admitted, so a re-signed retry cannot duplicate the write.
+        const raw = new ConnectError("deadline", Code.FailedPrecondition, undefined, [
+            {
+                desc: OrderErrorDetailSchema,
+                value: create(OrderErrorDetailSchema, {
+                    code: OrderErrorCode.REQUEST_DEADLINE_EXCEEDED,
+                }),
+            },
+        ]);
+        const mapped = connectErrorToPolyesterError(raw);
+
+        expect(mapped).toBeInstanceOf(RequestDeadlineExceededError);
+        expect(mapped).toBeInstanceOf(TimestampSkewError);
+        expect(mapped).not.toBeInstanceOf(OutcomeUnknownError);
+        expect(mapped.code).toBe("REQUEST_DEADLINE_EXCEEDED");
+        expect(mapped.retryable).toBe(true);
+        expect(mapped.detail).toMatchObject({
+            service: "orders",
+            code: "REQUEST_DEADLINE_EXCEEDED",
+        });
+    });
+
+    it("maps exhausted per-key replay capacity to a retryable rate limit without a wait hint", () => {
+        const mapped = connectErrorToPolyesterError(
+            authDetailError(
+                "",
+                Code.ResourceExhausted,
+                AuthErrorCode.AUTH_REPLAY_CAPACITY_EXHAUSTED,
+            ),
+        );
+
+        expect(mapped).toBeInstanceOf(RateLimitError);
+        expect(mapped).not.toBeInstanceOf(AuthenticationError);
+        expect(mapped.retryable).toBe(true);
+        expect((mapped as RateLimitError).retryAfterMs).toBeUndefined();
+        expect(mapped.detail).toMatchObject({
+            service: "auth",
+            code: "AUTH_REPLAY_CAPACITY_EXHAUSTED",
+        });
+    });
+
+    it("maps an invalid receive window header to a validation error, not an auth failure", () => {
+        const mapped = connectErrorToPolyesterError(
+            authDetailError("", Code.Unauthenticated, AuthErrorCode.AUTH_RECV_WINDOW_INVALID),
+        );
+
+        expect(mapped).toBeInstanceOf(ValidationError);
+        expect(mapped).not.toBeInstanceOf(AuthenticationError);
+        expect(mapped.retryable).toBe(false);
+        expect(mapped.detail).toMatchObject({ service: "auth", code: "AUTH_RECV_WINDOW_INVALID" });
     });
 
     it.each([
