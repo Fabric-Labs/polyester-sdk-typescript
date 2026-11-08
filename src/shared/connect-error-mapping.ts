@@ -26,6 +26,7 @@ import {
     type PolyesterErrorOptions,
     PreconditionFailedError,
     RateLimitError,
+    RequestDeadlineExceededError,
     ResourceNotFoundError,
     RevisionConflictError,
     ServiceUnavailableError,
@@ -228,6 +229,15 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
         });
     }
 
+    // A malformed X-API-RECV-WINDOW arrives as unauthenticated, but the
+    // credentials are fine: the request is wrong, so do not log the caller out.
+    if (detail?.service === "auth" && detail.code === "AUTH_RECV_WINDOW_INVALID") {
+        return new ValidationError(
+            withFallback("API key receive window must be 1 to 60000 milliseconds."),
+            options,
+        );
+    }
+
     if (detail?.service === "auth" && detail.code === "AUTH_RESOURCE_NOT_FOUND") {
         return new ResourceNotFoundError(withFallback("Resource not found."), options);
     }
@@ -301,6 +311,13 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
     if (detail?.service === "orders" && detail.code.endsWith("_OUTCOME_UNKNOWN")) {
         return new OutcomeUnknownError(
             withFallback("Outcome unknown; read the current state before retrying."),
+            options,
+        );
+    }
+
+    if (detail?.service === "orders" && detail.code === "REQUEST_DEADLINE_EXCEEDED") {
+        return new RequestDeadlineExceededError(
+            withFallback("Request receive window ended before admission; nothing changed."),
             options,
         );
     }

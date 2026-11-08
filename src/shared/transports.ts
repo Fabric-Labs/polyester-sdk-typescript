@@ -68,14 +68,22 @@ export interface JwtAuthProvider {
  *
  * Each request is signed immediately before dispatch, but the runtime's fetch
  * may still queue it (connection limits). Bound concurrency for large bursts;
- * a request that waits past the backend's skew window fails with a retryable
- * `TimestampSkewError`, and retrying signs it again.
+ * a request that waits past its receive window fails with a retryable
+ * `TimestampSkewError` (or its `RequestDeadlineExceededError` subclass), and
+ * retrying signs it again.
  */
 export interface ApiKeyEd25519AuthProvider {
     kind: "api-key-ed25519";
     getKeyId: () => string | null | Promise<string | null>;
     /** Ed25519 secret key bytes (not hex) for signing. */
     getSecretKey: () => Uint8Array | null | Promise<Uint8Array | null>;
+    /**
+     * Receive window in whole milliseconds, 1 to 60000, sent and signed as
+     * `X-API-RECV-WINDOW`. The backend processes a request only until its timestamp
+     * plus this window and answers a later one with a retryable error. Omit for the
+     * backend default of 10000. A shorter window also frees replay capacity sooner.
+     */
+    recvWindow?: number;
 }
 
 export interface ApiKeyEd25519SigningRequest {
@@ -84,6 +92,9 @@ export interface ApiKeyEd25519SigningRequest {
     body?: Uint8Array;
     timestamp?: string;
 }
+
+/** Largest `X-API-RECV-WINDOW` the backend accepts, in milliseconds. */
+const MAX_API_KEY_RECV_WINDOW_MS = 60_000;
 
 /**
  * Returns the fetch implementation used by SDK transports.
@@ -249,11 +260,23 @@ export async function createApiKeyEd25519AuthHeaders(
         throw new ConfigurationError("API key secret key must contain exactly 32 bytes");
     }
 
+    const { recvWindow } = auth;
+    if (
+        recvWindow !== undefined &&
+        (!Number.isInteger(recvWindow) || recvWindow < 1 || recvWindow > MAX_API_KEY_RECV_WINDOW_MS)
+    ) {
+        throw new ConfigurationError(
+            `API key recvWindow must be a whole number of milliseconds from 1 to ${MAX_API_KEY_RECV_WINDOW_MS}`,
+        );
+    }
+
     const urlObj = new URL(request.url);
     const timestamp = request.timestamp ?? nextTimestamp();
     const bodyHash = await sha256Hex(request.body ?? new Uint8Array(0));
     const canonicalQuery = canonicalQueryString(urlObj.searchParams);
-    const canonical = `${timestamp}\n${request.method}\n${urlObj.pathname}\n${canonicalQuery}\n${bodyHash}`;
+    // The window line is signed only when the header is sent.
+    const windowLine = recvWindow === undefined ? "" : `${recvWindow}\n`;
+    const canonical = `${timestamp}\n${windowLine}${request.method}\n${urlObj.pathname}\n${canonicalQuery}\n${bodyHash}`;
     const msgBytes = new TextEncoder().encode(canonical);
     // Loaded on demand: browser clients authenticate with JWTs and never sign.
     const { signAsync } = await import("@noble/ed25519");
@@ -263,6 +286,7 @@ export async function createApiKeyEd25519AuthHeaders(
     return {
         "X-API-KEY-ID": keyId,
         "X-API-TIMESTAMP": timestamp,
+        ...(recvWindow === undefined ? {} : { "X-API-RECV-WINDOW": String(recvWindow) }),
         "X-API-SIGNATURE": signatureHex,
     };
 }

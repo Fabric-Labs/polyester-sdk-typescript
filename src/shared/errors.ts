@@ -16,6 +16,7 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * │   ├── TimeoutError               TIMEOUT                     true
  * │   ├── RateLimitError             RATE_LIMITED                true
  * │   ├── TimestampSkewError         TIMESTAMP_SKEW              true
+ * │   │   └── RequestDeadlineExceededError REQUEST_DEADLINE_EXCEEDED
  * │   └── ServiceUnavailableError    SERVICE_UNAVAILABLE         true
  * ├── RequestError                   REQUEST_FAILED              false
  * │   ├── ValidationError            VALIDATION_FAILED           false
@@ -74,6 +75,7 @@ export type PolyesterErrorCode =
     | "TIMEOUT"
     | "RATE_LIMITED"
     | "TIMESTAMP_SKEW"
+    | "REQUEST_DEADLINE_EXCEEDED"
     | "SERVICE_UNAVAILABLE"
     | "REQUEST_FAILED"
     | "VALIDATION_FAILED"
@@ -223,6 +225,21 @@ export class TimestampSkewError extends TransientError {
     constructor(message: string, options?: PolyesterErrorOptions) {
         super(message, options);
         this.name = "TimestampSkewError";
+    }
+}
+
+/**
+ * A signed order or trigger write passed authentication, but its receive window
+ * (`X-API-TIMESTAMP` plus `recvWindow`) ended before it was sent on for admission.
+ * Nothing changed and it is never an unknown outcome, so retrying the call, which
+ * signs it again with a fresh timestamp, is safe.
+ */
+export class RequestDeadlineExceededError extends TimestampSkewError {
+    override readonly code: string = "REQUEST_DEADLINE_EXCEEDED";
+
+    constructor(message: string, options?: PolyesterErrorOptions) {
+        super(message, options);
+        this.name = "RequestDeadlineExceededError";
     }
 }
 

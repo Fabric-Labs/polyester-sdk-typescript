@@ -633,6 +633,63 @@ describe("createApiKeyEd25519AuthHeaders", () => {
         });
     });
 
+    it("sends and signs a receive window right after the timestamp line", async () => {
+        const secretKey = Uint8Array.from({ length: 32 }, (_, i) => i + 1);
+        const hash = await crypto.subtle.digest("SHA-256", new Uint8Array(0));
+        const canonical = `1234567890\n5000\nPOST\n/v1/orders\n\n${bytesToHex(new Uint8Array(hash))}`;
+        const expectedSignature = bytesToHex(
+            await signAsync(new TextEncoder().encode(canonical), secretKey),
+        );
+
+        const headers = await createApiKeyEd25519AuthHeaders(
+            {
+                kind: "api-key-ed25519",
+                getKeyId: () => "ak_test",
+                getSecretKey: () => secretKey,
+                recvWindow: 5000,
+            },
+            { url: "https://api.example.test/v1/orders", method: "POST", timestamp: "1234567890" },
+        );
+
+        expect(headers).toEqual({
+            "X-API-KEY-ID": "ak_test",
+            "X-API-TIMESTAMP": "1234567890",
+            "X-API-RECV-WINDOW": "5000",
+            "X-API-SIGNATURE": expectedSignature,
+        });
+    });
+
+    it.each([1, 60_000])("accepts the receive window bound %s", async (recvWindow) => {
+        const headers = await createApiKeyEd25519AuthHeaders(
+            {
+                kind: "api-key-ed25519",
+                getKeyId: () => "ak_test",
+                getSecretKey: () => new Uint8Array(32),
+                recvWindow,
+            },
+            { url: "https://api.example.test/v1/orders", method: "POST" },
+        );
+
+        expect(headers["X-API-RECV-WINDOW"]).toBe(String(recvWindow));
+    });
+
+    it.each([0, 60_001, 1.5, Number.NaN])(
+        "rejects receive window %s before signing",
+        async (recvWindow) => {
+            await expect(
+                createApiKeyEd25519AuthHeaders(
+                    {
+                        kind: "api-key-ed25519",
+                        getKeyId: () => "ak_test",
+                        getSecretKey: () => new Uint8Array(32),
+                        recvWindow,
+                    },
+                    { url: "https://api.example.test/v1/orders", method: "POST" },
+                ),
+            ).rejects.toBeInstanceOf(ConfigurationError);
+        },
+    );
+
     it("allocates strictly increasing timestamps for concurrent requests", async () => {
         const secretKey = Uint8Array.from({ length: 32 }, (_, i) => i + 1);
         const auth = {
