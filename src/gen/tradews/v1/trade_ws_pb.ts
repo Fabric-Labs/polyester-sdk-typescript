@@ -4,7 +4,7 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { BatchCancelOrdersRequest, BatchCancelOrdersResponse, BatchCreateOrdersRequest, BatchCreateOrdersResponse, BatchReplaceOrdersRequest, BatchReplaceOrdersResponse, CancelAllOrdersRequest, CancelAllOrdersResponse, CancelOrderRequest, CancelOrderResponse, CreateOrderRequest, CreateOrderResponse, ErrorDetail, ModifyOrderRequest, ModifyOrderResponse } from "../../orders/v1/orders_pb.js";
+import type { BatchCancelOrdersRequest, BatchCancelOrdersResponse, BatchCreateOrdersRequest, BatchCreateOrdersResponse, BatchReplaceOrdersRequest, BatchReplaceOrdersResponse, CancelAllAfterRequest, CancelAllAfterResponse, CancelAllOrdersRequest, CancelAllOrdersResponse, CancelOrderRequest, CancelOrderResponse, CreateOrderRequest, CreateOrderResponse, ErrorDetail, ModifyOrderRequest, ModifyOrderResponse } from "../../orders/v1/orders_pb.js";
 import { file_orders_v1_orders } from "../../orders/v1/orders_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file tradews/v1/trade_ws.proto.
  */
 export const file_tradews_v1_trade_ws: GenFile = /*@__PURE__*/
-  fileDesc("Chl0cmFkZXdzL3YxL3RyYWRlX3dzLnByb3RvEgp0cmFkZXdzLnYxIpkECgtDbGllbnRGcmFtZRILCgNzZXEYASABKAQSFgoOY29ycmVsYXRpb25faWQYAiABKAkSJwoEcGluZxgKIAEoCzIXLnRyYWRld3MudjEuUGluZ1JlcXVlc3RIABI1CgxjcmVhdGVfb3JkZXIYCyABKAsyHS5vcmRlcnMudjEuQ3JlYXRlT3JkZXJSZXF1ZXN0SAASNQoMY2FuY2VsX29yZGVyGAwgASgLMh0ub3JkZXJzLnYxLkNhbmNlbE9yZGVyUmVxdWVzdEgAEjUKDG1vZGlmeV9vcmRlchgNIAEoCzIdLm9yZGVycy52MS5Nb2RpZnlPcmRlclJlcXVlc3RIABI+ChFjYW5jZWxfYWxsX29yZGVycxgOIAEoCzIhLm9yZGVycy52MS5DYW5jZWxBbGxPcmRlcnNSZXF1ZXN0SAASQgoTYmF0Y2hfY3JlYXRlX29yZGVycxgPIAEoCzIjLm9yZGVycy52MS5CYXRjaENyZWF0ZU9yZGVyc1JlcXVlc3RIABJEChRiYXRjaF9yZXBsYWNlX29yZGVycxgQIAEoCzIkLm9yZGVycy52MS5CYXRjaFJlcGxhY2VPcmRlcnNSZXF1ZXN0SAASQgoTYmF0Y2hfY2FuY2VsX29yZGVycxgRIAEoCzIjLm9yZGVycy52MS5CYXRjaENhbmNlbE9yZGVyc1JlcXVlc3RIAEIJCgdwYXlsb2FkIh4KC1BpbmdSZXF1ZXN0Eg8KB3BheWxvYWQYASABKAwipAIKC1NlcnZlckZyYW1lEgsKA3NlcRgBIAEoBBIWCg5jb3JyZWxhdGlvbl9pZBgCIAEoCRIoCgRwb25nGAogASgLMhgudHJhZGV3cy52MS5Qb25nUmVzcG9uc2VIABImCgNhY2sYCyABKAsyFy50cmFkZXdzLnYxLkFja1Jlc3BvbnNlSAASKwoGcmVqZWN0GAwgASgLMhkudHJhZGV3cy52MS5Db21tYW5kUmVqZWN0SAASMAoIb3ZlcmxvYWQYDSABKAsyHC50cmFkZXdzLnYxLk92ZXJsb2FkUmVzcG9uc2VIABI0Cgh0ZXJtaW5hbBgOIAEoCzIgLnRyYWRld3MudjEuVGVybWluYWxTZXNzaW9uRXZlbnRIAEIJCgdwYXlsb2FkIh8KDFBvbmdSZXNwb25zZRIPCgdwYXlsb2FkGAEgASgMItEDCgtBY2tSZXNwb25zZRI2CgxjcmVhdGVfb3JkZXIYASABKAsyHi5vcmRlcnMudjEuQ3JlYXRlT3JkZXJSZXNwb25zZUgAEjYKDGNhbmNlbF9vcmRlchgCIAEoCzIeLm9yZGVycy52MS5DYW5jZWxPcmRlclJlc3BvbnNlSAASNgoMbW9kaWZ5X29yZGVyGAMgASgLMh4ub3JkZXJzLnYxLk1vZGlmeU9yZGVyUmVzcG9uc2VIABI/ChFjYW5jZWxfYWxsX29yZGVycxgEIAEoCzIiLm9yZGVycy52MS5DYW5jZWxBbGxPcmRlcnNSZXNwb25zZUgAEkMKE2JhdGNoX2NyZWF0ZV9vcmRlcnMYBSABKAsyJC5vcmRlcnMudjEuQmF0Y2hDcmVhdGVPcmRlcnNSZXNwb25zZUgAEkUKFGJhdGNoX3JlcGxhY2Vfb3JkZXJzGAYgASgLMiUub3JkZXJzLnYxLkJhdGNoUmVwbGFjZU9yZGVyc1Jlc3BvbnNlSAASQwoTYmF0Y2hfY2FuY2VsX29yZGVycxgHIAEoCzIkLm9yZGVycy52MS5CYXRjaENhbmNlbE9yZGVyc1Jlc3BvbnNlSABCCAoGcmVzdWx0IlQKDUNvbW1hbmRSZWplY3QSDAoEY29kZRgBIAEoCRIOCgZkZXRhaWwYAiABKAkSJQoFZXJyb3IYAyABKAsyFi5vcmRlcnMudjEuRXJyb3JEZXRhaWwiMAoQT3ZlcmxvYWRSZXNwb25zZRIMCgRjb2RlGAEgASgJEg4KBmRldGFpbBgCIAEoCSI0ChRUZXJtaW5hbFNlc3Npb25FdmVudBIMCgRjb2RlGAEgASgJEg4KBmRldGFpbBgCIAEoCUJCWkBnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL3RyYWRld3MvdjE7dHJhZGV3c3YxYgZwcm90bzM=", [file_orders_v1_orders]);
+  fileDesc("Chl0cmFkZXdzL3YxL3RyYWRlX3dzLnByb3RvEgp0cmFkZXdzLnYxIoUFCgtDbGllbnRGcmFtZRILCgNzZXEYASABKAQSFgoOY29ycmVsYXRpb25faWQYAiABKAkSFAoMdGltZXN0YW1wX21zGAMgASgDEhYKDnJlY3Zfd2luZG93X21zGAQgASgNEicKBHBpbmcYCiABKAsyFy50cmFkZXdzLnYxLlBpbmdSZXF1ZXN0SAASNQoMY3JlYXRlX29yZGVyGAsgASgLMh0ub3JkZXJzLnYxLkNyZWF0ZU9yZGVyUmVxdWVzdEgAEjUKDGNhbmNlbF9vcmRlchgMIAEoCzIdLm9yZGVycy52MS5DYW5jZWxPcmRlclJlcXVlc3RIABI1Cgxtb2RpZnlfb3JkZXIYDSABKAsyHS5vcmRlcnMudjEuTW9kaWZ5T3JkZXJSZXF1ZXN0SAASPgoRY2FuY2VsX2FsbF9vcmRlcnMYDiABKAsyIS5vcmRlcnMudjEuQ2FuY2VsQWxsT3JkZXJzUmVxdWVzdEgAEkIKE2JhdGNoX2NyZWF0ZV9vcmRlcnMYDyABKAsyIy5vcmRlcnMudjEuQmF0Y2hDcmVhdGVPcmRlcnNSZXF1ZXN0SAASRAoUYmF0Y2hfcmVwbGFjZV9vcmRlcnMYECABKAsyJC5vcmRlcnMudjEuQmF0Y2hSZXBsYWNlT3JkZXJzUmVxdWVzdEgAEkIKE2JhdGNoX2NhbmNlbF9vcmRlcnMYESABKAsyIy5vcmRlcnMudjEuQmF0Y2hDYW5jZWxPcmRlcnNSZXF1ZXN0SAASPAoQY2FuY2VsX2FsbF9hZnRlchgSIAEoCzIgLm9yZGVycy52MS5DYW5jZWxBbGxBZnRlclJlcXVlc3RIAEIJCgdwYXlsb2FkIh4KC1BpbmdSZXF1ZXN0Eg8KB3BheWxvYWQYASABKAwipAIKC1NlcnZlckZyYW1lEgsKA3NlcRgBIAEoBBIWCg5jb3JyZWxhdGlvbl9pZBgCIAEoCRIoCgRwb25nGAogASgLMhgudHJhZGV3cy52MS5Qb25nUmVzcG9uc2VIABImCgNhY2sYCyABKAsyFy50cmFkZXdzLnYxLkFja1Jlc3BvbnNlSAASKwoGcmVqZWN0GAwgASgLMhkudHJhZGV3cy52MS5Db21tYW5kUmVqZWN0SAASMAoIb3ZlcmxvYWQYDSABKAsyHC50cmFkZXdzLnYxLk92ZXJsb2FkUmVzcG9uc2VIABI0Cgh0ZXJtaW5hbBgOIAEoCzIgLnRyYWRld3MudjEuVGVybWluYWxTZXNzaW9uRXZlbnRIAEIJCgdwYXlsb2FkIh8KDFBvbmdSZXNwb25zZRIPCgdwYXlsb2FkGAEgASgMIpAECgtBY2tSZXNwb25zZRI2CgxjcmVhdGVfb3JkZXIYASABKAsyHi5vcmRlcnMudjEuQ3JlYXRlT3JkZXJSZXNwb25zZUgAEjYKDGNhbmNlbF9vcmRlchgCIAEoCzIeLm9yZGVycy52MS5DYW5jZWxPcmRlclJlc3BvbnNlSAASNgoMbW9kaWZ5X29yZGVyGAMgASgLMh4ub3JkZXJzLnYxLk1vZGlmeU9yZGVyUmVzcG9uc2VIABI/ChFjYW5jZWxfYWxsX29yZGVycxgEIAEoCzIiLm9yZGVycy52MS5DYW5jZWxBbGxPcmRlcnNSZXNwb25zZUgAEkMKE2JhdGNoX2NyZWF0ZV9vcmRlcnMYBSABKAsyJC5vcmRlcnMudjEuQmF0Y2hDcmVhdGVPcmRlcnNSZXNwb25zZUgAEkUKFGJhdGNoX3JlcGxhY2Vfb3JkZXJzGAYgASgLMiUub3JkZXJzLnYxLkJhdGNoUmVwbGFjZU9yZGVyc1Jlc3BvbnNlSAASQwoTYmF0Y2hfY2FuY2VsX29yZGVycxgHIAEoCzIkLm9yZGVycy52MS5CYXRjaENhbmNlbE9yZGVyc1Jlc3BvbnNlSAASPQoQY2FuY2VsX2FsbF9hZnRlchgIIAEoCzIhLm9yZGVycy52MS5DYW5jZWxBbGxBZnRlclJlc3BvbnNlSABCCAoGcmVzdWx0IlQKDUNvbW1hbmRSZWplY3QSDAoEY29kZRgBIAEoCRIOCgZkZXRhaWwYAiABKAkSJQoFZXJyb3IYAyABKAsyFi5vcmRlcnMudjEuRXJyb3JEZXRhaWwiMAoQT3ZlcmxvYWRSZXNwb25zZRIMCgRjb2RlGAEgASgJEg4KBmRldGFpbBgCIAEoCSI0ChRUZXJtaW5hbFNlc3Npb25FdmVudBIMCgRjb2RlGAEgASgJEg4KBmRldGFpbBgCIAEoCUJCWkBnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL3RyYWRld3MvdjE7dHJhZGV3c3YxYgZwcm90bzM=", [file_orders_v1_orders]);
 
 /**
  * ClientFrame is the protobuf write-websocket envelope. Its payloads reuse the
@@ -34,6 +34,29 @@ export type ClientFrame = Message<"tradews.v1.ClientFrame"> & {
    * @generated from field: string correlation_id = 2;
    */
   correlationId: string;
+
+  /**
+   * Optional client time the command was sent, in milliseconds since the Unix
+   * epoch. When set, the command is processed only until timestamp_ms plus
+   * recv_window_ms: a command that arrives, or waits to be sent on for
+   * admission, past then is rejected with REQUEST_DEADLINE_EXCEEDED and
+   * changes nothing, but it has taken its seq, so the next command uses the
+   * next seq. A timestamp more than 10 seconds ahead of the server clock is
+   * rejected with BAD_REQUEST, without taking the seq. Zero sets no
+   * deadline. Ping ignores it.
+   *
+   * @generated from field: int64 timestamp_ms = 3;
+   */
+  timestampMs: bigint;
+
+  /**
+   * Optional receive window in milliseconds, from 1 to 60000, applied to
+   * timestamp_ms. Zero uses 10000. Setting it without timestamp_ms is
+   * rejected with BAD_REQUEST.
+   *
+   * @generated from field: uint32 recv_window_ms = 4;
+   */
+  recvWindowMs: number;
 
   /**
    * @generated from oneof tradews.v1.ClientFrame.payload
@@ -112,6 +135,25 @@ export type ClientFrame = Message<"tradews.v1.ClientFrame"> & {
      */
     value: BatchCancelOrdersRequest;
     case: "batchCancelOrders";
+  } | {
+    /**
+     * Cancel-all-after command using the public Orders API request
+     * contract: arms, refreshes or disarms the account's dead-man switch,
+     * the same switch as the Orders API's CancelAllAfter, with the same
+     * symbol and side scope and the same timeout rule (0 disarms; 10 to 120
+     * seconds arms or refreshes). On expiry it cancels the account's open
+     * orders in scope, including orders that triggers placed, and no
+     * trigger. The switch belongs to the account, not to this connection:
+     * closing the connection neither disarms nor fires it. Refresh it well
+     * within the timeout, for example every 15 to 30 seconds with a
+     * 60-second timeout. Resending a request is safe: an arm restarts the
+     * timer from when it applies, and a disarm is idempotent. request_id is
+     * required, as on the Orders API; subaccount_id must be omitted.
+     *
+     * @generated from field: orders.v1.CancelAllAfterRequest cancel_all_after = 18;
+     */
+    value: CancelAllAfterRequest;
+    case: "cancelAllAfter";
   } | { case: undefined; value?: undefined };
 };
 
@@ -310,6 +352,15 @@ export type AckResponse = Message<"tradews.v1.AckResponse"> & {
      */
     value: BatchCancelOrdersResponse;
     case: "batchCancelOrders";
+  } | {
+    /**
+     * Cancel-all-after response: the account's dead-man switch after the
+     * request applied, its deadline and its recorded scope.
+     *
+     * @generated from field: orders.v1.CancelAllAfterResponse cancel_all_after = 8;
+     */
+    value: CancelAllAfterResponse;
+    case: "cancelAllAfter";
   } | { case: undefined; value?: undefined };
 };
 
