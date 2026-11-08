@@ -36,7 +36,8 @@ export class ChangelogService {
     /**
      * Lists post summaries newest first, with change counts by kind. Pass the previous
      * `nextPageToken` as `pageToken` to continue; an empty `nextPageToken` means no more posts.
-     * Use `limit: 1` to poll for the latest post.
+     * Use `limit: 1` to poll for the latest post. To follow edits to published posts, read a
+     * post again when its `revision` differs from the one you hold.
      */
     async listPosts(
         input: ListChangelogPostsInput = {},
@@ -48,7 +49,7 @@ export class ChangelogService {
     }
 
     /**
-     * Returns one post with every section and change. A slug is the post's coverage cutoff date,
+     * Returns one post at its current revision, with every section and change. A slug is the post's coverage cutoff date,
      * `YYYY-MM-DD`, with `-2`, `-3` for later posts on the same day. An unknown slug throws a
      * not-found error. Large posts can hold hundreds of changes; page them with `listChanges`
      * and `postSlug` instead.
@@ -66,7 +67,9 @@ export class ChangelogService {
      * Lists individual changes across posts, posts newest first unless `sort` is `"asc"`;
      * changes keep publication order inside each post. Changes addressed to `all_users` match
      * every `audiences` filter. Reuse a `pageToken` only with the same filters, time bounds and
-     * sort.
+     * sort. When the post a `pageToken` points into was republished since, paging restarts at
+     * that post's first change, so changes you already received can appear again: deduplicate
+     * by `id`, which stays the same across revisions.
      */
     async listChanges(
         input: ListChangelogChangesInput = {},

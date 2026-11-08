@@ -42,7 +42,7 @@ export type GetChangelogPostInput = v.InferInput<typeof GetChangelogPostInputSch
 
 /**
  * Filters on different fields combine with AND; values within one field combine with OR.
- * Times are epoch milliseconds on post publication time: `startTime` inclusive, `endTime`
+ * Times are epoch milliseconds on first post publication time: `startTime` inclusive, `endTime`
  * exclusive and after `startTime`. `limit` is 0 through 500; 0 or omitted uses the server
  * default of 100.
  */
@@ -102,12 +102,20 @@ export const ChangelogSectionSchema = v.object({
 
 export type ChangelogSection = v.InferOutput<typeof ChangelogSectionSchema>;
 
-/** `coverageCutoff` is the exclusive end of the covered period, `undefined` when unknown. */
+/**
+ * `coverageCutoff` is the exclusive end of the covered period, `undefined` when unknown.
+ * A post can be republished to correct its copy or withdraw a change: `revision` starts at 1
+ * and increases with each republication, and `updatedAt` is when the current revision was
+ * published (equal to `publishedAt` for revision 1). `slug` and `publishedAt` never change.
+ * A server that predates post revisions sends `revision` 0 and no `updatedAt`.
+ */
 export const ChangelogPostSummarySchema = v.object({
     slug: v.string(),
     title: v.string(),
     introduction: v.string(),
     publishedAt: TimestampMsSchema,
+    updatedAt: OptionalTimestampMsSchema,
+    revision: v.number(),
     coverageCutoff: OptionalTimestampMsSchema,
     changeCount: v.number(),
     breakingChangeCount: v.number(),
@@ -148,7 +156,7 @@ export const ChangelogChangeEntrySchema = v.pipe(
     v.transform(({ change, ...entry }) => ({ ...change, ...entry })),
 );
 
-/** A change with the slug, publication time and section heading of the post that announced it. */
+/** A change with the slug, first publication time and section heading of the post that announced it. */
 export type ChangelogChangeEntry = v.InferOutput<typeof ChangelogChangeEntrySchema>;
 
 export const ListChangelogChangesResultSchema = v.object({

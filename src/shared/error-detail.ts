@@ -16,6 +16,7 @@ import type { ErrorCode as LedgerErrorCode } from "../gen/ledger/read/v1/ledger_
 import type { ErrorCode as MarketOverviewErrorCode } from "../gen/marketoverview/v1/marketoverview_pb.js";
 import type { ErrorCode as InternalTransferErrorCode } from "../gen/transfer/v1/internal_transfer_pb.js";
 import type { OrderErrorDetail } from "../services/orders/order-errors.schemas.js";
+import type { RateLimitDetail } from "./rate-limit.schemas.js";
 
 type NamedCode<Enum extends Record<number, string>> = keyof Enum;
 
@@ -38,7 +39,9 @@ export type PolyesterErrorDetail =
           service: "market_overview";
           code: NamedCode<typeof MarketOverviewErrorCode>;
       }
-    | { service: "claims"; code: NamedCode<typeof ClaimsErrorCode> };
+    | { service: "claims"; code: NamedCode<typeof ClaimsErrorCode> }
+    /** A service's quota refusal sent as a bare `RateLimitDetail`, e.g. wallet sign-in. */
+    | { service: "rate_limit"; code: "RATE_LIMIT_EXCEEDED"; rateLimit: RateLimitDetail };
 
 export type ConnectErrorDetail = ConnectError["details"][number];
 
@@ -54,6 +57,7 @@ const DECODER_LOADERS: Record<string, () => Promise<{ decode: ErrorDetailDecoder
     "ledger.read.v1.ErrorDetail": () => import("./error-details/ledger.js"),
     "marketoverview.v1.ErrorDetail": () => import("./error-details/market-overview.js"),
     "claims.v1.ErrorDetail": () => import("./error-details/claims.js"),
+    "polyester.ratelimit.v1.RateLimitDetail": () => import("./error-details/rate-limit.js"),
 };
 
 /** Known detail type names, exposed so tests can pin them to the generated descriptors. */

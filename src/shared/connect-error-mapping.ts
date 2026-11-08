@@ -251,6 +251,12 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
             options,
         );
     }
+    if (detail?.service === "auth" && detail.code === "AUTH_WALLET_ALREADY_LINKED") {
+        return new AlreadyExistsError(
+            withFallback("Wallet is already linked to another Polyester account."),
+            options,
+        );
+    }
     if (detail?.service === "auth" && detail.code === "AUTH_POLICY_IN_USE") {
         return new PolicyInUseError(withFallback("Policy is still in use."), options);
     }
@@ -303,7 +309,10 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
         return new StaleQuoteError(withFallback("The submitted market quote is stale."), options);
     }
 
-    const rateLimit = detail?.service === "orders" ? detail.rateLimit : undefined;
+    const rateLimit =
+        detail?.service === "orders" || detail?.service === "rate_limit"
+            ? detail.rateLimit
+            : undefined;
     if (
         rateLimit ||
         ((detail?.service === "orders" ||

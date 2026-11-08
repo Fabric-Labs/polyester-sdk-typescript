@@ -372,7 +372,15 @@ export class OrdersService {
     }
 
     /**
-     * Reads the durable per-item execution status for a batch replacement receipt. For cancel-only AMENDED items, orderStatus describes oldOrderId and replacementOrderId is undefined.
+     * Reads the admission and each item's current execution phase for an accepted batch
+     * replacement. Status is retained for 60 seconds from acceptance and is readable as soon as
+     * `batchReplace` returns. A `ServiceUnavailableError` means the status is not established
+     * yet: retry the same request within the window. A `ResourceNotFoundError` means no batch is
+     * retained under this ID (none was accepted, or the window ended), never that the replacement
+     * was rejected: reconcile the individual orders and never resubmit an accepted batch. An
+     * item's `updatedTsNs` can be a later recovery time, so do not use it to identify a refusal.
+     * For cancel-only AMENDED items, orderStatus describes oldOrderId and replacementOrderId is
+     * undefined.
      */
     async getBatchReplaceStatus(
         input: GetBatchReplaceStatusInput,

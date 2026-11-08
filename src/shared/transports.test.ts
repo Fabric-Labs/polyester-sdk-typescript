@@ -12,6 +12,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { signAsync } from "@noble/ed25519";
 import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
 import { RateLimitService } from "../gen/ratelimit/v1/ratelimit_pb.js";
+import {
+    FailureReason,
+    LimiterScope,
+    PolicyClass,
+    RateLimitDetailSchema,
+} from "../gen/polyester/ratelimit/v1/types_pb.js";
 import { createErrorMappingTransport, toPolyesterError } from "./connect-error-mapping.js";
 import { toConnectCallOptions } from "./request-options.js";
 import * as Proto from "../gen/marketoverview/v1/marketoverview_pb.js";
@@ -25,6 +31,7 @@ import {
     PolyesterError,
     PreconditionFailedError,
     RateLimitError,
+    RequestTooLargeError,
     RevisionConflictError,
     ServiceUnavailableError,
     TimeoutError,
@@ -239,6 +246,56 @@ describe("createTransports", () => {
         await rejection.toBeInstanceOf(RateLimitError);
         await rejection.toMatchObject({ retryAfterMs: 2000 });
     });
+
+    it.each([
+        ["known-length", (body: string) => ({ body, length: String(body.length) })],
+        [
+            "chunked",
+            (body: string) => ({
+                body: new ReadableStream<Uint8Array>({
+                    start(controller) {
+                        const bytes = new TextEncoder().encode(body);
+                        controller.enqueue(bytes.slice(0, 10));
+                        controller.enqueue(bytes.slice(10));
+                        controller.close();
+                    },
+                }),
+                length: undefined,
+            }),
+        ],
+    ] as const)(
+        "maps a %s HTTP 413 REQUEST_TOO_LARGE problem to RequestTooLargeError",
+        async (_kind, makeBody) => {
+            const { body, length } = makeBody(
+                JSON.stringify({
+                    type: "https://polyester.dev/problems/request-too-large",
+                    title: "Request Entity Too Large",
+                    status: 413,
+                    detail: "request too large",
+                    code: "REQUEST_TOO_LARGE",
+                }),
+            );
+            vi.spyOn(globalThis, "fetch").mockResolvedValue(
+                new Response(body, {
+                    status: 413,
+                    headers: {
+                        "content-type": "application/problem+json",
+                        ...(length ? { "content-length": length } : {}),
+                    },
+                }),
+            );
+            const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+            const client = createClient(Proto.MarketOverviewService, publicApi);
+
+            const rejection = expect(client.listMarketOverview({})).rejects;
+            await rejection.toBeInstanceOf(RequestTooLargeError);
+            await rejection.toMatchObject({
+                code: "REQUEST_TOO_LARGE",
+                status: 413,
+                retryable: false,
+            });
+        },
+    );
 
     it("maps an interceptor-added AbortSignal.timeout() to TimeoutError", async () => {
         vi.spyOn(globalThis, "fetch").mockImplementation(
@@ -700,6 +757,83 @@ describe("error details through transports", () => {
             detail: { service: "auth", code: "AUTH_TIMESTAMP_SKEW" },
         });
     });
+
+    it("surfaces a service's RateLimitDetail on resource_exhausted ahead of Retry-After", async () => {
+        const detail = toBinary(
+            RateLimitDetailSchema,
+            create(RateLimitDetailSchema, {
+                reason: FailureReason.QUOTA_EXCEEDED,
+                limit: 30n,
+                remaining: 0n,
+                retryAfterMs: 1_409n,
+                policyVersion: 5n,
+                operationId: "auth.wallet_challenge",
+                policyClass: PolicyClass.AUTH_PUBLIC,
+                scope: LimiterScope.AUTH_SUBJECT,
+            }),
+        );
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(
+            new Response(
+                JSON.stringify({
+                    code: "resource_exhausted",
+                    message: "rate limit exceeded",
+                    details: [
+                        {
+                            type: RateLimitDetailSchema.typeName,
+                            value: btoa(String.fromCharCode(...detail)).replace(/=+$/u, ""),
+                        },
+                    ],
+                }),
+                {
+                    status: 429,
+                    headers: { "content-type": "application/json", "retry-after": "2" },
+                },
+            ),
+        );
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const error = await createClient(RateLimitService, publicApi)
+            .getRateLimitConfig({})
+            .catch((error: unknown) => error);
+
+        expect(error).toBeInstanceOf(RateLimitError);
+        expect(error).toMatchObject({
+            retryAfterMs: 1_409,
+            rateLimit: {
+                reason: "quota_exceeded",
+                remaining: "0",
+                operationId: "auth.wallet_challenge",
+                policyClass: "auth_public",
+                scope: "auth_subject",
+            },
+            detail: { service: "rate_limit", code: "RATE_LIMIT_EXCEEDED" },
+        });
+    });
+
+    it.each([
+        ["with Retry-After", { "retry-after": "59" }, 59_000],
+        ["without Retry-After", {}, undefined],
+    ] as const)(
+        "maps the gateway's detail-less resource_exhausted %s to RateLimitError",
+        async (_kind, headers, retryAfterMs) => {
+            vi.spyOn(globalThis, "fetch").mockResolvedValue(
+                new Response(
+                    JSON.stringify({
+                        code: "resource_exhausted",
+                        message: "rate limit exceeded, retry later",
+                    }),
+                    { status: 429, headers: { "content-type": "application/json", ...headers } },
+                ),
+            );
+            const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+            const error = await createClient(RateLimitService, publicApi)
+                .getRateLimitConfig({})
+                .catch((error: unknown) => error);
+
+            expect(error).toBeInstanceOf(RateLimitError);
+            expect((error as RateLimitError).retryAfterMs).toBe(retryAfterMs);
+            expect((error as RateLimitError).rateLimit).toBeUndefined();
+        },
+    );
 });
 
 describe("caller cancellation through transports", () => {
