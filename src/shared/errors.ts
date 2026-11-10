@@ -625,6 +625,19 @@ export function isTimeoutAbortError(err: unknown): boolean {
     return err instanceof DOMException && err.name === "TimeoutError";
 }
 
+/**
+ * Checks whether an error is the `TypeError` a browser `fetch` raises when the
+ * connection drops, either on the request or while reading the response body.
+ */
+export function isFetchNetworkError(err: unknown): boolean {
+    return (
+        err instanceof TypeError &&
+        /^(failed to fetch|networkerror when attempting to fetch resource\.?|load failed|network error)$/i.test(
+            err.message,
+        )
+    );
+}
+
 /** Maps a plain HTTP status code onto the SDK error tree. */
 export function errorFromHttpStatus(
     status: number,

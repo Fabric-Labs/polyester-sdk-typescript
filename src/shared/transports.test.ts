@@ -404,6 +404,46 @@ describe("createTransports", () => {
         await expect(client.listMarketOverview({})).rejects.toMatchObject({ status: undefined });
     });
 
+    it("maps a connection dropped while reading a 200 body to a retryable NetworkError", async () => {
+        vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+            const body = new ReadableStream<Uint8Array>({
+                pull(controller) {
+                    controller.error(new TypeError("Failed to fetch"));
+                },
+            });
+            return new Response(body, {
+                status: 200,
+                headers: { "content-type": "application/proto" },
+            });
+        });
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const client = createClient(Proto.MarketOverviewService, publicApi);
+
+        const rejection = expect(client.listMarketOverview({})).rejects;
+        await rejection.toBeInstanceOf(NetworkError);
+        await rejection.toMatchObject({ code: "NETWORK_ERROR", retryable: true });
+    });
+
+    it.each([
+        "Failed to fetch",
+        "NetworkError when attempting to fetch resource.",
+        "Load failed",
+        "network error",
+    ])("maps Unknown ConnectErrors caused by fetch TypeError %j to NetworkError", (message) => {
+        expect(toPolyesterError(ConnectError.from(new TypeError(message)))).toBeInstanceOf(
+            NetworkError,
+        );
+    });
+
+    it("keeps other Unknown ConnectErrors as InternalServerError", () => {
+        for (const cause of [
+            new TypeError("Cannot read properties of undefined (reading 'x')"),
+            new Error("Failed to fetch"),
+        ]) {
+            expect(toPolyesterError(ConnectError.from(cause))).toBeInstanceOf(InternalServerError);
+        }
+    });
+
     it.each([
         {
             name: "a non-Connect error response",
