@@ -182,6 +182,9 @@ export {
     type ColumnarTimeWindow,
 } from "./utils/columnar-time.js";
 export { mergeLedgerBalances } from "./services/balances/balances.merge.js";
+// For callers holding `ledger.read.v1.AssetBalance` messages from other APIs. Its
+// module already sits in the root graph through PolyesterClient's balances service.
+export { formatLedgerBalance } from "./services/balances/balances.schemas.js";
 export {
     compareUnsignedIntegerStrings,
     shouldApplyReconciliationUpdate,
