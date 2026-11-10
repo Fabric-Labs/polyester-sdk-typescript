@@ -403,6 +403,7 @@ describe.each([
         vi.spyOn(reloaded.auth, "me").mockResolvedValue({
             accountId: "account-1",
             username: "hunter",
+            rootSmartAccountAddress: "",
         });
         await reloaded.auth.restoreSession();
         expect(reloaded.auth.getState().mainAccountId).toBe("account-1");

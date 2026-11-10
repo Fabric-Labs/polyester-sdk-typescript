@@ -65,7 +65,11 @@ export function createLedgerBalanceSchema() {
     return v.pipe(LedgerBalanceFieldsSchema, v.transform(toLedgerBalance));
 }
 
-/** Formats a protobuf-decoded balance like {@link createLedgerBalanceSchema} without re-validating it. */
+/**
+ * Converts a `ledger.read.v1.AssetBalance` message to the `LedgerBalance` that `balances.list`
+ * returns. Its U128 amounts are always at the 18-decimal ledger scale, whatever the asset's own
+ * decimals, so the result needs no catalog.
+ */
 export function formatLedgerBalance(b: ProtoLedgerRead.AssetBalance): LedgerBalance {
     return toLedgerBalance({
         assetId: b.assetId,

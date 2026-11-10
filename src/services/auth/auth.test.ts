@@ -6,8 +6,13 @@ import {
 } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
 import { WalletChallengePurpose } from "../../gen/auth/v1/auth_pb.js";
+import { SessionLevel } from "../../gen/auth/v1/mfa_pb.js";
 import { ValidationError, ServiceUnavailableError } from "../../shared/errors.js";
-import { LoginWithWalletInputSchema } from "./auth.js";
+import {
+    LoginWithWalletInputSchema,
+    type LoginWithWalletInput,
+    type LoginWithWalletResponse,
+} from "./auth.js";
 import { CreateSubaccountInputSchema } from "../subaccounts/subaccounts.schemas.js";
 import { parse } from "../../shared/validation.js";
 import { AuthService } from "./auth.js";
@@ -39,14 +44,15 @@ describe("AuthService", () => {
         expect(publicTransport.calls).toHaveLength(0);
     });
 
-    it("returns the stable public API key ID from caller introspection", async () => {
+    it("returns the stable public API key ID and root smart account from caller introspection", async () => {
         const transport = unaryTransportSequence([
             {
                 accountId: 1n,
                 apiKeyId: "ak_0123456789abcdef0123456789abcdef",
                 username: "alice",
+                rootSmartAccountAddress: "0x5de42d558e4250bc4baeedbf872e130ad2dd7ea8",
             },
-            { accountId: 1n, username: "alice" },
+            { accountId: 1n, username: "alice", rootSmartAccountAddress: "" },
         ]);
         const service = new AuthService(
             { publicApi: transport.transport, authApi: transport.transport },
@@ -57,11 +63,52 @@ describe("AuthService", () => {
             accountId: formatId(1n),
             apiKeyId: "ak_0123456789abcdef0123456789abcdef",
             username: "alice",
+            rootSmartAccountAddress: "0x5de42d558e4250bc4baeedbf872e130ad2dd7ea8",
         });
         await expect(service.me()).resolves.toEqual({
             accountId: formatId(1n),
             username: "alice",
+            rootSmartAccountAddress: "",
         });
+    });
+
+    it("returns the issued token's session assurance details from wallet login", async () => {
+        const transport = unaryTransportSequence([
+            {
+                accessToken: "token",
+                accountId: 1n,
+                username: "",
+                session: {
+                    sessionId: "922f56d8e5aa89f899fae8323791777c",
+                    sessionLevel: SessionLevel.PRIMARY_AUTHENTICATED,
+                    authenticationMethods: ["wallet"],
+                    authTime: { seconds: 1_794_000_000n, nanos: 0 },
+                },
+            },
+            { accessToken: "token", accountId: 1n, username: "" },
+        ]);
+        const service = new AuthService(
+            { publicApi: transport.transport, authApi: transport.transport },
+            realtimeClientStub().realtime,
+        ) as unknown as {
+            loginWithWallet(input: LoginWithWalletInput): Promise<LoginWithWalletResponse>;
+        };
+        const input = {
+            smartAccountAddress: "0x1111111111111111111111111111111111111111",
+            message: "server message",
+            signature: `0x${"11".repeat(65)}`,
+        };
+
+        await expect(service.loginWithWallet(input)).resolves.toMatchObject({
+            session: {
+                sessionId: "922f56d8e5aa89f899fae8323791777c",
+                sessionLevel: "primaryAuthenticated",
+                authenticationMethods: ["wallet"],
+                authTimeMs: 1_794_000_000_000,
+            },
+        });
+        const withoutSession = await service.loginWithWallet(input);
+        expect(withoutSession.session).toBeUndefined();
     });
 
     it("returns a JSON-safe epoch-millisecond challenge expiry", async () => {

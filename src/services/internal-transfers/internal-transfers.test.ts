@@ -6,6 +6,7 @@ import { unaryTransport } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import { InternalTransfersService } from "./internal-transfers.js";
+import { InternalTransferStatus } from "../../gen/transfer/v1/internal_transfer_pb.js";
 
 const usdc = {
     symbol: "USDC",
@@ -33,6 +34,7 @@ const acceptedTransfer = {
         subaccountPublicId: "",
         smartAccountAddress: "0xabc123",
     },
+    status: InternalTransferStatus.ACCEPTED,
 };
 
 describe("InternalTransfersService", () => {
@@ -71,6 +73,7 @@ describe("InternalTransfersService", () => {
                 subaccountId: undefined,
                 smartAccountAddress: "0xabc123",
             },
+            status: "accepted",
         });
 
         const captured = transport.lastCall();

@@ -10,7 +10,11 @@ import {
     scaledToDecimalOutput,
     type SdkScales,
 } from "../../shared/decimal-surface.js";
-import { InternalTransferDestinationCodec } from "./internal-transfers.codecs.js";
+import {
+    InternalTransferDestinationCodec,
+    InternalTransferStatusCodec,
+} from "./internal-transfers.codecs.js";
+import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
@@ -126,6 +130,7 @@ export function createCreateInternalTransferResultSchema() {
             uAssetId: NonEmptyResponseStringSchema,
             amountE18: U128Schema,
             destination: v.optional(ResolvedInternalTransferDestinationSchema),
+            status: enumLabelSchema(InternalTransferStatusCodec.protoToOutput),
         }),
         v.transform(({ acceptedAtTsNs, amountE18, ...result }) => ({
             ...result,

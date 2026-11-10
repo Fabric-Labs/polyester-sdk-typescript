@@ -661,7 +661,11 @@ describe.each([
                     [POLYESTER_AUTH_TOKEN_COOKIE_NAME]: validJwt(),
                 },
             });
-            const user: Me = { accountId: "account-1", username: "hunter" };
+            const user: Me = {
+                accountId: "account-1",
+                username: "hunter",
+                rootSmartAccountAddress: "",
+            };
             vi.spyOn(client.auth, "me").mockResolvedValue(user);
 
             await expect(client.verifySession()).resolves.toBe(user);
