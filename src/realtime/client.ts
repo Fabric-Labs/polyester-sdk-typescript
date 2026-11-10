@@ -32,7 +32,6 @@ import type {
 } from "./types.js";
 import type { ConnectPrivateOrdersParams, PrivateOrderStream } from "./private-orders.js";
 
-const realtimeFetch = makeFetch();
 // ponytail: caps a bogus or huge Retry-After; a longer server window just answers 429 again with a new hint.
 const MAX_RETRY_AFTER_MS = 60_000;
 
@@ -99,6 +98,11 @@ export interface RealtimeConfig {
     privateWsUrl: string;
     getAuthHeaders?: (request: RealtimeAuthRequest) => Promise<HeadersInit> | HeadersInit;
     hasAuth?: () => boolean;
+    /**
+     * Custom fetch implementation for realtime token requests. Defaults to the
+     * global `fetch`, resolved on each request.
+     */
+    fetch?: typeof fetch;
 }
 
 type ResolvedRealtimeConfig = Pick<
@@ -153,8 +157,10 @@ export class RealtimeClient implements PolyesterRealtime {
     /** Token requests wait until then after a 429 with `Retry-After`. */
     #tokenRetryAt = 0;
     readonly #config: ResolvedRealtimeConfig;
+    readonly #fetch: typeof fetch;
 
     constructor(config: RealtimeConfig) {
+        this.#fetch = makeFetch(config.fetch);
         this.#config = {
             wsUrl: config.wsUrl,
             tokenEndpoint: config.tokenEndpoint,
@@ -183,7 +189,7 @@ export class RealtimeClient implements PolyesterRealtime {
             }
             headers = await this.#getAuthHeaders({ url, method: "GET" });
         } while (this.#tokenRetryAt > Date.now());
-        const res = await realtimeFetch(url, { headers });
+        const res = await this.#fetch(url, { headers });
         if (!res.ok) {
             const retryAfterMs = parseRetryAfterHeader(res.headers.get("retry-after"));
             if (res.status === 429 && retryAfterMs !== undefined) {
