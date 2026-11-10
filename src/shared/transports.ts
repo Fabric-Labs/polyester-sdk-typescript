@@ -305,6 +305,12 @@ export async function createApiKeyEd25519AuthHeaders(
     }
 
     const urlObj = new URL(request.url);
+    // The server refuses these whatever the signature, so fail before signing.
+    if (urlObj.search.includes(";") || /%(?![\da-f]{2})/iu.test(urlObj.pathname + urlObj.search)) {
+        throw new ConfigurationError(
+            "Cannot sign a URL with a malformed percent-escape or a ';' in its query",
+        );
+    }
     const timestamp = request.timestamp ?? nextTimestamp();
     const bodyHash = await sha256Hex(request.body ?? new Uint8Array(0));
     const canonicalQuery = canonicalQueryString(urlObj.search);

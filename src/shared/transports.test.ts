@@ -656,6 +656,16 @@ describe("createApiKeyEd25519AuthHeaders", () => {
         expect(headers["X-API-SIGNATURE"]).toBe(vector.signature_hex);
     });
 
+    it.each([
+        "https://api.example.test/x?a=1;b=2",
+        "https://api.example.test/x?a=%zz",
+        "https://api.example.test/x%zz",
+    ])("refuses to sign %s, which the server rejects", async (url) => {
+        await expect(
+            createApiKeyEd25519AuthHeaders(vectorAuth, { url, method: "GET" }),
+        ).rejects.toBeInstanceOf(ConfigurationError);
+    });
+
     it("signs the method upper-cased, as the server does", async () => {
         const sign = (method: string) =>
             createApiKeyEd25519AuthHeaders(vectorAuth, {
