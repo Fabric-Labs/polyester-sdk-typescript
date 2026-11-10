@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file transfer/v1/internal_transfer.proto.
  */
 export const file_transfer_v1_internal_transfer: GenFile = /*@__PURE__*/
-  fileDesc("CiN0cmFuc2Zlci92MS9pbnRlcm5hbF90cmFuc2Zlci5wcm90bxILdHJhbnNmZXIudjEioQIKHUNyZWF0ZUludGVybmFsVHJhbnNmZXJSZXF1ZXN0EhcKDXN1YmFjY291bnRfaWQYASABKAZCABIiChZkZXN0aW5hdGlvbl9hY2NvdW50X2lkGAIgASgGQgBIABIlChlkZXN0aW5hdGlvbl9zdWJhY2NvdW50X2lkGAMgASgGQgBIABItCiFkZXN0aW5hdGlvbl9zbWFydF9hY2NvdW50X2FkZHJlc3MYBCABKAlCAEgAEhIKCGFzc2V0X2lkGAUgASgNQgASLQoKYW1vdW50X2UxOBgGIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjhCABIZCg9pZGVtcG90ZW5jeV9rZXkYByABKAlCAEIPCgtkZXN0aW5hdGlvbhIAInIKE1Jlc29sdmVkRGVzdGluYXRpb24SHgoWcm9vdF9hY2NvdW50X3B1YmxpY19pZBgBIAEoCRIcChRzdWJhY2NvdW50X3B1YmxpY19pZBgCIAEoCRIdChVzbWFydF9hY2NvdW50X2FkZHJlc3MYAyABKAkiMwoLRXJyb3JEZXRhaWwSJAoEY29kZRgBIAEoDjIWLnRyYW5zZmVyLnYxLkVycm9yQ29kZSK3AgoeQ3JlYXRlSW50ZXJuYWxUcmFuc2ZlclJlc3BvbnNlEhIKCnJlcXVlc3RfaWQYASABKAkSEwoLdHJhbnNmZXJfaWQYAiABKAkSGQoRYWNjZXB0ZWRfYXRfdHNfbnMYAyABKAQSEAoIYXNzZXRfaWQYBCABKA0SEgoKYXNzZXRfY29kZRgFIAEoCRISCgp1X2Fzc2V0X2lkGAYgASgJEisKCmFtb3VudF9lMTgYByABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EjUKC2Rlc3RpbmF0aW9uGAggASgLMiAudHJhbnNmZXIudjEuUmVzb2x2ZWREZXN0aW5hdGlvbhIzCgZzdGF0dXMYCSABKA4yIy50cmFuc2Zlci52MS5JbnRlcm5hbFRyYW5zZmVyU3RhdHVzKukHCglFcnJvckNvZGUSGgoWRVJST1JfQ09ERV9VTlNQRUNJRklFRBAAEiEKHUVSUk9SX0NPREVfSU5TVUZGSUNJRU5UX0ZVTkRTEAESHgoaRVJST1JfQ09ERV9JTlZBTElEX1JFUVVFU1QQAhIeChpFUlJPUl9DT0RFX1VOQVVUSEVOVElDQVRFRBADEiAKHEVSUk9SX0NPREVfUEVSTUlTU0lPTl9ERU5JRUQQBBIiCh5FUlJPUl9DT0RFX1JBVEVfTElNSVRfRVhDRUVERUQQBRIiCh5FUlJPUl9DT0RFX1NFUlZJQ0VfVU5BVkFJTEFCTEUQBhIdChlFUlJPUl9DT0RFX0lOVEVSTkFMX0VSUk9SEAcSJAogRVJST1JfQ09ERV9JTlZBTElEX1NVQkFDQ09VTlRfSUQQCBIjCh9FUlJPUl9DT0RFX1NVQkFDQ09VTlRfTk9UX0ZPVU5EEAkSJgoiRVJST1JfQ09ERV9TT1VSQ0VfQUNDT1VOVF9JTkFDVElWRRAKEiAKHEVSUk9SX0NPREVfVU5TVVBQT1JURURfQVNTRVQQCxIdChlFUlJPUl9DT0RFX0lOVkFMSURfQU1PVU5UEAwSIgoeRVJST1JfQ09ERV9JTlZBTElEX0RFU1RJTkFUSU9OEA0SJAogRVJST1JfQ09ERV9ERVNUSU5BVElPTl9OT1RfRk9VTkQQDhIjCh9FUlJPUl9DT0RFX0RFU1RJTkFUSU9OX0lOQUNUSVZFEA8SJgoiRVJST1JfQ09ERV9TQU1FX1NPVVJDRV9ERVNUSU5BVElPThAQEioKJkVSUk9SX0NPREVfREVTVElOQVRJT05fTk9UX1dISVRFTElTVEVEEBESKAokRVJST1JfQ09ERV9TTUFSVF9BQ0NPVU5UX1VOQVZBSUxBQkxFEBISIgoeRVJST1JfQ09ERV9TVEVQX1VQX1VOQVZBSUxBQkxFEBMSIwofRVJST1JfQ09ERV9JREVNUE9URU5DWV9DT05GTElDVBAUEiIKHkVSUk9SX0NPREVfRlVORFNfTE9DS19DT05GTElDVBAVEicKI0VSUk9SX0NPREVfQ0FQSVRBTF9WSUVXX1VOQVZBSUxBQkxFEBYSKAokRVJST1JfQ09ERV9BQ0NPVU5UX1NIQVJEX1VOQVZBSUxBQkxFEBcSHAoYRVJST1JfQ09ERV9QT0xJQ1lfREVOSUVEEBgSIgoeRVJST1JfQ09ERV9GQUlMRURfUFJFQ09ORElUSU9OEBkSGAoURVJST1JfQ09ERV9OT1RfRk9VTkQQGhIXChNFUlJPUl9DT0RFX0NPTkZMSUNUEBsqtQEKFkludGVybmFsVHJhbnNmZXJTdGF0dXMSKAokSU5URVJOQUxfVFJBTlNGRVJfU1RBVFVTX1VOU1BFQ0lGSUVEEAASJQohSU5URVJOQUxfVFJBTlNGRVJfU1RBVFVTX0FDQ0VQVEVEEAESJQohSU5URVJOQUxfVFJBTlNGRVJfU1RBVFVTX1JFSkVDVEVEEAISIwofSU5URVJOQUxfVFJBTlNGRVJfU1RBVFVTX0ZBSUxFRBADMpABChdJbnRlcm5hbFRyYW5zZmVyU2VydmljZRJzChZDcmVhdGVJbnRlcm5hbFRyYW5zZmVyEioudHJhbnNmZXIudjEuQ3JlYXRlSW50ZXJuYWxUcmFuc2ZlclJlcXVlc3QaKy50cmFuc2Zlci52MS5DcmVhdGVJbnRlcm5hbFRyYW5zZmVyUmVzcG9uc2UiABoAQkRaQmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vdHJhbnNmZXIvdjE7dHJhbnNmZXJ2MWIGcHJvdG8z", [file_polyester_api_options, file_polyester_type_v1_u128]);
+  fileDesc("CiN0cmFuc2Zlci92MS9pbnRlcm5hbF90cmFuc2Zlci5wcm90bxILdHJhbnNmZXIudjEioQIKHUNyZWF0ZUludGVybmFsVHJhbnNmZXJSZXF1ZXN0EhcKDXN1YmFjY291bnRfaWQYASABKAZCABIiChZkZXN0aW5hdGlvbl9hY2NvdW50X2lkGAIgASgGQgBIABIlChlkZXN0aW5hdGlvbl9zdWJhY2NvdW50X2lkGAMgASgGQgBIABItCiFkZXN0aW5hdGlvbl9zbWFydF9hY2NvdW50X2FkZHJlc3MYBCABKAlCAEgAEhIKCGFzc2V0X2lkGAUgASgNQgASLQoKYW1vdW50X2UxOBgGIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjhCABIZCg9pZGVtcG90ZW5jeV9rZXkYByABKAlCAEIPCgtkZXN0aW5hdGlvbhIAInIKE1Jlc29sdmVkRGVzdGluYXRpb24SHgoWcm9vdF9hY2NvdW50X3B1YmxpY19pZBgBIAEoCRIcChRzdWJhY2NvdW50X3B1YmxpY19pZBgCIAEoCRIdChVzbWFydF9hY2NvdW50X2FkZHJlc3MYAyABKAkiMwoLRXJyb3JEZXRhaWwSJAoEY29kZRgBIAEoDjIWLnRyYW5zZmVyLnYxLkVycm9yQ29kZSLIAgoeQ3JlYXRlSW50ZXJuYWxUcmFuc2ZlclJlc3BvbnNlEhIKCnJlcXVlc3RfaWQYASABKAkSEwoLdHJhbnNmZXJfaWQYAiABKAkSGQoRYWNjZXB0ZWRfYXRfdHNfbnMYAyABKAQSEAoIYXNzZXRfaWQYBCABKA0SEgoKYXNzZXRfY29kZRgFIAEoCRISCgp1X2Fzc2V0X2lkGAYgASgJEisKCmFtb3VudF9lMTgYByABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EjUKC2Rlc3RpbmF0aW9uGAggASgLMiAudHJhbnNmZXIudjEuUmVzb2x2ZWREZXN0aW5hdGlvbhIzCgZzdGF0dXMYCSABKA4yIy50cmFuc2Zlci52MS5JbnRlcm5hbFRyYW5zZmVyU3RhdHVzEg8KB2Zsb3dfaWQYCiABKAkidAoaR2V0SW50ZXJuYWxUcmFuc2ZlclJlcXVlc3QSFQoNc3ViYWNjb3VudF9pZBgBIAEoBhIWCgpyZXF1ZXN0X2lkGAIgASgJQgBIABIXCgt0cmFuc2Zlcl9pZBgDIAEoCUIASABCDgoKaWRlbnRpZmllchIAInIKG0dldEludGVybmFsVHJhbnNmZXJSZXNwb25zZRISCgpyZXF1ZXN0X2lkGAEgASgJEhMKC3RyYW5zZmVyX2lkGAIgASgJEg8KB2Zsb3dfaWQYAyABKAkSGQoRYWNjZXB0ZWRfYXRfdHNfbnMYBCABKAQq6QcKCUVycm9yQ29kZRIaChZFUlJPUl9DT0RFX1VOU1BFQ0lGSUVEEAASIQodRVJST1JfQ09ERV9JTlNVRkZJQ0lFTlRfRlVORFMQARIeChpFUlJPUl9DT0RFX0lOVkFMSURfUkVRVUVTVBACEh4KGkVSUk9SX0NPREVfVU5BVVRIRU5USUNBVEVEEAMSIAocRVJST1JfQ09ERV9QRVJNSVNTSU9OX0RFTklFRBAEEiIKHkVSUk9SX0NPREVfUkFURV9MSU1JVF9FWENFRURFRBAFEiIKHkVSUk9SX0NPREVfU0VSVklDRV9VTkFWQUlMQUJMRRAGEh0KGUVSUk9SX0NPREVfSU5URVJOQUxfRVJST1IQBxIkCiBFUlJPUl9DT0RFX0lOVkFMSURfU1VCQUNDT1VOVF9JRBAIEiMKH0VSUk9SX0NPREVfU1VCQUNDT1VOVF9OT1RfRk9VTkQQCRImCiJFUlJPUl9DT0RFX1NPVVJDRV9BQ0NPVU5UX0lOQUNUSVZFEAoSIAocRVJST1JfQ09ERV9VTlNVUFBPUlRFRF9BU1NFVBALEh0KGUVSUk9SX0NPREVfSU5WQUxJRF9BTU9VTlQQDBIiCh5FUlJPUl9DT0RFX0lOVkFMSURfREVTVElOQVRJT04QDRIkCiBFUlJPUl9DT0RFX0RFU1RJTkFUSU9OX05PVF9GT1VORBAOEiMKH0VSUk9SX0NPREVfREVTVElOQVRJT05fSU5BQ1RJVkUQDxImCiJFUlJPUl9DT0RFX1NBTUVfU09VUkNFX0RFU1RJTkFUSU9OEBASKgomRVJST1JfQ09ERV9ERVNUSU5BVElPTl9OT1RfV0hJVEVMSVNURUQQERIoCiRFUlJPUl9DT0RFX1NNQVJUX0FDQ09VTlRfVU5BVkFJTEFCTEUQEhIiCh5FUlJPUl9DT0RFX1NURVBfVVBfVU5BVkFJTEFCTEUQExIjCh9FUlJPUl9DT0RFX0lERU1QT1RFTkNZX0NPTkZMSUNUEBQSIgoeRVJST1JfQ09ERV9GVU5EU19MT0NLX0NPTkZMSUNUEBUSJwojRVJST1JfQ09ERV9DQVBJVEFMX1ZJRVdfVU5BVkFJTEFCTEUQFhIoCiRFUlJPUl9DT0RFX0FDQ09VTlRfU0hBUkRfVU5BVkFJTEFCTEUQFxIcChhFUlJPUl9DT0RFX1BPTElDWV9ERU5JRUQQGBIiCh5FUlJPUl9DT0RFX0ZBSUxFRF9QUkVDT05ESVRJT04QGRIYChRFUlJPUl9DT0RFX05PVF9GT1VORBAaEhcKE0VSUk9SX0NPREVfQ09ORkxJQ1QQGyq1AQoWSW50ZXJuYWxUcmFuc2ZlclN0YXR1cxIoCiRJTlRFUk5BTF9UUkFOU0ZFUl9TVEFUVVNfVU5TUEVDSUZJRUQQABIlCiFJTlRFUk5BTF9UUkFOU0ZFUl9TVEFUVVNfQUNDRVBURUQQARIlCiFJTlRFUk5BTF9UUkFOU0ZFUl9TVEFUVVNfUkVKRUNURUQQAhIjCh9JTlRFUk5BTF9UUkFOU0ZFUl9TVEFUVVNfRkFJTEVEEAMy/AEKF0ludGVybmFsVHJhbnNmZXJTZXJ2aWNlEmoKE0dldEludGVybmFsVHJhbnNmZXISJy50cmFuc2Zlci52MS5HZXRJbnRlcm5hbFRyYW5zZmVyUmVxdWVzdBooLnRyYW5zZmVyLnYxLkdldEludGVybmFsVHJhbnNmZXJSZXNwb25zZSIAEnMKFkNyZWF0ZUludGVybmFsVHJhbnNmZXISKi50cmFuc2Zlci52MS5DcmVhdGVJbnRlcm5hbFRyYW5zZmVyUmVxdWVzdBorLnRyYW5zZmVyLnYxLkNyZWF0ZUludGVybmFsVHJhbnNmZXJSZXNwb25zZSIAGgBCRFpCZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi90cmFuc2Zlci92MTt0cmFuc2ZlcnYxYgZwcm90bzM=", [file_polyester_api_options, file_polyester_type_v1_u128]);
 
 /**
  * CreateInternalTransferRequest creates or returns one accepted Trading
@@ -216,6 +216,14 @@ export type CreateInternalTransferResponse = Message<"transfer.v1.CreateInternal
    * @generated from field: transfer.v1.InternalTransferStatus status = 9;
    */
   status: InternalTransferStatus;
+
+  /**
+   * Authoritative lifecycle flow identifier. Use GetFlowById to read the flow;
+   * its ledger settlement step links back through milestone_tx_ref.
+   *
+   * @generated from field: string flow_id = 10;
+   */
+  flowId: string;
 };
 
 /**
@@ -224,6 +232,92 @@ export type CreateInternalTransferResponse = Message<"transfer.v1.CreateInternal
  */
 export const CreateInternalTransferResponseSchema: GenMessage<CreateInternalTransferResponse> = /*@__PURE__*/
   messageDesc(file_transfer_v1_internal_transfer, 3);
+
+/**
+ * GetInternalTransferRequest selects an accepted transfer from the source account.
+ *
+ * @generated from message transfer.v1.GetInternalTransferRequest
+ */
+export type GetInternalTransferRequest = Message<"transfer.v1.GetInternalTransferRequest"> & {
+  /**
+   * Optional source public subaccount ID. Omitted means the authenticated root
+   * account. The caller must have access to the selected subaccount.
+   *
+   * @generated from field: fixed64 subaccount_id = 1;
+   */
+  subaccountId: bigint;
+
+  /**
+   * @generated from oneof transfer.v1.GetInternalTransferRequest.identifier
+   */
+  identifier: {
+    /**
+     * Exact server-owned request ID returned by CreateInternalTransfer.
+     *
+     * @generated from field: string request_id = 2;
+     */
+    value: string;
+    case: "requestId";
+  } | {
+    /**
+     * Exact transfer ID returned by CreateInternalTransfer or ListTransfers.
+     *
+     * @generated from field: string transfer_id = 3;
+     */
+    value: string;
+    case: "transferId";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * Describes the message transfer.v1.GetInternalTransferRequest.
+ * Use `create(GetInternalTransferRequestSchema)` to create a new message.
+ */
+export const GetInternalTransferRequestSchema: GenMessage<GetInternalTransferRequest> = /*@__PURE__*/
+  messageDesc(file_transfer_v1_internal_transfer, 4);
+
+/**
+ * GetInternalTransferResponse links an accepted transfer to its lifecycle flow.
+ *
+ * @generated from message transfer.v1.GetInternalTransferResponse
+ */
+export type GetInternalTransferResponse = Message<"transfer.v1.GetInternalTransferResponse"> & {
+  /**
+   * Stable server-owned intake request identifier.
+   *
+   * @generated from field: string request_id = 1;
+   */
+  requestId: string;
+
+  /**
+   * Stable transfer identifier shared by its debit and credit ledger entries.
+   *
+   * @generated from field: string transfer_id = 2;
+   */
+  transferId: string;
+
+  /**
+   * Authoritative lifecycle identifier for GetFlowById. The flow's ledger
+   * settlement step links back through milestone_tx_ref.
+   *
+   * @generated from field: string flow_id = 3;
+   */
+  flowId: string;
+
+  /**
+   * Acceptance timestamp in nanoseconds since epoch (UTC).
+   *
+   * @generated from field: uint64 accepted_at_ts_ns = 4;
+   */
+  acceptedAtTsNs: bigint;
+};
+
+/**
+ * Describes the message transfer.v1.GetInternalTransferResponse.
+ * Use `create(GetInternalTransferResponseSchema)` to create a new message.
+ */
+export const GetInternalTransferResponseSchema: GenMessage<GetInternalTransferResponse> = /*@__PURE__*/
+  messageDesc(file_transfer_v1_internal_transfer, 5);
 
 /**
  * ErrorCode identifies stable, machine-readable Internal Transfer API errors.
@@ -484,6 +578,19 @@ export const InternalTransferStatusSchema: GenEnum<InternalTransferStatus> = /*@
  * @generated from service transfer.v1.InternalTransferService
  */
 export const InternalTransferService: GenService<{
+  /**
+   * Read an accepted transfer by request ID or transfer ID, scoped to its source
+   * account. JWT session authentication only; API keys are not supported.
+   * Returns NotFound for unknown, pending, or inaccessible transfers. This read
+   * does not submit or retry a transfer and requires no fresh MFA.
+   *
+   * @generated from rpc transfer.v1.InternalTransferService.GetInternalTransfer
+   */
+  getInternalTransfer: {
+    methodKind: "unary";
+    input: typeof GetInternalTransferRequestSchema;
+    output: typeof GetInternalTransferResponseSchema;
+  },
   /**
    * Create or return one accepted Trading to Trading transfer.
    * Root-owner same-owner transfers and root-owner transfers to explicitly

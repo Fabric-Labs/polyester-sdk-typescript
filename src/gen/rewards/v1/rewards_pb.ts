@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rewards/v1/rewards.proto.
  */
 export const file_rewards_v1_rewards: GenFile = /*@__PURE__*/
-  fileDesc("ChhyZXdhcmRzL3YxL3Jld2FyZHMucHJvdG8SCnJld2FyZHMudjEijgMKC1Jld2FyZEF3YXJkEhAKCGF3YXJkX2lkGAEgASgJEhMKC2NhbXBhaWduX2lkGAIgASgJEhUKDWNhbXBhaWduX25hbWUYAyABKAkSEAoIYXNzZXRfaWQYBCABKA0SGQoRYW1vdW50X2Jhc2VfdW5pdHMYBSABKAkSPwoSZnVsZmlsbG1lbnRfbWV0aG9kGAYgASgOMiMucmV3YXJkcy52MS5SZXdhcmRGdWxmaWxsbWVudE1ldGhvZBI9ChFmdWxmaWxsbWVudF9zdGF0ZRgHIAEoDjIiLnJld2FyZHMudjEuUmV3YXJkRnVsZmlsbG1lbnRTdGF0ZRIwCgxwdWJsaXNoZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KB25ldHdvcmsYCSABKAkSHAoUZnVsZmlsbG1lbnRfcmV2aXNpb24YCiABKAQSGwoTZGVzdGluYXRpb25fYWRkcmVzcxgLIAEoCRIWCg50cmFuc2FjdGlvbl9pZBgMIAEoCSKFAQodU2V0TXlSZXdhcmREZXN0aW5hdGlvblJlcXVlc3QSEgoIYXdhcmRfaWQYASABKAlCABIdChNkZXN0aW5hdGlvbl9hZGRyZXNzGAIgASgJQgASGwoRZXhwZWN0ZWRfcmV2aXNpb24YAyABKARCABIUCgpyZXF1ZXN0X2lkGAQgASgJQgAiSAoeU2V0TXlSZXdhcmREZXN0aW5hdGlvblJlc3BvbnNlEiYKBWF3YXJkGAEgASgLMhcucmV3YXJkcy52MS5SZXdhcmRBd2FyZCJCChlMaXN0TXlSZXdhcmRBd2FyZHNSZXF1ZXN0Eg8KBWxpbWl0GAEgASgNQgASFAoKcGFnZV90b2tlbhgCIAEoCUIAInkKGkxpc3RNeVJld2FyZEF3YXJkc1Jlc3BvbnNlEicKBmF3YXJkcxgBIAMoCzIXLnJld2FyZHMudjEuUmV3YXJkQXdhcmQSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJEhkKEWF3YXJkc19tYXlfY2hhbmdlGAMgASgIKl0KF1Jld2FyZEZ1bGZpbGxtZW50TWV0aG9kEhYKEk1FVEhPRF9VTlNQRUNJRklFRBAAEhQKEEVYVEVSTkFMX1RFU1RORVQQARIUChBJTlRFUk5BTF9UUkFESU5HEAIqgwEKFlJld2FyZEZ1bGZpbGxtZW50U3RhdGUSFQoRU1RBVEVfVU5TUEVDSUZJRUQQABIYChRBV0FJVElOR19ERVNUSU5BVElPThABEhQKEFJFQURZX0ZPUl9QQVlPVVQQAhIICgRQQUlEEAMSCgoGRkFJTEVEEAQSDAoIQ0FOQ0VMRUQQBTLzAQoVUmV3YXJkQ2FtcGFpZ25TZXJ2aWNlEmUKEkxpc3RNeVJld2FyZEF3YXJkcxIlLnJld2FyZHMudjEuTGlzdE15UmV3YXJkQXdhcmRzUmVxdWVzdBomLnJld2FyZHMudjEuTGlzdE15UmV3YXJkQXdhcmRzUmVzcG9uc2UiABJxChZTZXRNeVJld2FyZERlc3RpbmF0aW9uEikucmV3YXJkcy52MS5TZXRNeVJld2FyZERlc3RpbmF0aW9uUmVxdWVzdBoqLnJld2FyZHMudjEuU2V0TXlSZXdhcmREZXN0aW5hdGlvblJlc3BvbnNlIgAaAEJCWkBnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL3Jld2FyZHMvdjE7cmV3YXJkc3YxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChhyZXdhcmRzL3YxL3Jld2FyZHMucHJvdG8SCnJld2FyZHMudjEi9QMKC1Jld2FyZEF3YXJkEhAKCGF3YXJkX2lkGAEgASgJEhMKC2NhbXBhaWduX2lkGAIgASgJEhUKDWNhbXBhaWduX25hbWUYAyABKAkSEAoIYXNzZXRfaWQYBCABKA0SGQoRYW1vdW50X2Jhc2VfdW5pdHMYBSABKAkSPwoSZnVsZmlsbG1lbnRfbWV0aG9kGAYgASgOMiMucmV3YXJkcy52MS5SZXdhcmRGdWxmaWxsbWVudE1ldGhvZBI9ChFmdWxmaWxsbWVudF9zdGF0ZRgHIAEoDjIiLnJld2FyZHMudjEuUmV3YXJkRnVsZmlsbG1lbnRTdGF0ZRIwCgxwdWJsaXNoZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KB25ldHdvcmsYCSABKAkSHAoUZnVsZmlsbG1lbnRfcmV2aXNpb24YCiABKAQSGwoTZGVzdGluYXRpb25fYWRkcmVzcxgLIAEoCRIWCg50cmFuc2FjdGlvbl9pZBgMIAEoCRIvCgtyZXZlYWxlZF9hdBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASNAoQZGVsaXZlcnlfc2Vlbl9hdBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAihQEKHVNldE15UmV3YXJkRGVzdGluYXRpb25SZXF1ZXN0EhIKCGF3YXJkX2lkGAEgASgJQgASHQoTZGVzdGluYXRpb25fYWRkcmVzcxgCIAEoCUIAEhsKEWV4cGVjdGVkX3JldmlzaW9uGAMgASgEQgASFAoKcmVxdWVzdF9pZBgEIAEoCUIAIkgKHlNldE15UmV3YXJkRGVzdGluYXRpb25SZXNwb25zZRImCgVhd2FyZBgBIAEoCzIXLnJld2FyZHMudjEuUmV3YXJkQXdhcmQiYAofQWNrbm93bGVkZ2VNeVJld2FyZEF3YXJkUmVxdWVzdBISCghhd2FyZF9pZBgBIAEoCUIAEhAKCHJldmVhbGVkGAIgASgIEhUKDWRlbGl2ZXJ5X3NlZW4YAyABKAg6ACJKCiBBY2tub3dsZWRnZU15UmV3YXJkQXdhcmRSZXNwb25zZRImCgVhd2FyZBgBIAEoCzIXLnJld2FyZHMudjEuUmV3YXJkQXdhcmQiQgoZTGlzdE15UmV3YXJkQXdhcmRzUmVxdWVzdBIPCgVsaW1pdBgBIAEoDUIAEhQKCnBhZ2VfdG9rZW4YAiABKAlCACJ5ChpMaXN0TXlSZXdhcmRBd2FyZHNSZXNwb25zZRInCgZhd2FyZHMYASADKAsyFy5yZXdhcmRzLnYxLlJld2FyZEF3YXJkEhcKD25leHRfcGFnZV90b2tlbhgCIAEoCRIZChFhd2FyZHNfbWF5X2NoYW5nZRgDIAEoCCpdChdSZXdhcmRGdWxmaWxsbWVudE1ldGhvZBIWChJNRVRIT0RfVU5TUEVDSUZJRUQQABIUChBFWFRFUk5BTF9URVNUTkVUEAESFAoQSU5URVJOQUxfVFJBRElORxACKoMBChZSZXdhcmRGdWxmaWxsbWVudFN0YXRlEhUKEVNUQVRFX1VOU1BFQ0lGSUVEEAASGAoUQVdBSVRJTkdfREVTVElOQVRJT04QARIUChBSRUFEWV9GT1JfUEFZT1VUEAISCAoEUEFJRBADEgoKBkZBSUxFRBAEEgwKCENBTkNFTEVEEAUy7AIKFVJld2FyZENhbXBhaWduU2VydmljZRJlChJMaXN0TXlSZXdhcmRBd2FyZHMSJS5yZXdhcmRzLnYxLkxpc3RNeVJld2FyZEF3YXJkc1JlcXVlc3QaJi5yZXdhcmRzLnYxLkxpc3RNeVJld2FyZEF3YXJkc1Jlc3BvbnNlIgASdwoYQWNrbm93bGVkZ2VNeVJld2FyZEF3YXJkEisucmV3YXJkcy52MS5BY2tub3dsZWRnZU15UmV3YXJkQXdhcmRSZXF1ZXN0GiwucmV3YXJkcy52MS5BY2tub3dsZWRnZU15UmV3YXJkQXdhcmRSZXNwb25zZSIAEnEKFlNldE15UmV3YXJkRGVzdGluYXRpb24SKS5yZXdhcmRzLnYxLlNldE15UmV3YXJkRGVzdGluYXRpb25SZXF1ZXN0GioucmV3YXJkcy52MS5TZXRNeVJld2FyZERlc3RpbmF0aW9uUmVzcG9uc2UiABoAQkJaQGdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vcmV3YXJkcy92MTtyZXdhcmRzdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * RewardAward contains immutable published terms and current delivery details for the authenticated root account.
@@ -104,6 +104,20 @@ export type RewardAward = Message<"rewards.v1.RewardAward"> & {
    * @generated from field: string transaction_id = 12;
    */
   transactionId: string;
+
+  /**
+   * Time the recipient first acknowledged revealing this award. Absent until explicitly acknowledged; shared across sessions and devices.
+   *
+   * @generated from field: google.protobuf.Timestamp revealed_at = 13;
+   */
+  revealedAt?: Timestamp | undefined;
+
+  /**
+   * Time the recipient first acknowledged seeing delivery of this paid award. Absent until explicitly acknowledged; independent of revealed_at.
+   *
+   * @generated from field: google.protobuf.Timestamp delivery_seen_at = 14;
+   */
+  deliverySeenAt?: Timestamp | undefined;
 };
 
 /**
@@ -177,6 +191,62 @@ export const SetMyRewardDestinationResponseSchema: GenMessage<SetMyRewardDestina
   messageDesc(file_rewards_v1_rewards, 2);
 
 /**
+ * AcknowledgeMyRewardAwardRequest marks an owned award as seen without changing its delivery state.
+ *
+ * @generated from message rewards.v1.AcknowledgeMyRewardAwardRequest
+ */
+export type AcknowledgeMyRewardAwardRequest = Message<"rewards.v1.AcknowledgeMyRewardAwardRequest"> & {
+  /**
+   * Award owned by the authenticated root account. Must be a UUID.
+   *
+   * @generated from field: string award_id = 1;
+   */
+  awardId: string;
+
+  /**
+   * Record that the recipient revealed this award. False leaves the existing mark unchanged.
+   *
+   * @generated from field: bool revealed = 2;
+   */
+  revealed: boolean;
+
+  /**
+   * Record that the recipient saw this award's delivery. Requires a paid award; otherwise the entire request fails with failed_precondition. False leaves the existing mark unchanged.
+   *
+   * @generated from field: bool delivery_seen = 3;
+   */
+  deliverySeen: boolean;
+};
+
+/**
+ * Describes the message rewards.v1.AcknowledgeMyRewardAwardRequest.
+ * Use `create(AcknowledgeMyRewardAwardRequestSchema)` to create a new message.
+ */
+export const AcknowledgeMyRewardAwardRequestSchema: GenMessage<AcknowledgeMyRewardAwardRequest> = /*@__PURE__*/
+  messageDesc(file_rewards_v1_rewards, 3);
+
+/**
+ * AcknowledgeMyRewardAwardResponse returns the award with its persisted seen state.
+ *
+ * @generated from message rewards.v1.AcknowledgeMyRewardAwardResponse
+ */
+export type AcknowledgeMyRewardAwardResponse = Message<"rewards.v1.AcknowledgeMyRewardAwardResponse"> & {
+  /**
+   * Current award. First acknowledgement timestamps are preserved on retries; fulfillment_revision is unchanged.
+   *
+   * @generated from field: rewards.v1.RewardAward award = 1;
+   */
+  award?: RewardAward | undefined;
+};
+
+/**
+ * Describes the message rewards.v1.AcknowledgeMyRewardAwardResponse.
+ * Use `create(AcknowledgeMyRewardAwardResponseSchema)` to create a new message.
+ */
+export const AcknowledgeMyRewardAwardResponseSchema: GenMessage<AcknowledgeMyRewardAwardResponse> = /*@__PURE__*/
+  messageDesc(file_rewards_v1_rewards, 4);
+
+/**
  * ListMyRewardAwardsRequest requests a page of awards for the authenticated root account.
  *
  * @generated from message rewards.v1.ListMyRewardAwardsRequest
@@ -202,7 +272,7 @@ export type ListMyRewardAwardsRequest = Message<"rewards.v1.ListMyRewardAwardsRe
  * Use `create(ListMyRewardAwardsRequestSchema)` to create a new message.
  */
 export const ListMyRewardAwardsRequestSchema: GenMessage<ListMyRewardAwardsRequest> = /*@__PURE__*/
-  messageDesc(file_rewards_v1_rewards, 3);
+  messageDesc(file_rewards_v1_rewards, 5);
 
 /**
  * ListMyRewardAwardsResponse contains newest awards first.
@@ -225,7 +295,7 @@ export type ListMyRewardAwardsResponse = Message<"rewards.v1.ListMyRewardAwardsR
   nextPageToken: string;
 
   /**
-   * True while a campaign can still publish new awards, or while one of this account's awards is awaiting a destination, ready for payout, or failed and may be retried. When false, repeated polling cannot return new awards or award changes until a new campaign is created; check again on the next page load or focus.
+   * True while a campaign can still publish new awards, or while one of this account's awards is awaiting a destination, ready for payout, or failed and may be retried. When false, repeated polling cannot return new awards or delivery changes until a new campaign is created; check again on the next page load or focus. Seen marks can still change when another session acknowledges an award.
    *
    * @generated from field: bool awards_may_change = 3;
    */
@@ -237,7 +307,7 @@ export type ListMyRewardAwardsResponse = Message<"rewards.v1.ListMyRewardAwardsR
  * Use `create(ListMyRewardAwardsResponseSchema)` to create a new message.
  */
 export const ListMyRewardAwardsResponseSchema: GenMessage<ListMyRewardAwardsResponse> = /*@__PURE__*/
-  messageDesc(file_rewards_v1_rewards, 4);
+  messageDesc(file_rewards_v1_rewards, 6);
 
 /**
  * RewardFulfillmentMethod identifies how an award will be delivered.
@@ -318,6 +388,7 @@ export const RewardFulfillmentStateSchema: GenEnum<RewardFulfillmentState> = /*@
 export const RewardCampaignService: GenService<{
   /**
    * List published awards for the authenticated root account, newest first.
+   * An API key needs READ_REWARDS and must be scoped to the main account.
    *
    * @generated from rpc rewards.v1.RewardCampaignService.ListMyRewardAwards
    */
@@ -325,6 +396,16 @@ export const RewardCampaignService: GenService<{
     methodKind: "unary";
     input: typeof ListMyRewardAwardsRequestSchema;
     output: typeof ListMyRewardAwardsResponseSchema;
+  },
+  /**
+   * Acknowledge revealing an award or seeing its delivery for the authenticated root account. At least one mark is required. Marks are independent, permanent and idempotent; timestamps are assigned at first acknowledgement. Awards owned by another account return not_found.
+   *
+   * @generated from rpc rewards.v1.RewardCampaignService.AcknowledgeMyRewardAward
+   */
+  acknowledgeMyRewardAward: {
+    methodKind: "unary";
+    input: typeof AcknowledgeMyRewardAwardRequestSchema;
+    output: typeof AcknowledgeMyRewardAwardResponseSchema;
   },
   /**
    * Record a write-once external payout destination for an award owned by the authenticated root account.

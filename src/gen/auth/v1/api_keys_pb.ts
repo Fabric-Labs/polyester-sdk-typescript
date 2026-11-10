@@ -533,7 +533,9 @@ export const ApiKeyService: GenService<{
     output: typeof CreateApiKeyResponseSchema;
   },
   /**
-   * List non-revoked API keys visible to the caller, newest first.
+   * List non-revoked API keys visible to the caller, newest first. An API key
+   * needs READ_API_KEYS; a key scoped to a sub-account sees only that
+   * sub-account's keys.
    *
    * @generated from rpc auth.v1.ApiKeyService.ListApiKeys
    */
@@ -544,6 +546,8 @@ export const ApiKeyService: GenService<{
   },
   /**
    * Get a single API key owned by the caller or scoped to a sub-account the caller administers.
+   * An API key needs READ_API_KEYS; a key scoped to a sub-account reads only
+   * that sub-account's keys.
    *
    * @generated from rpc auth.v1.ApiKeyService.GetApiKey
    */

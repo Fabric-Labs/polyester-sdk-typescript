@@ -9,7 +9,7 @@ import { enumDesc, fileDesc } from "@bufbuild/protobuf/codegenv2";
  * Describes the file ledger/v1/catalog.proto.
  */
 export const file_ledger_v1_catalog: GenFile = /*@__PURE__*/
-  fileDesc("ChdsZWRnZXIvdjEvY2F0YWxvZy5wcm90bxIJbGVkZ2VyLnYxKkcKC0FjY291bnRDb2RlEhwKGEFDQ09VTlRfQ09ERV9VTlNQRUNJRklFRBAAEgwKB0ZVTkRJTkcQrAISDAoHVFJBRElORxCtAirCAgoMVHJhbnNmZXJDb2RlEh0KGVRSQU5TRkVSX0NPREVfVU5TUEVDSUZJRUQQABIMCgdERVBPU0lUEOgHEg0KCFdJVEhEUkFXEOkHEg4KCU1BS0VSX0ZFRRDyBxIOCglUQUtFUl9GRUUQ8wcSFgoRSU5URVJOQUxfVFJBTlNGRVIQhggSDwoKVFJBREVfQkFTRRCHCBIQCgtUUkFERV9RVU9URRCICBILCgZSRUJBVEUQkQgSFwoSRlVORElOR19UT19UUkFESU5HEKQIEhcKElRSQURJTkdfVE9fRlVORElORxClCBIdChhUUkFESU5HX1dJVEhEUkFXX1JFU0VSVkUQpggSGgoVRlVORElOR19VU0VSX1RSQU5TRkVSEKcIEiEKHFRSQURJTkdfV0lUSERSQVdfUkVRVUVTVF9GRUUQqQhCQFo+Z2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9sZWRnZXIvdjE7bGVkZ2VydjFiBnByb3RvMw==");
+  fileDesc("ChdsZWRnZXIvdjEvY2F0YWxvZy5wcm90bxIJbGVkZ2VyLnYxKkcKC0FjY291bnRDb2RlEhwKGEFDQ09VTlRfQ09ERV9VTlNQRUNJRklFRBAAEgwKB0ZVTkRJTkcQrAISDAoHVFJBRElORxCtAirxAwoMVHJhbnNmZXJDb2RlEh0KGVRSQU5TRkVSX0NPREVfVU5TUEVDSUZJRUQQABIMCgdERVBPU0lUEOgHEg0KCFdJVEhEUkFXEOkHEg4KCU1BS0VSX0ZFRRDyBxIOCglUQUtFUl9GRUUQ8wcSFgoRSU5URVJOQUxfVFJBTlNGRVIQhggSDwoKVFJBREVfQkFTRRCHCBIQCgtUUkFERV9RVU9URRCICBILCgZSRUJBVEUQkQgSFwoSRlVORElOR19UT19UUkFESU5HEKQIEhcKElRSQURJTkdfVE9fRlVORElORxClCBIdChhUUkFESU5HX1dJVEhEUkFXX1JFU0VSVkUQpggSGgoVRlVORElOR19VU0VSX1RSQU5TRkVSEKcIEiEKHFRSQURJTkdfV0lUSERSQVdfUkVRVUVTVF9GRUUQqQgSHQoYVFJBRElOR19XSVRIRFJBV19GRUVfTEVHEKoIEhwKF1FVSUNLU1dBUF9QT0xZRVNURVJfRkVFEKsIEhkKFFFVSUNLU1dBUF9CUk9LRVJfRkVFEKwIEhwKF1FVSUNLU1dBUF9BRkZJTElBVEVfRkVFEK0IEg4KCUZFRV9TV0VFUBCwCBIPCgpGRUVfUkVGSUxMELEIEhYKEVNZU1RFTV9BREpVU1RNRU5UELIIQkBaPmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vbGVkZ2VyL3YxO2xlZGdlcnYxYgZwcm90bzM=");
 
 /**
  * AccountCode identifies the ledger account bucket affected by a transfer.
@@ -148,6 +148,56 @@ export enum TransferCode {
    * @generated from enum value: TRADING_WITHDRAW_REQUEST_FEE = 1065;
    */
   TRADING_WITHDRAW_REQUEST_FEE = 1065,
+
+  /**
+   * Fee paid to a fee recipient when a trading withdrawal completes.
+   *
+   * @generated from enum value: TRADING_WITHDRAW_FEE_LEG = 1066;
+   */
+  TRADING_WITHDRAW_FEE_LEG = 1066,
+
+  /**
+   * QuickSwap fee paid to Polyester in the received asset.
+   *
+   * @generated from enum value: QUICKSWAP_POLYESTER_FEE = 1067;
+   */
+  QUICKSWAP_POLYESTER_FEE = 1067,
+
+  /**
+   * QuickSwap fee paid to a broker in the received asset.
+   *
+   * @generated from enum value: QUICKSWAP_BROKER_FEE = 1068;
+   */
+  QUICKSWAP_BROKER_FEE = 1068,
+
+  /**
+   * QuickSwap fee paid to an affiliate in the received asset.
+   *
+   * @generated from enum value: QUICKSWAP_AFFILIATE_FEE = 1069;
+   */
+  QUICKSWAP_AFFILIATE_FEE = 1069,
+
+  /**
+   * Collected fees transferred to the fee treasury's trading account.
+   *
+   * @generated from enum value: FEE_SWEEP = 1072;
+   */
+  FEE_SWEEP = 1072,
+
+  /**
+   * Funds transferred from the fee treasury's trading account to replenish fee funds.
+   *
+   * @generated from enum value: FEE_REFILL = 1073;
+   */
+  FEE_REFILL = 1073,
+
+  /**
+   * Balance adjustment with a system account, including account seeding credits or corrections.
+   * May credit or debit the user's account; the transfer direction identifies which.
+   *
+   * @generated from enum value: SYSTEM_ADJUSTMENT = 1074;
+   */
+  SYSTEM_ADJUSTMENT = 1074,
 }
 
 /**

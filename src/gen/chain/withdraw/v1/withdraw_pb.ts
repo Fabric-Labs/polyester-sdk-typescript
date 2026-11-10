@@ -746,7 +746,8 @@ export const WithdrawDestinationValidationCodeSchema: GenEnum<WithdrawDestinatio
 export const WithdrawService: GenService<{
   /**
    * Validate an external-chain withdraw destination for an authenticated
-   * caller without creating, signing, or reserving a withdraw.
+   * caller without creating, signing, or reserving a withdraw. An API key
+   * needs READ_WITHDRAW_VALIDATION within its scope.
    *
    * @generated from rpc chain.withdraw.v1.WithdrawService.ValidateWithdrawDestination
    */
