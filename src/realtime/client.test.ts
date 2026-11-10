@@ -355,6 +355,26 @@ describe("RealtimeClient", () => {
         expect(centrifugeState.instances).toHaveLength(0);
     });
 
+    it("skips a missing-authentication report after its consumer unsubscribes", async () => {
+        const client = createPublicRealtimeClient();
+        const canceled = vi.fn();
+        const canceledOrders = vi.fn();
+        const kept = vi.fn();
+
+        client.subscribe("private:test", { onPublication: () => {}, onError: canceled })();
+        client.connectPrivateOrders({
+            accountId: formatId(1n),
+            onEvent: () => {},
+            onError: canceledOrders,
+        })();
+        client.subscribe("private:test", { onPublication: () => {}, onError: kept });
+        await Promise.resolve();
+
+        expect(canceled).not.toHaveBeenCalled();
+        expect(canceledOrders).not.toHaveBeenCalled();
+        expect(kept).toHaveBeenCalledOnce();
+    });
+
     it("makes unsubscribe handles idempotent", async () => {
         const client = createPublicRealtimeClient();
         const unsubscribe = client.subscribe("public:test", { onPublication: () => {} });

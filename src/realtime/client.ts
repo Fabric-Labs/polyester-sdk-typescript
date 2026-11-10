@@ -742,6 +742,22 @@ export class RealtimeClient implements PolyesterRealtime {
         }
     }
 
+    /** Reports a missing-auth error on the next microtask unless the caller unsubscribes first. */
+    #reportAuthErrorLater(
+        channel: string,
+        error: AuthenticationError,
+        onError: ErrorHandler,
+    ): () => void {
+        let closed = false;
+        const ctx = createSdkSubscriptionErrorContext(channel, "auth", error);
+        queueMicrotask(() => {
+            if (!closed) this.#callErrorHandler(onError, ctx);
+        });
+        return () => {
+            closed = true;
+        };
+    }
+
     /**
      * Subscribes to a realtime channel and returns an unsubscribe function. Missing
      * authentication is reported to `onError`, or thrown synchronously when no error
@@ -756,9 +772,7 @@ export class RealtimeClient implements PolyesterRealtime {
             if (!(error instanceof AuthenticationError)) throw error;
             if (!handlers.onError) throw error;
 
-            const ctx = createSdkSubscriptionErrorContext(channel, "auth", error);
-            queueMicrotask(() => this.#callErrorHandler(handlers.onError, ctx));
-            return () => {};
+            return this.#reportAuthErrorLater(channel, error, handlers.onError);
         }
         shared.consumers++;
 
@@ -944,9 +958,7 @@ export class RealtimeClient implements PolyesterRealtime {
                 `Cannot subscribe to private channel "${channel}" without authentication`,
             );
             if (!params.onError) throw error;
-            const ctx = createSdkSubscriptionErrorContext(channel, "auth", error);
-            queueMicrotask(() => this.#callErrorHandler(params.onError, ctx));
-            return () => {};
+            return this.#reportAuthErrorLater(channel, error, params.onError);
         }
         // Once loaded, connect at once: an unsubscribe and resubscribe in one tick keeps the stream.
         if (this.#privateOrders) return this.#privateOrders.connect(params);
