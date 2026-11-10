@@ -231,13 +231,47 @@ function nextTimestamp(): string {
     return String(lastTimestamp);
 }
 
-function canonicalQueryString(params: URLSearchParams): string {
-    const pairs: string[] = [];
-    for (const [k, v] of params.entries()) {
-        pairs.push(`${encodeURIComponent(k)}=${encodeURIComponent(v)}`);
-    }
-    pairs.sort();
-    return pairs.join("&");
+// The signing helpers below work on byte strings: one char per byte, so `<`
+// compares bytes and non-UTF-8 escapes such as `%FF` survive. WHATWG URL
+// serializes `pathname` and `search` as ASCII, so decoding them yields one.
+
+/** Decodes `%XX` escapes, leaving malformed escapes as they are. */
+function percentDecode(ascii: string): string {
+    return ascii.replace(/%([\da-f]{2})/giu, (_, hex: string) =>
+        String.fromCharCode(Number.parseInt(hex, 16)),
+    );
+}
+
+/** Escapes every byte outside RFC 3986's unreserved set, as Go's `url.QueryEscape` with `%20` for space. */
+function escapeQueryComponent(bytes: string): string {
+    return bytes.replace(
+        /[^\w.~-]/gu,
+        (c) => `%${c.charCodeAt(0).toString(16).toUpperCase().padStart(2, "0")}`,
+    );
+}
+
+function compareBytes(a: string, b: string): number {
+    return a < b ? -1 : a > b ? 1 : 0;
+}
+
+/**
+ * Canonicalizes a query as the server's API-key verifier does: form-decode each
+ * pair, sort by key bytes then value bytes, and escape both again.
+ */
+function canonicalQueryString(search: string): string {
+    const decode = (component: string) => percentDecode(component.replaceAll("+", " "));
+    const pairs = search
+        .slice(1)
+        .split("&")
+        .filter(Boolean)
+        .map((pair): [string, string] => {
+            const eq = pair.indexOf("=");
+            return eq === -1
+                ? [decode(pair), ""]
+                : [decode(pair.slice(0, eq)), decode(pair.slice(eq + 1))];
+        });
+    pairs.sort(([ak, av], [bk, bv]) => compareBytes(ak, bk) || compareBytes(av, bv));
+    return pairs.map(([k, v]) => `${escapeQueryComponent(k)}=${escapeQueryComponent(v)}`).join("&");
 }
 
 /**
@@ -273,11 +307,12 @@ export async function createApiKeyEd25519AuthHeaders(
     const urlObj = new URL(request.url);
     const timestamp = request.timestamp ?? nextTimestamp();
     const bodyHash = await sha256Hex(request.body ?? new Uint8Array(0));
-    const canonicalQuery = canonicalQueryString(urlObj.searchParams);
+    const canonicalQuery = canonicalQueryString(urlObj.search);
     // The window line is signed only when the header is sent.
     const windowLine = recvWindow === undefined ? "" : `${recvWindow}\n`;
-    const canonical = `${timestamp}\n${windowLine}${request.method}\n${urlObj.pathname}\n${canonicalQuery}\n${bodyHash}`;
-    const msgBytes = new TextEncoder().encode(canonical);
+    // The server signs the upper-cased method and the decoded path's bytes.
+    const canonical = `${timestamp}\n${windowLine}${request.method.toUpperCase()}\n${percentDecode(urlObj.pathname)}\n${canonicalQuery}\n${bodyHash}`;
+    const msgBytes = Uint8Array.from(canonical, (c) => c.charCodeAt(0));
     // Loaded on demand: browser clients authenticate with JWTs and never sign.
     const { signAsync } = await import("@noble/ed25519");
     const sig = await signAsync(msgBytes, secretKey);
