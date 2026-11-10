@@ -25,6 +25,7 @@ import {
     GetOrderDetailsInputSchema,
     type ModifyOrderInput,
     type NewOrderInput,
+    OpenOrdersInputSchema,
     OrderHistoryInputSchema,
 } from "./orders.schemas.js";
 
@@ -273,6 +274,16 @@ describe("BaseOrdersFilterInputSchema", () => {
         expect(() => v.parse(BaseOrdersFilterInputSchema, { symbolId: [-1.5] })).toThrow();
         expect(() => v.parse(BaseOrdersFilterInputSchema, { symbolId: [0] })).toThrow();
         expect(() => v.parse(BaseOrdersFilterInputSchema, { symbolId: [Number.NaN] })).toThrow();
+    });
+
+    it("rejects a page limit outside 1-1000 before it reaches the wire encoder", () => {
+        for (const schema of [OpenOrdersInputSchema, OrderHistoryInputSchema]) {
+            expect(v.parse(schema, { limit: 1 }).limit).toBe(1);
+            expect(v.parse(schema, { limit: 1000 }).limit).toBe(1000);
+            for (const limit of [-1, 0, 2.5, 1001]) {
+                expect(() => v.parse(schema, { limit })).toThrow();
+            }
+        }
     });
 });
 
