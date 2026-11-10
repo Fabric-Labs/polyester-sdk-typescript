@@ -13,6 +13,7 @@ import {
     PROTOBUF_UINT32_MAX,
 } from "../../shared/wire-bounds.js";
 import { formatId } from "../../utils/base58-id.js";
+import { parse } from "../../shared/validation.js";
 import {
     CreateTriggerResultSchema,
     ListTriggersInputSchema,
@@ -188,6 +189,54 @@ describe("ListTriggerEventsInputSchema", () => {
 });
 
 describe("CreateTriggerInputSchema", () => {
+    it("names the chosen variant's missing field instead of another variant's type", () => {
+        const schema = createCreateTriggerInputSchema(testScales());
+        const base = { symbolId: 1, qty: "0.00036" };
+        const cases = [
+            [
+                {
+                    ...base,
+                    triggerType: "twap",
+                    side: "buy",
+                    sliceIntervalMs: 30_000,
+                    execution: { type: "market_ioc" },
+                },
+                'durationMs: Invalid key: Expected "durationMs"',
+            ],
+            [
+                {
+                    ...base,
+                    triggerType: "take_profit",
+                    side: "sell",
+                    triggerPriceSource: "last",
+                    execution: { type: "market_ioc" },
+                },
+                'triggerPrice: Invalid key: Expected "triggerPrice"',
+            ],
+            [
+                {
+                    ...base,
+                    triggerType: "trailing_stop",
+                    side: "buy",
+                    triggerPriceSource: "last",
+                    trailingDistance: { kind: "bps", bps: 5 },
+                },
+                'limitPrice: Invalid key: Expected "limitPrice"',
+            ],
+            [
+                { ...base, triggerType: "ladder", side: "buy", priceMin: "1", levels: 2 },
+                'priceMax: Invalid key: Expected "priceMax"',
+            ],
+            [
+                { ...base, triggerType: "bogus" },
+                "triggerType must be one of stop_loss, take_profit",
+            ],
+        ] as const;
+        for (const [input, message] of cases) {
+            expect(() => parse(schema, input)).toThrow(message);
+        }
+    });
+
     it("exposes the same conditional child execution types on either side", () => {
         type ExpectedExecution =
             | {
@@ -843,7 +892,7 @@ describe("ModifyTriggerInputSchema", () => {
         });
     });
 
-    it("accepts a 10000 bps distance, caps the selling stop's slippage at 9999 bps", () => {
+    it("accepts a 10000 bps distance and a buy market child's 10000 bps slippage", () => {
         const schema = createModifyTriggerInputSchema(testScales());
         const input = { triggerId: formatId(11n), symbolId: 1 };
 
@@ -859,18 +908,20 @@ describe("ModifyTriggerInputSchema", () => {
                 trailingDistance: { kind: "bps", bps: 10_001 },
             }),
         ).toThrow("trailingDistanceBps must be between 1 and 10000");
-        expect(
-            v.parse(schema, {
-                ...input,
-                maxSlippage: { kind: "bps", bps: 9_999 },
-            }).maxSlippage,
-        ).toEqual({ case: "maxSlippageBps", value: 9_999 });
+        for (const bps of [9_999, 10_000, "10000"]) {
+            expect(
+                v.parse(schema, {
+                    ...input,
+                    maxSlippage: { kind: "bps", bps },
+                }).maxSlippage,
+            ).toEqual({ case: "maxSlippageBps", value: Number(bps) });
+        }
         expect(() =>
             v.parse(schema, {
                 ...input,
-                maxSlippage: { kind: "bps", bps: 10_000 },
+                maxSlippage: { kind: "bps", bps: 10_001 },
             }),
-        ).toThrow("maxSlippageBps must be between 1 and 9999");
+        ).toThrow("maxSlippageBps must be between 1 and 10000");
     });
 
     it("rejects a child limit price patch, which is fixed at creation", () => {
