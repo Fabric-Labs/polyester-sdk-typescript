@@ -108,7 +108,7 @@ export function assertKnownModifyOrderInputKeys(input: object): void {
     }
 }
 
-function createModifyOrderPatchInputSchema(scales: SdkScales) {
+export function createModifyOrderPatchInputSchema(scales: SdkScales) {
     const ModifyOrderSetRiskPatchInputSchema = v.object({
         risk: createRequiredRiskPolicyInputSchema(scales),
         clearRisk: v.optional(v.literal(false)),
