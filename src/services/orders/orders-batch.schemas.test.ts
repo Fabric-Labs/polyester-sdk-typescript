@@ -456,6 +456,28 @@ describe("batch replace schemas", () => {
         ).toThrow();
     });
 
+    it("accepts a price or quantity change together with clearRisk (POLY-8637)", () => {
+        const schema = createBatchReplaceOrdersInputSchema(testScales());
+        const input = v.parse(schema, {
+            symbolId: 1,
+            items: [
+                { orderId: formatId(11n), newPrice: "49999", clearRisk: true },
+                { orderId: formatId(12n), newQty: "0.25", clearRisk: true },
+            ],
+        });
+
+        expect(input.items).toMatchObject([
+            { newPriceTicks: 49_999_000_000_000n, newAttachedRisk: {} },
+            { newQtyScaled: 25_000_000n, newAttachedRisk: {} },
+        ]);
+        expect(() =>
+            v.parse(schema, {
+                symbolId: 1,
+                items: [{ orderId: formatId(11n), newPrice: "1", clearRisk: false }],
+            }),
+        ).not.toThrow();
+    });
+
     it("normalizes admission receipts and validates counts and item order", () => {
         const response = {
             batchRequestId: 21n,
