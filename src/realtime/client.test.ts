@@ -1280,6 +1280,35 @@ describe("RealtimeClient", () => {
         client.disconnect();
     });
 
+    it("sends token requests through the configured fetch", async () => {
+        const globalFetch = vi.spyOn(globalThis, "fetch");
+        const customFetch = vi.fn<typeof fetch>((input) =>
+            Promise.resolve(
+                new Response(JSON.stringify({ token: String(input) }), {
+                    headers: { "content-type": "application/json" },
+                }),
+            ),
+        );
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
+            hasAuth: () => true,
+            fetch: customFetch,
+        });
+
+        client.subscribe("private:test", { onPublication: vi.fn() });
+        await waitForAsyncTokens();
+
+        expect(customFetch.mock.calls.map(([input]) => String(input))).toEqual([
+            "https://api.example.test/v1/rt/token",
+            "https://api.example.test/v1/rt/subscribe?channel=private%3Atest",
+        ]);
+        expect(globalFetch).not.toHaveBeenCalled();
+        client.disconnect();
+    });
+
     it("keeps public and private subscriptions on stable clients", async () => {
         const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
             const url = String(input);

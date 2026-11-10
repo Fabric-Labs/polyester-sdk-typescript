@@ -17,6 +17,7 @@ type CapturedRealtimeConfig = {
     subscribeEndpoint: string;
     getAuthHeaders?: (request: RealtimeAuthRequest) => Promise<HeadersInit> | HeadersInit;
     hasAuth?: () => boolean;
+    fetch?: typeof fetch;
 };
 
 const { realtimeConfigs } = vi.hoisted(() => ({
@@ -117,6 +118,17 @@ describe.each([
         afterEach(() => {
             vi.restoreAllMocks();
             realtimeConfigs.length = 0;
+        });
+
+        it("hands the client fetch to the realtime client", () => {
+            const customFetch = vi.fn<typeof fetch>();
+            const client = new Client({
+                environment: POLYESTER_DEVNET_ENVIRONMENT,
+                fetch: customFetch,
+            });
+            void client.realtime;
+
+            expect(realtimeConfigs[0]?.fetch).toBe(customFetch);
         });
 
         it("uses API-key auth headers for realtime token requests", async () => {

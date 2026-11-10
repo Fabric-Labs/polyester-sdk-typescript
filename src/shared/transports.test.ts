@@ -7,6 +7,7 @@ import {
     type Transport,
 } from "@connectrpc/connect";
 import { create, toBinary, toJsonString } from "@bufbuild/protobuf";
+import { readFileSync } from "node:fs";
 import { createServer, type ServerResponse } from "node:http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { signAsync } from "@noble/ed25519";
@@ -631,6 +632,49 @@ describe("createApiKeyEd25519AuthHeaders", () => {
             "X-API-TIMESTAMP": "1234567890",
             "X-API-SIGNATURE": expectedSignature,
         });
+    });
+
+    // Byte-identical to testdata/signing_query_vectors.json in the Go, Python and
+    // Rust SDKs: the server's canonical query (decoded bytes sorted, then RFC 3986
+    // escaped) and decoded path. Seed 00..1f, timestamp 123, GET, no body.
+    const signingVectors = JSON.parse(
+        readFileSync(new URL("../../testdata/signing_query_vectors.json", import.meta.url), "utf8"),
+    ) as { name: string; url: string; signature_hex: string }[];
+    const vectorAuth = {
+        kind: "api-key-ed25519",
+        getKeyId: () => "test-key",
+        getSecretKey: () => Uint8Array.from({ length: 32 }, (_, i) => i),
+    } as const;
+
+    it.each(signingVectors)("matches the server signing vector $name", async (vector) => {
+        const headers = await createApiKeyEd25519AuthHeaders(vectorAuth, {
+            url: vector.url,
+            method: "GET",
+            timestamp: "123",
+        });
+
+        expect(headers["X-API-SIGNATURE"]).toBe(vector.signature_hex);
+    });
+
+    it.each([
+        "https://api.example.test/x?a=1;b=2",
+        "https://api.example.test/x?a=%zz",
+        "https://api.example.test/x%zz",
+    ])("refuses to sign %s, which the server rejects", async (url) => {
+        await expect(
+            createApiKeyEd25519AuthHeaders(vectorAuth, { url, method: "GET" }),
+        ).rejects.toBeInstanceOf(ConfigurationError);
+    });
+
+    it("signs the method upper-cased, as the server does", async () => {
+        const sign = (method: string) =>
+            createApiKeyEd25519AuthHeaders(vectorAuth, {
+                url: "https://api.example.test/x",
+                method,
+                timestamp: "123",
+            });
+
+        expect((await sign("get"))["X-API-SIGNATURE"]).toBe(signingVectors[0]!.signature_hex);
     });
 
     it("sends and signs a receive window right after the timestamp line", async () => {

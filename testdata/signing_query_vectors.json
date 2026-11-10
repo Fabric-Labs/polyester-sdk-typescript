@@ -1,0 +1,205 @@
+[
+  {
+    "name": "empty",
+    "url": "https://api.example.test/x",
+    "canonical_query": "",
+    "signature_hex": "ff60901e43e31610bec379c7db782c45cb1ae4ed4c6461c5de4cb3c887cf9db4b4e6d7f3ce3480234ced896f5c61da3f1614312a274e95e59219da119ba50302"
+  },
+  {
+    "name": "empty-marker",
+    "url": "https://api.example.test/x?",
+    "canonical_query": "",
+    "signature_hex": "ff60901e43e31610bec379c7db782c45cb1ae4ed4c6461c5de4cb3c887cf9db4b4e6d7f3ce3480234ced896f5c61da3f1614312a274e95e59219da119ba50302"
+  },
+  {
+    "name": "ordinary",
+    "url": "https://api.example.test/x?a=1&b=2",
+    "canonical_query": "a=1&b=2",
+    "signature_hex": "0ff9bcb377696e93c143081c79c0e9b5784512678cc0abbf6247fa6fb681779a14b07fb0de1aa245a6ef877a154f74b0d9432aa3c89354f2f9125a02610f0305"
+  },
+  {
+    "name": "ordinary-reversed",
+    "url": "https://api.example.test/x?b=2&a=1",
+    "canonical_query": "a=1&b=2",
+    "signature_hex": "0ff9bcb377696e93c143081c79c0e9b5784512678cc0abbf6247fa6fb681779a14b07fb0de1aa245a6ef877a154f74b0d9432aa3c89354f2f9125a02610f0305"
+  },
+  {
+    "name": "duplicate-values",
+    "url": "https://api.example.test/x?a=2&a=1",
+    "canonical_query": "a=1&a=2",
+    "signature_hex": "592865254cf4e59a27d36011babff28e37135d6c203caeda662bc2fca5741b79c013b4b82e802616fb9e5044fb64000da4e3f3154ac3f7d4c05e10ba37881605"
+  },
+  {
+    "name": "duplicate-values-sorted",
+    "url": "https://api.example.test/x?a=1&a=2",
+    "canonical_query": "a=1&a=2",
+    "signature_hex": "592865254cf4e59a27d36011babff28e37135d6c203caeda662bc2fca5741b79c013b4b82e802616fb9e5044fb64000da4e3f3154ac3f7d4c05e10ba37881605"
+  },
+  {
+    "name": "repeated-pairs-and-blanks",
+    "url": "https://api.example.test/x?a=2&a=&a=1&a=1&b",
+    "canonical_query": "a=&a=1&a=1&a=2&b=",
+    "signature_hex": "c27bd8203b4c5c18f41dafbec8cdc69c6967bb61287d0f853fe9c7f2a8333f1bd2f5a289525cec197d3b3563fab9e79154d8a39f252f09ee1b16a3073630bf02"
+  },
+  {
+    "name": "prefix-keys",
+    "url": "https://api.example.test/x?a1=x&a=y",
+    "canonical_query": "a=y&a1=x",
+    "signature_hex": "0940b4b1d26ddc850e8ac82de3dc323f96dd7b7b58a40351947a94ffc5d98f70e22beb305359827dd2a28fcdf6e924417fb221fec7b4b1ecbe4e29caf1dd5503"
+  },
+  {
+    "name": "encoded-values",
+    "url": "https://api.example.test/x?v=0&v=%3A",
+    "canonical_query": "v=0&v=%3A",
+    "signature_hex": "dd3862234f98925c130f49bafee69d21cc3012a826be13f93d41a61b98c37fcc847f28e32160bc728e186a0f7270d7a427d862b08c131a37952a4161c16ac901"
+  },
+  {
+    "name": "encoded-values-reversed",
+    "url": "https://api.example.test/x?v=%3a&v=0",
+    "canonical_query": "v=0&v=%3A",
+    "signature_hex": "dd3862234f98925c130f49bafee69d21cc3012a826be13f93d41a61b98c37fcc847f28e32160bc728e186a0f7270d7a427d862b08c131a37952a4161c16ac901"
+  },
+  {
+    "name": "encoded-keys",
+    "url": "https://api.example.test/x?%3A=x&0=y",
+    "canonical_query": "0=y&%3A=x",
+    "signature_hex": "505cb833d5a989b1497fec0330fe590c335f191f0b320e5916bb120f3cf1deda6e08389718e6d702ac47938e6d174179b506ac944ad9607df403f3ab6d2b3104"
+  },
+  {
+    "name": "spaces-and-plus",
+    "url": "https://api.example.test/x?v=%2B&v=+&v=%20",
+    "canonical_query": "v=%20&v=%20&v=%2B",
+    "signature_hex": "5f13a0c896160535094b8ac1462a0942b83ca1e429e0015ff868be9795badbe6bafc64805e7345b3b9ac6e305db5cd287c58b004ef3c1c7a584ee1f4cd6e9500"
+  },
+  {
+    "name": "unreserved",
+    "url": "https://api.example.test/x?path=foo%2Fbar&name=a_b.c~d-e",
+    "canonical_query": "name=a_b.c~d-e&path=foo%2Fbar",
+    "signature_hex": "f4b899524e34922522e98ed5eb492bcb6c59f70e91175d537a9c20fd45e3d3121479cb505225b410205c453f9327a88200024a07e80bae68be4f4e6eb8fec404"
+  },
+  {
+    "name": "unicode",
+    "url": "https://api.example.test/x?v=%E2%9C%93&v=z",
+    "canonical_query": "v=z&v=%E2%9C%93",
+    "signature_hex": "a55ff3ab6223fe479f0c5834963184e08aed08ae2fa2cf210a2138851068dbef722602dfadde4c3c37cfd2276877311320948081a466b599d95b0acfc89bf701"
+  },
+  {
+    "name": "non-utf8-value",
+    "url": "https://api.example.test/x?a=%FF",
+    "canonical_query": "a=%FF",
+    "signature_hex": "d41192c4576cd1b2d20f16e777b965e8f3efb7b673ff986b92500b189c09355b0f14f1b74eb5498f33864f9d388005e46f67ef5a69e3840d5af97b4cbb81700e"
+  },
+  {
+    "name": "non-utf8-key",
+    "url": "https://api.example.test/x?%FF=1",
+    "canonical_query": "%FF=1",
+    "signature_hex": "cda43e08b7da2b714f567f0cb526c1a428a63108db921382fa72fc92412e19fc26e16f46a6ed6f8f8409e3187131ee39ae1f8665349945b743a155a1f7501808"
+  },
+  {
+    "name": "non-utf8-values",
+    "url": "https://api.example.test/x?v=%FF&v=%FE",
+    "canonical_query": "v=%FE&v=%FF",
+    "signature_hex": "bbd12abfebfc70da584170f72422087e17ae3c14ef9a891c2d9377878fe5211e285783620319a1ecf139e7d16db228883f347c53e4076690a5197c1d8d994407"
+  },
+  {
+    "name": "mixed-utf8-values",
+    "url": "https://api.example.test/x?v=%FF&v=%C3%A9",
+    "canonical_query": "v=%C3%A9&v=%FF",
+    "signature_hex": "7099e4ab205735c0c6fa0d16182ae5220bba8db2d73b543e12c965870ca11e2386174f88fe29d7290c882463bf9308665023e3757ed669c0cd9cc912d0212406"
+  },
+  {
+    "name": "mixed-four-byte-values",
+    "url": "https://api.example.test/x?v=%FF&v=%F0%9F%98%80",
+    "canonical_query": "v=%F0%9F%98%80&v=%FF",
+    "signature_hex": "c3a06a9bc3c3f4267cd8d44e7a4b8959f2557eaf487f04417e0c8b649f9c42ad922f841f664b7abbf3c685277efe85fb2ba5fbf2664ac7fdc615bb83ebc5500f"
+  },
+  {
+    "name": "mixed-four-byte-keys",
+    "url": "https://api.example.test/x?%FF=z&%F0%9F%98%80=a",
+    "canonical_query": "%F0%9F%98%80=a&%FF=z",
+    "signature_hex": "1097e47d3e1756e3f291a83ac8f13ac184d85a2d914d706ced2e4aa3388799f20f569ebf6a0dc64a2d24367bd592f2dc4c85dd33f212dae2789b685072830f0b"
+  },
+  {
+    "name": "path-unreserved-escape",
+    "url": "https://api.example.test/v1/orders/op%65n",
+    "canonical_query": "",
+    "canonical_path": "/v1/orders/open",
+    "signature_hex": "42d29f145c8ef7aa6df056f48cb96c14711a698375664eac9cba5f69b6ef813472d932fcf3ff76795ed59297ba803eaeb80cf98407a9d7b069a35ea821b5800f"
+  },
+  {
+    "name": "path-escaped-slash",
+    "url": "https://api.example.test/a%2Fb",
+    "canonical_query": "",
+    "canonical_path": "/a/b",
+    "signature_hex": "3da9910ea5093d6db3d70f225460a33e6cb587a2d4367f68dbd850c24b68cb3462548133a996e7f04864a2136cc8aa33444b9a0659e02debdbbcb50298aae307"
+  },
+  {
+    "name": "path-lowercase-hex",
+    "url": "https://api.example.test/a%2fb",
+    "canonical_query": "",
+    "canonical_path": "/a/b",
+    "signature_hex": "3da9910ea5093d6db3d70f225460a33e6cb587a2d4367f68dbd850c24b68cb3462548133a996e7f04864a2136cc8aa33444b9a0659e02debdbbcb50298aae307"
+  },
+  {
+    "name": "path-space",
+    "url": "https://api.example.test/a%20b",
+    "canonical_query": "",
+    "canonical_path": "/a b",
+    "signature_hex": "8f710340dfd1589fcb87664ef839ff093d219655f53ea3bfba7e12e4eb0fec4dd545a78acbaab6b69cd81c454b193227c3e142d5140de5530fe70bd12256bb07"
+  },
+  {
+    "name": "path-escaped-percent",
+    "url": "https://api.example.test/a%25b",
+    "canonical_query": "",
+    "canonical_path": "/a%b",
+    "signature_hex": "cb4e035982fab718bd5f33d804612746b964f9272791780ef0ffab2f120c4e123ec0e1498cee54a74b23a97c4154db48e94fc4d15da823cf6944622cd6e86208"
+  },
+  {
+    "name": "path-double-escape",
+    "url": "https://api.example.test/a%252Fb",
+    "canonical_query": "",
+    "canonical_path": "/a%2Fb",
+    "signature_hex": "11f39175092eb122bc016b1a5712e923ae433c62915f7eb7a5cca89142e0bda5b6288857f71944e527b2d70afe5cd1b2b27fcb6ead6b94e0cb679a6eb623b507"
+  },
+  {
+    "name": "path-plus-stays-plus",
+    "url": "https://api.example.test/a+b%2B",
+    "canonical_query": "",
+    "canonical_path": "/a+b+",
+    "signature_hex": "3f9c74bf57ea9765426fb46a509f7f4cc8a033ed13d5236f537486a8687937e058b2117c75ad6e08a71e991c33d887479774f024abb788c2344a6bd748bff303"
+  },
+  {
+    "name": "path-utf8-escape",
+    "url": "https://api.example.test/caf%C3%A9",
+    "canonical_query": "",
+    "canonical_path": "/café",
+    "signature_hex": "50977067dd11d5a3432c5bb541ba809f4fb38c6748dc01fadd6ab67a537651dda44afb540149f861348a10f12c731bf8690bbfe9e9002c28ab4e5d9a843ad607"
+  },
+  {
+    "name": "path-raw-utf8",
+    "url": "https://api.example.test/café",
+    "canonical_query": "",
+    "canonical_path": "/café",
+    "signature_hex": "50977067dd11d5a3432c5bb541ba809f4fb38c6748dc01fadd6ab67a537651dda44afb540149f861348a10f12c731bf8690bbfe9e9002c28ab4e5d9a843ad607"
+  },
+  {
+    "name": "path-invalid-utf8",
+    "url": "https://api.example.test/a%FF",
+    "canonical_query": "",
+    "signature_hex": "9976eb39d61c3136d6e502c41237d1cb57342bd67456f2f77c0f8a7e3e94e4c4ee3e630e60445449abc224cf106dffd8b531884d4e5052f1ccc5f535ad74660a"
+  },
+  {
+    "name": "path-and-query",
+    "url": "https://api.example.test/x%2Fy?b=2&a=%31",
+    "canonical_query": "a=1&b=2",
+    "canonical_path": "/x/y",
+    "signature_hex": "a8e05094f7c4c2da865f12f072fbd8c4708aa3befd38ff274854cc8f5118be01983e134eefd2c4ae232c63b38fef325cd099ec717d06c744b829bed7ca237b09"
+  },
+  {
+    "name": "path-trailing-slash",
+    "url": "https://api.example.test/op%65n/",
+    "canonical_query": "",
+    "canonical_path": "/open/",
+    "signature_hex": "0df27fb14b65513155b5cf20aef7f1d04e15863b3be4500e1a01e55e22337a17131d0d07442a04e75186a9de312d7f4bdf2aafdbfd49cae6bc265a81c3f58f03"
+  }
+]

@@ -73,9 +73,9 @@ interface PolyesterClientCommonConfig {
      */
     wireFormat?: "binary" | "json";
     /**
-     * Custom fetch implementation for SDK HTTP requests. Defaults to the global
-     * `fetch`, resolved on each request. Ignored when `transports` is
-     * provided.
+     * Custom fetch implementation for SDK HTTP requests, realtime token requests
+     * included. Defaults to the global `fetch`, resolved on each request. Injected
+     * `transports` and `realtimeClient` ignore it.
      */
     fetch?: typeof fetch;
     /**
@@ -223,6 +223,7 @@ export class PolyesterCore {
     readonly #authProvider: JwtAuthProvider | ApiKeyEd25519AuthProvider | undefined;
     readonly #realtimeConfig: PolyesterRealtimeAuthConfig | undefined;
     readonly #configRealtimeClient: PolyesterRealtime | undefined;
+    readonly #fetch: typeof fetch | undefined;
     readonly #configCatalog: ClientCatalog | undefined;
     readonly #configCatalogSnapshot: CatalogSnapshot | undefined;
     readonly #configCatalogCell: CatalogSnapshotCell | undefined;
@@ -255,6 +256,7 @@ export class PolyesterCore {
         this.#authProvider = config.auth;
         this.#realtimeConfig = config.realtime;
         this.#configRealtimeClient = config.realtimeClient;
+        this.#fetch = config.fetch;
         this.#configCatalog = config.catalog;
         this.#configCatalogSnapshot = config.catalogSnapshot;
         this.#configCatalogCell = config.catalogCell;
@@ -288,6 +290,7 @@ export class PolyesterCore {
                     getAuthHeaders:
                         this.#realtimeConfig?.getAuthHeaders ?? realtimeAuth.getAuthHeaders,
                     hasAuth: this.#realtimeConfig?.hasAuth ?? realtimeAuth.hasAuth,
+                    fetch: this.#fetch,
                 });
             }
         }
