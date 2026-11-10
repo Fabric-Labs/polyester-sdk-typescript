@@ -131,6 +131,15 @@ export class TriggersService {
     }
 
     /**
+     * Converts a `triggers.v1.Trigger` message received from another API into the same `Trigger`
+     * record that `get`, `list`, and `subscribe` return, scaled with this client's catalog.
+     */
+    async fromProto(trigger: Proto.Trigger): Promise<Trigger> {
+        await this.#scales.ready();
+        return parse(this.#triggerSchema, trigger);
+    }
+
+    /**
      * Lists triggers for the resolved account scope with optional symbol ID, status, trigger type, parent order, limit, and page-token filters. Results are returned newest-first.
      */
     async list(
