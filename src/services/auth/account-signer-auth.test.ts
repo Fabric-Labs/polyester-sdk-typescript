@@ -15,7 +15,7 @@ import {
     ConfigurationError,
     ServiceUnavailableError,
 } from "../../shared/errors.js";
-import type { LoginWithWalletInput, LoginWithWalletResponse } from "./auth.js";
+import type { LoginWithWalletInput, LoginWithWalletResponse, Me } from "./auth.js";
 import { polyesterSession } from "./session.js";
 import { createMemoryAuthTokenStorage, type AuthTokenStorage } from "./token-storage.js";
 
@@ -551,7 +551,11 @@ describe("AccountSignerAuthService", () => {
             },
             username: "stale-name",
         });
-        vi.spyOn(auth, "me").mockResolvedValue({ accountId: "account-1", username: "hunter" });
+        vi.spyOn(auth, "me").mockResolvedValue({
+            accountId: "account-1",
+            username: "hunter",
+            rootSmartAccountAddress: "",
+        });
 
         await expect(auth.restoreSession()).resolves.toEqual({
             accountId: "account-1",
@@ -614,7 +618,7 @@ describe("AccountSignerAuthService", () => {
             primaryWallet: accountSigner.ownerAddress ?? accountSigner.accountAddress,
             smartAccount: accountSigner.accountAddress,
         });
-        const restore = deferred<{ accountId: string; username: string }>();
+        const restore = deferred<Me>();
         vi.spyOn(auth, "me").mockReturnValue(restore.promise);
         const { loginWithWallet } = mockLogin(auth);
         loginWithWallet.mockResolvedValue({
@@ -677,7 +681,7 @@ describe("AccountSignerAuthService", () => {
             const fresh = jwtWithExp(Math.floor(Date.now() / 1000) + 7200);
             const storage = createTestStorage(previous);
             const { auth } = authFixture(signer(), storage);
-            const pending = deferred<{ accountId: string; username: string }>();
+            const pending = deferred<Me>();
             vi.spyOn(auth, "me").mockReturnValue(pending.promise);
             const stateChange = vi.fn();
             const loggedOut = vi.fn();
@@ -685,7 +689,8 @@ describe("AccountSignerAuthService", () => {
             auth.events.on("loggedOut", loggedOut);
             const restoring = auth.restoreSession();
             storage.set(fresh);
-            if (outcome === "success") pending.resolve({ accountId: "old", username: "old" });
+            if (outcome === "success")
+                pending.resolve({ accountId: "old", username: "old", rootSmartAccountAddress: "" });
             else pending.reject(new AuthenticationError("rejected"));
             await expect(restoring).resolves.toBeNull();
             expect(storage.get()).toBe(fresh);
@@ -700,7 +705,11 @@ describe("AccountSignerAuthService", () => {
         const token = jwtWithExp(Math.floor(Date.now() / 1000) + 3600);
         const storage = createTestStorage(token);
         const { auth } = authFixture(() => pendingSigner.promise, storage);
-        vi.spyOn(auth, "me").mockResolvedValue({ accountId: "old", username: "old" });
+        vi.spyOn(auth, "me").mockResolvedValue({
+            accountId: "old",
+            username: "old",
+            rootSmartAccountAddress: "",
+        });
         const restoring = auth.restoreSession();
         await Promise.resolve();
         const freshSigner = signer({
@@ -732,14 +741,18 @@ describe("AccountSignerAuthService", () => {
             const loggedOut = vi.fn();
             auth.events.on("stateChange", stateChange);
             auth.events.on("loggedOut", loggedOut);
-            const pending = deferred<{ accountId: string; username: string }>();
+            const pending = deferred<Me>();
             vi.spyOn(auth, "me").mockReturnValue(pending.promise);
             const restoring = auth.restoreSession();
             if (reason === "rejected")
                 pending.reject(new ConnectError("rejected", Code.Unauthenticated));
             else {
                 vi.advanceTimersByTime(61000);
-                pending.resolve({ accountId: "account-1", username: "user" });
+                pending.resolve({
+                    accountId: "account-1",
+                    username: "user",
+                    rootSmartAccountAddress: "",
+                });
             }
             await expect(restoring).resolves.toBeNull();
             expect(storage.get()).toBeNull();
@@ -755,7 +768,11 @@ describe("AccountSignerAuthService", () => {
         const { auth } = authFixture(async () => {
             throw failure;
         }, storage);
-        vi.spyOn(auth, "me").mockResolvedValue({ accountId: "account-1", username: "user" });
+        vi.spyOn(auth, "me").mockResolvedValue({
+            accountId: "account-1",
+            username: "user",
+            rootSmartAccountAddress: "",
+        });
         await expect(auth.restoreSession()).rejects.toBe(failure);
         expect(storage.clear).not.toHaveBeenCalled();
         expect(auth.getState().isAuthenticated).toBe(false);
@@ -1018,7 +1035,11 @@ describe("AccountSignerAuthService", () => {
 
         it("keeps the session when me() still accepts the token", async () => {
             const { auth, token, loggedOut, me } = rejectedSession();
-            me.mockResolvedValue({ accountId: "account-1", username: "hunter" });
+            me.mockResolvedValue({
+                accountId: "account-1",
+                username: "hunter",
+                rootSmartAccountAddress: "",
+            });
 
             await auth.handleRejectedToken(token);
 
