@@ -70,15 +70,6 @@ import {
     createBatchReplaceOrdersInputSchema,
 } from "./orders.schemas.js";
 
-function hasKnownOrderSymbol(scales: SdkScales, order: { symbolId: number }): boolean {
-    try {
-        scales.baseQty(order.symbolId);
-        return true;
-    } catch {
-        return false;
-    }
-}
-
 const MISCLASSIFIED_ORDER_NOT_FOUND_MESSAGE = "order not found";
 
 function isOrderNotFoundError(error: unknown): boolean {
@@ -170,7 +161,7 @@ export class OrdersService {
     }
 
     /**
-     * Returns open orders for the resolved root account or subaccount, with optional symbol IDs, trigger ID, side, pagination, and attached-risk inclusion filters. Results are paginated with a server-determined page size: a single call is not the full set of open orders — keep calling with the returned nextPageToken until it is empty.
+     * Returns open orders for the resolved root account or subaccount, with optional symbol IDs, trigger ID, side, pagination, and attached-risk inclusion filters. Results are paginated with a server-determined page size: a single call is not the full set of open orders — keep calling with the returned nextPageToken until it is empty. Throws CatalogLookupError when an order's symbolId is missing from the client catalog, such as a pair listed after the catalog loaded; refresh the catalog and read again.
      */
     async listOpen(
         input: v.InferInput<typeof OpenOrdersInputSchema> = {},
@@ -184,15 +175,13 @@ export class OrdersService {
             toConnectCallOptions(options),
         );
         return {
-            orders: res.orders
-                .filter((order) => hasKnownOrderSymbol(this.#scales, order))
-                .map((order) => formatOrder(this.#scales, order)),
+            orders: res.orders.map((order) => formatOrder(this.#scales, order)),
             nextPageToken: res.nextPageToken,
         };
     }
 
     /**
-     * Returns historical orders for the resolved account scope, supporting symbol IDs, trigger ID, side, status, time range, pagination, and attached-risk filters. A page may hold fewer orders than requested, or none: keep calling with the returned nextPageToken until it is empty.
+     * Returns historical orders for the resolved account scope, supporting symbol IDs, trigger ID, side, status, time range, pagination, and attached-risk filters. A page may hold fewer orders than requested, or none: keep calling with the returned nextPageToken until it is empty. Throws CatalogLookupError when an order's symbolId is missing from the client catalog, such as a pair listed after the catalog loaded; refresh the catalog and read again.
      */
     async listHistory(
         input: v.InferInput<typeof OrderHistoryInputSchema> = {},
@@ -206,9 +195,7 @@ export class OrdersService {
             toConnectCallOptions(options),
         );
         return {
-            orders: res.orders
-                .filter((order) => hasKnownOrderSymbol(this.#scales, order))
-                .map((order) => formatOrder(this.#scales, order)),
+            orders: res.orders.map((order) => formatOrder(this.#scales, order)),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -473,14 +460,14 @@ export class OrdersService {
      * function is called. Each changed order arrives complete through `onEvent`; keep the
      * copy with the higher `version`, since equal versions are identical. Gaps, expired
      * tokens, and reconnects resume from the last applied position automatically.
+     * An order whose symbolId is missing from the client catalog is not delivered; it reaches
+     * `onError` as a CatalogLookupError instead, and the rest of its batch still arrives.
      * Throws ValidationError when `accountId` is not a base58 public ID.
      */
     subscribe(input: SubscribeOrdersInput): () => void {
         idToBigInt(input.accountId, "accountId");
         const channel = `private:spot:orders:${input.accountId}`;
         const onError = input.onError;
-        const known = (orders: ProtoRead.Order[]) =>
-            orders.filter((o) => hasKnownOrderSymbol(this.#scales, o));
         // Order IDs in the live view, so a snapshot can report orders that left it while
         // their removal was not delivered (a resync after an expired cursor).
         const live = new Set<bigint>();
@@ -502,14 +489,19 @@ export class OrdersService {
                         live.clear();
                         for (const id of ids) live.add(id);
                         if (input.onSnapshot) {
-                            input.onSnapshot(
-                                known(event.orders).map((o) => formatOrder(this.#scales, o)),
+                            const orders: Order[] = [];
+                            deliverBatch(
+                                channel,
+                                event.orders,
+                                (o) => orders.push(formatOrder(this.#scales, o)),
+                                onError,
                             );
+                            input.onSnapshot(orders);
                             return;
                         }
                         deliverBatch(
                             channel,
-                            known(event.orders),
+                            event.orders,
                             (o) => input.onEvent(formatOrder(this.#scales, o)),
                             onError,
                         );
@@ -522,7 +514,7 @@ export class OrdersService {
                     for (const id of unit.removedOrderIds) live.delete(id);
                     deliverBatch(
                         channel,
-                        known(unit.orders),
+                        unit.orders,
                         (o) => input.onEvent(formatOrder(this.#scales, o)),
                         onError,
                     );
