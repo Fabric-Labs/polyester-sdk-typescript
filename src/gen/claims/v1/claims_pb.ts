@@ -352,7 +352,7 @@ export enum ErrorCode {
   CLAIM_TEMPORARILY_UNAVAILABLE = 1,
 
   /**
-   * A valid session is required. API keys cannot access claims.
+   * The request carries no valid session token or API-key signature.
    *
    * @generated from enum value: ERROR_CODE_UNAUTHENTICATED = 2;
    */

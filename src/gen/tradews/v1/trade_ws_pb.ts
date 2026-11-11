@@ -41,7 +41,7 @@ export type ClientFrame = Message<"tradews.v1.ClientFrame"> & {
    * recv_window_ms: a command that arrives, or waits to be sent on for
    * admission, past then is rejected with REQUEST_DEADLINE_EXCEEDED and
    * changes nothing, but it has taken its seq, so the next command uses the
-   * next seq. A timestamp more than 10 seconds ahead of the server clock is
+   * next seq. A timestamp more than 1 second ahead of the server clock is
    * rejected with BAD_REQUEST, without taking the seq. Zero sets no
    * deadline. Ping ignores it.
    *
@@ -51,7 +51,7 @@ export type ClientFrame = Message<"tradews.v1.ClientFrame"> & {
 
   /**
    * Optional receive window in milliseconds, from 1 to 60000, applied to
-   * timestamp_ms. Zero uses 10000. Setting it without timestamp_ms is
+   * timestamp_ms. Zero uses 5000. Setting it without timestamp_ms is
    * rejected with BAD_REQUEST.
    *
    * @generated from field: uint32 recv_window_ms = 4;

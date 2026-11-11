@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file chain/withdraw/v1/auto_withdraw.proto.
  */
 export const file_chain_withdraw_v1_auto_withdraw: GenFile = /*@__PURE__*/
-  fileDesc("CiVjaGFpbi93aXRoZHJhdy92MS9hdXRvX3dpdGhkcmF3LnByb3RvEhFjaGFpbi53aXRoZHJhdy52MSLuAQoUQXV0b1dpdGhkcmF3U2NoZWR1bGUSOQoHY2FkZW5jZRgBIAEoDjImLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd0NhZGVuY2VCABI5Cgd3ZWVrZGF5GAIgASgOMiYuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3V2Vla2RheUIAEhcKDW1pbnV0ZV9vZl9kYXkYAyABKA1CABIYCg5taW51dGVfb2ZfaG91chgEIAEoDUIAEhYKDGRheV9vZl9tb250aBgFIAEoDUIAEhUKC2FuY2hvcl9kYXRlGAYgASgJQgAi0gEKF0F1dG9XaXRoZHJhd0Rlc3RpbmF0aW9uEhIKCGFzc2V0X2lkGAEgASgNQgASHgoUZGVzdGluYXRpb25fY2hhaW5faWQYAiABKARCABIdChNkZXN0aW5hdGlvbl9hZGRyZXNzGAMgASgJQgASMQoObWluX2Ftb3VudF9lMTgYBCABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4QgASMQoObWF4X2Ftb3VudF9lMTgYBSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4QgAiZAoRQXV0b1dpdGhkcmF3UGF1c2USEAoIYXNzZXRfaWQYASABKA0SDgoGcmVhc29uGAIgASgJEi0KCXBhdXNlZF9hdBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAi4QIKEEF1dG9XaXRoZHJhd1J1bGUSFQoNc3ViYWNjb3VudF9pZBgBIAEoBhIPCgd2ZXJzaW9uGAIgASgNEg8KB2VuYWJsZWQYAyABKAgSOQoIc2NoZWR1bGUYBCABKAsyJy5jaGFpbi53aXRoZHJhdy52MS5BdXRvV2l0aGRyYXdTY2hlZHVsZRJACgxkZXN0aW5hdGlvbnMYBSADKAsyKi5jaGFpbi53aXRoZHJhdy52MS5BdXRvV2l0aGRyYXdEZXN0aW5hdGlvbhIuCgpjcmVhdGVkX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIzCgVwYXVzZRgHIAEoCzIkLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1BhdXNlEjIKEW1pbl91c2RfdmFsdWVfZTE4GAggASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOCKCAgoaU2V0QXV0b1dpdGhkcmF3UnVsZVJlcXVlc3QSFQoNc3ViYWNjb3VudF9pZBgBIAEoBhIYChBleHBlY3RlZF92ZXJzaW9uGAIgASgNEjsKCHNjaGVkdWxlGAMgASgLMicuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3U2NoZWR1bGVCABJCCgxkZXN0aW5hdGlvbnMYBCADKAsyKi5jaGFpbi53aXRoZHJhdy52MS5BdXRvV2l0aGRyYXdEZXN0aW5hdGlvbkIAEjIKEW1pbl91c2RfdmFsdWVfZTE4GAUgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOCJQChtTZXRBdXRvV2l0aGRyYXdSdWxlUmVzcG9uc2USMQoEcnVsZRgBIAEoCzIjLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1J1bGUiUwoeRGlzYWJsZUF1dG9XaXRoZHJhd1J1bGVSZXF1ZXN0EhUKDXN1YmFjY291bnRfaWQYASABKAYSGgoQZXhwZWN0ZWRfdmVyc2lvbhgCIAEoDUIAIlQKH0Rpc2FibGVBdXRvV2l0aGRyYXdSdWxlUmVzcG9uc2USMQoEcnVsZRgBIAEoCzIjLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1J1bGUiMwoaR2V0QXV0b1dpdGhkcmF3UnVsZVJlcXVlc3QSFQoNc3ViYWNjb3VudF9pZBgBIAEoBiJQChtHZXRBdXRvV2l0aGRyYXdSdWxlUmVzcG9uc2USMQoEcnVsZRgBIAEoCzIjLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1J1bGUi2QIKEEF1dG9XaXRoZHJhd1N0ZXASEAoIYXNzZXRfaWQYASABKA0SHAoUZGVzdGluYXRpb25fY2hhaW5faWQYAiABKAQSGwoTZGVzdGluYXRpb25fYWRkcmVzcxgDIAEoCRIuCg1hdmFpbGFibGVfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIrCgphbW91bnRfZTE4GAUgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBI3CgVzdGF0ZRgGIAEoDjIoLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1N0ZXBTdGF0ZRIOCgZyZWFzb24YByABKAkSEQoJaW50ZW50X2lkGAggASgJEg8KB3R4X2hhc2gYCSABKAkSLgoNdmFsdWVfdXNkX2UxOBgKIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgiyAIKD0F1dG9XaXRoZHJhd1J1bhIPCgdydW5fc2VxGAEgASgEEhQKDHJ1bGVfdmVyc2lvbhgCIAEoDRIxCg1zY2hlZHVsZWRfZm9yGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2CgVzdGF0ZRgEIAEoDjInLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1J1blN0YXRlEg4KBnJlYXNvbhgFIAEoCRIyCgVzdGVwcxgGIAMoCzIjLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1N0ZXASLgoKY3JlYXRlZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLZmluaXNoZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIlsKG0xpc3RBdXRvV2l0aGRyYXdSdW5zUmVxdWVzdBIVCg1zdWJhY2NvdW50X2lkGAEgASgGEg8KBWxpbWl0GAIgASgNQgASFAoKcGFnZV90b2tlbhgDIAEoCUIAImkKHExpc3RBdXRvV2l0aGRyYXdSdW5zUmVzcG9uc2USMAoEcnVucxgBIAMoCzIiLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1J1bhIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkqbAoTQXV0b1dpdGhkcmF3Q2FkZW5jZRIXChNDQURFTkNFX1VOU1BFQ0lGSUVEEAASCQoFREFJTFkQARIKCgZXRUVLTFkQAhIKCgZIT1VSTFkQAxIMCghCSVdFRUtMWRAEEgsKB01PTlRITFkQBSqKAQoTQXV0b1dpdGhkcmF3V2Vla2RheRIXChNXRUVLREFZX1VOU1BFQ0lGSUVEEAASCgoGTU9OREFZEAESCwoHVFVFU0RBWRACEg0KCVdFRE5FU0RBWRADEgwKCFRIVVJTREFZEAQSCgoGRlJJREFZEAUSDAoIU0FUVVJEQVkQBhIKCgZTVU5EQVkQByqgAQoUQXV0b1dpdGhkcmF3UnVuU3RhdGUSGQoVUlVOX1NUQVRFX1VOU1BFQ0lGSUVEEAASDwoLUlVOX1BMQU5ORUQQARIOCgpSVU5fUEFZSU5HEAISEQoNUlVOX0NPTVBMRVRFRBADEhgKFFJVTl9QQVJUSUFMTFlfRkFJTEVEEAQSDgoKUlVOX0ZBSUxFRBAFEg8KC1JVTl9TS0lQUEVEEAYqpQEKFUF1dG9XaXRoZHJhd1N0ZXBTdGF0ZRIaChZTVEVQX1NUQVRFX1VOU1BFQ0lGSUVEEAASEAoMU1RFUF9QRU5ESU5HEAESEwoPU1RFUF9TVUJNSVRUSU5HEAISEgoOU1RFUF9TVUJNSVRURUQQAxISCg5TVEVQX0NPTVBMRVRFRBAEEg8KC1NURVBfRkFJTEVEEAUSEAoMU1RFUF9TS0lQUEVEEAYygwQKE0F1dG9XaXRoZHJhd1NlcnZpY2USdgoTU2V0QXV0b1dpdGhkcmF3UnVsZRItLmNoYWluLndpdGhkcmF3LnYxLlNldEF1dG9XaXRoZHJhd1J1bGVSZXF1ZXN0Gi4uY2hhaW4ud2l0aGRyYXcudjEuU2V0QXV0b1dpdGhkcmF3UnVsZVJlc3BvbnNlIgASggEKF0Rpc2FibGVBdXRvV2l0aGRyYXdSdWxlEjEuY2hhaW4ud2l0aGRyYXcudjEuRGlzYWJsZUF1dG9XaXRoZHJhd1J1bGVSZXF1ZXN0GjIuY2hhaW4ud2l0aGRyYXcudjEuRGlzYWJsZUF1dG9XaXRoZHJhd1J1bGVSZXNwb25zZSIAEnQKE0dldEF1dG9XaXRoZHJhd1J1bGUSLS5jaGFpbi53aXRoZHJhdy52MS5HZXRBdXRvV2l0aGRyYXdSdWxlUmVxdWVzdBouLmNoYWluLndpdGhkcmF3LnYxLkdldEF1dG9XaXRoZHJhd1J1bGVSZXNwb25zZRJ3ChRMaXN0QXV0b1dpdGhkcmF3UnVucxIuLmNoYWluLndpdGhkcmF3LnYxLkxpc3RBdXRvV2l0aGRyYXdSdW5zUmVxdWVzdBovLmNoYWluLndpdGhkcmF3LnYxLkxpc3RBdXRvV2l0aGRyYXdSdW5zUmVzcG9uc2UaAEJPWk1naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2NoYWluL3dpdGhkcmF3L3YxO2NoYWlud2l0aGRyYXd2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options, file_polyester_type_v1_u128]);
+  fileDesc("CiVjaGFpbi93aXRoZHJhdy92MS9hdXRvX3dpdGhkcmF3LnByb3RvEhFjaGFpbi53aXRoZHJhdy52MSLuAQoUQXV0b1dpdGhkcmF3U2NoZWR1bGUSOQoHY2FkZW5jZRgBIAEoDjImLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd0NhZGVuY2VCABI5Cgd3ZWVrZGF5GAIgASgOMiYuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3V2Vla2RheUIAEhcKDW1pbnV0ZV9vZl9kYXkYAyABKA1CABIYCg5taW51dGVfb2ZfaG91chgEIAEoDUIAEhYKDGRheV9vZl9tb250aBgFIAEoDUIAEhUKC2FuY2hvcl9kYXRlGAYgASgJQgAiggIKF0F1dG9XaXRoZHJhd0Rlc3RpbmF0aW9uEhIKCGFzc2V0X2lkGAEgASgNQgASHgoUZGVzdGluYXRpb25fY2hhaW5faWQYAiABKARCABIdChNkZXN0aW5hdGlvbl9hZGRyZXNzGAMgASgJQgASMQoObWluX2Ftb3VudF9lMTgYBCABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4QgASMQoObWF4X2Ftb3VudF9lMTgYBSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4QgASLgoNbWluX2Zsb29yX2UxOBgGIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgiZAoRQXV0b1dpdGhkcmF3UGF1c2USEAoIYXNzZXRfaWQYASABKA0SDgoGcmVhc29uGAIgASgJEi0KCXBhdXNlZF9hdBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAigAMKEEF1dG9XaXRoZHJhd1J1bGUSFQoNc3ViYWNjb3VudF9pZBgBIAEoBhIPCgd2ZXJzaW9uGAIgASgNEg8KB2VuYWJsZWQYAyABKAgSOQoIc2NoZWR1bGUYBCABKAsyJy5jaGFpbi53aXRoZHJhdy52MS5BdXRvV2l0aGRyYXdTY2hlZHVsZRJACgxkZXN0aW5hdGlvbnMYBSADKAsyKi5jaGFpbi53aXRoZHJhdy52MS5BdXRvV2l0aGRyYXdEZXN0aW5hdGlvbhIuCgpjcmVhdGVkX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIzCgVwYXVzZRgHIAEoCzIkLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1BhdXNlEjIKEW1pbl91c2RfdmFsdWVfZTE4GAggASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIdChVjcmVhdGVkX2J5X2FjY291bnRfaWQYCSABKAYiggIKGlNldEF1dG9XaXRoZHJhd1J1bGVSZXF1ZXN0EhUKDXN1YmFjY291bnRfaWQYASABKAYSGAoQZXhwZWN0ZWRfdmVyc2lvbhgCIAEoDRI7CghzY2hlZHVsZRgDIAEoCzInLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1NjaGVkdWxlQgASQgoMZGVzdGluYXRpb25zGAQgAygLMiouY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3RGVzdGluYXRpb25CABIyChFtaW5fdXNkX3ZhbHVlX2UxOBgFIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgiUAobU2V0QXV0b1dpdGhkcmF3UnVsZVJlc3BvbnNlEjEKBHJ1bGUYASABKAsyIy5jaGFpbi53aXRoZHJhdy52MS5BdXRvV2l0aGRyYXdSdWxlImcKIVNldEF1dG9XaXRoZHJhd1J1bGVFbmFibGVkUmVxdWVzdBIVCg1zdWJhY2NvdW50X2lkGAEgASgGEhoKEGV4cGVjdGVkX3ZlcnNpb24YAiABKA1CABIPCgdlbmFibGVkGAMgASgIIlcKIlNldEF1dG9XaXRoZHJhd1J1bGVFbmFibGVkUmVzcG9uc2USMQoEcnVsZRgBIAEoCzIjLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1J1bGUiMwoaR2V0QXV0b1dpdGhkcmF3UnVsZVJlcXVlc3QSFQoNc3ViYWNjb3VudF9pZBgBIAEoBiJQChtHZXRBdXRvV2l0aGRyYXdSdWxlUmVzcG9uc2USMQoEcnVsZRgBIAEoCzIjLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1J1bGUiiwMKEEF1dG9XaXRoZHJhd1N0ZXASEAoIYXNzZXRfaWQYASABKA0SHAoUZGVzdGluYXRpb25fY2hhaW5faWQYAiABKAQSGwoTZGVzdGluYXRpb25fYWRkcmVzcxgDIAEoCRIuCg1hdmFpbGFibGVfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIrCgphbW91bnRfZTE4GAUgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBI3CgVzdGF0ZRgGIAEoDjIoLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1N0ZXBTdGF0ZRIOCgZyZWFzb24YByABKAkSEQoJaW50ZW50X2lkGAggASgJEg8KB3R4X2hhc2gYCSABKAkSLgoNdmFsdWVfdXNkX2UxOBgKIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSMAoPbmV0d29ya19mZWVfZTE4GAsgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOCLIAgoPQXV0b1dpdGhkcmF3UnVuEg8KB3J1bl9zZXEYASABKAQSFAoMcnVsZV92ZXJzaW9uGAIgASgNEjEKDXNjaGVkdWxlZF9mb3IYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjYKBXN0YXRlGAQgASgOMicuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3UnVuU3RhdGUSDgoGcmVhc29uGAUgASgJEjIKBXN0ZXBzGAYgAygLMiMuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3U3RlcBIuCgpjcmVhdGVkX2F0GAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgtmaW5pc2hlZF9hdBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiWwobTGlzdEF1dG9XaXRoZHJhd1J1bnNSZXF1ZXN0EhUKDXN1YmFjY291bnRfaWQYASABKAYSDwoFbGltaXQYAiABKA1CABIUCgpwYWdlX3Rva2VuGAMgASgJQgAiaQocTGlzdEF1dG9XaXRoZHJhd1J1bnNSZXNwb25zZRIwCgRydW5zGAEgAygLMiIuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3UnVuEhcKD25leHRfcGFnZV90b2tlbhgCIAEoCSI2Ch1QcmV2aWV3QXV0b1dpdGhkcmF3UnVuUmVxdWVzdBIVCg1zdWJhY2NvdW50X2lkGAEgASgGIrcEChhBdXRvV2l0aGRyYXdQcmV2aWV3QXNzZXQSEAoIYXNzZXRfaWQYASABKA0SHAoUZGVzdGluYXRpb25fY2hhaW5faWQYAiABKAQSGwoTZGVzdGluYXRpb25fYWRkcmVzcxgDIAEoCRIuCg1hdmFpbGFibGVfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIsCgtwYXlhYmxlX2UxOBgFIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSLgoNaGVsZF9iYWNrX2UxOBgGIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSEwoLaG9sZF9yZWFzb24YByABKAkSLAoLbWluaW11bV9lMTgYCCABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Ei4KDXZhbHVlX3VzZF9lMTgYCSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Ei0KCXByaWNlZF9hdBgKIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoPbmV0d29ya19mZWVfZTE4GAsgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBI6ChZuZXR3b3JrX2ZlZV9zYW1wbGVkX2F0GAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxwYXlhYmxlX2Zyb20YDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIvwCCh5QcmV2aWV3QXV0b1dpdGhkcmF3UnVuUmVzcG9uc2USPAoGc3RhdHVzGAEgASgOMiwuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3UHJldmlld1N0YXR1cxIvCgtuZXh0X3J1bl9hdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFAoMcnVsZV92ZXJzaW9uGAMgASgNEjMKBXBhdXNlGAQgASgLMiQuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3UGF1c2USMgoRbWluX3VzZF92YWx1ZV9lMTgYBSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EjsKBmFzc2V0cxgGIAMoCzIrLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1ByZXZpZXdBc3NldBIvCgtjb21wdXRlZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAqbAoTQXV0b1dpdGhkcmF3Q2FkZW5jZRIXChNDQURFTkNFX1VOU1BFQ0lGSUVEEAASCQoFREFJTFkQARIKCgZXRUVLTFkQAhIKCgZIT1VSTFkQAxIMCghCSVdFRUtMWRAEEgsKB01PTlRITFkQBSqKAQoTQXV0b1dpdGhkcmF3V2Vla2RheRIXChNXRUVLREFZX1VOU1BFQ0lGSUVEEAASCgoGTU9OREFZEAESCwoHVFVFU0RBWRACEg0KCVdFRE5FU0RBWRADEgwKCFRIVVJTREFZEAQSCgoGRlJJREFZEAUSDAoIU0FUVVJEQVkQBhIKCgZTVU5EQVkQByqgAQoUQXV0b1dpdGhkcmF3UnVuU3RhdGUSGQoVUlVOX1NUQVRFX1VOU1BFQ0lGSUVEEAASDwoLUlVOX1BMQU5ORUQQARIOCgpSVU5fUEFZSU5HEAISEQoNUlVOX0NPTVBMRVRFRBADEhgKFFJVTl9QQVJUSUFMTFlfRkFJTEVEEAQSDgoKUlVOX0ZBSUxFRBAFEg8KC1JVTl9TS0lQUEVEEAYqpQEKFUF1dG9XaXRoZHJhd1N0ZXBTdGF0ZRIaChZTVEVQX1NUQVRFX1VOU1BFQ0lGSUVEEAASEAoMU1RFUF9QRU5ESU5HEAESEwoPU1RFUF9TVUJNSVRUSU5HEAISEgoOU1RFUF9TVUJNSVRURUQQAxISCg5TVEVQX0NPTVBMRVRFRBAEEg8KC1NURVBfRkFJTEVEEAUSEAoMU1RFUF9TS0lQUEVEEAYqhgEKGUF1dG9XaXRoZHJhd1ByZXZpZXdTdGF0dXMSHgoaUFJFVklFV19TVEFUVVNfVU5TUEVDSUZJRUQQABIMCghXSUxMX1BBWRABEg4KClJPTExTX09WRVIQAhISCg5OT19ERVNUSU5BVElPThADEgoKBlBBVVNFRBAEEgsKB05PX1JVTEUQBTKRBQoTQXV0b1dpdGhkcmF3U2VydmljZRJ2ChNTZXRBdXRvV2l0aGRyYXdSdWxlEi0uY2hhaW4ud2l0aGRyYXcudjEuU2V0QXV0b1dpdGhkcmF3UnVsZVJlcXVlc3QaLi5jaGFpbi53aXRoZHJhdy52MS5TZXRBdXRvV2l0aGRyYXdSdWxlUmVzcG9uc2UiABKLAQoaU2V0QXV0b1dpdGhkcmF3UnVsZUVuYWJsZWQSNC5jaGFpbi53aXRoZHJhdy52MS5TZXRBdXRvV2l0aGRyYXdSdWxlRW5hYmxlZFJlcXVlc3QaNS5jaGFpbi53aXRoZHJhdy52MS5TZXRBdXRvV2l0aGRyYXdSdWxlRW5hYmxlZFJlc3BvbnNlIgASdgoTR2V0QXV0b1dpdGhkcmF3UnVsZRItLmNoYWluLndpdGhkcmF3LnYxLkdldEF1dG9XaXRoZHJhd1J1bGVSZXF1ZXN0Gi4uY2hhaW4ud2l0aGRyYXcudjEuR2V0QXV0b1dpdGhkcmF3UnVsZVJlc3BvbnNlIgASeQoUTGlzdEF1dG9XaXRoZHJhd1J1bnMSLi5jaGFpbi53aXRoZHJhdy52MS5MaXN0QXV0b1dpdGhkcmF3UnVuc1JlcXVlc3QaLy5jaGFpbi53aXRoZHJhdy52MS5MaXN0QXV0b1dpdGhkcmF3UnVuc1Jlc3BvbnNlIgASfwoWUHJldmlld0F1dG9XaXRoZHJhd1J1bhIwLmNoYWluLndpdGhkcmF3LnYxLlByZXZpZXdBdXRvV2l0aGRyYXdSdW5SZXF1ZXN0GjEuY2hhaW4ud2l0aGRyYXcudjEuUHJldmlld0F1dG9XaXRoZHJhd1J1blJlc3BvbnNlIgAaAEJPWk1naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2NoYWluL3dpdGhkcmF3L3YxO2NoYWlud2l0aGRyYXd2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options, file_polyester_type_v1_u128]);
 
 /**
  * AutoWithdrawSchedule is a rule's UTC run slot. Only the fields of its
@@ -110,7 +110,7 @@ export type AutoWithdrawDestination = Message<"chain.withdraw.v1.AutoWithdrawDes
    * A run pays this asset only when the payable amount reaches this
    * minimum, in 18-decimal asset units, and the rule's min_usd_value_e18;
    * otherwise the balance stays on the account for a later run. Must be at
-   * least the route's withdrawal minimum.
+   * least min_floor_e18 when the rule is set.
    *
    * @generated from field: polyester.type.v1.U128 min_amount_e18 = 4;
    */
@@ -124,6 +124,20 @@ export type AutoWithdrawDestination = Message<"chain.withdraw.v1.AutoWithdrawDes
    * @generated from field: polyester.type.v1.U128 max_amount_e18 = 5;
    */
   maxAmountE18?: U128 | undefined;
+
+  /**
+   * Returned in responses only; ignored in requests. The least amount one
+   * payout to this destination can pay now, in 18-decimal asset units: the
+   * route's withdrawal minimum, and more than its current network fee. It
+   * follows the network fee, so it can change between reads. A run pays at
+   * least this floor and min_amount_e18, and a new rule needs a
+   * min_amount_e18 of at least the floor. Unset when the route or its network
+   * fee is not known now; a new rule for that destination is then refused
+   * with FEE_UNAVAILABLE or a route code.
+   *
+   * @generated from field: polyester.type.v1.U128 min_floor_e18 = 6;
+   */
+  minFloorE18?: U128 | undefined;
 };
 
 /**
@@ -140,7 +154,7 @@ export const AutoWithdrawDestinationSchema: GenMessage<AutoWithdrawDestination> 
  */
 export type AutoWithdrawPause = Message<"chain.withdraw.v1.AutoWithdrawPause"> & {
   /**
-   * Asset whose payout paused the rule.
+   * Asset whose payout paused the rule; zero when no payout did.
    *
    * @generated from field: uint32 asset_id = 1;
    */
@@ -151,7 +165,11 @@ export type AutoWithdrawPause = Message<"chain.withdraw.v1.AutoWithdrawPause"> &
    * destination left the account's external withdraw whitelist,
    * destination_invalid when it is no longer a valid destination, or
    * authority_revoked when the person who set the rule may no longer change
-   * it or withdraw from the account.
+   * it or withdraw from the account. On a broker vault the rule pauses with
+   * authority_revoked as soon as its author's broker role changes in any
+   * way: removed, demoted, or promoted (for example Finance to Owner), and
+   * also when the author is removed and added back. An Owner or Finance
+   * member resumes it with a fresh step-up.
    *
    * @generated from field: string reason = 2;
    */
@@ -174,9 +192,9 @@ export const AutoWithdrawPauseSchema: GenMessage<AutoWithdrawPause> = /*@__PURE_
 
 /**
  * AutoWithdrawRule is one version of an account's auto-withdraw rule. Each
- * change or disable creates the next version; only the latest version runs,
- * and a run in progress keeps the version it started with but pays nothing
- * further once that version is no longer the latest.
+ * change, pause or resume creates the next version; only the latest version
+ * runs, and a run in progress keeps the version it started with but pays
+ * nothing further once that version is no longer the latest.
  *
  * @generated from message chain.withdraw.v1.AutoWithdrawRule
  */
@@ -196,7 +214,9 @@ export type AutoWithdrawRule = Message<"chain.withdraw.v1.AutoWithdrawRule"> & {
   version: number;
 
   /**
-   * Whether the rule runs. A disabled version has no destinations.
+   * Whether the rule runs. A paused version (enabled false) keeps its
+   * schedule and destinations, so it resumes to the same destinations. The
+   * rule runs only while enabled and without a pause.
    *
    * @generated from field: bool enabled = 3;
    */
@@ -210,7 +230,8 @@ export type AutoWithdrawRule = Message<"chain.withdraw.v1.AutoWithdrawRule"> & {
   schedule?: AutoWithdrawSchedule | undefined;
 
   /**
-   * One destination per paid asset, ordered by asset_id.
+   * One destination per paid asset, ordered by asset_id. Empty only on a
+   * version that was disabled before pausing kept destinations.
    *
    * @generated from field: repeated chain.withdraw.v1.AutoWithdrawDestination destinations = 5;
    */
@@ -224,7 +245,8 @@ export type AutoWithdrawRule = Message<"chain.withdraw.v1.AutoWithdrawRule"> & {
   createdAt?: Timestamp | undefined;
 
   /**
-   * Set when the rule paused itself; a new version resumes it.
+   * Set when the rule paused itself; resuming it or setting a new rule
+   * clears it.
    *
    * @generated from field: chain.withdraw.v1.AutoWithdrawPause pause = 7;
    */
@@ -237,6 +259,13 @@ export type AutoWithdrawRule = Message<"chain.withdraw.v1.AutoWithdrawRule"> & {
    * @generated from field: polyester.type.v1.U128 min_usd_value_e18 = 8;
    */
   minUsdValueE18?: U128 | undefined;
+
+  /**
+   * Public account ID of the person who created this version.
+   *
+   * @generated from field: fixed64 created_by_account_id = 9;
+   */
+  createdByAccountId: bigint;
 };
 
 /**
@@ -325,12 +354,12 @@ export const SetAutoWithdrawRuleResponseSchema: GenMessage<SetAutoWithdrawRuleRe
   messageDesc(file_chain_withdraw_v1_auto_withdraw, 5);
 
 /**
- * DisableAutoWithdrawRuleRequest stops the rule of the root account or one
- * subaccount.
+ * SetAutoWithdrawRuleEnabledRequest pauses or resumes the rule of the root
+ * account or one subaccount, keeping its schedule and destinations.
  *
- * @generated from message chain.withdraw.v1.DisableAutoWithdrawRuleRequest
+ * @generated from message chain.withdraw.v1.SetAutoWithdrawRuleEnabledRequest
  */
-export type DisableAutoWithdrawRuleRequest = Message<"chain.withdraw.v1.DisableAutoWithdrawRuleRequest"> & {
+export type SetAutoWithdrawRuleEnabledRequest = Message<"chain.withdraw.v1.SetAutoWithdrawRuleEnabledRequest"> & {
   /**
    * Public subaccount ID; omit for the root account.
    *
@@ -339,28 +368,37 @@ export type DisableAutoWithdrawRuleRequest = Message<"chain.withdraw.v1.DisableA
   subaccountId: bigint;
 
   /**
-   * The account's latest rule version.
+   * The account's latest rule version. A mismatch is rejected so concurrent
+   * changes never overwrite each other.
    *
    * @generated from field: uint32 expected_version = 2;
    */
   expectedVersion: number;
+
+  /**
+   * false pauses the rule; true resumes it.
+   *
+   * @generated from field: bool enabled = 3;
+   */
+  enabled: boolean;
 };
 
 /**
- * Describes the message chain.withdraw.v1.DisableAutoWithdrawRuleRequest.
- * Use `create(DisableAutoWithdrawRuleRequestSchema)` to create a new message.
+ * Describes the message chain.withdraw.v1.SetAutoWithdrawRuleEnabledRequest.
+ * Use `create(SetAutoWithdrawRuleEnabledRequestSchema)` to create a new message.
  */
-export const DisableAutoWithdrawRuleRequestSchema: GenMessage<DisableAutoWithdrawRuleRequest> = /*@__PURE__*/
+export const SetAutoWithdrawRuleEnabledRequestSchema: GenMessage<SetAutoWithdrawRuleEnabledRequest> = /*@__PURE__*/
   messageDesc(file_chain_withdraw_v1_auto_withdraw, 6);
 
 /**
- * DisableAutoWithdrawRuleResponse returns the disabled version.
+ * SetAutoWithdrawRuleEnabledResponse returns the rule's latest version.
  *
- * @generated from message chain.withdraw.v1.DisableAutoWithdrawRuleResponse
+ * @generated from message chain.withdraw.v1.SetAutoWithdrawRuleEnabledResponse
  */
-export type DisableAutoWithdrawRuleResponse = Message<"chain.withdraw.v1.DisableAutoWithdrawRuleResponse"> & {
+export type SetAutoWithdrawRuleEnabledResponse = Message<"chain.withdraw.v1.SetAutoWithdrawRuleEnabledResponse"> & {
   /**
-   * The created, disabled version.
+   * The created version, or the latest version unchanged when the rule was
+   * already in the requested state.
    *
    * @generated from field: chain.withdraw.v1.AutoWithdrawRule rule = 1;
    */
@@ -368,10 +406,10 @@ export type DisableAutoWithdrawRuleResponse = Message<"chain.withdraw.v1.Disable
 };
 
 /**
- * Describes the message chain.withdraw.v1.DisableAutoWithdrawRuleResponse.
- * Use `create(DisableAutoWithdrawRuleResponseSchema)` to create a new message.
+ * Describes the message chain.withdraw.v1.SetAutoWithdrawRuleEnabledResponse.
+ * Use `create(SetAutoWithdrawRuleEnabledResponseSchema)` to create a new message.
  */
-export const DisableAutoWithdrawRuleResponseSchema: GenMessage<DisableAutoWithdrawRuleResponse> = /*@__PURE__*/
+export const SetAutoWithdrawRuleEnabledResponseSchema: GenMessage<SetAutoWithdrawRuleEnabledResponse> = /*@__PURE__*/
   messageDesc(file_chain_withdraw_v1_auto_withdraw, 7);
 
 /**
@@ -471,9 +509,11 @@ export type AutoWithdrawStep = Message<"chain.withdraw.v1.AutoWithdrawStep"> & {
    * Machine-readable reason for a skipped or failed step, such as
    * below_minimum, price_unavailable (the rule has a USD minimum and no
    * current price valued the asset; the funds stay for a later run),
-   * rule_superseded, destination_not_whitelisted, authority_revoked,
-   * gateway_capacity_insufficient (the funds stay for a later run),
-   * withdrawal_released or withdrawal_failed; empty otherwise.
+   * rule_superseded, destination_not_whitelisted, destination_cooling_down
+   * (a broker vault's destination added to its external withdraw whitelist
+   * less than 24 hours ago; the funds stay for a later run),
+   * authority_revoked, gateway_capacity_insufficient (the funds stay for a
+   * later run), withdrawal_released or withdrawal_failed; empty otherwise.
    *
    * @generated from field: string reason = 7;
    */
@@ -502,6 +542,18 @@ export type AutoWithdrawStep = Message<"chain.withdraw.v1.AutoWithdrawStep"> & {
    * @generated from field: polyester.type.v1.U128 value_usd_e18 = 10;
    */
   valueUsdE18?: U128 | undefined;
+
+  /**
+   * The network fee charged on the withdrawal, in 18-decimal asset units.
+   * Once it completed: taken out of amount_e18, so the destination received
+   * amount_e18 minus this fee. Once Zipper rejected it or its execution
+   * failed: the fee Zipper kept, which is not refunded. Unset until the step
+   * is final, when it was skipped or failed before it reached Zipper, and
+   * when the fee was not reported.
+   *
+   * @generated from field: polyester.type.v1.U128 network_fee_e18 = 11;
+   */
+  networkFeeE18?: U128 | undefined;
 };
 
 /**
@@ -648,6 +700,230 @@ export type ListAutoWithdrawRunsResponse = Message<"chain.withdraw.v1.ListAutoWi
  */
 export const ListAutoWithdrawRunsResponseSchema: GenMessage<ListAutoWithdrawRunsResponse> = /*@__PURE__*/
   messageDesc(file_chain_withdraw_v1_auto_withdraw, 13);
+
+/**
+ * PreviewAutoWithdrawRunRequest previews the next run of the rule of the
+ * root account or one subaccount.
+ *
+ * @generated from message chain.withdraw.v1.PreviewAutoWithdrawRunRequest
+ */
+export type PreviewAutoWithdrawRunRequest = Message<"chain.withdraw.v1.PreviewAutoWithdrawRunRequest"> & {
+  /**
+   * Public subaccount ID; omit for the root account.
+   *
+   * @generated from field: fixed64 subaccount_id = 1;
+   */
+  subaccountId: bigint;
+};
+
+/**
+ * Describes the message chain.withdraw.v1.PreviewAutoWithdrawRunRequest.
+ * Use `create(PreviewAutoWithdrawRunRequestSchema)` to create a new message.
+ */
+export const PreviewAutoWithdrawRunRequestSchema: GenMessage<PreviewAutoWithdrawRunRequest> = /*@__PURE__*/
+  messageDesc(file_chain_withdraw_v1_auto_withdraw, 14);
+
+/**
+ * AutoWithdrawPreviewAsset is what the next run would do with one asset,
+ * sized from the account's balance now.
+ *
+ * @generated from message chain.withdraw.v1.AutoWithdrawPreviewAsset
+ */
+export type AutoWithdrawPreviewAsset = Message<"chain.withdraw.v1.AutoWithdrawPreviewAsset"> & {
+  /**
+   * Ledger asset.
+   *
+   * @generated from field: uint32 asset_id = 1;
+   */
+  assetId: number;
+
+  /**
+   * External destination chain identifier; zero when the rule has no
+   * destination for the asset.
+   *
+   * @generated from field: uint64 destination_chain_id = 2;
+   */
+  destinationChainId: bigint;
+
+  /**
+   * Canonical destination address; empty when the rule has no destination
+   * for the asset.
+   *
+   * @generated from field: string destination_address = 3;
+   */
+  destinationAddress: string;
+
+  /**
+   * The account's available balance of the asset now, in 18-decimal asset
+   * units.
+   *
+   * @generated from field: polyester.type.v1.U128 available_e18 = 4;
+   */
+  availableE18?: U128 | undefined;
+
+  /**
+   * What the run would pay, in 18-decimal asset units: the available balance
+   * up to max_amount_e18, rounded down to whole on-chain units, or zero when
+   * it holds. The network fee is taken out of it on the way.
+   *
+   * @generated from field: polyester.type.v1.U128 payable_e18 = 5;
+   */
+  payableE18?: U128 | undefined;
+
+  /**
+   * What would stay on the account, in 18-decimal asset units:
+   * available_e18 minus payable_e18.
+   *
+   * @generated from field: polyester.type.v1.U128 held_back_e18 = 6;
+   */
+  heldBackE18?: U128 | undefined;
+
+  /**
+   * Why held_back_e18 stays, or why nothing pays: below_minimum (below
+   * minimum_e18 or the rule's min_usd_value_e18), price_unavailable (the
+   * rule has a USD minimum and no current price values the asset),
+   * no_destination (the rule pays no destination for the asset),
+   * destination_cooling_down (a broker vault pays a destination only once
+   * it has been on the vault's external withdraw whitelist for 24 hours;
+   * see payable_from), above_max (the balance above max_amount_e18 stays)
+   * or dust (less than one whole on-chain unit stays); empty when the whole
+   * balance pays.
+   *
+   * @generated from field: string hold_reason = 7;
+   */
+  holdReason: string;
+
+  /**
+   * The least one payout of the asset pays, in 18-decimal asset units: the
+   * destination's min_amount_e18, or its min_floor_e18 when that is higher
+   * and known now. Unset when the rule has no destination for the asset.
+   *
+   * @generated from field: polyester.type.v1.U128 minimum_e18 = 8;
+   */
+  minimumE18?: U128 | undefined;
+
+  /**
+   * USD value, in 18-decimal USD units, of what the asset pays before its
+   * minimums (the available balance up to max_amount_e18, rounded down to
+   * whole on-chain units), at the current price as of priced_at. A rule with
+   * a USD minimum compares this value with it. Unset when no current price
+   * values the asset or the rule has no destination for it.
+   *
+   * @generated from field: polyester.type.v1.U128 value_usd_e18 = 9;
+   */
+  valueUsdE18?: U128 | undefined;
+
+  /**
+   * When the price behind value_usd_e18 was observed; unset with it.
+   *
+   * @generated from field: google.protobuf.Timestamp priced_at = 10;
+   */
+  pricedAt?: Timestamp | undefined;
+
+  /**
+   * The network fee a payout to the destination is expected to be charged
+   * now, in 18-decimal asset units: the route's latest sampled network fee,
+   * the same figure min_floor_e18 stays above. It is taken out of the
+   * payout, so the destination receives about payable_e18 minus this fee.
+   * Unset when the rule has no destination for the asset or the fee is not
+   * known now.
+   *
+   * @generated from field: polyester.type.v1.U128 network_fee_e18 = 11;
+   */
+  networkFeeE18?: U128 | undefined;
+
+  /**
+   * When network_fee_e18 was sampled; unset with it.
+   *
+   * @generated from field: google.protobuf.Timestamp network_fee_sampled_at = 12;
+   */
+  networkFeeSampledAt?: Timestamp | undefined;
+
+  /**
+   * Set only on a broker vault while the destination is cooling down: when
+   * it can be paid, 24 hours after it was added to the vault's external
+   * withdraw whitelist. Unset with hold_reason destination_cooling_down
+   * when that time is not known yet.
+   *
+   * @generated from field: google.protobuf.Timestamp payable_from = 13;
+   */
+  payableFrom?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message chain.withdraw.v1.AutoWithdrawPreviewAsset.
+ * Use `create(AutoWithdrawPreviewAssetSchema)` to create a new message.
+ */
+export const AutoWithdrawPreviewAssetSchema: GenMessage<AutoWithdrawPreviewAsset> = /*@__PURE__*/
+  messageDesc(file_chain_withdraw_v1_auto_withdraw, 15);
+
+/**
+ * PreviewAutoWithdrawRunResponse previews the next run.
+ *
+ * @generated from message chain.withdraw.v1.PreviewAutoWithdrawRunResponse
+ */
+export type PreviewAutoWithdrawRunResponse = Message<"chain.withdraw.v1.PreviewAutoWithdrawRunResponse"> & {
+  /**
+   * Whether the next run would pay.
+   *
+   * @generated from field: chain.withdraw.v1.AutoWithdrawPreviewStatus status = 1;
+   */
+  status: AutoWithdrawPreviewStatus;
+
+  /**
+   * When the next run starts: its UTC slot, or, while a due slot waits for
+   * the scheduler, that slot. For an hourly rule, the next hourly check.
+   * Unset when the account has no rule or the rule is paused.
+   *
+   * @generated from field: google.protobuf.Timestamp next_run_at = 2;
+   */
+  nextRunAt?: Timestamp | undefined;
+
+  /**
+   * The latest rule version; zero when the account has no rule.
+   *
+   * @generated from field: uint32 rule_version = 3;
+   */
+  ruleVersion: number;
+
+  /**
+   * Set when the rule paused itself; a rule paused by a person has none.
+   *
+   * @generated from field: chain.withdraw.v1.AutoWithdrawPause pause = 4;
+   */
+  pause?: AutoWithdrawPause | undefined;
+
+  /**
+   * The rule's least USD value of one payout, in 18-decimal USD units; zero
+   * means no USD minimum. Unset when the account has no rule.
+   *
+   * @generated from field: polyester.type.v1.U128 min_usd_value_e18 = 5;
+   */
+  minUsdValueE18?: U128 | undefined;
+
+  /**
+   * One entry per destination of the rule, then per other asset with a
+   * positive balance, ordered by asset_id. Empty when the account has no
+   * rule or the rule is paused.
+   *
+   * @generated from field: repeated chain.withdraw.v1.AutoWithdrawPreviewAsset assets = 6;
+   */
+  assets: AutoWithdrawPreviewAsset[];
+
+  /**
+   * When the balances, prices and fees the preview used were read.
+   *
+   * @generated from field: google.protobuf.Timestamp computed_at = 7;
+   */
+  computedAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message chain.withdraw.v1.PreviewAutoWithdrawRunResponse.
+ * Use `create(PreviewAutoWithdrawRunResponseSchema)` to create a new message.
+ */
+export const PreviewAutoWithdrawRunResponseSchema: GenMessage<PreviewAutoWithdrawRunResponse> = /*@__PURE__*/
+  messageDesc(file_chain_withdraw_v1_auto_withdraw, 16);
 
 /**
  * AutoWithdrawCadence is how often an auto-withdraw rule runs. Every slot
@@ -816,14 +1092,16 @@ export enum AutoWithdrawRunState {
   RUN_COMPLETED = 3,
 
   /**
-   * Some payouts failed; their funds are back on the account.
+   * Some payouts failed. Each failed step says where its funds are
+   * (STEP_FAILED).
    *
    * @generated from enum value: RUN_PARTIALLY_FAILED = 4;
    */
   RUN_PARTIALLY_FAILED = 4,
 
   /**
-   * Every attempted payout failed; the funds are back on the account.
+   * Every attempted payout failed. Each failed step says where its funds are
+   * (STEP_FAILED).
    *
    * @generated from enum value: RUN_FAILED = 5;
    */
@@ -886,7 +1164,16 @@ export enum AutoWithdrawStepState {
   STEP_COMPLETED = 4,
 
   /**
-   * The withdrawal failed; its funds are back on the account.
+   * The withdrawal failed. Where its funds are depends on when it failed,
+   * which its withdrawal flow shows:
+   * - before it left the account: they stay on the account;
+   * - rejected by Zipper (flow REFUNDED, reason ZIPPER_VALIDATION_REJECTED or
+   *   ZIPPER_EXECUTION_REJECTED): amount_e18 less network_fee_e18 is
+   *   refunded, as zTokens, to the account's smart account wallet, not to
+   *   the account's balance, and the network fee is not refunded;
+   * - its execution failed after its destination transaction was sent (flow
+   *   FAILED, reason ZIPPER_WITHDRAW_EXECUTION_FAILED): Zipper reviews it and
+   *   settles it outside Polyester Chain; nothing is returned to the account.
    *
    * @generated from enum value: STEP_FAILED = 5;
    */
@@ -907,14 +1194,76 @@ export const AutoWithdrawStepStateSchema: GenEnum<AutoWithdrawStepState> = /*@__
   enumDesc(file_chain_withdraw_v1_auto_withdraw, 3);
 
 /**
+ * AutoWithdrawPreviewStatus is whether the next run would pay, judged from
+ * the account's balances now.
+ *
+ * @generated from enum chain.withdraw.v1.AutoWithdrawPreviewStatus
+ */
+export enum AutoWithdrawPreviewStatus {
+  /**
+   * Never returned.
+   *
+   * @generated from enum value: PREVIEW_STATUS_UNSPECIFIED = 0;
+   */
+  PREVIEW_STATUS_UNSPECIFIED = 0,
+
+  /**
+   * At least one asset would pay.
+   *
+   * @generated from enum value: WILL_PAY = 1;
+   */
+  WILL_PAY = 1,
+
+  /**
+   * Nothing would pay: every asset with a destination is below its minimum
+   * or the rule's USD minimum, has no current price for that minimum, or
+   * pays a broker vault's destination that is still cooling down. The
+   * balance stays on the account for a later run.
+   *
+   * @generated from enum value: ROLLS_OVER = 2;
+   */
+  ROLLS_OVER = 2,
+
+  /**
+   * Nothing would pay, and every positive balance is in an asset the rule
+   * has no destination for.
+   *
+   * @generated from enum value: NO_DESTINATION = 3;
+   */
+  NO_DESTINATION = 3,
+
+  /**
+   * The rule is paused, by a person or by itself (see pause); no run starts
+   * until it is resumed.
+   *
+   * @generated from enum value: PAUSED = 4;
+   */
+  PAUSED = 4,
+
+  /**
+   * The account has no rule.
+   *
+   * @generated from enum value: NO_RULE = 5;
+   */
+  NO_RULE = 5,
+}
+
+/**
+ * Describes the enum chain.withdraw.v1.AutoWithdrawPreviewStatus.
+ */
+export const AutoWithdrawPreviewStatusSchema: GenEnum<AutoWithdrawPreviewStatus> = /*@__PURE__*/
+  enumDesc(file_chain_withdraw_v1_auto_withdraw, 4);
+
+/**
  * AutoWithdrawService manages scheduled in-kind auto-withdraw rules for a
  * root account or subaccount. A rule pays each asset's balance out on an
  * hourly, daily, weekly, biweekly or monthly UTC slot, through the normal
  * withdraw path, only to destinations on the account's external withdraw
- * whitelist. Changing a
- * rule requires a person with withdraw rights and a fresh single-use MFA
- * step-up; API keys can read rules and runs but never change them. An API
- * key reads only when its policy grants READ_AUTO_WITHDRAW (or
+ * whitelist. Changing or
+ * resuming a rule requires a person with withdraw rights and a fresh
+ * single-use MFA step-up, and pausing it requires such a person without a
+ * step-up; API keys can read rules, runs and previews but never change
+ * them. An API key reads only when its policy grants READ_AUTO_WITHDRAW (or
  * MANAGE_AUTO_WITHDRAW), and only its own account: a root-account key reads
  * the root account, and a subaccount key reads its subaccount.
  *
@@ -927,6 +1276,14 @@ export const AutoWithdrawService: GenService<{
    * a fresh single-use step-up; every destination must be on the account's
    * external withdraw whitelist.
    *
+   * A refused destination answers a typed code whose ErrorDetail.field_path
+   * names the field, such as destinations[0].min_amount_e18:
+   * EXTERNAL_DESTINATION_NOT_WHITELISTED, DESTINATION_INVALID (not a valid
+   * address on its chain), ROUTE_UNSUPPORTED (no enabled withdrawal route
+   * pays the asset to that chain) or MIN_AMOUNT_BELOW_FLOOR (its
+   * ErrorDetail.min_floor_e18 is the floor). A stale expected_version
+   * answers VERSION_CONFLICT.
+   *
    * @generated from rpc chain.withdraw.v1.AutoWithdrawService.SetAutoWithdrawRule
    */
   setAutoWithdrawRule: {
@@ -935,15 +1292,22 @@ export const AutoWithdrawService: GenService<{
     output: typeof SetAutoWithdrawRuleResponseSchema;
   },
   /**
-   * Disable the account's rule. Requires a session login with withdraw
-   * rights on the account and a fresh single-use step-up.
+   * Pause or resume the account's rule, keeping its schedule and
+   * destinations. Requires a session login with withdraw rights on the
+   * account. Pausing needs no step-up. Resuming needs a fresh single-use
+   * step-up, checks again that every destination is still a valid
+   * destination on the account's external withdraw whitelist, and clears a
+   * pause the rule set itself; a refused destination answers the typed codes
+   * of SetAutoWithdrawRule, and the rule stays paused. A rule already in the
+   * requested state is returned unchanged. A stale expected_version answers
+   * VERSION_CONFLICT.
    *
-   * @generated from rpc chain.withdraw.v1.AutoWithdrawService.DisableAutoWithdrawRule
+   * @generated from rpc chain.withdraw.v1.AutoWithdrawService.SetAutoWithdrawRuleEnabled
    */
-  disableAutoWithdrawRule: {
+  setAutoWithdrawRuleEnabled: {
     methodKind: "unary";
-    input: typeof DisableAutoWithdrawRuleRequestSchema;
-    output: typeof DisableAutoWithdrawRuleResponseSchema;
+    input: typeof SetAutoWithdrawRuleEnabledRequestSchema;
+    output: typeof SetAutoWithdrawRuleEnabledResponseSchema;
   },
   /**
    * Read the account's latest rule version.
@@ -976,6 +1340,30 @@ export const AutoWithdrawService: GenService<{
     methodKind: "unary";
     input: typeof ListAutoWithdrawRunsRequestSchema;
     output: typeof ListAutoWithdrawRunsResponseSchema;
+  },
+  /**
+   * Preview the account's next auto-withdraw run from its balances now:
+   * when it starts, whether it would pay, and per asset what it would pay,
+   * what would stay and why, its USD value and the expected network fee. It
+   * plans exactly as the run does; balances, prices and fees can change
+   * before the run starts. A price that is not current leaves the value
+   * unset instead of failing the read. When prices cannot be read at all,
+   * the values stay unset too, unless the rule has a USD minimum: prices
+   * then decide what pays, so the read answers UNAVAILABLE and can be
+   * retried.
+   *
+   * An API key needs READ_AUTO_WITHDRAW in its policy and reads only its own
+   * account. Both refusals answer PERMISSION_DENIED: a key whose policy lacks
+   * the action gets "api key policy does not allow READ_AUTO_WITHDRAW", and a
+   * key that names an account other than its own, such as a root-account key
+   * naming a subaccount, gets "api key target scope mismatch".
+   *
+   * @generated from rpc chain.withdraw.v1.AutoWithdrawService.PreviewAutoWithdrawRun
+   */
+  previewAutoWithdrawRun: {
+    methodKind: "unary";
+    input: typeof PreviewAutoWithdrawRunRequestSchema;
+    output: typeof PreviewAutoWithdrawRunResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_chain_withdraw_v1_auto_withdraw, 0);

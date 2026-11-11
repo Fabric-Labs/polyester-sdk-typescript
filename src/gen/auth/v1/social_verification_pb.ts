@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file auth/v1/social_verification.proto.
  */
 export const file_auth_v1_social_verification: GenFile = /*@__PURE__*/
-  fileDesc("CiFhdXRoL3YxL3NvY2lhbF92ZXJpZmljYXRpb24ucHJvdG8SB2F1dGgudjEiiAQKElNvY2lhbFZlcmlmaWNhdGlvbhIKCgJpZBgMIAEoAxIpCghwcm92aWRlchgBIAEoDjIXLmF1dGgudjEuU29jaWFsUHJvdmlkZXISMQoGbWV0aG9kGAsgASgOMiEuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb25NZXRob2QSDgoGaGFuZGxlGAIgASgJEhgKEHByb3ZpZGVyX3VzZXJfaWQYAyABKAkSFgoOY2hhbGxlbmdlX2NvZGUYDSABKAkSMQoGc3RhdHVzGAQgASgOMiEuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb25TdGF0dXMSMAoMcmVxdWVzdGVkX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpleHBpcmVzX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgt2ZXJpZmllZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIYXR0ZW1wdHMYCSABKAUSEgoKbGFzdF9lcnJvchgKIAEoCRIqCgplcnJvcl9jb2RlGBAgASgOMhYuYXV0aC52MS5BdXRoRXJyb3JDb2RlEi4KCnVwZGF0ZWRfYXQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIpYBCh5TdGFydFNvY2lhbFZlcmlmaWNhdGlvblJlcXVlc3QSKwoIcHJvdmlkZXIYASABKA4yFy5hdXRoLnYxLlNvY2lhbFByb3ZpZGVyQgASMwoGbWV0aG9kGAMgASgOMiEuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb25NZXRob2RCABIQCgZoYW5kbGUYAiABKAlCADoAIpwBCh9TdGFydFNvY2lhbFZlcmlmaWNhdGlvblJlc3BvbnNlEhYKDmNoYWxsZW5nZV9jb2RlGAEgASgJEi4KCmV4cGlyZXNfYXQYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjEKDHZlcmlmaWNhdGlvbhgDIAEoCzIbLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uIk0KHlNvY2lhbFZlcmlmaWNhdGlvblJlYWR5UmVxdWVzdBIrCghwcm92aWRlchgBIAEoDjIXLmF1dGgudjEuU29jaWFsUHJvdmlkZXJCACJUCh9Tb2NpYWxWZXJpZmljYXRpb25SZWFkeVJlc3BvbnNlEjEKDHZlcmlmaWNhdGlvbhgBIAEoCzIbLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uIksKHEdldFNvY2lhbFZlcmlmaWNhdGlvblJlcXVlc3QSKwoIcHJvdmlkZXIYASABKA4yFy5hdXRoLnYxLlNvY2lhbFByb3ZpZGVyQgAiUgodR2V0U29jaWFsVmVyaWZpY2F0aW9uUmVzcG9uc2USMQoMdmVyaWZpY2F0aW9uGAEgASgLMhsuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb24qRAoOU29jaWFsUHJvdmlkZXISGAoUUFJPVklERVJfVU5TUEVDSUZJRUQQABILCgdUV0lUVEVSEAESCwoHRElTQ09SRBACKs8BChhTb2NpYWxWZXJpZmljYXRpb25TdGF0dXMSFgoSU1RBVFVTX1VOU1BFQ0lGSUVEEAASHgoaU1RBVFVTX1BFTkRJTkdfVVNFUl9BQ1RJT04QARIRCg1TVEFUVVNfUVVFVUVEEAISFgoSU1RBVFVTX0lOX1BST0dSRVNTEAMSEwoPU1RBVFVTX1ZFUklGSUVEEAQSEQoNU1RBVFVTX0ZBSUxFRBAFEhIKDlNUQVRVU19FWFBJUkVEEAYSFAoQU1RBVFVTX0NBTkNFTExFRBAHKmkKGFNvY2lhbFZlcmlmaWNhdGlvbk1ldGhvZBIWChJNRVRIT0RfVU5TUEVDSUZJRUQQABISCg5NRVRIT0RfUFJPRklMRRABEhIKDk1FVEhPRF9DSEFOTkVMEAISDQoJTUVUSE9EX0RNEAMy5wIKGVNvY2lhbFZlcmlmaWNhdGlvblNlcnZpY2USbgoXU3RhcnRTb2NpYWxWZXJpZmljYXRpb24SJy5hdXRoLnYxLlN0YXJ0U29jaWFsVmVyaWZpY2F0aW9uUmVxdWVzdBooLmF1dGgudjEuU3RhcnRTb2NpYWxWZXJpZmljYXRpb25SZXNwb25zZSIAEm4KF1NvY2lhbFZlcmlmaWNhdGlvblJlYWR5EicuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb25SZWFkeVJlcXVlc3QaKC5hdXRoLnYxLlNvY2lhbFZlcmlmaWNhdGlvblJlYWR5UmVzcG9uc2UiABJoChVHZXRTb2NpYWxWZXJpZmljYXRpb24SJS5hdXRoLnYxLkdldFNvY2lhbFZlcmlmaWNhdGlvblJlcXVlc3QaJi5hdXRoLnYxLkdldFNvY2lhbFZlcmlmaWNhdGlvblJlc3BvbnNlIgAaAEI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2F1dGgvdjE7YXV0aHYxYgZwcm90bzM=", [file_auth_v1_auth, file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("CiFhdXRoL3YxL3NvY2lhbF92ZXJpZmljYXRpb24ucHJvdG8SB2F1dGgudjEingQKElNvY2lhbFZlcmlmaWNhdGlvbhIKCgJpZBgMIAEoAxIpCghwcm92aWRlchgBIAEoDjIXLmF1dGgudjEuU29jaWFsUHJvdmlkZXISMQoGbWV0aG9kGAsgASgOMiEuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb25NZXRob2QSDgoGaGFuZGxlGAIgASgJEhgKEHByb3ZpZGVyX3VzZXJfaWQYAyABKAkSFAoMZGlzcGxheV9uYW1lGBEgASgJEhYKDmNoYWxsZW5nZV9jb2RlGA0gASgJEjEKBnN0YXR1cxgEIAEoDjIhLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uU3RhdHVzEjAKDHJlcXVlc3RlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKZXhwaXJlc19hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLdmVyaWZpZWRfYXQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCGF0dGVtcHRzGAkgASgFEhIKCmxhc3RfZXJyb3IYCiABKAkSKgoKZXJyb3JfY29kZRgQIAEoDjIWLmF1dGgudjEuQXV0aEVycm9yQ29kZRIuCgp1cGRhdGVkX2F0GA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCKWAQoeU3RhcnRTb2NpYWxWZXJpZmljYXRpb25SZXF1ZXN0EisKCHByb3ZpZGVyGAEgASgOMhcuYXV0aC52MS5Tb2NpYWxQcm92aWRlckIAEjMKBm1ldGhvZBgDIAEoDjIhLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uTWV0aG9kQgASEAoGaGFuZGxlGAIgASgJQgA6ACKwAQofU3RhcnRTb2NpYWxWZXJpZmljYXRpb25SZXNwb25zZRIWCg5jaGFsbGVuZ2VfY29kZRgBIAEoCRIuCgpleHBpcmVzX2F0GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIxCgx2ZXJpZmljYXRpb24YAyABKAsyGy5hdXRoLnYxLlNvY2lhbFZlcmlmaWNhdGlvbhISCgphY3Rpb25fdXJsGAQgASgJIk0KHlNvY2lhbFZlcmlmaWNhdGlvblJlYWR5UmVxdWVzdBIrCghwcm92aWRlchgBIAEoDjIXLmF1dGgudjEuU29jaWFsUHJvdmlkZXJCACJUCh9Tb2NpYWxWZXJpZmljYXRpb25SZWFkeVJlc3BvbnNlEjEKDHZlcmlmaWNhdGlvbhgBIAEoCzIbLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uIksKHEdldFNvY2lhbFZlcmlmaWNhdGlvblJlcXVlc3QSKwoIcHJvdmlkZXIYASABKA4yFy5hdXRoLnYxLlNvY2lhbFByb3ZpZGVyQgAiUgodR2V0U29jaWFsVmVyaWZpY2F0aW9uUmVzcG9uc2USMQoMdmVyaWZpY2F0aW9uGAEgASgLMhsuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb24ibQogQ29uZmlybVNvY2lhbFZlcmlmaWNhdGlvblJlcXVlc3QSKwoIcHJvdmlkZXIYASABKA4yFy5hdXRoLnYxLlNvY2lhbFByb3ZpZGVyQgASGgoQcHJvdmlkZXJfdXNlcl9pZBgCIAEoCUIAOgAiVgohQ29uZmlybVNvY2lhbFZlcmlmaWNhdGlvblJlc3BvbnNlEjEKDHZlcmlmaWNhdGlvbhgBIAEoCzIbLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uIksKGlVubGlua1NvY2lhbEFjY291bnRSZXF1ZXN0EisKCHByb3ZpZGVyGAEgASgOMhcuYXV0aC52MS5Tb2NpYWxQcm92aWRlckIAOgAiUAobVW5saW5rU29jaWFsQWNjb3VudFJlc3BvbnNlEjEKDHZlcmlmaWNhdGlvbhgBIAEoCzIbLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uKlIKDlNvY2lhbFByb3ZpZGVyEhgKFFBST1ZJREVSX1VOU1BFQ0lGSUVEEAASCwoHVFdJVFRFUhABEgsKB0RJU0NPUkQQAhIMCghURUxFR1JBTRADKvEBChhTb2NpYWxWZXJpZmljYXRpb25TdGF0dXMSFgoSU1RBVFVTX1VOU1BFQ0lGSUVEEAASHgoaU1RBVFVTX1BFTkRJTkdfVVNFUl9BQ1RJT04QARIRCg1TVEFUVVNfUVVFVUVEEAISFgoSU1RBVFVTX0lOX1BST0dSRVNTEAMSEwoPU1RBVFVTX1ZFUklGSUVEEAQSEQoNU1RBVFVTX0ZBSUxFRBAFEhIKDlNUQVRVU19FWFBJUkVEEAYSFAoQU1RBVFVTX0NBTkNFTExFRBAHEiAKHFNUQVRVU19BV0FJVElOR19DT05GSVJNQVRJT04QCCppChhTb2NpYWxWZXJpZmljYXRpb25NZXRob2QSFgoSTUVUSE9EX1VOU1BFQ0lGSUVEEAASEgoOTUVUSE9EX1BST0ZJTEUQARISCg5NRVRIT0RfQ0hBTk5FTBACEg0KCU1FVEhPRF9ETRADMsEEChlTb2NpYWxWZXJpZmljYXRpb25TZXJ2aWNlEm4KF1N0YXJ0U29jaWFsVmVyaWZpY2F0aW9uEicuYXV0aC52MS5TdGFydFNvY2lhbFZlcmlmaWNhdGlvblJlcXVlc3QaKC5hdXRoLnYxLlN0YXJ0U29jaWFsVmVyaWZpY2F0aW9uUmVzcG9uc2UiABJuChdTb2NpYWxWZXJpZmljYXRpb25SZWFkeRInLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uUmVhZHlSZXF1ZXN0GiguYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb25SZWFkeVJlc3BvbnNlIgASdAoZQ29uZmlybVNvY2lhbFZlcmlmaWNhdGlvbhIpLmF1dGgudjEuQ29uZmlybVNvY2lhbFZlcmlmaWNhdGlvblJlcXVlc3QaKi5hdXRoLnYxLkNvbmZpcm1Tb2NpYWxWZXJpZmljYXRpb25SZXNwb25zZSIAEmIKE1VubGlua1NvY2lhbEFjY291bnQSIy5hdXRoLnYxLlVubGlua1NvY2lhbEFjY291bnRSZXF1ZXN0GiQuYXV0aC52MS5VbmxpbmtTb2NpYWxBY2NvdW50UmVzcG9uc2UiABJoChVHZXRTb2NpYWxWZXJpZmljYXRpb24SJS5hdXRoLnYxLkdldFNvY2lhbFZlcmlmaWNhdGlvblJlcXVlc3QaJi5hdXRoLnYxLkdldFNvY2lhbFZlcmlmaWNhdGlvblJlc3BvbnNlIgAaAEI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2F1dGgvdjE7YXV0aHYxYgZwcm90bzM=", [file_auth_v1_auth, file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * SocialVerification describes the caller's current verification state for one
@@ -48,23 +48,36 @@ export type SocialVerification = Message<"auth.v1.SocialVerification"> & {
 
   /**
    * Provider handle being verified. Handles are returned lowercase and without
-   * a leading "@".
+   * a leading "@". For Telegram, the username of the account that submitted the
+   * code; empty when that account has no username.
    *
    * @generated from field: string handle = 2;
    */
   handle: string;
 
   /**
-   * Stable provider-side user identifier. Empty until verification succeeds.
+   * Stable provider-side user identifier. Empty until verification succeeds,
+   * except for Telegram: while the status is STATUS_AWAITING_CONFIRMATION, it is
+   * the numeric user ID of the Telegram account that submitted the code, the
+   * value ConfirmSocialVerification takes.
    *
    * @generated from field: string provider_user_id = 3;
    */
   providerUserId: string;
 
   /**
+   * Provider display name of the account being verified, for showing it to the
+   * user. Telegram only: the account's name, set once the code is submitted.
+   * Empty for other providers.
+   *
+   * @generated from field: string display_name = 17;
+   */
+  displayName: string;
+
+  /**
    * Challenge code the user must submit according to the verification method.
-   * Discord codes are returned only when a challenge is issued. Codes expire
-   * after 15 minutes.
+   * Discord and Telegram codes are returned only when a challenge is issued.
+   * Codes expire after 15 minutes.
    *
    * @generated from field: string challenge_code = 13;
    */
@@ -152,7 +165,8 @@ export type StartSocialVerificationRequest = Message<"auth.v1.StartSocialVerific
 
   /**
    * Verification method. If unspecified, profile verification is used for
-   * X/Twitter and channel verification is used for Discord.
+   * X/Twitter, channel verification for Discord and direct message
+   * verification for Telegram.
    *
    * @generated from field: auth.v1.SocialVerificationMethod method = 3;
    */
@@ -160,7 +174,7 @@ export type StartSocialVerificationRequest = Message<"auth.v1.StartSocialVerific
 
   /**
    * Provider handle the user claims. Required for X/Twitter and omitted for
-   * Discord, where the authenticated bot supplies the provider identity.
+   * Discord and Telegram, where the provider bot supplies the provider identity.
    * A leading "@" is accepted and removed from X/Twitter handles.
    *
    * @generated from field: string handle = 2;
@@ -203,6 +217,15 @@ export type StartSocialVerificationResponse = Message<"auth.v1.StartSocialVerifi
    * @generated from field: auth.v1.SocialVerification verification = 3;
    */
   verification?: SocialVerification | undefined;
+
+  /**
+   * Link that completes the user action, when the provider has one. Telegram:
+   * opening it starts a chat with the Polyester bot that submits the code.
+   * Empty for other providers.
+   *
+   * @generated from field: string action_url = 4;
+   */
+  actionUrl: string;
 };
 
 /**
@@ -303,6 +326,104 @@ export const GetSocialVerificationResponseSchema: GenMessage<GetSocialVerificati
   messageDesc(file_auth_v1_social_verification, 6);
 
 /**
+ * ConfirmSocialVerificationRequest links the provider account that submitted
+ * the caller's challenge code.
+ *
+ * @generated from message auth.v1.ConfirmSocialVerificationRequest
+ */
+export type ConfirmSocialVerificationRequest = Message<"auth.v1.ConfirmSocialVerificationRequest"> & {
+  /**
+   * Provider account to confirm. Only TELEGRAM is accepted.
+   *
+   * @generated from field: auth.v1.SocialProvider provider = 1;
+   */
+  provider: SocialProvider;
+
+  /**
+   * Provider user ID the user confirms, as provider_user_id of the verification
+   * in STATUS_AWAITING_CONFIRMATION. The request fails when it is not the
+   * account that submitted the code, so the user links exactly the account
+   * they were shown.
+   *
+   * @generated from field: string provider_user_id = 2;
+   */
+  providerUserId: string;
+};
+
+/**
+ * Describes the message auth.v1.ConfirmSocialVerificationRequest.
+ * Use `create(ConfirmSocialVerificationRequestSchema)` to create a new message.
+ */
+export const ConfirmSocialVerificationRequestSchema: GenMessage<ConfirmSocialVerificationRequest> = /*@__PURE__*/
+  messageDesc(file_auth_v1_social_verification, 7);
+
+/**
+ * ConfirmSocialVerificationResponse returns the verification after the
+ * provider account was linked.
+ *
+ * @generated from message auth.v1.ConfirmSocialVerificationResponse
+ */
+export type ConfirmSocialVerificationResponse = Message<"auth.v1.ConfirmSocialVerificationResponse"> & {
+  /**
+   * Current verification state, STATUS_VERIFIED.
+   *
+   * @generated from field: auth.v1.SocialVerification verification = 1;
+   */
+  verification?: SocialVerification | undefined;
+};
+
+/**
+ * Describes the message auth.v1.ConfirmSocialVerificationResponse.
+ * Use `create(ConfirmSocialVerificationResponseSchema)` to create a new message.
+ */
+export const ConfirmSocialVerificationResponseSchema: GenMessage<ConfirmSocialVerificationResponse> = /*@__PURE__*/
+  messageDesc(file_auth_v1_social_verification, 8);
+
+/**
+ * UnlinkSocialAccountRequest removes the caller's linked provider account, or
+ * cancels a link in progress.
+ *
+ * @generated from message auth.v1.UnlinkSocialAccountRequest
+ */
+export type UnlinkSocialAccountRequest = Message<"auth.v1.UnlinkSocialAccountRequest"> & {
+  /**
+   * Provider account to unlink. Only TELEGRAM is accepted.
+   *
+   * @generated from field: auth.v1.SocialProvider provider = 1;
+   */
+  provider: SocialProvider;
+};
+
+/**
+ * Describes the message auth.v1.UnlinkSocialAccountRequest.
+ * Use `create(UnlinkSocialAccountRequestSchema)` to create a new message.
+ */
+export const UnlinkSocialAccountRequestSchema: GenMessage<UnlinkSocialAccountRequest> = /*@__PURE__*/
+  messageDesc(file_auth_v1_social_verification, 9);
+
+/**
+ * UnlinkSocialAccountResponse returns the verification after unlinking.
+ *
+ * @generated from message auth.v1.UnlinkSocialAccountResponse
+ */
+export type UnlinkSocialAccountResponse = Message<"auth.v1.UnlinkSocialAccountResponse"> & {
+  /**
+   * Current verification state, STATUS_CANCELLED. Absent when no verification
+   * was ever started for the provider.
+   *
+   * @generated from field: auth.v1.SocialVerification verification = 1;
+   */
+  verification?: SocialVerification | undefined;
+};
+
+/**
+ * Describes the message auth.v1.UnlinkSocialAccountResponse.
+ * Use `create(UnlinkSocialAccountResponseSchema)` to create a new message.
+ */
+export const UnlinkSocialAccountResponseSchema: GenMessage<UnlinkSocialAccountResponse> = /*@__PURE__*/
+  messageDesc(file_auth_v1_social_verification, 10);
+
+/**
  * Social account provider used for account ownership verification.
  *
  * @generated from enum auth.v1.SocialProvider
@@ -328,6 +449,14 @@ export enum SocialProvider {
    * @generated from enum value: DISCORD = 2;
    */
   DISCORD = 2,
+
+  /**
+   * Telegram account linking. The user sends the challenge code to the Polyester
+   * Telegram bot, then confirms the Telegram account that sent it.
+   *
+   * @generated from enum value: TELEGRAM = 3;
+   */
+  TELEGRAM = 3,
 }
 
 /**
@@ -392,11 +521,19 @@ export enum SocialVerificationStatus {
   STATUS_EXPIRED = 6,
 
   /**
-   * Verification was cancelled.
+   * Verification was cancelled, or the linked account was unlinked.
    *
    * @generated from enum value: STATUS_CANCELLED = 7;
    */
   STATUS_CANCELLED = 7,
+
+  /**
+   * A provider account submitted the challenge code. The user must confirm that
+   * account with ConfirmSocialVerification before it is linked. Telegram only.
+   *
+   * @generated from enum value: STATUS_AWAITING_CONFIRMATION = 8;
+   */
+  STATUS_AWAITING_CONFIRMATION = 8,
 }
 
 /**
@@ -454,6 +591,9 @@ export const SocialVerificationMethodSchema: GenEnum<SocialVerificationMethod> =
 export const SocialVerificationService: GenService<{
   /**
    * Start or restart social verification by issuing a new challenge code.
+   * For Telegram, open action_url to send the code to the Polyester bot, then
+   * confirm the account with ConfirmSocialVerification.
+   * AUTH_SOCIAL_VERIFICATION_INVALID_STATE for Telegram means a Telegram account is already linked; unlink it first.
    *
    * @generated from rpc auth.v1.SocialVerificationService.StartSocialVerification
    */
@@ -467,6 +607,7 @@ export const SocialVerificationService: GenService<{
    * AUTH_RESOURCE_NOT_FOUND means no verification exists; start one first.
    * AUTH_SOCIAL_VERIFICATION_EXPIRED means the challenge window passed; start a new verification, then mark it ready again.
    * AUTH_SOCIAL_VERIFICATION_INVALID_STATE means Ready is not valid in the current state; call GetSocialVerification for the current status.
+   * Telegram linking does not use Ready and always answers AUTH_SOCIAL_VERIFICATION_INVALID_STATE.
    *
    * @generated from rpc auth.v1.SocialVerificationService.SocialVerificationReady
    */
@@ -474,6 +615,38 @@ export const SocialVerificationService: GenService<{
     methodKind: "unary";
     input: typeof SocialVerificationReadyRequestSchema;
     output: typeof SocialVerificationReadyResponseSchema;
+  },
+  /**
+   * Link the Telegram account that submitted the caller's challenge code. A
+   * linked Telegram account becomes a channel to the account, so the caller
+   * needs enrolled MFA and a fresh, single-use step-up proof in the
+   * X-Auth-Step-Up header, obtained by completing an MFA challenge for fresh
+   * step-up. The link consumes the proof; a retried confirmation of an existing
+   * link needs no new proof.
+   * AUTH_RESOURCE_NOT_FOUND means no verification exists; start one first.
+   * AUTH_SOCIAL_VERIFICATION_EXPIRED means the challenge window passed; start a new verification.
+   * AUTH_SOCIAL_VERIFICATION_INVALID_STATE means no submitted account awaits confirmation, or provider_user_id is not the account that submitted the code.
+   * AUTH_SOCIAL_ACCOUNT_ALREADY_LINKED means that Telegram account is linked to another Polyester account; the verification fails.
+   * AUTH_MFA_NOT_ENROLLED means enroll MFA first; AUTH_STEP_UP_REQUIRED and AUTH_STEP_UP_PROOF_UNAVAILABLE mean complete a new fresh step-up and retry.
+   *
+   * @generated from rpc auth.v1.SocialVerificationService.ConfirmSocialVerification
+   */
+  confirmSocialVerification: {
+    methodKind: "unary";
+    input: typeof ConfirmSocialVerificationRequestSchema;
+    output: typeof ConfirmSocialVerificationResponseSchema;
+  },
+  /**
+   * Unlink the caller's Telegram account, or cancel a Telegram link in progress.
+   * Unlinking again succeeds and changes nothing. To link again, start a new
+   * verification.
+   *
+   * @generated from rpc auth.v1.SocialVerificationService.UnlinkSocialAccount
+   */
+  unlinkSocialAccount: {
+    methodKind: "unary";
+    input: typeof UnlinkSocialAccountRequestSchema;
+    output: typeof UnlinkSocialAccountResponseSchema;
   },
   /**
    * Get current verification status for the caller.

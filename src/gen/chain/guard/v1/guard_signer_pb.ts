@@ -624,6 +624,11 @@ export const GuardSignerService: GenService<{
     output: typeof CreateGuardSignerWalletResponseSchema;
   },
   /**
+   * Return stored and live guard signer status. An API key needs
+   * READ_GUARD_SIGNER_STATUS and reads only within its own main account: a
+   * sub-account another main account owns is refused, even when that main
+   * account shares it.
+   *
    * @generated from rpc chain.guard.v1.GuardSignerService.GetGuardSignerStatus
    */
   getGuardSignerStatus: {

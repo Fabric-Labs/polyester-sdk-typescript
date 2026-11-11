@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file auth/v1/api_keys.proto.
  */
 export const file_auth_v1_api_keys: GenFile = /*@__PURE__*/
-  fileDesc("ChZhdXRoL3YxL2FwaV9rZXlzLnByb3RvEgdhdXRoLnYxIucDCgZBcGlLZXkSEAoGa2V5X2lkGAIgASgJQgASDQoFbGFiZWwYAyABKAkSDgoEaWNvbhgJIAEoCUIAEg8KBWNvbG9yGAogASgJQgASFgoMaXBfd2hpdGVsaXN0GAQgAygJQgASJQoGc3RhdHVzGAYgASgOMhUuYXV0aC52MS5BcGlLZXlTdGF0dXMSGgoNc3ViYWNjb3VudF9pZBgHIAEoBkgAiAEBEhYKCXBvbGljeV9pZBgIIAEoBkgBiAEBEi4KCmNyZWF0ZWRfYXQYFCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGxhc3RfdXNlZF9hdBgVIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoScHVibGljX2tleV9lZDI1NTE5GBYgASgMEi4KCmV4cGlyZXNfYXQYFyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEGNyZWF0ZWRfYnlfYWN0b3IYGCABKAkSLgoKdXBkYXRlZF9hdBgZIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIcmV2aXNpb24YGiABKARCEAoOX3N1YmFjY291bnRfaWRCDAoKX3BvbGljeV9pZCKrAQoTQ3JlYXRlQXBpS2V5UmVxdWVzdBIPCgVsYWJlbBgBIAEoCUIAEhoKDXN1YmFjY291bnRfaWQYAyABKAZIAIgBARIOCgRpY29uGAYgASgJQgASDwoFY29sb3IYByABKAlCABIWCgxpcF93aGl0ZWxpc3QYBCADKAlCABIcChJwdWJsaWNfa2V5X2VkMjU1MTkYBSABKAxCAEIQCg5fc3ViYWNjb3VudF9pZCI4ChRDcmVhdGVBcGlLZXlSZXNwb25zZRIgCgdhcGlfa2V5GAEgASgLMg8uYXV0aC52MS5BcGlLZXkiQgoSTGlzdEFwaUtleXNSZXF1ZXN0EhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBAUIQCg5fc3ViYWNjb3VudF9pZCI4ChNMaXN0QXBpS2V5c1Jlc3BvbnNlEiEKCGFwaV9rZXlzGAEgAygLMg8uYXV0aC52MS5BcGlLZXkiJwoTRGVsZXRlQXBpS2V5UmVxdWVzdBIQCgZrZXlfaWQYASABKAlCACIWChREZWxldGVBcGlLZXlSZXNwb25zZSIkChBHZXRBcGlLZXlSZXF1ZXN0EhAKBmtleV9pZBgBIAEoCUIAIjUKEUdldEFwaUtleVJlc3BvbnNlEiAKB2FwaV9rZXkYASABKAsyDy5hdXRoLnYxLkFwaUtleSK3AQoQQXBpS2V5VXBkYXRlU3BlYxIPCgVsYWJlbBgBIAEoCUIAEg4KBGljb24YAiABKAlCABIPCgVjb2xvchgDIAEoCUIAEicKBnN0YXR1cxgEIAEoDjIVLmF1dGgudjEuQXBpS2V5U3RhdHVzQgASFgoMaXBfd2hpdGVsaXN0GAUgAygJQgASLgoKZXhwaXJlc19hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXA6ACKlAQoTVXBkYXRlQXBpS2V5UmVxdWVzdBIQCgZrZXlfaWQYASABKAlCABIsCgdhcGlfa2V5GAIgASgLMhkuYXV0aC52MS5BcGlLZXlVcGRhdGVTcGVjQgASMQoLdXBkYXRlX21hc2sYAyABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrQgASGwoRZXhwZWN0ZWRfcmV2aXNpb24YBCABKARCACI4ChRVcGRhdGVBcGlLZXlSZXNwb25zZRIgCgdhcGlfa2V5GAEgASgLMg8uYXV0aC52MS5BcGlLZXkqVQoMQXBpS2V5U3RhdHVzEh4KGkFQSV9LRVlfU1RBVFVTX1VOU1BFQ0lGSUVEEAASCgoGQUNUSVZFEAESCwoHUkVWT0tFRBACEgwKCERJU0FCTEVEEAMykAMKDUFwaUtleVNlcnZpY2USTQoMQ3JlYXRlQXBpS2V5EhwuYXV0aC52MS5DcmVhdGVBcGlLZXlSZXF1ZXN0Gh0uYXV0aC52MS5DcmVhdGVBcGlLZXlSZXNwb25zZSIAEkoKC0xpc3RBcGlLZXlzEhsuYXV0aC52MS5MaXN0QXBpS2V5c1JlcXVlc3QaHC5hdXRoLnYxLkxpc3RBcGlLZXlzUmVzcG9uc2UiABJECglHZXRBcGlLZXkSGS5hdXRoLnYxLkdldEFwaUtleVJlcXVlc3QaGi5hdXRoLnYxLkdldEFwaUtleVJlc3BvbnNlIgASTQoMRGVsZXRlQXBpS2V5EhwuYXV0aC52MS5EZWxldGVBcGlLZXlSZXF1ZXN0Gh0uYXV0aC52MS5EZWxldGVBcGlLZXlSZXNwb25zZSIAEk0KDFVwZGF0ZUFwaUtleRIcLmF1dGgudjEuVXBkYXRlQXBpS2V5UmVxdWVzdBodLmF1dGgudjEuVXBkYXRlQXBpS2V5UmVzcG9uc2UiABoAQjxaOmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vYXV0aC92MTthdXRodjFiBnByb3RvMw==", [file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChZhdXRoL3YxL2FwaV9rZXlzLnByb3RvEgdhdXRoLnYxIpAECgZBcGlLZXkSEAoGa2V5X2lkGAIgASgJQgASDQoFbGFiZWwYAyABKAkSDgoEaWNvbhgJIAEoCUIAEg8KBWNvbG9yGAogASgJQgASFgoMaXBfd2hpdGVsaXN0GAQgAygJQgASJQoGc3RhdHVzGAYgASgOMhUuYXV0aC52MS5BcGlLZXlTdGF0dXMSGgoNc3ViYWNjb3VudF9pZBgHIAEoBkgAiAEBEhYKCXBvbGljeV9pZBgIIAEoBkgBiAEBEi4KCmNyZWF0ZWRfYXQYFCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGxhc3RfdXNlZF9hdBgVIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoScHVibGljX2tleV9lZDI1NTE5GBYgASgMEi4KCmV4cGlyZXNfYXQYFyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEGNyZWF0ZWRfYnlfYWN0b3IYGCABKAkSLgoKdXBkYXRlZF9hdBgZIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIcmV2aXNpb24YGiABKAQSJwoHcHVycG9zZRgbIAEoDjIWLmF1dGgudjEuQXBpS2V5UHVycG9zZUIQCg5fc3ViYWNjb3VudF9pZEIMCgpfcG9saWN5X2lkIqsBChNDcmVhdGVBcGlLZXlSZXF1ZXN0Eg8KBWxhYmVsGAEgASgJQgASGgoNc3ViYWNjb3VudF9pZBgDIAEoBkgAiAEBEg4KBGljb24YBiABKAlCABIPCgVjb2xvchgHIAEoCUIAEhYKDGlwX3doaXRlbGlzdBgEIAMoCUIAEhwKEnB1YmxpY19rZXlfZWQyNTUxORgFIAEoDEIAQhAKDl9zdWJhY2NvdW50X2lkIjgKFENyZWF0ZUFwaUtleVJlc3BvbnNlEiAKB2FwaV9rZXkYASABKAsyDy5hdXRoLnYxLkFwaUtleSJCChJMaXN0QXBpS2V5c1JlcXVlc3QSGgoNc3ViYWNjb3VudF9pZBgBIAEoBkgAiAEBQhAKDl9zdWJhY2NvdW50X2lkIjgKE0xpc3RBcGlLZXlzUmVzcG9uc2USIQoIYXBpX2tleXMYASADKAsyDy5hdXRoLnYxLkFwaUtleSInChNEZWxldGVBcGlLZXlSZXF1ZXN0EhAKBmtleV9pZBgBIAEoCUIAIhYKFERlbGV0ZUFwaUtleVJlc3BvbnNlIiQKEEdldEFwaUtleVJlcXVlc3QSEAoGa2V5X2lkGAEgASgJQgAiNQoRR2V0QXBpS2V5UmVzcG9uc2USIAoHYXBpX2tleRgBIAEoCzIPLmF1dGgudjEuQXBpS2V5IrcBChBBcGlLZXlVcGRhdGVTcGVjEg8KBWxhYmVsGAEgASgJQgASDgoEaWNvbhgCIAEoCUIAEg8KBWNvbG9yGAMgASgJQgASJwoGc3RhdHVzGAQgASgOMhUuYXV0aC52MS5BcGlLZXlTdGF0dXNCABIWCgxpcF93aGl0ZWxpc3QYBSADKAlCABIuCgpleHBpcmVzX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcDoAIqUBChNVcGRhdGVBcGlLZXlSZXF1ZXN0EhAKBmtleV9pZBgBIAEoCUIAEiwKB2FwaV9rZXkYAiABKAsyGS5hdXRoLnYxLkFwaUtleVVwZGF0ZVNwZWNCABIxCgt1cGRhdGVfbWFzaxgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2tCABIbChFleHBlY3RlZF9yZXZpc2lvbhgEIAEoBEIAIjgKFFVwZGF0ZUFwaUtleVJlc3BvbnNlEiAKB2FwaV9rZXkYASABKAsyDy5hdXRoLnYxLkFwaUtleSLKAQoQQXNzaXN0YW50S2V5U3BlYxIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESHAoScHVibGljX2tleV9lZDI1NTE5GAIgASgMQgASEwoJcG9saWN5X2lkGAMgASgGQgASOQoVcmVnaXN0cmF0aW9uX2RlYWRsaW5lGAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJyZWdpc3RyYXRpb25fcHJvb2YYBSABKAxCEAoOX3N1YmFjY291bnRfaWQiRAoXU2V0QXNzaXN0YW50S2V5c1JlcXVlc3QSKQoEa2V5cxgBIAMoCzIZLmF1dGgudjEuQXNzaXN0YW50S2V5U3BlY0IAIj0KGFNldEFzc2lzdGFudEtleXNSZXNwb25zZRIhCghhcGlfa2V5cxgBIAMoCzIPLmF1dGgudjEuQXBpS2V5IhoKGExpc3RBc3Npc3RhbnRLZXlzUmVxdWVzdCI+ChlMaXN0QXNzaXN0YW50S2V5c1Jlc3BvbnNlEiEKCGFwaV9rZXlzGAEgAygLMg8uYXV0aC52MS5BcGlLZXkiHAoaRGVsZXRlQXNzaXN0YW50S2V5c1JlcXVlc3QiNgobRGVsZXRlQXNzaXN0YW50S2V5c1Jlc3BvbnNlEhcKD3Jldm9rZWRfa2V5X2lkcxgBIAMoCSpVCgxBcGlLZXlTdGF0dXMSHgoaQVBJX0tFWV9TVEFUVVNfVU5TUEVDSUZJRUQQABIKCgZBQ1RJVkUQARILCgdSRVZPS0VEEAISDAoIRElTQUJMRUQQAypFCg1BcGlLZXlQdXJwb3NlEhcKE1BVUlBPU0VfVU5TUEVDSUZJRUQQABIMCghTVEFOREFSRBABEg0KCUFTU0lTVEFOVBACMq0FCg1BcGlLZXlTZXJ2aWNlEk0KDENyZWF0ZUFwaUtleRIcLmF1dGgudjEuQ3JlYXRlQXBpS2V5UmVxdWVzdBodLmF1dGgudjEuQ3JlYXRlQXBpS2V5UmVzcG9uc2UiABJKCgtMaXN0QXBpS2V5cxIbLmF1dGgudjEuTGlzdEFwaUtleXNSZXF1ZXN0GhwuYXV0aC52MS5MaXN0QXBpS2V5c1Jlc3BvbnNlIgASRAoJR2V0QXBpS2V5EhkuYXV0aC52MS5HZXRBcGlLZXlSZXF1ZXN0GhouYXV0aC52MS5HZXRBcGlLZXlSZXNwb25zZSIAEk0KDERlbGV0ZUFwaUtleRIcLmF1dGgudjEuRGVsZXRlQXBpS2V5UmVxdWVzdBodLmF1dGgudjEuRGVsZXRlQXBpS2V5UmVzcG9uc2UiABJNCgxVcGRhdGVBcGlLZXkSHC5hdXRoLnYxLlVwZGF0ZUFwaUtleVJlcXVlc3QaHS5hdXRoLnYxLlVwZGF0ZUFwaUtleVJlc3BvbnNlIgASWQoQU2V0QXNzaXN0YW50S2V5cxIgLmF1dGgudjEuU2V0QXNzaXN0YW50S2V5c1JlcXVlc3QaIS5hdXRoLnYxLlNldEFzc2lzdGFudEtleXNSZXNwb25zZSIAElwKEUxpc3RBc3Npc3RhbnRLZXlzEiEuYXV0aC52MS5MaXN0QXNzaXN0YW50S2V5c1JlcXVlc3QaIi5hdXRoLnYxLkxpc3RBc3Npc3RhbnRLZXlzUmVzcG9uc2UiABJiChNEZWxldGVBc3Npc3RhbnRLZXlzEiMuYXV0aC52MS5EZWxldGVBc3Npc3RhbnRLZXlzUmVxdWVzdBokLmF1dGgudjEuRGVsZXRlQXNzaXN0YW50S2V5c1Jlc3BvbnNlIgAaAEI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2F1dGgvdjE7YXV0aHYxYgZwcm90bzM=", [file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * ApiKey is public API key metadata. It never includes the private key or seed.
@@ -136,6 +136,14 @@ export type ApiKey = Message<"auth.v1.ApiKey"> & {
    * @generated from field: uint64 revision = 26;
    */
   revision: bigint;
+
+  /**
+   * What the key is for. ASSISTANT keys are managed with SetAssistantKeys and
+   * are otherwise listed, updated and revoked like any key.
+   *
+   * @generated from field: auth.v1.ApiKeyPurpose purpose = 27;
+   */
+  purpose: ApiKeyPurpose;
 };
 
 /**
@@ -473,6 +481,182 @@ export const UpdateApiKeyResponseSchema: GenMessage<UpdateApiKeyResponse> = /*@_
   messageDesc(file_auth_v1_api_keys, 11);
 
 /**
+ * AssistantKeySpec is one account's key in the caller's assistant key set.
+ *
+ * @generated from message auth.v1.AssistantKeySpec
+ */
+export type AssistantKeySpec = Message<"auth.v1.AssistantKeySpec"> & {
+  /**
+   * Sub-account the key acts for (opaque ID). Unset means the caller's main
+   * account. A key acts for exactly one account.
+   *
+   * @generated from field: optional fixed64 subaccount_id = 1;
+   */
+  subaccountId?: bigint | undefined;
+
+  /**
+   * Ed25519 public key bytes the Polyester AI assistant signs with. Must be
+   * exactly 32 bytes, and distinct within the set.
+   *
+   * @generated from field: bytes public_key_ed25519 = 2;
+   */
+  publicKeyEd25519: Uint8Array;
+
+  /**
+   * API policy that bounds the key (opaque ID). It must belong to the same
+   * main account as the key, and must not allow EXTERNAL_WITHDRAW,
+   * INTERNAL_TRANSFER, MANAGE_ADDRESS_BOOK or MANAGE_AUTO_WITHDRAW.
+   *
+   * @generated from field: fixed64 policy_id = 3;
+   */
+  policyId: bigint;
+
+  /**
+   * Time until which the key may be registered, as the Polyester AI assistant
+   * issued it with the key (PrepareAssistantKeys), in whole milliseconds.
+   * Required for a new key: it must still be ahead, and at most 15 minutes
+   * ahead. Not needed when the account's current assistant key already has
+   * this public key.
+   *
+   * @generated from field: google.protobuf.Timestamp registration_deadline = 4;
+   */
+  registrationDeadline?: Timestamp | undefined;
+
+  /**
+   * The key's own Ed25519 signature over the caller's account, the key's
+   * account, its public key and registration_deadline, as the assistant
+   * issued it with the key (64 bytes). Required for a new key; not needed
+   * when the account's current assistant key already has this public key.
+   *
+   * @generated from field: bytes registration_proof = 5;
+   */
+  registrationProof: Uint8Array;
+};
+
+/**
+ * Describes the message auth.v1.AssistantKeySpec.
+ * Use `create(AssistantKeySpecSchema)` to create a new message.
+ */
+export const AssistantKeySpecSchema: GenMessage<AssistantKeySpec> = /*@__PURE__*/
+  messageDesc(file_auth_v1_api_keys, 12);
+
+/**
+ * SetAssistantKeysRequest replaces the caller's assistant key set.
+ *
+ * @generated from message auth.v1.SetAssistantKeysRequest
+ */
+export type SetAssistantKeysRequest = Message<"auth.v1.SetAssistantKeysRequest"> & {
+  /**
+   * The complete set, at most one key per account and at most 64 keys. An
+   * account left out loses its assistant key.
+   *
+   * @generated from field: repeated auth.v1.AssistantKeySpec keys = 1;
+   */
+  keys: AssistantKeySpec[];
+};
+
+/**
+ * Describes the message auth.v1.SetAssistantKeysRequest.
+ * Use `create(SetAssistantKeysRequestSchema)` to create a new message.
+ */
+export const SetAssistantKeysRequestSchema: GenMessage<SetAssistantKeysRequest> = /*@__PURE__*/
+  messageDesc(file_auth_v1_api_keys, 13);
+
+/**
+ * SetAssistantKeysResponse returns the caller's assistant key set.
+ *
+ * @generated from message auth.v1.SetAssistantKeysResponse
+ */
+export type SetAssistantKeysResponse = Message<"auth.v1.SetAssistantKeysResponse"> & {
+  /**
+   * The assistant keys now in the set, in request order.
+   *
+   * @generated from field: repeated auth.v1.ApiKey api_keys = 1;
+   */
+  apiKeys: ApiKey[];
+};
+
+/**
+ * Describes the message auth.v1.SetAssistantKeysResponse.
+ * Use `create(SetAssistantKeysResponseSchema)` to create a new message.
+ */
+export const SetAssistantKeysResponseSchema: GenMessage<SetAssistantKeysResponse> = /*@__PURE__*/
+  messageDesc(file_auth_v1_api_keys, 14);
+
+/**
+ * ListAssistantKeysRequest lists the caller's assistant key set.
+ *
+ * @generated from message auth.v1.ListAssistantKeysRequest
+ */
+export type ListAssistantKeysRequest = Message<"auth.v1.ListAssistantKeysRequest"> & {
+};
+
+/**
+ * Describes the message auth.v1.ListAssistantKeysRequest.
+ * Use `create(ListAssistantKeysRequestSchema)` to create a new message.
+ */
+export const ListAssistantKeysRequestSchema: GenMessage<ListAssistantKeysRequest> = /*@__PURE__*/
+  messageDesc(file_auth_v1_api_keys, 15);
+
+/**
+ * ListAssistantKeysResponse contains the caller's assistant keys.
+ *
+ * @generated from message auth.v1.ListAssistantKeysResponse
+ */
+export type ListAssistantKeysResponse = Message<"auth.v1.ListAssistantKeysResponse"> & {
+  /**
+   * Non-revoked assistant keys the caller set up, newest first.
+   *
+   * @generated from field: repeated auth.v1.ApiKey api_keys = 1;
+   */
+  apiKeys: ApiKey[];
+};
+
+/**
+ * Describes the message auth.v1.ListAssistantKeysResponse.
+ * Use `create(ListAssistantKeysResponseSchema)` to create a new message.
+ */
+export const ListAssistantKeysResponseSchema: GenMessage<ListAssistantKeysResponse> = /*@__PURE__*/
+  messageDesc(file_auth_v1_api_keys, 16);
+
+/**
+ * DeleteAssistantKeysRequest revokes the caller's whole assistant key set.
+ *
+ * @generated from message auth.v1.DeleteAssistantKeysRequest
+ */
+export type DeleteAssistantKeysRequest = Message<"auth.v1.DeleteAssistantKeysRequest"> & {
+};
+
+/**
+ * Describes the message auth.v1.DeleteAssistantKeysRequest.
+ * Use `create(DeleteAssistantKeysRequestSchema)` to create a new message.
+ */
+export const DeleteAssistantKeysRequestSchema: GenMessage<DeleteAssistantKeysRequest> = /*@__PURE__*/
+  messageDesc(file_auth_v1_api_keys, 17);
+
+/**
+ * DeleteAssistantKeysResponse lists the keys that were revoked.
+ *
+ * @generated from message auth.v1.DeleteAssistantKeysResponse
+ */
+export type DeleteAssistantKeysResponse = Message<"auth.v1.DeleteAssistantKeysResponse"> & {
+  /**
+   * Opaque identifiers of the keys revoked by this request. Empty when the set
+   * was already empty.
+   *
+   * @generated from field: repeated string revoked_key_ids = 1;
+   */
+  revokedKeyIds: string[];
+};
+
+/**
+ * Describes the message auth.v1.DeleteAssistantKeysResponse.
+ * Use `create(DeleteAssistantKeysResponseSchema)` to create a new message.
+ */
+export const DeleteAssistantKeysResponseSchema: GenMessage<DeleteAssistantKeysResponse> = /*@__PURE__*/
+  messageDesc(file_auth_v1_api_keys, 18);
+
+/**
  * Status of an API key.
  *
  * @generated from enum auth.v1.ApiKeyStatus
@@ -512,6 +696,45 @@ export enum ApiKeyStatus {
  */
 export const ApiKeyStatusSchema: GenEnum<ApiKeyStatus> = /*@__PURE__*/
   enumDesc(file_auth_v1_api_keys, 0);
+
+/**
+ * Purpose of an API key.
+ *
+ * @generated from enum auth.v1.ApiKeyPurpose
+ */
+export enum ApiKeyPurpose {
+  /**
+   * No purpose specified.
+   *
+   * @generated from enum value: PURPOSE_UNSPECIFIED = 0;
+   */
+  PURPOSE_UNSPECIFIED = 0,
+
+  /**
+   * A key the account holder created for their own programs.
+   *
+   * @generated from enum value: STANDARD = 1;
+   */
+  STANDARD = 1,
+
+  /**
+   * A key the account holder created for the Polyester AI assistant through
+   * SetAssistantKeys. Its policy can never allow actions that move value out
+   * of the account or manage where it goes, such as external withdrawals or
+   * internal transfers. Only its creator's assistant uses it, so a sub-account
+   * assistant key is revoked when its creator loses the role that manages the
+   * sub-account's API keys or leaves the sub-account.
+   *
+   * @generated from enum value: ASSISTANT = 2;
+   */
+  ASSISTANT = 2,
+}
+
+/**
+ * Describes the enum auth.v1.ApiKeyPurpose.
+ */
+export const ApiKeyPurposeSchema: GenEnum<ApiKeyPurpose> = /*@__PURE__*/
+  enumDesc(file_auth_v1_api_keys, 1);
 
 /**
  * ApiKeyService manages API keys for authenticated callers.
@@ -576,6 +799,56 @@ export const ApiKeyService: GenService<{
     methodKind: "unary";
     input: typeof UpdateApiKeyRequestSchema;
     output: typeof UpdateApiKeyResponseSchema;
+  },
+  /**
+   * Create or replace the caller's Polyester AI assistant key set: one
+   * ASSISTANT key per enabled account, each bounded by its API policy. One
+   * fresh step-up proof covers the whole set, and the change is all or
+   * nothing. An entry whose account already has an assistant key with the same
+   * public key keeps that key, with its status, and takes the requested
+   * policy; any other entry replaces the account's key. Accounts left out of
+   * the set have their assistant key revoked. A sub-account entry needs the
+   * same access as CreateApiKey: owner, or a role that manages its API keys.
+   * The acting caller's root account must have accepted the current terms;
+   * otherwise FailedPrecondition with AUTH_TERMS_NOT_ACCEPTED is returned. A
+   * policy that allows a money-out action returns FailedPrecondition with
+   * AUTH_ASSISTANT_KEY_ACTION_NOT_ALLOWED. A new key is registered only with
+   * the registration proof and deadline the assistant issued with it
+   * (PrepareAssistantKeys), before that deadline: a missing or failing proof
+   * returns InvalidArgument with AUTH_ASSISTANT_KEY_PROOF_INVALID, a passed
+   * deadline FailedPrecondition with AUTH_ASSISTANT_KEY_REGISTRATION_EXPIRED,
+   * and one more than 15 minutes ahead InvalidArgument with
+   * AUTH_ASSISTANT_KEY_DEADLINE_TOO_FAR.
+   *
+   * @generated from rpc auth.v1.ApiKeyService.SetAssistantKeys
+   */
+  setAssistantKeys: {
+    methodKind: "unary";
+    input: typeof SetAssistantKeysRequestSchema;
+    output: typeof SetAssistantKeysResponseSchema;
+  },
+  /**
+   * List the caller's non-revoked Polyester AI assistant keys, newest first.
+   *
+   * @generated from rpc auth.v1.ApiKeyService.ListAssistantKeys
+   */
+  listAssistantKeys: {
+    methodKind: "unary";
+    input: typeof ListAssistantKeysRequestSchema;
+    output: typeof ListAssistantKeysResponseSchema;
+  },
+  /**
+   * Revoke the caller's whole Polyester AI assistant key set. Revocation only
+   * removes access, so it needs no step-up proof. Revocation is permanent. As
+   * for DeleteApiKey, key management sees it at once, and requests signed with
+   * a revoked key are refused within a few seconds of the response.
+   *
+   * @generated from rpc auth.v1.ApiKeyService.DeleteAssistantKeys
+   */
+  deleteAssistantKeys: {
+    methodKind: "unary";
+    input: typeof DeleteAssistantKeysRequestSchema;
+    output: typeof DeleteAssistantKeysResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_auth_v1_api_keys, 0);

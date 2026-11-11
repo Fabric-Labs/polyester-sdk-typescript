@@ -4,6 +4,8 @@
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { Timestamp } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import { file_polyester_api_options } from "../../../polyester/api/options_pb.js";
 import type { U128 } from "../../../polyester/type/v1/u128_pb.js";
 import { file_polyester_type_v1_u128 } from "../../../polyester/type/v1/u128_pb.js";
@@ -13,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file chain/withdraw/v1/withdraw.proto.
  */
 export const file_chain_withdraw_v1_withdraw: GenFile = /*@__PURE__*/
-  fileDesc("CiBjaGFpbi93aXRoZHJhdy92MS93aXRoZHJhdy5wcm90bxIRY2hhaW4ud2l0aGRyYXcudjEiMgodQ3JlYXRlVHJhZGluZ1dpdGhkcmF3UmVzcG9uc2USEQoJaW50ZW50X2lkGAEgASgJIjgKI0NyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhd1Jlc3BvbnNlEhEKCWludGVudF9pZBgBIAEoCSI5CgtFcnJvckRldGFpbBIqCgRjb2RlGAEgASgOMhwuY2hhaW4ud2l0aGRyYXcudjEuRXJyb3JDb2RlIrgCChxUcmFkaW5nV2l0aGRyYXdJbnRlbnRQYXlsb2FkEjoKBmFjdGlvbhgBIAEoDjIoLmNoYWluLndpdGhkcmF3LnYxLlRyYWRpbmdXaXRoZHJhd0FjdGlvbkIAEhIKCGFzc2V0X2lkGAIgASgNQgASHAoUZGVzdGluYXRpb25fY2hhaW5faWQYAyABKAQSLQoKYW1vdW50X2UxOBgEIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjhCABIZCg9kZWFkbGluZV90c19zZWMYBSABKARCABIoCgVub25jZRgGIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjhCABIbChNkZXN0aW5hdGlvbl9hZGRyZXNzGAcgASgJEhkKD2lkZW1wb3RlbmN5X2tleRgIIAEoCUIAIn8KHENyZWF0ZVRyYWRpbmdXaXRoZHJhd1JlcXVlc3QSQgoHcGF5bG9hZBgBIAEoCzIvLmNoYWluLndpdGhkcmF3LnYxLlRyYWRpbmdXaXRoZHJhd0ludGVudFBheWxvYWRCABIbChFwYXlsb2FkX3NpZ25hdHVyZRgCIAEoDEIAIrUBCiJDcmVhdGVXYWxsZXRUcmFkaW5nV2l0aGRyYXdSZXF1ZXN0EkIKB3BheWxvYWQYASABKAsyLy5jaGFpbi53aXRoZHJhdy52MS5UcmFkaW5nV2l0aGRyYXdJbnRlbnRQYXlsb2FkQgASFQoNc3ViYWNjb3VudF9pZBgCIAEoBBIXCg1zaWduZXJfd2FsbGV0GAMgASgJQgASGwoRcGF5bG9hZF9zaWduYXR1cmUYBCABKAxCACJjCiJWYWxpZGF0ZVdpdGhkcmF3RGVzdGluYXRpb25SZXF1ZXN0Eh4KFGRlc3RpbmF0aW9uX2NoYWluX2lkGAEgASgEQgASHQoTZGVzdGluYXRpb25fYWRkcmVzcxgCIAEoCUIAIrABCiNWYWxpZGF0ZVdpdGhkcmF3RGVzdGluYXRpb25SZXNwb25zZRINCgV2YWxpZBgBIAEoCBJCCgRjb2RlGAIgASgOMjQuY2hhaW4ud2l0aGRyYXcudjEuV2l0aGRyYXdEZXN0aW5hdGlvblZhbGlkYXRpb25Db2RlEg8KB21lc3NhZ2UYAyABKAkSJQodY2Fub25pY2FsX2Rlc3RpbmF0aW9uX2FkZHJlc3MYBCABKAkq2A0KCUVycm9yQ29kZRIaChZFUlJPUl9DT0RFX1VOU1BFQ0lGSUVEEAASIQodRVJST1JfQ09ERV9JTlNVRkZJQ0lFTlRfRlVORFMQARIeChpFUlJPUl9DT0RFX0lOVkFMSURfUkVRVUVTVBACEh4KGkVSUk9SX0NPREVfVU5BVVRIRU5USUNBVEVEEAMSIAocRVJST1JfQ09ERV9QRVJNSVNTSU9OX0RFTklFRBAEEiIKHkVSUk9SX0NPREVfUkFURV9MSU1JVF9FWENFRURFRBAFEiIKHkVSUk9SX0NPREVfU0VSVklDRV9VTkFWQUlMQUJMRRAGEh0KGUVSUk9SX0NPREVfSU5URVJOQUxfRVJST1IQBxIkCiBFUlJPUl9DT0RFX0lOVkFMSURfU1VCQUNDT1VOVF9JRBAIEiMKH0VSUk9SX0NPREVfU1VCQUNDT1VOVF9OT1RfRk9VTkQQCRIdChlFUlJPUl9DT0RFX0lOVkFMSURfQUNUSU9OEAoSIQodRVJST1JfQ09ERV9VTlNVUFBPUlRFRF9MRURHRVIQCxIgChxFUlJPUl9DT0RFX1VOU1VQUE9SVEVEX0FTU0VUEAwSHQoZRVJST1JfQ09ERV9JTlZBTElEX0FNT1VOVBANEigKJEVSUk9SX0NPREVfSU5WQUxJRF9ERVNUSU5BVElPTl9DSEFJThAOEioKJkVSUk9SX0NPREVfSU5WQUxJRF9ERVNUSU5BVElPTl9BRERSRVNTEA8SMwovRVJST1JfQ09ERV9FWFRFUk5BTF9ERVNUSU5BVElPTl9OT1RfV0hJVEVMSVNURUQQEBIxCi1FUlJPUl9DT0RFX0lOVEVSTkFMX1JFQ0lQSUVOVF9OT1RfV0hJVEVMSVNURUQQERIjCh9FUlJPUl9DT0RFX0FNT1VOVF9CRUxPV19NSU5JTVVNEBISJAogRVJST1JfQ09ERV9BTU9VTlRfRVhDRUVEU19TVVBQTFkQExIvCitFUlJPUl9DT0RFX1NPVVJDRV9TTUFSVF9BQ0NPVU5UX1VOQVZBSUxBQkxFEBQSIQodRVJST1JfQ09ERV9TSUdOQVRVUkVfUkVRVUlSRUQQFRIrCidFUlJPUl9DT0RFX1NJR05BVFVSRV9TQ0hFTUVfVU5TVVBQT1JURUQQFhIkCiBFUlJPUl9DT0RFX1NJR05FUl9XQUxMRVRfSU5WQUxJRBAXEiUKIUVSUk9SX0NPREVfV0FMTEVUX0JJTkRJTkdfSU5WQUxJRBAYEiwKKEVSUk9SX0NPREVfV0FMTEVUX0JJTkRJTkdfU0NPUEVfTUlTTUFUQ0gQGRItCilFUlJPUl9DT0RFX1dBTExFVF9CSU5ESU5HX1NJR05FUl9NSVNNQVRDSBAaEiAKHEVSUk9SX0NPREVfQVBJX0tFWV9OT1RfRk9VTkQQGxImCiJFUlJPUl9DT0RFX0FQSV9LRVlfQklORElOR19JTlZBTElEEBwSLQopRVJST1JfQ09ERV9BUElfS0VZX0JJTkRJTkdfU0NPUEVfTUlTTUFUQ0gQHRIyCi5FUlJPUl9DT0RFX0FQSV9LRVlfQklORElOR19QVUJMSUNfS0VZX01JU01BVENIEB4SIwofRVJST1JfQ09ERV9JREVNUE9URU5DWV9DT05GTElDVBAfEiIKHkVSUk9SX0NPREVfRlVORFNfTE9DS19DT05GTElDVBAgEicKI0VSUk9SX0NPREVfQ0FQSVRBTF9WSUVXX1VOQVZBSUxBQkxFECESKQolRVJST1JfQ09ERV9DSEFJTl9NRVRBREFUQV9VTkFWQUlMQUJMRRAiEh4KGkVSUk9SX0NPREVfRkVFX1VOQVZBSUxBQkxFECMSIQodRVJST1JfQ09ERV9TVVBQTFlfVU5BVkFJTEFCTEUQJBIiCh5FUlJPUl9DT0RFX1NURVBfVVBfVU5BVkFJTEFCTEUQJRIxCi1FUlJPUl9DT0RFX0RFU1RJTkFUSU9OX1ZBTElEQVRJT05fVU5BVkFJTEFCTEUQJhIoCiRFUlJPUl9DT0RFX0FDQ09VTlRfU0hBUkRfVU5BVkFJTEFCTEUQJxIiCh5FUlJPUl9DT0RFX0ZBSUxFRF9QUkVDT05ESVRJT04QKBIYChRFUlJPUl9DT0RFX05PVF9GT1VORBApEhcKE0VSUk9SX0NPREVfQ09ORkxJQ1QQKhItCilFUlJPUl9DT0RFX0lOVkFMSURfQVVUT19XSVRIRFJBV19TQ0hFRFVMRRArEi0KKUVSUk9SX0NPREVfQU1PVU5UX0VYQ0VFRFNfUk9VVEVfUFJFQ0lTSU9OECwqVgoVVHJhZGluZ1dpdGhkcmF3QWN0aW9uEhYKEkFDVElPTl9VTlNQRUNJRklFRBAAEg4KClRPX0ZVTkRJTkcQARIVChFUT19FWFRFUk5BTF9DSEFJThACKrsBCiFXaXRoZHJhd0Rlc3RpbmF0aW9uVmFsaWRhdGlvbkNvZGUSFgoSUkVTVUxUX1VOU1BFQ0lGSUVEEAASCQoFVkFMSUQQARITCg9JTlZBTElEX0FERFJFU1MQAhIVChFVTlNVUFBPUlRFRF9DSEFJThADEhsKF1BPTFlFU1RFUl9TTUFSVF9BQ0NPVU5UEAQSEgoOVE9LRU5fQ09OVFJBQ1QQBRIWChJERU5ZTElTVEVEX0FERFJFU1MQBjKzAwoPV2l0aGRyYXdTZXJ2aWNlEo4BChtWYWxpZGF0ZVdpdGhkcmF3RGVzdGluYXRpb24SNS5jaGFpbi53aXRoZHJhdy52MS5WYWxpZGF0ZVdpdGhkcmF3RGVzdGluYXRpb25SZXF1ZXN0GjYuY2hhaW4ud2l0aGRyYXcudjEuVmFsaWRhdGVXaXRoZHJhd0Rlc3RpbmF0aW9uUmVzcG9uc2UiABJ8ChVDcmVhdGVUcmFkaW5nV2l0aGRyYXcSLy5jaGFpbi53aXRoZHJhdy52MS5DcmVhdGVUcmFkaW5nV2l0aGRyYXdSZXF1ZXN0GjAuY2hhaW4ud2l0aGRyYXcudjEuQ3JlYXRlVHJhZGluZ1dpdGhkcmF3UmVzcG9uc2UiABKOAQobQ3JlYXRlV2FsbGV0VHJhZGluZ1dpdGhkcmF3EjUuY2hhaW4ud2l0aGRyYXcudjEuQ3JlYXRlV2FsbGV0VHJhZGluZ1dpdGhkcmF3UmVxdWVzdBo2LmNoYWluLndpdGhkcmF3LnYxLkNyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhd1Jlc3BvbnNlIgAaAEJPWk1naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2NoYWluL3dpdGhkcmF3L3YxO2NoYWlud2l0aGRyYXd2MWIGcHJvdG8z", [file_polyester_api_options, file_polyester_type_v1_u128]);
+  fileDesc("CiBjaGFpbi93aXRoZHJhdy92MS93aXRoZHJhdy5wcm90bxIRY2hhaW4ud2l0aGRyYXcudjEiMgodQ3JlYXRlVHJhZGluZ1dpdGhkcmF3UmVzcG9uc2USEQoJaW50ZW50X2lkGAEgASgJIjgKI0NyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhd1Jlc3BvbnNlEhEKCWludGVudF9pZBgBIAEoCSKvAQoLRXJyb3JEZXRhaWwSKgoEY29kZRgBIAEoDjIcLmNoYWluLndpdGhkcmF3LnYxLkVycm9yQ29kZRISCgpmaWVsZF9wYXRoGAIgASgJEi4KDW1pbl9mbG9vcl9lMTgYAyABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EjAKDHBheWFibGVfZnJvbRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiuAIKHFRyYWRpbmdXaXRoZHJhd0ludGVudFBheWxvYWQSOgoGYWN0aW9uGAEgASgOMiguY2hhaW4ud2l0aGRyYXcudjEuVHJhZGluZ1dpdGhkcmF3QWN0aW9uQgASEgoIYXNzZXRfaWQYAiABKA1CABIcChRkZXN0aW5hdGlvbl9jaGFpbl9pZBgDIAEoBBItCgphbW91bnRfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOEIAEhkKD2RlYWRsaW5lX3RzX3NlYxgFIAEoBEIAEigKBW5vbmNlGAYgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOEIAEhsKE2Rlc3RpbmF0aW9uX2FkZHJlc3MYByABKAkSGQoPaWRlbXBvdGVuY3lfa2V5GAggASgJQgAifwocQ3JlYXRlVHJhZGluZ1dpdGhkcmF3UmVxdWVzdBJCCgdwYXlsb2FkGAEgASgLMi8uY2hhaW4ud2l0aGRyYXcudjEuVHJhZGluZ1dpdGhkcmF3SW50ZW50UGF5bG9hZEIAEhsKEXBheWxvYWRfc2lnbmF0dXJlGAIgASgMQgAitQEKIkNyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhd1JlcXVlc3QSQgoHcGF5bG9hZBgBIAEoCzIvLmNoYWluLndpdGhkcmF3LnYxLlRyYWRpbmdXaXRoZHJhd0ludGVudFBheWxvYWRCABIVCg1zdWJhY2NvdW50X2lkGAIgASgEEhcKDXNpZ25lcl93YWxsZXQYAyABKAlCABIbChFwYXlsb2FkX3NpZ25hdHVyZRgEIAEoDEIAImMKIlZhbGlkYXRlV2l0aGRyYXdEZXN0aW5hdGlvblJlcXVlc3QSHgoUZGVzdGluYXRpb25fY2hhaW5faWQYASABKARCABIdChNkZXN0aW5hdGlvbl9hZGRyZXNzGAIgASgJQgAisAEKI1ZhbGlkYXRlV2l0aGRyYXdEZXN0aW5hdGlvblJlc3BvbnNlEg0KBXZhbGlkGAEgASgIEkIKBGNvZGUYAiABKA4yNC5jaGFpbi53aXRoZHJhdy52MS5XaXRoZHJhd0Rlc3RpbmF0aW9uVmFsaWRhdGlvbkNvZGUSDwoHbWVzc2FnZRgDIAEoCRIlCh1jYW5vbmljYWxfZGVzdGluYXRpb25fYWRkcmVzcxgEIAEoCSIxChhHZXRXYWxsZXRCYWxhbmNlc1JlcXVlc3QSFQoNc3ViYWNjb3VudF9pZBgBIAEoBiKZAQoNV2FsbGV0QmFsYW5jZRIXCg96aXBwZWRfYXNzZXRfaWQYASABKA0SGAoQdW5pZmllZF9hc3NldF9pZBgCIAEoDRIQCghjaGFpbl9pZBgDIAEoDRIWCg56dG9rZW5fYWRkcmVzcxgEIAEoCRIrCgphbW91bnRfZTE4GAUgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOCJuChlHZXRXYWxsZXRCYWxhbmNlc1Jlc3BvbnNlEh0KFXNtYXJ0X2FjY291bnRfYWRkcmVzcxgBIAEoCRIyCghiYWxhbmNlcxgCIAMoCzIgLmNoYWluLndpdGhkcmF3LnYxLldhbGxldEJhbGFuY2UqmA8KCUVycm9yQ29kZRIaChZFUlJPUl9DT0RFX1VOU1BFQ0lGSUVEEAASIQodRVJST1JfQ09ERV9JTlNVRkZJQ0lFTlRfRlVORFMQARIeChpFUlJPUl9DT0RFX0lOVkFMSURfUkVRVUVTVBACEh4KGkVSUk9SX0NPREVfVU5BVVRIRU5USUNBVEVEEAMSIAocRVJST1JfQ09ERV9QRVJNSVNTSU9OX0RFTklFRBAEEiIKHkVSUk9SX0NPREVfUkFURV9MSU1JVF9FWENFRURFRBAFEiIKHkVSUk9SX0NPREVfU0VSVklDRV9VTkFWQUlMQUJMRRAGEh0KGUVSUk9SX0NPREVfSU5URVJOQUxfRVJST1IQBxIkCiBFUlJPUl9DT0RFX0lOVkFMSURfU1VCQUNDT1VOVF9JRBAIEiMKH0VSUk9SX0NPREVfU1VCQUNDT1VOVF9OT1RfRk9VTkQQCRIdChlFUlJPUl9DT0RFX0lOVkFMSURfQUNUSU9OEAoSIQodRVJST1JfQ09ERV9VTlNVUFBPUlRFRF9MRURHRVIQCxIgChxFUlJPUl9DT0RFX1VOU1VQUE9SVEVEX0FTU0VUEAwSHQoZRVJST1JfQ09ERV9JTlZBTElEX0FNT1VOVBANEigKJEVSUk9SX0NPREVfSU5WQUxJRF9ERVNUSU5BVElPTl9DSEFJThAOEioKJkVSUk9SX0NPREVfSU5WQUxJRF9ERVNUSU5BVElPTl9BRERSRVNTEA8SMwovRVJST1JfQ09ERV9FWFRFUk5BTF9ERVNUSU5BVElPTl9OT1RfV0hJVEVMSVNURUQQEBIxCi1FUlJPUl9DT0RFX0lOVEVSTkFMX1JFQ0lQSUVOVF9OT1RfV0hJVEVMSVNURUQQERIjCh9FUlJPUl9DT0RFX0FNT1VOVF9CRUxPV19NSU5JTVVNEBISJAogRVJST1JfQ09ERV9BTU9VTlRfRVhDRUVEU19TVVBQTFkQExIvCitFUlJPUl9DT0RFX1NPVVJDRV9TTUFSVF9BQ0NPVU5UX1VOQVZBSUxBQkxFEBQSIQodRVJST1JfQ09ERV9TSUdOQVRVUkVfUkVRVUlSRUQQFRIrCidFUlJPUl9DT0RFX1NJR05BVFVSRV9TQ0hFTUVfVU5TVVBQT1JURUQQFhIkCiBFUlJPUl9DT0RFX1NJR05FUl9XQUxMRVRfSU5WQUxJRBAXEiUKIUVSUk9SX0NPREVfV0FMTEVUX0JJTkRJTkdfSU5WQUxJRBAYEiwKKEVSUk9SX0NPREVfV0FMTEVUX0JJTkRJTkdfU0NPUEVfTUlTTUFUQ0gQGRItCilFUlJPUl9DT0RFX1dBTExFVF9CSU5ESU5HX1NJR05FUl9NSVNNQVRDSBAaEiAKHEVSUk9SX0NPREVfQVBJX0tFWV9OT1RfRk9VTkQQGxImCiJFUlJPUl9DT0RFX0FQSV9LRVlfQklORElOR19JTlZBTElEEBwSLQopRVJST1JfQ09ERV9BUElfS0VZX0JJTkRJTkdfU0NPUEVfTUlTTUFUQ0gQHRIyCi5FUlJPUl9DT0RFX0FQSV9LRVlfQklORElOR19QVUJMSUNfS0VZX01JU01BVENIEB4SIwofRVJST1JfQ09ERV9JREVNUE9URU5DWV9DT05GTElDVBAfEiIKHkVSUk9SX0NPREVfRlVORFNfTE9DS19DT05GTElDVBAgEicKI0VSUk9SX0NPREVfQ0FQSVRBTF9WSUVXX1VOQVZBSUxBQkxFECESKQolRVJST1JfQ09ERV9DSEFJTl9NRVRBREFUQV9VTkFWQUlMQUJMRRAiEh4KGkVSUk9SX0NPREVfRkVFX1VOQVZBSUxBQkxFECMSIQodRVJST1JfQ09ERV9TVVBQTFlfVU5BVkFJTEFCTEUQJBIiCh5FUlJPUl9DT0RFX1NURVBfVVBfVU5BVkFJTEFCTEUQJRIxCi1FUlJPUl9DT0RFX0RFU1RJTkFUSU9OX1ZBTElEQVRJT05fVU5BVkFJTEFCTEUQJhIoCiRFUlJPUl9DT0RFX0FDQ09VTlRfU0hBUkRfVU5BVkFJTEFCTEUQJxIiCh5FUlJPUl9DT0RFX0ZBSUxFRF9QUkVDT05ESVRJT04QKBIYChRFUlJPUl9DT0RFX05PVF9GT1VORBApEhcKE0VSUk9SX0NPREVfQ09ORkxJQ1QQKhItCilFUlJPUl9DT0RFX0lOVkFMSURfQVVUT19XSVRIRFJBV19TQ0hFRFVMRRArEi0KKUVSUk9SX0NPREVfQU1PVU5UX0VYQ0VFRFNfUk9VVEVfUFJFQ0lTSU9OECwSIgoeRVJST1JfQ09ERV9ERVNUSU5BVElPTl9JTlZBTElEEC0SJQohRVJST1JfQ09ERV9NSU5fQU1PVU5UX0JFTE9XX0ZMT09SEC4SIAocRVJST1JfQ09ERV9ST1VURV9VTlNVUFBPUlRFRBAvEh8KG0VSUk9SX0NPREVfVkVSU0lPTl9DT05GTElDVBAwEjAKLEVSUk9SX0NPREVfRVhURVJOQUxfREVTVElOQVRJT05fQ09PTElOR19ET1dOEDEqVgoVVHJhZGluZ1dpdGhkcmF3QWN0aW9uEhYKEkFDVElPTl9VTlNQRUNJRklFRBAAEg4KClRPX0ZVTkRJTkcQARIVChFUT19FWFRFUk5BTF9DSEFJThACKrsBCiFXaXRoZHJhd0Rlc3RpbmF0aW9uVmFsaWRhdGlvbkNvZGUSFgoSUkVTVUxUX1VOU1BFQ0lGSUVEEAASCQoFVkFMSUQQARITCg9JTlZBTElEX0FERFJFU1MQAhIVChFVTlNVUFBPUlRFRF9DSEFJThADEhsKF1BPTFlFU1RFUl9TTUFSVF9BQ0NPVU5UEAQSEgoOVE9LRU5fQ09OVFJBQ1QQBRIWChJERU5ZTElTVEVEX0FERFJFU1MQBjKlBAoPV2l0aGRyYXdTZXJ2aWNlEnAKEUdldFdhbGxldEJhbGFuY2VzEisuY2hhaW4ud2l0aGRyYXcudjEuR2V0V2FsbGV0QmFsYW5jZXNSZXF1ZXN0GiwuY2hhaW4ud2l0aGRyYXcudjEuR2V0V2FsbGV0QmFsYW5jZXNSZXNwb25zZSIAEo4BChtWYWxpZGF0ZVdpdGhkcmF3RGVzdGluYXRpb24SNS5jaGFpbi53aXRoZHJhdy52MS5WYWxpZGF0ZVdpdGhkcmF3RGVzdGluYXRpb25SZXF1ZXN0GjYuY2hhaW4ud2l0aGRyYXcudjEuVmFsaWRhdGVXaXRoZHJhd0Rlc3RpbmF0aW9uUmVzcG9uc2UiABJ8ChVDcmVhdGVUcmFkaW5nV2l0aGRyYXcSLy5jaGFpbi53aXRoZHJhdy52MS5DcmVhdGVUcmFkaW5nV2l0aGRyYXdSZXF1ZXN0GjAuY2hhaW4ud2l0aGRyYXcudjEuQ3JlYXRlVHJhZGluZ1dpdGhkcmF3UmVzcG9uc2UiABKOAQobQ3JlYXRlV2FsbGV0VHJhZGluZ1dpdGhkcmF3EjUuY2hhaW4ud2l0aGRyYXcudjEuQ3JlYXRlV2FsbGV0VHJhZGluZ1dpdGhkcmF3UmVxdWVzdBo2LmNoYWluLndpdGhkcmF3LnYxLkNyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhd1Jlc3BvbnNlIgAaAEJPWk1naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2NoYWluL3dpdGhkcmF3L3YxO2NoYWlud2l0aGRyYXd2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options, file_polyester_type_v1_u128]);
 
 /**
  * CreateTradingWithdrawResponse returns the accepted durable intent identifier
@@ -73,6 +75,34 @@ export type ErrorDetail = Message<"chain.withdraw.v1.ErrorDetail"> & {
    * @generated from field: chain.withdraw.v1.ErrorCode code = 1;
    */
   code: ErrorCode;
+
+  /**
+   * Field the error is about, as a protobuf field path such as
+   * destinations[0].min_amount_e18; empty when the error concerns no single
+   * field. Usually a field of the request. A refused auto-withdraw resume
+   * names a field of the stored rule instead, such as
+   * destinations[1].destination_address of AutoWithdrawRule, which the
+   * request does not carry.
+   *
+   * @generated from field: string field_path = 2;
+   */
+  fieldPath: string;
+
+  /**
+   * Set only with MIN_AMOUNT_BELOW_FLOOR: the least amount, in 18-decimal
+   * asset units, the destination's min_amount_e18 may be.
+   *
+   * @generated from field: polyester.type.v1.U128 min_floor_e18 = 3;
+   */
+  minFloorE18?: U128 | undefined;
+
+  /**
+   * Set only with EXTERNAL_DESTINATION_COOLING_DOWN, when known: the time
+   * from which the destination can be paid.
+   *
+   * @generated from field: google.protobuf.Timestamp payable_from = 4;
+   */
+  payableFrom?: Timestamp | undefined;
 };
 
 /**
@@ -312,6 +342,110 @@ export type ValidateWithdrawDestinationResponse = Message<"chain.withdraw.v1.Val
  */
 export const ValidateWithdrawDestinationResponseSchema: GenMessage<ValidateWithdrawDestinationResponse> = /*@__PURE__*/
   messageDesc(file_chain_withdraw_v1_withdraw, 7);
+
+/**
+ * GetWalletBalancesRequest selects the account whose smart account wallet
+ * to read.
+ *
+ * @generated from message chain.withdraw.v1.GetWalletBalancesRequest
+ */
+export type GetWalletBalancesRequest = Message<"chain.withdraw.v1.GetWalletBalancesRequest"> & {
+  /**
+   * Public subaccount ID; omit for the root account.
+   *
+   * @generated from field: fixed64 subaccount_id = 1;
+   */
+  subaccountId: bigint;
+};
+
+/**
+ * Describes the message chain.withdraw.v1.GetWalletBalancesRequest.
+ * Use `create(GetWalletBalancesRequestSchema)` to create a new message.
+ */
+export const GetWalletBalancesRequestSchema: GenMessage<GetWalletBalancesRequest> = /*@__PURE__*/
+  messageDesc(file_chain_withdraw_v1_withdraw, 8);
+
+/**
+ * WalletBalance is one zToken the smart account wallet holds.
+ *
+ * @generated from message chain.withdraw.v1.WalletBalance
+ */
+export type WalletBalance = Message<"chain.withdraw.v1.WalletBalance"> & {
+  /**
+   * Zipped asset of the zToken: the network-specific asset, as
+   * chain.lifecycle.v1.AssetIds.zipped_asset_id names it.
+   *
+   * @generated from field: uint32 zipped_asset_id = 1;
+   */
+  zippedAssetId: number;
+
+  /**
+   * Unified asset the zToken stands for, as
+   * chain.lifecycle.v1.AssetIds.unified_asset_id names it.
+   *
+   * @generated from field: uint32 unified_asset_id = 2;
+   */
+  unifiedAssetId: number;
+
+  /**
+   * External network of the zipped asset, as the `chain_id` of a chain
+   * returned by `GetDepositWithdrawConfig`.
+   *
+   * @generated from field: uint32 chain_id = 3;
+   */
+  chainId: number;
+
+  /**
+   * zToken contract address on Polyester Chain.
+   *
+   * @generated from field: string ztoken_address = 4;
+   */
+  ztokenAddress: string;
+
+  /**
+   * Balance in 18-decimal units: every zToken has 18 decimals.
+   *
+   * @generated from field: polyester.type.v1.U128 amount_e18 = 5;
+   */
+  amountE18?: U128 | undefined;
+};
+
+/**
+ * Describes the message chain.withdraw.v1.WalletBalance.
+ * Use `create(WalletBalanceSchema)` to create a new message.
+ */
+export const WalletBalanceSchema: GenMessage<WalletBalance> = /*@__PURE__*/
+  messageDesc(file_chain_withdraw_v1_withdraw, 9);
+
+/**
+ * GetWalletBalancesResponse is the smart account wallet's zToken balances,
+ * read from Polyester Chain at its latest block.
+ *
+ * @generated from message chain.withdraw.v1.GetWalletBalancesResponse
+ */
+export type GetWalletBalancesResponse = Message<"chain.withdraw.v1.GetWalletBalancesResponse"> & {
+  /**
+   * Smart account wallet whose balances these are.
+   *
+   * @generated from field: string smart_account_address = 1;
+   */
+  smartAccountAddress: string;
+
+  /**
+   * Every zToken the wallet holds a nonzero balance of, ordered by
+   * zipped_asset_id. Empty when it holds none.
+   *
+   * @generated from field: repeated chain.withdraw.v1.WalletBalance balances = 2;
+   */
+  balances: WalletBalance[];
+};
+
+/**
+ * Describes the message chain.withdraw.v1.GetWalletBalancesResponse.
+ * Use `create(GetWalletBalancesResponseSchema)` to create a new message.
+ */
+export const GetWalletBalancesResponseSchema: GenMessage<GetWalletBalancesResponse> = /*@__PURE__*/
+  messageDesc(file_chain_withdraw_v1_withdraw, 10);
 
 /**
  * ErrorCode identifies stable, machine-readable Withdraw API errors.
@@ -638,6 +772,49 @@ export enum ErrorCode {
    * @generated from enum value: ERROR_CODE_AMOUNT_EXCEEDS_ROUTE_PRECISION = 44;
    */
   AMOUNT_EXCEEDS_ROUTE_PRECISION = 44,
+
+  /**
+   * An auto-withdraw destination address is not a valid withdrawal
+   * destination on its chain. ErrorDetail.field_path names the destination.
+   *
+   * @generated from enum value: ERROR_CODE_DESTINATION_INVALID = 45;
+   */
+  DESTINATION_INVALID = 45,
+
+  /**
+   * An auto-withdraw destination's min_amount_e18 is below the least amount
+   * a payout to it can pay. ErrorDetail.min_floor_e18 is that floor and
+   * ErrorDetail.field_path names the field.
+   *
+   * @generated from enum value: ERROR_CODE_MIN_AMOUNT_BELOW_FLOOR = 46;
+   */
+  MIN_AMOUNT_BELOW_FLOOR = 46,
+
+  /**
+   * No enabled withdrawal route pays an auto-withdraw destination's asset to
+   * its destination chain. ErrorDetail.field_path names the field.
+   *
+   * @generated from enum value: ERROR_CODE_ROUTE_UNSUPPORTED = 47;
+   */
+  ROUTE_UNSUPPORTED = 47,
+
+  /**
+   * expected_version is not the auto-withdraw rule's latest version: another
+   * change landed first. Read the rule again before retrying.
+   *
+   * @generated from enum value: ERROR_CODE_VERSION_CONFLICT = 48;
+   */
+  VERSION_CONFLICT = 48,
+
+  /**
+   * A broker vault pays an external destination only once it has been on the
+   * vault's external withdraw whitelist for 24 hours, and this one was added
+   * more recently. ErrorDetail.payable_from is when it can be paid; unset
+   * when that time is not known yet. Retry after it.
+   *
+   * @generated from enum value: ERROR_CODE_EXTERNAL_DESTINATION_COOLING_DOWN = 49;
+   */
+  EXTERNAL_DESTINATION_COOLING_DOWN = 49,
 }
 
 /**
@@ -744,6 +921,19 @@ export const WithdrawDestinationValidationCodeSchema: GenEnum<WithdrawDestinatio
  * @generated from service chain.withdraw.v1.WithdrawService
  */
 export const WithdrawService: GenService<{
+  /**
+   * Read the zTokens the account's smart account wallet holds on Polyester
+   * Chain, such as a rejected withdrawal's refund, which stays there until
+   * the account moves it. Balances are read live from the chain. An API key
+   * needs READ_BALANCES within its scope.
+   *
+   * @generated from rpc chain.withdraw.v1.WithdrawService.GetWalletBalances
+   */
+  getWalletBalances: {
+    methodKind: "unary";
+    input: typeof GetWalletBalancesRequestSchema;
+    output: typeof GetWalletBalancesResponseSchema;
+  },
   /**
    * Validate an external-chain withdraw destination for an authenticated
    * caller without creating, signing, or reserving a withdraw. An API key
