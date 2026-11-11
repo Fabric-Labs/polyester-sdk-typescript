@@ -1,13 +1,19 @@
 import * as v from "valibot";
 import { PositiveUint32InputSchema } from "../shared.js";
-import { quantityInputToE18, type SdkScales } from "../../shared/decimal-surface.js";
+import {
+    E18_SCALE,
+    quantityInputToE18,
+    scaledToDecimalOutput,
+    type SdkScales,
+} from "../../shared/decimal-surface.js";
 import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
 import type * as Proto from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import { WithdrawDestinationValidationCode } from "../../gen/chain/withdraw/v1/withdraw_pb.js";
-import { toU128, type U128Value } from "../../utils/u128.js";
+import { fromU128, toU128, type U128Value } from "../../utils/u128.js";
+import { U128Schema } from "../../shared/schemas.js";
 import { ConfigurationError } from "../../shared/errors.js";
 import {
     TradingWithdrawActionCodec,
@@ -261,3 +267,39 @@ export const ValidateWithdrawDestinationResultSchema = v.union([
 export type ValidateWithdrawDestinationResult = v.InferOutput<
     typeof ValidateWithdrawDestinationResultSchema
 >;
+
+const WalletBalancesInputObjectSchema = v.strictObject({ ...AccountScopeInputEntries });
+
+export const GetWalletBalancesInputSchema = v.pipe(
+    WalletBalancesInputObjectSchema,
+    v.transform(({ account }) => ({ subaccountId: accountScopeToSubaccountId(account) })),
+);
+
+export type GetWalletBalancesInput = v.InferInput<typeof WalletBalancesInputObjectSchema>;
+
+export const GetWalletBalancesResultSchema = v.object({
+    smartAccountAddress: v.string(),
+    balances: v.array(
+        v.pipe(
+            v.object({
+                zippedAssetId: v.number(),
+                unifiedAssetId: v.number(),
+                chainId: v.number(),
+                ztokenAddress: v.string(),
+                amountE18: v.optional(U128Schema),
+            }),
+            v.transform(({ amountE18, ...balance }) => ({
+                ...balance,
+                amount: scaledToDecimalOutput(fromU128(amountE18), E18_SCALE),
+            })),
+        ),
+    ),
+});
+
+/**
+ * zTokens the account's smart account wallet holds on Polyester Chain, read live from the
+ * chain: for example a rejected withdrawal's refund, which stays there until moved. `amount`
+ * is a decimal string (zTokens have 18 decimals); `chainId` is a `GetDepositWithdrawConfig`
+ * chain. `balances` lists nonzero balances by `zippedAssetId` and is empty when there are none.
+ */
+export type GetWalletBalancesResult = v.InferOutput<typeof GetWalletBalancesResultSchema>;

@@ -9,11 +9,15 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import {
+    ConfirmVerificationInputSchema,
+    UnlinkSocialAccountInputSchema,
     StartVerificationInputSchema,
     StartVerificationResponseSchema,
     VerificationReadyResponseSchema,
     GetVerificationResponseSchema,
     SocialProviderInputSchema,
+    type ConfirmVerificationInput,
+    type UnlinkSocialAccountInput,
     type StartVerificationInput,
     type StartVerificationResponse,
     type VerificationReadyResponse,
@@ -31,7 +35,7 @@ export class SocialVerificationService {
     }
 
     /**
-     * Starts or restarts provider verification. Twitter requires a handle and strips a leading @; Discord gets its identity from the authenticated bot. An omitted method uses the provider default (Twitter profile, Discord channel). Discord returns an empty challengeCode when no new challenge is issued.
+     * Starts or restarts provider verification. Twitter requires a handle and strips a leading @; Discord and Telegram get their identity from the provider bot. An omitted method uses the provider default (Twitter profile, Discord channel, Telegram dm). Discord and Telegram return an empty challengeCode when no new challenge is issued. For Telegram, open `actionUrl` to send the code to the Polyester bot, poll `get` until `awaiting_confirmation`, then `confirm`; while a Telegram account is linked, starting again throws until it is unlinked.
      */
     async start(
         input: StartVerificationInput,
@@ -46,7 +50,7 @@ export class SocialVerificationService {
     }
 
     /**
-     * Queues a provider check after the caller has placed the challenge code according to the selected verification method.
+     * Queues a provider check after the caller has placed the challenge code according to the selected verification method. Not used for Telegram, which links through `confirm`.
      */
     async markReady(
         input: v.InferInput<typeof SocialProviderInputSchema>,
@@ -69,6 +73,43 @@ export class SocialVerificationService {
     ): Promise<GetVerificationResponse> {
         const validated = parse(SocialProviderInputSchema, input);
         const res = await this.#client.getSocialVerification(
+            validated,
+            toConnectCallOptions(options),
+        );
+        return parse(GetVerificationResponseSchema, res);
+    }
+
+    /**
+     * Links the Telegram account that sent the challenge code. Pass the `providerUserId` shown
+     * while the verification is `awaiting_confirmation`, so the user links exactly the account
+     * they were shown. Requires enrolled MFA and a fresh `stepUpToken`; a retried confirmation of
+     * an existing link needs no new token. A mismatched ID or no account awaiting confirmation
+     * fails with `social_verification_invalid_state`; a Telegram account linked elsewhere fails
+     * the verification with `social_account_already_linked`.
+     */
+    async confirm(
+        input: ConfirmVerificationInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<GetVerificationResponse> {
+        const validated = parse(ConfirmVerificationInputSchema, input);
+        const res = await this.#client.confirmSocialVerification(
+            validated,
+            toConnectCallOptions(options),
+        );
+        return parse(GetVerificationResponseSchema, res);
+    }
+
+    /**
+     * Unlinks the Telegram account, or cancels a link in progress, and returns the `canceled`
+     * verification (absent if none was ever started). Repeating it changes nothing; start a new
+     * verification to link again.
+     */
+    async unlink(
+        input: UnlinkSocialAccountInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<GetVerificationResponse> {
+        const validated = parse(UnlinkSocialAccountInputSchema, input);
+        const res = await this.#client.unlinkSocialAccount(
             validated,
             toConnectCallOptions(options),
         );

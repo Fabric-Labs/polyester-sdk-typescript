@@ -225,6 +225,7 @@ describe("LedgerTransferSchema", () => {
         [TransferCode.FEE_SWEEP, "fee_sweep"],
         [TransferCode.FEE_REFILL, "fee_refill"],
         [TransferCode.SYSTEM_ADJUSTMENT, "system_adjustment"],
+        [TransferCode.WITHDRAW_FAILED, "withdraw_failed"],
     ])("decodes transfer code %i as %s", (transferCode, type) => {
         const transfer = v.parse(LedgerTransferSchema, { ...baseTransfer, transferCode, tsUs: 0n });
 
@@ -309,6 +310,9 @@ describe("ListTransfersInputSchema", () => {
         expect(
             v.parse(ListTransfersInputSchema, { transferCode: "system_adjustment" }).transferCode,
         ).toBe(TransferCode.SYSTEM_ADJUSTMENT);
+        expect(
+            v.parse(ListTransfersInputSchema, { transferCode: "withdraw_failed" }).transferCode,
+        ).toBe(TransferCode.WITHDRAW_FAILED);
     });
 
     it("rejects legacy or invalid account and cursor inputs", () => {

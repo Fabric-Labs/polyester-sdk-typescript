@@ -14,6 +14,7 @@ const AssetConfigSchema = v.object({
     quantityDisplayDecimals: IntegerSchema,
     quantityScale: IntegerSchema,
     marketDataVolumeScale: v.optional(IntegerSchema),
+    includedInEquity: v.optional(v.boolean()),
 });
 
 const PairMarketDataConfigSchema = v.object({

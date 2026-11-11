@@ -313,6 +313,7 @@ describe("LifecycleFlowSummarySchema", () => {
             Proto.LifecycleReason.TRADING_WITHDRAW_EXECUTION_FAILED,
             "trading_withdraw_execution_failed",
         ],
+        [Proto.LifecycleReason.ZIPPER_COMPLIANCE_TRANSFERRED, "zipper_compliance_transferred"],
     ] as const)("maps trading withdrawal lifecycle reason %i", (reason, expected) => {
         const schema = createLifecycleFlowSummarySchema();
 
@@ -461,6 +462,37 @@ describe("LifecycleFlowStepSchema", () => {
                     zipperReason,
                 },
             ],
+        });
+    });
+
+    it("keeps a refunded withdrawal's refund address and kept request fee", () => {
+        const step = v.parse(createLifecycleFlowStepSchema(), {
+            sequence: 4,
+            step: ProtoRead.FlowStep.REFUNDED,
+            polyesterChainId: 8453,
+            requestFee: {
+                ...baseFlowSummary.requestFee,
+                status: Proto.RequestFeeStatus.KEPT,
+            },
+            milestoneTxRef: canonicalTxHash,
+            lifecycleSource: Proto.LifecycleSource.SOURCE_EXECUTOR,
+            lifecycleReason: Proto.LifecycleReason.ZIPPER_EXECUTION_REJECTED,
+            currentConfirmations: 0,
+            requiredConfirmations: 0,
+            approveCount: 0,
+            rejectCount: 0,
+            validatorCount: 0,
+            requiredApprovals: 0,
+            requiredRejections: 0,
+            occurredAtUnixMs: 1_700_000_002_000n,
+            blockTimeMovingAverageMs: 1_000n,
+            refundAddress: "0x0000000000000000000000000000000000000003",
+        });
+
+        expect(step).toMatchObject({
+            step: "refunded",
+            requestFee: { status: "kept" },
+            refundAddress: "0x0000000000000000000000000000000000000003",
         });
     });
 });

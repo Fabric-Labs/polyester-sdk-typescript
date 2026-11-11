@@ -17,6 +17,8 @@ export {
 export {
     CreateTradingWithdrawResultSchema,
     CreateWalletTradingWithdrawResultSchema,
+    GetWalletBalancesInputSchema,
+    GetWalletBalancesResultSchema,
     createCreateTradingWithdrawToExternalChainInputSchema,
     createCreateTradingWithdrawToFundingInputSchema,
     ValidateWithdrawDestinationInputSchema,
@@ -27,6 +29,8 @@ export {
     type CreateTradingWithdrawToFundingRequest,
     type CreateTradingWithdrawResult,
     type CreateWalletTradingWithdrawResult,
+    type GetWalletBalancesInput,
+    type GetWalletBalancesResult,
     type ValidateWithdrawDestinationInput,
     type ValidateWithdrawDestinationRequest,
     type ValidateWithdrawDestinationResult,

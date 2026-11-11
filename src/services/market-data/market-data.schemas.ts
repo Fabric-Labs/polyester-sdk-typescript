@@ -152,6 +152,10 @@ export const AssetConfigSchema = v.pipe(
          * Integer scale for public candle and market-overview base volume (0..18).
          */
         marketDataVolumeScale: v.optional(WireScaleSchema, 0),
+        /**
+         * Whether the asset counts toward total equity; absent means unknown, never false.
+         */
+        includedInEquity: v.optional(v.boolean()),
     }),
     v.transform((a) => ({
         symbol: a.asset,
@@ -160,6 +164,7 @@ export const AssetConfigSchema = v.pipe(
         quantityDisplayDecimals: a.quantityDisplayDecimals,
         quantityScale: a.quantityScale,
         marketDataVolumeScale: a.marketDataVolumeScale,
+        ...(a.includedInEquity === undefined ? {} : { includedInEquity: a.includedInEquity }),
     })),
 );
 

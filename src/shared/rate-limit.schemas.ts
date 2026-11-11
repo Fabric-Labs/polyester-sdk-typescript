@@ -25,6 +25,9 @@ const RATE_LIMIT_POLICY_CLASS_VALUES = [
     "withdraw_validate",
     "guard_sign",
     "social_provider",
+    "assistant_message",
+    "assistant_control",
+    "assistant_read",
 ] as const;
 
 const RATE_LIMIT_SCOPE_VALUES = [
@@ -80,6 +83,9 @@ const RateLimitPolicyClassCodec = {
         [Proto.PolicyClass.WITHDRAW_VALIDATE]: "withdraw_validate",
         [Proto.PolicyClass.GUARD_SIGN]: "guard_sign",
         [Proto.PolicyClass.SOCIAL_PROVIDER]: "social_provider",
+        [Proto.PolicyClass.ASSISTANT_MESSAGE]: "assistant_message",
+        [Proto.PolicyClass.ASSISTANT_CONTROL]: "assistant_control",
+        [Proto.PolicyClass.ASSISTANT_READ]: "assistant_read",
     } satisfies ProtoToOutput<Proto.PolicyClass, RateLimitPolicyClass>,
 } as const;
 

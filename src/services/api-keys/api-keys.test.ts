@@ -89,7 +89,7 @@ describe("ApiKeysService", () => {
     it("parses API key responses and returns null for empty key responses", async () => {
         const realtime = realtimeClientStub();
         const transport = unaryTransportSequence([
-            { apiKeys: [apiKey({ subaccountId: 2n, policyId: 3n })] },
+            { apiKeys: [apiKey({ subaccountId: 2n, policyId: 3n, purpose: 2 })] },
             { apiKey: apiKey({ lastUsedAt: { seconds: 2n, nanos: 0 } }) },
             {},
         ]);
@@ -99,6 +99,7 @@ describe("ApiKeysService", () => {
             expect.objectContaining({
                 keyId: "ak_0123456789abcdef0123456789abcdef",
                 status: "active",
+                purpose: "assistant",
                 icon: "terminal",
                 color: "blue",
                 subaccountId: formatId(2n),
@@ -114,6 +115,7 @@ describe("ApiKeysService", () => {
         ).resolves.toMatchObject({
             lastUsedAt: 2000,
             policyId: "",
+            purpose: "unspecified",
         });
         await expect(
             service.get({ keyId: "ak_ffffffffffffffffffffffffffffffff" }),

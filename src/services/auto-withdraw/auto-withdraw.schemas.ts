@@ -25,9 +25,11 @@ import { PositiveUint32InputSchema } from "../shared.js";
 import {
     AUTO_WITHDRAW_WEEKDAY_VALUES,
     AutoWithdrawCadenceCodec,
+    AutoWithdrawPreviewStatusCodec,
     AutoWithdrawRunStateCodec,
     AutoWithdrawStepStateCodec,
     AutoWithdrawWeekdayCodec,
+    type AutoWithdrawHoldReason,
     type AutoWithdrawPauseReason,
     type AutoWithdrawRunReason,
     type AutoWithdrawStepReason,
@@ -47,6 +49,11 @@ function decimalToE18(field: string, value: string): bigint {
 
 function e18ToDecimal(value: v.InferOutput<typeof U128Schema> | undefined): string {
     return scaledToDecimalOutput(fromU128(value), E18_SCALE);
+}
+
+/** Unset means unknown, never zero. */
+function optionalE18ToDecimal(value: v.InferOutput<typeof U128Schema> | undefined): string | null {
+    return value ? e18ToDecimal(value) : null;
 }
 
 const AccountScopedInputSchema = v.strictObject({ ...AccountScopeInputEntries });
@@ -186,19 +193,24 @@ export const SetAutoWithdrawRuleInputSchema = v.pipe(
 
 export type SetAutoWithdrawRuleInput = v.InferInput<typeof SetAutoWithdrawRuleInputSchema>;
 
-export const DisableAutoWithdrawRuleInputSchema = v.pipe(
+export const SetAutoWithdrawRuleEnabledInputSchema = v.pipe(
     v.strictObject({
         ...AccountScopeInputEntries,
         /** The account's latest rule version. */
         expectedVersion: Uint32InputSchema,
+        /** `false` pauses the rule; `true` resumes it. */
+        enabled: v.boolean(),
     }),
-    v.transform(({ account, expectedVersion }) => ({
+    v.transform(({ account, expectedVersion, enabled }) => ({
         subaccountId: accountScopeToSubaccountId(account),
         expectedVersion,
+        enabled,
     })),
 );
 
-export type DisableAutoWithdrawRuleInput = v.InferInput<typeof DisableAutoWithdrawRuleInputSchema>;
+export type SetAutoWithdrawRuleEnabledInput = v.InferInput<
+    typeof SetAutoWithdrawRuleEnabledInputSchema
+>;
 
 /** `limit` is 0 through 100; 0 or omitted uses the server default of 20. */
 export const ListAutoWithdrawRunsInputSchema = v.pipe(
@@ -270,15 +282,25 @@ const AutoWithdrawDestinationSchema = v.pipe(
         destinationAddress: v.string(),
         minAmountE18: v.optional(U128Schema),
         maxAmountE18: v.optional(U128Schema),
+        minFloorE18: v.optional(U128Schema),
     }),
-    v.transform(({ minAmountE18, maxAmountE18, destinationChainId, ...destination }) => ({
-        ...destination,
-        destinationChainId: Number(destinationChainId),
-        minAmount: e18ToDecimal(minAmountE18),
-        maxAmount: e18ToDecimal(maxAmountE18),
-    })),
+    v.transform(
+        ({ minAmountE18, maxAmountE18, minFloorE18, destinationChainId, ...destination }) => ({
+            ...destination,
+            destinationChainId: Number(destinationChainId),
+            minAmount: e18ToDecimal(minAmountE18),
+            maxAmount: e18ToDecimal(maxAmountE18),
+            minFloor: optionalE18ToDecimal(minFloorE18),
+        }),
+    ),
 );
 
+/**
+ * `minFloor` is the least one payout to the destination can pay now (the route's withdrawal
+ * minimum, above its current network fee); a new rule's `minAmount` must be at least this
+ * floor. It follows the network fee, and is null when the route or fee is unknown: show no
+ * floor then, not zero.
+ */
 export type AutoWithdrawDestination = v.InferOutput<typeof AutoWithdrawDestinationSchema>;
 
 const AutoWithdrawPauseSchema = v.object({
@@ -302,6 +324,7 @@ export const AutoWithdrawRuleSchema = v.pipe(
         createdAt: TimestampMsSchema,
         pause: v.optional(AutoWithdrawPauseSchema),
         minUsdValueE18: v.optional(U128Schema),
+        createdByAccountId: v.optional(PublicIdOrEmptySchema, 0n),
     }),
     v.transform(({ schedule, pause, minUsdValueE18, ...rule }) => ({
         ...rule,
@@ -313,8 +336,11 @@ export const AutoWithdrawRuleSchema = v.pipe(
 
 /**
  * One version of an account's rule. `subaccountId` is the public subaccount ID, `""` for the
- * root account. Times are epoch milliseconds. `minUsdValue` is null when the rule has no USD
- * minimum; `pause` is set when the rule paused itself, and a new version resumes it.
+ * root account; `createdByAccountId` is the public account ID of whoever created the version.
+ * Times are epoch milliseconds. `minUsdValue` is null when the rule has no USD minimum. A paused
+ * version (`enabled: false`) keeps its schedule and destinations. `pause` is set when the rule
+ * paused itself; resuming it or setting a new rule clears it. The rule runs only while
+ * `enabled` is true and `pause` is null.
  */
 export type AutoWithdrawRule = v.InferOutput<typeof AutoWithdrawRuleSchema>;
 
@@ -326,6 +352,7 @@ const AutoWithdrawStepSchema = v.pipe(
         availableE18: v.optional(U128Schema),
         amountE18: v.optional(U128Schema),
         valueUsdE18: v.optional(U128Schema),
+        networkFeeE18: v.optional(U128Schema),
         state: enumLabelSchema(AutoWithdrawStepStateCodec.protoToOutput),
         reason: reasonSchema<AutoWithdrawStepReason>(),
         intentId: v.optional(v.string(), ""),
@@ -336,6 +363,7 @@ const AutoWithdrawStepSchema = v.pipe(
             availableE18,
             amountE18,
             valueUsdE18,
+            networkFeeE18,
             destinationChainId,
             intentId,
             txHash,
@@ -346,6 +374,7 @@ const AutoWithdrawStepSchema = v.pipe(
             available: e18ToDecimal(availableE18),
             amount: e18ToDecimal(amountE18),
             valueUsd: valueUsdE18 ? e18ToDecimal(valueUsdE18) : null,
+            networkFee: optionalE18ToDecimal(networkFeeE18),
             intentId: intentId || null,
             txHash: txHash || null,
         }),
@@ -354,7 +383,10 @@ const AutoWithdrawStepSchema = v.pipe(
 
 /**
  * One asset's payout in a run. `available`, `amount` and `valueUsd` are decimal strings;
- * `valueUsd` is null when the rule has no USD minimum or no price was available.
+ * `valueUsd` is null when the rule has no USD minimum or no price was available. `networkFee`
+ * is the fee charged on the withdrawal: once completed it was taken out of `amount`; once
+ * rejected or failed it is the fee kept, not refunded. It is null until the step is final, when
+ * the step never reached the withdrawal, or when the fee was not reported.
  */
 export type AutoWithdrawStep = v.InferOutput<typeof AutoWithdrawStepSchema>;
 
@@ -382,3 +414,73 @@ export const ListAutoWithdrawRunsResultSchema = v.object({
 
 /** One page of runs, newest first. An empty `nextPageToken` means no more runs. */
 export type ListAutoWithdrawRunsResult = v.InferOutput<typeof ListAutoWithdrawRunsResultSchema>;
+
+const AutoWithdrawPreviewAssetSchema = v.pipe(
+    v.object({
+        assetId: v.number(),
+        destinationChainId: v.optional(v.bigint(), 0n),
+        destinationAddress: v.optional(v.string(), ""),
+        availableE18: v.optional(U128Schema),
+        payableE18: v.optional(U128Schema),
+        heldBackE18: v.optional(U128Schema),
+        holdReason: reasonSchema<AutoWithdrawHoldReason>(),
+        minimumE18: v.optional(U128Schema),
+        valueUsdE18: v.optional(U128Schema),
+        pricedAt: OptionalTimestampMsSchema,
+        networkFeeE18: v.optional(U128Schema),
+        networkFeeSampledAt: OptionalTimestampMsSchema,
+        payableFrom: OptionalTimestampMsSchema,
+    }),
+    v.transform((asset) => ({
+        assetId: asset.assetId,
+        destinationChainId:
+            asset.destinationChainId === 0n ? null : Number(asset.destinationChainId),
+        destinationAddress: asset.destinationAddress || null,
+        available: e18ToDecimal(asset.availableE18),
+        payable: e18ToDecimal(asset.payableE18),
+        heldBack: e18ToDecimal(asset.heldBackE18),
+        holdReason: asset.holdReason,
+        minimum: optionalE18ToDecimal(asset.minimumE18),
+        valueUsd: optionalE18ToDecimal(asset.valueUsdE18),
+        pricedAt: asset.pricedAt ?? null,
+        networkFee: optionalE18ToDecimal(asset.networkFeeE18),
+        networkFeeSampledAt: asset.networkFeeSampledAt ?? null,
+        payableFrom: asset.payableFrom ?? null,
+    })),
+);
+
+/**
+ * What the next run would do with one asset, sized from the balance now. Amounts are decimal
+ * strings; `heldBack` is `available` minus `payable`, and `holdReason` says why it stays (null
+ * when the whole balance pays). `destinationChainId` and `destinationAddress` are null for an
+ * asset the rule pays nowhere. `minimum`, `valueUsd`, `networkFee` and their times are null
+ * when unknown, never zero. `payableFrom` is set only while a broker vault's destination cools
+ * down. Times are epoch milliseconds.
+ */
+export type AutoWithdrawPreviewAsset = v.InferOutput<typeof AutoWithdrawPreviewAssetSchema>;
+
+export const AutoWithdrawPreviewSchema = v.pipe(
+    v.object({
+        status: enumLabelSchema(AutoWithdrawPreviewStatusCodec.protoToOutput),
+        nextRunAt: OptionalTimestampMsSchema,
+        ruleVersion: v.optional(v.number(), 0),
+        pause: v.optional(AutoWithdrawPauseSchema),
+        minUsdValueE18: v.optional(U128Schema),
+        assets: v.array(AutoWithdrawPreviewAssetSchema),
+        computedAt: TimestampMsSchema,
+    }),
+    v.transform(({ nextRunAt, pause, minUsdValueE18, ...preview }) => ({
+        ...preview,
+        nextRunAt: nextRunAt ?? null,
+        pause: pause ?? null,
+        minUsdValue: fromU128(minUsdValueE18) === 0n ? null : e18ToDecimal(minUsdValueE18),
+    })),
+);
+
+/**
+ * The account's next run as it would go now; balances, prices and fees can change before
+ * `nextRunAt`. `nextRunAt` is null without a rule or while it is paused; `ruleVersion` is 0
+ * without a rule. `pause` is set only when the rule paused itself. `minUsdValue` is null when
+ * there is no USD minimum. Times are epoch milliseconds.
+ */
+export type AutoWithdrawPreview = v.InferOutput<typeof AutoWithdrawPreviewSchema>;

@@ -81,7 +81,8 @@ export interface ApiKeyEd25519AuthProvider {
      * Receive window in whole milliseconds, 1 to 60000, sent and signed as
      * `X-API-RECV-WINDOW`. The backend processes a request only until its timestamp
      * plus this window and answers a later one with a retryable error. Omit for the
-     * backend default of 10000. A shorter window also frees replay capacity sooner.
+     * backend default of 5000. Timestamps more than 1000 ms ahead of the server clock are
+     * refused, so keep the clock synchronized. A shorter window also frees replay capacity sooner.
      */
     recvWindow?: number;
 }

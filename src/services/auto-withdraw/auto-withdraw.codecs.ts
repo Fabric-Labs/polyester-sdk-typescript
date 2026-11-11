@@ -41,6 +41,15 @@ export const AUTO_WITHDRAW_STEP_STATE_VALUES = [
 ] as const;
 export type AutoWithdrawStepState = (typeof AUTO_WITHDRAW_STEP_STATE_VALUES)[number];
 
+export const AUTO_WITHDRAW_PREVIEW_STATUS_VALUES = [
+    "will_pay",
+    "rolls_over",
+    "no_destination",
+    "paused",
+    "no_rule",
+] as const;
+export type AutoWithdrawPreviewStatus = (typeof AUTO_WITHDRAW_PREVIEW_STATUS_VALUES)[number];
+
 export const AutoWithdrawCadenceCodec = {
     inputToProto: {
         hourly: Proto.AutoWithdrawCadence.HOURLY,
@@ -97,6 +106,17 @@ export const AutoWithdrawStepStateCodec = {
     } satisfies ProtoToOutput<Proto.AutoWithdrawStepState, AutoWithdrawStepState>,
 } as const;
 
+export const AutoWithdrawPreviewStatusCodec = {
+    protoToOutput: {
+        [Proto.AutoWithdrawPreviewStatus.PREVIEW_STATUS_UNSPECIFIED]: "unspecified",
+        [Proto.AutoWithdrawPreviewStatus.WILL_PAY]: "will_pay",
+        [Proto.AutoWithdrawPreviewStatus.ROLLS_OVER]: "rolls_over",
+        [Proto.AutoWithdrawPreviewStatus.NO_DESTINATION]: "no_destination",
+        [Proto.AutoWithdrawPreviewStatus.PAUSED]: "paused",
+        [Proto.AutoWithdrawPreviewStatus.NO_RULE]: "no_rule",
+    } satisfies ProtoToOutput<Proto.AutoWithdrawPreviewStatus, AutoWithdrawPreviewStatus>,
+} as const;
+
 /** Why a rule paused itself. Unknown future reasons pass through as strings. */
 export type AutoWithdrawPauseReason =
     | "destination_not_whitelisted"
@@ -117,8 +137,22 @@ export type AutoWithdrawStepReason =
     | "price_unavailable"
     | "rule_superseded"
     | "destination_not_whitelisted"
+    | "destination_cooling_down"
     | "authority_revoked"
     | "gateway_capacity_insufficient"
     | "withdrawal_released"
     | "withdrawal_failed"
+    | (string & {});
+
+/**
+ * Why part or all of an asset's balance would stay on the account in a previewed run. Unknown
+ * future reasons pass through as strings.
+ */
+export type AutoWithdrawHoldReason =
+    | "below_minimum"
+    | "price_unavailable"
+    | "no_destination"
+    | "destination_cooling_down"
+    | "above_max"
+    | "dust"
     | (string & {});

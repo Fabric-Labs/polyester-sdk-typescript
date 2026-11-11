@@ -13,22 +13,25 @@ import { parse } from "../../shared/validation.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import {
+    AutoWithdrawPreviewSchema,
     AutoWithdrawRuleSchema,
     AutoWithdrawScopedInputSchema,
-    DisableAutoWithdrawRuleInputSchema,
     ListAutoWithdrawRunsInputSchema,
     ListAutoWithdrawRunsResultSchema,
+    SetAutoWithdrawRuleEnabledInputSchema,
     SetAutoWithdrawRuleInputSchema,
+    type AutoWithdrawPreview,
     type AutoWithdrawRule,
     type AutoWithdrawScopedInput,
-    type DisableAutoWithdrawRuleInput,
     type ListAutoWithdrawRunsInput,
     type ListAutoWithdrawRunsResult,
+    type SetAutoWithdrawRuleEnabledInput,
     type SetAutoWithdrawRuleInput,
 } from "./auto-withdraw.schemas.js";
 
 /**
- * A stale `expectedVersion` comes back as the withdraw `CONFLICT` detail, or as a bare
+ * A stale `expectedVersion` comes back as the withdraw `VERSION_CONFLICT` detail (older
+ * servers send `CONFLICT`), or as a bare
  * `Aborted`, which the transport would otherwise surface as a retryable `TransientError`.
  * Either one becomes a `RevisionConflictError`: refetch the rule, don't retry blindly.
  */
@@ -37,7 +40,8 @@ function rethrowVersionConflict(err: unknown): never {
     if (
         mapped instanceof PolyesterError &&
         !(mapped instanceof RevisionConflictError) &&
-        ((mapped.detail?.service === "withdraw" && mapped.detail.code === "CONFLICT") ||
+        ((mapped.detail?.service === "withdraw" &&
+            (mapped.detail.code === "VERSION_CONFLICT" || mapped.detail.code === "CONFLICT")) ||
             (mapped.cause instanceof ConnectError &&
                 mapped.cause.code === Code.Aborted &&
                 mapped.cause.details.length === 0))
@@ -98,18 +102,40 @@ export class AutoWithdrawService {
     }
 
     /**
-     * Disables the account's rule and returns the disabled version, which has no destinations.
-     * A stale `expectedVersion` throws `RevisionConflictError`. Requires a fresh `stepUpToken`.
+     * Pauses (`enabled: false`) or resumes (`enabled: true`) the account's rule, keeping its
+     * schedule and destinations, and returns the latest version: a new one, or the current one
+     * unchanged when the rule is already in that state. Each change creates a version, so pass
+     * the latest `version` as `expectedVersion`; a stale one throws `RevisionConflictError`.
+     * Pausing needs no step-up. Resuming needs a fresh `stepUpToken`, checks every destination
+     * again like `setRule`, and clears a pause the rule set itself; a refused destination
+     * leaves the rule paused.
      */
-    async disableRule(
-        input: DisableAutoWithdrawRuleInput,
+    async setRuleEnabled(
+        input: SetAutoWithdrawRuleEnabledInput,
         options?: PolyesterMutationOptions,
     ): Promise<AutoWithdrawRule> {
-        const request = parse(DisableAutoWithdrawRuleInputSchema, this.resolveInput(input));
+        const request = parse(SetAutoWithdrawRuleEnabledInputSchema, this.resolveInput(input));
         const response = await this.#client
-            .disableAutoWithdrawRule(removeUndefined(request), toConnectCallOptions(options))
+            .setAutoWithdrawRuleEnabled(removeUndefined(request), toConnectCallOptions(options))
             .catch(rethrowVersionConflict);
         return parse(AutoWithdrawRuleSchema, response.rule);
+    }
+
+    /**
+     * Previews what the account's next run would pay, using the same planning as the run and
+     * the balances, prices and fees now. Readable by API keys with `read-auto-withdraw`. With a
+     * USD minimum, a failed price read throws a retryable error.
+     */
+    async previewRun(
+        input: AutoWithdrawScopedInput = {},
+        options?: PolyesterRequestOptions,
+    ): Promise<AutoWithdrawPreview> {
+        const request = parse(AutoWithdrawScopedInputSchema, this.resolveInput(input));
+        const response = await this.#client.previewAutoWithdrawRun(
+            removeUndefined(request),
+            toConnectCallOptions(options),
+        );
+        return parse(AutoWithdrawPreviewSchema, response);
     }
 
     /**

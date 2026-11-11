@@ -1,6 +1,7 @@
 import { create, toBinary } from "@bufbuild/protobuf";
 import { Code, ConnectError } from "@connectrpc/connect";
 import { beforeAll, describe, expect, it, vi } from "vitest";
+import { toU128 } from "../utils/u128.js";
 import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
 import { ProfileErrorCode, ProfileErrorDetailSchema } from "../gen/auth/v1/profile_pb.js";
 import {
@@ -174,6 +175,42 @@ describe("parseConnectErrorDetail", () => {
                 ]),
             ),
         ).toEqual({ service: "withdraw", code: "AMOUNT_BELOW_MINIMUM" });
+        expect(
+            parseConnectErrorDetail(
+                error([
+                    {
+                        desc: WithdrawErrorDetailSchema,
+                        value: create(WithdrawErrorDetailSchema, {
+                            code: WithdrawErrorCode.MIN_AMOUNT_BELOW_FLOOR,
+                            fieldPath: "destinations[0].min_amount_e18",
+                            minFloorE18: toU128(1_250_000_000_000_000_000n),
+                        }),
+                    },
+                ]),
+            ),
+        ).toEqual({
+            service: "withdraw",
+            code: "MIN_AMOUNT_BELOW_FLOOR",
+            fieldPath: "destinations[0].min_amount_e18",
+            minFloor: "1.25",
+        });
+        expect(
+            parseConnectErrorDetail(
+                error([
+                    {
+                        desc: WithdrawErrorDetailSchema,
+                        value: create(WithdrawErrorDetailSchema, {
+                            code: WithdrawErrorCode.EXTERNAL_DESTINATION_COOLING_DOWN,
+                            payableFrom: { seconds: 1_700_000_000n, nanos: 0 },
+                        }),
+                    },
+                ]),
+            ),
+        ).toEqual({
+            service: "withdraw",
+            code: "EXTERNAL_DESTINATION_COOLING_DOWN",
+            payableFrom: 1_700_000_000_000,
+        });
         expect(
             parseConnectErrorDetail(
                 error([
