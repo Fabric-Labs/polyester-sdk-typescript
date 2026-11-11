@@ -99,6 +99,7 @@ export type {
 export {
     AlreadyExistsError,
     AuthenticationError,
+    ClaimOutcomeUnknownError,
     ConfigurationError,
     errorFromHttpStatus,
     InternalServerError,
@@ -144,6 +145,7 @@ export type {
     PolyesterErrorDetail,
     PolyesterErrorOptions,
     RateLimitErrorOptions,
+    ClaimOutcomeUnknownErrorOptions,
     RealtimeErrorOptions,
     MfaVerificationFailureReason,
 } from "./shared/errors.js";

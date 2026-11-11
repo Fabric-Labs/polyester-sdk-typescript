@@ -27,6 +27,19 @@ const policyActionCases = [
     [Proto.PolicyAction.READ_AUTO_WITHDRAW, "read-auto-withdraw"],
     [Proto.PolicyAction.MANAGE_AUTO_WITHDRAW, "manage-auto-withdraw"],
     [Proto.PolicyAction.SWAP, "swap"],
+    [Proto.PolicyAction.READ_API_KEYS, "read-api-keys"],
+    [Proto.PolicyAction.READ_API_POLICIES, "read-api-policies"],
+    [Proto.PolicyAction.READ_SUBACCOUNT_POLICIES, "read-subaccount-policies"],
+    [Proto.PolicyAction.READ_SUBACCOUNT_PERMISSIONS, "read-subaccount-permissions"],
+    [Proto.PolicyAction.READ_VIP_STATUS, "read-vip-status"],
+    [Proto.PolicyAction.READ_SOCIAL_VERIFICATION, "read-social-verification"],
+    [Proto.PolicyAction.READ_PROFILE, "read-profile"],
+    [Proto.PolicyAction.READ_ACCOUNT_DIRECTORY, "read-account-directory"],
+    [Proto.PolicyAction.READ_WITHDRAW_VALIDATION, "read-withdraw-validation"],
+    [Proto.PolicyAction.READ_DAILY_CLAIMS, "read-daily-claims"],
+    [Proto.PolicyAction.CLAIM_DAILY_REWARD, "claim-daily-reward"],
+    [Proto.PolicyAction.READ_CHECKPOINTS, "read-checkpoints"],
+    [Proto.PolicyAction.READ_REWARDS, "read-rewards"],
 ] as const;
 
 describe("PolicyMarketScopeCodec", () => {

@@ -179,6 +179,9 @@ export const HeatmapDeltaLevelsSchema: GenMessage<HeatmapDeltaLevels> = /*@__PUR
 
 /**
  * HeatmapKeyframe is a full-book snapshot anchor.
+ * Best bid, best ask and mid preserve the raw prices where available. For older
+ * historical buckets without recorded raw prices, they use the reconstructed
+ * price bins instead.
  *
  * @generated from message marketdata.v1.HeatmapKeyframe
  */
@@ -656,6 +659,9 @@ export const HeatmapService: GenService<{
    * - All intervals (1s/1m/5m/1h) return snapshot + sparse delta chain.
    * - Response may also include the latest live bucket state when available.
    * Response always includes realtime stitching anchors.
+   * Replayable history starts at the oldest available snapshot. Earlier update
+   * buckets are omitted, and pagination ends with an empty next_page_token.
+   * A window entirely before replayable history returns an empty chain.
    *
    * @generated from rpc marketdata.v1.HeatmapService.GetOrderbookHeatmap
    */

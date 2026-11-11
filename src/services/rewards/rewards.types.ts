@@ -1,4 +1,6 @@
 export type {
+    AcknowledgeRewardAwardInput,
+    AcknowledgeRewardAwardResult,
     ListRewardAwardsInput,
     ListRewardAwardsResult,
     RewardAward,

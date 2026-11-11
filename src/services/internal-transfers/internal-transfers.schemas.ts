@@ -131,6 +131,8 @@ export function createCreateInternalTransferResultSchema() {
             amountE18: U128Schema,
             destination: v.optional(ResolvedInternalTransferDestinationSchema),
             status: enumLabelSchema(InternalTransferStatusCodec.protoToOutput),
+            /** Lifecycle flow ID for `lifecycle.getFlow`; empty when the server did not return one. */
+            flowId: v.optional(v.pipe(v.string(), v.trim()), ""),
         }),
         v.transform(({ acceptedAtTsNs, amountE18, ...result }) => ({
             ...result,
@@ -143,3 +145,45 @@ export function createCreateInternalTransferResultSchema() {
 export type CreateInternalTransferResult = v.InferOutput<
     ReturnType<typeof createCreateInternalTransferResultSchema>
 >;
+
+const TransferLookupIdSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
+
+export const GetInternalTransferInputSchema = v.pipe(
+    v.union(
+        [
+            v.strictObject({ ...AccountScopeInputEntries, requestId: TransferLookupIdSchema }),
+            v.strictObject({ ...AccountScopeInputEntries, transferId: TransferLookupIdSchema }),
+        ],
+        "Pass exactly one of requestId or transferId.",
+    ),
+    v.transform(
+        ({ account, ...selector }) =>
+            ({
+                subaccountId: accountScopeToSubaccountId(account),
+                identifier:
+                    "requestId" in selector
+                        ? { case: "requestId", value: selector.requestId }
+                        : { case: "transferId", value: selector.transferId },
+            }) satisfies MessageInitShape<typeof Proto.GetInternalTransferRequestSchema>,
+    ),
+);
+
+/** Selects an accepted transfer by exactly one of its `requestId` or `transferId`. */
+export type GetInternalTransferInput = v.InferInput<typeof GetInternalTransferInputSchema>;
+
+export const GetInternalTransferResultSchema = v.pipe(
+    v.object({
+        requestId: NonEmptyResponseStringSchema,
+        transferId: NonEmptyResponseStringSchema,
+        flowId: NonEmptyResponseStringSchema,
+        acceptedAtTsNs: v.bigint(),
+    }),
+    v.transform(({ acceptedAtTsNs, ...result }) => ({
+        ...result,
+        acceptedAtUnixMs: tsNsToMs(acceptedAtTsNs),
+        /** Exact acceptance time in nanoseconds since epoch, as a decimal string. */
+        acceptedAtNs: acceptedAtTsNs.toString(),
+    })),
+);
+
+export type GetInternalTransferResult = v.InferOutput<typeof GetInternalTransferResultSchema>;

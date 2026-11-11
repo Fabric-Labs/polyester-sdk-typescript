@@ -1297,7 +1297,8 @@ export const CheckpointFieldSchema: GenEnum<CheckpointField> = /*@__PURE__*/
 export const CheckpointService: GenService<{
   /**
    * List every checkpoint of the authenticated caller's root account, newest
-   * first. Checkpoints are private to the account owner.
+   * first. Checkpoints are private to the account owner. An API key needs
+   * READ_CHECKPOINTS and must be scoped to the main account.
    *
    * @generated from rpc checkpoints.v1.CheckpointService.ListMyCheckpoints
    */

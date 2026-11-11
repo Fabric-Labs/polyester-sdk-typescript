@@ -8,6 +8,10 @@ import {
 import type { AuthApiTransports } from "../../shared/transports.js";
 import { parse } from "../../shared/validation.js";
 import {
+    AcknowledgeRewardAwardInputSchema,
+    AcknowledgeRewardAwardResultSchema,
+    type AcknowledgeRewardAwardInput,
+    type AcknowledgeRewardAwardResult,
     ListRewardAwardsInputSchema,
     ListRewardAwardsResultSchema,
     type ListRewardAwardsInput,
@@ -19,8 +23,9 @@ import {
 } from "./rewards.schemas.js";
 
 /**
- * Reads published reward campaign awards for the authenticated root account and records payout destinations.
- * The server accepts session JWTs for this service; API keys are not accepted.
+ * Reads published reward campaign awards for the authenticated root account, records payout
+ * destinations, and acknowledges seen awards. Every call accepts a session JWT. `listAwards` also
+ * accepts an API key scoped to the main account whose policy grants `read-rewards`.
  */
 export class RewardsService {
     #client: Client<typeof Proto.RewardCampaignService>;
@@ -57,5 +62,25 @@ export class RewardsService {
             toConnectCallOptions(options),
         );
         return parse(SetRewardDestinationResultSchema, response);
+    }
+
+    /**
+     * Records that the recipient revealed an award (`revealed: true`) or saw a paid award's
+     * delivery (`deliverySeen: true`), so other sessions and devices do not show the dialog again.
+     * Set at least one. Marks are independent, permanent and idempotent: the first timestamp is
+     * kept, `false` leaves a mark unchanged, and a failed call can be retried as is. `deliverySeen`
+     * on an award that is not paid fails the whole call with `PreconditionFailedError`. Returns the
+     * current award with its marks; fulfillment state and revision are unchanged. Session JWT only.
+     */
+    async acknowledgeAward(
+        input: AcknowledgeRewardAwardInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<AcknowledgeRewardAwardResult> {
+        const request = parse(AcknowledgeRewardAwardInputSchema, input);
+        const response = await this.#client.acknowledgeMyRewardAward(
+            request,
+            toConnectCallOptions(options),
+        );
+        return parse(AcknowledgeRewardAwardResultSchema, response);
     }
 }

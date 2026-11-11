@@ -221,6 +221,7 @@ export const ResolveService: GenService<{
   /**
    * Resolve an account by username, account ID, or smart-account address.
    * Use this before sharing or transferring so the caller can confirm the target.
+   * An API key needs READ_ACCOUNT_DIRECTORY.
    *
    * @generated from rpc auth.v1.ResolveService.ResolveAccount
    */

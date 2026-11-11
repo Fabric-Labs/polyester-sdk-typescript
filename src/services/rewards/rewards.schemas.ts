@@ -23,6 +23,20 @@ export const SetRewardDestinationInputSchema = v.strictObject({
 
 export type SetRewardDestinationInput = v.InferInput<typeof SetRewardDestinationInputSchema>;
 
+export const AcknowledgeRewardAwardInputSchema = v.pipe(
+    v.strictObject({
+        awardId: v.pipe(v.string(), v.trim(), v.uuid()),
+        revealed: v.optional(v.boolean(), false),
+        deliverySeen: v.optional(v.boolean(), false),
+    }),
+    v.check(
+        ({ revealed, deliverySeen }) => revealed || deliverySeen,
+        "Set revealed or deliverySeen to true.",
+    ),
+);
+
+export type AcknowledgeRewardAwardInput = v.InferInput<typeof AcknowledgeRewardAwardInputSchema>;
+
 export const RewardAwardSchema = v.object({
     awardId: v.string(),
     campaignId: v.string(),
@@ -36,6 +50,10 @@ export const RewardAwardSchema = v.object({
     fulfillmentRevision: BigIntStringSchema,
     destinationAddress: v.string(),
     transactionId: v.string(),
+    /** When the recipient first acknowledged revealing the award, in any session; absent until then. */
+    revealedAt: OptionalTimestampMsSchema,
+    /** When the recipient first acknowledged seeing the paid award's delivery; absent until then. */
+    deliverySeenAt: OptionalTimestampMsSchema,
 });
 
 export type RewardAward = v.InferOutput<typeof RewardAwardSchema>;
@@ -59,3 +77,9 @@ export const SetRewardDestinationResultSchema = v.object({
 });
 
 export type SetRewardDestinationResult = v.InferOutput<typeof SetRewardDestinationResultSchema>;
+
+export const AcknowledgeRewardAwardResultSchema = v.object({
+    award: RewardAwardSchema,
+});
+
+export type AcknowledgeRewardAwardResult = v.InferOutput<typeof AcknowledgeRewardAwardResultSchema>;

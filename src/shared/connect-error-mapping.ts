@@ -7,6 +7,7 @@ import {
 import {
     AlreadyExistsError,
     AuthenticationError,
+    ClaimOutcomeUnknownError,
     errorFromHttpStatus,
     InternalServerError,
     NotImplementedError,
@@ -314,6 +315,14 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
         return new OutcomeUnknownError(
             withFallback("Outcome unknown; read the current state before retrying."),
             options,
+        );
+    }
+
+    // Arrives as Unavailable; mapped on its own so callers get the claim ID.
+    if (detail?.service === "claims" && detail.code === "CLAIM_OUTCOME_UNKNOWN") {
+        return new ClaimOutcomeUnknownError(
+            withFallback("Daily claim payout is not confirmed yet; check the claim status."),
+            { ...options, claimId: detail.claimId },
         );
     }
 

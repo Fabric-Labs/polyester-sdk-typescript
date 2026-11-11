@@ -267,6 +267,13 @@ export const QuickSwapTermsSchema: GenMessage<QuickSwapTerms> = /*@__PURE__*/
  * charged. A bridge has no settlement; its fees are charged at payout, in
  * the destination asset.
  *
+ * A quoted fee is an estimate, not a fixed amount. What is fixed is the
+ * rate (bps): each trading fee charged is that rate applied to what the leg
+ * actually receives once the deposit is credited, which can be hours or days
+ * after the quote. The quoted amount is not a cap: the fee charged and the
+ * output follow the actual deposit, execution prices and rounding, so they
+ * can be higher or lower than quoted.
+ *
  * @generated from message swap.quickswap.v1.QuoteFee
  */
 export type QuoteFee = Message<"swap.quickswap.v1.QuoteFee"> & {
@@ -289,8 +296,8 @@ export type QuoteFee = Message<"swap.quickswap.v1.QuoteFee"> & {
   /**
    * Fee in zipped_asset_id's token units; for a fee charged in the
    * intermediate asset, in the intermediate asset at its trading precision
-   * (amount.decimals). Trading fees are rounded up, so the charged fee never
-   * exceeds the quoted one.
+   * (amount.decimals). An estimate for deposit_amount at the quoted prices,
+   * with trading fees rounded up; the fee charged can be higher or lower.
    *
    * @generated from field: swap.quickswap.v1.TokenAmount amount = 3;
    */
@@ -298,7 +305,8 @@ export type QuoteFee = Message<"swap.quickswap.v1.QuoteFee"> & {
 
   /**
    * Rate of a trading fee in basis points of what the leg receives; zero for
-   * a network fee.
+   * a network fee. The rate, not amount, is what is charged: bps of what the
+   * leg actually receives.
    *
    * @generated from field: uint32 bps = 4;
    */
@@ -321,8 +329,13 @@ export const QuoteFeeSchema: GenMessage<QuoteFee> = /*@__PURE__*/
   messageDesc(file_swap_quickswap_v1_quickswap, 6);
 
 /**
- * QuickSwapQuote is the priced view of a QuickSwap's terms. Price fields are
- * estimates at quoted_at; only the protection fields are guarantees.
+ * QuickSwapQuote is the priced view of a QuickSwap's terms. Prices, amounts
+ * and fees are estimates at quoted_at; only the protection fields are
+ * guarantees. A QuickSwap is priced when its deposit is credited, which can
+ * be hours or days after the quote: the deposit must be detected before
+ * DepositInstructions.funding_expires_at, and its confirmation, credit and
+ * execution can finish later. Its actual output and fees can therefore
+ * differ from the quote.
  *
  * The end user may deposit any amount from min_deposit_amount to
  * max_deposit_amount. min_amount_out applies only to a deposit of exactly
@@ -346,7 +359,8 @@ export type QuickSwapQuote = Message<"swap.quickswap.v1.QuickSwapQuote"> & {
   /**
    * Expected destination amount for deposit_amount at quoted_at, after
    * trading fees and both quoted network fees, in destination token units. An
-   * estimate, not a guarantee.
+   * estimate, not a guarantee: the delivered amount follows the actual
+   * deposit, execution and fees, bounded below only by the protection.
    *
    * @generated from field: swap.quickswap.v1.TokenAmount expected_amount_out = 2;
    */
@@ -419,10 +433,13 @@ export type QuickSwapQuote = Message<"swap.quickswap.v1.QuickSwapQuote"> & {
   intermediateAssetId: number;
 
   /**
-   * Quoted fee components for deposit_amount: each leg's service, broker and
-   * affiliate fees, in that order, legs in route order (a bridge has one set,
-   * charged at payout), then network fees. Affiliates are in ascending
-   * account_id order. Zero fees are omitted.
+   * Estimated fee components for deposit_amount at quoted_at: each leg's
+   * service, broker and affiliate fees, in that order, legs in route order (a
+   * bridge has one set, charged at payout), then network fees. Affiliates are
+   * in ascending account_id order. Zero fees are omitted. The fees charged
+   * are each rate applied to the actual execution and can differ from these
+   * amounts; QuickSwap.charged_fees reports the broker and affiliate fees as
+   * charged.
    *
    * @generated from field: repeated swap.quickswap.v1.QuoteFee fees = 8;
    */
@@ -1018,7 +1035,10 @@ export type QuickSwap = Message<"swap.quickswap.v1.QuickSwap"> & {
   refundMemo: string;
 
   /**
-   * Quote and protection fixed at creation. Not refreshed on retries.
+   * Quote and protection fixed at creation. Not refreshed on retries. Its
+   * amounts and fees stay estimates: the QuickSwap is priced when its deposit
+   * is credited, and execution, withdrawals and charged_fees report the
+   * actual output and fees.
    *
    * @generated from field: swap.quickswap.v1.QuickSwapQuote quote = 14;
    */
@@ -1126,7 +1146,9 @@ export type QuickSwap = Message<"swap.quickswap.v1.QuickSwap"> & {
   /**
    * Broker and affiliate fees charged so far, as settled: one entry per fee
    * kind, credited vault and asset, in kind, then account_id, then asset_id
-   * order. Grows while the QuickSwap executes or pays out a bridge.
+   * order. Grows while the QuickSwap executes or pays out a bridge. Each is
+   * the requested rate applied to the actual execution, so it can differ
+   * from the quote's fee lines.
    *
    * @generated from field: repeated swap.quickswap.v1.ChargedFee charged_fees = 30;
    */
@@ -1263,7 +1285,8 @@ export const QuoteQuickSwapRequestSchema: GenMessage<QuoteQuickSwapRequest> = /*
 export type QuoteQuickSwapResponse = Message<"swap.quickswap.v1.QuoteQuickSwapResponse"> & {
   /**
    * Indicative quote, including whether the route needs a refund address.
-   * Creating a QuickSwap prices the terms again.
+   * Its amounts and fees are estimates. Creating a QuickSwap prices the terms
+   * again.
    *
    * @generated from field: swap.quickswap.v1.QuickSwapQuote quote = 1;
    */
@@ -1347,8 +1370,8 @@ export type CreateQuickSwapRequest = Message<"swap.quickswap.v1.CreateQuickSwapR
 
   /**
    * Destination tag or memo for destination_address. Required when the
-   * destination network needs one; must be empty otherwise. At most 128 UTF-8
-   * bytes.
+   * destination network requires one, optional when supported, and empty when
+   * unsupported. See ChainConfig.memo_requirement. At most 128 UTF-8 bytes.
    *
    * @generated from field: string destination_memo = 4;
    */
@@ -1366,7 +1389,8 @@ export type CreateQuickSwapRequest = Message<"swap.quickswap.v1.CreateQuickSwapR
 
   /**
    * Destination tag or memo for return_address. Required when the source
-   * network needs one; must be empty otherwise. At most 128 UTF-8 bytes.
+   * network requires one, optional when supported, and empty when unsupported.
+   * See ChainConfig.memo_requirement. At most 128 UTF-8 bytes.
    *
    * @generated from field: string return_memo = 6;
    */
@@ -1394,7 +1418,8 @@ export type CreateQuickSwapRequest = Message<"swap.quickswap.v1.CreateQuickSwapR
 
   /**
    * Destination tag or memo for refund_address. Required when the refund
-   * network needs one; must be empty otherwise. At most 128 UTF-8 bytes.
+   * network requires one, optional when supported, and empty when unsupported.
+   * See ChainConfig.memo_requirement. At most 128 UTF-8 bytes.
    *
    * @generated from field: string refund_memo = 9;
    */
@@ -1651,7 +1676,9 @@ export enum FeeKind {
   AFFILIATE = 3,
 
   /**
-   * Network fee withheld from the deposit before it is credited.
+   * Network fee withheld from the deposit before it is credited. A quote
+   * shows an estimate; the fee withheld is the network's fee when the
+   * deposit arrives.
    *
    * @generated from enum value: DEPOSIT_NETWORK = 4;
    */
@@ -2513,7 +2540,9 @@ export const ErrorCodeSchema: GenEnum<ErrorCode> = /*@__PURE__*/
 export const QuickSwapService: GenService<{
   /**
    * QuoteQuickSwap prices terms without creating a QuickSwap or reserving a
-   * deposit address. The quote states whether the route needs a refund
+   * deposit address. The quote's output and fees are estimates: the fees
+   * charged are their rates applied to the actual execution once the
+   * deposit is credited. The quote states whether the route needs a refund
    * address.
    *
    * Errors:

@@ -133,6 +133,7 @@ describe("CreateInternalTransferResultSchema", () => {
                 smartAccountAddress: "0xabc123",
             },
             status: InternalTransferStatus.ACCEPTED,
+            flowId: " flow-1 ",
         });
 
         expect(result).toEqual({
@@ -149,6 +150,7 @@ describe("CreateInternalTransferResultSchema", () => {
                 smartAccountAddress: "0xabc123",
             },
             status: "accepted",
+            flowId: "flow-1",
         });
     });
 

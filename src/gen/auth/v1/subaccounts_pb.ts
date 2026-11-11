@@ -184,15 +184,18 @@ export const GetEffectiveSubaccountPermissionsRequestSchema: GenMessage<GetEffec
  */
 export type GetEffectiveSubaccountPermissionsResponse = Message<"auth.v1.GetEffectiveSubaccountPermissionsResponse"> & {
   /**
-   * Current role of the caller on the sub-account.
+   * Current role of the caller on the sub-account. For an API key this is
+   * OWNER: keys belong to the main account that owns the sub-account.
    *
    * @generated from field: auth.v1.SubaccountRole role = 1;
    */
   role: SubaccountRole;
 
   /**
-   * Permissions allowed by the role and current sub-account policy. Resource
-   * state, MFA, limits, and other request context may still deny an operation.
+   * Permissions allowed by the role and current sub-account policy. For an API
+   * key, only those its API-key policy also grants and that API keys can use.
+   * Resource state, MFA, limits, and other request context may still deny an
+   * operation.
    *
    * @generated from field: repeated auth.v1.SubaccountPermission permissions = 2;
    */
@@ -2333,6 +2336,8 @@ export const SubaccountRoleService: GenService<{
   },
   /**
    * Return the authenticated caller's effective permissions for one sub-account.
+   * An API key needs READ_SUBACCOUNT_PERMISSIONS and gets what the key itself
+   * may do on a sub-account within its scope.
    *
    * @generated from rpc auth.v1.SubaccountRoleService.GetEffectiveSubaccountPermissions
    */

@@ -481,7 +481,8 @@ export const ProfileErrorCodeSchema: GenEnum<ProfileErrorCode> = /*@__PURE__*/
  */
 export const ProfileService: GenService<{
   /**
-   * Get the caller's profile.
+   * Get the caller's profile. An API key needs READ_PROFILE and must be scoped
+   * to the main account.
    *
    * @generated from rpc auth.v1.ProfileService.GetProfile
    */
@@ -503,7 +504,8 @@ export const ProfileService: GenService<{
   },
   /**
    * Get recent username history for the caller, newest first. Returns at most
-   * 20 entries.
+   * 20 entries. An API key needs READ_PROFILE and must be scoped to the main
+   * account.
    *
    * @generated from rpc auth.v1.ProfileService.GetUsernameHistory
    */

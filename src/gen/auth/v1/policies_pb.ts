@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file auth/v1/policies.proto.
  */
 export const file_auth_v1_policies: GenFile = /*@__PURE__*/
-  fileDesc("ChZhdXRoL3YxL3BvbGljaWVzLnByb3RvEgdhdXRoLnYxIj8KC01hcmtldFNjb3BlIjAKBVZhbHVlEg8KC1VOU1BFQ0lGSUVEEAASBwoDQUxMEAESDQoJQUxMT1dMSVNUEAIiKQoSU3BvdE1hcmtldFNlbGVjdG9yEhMKCXN5bWJvbF9pZBgBIAEoDUIAIiMKDlNwb3RNYXJrZXRSdWxlEhEKCXN5bWJvbF9pZBgBIAEoDSK2BAoUU3ViYWNjb3VudFBvbGljeVZpZXcSCgoCaWQYASABKAYSDAoEbmFtZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRItCgxzcG90X21hcmtldHMYBCADKAsyFy5hdXRoLnYxLlNwb3RNYXJrZXRSdWxlEjcKEXNwb3RfbWFya2V0X3Njb3BlGAYgASgOMhouYXV0aC52MS5NYXJrZXRTY29wZS5WYWx1ZUIAEigKB2FjdGlvbnMYCCADKA4yFS5hdXRoLnYxLlBvbGljeUFjdGlvbkIAEhMKC2lzX3RlbXBsYXRlGAogASgIEhoKEnNvdXJjZV90ZW1wbGF0ZV9pZBgLIAEoBhIaChJtYXhfb3JkZXJfbm90aW9uYWwYDSABKAQSFwoPbWF4X29wZW5fb3JkZXJzGA4gASgNEhYKDnRyYWRpbmdfaGFsdGVkGBcgASgIEg4KBmxvY2tlZBgbIAEoCBItCglyZXZpZXdfYXQYHCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmV4cGlyZXNfYXQYHSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmNyZWF0ZWRfYXQYFCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCnVwZGF0ZWRfYXQYFSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCHJldmlzaW9uGB4gASgEIk8KHUxpc3RTdWJhY2NvdW50UG9saWNpZXNSZXF1ZXN0EhwKDXN1YmFjY291bnRfaWQYASABKAZCAEgAiAEBQhAKDl9zdWJhY2NvdW50X2lkIlEKHkxpc3RTdWJhY2NvdW50UG9saWNpZXNSZXNwb25zZRIvCghwb2xpY2llcxgBIAMoCzIdLmF1dGgudjEuU3ViYWNjb3VudFBvbGljeVZpZXciYQoaR2V0U3ViYWNjb3VudFBvbGljeVJlcXVlc3QSEwoJcG9saWN5X2lkGAEgASgGQgASHAoNc3ViYWNjb3VudF9pZBgCIAEoBkIASACIAQFCEAoOX3N1YmFjY291bnRfaWQiTAobR2V0U3ViYWNjb3VudFBvbGljeVJlc3BvbnNlEi0KBnBvbGljeRgBIAEoCzIdLmF1dGgudjEuU3ViYWNjb3VudFBvbGljeVZpZXcikQMKFFN1YmFjY291bnRQb2xpY3lTcGVjEg4KBG5hbWUYASABKAlCABIVCgtkZXNjcmlwdGlvbhgCIAEoCUIAEjEKDHNwb3RfbWFya2V0cxgDIAMoCzIbLmF1dGgudjEuU3BvdE1hcmtldFNlbGVjdG9yEjcKEXNwb3RfbWFya2V0X3Njb3BlGAUgASgOMhouYXV0aC52MS5NYXJrZXRTY29wZS5WYWx1ZUIAEigKB2FjdGlvbnMYByADKA4yFS5hdXRoLnYxLlBvbGljeUFjdGlvbkIAEhoKEm1heF9vcmRlcl9ub3Rpb25hbBgNIAEoBBIXCg9tYXhfb3Blbl9vcmRlcnMYDiABKA0SFgoOdHJhZGluZ19oYWx0ZWQYFSABKAgSDgoGbG9ja2VkGBkgASgIEi0KCXJldmlld19hdBgaIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKZXhwaXJlc19hdBgbIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXA6ACKAAQodQ3JlYXRlU3ViYWNjb3VudFBvbGljeVJlcXVlc3QSLwoGcG9saWN5GAEgASgLMh0uYXV0aC52MS5TdWJhY2NvdW50UG9saWN5U3BlY0IAEhwKDXN1YmFjY291bnRfaWQYAiABKAZCAEgAiAEBQhAKDl9zdWJhY2NvdW50X2lkIk8KHkNyZWF0ZVN1YmFjY291bnRQb2xpY3lSZXNwb25zZRItCgZwb2xpY3kYASABKAsyHS5hdXRoLnYxLlN1YmFjY291bnRQb2xpY3lWaWV3IrUBCh1VcGRhdGVTdWJhY2NvdW50UG9saWN5UmVxdWVzdBITCglwb2xpY3lfaWQYASABKAZCABIvCgZwb2xpY3kYAiABKAsyHS5hdXRoLnYxLlN1YmFjY291bnRQb2xpY3lTcGVjQgASMQoLdXBkYXRlX21hc2sYAyABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrQgASGwoRZXhwZWN0ZWRfcmV2aXNpb24YBCABKARCACJPCh5VcGRhdGVTdWJhY2NvdW50UG9saWN5UmVzcG9uc2USLQoGcG9saWN5GAEgASgLMh0uYXV0aC52MS5TdWJhY2NvdW50UG9saWN5VmlldyI0Ch1EZWxldGVTdWJhY2NvdW50UG9saWN5UmVxdWVzdBITCglwb2xpY3lfaWQYASABKAZCACIgCh5EZWxldGVTdWJhY2NvdW50UG9saWN5UmVzcG9uc2UiSAoaU2V0U3ViYWNjb3VudFBvbGljeVJlcXVlc3QSFwoNc3ViYWNjb3VudF9pZBgBIAEoBkIAEhEKCXBvbGljeV9pZBgCIAEoBiIdChtTZXRTdWJhY2NvdW50UG9saWN5UmVzcG9uc2Ui8wIKDUFwaVBvbGljeVZpZXcSCgoCaWQYASABKAYSDAoEbmFtZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRItCgxzcG90X21hcmtldHMYBCADKAsyFy5hdXRoLnYxLlNwb3RNYXJrZXRSdWxlEigKB2FjdGlvbnMYBiADKA4yFS5hdXRoLnYxLlBvbGljeUFjdGlvbkIAEjcKEXNwb3RfbWFya2V0X3Njb3BlGAcgASgOMhouYXV0aC52MS5NYXJrZXRTY29wZS5WYWx1ZUIAEhMKC2lzX3RlbXBsYXRlGBMgASgIEhoKEnNvdXJjZV90ZW1wbGF0ZV9pZBgUIAEoBhIuCgpjcmVhdGVkX2F0GBUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgp1cGRhdGVkX2F0GBYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghyZXZpc2lvbhgXIAEoBCI6ChZMaXN0QXBpUG9saWNpZXNSZXF1ZXN0EhUKBmtleV9pZBgBIAEoCUIASACIAQFCCQoHX2tleV9pZCJDChdMaXN0QXBpUG9saWNpZXNSZXNwb25zZRIoCghwb2xpY2llcxgBIAMoCzIWLmF1dGgudjEuQXBpUG9saWN5VmlldyJMChNHZXRBcGlQb2xpY3lSZXF1ZXN0EhMKCXBvbGljeV9pZBgBIAEoBkIAEhUKBmtleV9pZBgCIAEoCUIASACIAQFCCQoHX2tleV9pZCI+ChRHZXRBcGlQb2xpY3lSZXNwb25zZRImCgZwb2xpY3kYASABKAsyFi5hdXRoLnYxLkFwaVBvbGljeVZpZXci4wEKDUFwaVBvbGljeVNwZWMSDgoEbmFtZRgBIAEoCUIAEhUKC2Rlc2NyaXB0aW9uGAIgASgJQgASMQoMc3BvdF9tYXJrZXRzGAMgAygLMhsuYXV0aC52MS5TcG90TWFya2V0U2VsZWN0b3ISNwoRc3BvdF9tYXJrZXRfc2NvcGUYBSABKA4yGi5hdXRoLnYxLk1hcmtldFNjb3BlLlZhbHVlQgASKAoHYWN0aW9ucxgHIAMoDjIVLmF1dGgudjEuUG9saWN5QWN0aW9uQgASEwoLaXNfdGVtcGxhdGUYEyABKAg6ACJeChZDcmVhdGVBcGlQb2xpY3lSZXF1ZXN0EigKBnBvbGljeRgBIAEoCzIWLmF1dGgudjEuQXBpUG9saWN5U3BlY0IAEhoKEGFzc2lnbl90b19rZXlfaWQYAiABKAlCACJBChdDcmVhdGVBcGlQb2xpY3lSZXNwb25zZRImCgZwb2xpY3kYASABKAsyFi5hdXRoLnYxLkFwaVBvbGljeVZpZXcipwEKFlVwZGF0ZUFwaVBvbGljeVJlcXVlc3QSEwoJcG9saWN5X2lkGAEgASgGQgASKAoGcG9saWN5GAIgASgLMhYuYXV0aC52MS5BcGlQb2xpY3lTcGVjQgASMQoLdXBkYXRlX21hc2sYAyABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrQgASGwoRZXhwZWN0ZWRfcmV2aXNpb24YBCABKARCACJBChdVcGRhdGVBcGlQb2xpY3lSZXNwb25zZRImCgZwb2xpY3kYASABKAsyFi5hdXRoLnYxLkFwaVBvbGljeVZpZXciLQoWRGVsZXRlQXBpUG9saWN5UmVxdWVzdBITCglwb2xpY3lfaWQYASABKAZCACIZChdEZWxldGVBcGlQb2xpY3lSZXNwb25zZSI9ChZTZXRBcGlLZXlQb2xpY3lSZXF1ZXN0EhAKBmtleV9pZBgBIAEoCUIAEhEKCXBvbGljeV9pZBgCIAEoBiIZChdTZXRBcGlLZXlQb2xpY3lSZXNwb25zZSqIAgoMUG9saWN5QWN0aW9uEg8KC1VOU1BFQ0lGSUVEEAASDgoKVFJBREVfU1BPVBABEhUKEUlOVEVSTkFMX1RSQU5TRkVSEAMSFQoRRVhURVJOQUxfV0lUSERSQVcQBBIRCg1SRUFEX0JBTEFOQ0VTEAUSDQoJUkVBRF9TUE9UEAYSGwoXUkVBRF9JTlRFUk5BTF9UUkFOU0ZFUlMQCBIVChFSRUFEX0FERFJFU1NfQk9PSxALEhcKE01BTkFHRV9BRERSRVNTX0JPT0sQDBIWChJSRUFEX0FVVE9fV0lUSERSQVcQDhIYChRNQU5BR0VfQVVUT19XSVRIRFJBVxAPEggKBFNXQVAQEDKUCQoNUG9saWN5U2VydmljZRJrChZMaXN0U3ViYWNjb3VudFBvbGljaWVzEiYuYXV0aC52MS5MaXN0U3ViYWNjb3VudFBvbGljaWVzUmVxdWVzdBonLmF1dGgudjEuTGlzdFN1YmFjY291bnRQb2xpY2llc1Jlc3BvbnNlIgASYgoTR2V0U3ViYWNjb3VudFBvbGljeRIjLmF1dGgudjEuR2V0U3ViYWNjb3VudFBvbGljeVJlcXVlc3QaJC5hdXRoLnYxLkdldFN1YmFjY291bnRQb2xpY3lSZXNwb25zZSIAEmsKFkNyZWF0ZVN1YmFjY291bnRQb2xpY3kSJi5hdXRoLnYxLkNyZWF0ZVN1YmFjY291bnRQb2xpY3lSZXF1ZXN0GicuYXV0aC52MS5DcmVhdGVTdWJhY2NvdW50UG9saWN5UmVzcG9uc2UiABJrChZVcGRhdGVTdWJhY2NvdW50UG9saWN5EiYuYXV0aC52MS5VcGRhdGVTdWJhY2NvdW50UG9saWN5UmVxdWVzdBonLmF1dGgudjEuVXBkYXRlU3ViYWNjb3VudFBvbGljeVJlc3BvbnNlIgASawoWRGVsZXRlU3ViYWNjb3VudFBvbGljeRImLmF1dGgudjEuRGVsZXRlU3ViYWNjb3VudFBvbGljeVJlcXVlc3QaJy5hdXRoLnYxLkRlbGV0ZVN1YmFjY291bnRQb2xpY3lSZXNwb25zZSIAEmIKE1NldFN1YmFjY291bnRQb2xpY3kSIy5hdXRoLnYxLlNldFN1YmFjY291bnRQb2xpY3lSZXF1ZXN0GiQuYXV0aC52MS5TZXRTdWJhY2NvdW50UG9saWN5UmVzcG9uc2UiABJWCg9MaXN0QXBpUG9saWNpZXMSHy5hdXRoLnYxLkxpc3RBcGlQb2xpY2llc1JlcXVlc3QaIC5hdXRoLnYxLkxpc3RBcGlQb2xpY2llc1Jlc3BvbnNlIgASTQoMR2V0QXBpUG9saWN5EhwuYXV0aC52MS5HZXRBcGlQb2xpY3lSZXF1ZXN0Gh0uYXV0aC52MS5HZXRBcGlQb2xpY3lSZXNwb25zZSIAElYKD0NyZWF0ZUFwaVBvbGljeRIfLmF1dGgudjEuQ3JlYXRlQXBpUG9saWN5UmVxdWVzdBogLmF1dGgudjEuQ3JlYXRlQXBpUG9saWN5UmVzcG9uc2UiABJWCg9VcGRhdGVBcGlQb2xpY3kSHy5hdXRoLnYxLlVwZGF0ZUFwaVBvbGljeVJlcXVlc3QaIC5hdXRoLnYxLlVwZGF0ZUFwaVBvbGljeVJlc3BvbnNlIgASVgoPRGVsZXRlQXBpUG9saWN5Eh8uYXV0aC52MS5EZWxldGVBcGlQb2xpY3lSZXF1ZXN0GiAuYXV0aC52MS5EZWxldGVBcGlQb2xpY3lSZXNwb25zZSIAElYKD1NldEFwaUtleVBvbGljeRIfLmF1dGgudjEuU2V0QXBpS2V5UG9saWN5UmVxdWVzdBogLmF1dGgudjEuU2V0QXBpS2V5UG9saWN5UmVzcG9uc2UiABoAQjxaOmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vYXV0aC92MTthdXRodjFiBnByb3RvMw==", [file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChZhdXRoL3YxL3BvbGljaWVzLnByb3RvEgdhdXRoLnYxIj8KC01hcmtldFNjb3BlIjAKBVZhbHVlEg8KC1VOU1BFQ0lGSUVEEAASBwoDQUxMEAESDQoJQUxMT1dMSVNUEAIiKQoSU3BvdE1hcmtldFNlbGVjdG9yEhMKCXN5bWJvbF9pZBgBIAEoDUIAIiMKDlNwb3RNYXJrZXRSdWxlEhEKCXN5bWJvbF9pZBgBIAEoDSK2BAoUU3ViYWNjb3VudFBvbGljeVZpZXcSCgoCaWQYASABKAYSDAoEbmFtZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRItCgxzcG90X21hcmtldHMYBCADKAsyFy5hdXRoLnYxLlNwb3RNYXJrZXRSdWxlEjcKEXNwb3RfbWFya2V0X3Njb3BlGAYgASgOMhouYXV0aC52MS5NYXJrZXRTY29wZS5WYWx1ZUIAEigKB2FjdGlvbnMYCCADKA4yFS5hdXRoLnYxLlBvbGljeUFjdGlvbkIAEhMKC2lzX3RlbXBsYXRlGAogASgIEhoKEnNvdXJjZV90ZW1wbGF0ZV9pZBgLIAEoBhIaChJtYXhfb3JkZXJfbm90aW9uYWwYDSABKAQSFwoPbWF4X29wZW5fb3JkZXJzGA4gASgNEhYKDnRyYWRpbmdfaGFsdGVkGBcgASgIEg4KBmxvY2tlZBgbIAEoCBItCglyZXZpZXdfYXQYHCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmV4cGlyZXNfYXQYHSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmNyZWF0ZWRfYXQYFCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCnVwZGF0ZWRfYXQYFSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCHJldmlzaW9uGB4gASgEIk8KHUxpc3RTdWJhY2NvdW50UG9saWNpZXNSZXF1ZXN0EhwKDXN1YmFjY291bnRfaWQYASABKAZCAEgAiAEBQhAKDl9zdWJhY2NvdW50X2lkIlEKHkxpc3RTdWJhY2NvdW50UG9saWNpZXNSZXNwb25zZRIvCghwb2xpY2llcxgBIAMoCzIdLmF1dGgudjEuU3ViYWNjb3VudFBvbGljeVZpZXciYQoaR2V0U3ViYWNjb3VudFBvbGljeVJlcXVlc3QSEwoJcG9saWN5X2lkGAEgASgGQgASHAoNc3ViYWNjb3VudF9pZBgCIAEoBkIASACIAQFCEAoOX3N1YmFjY291bnRfaWQiTAobR2V0U3ViYWNjb3VudFBvbGljeVJlc3BvbnNlEi0KBnBvbGljeRgBIAEoCzIdLmF1dGgudjEuU3ViYWNjb3VudFBvbGljeVZpZXcikQMKFFN1YmFjY291bnRQb2xpY3lTcGVjEg4KBG5hbWUYASABKAlCABIVCgtkZXNjcmlwdGlvbhgCIAEoCUIAEjEKDHNwb3RfbWFya2V0cxgDIAMoCzIbLmF1dGgudjEuU3BvdE1hcmtldFNlbGVjdG9yEjcKEXNwb3RfbWFya2V0X3Njb3BlGAUgASgOMhouYXV0aC52MS5NYXJrZXRTY29wZS5WYWx1ZUIAEigKB2FjdGlvbnMYByADKA4yFS5hdXRoLnYxLlBvbGljeUFjdGlvbkIAEhoKEm1heF9vcmRlcl9ub3Rpb25hbBgNIAEoBBIXCg9tYXhfb3Blbl9vcmRlcnMYDiABKA0SFgoOdHJhZGluZ19oYWx0ZWQYFSABKAgSDgoGbG9ja2VkGBkgASgIEi0KCXJldmlld19hdBgaIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKZXhwaXJlc19hdBgbIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXA6ACKAAQodQ3JlYXRlU3ViYWNjb3VudFBvbGljeVJlcXVlc3QSLwoGcG9saWN5GAEgASgLMh0uYXV0aC52MS5TdWJhY2NvdW50UG9saWN5U3BlY0IAEhwKDXN1YmFjY291bnRfaWQYAiABKAZCAEgAiAEBQhAKDl9zdWJhY2NvdW50X2lkIk8KHkNyZWF0ZVN1YmFjY291bnRQb2xpY3lSZXNwb25zZRItCgZwb2xpY3kYASABKAsyHS5hdXRoLnYxLlN1YmFjY291bnRQb2xpY3lWaWV3IrUBCh1VcGRhdGVTdWJhY2NvdW50UG9saWN5UmVxdWVzdBITCglwb2xpY3lfaWQYASABKAZCABIvCgZwb2xpY3kYAiABKAsyHS5hdXRoLnYxLlN1YmFjY291bnRQb2xpY3lTcGVjQgASMQoLdXBkYXRlX21hc2sYAyABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrQgASGwoRZXhwZWN0ZWRfcmV2aXNpb24YBCABKARCACJPCh5VcGRhdGVTdWJhY2NvdW50UG9saWN5UmVzcG9uc2USLQoGcG9saWN5GAEgASgLMh0uYXV0aC52MS5TdWJhY2NvdW50UG9saWN5VmlldyI0Ch1EZWxldGVTdWJhY2NvdW50UG9saWN5UmVxdWVzdBITCglwb2xpY3lfaWQYASABKAZCACIgCh5EZWxldGVTdWJhY2NvdW50UG9saWN5UmVzcG9uc2UiSAoaU2V0U3ViYWNjb3VudFBvbGljeVJlcXVlc3QSFwoNc3ViYWNjb3VudF9pZBgBIAEoBkIAEhEKCXBvbGljeV9pZBgCIAEoBiIdChtTZXRTdWJhY2NvdW50UG9saWN5UmVzcG9uc2Ui8wIKDUFwaVBvbGljeVZpZXcSCgoCaWQYASABKAYSDAoEbmFtZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRItCgxzcG90X21hcmtldHMYBCADKAsyFy5hdXRoLnYxLlNwb3RNYXJrZXRSdWxlEigKB2FjdGlvbnMYBiADKA4yFS5hdXRoLnYxLlBvbGljeUFjdGlvbkIAEjcKEXNwb3RfbWFya2V0X3Njb3BlGAcgASgOMhouYXV0aC52MS5NYXJrZXRTY29wZS5WYWx1ZUIAEhMKC2lzX3RlbXBsYXRlGBMgASgIEhoKEnNvdXJjZV90ZW1wbGF0ZV9pZBgUIAEoBhIuCgpjcmVhdGVkX2F0GBUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgp1cGRhdGVkX2F0GBYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghyZXZpc2lvbhgXIAEoBCI6ChZMaXN0QXBpUG9saWNpZXNSZXF1ZXN0EhUKBmtleV9pZBgBIAEoCUIASACIAQFCCQoHX2tleV9pZCJDChdMaXN0QXBpUG9saWNpZXNSZXNwb25zZRIoCghwb2xpY2llcxgBIAMoCzIWLmF1dGgudjEuQXBpUG9saWN5VmlldyJMChNHZXRBcGlQb2xpY3lSZXF1ZXN0EhMKCXBvbGljeV9pZBgBIAEoBkIAEhUKBmtleV9pZBgCIAEoCUIASACIAQFCCQoHX2tleV9pZCI+ChRHZXRBcGlQb2xpY3lSZXNwb25zZRImCgZwb2xpY3kYASABKAsyFi5hdXRoLnYxLkFwaVBvbGljeVZpZXci4wEKDUFwaVBvbGljeVNwZWMSDgoEbmFtZRgBIAEoCUIAEhUKC2Rlc2NyaXB0aW9uGAIgASgJQgASMQoMc3BvdF9tYXJrZXRzGAMgAygLMhsuYXV0aC52MS5TcG90TWFya2V0U2VsZWN0b3ISNwoRc3BvdF9tYXJrZXRfc2NvcGUYBSABKA4yGi5hdXRoLnYxLk1hcmtldFNjb3BlLlZhbHVlQgASKAoHYWN0aW9ucxgHIAMoDjIVLmF1dGgudjEuUG9saWN5QWN0aW9uQgASEwoLaXNfdGVtcGxhdGUYEyABKAg6ACJeChZDcmVhdGVBcGlQb2xpY3lSZXF1ZXN0EigKBnBvbGljeRgBIAEoCzIWLmF1dGgudjEuQXBpUG9saWN5U3BlY0IAEhoKEGFzc2lnbl90b19rZXlfaWQYAiABKAlCACJBChdDcmVhdGVBcGlQb2xpY3lSZXNwb25zZRImCgZwb2xpY3kYASABKAsyFi5hdXRoLnYxLkFwaVBvbGljeVZpZXcipwEKFlVwZGF0ZUFwaVBvbGljeVJlcXVlc3QSEwoJcG9saWN5X2lkGAEgASgGQgASKAoGcG9saWN5GAIgASgLMhYuYXV0aC52MS5BcGlQb2xpY3lTcGVjQgASMQoLdXBkYXRlX21hc2sYAyABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrQgASGwoRZXhwZWN0ZWRfcmV2aXNpb24YBCABKARCACJBChdVcGRhdGVBcGlQb2xpY3lSZXNwb25zZRImCgZwb2xpY3kYASABKAsyFi5hdXRoLnYxLkFwaVBvbGljeVZpZXciLQoWRGVsZXRlQXBpUG9saWN5UmVxdWVzdBITCglwb2xpY3lfaWQYASABKAZCACIZChdEZWxldGVBcGlQb2xpY3lSZXNwb25zZSI9ChZTZXRBcGlLZXlQb2xpY3lSZXF1ZXN0EhAKBmtleV9pZBgBIAEoCUIAEhEKCXBvbGljeV9pZBgCIAEoBiIZChdTZXRBcGlLZXlQb2xpY3lSZXNwb25zZSrHBAoMUG9saWN5QWN0aW9uEg8KC1VOU1BFQ0lGSUVEEAASDgoKVFJBREVfU1BPVBABEhUKEUlOVEVSTkFMX1RSQU5TRkVSEAMSFQoRRVhURVJOQUxfV0lUSERSQVcQBBIRCg1SRUFEX0JBTEFOQ0VTEAUSDQoJUkVBRF9TUE9UEAYSGwoXUkVBRF9JTlRFUk5BTF9UUkFOU0ZFUlMQCBIVChFSRUFEX0FERFJFU1NfQk9PSxALEhcKE01BTkFHRV9BRERSRVNTX0JPT0sQDBIWChJSRUFEX0FVVE9fV0lUSERSQVcQDhIYChRNQU5BR0VfQVVUT19XSVRIRFJBVxAPEggKBFNXQVAQEBIRCg1SRUFEX0FQSV9LRVlTEBESFQoRUkVBRF9BUElfUE9MSUNJRVMQEhIcChhSRUFEX1NVQkFDQ09VTlRfUE9MSUNJRVMQExIfChtSRUFEX1NVQkFDQ09VTlRfUEVSTUlTU0lPTlMQFBITCg9SRUFEX1ZJUF9TVEFUVVMQFRIcChhSRUFEX1NPQ0lBTF9WRVJJRklDQVRJT04QFhIQCgxSRUFEX1BST0ZJTEUQFxIaChZSRUFEX0FDQ09VTlRfRElSRUNUT1JZEBgSHAoYUkVBRF9XSVRIRFJBV19WQUxJREFUSU9OEBkSFQoRUkVBRF9EQUlMWV9DTEFJTVMQGhIWChJDTEFJTV9EQUlMWV9SRVdBUkQQGxIUChBSRUFEX0NIRUNLUE9JTlRTEBwSEAoMUkVBRF9SRVdBUkRTEB0ylAkKDVBvbGljeVNlcnZpY2USawoWTGlzdFN1YmFjY291bnRQb2xpY2llcxImLmF1dGgudjEuTGlzdFN1YmFjY291bnRQb2xpY2llc1JlcXVlc3QaJy5hdXRoLnYxLkxpc3RTdWJhY2NvdW50UG9saWNpZXNSZXNwb25zZSIAEmIKE0dldFN1YmFjY291bnRQb2xpY3kSIy5hdXRoLnYxLkdldFN1YmFjY291bnRQb2xpY3lSZXF1ZXN0GiQuYXV0aC52MS5HZXRTdWJhY2NvdW50UG9saWN5UmVzcG9uc2UiABJrChZDcmVhdGVTdWJhY2NvdW50UG9saWN5EiYuYXV0aC52MS5DcmVhdGVTdWJhY2NvdW50UG9saWN5UmVxdWVzdBonLmF1dGgudjEuQ3JlYXRlU3ViYWNjb3VudFBvbGljeVJlc3BvbnNlIgASawoWVXBkYXRlU3ViYWNjb3VudFBvbGljeRImLmF1dGgudjEuVXBkYXRlU3ViYWNjb3VudFBvbGljeVJlcXVlc3QaJy5hdXRoLnYxLlVwZGF0ZVN1YmFjY291bnRQb2xpY3lSZXNwb25zZSIAEmsKFkRlbGV0ZVN1YmFjY291bnRQb2xpY3kSJi5hdXRoLnYxLkRlbGV0ZVN1YmFjY291bnRQb2xpY3lSZXF1ZXN0GicuYXV0aC52MS5EZWxldGVTdWJhY2NvdW50UG9saWN5UmVzcG9uc2UiABJiChNTZXRTdWJhY2NvdW50UG9saWN5EiMuYXV0aC52MS5TZXRTdWJhY2NvdW50UG9saWN5UmVxdWVzdBokLmF1dGgudjEuU2V0U3ViYWNjb3VudFBvbGljeVJlc3BvbnNlIgASVgoPTGlzdEFwaVBvbGljaWVzEh8uYXV0aC52MS5MaXN0QXBpUG9saWNpZXNSZXF1ZXN0GiAuYXV0aC52MS5MaXN0QXBpUG9saWNpZXNSZXNwb25zZSIAEk0KDEdldEFwaVBvbGljeRIcLmF1dGgudjEuR2V0QXBpUG9saWN5UmVxdWVzdBodLmF1dGgudjEuR2V0QXBpUG9saWN5UmVzcG9uc2UiABJWCg9DcmVhdGVBcGlQb2xpY3kSHy5hdXRoLnYxLkNyZWF0ZUFwaVBvbGljeVJlcXVlc3QaIC5hdXRoLnYxLkNyZWF0ZUFwaVBvbGljeVJlc3BvbnNlIgASVgoPVXBkYXRlQXBpUG9saWN5Eh8uYXV0aC52MS5VcGRhdGVBcGlQb2xpY3lSZXF1ZXN0GiAuYXV0aC52MS5VcGRhdGVBcGlQb2xpY3lSZXNwb25zZSIAElYKD0RlbGV0ZUFwaVBvbGljeRIfLmF1dGgudjEuRGVsZXRlQXBpUG9saWN5UmVxdWVzdBogLmF1dGgudjEuRGVsZXRlQXBpUG9saWN5UmVzcG9uc2UiABJWCg9TZXRBcGlLZXlQb2xpY3kSHy5hdXRoLnYxLlNldEFwaUtleVBvbGljeVJlcXVlc3QaIC5hdXRoLnYxLlNldEFwaUtleVBvbGljeVJlc3BvbnNlIgAaAEI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2F1dGgvdjE7YXV0aHYxYgZwcm90bzM=", [file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * MarketScope describes how a policy applies to spot markets.
@@ -391,7 +391,8 @@ export type SubaccountPolicySpec = Message<"auth.v1.SubaccountPolicySpec"> & {
   /**
    * High-level actions enabled for the sub-account policy. Mandatory read-only
    * actions are included when omitted. Up to 64 unique explicit actions are
-   * allowed.
+   * allowed. Account permissions such as READ_API_KEYS apply to API-key
+   * policies only and are refused here.
    *
    * @generated from field: repeated auth.v1.PolicyAction actions = 7;
    */
@@ -1102,8 +1103,14 @@ export const SetApiKeyPolicyResponseSchema: GenMessage<SetApiKeyPolicyResponse> 
 
 /**
  * PolicyAction is a high-level permission that can be granted by a policy.
- * Write-style actions also grant the matching read visibility where needed by
- * the product experience.
+ * The product actions TRADE_SPOT through SWAP apply to sub-account and API-key
+ * policies, and their write-style actions also grant the matching read
+ * visibility where needed by the product experience. The account permissions
+ * from READ_API_KEYS on apply to API-key policies only: a sub-account policy
+ * refuses them. Each grants exactly the calls it names and never implies
+ * another permission. A main-account permission is honored only for an API
+ * key scoped to the main account; a key scoped to a sub-account is refused
+ * even when its policy grants it.
  *
  * @generated from enum auth.v1.PolicyAction
  */
@@ -1206,6 +1213,112 @@ export enum PolicyAction {
    * @generated from enum value: SWAP = 16;
    */
   SWAP = 16,
+
+  /**
+   * Allow listing and reading API keys. A key scoped to the main account sees
+   * the main account's keys and those of its sub-accounts; a key scoped to a
+   * sub-account sees only that sub-account's keys.
+   *
+   * @generated from enum value: READ_API_KEYS = 17;
+   */
+  READ_API_KEYS = 17,
+
+  /**
+   * Allow listing and reading API-key policies. A key scoped to the main
+   * account sees every API-key policy of the main account; a key scoped to a
+   * sub-account sees only the policies attached to that sub-account's keys.
+   *
+   * @generated from enum value: READ_API_POLICIES = 18;
+   */
+  READ_API_POLICIES = 18,
+
+  /**
+   * Allow listing and reading sub-account policies. A key scoped to the main
+   * account sees every sub-account policy of the main account; a key scoped to
+   * a sub-account sees only the policy attached to that sub-account.
+   *
+   * @generated from enum value: READ_SUBACCOUNT_POLICIES = 19;
+   */
+  READ_SUBACCOUNT_POLICIES = 19,
+
+  /**
+   * Allow reading what the key itself may do on a sub-account within its
+   * scope.
+   *
+   * @generated from enum value: READ_SUBACCOUNT_PERMISSIONS = 20;
+   */
+  READ_SUBACCOUNT_PERMISSIONS = 20,
+
+  /**
+   * Allow reading the main account's VIP status. Main-account permission.
+   *
+   * @generated from enum value: READ_VIP_STATUS = 21;
+   */
+  READ_VIP_STATUS = 21,
+
+  /**
+   * Allow reading the main account's social verification status: provider,
+   * handle, status, and verification time. Main-account permission.
+   *
+   * @generated from enum value: READ_SOCIAL_VERIFICATION = 22;
+   */
+  READ_SOCIAL_VERIFICATION = 22,
+
+  /**
+   * Allow reading the main account's profile and username history.
+   * Main-account permission.
+   *
+   * @generated from enum value: READ_PROFILE = 23;
+   */
+  READ_PROFILE = 23,
+
+  /**
+   * Allow resolving an account by username, account ID, or smart-account
+   * address. Any key of the main account may use it, whatever its scope.
+   *
+   * @generated from enum value: READ_ACCOUNT_DIRECTORY = 24;
+   */
+  READ_ACCOUNT_DIRECTORY = 24,
+
+  /**
+   * Allow validating an external withdraw destination within the key's scope
+   * without creating, signing, or reserving a withdraw. It does not allow
+   * withdrawing.
+   *
+   * @generated from enum value: READ_WITHDRAW_VALIDATION = 25;
+   */
+  READ_WITHDRAW_VALIDATION = 25,
+
+  /**
+   * Allow reading the main account's daily reward claim status.
+   * Main-account permission.
+   *
+   * @generated from enum value: READ_DAILY_CLAIMS = 26;
+   */
+  READ_DAILY_CLAIMS = 26,
+
+  /**
+   * Allow claiming the main account's daily reward, paid to the main account
+   * or a sub-account it owns. Main-account permission.
+   *
+   * @generated from enum value: CLAIM_DAILY_REWARD = 27;
+   */
+  CLAIM_DAILY_REWARD = 27,
+
+  /**
+   * Allow reading the main account's checkpoints. Main-account permission.
+   *
+   * @generated from enum value: READ_CHECKPOINTS = 28;
+   */
+  READ_CHECKPOINTS = 28,
+
+  /**
+   * Allow reading the main account's published reward awards. Main-account
+   * permission.
+   *
+   * @generated from enum value: READ_REWARDS = 29;
+   */
+  READ_REWARDS = 29,
 }
 
 /**
@@ -1221,7 +1334,9 @@ export const PolicyActionSchema: GenEnum<PolicyAction> = /*@__PURE__*/
  */
 export const PolicyService: GenService<{
   /**
-   * List sub-account policy templates available to the caller.
+   * List sub-account policy templates available to the caller. An API key
+   * needs READ_SUBACCOUNT_POLICIES; a key scoped to a sub-account sees only the
+   * policy attached to that sub-account.
    *
    * @generated from rpc auth.v1.PolicyService.ListSubaccountPolicies
    */
@@ -1231,7 +1346,9 @@ export const PolicyService: GenService<{
     output: typeof ListSubaccountPoliciesResponseSchema;
   },
   /**
-   * Get a sub-account policy template by id.
+   * Get a sub-account policy template by id. An API key needs
+   * READ_SUBACCOUNT_POLICIES; a key scoped to a sub-account reads only the
+   * policy attached to that sub-account.
    *
    * @generated from rpc auth.v1.PolicyService.GetSubaccountPolicy
    */
@@ -1281,7 +1398,9 @@ export const PolicyService: GenService<{
     output: typeof SetSubaccountPolicyResponseSchema;
   },
   /**
-   * List API key policy templates available to the caller.
+   * List API key policy templates available to the caller. An API key needs
+   * READ_API_POLICIES; a key scoped to a sub-account sees only the policies
+   * attached to that sub-account's keys.
    *
    * @generated from rpc auth.v1.PolicyService.ListApiPolicies
    */
@@ -1291,7 +1410,9 @@ export const PolicyService: GenService<{
     output: typeof ListApiPoliciesResponseSchema;
   },
   /**
-   * Get an API key policy template by id.
+   * Get an API key policy template by id. An API key needs
+   * READ_API_POLICIES; a key scoped to a sub-account reads only the policies
+   * attached to that sub-account's keys.
    *
    * @generated from rpc auth.v1.PolicyService.GetApiPolicy
    */

@@ -2,8 +2,8 @@
 // @generated from file chain/zipper/v1/zipper.proto (package chain.zipper.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_polyester_api_options } from "../../../polyester/api/options_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
@@ -11,7 +11,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file chain/zipper/v1/zipper.proto.
  */
 export const file_chain_zipper_v1_zipper: GenFile = /*@__PURE__*/
-  fileDesc("ChxjaGFpbi96aXBwZXIvdjEvemlwcGVyLnByb3RvEg9jaGFpbi56aXBwZXIudjEirgIKC0NoYWluQ29uZmlnEhAKCGNoYWluX2lkGAEgASgNEgwKBGNvZGUYAiABKAkSDAoEbmFtZRgDIAEoCRIXCg9uYXRpdmVfY2hhaW5faWQYBCABKAkSHgoWbmF0aXZlX2N1cnJlbmN5X3N5bWJvbBgFIAEoCRIUCgxleHBsb3Jlcl91cmwYBiABKAkSDAoEaWNvbhgHIAEoCRIeChZyZXF1aXJlZF9jb25maXJtYXRpb25zGAggASgNEiEKGWNvbmZpcm1hdGlvbl90aW1lX3NlY29uZHMYCSABKA0SGQoRaXNfY2FzZV9zZW5zaXRpdmUYCiABKAgSGgoSbWluX2FkZHJlc3NfbGVuZ3RoGAsgASgNEhoKEm1heF9hZGRyZXNzX2xlbmd0aBgMIAEoDSKZAgoRQXNzZXRDaGFpblZhcmlhbnQSFwoPemlwcGVkX2Fzc2V0X2lkGAEgASgNEhAKCGNoYWluX2lkGAIgASgNEhcKD2lzX25hdGl2ZV9hc3NldBgDIAEoCBITCgtuZXR3b3JrX2ZlZRgEIAEoCRIWCg56dG9rZW5fYWRkcmVzcxgGIAEoCRIWCg5zb3VyY2VfYWRkcmVzcxgHIAEoCRIXCg9zb3VyY2VfZGVjaW1hbHMYCCABKA0SFwoPenRva2VuX2RlY2ltYWxzGAkgASgNEhoKEmRlcG9zaXRfbWluX2Ftb3VudBgKIAEoCRIbChN3aXRoZHJhd19taW5fYW1vdW50GAsgASgJEhAKCHN1cHBseV9xGAwgASgEIkQKF1ppcHBlZEFzc2V0U3VwcGx5VXBkYXRlEhcKD3ppcHBlZF9hc3NldF9pZBgBIAEoDRIQCghzdXBwbHlfcRgCIAEoBCJTChZaaXBwZWRBc3NldFN1cHBseUJhdGNoEjkKB3VwZGF0ZXMYASADKAsyKC5jaGFpbi56aXBwZXIudjEuWmlwcGVkQXNzZXRTdXBwbHlVcGRhdGUi0AEKC0Fzc2V0Q29uZmlnEg0KBWFzc2V0GAEgASgJEhEKCWxlZGdlcl9pZBgCIAEoDRIMCgRuYW1lGAMgASgJEgwKBGljb24YBCABKAkSFgoOcXVhbnRpdHlfc2NhbGUYBSABKA0SIQoZcXVhbnRpdHlfZGlzcGxheV9kZWNpbWFscxgGIAEoDRI0Cgh2YXJpYW50cxgHIAMoCzIiLmNoYWluLnppcHBlci52MS5Bc3NldENoYWluVmFyaWFudBISCgp1X2Fzc2V0X2lkGAggASgJImgKE0NoYWluQ29udHJhY3RDb25maWcSDAoEbmFtZRgBIAEoCRIPCgdhZGRyZXNzGAIgASgJEgwKBHR5cGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSDwoHdmVyc2lvbhgFIAEoDSIhCh9HZXREZXBvc2l0V2l0aGRyYXdDb25maWdSZXF1ZXN0IscBCiBHZXREZXBvc2l0V2l0aGRyYXdDb25maWdSZXNwb25zZRIsCgZjaGFpbnMYASADKAsyHC5jaGFpbi56aXBwZXIudjEuQ2hhaW5Db25maWcSLAoGYXNzZXRzGAIgAygLMhwuY2hhaW4uemlwcGVyLnYxLkFzc2V0Q29uZmlnEg4KBnRzX3NlYxgDIAEoBBI3Cgljb250cmFjdHMYBSADKAsyJC5jaGFpbi56aXBwZXIudjEuQ2hhaW5Db250cmFjdENvbmZpZzKVAQoNWmlwcGVyU2VydmljZRKBAQoYR2V0RGVwb3NpdFdpdGhkcmF3Q29uZmlnEjAuY2hhaW4uemlwcGVyLnYxLkdldERlcG9zaXRXaXRoZHJhd0NvbmZpZ1JlcXVlc3QaMS5jaGFpbi56aXBwZXIudjEuR2V0RGVwb3NpdFdpdGhkcmF3Q29uZmlnUmVzcG9uc2UiABoAQktaSWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vY2hhaW4vemlwcGVyL3YxO2NoYWluemlwcGVydjFiBnByb3RvMw==", [file_polyester_api_options]);
+  fileDesc("ChxjaGFpbi96aXBwZXIvdjEvemlwcGVyLnByb3RvEg9jaGFpbi56aXBwZXIudjEimAMKC0NoYWluQ29uZmlnEhAKCGNoYWluX2lkGAEgASgNEgwKBGNvZGUYAiABKAkSDAoEbmFtZRgDIAEoCRIXCg9uYXRpdmVfY2hhaW5faWQYBCABKAkSHgoWbmF0aXZlX2N1cnJlbmN5X3N5bWJvbBgFIAEoCRIUCgxleHBsb3Jlcl91cmwYBiABKAkSDAoEaWNvbhgHIAEoCRIeChZyZXF1aXJlZF9jb25maXJtYXRpb25zGAggASgNEiEKGWNvbmZpcm1hdGlvbl90aW1lX3NlY29uZHMYCSABKA0SGQoRaXNfY2FzZV9zZW5zaXRpdmUYCiABKAgSGgoSbWluX2FkZHJlc3NfbGVuZ3RoGAsgASgNEhoKEm1heF9hZGRyZXNzX2xlbmd0aBgMIAEoDRI6ChBtZW1vX3JlcXVpcmVtZW50GA0gASgOMiAuY2hhaW4uemlwcGVyLnYxLk1lbW9SZXF1aXJlbWVudBISCgptZW1vX2xhYmVsGA4gASgJEhgKEG1lbW9fZm9ybWF0X2hpbnQYDyABKAkimQIKEUFzc2V0Q2hhaW5WYXJpYW50EhcKD3ppcHBlZF9hc3NldF9pZBgBIAEoDRIQCghjaGFpbl9pZBgCIAEoDRIXCg9pc19uYXRpdmVfYXNzZXQYAyABKAgSEwoLbmV0d29ya19mZWUYBCABKAkSFgoOenRva2VuX2FkZHJlc3MYBiABKAkSFgoOc291cmNlX2FkZHJlc3MYByABKAkSFwoPc291cmNlX2RlY2ltYWxzGAggASgNEhcKD3p0b2tlbl9kZWNpbWFscxgJIAEoDRIaChJkZXBvc2l0X21pbl9hbW91bnQYCiABKAkSGwoTd2l0aGRyYXdfbWluX2Ftb3VudBgLIAEoCRIQCghzdXBwbHlfcRgMIAEoBCJEChdaaXBwZWRBc3NldFN1cHBseVVwZGF0ZRIXCg96aXBwZWRfYXNzZXRfaWQYASABKA0SEAoIc3VwcGx5X3EYAiABKAQiUwoWWmlwcGVkQXNzZXRTdXBwbHlCYXRjaBI5Cgd1cGRhdGVzGAEgAygLMiguY2hhaW4uemlwcGVyLnYxLlppcHBlZEFzc2V0U3VwcGx5VXBkYXRlItABCgtBc3NldENvbmZpZxINCgVhc3NldBgBIAEoCRIRCglsZWRnZXJfaWQYAiABKA0SDAoEbmFtZRgDIAEoCRIMCgRpY29uGAQgASgJEhYKDnF1YW50aXR5X3NjYWxlGAUgASgNEiEKGXF1YW50aXR5X2Rpc3BsYXlfZGVjaW1hbHMYBiABKA0SNAoIdmFyaWFudHMYByADKAsyIi5jaGFpbi56aXBwZXIudjEuQXNzZXRDaGFpblZhcmlhbnQSEgoKdV9hc3NldF9pZBgIIAEoCSJoChNDaGFpbkNvbnRyYWN0Q29uZmlnEgwKBG5hbWUYASABKAkSDwoHYWRkcmVzcxgCIAEoCRIMCgR0eXBlGAMgASgJEhMKC2Rlc2NyaXB0aW9uGAQgASgJEg8KB3ZlcnNpb24YBSABKA0iIQofR2V0RGVwb3NpdFdpdGhkcmF3Q29uZmlnUmVxdWVzdCLHAQogR2V0RGVwb3NpdFdpdGhkcmF3Q29uZmlnUmVzcG9uc2USLAoGY2hhaW5zGAEgAygLMhwuY2hhaW4uemlwcGVyLnYxLkNoYWluQ29uZmlnEiwKBmFzc2V0cxgCIAMoCzIcLmNoYWluLnppcHBlci52MS5Bc3NldENvbmZpZxIOCgZ0c19zZWMYAyABKAQSNwoJY29udHJhY3RzGAUgAygLMiQuY2hhaW4uemlwcGVyLnYxLkNoYWluQ29udHJhY3RDb25maWcqVgoPTWVtb1JlcXVpcmVtZW50EhQKEE1FTU9fVU5TUEVDSUZJRUQQABIMCghSRVFVSVJFRBABEgwKCE9QVElPTkFMEAISEQoNTk9UX1NVUFBPUlRFRBADMpUBCg1aaXBwZXJTZXJ2aWNlEoEBChhHZXREZXBvc2l0V2l0aGRyYXdDb25maWcSMC5jaGFpbi56aXBwZXIudjEuR2V0RGVwb3NpdFdpdGhkcmF3Q29uZmlnUmVxdWVzdBoxLmNoYWluLnppcHBlci52MS5HZXREZXBvc2l0V2l0aGRyYXdDb25maWdSZXNwb25zZSIAGgBCS1pJZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9jaGFpbi96aXBwZXIvdjE7Y2hhaW56aXBwZXJ2MWIGcHJvdG8z", [file_polyester_api_options]);
 
 /**
  * ChainConfig describes one supported external chain for deposit and withdraw.
@@ -104,6 +104,28 @@ export type ChainConfig = Message<"chain.zipper.v1.ChainConfig"> & {
    * @generated from field: uint32 max_address_length = 12;
    */
   maxAddressLength: number;
+
+  /**
+   * Memo rule for withdrawal destinations and QuickSwap destination, return,
+   * and refund targets on this network. Does not describe deposit instructions.
+   *
+   * @generated from field: chain.zipper.v1.MemoRequirement memo_requirement = 13;
+   */
+  memoRequirement: MemoRequirement;
+
+  /**
+   * Display label, such as "Destination tag" or "Memo". Empty when not supported.
+   *
+   * @generated from field: string memo_label = 14;
+   */
+  memoLabel: string;
+
+  /**
+   * Human-readable format guidance. Empty when no additional guidance applies.
+   *
+   * @generated from field: string memo_format_hint = 15;
+   */
+  memoFormatHint: string;
 };
 
 /**
@@ -434,6 +456,47 @@ export type GetDepositWithdrawConfigResponse = Message<"chain.zipper.v1.GetDepos
  */
 export const GetDepositWithdrawConfigResponseSchema: GenMessage<GetDepositWithdrawConfigResponse> = /*@__PURE__*/
   messageDesc(file_chain_zipper_v1_zipper, 7);
+
+/**
+ * MemoRequirement describes the memo or destination tag needed for a payout target.
+ *
+ * @generated from enum chain.zipper.v1.MemoRequirement
+ */
+export enum MemoRequirement {
+  /**
+   * Requirement is unknown. Do not assume that a memo can be omitted.
+   *
+   * @generated from enum value: MEMO_UNSPECIFIED = 0;
+   */
+  MEMO_UNSPECIFIED = 0,
+
+  /**
+   * A memo or destination tag must be supplied.
+   *
+   * @generated from enum value: REQUIRED = 1;
+   */
+  REQUIRED = 1,
+
+  /**
+   * A memo or destination tag may be supplied.
+   *
+   * @generated from enum value: OPTIONAL = 2;
+   */
+  OPTIONAL = 2,
+
+  /**
+   * A memo or destination tag must be empty.
+   *
+   * @generated from enum value: NOT_SUPPORTED = 3;
+   */
+  NOT_SUPPORTED = 3,
+}
+
+/**
+ * Describes the enum chain.zipper.v1.MemoRequirement.
+ */
+export const MemoRequirementSchema: GenEnum<MemoRequirement> = /*@__PURE__*/
+  enumDesc(file_chain_zipper_v1_zipper, 0);
 
 /**
  * ZipperService exposes deposit and withdraw chain configuration.

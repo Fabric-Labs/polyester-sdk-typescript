@@ -39,7 +39,12 @@ export type PolyesterErrorDetail =
           service: "market_overview";
           code: NamedCode<typeof MarketOverviewErrorCode>;
       }
-    | { service: "claims"; code: NamedCode<typeof ClaimsErrorCode> }
+    | {
+          service: "claims";
+          code: NamedCode<typeof ClaimsErrorCode>;
+          /** Claim the error concerns; set only with `CLAIM_OUTCOME_UNKNOWN`. */
+          claimId?: string;
+      }
     /** A service's quota refusal sent as a bare `RateLimitDetail`, e.g. wallet sign-in. */
     | { service: "rate_limit"; code: "RATE_LIMIT_EXCEEDED"; rateLimit: RateLimitDetail };
 

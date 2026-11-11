@@ -9,5 +9,8 @@ import {
 export function decode(raw: ConnectErrorDetail): PolyesterErrorDetail | undefined {
     const claims = decodeDetail(raw, ErrorDetailSchema);
     const code = claims && codeName(ErrorCode, claims.code);
-    return code ? { service: "claims", code } : undefined;
+    if (!code) return undefined;
+    return claims.claimId
+        ? { service: "claims", code, claimId: claims.claimId }
+        : { service: "claims", code };
 }

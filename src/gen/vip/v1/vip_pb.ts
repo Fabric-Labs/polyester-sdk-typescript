@@ -409,6 +409,7 @@ export const VIPService: GenService<{
   },
   /**
    * Get VIP qualification status for the authenticated caller's root account.
+   * An API key needs READ_VIP_STATUS and must be scoped to the main account.
    *
    * @generated from rpc vip.v1.VIPService.GetVIPStatus
    */

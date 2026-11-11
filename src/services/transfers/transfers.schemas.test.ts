@@ -216,6 +216,52 @@ describe("LedgerTransferSchema", () => {
 
         expect(transfer.type).toBe("trading_withdraw_request_fee");
     });
+
+    it.each([
+        [TransferCode.TRADING_WITHDRAW_FEE_LEG, "trading_withdraw_fee_leg"],
+        [TransferCode.QUICKSWAP_POLYESTER_FEE, "quickswap_polyester_fee"],
+        [TransferCode.QUICKSWAP_BROKER_FEE, "quickswap_broker_fee"],
+        [TransferCode.QUICKSWAP_AFFILIATE_FEE, "quickswap_affiliate_fee"],
+        [TransferCode.FEE_SWEEP, "fee_sweep"],
+        [TransferCode.FEE_REFILL, "fee_refill"],
+        [TransferCode.SYSTEM_ADJUSTMENT, "system_adjustment"],
+    ])("decodes transfer code %i as %s", (transferCode, type) => {
+        const transfer = v.parse(LedgerTransferSchema, { ...baseTransfer, transferCode, tsUs: 0n });
+
+        expect(transfer.type).toBe(type);
+    });
+
+    it("keeps the direction of system adjustments", () => {
+        const seedingCredit = v.parse(LedgerTransferSchema, {
+            ...baseTransfer,
+            transferCode: TransferCode.SYSTEM_ADJUSTMENT,
+            isDebit: false,
+            amountE18: { hi: 0n, lo: onePointFiveE18 },
+            source: { kind: Proto.TransferSideKind.SYSTEM_ACCOUNT },
+            tsUs: 0n,
+        });
+        const debitCorrection = v.parse(LedgerTransferSchema, {
+            ...baseTransfer,
+            transferCode: TransferCode.SYSTEM_ADJUSTMENT,
+            isDebit: true,
+            amountE18: { hi: 0n, lo: onePointFiveE18 },
+            destination: { kind: Proto.TransferSideKind.SYSTEM_ACCOUNT },
+            tsUs: 0n,
+        });
+
+        expect(seedingCredit).toMatchObject({
+            type: "system_adjustment",
+            isDebit: false,
+            amount: "1.5",
+            source: { kind: "system_account" },
+        });
+        expect(debitCorrection).toMatchObject({
+            type: "system_adjustment",
+            isDebit: true,
+            amount: "1.5",
+            destination: { kind: "system_account" },
+        });
+    });
 });
 
 describe("ListTransfersInputSchema", () => {
@@ -260,6 +306,9 @@ describe("ListTransfersInputSchema", () => {
         });
 
         expect(input.transferCode).toBe(TransferCode.TRADING_WITHDRAW_REQUEST_FEE);
+        expect(
+            v.parse(ListTransfersInputSchema, { transferCode: "system_adjustment" }).transferCode,
+        ).toBe(TransferCode.SYSTEM_ADJUSTMENT);
     });
 
     it("rejects legacy or invalid account and cursor inputs", () => {
