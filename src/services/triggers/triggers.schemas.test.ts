@@ -112,6 +112,7 @@ function baseWireTrigger(overrides: Partial<Proto.Trigger> = {}): Proto.Trigger 
             case: "stopLoss",
             value: {
                 triggerPriceTicks: 100_000_000_000n,
+                triggerPriceSource: ProtoOrders.TriggerPriceSource.INDEX_PRICE,
                 side: ProtoOrders.Side.SELL,
                 child: {
                     execution: {
@@ -1079,6 +1080,7 @@ describe("Trigger result and output schemas", () => {
                 type: "stop_loss",
                 side: "sell",
                 triggerPrice: "100",
+                triggerPriceSource: "index",
                 execution: {
                     type: "limit_gtc",
                     price: "99.5",
@@ -1114,6 +1116,7 @@ describe("Trigger result and output schemas", () => {
                         trailingDistance: { case: "trailingDistanceBps", value: 200 },
                         activationPriceTicks: 99_000_000_000n,
                         maxSlippage: { case: "maxSlippageTicks", value: 250_000_000n },
+                        triggerPriceSource: ProtoOrders.TriggerPriceSource.MARK_PRICE,
                     }),
                 },
                 runtimeDetails: {
@@ -1142,6 +1145,7 @@ describe("Trigger result and output schemas", () => {
                 trailingDistance: { kind: "bps", bps: 200 },
                 activationPrice: "99",
                 maxSlippage: { kind: "slippage", slippage: "0.25" },
+                triggerPriceSource: "mark",
             },
             runtimeDetails: {
                 case: "trailing",
