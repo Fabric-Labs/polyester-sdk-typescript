@@ -26,7 +26,8 @@ import {
     OrderSideCodec,
 } from "./orders.codecs.js";
 import { createOrderIntentInputSchema } from "./orders-input.schemas.js";
-import { createRequiredRiskPolicyInputSchema } from "./orders-risk.schemas.js";
+import type { createRequiredRiskPolicyInputSchema } from "./orders-risk.schemas.js";
+import { createModifyOrderPatchInputSchema } from "./orders-modify.schemas.js";
 import {
     ClientOrderIdInputSchema,
     positiveOrderIdInputSchema,
@@ -215,7 +216,6 @@ export type BatchCreateOrdersResult = v.InferOutput<
 >;
 export type BatchCreateOrderResult = BatchCreateOrdersResult["results"][number];
 
-const DecimalInputStringSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
 const BATCH_REPLACE_ITEM_INPUT_KEYS = new Set([
     "orderId",
     "clientOrderId",
@@ -259,35 +259,9 @@ const BatchReplaceTargetInputSchema = v.union([
 ]);
 
 function createBatchReplaceOrderItemInputSchema(scales: SdkScales) {
-    const patchSchema = v.union([
-        v.object({
-            newPrice: DecimalInputStringSchema,
-            newQty: v.optional(DecimalInputStringSchema),
-            risk: v.optional(createRequiredRiskPolicyInputSchema(scales)),
-            clearRisk: v.optional(v.literal(false)),
-        }),
-        v.object({
-            newPrice: v.optional(DecimalInputStringSchema),
-            newQty: DecimalInputStringSchema,
-            risk: v.optional(createRequiredRiskPolicyInputSchema(scales)),
-            clearRisk: v.optional(v.literal(false)),
-        }),
-        v.object({
-            newPrice: v.optional(v.never()),
-            newQty: v.optional(v.never()),
-            risk: createRequiredRiskPolicyInputSchema(scales),
-            clearRisk: v.optional(v.literal(false)),
-        }),
-        v.object({
-            newPrice: v.optional(v.never()),
-            newQty: v.optional(v.never()),
-            risk: v.optional(v.never()),
-            clearRisk: v.literal(true),
-        }),
-    ]);
     return v.intersect([
         BatchReplaceTargetInputSchema,
-        patchSchema,
+        createModifyOrderPatchInputSchema(scales),
         v.object({
             newClientOrderId: v.optional(ClientOrderIdInputSchema),
         }),

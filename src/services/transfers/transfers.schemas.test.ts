@@ -265,6 +265,13 @@ describe("LedgerTransferSchema", () => {
 });
 
 describe("ListTransfersInputSchema", () => {
+    it("rejects a page limit outside 1-1000", () => {
+        expect(v.parse(ListTransfersInputSchema, { limit: 1000 }).limit).toBe(1000);
+        for (const limit of [-1, 0, 2.5, 1001]) {
+            expect(() => v.parse(ListTransfersInputSchema, { limit })).toThrow();
+        }
+    });
+
     it("applies defaults and converts IDs and page tokens to proto fields", () => {
         const input = v.parse(ListTransfersInputSchema, {
             account: { subaccountId: formatId(11n) },

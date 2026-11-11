@@ -523,6 +523,31 @@ describe("TriggersService", () => {
         });
     });
 
+    it("converts a trigger message from another API exactly like a listed trigger", async () => {
+        const message = create(Proto.TriggerSchema, trigger());
+        const service = new TriggersService(
+            {
+                authApi: unaryTransportByMethod({
+                    listTriggers: { triggers: [message], nextPageToken: "" },
+                }).transport,
+            },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        const { triggers } = await service.list();
+        await expect(service.fromProto(message)).resolves.toEqual(triggers[0]);
+        await expect(service.fromProto(message)).resolves.toMatchObject({
+            triggerId: formatId(11n),
+            qty: "0.5",
+            configuration: { type: "stop_loss", triggerPrice: "100" },
+        });
+        await expect(
+            service.fromProto(create(Proto.TriggerSchema, trigger({ symbolId: 999 }))),
+        ).rejects.toThrow(/symbolId not found: 999/);
+    });
+
     it("fails loudly when a listed trigger needs a symbol absent from the catalog", async () => {
         const service = new TriggersService(
             {

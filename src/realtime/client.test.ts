@@ -355,6 +355,26 @@ describe("RealtimeClient", () => {
         expect(centrifugeState.instances).toHaveLength(0);
     });
 
+    it("skips a missing-authentication report after its consumer unsubscribes", async () => {
+        const client = createPublicRealtimeClient();
+        const canceled = vi.fn();
+        const canceledOrders = vi.fn();
+        const kept = vi.fn();
+
+        client.subscribe("private:test", { onPublication: () => {}, onError: canceled })();
+        client.connectPrivateOrders({
+            accountId: formatId(1n),
+            onEvent: () => {},
+            onError: canceledOrders,
+        })();
+        client.subscribe("private:test", { onPublication: () => {}, onError: kept });
+        await Promise.resolve();
+
+        expect(canceled).not.toHaveBeenCalled();
+        expect(canceledOrders).not.toHaveBeenCalled();
+        expect(kept).toHaveBeenCalledOnce();
+    });
+
     it("makes unsubscribe handles idempotent", async () => {
         const client = createPublicRealtimeClient();
         const unsubscribe = client.subscribe("public:test", { onPublication: () => {} });
@@ -1277,6 +1297,35 @@ describe("RealtimeClient", () => {
         firstSubscription(replacement).emit("publication", { data: "fresh" });
         expect(replacementPublication).toHaveBeenCalledExactlyOnceWith("fresh");
         expect(secondClose).toHaveBeenCalledOnce();
+        client.disconnect();
+    });
+
+    it("sends token requests through the configured fetch", async () => {
+        const globalFetch = vi.spyOn(globalThis, "fetch");
+        const customFetch = vi.fn<typeof fetch>((input) =>
+            Promise.resolve(
+                new Response(JSON.stringify({ token: String(input) }), {
+                    headers: { "content-type": "application/json" },
+                }),
+            ),
+        );
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
+            hasAuth: () => true,
+            fetch: customFetch,
+        });
+
+        client.subscribe("private:test", { onPublication: vi.fn() });
+        await waitForAsyncTokens();
+
+        expect(customFetch.mock.calls.map(([input]) => String(input))).toEqual([
+            "https://api.example.test/v1/rt/token",
+            "https://api.example.test/v1/rt/subscribe?channel=private%3Atest",
+        ]);
+        expect(globalFetch).not.toHaveBeenCalled();
         client.disconnect();
     });
 

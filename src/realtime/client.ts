@@ -32,7 +32,6 @@ import type {
 } from "./types.js";
 import type { ConnectPrivateOrdersParams, PrivateOrderStream } from "./private-orders.js";
 
-const realtimeFetch = makeFetch();
 // ponytail: caps a bogus or huge Retry-After; a longer server window just answers 429 again with a new hint.
 const MAX_RETRY_AFTER_MS = 60_000;
 
@@ -99,6 +98,11 @@ export interface RealtimeConfig {
     privateWsUrl: string;
     getAuthHeaders?: (request: RealtimeAuthRequest) => Promise<HeadersInit> | HeadersInit;
     hasAuth?: () => boolean;
+    /**
+     * Custom fetch implementation for realtime token requests. Defaults to the
+     * global `fetch`, resolved on each request.
+     */
+    fetch?: typeof fetch;
 }
 
 type ResolvedRealtimeConfig = Pick<
@@ -153,8 +157,10 @@ export class RealtimeClient implements PolyesterRealtime {
     /** Token requests wait until then after a 429 with `Retry-After`. */
     #tokenRetryAt = 0;
     readonly #config: ResolvedRealtimeConfig;
+    readonly #fetch: typeof fetch;
 
     constructor(config: RealtimeConfig) {
+        this.#fetch = makeFetch(config.fetch);
         this.#config = {
             wsUrl: config.wsUrl,
             tokenEndpoint: config.tokenEndpoint,
@@ -183,7 +189,7 @@ export class RealtimeClient implements PolyesterRealtime {
             }
             headers = await this.#getAuthHeaders({ url, method: "GET" });
         } while (this.#tokenRetryAt > Date.now());
-        const res = await realtimeFetch(url, { headers });
+        const res = await this.#fetch(url, { headers });
         if (!res.ok) {
             const retryAfterMs = parseRetryAfterHeader(res.headers.get("retry-after"));
             if (res.status === 429 && retryAfterMs !== undefined) {
@@ -736,6 +742,22 @@ export class RealtimeClient implements PolyesterRealtime {
         }
     }
 
+    /** Reports a missing-auth error on the next microtask unless the caller unsubscribes first. */
+    #reportAuthErrorLater(
+        channel: string,
+        error: AuthenticationError,
+        onError: ErrorHandler,
+    ): () => void {
+        let closed = false;
+        const ctx = createSdkSubscriptionErrorContext(channel, "auth", error);
+        queueMicrotask(() => {
+            if (!closed) this.#callErrorHandler(onError, ctx);
+        });
+        return () => {
+            closed = true;
+        };
+    }
+
     /**
      * Subscribes to a realtime channel and returns an unsubscribe function. Missing
      * authentication is reported to `onError`, or thrown synchronously when no error
@@ -750,9 +772,7 @@ export class RealtimeClient implements PolyesterRealtime {
             if (!(error instanceof AuthenticationError)) throw error;
             if (!handlers.onError) throw error;
 
-            const ctx = createSdkSubscriptionErrorContext(channel, "auth", error);
-            queueMicrotask(() => this.#callErrorHandler(handlers.onError, ctx));
-            return () => {};
+            return this.#reportAuthErrorLater(channel, error, handlers.onError);
         }
         shared.consumers++;
 
@@ -938,9 +958,7 @@ export class RealtimeClient implements PolyesterRealtime {
                 `Cannot subscribe to private channel "${channel}" without authentication`,
             );
             if (!params.onError) throw error;
-            const ctx = createSdkSubscriptionErrorContext(channel, "auth", error);
-            queueMicrotask(() => this.#callErrorHandler(params.onError, ctx));
-            return () => {};
+            return this.#reportAuthErrorLater(channel, error, params.onError);
         }
         // Once loaded, connect at once: an unsubscribe and resubscribe in one tick keeps the stream.
         if (this.#privateOrders) return this.#privateOrders.connect(params);

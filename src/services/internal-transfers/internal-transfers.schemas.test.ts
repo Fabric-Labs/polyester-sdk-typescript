@@ -3,6 +3,7 @@ import * as v from "valibot";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import { formatId } from "../../utils/base58-id.js";
+import { InternalTransferStatus } from "../../gen/transfer/v1/internal_transfer_pb.js";
 import {
     createCreateInternalTransferInputSchema,
     createCreateInternalTransferResultSchema,
@@ -131,6 +132,7 @@ describe("CreateInternalTransferResultSchema", () => {
                 subaccountPublicId: "sub-public",
                 smartAccountAddress: "0xabc123",
             },
+            status: InternalTransferStatus.ACCEPTED,
             flowId: " flow-1 ",
         });
 
@@ -147,8 +149,29 @@ describe("CreateInternalTransferResultSchema", () => {
                 subaccountId: "sub-public",
                 smartAccountAddress: "0xabc123",
             },
+            status: "accepted",
             flowId: "flow-1",
         });
+    });
+
+    it("labels the backend transfer status", () => {
+        const response = {
+            requestId: "req-1",
+            transferId: "transfer-1",
+            acceptedAtTsNs: 1_700_000_000_123_456_789n,
+            assetId: 1,
+            assetCode: "USDC",
+            uAssetId: "u-usdc",
+            amountE18: { hi: 0n, lo: 1_000_000_000_000_000_000n },
+        };
+        const statusOf = (status: number) =>
+            v.parse(CreateInternalTransferResultSchema, { ...response, status }).status;
+
+        expect(statusOf(InternalTransferStatus.ACCEPTED)).toBe("accepted");
+        expect(statusOf(InternalTransferStatus.REJECTED)).toBe("rejected");
+        expect(statusOf(InternalTransferStatus.FAILED)).toBe("failed");
+        expect(statusOf(InternalTransferStatus.UNSPECIFIED)).toBe("unspecified");
+        expect(statusOf(99)).toBe("unspecified");
     });
 
     it("rejects empty response identifiers and asset fields", () => {
@@ -160,6 +183,7 @@ describe("CreateInternalTransferResultSchema", () => {
             assetCode: "USDC",
             uAssetId: "u-usdc",
             amountE18: { hi: 0n, lo: 1_000_000_000_000_000_000n },
+            status: InternalTransferStatus.ACCEPTED,
         };
 
         for (const field of ["requestId", "transferId", "assetCode", "uAssetId"] as const) {

@@ -99,9 +99,10 @@ function parseMaxSlippagePatch(
     if (slippage.kind === "none") {
         return { case: "maxSlippageTicks", value: 0n };
     }
-    // The patch does not say what it modifies, so it takes the cap shared by
-    // trailing stops and sells; a buy market child's 10000 bps needs creation.
-    return parseMaxSlippage(scales, slippage, MAX_SELLING_SLIPPAGE_BPS);
+    // The patch does not say which trigger it modifies, so it takes the widest
+    // cap (a buy market child's 10000 bps); the server rejects 10000 for sells
+    // and trailing stops with ERROR_CODE_MAX_SLIPPAGE_INVALID.
+    return parseMaxSlippage(scales, slippage);
 }
 
 function createConditionalTriggerInputSchema<const TriggerType extends "stop_loss" | "take_profit">(
@@ -361,15 +362,43 @@ function createLadderTriggerInputSchema(scales: SdkScales) {
     );
 }
 
-/** Builds the create-trigger boundary schema using catalog scales keyed by symbol ID. */
+type AnySchema = v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>;
+
+function fieldOf(input: unknown, key: string): unknown {
+    return typeof input === "object" && input !== null
+        ? (input as Record<string, unknown>)[key]
+        : undefined;
+}
+
+/** Validates against the side the caller chose, so errors name that side's fields. */
+function bySide<const Sell extends AnySchema, const Buy extends AnySchema>([sell, buy]: readonly [
+    Sell,
+    Buy,
+]) {
+    return v.lazy((input) => (fieldOf(input, "side") === "buy" ? buy : sell));
+}
+
+/**
+ * Builds the create-trigger boundary schema using catalog scales keyed by symbol ID.
+ * The variant is picked by `triggerType` before validating, because a plain union
+ * reports the first branch's mismatch (e.g. "Expected stop_loss") instead of the
+ * chosen variant's missing or invalid field.
+ */
 export function createCreateTriggerInputSchema(scales: SdkScales) {
-    return v.union([
-        ...createConditionalTriggerInputSchema(scales, "stop_loss"),
-        ...createConditionalTriggerInputSchema(scales, "take_profit"),
-        ...createTrailingStopTriggerInputSchema(scales),
-        createTwapTriggerInputSchema(scales),
-        createLadderTriggerInputSchema(scales),
-    ]);
+    const variants = {
+        stop_loss: bySide(createConditionalTriggerInputSchema(scales, "stop_loss")),
+        take_profit: bySide(createConditionalTriggerInputSchema(scales, "take_profit")),
+        trailing_stop: bySide(createTrailingStopTriggerInputSchema(scales)),
+        twap: createTwapTriggerInputSchema(scales),
+        ladder: createLadderTriggerInputSchema(scales),
+    } satisfies Record<(typeof TRIGGER_TYPE_VALUES)[number], AnySchema>;
+    const unknownVariant = v.never(`triggerType must be one of ${TRIGGER_TYPE_VALUES.join(", ")}`);
+    return v.lazy((input) => {
+        const triggerType = fieldOf(input, "triggerType");
+        return typeof triggerType === "string" && Object.hasOwn(variants, triggerType)
+            ? variants[triggerType as keyof typeof variants]
+            : unknownVariant;
+    });
 }
 
 /** Public input for creating a standalone trigger. */

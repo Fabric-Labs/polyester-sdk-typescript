@@ -1,4 +1,5 @@
 import { AuthService, type LoginWithWalletResponse } from "./auth.js";
+import type { MfaSessionInfo } from "../mfa/mfa.schemas.js";
 import { AuthenticationError, ConfigurationError } from "../../shared/errors.js";
 import { toPolyesterError } from "../../shared/connect-error-mapping.js";
 import { AuthSessionStore } from "./session.js";
@@ -35,6 +36,8 @@ export interface LoginResult {
     accountId: string;
     username: string;
     expiresAt: Date;
+    /** Session assurance details for the issued token, such as its level and authentication methods. */
+    session?: MfaSessionInfo;
 }
 
 export interface LoginOptions {
@@ -616,7 +619,12 @@ export class AccountSignerAuthService extends AuthService {
                       (response.expiresAt.nanos ?? 0) / 1_000_000,
               )
             : new Date();
-        return { accountId: response.accountId, username: response.username, expiresAt };
+        return {
+            accountId: response.accountId,
+            username: response.username,
+            expiresAt,
+            session: response.session,
+        };
     }
 
     #getEnvironmentBoundToken(): string | null {

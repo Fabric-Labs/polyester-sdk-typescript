@@ -1,4 +1,5 @@
 import { create, fromBinary, toBinary, type MessageInitShape } from "@bufbuild/protobuf";
+import { BinaryWriter, WireType } from "@bufbuild/protobuf/wire";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { OrderSchema } from "../gen/orders/v1/orders_read_pb.js";
 import {
@@ -13,7 +14,13 @@ import {
 import { AuthenticationError, NetworkError, RealtimeError } from "../shared/errors.js";
 import { formatId } from "../utils/base58-id.js";
 import { RealtimeClient } from "./client.js";
-import { PRIVATE_WS_SUBPROTOCOL, PrivateOrderStream } from "./private-orders.js";
+import {
+    MAX_PRIVATE_FRAME_BYTES,
+    MAX_SNAPSHOT_BYTES,
+    MAX_SNAPSHOT_ORDERS,
+    PRIVATE_WS_SUBPROTOCOL,
+    PrivateOrderStream,
+} from "./private-orders.js";
 
 type Frame = MessageInitShape<typeof ServerMessageSchema>["frame"];
 
@@ -54,6 +61,25 @@ class FakeWebSocket {
             create(ServerMessageSchema, { sub, seq, frame }),
         );
         this.onmessage?.({ data: bytes.slice().buffer });
+    }
+
+    /** Sends the frame padded with an unknown field to exactly `bytes` bytes. */
+    receivePadded(sub: string, seq: bigint, frame: Frame, bytes: number): void {
+        const base = toBinary(
+            ServerMessageSchema,
+            create(ServerMessageSchema, { sub, seq, frame }),
+        );
+        const pad = (n: number) =>
+            new BinaryWriter()
+                .tag(1000, WireType.LengthDelimited)
+                .bytes(new Uint8Array(n))
+                .finish();
+        let n = bytes - base.length;
+        while (base.length + pad(n).length > bytes) n--;
+        const data = new Uint8Array(bytes);
+        data.set(base);
+        data.set(pad(n), base.length);
+        this.onmessage?.({ data: data.buffer });
     }
 
     serverClose(code: number): void {
@@ -259,6 +285,116 @@ describe("PrivateOrderStream", () => {
         expect(handlers.onConnected).toHaveBeenCalledTimes(2);
         second.receive("s2", 1n, { case: "unit", value: { nextCursor: "c2" } });
         expect(handlers.onEvent).toHaveBeenCalledTimes(2);
+    });
+
+    it("drops a frame over the size limit undecoded and reconnects without the staged snapshot", async () => {
+        const { handlers } = setup();
+        const ws = await confirm();
+        ws.receive("s1", 1n, { case: "snapshotBegin", value: {} });
+        ws.receive("s1", 2n, { case: "snapshotPage", value: { orders: [order(1n)] } });
+        // Not a decodable message: only the size check can report it.
+        ws.onmessage?.({ data: new Uint8Array(MAX_PRIVATE_FRAME_BYTES + 1).fill(0xff).buffer });
+
+        expect(handlers.onError).toHaveBeenCalledWith(
+            expect.objectContaining({
+                type: "decode",
+                error: expect.objectContaining({ message: expect.stringContaining("exceeds") }),
+            }),
+        );
+        expect(ws.closed).toMatchObject({ code: 1009 });
+        expect(handlers.onDisconnected).toHaveBeenCalledOnce();
+
+        await vi.advanceTimersByTimeAsync(1_000);
+        const next = await confirm("s2");
+        expect(next).not.toBe(ws);
+        // A page for the old staging no longer counts.
+        next.receive("s2", 0n, { case: "snapshotPage", value: { orders: [order(1n)] } });
+        snapshot(next, "s2", "c1", [order(2n)]);
+        expect(handlers.onEvent).toHaveBeenCalledWith({ type: "snapshot", orders: [order(2n)] });
+    });
+
+    it("accepts a frame of exactly the size limit", async () => {
+        const { handlers } = setup();
+        const ws = await confirm();
+        ws.receive("s1", 1n, { case: "snapshotBegin", value: {} });
+        ws.receivePadded(
+            "s1",
+            2n,
+            { case: "snapshotPage", value: { orders: [order(1n)] } },
+            MAX_PRIVATE_FRAME_BYTES,
+        );
+        ws.receive("s1", 3n, { case: "snapshotEnd", value: { cursor: "c1", count: 1 } });
+
+        expect(handlers.onError).not.toHaveBeenCalled();
+        expect(ws.closed).toBeUndefined();
+        expect(handlers.onEvent).toHaveBeenCalledWith({ type: "snapshot", orders: [order(1n)] });
+    });
+
+    it("installs a snapshot of exactly the order limit and applies later units", async () => {
+        const { handlers } = setup();
+        const ws = await confirm();
+        const page = Array.from({ length: 256 }, () => order(1n));
+        let seq = 1n;
+        ws.receive("s1", seq++, { case: "snapshotBegin", value: {} });
+        for (let left = MAX_SNAPSHOT_ORDERS; left > 0; left -= page.length) {
+            const orders = page.slice(0, Math.min(left, page.length));
+            ws.receive("s1", seq++, { case: "snapshotPage", value: { orders } });
+        }
+        ws.receive("s1", seq++, {
+            case: "snapshotEnd",
+            value: { cursor: "c1", count: MAX_SNAPSHOT_ORDERS },
+        });
+        ws.receive("s1", seq++, { case: "unit", value: { nextCursor: "c2", orders: [order(2n)] } });
+
+        expect(handlers.onError).not.toHaveBeenCalled();
+        expect(handlers.onEvent.mock.calls.map(([event]) => event.type)).toEqual([
+            "snapshot",
+            "unit",
+        ]);
+        expect(handlers.onEvent.mock.calls[0]![0].orders).toHaveLength(MAX_SNAPSHOT_ORDERS);
+    });
+
+    it("ends the subscription when snapshot pages exceed the order limit", async () => {
+        const { handlers } = setup();
+        const ws = await confirm();
+        const page = Array.from({ length: 256 }, () => order(1n));
+        let seq = 1n;
+        ws.receive("s1", seq++, { case: "snapshotBegin", value: {} });
+        for (let staged = 0; staged <= MAX_SNAPSHOT_ORDERS; staged += page.length) {
+            ws.receive("s1", seq++, { case: "snapshotPage", value: { orders: page } });
+        }
+        ws.receive("s1", seq++, { case: "snapshotEnd", value: { cursor: "c1", count: 0 } });
+        await vi.advanceTimersByTimeAsync(20_000);
+
+        expect(handlers.onError).toHaveBeenCalledOnce();
+        expect(handlers.onError).toHaveBeenCalledWith(
+            expect.objectContaining({ type: "snapshot", error: expect.any(RealtimeError) }),
+        );
+        expect(handlers.onDisconnected).toHaveBeenCalledOnce();
+        expect(handlers.onEvent).not.toHaveBeenCalled();
+        expect(ws.ops("unsubscribe")).toEqual([expect.objectContaining({ sub: "s1" })]);
+        expect(ws.ops("subscribe")).toHaveLength(1);
+        expect(ws.closed).toMatchObject({ code: 1000 });
+    });
+
+    it("bounds snapshot bytes across pages that never end", async () => {
+        const { handlers } = setup();
+        const ws = await confirm();
+        let seq = 1n;
+        ws.receive("s1", seq++, { case: "snapshotBegin", value: {} });
+        const pages = MAX_SNAPSHOT_BYTES / MAX_PRIVATE_FRAME_BYTES;
+        const page: Frame = { case: "snapshotPage", value: { orders: [order(1n)] } };
+        for (let i = 0; i < pages; i++) {
+            ws.receivePadded("s1", seq++, page, MAX_PRIVATE_FRAME_BYTES);
+        }
+        expect(handlers.onError).not.toHaveBeenCalled();
+
+        ws.receive("s1", seq++, page);
+        expect(handlers.onError).toHaveBeenCalledWith(
+            expect.objectContaining({ type: "snapshot" }),
+        );
+        expect(handlers.onDisconnected).toHaveBeenCalledOnce();
+        expect(ws.ops("unsubscribe")).toEqual([expect.objectContaining({ sub: "s1" })]);
     });
 
     it("drops a connection that sends nothing for 3 seconds", async () => {

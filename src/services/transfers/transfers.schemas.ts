@@ -90,7 +90,7 @@ export const ListTransfersInputSchema = v.pipe(
     v.strictObject({
         ...AccountScopeInputEntries,
         ledger: v.optional(v.number(), 0),
-        limit: v.optional(v.number()),
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(1000))),
         reversed: v.optional(v.boolean(), false),
         timestampMin: OptionalTimestampMsToUsInputSchema,
         timestampMax: OptionalTimestampMsToUsInputSchema,

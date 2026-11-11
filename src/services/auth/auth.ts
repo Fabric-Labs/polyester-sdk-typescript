@@ -54,6 +54,8 @@ const MeSchema = v.object({
     accountId: PublicIdSchema,
     apiKeyId: v.optional(v.string()),
     username: v.string(),
+    /** Root smart-account EVM address (lowercase 0x hex); empty when not set, which a new account can briefly be. */
+    rootSmartAccountAddress: v.optional(v.string(), ""),
     session: v.optional(MfaSessionInfoSchema),
 });
 
@@ -64,6 +66,7 @@ const LoginWithWalletResponseSchema = v.object({
     expiresAt: v.optional(TimestampSchema),
     accountId: PublicIdSchema,
     username: v.string(),
+    session: v.optional(MfaSessionInfoSchema),
 });
 
 export type LoginWithWalletResponse = v.InferOutput<typeof LoginWithWalletResponseSchema>;
@@ -90,7 +93,7 @@ export class AuthService {
     }
 
     /**
-     * Returns the authenticated caller's account context, including account ID, optional API key ID, username, and session assurance details from the presented token or API key.
+     * Returns the authenticated caller's account context, including account ID, optional API key ID, username, root smart-account address, and session assurance details from the presented token or API key.
      */
     async me(options?: PolyesterRequestOptions): Promise<Me> {
         const res = await this.#authClient.me({}, toConnectCallOptions(options));
@@ -130,7 +133,7 @@ export class AuthService {
     }
 
     /**
-     * Exchanges a signed SIWE message for an authenticated session token and account identity returned by the auth API.
+     * Exchanges a signed SIWE message for an authenticated session token, account identity, and the token's session assurance details.
      */
     protected async loginWithWallet(
         input: LoginWithWalletInput,

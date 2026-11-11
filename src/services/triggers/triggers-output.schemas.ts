@@ -105,6 +105,7 @@ const ConditionalExecutionRawSchema = v.variant("case", [
 
 const ConditionalConfigurationRawSchema = v.object({
     triggerPriceTicks: v.bigint(),
+    triggerPriceSource: v.optional(v.number(), 0),
     side: v.number(),
     child: v.optional(
         v.object({
@@ -123,6 +124,7 @@ const TrailingConfigurationRawSchema = v.object({
     maxSlippage: MaxSlippageRawSchema,
     side: v.number(),
     limitPriceTicks: v.optional(v.bigint(), 0n),
+    triggerPriceSource: v.optional(v.number(), 0),
 });
 
 const TwapConfigurationRawSchema = v.object({
@@ -207,6 +209,10 @@ function transformTriggerConfiguration(
                     configuration.value.triggerPriceTicks,
                     scales.price(),
                 ),
+                triggerPriceSource: enumLabel(
+                    TriggerPriceSourceCodec.protoToOutput,
+                    configuration.value.triggerPriceSource,
+                ),
                 execution: transformConditionalExecution(
                     configuration.value.child?.execution ?? { case: undefined },
                     scales,
@@ -243,6 +249,10 @@ function transformTriggerConfiguration(
                     configuration.value.limitPriceTicks > 0n
                         ? scaledToDecimalOutput(configuration.value.limitPriceTicks, scales.price())
                         : undefined,
+                triggerPriceSource: enumLabel(
+                    TriggerPriceSourceCodec.protoToOutput,
+                    configuration.value.triggerPriceSource,
+                ),
             };
         case "twap":
             return {

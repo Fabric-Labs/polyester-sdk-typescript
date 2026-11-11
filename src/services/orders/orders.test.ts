@@ -154,7 +154,7 @@ describe("OrdersService", () => {
                         {
                             account: "main",
                             triggerId: formatId(22n),
-                            status: "FILLED",
+                            status: "filled",
                             startTsNs: " 100 ",
                             endTsNs: "200",
                         },
@@ -503,10 +503,10 @@ describe("OrdersService", () => {
                 symbolId: 1,
                 requestId: " modify-1 ",
                 newQty: "0.25",
-                behavior: "AMEND_ONLY",
+                behavior: "amend_only",
             }),
         ).resolves.toMatchObject({
-            actionTaken: "AMENDED",
+            actionTaken: "amended",
             code: "ok",
             ts: 1_786_023_715_905,
             tsNs: "1786023715905284847",
@@ -809,7 +809,7 @@ describe("OrdersService", () => {
         ).resolves.toMatchObject({
             batchRequestId: formatId(21n),
             status: "admitted",
-            results: [{ itemIndex: 0, status: "admitted", actionTaken: "REPLACED" }],
+            results: [{ itemIndex: 0, status: "admitted", actionTaken: "replaced" }],
             acceptedTsNs: "2000000123",
         });
 
@@ -838,7 +838,7 @@ describe("OrdersService", () => {
             batchRequestId: formatId(21n),
             admissionStatus: "admitted",
             items: [
-                { itemIndex: 0, phase: "working", orderStatus: "working", actionTaken: "REPLACED" },
+                { itemIndex: 0, phase: "working", orderStatus: "working", actionTaken: "replaced" },
             ],
             acceptedTsNs: "2000000123",
             updatedTsNs: "3000000456",

@@ -12,11 +12,13 @@ import {
     InternalServerError,
     NotImplementedError,
     isAbortError,
+    isFetchNetworkError,
     isTimeoutAbortError,
     MfaEnrollmentRequiredError,
     MfaLastFactorRequiredError,
     MfaVerificationError,
     type MfaVerificationFailureReason,
+    NetworkError,
     normalizeErrorMessage,
     OutcomeUnknownError,
     PermissionError,
@@ -386,6 +388,11 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
         case Code.Aborted:
             return new TransientError(withFallback("Operation aborted by the backend."), options);
         default:
+            // Connect reads 200 bodies outside the SDK fetch wrapper, so a connection
+            // dropped mid-body arrives as Unknown with the raw fetch TypeError as cause.
+            if (ce.code === Code.Unknown && isFetchNetworkError(ce.cause)) {
+                return new NetworkError("Transport request failed", options);
+            }
             // Gateways sometimes surface outages as Unknown with this stock phrase.
             if (/service temporarily unavailable/i.test(message)) {
                 return new ServiceUnavailableError(withFallback("Service unavailable."), options);

@@ -25,6 +25,7 @@ import {
     GetOrderDetailsInputSchema,
     type ModifyOrderInput,
     type NewOrderInput,
+    OpenOrdersInputSchema,
     OrderHistoryInputSchema,
 } from "./orders.schemas.js";
 
@@ -258,6 +259,17 @@ describe("OrderHistoryInputSchema", () => {
         expect(input.endTsNs).toBeUndefined();
     });
 
+    it("accepts lowercase status filters only", () => {
+        for (const [status, expected] of [
+            ["filled", ProtoRead.OrderStatus.FILLED],
+            ["canceled", ProtoRead.OrderStatus.CANCELED],
+            ["rejected", ProtoRead.OrderStatus.REJECTED],
+        ] as const) {
+            expect(v.parse(OrderHistoryInputSchema, { status }).status).toBe(expected);
+        }
+        expect(() => v.parse(OrderHistoryInputSchema, { status: "FILLED" })).toThrow();
+    });
+
     it("rejects invalid supplied trigger and timestamp filters", () => {
         expect(() => v.parse(OrderHistoryInputSchema, { triggerId: "invalid-0" })).toThrow();
         expect(() => v.parse(OrderHistoryInputSchema, { startTsNs: "not-a-ts" })).toThrow();
@@ -273,6 +285,16 @@ describe("BaseOrdersFilterInputSchema", () => {
         expect(() => v.parse(BaseOrdersFilterInputSchema, { symbolId: [-1.5] })).toThrow();
         expect(() => v.parse(BaseOrdersFilterInputSchema, { symbolId: [0] })).toThrow();
         expect(() => v.parse(BaseOrdersFilterInputSchema, { symbolId: [Number.NaN] })).toThrow();
+    });
+
+    it("rejects a page limit outside 1-1000 before it reaches the wire encoder", () => {
+        for (const schema of [OpenOrdersInputSchema, OrderHistoryInputSchema]) {
+            expect(v.parse(schema, { limit: 1 }).limit).toBe(1);
+            expect(v.parse(schema, { limit: 1000 }).limit).toBe(1000);
+            for (const limit of [-1, 0, 2.5, 1001]) {
+                expect(() => v.parse(schema, { limit })).toThrow();
+            }
+        }
     });
 });
 
@@ -1343,6 +1365,20 @@ describe("ModifyOrderInputSchema", () => {
         });
     });
 
+    it("accepts lowercase behaviors only", () => {
+        const schema = createModifyOrderInputSchema(testScales());
+        const base = { orderId: formatId(11n), symbolId: 1, newQty: "0.5" };
+
+        for (const [behavior, expected] of [
+            ["amend_or_replace", ProtoWrite.ModifyBehavior.AMEND_OR_REPLACE],
+            ["amend_only", ProtoWrite.ModifyBehavior.AMEND_ONLY],
+            ["replace_only", ProtoWrite.ModifyBehavior.REPLACE_ONLY],
+        ] as const) {
+            expect(v.parse(schema, { ...base, behavior }).behavior).toBe(expected);
+        }
+        expect(() => v.parse(schema, { ...base, behavior: "AMEND_ONLY" })).toThrow();
+    });
+
     it("rejects invalid decimal new quantity when present", () => {
         const schema = createModifyOrderInputSchema(testScales());
 
@@ -1707,7 +1743,7 @@ describe("OrderSchema", () => {
                     expireAt: { seconds: 20n, nanos: 123_456_789 },
                 }),
             ),
-        ).toMatchObject({ timeInForce: "GTD", expireAt: 20_123 });
+        ).toMatchObject({ timeInForce: "gtd", expireAt: 20_123 });
         expect(v.parse(schema, rawOrder())).not.toHaveProperty("expireAt");
     });
 

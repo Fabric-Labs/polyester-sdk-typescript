@@ -44,7 +44,7 @@ export class InternalTransfersService {
     }
 
     /**
-     * Creates or returns an idempotent internal transfer from the resolved source account to a destination root account, subaccount, or smart-account address. The request carries asset id, a decimal quantity, and a stable idempotency key; the response includes request/transfer ids, the lifecycle `flowId`, resolved destination, and status.
+     * Creates or returns an idempotent internal transfer from the resolved source account to a destination root account, subaccount, or smart-account address. The request carries asset id, a decimal quantity, and a stable idempotency key; the response includes request/transfer ids, the lifecycle `flowId`, resolved destination, and status. Rejections and failures, such as insufficient funds or a missing step-up, raise errors instead of returning a result.
      */
     async create(
         input: CreateInternalTransferInput,
