@@ -1,4 +1,6 @@
 import type { DescService } from "@bufbuild/protobuf";
+import { AssistantService } from "./gen/ai/v1/assistant_pb.js";
+import { PriceAlertService } from "./gen/alerts/v1/price_alerts_pb.js";
 import { AddressBookService } from "./gen/auth/v1/address_book_pb.js";
 import { ApiKeyService } from "./gen/auth/v1/api_keys_pb.js";
 import { AuthService } from "./gen/auth/v1/auth_pb.js";
@@ -33,6 +35,7 @@ import { OrdersReadService } from "./gen/orders/v1/orders_read_pb.js";
 import { RateLimitService } from "./gen/ratelimit/v1/ratelimit_pb.js";
 import { RewardCampaignService } from "./gen/rewards/v1/rewards_pb.js";
 import { InternalTransferService } from "./gen/transfer/v1/internal_transfer_pb.js";
+import { SystemService } from "./gen/system/v1/system_pb.js";
 import { TriggersService } from "./gen/triggers/v1/triggers_pb.js";
 import { VIPService } from "./gen/vip/v1/vip_pb.js";
 
@@ -48,6 +51,7 @@ import { VIPService } from "./gen/vip/v1/vip_pb.js";
 export const WIRED_SERVICE_DESCRIPTORS: readonly DescService[] = [
     AddressBookService,
     ApiKeyService,
+    AssistantService,
     AuthService,
     AutoWithdrawService,
     ChainAnalyticsService,
@@ -68,6 +72,7 @@ export const WIRED_SERVICE_DESCRIPTORS: readonly DescService[] = [
     OrdersReadService,
     OrdersService,
     PolicyService,
+    PriceAlertService,
     ProfileService,
     RateLimitService,
     ResolveService,
@@ -76,6 +81,7 @@ export const WIRED_SERVICE_DESCRIPTORS: readonly DescService[] = [
     SubaccountRoleService,
     SubaccountService,
     SubaccountViewService,
+    SystemService,
     TriggersService,
     VIPService,
     WithdrawService,

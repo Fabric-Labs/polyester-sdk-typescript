@@ -8,6 +8,8 @@ import {
 import { ConnectError } from "@connectrpc/connect";
 // Type-only: decoders (and the descriptors they need) load on demand, so the
 // transport layer doesn't pin every service's file descriptors into the bundle.
+import type { ErrorCode as AssistantErrorCode } from "../gen/ai/v1/assistant_pb.js";
+import type { ErrorCode as PriceAlertErrorCode } from "../gen/alerts/v1/price_alerts_pb.js";
 import type { AuthErrorCode } from "../gen/auth/v1/auth_pb.js";
 import type { ProfileErrorCode } from "../gen/auth/v1/profile_pb.js";
 import type { ErrorCode as ClaimsErrorCode } from "../gen/claims/v1/claims_pb.js";
@@ -54,6 +56,8 @@ export type PolyesterErrorDetail =
           /** Claim the error concerns; set only with `CLAIM_OUTCOME_UNKNOWN`. */
           claimId?: string;
       }
+    | { service: "alerts"; code: NamedCode<typeof PriceAlertErrorCode> }
+    | { service: "assistant"; code: NamedCode<typeof AssistantErrorCode> }
     /** A service's quota refusal sent as a bare `RateLimitDetail`, e.g. wallet sign-in. */
     | { service: "rate_limit"; code: "RATE_LIMIT_EXCEEDED"; rateLimit: RateLimitDetail };
 
@@ -71,6 +75,8 @@ const DECODER_LOADERS: Record<string, () => Promise<{ decode: ErrorDetailDecoder
     "ledger.read.v1.ErrorDetail": () => import("./error-details/ledger.js"),
     "marketoverview.v1.ErrorDetail": () => import("./error-details/market-overview.js"),
     "claims.v1.ErrorDetail": () => import("./error-details/claims.js"),
+    "alerts.v1.ErrorDetail": () => import("./error-details/alerts.js"),
+    "ai.v1.ErrorDetail": () => import("./error-details/assistant.js"),
     "polyester.ratelimit.v1.RateLimitDetail": () => import("./error-details/rate-limit.js"),
 };
 

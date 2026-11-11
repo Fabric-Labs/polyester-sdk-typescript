@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import * as v from "valibot";
 import * as Proto from "../../gen/auth/v1/api_keys_pb.js";
+import { ValidationError } from "../../shared/errors.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { realtimeClientStub, unaryTransportSequence } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
@@ -337,5 +338,93 @@ describe("api key input schemas", () => {
                 status: "revoked",
             },
         );
+    });
+});
+
+describe("ApiKeysService assistant keys", () => {
+    const publicKey = new Uint8Array(32).fill(1);
+    const proof = new Uint8Array(64).fill(2);
+
+    function serviceWith(responses: Record<string, unknown>[]) {
+        const transport = unaryTransportSequence(responses);
+        const realtime = realtimeClientStub();
+        return {
+            transport,
+            service: new ApiKeysService({ authApi: transport.transport }, realtime.realtime),
+        };
+    }
+
+    it("registers prepared keys with a step-up token", async () => {
+        const { transport, service } = serviceWith([
+            { apiKeys: [apiKey({ purpose: Proto.ApiKeyPurpose.ASSISTANT })] },
+        ]);
+        // A key from assistant.prepareKeys, spread as is: publicKeyHex is ignored.
+        const prepared = {
+            subaccountId: formatId(42n),
+            publicKeyEd25519: publicKey,
+            publicKeyHex: "01".repeat(32),
+            registrationProof: proof,
+            registrationDeadline: 1_500,
+        };
+
+        const keys = await service.setAssistantKeys(
+            { keys: [{ ...prepared, policyId: formatId(9n) }] },
+            { stepUpToken: "fresh" },
+        );
+
+        expect(keys).toEqual([expect.objectContaining({ purpose: "assistant" })]);
+        expect(transport.calls[0]?.method.localName).toBe("setAssistantKeys");
+        expect(transport.calls[0]?.message).toEqual({
+            keys: [
+                {
+                    subaccountId: 42n,
+                    publicKeyEd25519: publicKey,
+                    policyId: 9n,
+                    registrationProof: proof,
+                    registrationDeadline: { seconds: 1n, nanos: 500_000_000 },
+                },
+            ],
+        });
+        expect(stepUpHeader(transport.calls[0])).toBe("fresh");
+    });
+
+    it.each([
+        ["a short public key", [{ publicKeyEd25519: new Uint8Array(31), policyId: formatId(1n) }]],
+        [
+            "two keys for one account",
+            [
+                { publicKeyEd25519: publicKey, policyId: formatId(1n) },
+                { publicKeyEd25519: new Uint8Array(32).fill(3), policyId: formatId(1n) },
+            ],
+        ],
+        [
+            "a repeated public key",
+            [
+                { publicKeyEd25519: publicKey, policyId: formatId(1n) },
+                {
+                    subaccountId: formatId(2n),
+                    publicKeyEd25519: publicKey,
+                    policyId: formatId(1n),
+                },
+            ],
+        ],
+    ])("rejects %s", async (_name, keys) => {
+        const { transport, service } = serviceWith([]);
+        await expect(service.setAssistantKeys({ keys })).rejects.toBeInstanceOf(ValidationError);
+        expect(transport.calls).toHaveLength(0);
+    });
+
+    it("lists and revokes the assistant key set", async () => {
+        const { transport, service } = serviceWith([
+            { apiKeys: [apiKey()] },
+            { revokedKeyIds: ["ak_1"] },
+        ]);
+
+        await expect(service.listAssistantKeys()).resolves.toHaveLength(1);
+        await expect(service.deleteAssistantKeys()).resolves.toEqual(["ak_1"]);
+        expect(transport.calls.map((c) => c.method.localName)).toEqual([
+            "listAssistantKeys",
+            "deleteAssistantKeys",
+        ]);
     });
 });

@@ -9,6 +9,8 @@ import {
     TimestampMsSchema,
     TimestampSchema,
     positiveBigintStringInputSchema,
+    idInputSchema,
+    optionalSubaccountIdInputSchema,
 } from "../../shared/schemas.js";
 import {
     AccountScopeInputEntries,
@@ -174,3 +176,54 @@ export const ApiKeySchema = v.pipe(
 export type ApiKey = v.InferOutput<typeof ApiKeySchema>;
 
 export const ApiKeysSchema = v.array(ApiKeySchema);
+
+const BytesSchema = v.instance(Uint8Array<ArrayBufferLike>);
+
+/**
+ * One account's key in the assistant key set. Spread a key from `assistant.prepareKeys` and add
+ * its `policyId`; other fields (like `publicKeyHex`) are ignored.
+ */
+const AssistantKeySpecInputSchema = v.pipe(
+    v.object({
+        /** Subaccount the key acts for; omit for the main account. */
+        subaccountId: optionalSubaccountIdInputSchema(),
+        /** 32-byte Ed25519 public key from `assistant.prepareKeys`. */
+        publicKeyEd25519: v.pipe(BytesSchema, v.length(32, "publicKeyEd25519 must be 32 bytes")),
+        /** API policy that bounds the key. It must not allow moving value out of the account. */
+        policyId: idInputSchema("policyId"),
+        /** Epoch ms from `assistant.prepareKeys`; needed for a new key, not for one already registered. */
+        registrationDeadline: v.optional(
+            v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(Number.MAX_SAFE_INTEGER)),
+        ),
+        /** 64-byte proof from `assistant.prepareKeys`; needed for a new key, not for one already registered. */
+        registrationProof: v.optional(
+            v.pipe(BytesSchema, v.length(64, "registrationProof must be 64 bytes")),
+        ),
+    }),
+    v.transform(({ registrationDeadline, registrationProof, ...key }) => ({
+        ...key,
+        registrationDeadline:
+            registrationDeadline === undefined ? undefined : msToTimestamp(registrationDeadline),
+        registrationProof: registrationProof ?? new Uint8Array(),
+    })),
+);
+
+export type AssistantKeySpecInput = v.InferInput<typeof AssistantKeySpecInputSchema>;
+
+export const SetAssistantKeysInputSchema = v.strictObject({
+    /** The complete set: at most one key per account, at most 64. An account left out loses its key. */
+    keys: v.pipe(
+        v.array(AssistantKeySpecInputSchema),
+        v.maxLength(64, "At most 64 assistant keys are allowed."),
+        v.check(
+            (keys) => new Set(keys.map((k) => k.subaccountId ?? 0n)).size === keys.length,
+            "At most one assistant key per account is allowed.",
+        ),
+        v.check(
+            (keys) => new Set(keys.map((k) => bytesToHex(k.publicKeyEd25519))).size === keys.length,
+            "Assistant public keys must be distinct.",
+        ),
+    ),
+});
+
+export type SetAssistantKeysInput = v.InferInput<typeof SetAssistantKeysInputSchema>;

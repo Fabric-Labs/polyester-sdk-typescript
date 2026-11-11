@@ -2,6 +2,7 @@ import { PolyesterCore } from "./core-client.js";
 import { accountsService } from "./services/accounts/service.js";
 import { addressBookService } from "./services/address-book/service.js";
 import { apiKeysService } from "./services/api-keys/service.js";
+import { assistantService } from "./services/assistant/service.js";
 import { autoWithdrawService } from "./services/auto-withdraw/service.js";
 import { balancesService } from "./services/balances/service.js";
 import { candlesService } from "./services/candles/service.js";
@@ -21,9 +22,11 @@ import { mfaService } from "./services/mfa/service.js";
 import { orderbookService } from "./services/orderbook/service.js";
 import { ordersService } from "./services/orders/service.js";
 import { tradingRateLimitsService } from "./services/rate-limits/service.js";
+import { priceAlertsService } from "./services/price-alerts/service.js";
 import { rewardsService } from "./services/rewards/service.js";
 import { socialVerificationService } from "./services/social-verification/service.js";
 import { subaccountsService } from "./services/subaccounts/service.js";
+import { systemService } from "./services/system/service.js";
 import { tradesService } from "./services/trades/service.js";
 import { tradingWithdrawsService } from "./services/trading-withdraws/service.js";
 import { transfersService } from "./services/transfers/service.js";
@@ -46,6 +49,8 @@ export const POLYESTER_SERVICES = {
     trades: tradesService,
     orders: ordersService,
     triggers: triggersService,
+    priceAlerts: priceAlertsService,
+    assistant: assistantService,
     balances: balancesService,
     transfers: transfersService,
     internalTransfers: internalTransfersService,
@@ -60,6 +65,7 @@ export const POLYESTER_SERVICES = {
     claims: claimsService,
     checkpoints: checkpointsService,
     changelog: changelogService,
+    system: systemService,
     rewards: rewardsService,
     vip: vipService,
     fees: feesService,
