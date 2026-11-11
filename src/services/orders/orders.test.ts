@@ -1132,6 +1132,23 @@ describe("OrdersService", () => {
         );
     });
 
+    it("rejects an unavailable order read instead of reporting the order as not found", async () => {
+        const service = new OrdersService(
+            {
+                authApi: rejectingUnaryTransport(
+                    new ConnectError("order not readable yet", Code.Unavailable),
+                ),
+            },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await expect(service.getDetails({ clientOrderId: "client-1" })).rejects.toMatchObject({
+            code: Code.Unavailable,
+        });
+    });
+
     it("parses populated order details responses to decimal strings", async () => {
         const transport = unaryTransportByMethod({
             getOrder: {

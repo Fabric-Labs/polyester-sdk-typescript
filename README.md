@@ -202,6 +202,13 @@ try {
 }
 ```
 
+`error.retryable` is true for `TransientError` and its subclasses, such as
+`ServiceUnavailableError`. The SDK never retries on its own. For example,
+`orders.getDetails()` can throw `ServiceUnavailableError` right after an
+accepted `orders.create()`, before the new order is readable: retry with the
+same `orderId` or `clientOrderId` instead of placing the order again. Only a
+`null` result means the order was not found.
+
 ## Versioning
 
 Pre-1.0, so the usual semver shift applies: patch bumps are compatible, minor

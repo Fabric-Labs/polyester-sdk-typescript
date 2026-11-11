@@ -161,7 +161,7 @@ export class OrdersService {
     }
 
     /**
-     * Returns open orders for the resolved root account or subaccount, with optional symbol IDs, trigger ID, side, pagination, and attached-risk inclusion filters. Results are paginated with a server-determined page size: a single call is not the full set of open orders — keep calling with the returned nextPageToken until it is empty. Throws CatalogLookupError when an order's symbolId is missing from the client catalog, such as a pair listed after the catalog loaded; refresh the catalog and read again.
+     * Returns open orders for the resolved root account or subaccount, with optional symbol IDs, trigger ID, side, pagination, and attached-risk inclusion filters. Results are paginated with a server-determined page size: a single call is not the full set of open orders — keep calling with the returned nextPageToken until it is empty. A ServiceUnavailableError means the current state of an order in scope is briefly unavailable; retry the same request. Throws CatalogLookupError when an order's symbolId is missing from the client catalog, such as a pair listed after the catalog loaded; refresh the catalog and read again.
      */
     async listOpen(
         input: v.InferInput<typeof OpenOrdersInputSchema> = {},
@@ -181,7 +181,7 @@ export class OrdersService {
     }
 
     /**
-     * Returns historical orders for the resolved account scope, supporting symbol IDs, trigger ID, side, status, time range, pagination, and attached-risk filters. A page may hold fewer orders than requested, or none: keep calling with the returned nextPageToken until it is empty. Throws CatalogLookupError when an order's symbolId is missing from the client catalog, such as a pair listed after the catalog loaded; refresh the catalog and read again.
+     * Returns historical orders for the resolved account scope, supporting symbol IDs, trigger ID, side, status, time range, pagination, and attached-risk filters. A page may hold fewer orders than requested, or none: keep calling with the returned nextPageToken until it is empty. A ServiceUnavailableError means the current state of an order in scope is briefly unavailable; retry the same request. Throws CatalogLookupError when an order's symbolId is missing from the client catalog, such as a pair listed after the catalog loaded; refresh the catalog and read again.
      */
     async listHistory(
         input: v.InferInput<typeof OrderHistoryInputSchema> = {},
@@ -430,7 +430,11 @@ export class OrdersService {
      * Set includeExecutionHistory to false for state-only polling, omitting limit and pageToken.
      * Execution pages are eventually consistent and need not reconcile with cumulative order quantities.
      * `executionsComplete` is true once the trades across every page add up to the filled quantity; while false, read again for the rest.
-     * Returns null when the requested order is not found.
+     * Returns null only when no order matches the lookup key. Right after an accepted create the
+     * order may not be readable yet, and the call throws ServiceUnavailableError (a retryable
+     * TransientError) instead: retry with the same orderId or clientOrderId after a short delay.
+     * That error does not mean the order is missing, so never place it again because of it.
+     * The SDK does not retry on its own.
      */
     async getDetails(
         input: v.InferInput<typeof GetOrderDetailsInputSchema>,
