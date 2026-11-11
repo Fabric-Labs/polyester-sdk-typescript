@@ -23,6 +23,11 @@ const BACKOFF_MAX_MS = 10_000;
 const STABLE_CONNECTION_MS = 10_000;
 /** A malformed frame (4400) and a rejected connect token (4403) recur on every reconnect. */
 const TERMINAL_CLOSE_CODES = new Set([4400, 4403]);
+/** Larger frames are dropped undecoded with the connection; a full 256-order page is far smaller. */
+export const MAX_PRIVATE_FRAME_BYTES = 4 * 1024 * 1024;
+/** A snapshot staging more pages than this ends its subscription, so a snapshot never ending stays bounded. */
+export const MAX_SNAPSHOT_BYTES = 64 * 1024 * 1024;
+export const MAX_SNAPSHOT_ORDERS = 100_000;
 
 /** One delivery of an account's order stream. */
 export type PrivateOrdersEvent =
@@ -72,6 +77,8 @@ interface StreamSubscription {
     /** Last applied resume position, carried across resubscribes and reconnects. */
     cursor: string;
     staged: Order[] | null;
+    /** Frame bytes of the staged pages. */
+    stagedBytes: number;
     /** The account's live view as last applied, for consumers that join later; null before the first snapshot. */
     orders: Map<bigint, Order> | null;
     /** The last connection state consumers were told about. */
@@ -144,6 +151,7 @@ export class PrivateOrderStream {
             seq: 0n,
             cursor: "",
             staged: null,
+            stagedBytes: 0,
             orders: null,
             state: "pending",
             stale: null,
@@ -362,6 +370,17 @@ export class PrivateOrderStream {
             );
             return;
         }
+        if (data.byteLength > MAX_PRIVATE_FRAME_BYTES) {
+            this.#reportAll(
+                "decode",
+                new RealtimeError(
+                    `Private WebSocket frame of ${data.byteLength} bytes exceeds ${MAX_PRIVATE_FRAME_BYTES}`,
+                ),
+            );
+            // Reconnects with backoff; dropping the socket releases every staged snapshot.
+            this.#drop(ws, 1009, "frame too large");
+            return;
+        }
         let msg;
         try {
             msg = fromBinary(ServerMessageSchema, new Uint8Array(data));
@@ -422,10 +441,27 @@ export class PrivateOrderStream {
         switch (frame.case) {
             case "snapshotBegin":
                 s.staged = [];
+                s.stagedBytes = 0;
                 return;
-            case "snapshotPage":
-                s.staged?.push(...frame.value.orders);
+            case "snapshotPage": {
+                if (!s.staged) return;
+                s.stagedBytes += data.byteLength;
+                const count = s.staged.length + frame.value.orders.length;
+                if (s.stagedBytes > MAX_SNAPSHOT_BYTES || count > MAX_SNAPSHOT_ORDERS) {
+                    s.staged = null;
+                    // The same account sends the same snapshot again, so retrying cannot help.
+                    this.#terminate(
+                        s,
+                        "snapshot",
+                        new RealtimeError(
+                            `Private order snapshot exceeds ${MAX_SNAPSHOT_ORDERS} orders or ${MAX_SNAPSHOT_BYTES} bytes`,
+                        ),
+                    );
+                    return;
+                }
+                s.staged.push(...frame.value.orders);
                 return;
+            }
             case "snapshotEnd": {
                 const orders = s.staged;
                 s.staged = null;
