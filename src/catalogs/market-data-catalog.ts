@@ -28,6 +28,7 @@ export interface MarketCatalogData {
     readonly assets: readonly AssetConfig[];
     readonly pairs: readonly EnrichedPairConfig[];
     readonly maxOpenOrdersTotal?: number;
+    /** When the server built the spot config, in Unix seconds. */
     readonly tsSec?: number;
 }
 
