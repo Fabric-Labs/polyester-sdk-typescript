@@ -4494,10 +4494,10 @@ export const OrdersService: GenService<{
    * Arms or disables automatic cancel-all if heartbeat is not refreshed before expiry.
    * When the switch fires, it cancels what CancelAllOrders with the same
    * symbol and side scope cancels: open orders, including those that
-   * triggers placed, and no trigger. Armed stop-loss, take-profit and
-   * trailing stops, running TWAPs and attached legs without a working exit
-   * stay active and can place new orders after it fires, exactly as after
-   * CancelAllOrders. The switch does not stop them: only
+   * triggers placed, and no trigger. Standalone stop-loss, take-profit and
+   * trailing stops and running TWAPs stay active and can place new orders
+   * after it fires, and attached legs end or keep protecting the position
+   * exactly as after CancelAllOrders. The switch does not stop them: only
    * TriggersService.CancelTrigger cancels a trigger.
    *
    * @generated from rpc orders.v1.OrdersService.CancelAllAfter

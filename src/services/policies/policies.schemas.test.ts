@@ -208,6 +208,14 @@ describe("policy patch schemas", () => {
                 actions: ["read-balances", "read-rewards"],
             }),
         ).toThrow();
+        // CREATE_DEPOSIT_ADDRESS is value 10, among the product actions: classify by name.
+        expect(() =>
+            v.parse(CreateSubaccountPolicyInputSchema, {
+                name: "Subaccount policy",
+                spotMarketScope: "all",
+                actions: ["create-deposit-address"],
+            }),
+        ).toThrow();
     });
 
     it("preserves API policy empty arrays and false", () => {

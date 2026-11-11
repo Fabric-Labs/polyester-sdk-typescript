@@ -52,6 +52,7 @@ export function transformVerification(
         method: enumLabel(SocialVerificationMethodCodec.protoToOutput, v.method),
         handle: v.handle,
         providerUserId: v.providerUserId,
+        displayName: v.displayName,
         challengeCode: v.challengeCode,
         status: enumLabel(SocialVerificationStatusCodec.protoToOutput, v.status),
         requestedAt: v.requestedAt,
@@ -69,7 +70,13 @@ export const SocialVerificationSchema = v.object({
     provider: SocialProviderSchema,
     method: SocialVerificationMethodSchema,
     handle: v.string(),
+    /**
+     * Provider-side user ID, empty until verified. For Telegram in `awaiting_confirmation`, the
+     * decimal user ID of the account that sent the code: pass it to `confirm` as is.
+     */
     providerUserId: v.string(),
+    /** Telegram only: the account's name once the code is submitted; empty otherwise. */
+    displayName: v.string(),
     challengeCode: v.string(),
     status: SocialVerificationStatusSchema,
     requestedAt: v.optional(TimestampSchema),
@@ -113,6 +120,10 @@ export const StartVerificationInputSchema = v.pipe(
             provider: v.literal("discord"),
             method: v.optional(v.picklist(["channel", "dm"])),
         }),
+        v.strictObject({
+            provider: v.literal("telegram"),
+            method: v.optional(v.literal("dm")),
+        }),
     ]),
     v.transform(({ provider, method, ...input }) => ({
         ...input,
@@ -143,10 +154,13 @@ export const StartVerificationResponseSchema = v.pipe(
         challengeCode: v.string(),
         expiresAt: v.optional(TimestampSchema),
         verification: v.optional(v.custom<Proto.SocialVerification>(() => true)),
+        /** Telegram: the `https://t.me/...` link that sends the code to the bot; empty otherwise. */
+        actionUrl: v.optional(v.string(), ""),
     }),
     v.transform((res) => ({
         challengeCode: res.challengeCode,
         expiresAt: res.expiresAt,
+        actionUrl: res.actionUrl,
         verification: transformVerification(res.verification),
     })),
 );
@@ -174,3 +188,26 @@ export const GetVerificationResponseSchema = v.pipe(
 );
 
 export type GetVerificationResponse = v.InferOutput<typeof GetVerificationResponseSchema>;
+
+/** Only Telegram links through confirmation. */
+const TelegramProviderInputSchema = v.pipe(
+    v.literal("telegram"),
+    v.transform(() => Proto.SocialProvider.TELEGRAM),
+);
+
+export const ConfirmVerificationInputSchema = v.strictObject({
+    provider: TelegramProviderInputSchema,
+    /** The verification's `providerUserId` in `awaiting_confirmation`: a decimal 64-bit ID. */
+    providerUserId: v.pipe(
+        v.string(),
+        v.regex(/^[1-9]\d{0,19}$/u, "providerUserId must be a decimal Telegram user ID"),
+    ),
+});
+
+export type ConfirmVerificationInput = v.InferInput<typeof ConfirmVerificationInputSchema>;
+
+export const UnlinkSocialAccountInputSchema = v.strictObject({
+    provider: TelegramProviderInputSchema,
+});
+
+export type UnlinkSocialAccountInput = v.InferInput<typeof UnlinkSocialAccountInputSchema>;

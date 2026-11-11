@@ -36,6 +36,13 @@ export const ACCOUNT_PERMISSION_POLICY_ACTION_LABELS = [
     "claim-daily-reward",
     "read-checkpoints",
     "read-rewards",
+    "create-deposit-address",
+    "read-deposit-addresses",
+    "read-subaccounts",
+    "read-subaccount-activity",
+    "read-subaccount-members",
+    "read-subaccount-invites",
+    "read-guard-signer-status",
 ] as const;
 
 export const POLICY_ACTION_LABELS = [
@@ -86,6 +93,13 @@ export const PolicyActionCodec = {
         [Proto.PolicyAction.CLAIM_DAILY_REWARD]: "claim-daily-reward",
         [Proto.PolicyAction.READ_CHECKPOINTS]: "read-checkpoints",
         [Proto.PolicyAction.READ_REWARDS]: "read-rewards",
+        [Proto.PolicyAction.CREATE_DEPOSIT_ADDRESS]: "create-deposit-address",
+        [Proto.PolicyAction.READ_DEPOSIT_ADDRESSES]: "read-deposit-addresses",
+        [Proto.PolicyAction.READ_SUBACCOUNTS]: "read-subaccounts",
+        [Proto.PolicyAction.READ_SUBACCOUNT_ACTIVITY]: "read-subaccount-activity",
+        [Proto.PolicyAction.READ_SUBACCOUNT_MEMBERS]: "read-subaccount-members",
+        [Proto.PolicyAction.READ_SUBACCOUNT_INVITES]: "read-subaccount-invites",
+        [Proto.PolicyAction.READ_GUARD_SIGNER_STATUS]: "read-guard-signer-status",
     } satisfies ProtoToOutput<Proto.PolicyAction, PolicyActionLabel>,
     inputToProto: {
         "trade-spot": Proto.PolicyAction.TRADE_SPOT,
@@ -112,6 +126,13 @@ export const PolicyActionCodec = {
         "claim-daily-reward": Proto.PolicyAction.CLAIM_DAILY_REWARD,
         "read-checkpoints": Proto.PolicyAction.READ_CHECKPOINTS,
         "read-rewards": Proto.PolicyAction.READ_REWARDS,
+        "create-deposit-address": Proto.PolicyAction.CREATE_DEPOSIT_ADDRESS,
+        "read-deposit-addresses": Proto.PolicyAction.READ_DEPOSIT_ADDRESSES,
+        "read-subaccounts": Proto.PolicyAction.READ_SUBACCOUNTS,
+        "read-subaccount-activity": Proto.PolicyAction.READ_SUBACCOUNT_ACTIVITY,
+        "read-subaccount-members": Proto.PolicyAction.READ_SUBACCOUNT_MEMBERS,
+        "read-subaccount-invites": Proto.PolicyAction.READ_SUBACCOUNT_INVITES,
+        "read-guard-signer-status": Proto.PolicyAction.READ_GUARD_SIGNER_STATUS,
     } satisfies Record<PolicyActionLabel, Proto.PolicyAction>,
 } as const;
 

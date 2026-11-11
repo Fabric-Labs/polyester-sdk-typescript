@@ -19,6 +19,7 @@ import { bytesToHex } from "@noble/hashes/utils.js";
 import {
     API_KEY_STATUS_VALUES,
     API_KEY_UPDATE_STATUS_VALUES,
+    ApiKeyPurposeCodec,
     ApiKeyStatusCodec,
 } from "./api-keys.codecs.js";
 import { buildProtoPatch, defineProtoPatchFields } from "../../utils/proto-patch.js";
@@ -153,6 +154,8 @@ export const ApiKeySchema = v.pipe(
             }),
         ),
         status: enumLabelSchema(ApiKeyStatusCodec.protoToOutput),
+        /** `"standard"`, `"assistant"`, or `"unspecified"` from older servers. */
+        purpose: v.optional(enumLabelSchema(ApiKeyPurposeCodec.protoToOutput), 0),
         createdByActor: v.string(),
         revision: BigIntStringSchema,
     }),

@@ -28,6 +28,11 @@ export interface AssetConfig {
     quantityScale: number;
     /** Scale for public candle and market-overview base volume. Absent on older snapshots. */
     marketDataVolumeScale?: number;
+    /**
+     * Whether balances of this asset count toward total equity; `false` still reports them but
+     * values them at nothing. Absent means unknown (older servers or snapshots), never `false`.
+     */
+    includedInEquity?: boolean;
 }
 
 export interface PairConfig {

@@ -155,6 +155,7 @@ describe("market data schemas", () => {
                     quantityDisplayDecimals: 8,
                     quantityScale: 8,
                     marketDataVolumeScale: 4,
+                    includedInEquity: false,
                 },
             ],
             pairs: [
@@ -185,6 +186,7 @@ describe("market data schemas", () => {
             quantityDisplayDecimals: 8,
             quantityScale: 8,
             marketDataVolumeScale: 4,
+            includedInEquity: false,
         });
         expect(config.pairs[0]).toMatchObject({
             symbolId: 101,
@@ -227,6 +229,8 @@ describe("market data schemas", () => {
             assets: [{ marketDataVolumeScale: 0 }],
             pairs: [{ referencePriceScale: 0 }],
         });
+        // Absent means unknown, so the key stays absent rather than defaulting to false.
+        expect(parse([asset], [pair]).assets[0]).not.toHaveProperty("includedInEquity");
         expect(parse([{ ...asset, marketDataVolumeScale: 18 }], [])).toMatchObject({
             assets: [{ marketDataVolumeScale: 18 }],
         });

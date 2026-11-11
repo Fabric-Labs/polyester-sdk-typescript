@@ -344,6 +344,12 @@ export const LifecycleFlowStepSchema = v.pipe(
         occurredAtUnixMs: LifecycleMsSchema,
         blockTimeMovingAverageMs: LifecycleMsSchema,
         activities: v.optional(v.array(LifecycleFlowStepActivitySchema), []),
+        /**
+         * Polyester Chain smart account a rejected withdrawal's zTokens (net of the kept
+         * request fee) were returned to; set only on a withdrawal's `refunded` step, `""`
+         * otherwise. The zTokens stay there until moved.
+         */
+        refundAddress: v.optional(v.string(), ""),
     }),
     v.transform((value) => renameAmountE18(value)),
 );

@@ -20,6 +20,8 @@ import {
     createCreateTradingWithdrawToFundingInputSchema,
     CreateTradingWithdrawResultSchema,
     CreateWalletTradingWithdrawResultSchema,
+    GetWalletBalancesInputSchema,
+    GetWalletBalancesResultSchema,
     ValidateWithdrawDestinationInputSchema,
     ValidateWithdrawDestinationResultSchema,
     renewTradingWithdrawPayload,
@@ -28,6 +30,8 @@ import {
     type CreateTradingWithdrawToExternalChainRequest,
     type CreateTradingWithdrawToFundingInput,
     type CreateTradingWithdrawToFundingRequest,
+    type GetWalletBalancesInput,
+    type GetWalletBalancesResult,
     type TradingWithdrawIntentPayloadRequest,
     type ValidateWithdrawDestinationInput,
     type ValidateWithdrawDestinationResult,
@@ -204,6 +208,26 @@ export class TradingWithdrawsService {
         this.#toFundingInputSchema = createCreateTradingWithdrawToFundingInputSchema(scales);
         this.#toExternalChainInputSchema =
             createCreateTradingWithdrawToExternalChainInputSchema(scales);
+    }
+
+    /**
+     * Reads the zTokens the account's smart account wallet holds on Polyester Chain, such as a
+     * rejected withdrawal's refund (see the lifecycle step's `refundAddress`), which stays there
+     * until moved. API keys need `read-balances`.
+     */
+    async getWalletBalances(
+        input: GetWalletBalancesInput = {},
+        options?: PolyesterRequestOptions,
+    ): Promise<GetWalletBalancesResult> {
+        const request = parse(
+            GetWalletBalancesInputSchema,
+            resolveAccountScopedInput(input, this.#resolver),
+        );
+        const response = await this.#client.getWalletBalances(
+            removeUndefined(request),
+            toConnectCallOptions(options),
+        );
+        return parse(GetWalletBalancesResultSchema, response);
     }
 
     /**

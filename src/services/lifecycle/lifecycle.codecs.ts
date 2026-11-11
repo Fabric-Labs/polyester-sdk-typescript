@@ -53,6 +53,7 @@ export const LIFECYCLE_REASON_VALUES = [
     "zipper_execution_rejected",
     "zipper_withdraw_execution_failed",
     "zipper_deposit_refund_failed",
+    "zipper_compliance_transferred",
     "ledger_mirror_rejected",
     "ledger_mirror_transfer_exceeds_credits",
     "ledger_mirror_transfer_exists",
@@ -110,7 +111,7 @@ export const LIFECYCLE_FLOW_TIMELINE_STATUS_VALUES = ["completed", "current", "p
 export type LifecycleFlowTimelineStatusValue =
     (typeof LIFECYCLE_FLOW_TIMELINE_STATUS_VALUES)[number];
 
-export const LIFECYCLE_REQUEST_FEE_STATUS_VALUES = ["locked", "settled"] as const;
+export const LIFECYCLE_REQUEST_FEE_STATUS_VALUES = ["locked", "settled", "kept"] as const;
 export type LifecycleRequestFeeStatusValue = (typeof LIFECYCLE_REQUEST_FEE_STATUS_VALUES)[number];
 
 export const LIFECYCLE_FLOW_DOMAIN_VALUES = [
@@ -222,6 +223,7 @@ export const LifecycleReasonCodec = {
         [LifecycleReason.ZIPPER_EXECUTION_REJECTED]: "zipper_execution_rejected",
         [LifecycleReason.ZIPPER_WITHDRAW_EXECUTION_FAILED]: "zipper_withdraw_execution_failed",
         [LifecycleReason.ZIPPER_DEPOSIT_REFUND_FAILED]: "zipper_deposit_refund_failed",
+        [LifecycleReason.ZIPPER_COMPLIANCE_TRANSFERRED]: "zipper_compliance_transferred",
         [LifecycleReason.LEDGER_MIRROR_REJECTED]: "ledger_mirror_rejected",
         [LifecycleReason.LEDGER_MIRROR_TRANSFER_EXCEEDS_CREDITS]:
             "ledger_mirror_transfer_exceeds_credits",
@@ -315,5 +317,6 @@ export const LifecycleRequestFeeStatusCodec = {
         [RequestFeeStatus.UNSPECIFIED]: "unspecified",
         [RequestFeeStatus.LOCKED]: "locked",
         [RequestFeeStatus.SETTLED]: "settled",
+        [RequestFeeStatus.KEPT]: "kept",
     } satisfies ProtoToOutput<RequestFeeStatus, LifecycleRequestFeeStatusValue>,
 } as const;

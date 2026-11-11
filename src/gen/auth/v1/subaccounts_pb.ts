@@ -2173,7 +2173,10 @@ export const ActivityEventSourceSchema: GenEnum<ActivityEventSource> = /*@__PURE
  */
 export const SubaccountViewService: GenService<{
   /**
-   * Aggregate commonly-needed read data for a sub-account dashboard page.
+   * Aggregate commonly-needed read data for a sub-account dashboard page. An
+   * API key needs READ_SUBACCOUNTS within its scope; it gets the members and
+   * invites expansions only with READ_SUBACCOUNT_MEMBERS and
+   * READ_SUBACCOUNT_INVITES, and never the API-key or policy expansions.
    *
    * @generated from rpc auth.v1.SubaccountViewService.GetSubaccount
    */
@@ -2183,7 +2186,8 @@ export const SubaccountViewService: GenService<{
     output: typeof GetSubaccountResponseSchema;
   },
   /**
-   * List audit and activity events for a sub-account.
+   * List audit and activity events for a sub-account. An API key needs
+   * READ_SUBACCOUNT_ACTIVITY within its scope.
    *
    * @generated from rpc auth.v1.SubaccountViewService.ListSubaccountActivity
    */
@@ -2202,7 +2206,8 @@ export const SubaccountViewService: GenService<{
  */
 export const SubaccountService: GenService<{
   /**
-   * List sub-accounts owned by or shared with the caller.
+   * List sub-accounts owned by or shared with the caller. An API key needs
+   * READ_SUBACCOUNTS and lists only the sub-accounts within its scope.
    *
    * @generated from rpc auth.v1.SubaccountService.ListSubaccounts
    */
@@ -2255,7 +2260,8 @@ export const SubaccountService: GenService<{
     output: typeof SetSubaccountMemberMFARequirementResponseSchema;
   },
   /**
-   * List current members for a sub-account visible to any current member.
+   * List current members for a sub-account visible to any current member. An
+   * API key needs READ_SUBACCOUNT_MEMBERS within its scope.
    *
    * @generated from rpc auth.v1.SubaccountService.ListSubaccountMembers
    */
@@ -2265,7 +2271,8 @@ export const SubaccountService: GenService<{
     output: typeof ListSubaccountMembersResponseSchema;
   },
   /**
-   * Remove a member from a sub-account (owner/admin only).
+   * Remove a member from a sub-account (owner/admin only). The member's
+   * assistant API keys on the sub-account are revoked with the removal.
    *
    * @generated from rpc auth.v1.SubaccountService.RemoveSubaccountMember
    */
@@ -2275,7 +2282,9 @@ export const SubaccountService: GenService<{
     output: typeof RemoveSubaccountMemberResponseSchema;
   },
   /**
-   * Update an existing sub-account member's role (owner/admin only).
+   * Update an existing sub-account member's role (owner/admin only). A role
+   * that cannot manage API keys revokes the member's assistant API keys on the
+   * sub-account with the change.
    *
    * @generated from rpc auth.v1.SubaccountService.UpdateSubaccountMemberRole
    */
@@ -2296,6 +2305,8 @@ export const SubaccountService: GenService<{
   },
   /**
    * List incoming invitations and invitations for administered sub-accounts.
+   * An API key needs READ_SUBACCOUNT_INVITES and lists only the outgoing
+   * invitations of the sub-accounts within its scope.
    *
    * @generated from rpc auth.v1.SubaccountService.ListSubaccountInvites
    */

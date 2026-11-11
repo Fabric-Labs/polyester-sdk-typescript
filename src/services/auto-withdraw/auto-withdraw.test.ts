@@ -232,6 +232,17 @@ describe("AutoWithdrawService U128 decimal conversions", () => {
         const { service } = serviceWith({
             rule: rawRule({
                 subaccountId: 42n,
+                createdByAccountId: 77n,
+                destinations: [
+                    {
+                        assetId: 2,
+                        destinationChainId: 8453n,
+                        destinationAddress: "0xabc",
+                        minAmountE18: toU128(10n * E18),
+                        maxAmountE18: toU128(1_000_500_000_000_000_000_000n),
+                        minFloorE18: toU128(E18 / 2n),
+                    },
+                ],
                 minUsdValueE18: toU128(100n * E18 + 1n),
                 pause: {
                     assetId: 2,
@@ -253,9 +264,11 @@ describe("AutoWithdrawService U128 decimal conversions", () => {
                     destinationAddress: "0xabc",
                     minAmount: "10",
                     maxAmount: "1000.5",
+                    minFloor: "0.5",
                 },
             ],
             createdAt: 1_700_000_000_000,
+            createdByAccountId: formatId(77n),
             pause: {
                 assetId: 2,
                 reason: "destination_not_whitelisted",
@@ -271,6 +284,8 @@ describe("AutoWithdrawService U128 decimal conversions", () => {
         });
         await expect(service.getRule()).resolves.toMatchObject({
             subaccountId: "",
+            createdByAccountId: "",
+            destinations: [{ minFloor: null }],
             schedule: { cadence: "unspecified" },
             pause: null,
             minUsdValue: null,
@@ -302,9 +317,9 @@ describe("AutoWithdrawService account scope", () => {
 });
 
 describe("AutoWithdrawService step-up", () => {
-    it("sends the step-up token on set and disable", async () => {
+    it("sends the step-up token on set and resume, and pauses without one", async () => {
         const { transport, service } = serviceWith({
-            rule: rawRule({ version: 4, enabled: false, destinations: [] }),
+            rule: rawRule({ version: 4, enabled: false }),
         });
 
         await service.setRule(setInput({ expectedVersion: 3 }), { stepUpToken: " fresh " });
@@ -312,16 +327,34 @@ describe("AutoWithdrawService step-up", () => {
             "fresh",
         );
 
+        // A paused version keeps its destinations, so it can resume to them.
         await expect(
-            service.disableRule(
-                { account: { subaccountId: formatId(9n) }, expectedVersion: 3 },
-                { stepUpToken: "fresh-2" },
-            ),
-        ).resolves.toMatchObject({ version: 4, enabled: false, destinations: [] });
-        expect(transport.lastCall()?.message).toEqual({ subaccountId: 9n, expectedVersion: 3 });
+            service.setRuleEnabled({
+                account: { subaccountId: formatId(9n) },
+                expectedVersion: 3,
+                enabled: false,
+            }),
+        ).resolves.toMatchObject({ version: 4, enabled: false, destinations: [{ assetId: 2 }] });
+        expect(transport.lastCall()?.message).toEqual({
+            subaccountId: 9n,
+            expectedVersion: 3,
+            enabled: false,
+        });
+        expect(new Headers(transport.lastCall()?.headers).has(AUTH_STEP_UP_HEADER_NAME)).toBe(
+            false,
+        );
+
+        await service.setRuleEnabled(
+            { expectedVersion: 4, enabled: true },
+            { stepUpToken: "fresh-2" },
+        );
+        expect(transport.lastCall()?.message).toEqual({ expectedVersion: 4, enabled: true });
         expect(new Headers(transport.lastCall()?.headers).get(AUTH_STEP_UP_HEADER_NAME)).toBe(
             "fresh-2",
         );
+        await expect(
+            service.setRuleEnabled({ expectedVersion: 4 } as never),
+        ).rejects.toBeInstanceOf(ValidationError);
     });
 
     it("surfaces step-up and elevation requirements as the typed MFA errors", async () => {
@@ -336,9 +369,9 @@ describe("AutoWithdrawService step-up", () => {
         expect(isFreshStepUpRequiredError(err)).toBe(true);
 
         const elevation = rejectingService(authError(AuthErrorCode.AUTH_MFA_ELEVATION_REQUIRED));
-        await expect(elevation.disableRule({ expectedVersion: 1 })).rejects.toBeInstanceOf(
-            SessionElevationRequiredError,
-        );
+        await expect(
+            elevation.setRuleEnabled({ expectedVersion: 1, enabled: true }),
+        ).rejects.toBeInstanceOf(SessionElevationRequiredError);
     });
 });
 
@@ -348,8 +381,9 @@ describe("AutoWithdrawService version conflicts", () => {
             { desc: ErrorDetailSchema, value: create(ErrorDetailSchema, { code: withdrawCode }) },
         ]);
 
-    it("maps the withdraw CONFLICT detail and bare Aborted to RevisionConflictError", async () => {
+    it("maps the withdraw version conflict details and bare Aborted to RevisionConflictError", async () => {
         for (const error of [
+            withdrawError(Code.Aborted, ErrorCode.VERSION_CONFLICT),
             withdrawError(Code.FailedPrecondition, ErrorCode.CONFLICT),
             withdrawError(Code.Aborted, ErrorCode.CONFLICT),
             new ConnectError("stale", Code.Aborted),
@@ -357,7 +391,7 @@ describe("AutoWithdrawService version conflicts", () => {
             const service = rejectingService(error);
             for (const call of [
                 () => service.setRule(setInput({ expectedVersion: 2 })),
-                () => service.disableRule({ expectedVersion: 2 }),
+                () => service.setRuleEnabled({ expectedVersion: 2, enabled: false }),
             ]) {
                 const err = await call().catch((e: unknown) => e);
                 expect(err).toBeInstanceOf(RevisionConflictError);
@@ -413,7 +447,7 @@ describe("AutoWithdrawService version conflicts", () => {
             const service = rejectingService(error);
             for (const call of [
                 () => service.setRule(setInput({ expectedVersion: 2 })),
-                () => service.disableRule({ expectedVersion: 2 }),
+                () => service.setRuleEnabled({ expectedVersion: 2, enabled: false }),
             ]) {
                 const err = await call().catch((e: unknown) => e);
                 expect.soft(err, error.rawMessage).not.toBeInstanceOf(RevisionConflictError);
@@ -454,6 +488,7 @@ describe("AutoWithdrawService runs", () => {
                             intentId: "intent-1",
                             txHash: "0xdead",
                             valueUsdE18: toU128(999n * E18),
+                            networkFeeE18: toU128((4n * E18) / 10n),
                         },
                         {
                             assetId: 3,
@@ -505,6 +540,7 @@ describe("AutoWithdrawService runs", () => {
                             available: "1500",
                             amount: "1000.5",
                             valueUsd: "999",
+                            networkFee: "0.4",
                             state: "completed",
                             reason: null,
                             intentId: "intent-1",
@@ -517,6 +553,7 @@ describe("AutoWithdrawService runs", () => {
                             available: "0.000000000000000005",
                             amount: "0",
                             valueUsd: null,
+                            networkFee: null,
                             state: "skipped",
                             reason: "below_minimum",
                             intentId: null,
@@ -549,5 +586,104 @@ describe("AutoWithdrawService runs", () => {
         });
         expect(transport.lastCall()?.message).toEqual({ limit: 0, pageToken: "" });
         await expect(service.listRuns({ limit: 101 })).rejects.toBeInstanceOf(ValidationError);
+    });
+});
+
+describe("AutoWithdrawService preview", () => {
+    it("decodes a preview, keeping unknown amounts and missing destinations null", async () => {
+        const { transport, service } = serviceWith({
+            status: Proto.AutoWithdrawPreviewStatus.WILL_PAY,
+            nextRunAt: ts(1_700_003_600),
+            ruleVersion: 3,
+            minUsdValueE18: toU128(25n * E18),
+            computedAt: ts(1_700_000_000),
+            assets: [
+                {
+                    assetId: 2,
+                    destinationChainId: 8453n,
+                    destinationAddress: "0xabc",
+                    availableE18: toU128(5125n * (E18 / 10n)),
+                    payableE18: toU128(500n * E18),
+                    heldBackE18: toU128(125n * (E18 / 10n)),
+                    holdReason: "above_max",
+                    minimumE18: toU128(50n * E18),
+                    valueUsdE18: toU128(49995n * (E18 / 100n)),
+                    pricedAt: ts(1_699_999_990),
+                    networkFeeE18: toU128((4n * E18) / 10n),
+                    networkFeeSampledAt: ts(1_699_999_900),
+                },
+                {
+                    assetId: 9,
+                    destinationChainId: 0n,
+                    destinationAddress: "",
+                    availableE18: toU128(E18),
+                    payableE18: toU128(0n),
+                    heldBackE18: toU128(E18),
+                    holdReason: "no_destination",
+                },
+            ],
+        });
+
+        await expect(
+            service.previewRun({ account: { subaccountId: formatId(9n) } }),
+        ).resolves.toEqual({
+            status: "will_pay",
+            nextRunAt: 1_700_003_600_000,
+            ruleVersion: 3,
+            pause: null,
+            minUsdValue: "25",
+            computedAt: 1_700_000_000_000,
+            assets: [
+                {
+                    assetId: 2,
+                    destinationChainId: 8453,
+                    destinationAddress: "0xabc",
+                    available: "512.5",
+                    payable: "500",
+                    heldBack: "12.5",
+                    holdReason: "above_max",
+                    minimum: "50",
+                    valueUsd: "499.95",
+                    pricedAt: 1_699_999_990_000,
+                    networkFee: "0.4",
+                    networkFeeSampledAt: 1_699_999_900_000,
+                    payableFrom: null,
+                },
+                {
+                    assetId: 9,
+                    destinationChainId: null,
+                    destinationAddress: null,
+                    available: "1",
+                    payable: "0",
+                    heldBack: "1",
+                    holdReason: "no_destination",
+                    minimum: null,
+                    valueUsd: null,
+                    pricedAt: null,
+                    networkFee: null,
+                    networkFeeSampledAt: null,
+                    payableFrom: null,
+                },
+            ],
+        });
+        expect(transport.lastCall()?.message).toEqual({ subaccountId: 9n });
+    });
+
+    it("decodes a missing rule without a next run", async () => {
+        const { service } = serviceWith({
+            status: Proto.AutoWithdrawPreviewStatus.NO_RULE,
+            ruleVersion: 0,
+            computedAt: ts(1_700_000_000),
+            assets: [],
+        });
+        await expect(service.previewRun()).resolves.toEqual({
+            status: "no_rule",
+            nextRunAt: null,
+            ruleVersion: 0,
+            pause: null,
+            minUsdValue: null,
+            computedAt: 1_700_000_000_000,
+            assets: [],
+        });
     });
 });

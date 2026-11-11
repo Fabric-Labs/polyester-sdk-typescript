@@ -11,6 +11,7 @@ import { createTestCatalog } from "../../testing/catalog.js";
 const catalogTradingGatewayAddress = "0xD3fecf5D39131e23b6B0f872cA0a21c8A5a30932" as const;
 import { unaryTransport, unaryTransportByMethod } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
+import { toU128 } from "../../utils/u128.js";
 import { TradingWithdrawsService, type TradingWithdrawWalletSigner } from "./trading-withdraws.js";
 
 const signingConfig = {
@@ -73,6 +74,46 @@ describe("TradingWithdrawsService", () => {
             destinationAddress: "rAddress:123",
         });
         expect(captured?.signal).toBe(controller.signal);
+    });
+
+    it("reads smart account wallet balances for the resolved account as decimals", async () => {
+        const transport = unaryTransportByMethod({
+            getWalletBalances: {
+                smartAccountAddress: "0xwallet",
+                balances: [
+                    {
+                        zippedAssetId: 12,
+                        unifiedAssetId: 1,
+                        chainId: 8453,
+                        ztokenAddress: "0xztoken",
+                        amountE18: toU128(1_500_000_000_000_000_001n),
+                    },
+                ],
+            },
+        });
+        const service = new TradingWithdrawsService(
+            { authApi: transport.transport },
+            { getDefaultSubaccountId: () => formatId(42n) },
+            signingConfig,
+            testScales(),
+        );
+
+        await expect(service.getWalletBalances()).resolves.toEqual({
+            smartAccountAddress: "0xwallet",
+            balances: [
+                {
+                    zippedAssetId: 12,
+                    unifiedAssetId: 1,
+                    chainId: 8453,
+                    ztokenAddress: "0xztoken",
+                    amount: "1.500000000000000001",
+                },
+            ],
+        });
+        expect(transport.lastCall()?.message).toEqual({ subaccountId: 42n });
+
+        await service.getWalletBalances({ account: "main" });
+        expect(transport.lastCall()?.message).toEqual({});
     });
 
     it("rejects malformed destination-validation responses", async () => {

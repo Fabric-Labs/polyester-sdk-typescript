@@ -29,7 +29,16 @@ export type PolyesterErrorDetail =
           message: string;
       }
     | ({ service: "orders" } & OrderErrorDetail)
-    | { service: "withdraw"; code: NamedCode<typeof WithdrawErrorCode> }
+    | {
+          service: "withdraw";
+          code: NamedCode<typeof WithdrawErrorCode>;
+          /** Request field the refusal concerns, such as `destinations[0].min_amount_e18`. */
+          fieldPath?: string;
+          /** Least amount the destination accepts, as a decimal; with `MIN_AMOUNT_BELOW_FLOOR`. */
+          minFloor?: string;
+          /** Epoch ms when a cooling-down destination can be paid; retry after it. */
+          payableFrom?: number;
+      }
     | {
           service: "internal_transfer";
           code: NamedCode<typeof InternalTransferErrorCode>;

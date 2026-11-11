@@ -40,6 +40,13 @@ const policyActionCases = [
     [Proto.PolicyAction.CLAIM_DAILY_REWARD, "claim-daily-reward"],
     [Proto.PolicyAction.READ_CHECKPOINTS, "read-checkpoints"],
     [Proto.PolicyAction.READ_REWARDS, "read-rewards"],
+    [Proto.PolicyAction.CREATE_DEPOSIT_ADDRESS, "create-deposit-address"],
+    [Proto.PolicyAction.READ_DEPOSIT_ADDRESSES, "read-deposit-addresses"],
+    [Proto.PolicyAction.READ_SUBACCOUNTS, "read-subaccounts"],
+    [Proto.PolicyAction.READ_SUBACCOUNT_ACTIVITY, "read-subaccount-activity"],
+    [Proto.PolicyAction.READ_SUBACCOUNT_MEMBERS, "read-subaccount-members"],
+    [Proto.PolicyAction.READ_SUBACCOUNT_INVITES, "read-subaccount-invites"],
+    [Proto.PolicyAction.READ_GUARD_SIGNER_STATUS, "read-guard-signer-status"],
 ] as const;
 
 describe("PolicyMarketScopeCodec", () => {

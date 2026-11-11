@@ -164,7 +164,8 @@ export const DepositAddressService: GenService<{
    * terms, including requests using an API key or targeting a shared subaccount.
    * Otherwise FailedPrecondition is returned. Listing and using existing deposit
    * addresses remain available without acceptance. FailedPrecondition is also
-   * returned when deposits on the requested chain are unavailable.
+   * returned when deposits on the requested chain are unavailable. An API key
+   * needs CREATE_DEPOSIT_ADDRESS within its scope.
    *
    * @generated from rpc chain.deposit.v1.DepositAddressService.CreateDepositAddress
    */
@@ -176,7 +177,8 @@ export const DepositAddressService: GenService<{
   /**
    * List known deposit addresses for one target on chains that currently
    * accept deposits. Results are served from Polyester-owned state rather than
-   * a live upstream read.
+   * a live upstream read. An API key needs READ_DEPOSIT_ADDRESSES within its
+   * scope.
    *
    * @generated from rpc chain.deposit.v1.DepositAddressService.ListDepositAddresses
    */

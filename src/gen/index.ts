@@ -4,6 +4,8 @@
  * No semver guarantees apply to this entry point. Generated shapes track the
  * upstream protobuf definitions and can change in any release.
  */
+export * as assistantPb from "./ai/v1/assistant_pb.js";
+export * as priceAlertsPb from "./alerts/v1/price_alerts_pb.js";
 export * as addressBookPb from "./auth/v1/address_book_pb.js";
 export * as apiKeysPb from "./auth/v1/api_keys_pb.js";
 export * as authPb from "./auth/v1/auth_pb.js";
@@ -42,7 +44,9 @@ export * as tradingRateLimitPb from "./ratelimit/v1/ratelimit_pb.js";
 export * as rewardsPb from "./rewards/v1/rewards_pb.js";
 export * as quickswapBrokerPb from "./swap/quickswap/v1/quickswap_broker_pb.js";
 export * as quickswapPb from "./swap/quickswap/v1/quickswap_pb.js";
+export * as quickswapReferralPb from "./swap/quickswap/v1/quickswap_referral_pb.js";
 export * as swapPb from "./swap/v1/swap_pb.js";
+export * as systemPb from "./system/v1/system_pb.js";
 export * as tradeWsPb from "./tradews/v1/trade_ws_pb.js";
 export * as internalTransferPb from "./transfer/v1/internal_transfer_pb.js";
 export * as triggersPb from "./triggers/v1/triggers_pb.js";

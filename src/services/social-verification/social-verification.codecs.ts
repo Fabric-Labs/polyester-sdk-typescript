@@ -2,7 +2,7 @@ import { AuthErrorCode } from "../../gen/auth/v1/auth_pb.js";
 import * as Proto from "../../gen/auth/v1/social_verification_pb.js";
 import type { InputToProto, ProtoToOutput } from "../../utils/types.js";
 
-export const SOCIAL_PROVIDER_VALUES = ["twitter", "discord"] as const;
+export const SOCIAL_PROVIDER_VALUES = ["twitter", "discord", "telegram"] as const;
 export type SocialProviderValue = (typeof SOCIAL_PROVIDER_VALUES)[number];
 
 export const SOCIAL_VERIFICATION_METHOD_VALUES = ["profile", "channel", "dm"] as const;
@@ -16,6 +16,7 @@ export const SOCIAL_VERIFICATION_STATUS_VALUES = [
     "failed",
     "expired",
     "canceled",
+    "awaiting_confirmation",
 ] as const;
 export type SocialVerificationStatusValue = (typeof SOCIAL_VERIFICATION_STATUS_VALUES)[number];
 
@@ -23,11 +24,13 @@ export const SocialProviderCodec = {
     inputToProto: {
         twitter: Proto.SocialProvider.TWITTER,
         discord: Proto.SocialProvider.DISCORD,
+        telegram: Proto.SocialProvider.TELEGRAM,
     } satisfies InputToProto<SocialProviderValue, Proto.SocialProvider>,
     protoToOutput: {
         [Proto.SocialProvider.PROVIDER_UNSPECIFIED]: "unspecified",
         [Proto.SocialProvider.TWITTER]: "twitter",
         [Proto.SocialProvider.DISCORD]: "discord",
+        [Proto.SocialProvider.TELEGRAM]: "telegram",
     } satisfies ProtoToOutput<Proto.SocialProvider, SocialProviderValue>,
 } as const;
 
@@ -55,6 +58,7 @@ export const SocialVerificationStatusCodec = {
         [Proto.SocialVerificationStatus.STATUS_FAILED]: "failed",
         [Proto.SocialVerificationStatus.STATUS_EXPIRED]: "expired",
         [Proto.SocialVerificationStatus.STATUS_CANCELLED]: "canceled",
+        [Proto.SocialVerificationStatus.STATUS_AWAITING_CONFIRMATION]: "awaiting_confirmation",
     } satisfies ProtoToOutput<Proto.SocialVerificationStatus, SocialVerificationStatusValue>,
 } as const;
 

@@ -2246,6 +2246,12 @@ export const TransferCounterpartyDirectionSchema: GenEnum<TransferCounterpartyDi
   enumDesc(file_auth_v1_address_book, 4);
 
 /**
+ * AddressBookService serves saved destinations, transfer counterparties and
+ * whitelists. An API key reads them with READ_ADDRESS_BOOK or
+ * MANAGE_ADDRESS_BOOK on its policy, for the main account's book and for a
+ * sub-account's within its scope; address-book writes accept only a session
+ * token.
+ *
  * @generated from service auth.v1.AddressBookService
  */
 export const AddressBookService: GenService<{

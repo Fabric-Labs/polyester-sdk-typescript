@@ -25,10 +25,13 @@ export const TRANSFER_CODE_VALUES = [
     "fee_sweep",
     "fee_refill",
     "system_adjustment",
+    "withdraw_failed",
 ] as const;
 /**
  * Ledger transfer type. `system_adjustment` can credit or debit the account (a seeding credit
- * or a correction), so read the row's `isDebit` for its direction.
+ * or a correction), so read the row's `isDebit` for its direction. `withdraw_failed` is funds that
+ * left the account for a withdrawal that was rejected or failed to execute; its fee is not
+ * refunded.
  */
 export type TransferCodeValue = (typeof TRANSFER_CODE_VALUES)[number];
 
@@ -66,6 +69,7 @@ export const TransferCodeCodec = {
         fee_sweep: TransferCode.FEE_SWEEP,
         fee_refill: TransferCode.FEE_REFILL,
         system_adjustment: TransferCode.SYSTEM_ADJUSTMENT,
+        withdraw_failed: TransferCode.WITHDRAW_FAILED,
     } satisfies InputToProto<TransferCodeValue, TransferCode>,
     protoToOutput: {
         [TransferCode.TRANSFER_CODE_UNSPECIFIED]: "unspecified",
@@ -89,5 +93,6 @@ export const TransferCodeCodec = {
         [TransferCode.FEE_SWEEP]: "fee_sweep",
         [TransferCode.FEE_REFILL]: "fee_refill",
         [TransferCode.SYSTEM_ADJUSTMENT]: "system_adjustment",
+        [TransferCode.WITHDRAW_FAILED]: "withdraw_failed",
     } satisfies ProtoToOutput<TransferCode, TransferCodeValue>,
 } as const;

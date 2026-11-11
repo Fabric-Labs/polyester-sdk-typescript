@@ -133,6 +133,87 @@ describe("SocialVerificationService", () => {
         expect(transport.calls[1]?.signal).toBe(signal);
     });
 
+    it("links Telegram: start returns the bot link, confirm sends step-up, unlink cancels", async () => {
+        const awaiting = verification({
+            provider: Proto.SocialProvider.TELEGRAM,
+            method: Proto.SocialVerificationMethod.METHOD_DM,
+            handle: "alice_tg",
+            providerUserId: "7654321098",
+            displayName: "Alice",
+            status: Proto.SocialVerificationStatus.STATUS_AWAITING_CONFIRMATION,
+        });
+        const transport = unaryTransportSequence([
+            {
+                challengeCode: "poly_tg",
+                expiresAt: { seconds: 2n, nanos: 0 },
+                actionUrl: "https://t.me/polyester_bot?start=poly_tg",
+                verification: awaiting,
+            },
+            { verification: awaiting },
+            {
+                verification: {
+                    ...awaiting,
+                    status: Proto.SocialVerificationStatus.STATUS_VERIFIED,
+                },
+            },
+            {},
+        ]);
+        const service = new SocialVerificationService({ authApi: transport.transport });
+
+        await expect(service.start({ provider: "telegram" })).resolves.toMatchObject({
+            challengeCode: "poly_tg",
+            actionUrl: "https://t.me/polyester_bot?start=poly_tg",
+        });
+        expect(transport.calls[0]?.message).toEqual({
+            provider: Proto.SocialProvider.TELEGRAM,
+            method: Proto.SocialVerificationMethod.METHOD_UNSPECIFIED,
+        });
+
+        await expect(service.get({ provider: "telegram" })).resolves.toMatchObject({
+            verification: {
+                provider: "telegram",
+                method: "dm",
+                status: "awaiting_confirmation",
+                providerUserId: "7654321098",
+                displayName: "Alice",
+            },
+        });
+
+        await expect(
+            service.confirm(
+                { provider: "telegram", providerUserId: "7654321098" },
+                { stepUpToken: "fresh" },
+            ),
+        ).resolves.toMatchObject({ verification: { status: "verified" } });
+        expect(transport.calls[2]?.message).toEqual({
+            provider: Proto.SocialProvider.TELEGRAM,
+            providerUserId: "7654321098",
+        });
+        expect(stepUpHeader(transport.calls[2])).toBe("fresh");
+
+        // Unlinking a provider never started returns no verification.
+        await expect(service.unlink({ provider: "telegram" })).resolves.toEqual({
+            verification: undefined,
+        });
+        expect(transport.calls[3]?.message).toEqual({ provider: Proto.SocialProvider.TELEGRAM });
+    });
+
+    it("rejects confirm and unlink for non-Telegram providers or malformed user IDs", async () => {
+        const transport = unaryTransportSequence([]);
+        const service = new SocialVerificationService({ authApi: transport.transport });
+        for (const input of [
+            { provider: "discord", providerUserId: "1" },
+            { provider: "telegram", providerUserId: "" },
+            { provider: "telegram", providerUserId: "-5" },
+            { provider: "telegram", providerUserId: "12a" },
+            { provider: "telegram", providerUserId: 7654321098 },
+        ]) {
+            await expect(service.confirm(input as never)).rejects.toThrow();
+        }
+        await expect(service.unlink({ provider: "twitter" } as never)).rejects.toThrow();
+        expect(transport.calls).toHaveLength(0);
+    });
+
     it("maps unknown backend verification enums to unspecified", async () => {
         const cases = [
             {

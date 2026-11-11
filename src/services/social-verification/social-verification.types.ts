@@ -1,4 +1,6 @@
 export type {
+    ConfirmVerificationInput,
+    UnlinkSocialAccountInput,
     GetVerificationResponse,
     SocialProviderInput,
     SocialProvider,
