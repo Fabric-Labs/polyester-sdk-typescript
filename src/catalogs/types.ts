@@ -203,7 +203,7 @@ export interface MarketCatalogReader {
     requireAsset(asset: AssetCatalogKey): AssetConfig;
     getAssetBySymbol(assetSymbol: string): AssetConfig | null;
     requireAssetBySymbol(assetSymbol: string): AssetConfig;
-    getAssetByLedgerId(ledgerAssetId: number): AssetConfig;
+    getAssetByLedgerId(ledgerAssetId: number): AssetConfig | null;
     requireAssetByLedgerId(ledgerAssetId: number): AssetConfig;
 
     listPairs(filter?: {
@@ -251,7 +251,7 @@ export interface MarketCatalogReader {
 }
 
 export interface LedgerCatalogReader {
-    getAssetByLedgerId(ledgerAssetId: number): AssetConfig;
+    getAssetByLedgerId(ledgerAssetId: number): AssetConfig | null;
     requireAssetByLedgerId(ledgerAssetId: number): AssetConfig;
     getAssetBySymbol(assetSymbol: string): AssetConfig | null;
     requireAssetBySymbol(assetSymbol: string): AssetConfig;
@@ -298,7 +298,7 @@ export interface ZipperCatalogReader {
     requireAsset(asset: AssetCatalogKey): ZipperEnrichedAssetConfig;
     getAssetBySymbol(assetSymbol: string): ZipperEnrichedAssetConfig | null;
     requireAssetBySymbol(assetSymbol: string): ZipperEnrichedAssetConfig;
-    getAssetByLedgerId(ledgerAssetId: number): ZipperEnrichedAssetConfig;
+    getAssetByLedgerId(ledgerAssetId: number): ZipperEnrichedAssetConfig | null;
     requireAssetByLedgerId(ledgerAssetId: number): ZipperEnrichedAssetConfig;
     getAssetByUAssetId(uAssetId: string): ZipperEnrichedAssetConfig | null;
     requireAssetByUAssetId(uAssetId: string): ZipperEnrichedAssetConfig;

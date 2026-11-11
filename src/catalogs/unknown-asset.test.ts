@@ -1,58 +1,99 @@
 import { describe, expect, it } from "vitest";
 import { createTestCatalog } from "../testing/catalog.js";
 import { createCatalogSdkScales } from "../shared/decimal-surface.js";
+import type { AssetConfig } from "../shared/catalog-config.js";
+import type { ZipperCatalogSeed } from "./zipper-catalog.js";
 import { CatalogLookupError } from "./types.js";
-import {
-    resolveLedgerAssetByLedgerId,
-    resolveZipperAssetByLedgerId,
-    UNKNOWN_ASSET_LABEL,
-    UNKNOWN_LEDGER_ASSET_ID,
-    unknownLedgerAsset,
-} from "./unknown-asset.js";
+import { UNKNOWN_LEDGER_ASSET_ID } from "./unknown-asset.js";
 
-describe("unknown asset catalog lookups", () => {
-    it("resolveLedgerAssetByLedgerId returns unknown asset for proto-zero ids", () => {
-        expect(
-            resolveLedgerAssetByLedgerId(0, () => ({
-                symbol: "BTC",
-                ledgerId: 1,
-                name: "Bitcoin",
-                quantityDisplayDecimals: 8,
-                quantityScale: 8,
-            })),
-        ).toEqual(unknownLedgerAsset);
+const BTC: AssetConfig = {
+    symbol: "BTC",
+    ledgerId: 1,
+    name: "Bitcoin",
+    quantityDisplayDecimals: 5,
+    quantityScale: 8,
+};
+
+const ZIPPER: ZipperCatalogSeed = {
+    chains: [],
+    assets: [
+        {
+            asset: "BTC",
+            ledgerId: 1,
+            name: "Bitcoin",
+            icon: "btc",
+            quantityScale: 8,
+            quantityDisplayDecimals: 5,
+            uAssetId: "0xaaaa",
+            variants: [],
+        },
+    ],
+    contracts: [],
+    tsMs: 0,
+};
+
+const MISSING_IDS = [404, 0, UNKNOWN_LEDGER_ASSET_ID];
+
+function catalog() {
+    return createTestCatalog({ assets: [BTC], zipper: ZIPPER });
+}
+
+describe("ledger asset id lookups", () => {
+    it("return the catalog entry for a known id on every reader", () => {
+        const { market, ledger, zipper } = catalog();
+
+        expect(market.getAssetByLedgerId(1)).toEqual(BTC);
+        expect(market.requireAssetByLedgerId(1)).toEqual(BTC);
+        expect(ledger.getAssetByLedgerId(1)).toEqual(BTC);
+        expect(ledger.requireAssetByLedgerId(1)).toEqual(BTC);
+        expect(ledger.requireSymbolByLedgerId(1)).toBe("BTC");
+        expect(ledger.isKnownAssetId(1)).toBe(true);
+        expect(zipper.getAssetByLedgerId(1)).toMatchObject({ asset: "BTC", quantityScale: 8 });
+        expect(zipper.requireAssetByLedgerId(1)).toMatchObject({ asset: "BTC" });
     });
 
-    it("market.getAssetByLedgerId returns unknown asset for missing ids", () => {
-        const catalog = createTestCatalog({ assets: [] });
+    it("get* returns null for a missing, proto-default or sentinel id", () => {
+        const { market, ledger, zipper } = catalog();
 
-        expect(catalog.market.getAssetByLedgerId(404)).toMatchObject({
-            symbol: UNKNOWN_ASSET_LABEL,
-            ledgerId: UNKNOWN_LEDGER_ASSET_ID,
-        });
+        for (const id of MISSING_IDS) {
+            expect(market.getAssetByLedgerId(id)).toBeNull();
+            expect(market.getAsset({ ledgerId: id })).toBeNull();
+            expect(ledger.getAssetByLedgerId(id)).toBeNull();
+            expect(ledger.isKnownAssetId(id)).toBe(false);
+            expect(zipper.getAssetByLedgerId(id)).toBeNull();
+            expect(zipper.getAsset({ ledgerId: id })).toBeNull();
+        }
     });
 
-    it("market.requireAssetByLedgerId no longer throws for proto-zero ids", () => {
-        const catalog = createTestCatalog({ assets: [] });
+    it("require* throws CatalogLookupError naming the reader and the id", () => {
+        const { market, ledger, zipper } = catalog();
 
-        expect(catalog.market.requireAssetByLedgerId(0)).toMatchObject({
-            symbol: UNKNOWN_ASSET_LABEL,
-            name: UNKNOWN_ASSET_LABEL,
-        });
-    });
-
-    it("ledger.isKnownAssetId treats unknown fallback ids as unresolved", () => {
-        const catalog = createTestCatalog({ assets: [] });
-
-        expect(catalog.ledger.isKnownAssetId(0)).toBe(false);
-        expect(catalog.ledger.isKnownAssetId(UNKNOWN_LEDGER_ASSET_ID)).toBe(false);
-        expect(catalog.ledger.isKnownAssetId(404)).toBe(false);
+        for (const id of MISSING_IDS) {
+            expect(() => market.requireAssetByLedgerId(id)).toThrow(
+                new CatalogLookupError("market", "ledgerId", id),
+            );
+            expect(() => market.requireAsset({ ledgerId: id })).toThrow(
+                new CatalogLookupError("market", "ledgerId", id),
+            );
+            expect(() => ledger.requireAssetByLedgerId(id)).toThrow(
+                new CatalogLookupError("ledger", "ledgerId", id),
+            );
+            expect(() => ledger.requireSymbolByLedgerId(id)).toThrow(
+                new CatalogLookupError("ledger", "ledgerId", id),
+            );
+            expect(() => zipper.requireAssetByLedgerId(id)).toThrow(
+                new CatalogLookupError("zipper", "ledgerId", id),
+            );
+            expect(() => zipper.requireAsset({ ledgerId: id })).toThrow(
+                new CatalogLookupError("zipper", "ledgerId", id),
+            );
+        }
     });
 
     it("fails closed when a decimal conversion asks for an unknown asset scale", () => {
-        const catalog = createTestCatalog({ assets: [] });
-        const scales = createCatalogSdkScales(() => catalog);
+        const scales = createCatalogSdkScales(() => catalog());
 
+        expect(scales.ledgerAmount(1)).toBe(8);
         expect(() => scales.ledgerAmount(404)).toThrow(CatalogLookupError);
     });
 
@@ -88,32 +129,5 @@ describe("unknown asset catalog lookups", () => {
         expect(catalog.ledger.amountScaledToDecimalString(1_500_000_000_000_000_000n, 31337)).toBe(
             "1.5",
         );
-    });
-
-    it("zipper.getAssetByLedgerId returns unknown asset for missing ids", () => {
-        const catalog = createTestCatalog({ assets: [] });
-
-        expect(catalog.zipper.getAssetByLedgerId(404)).toMatchObject({
-            asset: UNKNOWN_ASSET_LABEL,
-            ledgerId: UNKNOWN_LEDGER_ASSET_ID,
-        });
-    });
-
-    it("resolveZipperAssetByLedgerId returns unknown asset for proto-zero ids", () => {
-        expect(
-            resolveZipperAssetByLedgerId(0, () => ({
-                asset: "BTC",
-                ledgerId: 1,
-                name: "Bitcoin",
-                icon: "btc",
-                quantityScale: 8,
-                quantityDisplayDecimals: 8,
-                uAssetId: "0xabc",
-                chains: [],
-            })),
-        ).toMatchObject({
-            asset: UNKNOWN_ASSET_LABEL,
-            ledgerId: UNKNOWN_LEDGER_ASSET_ID,
-        });
     });
 });

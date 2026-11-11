@@ -30,19 +30,3 @@ export function isUnknownLedgerAsset(asset: AssetConfig): boolean {
 export function isUnknownZipperAsset(asset: ZipperEnrichedAssetConfig): boolean {
     return asset.ledgerId === UNKNOWN_LEDGER_ASSET_ID;
 }
-
-export function resolveLedgerAssetByLedgerId(
-    ledgerAssetId: number,
-    lookup: (ledgerAssetId: number) => AssetConfig | null,
-): AssetConfig {
-    if (!Number.isInteger(ledgerAssetId) || ledgerAssetId <= 0) return unknownLedgerAsset;
-    return lookup(ledgerAssetId) ?? unknownLedgerAsset;
-}
-
-export function resolveZipperAssetByLedgerId(
-    ledgerAssetId: number,
-    lookup: (ledgerAssetId: number) => ZipperEnrichedAssetConfig | null,
-): ZipperEnrichedAssetConfig {
-    if (!Number.isInteger(ledgerAssetId) || ledgerAssetId <= 0) return unknownZipperAsset;
-    return lookup(ledgerAssetId) ?? unknownZipperAsset;
-}

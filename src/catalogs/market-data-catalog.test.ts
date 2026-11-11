@@ -40,12 +40,9 @@ describe("market data catalog", () => {
         ],
     });
 
-    it("returns unknown asset for unresolved ledger ids", () => {
+    it("returns null for unresolved ledger ids", () => {
         expect(catalog.market.getAssetBySymbol("NOT_REAL")).toBeNull();
-        expect(catalog.market.getAssetByLedgerId(999_999)).toMatchObject({
-            symbol: "Unknown asset",
-            ledgerId: 9999,
-        });
+        expect(catalog.market.getAssetByLedgerId(999_999)).toBeNull();
         expect(catalog.ledger.isKnownAssetId(999_999)).toBe(false);
     });
 
