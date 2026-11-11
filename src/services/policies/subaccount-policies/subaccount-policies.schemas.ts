@@ -1,10 +1,10 @@
 import * as v from "valibot";
 import {
-    PolicyActionEnumSchema,
     PolicyMarketScopeEnumSchema,
     ProtoPolicyActionEnumSchema,
     ProtoPolicyMarketScopeEnumSchema,
     SpotMarketRuleSchema,
+    SubaccountPolicyActionEnumSchema,
 } from "../shared.js";
 import {
     PolicyMarketScopeCodec,
@@ -128,7 +128,7 @@ const SubaccountPolicyInputBaseSchema = v.strictObject({
         v.transform((v) => PolicyMarketScopeCodec.inputToProto[v]),
     ),
     actions: v.pipe(
-        v.optional(v.array(PolicyActionEnumSchema), []),
+        v.optional(v.array(SubaccountPolicyActionEnumSchema), []),
         v.transform((v) => (v ?? []).map((action) => PolicyActionCodec.inputToProto[action])),
     ),
     maxOrderSize: OptionalMaxOrderSizeInputSchema,
@@ -179,7 +179,7 @@ const SubaccountPolicyPatchSchema = v.strictObject({
     description: v.optional(v.string()),
     spotMarkets: v.optional(v.array(SpotMarketRuleSchema)),
     spotMarketScope: v.optional(PolicyMarketScopeEnumSchema),
-    actions: v.optional(v.array(PolicyActionEnumSchema)),
+    actions: v.optional(v.array(SubaccountPolicyActionEnumSchema)),
     maxOrderSize: v.optional(v.nullable(MaxOrderSizeInputSchema)),
     maxOpenOrders: v.optional(v.nullable(v.pipe(v.number(), v.maxValue(PROTOBUF_UINT32_MAX)))),
     tradingHalted: v.optional(v.boolean()),

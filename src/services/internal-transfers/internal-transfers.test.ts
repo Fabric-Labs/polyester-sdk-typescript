@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { ValidationError } from "../../shared/errors.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
@@ -33,6 +34,7 @@ const acceptedTransfer = {
         subaccountPublicId: "",
         smartAccountAddress: "0xabc123",
     },
+    flowId: "flow-1",
 };
 
 describe("InternalTransfersService", () => {
@@ -71,6 +73,7 @@ describe("InternalTransfersService", () => {
                 subaccountId: undefined,
                 smartAccountAddress: "0xabc123",
             },
+            flowId: "flow-1",
         });
 
         const captured = transport.lastCall();
@@ -166,5 +169,70 @@ describe("InternalTransfersService", () => {
                 idempotencyKey: "transfer-3",
             }),
         ).rejects.toThrow();
+    });
+
+    const receipt = {
+        requestId: "req-1",
+        transferId: "254811058965469215576143367742519946794",
+        flowId: "flow-1",
+        acceptedAtTsNs: 1_700_000_000_123_456_789n,
+    };
+
+    it("reads an accepted transfer by transfer ID in the resolved source account", async () => {
+        const resolver: SubaccountResolver = { getDefaultSubaccountId: () => formatId(11n) };
+        const transport = unaryTransport(receipt);
+        const service = new InternalTransfersService(
+            { authApi: transport.transport },
+            resolver,
+            testScales(),
+        );
+
+        await expect(service.get({ transferId: ` ${receipt.transferId} ` })).resolves.toEqual({
+            requestId: "req-1",
+            transferId: receipt.transferId,
+            flowId: "flow-1",
+            acceptedAtUnixMs: 1_700_000_000_123,
+            acceptedAtNs: "1700000000123456789",
+        });
+
+        const captured = transport.lastCall();
+        expect(captured?.method.localName).toBe("getInternalTransfer");
+        expect(captured?.message).toMatchObject({
+            subaccountId: 11n,
+            identifier: { case: "transferId", value: receipt.transferId },
+        });
+    });
+
+    it("reads by request ID in the main account", async () => {
+        const transport = unaryTransport(receipt);
+        const service = new InternalTransfersService(
+            { authApi: transport.transport },
+            undefined,
+            testScales(),
+        );
+
+        await service.get({ account: "main", requestId: "req-1" });
+
+        const captured = transport.lastCall();
+        expect(captured?.message).not.toHaveProperty("subaccountId");
+        expect(captured?.message).toMatchObject({
+            identifier: { case: "requestId", value: "req-1" },
+        });
+    });
+
+    it.each([
+        { name: "neither identifier", input: {} },
+        { name: "both identifiers", input: { requestId: "req-1", transferId: "transfer-1" } },
+        { name: "a blank identifier", input: { requestId: " " } },
+    ])("rejects $name before calling the server", async ({ input }) => {
+        const transport = unaryTransport(receipt);
+        const service = new InternalTransfersService(
+            { authApi: transport.transport },
+            undefined,
+            testScales(),
+        );
+
+        await expect(service.get(input as never)).rejects.toBeInstanceOf(ValidationError);
+        expect(transport.unary).not.toHaveBeenCalled();
     });
 });

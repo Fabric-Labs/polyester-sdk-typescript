@@ -1,6 +1,6 @@
 import * as v from "valibot";
 import { ValidationError } from "../shared/errors.js";
-import { PAIR_STATUSES } from "../shared/catalog-config.js";
+import { PAIR_STATUSES, ZIPPER_MEMO_REQUIREMENTS } from "../shared/catalog-config.js";
 import type { CatalogSnapshot } from "./types.js";
 import type { ZippedAssetSupplyCatalogUpdate } from "./zipper-supply.js";
 
@@ -60,6 +60,9 @@ const ZipperChainConfigSchema = v.object({
     isCaseSensitive: v.boolean(),
     minAddressLength: IntegerSchema,
     maxAddressLength: IntegerSchema,
+    memoRequirement: v.optional(v.picklist(ZIPPER_MEMO_REQUIREMENTS)),
+    memoLabel: v.optional(v.string()),
+    memoFormatHint: v.optional(v.string()),
 });
 
 const ZipperTokenConfigSchema = v.object({

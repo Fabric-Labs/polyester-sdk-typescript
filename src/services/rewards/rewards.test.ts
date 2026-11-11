@@ -165,4 +165,67 @@ describe("RewardsService", () => {
         );
         expect(authApi.calls).toHaveLength(0);
     });
+
+    const awardId = "00000000-0000-4000-8000-000000000001";
+
+    it("acknowledges an award and returns its shared seen marks", async () => {
+        const authApi = unaryTransport({
+            award: {
+                ...award,
+                awardId,
+                fulfillmentState: Proto.RewardFulfillmentState.PAID,
+                revealedAt: { seconds: 1_700_000_100n, nanos: 0 },
+                deliverySeenAt: { seconds: 1_700_000_200n, nanos: 0 },
+            },
+        });
+        const service = new RewardsService({ authApi: authApi.transport });
+
+        await expect(
+            service.acknowledgeAward({ awardId: ` ${awardId} `, deliverySeen: true }),
+        ).resolves.toMatchObject({
+            award: {
+                awardId,
+                fulfillmentState: "paid",
+                fulfillmentRevision: "3",
+                revealedAt: 1_700_000_100_000,
+                deliverySeenAt: 1_700_000_200_000,
+            },
+        });
+
+        expect(authApi.lastCall()?.method.name).toBe("AcknowledgeMyRewardAward");
+        expect(authApi.lastCall()?.message).toEqual({
+            awardId,
+            revealed: false,
+            deliverySeen: true,
+        });
+    });
+
+    it("leaves unacknowledged marks absent", async () => {
+        const authApi = unaryTransport({
+            awards: [award],
+            nextPageToken: "",
+            awardsMayChange: true,
+        });
+        const service = new RewardsService({ authApi: authApi.transport });
+
+        const { awards } = await service.listAwards();
+
+        expect(awards[0]?.revealedAt).toBeUndefined();
+        expect(awards[0]?.deliverySeenAt).toBeUndefined();
+    });
+
+    it.each([
+        { name: "no mark", input: { awardId } },
+        { name: "only false marks", input: { awardId, revealed: false, deliverySeen: false } },
+        { name: "non-UUID award id", input: { awardId: "award-1", revealed: true } },
+        { name: "unknown key", input: { awardId, revealed: true, seen: true } },
+    ])("rejects acknowledgement with $name before calling the server", async ({ input }) => {
+        const authApi = unaryTransport({ award });
+        const service = new RewardsService({ authApi: authApi.transport });
+
+        await expect(service.acknowledgeAward(input as never)).rejects.toBeInstanceOf(
+            ValidationError,
+        );
+        expect(authApi.calls).toHaveLength(0);
+    });
 });

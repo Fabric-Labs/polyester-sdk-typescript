@@ -18,7 +18,18 @@ export const TRANSFER_CODE_VALUES = [
     "trading_withdraw_reserve",
     "funding_user_transfer",
     "trading_withdraw_request_fee",
+    "trading_withdraw_fee_leg",
+    "quickswap_polyester_fee",
+    "quickswap_broker_fee",
+    "quickswap_affiliate_fee",
+    "fee_sweep",
+    "fee_refill",
+    "system_adjustment",
 ] as const;
+/**
+ * Ledger transfer type. `system_adjustment` can credit or debit the account (a seeding credit
+ * or a correction), so read the row's `isDebit` for its direction.
+ */
 export type TransferCodeValue = (typeof TRANSFER_CODE_VALUES)[number];
 
 export const AccountCodeCodec = {
@@ -48,6 +59,13 @@ export const TransferCodeCodec = {
         trading_withdraw_reserve: TransferCode.TRADING_WITHDRAW_RESERVE,
         funding_user_transfer: TransferCode.FUNDING_USER_TRANSFER,
         trading_withdraw_request_fee: TransferCode.TRADING_WITHDRAW_REQUEST_FEE,
+        trading_withdraw_fee_leg: TransferCode.TRADING_WITHDRAW_FEE_LEG,
+        quickswap_polyester_fee: TransferCode.QUICKSWAP_POLYESTER_FEE,
+        quickswap_broker_fee: TransferCode.QUICKSWAP_BROKER_FEE,
+        quickswap_affiliate_fee: TransferCode.QUICKSWAP_AFFILIATE_FEE,
+        fee_sweep: TransferCode.FEE_SWEEP,
+        fee_refill: TransferCode.FEE_REFILL,
+        system_adjustment: TransferCode.SYSTEM_ADJUSTMENT,
     } satisfies InputToProto<TransferCodeValue, TransferCode>,
     protoToOutput: {
         [TransferCode.TRANSFER_CODE_UNSPECIFIED]: "unspecified",
@@ -64,5 +82,12 @@ export const TransferCodeCodec = {
         [TransferCode.TRADING_WITHDRAW_RESERVE]: "trading_withdraw_reserve",
         [TransferCode.FUNDING_USER_TRANSFER]: "funding_user_transfer",
         [TransferCode.TRADING_WITHDRAW_REQUEST_FEE]: "trading_withdraw_request_fee",
+        [TransferCode.TRADING_WITHDRAW_FEE_LEG]: "trading_withdraw_fee_leg",
+        [TransferCode.QUICKSWAP_POLYESTER_FEE]: "quickswap_polyester_fee",
+        [TransferCode.QUICKSWAP_BROKER_FEE]: "quickswap_broker_fee",
+        [TransferCode.QUICKSWAP_AFFILIATE_FEE]: "quickswap_affiliate_fee",
+        [TransferCode.FEE_SWEEP]: "fee_sweep",
+        [TransferCode.FEE_REFILL]: "fee_refill",
+        [TransferCode.SYSTEM_ADJUSTMENT]: "system_adjustment",
     } satisfies ProtoToOutput<TransferCode, TransferCodeValue>,
 } as const;

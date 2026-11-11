@@ -71,6 +71,20 @@ export interface SpotConfig {
     tsSec: number;
 }
 
+/**
+ * Memo or destination-tag rule for withdrawal destinations and QuickSwap destination, return
+ * and refund targets on a network. It does not describe deposit instructions. Treat
+ * `"unspecified"` (or an absent value) as unknown: never assume the memo can be omitted.
+ */
+export type ZipperMemoRequirement = "unspecified" | "required" | "optional" | "not_supported";
+
+export const ZIPPER_MEMO_REQUIREMENTS = [
+    "unspecified",
+    "required",
+    "optional",
+    "not_supported",
+] as const satisfies readonly ZipperMemoRequirement[];
+
 export interface ZipperChainConfig {
     chainId: number;
     code: string;
@@ -84,6 +98,12 @@ export interface ZipperChainConfig {
     isCaseSensitive: boolean;
     minAddressLength: number;
     maxAddressLength: number;
+    /** Memo rule for payout targets on this network. Absent on older snapshots. */
+    memoRequirement?: ZipperMemoRequirement;
+    /** Display label, such as "Destination tag" or "Memo"; empty when unsupported. Absent on older snapshots. */
+    memoLabel?: string;
+    /** Display-only format guidance; do not parse it. Empty when none applies. Absent on older snapshots. */
+    memoFormatHint?: string;
 }
 
 export interface ZipperTokenConfig {

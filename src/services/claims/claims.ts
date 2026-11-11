@@ -18,7 +18,8 @@ import {
 
 /**
  * Reads and claims daily campaign rewards for the authenticated root account or a subaccount it owns.
- * The server accepts session JWTs for this service; API keys are not accepted.
+ * Calls accept a session JWT, or an API key scoped to the main account whose policy grants
+ * `read-daily-claims` (status) or `claim-daily-reward` (claim).
  */
 export class ClaimsService {
     #client: Client<typeof Proto.ClaimsService>;
@@ -40,7 +41,9 @@ export class ClaimsService {
     /**
      * Claims the current UTC day's reward, paid to the root account or to `subaccountId` when it
      * names a subaccount the root account owns. The destination is fixed by the first claim of the
-     * day; retrying returns the same claim and destination.
+     * day; retrying returns the same claim and destination. A `ClaimOutcomeUnknownError` means the
+     * claim is recorded and its payout submitted but not yet confirmed: show it as pending, then
+     * poll `getDailyClaimStatus` until its `claimId` is `claimed`, or retry this call.
      */
     async claimDailyReward(
         input: ClaimDailyRewardInput = {},

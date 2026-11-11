@@ -17,7 +17,8 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * │   ├── RateLimitError             RATE_LIMITED                true
  * │   ├── TimestampSkewError         TIMESTAMP_SKEW              true
  * │   │   └── RequestDeadlineExceededError REQUEST_DEADLINE_EXCEEDED
- * │   └── ServiceUnavailableError    SERVICE_UNAVAILABLE         true
+ * │   ├── ServiceUnavailableError    SERVICE_UNAVAILABLE         true
+ * │   └── ClaimOutcomeUnknownError   CLAIM_OUTCOME_UNKNOWN       true
  * ├── RequestError                   REQUEST_FAILED              false
  * │   ├── ValidationError            VALIDATION_FAILED           false
  * │   │   ├── StaleQuoteError            STALE_QUOTE
@@ -77,6 +78,7 @@ export type PolyesterErrorCode =
     | "TIMESTAMP_SKEW"
     | "REQUEST_DEADLINE_EXCEEDED"
     | "SERVICE_UNAVAILABLE"
+    | "CLAIM_OUTCOME_UNKNOWN"
     | "REQUEST_FAILED"
     | "VALIDATION_FAILED"
     | "STALE_QUOTE"
@@ -250,6 +252,29 @@ export class ServiceUnavailableError extends TransientError {
     constructor(message: string, options?: PolyesterErrorOptions) {
         super(message, options);
         this.name = "ServiceUnavailableError";
+    }
+}
+
+export interface ClaimOutcomeUnknownErrorOptions extends PolyesterErrorOptions {
+    /** Claim the error concerns, when the backend named it. */
+    claimId?: string;
+}
+
+/**
+ * Today's daily claim is recorded and its payout was submitted, but its result could not be
+ * confirmed. Treat it as a pending claim, not a failure: the claim is never paid twice, so poll
+ * `claims.getDailyClaimStatus` until `claimId` matches and the claim is `claimed`, or retry
+ * `claims.claimDailyReward` to get its current state.
+ */
+export class ClaimOutcomeUnknownError extends TransientError {
+    override readonly code: string = "CLAIM_OUTCOME_UNKNOWN";
+    /** Claim the error concerns, when the backend named it. */
+    readonly claimId: string | undefined;
+
+    constructor(message: string, options?: ClaimOutcomeUnknownErrorOptions) {
+        super(message, options);
+        this.name = "ClaimOutcomeUnknownError";
+        this.claimId = options?.claimId;
     }
 }
 

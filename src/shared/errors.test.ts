@@ -57,6 +57,7 @@ import {
 import {
     AlreadyExistsError,
     AuthenticationError,
+    ClaimOutcomeUnknownError,
     ConfigurationError,
     errorFromHttpStatus,
     InternalServerError,
@@ -165,6 +166,7 @@ describe("error hierarchy", () => {
             TIMESTAMP_SKEW: true,
             REQUEST_DEADLINE_EXCEEDED: true,
             SERVICE_UNAVAILABLE: true,
+            CLAIM_OUTCOME_UNKNOWN: true,
             REQUEST_FAILED: true,
             VALIDATION_FAILED: true,
             STALE_QUOTE: true,
@@ -563,6 +565,42 @@ describe("connectErrorToPolyesterError", () => {
         expect(mapped.retryable).toBe(true);
         expect((mapped as RateLimitError).retryAfterMs).toBeUndefined();
         expect(mapped.detail).toMatchObject({ service: "orders", code: "OVERLOADED" });
+    });
+
+    it("maps an unconfirmed daily claim to a retryable pending error with its claim ID", () => {
+        const claimDetail = (claimId: string) =>
+            new ConnectError(
+                "claim payout result is not confirmed yet",
+                Code.Unavailable,
+                undefined,
+                [
+                    {
+                        desc: ClaimsErrorDetailSchema,
+                        value: create(ClaimsErrorDetailSchema, {
+                            code: ClaimsErrorCode.CLAIM_OUTCOME_UNKNOWN,
+                            claimId,
+                        }),
+                    },
+                ],
+            );
+
+        const mapped = connectErrorToPolyesterError(claimDetail("dcl_1"));
+        expect(mapped).toBeInstanceOf(ClaimOutcomeUnknownError);
+        expect(mapped).toBeInstanceOf(TransientError);
+        expect(mapped).not.toBeInstanceOf(ServiceUnavailableError);
+        expect(mapped.code).toBe("CLAIM_OUTCOME_UNKNOWN");
+        expect(mapped.retryable).toBe(true);
+        expect((mapped as ClaimOutcomeUnknownError).claimId).toBe("dcl_1");
+        expect(mapped.detail).toEqual({
+            service: "claims",
+            code: "CLAIM_OUTCOME_UNKNOWN",
+            claimId: "dcl_1",
+        });
+
+        const unnamed = connectErrorToPolyesterError(claimDetail(""));
+        expect(unnamed).toBeInstanceOf(ClaimOutcomeUnknownError);
+        expect((unnamed as ClaimOutcomeUnknownError).claimId).toBeUndefined();
+        expect(unnamed.detail).toEqual({ service: "claims", code: "CLAIM_OUTCOME_UNKNOWN" });
     });
 
     it("maps a receive window that ended before admission to a retryable re-sign error", () => {

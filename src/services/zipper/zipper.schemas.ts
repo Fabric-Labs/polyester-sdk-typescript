@@ -1,10 +1,14 @@
 import * as v from "valibot";
+import { MemoRequirement } from "../../gen/chain/zipper/v1/zipper_pb.js";
+import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
+import type { ProtoToOutput } from "../../utils/types.js";
 import type {
     DepositWithdrawConfig,
     ZipperAssetChainVariant,
     ZipperAssetConfig,
     ZipperChainConfig,
     ZipperChainContractConfig,
+    ZipperMemoRequirement,
 } from "../../shared/catalog-config.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 
@@ -14,7 +18,17 @@ export type {
     ZipperAssetConfig,
     ZipperChainConfig,
     ZipperChainContractConfig,
+    ZipperMemoRequirement,
 };
+
+export const ZipperMemoRequirementCodec = {
+    protoToOutput: {
+        [MemoRequirement.MEMO_UNSPECIFIED]: "unspecified",
+        [MemoRequirement.REQUIRED]: "required",
+        [MemoRequirement.OPTIONAL]: "optional",
+        [MemoRequirement.NOT_SUPPORTED]: "not_supported",
+    } satisfies ProtoToOutput<MemoRequirement, ZipperMemoRequirement>,
+} as const;
 
 export const ZipperChainConfigSchema = v.object({
     chainId: v.number(),
@@ -29,6 +43,9 @@ export const ZipperChainConfigSchema = v.object({
     isCaseSensitive: v.optional(v.boolean(), false),
     minAddressLength: v.number(),
     maxAddressLength: v.number(),
+    memoRequirement: v.optional(enumLabelSchema(ZipperMemoRequirementCodec.protoToOutput), 0),
+    memoLabel: v.optional(v.string(), ""),
+    memoFormatHint: v.optional(v.string(), ""),
 });
 
 const ZipperAssetChainVariantWireSchema = v.object({

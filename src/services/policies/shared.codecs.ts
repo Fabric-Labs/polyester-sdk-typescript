@@ -2,7 +2,8 @@ import * as Proto from "../../gen/auth/v1/policies_pb.js";
 import { enumLabel } from "../../shared/proto-enum-codec.js";
 import type { DecodedEnum, ProtoToOutput } from "../../utils/types.js";
 
-export const POLICY_ACTION_LABELS = [
+/** Product actions, accepted by sub-account and API-key policies. */
+export const PRODUCT_POLICY_ACTION_LABELS = [
     "trade-spot",
     "internal-transfer",
     "external-withdraw",
@@ -14,6 +15,32 @@ export const POLICY_ACTION_LABELS = [
     "read-auto-withdraw",
     "manage-auto-withdraw",
     "swap",
+] as const;
+
+/**
+ * Account permissions, accepted by API-key policies only: a sub-account policy refuses them.
+ * Each grants exactly the calls it names, and main-account permissions apply only to keys
+ * scoped to the main account.
+ */
+export const ACCOUNT_PERMISSION_POLICY_ACTION_LABELS = [
+    "read-api-keys",
+    "read-api-policies",
+    "read-subaccount-policies",
+    "read-subaccount-permissions",
+    "read-vip-status",
+    "read-social-verification",
+    "read-profile",
+    "read-account-directory",
+    "read-withdraw-validation",
+    "read-daily-claims",
+    "claim-daily-reward",
+    "read-checkpoints",
+    "read-rewards",
+] as const;
+
+export const POLICY_ACTION_LABELS = [
+    ...PRODUCT_POLICY_ACTION_LABELS,
+    ...ACCOUNT_PERMISSION_POLICY_ACTION_LABELS,
 ] as const;
 export type PolicyActionLabel = (typeof POLICY_ACTION_LABELS)[number];
 
@@ -46,6 +73,19 @@ export const PolicyActionCodec = {
         [Proto.PolicyAction.READ_AUTO_WITHDRAW]: "read-auto-withdraw",
         [Proto.PolicyAction.MANAGE_AUTO_WITHDRAW]: "manage-auto-withdraw",
         [Proto.PolicyAction.SWAP]: "swap",
+        [Proto.PolicyAction.READ_API_KEYS]: "read-api-keys",
+        [Proto.PolicyAction.READ_API_POLICIES]: "read-api-policies",
+        [Proto.PolicyAction.READ_SUBACCOUNT_POLICIES]: "read-subaccount-policies",
+        [Proto.PolicyAction.READ_SUBACCOUNT_PERMISSIONS]: "read-subaccount-permissions",
+        [Proto.PolicyAction.READ_VIP_STATUS]: "read-vip-status",
+        [Proto.PolicyAction.READ_SOCIAL_VERIFICATION]: "read-social-verification",
+        [Proto.PolicyAction.READ_PROFILE]: "read-profile",
+        [Proto.PolicyAction.READ_ACCOUNT_DIRECTORY]: "read-account-directory",
+        [Proto.PolicyAction.READ_WITHDRAW_VALIDATION]: "read-withdraw-validation",
+        [Proto.PolicyAction.READ_DAILY_CLAIMS]: "read-daily-claims",
+        [Proto.PolicyAction.CLAIM_DAILY_REWARD]: "claim-daily-reward",
+        [Proto.PolicyAction.READ_CHECKPOINTS]: "read-checkpoints",
+        [Proto.PolicyAction.READ_REWARDS]: "read-rewards",
     } satisfies ProtoToOutput<Proto.PolicyAction, PolicyActionLabel>,
     inputToProto: {
         "trade-spot": Proto.PolicyAction.TRADE_SPOT,
@@ -59,6 +99,19 @@ export const PolicyActionCodec = {
         "read-auto-withdraw": Proto.PolicyAction.READ_AUTO_WITHDRAW,
         "manage-auto-withdraw": Proto.PolicyAction.MANAGE_AUTO_WITHDRAW,
         swap: Proto.PolicyAction.SWAP,
+        "read-api-keys": Proto.PolicyAction.READ_API_KEYS,
+        "read-api-policies": Proto.PolicyAction.READ_API_POLICIES,
+        "read-subaccount-policies": Proto.PolicyAction.READ_SUBACCOUNT_POLICIES,
+        "read-subaccount-permissions": Proto.PolicyAction.READ_SUBACCOUNT_PERMISSIONS,
+        "read-vip-status": Proto.PolicyAction.READ_VIP_STATUS,
+        "read-social-verification": Proto.PolicyAction.READ_SOCIAL_VERIFICATION,
+        "read-profile": Proto.PolicyAction.READ_PROFILE,
+        "read-account-directory": Proto.PolicyAction.READ_ACCOUNT_DIRECTORY,
+        "read-withdraw-validation": Proto.PolicyAction.READ_WITHDRAW_VALIDATION,
+        "read-daily-claims": Proto.PolicyAction.READ_DAILY_CLAIMS,
+        "claim-daily-reward": Proto.PolicyAction.CLAIM_DAILY_REWARD,
+        "read-checkpoints": Proto.PolicyAction.READ_CHECKPOINTS,
+        "read-rewards": Proto.PolicyAction.READ_REWARDS,
     } satisfies Record<PolicyActionLabel, Proto.PolicyAction>,
 } as const;
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
-import { DepositWithdrawConfigSchema } from "./zipper.schemas.js";
+import { MemoRequirement } from "../../gen/chain/zipper/v1/zipper_pb.js";
+import { DepositWithdrawConfigSchema, ZipperChainConfigSchema } from "./zipper.schemas.js";
 
 describe("DepositWithdrawConfigSchema", () => {
     it("normalizes generated zipper config defaults", () => {
@@ -56,6 +57,9 @@ describe("DepositWithdrawConfigSchema", () => {
                     isCaseSensitive: false,
                     minAddressLength: 42,
                     maxAddressLength: 42,
+                    memoRequirement: "unspecified",
+                    memoLabel: "",
+                    memoFormatHint: "",
                 },
             ],
             assets: [
@@ -102,5 +106,34 @@ describe("DepositWithdrawConfigSchema", () => {
                 tsSec: 1_700_000_000,
             }),
         ).toThrow();
+    });
+
+    it.each([
+        [MemoRequirement.REQUIRED, "required"],
+        [MemoRequirement.OPTIONAL, "optional"],
+        [MemoRequirement.NOT_SUPPORTED, "not_supported"],
+        [99, "unspecified"],
+    ] as const)("decodes memo requirement %i as %s", (memoRequirement, label) => {
+        const chain = v.parse(ZipperChainConfigSchema, {
+            chainId: 144,
+            code: "XRP",
+            name: "XRP Ledger",
+            nativeCurrencySymbol: "XRP",
+            explorerUrl: "https://livenet.xrpl.org",
+            icon: "xrp.svg",
+            requiredConfirmations: 1,
+            confirmationTimeSeconds: 4,
+            minAddressLength: 25,
+            maxAddressLength: 35,
+            memoRequirement,
+            memoLabel: "Destination tag",
+            memoFormatHint: "Up to 10 digits",
+        });
+
+        expect(chain).toMatchObject({
+            memoRequirement: label,
+            memoLabel: "Destination tag",
+            memoFormatHint: "Up to 10 digits",
+        });
     });
 });

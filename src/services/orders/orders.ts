@@ -348,6 +348,8 @@ export class OrdersService {
 
     /**
      * Replaces 1–50 same-symbol orders and returns an index-stable durable admission receipt. Reuse requestId only when retrying the same logical batch; use the returned batchRequestId for later status reads. An AMENDED actionTaken is cancel-only with no successor; keep tracking oldOrderId until its terminal state is confirmed.
+     *
+     * The receipt answers admission, before each admitted item's change completes. Until then, the next change of the same order is rejected with the retryable item `code` `ORDER_MODIFY_IN_PROGRESS`, or `ORDER_PLACEMENT_PENDING` when it names the returned `replacementOrderId`. Resend only those items, in a new batch under a fresh `requestId`, after a short jittered backoff (for example 50 ms doubling to 1 s). The rejected batch's `requestId` replays its rejection, admitted items must never be resent, and a batch whose outcome you did not receive is reconciled under its own `requestId`, never resent under a new one.
      */
     async batchReplace(
         input: BatchReplaceOrdersInput,

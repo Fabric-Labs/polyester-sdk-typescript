@@ -131,6 +131,7 @@ describe("CreateInternalTransferResultSchema", () => {
                 subaccountPublicId: "sub-public",
                 smartAccountAddress: "0xabc123",
             },
+            flowId: " flow-1 ",
         });
 
         expect(result).toEqual({
@@ -146,6 +147,7 @@ describe("CreateInternalTransferResultSchema", () => {
                 subaccountId: "sub-public",
                 smartAccountAddress: "0xabc123",
             },
+            flowId: "flow-1",
         });
     });
 

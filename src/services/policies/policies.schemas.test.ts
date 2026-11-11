@@ -9,6 +9,7 @@ import {
     UpdateApiKeyPolicyInputSchema,
 } from "./api-key-policies/api-key-policies.schemas.js";
 import {
+    CreateSubaccountPolicyInputSchema,
     SubaccountPolicySchema,
     UpdateSubaccountPolicyInputSchema,
 } from "./subaccount-policies/subaccount-policies.schemas.js";
@@ -181,6 +182,32 @@ describe("policy patch schemas", () => {
             },
             expectedRevision: 4n,
         });
+    });
+
+    it("accepts account permissions on API-key policies only", () => {
+        expect(
+            v.parse(UpdateApiKeyPolicyInputSchema, {
+                policyId: formatId(1n),
+                expectedRevision: "3",
+                actions: ["read-api-keys", "claim-daily-reward"],
+            }).policy,
+        ).toEqual({
+            actions: [Proto.PolicyAction.READ_API_KEYS, Proto.PolicyAction.CLAIM_DAILY_REWARD],
+        });
+        expect(() =>
+            v.parse(UpdateSubaccountPolicyInputSchema, {
+                policyId: formatId(1n),
+                expectedRevision: "4",
+                actions: ["read-api-keys"],
+            }),
+        ).toThrow();
+        expect(() =>
+            v.parse(CreateSubaccountPolicyInputSchema, {
+                name: "Subaccount policy",
+                spotMarketScope: "all",
+                actions: ["read-balances", "read-rewards"],
+            }),
+        ).toThrow();
     });
 
     it("preserves API policy empty arrays and false", () => {
