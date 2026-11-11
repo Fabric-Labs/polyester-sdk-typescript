@@ -10,7 +10,7 @@ export type OrderTypeValue = (typeof ORDER_TYPE_VALUES)[number];
 
 export const TIME_IN_FORCE_VALUES = ["gtc", "ioc", "fok"] as const;
 export type TimeInForceValue = (typeof TIME_IN_FORCE_VALUES)[number];
-export const TIME_IN_FORCE_OUTPUT_VALUES = ["GTC", "IOC", "FOK", "GTD"] as const;
+export const TIME_IN_FORCE_OUTPUT_VALUES = ["gtc", "ioc", "fok", "gtd"] as const;
 export type TimeInForceOutputValue = (typeof TIME_IN_FORCE_OUTPUT_VALUES)[number];
 
 export const FEE_ASSET_VALUES = ["quote", "base"] as const;
@@ -58,10 +58,10 @@ export const TimeInForceCodec = {
     } satisfies InputToProto<TimeInForceValue, ProtoWrite.TimeInForce>,
     protoToOutput: {
         [ProtoWrite.TimeInForce.TIME_IN_FORCE_UNSPECIFIED]: "unspecified",
-        [ProtoWrite.TimeInForce.GTC]: "GTC",
-        [ProtoWrite.TimeInForce.IOC]: "IOC",
-        [ProtoWrite.TimeInForce.FOK]: "FOK",
-        [ProtoWrite.TimeInForce.GTD]: "GTD",
+        [ProtoWrite.TimeInForce.GTC]: "gtc",
+        [ProtoWrite.TimeInForce.IOC]: "ioc",
+        [ProtoWrite.TimeInForce.FOK]: "fok",
+        [ProtoWrite.TimeInForce.GTD]: "gtd",
     } satisfies ProtoToOutput<ProtoWrite.TimeInForce, TimeInForceOutputValue>,
 } as const;
 

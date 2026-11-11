@@ -530,7 +530,7 @@ describe("batch replace schemas", () => {
                     status: "admitted",
                     oldOrderId: formatId(11n),
                     replacementOrderId: formatId(12n),
-                    actionTaken: "REPLACED",
+                    actionTaken: "replaced",
                     clientOrderId: "order-a-v2",
                     code: undefined,
                 },
@@ -582,7 +582,7 @@ describe("batch replace schemas", () => {
     });
 
     it.each([
-        [ProtoWrite.ModifyActionTaken.AMENDED, "AMENDED"],
+        [ProtoWrite.ModifyActionTaken.AMENDED, "amended"],
         [ProtoWrite.ModifyActionTaken.MODIFY_ACTION_UNSPECIFIED, "unspecified"],
         [999, "unspecified"],
     ])(
@@ -678,7 +678,7 @@ describe("batch replace schemas", () => {
                     phase: "working",
                     oldOrderId: formatId(11n),
                     replacementOrderId: formatId(12n),
-                    actionTaken: "REPLACED",
+                    actionTaken: "replaced",
                     orderStatus: "working",
                     code: undefined,
                     updatedTs: 4_000,

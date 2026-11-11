@@ -24,7 +24,7 @@ export {
     type TriggerPriceSourceValue,
 } from "./order-enums.codecs.js";
 
-export const ORDER_STATUS_FILTER_VALUES = ["FILLED", "CANCELED", "REJECTED"] as const;
+export const ORDER_STATUS_FILTER_VALUES = ["filled", "canceled", "rejected"] as const;
 export type OrderStatusFilterValue = (typeof ORDER_STATUS_FILTER_VALUES)[number];
 
 export const ORDER_STATUS_VALUES = [
@@ -113,10 +113,10 @@ export const ATTACHED_RISK_LEG_STATUS_VALUES = [
 ] as const;
 export type AttachedRiskLegStatusValue = (typeof ATTACHED_RISK_LEG_STATUS_VALUES)[number];
 
-export const MODIFY_BEHAVIOR_VALUES = ["AMEND_OR_REPLACE", "AMEND_ONLY", "REPLACE_ONLY"] as const;
+export const MODIFY_BEHAVIOR_VALUES = ["amend_or_replace", "amend_only", "replace_only"] as const;
 export type ModifyBehaviorValue = (typeof MODIFY_BEHAVIOR_VALUES)[number];
 
-export const MODIFY_ACTION_VALUES = ["AMENDED", "REPLACED"] as const;
+export const MODIFY_ACTION_VALUES = ["amended", "replaced"] as const;
 export type ModifyActionValue = (typeof MODIFY_ACTION_VALUES)[number];
 
 export const BATCH_REPLACE_ADMISSION_STATUS_VALUES = [
@@ -179,9 +179,9 @@ export const BatchCancelOrderStatusCodec = {
 
 export const OrderStatusFilterCodec = {
     inputToProto: {
-        FILLED: ProtoRead.OrderStatus.FILLED,
-        CANCELED: ProtoRead.OrderStatus.CANCELED,
-        REJECTED: ProtoRead.OrderStatus.REJECTED,
+        filled: ProtoRead.OrderStatus.FILLED,
+        canceled: ProtoRead.OrderStatus.CANCELED,
+        rejected: ProtoRead.OrderStatus.REJECTED,
     } satisfies InputToProto<OrderStatusFilterValue, ProtoRead.OrderStatus>,
 } as const;
 
@@ -234,17 +234,17 @@ export const AttachedRiskLegStatusCodec = {
 
 export const ModifyBehaviorCodec = {
     inputToProto: {
-        AMEND_OR_REPLACE: ProtoWrite.ModifyBehavior.AMEND_OR_REPLACE,
-        AMEND_ONLY: ProtoWrite.ModifyBehavior.AMEND_ONLY,
-        REPLACE_ONLY: ProtoWrite.ModifyBehavior.REPLACE_ONLY,
+        amend_or_replace: ProtoWrite.ModifyBehavior.AMEND_OR_REPLACE,
+        amend_only: ProtoWrite.ModifyBehavior.AMEND_ONLY,
+        replace_only: ProtoWrite.ModifyBehavior.REPLACE_ONLY,
     } satisfies InputToProto<ModifyBehaviorValue, ProtoWrite.ModifyBehavior>,
 } as const;
 
 export const ModifyActionCodec = {
     protoToOutput: {
         [ProtoWrite.ModifyActionTaken.MODIFY_ACTION_UNSPECIFIED]: "unspecified",
-        [ProtoWrite.ModifyActionTaken.AMENDED]: "AMENDED",
-        [ProtoWrite.ModifyActionTaken.REPLACED]: "REPLACED",
+        [ProtoWrite.ModifyActionTaken.AMENDED]: "amended",
+        [ProtoWrite.ModifyActionTaken.REPLACED]: "replaced",
     } satisfies ProtoToOutput<ProtoWrite.ModifyActionTaken, ModifyActionValue>,
 } as const;
 
