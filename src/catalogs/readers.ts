@@ -432,7 +432,7 @@ class LedgerReader implements LedgerCatalogReader {
         const found =
             key.lookup === "symbol"
                 ? this.getAssetBySymbol(key.value)
-                : this.getAssetByLedgerId(key.value);
+                : this.market.lookupAssetByLedgerId(key.value);
         return requireFound("ledger", key.lookup, key.value, found);
     }
 }

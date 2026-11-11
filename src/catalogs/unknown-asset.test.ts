@@ -56,6 +56,40 @@ describe("unknown asset catalog lookups", () => {
         expect(() => scales.ledgerAmount(404)).toThrow(CatalogLookupError);
     });
 
+    it("ledger amount helpers fail closed instead of decoding an unknown asset at scale 6", () => {
+        const catalog = createTestCatalog({ assets: [] });
+        const amount = 1_500_000_000_000_000_000n;
+        const helpers = [
+            () => catalog.ledger.amountScaledToDecimalString(amount, 31337),
+            () => catalog.ledger.amountScaledToDisplayString(amount, { ledgerId: 31337 }),
+            () => catalog.ledger.decimalAmountToScaled("1.5", 31337),
+            () => catalog.ledger.normalizeAmountInput("1.5", 31337),
+            () => catalog.ledger.formatAmount("1.5", 31337),
+        ];
+
+        for (const helper of helpers) {
+            expect(helper).toThrow(new CatalogLookupError("ledger", "ledgerId", 31337));
+        }
+    });
+
+    it("ledger amount helpers still decode a known scale-18 asset", () => {
+        const catalog = createTestCatalog({
+            assets: [
+                {
+                    symbol: "ETH",
+                    ledgerId: 31337,
+                    name: "Ether",
+                    quantityDisplayDecimals: 6,
+                    quantityScale: 18,
+                },
+            ],
+        });
+
+        expect(catalog.ledger.amountScaledToDecimalString(1_500_000_000_000_000_000n, 31337)).toBe(
+            "1.5",
+        );
+    });
+
     it("zipper.getAssetByLedgerId returns unknown asset for missing ids", () => {
         const catalog = createTestCatalog({ assets: [] });
 
