@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
+import type { DescService } from "@bufbuild/protobuf";
 import { describe, expect, it } from "vitest";
 import { WIRED_SERVICE_DESCRIPTORS } from "../src/wired-services.js";
 
@@ -100,5 +101,57 @@ describe("WIRED_SERVICE_DESCRIPTORS", () => {
     it("contains no duplicates", () => {
         const names = WIRED_SERVICE_DESCRIPTORS.map((d) => d.typeName);
         expect(new Set(names).size).toBe(names.length);
+    });
+});
+
+/**
+ * Generated services and RPCs deliberately left out of the SDK service layer, by proto name
+ * (`pkg.Service` or `pkg.Service.Method`). Everything else under `src/gen` must be wrapped:
+ * a new service or RPC fails the test below until it is wrapped or listed here.
+ */
+const UNWRAPPED_BY_DESIGN = new Set([
+    // QuickSwap is consumed through its own integration, not the SDK.
+    "swap.quickswap.v1.QuickSwapService",
+    "swap.quickswap.v1.QuickSwapBrokerService",
+    "swap.quickswap.v1.QuickSwapReferralService",
+    // Not wrapped yet; exported raw through `@polyester/sdk/unstable/gen`.
+    "swap.v1.SwapService",
+]);
+
+describe("generated service coverage", () => {
+    it("wraps every generated service and RPC not excluded by design", async () => {
+        const sourceFiles = readdirSync(SRC_DIR, { recursive: true, withFileTypes: true })
+            .filter((entry) => entry.isFile() && entry.name.endsWith(".ts"))
+            .map((entry) => path.join(entry.parentPath, entry.name));
+        const sdkSource = sourceFiles
+            .filter((file) => !file.includes(`${path.sep}gen${path.sep}`))
+            .filter((file) => !file.endsWith(".test.ts"))
+            .map((file) => readFileSync(file, "utf8"))
+            .join("\n");
+        const wired = new Set(WIRED_SERVICE_DESCRIPTORS.map((d) => d.typeName));
+
+        const missing: string[] = [];
+        for (const file of sourceFiles.filter((f) => f.endsWith("_pb.ts"))) {
+            const module: Record<string, unknown> = await import(/* @vite-ignore */ file);
+            for (const value of Object.values(module)) {
+                const service = value as Partial<DescService> | undefined;
+                if (service?.kind !== "service" || !service.typeName || !service.methods) continue;
+                if (UNWRAPPED_BY_DESIGN.has(service.typeName)) continue;
+                if (!wired.has(service.typeName)) {
+                    missing.push(service.typeName);
+                    continue;
+                }
+                for (const method of service.methods) {
+                    const name = `${service.typeName}.${method.name}`;
+                    if (UNWRAPPED_BY_DESIGN.has(name)) continue;
+                    // ponytail: matches the method name anywhere in src, so a same-named call on
+                    // another service counts; resolve call sites per client if that bites.
+                    if (!sdkSource.includes(`.${method.localName}(`)) missing.push(name);
+                }
+            }
+        }
+        expect(missing, "wrap these in src/services or add them to UNWRAPPED_BY_DESIGN").toEqual(
+            [],
+        );
     });
 });

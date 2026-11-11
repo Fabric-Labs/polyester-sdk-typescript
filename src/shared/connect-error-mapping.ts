@@ -252,6 +252,14 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
         );
     }
 
+    // Arrives as Aborted, which would otherwise map to a retryable TransientError.
+    if (detail?.service === "alerts" && detail.code === "REVISION_CONFLICT") {
+        return new RevisionConflictError(
+            withFallback("Price alert changed since it was last read."),
+            options,
+        );
+    }
+
     if (detail?.service === "auth" && detail.code === "AUTH_SUBACCOUNT_CHALLENGE_INVALID") {
         return new SubaccountChallengeInvalidError(
             withFallback("Subaccount challenge is expired, replaced, or invalid."),

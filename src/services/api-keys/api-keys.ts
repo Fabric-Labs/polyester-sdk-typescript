@@ -22,7 +22,9 @@ import {
     ApiKeysUpdateInputSchema,
     ApiKeySchema,
     ApiKeysSchema,
+    SetAssistantKeysInputSchema,
     type ApiKey,
+    type SetAssistantKeysInput,
 } from "./api-keys.schemas.js";
 
 interface SubscribeApiKeysInput extends BaseSubscribeInput<ApiKey> {
@@ -119,6 +121,40 @@ export class ApiKeysService {
             toConnectCallOptions(options),
         );
         return res.apiKey ? parse(ApiKeySchema, res.apiKey) : null;
+    }
+
+    /**
+     * Replaces the caller's Polyester AI assistant key set: one `assistant` key per account,
+     * each bounded by its API policy, all or nothing. Register the keys `assistant.prepareKeys`
+     * returned before their deadline, then call `assistant.completeKeys`. Needs a fresh
+     * `stepUpToken` for the whole set. A policy that allows moving value out throws
+     * `PreconditionFailedError` (`AUTH_ASSISTANT_KEY_ACTION_NOT_ALLOWED`).
+     */
+    async setAssistantKeys(
+        input: SetAssistantKeysInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<ApiKey[]> {
+        const request = parse(SetAssistantKeysInputSchema, input);
+        const res = await this.#client.setAssistantKeys(
+            { keys: request.keys.map((key) => removeUndefined(key)) },
+            toConnectCallOptions(options),
+        );
+        return parse(ApiKeysSchema, res.apiKeys);
+    }
+
+    /** Lists the caller's non-revoked assistant keys, newest first. */
+    async listAssistantKeys(options?: PolyesterRequestOptions): Promise<ApiKey[]> {
+        const res = await this.#client.listAssistantKeys({}, toConnectCallOptions(options));
+        return parse(ApiKeysSchema, res.apiKeys);
+    }
+
+    /**
+     * Permanently revokes the caller's whole assistant key set; needs no step-up. Returns the
+     * revoked key IDs, empty when the set was already empty.
+     */
+    async deleteAssistantKeys(options?: PolyesterMutationOptions): Promise<string[]> {
+        const res = await this.#client.deleteAssistantKeys({}, toConnectCallOptions(options));
+        return res.revokedKeyIds;
     }
 
     /**

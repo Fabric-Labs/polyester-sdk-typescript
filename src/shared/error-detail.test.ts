@@ -35,6 +35,8 @@ import {
     ErrorCode as InternalTransferErrorCode,
     ErrorDetailSchema as InternalTransferErrorDetailSchema,
 } from "../gen/transfer/v1/internal_transfer_pb.js";
+import { ErrorDetailSchema as AssistantErrorDetailSchema } from "../gen/ai/v1/assistant_pb.js";
+import { ErrorDetailSchema as PriceAlertErrorDetailSchema } from "../gen/alerts/v1/price_alerts_pb.js";
 import {
     ERROR_DETAIL_TYPE_NAMES,
     loadErrorDetailDecoders,
@@ -272,6 +274,8 @@ describe("parseConnectErrorDetail", () => {
                 LedgerErrorDetailSchema,
                 MarketOverviewErrorDetailSchema,
                 ClaimsErrorDetailSchema,
+                PriceAlertErrorDetailSchema,
+                AssistantErrorDetailSchema,
                 RateLimitDetailSchema,
             ]
                 .map((schema) => schema.typeName)

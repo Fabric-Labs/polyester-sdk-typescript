@@ -143,8 +143,10 @@ import {
     vipPb,
 } from "@polyester/sdk/unstable/gen";
 import type { PolyesterErrorDetail as ErrorsPolyesterErrorDetail } from "@polyester/sdk/errors";
+import { assistantService } from "@polyester/sdk/services/assistant";
 import { autoWithdrawService } from "@polyester/sdk/services/auto-withdraw";
 import { ordersService } from "@polyester/sdk/services/orders";
+import { priceAlertsService } from "@polyester/sdk/services/price-alerts";
 import { tradingRateLimitsService } from "@polyester/sdk/services/rate-limits";
 
 declare const client: PolyesterClient;
@@ -269,6 +271,32 @@ async function verifyServiceInference(): Promise<void> {
         autoWithdrawRuns.runs[0]?.state,
     );
     expectType<string | undefined>(autoWithdrawRuns.runs[0]?.steps[0]?.amount);
+    const priceAlert = await client.priceAlerts.create({
+        symbolId: 1,
+        direction: "above",
+        price: "90000",
+        channels: ["in_app"],
+    } satisfies import("@polyester/sdk").CreatePriceAlertInput);
+    expectType<import("@polyester/sdk").PriceAlert>(priceAlert);
+    expectNotAny(priceAlert, true);
+    expectType<import("@polyester/sdk").PriceAlertStatus | "unspecified">(priceAlert.status);
+    expectType<string | null>(priceAlert.triggeredPrice);
+    expectType<import("@polyester/sdk").UpdatePriceAlertResult>(
+        await client.priceAlerts.update({ alertId: priceAlert.alertId, expectedRevision: "1" }),
+    );
+    expectType<import("@polyester/sdk").ListPriceAlertsResult>(await client.priceAlerts.list());
+    expectType<import("@polyester/sdk").SystemVersion>(await client.system.getVersion());
+    const assistantRun = await client.assistant.sendMessage({
+        text: "What is my BTC balance?",
+        idempotencyKey: "k",
+    } satisfies import("@polyester/sdk").SendAssistantMessageInput);
+    expectType<string>(assistantRun.runId);
+    for await (const event of client.assistant.watchRun({ runId: assistantRun.runId })) {
+        expectType<import("@polyester/sdk").AssistantRunEvent>(event);
+        expectNotAny(event, true);
+    }
+    expectType<import("@polyester/sdk").AssistantKey[]>(await client.assistant.listKeys());
+    expectType<import("@polyester/sdk").ApiKey[]>(await client.apiKeys.listAssistantKeys());
     const gtdOrder: import("@polyester/sdk").NewOrderInput = {
         symbolId: 1,
         side: "buy",
@@ -483,6 +511,8 @@ async function verifyCoreServiceAccessors(): Promise<void> {
     await ordersService(serverCore).cancelAll({ symbolIds: [1] });
     expectType<typeof client.tradingRateLimits>(tradingRateLimitsService(client));
     expectType<typeof client.autoWithdraw>(autoWithdrawService(browserCore));
+    expectType<typeof client.priceAlerts>(priceAlertsService(browserCore));
+    expectType<typeof client.assistant>(assistantService(browserCore));
     expectType<import("@polyester/sdk").AuthState>(browserCore.auth.getState());
     expectType<boolean>(serverCore.hasDisplaySession);
     // @ts-expect-error Cores only expose services through their accessors.
