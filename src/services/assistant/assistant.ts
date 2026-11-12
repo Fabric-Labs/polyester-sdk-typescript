@@ -106,8 +106,8 @@ export class AssistantService {
     }
 
     /**
-     * Asks an active run to stop; it then ends with `run_failed` category `cancelled`.
-     * Cancelling an ended run succeeds and changes nothing.
+     * Asks an active run to stop; it then ends with `run_failed` category `canceled`.
+     * Canceling an ended run succeeds and changes nothing.
      */
     async cancelRun(input: AssistantRunIdInput, options?: PolyesterRequestOptions): Promise<void> {
         const request = parse(AssistantRunIdInputSchema, input);
@@ -234,7 +234,7 @@ export class AssistantService {
     /**
      * Returns the caller's limits on what they may approve from Telegram, in US dollars of
      * notional value, and the value approved from Telegram in the last 24 hours while a limit
-     * was set. Limits apply to placing, swapping, modifying and resuming; cancelling, pausing
+     * was set. Limits apply to placing, swapping, modifying and resuming; canceling, pausing
      * and rejecting are never limited.
      */
     async getTelegramApprovalLimits(

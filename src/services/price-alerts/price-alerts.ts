@@ -75,7 +75,7 @@ export class PriceAlertsService {
      * Changes an alert's direction, price or channels; omitted fields stay as they are. A new
      * direction or price records a new reference price. Updating a triggered alert sets it
      * again, even with no field given. A stale `expectedRevision` throws
-     * `RevisionConflictError`; a cancelled alert throws `PreconditionFailedError`. API keys need
+     * `RevisionConflictError`; a canceled alert throws `PreconditionFailedError`. API keys need
      * `manage-price-alerts`.
      */
     async update(
@@ -91,7 +91,7 @@ export class PriceAlertsService {
     }
 
     /**
-     * Cancels an active alert; cancelling a cancelled alert returns it unchanged. A triggered
+     * Cancels an active alert; canceling a canceled alert returns it unchanged. A triggered
      * alert throws `PreconditionFailedError` (`ALERT_TRIGGERED`). API keys need
      * `manage-price-alerts`.
      */

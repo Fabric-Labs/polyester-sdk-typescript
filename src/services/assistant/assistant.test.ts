@@ -9,6 +9,7 @@ import type { SdkScales } from "../../shared/decimal-surface.js";
 import { ServiceUnavailableError, ValidationError } from "../../shared/errors.js";
 import { unaryTransport } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
+import { FailureCategoryCodec } from "./assistant.codecs.js";
 import { AssistantService } from "./assistant.js";
 import type { AssistantRunEvent } from "./assistant.types.js";
 
@@ -37,6 +38,14 @@ async function collect(stream: AsyncIterable<AssistantRunEvent>) {
     for await (const event of stream) events.push(event);
     return events;
 }
+
+describe("FailureCategoryCodec", () => {
+    it("spells the canceled category with one L", () => {
+        expect(FailureCategoryCodec.protoToOutput[Proto.FailureCategory.CANCELLED]).toBe(
+            "canceled",
+        );
+    });
+});
 
 describe("AssistantService unary calls", () => {
     it("sends a message with public IDs and destinations", async () => {

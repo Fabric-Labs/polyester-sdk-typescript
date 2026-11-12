@@ -5,7 +5,7 @@ export const ASSISTANT_MESSAGE_ROLE_VALUES = ["user", "assistant"] as const;
 export type AssistantMessageRole = (typeof ASSISTANT_MESSAGE_ROLE_VALUES)[number];
 
 export const ASSISTANT_FAILURE_CATEGORY_VALUES = [
-    "cancelled",
+    "canceled",
     "budget_exceeded",
     "permission_denied",
     "model_unavailable",
@@ -60,7 +60,7 @@ export const MessageRoleCodec = {
 export const FailureCategoryCodec = {
     protoToOutput: {
         [Proto.FailureCategory.FAILURE_UNSPECIFIED]: "unspecified",
-        [Proto.FailureCategory.CANCELLED]: "cancelled",
+        [Proto.FailureCategory.CANCELLED]: "canceled",
         [Proto.FailureCategory.BUDGET_EXCEEDED]: "budget_exceeded",
         [Proto.FailureCategory.PERMISSION_DENIED]: "permission_denied",
         [Proto.FailureCategory.MODEL_UNAVAILABLE]: "model_unavailable",
