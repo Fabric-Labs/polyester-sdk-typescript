@@ -48,7 +48,10 @@ import {
     OrderRequestIdInputSchema,
 } from "./orders-identifiers.schemas.js";
 import { OrderErrorDetailSchema } from "./order-errors.schemas.js";
+import { PEG_REFERENCE_VALUES, PegReferenceCodec } from "./order-enums.codecs.js";
 import { MAX_SELLING_SLIPPAGE_BPS } from "../trailing-oneof-inputs.js";
+import { CatalogConversionError } from "../../catalogs/types.js";
+import { PROTOBUF_INT64_MAX } from "../../shared/wire-bounds.js";
 
 const OrderStatusSchema = v.picklist(ORDER_STATUS_FILTER_VALUES);
 const FeeAssetSchema = v.picklist(FEE_ASSET_VALUES);
@@ -128,6 +131,39 @@ const GtdExpireAtSchema = v.pipe(
     v.maxValue(GTD_EXPIRE_AT_MAX_MS),
 );
 
+const PROTOBUF_INT64_MIN = -PROTOBUF_INT64_MAX - 1n;
+
+/** Static entry peg: the limit price is taken once, at entry, from the selected book side. */
+const StaticPegInputSchema = v.pipe(
+    v.strictObject({
+        reference: v.picklist(PEG_REFERENCE_VALUES),
+        /** Signed count of the pair's tick size added to the reference, not a price. Defaults to 0. */
+        offsetTicks: v.optional(
+            v.pipe(
+                v.union([
+                    v.bigint(),
+                    v.pipe(
+                        v.number(),
+                        v.safeInteger(),
+                        v.transform((n) => BigInt(n)),
+                    ),
+                ]),
+                v.check(
+                    (offset) => offset >= PROTOBUF_INT64_MIN && offset <= PROTOBUF_INT64_MAX,
+                    "peg.offsetTicks must fit a signed 64-bit integer",
+                ),
+            ),
+            0n,
+        ),
+    }),
+    v.transform(({ reference, offsetTicks }) =>
+        create(ProtoWrite.StaticPegSchema, {
+            reference: PegReferenceCodec.inputToProto[reference],
+            offsetTicks,
+        }),
+    ),
+);
+
 function createOrderIntentBaseEntries(scales: SdkScales) {
     return {
         symbolId: SymbolIdInputSchema,
@@ -146,6 +182,8 @@ function createOrderIntentBaseEntries(scales: SdkScales) {
             v.transform((v) => (v ? SelfTradePreventionModeCodec.inputToProto[v] : undefined)),
         ),
         risk: createRiskPolicyInputSchema(scales),
+        /** Takes the limit price from the book at entry; `execution.price` stays the BUY cap or SELL floor. */
+        peg: v.optional(StaticPegInputSchema),
     };
 }
 
@@ -167,6 +205,38 @@ function sellingSlippageWithinCap(input: SellingSlippageInput): boolean {
     return slippage?.case !== "maxSlippageBps" || slippage.value <= MAX_SELLING_SLIPPAGE_BPS;
 }
 
+type OrderIntentRuleInput = {
+    side: ProtoWrite.Side;
+    execution: { case: string; displayQty?: string | undefined };
+    qty?: string;
+    quoteProceeds?: string;
+    risk?: unknown;
+    peg?: unknown;
+};
+
+/** Quote-proceeds sizing, static peg and iceberg combinations the exchange refuses. */
+function orderIntentRuleViolation(input: OrderIntentRuleInput): string | undefined {
+    const ioc = input.execution.case === "marketIoc" || input.execution.case === "limitIoc";
+    if (input.quoteProceeds !== undefined && (input.side !== ProtoWrite.Side.SELL || !ioc)) {
+        return "quoteProceeds is supported only for SELL market IOC and SELL limit IOC orders";
+    }
+    if (input.quoteProceeds !== undefined && input.risk !== undefined) {
+        return "quoteProceeds cannot be combined with attached risk";
+    }
+    if (
+        input.peg !== undefined &&
+        (input.qty === undefined ||
+            input.execution.case === "marketIoc" ||
+            input.risk !== undefined)
+    ) {
+        return "peg requires qty sizing, a limit execution and no attached risk";
+    }
+    if (input.execution.displayQty !== undefined && input.risk !== undefined) {
+        return "execution.displayQty cannot be combined with attached risk";
+    }
+    return undefined;
+}
+
 function createOrderIntentInputObjectSchema(scales: SdkScales) {
     const baseEntries = createOrderIntentBaseEntries(scales);
     return v.pipe(
@@ -175,11 +245,20 @@ function createOrderIntentInputObjectSchema(scales: SdkScales) {
                 ...baseEntries,
                 qty: DecimalInputStringSchema,
                 maxQuoteDebit: v.optional(v.never()),
+                quoteProceeds: v.optional(v.never()),
             }),
             v.strictObject({
                 ...baseEntries,
                 qty: v.optional(v.never()),
                 maxQuoteDebit: DecimalInputStringSchema,
+                quoteProceeds: v.optional(v.never()),
+            }),
+            v.strictObject({
+                ...baseEntries,
+                qty: v.optional(v.never()),
+                maxQuoteDebit: v.optional(v.never()),
+                /** SELL IOC only: sells until its proceeds before fees reach this quote amount. */
+                quoteProceeds: DecimalInputStringSchema,
             }),
         ]),
         v.check(
@@ -200,6 +279,10 @@ function createOrderIntentInputObjectSchema(scales: SdkScales) {
         v.check(
             (input) => attachedTrailingLimitMatchesSide(input),
             ATTACHED_TRAILING_LIMIT_SIDE_MESSAGE,
+        ),
+        v.check(
+            (input) => orderIntentRuleViolation(input) === undefined,
+            (issue) => orderIntentRuleViolation(issue.input) ?? "",
         ),
     );
 }
@@ -215,11 +298,20 @@ function createScopedOrderIntentInputObjectSchema(scales: SdkScales) {
                 ...baseEntries,
                 qty: DecimalInputStringSchema,
                 maxQuoteDebit: v.optional(v.never()),
+                quoteProceeds: v.optional(v.never()),
             }),
             v.strictObject({
                 ...baseEntries,
                 qty: v.optional(v.never()),
                 maxQuoteDebit: DecimalInputStringSchema,
+                quoteProceeds: v.optional(v.never()),
+            }),
+            v.strictObject({
+                ...baseEntries,
+                qty: v.optional(v.never()),
+                maxQuoteDebit: v.optional(v.never()),
+                /** SELL IOC only: sells until its proceeds before fees reach this quote amount. */
+                quoteProceeds: DecimalInputStringSchema,
             }),
         ]),
         v.check(
@@ -241,31 +333,74 @@ function createScopedOrderIntentInputObjectSchema(scales: SdkScales) {
             (input) => attachedTrailingLimitMatchesSide(input),
             ATTACHED_TRAILING_LIMIT_SIDE_MESSAGE,
         ),
+        v.check(
+            (input) => orderIntentRuleViolation(input) === undefined,
+            (issue) => orderIntentRuleViolation(issue.input) ?? "",
+        ),
     );
 }
 
 function toOrderIntent(input: ParsedOrderIntentInput, scales: SdkScales) {
-    const { risk, qty, maxQuoteDebit, ...intent } = input;
+    const { risk, qty, maxQuoteDebit, quoteProceeds, execution, ...intent } = input;
+    const baseQtyScale = scales.baseQty(intent.symbolId);
     const sizing =
         qty !== undefined
             ? ({
                   case: "baseQtyScaled",
-                  value: positiveDecimalInputToScaled("qty", qty, scales.baseQty(intent.symbolId)),
+                  value: positiveDecimalInputToScaled("qty", qty, baseQtyScale),
               } as const)
-            : ({
-                  case: "maxQuoteDebitScaled",
-                  value: positiveDecimalInputToScaled(
-                      "maxQuoteDebit",
-                      maxQuoteDebit,
-                      scales.quoteAmount(intent.symbolId),
-                  ),
-              } as const);
+            : maxQuoteDebit !== undefined
+              ? ({
+                    case: "maxQuoteDebitScaled",
+                    value: positiveDecimalInputToScaled(
+                        "maxQuoteDebit",
+                        maxQuoteDebit,
+                        scales.quoteAmount(intent.symbolId),
+                    ),
+                } as const)
+              : ({
+                    case: "quoteProceedsScaled",
+                    value: positiveDecimalInputToScaled(
+                        "quoteProceeds",
+                        quoteProceeds,
+                        scales.quoteAmount(intent.symbolId),
+                    ),
+                } as const);
     return {
         ...intent,
         sizing,
+        execution: withDisplayQty(
+            execution,
+            sizing.case === "baseQtyScaled" ? sizing.value : undefined,
+            baseQtyScale,
+        ),
         feeAsset: intent.feeAsset ?? ProtoWrite.FeeAsset.QUOTE,
         attachedRisk: risk,
     };
+}
+
+/**
+ * Sets an iceberg display on a GTC or GTD limit. The server also requires a multiple of the
+ * pair's quantity step and at least its minimum quantity.
+ */
+function withDisplayQty(
+    execution: ParsedOrderIntentInput["execution"],
+    baseQtyScaled: bigint | undefined,
+    baseQtyScale: number,
+) {
+    if (execution.case !== "limitGtc" && execution.case !== "limitGtd") return execution;
+    const { displayQty, ...limit } = execution;
+    if (displayQty === undefined) return limit;
+    const display = positiveDecimalInputToScaled("execution.displayQty", displayQty, baseQtyScale);
+    // At most 100 parts: below the quantity and at least the quantity divided by 100, rounded up.
+    if (baseQtyScaled === undefined || display >= baseQtyScaled || display * 100n < baseQtyScaled) {
+        throw new CatalogConversionError(
+            "execution.displayQty",
+            "execution.displayQty must be below qty and at least qty divided by 100, rounded up",
+        );
+    }
+    limit.value.displayQtyScaled = display;
+    return limit;
 }
 
 export function createOrderIntentInputSchema(scales: SdkScales) {
@@ -304,13 +439,16 @@ function createOrderExecutionInputSchema(scales: SdkScales) {
                 type: v.literal("limit_gtc"),
                 price: DecimalInputStringSchema,
                 postOnly: v.optional(v.boolean(), false),
+                /** Iceberg: the most of the order the book shows at once, in base units. */
+                displayQty: v.optional(DecimalInputStringSchema),
             }),
-            v.transform(({ price, postOnly }) => ({
+            v.transform(({ price, postOnly, displayQty }) => ({
                 case: "limitGtc" as const,
                 value: create(ProtoWrite.LimitGtcSchema, {
                     priceTicks: priceToTicks("execution.price", price),
                     postOnly,
                 }),
+                displayQty,
             })),
         ),
         v.pipe(
@@ -320,14 +458,17 @@ function createOrderExecutionInputSchema(scales: SdkScales) {
                 /** Exact UTC expiry as integer epoch milliseconds. */
                 expireAt: GtdExpireAtSchema,
                 postOnly: v.optional(v.boolean(), false),
+                /** Iceberg: the most of the order the book shows at once, in base units. */
+                displayQty: v.optional(DecimalInputStringSchema),
             }),
-            v.transform(({ price, expireAt, postOnly }) => ({
+            v.transform(({ price, expireAt, postOnly, displayQty }) => ({
                 case: "limitGtd" as const,
                 value: create(ProtoWrite.LimitGtdSchema, {
                     priceTicks: priceToTicks("execution.price", price),
                     postOnly,
                     expireAt: msToTimestamp(expireAt),
                 }),
+                displayQty,
             })),
         ),
         v.pipe(
@@ -514,6 +655,7 @@ export function createCreateOrderResultSchema(scales: SdkScales, symbolId: numbe
             acceptedAtTsNs: v.bigint(),
             resolvedBaseQtyScaled: v.bigint(),
             submittedMaxQuoteDebitScaled: v.optional(v.bigint()),
+            submittedQuoteProceedsScaled: v.optional(v.bigint()),
             takeProfitTriggerId: OptionalPublicIdSchema,
             stopLossTriggerId: OptionalPublicIdSchema,
             trailingStopTriggerId: OptionalPublicIdSchema,
@@ -524,6 +666,7 @@ export function createCreateOrderResultSchema(scales: SdkScales, symbolId: numbe
                 acceptedAtTsNs,
                 resolvedBaseQtyScaled,
                 submittedMaxQuoteDebitScaled,
+                submittedQuoteProceedsScaled,
                 ...result
             }) => ({
                 ...result,
@@ -538,6 +681,14 @@ export function createCreateOrderResultSchema(scales: SdkScales, symbolId: numbe
                     : {
                           submittedMaxQuoteDebit: scaledToDecimalOutput(
                               submittedMaxQuoteDebitScaled,
+                              scales.quoteAmount(symbolId),
+                          ),
+                      }),
+                ...(submittedQuoteProceedsScaled === undefined
+                    ? {}
+                    : {
+                          submittedQuoteProceeds: scaledToDecimalOutput(
+                              submittedQuoteProceedsScaled,
                               scales.quoteAmount(symbolId),
                           ),
                       }),

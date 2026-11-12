@@ -27,7 +27,9 @@ import {
 /**
  * Manages the caller's price alerts. Alerts belong to the root account, not a trading account:
  * a session and the root account's API keys see the same alerts, and an API key scoped to a
- * subaccount is refused (`PermissionError`, detail `SUBACCOUNT_KEY_REFUSED`). An alert fires at
+ * subaccount is refused (`PermissionError`, detail `SUBACCOUNT_KEY_REFUSED`). An API key whose
+ * policy lacks the method's permission is refused too (`PermissionError`, detail
+ * `AUTH_API_KEY_ACCESS_DENIED`). An alert fires at
  * most once, only on a crossing it observes from its `referencePrice`; `update` sets a fired
  * alert again. No call changes balances, orders or account settings.
  */
@@ -41,7 +43,8 @@ export class PriceAlertsService {
     /**
      * Creates an active alert. Throws `PreconditionFailedError` when the market has no index
      * price (`PRICE_SOURCE_UNSUPPORTED`) or the active-alert limit is reached, and a retryable
-     * `ServiceUnavailableError` when the market has no current price yet.
+     * `ServiceUnavailableError` when the market has no current price yet. API keys need
+     * `manage-price-alerts`.
      */
     async create(
         input: CreatePriceAlertInput,
@@ -55,7 +58,7 @@ export class PriceAlertsService {
         return parse(PriceAlertSchema, response.alert);
     }
 
-    /** Lists the caller's alerts, newest first. */
+    /** Lists the caller's alerts, newest first. API keys need `read-price-alerts`. */
     async list(
         input: ListPriceAlertsInput = {},
         options?: PolyesterRequestOptions,
@@ -72,7 +75,8 @@ export class PriceAlertsService {
      * Changes an alert's direction, price or channels; omitted fields stay as they are. A new
      * direction or price records a new reference price. Updating a triggered alert sets it
      * again, even with no field given. A stale `expectedRevision` throws
-     * `RevisionConflictError`; a cancelled alert throws `PreconditionFailedError`.
+     * `RevisionConflictError`; a cancelled alert throws `PreconditionFailedError`. API keys need
+     * `manage-price-alerts`.
      */
     async update(
         input: UpdatePriceAlertInput,
@@ -88,7 +92,8 @@ export class PriceAlertsService {
 
     /**
      * Cancels an active alert; cancelling a cancelled alert returns it unchanged. A triggered
-     * alert throws `PreconditionFailedError` (`ALERT_TRIGGERED`).
+     * alert throws `PreconditionFailedError` (`ALERT_TRIGGERED`). API keys need
+     * `manage-price-alerts`.
      */
     async cancel(
         input: CancelPriceAlertInput,

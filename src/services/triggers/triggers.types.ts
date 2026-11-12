@@ -1,6 +1,13 @@
 export type {
+    BatchCancelTriggerResult,
+    BatchCancelTriggersInput,
+    BatchCancelTriggersResult,
+    CancelOcoInput,
+    CancelOcoResult,
     CancelTriggerInput,
     CancelTriggerResult,
+    CreateOcoInput,
+    CreateOcoResult,
     CreateTriggerInput,
     CreateTriggerResult,
     GetTriggerInput,

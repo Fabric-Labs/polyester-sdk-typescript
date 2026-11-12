@@ -144,6 +144,7 @@ const BatchCreateOrderResultRawSchema = v.object({
                 trailingStopTriggerId: OptionalPublicIdSchema,
                 resolvedBaseQtyScaled: v.bigint(),
                 submittedMaxQuoteDebitScaled: v.optional(v.bigint()),
+                submittedQuoteProceedsScaled: v.optional(v.bigint()),
             }),
         }),
         v.object({
@@ -184,8 +185,12 @@ export function createBatchCreateOrdersResultSchema(scales: SdkScales, symbolIds
                         error: outcome.value.error,
                     };
                 }
-                const { resolvedBaseQtyScaled, submittedMaxQuoteDebitScaled, ...accepted } =
-                    outcome.value;
+                const {
+                    resolvedBaseQtyScaled,
+                    submittedMaxQuoteDebitScaled,
+                    submittedQuoteProceedsScaled,
+                    ...accepted
+                } = outcome.value;
                 const symbolId = symbolIds[index]!;
                 return {
                     status: "accepted" as const,
@@ -200,6 +205,14 @@ export function createBatchCreateOrdersResultSchema(scales: SdkScales, symbolIds
                         : {
                               submittedMaxQuoteDebit: scaledToDecimalOutput(
                                   submittedMaxQuoteDebitScaled,
+                                  scales.quoteAmount(symbolId),
+                              ),
+                          }),
+                    ...(submittedQuoteProceedsScaled === undefined
+                        ? {}
+                        : {
+                              submittedQuoteProceeds: scaledToDecimalOutput(
+                                  submittedQuoteProceedsScaled,
                                   scales.quoteAmount(symbolId),
                               ),
                           }),

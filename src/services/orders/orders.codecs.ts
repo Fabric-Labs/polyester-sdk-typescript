@@ -63,6 +63,9 @@ export const ORDER_CANCEL_REASON_VALUES = [
     "strategy_cancel",
     "market_halted",
     "attached_exit_fired",
+    "stp_decrement",
+    "price_band",
+    "cancel_on_disconnect",
     "system",
 ] as const;
 export type OrderCancelReasonValue = (typeof ORDER_CANCEL_REASON_VALUES)[number];
@@ -87,6 +90,9 @@ export const OrderCancelReasonCodec = {
         [ProtoRead.CancelReason.STRATEGY_CANCEL]: "strategy_cancel",
         [ProtoRead.CancelReason.MARKET_HALTED]: "market_halted",
         [ProtoRead.CancelReason.ATTACHED_EXIT_FIRED]: "attached_exit_fired",
+        [ProtoRead.CancelReason.STP_DECREMENT]: "stp_decrement",
+        [ProtoRead.CancelReason.PRICE_BAND]: "price_band",
+        [ProtoRead.CancelReason.CANCEL_ON_DISCONNECT]: "cancel_on_disconnect",
         [ProtoRead.CancelReason.SYSTEM]: "system",
     } satisfies ProtoToOutput<ProtoRead.CancelReason, OrderCancelReasonValue>,
 } as const;

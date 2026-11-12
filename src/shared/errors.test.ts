@@ -697,6 +697,22 @@ describe("connectErrorToPolyesterError", () => {
         expect(detail()).not.toHaveProperty("existingOrderId");
     });
 
+    it.each([
+        OrderErrorCode.API_KEY_SPOT_TRADE_DENY,
+        OrderErrorCode.API_KEY_POLICY_REQUIRED,
+        OrderErrorCode.POLICY_SPOT_TRADE_DENY,
+    ])("maps spot-trade permission refusal %s to a PermissionError naming it", (code) => {
+        const mapped = connectErrorToPolyesterError(
+            new ConnectError("denied", Code.PermissionDenied, undefined, [
+                { desc: OrderErrorDetailSchema, value: create(OrderErrorDetailSchema, { code }) },
+            ]),
+        );
+
+        expect(mapped).toBeInstanceOf(PermissionError);
+        expect(mapped.retryable).toBe(false);
+        expect(mapped.detail).toMatchObject({ service: "orders", code: OrderErrorCode[code] });
+    });
+
     it("keeps a deadline without an outcome-unknown detail a retryable timeout", () => {
         const mapped = connectErrorToPolyesterError(
             new ConnectError("slow", Code.DeadlineExceeded),

@@ -59,6 +59,8 @@ const OrderFieldsSchema = v.object({
     cumQtyScaled: v.bigint(),
     inheritedCumQtyScaled: v.optional(v.bigint(), 0n),
     leavesQtyScaled: v.bigint(),
+    displayQtyScaled: v.optional(v.bigint(), 0n),
+    hiddenQtyScaled: v.optional(v.bigint(), 0n),
     avgPriceTicks: v.bigint(),
     avgPriceE18: v.optional(U128Schema),
     cumNotional: v.optional(U128Schema),
@@ -82,6 +84,7 @@ const OrderFieldsSchema = v.object({
     version: v.pipe(v.number(), v.integer(), v.minValue(0)),
     batchRequestId: v.bigint(),
     submittedMaxQuoteDebitScaled: v.optional(v.bigint()),
+    submittedQuoteProceedsScaled: v.optional(v.bigint()),
     expireAt: OptionalTimestampMsSchema,
 });
 
@@ -129,6 +132,13 @@ function toOrder(
         cumQty: scaledToDecimalOutput(o.cumQtyScaled, baseQtyScale),
         inheritedCumQty: scaledToDecimalOutput(o.inheritedCumQtyScaled, baseQtyScale),
         leavesQty: scaledToDecimalOutput(o.leavesQtyScaled, baseQtyScale),
+        // Iceberg only: the book shows at most displayQty, and leavesQty less hiddenQty now.
+        ...(o.displayQtyScaled > 0n
+            ? {
+                  displayQty: scaledToDecimalOutput(o.displayQtyScaled, baseQtyScale),
+                  hiddenQty: scaledToDecimalOutput(o.hiddenQtyScaled, baseQtyScale),
+              }
+            : {}),
         avgPx:
             o.avgPriceE18 === undefined
                 ? scaledToDecimalOutput(o.avgPriceTicks, scales.price())
@@ -162,6 +172,15 @@ function toOrder(
             : {
                   submittedMaxQuoteDebit: scaledToDecimalOutput(
                       o.submittedMaxQuoteDebitScaled,
+                      scales.quoteAmount(o.symbolId),
+                  ),
+              }),
+        // A quote-proceeds SELL: cumQuote is what it received before fees, never above this.
+        ...(o.submittedQuoteProceedsScaled === undefined
+            ? {}
+            : {
+                  submittedQuoteProceeds: scaledToDecimalOutput(
+                      o.submittedQuoteProceedsScaled,
                       scales.quoteAmount(o.symbolId),
                   ),
               }),

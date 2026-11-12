@@ -210,6 +210,39 @@ describe("batch create schemas", () => {
         });
     });
 
+    it("carries quote-proceeds sizing, a static peg and an iceberg display on batch items", () => {
+        const schema = createBatchCreateOrdersInputSchema(testScales());
+        const input = v.parse(schema, {
+            items: [
+                {
+                    symbolId: 1,
+                    side: "sell",
+                    quoteProceeds: "100.5",
+                    execution: { type: "market_ioc" },
+                },
+                {
+                    ...limitOrder("order-b"),
+                    execution: { type: "limit_gtc", price: "100.25", displayQty: "0.05" },
+                    peg: { reference: "best_bid", offsetTicks: -2n },
+                },
+            ],
+        });
+
+        expect(input.items[0]?.sizing).toEqual({
+            case: "quoteProceedsScaled",
+            value: 100_500_000n,
+        });
+        expect(input.items[1]).toMatchObject({
+            execution: { case: "limitGtc", value: { displayQtyScaled: 5_000_000n } },
+            peg: { reference: ProtoWrite.PegReference.BEST_BID, offsetTicks: -2n },
+        });
+        expect(() =>
+            v.parse(schema, {
+                items: [{ ...limitOrder("order-c"), qty: undefined, quoteProceeds: "100" }],
+            }),
+        ).toThrow("quoteProceeds is supported only for SELL market IOC and SELL limit IOC orders");
+    });
+
     it("requires a selling item's attached trailing stop limit price", () => {
         const schema = createBatchCreateOrdersInputSchema(testScales());
         const sell = (trailingStop: object) => ({
@@ -361,6 +394,33 @@ describe("batch create schemas", () => {
             ts: 2_000,
             tsNs: "2000000123",
         });
+    });
+
+    it("echoes an accepted item's quote-proceeds target", () => {
+        const result = v.parse(createBatchCreateOrdersResultSchema(testScales(), [1]), {
+            results: [
+                {
+                    clientOrderId: "order-a",
+                    outcome: {
+                        case: "accepted",
+                        value: {
+                            orderId: 11n,
+                            resolvedBaseQtyScaled: 50_000_000n,
+                            submittedQuoteProceedsScaled: 100_500_000n,
+                        },
+                    },
+                },
+            ],
+            acceptedCount: 1,
+            rejectedCount: 0,
+            tsNs: 0n,
+        });
+
+        expect(result.results[0]).toMatchObject({
+            status: "accepted",
+            submittedQuoteProceeds: "100.5",
+        });
+        expect(result.results[0]).not.toHaveProperty("submittedMaxQuoteDebit");
     });
 });
 

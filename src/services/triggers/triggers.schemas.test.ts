@@ -15,14 +15,17 @@ import {
 import { formatId } from "../../utils/base58-id.js";
 import { parse } from "../../shared/validation.js";
 import {
+    BatchCancelTriggersInputSchema,
     CreateTriggerResultSchema,
     ListTriggersInputSchema,
+    createCreateOcoInputSchema,
     ListTriggerEventsInputSchema,
     ResumeTriggerInputSchema,
     createCreateTriggerInputSchema,
     createModifyTriggerInputSchema,
     createTriggerEventSchema,
     createTriggerSchema,
+    type BatchCancelTriggersInput,
     type CreateTriggerInput,
     type ListTriggerEventsInput,
     type ModifyTriggerInput,
@@ -1529,5 +1532,97 @@ describe("Trigger result and output schemas", () => {
                 }),
             ),
         ).toMatchObject({ status: "canceled", cancelReason: "market_halted" });
+    });
+});
+
+describe("OCO and batch cancel schemas", () => {
+    const ids = (count: number) =>
+        Array.from({ length: count }, (_, index) => formatId(BigInt(index + 1)));
+
+    it("bounds batch cancel to 1 to 50 distinct non-zero trigger IDs", () => {
+        const parseBatch = (input: BatchCancelTriggersInput) =>
+            v.parse(BatchCancelTriggersInputSchema, input);
+
+        expect(parseBatch({ requestId: "r-1", triggerIds: ids(50) }).triggerIds).toHaveLength(50);
+        expect(() => parseBatch({ triggerIds: [] })).toThrow("At least one trigger");
+        expect(() => parseBatch({ triggerIds: ids(51) })).toThrow("at most 50");
+        expect(() => parseBatch({ triggerIds: [formatId(7n), formatId(7n)] })).toThrow("distinct");
+        expect(() => parseBatch({ triggerIds: [formatId(0n)] })).toThrow("greater than zero");
+        expect(() => parseBatch({ requestId: "has space", triggerIds: ids(1) })).toThrow();
+    });
+
+    it("builds an OCO intent and rejects a take-profit on the losing side of the stop-loss", () => {
+        const schema = createCreateOcoInputSchema(testScales());
+        const legs = {
+            takeProfit: { triggerPrice: "90", execution: { type: "market_ioc" } },
+            stopLoss: { triggerPrice: "110", execution: { type: "market_ioc" } },
+        } as const;
+
+        const buy = v.parse(schema, {
+            symbolId: 1,
+            side: "buy",
+            qty: "0.5",
+            selfTradePreventionMode: "expire_both",
+            ...legs,
+            stopLoss: { ...legs.stopLoss, triggerPriceSource: "index" },
+        });
+        expect(buy.oco).toMatchObject({
+            side: ProtoOrders.Side.BUY,
+            qtyScaled: 50_000_000n,
+            selfTradePreventionMode: ProtoOrders.SelfTradePreventionMode.EXPIRE_BOTH,
+            stopLoss: { triggerPriceSource: ProtoOrders.TriggerPriceSource.INDEX_PRICE },
+        });
+        expect(buy.oco.clientListId.length).toBeGreaterThan(0);
+        expect(() => v.parse(schema, { symbolId: 1, side: "sell", qty: "0.5", ...legs })).toThrow(
+            "takeProfit.triggerPrice must be above stopLoss.triggerPrice",
+        );
+        expect(() =>
+            v.parse(schema, {
+                symbolId: 1,
+                side: "buy",
+                qty: "0.5",
+                clientListId: "x".repeat(37),
+                ...legs,
+            }),
+        ).toThrow();
+    });
+
+    it("filters listed triggers by OCO", () => {
+        expect(
+            v.parse(ListTriggersInputSchema, {
+                orderListId: formatId(70n),
+                clientListId: "x".repeat(36),
+            }),
+        ).toMatchObject({ orderListId: 70n, clientListId: "x".repeat(36) });
+        expect(() => v.parse(ListTriggersInputSchema, { clientListId: "é".repeat(19) })).toThrow();
+    });
+
+    it("exposes a leg's OCO IDs and the renamed quote-size failure reason", () => {
+        const schema = createTriggerSchema(testScales());
+
+        expect(v.parse(schema, baseWireTrigger())).toMatchObject({
+            orderListId: undefined,
+            clientListId: "",
+        });
+        expect(
+            v.parse(
+                schema,
+                baseWireTrigger({
+                    orderListId: 70n,
+                    clientListId: "my-oco-1",
+                    clientTriggerId: "",
+                    status: Proto.TriggerStatus.STATUS_FAILED,
+                    terminalReason: {
+                        case: "failureReason",
+                        value: Proto.TriggerFailureReason.QUOTE_SIZE_TOO_SMALL,
+                    },
+                }),
+            ),
+        ).toMatchObject({
+            orderListId: formatId(70n),
+            clientListId: "my-oco-1",
+            clientTriggerId: "",
+            failureReason: "quote_size_too_small",
+        });
     });
 });

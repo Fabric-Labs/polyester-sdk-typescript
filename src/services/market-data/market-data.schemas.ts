@@ -121,10 +121,13 @@ export type GetMarketTradesRequest = v.InferOutput<
 /** Integer wire scales are protocol-bounded to 0..18 decimal places. */
 const WireScaleSchema = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(18));
 const OptionalDecimalLimitSchema = v.optional(v.pipe(v.string(), v.regex(/^\d+(\.\d+)?$/)));
-const OpenOrdersLimitSchema = v.optional(
-    v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(PROTOBUF_UINT32_MAX)),
-    0,
+const Uint32Schema = v.pipe(
+    v.number(),
+    v.integer(),
+    v.minValue(0),
+    v.maxValue(PROTOBUF_UINT32_MAX),
 );
+const OpenOrdersLimitSchema = v.optional(Uint32Schema, 0);
 
 export const AssetConfigSchema = v.pipe(
     v.object({
@@ -246,6 +249,22 @@ export const PairConfigSchema = v.pipe(
          * An account may have a lower limit of its own.
          */
         maxOpenOrdersPerPair: OpenOrdersLimitSchema,
+        /**
+         * How far from the reference price (the last trade, or the index when they diverge
+         * by more than the band) an order may be priced or trade, in basis points. A buy limit
+         * above `reference × (1 + upperBps / 10000)` rounded down to the tick, or a sell limit
+         * below `reference × (1 − lowerBps / 10000)` rounded up, is rejected with
+         * `PRICE_BAND_VIOLATION`; a market order trades up to the limit and its remainder is
+         * canceled with `price_band`. The reference stays fixed for `referenceWindowMs` (zero
+         * moves it with every order). Absent when the pair has no band.
+         */
+        priceBand: v.optional(
+            v.object({
+                lowerBps: Uint32Schema,
+                upperBps: Uint32Schema,
+                referenceWindowMs: Uint32Schema,
+            }),
+        ),
 
         /**
          * Controls whether trading fee can be deducted from what you receive when buying.

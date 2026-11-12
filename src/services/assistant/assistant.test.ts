@@ -215,6 +215,38 @@ describe("AssistantService unary calls", () => {
             },
         ]);
     });
+
+    it("reads Telegram approval limits, absent limits as null", async () => {
+        const { service } = serviceWith({
+            limits: { dailyUsd: "1000" },
+            approvedLast24hUsd: "250.50",
+        });
+
+        await expect(service.getTelegramApprovalLimits()).resolves.toEqual({
+            perApprovalUsd: null,
+            dailyUsd: "1000",
+            approvedLast24hUsd: "250.50",
+        });
+    });
+
+    it("replaces Telegram approval limits, sending only the limits given", async () => {
+        const { transport, service } = serviceWith({ limits: { perApprovalUsd: "0" } });
+
+        await expect(service.setTelegramApprovalLimits({ perApprovalUsd: " 0 " })).resolves.toEqual(
+            { perApprovalUsd: "0", dailyUsd: null },
+        );
+        expect(transport.lastCall()?.method.localName).toBe("setTelegramApprovalLimits");
+        expect(transport.lastCall()?.message).toEqual({ limits: { perApprovalUsd: "0" } });
+    });
+
+    it("rejects Telegram approval limits that are not dollars with at most 2 decimals", async () => {
+        const { service } = serviceWith({});
+        for (const value of ["-1", "1.234", "1e3", "", "$5"]) {
+            await expect(
+                service.setTelegramApprovalLimits({ dailyUsd: value }),
+            ).rejects.toBeInstanceOf(ValidationError);
+        }
+    });
 });
 
 describe("AssistantService.watchRun", () => {

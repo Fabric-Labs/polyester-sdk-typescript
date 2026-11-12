@@ -849,6 +849,78 @@ describe("OrdersService", () => {
         });
     });
 
+    it("returns a batch replace item refused for its price in results instead of throwing", async () => {
+        const transport = unaryTransportByMethod({
+            batchReplaceOrders: {
+                batchRequestId: 21n,
+                status: ProtoWrite.BatchReplaceAdmissionStatus.PARTIALLY_ADMITTED,
+                results: [
+                    {
+                        itemIndex: 0,
+                        status: ProtoWrite.BatchReplaceItemAdmissionStatus.ADMITTED,
+                        oldOrderId: 11n,
+                        replacementOrderId: 12n,
+                        actionTaken: ProtoWrite.ModifyActionTaken.REPLACED,
+                        clientOrderId: "a",
+                        code: "",
+                    },
+                    {
+                        itemIndex: 1,
+                        status: ProtoWrite.BatchReplaceItemAdmissionStatus.REJECTED,
+                        oldOrderId: 13n,
+                        replacementOrderId: 0n,
+                        actionTaken: ProtoWrite.ModifyActionTaken.MODIFY_ACTION_UNSPECIFIED,
+                        clientOrderId: "b",
+                        code: "PRICE_TICK_SIZE",
+                        error: {
+                            code: ProtoWrite.ErrorCode.PRICE_TICK_SIZE,
+                            violations: [
+                                {
+                                    fieldPath: "items[1].new_price_ticks",
+                                    ruleId: "PRICE_TICK_SIZE",
+                                    message: "price must align with the tick size",
+                                },
+                            ],
+                        },
+                    },
+                ],
+                acceptedCount: 1,
+                rejectedCount: 1,
+                acceptedTsNs: 2_000_000_123n,
+            },
+        });
+        const service = new OrdersService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await expect(
+            service.batchReplace({
+                symbolId: 1,
+                items: [
+                    { clientOrderId: "a", newPrice: "100" },
+                    { clientOrderId: "b", newPrice: "100.0000001" },
+                ],
+            }),
+        ).resolves.toMatchObject({
+            status: "partially_admitted",
+            results: [
+                { itemIndex: 0, status: "admitted" },
+                {
+                    itemIndex: 1,
+                    status: "rejected",
+                    code: "PRICE_TICK_SIZE",
+                    error: {
+                        code: "PRICE_TICK_SIZE",
+                        violations: [{ fieldPath: "items[1].new_price_ticks" }],
+                    },
+                },
+            ],
+        });
+    });
+
     it("exposes batch cancel with exactly-one-key item encoding", async () => {
         const transport = unaryTransportByMethod({
             batchCancelOrders: {

@@ -19,6 +19,7 @@ import { lifecycleService } from "./services/lifecycle/service.js";
 import { marketDataService } from "./services/market-data/service.js";
 import { marketOverviewService } from "./services/market-overview/service.js";
 import { mfaService } from "./services/mfa/service.js";
+import { notificationsService } from "./services/notifications/service.js";
 import { orderbookService } from "./services/orderbook/service.js";
 import { ordersService } from "./services/orders/service.js";
 import { tradingRateLimitsService } from "./services/rate-limits/service.js";
@@ -50,6 +51,7 @@ export const POLYESTER_SERVICES = {
     orders: ordersService,
     triggers: triggersService,
     priceAlerts: priceAlertsService,
+    notifications: notificationsService,
     assistant: assistantService,
     balances: balancesService,
     transfers: transfersService,

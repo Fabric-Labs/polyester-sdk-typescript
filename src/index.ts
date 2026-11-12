@@ -233,6 +233,7 @@ export type * from "./services/lifecycle/lifecycle.types.js";
 export type * from "./services/market-data/market-data.types.js";
 export type * from "./services/market-overview/market-overview.types.js";
 export type * from "./services/mfa/mfa.types.js";
+export type * from "./services/notifications/notifications.types.js";
 export type * from "./services/orderbook/orderbook.types.js";
 export type * from "./services/orders/orders.types.js";
 export type * from "./services/policies/api-key-policies/api-key-policies.types.js";

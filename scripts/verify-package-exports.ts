@@ -145,6 +145,7 @@ import {
 import type { PolyesterErrorDetail as ErrorsPolyesterErrorDetail } from "@polyester/sdk/errors";
 import { assistantService } from "@polyester/sdk/services/assistant";
 import { autoWithdrawService } from "@polyester/sdk/services/auto-withdraw";
+import { notificationsService } from "@polyester/sdk/services/notifications";
 import { ordersService } from "@polyester/sdk/services/orders";
 import { priceAlertsService } from "@polyester/sdk/services/price-alerts";
 import { tradingRateLimitsService } from "@polyester/sdk/services/rate-limits";
@@ -285,6 +286,28 @@ async function verifyServiceInference(): Promise<void> {
         await client.priceAlerts.update({ alertId: priceAlert.alertId, expectedRevision: "1" }),
     );
     expectType<import("@polyester/sdk").ListPriceAlertsResult>(await client.priceAlerts.list());
+    const notificationPage = await client.notifications.list({
+        categories: ["alerts"],
+        readState: "unread",
+        limit: 25,
+    } satisfies import("@polyester/sdk").ListNotificationsInput);
+    expectType<import("@polyester/sdk").ListNotificationsResult>(notificationPage);
+    const notification = notificationPage.notifications[0];
+    if (notification) {
+        expectType<import("@polyester/sdk").AccountNotification>(notification);
+        expectNotAny(notification, true);
+        expectType<import("@polyester/sdk").NotificationType | "unspecified">(notification.type);
+        if (notification.detail.type === "price_alert") {
+            expectType<string>(notification.detail.alertId);
+            expectType<string>(notification.detail.triggeredPrice);
+        }
+        expectType<{ changed: number }>(
+            await client.notifications.markRead({ notificationIds: [notification.notificationId] }),
+        );
+    }
+    expectType<import("@polyester/sdk").NotificationCounts>(
+        await client.notifications.getCounts(),
+    );
     expectType<import("@polyester/sdk").SystemVersion>(await client.system.getVersion());
     const assistantRun = await client.assistant.sendMessage({
         text: "What is my BTC balance?",
@@ -296,6 +319,11 @@ async function verifyServiceInference(): Promise<void> {
         expectNotAny(event, true);
     }
     expectType<import("@polyester/sdk").AssistantKey[]>(await client.assistant.listKeys());
+    expectType<import("@polyester/sdk").TelegramApprovalLimits>(
+        await client.assistant.setTelegramApprovalLimits({
+            dailyUsd: "1000",
+        } satisfies import("@polyester/sdk").SetTelegramApprovalLimitsInput),
+    );
     expectType<import("@polyester/sdk").ApiKey[]>(await client.apiKeys.listAssistantKeys());
     const gtdOrder: import("@polyester/sdk").NewOrderInput = {
         symbolId: 1,
@@ -462,6 +490,17 @@ async function verifyServiceInference(): Promise<void> {
         sliceIntervalMs: 5000,
         execution: { type: "market_ioc", maxSlippage: { kind: "bps", bps: 50 } },
     });
+    const oco: import("@polyester/sdk").CreateOcoResult = await client.triggers.createOco({
+        symbolId: 1,
+        side: "sell",
+        qty: "1",
+        takeProfit: { triggerPrice: "110", execution: { type: "limit_gtc", price: "109" } },
+        stopLoss: { triggerPrice: "90", execution: { type: "market_ioc" } },
+    });
+    expectType<string>(oco.stopLossTriggerId);
+    const canceledTriggers: import("@polyester/sdk").BatchCancelTriggersResult =
+        await client.triggers.batchCancel({ triggerIds: [oco.takeProfitTriggerId] });
+    expectNotAny(canceledTriggers.results[0], true);
     await client.orders.cancelAll({ symbolIds: [1, 2] });
     // @ts-expect-error Cancel-all uses the repeated symbolIds contract.
     await client.orders.cancelAll({ symbolId: 1 });
@@ -512,6 +551,7 @@ async function verifyCoreServiceAccessors(): Promise<void> {
     expectType<typeof client.tradingRateLimits>(tradingRateLimitsService(client));
     expectType<typeof client.autoWithdraw>(autoWithdrawService(browserCore));
     expectType<typeof client.priceAlerts>(priceAlertsService(browserCore));
+    expectType<typeof client.notifications>(notificationsService(browserCore));
     expectType<typeof client.assistant>(assistantService(browserCore));
     expectType<import("@polyester/sdk").AuthState>(browserCore.auth.getState());
     expectType<boolean>(serverCore.hasDisplaySession);

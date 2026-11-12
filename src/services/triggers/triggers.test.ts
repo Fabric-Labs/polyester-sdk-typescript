@@ -747,6 +747,137 @@ describe("TriggersService", () => {
         ).toEqual({ triggerId: 22n, symbolId: 1, subaccountId: 11n });
     });
 
+    it("creates and cancels OCOs and batch-cancels triggers with a generated request ID", async () => {
+        const transport = unaryTransportByMethod({
+            createOco: {
+                orderListId: 70n,
+                clientListId: "my-oco-1",
+                takeProfitTriggerId: 71n,
+                stopLossTriggerId: 72n,
+                acceptedAtTsNs: 1_250_000_000n,
+            },
+            cancelOco: {
+                orderListId: 70n,
+                status: Proto.TriggerStatus.STATUS_CANCELED,
+                tsNs: 2_000_000n,
+            },
+            batchCancelTriggers: {
+                results: [
+                    {
+                        status: Proto.BatchCancelTriggersResultItem_Status.ACCEPTED,
+                        triggerId: 71n,
+                        code: "",
+                    },
+                    {
+                        status: Proto.BatchCancelTriggersResultItem_Status.REJECTED,
+                        triggerId: 72n,
+                        code: "TRIGGER_STATUS_INVALID",
+                    },
+                ],
+                acceptedCount: 1,
+                rejectedCount: 1,
+                tsNs: 3_000_000n,
+            },
+        });
+        const service = new TriggersService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await expect(
+            service.createOco({
+                symbolId: 1,
+                side: "sell",
+                qty: "0.5",
+                clientListId: "my-oco-1",
+                takeProfit: {
+                    triggerPrice: "110",
+                    execution: { type: "limit_gtc", price: "109.5" },
+                },
+                stopLoss: { triggerPrice: "90", execution: { type: "market_ioc" } },
+            }),
+        ).resolves.toEqual({
+            orderListId: formatId(70n),
+            clientListId: "my-oco-1",
+            takeProfitTriggerId: formatId(71n),
+            stopLossTriggerId: formatId(72n),
+            acceptedAt: 1_250,
+            acceptedAtNs: "1250000000",
+        });
+        await expect(
+            service.cancelOco({
+                orderListId: formatId(70n),
+                account: { subaccountId: formatId(11n) },
+            }),
+        ).resolves.toEqual({
+            orderListId: formatId(70n),
+            status: "canceled",
+            ts: 2,
+            tsNs: "2000000",
+        });
+        await expect(
+            service.batchCancel({ triggerIds: [formatId(71n), formatId(72n)] }),
+        ).resolves.toMatchObject({
+            results: [
+                { status: "accepted", triggerId: formatId(71n), code: "" },
+                { status: "rejected", triggerId: formatId(72n), code: "TRIGGER_STATUS_INVALID" },
+            ],
+            acceptedCount: 1,
+            rejectedCount: 1,
+            tsNs: "3000000",
+        });
+
+        expect(
+            transport.calls.find((call) => call.method.localName === "createOco")?.message,
+        ).toMatchObject({
+            oco: {
+                symbolId: 1,
+                side: ProtoOrders.Side.SELL,
+                qtyScaled: 50_000_000n,
+                clientListId: "my-oco-1",
+                takeProfit: {
+                    triggerPriceTicks: 110_000_000_000n,
+                    child: {
+                        execution: { case: "limitGtc", value: { priceTicks: 109_500_000_000n } },
+                    },
+                },
+                stopLoss: {
+                    triggerPriceTicks: 90_000_000_000n,
+                    child: { execution: { case: "marketIoc" } },
+                },
+            },
+        });
+        expect(
+            transport.calls.find((call) => call.method.localName === "cancelOco")?.message,
+        ).toEqual({ orderListId: 70n, subaccountId: 11n });
+        const batchRequest = transport.calls.find(
+            (call) => call.method.localName === "batchCancelTriggers",
+        )?.message as Proto.BatchCancelTriggersRequest | undefined;
+        expect(batchRequest?.triggerIds).toEqual([71n, 72n]);
+        expect(batchRequest?.requestId).toMatch(/^[A-Za-z0-9-]{32,36}$/);
+
+        const short = new TriggersService(
+            {
+                authApi: unaryTransportByMethod({
+                    batchCancelTriggers: {
+                        results: [],
+                        acceptedCount: 0,
+                        rejectedCount: 0,
+                        tsNs: 0n,
+                    },
+                }).transport,
+            },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+        await expect(
+            short.batchCancel({ requestId: "retry-1", triggerIds: [formatId(71n)] }),
+        ).rejects.toThrow("batchCancel returned 0 results for 1 requested triggers.");
+    });
+
     it("uses private trigger channels and parses trigger publications", async () => {
         const realtime = realtimeClientStub();
         const service = new TriggersService(

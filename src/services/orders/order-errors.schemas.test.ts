@@ -10,7 +10,15 @@ describe("OrderErrorDetailSchema", () => {
         [ProtoWrite.ErrorCode.SUBACCOUNT_READ_FORBIDDEN, "SUBACCOUNT_READ_FORBIDDEN"],
         [ProtoWrite.ErrorCode.POLICY_SPOT_READ_DENY, "POLICY_SPOT_READ_DENY"],
         [ProtoWrite.ErrorCode.API_KEY_SPOT_READ_DENY, "API_KEY_SPOT_READ_DENY"],
-    ] as const)("maps policy rejection %s to %s", (code, expected) => {
+        [ProtoWrite.ErrorCode.API_KEY_SPOT_TRADE_DENY, "API_KEY_SPOT_TRADE_DENY"],
+        [ProtoWrite.ErrorCode.QUOTE_SIZE_TOO_SMALL, "QUOTE_SIZE_TOO_SMALL"],
+        [ProtoWrite.ErrorCode.ICEBERG_NOT_ALLOWED, "ICEBERG_NOT_ALLOWED"],
+        [ProtoWrite.ErrorCode.ICEBERG_DISPLAY_TOO_SMALL, "ICEBERG_DISPLAY_TOO_SMALL"],
+        [ProtoWrite.ErrorCode.ICEBERG_DISPLAY_INVALID, "ICEBERG_DISPLAY_INVALID"],
+        [ProtoWrite.ErrorCode.PEG_LIMIT_VIOLATION, "PEG_LIMIT_VIOLATION"],
+        [ProtoWrite.ErrorCode.PEG_REFERENCE_UNAVAILABLE, "PEG_REFERENCE_UNAVAILABLE"],
+        [ProtoWrite.ErrorCode.INVALID_PEG, "INVALID_PEG"],
+    ] as const)("maps order rejection %s to %s", (code, expected) => {
         expect(
             v.parse(OrderErrorDetailSchema, {
                 code,

@@ -6,13 +6,15 @@ import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { BatchCancelOrdersRequest, BatchCancelOrdersResponse, BatchCreateOrdersRequest, BatchCreateOrdersResponse, BatchReplaceOrdersRequest, BatchReplaceOrdersResponse, CancelAllAfterRequest, CancelAllAfterResponse, CancelAllOrdersRequest, CancelAllOrdersResponse, CancelOrderRequest, CancelOrderResponse, CreateOrderRequest, CreateOrderResponse, ErrorDetail, ModifyOrderRequest, ModifyOrderResponse } from "../../orders/v1/orders_pb.js";
 import { file_orders_v1_orders } from "../../orders/v1/orders_pb.js";
+import type { CancelOcoRequest, CancelOcoResponse, CreateOcoRequest, CreateOcoResponse } from "../../triggers/v1/triggers_pb.js";
+import { file_triggers_v1_triggers } from "../../triggers/v1/triggers_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file tradews/v1/trade_ws.proto.
  */
 export const file_tradews_v1_trade_ws: GenFile = /*@__PURE__*/
-  fileDesc("Chl0cmFkZXdzL3YxL3RyYWRlX3dzLnByb3RvEgp0cmFkZXdzLnYxIoUFCgtDbGllbnRGcmFtZRILCgNzZXEYASABKAQSFgoOY29ycmVsYXRpb25faWQYAiABKAkSFAoMdGltZXN0YW1wX21zGAMgASgDEhYKDnJlY3Zfd2luZG93X21zGAQgASgNEicKBHBpbmcYCiABKAsyFy50cmFkZXdzLnYxLlBpbmdSZXF1ZXN0SAASNQoMY3JlYXRlX29yZGVyGAsgASgLMh0ub3JkZXJzLnYxLkNyZWF0ZU9yZGVyUmVxdWVzdEgAEjUKDGNhbmNlbF9vcmRlchgMIAEoCzIdLm9yZGVycy52MS5DYW5jZWxPcmRlclJlcXVlc3RIABI1Cgxtb2RpZnlfb3JkZXIYDSABKAsyHS5vcmRlcnMudjEuTW9kaWZ5T3JkZXJSZXF1ZXN0SAASPgoRY2FuY2VsX2FsbF9vcmRlcnMYDiABKAsyIS5vcmRlcnMudjEuQ2FuY2VsQWxsT3JkZXJzUmVxdWVzdEgAEkIKE2JhdGNoX2NyZWF0ZV9vcmRlcnMYDyABKAsyIy5vcmRlcnMudjEuQmF0Y2hDcmVhdGVPcmRlcnNSZXF1ZXN0SAASRAoUYmF0Y2hfcmVwbGFjZV9vcmRlcnMYECABKAsyJC5vcmRlcnMudjEuQmF0Y2hSZXBsYWNlT3JkZXJzUmVxdWVzdEgAEkIKE2JhdGNoX2NhbmNlbF9vcmRlcnMYESABKAsyIy5vcmRlcnMudjEuQmF0Y2hDYW5jZWxPcmRlcnNSZXF1ZXN0SAASPAoQY2FuY2VsX2FsbF9hZnRlchgSIAEoCzIgLm9yZGVycy52MS5DYW5jZWxBbGxBZnRlclJlcXVlc3RIAEIJCgdwYXlsb2FkIh4KC1BpbmdSZXF1ZXN0Eg8KB3BheWxvYWQYASABKAwipAIKC1NlcnZlckZyYW1lEgsKA3NlcRgBIAEoBBIWCg5jb3JyZWxhdGlvbl9pZBgCIAEoCRIoCgRwb25nGAogASgLMhgudHJhZGV3cy52MS5Qb25nUmVzcG9uc2VIABImCgNhY2sYCyABKAsyFy50cmFkZXdzLnYxLkFja1Jlc3BvbnNlSAASKwoGcmVqZWN0GAwgASgLMhkudHJhZGV3cy52MS5Db21tYW5kUmVqZWN0SAASMAoIb3ZlcmxvYWQYDSABKAsyHC50cmFkZXdzLnYxLk92ZXJsb2FkUmVzcG9uc2VIABI0Cgh0ZXJtaW5hbBgOIAEoCzIgLnRyYWRld3MudjEuVGVybWluYWxTZXNzaW9uRXZlbnRIAEIJCgdwYXlsb2FkIh8KDFBvbmdSZXNwb25zZRIPCgdwYXlsb2FkGAEgASgMIpAECgtBY2tSZXNwb25zZRI2CgxjcmVhdGVfb3JkZXIYASABKAsyHi5vcmRlcnMudjEuQ3JlYXRlT3JkZXJSZXNwb25zZUgAEjYKDGNhbmNlbF9vcmRlchgCIAEoCzIeLm9yZGVycy52MS5DYW5jZWxPcmRlclJlc3BvbnNlSAASNgoMbW9kaWZ5X29yZGVyGAMgASgLMh4ub3JkZXJzLnYxLk1vZGlmeU9yZGVyUmVzcG9uc2VIABI/ChFjYW5jZWxfYWxsX29yZGVycxgEIAEoCzIiLm9yZGVycy52MS5DYW5jZWxBbGxPcmRlcnNSZXNwb25zZUgAEkMKE2JhdGNoX2NyZWF0ZV9vcmRlcnMYBSABKAsyJC5vcmRlcnMudjEuQmF0Y2hDcmVhdGVPcmRlcnNSZXNwb25zZUgAEkUKFGJhdGNoX3JlcGxhY2Vfb3JkZXJzGAYgASgLMiUub3JkZXJzLnYxLkJhdGNoUmVwbGFjZU9yZGVyc1Jlc3BvbnNlSAASQwoTYmF0Y2hfY2FuY2VsX29yZGVycxgHIAEoCzIkLm9yZGVycy52MS5CYXRjaENhbmNlbE9yZGVyc1Jlc3BvbnNlSAASPQoQY2FuY2VsX2FsbF9hZnRlchgIIAEoCzIhLm9yZGVycy52MS5DYW5jZWxBbGxBZnRlclJlc3BvbnNlSABCCAoGcmVzdWx0IlQKDUNvbW1hbmRSZWplY3QSDAoEY29kZRgBIAEoCRIOCgZkZXRhaWwYAiABKAkSJQoFZXJyb3IYAyABKAsyFi5vcmRlcnMudjEuRXJyb3JEZXRhaWwiMAoQT3ZlcmxvYWRSZXNwb25zZRIMCgRjb2RlGAEgASgJEg4KBmRldGFpbBgCIAEoCSI0ChRUZXJtaW5hbFNlc3Npb25FdmVudBIMCgRjb2RlGAEgASgJEg4KBmRldGFpbBgCIAEoCUJCWkBnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL3RyYWRld3MvdjE7dHJhZGV3c3YxYgZwcm90bzM=", [file_orders_v1_orders]);
+  fileDesc("Chl0cmFkZXdzL3YxL3RyYWRlX3dzLnByb3RvEgp0cmFkZXdzLnYxIu8FCgtDbGllbnRGcmFtZRILCgNzZXEYASABKAQSFgoOY29ycmVsYXRpb25faWQYAiABKAkSFAoMdGltZXN0YW1wX21zGAMgASgDEhYKDnJlY3Zfd2luZG93X21zGAQgASgNEicKBHBpbmcYCiABKAsyFy50cmFkZXdzLnYxLlBpbmdSZXF1ZXN0SAASNQoMY3JlYXRlX29yZGVyGAsgASgLMh0ub3JkZXJzLnYxLkNyZWF0ZU9yZGVyUmVxdWVzdEgAEjUKDGNhbmNlbF9vcmRlchgMIAEoCzIdLm9yZGVycy52MS5DYW5jZWxPcmRlclJlcXVlc3RIABI1Cgxtb2RpZnlfb3JkZXIYDSABKAsyHS5vcmRlcnMudjEuTW9kaWZ5T3JkZXJSZXF1ZXN0SAASPgoRY2FuY2VsX2FsbF9vcmRlcnMYDiABKAsyIS5vcmRlcnMudjEuQ2FuY2VsQWxsT3JkZXJzUmVxdWVzdEgAEkIKE2JhdGNoX2NyZWF0ZV9vcmRlcnMYDyABKAsyIy5vcmRlcnMudjEuQmF0Y2hDcmVhdGVPcmRlcnNSZXF1ZXN0SAASRAoUYmF0Y2hfcmVwbGFjZV9vcmRlcnMYECABKAsyJC5vcmRlcnMudjEuQmF0Y2hSZXBsYWNlT3JkZXJzUmVxdWVzdEgAEkIKE2JhdGNoX2NhbmNlbF9vcmRlcnMYESABKAsyIy5vcmRlcnMudjEuQmF0Y2hDYW5jZWxPcmRlcnNSZXF1ZXN0SAASPAoQY2FuY2VsX2FsbF9hZnRlchgSIAEoCzIgLm9yZGVycy52MS5DYW5jZWxBbGxBZnRlclJlcXVlc3RIABIzCgpjcmVhdGVfb2NvGBMgASgLMh0udHJpZ2dlcnMudjEuQ3JlYXRlT2NvUmVxdWVzdEgAEjMKCmNhbmNlbF9vY28YFCABKAsyHS50cmlnZ2Vycy52MS5DYW5jZWxPY29SZXF1ZXN0SABCCQoHcGF5bG9hZCIeCgtQaW5nUmVxdWVzdBIPCgdwYXlsb2FkGAEgASgMIqQCCgtTZXJ2ZXJGcmFtZRILCgNzZXEYASABKAQSFgoOY29ycmVsYXRpb25faWQYAiABKAkSKAoEcG9uZxgKIAEoCzIYLnRyYWRld3MudjEuUG9uZ1Jlc3BvbnNlSAASJgoDYWNrGAsgASgLMhcudHJhZGV3cy52MS5BY2tSZXNwb25zZUgAEisKBnJlamVjdBgMIAEoCzIZLnRyYWRld3MudjEuQ29tbWFuZFJlamVjdEgAEjAKCG92ZXJsb2FkGA0gASgLMhwudHJhZGV3cy52MS5PdmVybG9hZFJlc3BvbnNlSAASNAoIdGVybWluYWwYDiABKAsyIC50cmFkZXdzLnYxLlRlcm1pbmFsU2Vzc2lvbkV2ZW50SABCCQoHcGF5bG9hZCIfCgxQb25nUmVzcG9uc2USDwoHcGF5bG9hZBgBIAEoDCL8BAoLQWNrUmVzcG9uc2USNgoMY3JlYXRlX29yZGVyGAEgASgLMh4ub3JkZXJzLnYxLkNyZWF0ZU9yZGVyUmVzcG9uc2VIABI2CgxjYW5jZWxfb3JkZXIYAiABKAsyHi5vcmRlcnMudjEuQ2FuY2VsT3JkZXJSZXNwb25zZUgAEjYKDG1vZGlmeV9vcmRlchgDIAEoCzIeLm9yZGVycy52MS5Nb2RpZnlPcmRlclJlc3BvbnNlSAASPwoRY2FuY2VsX2FsbF9vcmRlcnMYBCABKAsyIi5vcmRlcnMudjEuQ2FuY2VsQWxsT3JkZXJzUmVzcG9uc2VIABJDChNiYXRjaF9jcmVhdGVfb3JkZXJzGAUgASgLMiQub3JkZXJzLnYxLkJhdGNoQ3JlYXRlT3JkZXJzUmVzcG9uc2VIABJFChRiYXRjaF9yZXBsYWNlX29yZGVycxgGIAEoCzIlLm9yZGVycy52MS5CYXRjaFJlcGxhY2VPcmRlcnNSZXNwb25zZUgAEkMKE2JhdGNoX2NhbmNlbF9vcmRlcnMYByABKAsyJC5vcmRlcnMudjEuQmF0Y2hDYW5jZWxPcmRlcnNSZXNwb25zZUgAEj0KEGNhbmNlbF9hbGxfYWZ0ZXIYCCABKAsyIS5vcmRlcnMudjEuQ2FuY2VsQWxsQWZ0ZXJSZXNwb25zZUgAEjQKCmNyZWF0ZV9vY28YCSABKAsyHi50cmlnZ2Vycy52MS5DcmVhdGVPY29SZXNwb25zZUgAEjQKCmNhbmNlbF9vY28YCiABKAsyHi50cmlnZ2Vycy52MS5DYW5jZWxPY29SZXNwb25zZUgAQggKBnJlc3VsdCJUCg1Db21tYW5kUmVqZWN0EgwKBGNvZGUYASABKAkSDgoGZGV0YWlsGAIgASgJEiUKBWVycm9yGAMgASgLMhYub3JkZXJzLnYxLkVycm9yRGV0YWlsIjAKEE92ZXJsb2FkUmVzcG9uc2USDAoEY29kZRgBIAEoCRIOCgZkZXRhaWwYAiABKAkiNAoUVGVybWluYWxTZXNzaW9uRXZlbnQSDAoEY29kZRgBIAEoCRIOCgZkZXRhaWwYAiABKAlCQlpAZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi90cmFkZXdzL3YxO3RyYWRld3N2MWIGcHJvdG8z", [file_orders_v1_orders, file_triggers_v1_triggers]);
 
 /**
  * ClientFrame is the protobuf write-websocket envelope. Its payloads reuse the
@@ -72,7 +74,8 @@ export type ClientFrame = Message<"tradews.v1.ClientFrame"> & {
   } | {
     /**
      * Create-order command using the public Orders API request contract,
-     * including its required base-quantity or maximum-quote-debit sizing choice.
+     * including its required base-quantity, maximum-quote-debit or
+     * quote-proceeds sizing choice.
      *
      * @generated from field: orders.v1.CreateOrderRequest create_order = 11;
      */
@@ -154,6 +157,26 @@ export type ClientFrame = Message<"tradews.v1.ClientFrame"> & {
      */
     value: CancelAllAfterRequest;
     case: "cancelAllAfter";
+  } | {
+    /**
+     * Create-OCO command using the public Triggers API request contract: a
+     * take-profit and a stop-loss over a quantity the account already holds,
+     * which cancel each other. The acknowledgement names the OCO and both
+     * legs; their states follow on the trigger reads and events.
+     *
+     * @generated from field: triggers.v1.CreateOcoRequest create_oco = 19;
+     */
+    value: CreateOcoRequest;
+    case: "createOco";
+  } | {
+    /**
+     * Cancel-OCO command using the public Triggers API request contract:
+     * both legs end canceled.
+     *
+     * @generated from field: triggers.v1.CancelOcoRequest cancel_oco = 20;
+     */
+    value: CancelOcoRequest;
+    case: "cancelOco";
   } | { case: undefined; value?: undefined };
 };
 
@@ -361,6 +384,22 @@ export type AckResponse = Message<"tradews.v1.AckResponse"> & {
      */
     value: CancelAllAfterResponse;
     case: "cancelAllAfter";
+  } | {
+    /**
+     * Accepted create-OCO response: the OCO and its legs' IDs.
+     *
+     * @generated from field: triggers.v1.CreateOcoResponse create_oco = 9;
+     */
+    value: CreateOcoResponse;
+    case: "createOco";
+  } | {
+    /**
+     * Accepted cancel-OCO response.
+     *
+     * @generated from field: triggers.v1.CancelOcoResponse cancel_oco = 10;
+     */
+    value: CancelOcoResponse;
+    case: "cancelOco";
   } | { case: undefined; value?: undefined };
 };
 

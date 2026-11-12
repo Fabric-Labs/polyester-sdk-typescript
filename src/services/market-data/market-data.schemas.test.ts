@@ -297,4 +297,32 @@ describe("market data schemas", () => {
         expect(() => parse([{ ...pair, maxOpenOrdersPerPair: -1 }])).toThrow();
         expect(() => parse([], 1.5)).toThrow();
     });
+
+    it("parses a pair's price band as uint32 numbers and leaves it absent when there is none", () => {
+        const pair = {
+            symbolId: 101,
+            symbol: "BTC-USDT",
+            baseAsset: "BTC",
+            quoteAsset: "USDT",
+            tickSize: "0.000001",
+            stepSize: "0.00000001",
+            minNotionalQuote: "1",
+            minQtyBase: "0.00000001",
+            allowBuyFeeFromBase: false,
+            baseQuantityScale: 8,
+            quoteQuantityScale: 6,
+            status: Proto.PairStatus.ENABLED,
+        };
+        const parse = (pairs: unknown[]) =>
+            v.parse(SpotConfigSchema, { assets: [], pairs, tsSec: 0n }).pairs;
+        const priceBand = { lowerBps: 500, upperBps: 4_294_967_295, referenceWindowMs: 0 };
+
+        expect(parse([{ ...pair, priceBand }])[0]?.priceBand).toEqual(priceBand);
+        expect(parse([pair])[0]).not.toHaveProperty("priceBand");
+        expect(() =>
+            parse([{ ...pair, priceBand: { ...priceBand, upperBps: 4_294_967_296 } }]),
+        ).toThrow();
+        expect(() => parse([{ ...pair, priceBand: { ...priceBand, lowerBps: -1 } }])).toThrow();
+        expect(() => parse([{ ...pair, priceBand: { ...priceBand, lowerBps: 1.5 } }])).toThrow();
+    });
 });

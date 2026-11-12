@@ -54,6 +54,8 @@ export interface PairConfig {
     maxMarketNotionalQuote?: string;
     /** Default resting-order limit for a typical account on this pair. Absent on older snapshots. */
     maxOpenOrdersPerPair?: number;
+    /** Price band in basis points around the reference price; absent when the pair has none. */
+    priceBand?: { lowerBps: number; upperBps: number; referenceWindowMs: number };
     allowBuyFeeFromBase: boolean;
     defaultMarketSlippagePctBuy: number;
     defaultMarketSlippagePctSell: number;
