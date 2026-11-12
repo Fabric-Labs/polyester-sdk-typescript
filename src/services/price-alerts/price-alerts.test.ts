@@ -129,6 +129,20 @@ describe("PriceAlertsService", () => {
         expect(transport.calls).toHaveLength(0);
     });
 
+    it("spells the canceled status with one L", async () => {
+        const { transport, service } = serviceWith({
+            alerts: [rawAlert({ status: Proto.AlertStatus.CANCELLED })],
+        });
+        const page = await service.list({ statuses: ["canceled"] });
+        expect(transport.lastCall()?.message).toMatchObject({
+            statuses: [Proto.AlertStatus.CANCELLED],
+        });
+        expect(page.alerts[0]?.status).toBe("canceled");
+        await expect(
+            service.list({ statuses: ["cancelled" as "canceled"] }),
+        ).rejects.toBeInstanceOf(ValidationError);
+    });
+
     it("lists alerts with filters and page token", async () => {
         const { transport, service } = serviceWith({ alerts: [rawAlert()], nextPageToken: "n" });
         const page = await service.list({

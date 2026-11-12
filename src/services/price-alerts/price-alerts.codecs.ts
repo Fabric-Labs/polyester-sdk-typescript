@@ -8,7 +8,7 @@ export type PriceAlertDirection = (typeof PRICE_ALERT_DIRECTION_VALUES)[number];
 export const PRICE_ALERT_PRICE_SOURCE_VALUES = ["last_price", "index_price"] as const;
 export type PriceAlertPriceSource = (typeof PRICE_ALERT_PRICE_SOURCE_VALUES)[number];
 
-export const PRICE_ALERT_STATUS_VALUES = ["active", "triggered", "cancelled"] as const;
+export const PRICE_ALERT_STATUS_VALUES = ["active", "triggered", "canceled"] as const;
 export type PriceAlertStatus = (typeof PRICE_ALERT_STATUS_VALUES)[number];
 
 export const PRICE_ALERT_CHANNEL_VALUES = ["in_app", "telegram"] as const;
@@ -49,13 +49,13 @@ export const PriceAlertStatusCodec = {
     inputToProto: {
         active: Proto.AlertStatus.ACTIVE,
         triggered: Proto.AlertStatus.TRIGGERED,
-        cancelled: Proto.AlertStatus.CANCELLED,
+        canceled: Proto.AlertStatus.CANCELLED,
     } satisfies InputToProto<PriceAlertStatus, Proto.AlertStatus>,
     protoToOutput: {
         [Proto.AlertStatus.STATUS_UNSPECIFIED]: "unspecified",
         [Proto.AlertStatus.ACTIVE]: "active",
         [Proto.AlertStatus.TRIGGERED]: "triggered",
-        [Proto.AlertStatus.CANCELLED]: "cancelled",
+        [Proto.AlertStatus.CANCELLED]: "canceled",
     } satisfies ProtoToOutput<Proto.AlertStatus, PriceAlertStatus>,
 } as const;
 
