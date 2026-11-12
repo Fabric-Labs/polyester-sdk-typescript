@@ -88,7 +88,7 @@ export class SubaccountsService {
     }
 
     /**
-     * Returns subaccounts owned by or shared with the caller plus totalCreated, including soft-deleted ones. Use `createChallenge` for the canonical next smart-account address and salt.
+     * Returns subaccounts owned by or shared with the caller plus totalCreated, including soft-deleted ones. Use `createChallenge` for the canonical next smart-account address and salt. API keys need `read-subaccounts` and see only the subaccounts within their scope.
      */
     async list(options?: PolyesterRequestOptions): Promise<{
         totalCreated: number;
@@ -102,7 +102,7 @@ export class SubaccountsService {
     }
 
     /**
-     * Fetches an aggregated subaccount dashboard view with subaccount details, policy, API keys, members, and outgoing invites; throws if the subaccount is missing.
+     * Fetches an aggregated subaccount dashboard view with subaccount details, policy, API keys, members, and outgoing invites; throws if the subaccount is missing. API keys need `read-subaccounts`.
      *
      * `includeBalances: true` also returns the sub-account's current `balances`, in the shape of
      * `balances.list`. It needs the READ_BALANCES action on the sub-account (its role, any attached
@@ -265,7 +265,7 @@ export class SubaccountsService {
 
     /**
      * Returns the caller's subaccount invitations, newest first. Omit `direction` to include both
-     * incoming and outgoing invitations, or pass `"incoming"` or `"outgoing"` to filter.
+     * incoming and outgoing invitations, or pass `"incoming"` or `"outgoing"` to filter. API keys need `read-subaccount-invites` and see only outgoing invitations.
      */
     async listInvites(
         input: v.InferInput<typeof ListSubaccountInvitesInputSchema>,
@@ -291,7 +291,7 @@ export class SubaccountsService {
     }
 
     /**
-     * Returns the caller's current role, effective role-granted permissions, and attached policy ID for a subaccount.
+     * Returns the caller's current role, effective role-granted permissions, and attached policy ID for a subaccount. API keys need `read-subaccount-permissions` and get what the key itself may do.
      */
     async getEffectivePermissions(
         input: v.InferInput<typeof SubaccountIdInputSchema>,
@@ -306,7 +306,7 @@ export class SubaccountsService {
     }
 
     /**
-     * Returns the owner and delegated members for a subaccount, including role and MFA enrollment status.
+     * Returns the owner and delegated members for a subaccount, including role and MFA enrollment status. API keys need `read-subaccount-members`.
      */
     async listMembers(
         input: v.InferInput<typeof SubaccountIdInputSchema>,
@@ -336,7 +336,7 @@ export class SubaccountsService {
     }
 
     /**
-     * Returns paginated audit/activity events for a subaccount, newest first, with a non-negative integer limit from 0 through 200 and opaque cursor pagination.
+     * Returns paginated audit/activity events for a subaccount, newest first, with a non-negative integer limit from 0 through 200 and opaque cursor pagination. API keys need `read-subaccount-activity`.
      */
     async listEvents(
         input: v.InferInput<typeof SubaccountActivityInputSchema>,

@@ -39,7 +39,7 @@ export class ProfileService {
     }
 
     /**
-     * Fetches the caller's public profile, including username eligibility/cooldown, verified social handles, avatar, VIP tier, and account creation timestamp.
+     * Fetches the caller's public profile, including username eligibility/cooldown, verified social handles, avatar, VIP tier, and account creation timestamp. API keys need `read-profile` and must be scoped to the main account.
      */
     async get(options?: PolyesterRequestOptions): Promise<Profile> {
         const res = await this.#client.getProfile({}, toConnectCallOptions(options));
@@ -63,7 +63,7 @@ export class ProfileService {
     }
 
     /**
-     * Returns the caller's recent username changes, newest first, capped at 20 entries.
+     * Returns the caller's recent username changes, newest first, capped at 20 entries. API keys need `read-profile` and must be scoped to the main account.
      */
     async getUsernameHistory(options?: PolyesterRequestOptions): Promise<UsernameHistoryEntry[]> {
         const res = await this.#client.getUsernameHistory({}, toConnectCallOptions(options));

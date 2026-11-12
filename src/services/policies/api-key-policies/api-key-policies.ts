@@ -33,7 +33,7 @@ export class ApiKeyPoliciesService {
     }
 
     /**
-     * Returns API key policy templates available to the caller.
+     * Returns API key policy templates available to the caller. API keys need `read-api-policies`; a key scoped to a sub-account sees only the policies attached to that sub-account's keys.
      */
     async list(
         input: v.InferInput<typeof ListApiKeyPoliciesInputSchema> = {},
@@ -48,7 +48,7 @@ export class ApiKeyPoliciesService {
     }
 
     /**
-     * Fetches an API key policy by base58 policy ID, falling back to the SDK default no-permissions policy when no ID or policy is returned.
+     * Fetches an API key policy by base58 policy ID, falling back to the SDK default no-permissions policy when no ID or policy is returned. API keys need `read-api-policies`.
      */
     async get(
         input: v.InferInput<typeof GetApiKeyPolicyInputSchema>,

@@ -46,7 +46,7 @@ export class SubaccountPoliciesService {
     }
 
     /**
-     * Returns subaccount policy templates visible to the caller, sorted by ascending policy ID.
+     * Returns subaccount policy templates visible to the caller, sorted by ascending policy ID. API keys need `read-subaccount-policies`; a key scoped to a sub-account sees only that sub-account's policy.
      */
     async list(
         input: v.InferInput<typeof ListSubaccountPoliciesInputSchema> = {},
@@ -62,7 +62,7 @@ export class SubaccountPoliciesService {
     }
 
     /**
-     * Fetches one subaccount policy template by base58 policy ID and returns null when no policy is returned.
+     * Fetches one subaccount policy template by base58 policy ID and returns null when no policy is returned. API keys need `read-subaccount-policies`.
      */
     async get(
         input: v.InferInput<typeof GetSubaccountPolicyInputSchema>,

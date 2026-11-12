@@ -34,7 +34,7 @@ export class VipService {
     }
 
     /**
-     * Returns VIP qualification status for the authenticated caller's root account, including effective/volume/AOP tiers, optional rolling metrics, and next-tier thresholds.
+     * Returns VIP qualification status for the authenticated caller's root account, including effective/volume/AOP tiers, optional rolling metrics, and next-tier thresholds. API keys need `read-vip-status` and must be scoped to the main account.
      */
     async getStatus(options?: PolyesterRequestOptions): Promise<VipStatus> {
         const res = await this.#authClient.getVIPStatus({}, toConnectCallOptions(options));

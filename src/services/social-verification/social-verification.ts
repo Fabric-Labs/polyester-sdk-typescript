@@ -65,7 +65,7 @@ export class SocialVerificationService {
     }
 
     /**
-     * Returns the caller's current verification state for a provider, including status, challenge metadata, attempts, last error, and verified timestamp.
+     * Returns the caller's current verification state for a provider, including status, challenge metadata, attempts, last error, and verified timestamp. API keys need `read-social-verification` and must be scoped to the main account.
      */
     async get(
         input: v.InferInput<typeof SocialProviderInputSchema>,
