@@ -14,8 +14,8 @@ import {
 } from "./checkpoints.schemas.js";
 
 /**
- * Reads the signed-in account's frozen testnet season recaps. The server accepts session JWTs
- * for this service; API keys are refused with `PERMISSION_DENIED`.
+ * Reads the signed-in account's frozen testnet season recaps. API keys need `read-checkpoints`
+ * and must be scoped to the main account.
  */
 export class CheckpointsService {
     #client: Client<typeof Proto.CheckpointService>;

@@ -24,7 +24,7 @@ export class AccountsService {
     }
 
     /**
-     * Resolves a username, opaque account/subaccount ID, or smart-account address into matching destination accounts; set includeSubaccounts for internal-transfer flows that may target subaccounts.
+     * Resolves a username, opaque account/subaccount ID, or smart-account address into matching destination accounts; set includeSubaccounts for internal-transfer flows that may target subaccounts. API keys need `read-account-directory`.
      */
     async resolve(
         input: ResolveAccountInput,

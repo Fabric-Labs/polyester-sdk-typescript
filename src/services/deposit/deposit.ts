@@ -32,7 +32,7 @@ export class DepositService {
     }
 
     /**
-     * Creates or returns the deposit address assigned to the resolved account target for a selected chain. Returns null if the backend response does not include an address.
+     * Creates or returns the deposit address assigned to the resolved account target for a selected chain. Returns null if the backend response does not include an address. API keys need `create-deposit-address`.
      */
     async createAddress(
         input: CreateDepositAddressInput,
@@ -49,7 +49,7 @@ export class DepositService {
     }
 
     /**
-     * Lists known deposit addresses for the resolved account target, optionally filtered by chain. Results are ordered by ascending chain id in the generated proto contract.
+     * Lists known deposit addresses for the resolved account target, optionally filtered by chain. Results are ordered by ascending chain id in the generated proto contract. API keys need `read-deposit-addresses`.
      */
     async listAddresses(
         input: ListDepositAddressesInput = {},

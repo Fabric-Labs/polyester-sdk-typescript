@@ -53,7 +53,7 @@ export class ApiKeysService {
     }
 
     /**
-     * Returns non-revoked API keys owned by the caller, newest first, optionally scoped through an explicit or resolver-provided subaccount ID.
+     * Returns non-revoked API keys owned by the caller, newest first, optionally scoped through an explicit or resolver-provided subaccount ID. API keys need `read-api-keys`; a key scoped to a sub-account sees only that sub-account's keys.
      */
     async list(
         params: v.InferInput<typeof ApiKeysListInputSchema> = {},
@@ -70,7 +70,7 @@ export class ApiKeysService {
     }
 
     /**
-     * Fetches one caller-owned API key by ak_... key ID and returns null when no matching key is returned.
+     * Fetches one caller-owned API key by ak_... key ID and returns null when no matching key is returned. API keys need `read-api-keys`.
      */
     async get(
         input: v.InferInput<typeof ApiKeyIdInputSchema>,

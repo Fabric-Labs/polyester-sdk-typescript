@@ -231,7 +231,7 @@ export class TradingWithdrawsService {
     }
 
     /**
-     * Checks whether an external-chain destination can receive a withdrawal without creating, signing, or reserving one.
+     * Checks whether an external-chain destination can receive a withdrawal without creating, signing, or reserving one. API keys need `read-withdraw-validation`.
      */
     async validateDestination(
         input: ValidateWithdrawDestinationInput,

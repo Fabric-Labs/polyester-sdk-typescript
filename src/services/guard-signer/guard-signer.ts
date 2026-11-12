@@ -68,7 +68,7 @@ export class GuardSignerService {
     }
 
     /**
-     * Returns stored and live guard signer status for the resolved account target, including signer address, on-chain signer, initialization state, nonce, and nonce space. Returns null when the backend reports the wallet is not found.
+     * Returns stored and live guard signer status for the resolved account target, including signer address, on-chain signer, initialization state, nonce, and nonce space. Returns null when the backend reports the wallet is not found. API keys need `read-guard-signer-status`.
      */
     async getStatus(
         input: GuardSignerScopedInput = {},
