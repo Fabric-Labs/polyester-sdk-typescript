@@ -13,16 +13,23 @@ import type { SdkScales } from "../../shared/decimal-surface.js";
 import type { AuthApiTransports } from "../../shared/transports.js";
 import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
 import { deliverBatch } from "../../shared/subscription-errors.js";
+import { createMutationRequestId } from "../../shared/request-id.js";
 import {
+    createCreateOcoInputSchema,
     createCreateTriggerInputSchema,
     createModifyTriggerInputSchema,
     ListTriggersInputSchema,
+    BatchCancelTriggersInputSchema,
+    CancelOcoInputSchema,
     CancelTriggerInputSchema,
     PauseTriggerInputSchema,
     ResumeTriggerInputSchema,
     GetTriggerInputSchema,
     ListTriggerEventsInputSchema,
     CreateTriggerResultSchema,
+    CreateOcoResultSchema,
+    CancelOcoResultSchema,
+    BatchCancelTriggersResultSchema,
     CancelTriggerResultSchema,
     ModifyTriggerResultSchema,
     PauseTriggerResultSchema,
@@ -31,6 +38,12 @@ import {
     createTriggerEventSchema,
     type Trigger,
     type CreateTriggerInput,
+    type CreateOcoInput,
+    type CreateOcoResult,
+    type CancelOcoInput,
+    type CancelOcoResult,
+    type BatchCancelTriggersInput,
+    type BatchCancelTriggersResult,
     type ListTriggersInput,
     type CancelTriggerInput,
     type GetTriggerInput,
@@ -80,6 +93,7 @@ export class TriggersService {
     #resolver?: SubaccountResolver;
     #scales: SdkScales;
     #createTriggerInputSchema: ReturnType<typeof createCreateTriggerInputSchema>;
+    #createOcoInputSchema: ReturnType<typeof createCreateOcoInputSchema>;
     #modifyTriggerInputSchema: ReturnType<typeof createModifyTriggerInputSchema>;
     #triggerSchema: ReturnType<typeof createTriggerSchema>;
     #triggerEventSchema: ReturnType<typeof createTriggerEventSchema>;
@@ -95,6 +109,7 @@ export class TriggersService {
         this.#resolver = resolver;
         this.#scales = scales;
         this.#createTriggerInputSchema = createCreateTriggerInputSchema(scales);
+        this.#createOcoInputSchema = createCreateOcoInputSchema(scales);
         this.#modifyTriggerInputSchema = createModifyTriggerInputSchema(scales);
         this.#triggerSchema = createTriggerSchema(scales);
         this.#triggerEventSchema = createTriggerEventSchema(scales);
@@ -112,6 +127,43 @@ export class TriggersService {
         const validatedInput = parse(this.#createTriggerInputSchema, resolved);
         const res = await this.#client.createTrigger(validatedInput, toConnectCallOptions(options));
         return parse(CreateTriggerResultSchema, res);
+    }
+
+    /**
+     * Creates an OCO: a take-profit and a stop-loss over a quantity the account already holds, which
+     * cancel each other. Returns the OCO's `orderListId` and both legs' trigger IDs; read the legs
+     * with `list({ orderListId })`. An `OutcomeUnknownError` means the OCO may exist: list by
+     * `clientListId` before retrying.
+     */
+    async createOco(
+        input: CreateOcoInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<CreateOcoResult> {
+        await this.#scales.ready();
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
+        const validated = parse(this.#createOcoInputSchema, resolved);
+        const res = await this.#client.createOco(
+            removeUndefined(validated),
+            toConnectCallOptions(options),
+        );
+        return parse(CreateOcoResultSchema, res);
+    }
+
+    /**
+     * Cancels both legs of an OCO by its `orderListId` and releases its reserved quantity. Canceling
+     * either leg with `cancel` does the same.
+     */
+    async cancelOco(
+        input: CancelOcoInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<CancelOcoResult> {
+        const resolved = resolveAccountScopedInput(input, this.#resolver);
+        const validated = parse(CancelOcoInputSchema, resolved);
+        const res = await this.#client.cancelOco(
+            removeUndefined(validated),
+            toConnectCallOptions(options),
+        );
+        return parse(CancelOcoResultSchema, res);
     }
 
     /**
@@ -140,7 +192,7 @@ export class TriggersService {
     }
 
     /**
-     * Lists triggers for the resolved account scope with optional symbol ID, status, trigger type, parent order, limit, and page-token filters. Results are returned newest-first.
+     * Lists triggers for the resolved account scope with optional symbol ID, status, trigger type, parent order, OCO (`orderListId` or `clientListId`), limit, and page-token filters. Results are returned newest-first.
      */
     async list(
         input: ListTriggersInput = {},
@@ -161,6 +213,8 @@ export class TriggersService {
 
     /**
      * Cancels an active trigger by id in the resolved account scope and returns the trigger id, resulting status, and server timestamp.
+     * A trigger that has ended, including one a previous cancel already canceled, throws with code
+     * `TRIGGER_STATUS_INVALID` for at least 60 s, and `TRIGGER_NOT_FOUND` after that: treat either as done.
      */
     async cancel(
         input: CancelTriggerInput,
@@ -173,6 +227,35 @@ export class TriggersService {
             toConnectCallOptions(options),
         );
         return parse(CancelTriggerResultSchema, res);
+    }
+
+    /**
+     * Cancels 1–50 distinct triggers in one best-effort request; results follow `triggerIds` order.
+     * `accepted` means the cancellation was requested. A `rejected` item's `code` says why:
+     * `TRIGGER_STATUS_INVALID` has already ended, and `RATE_LIMIT_EXCEEDED`, `PAIR_BACKLOGGED` and
+     * `TRIGGER_CONTROL_IN_PROGRESS` can be retried in a new batch. A requestId is generated when
+     * omitted; retry a timed-out batch unchanged with the same requestId within 2 minutes.
+     */
+    async batchCancel(
+        input: BatchCancelTriggersInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<BatchCancelTriggersResult> {
+        const resolved = {
+            ...resolveAccountScopedInput(input, this.#resolver),
+            requestId: input.requestId ?? createMutationRequestId(),
+        };
+        const validated = parse(BatchCancelTriggersInputSchema, resolved);
+        const res = await this.#client.batchCancelTriggers(
+            removeUndefined(validated),
+            toConnectCallOptions(options),
+        );
+        const result = parse(BatchCancelTriggersResultSchema, res);
+        if (result.results.length !== validated.triggerIds.length) {
+            throw new Error(
+                `batchCancel returned ${result.results.length} results for ${validated.triggerIds.length} requested triggers.`,
+            );
+        }
+        return result;
     }
 
     /**

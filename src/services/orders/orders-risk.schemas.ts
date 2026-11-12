@@ -28,7 +28,10 @@ import { TriggerPriceSourceInputSchema } from "./order-enums.codecs.js";
 
 const DecimalInputStringSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
 
-function attachedTriggerInputSchema(scales: SdkScales, fieldPrefix: "takeProfit" | "stopLoss") {
+export function attachedTriggerInputSchema(
+    scales: SdkScales,
+    fieldPrefix: "takeProfit" | "stopLoss",
+) {
     return v.pipe(
         v.strictObject({
             triggerPrice: DecimalInputStringSchema,

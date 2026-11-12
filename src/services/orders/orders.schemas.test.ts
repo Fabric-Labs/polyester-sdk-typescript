@@ -6,6 +6,7 @@ import { AccountCode, TransferCode } from "../../gen/ledger/v1/catalog_pb.js";
 import { CatalogConversionError, type EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
+import { parse } from "../../shared/validation.js";
 import {
     PROTOBUF_INT32_MAX,
     PROTOBUF_INT64_MAX,
@@ -628,6 +629,221 @@ describe("NewOrderInputSchema", () => {
         );
     });
 
+    it.each([
+        ["market_ioc", { type: "market_ioc" }],
+        ["limit_ioc", { type: "limit_ioc", price: "100.25" }],
+    ] as const)("encodes SELL %s quote-proceeds sizing", (_name, execution) => {
+        const output = v.parse(createNewOrderInputSchema(testScales()), {
+            symbolId: 1,
+            side: "sell",
+            quoteProceeds: "100.5",
+            execution,
+        });
+
+        expect(output.order.sizing).toEqual({ case: "quoteProceedsScaled", value: 100_500_000n });
+    });
+
+    it("restricts quote-proceeds sizing to SELL IOC orders without attached risk or a peg", () => {
+        const schema = createNewOrderInputSchema(testScales());
+        const sell = {
+            symbolId: 1,
+            side: "sell",
+            quoteProceeds: "100",
+            execution: { type: "market_ioc" },
+        };
+        const sellOnly =
+            "quoteProceeds is supported only for SELL market IOC and SELL limit IOC orders";
+
+        expect(() => v.parse(schema, { ...sell, side: "buy" })).toThrow(sellOnly);
+        for (const execution of [
+            { type: "limit_gtc", price: "100" },
+            { type: "limit_gtd", price: "100", expireAt: 1_758_024_000_000 },
+            { type: "limit_fok", price: "100" },
+        ]) {
+            expect(() => v.parse(schema, { ...sell, execution })).toThrow(sellOnly);
+        }
+        expect(() =>
+            v.parse(schema, {
+                ...sell,
+                risk: { stopLoss: { triggerPrice: "120", execution: { type: "market_ioc" } } },
+            }),
+        ).toThrow("quoteProceeds cannot be combined with attached risk");
+        expect(() =>
+            v.parse(schema, {
+                ...sell,
+                execution: { type: "limit_ioc", price: "100" },
+                peg: { reference: "best_ask" },
+            }),
+        ).toThrow("peg requires qty sizing, a limit execution and no attached risk");
+        expect(() => v.parse(schema, { ...sell, qty: "0.5" })).toThrow();
+        expect(() => v.parse(schema, { ...sell, maxQuoteDebit: "100" })).toThrow();
+        expect(() => v.parse(schema, { ...sell, quoteProceeds: "0" })).toThrow(
+            "quoteProceeds must be greater than 0",
+        );
+        expect(() => v.parse(schema, { ...sell, quoteProceeds: "1.0000001" })).toThrow(
+            "quoteProceeds supports at most 6 decimal places",
+        );
+    });
+
+    it("encodes a static peg with signed 64-bit offsets and keeps the limit price bound", () => {
+        const schema = createNewOrderInputSchema(testScales());
+        const buy = {
+            symbolId: 1,
+            side: "buy",
+            qty: "0.5",
+            execution: { type: "limit_gtc", price: "100.25" },
+        };
+        // The SDK parser surfaces the nested sizing-union issue that v.parse only summarizes.
+        const peg = (input: object) => parse(schema, { ...buy, peg: input }).order;
+
+        expect(peg({ reference: "best_bid" })).toMatchObject({
+            execution: { case: "limitGtc", value: { priceTicks: 100_250_000_000n } },
+            peg: { reference: ProtoWrite.PegReference.BEST_BID, offsetTicks: 0n },
+        });
+        expect(peg({ reference: "best_ask", offsetTicks: -3 }).peg).toMatchObject({
+            reference: ProtoWrite.PegReference.BEST_ASK,
+            offsetTicks: -3n,
+        });
+        expect(
+            peg({ reference: "best_bid", offsetTicks: -PROTOBUF_INT64_MAX - 1n }).peg,
+        ).toMatchObject({
+            offsetTicks: -9_223_372_036_854_775_808n,
+        });
+        expect(peg({ reference: "best_bid", offsetTicks: PROTOBUF_INT64_MAX }).peg).toMatchObject({
+            offsetTicks: PROTOBUF_INT64_MAX,
+        });
+        expect(v.parse(schema, buy).order.peg).toBeUndefined();
+
+        expect(() => peg({ reference: "best_bid", offsetTicks: PROTOBUF_INT64_MAX + 1n })).toThrow(
+            "peg.offsetTicks must fit a signed 64-bit integer",
+        );
+        expect(() => peg({ reference: "best_bid", offsetTicks: -PROTOBUF_INT64_MAX - 2n })).toThrow(
+            "peg.offsetTicks must fit a signed 64-bit integer",
+        );
+        expect(() => peg({ reference: "best_bid", offsetTicks: 1.5 })).toThrow();
+        expect(() => peg({ reference: "best_bid", offsetTicks: 2 ** 53 })).toThrow();
+        expect(() => peg({ reference: "BEST_BID" })).toThrow();
+        expect(() => peg({})).toThrow();
+    });
+
+    it("rejects a peg on market execution, quote sizing or attached risk", () => {
+        const schema = createNewOrderInputSchema(testScales());
+        const message = "peg requires qty sizing, a limit execution and no attached risk";
+        const buy = {
+            symbolId: 1,
+            side: "buy",
+            qty: "0.5",
+            execution: { type: "limit_gtc", price: "100" },
+            peg: { reference: "best_bid" },
+        };
+
+        expect(() => v.parse(schema, { ...buy, execution: { type: "market_ioc" } })).toThrow(
+            message,
+        );
+        expect(() =>
+            v.parse(schema, {
+                ...buy,
+                qty: undefined,
+                maxQuoteDebit: "100",
+                execution: { type: "limit_ioc", price: "100" },
+            }),
+        ).toThrow(message);
+        expect(() =>
+            v.parse(schema, {
+                ...buy,
+                risk: { takeProfit: { triggerPrice: "120", execution: { type: "market_ioc" } } },
+            }),
+        ).toThrow(message);
+        for (const type of ["limit_ioc", "limit_fok"] as const) {
+            expect(
+                v.parse(schema, { ...buy, execution: { type, price: "100" } }).order.peg,
+            ).toBeDefined();
+        }
+    });
+
+    it.each([
+        ["limit_gtc", "limitGtc", {}],
+        ["limit_gtd", "limitGtd", { expireAt: 1_758_024_000_000 }],
+    ] as const)("encodes an iceberg display on %s", (type, expectedCase, extra) => {
+        const output = v.parse(createNewOrderInputSchema(testScales()), {
+            symbolId: 1,
+            side: "buy",
+            qty: "1",
+            execution: { type, price: "100", displayQty: "0.1", ...extra },
+        });
+
+        expect(output.order.execution).toMatchObject({
+            case: expectedCase,
+            value: { priceTicks: 100_000_000_000n, displayQtyScaled: 10_000_000n },
+        });
+        expect(output.order.execution).not.toHaveProperty("displayQty");
+    });
+
+    it("bounds an iceberg display below qty and to at most 100 parts", () => {
+        const schema = createNewOrderInputSchema(testScales());
+        const iceberg = (qty: string, displayQty: string) =>
+            v.parse(schema, {
+                symbolId: 1,
+                side: "buy",
+                qty,
+                execution: { type: "limit_gtc", price: "100", displayQty },
+            }).order.execution.value;
+        const bound = "execution.displayQty must be below qty and at least qty divided by 100";
+
+        // 1.00000001 / 100 rounds up to 0.01000001.
+        expect(iceberg("1.00000001", "0.01000001")).toMatchObject({ displayQtyScaled: 1_000_001n });
+        expect(iceberg("1", "0.99999999")).toMatchObject({ displayQtyScaled: 99_999_999n });
+        expect(() => iceberg("1.00000001", "0.01")).toThrow(bound);
+        expect(() => iceberg("1", "1")).toThrow(bound);
+        expect(() => iceberg("1", "2")).toThrow(bound);
+        expect(() => iceberg("1", "0")).toThrow("execution.displayQty must be greater than 0");
+        expect(() => iceberg("1", "0.000000001")).toThrow(
+            "execution.displayQty supports at most 8 decimal places",
+        );
+    });
+
+    it("rejects an iceberg display on IOC, FOK, market or attached-risk orders", () => {
+        const schema = createNewOrderInputSchema(testScales());
+        const buy = { symbolId: 1, side: "buy", qty: "1" };
+
+        for (const execution of [
+            { type: "limit_ioc", price: "100", displayQty: "0.1" },
+            { type: "limit_fok", price: "100", displayQty: "0.1" },
+            { type: "market_ioc", displayQty: "0.1" },
+        ]) {
+            expect(() => v.parse(schema, { ...buy, execution })).toThrow();
+        }
+        expect(() =>
+            v.parse(schema, {
+                ...buy,
+                execution: { type: "limit_gtc", price: "100", displayQty: "0.1" },
+                risk: { takeProfit: { triggerPrice: "120", execution: { type: "market_ioc" } } },
+            }),
+        ).toThrow("execution.displayQty cannot be combined with attached risk");
+    });
+
+    it("sends DECREMENT self-trade prevention, with or without attached risk", () => {
+        const schema = createNewOrderInputSchema(testScales());
+        const order = {
+            symbolId: 1,
+            side: "buy",
+            qty: "0.5",
+            execution: { type: "limit_gtc", price: "100" },
+            selfTradePreventionMode: "decrement",
+        };
+
+        expect(v.parse(schema, order).order.selfTradePreventionMode).toBe(
+            ProtoWrite.SelfTradePreventionMode.DECREMENT,
+        );
+        expect(
+            v.parse(schema, {
+                ...order,
+                risk: { stopLoss: { triggerPrice: "90", execution: { type: "market_ioc" } } },
+            }).order.selfTradePreventionMode,
+        ).toBe(ProtoWrite.SelfTradePreventionMode.DECREMENT);
+        expect(() => v.parse(schema, { ...order, selfTradePreventionMode: "DECREMENT" })).toThrow();
+    });
+
     it("allows base fees only on BUY orders", () => {
         const schema = createNewOrderInputSchema(testScales());
 
@@ -1216,6 +1432,19 @@ describe("create result and preview schemas", () => {
         });
     });
 
+    it("echoes a quote-proceeds SELL's submitted target in the quote scale", () => {
+        const result = v.parse(createCreateOrderResultSchema(testScales(), 1), {
+            orderId: 11n,
+            clientOrderId: "",
+            acceptedAtTsNs: 1_250_000_000n,
+            resolvedBaseQtyScaled: 50_000_000n,
+            submittedQuoteProceedsScaled: 100_500_000n,
+        });
+
+        expect(result).toMatchObject({ resolvedBaseQty: "0.5", submittedQuoteProceeds: "100.5" });
+        expect(result).not.toHaveProperty("submittedMaxQuoteDebit");
+    });
+
     it("derives acceptedAt from nanoseconds when the protobuf timestamp is absent", () => {
         expect(
             v.parse(createCreateOrderResultSchema(testScales(), 1), {
@@ -1647,6 +1876,51 @@ describe("OrderSchema", () => {
                 }),
             ),
         ).toMatchObject({ status: "canceled", cancelReason: "attached_exit_fired" });
+        for (const [cancelReason, label] of [
+            [ProtoRead.CancelReason.STP_DECREMENT, "stp_decrement"],
+            [ProtoRead.CancelReason.PRICE_BAND, "price_band"],
+            [ProtoRead.CancelReason.CANCEL_ON_DISCONNECT, "cancel_on_disconnect"],
+        ] as const) {
+            expect(
+                v.parse(schema, rawOrder({ status: ProtoRead.OrderStatus.CANCELED, cancelReason })),
+            ).toMatchObject({ cancelReason: label });
+        }
+    });
+
+    it("decodes the DECREMENT self-trade prevention mode", () => {
+        const order = v.parse(
+            createOrderSchema(testScales()),
+            rawOrder({ selfTradePreventionMode: ProtoWrite.SelfTradePreventionMode.DECREMENT }),
+        );
+
+        expect(order.selfTradePreventionMode).toBe("decrement");
+    });
+
+    it("exposes an iceberg's display and hidden quantities and omits them on plain orders", () => {
+        const schema = createOrderSchema(testScales());
+
+        expect(
+            v.parse(
+                schema,
+                rawOrder({
+                    leavesQtyScaled: 90_000_000n,
+                    displayQtyScaled: 10_000_000n,
+                    hiddenQtyScaled: 80_000_000n,
+                }),
+            ),
+        ).toMatchObject({ leavesQty: "0.9", displayQty: "0.1", hiddenQty: "0.8" });
+        const plain = v.parse(schema, rawOrder({ displayQtyScaled: 0n, hiddenQtyScaled: 0n }));
+        expect(plain).not.toHaveProperty("displayQty");
+        expect(plain).not.toHaveProperty("hiddenQty");
+    });
+
+    it("exposes a quote-proceeds SELL's submitted target in the quote scale", () => {
+        const schema = createOrderSchema(testScales());
+
+        expect(
+            v.parse(schema, rawOrder({ submittedQuoteProceedsScaled: 100_500_000n })),
+        ).toMatchObject({ submittedQuoteProceeds: "100.5" });
+        expect(v.parse(schema, rawOrder())).not.toHaveProperty("submittedQuoteProceeds");
     });
 
     it("reads reasons newer than this build as a generic refusal or cancel", () => {

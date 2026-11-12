@@ -1,15 +1,21 @@
 export {
+    BatchCancelTriggersInputSchema,
+    CancelOcoInputSchema,
     CancelTriggerInputSchema,
     GetTriggerInputSchema,
     PauseTriggerInputSchema,
     ResumeTriggerInputSchema,
     ListTriggerEventsInputSchema,
     ListTriggersInputSchema,
+    createCreateOcoInputSchema,
     createCreateTriggerInputSchema,
     createModifyTriggerInputSchema,
 } from "./trigger-input.schemas.js";
 export type {
+    BatchCancelTriggersInput,
+    CancelOcoInput,
     CancelTriggerInput,
+    CreateOcoInput,
     CreateTriggerInput,
     GetTriggerInput,
     PauseTriggerInput,
@@ -20,7 +26,10 @@ export type {
 } from "./trigger-input.schemas.js";
 
 export {
+    BatchCancelTriggersResultSchema,
+    CancelOcoResultSchema,
     CancelTriggerResultSchema,
+    CreateOcoResultSchema,
     CreateTriggerResultSchema,
     ModifyTriggerResultSchema,
     PauseTriggerResultSchema,
@@ -29,7 +38,11 @@ export {
     createTriggerSchema,
 } from "./triggers-output.schemas.js";
 export type {
+    BatchCancelTriggerResult,
+    BatchCancelTriggersResult,
+    CancelOcoResult,
     CancelTriggerResult,
+    CreateOcoResult,
     CreateTriggerResult,
     LadderDetailsOutput,
     ListTriggerEventsResult,

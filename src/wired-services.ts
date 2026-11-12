@@ -29,6 +29,7 @@ import { LedgerReadService } from "./gen/ledger/read/v1/ledger_read_pb.js";
 import { HeatmapService } from "./gen/marketdata/v1/heatmap_pb.js";
 import { MarketDataService } from "./gen/marketdata/v1/marketdata_pb.js";
 import { MarketOverviewService } from "./gen/marketoverview/v1/marketoverview_pb.js";
+import { NotificationService } from "./gen/notifications/v1/notifications_pb.js";
 import { OrderbookService } from "./gen/orderbook/v1/orderbook_pb.js";
 import { OrdersService } from "./gen/orders/v1/orders_pb.js";
 import { OrdersReadService } from "./gen/orders/v1/orders_read_pb.js";
@@ -68,6 +69,7 @@ export const WIRED_SERVICE_DESCRIPTORS: readonly DescService[] = [
     MarketDataService,
     MarketOverviewService,
     MFAService,
+    NotificationService,
     OrderbookService,
     OrdersReadService,
     OrdersService,

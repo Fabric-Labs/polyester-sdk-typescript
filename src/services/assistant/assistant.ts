@@ -22,11 +22,13 @@ import {
     formatMemory,
     formatMessage,
     formatPrepareAssistantKeysResult,
+    formatTelegramApprovalLimits,
     ListAssistantConversationsInputSchema,
     ListAssistantMemoriesInputSchema,
     ListAssistantMessagesInputSchema,
     PrepareAssistantKeysInputSchema,
     SendAssistantMessageInputSchema,
+    SetTelegramApprovalLimitsInputSchema,
     WatchAssistantRunInputSchema,
     type AssistantKey,
     type AssistantRunIdInput,
@@ -42,6 +44,8 @@ import {
     type PrepareAssistantKeysInput,
     type PrepareAssistantKeysResult,
     type SendAssistantMessageInput,
+    type SetTelegramApprovalLimitsInput,
+    type TelegramApprovalLimits,
     type WatchAssistantRunInput,
 } from "./assistant.schemas.js";
 
@@ -225,5 +229,41 @@ export class AssistantService {
     async listKeys(options?: PolyesterRequestOptions): Promise<AssistantKey[]> {
         const response = await this.#client.listAssistantKeys({}, toConnectCallOptions(options));
         return response.keys.map(formatAssistantKey);
+    }
+
+    /**
+     * Returns the caller's limits on what they may approve from Telegram, in US dollars of
+     * notional value, and the value approved from Telegram in the last 24 hours while a limit
+     * was set. Limits apply to placing, swapping, modifying and resuming; cancelling, pausing
+     * and rejecting are never limited.
+     */
+    async getTelegramApprovalLimits(
+        options?: PolyesterRequestOptions,
+    ): Promise<TelegramApprovalLimits & { approvedLast24hUsd: string }> {
+        const response = await this.#client.getTelegramApprovalLimits(
+            {},
+            toConnectCallOptions(options),
+        );
+        return {
+            ...formatTelegramApprovalLimits(response.limits),
+            approvedLast24hUsd: response.approvedLast24hUsd,
+        };
+    }
+
+    /**
+     * Replaces both Telegram approval limits: a limit left out is turned off. Only a signed-in
+     * session sets them; they apply to the next approval from Telegram. Returns the limits as
+     * recorded.
+     */
+    async setTelegramApprovalLimits(
+        input: SetTelegramApprovalLimitsInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<TelegramApprovalLimits> {
+        const limits = parse(SetTelegramApprovalLimitsInputSchema, input);
+        const response = await this.#client.setTelegramApprovalLimits(
+            { limits: removeUndefined(limits) },
+            toConnectCallOptions(options),
+        );
+        return formatTelegramApprovalLimits(response.limits);
     }
 }

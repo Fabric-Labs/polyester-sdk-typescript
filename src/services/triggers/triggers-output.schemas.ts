@@ -9,7 +9,9 @@ import { enumLabel, enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { tsNsToMs, tsObjToMs } from "../../utils/time.js";
 import { formatId } from "../../utils/base58-id.js";
+import { OrderErrorDetailSchema } from "../orders/order-errors.schemas.js";
 import {
+    BatchCancelTriggerStatusCodec,
     TriggerTypeCodec,
     TriggerStatusCodec,
     FeeAssetCodec,
@@ -30,6 +32,7 @@ type TriggerDirectionLabel = "above" | "below" | "unspecified";
 type LadderDistributionLabel = "linear" | "geometric" | "weighted_favorable" | "unspecified";
 
 const TriggerResultStatusSchema = enumLabelSchema(TriggerStatusCodec.protoToOutput);
+const BatchCountSchema = v.pipe(v.number(), v.integer(), v.minValue(0));
 
 const TriggerMutationResultBaseSchema = v.pipe(
     v.object({
@@ -67,6 +70,65 @@ export type CancelTriggerResult = v.InferOutput<typeof CancelTriggerResultSchema
 export const ModifyTriggerResultSchema = TriggerMutationResultBaseSchema;
 
 export type ModifyTriggerResult = v.InferOutput<typeof ModifyTriggerResultSchema>;
+
+export const CreateOcoResultSchema = v.pipe(
+    v.object({
+        orderListId: PublicIdSchema,
+        clientListId: v.string(),
+        takeProfitTriggerId: PublicIdSchema,
+        stopLossTriggerId: PublicIdSchema,
+        acceptedAt: OptionalTimestampMsSchema,
+        acceptedAtTsNs: BigIntStringSchema,
+    }),
+    v.transform(({ acceptedAt, acceptedAtTsNs, ...result }) => ({
+        ...result,
+        acceptedAt: acceptedAt ?? tsNsToMs(BigInt(acceptedAtTsNs)),
+        acceptedAtNs: acceptedAtTsNs,
+    })),
+);
+export type CreateOcoResult = v.InferOutput<typeof CreateOcoResultSchema>;
+
+export const CancelOcoResultSchema = v.pipe(
+    v.object({
+        orderListId: PublicIdSchema,
+        status: TriggerResultStatusSchema,
+        tsNs: v.bigint(),
+    }),
+    v.transform(({ tsNs, ...result }) => ({
+        ...result,
+        ts: tsNsToMs(tsNs),
+        tsNs: tsNs.toString(),
+    })),
+);
+export type CancelOcoResult = v.InferOutput<typeof CancelOcoResultSchema>;
+
+const BatchCancelTriggerResultSchema = v.object({
+    status: enumLabelSchema(BatchCancelTriggerStatusCodec.protoToOutput),
+    triggerId: PublicIdSchema,
+    /** Rejection code, empty when accepted. `TRIGGER_STATUS_INVALID`: already ended, treat as done. */
+    code: v.string(),
+    error: v.optional(OrderErrorDetailSchema),
+});
+export type BatchCancelTriggerResult = v.InferOutput<typeof BatchCancelTriggerResultSchema>;
+
+export const BatchCancelTriggersResultSchema = v.pipe(
+    v.object({
+        results: v.array(BatchCancelTriggerResultSchema),
+        acceptedCount: BatchCountSchema,
+        rejectedCount: BatchCountSchema,
+        tsNs: v.bigint(),
+    }),
+    v.check(
+        (response) => response.acceptedCount + response.rejectedCount === response.results.length,
+        "Batch cancel result counts do not match the returned results.",
+    ),
+    v.transform(({ tsNs, ...response }) => ({
+        ...response,
+        ts: tsNsToMs(tsNs),
+        tsNs: tsNs.toString(),
+    })),
+);
+export type BatchCancelTriggersResult = v.InferOutput<typeof BatchCancelTriggersResultSchema>;
 
 export const PauseTriggerResultSchema = TriggerMutationResultBaseSchema;
 export type PauseTriggerResult = v.InferOutput<typeof PauseTriggerResultSchema>;
@@ -534,11 +596,13 @@ export function createTriggerSchema(scales: SdkScales) {
             symbolId: v.number(),
             status: v.number(),
             parentOrderId: v.optional(v.bigint()),
+            orderListId: v.optional(v.bigint()),
             qtyScaled: v.bigint(),
             feeAsset: v.number(),
             selfTradePreventionMode: v.number(),
             configuration: TriggerConfigurationRawSchema,
             clientTriggerId: v.string(),
+            clientListId: v.optional(v.string(), ""),
             createdAt: v.optional(TimestampSchema),
             updatedAt: v.optional(TimestampSchema),
             armedAt: v.optional(TimestampSchema),
@@ -553,6 +617,8 @@ export function createTriggerSchema(scales: SdkScales) {
             symbolId: t.symbolId,
             status: enumLabel(TriggerStatusCodec.protoToOutput, t.status),
             parentOrderId: t.parentOrderId ? formatId(t.parentOrderId) : undefined,
+            /** The OCO this take-profit or stop-loss belongs to; undefined for any other trigger. */
+            orderListId: t.orderListId ? formatId(t.orderListId) : undefined,
             qty: scaledToDecimalOutput(t.qtyScaled, scales.baseQty(t.symbolId)),
             feeAsset: enumLabel(FeeAssetCodec.protoToOutput, t.feeAsset),
             selfTradePreventionMode: enumLabel(
@@ -560,7 +626,10 @@ export function createTriggerSchema(scales: SdkScales) {
                 t.selfTradePreventionMode,
             ),
             configuration: transformTriggerConfiguration(t.configuration, scales),
+            /** Empty for an OCO leg, which carries `clientListId` instead. */
             clientTriggerId: t.clientTriggerId,
+            /** The `clientListId` the leg's OCO was created with; empty for any other trigger. */
+            clientListId: t.clientListId,
             createdTs: t.createdAt ? tsObjToMs(t.createdAt) : undefined,
             updatedTs: t.updatedAt ? tsObjToMs(t.updatedAt) : undefined,
             armedTs: t.armedAt ? tsObjToMs(t.armedAt) : undefined,

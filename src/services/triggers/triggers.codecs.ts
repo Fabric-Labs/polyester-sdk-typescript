@@ -104,7 +104,7 @@ export const TRIGGER_FAILURE_REASON_LABEL_VALUES = [
     "min_quantity",
     "step_size",
     "invalid_sizing",
-    "max_quote_debit_too_small",
+    "quote_size_too_small",
     "fee_ceiling_exceeded",
     "trigger_price_invalid",
     "trigger_price_source_unsupported",
@@ -299,7 +299,7 @@ export const TriggerFailureReasonCodec = {
         [Proto.TriggerFailureReason.MIN_QUANTITY]: "min_quantity",
         [Proto.TriggerFailureReason.STEP_SIZE]: "step_size",
         [Proto.TriggerFailureReason.INVALID_SIZING]: "invalid_sizing",
-        [Proto.TriggerFailureReason.MAX_QUOTE_DEBIT_TOO_SMALL]: "max_quote_debit_too_small",
+        [Proto.TriggerFailureReason.QUOTE_SIZE_TOO_SMALL]: "quote_size_too_small",
         [Proto.TriggerFailureReason.FEE_CEILING_EXCEEDED]: "fee_ceiling_exceeded",
         [Proto.TriggerFailureReason.TRIGGER_PRICE_INVALID]: "trigger_price_invalid",
         [Proto.TriggerFailureReason.TRIGGER_PRICE_SOURCE_UNSUPPORTED]:
@@ -378,6 +378,14 @@ export const TriggerFailureReasonCodec = {
         [Proto.TriggerFailureReason.MISSING_REASON_CODE]: "missing_reason_code",
         [Proto.TriggerFailureReason.INTERNAL_ERROR]: "internal_error",
     } satisfies ProtoToOutput<Proto.TriggerFailureReason, TriggerFailureReasonLabelValue>,
+} as const;
+
+export const BatchCancelTriggerStatusCodec = {
+    protoToOutput: {
+        [Proto.BatchCancelTriggersResultItem_Status.STATUS_UNSPECIFIED]: "unspecified",
+        [Proto.BatchCancelTriggersResultItem_Status.ACCEPTED]: "accepted",
+        [Proto.BatchCancelTriggersResultItem_Status.REJECTED]: "rejected",
+    } satisfies ProtoToOutput<Proto.BatchCancelTriggersResultItem_Status, "accepted" | "rejected">,
 } as const;
 
 export const TriggerDirectionCodec = {

@@ -28,6 +28,7 @@ export const CHANGELOG_SURFACE_VALUES = [
     "market_data",
     "quickswap",
     "rewards",
+    "assistant",
 ] as const;
 export type ChangelogSurface = (typeof CHANGELOG_SURFACE_VALUES)[number];
 
@@ -78,6 +79,7 @@ export const ChangelogSurfaceCodec = {
         market_data: Proto.Surface.MARKET_DATA,
         quickswap: Proto.Surface.QUICKSWAP,
         rewards: Proto.Surface.REWARDS,
+        assistant: Proto.Surface.ASSISTANT,
     } satisfies InputToProto<ChangelogSurface, Proto.Surface>,
     protoToOutput: {
         [Proto.Surface.SURFACE_UNSPECIFIED]: "unspecified",
@@ -91,6 +93,7 @@ export const ChangelogSurfaceCodec = {
         [Proto.Surface.MARKET_DATA]: "market_data",
         [Proto.Surface.QUICKSWAP]: "quickswap",
         [Proto.Surface.REWARDS]: "rewards",
+        [Proto.Surface.ASSISTANT]: "assistant",
     } satisfies ProtoToOutput<Proto.Surface, ChangelogSurface>,
 } as const;
 

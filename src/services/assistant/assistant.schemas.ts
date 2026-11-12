@@ -235,3 +235,36 @@ export type ListAssistantConversationsResult = {
 };
 export type ListAssistantMessagesResult = { messages: AssistantMessage[]; nextPageToken: string };
 export type ListAssistantMemoriesResult = { memories: AssistantMemory[]; nextPageToken: string };
+
+/** US dollars as a decimal string with at most 2 decimal places, e.g. `"5000"` or `"250.50"`. */
+const UsdLimitInputSchema = v.pipe(
+    v.string(),
+    v.trim(),
+    v.regex(/^\d+(\.\d{1,2})?$/, "limit must be US dollars with at most 2 decimal places"),
+);
+
+export const SetTelegramApprovalLimitsInputSchema = v.strictObject({
+    /** Largest notional value of one approval from Telegram. `"0"` allows none; omit for no limit. */
+    perApprovalUsd: v.optional(UsdLimitInputSchema),
+    /** Largest total notional value approved from Telegram in any rolling 24 hours; omit for no limit. */
+    dailyUsd: v.optional(UsdLimitInputSchema),
+});
+
+export type SetTelegramApprovalLimitsInput = v.InferInput<
+    typeof SetTelegramApprovalLimitsInputSchema
+>;
+
+/** Limits on what the caller may approve from Telegram, in US dollars; `null` is no limit. */
+export type TelegramApprovalLimits = {
+    perApprovalUsd: string | null;
+    dailyUsd: string | null;
+};
+
+export function formatTelegramApprovalLimits(
+    limits: Proto.TelegramApprovalLimits | undefined,
+): TelegramApprovalLimits {
+    return {
+        perApprovalUsd: limits?.perApprovalUsd ?? null,
+        dailyUsd: limits?.dailyUsd ?? null,
+    };
+}

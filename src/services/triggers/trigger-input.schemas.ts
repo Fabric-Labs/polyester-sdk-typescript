@@ -1,7 +1,8 @@
 import * as Proto from "../../gen/triggers/v1/triggers_pb.js";
 import * as ProtoOrders from "../../gen/orders/v1/orders_pb.js";
 import * as v from "valibot";
-import { idInputSchema } from "../../shared/schemas.js";
+import { optionalIdInputSchema } from "../../shared/schemas.js";
+import { createMutationRequestId } from "../../shared/request-id.js";
 import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
@@ -24,6 +25,11 @@ import {
 } from "./triggers.codecs.js";
 import { BpsStringOrNumberInputSchema, NoneInputSchema, SymbolIdInputSchema } from "../shared.js";
 import { TriggerPriceSourceInputSchema } from "../orders/order-enums.codecs.js";
+import { attachedTriggerInputSchema } from "../orders/orders-risk.schemas.js";
+import {
+    OrderRequestIdInputSchema,
+    positiveOrderIdInputSchema,
+} from "../orders/orders-identifiers.schemas.js";
 import {
     BaseTriggerFieldsSchema,
     ConditionalExecutionInputSchema,
@@ -43,7 +49,9 @@ import { MAX_SELLING_SLIPPAGE_BPS, parseTrailingDistanceInput } from "../trailin
 const TriggerTypeSchema = v.picklist(TRIGGER_TYPE_VALUES);
 const TriggerStatusFilterSchema = v.picklist(TRIGGER_STATUS_FILTER_VALUES);
 const TriggerEventTypeSchema = v.picklist(TRIGGER_EVENT_TYPE_VALUES);
-const TriggerIdInputSchema = idInputSchema("triggerId");
+// Trigger IDs are opaque public IDs, like order IDs.
+const TriggerIdInputSchema = positiveOrderIdInputSchema("triggerId");
+const ClientListIdInputSchema = v.pipe(v.string(), v.trim(), v.minLength(1), v.maxBytes(36));
 
 const TriggerScopedInputEntries = {
     triggerId: TriggerIdInputSchema,
@@ -412,6 +420,10 @@ export const ListTriggersInputSchema = v.pipe(
             v.optional(v.pipe(v.string(), v.trim())),
             v.transform((value) => (value ? idToBigInt(value, "parentOrderId") : undefined)),
         ),
+        /** Both legs of the OCO with this ID. */
+        orderListId: optionalIdInputSchema("orderListId"),
+        /** Both legs of the OCO created with this client list ID. */
+        clientListId: v.optional(ClientListIdInputSchema),
         symbolId: v.optional(SymbolIdInputSchema),
         status: v.pipe(
             v.optional(v.array(TriggerStatusFilterSchema)),
@@ -441,6 +453,86 @@ export type ListTriggersInput = v.InferInput<typeof ListTriggersInputSchema>;
 
 export const CancelTriggerInputSchema = TriggerScopedInputSchema;
 export type CancelTriggerInput = v.InferInput<typeof CancelTriggerInputSchema>;
+
+/** 1 to 50 distinct trigger IDs; `requestId` is generated when omitted. */
+export const BatchCancelTriggersInputSchema = v.pipe(
+    v.strictObject({
+        ...AccountScopeInputEntries,
+        requestId: v.optional(OrderRequestIdInputSchema),
+        triggerIds: v.pipe(
+            v.array(positiveOrderIdInputSchema("triggerIds")),
+            v.minLength(1, "At least one trigger is required."),
+            v.maxLength(50, "Batch cancel accepts at most 50 triggers."),
+            v.check((ids) => new Set(ids).size === ids.length, "triggerIds must be distinct."),
+        ),
+    }),
+    v.transform(({ account, ...input }) => ({
+        ...input,
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
+export type BatchCancelTriggersInput = v.InferInput<typeof BatchCancelTriggersInputSchema>;
+
+export const CancelOcoInputSchema = v.pipe(
+    v.strictObject({
+        ...AccountScopeInputEntries,
+        orderListId: positiveOrderIdInputSchema("orderListId"),
+    }),
+    v.transform(({ account, ...input }) => ({
+        ...input,
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
+/** The OCO's `orderListId` from `createOco`; a leg's trigger ID is refused as not found. */
+export type CancelOcoInput = v.InferInput<typeof CancelOcoInputSchema>;
+
+export function createCreateOcoInputSchema(scales: SdkScales) {
+    return v.pipe(
+        v.strictObject({
+            ...AccountScopeInputEntries,
+            symbolId: SymbolIdInputSchema,
+            side: TriggerSideInputSchema,
+            qty: DecimalInputStringSchema,
+            clientListId: v.optional(ClientListIdInputSchema, createMutationRequestId),
+            selfTradePreventionMode: BaseTriggerFieldsSchema.entries.selfTradePreventionMode,
+            takeProfit: attachedTriggerInputSchema(scales, "takeProfit"),
+            stopLoss: attachedTriggerInputSchema(scales, "stopLoss"),
+        }),
+        v.transform(({ account, ...input }) => ({
+            subaccountId: accountScopeToSubaccountId(account),
+            oco: {
+                symbolId: input.symbolId,
+                side: input.side,
+                qtyScaled: positiveDecimalInputToScaled(
+                    "qty",
+                    input.qty,
+                    scales.baseQty(input.symbolId),
+                ),
+                selfTradePreventionMode: input.selfTradePreventionMode,
+                clientListId: input.clientListId,
+                takeProfit: input.takeProfit,
+                stopLoss: input.stopLoss,
+            },
+        })),
+        v.check(
+            ({ oco }) =>
+                oco.side === ProtoOrders.Side.SELL
+                    ? oco.takeProfit.triggerPriceTicks > oco.stopLoss.triggerPriceTicks
+                    : oco.takeProfit.triggerPriceTicks < oco.stopLoss.triggerPriceTicks,
+            "takeProfit.triggerPrice must be above stopLoss.triggerPrice for a sell OCO and below it for a buy OCO",
+        ),
+    );
+}
+
+/**
+ * An OCO over a quantity the account already holds: a take-profit and a stop-loss that share one
+ * reserved `qty` of `side` and cancel each other. A sell protects held base, a buy spends held
+ * quote. Each leg exits at market (`market_ioc`) or with a resting `limit_gtc`. The server
+ * refuses `decrement` self-trade prevention on an OCO.
+ * `clientListId` (1 to 36 bytes) is the idempotency key and is generated when omitted: pass your
+ * own to find the legs with `list({ clientListId })` after an `OutcomeUnknownError`.
+ */
+export type CreateOcoInput = v.InferInput<ReturnType<typeof createCreateOcoInputSchema>>;
 
 export const GetTriggerInputSchema = CancelTriggerInputSchema;
 export type GetTriggerInput = v.InferInput<typeof GetTriggerInputSchema>;

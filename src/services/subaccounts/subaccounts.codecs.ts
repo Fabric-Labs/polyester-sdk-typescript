@@ -88,6 +88,8 @@ export const ACTIVITY_EVENT_ACTION_VALUES = [
     "blocked",
     "hold_placed",
     "hold_released",
+    "requested",
+    "applied",
 ] as const;
 export type ActivityEventActionValue = (typeof ACTIVITY_EVENT_ACTION_VALUES)[number];
 
@@ -219,6 +221,8 @@ export const ActivityEventActionCodec = {
         [Proto.ActivityEventAction.ACTIVITY_ACTION_BLOCKED]: "blocked",
         [Proto.ActivityEventAction.ACTIVITY_ACTION_HOLD_PLACED]: "hold_placed",
         [Proto.ActivityEventAction.ACTIVITY_ACTION_HOLD_RELEASED]: "hold_released",
+        [Proto.ActivityEventAction.ACTIVITY_ACTION_REQUESTED]: "requested",
+        [Proto.ActivityEventAction.ACTIVITY_ACTION_APPLIED]: "applied",
     } satisfies ProtoToOutput<Proto.ActivityEventAction, ActivityEventActionValue>,
 } as const;
 

@@ -20,8 +20,12 @@ export const SELF_TRADE_PREVENTION_MODE_VALUES = [
     "expire_taker",
     "expire_maker",
     "expire_both",
+    "decrement",
 ] as const;
 export type SelfTradePreventionModeValue = (typeof SELF_TRADE_PREVENTION_MODE_VALUES)[number];
+
+export const PEG_REFERENCE_VALUES = ["best_bid", "best_ask"] as const;
+export type PegReferenceValue = (typeof PEG_REFERENCE_VALUES)[number];
 
 export const TRIGGER_PRICE_SOURCE_VALUES = ["last", "index", "mark"] as const;
 export type TriggerPriceSourceValue = (typeof TRIGGER_PRICE_SOURCE_VALUES)[number];
@@ -82,13 +86,22 @@ export const SelfTradePreventionModeCodec = {
         expire_taker: ProtoWrite.SelfTradePreventionMode.EXPIRE_TAKER,
         expire_maker: ProtoWrite.SelfTradePreventionMode.EXPIRE_MAKER,
         expire_both: ProtoWrite.SelfTradePreventionMode.EXPIRE_BOTH,
+        decrement: ProtoWrite.SelfTradePreventionMode.DECREMENT,
     } satisfies InputToProto<SelfTradePreventionModeValue, ProtoWrite.SelfTradePreventionMode>,
     protoToOutput: {
         [ProtoWrite.SelfTradePreventionMode.SELF_TRADE_PREVENTION_MODE_UNSPECIFIED]: "unspecified",
         [ProtoWrite.SelfTradePreventionMode.EXPIRE_TAKER]: "expire_taker",
         [ProtoWrite.SelfTradePreventionMode.EXPIRE_MAKER]: "expire_maker",
         [ProtoWrite.SelfTradePreventionMode.EXPIRE_BOTH]: "expire_both",
+        [ProtoWrite.SelfTradePreventionMode.DECREMENT]: "decrement",
     } satisfies ProtoToOutput<ProtoWrite.SelfTradePreventionMode, SelfTradePreventionModeValue>,
+} as const;
+
+export const PegReferenceCodec = {
+    inputToProto: {
+        best_bid: ProtoWrite.PegReference.BEST_BID,
+        best_ask: ProtoWrite.PegReference.BEST_ASK,
+    } satisfies InputToProto<PegReferenceValue, ProtoWrite.PegReference>,
 } as const;
 
 export const TriggerPriceSourceCodec = {

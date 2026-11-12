@@ -17,6 +17,8 @@ export type {
     PrepareAssistantKeysResult,
     PreparedAssistantKey,
     SendAssistantMessageInput,
+    SetTelegramApprovalLimitsInput,
+    TelegramApprovalLimits,
     WatchAssistantRunInput,
 } from "./assistant.schemas.js";
 export type {

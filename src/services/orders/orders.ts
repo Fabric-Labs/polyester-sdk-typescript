@@ -19,7 +19,8 @@ import type { BaseSubscribeInput } from "../../shared/types.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import { toPolyesterError } from "../../shared/connect-error-mapping.js";
 import { loadErrorDetailDecoders } from "../../shared/error-detail.js";
-import { ConfigurationError, PolyesterError } from "../../shared/errors.js";
+import { PolyesterError } from "../../shared/errors.js";
+import { createMutationRequestId } from "../../shared/request-id.js";
 import type { AuthApiTransports } from "../../shared/transports.js";
 import { formatConnectError, isResourceNotFoundError } from "../../utils/errors.js";
 import {
@@ -113,21 +114,6 @@ export interface SubscribeOrdersInput extends BaseSubscribeInput<Order> {
      * the rest of the view is current. A later call replaces the earlier one.
      */
     onStale?: (stale: boolean, orderIds?: string[]) => void;
-}
-
-function createMutationRequestId(): string {
-    const crypto = globalThis.crypto;
-    if (crypto?.randomUUID) return crypto.randomUUID();
-
-    if (crypto?.getRandomValues) {
-        const bytes = new Uint8Array(16);
-        crypto.getRandomValues(bytes);
-        return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-    }
-
-    throw new ConfigurationError(
-        "Secure request ID generation requires crypto.randomUUID or crypto.getRandomValues.",
-    );
 }
 
 function assertBatchResultCount(operation: string, requested: number, returned: number): void {
@@ -234,7 +220,7 @@ export class OrdersService {
     }
 
     /**
-     * Places a spot order with an explicit market-IOC, limit-GTC, limit-IOC, or limit-FOK execution policy and optional attached risk controls. clientOrderId is an account-scoped correlation, lookup, and cancellation identifier. Reuse while retained returns CONFLICT_DUPLICATE_CLIENT_ORDER_ID, including after rejection or completion; it does not replay the earlier result. After an ambiguous timeout, reconcile through get using clientOrderId; an immediate lookup miss does not prove admission failed. Without clientOrderId, the outcome may remain unknown.
+     * Places a spot order with an explicit market-IOC, limit-GTC, limit-GTD, limit-IOC, or limit-FOK execution policy and optional attached risk controls. Size it by `qty`, a BUY IOC by `maxQuoteDebit`, or a SELL IOC by `quoteProceeds`, the quote it stops at before fees. A GTC or GTD limit can show only `execution.displayQty` at a time (iceberg), and `peg` takes a limit price from the best bid or ask at entry, capped or floored by `execution.price`. clientOrderId is an account-scoped correlation, lookup, and cancellation identifier. Reuse while retained returns CONFLICT_DUPLICATE_CLIENT_ORDER_ID, including after rejection or completion; it does not replay the earlier result. After an ambiguous timeout, reconcile through get using clientOrderId; an immediate lookup miss does not prove admission failed. Without clientOrderId, the outcome may remain unknown.
      */
     async create(
         input: NewOrderInput,
@@ -348,6 +334,8 @@ export class OrdersService {
 
     /**
      * Replaces 1–50 same-symbol orders and returns an index-stable durable admission receipt. Reuse requestId only when retrying the same logical batch; use the returned batchRequestId for later status reads. An AMENDED actionTaken is cancel-only with no successor; keep tracking oldOrderId until its terminal state is confirmed.
+     *
+     * An item refused for its value (a price off the pair's tick size, or an invalid attached-risk price, distance or slippage) is rejected alone in `results`, with its `code` and an `error` whose violations name `items[i]`; the other items are processed. Resend only the corrected rejected items under a fresh `requestId`. A malformed batch still throws as a whole.
      *
      * The receipt answers admission, before each admitted item's change completes. Until then, the next change of the same order is rejected with the retryable item `code` `ORDER_MODIFY_IN_PROGRESS`, or `ORDER_PLACEMENT_PENDING` when it names the returned `replacementOrderId`. Resend only those items, in a new batch under a fresh `requestId`, after a short jittered backoff (for example 50 ms doubling to 1 s). The rejected batch's `requestId` replays its rejection, admitted items must never be resent, and a batch whose outcome you did not receive is reconciled under its own `requestId`, never resent under a new one.
      */

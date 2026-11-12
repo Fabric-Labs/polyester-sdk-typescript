@@ -47,6 +47,8 @@ const policyActionCases = [
     [Proto.PolicyAction.READ_SUBACCOUNT_MEMBERS, "read-subaccount-members"],
     [Proto.PolicyAction.READ_SUBACCOUNT_INVITES, "read-subaccount-invites"],
     [Proto.PolicyAction.READ_GUARD_SIGNER_STATUS, "read-guard-signer-status"],
+    [Proto.PolicyAction.READ_PRICE_ALERTS, "read-price-alerts"],
+    [Proto.PolicyAction.MANAGE_PRICE_ALERTS, "manage-price-alerts"],
 ] as const;
 
 describe("PolicyMarketScopeCodec", () => {

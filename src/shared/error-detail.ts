@@ -16,6 +16,7 @@ import type { ErrorCode as ClaimsErrorCode } from "../gen/claims/v1/claims_pb.js
 import type { ErrorCode as WithdrawErrorCode } from "../gen/chain/withdraw/v1/withdraw_pb.js";
 import type { ErrorCode as LedgerErrorCode } from "../gen/ledger/read/v1/ledger_read_pb.js";
 import type { ErrorCode as MarketOverviewErrorCode } from "../gen/marketoverview/v1/marketoverview_pb.js";
+import type { ErrorCode as NotificationErrorCode } from "../gen/notifications/v1/notifications_pb.js";
 import type { ErrorCode as InternalTransferErrorCode } from "../gen/transfer/v1/internal_transfer_pb.js";
 import type { OrderErrorDetail } from "../services/orders/order-errors.schemas.js";
 import type { RateLimitDetail } from "./rate-limit.schemas.js";
@@ -58,6 +59,7 @@ export type PolyesterErrorDetail =
       }
     | { service: "alerts"; code: NamedCode<typeof PriceAlertErrorCode> }
     | { service: "assistant"; code: NamedCode<typeof AssistantErrorCode> }
+    | { service: "notifications"; code: NamedCode<typeof NotificationErrorCode> }
     /** A service's quota refusal sent as a bare `RateLimitDetail`, e.g. wallet sign-in. */
     | { service: "rate_limit"; code: "RATE_LIMIT_EXCEEDED"; rateLimit: RateLimitDetail };
 
@@ -77,6 +79,7 @@ const DECODER_LOADERS: Record<string, () => Promise<{ decode: ErrorDetailDecoder
     "claims.v1.ErrorDetail": () => import("./error-details/claims.js"),
     "alerts.v1.ErrorDetail": () => import("./error-details/alerts.js"),
     "ai.v1.ErrorDetail": () => import("./error-details/assistant.js"),
+    "notifications.v1.ErrorDetail": () => import("./error-details/notifications.js"),
     "polyester.ratelimit.v1.RateLimitDetail": () => import("./error-details/rate-limit.js"),
 };
 
