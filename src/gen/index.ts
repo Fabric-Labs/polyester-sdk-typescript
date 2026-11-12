@@ -33,6 +33,7 @@ export * as ledgerCatalogPb from "./ledger/v1/catalog_pb.js";
 export * as heatmapPb from "./marketdata/v1/heatmap_pb.js";
 export * as marketdataPb from "./marketdata/v1/marketdata_pb.js";
 export * as marketoverviewPb from "./marketoverview/v1/marketoverview_pb.js";
+export * as notificationsPb from "./notifications/v1/notifications_pb.js";
 export * as orderbookPb from "./orderbook/v1/orderbook_pb.js";
 export * as ordersPb from "./orders/v1/orders_pb.js";
 export * as ordersReadPb from "./orders/v1/orders_read_pb.js";

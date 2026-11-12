@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file swap/quickswap/v1/quickswap.proto.
  */
 export const file_swap_quickswap_v1_quickswap: GenFile = /*@__PURE__*/
-  fileDesc("CiFzd2FwL3F1aWNrc3dhcC92MS9xdWlja3N3YXAucHJvdG8SEXN3YXAucXVpY2tzd2FwLnYxIjcKC1Rva2VuQW1vdW50EhQKCmJhc2VfdW5pdHMYASABKAlCABISCghkZWNpbWFscxgCIAEoDUIAInEKClByb3RlY3Rpb24SHAoQbWF4X3NsaXBwYWdlX2JwcxgBIAEoDUIASAASOgoObWluX2Ftb3VudF9vdXQYAiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudEIASABCCQoFYm91bmQSACIRCg9NYXJrZXRFeGVjdXRpb24iRQoNVHdhcEV4ZWN1dGlvbhIVCgtkdXJhdGlvbl9tcxgBIAEoBEIAEhsKEXNsaWNlX2ludGVydmFsX21zGAIgASgEQgA6ACKBAQoJRXhlY3V0aW9uEjQKBm1hcmtldBgBIAEoCzIiLnN3YXAucXVpY2tzd2FwLnYxLk1hcmtldEV4ZWN1dGlvbkgAEjAKBHR3YXAYAiABKAsyIC5zd2FwLnF1aWNrc3dhcC52MS5Ud2FwRXhlY3V0aW9uSABCDAoIc3RyYXRlZ3kSACKlAgoOUXVpY2tTd2FwVGVybXMSIAoWc291cmNlX3ppcHBlZF9hc3NldF9pZBgBIAEoDUIAEiUKG2Rlc3RpbmF0aW9uX3ppcHBlZF9hc3NldF9pZBgCIAEoDUIAEi4KBWJhc2lzGAMgASgOMh0uc3dhcC5xdWlja3N3YXAudjEuUXVvdGVCYXNpc0IAEjAKBmFtb3VudBgEIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50QgASMwoKcHJvdGVjdGlvbhgFIAEoCzIdLnN3YXAucXVpY2tzd2FwLnYxLlByb3RlY3Rpb25CABIxCglleGVjdXRpb24YBiABKAsyHC5zd2FwLnF1aWNrc3dhcC52MS5FeGVjdXRpb25CADoAIp4BCghRdW90ZUZlZRIoCgRraW5kGAEgASgOMhouc3dhcC5xdWlja3N3YXAudjEuRmVlS2luZBIXCg96aXBwZWRfYXNzZXRfaWQYAiABKA0SLgoGYW1vdW50GAMgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSCwoDYnBzGAQgASgNEhIKCmFjY291bnRfaWQYBSABKAYiWAoPUmVmZXJyYWxQcmljaW5nEhcKD2Jhc2VfYnJva2VyX2JwcxgBIAEoDRIUCgxkaXNjb3VudF9icHMYAiABKA0SFgoOY29tbWlzc2lvbl9icHMYAyABKA0ipgQKDlF1aWNrU3dhcFF1b3RlEjYKDmRlcG9zaXRfYW1vdW50GAEgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSOwoTZXhwZWN0ZWRfYW1vdW50X291dBgCIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EjYKDm1pbl9hbW91bnRfb3V0GAMgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSEAoIbWluX3JhdGUYBCABKAkSOgoSbWluX2RlcG9zaXRfYW1vdW50GAUgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSOgoSbWF4X2RlcG9zaXRfYW1vdW50GAYgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSHQoVaW50ZXJtZWRpYXRlX2Fzc2V0X2lkGAcgASgNEikKBGZlZXMYCCADKAsyGy5zd2FwLnF1aWNrc3dhcC52MS5RdW90ZUZlZRItCglxdW90ZWRfYXQYCSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmV4cGlyZXNfYXQYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjQKCHJlZmVycmFsGAsgASgLMiIuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxQcmljaW5nIiIKCVNjcmVlbmluZxIVCg1zb3VyY2Vfd2FsbGV0GAIgASgJIskCChNEZXBvc2l0SW5zdHJ1Y3Rpb25zEg8KB2FkZHJlc3MYASABKAkSDAoEbWVtbxgCIAEoCRIXCg96aXBwZWRfYXNzZXRfaWQYAyABKA0SLQoJaXNzdWVkX2F0GAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2ChJmdW5kaW5nX2V4cGlyZXNfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjYKEmFkZHJlc3NfcmV0aXJlc19hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASPQoNYWRkcmVzc19zdGF0ZRgHIAEoDjImLnN3YXAucXVpY2tzd2FwLnYxLkRlcG9zaXRBZGRyZXNzU3RhdGUSHAoUbWluX25hdGl2ZV9nYXNfbGltaXQYCCABKAQiqQMKB0RlcG9zaXQSDQoFaW5kZXgYASABKA0SDwoHdHhfaGFzaBgCIAEoCRIbChN0eF9vY2N1cnJlbmNlX2luZGV4GAMgASgEEhcKD3ppcHBlZF9hc3NldF9pZBgEIAEoDRIuCgZhbW91bnQYBSABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI6CgtkaXNwb3NpdGlvbhgIIAEoDjIlLnN3YXAucXVpY2tzd2FwLnYxLkRlcG9zaXREaXNwb3NpdGlvbhIyCgZyZWFzb24YCSABKA4yIi5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBSZWFzb24SFQoNY29uZmlybWF0aW9ucxgKIAEoDRIeChZyZXF1aXJlZF9jb25maXJtYXRpb25zGAsgASgNEi8KC2RldGVjdGVkX2F0GAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgtjcmVkaXRlZF9hdBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDwoHZmxvd19pZBgOIAEoCSK3AwoRRXhlY3V0aW9uUHJvZ3Jlc3MSNAoMaW5wdXRfYW1vdW50GAEgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSNgoOZXhlY3V0ZWRfaW5wdXQYAiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI1Cg1vdXRwdXRfYW1vdW50GAMgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSPgoWaW50ZXJtZWRpYXRlX3JlbWFpbmRlchgEIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EhgKEGNvbXBsZXRlZF9zbGljZXMYBSABKA0SFAoMdG90YWxfc2xpY2VzGAYgASgNEi4KCnN0YXJ0ZWRfYXQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGRlYWRsaW5lGAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgtmaW5pc2hlZF9hdBgJIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAi8AMKCldpdGhkcmF3YWwSDQoFaW5kZXgYASABKA0SLwoEcm9sZRgCIAEoDjIhLnN3YXAucXVpY2tzd2FwLnYxLldpdGhkcmF3YWxSb2xlEhUKDWRlcG9zaXRfaW5kZXgYAyABKA0SFwoPemlwcGVkX2Fzc2V0X2lkGAQgASgNEg8KB2FkZHJlc3MYBSABKAkSDAoEbWVtbxgGIAEoCRIuCgZhbW91bnQYByABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBIzCgtuZXR3b3JrX2ZlZRgIIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EjEKBXN0YXRlGAkgASgOMiIuc3dhcC5xdWlja3N3YXAudjEuV2l0aGRyYXdhbFN0YXRlEg8KB3R4X2hhc2gYCiABKAkSMAoMc3VibWl0dGVkX2F0GAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxmaW5hbGl6ZWRfYXQYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KB2Zsb3dfaWQYDSABKAkSNQoNdW5zZW50X2Ftb3VudBgOIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50IrkICglRdWlja1N3YXASDwoHc3dhcF9pZBgBIAEoBhIXCg9pZGVtcG90ZW5jeV9rZXkYAiABKAkSMgoGc3RhdHVzGAMgASgOMiIuc3dhcC5xdWlja3N3YXAudjEuUXVpY2tTd2FwU3RhdHVzEjIKBnJlYXNvbhgEIAEoDjIiLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFJlYXNvbhITCgtpc190ZXJtaW5hbBgFIAEoCBIwCgV0ZXJtcxgGIAEoCzIhLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFRlcm1zEhsKE2Rlc3RpbmF0aW9uX2FkZHJlc3MYByABKAkSGAoQZGVzdGluYXRpb25fbWVtbxgIIAEoCRIWCg5yZXR1cm5fYWRkcmVzcxgJIAEoCRITCgtyZXR1cm5fbWVtbxgKIAEoCRIeChZyZWZ1bmRfemlwcGVkX2Fzc2V0X2lkGAsgASgNEhYKDnJlZnVuZF9hZGRyZXNzGAwgASgJEhMKC3JlZnVuZF9tZW1vGA0gASgJEjAKBXF1b3RlGA4gASgLMiEuc3dhcC5xdWlja3N3YXAudjEuUXVpY2tTd2FwUXVvdGUSRAoUZGVwb3NpdF9pbnN0cnVjdGlvbnMYDyABKAsyJi5zd2FwLnF1aWNrc3dhcC52MS5EZXBvc2l0SW5zdHJ1Y3Rpb25zEi8KCXNjcmVlbmluZxgQIAEoCzIcLnN3YXAucXVpY2tzd2FwLnYxLlNjcmVlbmluZxIsCghkZXBvc2l0cxgRIAMoCzIaLnN3YXAucXVpY2tzd2FwLnYxLkRlcG9zaXQSGgoSZGVwb3NpdHNfdHJ1bmNhdGVkGBIgASgIEjcKCWV4ZWN1dGlvbhgUIAEoCzIkLnN3YXAucXVpY2tzd2FwLnYxLkV4ZWN1dGlvblByb2dyZXNzEjIKC3dpdGhkcmF3YWxzGBUgAygLMh0uc3dhcC5xdWlja3N3YXAudjEuV2l0aGRyYXdhbBIdChV3aXRoZHJhd2Fsc190cnVuY2F0ZWQYFiABKAgSLgoKY3JlYXRlZF9hdBgXIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKdXBkYXRlZF9hdBgYIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLdGVybWluYWxfYXQYGSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KB3ZlcnNpb24YGiABKAQSHAoUZmVlX3NjaGVkdWxlX3ZlcnNpb24YHCABKAQSLgoEZmVlcxgdIAEoCzIgLnN3YXAucXVpY2tzd2FwLnYxLlJlcXVlc3RlZEZlZXMSMwoMY2hhcmdlZF9mZWVzGB4gAygLMh0uc3dhcC5xdWlja3N3YXAudjEuQ2hhcmdlZEZlZSJaCg1SZXF1ZXN0ZWRGZWVzEhIKCmJyb2tlcl9icHMYASABKA0SNQoKYWZmaWxpYXRlcxgCIAMoCzIhLnN3YXAucXVpY2tzd2FwLnYxLkFmZmlsaWF0ZVNoYXJlIowBCgpDaGFyZ2VkRmVlEigKBGtpbmQYASABKA4yGi5zd2FwLnF1aWNrc3dhcC52MS5GZWVLaW5kEhIKCmFjY291bnRfaWQYAiABKAYSEAoIYXNzZXRfaWQYAyABKA0SLgoGYW1vdW50GAQgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQirwEKFVF1b3RlUXVpY2tTd2FwUmVxdWVzdBIyCgV0ZXJtcxgBIAEoCzIhLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFRlcm1zQgASEgoKYnJva2VyX2JwcxgCIAEoDRI1CgphZmZpbGlhdGVzGAMgAygLMiEuc3dhcC5xdWlja3N3YXAudjEuQWZmaWxpYXRlU2hhcmUSFwoNcmVmZXJyYWxfY29kZRgEIAEoCUIAIkoKFlF1b3RlUXVpY2tTd2FwUmVzcG9uc2USMAoFcXVvdGUYASABKAsyIS5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBRdW90ZSIxCg5BZmZpbGlhdGVTaGFyZRISCgphY2NvdW50X2lkGAEgASgGEgsKA2JwcxgCIAEoDSKjAwoWQ3JlYXRlUXVpY2tTd2FwUmVxdWVzdBIZCg9pZGVtcG90ZW5jeV9rZXkYASABKAlCABIyCgV0ZXJtcxgCIAEoCzIhLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFRlcm1zQgASHQoTZGVzdGluYXRpb25fYWRkcmVzcxgDIAEoCUIAEhoKEGRlc3RpbmF0aW9uX21lbW8YBCABKAlCABIYCg5yZXR1cm5fYWRkcmVzcxgFIAEoCUIAEhUKC3JldHVybl9tZW1vGAYgASgJQgASHgoWcmVmdW5kX3ppcHBlZF9hc3NldF9pZBgHIAEoDRIYCg5yZWZ1bmRfYWRkcmVzcxgIIAEoCUIAEhUKC3JlZnVuZF9tZW1vGAkgASgJQgASFwoNc291cmNlX3dhbGxldBgKIAEoCUIAEjUKCmFmZmlsaWF0ZXMYCyADKAsyIS5zd2FwLnF1aWNrc3dhcC52MS5BZmZpbGlhdGVTaGFyZRISCgpicm9rZXJfYnBzGAwgASgNEhcKDXJlZmVycmFsX2NvZGUYDSABKAlCADoAIksKF0NyZWF0ZVF1aWNrU3dhcFJlc3BvbnNlEjAKCnF1aWNrX3N3YXAYASABKAsyHC5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXAiVQoTR2V0UXVpY2tTd2FwUmVxdWVzdBITCgdzd2FwX2lkGAEgASgGQgBIABIbCg9pZGVtcG90ZW5jeV9rZXkYAiABKAlCAEgAQgwKCHNlbGVjdG9yEgAiSAoUR2V0UXVpY2tTd2FwUmVzcG9uc2USMAoKcXVpY2tfc3dhcBgBIAEoCzIcLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcCLCAQoLRXJyb3JEZXRhaWwSKgoEY29kZRgBIAEoDjIcLnN3YXAucXVpY2tzd2FwLnYxLkVycm9yQ29kZRIPCgdzd2FwX2lkGAIgASgGEjoKEm1pbl9kZXBvc2l0X2Ftb3VudBgDIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EjoKEm1heF9kZXBvc2l0X2Ftb3VudBgEIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50Kk4KClF1b3RlQmFzaXMSFQoRQkFTSVNfVU5TUEVDSUZJRUQQABIRCg1TT1VSQ0VfQU1PVU5UEAESFgoSREVTVElOQVRJT05fQU1PVU5UEAIqgQEKB0ZlZUtpbmQSEwoPRkVFX1VOU1BFQ0lGSUVEEAASCwoHU0VSVklDRRABEgoKBkJST0tFUhACEg0KCUFGRklMSUFURRADEhMKD0RFUE9TSVRfTkVUV09SSxAEEhYKEldJVEhEUkFXQUxfTkVUV09SSxAFEgwKCFJFRkVSUkFMEAYqWAoTRGVwb3NpdEFkZHJlc3NTdGF0ZRIXChNBRERSRVNTX1VOU1BFQ0lGSUVEEAASCgoGQUNUSVZFEAESDwoLUkVGVU5EX01PREUQAhILCgdSRVRJUkVEEAMqggEKEkRlcG9zaXREaXNwb3NpdGlvbhIbChdESVNQT1NJVElPTl9VTlNQRUNJRklFRBAAEg4KCkVWQUxVQVRJTkcQARIMCghFTElHSUJMRRACEg8KC1JFVFVSTl9PTkxZEAMSCwoHT05fSE9MRBAEEhMKD01BTlVBTF9SRUNPVkVSWRAFKqMECg9RdWlja1N3YXBSZWFzb24SFgoSUkVBU09OX1VOU1BFQ0lGSUVEEAASGwoXU09VUkNFX1NDUkVFTklOR19GQUlMRUQQARIYChRDQVBBQ0lUWV9VTkFWQUlMQUJMRRAEEhYKElBST1RFQ1RJT05fTk9UX01FVBAHEh4KGkVYRUNVVElPTl9ERUFETElORV9SRUFDSEVEEAgSEAoMTEFURV9ERVBPU0lUEAkSGQoVREVQT1NJVF9CRUxPV19NSU5JTVVNEAsSGQoVREVQT1NJVF9BQk9WRV9NQVhJTVVNEAwSDwoLV1JPTkdfQVNTRVQQDRIYChRGVU5ESU5HX1dJTkRPV19FTkRFRBAPEhUKEVdJVEhEUkFXQUxfRkFJTEVEEBASFwoTT1VUQ09NRV9SRUNPTkNJTElORxAREhwKGFNPVVJDRV9TQ1JFRU5JTkdfQkxPQ0tFRBAUEhgKFFJFRlVORF9CRUxPV19NSU5JTVVNEBUSHAoYREVQT1NJVF9BRERSRVNTX0NPTkZMSUNUEBYSIAocREVQT1NJVF9BRERSRVNTX0FMUkVBRFlfVVNFRBAXEhsKF0RFUE9TSVRfQUREUkVTU19SRVRJUkVEEBgSHgoaREVQT1NJVF9BRERSRVNTX05PVF9JU1NVRUQQGRIeChpJTlRFUk1FRElBVEVfQkVMT1dfTUlOSU1VTRAaEhEKDU1BUktFVF9DTE9TRUQQGypoCg5XaXRoZHJhd2FsUm9sZRIUChBST0xFX1VOU1BFQ0lGSUVEEAASDwoLREVTVElOQVRJT04QARIKCgZSRUZVTkQQAhIKCgZSRVRVUk4QAxIXChNDT01QTElBTkNFX1RSQU5TRkVSEAQqcQoPV2l0aGRyYXdhbFN0YXRlEhoKFldJVEhEUkFXQUxfVU5TUEVDSUZJRUQQABIKCgZRVUVVRUQQARINCglTVUJNSVRURUQQAhINCglGSU5BTElaRUQQAxIKCgZGQUlMRUQQBBIMCghOT1RfU0VOVBAFKqkCCg9RdWlja1N3YXBTdGF0dXMSFgoSU1RBVFVTX1VOU1BFQ0lGSUVEEAASDgoKQUxMT0NBVElORxACEhQKEEFXQUlUSU5HX0RFUE9TSVQQAxIYChRXQUlUSU5HX0ZPUl9DQVBBQ0lUWRAEEhUKEVBSRVBBUklOR19ERVBPU0lUEAUSDgoKQ09ORklSTUlORxAGEgwKCENSRURJVEVEEAcSDQoJRVhFQ1VUSU5HEAgSDgoKUEFZSU5HX09VVBAJEg0KCVJFRlVORElORxAKEg0KCVJFVFVSTklORxALEggKBEhFTEQQDBINCglDT01QTEVURUQQDRIMCghSRUZVTkRFRBAOEgwKCFJFVFVSTkVEEA8SCwoHRVhQSVJFRBAQEgoKBkNMT1NFRBARKp8ICglFcnJvckNvZGUSFQoRRVJST1JfVU5TUEVDSUZJRUQQABIVChFST1VURV9VTlNVUFBPUlRFRBABEhcKE0FNT1VOVF9PVVRfT0ZfUkFOR0UQAhIVChFERUNJTUFMU19NSVNNQVRDSBADEh8KG0RFU1RJTkFUSU9OX0FERFJFU1NfSU5WQUxJRBAEEhoKFlJFVFVSTl9BRERSRVNTX0lOVkFMSUQQBRIbChdSRUZVTkRfQUREUkVTU19SRVFVSVJFRBAGEhoKFlJFRlVORF9BRERSRVNTX0lOVkFMSUQQBxIZChVTT1VSQ0VfV0FMTEVUX0lOVkFMSUQQCBIVChFRVU9URV9VTkFWQUlMQUJMRRALEhsKF1BST1RFQ1RJT05fVU5BQ0hJRVZBQkxFEAwSFwoTQUREUkVTU19VTkFWQUlMQUJMRRANEhgKFElERU1QT1RFTkNZX0NPTkZMSUNUEA4SEgoOU1dBUF9OT1RfRk9VTkQQDxITCg9CUk9LRVJfRElTQUJMRUQQEhIQCgxCUk9LRVJfTElNSVQQExIbChdBRkZJTElBVEVfVkFVTFRfVU5LTk9XThAUEhQKEEJST0tFUl9OT1RfRk9VTkQQFRIRCg1BQ1RJT05fREVOSUVEEBYSFAoQU1RFUF9VUF9SRVFVSVJFRBAXEhMKD1ZBVUxUX05PVF9GT1VORBAYEhEKDUtFWV9OT1RfRk9VTkQQGRINCglLRVlfTElNSVQQGhIMCghMQVNUX0tFWRAbEhQKEE1FTUJFUl9OT1RfRk9VTkQQHBISCg5BTFJFQURZX01FTUJFUhAdEhMKD09XTkVSX0lNTVVUQUJMRRAeEhQKEElOVklURV9OT1RfRk9VTkQQHxIQCgxGRUVTX0lOVkFMSUQQIBIUChBTVEFUU19JTkNPTVBMRVRFECESFAoQQUREUkVTU19DT05GTElDVBAiEhcKE1JFRkVSUkFMX0NPREVfVEFLRU4QIxIaChZSRUZFUlJBTF9DT0RFX1JFU0VSVkVEECQSGQoVUkVGRVJSQUxfQ09ERV9JTlZBTElEECUSHgoaUkVGRVJSQUxfUEFSVE5FUl9OT1RfRk9VTkQQJhIbChdSRUZFUlJBTF9QQVJUTkVSX0VYSVNUUxAnEhwKGEVBUk5JTkdTX0FDQ09VTlRfSU5WQUxJRBAoEh0KGVJFRkVSUkFMX1BBUlRORVJfRElTQUJMRUQQKRIXChNSRUZFUlJBTF9DT0RFX0xJTUlUECoSGgoWUkVGRVJSQUxfTk9UX1NVUFBPUlRFRBArEhkKFVJFRkVSUkFMX0NPREVfVU5LTk9XThAsEh0KGVJFRkVSUkFMX1BBUlRORVJfSU5BQ1RJVkUQLRIUChBQQVlPVVRfTk9UX0ZPVU5EEC4yzAIKEFF1aWNrU3dhcFNlcnZpY2USZwoOUXVvdGVRdWlja1N3YXASKC5zd2FwLnF1aWNrc3dhcC52MS5RdW90ZVF1aWNrU3dhcFJlcXVlc3QaKS5zd2FwLnF1aWNrc3dhcC52MS5RdW90ZVF1aWNrU3dhcFJlc3BvbnNlIgASagoPQ3JlYXRlUXVpY2tTd2FwEikuc3dhcC5xdWlja3N3YXAudjEuQ3JlYXRlUXVpY2tTd2FwUmVxdWVzdBoqLnN3YXAucXVpY2tzd2FwLnYxLkNyZWF0ZVF1aWNrU3dhcFJlc3BvbnNlIgASYQoMR2V0UXVpY2tTd2FwEiYuc3dhcC5xdWlja3N3YXAudjEuR2V0UXVpY2tTd2FwUmVxdWVzdBonLnN3YXAucXVpY2tzd2FwLnYxLkdldFF1aWNrU3dhcFJlc3BvbnNlIgAaAEJLWklnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL3N3YXAvcXVpY2tzd2FwL3YxO3F1aWNrc3dhcHYxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("CiFzd2FwL3F1aWNrc3dhcC92MS9xdWlja3N3YXAucHJvdG8SEXN3YXAucXVpY2tzd2FwLnYxIjcKC1Rva2VuQW1vdW50EhQKCmJhc2VfdW5pdHMYASABKAlCABISCghkZWNpbWFscxgCIAEoDUIAInEKClByb3RlY3Rpb24SHAoQbWF4X3NsaXBwYWdlX2JwcxgBIAEoDUIASAASOgoObWluX2Ftb3VudF9vdXQYAiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudEIASABCCQoFYm91bmQSACIRCg9NYXJrZXRFeGVjdXRpb24iRQoNVHdhcEV4ZWN1dGlvbhIVCgtkdXJhdGlvbl9tcxgBIAEoBEIAEhsKEXNsaWNlX2ludGVydmFsX21zGAIgASgEQgA6ACKBAQoJRXhlY3V0aW9uEjQKBm1hcmtldBgBIAEoCzIiLnN3YXAucXVpY2tzd2FwLnYxLk1hcmtldEV4ZWN1dGlvbkgAEjAKBHR3YXAYAiABKAsyIC5zd2FwLnF1aWNrc3dhcC52MS5Ud2FwRXhlY3V0aW9uSABCDAoIc3RyYXRlZ3kSACKlAgoOUXVpY2tTd2FwVGVybXMSIAoWc291cmNlX3ppcHBlZF9hc3NldF9pZBgBIAEoDUIAEiUKG2Rlc3RpbmF0aW9uX3ppcHBlZF9hc3NldF9pZBgCIAEoDUIAEi4KBWJhc2lzGAMgASgOMh0uc3dhcC5xdWlja3N3YXAudjEuUXVvdGVCYXNpc0IAEjAKBmFtb3VudBgEIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50QgASMwoKcHJvdGVjdGlvbhgFIAEoCzIdLnN3YXAucXVpY2tzd2FwLnYxLlByb3RlY3Rpb25CABIxCglleGVjdXRpb24YBiABKAsyHC5zd2FwLnF1aWNrc3dhcC52MS5FeGVjdXRpb25CADoAIp4BCghRdW90ZUZlZRIoCgRraW5kGAEgASgOMhouc3dhcC5xdWlja3N3YXAudjEuRmVlS2luZBIXCg96aXBwZWRfYXNzZXRfaWQYAiABKA0SLgoGYW1vdW50GAMgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSCwoDYnBzGAQgASgNEhIKCmFjY291bnRfaWQYBSABKAYiWAoPUmVmZXJyYWxQcmljaW5nEhcKD2Jhc2VfYnJva2VyX2JwcxgBIAEoDRIUCgxkaXNjb3VudF9icHMYAiABKA0SFgoOY29tbWlzc2lvbl9icHMYAyABKA0ipgQKDlF1aWNrU3dhcFF1b3RlEjYKDmRlcG9zaXRfYW1vdW50GAEgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSOwoTZXhwZWN0ZWRfYW1vdW50X291dBgCIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EjYKDm1pbl9hbW91bnRfb3V0GAMgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSEAoIbWluX3JhdGUYBCABKAkSOgoSbWluX2RlcG9zaXRfYW1vdW50GAUgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSOgoSbWF4X2RlcG9zaXRfYW1vdW50GAYgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSHQoVaW50ZXJtZWRpYXRlX2Fzc2V0X2lkGAcgASgNEikKBGZlZXMYCCADKAsyGy5zd2FwLnF1aWNrc3dhcC52MS5RdW90ZUZlZRItCglxdW90ZWRfYXQYCSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmV4cGlyZXNfYXQYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjQKCHJlZmVycmFsGAsgASgLMiIuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxQcmljaW5nIiIKCVNjcmVlbmluZxIVCg1zb3VyY2Vfd2FsbGV0GAIgASgJIskCChNEZXBvc2l0SW5zdHJ1Y3Rpb25zEg8KB2FkZHJlc3MYASABKAkSDAoEbWVtbxgCIAEoCRIXCg96aXBwZWRfYXNzZXRfaWQYAyABKA0SLQoJaXNzdWVkX2F0GAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2ChJmdW5kaW5nX2V4cGlyZXNfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjYKEmFkZHJlc3NfcmV0aXJlc19hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASPQoNYWRkcmVzc19zdGF0ZRgHIAEoDjImLnN3YXAucXVpY2tzd2FwLnYxLkRlcG9zaXRBZGRyZXNzU3RhdGUSHAoUbWluX25hdGl2ZV9nYXNfbGltaXQYCCABKAQiqQMKB0RlcG9zaXQSDQoFaW5kZXgYASABKA0SDwoHdHhfaGFzaBgCIAEoCRIbChN0eF9vY2N1cnJlbmNlX2luZGV4GAMgASgEEhcKD3ppcHBlZF9hc3NldF9pZBgEIAEoDRIuCgZhbW91bnQYBSABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI6CgtkaXNwb3NpdGlvbhgIIAEoDjIlLnN3YXAucXVpY2tzd2FwLnYxLkRlcG9zaXREaXNwb3NpdGlvbhIyCgZyZWFzb24YCSABKA4yIi5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBSZWFzb24SFQoNY29uZmlybWF0aW9ucxgKIAEoDRIeChZyZXF1aXJlZF9jb25maXJtYXRpb25zGAsgASgNEi8KC2RldGVjdGVkX2F0GAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgtjcmVkaXRlZF9hdBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDwoHZmxvd19pZBgOIAEoCSLdBQoRRXhlY3V0aW9uUHJvZ3Jlc3MSNAoMaW5wdXRfYW1vdW50GAEgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSNgoOZXhlY3V0ZWRfaW5wdXQYAiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI1Cg1vdXRwdXRfYW1vdW50GAMgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSPgoWaW50ZXJtZWRpYXRlX3JlbWFpbmRlchgEIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EhgKEGNvbXBsZXRlZF9zbGljZXMYBSABKA0SFAoMdG90YWxfc2xpY2VzGAYgASgNEi4KCnN0YXJ0ZWRfYXQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGRlYWRsaW5lGAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgtmaW5pc2hlZF9hdBgJIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMQoGc2xpY2VzGAogAygLMiEuc3dhcC5xdWlja3N3YXAudjEuRXhlY3V0aW9uU2xpY2USGAoQc2xpY2VzX3RydW5jYXRlZBgLIAEoCBJfChlzbGljZXNfdW5hdmFpbGFibGVfcmVhc29uGAwgASgOMjwuc3dhcC5xdWlja3N3YXAudjEuRXhlY3V0aW9uUHJvZ3Jlc3MuU2xpY2VzVW5hdmFpbGFibGVSZWFzb24idgoXU2xpY2VzVW5hdmFpbGFibGVSZWFzb24SIgoeVU5BVkFJTEFCTEVfUkVBU09OX1VOU1BFQ0lGSUVEEAASHAoYQUNDT1VOVElOR19JTkNPTlNJU1RFTkNZEAESGQoVUFJFQ0lTSU9OX1VOQVZBSUxBQkxFEAIi4wgKDkV4ZWN1dGlvblNsaWNlEg0KBWluZGV4GAEgASgNEi4KCnBsYW5uZWRfYXQYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi8KC2V4ZWN1dGVkX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgtmaW5pc2hlZF9hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASNgoFc3RhdGUYBSABKA4yJy5zd2FwLnF1aWNrc3dhcC52MS5FeGVjdXRpb25TbGljZS5TdGF0ZRI4CgZyZWFzb24YBiABKA4yKC5zd2FwLnF1aWNrc3dhcC52MS5FeGVjdXRpb25TbGljZS5SZWFzb24SEQoJY29tcGxldGVkGAcgASgIEjQKDGlucHV0X3RyYWRlZBgIIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EjcKD291dHB1dF9yZWNlaXZlZBgJIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EhUKDWF2ZXJhZ2VfcHJpY2UYCiABKAkSPwoKc2Vjb25kX2xlZxgLIAEoCzIrLnN3YXAucXVpY2tzd2FwLnYxLkV4ZWN1dGlvblNsaWNlLlNlY29uZExlZxI8ChRpbnRlcm1lZGlhdGVfY2FycmllZBgMIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50Ej4KDGNhcnJ5X3JlYXNvbhgNIAEoDjIoLnN3YXAucXVpY2tzd2FwLnYxLkV4ZWN1dGlvblNsaWNlLlJlYXNvbhqRAQoJU2Vjb25kTGVnEjQKDGlucHV0X3RyYWRlZBgBIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EjcKD291dHB1dF9yZWNlaXZlZBgCIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EhUKDWF2ZXJhZ2VfcHJpY2UYAyABKAkicgoFU3RhdGUSFQoRU1RBVEVfVU5TUEVDSUZJRUQQABILCgdQTEFOTkVEEAESDQoJRVhFQ1VUSU5HEAISCgoGVFJBREVEEAMSEQoNUEFSVExZX1RSQURFRBAEEgsKB1NLSVBQRUQQBRIKCgZGQUlMRUQQBiLdAQoGUmVhc29uEhYKElJFQVNPTl9VTlNQRUNJRklFRBAAEg8KC1NMT1RfTUlTU0VEEAESFAoQREVBRExJTkVfUkVBQ0hFRBACEhEKDU1BUktFVF9DTE9TRUQQAxIRCg1CRUxPV19NSU5JTVVNEAQSEQoNQUJPVkVfTUFYSU1VTRAFEhYKElBST1RFQ1RJT05fTk9UX01FVBAGEhIKDk9SREVSX1JFSkVDVEVEEAcSGgoWSU5TVUZGSUNJRU5UX0xJUVVJRElUWRAIEhMKD0VYRUNVVElPTl9FTkRFRBAJIvADCgpXaXRoZHJhd2FsEg0KBWluZGV4GAEgASgNEi8KBHJvbGUYAiABKA4yIS5zd2FwLnF1aWNrc3dhcC52MS5XaXRoZHJhd2FsUm9sZRIVCg1kZXBvc2l0X2luZGV4GAMgASgNEhcKD3ppcHBlZF9hc3NldF9pZBgEIAEoDRIPCgdhZGRyZXNzGAUgASgJEgwKBG1lbW8YBiABKAkSLgoGYW1vdW50GAcgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSMwoLbmV0d29ya19mZWUYCCABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBIxCgVzdGF0ZRgJIAEoDjIiLnN3YXAucXVpY2tzd2FwLnYxLldpdGhkcmF3YWxTdGF0ZRIPCgd0eF9oYXNoGAogASgJEjAKDHN1Ym1pdHRlZF9hdBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMZmluYWxpemVkX2F0GAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIPCgdmbG93X2lkGA0gASgJEjUKDXVuc2VudF9hbW91bnQYDiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudCK5CAoJUXVpY2tTd2FwEg8KB3N3YXBfaWQYASABKAYSFwoPaWRlbXBvdGVuY3lfa2V5GAIgASgJEjIKBnN0YXR1cxgDIAEoDjIiLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFN0YXR1cxIyCgZyZWFzb24YBCABKA4yIi5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBSZWFzb24SEwoLaXNfdGVybWluYWwYBSABKAgSMAoFdGVybXMYBiABKAsyIS5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBUZXJtcxIbChNkZXN0aW5hdGlvbl9hZGRyZXNzGAcgASgJEhgKEGRlc3RpbmF0aW9uX21lbW8YCCABKAkSFgoOcmV0dXJuX2FkZHJlc3MYCSABKAkSEwoLcmV0dXJuX21lbW8YCiABKAkSHgoWcmVmdW5kX3ppcHBlZF9hc3NldF9pZBgLIAEoDRIWCg5yZWZ1bmRfYWRkcmVzcxgMIAEoCRITCgtyZWZ1bmRfbWVtbxgNIAEoCRIwCgVxdW90ZRgOIAEoCzIhLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFF1b3RlEkQKFGRlcG9zaXRfaW5zdHJ1Y3Rpb25zGA8gASgLMiYuc3dhcC5xdWlja3N3YXAudjEuRGVwb3NpdEluc3RydWN0aW9ucxIvCglzY3JlZW5pbmcYECABKAsyHC5zd2FwLnF1aWNrc3dhcC52MS5TY3JlZW5pbmcSLAoIZGVwb3NpdHMYESADKAsyGi5zd2FwLnF1aWNrc3dhcC52MS5EZXBvc2l0EhoKEmRlcG9zaXRzX3RydW5jYXRlZBgSIAEoCBI3CglleGVjdXRpb24YFCABKAsyJC5zd2FwLnF1aWNrc3dhcC52MS5FeGVjdXRpb25Qcm9ncmVzcxIyCgt3aXRoZHJhd2FscxgVIAMoCzIdLnN3YXAucXVpY2tzd2FwLnYxLldpdGhkcmF3YWwSHQoVd2l0aGRyYXdhbHNfdHJ1bmNhdGVkGBYgASgIEi4KCmNyZWF0ZWRfYXQYFyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCnVwZGF0ZWRfYXQYGCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi8KC3Rlcm1pbmFsX2F0GBkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIPCgd2ZXJzaW9uGBogASgEEhwKFGZlZV9zY2hlZHVsZV92ZXJzaW9uGBwgASgEEi4KBGZlZXMYHSABKAsyIC5zd2FwLnF1aWNrc3dhcC52MS5SZXF1ZXN0ZWRGZWVzEjMKDGNoYXJnZWRfZmVlcxgeIAMoCzIdLnN3YXAucXVpY2tzd2FwLnYxLkNoYXJnZWRGZWUiWgoNUmVxdWVzdGVkRmVlcxISCgpicm9rZXJfYnBzGAEgASgNEjUKCmFmZmlsaWF0ZXMYAiADKAsyIS5zd2FwLnF1aWNrc3dhcC52MS5BZmZpbGlhdGVTaGFyZSKMAQoKQ2hhcmdlZEZlZRIoCgRraW5kGAEgASgOMhouc3dhcC5xdWlja3N3YXAudjEuRmVlS2luZBISCgphY2NvdW50X2lkGAIgASgGEhAKCGFzc2V0X2lkGAMgASgNEi4KBmFtb3VudBgEIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50Iq8BChVRdW90ZVF1aWNrU3dhcFJlcXVlc3QSMgoFdGVybXMYASABKAsyIS5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBUZXJtc0IAEhIKCmJyb2tlcl9icHMYAiABKA0SNQoKYWZmaWxpYXRlcxgDIAMoCzIhLnN3YXAucXVpY2tzd2FwLnYxLkFmZmlsaWF0ZVNoYXJlEhcKDXJlZmVycmFsX2NvZGUYBCABKAlCACJKChZRdW90ZVF1aWNrU3dhcFJlc3BvbnNlEjAKBXF1b3RlGAEgASgLMiEuc3dhcC5xdWlja3N3YXAudjEuUXVpY2tTd2FwUXVvdGUiMQoOQWZmaWxpYXRlU2hhcmUSEgoKYWNjb3VudF9pZBgBIAEoBhILCgNicHMYAiABKA0iowMKFkNyZWF0ZVF1aWNrU3dhcFJlcXVlc3QSGQoPaWRlbXBvdGVuY3lfa2V5GAEgASgJQgASMgoFdGVybXMYAiABKAsyIS5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBUZXJtc0IAEh0KE2Rlc3RpbmF0aW9uX2FkZHJlc3MYAyABKAlCABIaChBkZXN0aW5hdGlvbl9tZW1vGAQgASgJQgASGAoOcmV0dXJuX2FkZHJlc3MYBSABKAlCABIVCgtyZXR1cm5fbWVtbxgGIAEoCUIAEh4KFnJlZnVuZF96aXBwZWRfYXNzZXRfaWQYByABKA0SGAoOcmVmdW5kX2FkZHJlc3MYCCABKAlCABIVCgtyZWZ1bmRfbWVtbxgJIAEoCUIAEhcKDXNvdXJjZV93YWxsZXQYCiABKAlCABI1CgphZmZpbGlhdGVzGAsgAygLMiEuc3dhcC5xdWlja3N3YXAudjEuQWZmaWxpYXRlU2hhcmUSEgoKYnJva2VyX2JwcxgMIAEoDRIXCg1yZWZlcnJhbF9jb2RlGA0gASgJQgA6ACJLChdDcmVhdGVRdWlja1N3YXBSZXNwb25zZRIwCgpxdWlja19zd2FwGAEgASgLMhwuc3dhcC5xdWlja3N3YXAudjEuUXVpY2tTd2FwIlUKE0dldFF1aWNrU3dhcFJlcXVlc3QSEwoHc3dhcF9pZBgBIAEoBkIASAASGwoPaWRlbXBvdGVuY3lfa2V5GAIgASgJQgBIAEIMCghzZWxlY3RvchIAIkgKFEdldFF1aWNrU3dhcFJlc3BvbnNlEjAKCnF1aWNrX3N3YXAYASABKAsyHC5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXAiwgEKC0Vycm9yRGV0YWlsEioKBGNvZGUYASABKA4yHC5zd2FwLnF1aWNrc3dhcC52MS5FcnJvckNvZGUSDwoHc3dhcF9pZBgCIAEoBhI6ChJtaW5fZGVwb3NpdF9hbW91bnQYAyABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI6ChJtYXhfZGVwb3NpdF9hbW91bnQYBCABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudCpOCgpRdW90ZUJhc2lzEhUKEUJBU0lTX1VOU1BFQ0lGSUVEEAASEQoNU09VUkNFX0FNT1VOVBABEhYKEkRFU1RJTkFUSU9OX0FNT1VOVBACKoEBCgdGZWVLaW5kEhMKD0ZFRV9VTlNQRUNJRklFRBAAEgsKB1NFUlZJQ0UQARIKCgZCUk9LRVIQAhINCglBRkZJTElBVEUQAxITCg9ERVBPU0lUX05FVFdPUksQBBIWChJXSVRIRFJBV0FMX05FVFdPUksQBRIMCghSRUZFUlJBTBAGKlgKE0RlcG9zaXRBZGRyZXNzU3RhdGUSFwoTQUREUkVTU19VTlNQRUNJRklFRBAAEgoKBkFDVElWRRABEg8KC1JFRlVORF9NT0RFEAISCwoHUkVUSVJFRBADKoIBChJEZXBvc2l0RGlzcG9zaXRpb24SGwoXRElTUE9TSVRJT05fVU5TUEVDSUZJRUQQABIOCgpFVkFMVUFUSU5HEAESDAoIRUxJR0lCTEUQAhIPCgtSRVRVUk5fT05MWRADEgsKB09OX0hPTEQQBBITCg9NQU5VQUxfUkVDT1ZFUlkQBSqjBAoPUXVpY2tTd2FwUmVhc29uEhYKElJFQVNPTl9VTlNQRUNJRklFRBAAEhsKF1NPVVJDRV9TQ1JFRU5JTkdfRkFJTEVEEAESGAoUQ0FQQUNJVFlfVU5BVkFJTEFCTEUQBBIWChJQUk9URUNUSU9OX05PVF9NRVQQBxIeChpFWEVDVVRJT05fREVBRExJTkVfUkVBQ0hFRBAIEhAKDExBVEVfREVQT1NJVBAJEhkKFURFUE9TSVRfQkVMT1dfTUlOSU1VTRALEhkKFURFUE9TSVRfQUJPVkVfTUFYSU1VTRAMEg8KC1dST05HX0FTU0VUEA0SGAoURlVORElOR19XSU5ET1dfRU5ERUQQDxIVChFXSVRIRFJBV0FMX0ZBSUxFRBAQEhcKE09VVENPTUVfUkVDT05DSUxJTkcQERIcChhTT1VSQ0VfU0NSRUVOSU5HX0JMT0NLRUQQFBIYChRSRUZVTkRfQkVMT1dfTUlOSU1VTRAVEhwKGERFUE9TSVRfQUREUkVTU19DT05GTElDVBAWEiAKHERFUE9TSVRfQUREUkVTU19BTFJFQURZX1VTRUQQFxIbChdERVBPU0lUX0FERFJFU1NfUkVUSVJFRBAYEh4KGkRFUE9TSVRfQUREUkVTU19OT1RfSVNTVUVEEBkSHgoaSU5URVJNRURJQVRFX0JFTE9XX01JTklNVU0QGhIRCg1NQVJLRVRfQ0xPU0VEEBsqaAoOV2l0aGRyYXdhbFJvbGUSFAoQUk9MRV9VTlNQRUNJRklFRBAAEg8KC0RFU1RJTkFUSU9OEAESCgoGUkVGVU5EEAISCgoGUkVUVVJOEAMSFwoTQ09NUExJQU5DRV9UUkFOU0ZFUhAEKnEKD1dpdGhkcmF3YWxTdGF0ZRIaChZXSVRIRFJBV0FMX1VOU1BFQ0lGSUVEEAASCgoGUVVFVUVEEAESDQoJU1VCTUlUVEVEEAISDQoJRklOQUxJWkVEEAMSCgoGRkFJTEVEEAQSDAoITk9UX1NFTlQQBSqpAgoPUXVpY2tTd2FwU3RhdHVzEhYKElNUQVRVU19VTlNQRUNJRklFRBAAEg4KCkFMTE9DQVRJTkcQAhIUChBBV0FJVElOR19ERVBPU0lUEAMSGAoUV0FJVElOR19GT1JfQ0FQQUNJVFkQBBIVChFQUkVQQVJJTkdfREVQT1NJVBAFEg4KCkNPTkZJUk1JTkcQBhIMCghDUkVESVRFRBAHEg0KCUVYRUNVVElORxAIEg4KClBBWUlOR19PVVQQCRINCglSRUZVTkRJTkcQChINCglSRVRVUk5JTkcQCxIICgRIRUxEEAwSDQoJQ09NUExFVEVEEA0SDAoIUkVGVU5ERUQQDhIMCghSRVRVUk5FRBAPEgsKB0VYUElSRUQQEBIKCgZDTE9TRUQQESr9CQoJRXJyb3JDb2RlEhUKEUVSUk9SX1VOU1BFQ0lGSUVEEAASFQoRUk9VVEVfVU5TVVBQT1JURUQQARIXChNBTU9VTlRfT1VUX09GX1JBTkdFEAISFQoRREVDSU1BTFNfTUlTTUFUQ0gQAxIfChtERVNUSU5BVElPTl9BRERSRVNTX0lOVkFMSUQQBBIaChZSRVRVUk5fQUREUkVTU19JTlZBTElEEAUSGwoXUkVGVU5EX0FERFJFU1NfUkVRVUlSRUQQBhIaChZSRUZVTkRfQUREUkVTU19JTlZBTElEEAcSGQoVU09VUkNFX1dBTExFVF9JTlZBTElEEAgSFQoRUVVPVEVfVU5BVkFJTEFCTEUQCxIbChdQUk9URUNUSU9OX1VOQUNISUVWQUJMRRAMEhcKE0FERFJFU1NfVU5BVkFJTEFCTEUQDRIYChRJREVNUE9URU5DWV9DT05GTElDVBAOEhIKDlNXQVBfTk9UX0ZPVU5EEA8SEwoPQlJPS0VSX0RJU0FCTEVEEBISEAoMQlJPS0VSX0xJTUlUEBMSGwoXQUZGSUxJQVRFX1ZBVUxUX1VOS05PV04QFBIUChBCUk9LRVJfTk9UX0ZPVU5EEBUSEQoNQUNUSU9OX0RFTklFRBAWEhQKEFNURVBfVVBfUkVRVUlSRUQQFxITCg9WQVVMVF9OT1RfRk9VTkQQGBIRCg1LRVlfTk9UX0ZPVU5EEBkSDQoJS0VZX0xJTUlUEBoSDAoITEFTVF9LRVkQGxIUChBNRU1CRVJfTk9UX0ZPVU5EEBwSEgoOQUxSRUFEWV9NRU1CRVIQHRITCg9PV05FUl9JTU1VVEFCTEUQHhIUChBJTlZJVEVfTk9UX0ZPVU5EEB8SEAoMRkVFU19JTlZBTElEECASFAoQU1RBVFNfSU5DT01QTEVURRAhEhQKEEFERFJFU1NfQ09ORkxJQ1QQIhIXChNSRUZFUlJBTF9DT0RFX1RBS0VOECMSGgoWUkVGRVJSQUxfQ09ERV9SRVNFUlZFRBAkEhkKFVJFRkVSUkFMX0NPREVfSU5WQUxJRBAlEh4KGlJFRkVSUkFMX1BBUlRORVJfTk9UX0ZPVU5EECYSGwoXUkVGRVJSQUxfUEFSVE5FUl9FWElTVFMQJxIcChhFQVJOSU5HU19BQ0NPVU5UX0lOVkFMSUQQKBIdChlSRUZFUlJBTF9QQVJUTkVSX0RJU0FCTEVEECkSFwoTUkVGRVJSQUxfQ09ERV9MSU1JVBAqEhoKFlJFRkVSUkFMX05PVF9TVVBQT1JURUQQKxIZChVSRUZFUlJBTF9DT0RFX1VOS05PV04QLBIdChlSRUZFUlJBTF9QQVJUTkVSX0lOQUNUSVZFEC0SFAoQUEFZT1VUX05PVF9GT1VORBAuEiEKHUFMTE9XTElTVF9ERVNUSU5BVElPTl9JTlZBTElEEC8SIAocQUxMT1dMSVNUX0RFU1RJTkFUSU9OX0VYSVNUUxAwEhIKDkFMTE9XTElTVF9GVUxMEDESJAogQUxMT1dMSVNUX0RFU1RJTkFUSU9OX05PVF9MSVNURUQQMhIgChxBTExPV0xJU1RfREVTVElOQVRJT05fSU5fVVNFEDMSHAoYQUxMT1dMSVNUX0NIQU5HRV9QRU5ESU5HEDQSHQoZVkFVTFRfQUxMT1dMSVNUX05PVF9SRUFEWRA1MswCChBRdWlja1N3YXBTZXJ2aWNlEmcKDlF1b3RlUXVpY2tTd2FwEiguc3dhcC5xdWlja3N3YXAudjEuUXVvdGVRdWlja1N3YXBSZXF1ZXN0Gikuc3dhcC5xdWlja3N3YXAudjEuUXVvdGVRdWlja1N3YXBSZXNwb25zZSIAEmoKD0NyZWF0ZVF1aWNrU3dhcBIpLnN3YXAucXVpY2tzd2FwLnYxLkNyZWF0ZVF1aWNrU3dhcFJlcXVlc3QaKi5zd2FwLnF1aWNrc3dhcC52MS5DcmVhdGVRdWlja1N3YXBSZXNwb25zZSIAEmEKDEdldFF1aWNrU3dhcBImLnN3YXAucXVpY2tzd2FwLnYxLkdldFF1aWNrU3dhcFJlcXVlc3QaJy5zd2FwLnF1aWNrc3dhcC52MS5HZXRRdWlja1N3YXBSZXNwb25zZSIAGgBCS1pJZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9zd2FwL3F1aWNrc3dhcC92MTtxdWlja3N3YXB2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * TokenAmount is an exact token amount in the token's smallest unit.
@@ -805,15 +805,18 @@ export type ExecutionProgress = Message<"swap.quickswap.v1.ExecutionProgress"> &
   totalSlices: number;
 
   /**
-   * When execution started.
+   * When the first slice was submitted for execution. Unset while all slices
+   * remain unsent, including an execution refused during planning. Planned
+   * slice times and the execution deadline do not imply a slice was sent.
    *
    * @generated from field: google.protobuf.Timestamp started_at = 7;
    */
   startedAt?: Timestamp | undefined;
 
   /**
-   * Execution deadline: started_at plus the TWAP duration, or plus the market
-   * execution window. Funds not converted by then are refunded or returned.
+   * Execution deadline frozen during planning: the planned start plus the TWAP
+   * duration or market execution window. A later first submission does not move
+   * this deadline. Funds not converted by then are refunded or returned.
    * Independent of the quote validity and the funding window. Unset until
    * the execution is planned, and for a bridge, which trades nothing.
    *
@@ -827,6 +830,35 @@ export type ExecutionProgress = Message<"swap.quickswap.v1.ExecutionProgress"> &
    * @generated from field: google.protobuf.Timestamp finished_at = 9;
    */
   finishedAt?: Timestamp | undefined;
+
+  /**
+   * Planned slices in increasing index order, at most 50. Includes future and
+   * active slices. Empty for a bridge, or when slices_unavailable_reason is set.
+   * When available and not truncated, input_traded and
+   * output_received sum to executed_input and output_amount respectively;
+   * completed entries count to completed_slices and the list has total_slices
+   * entries. Amounts are rounded cumulatively in index order.
+   *
+   * @generated from field: repeated swap.quickswap.v1.ExecutionSlice slices = 10;
+   */
+  slices: ExecutionSlice[];
+
+  /**
+   * True when more than 50 slices exist; only the first 50 are listed.
+   * Totals and completed_slices still cover the entire execution.
+   *
+   * @generated from field: bool slices_truncated = 11;
+   */
+  slicesTruncated: boolean;
+
+  /**
+   * Why slice history is unavailable. When set, slices is empty and
+   * slices_truncated is false. Aggregate amounts, counts, execution status
+   * and withdrawals remain available. Unspecified when history is available.
+   *
+   * @generated from field: swap.quickswap.v1.ExecutionProgress.SlicesUnavailableReason slices_unavailable_reason = 12;
+   */
+  slicesUnavailableReason: ExecutionProgress_SlicesUnavailableReason;
 };
 
 /**
@@ -835,6 +867,339 @@ export type ExecutionProgress = Message<"swap.quickswap.v1.ExecutionProgress"> &
  */
 export const ExecutionProgressSchema: GenMessage<ExecutionProgress> = /*@__PURE__*/
   messageDesc(file_swap_quickswap_v1_quickswap, 12);
+
+/**
+ * SlicesUnavailableReason explains why slice details cannot be shown.
+ *
+ * @generated from enum swap.quickswap.v1.ExecutionProgress.SlicesUnavailableReason
+ */
+export enum ExecutionProgress_SlicesUnavailableReason {
+  /**
+   * Slice history is available, or the execution has no slices.
+   *
+   * @generated from enum value: UNAVAILABLE_REASON_UNSPECIFIED = 0;
+   */
+  UNAVAILABLE_REASON_UNSPECIFIED = 0,
+
+  /**
+   * Recorded slice data is inconsistent; no slice amounts are fabricated.
+   *
+   * @generated from enum value: ACCOUNTING_INCONSISTENCY = 1;
+   */
+  ACCOUNTING_INCONSISTENCY = 1,
+
+  /**
+   * The precision of one or more execution assets is unavailable, so slice
+   * amounts cannot be shown accurately. Aggregate amounts may be unknown.
+   *
+   * @generated from enum value: PRECISION_UNAVAILABLE = 2;
+   */
+  PRECISION_UNAVAILABLE = 2,
+}
+
+/**
+ * Describes the enum swap.quickswap.v1.ExecutionProgress.SlicesUnavailableReason.
+ */
+export const ExecutionProgress_SlicesUnavailableReasonSchema: GenEnum<ExecutionProgress_SlicesUnavailableReason> = /*@__PURE__*/
+  enumDesc(file_swap_quickswap_v1_quickswap, 12, 0);
+
+/**
+ * ExecutionSlice is one planned execution slot, including a slot that trades
+ * nothing. Its index and planned_at never change.
+ *
+ * @generated from message swap.quickswap.v1.ExecutionSlice
+ */
+export type ExecutionSlice = Message<"swap.quickswap.v1.ExecutionSlice"> & {
+  /**
+   * Zero-based position in the execution's frozen schedule.
+   *
+   * @generated from field: uint32 index = 1;
+   */
+  index: number;
+
+  /**
+   * Frozen scheduled start time of this slot.
+   *
+   * @generated from field: google.protobuf.Timestamp planned_at = 2;
+   */
+  plannedAt?: Timestamp | undefined;
+
+  /**
+   * When its first order was sent; unset for an unsent slice.
+   *
+   * @generated from field: google.protobuf.Timestamp executed_at = 3;
+   */
+  executedAt?: Timestamp | undefined;
+
+  /**
+   * When its outcome became final; unset while planned or executing.
+   *
+   * @generated from field: google.protobuf.Timestamp finished_at = 4;
+   */
+  finishedAt?: Timestamp | undefined;
+
+  /**
+   * Current slice state.
+   *
+   * @generated from field: swap.quickswap.v1.ExecutionSlice.State state = 5;
+   */
+  state: ExecutionSlice_State;
+
+  /**
+   * Why a final slice did not trade in full; unspecified after full trading.
+   *
+   * @generated from field: swap.quickswap.v1.ExecutionSlice.Reason reason = 6;
+   */
+  reason: ExecutionSlice_Reason;
+
+  /**
+   * Whether this slice contributes to completed_slices. A final market slice
+   * completes even if it traded nothing; a TWAP slice completes only if it
+   * traded source input and is over.
+   *
+   * @generated from field: bool completed = 7;
+   */
+  completed: boolean;
+
+  /**
+   * Source input traded, in source token units, counting only the first leg.
+   *
+   * @generated from field: swap.quickswap.v1.TokenAmount input_traded = 8;
+   */
+  inputTraded?: TokenAmount | undefined;
+
+  /**
+   * Destination received after all trading fees, in destination token units.
+   * On a two-leg route this is the second leg's output in this slot, which
+   * can include conversion of intermediate funds from earlier slots.
+   *
+   * @generated from field: swap.quickswap.v1.TokenAmount output_received = 9;
+   */
+  outputReceived?: TokenAmount | undefined;
+
+  /**
+   * Net destination tokens per source token for this slot, rounded down to
+   * 18 decimal places; empty when no source input traded. A two-leg slot's
+   * output can include conversion of funds carried from previous slots.
+   *
+   * @generated from field: string average_price = 10;
+   */
+  averagePrice: string;
+
+  /**
+   * Second-leg conversion; unset on a direct route or a bridge.
+   *
+   * @generated from field: swap.quickswap.v1.ExecutionSlice.SecondLeg second_leg = 11;
+   */
+  secondLeg?: ExecutionSlice_SecondLeg | undefined;
+
+  /**
+   * Intermediate balance after this slot's recorded fills, including earlier
+   * carried funds, in the refund route's token units; unset on a direct route.
+   * It passes to later slots while executing, or to refund when execution ends.
+   *
+   * @generated from field: swap.quickswap.v1.TokenAmount intermediate_carried = 12;
+   */
+  intermediateCarried?: TokenAmount | undefined;
+
+  /**
+   * Why intermediate funds could not be converted in this slot; unspecified
+   * when no conversion was refused.
+   *
+   * @generated from field: swap.quickswap.v1.ExecutionSlice.Reason carry_reason = 13;
+   */
+  carryReason: ExecutionSlice_Reason;
+};
+
+/**
+ * Describes the message swap.quickswap.v1.ExecutionSlice.
+ * Use `create(ExecutionSliceSchema)` to create a new message.
+ */
+export const ExecutionSliceSchema: GenMessage<ExecutionSlice> = /*@__PURE__*/
+  messageDesc(file_swap_quickswap_v1_quickswap, 13);
+
+/**
+ * SecondLeg is the intermediate-to-destination conversion in this slot.
+ * It may spend intermediate funds carried from earlier slots as well.
+ *
+ * @generated from message swap.quickswap.v1.ExecutionSlice.SecondLeg
+ */
+export type ExecutionSlice_SecondLeg = Message<"swap.quickswap.v1.ExecutionSlice.SecondLeg"> & {
+  /**
+   * Intermediate amount traded, in the refund route's token units.
+   *
+   * @generated from field: swap.quickswap.v1.TokenAmount input_traded = 1;
+   */
+  inputTraded?: TokenAmount | undefined;
+
+  /**
+   * Destination amount received after all trading fees, in destination units.
+   *
+   * @generated from field: swap.quickswap.v1.TokenAmount output_received = 2;
+   */
+  outputReceived?: TokenAmount | undefined;
+
+  /**
+   * Net destination tokens per intermediate token, rounded down to 18
+   * decimal places; empty when no intermediate amount traded.
+   *
+   * @generated from field: string average_price = 3;
+   */
+  averagePrice: string;
+};
+
+/**
+ * Describes the message swap.quickswap.v1.ExecutionSlice.SecondLeg.
+ * Use `create(ExecutionSlice_SecondLegSchema)` to create a new message.
+ */
+export const ExecutionSlice_SecondLegSchema: GenMessage<ExecutionSlice_SecondLeg> = /*@__PURE__*/
+  messageDesc(file_swap_quickswap_v1_quickswap, 13, 0);
+
+/**
+ * State distinguishes pending work from a final slice outcome.
+ *
+ * @generated from enum swap.quickswap.v1.ExecutionSlice.State
+ */
+export enum ExecutionSlice_State {
+  /**
+   * No state; never returned.
+   *
+   * @generated from enum value: STATE_UNSPECIFIED = 0;
+   */
+  STATE_UNSPECIFIED = 0,
+
+  /**
+   * Scheduled; no order has been sent yet.
+   *
+   * @generated from enum value: PLANNED = 1;
+   */
+  PLANNED = 1,
+
+  /**
+   * An order has been sent and the outcome is not final.
+   *
+   * @generated from enum value: EXECUTING = 2;
+   */
+  EXECUTING = 2,
+
+  /**
+   * The slice traded its planned orders in full.
+   *
+   * @generated from enum value: TRADED = 3;
+   */
+  TRADED = 3,
+
+  /**
+   * The slice traded some input but left an order partly unfilled or
+   * intermediate funds unconverted.
+   *
+   * @generated from enum value: PARTLY_TRADED = 4;
+   */
+  PARTLY_TRADED = 4,
+
+  /**
+   * No input traded because the slot was not used or no order could fill.
+   *
+   * @generated from enum value: SKIPPED = 5;
+   */
+  SKIPPED = 5,
+
+  /**
+   * No input traded because an order or its execution failed.
+   *
+   * @generated from enum value: FAILED = 6;
+   */
+  FAILED = 6,
+}
+
+/**
+ * Describes the enum swap.quickswap.v1.ExecutionSlice.State.
+ */
+export const ExecutionSlice_StateSchema: GenEnum<ExecutionSlice_State> = /*@__PURE__*/
+  enumDesc(file_swap_quickswap_v1_quickswap, 13, 0);
+
+/**
+ * Reason explains a slice outcome or why intermediate funds were carried.
+ *
+ * @generated from enum swap.quickswap.v1.ExecutionSlice.Reason
+ */
+export enum ExecutionSlice_Reason {
+  /**
+   * No reason is needed while pending or after a fully traded slice.
+   *
+   * @generated from enum value: REASON_UNSPECIFIED = 0;
+   */
+  REASON_UNSPECIFIED = 0,
+
+  /**
+   * The slot ended before an order could be sent.
+   *
+   * @generated from enum value: SLOT_MISSED = 1;
+   */
+  SLOT_MISSED = 1,
+
+  /**
+   * The execution deadline ended this slice.
+   *
+   * @generated from enum value: DEADLINE_REACHED = 2;
+   */
+  DEADLINE_REACHED = 2,
+
+  /**
+   * The required market was closed.
+   *
+   * @generated from enum value: MARKET_CLOSED = 3;
+   */
+  MARKET_CLOSED = 3,
+
+  /**
+   * The amount was below the market's minimum order size.
+   *
+   * @generated from enum value: BELOW_MINIMUM = 4;
+   */
+  BELOW_MINIMUM = 4,
+
+  /**
+   * The amount exceeded the market's maximum order size.
+   *
+   * @generated from enum value: ABOVE_MAXIMUM = 5;
+   */
+  ABOVE_MAXIMUM = 5,
+
+  /**
+   * No order could satisfy the swap's price protection.
+   *
+   * @generated from enum value: PROTECTION_NOT_MET = 6;
+   */
+  PROTECTION_NOT_MET = 6,
+
+  /**
+   * An order was refused.
+   *
+   * @generated from enum value: ORDER_REJECTED = 7;
+   */
+  ORDER_REJECTED = 7,
+
+  /**
+   * Available liquidity did not fill the whole order at its protected price.
+   *
+   * @generated from enum value: INSUFFICIENT_LIQUIDITY = 8;
+   */
+  INSUFFICIENT_LIQUIDITY = 8,
+
+  /**
+   * The execution ended before this slot was used.
+   *
+   * @generated from enum value: EXECUTION_ENDED = 9;
+   */
+  EXECUTION_ENDED = 9,
+}
+
+/**
+ * Describes the enum swap.quickswap.v1.ExecutionSlice.Reason.
+ */
+export const ExecutionSlice_ReasonSchema: GenEnum<ExecutionSlice_Reason> = /*@__PURE__*/
+  enumDesc(file_swap_quickswap_v1_quickswap, 13, 1);
 
 /**
  * Withdrawal is one outgoing payment. A QuickSwap can end with several, for
@@ -976,7 +1341,7 @@ export type Withdrawal = Message<"swap.quickswap.v1.Withdrawal"> & {
  * Use `create(WithdrawalSchema)` to create a new message.
  */
 export const WithdrawalSchema: GenMessage<Withdrawal> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 13);
+  messageDesc(file_swap_quickswap_v1_quickswap, 14);
 
 /**
  * QuickSwap is one broker-owned swap of an external deposit into external
@@ -1222,7 +1587,7 @@ export type QuickSwap = Message<"swap.quickswap.v1.QuickSwap"> & {
  * Use `create(QuickSwapSchema)` to create a new message.
  */
 export const QuickSwapSchema: GenMessage<QuickSwap> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 14);
+  messageDesc(file_swap_quickswap_v1_quickswap, 15);
 
 /**
  * RequestedFees are the broker and affiliate fees a QuickSwap request set,
@@ -1252,7 +1617,7 @@ export type RequestedFees = Message<"swap.quickswap.v1.RequestedFees"> & {
  * Use `create(RequestedFeesSchema)` to create a new message.
  */
 export const RequestedFeesSchema: GenMessage<RequestedFees> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 15);
+  messageDesc(file_swap_quickswap_v1_quickswap, 16);
 
 /**
  * ChargedFee is what one vault has been credited with for a QuickSwap in
@@ -1297,7 +1662,7 @@ export type ChargedFee = Message<"swap.quickswap.v1.ChargedFee"> & {
  * Use `create(ChargedFeeSchema)` to create a new message.
  */
 export const ChargedFeeSchema: GenMessage<ChargedFee> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 16);
+  messageDesc(file_swap_quickswap_v1_quickswap, 17);
 
 /**
  * QuoteQuickSwapRequest prices terms, with the broker and affiliate fees,
@@ -1345,7 +1710,7 @@ export type QuoteQuickSwapRequest = Message<"swap.quickswap.v1.QuoteQuickSwapReq
  * Use `create(QuoteQuickSwapRequestSchema)` to create a new message.
  */
 export const QuoteQuickSwapRequestSchema: GenMessage<QuoteQuickSwapRequest> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 17);
+  messageDesc(file_swap_quickswap_v1_quickswap, 18);
 
 /**
  * QuoteQuickSwapResponse is an indicative quote.
@@ -1368,7 +1733,7 @@ export type QuoteQuickSwapResponse = Message<"swap.quickswap.v1.QuoteQuickSwapRe
  * Use `create(QuoteQuickSwapResponseSchema)` to create a new message.
  */
 export const QuoteQuickSwapResponseSchema: GenMessage<QuoteQuickSwapResponse> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 18);
+  messageDesc(file_swap_quickswap_v1_quickswap, 19);
 
 /**
  * AffiliateShare credits one affiliate vault, a sub-account the broker owns,
@@ -1400,7 +1765,7 @@ export type AffiliateShare = Message<"swap.quickswap.v1.AffiliateShare"> & {
  * Use `create(AffiliateShareSchema)` to create a new message.
  */
 export const AffiliateShareSchema: GenMessage<AffiliateShare> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 19);
+  messageDesc(file_swap_quickswap_v1_quickswap, 20);
 
 /**
  * CreateQuickSwapRequest creates, or returns, the QuickSwap for one
@@ -1543,7 +1908,7 @@ export type CreateQuickSwapRequest = Message<"swap.quickswap.v1.CreateQuickSwapR
  * Use `create(CreateQuickSwapRequestSchema)` to create a new message.
  */
 export const CreateQuickSwapRequestSchema: GenMessage<CreateQuickSwapRequest> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 20);
+  messageDesc(file_swap_quickswap_v1_quickswap, 21);
 
 /**
  * CreateQuickSwapResponse returns the QuickSwap bound to the idempotency key.
@@ -1565,7 +1930,7 @@ export type CreateQuickSwapResponse = Message<"swap.quickswap.v1.CreateQuickSwap
  * Use `create(CreateQuickSwapResponseSchema)` to create a new message.
  */
 export const CreateQuickSwapResponseSchema: GenMessage<CreateQuickSwapResponse> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 21);
+  messageDesc(file_swap_quickswap_v1_quickswap, 22);
 
 /**
  * GetQuickSwapRequest selects one of the broker's QuickSwaps.
@@ -1603,7 +1968,7 @@ export type GetQuickSwapRequest = Message<"swap.quickswap.v1.GetQuickSwapRequest
  * Use `create(GetQuickSwapRequestSchema)` to create a new message.
  */
 export const GetQuickSwapRequestSchema: GenMessage<GetQuickSwapRequest> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 22);
+  messageDesc(file_swap_quickswap_v1_quickswap, 23);
 
 /**
  * GetQuickSwapResponse returns one QuickSwap.
@@ -1624,7 +1989,7 @@ export type GetQuickSwapResponse = Message<"swap.quickswap.v1.GetQuickSwapRespon
  * Use `create(GetQuickSwapResponseSchema)` to create a new message.
  */
 export const GetQuickSwapResponseSchema: GenMessage<GetQuickSwapResponse> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 23);
+  messageDesc(file_swap_quickswap_v1_quickswap, 24);
 
 /**
  * ErrorDetail is attached to QuickSwap errors. ConnectRPC clients receive it
@@ -1680,7 +2045,7 @@ export type ErrorDetail = Message<"swap.quickswap.v1.ErrorDetail"> & {
  * Use `create(ErrorDetailSchema)` to create a new message.
  */
 export const ErrorDetailSchema: GenMessage<ErrorDetail> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap, 24);
+  messageDesc(file_swap_quickswap_v1_quickswap, 25);
 
 /**
  * QuoteBasis states which side of the swap the request amount denominates.
@@ -2742,6 +3107,60 @@ export enum ErrorCode {
    * @generated from enum value: PAYOUT_NOT_FOUND = 46;
    */
   PAYOUT_NOT_FOUND = 46,
+
+  /**
+   * The destination address is not a valid address on the destination
+   * chain, or the chain takes no external payouts.
+   *
+   * @generated from enum value: ALLOWLIST_DESTINATION_INVALID = 47;
+   */
+  ALLOWLIST_DESTINATION_INVALID = 47,
+
+  /**
+   * The destination is already on the vault's payout address allowlist.
+   *
+   * @generated from enum value: ALLOWLIST_DESTINATION_EXISTS = 48;
+   */
+  ALLOWLIST_DESTINATION_EXISTS = 48,
+
+  /**
+   * The vault's payout address allowlist already holds 50 destinations on
+   * the destination chain; remove one first.
+   *
+   * @generated from enum value: ALLOWLIST_FULL = 49;
+   */
+  ALLOWLIST_FULL = 49,
+
+  /**
+   * The destination is not on the vault's payout address allowlist.
+   *
+   * @generated from enum value: ALLOWLIST_DESTINATION_NOT_LISTED = 50;
+   */
+  ALLOWLIST_DESTINATION_NOT_LISTED = 50,
+
+  /**
+   * The vault's payout rule pays the destination, enabled or paused; change
+   * the rule before removing the destination.
+   *
+   * @generated from enum value: ALLOWLIST_DESTINATION_IN_USE = 51;
+   */
+  ALLOWLIST_DESTINATION_IN_USE = 51,
+
+  /**
+   * The vault already has a pending payout address allowlist change; wait
+   * until ListVaultAllowlistChanges shows it APPLIED or NOT_APPLIED.
+   *
+   * @generated from enum value: ALLOWLIST_CHANGE_PENDING = 52;
+   */
+  ALLOWLIST_CHANGE_PENDING = 52,
+
+  /**
+   * The vault's payout address allowlist cannot be changed yet: its
+   * on-chain protection is still being set up. Retry in a few minutes.
+   *
+   * @generated from enum value: VAULT_ALLOWLIST_NOT_READY = 53;
+   */
+  VAULT_ALLOWLIST_NOT_READY = 53,
 }
 
 /**
