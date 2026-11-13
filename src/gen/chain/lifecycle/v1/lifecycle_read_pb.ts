@@ -530,7 +530,8 @@ export type FlowSummaryView = Message<"chain.lifecycle.v1.FlowSummaryView"> & {
    * Gross principal amount for the flow in 18-decimal unified asset units.
    * Request fees are exposed separately in request_fee. Specific fulfillment
    * steps may carry a net movement amount when the step represents external
-   * delivery.
+   * delivery. A deposit keeps its deposited amount after Zipper returned it
+   * or transferred it out, which is not the amount Zipper paid.
    *
    * @generated from field: polyester.type.v1.U128 amount_e18 = 9;
    */
@@ -840,6 +841,12 @@ export type FlowStepView = Message<"chain.lifecycle.v1.FlowStepView"> & {
   /**
    * Amount represented by this step in 18-decimal unified asset units. Steps
    * may carry the actual net movement amount when fees have already been taken.
+   * Unset on the step that pays out a deposit Zipper's compliance screening
+   * rejected: `FLOW_STEP_REFUNDED`, Zipper's return of the deposit, and
+   * `FLOW_STEP_FAILED` with `ZIPPER_COMPLIANCE_TRANSFERRED`. Zipper pays out
+   * the deposit less its fees and does not report the amount it paid or the
+   * fees, so the deposited amount on the flow's summary is not the amount
+   * paid.
    *
    * @generated from field: polyester.type.v1.U128 amount_e18 = 9;
    */
@@ -1100,7 +1107,8 @@ export type FlowStepActivityView = Message<"chain.lifecycle.v1.FlowStepActivityV
   /**
    * Amount posted by the underlying movement represented by this activity, in
    * 18-decimal unified asset units. This may be a net movement amount for
-   * fee-bearing fulfillment activity.
+   * fee-bearing fulfillment activity. Unset on the activities of a step that
+   * carries no `amount_e18` because Zipper paid out a rejected deposit.
    *
    * @generated from field: polyester.type.v1.U128 amount_e18 = 14;
    */

@@ -13,7 +13,72 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file changelog/v1/changelog.proto.
  */
 export const file_changelog_v1_changelog: GenFile = /*@__PURE__*/
-  fileDesc("ChxjaGFuZ2Vsb2cvdjEvY2hhbmdlbG9nLnByb3RvEgxjaGFuZ2Vsb2cudjEiqwIKBkNoYW5nZRIKCgJpZBgBIAEoBhINCgV0aXRsZRgCIAEoCRIPCgdzdW1tYXJ5GAMgASgJEhQKB2RldGFpbHMYBCABKAlIAIgBARIuCghjYXRlZ29yeRgFIAEoDjIcLmNoYW5nZWxvZy52MS5DaGFuZ2VDYXRlZ29yeRIXCg9hY3Rpb25fcmVxdWlyZWQYBiABKAgSHwoSbWlncmF0aW9uX2d1aWRhbmNlGAcgASgJSAGIAQESKQoJYXVkaWVuY2VzGAggAygOMhYuY2hhbmdlbG9nLnYxLkF1ZGllbmNlEicKCHN1cmZhY2VzGAkgAygOMhUuY2hhbmdlbG9nLnYxLlN1cmZhY2VCCgoIX2RldGFpbHNCFQoTX21pZ3JhdGlvbl9ndWlkYW5jZSKLAQoHU2VjdGlvbhIPCgdoZWFkaW5nGAEgASgJEhQKB3N1bW1hcnkYAiABKAlIAIgBARIlCgdjaGFuZ2VzGAMgAygLMhQuY2hhbmdlbG9nLnYxLkNoYW5nZRImCgdzdXJmYWNlGAQgASgOMhUuY2hhbmdlbG9nLnYxLlN1cmZhY2VCCgoIX3N1bW1hcnkiigMKC1Bvc3RTdW1tYXJ5EgwKBHNsdWcYASABKAkSDQoFdGl0bGUYAiABKAkSFAoMaW50cm9kdWN0aW9uGAMgASgJEjAKDHB1Ymxpc2hlZF9hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMwoPY292ZXJhZ2VfY3V0b2ZmGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIUCgxjaGFuZ2VfY291bnQYBiABKA0SHQoVYnJlYWtpbmdfY2hhbmdlX2NvdW50GAcgASgNEh0KFWFjdGlvbl9yZXF1aXJlZF9jb3VudBgIIAEoDRIZChFuZXdfZmVhdHVyZV9jb3VudBgJIAEoDRIZChFpbXByb3ZlbWVudF9jb3VudBgKIAEoDRIVCg1idWdfZml4X2NvdW50GAsgASgNEi4KCnVwZGF0ZWRfYXQYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCHJldmlzaW9uGA0gASgNIlsKBFBvc3QSKgoHc3VtbWFyeRgBIAEoCzIZLmNoYW5nZWxvZy52MS5Qb3N0U3VtbWFyeRInCghzZWN0aW9ucxgCIAMoCzIVLmNoYW5nZWxvZy52MS5TZWN0aW9uIjkKEExpc3RQb3N0c1JlcXVlc3QSDwoFbGltaXQYASABKA1CABIUCgpwYWdlX3Rva2VuGAIgASgJQgAiVgoRTGlzdFBvc3RzUmVzcG9uc2USKAoFcG9zdHMYASADKAsyGS5jaGFuZ2Vsb2cudjEuUG9zdFN1bW1hcnkSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIiAKDkdldFBvc3RSZXF1ZXN0Eg4KBHNsdWcYASABKAlCACIzCg9HZXRQb3N0UmVzcG9uc2USIAoEcG9zdBgBIAEoCzISLmNoYW5nZWxvZy52MS5Qb3N0IpsDChJMaXN0Q2hhbmdlc1JlcXVlc3QSMgoKY2F0ZWdvcmllcxgBIAMoDjIcLmNoYW5nZWxvZy52MS5DaGFuZ2VDYXRlZ29yeUIAEhwKD2FjdGlvbl9yZXF1aXJlZBgCIAEoCEgAiAEBEikKCHN1cmZhY2VzGAMgAygOMhUuY2hhbmdlbG9nLnYxLlN1cmZhY2VCABIrCglhdWRpZW5jZXMYBCADKA4yFi5jaGFuZ2Vsb2cudjEuQXVkaWVuY2VCABIuCgpzdGFydF90aW1lGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoJcG9zdF9zbHVnGAcgASgJQgASKwoEc29ydBgIIAEoDjIbLmNoYW5nZWxvZy52MS5Tb3J0RGlyZWN0aW9uQgASDwoFbGltaXQYCSABKA1CABIUCgpwYWdlX3Rva2VuGAogASgJQgA6AEISChBfYWN0aW9uX3JlcXVpcmVkIpEBCgtDaGFuZ2VFbnRyeRIkCgZjaGFuZ2UYASABKAsyFC5jaGFuZ2Vsb2cudjEuQ2hhbmdlEhEKCXBvc3Rfc2x1ZxgCIAEoCRIwCgxwdWJsaXNoZWRfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhcKD3NlY3Rpb25faGVhZGluZxgEIAEoCSJaChNMaXN0Q2hhbmdlc1Jlc3BvbnNlEioKB2NoYW5nZXMYASADKAsyGS5jaGFuZ2Vsb2cudjEuQ2hhbmdlRW50cnkSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJKm4KDkNoYW5nZUNhdGVnb3J5EhgKFENBVEVHT1JZX1VOU1BFQ0lGSUVEEAASEwoPQlJFQUtJTkdfQ0hBTkdFEAESDwoLTkVXX0ZFQVRVUkUQAhIPCgtJTVBST1ZFTUVOVBADEgsKB0JVR19GSVgQBCpjCghBdWRpZW5jZRIYChRBVURJRU5DRV9VTlNQRUNJRklFRBAAEg0KCUFMTF9VU0VSUxABEgsKB1RSQURFUlMQAhIRCg1NQVJLRVRfTUFLRVJTEAMSDgoKREVWRUxPUEVSUxAEKr4BCgdTdXJmYWNlEhcKE1NVUkZBQ0VfVU5TUEVDSUZJRUQQABILCgdUUkFESU5HEAESCwoHRlVORElORxACEgwKCEFDQ09VTlRTEAMSBwoDQVBJEAQSDAoIRVhQTE9SRVIQBRIRCg1ET0NVTUVOVEFUSU9OEAYSDAoIUExBVEZPUk0QBxIPCgtNQVJLRVRfREFUQRAIEg0KCVFVSUNLU1dBUBAJEgsKB1JFV0FSRFMQChINCglBU1NJU1RBTlQQCypMCg1Tb3J0RGlyZWN0aW9uEh4KGlNPUlRfRElSRUNUSU9OX1VOU1BFQ0lGSUVEEAASDAoIU09SVF9BU0MQARINCglTT1JUX0RFU0MQAjKNAgoQQ2hhbmdlbG9nU2VydmljZRJRCglMaXN0UG9zdHMSHi5jaGFuZ2Vsb2cudjEuTGlzdFBvc3RzUmVxdWVzdBofLmNoYW5nZWxvZy52MS5MaXN0UG9zdHNSZXNwb25zZSIDkAIBEksKB0dldFBvc3QSHC5jaGFuZ2Vsb2cudjEuR2V0UG9zdFJlcXVlc3QaHS5jaGFuZ2Vsb2cudjEuR2V0UG9zdFJlc3BvbnNlIgOQAgESVwoLTGlzdENoYW5nZXMSIC5jaGFuZ2Vsb2cudjEuTGlzdENoYW5nZXNSZXF1ZXN0GiEuY2hhbmdlbG9nLnYxLkxpc3RDaGFuZ2VzUmVzcG9uc2UiA5ACARoAQkZaRGdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vY2hhbmdlbG9nL3YxO2NoYW5nZWxvZ3YxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChxjaGFuZ2Vsb2cvdjEvY2hhbmdlbG9nLnByb3RvEgxjaGFuZ2Vsb2cudjEicAoRRW52aXJvbm1lbnRTdGF0dXMSLgoLZW52aXJvbm1lbnQYASABKA4yGS5jaGFuZ2Vsb2cudjEuRW52aXJvbm1lbnQSKwoHbGl2ZV9hdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAipgEKD0NoYW5nZUV4Y2VwdGlvbhIuCgtlbnZpcm9ubWVudBgBIAEoDjIZLmNoYW5nZWxvZy52MS5FbnZpcm9ubWVudBI2CgxhdmFpbGFiaWxpdHkYAiABKA4yIC5jaGFuZ2Vsb2cudjEuQ2hhbmdlQXZhaWxhYmlsaXR5EisKB2xpdmVfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIuoCCgZDaGFuZ2USCgoCaWQYASABKAYSDQoFdGl0bGUYAiABKAkSDwoHc3VtbWFyeRgDIAEoCRIUCgdkZXRhaWxzGAQgASgJSACIAQESLgoIY2F0ZWdvcnkYBSABKA4yHC5jaGFuZ2Vsb2cudjEuQ2hhbmdlQ2F0ZWdvcnkSFwoPYWN0aW9uX3JlcXVpcmVkGAYgASgIEh8KEm1pZ3JhdGlvbl9ndWlkYW5jZRgHIAEoCUgBiAEBEikKCWF1ZGllbmNlcxgIIAMoDjIWLmNoYW5nZWxvZy52MS5BdWRpZW5jZRInCghzdXJmYWNlcxgJIAMoDjIVLmNoYW5nZWxvZy52MS5TdXJmYWNlEj0KFmVudmlyb25tZW50X2V4Y2VwdGlvbnMYCiADKAsyHS5jaGFuZ2Vsb2cudjEuQ2hhbmdlRXhjZXB0aW9uQgoKCF9kZXRhaWxzQhUKE19taWdyYXRpb25fZ3VpZGFuY2UiiwEKB1NlY3Rpb24SDwoHaGVhZGluZxgBIAEoCRIUCgdzdW1tYXJ5GAIgASgJSACIAQESJQoHY2hhbmdlcxgDIAMoCzIULmNoYW5nZWxvZy52MS5DaGFuZ2USJgoHc3VyZmFjZRgEIAEoDjIVLmNoYW5nZWxvZy52MS5TdXJmYWNlQgoKCF9zdW1tYXJ5IrEECgtQb3N0U3VtbWFyeRIMCgRzbHVnGAEgASgJEg0KBXRpdGxlGAIgASgJEhQKDGludHJvZHVjdGlvbhgDIAEoCRIwCgxwdWJsaXNoZWRfYXQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjMKD2NvdmVyYWdlX2N1dG9mZhgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFAoMY2hhbmdlX2NvdW50GAYgASgNEh0KFWJyZWFraW5nX2NoYW5nZV9jb3VudBgHIAEoDRIdChVhY3Rpb25fcmVxdWlyZWRfY291bnQYCCABKA0SGQoRbmV3X2ZlYXR1cmVfY291bnQYCSABKA0SGQoRaW1wcm92ZW1lbnRfY291bnQYCiABKA0SFQoNYnVnX2ZpeF9jb3VudBgLIAEoDRIuCgp1cGRhdGVkX2F0GAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghyZXZpc2lvbhgNIAEoDRIcCg9yZWxlYXNlX3ZlcnNpb24YDiABKAlIAIgBARI1CgxlbnZpcm9ubWVudHMYDyADKAsyHy5jaGFuZ2Vsb2cudjEuRW52aXJvbm1lbnRTdGF0dXMSIgoVZGVwbG95bWVudF9ncm91cF9zbHVnGBAgASgJSAGIAQFCEgoQX3JlbGVhc2VfdmVyc2lvbkIYChZfZGVwbG95bWVudF9ncm91cF9zbHVnIlsKBFBvc3QSKgoHc3VtbWFyeRgBIAEoCzIZLmNoYW5nZWxvZy52MS5Qb3N0U3VtbWFyeRInCghzZWN0aW9ucxgCIAMoCzIVLmNoYW5nZWxvZy52MS5TZWN0aW9uIjkKEExpc3RQb3N0c1JlcXVlc3QSDwoFbGltaXQYASABKA1CABIUCgpwYWdlX3Rva2VuGAIgASgJQgAiVgoRTGlzdFBvc3RzUmVzcG9uc2USKAoFcG9zdHMYASADKAsyGS5jaGFuZ2Vsb2cudjEuUG9zdFN1bW1hcnkSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIiAKDkdldFBvc3RSZXF1ZXN0Eg4KBHNsdWcYASABKAlCACIzCg9HZXRQb3N0UmVzcG9uc2USIAoEcG9zdBgBIAEoCzISLmNoYW5nZWxvZy52MS5Qb3N0IpsDChJMaXN0Q2hhbmdlc1JlcXVlc3QSMgoKY2F0ZWdvcmllcxgBIAMoDjIcLmNoYW5nZWxvZy52MS5DaGFuZ2VDYXRlZ29yeUIAEhwKD2FjdGlvbl9yZXF1aXJlZBgCIAEoCEgAiAEBEikKCHN1cmZhY2VzGAMgAygOMhUuY2hhbmdlbG9nLnYxLlN1cmZhY2VCABIrCglhdWRpZW5jZXMYBCADKA4yFi5jaGFuZ2Vsb2cudjEuQXVkaWVuY2VCABIuCgpzdGFydF90aW1lGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoJcG9zdF9zbHVnGAcgASgJQgASKwoEc29ydBgIIAEoDjIbLmNoYW5nZWxvZy52MS5Tb3J0RGlyZWN0aW9uQgASDwoFbGltaXQYCSABKA1CABIUCgpwYWdlX3Rva2VuGAogASgJQgA6AEISChBfYWN0aW9uX3JlcXVpcmVkIpEBCgtDaGFuZ2VFbnRyeRIkCgZjaGFuZ2UYASABKAsyFC5jaGFuZ2Vsb2cudjEuQ2hhbmdlEhEKCXBvc3Rfc2x1ZxgCIAEoCRIwCgxwdWJsaXNoZWRfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhcKD3NlY3Rpb25faGVhZGluZxgEIAEoCSJaChNMaXN0Q2hhbmdlc1Jlc3BvbnNlEioKB2NoYW5nZXMYASADKAsyGS5jaGFuZ2Vsb2cudjEuQ2hhbmdlRW50cnkSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIr8BChNEZXBsb3ltZW50R3JvdXBQb3N0EgwKBHNsdWcYASABKAkSFwoPcmVsZWFzZV92ZXJzaW9uGAIgASgJEg0KBXRpdGxlGAMgASgJEjAKDHB1Ymxpc2hlZF9hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIcmV2aXNpb24YBSABKA0SLgoKdXBkYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAi0gIKFkRlcGxveW1lbnRHcm91cFN1bW1hcnkSDAoEc2x1ZxgBIAEoCRIuCgtlbnZpcm9ubWVudBgCIAEoDjIZLmNoYW5nZWxvZy52MS5FbnZpcm9ubWVudBIvCgtvY2N1cnJlZF9hdBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFwoPcmVsZWFzZV92ZXJzaW9uGAQgASgJEhgKC3JlbGVhc2VfdGFnGAUgASgJSACIAQESJQoYcHJldmlvdXNfcmVsZWFzZV92ZXJzaW9uGAYgASgJSAGIAQESEAoIdmVyc2lvbnMYByADKAkSMAoFcG9zdHMYCCADKAsyIS5jaGFuZ2Vsb2cudjEuRGVwbG95bWVudEdyb3VwUG9zdEIOCgxfcmVsZWFzZV90YWdCGwoZX3ByZXZpb3VzX3JlbGVhc2VfdmVyc2lvbiJsChhEZXBsb3ltZW50R3JvdXBBdHRlbnRpb24SEQoJcG9zdF9zbHVnGAEgASgJEhcKD3JlbGVhc2VfdmVyc2lvbhgCIAEoCRIkCgZjaGFuZ2UYAyABKAsyFC5jaGFuZ2Vsb2cudjEuQ2hhbmdlIlQKGERlcGxveW1lbnRHcm91cEhpZ2hsaWdodBIRCglwb3N0X3NsdWcYASABKAkSFwoPcmVsZWFzZV92ZXJzaW9uGAIgASgJEgwKBHRleHQYAyABKAkivwEKD0RlcGxveW1lbnRHcm91cBI1CgdzdW1tYXJ5GAEgASgLMiQuY2hhbmdlbG9nLnYxLkRlcGxveW1lbnRHcm91cFN1bW1hcnkSOQoJYXR0ZW50aW9uGAIgAygLMiYuY2hhbmdlbG9nLnYxLkRlcGxveW1lbnRHcm91cEF0dGVudGlvbhI6CgpoaWdobGlnaHRzGAMgAygLMiYuY2hhbmdlbG9nLnYxLkRlcGxveW1lbnRHcm91cEhpZ2hsaWdodCJEChtMaXN0RGVwbG95bWVudEdyb3Vwc1JlcXVlc3QSDwoFbGltaXQYASABKA1CABIUCgpwYWdlX3Rva2VuGAIgASgJQgAibQocTGlzdERlcGxveW1lbnRHcm91cHNSZXNwb25zZRI0CgZncm91cHMYASADKAsyJC5jaGFuZ2Vsb2cudjEuRGVwbG95bWVudEdyb3VwU3VtbWFyeRIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkiKwoZR2V0RGVwbG95bWVudEdyb3VwUmVxdWVzdBIOCgRzbHVnGAEgASgJQgAiSgoaR2V0RGVwbG95bWVudEdyb3VwUmVzcG9uc2USLAoFZ3JvdXAYASABKAsyHS5jaGFuZ2Vsb2cudjEuRGVwbG95bWVudEdyb3VwKm4KDkNoYW5nZUNhdGVnb3J5EhgKFENBVEVHT1JZX1VOU1BFQ0lGSUVEEAASEwoPQlJFQUtJTkdfQ0hBTkdFEAESDwoLTkVXX0ZFQVRVUkUQAhIPCgtJTVBST1ZFTUVOVBADEgsKB0JVR19GSVgQBCpjCghBdWRpZW5jZRIYChRBVURJRU5DRV9VTlNQRUNJRklFRBAAEg0KCUFMTF9VU0VSUxABEgsKB1RSQURFUlMQAhIRCg1NQVJLRVRfTUFLRVJTEAMSDgoKREVWRUxPUEVSUxAEKr4BCgdTdXJmYWNlEhcKE1NVUkZBQ0VfVU5TUEVDSUZJRUQQABILCgdUUkFESU5HEAESCwoHRlVORElORxACEgwKCEFDQ09VTlRTEAMSBwoDQVBJEAQSDAoIRVhQTE9SRVIQBRIRCg1ET0NVTUVOVEFUSU9OEAYSDAoIUExBVEZPUk0QBxIPCgtNQVJLRVRfREFUQRAIEg0KCVFVSUNLU1dBUBAJEgsKB1JFV0FSRFMQChINCglBU1NJU1RBTlQQCypQCgtFbnZpcm9ubWVudBIbChdFTlZJUk9OTUVOVF9VTlNQRUNJRklFRBAAEgoKBkRFVk5FVBABEgsKB1RFU1RORVQQAhILCgdNQUlOTkVUEAMqWwoSQ2hhbmdlQXZhaWxhYmlsaXR5EhwKGEFWQUlMQUJJTElUWV9VTlNQRUNJRklFRBAAEgkKBUFIRUFEEAESCwoHUEVORElORxACEg8KC1VOQVZBSUxBQkxFEAMqTAoNU29ydERpcmVjdGlvbhIeChpTT1JUX0RJUkVDVElPTl9VTlNQRUNJRklFRBAAEgwKCFNPUlRfQVNDEAESDQoJU09SVF9ERVNDEAIy7wMKEENoYW5nZWxvZ1NlcnZpY2USUQoJTGlzdFBvc3RzEh4uY2hhbmdlbG9nLnYxLkxpc3RQb3N0c1JlcXVlc3QaHy5jaGFuZ2Vsb2cudjEuTGlzdFBvc3RzUmVzcG9uc2UiA5ACARJLCgdHZXRQb3N0EhwuY2hhbmdlbG9nLnYxLkdldFBvc3RSZXF1ZXN0Gh0uY2hhbmdlbG9nLnYxLkdldFBvc3RSZXNwb25zZSIDkAIBElcKC0xpc3RDaGFuZ2VzEiAuY2hhbmdlbG9nLnYxLkxpc3RDaGFuZ2VzUmVxdWVzdBohLmNoYW5nZWxvZy52MS5MaXN0Q2hhbmdlc1Jlc3BvbnNlIgOQAgEScgoUTGlzdERlcGxveW1lbnRHcm91cHMSKS5jaGFuZ2Vsb2cudjEuTGlzdERlcGxveW1lbnRHcm91cHNSZXF1ZXN0GiouY2hhbmdlbG9nLnYxLkxpc3REZXBsb3ltZW50R3JvdXBzUmVzcG9uc2UiA5ACARJsChJHZXREZXBsb3ltZW50R3JvdXASJy5jaGFuZ2Vsb2cudjEuR2V0RGVwbG95bWVudEdyb3VwUmVxdWVzdBooLmNoYW5nZWxvZy52MS5HZXREZXBsb3ltZW50R3JvdXBSZXNwb25zZSIDkAIBGgBCRlpEZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9jaGFuZ2Vsb2cvdjE7Y2hhbmdlbG9ndjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_polyester_api_options]);
+
+/**
+ * EnvironmentStatus says whether a release is live in one environment.
+ *
+ * @generated from message changelog.v1.EnvironmentStatus
+ */
+export type EnvironmentStatus = Message<"changelog.v1.EnvironmentStatus"> & {
+  /**
+   * Environment.
+   *
+   * @generated from field: changelog.v1.Environment environment = 1;
+   */
+  environment: Environment;
+
+  /**
+   * When the release went live in the environment. Omitted while it is
+   * pending there.
+   *
+   * @generated from field: google.protobuf.Timestamp live_at = 2;
+   */
+  liveAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message changelog.v1.EnvironmentStatus.
+ * Use `create(EnvironmentStatusSchema)` to create a new message.
+ */
+export const EnvironmentStatusSchema: GenMessage<EnvironmentStatus> = /*@__PURE__*/
+  messageDesc(file_changelog_v1_changelog, 0);
+
+/**
+ * ChangeException is the status of one change in one environment where it
+ * differs from its release's status.
+ *
+ * @generated from message changelog.v1.ChangeException
+ */
+export type ChangeException = Message<"changelog.v1.ChangeException"> & {
+  /**
+   * Environment.
+   *
+   * @generated from field: changelog.v1.Environment environment = 1;
+   */
+  environment: Environment;
+
+  /**
+   * How the change differs from its release there.
+   *
+   * @generated from field: changelog.v1.ChangeAvailability availability = 2;
+   */
+  availability: ChangeAvailability;
+
+  /**
+   * When the change became available in the environment; set for AHEAD only.
+   *
+   * @generated from field: google.protobuf.Timestamp live_at = 3;
+   */
+  liveAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message changelog.v1.ChangeException.
+ * Use `create(ChangeExceptionSchema)` to create a new message.
+ */
+export const ChangeExceptionSchema: GenMessage<ChangeException> = /*@__PURE__*/
+  messageDesc(file_changelog_v1_changelog, 1);
 
 /**
  * Change is one announced change. A republished post may reword or withdraw it.
@@ -84,6 +149,15 @@ export type Change = Message<"changelog.v1.Change"> & {
    * @generated from field: repeated changelog.v1.Surface surfaces = 9;
    */
   surfaces: Surface[];
+
+  /**
+   * Environments where this change differs from its release's status, in any
+   * environment, not only this one. Empty outside release posts and when the
+   * change follows its release everywhere.
+   *
+   * @generated from field: repeated changelog.v1.ChangeException environment_exceptions = 10;
+   */
+  environmentExceptions: ChangeException[];
 };
 
 /**
@@ -91,7 +165,7 @@ export type Change = Message<"changelog.v1.Change"> & {
  * Use `create(ChangeSchema)` to create a new message.
  */
 export const ChangeSchema: GenMessage<Change> = /*@__PURE__*/
-  messageDesc(file_changelog_v1_changelog, 0);
+  messageDesc(file_changelog_v1_changelog, 2);
 
 /**
  * Section groups related changes inside a post.
@@ -134,7 +208,7 @@ export type Section = Message<"changelog.v1.Section"> & {
  * Use `create(SectionSchema)` to create a new message.
  */
 export const SectionSchema: GenMessage<Section> = /*@__PURE__*/
-  messageDesc(file_changelog_v1_changelog, 1);
+  messageDesc(file_changelog_v1_changelog, 3);
 
 /**
  * PostSummary describes one published post without its changes.
@@ -234,6 +308,35 @@ export type PostSummary = Message<"changelog.v1.PostSummary"> & {
    * @generated from field: uint32 revision = 13;
    */
   revision: number;
+
+  /**
+   * Release the post announces, for example "0.92.9". Omitted for posts that
+   * do not announce one release. A release post has the same slug, for
+   * example "v0.92.9", and the same content in every environment, and is
+   * listed in every environment, including environments where it is still
+   * pending.
+   *
+   * @generated from field: optional string release_version = 14;
+   */
+  releaseVersion?: string | undefined;
+
+  /**
+   * Status of the post's release in each environment: DEVNET, TESTNET and
+   * MAINNET, in that order. Empty for posts without release_version. The
+   * status changes when the release goes live, without a new revision.
+   *
+   * @generated from field: repeated changelog.v1.EnvironmentStatus environments = 15;
+   */
+  environments: EnvironmentStatus[];
+
+  /**
+   * Slug of the deployment group that brought the release to this
+   * environment. Omitted while the release is pending here and for posts
+   * without release_version.
+   *
+   * @generated from field: optional string deployment_group_slug = 16;
+   */
+  deploymentGroupSlug?: string | undefined;
 };
 
 /**
@@ -241,7 +344,7 @@ export type PostSummary = Message<"changelog.v1.PostSummary"> & {
  * Use `create(PostSummarySchema)` to create a new message.
  */
 export const PostSummarySchema: GenMessage<PostSummary> = /*@__PURE__*/
-  messageDesc(file_changelog_v1_changelog, 2);
+  messageDesc(file_changelog_v1_changelog, 4);
 
 /**
  * Post is one complete published post at its current revision.
@@ -269,7 +372,7 @@ export type Post = Message<"changelog.v1.Post"> & {
  * Use `create(PostSchema)` to create a new message.
  */
 export const PostSchema: GenMessage<Post> = /*@__PURE__*/
-  messageDesc(file_changelog_v1_changelog, 3);
+  messageDesc(file_changelog_v1_changelog, 5);
 
 /**
  * ListPostsRequest pages through published posts, newest first.
@@ -298,7 +401,7 @@ export type ListPostsRequest = Message<"changelog.v1.ListPostsRequest"> & {
  * Use `create(ListPostsRequestSchema)` to create a new message.
  */
 export const ListPostsRequestSchema: GenMessage<ListPostsRequest> = /*@__PURE__*/
-  messageDesc(file_changelog_v1_changelog, 4);
+  messageDesc(file_changelog_v1_changelog, 6);
 
 /**
  * ListPostsResponse returns post summaries, newest first.
@@ -326,7 +429,7 @@ export type ListPostsResponse = Message<"changelog.v1.ListPostsResponse"> & {
  * Use `create(ListPostsResponseSchema)` to create a new message.
  */
 export const ListPostsResponseSchema: GenMessage<ListPostsResponse> = /*@__PURE__*/
-  messageDesc(file_changelog_v1_changelog, 5);
+  messageDesc(file_changelog_v1_changelog, 7);
 
 /**
  * GetPostRequest selects one post.
@@ -347,7 +450,7 @@ export type GetPostRequest = Message<"changelog.v1.GetPostRequest"> & {
  * Use `create(GetPostRequestSchema)` to create a new message.
  */
 export const GetPostRequestSchema: GenMessage<GetPostRequest> = /*@__PURE__*/
-  messageDesc(file_changelog_v1_changelog, 6);
+  messageDesc(file_changelog_v1_changelog, 8);
 
 /**
  * GetPostResponse returns one complete post.
@@ -369,7 +472,7 @@ export type GetPostResponse = Message<"changelog.v1.GetPostResponse"> & {
  * Use `create(GetPostResponseSchema)` to create a new message.
  */
 export const GetPostResponseSchema: GenMessage<GetPostResponse> = /*@__PURE__*/
-  messageDesc(file_changelog_v1_changelog, 7);
+  messageDesc(file_changelog_v1_changelog, 9);
 
 /**
  * ListChangesRequest queries changes across posts. Filters on different fields
@@ -460,7 +563,7 @@ export type ListChangesRequest = Message<"changelog.v1.ListChangesRequest"> & {
  * Use `create(ListChangesRequestSchema)` to create a new message.
  */
 export const ListChangesRequestSchema: GenMessage<ListChangesRequest> = /*@__PURE__*/
-  messageDesc(file_changelog_v1_changelog, 8);
+  messageDesc(file_changelog_v1_changelog, 10);
 
 /**
  * ChangeEntry is one change with the post that announced it.
@@ -502,7 +605,7 @@ export type ChangeEntry = Message<"changelog.v1.ChangeEntry"> & {
  * Use `create(ChangeEntrySchema)` to create a new message.
  */
 export const ChangeEntrySchema: GenMessage<ChangeEntry> = /*@__PURE__*/
-  messageDesc(file_changelog_v1_changelog, 9);
+  messageDesc(file_changelog_v1_changelog, 11);
 
 /**
  * ListChangesResponse returns matching changes.
@@ -530,7 +633,351 @@ export type ListChangesResponse = Message<"changelog.v1.ListChangesResponse"> & 
  * Use `create(ListChangesResponseSchema)` to create a new message.
  */
 export const ListChangesResponseSchema: GenMessage<ListChangesResponse> = /*@__PURE__*/
-  messageDesc(file_changelog_v1_changelog, 10);
+  messageDesc(file_changelog_v1_changelog, 12);
+
+/**
+ * DeploymentGroupPost is one published release post a deployment group
+ * brought.
+ *
+ * @generated from message changelog.v1.DeploymentGroupPost
+ */
+export type DeploymentGroupPost = Message<"changelog.v1.DeploymentGroupPost"> & {
+  /**
+   * Post slug, for example "v0.92.9".
+   *
+   * @generated from field: string slug = 1;
+   */
+  slug: string;
+
+  /**
+   * Release the post announces, for example "0.92.9".
+   *
+   * @generated from field: string release_version = 2;
+   */
+  releaseVersion: string;
+
+  /**
+   * Post title.
+   *
+   * @generated from field: string title = 3;
+   */
+  title: string;
+
+  /**
+   * Time of first publication of the post.
+   *
+   * @generated from field: google.protobuf.Timestamp published_at = 4;
+   */
+  publishedAt?: Timestamp | undefined;
+
+  /**
+   * Published revision of the post, starting at 1.
+   *
+   * @generated from field: uint32 revision = 5;
+   */
+  revision: number;
+
+  /**
+   * When the post's current revision was published.
+   *
+   * @generated from field: google.protobuf.Timestamp updated_at = 6;
+   */
+  updatedAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message changelog.v1.DeploymentGroupPost.
+ * Use `create(DeploymentGroupPostSchema)` to create a new message.
+ */
+export const DeploymentGroupPostSchema: GenMessage<DeploymentGroupPost> = /*@__PURE__*/
+  messageDesc(file_changelog_v1_changelog, 13);
+
+/**
+ * DeploymentGroupSummary describes one deployment group without its details.
+ * A deployment group is one deployment to this environment that raised its
+ * release version, and brought every release above the previous group's
+ * version up to and including its own.
+ *
+ * @generated from message changelog.v1.DeploymentGroupSummary
+ */
+export type DeploymentGroupSummary = Message<"changelog.v1.DeploymentGroupSummary"> & {
+  /**
+   * Stable shareable identifier: the environment and the group's own
+   * release, for example "testnet-v0.92.9". It never changes.
+   *
+   * @generated from field: string slug = 1;
+   */
+  slug: string;
+
+  /**
+   * Environment the group was deployed to.
+   *
+   * @generated from field: changelog.v1.Environment environment = 2;
+   */
+  environment: Environment;
+
+  /**
+   * When the deployment ran.
+   *
+   * @generated from field: google.protobuf.Timestamp occurred_at = 3;
+   */
+  occurredAt?: Timestamp | undefined;
+
+  /**
+   * The group's own, highest release, for example "0.92.9".
+   *
+   * @generated from field: string release_version = 4;
+   */
+  releaseVersion: string;
+
+  /**
+   * Release tag of the group's own release, for example "v0.92.9". Omitted
+   * when unknown.
+   *
+   * @generated from field: optional string release_tag = 5;
+   */
+  releaseTag?: string | undefined;
+
+  /**
+   * Release of the previous deployment group. Omitted for the first group.
+   *
+   * @generated from field: optional string previous_release_version = 6;
+   */
+  previousReleaseVersion?: string | undefined;
+
+  /**
+   * Every release the group brought, ascending, for example ["0.92.8",
+   * "0.92.9"].
+   *
+   * @generated from field: repeated string versions = 7;
+   */
+  versions: string[];
+
+  /**
+   * Published release posts of those releases, ascending by release. A
+   * release without a published post has none.
+   *
+   * @generated from field: repeated changelog.v1.DeploymentGroupPost posts = 8;
+   */
+  posts: DeploymentGroupPost[];
+};
+
+/**
+ * Describes the message changelog.v1.DeploymentGroupSummary.
+ * Use `create(DeploymentGroupSummarySchema)` to create a new message.
+ */
+export const DeploymentGroupSummarySchema: GenMessage<DeploymentGroupSummary> = /*@__PURE__*/
+  messageDesc(file_changelog_v1_changelog, 14);
+
+/**
+ * DeploymentGroupAttention is one change of a deployment group that needs
+ * attention.
+ *
+ * @generated from message changelog.v1.DeploymentGroupAttention
+ */
+export type DeploymentGroupAttention = Message<"changelog.v1.DeploymentGroupAttention"> & {
+  /**
+   * Slug of the release post that announces the change.
+   *
+   * @generated from field: string post_slug = 1;
+   */
+  postSlug: string;
+
+  /**
+   * Release of that post.
+   *
+   * @generated from field: string release_version = 2;
+   */
+  releaseVersion: string;
+
+  /**
+   * The change, as in its post.
+   *
+   * @generated from field: changelog.v1.Change change = 3;
+   */
+  change?: Change | undefined;
+};
+
+/**
+ * Describes the message changelog.v1.DeploymentGroupAttention.
+ * Use `create(DeploymentGroupAttentionSchema)` to create a new message.
+ */
+export const DeploymentGroupAttentionSchema: GenMessage<DeploymentGroupAttention> = /*@__PURE__*/
+  messageDesc(file_changelog_v1_changelog, 15);
+
+/**
+ * DeploymentGroupHighlight is one highlight of a release post in a deployment
+ * group.
+ *
+ * @generated from message changelog.v1.DeploymentGroupHighlight
+ */
+export type DeploymentGroupHighlight = Message<"changelog.v1.DeploymentGroupHighlight"> & {
+  /**
+   * Slug of the release post.
+   *
+   * @generated from field: string post_slug = 1;
+   */
+  postSlug: string;
+
+  /**
+   * Release of that post.
+   *
+   * @generated from field: string release_version = 2;
+   */
+  releaseVersion: string;
+
+  /**
+   * Highlight text, inline Markdown.
+   *
+   * @generated from field: string text = 3;
+   */
+  text: string;
+};
+
+/**
+ * Describes the message changelog.v1.DeploymentGroupHighlight.
+ * Use `create(DeploymentGroupHighlightSchema)` to create a new message.
+ */
+export const DeploymentGroupHighlightSchema: GenMessage<DeploymentGroupHighlight> = /*@__PURE__*/
+  messageDesc(file_changelog_v1_changelog, 16);
+
+/**
+ * DeploymentGroup is one complete deployment group.
+ *
+ * @generated from message changelog.v1.DeploymentGroup
+ */
+export type DeploymentGroup = Message<"changelog.v1.DeploymentGroup"> & {
+  /**
+   * Group summary.
+   *
+   * @generated from field: changelog.v1.DeploymentGroupSummary summary = 1;
+   */
+  summary?: DeploymentGroupSummary | undefined;
+
+  /**
+   * Breaking changes and changes with action_required across the group's
+   * posts, in post order (ascending release), then section and change order.
+   *
+   * @generated from field: repeated changelog.v1.DeploymentGroupAttention attention = 2;
+   */
+  attention: DeploymentGroupAttention[];
+
+  /**
+   * Highlights of the group's posts, in post order.
+   *
+   * @generated from field: repeated changelog.v1.DeploymentGroupHighlight highlights = 3;
+   */
+  highlights: DeploymentGroupHighlight[];
+};
+
+/**
+ * Describes the message changelog.v1.DeploymentGroup.
+ * Use `create(DeploymentGroupSchema)` to create a new message.
+ */
+export const DeploymentGroupSchema: GenMessage<DeploymentGroup> = /*@__PURE__*/
+  messageDesc(file_changelog_v1_changelog, 17);
+
+/**
+ * ListDeploymentGroupsRequest pages through this environment's deployment
+ * groups, newest first.
+ *
+ * @generated from message changelog.v1.ListDeploymentGroupsRequest
+ */
+export type ListDeploymentGroupsRequest = Message<"changelog.v1.ListDeploymentGroupsRequest"> & {
+  /**
+   * Maximum groups to return. 0 means the default of 20; maximum 100.
+   *
+   * @generated from field: uint32 limit = 1;
+   */
+  limit: number;
+
+  /**
+   * Opaque, keyset-backed, exclusive cursor from a previous response.
+   * Bound to deployment time and slug.
+   *
+   * @generated from field: string page_token = 2;
+   */
+  pageToken: string;
+};
+
+/**
+ * Describes the message changelog.v1.ListDeploymentGroupsRequest.
+ * Use `create(ListDeploymentGroupsRequestSchema)` to create a new message.
+ */
+export const ListDeploymentGroupsRequestSchema: GenMessage<ListDeploymentGroupsRequest> = /*@__PURE__*/
+  messageDesc(file_changelog_v1_changelog, 18);
+
+/**
+ * ListDeploymentGroupsResponse returns deployment group summaries, newest
+ * first.
+ *
+ * @generated from message changelog.v1.ListDeploymentGroupsResponse
+ */
+export type ListDeploymentGroupsResponse = Message<"changelog.v1.ListDeploymentGroupsResponse"> & {
+  /**
+   * Group summaries ordered by deployment time descending, then slug
+   * descending.
+   *
+   * @generated from field: repeated changelog.v1.DeploymentGroupSummary groups = 1;
+   */
+  groups: DeploymentGroupSummary[];
+
+  /**
+   * Cursor for the next page. Empty when no more results exist.
+   *
+   * @generated from field: string next_page_token = 2;
+   */
+  nextPageToken: string;
+};
+
+/**
+ * Describes the message changelog.v1.ListDeploymentGroupsResponse.
+ * Use `create(ListDeploymentGroupsResponseSchema)` to create a new message.
+ */
+export const ListDeploymentGroupsResponseSchema: GenMessage<ListDeploymentGroupsResponse> = /*@__PURE__*/
+  messageDesc(file_changelog_v1_changelog, 19);
+
+/**
+ * GetDeploymentGroupRequest selects one deployment group.
+ *
+ * @generated from message changelog.v1.GetDeploymentGroupRequest
+ */
+export type GetDeploymentGroupRequest = Message<"changelog.v1.GetDeploymentGroupRequest"> & {
+  /**
+   * Group slug, for example "testnet-v0.92.9".
+   *
+   * @generated from field: string slug = 1;
+   */
+  slug: string;
+};
+
+/**
+ * Describes the message changelog.v1.GetDeploymentGroupRequest.
+ * Use `create(GetDeploymentGroupRequestSchema)` to create a new message.
+ */
+export const GetDeploymentGroupRequestSchema: GenMessage<GetDeploymentGroupRequest> = /*@__PURE__*/
+  messageDesc(file_changelog_v1_changelog, 20);
+
+/**
+ * GetDeploymentGroupResponse returns one complete deployment group.
+ *
+ * @generated from message changelog.v1.GetDeploymentGroupResponse
+ */
+export type GetDeploymentGroupResponse = Message<"changelog.v1.GetDeploymentGroupResponse"> & {
+  /**
+   * The group with its attention changes and highlights.
+   *
+   * @generated from field: changelog.v1.DeploymentGroup group = 1;
+   */
+  group?: DeploymentGroup | undefined;
+};
+
+/**
+ * Describes the message changelog.v1.GetDeploymentGroupResponse.
+ * Use `create(GetDeploymentGroupResponseSchema)` to create a new message.
+ */
+export const GetDeploymentGroupResponseSchema: GenMessage<GetDeploymentGroupResponse> = /*@__PURE__*/
+  messageDesc(file_changelog_v1_changelog, 21);
 
 /**
  * ChangeCategory classifies one change.
@@ -727,6 +1174,89 @@ export const SurfaceSchema: GenEnum<Surface> = /*@__PURE__*/
   enumDesc(file_changelog_v1_changelog, 2);
 
 /**
+ * Environment is a Polyester network with its own changelog.
+ *
+ * @generated from enum changelog.v1.Environment
+ */
+export enum Environment {
+  /**
+   * Not set. Never returned.
+   *
+   * @generated from enum value: ENVIRONMENT_UNSPECIFIED = 0;
+   */
+  ENVIRONMENT_UNSPECIFIED = 0,
+
+  /**
+   * Development network.
+   *
+   * @generated from enum value: DEVNET = 1;
+   */
+  DEVNET = 1,
+
+  /**
+   * Test network.
+   *
+   * @generated from enum value: TESTNET = 2;
+   */
+  TESTNET = 2,
+
+  /**
+   * Main network.
+   *
+   * @generated from enum value: MAINNET = 3;
+   */
+  MAINNET = 3,
+}
+
+/**
+ * Describes the enum changelog.v1.Environment.
+ */
+export const EnvironmentSchema: GenEnum<Environment> = /*@__PURE__*/
+  enumDesc(file_changelog_v1_changelog, 3);
+
+/**
+ * ChangeAvailability is how one change of a release differs from its release
+ * in one environment.
+ *
+ * @generated from enum changelog.v1.ChangeAvailability
+ */
+export enum ChangeAvailability {
+  /**
+   * Not set. Never returned.
+   *
+   * @generated from enum value: AVAILABILITY_UNSPECIFIED = 0;
+   */
+  AVAILABILITY_UNSPECIFIED = 0,
+
+  /**
+   * Available in the environment while its release is still pending there.
+   *
+   * @generated from enum value: AHEAD = 1;
+   */
+  AHEAD = 1,
+
+  /**
+   * Not yet available in the environment although its release is live there.
+   *
+   * @generated from enum value: PENDING = 2;
+   */
+  PENDING = 2,
+
+  /**
+   * Not available in the environment for now, whatever its release's status.
+   *
+   * @generated from enum value: UNAVAILABLE = 3;
+   */
+  UNAVAILABLE = 3,
+}
+
+/**
+ * Describes the enum changelog.v1.ChangeAvailability.
+ */
+export const ChangeAvailabilitySchema: GenEnum<ChangeAvailability> = /*@__PURE__*/
+  enumDesc(file_changelog_v1_changelog, 4);
+
+/**
  * SortDirection orders changes by post publication time.
  *
  * @generated from enum changelog.v1.SortDirection
@@ -758,7 +1288,7 @@ export enum SortDirection {
  * Describes the enum changelog.v1.SortDirection.
  */
 export const SortDirectionSchema: GenEnum<SortDirection> = /*@__PURE__*/
-  enumDesc(file_changelog_v1_changelog, 3);
+  enumDesc(file_changelog_v1_changelog, 5);
 
 /**
  * ChangelogService serves the published changelog of this environment. It is
@@ -799,6 +1329,28 @@ export const ChangelogService: GenService<{
     methodKind: "unary";
     input: typeof ListChangesRequestSchema;
     output: typeof ListChangesResponseSchema;
+  },
+  /**
+   * List this environment's deployment groups, newest first: each deployment
+   * that brought new releases, with the release posts it brought.
+   *
+   * @generated from rpc changelog.v1.ChangelogService.ListDeploymentGroups
+   */
+  listDeploymentGroups: {
+    methodKind: "unary";
+    input: typeof ListDeploymentGroupsRequestSchema;
+    output: typeof ListDeploymentGroupsResponseSchema;
+  },
+  /**
+   * Get one deployment group by slug, with the changes that need attention
+   * and the highlights of its release posts.
+   *
+   * @generated from rpc changelog.v1.ChangelogService.GetDeploymentGroup
+   */
+  getDeploymentGroup: {
+    methodKind: "unary";
+    input: typeof GetDeploymentGroupRequestSchema;
+    output: typeof GetDeploymentGroupResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_changelog_v1_changelog, 0);

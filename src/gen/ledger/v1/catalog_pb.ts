@@ -143,7 +143,12 @@ export enum TransferCode {
   FUNDING_USER_TRANSFER = 1063,
 
   /**
-   * Non-refundable on-chain request fee retained when a submitted trading withdrawal fails.
+   * Debit of a withdrawal from the Trading account that Zipper rejected or that failed to
+   * execute: the whole amount sent to Zipper for it, the request fee included. The withdrawal's
+   * other fees are not charged. A rejected withdrawal refunds that amount, less the request fee,
+   * to the user's own wallet; one that failed to execute is not refunded, and Zipper settles it
+   * with the user outside Polyester Chain. A withdrawal from the Funding account uses
+   * WITHDRAW_FAILED instead.
    *
    * @generated from enum value: TRADING_WITHDRAW_REQUEST_FEE = 1065;
    */
@@ -200,9 +205,11 @@ export enum TransferCode {
   SYSTEM_ADJUSTMENT = 1074,
 
   /**
-   * Funds that left the account for a withdrawal that Zipper rejected or that failed to execute.
-   * A rejected withdrawal refunds its net amount to the user's own wallet; the withdrawal fee is
-   * not refunded.
+   * Debit of a withdrawal from the Funding account that Zipper rejected or that failed to
+   * execute: the whole amount that left the account for it. A rejected withdrawal refunds that
+   * amount, less the request fee, to the user's own wallet; one that failed to execute is not
+   * refunded, and Zipper settles it with the user outside Polyester Chain. A withdrawal from the
+   * Trading account uses TRADING_WITHDRAW_REQUEST_FEE instead.
    *
    * @generated from enum value: WITHDRAW_FAILED = 1075;
    */

@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file notifications/v1/notifications.proto.
  */
 export const file_notifications_v1_notifications: GenFile = /*@__PURE__*/
-  fileDesc("CiRub3RpZmljYXRpb25zL3YxL25vdGlmaWNhdGlvbnMucHJvdG8SEG5vdGlmaWNhdGlvbnMudjEiOAoLRXJyb3JEZXRhaWwSKQoEY29kZRgBIAEoDjIbLm5vdGlmaWNhdGlvbnMudjEuRXJyb3JDb2RlIpkDCgxOb3RpZmljYXRpb24SFwoPbm90aWZpY2F0aW9uX2lkGAEgASgGEjAKBHR5cGUYAiABKA4yIi5ub3RpZmljYXRpb25zLnYxLk5vdGlmaWNhdGlvblR5cGUSOAoIY2F0ZWdvcnkYAyABKA4yJi5ub3RpZmljYXRpb25zLnYxLk5vdGlmaWNhdGlvbkNhdGVnb3J5Eg0KBXRpdGxlGAQgASgJEgwKBHRleHQYBSABKAkSLgoKY3JlYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKwoHcmVhZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASOQoLcHJpY2VfYWxlcnQYCiABKAsyIi5ub3RpZmljYXRpb25zLnYxLlByaWNlQWxlcnROb3RpY2VIABJFChF0ZWxlZ3JhbV9hcHByb3ZhbBgLIAEoCzIoLm5vdGlmaWNhdGlvbnMudjEuVGVsZWdyYW1BcHByb3ZhbE5vdGljZUgAQggKBmRldGFpbCL+AQoQUHJpY2VBbGVydE5vdGljZRIQCghhbGVydF9pZBgBIAEoBhIRCglzeW1ib2xfaWQYAiABKA0SLAoJZGlyZWN0aW9uGAMgASgOMhkuYWxlcnRzLnYxLkFsZXJ0RGlyZWN0aW9uEjEKDHByaWNlX3NvdXJjZRgEIAEoDjIbLmFsZXJ0cy52MS5BbGVydFByaWNlU291cmNlEhMKC3ByaWNlX3RpY2tzGAUgASgDEh0KFXRyaWdnZXJlZF9wcmljZV90aWNrcxgGIAEoAxIwCgx0cmlnZ2VyZWRfYXQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIi8KC05vdGljZUZpZWxkEg8KBWxhYmVsGAEgASgJQgASDwoFdmFsdWUYAiABKAlCACL8AQoWVGVsZWdyYW1BcHByb3ZhbE5vdGljZRIVCgthcHByb3ZhbF9pZBgBIAEoBkIAEjoKBmFjdGlvbhgCIAEoDjIoLm5vdGlmaWNhdGlvbnMudjEuVGVsZWdyYW1BcHByb3ZhbEFjdGlvbkIAEhQKCmFjY291bnRfaWQYAyABKAZCABIRCgdzdW1tYXJ5GAQgASgJQgASMwoKcGFyYW1ldGVycxgFIAMoCzIdLm5vdGlmaWNhdGlvbnMudjEuTm90aWNlRmllbGRCABIxCgthcHByb3ZlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCACKQAgoYTGlzdE5vdGlmaWNhdGlvbnNSZXF1ZXN0EjwKCmNhdGVnb3JpZXMYASADKA4yJi5ub3RpZmljYXRpb25zLnYxLk5vdGlmaWNhdGlvbkNhdGVnb3J5QgASMQoKcmVhZF9zdGF0ZRgCIAEoDjIbLm5vdGlmaWNhdGlvbnMudjEuUmVhZFN0YXRlQgASLgoKc3RhcnRfdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KBWxpbWl0GAUgASgNQgASFAoKcGFnZV90b2tlbhgGIAEoCUIAImsKGUxpc3ROb3RpZmljYXRpb25zUmVzcG9uc2USNQoNbm90aWZpY2F0aW9ucxgBIAMoCzIeLm5vdGlmaWNhdGlvbnMudjEuTm90aWZpY2F0aW9uEhcKD25leHRfcGFnZV90b2tlbhgCIAEoCSIzChZHZXROb3RpZmljYXRpb25SZXF1ZXN0EhkKD25vdGlmaWNhdGlvbl9pZBgBIAEoBkIAIk8KF0dldE5vdGlmaWNhdGlvblJlc3BvbnNlEjQKDG5vdGlmaWNhdGlvbhgBIAEoCzIeLm5vdGlmaWNhdGlvbnMudjEuTm90aWZpY2F0aW9uIh4KHEdldE5vdGlmaWNhdGlvbkNvdW50c1JlcXVlc3QilgEKCVR5cGVDb3VudBIwCgR0eXBlGAEgASgOMiIubm90aWZpY2F0aW9ucy52MS5Ob3RpZmljYXRpb25UeXBlEjgKCGNhdGVnb3J5GAIgASgOMiYubm90aWZpY2F0aW9ucy52MS5Ob3RpZmljYXRpb25DYXRlZ29yeRINCgV0b3RhbBgDIAEoBBIOCgZ1bnJlYWQYBCABKAQiagodR2V0Tm90aWZpY2F0aW9uQ291bnRzUmVzcG9uc2USDQoFdG90YWwYASABKAQSDgoGdW5yZWFkGAIgASgEEioKBXR5cGVzGAMgAygLMhsubm90aWZpY2F0aW9ucy52MS5UeXBlQ291bnQiOgocTWFya05vdGlmaWNhdGlvbnNSZWFkUmVxdWVzdBIaChBub3RpZmljYXRpb25faWRzGAEgAygGQgAiMAodTWFya05vdGlmaWNhdGlvbnNSZWFkUmVzcG9uc2USDwoHY2hhbmdlZBgBIAEoDSI8Ch5NYXJrTm90aWZpY2F0aW9uc1VucmVhZFJlcXVlc3QSGgoQbm90aWZpY2F0aW9uX2lkcxgBIAMoBkIAIjIKH01hcmtOb3RpZmljYXRpb25zVW5yZWFkUmVzcG9uc2USDwoHY2hhbmdlZBgBIAEoDSKAAQofTWFya0FsbE5vdGlmaWNhdGlvbnNSZWFkUmVxdWVzdBI8CgpjYXRlZ29yaWVzGAEgAygOMiYubm90aWZpY2F0aW9ucy52MS5Ob3RpZmljYXRpb25DYXRlZ29yeUIAEh8KF3Rocm91Z2hfbm90aWZpY2F0aW9uX2lkGAIgASgGIjMKIE1hcmtBbGxOb3RpZmljYXRpb25zUmVhZFJlc3BvbnNlEg8KB2NoYW5nZWQYASABKAQqVwoJRXJyb3JDb2RlEhUKEUVSUk9SX1VOU1BFQ0lGSUVEEAASGgoWTk9USUZJQ0FUSU9OX05PVF9GT1VORBABEhcKE1NFUlZJQ0VfVU5BVkFJTEFCTEUQAipQChBOb3RpZmljYXRpb25UeXBlEhQKEFRZUEVfVU5TUEVDSUZJRUQQABIPCgtQUklDRV9BTEVSVBABEhUKEVRFTEVHUkFNX0FQUFJPVkFMEAIqSgoUTm90aWZpY2F0aW9uQ2F0ZWdvcnkSGAoUQ0FURUdPUllfVU5TUEVDSUZJRUQQABIKCgZBTEVSVFMQARIMCghTRUNVUklUWRACKj0KCVJlYWRTdGF0ZRIaChZSRUFEX1NUQVRFX1VOU1BFQ0lGSUVEEAASCgoGVU5SRUFEEAESCAoEUkVBRBACKtQBChZUZWxlZ3JhbUFwcHJvdmFsQWN0aW9uEhYKEkFDVElPTl9VTlNQRUNJRklFRBAAEg8KC1BMQUNFX09SREVSEAESEAoMUExBQ0VfT1JERVJTEAISEQoNTU9ESUZZX09SREVSUxADEhAKDENBTkNFTF9PUkRFUhAEEhUKEUNBTkNFTF9BTExfT1JERVJTEAUSEgoOTU9ESUZZX1RSSUdHRVIQBhIRCg1QQVVTRV9UUklHR0VSEAcSEgoOUkVTVU1FX1RSSUdHRVIQCBIICgRTV0FQEAkyhAYKE05vdGlmaWNhdGlvblNlcnZpY2UScQoRTGlzdE5vdGlmaWNhdGlvbnMSKi5ub3RpZmljYXRpb25zLnYxLkxpc3ROb3RpZmljYXRpb25zUmVxdWVzdBorLm5vdGlmaWNhdGlvbnMudjEuTGlzdE5vdGlmaWNhdGlvbnNSZXNwb25zZSIDkAIBEmsKD0dldE5vdGlmaWNhdGlvbhIoLm5vdGlmaWNhdGlvbnMudjEuR2V0Tm90aWZpY2F0aW9uUmVxdWVzdBopLm5vdGlmaWNhdGlvbnMudjEuR2V0Tm90aWZpY2F0aW9uUmVzcG9uc2UiA5ACARJ9ChVHZXROb3RpZmljYXRpb25Db3VudHMSLi5ub3RpZmljYXRpb25zLnYxLkdldE5vdGlmaWNhdGlvbkNvdW50c1JlcXVlc3QaLy5ub3RpZmljYXRpb25zLnYxLkdldE5vdGlmaWNhdGlvbkNvdW50c1Jlc3BvbnNlIgOQAgESfQoVTWFya05vdGlmaWNhdGlvbnNSZWFkEi4ubm90aWZpY2F0aW9ucy52MS5NYXJrTm90aWZpY2F0aW9uc1JlYWRSZXF1ZXN0Gi8ubm90aWZpY2F0aW9ucy52MS5NYXJrTm90aWZpY2F0aW9uc1JlYWRSZXNwb25zZSIDkAICEoMBChdNYXJrTm90aWZpY2F0aW9uc1VucmVhZBIwLm5vdGlmaWNhdGlvbnMudjEuTWFya05vdGlmaWNhdGlvbnNVbnJlYWRSZXF1ZXN0GjEubm90aWZpY2F0aW9ucy52MS5NYXJrTm90aWZpY2F0aW9uc1VucmVhZFJlc3BvbnNlIgOQAgIShgEKGE1hcmtBbGxOb3RpZmljYXRpb25zUmVhZBIxLm5vdGlmaWNhdGlvbnMudjEuTWFya0FsbE5vdGlmaWNhdGlvbnNSZWFkUmVxdWVzdBoyLm5vdGlmaWNhdGlvbnMudjEuTWFya0FsbE5vdGlmaWNhdGlvbnNSZWFkUmVzcG9uc2UiA5ACAhoAQk5aTGdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vbm90aWZpY2F0aW9ucy92MTtub3RpZmljYXRpb25zdjFiBnByb3RvMw==", [file_alerts_v1_price_alerts, file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("CiRub3RpZmljYXRpb25zL3YxL25vdGlmaWNhdGlvbnMucHJvdG8SEG5vdGlmaWNhdGlvbnMudjEiOAoLRXJyb3JEZXRhaWwSKQoEY29kZRgBIAEoDjIbLm5vdGlmaWNhdGlvbnMudjEuRXJyb3JDb2RlIt4DCgxOb3RpZmljYXRpb24SFwoPbm90aWZpY2F0aW9uX2lkGAEgASgGEjAKBHR5cGUYAiABKA4yIi5ub3RpZmljYXRpb25zLnYxLk5vdGlmaWNhdGlvblR5cGUSOAoIY2F0ZWdvcnkYAyABKA4yJi5ub3RpZmljYXRpb25zLnYxLk5vdGlmaWNhdGlvbkNhdGVnb3J5Eg0KBXRpdGxlGAQgASgJEgwKBHRleHQYBSABKAkSLgoKY3JlYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKwoHcmVhZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASOQoLcHJpY2VfYWxlcnQYCiABKAsyIi5ub3RpZmljYXRpb25zLnYxLlByaWNlQWxlcnROb3RpY2VIABJFChF0ZWxlZ3JhbV9hcHByb3ZhbBgLIAEoCzIoLm5vdGlmaWNhdGlvbnMudjEuVGVsZWdyYW1BcHByb3ZhbE5vdGljZUgAEkMKEGJyb2tlcl9hbGxvd2xpc3QYDCABKAsyJy5ub3RpZmljYXRpb25zLnYxLkJyb2tlckFsbG93bGlzdE5vdGljZUgAQggKBmRldGFpbCL+AQoQUHJpY2VBbGVydE5vdGljZRIQCghhbGVydF9pZBgBIAEoBhIRCglzeW1ib2xfaWQYAiABKA0SLAoJZGlyZWN0aW9uGAMgASgOMhkuYWxlcnRzLnYxLkFsZXJ0RGlyZWN0aW9uEjEKDHByaWNlX3NvdXJjZRgEIAEoDjIbLmFsZXJ0cy52MS5BbGVydFByaWNlU291cmNlEhMKC3ByaWNlX3RpY2tzGAUgASgDEh0KFXRyaWdnZXJlZF9wcmljZV90aWNrcxgGIAEoAxIwCgx0cmlnZ2VyZWRfYXQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIi8KC05vdGljZUZpZWxkEg8KBWxhYmVsGAEgASgJQgASDwoFdmFsdWUYAiABKAlCACL8AQoWVGVsZWdyYW1BcHByb3ZhbE5vdGljZRIVCgthcHByb3ZhbF9pZBgBIAEoBkIAEjoKBmFjdGlvbhgCIAEoDjIoLm5vdGlmaWNhdGlvbnMudjEuVGVsZWdyYW1BcHByb3ZhbEFjdGlvbkIAEhQKCmFjY291bnRfaWQYAyABKAZCABIRCgdzdW1tYXJ5GAQgASgJQgASMwoKcGFyYW1ldGVycxgFIAMoCzIdLm5vdGlmaWNhdGlvbnMudjEuTm90aWNlRmllbGRCABIxCgthcHByb3ZlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCACKvAgoVQnJva2VyQWxsb3dsaXN0Tm90aWNlEg4KBmJyb2tlchgBIAEoCRIYChB2YXVsdF9hY2NvdW50X2lkGAIgASgGEhEKCWNoYW5nZV9pZBgDIAEoBhI1CgVldmVudBgEIAEoDjImLm5vdGlmaWNhdGlvbnMudjEuQnJva2VyQWxsb3dsaXN0RXZlbnQSNwoGYWN0aW9uGAUgASgOMicubm90aWZpY2F0aW9ucy52MS5Ccm9rZXJBbGxvd2xpc3RBY3Rpb24SHAoUZGVzdGluYXRpb25fY2hhaW5faWQYBiABKAQSGwoTZGVzdGluYXRpb25fYWRkcmVzcxgHIAEoCRINCgVsYWJlbBgIIAEoCRIfChdyZXF1ZXN0ZWRfYnlfYWNjb3VudF9pZBgJIAEoBiKQAgoYTGlzdE5vdGlmaWNhdGlvbnNSZXF1ZXN0EjwKCmNhdGVnb3JpZXMYASADKA4yJi5ub3RpZmljYXRpb25zLnYxLk5vdGlmaWNhdGlvbkNhdGVnb3J5QgASMQoKcmVhZF9zdGF0ZRgCIAEoDjIbLm5vdGlmaWNhdGlvbnMudjEuUmVhZFN0YXRlQgASLgoKc3RhcnRfdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KBWxpbWl0GAUgASgNQgASFAoKcGFnZV90b2tlbhgGIAEoCUIAImsKGUxpc3ROb3RpZmljYXRpb25zUmVzcG9uc2USNQoNbm90aWZpY2F0aW9ucxgBIAMoCzIeLm5vdGlmaWNhdGlvbnMudjEuTm90aWZpY2F0aW9uEhcKD25leHRfcGFnZV90b2tlbhgCIAEoCSIzChZHZXROb3RpZmljYXRpb25SZXF1ZXN0EhkKD25vdGlmaWNhdGlvbl9pZBgBIAEoBkIAIk8KF0dldE5vdGlmaWNhdGlvblJlc3BvbnNlEjQKDG5vdGlmaWNhdGlvbhgBIAEoCzIeLm5vdGlmaWNhdGlvbnMudjEuTm90aWZpY2F0aW9uIh4KHEdldE5vdGlmaWNhdGlvbkNvdW50c1JlcXVlc3QilgEKCVR5cGVDb3VudBIwCgR0eXBlGAEgASgOMiIubm90aWZpY2F0aW9ucy52MS5Ob3RpZmljYXRpb25UeXBlEjgKCGNhdGVnb3J5GAIgASgOMiYubm90aWZpY2F0aW9ucy52MS5Ob3RpZmljYXRpb25DYXRlZ29yeRINCgV0b3RhbBgDIAEoBBIOCgZ1bnJlYWQYBCABKAQiagodR2V0Tm90aWZpY2F0aW9uQ291bnRzUmVzcG9uc2USDQoFdG90YWwYASABKAQSDgoGdW5yZWFkGAIgASgEEioKBXR5cGVzGAMgAygLMhsubm90aWZpY2F0aW9ucy52MS5UeXBlQ291bnQiOgocTWFya05vdGlmaWNhdGlvbnNSZWFkUmVxdWVzdBIaChBub3RpZmljYXRpb25faWRzGAEgAygGQgAiMAodTWFya05vdGlmaWNhdGlvbnNSZWFkUmVzcG9uc2USDwoHY2hhbmdlZBgBIAEoDSI8Ch5NYXJrTm90aWZpY2F0aW9uc1VucmVhZFJlcXVlc3QSGgoQbm90aWZpY2F0aW9uX2lkcxgBIAMoBkIAIjIKH01hcmtOb3RpZmljYXRpb25zVW5yZWFkUmVzcG9uc2USDwoHY2hhbmdlZBgBIAEoDSKAAQofTWFya0FsbE5vdGlmaWNhdGlvbnNSZWFkUmVxdWVzdBI8CgpjYXRlZ29yaWVzGAEgAygOMiYubm90aWZpY2F0aW9ucy52MS5Ob3RpZmljYXRpb25DYXRlZ29yeUIAEh8KF3Rocm91Z2hfbm90aWZpY2F0aW9uX2lkGAIgASgGIjMKIE1hcmtBbGxOb3RpZmljYXRpb25zUmVhZFJlc3BvbnNlEg8KB2NoYW5nZWQYASABKAQqVwoJRXJyb3JDb2RlEhUKEUVSUk9SX1VOU1BFQ0lGSUVEEAASGgoWTk9USUZJQ0FUSU9OX05PVF9GT1VORBABEhcKE1NFUlZJQ0VfVU5BVkFJTEFCTEUQAiptChBOb3RpZmljYXRpb25UeXBlEhQKEFRZUEVfVU5TUEVDSUZJRUQQABIPCgtQUklDRV9BTEVSVBABEhUKEVRFTEVHUkFNX0FQUFJPVkFMEAISGwoXQlJPS0VSX0FMTE9XTElTVF9DSEFOR0UQAypKChROb3RpZmljYXRpb25DYXRlZ29yeRIYChRDQVRFR09SWV9VTlNQRUNJRklFRBAAEgoKBkFMRVJUUxABEgwKCFNFQ1VSSVRZEAIqPQoJUmVhZFN0YXRlEhoKFlJFQURfU1RBVEVfVU5TUEVDSUZJRUQQABIKCgZVTlJFQUQQARIICgRSRUFEEAIq1AEKFlRlbGVncmFtQXBwcm92YWxBY3Rpb24SFgoSQUNUSU9OX1VOU1BFQ0lGSUVEEAASDwoLUExBQ0VfT1JERVIQARIQCgxQTEFDRV9PUkRFUlMQAhIRCg1NT0RJRllfT1JERVJTEAMSEAoMQ0FOQ0VMX09SREVSEAQSFQoRQ0FOQ0VMX0FMTF9PUkRFUlMQBRISCg5NT0RJRllfVFJJR0dFUhAGEhEKDVBBVVNFX1RSSUdHRVIQBxISCg5SRVNVTUVfVFJJR0dFUhAIEggKBFNXQVAQCSqAAQoUQnJva2VyQWxsb3dsaXN0RXZlbnQSJgoiQlJPS0VSX0FMTE9XTElTVF9FVkVOVF9VTlNQRUNJRklFRBAAEhQKEENIQU5HRV9SRVFVRVNURUQQARISCg5DSEFOR0VfQVBQTElFRBACEhYKEkNIQU5HRV9OT1RfQVBQTElFRBADKm0KFUJyb2tlckFsbG93bGlzdEFjdGlvbhInCiNCUk9LRVJfQUxMT1dMSVNUX0FDVElPTl9VTlNQRUNJRklFRBAAEhMKD0FERF9ERVNUSU5BVElPThABEhYKElJFTU9WRV9ERVNUSU5BVElPThACMoQGChNOb3RpZmljYXRpb25TZXJ2aWNlEnEKEUxpc3ROb3RpZmljYXRpb25zEioubm90aWZpY2F0aW9ucy52MS5MaXN0Tm90aWZpY2F0aW9uc1JlcXVlc3QaKy5ub3RpZmljYXRpb25zLnYxLkxpc3ROb3RpZmljYXRpb25zUmVzcG9uc2UiA5ACARJrCg9HZXROb3RpZmljYXRpb24SKC5ub3RpZmljYXRpb25zLnYxLkdldE5vdGlmaWNhdGlvblJlcXVlc3QaKS5ub3RpZmljYXRpb25zLnYxLkdldE5vdGlmaWNhdGlvblJlc3BvbnNlIgOQAgESfQoVR2V0Tm90aWZpY2F0aW9uQ291bnRzEi4ubm90aWZpY2F0aW9ucy52MS5HZXROb3RpZmljYXRpb25Db3VudHNSZXF1ZXN0Gi8ubm90aWZpY2F0aW9ucy52MS5HZXROb3RpZmljYXRpb25Db3VudHNSZXNwb25zZSIDkAIBEn0KFU1hcmtOb3RpZmljYXRpb25zUmVhZBIuLm5vdGlmaWNhdGlvbnMudjEuTWFya05vdGlmaWNhdGlvbnNSZWFkUmVxdWVzdBovLm5vdGlmaWNhdGlvbnMudjEuTWFya05vdGlmaWNhdGlvbnNSZWFkUmVzcG9uc2UiA5ACAhKDAQoXTWFya05vdGlmaWNhdGlvbnNVbnJlYWQSMC5ub3RpZmljYXRpb25zLnYxLk1hcmtOb3RpZmljYXRpb25zVW5yZWFkUmVxdWVzdBoxLm5vdGlmaWNhdGlvbnMudjEuTWFya05vdGlmaWNhdGlvbnNVbnJlYWRSZXNwb25zZSIDkAICEoYBChhNYXJrQWxsTm90aWZpY2F0aW9uc1JlYWQSMS5ub3RpZmljYXRpb25zLnYxLk1hcmtBbGxOb3RpZmljYXRpb25zUmVhZFJlcXVlc3QaMi5ub3RpZmljYXRpb25zLnYxLk1hcmtBbGxOb3RpZmljYXRpb25zUmVhZFJlc3BvbnNlIgOQAgIaAEJOWkxnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL25vdGlmaWNhdGlvbnMvdjE7bm90aWZpY2F0aW9uc3YxYgZwcm90bzM=", [file_alerts_v1_price_alerts, file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * ErrorDetail is attached to Notification API errors as an error detail of
@@ -119,6 +119,14 @@ export type Notification = Message<"notifications.v1.Notification"> & {
      */
     value: TelegramApprovalNotice;
     case: "telegramApproval";
+  } | {
+    /**
+     * The broker vault payout address change.
+     *
+     * @generated from field: notifications.v1.BrokerAllowlistNotice broker_allowlist = 12;
+     */
+    value: BrokerAllowlistNotice;
+    case: "brokerAllowlist";
   } | { case: undefined; value?: undefined };
 };
 
@@ -281,6 +289,85 @@ export const TelegramApprovalNoticeSchema: GenMessage<TelegramApprovalNotice> = 
   messageDesc(file_notifications_v1_notifications, 4);
 
 /**
+ * BrokerAllowlistNotice is a change of a QuickSwap broker vault's payout
+ * address allowlist, as the broker's records show it. Read the change with
+ * QuickSwapBrokerService.ListVaultAllowlistChanges.
+ *
+ * @generated from message notifications.v1.BrokerAllowlistNotice
+ */
+export type BrokerAllowlistNotice = Message<"notifications.v1.BrokerAllowlistNotice"> & {
+  /**
+   * Broker name.
+   *
+   * @generated from field: string broker = 1;
+   */
+  broker: string;
+
+  /**
+   * Public sub-account ID of the vault.
+   *
+   * @generated from field: fixed64 vault_account_id = 2;
+   */
+  vaultAccountId: bigint;
+
+  /**
+   * Public ID of the change, as ListVaultAllowlistChanges returns it.
+   *
+   * @generated from field: fixed64 change_id = 3;
+   */
+  changeId: bigint;
+
+  /**
+   * What happened to the change.
+   *
+   * @generated from field: notifications.v1.BrokerAllowlistEvent event = 4;
+   */
+  event: BrokerAllowlistEvent;
+
+  /**
+   * What the change does.
+   *
+   * @generated from field: notifications.v1.BrokerAllowlistAction action = 5;
+   */
+  action: BrokerAllowlistAction;
+
+  /**
+   * Destination chain identifier of the address.
+   *
+   * @generated from field: uint64 destination_chain_id = 6;
+   */
+  destinationChainId: bigint;
+
+  /**
+   * The address, in canonical form.
+   *
+   * @generated from field: string destination_address = 7;
+   */
+  destinationAddress: string;
+
+  /**
+   * The requesting member's name for an added address; empty when none.
+   *
+   * @generated from field: string label = 8;
+   */
+  label: string;
+
+  /**
+   * Public account ID of the member who requested the change.
+   *
+   * @generated from field: fixed64 requested_by_account_id = 9;
+   */
+  requestedByAccountId: bigint;
+};
+
+/**
+ * Describes the message notifications.v1.BrokerAllowlistNotice.
+ * Use `create(BrokerAllowlistNoticeSchema)` to create a new message.
+ */
+export const BrokerAllowlistNoticeSchema: GenMessage<BrokerAllowlistNotice> = /*@__PURE__*/
+  messageDesc(file_notifications_v1_notifications, 5);
+
+/**
  * ListNotificationsRequest lists the caller's notifications.
  *
  * @generated from message notifications.v1.ListNotificationsRequest
@@ -339,7 +426,7 @@ export type ListNotificationsRequest = Message<"notifications.v1.ListNotificatio
  * Use `create(ListNotificationsRequestSchema)` to create a new message.
  */
 export const ListNotificationsRequestSchema: GenMessage<ListNotificationsRequest> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 5);
+  messageDesc(file_notifications_v1_notifications, 6);
 
 /**
  * ListNotificationsResponse returns one page of the caller's notifications.
@@ -367,7 +454,7 @@ export type ListNotificationsResponse = Message<"notifications.v1.ListNotificati
  * Use `create(ListNotificationsResponseSchema)` to create a new message.
  */
 export const ListNotificationsResponseSchema: GenMessage<ListNotificationsResponse> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 6);
+  messageDesc(file_notifications_v1_notifications, 7);
 
 /**
  * GetNotificationRequest reads one notification of the caller.
@@ -388,7 +475,7 @@ export type GetNotificationRequest = Message<"notifications.v1.GetNotificationRe
  * Use `create(GetNotificationRequestSchema)` to create a new message.
  */
 export const GetNotificationRequestSchema: GenMessage<GetNotificationRequest> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 7);
+  messageDesc(file_notifications_v1_notifications, 8);
 
 /**
  * GetNotificationResponse returns the notification.
@@ -409,7 +496,7 @@ export type GetNotificationResponse = Message<"notifications.v1.GetNotificationR
  * Use `create(GetNotificationResponseSchema)` to create a new message.
  */
 export const GetNotificationResponseSchema: GenMessage<GetNotificationResponse> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 8);
+  messageDesc(file_notifications_v1_notifications, 9);
 
 /**
  * GetNotificationCountsRequest counts the caller's notifications.
@@ -424,7 +511,7 @@ export type GetNotificationCountsRequest = Message<"notifications.v1.GetNotifica
  * Use `create(GetNotificationCountsRequestSchema)` to create a new message.
  */
 export const GetNotificationCountsRequestSchema: GenMessage<GetNotificationCountsRequest> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 9);
+  messageDesc(file_notifications_v1_notifications, 10);
 
 /**
  * TypeCount counts the caller's notifications of one type.
@@ -466,7 +553,7 @@ export type TypeCount = Message<"notifications.v1.TypeCount"> & {
  * Use `create(TypeCountSchema)` to create a new message.
  */
 export const TypeCountSchema: GenMessage<TypeCount> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 10);
+  messageDesc(file_notifications_v1_notifications, 11);
 
 /**
  * GetNotificationCountsResponse returns exact counts of the caller's
@@ -503,7 +590,7 @@ export type GetNotificationCountsResponse = Message<"notifications.v1.GetNotific
  * Use `create(GetNotificationCountsResponseSchema)` to create a new message.
  */
 export const GetNotificationCountsResponseSchema: GenMessage<GetNotificationCountsResponse> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 11);
+  messageDesc(file_notifications_v1_notifications, 12);
 
 /**
  * MarkNotificationsReadRequest marks notifications of the caller read.
@@ -524,7 +611,7 @@ export type MarkNotificationsReadRequest = Message<"notifications.v1.MarkNotific
  * Use `create(MarkNotificationsReadRequestSchema)` to create a new message.
  */
 export const MarkNotificationsReadRequestSchema: GenMessage<MarkNotificationsReadRequest> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 12);
+  messageDesc(file_notifications_v1_notifications, 13);
 
 /**
  * MarkNotificationsReadResponse reports what MarkNotificationsRead changed.
@@ -546,7 +633,7 @@ export type MarkNotificationsReadResponse = Message<"notifications.v1.MarkNotifi
  * Use `create(MarkNotificationsReadResponseSchema)` to create a new message.
  */
 export const MarkNotificationsReadResponseSchema: GenMessage<MarkNotificationsReadResponse> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 13);
+  messageDesc(file_notifications_v1_notifications, 14);
 
 /**
  * MarkNotificationsUnreadRequest marks notifications of the caller unread.
@@ -567,7 +654,7 @@ export type MarkNotificationsUnreadRequest = Message<"notifications.v1.MarkNotif
  * Use `create(MarkNotificationsUnreadRequestSchema)` to create a new message.
  */
 export const MarkNotificationsUnreadRequestSchema: GenMessage<MarkNotificationsUnreadRequest> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 14);
+  messageDesc(file_notifications_v1_notifications, 15);
 
 /**
  * MarkNotificationsUnreadResponse reports what MarkNotificationsUnread
@@ -590,7 +677,7 @@ export type MarkNotificationsUnreadResponse = Message<"notifications.v1.MarkNoti
  * Use `create(MarkNotificationsUnreadResponseSchema)` to create a new message.
  */
 export const MarkNotificationsUnreadResponseSchema: GenMessage<MarkNotificationsUnreadResponse> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 15);
+  messageDesc(file_notifications_v1_notifications, 16);
 
 /**
  * MarkAllNotificationsReadRequest marks every unread notification of the
@@ -621,7 +708,7 @@ export type MarkAllNotificationsReadRequest = Message<"notifications.v1.MarkAllN
  * Use `create(MarkAllNotificationsReadRequestSchema)` to create a new message.
  */
 export const MarkAllNotificationsReadRequestSchema: GenMessage<MarkAllNotificationsReadRequest> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 16);
+  messageDesc(file_notifications_v1_notifications, 17);
 
 /**
  * MarkAllNotificationsReadResponse reports what MarkAllNotificationsRead
@@ -643,7 +730,7 @@ export type MarkAllNotificationsReadResponse = Message<"notifications.v1.MarkAll
  * Use `create(MarkAllNotificationsReadResponseSchema)` to create a new message.
  */
 export const MarkAllNotificationsReadResponseSchema: GenMessage<MarkAllNotificationsReadResponse> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 17);
+  messageDesc(file_notifications_v1_notifications, 18);
 
 /**
  * ErrorCode identifies a Notification API error.
@@ -710,6 +797,17 @@ export enum NotificationType {
    * @generated from enum value: TELEGRAM_APPROVAL = 2;
    */
   TELEGRAM_APPROVAL = 2,
+
+  /**
+   * A payout address of a QuickSwap broker vault the caller is an Owner or
+   * Finance member of was requested to be added or removed, or the change
+   * was applied or not. Category SECURITY; detail broker_allowlist. If no
+   * member of the broker requested it, act before the address becomes
+   * payable: an added address is payable 24 hours after it is listed.
+   *
+   * @generated from enum value: BROKER_ALLOWLIST_CHANGE = 3;
+   */
+  BROKER_ALLOWLIST_CHANGE = 3,
 }
 
 /**
@@ -869,6 +967,82 @@ export enum TelegramApprovalAction {
  */
 export const TelegramApprovalActionSchema: GenEnum<TelegramApprovalAction> = /*@__PURE__*/
   enumDesc(file_notifications_v1_notifications, 4);
+
+/**
+ * BrokerAllowlistEvent is what happened to a broker vault payout address
+ * change.
+ *
+ * @generated from enum notifications.v1.BrokerAllowlistEvent
+ */
+export enum BrokerAllowlistEvent {
+  /**
+   * Not set. Never returned.
+   *
+   * @generated from enum value: BROKER_ALLOWLIST_EVENT_UNSPECIFIED = 0;
+   */
+  BROKER_ALLOWLIST_EVENT_UNSPECIFIED = 0,
+
+  /**
+   * A member requested the change.
+   *
+   * @generated from enum value: CHANGE_REQUESTED = 1;
+   */
+  CHANGE_REQUESTED = 1,
+
+  /**
+   * The change was applied.
+   *
+   * @generated from enum value: CHANGE_APPLIED = 2;
+   */
+  CHANGE_APPLIED = 2,
+
+  /**
+   * The change was not applied, and never will be; nothing changed.
+   *
+   * @generated from enum value: CHANGE_NOT_APPLIED = 3;
+   */
+  CHANGE_NOT_APPLIED = 3,
+}
+
+/**
+ * Describes the enum notifications.v1.BrokerAllowlistEvent.
+ */
+export const BrokerAllowlistEventSchema: GenEnum<BrokerAllowlistEvent> = /*@__PURE__*/
+  enumDesc(file_notifications_v1_notifications, 5);
+
+/**
+ * BrokerAllowlistAction is what a broker vault payout address change does.
+ *
+ * @generated from enum notifications.v1.BrokerAllowlistAction
+ */
+export enum BrokerAllowlistAction {
+  /**
+   * Not set. Never returned.
+   *
+   * @generated from enum value: BROKER_ALLOWLIST_ACTION_UNSPECIFIED = 0;
+   */
+  BROKER_ALLOWLIST_ACTION_UNSPECIFIED = 0,
+
+  /**
+   * Adds the address to the vault's payout address allowlist.
+   *
+   * @generated from enum value: ADD_DESTINATION = 1;
+   */
+  ADD_DESTINATION = 1,
+
+  /**
+   * Removes the address from the vault's payout address allowlist.
+   *
+   * @generated from enum value: REMOVE_DESTINATION = 2;
+   */
+  REMOVE_DESTINATION = 2,
+}
+
+/**
+ * Describes the enum notifications.v1.BrokerAllowlistAction.
+ */
+export const BrokerAllowlistActionSchema: GenEnum<BrokerAllowlistAction> = /*@__PURE__*/
+  enumDesc(file_notifications_v1_notifications, 6);
 
 /**
  * NotificationService serves the caller's notification center. Every method
