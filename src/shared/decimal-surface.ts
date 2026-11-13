@@ -15,7 +15,6 @@ import {
 } from "../catalogs/decimal.js";
 import {
     CatalogConversionError,
-    CatalogLookupError,
     CatalogNotReadyError,
     type ClientCatalog,
     type PairCatalogKey,
@@ -69,13 +68,8 @@ export function createCatalogSdkScales(getCatalog: () => ClientCatalog): SdkScal
         },
         referencePrice: (pair) =>
             requirePair(getCatalog(), pair).referencePriceScale ?? PRICE_SCALE,
-        ledgerAmount: (ledgerAssetId) => {
-            const ledger = getCatalog().ledger;
-            if (!ledger.isKnownAssetId(ledgerAssetId)) {
-                throw new CatalogLookupError("ledger", "ledgerId", ledgerAssetId);
-            }
-            return ledger.requireAssetByLedgerId(ledgerAssetId).quantityScale;
-        },
+        ledgerAmount: (ledgerAssetId) =>
+            getCatalog().ledger.requireAssetByLedgerId(ledgerAssetId).quantityScale,
         zippedAssetAmount: (zippedAssetId) =>
             getCatalog().zipper.requireAssetChainByZippedAssetId(zippedAssetId).asset.quantityScale,
     };

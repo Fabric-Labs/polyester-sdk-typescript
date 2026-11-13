@@ -282,7 +282,7 @@ describe("MarketDataService", () => {
                     listingAt: 1_700_000_000_000,
                 },
             ],
-            tsSec: 123_000,
+            tsSec: 123,
         });
     });
 

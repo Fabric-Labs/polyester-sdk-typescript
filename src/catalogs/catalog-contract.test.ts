@@ -203,10 +203,9 @@ describe("market conversions", () => {
         expect(market.requirePair({ symbol: "BTC-USDC" }).symbolId).toBe(7);
         expect(market.requireAsset({ ledgerId: 1 }).symbol).toBe("BTC");
         expect(market.requireAsset({ symbol: "USDC" }).ledgerId).toBe(2);
-        expect(market.requireAsset({ ledgerId: 99 })).toMatchObject({
-            symbol: "Unknown asset",
-            ledgerId: 9999,
-        });
+        expect(() => market.requireAsset({ ledgerId: 99 })).toThrow(
+            new CatalogLookupError("market", "ledgerId", 99),
+        );
     });
 });
 

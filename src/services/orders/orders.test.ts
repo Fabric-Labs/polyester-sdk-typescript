@@ -5,7 +5,11 @@ import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import * as PrivateWs from "../../gen/privatews/v1/private_ws_pb.js";
 import { AccountCode, TransferCode } from "../../gen/ledger/v1/catalog_pb.js";
-import { CatalogNotReadyError, type EnrichedPairConfig } from "../../catalogs/index.js";
+import {
+    CatalogLookupError,
+    CatalogNotReadyError,
+    type EnrichedPairConfig,
+} from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { ConfigurationError, ValidationError } from "../../shared/errors.js";
@@ -103,12 +107,9 @@ describe("OrdersService", () => {
             getDefaultSubaccountId: () => formatId(11n),
         };
         const transport = unaryTransportByMethod({
-            getOpenOrders: {
-                orders: [protoOrder({ orderId: 11n }), protoOrder({ orderId: 12n, symbolId: 999 })],
-                nextPageToken: "open-next",
-            },
+            getOpenOrders: { orders: [protoOrder({ orderId: 11n })], nextPageToken: "open-next" },
             getOrderHistory: {
-                orders: [protoOrder({ orderId: 13n }), protoOrder({ orderId: 14n, symbolId: 999 })],
+                orders: [protoOrder({ orderId: 13n })],
                 nextPageToken: "history-next",
             },
         });
@@ -192,6 +193,31 @@ describe("OrdersService", () => {
         expect(
             transport.calls.find((call) => call.method.localName === "getOrderHistory")?.message,
         ).not.toHaveProperty("subaccountId");
+    });
+
+    it("rejects list pages holding an order on a symbol missing from the catalog", async () => {
+        const orders = [
+            protoOrder({ orderId: 1n }),
+            protoOrder({ orderId: 2n, symbolId: 999 }),
+            protoOrder({ orderId: 3n }),
+        ];
+        const service = new OrdersService(
+            {
+                authApi: unaryTransportByMethod({
+                    getOpenOrders: { orders, nextPageToken: "" },
+                    getOrderHistory: { orders, nextPageToken: "" },
+                }).transport,
+            },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        for (const list of [() => service.listOpen(), () => service.listHistory()]) {
+            const error = await list().catch((e: unknown) => e);
+            expect(error).toBeInstanceOf(CatalogLookupError);
+            expect(error).toMatchObject({ domain: "market", lookup: "symbolId", value: 999 });
+        }
     });
 
     it("accepts exact zero-padded decimals and forwards scaled integers and mutation options", async () => {
@@ -1178,6 +1204,23 @@ describe("OrdersService", () => {
         );
     });
 
+    it("rejects an unavailable order read instead of reporting the order as not found", async () => {
+        const service = new OrdersService(
+            {
+                authApi: rejectingUnaryTransport(
+                    new ConnectError("order not readable yet", Code.Unavailable),
+                ),
+            },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await expect(service.getDetails({ clientOrderId: "client-1" })).rejects.toMatchObject({
+            code: Code.Unavailable,
+        });
+    });
+
     it("parses populated order details responses to decimal strings", async () => {
         const transport = unaryTransportByMethod({
             getOrder: {
@@ -1364,11 +1407,40 @@ describe("OrdersService", () => {
         });
         await flushAsync();
 
-        expect(onError).not.toHaveBeenCalled();
+        expect(onError).toHaveBeenCalledOnce();
+        expect(onError.mock.calls[0]?.[0]).toMatchObject({
+            type: "publication_handler",
+            error: expect.objectContaining({ name: "CatalogLookupError", value: 999 }),
+        });
         expect(onEvent.mock.calls.map(([order]) => [order.orderId, order.status])).toEqual([
             [formatId(1n), "working"],
             [formatId(3n), "unspecified"],
         ]);
+    });
+
+    it("reports snapshot orders on unknown symbols to onError and delivers the rest to onSnapshot", async () => {
+        const realtime = realtimeClientStub();
+        const service = new OrdersService(
+            { authApi: unaryTransportByMethod({}).transport },
+            realtime.realtime,
+            undefined,
+            testScales(),
+        );
+        const onSnapshot = vi.fn();
+        const onError = vi.fn();
+        service.subscribe({ accountId: formatId(42n), onEvent: vi.fn(), onSnapshot, onError });
+
+        realtime.privateOrdersParams!.onEvent({
+            type: "snapshot",
+            orders: [protoOrder({ orderId: 1n }), protoOrder({ orderId: 2n, symbolId: 999 })],
+        });
+        await flushAsync();
+
+        expect(onSnapshot).toHaveBeenCalledWith([
+            expect.objectContaining({ orderId: formatId(1n) }),
+        ]);
+        expect(onError).toHaveBeenCalledOnce();
+        expect(onError.mock.calls[0]?.[0].error).toBeInstanceOf(CatalogLookupError);
     });
 
     it("reports orders missing from a resync snapshot as removed when onSnapshot is omitted", async () => {
@@ -1400,7 +1472,7 @@ describe("OrdersService", () => {
         expect(onRemoved.mock.calls).toEqual([[[formatId(1n)]]]);
     });
 
-    it("skips unit orders for unknown symbols like snapshot orders", async () => {
+    it("reports unit orders on unknown symbols to onError like snapshot orders", async () => {
         const realtime = realtimeClientStub();
         const service = new OrdersService(
             { authApi: unaryTransportByMethod({}).transport },
@@ -1420,7 +1492,8 @@ describe("OrdersService", () => {
         });
         await flushAsync();
 
-        expect(onError).not.toHaveBeenCalled();
+        expect(onError).toHaveBeenCalledOnce();
+        expect(onError.mock.calls[0]?.[0].error).toBeInstanceOf(CatalogLookupError);
         expect(onEvent.mock.calls.map(([order]) => order.orderId)).toEqual([formatId(1n)]);
     });
 

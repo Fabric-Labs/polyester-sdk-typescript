@@ -15,11 +15,6 @@ import {
 } from "./decimal.js";
 import { indexesFor } from "./indexes.js";
 import type { EnrichedPairConfig } from "./market-data-catalog.js";
-import {
-    resolveLedgerAssetByLedgerId,
-    resolveZipperAssetByLedgerId,
-    UNKNOWN_LEDGER_ASSET_ID,
-} from "./unknown-asset.js";
 import type { ZipperContractName, ZipperEnrichedAssetConfig } from "./zipper-catalog.js";
 import {
     CatalogConversionError,
@@ -225,16 +220,17 @@ class MarketReader implements MarketCatalogReader {
         return requireFound("market", "symbol", assetSymbol, this.getAssetBySymbol(assetSymbol));
     }
 
-    getAssetByLedgerId(ledgerAssetId: number): AssetConfig {
-        return resolveLedgerAssetByLedgerId(ledgerAssetId, (id) => this.lookupAssetByLedgerId(id));
-    }
-
-    lookupAssetByLedgerId(ledgerAssetId: number): AssetConfig | null {
+    getAssetByLedgerId(ledgerAssetId: number): AssetConfig | null {
         return indexesFor(this.getSnapshot()).assetByLedgerId.get(ledgerAssetId) ?? null;
     }
 
     requireAssetByLedgerId(ledgerAssetId: number): AssetConfig {
-        return this.getAssetByLedgerId(ledgerAssetId);
+        return requireFound(
+            "market",
+            "ledgerId",
+            ledgerAssetId,
+            this.getAssetByLedgerId(ledgerAssetId),
+        );
     }
 
     listPairs(filter?: {
@@ -373,12 +369,17 @@ class MarketReader implements MarketCatalogReader {
 class LedgerReader implements LedgerCatalogReader {
     constructor(private readonly market: MarketReader) {}
 
-    getAssetByLedgerId(ledgerAssetId: number): AssetConfig {
+    getAssetByLedgerId(ledgerAssetId: number): AssetConfig | null {
         return this.market.getAssetByLedgerId(ledgerAssetId);
     }
 
     requireAssetByLedgerId(ledgerAssetId: number): AssetConfig {
-        return this.getAssetByLedgerId(ledgerAssetId);
+        return requireFound(
+            "ledger",
+            "ledgerId",
+            ledgerAssetId,
+            this.getAssetByLedgerId(ledgerAssetId),
+        );
     }
 
     getAssetBySymbol(assetSymbol: string): AssetConfig | null {
@@ -402,9 +403,7 @@ class LedgerReader implements LedgerCatalogReader {
     }
 
     isKnownAssetId(ledgerAssetId: number): boolean {
-        if (!Number.isInteger(ledgerAssetId) || ledgerAssetId <= 0) return false;
-        if (ledgerAssetId === UNKNOWN_LEDGER_ASSET_ID) return false;
-        return this.market.lookupAssetByLedgerId(ledgerAssetId) !== null;
+        return this.getAssetByLedgerId(ledgerAssetId) !== null;
     }
 
     decimalAmountToScaled(amount: string, asset: AssetCatalogKey): ParsedCatalogAmount {
@@ -686,16 +685,17 @@ class ZipperReader implements ZipperCatalogReader {
         return requireFound("zipper", "symbol", assetSymbol, this.getAssetBySymbol(assetSymbol));
     }
 
-    getAssetByLedgerId(ledgerAssetId: number): ZipperEnrichedAssetConfig {
-        return resolveZipperAssetByLedgerId(ledgerAssetId, (id) => this.lookupAssetByLedgerId(id));
-    }
-
-    lookupAssetByLedgerId(ledgerAssetId: number): ZipperEnrichedAssetConfig | null {
+    getAssetByLedgerId(ledgerAssetId: number): ZipperEnrichedAssetConfig | null {
         return indexesFor(this.getSnapshot()).zipperAssetByLedgerId.get(ledgerAssetId) ?? null;
     }
 
     requireAssetByLedgerId(ledgerAssetId: number): ZipperEnrichedAssetConfig {
-        return this.getAssetByLedgerId(ledgerAssetId);
+        return requireFound(
+            "zipper",
+            "ledgerId",
+            ledgerAssetId,
+            this.getAssetByLedgerId(ledgerAssetId),
+        );
     }
 
     getAssetByUAssetId(uAssetId: string): ZipperEnrichedAssetConfig | null {
