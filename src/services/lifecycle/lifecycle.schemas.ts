@@ -30,6 +30,8 @@ import {
     type LifecycleRequestFeeStatusValue,
     type LifecycleSortValue,
     type LifecycleTxLookupKindValue,
+    type ZipperReasonCodeValue,
+    zipperReasonFromCode,
 } from "./lifecycle.codecs.js";
 import { idToBigInt } from "../../utils/base58-id.js";
 import { fromU128 } from "../../utils/u128.js";
@@ -186,7 +188,7 @@ const LifecycleTxOccurrenceIndexSchema = v.pipe(
 );
 const LifecycleLedgerTransferIdSchema = v.optional(v.string(), "");
 const LifecycleZipperReasonSchema = v.object({
-    code: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    code: v.pipe(v.number(), v.integer(), v.minValue(0), v.transform(zipperReasonFromCode)),
     reasonId: v.string(),
     message: v.string(),
 });
@@ -521,6 +523,8 @@ export type LifecycleRequestFee = v.InferOutput<typeof LifecycleRequestFeeSchema
 export type LifecycleFlowSummaryProgress = v.InferOutput<typeof LifecycleFlowSummaryProgressSchema>;
 export type LifecycleFlowState = v.InferOutput<typeof LifecycleFlowStateEnumSchema>;
 export type LifecycleReason = LifecycleReasonValue;
+export type LifecycleZipperReasonCode = ZipperReasonCodeValue;
+
 export type LifecycleZipperReason = v.InferOutput<typeof LifecycleZipperReasonSchema>;
 export type LifecycleListOrderBy = LifecycleListOrderByValue;
 export type LifecycleListScope = LifecycleListScopeValue;

@@ -16,6 +16,7 @@ import {
     Sort,
     TxLookupKind,
 } from "../../gen/chain/lifecycle/v1/lifecycle_read_pb.js";
+import { ZipperReasonCode } from "../../gen/chain/zipper/v1/reason_pb.js";
 import type { InputToProto, ProtoToOutput } from "../../utils/types.js";
 
 export const LIFECYCLE_FLOW_KIND_VALUES = ["deposit", "withdraw", "transfer"] as const;
@@ -320,3 +321,139 @@ export const LifecycleRequestFeeStatusCodec = {
         [RequestFeeStatus.KEPT]: "kept",
     } satisfies ProtoToOutput<RequestFeeStatus, LifecycleRequestFeeStatusValue>,
 } as const;
+
+/**
+ * Zipper's exact outcome code, for branching on the outcome. Show `message`, or look up copy by
+ * `reasonId`, rather than keying display text on this code: a withdrawal whose execution failed
+ * keeps its code while `reasonId` and `message` say it is under review.
+ */
+export const ZIPPER_REASON_CODE_VALUES = [
+    "unspecified",
+    "deposit_wait_expired",
+    "deposit_amount_invalid",
+    "deposit_amount_below_minimum",
+    "deposit_amount_not_above_fee",
+    "deposit_net_amount_below_minimum",
+    "evm_deposit_source_tx_invalid",
+    "evm_deposit_source_tx_zero",
+    "evm_deposit_source_tx_not_found",
+    "evm_deposit_source_tx_reverted",
+    "evm_deposit_transfer_mismatch",
+    "utxo_deposit_transaction_mismatch",
+    "btc_deposit_transaction_mismatch",
+    "bch_deposit_transaction_mismatch",
+    "doge_deposit_transaction_mismatch",
+    "ltc_deposit_transaction_mismatch",
+    "utxo_deposit_source_is_deposit_address",
+    "solana_deposit_signature_invalid",
+    "solana_deposit_transaction_failed",
+    "solana_deposit_transfer_mismatch",
+    "xrp_deposit_source_hash_index_invalid",
+    "xrp_deposit_source_address_invalid",
+    "xrp_deposit_address_invalid",
+    "xrp_deposit_payment_mismatch",
+    "rejection_unmapped",
+    "withdrawal_amount_invalid",
+    "withdrawal_amount_below_minimum",
+    "withdrawal_asset_invalid",
+    "withdrawal_sender_invalid",
+    "withdrawal_destination_invalid",
+    "withdrawal_asset_unavailable",
+    "evm_withdrawal_destination_invalid",
+    "btc_withdrawal_destination_invalid",
+    "bch_withdrawal_destination_invalid",
+    "doge_withdrawal_destination_invalid",
+    "ltc_withdrawal_destination_invalid",
+    "solana_withdrawal_destination_invalid",
+    "xrp_withdrawal_classic_address_invalid",
+    "xrp_withdrawal_destination_tag_invalid",
+    "withdrawal_liquidity_insufficient",
+    "compliance_high_risk_address",
+    "compliance_address_blocked",
+    "compliance_address_return",
+    "request_verification_rejected",
+    "rejected",
+    "error_unmapped",
+    "error_network_unsupported",
+    "error_request_processing_failed",
+    "error_request_verification_failed",
+    "error_result_submission_failed",
+    "error_status_unknown",
+] as const;
+
+export type ZipperReasonCodeValue =
+    | (typeof ZIPPER_REASON_CODE_VALUES)[number]
+    | `unknown_zipper_reason_${number}`;
+
+export const ZipperReasonCodeCodec = {
+    protoToOutput: {
+        [ZipperReasonCode.REASON_UNSPECIFIED]: "unspecified",
+        [ZipperReasonCode.DEPOSIT_WAIT_EXPIRED]: "deposit_wait_expired",
+        [ZipperReasonCode.DEPOSIT_AMOUNT_INVALID]: "deposit_amount_invalid",
+        [ZipperReasonCode.DEPOSIT_AMOUNT_BELOW_MINIMUM]: "deposit_amount_below_minimum",
+        [ZipperReasonCode.DEPOSIT_AMOUNT_NOT_ABOVE_FEE]: "deposit_amount_not_above_fee",
+        [ZipperReasonCode.DEPOSIT_NET_AMOUNT_BELOW_MINIMUM]: "deposit_net_amount_below_minimum",
+        [ZipperReasonCode.EVM_DEPOSIT_SOURCE_TX_INVALID]: "evm_deposit_source_tx_invalid",
+        [ZipperReasonCode.EVM_DEPOSIT_SOURCE_TX_ZERO]: "evm_deposit_source_tx_zero",
+        [ZipperReasonCode.EVM_DEPOSIT_SOURCE_TX_NOT_FOUND]: "evm_deposit_source_tx_not_found",
+        [ZipperReasonCode.EVM_DEPOSIT_SOURCE_TX_REVERTED]: "evm_deposit_source_tx_reverted",
+        [ZipperReasonCode.EVM_DEPOSIT_TRANSFER_MISMATCH]: "evm_deposit_transfer_mismatch",
+        [ZipperReasonCode.UTXO_DEPOSIT_TRANSACTION_MISMATCH]: "utxo_deposit_transaction_mismatch",
+        [ZipperReasonCode.BTC_DEPOSIT_TRANSACTION_MISMATCH]: "btc_deposit_transaction_mismatch",
+        [ZipperReasonCode.BCH_DEPOSIT_TRANSACTION_MISMATCH]: "bch_deposit_transaction_mismatch",
+        [ZipperReasonCode.DOGE_DEPOSIT_TRANSACTION_MISMATCH]: "doge_deposit_transaction_mismatch",
+        [ZipperReasonCode.LTC_DEPOSIT_TRANSACTION_MISMATCH]: "ltc_deposit_transaction_mismatch",
+        [ZipperReasonCode.UTXO_DEPOSIT_SOURCE_IS_DEPOSIT_ADDRESS]:
+            "utxo_deposit_source_is_deposit_address",
+        [ZipperReasonCode.SOLANA_DEPOSIT_SIGNATURE_INVALID]: "solana_deposit_signature_invalid",
+        [ZipperReasonCode.SOLANA_DEPOSIT_TRANSACTION_FAILED]: "solana_deposit_transaction_failed",
+        [ZipperReasonCode.SOLANA_DEPOSIT_TRANSFER_MISMATCH]: "solana_deposit_transfer_mismatch",
+        [ZipperReasonCode.XRP_DEPOSIT_SOURCE_HASH_INDEX_INVALID]:
+            "xrp_deposit_source_hash_index_invalid",
+        [ZipperReasonCode.XRP_DEPOSIT_SOURCE_ADDRESS_INVALID]: "xrp_deposit_source_address_invalid",
+        [ZipperReasonCode.XRP_DEPOSIT_ADDRESS_INVALID]: "xrp_deposit_address_invalid",
+        [ZipperReasonCode.XRP_DEPOSIT_PAYMENT_MISMATCH]: "xrp_deposit_payment_mismatch",
+        [ZipperReasonCode.REJECTION_UNMAPPED]: "rejection_unmapped",
+        [ZipperReasonCode.WITHDRAWAL_AMOUNT_INVALID]: "withdrawal_amount_invalid",
+        [ZipperReasonCode.WITHDRAWAL_AMOUNT_BELOW_MINIMUM]: "withdrawal_amount_below_minimum",
+        [ZipperReasonCode.WITHDRAWAL_ASSET_INVALID]: "withdrawal_asset_invalid",
+        [ZipperReasonCode.WITHDRAWAL_SENDER_INVALID]: "withdrawal_sender_invalid",
+        [ZipperReasonCode.WITHDRAWAL_DESTINATION_INVALID]: "withdrawal_destination_invalid",
+        [ZipperReasonCode.WITHDRAWAL_ASSET_UNAVAILABLE]: "withdrawal_asset_unavailable",
+        [ZipperReasonCode.EVM_WITHDRAWAL_DESTINATION_INVALID]: "evm_withdrawal_destination_invalid",
+        [ZipperReasonCode.BTC_WITHDRAWAL_DESTINATION_INVALID]: "btc_withdrawal_destination_invalid",
+        [ZipperReasonCode.BCH_WITHDRAWAL_DESTINATION_INVALID]: "bch_withdrawal_destination_invalid",
+        [ZipperReasonCode.DOGE_WITHDRAWAL_DESTINATION_INVALID]:
+            "doge_withdrawal_destination_invalid",
+        [ZipperReasonCode.LTC_WITHDRAWAL_DESTINATION_INVALID]: "ltc_withdrawal_destination_invalid",
+        [ZipperReasonCode.SOLANA_WITHDRAWAL_DESTINATION_INVALID]:
+            "solana_withdrawal_destination_invalid",
+        [ZipperReasonCode.XRP_WITHDRAWAL_CLASSIC_ADDRESS_INVALID]:
+            "xrp_withdrawal_classic_address_invalid",
+        [ZipperReasonCode.XRP_WITHDRAWAL_DESTINATION_TAG_INVALID]:
+            "xrp_withdrawal_destination_tag_invalid",
+        [ZipperReasonCode.WITHDRAWAL_LIQUIDITY_INSUFFICIENT]: "withdrawal_liquidity_insufficient",
+        [ZipperReasonCode.COMPLIANCE_HIGH_RISK_ADDRESS]: "compliance_high_risk_address",
+        [ZipperReasonCode.COMPLIANCE_ADDRESS_BLOCKED]: "compliance_address_blocked",
+        [ZipperReasonCode.COMPLIANCE_ADDRESS_RETURN]: "compliance_address_return",
+        [ZipperReasonCode.REQUEST_VERIFICATION_REJECTED]: "request_verification_rejected",
+        [ZipperReasonCode.REJECTED]: "rejected",
+        [ZipperReasonCode.ERROR_UNMAPPED]: "error_unmapped",
+        [ZipperReasonCode.ERROR_NETWORK_UNSUPPORTED]: "error_network_unsupported",
+        [ZipperReasonCode.ERROR_REQUEST_PROCESSING_FAILED]: "error_request_processing_failed",
+        [ZipperReasonCode.ERROR_REQUEST_VERIFICATION_FAILED]: "error_request_verification_failed",
+        [ZipperReasonCode.ERROR_RESULT_SUBMISSION_FAILED]: "error_result_submission_failed",
+        [ZipperReasonCode.ERROR_STATUS_UNKNOWN]: "error_status_unknown",
+    } satisfies Record<ZipperReasonCode, ZipperReasonCodeValue>,
+} as const;
+
+/**
+ * Maps a wire Zipper reason code to its label, preserving uncataloged codes as
+ * `unknown_zipper_reason_${code}` instead of failing the whole flow payload.
+ */
+export function zipperReasonFromCode(code: number): ZipperReasonCodeValue {
+    const known = ZipperReasonCodeCodec.protoToOutput as Partial<
+        Record<number, ZipperReasonCodeValue>
+    >;
+    return known[code] ?? `unknown_zipper_reason_${code}`;
+}

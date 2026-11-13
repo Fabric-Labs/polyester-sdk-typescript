@@ -18,6 +18,7 @@ export type {
     LifecycleSort,
     LifecycleTxLookupKind,
     LifecycleZipperReason,
+    LifecycleZipperReasonCode,
     ListLifecycleFlowsByTxInput,
     ListLifecycleFlowsByTxOutput,
     ListLifecycleFlowsInput,
