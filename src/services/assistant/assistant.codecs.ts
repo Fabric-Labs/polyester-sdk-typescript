@@ -30,6 +30,49 @@ export type AssistantMemoryKind = (typeof ASSISTANT_MEMORY_KIND_VALUES)[number];
 export const ASSISTANT_KEY_STATE_VALUES = ["active", "disabled"] as const;
 export type AssistantKeyState = (typeof ASSISTANT_KEY_STATE_VALUES)[number];
 
+/**
+ * Display preferences a client lets the assistant change: `appearance` (`light`, `dark`,
+ * `system`), `language` (`en`, `fr`, `zh-CN`), `currency` (a fiat code such as `EUR`),
+ * `date_format` (a pattern such as `yyyy-MM-dd`), `time_format` (`12h`, `24h`), `number_format`
+ * (`US`, `EU`, `SPACE`, `CH`, `IN`, `NONE`), `week_start` (`0` Sunday to `6` Saturday) and
+ * `sounds` (`on`, `off`).
+ */
+export const ASSISTANT_DISPLAY_SETTING_VALUES = [
+    "appearance",
+    "language",
+    "currency",
+    "date_format",
+    "time_format",
+    "number_format",
+    "week_start",
+    "sounds",
+] as const;
+export type AssistantDisplaySetting = (typeof ASSISTANT_DISPLAY_SETTING_VALUES)[number];
+
+export const DisplaySettingCodec = {
+    inputToProto: {
+        appearance: Proto.DisplaySetting.APPEARANCE,
+        language: Proto.DisplaySetting.LANGUAGE,
+        currency: Proto.DisplaySetting.CURRENCY,
+        date_format: Proto.DisplaySetting.DATE_FORMAT,
+        time_format: Proto.DisplaySetting.TIME_FORMAT,
+        number_format: Proto.DisplaySetting.NUMBER_FORMAT,
+        week_start: Proto.DisplaySetting.WEEK_START,
+        sounds: Proto.DisplaySetting.SOUNDS,
+    } satisfies InputToProto<AssistantDisplaySetting, Proto.DisplaySetting>,
+    protoToOutput: {
+        [Proto.DisplaySetting.SETTING_UNSPECIFIED]: "unspecified",
+        [Proto.DisplaySetting.APPEARANCE]: "appearance",
+        [Proto.DisplaySetting.LANGUAGE]: "language",
+        [Proto.DisplaySetting.CURRENCY]: "currency",
+        [Proto.DisplaySetting.DATE_FORMAT]: "date_format",
+        [Proto.DisplaySetting.TIME_FORMAT]: "time_format",
+        [Proto.DisplaySetting.NUMBER_FORMAT]: "number_format",
+        [Proto.DisplaySetting.WEEK_START]: "week_start",
+        [Proto.DisplaySetting.SOUNDS]: "sounds",
+    } satisfies ProtoToOutput<Proto.DisplaySetting, AssistantDisplaySetting>,
+} as const;
+
 export type AssistantReferencePriceSource = "best_bid" | "best_ask" | "last_price" | "index_price";
 export type AssistantTriggerDirection = "at_or_above" | "at_or_below";
 export type AssistantOrderPriceField =

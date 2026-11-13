@@ -29,9 +29,11 @@ export const TRANSFER_CODE_VALUES = [
 ] as const;
 /**
  * Ledger transfer type. `system_adjustment` can credit or debit the account (a seeding credit
- * or a correction), so read the row's `isDebit` for its direction. `withdraw_failed` is funds that
- * left the account for a withdrawal that was rejected or failed to execute; its fee is not
- * refunded.
+ * or a correction), so read the row's `isDebit` for its direction. `withdraw_failed` (Funding)
+ * and `trading_withdraw_request_fee` (Trading), despite its name, are the whole debit of a
+ * withdrawal that Zipper rejected or that failed to execute, request fee included, not a fee. A
+ * rejected withdrawal refunds that amount less the request fee to the user's own wallet; one that
+ * failed to execute is not refunded, and Zipper settles it with the user outside Polyester Chain.
  */
 export type TransferCodeValue = (typeof TRANSFER_CODE_VALUES)[number];
 

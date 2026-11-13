@@ -61,6 +61,7 @@ describe("ChangelogService", () => {
                     newFeatureCount: 1,
                     improvementCount: 0,
                     bugFixCount: 0,
+                    environments: [],
                 },
             ],
             nextPageToken: "n",
@@ -157,10 +158,163 @@ describe("ChangelogService", () => {
         });
     });
 
+    it("keeps release presence, environment statuses and change exceptions", async () => {
+        const { service } = serviceReturning({
+            posts: [
+                summary,
+                {
+                    ...summary,
+                    slug: "v0.93.1",
+                    releaseVersion: "0.93.1",
+                    deploymentGroupSlug: "devnet-v0.93.1",
+                    environments: [
+                        { environment: Proto.Environment.DEVNET, liveAt: ts(1_700_000_100) },
+                        { environment: Proto.Environment.TESTNET },
+                    ],
+                },
+            ],
+            nextPageToken: "",
+        });
+
+        const { posts } = await service.listPosts();
+
+        expect(posts[0]).toMatchObject({ environments: [] });
+        expect(posts[0]?.releaseVersion).toBeUndefined();
+        expect(posts[0]?.deploymentGroupSlug).toBeUndefined();
+        expect(posts[1]).toMatchObject({
+            releaseVersion: "0.93.1",
+            deploymentGroupSlug: "devnet-v0.93.1",
+            environments: [
+                { environment: "devnet", liveAt: 1_700_000_100_000 },
+                { environment: "testnet" },
+            ],
+        });
+    });
+
+    it("lists deployment groups and forwards paging", async () => {
+        const group = {
+            slug: "testnet-v0.92.9",
+            environment: Proto.Environment.TESTNET,
+            occurredAt: ts(1_700_000_000),
+            releaseVersion: "0.92.9",
+            versions: ["0.92.8", "0.92.9"],
+            posts: [
+                {
+                    slug: "v0.92.9",
+                    releaseVersion: "0.92.9",
+                    title: "0.92.9",
+                    publishedAt: ts(1_699_000_000),
+                    revision: 1,
+                },
+            ],
+        };
+        const { publicApi, service } = serviceReturning({ groups: [group], nextPageToken: "n" });
+
+        await expect(service.listDeploymentGroups({ limit: 5, pageToken: " p " })).resolves.toEqual(
+            {
+                groups: [
+                    {
+                        slug: "testnet-v0.92.9",
+                        environment: "testnet",
+                        occurredAt: 1_700_000_000_000,
+                        releaseVersion: "0.92.9",
+                        releaseTag: undefined,
+                        previousReleaseVersion: undefined,
+                        versions: ["0.92.8", "0.92.9"],
+                        posts: [
+                            {
+                                slug: "v0.92.9",
+                                releaseVersion: "0.92.9",
+                                title: "0.92.9",
+                                publishedAt: 1_699_000_000_000,
+                                revision: 1,
+                                updatedAt: undefined,
+                            },
+                        ],
+                    },
+                ],
+                nextPageToken: "n",
+            },
+        );
+        expect(publicApi.lastCall()?.method.localName).toBe("listDeploymentGroups");
+        expect(publicApi.lastCall()?.message).toEqual({ limit: 5, pageToken: "p" });
+    });
+
+    it("flattens a deployment group with attention changes and highlights", async () => {
+        const { publicApi, service } = serviceReturning({
+            group: {
+                summary: {
+                    slug: "devnet-v0.93.1",
+                    environment: Proto.Environment.DEVNET,
+                    occurredAt: ts(1_700_000_000),
+                    releaseVersion: "0.93.1",
+                    releaseTag: "v0.93.1",
+                    previousReleaseVersion: "0.93.0",
+                    versions: ["0.93.1"],
+                },
+                attention: [
+                    {
+                        postSlug: "v0.93.1",
+                        releaseVersion: "0.93.1",
+                        change: change({
+                            category: Proto.ChangeCategory.BREAKING_CHANGE,
+                            environmentExceptions: [
+                                {
+                                    environment: Proto.Environment.TESTNET,
+                                    availability: Proto.ChangeAvailability.AHEAD,
+                                    liveAt: ts(1_700_000_200),
+                                },
+                                {
+                                    environment: Proto.Environment.MAINNET,
+                                    availability: Proto.ChangeAvailability.UNAVAILABLE,
+                                },
+                            ],
+                        }),
+                    },
+                ],
+                highlights: [{ postSlug: "v0.93.1", releaseVersion: "0.93.1", text: "**OCO**" }],
+            },
+        });
+
+        await expect(
+            service.getDeploymentGroup({ slug: " devnet-v0.93.1 " }),
+        ).resolves.toMatchObject({
+            slug: "devnet-v0.93.1",
+            environment: "devnet",
+            releaseTag: "v0.93.1",
+            previousReleaseVersion: "0.93.0",
+            posts: [],
+            attention: [
+                {
+                    id: formatId(42n),
+                    category: "breaking_change",
+                    postSlug: "v0.93.1",
+                    releaseVersion: "0.93.1",
+                    environmentExceptions: [
+                        {
+                            environment: "testnet",
+                            availability: "ahead",
+                            liveAt: 1_700_000_200_000,
+                        },
+                        { environment: "mainnet", availability: "unavailable" },
+                    ],
+                },
+            ],
+            highlights: [{ postSlug: "v0.93.1", releaseVersion: "0.93.1", text: "**OCO**" }],
+        });
+        expect(publicApi.lastCall()?.method.localName).toBe("getDeploymentGroup");
+        expect(publicApi.lastCall()?.message).toEqual({ slug: "devnet-v0.93.1" });
+    });
+
     it.each([
         ["posts limit above 100", (s: ChangelogService) => s.listPosts({ limit: 101 })],
         ["changes limit above 500", (s: ChangelogService) => s.listChanges({ limit: 501 })],
         ["empty slug", (s: ChangelogService) => s.getPost({ slug: " " })],
+        ["empty group slug", (s: ChangelogService) => s.getDeploymentGroup({ slug: " " })],
+        [
+            "deployment groups limit above 100",
+            (s: ChangelogService) => s.listDeploymentGroups({ limit: 101 }),
+        ],
         [
             "endTime equal to startTime",
             (s: ChangelogService) => s.listChanges({ startTime: 1_000, endTime: 1_000 }),

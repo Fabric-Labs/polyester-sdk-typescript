@@ -7,16 +7,24 @@ import {
 import type { PublicApiTransports } from "../../shared/transports.js";
 import { parse } from "../../shared/validation.js";
 import {
+    GetChangelogDeploymentGroupInputSchema,
+    GetChangelogDeploymentGroupResultSchema,
     GetChangelogPostInputSchema,
     GetChangelogPostResultSchema,
     ListChangelogChangesInputSchema,
     ListChangelogChangesResultSchema,
+    ListChangelogDeploymentGroupsInputSchema,
+    ListChangelogDeploymentGroupsResultSchema,
     ListChangelogPostsInputSchema,
     ListChangelogPostsResultSchema,
+    type ChangelogDeploymentGroup,
     type ChangelogPost,
+    type GetChangelogDeploymentGroupInput,
     type GetChangelogPostInput,
     type ListChangelogChangesInput,
     type ListChangelogChangesResult,
+    type ListChangelogDeploymentGroupsInput,
+    type ListChangelogDeploymentGroupsResult,
     type ListChangelogPostsInput,
     type ListChangelogPostsResult,
 } from "./changelog.schemas.js";
@@ -78,5 +86,40 @@ export class ChangelogService {
         const request = parse(ListChangelogChangesInputSchema, input);
         const response = await this.#client.listChanges(request, toConnectCallOptions(options));
         return parse(ListChangelogChangesResultSchema, response);
+    }
+
+    /**
+     * Lists this environment's deployment groups newest first: each deployment that brought new
+     * releases, with the release posts it brought. Pass the previous `nextPageToken` as
+     * `pageToken` to continue; an empty `nextPageToken` means no more groups. Empty until the
+     * environment publishes release posts.
+     */
+    async listDeploymentGroups(
+        input: ListChangelogDeploymentGroupsInput = {},
+        options?: PolyesterRequestOptions,
+    ): Promise<ListChangelogDeploymentGroupsResult> {
+        const request = parse(ListChangelogDeploymentGroupsInputSchema, input);
+        const response = await this.#client.listDeploymentGroups(
+            request,
+            toConnectCallOptions(options),
+        );
+        return parse(ListChangelogDeploymentGroupsResultSchema, response);
+    }
+
+    /**
+     * Returns one deployment group by slug, for example `"testnet-v0.92.9"`, with the changes
+     * that need attention and the highlights of its release posts. An unknown slug throws a
+     * not-found error.
+     */
+    async getDeploymentGroup(
+        input: GetChangelogDeploymentGroupInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<ChangelogDeploymentGroup> {
+        const request = parse(GetChangelogDeploymentGroupInputSchema, input);
+        const response = await this.#client.getDeploymentGroup(
+            request,
+            toConnectCallOptions(options),
+        );
+        return parse(GetChangelogDeploymentGroupResultSchema, response).group;
     }
 }

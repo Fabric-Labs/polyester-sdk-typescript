@@ -259,7 +259,7 @@ export class TriggersService {
     }
 
     /**
-     * Applies a limited patch to an existing trigger. Omit activationPrice or maxSlippage to leave it unchanged, or pass `{ kind: "none" }` to clear it. An optional symbol ID must name the trigger's own market; an API key limited to specific markets must pass it.
+     * Applies a limited patch to an existing trigger. Omit activationPrice or maxSlippage to leave it unchanged, or pass `{ kind: "none" }` to clear it. Once a trailing stop has started tracking, a new or different activation price rejects the whole patch with `TRIGGER_ACTIVATION_PRICE_NOT_MODIFIABLE`; clearing it or repeating the current price is still accepted. To wait for a new activation price, cancel the trigger and create another. An optional symbol ID must name the trigger's own market; an API key limited to specific markets must pass it.
      */
     async modify(
         input: ModifyTriggerInput,

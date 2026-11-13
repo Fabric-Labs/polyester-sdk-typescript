@@ -1,7 +1,11 @@
 import * as Proto from "../../gen/notifications/v1/notifications_pb.js";
 import type { InputToProto, ProtoToOutput } from "../../utils/types.js";
 
-export const NOTIFICATION_TYPE_VALUES = ["price_alert", "telegram_approval"] as const;
+export const NOTIFICATION_TYPE_VALUES = [
+    "price_alert",
+    "telegram_approval",
+    "broker_allowlist_change",
+] as const;
 /** What a notification reports; each type belongs to one category. */
 export type NotificationType = (typeof NOTIFICATION_TYPE_VALUES)[number];
 
@@ -26,11 +30,24 @@ export const TELEGRAM_APPROVAL_ACTION_VALUES = [
 /** What an approval from the linked Telegram account approved. */
 export type TelegramApprovalAction = (typeof TELEGRAM_APPROVAL_ACTION_VALUES)[number];
 
+export const BROKER_ALLOWLIST_EVENT_VALUES = [
+    "change_requested",
+    "change_applied",
+    "change_not_applied",
+] as const;
+/** What happened to a broker vault payout address change. `change_not_applied` is final. */
+export type BrokerAllowlistEvent = (typeof BROKER_ALLOWLIST_EVENT_VALUES)[number];
+
+export const BROKER_ALLOWLIST_ACTION_VALUES = ["add_destination", "remove_destination"] as const;
+/** Whether a broker vault payout address change adds or removes the address. */
+export type BrokerAllowlistAction = (typeof BROKER_ALLOWLIST_ACTION_VALUES)[number];
+
 export const NotificationTypeCodec = {
     protoToOutput: {
         [Proto.NotificationType.TYPE_UNSPECIFIED]: "unspecified",
         [Proto.NotificationType.PRICE_ALERT]: "price_alert",
         [Proto.NotificationType.TELEGRAM_APPROVAL]: "telegram_approval",
+        [Proto.NotificationType.BROKER_ALLOWLIST_CHANGE]: "broker_allowlist_change",
     } satisfies ProtoToOutput<Proto.NotificationType, NotificationType>,
 } as const;
 
@@ -66,4 +83,21 @@ export const TelegramApprovalActionCodec = {
         [Proto.TelegramApprovalAction.RESUME_TRIGGER]: "resume_trigger",
         [Proto.TelegramApprovalAction.SWAP]: "swap",
     } satisfies ProtoToOutput<Proto.TelegramApprovalAction, TelegramApprovalAction>,
+} as const;
+
+export const BrokerAllowlistEventCodec = {
+    protoToOutput: {
+        [Proto.BrokerAllowlistEvent.BROKER_ALLOWLIST_EVENT_UNSPECIFIED]: "unspecified",
+        [Proto.BrokerAllowlistEvent.CHANGE_REQUESTED]: "change_requested",
+        [Proto.BrokerAllowlistEvent.CHANGE_APPLIED]: "change_applied",
+        [Proto.BrokerAllowlistEvent.CHANGE_NOT_APPLIED]: "change_not_applied",
+    } satisfies ProtoToOutput<Proto.BrokerAllowlistEvent, BrokerAllowlistEvent>,
+} as const;
+
+export const BrokerAllowlistActionCodec = {
+    protoToOutput: {
+        [Proto.BrokerAllowlistAction.BROKER_ALLOWLIST_ACTION_UNSPECIFIED]: "unspecified",
+        [Proto.BrokerAllowlistAction.ADD_DESTINATION]: "add_destination",
+        [Proto.BrokerAllowlistAction.REMOVE_DESTINATION]: "remove_destination",
+    } satisfies ProtoToOutput<Proto.BrokerAllowlistAction, BrokerAllowlistAction>,
 } as const;

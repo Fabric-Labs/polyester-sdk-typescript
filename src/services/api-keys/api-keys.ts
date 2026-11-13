@@ -125,9 +125,9 @@ export class ApiKeysService {
 
     /**
      * Replaces the caller's Polyester AI assistant key set: one `assistant` key per account,
-     * each bounded by its API policy, all or nothing. Register the keys `assistant.prepareKeys`
+     * each bounded by its API policy or a permission `preset`, all or nothing. Register the keys `assistant.prepareKeys`
      * returned before their deadline, then call `assistant.completeKeys`. Needs a fresh
-     * `stepUpToken` for the whole set. A policy that allows moving value out throws
+     * `stepUpToken` for the whole set, including the policies its presets create. A policy that allows moving value out throws
      * `PreconditionFailedError` (`AUTH_ASSISTANT_KEY_ACTION_NOT_ALLOWED`).
      */
     async setAssistantKeys(

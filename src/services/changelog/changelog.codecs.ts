@@ -32,6 +32,17 @@ export const CHANGELOG_SURFACE_VALUES = [
 ] as const;
 export type ChangelogSurface = (typeof CHANGELOG_SURFACE_VALUES)[number];
 
+export const CHANGELOG_ENVIRONMENT_VALUES = ["devnet", "testnet", "mainnet"] as const;
+export type ChangelogEnvironment = (typeof CHANGELOG_ENVIRONMENT_VALUES)[number];
+
+/**
+ * How one change differs from its release in an environment: `ahead` is available while the
+ * release is pending, `pending` is not yet available though the release is live, and
+ * `unavailable` is not available for now either way.
+ */
+export const CHANGELOG_CHANGE_AVAILABILITY_VALUES = ["ahead", "pending", "unavailable"] as const;
+export type ChangelogChangeAvailability = (typeof CHANGELOG_CHANGE_AVAILABILITY_VALUES)[number];
+
 export const CHANGELOG_SORT_VALUES = ["asc", "desc"] as const;
 export type ChangelogSort = (typeof CHANGELOG_SORT_VALUES)[number];
 
@@ -102,4 +113,22 @@ export const ChangelogSortCodec = {
         asc: Proto.SortDirection.SORT_ASC,
         desc: Proto.SortDirection.SORT_DESC,
     } satisfies InputToProto<ChangelogSort, Proto.SortDirection>,
+} as const;
+
+export const ChangelogEnvironmentCodec = {
+    protoToOutput: {
+        [Proto.Environment.ENVIRONMENT_UNSPECIFIED]: "unspecified",
+        [Proto.Environment.DEVNET]: "devnet",
+        [Proto.Environment.TESTNET]: "testnet",
+        [Proto.Environment.MAINNET]: "mainnet",
+    } satisfies ProtoToOutput<Proto.Environment, ChangelogEnvironment>,
+} as const;
+
+export const ChangelogChangeAvailabilityCodec = {
+    protoToOutput: {
+        [Proto.ChangeAvailability.AVAILABILITY_UNSPECIFIED]: "unspecified",
+        [Proto.ChangeAvailability.AHEAD]: "ahead",
+        [Proto.ChangeAvailability.PENDING]: "pending",
+        [Proto.ChangeAvailability.UNAVAILABLE]: "unavailable",
+    } satisfies ProtoToOutput<Proto.ChangeAvailability, ChangelogChangeAvailability>,
 } as const;

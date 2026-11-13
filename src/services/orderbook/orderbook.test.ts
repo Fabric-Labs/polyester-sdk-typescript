@@ -1,4 +1,4 @@
-import { create } from "@bufbuild/protobuf";
+import { create, type MessageInitShape } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
@@ -226,7 +226,7 @@ describe("OrderbookService", () => {
         realtime.params?.onPublication(
             create(Proto.OrderBookDeltaSchema, {
                 symbolId: 101,
-                bookSeqStart: 2n,
+                bookSeqStart: 1n,
                 bookSeqEnd: 2n,
             }),
         );
@@ -354,7 +354,7 @@ describe("OrderbookService", () => {
         realtime.params?.onPublication(
             create(Proto.OrderBookDeltaSchema, {
                 symbolId: 1,
-                bookSeqStart: 2n,
+                bookSeqStart: 1n,
                 bookSeqEnd: 2n,
                 bids: [{ priceTicks: 100_500_000_000n, qtyScaled: 25_000_000n }],
                 asks: [{ priceTicks: 101_000_000_000n, qtyScaled: 0n }],
@@ -415,13 +415,13 @@ describe("OrderbookService", () => {
         subscription.unsubscribe();
     });
 
-    it("stops buffered replay after one sequence gap and fetches one replacement snapshot", async () => {
+    it("holds the book after a sequence gap until the next reset, without refetching", async () => {
         const realtime = realtimeClientStub();
         const transport = unaryTransport({
             symbolId: 101,
             bookSeq: 10n,
             available: true,
-            bids: [],
+            bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
             asks: [],
         });
         const service = new OrderbookService(
@@ -429,24 +429,58 @@ describe("OrderbookService", () => {
             realtime.realtime,
             testScales(),
         );
+        const onEvent = vi.fn();
 
-        const subscription = service.createSubscription({
-            symbolId: 101,
-            onEvent: vi.fn(),
-        });
+        const subscription = service.createSubscription({ symbolId: 101, onEvent });
         realtime.params?.onConnected?.();
-        for (const sequence of [12n, 13n, 14n]) {
+        const delta = (
+            start: bigint,
+            end: bigint,
+            extra: Pick<MessageInitShape<typeof Proto.OrderBookDeltaSchema>, "bids" | "reset"> = {},
+        ) =>
             realtime.params?.onPublication(
                 create(Proto.OrderBookDeltaSchema, {
                     symbolId: 101,
-                    bookSeqStart: sequence,
-                    bookSeqEnd: sequence,
+                    bookSeqStart: start,
+                    bookSeqEnd: end,
+                    bids: [{ priceTicks: 99_000_000_000n, qtyScaled: 100_000_000n }],
+                    ...extra,
                 }),
             );
-        }
+        // Dropped: ends at or before the snapshot.
+        delta(9n, 10n);
+        // Overlaps the snapshot without starting at it: not applied, waits for a reset.
+        delta(9n, 11n);
+        // Chains onto the dropped delta, so it still waits.
+        delta(11n, 12n);
         await flushMicrotasks();
 
-        expect(transport.unary).toHaveBeenCalledTimes(2);
+        expect(transport.unary).toHaveBeenCalledOnce();
+        expect(onEvent).toHaveBeenCalledOnce();
+        expect(onEvent).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                bookSeq: "10",
+                bids: [expect.objectContaining({ price: "100" })],
+            }),
+        );
+
+        delta(0n, 13n, {
+            reset: true,
+            bids: [{ priceTicks: 98_000_000_000n, qtyScaled: 100_000_000n }],
+        });
+        delta(13n, 14n, { bids: [{ priceTicks: 97_000_000_000n, qtyScaled: 100_000_000n }] });
+        await flushMicrotasks();
+
+        expect(transport.unary).toHaveBeenCalledOnce();
+        expect(onEvent).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                bookSeq: "14",
+                bids: [
+                    expect.objectContaining({ price: "98" }),
+                    expect.objectContaining({ price: "97" }),
+                ],
+            }),
+        );
         subscription.unsubscribe();
     });
 
@@ -478,7 +512,7 @@ describe("OrderbookService", () => {
         realtime.params?.onPublication(
             create(Proto.OrderBookDeltaSchema, {
                 symbolId: 101,
-                bookSeqStart: 11n,
+                bookSeqStart: 10n,
                 bookSeqEnd: 11n,
                 bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
             }),

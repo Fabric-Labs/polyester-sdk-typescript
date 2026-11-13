@@ -1,18 +1,25 @@
 export type {
     ChangelogChange,
     ChangelogChangeEntry,
+    ChangelogDeploymentGroup,
+    ChangelogDeploymentGroupSummary,
     ChangelogPost,
     ChangelogPostSummary,
     ChangelogSection,
+    GetChangelogDeploymentGroupInput,
     GetChangelogPostInput,
     ListChangelogChangesInput,
     ListChangelogChangesResult,
+    ListChangelogDeploymentGroupsInput,
+    ListChangelogDeploymentGroupsResult,
     ListChangelogPostsInput,
     ListChangelogPostsResult,
 } from "./changelog.schemas.js";
 export type {
     ChangelogAudience,
+    ChangelogChangeAvailability,
     ChangelogChangeCategory,
+    ChangelogEnvironment,
     ChangelogSort,
     ChangelogSurface,
 } from "./changelog.codecs.js";

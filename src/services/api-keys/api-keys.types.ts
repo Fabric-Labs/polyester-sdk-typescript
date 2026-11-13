@@ -8,3 +8,4 @@ export type {
     AssistantKeySpecInput,
     SetAssistantKeysInput,
 } from "./api-keys.schemas.js";
+export type { AssistantKeyPreset } from "./api-keys.codecs.js";

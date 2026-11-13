@@ -18,6 +18,10 @@ describe("OrderErrorDetailSchema", () => {
         [ProtoWrite.ErrorCode.PEG_LIMIT_VIOLATION, "PEG_LIMIT_VIOLATION"],
         [ProtoWrite.ErrorCode.PEG_REFERENCE_UNAVAILABLE, "PEG_REFERENCE_UNAVAILABLE"],
         [ProtoWrite.ErrorCode.INVALID_PEG, "INVALID_PEG"],
+        [
+            ProtoWrite.ErrorCode.TRIGGER_ACTIVATION_PRICE_NOT_MODIFIABLE,
+            "TRIGGER_ACTIVATION_PRICE_NOT_MODIFIABLE",
+        ],
     ] as const)("maps order rejection %s to %s", (code, expected) => {
         expect(
             v.parse(OrderErrorDetailSchema, {

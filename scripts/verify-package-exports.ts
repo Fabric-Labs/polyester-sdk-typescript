@@ -222,6 +222,25 @@ async function verifyServiceInference(): Promise<void> {
     expectType<import("@polyester/sdk").ChangelogSurface | "unspecified" | undefined>(
         changelogPost.sections[0]?.surface,
     );
+    expectType<string | undefined>(changelogPost.releaseVersion);
+    const deploymentGroups = await client.changelog.listDeploymentGroups({
+        limit: 1,
+    } satisfies import("@polyester/sdk").ListChangelogDeploymentGroupsInput);
+    expectType<import("@polyester/sdk").ListChangelogDeploymentGroupsResult>(deploymentGroups);
+    expectType<import("@polyester/sdk").ChangelogDeploymentGroupSummary | undefined>(
+        deploymentGroups.groups[0],
+    );
+    const deploymentGroup = await client.changelog.getDeploymentGroup({
+        slug: "testnet-v0.92.9",
+    } satisfies import("@polyester/sdk").GetChangelogDeploymentGroupInput);
+    expectType<import("@polyester/sdk").ChangelogDeploymentGroup>(deploymentGroup);
+    expectNotAny(deploymentGroup, true);
+    expectType<import("@polyester/sdk").ChangelogEnvironment | "unspecified">(
+        deploymentGroup.environment,
+    );
+    expectType<import("@polyester/sdk").ChangelogChangeAvailability | "unspecified" | undefined>(
+        deploymentGroup.attention[0]?.environmentExceptions[0]?.availability,
+    );
     expectNotAny(changelogPb.ChangelogService, true);
     const rewardAwards = await client.rewards.listAwards({ limit: 100, pageToken: "next" });
     expectType<import("@polyester/sdk").ListRewardAwardsResult>(rewardAwards);

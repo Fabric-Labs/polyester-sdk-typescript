@@ -12,6 +12,8 @@ import {
     PriceAlertPriceSourceCodec,
 } from "../price-alerts/price-alerts.codecs.js";
 import {
+    BrokerAllowlistActionCodec,
+    BrokerAllowlistEventCodec,
     NOTIFICATION_CATEGORY_VALUES,
     NOTIFICATION_READ_STATE_VALUES,
     NotificationCategoryCodec,
@@ -141,6 +143,30 @@ function formatDetail(detail: Proto.Notification["detail"]) {
                 /** Key parameters in display order, such as market, side and quantity. */
                 parameters: notice.parameters.map(({ label, value }) => ({ label, value })),
                 approvedAt: tsObjToMs(notice.approvedAt) ?? null,
+            };
+        }
+        case "brokerAllowlist": {
+            const notice = detail.value;
+            return {
+                type: "broker_allowlist_change" as const,
+                broker: notice.broker,
+                /** Sub-account ID of the broker vault. */
+                vaultAccountId: formatId(notice.vaultAccountId),
+                /** The change's ID; key the broker's vault allowlist view on it. */
+                changeId: formatId(notice.changeId),
+                event: enumLabel(BrokerAllowlistEventCodec.protoToOutput, notice.event),
+                action: enumLabel(BrokerAllowlistActionCodec.protoToOutput, notice.action),
+                /** Destination chain ID, as a decimal string. */
+                destinationChainId: notice.destinationChainId.toString(),
+                destinationAddress: notice.destinationAddress,
+                /** The requesting member's name for an added address; empty when none. */
+                label: notice.label,
+                /**
+                 * Account ID of the member who requested the change. Show a `change_requested`
+                 * the caller did not make prominently: an added address becomes payable 24 hours
+                 * after it is listed.
+                 */
+                requestedByAccountId: formatId(notice.requestedByAccountId),
             };
         }
         default:

@@ -24,6 +24,7 @@ import { TriggerStatusCodec, TriggerTypeCodec } from "../triggers/triggers.codec
 import { createTriggerSchema } from "../triggers/triggers-output.schemas.js";
 import {
     ApprovalStatusCodec,
+    DisplaySettingCodec,
     FailureCategoryCodec,
     MemoryKindCodec,
     OrderPriceFieldCodec,
@@ -463,6 +464,11 @@ function formatEvent(e: Proto.RunEvent["event"], scales: SdkScales) {
                 errorMessage: e.value.errorMessage,
             };
         case "memoriesRecalled":
+            /**
+             * For a `recall_memories` call, the relevant memories; for a `memory_updates` call,
+             * the memories saved or changed in the user's other conversations since this one's
+             * previous answer. Key on the tool call's `name`.
+             */
             return {
                 type: "memories_recalled" as const,
                 toolCallId: e.value.toolCallId,
@@ -477,6 +483,18 @@ function formatEvent(e: Proto.RunEvent["event"], scales: SdkScales) {
                 type: "destinations_suggested" as const,
                 toolCallId: e.value.toolCallId,
                 destinationIds: e.value.destinationIds,
+            };
+        case "displaySettingAction":
+            /**
+             * Apply `value` to `setting` once, only in a run you sent and follow, never on replay,
+             * and offer an undo. No `value` means show the setting's choices and change nothing
+             * until the user picks. Ignore a setting or value the client no longer accepts.
+             */
+            return {
+                type: "display_setting_action" as const,
+                toolCallId: e.value.toolCallId,
+                setting: enumLabel(DisplaySettingCodec.protoToOutput, e.value.setting),
+                value: e.value.value,
             };
         case "skillLoaded":
             return { type: "skill_loaded" as const, name: e.value.name };
