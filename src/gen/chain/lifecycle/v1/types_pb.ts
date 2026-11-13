@@ -167,11 +167,16 @@ export enum LifecycleReason {
 
   /**
    * Zipper withdraw execution failed after the withdrawal's destination
-   * transaction was committed, and Zipper reviews it manually: the user may
-   * have received the funds on the destination chain. The flow ends FAILED,
-   * and its FAILED step's transaction is that destination transaction.
-   * Nothing is refunded to the account, and the request fee is kept; Zipper
-   * settles the withdrawal with the user outside Polyester Chain.
+   * transaction was committed, and the bridge operator reviews it manually:
+   * the user may have received the funds on the destination chain. The flow
+   * ends FAILED, and its FAILED step's transaction is that destination
+   * transaction. Nothing is refunded to the account, and the request fee is
+   * kept. Whatever Zipper reason code the failure carries, `zipper_reason`
+   * keeps that code, with the reason_id
+   * `withdrawal.execution_failed.under_review` and a message that the
+   * withdrawal failed, is under review by the bridge operator, and its funds
+   * were not returned to the account. Neither promises a timeline or an
+   * outcome.
    *
    * @generated from enum value: ZIPPER_WITHDRAW_EXECUTION_FAILED = 103;
    */

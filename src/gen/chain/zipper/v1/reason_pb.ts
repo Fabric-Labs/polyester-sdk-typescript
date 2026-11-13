@@ -26,14 +26,18 @@ export type ZipperReasonDetails = Message<"chain.zipper.v1.ZipperReasonDetails">
   code: ZipperReasonCode;
 
   /**
-   * Stable reason identifier suitable for localization lookup.
+   * Stable reason identifier suitable for localization lookup. A withdrawal
+   * whose execution failed (lifecycle reason ZIPPER_WITHDRAW_EXECUTION_FAILED)
+   * has `withdrawal.execution_failed.under_review`, whatever the code.
    *
    * @generated from field: string reason_id = 2;
    */
   reasonId: string;
 
   /**
-   * User-displayable English explanation of the outcome.
+   * User-displayable English explanation of the outcome. For a withdrawal
+   * whose execution failed, that it failed and is under review by the bridge
+   * operator, and that its funds were not returned to the account.
    *
    * @generated from field: string message = 3;
    */

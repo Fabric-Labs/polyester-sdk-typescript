@@ -388,8 +388,32 @@ describe("ApiKeysService assistant keys", () => {
         expect(stepUpHeader(transport.calls[0])).toBe("fresh");
     });
 
+    it("binds a key to a permission preset instead of a policy", async () => {
+        const { transport, service } = serviceWith([{ apiKeys: [] }]);
+
+        await service.setAssistantKeys(
+            { keys: [{ publicKeyEd25519: publicKey, preset: "trade_with_approval" }] },
+            { stepUpToken: "fresh" },
+        );
+
+        expect(transport.calls[0]?.message).toEqual({
+            keys: [
+                {
+                    publicKeyEd25519: publicKey,
+                    preset: Proto.AssistantKeyPreset.TRADE_WITH_APPROVAL,
+                    registrationProof: new Uint8Array(),
+                },
+            ],
+        });
+    });
+
     it.each([
         ["a short public key", [{ publicKeyEd25519: new Uint8Array(31), policyId: formatId(1n) }]],
+        ["neither a policy nor a preset", [{ publicKeyEd25519: publicKey }]],
+        [
+            "both a policy and a preset",
+            [{ publicKeyEd25519: publicKey, policyId: formatId(1n), preset: "read_only" as const }],
+        ],
         [
             "two keys for one account",
             [

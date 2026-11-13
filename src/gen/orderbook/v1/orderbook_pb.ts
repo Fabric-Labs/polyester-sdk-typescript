@@ -138,18 +138,24 @@ export const GetOrderBookResponseSchema: GenMessage<GetOrderBookResponse> = /*@_
   messageDesc(file_orderbook_v1_orderbook, 2);
 
 /**
- * OrderBookDelta is an incremental update to the orderbook state.
- * Uses scaled integers (binary protobuf) for realtime streaming performance.
+ * OrderBookDelta is an incremental update to the orderbook state of one depth
+ * tier: the difference between two published views of the tier's top levels
+ * per side. Uses scaled integers (binary protobuf) for realtime streaming
+ * performance.
  *
  * Semantics:
  * - For each side, each [price_ticks] entry is a SET at that price:
  *   - qty_scaled > 0 => set/replace that level quantity
- *   - qty_scaled == 0 => delete that level
+ *   - qty_scaled == 0 => remove that level from the tier's view
  * - reset=true indicates the book should be cleared before applying any levels.
+ *   A reset carrying the full view is sent periodically, currently about every
+ *   30 seconds, and after a sequence gap.
  *
- * Clients are expected to initialize from GetOrderBook (snapshot) and then
- * apply deltas in order. If a gap is detected, clients should refetch a
- * snapshot.
+ * To start, subscribe, then fetch GetOrderBook with the tier's depth. Drop
+ * deltas whose book_seq_end is at most the snapshot's book_seq, and apply the
+ * first delta only when its book_seq_start equals that book_seq; then apply
+ * each delta only when its book_seq_start equals the previous book_seq_end.
+ * Otherwise, or after a gap, wait for the next reset.
  *
  * @generated from message orderbook.v1.OrderBookDelta
  */
@@ -162,16 +168,18 @@ export type OrderBookDelta = Message<"orderbook.v1.OrderBookDelta"> & {
   symbolId: number;
 
   /**
-   * Monotonic book sequence range covered by this update.
-   * When reset=true, book_seq_start may be 0.
+   * Book sequence of the view this update applies to: the previous update's
+   * book_seq_end. Apply it only to a book at exactly this sequence. 0 when
+   * reset=true.
    *
    * @generated from field: uint64 book_seq_start = 2;
    */
   bookSeqStart: bigint;
 
   /**
-   * Monotonic book sequence at the end of this update's range. Consumers can
-   * retain it as the last applied sequence and ignore updates that do not advance it.
+   * Book sequence of the view after this update. It can advance without any
+   * change to the book. Consumers can retain it as the last applied sequence
+   * and ignore updates that do not advance it.
    *
    * @generated from field: uint64 book_seq_end = 3;
    */

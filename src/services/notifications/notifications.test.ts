@@ -132,6 +132,46 @@ describe("NotificationsService", () => {
         });
     });
 
+    it("formats a broker allowlist notice with public IDs and an exact chain ID", async () => {
+        const { service } = serviceWith({
+            notification: rawNotification({
+                type: Proto.NotificationType.BROKER_ALLOWLIST_CHANGE,
+                category: Proto.NotificationCategory.SECURITY,
+                detail: {
+                    case: "brokerAllowlist",
+                    value: {
+                        broker: "acme",
+                        vaultAccountId: 21n,
+                        changeId: 22n,
+                        event: Proto.BrokerAllowlistEvent.CHANGE_REQUESTED,
+                        action: Proto.BrokerAllowlistAction.ADD_DESTINATION,
+                        destinationChainId: 18_446_744_073_709_551_615n,
+                        destinationAddress: "0x1111111111111111111111111111111111111111",
+                        label: "Treasury",
+                        requestedByAccountId: 23n,
+                    },
+                },
+            }),
+        });
+
+        expect(await service.get({ notificationId: formatId(501n) })).toMatchObject({
+            type: "broker_allowlist_change",
+            category: "security",
+            detail: {
+                type: "broker_allowlist_change",
+                broker: "acme",
+                vaultAccountId: formatId(21n),
+                changeId: formatId(22n),
+                event: "change_requested",
+                action: "add_destination",
+                destinationChainId: "18446744073709551615",
+                destinationAddress: "0x1111111111111111111111111111111111111111",
+                label: "Treasury",
+                requestedByAccountId: formatId(23n),
+            },
+        });
+    });
+
     it("keeps a notification of an unknown type readable through title and text", async () => {
         const { service } = serviceWith({
             notifications: [

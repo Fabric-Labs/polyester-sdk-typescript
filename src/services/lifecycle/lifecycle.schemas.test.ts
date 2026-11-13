@@ -339,10 +339,19 @@ describe("LifecycleFlowSummarySchema", () => {
         });
 
         expect(flow.zipperReason).toEqual({
-            code: 1003,
+            code: "deposit_amount_below_minimum",
             reasonId: "deposit_amount_below_minimum",
             message: "Deposit amount is below the configured minimum.",
         });
+    });
+
+    it("keeps an uncataloged Zipper reason code readable", () => {
+        const flow = v.parse(createLifecycleFlowSummarySchema(), {
+            ...baseFlowSummary,
+            zipperReason: { code: 9999, reasonId: "future.reason", message: "Future." },
+        });
+
+        expect(flow.zipperReason?.code).toBe("unknown_zipper_reason_9999");
     });
 
     it("maps SOURCE_UNSPECIFIED lifecycle source on in-progress flows", () => {
@@ -400,7 +409,7 @@ describe("LifecycleFlowTxMatchSchema", () => {
             currentStep: "source",
             lifecycleReason: "zipper_validation_rejected",
             zipperReason: {
-                code: 3901,
+                code: "request_verification_rejected",
                 reasonId: "request_verification_rejected",
                 message: "Request verification was rejected.",
             },
@@ -453,13 +462,14 @@ describe("LifecycleFlowStepSchema", () => {
             activities: [activity],
         });
 
+        const decodedReason = { ...zipperReason, code: "request_verification_rejected" };
         expect(step).toMatchObject({
             lifecycleReason: "zipper_validation_rejected",
-            zipperReason,
+            zipperReason: decodedReason,
             activities: [
                 {
                     lifecycleReason: "zipper_validation_rejected",
-                    zipperReason,
+                    zipperReason: decodedReason,
                 },
             ],
         });

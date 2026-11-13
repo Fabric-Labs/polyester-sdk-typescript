@@ -21,7 +21,9 @@ import { bytesToHex } from "@noble/hashes/utils.js";
 import {
     API_KEY_STATUS_VALUES,
     API_KEY_UPDATE_STATUS_VALUES,
+    ASSISTANT_KEY_PRESET_VALUES,
     ApiKeyPurposeCodec,
+    AssistantKeyPresetCodec,
     ApiKeyStatusCodec,
 } from "./api-keys.codecs.js";
 import { buildProtoPatch, defineProtoPatchFields } from "../../utils/proto-patch.js";
@@ -181,7 +183,7 @@ const BytesSchema = v.instance(Uint8Array<ArrayBufferLike>);
 
 /**
  * One account's key in the assistant key set. Spread a key from `assistant.prepareKeys` and add
- * its `policyId`; other fields (like `publicKeyHex`) are ignored.
+ * exactly one of `policyId` and `preset`; other fields (like `publicKeyHex`) are ignored.
  */
 const AssistantKeySpecInputSchema = v.pipe(
     v.object({
@@ -190,7 +192,18 @@ const AssistantKeySpecInputSchema = v.pipe(
         /** 32-byte Ed25519 public key from `assistant.prepareKeys`. */
         publicKeyEd25519: v.pipe(BytesSchema, v.length(32, "publicKeyEd25519 must be 32 bytes")),
         /** API policy that bounds the key. It must not allow moving value out of the account. */
-        policyId: idInputSchema("policyId"),
+        policyId: v.optional(idInputSchema("policyId")),
+        /**
+         * Permission preset that bounds the key instead of `policyId`. The key is bound to the
+         * account's policy named after the preset, created in the same change when missing; the
+         * returned key's `policyId` names it. Devnet only.
+         */
+        preset: v.optional(
+            v.pipe(
+                v.picklist(ASSISTANT_KEY_PRESET_VALUES),
+                v.transform((preset) => AssistantKeyPresetCodec.inputToProto[preset]),
+            ),
+        ),
         /** Epoch ms from `assistant.prepareKeys`; needed for a new key, not for one already registered. */
         registrationDeadline: v.optional(
             v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(Number.MAX_SAFE_INTEGER)),
@@ -200,6 +213,10 @@ const AssistantKeySpecInputSchema = v.pipe(
             v.pipe(BytesSchema, v.length(64, "registrationProof must be 64 bytes")),
         ),
     }),
+    v.check(
+        ({ policyId, preset }) => (policyId === undefined) !== (preset === undefined),
+        "Set exactly one of policyId and preset.",
+    ),
     v.transform(({ registrationDeadline, registrationProof, ...key }) => ({
         ...key,
         registrationDeadline:

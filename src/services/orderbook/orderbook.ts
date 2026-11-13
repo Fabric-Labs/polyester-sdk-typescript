@@ -93,11 +93,11 @@ export class OrderbookService {
     }
 
     /**
-     * Creates a stateful order book subscription that first fetches a snapshot, buffers proto deltas from public:spot:orderbook:deltas:depth:{depth}:{symbolId}:proto, applies sequence-checked updates, and refetches on observed sequence gaps or reconnects. A snapshot whose book is not available fails with ServiceUnavailableError through onError and is retried; no event is emitted until a snapshot is available. The snapshot is fetched once the channel opens, so a socket that cannot connect reports a retryable RealtimeError with type "transport" through onError instead, once per outage; onOpen follows when it recovers. The returned handle can unsubscribe or change local price bucket aggregation without reconnecting.
+     * Creates a stateful order book subscription that first fetches a snapshot, buffers proto deltas from public:spot:orderbook:deltas:depth:{depth}:{symbolId}:proto, applies each delta only when it chains onto the book, and refetches on reconnects. After a sequence gap the book holds its last state until the server's next reset, sent about every 30 seconds and after gaps. A snapshot whose book is not available fails with ServiceUnavailableError through onError and is retried; no event is emitted until a snapshot is available. The snapshot is fetched once the channel opens, so a socket that cannot connect reports a retryable RealtimeError with type "transport" through onError instead, once per outage; onOpen follows when it recovers. The returned handle can unsubscribe or change local price bucket aggregation without reconnecting.
      *
      * `depth` is clamped to [1, 500] and rides the smallest published channel depth that covers it (see ORDERBOOK_WS_DEPTHS); levels are sliced back to the requested depth locally.
      *
-     * Refetching is driven by observed sequence gaps and reconnect events only. A feed that stays subscribed but stops publishing is indistinguishable from a quiet market, so it does not trigger onError or a refetch. Callers that must detect a stalled book need their own idle watchdog plus a REST refetch.
+     * Refetching is driven by reconnect events only. A feed that stays subscribed but stops publishing is indistinguishable from a quiet market, so it does not trigger onError or a refetch. Callers that must detect a stalled book need their own idle watchdog plus a REST refetch.
      */
     createSubscription(input: CreateOrderbookSubscriptionInput): OrderbookSubscription {
         const { symbolId } = parse(GetOrderbookInputSchema, {
@@ -113,6 +113,8 @@ export class OrderbookService {
         let bidsMap: BookSide = new Map();
         let asksMap: BookSide = new Map();
         let currentBookSeq = 0n;
+        // Set when a delta does not chain onto the book; only the next reset recovers it.
+        let awaitingReset = false;
         let bucketTicks: bigint | null = null;
         let stream: SnapshotThenStreamSubscription | undefined;
 
@@ -226,26 +228,28 @@ export class OrderbookService {
             return res;
         }
 
-        function handleDelta(delta: Proto.OrderBookDelta): boolean {
-            if (delta.bookSeqEnd <= currentBookSeq) return true;
+        /**
+         * Applies a delta only when it chains onto the current book (`bookSeqStart` equals the
+         * last applied `bookSeqEnd`) or is a reset. A delta that does not chain leaves the book
+         * waiting for the next reset, which the server sends periodically and after a gap.
+         */
+        function handleDelta(delta: Proto.OrderBookDelta): void {
+            if (delta.bookSeqEnd <= currentBookSeq) return;
 
             if (delta.reset) {
                 bidsMap.clear();
                 asksMap.clear();
-                currentBookSeq = 0n;
-            }
-
-            if (currentBookSeq !== 0n && delta.bookSeqStart > currentBookSeq + 1n) {
-                stream?.refreshSnapshot();
-                return false;
+                awaitingReset = false;
+            } else if (awaitingReset || delta.bookSeqStart !== currentBookSeq) {
+                awaitingReset = true;
+                return;
             }
 
             applySideDelta(bidsMap, delta.bids);
             applySideDelta(asksMap, delta.asks);
 
-            currentBookSeq = delta.bookSeqEnd > currentBookSeq ? delta.bookSeqEnd : currentBookSeq;
+            currentBookSeq = delta.bookSeqEnd;
             emit();
-            return true;
         }
 
         setBucket(input.bucket);
@@ -262,16 +266,17 @@ export class OrderbookService {
                 bidsMap = levelsToMap(snapshot.bids);
                 asksMap = levelsToMap(snapshot.asks);
                 currentBookSeq = snapshot.bookSeq;
+                awaitingReset = false;
                 emit();
                 for (const delta of bufferedDeltas) {
                     if (stream?.isDisposed()) return;
-                    if (!handleDelta(delta)) return;
+                    handleDelta(delta);
                 }
             },
             applyLivePublications: (deltas) => {
                 for (const delta of deltas) {
                     if (stream?.isDisposed()) return;
-                    if (!handleDelta(delta)) return;
+                    handleDelta(delta);
                 }
             },
             onOpen: input.onOpen,

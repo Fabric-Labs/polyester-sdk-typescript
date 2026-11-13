@@ -9,6 +9,23 @@ export const API_KEY_PURPOSE_VALUES = ["standard", "assistant"] as const;
 export type ApiKeyPurposeLabel = (typeof API_KEY_PURPOSE_VALUES)[number];
 
 /**
+ * Fixed permission sets for an assistant key, available on devnet only. `read_only` reads
+ * balances, orders, transfers, auto-withdraw rules, API keys, subaccounts and deposit addresses
+ * (and price alerts on the main account). `trade_with_approval` adds trading, swaps and deposit
+ * address creation, each trade only after the user approves it (and price alert management on
+ * the main account). No preset moves value out of the account.
+ */
+export const ASSISTANT_KEY_PRESET_VALUES = ["read_only", "trade_with_approval"] as const;
+export type AssistantKeyPreset = (typeof ASSISTANT_KEY_PRESET_VALUES)[number];
+
+export const AssistantKeyPresetCodec = {
+    inputToProto: {
+        read_only: Proto.AssistantKeyPreset.READ_ONLY,
+        trade_with_approval: Proto.AssistantKeyPreset.TRADE_WITH_APPROVAL,
+    } satisfies InputToProto<AssistantKeyPreset, Proto.AssistantKeyPreset>,
+} as const;
+
+/**
  * `assistant` keys belong to the Polyester AI assistant: their policy can never move value out
  * of the account. They are listed, updated and revoked like any key.
  */

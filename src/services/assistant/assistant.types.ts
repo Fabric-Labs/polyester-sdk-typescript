@@ -30,6 +30,7 @@ export type {
 export type {
     AssistantApprovalDecision,
     AssistantApprovalStatus,
+    AssistantDisplaySetting,
     AssistantFailureCategory,
     AssistantKeyState,
     AssistantMemoryKind,

@@ -70,6 +70,24 @@ describe("AssistantService unary calls", () => {
         });
     });
 
+    it("sends the current page and the display settings the client offers", async () => {
+        const { transport, service } = serviceWith({ runId: 7n, conversationId: 8n });
+
+        await service.sendMessage({
+            text: "switch to dark mode",
+            idempotencyKey: "key-2",
+            page: { route: "/account/settings/[section]", title: "Settings" },
+            displaySettings: ["appearance", "week_start"],
+        });
+
+        expect(transport.lastCall()?.message).toEqual({
+            text: "switch to dark mode",
+            idempotencyKey: "key-2",
+            page: { route: "/account/settings/[section]", title: "Settings" },
+            displaySettings: [Proto.DisplaySetting.APPEARANCE, Proto.DisplaySetting.WEEK_START],
+        });
+    });
+
     it.each([
         [{ text: "", idempotencyKey: "k" }],
         [{ text: "hi", idempotencyKey: " " }],
@@ -84,6 +102,16 @@ describe("AssistantService unary calls", () => {
             },
         ],
         [{ text: "hi", idempotencyKey: "k", destinations: [{ id: "Bad Id", title: "A" }] }],
+        [{ text: "hi", idempotencyKey: "k", page: { route: "/trade?symbol=SOL", title: "Trade" } }],
+        [{ text: "hi", idempotencyKey: "k", page: { route: "trade", title: "Trade" } }],
+        [{ text: "hi", idempotencyKey: "k", page: { route: "/trade", title: "" } }],
+        [
+            {
+                text: "hi",
+                idempotencyKey: "k",
+                displaySettings: ["sounds", "sounds"] as ("sounds" | "appearance")[],
+            },
+        ],
     ])("rejects invalid message input %#", async (input) => {
         const { service } = serviceWith({});
         await expect(service.sendMessage(input)).rejects.toBeInstanceOf(ValidationError);
@@ -281,6 +309,46 @@ describe("AssistantService.watchRun", () => {
             ),
         };
     }
+
+    it("keeps whether a display setting action carries a value", async () => {
+        const { service } = streamingService([
+            {
+                seq: 1n,
+                event: {
+                    case: "displaySettingAction",
+                    value: {
+                        toolCallId: "t1",
+                        setting: Proto.DisplaySetting.APPEARANCE,
+                        value: "dark",
+                    },
+                },
+            },
+            {
+                seq: 2n,
+                event: {
+                    case: "displaySettingAction",
+                    value: { toolCallId: "t2", setting: Proto.DisplaySetting.CURRENCY, value: "" },
+                },
+            },
+            {
+                seq: 3n,
+                event: {
+                    case: "displaySettingAction",
+                    value: { toolCallId: "t3", setting: Proto.DisplaySetting.LANGUAGE },
+                },
+            },
+        ]);
+
+        const events = await collect(service.watchRun({ runId: formatId(1n) }));
+
+        expect(
+            events.map((e) => e.type === "display_setting_action" && [e.setting, e.value]),
+        ).toEqual([
+            ["appearance", "dark"],
+            ["currency", ""],
+            ["language", undefined],
+        ]);
+    });
 
     it("streams typed events from afterSeq and skips unknown cases", async () => {
         const { requests, service } = streamingService([

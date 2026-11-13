@@ -689,7 +689,10 @@ export type Order = Message<"orders.v1.Order"> & {
   version: number;
 
   /**
-   * Batch-replace identity that admitted this order. Zero for other origins.
+   * Batch-replace identity that admitted this order, retained after it ends.
+   * Also set for batch-replaced trigger-generated orders. Zero when this order
+   * was not admitted by a batch replacement; a later batch replacing this order
+   * does not change its admission identity.
    *
    * @generated from field: fixed64 batch_request_id = 27;
    */
@@ -1100,6 +1103,7 @@ export type GetOrderHistoryRequest = Message<"orders.v1.GetOrderHistoryRequest">
 
   /**
    * Inclusive end of the time range, in nanoseconds since epoch (UTC).
+   * Omit for no upper bound; an explicit zero returns an empty page.
    *
    * @generated from field: optional uint64 end_ts_ns = 11;
    */
@@ -1219,6 +1223,7 @@ export type GetUserTradesRequest = Message<"orders.v1.GetUserTradesRequest"> & {
 
   /**
    * Inclusive end of the time range, in nanoseconds since epoch (UTC).
+   * Omit for no upper bound; an explicit zero returns an empty page.
    *
    * @generated from field: optional uint64 end_ts_ns = 11;
    */

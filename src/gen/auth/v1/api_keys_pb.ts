@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file auth/v1/api_keys.proto.
  */
 export const file_auth_v1_api_keys: GenFile = /*@__PURE__*/
-  fileDesc("ChZhdXRoL3YxL2FwaV9rZXlzLnByb3RvEgdhdXRoLnYxIpAECgZBcGlLZXkSEAoGa2V5X2lkGAIgASgJQgASDQoFbGFiZWwYAyABKAkSDgoEaWNvbhgJIAEoCUIAEg8KBWNvbG9yGAogASgJQgASFgoMaXBfd2hpdGVsaXN0GAQgAygJQgASJQoGc3RhdHVzGAYgASgOMhUuYXV0aC52MS5BcGlLZXlTdGF0dXMSGgoNc3ViYWNjb3VudF9pZBgHIAEoBkgAiAEBEhYKCXBvbGljeV9pZBgIIAEoBkgBiAEBEi4KCmNyZWF0ZWRfYXQYFCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGxhc3RfdXNlZF9hdBgVIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoScHVibGljX2tleV9lZDI1NTE5GBYgASgMEi4KCmV4cGlyZXNfYXQYFyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEGNyZWF0ZWRfYnlfYWN0b3IYGCABKAkSLgoKdXBkYXRlZF9hdBgZIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIcmV2aXNpb24YGiABKAQSJwoHcHVycG9zZRgbIAEoDjIWLmF1dGgudjEuQXBpS2V5UHVycG9zZUIQCg5fc3ViYWNjb3VudF9pZEIMCgpfcG9saWN5X2lkIqsBChNDcmVhdGVBcGlLZXlSZXF1ZXN0Eg8KBWxhYmVsGAEgASgJQgASGgoNc3ViYWNjb3VudF9pZBgDIAEoBkgAiAEBEg4KBGljb24YBiABKAlCABIPCgVjb2xvchgHIAEoCUIAEhYKDGlwX3doaXRlbGlzdBgEIAMoCUIAEhwKEnB1YmxpY19rZXlfZWQyNTUxORgFIAEoDEIAQhAKDl9zdWJhY2NvdW50X2lkIjgKFENyZWF0ZUFwaUtleVJlc3BvbnNlEiAKB2FwaV9rZXkYASABKAsyDy5hdXRoLnYxLkFwaUtleSJCChJMaXN0QXBpS2V5c1JlcXVlc3QSGgoNc3ViYWNjb3VudF9pZBgBIAEoBkgAiAEBQhAKDl9zdWJhY2NvdW50X2lkIjgKE0xpc3RBcGlLZXlzUmVzcG9uc2USIQoIYXBpX2tleXMYASADKAsyDy5hdXRoLnYxLkFwaUtleSInChNEZWxldGVBcGlLZXlSZXF1ZXN0EhAKBmtleV9pZBgBIAEoCUIAIhYKFERlbGV0ZUFwaUtleVJlc3BvbnNlIiQKEEdldEFwaUtleVJlcXVlc3QSEAoGa2V5X2lkGAEgASgJQgAiNQoRR2V0QXBpS2V5UmVzcG9uc2USIAoHYXBpX2tleRgBIAEoCzIPLmF1dGgudjEuQXBpS2V5IrcBChBBcGlLZXlVcGRhdGVTcGVjEg8KBWxhYmVsGAEgASgJQgASDgoEaWNvbhgCIAEoCUIAEg8KBWNvbG9yGAMgASgJQgASJwoGc3RhdHVzGAQgASgOMhUuYXV0aC52MS5BcGlLZXlTdGF0dXNCABIWCgxpcF93aGl0ZWxpc3QYBSADKAlCABIuCgpleHBpcmVzX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcDoAIqUBChNVcGRhdGVBcGlLZXlSZXF1ZXN0EhAKBmtleV9pZBgBIAEoCUIAEiwKB2FwaV9rZXkYAiABKAsyGS5hdXRoLnYxLkFwaUtleVVwZGF0ZVNwZWNCABIxCgt1cGRhdGVfbWFzaxgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2tCABIbChFleHBlY3RlZF9yZXZpc2lvbhgEIAEoBEIAIjgKFFVwZGF0ZUFwaUtleVJlc3BvbnNlEiAKB2FwaV9rZXkYASABKAsyDy5hdXRoLnYxLkFwaUtleSLKAQoQQXNzaXN0YW50S2V5U3BlYxIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESHAoScHVibGljX2tleV9lZDI1NTE5GAIgASgMQgASEwoJcG9saWN5X2lkGAMgASgGQgASOQoVcmVnaXN0cmF0aW9uX2RlYWRsaW5lGAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJyZWdpc3RyYXRpb25fcHJvb2YYBSABKAxCEAoOX3N1YmFjY291bnRfaWQiRAoXU2V0QXNzaXN0YW50S2V5c1JlcXVlc3QSKQoEa2V5cxgBIAMoCzIZLmF1dGgudjEuQXNzaXN0YW50S2V5U3BlY0IAIj0KGFNldEFzc2lzdGFudEtleXNSZXNwb25zZRIhCghhcGlfa2V5cxgBIAMoCzIPLmF1dGgudjEuQXBpS2V5IhoKGExpc3RBc3Npc3RhbnRLZXlzUmVxdWVzdCI+ChlMaXN0QXNzaXN0YW50S2V5c1Jlc3BvbnNlEiEKCGFwaV9rZXlzGAEgAygLMg8uYXV0aC52MS5BcGlLZXkiHAoaRGVsZXRlQXNzaXN0YW50S2V5c1JlcXVlc3QiNgobRGVsZXRlQXNzaXN0YW50S2V5c1Jlc3BvbnNlEhcKD3Jldm9rZWRfa2V5X2lkcxgBIAMoCSpVCgxBcGlLZXlTdGF0dXMSHgoaQVBJX0tFWV9TVEFUVVNfVU5TUEVDSUZJRUQQABIKCgZBQ1RJVkUQARILCgdSRVZPS0VEEAISDAoIRElTQUJMRUQQAypFCg1BcGlLZXlQdXJwb3NlEhcKE1BVUlBPU0VfVU5TUEVDSUZJRUQQABIMCghTVEFOREFSRBABEg0KCUFTU0lTVEFOVBACMq0FCg1BcGlLZXlTZXJ2aWNlEk0KDENyZWF0ZUFwaUtleRIcLmF1dGgudjEuQ3JlYXRlQXBpS2V5UmVxdWVzdBodLmF1dGgudjEuQ3JlYXRlQXBpS2V5UmVzcG9uc2UiABJKCgtMaXN0QXBpS2V5cxIbLmF1dGgudjEuTGlzdEFwaUtleXNSZXF1ZXN0GhwuYXV0aC52MS5MaXN0QXBpS2V5c1Jlc3BvbnNlIgASRAoJR2V0QXBpS2V5EhkuYXV0aC52MS5HZXRBcGlLZXlSZXF1ZXN0GhouYXV0aC52MS5HZXRBcGlLZXlSZXNwb25zZSIAEk0KDERlbGV0ZUFwaUtleRIcLmF1dGgudjEuRGVsZXRlQXBpS2V5UmVxdWVzdBodLmF1dGgudjEuRGVsZXRlQXBpS2V5UmVzcG9uc2UiABJNCgxVcGRhdGVBcGlLZXkSHC5hdXRoLnYxLlVwZGF0ZUFwaUtleVJlcXVlc3QaHS5hdXRoLnYxLlVwZGF0ZUFwaUtleVJlc3BvbnNlIgASWQoQU2V0QXNzaXN0YW50S2V5cxIgLmF1dGgudjEuU2V0QXNzaXN0YW50S2V5c1JlcXVlc3QaIS5hdXRoLnYxLlNldEFzc2lzdGFudEtleXNSZXNwb25zZSIAElwKEUxpc3RBc3Npc3RhbnRLZXlzEiEuYXV0aC52MS5MaXN0QXNzaXN0YW50S2V5c1JlcXVlc3QaIi5hdXRoLnYxLkxpc3RBc3Npc3RhbnRLZXlzUmVzcG9uc2UiABJiChNEZWxldGVBc3Npc3RhbnRLZXlzEiMuYXV0aC52MS5EZWxldGVBc3Npc3RhbnRLZXlzUmVxdWVzdBokLmF1dGgudjEuRGVsZXRlQXNzaXN0YW50S2V5c1Jlc3BvbnNlIgAaAEI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2F1dGgvdjE7YXV0aHYxYgZwcm90bzM=", [file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChZhdXRoL3YxL2FwaV9rZXlzLnByb3RvEgdhdXRoLnYxIpAECgZBcGlLZXkSEAoGa2V5X2lkGAIgASgJQgASDQoFbGFiZWwYAyABKAkSDgoEaWNvbhgJIAEoCUIAEg8KBWNvbG9yGAogASgJQgASFgoMaXBfd2hpdGVsaXN0GAQgAygJQgASJQoGc3RhdHVzGAYgASgOMhUuYXV0aC52MS5BcGlLZXlTdGF0dXMSGgoNc3ViYWNjb3VudF9pZBgHIAEoBkgAiAEBEhYKCXBvbGljeV9pZBgIIAEoBkgBiAEBEi4KCmNyZWF0ZWRfYXQYFCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGxhc3RfdXNlZF9hdBgVIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoScHVibGljX2tleV9lZDI1NTE5GBYgASgMEi4KCmV4cGlyZXNfYXQYFyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEGNyZWF0ZWRfYnlfYWN0b3IYGCABKAkSLgoKdXBkYXRlZF9hdBgZIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIcmV2aXNpb24YGiABKAQSJwoHcHVycG9zZRgbIAEoDjIWLmF1dGgudjEuQXBpS2V5UHVycG9zZUIQCg5fc3ViYWNjb3VudF9pZEIMCgpfcG9saWN5X2lkIqsBChNDcmVhdGVBcGlLZXlSZXF1ZXN0Eg8KBWxhYmVsGAEgASgJQgASGgoNc3ViYWNjb3VudF9pZBgDIAEoBkgAiAEBEg4KBGljb24YBiABKAlCABIPCgVjb2xvchgHIAEoCUIAEhYKDGlwX3doaXRlbGlzdBgEIAMoCUIAEhwKEnB1YmxpY19rZXlfZWQyNTUxORgFIAEoDEIAQhAKDl9zdWJhY2NvdW50X2lkIjgKFENyZWF0ZUFwaUtleVJlc3BvbnNlEiAKB2FwaV9rZXkYASABKAsyDy5hdXRoLnYxLkFwaUtleSJCChJMaXN0QXBpS2V5c1JlcXVlc3QSGgoNc3ViYWNjb3VudF9pZBgBIAEoBkgAiAEBQhAKDl9zdWJhY2NvdW50X2lkIjgKE0xpc3RBcGlLZXlzUmVzcG9uc2USIQoIYXBpX2tleXMYASADKAsyDy5hdXRoLnYxLkFwaUtleSInChNEZWxldGVBcGlLZXlSZXF1ZXN0EhAKBmtleV9pZBgBIAEoCUIAIhYKFERlbGV0ZUFwaUtleVJlc3BvbnNlIiQKEEdldEFwaUtleVJlcXVlc3QSEAoGa2V5X2lkGAEgASgJQgAiNQoRR2V0QXBpS2V5UmVzcG9uc2USIAoHYXBpX2tleRgBIAEoCzIPLmF1dGgudjEuQXBpS2V5IrcBChBBcGlLZXlVcGRhdGVTcGVjEg8KBWxhYmVsGAEgASgJQgASDgoEaWNvbhgCIAEoCUIAEg8KBWNvbG9yGAMgASgJQgASJwoGc3RhdHVzGAQgASgOMhUuYXV0aC52MS5BcGlLZXlTdGF0dXNCABIWCgxpcF93aGl0ZWxpc3QYBSADKAlCABIuCgpleHBpcmVzX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcDoAIqUBChNVcGRhdGVBcGlLZXlSZXF1ZXN0EhAKBmtleV9pZBgBIAEoCUIAEiwKB2FwaV9rZXkYAiABKAsyGS5hdXRoLnYxLkFwaUtleVVwZGF0ZVNwZWNCABIxCgt1cGRhdGVfbWFzaxgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2tCABIbChFleHBlY3RlZF9yZXZpc2lvbhgEIAEoBEIAIjgKFFVwZGF0ZUFwaUtleVJlc3BvbnNlEiAKB2FwaV9rZXkYASABKAsyDy5hdXRoLnYxLkFwaUtleSL5AQoQQXNzaXN0YW50S2V5U3BlYxIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESHAoScHVibGljX2tleV9lZDI1NTE5GAIgASgMQgASEQoJcG9saWN5X2lkGAMgASgGEjkKFXJlZ2lzdHJhdGlvbl9kZWFkbGluZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoScmVnaXN0cmF0aW9uX3Byb29mGAUgASgMEi0KBnByZXNldBgGIAEoDjIbLmF1dGgudjEuQXNzaXN0YW50S2V5UHJlc2V0QgA6AEIQCg5fc3ViYWNjb3VudF9pZCJEChdTZXRBc3Npc3RhbnRLZXlzUmVxdWVzdBIpCgRrZXlzGAEgAygLMhkuYXV0aC52MS5Bc3Npc3RhbnRLZXlTcGVjQgAiPQoYU2V0QXNzaXN0YW50S2V5c1Jlc3BvbnNlEiEKCGFwaV9rZXlzGAEgAygLMg8uYXV0aC52MS5BcGlLZXkiGgoYTGlzdEFzc2lzdGFudEtleXNSZXF1ZXN0Ij4KGUxpc3RBc3Npc3RhbnRLZXlzUmVzcG9uc2USIQoIYXBpX2tleXMYASADKAsyDy5hdXRoLnYxLkFwaUtleSIcChpEZWxldGVBc3Npc3RhbnRLZXlzUmVxdWVzdCI2ChtEZWxldGVBc3Npc3RhbnRLZXlzUmVzcG9uc2USFwoPcmV2b2tlZF9rZXlfaWRzGAEgAygJKlUKDEFwaUtleVN0YXR1cxIeChpBUElfS0VZX1NUQVRVU19VTlNQRUNJRklFRBAAEgoKBkFDVElWRRABEgsKB1JFVk9LRUQQAhIMCghESVNBQkxFRBADKkUKDUFwaUtleVB1cnBvc2USFwoTUFVSUE9TRV9VTlNQRUNJRklFRBAAEgwKCFNUQU5EQVJEEAESDQoJQVNTSVNUQU5UEAIqVAoSQXNzaXN0YW50S2V5UHJlc2V0EhYKElBSRVNFVF9VTlNQRUNJRklFRBAAEg0KCVJFQURfT05MWRABEhcKE1RSQURFX1dJVEhfQVBQUk9WQUwQAjKtBQoNQXBpS2V5U2VydmljZRJNCgxDcmVhdGVBcGlLZXkSHC5hdXRoLnYxLkNyZWF0ZUFwaUtleVJlcXVlc3QaHS5hdXRoLnYxLkNyZWF0ZUFwaUtleVJlc3BvbnNlIgASSgoLTGlzdEFwaUtleXMSGy5hdXRoLnYxLkxpc3RBcGlLZXlzUmVxdWVzdBocLmF1dGgudjEuTGlzdEFwaUtleXNSZXNwb25zZSIAEkQKCUdldEFwaUtleRIZLmF1dGgudjEuR2V0QXBpS2V5UmVxdWVzdBoaLmF1dGgudjEuR2V0QXBpS2V5UmVzcG9uc2UiABJNCgxEZWxldGVBcGlLZXkSHC5hdXRoLnYxLkRlbGV0ZUFwaUtleVJlcXVlc3QaHS5hdXRoLnYxLkRlbGV0ZUFwaUtleVJlc3BvbnNlIgASTQoMVXBkYXRlQXBpS2V5EhwuYXV0aC52MS5VcGRhdGVBcGlLZXlSZXF1ZXN0Gh0uYXV0aC52MS5VcGRhdGVBcGlLZXlSZXNwb25zZSIAElkKEFNldEFzc2lzdGFudEtleXMSIC5hdXRoLnYxLlNldEFzc2lzdGFudEtleXNSZXF1ZXN0GiEuYXV0aC52MS5TZXRBc3Npc3RhbnRLZXlzUmVzcG9uc2UiABJcChFMaXN0QXNzaXN0YW50S2V5cxIhLmF1dGgudjEuTGlzdEFzc2lzdGFudEtleXNSZXF1ZXN0GiIuYXV0aC52MS5MaXN0QXNzaXN0YW50S2V5c1Jlc3BvbnNlIgASYgoTRGVsZXRlQXNzaXN0YW50S2V5cxIjLmF1dGgudjEuRGVsZXRlQXNzaXN0YW50S2V5c1JlcXVlc3QaJC5hdXRoLnYxLkRlbGV0ZUFzc2lzdGFudEtleXNSZXNwb25zZSIAGgBCPFo6Z2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9hdXRoL3YxO2F1dGh2MWIGcHJvdG8z", [file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * ApiKey is public API key metadata. It never includes the private key or seed.
@@ -505,7 +505,8 @@ export type AssistantKeySpec = Message<"auth.v1.AssistantKeySpec"> & {
   /**
    * API policy that bounds the key (opaque ID). It must belong to the same
    * main account as the key, and must not allow EXTERNAL_WITHDRAW,
-   * INTERNAL_TRANSFER, MANAGE_ADDRESS_BOOK or MANAGE_AUTO_WITHDRAW.
+   * INTERNAL_TRANSFER, MANAGE_ADDRESS_BOOK or MANAGE_AUTO_WITHDRAW. Set
+   * exactly one of policy_id and preset.
    *
    * @generated from field: fixed64 policy_id = 3;
    */
@@ -531,6 +532,17 @@ export type AssistantKeySpec = Message<"auth.v1.AssistantKeySpec"> & {
    * @generated from field: bytes registration_proof = 5;
    */
   registrationProof: Uint8Array;
+
+  /**
+   * Permission preset that bounds the key, instead of policy_id. The key is
+   * bound to the preset's policy in the key's main account: the existing one
+   * with the preset's name and exactly its actions over all markets, else one
+   * created in the same change. The response's policy_id names it. Set
+   * exactly one of policy_id and preset.
+   *
+   * @generated from field: auth.v1.AssistantKeyPreset preset = 6;
+   */
+  preset: AssistantKeyPreset;
 };
 
 /**
@@ -737,6 +749,56 @@ export const ApiKeyPurposeSchema: GenEnum<ApiKeyPurpose> = /*@__PURE__*/
   enumDesc(file_auth_v1_api_keys, 1);
 
 /**
+ * AssistantKeyPreset is a fixed permission set for a Polyester AI assistant
+ * key. SetAssistantKeys turns it into an API policy of the key's main account,
+ * named after the preset, so the policy and the key need only the set's one
+ * step-up proof. No preset ever allows a money-out action (EXTERNAL_WITHDRAW,
+ * INTERNAL_TRANSFER, MANAGE_ADDRESS_BOOK, MANAGE_AUTO_WITHDRAW), API-key or
+ * policy management, or any action that weakens account security.
+ *
+ * @generated from enum auth.v1.AssistantKeyPreset
+ */
+export enum AssistantKeyPreset {
+  /**
+   * No preset selected.
+   *
+   * @generated from enum value: PRESET_UNSPECIFIED = 0;
+   */
+  PRESET_UNSPECIFIED = 0,
+
+  /**
+   * Read actions only: READ_BALANCES, READ_SPOT, READ_INTERNAL_TRANSFERS,
+   * READ_AUTO_WITHDRAW, READ_API_KEYS, READ_SUBACCOUNTS and
+   * READ_DEPOSIT_ADDRESSES. On the main account, also READ_PRICE_ALERTS, a
+   * main-account permission. Policy name "Polyester AI - Read only (main
+   * account)" on the main account, "Polyester AI - Read only (sub-account)"
+   * on a sub-account.
+   *
+   * @generated from enum value: READ_ONLY = 1;
+   */
+  READ_ONLY = 1,
+
+  /**
+   * READ_ONLY plus TRADE_SPOT, SWAP and CREATE_DEPOSIT_ADDRESS: the assistant
+   * also places, changes and cancels orders and triggers, and swaps, each only
+   * after the user approves that change, and creates deposit addresses, which
+   * move no funds out. On the main account, also MANAGE_PRICE_ALERTS: price
+   * alerts move no funds. Policy name "Polyester AI - Trade with
+   * approval (main account)" on the main account, "Polyester AI - Trade with
+   * approval (sub-account)" on a sub-account.
+   *
+   * @generated from enum value: TRADE_WITH_APPROVAL = 2;
+   */
+  TRADE_WITH_APPROVAL = 2,
+}
+
+/**
+ * Describes the enum auth.v1.AssistantKeyPreset.
+ */
+export const AssistantKeyPresetSchema: GenEnum<AssistantKeyPreset> = /*@__PURE__*/
+  enumDesc(file_auth_v1_api_keys, 2);
+
+/**
  * ApiKeyService manages API keys for authenticated callers.
  *
  * @generated from service auth.v1.ApiKeyService
@@ -802,8 +864,9 @@ export const ApiKeyService: GenService<{
   },
   /**
    * Create or replace the caller's Polyester AI assistant key set: one
-   * ASSISTANT key per enabled account, each bounded by its API policy. One
-   * fresh step-up proof covers the whole set, and the change is all or
+   * ASSISTANT key per enabled account, each bounded by its API policy or by a
+   * permission preset. One fresh step-up proof covers the whole set,
+   * including the policies its presets create, and the change is all or
    * nothing. An entry whose account already has an assistant key with the same
    * public key keeps that key, with its status, and takes the requested
    * policy; any other entry replaces the account's key. Accounts left out of

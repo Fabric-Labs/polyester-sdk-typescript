@@ -7,8 +7,10 @@ import { formatId } from "../../utils/base58-id.js";
 import { tsObjToMs } from "../../utils/time.js";
 import {
     ASSISTANT_APPROVAL_DECISION_VALUES,
+    ASSISTANT_DISPLAY_SETTING_VALUES,
     ApprovalDecisionCodec,
     AssistantKeyStateCodec,
+    DisplaySettingCodec,
     MemoryKindCodec,
     MessageRoleCodec,
 } from "./assistant.codecs.js";
@@ -36,6 +38,30 @@ const DestinationInputSchema = v.strictObject({
     description: v.optional(v.pipe(v.string(), v.maxLength(200)), ""),
 });
 
+/**
+ * The page the user is on, named by its template and title, never by its address: never send the
+ * URL, its query or fragment, or any id or symbol taken from the path.
+ */
+const CurrentPageInputSchema = v.strictObject({
+    /** The page's `destinations` id, when it is one of them. */
+    destinationId: v.optional(
+        v.pipe(
+            v.string(),
+            v.regex(/^[a-z0-9-]{1,64}$/, "destinationId must be 1-64 of a-z, 0-9, -"),
+        ),
+    ),
+    /** Route template with bracketed parameters, e.g. `"/account/settings/[section]"`. */
+    route: v.pipe(
+        v.string(),
+        v.regex(
+            /^\/[A-Za-z0-9/\-_.[\]]{0,199}$/,
+            "route must start with / and use at most 200 of A-Z, a-z, 0-9, /, -, _, ., [, ]",
+        ),
+    ),
+    /** The page's title as the client shows it, 1 to 80 characters; never the user's own data. */
+    title: v.pipe(v.string(), v.minLength(1), v.maxLength(80)),
+});
+
 export const SendAssistantMessageInputSchema = v.pipe(
     v.strictObject({
         /** Conversation to continue; omit to start a new one. */
@@ -45,8 +71,9 @@ export const SendAssistantMessageInputSchema = v.pipe(
         /** Client-chosen key, unique per caller. Repeat the request unchanged to resolve an unknown outcome. */
         idempotencyKey: IdempotencyKeySchema,
         /**
-         * Trading account the run reads and acts on. Omit to answer without account data: the
-         * run then has no account tools.
+         * Trading account the run reads and acts on. Omit for the main account: the run then
+         * reads it (balances, trading accounts, API keys, price alerts, fees and permissions)
+         * but places, changes and cancels nothing, and asks the user to pick a trading account.
          */
         subaccountId: optionalSubaccountIdInputSchema(),
         /** Places in the client the run may suggest, at most 100, each id once. */
@@ -58,6 +85,25 @@ export const SendAssistantMessageInputSchema = v.pipe(
                     (items) => new Set(items.map((d) => d.id)).size === items.length,
                     "Destination ids must be distinct.",
                 ),
+            ),
+        ),
+        /**
+         * The page the user is on as they send the message; omit for a client without pages.
+         * Covered by `idempotencyKey`: a retry must send the page the first attempt sent.
+         */
+        page: v.optional(CurrentPageInputSchema),
+        /**
+         * Display settings the client offers now and will change when a run's
+         * `display_setting_action` asks, each once. Omit for none.
+         */
+        displaySettings: v.optional(
+            v.pipe(
+                v.array(v.picklist(ASSISTANT_DISPLAY_SETTING_VALUES)),
+                v.check(
+                    (items) => new Set(items).size === items.length,
+                    "Display settings must be distinct.",
+                ),
+                v.transform((items) => items.map((item) => DisplaySettingCodec.inputToProto[item])),
             ),
         ),
     }),

@@ -528,7 +528,12 @@ export type AutoWithdrawStep = Message<"chain.withdraw.v1.AutoWithdrawStep"> & {
   intentId: string;
 
   /**
-   * Destination-network transaction hash once the withdrawal completed.
+   * Destination-network transaction hash, set once Zipper committed the
+   * withdrawal's destination transaction and empty before. On a completed
+   * step it is the delivery. When the withdrawal's execution failed after
+   * that commit, the step fails with withdrawal_failed and keeps this hash:
+   * the funds were not returned to the account, and the bridge operator
+   * reviews the withdrawal.
    *
    * @generated from field: string tx_hash = 9;
    */

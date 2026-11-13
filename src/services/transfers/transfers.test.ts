@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { create } from "@bufbuild/protobuf";
+import { create, fromBinary, fromJson, toBinary, toJson } from "@bufbuild/protobuf";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { U128Schema } from "../../gen/polyester/type/v1/u128_pb.js";
 import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
@@ -112,6 +112,44 @@ describe("TransfersService", () => {
                 transferCode: 1030,
                 pageToken: "cursor-1",
             },
+        });
+    });
+
+    it("keeps an omitted upper time bound distinct from an explicit zero on both wire formats", async () => {
+        const transport = unaryTransport({ transfers: [], nextPageToken: "" });
+        const service = new TransfersService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+        );
+
+        const sent = async (input: Parameters<TransfersService["list"]>[0]) => {
+            await service.list(input);
+            const message = create(
+                Proto.ListTransfersRequestSchema,
+                transport.lastCall()?.message as Proto.ListTransfersRequest,
+            );
+            const binary = fromBinary(
+                Proto.ListTransfersRequestSchema,
+                toBinary(Proto.ListTransfersRequestSchema, message),
+            );
+            const json = toJson(Proto.ListTransfersRequestSchema, message);
+            return {
+                binary: binary.tsMaxUs,
+                json: fromJson(Proto.ListTransfersRequestSchema, json).tsMaxUs,
+                jsonHasKey: typeof json === "object" && json !== null && "tsMaxUs" in json,
+            };
+        };
+
+        await expect(sent({})).resolves.toEqual({
+            binary: undefined,
+            json: undefined,
+            jsonHasKey: false,
+        });
+        await expect(sent({ timestampMax: 0 })).resolves.toEqual({
+            binary: 0n,
+            json: 0n,
+            jsonHasKey: true,
         });
     });
 
