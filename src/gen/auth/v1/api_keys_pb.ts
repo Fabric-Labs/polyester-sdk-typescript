@@ -768,11 +768,11 @@ export enum AssistantKeyPreset {
 
   /**
    * Read actions only: READ_BALANCES, READ_SPOT, READ_INTERNAL_TRANSFERS,
-   * READ_AUTO_WITHDRAW, READ_API_KEYS, READ_SUBACCOUNTS and
-   * READ_DEPOSIT_ADDRESSES. On the main account, also READ_PRICE_ALERTS, a
-   * main-account permission. Policy name "Polyester AI - Read only (main
-   * account)" on the main account, "Polyester AI - Read only (sub-account)"
-   * on a sub-account.
+   * READ_AUTO_WITHDRAW, READ_API_KEYS, READ_SUBACCOUNTS,
+   * READ_DEPOSIT_ADDRESSES and READ_STATEMENTS. On the main account, also
+   * READ_PRICE_ALERTS, a main-account permission. Policy name "Polyester AI -
+   * Read only (main account)" on the main account, "Polyester AI - Read only
+   * (sub-account)" on a sub-account.
    *
    * @generated from enum value: READ_ONLY = 1;
    */

@@ -30,6 +30,7 @@ export * as claimsPb from "./claims/v1/claims_pb.js";
 export * as feesPb from "./fees/v1/fees_pb.js";
 export * as ledgerReadPb from "./ledger/read/v1/ledger_read_pb.js";
 export * as ledgerCatalogPb from "./ledger/v1/catalog_pb.js";
+export * as assetInfoPb from "./marketdata/v1/asset_info_pb.js";
 export * as heatmapPb from "./marketdata/v1/heatmap_pb.js";
 export * as marketdataPb from "./marketdata/v1/marketdata_pb.js";
 export * as marketoverviewPb from "./marketoverview/v1/marketoverview_pb.js";

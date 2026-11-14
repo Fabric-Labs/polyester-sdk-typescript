@@ -3503,10 +3503,12 @@ export enum TriggerFailureReason {
 
   /**
    * The trigger price, or a trailing stop's activation price, was already
-   * reached by the price the trigger watches when the trigger was submitted
-   * (at or past it), so the trigger would have fired or activated at once. It
-   * never armed and sent no order; its reserved funds were released. A price
-   * that reaches it after submission fires or activates the trigger normally.
+   * reached by the price the trigger watches (at or past it) when the trigger
+   * took effect, a few milliseconds after it was submitted, so the trigger
+   * would have fired or activated at once. It never armed and sent no order;
+   * its reserved funds were released. A price that reaches it after the
+   * trigger is armed, or for a trailing stop created, fires or activates the
+   * trigger normally.
    *
    * @generated from enum value: TRIGGER_FAILURE_REASON_TRIGGER_WOULD_TRIGGER_IMMEDIATELY = 244;
    */

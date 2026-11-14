@@ -4403,6 +4403,18 @@ export const AllowlistChangeFailureSchema: GenEnum<AllowlistChangeFailure> = /*@
  * ACTION_DENIED, a missing or used proof with PERMISSION_DENIED /
  * STEP_UP_REQUIRED.
  *
+ * An API key's calls count against the broker's read_rps for the key. A
+ * member's session calls count against the member's account, across every
+ * broker the member belongs to: changes (vaults, keys, members, invites,
+ * ownership and the payout address allowlist) against the account's change
+ * quota, and reads against the account's own read rate. These limits are
+ * checked before the call runs, so a call they refuse changes nothing: over a
+ * limit it fails with RESOURCE_EXHAUSTED / BROKER_LIMIT and a Retry-After
+ * header in seconds, and while a member's change quota cannot be checked, the
+ * change fails with UNAVAILABLE carrying a RateLimitDetail (REST: the message
+ * "rate limit authority unavailable"). Any other UNAVAILABLE on a change can
+ * leave its outcome unknown: read the state again before retrying it.
+ *
  * REST errors are application/problem+json (see ErrorDetail) with the HTTP
  * statuses of QuickSwapService.
  *

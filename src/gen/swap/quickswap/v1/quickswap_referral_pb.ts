@@ -19,8 +19,8 @@ export const file_swap_quickswap_v1_quickswap_referral: GenFile = /*@__PURE__*/
 
 /**
  * ReferralRates are the referral rates of one route category, in whole basis
- * points of the swapped amount. Both come out of the broker fee; the
- * Polyester service fee is never reduced.
+ * points of the swapped amount. Both come out of the broker fee; a referral
+ * never reduces the Polyester service fee.
  *
  * @generated from message swap.quickswap.v1.ReferralRates
  */
