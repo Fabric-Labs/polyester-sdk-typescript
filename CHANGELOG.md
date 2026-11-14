@@ -1,5 +1,87 @@
 # @polyester/sdk
 
+## 0.36.0
+
+### Minor Changes
+
+- Breaking: `orders.batchReplace` resolves an item refused for its value, such as a price off the tick size or an invalid attached-risk price, as a rejected item in `results` with its `code` and `error`, instead of failing the whole batch. Resend only the corrected rejected items under a fresh `requestId`. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Breaking: price alert status and the assistant `run_failed` failure category now spell canceled `"canceled"` (was `"cancelled"`), matching orders, triggers and the rest of the SDK. This covers `PriceAlert["status"]`, the `priceAlerts.list` `statuses` filter and `AssistantFailureCategory`. There are no aliases: `"cancelled"` is now rejected as an input. ([#254](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/254))
+
+- Breaking: Lifecycle `zipperReason.code` is a label such as `"deposit_amount_below_minimum"` instead of a number, like every other enum. An uncataloged code reads `unknown_zipper_reason_${code}`. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- Breaking: a refusal caused by the API key's policy now reads `API_KEY_SPOT_TRADE_DENY` (no Spot Trading Write on the key) or `API_KEY_POLICY_REQUIRED` (no policy on the key) instead of `POLICY_SPOT_TRADE_DENY`, which now means only the sub-account's policy. All three still surface as `PermissionError`; handle them together. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Breaking: The order error code `MAX_QUOTE_DEBIT_TOO_SMALL` is renamed `QUOTE_SIZE_TOO_SMALL`, the refusal of either quote sizing, in `OrderErrorCode`, error details and `rejectReason`. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Breaking: Trigger IDs are now opaque public IDs, like order IDs, and every existing trigger gets a new ID once: drop stored trigger IDs, list triggers again and restart trigger listings from the first page. A zero trigger ID is now rejected before it is sent. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Breaking: The trigger failure reason `max_quote_debit_too_small` is renamed `quote_size_too_small`. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+### Patch Changes
+
+- `apiKeys.setAssistantKeys` can bound a key with a permission `preset` (`read_only` or `trade_with_approval`) instead of a `policyId`. Available on devnet only. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- `client.assistant.sendMessage` takes the `page` the user is on, named by route template and title. Available on devnet only. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- `client.assistant.sendMessage` takes the `displaySettings` the client can change, and runs emit `display_setting_action` events asking the client to change one or show its choices. Available on devnet only. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- `client.assistant.getTelegramApprovalLimits` and `setTelegramApprovalLimits` read and replace the per-approval and rolling 24-hour US dollar limits on what can be approved from Telegram. Available on devnet only. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- `client.balances.exportStatement` returns one page of the account statement for a period as CSV: every balance movement with its fee and the balance after it. `exportStatementCsv` follows the pages and returns the whole statement. ([#256](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/256))
+
+- Changelog entries can carry the `assistant` surface, and `changelog.listChanges` can filter by it. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- `client.changelog.listDeploymentGroups` and `getDeploymentGroup` read the deployments that brought releases to the environment, with their release posts, changes that need attention and highlights. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- Changelog release posts carry `releaseVersion`, the release's status in each environment (`environments`) and `deploymentGroupSlug`, and changes carry `environmentExceptions` where they differ from their release. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- Docs: the `trading_withdraw_request_fee` and `withdraw_failed` transfer types are the whole debit of a rejected or failed withdrawal, not a fee. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- `client.marketData.listAssetInfo` reads team-maintained asset information: description, official links and launch date and price. ([#256](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/256))
+
+- `client.notifications` decodes `broker_allowlist_change` notices about QuickSwap broker vault payout address changes. These previously decoded as `"unspecified"`. Available on devnet only. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- `client.notifications` lists, reads, counts and marks the caller's notifications with a session; API keys are refused. Available on devnet only. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Orders report the cancel reason `cancel_on_disconnect` when the trading WebSocket's cancel-on-disconnect canceled them, apart from `cancel_all_after`. These orders previously read `"unspecified"`. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- GTC and GTD limit orders take `execution.displayQty` to show only that much on the book at a time (iceberg), below `qty` and at least `qty` divided by 100; orders report it as `displayQty` with the hidden part of `leavesQty` as `hiddenQty`. Refusals use the new codes `ICEBERG_NOT_ALLOWED`, `ICEBERG_DISPLAY_TOO_SMALL` and `ICEBERG_DISPLAY_INVALID`. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- A SELL market or limit IOC order can be sized by `quoteProceeds`, the quote it sells for before fees, instead of `qty`; BUY, GTC, GTD, FOK, attached risk and a peg are rejected before sending. Create and batch create results and orders echo it as `submittedQuoteProceeds`, and the order's `cumQuote` is what it received. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Order intents, single and batch, take `peg: { reference: "best_bid" | "best_ask", offsetTicks? }` to take the limit price from the book at entry, offset by a signed count of the pair's tick size and bounded by `execution.price`. It needs `qty` sizing, a limit execution and no attached risk; refusals use the new codes `PEG_LIMIT_VIOLATION`, `PEG_REFERENCE_UNAVAILABLE` and `INVALID_PEG`. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- `selfTradePreventionMode` takes and reports `"decrement"`, which reduces both orders by the quantity that would have traded, also on orders with attached risk; an order left with nothing is canceled with the new cancel reason `stp_decrement`. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Order book subscriptions apply a delta only when it starts at the book's current sequence, and after a gap wait for the server's next reset instead of refetching snapshots. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- `PolicyAction` adds `read-price-alerts` and `manage-price-alerts`, which API keys now need for `priceAlerts.list` and for `create`, `update` and `cancel`. Both are main-account permissions, so sub-account policies reject them, and like price alerts they are available on devnet only. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- `PolicyAction` adds `read-statements` and sub-account permissions add `read_statements`, which API keys and members need to export account statements. ([#256](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/256))
+
+- Spot config pairs and the catalog add an optional `priceBand` (`lowerBps`, `upperBps`, `referenceWindowMs`), absent when the pair has no band, and orders report the cancel reason `price_band` when the band stopped a market order. Older snapshots without it still validate. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Sub-account activity events add the `requested` and `applied` actions: a requested change records a later `applied` or `failed` event. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- `client.system.listStatusEvents` lists scheduled maintenance and incidents, with their affected services, markets and assets and their progress notes. ([#256](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/256))
+
+- Order error code `TRIGGER_ACTIVATION_PRICE_NOT_MODIFIABLE` rejects a trigger patch that sets a new activation price after a trailing stop started tracking. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- `triggers.batchCancel({ triggerIds })` cancels 1 to 50 triggers in one request and answers each, in order, as `accepted` or `rejected` with a `code`. A `requestId` is generated when omitted; retry a timed-out batch with the same one. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Canceling a trigger that has already ended, including a repeated cancel, now throws with code `TRIGGER_STATUS_INVALID`, or `TRIGGER_NOT_FOUND` after 60 seconds, instead of returning the canceled trigger: treat either as done. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Triggers add `orderListId` and `clientListId`, set on both legs of an OCO, and `triggers.list` filters by either to read one OCO's legs. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- `triggers.createOco` creates an OCO, a take-profit and a stop-loss that share one reserved quantity the account already holds and cancel each other, and returns its `orderListId` with both legs' trigger IDs. `triggers.cancelOco({ orderListId })` cancels both legs. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- `@polyester/sdk/unstable/gen` adds `assetInfoPb` (asset information). ([#256](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/256))
+
+- `@polyester/sdk/unstable/gen` adds `notificationsPb` (notifications, devnet only). `quickswapBrokerPb` adds the vault ledger and vault allowlist methods, and `quickswapPb` adds execution slices to execution progress. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Zipper chain variants carry `depositStatus` and `withdrawalStatus` (`normal` or `suspended`); treat `"unspecified"` or an absent value as not available. Older snapshots without them still validate. ([#256](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/256))
+
 ## 0.35.0
 
 ### Minor Changes
