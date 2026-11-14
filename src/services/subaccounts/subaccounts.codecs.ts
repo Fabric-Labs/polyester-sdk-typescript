@@ -40,6 +40,7 @@ export const SUBACCOUNT_PERMISSION_VALUES = [
     "read_auto_withdraw",
     "manage_auto_withdraw",
     "swap",
+    "read_statements",
 ] as const;
 export type SubaccountPermissionValue = (typeof SUBACCOUNT_PERMISSION_VALUES)[number];
 
@@ -148,6 +149,7 @@ export const SubaccountPermissionCodec = {
         [Proto.SubaccountPermission.READ_AUTO_WITHDRAW]: "read_auto_withdraw",
         [Proto.SubaccountPermission.MANAGE_AUTO_WITHDRAW]: "manage_auto_withdraw",
         [Proto.SubaccountPermission.SWAP]: "swap",
+        [Proto.SubaccountPermission.READ_STATEMENTS]: "read_statements",
     } satisfies ProtoToOutput<Proto.SubaccountPermission, SubaccountPermissionValue>,
 } as const;
 

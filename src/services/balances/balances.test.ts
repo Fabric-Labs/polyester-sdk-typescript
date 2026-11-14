@@ -9,6 +9,7 @@ import {
     subaccountResolverStub,
     unaryTransport,
     unaryTransportByMethod,
+    unaryTransportSequence,
 } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
 import { BalancesService } from "./balances.js";
@@ -114,6 +115,69 @@ describe("BalancesService", () => {
                 },
             ]);
         }
+    });
+
+    it("exports one statement page for the resolved account", async () => {
+        const transport = unaryTransport({ csv: "time,entry_id\r\n", nextPageToken: "next" });
+        const service = new BalancesService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            subaccountResolverStub(formatId(7n)),
+            testScales(),
+        );
+
+        await expect(
+            service.exportStatement({ startTime: 1_000, endTime: 2_500, assetId: 1 }),
+        ).resolves.toEqual({ csv: "time,entry_id\r\n", nextPageToken: "next" });
+        const call = transport.lastCall();
+        expect(call?.method.name).toBe("ExportStatement");
+        expect(call?.message).toMatchObject({
+            subaccountId: 7n,
+            startTime: { seconds: 1n, nanos: 0 },
+            endTime: { seconds: 2n, nanos: 500_000_000 },
+            assetId: 1,
+            pageToken: "",
+        });
+    });
+
+    it("concatenates every statement page for one pinned account", async () => {
+        const transport = unaryTransportSequence([
+            { csv: "time,amount\r\na,1\r\n", nextPageToken: "p2" },
+            { csv: "b,2\r\n", nextPageToken: "" },
+        ]);
+        const resolver = subaccountResolverStub(formatId(7n));
+        const service = new BalancesService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            resolver,
+            testScales(),
+        );
+
+        await expect(service.exportStatementCsv({ startTime: 0, endTime: 1_000 })).resolves.toBe(
+            "time,amount\r\na,1\r\nb,2\r\n",
+        );
+        expect(transport.calls.map((call) => call.message)).toMatchObject([
+            { subaccountId: 7n, pageToken: "" },
+            { subaccountId: 7n, pageToken: "p2" },
+        ]);
+        expect(resolver.getDefaultSubaccountId).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+        ["an empty period", { startTime: 1_000, endTime: 1_000 }],
+        ["a period over 366 days", { startTime: 0, endTime: 366 * 86_400_000 + 1 }],
+        ["an asset ID over uint32", { startTime: 0, endTime: 1, assetId: 2 ** 32 }],
+    ])("rejects %s before sending", async (_name, input) => {
+        const transport = unaryTransport({});
+        const service = new BalancesService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await expect(service.exportStatement(input)).rejects.toThrow();
+        expect(transport.calls).toHaveLength(0);
     });
 
     it("preserves balances for assets unknown to the catalog", async () => {

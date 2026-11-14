@@ -49,6 +49,7 @@ const policyActionCases = [
     [Proto.PolicyAction.READ_GUARD_SIGNER_STATUS, "read-guard-signer-status"],
     [Proto.PolicyAction.READ_PRICE_ALERTS, "read-price-alerts"],
     [Proto.PolicyAction.MANAGE_PRICE_ALERTS, "manage-price-alerts"],
+    [Proto.PolicyAction.READ_STATEMENTS, "read-statements"],
 ] as const;
 
 describe("PolicyMarketScopeCodec", () => {

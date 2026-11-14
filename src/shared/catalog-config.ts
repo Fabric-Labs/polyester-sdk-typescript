@@ -92,6 +92,18 @@ export const ZIPPER_MEMO_REQUIREMENTS = [
     "not_supported",
 ] as const satisfies readonly ZipperMemoRequirement[];
 
+/**
+ * Whether a chain route accepts new deposits or new withdrawals. Requests created before a
+ * suspension continue to process. Treat `"unspecified"` (or an absent value) as not available.
+ */
+export type ZipperRouteStatus = "unspecified" | "normal" | "suspended";
+
+export const ZIPPER_ROUTE_STATUSES = [
+    "unspecified",
+    "normal",
+    "suspended",
+] as const satisfies readonly ZipperRouteStatus[];
+
 export interface ZipperChainConfig {
     chainId: number;
     code: string;
@@ -127,6 +139,13 @@ export interface ZipperAssetChainVariant {
     depositMinAmount: string;
     withdrawMinAmount: string;
     supply: string;
+    /**
+     * Whether the route accepts new deposits. Funds sent while deposits are suspended are
+     * delayed, not lost. Absent on older snapshots.
+     */
+    depositStatus?: ZipperRouteStatus;
+    /** Whether the route accepts new withdrawals. Absent on older snapshots. */
+    withdrawalStatus?: ZipperRouteStatus;
     sourceToken: ZipperTokenConfig;
     zToken: ZipperTokenConfig;
 }

@@ -11,6 +11,7 @@ export {
     type ZipperChainConfig,
     type ZipperChainContractConfig,
     type ZipperMemoRequirement,
+    type ZipperRouteStatus,
 } from "../shared/catalog-config.js";
 export type {
     EnrichedPairConfig,

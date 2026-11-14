@@ -10,8 +10,8 @@ export type ApiKeyPurposeLabel = (typeof API_KEY_PURPOSE_VALUES)[number];
 
 /**
  * Fixed permission sets for an assistant key, available on devnet only. `read_only` reads
- * balances, orders, transfers, auto-withdraw rules, API keys, subaccounts and deposit addresses
- * (and price alerts on the main account). `trade_with_approval` adds trading, swaps and deposit
+ * balances, orders, transfers, auto-withdraw rules, API keys, subaccounts, deposit addresses
+ * and account statements (and price alerts on the main account). `trade_with_approval` adds trading, swaps and deposit
  * address creation, each trade only after the user approves it (and price alert management on
  * the main account). No preset moves value out of the account.
  */

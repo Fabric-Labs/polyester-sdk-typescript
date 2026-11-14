@@ -1,6 +1,10 @@
 import * as v from "valibot";
 import { ValidationError } from "../shared/errors.js";
-import { PAIR_STATUSES, ZIPPER_MEMO_REQUIREMENTS } from "../shared/catalog-config.js";
+import {
+    PAIR_STATUSES,
+    ZIPPER_MEMO_REQUIREMENTS,
+    ZIPPER_ROUTE_STATUSES,
+} from "../shared/catalog-config.js";
 import type { CatalogSnapshot } from "./types.js";
 import type { ZippedAssetSupplyCatalogUpdate } from "./zipper-supply.js";
 
@@ -87,6 +91,8 @@ const ZipperEnrichedAssetChainSchema = v.object({
     depositMinAmount: v.optional(v.string()),
     withdrawMinAmount: v.optional(v.string()),
     supply: v.optional(v.string()),
+    depositStatus: v.optional(v.picklist(ZIPPER_ROUTE_STATUSES)),
+    withdrawalStatus: v.optional(v.picklist(ZIPPER_ROUTE_STATUSES)),
     sourceToken: ZipperTokenConfigSchema,
     zToken: ZipperTokenConfigSchema,
 });

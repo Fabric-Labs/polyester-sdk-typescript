@@ -5,6 +5,7 @@ export type {
     EquityGroupBy,
     EquityHistoryInput,
     EquityHistoryResponse,
+    ExportStatementInput,
     EquitySeries,
     EquitySeriesGrouping,
     PortfolioEquityHistoryInput,
@@ -13,4 +14,5 @@ export type {
     PortfolioEquitySeriesGrouping,
     PortfolioEquitySnapshotResponse,
     LedgerBalance,
+    StatementPage,
 } from "./balances.schemas.js";
