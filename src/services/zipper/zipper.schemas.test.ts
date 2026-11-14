@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
-import { MemoRequirement } from "../../gen/chain/zipper/v1/zipper_pb.js";
+import { MemoRequirement, RouteStatus } from "../../gen/chain/zipper/v1/zipper_pb.js";
 import { DepositWithdrawConfigSchema, ZipperChainConfigSchema } from "./zipper.schemas.js";
 
 describe("DepositWithdrawConfigSchema", () => {
@@ -80,6 +80,8 @@ describe("DepositWithdrawConfigSchema", () => {
                             depositMinAmount: "",
                             withdrawMinAmount: "",
                             supply: "123.456789",
+                            depositStatus: "unspecified",
+                            withdrawalStatus: "unspecified",
                             sourceToken: {
                                 address: "0x0000000000000000000000000000000000000001",
                                 decimals: 18,
@@ -135,5 +137,36 @@ describe("DepositWithdrawConfigSchema", () => {
             memoLabel: "Destination tag",
             memoFormatHint: "Up to 10 digits",
         });
+    });
+
+    it("decodes deposit and withdrawal route status per variant", () => {
+        const config = v.parse(DepositWithdrawConfigSchema, {
+            chains: [],
+            assets: [
+                {
+                    asset: "SOL",
+                    ledgerId: 5,
+                    name: "Solana",
+                    icon: "sol.svg",
+                    quantityScale: 9,
+                    quantityDisplayDecimals: 4,
+                    variants: [
+                        {
+                            zippedAssetId: 2001,
+                            chainId: 101,
+                            depositStatus: RouteStatus.SUSPENDED,
+                            withdrawalStatus: RouteStatus.NORMAL,
+                        },
+                        { zippedAssetId: 2002, chainId: 102, depositStatus: 99 },
+                    ],
+                },
+            ],
+            tsSec: 1_700_000_000n,
+        });
+
+        expect(config.assets[0]?.variants).toMatchObject([
+            { depositStatus: "suspended", withdrawalStatus: "normal" },
+            { depositStatus: "unspecified", withdrawalStatus: "unspecified" },
+        ]);
     });
 });

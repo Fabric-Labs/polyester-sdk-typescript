@@ -328,6 +328,33 @@ async function verifyServiceInference(): Promise<void> {
         await client.notifications.getCounts(),
     );
     expectType<import("@polyester/sdk").SystemVersion>(await client.system.getVersion());
+    const statusEvents = await client.system.listStatusEvents({
+        states: ["in_progress"],
+        kinds: ["incident"],
+    } satisfies import("@polyester/sdk").ListStatusEventsInput);
+    expectType<import("@polyester/sdk").ListStatusEventsResult>(statusEvents);
+    expectNotAny(statusEvents.events[0], true);
+    expectType<import("@polyester/sdk").StatusEventState | "unspecified" | undefined>(
+        statusEvents.events[0]?.state,
+    );
+    expectType<import("@polyester/sdk").StatusEventImpact | null | undefined>(
+        statusEvents.events[0]?.impact,
+    );
+    const assetInfo = await client.marketData.listAssetInfo({
+        assetIds: [1],
+    } satisfies import("@polyester/sdk").ListAssetInfoInput);
+    expectType<import("@polyester/sdk").AssetInfo[]>(assetInfo);
+    expectNotAny(assetInfo[0], true);
+    expectType<string | null | undefined>(assetInfo[0]?.editorial.issueDate);
+    const statementPage = await client.balances.exportStatement({
+        startTime: 0,
+        endTime: 86_400_000,
+    } satisfies import("@polyester/sdk").ExportStatementInput);
+    expectType<import("@polyester/sdk").StatementPage>(statementPage);
+    expectType<string>(await client.balances.exportStatementCsv({ startTime: 0, endTime: 1 }));
+    expectType<import("@polyester/sdk").ZipperRouteStatus | undefined>(
+        ({} as import("@polyester/sdk").ZipperAssetChainVariant).depositStatus,
+    );
     const assistantRun = await client.assistant.sendMessage({
         text: "What is my BTC balance?",
         idempotencyKey: "k",

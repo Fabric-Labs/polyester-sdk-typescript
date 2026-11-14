@@ -15,8 +15,13 @@ import {
 } from "../../shared/request-options.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import type { PublicApiTransports } from "../../shared/transports.js";
+import * as v from "valibot";
 import {
+    AssetInfoSchema,
     GetMarketTradesInputSchema,
+    ListAssetInfoInputSchema,
+    type AssetInfo,
+    type ListAssetInfoInput,
     formatMarketTrade,
     type GetMarketTradesInput,
     type SpotConfig,
@@ -82,6 +87,20 @@ export class MarketDataService {
     async getSpotConfig(options?: PolyesterRequestOptions): Promise<SpotConfig> {
         const res = await this.#client.getSpotConfig({}, toConnectCallOptions(options));
         return parse(SpotConfigSchema, res);
+    }
+
+    /**
+     * Returns team-maintained asset information (description, official links, launch date and
+     * price) for the requested ledger asset IDs, or for every asset with saved information,
+     * ordered by `assetId`. Assets never edited are omitted. Public and cacheable; no pagination.
+     */
+    async listAssetInfo(
+        input: ListAssetInfoInput = {},
+        options?: PolyesterRequestOptions,
+    ): Promise<AssetInfo[]> {
+        const request = parse(ListAssetInfoInputSchema, input);
+        const res = await this.#client.listAssetInfo(request, toConnectCallOptions(options));
+        return parse(v.array(AssetInfoSchema), res.assetInfo);
     }
 
     /**

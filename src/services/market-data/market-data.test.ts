@@ -379,4 +379,68 @@ describe("MarketDataService", () => {
         });
         expect(onError.mock.calls[0]?.[0].error.message).toMatch(/market symbolId not found: 999/);
     });
+
+    it("lists asset information with nullable unknown launch facts", async () => {
+        const transport = unaryTransport({
+            assetInfo: [
+                {
+                    assetId: 1,
+                    editorial: {
+                        description: "Peer-to-peer cash.",
+                        websiteUrl: "https://bitcoin.org",
+                        explorerUrls: ["https://mempool.space"],
+                        issueDate: "2009-01-03",
+                        issuePrice: { amount: "0", currency: "USD" },
+                    },
+                    editorialUpdatedAt: { seconds: 1_700_000_000n, nanos: 0 },
+                },
+                { assetId: 2 },
+            ],
+        });
+        const service = new MarketDataService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            testScales(),
+        );
+
+        const info = await service.listAssetInfo({ assetIds: [1, 2] });
+
+        expect(transport.lastCall()?.method.name).toBe("ListAssetInfo");
+        expect(transport.lastCall()?.message).toEqual({ assetIds: [1, 2] });
+        expect(info[0]).toEqual({
+            assetId: 1,
+            editorial: {
+                description: "Peer-to-peer cash.",
+                websiteUrl: "https://bitcoin.org",
+                whitepaperUrl: "",
+                explorerUrls: ["https://mempool.space"],
+                xUrl: "",
+                telegramUrl: "",
+                discordUrl: "",
+                githubUrl: "",
+                issueDate: "2009-01-03",
+                issuePrice: { amount: "0", currency: "USD" },
+            },
+            editorialUpdatedAt: 1_700_000_000_000,
+        });
+        expect(info[1]).toMatchObject({
+            assetId: 2,
+            editorial: { description: "", issueDate: null, issuePrice: null },
+            editorialUpdatedAt: null,
+        });
+    });
+
+    it("rejects more than 1000 asset IDs before sending", async () => {
+        const transport = unaryTransport({});
+        const service = new MarketDataService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            testScales(),
+        );
+
+        await expect(
+            service.listAssetInfo({ assetIds: Array.from({ length: 1001 }, (_, i) => i) }),
+        ).rejects.toThrow();
+        expect(transport.calls).toHaveLength(0);
+    });
 });

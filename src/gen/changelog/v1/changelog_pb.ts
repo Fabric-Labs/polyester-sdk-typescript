@@ -389,7 +389,7 @@ export type ListPostsRequest = Message<"changelog.v1.ListPostsRequest"> & {
 
   /**
    * Opaque, keyset-backed, exclusive cursor from a previous response.
-   * Bound to publication time and slug.
+   * Bound to publication time, release version and slug.
    *
    * @generated from field: string page_token = 2;
    */
@@ -410,7 +410,9 @@ export const ListPostsRequestSchema: GenMessage<ListPostsRequest> = /*@__PURE__*
  */
 export type ListPostsResponse = Message<"changelog.v1.ListPostsResponse"> & {
   /**
-   * Post summaries ordered by publication time descending, then slug descending.
+   * Post summaries ordered by publication time descending. Posts published
+   * at the same time list release posts first, by release version descending
+   * (0.92.10 before 0.92.9), then the other posts by slug descending.
    *
    * @generated from field: repeated changelog.v1.PostSummary posts = 1;
    */
@@ -1257,7 +1259,8 @@ export const ChangeAvailabilitySchema: GenEnum<ChangeAvailability> = /*@__PURE__
   enumDesc(file_changelog_v1_changelog, 4);
 
 /**
- * SortDirection orders changes by post publication time.
+ * SortDirection orders changes by post publication time. Posts published at
+ * the same time keep the ListPosts order, reversed for ascending.
  *
  * @generated from enum changelog.v1.SortDirection
  */

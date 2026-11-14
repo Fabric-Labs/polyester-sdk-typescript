@@ -10,7 +10,10 @@ import {
 } from "../../shared/catalog-config.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { timestampToMs, tsNsToTimestamp } from "../../utils/timestamp.js";
-import { optionalUint64DecimalFilterSchema } from "../../shared/schemas.js";
+import {
+    OptionalTimestampMsSchema,
+    optionalUint64DecimalFilterSchema,
+} from "../../shared/schemas.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import { PairStatusCodec, SideFilterCodec } from "./market-data.codecs.js";
@@ -353,3 +356,65 @@ export const SpotConfigSchema = v.object({
         v.transform((v) => Number(v) * 1000),
     ),
 });
+
+export const ListAssetInfoInputSchema = v.strictObject({
+    /** Ledger asset IDs to read, at most 1000; omit or empty for every asset with saved info. */
+    assetIds: v.optional(
+        v.pipe(
+            v.array(
+                v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(PROTOBUF_UINT32_MAX)),
+            ),
+            v.maxLength(1000, "At most 1000 asset IDs are allowed."),
+        ),
+        [],
+    ),
+});
+
+export type ListAssetInfoInput = v.InferInput<typeof ListAssetInfoInputSchema>;
+
+const AssetEditorialInfoSchema = v.pipe(
+    v.optional(
+        v.object({
+            description: v.optional(v.string(), ""),
+            websiteUrl: v.optional(v.string(), ""),
+            whitepaperUrl: v.optional(v.string(), ""),
+            explorerUrls: v.optional(v.array(v.string()), []),
+            xUrl: v.optional(v.string(), ""),
+            telegramUrl: v.optional(v.string(), ""),
+            discordUrl: v.optional(v.string(), ""),
+            githubUrl: v.optional(v.string(), ""),
+            issueDate: v.optional(v.string(), ""),
+            issuePrice: v.optional(v.object({ amount: v.string(), currency: v.string() })),
+        }),
+        {},
+    ),
+    v.transform(({ issueDate, issuePrice, ...editorial }) => ({
+        ...editorial,
+        /** Launch calendar date as `YYYY-MM-DD`; null when unknown. */
+        issueDate: issueDate || null,
+        /** Launch price as a decimal string in US dollars, zero included; null when unknown. */
+        issuePrice: issuePrice
+            ? { amount: issuePrice.amount, currency: issuePrice.currency }
+            : null,
+    })),
+);
+
+/**
+ * Team-maintained information about one asset. Text is plain text and links are HTTPS; an empty
+ * string or list means unknown and can be hidden.
+ */
+export const AssetInfoSchema = v.pipe(
+    v.object({
+        assetId: v.number(),
+        editorial: AssetEditorialInfoSchema,
+        editorialUpdatedAt: OptionalTimestampMsSchema,
+    }),
+    v.transform(({ editorialUpdatedAt, ...info }) => ({
+        ...info,
+        /** Epoch milliseconds of the last editorial change. */
+        editorialUpdatedAt: editorialUpdatedAt ?? null,
+    })),
+);
+
+export type AssetInfo = v.InferOutput<typeof AssetInfoSchema>;
+export type AssetEditorialInfo = AssetInfo["editorial"];

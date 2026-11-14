@@ -5,6 +5,14 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import type { PublicApiTransports } from "../../shared/transports.js";
+import { parse } from "../../shared/validation.js";
+import { removeUndefined } from "../../utils/remove-undefined.js";
+import {
+    ListStatusEventsInputSchema,
+    ListStatusEventsResultSchema,
+    type ListStatusEventsInput,
+    type ListStatusEventsResult,
+} from "./system.schemas.js";
 
 /** The build an environment serves. */
 export interface SystemVersion {
@@ -34,5 +42,22 @@ export class SystemService {
             toConnectCallOptions(options),
         );
         return { version, commit, environment };
+    }
+
+    /**
+     * Lists scheduled maintenance and incidents, latest start first; with no `states`, current
+     * and upcoming events. Answers can be up to 10 seconds old. States follow the clock, so an
+     * event can move between pages: match events by `id`.
+     */
+    async listStatusEvents(
+        input: ListStatusEventsInput = {},
+        options?: PolyesterRequestOptions,
+    ): Promise<ListStatusEventsResult> {
+        const request = parse(ListStatusEventsInputSchema, input);
+        const response = await this.#client.listStatusEvents(
+            removeUndefined(request),
+            toConnectCallOptions(options),
+        );
+        return parse(ListStatusEventsResultSchema, response);
     }
 }

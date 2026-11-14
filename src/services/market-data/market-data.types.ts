@@ -1,6 +1,9 @@
 export type {
     AssetConfig,
+    AssetEditorialInfo,
+    AssetInfo,
     GetMarketTradesInput,
+    ListAssetInfoInput,
     MarketTrade,
     PairConfig,
     PairStatus,

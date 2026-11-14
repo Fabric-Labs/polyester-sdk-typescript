@@ -1,5 +1,5 @@
 import * as v from "valibot";
-import { MemoRequirement } from "../../gen/chain/zipper/v1/zipper_pb.js";
+import { MemoRequirement, RouteStatus } from "../../gen/chain/zipper/v1/zipper_pb.js";
 import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import type { ProtoToOutput } from "../../utils/types.js";
 import type {
@@ -9,6 +9,7 @@ import type {
     ZipperChainConfig,
     ZipperChainContractConfig,
     ZipperMemoRequirement,
+    ZipperRouteStatus,
 } from "../../shared/catalog-config.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 
@@ -19,6 +20,7 @@ export type {
     ZipperChainConfig,
     ZipperChainContractConfig,
     ZipperMemoRequirement,
+    ZipperRouteStatus,
 };
 
 export const ZipperMemoRequirementCodec = {
@@ -28,6 +30,14 @@ export const ZipperMemoRequirementCodec = {
         [MemoRequirement.OPTIONAL]: "optional",
         [MemoRequirement.NOT_SUPPORTED]: "not_supported",
     } satisfies ProtoToOutput<MemoRequirement, ZipperMemoRequirement>,
+} as const;
+
+export const ZipperRouteStatusCodec = {
+    protoToOutput: {
+        [RouteStatus.STATUS_UNSPECIFIED]: "unspecified",
+        [RouteStatus.NORMAL]: "normal",
+        [RouteStatus.SUSPENDED]: "suspended",
+    } satisfies ProtoToOutput<RouteStatus, ZipperRouteStatus>,
 } as const;
 
 export const ZipperChainConfigSchema = v.object({
@@ -61,6 +71,8 @@ const ZipperAssetChainVariantWireSchema = v.object({
     depositMinAmount: v.optional(v.string(), ""),
     withdrawMinAmount: v.optional(v.string(), ""),
     supplyQ: v.optional(v.bigint(), 0n),
+    depositStatus: v.optional(enumLabelSchema(ZipperRouteStatusCodec.protoToOutput), 0),
+    withdrawalStatus: v.optional(enumLabelSchema(ZipperRouteStatusCodec.protoToOutput), 0),
 });
 
 function normalizeZipperAssetChainVariant(

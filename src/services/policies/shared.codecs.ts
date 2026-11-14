@@ -45,6 +45,7 @@ export const ACCOUNT_PERMISSION_POLICY_ACTION_LABELS = [
     "read-guard-signer-status",
     "read-price-alerts",
     "manage-price-alerts",
+    "read-statements",
 ] as const;
 
 export const POLICY_ACTION_LABELS = [
@@ -104,6 +105,7 @@ export const PolicyActionCodec = {
         [Proto.PolicyAction.READ_GUARD_SIGNER_STATUS]: "read-guard-signer-status",
         [Proto.PolicyAction.READ_PRICE_ALERTS]: "read-price-alerts",
         [Proto.PolicyAction.MANAGE_PRICE_ALERTS]: "manage-price-alerts",
+        [Proto.PolicyAction.READ_STATEMENTS]: "read-statements",
     } satisfies ProtoToOutput<Proto.PolicyAction, PolicyActionLabel>,
     inputToProto: {
         "trade-spot": Proto.PolicyAction.TRADE_SPOT,
@@ -139,6 +141,7 @@ export const PolicyActionCodec = {
         "read-guard-signer-status": Proto.PolicyAction.READ_GUARD_SIGNER_STATUS,
         "read-price-alerts": Proto.PolicyAction.READ_PRICE_ALERTS,
         "manage-price-alerts": Proto.PolicyAction.MANAGE_PRICE_ALERTS,
+        "read-statements": Proto.PolicyAction.READ_STATEMENTS,
     } satisfies Record<PolicyActionLabel, Proto.PolicyAction>,
 } as const;
 

@@ -2,8 +2,10 @@
 // @generated from file system/v1/system.proto (package system.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { Timestamp } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import { file_polyester_api_options } from "../../polyester/api/options_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
@@ -11,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file system/v1/system.proto.
  */
 export const file_system_v1_system: GenFile = /*@__PURE__*/
-  fileDesc("ChZzeXN0ZW0vdjEvc3lzdGVtLnByb3RvEglzeXN0ZW0udjEiEwoRR2V0VmVyc2lvblJlcXVlc3QiUAoSR2V0VmVyc2lvblJlc3BvbnNlEhEKB3ZlcnNpb24YASABKAlCABIQCgZjb21taXQYAiABKAlCABIVCgtlbnZpcm9ubWVudBgDIAEoCUIAMmEKDVN5c3RlbVNlcnZpY2USTgoKR2V0VmVyc2lvbhIcLnN5c3RlbS52MS5HZXRWZXJzaW9uUmVxdWVzdBodLnN5c3RlbS52MS5HZXRWZXJzaW9uUmVzcG9uc2UiA5ACARoAQkBaPmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vc3lzdGVtL3YxO3N5c3RlbXYxYgZwcm90bzM=", [file_polyester_api_options]);
+  fileDesc("ChZzeXN0ZW0vdjEvc3lzdGVtLnByb3RvEglzeXN0ZW0udjEiEwoRR2V0VmVyc2lvblJlcXVlc3QiUAoSR2V0VmVyc2lvblJlc3BvbnNlEhEKB3ZlcnNpb24YASABKAlCABIQCgZjb21taXQYAiABKAlCABIVCgtlbnZpcm9ubWVudBgDIAEoCUIAImAKEVN0YXR1c0V2ZW50VXBkYXRlEgoKAmlkGAEgASgNEg8KB21lc3NhZ2UYAiABKAkSLgoKY3JlYXRlZF9hdBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAipQQKC1N0YXR1c0V2ZW50EgoKAmlkGAEgASgGEigKBGtpbmQYAiABKA4yGi5zeXN0ZW0udjEuU3RhdHVzRXZlbnRLaW5kEioKBXN0YXRlGAMgASgOMhsuc3lzdGVtLnYxLlN0YXR1c0V2ZW50U3RhdGUSDQoFdGl0bGUYBCABKAkSDwoHbWVzc2FnZRgFIAEoCRIuCgpzdGFydF90aW1lGAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIc2VydmljZXMYCCADKA4yGi5zeXN0ZW0udjEuQWZmZWN0ZWRTZXJ2aWNlEg8KB21hcmtldHMYCSADKAkSLgoKdXBkYXRlZF9hdBgKIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoGaW1wYWN0GAsgASgOMhwuc3lzdGVtLnYxLlN0YXR1c0V2ZW50SW1wYWN0Eg4KBmFzc2V0cxgMIAMoCRIwCgxjYW5jZWxsZWRfYXQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi0KB3VwZGF0ZXMYDiADKAsyHC5zeXN0ZW0udjEuU3RhdHVzRXZlbnRVcGRhdGUSGAoLZGV0YWlsc191cmwYDyABKAlIAIgBAUIOCgxfZGV0YWlsc191cmwinAEKF0xpc3RTdGF0dXNFdmVudHNSZXF1ZXN0Ei0KBnN0YXRlcxgBIAMoDjIbLnN5c3RlbS52MS5TdGF0dXNFdmVudFN0YXRlQgASKwoFa2luZHMYAiADKA4yGi5zeXN0ZW0udjEuU3RhdHVzRXZlbnRLaW5kQgASDwoFbGltaXQYAyABKA1CABIUCgpwYWdlX3Rva2VuGAQgASgJQgAiWwoYTGlzdFN0YXR1c0V2ZW50c1Jlc3BvbnNlEiYKBmV2ZW50cxgBIAMoCzIWLnN5c3RlbS52MS5TdGF0dXNFdmVudBIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkqRgoPU3RhdHVzRXZlbnRLaW5kEhQKEEtJTkRfVU5TUEVDSUZJRUQQABIPCgtNQUlOVEVOQU5DRRABEgwKCElOQ0lERU5UEAIqZwoQU3RhdHVzRXZlbnRTdGF0ZRIVChFTVEFURV9VTlNQRUNJRklFRBAAEg0KCVNDSEVEVUxFRBABEg8KC0lOX1BST0dSRVNTEAISDQoJQ09NUExFVEVEEAMSDQoJQ0FOQ0VMTEVEEAQqXwoRU3RhdHVzRXZlbnRJbXBhY3QSFgoSSU1QQUNUX1VOU1BFQ0lGSUVEEAASDAoIREVHUkFERUQQARISCg5QQVJUSUFMX09VVEFHRRACEhAKDE1BSk9SX09VVEFHRRADKqUBCg9BZmZlY3RlZFNlcnZpY2USFwoTU0VSVklDRV9VTlNQRUNJRklFRBAAEgsKB1RSQURJTkcQARIPCgtNQVJLRVRfREFUQRACEgwKCERFUE9TSVRTEAMSDwoLV0lUSERSQVdBTFMQBBINCglUUkFOU0ZFUlMQBRIMCghBQ0NPVU5UUxAGEgcKA0FQSRAHEg0KCVFVSUNLU1dBUBAIEgcKA0FQUBAJMsMBCg1TeXN0ZW1TZXJ2aWNlEk4KCkdldFZlcnNpb24SHC5zeXN0ZW0udjEuR2V0VmVyc2lvblJlcXVlc3QaHS5zeXN0ZW0udjEuR2V0VmVyc2lvblJlc3BvbnNlIgOQAgESYAoQTGlzdFN0YXR1c0V2ZW50cxIiLnN5c3RlbS52MS5MaXN0U3RhdHVzRXZlbnRzUmVxdWVzdBojLnN5c3RlbS52MS5MaXN0U3RhdHVzRXZlbnRzUmVzcG9uc2UiA5ACARoAQkBaPmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vc3lzdGVtL3YxO3N5c3RlbXYxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * GetVersionRequest takes no parameters.
@@ -70,6 +72,460 @@ export const GetVersionResponseSchema: GenMessage<GetVersionResponse> = /*@__PUR
   messageDesc(file_system_v1_system, 1);
 
 /**
+ * StatusEventUpdate is one progress note posted on a status event. Notes are
+ * never edited or removed.
+ *
+ * @generated from message system.v1.StatusEventUpdate
+ */
+export type StatusEventUpdate = Message<"system.v1.StatusEventUpdate"> & {
+  /**
+   * Position of the note on its event: 1 for the first, then increasing by 1.
+   * Unique within the event and never reused.
+   *
+   * @generated from field: uint32 id = 1;
+   */
+  id: number;
+
+  /**
+   * Plain-text note for users, at most 4000 characters.
+   *
+   * @generated from field: string message = 2;
+   */
+  message: string;
+
+  /**
+   * When the note was posted.
+   *
+   * @generated from field: google.protobuf.Timestamp created_at = 3;
+   */
+  createdAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message system.v1.StatusEventUpdate.
+ * Use `create(StatusEventUpdateSchema)` to create a new message.
+ */
+export const StatusEventUpdateSchema: GenMessage<StatusEventUpdate> = /*@__PURE__*/
+  messageDesc(file_system_v1_system, 2);
+
+/**
+ * StatusEvent is one scheduled maintenance or incident.
+ *
+ * @generated from message system.v1.StatusEvent
+ */
+export type StatusEvent = Message<"system.v1.StatusEvent"> & {
+  /**
+   * Stable opaque 64-bit identifier. It never changes when the event is
+   * updated.
+   *
+   * @generated from field: fixed64 id = 1;
+   */
+  id: bigint;
+
+  /**
+   * Maintenance or incident.
+   *
+   * @generated from field: system.v1.StatusEventKind kind = 2;
+   */
+  kind: StatusEventKind;
+
+  /**
+   * State at the time of the response.
+   *
+   * @generated from field: system.v1.StatusEventState state = 3;
+   */
+  state: StatusEventState;
+
+  /**
+   * Short title, at most 200 characters.
+   *
+   * @generated from field: string title = 4;
+   */
+  title: string;
+
+  /**
+   * Plain-text summary for users, at most 4000 characters. It can be revised;
+   * progress notes are in updates.
+   *
+   * @generated from field: string message = 5;
+   */
+  message: string;
+
+  /**
+   * Start of the window: when the maintenance begins, or when the incident
+   * began. It no longer changes once the window has started.
+   *
+   * @generated from field: google.protobuf.Timestamp start_time = 6;
+   */
+  startTime?: Timestamp | undefined;
+
+  /**
+   * End of the window, after start_time: when the maintenance is expected to
+   * end, or when the incident ended or is expected to end. Always set for
+   * MAINTENANCE. Omitted for an INCIDENT with no expected end yet.
+   *
+   * @generated from field: google.protobuf.Timestamp end_time = 7;
+   */
+  endTime?: Timestamp | undefined;
+
+  /**
+   * Affected parts of the platform. Never empty.
+   *
+   * @generated from field: repeated system.v1.AffectedService services = 8;
+   */
+  services: AffectedService[];
+
+  /**
+   * Symbols of the affected markets, such as "BTC-USDT", in ascending order.
+   * Empty when the event is not limited to particular markets.
+   *
+   * @generated from field: repeated string markets = 9;
+   */
+  markets: string[];
+
+  /**
+   * Time of the latest change to the event, a new progress note included. Its
+   * state moving with the clock is not a change.
+   *
+   * @generated from field: google.protobuf.Timestamp updated_at = 10;
+   */
+  updatedAt?: Timestamp | undefined;
+
+  /**
+   * Severity of an INCIDENT. IMPACT_UNSPECIFIED for MAINTENANCE and for an
+   * incident not yet assessed.
+   *
+   * @generated from field: system.v1.StatusEventImpact impact = 11;
+   */
+  impact: StatusEventImpact;
+
+  /**
+   * Codes of the affected assets, such as "SOL", in ascending order. Empty
+   * when the event is not limited to particular assets.
+   *
+   * @generated from field: repeated string assets = 12;
+   */
+  assets: string[];
+
+  /**
+   * When the event was cancelled. Set only when state is CANCELLED.
+   *
+   * @generated from field: google.protobuf.Timestamp cancelled_at = 13;
+   */
+  cancelledAt?: Timestamp | undefined;
+
+  /**
+   * Progress notes, oldest first. At most 50.
+   *
+   * @generated from field: repeated system.v1.StatusEventUpdate updates = 14;
+   */
+  updates: StatusEventUpdate[];
+
+  /**
+   * HTTPS link to a long-form announcement about the event, at most 2048
+   * characters. Omitted when the event has none.
+   *
+   * @generated from field: optional string details_url = 15;
+   */
+  detailsUrl?: string | undefined;
+};
+
+/**
+ * Describes the message system.v1.StatusEvent.
+ * Use `create(StatusEventSchema)` to create a new message.
+ */
+export const StatusEventSchema: GenMessage<StatusEvent> = /*@__PURE__*/
+  messageDesc(file_system_v1_system, 3);
+
+/**
+ * ListStatusEventsRequest selects status events. Filters on different fields
+ * combine with AND; values within one field combine with OR.
+ *
+ * @generated from message system.v1.ListStatusEventsRequest
+ */
+export type ListStatusEventsRequest = Message<"system.v1.ListStatusEventsRequest"> & {
+  /**
+   * States to include. Empty means SCHEDULED and IN_PROGRESS: current and
+   * upcoming events.
+   *
+   * @generated from field: repeated system.v1.StatusEventState states = 1;
+   */
+  states: StatusEventState[];
+
+  /**
+   * Kinds to include. Empty means all.
+   *
+   * @generated from field: repeated system.v1.StatusEventKind kinds = 2;
+   */
+  kinds: StatusEventKind[];
+
+  /**
+   * Maximum events to return. 0 means the default of 50; maximum 200.
+   *
+   * @generated from field: uint32 limit = 3;
+   */
+  limit: number;
+
+  /**
+   * Opaque, keyset-backed, exclusive cursor from a previous response. Bound
+   * to states and kinds, and to the start time and id of the last event
+   * returned. Reuse it only with the same states and kinds. States follow
+   * the clock, so an event that changes state between two pages can be
+   * missing from both or appear on both; match events by id.
+   *
+   * @generated from field: string page_token = 4;
+   */
+  pageToken: string;
+};
+
+/**
+ * Describes the message system.v1.ListStatusEventsRequest.
+ * Use `create(ListStatusEventsRequestSchema)` to create a new message.
+ */
+export const ListStatusEventsRequestSchema: GenMessage<ListStatusEventsRequest> = /*@__PURE__*/
+  messageDesc(file_system_v1_system, 4);
+
+/**
+ * ListStatusEventsResponse returns matching status events.
+ *
+ * @generated from message system.v1.ListStatusEventsResponse
+ */
+export type ListStatusEventsResponse = Message<"system.v1.ListStatusEventsResponse"> & {
+  /**
+   * Matching events ordered by start_time descending, then id descending:
+   * the latest start first.
+   *
+   * @generated from field: repeated system.v1.StatusEvent events = 1;
+   */
+  events: StatusEvent[];
+
+  /**
+   * Cursor for the next page. Empty when no more results exist.
+   *
+   * @generated from field: string next_page_token = 2;
+   */
+  nextPageToken: string;
+};
+
+/**
+ * Describes the message system.v1.ListStatusEventsResponse.
+ * Use `create(ListStatusEventsResponseSchema)` to create a new message.
+ */
+export const ListStatusEventsResponseSchema: GenMessage<ListStatusEventsResponse> = /*@__PURE__*/
+  messageDesc(file_system_v1_system, 5);
+
+/**
+ * StatusEventKind classifies a status event.
+ *
+ * @generated from enum system.v1.StatusEventKind
+ */
+export enum StatusEventKind {
+  /**
+   * Not set. Never returned.
+   *
+   * @generated from enum value: KIND_UNSPECIFIED = 0;
+   */
+  KIND_UNSPECIFIED = 0,
+
+  /**
+   * Planned maintenance, announced ahead of its window.
+   *
+   * @generated from enum value: MAINTENANCE = 1;
+   */
+  MAINTENANCE = 1,
+
+  /**
+   * Unplanned disruption.
+   *
+   * @generated from enum value: INCIDENT = 2;
+   */
+  INCIDENT = 2,
+}
+
+/**
+ * Describes the enum system.v1.StatusEventKind.
+ */
+export const StatusEventKindSchema: GenEnum<StatusEventKind> = /*@__PURE__*/
+  enumDesc(file_system_v1_system, 0);
+
+/**
+ * StatusEventState is where a status event stands at the time of the
+ * response. It follows from the event's window: SCHEDULED before start_time,
+ * IN_PROGRESS from start_time until end_time, and COMPLETED from end_time on.
+ * A cancelled event is CANCELLED whatever its window.
+ *
+ * @generated from enum system.v1.StatusEventState
+ */
+export enum StatusEventState {
+  /**
+   * Not set. Never returned.
+   *
+   * @generated from enum value: STATE_UNSPECIFIED = 0;
+   */
+  STATE_UNSPECIFIED = 0,
+
+  /**
+   * The window has not started.
+   *
+   * @generated from enum value: SCHEDULED = 1;
+   */
+  SCHEDULED = 1,
+
+  /**
+   * The window has started and not ended.
+   *
+   * @generated from enum value: IN_PROGRESS = 2;
+   */
+  IN_PROGRESS = 2,
+
+  /**
+   * The window has ended.
+   *
+   * @generated from enum value: COMPLETED = 3;
+   */
+  COMPLETED = 3,
+
+  /**
+   * Called off; its window no longer applies.
+   *
+   * @generated from enum value: CANCELLED = 4;
+   */
+  CANCELLED = 4,
+}
+
+/**
+ * Describes the enum system.v1.StatusEventState.
+ */
+export const StatusEventStateSchema: GenEnum<StatusEventState> = /*@__PURE__*/
+  enumDesc(file_system_v1_system, 1);
+
+/**
+ * StatusEventImpact is how severely an incident affects users.
+ *
+ * @generated from enum system.v1.StatusEventImpact
+ */
+export enum StatusEventImpact {
+  /**
+   * No impact given: always for MAINTENANCE, and for an INCIDENT not yet
+   * assessed.
+   *
+   * @generated from enum value: IMPACT_UNSPECIFIED = 0;
+   */
+  IMPACT_UNSPECIFIED = 0,
+
+  /**
+   * Working, but slower or less reliable than usual.
+   *
+   * @generated from enum value: DEGRADED = 1;
+   */
+  DEGRADED = 1,
+
+  /**
+   * Unavailable for some users, markets or assets.
+   *
+   * @generated from enum value: PARTIAL_OUTAGE = 2;
+   */
+  PARTIAL_OUTAGE = 2,
+
+  /**
+   * Unavailable.
+   *
+   * @generated from enum value: MAJOR_OUTAGE = 3;
+   */
+  MAJOR_OUTAGE = 3,
+}
+
+/**
+ * Describes the enum system.v1.StatusEventImpact.
+ */
+export const StatusEventImpactSchema: GenEnum<StatusEventImpact> = /*@__PURE__*/
+  enumDesc(file_system_v1_system, 2);
+
+/**
+ * AffectedService is a part of the platform a status event affects.
+ *
+ * @generated from enum system.v1.AffectedService
+ */
+export enum AffectedService {
+  /**
+   * Not set. Never returned.
+   *
+   * @generated from enum value: SERVICE_UNSPECIFIED = 0;
+   */
+  SERVICE_UNSPECIFIED = 0,
+
+  /**
+   * Placing, changing and cancelling orders, and order execution.
+   *
+   * @generated from enum value: TRADING = 1;
+   */
+  TRADING = 1,
+
+  /**
+   * Prices, trades, candles and order books.
+   *
+   * @generated from enum value: MARKET_DATA = 2;
+   */
+  MARKET_DATA = 2,
+
+  /**
+   * Deposits.
+   *
+   * @generated from enum value: DEPOSITS = 3;
+   */
+  DEPOSITS = 3,
+
+  /**
+   * Withdrawals.
+   *
+   * @generated from enum value: WITHDRAWALS = 4;
+   */
+  WITHDRAWALS = 4,
+
+  /**
+   * Transfers between accounts and subaccounts.
+   *
+   * @generated from enum value: TRANSFERS = 5;
+   */
+  TRANSFERS = 5,
+
+  /**
+   * Sign-in, account management and API keys.
+   *
+   * @generated from enum value: ACCOUNTS = 6;
+   */
+  ACCOUNTS = 6,
+
+  /**
+   * The REST and WebSocket interfaces for programmatic clients such as market
+   * makers and brokers.
+   *
+   * @generated from enum value: API = 7;
+   */
+  API = 7,
+
+  /**
+   * QuickSwap swaps.
+   *
+   * @generated from enum value: QUICKSWAP = 8;
+   */
+  QUICKSWAP = 8,
+
+  /**
+   * The web app.
+   *
+   * @generated from enum value: APP = 9;
+   */
+  APP = 9,
+}
+
+/**
+ * Describes the enum system.v1.AffectedService.
+ */
+export const AffectedServiceSchema: GenEnum<AffectedService> = /*@__PURE__*/
+  enumDesc(file_system_v1_system, 3);
+
+/**
  * SystemService serves facts about the environment itself.
  *
  * @generated from service system.v1.SystemService
@@ -85,6 +541,18 @@ export const SystemService: GenService<{
     methodKind: "unary";
     input: typeof GetVersionRequestSchema;
     output: typeof GetVersionResponseSchema;
+  },
+  /**
+   * List scheduled maintenance and incidents, the latest start first. With no
+   * states, it lists current and upcoming events. This public read supports
+   * cacheable ConnectRPC GET; answers can be up to 10 seconds old.
+   *
+   * @generated from rpc system.v1.SystemService.ListStatusEvents
+   */
+  listStatusEvents: {
+    methodKind: "unary";
+    input: typeof ListStatusEventsRequestSchema;
+    output: typeof ListStatusEventsResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_system_v1_system, 0);

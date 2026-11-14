@@ -28,6 +28,8 @@ export type ZipperEnrichedAssetChain = ZipperChainConfig & {
     depositMinAmount?: ZipperAssetChainVariant["depositMinAmount"];
     withdrawMinAmount?: ZipperAssetChainVariant["withdrawMinAmount"];
     supply?: ZipperAssetChainVariant["supply"];
+    depositStatus?: ZipperAssetChainVariant["depositStatus"];
+    withdrawalStatus?: ZipperAssetChainVariant["withdrawalStatus"];
     sourceToken: ZipperAssetChainVariant["sourceToken"];
     zToken: ZipperAssetChainVariant["zToken"];
 };
