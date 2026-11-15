@@ -56,6 +56,37 @@ describe("unknown asset catalog lookups", () => {
         expect(() => scales.ledgerAmount(404)).toThrow(CatalogLookupError);
     });
 
+    it("never decodes an unknown ledger id at an invented scale", () => {
+        const catalog = createTestCatalog({
+            assets: [
+                {
+                    symbol: "ETH",
+                    ledgerId: 18,
+                    name: "Ether",
+                    quantityDisplayDecimals: 6,
+                    quantityScale: 18,
+                },
+            ],
+        });
+        const scaled = "1500000000000000000";
+
+        expect(catalog.ledger.amountScaledToDecimalString(scaled, 18)).toBe("1.5");
+        expect(() => catalog.ledger.amountScaledToDecimalString(scaled, 31337)).toThrow(
+            "ledger ledgerId not found: 31337",
+        );
+        expect(() => catalog.ledger.amountScaledToDisplayString(scaled, 31337)).toThrow(
+            CatalogLookupError,
+        );
+        expect(() => catalog.ledger.decimalAmountToScaled("1.5", 31337)).toThrow(
+            CatalogLookupError,
+        );
+        expect(() => catalog.ledger.normalizeAmountInput("1.5", 31337)).toThrow(CatalogLookupError);
+        expect(() => catalog.ledger.formatAmount("1.5", 31337)).toThrow(CatalogLookupError);
+        // The display fallback keeps amounts unscaled if a caller applies its scale.
+        expect(catalog.ledger.getAssetByLedgerId(31337).quantityScale).toBe(0);
+        expect(catalog.zipper.getAssetByLedgerId(31337).quantityScale).toBe(0);
+    });
+
     it("zipper.getAssetByLedgerId returns unknown asset for missing ids", () => {
         const catalog = createTestCatalog({ assets: [] });
 

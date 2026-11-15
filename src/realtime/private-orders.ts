@@ -17,6 +17,8 @@ import { idToBigInt } from "../utils/base58-id.js";
 
 export const PRIVATE_WS_SUBPROTOCOL = "polyester.v1.proto";
 const HEARTBEAT_TIMEOUT_MS = 3_000;
+/** Heartbeats keep the connection alive without answering a Subscribe, so it gets its own deadline. */
+const SUBSCRIBE_ACK_TIMEOUT_MS = 30_000;
 const BACKOFF_BASE_MS = 500;
 const BACKOFF_MAX_MS = 10_000;
 /** A connection that stayed up this long resets the reconnect backoff. */
@@ -39,7 +41,13 @@ export type PrivateOrdersEvent =
      * The account's live view is temporarily behind (`true`) or caught up (`false`).
      * `orderIds`, when set, names the only orders behind; the rest of the view is current.
      */
-    | { type: "stale"; stale: boolean; orderIds?: bigint[] };
+    | { type: "stale"; stale: boolean; orderIds?: bigint[] }
+    /**
+     * The stream reflects every order change acknowledged before it subscribed, including
+     * every order read made before then. Wait for it before relying on the stream. Sent
+     * once per server subscription, so again after each resubscribe or reconnect.
+     */
+    | { type: "ready" };
 
 export interface ConnectPrivateOrdersParams {
     /** The account's base58 public ID. */
@@ -85,12 +93,19 @@ interface StreamSubscription {
     state: "pending" | "connected" | "disconnected";
     /** What consumers were last told is stale, until they are told it caught up. */
     stale: { orderIds?: bigint[] } | null;
+    /** The current server subscription sent Ready. */
+    ready: boolean;
     /** Subscribe attempts since the subscription last delivered data; drives retry backoff. */
     retries: number;
     retryTimer: ReturnType<typeof setTimeout> | null;
 }
 
-type PendingRequest = { kind: "subscribe" | "refresh"; s: StreamSubscription };
+type PendingRequest = {
+    kind: "subscribe" | "refresh";
+    s: StreamSubscription;
+    /** Deadline for the server's answer to a Subscribe. */
+    timer?: ReturnType<typeof setTimeout>;
+};
 
 /** 0.5 s doubling to 10 s, jittered over the upper half of each step. */
 function backoffMs(attempt: number): number {
@@ -155,6 +170,7 @@ export class PrivateOrderStream {
             orders: null,
             state: "pending",
             stale: null,
+            ready: false,
             retries: 0,
             retryTimer: null,
         };
@@ -196,6 +212,7 @@ export class PrivateOrderStream {
         if (s.state === "connected") this.#deliverTo(s, c, () => params.onConnected?.());
         const orders = s.orders && [...s.orders.values()];
         if (orders) this.#deliverTo(s, c, () => params.onEvent({ type: "snapshot", orders }));
+        if (s.ready) this.#deliverTo(s, c, () => params.onEvent({ type: "ready" }));
         const { stale } = s;
         if (stale)
             this.#deliverTo(s, c, () => params.onEvent({ type: "stale", stale: true, ...stale }));
@@ -274,7 +291,8 @@ export class PrivateOrderStream {
     async #subscribe(ws: WebSocket, s: StreamSubscription): Promise<void> {
         if (!this.#isCurrent(s)) return;
         const id = this.#nextRequestId();
-        this.#pending.set(id, { kind: "subscribe", s });
+        const request: PendingRequest = { kind: "subscribe", s };
+        this.#pending.set(id, request);
         let token: string;
         try {
             token = await this.#config.fetchSubscribeToken(s.channel);
@@ -294,6 +312,33 @@ export class PrivateOrderStream {
             case: "subscribe",
             value: { id, channel: Channel.ORDERS, account: s.account, token, cursor: s.cursor },
         });
+        request.timer = setTimeout(() => this.#expireSubscribe(ws, id), SUBSCRIBE_ACK_TIMEOUT_MS);
+    }
+
+    /**
+     * Ends a subscription the server never confirmed; one it confirmed before reports the
+     * timeout and subscribes again. A late Subscribed for the expired request is unsubscribed.
+     */
+    #expireSubscribe(ws: WebSocket, id: string): void {
+        const request = this.#settle(id);
+        if (!request) return;
+        const error = new RealtimeError("Private order subscribe acknowledgement timed out", {
+            retryable: true,
+        });
+        if (request.s.state === "pending") {
+            this.#terminate(request.s, "subscribe", error);
+            return;
+        }
+        this.#report(request.s, "subscribe", error);
+        this.#retrySubscribe(ws, request.s);
+    }
+
+    /** Forgets a request and its answer deadline. */
+    #settle(id: string): PendingRequest | undefined {
+        const request = this.#pending.get(id);
+        clearTimeout(request?.timer);
+        this.#pending.delete(id);
+        return request;
     }
 
     /** Subscribes again after a backoff that grows until the subscription delivers data. */
@@ -341,6 +386,7 @@ export class PrivateOrderStream {
         s.sub = "";
         s.seq = 0n;
         s.staged = null;
+        s.ready = false;
         if (s.retries > 0) {
             this.#retrySubscribe(ws, s);
         } else {
@@ -398,7 +444,7 @@ export class PrivateOrderStream {
                     if (msg.sub) this.#unsubscribe(ws, msg.sub);
                     return;
                 }
-                this.#pending.delete(frame.value.id);
+                this.#settle(frame.value.id);
                 const s = request.s;
                 s.sub = msg.sub;
                 s.seq = 0n;
@@ -492,6 +538,8 @@ export class PrivateOrderStream {
             case "ready":
                 // A resumed subscription on a quiet account delivers no data, only this.
                 s.retries = 0;
+                s.ready = true;
+                this.#deliver(s, (p) => p.onEvent({ type: "ready" }));
                 return;
             case "unavailable": {
                 // A later Unavailable replaces the earlier one; order IDs narrow it to those orders.
@@ -526,7 +574,7 @@ export class PrivateOrderStream {
         const request = error.id ? this.#pending.get(error.id) : undefined;
         // The answer to a request already answered, or whose subscription has since gone.
         if (error.id && !request) return;
-        if (request) this.#pending.delete(error.id);
+        if (request) this.#settle(error.id);
         const s = request?.s ?? this.#bySub.get(sub);
         const realtimeError = new RealtimeError(
             error.message ||
@@ -619,6 +667,7 @@ export class PrivateOrderStream {
         this.#authSent = false;
         if (this.#heartbeatTimer) clearTimeout(this.#heartbeatTimer);
         this.#heartbeatTimer = null;
+        for (const { timer } of this.#pending.values()) clearTimeout(timer);
         this.#pending.clear();
         this.#bySub.clear();
         this.#unsubscribing.clear();
@@ -627,6 +676,7 @@ export class PrivateOrderStream {
             s.sub = "";
             s.seq = 0n;
             s.staged = null;
+            s.ready = false;
         }
         if (ws) {
             ws.onopen = null;
@@ -670,7 +720,7 @@ export class PrivateOrderStream {
         }
         s.sub = "";
         for (const [id, request] of this.#pending) {
-            if (request.s === s) this.#pending.delete(id);
+            if (request.s === s) this.#settle(id);
         }
         if (this.#subs.size === 0) this.#shutdown();
     }

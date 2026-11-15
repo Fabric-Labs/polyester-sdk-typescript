@@ -10,14 +10,16 @@ import type { ZippedAssetSupplyCatalogUpdate } from "./zipper-supply.js";
 
 const FiniteNumberSchema = v.pipe(v.number(), v.finite());
 const IntegerSchema = v.pipe(FiniteNumberSchema, v.safeInteger());
+/** Scales are protocol-bounded to 0..18; a larger one would hang decimal formatting. */
+const ScaleSchema = v.pipe(IntegerSchema, v.minValue(0), v.maxValue(18));
 
 const AssetConfigSchema = v.object({
     symbol: v.string(),
     ledgerId: IntegerSchema,
     name: v.string(),
     quantityDisplayDecimals: IntegerSchema,
-    quantityScale: IntegerSchema,
-    marketDataVolumeScale: v.optional(IntegerSchema),
+    quantityScale: ScaleSchema,
+    marketDataVolumeScale: v.optional(ScaleSchema),
     includedInEquity: v.optional(v.boolean()),
 });
 
@@ -50,9 +52,9 @@ const EnrichedPairConfigSchema = v.object({
     defaultMarketSlippagePctBuy: FiniteNumberSchema,
     defaultMarketSlippagePctSell: FiniteNumberSchema,
     maxClientRefDriftPct: FiniteNumberSchema,
-    baseQuantityScale: v.optional(IntegerSchema),
-    quoteQuantityScale: v.optional(IntegerSchema),
-    referencePriceScale: v.optional(IntegerSchema),
+    baseQuantityScale: v.optional(ScaleSchema),
+    quoteQuantityScale: v.optional(ScaleSchema),
+    referencePriceScale: v.optional(ScaleSchema),
     marketdata: v.optional(PairMarketDataConfigSchema),
     listingAt: v.nullable(FiniteNumberSchema),
     delistingAt: v.nullable(FiniteNumberSchema),
@@ -102,7 +104,7 @@ const ZipperEnrichedAssetConfigSchema = v.object({
     ledgerId: IntegerSchema,
     name: v.string(),
     icon: v.string(),
-    quantityScale: IntegerSchema,
+    quantityScale: ScaleSchema,
     quantityDisplayDecimals: IntegerSchema,
     uAssetId: v.string(),
     chains: v.array(ZipperEnrichedAssetChainSchema),

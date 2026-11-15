@@ -5,6 +5,7 @@ import { createErrorMappingTransport, TIMESTAMP_SKEW_CODE } from "./connect-erro
 import {
     AuthenticationError,
     ConfigurationError,
+    InternalServerError,
     isAbortError,
     isTimeoutAbortError,
     NetworkError,
@@ -70,7 +71,8 @@ export interface JwtAuthProvider {
  * may still queue it (connection limits). Bound concurrency for large bursts;
  * a request that waits past its receive window fails with a retryable
  * `TimestampSkewError` (or its `RequestDeadlineExceededError` subclass), and
- * retrying signs it again.
+ * retrying signs it again. Timestamps strictly increase and lead the local
+ * clock by at most 500 ms, so a burst that outruns the clock waits for it.
  */
 export interface ApiKeyEd25519AuthProvider {
     kind: "api-key-ed25519";
@@ -97,16 +99,23 @@ export interface ApiKeyEd25519SigningRequest {
 /** Largest `X-API-RECV-WINDOW` the backend accepts, in milliseconds. */
 const MAX_API_KEY_RECV_WINDOW_MS = 60_000;
 
+/** Largest non-Connect response body the SDK reads, such as an error body. */
+const MAX_RESPONSE_BODY_BYTES = 1024 * 1024;
+
 /**
  * Returns the fetch implementation used by SDK transports.
  */
-export function makeFetch(fetchImpl?: typeof fetch): typeof fetch {
+export function makeFetch(
+    fetchImpl?: typeof fetch,
+    maxBodyBytes = MAX_RESPONSE_BODY_BYTES,
+): typeof fetch {
     const wrappedFetch = Object.assign(
         async (input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => {
             // Normalize headers into a mutable Headers object
             const headers = new Headers(init?.headers);
 
             let res: Response | undefined;
+            let tooLarge = false;
             try {
                 res = await (fetchImpl ?? fetch)(input, {
                     ...init,
@@ -117,10 +126,12 @@ export function makeFetch(fetchImpl?: typeof fetch): typeof fetch {
                 // without reading the body, then aborts the request with its
                 // ConnectError. Any reader still on that body (e.g. fetch
                 // instrumentation reading a clone) would reject with the raw
-                // ConnectError, unhandled. Buffer those bodies so the stream is
-                // complete before Connect aborts.
+                // ConnectError, unhandled. Buffer those bodies, up to a limit, so
+                // the stream is complete before Connect aborts.
                 if (res?.body && !isConnectResponse(res)) {
-                    res = new Response(await res.arrayBuffer(), res);
+                    const body = await readAtMost(res.body, maxBodyBytes);
+                    if (body) res = new Response(body, res);
+                    else tooLarge = true;
                 }
             } catch (err) {
                 if (isAbortError(err)) throw err;
@@ -132,6 +143,12 @@ export function makeFetch(fetchImpl?: typeof fetch): typeof fetch {
             // A custom or patched fetch (browser extensions, monitoring scripts) can
             // resolve without a Response.
             if (!res) throw new NetworkError("Transport request returned no response");
+            if (tooLarge) {
+                throw new InternalServerError(
+                    `Response body of HTTP ${res.status} exceeds ${maxBodyBytes} bytes`,
+                    { status: res.status },
+                );
+            }
             // Connect discards non-Connect error bodies, so surface the problem+json
             // skew code here before it collapses into a bare HTTP status error.
             if (await isTimestampSkewProblem(res)) {
@@ -146,6 +163,26 @@ export function makeFetch(fetchImpl?: typeof fetch): typeof fetch {
     );
 
     return wrappedFetch;
+}
+
+/** Reads a body of at most `limit` bytes, whatever its Content-Length; cancels a longer one and returns null. */
+async function readAtMost(
+    body: ReadableStream<Uint8Array<ArrayBuffer>>,
+    limit: number,
+): Promise<Blob | null> {
+    const reader = body.getReader();
+    const chunks: Uint8Array<ArrayBuffer>[] = [];
+    let size = 0;
+    for (;;) {
+        const { done, value } = await reader.read();
+        if (done) return new Blob(chunks);
+        size += value.byteLength;
+        if (size > limit) {
+            reader.cancel().catch(() => {});
+            return null;
+        }
+        chunks.push(value);
+    }
 }
 
 const CONNECT_CONTENT_TYPE_RE = /^application\/(?:connect\+)?(?:json|proto)\s*(?:;|$)/iu;
@@ -226,10 +263,17 @@ async function sha256Hex(bytes: Uint8Array): Promise<string> {
     return Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+/** Half the backend's 1000 ms future limit, leaving room for clock offset. */
+const MAX_TIMESTAMP_LEAD_MS = 500;
+
 let lastTimestamp = 0;
-function nextTimestamp(): string {
-    lastTimestamp = Math.max(lastTimestamp + 1, Date.now());
-    return String(lastTimestamp);
+/** Allocates strictly increasing timestamps, waiting for the clock when a burst outruns it. */
+async function nextTimestamp(): Promise<string> {
+    const timestamp = Math.max(lastTimestamp + 1, Date.now());
+    lastTimestamp = timestamp;
+    const wait = timestamp - MAX_TIMESTAMP_LEAD_MS - Date.now();
+    if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
+    return String(timestamp);
 }
 
 // The signing helpers below work on byte strings: one char per byte, so `<`
@@ -278,10 +322,9 @@ function canonicalQueryString(search: string): string {
 /**
  * Creates API-key authentication headers for endpoints using the Polyester Ed25519 signing contract.
  */
-export async function createApiKeyEd25519AuthHeaders(
+async function resolveApiKeyCredentials(
     auth: ApiKeyEd25519AuthProvider,
-    request: ApiKeyEd25519SigningRequest,
-): Promise<Record<string, string>> {
+): Promise<{ keyId: string; secretKey: Uint8Array }> {
     let keyId: string | null;
     let secretKey: Uint8Array | null;
     try {
@@ -294,6 +337,24 @@ export async function createApiKeyEd25519AuthHeaders(
     if (!(secretKey instanceof Uint8Array) || secretKey.byteLength !== 32) {
         throw new ConfigurationError("API key secret key must contain exactly 32 bytes");
     }
+    return { keyId, secretKey };
+}
+
+/** Signs exact protocol-defined payload bytes, such as a withdraw intent, with the API key. */
+export async function signApiKeyEd25519Payload(
+    auth: ApiKeyEd25519AuthProvider,
+    payload: Uint8Array,
+): Promise<Uint8Array> {
+    const { secretKey } = await resolveApiKeyCredentials(auth);
+    const { signAsync } = await import("@noble/ed25519");
+    return signAsync(payload, secretKey);
+}
+
+export async function createApiKeyEd25519AuthHeaders(
+    auth: ApiKeyEd25519AuthProvider,
+    request: ApiKeyEd25519SigningRequest,
+): Promise<Record<string, string>> {
+    const { keyId, secretKey } = await resolveApiKeyCredentials(auth);
 
     const { recvWindow } = auth;
     if (
@@ -312,7 +373,7 @@ export async function createApiKeyEd25519AuthHeaders(
             "Cannot sign a URL with a malformed percent-escape or a ';' in its query",
         );
     }
-    const timestamp = request.timestamp ?? nextTimestamp();
+    const timestamp = request.timestamp ?? (await nextTimestamp());
     const bodyHash = await sha256Hex(request.body ?? new Uint8Array(0));
     const canonicalQuery = canonicalQueryString(urlObj.search);
     // The window line is signed only when the header is sent.

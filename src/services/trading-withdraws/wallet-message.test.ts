@@ -115,6 +115,22 @@ describe("wallet trading withdraw message", () => {
         expect(message).toContain("Nonce: 340282366920938463463374607431768211455\n");
     });
 
+    it.each([
+        ["destinationAddress", "line feed", "0xabc\nNonce: 1"],
+        ["destinationAddress", "right-to-left override", "0xabc\u202Edef"],
+        ["destinationAddress", "line separator", "0xabc\u2028Nonce: 1"],
+        ["destinationAddress", "paragraph separator", "0xabc\u2029Nonce: 1"],
+        ["idempotencyKey", "zero-width no-break space", "k\uFEFF1"],
+        ["idempotencyKey", "zero-width space", "k\u200B1"],
+    ])("rejects a %s containing a %s", (field, _label, value) => {
+        expect(() =>
+            buildTradingWithdrawWalletMessage({
+                ...funding,
+                payload: { ...funding.payload, [field]: value },
+            }),
+        ).toThrow(/valid UTF-8 without control characters/);
+    });
+
     it.each<[string, Partial<typeof funding>]>([
         ["signer wallet", { signerWallet: "0x1111111111111111111111111111111111111111" }],
         ["root account", { accountId: 1002n }],

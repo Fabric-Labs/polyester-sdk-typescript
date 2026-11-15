@@ -31,6 +31,13 @@ describe("OrderErrorDetailSchema", () => {
         ).toEqual({ code: expected, violations: [] });
     });
 
+    it("reads a code newer than this build as UNSPECIFIED instead of failing", () => {
+        expect(v.parse(OrderErrorDetailSchema, { code: 9_999, violations: [] })).toEqual({
+            code: "UNSPECIFIED",
+            violations: [],
+        });
+    });
+
     it("preserves exact structured rate-limit guidance", () => {
         expect(
             v.parse(OrderErrorDetailSchema, {

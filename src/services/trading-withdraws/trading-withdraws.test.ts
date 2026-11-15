@@ -1,15 +1,21 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { create, toBinary } from "@bufbuild/protobuf";
+import { getPublicKeyAsync, verifyAsync } from "@noble/ed25519";
 import { bytesToHex, recoverMessageAddress } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { POLYESTER_DEVNET_ENVIRONMENT } from "../../environment.js";
 import * as Proto from "../../gen/chain/withdraw/v1/withdraw_pb.js";
-import { StepUpRequiredError, WithdrawDeadlineExpiredError } from "../../shared/errors.js";
+import { StepUpRequiredError } from "../../shared/errors.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 
 const catalogTradingGatewayAddress = "0xD3fecf5D39131e23b6B0f872cA0a21c8A5a30932" as const;
-import { unaryTransport, unaryTransportByMethod } from "../../testing/service-harness.js";
+import {
+    subaccountResolverStub,
+    unaryTransport,
+    unaryTransportByMethod,
+} from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
 import { toU128 } from "../../utils/u128.js";
 import { TradingWithdrawsService, type TradingWithdrawWalletSigner } from "./trading-withdraws.js";
@@ -20,6 +26,13 @@ const signingConfig = {
 };
 
 const validWalletSignature = `0x${"11".repeat(64)}1b` as const;
+
+const apiKeySecret = new Uint8Array(32).fill(7);
+const apiKeyAuth = {
+    kind: "api-key-ed25519",
+    getKeyId: () => "key-1",
+    getSecretKey: () => apiKeySecret,
+} as const;
 
 const usdc = {
     symbol: "USDC",
@@ -140,9 +153,8 @@ describe("TradingWithdrawsService", () => {
         ).rejects.toThrow();
     });
 
-    it("builds signed-payload withdraw requests from decimal quantities and forwards mutation options", async () => {
+    it("builds API-key-signed withdraw requests from decimal quantities and forwards mutation options", async () => {
         const controller = new AbortController();
-        const payloadSignature = new Uint8Array([1, 2, 3]);
         const transport = unaryTransportByMethod({
             createTradingWithdraw: { intentId: "intent-1" },
         });
@@ -151,6 +163,8 @@ describe("TradingWithdrawsService", () => {
             undefined,
             signingConfig,
             testScales(),
+            undefined,
+            apiKeyAuth,
         );
 
         await expect(
@@ -160,7 +174,6 @@ describe("TradingWithdrawsService", () => {
                     quantity: "100",
                     destinationAddress: " funding ",
                     idempotencyKey: " withdraw-1 ",
-                    payloadSignature,
                 },
                 { signal: controller.signal, stepUpToken: " fresh-token " },
             ),
@@ -172,9 +185,15 @@ describe("TradingWithdrawsService", () => {
         expect(captured?.method.localName).toBe("createTradingWithdraw");
         expect(captured?.signal).toBe(controller.signal);
         expect(new Headers(captured?.headers).get(AUTH_STEP_UP_HEADER_NAME)).toBe("fresh-token");
-        expect((captured?.message as { payloadSignature?: Uint8Array })?.payloadSignature).toEqual(
-            payloadSignature,
+        const signature = (captured?.message as { payloadSignature?: Uint8Array })
+            ?.payloadSignature;
+        const signedBytes = toBinary(
+            Proto.TradingWithdrawIntentPayloadSchema,
+            create(Proto.TradingWithdrawIntentPayloadSchema, payload),
         );
+        await expect(
+            verifyAsync(signature!, signedBytes, await getPublicKeyAsync(apiKeySecret)),
+        ).resolves.toBe(true);
         expect(payload).toMatchObject({
             action: Proto.TradingWithdrawAction.TO_FUNDING,
             assetId: 1,
@@ -497,7 +516,7 @@ describe("TradingWithdrawsService", () => {
             vi.useRealTimers();
         });
 
-        it("builds a five-minute deadline and refuses to submit once it lapses", async () => {
+        it("builds a five-minute deadline and signs again once it lapses", async () => {
             vi.useFakeTimers({ toFake: ["Date"], now: new Date("2026-10-03T12:00:00Z") });
             const transport = unaryTransportByMethod({
                 createTradingWithdraw: { intentId: "intent-1" },
@@ -507,6 +526,8 @@ describe("TradingWithdrawsService", () => {
                 undefined,
                 signingConfig,
                 testScales(),
+                undefined,
+                apiKeyAuth,
             );
 
             const prepared = await service.prepareToFunding({
@@ -514,7 +535,6 @@ describe("TradingWithdrawsService", () => {
                 quantity: "10",
                 destinationAddress: "funding",
                 idempotencyKey: "withdraw-deadline",
-                payloadSignature: new Uint8Array([1]),
             });
             const deadlineMs = Date.parse("2026-10-03T12:05:00Z");
             expect(prepared.deadline.getTime()).toBe(deadlineMs);
@@ -528,10 +548,17 @@ describe("TradingWithdrawsService", () => {
 
             vi.setSystemTime(new Date("2026-10-03T12:05:00Z"));
             expect(prepared.isExpired()).toBe(true);
-            await expect(prepared.submit({ stepUpToken: "late" })).rejects.toBeInstanceOf(
-                WithdrawDeadlineExpiredError,
+            await expect(prepared.submit({ stepUpToken: "late" })).resolves.toEqual({
+                intentId: "intent-1",
+            });
+            const [first, retry] = transport.calls.map(
+                (call) => call.message as Proto.CreateTradingWithdrawRequest,
             );
-            expect(transport.calls).toHaveLength(1);
+            expect(retry?.payload?.deadlineTsSec).toBe(
+                BigInt(Date.parse("2026-10-03T12:10:00Z") / 1000),
+            );
+            expect(retry?.payload?.nonce).not.toEqual(first?.payload?.nonce);
+            expect(retry?.payloadSignature).not.toEqual(first?.payloadSignature);
         });
 
         it("exposes the signed deadline so callers can re-prepare a stale withdraw", async () => {
@@ -542,13 +569,14 @@ describe("TradingWithdrawsService", () => {
                 undefined,
                 signingConfig,
                 testScales(),
+                undefined,
+                apiKeyAuth,
             );
             const prepared = await service.prepareToFunding({
                 account: "main",
                 assetId: 1,
                 quantity: "10",
                 idempotencyKey: "withdraw-deadline",
-                payloadSignature: new Uint8Array([1]),
             });
 
             expect(prepared.deadline).toEqual(new Date("2026-01-01T00:05:00Z"));
@@ -622,6 +650,8 @@ describe("TradingWithdrawsService", () => {
                 undefined,
                 signingConfig,
                 testScales(),
+                undefined,
+                apiKeyAuth,
             );
             const deadline = new Date(Date.now() + 15 * 60_000 + 500);
 
@@ -630,7 +660,6 @@ describe("TradingWithdrawsService", () => {
                 quantity: "10",
                 destinationAddress: "funding",
                 idempotencyKey: "withdraw-deadline",
-                payloadSignature: new Uint8Array([1]),
                 deadline,
             });
             const deadlineSec = Math.floor(deadline.getTime() / 1000);
@@ -654,7 +683,6 @@ describe("TradingWithdrawsService", () => {
         const base = {
             assetId: 1,
             idempotencyKey: "withdraw-1",
-            payloadSignature: new Uint8Array([1]),
         };
 
         await expect(
@@ -669,7 +697,42 @@ describe("TradingWithdrawsService", () => {
         expect(transport.unary).not.toHaveBeenCalled();
     });
 
-    it("rejects requests without either a wallet signer or payload signature before transport", async () => {
+    it("refuses a subaccount scope on API-key withdraws instead of dropping it", async () => {
+        const transport = unaryTransportByMethod({
+            createTradingWithdraw: { intentId: "intent-1" },
+        });
+        const service = new TradingWithdrawsService(
+            { authApi: transport.transport },
+            subaccountResolverStub(formatId(77n)),
+            signingConfig,
+            testScales(),
+            undefined,
+            apiKeyAuth,
+        );
+        const input = {
+            assetId: 1,
+            quantity: "1",
+            idempotencyKey: "withdraw-1",
+        };
+
+        await expect(
+            service.prepareToFunding({ ...input, account: { subaccountId: formatId(42n) } }),
+        ).rejects.toThrow(/cannot target a subaccount/);
+        await expect(
+            service.prepareToExternalChain({
+                ...input,
+                destinationChainId: 8453,
+                destinationAddress: "0x2222222222222222222222222222222222222222",
+            }),
+        ).rejects.toThrow(/cannot target a subaccount/);
+        expect(transport.unary).not.toHaveBeenCalled();
+
+        await expect(service.createToFunding({ ...input, account: "main" })).resolves.toEqual({
+            intentId: "intent-1",
+        });
+    });
+
+    it("rejects requests without either a wallet signer or API-key auth before transport", async () => {
         const transport = unaryTransportByMethod({});
         const service = new TradingWithdrawsService(
             { authApi: transport.transport },
@@ -684,7 +747,7 @@ describe("TradingWithdrawsService", () => {
                 quantity: "100",
                 idempotencyKey: "withdraw-1",
             }),
-        ).rejects.toThrow("Trading withdraw requires a wallet signer or payload signature.");
+        ).rejects.toThrow("Trading withdraw requires a wallet signer or API-key auth.");
         expect(transport.unary).not.toHaveBeenCalled();
     });
 
@@ -851,6 +914,8 @@ describe("TradingWithdrawsService", () => {
             undefined,
             signingConfig,
             testScales(),
+            undefined,
+            apiKeyAuth,
         );
 
         await expect(
@@ -858,7 +923,6 @@ describe("TradingWithdrawsService", () => {
                 assetId: 1,
                 quantity: "100",
                 idempotencyKey: "withdraw-1",
-                payloadSignature: new Uint8Array([1]),
             }),
         ).rejects.toThrow();
     });

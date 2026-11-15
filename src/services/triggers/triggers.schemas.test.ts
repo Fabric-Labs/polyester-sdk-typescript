@@ -14,6 +14,7 @@ import {
 } from "../../shared/wire-bounds.js";
 import { formatId } from "../../utils/base58-id.js";
 import { parse } from "../../shared/validation.js";
+import { ValidationError } from "../../shared/errors.js";
 import {
     BatchCancelTriggersInputSchema,
     CreateTriggerResultSchema,
@@ -761,6 +762,35 @@ describe("CreateTriggerInputSchema", () => {
                 });
             }
         }
+    });
+
+    it("reports TWAP timing and ladder level bounds as ValidationError", () => {
+        const schema = createCreateTriggerInputSchema(testScales());
+        const twap = {
+            triggerType: "twap",
+            symbolId: 1,
+            side: "buy",
+            qty: "1",
+            durationMs: 500,
+            sliceIntervalMs: 100,
+            execution: { type: "market_ioc" },
+        };
+        const ladder = {
+            triggerType: "ladder",
+            symbolId: 1,
+            side: "buy",
+            qty: "1",
+            priceMin: "99",
+            priceMax: "101",
+            levels: 1,
+        };
+
+        expect(() => parse(schema, twap)).toThrow(ValidationError);
+        expect(() => parse(schema, twap)).toThrow(
+            `durationMs must be between 1000 and ${PROTOBUF_INT64_MAX} milliseconds`,
+        );
+        expect(() => parse(schema, ladder)).toThrow(ValidationError);
+        expect(() => parse(schema, ladder)).toThrow("levels must be between 2 and 100");
     });
 
     it("rejects invalid precision, timing, and ladder bounds", () => {
@@ -1595,6 +1625,22 @@ describe("OCO and batch cancel schemas", () => {
             }),
         ).toMatchObject({ orderListId: 70n, clientListId: "x".repeat(36) });
         expect(() => v.parse(ListTriggersInputSchema, { clientListId: "é".repeat(19) })).toThrow();
+    });
+
+    it("sends a padded clientListId unchanged on create and on the list filter", () => {
+        const padded = "  py-82535  ";
+        expect(v.parse(ListTriggersInputSchema, { clientListId: padded }).clientListId).toBe(
+            padded,
+        );
+        const oco = v.parse(createCreateOcoInputSchema(testScales()), {
+            symbolId: 1,
+            side: "buy",
+            qty: "0.5",
+            clientListId: padded,
+            takeProfit: { triggerPrice: "90", execution: { type: "market_ioc" } },
+            stopLoss: { triggerPrice: "110", execution: { type: "market_ioc" } },
+        });
+        expect(oco.oco.clientListId).toBe(padded);
     });
 
     it("exposes a leg's OCO IDs and the renamed quote-size failure reason", () => {

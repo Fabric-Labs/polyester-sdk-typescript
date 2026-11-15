@@ -112,6 +112,146 @@ describe("makeFetch", () => {
     });
 });
 
+describe("makeFetch response body limit", () => {
+    const LIMIT = 32;
+    const fetchOf = (res: Response) => makeFetch(async () => res, LIMIT);
+
+    /** A body of `count` chunks of `size` bytes, produced only as they are read. */
+    function chunkedBody(count: number, size = 8) {
+        const stats = { chunks: 0, canceled: false };
+        const body = new ReadableStream<Uint8Array>(
+            {
+                pull(controller) {
+                    if (stats.chunks === count) {
+                        controller.close();
+                        return;
+                    }
+                    stats.chunks++;
+                    controller.enqueue(new Uint8Array(size).fill(0x78));
+                },
+                cancel() {
+                    stats.canceled = true;
+                },
+            },
+            { highWaterMark: 0 },
+        );
+        return { body, stats };
+    }
+
+    it.each([
+        ["a large finite body", 10, {}],
+        ["an endless body", Infinity, {}],
+        ["an endless body with a misleading Content-Length", Infinity, { "content-length": "8" }],
+    ])("rejects and cancels %s past the limit", async (_, count, headers) => {
+        const { body, stats } = chunkedBody(count);
+
+        const rejection = expect(
+            fetchOf(new Response(body, { status: 502, headers }))("https://api.test"),
+        ).rejects;
+        await rejection.toBeInstanceOf(InternalServerError);
+        await rejection.toMatchObject({ status: 502, retryable: false });
+        expect(stats.canceled).toBe(true);
+        expect(stats.chunks).toBe(LIMIT / 8 + 1);
+    });
+
+    it("rejects an oversized problem+json body without parsing it", async () => {
+        const problem = JSON.stringify({ code: "TIMESTAMP_SKEW", title: "x".repeat(LIMIT) });
+        const res = new Response(problem, {
+            status: 401,
+            headers: { "content-type": "application/problem+json" },
+        });
+
+        const rejection = expect(fetchOf(res)("https://api.test")).rejects;
+        await rejection.toBeInstanceOf(InternalServerError);
+        await rejection.toMatchObject({ status: 401 });
+    });
+
+    it("maps a TIMESTAMP_SKEW problem within the limit", async () => {
+        const res = new Response(JSON.stringify({ code: "TIMESTAMP_SKEW" }), {
+            status: 401,
+            headers: { "content-type": "application/problem+json" },
+        });
+
+        await expect(fetchOf(res)("https://api.test")).rejects.toBeInstanceOf(TimestampSkewError);
+    });
+
+    it.each([
+        ["exactly at", LIMIT / 8],
+        ["just below", LIMIT / 8 - 1],
+    ])("buffers an error body %s the limit whole", async (_, count) => {
+        const { body } = chunkedBody(count);
+        const res = await fetchOf(
+            new Response(body, { status: 500, headers: { "content-type": "application/json" } }),
+        )("https://api.test");
+
+        expect(res.status).toBe(500);
+        await expect(res.text()).resolves.toBe("x".repeat(count * 8));
+    });
+
+    it("passes a Connect response through unread", async () => {
+        const { body, stats } = chunkedBody(Infinity);
+        const original = new Response(body, {
+            headers: { "content-type": "application/connect+proto" },
+        });
+
+        await expect(fetchOf(original)("https://api.test")).resolves.toBe(original);
+        expect(stats.chunks).toBe(0);
+    });
+
+    it("rethrows a caller abort while the body is read", async () => {
+        const controller = new AbortController();
+        const body = new ReadableStream<Uint8Array>(
+            {
+                start(stream) {
+                    stream.enqueue(new Uint8Array(8));
+                    controller.signal.addEventListener("abort", () =>
+                        stream.error(controller.signal.reason),
+                    );
+                },
+            },
+            { highWaterMark: 0 },
+        );
+
+        const pending = fetchOf(new Response(body, { status: 500 }))("https://api.test", {
+            signal: controller.signal,
+        });
+        controller.abort();
+        await expect(pending).rejects.toBe(controller.signal.reason);
+    });
+
+    it("rejects an over-limit response through the transports with no unhandled rejection", async () => {
+        const unhandled: unknown[] = [];
+        const onUnhandled = (reason: unknown) => unhandled.push(reason);
+        process.on("unhandledRejection", onUnhandled);
+        try {
+            // Past the default limit of 1 MiB.
+            const { body } = chunkedBody(17, 64 * 1024);
+            // Mimics fetch instrumentation that reads a clone of every response.
+            const instrumentedFetch: typeof fetch = async () => {
+                const res = new Response(body, {
+                    status: 502,
+                    headers: { "content-type": "text/html" },
+                });
+                void res.clone().text();
+                return res;
+            };
+            const { publicApi } = createTransports({
+                apiUrl: "https://api.test",
+                fetch: instrumentedFetch,
+            });
+            const client = createClient(Proto.MarketOverviewService, publicApi);
+
+            const rejection = expect(client.listMarketOverview({})).rejects;
+            await rejection.toBeInstanceOf(InternalServerError);
+            await rejection.toMatchObject({ status: 502 });
+            await new Promise((resolve) => setTimeout(resolve, 20));
+            expect(unhandled).toEqual([]);
+        } finally {
+            process.off("unhandledRejection", onUnhandled);
+        }
+    });
+});
+
 describe("createTransports", () => {
     afterEach(() => {
         vi.restoreAllMocks();
@@ -790,6 +930,40 @@ describe("createApiKeyEd25519AuthHeaders", () => {
         const timestamps = headers.map((h) => Number(h["X-API-TIMESTAMP"]));
         for (let i = 1; i < timestamps.length; i++) {
             expect(timestamps[i]).toBeGreaterThan(timestamps[i - 1]!);
+        }
+    });
+
+    it("waits for the clock instead of leading it by more than 500 ms in a burst", async () => {
+        vi.useFakeTimers({ toFake: ["Date", "setTimeout"] });
+        try {
+            // A fresh module, so the burst starts from an unused timestamp counter.
+            vi.resetModules();
+            const { createApiKeyEd25519AuthHeaders: sign } = await import("./transports.js");
+            const auth = {
+                kind: "api-key-ed25519",
+                getKeyId: () => "ak_test",
+                getSecretKey: () => new Uint8Array(32),
+            } as const;
+            const request = { url: "https://api.example.test/v1/rt/token", method: "GET" };
+            let settled = 0;
+            const burst = Array.from({ length: 503 }, () =>
+                sign(auth, request).then((headers) => {
+                    settled++;
+                    return { timestamp: Number(headers["X-API-TIMESTAMP"]), signedAt: Date.now() };
+                }),
+            );
+
+            const unblocked = await Promise.all(burst.slice(0, 501));
+            expect(settled).toBe(501);
+            await vi.advanceTimersByTimeAsync(2);
+            const signed = [...unblocked, ...(await Promise.all(burst.slice(501)))];
+
+            for (let i = 1; i < signed.length; i++) {
+                expect(signed[i]!.timestamp).toBeGreaterThan(signed[i - 1]!.timestamp);
+            }
+            expect(Math.max(...signed.map((s) => s.timestamp - s.signedAt))).toBe(500);
+        } finally {
+            vi.useRealTimers();
         }
     });
 

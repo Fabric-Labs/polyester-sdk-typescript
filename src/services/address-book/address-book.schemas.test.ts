@@ -4,9 +4,11 @@ import * as Proto from "../../gen/auth/v1/address_book_pb.js";
 import { formatId } from "../../utils/base58-id.js";
 import {
     AddressBookEntrySchema,
+    AddressBookRecentDestinationsViewSchema,
     AddressBookViewInvalidatedSchema,
     CreateAddressBookEntryInputSchema,
     ListTransferCounterpartiesInputSchema,
+    TransferCounterpartySchema,
     UpdateAddressBookEntryInputSchema,
     UpdateAddressBookTagInputSchema,
 } from "./address-book.schemas.js";
@@ -287,6 +289,55 @@ describe("AddressBookEntrySchema", () => {
                 kind: Proto.AddressBookEntryKind.ENTRY_KIND_UNSPECIFIED,
             }),
         ).toMatchObject({ kind: "unspecified" });
+    });
+});
+
+describe("unsaved counterparty entry IDs", () => {
+    const seen = { seconds: 1_700_000_000n };
+
+    it("formats the wire-zero entry ID as empty and keeps saved entry IDs", () => {
+        const counterparty = (saved: boolean, addressBookEntryId: bigint) =>
+            v.parse(TransferCounterpartySchema, {
+                counterpartyId: 9n,
+                direction: Proto.TransferCounterpartyDirection.INTERNAL_TRANSFER_TO,
+                kind: Proto.AddressBookEntryKind.EXTERNAL_CHAIN,
+                saved,
+                addressBookEntryId,
+                useCount: 1n,
+                firstSeenAt: seen,
+                lastSeenAt: seen,
+                counterparty: baseExternalEntry.entry,
+            }).addressBookEntryId;
+
+        expect(counterparty(false, 0n)).toBe("");
+        expect(counterparty(true, 7n)).toBe(formatId(7n));
+    });
+
+    it("formats the wire-zero entry ID as empty on recent destinations", () => {
+        const recent = {
+            lastDirection: Proto.TransferCounterpartyDirection.INTERNAL_TRANSFER_TO,
+            saved: false,
+            addressBookEntryId: 0n,
+            useCount: 1n,
+            lastSeenAt: seen,
+        };
+        const view = v.parse(AddressBookRecentDestinationsViewSchema, {
+            external: [{ ...recent, polychainChainId: 8453, address: "0x01" }],
+            internal: [
+                {
+                    ...recent,
+                    rootAccountId: 1n,
+                    targetAccountId: 2n,
+                    targetScopeType: Proto.AccountScopeType.SCOPE_ROOT,
+                    smartAccountAddress: "0x02",
+                    rootUsername: "root",
+                    subaccountLabel: "",
+                },
+            ],
+        });
+
+        expect(view.external[0]?.addressBookEntryId).toBe("");
+        expect(view.internal[0]?.addressBookEntryId).toBe("");
     });
 });
 

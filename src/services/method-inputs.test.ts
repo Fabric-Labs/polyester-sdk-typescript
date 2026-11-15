@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import { SocialProvider } from "../gen/auth/v1/social_verification_pb.js";
+import { ValidationError } from "../shared/errors.js";
 import { formatId } from "../utils/base58-id.js";
 import { ResolveAccountInputSchema } from "./accounts/accounts.schemas.js";
 import { ApiKeyIdInputSchema } from "./api-keys/api-keys.schemas.js";
@@ -88,9 +89,9 @@ describe("strict method inputs reject unknown keys", () => {
     });
 
     it("rejects unknown modify-order keys while allowing every declared key", () => {
-        expect(() => assertKnownModifyOrderInputKeys({ symbolId: 1, newPrise: "1" })).toThrow(
-            'Unknown key "newPrise" in modify order input.',
-        );
+        const unknownKey = () => assertKnownModifyOrderInputKeys({ symbolId: 1, newPrise: "1" });
+        expect(unknownKey).toThrow(ValidationError);
+        expect(unknownKey).toThrow('Unknown key "newPrise" in modify order input.');
         expect(() =>
             assertKnownModifyOrderInputKeys({
                 account: "main",

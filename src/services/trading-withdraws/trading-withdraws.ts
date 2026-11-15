@@ -1,4 +1,5 @@
-import { ValidationError, WithdrawDeadlineExpiredError } from "../../shared/errors.js";
+import { ConfigurationError, ValidationError } from "../../shared/errors.js";
+import { create, toBinary } from "@bufbuild/protobuf";
 import { createClient, type Client } from "@connectrpc/connect";
 import type { Address, Hex } from "viem";
 import { checksumEvmAddress, evmHexToBytes } from "../../utils/evm.js";
@@ -13,7 +14,12 @@ import {
 } from "../../shared/request-options.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
-import type { AuthApiTransports } from "../../shared/transports.js";
+import {
+    signApiKeyEd25519Payload,
+    type ApiKeyEd25519AuthProvider,
+    type AuthApiTransports,
+    type JwtAuthProvider,
+} from "../../shared/transports.js";
 import { parse } from "../../shared/validation.js";
 import {
     createCreateTradingWithdrawToExternalChainInputSchema,
@@ -66,17 +72,15 @@ export type PreparedTradingWithdraw = Readonly<{
     /** When the backend stops accepting the currently signed request. */
     deadline: Date;
     /**
-     * True once the deadline is less than a minute away. Wallet-signed
-     * withdraws sign again on `submit` from then on, so callers can keep resubmitting the
-     * same prepared withdraw, e.g. after a slow MFA step-up. Payload-signed withdraws
-     * cannot be signed again: prepare again (same input, same idempotency key) instead.
+     * True once the deadline is less than a minute away. The withdraw signs again on
+     * `submit` from then on, so callers can keep resubmitting the same prepared withdraw,
+     * e.g. after a slow MFA step-up.
      */
     isExpired: () => boolean;
     /**
      * Submits the payload and signature produced during preparation. Repeated calls only
-     * change transport options such as the step-up token, unless the deadline is near:
-     * wallet-signed withdraws then sign a fresh deadline and nonce with the same idempotency
-     * key, and payload-signed withdraws throw `WithdrawDeadlineExpiredError` once it passes.
+     * change transport options such as the step-up token, unless the deadline is near: the
+     * withdraw then signs a fresh deadline and nonce with the same idempotency key.
      */
     submit: (options?: PolyesterMutationOptions) => Promise<CreateTradingWithdrawResult>;
 }>;
@@ -95,7 +99,7 @@ function deadlineMs(payload: TradingWithdrawIntentPayloadRequest): number {
 
 function preparedWithdraw(
     signed: SignedTradingWithdraw,
-    resign?: (payload: TradingWithdrawIntentPayloadRequest) => Promise<SignedTradingWithdraw>,
+    resign: (payload: TradingWithdrawIntentPayloadRequest) => Promise<SignedTradingWithdraw>,
 ): PreparedTradingWithdraw {
     let current = signed;
     const isExpired = () =>
@@ -106,12 +110,8 @@ function preparedWithdraw(
         },
         isExpired,
         submit: async (options) => {
-            if (resign && isExpired()) {
+            if (isExpired()) {
                 current = await resign(renewTradingWithdrawPayload(current.payload));
-            } else if (Date.now() >= deadlineMs(current.payload)) {
-                throw new WithdrawDeadlineExpiredError(
-                    "Withdraw signature deadline has passed. Prepare the withdraw again.",
-                );
             }
             return current.send(options);
         },
@@ -180,7 +180,7 @@ async function resolveWalletSignature(params: {
 }
 
 /**
- * Creates durable Trading withdrawal intents to Funding using API signatures or wallet EIP-191 signatures.
+ * Creates durable Trading withdrawal intents, signed by the client's API key or a wallet (EIP-191).
  */
 export class TradingWithdrawsService {
     #client: Client<typeof Proto.WithdrawService>;
@@ -188,6 +188,7 @@ export class TradingWithdrawsService {
     #signingConfig: TradingWithdrawSigningConfig;
     #catalog?: ClientCatalog;
     #scales: SdkScales;
+    #auth?: JwtAuthProvider | ApiKeyEd25519AuthProvider;
     #toFundingInputSchema: ReturnType<typeof createCreateTradingWithdrawToFundingInputSchema>;
     #toExternalChainInputSchema: ReturnType<
         typeof createCreateTradingWithdrawToExternalChainInputSchema
@@ -199,8 +200,10 @@ export class TradingWithdrawsService {
         signingConfig: TradingWithdrawSigningConfig,
         scales: SdkScales,
         catalog?: ClientCatalog,
+        auth?: JwtAuthProvider | ApiKeyEd25519AuthProvider,
     ) {
         this.#client = createClient(Proto.WithdrawService, transports.authApi);
+        this.#auth = auth;
         this.#resolver = resolver;
         this.#signingConfig = signingConfig;
         this.#catalog = catalog;
@@ -246,7 +249,7 @@ export class TradingWithdrawsService {
     }
 
     /**
-     * Builds a Trading-to-Funding withdraw intent payload with asset id, decimal amount, destination address, five-minute deadline, nonce, and idempotency key. If a wallet signer is provided, it signs the canonical EIP-191 message and calls the wallet endpoint; otherwise a payload signature is required for the backend-authorized endpoint.
+     * Builds a Trading-to-Funding withdraw intent payload with asset id, decimal amount, destination address, five-minute deadline, nonce, and idempotency key. If a wallet signer is provided, it signs the canonical EIP-191 message and calls the wallet endpoint; otherwise the client's API key signs the payload for the API-key endpoint.
      */
     async createToFunding(
         input: CreateTradingWithdrawToFundingServiceInput,
@@ -271,7 +274,7 @@ export class TradingWithdrawsService {
     }
 
     /**
-     * Builds a Trading-to-external-chain withdraw intent payload with asset id, decimal gross amount, destination network, destination address, five-minute deadline, nonce, and idempotency key. If a wallet signer is provided, it signs the canonical EIP-191 message and calls the wallet endpoint; otherwise a payload signature is required for the backend-authorized endpoint.
+     * Builds a Trading-to-external-chain withdraw intent payload with asset id, decimal gross amount, destination network, destination address, five-minute deadline, nonce, and idempotency key. If a wallet signer is provided, it signs the canonical EIP-191 message and calls the wallet endpoint; otherwise the client's API key signs the payload for the API-key endpoint.
      */
     async createToExternalChain(
         input: CreateTradingWithdrawToExternalChainServiceInput,
@@ -337,25 +340,40 @@ export class TradingWithdrawsService {
             return preparedWithdraw(await sign(validated.payload), sign);
         }
 
-        if (!validated.payloadSignature) {
-            throw new ValidationError(
-                "Trading withdraw requires a wallet signer or payload signature.",
+        const auth = this.#auth;
+        if (auth?.kind !== "api-key-ed25519") {
+            throw new ConfigurationError(
+                "Trading withdraw requires a wallet signer or API-key auth.",
             );
         }
-
-        const request = removeUndefined({
-            payload: validated.payload,
-            payloadSignature: validated.payloadSignature,
-        });
-        return preparedWithdraw({
-            payload: validated.payload,
-            send: async (options) => {
-                const response = await this.#client.createTradingWithdraw(
-                    request,
-                    toConnectCallOptions(options),
-                );
-                return parse(CreateTradingWithdrawResultSchema, response);
-            },
-        });
+        // CreateTradingWithdrawRequest has no subaccount field: the API key decides the account.
+        if (validated.subaccountId !== undefined) {
+            throw new ValidationError(
+                'API-key trading withdraws cannot target a subaccount. Use `account: "main"` or a wallet signer.',
+            );
+        }
+        const sign = async (
+            payload: TradingWithdrawIntentPayloadRequest,
+        ): Promise<SignedTradingWithdraw> => {
+            // The backend verifies the signature over the payload's protobuf encoding.
+            const payloadSignature = await signApiKeyEd25519Payload(
+                auth,
+                toBinary(
+                    Proto.TradingWithdrawIntentPayloadSchema,
+                    create(Proto.TradingWithdrawIntentPayloadSchema, payload),
+                ),
+            );
+            return {
+                payload,
+                send: async (options) => {
+                    const response = await this.#client.createTradingWithdraw(
+                        { payload, payloadSignature },
+                        toConnectCallOptions(options),
+                    );
+                    return parse(CreateTradingWithdrawResultSchema, response);
+                },
+            };
+        };
+        return preparedWithdraw(await sign(validated.payload), sign);
     }
 }

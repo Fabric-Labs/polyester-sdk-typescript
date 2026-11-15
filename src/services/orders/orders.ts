@@ -114,6 +114,12 @@ export interface SubscribeOrdersInput extends BaseSubscribeInput<Order> {
      * the rest of the view is current. A later call replaces the earlier one.
      */
     onStale?: (stale: boolean, orderIds?: string[]) => void;
+    /**
+     * The stream reflects every order change acknowledged before it subscribed, including
+     * every order read made before then. Wait for it before relying on the stream. Called
+     * again after each resubscribe or reconnect.
+     */
+    onReady?: () => void;
 }
 
 function assertBatchResultCount(operation: string, requested: number, returned: number): void {
@@ -477,6 +483,10 @@ export class OrdersService {
                 channel,
                 ready: () => this.#scales.ready(),
                 onPublication: (event) => {
+                    if (event.type === "ready") {
+                        input.onReady?.();
+                        return;
+                    }
                     if (event.type === "stale") {
                         input.onStale?.(
                             event.stale,

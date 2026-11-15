@@ -6,6 +6,7 @@ import {
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
 import { OptionalPublicIdSchema, PublicIdSchema, idInputSchema } from "../../shared/schemas.js";
+import { ValidationError } from "../../shared/errors.js";
 import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { formatId } from "../../utils/base58-id.js";
@@ -242,7 +243,7 @@ const BATCH_REPLACE_ITEM_INPUT_KEYS = new Set([
 export function assertKnownBatchReplaceOrderItemInputKeys(input: object): void {
     for (const key of Object.keys(input)) {
         if (!BATCH_REPLACE_ITEM_INPUT_KEYS.has(key)) {
-            throw new Error(`Unknown key "${key}" in batch replace order item.`);
+            throw new ValidationError(`Unknown key "${key}" in batch replace order item.`);
         }
     }
 }

@@ -279,6 +279,24 @@ describe("TradesService", () => {
         expect(transport.unary).not.toHaveBeenCalled();
     });
 
+    it("rejects an afterMatchId that is not a positive integer with ValidationError", async () => {
+        const transport = unaryTransport({ trades: [], nextPageToken: "" });
+        const service = new TradesService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+        for (const afterMatchId of ["abc", "-1"]) {
+            const error = await service
+                .list({ symbolId: 1, afterMatchId })
+                .catch((e: unknown) => e);
+            expect(error).toBeInstanceOf(ValidationError);
+            expect((error as Error).message).toBe("afterMatchId must be a positive integer");
+        }
+        expect(transport.unary).not.toHaveBeenCalled();
+    });
+
     it("sends afterMatchId together with a positive symbolId", async () => {
         const transport = unaryTransport({ trades: [], nextPageToken: "" });
         const service = new TradesService(

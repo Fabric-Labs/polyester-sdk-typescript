@@ -772,6 +772,108 @@ describe("PrivateOrderStream", () => {
         expect(ws.ops("subscribe")).toHaveLength(3);
     });
 
+    it("delivers ready once per server subscription and replays it to a late consumer", async () => {
+        const types = (handlers: { onEvent: ReturnType<typeof vi.fn> }) =>
+            handlers.onEvent.mock.calls.map(([event]) => event.type);
+        const { stream, handlers } = setup();
+        const ws = await confirm("s1");
+        snapshot(ws, "s1", "c1");
+        ws.receive("s1", 4n, { case: "ready", value: {} });
+        expect(types(handlers)).toEqual(["snapshot", "ready"]);
+
+        const late = subscriber(stream);
+        await flush();
+        expect(types(late.handlers)).toEqual(["snapshot", "ready"]);
+
+        // A gap replaces the server subscription; its replacement has not sent Ready yet.
+        ws.receive("s1", 9n, { case: "covered", value: { cursor: "c2" } });
+        const during = subscriber(stream);
+        await flush();
+        expect(types(during.handlers)).toEqual(["snapshot"]);
+        await confirm("s2");
+        ws.receive("s2", 1n, { case: "ready", value: {} });
+        expect(types(handlers)).toEqual(["snapshot", "ready", "ready"]);
+        expect(types(during.handlers)).toEqual(["snapshot", "ready"]);
+
+        // So has the subscription of a new connection.
+        ws.serverClose(1001);
+        const reconnecting = subscriber(stream);
+        await flush();
+        expect(types(reconnecting.handlers)).toEqual(["snapshot"]);
+        await vi.advanceTimersByTimeAsync(1_000);
+        const next = await confirm("s3");
+        next.receive("s3", 1n, { case: "ready", value: {} });
+        expect(types(handlers)).toEqual(["snapshot", "ready", "ready", "ready"]);
+        expect(types(reconnecting.handlers)).toEqual(["snapshot", "ready"]);
+    });
+
+    /** Advances `seconds` seconds, with a heartbeat at the end of each. */
+    async function heartbeats(ws: FakeWebSocket, seconds: number): Promise<void> {
+        for (let i = 0; i < seconds; i++) {
+            await vi.advanceTimersByTimeAsync(1_000);
+            ws.receive("", 0n, { case: "heartbeat", value: { serverTsNs: 1n } });
+        }
+    }
+
+    it("ends a subscribe the server never confirms while heartbeats keep the connection", async () => {
+        const { handlers } = setup();
+        await openAll();
+        const ws = FakeWebSocket.instances[0]!;
+        // An error answering no request this client sent leaves the subscribe's deadline running.
+        ws.receive("", 0n, {
+            case: "error",
+            value: { id: "", code: RequestError_Code.INVALID_REQUEST },
+        });
+        expect(handlers.onError).toHaveBeenCalledWith(expect.objectContaining({ type: "request" }));
+
+        await heartbeats(ws, 29);
+        expect(handlers.onError).toHaveBeenCalledOnce();
+        expect(ws.closed).toBeUndefined();
+
+        await heartbeats(ws, 1);
+        expect(handlers.onError).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                type: "subscribe",
+                error: expect.objectContaining({
+                    message: "Private order subscribe acknowledgement timed out",
+                    retryable: true,
+                }),
+            }),
+        );
+        expect(handlers.onDisconnected).toHaveBeenCalledOnce();
+        expect(handlers.onConnected).not.toHaveBeenCalled();
+        expect(ws.closed).toMatchObject({ code: 1000 });
+    });
+
+    it("reports and retries an unanswered resubscribe and unsubscribes its late confirmation", async () => {
+        vi.spyOn(Math, "random").mockReturnValue(0);
+        const { handlers } = setup();
+        const ws = await confirm("s1");
+        snapshot(ws, "s1", "c1");
+        ws.receive("s1", 9n, { case: "covered", value: { cursor: "c2" } });
+        await flush();
+        const expired = ws.ops("subscribe").at(-1) as { id: string };
+        expect(ws.ops("subscribe")).toHaveLength(2);
+
+        await heartbeats(ws, 30);
+        expect(handlers.onError).toHaveBeenCalledOnce();
+        expect(handlers.onError).toHaveBeenCalledWith(
+            expect.objectContaining({ type: "subscribe", error: expect.any(RealtimeError) }),
+        );
+        expect(handlers.onDisconnected).toHaveBeenCalledOnce();
+        await heartbeats(ws, 1);
+        expect(ws.ops("subscribe")).toHaveLength(3);
+        expect(ws.ops("subscribe").at(-1)).toMatchObject({ cursor: "c1" });
+
+        ws.receive("s2", 0n, { case: "subscribed", value: { id: expired.id, account: 42n } });
+        expect(ws.ops("unsubscribe").at(-1)).toMatchObject({ sub: "s2" });
+        expect(handlers.onConnected).toHaveBeenCalledOnce();
+
+        await confirm("s3");
+        expect(handlers.onConnected).toHaveBeenCalledTimes(2);
+        expect(ws.closed).toBeUndefined();
+    });
+
     it("does not report a departed consumer's request error to other consumers", async () => {
         const { stream, handlers } = setup();
         const ws = await confirm("s1");
