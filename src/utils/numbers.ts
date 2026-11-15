@@ -1,3 +1,4 @@
+import { ValidationError } from "../shared/errors.js";
 import { PROTOBUF_UINT64_MAX } from "../shared/wire-bounds.js";
 
 // Shared numeric helpers for gRPC/Connect clients.
@@ -12,11 +13,11 @@ import { PROTOBUF_UINT64_MAX } from "../shared/wire-bounds.js";
  */
 export function parseRequiredUint64Decimal(raw: string, fieldName: string): bigint {
     const s = (raw ?? "").trim();
-    if (!s) throw new Error(`${fieldName} is required`);
-    if (!/^[0-9]+$/.test(s)) throw new Error(`${fieldName} must be a positive integer`);
+    if (!s) throw new ValidationError(`${fieldName} is required`);
+    if (!/^[0-9]+$/.test(s)) throw new ValidationError(`${fieldName} must be a positive integer`);
     const value = BigInt(s);
     if (value > PROTOBUF_UINT64_MAX) {
-        throw new Error(`${fieldName} must be at most ${PROTOBUF_UINT64_MAX}`);
+        throw new ValidationError(`${fieldName} must be at most ${PROTOBUF_UINT64_MAX}`);
     }
     return value;
 }
@@ -44,10 +45,10 @@ export function parseOptionalUint64DecimalStrict(
 ): bigint | undefined {
     const s = (raw ?? "").trim();
     if (!s) return;
-    if (!/^[0-9]+$/.test(s)) throw new Error(`${fieldName} must be a positive integer`);
+    if (!/^[0-9]+$/.test(s)) throw new ValidationError(`${fieldName} must be a positive integer`);
     const value = BigInt(s);
     if (value > PROTOBUF_UINT64_MAX) {
-        throw new Error(`${fieldName} must be at most ${PROTOBUF_UINT64_MAX}`);
+        throw new ValidationError(`${fieldName} must be at most ${PROTOBUF_UINT64_MAX}`);
     }
     return value;
 }
@@ -114,11 +115,12 @@ export function parseOptionalPositiveBigIntLike(
  */
 export function decimalToScaledInt(raw: string, scale: number, fieldName: string): bigint {
     const s = (raw ?? "").trim();
-    if (!s) throw new Error(`${fieldName} is required`);
-    if (!/^[0-9]+(\.[0-9]+)?$/.test(s)) throw new Error(`${fieldName} must be a positive number`);
+    if (!s) throw new ValidationError(`${fieldName} is required`);
+    if (!/^[0-9]+(\.[0-9]+)?$/.test(s))
+        throw new ValidationError(`${fieldName} must be a positive number`);
     const [intPartRaw, fracRaw = ""] = s.split(".");
     if (fracRaw.length > scale) {
-        throw new Error(`${fieldName} supports at most ${scale} decimal places`);
+        throw new ValidationError(`${fieldName} supports at most ${scale} decimal places`);
     }
     const intPart = intPartRaw?.replace(/^0+/, "") ?? "0";
     const fracPart = fracRaw.padEnd(scale, "0");

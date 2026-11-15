@@ -13,5 +13,6 @@ export const tradingWithdrawsService = defineService(
             },
             context.scales,
             context.catalog,
+            context.auth,
         ),
 );

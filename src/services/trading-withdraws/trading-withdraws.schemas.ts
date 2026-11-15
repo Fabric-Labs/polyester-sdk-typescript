@@ -36,7 +36,6 @@ export type TradingWithdrawIntentPayloadRequest = {
 type CreateTradingWithdrawRequestBase = {
     subaccountId: bigint | undefined;
     payload: TradingWithdrawIntentPayloadRequest;
-    payloadSignature?: Uint8Array;
 };
 
 function createNonce(): bigint {
@@ -96,7 +95,6 @@ export function createCreateTradingWithdrawToFundingInputSchema(scales: SdkScale
             idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
             destinationAddress: v.optional(v.pipe(v.string(), v.trim()), ""),
             signerWallet: v.optional(v.pipe(v.string(), v.trim()), ""),
-            payloadSignature: v.optional(v.instance(Uint8Array)),
             /**
              * When the signed authorization lapses. Defaults to five minutes from now
              * on the device clock.
@@ -111,7 +109,6 @@ export function createCreateTradingWithdrawToFundingInputSchema(scales: SdkScale
             });
             return {
                 subaccountId: accountScopeToSubaccountId(input.account),
-                payloadSignature: input.payloadSignature,
                 payload: createTradingWithdrawPayload({
                     action: TradingWithdrawActionCodec.inputToProto.to_funding,
                     assetId: input.assetId,
@@ -141,7 +138,6 @@ export function createCreateTradingWithdrawToExternalChainInputSchema(scales: Sd
             destinationAddress: v.pipe(v.string(), v.trim(), v.minLength(1)),
             idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
             signerWallet: v.optional(v.pipe(v.string(), v.trim()), ""),
-            payloadSignature: v.optional(v.instance(Uint8Array)),
             /**
              * When the signed authorization lapses. Defaults to five minutes from now
              * on the device clock.
@@ -156,7 +152,6 @@ export function createCreateTradingWithdrawToExternalChainInputSchema(scales: Sd
             });
             return {
                 subaccountId: accountScopeToSubaccountId(input.account),
-                payloadSignature: input.payloadSignature,
                 payload: createTradingWithdrawPayload({
                     action: TradingWithdrawActionCodec.inputToProto.to_external_chain,
                     assetId: input.assetId,

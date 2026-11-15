@@ -4,6 +4,7 @@ import * as v from "valibot";
 import { tsNsToMs } from "../../utils/time.js";
 import { OptionalPublicIdSchema, PublicIdSchema } from "../../shared/schemas.js";
 import { positiveDecimalInputToScaled, type SdkScales } from "../../shared/decimal-surface.js";
+import { ValidationError } from "../../shared/errors.js";
 import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import {
     AccountScopeInputEntries,
@@ -103,7 +104,7 @@ const MODIFY_ORDER_INPUT_KEYS = new Set<string>([
 export function assertKnownModifyOrderInputKeys(input: object): void {
     for (const key of Object.keys(input)) {
         if (!MODIFY_ORDER_INPUT_KEYS.has(key)) {
-            throw new Error(`Unknown key "${key}" in modify order input.`);
+            throw new ValidationError(`Unknown key "${key}" in modify order input.`);
         }
     }
 }

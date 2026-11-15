@@ -107,6 +107,21 @@ describe("balance history response schema", () => {
             { assetId: 19, accountCode: "funding", balance: ["489.38484", "0"] },
         ]);
     });
+
+    it("reads an account code newer than this build as unspecified", () => {
+        const history = v.parse(createBalanceHistoryResponseSchema(), {
+            range: Proto.BalanceRange.DAY_7,
+            bucket: "1h",
+            startTsSec: 100,
+            endTsSec: 200,
+            points: 1,
+            series: [{ assetId: 1, accountCode: 9_999, balanceQ: [100_000_000n] }],
+        });
+
+        expect(history.series).toEqual([
+            { assetId: 1, accountCode: "unspecified", balance: ["10"] },
+        ]);
+    });
 });
 
 describe("equity history response schema", () => {

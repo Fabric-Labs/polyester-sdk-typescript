@@ -183,6 +183,7 @@ export interface ServiceContext {
     readonly catalog: ClientCatalog;
     readonly scales: SdkScales;
     readonly resolver: SubaccountResolver | undefined;
+    readonly auth: JwtAuthProvider | ApiKeyEd25519AuthProvider | undefined;
 }
 
 const serviceContexts = new WeakMap<PolyesterCore, ServiceContext>();
@@ -263,7 +264,11 @@ export class PolyesterCore {
         this.#createAuth = runtime.createAuth;
 
         // Getters keep realtime, catalog, and scales lazy until a service needs them.
-        const context = { transports: this.transports, environment } as ServiceContext;
+        const context = {
+            transports: this.transports,
+            environment,
+            auth: config.auth,
+        } as ServiceContext;
         serviceContexts.set(
             this,
             Object.defineProperties(context, {

@@ -429,10 +429,11 @@ class LedgerReader implements LedgerCatalogReader {
 
     private requireAsset(asset: AssetCatalogKey): AssetConfig {
         const key = resolveAssetKey(asset);
+        // Not getAssetByLedgerId: its unknown-asset fallback has no real scale to convert with.
         const found =
             key.lookup === "symbol"
                 ? this.getAssetBySymbol(key.value)
-                : this.getAssetByLedgerId(key.value);
+                : this.market.lookupAssetByLedgerId(key.value);
         return requireFound("ledger", key.lookup, key.value, found);
     }
 }

@@ -34,7 +34,8 @@ export function idToBigInt(input: IdInput, label = "id"): bigint {
         return assertU64(BigInt(input), label);
     }
 
-    const raw = input.trim();
+    // Untyped callers can pass undefined; report it like an empty ID, not a TypeError.
+    const raw = typeof input === "string" ? input.trim() : "";
     if (!raw) throw new ValidationError(`${label}: empty`);
 
     return idParse(raw);

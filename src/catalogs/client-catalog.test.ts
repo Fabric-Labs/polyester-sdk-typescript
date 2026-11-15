@@ -149,6 +149,39 @@ describe("createPolyesterCatalog", () => {
         },
     );
 
+    it("refuses snapshot scales outside 0..18 at parse time", () => {
+        const usdt = asset("USDT", 2, 6);
+        const seed = (base: AssetConfig) =>
+            snapshotSeed(
+                marketSeed({ symbol: "BTC-USDT", symbolId: 1, baseAsset: base, quoteAsset: usdt }),
+            );
+
+        expect(seed(asset("BTC", 1, 0)).market.assets[0]?.quantityScale).toBe(0);
+        expect(seed(asset("BTC", 1, 18)).market.assets[0]?.quantityScale).toBe(18);
+        for (const base of [
+            asset("BTC", 1, 1_000_000, 8),
+            asset("BTC", 1, 19, 8),
+            asset("BTC", 1, -1, 8),
+            { ...asset("BTC", 1, 8), marketDataVolumeScale: 1_000_000 },
+        ]) {
+            expect(() => seed(base)).toThrow(ValidationError);
+        }
+        const valid = seed(asset("BTC", 1, 8));
+        const pairWithHugeReferenceScale = {
+            ...valid.market.pairs[0]!,
+            referencePriceScale: 1_000_000,
+        };
+        expect(() =>
+            createPolyesterCatalog({
+                snapshot: {
+                    ...valid,
+                    market: { ...valid.market, pairs: [pairWithHugeReferenceScale] },
+                },
+                refresh: false,
+            }),
+        ).toThrow(ValidationError);
+    });
+
     it("preserves the current snapshot when a replacement is malformed", () => {
         const seeded = snapshotSeed(marketRefreshConfig);
         const catalog = createPolyesterCatalog({ snapshot: seeded, refresh: false });

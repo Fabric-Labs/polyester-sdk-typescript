@@ -8,6 +8,7 @@ import {
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
 import { positiveDecimalInputToScaled, type SdkScales } from "../../shared/decimal-surface.js";
+import { ValidationError } from "../../shared/errors.js";
 import { PROTOBUF_INT64_MAX } from "../../shared/wire-bounds.js";
 import {
     parseOptionalPositiveBigIntLike,
@@ -51,7 +52,8 @@ const TriggerStatusFilterSchema = v.picklist(TRIGGER_STATUS_FILTER_VALUES);
 const TriggerEventTypeSchema = v.picklist(TRIGGER_EVENT_TYPE_VALUES);
 // Trigger IDs are opaque public IDs, like order IDs.
 const TriggerIdInputSchema = positiveOrderIdInputSchema("triggerId");
-const ClientListIdInputSchema = v.pipe(v.string(), v.trim(), v.minLength(1), v.maxBytes(36));
+// Sent unchanged, like the other SDKs: the server matches it byte for byte, spaces included.
+const ClientListIdInputSchema = v.pipe(v.string(), v.minLength(1), v.maxBytes(36));
 
 const TriggerScopedInputEntries = {
     triggerId: TriggerIdInputSchema,
@@ -93,7 +95,7 @@ function parseTwapMilliseconds(
 ): bigint {
     const parsed = parseOptionalPositiveBigIntLike(value);
     if (parsed === undefined || parsed < minimum || parsed > PROTOBUF_INT64_MAX) {
-        throw new Error(
+        throw new ValidationError(
             `${fieldName} must be between ${minimum} and ${PROTOBUF_INT64_MAX} milliseconds`,
         );
     }
@@ -321,7 +323,7 @@ function createLadderTriggerInputSchema(scales: SdkScales) {
                 v.transform((value) => {
                     const levels = parseOptionalPositiveIntLike(value);
                     if (!levels || levels < 2 || levels > 100) {
-                        throw new Error("levels must be between 2 and 100");
+                        throw new ValidationError("levels must be between 2 and 100");
                     }
                     return levels;
                 }),

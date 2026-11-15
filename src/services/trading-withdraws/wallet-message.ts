@@ -14,7 +14,9 @@ function messageAddress(value: string, field: string): string {
 
 function messageText(value: string, field: string): string {
     const text = value.trim();
-    if (/[\p{Cc}\p{Cs}]/u.test(text)) {
+    // Separators and format characters (RTL override, zero-width) can make the wallet
+    // prompt read differently from the signed bytes.
+    if (/[\p{Cc}\p{Cs}\p{Cf}\p{Zl}\p{Zp}]/u.test(text)) {
         throw new ValidationError(
             `Trading withdraw ${field} must be valid UTF-8 without control characters.`,
         );

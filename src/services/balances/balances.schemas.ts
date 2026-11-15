@@ -181,7 +181,7 @@ export interface StatementPage {
 
 const BalanceSeriesSchema = v.object({
     assetId: v.number(),
-    accountCode: v.enum(AccountCodeCodec.inputToProto),
+    accountCode: v.number(),
     balanceQ: v.array(v.bigint()),
 });
 
@@ -252,7 +252,7 @@ const EquitySeriesGroupingSchema = v.union([
     v.object({
         case: v.literal("account"),
         value: v.object({
-            accountCode: v.enum(AccountCodeCodec.inputToProto),
+            accountCode: v.number(),
             name: v.string(),
         }),
     }),

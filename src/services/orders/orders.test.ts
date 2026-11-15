@@ -1287,6 +1287,7 @@ describe("OrdersService", () => {
         const onSnapshot = vi.fn();
         const onRemoved = vi.fn();
         const onStale = vi.fn();
+        const onReady = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();
 
@@ -1296,6 +1297,7 @@ describe("OrdersService", () => {
             onSnapshot,
             onRemoved,
             onStale,
+            onReady,
             onOpen,
             onClose,
         });
@@ -1304,6 +1306,7 @@ describe("OrdersService", () => {
         expect(params.accountId).toBe(accountId);
         params.onConnected?.();
         params.onEvent({ type: "snapshot", orders: [protoOrder({ version: 0 })] });
+        params.onEvent({ type: "ready" });
         params.onEvent({
             type: "unit",
             unit: create(PrivateWs.UnitSchema, {
@@ -1336,6 +1339,7 @@ describe("OrdersService", () => {
         expect(onRemoved).toHaveBeenCalledWith([formatId(12n)]);
         expect(onStale).toHaveBeenNthCalledWith(1, true, undefined);
         expect(onStale).toHaveBeenNthCalledWith(2, true, [formatId(12n)]);
+        expect(onReady).toHaveBeenCalledOnce();
         expect(onClose).toHaveBeenCalledOnce();
 
         unsubscribe();

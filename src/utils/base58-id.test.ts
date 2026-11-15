@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { ValidationError } from "../shared/errors.js";
 import { formatId, idToBigInt } from "./base58-id.js";
 
 describe("base58 public IDs", () => {
@@ -18,6 +19,12 @@ describe("base58 public IDs", () => {
 
     it("rejects number inputs that have already lost integer precision", () => {
         expect(() => idToBigInt(Number.MAX_SAFE_INTEGER + 1)).toThrow("invalid number");
+    });
+
+    it("rejects a missing ID from untyped callers with ValidationError", () => {
+        const missing = () => idToBigInt(undefined as unknown as string, "accountId");
+        expect(missing).toThrow(ValidationError);
+        expect(missing).toThrow("accountId: empty");
     });
 
     it("round-trips a sequential sample without digit-only ambiguity", () => {

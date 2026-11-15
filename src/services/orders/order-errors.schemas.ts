@@ -5,19 +5,17 @@ import { OptionalPublicIdSchema } from "../../shared/schemas.js";
 
 export type OrderErrorCode = keyof typeof ProtoWrite.ErrorCode;
 
-function orderErrorCodeName(code: ProtoWrite.ErrorCode): OrderErrorCode {
-    const name = ProtoWrite.ErrorCode[code];
-    if (typeof name !== "string") {
-        throw new Error(`[OrderErrorDetailSchema]: invalid order error code ${code}`);
-    }
-    return name as OrderErrorCode;
+/**
+ * Names an order error code. A code newer than this build reads as `"UNSPECIFIED"`, so a
+ * backend ahead of the SDK degrades the code instead of failing the whole response.
+ */
+export function orderErrorCodeName(code: number): OrderErrorCode {
+    const name: unknown = ProtoWrite.ErrorCode[code];
+    return typeof name === "string" ? (name as OrderErrorCode) : "UNSPECIFIED";
 }
 
 export const OrderErrorDetailSchema = v.object({
-    code: v.pipe(
-        v.enum(ProtoWrite.ErrorCode),
-        v.transform((code) => orderErrorCodeName(code)),
-    ),
+    code: v.pipe(v.number(), v.transform(orderErrorCodeName)),
     violations: v.array(
         v.object({
             fieldPath: v.string(),

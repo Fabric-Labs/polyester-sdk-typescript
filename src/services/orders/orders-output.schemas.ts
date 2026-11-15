@@ -1,6 +1,5 @@
-import { ErrorCode } from "../../gen/orders/v1/orders_pb.js";
 import { OrderLineageSchema } from "./order-lineage.schemas.js";
-import type { OrderErrorCode } from "./order-errors.schemas.js";
+import { orderErrorCodeName } from "./order-errors.schemas.js";
 import * as v from "valibot";
 import { tsNsToMs, tsObjToMs } from "../../utils/time.js";
 import type * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
@@ -156,7 +155,8 @@ function toOrder(
         price: scaledToDecimalOutput(o.priceTicks, scales.price()),
         createdTs: tsNsToMs(o.createdTsNs),
         terminalTs: tsNsToMs(o.terminalTsNs),
-        ...(o.rejectReason === 0 ? {} : { rejectReason: orderRejectReason(o.rejectReason) }),
+        // A REJECTED order's refusal, named like the error the Orders API returns for it.
+        ...(o.rejectReason === 0 ? {} : { rejectReason: orderErrorCodeName(o.rejectReason) }),
         ...(o.cancelReason === 0
             ? {}
             : {
@@ -209,15 +209,6 @@ export function formatOrder(scales: SdkScales, o: ProtoRead.Order): Order {
         origin: o.origin && parse(ReadOrderOriginSchema, o.origin),
         expireAt: tsObjToMs(o.expireAt),
     });
-}
-
-/**
- * A REJECTED order's refusal, named like the error the Orders API returns for it. A code
- * newer than this build reads as `"UNSPECIFIED"`: treat it as a generic refusal.
- */
-function orderRejectReason(code: number): OrderErrorCode {
-    const name: unknown = ErrorCode[code];
-    return typeof name === "string" ? (name as OrderErrorCode) : "UNSPECIFIED";
 }
 
 export type Order = v.InferOutput<ReturnType<typeof createOrderSchema>>;

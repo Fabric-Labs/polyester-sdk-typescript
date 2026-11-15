@@ -4,12 +4,13 @@ import type { ZipperEnrichedAssetConfig } from "./zipper-catalog.js";
 export const UNKNOWN_ASSET_LABEL = "Unknown asset";
 export const UNKNOWN_LEDGER_ASSET_ID = 9999;
 
+// Scale 0 keeps an unknown asset's amounts unscaled instead of inventing a scale.
 export const unknownLedgerAsset = Object.freeze({
     symbol: UNKNOWN_ASSET_LABEL,
     ledgerId: UNKNOWN_LEDGER_ASSET_ID,
     name: UNKNOWN_ASSET_LABEL,
-    quantityDisplayDecimals: 6,
-    quantityScale: 6,
+    quantityDisplayDecimals: 0,
+    quantityScale: 0,
 } satisfies AssetConfig);
 
 export const unknownZipperAsset = Object.freeze({
@@ -17,8 +18,8 @@ export const unknownZipperAsset = Object.freeze({
     ledgerId: UNKNOWN_LEDGER_ASSET_ID,
     name: UNKNOWN_ASSET_LABEL,
     icon: "",
-    quantityScale: 6,
-    quantityDisplayDecimals: 6,
+    quantityScale: 0,
+    quantityDisplayDecimals: 0,
     uAssetId: "",
     chains: [],
 } satisfies ZipperEnrichedAssetConfig);

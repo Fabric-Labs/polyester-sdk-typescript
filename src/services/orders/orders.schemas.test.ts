@@ -1510,6 +1510,20 @@ describe("create result and preview schemas", () => {
         });
     });
 
+    it("keeps a preview refused with a code newer than this build", () => {
+        expect(
+            v.parse(createPreviewOrderResultSchema(testScales(), 1), {
+                admissible: false,
+                evaluatedAt: { seconds: 1n, nanos: 0 },
+                rejection: { code: 9_999, violations: [] },
+            }),
+        ).toEqual({
+            admissible: false,
+            rejection: { code: "UNSPECIFIED", violations: [] },
+            evaluatedAt: 1_000,
+        });
+    });
+
     it("requires an evaluation timestamp when preview values are unresolved", () => {
         expect(() =>
             v.parse(createPreviewOrderResultSchema(testScales(), 1), {
