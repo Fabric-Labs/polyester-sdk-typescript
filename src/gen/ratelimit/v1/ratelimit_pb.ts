@@ -146,8 +146,10 @@ export const GetTradingRateLimitsRequestSchema: GenMessage<GetTradingRateLimitsR
   messageDesc(file_ratelimit_v1_ratelimit, 3);
 
 /**
- * GetTradingRateLimitsResponse contains every placement and cancellation
- * policy enforced for the selected account target and caller.
+ * GetTradingRateLimitsResponse contains the placement and cancellation limits
+ * enforced for the selected account target. Trading limits apply per account:
+ * the root account and each subaccount have their own limits, and every API
+ * key and session that trades for an account shares that account's limits.
  *
  * @generated from message ratelimit.v1.GetTradingRateLimitsResponse
  */
@@ -168,17 +170,20 @@ export type GetTradingRateLimitsResponse = Message<"ratelimit.v1.GetTradingRateL
   effectiveFrom?: Timestamp | undefined;
 
   /**
-   * Account-scoped placement and cancellation rules for the selected account,
-   * ordered with placement first and cancellation second.
+   * Placement and cancellation rules enforced for the selected account,
+   * ordered with placement first and cancellation second. All of the
+   * account's API keys and sessions draw on these limits together.
    *
    * @generated from field: repeated ratelimit.v1.TradingRateLimitRule rules = 3;
    */
   rules: TradingRateLimitRule[];
 
   /**
-   * API-key-scoped placement and cancellation rules, ordered with placement
-   * first and cancellation second. Present only when the caller authenticated
-   * with an API key. Both this scope and the account scope are enforced.
+   * Placement and cancellation rules resolved for the calling API key, ordered
+   * with placement first and cancellation second. Present only when the caller
+   * authenticated with an API key. These rules are informational: trading
+   * requests are not limited per API key, and only the account rules in
+   * `rules` are enforced.
    *
    * @generated from field: repeated ratelimit.v1.TradingRateLimitRule api_key_rules = 4;
    */

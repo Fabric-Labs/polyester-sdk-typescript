@@ -798,7 +798,9 @@ export type OcoIntent = Message<"triggers.v1.OcoIntent"> & {
    * among OCOs. While the OCO is active and for 60 seconds after both legs
    * ended, retrying the create with the identical intent returns the same
    * OCO, and a different intent with the same ID returns
-   * CONFLICT_DUPLICATE_CLIENT_TRIGGER_ID. At most 36 bytes in UTF-8.
+   * CONFLICT_DUPLICATE_CLIENT_TRIGGER_ID. 1 to 36 ASCII characters using
+   * letters, digits, period, underscore, colon, slash, or hyphen, as a
+   * client_order_id; other IDs are rejected with INVALID_ARGUMENT.
    *
    * @generated from field: string client_list_id = 5;
    */
@@ -1100,8 +1102,9 @@ export type ListTriggersRequest = Message<"triggers.v1.ListTriggersRequest"> & {
 
   /**
    * Optional filter by OCO client ID: the take-profit and the stop-loss of
-   * the OCO created with this client_list_id, 1 to 36 bytes in UTF-8. Use it
-   * to find an OCO whose create failed with TRIGGER_CREATE_OUTCOME_UNKNOWN.
+   * the OCO created with this client_list_id, which follows the same rule as
+   * OcoIntent.client_list_id. Use it to find an OCO whose create failed with
+   * TRIGGER_CREATE_OUTCOME_UNKNOWN.
    *
    * @generated from field: optional string client_list_id = 7;
    */
@@ -2738,8 +2741,10 @@ export enum TriggerCancelReason {
   USER_REQUEST = 1,
 
   /**
-   * An attached leg ended because its parent order is terminal and another of
-   * the parent's legs made the last exit, leaving no position to protect.
+   * Another leg of the same OCO made the last exit, leaving no position to
+   * protect: a take-profit or stop-loss of an OCO created with CreateOco,
+   * once the OCO's whole quantity has traded, or an order's attached leg,
+   * once its parent order is terminal.
    *
    * @generated from enum value: TRIGGER_CANCEL_REASON_OCO = 2;
    */

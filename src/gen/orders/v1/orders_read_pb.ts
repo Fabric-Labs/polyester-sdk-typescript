@@ -522,7 +522,8 @@ export type Order = Message<"orders.v1.Order"> & {
    * Iceberg display quantity the order was placed with, scaled by the pair's
    * base_quantity_scale from GetSpotConfig for symbol_id: the most of the
    * order the order book shows at once. Zero for a plain order. A replace
-   * keeps it.
+   * keeps it while the new quantity is above it; a replace to the display or
+   * below it is a plain order, zero here.
    *
    * @generated from field: int64 display_qty_scaled = 39;
    */
