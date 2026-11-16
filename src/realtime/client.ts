@@ -505,7 +505,9 @@ export class RealtimeClient implements PolyesterRealtime {
         });
         sub.on("unsubscribed", (ctx) => {
             if (shared.sub !== sub || shared.attachmentEpoch !== attachmentEpoch) return;
-            if (ctx.code >= 2000 && ctx.code < 2500) {
+            // Codes from 100 are the server's: a refused (re)subscribe or a terminal unsubscribe
+            // push. Below 100 the client ended it, and a token failure was already reported.
+            if (ctx.code >= 100) {
                 this.#terminateSubscriptions([shared], "unsubscribed", ctx);
                 return;
             }

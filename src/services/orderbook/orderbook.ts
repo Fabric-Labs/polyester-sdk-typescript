@@ -22,7 +22,7 @@ import {
 } from "./orderbook.schemas.js";
 import { orderbookWsChannelDepth } from "./orderbook.codecs.js";
 import { isResourceNotFoundError } from "../../utils/errors.js";
-import { ServiceUnavailableError } from "../../shared/errors.js";
+import { ServiceUnavailableError, ValidationError } from "../../shared/errors.js";
 import type * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import type { PublicApiTransports } from "../../shared/transports.js";
@@ -98,7 +98,7 @@ export class OrderbookService {
     /**
      * Creates a stateful order book subscription that first fetches a snapshot, buffers proto deltas from public:spot:orderbook:deltas:depth:{depth}:{symbolId}:proto, applies each delta only when it chains onto the book, and refetches on reconnects. After a sequence gap the book holds its last state until the server's next reset, sent about every 30 seconds and after gaps. A snapshot whose book is not available fails with ServiceUnavailableError through onError and is retried; no event is emitted until a snapshot is available. The snapshot is fetched once the channel opens, so a socket that cannot connect reports a retryable RealtimeError with type "transport" through onError instead, once per outage; onOpen follows when it recovers. The returned handle can unsubscribe or change local price bucket aggregation without reconnecting.
      *
-     * `depth` is capped at 500 and rides the smallest published channel depth that covers it (see ORDERBOOK_WS_DEPTHS); levels are sliced back to the requested depth locally.
+     * `depth` above 500 throws ValidationError; other depths ride the smallest published channel depth that covers it (see ORDERBOOK_WS_DEPTHS); levels are sliced back to the requested depth locally.
      *
      * A refetched snapshot from an older `bookEpoch` than the book's is discarded and retried.
      *
@@ -109,8 +109,12 @@ export class OrderbookService {
             symbolId: input.symbolId,
             depth: input.depth,
         });
-        const requestedDepth = Math.min(500, depth);
-        const channelDepth = orderbookWsChannelDepth(requestedDepth);
+        if (depth > 500) {
+            throw new ValidationError(
+                `depth must be at most 500 for a managed order book, got ${depth}`,
+            );
+        }
+        const channelDepth = orderbookWsChannelDepth(depth);
         const channel = `public:spot:orderbook:deltas:depth:${channelDepth}:${symbolId}:proto`;
 
         const client = this.#client;
@@ -179,13 +183,13 @@ export class OrderbookService {
             try {
                 input.onEvent({
                     symbolId,
-                    depth: requestedDepth,
+                    depth,
                     bookSeq: currentBookSeq.toString(),
                     bookEpoch: currentBookEpoch.toString(),
                     maxDepth,
                     available: true,
-                    bids: sideToUIBucketed(bidsMap, "bids", requestedDepth, bucketTicks),
-                    asks: sideToUIBucketed(asksMap, "asks", requestedDepth, bucketTicks),
+                    bids: sideToUIBucketed(bidsMap, "bids", depth, bucketTicks),
+                    asks: sideToUIBucketed(asksMap, "asks", depth, bucketTicks),
                 });
             } catch (error) {
                 input.onError?.(publicationHandlerErrorContext(channel, error));

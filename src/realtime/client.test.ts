@@ -145,6 +145,8 @@ class JsonReplyWebSocket {
     static instances: JsonReplyWebSocket[] = [];
     /** While set, every new socket closes before it opens, like an unreachable host. */
     static refuse = false;
+    /** While set, every Subscribe is answered with this error. */
+    static subscribeError: { code: number; message: string } | null = null;
     channels = new Set<string>();
 
     constructor() {
@@ -190,7 +192,9 @@ class JsonReplyWebSocket {
                     data: JSON.stringify(
                         command.connect
                             ? { id: command.id, connect: { client: "test" } }
-                            : { id: command.id, subscribe: {} },
+                            : JsonReplyWebSocket.subscribeError
+                              ? { id: command.id, error: JsonReplyWebSocket.subscribeError }
+                              : { id: command.id, subscribe: {} },
                     ),
                 });
             });
@@ -579,6 +583,49 @@ describe("RealtimeClient", () => {
             client.disconnect();
         },
     );
+
+    it("reports a refused resubscribe after a server unsubscribe instead of closing silently", async () => {
+        vi.useFakeTimers();
+        useRealJsonCentrifuge();
+        const client = createPublicRealtimeClient();
+        const onError = vi.fn();
+        const onClose = vi.fn();
+        client.subscribe("public:test", {
+            onPublication: () => {},
+            onError,
+            onUnsubscribed: onClose,
+        });
+        await vi.dynamicImportSettled();
+        await vi.advanceTimersByTimeAsync(0);
+        const socket = JsonReplyWebSocket.instances[0]!;
+        JsonReplyWebSocket.subscribeError = { code: 103, message: "permission denied" };
+        try {
+            // 2500 and above ask the client to subscribe again; access is checked on that subscribe.
+            socket.onmessage?.({
+                data: JSON.stringify({
+                    push: {
+                        channel: "public:test",
+                        unsubscribe: { code: 2500, reason: "insufficient state" },
+                    },
+                }),
+            });
+            await vi.advanceTimersByTimeAsync(1_000);
+        } finally {
+            JsonReplyWebSocket.subscribeError = null;
+        }
+        expect(onError).toHaveBeenCalledExactlyOnceWith({
+            channel: "public:test",
+            type: "unsubscribed",
+            error: expect.objectContaining({
+                realtimeCode: 103,
+                message: "permission denied",
+                retryable: false,
+            }),
+        });
+        expect(onClose).toHaveBeenCalledOnce();
+        expect(client.activeChannels).toBe(0);
+        client.disconnect();
+    });
 
     it("keeps sibling channels live after a real terminal server unsubscribe", async () => {
         vi.useFakeTimers();
