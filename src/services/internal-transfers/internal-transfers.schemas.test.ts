@@ -140,6 +140,7 @@ describe("CreateInternalTransferResultSchema", () => {
             requestId: "req-1",
             transferId: "transfer-1",
             acceptedAtUnixMs: 1_700_000_000_123,
+            acceptedAtNs: "1700000000123456789",
             assetId: 1,
             assetCode: "USDC",
             uAssetId: "u-usdc",

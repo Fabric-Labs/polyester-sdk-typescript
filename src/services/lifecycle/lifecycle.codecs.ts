@@ -55,6 +55,7 @@ export const LIFECYCLE_REASON_VALUES = [
     "zipper_withdraw_execution_failed",
     "zipper_deposit_refund_failed",
     "zipper_compliance_transferred",
+    "zipper_deposit_delivered_to_wallet",
     "ledger_mirror_rejected",
     "ledger_mirror_transfer_exceeds_credits",
     "ledger_mirror_transfer_exists",
@@ -225,6 +226,7 @@ export const LifecycleReasonCodec = {
         [LifecycleReason.ZIPPER_WITHDRAW_EXECUTION_FAILED]: "zipper_withdraw_execution_failed",
         [LifecycleReason.ZIPPER_DEPOSIT_REFUND_FAILED]: "zipper_deposit_refund_failed",
         [LifecycleReason.ZIPPER_COMPLIANCE_TRANSFERRED]: "zipper_compliance_transferred",
+        [LifecycleReason.ZIPPER_DEPOSIT_DELIVERED_TO_WALLET]: "zipper_deposit_delivered_to_wallet",
         [LifecycleReason.LEDGER_MIRROR_REJECTED]: "ledger_mirror_rejected",
         [LifecycleReason.LEDGER_MIRROR_TRANSFER_EXCEEDS_CREDITS]:
             "ledger_mirror_transfer_exceeds_credits",

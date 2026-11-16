@@ -12,6 +12,7 @@ import { accountScopeToSubaccountId, type AccountScopedInput } from "../../share
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import type { AuthApiTransports } from "../../shared/transports.js";
+import { tsObjToMs } from "../../utils/time.js";
 import {
     BalanceHistoryInputSchema,
     BalancesListInputSchema,
@@ -29,6 +30,7 @@ import {
     type EquityHistoryInput,
     type EquityHistoryResponse,
     type ExportStatementInput,
+    type Statement,
     type StatementPage,
     type PortfolioEquityHistoryInput,
     type PortfolioEquityHistoryResponse,
@@ -165,31 +167,34 @@ export class BalancesService {
     ): Promise<StatementPage> {
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const request = parse(ExportStatementInputSchema, resolved);
-        const { csv, nextPageToken } = await this.#client.exportStatement(
+        const { csv, nextPageToken, completeThrough } = await this.#client.exportStatement(
             request,
             toConnectCallOptions(options),
         );
-        return { csv, nextPageToken };
+        return { csv, nextPageToken, completeThrough: tsObjToMs(completeThrough) };
     }
 
     /**
      * Follows `nextPageToken` from the first page and returns the whole statement CSV, header
-     * row first. The account is resolved once, so every page reads the same account.
+     * row first, with `completeThrough`; when it is before `endTime` the statement is partial.
+     * The account is resolved once, so every page reads the same account.
      */
     async exportStatementCsv(
         input: Omit<ExportStatementInput, "pageToken">,
         options?: PolyesterRequestOptions,
-    ): Promise<string> {
+    ): Promise<Statement> {
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const pinned = { ...resolved, account: resolved.account ?? ("main" as const) };
         let csv = "";
         let pageToken = "";
+        let completeThrough: number | undefined;
         do {
             const page = await this.exportStatement({ ...pinned, pageToken }, options);
             csv += page.csv;
+            completeThrough = page.completeThrough;
             pageToken = page.nextPageToken;
         } while (pageToken);
-        return csv;
+        return { csv, completeThrough };
     }
 
     /**

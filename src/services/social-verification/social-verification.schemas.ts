@@ -62,6 +62,7 @@ export function transformVerification(
         lastError: v.lastError,
         errorCode: enumLabel(SocialVerificationErrorCodeCodec.protoToOutput, v.errorCode),
         updatedAt: v.updatedAt,
+        retryAfter: v.retryAfter,
     };
 }
 
@@ -71,7 +72,9 @@ export const SocialVerificationSchema = v.object({
     method: SocialVerificationMethodSchema,
     handle: v.string(),
     /**
-     * Provider-side user ID, empty until verified. For Telegram in `awaiting_confirmation`, the
+     * Provider-side user ID of the linked account, empty while none is linked. A restarted
+     * X or Discord verification keeps the current link, and this value, until it succeeds.
+     * For Telegram in `awaiting_confirmation`, the
      * decimal user ID of the account that sent the code: pass it to `confirm` as is.
      */
     providerUserId: v.string(),
@@ -85,6 +88,11 @@ export const SocialVerificationSchema = v.object({
     attempts: v.number(),
     lastError: v.string(),
     updatedAt: v.optional(TimestampSchema),
+    /**
+     * When a new verification may succeed, after this one failed with
+     * `social_account_cooldown` or `social_change_limit_reached`; absent otherwise.
+     */
+    retryAfter: v.optional(TimestampSchema),
 });
 
 type SocialVerificationBase = v.InferOutput<typeof SocialVerificationSchema>;
@@ -207,7 +215,7 @@ export const ConfirmVerificationInputSchema = v.strictObject({
 export type ConfirmVerificationInput = v.InferInput<typeof ConfirmVerificationInputSchema>;
 
 export const UnlinkSocialAccountInputSchema = v.strictObject({
-    provider: TelegramProviderInputSchema,
+    provider: ProviderInputSchema,
 });
 
 export type UnlinkSocialAccountInput = v.InferInput<typeof UnlinkSocialAccountInputSchema>;

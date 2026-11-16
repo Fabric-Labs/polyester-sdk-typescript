@@ -1,4 +1,8 @@
 export type {
+    BatchCreateInternalTransfersInput,
+    BatchCreateInternalTransfersResult,
+    InternalTransferBatchLegInput,
+    InternalTransferBatchLegResult,
     CreateInternalTransferInput,
     CreateInternalTransferResult,
     GetInternalTransferInput,
@@ -6,4 +10,9 @@ export type {
     InternalTransferDestination,
     ResolvedInternalTransferDestination,
 } from "./internal-transfers.schemas.js";
-export type { InternalTransferStatus } from "./internal-transfers.codecs.js";
+export type {
+    InternalTransferBatchLegStatus,
+    InternalTransferBatchStatus,
+    InternalTransferErrorCode,
+    InternalTransferStatus,
+} from "./internal-transfers.codecs.js";

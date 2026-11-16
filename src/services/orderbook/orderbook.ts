@@ -82,6 +82,7 @@ export class OrderbookService {
             available: isBookAvailable(res),
             bids: res.bids,
             asks: res.asks,
+            ts: res.ts,
         });
     }
 

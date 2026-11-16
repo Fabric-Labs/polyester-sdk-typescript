@@ -8,6 +8,7 @@ export type {
     DecideAssistantApprovalInput,
     DeleteAssistantMemoryInput,
     ListAssistantConversationsInput,
+    ListAssistantKeysInput,
     ListAssistantConversationsResult,
     ListAssistantMemoriesInput,
     ListAssistantMemoriesResult,
@@ -28,11 +29,13 @@ export type {
     AssistantView,
 } from "./assistant-events.schemas.js";
 export type {
+    AssistantAccountSelection,
     AssistantApprovalDecision,
     AssistantApprovalStatus,
     AssistantDisplaySetting,
     AssistantFailureCategory,
     AssistantKeyState,
+    AssistantKeyView,
     AssistantMemoryKind,
     AssistantMessageRole,
     AssistantOrderPriceField,

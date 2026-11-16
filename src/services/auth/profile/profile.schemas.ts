@@ -31,12 +31,12 @@ export const ProfileSchema = v.object({
 
 export type Profile = v.InferOutput<typeof ProfileSchema>;
 // Deliberately non-strict: update() accepts a round-tripped Profile
-// ({ ...profile, bio }) and strips its readonly fields instead of rejecting.
+// ({ ...profile, bio }) and strips its readonly fields instead of rejecting. `twitter` is
+// readonly too: only X verification sets it.
 export const UpdateProfileInputSchema = v.object({
     username: v.optional(v.string()),
     bio: v.optional(v.string()),
     website: v.optional(v.string()),
-    twitter: v.optional(v.string()),
     avatarUrl: v.optional(v.string()),
 });
 export type UpdateProfileInput = v.InferInput<typeof UpdateProfileInputSchema>;

@@ -12,6 +12,9 @@ import {
     unaryTransportSequence,
 } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
+import { toU128 } from "../../utils/u128.js";
+
+const E18 = 10n ** 18n;
 import { BalancesService } from "./balances.js";
 
 const usdt = {
@@ -118,7 +121,11 @@ describe("BalancesService", () => {
     });
 
     it("exports one statement page for the resolved account", async () => {
-        const transport = unaryTransport({ csv: "time,entry_id\r\n", nextPageToken: "next" });
+        const transport = unaryTransport({
+            csv: "time,entry_id\r\n",
+            nextPageToken: "next",
+            completeThrough: { seconds: 2n, nanos: 0 },
+        });
         const service = new BalancesService(
             { authApi: transport.transport },
             realtimeClientStub().realtime,
@@ -128,7 +135,11 @@ describe("BalancesService", () => {
 
         await expect(
             service.exportStatement({ startTime: 1_000, endTime: 2_500, assetId: 1 }),
-        ).resolves.toEqual({ csv: "time,entry_id\r\n", nextPageToken: "next" });
+        ).resolves.toEqual({
+            csv: "time,entry_id\r\n",
+            nextPageToken: "next",
+            completeThrough: 2_000,
+        });
         const call = transport.lastCall();
         expect(call?.method.name).toBe("ExportStatement");
         expect(call?.message).toMatchObject({
@@ -142,8 +153,16 @@ describe("BalancesService", () => {
 
     it("concatenates every statement page for one pinned account", async () => {
         const transport = unaryTransportSequence([
-            { csv: "time,amount\r\na,1\r\n", nextPageToken: "p2" },
-            { csv: "b,2\r\n", nextPageToken: "" },
+            {
+                csv: "time,amount\r\na,1\r\n",
+                nextPageToken: "p2",
+                completeThrough: { seconds: 0n },
+            },
+            {
+                csv: "b,2\r\n",
+                nextPageToken: "",
+                completeThrough: { seconds: 0n, nanos: 500_000_000 },
+            },
         ]);
         const resolver = subaccountResolverStub(formatId(7n));
         const service = new BalancesService(
@@ -153,8 +172,8 @@ describe("BalancesService", () => {
             testScales(),
         );
 
-        await expect(service.exportStatementCsv({ startTime: 0, endTime: 1_000 })).resolves.toBe(
-            "time,amount\r\na,1\r\nb,2\r\n",
+        await expect(service.exportStatementCsv({ startTime: 0, endTime: 1_000 })).resolves.toEqual(
+            { csv: "time,amount\r\na,1\r\nb,2\r\n", completeThrough: 500 },
         );
         expect(transport.calls.map((call) => call.message)).toMatchObject([
             { subaccountId: 7n, pageToken: "" },
@@ -215,12 +234,12 @@ describe("BalancesService", () => {
                 {
                     assetId: 1,
                     accountCode: AccountCode.TRADING,
-                    balanceQ: [100_000_000n, 125_000_000n],
+                    balance: [toU128(10n * E18), toU128(125n * 10n ** 17n)],
                 },
                 {
                     assetId: 999,
                     accountCode: AccountCode.FUNDING,
-                    balanceQ: [4_893_848_400n, 0n],
+                    balance: [toU128(48_938_484n * 10n ** 13n), toU128(0n)],
                 },
             ],
         });
@@ -379,7 +398,9 @@ describe("BalancesService", () => {
                 quoteAsset: "USDT",
                 totalEquityQ: 1_000_000n,
                 accounts: [{ accountId: 42n, equityQ: 12_345n, topAssetIds: [1, 999] }],
-                assets: [{ assetId: 999, balanceQ: 123_456_789n, equityQ: -100n }],
+                assets: [
+                    { assetId: 999, balance: toU128(123_456_789n * 10n ** 11n), equityQ: -100n },
+                ],
                 btcPriceQ: 0n,
             },
         });

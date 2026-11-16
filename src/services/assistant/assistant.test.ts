@@ -88,7 +88,24 @@ describe("AssistantService unary calls", () => {
         });
     });
 
+    it("sends a run that reads no account", async () => {
+        const { transport, service } = serviceWith({ runId: 7n, conversationId: 8n });
+
+        await service.sendMessage({
+            text: "BTC price?",
+            idempotencyKey: "k",
+            accountSelection: "none",
+        });
+
+        expect(transport.lastCall()?.message).toEqual({
+            text: "BTC price?",
+            idempotencyKey: "k",
+            accountSelection: Proto.AccountSelection.NONE,
+        });
+    });
+
     it.each([
+        [{ text: "hi", idempotencyKey: "k", accountSelection: "none" as const, subaccountId: "x" }],
         [{ text: "", idempotencyKey: "k" }],
         [{ text: "hi", idempotencyKey: " " }],
         [
@@ -238,6 +255,7 @@ describe("AssistantService unary calls", () => {
                     keyId: "ak_1",
                     publicKeyEd25519: new Uint8Array([0xab]),
                     state: Proto.AssistantKeyState.ACTIVE,
+                    label: "",
                 },
             ],
         });
@@ -249,8 +267,30 @@ describe("AssistantService unary calls", () => {
                 publicKeyEd25519: new Uint8Array([0xab]),
                 publicKeyHex: "ab",
                 state: "active",
+                label: "",
             },
         ]);
+    });
+
+    it("asks for account names with the full key view", async () => {
+        const { transport, service } = serviceWith({
+            keys: [
+                {
+                    keyId: "ak_2",
+                    subaccountId: 42n,
+                    label: "Bot",
+                    publicKeyEd25519: new Uint8Array([0xcd]),
+                    state: Proto.AssistantKeyState.ACTIVE,
+                },
+            ],
+        });
+
+        await expect(service.listKeys({ view: "full" })).resolves.toMatchObject([
+            { keyId: "ak_2", subaccountId: formatId(42n), label: "Bot" },
+        ]);
+        expect(transport.lastCall()?.message).toEqual({ view: Proto.AssistantKeyView.FULL });
+        await service.listKeys();
+        expect(transport.lastCall()?.message).toEqual({});
     });
 
     it("reads Telegram approval limits, absent limits as null", async () => {

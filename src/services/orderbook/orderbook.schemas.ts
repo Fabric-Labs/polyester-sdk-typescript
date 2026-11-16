@@ -1,5 +1,6 @@
 import * as v from "valibot";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
+import { OptionalTimestampMsSchema } from "../../shared/schemas.js";
 import { SymbolIdInputSchema } from "../shared.js";
 import { normalizeOrderbookDepth } from "./orderbook.codecs.js";
 
@@ -50,6 +51,8 @@ export function createOrderbookDataSchema(scales: SdkScales, symbolId: number) {
             available: v.boolean(),
             bids: v.array(OrderbookLevelInputSchema),
             asks: v.array(OrderbookLevelInputSchema),
+            /** Best-effort snapshot time in epoch ms; absent when the server sends none. */
+            ts: OptionalTimestampMsSchema,
         }),
         v.transform((d) => ({
             ...d,

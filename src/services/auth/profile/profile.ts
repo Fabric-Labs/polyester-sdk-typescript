@@ -48,7 +48,7 @@ export class ProfileService {
     }
 
     /**
-     * Updates only the provided mutable profile fields; omitted fields are unchanged, while present empty strings clear optional text fields such as bio, website, Twitter, and avatar URL.
+     * Updates only the provided mutable profile fields; omitted fields are unchanged, while present empty strings clear optional text fields such as bio, website, and avatar URL. The X handle is set only through X verification.
      */
     async update(
         input: v.InferInput<typeof UpdateProfileInputSchema>,

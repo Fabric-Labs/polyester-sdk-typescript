@@ -36,6 +36,13 @@ export class SocialVerificationService {
 
     /**
      * Starts or restarts provider verification. Twitter requires a handle and strips a leading @; Discord and Telegram get their identity from the provider bot. An omitted method uses the provider default (Twitter profile, Discord channel, Telegram dm). Discord and Telegram return an empty challengeCode when no new challenge is issued. For Telegram, open `actionUrl` to send the code to the Polyester bot, poll `get` until `awaiting_confirmation`, then `confirm`; while a Telegram account is linked, starting again throws until it is unlinked.
+     *
+     * While an X or Discord account is linked, restarting can replace it, so it needs enrolled MFA
+     * and a fresh `stepUpToken`; the current link stays until the new verification succeeds, and
+     * the replacement counts as the provider's one change per 30 days. A change within 30 days
+     * throws with detail `AUTH_SOCIAL_CHANGE_LIMIT_REACHED` and its `retryAfter`; the new
+     * verification itself fails with `social_account_cooldown` or `social_change_limit_reached`
+     * and a `retryAfter` when the provider account can't be linked yet.
      */
     async start(
         input: StartVerificationInput,
@@ -100,9 +107,13 @@ export class SocialVerificationService {
     }
 
     /**
-     * Unlinks the Telegram account, or cancels a link in progress, and returns the `canceled`
-     * verification (absent if none was ever started). Repeating it changes nothing; start a new
-     * verification to link again.
+     * Unlinks the X, Discord or Telegram account, or cancels a link in progress, and returns the
+     * `canceled` verification (absent if none was ever started). Repeating it changes nothing;
+     * start a new verification to link again. Unlinking a linked X or Discord account needs
+     * enrolled MFA and a fresh `stepUpToken`, and counts as the provider's one change per 30 days:
+     * a change within 30 days throws with detail `AUTH_SOCIAL_CHANGE_LIMIT_REACHED` and its
+     * `retryAfter`. For 30 days after, the provider account can be linked again only to this
+     * account.
      */
     async unlink(
         input: UnlinkSocialAccountInput,

@@ -9,7 +9,6 @@ const txHash = "0x11111111111111111111111111111111111111111111111111111111111111
 
 function flowSummary() {
     return {
-        ownerAccountId: 42n,
         smartAccountAddress: "0x3333333333333333333333333333333333333333",
         flowId: "flow-1",
         flowKind: ProtoTypes.FlowKind.KIND_DEPOSIT,
@@ -51,7 +50,10 @@ describe("LifecycleService", () => {
         ];
         const transport = unaryTransport((_call, index) => responses[index] ?? {});
         const realtime = realtimeClientStub();
-        const service = new LifecycleService({ publicApi: transport.transport }, realtime.realtime);
+        const service = new LifecycleService(
+            { publicApi: transport.transport, authApi: transport.transport },
+            realtime.realtime,
+        );
         const signal = new AbortController().signal;
 
         await expect(
@@ -62,7 +64,10 @@ describe("LifecycleService", () => {
                     flowKind: "deposit",
                     flowState: "completed",
                     scope: "open",
-                    accountSelector: { kind: "accountId", accountId: formatId(42n) },
+                    accountSelector: {
+                        kind: "smartAccountAddress",
+                        smartAccountAddress: "0x3333333333333333333333333333333333333333",
+                    },
                     pageToken: "cursor",
                     orderBy: "started_at",
                 },
@@ -75,7 +80,6 @@ describe("LifecycleService", () => {
                     flowId: "flow-1",
                     flowKind: "deposit",
                     currentStep: "source",
-                    ownerAccountId: formatId(42n),
                     smartAccountAddress: "0x3333333333333333333333333333333333333333",
                 },
                 fromLiveState: true,
@@ -91,7 +95,10 @@ describe("LifecycleService", () => {
             flowKind: ProtoTypes.FlowKind.KIND_DEPOSIT,
             flowState: ProtoTypes.FlowState.STATE_COMPLETED,
             scope: ProtoRead.ListScope.LIST_OPEN_ONLY,
-            accountSelector: { case: "ownerAccountId", value: 42n },
+            accountSelector: {
+                case: "smartAccountAddress",
+                value: "0x3333333333333333333333333333333333333333",
+            },
             pageToken: "cursor",
             orderBy: ProtoRead.ListOrderBy.ORDER_BY_STARTED_AT,
         });
@@ -105,10 +112,43 @@ describe("LifecycleService", () => {
         });
     });
 
+    it("reads the signed-in account's flows on the auth transport with its subaccount", async () => {
+        const publicApi = unaryTransport({});
+        const responses = [{ flows: [flowSummary()], nextPageToken: "" }, { flow: flowDetail() }];
+        const authApi = unaryTransport((_call, index) => responses[index] ?? {});
+        const service = new LifecycleService(
+            { publicApi: publicApi.transport, authApi: authApi.transport },
+            realtimeClientStub().realtime,
+            { getDefaultSubaccountId: () => formatId(9n) },
+        );
+
+        await expect(
+            service.listAccountFlows({ participation: "recipient", flowKind: "transfer" }),
+        ).resolves.toMatchObject({ flows: [{ flowId: "flow-1" }], nextPageToken: "" });
+        await expect(
+            service.getAccountFlow({ account: "main", flowId: " flow-1 " }),
+        ).resolves.toMatchObject({ flow: { summary: { flowId: "flow-1" } } });
+
+        expect(publicApi.calls).toHaveLength(0);
+        expect(authApi.calls[0]?.method.name).toBe("ListAccountFlows");
+        expect(authApi.calls[0]?.message).toMatchObject({
+            subaccountId: 9n,
+            participation: ProtoRead.FlowParticipation.PARTICIPATION_RECIPIENT,
+            flowKind: ProtoTypes.FlowKind.KIND_TRANSFER,
+            limit: 100,
+        });
+        expect(authApi.calls[1]?.method.name).toBe("GetAccountFlow");
+        expect(authApi.calls[1]?.message).toMatchObject({ flowId: "flow-1" });
+        expect(authApi.calls[1]?.message).not.toHaveProperty("subaccountId", 9n);
+    });
+
     it("subscribes to public and private open-flow channels and parses publications", () => {
         const transport = unaryTransport({});
         const realtime = realtimeClientStub();
-        const service = new LifecycleService({ publicApi: transport.transport }, realtime.realtime);
+        const service = new LifecycleService(
+            { publicApi: transport.transport, authApi: transport.transport },
+            realtime.realtime,
+        );
         const onPublic = vi.fn();
         const onPrivate = vi.fn();
 
@@ -131,7 +171,10 @@ describe("LifecycleService", () => {
     it("subscribes to detail channels and no-ops invalid detail inputs before connecting", () => {
         const transport = unaryTransport({});
         const realtime = realtimeClientStub();
-        const service = new LifecycleService({ publicApi: transport.transport }, realtime.realtime);
+        const service = new LifecycleService(
+            { publicApi: transport.transport, authApi: transport.transport },
+            realtime.realtime,
+        );
         const onEvent = vi.fn();
 
         service.subscribeFlowDetail({ flowId: " flow-1 ", onEvent });

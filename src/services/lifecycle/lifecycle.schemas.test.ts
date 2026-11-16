@@ -8,6 +8,7 @@ import {
     createLifecycleFlowTxMatchSchema,
     createLifecycleFlowStepSchema,
     createLifecycleFlowSummarySchema,
+    ListLifecycleAccountFlowsInputSchema,
     ListLifecycleFlowsByTxInputSchema,
     ListLifecycleFlowsInputSchema,
 } from "./lifecycle.schemas.js";
@@ -15,7 +16,6 @@ import {
 const canonicalTxHash = `0x${"a".repeat(64)}`;
 
 const baseFlowSummary = {
-    ownerAccountId: 7n,
     smartAccountAddress: "0x0000000000000000000000000000000000000003",
     flowId: "flow-1",
     flowKind: Proto.FlowKind.KIND_DEPOSIT,
@@ -68,7 +68,10 @@ describe("ListLifecycleFlowsInputSchema", () => {
             flowKind: "deposit",
             flowState: "completed",
             scope: "open",
-            accountSelector: { kind: "accountId", accountId: ` ${formatId(11n)} ` },
+            accountSelector: {
+                kind: "smartAccountAddress",
+                smartAccountAddress: " 0x0000000000000000000000000000000000000003 ",
+            },
             polyesterChainIds: [8453],
             zippedAssetIds: [1001],
             unifiedAssetIds: [42],
@@ -84,8 +87,8 @@ describe("ListLifecycleFlowsInputSchema", () => {
             txRef: undefined,
             scope: ProtoRead.ListScope.LIST_OPEN_ONLY,
             accountSelector: {
-                case: "ownerAccountId",
-                value: 11n,
+                case: "smartAccountAddress",
+                value: "0x0000000000000000000000000000000000000003",
             },
             participation: undefined,
             polyesterChainIds: [8453],
@@ -106,7 +109,10 @@ describe("ListLifecycleFlowsInputSchema", () => {
     });
 
     it("maps participation and requires an account selector for it", () => {
-        const accountSelector = { kind: "accountId", accountId: formatId(11n) } as const;
+        const accountSelector = {
+            kind: "smartAccountAddress",
+            smartAccountAddress: "0x0000000000000000000000000000000000000003",
+        } as const;
 
         expect(
             v.parse(ListLifecycleFlowsInputSchema, { accountSelector, participation: "owner" })
@@ -124,18 +130,13 @@ describe("ListLifecycleFlowsInputSchema", () => {
         ).toThrow();
     });
 
-    it("maps owner account selectors explicitly", () => {
-        const input = v.parse(ListLifecycleFlowsInputSchema, {
-            accountSelector: {
-                kind: "ownerAccountId",
-                ownerAccountId: ` ${formatId(12n)} `,
-            },
-        });
-
-        expect(input.accountSelector).toEqual({
-            case: "ownerAccountId",
-            value: 12n,
-        });
+    it("refuses the removed account ID selectors", () => {
+        for (const accountSelector of [
+            { kind: "accountId", accountId: formatId(12n) },
+            { kind: "ownerAccountId", ownerAccountId: formatId(12n) },
+        ]) {
+            expect(() => v.parse(ListLifecycleFlowsInputSchema, { accountSelector })).toThrow();
+        }
     });
 
     it("accepts smart account selectors and rejects invalid uint32 filters", () => {
@@ -164,12 +165,37 @@ describe("ListLifecycleFlowsInputSchema", () => {
         expect(() =>
             v.parse(ListLifecycleFlowsInputSchema, {
                 accountSelector: {
-                    kind: "ownerAccountId",
+                    kind: "smartAccountAddress",
                     ownerAccountId: "12",
                     smartAccountAddress: "0x0000000000000000000000000000000000000001",
                 },
             }),
         ).toThrow();
+    });
+});
+
+describe("ListLifecycleAccountFlowsInputSchema", () => {
+    it("maps the account scope to subaccountId and allows participation without a selector", () => {
+        const input = v.parse(ListLifecycleAccountFlowsInputSchema, {
+            account: { subaccountId: formatId(5n) },
+            participation: "owner",
+        });
+
+        expect(input).toMatchObject({
+            subaccountId: 5n,
+            participation: ProtoRead.FlowParticipation.PARTICIPATION_OWNER,
+            limit: 100,
+            sort: ProtoRead.Sort.NEWEST,
+        });
+        expect(v.parse(ListLifecycleAccountFlowsInputSchema, { account: "main" })).toMatchObject({
+            subaccountId: undefined,
+        });
+        expect(() =>
+            v.parse(ListLifecycleAccountFlowsInputSchema, {
+                accountSelector: { kind: "smartAccountAddress", smartAccountAddress: "0x00" },
+            }),
+        ).toThrow();
+        expect(() => v.parse(ListLifecycleAccountFlowsInputSchema, { limit: 501 })).toThrow();
     });
 });
 
@@ -229,7 +255,6 @@ describe("LifecycleFlowSummarySchema", () => {
         const flow = v.parse(schema, baseFlowSummary);
 
         expect(flow).toMatchObject({
-            ownerAccountId: formatId(7n),
             smartAccountAddress: "0x0000000000000000000000000000000000000003",
             flowKind: "deposit",
             currentStep: "source",
@@ -387,7 +412,7 @@ describe("LifecycleFlowSummarySchema", () => {
 });
 
 describe("LifecycleFlowTxMatchSchema", () => {
-    it("maps owner identity fields added to transaction matches", () => {
+    it("maps the smart account and reasons on transaction matches", () => {
         const schema = createLifecycleFlowTxMatchSchema();
 
         const match = v.parse(schema, {
@@ -402,7 +427,6 @@ describe("LifecycleFlowTxMatchSchema", () => {
         });
 
         expect(match).toMatchObject({
-            ownerAccountId: formatId(7n),
             smartAccountAddress: "0x0000000000000000000000000000000000000003",
             flowId: "flow-1",
             flowKind: "deposit",

@@ -107,6 +107,8 @@ export const SOCIAL_VERIFICATION_ERROR_CODE_VALUES = [
     "social_verification_invalid_state",
     "subaccount_challenge_invalid",
     "social_account_already_linked",
+    "social_account_cooldown",
+    "social_change_limit_reached",
 ] as const;
 export type SocialVerificationErrorCodeValue =
     (typeof SOCIAL_VERIFICATION_ERROR_CODE_VALUES)[number];
@@ -159,5 +161,7 @@ export const SocialVerificationErrorCodeCodec = {
         [AuthErrorCode.AUTH_SOCIAL_VERIFICATION_INVALID_STATE]: "social_verification_invalid_state",
         [AuthErrorCode.AUTH_SUBACCOUNT_CHALLENGE_INVALID]: "subaccount_challenge_invalid",
         [AuthErrorCode.AUTH_SOCIAL_ACCOUNT_ALREADY_LINKED]: "social_account_already_linked",
+        [AuthErrorCode.AUTH_SOCIAL_ACCOUNT_COOLDOWN]: "social_account_cooldown",
+        [AuthErrorCode.AUTH_SOCIAL_CHANGE_LIMIT_REACHED]: "social_change_limit_reached",
     } satisfies Partial<ProtoToOutput<AuthErrorCode, SocialVerificationErrorCodeValue>>,
 } as const;

@@ -138,6 +138,8 @@ export type AutoWithdrawStepReason =
     | "rule_superseded"
     | "destination_not_whitelisted"
     | "destination_cooling_down"
+    /** Withdrawals of the asset to the destination network are suspended; the funds stay for a later run. */
+    | "route_suspended"
     | "authority_revoked"
     | "gateway_capacity_insufficient"
     | "withdrawal_released"

@@ -15,6 +15,7 @@ import { feesService } from "./services/fees/service.js";
 import { guardSignerService } from "./services/guard-signer/service.js";
 import { heatmapService } from "./services/heatmap/service.js";
 import { internalTransfersService } from "./services/internal-transfers/service.js";
+import { dustConversionService } from "./services/dust-conversion/service.js";
 import { lifecycleService } from "./services/lifecycle/service.js";
 import { marketDataService } from "./services/market-data/service.js";
 import { marketOverviewService } from "./services/market-overview/service.js";
@@ -26,6 +27,7 @@ import { tradingRateLimitsService } from "./services/rate-limits/service.js";
 import { priceAlertsService } from "./services/price-alerts/service.js";
 import { rewardsService } from "./services/rewards/service.js";
 import { socialVerificationService } from "./services/social-verification/service.js";
+import { statementExportsService } from "./services/statement-exports/service.js";
 import { subaccountsService } from "./services/subaccounts/service.js";
 import { systemService } from "./services/system/service.js";
 import { tradesService } from "./services/trades/service.js";
@@ -54,8 +56,10 @@ export const POLYESTER_SERVICES = {
     notifications: notificationsService,
     assistant: assistantService,
     balances: balancesService,
+    statementExports: statementExportsService,
     transfers: transfersService,
     internalTransfers: internalTransfersService,
+    dustConversion: dustConversionService,
     tradingWithdraws: tradingWithdrawsService,
     autoWithdraw: autoWithdrawService,
     deposit: depositService,

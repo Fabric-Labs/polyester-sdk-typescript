@@ -4,6 +4,7 @@ import { AccountCode } from "../../gen/ledger/v1/catalog_pb.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import { formatId } from "../../utils/base58-id.js";
+import { toU128 } from "../../utils/u128.js";
 import {
     BalanceHistoryInputSchema,
     createBalanceHistoryResponseSchema,
@@ -92,12 +93,12 @@ describe("balance history response schema", () => {
                 {
                     assetId: 1,
                     accountCode: AccountCode.TRADING,
-                    balanceQ: [100_000_000n, 125_000_000n],
+                    balance: [toU128(10n * 10n ** 18n), toU128(125n * 10n ** 17n)],
                 },
                 {
                     assetId: 19,
                     accountCode: AccountCode.FUNDING,
-                    balanceQ: [4_893_848_400n, 0n],
+                    balance: [toU128(48_938_484n * 10n ** 13n), toU128(0n)],
                 },
             ],
         });
@@ -115,7 +116,7 @@ describe("balance history response schema", () => {
             startTsSec: 100,
             endTsSec: 200,
             points: 1,
-            series: [{ assetId: 1, accountCode: 9_999, balanceQ: [100_000_000n] }],
+            series: [{ assetId: 1, accountCode: 9_999, balance: [toU128(10n * 10n ** 18n)] }],
         });
 
         expect(history.series).toEqual([

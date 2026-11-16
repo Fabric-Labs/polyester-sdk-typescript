@@ -50,6 +50,8 @@ const policyActionCases = [
     [Proto.PolicyAction.READ_PRICE_ALERTS, "read-price-alerts"],
     [Proto.PolicyAction.MANAGE_PRICE_ALERTS, "manage-price-alerts"],
     [Proto.PolicyAction.READ_STATEMENTS, "read-statements"],
+    [Proto.PolicyAction.CONVERT_DUST, "convert-dust"],
+    [Proto.PolicyAction.READ_FUNDING_FLOWS, "read-funding-flows"],
 ] as const;
 
 describe("PolicyMarketScopeCodec", () => {

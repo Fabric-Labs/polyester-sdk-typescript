@@ -11,13 +11,17 @@ import {
     type SdkScales,
 } from "../../shared/decimal-surface.js";
 import {
+    InternalTransferBatchLegStatusCodec,
+    InternalTransferBatchStatusCodec,
     InternalTransferDestinationCodec,
     InternalTransferStatusCodec,
+    internalTransferErrorCodeName,
 } from "./internal-transfers.codecs.js";
 import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
+    accountScopeToSubaccountIdOrZero,
 } from "../../shared/account-scope.js";
 import { fromU128, toU128 } from "../../utils/u128.js";
 
@@ -131,12 +135,14 @@ export function createCreateInternalTransferResultSchema() {
             amountE18: U128Schema,
             destination: v.optional(ResolvedInternalTransferDestinationSchema),
             status: enumLabelSchema(InternalTransferStatusCodec.protoToOutput),
-            /** Lifecycle flow ID for `lifecycle.getFlow`; empty when the server did not return one. */
+            /** Lifecycle flow ID for `lifecycle.getAccountFlow`; empty when the server did not return one. */
             flowId: v.optional(v.pipe(v.string(), v.trim()), ""),
         }),
         v.transform(({ acceptedAtTsNs, amountE18, ...result }) => ({
             ...result,
             acceptedAtUnixMs: tsNsToMs(acceptedAtTsNs),
+            /** Exact acceptance time in nanoseconds since epoch, as a decimal string. */
+            acceptedAtNs: acceptedAtTsNs.toString(),
             quantity: scaledToDecimalOutput(fromU128(amountE18), E18_SCALE),
         })),
     );
@@ -144,6 +150,99 @@ export function createCreateInternalTransferResultSchema() {
 
 export type CreateInternalTransferResult = v.InferOutput<
     ReturnType<typeof createCreateInternalTransferResultSchema>
+>;
+
+/** The most legs one batch may carry. */
+export const MAX_INTERNAL_TRANSFER_BATCH_LEGS = 10;
+
+export function createBatchCreateInternalTransfersInputSchema(scales: SdkScales) {
+    return v.pipe(
+        v.strictObject({
+            /**
+             * Up to 10 transfers, run in order. Each leg debits its own `account` (the
+             * resolved active account when omitted), and legs may repeat an asset, a source or a
+             * destination. Each leg counts as one internal transfer against the rate limit.
+             */
+            legs: v.pipe(
+                v.array(
+                    v.strictObject({
+                        ...AccountScopeInputEntries,
+                        destination: InternalTransferDestinationInputSchema,
+                        assetId: PositiveUint32InputSchema,
+                        quantity: v.string(),
+                    }),
+                ),
+                v.minLength(1, "A batch needs at least one leg."),
+                v.maxLength(
+                    MAX_INTERNAL_TRANSFER_BATCH_LEGS,
+                    `A batch holds at most ${MAX_INTERNAL_TRANSFER_BATCH_LEGS} legs.`,
+                ),
+            ),
+            /** Covers the whole batch; a retry must send the same legs in the same order. */
+            idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
+        }),
+        v.transform(
+            ({ legs, idempotencyKey }) =>
+                ({
+                    idempotencyKey,
+                    legs: legs.map(({ account, quantity, ...leg }) => ({
+                        ...leg,
+                        subaccountId: accountScopeToSubaccountIdOrZero(account),
+                        amountE18: toU128(
+                            quantityInputToE18({ scales, assetId: leg.assetId, quantity }),
+                        ),
+                    })),
+                }) satisfies MessageInitShape<
+                    typeof Proto.BatchCreateInternalTransfersRequestSchema
+                >,
+        ),
+    );
+}
+
+export type BatchCreateInternalTransfersInput = v.InferInput<
+    ReturnType<typeof createBatchCreateInternalTransfersInputSchema>
+>;
+export type InternalTransferBatchLegInput = BatchCreateInternalTransfersInput["legs"][number];
+
+const InternalTransferBatchLegResultSchema = v.pipe(
+    v.object({
+        legIndex: v.number(),
+        status: enumLabelSchema(InternalTransferBatchLegStatusCodec.protoToOutput),
+        requestId: OptionalResponseStringSchema,
+        transferId: OptionalResponseStringSchema,
+        flowId: OptionalResponseStringSchema,
+        acceptedAtTsNs: v.optional(v.bigint(), 0n),
+        assetId: v.number(),
+        assetCode: OptionalResponseStringSchema,
+        amountE18: v.optional(U128Schema),
+        destination: v.optional(ResolvedInternalTransferDestinationSchema),
+        errorCode: v.optional(v.number(), 0),
+        errorMessage: OptionalResponseStringSchema,
+    }),
+    v.transform(({ acceptedAtTsNs, amountE18, errorCode, ...leg }) => ({
+        ...leg,
+        acceptedAtUnixMs: acceptedAtTsNs ? tsNsToMs(acceptedAtTsNs) : undefined,
+        acceptedAtNs: acceptedAtTsNs ? acceptedAtTsNs.toString() : undefined,
+        quantity: amountE18 ? scaledToDecimalOutput(fromU128(amountE18), E18_SCALE) : undefined,
+        /** Why the leg was refused, or why its outcome is not known yet; unset otherwise. */
+        errorCode: errorCode ? internalTransferErrorCodeName(errorCode) : undefined,
+    })),
+);
+
+export type InternalTransferBatchLegResult = v.InferOutput<
+    typeof InternalTransferBatchLegResultSchema
+>;
+
+export const BatchCreateInternalTransfersResultSchema = v.object({
+    /** Batch request ID; unset when the batch was refused. */
+    requestId: OptionalResponseStringSchema,
+    status: enumLabelSchema(InternalTransferBatchStatusCodec.protoToOutput),
+    /** One result per leg, in request order. */
+    legs: v.optional(v.array(InternalTransferBatchLegResultSchema), []),
+});
+
+export type BatchCreateInternalTransfersResult = v.InferOutput<
+    typeof BatchCreateInternalTransfersResultSchema
 >;
 
 const TransferLookupIdSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
