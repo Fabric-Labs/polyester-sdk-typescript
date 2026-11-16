@@ -39,7 +39,10 @@ export type MarketIoc = Message<"orders.v1.MarketIoc"> & {
     case: "maxSlippageTicks";
   } | {
     /**
-     * Maximum allowed slippage in basis points (1 bp = 0.01%).
+     * Maximum allowed slippage in basis points (1 bp = 0.01%), from 1 to 10000.
+     * A SELL order accepts at most 9999: a 100% cap would leave it no
+     * positive price to sell at, so 10000 is rejected with
+     * ERROR_CODE_MAX_SLIPPAGE_INVALID.
      *
      * @generated from field: int32 max_slippage_bps = 2;
      */
@@ -48,8 +51,8 @@ export type MarketIoc = Message<"orders.v1.MarketIoc"> & {
   } | { case: undefined; value?: undefined };
 
   /**
-   * Optional client reference price in quote units scaled by 1e9. When
-   * omitted, admission uses server-side reference pricing.
+   * Optional positive client reference price in quote units scaled by 1e9.
+   * When omitted, admission uses server-side reference pricing.
    *
    * @generated from field: int64 client_ref_price_ticks = 3;
    */
@@ -70,15 +73,15 @@ export const MarketIocSchema: GenMessage<MarketIoc> = /*@__PURE__*/
  */
 export type LimitGtc = Message<"orders.v1.LimitGtc"> & {
   /**
-   * Limit price in quote units scaled by 1e9.
+   * Positive limit price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */
   priceTicks: bigint;
 
   /**
-   * Reject the order instead of taking liquidity. Post-only is available only
-   * on this resting limit-order variant.
+   * Reject the order instead of taking liquidity. Post-only is available on
+   * GTC and GTD limit orders; IOC, FOK and market orders cannot be post-only.
    *
    * @generated from field: bool post_only = 2;
    */
@@ -121,7 +124,7 @@ export const LimitGtcSchema: GenMessage<LimitGtc> = /*@__PURE__*/
  */
 export type LimitGtd = Message<"orders.v1.LimitGtd"> & {
   /**
-   * Limit price in quote units scaled by 1e9.
+   * Positive limit price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */
@@ -135,9 +138,9 @@ export type LimitGtd = Message<"orders.v1.LimitGtd"> & {
   postOnly: boolean;
 
   /**
-   * Exact expiry time in UTC. It must be at least 1 second and at most 30 days
-   * after validation time. The order cannot execute when the current time equals
-   * this value.
+   * Required exact expiry time in UTC. It must be at least 1 second and at
+   * most 30 days after validation time. The order cannot execute when the
+   * current time equals this value.
    *
    * @generated from field: google.protobuf.Timestamp expire_at = 3;
    */
@@ -179,7 +182,7 @@ export const LimitGtdSchema: GenMessage<LimitGtd> = /*@__PURE__*/
  */
 export type LimitIoc = Message<"orders.v1.LimitIoc"> & {
   /**
-   * Limit price in quote units scaled by 1e9.
+   * Positive limit price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */
@@ -200,7 +203,7 @@ export const LimitIocSchema: GenMessage<LimitIoc> = /*@__PURE__*/
  */
 export type LimitFok = Message<"orders.v1.LimitFok"> & {
   /**
-   * Limit price in quote units scaled by 1e9.
+   * Positive limit price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */
@@ -262,7 +265,7 @@ export type OrderIntent = Message<"orders.v1.OrderIntent"> & {
   symbolId: number;
 
   /**
-   * Order side.
+   * Order side. Required.
    *
    * @generated from field: orders.v1.Side side = 2;
    */
@@ -275,8 +278,8 @@ export type OrderIntent = Message<"orders.v1.OrderIntent"> & {
    */
   sizing: {
     /**
-     * Exact gross base quantity scaled by the pair's base_quantity_scale from
-     * GetSpotConfig.
+     * Exact positive gross base quantity scaled by the pair's
+     * base_quantity_scale from GetSpotConfig.
      *
      * @generated from field: int64 base_qty_scaled = 3;
      */
@@ -289,7 +292,8 @@ export type OrderIntent = Message<"orders.v1.OrderIntent"> & {
      * The order spends up to this amount at the prices it fills at. Once what
      * is left buys no further quantity step, it ends FILLED; if the book or
      * its price limit stops it first, its remainder is canceled. It can carry
-     * attached_risk: the legs protect the quantity it actually buys.
+     * attached_risk: the legs protect the quantity it actually buys. Must be
+     * positive.
      *
      * @generated from field: int64 max_quote_debit_scaled = 4;
      */
@@ -306,7 +310,8 @@ export type OrderIntent = Message<"orders.v1.OrderIntent"> & {
      * order's maximum slippage price, and is rejected INSUFFICIENT_FUNDS when
      * that base is not available. Once what is left sells no further quantity
      * step, it ends FILLED; if the book or its price limit stops it first,
-     * its remainder is canceled. It cannot carry attached_risk.
+     * its remainder is canceled. It cannot carry attached_risk. Must be
+     * positive.
      *
      * @generated from field: int64 quote_proceeds_scaled = 5;
      */
@@ -367,7 +372,8 @@ export type OrderIntent = Message<"orders.v1.OrderIntent"> & {
    * While this identifier is retained, reuse returns
    * CONFLICT_DUPLICATE_CLIENT_ORDER_ID for every new submission, even with the
    * same payload. This identifier enables GetOrder reconciliation after a
-   * timeout; it does not provide exact replay.
+   * timeout; it does not provide exact replay. At most 36 ASCII characters
+   * using letters, digits, period, underscore, colon, slash, or hyphen.
    *
    * @generated from field: string client_order_id = 20;
    */
@@ -375,7 +381,9 @@ export type OrderIntent = Message<"orders.v1.OrderIntent"> & {
 
   /**
    * Asset charged for fees. Defaults to QUOTE. BASE is available only for BUY
-   * orders; SELL orders must use QUOTE.
+   * orders on a pair whose allow_buy_fee_from_base is true in GetSpotConfig;
+   * SELL orders must use QUOTE. Otherwise the order is refused with
+   * ERROR_CODE_FEE_ASSET_NOT_ALLOWED.
    *
    * @generated from field: orders.v1.FeeAsset fee_asset = 21;
    */
@@ -435,7 +443,7 @@ export type CreateOrderRequest = Message<"orders.v1.CreateOrderRequest"> & {
   subaccountId?: bigint | undefined;
 
   /**
-   * Order to admit.
+   * Order to admit. Required.
    *
    * @generated from field: orders.v1.OrderIntent order = 2;
    */
@@ -558,7 +566,7 @@ export type PreviewOrderRequest = Message<"orders.v1.PreviewOrderRequest"> & {
   subaccountId?: bigint | undefined;
 
   /**
-   * Order intent to evaluate without submitting it.
+   * Order intent to evaluate without submitting it. Required.
    *
    * @generated from field: orders.v1.OrderIntent order = 2;
    */
@@ -643,7 +651,7 @@ export type CancelOrderRequest = Message<"orders.v1.CancelOrderRequest"> & {
    */
   key: {
     /**
-     * Order ID as fixed64.
+     * Order ID as fixed64. Exactly one of order_id or client_order_id.
      *
      * @generated from field: fixed64 order_id = 1;
      */
@@ -651,7 +659,9 @@ export type CancelOrderRequest = Message<"orders.v1.CancelOrderRequest"> & {
     case: "orderId";
   } | {
     /**
-     * Client order ID.
+     * Client order ID: 1 to 36 ASCII characters using letters, digits,
+     * period, underscore, colon, slash, or hyphen. Exactly one of order_id or
+     * client_order_id.
      *
      * @generated from field: string client_order_id = 2;
      */
@@ -881,7 +891,7 @@ export const RiskMarketIocSchema: GenMessage<RiskMarketIoc> = /*@__PURE__*/
  */
 export type RiskLimitGtc = Message<"orders.v1.RiskLimitGtc"> & {
   /**
-   * Limit price in quote units scaled by 1e9.
+   * Positive limit price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */
@@ -903,6 +913,8 @@ export const RiskLimitGtcSchema: GenMessage<RiskLimitGtc> = /*@__PURE__*/
  */
 export type RiskExecution = Message<"orders.v1.RiskExecution"> & {
   /**
+   * Required child execution: exactly one variant.
+   *
    * @generated from oneof orders.v1.RiskExecution.execution
    */
   execution: {
@@ -940,14 +952,14 @@ export const RiskExecutionSchema: GenMessage<RiskExecution> = /*@__PURE__*/
  */
 export type TakeProfitPolicy = Message<"orders.v1.TakeProfitPolicy"> & {
   /**
-   * Trigger price in quote units scaled by 1e9.
+   * Positive trigger price in quote units scaled by 1e9.
    *
    * @generated from field: int64 trigger_price_ticks = 1;
    */
   triggerPriceTicks: bigint;
 
   /**
-   * Child execution when the threshold is crossed.
+   * Required child execution when the threshold is crossed.
    *
    * @generated from field: orders.v1.RiskExecution child = 2;
    */
@@ -983,14 +995,14 @@ export const TakeProfitPolicySchema: GenMessage<TakeProfitPolicy> = /*@__PURE__*
  */
 export type StopLossPolicy = Message<"orders.v1.StopLossPolicy"> & {
   /**
-   * Trigger price in quote units scaled by 1e9.
+   * Positive trigger price in quote units scaled by 1e9.
    *
    * @generated from field: int64 trigger_price_ticks = 1;
    */
   triggerPriceTicks: bigint;
 
   /**
-   * Child execution when the threshold is crossed.
+   * Required child execution when the threshold is crossed.
    *
    * @generated from field: orders.v1.RiskExecution child = 2;
    */
@@ -1032,7 +1044,7 @@ export type TrailingStopPolicy = Message<"orders.v1.TrailingStopPolicy"> & {
    */
   trailingDistance: {
     /**
-     * Trailing distance as a price delta in 1e-9 quote-unit ticks.
+     * Positive trailing distance as a price delta in 1e-9 quote-unit ticks.
      *
      * @generated from field: int64 trailing_distance_ticks = 1;
      */
@@ -1040,7 +1052,7 @@ export type TrailingStopPolicy = Message<"orders.v1.TrailingStopPolicy"> & {
     case: "trailingDistanceTicks";
   } | {
     /**
-     * Trailing distance in basis points (1 bp = 0.01%).
+     * Trailing distance in basis points (1 bp = 0.01%), from 1 to 10000.
      *
      * @generated from field: int32 trailing_distance_bps = 2;
      */
@@ -1103,12 +1115,12 @@ export type TrailingStopPolicy = Message<"orders.v1.TrailingStopPolicy"> & {
   triggerPriceSource: TriggerPriceSource;
 
   /**
-   * Maximum price of a trailing stop that buys back, in quote units scaled by
-   * 1e9: the most its exit pays per unit, at which the quote it may spend is
-   * reserved with the exit's fee. Required when the parent order sells, so
-   * the trailing stop buys; must be unset when the parent order buys. A rise
-   * that fires above it still fires, and the exit fills only at or below it.
-   * Changing it with ModifyOrder replaces the leg.
+   * Positive maximum price of a trailing stop that buys back, in quote units
+   * scaled by 1e9: the most its exit pays per unit, at which the quote it may
+   * spend is reserved with the exit's fee. Required when the parent order
+   * sells, so the trailing stop buys; must be unset when the parent order
+   * buys. A rise that fires above it still fires, and the exit fills only at
+   * or below it. Changing it with ModifyOrder replaces the leg.
    *
    * @generated from field: int64 limit_price_ticks = 4;
    */
@@ -1277,6 +1289,8 @@ export type CancelAllOrdersRequest = Message<"orders.v1.CancelAllOrdersRequest">
    * Idempotency key (required). Reuse the same key and criteria for retries.
    * Completed results are retained for at least two minutes. Use a fresh key
    * for a new cancellation; do not reuse a key after its replay window.
+   * 1 to 64 ASCII characters using letters, digits, period, underscore, colon,
+   * slash, or hyphen.
    *
    * @generated from field: string request_id = 6;
    */
@@ -1540,6 +1554,8 @@ export type CancelAllAfterRequest = Message<"orders.v1.CancelAllAfterRequest"> &
 
   /**
    * Idempotency/trace key from caller (required).
+   * 1 to 64 ASCII characters using letters, digits, period, underscore, colon,
+   * slash, or hyphen.
    *
    * @generated from field: string request_id = 5;
    */
@@ -1840,13 +1856,15 @@ export type BatchCreateOrdersRequest = Message<"orders.v1.BatchCreateOrdersReque
    * CONFLICT_IDEMPOTENCY_KEY_REUSE. After 15 minutes the ID is free: a repeat
    * is a new request and can place its orders again, so read the items back
    * instead of repeating an older batch.
+   * 1 to 64 ASCII characters using letters, digits, period, underscore, colon,
+   * slash, or hyphen.
    *
    * @generated from field: string request_id = 2;
    */
   requestId: string;
 
   /**
-   * Orders to create (max 20). client_order_id is optional per item. For a new
+   * Orders to create, 1 to 20. client_order_id is optional per item. For a new
    * request_id, a reused client_order_id rejects only that item with
    * CONFLICT_DUPLICATE_CLIENT_ORDER_ID; other valid items continue.
    *
@@ -1927,7 +1945,7 @@ export type ModifyOrderRequest = Message<"orders.v1.ModifyOrderRequest"> & {
   subaccountId?: bigint | undefined;
 
   /**
-   * Target key.
+   * Target key: exactly one of order_id or client_order_id is required.
    *
    * @generated from oneof orders.v1.ModifyOrderRequest.key
    */
@@ -1941,7 +1959,9 @@ export type ModifyOrderRequest = Message<"orders.v1.ModifyOrderRequest"> & {
     case: "orderId";
   } | {
     /**
-     * Client order ID to resolve within the caller account.
+     * Client order ID to resolve within the caller account: 1 to 36 ASCII
+     * characters using letters, digits, period, underscore, colon, slash, or
+     * hyphen.
      *
      * @generated from field: string client_order_id = 3;
      */
@@ -1952,22 +1972,26 @@ export type ModifyOrderRequest = Message<"orders.v1.ModifyOrderRequest"> & {
   /**
    * Idempotency key (required). Outstanding modifications retain this key;
    * identical retries replay the final result for 60 seconds after the answer.
+   * 1 to 64 ASCII characters using letters, digits, period, underscore, colon,
+   * slash, or hyphen.
    *
    * @generated from field: string request_id = 4;
    */
   requestId: string;
 
   /**
-   * Patch fields (presence-based).
-   * New limit price in quote units scaled by 1e9. Required for price changes.
+   * Patch fields (presence-based): set at least one of new_price_ticks,
+   * new_qty_scaled or new_attached_risk.
+   * Positive new limit price in quote units scaled by 1e9. Required for price
+   * changes.
    *
    * @generated from field: optional int64 new_price_ticks = 5;
    */
   newPriceTicks?: bigint | undefined;
 
   /**
-   * Target total quantity after modify/replace, scaled by the pair's
-   * base_quantity_scale from GetSpotConfig.
+   * Positive target total quantity after modify/replace, scaled by the
+   * pair's base_quantity_scale from GetSpotConfig.
    *
    * @generated from field: optional int64 new_qty_scaled = 6;
    */
@@ -1992,7 +2016,9 @@ export type ModifyOrderRequest = Message<"orders.v1.ModifyOrderRequest"> & {
   behavior: ModifyBehavior;
 
   /**
-   * Optional new client order id when replace path is taken.
+   * Optional new client order id when replace path is taken: at most 36 ASCII
+   * characters using letters, digits, period, underscore, colon, slash, or
+   * hyphen.
    *
    * @generated from field: string new_client_order_id = 9;
    */
@@ -2117,7 +2143,9 @@ export type BatchReplaceOrderItem = Message<"orders.v1.BatchReplaceOrderItem"> &
     case: "orderId";
   } | {
     /**
-     * Client order ID. Exactly one of order_id or client_order_id.
+     * Client order ID: 1 to 36 ASCII characters using letters, digits,
+     * period, underscore, colon, slash, or hyphen. Exactly one of order_id or
+     * client_order_id.
      *
      * @generated from field: string client_order_id = 2;
      */
@@ -2126,15 +2154,17 @@ export type BatchReplaceOrderItem = Message<"orders.v1.BatchReplaceOrderItem"> &
   } | { case: undefined; value?: undefined };
 
   /**
-   * New limit price in quote units scaled by 1e9.
+   * Patch fields (presence-based): set at least one of new_price_ticks,
+   * new_qty_scaled or new_attached_risk.
+   * Positive new limit price in quote units scaled by 1e9.
    *
    * @generated from field: optional int64 new_price_ticks = 3;
    */
   newPriceTicks?: bigint | undefined;
 
   /**
-   * Target total quantity after modify/replace, scaled by the pair's
-   * base_quantity_scale from GetSpotConfig.
+   * Positive target total quantity after modify/replace, scaled by the
+   * pair's base_quantity_scale from GetSpotConfig.
    *
    * @generated from field: optional int64 new_qty_scaled = 4;
    */
@@ -2149,7 +2179,8 @@ export type BatchReplaceOrderItem = Message<"orders.v1.BatchReplaceOrderItem"> &
 
   /**
    * Optional client order ID for the successor. A value other than the order's
-   * client order ID makes the item a replacement.
+   * client order ID makes the item a replacement. At most 36 ASCII characters
+   * using letters, digits, period, underscore, colon, slash, or hyphen.
    *
    * @generated from field: string new_client_order_id = 6;
    */
@@ -2279,13 +2310,15 @@ export type BatchReplaceOrdersRequest = Message<"orders.v1.BatchReplaceOrdersReq
 
   /**
    * Client idempotency key (required).
+   * 1 to 64 ASCII characters using letters, digits, period, underscore, colon,
+   * slash, or hyphen.
    *
    * @generated from field: string request_id = 3;
    */
   requestId: string;
 
   /**
-   * Replacement items.
+   * Replacement items, 1 to 50, each targeting a different order.
    *
    * @generated from field: repeated orders.v1.BatchReplaceOrderItem items = 4;
    */
@@ -2376,7 +2409,9 @@ export type BatchCancelItem = Message<"orders.v1.BatchCancelItem"> & {
   orderId: bigint;
 
   /**
-   * Client order ID. Exactly one of order_id or client_order_id.
+   * Client order ID: 1 to 36 ASCII characters using letters, digits, period,
+   * underscore, colon, slash, or hyphen. Exactly one of order_id or
+   * client_order_id.
    *
    * @generated from field: string client_order_id = 2;
    */
@@ -2499,13 +2534,15 @@ export type BatchCancelOrdersRequest = Message<"orders.v1.BatchCancelOrdersReque
 
   /**
    * Idempotency key (required).
+   * 1 to 64 ASCII characters using letters, digits, period, underscore, colon,
+   * slash, or hyphen.
    *
    * @generated from field: string request_id = 2;
    */
   requestId: string;
 
   /**
-   * Orders to cancel (max 50).
+   * Orders to cancel, 1 to 50.
    *
    * @generated from field: repeated orders.v1.BatchCancelItem items = 3;
    */
@@ -2707,7 +2744,8 @@ export enum FeeAsset {
   QUOTE = 1,
 
   /**
-   * BUY-only option: fees are deducted from the received base asset.
+   * BUY-only option: fees are deducted from the received base asset. Only on
+   * a pair whose allow_buy_fee_from_base is true in GetSpotConfig.
    *
    * @generated from enum value: BASE = 2;
    */
@@ -2928,14 +2966,15 @@ export enum ErrorCode {
   NOT_FOUND = 13,
 
   /**
-   * Upstream dependency returned an error.
+   * A temporary server-side failure stopped the request. Retry later.
    *
    * @generated from enum value: ERROR_CODE_UPSTREAM_ERROR = 14;
    */
   UPSTREAM_ERROR = 14,
 
   /**
-   * Requested fee asset is not allowed for this order.
+   * Requested fee asset is not allowed for this order or trigger: BASE on a
+   * SELL, or BASE on a BUY where the pair's allow_buy_fee_from_base is false.
    *
    * @generated from enum value: ERROR_CODE_FEE_ASSET_NOT_ALLOWED = 15;
    */
@@ -2971,7 +3010,8 @@ export enum ErrorCode {
   SUBACCOUNT_INACTIVE = 19,
 
   /**
-   * Sub-account policy prevented trading on this market (e.g. pair mask).
+   * The sub-account policy limits spot trading to an allowlist of markets
+   * (spot_market_scope ALLOWLIST), and this market is not on it.
    *
    * @generated from enum value: ERROR_CODE_POLICY_MARKET_DENY = 20;
    */
@@ -3033,8 +3073,7 @@ export enum ErrorCode {
   API_KEY_POLICY_REQUIRED = 27,
 
   /**
-   * API key referenced in the request could not be resolved by the Orders
-   * service.
+   * The API key in the request, or its policy, could not be found.
    *
    * @generated from enum value: ERROR_CODE_API_KEY_UNKNOWN = 28;
    */
@@ -3184,14 +3223,24 @@ export enum ErrorCode {
   REDUCE_ONLY_BLOCKED = 59,
 
   /**
-   * Price band guard rejected the order.
+   * The order falls outside the pair's price band (PairConfig.price_band from
+   * GetSpotConfig): a buy priced above the band's upper limit or a sell priced
+   * below its lower limit, a fill-or-kill order the band would stop before it
+   * fills, or any new order while no price tick lies inside the band, a market
+   * order included. The band spans a set number of basis points around its
+   * reference price. The reference price starts at the last trade, or at the
+   * pair's listing reference price when the pair has not traded, and afterwards
+   * moves only in two ways: to a newer last trade, at most once per reference
+   * window, or by the index guard, which sets it to the index price when a
+   * current index price exists and the reference price lies outside the band
+   * around it. Only the side that would trade is checked.
    *
    * @generated from enum value: ERROR_CODE_PRICE_BAND_VIOLATION = 60;
    */
   PRICE_BAND_VIOLATION = 60,
 
   /**
-   * Market-cap guard rejected the order.
+   * The order exceeded a market-wide limit. Not currently returned.
    *
    * @generated from enum value: ERROR_CODE_MARKET_CAP_VIOLATION = 61;
    */
@@ -3220,7 +3269,10 @@ export enum ErrorCode {
 
   /**
    * Trigger-specific error codes (40-49 range).
-   * Trigger price is invalid (e.g., TP below current price for long).
+   * The trigger price is invalid: for example not positive, an attached
+   * take-profit or stop-loss at or past its limit parent's price (for a buy
+   * parent, a take-profit at or below it or a stop-loss at or above it), or
+   * a one-cancels-the-other take-profit that crosses its stop-loss.
    *
    * @generated from enum value: ERROR_CODE_TRIGGER_PRICE_INVALID = 40;
    */
@@ -3283,7 +3335,10 @@ export enum ErrorCode {
   MAX_SLIPPAGE_INVALID = 48,
 
   /**
-   * Client reference price is stale compared to server-side BBO/drift policy.
+   * The market order's client reference price differs from the market price
+   * (the best ask for a buy or the best bid for a sell, otherwise the last
+   * trade price) by more than the pair's max_client_ref_drift_bps from
+   * GetSpotConfig.
    *
    * @generated from enum value: ERROR_CODE_STALE_QUOTE = 65;
    */
@@ -3344,7 +3399,9 @@ export enum ErrorCode {
   API_KEY_SPOT_READ_DENY = 72,
 
   /**
-   * The cancel request exceeded its bounded internal replay window.
+   * The cancel-all request arrived after its acceptance window of about two
+   * minutes had passed, so nothing was canceled. Send a new request with a
+   * fresh request_id.
    *
    * @generated from enum value: ERROR_CODE_CANCEL_REQUEST_EXPIRED = 73;
    */
@@ -3376,8 +3433,8 @@ export enum ErrorCode {
   QTY_AT_OR_BELOW_FILLED = 76,
 
   /**
-   * The trading gateway that took the request is misconfigured for the order
-   * service behind it. An operator must correct it; retrying does not help.
+   * The endpoint that took the request is misconfigured. Retrying does not
+   * help; contact support. Not currently returned.
    *
    * @generated from enum value: ERROR_CODE_GATEWAY_MISCONFIGURED = 77;
    */
@@ -3399,12 +3456,10 @@ export enum ErrorCode {
   CHILD_QTY_RAISE_NOT_ALLOWED = 81,
 
   /**
-   * Attached take-profit, stop-loss or trailing legs can't be applied here:
-   * this market takes none, an attached trailing stop isn't offered yet, the
-   * modify changes them together with the order's price, quantity, client
-   * order ID or a replace, or the order was placed by a triggered take-profit,
-   * stop-loss or trailing-stop leg, which can't carry legs of its own. Nothing
-   * changed.
+   * Attached take-profit, stop-loss or trailing legs can't be applied to this
+   * order: it was placed by a triggered take-profit, stop-loss or
+   * trailing-stop leg, or replaces such an order, and it can't carry legs of
+   * its own. Nothing changed.
    *
    * @generated from enum value: ERROR_CODE_ATTACHED_RISK_NOT_SUPPORTED = 82;
    */

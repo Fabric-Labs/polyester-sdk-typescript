@@ -1065,7 +1065,7 @@ export type SubaccountInvite = Message<"auth.v1.SubaccountInvite"> & {
   granteeRootSmartAccountAddress: string;
 
   /**
-   * Current delegated-member MFA requirement on the target sub-account. If true, accepting the invite requires MFA enrollment and fresh step-up.
+   * Current delegated-member MFA requirement on the target sub-account. If true, accepting the invite requires an enrolled MFA factor and a recently MFA-elevated session.
    *
    * @generated from field: bool require_member_mfa = 14;
    */

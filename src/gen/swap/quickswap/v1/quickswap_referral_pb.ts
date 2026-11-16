@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file swap/quickswap/v1/quickswap_referral.proto.
  */
 export const file_swap_quickswap_v1_quickswap_referral: GenFile = /*@__PURE__*/
-  fileDesc("Cipzd2FwL3F1aWNrc3dhcC92MS9xdWlja3N3YXBfcmVmZXJyYWwucHJvdG8SEXN3YXAucXVpY2tzd2FwLnYxIj0KDVJlZmVycmFsUmF0ZXMSFAoMZGlzY291bnRfYnBzGAEgASgNEhYKDmNvbW1pc3Npb25fYnBzGAIgASgNIq0BCg9SZWZlcnJhbFByb2dyYW0SMAoGbm9ybWFsGAEgASgLMiAuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxSYXRlcxI0CgpzdGFibGVjb2luGAIgASgLMiAuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxSYXRlcxIyCghicmlkZ2luZxgDIAEoCzIgLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmFsUmF0ZXMiuwIKD1JlZmVycmFsUGFydG5lchISCgpwYXJ0bmVyX2lkGAEgASgGEhQKDGRpc3BsYXlfbmFtZRgCIAEoCRI4CgZzdGF0dXMYAyABKA4yKC5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbFBhcnRuZXJTdGF0dXMSHgoWZWFybmluZ3Nfc3ViYWNjb3VudF9pZBgEIAEoBhIMCgRjb2RlGAUgASgJEhEKCWxpbmtfcGF0aBgGIAEoCRIzCgdwcm9ncmFtGAcgASgLMiIuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxQcm9ncmFtEi4KCmNyZWF0ZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEh4KFmNvZGVfY2hhbmdlc19yZW1haW5pbmcYCSABKA0iWAocRW5yb2xsUmVmZXJyYWxQYXJ0bmVyUmVxdWVzdBIgChZlYXJuaW5nc19zdWJhY2NvdW50X2lkGAEgASgGQgASFgoMZGlzcGxheV9uYW1lGAIgASgJQgAiVAodRW5yb2xsUmVmZXJyYWxQYXJ0bmVyUmVzcG9uc2USMwoHcGFydG5lchgBIAEoCzIiLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmFsUGFydG5lciIbChlHZXRSZWZlcnJhbFBhcnRuZXJSZXF1ZXN0IlEKGkdldFJlZmVycmFsUGFydG5lclJlc3BvbnNlEjMKB3BhcnRuZXIYASABKAsyIi5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbFBhcnRuZXIiKgoYQ2hlY2tSZWZlcnJhbENvZGVSZXF1ZXN0Eg4KBGNvZGUYASABKAlCACJsChlDaGVja1JlZmVycmFsQ29kZVJlc3BvbnNlEgwKBGNvZGUYASABKAkSQQoMYXZhaWxhYmlsaXR5GAIgASgOMisuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxDb2RlQXZhaWxhYmlsaXR5IigKFlNldFJlZmVycmFsQ29kZVJlcXVlc3QSDgoEY29kZRgBIAEoCUIAIk4KF1NldFJlZmVycmFsQ29kZVJlc3BvbnNlEjMKB3BhcnRuZXIYASABKAsyIi5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbFBhcnRuZXIiVgoSUmVmZXJyYWxDb21taXNzaW9uEhAKCGFzc2V0X2lkGAEgASgNEi4KBmFtb3VudBgCIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50IoIBCg5SZWZlcnJhbENyZWRpdBIQCghhc3NldF9pZBgBIAEoDRIuCgZhbW91bnQYAiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBIuCgphY2NydWVkX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCKJBQoRUmVmZXJyZWRRdWlja1N3YXASDwoHc3dhcF9pZBgBIAEoBhIyCgZzdGF0dXMYAiABKA4yIi5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBTdGF0dXMSEwoLaXNfdGVybWluYWwYAyABKAgSLgoKY3JlYXRlZF9hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLdGVybWluYWxfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEh4KFnNvdXJjZV96aXBwZWRfYXNzZXRfaWQYBiABKA0SIwobZGVzdGluYXRpb25femlwcGVkX2Fzc2V0X2lkGAcgASgNEjwKFHF1b3RlZF9zb3VyY2VfYW1vdW50GAggASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSQQoZcXVvdGVkX2Rlc3RpbmF0aW9uX2Ftb3VudBgJIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EjUKDXNvdXJjZV9hbW91bnQYCiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI6ChJkZXN0aW5hdGlvbl9hbW91bnQYCyABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBIUCgxiYXNlX2ZlZV9icHMYDCABKA0SFwoPY2hhcmdlZF9mZWVfYnBzGA0gASgNEhYKDmNvbW1pc3Npb25fYnBzGA4gASgNEjkKCmNvbW1pc3Npb24YDyADKAsyJS5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbENvbW1pc3Npb24iUQoXUmVmZXJyYWxDb21taXNzaW9uVmFsdWUSCwoDdXNkGAEgASgJEikKBWFzX29mGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCLCAgoRUmVmZXJyYWxCcmVha2Rvd24SFAoMYmFzZV9mZWVfYnBzGAEgASgNEhcKD2NoYXJnZWRfZmVlX2JwcxgCIAEoDRIUCgxkaXNjb3VudF9icHMYAyABKA0SFgoOY29tbWlzc2lvbl9icHMYBCABKA0SOQoFYmFzaXMYBSABKA4yKi5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbENvbW1pc3Npb25CYXNpcxIzCghjcmVkaXRlZBgGIAMoCzIhLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmFsQ3JlZGl0EhoKEmNyZWRpdGVkX3RydW5jYXRlZBgHIAEoCBJEChBjb21taXNzaW9uX3ZhbHVlGAggASgLMiouc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxDb21taXNzaW9uVmFsdWUi3AEKHUxpc3RSZWZlcnJlZFF1aWNrU3dhcHNSZXF1ZXN0Ei4KCnN0YXJ0X3RpbWUYASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGVuZF90aW1lGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2CghzdGF0dXNlcxgDIAMoDjIiLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFN0YXR1c0IAEg8KBWxpbWl0GAQgASgNQgASFAoKcGFnZV90b2tlbhgFIAEoCUIAInQKHkxpc3RSZWZlcnJlZFF1aWNrU3dhcHNSZXNwb25zZRI5CgtxdWlja19zd2FwcxgBIAMoCzIkLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmVkUXVpY2tTd2FwEhcKD25leHRfcGFnZV90b2tlbhgCIAEoCSIwChtHZXRSZWZlcnJlZFF1aWNrU3dhcFJlcXVlc3QSEQoHc3dhcF9pZBgBIAEoBkIAIpEBChxHZXRSZWZlcnJlZFF1aWNrU3dhcFJlc3BvbnNlEjgKCnF1aWNrX3N3YXAYASABKAsyJC5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJlZFF1aWNrU3dhcBI3CglicmVha2Rvd24YAiABKAsyJC5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbEJyZWFrZG93bip2ChVSZWZlcnJhbFBhcnRuZXJTdGF0dXMSHgoaUEFSVE5FUl9TVEFUVVNfVU5TUEVDSUZJRUQQABITCg9QQVJUTkVSX1BFTkRJTkcQARISCg5QQVJUTkVSX0FDVElWRRACEhQKEFBBUlRORVJfRElTQUJMRUQQAyqYAQoYUmVmZXJyYWxDb2RlQXZhaWxhYmlsaXR5EiEKHUNPREVfQVZBSUxBQklMSVRZX1VOU1BFQ0lGSUVEEAASEgoOQ09ERV9BVkFJTEFCTEUQARIQCgxDT0RFX0NVUlJFTlQQAhIOCgpDT0RFX1RBS0VOEAMSEQoNQ09ERV9SRVNFUlZFRBAEEhAKDENPREVfSU5WQUxJRBAFKlEKF1JlZmVycmFsQ29tbWlzc2lvbkJhc2lzEiAKHENPTU1JU1NJT05fQkFTSVNfVU5TUEVDSUZJRUQQABIUChBQUkVfRElTQ09VTlRfRkVFEAEy6QUKGFF1aWNrU3dhcFJlZmVycmFsU2VydmljZRJ8ChVFbnJvbGxSZWZlcnJhbFBhcnRuZXISLy5zd2FwLnF1aWNrc3dhcC52MS5FbnJvbGxSZWZlcnJhbFBhcnRuZXJSZXF1ZXN0GjAuc3dhcC5xdWlja3N3YXAudjEuRW5yb2xsUmVmZXJyYWxQYXJ0bmVyUmVzcG9uc2UiABJzChJHZXRSZWZlcnJhbFBhcnRuZXISLC5zd2FwLnF1aWNrc3dhcC52MS5HZXRSZWZlcnJhbFBhcnRuZXJSZXF1ZXN0Gi0uc3dhcC5xdWlja3N3YXAudjEuR2V0UmVmZXJyYWxQYXJ0bmVyUmVzcG9uc2UiABJwChFDaGVja1JlZmVycmFsQ29kZRIrLnN3YXAucXVpY2tzd2FwLnYxLkNoZWNrUmVmZXJyYWxDb2RlUmVxdWVzdBosLnN3YXAucXVpY2tzd2FwLnYxLkNoZWNrUmVmZXJyYWxDb2RlUmVzcG9uc2UiABJqCg9TZXRSZWZlcnJhbENvZGUSKS5zd2FwLnF1aWNrc3dhcC52MS5TZXRSZWZlcnJhbENvZGVSZXF1ZXN0Giouc3dhcC5xdWlja3N3YXAudjEuU2V0UmVmZXJyYWxDb2RlUmVzcG9uc2UiABJ/ChZMaXN0UmVmZXJyZWRRdWlja1N3YXBzEjAuc3dhcC5xdWlja3N3YXAudjEuTGlzdFJlZmVycmVkUXVpY2tTd2Fwc1JlcXVlc3QaMS5zd2FwLnF1aWNrc3dhcC52MS5MaXN0UmVmZXJyZWRRdWlja1N3YXBzUmVzcG9uc2UiABJ5ChRHZXRSZWZlcnJlZFF1aWNrU3dhcBIuLnN3YXAucXVpY2tzd2FwLnYxLkdldFJlZmVycmVkUXVpY2tTd2FwUmVxdWVzdBovLnN3YXAucXVpY2tzd2FwLnYxLkdldFJlZmVycmVkUXVpY2tTd2FwUmVzcG9uc2UiABoAQktaSWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vc3dhcC9xdWlja3N3YXAvdjE7cXVpY2tzd2FwdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_polyester_api_options, file_swap_quickswap_v1_quickswap]);
+  fileDesc("Cipzd2FwL3F1aWNrc3dhcC92MS9xdWlja3N3YXBfcmVmZXJyYWwucHJvdG8SEXN3YXAucXVpY2tzd2FwLnYxIj0KDVJlZmVycmFsUmF0ZXMSFAoMZGlzY291bnRfYnBzGAEgASgNEhYKDmNvbW1pc3Npb25fYnBzGAIgASgNIq0BCg9SZWZlcnJhbFByb2dyYW0SMAoGbm9ybWFsGAEgASgLMiAuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxSYXRlcxI0CgpzdGFibGVjb2luGAIgASgLMiAuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxSYXRlcxIyCghicmlkZ2luZxgDIAEoCzIgLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmFsUmF0ZXMiuwIKD1JlZmVycmFsUGFydG5lchISCgpwYXJ0bmVyX2lkGAEgASgGEhQKDGRpc3BsYXlfbmFtZRgCIAEoCRI4CgZzdGF0dXMYAyABKA4yKC5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbFBhcnRuZXJTdGF0dXMSHgoWZWFybmluZ3Nfc3ViYWNjb3VudF9pZBgEIAEoBhIMCgRjb2RlGAUgASgJEhEKCWxpbmtfcGF0aBgGIAEoCRIzCgdwcm9ncmFtGAcgASgLMiIuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxQcm9ncmFtEi4KCmNyZWF0ZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEh4KFmNvZGVfY2hhbmdlc19yZW1haW5pbmcYCSABKA0iWAocRW5yb2xsUmVmZXJyYWxQYXJ0bmVyUmVxdWVzdBIgChZlYXJuaW5nc19zdWJhY2NvdW50X2lkGAEgASgGQgASFgoMZGlzcGxheV9uYW1lGAIgASgJQgAiVAodRW5yb2xsUmVmZXJyYWxQYXJ0bmVyUmVzcG9uc2USMwoHcGFydG5lchgBIAEoCzIiLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmFsUGFydG5lciIbChlHZXRSZWZlcnJhbFBhcnRuZXJSZXF1ZXN0IlEKGkdldFJlZmVycmFsUGFydG5lclJlc3BvbnNlEjMKB3BhcnRuZXIYASABKAsyIi5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbFBhcnRuZXIiKgoYQ2hlY2tSZWZlcnJhbENvZGVSZXF1ZXN0Eg4KBGNvZGUYASABKAlCACJsChlDaGVja1JlZmVycmFsQ29kZVJlc3BvbnNlEgwKBGNvZGUYASABKAkSQQoMYXZhaWxhYmlsaXR5GAIgASgOMisuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxDb2RlQXZhaWxhYmlsaXR5IigKFlNldFJlZmVycmFsQ29kZVJlcXVlc3QSDgoEY29kZRgBIAEoCUIAIk4KF1NldFJlZmVycmFsQ29kZVJlc3BvbnNlEjMKB3BhcnRuZXIYASABKAsyIi5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbFBhcnRuZXIiVgoSUmVmZXJyYWxDb21taXNzaW9uEhAKCGFzc2V0X2lkGAEgASgNEi4KBmFtb3VudBgCIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50IoIBCg5SZWZlcnJhbENyZWRpdBIQCghhc3NldF9pZBgBIAEoDRIuCgZhbW91bnQYAiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBIuCgphY2NydWVkX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCKJBQoRUmVmZXJyZWRRdWlja1N3YXASDwoHc3dhcF9pZBgBIAEoBhIyCgZzdGF0dXMYAiABKA4yIi5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBTdGF0dXMSEwoLaXNfdGVybWluYWwYAyABKAgSLgoKY3JlYXRlZF9hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLdGVybWluYWxfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEh4KFnNvdXJjZV96aXBwZWRfYXNzZXRfaWQYBiABKA0SIwobZGVzdGluYXRpb25femlwcGVkX2Fzc2V0X2lkGAcgASgNEjwKFHF1b3RlZF9zb3VyY2VfYW1vdW50GAggASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSQQoZcXVvdGVkX2Rlc3RpbmF0aW9uX2Ftb3VudBgJIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EjUKDXNvdXJjZV9hbW91bnQYCiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI6ChJkZXN0aW5hdGlvbl9hbW91bnQYCyABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBIUCgxiYXNlX2ZlZV9icHMYDCABKA0SFwoPY2hhcmdlZF9mZWVfYnBzGA0gASgNEhYKDmNvbW1pc3Npb25fYnBzGA4gASgNEjkKCmNvbW1pc3Npb24YDyADKAsyJS5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbENvbW1pc3Npb24iUQoXUmVmZXJyYWxDb21taXNzaW9uVmFsdWUSCwoDdXNkGAEgASgJEikKBWFzX29mGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCLCAgoRUmVmZXJyYWxCcmVha2Rvd24SFAoMYmFzZV9mZWVfYnBzGAEgASgNEhcKD2NoYXJnZWRfZmVlX2JwcxgCIAEoDRIUCgxkaXNjb3VudF9icHMYAyABKA0SFgoOY29tbWlzc2lvbl9icHMYBCABKA0SOQoFYmFzaXMYBSABKA4yKi5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbENvbW1pc3Npb25CYXNpcxIzCghjcmVkaXRlZBgGIAMoCzIhLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmFsQ3JlZGl0EhoKEmNyZWRpdGVkX3RydW5jYXRlZBgHIAEoCBJEChBjb21taXNzaW9uX3ZhbHVlGAggASgLMiouc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxDb21taXNzaW9uVmFsdWUi3gEKHUxpc3RSZWZlcnJlZFF1aWNrU3dhcHNSZXF1ZXN0Ei4KCnN0YXJ0X3RpbWUYASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGVuZF90aW1lGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2CghzdGF0dXNlcxgDIAMoDjIiLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFN0YXR1c0IAEg8KBWxpbWl0GAQgASgNQgASFAoKcGFnZV90b2tlbhgFIAEoCUIAOgAidAoeTGlzdFJlZmVycmVkUXVpY2tTd2Fwc1Jlc3BvbnNlEjkKC3F1aWNrX3N3YXBzGAEgAygLMiQuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyZWRRdWlja1N3YXASFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIjAKG0dldFJlZmVycmVkUXVpY2tTd2FwUmVxdWVzdBIRCgdzd2FwX2lkGAEgASgGQgAikQEKHEdldFJlZmVycmVkUXVpY2tTd2FwUmVzcG9uc2USOAoKcXVpY2tfc3dhcBgBIAEoCzIkLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmVkUXVpY2tTd2FwEjcKCWJyZWFrZG93bhgCIAEoCzIkLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmFsQnJlYWtkb3duKnYKFVJlZmVycmFsUGFydG5lclN0YXR1cxIeChpQQVJUTkVSX1NUQVRVU19VTlNQRUNJRklFRBAAEhMKD1BBUlRORVJfUEVORElORxABEhIKDlBBUlRORVJfQUNUSVZFEAISFAoQUEFSVE5FUl9ESVNBQkxFRBADKpgBChhSZWZlcnJhbENvZGVBdmFpbGFiaWxpdHkSIQodQ09ERV9BVkFJTEFCSUxJVFlfVU5TUEVDSUZJRUQQABISCg5DT0RFX0FWQUlMQUJMRRABEhAKDENPREVfQ1VSUkVOVBACEg4KCkNPREVfVEFLRU4QAxIRCg1DT0RFX1JFU0VSVkVEEAQSEAoMQ09ERV9JTlZBTElEEAUqUQoXUmVmZXJyYWxDb21taXNzaW9uQmFzaXMSIAocQ09NTUlTU0lPTl9CQVNJU19VTlNQRUNJRklFRBAAEhQKEFBSRV9ESVNDT1VOVF9GRUUQATLpBQoYUXVpY2tTd2FwUmVmZXJyYWxTZXJ2aWNlEnwKFUVucm9sbFJlZmVycmFsUGFydG5lchIvLnN3YXAucXVpY2tzd2FwLnYxLkVucm9sbFJlZmVycmFsUGFydG5lclJlcXVlc3QaMC5zd2FwLnF1aWNrc3dhcC52MS5FbnJvbGxSZWZlcnJhbFBhcnRuZXJSZXNwb25zZSIAEnMKEkdldFJlZmVycmFsUGFydG5lchIsLnN3YXAucXVpY2tzd2FwLnYxLkdldFJlZmVycmFsUGFydG5lclJlcXVlc3QaLS5zd2FwLnF1aWNrc3dhcC52MS5HZXRSZWZlcnJhbFBhcnRuZXJSZXNwb25zZSIAEnAKEUNoZWNrUmVmZXJyYWxDb2RlEisuc3dhcC5xdWlja3N3YXAudjEuQ2hlY2tSZWZlcnJhbENvZGVSZXF1ZXN0Giwuc3dhcC5xdWlja3N3YXAudjEuQ2hlY2tSZWZlcnJhbENvZGVSZXNwb25zZSIAEmoKD1NldFJlZmVycmFsQ29kZRIpLnN3YXAucXVpY2tzd2FwLnYxLlNldFJlZmVycmFsQ29kZVJlcXVlc3QaKi5zd2FwLnF1aWNrc3dhcC52MS5TZXRSZWZlcnJhbENvZGVSZXNwb25zZSIAEn8KFkxpc3RSZWZlcnJlZFF1aWNrU3dhcHMSMC5zd2FwLnF1aWNrc3dhcC52MS5MaXN0UmVmZXJyZWRRdWlja1N3YXBzUmVxdWVzdBoxLnN3YXAucXVpY2tzd2FwLnYxLkxpc3RSZWZlcnJlZFF1aWNrU3dhcHNSZXNwb25zZSIAEnkKFEdldFJlZmVycmVkUXVpY2tTd2FwEi4uc3dhcC5xdWlja3N3YXAudjEuR2V0UmVmZXJyZWRRdWlja1N3YXBSZXF1ZXN0Gi8uc3dhcC5xdWlja3N3YXAudjEuR2V0UmVmZXJyZWRRdWlja1N3YXBSZXNwb25zZSIAGgBCS1pJZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9zd2FwL3F1aWNrc3dhcC92MTtxdWlja3N3YXB2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options, file_swap_quickswap_v1_quickswap]);
 
 /**
  * ReferralRates are the referral rates of one route category, in whole basis
@@ -49,8 +49,8 @@ export const ReferralRatesSchema: GenMessage<ReferralRates> = /*@__PURE__*/
 
 /**
  * ReferralProgram is the referral rates of every route category. Polyester
- * can change them at any time; a change applies to Quick Swaps created after
- * it, and Quick Swaps already created keep their rates.
+ * can change them at any time; a change applies to QuickSwaps created after
+ * it, and QuickSwaps already created keep their rates.
  *
  * @generated from message swap.quickswap.v1.ReferralProgram
  */
@@ -127,7 +127,7 @@ export type ReferralPartner = Message<"swap.quickswap.v1.ReferralPartner"> & {
   code: string;
 
   /**
-   * Path of the share link on Polyester's Quick Swap app: "/r/" followed by
+   * Path of the share link on Polyester's QuickSwap app: "/r/" followed by
    * the code.
    *
    * @generated from field: string link_path = 6;
@@ -182,8 +182,8 @@ export type EnrollReferralPartnerRequest = Message<"swap.quickswap.v1.EnrollRefe
   earningsSubaccountId: bigint;
 
   /**
-   * Name shown for the partner, 1 to 64 characters without leading or
-   * trailing spaces.
+   * Name shown for the partner, at most 64 characters. Leading and trailing
+   * spaces are removed; at least one other character must remain.
    *
    * @generated from field: string display_name = 2;
    */
@@ -379,7 +379,7 @@ export const ReferralCommissionSchema: GenMessage<ReferralCommission> = /*@__PUR
   messageDesc(file_swap_quickswap_v1_quickswap_referral, 11);
 
 /**
- * ReferralCredit is one commission credit of a Quick Swap: a settled trade
+ * ReferralCredit is one commission credit of a QuickSwap: a settled trade
  * of one of its legs, or its bridge payout.
  *
  * @generated from message swap.quickswap.v1.ReferralCredit
@@ -416,7 +416,7 @@ export const ReferralCreditSchema: GenMessage<ReferralCredit> = /*@__PURE__*/
   messageDesc(file_swap_quickswap_v1_quickswap_referral, 12);
 
 /**
- * ReferredQuickSwap is a Quick Swap the caller referred, as its referral
+ * ReferredQuickSwap is a QuickSwap the caller referred, as its referral
  * partner sees it. It carries no identity of the person who swapped and no
  * account, address, memo, transaction hash or flow ID. Amounts are exact;
  * every time is rounded down to the minute.
@@ -447,7 +447,7 @@ export type ReferredQuickSwap = Message<"swap.quickswap.v1.ReferredQuickSwap"> &
   isTerminal: boolean;
 
   /**
-   * When the Quick Swap was created, rounded down to the minute.
+   * When the QuickSwap was created, rounded down to the minute.
    *
    * @generated from field: google.protobuf.Timestamp created_at = 4;
    */
@@ -537,7 +537,7 @@ export type ReferredQuickSwap = Message<"swap.quickswap.v1.ReferredQuickSwap"> &
 
   /**
    * Commission credited so far, one entry per asset in asset_id order. Grows
-   * while the Quick Swap executes or pays out a bridge; empty until the
+   * while the QuickSwap executes or pays out a bridge; empty until the
    * first credit. Each credit is commission_bps applied to what its leg
    * actually received, so it can differ from an estimate.
    *
@@ -554,7 +554,7 @@ export const ReferredQuickSwapSchema: GenMessage<ReferredQuickSwap> = /*@__PURE_
   messageDesc(file_swap_quickswap_v1_quickswap_referral, 13);
 
 /**
- * ReferralCommissionValue is the US dollar value of a Quick Swap's commission
+ * ReferralCommissionValue is the US dollar value of a QuickSwap's commission
  * at a current price.
  *
  * @generated from message swap.quickswap.v1.ReferralCommissionValue
@@ -586,9 +586,9 @@ export const ReferralCommissionValueSchema: GenMessage<ReferralCommissionValue> 
   messageDesc(file_swap_quickswap_v1_quickswap_referral, 14);
 
 /**
- * ReferralBreakdown shows how a referred Quick Swap's fee and the partner's
+ * ReferralBreakdown shows how a referred QuickSwap's fee and the partner's
  * commission were worked out. Rates are in basis points of what each leg
- * receives and are fixed when the Quick Swap is created; a two-leg route
+ * receives and are fixed when the QuickSwap is created; a two-leg route
  * shows the sum of both legs' rates. For example, on a one-leg route with a
  * 30 bps fee, a 3 bps discount and a 6 bps commission, the user pays 27 bps
  * and the partner earns 6 bps, 20% of the fee before the discount.
@@ -665,13 +665,13 @@ export const ReferralBreakdownSchema: GenMessage<ReferralBreakdown> = /*@__PURE_
   messageDesc(file_swap_quickswap_v1_quickswap_referral, 15);
 
 /**
- * ListReferredQuickSwapsRequest lists the Quick Swaps the caller referred.
+ * ListReferredQuickSwapsRequest lists the QuickSwaps the caller referred.
  *
  * @generated from message swap.quickswap.v1.ListReferredQuickSwapsRequest
  */
 export type ListReferredQuickSwapsRequest = Message<"swap.quickswap.v1.ListReferredQuickSwapsRequest"> & {
   /**
-   * Only Quick Swaps created at or after start_time, rounded down to the
+   * Only QuickSwaps created at or after start_time, rounded down to the
    * minute; unset for no lower bound.
    *
    * @generated from field: google.protobuf.Timestamp start_time = 1;
@@ -679,15 +679,15 @@ export type ListReferredQuickSwapsRequest = Message<"swap.quickswap.v1.ListRefer
   startTime?: Timestamp | undefined;
 
   /**
-   * Only Quick Swaps created before end_time (exclusive), rounded up to the
-   * minute; unset for no upper bound.
+   * Only QuickSwaps created before end_time (exclusive), rounded up to the
+   * minute; after start_time when both are set; unset for no upper bound.
    *
    * @generated from field: google.protobuf.Timestamp end_time = 2;
    */
   endTime?: Timestamp | undefined;
 
   /**
-   * Only Quick Swaps in one of these statuses, at most 16; empty for every
+   * Only QuickSwaps in one of these statuses, at most 16; empty for every
    * status.
    *
    * @generated from field: repeated swap.quickswap.v1.QuickSwapStatus statuses = 3;
@@ -695,7 +695,7 @@ export type ListReferredQuickSwapsRequest = Message<"swap.quickswap.v1.ListRefer
   statuses: QuickSwapStatus[];
 
   /**
-   * Maximum number of Quick Swaps to return; 0 means 100, at most 200.
+   * Maximum number of QuickSwaps to return; 0 means 100, at most 200.
    *
    * @generated from field: uint32 limit = 4;
    */
@@ -704,7 +704,7 @@ export type ListReferredQuickSwapsRequest = Message<"swap.quickswap.v1.ListRefer
   /**
    * Opaque keyset cursor from a previous next_page_token, exclusive, bound
    * to the caller's partner record, the filters and the list order. It
-   * names only the swap_id of the previous page's last Quick Swap. Reuse it
+   * names only the swap_id of the previous page's last QuickSwap. Reuse it
    * with the same filters. Empty for the first page.
    *
    * @generated from field: string page_token = 5;
@@ -720,9 +720,9 @@ export const ListReferredQuickSwapsRequestSchema: GenMessage<ListReferredQuickSw
   messageDesc(file_swap_quickswap_v1_quickswap_referral, 16);
 
 /**
- * ListReferredQuickSwapsResponse lists Quick Swaps newest minute first.
+ * ListReferredQuickSwapsResponse lists QuickSwaps newest minute first.
  * Within a minute the order is fixed but does not follow creation time.
- * Every Quick Swap whose creation was complete when the first page was read
+ * Every QuickSwap whose creation was complete when the first page was read
  * is listed exactly once. One whose creation completed later may be missing
  * from later pages, even if its created_at is earlier than theirs.
  *
@@ -730,7 +730,7 @@ export const ListReferredQuickSwapsRequestSchema: GenMessage<ListReferredQuickSw
  */
 export type ListReferredQuickSwapsResponse = Message<"swap.quickswap.v1.ListReferredQuickSwapsResponse"> & {
   /**
-   * The Quick Swaps.
+   * The QuickSwaps.
    *
    * @generated from field: repeated swap.quickswap.v1.ReferredQuickSwap quick_swaps = 1;
    */
@@ -752,7 +752,7 @@ export const ListReferredQuickSwapsResponseSchema: GenMessage<ListReferredQuickS
   messageDesc(file_swap_quickswap_v1_quickswap_referral, 17);
 
 /**
- * GetReferredQuickSwapRequest reads one Quick Swap the caller referred.
+ * GetReferredQuickSwapRequest reads one QuickSwap the caller referred.
  *
  * @generated from message swap.quickswap.v1.GetReferredQuickSwapRequest
  */
@@ -773,14 +773,14 @@ export const GetReferredQuickSwapRequestSchema: GenMessage<GetReferredQuickSwapR
   messageDesc(file_swap_quickswap_v1_quickswap_referral, 18);
 
 /**
- * GetReferredQuickSwapResponse returns the Quick Swap with its fee
+ * GetReferredQuickSwapResponse returns the QuickSwap with its fee
  * breakdown, in progress or done.
  *
  * @generated from message swap.quickswap.v1.GetReferredQuickSwapResponse
  */
 export type GetReferredQuickSwapResponse = Message<"swap.quickswap.v1.GetReferredQuickSwapResponse"> & {
   /**
-   * The Quick Swap.
+   * The QuickSwap.
    *
    * @generated from field: swap.quickswap.v1.ReferredQuickSwap quick_swap = 1;
    */
@@ -824,15 +824,15 @@ export enum ReferralPartnerStatus {
   PARTNER_PENDING = 1,
 
   /**
-   * Approved: Quick Swaps made with the partner's code earn the commission.
+   * Approved: QuickSwaps made with the partner's code earn the commission.
    *
    * @generated from enum value: PARTNER_ACTIVE = 2;
    */
   PARTNER_ACTIVE = 2,
 
   /**
-   * Disabled by Polyester: new Quick Swaps with the code earn nothing and the
-   * code cannot be changed. Quick Swaps already created keep their terms.
+   * Disabled by Polyester: new QuickSwaps with the code earn nothing and the
+   * code cannot be changed. QuickSwaps already created keep their terms.
    *
    * @generated from enum value: PARTNER_DISABLED = 3;
    */
@@ -932,10 +932,10 @@ export const ReferralCommissionBasisSchema: GenEnum<ReferralCommissionBasis> = /
 
 /**
  * QuickSwapReferralService is a referral partner's own record, over
- * ConnectRPC. A referral partner shares a link with their code; Quick Swaps
- * made through it on Polyester's own Quick Swap app give the user a discount
+ * ConnectRPC. A referral partner shares a link with their code; QuickSwaps
+ * made through it on Polyester's own QuickSwap app give the user a discount
  * and pay the partner a commission, both out of the broker fee (see
- * ReferralProgram). Referrals never apply to Quick Swaps through other
+ * ReferralProgram). Referrals never apply to QuickSwaps through other
  * brokers or the API.
  *
  * Every RPC takes the caller's interactive session token and acts only on
@@ -945,11 +945,11 @@ export const ReferralCommissionBasisSchema: GenEnum<ReferralCommissionBasis> = /
  * EnrollReferralPartner.
  *
  * A partner's code can be changed while it is not disabled, up to 9 times.
- * The old code is retired and never given to anyone again; Quick Swaps
+ * The old code is retired and never given to anyone again; QuickSwaps
  * already referred keep their partner.
  *
- * A partner reads the Quick Swaps it referred with ListReferredQuickSwaps
- * and GetReferredQuickSwap, never another partner's or a Quick Swap without
+ * A partner reads the QuickSwaps it referred with ListReferredQuickSwaps
+ * and GetReferredQuickSwap, never another partner's or a QuickSwap without
  * its referral. They return no identity of the person who swapped and no
  * account, address, memo, transaction hash or flow ID; amounts are exact and
  * times are rounded down to the minute.
@@ -1026,9 +1026,10 @@ export const QuickSwapReferralService: GenService<{
     output: typeof SetReferralCodeResponseSchema;
   },
   /**
-   * ListReferredQuickSwaps lists the Quick Swaps the caller referred, newest
-   * first, filtered by status and creation time, with their rates and the
-   * commission credited so far.
+   * ListReferredQuickSwaps lists the QuickSwaps the caller referred.
+   *
+   * Newest first, filtered by status and creation time. Each QuickSwap
+   * carries its rates and the commission credited so far.
    *
    * Errors:
    * - NOT_FOUND: REFERRAL_PARTNER_NOT_FOUND.
@@ -1043,13 +1044,15 @@ export const QuickSwapReferralService: GenService<{
     output: typeof ListReferredQuickSwapsResponseSchema;
   },
   /**
-   * GetReferredQuickSwap returns one Quick Swap the caller referred, in
-   * progress or done, with the breakdown of its fee and the commission:
-   * rates, every credit and the commission's current US dollar value.
+   * GetReferredQuickSwap returns one QuickSwap the caller referred.
+   *
+   * The QuickSwap can be in progress or done. Its breakdown shows the fee
+   * and commission rates, every commission credit and the commission's
+   * current US dollar value.
    *
    * Errors:
-   * - NOT_FOUND: REFERRAL_PARTNER_NOT_FOUND, or SWAP_NOT_FOUND for a Quick
-   *   Swap the caller did not refer.
+   * - NOT_FOUND: REFERRAL_PARTNER_NOT_FOUND, or SWAP_NOT_FOUND for a
+   *   QuickSwap the caller did not refer.
    *
    * @generated from rpc swap.quickswap.v1.QuickSwapReferralService.GetReferredQuickSwap
    */

@@ -1416,7 +1416,8 @@ export enum ErrorCode {
   WALLET_NOT_FOUND = 9,
 
   /**
-   * Upstream dependency error (e.g., transfers store, wallet resolver).
+   * Ledger data needed to answer the request is temporarily unavailable.
+   * Retry later.
    *
    * @generated from enum value: ERROR_CODE_UPSTREAM_ERROR = 10;
    */

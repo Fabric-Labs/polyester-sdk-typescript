@@ -2,8 +2,8 @@
 // @generated from file orderbook/v1/orderbook.proto (package orderbook.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import { file_polyester_api_options } from "../../polyester/api/options_pb.js";
@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file orderbook/v1/orderbook.proto.
  */
 export const file_orderbook_v1_orderbook: GenFile = /*@__PURE__*/
-  fileDesc("ChxvcmRlcmJvb2svdjEvb3JkZXJib29rLnByb3RvEgxvcmRlcmJvb2sudjEiUAoTR2V0T3JkZXJCb29rUmVxdWVzdBITCglzeW1ib2xfaWQYASABKA1CABIkCgVkZXB0aBgCIAEoDjITLm9yZGVyYm9vay52MS5EZXB0aEIAIjUKClByaWNlTGV2ZWwSEwoLcHJpY2VfdGlja3MYASABKAMSEgoKcXR5X3NjYWxlZBgCIAEoAyLGAQoUR2V0T3JkZXJCb29rUmVzcG9uc2USEQoJc3ltYm9sX2lkGAEgASgNEhAKCGJvb2tfc2VxGAIgASgEEiYKBGJpZHMYAyADKAsyGC5vcmRlcmJvb2sudjEuUHJpY2VMZXZlbBImCgRhc2tzGAQgAygLMhgub3JkZXJib29rLnYxLlByaWNlTGV2ZWwSJgoCdHMYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhEKCWF2YWlsYWJsZRgGIAEoCCLYAQoOT3JkZXJCb29rRGVsdGESEQoJc3ltYm9sX2lkGAEgASgNEhYKDmJvb2tfc2VxX3N0YXJ0GAIgASgEEhQKDGJvb2tfc2VxX2VuZBgDIAEoBBImCgRiaWRzGAQgAygLMhgub3JkZXJib29rLnYxLlByaWNlTGV2ZWwSJgoEYXNrcxgFIAMoCzIYLm9yZGVyYm9vay52MS5QcmljZUxldmVsEg0KBXJlc2V0GAYgASgIEiYKAnRzGAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCqfAQoFRGVwdGgSFQoRREVQVEhfVU5TUEVDSUZJRUQQABILCgdERVBUSF8xEAESCwoHREVQVEhfNRACEgwKCERFUFRIXzEwEAMSDAoIREVQVEhfMjAQBBIMCghERVBUSF81MBAFEg0KCURFUFRIXzEwMBAGEg0KCURFUFRIXzIwMBAHEg0KCURFUFRIXzUwMBAIEg4KCkRFUFRIXzEwMDAQCTJtChBPcmRlcmJvb2tTZXJ2aWNlElcKDEdldE9yZGVyQm9vaxIhLm9yZGVyYm9vay52MS5HZXRPcmRlckJvb2tSZXF1ZXN0GiIub3JkZXJib29rLnYxLkdldE9yZGVyQm9va1Jlc3BvbnNlIgAaAEJGWkRnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL29yZGVyYm9vay92MTtvcmRlcmJvb2t2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChxvcmRlcmJvb2svdjEvb3JkZXJib29rLnByb3RvEgxvcmRlcmJvb2sudjEiOQoTR2V0T3JkZXJCb29rUmVxdWVzdBITCglzeW1ib2xfaWQYASABKA1CABINCgVkZXB0aBgDIAEoDSI1CgpQcmljZUxldmVsEhMKC3ByaWNlX3RpY2tzGAEgASgDEhIKCnF0eV9zY2FsZWQYAiABKAMi7QEKFEdldE9yZGVyQm9va1Jlc3BvbnNlEhEKCXN5bWJvbF9pZBgBIAEoDRIQCghib29rX3NlcRgCIAEoBBImCgRiaWRzGAMgAygLMhgub3JkZXJib29rLnYxLlByaWNlTGV2ZWwSJgoEYXNrcxgEIAMoCzIYLm9yZGVyYm9vay52MS5QcmljZUxldmVsEiYKAnRzGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIRCglhdmFpbGFibGUYBiABKAgSEgoKYm9va19lcG9jaBgHIAEoBBIRCgltYXhfZGVwdGgYCCABKA0i2AEKDk9yZGVyQm9va0RlbHRhEhEKCXN5bWJvbF9pZBgBIAEoDRIWCg5ib29rX3NlcV9zdGFydBgCIAEoBBIUCgxib29rX3NlcV9lbmQYAyABKAQSJgoEYmlkcxgEIAMoCzIYLm9yZGVyYm9vay52MS5QcmljZUxldmVsEiYKBGFza3MYBSADKAsyGC5vcmRlcmJvb2sudjEuUHJpY2VMZXZlbBINCgVyZXNldBgGIAEoCBImCgJ0cxgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAybQoQT3JkZXJib29rU2VydmljZRJXCgxHZXRPcmRlckJvb2sSIS5vcmRlcmJvb2sudjEuR2V0T3JkZXJCb29rUmVxdWVzdBoiLm9yZGVyYm9vay52MS5HZXRPcmRlckJvb2tSZXNwb25zZSIAGgBCRlpEZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9vcmRlcmJvb2svdjE7b3JkZXJib29rdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * GetOrderBookRequest describes a ConnectRPC snapshot request.
@@ -29,11 +29,13 @@ export type GetOrderBookRequest = Message<"orderbook.v1.GetOrderBookRequest"> & 
   symbolId: number;
 
   /**
-   * Requested depth per side (number of price levels). Default is 50.
+   * Number of price levels per side, from 1 to the max_depth every response
+   * reports. 0 (unset) selects the default of 50. A depth above max_depth is
+   * rejected with INVALID_ARGUMENT, never truncated.
    *
-   * @generated from field: orderbook.v1.Depth depth = 2;
+   * @generated from field: uint32 depth = 3;
    */
-  depth: Depth;
+  depth: number;
 };
 
 /**
@@ -90,7 +92,8 @@ export type GetOrderBookResponse = Message<"orderbook.v1.GetOrderBookResponse"> 
   symbolId: number;
 
   /**
-   * Monotonic book sequence for this symbol.
+   * Book sequence of this snapshot within book_epoch. Monotonic within one
+   * epoch; compare it only with sequences of the same epoch.
    *
    * @generated from field: uint64 book_seq = 2;
    */
@@ -128,6 +131,24 @@ export type GetOrderBookResponse = Message<"orderbook.v1.GetOrderBookResponse"> 
    * @generated from field: bool available = 6;
    */
   available: boolean;
+
+  /**
+   * Epoch of book_seq. Order snapshots by (book_epoch, book_seq): a higher
+   * epoch is newer whatever its book_seq, and a new epoch may restart
+   * book_seq. Discard a snapshot whose epoch is older than the newest one
+   * seen for the symbol. 0 while available is false.
+   *
+   * @generated from field: uint64 book_epoch = 7;
+   */
+  bookEpoch: bigint;
+
+  /**
+   * Largest depth per side the service accepts, the upper bound of the
+   * request's depth. Set in every response, available or not.
+   *
+   * @generated from field: uint32 max_depth = 8;
+   */
+  maxDepth: number;
 };
 
 /**
@@ -223,95 +244,13 @@ export const OrderBookDeltaSchema: GenMessage<OrderBookDelta> = /*@__PURE__*/
   messageDesc(file_orderbook_v1_orderbook, 3);
 
 /**
- * Depth specifies the number of price levels per side.
- *
- * @generated from enum orderbook.v1.Depth
- */
-export enum Depth {
-  /**
-   * Default depth (50 levels per side).
-   *
-   * @generated from enum value: DEPTH_UNSPECIFIED = 0;
-   */
-  DEPTH_UNSPECIFIED = 0,
-
-  /**
-   * 1 level per side (top of book / best bid-ask).
-   *
-   * @generated from enum value: DEPTH_1 = 1;
-   */
-  DEPTH_1 = 1,
-
-  /**
-   * 5 levels per side.
-   *
-   * @generated from enum value: DEPTH_5 = 2;
-   */
-  DEPTH_5 = 2,
-
-  /**
-   * 10 levels per side.
-   *
-   * @generated from enum value: DEPTH_10 = 3;
-   */
-  DEPTH_10 = 3,
-
-  /**
-   * 20 levels per side.
-   *
-   * @generated from enum value: DEPTH_20 = 4;
-   */
-  DEPTH_20 = 4,
-
-  /**
-   * 50 levels per side.
-   *
-   * @generated from enum value: DEPTH_50 = 5;
-   */
-  DEPTH_50 = 5,
-
-  /**
-   * 100 levels per side.
-   *
-   * @generated from enum value: DEPTH_100 = 6;
-   */
-  DEPTH_100 = 6,
-
-  /**
-   * 200 levels per side.
-   *
-   * @generated from enum value: DEPTH_200 = 7;
-   */
-  DEPTH_200 = 7,
-
-  /**
-   * 500 levels per side.
-   *
-   * @generated from enum value: DEPTH_500 = 8;
-   */
-  DEPTH_500 = 8,
-
-  /**
-   * 1000 levels per side.
-   *
-   * @generated from enum value: DEPTH_1000 = 9;
-   */
-  DEPTH_1000 = 9,
-}
-
-/**
- * Describes the enum orderbook.v1.Depth.
- */
-export const DepthSchema: GenEnum<Depth> = /*@__PURE__*/
-  enumDesc(file_orderbook_v1_orderbook, 0);
-
-/**
  * @generated from service orderbook.v1.OrderbookService
  */
 export const OrderbookService: GenService<{
   /**
    * Retrieve a spot order book depth snapshot for a symbol.
-   * Supports selectable depth per side and returns best bid/ask levels.
+   * Supports a selectable depth per side, up to the max_depth each response
+   * reports, and returns best bid/ask levels.
    *
    * @generated from rpc orderbook.v1.OrderbookService.GetOrderBook
    */

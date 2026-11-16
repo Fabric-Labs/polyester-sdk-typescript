@@ -600,7 +600,15 @@ export type Order = Message<"orders.v1.Order"> & {
   feeTotal?: OrderFeeTotal | undefined;
 
   /**
-   * Limit price in quote units scaled by 1e9. Zero for MARKET orders.
+   * Price in quote units scaled by 1e9. For a LIMIT order, its limit price.
+   * For a MARKET order, whatever placed it, its protection price: the worst
+   * price it may fill at, a BUY at or below it and a SELL at or above it. It
+   * is the order's reference price moved by its maximum slippage, or by the
+   * pair's default market slippage for its side (200 basis points if none is
+   * configured), on the pair's tick grid. A stop-loss's, take-profit's or
+   * trailing stop's market order takes the price that fired it as its
+   * reference; a buy stop's is never above the protection price at its
+   * trigger price.
    *
    * @generated from field: int64 price_ticks = 15;
    */
@@ -664,8 +672,10 @@ export type Order = Message<"orders.v1.Order"> & {
   marketClientRefPriceTicks: bigint;
 
   /**
-   * Non-negative MARKET maximum absolute price delta in Q9 execution-price ticks
-   * (1 tick = 1e-9 quote units). Zero means no absolute cap is configured.
+   * MARKET maximum absolute price delta the order carries, in Q9
+   * execution-price ticks (1 tick = 1e-9 quote units). Positive when the order
+   * set this cap; zero when it did not, for example because it set
+   * market_max_slippage_bps instead.
    *
    * @generated from field: int64 market_max_slippage_ticks = 24;
    */
@@ -972,7 +982,8 @@ export type GetOpenOrdersRequest = Message<"orders.v1.GetOpenOrdersRequest"> & {
   subaccountId?: bigint | undefined;
 
   /**
-   * Optional filter by symbol_id values. Empty means all symbols.
+   * Optional filter by symbol_id values: at most 100 distinct positive IDs.
+   * Empty means all symbols.
    *
    * @generated from field: repeated uint32 symbol_id = 2;
    */
@@ -995,7 +1006,7 @@ export type GetOpenOrdersRequest = Message<"orders.v1.GetOpenOrdersRequest"> & {
   /**
    * Opaque keyset cursor from a previous response. The cursor is exclusive and
    * bound to the authenticated account, sub-account scope, filters, and sort
-   * order.
+   * order. At most 512 characters.
    *
    * @generated from field: string page_token = 11;
    */
@@ -1075,7 +1086,8 @@ export type GetOrderHistoryRequest = Message<"orders.v1.GetOrderHistoryRequest">
   subaccountId?: bigint | undefined;
 
   /**
-   * Optional filter by symbol_id values. Empty means all symbols.
+   * Optional filter by symbol_id values: at most 100 distinct positive IDs.
+   * Empty means all symbols.
    *
    * @generated from field: repeated uint32 symbol_id = 2;
    */
@@ -1104,7 +1116,8 @@ export type GetOrderHistoryRequest = Message<"orders.v1.GetOrderHistoryRequest">
 
   /**
    * Inclusive end of the time range, in nanoseconds since epoch (UTC).
-   * Omit for no upper bound; an explicit zero returns an empty page.
+   * Omit for no upper bound; an explicit zero returns an empty page. Any
+   * other value must not be earlier than start_ts_ns when both are set.
    *
    * @generated from field: optional uint64 end_ts_ns = 11;
    */
@@ -1120,7 +1133,7 @@ export type GetOrderHistoryRequest = Message<"orders.v1.GetOrderHistoryRequest">
   /**
    * Opaque keyset cursor from a previous response. The cursor is exclusive and
    * bound to the authenticated account, sub-account scope, filters, time range,
-   * and sort order.
+   * and sort order. At most 512 characters.
    *
    * @generated from field: string page_token = 13;
    */
@@ -1202,7 +1215,7 @@ export type GetUserTradesRequest = Message<"orders.v1.GetUserTradesRequest"> & {
   subaccountId?: bigint | undefined;
 
   /**
-   * Optional filter by symbol_id.
+   * Optional filter by symbol_id. Required with after_match_id.
    *
    * @generated from field: uint32 symbol_id = 2;
    */
@@ -1224,7 +1237,8 @@ export type GetUserTradesRequest = Message<"orders.v1.GetUserTradesRequest"> & {
 
   /**
    * Inclusive end of the time range, in nanoseconds since epoch (UTC).
-   * Omit for no upper bound; an explicit zero returns an empty page.
+   * Omit for no upper bound; an explicit zero returns an empty page. Any
+   * other value must not be earlier than start_ts_ns when both are set.
    *
    * @generated from field: optional uint64 end_ts_ns = 11;
    */
@@ -1240,7 +1254,7 @@ export type GetUserTradesRequest = Message<"orders.v1.GetUserTradesRequest"> & {
   /**
    * Opaque keyset cursor from a previous response. The cursor is exclusive and
    * bound to the authenticated account, sub-account scope, filters, time range,
-   * and sort order.
+   * and sort order. At most 512 characters.
    *
    * @generated from field: string page_token = 13;
    */
@@ -1250,6 +1264,7 @@ export type GetUserTradesRequest = Message<"orders.v1.GetUserTradesRequest"> & {
    * Return only durable fills whose per-symbol match ID is greater than this
    * value. Subscribe to the execution WebSocket before calling this method and
    * de-duplicate overlapping results by (symbol_id, match_id, order_id).
+   * Must be positive and requires symbol_id, because match IDs are per symbol.
    *
    * @generated from field: optional uint64 after_match_id = 14;
    */
@@ -1280,7 +1295,7 @@ export type GetUserTradesRequest = Message<"orders.v1.GetUserTradesRequest"> & {
   } | { case: undefined; value?: undefined };
 
   /**
-   * Inclusive generation ceiling; requires lineage_id.
+   * Positive inclusive generation ceiling; requires lineage_id.
    * Does not freeze an actively filling generation.
    *
    * @generated from field: optional uint32 through_generation = 17;
@@ -1370,6 +1385,8 @@ export type GetOrderRequest = Message<"orders.v1.GetOrderRequest"> & {
   } | {
     /**
      * Client order ID. When provided, server resolves latest matching order for the account.
+     * 1 to 36 ASCII characters using letters, digits, period, underscore,
+     * colon, slash, or hyphen.
      *
      * @generated from field: string client_order_id = 3;
      */
@@ -1409,6 +1426,7 @@ export type GetOrderRequest = Message<"orders.v1.GetOrderRequest"> & {
   /**
    * Execution cursor from this order's previous response. Use order_id rather
    * than a reused client_order_id to keep the requested generation stable.
+   * At most 512 characters.
    *
    * @generated from field: string page_token = 14;
    */

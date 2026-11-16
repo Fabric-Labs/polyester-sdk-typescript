@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
-import * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import { createTestCatalog } from "../../testing/catalog.js";
@@ -51,31 +50,14 @@ function testScales() {
 }
 
 describe("GetOrderbookInputSchema", () => {
-    it("defaults and rounds requested depths to public levels and private proto values", () => {
-        const cases = [
-            { input: { symbolId: 101 }, depth: 50, protoDepth: Proto.Depth.DEPTH_50 },
-            {
-                input: { symbolId: 101, depth: 1 },
-                depth: 1,
-                protoDepth: Proto.Depth.DEPTH_1,
-            },
-            {
-                input: { symbolId: 101, depth: 37 },
-                depth: 50,
-                protoDepth: Proto.Depth.DEPTH_50,
-            },
-            {
-                input: { symbolId: 101, depth: 750 },
-                depth: 500,
-                protoDepth: Proto.Depth.DEPTH_500,
-            },
-        ];
+    it("defaults depth to 50 and sends other depths as given", () => {
+        expect(v.parse(GetOrderbookInputSchema, { symbolId: 101 }).depth).toBe(50);
+        expect(v.parse(GetOrderbookInputSchema, { symbolId: 101, depth: 37 }).depth).toBe(37);
+        expect(v.parse(GetOrderbookInputSchema, { symbolId: 101, depth: 750 }).depth).toBe(750);
+    });
 
-        for (const testCase of cases) {
-            const parsed = v.parse(GetOrderbookInputSchema, testCase.input);
-            expect(parsed.depth).toBe(testCase.depth);
-            expect(parsed.protoDepth).toBe(testCase.protoDepth);
-        }
+    it.each([0, -1, 2.5, PROTOBUF_UINT32_MAX + 1])("rejects depth %s", (depth) => {
+        expect(() => v.parse(GetOrderbookInputSchema, { symbolId: 101, depth })).toThrow();
     });
 
     it("accepts the uint32 symbol ID ceiling and rejects invalid IDs", () => {
@@ -114,6 +96,8 @@ describe("OrderbookDataSchema", () => {
             symbolId: 101,
             depth: 50,
             bookSeq: 12n,
+            bookEpoch: 3n,
+            maxDepth: 1000,
             available: true,
             bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
             asks: [{ priceTicks: 100_250_000_000n, qtyScaled: 50_000_000n }],
@@ -123,6 +107,8 @@ describe("OrderbookDataSchema", () => {
             symbolId: 101,
             depth: 50,
             bookSeq: "12",
+            bookEpoch: "3",
+            maxDepth: 1000,
             bids: [{ price: "100", qty: "1" }],
             asks: [{ price: "100.25", qty: "0.5" }],
         });
@@ -136,6 +122,8 @@ describe("OrderbookDataSchema", () => {
                 symbolId: 101,
                 depth: 50,
                 bookSeq: 12n,
+                bookEpoch: 3n,
+                maxDepth: 1000,
                 available: true,
                 bids: [{ priceTicks: 100_000_000_000n }],
                 asks: [],

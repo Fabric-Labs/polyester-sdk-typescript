@@ -721,7 +721,8 @@ export enum ErrorCode {
   FUNDS_LOCK_CONFLICT = 21,
 
   /**
-   * The authoritative capital view is not ready or is stale.
+   * The account's available balance cannot be confirmed right now. Retry
+   * later.
    *
    * @generated from enum value: ERROR_CODE_CAPITAL_VIEW_UNAVAILABLE = 22;
    */

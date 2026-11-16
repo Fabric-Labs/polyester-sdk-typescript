@@ -557,9 +557,6 @@ export const HeatmapIntervalSchema: GenEnum<HeatmapInterval> = /*@__PURE__*/
 /**
  * HeatmapDepth controls top-N levels included per side in each heatmap bucket.
  *
- * Values intentionally mirror orderbook.v1.Depth for FE ergonomics, while
- * keeping this contract decoupled from orderbook service protos.
- *
  * @generated from enum marketdata.v1.HeatmapDepth
  */
 export enum HeatmapDepth {
