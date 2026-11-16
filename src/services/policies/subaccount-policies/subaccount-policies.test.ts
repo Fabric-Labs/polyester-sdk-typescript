@@ -1,4 +1,5 @@
 import * as Proto from "../../../gen/auth/v1/policies_pb.js";
+import { ValidationError } from "../../../shared/errors.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../../shared/request-options.js";
 import { realtimeClientStub, unaryTransport } from "../../../testing/service-harness.js";
 import { formatId } from "../../../utils/base58-id.js";
@@ -244,6 +245,37 @@ describe("SubaccountPoliciesService", () => {
                 maxOrderSize: "1.0000005",
             }),
         ).rejects.toThrow();
+    });
+
+    it("rejects a negative or fractional maxOpenOrders before sending", async () => {
+        const transport = unaryTransport({ policy: subaccountPolicy() });
+        const service = new SubaccountPoliciesService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+        );
+
+        for (const maxOpenOrders of [-1, 1.5]) {
+            await expect(
+                service.create({ name: "Bad", spotMarketScope: "all", maxOpenOrders }),
+            ).rejects.toBeInstanceOf(ValidationError);
+            await expect(
+                service.update({ policyId: formatId(11n), expectedRevision: "6", maxOpenOrders }),
+            ).rejects.toBeInstanceOf(ValidationError);
+        }
+        expect(transport.calls).toHaveLength(0);
+
+        // 0 and null keep meaning "no cap".
+        await service.update({
+            policyId: formatId(11n),
+            expectedRevision: "6",
+            maxOpenOrders: null,
+        });
+        expect(transport.lastCall()?.message).toMatchObject({
+            policy: { maxOpenOrders: 0 },
+            updateMask: { paths: ["max_open_orders"] },
+        });
+        await service.create({ name: "No cap", spotMarketScope: "all", maxOpenOrders: 0 });
+        expect(transport.lastCall()?.message).toMatchObject({ policy: { maxOpenOrders: 0 } });
     });
 
     it("subscribes to account policy channels and parses publications", () => {

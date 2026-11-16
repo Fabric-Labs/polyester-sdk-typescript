@@ -22,6 +22,7 @@ import {
 } from "../catalogs/types.js";
 import { PRICE_SCALE } from "../catalogs/readers.js";
 import { PROTOBUF_INT64_MAX } from "./wire-bounds.js";
+import { U128_MAX } from "../utils/u128.js";
 
 /** On-chain unified-asset amounts (`amountE18`) are always 18-decimal scaled. */
 export const E18_SCALE = 18;
@@ -163,10 +164,16 @@ export function quantityInputToE18(params: {
             `${field} asset quantityScale ${assetScale} exceeds E18 ledger scale`,
         );
     }
-    return (
+    const scaled =
         unboundedPositiveDecimalInputToScaled(field, params.quantity, assetScale) *
-        10n ** BigInt(E18_SCALE - assetScale)
-    );
+        10n ** BigInt(E18_SCALE - assetScale);
+    if (scaled > U128_MAX) {
+        throw new CatalogConversionError(
+            field,
+            `${field} exceeds the maximum supported value: ${params.quantity}`,
+        );
+    }
+    return scaled;
 }
 
 export interface ReadyGate {

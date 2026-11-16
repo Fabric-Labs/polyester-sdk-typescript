@@ -27,7 +27,6 @@ import {
 } from "../../../shared/schemas.js";
 import { tsObjToMs, tsObjToNsString } from "../../../utils/time.js";
 import { msToTimestamp } from "../../../utils/timestamp.js";
-import { toIntOrZero } from "../../../utils/numbers.js";
 import {
     QUOTE_NOTIONAL_SCALE,
     decimalInputToScaled,
@@ -181,7 +180,9 @@ const SubaccountPolicyPatchSchema = v.strictObject({
     spotMarketScope: v.optional(PolicyMarketScopeEnumSchema),
     actions: v.optional(v.array(SubaccountPolicyActionEnumSchema)),
     maxOrderSize: v.optional(v.nullable(MaxOrderSizeInputSchema)),
-    maxOpenOrders: v.optional(v.nullable(v.pipe(v.number(), v.maxValue(PROTOBUF_UINT32_MAX)))),
+    maxOpenOrders: v.optional(
+        v.nullable(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(PROTOBUF_UINT32_MAX))),
+    ),
     tradingHalted: v.optional(v.boolean()),
     policyLocked: v.optional(v.boolean()),
     reviewAt: v.optional(v.nullable(v.pipe(v.number(), v.integer(), v.minValue(0)))),
@@ -210,7 +211,7 @@ const SUBACCOUNT_POLICY_PATCH_FIELDS = defineProtoPatchFields<SubaccountPolicyPa
     },
     maxOpenOrders: {
         path: "max_open_orders",
-        encode: (value) => ({ maxOpenOrders: toIntOrZero(value) }),
+        encode: (value) => ({ maxOpenOrders: value ?? 0 }),
     },
     tradingHalted: {
         path: "trading_halted",

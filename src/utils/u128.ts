@@ -2,7 +2,7 @@
 
 const U64_BITS = 64n;
 const U64_MASK = (1n << U64_BITS) - 1n;
-const U128_MAX = (1n << 128n) - 1n;
+export const U128_MAX = (1n << 128n) - 1n;
 
 export type U128Value = {
     hi: bigint;

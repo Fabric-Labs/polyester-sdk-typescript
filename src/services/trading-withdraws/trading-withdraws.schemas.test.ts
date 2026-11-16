@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
+import { CatalogConversionError } from "../../catalogs/types.js";
 import { ConfigurationError } from "../../shared/errors.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import { formatId } from "../../utils/base58-id.js";
@@ -123,6 +124,21 @@ describe("CreateTradingWithdrawToFundingInputSchema", () => {
                 idempotencyKey: "withdraw-5",
             }),
         ).toThrow(/quantity supports at most 6 decimal places/);
+        // u128 max is 340282366920938463463.374607431768211455 at E18.
+        expect(() =>
+            v.parse(CreateTradingWithdrawToFundingInputSchema, {
+                assetId: 1,
+                quantity: "340282366920938463464",
+                idempotencyKey: "withdraw-6",
+            }),
+        ).toThrow(CatalogConversionError);
+        expect(() =>
+            v.parse(CreateTradingWithdrawToFundingInputSchema, {
+                assetId: 1,
+                quantity: "340282366920938463463",
+                idempotencyKey: "withdraw-7",
+            }),
+        ).not.toThrow();
         expect(() =>
             v.parse(CreateTradingWithdrawToFundingInputSchema, {
                 assetId: 1,

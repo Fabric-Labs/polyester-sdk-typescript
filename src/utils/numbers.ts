@@ -142,16 +142,6 @@ export function parseQtyScaled(raw: string, scale: number, fieldName: string): b
 }
 
 /**
- * Coerce optional UI number into non-negative integer.
- * @param value - The value to coerce.
- * @returns The coerced integer.
- */
-export function toIntOrZero(value?: number | null): number {
-    if (value == null || Number.isNaN(value)) return 0;
-    return Math.max(0, Math.trunc(value));
-}
-
-/**
  * Coerce optional UI percentage into non-negative basis points integer.
  * @param value - The value to coerce.
  * @returns The coerced integer.
