@@ -650,7 +650,7 @@ export enum AuthErrorCode {
   AUTH_MFA_LAST_FACTOR_REQUIRED = 39,
 
   /**
-   * An unexpected internal failure prevented the auth mutation from completing.
+   * An unexpected server error stopped the request from completing.
    *
    * @generated from enum value: AUTH_INTERNAL_ERROR = 40;
    */

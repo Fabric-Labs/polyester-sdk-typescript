@@ -45,9 +45,9 @@ export type TriggerMarketIoc = Message<"triggers.v1.TriggerMarketIoc"> & {
     case: "maxSlippageTicks";
   } | {
     /**
-     * Maximum allowed slippage in basis points (1 bp = 0.01%). A sell child
-     * accepts values below 10000; a 100% cap would leave it no positive price
-     * to sell at.
+     * Maximum allowed slippage in basis points (1 bp = 0.01%), from 1 to 10000.
+     * A sell child accepts values below 10000; a 100% cap would leave it no
+     * positive price to sell at.
      *
      * @generated from field: int32 max_slippage_bps = 2;
      */
@@ -70,7 +70,7 @@ export const TriggerMarketIocSchema: GenMessage<TriggerMarketIoc> = /*@__PURE__*
  */
 export type TriggerLimitGtc = Message<"triggers.v1.TriggerLimitGtc"> & {
   /**
-   * Limit price in quote units scaled by 1e9.
+   * Positive limit price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */
@@ -98,7 +98,7 @@ export const TriggerLimitGtcSchema: GenMessage<TriggerLimitGtc> = /*@__PURE__*/
  */
 export type TriggerLimitIoc = Message<"triggers.v1.TriggerLimitIoc"> & {
   /**
-   * Limit price in quote units scaled by 1e9.
+   * Positive limit price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */
@@ -119,7 +119,7 @@ export const TriggerLimitIocSchema: GenMessage<TriggerLimitIoc> = /*@__PURE__*/
  */
 export type TriggerLimitFok = Message<"triggers.v1.TriggerLimitFok"> & {
   /**
-   * Limit price in quote units scaled by 1e9.
+   * Positive limit price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */
@@ -141,6 +141,8 @@ export const TriggerLimitFokSchema: GenMessage<TriggerLimitFok> = /*@__PURE__*/
  */
 export type ConditionalChildExecution = Message<"triggers.v1.ConditionalChildExecution"> & {
   /**
+   * Required child execution: exactly one variant.
+   *
    * @generated from oneof triggers.v1.ConditionalChildExecution.execution
    */
   execution: {
@@ -192,21 +194,21 @@ export const ConditionalChildExecutionSchema: GenMessage<ConditionalChildExecuti
  */
 export type ConditionalTrigger = Message<"triggers.v1.ConditionalTrigger"> & {
   /**
-   * Trigger threshold in quote units scaled by 1e9.
+   * Positive trigger threshold in quote units scaled by 1e9.
    *
    * @generated from field: int64 trigger_price_ticks = 1;
    */
   triggerPriceTicks: bigint;
 
   /**
-   * Child order side.
+   * Child order side. Required.
    *
    * @generated from field: orders.v1.Side side = 2;
    */
   side: Side;
 
   /**
-   * Child execution.
+   * Child execution. Required.
    *
    * @generated from field: triggers.v1.ConditionalChildExecution child = 3;
    */
@@ -247,13 +249,14 @@ export const ConditionalTriggerSchema: GenMessage<ConditionalTrigger> = /*@__PUR
  */
 export type TrailingStopTrigger = Message<"triggers.v1.TrailingStopTrigger"> & {
   /**
-   * Required trailing distance.
+   * Required trailing distance. A missing distance, or one out of range, is
+   * rejected with ERROR_CODE_TRAILING_DISTANCE_INVALID.
    *
    * @generated from oneof triggers.v1.TrailingStopTrigger.trailing_distance
    */
   trailingDistance: {
     /**
-     * Distance as a price delta in 1e-9 quote-unit ticks.
+     * Positive distance as a price delta in 1e-9 quote-unit ticks.
      *
      * @generated from field: int64 trailing_distance_ticks = 1;
      */
@@ -261,7 +264,7 @@ export type TrailingStopTrigger = Message<"triggers.v1.TrailingStopTrigger"> & {
     case: "trailingDistanceTicks";
   } | {
     /**
-     * Distance in basis points (1 bp = 0.01%).
+     * Distance in basis points (1 bp = 0.01%), from 1 to 10000.
      *
      * @generated from field: int32 trailing_distance_bps = 2;
      */
@@ -270,7 +273,7 @@ export type TrailingStopTrigger = Message<"triggers.v1.TrailingStopTrigger"> & {
   } | { case: undefined; value?: undefined };
 
   /**
-   * Optional activation price in quote units scaled by 1e9.
+   * Optional positive activation price in quote units scaled by 1e9.
    *
    * @generated from field: int64 activation_price_ticks = 3;
    */
@@ -293,9 +296,10 @@ export type TrailingStopTrigger = Message<"triggers.v1.TrailingStopTrigger"> & {
     case: "maxSlippageTicks";
   } | {
     /**
-     * Maximum slippage in basis points (1 bp = 0.01%). Values below 10000
-     * are accepted; a 100% cap would leave a trailing stop that sells no
-     * positive price to sell at.
+     * Maximum slippage in basis points (1 bp = 0.01%), from 1 to 9999 on
+     * either side. 10000 is rejected with ERROR_CODE_MAX_SLIPPAGE_INVALID,
+     * because a 100% cap would leave a trailing stop that sells no positive
+     * price to sell at.
      *
      * @generated from field: int32 max_slippage_bps = 5;
      */
@@ -304,19 +308,19 @@ export type TrailingStopTrigger = Message<"triggers.v1.TrailingStopTrigger"> & {
   } | { case: undefined; value?: undefined };
 
   /**
-   * Child order side.
+   * Child order side. Required.
    *
    * @generated from field: orders.v1.Side side = 6;
    */
   side: Side;
 
   /**
-   * Maximum price of a trailing stop that buys, in quote units scaled by 1e9:
-   * the most its child pays per unit. Required when `side` is BUY and set
-   * aside for it with the child's fee; at least the activation price, or at
-   * least the price it watches (trigger_price_source) when no activation price
-   * is set. A rise that fires above it still fires, and the child fills only
-   * at or below it. Must be unset when `side` is SELL. Fixed at create.
+   * Positive maximum price of a trailing stop that buys, in quote units scaled
+   * by 1e9: the most its child pays per unit. Required when `side` is BUY and
+   * set aside for it with the child's fee; at least the activation price, or
+   * at least the price it watches (trigger_price_source) when no activation
+   * price is set. A rise that fires above it still fires, and the child fills
+   * only at or below it. Must be unset when `side` is SELL. Fixed at create.
    *
    * @generated from field: int64 limit_price_ticks = 7;
    */
@@ -367,7 +371,9 @@ export type TwapMarketIoc = Message<"triggers.v1.TwapMarketIoc"> & {
     case: "maxSlippageTicks";
   } | {
     /**
-     * Maximum adverse price movement per slice in basis points (1 bp = 0.01%).
+     * Maximum adverse price movement per slice in basis points (1 bp = 0.01%),
+     * from 1 to 10000. A SELL TWAP accepts values below 10000; a 100% cap
+     * would leave a slice no positive price to sell at.
      *
      * @generated from field: int32 max_slippage_bps = 2;
      */
@@ -391,7 +397,7 @@ export const TwapMarketIocSchema: GenMessage<TwapMarketIoc> = /*@__PURE__*/
  */
 export type TwapLimitGtc = Message<"triggers.v1.TwapLimitGtc"> & {
   /**
-   * Slice limit price in quote units scaled by 1e9.
+   * Positive slice limit price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_ticks = 1;
    */
@@ -412,7 +418,7 @@ export const TwapLimitGtcSchema: GenMessage<TwapLimitGtc> = /*@__PURE__*/
  */
 export type TwapTrigger = Message<"triggers.v1.TwapTrigger"> & {
   /**
-   * Child side.
+   * Child side. Required.
    *
    * @generated from field: orders.v1.Side side = 1;
    */
@@ -434,7 +440,7 @@ export type TwapTrigger = Message<"triggers.v1.TwapTrigger"> & {
   sliceIntervalMs: bigint;
 
   /**
-   * Proven slice execution behavior.
+   * Proven slice execution behavior. Required: exactly one variant.
    *
    * @generated from oneof triggers.v1.TwapTrigger.execution
    */
@@ -472,28 +478,29 @@ export const TwapTriggerSchema: GenMessage<TwapTrigger> = /*@__PURE__*/
  */
 export type LadderTrigger = Message<"triggers.v1.LadderTrigger"> & {
   /**
-   * Child side.
+   * Child side. Required.
    *
    * @generated from field: orders.v1.Side side = 1;
    */
   side: Side;
 
   /**
-   * Minimum generated level price in quote units scaled by 1e9.
+   * Positive minimum generated level price in quote units scaled by 1e9.
    *
    * @generated from field: int64 price_min_ticks = 2;
    */
   priceMinTicks: bigint;
 
   /**
-   * Maximum generated level price in quote units scaled by 1e9.
+   * Maximum generated level price in quote units scaled by 1e9; must be
+   * greater than price_min_ticks.
    *
    * @generated from field: int64 price_max_ticks = 3;
    */
   priceMaxTicks: bigint;
 
   /**
-   * Number of linearly distributed levels.
+   * Number of linearly distributed levels, from 2 to 100.
    *
    * @generated from field: int32 levels = 4;
    */
@@ -528,14 +535,18 @@ export type TriggerIntent = Message<"triggers.v1.TriggerIntent"> & {
   symbolId: number;
 
   /**
-   * Total quantity scaled by the pair's base_quantity_scale.
+   * Positive total quantity scaled by the pair's base_quantity_scale.
    *
    * @generated from field: int64 qty_scaled = 2;
    */
   qtyScaled: bigint;
 
   /**
-   * Fee asset for BUY children. SELL children must use QUOTE.
+   * Asset charged for the children's fees, for every strategy. Defaults to
+   * QUOTE. A trigger whose children BUY may select BASE only on a pair whose
+   * allow_buy_fee_from_base is true in GetSpotConfig; a trigger whose
+   * children SELL must use QUOTE. Otherwise the create is refused with
+   * ERROR_CODE_FEE_ASSET_NOT_ALLOWED.
    *
    * @generated from field: orders.v1.FeeAsset fee_asset = 3;
    */
@@ -561,8 +572,9 @@ export type TriggerIntent = Message<"triggers.v1.TriggerIntent"> & {
    * client_trigger_id, instead of retrying the create. After a create fails
    * with INTERNAL_ERROR, the ID may already be used: a retry then returns
    * CONFLICT_DUPLICATE_CLIENT_TRIGGER_ID and needs a new client trigger ID.
-   * At most 36 bytes in UTF-8 (36 ASCII characters); longer IDs are rejected
-   * with INVALID_ARGUMENT.
+   * 1 to 36 bytes in UTF-8 (up to 36 ASCII characters); empty or longer IDs
+   * are rejected with INVALID_ARGUMENT and
+   * ERROR_CODE_CLIENT_TRIGGER_ID_INVALID.
    *
    * @generated from field: string client_trigger_id = 5;
    */
@@ -643,7 +655,7 @@ export type CreateTriggerRequest = Message<"triggers.v1.CreateTriggerRequest"> &
   subaccountId?: bigint | undefined;
 
   /**
-   * Trigger to admit.
+   * Trigger to admit. Required.
    *
    * @generated from field: triggers.v1.TriggerIntent trigger = 2;
    */
@@ -708,7 +720,7 @@ export const CreateTriggerResponseSchema: GenMessage<CreateTriggerResponse> = /*
  */
 export type OcoLeg = Message<"triggers.v1.OcoLeg"> & {
   /**
-   * Trigger price in quote units scaled by 1e9.
+   * Positive trigger price in quote units scaled by 1e9. Required.
    *
    * @generated from field: int64 trigger_price_ticks = 1;
    */
@@ -716,7 +728,7 @@ export type OcoLeg = Message<"triggers.v1.OcoLeg"> & {
 
   /**
    * The order the leg places when its trigger price is reached: a market
-   * order (IOC) or a resting limit order (GTC).
+   * order (IOC) or a resting limit order (GTC). Required.
    *
    * @generated from field: orders.v1.RiskExecution child = 2;
    */
@@ -770,15 +782,15 @@ export type OcoIntent = Message<"triggers.v1.OcoIntent"> & {
 
   /**
    * The side both legs trade: SELL protects a held base position, BUY spends
-   * held quote.
+   * held quote. Required.
    *
    * @generated from field: orders.v1.Side side = 2;
    */
   side: Side;
 
   /**
-   * Quantity both legs trade, scaled by the pair's base_quantity_scale; a
-   * multiple of the pair's quantity step.
+   * Positive quantity both legs trade, scaled by the pair's
+   * base_quantity_scale; a multiple of the pair's quantity step.
    *
    * @generated from field: int64 qty_scaled = 3;
    */
@@ -808,14 +820,14 @@ export type OcoIntent = Message<"triggers.v1.OcoIntent"> & {
 
   /**
    * The take-profit leg. Its trigger price must be above the stop-loss's for
-   * a SELL OCO and below it for a BUY OCO.
+   * a SELL OCO and below it for a BUY OCO. Required.
    *
    * @generated from field: triggers.v1.OcoLeg take_profit = 6;
    */
   takeProfit?: OcoLeg | undefined;
 
   /**
-   * The stop-loss leg.
+   * The stop-loss leg. Required.
    *
    * @generated from field: triggers.v1.OcoLeg stop_loss = 7;
    */
@@ -851,7 +863,7 @@ export type CreateOcoRequest = Message<"triggers.v1.CreateOcoRequest"> & {
   subaccountId?: bigint | undefined;
 
   /**
-   * OCO to admit.
+   * OCO to admit. Required.
    *
    * @generated from field: triggers.v1.OcoIntent oco = 2;
    */
@@ -1121,7 +1133,7 @@ export type ListTriggersRequest = Message<"triggers.v1.ListTriggersRequest"> & {
   /**
    * Opaque keyset cursor from a previous response. The cursor is exclusive and
    * bound to the authenticated account, sub-account scope, filters, and newest
-   * first sort order.
+   * first sort order. At most 512 characters.
    *
    * @generated from field: string page_token = 12;
    */
@@ -1204,7 +1216,7 @@ export type ListTriggerEventsRequest = Message<"triggers.v1.ListTriggerEventsReq
   /**
    * Opaque keyset cursor from a previous response. The cursor is exclusive and
    * bound to the authenticated account, trigger, sub-account scope, event
-   * filter, and newest-first sort order.
+   * filter, and newest-first sort order. At most 512 characters.
    *
    * @generated from field: string page_token = 5;
    */
@@ -1485,6 +1497,8 @@ export type BatchCancelTriggersRequest = Message<"triggers.v1.BatchCancelTrigger
    * trigger_ids within 2 minutes returns the original results and cancels
    * nothing again. The same request_id with other trigger_ids rejects every
    * item with ERROR_CODE_CONFLICT_IDEMPOTENCY_KEY_REUSE.
+   * 1 to 64 ASCII characters using letters, digits, period, underscore, colon,
+   * slash, or hyphen.
    *
    * @generated from field: string request_id = 2;
    */
@@ -1679,7 +1693,7 @@ export type ModifyTriggerRequest = Message<"triggers.v1.ModifyTriggerRequest"> &
   /**
    * Patch fields for safe price, trailing-distance, and slippage edits.
    * For stop/take-profit:
-   * Updated trigger price in quote units scaled by 1e9.
+   * Positive updated trigger price in quote units scaled by 1e9.
    *
    * @generated from field: optional int64 trigger_price_ticks = 10;
    */
@@ -1703,7 +1717,8 @@ export type ModifyTriggerRequest = Message<"triggers.v1.ModifyTriggerRequest"> &
    */
   trailingDistance: {
     /**
-     * Updated trailing distance as a price delta in 1e-9 quote-unit ticks.
+     * Positive updated trailing distance as a price delta in 1e-9 quote-unit
+     * ticks.
      *
      * @generated from field: int64 trailing_distance_ticks = 12;
      */
@@ -1711,7 +1726,8 @@ export type ModifyTriggerRequest = Message<"triggers.v1.ModifyTriggerRequest"> &
     case: "trailingDistanceTicks";
   } | {
     /**
-     * Updated trailing distance in basis points (1 bp = 0.01%).
+     * Updated trailing distance in basis points (1 bp = 0.01%), from 1 to
+     * 10000.
      *
      * @generated from field: int32 trailing_distance_bps = 13;
      */
