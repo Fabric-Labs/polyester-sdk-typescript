@@ -2,7 +2,11 @@ import { create, type MessageInitShape } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
-import { ResourceNotFoundError, ServiceUnavailableError } from "../../shared/errors.js";
+import {
+    ResourceNotFoundError,
+    ServiceUnavailableError,
+    ValidationError,
+} from "../../shared/errors.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import {
     realtimeClientStub,
@@ -300,6 +304,19 @@ describe("OrderbookService", () => {
         subscription.unsubscribe();
     });
 
+    it("refuses a managed depth above 500 before subscribing", () => {
+        const realtime = realtimeClientStub();
+        const service = new OrderbookService(
+            { publicApi: bookTransport({ symbolId: 101 }).transport },
+            realtime.realtime,
+            testScales(),
+        );
+        expect(() =>
+            service.createSubscription({ symbolId: 101, depth: 501, onEvent: () => {} }),
+        ).toThrow(ValidationError);
+        expect(realtime.params).toBeUndefined();
+    });
+
     it("uses the public delta channel, callbacks, and parsed publications for subscriptions", async () => {
         const realtime = realtimeClientStub();
         const transport = bookTransport({
@@ -321,7 +338,7 @@ describe("OrderbookService", () => {
 
         const subscription = service.createSubscription({
             symbolId: 101,
-            depth: 1000,
+            depth: 500,
             bucket: "0.01",
             onEvent,
             onOpen,
