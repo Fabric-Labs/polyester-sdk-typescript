@@ -52,6 +52,18 @@ function testScales() {
     );
 }
 
+type BookSnapshot = MessageInitShape<typeof Proto.GetOrderBookResponseSchema>;
+
+/** Serves snapshots as real messages, so fields the test omits read as proto defaults. */
+function bookTransport(response: BookSnapshot | ((call: unknown, index: number) => BookSnapshot)) {
+    return unaryTransport((call, index) =>
+        create(
+            Proto.GetOrderBookResponseSchema,
+            typeof response === "function" ? response(call, index) : response,
+        ),
+    );
+}
+
 async function flushMicrotasks(): Promise<void> {
     for (let i = 0; i < 10; i++) {
         await Promise.resolve();
@@ -65,7 +77,7 @@ describe("OrderbookService", () => {
     });
 
     it("reports a book that is being built as unavailable rather than empty", async () => {
-        const transport = unaryTransport({ symbolId: 101, bookSeq: 0n, bids: [], asks: [] });
+        const transport = bookTransport({ symbolId: 101, bookSeq: 0n, bids: [], asks: [] });
         const service = new OrderbookService(
             { publicApi: transport.transport },
             realtimeClientStub().realtime,
@@ -81,7 +93,7 @@ describe("OrderbookService", () => {
     });
 
     it("treats a snapshot carrying levels as available when the server omits the flag", async () => {
-        const transport = unaryTransport({
+        const transport = bookTransport({
             symbolId: 101,
             bookSeq: 3n,
             bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
@@ -95,11 +107,13 @@ describe("OrderbookService", () => {
         await expect(service.get({ symbolId: 101 })).resolves.toMatchObject({ available: true });
     });
 
-    it("normalizes get requests, forwards signals, and parses snapshots into decimals", async () => {
+    it("sends depth as given, forwards signals, and parses snapshots into decimals", async () => {
         const controller = new AbortController();
-        const transport = unaryTransport({
+        const transport = bookTransport({
             symbolId: 101,
             bookSeq: 12n,
+            bookEpoch: 3n,
+            maxDepth: 1000,
             available: true,
             bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
             asks: [{ priceTicks: 100_250_000_000n, qtyScaled: 50_000_000n }],
@@ -114,8 +128,10 @@ describe("OrderbookService", () => {
             service.get({ symbolId: 101, depth: 37 }, { signal: controller.signal }),
         ).resolves.toMatchObject({
             symbolId: 101,
-            depth: 50,
+            depth: 37,
             bookSeq: "12",
+            bookEpoch: "3",
+            maxDepth: 1000,
             bids: [
                 {
                     price: "100",
@@ -136,7 +152,7 @@ describe("OrderbookService", () => {
             signal: controller.signal,
             message: {
                 symbolId: 101,
-                depth: Proto.Depth.DEPTH_50,
+                depth: 37,
             },
         });
     });
@@ -207,7 +223,7 @@ describe("OrderbookService", () => {
         });
         const scales = { ...testScales(), ready: () => ready };
         const realtime = realtimeClientStub();
-        const transport = unaryTransport({
+        const transport = bookTransport({
             symbolId: 101,
             bookSeq: 1n,
             available: true,
@@ -275,6 +291,8 @@ describe("OrderbookService", () => {
             symbolId: 101,
             depth: 50,
             bookSeq: "0",
+            bookEpoch: "0",
+            maxDepth: 0,
             available: true,
             bids: [],
             asks: [],
@@ -284,7 +302,7 @@ describe("OrderbookService", () => {
 
     it("uses the public delta channel, callbacks, and parsed publications for subscriptions", async () => {
         const realtime = realtimeClientStub();
-        const transport = unaryTransport({
+        const transport = bookTransport({
             symbolId: 101,
             bookSeq: 1n,
             available: true,
@@ -328,7 +346,7 @@ describe("OrderbookService", () => {
         expect(captured).toMatchObject({
             message: {
                 symbolId: 101,
-                depth: Proto.Depth.DEPTH_500,
+                depth: 500,
             },
         });
         expect(onOpen).toHaveBeenCalledTimes(1);
@@ -384,7 +402,7 @@ describe("OrderbookService", () => {
 
     it("floors bid buckets and ceils ask buckets so aggregation cannot cross the book", async () => {
         const realtime = realtimeClientStub();
-        const transport = unaryTransport({
+        const transport = bookTransport({
             symbolId: 101,
             bookSeq: 1n,
             available: true,
@@ -417,7 +435,7 @@ describe("OrderbookService", () => {
 
     it("holds the book after a sequence gap until the next reset, without refetching", async () => {
         const realtime = realtimeClientStub();
-        const transport = unaryTransport({
+        const transport = bookTransport({
             symbolId: 101,
             bookSeq: 10n,
             available: true,
@@ -487,7 +505,7 @@ describe("OrderbookService", () => {
     it("retries a failed snapshot and replays deltas buffered during recovery", async () => {
         vi.useFakeTimers();
         const realtime = realtimeClientStub();
-        const transport = unaryTransport((_call, index) => {
+        const transport = bookTransport((_call, index) => {
             if (index === 0) throw new Error("snapshot unavailable");
             return { symbolId: 101, bookSeq: 10n, available: true, bids: [], asks: [] };
         });
@@ -534,7 +552,7 @@ describe("OrderbookService", () => {
     it("retries an unavailable snapshot instead of emitting an empty book", async () => {
         vi.useFakeTimers();
         const realtime = realtimeClientStub();
-        const transport = unaryTransport((_call, index) =>
+        const transport = bookTransport((_call, index) =>
             index === 0
                 ? { symbolId: 101, bookSeq: 0n, available: false, bids: [], asks: [] }
                 : {
@@ -578,9 +596,67 @@ describe("OrderbookService", () => {
         subscription.unsubscribe();
     });
 
+    it("discards a refetched snapshot from an older epoch and retries", async () => {
+        vi.useFakeTimers();
+        const realtime = realtimeClientStub();
+        const snapshots = [
+            { bookEpoch: 5n, bookSeq: 9n, price: 100_000_000_000n },
+            { bookEpoch: 4n, bookSeq: 50n, price: 90_000_000_000n },
+            { bookEpoch: 6n, bookSeq: 1n, price: 101_000_000_000n },
+        ];
+        const transport = bookTransport((_call, index) => {
+            const s = snapshots[index] ?? snapshots[2]!;
+            return {
+                symbolId: 101,
+                bookEpoch: s.bookEpoch,
+                bookSeq: s.bookSeq,
+                maxDepth: 1000,
+                available: true,
+                bids: [{ priceTicks: s.price, qtyScaled: 100_000_000n }],
+                asks: [],
+            };
+        });
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
+        const onEvent = vi.fn();
+        const onError = vi.fn();
+
+        const subscription = service.createSubscription({ symbolId: 101, onEvent, onError });
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+        expect(onEvent).toHaveBeenLastCalledWith(
+            expect.objectContaining({ bookEpoch: "5", bookSeq: "9", maxDepth: 1000 }),
+        );
+
+        realtime.params?.onDisconnected?.();
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+
+        expect(onEvent).toHaveBeenCalledOnce();
+        expect(onError).toHaveBeenLastCalledWith(
+            expect.objectContaining({ error: expect.any(ServiceUnavailableError) }),
+        );
+
+        await vi.advanceTimersByTimeAsync(1_000);
+        await flushMicrotasks();
+
+        expect(onEvent).toHaveBeenCalledTimes(2);
+        expect(onEvent).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                bookEpoch: "6",
+                bookSeq: "1",
+                bids: [expect.objectContaining({ price: "101" })],
+            }),
+        );
+        subscription.unsubscribe();
+    });
+
     it("ignores stale reset deltas without rewinding a newer snapshot", async () => {
         const realtime = realtimeClientStub();
-        const transport = unaryTransport({
+        const transport = bookTransport({
             symbolId: 101,
             bookSeq: 100n,
             available: true,
@@ -626,7 +702,7 @@ describe("OrderbookService", () => {
 
     it("routes emit failures for unknown symbol ids to the subscription error callback", async () => {
         const realtime = realtimeClientStub();
-        const transport = unaryTransport({
+        const transport = bookTransport({
             symbolId: 999,
             bookSeq: 1n,
             available: true,
@@ -662,7 +738,7 @@ describe("OrderbookService", () => {
 
     it("routes an unpublished depth to the smallest published channel depth", async () => {
         const realtime = realtimeClientStub();
-        const transport = unaryTransport({
+        const transport = bookTransport({
             symbolId: 101,
             bookSeq: 5n,
             available: true,
@@ -686,7 +762,7 @@ describe("OrderbookService", () => {
         expect(realtime.params?.channel).toBe("public:spot:orderbook:deltas:depth:20:101:proto");
         expect(transport.lastCall()?.message).toMatchObject({
             symbolId: 101,
-            depth: Proto.Depth.DEPTH_20,
+            depth: 20,
         });
         subscription.unsubscribe();
     });
@@ -697,7 +773,7 @@ describe("OrderbookService", () => {
             priceTicks: BigInt(100_000_000_000 - i * 100_000),
             qtyScaled: 1_000_000n,
         }));
-        const transport = unaryTransport({
+        const transport = bookTransport({
             symbolId: 101,
             bookSeq: 7n,
             available: true,
@@ -728,7 +804,7 @@ describe("OrderbookService", () => {
     it("uses the caller-provided symbol id for realtime routing", () => {
         const realtime = realtimeClientStub();
         const service = new OrderbookService(
-            { publicApi: unaryTransport({}).transport },
+            { publicApi: bookTransport({}).transport },
             realtime.realtime,
             testScales(),
         );
