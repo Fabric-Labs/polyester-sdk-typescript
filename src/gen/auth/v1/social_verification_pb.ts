@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file auth/v1/social_verification.proto.
  */
 export const file_auth_v1_social_verification: GenFile = /*@__PURE__*/
-  fileDesc("CiFhdXRoL3YxL3NvY2lhbF92ZXJpZmljYXRpb24ucHJvdG8SB2F1dGgudjEingQKElNvY2lhbFZlcmlmaWNhdGlvbhIKCgJpZBgMIAEoAxIpCghwcm92aWRlchgBIAEoDjIXLmF1dGgudjEuU29jaWFsUHJvdmlkZXISMQoGbWV0aG9kGAsgASgOMiEuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb25NZXRob2QSDgoGaGFuZGxlGAIgASgJEhgKEHByb3ZpZGVyX3VzZXJfaWQYAyABKAkSFAoMZGlzcGxheV9uYW1lGBEgASgJEhYKDmNoYWxsZW5nZV9jb2RlGA0gASgJEjEKBnN0YXR1cxgEIAEoDjIhLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uU3RhdHVzEjAKDHJlcXVlc3RlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKZXhwaXJlc19hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLdmVyaWZpZWRfYXQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCGF0dGVtcHRzGAkgASgFEhIKCmxhc3RfZXJyb3IYCiABKAkSKgoKZXJyb3JfY29kZRgQIAEoDjIWLmF1dGgudjEuQXV0aEVycm9yQ29kZRIuCgp1cGRhdGVkX2F0GA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCKWAQoeU3RhcnRTb2NpYWxWZXJpZmljYXRpb25SZXF1ZXN0EisKCHByb3ZpZGVyGAEgASgOMhcuYXV0aC52MS5Tb2NpYWxQcm92aWRlckIAEjMKBm1ldGhvZBgDIAEoDjIhLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uTWV0aG9kQgASEAoGaGFuZGxlGAIgASgJQgA6ACKwAQofU3RhcnRTb2NpYWxWZXJpZmljYXRpb25SZXNwb25zZRIWCg5jaGFsbGVuZ2VfY29kZRgBIAEoCRIuCgpleHBpcmVzX2F0GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIxCgx2ZXJpZmljYXRpb24YAyABKAsyGy5hdXRoLnYxLlNvY2lhbFZlcmlmaWNhdGlvbhISCgphY3Rpb25fdXJsGAQgASgJIk0KHlNvY2lhbFZlcmlmaWNhdGlvblJlYWR5UmVxdWVzdBIrCghwcm92aWRlchgBIAEoDjIXLmF1dGgudjEuU29jaWFsUHJvdmlkZXJCACJUCh9Tb2NpYWxWZXJpZmljYXRpb25SZWFkeVJlc3BvbnNlEjEKDHZlcmlmaWNhdGlvbhgBIAEoCzIbLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uIksKHEdldFNvY2lhbFZlcmlmaWNhdGlvblJlcXVlc3QSKwoIcHJvdmlkZXIYASABKA4yFy5hdXRoLnYxLlNvY2lhbFByb3ZpZGVyQgAiUgodR2V0U29jaWFsVmVyaWZpY2F0aW9uUmVzcG9uc2USMQoMdmVyaWZpY2F0aW9uGAEgASgLMhsuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb24ibQogQ29uZmlybVNvY2lhbFZlcmlmaWNhdGlvblJlcXVlc3QSKwoIcHJvdmlkZXIYASABKA4yFy5hdXRoLnYxLlNvY2lhbFByb3ZpZGVyQgASGgoQcHJvdmlkZXJfdXNlcl9pZBgCIAEoCUIAOgAiVgohQ29uZmlybVNvY2lhbFZlcmlmaWNhdGlvblJlc3BvbnNlEjEKDHZlcmlmaWNhdGlvbhgBIAEoCzIbLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uIksKGlVubGlua1NvY2lhbEFjY291bnRSZXF1ZXN0EisKCHByb3ZpZGVyGAEgASgOMhcuYXV0aC52MS5Tb2NpYWxQcm92aWRlckIAOgAiUAobVW5saW5rU29jaWFsQWNjb3VudFJlc3BvbnNlEjEKDHZlcmlmaWNhdGlvbhgBIAEoCzIbLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uKlIKDlNvY2lhbFByb3ZpZGVyEhgKFFBST1ZJREVSX1VOU1BFQ0lGSUVEEAASCwoHVFdJVFRFUhABEgsKB0RJU0NPUkQQAhIMCghURUxFR1JBTRADKvEBChhTb2NpYWxWZXJpZmljYXRpb25TdGF0dXMSFgoSU1RBVFVTX1VOU1BFQ0lGSUVEEAASHgoaU1RBVFVTX1BFTkRJTkdfVVNFUl9BQ1RJT04QARIRCg1TVEFUVVNfUVVFVUVEEAISFgoSU1RBVFVTX0lOX1BST0dSRVNTEAMSEwoPU1RBVFVTX1ZFUklGSUVEEAQSEQoNU1RBVFVTX0ZBSUxFRBAFEhIKDlNUQVRVU19FWFBJUkVEEAYSFAoQU1RBVFVTX0NBTkNFTExFRBAHEiAKHFNUQVRVU19BV0FJVElOR19DT05GSVJNQVRJT04QCCppChhTb2NpYWxWZXJpZmljYXRpb25NZXRob2QSFgoSTUVUSE9EX1VOU1BFQ0lGSUVEEAASEgoOTUVUSE9EX1BST0ZJTEUQARISCg5NRVRIT0RfQ0hBTk5FTBACEg0KCU1FVEhPRF9ETRADMsEEChlTb2NpYWxWZXJpZmljYXRpb25TZXJ2aWNlEm4KF1N0YXJ0U29jaWFsVmVyaWZpY2F0aW9uEicuYXV0aC52MS5TdGFydFNvY2lhbFZlcmlmaWNhdGlvblJlcXVlc3QaKC5hdXRoLnYxLlN0YXJ0U29jaWFsVmVyaWZpY2F0aW9uUmVzcG9uc2UiABJuChdTb2NpYWxWZXJpZmljYXRpb25SZWFkeRInLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uUmVhZHlSZXF1ZXN0GiguYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb25SZWFkeVJlc3BvbnNlIgASdAoZQ29uZmlybVNvY2lhbFZlcmlmaWNhdGlvbhIpLmF1dGgudjEuQ29uZmlybVNvY2lhbFZlcmlmaWNhdGlvblJlcXVlc3QaKi5hdXRoLnYxLkNvbmZpcm1Tb2NpYWxWZXJpZmljYXRpb25SZXNwb25zZSIAEmIKE1VubGlua1NvY2lhbEFjY291bnQSIy5hdXRoLnYxLlVubGlua1NvY2lhbEFjY291bnRSZXF1ZXN0GiQuYXV0aC52MS5VbmxpbmtTb2NpYWxBY2NvdW50UmVzcG9uc2UiABJoChVHZXRTb2NpYWxWZXJpZmljYXRpb24SJS5hdXRoLnYxLkdldFNvY2lhbFZlcmlmaWNhdGlvblJlcXVlc3QaJi5hdXRoLnYxLkdldFNvY2lhbFZlcmlmaWNhdGlvblJlc3BvbnNlIgAaAEI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2F1dGgvdjE7YXV0aHYxYgZwcm90bzM=", [file_auth_v1_auth, file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("CiFhdXRoL3YxL3NvY2lhbF92ZXJpZmljYXRpb24ucHJvdG8SB2F1dGgudjEizwQKElNvY2lhbFZlcmlmaWNhdGlvbhIKCgJpZBgMIAEoAxIpCghwcm92aWRlchgBIAEoDjIXLmF1dGgudjEuU29jaWFsUHJvdmlkZXISMQoGbWV0aG9kGAsgASgOMiEuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb25NZXRob2QSDgoGaGFuZGxlGAIgASgJEhgKEHByb3ZpZGVyX3VzZXJfaWQYAyABKAkSFAoMZGlzcGxheV9uYW1lGBEgASgJEhYKDmNoYWxsZW5nZV9jb2RlGA0gASgJEjEKBnN0YXR1cxgEIAEoDjIhLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uU3RhdHVzEjAKDHJlcXVlc3RlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKZXhwaXJlc19hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLdmVyaWZpZWRfYXQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCGF0dGVtcHRzGAkgASgFEhIKCmxhc3RfZXJyb3IYCiABKAkSKgoKZXJyb3JfY29kZRgQIAEoDjIWLmF1dGgudjEuQXV0aEVycm9yQ29kZRIuCgp1cGRhdGVkX2F0GA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgtyZXRyeV9hZnRlchgSIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAilgEKHlN0YXJ0U29jaWFsVmVyaWZpY2F0aW9uUmVxdWVzdBIrCghwcm92aWRlchgBIAEoDjIXLmF1dGgudjEuU29jaWFsUHJvdmlkZXJCABIzCgZtZXRob2QYAyABKA4yIS5hdXRoLnYxLlNvY2lhbFZlcmlmaWNhdGlvbk1ldGhvZEIAEhAKBmhhbmRsZRgCIAEoCUIAOgAisAEKH1N0YXJ0U29jaWFsVmVyaWZpY2F0aW9uUmVzcG9uc2USFgoOY2hhbGxlbmdlX2NvZGUYASABKAkSLgoKZXhwaXJlc19hdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMQoMdmVyaWZpY2F0aW9uGAMgASgLMhsuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb24SEgoKYWN0aW9uX3VybBgEIAEoCSJNCh5Tb2NpYWxWZXJpZmljYXRpb25SZWFkeVJlcXVlc3QSKwoIcHJvdmlkZXIYASABKA4yFy5hdXRoLnYxLlNvY2lhbFByb3ZpZGVyQgAiVAofU29jaWFsVmVyaWZpY2F0aW9uUmVhZHlSZXNwb25zZRIxCgx2ZXJpZmljYXRpb24YASABKAsyGy5hdXRoLnYxLlNvY2lhbFZlcmlmaWNhdGlvbiJLChxHZXRTb2NpYWxWZXJpZmljYXRpb25SZXF1ZXN0EisKCHByb3ZpZGVyGAEgASgOMhcuYXV0aC52MS5Tb2NpYWxQcm92aWRlckIAIlIKHUdldFNvY2lhbFZlcmlmaWNhdGlvblJlc3BvbnNlEjEKDHZlcmlmaWNhdGlvbhgBIAEoCzIbLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uIm0KIENvbmZpcm1Tb2NpYWxWZXJpZmljYXRpb25SZXF1ZXN0EisKCHByb3ZpZGVyGAEgASgOMhcuYXV0aC52MS5Tb2NpYWxQcm92aWRlckIAEhoKEHByb3ZpZGVyX3VzZXJfaWQYAiABKAlCADoAIlYKIUNvbmZpcm1Tb2NpYWxWZXJpZmljYXRpb25SZXNwb25zZRIxCgx2ZXJpZmljYXRpb24YASABKAsyGy5hdXRoLnYxLlNvY2lhbFZlcmlmaWNhdGlvbiJJChpVbmxpbmtTb2NpYWxBY2NvdW50UmVxdWVzdBIrCghwcm92aWRlchgBIAEoDjIXLmF1dGgudjEuU29jaWFsUHJvdmlkZXJCACJQChtVbmxpbmtTb2NpYWxBY2NvdW50UmVzcG9uc2USMQoMdmVyaWZpY2F0aW9uGAEgASgLMhsuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb24qUgoOU29jaWFsUHJvdmlkZXISGAoUUFJPVklERVJfVU5TUEVDSUZJRUQQABILCgdUV0lUVEVSEAESCwoHRElTQ09SRBACEgwKCFRFTEVHUkFNEAMq8QEKGFNvY2lhbFZlcmlmaWNhdGlvblN0YXR1cxIWChJTVEFUVVNfVU5TUEVDSUZJRUQQABIeChpTVEFUVVNfUEVORElOR19VU0VSX0FDVElPThABEhEKDVNUQVRVU19RVUVVRUQQAhIWChJTVEFUVVNfSU5fUFJPR1JFU1MQAxITCg9TVEFUVVNfVkVSSUZJRUQQBBIRCg1TVEFUVVNfRkFJTEVEEAUSEgoOU1RBVFVTX0VYUElSRUQQBhIUChBTVEFUVVNfQ0FOQ0VMTEVEEAcSIAocU1RBVFVTX0FXQUlUSU5HX0NPTkZJUk1BVElPThAIKmkKGFNvY2lhbFZlcmlmaWNhdGlvbk1ldGhvZBIWChJNRVRIT0RfVU5TUEVDSUZJRUQQABISCg5NRVRIT0RfUFJPRklMRRABEhIKDk1FVEhPRF9DSEFOTkVMEAISDQoJTUVUSE9EX0RNEAMywQQKGVNvY2lhbFZlcmlmaWNhdGlvblNlcnZpY2USbgoXU3RhcnRTb2NpYWxWZXJpZmljYXRpb24SJy5hdXRoLnYxLlN0YXJ0U29jaWFsVmVyaWZpY2F0aW9uUmVxdWVzdBooLmF1dGgudjEuU3RhcnRTb2NpYWxWZXJpZmljYXRpb25SZXNwb25zZSIAEm4KF1NvY2lhbFZlcmlmaWNhdGlvblJlYWR5EicuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb25SZWFkeVJlcXVlc3QaKC5hdXRoLnYxLlNvY2lhbFZlcmlmaWNhdGlvblJlYWR5UmVzcG9uc2UiABJ0ChlDb25maXJtU29jaWFsVmVyaWZpY2F0aW9uEikuYXV0aC52MS5Db25maXJtU29jaWFsVmVyaWZpY2F0aW9uUmVxdWVzdBoqLmF1dGgudjEuQ29uZmlybVNvY2lhbFZlcmlmaWNhdGlvblJlc3BvbnNlIgASYgoTVW5saW5rU29jaWFsQWNjb3VudBIjLmF1dGgudjEuVW5saW5rU29jaWFsQWNjb3VudFJlcXVlc3QaJC5hdXRoLnYxLlVubGlua1NvY2lhbEFjY291bnRSZXNwb25zZSIAEmgKFUdldFNvY2lhbFZlcmlmaWNhdGlvbhIlLmF1dGgudjEuR2V0U29jaWFsVmVyaWZpY2F0aW9uUmVxdWVzdBomLmF1dGgudjEuR2V0U29jaWFsVmVyaWZpY2F0aW9uUmVzcG9uc2UiABoAQjxaOmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vYXV0aC92MTthdXRodjFiBnByb3RvMw==", [file_auth_v1_auth, file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * SocialVerification describes the caller's current verification state for one
@@ -56,10 +56,12 @@ export type SocialVerification = Message<"auth.v1.SocialVerification"> & {
   handle: string;
 
   /**
-   * Stable provider-side user identifier. Empty until verification succeeds,
-   * except for Telegram: while the status is STATUS_AWAITING_CONFIRMATION, it is
-   * the numeric user ID of the Telegram account that submitted the code, the
-   * value ConfirmSocialVerification takes.
+   * Stable provider-side user identifier of the linked provider account. Empty
+   * while no account is linked. A restarted X/Twitter or Discord verification
+   * keeps the current link, and this value, until the new verification succeeds
+   * and replaces it. For Telegram, while the status is
+   * STATUS_AWAITING_CONFIRMATION, it is the numeric user ID of the Telegram
+   * account that submitted the code, the value ConfirmSocialVerification takes.
    *
    * @generated from field: string provider_user_id = 3;
    */
@@ -105,7 +107,9 @@ export type SocialVerification = Message<"auth.v1.SocialVerification"> & {
   expiresAt?: Timestamp | undefined;
 
   /**
-   * Time in UTC when verification succeeded. Empty until status is STATUS_VERIFIED.
+   * Time in UTC when the linked provider account was last verified. Empty while
+   * no account is linked; kept, like provider_user_id, while a restarted
+   * verification runs.
    *
    * @generated from field: google.protobuf.Timestamp verified_at = 7;
    */
@@ -140,6 +144,15 @@ export type SocialVerification = Message<"auth.v1.SocialVerification"> & {
    * @generated from field: google.protobuf.Timestamp updated_at = 15;
    */
   updatedAt?: Timestamp | undefined;
+
+  /**
+   * Time in UTC from which a new verification may succeed, when this one
+   * failed with error_code AUTH_SOCIAL_ACCOUNT_COOLDOWN or
+   * AUTH_SOCIAL_CHANGE_LIMIT_REACHED. Empty otherwise.
+   *
+   * @generated from field: google.protobuf.Timestamp retry_after = 18;
+   */
+  retryAfter?: Timestamp | undefined;
 };
 
 /**
@@ -151,7 +164,10 @@ export const SocialVerificationSchema: GenMessage<SocialVerification> = /*@__PUR
 
 /**
  * StartSocialVerificationRequest starts or restarts social account verification.
- * Starting again for the same provider replaces the previous challenge.
+ * Starting again for the same provider replaces the previous challenge. A linked
+ * X/Twitter or Discord account stays linked until the new verification
+ * succeeds; then the newly verified account replaces it, which counts as the
+ * provider's one change per 30 days.
  *
  * @generated from message auth.v1.StartSocialVerificationRequest
  */
@@ -387,7 +403,7 @@ export const ConfirmSocialVerificationResponseSchema: GenMessage<ConfirmSocialVe
  */
 export type UnlinkSocialAccountRequest = Message<"auth.v1.UnlinkSocialAccountRequest"> & {
   /**
-   * Provider account to unlink. Only TELEGRAM is accepted.
+   * Provider account to unlink.
    *
    * @generated from field: auth.v1.SocialProvider provider = 1;
    */
@@ -594,6 +610,17 @@ export const SocialVerificationService: GenService<{
    * For Telegram, open action_url to send the code to the Polyester bot, then
    * confirm the account with ConfirmSocialVerification.
    * AUTH_SOCIAL_VERIFICATION_INVALID_STATE for Telegram means a Telegram account is already linked; unlink it first.
+   * While an X/Twitter or Discord account is linked, starting again can change
+   * it, so the caller needs enrolled MFA and a fresh, single-use step-up proof
+   * in the X-Auth-Step-Up header: AUTH_MFA_NOT_ENROLLED means enroll MFA first;
+   * AUTH_STEP_UP_REQUIRED and AUTH_STEP_UP_PROOF_UNAVAILABLE mean complete a new
+   * fresh step-up and retry. AUTH_SOCIAL_CHANGE_LIMIT_REACHED means the account
+   * changed or unlinked that provider's account less than 30 days ago; the
+   * detail's retry_after says when it may again.
+   * The new verification fails with error_code AUTH_SOCIAL_ACCOUNT_COOLDOWN when
+   * the verified account was unlinked from another Polyester account less than
+   * 30 days ago, and AUTH_SOCIAL_CHANGE_LIMIT_REACHED when it would replace a
+   * link within 30 days of the last change; retry_after says when.
    *
    * @generated from rpc auth.v1.SocialVerificationService.StartSocialVerification
    */
@@ -637,9 +664,17 @@ export const SocialVerificationService: GenService<{
     output: typeof ConfirmSocialVerificationResponseSchema;
   },
   /**
-   * Unlink the caller's Telegram account, or cancel a Telegram link in progress.
-   * Unlinking again succeeds and changes nothing. To link again, start a new
-   * verification.
+   * Unlink the caller's X/Twitter, Discord or Telegram account, or cancel a link
+   * in progress. Unlinking again succeeds and changes nothing. To link again,
+   * start a new verification.
+   * Unlinking a linked X/Twitter or Discord account needs enrolled MFA and a
+   * fresh, single-use step-up proof in the X-Auth-Step-Up header
+   * (AUTH_MFA_NOT_ENROLLED, AUTH_STEP_UP_REQUIRED, AUTH_STEP_UP_PROOF_UNAVAILABLE
+   * as for StartSocialVerification), and counts as the provider's one change per
+   * 30 days: AUTH_SOCIAL_CHANGE_LIMIT_REACHED means the account changed or
+   * unlinked that provider's account less than 30 days ago, and the detail's
+   * retry_after says when it may again. For 30 days after it is unlinked, the
+   * account can be linked again only to this Polyester account.
    *
    * @generated from rpc auth.v1.SocialVerificationService.UnlinkSocialAccount
    */

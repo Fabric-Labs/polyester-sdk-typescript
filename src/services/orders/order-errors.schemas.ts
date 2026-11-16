@@ -26,6 +26,19 @@ export const OrderErrorDetailSchema = v.object({
     rateLimit: v.optional(RateLimitDetailSchema),
     /** Order holding the client order ID on a `CONFLICT_DUPLICATE_CLIENT_ORDER_ID` rejection, when known. */
     existingOrderId: OptionalPublicIdSchema,
+    /**
+     * With `LADDER_LEVEL_REJECTED`: the code the refused ladder order would return as a single
+     * order, such as `MAX_OPEN_ORDERS_PER_PAIR`. Absent for every other error.
+     */
+    causeCode: v.pipe(
+        v.optional(v.number(), 0),
+        v.transform((code) => (code ? orderErrorCodeName(code) : undefined)),
+    ),
+    /**
+     * With `LADDER_LEVEL_REJECTED`: the refused order's zero-based index among the ladder's
+     * levels (`0` is the first). Absent for every other error.
+     */
+    levelIndex: v.optional(v.number()),
 });
 
 export type OrderErrorDetail = v.InferOutput<typeof OrderErrorDetailSchema>;

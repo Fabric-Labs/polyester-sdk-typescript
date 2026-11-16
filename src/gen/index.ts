@@ -29,6 +29,7 @@ export * as checkpointsPb from "./checkpoints/v1/checkpoints_pb.js";
 export * as claimsPb from "./claims/v1/claims_pb.js";
 export * as feesPb from "./fees/v1/fees_pb.js";
 export * as ledgerReadPb from "./ledger/read/v1/ledger_read_pb.js";
+export * as statementExportPb from "./ledger/read/v1/statement_export_pb.js";
 export * as ledgerCatalogPb from "./ledger/v1/catalog_pb.js";
 export * as assetInfoPb from "./marketdata/v1/asset_info_pb.js";
 export * as heatmapPb from "./marketdata/v1/heatmap_pb.js";
@@ -50,6 +51,7 @@ export * as quickswapReferralPb from "./swap/quickswap/v1/quickswap_referral_pb.
 export * as swapPb from "./swap/v1/swap_pb.js";
 export * as systemPb from "./system/v1/system_pb.js";
 export * as tradeWsPb from "./tradews/v1/trade_ws_pb.js";
+export * as dustConversionPb from "./transfer/v1/dust_conversion_pb.js";
 export * as internalTransferPb from "./transfer/v1/internal_transfer_pb.js";
 export * as triggersPb from "./triggers/v1/triggers_pb.js";
 export * as vipPb from "./vip/v1/vip_pb.js";

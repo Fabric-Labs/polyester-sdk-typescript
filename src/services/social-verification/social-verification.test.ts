@@ -198,7 +198,7 @@ describe("SocialVerificationService", () => {
         expect(transport.calls[3]?.message).toEqual({ provider: Proto.SocialProvider.TELEGRAM });
     });
 
-    it("rejects confirm and unlink for non-Telegram providers or malformed user IDs", async () => {
+    it("rejects confirm for non-Telegram providers or malformed user IDs and unknown unlinks", async () => {
         const transport = unaryTransportSequence([]);
         const service = new SocialVerificationService({ authApi: transport.transport });
         for (const input of [
@@ -210,7 +210,7 @@ describe("SocialVerificationService", () => {
         ]) {
             await expect(service.confirm(input as never)).rejects.toThrow();
         }
-        await expect(service.unlink({ provider: "twitter" } as never)).rejects.toThrow();
+        await expect(service.unlink({ provider: "mastodon" } as never)).rejects.toThrow();
         expect(transport.calls).toHaveLength(0);
     });
 

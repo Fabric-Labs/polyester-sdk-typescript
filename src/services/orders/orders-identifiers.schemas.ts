@@ -1,7 +1,8 @@
 import * as v from "valibot";
 import { idInputSchema } from "../../shared/schemas.js";
 
-const OrderIdempotencyKeyPattern = /^[A-Za-z0-9._:/-]*$/;
+/** Characters a client order ID or client OCO ID may use. */
+export const OrderIdempotencyKeyPattern = /^[A-Za-z0-9._:/-]*$/;
 
 const ClientOrderIdWireInputSchema = v.pipe(
     v.string(),

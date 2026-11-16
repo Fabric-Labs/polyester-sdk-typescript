@@ -40,7 +40,10 @@ export class RateLimitService {
     }
 
     /**
-     * Returns the effective placement and cancellation limits for the resolved account target, including API-key-scoped rules when the caller authenticated with an API key.
+     * Returns the placement and cancellation limits enforced for the resolved account. Limits
+     * apply per account: every API key and session that trades for it shares them, so more API
+     * keys add no capacity. `apiKeyRules`, present for an API-key caller, are informational
+     * only; `rules` are the enforced limits.
      */
     async getTradingLimits(
         input: AccountScopedInput = {},

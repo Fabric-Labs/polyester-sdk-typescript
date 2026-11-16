@@ -1,4 +1,5 @@
 export type {
+    GetLifecycleAccountFlowInput,
     GetLifecycleFlowInput,
     GetLifecycleFlowOutput,
     LifecycleAssetIds,
@@ -19,6 +20,7 @@ export type {
     LifecycleTxLookupKind,
     LifecycleZipperReason,
     LifecycleZipperReasonCode,
+    ListLifecycleAccountFlowsInput,
     ListLifecycleFlowsByTxInput,
     ListLifecycleFlowsByTxOutput,
     ListLifecycleFlowsInput,

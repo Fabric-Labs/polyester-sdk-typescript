@@ -46,6 +46,8 @@ export const ACCOUNT_PERMISSION_POLICY_ACTION_LABELS = [
     "read-price-alerts",
     "manage-price-alerts",
     "read-statements",
+    "convert-dust",
+    "read-funding-flows",
 ] as const;
 
 export const POLICY_ACTION_LABELS = [
@@ -106,6 +108,8 @@ export const PolicyActionCodec = {
         [Proto.PolicyAction.READ_PRICE_ALERTS]: "read-price-alerts",
         [Proto.PolicyAction.MANAGE_PRICE_ALERTS]: "manage-price-alerts",
         [Proto.PolicyAction.READ_STATEMENTS]: "read-statements",
+        [Proto.PolicyAction.CONVERT_DUST]: "convert-dust",
+        [Proto.PolicyAction.READ_FUNDING_FLOWS]: "read-funding-flows",
     } satisfies ProtoToOutput<Proto.PolicyAction, PolicyActionLabel>,
     inputToProto: {
         "trade-spot": Proto.PolicyAction.TRADE_SPOT,
@@ -142,6 +146,8 @@ export const PolicyActionCodec = {
         "read-price-alerts": Proto.PolicyAction.READ_PRICE_ALERTS,
         "manage-price-alerts": Proto.PolicyAction.MANAGE_PRICE_ALERTS,
         "read-statements": Proto.PolicyAction.READ_STATEMENTS,
+        "convert-dust": Proto.PolicyAction.CONVERT_DUST,
+        "read-funding-flows": Proto.PolicyAction.READ_FUNDING_FLOWS,
     } satisfies Record<PolicyActionLabel, Proto.PolicyAction>,
 } as const;
 

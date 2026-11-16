@@ -33,6 +33,8 @@ import {
     type AssistantKey,
     type AssistantRunIdInput,
     type CompleteAssistantKeysInput,
+    ListAssistantKeysInputSchema,
+    type ListAssistantKeysInput,
     type DecideAssistantApprovalInput,
     type DeleteAssistantMemoryInput,
     type ListAssistantConversationsInput,
@@ -224,10 +226,18 @@ export class AssistantService {
 
     /**
      * Lists the keys the assistant holds, at most one per account. An account without one has
-     * no account tools. Revoke them with `apiKeys.deleteAssistantKeys`.
+     * no account tools. Pass `view: "full"` for each key's account name as `label`. Revoke them
+     * with `apiKeys.deleteAssistantKeys`.
      */
-    async listKeys(options?: PolyesterRequestOptions): Promise<AssistantKey[]> {
-        const response = await this.#client.listAssistantKeys({}, toConnectCallOptions(options));
+    async listKeys(
+        input: ListAssistantKeysInput = {},
+        options?: PolyesterRequestOptions,
+    ): Promise<AssistantKey[]> {
+        const request = parse(ListAssistantKeysInputSchema, input);
+        const response = await this.#client.listAssistantKeys(
+            removeUndefined(request),
+            toConnectCallOptions(options),
+        );
         return response.keys.map(formatAssistantKey);
     }
 

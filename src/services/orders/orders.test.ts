@@ -578,6 +578,7 @@ describe("OrdersService", () => {
             submittedCancels: 2,
             failedCancels: 0,
             ts: 1,
+            tsNs: "1000000",
             canceledOrders: [
                 { orderId: formatId(7n), clientOrderId: "client-7" },
                 { orderId: formatId(9n), clientOrderId: "" },

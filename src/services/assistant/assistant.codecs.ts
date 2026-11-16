@@ -49,6 +49,26 @@ export const ASSISTANT_DISPLAY_SETTING_VALUES = [
 ] as const;
 export type AssistantDisplaySetting = (typeof ASSISTANT_DISPLAY_SETTING_VALUES)[number];
 
+export const ASSISTANT_ACCOUNT_SELECTION_VALUES = ["none"] as const;
+/** `"none"`: the run reads no account and answers about the markets and Polyester only. */
+export type AssistantAccountSelection = (typeof ASSISTANT_ACCOUNT_SELECTION_VALUES)[number];
+
+export const AccountSelectionCodec = {
+    inputToProto: {
+        none: Proto.AccountSelection.NONE,
+    } satisfies InputToProto<AssistantAccountSelection, Proto.AccountSelection>,
+} as const;
+
+export const ASSISTANT_KEY_VIEW_VALUES = ["full"] as const;
+/** `"full"` adds each key's account name (`label`). */
+export type AssistantKeyView = (typeof ASSISTANT_KEY_VIEW_VALUES)[number];
+
+export const AssistantKeyViewCodec = {
+    inputToProto: {
+        full: Proto.AssistantKeyView.FULL,
+    } satisfies InputToProto<AssistantKeyView, Proto.AssistantKeyView>,
+} as const;
+
 export const DisplaySettingCodec = {
     inputToProto: {
         appearance: Proto.DisplaySetting.APPEARANCE,

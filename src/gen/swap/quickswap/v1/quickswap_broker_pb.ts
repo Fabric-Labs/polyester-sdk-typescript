@@ -2094,7 +2094,9 @@ export type PayoutStep = Message<"swap.quickswap.v1.PayoutStep"> & {
    * price_unavailable, rule_superseded, destination_not_whitelisted,
    * destination_cooling_down (the destination was added to the vault's
    * external withdraw whitelist less than 24 hours ago; the balance stays
-   * for a later run), destination_invalid, authority_revoked,
+   * for a later run), route_suspended (withdrawals to the destination's
+   * network were suspended; the balance stays for a later run),
+   * destination_invalid, authority_revoked,
    * withdrawal_refused,
    * gateway_capacity_insufficient, withdrawal_released (the withdrawal was
    * released before it was sent; nothing left the vault) or
@@ -3982,8 +3984,10 @@ export enum PayoutStatus {
    * reason is nothing_to_pay (no asset reached its minimum), below_minimum
    * (an amount was below the least a withdrawal on its network pays),
    * price_unavailable (the rule has a USD minimum and no current price
-   * valued an asset) or destination_cooling_down (the destination was added
-   * to the vault's external withdraw whitelist less than 24 hours ago). Each
+   * valued an asset), destination_cooling_down (the destination was added
+   * to the vault's external withdraw whitelist less than 24 hours ago) or
+   * route_suspended (withdrawals to the destination's network were
+   * suspended). Each
    * step carries the balance evaluated, its value and the minimum it was
    * held to.
    *
@@ -4461,11 +4465,15 @@ export const QuickSwapBrokerService: GenService<{
   },
   /**
    * RespondToInvite accepts or declines a pending invite addressed to the
-   * caller. Session token only; no step-up proof is needed.
+   * caller. Session token only; no step-up proof is needed. An invite is
+   * accepted only while the member who sent it may still grant its role.
+   * SetMemberRole, RemoveMember and TransferOwnership cancel the invites
+   * they take that from; accepting any other such invite cancels it.
    *
    * Errors:
    * - NOT_FOUND: INVITE_NOT_FOUND.
    * - ALREADY_EXISTS: ALREADY_MEMBER.
+   * - FAILED_PRECONDITION: INVITE_VOID.
    *
    * @generated from rpc swap.quickswap.v1.QuickSwapBrokerService.RespondToInvite
    */
@@ -4492,6 +4500,7 @@ export const QuickSwapBrokerService: GenService<{
   /**
    * InviteMember invites a person with any role but OWNER; the person
    * accepts with their own login. Inviting again replaces the pending invite.
+   * The invite stays pending only while the caller may still grant its role.
    * Session token and step-up proof only.
    *
    * Errors:
@@ -4509,8 +4518,9 @@ export const QuickSwapBrokerService: GenService<{
   },
   /**
    * SetMemberRole changes a member's role to any role but OWNER. The Owner's
-   * role cannot be changed; transfer ownership instead. Session token and
-   * step-up proof only.
+   * role cannot be changed; transfer ownership instead. The member's pending
+   * invites that the new role may not grant are cancelled in the same
+   * change. Session token and step-up proof only.
    *
    * Errors:
    * - NOT_FOUND: BROKER_NOT_FOUND or MEMBER_NOT_FOUND.
@@ -4526,8 +4536,9 @@ export const QuickSwapBrokerService: GenService<{
   },
   /**
    * RemoveMember removes a member, ending their access immediately, or
-   * cancels the person's pending invite. The Owner cannot be removed. Session
-   * token and step-up proof only.
+   * cancels the person's pending invite. The Owner cannot be removed. A
+   * removed member's pending invites are cancelled in the same change.
+   * Session token and step-up proof only.
    *
    * Errors:
    * - NOT_FOUND: BROKER_NOT_FOUND or MEMBER_NOT_FOUND.
@@ -4543,8 +4554,9 @@ export const QuickSwapBrokerService: GenService<{
   },
   /**
    * TransferOwnership makes another member the Owner; the caller, the
-   * current Owner, becomes an Admin in the same change. Session token and
-   * step-up proof only.
+   * current Owner, becomes an Admin in the same change, and the caller's
+   * pending invites that an Admin may not grant (Finance) are cancelled.
+   * Session token and step-up proof only.
    *
    * Errors:
    * - NOT_FOUND: BROKER_NOT_FOUND or MEMBER_NOT_FOUND.

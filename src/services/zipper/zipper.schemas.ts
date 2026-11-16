@@ -71,7 +71,17 @@ const ZipperAssetChainVariantWireSchema = v.object({
     depositMinAmount: v.optional(v.string(), ""),
     withdrawMinAmount: v.optional(v.string(), ""),
     supplyQ: v.optional(v.bigint(), 0n),
+    /**
+     * Whether the route accepts new deposits. While `"suspended"`, do not send funds to a
+     * deposit address on it; wait until it is `"normal"`. `"unspecified"` means unknown.
+     */
     depositStatus: v.optional(enumLabelSchema(ZipperRouteStatusCodec.protoToOutput), 0),
+    /**
+     * Whether the route accepts new withdrawals; a new one is refused with `ROUTE_SUSPENDED`
+     * while `"suspended"`. A Trading withdrawal accepted earlier and not yet sent stays
+     * pending, funds held, until the route is `"normal"`; one already being sent may fail
+     * instead, returning its funds. `"unspecified"` means unknown, not suspended.
+     */
     withdrawalStatus: v.optional(enumLabelSchema(ZipperRouteStatusCodec.protoToOutput), 0),
 });
 

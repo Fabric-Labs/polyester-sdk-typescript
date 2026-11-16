@@ -7,7 +7,12 @@ import { unaryTransport } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import { InternalTransfersService } from "./internal-transfers.js";
-import { InternalTransferStatus } from "../../gen/transfer/v1/internal_transfer_pb.js";
+import {
+    ErrorCode,
+    InternalTransferBatchLegStatus,
+    InternalTransferBatchStatus,
+    InternalTransferStatus,
+} from "../../gen/transfer/v1/internal_transfer_pb.js";
 
 const usdc = {
     symbol: "USDC",
@@ -66,6 +71,7 @@ describe("InternalTransfersService", () => {
             requestId: "req-1",
             transferId: "transfer-1",
             acceptedAtUnixMs: 1_700_000_000_123,
+            acceptedAtNs: "1700000000123456789",
             assetId: 1,
             assetCode: "USDC",
             uAssetId: "u-usdc",
@@ -236,6 +242,126 @@ describe("InternalTransfersService", () => {
         );
 
         await expect(service.get(input as never)).rejects.toBeInstanceOf(ValidationError);
+        expect(transport.unary).not.toHaveBeenCalled();
+    });
+
+    it("batches legs with per-leg sources and decodes every leg outcome", async () => {
+        const transport = unaryTransport({
+            requestId: "batch-1",
+            status: InternalTransferBatchStatus.BATCH_SUBMITTED,
+            legs: [
+                {
+                    ...acceptedTransfer,
+                    legIndex: 0,
+                    status: InternalTransferBatchLegStatus.LEG_ACCEPTED,
+                },
+                {
+                    legIndex: 1,
+                    status: InternalTransferBatchLegStatus.LEG_PENDING,
+                    requestId: "req-2",
+                    transferId: "",
+                    flowId: "",
+                    acceptedAtTsNs: 0n,
+                    assetId: 1,
+                    assetCode: "USDC",
+                    errorCode: ErrorCode.DUST_BUSY,
+                    errorMessage: "busy",
+                },
+                {
+                    legIndex: 2,
+                    status: InternalTransferBatchLegStatus.LEG_REFUSED,
+                    assetId: 1,
+                    errorCode: 9_999,
+                },
+            ],
+        });
+        const service = new InternalTransfersService(
+            { authApi: transport.transport },
+            { getDefaultSubaccountId: () => formatId(11n) },
+            testScales(),
+        );
+
+        const result = await service.batchCreate(
+            {
+                legs: [
+                    {
+                        destination: { type: "account", accountId: formatId(22n) },
+                        assetId: 1,
+                        quantity: "1",
+                    },
+                    {
+                        account: "main",
+                        destination: { type: "subaccount", subaccountId: formatId(33n) },
+                        assetId: 1,
+                        quantity: "2",
+                    },
+                    {
+                        account: { subaccountId: formatId(44n) },
+                        destination: { type: "smartAccountAddress", address: "0xabc" },
+                        assetId: 1,
+                        quantity: "3",
+                    },
+                ],
+                idempotencyKey: " batch-key ",
+            },
+            { stepUpToken: "fresh-token" },
+        );
+
+        const captured = transport.lastCall();
+        expect(captured?.method.localName).toBe("batchCreateInternalTransfers");
+        expect(new Headers(captured?.headers).get(AUTH_STEP_UP_HEADER_NAME)).toBe("fresh-token");
+        expect(captured?.message).toMatchObject({
+            idempotencyKey: "batch-key",
+            legs: [
+                { subaccountId: 11n, destination: { case: "destinationAccountId", value: 22n } },
+                { subaccountId: 0n, destination: { case: "destinationSubaccountId", value: 33n } },
+                { subaccountId: 44n, destination: { case: "destinationSmartAccountAddress" } },
+            ],
+        });
+        expect(result).toMatchObject({ requestId: "batch-1", status: "submitted" });
+        expect(result.legs[0]).toMatchObject({
+            legIndex: 0,
+            status: "accepted",
+            transferId: "transfer-1",
+            flowId: "flow-1",
+            acceptedAtUnixMs: 1_700_000_000_123,
+            acceptedAtNs: "1700000000123456789",
+            quantity: "1.5",
+            errorCode: undefined,
+        });
+        expect(result.legs[1]).toMatchObject({
+            status: "pending",
+            requestId: "req-2",
+            transferId: undefined,
+            acceptedAtUnixMs: undefined,
+            quantity: undefined,
+            errorCode: "DUST_BUSY",
+            errorMessage: "busy",
+        });
+        expect(result.legs[2]).toMatchObject({ status: "refused", errorCode: "UNSPECIFIED" });
+    });
+
+    it.each([
+        { name: "no legs", legs: [] },
+        {
+            name: "more than 10 legs",
+            legs: Array.from({ length: 11 }, () => ({
+                destination: { type: "account", accountId: formatId(22n) },
+                assetId: 1,
+                quantity: "1",
+            })),
+        },
+    ])("rejects a batch with $name before calling the server", async ({ legs }) => {
+        const transport = unaryTransport({});
+        const service = new InternalTransfersService(
+            { authApi: transport.transport },
+            undefined,
+            testScales(),
+        );
+
+        await expect(
+            service.batchCreate({ legs: legs as never, idempotencyKey: "k" }),
+        ).rejects.toBeInstanceOf(ValidationError);
         expect(transport.unary).not.toHaveBeenCalled();
     });
 });

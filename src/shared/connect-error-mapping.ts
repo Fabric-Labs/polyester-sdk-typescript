@@ -260,6 +260,36 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
         );
     }
 
+    // Arrives as ResourceExhausted, which would otherwise map to a retryable RateLimitError;
+    // it clears only when one of the account's exports finishes.
+    if (detail?.service === "ledger" && detail.code === "STATEMENT_EXPORT_LIMIT_REACHED") {
+        return new PreconditionFailedError(
+            withFallback(
+                "The account already has the most statement exports queued or in progress. Wait for one to finish (statementExports.list shows their status), then create a new one.",
+            ),
+            options,
+        );
+    }
+
+    // Arrive as ResourceExhausted, but clear only after the account's 6 hour conversion window
+    // or the target's daily limit, not on a quick retry. DUST_BUSY stays a RateLimitError.
+    if (detail?.service === "internal_transfer" && detail.code === "DUST_WINDOW_ACTIVE") {
+        return new PreconditionFailedError(
+            withFallback(
+                "The account converted dust in the last 6 hours, or a conversion is still processing. Try again once 6 hours have passed since the last conversion.",
+            ),
+            options,
+        );
+    }
+    if (detail?.service === "internal_transfer" && detail.code === "DUST_DAILY_LIMIT") {
+        return new PreconditionFailedError(
+            withFallback(
+                "The target asset reached its daily dust conversion limit. Try again tomorrow or pick another target asset.",
+            ),
+            options,
+        );
+    }
+
     if (detail?.service === "auth" && detail.code === "AUTH_SUBACCOUNT_CHALLENGE_INVALID") {
         return new SubaccountChallengeInvalidError(
             withFallback("Subaccount challenge is expired, replaced, or invalid."),

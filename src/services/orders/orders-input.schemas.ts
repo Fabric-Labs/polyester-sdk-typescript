@@ -600,6 +600,7 @@ export const CancelAllOrdersResponseSchema = v.pipe(
         submittedCancels: o.submittedCancels,
         failedCancels: o.failedCancels,
         ts: tsNsToMs(o.tsNs),
+        tsNs: o.tsNs.toString(),
         canceledOrders: o.cancelledOrders,
         totalCanceled: o.totalCancelled,
         truncated: o.truncated,

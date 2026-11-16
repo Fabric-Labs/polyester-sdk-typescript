@@ -222,16 +222,20 @@ export type AssetChainVariant = Message<"chain.zipper.v1.AssetChainVariant"> & {
   supplyQ: bigint;
 
   /**
-   * Whether this route currently accepts new deposits. Funds sent to a
-   * deposit address while deposits are suspended are delayed, not lost: they
-   * can be processed only after deposits resume.
+   * Whether this route currently accepts new deposits. While it is
+   * SUSPENDED, do not send funds to a deposit address on this route; wait
+   * until it returns to NORMAL.
    *
    * @generated from field: chain.zipper.v1.RouteStatus deposit_status = 13;
    */
   depositStatus: RouteStatus;
 
   /**
-   * Whether this route currently accepts new withdrawals.
+   * Whether this route currently accepts new withdrawals. A Trading
+   * withdrawal accepted before the route became SUSPENDED and not yet sent
+   * stays pending, with its funds held, and is sent once the route returns
+   * to NORMAL. One already being sent when the suspension takes effect may
+   * fail instead; its funds then return to the account.
    *
    * @generated from field: chain.zipper.v1.RouteStatus withdrawal_status = 14;
    */
@@ -536,8 +540,8 @@ export enum RouteStatus {
   NORMAL = 1,
 
   /**
-   * The route does not accept new requests. Requests created before the
-   * suspension continue to process.
+   * The route does not accept new requests. Do not send funds on it until it
+   * returns to NORMAL.
    *
    * @generated from enum value: SUSPENDED = 2;
    */

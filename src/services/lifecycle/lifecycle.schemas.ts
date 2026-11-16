@@ -33,10 +33,12 @@ import {
     type ZipperReasonCodeValue,
     zipperReasonFromCode,
 } from "./lifecycle.codecs.js";
-import { idToBigInt } from "../../utils/base58-id.js";
 import { fromU128 } from "../../utils/u128.js";
 import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
-import { PublicIdSchema } from "../../shared/schemas.js";
+import {
+    AccountScopeInputEntries,
+    accountScopeToSubaccountId,
+} from "../../shared/account-scope.js";
 import { E18_SCALE, scaledToDecimalOutput } from "../../shared/decimal-surface.js";
 
 const FlowKindSchema = v.picklist(LIFECYCLE_FLOW_KIND_VALUES);
@@ -69,7 +71,6 @@ const ChainTxIdentifierSchema = v.pipe(
     v.transform(normalizeChainTxIdentifier),
 );
 
-const AccountSelectorIdSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
 const SmartAccountAddressSchema = v.pipe(
     v.string(),
     v.trim(),
@@ -77,39 +78,14 @@ const SmartAccountAddressSchema = v.pipe(
 );
 
 const LifecycleAccountSelectorInputSchema = v.pipe(
-    v.variant("kind", [
-        v.strictObject({
-            kind: v.literal("accountId"),
-            accountId: AccountSelectorIdSchema,
-        }),
-        v.strictObject({
-            kind: v.literal("ownerAccountId"),
-            ownerAccountId: AccountSelectorIdSchema,
-        }),
-        v.strictObject({
-            kind: v.literal("smartAccountAddress"),
-            smartAccountAddress: SmartAccountAddressSchema,
-        }),
-    ]),
-    v.transform((selector) => {
-        switch (selector.kind) {
-            case "accountId":
-                return {
-                    case: "ownerAccountId" as const,
-                    value: idToBigInt(selector.accountId, "accountId"),
-                };
-            case "ownerAccountId":
-                return {
-                    case: "ownerAccountId" as const,
-                    value: idToBigInt(selector.ownerAccountId, "ownerAccountId"),
-                };
-            case "smartAccountAddress":
-                return {
-                    case: "smartAccountAddress" as const,
-                    value: selector.smartAccountAddress,
-                };
-        }
+    v.strictObject({
+        kind: v.literal("smartAccountAddress"),
+        smartAccountAddress: SmartAccountAddressSchema,
     }),
+    v.transform((selector) => ({
+        case: "smartAccountAddress" as const,
+        value: selector.smartAccountAddress,
+    })),
 );
 
 const Uint32Schema = v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(maxUint32));
@@ -193,52 +169,60 @@ const LifecycleZipperReasonSchema = v.object({
     message: v.string(),
 });
 
+const LifecycleFlowFilterEntries = {
+    limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(500)), 100),
+    sort: v.pipe(
+        v.optional(v.picklist(LIFECYCLE_SORT_VALUES), "newest"),
+        v.transform((value) => LifecycleSortCodec.inputToProto[value]),
+    ),
+    flowKind: v.pipe(
+        v.optional(FlowKindSchema),
+        v.transform((v) =>
+            v ? LifecycleFlowKindCodec.inputToProto[v] : Proto.FlowKind.KIND_UNSPECIFIED,
+        ),
+    ),
+    flowState: v.pipe(
+        v.optional(FlowStateSchema),
+        v.transform((v) =>
+            v ? LifecycleFlowStateCodec.inputToProto[v] : Proto.FlowState.STATE_UNSPECIFIED,
+        ),
+    ),
+    txRef: v.optional(ChainTxIdentifierSchema),
+    scope: v.pipe(
+        v.optional(v.picklist(LIFECYCLE_LIST_SCOPE_VALUES), "all"),
+        v.transform((v) => LifecycleListScopeCodec.inputToProto[v ?? "all"]),
+    ),
+    polyesterChainIds: v.optional(v.array(Uint32Schema)),
+    zippedAssetIds: v.optional(v.array(Uint32Schema)),
+    unifiedAssetIds: v.optional(v.array(Uint32Schema)),
+    pageToken: v.optional(v.pipe(v.string(), v.trim()), ""),
+    orderBy: v.pipe(
+        v.optional(v.picklist(LIFECYCLE_LIST_ORDER_BY_VALUES), "last_activity"),
+        v.transform((value) => LifecycleListOrderByCodec.inputToProto[value]),
+    ),
+};
+
+const LifecycleFlowParticipationEntry = {
+    /**
+     * Narrows an account's list to the flows it owns (`"owner"`, the list before
+     * received transfers were added) or the transfers it receives (`"recipient"`).
+     * Omit for both.
+     */
+    participation: v.pipe(
+        v.optional(v.picklist(LIFECYCLE_FLOW_PARTICIPATION_VALUES)),
+        v.transform((value) =>
+            value
+                ? LifecycleFlowParticipationCodec.inputToProto[value]
+                : FlowParticipation.PARTICIPATION_UNSPECIFIED,
+        ),
+    ),
+};
+
 export const ListLifecycleFlowsInputSchema = v.pipe(
     v.strictObject({
-        limit: v.optional(v.pipe(v.number(), v.integer(), v.gtValue(0), v.maxValue(500)), 100),
-        sort: v.pipe(
-            v.optional(v.picklist(LIFECYCLE_SORT_VALUES), "newest"),
-            v.transform((value) => LifecycleSortCodec.inputToProto[value]),
-        ),
-        flowKind: v.pipe(
-            v.optional(FlowKindSchema),
-            v.transform((v) =>
-                v ? LifecycleFlowKindCodec.inputToProto[v] : Proto.FlowKind.KIND_UNSPECIFIED,
-            ),
-        ),
-        flowState: v.pipe(
-            v.optional(FlowStateSchema),
-            v.transform((v) =>
-                v ? LifecycleFlowStateCodec.inputToProto[v] : Proto.FlowState.STATE_UNSPECIFIED,
-            ),
-        ),
-        txRef: v.optional(ChainTxIdentifierSchema),
-        scope: v.pipe(
-            v.optional(v.picklist(LIFECYCLE_LIST_SCOPE_VALUES), "all"),
-            v.transform((v) => LifecycleListScopeCodec.inputToProto[v ?? "all"]),
-        ),
+        ...LifecycleFlowFilterEntries,
         accountSelector: v.optional(LifecycleAccountSelectorInputSchema),
-        /**
-         * Narrows an account's list to the flows it owns (`"owner"`, the list before
-         * received transfers were added) or the transfers it receives (`"recipient"`).
-         * Omit for both. Requires `accountSelector`.
-         */
-        participation: v.pipe(
-            v.optional(v.picklist(LIFECYCLE_FLOW_PARTICIPATION_VALUES)),
-            v.transform((value) =>
-                value
-                    ? LifecycleFlowParticipationCodec.inputToProto[value]
-                    : FlowParticipation.PARTICIPATION_UNSPECIFIED,
-            ),
-        ),
-        polyesterChainIds: v.optional(v.array(Uint32Schema)),
-        zippedAssetIds: v.optional(v.array(Uint32Schema)),
-        unifiedAssetIds: v.optional(v.array(Uint32Schema)),
-        pageToken: v.optional(v.pipe(v.string(), v.trim()), ""),
-        orderBy: v.pipe(
-            v.optional(v.picklist(LIFECYCLE_LIST_ORDER_BY_VALUES), "last_activity"),
-            v.transform((value) => LifecycleListOrderByCodec.inputToProto[value]),
-        ),
+        ...LifecycleFlowParticipationEntry,
     }),
     v.check(
         (value) =>
@@ -263,6 +247,33 @@ export const ListLifecycleFlowsInputSchema = v.pipe(
             orderBy: value.orderBy,
         };
     }),
+);
+
+/**
+ * Filters for the authenticated account's own flows. `account` picks the root account or a
+ * subaccount; a subaccount-scoped API key reads its bound subaccount when it is omitted.
+ */
+export const ListLifecycleAccountFlowsInputSchema = v.pipe(
+    v.strictObject({
+        ...AccountScopeInputEntries,
+        ...LifecycleFlowFilterEntries,
+        ...LifecycleFlowParticipationEntry,
+    }),
+    v.transform(({ account, ...value }) => ({
+        subaccountId: accountScopeToSubaccountId(account),
+        ...value,
+    })),
+);
+
+export const GetLifecycleAccountFlowInputSchema = v.pipe(
+    v.strictObject({
+        ...AccountScopeInputEntries,
+        flowId: v.pipe(v.string(), v.trim(), v.minLength(1, "flowId is required.")),
+    }),
+    v.transform(({ account, flowId }) => ({
+        subaccountId: accountScopeToSubaccountId(account),
+        flowId,
+    })),
 );
 
 export const LifecycleRequestFeeSchema = v.pipe(
@@ -381,7 +392,6 @@ export const LifecycleFlowSummaryProgressSchema = v.object({
 
 export const LifecycleFlowSummarySchema = v.pipe(
     v.object({
-        ownerAccountId: PublicIdSchema,
         smartAccountAddress: v.string(),
         flowId: v.string(),
         flowKind: LifecycleFlowKindEnumSchema,
@@ -415,7 +425,8 @@ export const LifecycleFlowSummarySchema = v.pipe(
         /**
          * How the listed account takes part: `"owner"` for its own flows, including a
          * transfer it sent, `"recipient"` for a transfer another account sent it.
-         * `"unspecified"` outside an account-scoped `listFlows`.
+         * `"unspecified"` outside `listAccountFlows`, `getAccountFlow` and `listFlows` with an
+         * `accountSelector`.
          */
         participation: v.optional(
             LifecycleFlowParticipationEnumSchema,
@@ -458,7 +469,6 @@ export function createGetLifecycleFlowOutputSchema() {
 
 export const LifecycleFlowTxMatchSchema = v.pipe(
     v.object({
-        ownerAccountId: PublicIdSchema,
         smartAccountAddress: v.string(),
         flowId: v.string(),
         flowKind: LifecycleFlowKindEnumSchema,
@@ -498,6 +508,11 @@ export function createListLifecycleFlowsByTxOutputSchema() {
 
 export type ListLifecycleFlowsInput = v.InferInput<typeof ListLifecycleFlowsInputSchema>;
 export type ParsedListLifecycleFlowsInput = v.InferOutput<typeof ListLifecycleFlowsInputSchema>;
+
+export type ListLifecycleAccountFlowsInput = v.InferInput<
+    typeof ListLifecycleAccountFlowsInputSchema
+>;
+export type GetLifecycleAccountFlowInput = v.InferInput<typeof GetLifecycleAccountFlowInputSchema>;
 
 export type GetLifecycleFlowInput = v.InferInput<typeof GetLifecycleFlowInputSchema>;
 export type ParsedGetLifecycleFlowInput = v.InferOutput<typeof GetLifecycleFlowInputSchema>;

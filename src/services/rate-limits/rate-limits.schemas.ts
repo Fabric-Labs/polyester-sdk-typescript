@@ -41,6 +41,7 @@ export const GetTradingRateLimitsInputSchema = v.pipe(
 
 export const TradingRateLimitsSchema = v.object({
     ...RateLimitConfigSchema.entries,
+    /** Rules resolved for the calling API key; informational, not enforced. Only `rules` limit trading. */
     apiKeyRules: v.optional(v.array(TradingRateLimitRuleSchema), []),
 });
 

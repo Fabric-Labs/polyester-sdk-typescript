@@ -145,10 +145,12 @@ import {
 import type { PolyesterErrorDetail as ErrorsPolyesterErrorDetail } from "@polyester/sdk/errors";
 import { assistantService } from "@polyester/sdk/services/assistant";
 import { autoWithdrawService } from "@polyester/sdk/services/auto-withdraw";
+import { dustConversionService } from "@polyester/sdk/services/dust-conversion";
 import { notificationsService } from "@polyester/sdk/services/notifications";
 import { ordersService } from "@polyester/sdk/services/orders";
 import { priceAlertsService } from "@polyester/sdk/services/price-alerts";
 import { tradingRateLimitsService } from "@polyester/sdk/services/rate-limits";
+import { statementExportsService } from "@polyester/sdk/services/statement-exports";
 
 declare const client: PolyesterClient;
 declare const ladderDetails: LadderDetailsOutput;
@@ -351,7 +353,56 @@ async function verifyServiceInference(): Promise<void> {
         endTime: 86_400_000,
     } satisfies import("@polyester/sdk").ExportStatementInput);
     expectType<import("@polyester/sdk").StatementPage>(statementPage);
-    expectType<string>(await client.balances.exportStatementCsv({ startTime: 0, endTime: 1 }));
+    const dustBalances = await client.dustConversion.listBalances();
+    expectType<import("@polyester/sdk").ListDustBalancesResult>(dustBalances);
+    expectType<import("@polyester/sdk").DustAssetEligibility | "unspecified" | undefined>(
+        dustBalances.balances[0]?.eligibility,
+    );
+    expectType<string | null | undefined>(dustBalances.balances[0]?.usdValue);
+    const dustQuote = await client.dustConversion.quote({
+        targetAssetId: 1,
+    } satisfies import("@polyester/sdk").QuoteDustConversionInput);
+    expectType<import("@polyester/sdk").DustConversionQuote>(dustQuote);
+    expectNotAny(dustQuote, true);
+    const dustConversion = await client.dustConversion.create({
+        quoteId: dustQuote.quoteId,
+        idempotencyKey: "dust-1",
+    } satisfies import("@polyester/sdk").CreateDustConversionInput);
+    expectType<import("@polyester/sdk").DustConversion>(dustConversion);
+    expectType<import("@polyester/sdk").DustConversionState | "unspecified">(dustConversion.state);
+    expectType<import("@polyester/sdk").DustConversionRefusalCode | null>(
+        dustConversion.refusalCode,
+    );
+    expectType<import("@polyester/sdk").ListDustConversionsResult>(
+        await client.dustConversion.list({ limit: 20 }),
+    );
+    const statementExport = await client.statementExports.create({
+        startTime: 1,
+        endTime: 86_400_000,
+        idempotencyKey: "q1-2026",
+    } satisfies import("@polyester/sdk").CreateStatementExportInput);
+    expectType<import("@polyester/sdk").StatementExport>(statementExport);
+    expectNotAny(statementExport, true);
+    expectType<import("@polyester/sdk").StatementExportStatus | "unspecified">(
+        statementExport.status,
+    );
+    expectType<import("@polyester/sdk").StatementExportFailureReason | "unspecified">(
+        statementExport.failureReason,
+    );
+    expectType<string | null>(statementExport.subaccountId);
+    expectType<import("@polyester/sdk").StatementExport>(
+        await client.statementExports.get({
+            exportId: statementExport.exportId,
+        } satisfies import("@polyester/sdk").GetStatementExportInput),
+    );
+    expectType<import("@polyester/sdk").ListStatementExportsResult>(
+        await client.statementExports.list({
+            limit: 20,
+        } satisfies import("@polyester/sdk").ListStatementExportsInput),
+    );
+    const statement = await client.balances.exportStatementCsv({ startTime: 0, endTime: 1 });
+    expectType<import("@polyester/sdk").Statement>(statement);
+    expectType<number | undefined>(statementPage.completeThrough);
     expectType<import("@polyester/sdk").ZipperRouteStatus | undefined>(
         ({} as import("@polyester/sdk").ZipperAssetChainVariant).depositStatus,
     );
@@ -365,6 +416,7 @@ async function verifyServiceInference(): Promise<void> {
         expectNotAny(event, true);
     }
     expectType<import("@polyester/sdk").AssistantKey[]>(await client.assistant.listKeys());
+    expectType<string>((await client.assistant.listKeys({ view: "full" }))[0]!.label);
     expectType<import("@polyester/sdk").TelegramApprovalLimits>(
         await client.assistant.setTelegramApprovalLimits({
             dailyUsd: "1000",
@@ -599,6 +651,8 @@ async function verifyCoreServiceAccessors(): Promise<void> {
     expectType<typeof client.priceAlerts>(priceAlertsService(browserCore));
     expectType<typeof client.notifications>(notificationsService(browserCore));
     expectType<typeof client.assistant>(assistantService(browserCore));
+    expectType<typeof client.statementExports>(statementExportsService(browserCore));
+    expectType<typeof client.dustConversion>(dustConversionService(browserCore));
     expectType<import("@polyester/sdk").AuthState>(browserCore.auth.getState());
     expectType<boolean>(serverCore.hasDisplaySession);
     // @ts-expect-error Cores only expose services through their accessors.

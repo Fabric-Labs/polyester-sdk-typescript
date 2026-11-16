@@ -1627,20 +1627,23 @@ describe("OCO and batch cancel schemas", () => {
         expect(() => v.parse(ListTriggersInputSchema, { clientListId: "é".repeat(19) })).toThrow();
     });
 
-    it("sends a padded clientListId unchanged on create and on the list filter", () => {
-        const padded = "  py-82535  ";
-        expect(v.parse(ListTriggersInputSchema, { clientListId: padded }).clientListId).toBe(
-            padded,
-        );
-        const oco = v.parse(createCreateOcoInputSchema(testScales()), {
+    it("checks clientListId with the clientOrderId rule and sends it unchanged", () => {
+        const ocoInput = (clientListId: string) => ({
             symbolId: 1,
-            side: "buy",
+            side: "buy" as const,
             qty: "0.5",
-            clientListId: padded,
-            takeProfit: { triggerPrice: "90", execution: { type: "market_ioc" } },
-            stopLoss: { triggerPrice: "110", execution: { type: "market_ioc" } },
+            clientListId,
+            takeProfit: { triggerPrice: "90", execution: { type: "market_ioc" as const } },
+            stopLoss: { triggerPrice: "110", execution: { type: "market_ioc" as const } },
         });
-        expect(oco.oco.clientListId).toBe(padded);
+        const schema = createCreateOcoInputSchema(testScales());
+        const valid = "py.82535_a:b/c-d";
+        expect(v.parse(schema, ocoInput(valid)).oco.clientListId).toBe(valid);
+        expect(v.parse(ListTriggersInputSchema, { clientListId: valid }).clientListId).toBe(valid);
+        for (const invalid of ["  py-82535  ", "has space", "emoji-✓", "x".repeat(37)]) {
+            expect(() => v.parse(schema, ocoInput(invalid))).toThrow();
+            expect(() => v.parse(ListTriggersInputSchema, { clientListId: invalid })).toThrow();
+        }
     });
 
     it("exposes a leg's OCO IDs and the renamed quote-size failure reason", () => {

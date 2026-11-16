@@ -7,10 +7,18 @@ import {
     type PolyesterMutationOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
+import {
+    type SubaccountResolver,
+    resolveAccountScope,
+    resolveAccountScopedInput,
+} from "../subaccount-resolver.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import { parse } from "../../shared/validation.js";
 import {
+    BatchCreateInternalTransfersResultSchema,
+    createBatchCreateInternalTransfersInputSchema,
+    type BatchCreateInternalTransfersInput,
+    type BatchCreateInternalTransfersResult,
     createCreateInternalTransferInputSchema,
     createCreateInternalTransferResultSchema,
     type CreateInternalTransferInput,
@@ -30,6 +38,7 @@ export class InternalTransfersService {
     #scales: SdkScales;
     #inputSchema: ReturnType<typeof createCreateInternalTransferInputSchema>;
     #resultSchema: ReturnType<typeof createCreateInternalTransferResultSchema>;
+    #batchInputSchema: ReturnType<typeof createBatchCreateInternalTransfersInputSchema>;
 
     constructor(
         transports: AuthApiTransports,
@@ -41,6 +50,7 @@ export class InternalTransfersService {
         this.#scales = scales;
         this.#inputSchema = createCreateInternalTransferInputSchema(scales);
         this.#resultSchema = createCreateInternalTransferResultSchema();
+        this.#batchInputSchema = createBatchCreateInternalTransfersInputSchema(scales);
     }
 
     /**
@@ -61,9 +71,39 @@ export class InternalTransfersService {
     }
 
     /**
+     * Submits up to 10 transfers under one idempotency key and one MFA check. Every leg passes
+     * the same checks as `create` first; if one fails, the batch is `"refused"`: nothing moves,
+     * no step-up is used, the failing legs carry their `errorCode` and the rest are
+     * `"not_submitted"`. Otherwise the legs run in order and are not atomic: a leg can be
+     * `"refused"`, for example for insufficient balance, after earlier legs were accepted. Read
+     * each leg's `status`; a `"pending"` leg is like a timed-out `create`: read it with `get` by
+     * its `requestId`, or retry the batch with the same key and legs. Recent MFA covers the root
+     * owner moving funds between its own accounts or to allowlisted destinations; any other leg
+     * needs one fresh step-up for the whole batch.
+     */
+    async batchCreate(
+        input: BatchCreateInternalTransfersInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<BatchCreateInternalTransfersResult> {
+        await this.#scales.ready();
+        const legs = Array.isArray(input?.legs)
+            ? input.legs.map((leg) => ({
+                  ...leg,
+                  account: resolveAccountScope(leg?.account, this.#resolver),
+              }))
+            : input?.legs;
+        const request = parse(this.#batchInputSchema, { ...input, legs });
+        const res = await this.#client.batchCreateInternalTransfers(
+            request,
+            toConnectCallOptions(options),
+        );
+        return parse(BatchCreateInternalTransfersResultSchema, res);
+    }
+
+    /**
      * Reads an accepted transfer of the resolved source account by exactly one of `requestId` or
      * `transferId`, and returns both IDs, the lifecycle `flowId` and the acceptance time. Use it
-     * to reconcile a transfer without resubmitting it; pass `flowId` to `lifecycle.getFlow`,
+     * to reconcile a transfer without resubmitting it; pass `flowId` to `lifecycle.getAccountFlow`,
      * whose ledger settlement step carries the transfer ID. An unknown, pending or inaccessible
      * transfer is a `ResourceNotFoundError`, including briefly after a delegate is granted access.
      * Session JWT only; API keys are refused. Moves no money and needs no step-up.

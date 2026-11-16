@@ -697,6 +697,56 @@ describe("connectErrorToPolyesterError", () => {
         expect(detail()).not.toHaveProperty("existingOrderId");
     });
 
+    it("names the refused ladder order and its cause on LADDER_LEVEL_REJECTED", () => {
+        const detail = (init: {
+            code: OrderErrorCode;
+            causeCode?: OrderErrorCode;
+            levelIndex?: number;
+        }) =>
+            connectErrorToPolyesterError(
+                new ConnectError("ladder", Code.FailedPrecondition, undefined, [
+                    { desc: OrderErrorDetailSchema, value: create(OrderErrorDetailSchema, init) },
+                ]),
+            ).detail;
+
+        expect(
+            detail({
+                code: OrderErrorCode.LADDER_LEVEL_REJECTED,
+                causeCode: OrderErrorCode.MAX_OPEN_ORDERS_PER_PAIR,
+                levelIndex: 0,
+            }),
+        ).toMatchObject({
+            service: "orders",
+            code: "LADDER_LEVEL_REJECTED",
+            causeCode: "MAX_OPEN_ORDERS_PER_PAIR",
+            levelIndex: 0,
+        });
+        const other = detail({ code: OrderErrorCode.OVERLOADED });
+        expect(other?.service === "orders" && other.causeCode).toBeUndefined();
+        expect(other).not.toHaveProperty("levelIndex");
+    });
+
+    it("exposes when a social account change may be retried", () => {
+        const mapped = connectErrorToPolyesterError(
+            new ConnectError("cooldown", Code.FailedPrecondition, undefined, [
+                {
+                    desc: AuthErrorDetailSchema,
+                    value: create(AuthErrorDetailSchema, {
+                        code: AuthErrorCode.AUTH_SOCIAL_ACCOUNT_COOLDOWN,
+                        retryAfter: { seconds: 1_700_000_000n, nanos: 500_000_000 },
+                    }),
+                },
+            ]),
+        );
+
+        expect(mapped.detail).toEqual({
+            service: "auth",
+            code: "AUTH_SOCIAL_ACCOUNT_COOLDOWN",
+            message: "",
+            retryAfter: 1_700_000_000_500,
+        });
+    });
+
     it.each([
         OrderErrorCode.API_KEY_SPOT_TRADE_DENY,
         OrderErrorCode.API_KEY_POLICY_REQUIRED,

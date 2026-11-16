@@ -24,7 +24,16 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
 type NamedCode<Enum extends Record<number, string>> = keyof Enum;
 
 export type PolyesterErrorDetail =
-    | { service: "auth"; code: NamedCode<typeof AuthErrorCode>; message: string }
+    | {
+          service: "auth";
+          code: NamedCode<typeof AuthErrorCode>;
+          message: string;
+          /**
+           * Epoch ms from which the same request may succeed; with `AUTH_SOCIAL_ACCOUNT_COOLDOWN`
+           * and `AUTH_SOCIAL_CHANGE_LIMIT_REACHED`.
+           */
+          retryAfter?: number;
+      }
     | {
           service: "profile";
           code: NamedCode<typeof ProfileErrorCode>;

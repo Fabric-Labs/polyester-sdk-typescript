@@ -26,6 +26,8 @@ import { CheckpointService } from "./gen/checkpoints/v1/checkpoints_pb.js";
 import { ClaimsService } from "./gen/claims/v1/claims_pb.js";
 import { FeeService } from "./gen/fees/v1/fees_pb.js";
 import { LedgerReadService } from "./gen/ledger/read/v1/ledger_read_pb.js";
+import { DustConversionService } from "./gen/transfer/v1/dust_conversion_pb.js";
+import { StatementExportService } from "./gen/ledger/read/v1/statement_export_pb.js";
 import { HeatmapService } from "./gen/marketdata/v1/heatmap_pb.js";
 import { MarketDataService } from "./gen/marketdata/v1/marketdata_pb.js";
 import { MarketOverviewService } from "./gen/marketoverview/v1/marketoverview_pb.js";
@@ -60,6 +62,7 @@ export const WIRED_SERVICE_DESCRIPTORS: readonly DescService[] = [
     CheckpointService,
     ClaimsService,
     DepositAddressService,
+    DustConversionService,
     FeeService,
     GuardSignerService,
     HeatmapService,
@@ -80,6 +83,7 @@ export const WIRED_SERVICE_DESCRIPTORS: readonly DescService[] = [
     ResolveService,
     RewardCampaignService,
     SocialVerificationService,
+    StatementExportService,
     SubaccountRoleService,
     SubaccountService,
     SubaccountViewService,

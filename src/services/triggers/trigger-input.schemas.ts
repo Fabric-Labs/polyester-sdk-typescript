@@ -28,6 +28,7 @@ import { BpsStringOrNumberInputSchema, NoneInputSchema, SymbolIdInputSchema } fr
 import { TriggerPriceSourceInputSchema } from "../orders/order-enums.codecs.js";
 import { attachedTriggerInputSchema } from "../orders/orders-risk.schemas.js";
 import {
+    OrderIdempotencyKeyPattern,
     OrderRequestIdInputSchema,
     positiveOrderIdInputSchema,
 } from "../orders/orders-identifiers.schemas.js";
@@ -52,8 +53,14 @@ const TriggerStatusFilterSchema = v.picklist(TRIGGER_STATUS_FILTER_VALUES);
 const TriggerEventTypeSchema = v.picklist(TRIGGER_EVENT_TYPE_VALUES);
 // Trigger IDs are opaque public IDs, like order IDs.
 const TriggerIdInputSchema = positiveOrderIdInputSchema("triggerId");
-// Sent unchanged, like the other SDKs: the server matches it byte for byte, spaces included.
-const ClientListIdInputSchema = v.pipe(v.string(), v.minLength(1), v.maxBytes(36));
+// Same rule as clientOrderId, but sent unchanged like the other SDKs: outer spaces are refused,
+// not trimmed.
+const ClientListIdInputSchema = v.pipe(
+    v.string(),
+    v.minLength(1),
+    v.maxLength(36),
+    v.regex(OrderIdempotencyKeyPattern, "clientListId has an invalid format"),
+);
 
 const TriggerScopedInputEntries = {
     triggerId: TriggerIdInputSchema,
@@ -531,7 +538,8 @@ export function createCreateOcoInputSchema(scales: SdkScales) {
  * reserved `qty` of `side` and cancel each other. A sell protects held base, a buy spends held
  * quote. Each leg exits at market (`market_ioc`) or with a resting `limit_gtc`. The server
  * refuses `decrement` self-trade prevention on an OCO.
- * `clientListId` (1 to 36 bytes) is the idempotency key and is generated when omitted: pass your
+ * `clientListId` (1 to 36 letters, digits, `.`, `_`, `:`, `/` or `-`, like `clientOrderId`) is
+ * the idempotency key and is generated when omitted: pass your
  * own to find the legs with `list({ clientListId })` after an `OutcomeUnknownError`.
  */
 export type CreateOcoInput = v.InferInput<ReturnType<typeof createCreateOcoInputSchema>>;

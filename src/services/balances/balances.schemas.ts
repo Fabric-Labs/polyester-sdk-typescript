@@ -25,12 +25,6 @@ import { msToTimestamp } from "../../utils/timestamp.js";
 const EQUITY_SCALE = 4;
 
 /**
- * Balance history buckets use a fixed 7-decimal scale (proto: "balance in
- * asset units scaled by 1e7"), unlike live ledger balances which use E18.
- */
-const BALANCE_HISTORY_SCALE = 7;
-
-/**
  * AssetBalance u128 fields on the ledger wire are always 18-decimal scaled
  * (PolyesterChain base units), independent of per-asset quantityScale used
  * elsewhere for order quantities and transfer inputs.
@@ -177,12 +171,26 @@ export type ExportStatementInput = v.InferInput<typeof ExportStatementInputSchem
 export interface StatementPage {
     csv: string;
     nextPageToken: string;
+    /**
+     * The statement covers movements up to this time (epoch ms, exclusive): the earliest of
+     * `endTime`, the first page's request time and the time account history is complete
+     * through. Every page carries the same value. Before `endTime`, the statement is partial:
+     * the rest appears in a statement requested later.
+     */
+    completeThrough: number | undefined;
+}
+
+/** A whole account statement: every page's CSV and the time it is complete through. */
+export interface Statement {
+    csv: string;
+    completeThrough: number | undefined;
 }
 
 const BalanceSeriesSchema = v.object({
     assetId: v.number(),
     accountCode: v.number(),
-    balanceQ: v.array(v.bigint()),
+    /** One exact 18-decimal U128 balance per point, like live ledger balances. */
+    balance: v.array(U128Schema),
 });
 
 export function createBalanceHistoryResponseSchema() {
@@ -205,7 +213,7 @@ export function createBalanceHistoryResponseSchema() {
                 return {
                     assetId: s.assetId,
                     accountCode: enumLabel(AccountCodeCodec.protoToOutput, s.accountCode),
-                    balance: s.balanceQ.map((b) => scaledToDecimalOutput(b, BALANCE_HISTORY_SCALE)),
+                    balance: s.balance.map((b) => scaledToDecimalOutput(fromU128(b), E18_SCALE)),
                 };
             }),
         })),
@@ -421,12 +429,12 @@ const PortfolioAccountEquitySchema = v.pipe(
 const PortfolioAssetEquitySchema = v.pipe(
     v.object({
         assetId: v.number(),
-        balanceQ: v.bigint(),
+        balance: v.optional(U128Schema),
         equityQ: v.bigint(),
     }),
     v.transform((asset) => ({
         assetId: asset.assetId,
-        balance: scaledToDecimalOutput(asset.balanceQ, BALANCE_HISTORY_SCALE),
+        balance: scaledToDecimalOutput(fromU128(asset.balance), E18_SCALE),
         equity: scaledToDecimalOutput(asset.equityQ, EQUITY_SCALE),
     })),
 );

@@ -82,6 +82,7 @@ describe("ProfileService", () => {
                     website: "",
                     currentTermsAccepted: true,
                     vipTier: 99,
+                    twitter: "bob",
                     twitterVerified: true,
                 } as unknown as Parameters<ProfileService["update"]>[0],
                 { stepUpToken: " fresh-token " },

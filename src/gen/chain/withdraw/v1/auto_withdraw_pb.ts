@@ -511,9 +511,12 @@ export type AutoWithdrawStep = Message<"chain.withdraw.v1.AutoWithdrawStep"> & {
    * current price valued the asset; the funds stay for a later run),
    * rule_superseded, destination_not_whitelisted, destination_cooling_down
    * (a broker vault's destination added to its external withdraw whitelist
-   * less than 24 hours ago; the funds stay for a later run),
-   * authority_revoked, gateway_capacity_insufficient (the funds stay for a
-   * later run), withdrawal_released or withdrawal_failed; empty otherwise.
+   * less than 24 hours ago; the funds stay for a later run), route_suspended
+   * (withdrawals of the asset to the destination network are suspended, as
+   * its withdrawal_status SUSPENDED in the deposit and withdraw config shows;
+   * the funds stay for a later run), authority_revoked,
+   * gateway_capacity_insufficient (the funds stay for a later run),
+   * withdrawal_released or withdrawal_failed; empty otherwise.
    *
    * @generated from field: string reason = 7;
    */

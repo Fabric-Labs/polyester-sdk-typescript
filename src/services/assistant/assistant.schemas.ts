@@ -6,6 +6,10 @@ import { idInputSchema, optionalSubaccountIdInputSchema } from "../../shared/sch
 import { formatId } from "../../utils/base58-id.js";
 import { tsObjToMs } from "../../utils/time.js";
 import {
+    ASSISTANT_ACCOUNT_SELECTION_VALUES,
+    ASSISTANT_KEY_VIEW_VALUES,
+    AccountSelectionCodec,
+    AssistantKeyViewCodec,
     ASSISTANT_APPROVAL_DECISION_VALUES,
     ASSISTANT_DISPLAY_SETTING_VALUES,
     ApprovalDecisionCodec,
@@ -76,6 +80,15 @@ export const SendAssistantMessageInputSchema = v.pipe(
          * but places, changes and cancels nothing, and asks the user to pick a trading account.
          */
         subaccountId: optionalSubaccountIdInputSchema(),
+        /**
+         * `"none"` for a run that reads no account, such as when the user has given the
+         * assistant access to no account; `subaccountId` must then be omitted. Omit to read the
+         * `subaccountId` account or the main account. Covered by `idempotencyKey`.
+         */
+        accountSelection: v.pipe(
+            v.optional(v.picklist(ASSISTANT_ACCOUNT_SELECTION_VALUES)),
+            v.transform((value) => (value ? AccountSelectionCodec.inputToProto[value] : undefined)),
+        ),
         /** Places in the client the run may suggest, at most 100, each id once. */
         destinations: v.optional(
             v.pipe(
@@ -107,6 +120,10 @@ export const SendAssistantMessageInputSchema = v.pipe(
             ),
         ),
     }),
+    v.check(
+        (input) => input.accountSelection === undefined || input.subaccountId === undefined,
+        'Omit subaccountId when accountSelection is "none".',
+    ),
 );
 
 export type SendAssistantMessageInput = v.InferInput<typeof SendAssistantMessageInputSchema>;
@@ -242,8 +259,25 @@ export function formatAssistantKey(k: Proto.AssistantKey) {
         publicKeyEd25519: k.publicKeyEd25519,
         publicKeyHex: bytesToHex(k.publicKeyEd25519),
         state: enumLabel(AssistantKeyStateCodec.protoToOutput, k.state),
+        /**
+         * The subaccount's name; only from `listKeys({ view: "full" })`. Empty for the main
+         * account, an unnamed subaccount, or a name that could not be read.
+         */
+        label: k.label,
     };
 }
+
+export const ListAssistantKeysInputSchema = v.pipe(
+    v.strictObject({
+        /** `"full"` adds each key's account name as `label`. */
+        view: v.optional(v.picklist(ASSISTANT_KEY_VIEW_VALUES)),
+    }),
+    v.transform(({ view }) => ({
+        view: view ? AssistantKeyViewCodec.inputToProto[view] : undefined,
+    })),
+);
+
+export type ListAssistantKeysInput = v.InferInput<typeof ListAssistantKeysInputSchema>;
 
 export type AssistantKey = ReturnType<typeof formatAssistantKey>;
 

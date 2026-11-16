@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file chain/lifecycle/v1/lifecycle_read.proto.
  */
 export const file_chain_lifecycle_v1_lifecycle_read: GenFile = /*@__PURE__*/
-  fileDesc("CidjaGFpbi9saWZlY3ljbGUvdjEvbGlmZWN5Y2xlX3JlYWQucHJvdG8SEmNoYWluLmxpZmVjeWNsZS52MSJDCg9HZXRGbG93UmVzcG9uc2USMAoEZmxvdxgBIAEoCzIiLmNoYWluLmxpZmVjeWNsZS52MS5GbG93RGV0YWlsVmlldyInChJHZXRGbG93QnlJZFJlcXVlc3QSEQoHZmxvd19pZBgBIAEoCUIAIokBChRMaXN0Rmxvd3NCeVR4UmVxdWVzdBIRCgd0eF9oYXNoGAEgASgJQgASNwoLbG9va3VwX2tpbmQYAiABKA4yIC5jaGFpbi5saWZlY3ljbGUudjEuVHhMb29rdXBLaW5kQgASDwoFbGltaXQYAyABKA1CABIUCgpwYWdlX3Rva2VuGAQgASgJQgAisQQKEExpc3RGbG93c1JlcXVlc3QSDwoFbGltaXQYASABKA1CABIoCgRzb3J0GAIgASgOMhguY2hhaW4ubGlmZWN5Y2xlLnYxLlNvcnRCABIxCglmbG93X2tpbmQYAyABKA4yHC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd0tpbmRCABIzCgpmbG93X3N0YXRlGAQgASgOMh0uY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdGF0ZUIAEhAKBnR4X3JlZhgFIAEoCUIAEi4KBXNjb3BlGAYgASgOMh0uY2hhaW4ubGlmZWN5Y2xlLnYxLkxpc3RTY29wZUIAEhwKEG93bmVyX2FjY291bnRfaWQYByABKAZCAEgAEiEKFXNtYXJ0X2FjY291bnRfYWRkcmVzcxgIIAEoCUIASAASHQoTcG9seWVzdGVyX2NoYWluX2lkcxgJIAMoDUIAEhoKEHppcHBlZF9hc3NldF9pZHMYCiADKA1CABIbChF1bmlmaWVkX2Fzc2V0X2lkcxgLIAMoDUIAEhQKCnBhZ2VfdG9rZW4YDCABKAlCABIzCghvcmRlcl9ieRgNIAEoDjIfLmNoYWluLmxpZmVjeWNsZS52MS5MaXN0T3JkZXJCeUIAEj4KDXBhcnRpY2lwYXRpb24YDiABKA4yJS5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1BhcnRpY2lwYXRpb25CADoAQhIKEGFjY291bnRfc2VsZWN0b3IiYgoRTGlzdEZsb3dzUmVzcG9uc2USMgoFZmxvd3MYASADKAsyIy5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1N1bW1hcnlWaWV3EhkKD25leHRfcGFnZV90b2tlbhgCIAEoCUIAIvIFCg9GbG93VHhNYXRjaFZpZXcSDwoHZmxvd19pZBgBIAEoCRIvCglmbG93X2tpbmQYAyABKA4yHC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd0tpbmQSFgoOc291cmNlX3R4X2hhc2gYBCABKAkSFQoNbGF0ZXN0X3R4X3JlZhgFIAEoCRIbChN0eF9vY2N1cnJlbmNlX2luZGV4GAYgASgEEjUKDXNvdXJjZV9kb21haW4YByABKA4yHi5jaGFpbi5saWZlY3ljbGUudjEuRmxvd0RvbWFpbhI6ChJkZXN0aW5hdGlvbl9kb21haW4YCCABKA4yHi5jaGFpbi5saWZlY3ljbGUudjEuRmxvd0RvbWFpbhIyCgxjdXJyZW50X3N0ZXAYCSABKA4yHC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1N0ZXASDwoHaXNfb3BlbhgKIAEoCBITCgtpc190ZXJtaW5hbBgLIAEoCBIvCglhc3NldF9pZHMYDCABKAsyHC5jaGFpbi5saWZlY3ljbGUudjEuQXNzZXRJZHMSGgoScG9seWVzdGVyX2NoYWluX2lkGA0gASgNEisKCmFtb3VudF9lMTgYDiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EhYKDnNvdXJjZV9hZGRyZXNzGA8gASgJEhsKE2Rlc3RpbmF0aW9uX2FkZHJlc3MYECABKAkSPQoQbGlmZWN5Y2xlX3JlYXNvbhgRIAEoDjIjLmNoYWluLmxpZmVjeWNsZS52MS5MaWZlY3ljbGVSZWFzb24SIAoYbGFzdF9hY3Rpdml0eV9hdF91bml4X21zGBIgASgEEhgKEG93bmVyX2FjY291bnRfaWQYEyABKAYSHQoVc21hcnRfYWNjb3VudF9hZGRyZXNzGBQgASgJEjsKDXppcHBlcl9yZWFzb24YFSABKAsyJC5jaGFpbi56aXBwZXIudjEuWmlwcGVyUmVhc29uRGV0YWlscyJ5ChVMaXN0Rmxvd3NCeVR4UmVzcG9uc2USDwoHdHhfaGFzaBgBIAEoCRI0CgdtYXRjaGVzGAIgAygLMiMuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dUeE1hdGNoVmlldxIZCg9uZXh0X3BhZ2VfdG9rZW4YAyABKAlCACLnCQoPRmxvd1N1bW1hcnlWaWV3EhgKEG93bmVyX2FjY291bnRfaWQYASABKAYSHwoVc21hcnRfYWNjb3VudF9hZGRyZXNzGCIgASgJQgASDwoHZmxvd19pZBghIAEoCRIvCglmbG93X2tpbmQYBCABKA4yHC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd0tpbmQSMgoMY3VycmVudF9zdGVwGAYgASgOMhwuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdGVwEi8KCWFzc2V0X2lkcxgHIAEoCzIcLmNoYWluLmxpZmVjeWNsZS52MS5Bc3NldElkcxIaChJwb2x5ZXN0ZXJfY2hhaW5faWQYCCABKA0SKwoKYW1vdW50X2UxOBgJIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSMwoLcmVxdWVzdF9mZWUYHCABKAsyHi5jaGFpbi5saWZlY3ljbGUudjEuUmVxdWVzdEZlZRIWCg5zb3VyY2VfdHhfaGFzaBgLIAEoCRIbChN0eF9vY2N1cnJlbmNlX2luZGV4GCAgASgEEhYKDnNvdXJjZV9hZGRyZXNzGA0gASgJEhsKE2Rlc3RpbmF0aW9uX2FkZHJlc3MYDiABKAkSFQoNbGF0ZXN0X3R4X3JlZhgPIAEoCRI1Cg1zb3VyY2VfZG9tYWluGB0gASgOMh4uY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dEb21haW4SOgoSZGVzdGluYXRpb25fZG9tYWluGB4gASgOMh4uY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dEb21haW4SRAoXbGF0ZXN0X2xpZmVjeWNsZV9zb3VyY2UYECABKA4yIy5jaGFpbi5saWZlY3ljbGUudjEuTGlmZWN5Y2xlU291cmNlEj0KEGxpZmVjeWNsZV9yZWFzb24YESABKA4yIy5jaGFpbi5saWZlY3ljbGUudjEuTGlmZWN5Y2xlUmVhc29uEjsKDXppcHBlcl9yZWFzb24YIyABKAsyJC5jaGFpbi56aXBwZXIudjEuWmlwcGVyUmVhc29uRGV0YWlscxIaChJzdGFydGVkX2F0X3VuaXhfbXMYEiABKAQSGgoSdXBkYXRlZF9hdF91bml4X21zGBMgASgEEhsKE3Rlcm1pbmFsX2F0X3VuaXhfbXMYFCABKAQSIAoYbGFzdF9hY3Rpdml0eV9hdF91bml4X21zGBUgASgEEg8KB2lzX29wZW4YFiABKAgSEwoLaXNfdGVybWluYWwYFyABKAgSHQoVY3VycmVudF9zdGVwX3NlcXVlbmNlGBggASgNEkUKEGN1cnJlbnRfcHJvZ3Jlc3MYGSABKAsyKy5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1N1bW1hcnlQcm9ncmVzc1ZpZXcSQwoRcHJvZ3Jlc3NfdGltZWxpbmUYGiADKAsyKC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1RpbWVsaW5lSXRlbVZpZXcSJAocZXN0aW1hdGVkX2NvbXBsZXRpb25fdW5peF9tcxgbIAEoBBISCgppc19kZWxheWVkGCQgASgIEjwKDXBhcnRpY2lwYXRpb24YJSABKA4yJS5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1BhcnRpY2lwYXRpb24iqwIKF0Zsb3dTdW1tYXJ5UHJvZ3Jlc3NWaWV3EicKH2N1cnJlbnRfc3RlcF9zdGFydGVkX2F0X3VuaXhfbXMYASABKAQSKQohY3VycmVudF9zdGVwX2V4cGVjdGVkX2R1cmF0aW9uX21zGAIgASgEEh0KFWN1cnJlbnRfY29uZmlybWF0aW9ucxgFIAEoDRIeChZyZXF1aXJlZF9jb25maXJtYXRpb25zGAYgASgNEhUKDWFwcHJvdmVfY291bnQYByABKA0SFAoMcmVqZWN0X2NvdW50GAggASgNEhcKD3ZhbGlkYXRvcl9jb3VudBgJIAEoDRIaChJyZXF1aXJlZF9hcHByb3ZhbHMYCiABKA0SGwoTcmVxdWlyZWRfcmVqZWN0aW9ucxgLIAEoDSLGBgoMRmxvd1N0ZXBWaWV3EhAKCHNlcXVlbmNlGAEgASgNEioKBHN0ZXAYAyABKA4yHC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1N0ZXASLwoJYXNzZXRfaWRzGAcgASgLMhwuY2hhaW4ubGlmZWN5Y2xlLnYxLkFzc2V0SWRzEhoKEnBvbHllc3Rlcl9jaGFpbl9pZBgIIAEoDRIrCgphbW91bnRfZTE4GAkgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIzCgtyZXF1ZXN0X2ZlZRgYIAEoCzIeLmNoYWluLmxpZmVjeWNsZS52MS5SZXF1ZXN0RmVlEhgKEG1pbGVzdG9uZV90eF9yZWYYCyABKAkSHQoVbWlsZXN0b25lX3R4X2NoYWluX2lkGBogASgNEj0KEGxpZmVjeWNsZV9zb3VyY2UYDCABKA4yIy5jaGFpbi5saWZlY3ljbGUudjEuTGlmZWN5Y2xlU291cmNlEj0KEGxpZmVjeWNsZV9yZWFzb24YDSABKA4yIy5jaGFpbi5saWZlY3ljbGUudjEuTGlmZWN5Y2xlUmVhc29uEjsKDXppcHBlcl9yZWFzb24YGSABKAsyJC5jaGFpbi56aXBwZXIudjEuWmlwcGVyUmVhc29uRGV0YWlscxIdChVjdXJyZW50X2NvbmZpcm1hdGlvbnMYDiABKA0SHgoWcmVxdWlyZWRfY29uZmlybWF0aW9ucxgPIAEoDRIVCg1hcHByb3ZlX2NvdW50GBAgASgNEhQKDHJlamVjdF9jb3VudBgRIAEoDRIXCg92YWxpZGF0b3JfY291bnQYEiABKA0SGgoScmVxdWlyZWRfYXBwcm92YWxzGBYgASgNEhsKE3JlcXVpcmVkX3JlamVjdGlvbnMYFyABKA0SGwoTb2NjdXJyZWRfYXRfdW5peF9tcxgTIAEoBBIkChxibG9ja190aW1lX21vdmluZ19hdmVyYWdlX21zGBQgASgEEjwKCmFjdGl2aXRpZXMYFSADKAsyKC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1N0ZXBBY3Rpdml0eVZpZXcSFgoOcmVmdW5kX2FkZHJlc3MYGyABKAki5AQKFEZsb3dTdGVwQWN0aXZpdHlWaWV3EhAKCHNlcXVlbmNlGAEgASgNEg4KBnR4X3JlZhgCIAEoCRITCgt0eF9jaGFpbl9pZBgRIAEoDRIbChNvY2N1cnJlZF9hdF91bml4X21zGAMgASgEEj0KEGxpZmVjeWNsZV9zb3VyY2UYBCABKA4yIy5jaGFpbi5saWZlY3ljbGUudjEuTGlmZWN5Y2xlU291cmNlEj0KEGxpZmVjeWNsZV9yZWFzb24YBSABKA4yIy5jaGFpbi5saWZlY3ljbGUudjEuTGlmZWN5Y2xlUmVhc29uEjsKDXppcHBlcl9yZWFzb24YECABKAsyJC5jaGFpbi56aXBwZXIudjEuWmlwcGVyUmVhc29uRGV0YWlscxIdChVjdXJyZW50X2NvbmZpcm1hdGlvbnMYBiABKA0SHgoWcmVxdWlyZWRfY29uZmlybWF0aW9ucxgHIAEoDRIVCg1hcHByb3ZlX2NvdW50GAggASgNEhQKDHJlamVjdF9jb3VudBgJIAEoDRIXCg92YWxpZGF0b3JfY291bnQYCiABKA0SNgoEa2luZBgLIAEoDjIoLmNoYWluLmxpZmVjeWNsZS52MS5GbG93U3RlcEFjdGl2aXR5S2luZBIaChJyZXF1aXJlZF9hcHByb3ZhbHMYDCABKA0SGwoTcmVxdWlyZWRfcmVqZWN0aW9ucxgNIAEoDRIrCgphbW91bnRfZTE4GA4gASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIaChJsZWRnZXJfdHJhbnNmZXJfaWQYDyABKAkiqgEKFEZsb3dUaW1lbGluZUl0ZW1WaWV3EhAKCHNlcXVlbmNlGAEgASgNEioKBHN0ZXAYAiABKA4yHC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1N0ZXASNgoGc3RhdHVzGAMgASgOMiYuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dUaW1lbGluZVN0YXR1cxIcChRleHBlY3RlZF9kdXJhdGlvbl9tcxgEIAEoBCKZAQoORmxvd0RldGFpbFZpZXcSNAoHc3VtbWFyeRgBIAEoCzIjLmNoYWluLmxpZmVjeWNsZS52MS5GbG93U3VtbWFyeVZpZXcSOAoOb2JzZXJ2ZWRfc3RlcHMYAiADKAsyIC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1N0ZXBWaWV3EhcKD2Zyb21fbGl2ZV9zdGF0ZRgDIAEoCCo9CgxUeExvb2t1cEtpbmQSEgoOVFhfVU5TUEVDSUZJRUQQABINCglUWF9TT1VSQ0UQARIKCgZUWF9BTlkQAipbCglMaXN0U2NvcGUSFAoQTElTVF9VTlNQRUNJRklFRBAAEgwKCExJU1RfQUxMEAESEgoOTElTVF9PUEVOX09OTFkQAhIWChJMSVNUX1RFUk1JTkFMX09OTFkQAyo+CgRTb3J0EhQKEFNPUlRfVU5TUEVDSUZJRUQQABIPCgtTT1JUX05FV0VTVBABEg8KC1NPUlRfT0xERVNUEAIqXAoLTGlzdE9yZGVyQnkSGAoUT1JERVJfQllfVU5TUEVDSUZJRUQQABIaChZPUkRFUl9CWV9MQVNUX0FDVElWSVRZEAESFwoTT1JERVJfQllfU1RBUlRFRF9BVBACKmgKEUZsb3dQYXJ0aWNpcGF0aW9uEh0KGVBBUlRJQ0lQQVRJT05fVU5TUEVDSUZJRUQQABIXChNQQVJUSUNJUEFUSU9OX09XTkVSEAESGwoXUEFSVElDSVBBVElPTl9SRUNJUElFTlQQAiq4AgoIRmxvd1N0ZXASGQoVRkxPV19TVEVQX1VOU1BFQ0lGSUVEEAASFAoQRkxPV19TVEVQX1NPVVJDRRABEhYKEkZMT1dfU1RFUF9UUkFOU0ZFUhACEhUKEUZMT1dfU1RFUF9SRVFVRVNUEAMSGAoURkxPV19TVEVQX1ZBTElEQVRJT04QBBIXChNGTE9XX1NURVBfRVhFQ1VUSU9OEAUSIAocRkxPV19TVEVQX0JSSURHRV9GVUxGSUxMTUVOVBAGEhUKEUZMT1dfU1RFUF9EUk9QUEVEEAcSFAoQRkxPV19TVEVQX0ZBSUxFRBAIEhYKEkZMT1dfU1RFUF9SRUZVTkRFRBAJEhgKFEZMT1dfU1RFUF9GVUxGSUxMSU5HEAoSGAoURkxPV19TVEVQX1NFVFRMRU1FTlQQCypxChRGbG93U3RlcEFjdGl2aXR5S2luZBIYChRBQ1RJVklUWV9VTlNQRUNJRklFRBAAEhMKD0FDVElWSVRZX01JTlRFRBABEhQKEEFDVElWSVRZX0ZVTkRJTkcQAhIUChBBQ1RJVklUWV9UUkFESU5HEAMqjgEKEkZsb3dUaW1lbGluZVN0YXR1cxIfChtUSU1FTElORV9TVEFUVVNfVU5TUEVDSUZJRUQQABIdChlUSU1FTElORV9TVEFUVVNfQ09NUExFVEVEEAESGwoXVElNRUxJTkVfU1RBVFVTX0NVUlJFTlQQAhIbChdUSU1FTElORV9TVEFUVVNfUExBTk5FRBADMroCChRMaWZlY3ljbGVSZWFkU2VydmljZRJcCgtHZXRGbG93QnlJZBImLmNoYWluLmxpZmVjeWNsZS52MS5HZXRGbG93QnlJZFJlcXVlc3QaIy5jaGFpbi5saWZlY3ljbGUudjEuR2V0Rmxvd1Jlc3BvbnNlIgASWgoJTGlzdEZsb3dzEiQuY2hhaW4ubGlmZWN5Y2xlLnYxLkxpc3RGbG93c1JlcXVlc3QaJS5jaGFpbi5saWZlY3ljbGUudjEuTGlzdEZsb3dzUmVzcG9uc2UiABJmCg1MaXN0Rmxvd3NCeVR4EiguY2hhaW4ubGlmZWN5Y2xlLnYxLkxpc3RGbG93c0J5VHhSZXF1ZXN0GikuY2hhaW4ubGlmZWN5Y2xlLnYxLkxpc3RGbG93c0J5VHhSZXNwb25zZSIAGgBCUVpPZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9jaGFpbi9saWZlY3ljbGUvdjE7Y2hhaW5saWZlY3ljbGV2MWIGcHJvdG8z", [file_chain_lifecycle_v1_types, file_chain_zipper_v1_reason, file_polyester_api_options, file_polyester_type_v1_u128]);
+  fileDesc("CidjaGFpbi9saWZlY3ljbGUvdjEvbGlmZWN5Y2xlX3JlYWQucHJvdG8SEmNoYWluLmxpZmVjeWNsZS52MSJDCg9HZXRGbG93UmVzcG9uc2USMAoEZmxvdxgBIAEoCzIiLmNoYWluLmxpZmVjeWNsZS52MS5GbG93RGV0YWlsVmlldyInChJHZXRGbG93QnlJZFJlcXVlc3QSEQoHZmxvd19pZBgBIAEoCUIAIokBChRMaXN0Rmxvd3NCeVR4UmVxdWVzdBIRCgd0eF9oYXNoGAEgASgJQgASNwoLbG9va3VwX2tpbmQYAiABKA4yIC5jaGFpbi5saWZlY3ljbGUudjEuVHhMb29rdXBLaW5kQgASDwoFbGltaXQYAyABKA1CABIUCgpwYWdlX3Rva2VuGAQgASgJQgAikwQKEExpc3RGbG93c1JlcXVlc3QSDwoFbGltaXQYASABKA1CABIoCgRzb3J0GAIgASgOMhguY2hhaW4ubGlmZWN5Y2xlLnYxLlNvcnRCABIxCglmbG93X2tpbmQYAyABKA4yHC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd0tpbmRCABIzCgpmbG93X3N0YXRlGAQgASgOMh0uY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdGF0ZUIAEhAKBnR4X3JlZhgFIAEoCUIAEi4KBXNjb3BlGAYgASgOMh0uY2hhaW4ubGlmZWN5Y2xlLnYxLkxpc3RTY29wZUIAEiEKFXNtYXJ0X2FjY291bnRfYWRkcmVzcxgIIAEoCUIASAASHQoTcG9seWVzdGVyX2NoYWluX2lkcxgJIAMoDUIAEhoKEHppcHBlZF9hc3NldF9pZHMYCiADKA1CABIbChF1bmlmaWVkX2Fzc2V0X2lkcxgLIAMoDUIAEhQKCnBhZ2VfdG9rZW4YDCABKAlCABIzCghvcmRlcl9ieRgNIAEoDjIfLmNoYWluLmxpZmVjeWNsZS52MS5MaXN0T3JkZXJCeUIAEj4KDXBhcnRpY2lwYXRpb24YDiABKA4yJS5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1BhcnRpY2lwYXRpb25CADoAQhIKEGFjY291bnRfc2VsZWN0b3IiYgoRTGlzdEZsb3dzUmVzcG9uc2USMgoFZmxvd3MYASADKAsyIy5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1N1bW1hcnlWaWV3EhkKD25leHRfcGFnZV90b2tlbhgCIAEoCUIAIo8EChdMaXN0QWNjb3VudEZsb3dzUmVxdWVzdBIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESDwoFbGltaXQYAiABKA1CABIoCgRzb3J0GAMgASgOMhguY2hhaW4ubGlmZWN5Y2xlLnYxLlNvcnRCABIxCglmbG93X2tpbmQYBCABKA4yHC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd0tpbmRCABIzCgpmbG93X3N0YXRlGAUgASgOMh0uY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdGF0ZUIAEhAKBnR4X3JlZhgGIAEoCUIAEi4KBXNjb3BlGAcgASgOMh0uY2hhaW4ubGlmZWN5Y2xlLnYxLkxpc3RTY29wZUIAEh0KE3BvbHllc3Rlcl9jaGFpbl9pZHMYCCADKA1CABIaChB6aXBwZWRfYXNzZXRfaWRzGAkgAygNQgASGwoRdW5pZmllZF9hc3NldF9pZHMYCiADKA1CABIUCgpwYWdlX3Rva2VuGAsgASgJQgASMwoIb3JkZXJfYnkYDCABKA4yHy5jaGFpbi5saWZlY3ljbGUudjEuTGlzdE9yZGVyQnlCABI+Cg1wYXJ0aWNpcGF0aW9uGA0gASgOMiUuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dQYXJ0aWNpcGF0aW9uQgBCEAoOX3N1YmFjY291bnRfaWQiaQoYTGlzdEFjY291bnRGbG93c1Jlc3BvbnNlEjIKBWZsb3dzGAEgAygLMiMuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdW1tYXJ5VmlldxIZCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCACJYChVHZXRBY2NvdW50Rmxvd1JlcXVlc3QSGgoNc3ViYWNjb3VudF9pZBgBIAEoBkgAiAEBEhEKB2Zsb3dfaWQYAiABKAlCAEIQCg5fc3ViYWNjb3VudF9pZCJKChZHZXRBY2NvdW50Rmxvd1Jlc3BvbnNlEjAKBGZsb3cYASABKAsyIi5jaGFpbi5saWZlY3ljbGUudjEuRmxvd0RldGFpbFZpZXci2AUKD0Zsb3dUeE1hdGNoVmlldxIPCgdmbG93X2lkGAEgASgJEi8KCWZsb3dfa2luZBgDIAEoDjIcLmNoYWluLmxpZmVjeWNsZS52MS5GbG93S2luZBIWCg5zb3VyY2VfdHhfaGFzaBgEIAEoCRIVCg1sYXRlc3RfdHhfcmVmGAUgASgJEhsKE3R4X29jY3VycmVuY2VfaW5kZXgYBiABKAQSNQoNc291cmNlX2RvbWFpbhgHIAEoDjIeLmNoYWluLmxpZmVjeWNsZS52MS5GbG93RG9tYWluEjoKEmRlc3RpbmF0aW9uX2RvbWFpbhgIIAEoDjIeLmNoYWluLmxpZmVjeWNsZS52MS5GbG93RG9tYWluEjIKDGN1cnJlbnRfc3RlcBgJIAEoDjIcLmNoYWluLmxpZmVjeWNsZS52MS5GbG93U3RlcBIPCgdpc19vcGVuGAogASgIEhMKC2lzX3Rlcm1pbmFsGAsgASgIEi8KCWFzc2V0X2lkcxgMIAEoCzIcLmNoYWluLmxpZmVjeWNsZS52MS5Bc3NldElkcxIaChJwb2x5ZXN0ZXJfY2hhaW5faWQYDSABKA0SKwoKYW1vdW50X2UxOBgOIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSFgoOc291cmNlX2FkZHJlc3MYDyABKAkSGwoTZGVzdGluYXRpb25fYWRkcmVzcxgQIAEoCRI9ChBsaWZlY3ljbGVfcmVhc29uGBEgASgOMiMuY2hhaW4ubGlmZWN5Y2xlLnYxLkxpZmVjeWNsZVJlYXNvbhIgChhsYXN0X2FjdGl2aXR5X2F0X3VuaXhfbXMYEiABKAQSHQoVc21hcnRfYWNjb3VudF9hZGRyZXNzGBQgASgJEjsKDXppcHBlcl9yZWFzb24YFSABKAsyJC5jaGFpbi56aXBwZXIudjEuWmlwcGVyUmVhc29uRGV0YWlscyJ5ChVMaXN0Rmxvd3NCeVR4UmVzcG9uc2USDwoHdHhfaGFzaBgBIAEoCRI0CgdtYXRjaGVzGAIgAygLMiMuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dUeE1hdGNoVmlldxIZCg9uZXh0X3BhZ2VfdG9rZW4YAyABKAlCACLNCQoPRmxvd1N1bW1hcnlWaWV3Eh8KFXNtYXJ0X2FjY291bnRfYWRkcmVzcxgiIAEoCUIAEg8KB2Zsb3dfaWQYISABKAkSLwoJZmxvd19raW5kGAQgASgOMhwuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dLaW5kEjIKDGN1cnJlbnRfc3RlcBgGIAEoDjIcLmNoYWluLmxpZmVjeWNsZS52MS5GbG93U3RlcBIvCglhc3NldF9pZHMYByABKAsyHC5jaGFpbi5saWZlY3ljbGUudjEuQXNzZXRJZHMSGgoScG9seWVzdGVyX2NoYWluX2lkGAggASgNEisKCmFtb3VudF9lMTgYCSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EjMKC3JlcXVlc3RfZmVlGBwgASgLMh4uY2hhaW4ubGlmZWN5Y2xlLnYxLlJlcXVlc3RGZWUSFgoOc291cmNlX3R4X2hhc2gYCyABKAkSGwoTdHhfb2NjdXJyZW5jZV9pbmRleBggIAEoBBIWCg5zb3VyY2VfYWRkcmVzcxgNIAEoCRIbChNkZXN0aW5hdGlvbl9hZGRyZXNzGA4gASgJEhUKDWxhdGVzdF90eF9yZWYYDyABKAkSNQoNc291cmNlX2RvbWFpbhgdIAEoDjIeLmNoYWluLmxpZmVjeWNsZS52MS5GbG93RG9tYWluEjoKEmRlc3RpbmF0aW9uX2RvbWFpbhgeIAEoDjIeLmNoYWluLmxpZmVjeWNsZS52MS5GbG93RG9tYWluEkQKF2xhdGVzdF9saWZlY3ljbGVfc291cmNlGBAgASgOMiMuY2hhaW4ubGlmZWN5Y2xlLnYxLkxpZmVjeWNsZVNvdXJjZRI9ChBsaWZlY3ljbGVfcmVhc29uGBEgASgOMiMuY2hhaW4ubGlmZWN5Y2xlLnYxLkxpZmVjeWNsZVJlYXNvbhI7Cg16aXBwZXJfcmVhc29uGCMgASgLMiQuY2hhaW4uemlwcGVyLnYxLlppcHBlclJlYXNvbkRldGFpbHMSGgoSc3RhcnRlZF9hdF91bml4X21zGBIgASgEEhoKEnVwZGF0ZWRfYXRfdW5peF9tcxgTIAEoBBIbChN0ZXJtaW5hbF9hdF91bml4X21zGBQgASgEEiAKGGxhc3RfYWN0aXZpdHlfYXRfdW5peF9tcxgVIAEoBBIPCgdpc19vcGVuGBYgASgIEhMKC2lzX3Rlcm1pbmFsGBcgASgIEh0KFWN1cnJlbnRfc3RlcF9zZXF1ZW5jZRgYIAEoDRJFChBjdXJyZW50X3Byb2dyZXNzGBkgASgLMisuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdW1tYXJ5UHJvZ3Jlc3NWaWV3EkMKEXByb2dyZXNzX3RpbWVsaW5lGBogAygLMiguY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dUaW1lbGluZUl0ZW1WaWV3EiQKHGVzdGltYXRlZF9jb21wbGV0aW9uX3VuaXhfbXMYGyABKAQSEgoKaXNfZGVsYXllZBgkIAEoCBI8Cg1wYXJ0aWNpcGF0aW9uGCUgASgOMiUuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dQYXJ0aWNpcGF0aW9uIqsCChdGbG93U3VtbWFyeVByb2dyZXNzVmlldxInCh9jdXJyZW50X3N0ZXBfc3RhcnRlZF9hdF91bml4X21zGAEgASgEEikKIWN1cnJlbnRfc3RlcF9leHBlY3RlZF9kdXJhdGlvbl9tcxgCIAEoBBIdChVjdXJyZW50X2NvbmZpcm1hdGlvbnMYBSABKA0SHgoWcmVxdWlyZWRfY29uZmlybWF0aW9ucxgGIAEoDRIVCg1hcHByb3ZlX2NvdW50GAcgASgNEhQKDHJlamVjdF9jb3VudBgIIAEoDRIXCg92YWxpZGF0b3JfY291bnQYCSABKA0SGgoScmVxdWlyZWRfYXBwcm92YWxzGAogASgNEhsKE3JlcXVpcmVkX3JlamVjdGlvbnMYCyABKA0ixgYKDEZsb3dTdGVwVmlldxIQCghzZXF1ZW5jZRgBIAEoDRIqCgRzdGVwGAMgASgOMhwuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdGVwEi8KCWFzc2V0X2lkcxgHIAEoCzIcLmNoYWluLmxpZmVjeWNsZS52MS5Bc3NldElkcxIaChJwb2x5ZXN0ZXJfY2hhaW5faWQYCCABKA0SKwoKYW1vdW50X2UxOBgJIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSMwoLcmVxdWVzdF9mZWUYGCABKAsyHi5jaGFpbi5saWZlY3ljbGUudjEuUmVxdWVzdEZlZRIYChBtaWxlc3RvbmVfdHhfcmVmGAsgASgJEh0KFW1pbGVzdG9uZV90eF9jaGFpbl9pZBgaIAEoDRI9ChBsaWZlY3ljbGVfc291cmNlGAwgASgOMiMuY2hhaW4ubGlmZWN5Y2xlLnYxLkxpZmVjeWNsZVNvdXJjZRI9ChBsaWZlY3ljbGVfcmVhc29uGA0gASgOMiMuY2hhaW4ubGlmZWN5Y2xlLnYxLkxpZmVjeWNsZVJlYXNvbhI7Cg16aXBwZXJfcmVhc29uGBkgASgLMiQuY2hhaW4uemlwcGVyLnYxLlppcHBlclJlYXNvbkRldGFpbHMSHQoVY3VycmVudF9jb25maXJtYXRpb25zGA4gASgNEh4KFnJlcXVpcmVkX2NvbmZpcm1hdGlvbnMYDyABKA0SFQoNYXBwcm92ZV9jb3VudBgQIAEoDRIUCgxyZWplY3RfY291bnQYESABKA0SFwoPdmFsaWRhdG9yX2NvdW50GBIgASgNEhoKEnJlcXVpcmVkX2FwcHJvdmFscxgWIAEoDRIbChNyZXF1aXJlZF9yZWplY3Rpb25zGBcgASgNEhsKE29jY3VycmVkX2F0X3VuaXhfbXMYEyABKAQSJAocYmxvY2tfdGltZV9tb3ZpbmdfYXZlcmFnZV9tcxgUIAEoBBI8CgphY3Rpdml0aWVzGBUgAygLMiguY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdGVwQWN0aXZpdHlWaWV3EhYKDnJlZnVuZF9hZGRyZXNzGBsgASgJIuQEChRGbG93U3RlcEFjdGl2aXR5VmlldxIQCghzZXF1ZW5jZRgBIAEoDRIOCgZ0eF9yZWYYAiABKAkSEwoLdHhfY2hhaW5faWQYESABKA0SGwoTb2NjdXJyZWRfYXRfdW5peF9tcxgDIAEoBBI9ChBsaWZlY3ljbGVfc291cmNlGAQgASgOMiMuY2hhaW4ubGlmZWN5Y2xlLnYxLkxpZmVjeWNsZVNvdXJjZRI9ChBsaWZlY3ljbGVfcmVhc29uGAUgASgOMiMuY2hhaW4ubGlmZWN5Y2xlLnYxLkxpZmVjeWNsZVJlYXNvbhI7Cg16aXBwZXJfcmVhc29uGBAgASgLMiQuY2hhaW4uemlwcGVyLnYxLlppcHBlclJlYXNvbkRldGFpbHMSHQoVY3VycmVudF9jb25maXJtYXRpb25zGAYgASgNEh4KFnJlcXVpcmVkX2NvbmZpcm1hdGlvbnMYByABKA0SFQoNYXBwcm92ZV9jb3VudBgIIAEoDRIUCgxyZWplY3RfY291bnQYCSABKA0SFwoPdmFsaWRhdG9yX2NvdW50GAogASgNEjYKBGtpbmQYCyABKA4yKC5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1N0ZXBBY3Rpdml0eUtpbmQSGgoScmVxdWlyZWRfYXBwcm92YWxzGAwgASgNEhsKE3JlcXVpcmVkX3JlamVjdGlvbnMYDSABKA0SKwoKYW1vdW50X2UxOBgOIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSGgoSbGVkZ2VyX3RyYW5zZmVyX2lkGA8gASgJIqoBChRGbG93VGltZWxpbmVJdGVtVmlldxIQCghzZXF1ZW5jZRgBIAEoDRIqCgRzdGVwGAIgASgOMhwuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdGVwEjYKBnN0YXR1cxgDIAEoDjImLmNoYWluLmxpZmVjeWNsZS52MS5GbG93VGltZWxpbmVTdGF0dXMSHAoUZXhwZWN0ZWRfZHVyYXRpb25fbXMYBCABKAQimQEKDkZsb3dEZXRhaWxWaWV3EjQKB3N1bW1hcnkYASABKAsyIy5jaGFpbi5saWZlY3ljbGUudjEuRmxvd1N1bW1hcnlWaWV3EjgKDm9ic2VydmVkX3N0ZXBzGAIgAygLMiAuY2hhaW4ubGlmZWN5Y2xlLnYxLkZsb3dTdGVwVmlldxIXCg9mcm9tX2xpdmVfc3RhdGUYAyABKAgqPQoMVHhMb29rdXBLaW5kEhIKDlRYX1VOU1BFQ0lGSUVEEAASDQoJVFhfU09VUkNFEAESCgoGVFhfQU5ZEAIqWwoJTGlzdFNjb3BlEhQKEExJU1RfVU5TUEVDSUZJRUQQABIMCghMSVNUX0FMTBABEhIKDkxJU1RfT1BFTl9PTkxZEAISFgoSTElTVF9URVJNSU5BTF9PTkxZEAMqPgoEU29ydBIUChBTT1JUX1VOU1BFQ0lGSUVEEAASDwoLU09SVF9ORVdFU1QQARIPCgtTT1JUX09MREVTVBACKlwKC0xpc3RPcmRlckJ5EhgKFE9SREVSX0JZX1VOU1BFQ0lGSUVEEAASGgoWT1JERVJfQllfTEFTVF9BQ1RJVklUWRABEhcKE09SREVSX0JZX1NUQVJURURfQVQQAipoChFGbG93UGFydGljaXBhdGlvbhIdChlQQVJUSUNJUEFUSU9OX1VOU1BFQ0lGSUVEEAASFwoTUEFSVElDSVBBVElPTl9PV05FUhABEhsKF1BBUlRJQ0lQQVRJT05fUkVDSVBJRU5UEAIquAIKCEZsb3dTdGVwEhkKFUZMT1dfU1RFUF9VTlNQRUNJRklFRBAAEhQKEEZMT1dfU1RFUF9TT1VSQ0UQARIWChJGTE9XX1NURVBfVFJBTlNGRVIQAhIVChFGTE9XX1NURVBfUkVRVUVTVBADEhgKFEZMT1dfU1RFUF9WQUxJREFUSU9OEAQSFwoTRkxPV19TVEVQX0VYRUNVVElPThAFEiAKHEZMT1dfU1RFUF9CUklER0VfRlVMRklMTE1FTlQQBhIVChFGTE9XX1NURVBfRFJPUFBFRBAHEhQKEEZMT1dfU1RFUF9GQUlMRUQQCBIWChJGTE9XX1NURVBfUkVGVU5ERUQQCRIYChRGTE9XX1NURVBfRlVMRklMTElORxAKEhgKFEZMT1dfU1RFUF9TRVRUTEVNRU5UEAsqcQoURmxvd1N0ZXBBY3Rpdml0eUtpbmQSGAoUQUNUSVZJVFlfVU5TUEVDSUZJRUQQABITCg9BQ1RJVklUWV9NSU5URUQQARIUChBBQ1RJVklUWV9GVU5ESU5HEAISFAoQQUNUSVZJVFlfVFJBRElORxADKo4BChJGbG93VGltZWxpbmVTdGF0dXMSHwobVElNRUxJTkVfU1RBVFVTX1VOU1BFQ0lGSUVEEAASHQoZVElNRUxJTkVfU1RBVFVTX0NPTVBMRVRFRBABEhsKF1RJTUVMSU5FX1NUQVRVU19DVVJSRU5UEAISGwoXVElNRUxJTkVfU1RBVFVTX1BMQU5ORUQQAzKWBAoUTGlmZWN5Y2xlUmVhZFNlcnZpY2USXAoLR2V0Rmxvd0J5SWQSJi5jaGFpbi5saWZlY3ljbGUudjEuR2V0Rmxvd0J5SWRSZXF1ZXN0GiMuY2hhaW4ubGlmZWN5Y2xlLnYxLkdldEZsb3dSZXNwb25zZSIAEloKCUxpc3RGbG93cxIkLmNoYWluLmxpZmVjeWNsZS52MS5MaXN0Rmxvd3NSZXF1ZXN0GiUuY2hhaW4ubGlmZWN5Y2xlLnYxLkxpc3RGbG93c1Jlc3BvbnNlIgASZgoNTGlzdEZsb3dzQnlUeBIoLmNoYWluLmxpZmVjeWNsZS52MS5MaXN0Rmxvd3NCeVR4UmVxdWVzdBopLmNoYWluLmxpZmVjeWNsZS52MS5MaXN0Rmxvd3NCeVR4UmVzcG9uc2UiABJvChBMaXN0QWNjb3VudEZsb3dzEisuY2hhaW4ubGlmZWN5Y2xlLnYxLkxpc3RBY2NvdW50Rmxvd3NSZXF1ZXN0GiwuY2hhaW4ubGlmZWN5Y2xlLnYxLkxpc3RBY2NvdW50Rmxvd3NSZXNwb25zZSIAEmkKDkdldEFjY291bnRGbG93EikuY2hhaW4ubGlmZWN5Y2xlLnYxLkdldEFjY291bnRGbG93UmVxdWVzdBoqLmNoYWluLmxpZmVjeWNsZS52MS5HZXRBY2NvdW50Rmxvd1Jlc3BvbnNlIgAaAEJRWk9naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2NoYWluL2xpZmVjeWNsZS92MTtjaGFpbmxpZmVjeWNsZXYxYgZwcm90bzM=", [file_chain_lifecycle_v1_types, file_chain_zipper_v1_reason, file_polyester_api_options, file_polyester_type_v1_u128]);
 
 /**
  * GetFlowResponse returns one lifecycle flow with summary, factual steps, and
@@ -162,22 +162,14 @@ export type ListFlowsRequest = Message<"chain.lifecycle.v1.ListFlowsRequest"> & 
   scope: ListScope;
 
   /**
-   * Optional account selector. Omit to list across accounts the caller is
-   * allowed to inspect. A selected account matches the flows it owns and the
-   * transfers it receives from other accounts; use `participation` to narrow
-   * to one of them.
+   * Optional account selector. Omit to list the flows of every account. A
+   * selected smart account matches the flows it owns and the transfers it
+   * receives from other accounts; use `participation` to narrow to one of
+   * them.
    *
    * @generated from oneof chain.lifecycle.v1.ListFlowsRequest.account_selector
    */
   accountSelector: {
-    /**
-     * Public account identifier for a main account or subaccount.
-     *
-     * @generated from field: fixed64 owner_account_id = 7;
-     */
-    value: bigint;
-    case: "ownerAccountId";
-  } | {
     /**
      * Smart account address on Polyester Chain.
      *
@@ -231,7 +223,7 @@ export type ListFlowsRequest = Message<"chain.lifecycle.v1.ListFlowsRequest"> & 
    * returns the flows the account owns and the transfers it receives.
    * `PARTICIPATION_OWNER` returns only the flows it owns, and
    * `PARTICIPATION_RECIPIENT` only the transfers it receives from another
-   * account. Requires `owner_account_id` or `smart_account_address`.
+   * account. Requires `smart_account_address`.
    *
    * @generated from field: chain.lifecycle.v1.FlowParticipation participation = 14;
    */
@@ -273,6 +265,207 @@ export type ListFlowsResponse = Message<"chain.lifecycle.v1.ListFlowsResponse"> 
  */
 export const ListFlowsResponseSchema: GenMessage<ListFlowsResponse> = /*@__PURE__*/
   messageDesc(file_chain_lifecycle_v1_lifecycle_read, 4);
+
+/**
+ * ListAccountFlowsRequest filters and paginates the authenticated account's
+ * lifecycle flow summaries.
+ *
+ * @generated from message chain.lifecycle.v1.ListAccountFlowsRequest
+ */
+export type ListAccountFlowsRequest = Message<"chain.lifecycle.v1.ListAccountFlowsRequest"> & {
+  /**
+   * Optional public subaccount ID. When omitted, subaccount-scoped API keys
+   * use their bound subaccount; other callers use their authenticated root
+   * account. The list covers that one account only.
+   *
+   * @generated from field: optional fixed64 subaccount_id = 1;
+   */
+  subaccountId?: bigint | undefined;
+
+  /**
+   * Maximum number of flows to return. Defaults to 100 when omitted; maximum is
+   * 500.
+   *
+   * @generated from field: uint32 limit = 2;
+   */
+  limit: number;
+
+  /**
+   * Sort direction for the selected ordering timestamp.
+   *
+   * @generated from field: chain.lifecycle.v1.Sort sort = 3;
+   */
+  sort: Sort;
+
+  /**
+   * Optional product flow kind filter. Unspecified includes all kinds.
+   *
+   * @generated from field: chain.lifecycle.v1.FlowKind flow_kind = 4;
+   */
+  flowKind: FlowKind;
+
+  /**
+   * Optional lifecycle state filter. Unspecified includes all states permitted
+   * by the selected scope.
+   *
+   * @generated from field: chain.lifecycle.v1.FlowState flow_state = 5;
+   */
+  flowState: FlowState;
+
+  /**
+   * Optional transaction reference filter. Matches source or latest activity
+   * transaction identifiers across supported chains.
+   *
+   * @generated from field: string tx_ref = 6;
+   */
+  txRef: string;
+
+  /**
+   * Selects open, terminal, or all lifecycle flows.
+   *
+   * @generated from field: chain.lifecycle.v1.ListScope scope = 7;
+   */
+  scope: ListScope;
+
+  /**
+   * Optional Polyester Chain ids to include. Maximum 100 unique ids.
+   *
+   * @generated from field: repeated uint32 polyester_chain_ids = 8;
+   */
+  polyesterChainIds: number[];
+
+  /**
+   * Optional chain asset mapping ids to include. Maximum 100 unique ids.
+   *
+   * @generated from field: repeated uint32 zipped_asset_ids = 9;
+   */
+  zippedAssetIds: number[];
+
+  /**
+   * Optional unified asset ids to include. Maximum 100 unique ids.
+   *
+   * @generated from field: repeated uint32 unified_asset_ids = 10;
+   */
+  unifiedAssetIds: number[];
+
+  /**
+   * Opaque keyset cursor returned by a previous response. The cursor is
+   * exclusive and bound to the authenticated account and the request it was
+   * returned for: the subaccount, participation, every filter including
+   * scope, sort direction, and ordering timestamp. Send it with that same
+   * request; only `limit` may change. A cursor sent with any other request or
+   * by another account is rejected as invalid.
+   *
+   * @generated from field: string page_token = 11;
+   */
+  pageToken: string;
+
+  /**
+   * Timestamp used for ordering and pagination. Defaults to last activity.
+   *
+   * @generated from field: chain.lifecycle.v1.ListOrderBy order_by = 12;
+   */
+  orderBy: ListOrderBy;
+
+  /**
+   * Optional participation filter. Unspecified returns the flows the account
+   * owns and the transfers it receives. `PARTICIPATION_OWNER` returns only the
+   * flows it owns, and `PARTICIPATION_RECIPIENT` only the transfers it
+   * receives from another account.
+   *
+   * @generated from field: chain.lifecycle.v1.FlowParticipation participation = 13;
+   */
+  participation: FlowParticipation;
+};
+
+/**
+ * Describes the message chain.lifecycle.v1.ListAccountFlowsRequest.
+ * Use `create(ListAccountFlowsRequestSchema)` to create a new message.
+ */
+export const ListAccountFlowsRequestSchema: GenMessage<ListAccountFlowsRequest> = /*@__PURE__*/
+  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 5);
+
+/**
+ * ListAccountFlowsResponse returns one page of the account's flow summaries.
+ *
+ * @generated from message chain.lifecycle.v1.ListAccountFlowsResponse
+ */
+export type ListAccountFlowsResponse = Message<"chain.lifecycle.v1.ListAccountFlowsResponse"> & {
+  /**
+   * Flow summaries ordered by the selected timestamp, then public flow id. Sort
+   * direction is controlled by the request `sort` field.
+   *
+   * @generated from field: repeated chain.lifecycle.v1.FlowSummaryView flows = 1;
+   */
+  flows: FlowSummaryView[];
+
+  /**
+   * Opaque cursor for the next page. Empty when no more results exist.
+   *
+   * @generated from field: string next_page_token = 2;
+   */
+  nextPageToken: string;
+};
+
+/**
+ * Describes the message chain.lifecycle.v1.ListAccountFlowsResponse.
+ * Use `create(ListAccountFlowsResponseSchema)` to create a new message.
+ */
+export const ListAccountFlowsResponseSchema: GenMessage<ListAccountFlowsResponse> = /*@__PURE__*/
+  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 6);
+
+/**
+ * GetAccountFlowRequest selects one lifecycle flow of the authenticated
+ * account by its public flow id.
+ *
+ * @generated from message chain.lifecycle.v1.GetAccountFlowRequest
+ */
+export type GetAccountFlowRequest = Message<"chain.lifecycle.v1.GetAccountFlowRequest"> & {
+  /**
+   * Optional public subaccount ID. When omitted, subaccount-scoped API keys
+   * use their bound subaccount; other callers use their authenticated root
+   * account.
+   *
+   * @generated from field: optional fixed64 subaccount_id = 1;
+   */
+  subaccountId?: bigint | undefined;
+
+  /**
+   * Public, URL-safe lifecycle identifier returned by list responses.
+   *
+   * @generated from field: string flow_id = 2;
+   */
+  flowId: string;
+};
+
+/**
+ * Describes the message chain.lifecycle.v1.GetAccountFlowRequest.
+ * Use `create(GetAccountFlowRequestSchema)` to create a new message.
+ */
+export const GetAccountFlowRequestSchema: GenMessage<GetAccountFlowRequest> = /*@__PURE__*/
+  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 7);
+
+/**
+ * GetAccountFlowResponse returns one lifecycle flow of the account.
+ *
+ * @generated from message chain.lifecycle.v1.GetAccountFlowResponse
+ */
+export type GetAccountFlowResponse = Message<"chain.lifecycle.v1.GetAccountFlowResponse"> & {
+  /**
+   * Lifecycle flow detail for the requested flow id. Its summary's
+   * `participation` says whether the account owns the flow or receives it.
+   *
+   * @generated from field: chain.lifecycle.v1.FlowDetailView flow = 1;
+   */
+  flow?: FlowDetailView | undefined;
+};
+
+/**
+ * Describes the message chain.lifecycle.v1.GetAccountFlowResponse.
+ * Use `create(GetAccountFlowResponseSchema)` to create a new message.
+ */
+export const GetAccountFlowResponseSchema: GenMessage<GetAccountFlowResponse> = /*@__PURE__*/
+  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 8);
 
 /**
  * FlowTxMatchView is one lifecycle flow matched by a transaction-hash search.
@@ -402,13 +595,6 @@ export type FlowTxMatchView = Message<"chain.lifecycle.v1.FlowTxMatchView"> & {
   lastActivityAtUnixMs: bigint;
 
   /**
-   * Public account or subaccount identifier that owns this flow.
-   *
-   * @generated from field: fixed64 owner_account_id = 19;
-   */
-  ownerAccountId: bigint;
-
-  /**
    * Smart account address on Polyester Chain when known.
    *
    * @generated from field: string smart_account_address = 20;
@@ -428,7 +614,7 @@ export type FlowTxMatchView = Message<"chain.lifecycle.v1.FlowTxMatchView"> & {
  * Use `create(FlowTxMatchViewSchema)` to create a new message.
  */
 export const FlowTxMatchViewSchema: GenMessage<FlowTxMatchView> = /*@__PURE__*/
-  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 5);
+  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 9);
 
 /**
  * ListFlowsByTxResponse returns a page of lifecycle flows that reference one
@@ -465,7 +651,7 @@ export type ListFlowsByTxResponse = Message<"chain.lifecycle.v1.ListFlowsByTxRes
  * Use `create(ListFlowsByTxResponseSchema)` to create a new message.
  */
 export const ListFlowsByTxResponseSchema: GenMessage<ListFlowsByTxResponse> = /*@__PURE__*/
-  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 6);
+  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 10);
 
 /**
  * FlowSummaryView is the compact lifecycle representation used by lists,
@@ -475,16 +661,9 @@ export const ListFlowsByTxResponseSchema: GenMessage<ListFlowsByTxResponse> = /*
  */
 export type FlowSummaryView = Message<"chain.lifecycle.v1.FlowSummaryView"> & {
   /**
-   * Public account identifier for the root account or subaccount the flow belongs to.
-   *
-   * @generated from field: fixed64 owner_account_id = 1;
-   */
-  ownerAccountId: bigint;
-
-  /**
-   * Smart-account address for the account the flow belongs to. This is the
-   * stable address selector equivalent of `owner_account_id`; do not derive it
-   * from source or destination display addresses.
+   * Smart-account address for the account the flow belongs to: the account's
+   * public identity, and the value of the ListFlows account selector. Do not
+   * derive it from source or destination display addresses.
    *
    * @generated from field: string smart_account_address = 34;
    */
@@ -705,12 +884,14 @@ export type FlowSummaryView = Message<"chain.lifecycle.v1.FlowSummaryView"> & {
   isDelayed: boolean;
 
   /**
-   * How the account selected by a ListFlows request takes part in this flow:
-   * `PARTICIPATION_OWNER` for a flow it owns, including a transfer it sent, or
+   * How the selected account takes part in this flow: `PARTICIPATION_OWNER`
+   * for a flow it owns, including a transfer it sent, or
    * `PARTICIPATION_RECIPIENT` for a transfer it received from another account.
-   * Each flow appears once with one participation. Unspecified when the
-   * response is not scoped to an account, such as ListFlows without an account
-   * selector, flow detail, and realtime updates.
+   * Set by ListFlows with an account selector, ListAccountFlows and
+   * GetAccountFlow; each flow appears once with one participation.
+   * Unspecified when the response is not scoped to an account, such as
+   * ListFlows without an account selector, GetFlowById, ListFlowsByTx, and
+   * realtime updates.
    *
    * @generated from field: chain.lifecycle.v1.FlowParticipation participation = 37;
    */
@@ -722,7 +903,7 @@ export type FlowSummaryView = Message<"chain.lifecycle.v1.FlowSummaryView"> & {
  * Use `create(FlowSummaryViewSchema)` to create a new message.
  */
 export const FlowSummaryViewSchema: GenMessage<FlowSummaryView> = /*@__PURE__*/
-  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 7);
+  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 11);
 
 /**
  * FlowSummaryProgressView describes progress within the current visible step.
@@ -800,7 +981,7 @@ export type FlowSummaryProgressView = Message<"chain.lifecycle.v1.FlowSummaryPro
  * Use `create(FlowSummaryProgressViewSchema)` to create a new message.
  */
 export const FlowSummaryProgressViewSchema: GenMessage<FlowSummaryProgressView> = /*@__PURE__*/
-  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 8);
+  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 12);
 
 /**
  * FlowStepView is one factual observed visible step in the lifecycle detail
@@ -989,7 +1170,7 @@ export type FlowStepView = Message<"chain.lifecycle.v1.FlowStepView"> & {
  * Use `create(FlowStepViewSchema)` to create a new message.
  */
 export const FlowStepViewSchema: GenMessage<FlowStepView> = /*@__PURE__*/
-  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 9);
+  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 13);
 
 /**
  * FlowStepActivityView is an expandable detail row underneath a visible step.
@@ -1127,7 +1308,7 @@ export type FlowStepActivityView = Message<"chain.lifecycle.v1.FlowStepActivityV
  * Use `create(FlowStepActivityViewSchema)` to create a new message.
  */
 export const FlowStepActivityViewSchema: GenMessage<FlowStepActivityView> = /*@__PURE__*/
-  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 10);
+  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 14);
 
 /**
  * FlowTimelineItemView is one item in the expected visible lifecycle progress
@@ -1171,7 +1352,7 @@ export type FlowTimelineItemView = Message<"chain.lifecycle.v1.FlowTimelineItemV
  * Use `create(FlowTimelineItemViewSchema)` to create a new message.
  */
 export const FlowTimelineItemViewSchema: GenMessage<FlowTimelineItemView> = /*@__PURE__*/
-  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 11);
+  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 15);
 
 /**
  * FlowDetailView is the full lifecycle detail response model.
@@ -1208,7 +1389,7 @@ export type FlowDetailView = Message<"chain.lifecycle.v1.FlowDetailView"> & {
  * Use `create(FlowDetailViewSchema)` to create a new message.
  */
 export const FlowDetailViewSchema: GenMessage<FlowDetailView> = /*@__PURE__*/
-  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 12);
+  messageDesc(file_chain_lifecycle_v1_lifecycle_read, 16);
 
 /**
  * TxLookupKind controls which transaction reference fields are searched.
@@ -1582,7 +1763,11 @@ export const FlowTimelineStatusSchema: GenEnum<FlowTimelineStatus> = /*@__PURE__
  */
 export const LifecycleReadService: GenService<{
   /**
-   * GetFlowById retrieves one lifecycle flow by public flow id.
+   * GetFlowById retrieves one lifecycle flow by public flow id. It finds only
+   * flows a chain transaction started, which carry `source_tx_hash`; a flow
+   * settled without one, such as a transfer between Trading accounts or a
+   * Trading withdrawal not yet sent to a chain, is not found. Its account
+   * reads it with GetAccountFlow.
    *
    * @generated from rpc chain.lifecycle.v1.LifecycleReadService.GetFlowById
    */
@@ -1593,7 +1778,9 @@ export const LifecycleReadService: GenService<{
   },
   /**
    * ListFlows lists lifecycle flows with optional filters and keyset
-   * pagination.
+   * pagination. It lists only flows a chain transaction started, which carry
+   * `source_tx_hash`, and identifies accounts by smart account address. An
+   * account lists all of its own flows with ListAccountFlows.
    *
    * @generated from rpc chain.lifecycle.v1.LifecycleReadService.ListFlows
    */
@@ -1603,7 +1790,8 @@ export const LifecycleReadService: GenService<{
     output: typeof ListFlowsResponseSchema;
   },
   /**
-   * ListFlowsByTx lists lifecycle flows that reference a transaction hash.
+   * ListFlowsByTx lists lifecycle flows that reference a transaction hash. It
+   * finds only flows a chain transaction started.
    *
    * @generated from rpc chain.lifecycle.v1.LifecycleReadService.ListFlowsByTx
    */
@@ -1611,6 +1799,32 @@ export const LifecycleReadService: GenService<{
     methodKind: "unary";
     input: typeof ListFlowsByTxRequestSchema;
     output: typeof ListFlowsByTxResponseSchema;
+  },
+  /**
+   * ListAccountFlows lists the authenticated account's lifecycle flows with
+   * optional filters and keyset pagination: the flows it owns and the
+   * transfers it receives, including those no chain transaction started. API
+   * keys need the READ_FUNDING_FLOWS policy action.
+   *
+   * @generated from rpc chain.lifecycle.v1.LifecycleReadService.ListAccountFlows
+   */
+  listAccountFlows: {
+    methodKind: "unary";
+    input: typeof ListAccountFlowsRequestSchema;
+    output: typeof ListAccountFlowsResponseSchema;
+  },
+  /**
+   * GetAccountFlow retrieves one lifecycle flow the authenticated account owns
+   * or receives, including one no chain transaction started. A flow the
+   * account takes no part in is not found. API keys need the
+   * READ_FUNDING_FLOWS policy action.
+   *
+   * @generated from rpc chain.lifecycle.v1.LifecycleReadService.GetAccountFlow
+   */
+  getAccountFlow: {
+    methodKind: "unary";
+    input: typeof GetAccountFlowRequestSchema;
+    output: typeof GetAccountFlowResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_chain_lifecycle_v1_lifecycle_read, 0);
