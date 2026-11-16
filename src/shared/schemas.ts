@@ -1,6 +1,6 @@
 import * as v from "valibot";
 import { formatId, idToBigInt } from "../utils/base58-id.js";
-import { parseOptionalUint64DecimalStrict, toBpsOrZero, toIntOrZero } from "../utils/numbers.js";
+import { parseOptionalUint64DecimalStrict, toBpsOrZero } from "../utils/numbers.js";
 import { tsNsToMs, tsObjToMs } from "../utils/time.js";
 import type { JsonObject } from "@bufbuild/protobuf";
 import { PROTOBUF_UINT32_MAX } from "./wire-bounds.js";
@@ -34,8 +34,11 @@ export const OptionalTimestampMsSchema = v.pipe(
 export const OptionalNumberDefaultNullSchema = v.optional(v.nullable(v.number()), null);
 
 export const OptionalNumberToIntOrZeroSchema = v.pipe(
-    v.optional(v.nullable(v.pipe(v.number(), v.maxValue(PROTOBUF_UINT32_MAX))), null),
-    v.transform((value) => toIntOrZero(value)),
+    v.optional(
+        v.nullable(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(PROTOBUF_UINT32_MAX))),
+        null,
+    ),
+    v.transform((value) => value ?? 0),
 );
 
 export const OptionalNumberToBpsOrZeroSchema = v.pipe(
