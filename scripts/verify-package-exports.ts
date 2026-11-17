@@ -1,19 +1,13 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { parsePackResult } from "./npm-pack-result.js";
 
 type ExportConditions = Record<string, string>;
 type PackageManifest = {
     name: string;
     version: string;
     exports: Record<string, ExportConditions>;
-};
-type PackedFile = { path: string };
-type PackResult = {
-    filename: string;
-    files: PackedFile[];
-    name: string;
-    version: string;
 };
 
 const root = path.resolve(import.meta.dir, "..");
@@ -55,8 +49,7 @@ try {
         ["pack", "--json", "--ignore-scripts", "--pack-destination", temporaryDirectory],
         root,
     );
-    const [packed] = JSON.parse(packOutput) as PackResult[];
-    if (!packed) throw new Error("npm pack returned no package metadata.");
+    const packed = parsePackResult(packOutput);
     if (packed.name !== manifest.name || packed.version !== manifest.version) {
         throw new Error(
             `Packed ${packed.name}@${packed.version}, expected ${manifest.name}@${manifest.version}.`,
