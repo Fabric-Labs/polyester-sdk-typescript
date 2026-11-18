@@ -9,10 +9,13 @@ import {
     type PolyesterMutationOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import type { SdkScales } from "../../shared/decimal-surface.js";
+import {
+    deliverBatchWithCatalogRefresh,
+    withCatalogRefresh,
+    type SdkScales,
+} from "../../shared/decimal-surface.js";
 import type { AuthApiTransports } from "../../shared/transports.js";
 import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
-import { deliverBatch } from "../../shared/subscription-errors.js";
 import { createMutationRequestId } from "../../shared/request-id.js";
 import {
     createCreateOcoInputSchema,
@@ -178,8 +181,9 @@ export class TriggersService {
             toConnectCallOptions(options),
         );
 
-        if (!res.trigger) return null;
-        return parse(this.#triggerSchema, res.trigger);
+        const trigger = res.trigger;
+        if (!trigger) return null;
+        return withCatalogRefresh(this.#scales, () => parse(this.#triggerSchema, trigger));
     }
 
     /**
@@ -188,7 +192,7 @@ export class TriggersService {
      */
     async fromProto(trigger: Proto.Trigger): Promise<Trigger> {
         await this.#scales.ready();
-        return parse(this.#triggerSchema, trigger);
+        return withCatalogRefresh(this.#scales, () => parse(this.#triggerSchema, trigger));
     }
 
     /**
@@ -206,7 +210,9 @@ export class TriggersService {
             toConnectCallOptions(options),
         );
         return {
-            triggers: parse(v.array(this.#triggerSchema), res.triggers),
+            triggers: await withCatalogRefresh(this.#scales, () =>
+                parse(v.array(this.#triggerSchema), res.triggers),
+            ),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -327,7 +333,9 @@ export class TriggersService {
         );
 
         return {
-            events: parse(v.array(this.#triggerEventSchema), res.events),
+            events: await withCatalogRefresh(this.#scales, () =>
+                parse(v.array(this.#triggerEventSchema), res.events),
+            ),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -339,18 +347,28 @@ export class TriggersService {
      */
     subscribe(input: SubscribeTriggersInput): () => void {
         const channel = `private:spot:triggers:${input.accountId}:proto`;
-        return connectReadyGatedProtoChannel(this.#realtime, {
+        let open = true;
+        const stop = connectReadyGatedProtoChannel(this.#realtime, {
             channel,
             schema: Proto.TriggerSchema,
             ready: () => this.#scales.ready(),
-            onPublication: (data) => {
-                const trigger = parse(this.#triggerSchema, data);
-                input.onEvent(trigger);
-            },
+            onPublication: (data) =>
+                deliverBatchWithCatalogRefresh(
+                    this.#scales,
+                    channel,
+                    [data],
+                    (trigger) => input.onEvent(parse(this.#triggerSchema, trigger)),
+                    input.onError,
+                    () => open,
+                ),
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
             onError: input.onError,
         });
+        return () => {
+            open = false;
+            stop();
+        };
     }
 
     /**
@@ -360,20 +378,27 @@ export class TriggersService {
      */
     subscribeEvents(input: SubscribeTriggerEventsInput): () => void {
         const channel = `private:spot:triggers:events:${input.accountId}:proto`;
-        return connectReadyGatedProtoChannel(this.#realtime, {
+        let open = true;
+        const stop = connectReadyGatedProtoChannel(this.#realtime, {
             channel,
             schema: Proto.TriggerEventBatchSchema,
             ready: () => this.#scales.ready(),
             onPublication: (batch) =>
-                deliverBatch(
+                deliverBatchWithCatalogRefresh(
+                    this.#scales,
                     channel,
                     batch.events,
                     (event) => input.onEvent(parse(this.#triggerEventSchema, event)),
                     input.onError,
+                    () => open,
                 ),
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
             onError: input.onError,
         });
+        return () => {
+            open = false;
+            stop();
+        };
     }
 }

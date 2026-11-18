@@ -164,7 +164,7 @@ export class LifecycleService {
         const channel =
             input.accountId === undefined
                 ? "public:chain:lifecycle:flows:proto"
-                : `private:chain:lifecycle:flows:${input.accountId}:proto`;
+                : `private:chain:lifecycle:flows:${input.accountId.trim()}:proto`;
         return this.#realtime.connectProtoChannel({
             channel,
             schema: FlowSummaryViewSchema,

@@ -240,6 +240,37 @@ describe("snapshotThenStream", () => {
         }
     });
 
+    it("stops retrying the snapshot once realtime.disconnect() closed the socket", async () => {
+        vi.useFakeTimers();
+        try {
+            const realtime = realtimeClientStub();
+            const fetchSnapshot = vi
+                .fn<() => Promise<number>>()
+                .mockRejectedValue(new ServiceUnavailableError("not available yet"));
+            snapshotThenStream({
+                realtime: realtime.realtime,
+                channel: "public:test",
+                schema: Proto.ZippedAssetSupplyBatchSchema,
+                snapshotRetry: { maxAttempts: Number.POSITIVE_INFINITY, delayMs: 1 },
+                fetchSnapshot,
+                readPublication: () => [],
+                applySnapshot: vi.fn(),
+                applyLivePublications: vi.fn(),
+            });
+
+            realtime.params?.onConnected?.();
+            await vi.advanceTimersByTimeAsync(0);
+            expect(fetchSnapshot).toHaveBeenCalledOnce();
+
+            // disconnect() drops the channel's handlers without calling onDisconnected.
+            Object.assign(realtime.realtime.connection.public, { state: "disconnected" });
+            await vi.advanceTimersByTimeAsync(100);
+            expect(fetchSnapshot).toHaveBeenCalledOnce();
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
     it("isolates snapshot application failures without misclassifying them as fetch failures", async () => {
         const realtime = realtimeClientStub();
         const cause = new Error("consumer failed");

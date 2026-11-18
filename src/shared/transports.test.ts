@@ -1163,6 +1163,11 @@ describe("Retry-After on 503", () => {
             "application/json",
         ],
         ["a bare 503", null, "text/plain"],
+        [
+            "a gateway outage phrase",
+            JSON.stringify({ code: "unknown", message: "service temporarily unavailable" }),
+            "application/json",
+        ],
     ] as const)("keeps the server's Retry-After on %s", async (_kind, body, contentType) => {
         vi.spyOn(globalThis, "fetch").mockImplementation(
             async () =>

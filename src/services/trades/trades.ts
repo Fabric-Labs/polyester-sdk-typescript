@@ -7,13 +7,16 @@ import { removeUndefined } from "../../utils/remove-undefined.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
 import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
-import { deliverBatch } from "../../shared/subscription-errors.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import type { SdkScales } from "../../shared/decimal-surface.js";
+import {
+    deliverBatchWithCatalogRefresh,
+    withCatalogRefresh,
+    type SdkScales,
+} from "../../shared/decimal-surface.js";
 import type { AuthApiTransports } from "../../shared/transports.js";
 import {
     GetUserTradesInputSchema,
@@ -64,7 +67,9 @@ export class TradesService {
             toConnectCallOptions(options),
         );
         return {
-            trades: res.trades.map((trade) => formatUserTrade(this.#scales, trade)),
+            trades: await withCatalogRefresh(this.#scales, () =>
+                res.trades.map((trade) => formatUserTrade(this.#scales, trade)),
+            ),
             transfers: parse(v.array(createOrderTransferSchema()), res.transfers ?? []),
             nextPageToken: res.nextPageToken,
         };
@@ -75,22 +80,29 @@ export class TradesService {
      * Each publication batches fills, emitted one at a time; `(matchId, orderId)` identifies a
      * fill, and a repeated identity replaces the earlier copy.
      */
-    subscribe(input: SubscribeTradesInput) {
+    subscribe(input: SubscribeTradesInput): () => void {
         const channel = `private:spot:trades:${input.accountId}:proto`;
-        return connectReadyGatedProtoChannel(this.#realtime, {
+        let open = true;
+        const stop = connectReadyGatedProtoChannel(this.#realtime, {
             channel,
             schema: Proto.UserTradeBatchSchema,
             ready: () => this.#scales.ready(),
             onPublication: (batch) =>
-                deliverBatch(
+                deliverBatchWithCatalogRefresh(
+                    this.#scales,
                     channel,
                     batch.events,
                     (trade) => input.onEvent(formatUserTrade(this.#scales, trade)),
                     input.onError,
+                    () => open,
                 ),
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
             onError: input.onError,
         });
+        return () => {
+            open = false;
+            stop();
+        };
     }
 }

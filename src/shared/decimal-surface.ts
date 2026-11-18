@@ -22,6 +22,7 @@ import {
 } from "../catalogs/types.js";
 import { PRICE_SCALE } from "../catalogs/readers.js";
 import { PROTOBUF_INT64_MAX } from "./wire-bounds.js";
+import { deliverBatch, type SdkSubscriptionErrorContext } from "./subscription-errors.js";
 import { U128_MAX } from "../utils/u128.js";
 
 /** On-chain unified-asset amounts (`amountE18`) are always 18-decimal scaled. */
@@ -50,6 +51,59 @@ export interface SdkScales {
     referencePrice(pair: PairCatalogKey): number;
     ledgerAmount(ledgerAssetId: number): number;
     zippedAssetAmount(zippedAssetId: number): number;
+    /**
+     * Refreshes the catalog after a lookup miss, so a pair listed after startup resolves.
+     * Misses within {@link CATALOG_MISS_REFRESH_INTERVAL_MS} share one refresh; never rejects.
+     */
+    refreshAfterMiss?(): Promise<void>;
+}
+
+/** Least time between catalog refreshes that lookup misses start. */
+export const CATALOG_MISS_REFRESH_INTERVAL_MS = 30_000;
+
+/** Runs `read`; on a catalog miss, refreshes the catalog and runs it once more, so a second miss throws. */
+export async function withCatalogRefresh<T>(scales: SdkScales, read: () => T): Promise<T> {
+    try {
+        return read();
+    } catch (error) {
+        if (!(error instanceof CatalogLookupError) || !scales.refreshAfterMiss) throw error;
+        await scales.refreshAfterMiss();
+        return read();
+    }
+}
+
+/**
+ * {@link deliverBatch} that holds back events missing from the catalog until it refreshes,
+ * then delivers them; one still missing reaches `onError` as a CatalogLookupError.
+ */
+export function deliverBatchWithCatalogRefresh<T>(
+    scales: SdkScales,
+    channel: string,
+    events: readonly T[],
+    deliver: (event: T) => void,
+    onError: ((error: SdkSubscriptionErrorContext) => void) | undefined,
+    isOpen: () => boolean,
+): void {
+    const refresh = scales.refreshAfterMiss;
+    if (!refresh) return deliverBatch(channel, events, deliver, onError);
+    const missed: T[] = [];
+    deliverBatch(
+        channel,
+        events,
+        (event) => {
+            try {
+                deliver(event);
+            } catch (error) {
+                if (!(error instanceof CatalogLookupError)) throw error;
+                missed.push(event);
+            }
+        },
+        onError,
+    );
+    if (missed.length === 0) return;
+    void refresh().then(() => {
+        if (isOpen()) deliverBatch(channel, missed, deliver, onError);
+    });
 }
 
 /**
@@ -57,7 +111,25 @@ export interface SdkScales {
  * before the owning client has assigned its catalog.
  */
 export function createCatalogSdkScales(getCatalog: () => ClientCatalog): SdkScales {
+    let lastMissRefresh: { at: number; done: Promise<void> } | undefined;
     return {
+        refreshAfterMiss: () => {
+            if (
+                lastMissRefresh &&
+                Date.now() - lastMissRefresh.at < CATALOG_MISS_REFRESH_INTERVAL_MS
+            ) {
+                return lastMissRefresh.done;
+            }
+            // A failed refresh leaves the catalog as it was, so the retried lookup misses again.
+            const done = getCatalog()
+                .refresh()
+                .then(
+                    () => undefined,
+                    () => undefined,
+                );
+            lastMissRefresh = { at: Date.now(), done };
+            return done;
+        },
         ready: async () => {
             await getCatalog().ensureReady();
         },
