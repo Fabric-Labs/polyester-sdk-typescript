@@ -167,8 +167,8 @@ describe("DustConversionService", () => {
         expect(transport.lastCall()?.method.localName).toBe("createDustConversion");
         expect(transport.lastCall()?.message).toEqual({
             subaccountId: 12n,
-            quoteId: "quote-1",
-            idempotencyKey: "dust-1",
+            quoteId: " quote-1 ",
+            idempotencyKey: " dust-1 ",
         });
         expect(conversion).toEqual({
             conversionId: "conv-1",
@@ -194,7 +194,7 @@ describe("DustConversionService", () => {
             }),
         });
 
-        const conversion = await service.get({ conversionId: " conv-1 " });
+        const conversion = await service.get({ conversionId: "conv-1" });
 
         expect(transport.lastCall()?.message).toEqual({ conversionId: "conv-1" });
         expect(conversion).toMatchObject({ state: "refused", refusalCode: "DUST_BALANCE_CHANGED" });
@@ -240,7 +240,7 @@ describe("DustConversionService", () => {
         ],
         [
             "a blank idempotency key",
-            (s: DustConversionService) => s.create({ quoteId: "q", idempotencyKey: " " }),
+            (s: DustConversionService) => s.create({ quoteId: "q", idempotencyKey: "" }),
         ],
         [
             "a missing idempotency key",
@@ -250,7 +250,7 @@ describe("DustConversionService", () => {
             "a blank quote ID",
             (s: DustConversionService) => s.create({ quoteId: "", idempotencyKey: "k" }),
         ],
-        ["a blank conversion ID", (s: DustConversionService) => s.get({ conversionId: " " })],
+        ["a blank conversion ID", (s: DustConversionService) => s.get({ conversionId: "" })],
         [
             "an unknown key",
             (s: DustConversionService) => s.get({ conversionId: "c", extra: 1 } as never),

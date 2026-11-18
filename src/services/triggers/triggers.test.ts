@@ -136,7 +136,7 @@ describe("TriggersService", () => {
                     qty: "0.5",
                     triggerPrice: "100",
                     execution: { type: "market_ioc" },
-                    clientTriggerId: " trigger-client-1 ",
+                    clientTriggerId: "trigger-client-1",
                 },
                 expectedStrategy: {
                     case: "stopLoss",

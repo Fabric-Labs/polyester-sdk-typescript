@@ -24,7 +24,6 @@ const LATEST_END_TIME_MS = Date.UTC(2262, 3, 11, 23, 47, 16);
 
 const IdempotencyKeySchema = v.pipe(
     v.string(),
-    v.trim(),
     v.regex(
         /^[A-Za-z0-9._:-]{1,64}$/u,
         "idempotencyKey must be 1 to 64 letters, digits, '.', '_', ':' or '-'.",

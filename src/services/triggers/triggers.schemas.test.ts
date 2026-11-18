@@ -272,6 +272,24 @@ describe("CreateTriggerInputSchema", () => {
         expectTypeOf<SellStopLossInput["execution"]>().toEqualTypeOf<ExpectedExecution>();
     });
 
+    it("sends clientTriggerId exactly as given and refuses an empty one", () => {
+        const schema = createCreateTriggerInputSchema(testScales());
+        const input = {
+            triggerType: "stop_loss",
+            symbolId: 1,
+            side: "sell",
+            qty: "0.5",
+            triggerPrice: "100",
+            execution: { type: "market_ioc" },
+        } as const;
+
+        expect(
+            v.parse(schema, { ...input, clientTriggerId: " my-trig " }).trigger.clientTriggerId,
+        ).toBe(" my-trig ");
+        expect(() => v.parse(schema, { ...input, clientTriggerId: "" })).toThrow();
+        expect(v.parse(schema, input).trigger.clientTriggerId).toMatch(/^[0-9a-f-]{36}$/u);
+    });
+
     it("requires a positive uint32 symbol ID and forwards its exact maximum", () => {
         const schema = createCreateTriggerInputSchema(testScales(PROTOBUF_UINT32_MAX));
         const input = {

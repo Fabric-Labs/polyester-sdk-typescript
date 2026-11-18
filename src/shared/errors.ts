@@ -248,10 +248,13 @@ export class RequestDeadlineExceededError extends TimestampSkewError {
 /** The backend is temporarily unavailable (e.g. overloaded or restarting). */
 export class ServiceUnavailableError extends TransientError {
     override readonly code: string = "SERVICE_UNAVAILABLE";
+    /** The server's `Retry-After`, in milliseconds, when it sent one. */
+    readonly retryAfterMs?: number;
 
-    constructor(message: string, options?: PolyesterErrorOptions) {
+    constructor(message: string, options?: PolyesterErrorOptions & { retryAfterMs?: number }) {
         super(message, options);
         this.name = "ServiceUnavailableError";
+        this.retryAfterMs = options?.retryAfterMs;
     }
 }
 

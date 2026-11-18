@@ -952,7 +952,9 @@ export class RealtimeClient implements PolyesterRealtime {
      * is reported to `onError`, or thrown synchronously when no error observer is provided.
      * Throws ValidationError when `accountId` is not a base58 public ID.
      */
-    connectPrivateOrders(params: ConnectPrivateOrdersParams): () => void {
+    connectPrivateOrders(input: ConnectPrivateOrdersParams): () => void {
+        // The base58 check trims, so the stream must use the trimmed ID too.
+        const params = { ...input, accountId: input.accountId.trim() };
         idToBigInt(params.accountId, "accountId");
         const channel = `private:spot:orders:${params.accountId}`;
         if (!this.#hasAuth()) {

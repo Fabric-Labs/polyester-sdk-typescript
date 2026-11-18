@@ -13,6 +13,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { signAsync } from "@noble/ed25519";
 import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
 import { RateLimitService } from "../gen/ratelimit/v1/ratelimit_pb.js";
+import { ApiKeyService } from "../gen/auth/v1/api_keys_pb.js";
 import {
     FailureReason,
     LimiterScope,
@@ -29,6 +30,7 @@ import {
     InternalServerError,
     NetworkError,
     NotImplementedError,
+    OutcomeUnknownError,
     PolyesterError,
     PreconditionFailedError,
     RateLimitError,
@@ -1149,6 +1151,75 @@ describe("error details through transports", () => {
             expect((error as RateLimitError).rateLimit).toBeUndefined();
         },
     );
+});
+
+describe("Retry-After on 503", () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    it.each([
+        [
+            "a Connect unavailable body",
+            JSON.stringify({ code: "unavailable", message: "temporarily unavailable" }),
+            "application/json",
+        ],
+        ["a bare 503", null, "text/plain"],
+    ] as const)("keeps the server's Retry-After on %s", async (_kind, body, contentType) => {
+        vi.spyOn(globalThis, "fetch").mockImplementation(
+            async () =>
+                new Response(body, {
+                    status: 503,
+                    headers: { "content-type": contentType, "retry-after": "7" },
+                }),
+        );
+        const { publicApi } = createTransports({ apiUrl: "https://api.test" });
+        const error = await createClient(RateLimitService, publicApi)
+            .getRateLimitConfig({})
+            .catch((error: unknown) => error);
+
+        expect(error).toBeInstanceOf(ServiceUnavailableError);
+        expect((error as ServiceUnavailableError).retryAfterMs).toBe(7_000);
+    });
+});
+
+describe("server timeouts on non-idempotent writes", () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    const connectDeadline = {
+        body: JSON.stringify({ code: "deadline_exceeded", message: "context deadline exceeded" }),
+        contentType: "application/json",
+    };
+    const edgePage = { body: "error code: 504", contentType: "text/plain" };
+
+    function answer504({ body, contentType }: { body: string; contentType: string }) {
+        vi.spyOn(globalThis, "fetch").mockImplementation(
+            async () =>
+                new Response(body, { status: 504, headers: { "content-type": contentType } }),
+        );
+        return createClient(
+            ApiKeyService,
+            createTransports({ apiUrl: "https://api.test" }).publicApi,
+        );
+    }
+
+    it.each([
+        ["deadline_exceeded", connectDeadline],
+        ["an edge 504 page", edgePage],
+    ] as const)("reports %s on CreateApiKey as an unknown outcome", async (_kind, response) => {
+        const error = await answer504(response)
+            .createApiKey({})
+            .catch((error: unknown) => error);
+
+        expect(error).toBeInstanceOf(OutcomeUnknownError);
+        expect((error as OutcomeUnknownError).retryable).toBe(false);
+    });
+
+    it("keeps deadline_exceeded on a read retryable", async () => {
+        const error = await answer504(connectDeadline)
+            .listApiKeys({})
+            .catch((error: unknown) => error);
+
+        expect(error).toBeInstanceOf(TimeoutError);
+    });
 });
 
 describe("caller cancellation through transports", () => {

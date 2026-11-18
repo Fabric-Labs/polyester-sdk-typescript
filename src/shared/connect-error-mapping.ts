@@ -395,7 +395,10 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
     }
 
     if (hasTransientServiceError(detail)) {
-        return new ServiceUnavailableError(withFallback("Service unavailable."), options);
+        return new ServiceUnavailableError(withFallback("Service unavailable."), {
+            ...options,
+            retryAfterMs: parseRetryAfterMs(ce),
+        });
     }
 
     switch (ce.code) {
@@ -420,7 +423,10 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
         case Code.DeadlineExceeded:
             return new TimeoutError(withFallback("Request timed out."), options);
         case Code.Unavailable:
-            return new ServiceUnavailableError(withFallback("Service unavailable."), options);
+            return new ServiceUnavailableError(withFallback("Service unavailable."), {
+                ...options,
+                retryAfterMs: parseRetryAfterMs(ce),
+            });
         case Code.Unimplemented:
             return new NotImplementedError(withFallback("Operation not implemented."), options);
         case Code.Aborted:
@@ -551,6 +557,31 @@ export function createErrorMappingInterceptor(): Interceptor {
     };
 }
 
+// Non-idempotent writes the contract answers with `deadline_exceeded` / 504 when the write may
+// already have been applied (changes/2026-11-15T2309Z-orders-v1.md); a retry could apply it twice.
+const UNKNOWN_OUTCOME_ON_SERVER_TIMEOUT = new Set([
+    "auth.v1.ApiKeyService.CreateApiKey",
+    "auth.v1.PolicyService.CreateApiPolicy",
+    "auth.v1.PolicyService.CreateSubaccountPolicy",
+    "auth.v1.MFAService.RegenerateRecoveryCodes",
+]);
+
+function withUnknownWriteOutcome(
+    method: { name: string; parent: { typeName: string } },
+    err: unknown,
+): unknown {
+    if (!(err instanceof TimeoutError || err instanceof ServiceUnavailableError)) return err;
+    // Only a server-sent 504; a client-side timeout carries no status.
+    if (err.status !== 504) return err;
+    if (!UNKNOWN_OUTCOME_ON_SERVER_TIMEOUT.has(`${method.parent.typeName}.${method.name}`)) {
+        return err;
+    }
+    return new OutcomeUnknownError(
+        "Outcome unknown; the write may have been applied. Read the current state before retrying.",
+        { cause: err, status: 504 },
+    );
+}
+
 /**
  * Wraps a Connect transport so errors are translated after Connect's call
  * runner has applied its own error normalization.
@@ -569,7 +600,7 @@ export function createErrorMappingTransport(transport: Transport): Transport {
                     contextValues,
                 );
             } catch (error) {
-                throw await toTransportError(error, signal);
+                throw withUnknownWriteOutcome(method, await toTransportError(error, signal));
             }
         },
         async stream(method, signal, timeoutMs, header, input, contextValues) {

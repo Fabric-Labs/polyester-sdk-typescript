@@ -160,7 +160,10 @@ describe("LifecycleService", () => {
             expect.objectContaining({ flowId: "flow-1", flowKind: "deposit" }),
         );
 
-        service.subscribeOpenFlows({ accountId: " acct-1 ", onEvent: onPrivate });
+        service.subscribeOpenFlows({ accountId: "", onEvent: onPrivate });
+        expect(realtime.params?.channel).toBe("private:chain:lifecycle:flows::proto");
+
+        service.subscribeOpenFlows({ accountId: "acct-1", onEvent: onPrivate });
         expect(realtime.params?.channel).toBe("private:chain:lifecycle:flows:acct-1:proto");
         realtime.params?.onPublication(flowSummary() as never);
         expect(onPrivate).toHaveBeenCalledWith(

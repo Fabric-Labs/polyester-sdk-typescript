@@ -14,7 +14,8 @@ import { fromU128, type U128Value } from "../../utils/u128.js";
 import { PositiveUint32InputSchema } from "../shared.js";
 import { DustAssetEligibilityCodec, DustConversionStateCodec } from "./dust-conversion.codecs.js";
 
-const RequiredInputStringSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
+// Sent exactly as given: trimming would make " k " and "k" the same idempotency key.
+const RequiredInputStringSchema = v.pipe(v.string(), v.minLength(1));
 
 export const ListDustBalancesInputSchema = v.pipe(
     v.strictObject({

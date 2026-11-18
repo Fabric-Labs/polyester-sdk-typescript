@@ -5,6 +5,7 @@ import {
 } from "../shared/subscription-errors.js";
 import type { PolyesterRealtime } from "./types.js";
 import { formatConnectError } from "../utils/errors.js";
+import { PolyesterError } from "../shared/errors.js";
 import { isDev } from "../utils/is-dev.js";
 
 export interface SnapshotThenStreamSubscription {
@@ -20,9 +21,11 @@ export interface SnapshotThenStreamInput<TSchema extends DescMessage, TSnapshot,
     schema: TSchema;
     maxBufferedPublications?: number;
     bufferPublicationKey?: (publication: TPublication) => PropertyKey;
+    /** Exponential backoff from `delayMs`, capped at `maxDelayMs`; never retries a non-retryable PolyesterError. */
     snapshotRetry?: {
         maxAttempts: number;
         delayMs: number;
+        maxDelayMs?: number;
     };
     snapshotFailureMode?: "wait" | "live" | ((error: unknown) => "wait" | "live");
     snapshotErrorLog?: string;
@@ -138,11 +141,15 @@ export function snapshotThenStream<TSchema extends DescMessage, TSnapshot, TPubl
         }
     }
 
-    function scheduleSnapshotRetry(): void {
+    function scheduleSnapshotRetry(error: unknown): void {
         const retry = params.snapshotRetry;
         if (!retry || retryAttempts >= retry.maxAttempts || disposed) return;
+        if (error instanceof PolyesterError && !error.retryable) return;
 
-        const delayMs = retry.delayMs * 2 ** retryAttempts;
+        const delayMs = Math.min(
+            retry.delayMs * 2 ** retryAttempts,
+            retry.maxDelayMs ?? Number.POSITIVE_INFINITY,
+        );
         retryAttempts++;
         retryTimer = setTimeout(() => {
             retryTimer = null;
@@ -181,7 +188,7 @@ export function snapshotThenStream<TSchema extends DescMessage, TSnapshot, TPubl
                     ready = true;
                     applyBufferedAsLive();
                 }
-                scheduleSnapshotRetry();
+                scheduleSnapshotRetry(error);
             });
     }
 
