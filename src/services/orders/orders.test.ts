@@ -1448,7 +1448,7 @@ describe("OrdersService", () => {
         expect(refresh).toHaveBeenCalledOnce();
     });
 
-    it("delivers stream orders on a newly listed pair after a catalog refresh, and reports a pair still unknown", async () => {
+    it("holds the order stream in order while the catalog refreshes for a newly listed pair", async () => {
         const { scales } = scalesListingPairOnRefresh();
         const realtime = realtimeClientStub();
         const service = new OrdersService(
@@ -1457,11 +1457,18 @@ describe("OrdersService", () => {
             undefined,
             scales,
         );
-        const onEvent = vi.fn();
+        const calls: unknown[] = [];
         const onError = vi.fn();
-        service.subscribe({ accountId: formatId(42n), onEvent, onError });
+        service.subscribe({
+            accountId: formatId(42n),
+            onEvent: (order) => calls.push(["event", order.orderId]),
+            onRemoved: (ids) => calls.push(["removed", ids]),
+            onReady: () => calls.push(["ready"]),
+            onError,
+        });
+        const params = realtime.privateOrdersParams!;
 
-        realtime.privateOrdersParams!.onEvent({
+        params.onEvent({
             type: "unit",
             unit: create(PrivateWs.UnitSchema, {
                 orders: [
@@ -1471,11 +1478,18 @@ describe("OrdersService", () => {
                 ],
             }),
         });
+        params.onEvent({
+            type: "unit",
+            unit: create(PrivateWs.UnitSchema, { removedOrderIds: [2n] }),
+        });
+        params.onEvent({ type: "ready" });
         await flushAsync();
 
-        expect(onEvent.mock.calls.map(([order]) => order.orderId)).toEqual([
-            formatId(1n),
-            formatId(2n),
+        expect(calls).toEqual([
+            ["event", formatId(1n)],
+            ["event", formatId(2n)],
+            ["removed", [formatId(2n)]],
+            ["ready"],
         ]);
         expect(onError).toHaveBeenCalledOnce();
         expect(onError.mock.calls[0]![0].error).toBeInstanceOf(CatalogLookupError);

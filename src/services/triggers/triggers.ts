@@ -10,11 +10,13 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import {
-    deliverBatchWithCatalogRefresh,
+    createCatalogRefreshQueue,
+    hasKnownSymbol,
     withCatalogRefresh,
     type SdkScales,
 } from "../../shared/decimal-surface.js";
 import type { AuthApiTransports } from "../../shared/transports.js";
+import { deliverBatch } from "../../shared/subscription-errors.js";
 import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
 import { createMutationRequestId } from "../../shared/request-id.js";
 import {
@@ -333,9 +335,7 @@ export class TriggersService {
         );
 
         return {
-            events: await withCatalogRefresh(this.#scales, () =>
-                parse(v.array(this.#triggerEventSchema), res.events),
-            ),
+            events: parse(v.array(this.#triggerEventSchema), res.events),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -348,18 +348,14 @@ export class TriggersService {
     subscribe(input: SubscribeTriggersInput): () => void {
         const channel = `private:spot:triggers:${input.accountId}:proto`;
         let open = true;
+        const queue = createCatalogRefreshQueue(this.#scales, channel, input.onError, () => open);
         const stop = connectReadyGatedProtoChannel(this.#realtime, {
             channel,
             schema: Proto.TriggerSchema,
             ready: () => this.#scales.ready(),
             onPublication: (data) =>
-                deliverBatchWithCatalogRefresh(
-                    this.#scales,
-                    channel,
-                    [data],
-                    (trigger) => input.onEvent(parse(this.#triggerSchema, trigger)),
-                    input.onError,
-                    () => open,
+                queue(!hasKnownSymbol(this.#scales, data.symbolId), () =>
+                    input.onEvent(parse(this.#triggerSchema, data)),
                 ),
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
@@ -378,27 +374,20 @@ export class TriggersService {
      */
     subscribeEvents(input: SubscribeTriggerEventsInput): () => void {
         const channel = `private:spot:triggers:events:${input.accountId}:proto`;
-        let open = true;
-        const stop = connectReadyGatedProtoChannel(this.#realtime, {
+        return connectReadyGatedProtoChannel(this.#realtime, {
             channel,
             schema: Proto.TriggerEventBatchSchema,
             ready: () => this.#scales.ready(),
             onPublication: (batch) =>
-                deliverBatchWithCatalogRefresh(
-                    this.#scales,
+                deliverBatch(
                     channel,
                     batch.events,
                     (event) => input.onEvent(parse(this.#triggerEventSchema, event)),
                     input.onError,
-                    () => open,
                 ),
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
             onError: input.onError,
         });
-        return () => {
-            open = false;
-            stop();
-        };
     }
 }

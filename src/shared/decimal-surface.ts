@@ -22,7 +22,10 @@ import {
 } from "../catalogs/types.js";
 import { PRICE_SCALE } from "../catalogs/readers.js";
 import { PROTOBUF_INT64_MAX } from "./wire-bounds.js";
-import { deliverBatch, type SdkSubscriptionErrorContext } from "./subscription-errors.js";
+import {
+    publicationHandlerErrorContext,
+    type SdkSubscriptionErrorContext,
+} from "./subscription-errors.js";
 import { U128_MAX } from "../utils/u128.js";
 
 /** On-chain unified-asset amounts (`amountE18`) are always 18-decimal scaled. */
@@ -72,38 +75,49 @@ export async function withCatalogRefresh<T>(scales: SdkScales, read: () => T): P
     }
 }
 
+/** True when the catalog can scale quantities of `symbolId`. */
+export function hasKnownSymbol(scales: SdkScales, symbolId: number): boolean {
+    try {
+        scales.baseQty(symbolId);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 /**
- * {@link deliverBatch} that holds back events missing from the catalog until it refreshes,
- * then delivers them; one still missing reaches `onError` as a CatalogLookupError.
+ * Keeps a stream's publications in order across catalog refreshes. Call the returned function
+ * with each publication's handler: one naming a symbol the catalog lacks waits for a refresh,
+ * and every later one waits behind it. A symbol still missing then fails in the handler, which
+ * reports it to `onError`; nothing runs after the subscription closed.
  */
-export function deliverBatchWithCatalogRefresh<T>(
+export function createCatalogRefreshQueue(
     scales: SdkScales,
     channel: string,
-    events: readonly T[],
-    deliver: (event: T) => void,
     onError: ((error: SdkSubscriptionErrorContext) => void) | undefined,
     isOpen: () => boolean,
-): void {
-    const refresh = scales.refreshAfterMiss;
-    if (!refresh) return deliverBatch(channel, events, deliver, onError);
-    const missed: T[] = [];
-    deliverBatch(
-        channel,
-        events,
-        (event) => {
+): (missesCatalog: boolean, handle: () => void) => void {
+    let tail: Promise<void> | undefined;
+    return (missesCatalog, handle) => {
+        const wait = tail ?? (missesCatalog ? scales.refreshAfterMiss?.() : undefined);
+        if (!wait) return handle();
+        const next = wait.then(() => {
+            if (!isOpen()) return;
             try {
-                deliver(event);
+                handle();
             } catch (error) {
-                if (!(error instanceof CatalogLookupError)) throw error;
-                missed.push(event);
+                try {
+                    onError?.(publicationHandlerErrorContext(channel, error));
+                } catch {
+                    // The caller's onError threw; keep later publications flowing.
+                }
             }
-        },
-        onError,
-    );
-    if (missed.length === 0) return;
-    void refresh().then(() => {
-        if (isOpen()) deliverBatch(channel, missed, deliver, onError);
-    });
+        });
+        tail = next;
+        void next.then(() => {
+            if (tail === next) tail = undefined;
+        });
+    };
 }
 
 /**

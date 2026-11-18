@@ -6,6 +6,7 @@ import { parse } from "../../shared/validation.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
+import { deliverBatch } from "../../shared/subscription-errors.js";
 import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
@@ -13,7 +14,8 @@ import {
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
 import {
-    deliverBatchWithCatalogRefresh,
+    createCatalogRefreshQueue,
+    hasKnownSymbol,
     withCatalogRefresh,
     type SdkScales,
 } from "../../shared/decimal-surface.js";
@@ -82,19 +84,23 @@ export class TradesService {
      */
     subscribe(input: SubscribeTradesInput): () => void {
         const channel = `private:spot:trades:${input.accountId}:proto`;
+        const scales = this.#scales;
         let open = true;
+        const queue = createCatalogRefreshQueue(scales, channel, input.onError, () => open);
         const stop = connectReadyGatedProtoChannel(this.#realtime, {
             channel,
             schema: Proto.UserTradeBatchSchema,
-            ready: () => this.#scales.ready(),
+            ready: () => scales.ready(),
             onPublication: (batch) =>
-                deliverBatchWithCatalogRefresh(
-                    this.#scales,
-                    channel,
-                    batch.events,
-                    (trade) => input.onEvent(formatUserTrade(this.#scales, trade)),
-                    input.onError,
-                    () => open,
+                queue(
+                    batch.events.some((trade) => !hasKnownSymbol(scales, trade.symbolId)),
+                    () =>
+                        deliverBatch(
+                            channel,
+                            batch.events,
+                            (trade) => input.onEvent(formatUserTrade(scales, trade)),
+                            input.onError,
+                        ),
                 ),
             onConnected: () => input.onOpen?.(),
             onDisconnected: () => input.onClose?.(),
