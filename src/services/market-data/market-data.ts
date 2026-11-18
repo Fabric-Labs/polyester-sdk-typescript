@@ -91,8 +91,9 @@ export class MarketDataService {
 
     /**
      * Returns team-maintained asset information (description, official links, launch date and
-     * price) for the requested ledger asset IDs, or for every asset with saved information,
-     * ordered by `assetId`. Assets never edited are omitted. Public and cacheable; no pagination.
+     * price) and market statistics (supplies, market caps and rank) for the requested ledger
+     * asset IDs, or for every asset with either, ordered by `assetId`. Assets with neither are
+     * omitted. Public and cacheable; no pagination.
      */
     async listAssetInfo(
         input: ListAssetInfoInput = {},

@@ -6,6 +6,7 @@
  */
 export * as assistantPb from "./ai/v1/assistant_pb.js";
 export * as priceAlertsPb from "./alerts/v1/price_alerts_pb.js";
+export * as activityPb from "./auth/v1/activity_pb.js";
 export * as addressBookPb from "./auth/v1/address_book_pb.js";
 export * as apiKeysPb from "./auth/v1/api_keys_pb.js";
 export * as authPb from "./auth/v1/auth_pb.js";
@@ -46,6 +47,7 @@ export * as privateWsPb from "./privatews/v1/private_ws_pb.js";
 export * as tradingRateLimitPb from "./ratelimit/v1/ratelimit_pb.js";
 export * as rewardsPb from "./rewards/v1/rewards_pb.js";
 export * as quickswapBrokerPb from "./swap/quickswap/v1/quickswap_broker_pb.js";
+export * as quickswapExplorerPb from "./swap/quickswap/v1/quickswap_explorer_pb.js";
 export * as quickswapPb from "./swap/quickswap/v1/quickswap_pb.js";
 export * as quickswapReferralPb from "./swap/quickswap/v1/quickswap_referral_pb.js";
 export * as swapPb from "./swap/v1/swap_pb.js";

@@ -16,7 +16,8 @@ import {
 } from "../../shared/schemas.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
-import { PairStatusCodec, SideFilterCodec } from "./market-data.codecs.js";
+import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
+import { AssetDataSourceCodec, PairStatusCodec, SideFilterCodec } from "./market-data.codecs.js";
 
 export type { AssetConfig, PairConfig, PairMarketDataConfig, PairStatus, SpotConfig };
 export { PAIR_STATUSES };
@@ -399,22 +400,74 @@ const AssetEditorialInfoSchema = v.pipe(
     })),
 );
 
+const AssetDataSourceSchema = v.optional(enumLabelSchema(AssetDataSourceCodec.protoToOutput), 0);
+
+/** A market value as a nonnegative decimal string; keep it exact, not a float. */
+const AssetMarketValueSchema = v.pipe(
+    v.object({ value: v.string(), source: AssetDataSourceSchema, asOf: OptionalTimestampMsSchema }),
+    v.transform(({ value, source, asOf }) => ({
+        value,
+        source,
+        /** Epoch ms the source last observed or set the value; show it with the value. */
+        asOf: asOf ?? null,
+    })),
+);
+
+const AssetMarketFlagSchema = v.pipe(
+    v.object({ source: AssetDataSourceSchema, asOf: OptionalTimestampMsSchema }),
+    v.transform(({ source, asOf }) => ({ source, asOf: asOf ?? null })),
+);
+
+/** Market datapoints; each is null when unknown. */
+const AssetMarketStatsSchema = v.pipe(
+    v.object({
+        circulatingSupply: v.optional(AssetMarketValueSchema),
+        totalSupply: v.optional(AssetMarketValueSchema),
+        maxSupply: v.optional(AssetMarketValueSchema),
+        maxSupplyUnlimited: v.optional(AssetMarketFlagSchema),
+        marketCapUsd: v.optional(AssetMarketValueSchema),
+        fullyDilutedMarketCapUsd: v.optional(AssetMarketValueSchema),
+        rank: v.optional(AssetMarketValueSchema),
+    }),
+    v.transform((stats) => ({
+        /** Coins circulating in public hands, in asset units. */
+        circulatingSupply: stats.circulatingSupply ?? null,
+        /** Coins in existence, minus any verifiably burned, in asset units. */
+        totalSupply: stats.totalSupply ?? null,
+        /** Most coins that will ever exist; null when unknown or `maxSupplyUnlimited` is set. */
+        maxSupply: stats.maxSupply ?? null,
+        /** Set when the source reports no maximum supply. */
+        maxSupplyUnlimited: stats.maxSupplyUnlimited ?? null,
+        /** Price times circulating supply, in US dollars. */
+        marketCapUsd: stats.marketCapUsd ?? null,
+        /** Price times maximum supply (total supply when none), in US dollars. */
+        fullyDilutedMarketCapUsd: stats.fullyDilutedMarketCapUsd ?? null,
+        /** Market cap rank as a positive integer string; 1 is the largest. */
+        rank: stats.rank ?? null,
+    })),
+);
+
 /**
- * Team-maintained information about one asset. Text is plain text and links are HTTPS; an empty
- * string or list means unknown and can be hidden.
+ * Information about one asset. Text is plain text and links are HTTPS; an empty string or list
+ * means unknown and can be hidden.
  */
 export const AssetInfoSchema = v.pipe(
     v.object({
         assetId: v.number(),
         editorial: AssetEditorialInfoSchema,
         editorialUpdatedAt: OptionalTimestampMsSchema,
+        marketStats: v.optional(AssetMarketStatsSchema),
     }),
-    v.transform(({ editorialUpdatedAt, ...info }) => ({
+    v.transform(({ editorialUpdatedAt, marketStats, ...info }) => ({
         ...info,
-        /** Epoch milliseconds of the last editorial change. */
+        /** Epoch milliseconds of the last editorial change; null when never edited. */
         editorialUpdatedAt: editorialUpdatedAt ?? null,
+        /** Market datapoints; null when the asset has none. */
+        marketStats: marketStats ?? null,
     })),
 );
 
 export type AssetInfo = v.InferOutput<typeof AssetInfoSchema>;
 export type AssetEditorialInfo = AssetInfo["editorial"];
+export type AssetMarketStats = NonNullable<AssetInfo["marketStats"]>;
+export type AssetMarketValue = NonNullable<AssetMarketStats["marketCapUsd"]>;

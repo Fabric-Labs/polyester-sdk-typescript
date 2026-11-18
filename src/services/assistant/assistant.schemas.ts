@@ -15,8 +15,10 @@ import {
     ApprovalDecisionCodec,
     AssistantKeyStateCodec,
     DisplaySettingCodec,
+    FundingModeCodec,
     MemoryKindCodec,
     MessageRoleCodec,
+    ModelKeyCheckCodec,
 } from "./assistant.codecs.js";
 
 const IdempotencyKeySchema = v.pipe(v.string(), v.trim(), v.minLength(1));
@@ -70,8 +72,31 @@ export const SendAssistantMessageInputSchema = v.pipe(
     v.strictObject({
         /** Conversation to continue; omit to start a new one. */
         conversationId: v.optional(idInputSchema("conversationId")),
-        /** Message text, plain text or Markdown, 1 to 16000 characters. */
-        text: v.pipe(v.string(), v.minLength(1), v.maxLength(16_000)),
+        /**
+         * Message text, plain text or Markdown, at most 16000 characters. Required unless
+         * `images` are attached; with images, it is the question about them.
+         */
+        text: v.optional(v.pipe(v.string(), v.maxLength(16_000))),
+        /**
+         * Images the message shows the assistant, such as a screenshot, in the order the user
+         * attached them: PNG, JPEG or WebP, at most 4, each at most 10 MiB. Covered by
+         * `idempotencyKey`.
+         */
+        images: v.optional(
+            v.array(
+                v.strictObject({
+                    data: v.instance(Uint8Array),
+                    /** `"image/png"`, `"image/jpeg"` or `"image/webp"`, matching `data`. */
+                    mimeType: v.string(),
+                }),
+            ),
+        ),
+        /**
+         * Send only while this run is still the conversation's latest, e.g. the run of the
+         * answer a follow-up button sits under; otherwise nothing is recorded and the call fails
+         * with `CONVERSATION_ADVANCED`. Needs `conversationId`. Covered by `idempotencyKey`.
+         */
+        expectedLatestRunId: v.optional(idInputSchema("expectedLatestRunId")),
         /** Client-chosen key, unique per caller. Repeat the request unchanged to resolve an unknown outcome. */
         idempotencyKey: IdempotencyKeySchema,
         /**
@@ -123,6 +148,10 @@ export const SendAssistantMessageInputSchema = v.pipe(
     v.check(
         (input) => input.accountSelection === undefined || input.subaccountId === undefined,
         'Omit subaccountId when accountSelection is "none".',
+    ),
+    v.check(
+        (input) => Boolean(input.text || input.images?.length),
+        "A message needs text, images or both.",
     ),
 );
 
@@ -200,6 +229,21 @@ export const PrepareAssistantKeysInputSchema = v.pipe(
 
 export type PrepareAssistantKeysInput = v.InferInput<typeof PrepareAssistantKeysInputSchema>;
 
+export const GetAssistantMessageImageInputSchema = v.strictObject({
+    imageId: idInputSchema("imageId"),
+});
+
+export type GetAssistantMessageImageInput = v.InferInput<
+    typeof GetAssistantMessageImageInputSchema
+>;
+
+export const SetAssistantModelKeyInputSchema = v.strictObject({
+    /** An OpenAI secret API key (`sk-...`). Never logged or returned. */
+    apiKey: v.pipe(v.string(), v.minLength(1)),
+});
+
+export type SetAssistantModelKeyInput = v.InferInput<typeof SetAssistantModelKeyInputSchema>;
+
 export const CompleteAssistantKeysInputSchema = v.strictObject({
     setupId: idInputSchema("setupId"),
 });
@@ -233,8 +277,24 @@ export function formatMessage(m: Proto.Message) {
         createdAt: tsObjToMs(m.createdAt),
         /** Replay this run with `watchRun` from `afterSeq: 0` to show its tool activity and views. */
         runId: formatId(m.runId),
+        /** A user message's images, in the order sent; read each with `getMessageImage`. */
+        images: m.images.map(formatMessageImage),
     };
 }
+
+export function formatMessageImage(i: Proto.MessageImage) {
+    return {
+        imageId: formatId(i.imageId),
+        /** `"image/png"`, `"image/jpeg"` or `"image/webp"`. */
+        mimeType: i.mimeType,
+        /** Pixels; an image over 2000 pixels on a side is stored scaled down to fit. */
+        width: i.width,
+        height: i.height,
+        sizeBytes: i.sizeBytes,
+    };
+}
+
+export type AssistantMessageImage = ReturnType<typeof formatMessageImage>;
 
 export type AssistantMessage = ReturnType<typeof formatMessage>;
 
@@ -307,6 +367,44 @@ export function formatPrepareAssistantKeysResult(r: Proto.PrepareAssistantKeysRe
 }
 
 export type PrepareAssistantKeysResult = ReturnType<typeof formatPrepareAssistantKeysResult>;
+
+/** The caller's own OpenAI API key as the assistant shows it; the key itself is never returned. */
+export function formatModelKey(k: Proto.ModelKey | undefined) {
+    return {
+        /** The key's last four characters, e.g. `"x7Qa"`. */
+        suffix: k?.suffix ?? "",
+        addedAt: tsObjToMs(k?.addedAt),
+        /** The last check with OpenAI: on save, when OpenAI refused it in a run, and on recovery. */
+        lastCheck: enumLabel(ModelKeyCheckCodec.protoToOutput, k?.lastCheck ?? 0),
+        checkedAt: tsObjToMs(k?.checkedAt),
+    };
+}
+
+export type AssistantModelKey = ReturnType<typeof formatModelKey>;
+
+/** Credits are the main account's, shared by every subaccount. */
+export function formatAssistantUsage(r: Proto.GetUsageResponse) {
+    return {
+        /** With `"own_key"`, messages use no credits. */
+        fundingMode: FundingModeCodec.protoToOutput[r.fundingMode] ?? "credits",
+        /** Omitted when the tier could not be read; VIP 0's free credits then apply. */
+        vipTier: r.vipTier,
+        /** Today's free credits. */
+        freeCredits: Number(r.freeCredits),
+        /** Rounded down; may exceed `freeCredits`, as an answer started with credits left finishes. */
+        freeCreditsUsed: Number(r.freeCreditsUsed),
+        freeCreditsLeft: Number(r.freeCreditsLeft),
+        /** Epoch ms of the next 00:00 UTC; unused credits do not carry over. */
+        resetsAt: tsObjToMs(r.resetsAt),
+        /** The next VIP tier's daily free credits; omitted at the top tier or an unknown tier. */
+        nextTier: r.nextTier && {
+            vipTier: r.nextTier.vipTier,
+            dailyFreeCredits: Number(r.nextTier.dailyFreeCredits),
+        },
+    };
+}
+
+export type AssistantUsage = ReturnType<typeof formatAssistantUsage>;
 
 /** `nextPageToken` is empty when no more results exist. */
 export type ListAssistantConversationsResult = {

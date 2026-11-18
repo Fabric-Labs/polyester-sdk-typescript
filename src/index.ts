@@ -211,6 +211,7 @@ export type {
     SessionData,
 } from "./services/auth/session.types.js";
 
+export type * from "./services/account-activity/account-activity.types.js";
 export type * from "./services/accounts/accounts.types.js";
 export type * from "./services/address-book/address-book.types.js";
 export type * from "./services/api-keys/api-keys.types.js";

@@ -1,4 +1,5 @@
 import { PolyesterCore } from "./core-client.js";
+import { accountActivityService } from "./services/account-activity/service.js";
 import { accountsService } from "./services/accounts/service.js";
 import { addressBookService } from "./services/address-book/service.js";
 import { apiKeysService } from "./services/api-keys/service.js";
@@ -42,6 +43,7 @@ export const POLYESTER_SERVICES = {
     accounts: accountsService,
     apiKeys: apiKeysService,
     subaccounts: subaccountsService,
+    accountActivity: accountActivityService,
     candles: candlesService,
     chainAnalytics: chainAnalyticsService,
     marketData: marketDataService,

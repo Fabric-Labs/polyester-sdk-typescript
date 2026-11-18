@@ -297,6 +297,17 @@ describe("social verification schemas", () => {
         ).toMatchObject({ status: "unspecified" });
     });
 
+    it("passes through when a linked account may change again", () => {
+        const changeAvailableAt = { seconds: 1_700_000_000n, nanos: 0 };
+        expect(
+            transformVerification(verification({ changeAvailableAt }) as Proto.SocialVerification)
+                ?.changeAvailableAt,
+        ).toEqual(changeAvailableAt);
+        expect(
+            transformVerification(verification() as Proto.SocialVerification)?.changeAvailableAt,
+        ).toBeUndefined();
+    });
+
     it("labels a canceled verification with the canceled spelling", () => {
         expect(
             transformVerification(

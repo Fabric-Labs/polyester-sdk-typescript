@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
-import { MemoRequirement, RouteStatus } from "../../gen/chain/zipper/v1/zipper_pb.js";
+import { MemoRequirement, RouteStatus, SupplyStatus } from "../../gen/chain/zipper/v1/zipper_pb.js";
 import { DepositWithdrawConfigSchema, ZipperChainConfigSchema } from "./zipper.schemas.js";
 
 describe("DepositWithdrawConfigSchema", () => {
@@ -79,9 +79,9 @@ describe("DepositWithdrawConfigSchema", () => {
                             networkFeeTsSec: 0,
                             depositMinAmount: "",
                             withdrawMinAmount: "",
-                            supply: "123.456789",
                             depositStatus: "unspecified",
                             withdrawalStatus: "unspecified",
+                            supplyStatus: "unspecified",
                             sourceToken: {
                                 address: "0x0000000000000000000000000000000000000001",
                                 decimals: 18,
@@ -167,6 +167,52 @@ describe("DepositWithdrawConfigSchema", () => {
         expect(config.assets[0]?.variants).toMatchObject([
             { depositStatus: "suspended", withdrawalStatus: "normal" },
             { depositStatus: "unspecified", withdrawalStatus: "unspecified" },
+        ]);
+    });
+
+    it("gives a supply only while it is available or stale, never zero for an unknown one", () => {
+        const variant = (supplyStatus: number, supplyQ = 0n) => ({
+            zippedAssetId: 3000 + supplyStatus,
+            chainId: 1,
+            supplyQ,
+            supplyStatus,
+            ...(supplyQ > 0n && { supplyObservedAt: { seconds: 1_700_000_000n } }),
+        });
+        const config = v.parse(DepositWithdrawConfigSchema, {
+            chains: [],
+            assets: [
+                {
+                    asset: "USDT",
+                    ledgerId: 1,
+                    name: "Tether USD",
+                    icon: "usdt.svg",
+                    quantityScale: 6,
+                    quantityDisplayDecimals: 6,
+                    variants: [
+                        variant(SupplyStatus.AVAILABLE),
+                        variant(SupplyStatus.STALE, 1_500_000n),
+                        variant(SupplyStatus.MISSING),
+                        variant(SupplyStatus.SUPPLY_UNSPECIFIED),
+                    ],
+                },
+            ],
+            tsSec: 1_700_000_000n,
+        });
+
+        const variants = config.assets[0]?.variants;
+        expect(variants?.[0]).toMatchObject({ supplyStatus: "available", supply: "0" });
+        expect(variants?.[1]).toMatchObject({
+            supplyStatus: "stale",
+            supply: "1.5",
+            supplyObservedAt: 1_700_000_000_000,
+        });
+        for (const unknown of variants?.slice(2) ?? []) {
+            expect(unknown).not.toHaveProperty("supply");
+            expect(unknown).not.toHaveProperty("supplyObservedAt");
+        }
+        expect(variants?.slice(2).map((chain) => chain.supplyStatus)).toEqual([
+            "missing",
+            "unspecified",
         ]);
     });
 });

@@ -23,8 +23,10 @@ import {
     createCreateInternalTransferResultSchema,
     type CreateInternalTransferInput,
     type CreateInternalTransferResult,
+    GetInternalTransferBatchInputSchema,
     GetInternalTransferInputSchema,
     GetInternalTransferResultSchema,
+    type GetInternalTransferBatchInput,
     type GetInternalTransferInput,
     type GetInternalTransferResult,
 } from "./internal-transfers.schemas.js";
@@ -71,15 +73,15 @@ export class InternalTransfersService {
     }
 
     /**
-     * Submits up to 10 transfers under one idempotency key and one MFA check. Every leg passes
-     * the same checks as `create` first; if one fails, the batch is `"refused"`: nothing moves,
-     * no step-up is used, the failing legs carry their `errorCode` and the rest are
-     * `"not_submitted"`. Otherwise the legs run in order and are not atomic: a leg can be
-     * `"refused"`, for example for insufficient balance, after earlier legs were accepted. Read
-     * each leg's `status`; a `"pending"` leg is like a timed-out `create`: read it with `get` by
-     * its `requestId`, or retry the batch with the same key and legs. Recent MFA covers the root
-     * owner moving funds between its own accounts or to allowlisted destinations; any other leg
-     * needs one fresh step-up for the whole batch.
+     * Moves up to 500 transfers together under one idempotency key and one MFA check: every leg
+     * is credited, or nothing moves. Every leg passes the same checks as `create` first; if one
+     * fails, or a source cannot cover its legs, the batch is `"refused"`: nothing moves, no
+     * step-up is used, the legs that caused it carry their `errorCode` and the rest are
+     * `"not_moved"`. `"accepted"` means every leg is credited. A batch whose outcome is not known
+     * within the request is `"processing"` and completes on its own: read it with `getBatch` by
+     * its `requestId`, or retry with the same key and legs. Recent MFA covers the root owner
+     * moving funds between its own accounts or to allowlisted destinations; any other leg needs
+     * one fresh step-up for the whole batch.
      */
     async batchCreate(
         input: BatchCreateInternalTransfersInput,
@@ -94,6 +96,24 @@ export class InternalTransfersService {
             : input?.legs;
         const request = parse(this.#batchInputSchema, { ...input, legs });
         const res = await this.#client.batchCreateInternalTransfers(
+            request,
+            toConnectCallOptions(options),
+        );
+        return parse(BatchCreateInternalTransfersResultSchema, res);
+    }
+
+    /**
+     * Reads a batch's current status and every leg's state by the `requestId` `batchCreate`
+     * returned, for example to follow a `"processing"` batch. The caller must be allowed to read
+     * the transfers of every source account of the batch; any other batch is a
+     * `ResourceNotFoundError`. Does not submit or retry the batch and needs no step-up.
+     */
+    async getBatch(
+        input: GetInternalTransferBatchInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<BatchCreateInternalTransfersResult> {
+        const request = parse(GetInternalTransferBatchInputSchema, input);
+        const res = await this.#client.getInternalTransferBatch(
             request,
             toConnectCallOptions(options),
         );

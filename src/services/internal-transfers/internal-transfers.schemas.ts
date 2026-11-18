@@ -153,15 +153,17 @@ export type CreateInternalTransferResult = v.InferOutput<
 >;
 
 /** The most legs one batch may carry. */
-export const MAX_INTERNAL_TRANSFER_BATCH_LEGS = 10;
+export const MAX_INTERNAL_TRANSFER_BATCH_LEGS = 500;
 
 export function createBatchCreateInternalTransfersInputSchema(scales: SdkScales) {
     return v.pipe(
         v.strictObject({
             /**
-             * Up to 10 transfers, run in order. Each leg debits its own `account` (the
-             * resolved active account when omitted), and legs may repeat an asset, a source or a
-             * destination. Each leg counts as one internal transfer against the rate limit.
+             * Up to 500 transfers, moved together, in order. Each leg debits its own `account`
+             * (the resolved active account when omitted). A batch debits at most 10 distinct
+             * source accounts and 50 distinct source account and asset pairs, and a source,
+             * destination and asset combination appears at most once; legs may otherwise repeat
+             * an asset, a source or a destination.
              */
             legs: v.pipe(
                 v.array(
@@ -208,10 +210,11 @@ const InternalTransferBatchLegResultSchema = v.pipe(
     v.object({
         legIndex: v.number(),
         status: enumLabelSchema(InternalTransferBatchLegStatusCodec.protoToOutput),
-        requestId: OptionalResponseStringSchema,
+        /** Set once the batch is accepted for processing. */
         transferId: OptionalResponseStringSchema,
+        /** Lifecycle flow ID for `lifecycle.getAccountFlow`; set once the leg is credited. */
         flowId: OptionalResponseStringSchema,
-        acceptedAtTsNs: v.optional(v.bigint(), 0n),
+        creditedAtTsNs: v.optional(v.bigint(), 0n),
         assetId: v.number(),
         assetCode: OptionalResponseStringSchema,
         amountE18: v.optional(U128Schema),
@@ -219,12 +222,14 @@ const InternalTransferBatchLegResultSchema = v.pipe(
         errorCode: v.optional(v.number(), 0),
         errorMessage: OptionalResponseStringSchema,
     }),
-    v.transform(({ acceptedAtTsNs, amountE18, errorCode, ...leg }) => ({
+    v.transform(({ creditedAtTsNs, amountE18, errorCode, ...leg }) => ({
         ...leg,
-        acceptedAtUnixMs: acceptedAtTsNs ? tsNsToMs(acceptedAtTsNs) : undefined,
-        acceptedAtNs: acceptedAtTsNs ? acceptedAtTsNs.toString() : undefined,
+        /** When the leg was credited; unset before. */
+        creditedAtUnixMs: creditedAtTsNs ? tsNsToMs(creditedAtTsNs) : undefined,
+        /** Exact credit time in nanoseconds since epoch, as a decimal string; unset before. */
+        creditedAtNs: creditedAtTsNs ? creditedAtTsNs.toString() : undefined,
         quantity: amountE18 ? scaledToDecimalOutput(fromU128(amountE18), E18_SCALE) : undefined,
-        /** Why the leg was refused, or why its outcome is not known yet; unset otherwise. */
+        /** Why the leg caused its batch's refusal; unset for every other leg. */
         errorCode: errorCode ? internalTransferErrorCodeName(errorCode) : undefined,
     })),
 );
@@ -234,7 +239,10 @@ export type InternalTransferBatchLegResult = v.InferOutput<
 >;
 
 export const BatchCreateInternalTransfersResultSchema = v.object({
-    /** Batch request ID; unset when the batch was refused. */
+    /**
+     * Batch request ID for `internalTransfers.getBatch`; unset when the batch was refused before
+     * it was accepted for processing.
+     */
     requestId: OptionalResponseStringSchema,
     status: enumLabelSchema(InternalTransferBatchStatusCodec.protoToOutput),
     /** One result per leg, in request order. */
@@ -246,6 +254,15 @@ export type BatchCreateInternalTransfersResult = v.InferOutput<
 >;
 
 const TransferLookupIdSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
+
+export const GetInternalTransferBatchInputSchema = v.strictObject({
+    /** Batch `requestId` returned by `internalTransfers.batchCreate`. */
+    requestId: TransferLookupIdSchema,
+});
+
+export type GetInternalTransferBatchInput = v.InferInput<
+    typeof GetInternalTransferBatchInputSchema
+>;
 
 export const GetInternalTransferInputSchema = v.pipe(
     v.union(

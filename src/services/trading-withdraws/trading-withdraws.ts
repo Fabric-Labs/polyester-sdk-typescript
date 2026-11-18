@@ -216,7 +216,8 @@ export class TradingWithdrawsService {
     /**
      * Reads the zTokens the account's smart account wallet holds on Polyester Chain, such as a
      * rejected withdrawal's refund (see the lifecycle step's `refundAddress`), which stays there
-     * until moved. API keys need `read-balances`.
+     * until moved. Balances that could not be read are listed in `unavailableAssets`, not
+     * reported as zero. API keys need `read-balances`.
      */
     async getWalletBalances(
         input: GetWalletBalancesInput = {},

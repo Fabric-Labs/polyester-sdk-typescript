@@ -42,7 +42,9 @@ export class PriceAlertsService {
 
     /**
      * Creates an active alert. Throws `PreconditionFailedError` when the market has no index
-     * price (`PRICE_SOURCE_UNSUPPORTED`) or the active-alert limit is reached, and a retryable
+     * price (`PRICE_SOURCE_UNSUPPORTED`), the active-alert limit is reached, or the `telegram`
+     * channel is asked for without a linked Telegram account (`TELEGRAM_NOT_LINKED`) or where
+     * Telegram delivery is not available (`TELEGRAM_UNAVAILABLE`), and a retryable
      * `ServiceUnavailableError` when the market has no current price yet. API keys need
      * `manage-price-alerts`.
      */
@@ -75,7 +77,8 @@ export class PriceAlertsService {
      * Changes an alert's direction, price or channels; omitted fields stay as they are. A new
      * direction or price records a new reference price. Updating a triggered alert sets it
      * again, even with no field given. A stale `expectedRevision` throws
-     * `RevisionConflictError`; a canceled alert throws `PreconditionFailedError`. API keys need
+     * `RevisionConflictError`; a canceled alert, or an alert left with the `telegram` channel
+     * when Telegram is not linked or not available, throws `PreconditionFailedError`. API keys need
      * `manage-price-alerts`.
      */
     async update(

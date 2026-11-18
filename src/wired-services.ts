@@ -1,6 +1,7 @@
 import type { DescService } from "@bufbuild/protobuf";
 import { AssistantService } from "./gen/ai/v1/assistant_pb.js";
 import { PriceAlertService } from "./gen/alerts/v1/price_alerts_pb.js";
+import { AccountActivityService } from "./gen/auth/v1/activity_pb.js";
 import { AddressBookService } from "./gen/auth/v1/address_book_pb.js";
 import { ApiKeyService } from "./gen/auth/v1/api_keys_pb.js";
 import { AuthService } from "./gen/auth/v1/auth_pb.js";
@@ -52,6 +53,7 @@ import { VIPService } from "./gen/vip/v1/vip_pb.js";
  * fails when this list drifts from the code.
  */
 export const WIRED_SERVICE_DESCRIPTORS: readonly DescService[] = [
+    AccountActivityService,
     AddressBookService,
     ApiKeyService,
     AssistantService,

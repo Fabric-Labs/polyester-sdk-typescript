@@ -15,8 +15,6 @@ import {
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
 import { PublicIdSchema, U128Schema } from "../../shared/schemas.js";
-import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
-import { msToTimestamp } from "../../utils/timestamp.js";
 
 /**
  * Equity history values are quoted in the response's quote currency at a fixed
@@ -126,65 +124,6 @@ export const BalanceHistoryInputSchema = v.pipe(
 );
 
 export type BalanceHistoryInput = v.InferInput<typeof BalanceHistoryInputSchema>;
-
-/** The longest statement period the server accepts. */
-const MAX_STATEMENT_PERIOD_MS = 366 * 24 * 60 * 60 * 1000;
-
-const EpochMsInputSchema = v.pipe(v.number(), v.integer(), v.minValue(0));
-
-export const ExportStatementInputSchema = v.pipe(
-    v.strictObject({
-        ...AccountScopeInputEntries,
-        /** Period start, inclusive, in epoch milliseconds (UTC). */
-        startTime: EpochMsInputSchema,
-        /** Period end, exclusive, in epoch milliseconds (UTC); at most 366 days after `startTime`. */
-        endTime: EpochMsInputSchema,
-        /** Ledger asset ID to cover only that asset; omit or `0` for every asset. */
-        assetId: v.optional(
-            v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(PROTOBUF_UINT32_MAX)),
-            0,
-        ),
-        /** Previous `nextPageToken`; reuse only with the same account, asset and period. */
-        pageToken: v.optional(v.pipe(v.string(), v.trim()), ""),
-    }),
-    v.check(({ startTime, endTime }) => endTime > startTime, "endTime must be after startTime."),
-    v.check(
-        ({ startTime, endTime }) => endTime - startTime <= MAX_STATEMENT_PERIOD_MS,
-        "A statement period is at most 366 days.",
-    ),
-    v.transform(({ account, startTime, endTime, ...input }) => ({
-        ...input,
-        subaccountId: accountScopeToSubaccountId(account),
-        startTime: msToTimestamp(startTime),
-        endTime: msToTimestamp(endTime),
-    })),
-);
-
-export type ExportStatementInput = v.InferInput<typeof ExportStatementInputSchema>;
-
-/**
- * One page of an account statement. `csv` is RFC 4180 UTF-8 text with CRLF line endings; only
- * the first page starts with the header row, so concatenating pages in order yields the whole
- * statement. Read columns by header name, since later releases may append columns, and keep
- * amounts as decimal strings. An empty `nextPageToken` means no more pages.
- */
-export interface StatementPage {
-    csv: string;
-    nextPageToken: string;
-    /**
-     * The statement covers movements up to this time (epoch ms, exclusive): the earliest of
-     * `endTime`, the first page's request time and the time account history is complete
-     * through. Every page carries the same value. Before `endTime`, the statement is partial:
-     * the rest appears in a statement requested later.
-     */
-    completeThrough: number | undefined;
-}
-
-/** A whole account statement: every page's CSV and the time it is complete through. */
-export interface Statement {
-    csv: string;
-    completeThrough: number | undefined;
-}
 
 const BalanceSeriesSchema = v.object({
     assetId: v.number(),

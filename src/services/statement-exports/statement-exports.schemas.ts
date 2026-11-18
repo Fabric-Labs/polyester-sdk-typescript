@@ -40,8 +40,9 @@ export const CreateStatementExportInputSchema = v.pipe(
             v.minValue(1, "startTime must be after 1970-01-01T00:00:00Z."),
         ),
         /**
-         * Period end, exclusive, in epoch milliseconds (UTC), by 2262-04-11T23:47:16Z. A period
-         * still open when the export is created ends then; see `completeThrough`.
+         * Period end, exclusive, in epoch milliseconds (UTC), by 2262-04-11T23:47:16Z and at most
+         * 366 days after `startTime`. A period still open when the export is created ends then;
+         * see `completeThrough`.
          */
         endTime: v.pipe(
             v.number(),
@@ -76,6 +77,8 @@ export const GetStatementExportInputSchema = v.strictObject({
 });
 
 export type GetStatementExportInput = v.InferInput<typeof GetStatementExportInputSchema>;
+export type CancelStatementExportInput = GetStatementExportInput;
+export type GetStatementExportDownloadUrlInput = GetStatementExportInput;
 
 export const ListStatementExportsInputSchema = v.pipe(
     v.strictObject({
@@ -147,7 +150,28 @@ export type StatementExport = v.InferOutput<typeof StatementExportSchema>;
 export const ListStatementExportsResultSchema = v.object({
     exports: v.array(StatementExportSchema),
     nextPageToken: v.optional(v.string(), ""),
+    /**
+     * Exports queued or processing across the whole root account, subaccounts included,
+     * whichever account the list selects.
+     */
+    inProgressExports: v.optional(v.number(), 0),
+    /** Most exports the root account may have queued or processing; `create` refuses at it. */
+    maxInProgressExports: v.optional(v.number(), 0),
 });
 
 /** One page of exports, newest first; an empty `nextPageToken` means no more. */
 export type ListStatementExportsResult = v.InferOutput<typeof ListStatementExportsResultSchema>;
+
+export const StatementExportDownloadUrlSchema = v.object({
+    /**
+     * Link to the file that needs no credentials, for a browser to save. Anyone who holds it can
+     * download the file until `expiresAt`: do not share, store or log it.
+     */
+    url: v.string(),
+    /** When the link stops working, epoch ms: 60 seconds after signing or when the file expires. */
+    expiresAt: TimestampMsSchema,
+    /** Name the download saves the file as, `statement-<exportId>.csv`. */
+    filename: v.string(),
+});
+
+export type StatementExportDownloadUrl = v.InferOutput<typeof StatementExportDownloadUrlSchema>;

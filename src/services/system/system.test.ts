@@ -21,6 +21,14 @@ describe("SystemService", () => {
         expect(publicApi.lastCall()?.method.name).toBe("GetVersion");
     });
 
+    it("returns the server time in epoch milliseconds", async () => {
+        const publicApi = unaryTransport({ serverTimeMs: 1_700_000_000_123n });
+        const service = new SystemService({ publicApi: publicApi.transport });
+
+        await expect(service.getTime()).resolves.toEqual({ serverTimeMs: 1_700_000_000_123 });
+        expect(publicApi.lastCall()?.method.name).toBe("GetTime");
+    });
+
     it("lists status events with mapped filters and nullable optional fields", async () => {
         const publicApi = unaryTransport({
             events: [

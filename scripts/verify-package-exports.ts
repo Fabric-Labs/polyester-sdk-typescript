@@ -136,6 +136,7 @@ import {
     vipPb,
 } from "@polyester/sdk/unstable/gen";
 import type { PolyesterErrorDetail as ErrorsPolyesterErrorDetail } from "@polyester/sdk/errors";
+import { accountActivityService } from "@polyester/sdk/services/account-activity";
 import { assistantService } from "@polyester/sdk/services/assistant";
 import { autoWithdrawService } from "@polyester/sdk/services/auto-withdraw";
 import { dustConversionService } from "@polyester/sdk/services/dust-conversion";
@@ -300,6 +301,17 @@ async function verifyServiceInference(): Promise<void> {
         await client.priceAlerts.update({ alertId: priceAlert.alertId, expectedRevision: "1" }),
     );
     expectType<import("@polyester/sdk").ListPriceAlertsResult>(await client.priceAlerts.list());
+    const accountActivity = await client.accountActivity.list({
+        includeMainAccount: true,
+        entityKinds: ["session"],
+        startTime: 0,
+    } satisfies import("@polyester/sdk").ListAccountActivityInput);
+    expectType<import("@polyester/sdk").ListAccountActivityResult>(accountActivity);
+    expectNotAny(accountActivity.events[0], true);
+    expectType<import("@polyester/sdk").AccountActivityEvent | undefined>(
+        accountActivity.events[0],
+    );
+    expectType<string | undefined>(accountActivity.events[0]?.actorApiKeyId);
     const notificationPage = await client.notifications.list({
         categories: ["alerts"],
         readState: "unread",
@@ -323,6 +335,7 @@ async function verifyServiceInference(): Promise<void> {
         await client.notifications.getCounts(),
     );
     expectType<import("@polyester/sdk").SystemVersion>(await client.system.getVersion());
+    expectType<import("@polyester/sdk").SystemTime>(await client.system.getTime());
     const statusEvents = await client.system.listStatusEvents({
         states: ["in_progress"],
         kinds: ["incident"],
@@ -341,11 +354,6 @@ async function verifyServiceInference(): Promise<void> {
     expectType<import("@polyester/sdk").AssetInfo[]>(assetInfo);
     expectNotAny(assetInfo[0], true);
     expectType<string | null | undefined>(assetInfo[0]?.editorial.issueDate);
-    const statementPage = await client.balances.exportStatement({
-        startTime: 0,
-        endTime: 86_400_000,
-    } satisfies import("@polyester/sdk").ExportStatementInput);
-    expectType<import("@polyester/sdk").StatementPage>(statementPage);
     const dustBalances = await client.dustConversion.listBalances();
     expectType<import("@polyester/sdk").ListDustBalancesResult>(dustBalances);
     expectType<import("@polyester/sdk").DustAssetEligibility | "unspecified" | undefined>(
@@ -393,9 +401,14 @@ async function verifyServiceInference(): Promise<void> {
             limit: 20,
         } satisfies import("@polyester/sdk").ListStatementExportsInput),
     );
-    const statement = await client.balances.exportStatementCsv({ startTime: 0, endTime: 1 });
-    expectType<import("@polyester/sdk").Statement>(statement);
-    expectType<number | undefined>(statementPage.completeThrough);
+    expectType<import("@polyester/sdk").StatementExport>(
+        await client.statementExports.cancel({
+            exportId: statementExport.exportId,
+        } satisfies import("@polyester/sdk").CancelStatementExportInput),
+    );
+    expectType<import("@polyester/sdk").StatementExportDownloadUrl>(
+        await client.statementExports.getDownloadUrl({ exportId: statementExport.exportId }),
+    );
     expectType<import("@polyester/sdk").ZipperRouteStatus | undefined>(
         ({} as import("@polyester/sdk").ZipperAssetChainVariant).depositStatus,
     );
@@ -642,6 +655,7 @@ async function verifyCoreServiceAccessors(): Promise<void> {
     expectType<typeof client.tradingRateLimits>(tradingRateLimitsService(client));
     expectType<typeof client.autoWithdraw>(autoWithdrawService(browserCore));
     expectType<typeof client.priceAlerts>(priceAlertsService(browserCore));
+    expectType<typeof client.accountActivity>(accountActivityService(browserCore));
     expectType<typeof client.notifications>(notificationsService(browserCore));
     expectType<typeof client.assistant>(assistantService(browserCore));
     expectType<typeof client.statementExports>(statementExportsService(browserCore));

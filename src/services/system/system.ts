@@ -27,6 +27,16 @@ export interface SystemVersion {
     environment: "devnet" | "testnet" | "mainnet" | "local" | (string & {});
 }
 
+/** The server clock. */
+export interface SystemTime {
+    /**
+     * Server time when the request was answered, in epoch milliseconds: the clock that checks
+     * the timestamp of requests signed with an API key. Allow for half the round trip when
+     * measuring a local clock's offset from it.
+     */
+    serverTimeMs: number;
+}
+
 /** Facts about the environment itself. Public and read-only: no authentication needed. */
 export class SystemService {
     #client: Client<typeof Proto.SystemService>;
@@ -42,6 +52,12 @@ export class SystemService {
             toConnectCallOptions(options),
         );
         return { version, commit, environment };
+    }
+
+    /** Returns the server time. Answers are never cached. */
+    async getTime(options?: PolyesterRequestOptions): Promise<SystemTime> {
+        const { serverTimeMs } = await this.#client.getTime({}, toConnectCallOptions(options));
+        return { serverTimeMs: Number(serverTimeMs) };
     }
 
     /**

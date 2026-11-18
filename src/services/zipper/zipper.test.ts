@@ -16,6 +16,8 @@ const testScales = {
     referencePrice: () => 6,
 } satisfies SdkScales;
 
+const AVAILABLE = Proto.SupplyStatus.AVAILABLE;
+
 const flushAsync = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 function supplyConfig(supplyQ: bigint) {
@@ -29,7 +31,7 @@ function supplyConfig(supplyQ: bigint) {
                 icon: "",
                 quantityScale: 6,
                 quantityDisplayDecimals: 6,
-                variants: [{ zippedAssetId: 1001, chainId: 1, supplyQ }],
+                variants: [{ zippedAssetId: 1001, chainId: 1, supplyQ, supplyStatus: AVAILABLE }],
                 uAssetId: "u-usdt",
             },
         ],
@@ -87,6 +89,7 @@ describe("ZipperService", () => {
                             depositMinAmount: "1",
                             withdrawMinAmount: "2",
                             supplyQ: 12_345_678n,
+                            supplyStatus: AVAILABLE,
                         },
                     ],
                 },
@@ -157,23 +160,73 @@ describe("ZipperService", () => {
         realtime.params?.onConnected?.();
         await flushAsync();
         expect(onEvent).toHaveBeenLastCalledWith({
-            updates: [{ zippedAssetId: 1001, supply: "10" }],
+            updates: [{ zippedAssetId: 1001, supply: "10", status: "available" }],
         });
 
         realtime.params?.onPublication(
             create(Proto.ZippedAssetSupplyBatchSchema, {
-                updates: [{ zippedAssetId: 1001, supplyQ: 123_456_789n }],
+                updates: [{ zippedAssetId: 1001, supplyQ: 123_456_789n, status: AVAILABLE }],
             }),
         );
         await flushAsync();
 
         expect(onOpen).toHaveBeenCalledTimes(1);
         expect(onEvent).toHaveBeenLastCalledWith({
-            updates: [{ zippedAssetId: 1001, supply: "123.456789" }],
+            updates: [{ zippedAssetId: 1001, supply: "123.456789", status: "available" }],
         });
 
         unsubscribe();
         expect(realtime.connectProtoChannel.mock.results[0]?.value).toHaveBeenCalledTimes(1);
+    });
+
+    it("leaves out routes whose supply is unknown and keeps a stale supply's read time", async () => {
+        const config = supplyConfig(10_000_000n);
+        config.assets[0]?.variants.push({
+            zippedAssetId: 1002,
+            chainId: 1,
+            supplyQ: 0n,
+            supplyStatus: Proto.SupplyStatus.MISSING,
+        });
+        const realtime = realtimeClientStub();
+        const onEvent = vi.fn();
+        const service = new ZipperService(
+            { publicApi: unaryTransport(config).transport },
+            realtime.realtime,
+            testScales,
+        );
+
+        service.subscribeZippedAssetSupply({ onEvent });
+        realtime.params?.onConnected?.();
+        await flushAsync();
+        expect(onEvent).toHaveBeenLastCalledWith({
+            updates: [{ zippedAssetId: 1001, supply: "10", status: "available" }],
+        });
+
+        realtime.params?.onPublication(
+            create(Proto.ZippedAssetSupplyBatchSchema, {
+                updates: [
+                    {
+                        zippedAssetId: 1001,
+                        supplyQ: 10_000_000n,
+                        status: Proto.SupplyStatus.STALE,
+                        observedAt: { seconds: 1_700_000_000n },
+                    },
+                    { zippedAssetId: 1002, supplyQ: 0n },
+                ],
+            }),
+        );
+        await flushAsync();
+
+        expect(onEvent).toHaveBeenLastCalledWith({
+            updates: [
+                {
+                    zippedAssetId: 1001,
+                    supply: "10",
+                    status: "stale",
+                    observedAt: 1_700_000_000_000,
+                },
+            ],
+        });
     });
 
     it("buffers live supply updates until the initial snapshot resolves", async () => {
@@ -190,7 +243,7 @@ describe("ZipperService", () => {
         realtime.params?.onConnected?.();
         realtime.params?.onPublication(
             create(Proto.ZippedAssetSupplyBatchSchema, {
-                updates: [{ zippedAssetId: 1001, supplyQ: 20_000_000n }],
+                updates: [{ zippedAssetId: 1001, supplyQ: 20_000_000n, status: AVAILABLE }],
             }),
         );
 
@@ -200,7 +253,7 @@ describe("ZipperService", () => {
 
         expect(onEvent).toHaveBeenCalledOnce();
         expect(onEvent).toHaveBeenCalledWith({
-            updates: [{ zippedAssetId: 1001, supply: "20" }],
+            updates: [{ zippedAssetId: 1001, supply: "20", status: "available" }],
         });
     });
 
@@ -218,13 +271,13 @@ describe("ZipperService", () => {
         realtime.params?.onConnected?.();
         realtime.params?.onPublication(
             create(Proto.ZippedAssetSupplyBatchSchema, {
-                updates: [{ zippedAssetId: 1001, supplyQ: 10_000_000n }],
+                updates: [{ zippedAssetId: 1001, supplyQ: 10_000_000n, status: AVAILABLE }],
             }),
         );
         for (let index = 1; index <= 200; index++) {
             realtime.params?.onPublication(
                 create(Proto.ZippedAssetSupplyBatchSchema, {
-                    updates: [{ zippedAssetId: 1002, supplyQ: BigInt(index) }],
+                    updates: [{ zippedAssetId: 1002, supplyQ: BigInt(index), status: AVAILABLE }],
                 }),
             );
         }
@@ -234,7 +287,9 @@ describe("ZipperService", () => {
 
         expect(onEvent).toHaveBeenCalledOnce();
         expect(onEvent).toHaveBeenCalledWith({
-            updates: expect.arrayContaining([{ zippedAssetId: 1001, supply: "10" }]),
+            updates: expect.arrayContaining([
+                { zippedAssetId: 1001, supply: "10", status: "available" },
+            ]),
         });
     });
 
@@ -255,7 +310,7 @@ describe("ZipperService", () => {
         realtime.params?.onConnected?.();
         await flushAsync();
         expect(onEvent).toHaveBeenLastCalledWith({
-            updates: [{ zippedAssetId: 1001, supply: "10" }],
+            updates: [{ zippedAssetId: 1001, supply: "10", status: "available" }],
         });
 
         realtime.params?.onConnected?.();
@@ -264,7 +319,7 @@ describe("ZipperService", () => {
         expect(onClose).not.toHaveBeenCalled();
         expect(transport.unary).toHaveBeenCalledTimes(2);
         expect(onEvent).toHaveBeenLastCalledWith({
-            updates: [{ zippedAssetId: 1001, supply: "20" }],
+            updates: [{ zippedAssetId: 1001, supply: "20", status: "available" }],
         });
     });
 
@@ -286,7 +341,7 @@ describe("ZipperService", () => {
 
         realtime.params?.onPublication(
             create(Proto.ZippedAssetSupplyBatchSchema, {
-                updates: [{ zippedAssetId: 1001, supplyQ: 20_000_000n }],
+                updates: [{ zippedAssetId: 1001, supplyQ: 20_000_000n, status: AVAILABLE }],
             }),
         );
         await flushAsync();
@@ -298,7 +353,7 @@ describe("ZipperService", () => {
             }),
         );
         expect(onEvent).toHaveBeenCalledWith({
-            updates: [{ zippedAssetId: 1001, supply: "20" }],
+            updates: [{ zippedAssetId: 1001, supply: "20", status: "available" }],
         });
 
         unsubscribe();
@@ -325,7 +380,7 @@ describe("ZipperService", () => {
         await flushAsync();
         realtime.params?.onPublication(
             create(Proto.ZippedAssetSupplyBatchSchema, {
-                updates: [{ zippedAssetId: 1001, supplyQ: 20_000_000n }],
+                updates: [{ zippedAssetId: 1001, supplyQ: 20_000_000n, status: AVAILABLE }],
             }),
         );
 

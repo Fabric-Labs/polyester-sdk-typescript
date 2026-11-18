@@ -25,8 +25,10 @@ import {
 } from "./notifications.schemas.js";
 
 /**
- * Reads and marks the caller's notification center. Available on devnet only. Session JWT only:
- * API keys are refused. An unknown notification ID, including another account's, throws
+ * Reads and marks the caller's notification center: the main account's notifications. Available
+ * on devnet only. `list`, `get` and `getCounts` also take a main-account API key whose policy
+ * grants `read-notifications`; a sub-account key is refused (`PermissionError`). Marking takes a
+ * session only. An unknown notification ID, including another account's, throws
  * `ResourceNotFoundError` (`NOTIFICATION_NOT_FOUND`); a retryable `ServiceUnavailableError`
  * means retry the same request.
  */

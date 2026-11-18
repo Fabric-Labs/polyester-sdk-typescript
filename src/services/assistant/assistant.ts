@@ -18,19 +18,26 @@ import {
     DecideAssistantApprovalInputSchema,
     DeleteAssistantMemoryInputSchema,
     formatAssistantKey,
+    formatAssistantUsage,
     formatConversation,
     formatMemory,
     formatMessage,
+    formatModelKey,
     formatPrepareAssistantKeysResult,
     formatTelegramApprovalLimits,
+    GetAssistantMessageImageInputSchema,
     ListAssistantConversationsInputSchema,
     ListAssistantMemoriesInputSchema,
     ListAssistantMessagesInputSchema,
     PrepareAssistantKeysInputSchema,
     SendAssistantMessageInputSchema,
+    SetAssistantModelKeyInputSchema,
     SetTelegramApprovalLimitsInputSchema,
     WatchAssistantRunInputSchema,
     type AssistantKey,
+    type AssistantModelKey,
+    type AssistantUsage,
+    type GetAssistantMessageImageInput,
     type AssistantRunIdInput,
     type CompleteAssistantKeysInput,
     ListAssistantKeysInputSchema,
@@ -46,6 +53,7 @@ import {
     type PrepareAssistantKeysInput,
     type PrepareAssistantKeysResult,
     type SendAssistantMessageInput,
+    type SetAssistantModelKeyInput,
     type SetTelegramApprovalLimitsInput,
     type TelegramApprovalLimits,
     type WatchAssistantRunInput,
@@ -70,7 +78,9 @@ export class AssistantService {
     /**
      * Records the message and starts a run that answers it; returns once the run is recorded.
      * Idempotent per `idempotencyKey`: repeat the request unchanged to resolve an unknown
-     * outcome. A conversation runs one run at a time (`RUN_ACTIVE`).
+     * outcome. A conversation runs one run at a time (`RUN_ACTIVE`). With
+     * `expectedLatestRunId`, a conversation that moved on fails with `CONVERSATION_ADVANCED`,
+     * a final answer: do not retry it.
      */
     async sendMessage(
         input: SendAssistantMessageInput,
@@ -128,6 +138,19 @@ export class AssistantService {
         const request = parse(DecideAssistantApprovalInputSchema, input);
         const response = await this.#client.decideApproval(request, toConnectCallOptions(options));
         return enumLabel(ApprovalStatusCodec.protoToOutput, response.status);
+    }
+
+    /** Returns one image of the caller's messages, from `AssistantMessage.images`. */
+    async getMessageImage(
+        input: GetAssistantMessageImageInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<{ data: Uint8Array; mimeType: string }> {
+        const request = parse(GetAssistantMessageImageInputSchema, input);
+        const { data, mimeType } = await this.#client.getMessageImage(
+            request,
+            toConnectCallOptions(options),
+        );
+        return { data, mimeType };
     }
 
     /** Lists the caller's conversations, most recently updated first. */
@@ -239,6 +262,44 @@ export class AssistantService {
             toConnectCallOptions(options),
         );
         return response.keys.map(formatAssistantKey);
+    }
+
+    /**
+     * Saves the caller's own OpenAI API key, replacing any earlier one, once OpenAI accepts it
+     * (else `MODEL_KEY_REJECTED`, `MODEL_KEY_NO_QUOTA` or `MODEL_KEY_MODEL_UNAVAILABLE`, and
+     * nothing is saved). Messages sent after it use the key instead of credits; a run whose key
+     * OpenAI refuses fails with `model_key_refused`. Only a signed-in session sets it.
+     */
+    async setModelKey(
+        input: SetAssistantModelKeyInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<AssistantModelKey> {
+        const request = parse(SetAssistantModelKeyInputSchema, input);
+        const response = await this.#client.setModelKey(request, toConnectCallOptions(options));
+        return formatModelKey(response.key);
+    }
+
+    /** Returns the caller's own OpenAI API key's status, or `null` when they have none. */
+    async getModelKey(options?: PolyesterRequestOptions): Promise<AssistantModelKey | null> {
+        const response = await this.#client.getModelKey({}, toConnectCallOptions(options));
+        return response.key ? formatModelKey(response.key) : null;
+    }
+
+    /**
+     * Deletes the caller's own OpenAI API key; later messages use credits again. Runs already
+     * started on it never switch. Deleting when there is no key succeeds.
+     */
+    async deleteModelKey(options?: PolyesterRequestOptions): Promise<void> {
+        await this.#client.deleteModelKey({}, toConnectCallOptions(options));
+    }
+
+    /**
+     * Returns the caller's assistant credits today: the VIP tier's free daily credits, how many
+     * are used and left, when they reset, what pays for the next messages, and the next tier's
+     * free credits. With none left on `credits`, runs fail with `daily_limit_reached`.
+     */
+    async getUsage(options?: PolyesterRequestOptions): Promise<AssistantUsage> {
+        return formatAssistantUsage(await this.#client.getUsage({}, toConnectCallOptions(options)));
     }
 
     /**

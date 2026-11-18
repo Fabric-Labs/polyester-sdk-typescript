@@ -91,7 +91,9 @@ export type AutoWithdrawDestination = Message<"chain.withdraw.v1.AutoWithdrawDes
   assetId: number;
 
   /**
-   * External destination chain identifier.
+   * Polyester chain id of the destination network: ChainConfig.chain_id
+   * from GetDepositWithdrawConfig, not the network's native chain id
+   * (ChainConfig.native_chain_id).
    *
    * @generated from field: uint64 destination_chain_id = 2;
    */
@@ -514,7 +516,9 @@ export type AutoWithdrawStep = Message<"chain.withdraw.v1.AutoWithdrawStep"> & {
    * less than 24 hours ago; the funds stay for a later run), route_suspended
    * (withdrawals of the asset to the destination network are suspended, as
    * its withdrawal_status SUSPENDED in the deposit and withdraw config shows;
-   * the funds stay for a later run), authority_revoked,
+   * the funds stay for a later run), supply_unavailable (the destination
+   * route's supply_status in the deposit and withdraw config is MISSING or
+   * STALE; the funds stay for a later run), authority_revoked,
    * gateway_capacity_insufficient (the funds stay for a later run),
    * withdrawal_released or withdrawal_failed; empty otherwise.
    *

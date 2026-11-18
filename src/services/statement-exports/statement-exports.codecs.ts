@@ -7,11 +7,13 @@ export const STATEMENT_EXPORT_STATUS_VALUES = [
     "ready",
     "failed",
     "expired",
+    "canceled",
 ] as const;
 /**
  * `queued` waits for the account history to cover the period and for the account's other
  * export to finish, `processing` is writing the file, `ready` can be downloaded until
- * `expiresAt`, `failed` has no file (see `failureReason`), and `expired` had its file deleted.
+ * `expiresAt`, `failed` has no file (see `failureReason`), `expired` had its file deleted, and
+ * `canceled` was stopped with `statementExports.cancel` before it finished and has no file.
  */
 export type StatementExportStatus = (typeof STATEMENT_EXPORT_STATUS_VALUES)[number];
 
@@ -30,6 +32,7 @@ export const StatementExportStatusCodec = {
         [Proto.StatementExportStatus.READY]: "ready",
         [Proto.StatementExportStatus.FAILED]: "failed",
         [Proto.StatementExportStatus.EXPIRED]: "expired",
+        [Proto.StatementExportStatus.CANCELED]: "canceled",
     } satisfies ProtoToOutput<Proto.StatementExportStatus, StatementExportStatus>,
 } as const;
 

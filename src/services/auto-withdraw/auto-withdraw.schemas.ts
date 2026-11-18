@@ -135,6 +135,7 @@ export type AutoWithdrawScheduleInput = v.InferInput<typeof AutoWithdrawSchedule
 const AutoWithdrawDestinationInputSchema = v.pipe(
     v.strictObject({
         assetId: PositiveUint32InputSchema,
+        /** Polyester chain ID of the network: a Zipper chain's `chainId`, not its `nativeChainId`. */
         destinationChainId: v.pipe(
             v.number(),
             v.integer(),

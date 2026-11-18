@@ -219,6 +219,8 @@ describe("PriceAlertsService", () => {
     it.each([
         [Code.Aborted, Proto.ErrorCode.REVISION_CONFLICT, RevisionConflictError],
         [Code.FailedPrecondition, Proto.ErrorCode.ALERT_TRIGGERED, PreconditionFailedError],
+        [Code.FailedPrecondition, Proto.ErrorCode.TELEGRAM_NOT_LINKED, PreconditionFailedError],
+        [Code.FailedPrecondition, Proto.ErrorCode.TELEGRAM_UNAVAILABLE, PreconditionFailedError],
         [Code.Unavailable, Proto.ErrorCode.PRICE_UNAVAILABLE, ServiceUnavailableError],
         [Code.PermissionDenied, Proto.ErrorCode.SUBACCOUNT_KEY_REFUSED, PermissionError],
     ])("maps %s %s to its typed error with the alerts detail", async (code, alertCode, type) => {

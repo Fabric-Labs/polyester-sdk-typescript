@@ -1,6 +1,7 @@
 import * as v from "valibot";
-import { MemoRequirement, RouteStatus } from "../../gen/chain/zipper/v1/zipper_pb.js";
+import { MemoRequirement, RouteStatus, SupplyStatus } from "../../gen/chain/zipper/v1/zipper_pb.js";
 import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
+import { OptionalTimestampMsSchema } from "../../shared/schemas.js";
 import type { ProtoToOutput } from "../../utils/types.js";
 import type {
     DepositWithdrawConfig,
@@ -10,6 +11,7 @@ import type {
     ZipperChainContractConfig,
     ZipperMemoRequirement,
     ZipperRouteStatus,
+    ZipperSupplyStatus,
 } from "../../shared/catalog-config.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 
@@ -21,6 +23,7 @@ export type {
     ZipperChainContractConfig,
     ZipperMemoRequirement,
     ZipperRouteStatus,
+    ZipperSupplyStatus,
 };
 
 export const ZipperMemoRequirementCodec = {
@@ -39,6 +42,20 @@ export const ZipperRouteStatusCodec = {
         [RouteStatus.SUSPENDED]: "suspended",
     } satisfies ProtoToOutput<RouteStatus, ZipperRouteStatus>,
 } as const;
+
+export const ZipperSupplyStatusCodec = {
+    protoToOutput: {
+        [SupplyStatus.SUPPLY_UNSPECIFIED]: "unspecified",
+        [SupplyStatus.AVAILABLE]: "available",
+        [SupplyStatus.STALE]: "stale",
+        [SupplyStatus.MISSING]: "missing",
+    } satisfies ProtoToOutput<SupplyStatus, ZipperSupplyStatus>,
+} as const;
+
+/** Only these statuses carry a supply; any other leaves it unknown, never zero. */
+export function hasSupply(status: ZipperSupplyStatus | undefined): status is "available" | "stale" {
+    return status === "available" || status === "stale";
+}
 
 export const ZipperChainConfigSchema = v.object({
     chainId: v.number(),
@@ -83,6 +100,8 @@ const ZipperAssetChainVariantWireSchema = v.object({
      * instead, returning its funds. `"unspecified"` means unknown, not suspended.
      */
     withdrawalStatus: v.optional(enumLabelSchema(ZipperRouteStatusCodec.protoToOutput), 0),
+    supplyStatus: v.optional(enumLabelSchema(ZipperSupplyStatusCodec.protoToOutput), 0),
+    supplyObservedAt: OptionalTimestampMsSchema,
 });
 
 function normalizeZipperAssetChainVariant(
@@ -91,6 +110,7 @@ function normalizeZipperAssetChainVariant(
         sourceAddress,
         sourceDecimals,
         supplyQ,
+        supplyObservedAt,
         ztokenAddress,
         ztokenDecimals,
         ...variant
@@ -98,7 +118,10 @@ function normalizeZipperAssetChainVariant(
 ): ZipperAssetChainVariant {
     return {
         ...variant,
-        supply: scaledToDecimalOutput(supplyQ, quantityScale),
+        ...(hasSupply(variant.supplyStatus) && {
+            supply: scaledToDecimalOutput(supplyQ, quantityScale),
+            ...(supplyObservedAt !== undefined && { supplyObservedAt }),
+        }),
         sourceToken: {
             address: sourceAddress,
             decimals: sourceDecimals,
@@ -153,11 +176,18 @@ export const DepositWithdrawConfigSchema = v.pipe(
 const ZippedAssetSupplyUpdateWireSchema = v.object({
     zippedAssetId: v.number(),
     supplyQ: v.bigint(),
+    status: v.optional(enumLabelSchema(ZipperSupplyStatusCodec.protoToOutput), 0),
+    observedAt: OptionalTimestampMsSchema,
 });
 
+/** A route's latest known zToken supply. Routes whose supply is unknown are left out. */
 export type ZippedAssetSupplyUpdate = {
     zippedAssetId: number;
     supply: string;
+    /** `"stale"`: the last value read, no longer refreshed; do not size a withdrawal against it. */
+    status: "available" | "stale";
+    /** Epoch ms when `supply` was read. */
+    observedAt?: number;
 };
 
 export type ZippedAssetSupplyBatch = {
@@ -171,13 +201,21 @@ export function createZippedAssetSupplyBatchSchema(scales: SdkScales) {
         }),
         v.transform(
             (batch): ZippedAssetSupplyBatch => ({
-                updates: batch.updates.map((update) => ({
-                    zippedAssetId: update.zippedAssetId,
-                    supply: scaledToDecimalOutput(
-                        update.supplyQ,
-                        scales.zippedAssetAmount(update.zippedAssetId),
-                    ),
-                })),
+                updates: batch.updates.flatMap(({ zippedAssetId, supplyQ, status, observedAt }) =>
+                    hasSupply(status)
+                        ? [
+                              {
+                                  zippedAssetId,
+                                  supply: scaledToDecimalOutput(
+                                      supplyQ,
+                                      scales.zippedAssetAmount(zippedAssetId),
+                                  ),
+                                  status,
+                                  ...(observedAt !== undefined && { observedAt }),
+                              },
+                          ]
+                        : [],
+                ),
             }),
         ),
     );

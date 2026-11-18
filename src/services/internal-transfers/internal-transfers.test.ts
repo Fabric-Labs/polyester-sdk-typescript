@@ -245,35 +245,25 @@ describe("InternalTransfersService", () => {
         expect(transport.unary).not.toHaveBeenCalled();
     });
 
-    it("batches legs with per-leg sources and decodes every leg outcome", async () => {
+    const creditedLeg = {
+        legIndex: 0,
+        status: InternalTransferBatchLegStatus.LEG_CREDITED,
+        transferId: "transfer-1",
+        flowId: "flow-1",
+        creditedAtTsNs: 1_700_000_000_123_456_789n,
+        assetId: 1,
+        assetCode: "USDC",
+        amountE18: { hi: 0n, lo: 1_500_000_000_000_000_000n },
+        destination: acceptedTransfer.destination,
+        errorCode: ErrorCode.UNSPECIFIED,
+        errorMessage: "",
+    };
+
+    it("batches legs with per-leg sources and decodes an accepted batch", async () => {
         const transport = unaryTransport({
             requestId: "batch-1",
-            status: InternalTransferBatchStatus.BATCH_SUBMITTED,
-            legs: [
-                {
-                    ...acceptedTransfer,
-                    legIndex: 0,
-                    status: InternalTransferBatchLegStatus.LEG_ACCEPTED,
-                },
-                {
-                    legIndex: 1,
-                    status: InternalTransferBatchLegStatus.LEG_PENDING,
-                    requestId: "req-2",
-                    transferId: "",
-                    flowId: "",
-                    acceptedAtTsNs: 0n,
-                    assetId: 1,
-                    assetCode: "USDC",
-                    errorCode: ErrorCode.DUST_BUSY,
-                    errorMessage: "busy",
-                },
-                {
-                    legIndex: 2,
-                    status: InternalTransferBatchLegStatus.LEG_REFUSED,
-                    assetId: 1,
-                    errorCode: 9_999,
-                },
-            ],
+            status: InternalTransferBatchStatus.BATCH_ACCEPTED,
+            legs: [creditedLeg],
         });
         const service = new InternalTransfersService(
             { authApi: transport.transport },
@@ -318,34 +308,128 @@ describe("InternalTransfersService", () => {
                 { subaccountId: 44n, destination: { case: "destinationSmartAccountAddress" } },
             ],
         });
-        expect(result).toMatchObject({ requestId: "batch-1", status: "submitted" });
-        expect(result.legs[0]).toMatchObject({
-            legIndex: 0,
+        expect(result).toEqual({
+            requestId: "batch-1",
             status: "accepted",
-            transferId: "transfer-1",
-            flowId: "flow-1",
-            acceptedAtUnixMs: 1_700_000_000_123,
-            acceptedAtNs: "1700000000123456789",
-            quantity: "1.5",
-            errorCode: undefined,
+            legs: [
+                {
+                    legIndex: 0,
+                    status: "credited",
+                    transferId: "transfer-1",
+                    flowId: "flow-1",
+                    creditedAtUnixMs: 1_700_000_000_123,
+                    creditedAtNs: "1700000000123456789",
+                    assetId: 1,
+                    assetCode: "USDC",
+                    quantity: "1.5",
+                    destination: {
+                        rootAccountId: "root-public",
+                        subaccountId: undefined,
+                        smartAccountAddress: "0xabc123",
+                    },
+                    errorCode: undefined,
+                    errorMessage: undefined,
+                },
+            ],
         });
-        expect(result.legs[1]).toMatchObject({
-            status: "pending",
-            requestId: "req-2",
-            transferId: undefined,
-            acceptedAtUnixMs: undefined,
+    });
+
+    it("decodes a refused batch with the leg that caused it", async () => {
+        const transport = unaryTransport({
+            requestId: "",
+            status: InternalTransferBatchStatus.BATCH_REFUSED,
+            legs: [
+                {
+                    legIndex: 0,
+                    status: InternalTransferBatchLegStatus.LEG_NOT_MOVED,
+                    assetId: 1,
+                    errorCode: ErrorCode.BATCH_TOO_MANY_SOURCES,
+                    errorMessage: "too many sources",
+                },
+                { legIndex: 1, status: InternalTransferBatchLegStatus.LEG_NOT_MOVED, assetId: 1 },
+                { legIndex: 2, status: 99, assetId: 1, errorCode: 9_999 },
+            ],
+        });
+        const service = new InternalTransfersService(
+            { authApi: transport.transport },
+            undefined,
+            testScales(),
+        );
+
+        const result = await service.batchCreate({
+            legs: [
+                {
+                    destination: { type: "account", accountId: formatId(22n) },
+                    assetId: 1,
+                    quantity: "1",
+                },
+            ],
+            idempotencyKey: "k",
+        });
+
+        expect(result).toMatchObject({ requestId: undefined, status: "refused" });
+        expect(result.legs[0]).toMatchObject({
+            status: "not_moved",
+            creditedAtUnixMs: undefined,
             quantity: undefined,
-            errorCode: "DUST_BUSY",
-            errorMessage: "busy",
+            errorCode: "BATCH_TOO_MANY_SOURCES",
+            errorMessage: "too many sources",
         });
-        expect(result.legs[2]).toMatchObject({ status: "refused", errorCode: "UNSPECIFIED" });
+        expect(result.legs[1]).toMatchObject({ status: "not_moved", errorCode: undefined });
+        expect(result.legs[2]).toMatchObject({ status: "unspecified", errorCode: "UNSPECIFIED" });
+    });
+
+    it("reads a processing batch by its request ID", async () => {
+        const transport = unaryTransport({
+            requestId: "batch-1",
+            status: InternalTransferBatchStatus.BATCH_PROCESSING,
+            legs: [
+                {
+                    ...creditedLeg,
+                    status: InternalTransferBatchLegStatus.LEG_PROCESSING,
+                    flowId: "",
+                    creditedAtTsNs: 0n,
+                },
+            ],
+        });
+        const service = new InternalTransfersService(
+            { authApi: transport.transport },
+            { getDefaultSubaccountId: () => formatId(11n) },
+            testScales(),
+        );
+
+        const result = await service.getBatch({ requestId: " batch-1 " });
+
+        const captured = transport.lastCall();
+        expect(captured?.method.localName).toBe("getInternalTransferBatch");
+        expect(captured?.message).toEqual({ requestId: "batch-1" });
+        expect(result).toMatchObject({ requestId: "batch-1", status: "processing" });
+        expect(result.legs[0]).toMatchObject({
+            status: "processing",
+            transferId: "transfer-1",
+            flowId: undefined,
+            creditedAtUnixMs: undefined,
+            creditedAtNs: undefined,
+        });
+    });
+
+    it("rejects a blank batch request ID before calling the server", async () => {
+        const transport = unaryTransport({});
+        const service = new InternalTransfersService(
+            { authApi: transport.transport },
+            undefined,
+            testScales(),
+        );
+
+        await expect(service.getBatch({ requestId: " " })).rejects.toBeInstanceOf(ValidationError);
+        expect(transport.unary).not.toHaveBeenCalled();
     });
 
     it.each([
         { name: "no legs", legs: [] },
         {
-            name: "more than 10 legs",
-            legs: Array.from({ length: 11 }, () => ({
+            name: "more than 500 legs",
+            legs: Array.from({ length: 501 }, () => ({
                 destination: { type: "account", accountId: formatId(22n) },
                 assetId: 1,
                 quantity: "1",

@@ -169,6 +169,12 @@ function formatDetail(detail: Proto.Notification["detail"]) {
                 requestedByAccountId: formatId(notice.requestedByAccountId),
             };
         }
+        case "telegramLink":
+            return {
+                /** A Telegram account was linked; if the caller did not link it, unlink it. */
+                type: "telegram_linked" as const,
+                linkedAt: tsObjToMs(detail.value.linkedAt) ?? null,
+            };
         default:
             return { type: "unspecified" as const };
     }

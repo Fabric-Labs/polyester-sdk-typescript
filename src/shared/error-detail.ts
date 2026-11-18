@@ -33,6 +33,12 @@ export type PolyesterErrorDetail =
            * and `AUTH_SOCIAL_CHANGE_LIMIT_REACHED`.
            */
           retryAfter?: number;
+          /**
+           * With `AUTH_TIMESTAMP_SKEW`: the server time (epoch ms) and the window a signed
+           * request's timestamp must fall in, from `serverTimeMs - recvWindowMs` to
+           * `serverTimeMs + maxFutureMs`. Compare `serverTimeMs` with the signing clock.
+           */
+          timestampWindow?: { serverTimeMs: number; recvWindowMs: number; maxFutureMs: number };
       }
     | {
           service: "profile";

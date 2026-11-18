@@ -7,6 +7,7 @@ import {
 import * as v from "valibot";
 import {
     BigIntStringSchema,
+    OptionalPublicIdSchema,
     OptionalTimestampMsSchema,
     PublicIdOrEmptySchema,
     PublicIdSchema,
@@ -360,6 +361,13 @@ export const SubaccountActivityEventSchema = v.object({
         v.string(),
         v.transform((v) => JSON.parse(v)),
     ),
+    /** Sub-account the event belongs to; undefined for an event of the main account itself. */
+    subaccountId: OptionalPublicIdSchema,
+    /**
+     * API key the actor used; undefined when the actor used a session. Set by
+     * `accountActivity.list` only.
+     */
+    actorApiKeyId: OptionalPublicIdSchema,
 });
 
 export type SubaccountEvent = v.InferOutput<typeof SubaccountActivityEventSchema>;

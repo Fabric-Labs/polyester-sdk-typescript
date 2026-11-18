@@ -89,7 +89,7 @@ describe("TradingWithdrawsService", () => {
         expect(captured?.signal).toBe(controller.signal);
     });
 
-    it("reads smart account wallet balances for the resolved account as decimals", async () => {
+    it("reads smart account wallet balances and unreadable assets for the resolved account", async () => {
         const transport = unaryTransportByMethod({
             getWalletBalances: {
                 smartAccountAddress: "0xwallet",
@@ -100,6 +100,15 @@ describe("TradingWithdrawsService", () => {
                         chainId: 8453,
                         ztokenAddress: "0xztoken",
                         amountE18: toU128(1_500_000_000_000_000_001n),
+                    },
+                ],
+                unavailableAssets: [
+                    {
+                        zippedAssetId: 13,
+                        unifiedAssetId: 2,
+                        chainId: 8453,
+                        ztokenAddress: "0xother",
+                        reason: Proto.WalletAssetUnavailableReason.READ_FAILED,
                     },
                 ],
             },
@@ -120,6 +129,15 @@ describe("TradingWithdrawsService", () => {
                     chainId: 8453,
                     ztokenAddress: "0xztoken",
                     amount: "1.500000000000000001",
+                },
+            ],
+            unavailableAssets: [
+                {
+                    zippedAssetId: 13,
+                    unifiedAssetId: 2,
+                    chainId: 8453,
+                    ztokenAddress: "0xother",
+                    reason: "read_failed",
                 },
             ],
         });

@@ -7,6 +7,7 @@ export type {
     ValidateWithdrawDestinationInput,
     ValidateWithdrawDestinationResult,
 } from "./trading-withdraws.schemas.js";
+export type { WalletAssetUnavailableReasonValue } from "./trading-withdraws.codecs.js";
 export type {
     CreateTradingWithdrawToExternalChainServiceInput,
     CreateTradingWithdrawToFundingServiceInput,

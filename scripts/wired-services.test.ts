@@ -120,6 +120,10 @@ const UNWRAPPED_BY_DESIGN = new Set([
     "swap.quickswap.v1.QuickSwapService",
     "swap.quickswap.v1.QuickSwapBrokerService",
     "swap.quickswap.v1.QuickSwapReferralService",
+    "swap.quickswap.v1.QuickSwapExplorerService",
+    // Added to the contract by mistake; the backend is removing them.
+    "auth.v1.MFAService.GetRecentMFA",
+    "auth.v1.MFAService.EndRecentMFA",
     // Not wrapped yet; exported raw through `@polyester/sdk/unstable/gen`.
     "swap.v1.SwapService",
 ]);
