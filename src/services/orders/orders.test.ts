@@ -1464,9 +1464,11 @@ describe("OrdersService", () => {
             onEvent: (order) => calls.push(["event", order.orderId]),
             onRemoved: (ids) => calls.push(["removed", ids]),
             onReady: () => calls.push(["ready"]),
+            onClose: () => calls.push(["close"]),
             onError,
         });
         const params = realtime.privateOrdersParams!;
+        await flushAsync(); // let the catalog ready gate open
 
         params.onEvent({
             type: "unit",
@@ -1483,6 +1485,7 @@ describe("OrdersService", () => {
             unit: create(PrivateWs.UnitSchema, { removedOrderIds: [2n] }),
         });
         params.onEvent({ type: "ready" });
+        params.onDisconnected?.();
         await flushAsync();
 
         expect(calls).toEqual([
@@ -1490,6 +1493,7 @@ describe("OrdersService", () => {
             ["event", formatId(2n)],
             ["removed", [formatId(2n)]],
             ["ready"],
+            ["close"],
         ]);
         expect(onError).toHaveBeenCalledOnce();
         expect(onError.mock.calls[0]![0].error).toBeInstanceOf(CatalogLookupError);

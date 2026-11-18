@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { CatalogNotReadyError } from "../catalogs/types.js";
-import { createReadyGate } from "./decimal-surface.js";
+import { CatalogLookupError, CatalogNotReadyError, type ClientCatalog } from "../catalogs/types.js";
+import {
+    CATALOG_MISS_REFRESH_TIMEOUT_MS,
+    createCatalogSdkScales,
+    createReadyGate,
+    withCatalogRefresh,
+} from "./decimal-surface.js";
 
 describe("createReadyGate", () => {
     it("reports overflow as terminal instead of leaving a silently failed gate", async () => {
@@ -41,5 +46,24 @@ describe("createReadyGate", () => {
         await Promise.resolve();
 
         expect(deliver).not.toHaveBeenCalled();
+    });
+});
+
+describe("withCatalogRefresh", () => {
+    it("fails with the current catalog when the miss refresh stalls", async () => {
+        vi.useFakeTimers();
+        try {
+            const catalog = { refresh: () => new Promise(() => {}) } as unknown as ClientCatalog;
+            const scales = createCatalogSdkScales(() => catalog);
+            const read = withCatalogRefresh(scales, () => {
+                throw new CatalogLookupError("market", "symbolId", 999);
+            });
+            const settled = expect(read).rejects.toBeInstanceOf(CatalogLookupError);
+
+            await vi.advanceTimersByTimeAsync(CATALOG_MISS_REFRESH_TIMEOUT_MS);
+            await settled;
+        } finally {
+            vi.useRealTimers();
+        }
     });
 });

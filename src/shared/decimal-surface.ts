@@ -64,6 +64,9 @@ export interface SdkScales {
 /** Least time between catalog refreshes that lookup misses start. */
 export const CATALOG_MISS_REFRESH_INTERVAL_MS = 30_000;
 
+/** Longest a lookup miss waits for its catalog refresh before it fails with the current catalog. */
+export const CATALOG_MISS_REFRESH_TIMEOUT_MS = 10_000;
+
 /** Runs `read`; on a catalog miss, refreshes the catalog and runs it once more, so a second miss throws. */
 export async function withCatalogRefresh<T>(scales: SdkScales, read: () => T): Promise<T> {
     try {
@@ -134,13 +137,18 @@ export function createCatalogSdkScales(getCatalog: () => ClientCatalog): SdkScal
             ) {
                 return lastMissRefresh.done;
             }
-            // A failed refresh leaves the catalog as it was, so the retried lookup misses again.
-            const done = getCatalog()
-                .refresh()
-                .then(
-                    () => undefined,
-                    () => undefined,
-                );
+            // A failed or stalled refresh leaves the catalog as it was, so the retried lookup
+            // misses again instead of holding a stream behind it.
+            let timer: ReturnType<typeof setTimeout> | undefined;
+            const done = Promise.race([
+                getCatalog().refresh(),
+                new Promise<void>((resolve) => {
+                    timer = setTimeout(resolve, CATALOG_MISS_REFRESH_TIMEOUT_MS);
+                }),
+            ]).then(
+                () => clearTimeout(timer),
+                () => clearTimeout(timer),
+            );
             lastMissRefresh = { at: Date.now(), done };
             return done;
         },

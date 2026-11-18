@@ -491,8 +491,9 @@ export class OrdersService {
                             : event.type === "unit" && missesCatalog(event.unit.orders),
                         () => handle(event),
                     ),
-                onConnected: () => input.onOpen?.(),
-                onDisconnected: () => input.onClose?.(),
+                // Queued too, so onClose never precedes the stream health it ends.
+                onConnected: () => queue(false, () => input.onOpen?.()),
+                onDisconnected: () => queue(false, () => input.onClose?.()),
                 onError,
             },
             (handlers) =>
