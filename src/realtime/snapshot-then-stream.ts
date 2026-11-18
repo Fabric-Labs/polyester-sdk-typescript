@@ -153,6 +153,9 @@ export function snapshotThenStream<TSchema extends DescMessage, TSnapshot, TPubl
         retryAttempts++;
         retryTimer = setTimeout(() => {
             retryTimer = null;
+            // realtime.disconnect() drops handlers without onDisconnected; stop once the socket is gone.
+            const kind = params.channel.startsWith("private:") ? "private" : "public";
+            if (params.realtime.connection[kind].state === "disconnected") return;
             refreshSnapshot(false);
         }, delayMs);
     }

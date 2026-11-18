@@ -455,7 +455,10 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
             }
             // Gateways sometimes surface outages as Unknown with this stock phrase.
             if (/service temporarily unavailable/i.test(message)) {
-                return new ServiceUnavailableError(withFallback("Service unavailable."), options);
+                return new ServiceUnavailableError(withFallback("Service unavailable."), {
+                    ...options,
+                    retryAfterMs: parseRetryAfterMs(ce),
+                });
             }
             return new InternalServerError(withFallback("Internal server error."), options);
     }

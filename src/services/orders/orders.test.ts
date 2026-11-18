@@ -5,7 +5,12 @@ import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
 import * as ProtoWrite from "../../gen/orders/v1/orders_pb.js";
 import * as PrivateWs from "../../gen/privatews/v1/private_ws_pb.js";
 import { AccountCode, TransferCode } from "../../gen/ledger/v1/catalog_pb.js";
-import { CatalogNotReadyError, type EnrichedPairConfig } from "../../catalogs/index.js";
+import {
+    CatalogLookupError,
+    CatalogNotReadyError,
+    type ClientCatalog,
+    type EnrichedPairConfig,
+} from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { ConfigurationError, ValidationError } from "../../shared/errors.js";
@@ -57,6 +62,19 @@ function testScales() {
     return createCatalogSdkScales(() => catalog);
 }
 
+/** Scales whose catalog lists pair 999 only after a refresh. */
+function scalesListingPairOnRefresh() {
+    let catalog = createTestCatalog({ pairs: [btcUsdt] });
+    const refresh = vi.fn(async () => {
+        catalog = createTestCatalog({
+            pairs: [btcUsdt, { ...btcUsdt, symbolId: 999, symbol: "BTC-USDT2" }],
+        });
+        return await catalog.ensureReady();
+    });
+    const scales = createCatalogSdkScales(() => ({ ...catalog, refresh }) as ClientCatalog);
+    return { scales, refresh };
+}
+
 const flushAsync = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 function protoOrder(
@@ -104,11 +122,11 @@ describe("OrdersService", () => {
         };
         const transport = unaryTransportByMethod({
             getOpenOrders: {
-                orders: [protoOrder({ orderId: 11n }), protoOrder({ orderId: 12n, symbolId: 999 })],
+                orders: [protoOrder({ orderId: 11n })],
                 nextPageToken: "open-next",
             },
             getOrderHistory: {
-                orders: [protoOrder({ orderId: 13n }), protoOrder({ orderId: 14n, symbolId: 999 })],
+                orders: [protoOrder({ orderId: 13n })],
                 nextPageToken: "history-next",
             },
         });
@@ -1363,7 +1381,6 @@ describe("OrdersService", () => {
             type: "snapshot",
             orders: [
                 protoOrder({ orderId: 1n }),
-                protoOrder({ orderId: 2n, symbolId: 999 }),
                 protoOrder({ orderId: 3n, status: 999 as ProtoRead.OrderStatus }),
             ],
         });
@@ -1405,28 +1422,81 @@ describe("OrdersService", () => {
         expect(onRemoved.mock.calls).toEqual([[[formatId(1n)]]]);
     });
 
-    it("skips unit orders for unknown symbols like snapshot orders", async () => {
+    it("refreshes the catalog once for an unknown pair in reads, then throws if it is still unknown", async () => {
+        const { scales, refresh } = scalesListingPairOnRefresh();
+        const transport = unaryTransportByMethod({
+            getOpenOrders: {
+                orders: [protoOrder({ orderId: 1n }), protoOrder({ orderId: 2n, symbolId: 999 })],
+                nextPageToken: "",
+            },
+            getOrderHistory: {
+                orders: [protoOrder({ orderId: 3n, symbolId: 777 })],
+                nextPageToken: "",
+            },
+        });
+        const service = new OrdersService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            scales,
+        );
+
+        const open = await service.listOpen();
+        expect(open.orders.map((order) => order.symbolId)).toEqual([1, 999]);
+        // Within the refresh interval, a miss reuses the last refresh instead of fetching again.
+        await expect(service.listHistory()).rejects.toBeInstanceOf(CatalogLookupError);
+        expect(refresh).toHaveBeenCalledOnce();
+    });
+
+    it("holds the order stream in order while the catalog refreshes for a newly listed pair", async () => {
+        const { scales } = scalesListingPairOnRefresh();
         const realtime = realtimeClientStub();
         const service = new OrdersService(
             { authApi: unaryTransportByMethod({}).transport },
             realtime.realtime,
             undefined,
-            testScales(),
+            scales,
         );
-        const onEvent = vi.fn();
+        const calls: unknown[] = [];
         const onError = vi.fn();
-        service.subscribe({ accountId: formatId(42n), onEvent, onError });
+        service.subscribe({
+            accountId: formatId(42n),
+            onEvent: (order) => calls.push(["event", order.orderId]),
+            onRemoved: (ids) => calls.push(["removed", ids]),
+            onReady: () => calls.push(["ready"]),
+            onClose: () => calls.push(["close"]),
+            onError,
+        });
+        const params = realtime.privateOrdersParams!;
+        await flushAsync(); // let the catalog ready gate open
 
-        realtime.privateOrdersParams!.onEvent({
+        params.onEvent({
             type: "unit",
             unit: create(PrivateWs.UnitSchema, {
-                orders: [protoOrder({ orderId: 1n }), protoOrder({ orderId: 2n, symbolId: 999 })],
+                orders: [
+                    protoOrder({ orderId: 1n }),
+                    protoOrder({ orderId: 2n, symbolId: 999 }),
+                    protoOrder({ orderId: 3n, symbolId: 777 }),
+                ],
             }),
         });
+        params.onEvent({
+            type: "unit",
+            unit: create(PrivateWs.UnitSchema, { removedOrderIds: [2n] }),
+        });
+        params.onEvent({ type: "ready" });
+        params.onDisconnected?.();
         await flushAsync();
 
-        expect(onError).not.toHaveBeenCalled();
-        expect(onEvent.mock.calls.map(([order]) => order.orderId)).toEqual([formatId(1n)]);
+        expect(calls).toEqual([
+            ["event", formatId(1n)],
+            ["event", formatId(2n)],
+            ["removed", [formatId(2n)]],
+            ["ready"],
+            ["close"],
+        ]);
+        expect(onError).toHaveBeenCalledOnce();
+        expect(onError.mock.calls[0]![0].error).toBeInstanceOf(CatalogLookupError);
     });
 
     it("maps unknown order statuses to unspecified in reads", async () => {

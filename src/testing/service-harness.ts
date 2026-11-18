@@ -128,6 +128,10 @@ export function realtimeClientStub(): {
         realtime: {
             connectProtoChannel,
             connectPrivateOrders,
+            connection: {
+                public: { state: "connected", error: null },
+                private: { state: "connected", error: null },
+            },
         } as unknown as RealtimeClient,
         connectProtoChannel,
         get params() {

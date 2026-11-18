@@ -22,6 +22,10 @@ import {
 } from "../catalogs/types.js";
 import { PRICE_SCALE } from "../catalogs/readers.js";
 import { PROTOBUF_INT64_MAX } from "./wire-bounds.js";
+import {
+    publicationHandlerErrorContext,
+    type SdkSubscriptionErrorContext,
+} from "./subscription-errors.js";
 import { U128_MAX } from "../utils/u128.js";
 
 /** On-chain unified-asset amounts (`amountE18`) are always 18-decimal scaled. */
@@ -50,6 +54,73 @@ export interface SdkScales {
     referencePrice(pair: PairCatalogKey): number;
     ledgerAmount(ledgerAssetId: number): number;
     zippedAssetAmount(zippedAssetId: number): number;
+    /**
+     * Refreshes the catalog after a lookup miss, so a pair listed after startup resolves.
+     * Misses within {@link CATALOG_MISS_REFRESH_INTERVAL_MS} share one refresh; never rejects.
+     */
+    refreshAfterMiss?(): Promise<void>;
+}
+
+/** Least time between catalog refreshes that lookup misses start. */
+export const CATALOG_MISS_REFRESH_INTERVAL_MS = 30_000;
+
+/** Longest a lookup miss waits for its catalog refresh before it fails with the current catalog. */
+export const CATALOG_MISS_REFRESH_TIMEOUT_MS = 10_000;
+
+/** Runs `read`; on a catalog miss, refreshes the catalog and runs it once more, so a second miss throws. */
+export async function withCatalogRefresh<T>(scales: SdkScales, read: () => T): Promise<T> {
+    try {
+        return read();
+    } catch (error) {
+        if (!(error instanceof CatalogLookupError) || !scales.refreshAfterMiss) throw error;
+        await scales.refreshAfterMiss();
+        return read();
+    }
+}
+
+/** True when the catalog can scale quantities of `symbolId`. */
+export function hasKnownSymbol(scales: SdkScales, symbolId: number): boolean {
+    try {
+        scales.baseQty(symbolId);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Keeps a stream's publications in order across catalog refreshes. Call the returned function
+ * with each publication's handler: one naming a symbol the catalog lacks waits for a refresh,
+ * and every later one waits behind it. A symbol still missing then fails in the handler, which
+ * reports it to `onError`; nothing runs after the subscription closed.
+ */
+export function createCatalogRefreshQueue(
+    scales: SdkScales,
+    channel: string,
+    onError: ((error: SdkSubscriptionErrorContext) => void) | undefined,
+    isOpen: () => boolean,
+): (missesCatalog: boolean, handle: () => void) => void {
+    let tail: Promise<void> | undefined;
+    return (missesCatalog, handle) => {
+        const wait = tail ?? (missesCatalog ? scales.refreshAfterMiss?.() : undefined);
+        if (!wait) return handle();
+        const next = wait.then(() => {
+            if (!isOpen()) return;
+            try {
+                handle();
+            } catch (error) {
+                try {
+                    onError?.(publicationHandlerErrorContext(channel, error));
+                } catch {
+                    // The caller's onError threw; keep later publications flowing.
+                }
+            }
+        });
+        tail = next;
+        void next.then(() => {
+            if (tail === next) tail = undefined;
+        });
+    };
 }
 
 /**
@@ -57,7 +128,30 @@ export interface SdkScales {
  * before the owning client has assigned its catalog.
  */
 export function createCatalogSdkScales(getCatalog: () => ClientCatalog): SdkScales {
+    let lastMissRefresh: { at: number; done: Promise<void> } | undefined;
     return {
+        refreshAfterMiss: () => {
+            if (
+                lastMissRefresh &&
+                Date.now() - lastMissRefresh.at < CATALOG_MISS_REFRESH_INTERVAL_MS
+            ) {
+                return lastMissRefresh.done;
+            }
+            // A failed or stalled refresh leaves the catalog as it was, so the retried lookup
+            // misses again instead of holding a stream behind it.
+            let timer: ReturnType<typeof setTimeout> | undefined;
+            const done = Promise.race([
+                getCatalog().refresh(),
+                new Promise<void>((resolve) => {
+                    timer = setTimeout(resolve, CATALOG_MISS_REFRESH_TIMEOUT_MS);
+                }),
+            ]).then(
+                () => clearTimeout(timer),
+                () => clearTimeout(timer),
+            );
+            lastMissRefresh = { at: Date.now(), done };
+            return done;
+        },
         ready: async () => {
             await getCatalog().ensureReady();
         },

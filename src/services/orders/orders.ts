@@ -13,10 +13,15 @@ import {
 import type { PolyesterRealtime } from "../../realtime/types.js";
 import { connectReadyGated } from "../../realtime/ready-gated-subscription.js";
 import type { PrivateOrdersEvent } from "../../realtime/private-orders.js";
-import { deliverBatch } from "../../shared/subscription-errors.js";
 import { formatId, idToBigInt } from "../../utils/base58-id.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
-import type { SdkScales } from "../../shared/decimal-surface.js";
+import {
+    createCatalogRefreshQueue,
+    hasKnownSymbol,
+    withCatalogRefresh,
+    type SdkScales,
+} from "../../shared/decimal-surface.js";
+import { deliverBatch } from "../../shared/subscription-errors.js";
 import { toPolyesterError } from "../../shared/connect-error-mapping.js";
 import { loadErrorDetailDecoders } from "../../shared/error-detail.js";
 import { PolyesterError } from "../../shared/errors.js";
@@ -70,15 +75,6 @@ import {
     createBatchCreateOrdersInputSchema,
     createBatchReplaceOrdersInputSchema,
 } from "./orders.schemas.js";
-
-function hasKnownOrderSymbol(scales: SdkScales, order: { symbolId: number }): boolean {
-    try {
-        scales.baseQty(order.symbolId);
-        return true;
-    } catch {
-        return false;
-    }
-}
 
 const MISCLASSIFIED_ORDER_NOT_FOUND_MESSAGE = "order not found";
 
@@ -176,9 +172,9 @@ export class OrdersService {
             toConnectCallOptions(options),
         );
         return {
-            orders: res.orders
-                .filter((order) => hasKnownOrderSymbol(this.#scales, order))
-                .map((order) => formatOrder(this.#scales, order)),
+            orders: await withCatalogRefresh(this.#scales, () =>
+                res.orders.map((order) => formatOrder(this.#scales, order)),
+            ),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -198,9 +194,9 @@ export class OrdersService {
             toConnectCallOptions(options),
         );
         return {
-            orders: res.orders
-                .filter((order) => hasKnownOrderSymbol(this.#scales, order))
-                .map((order) => formatOrder(this.#scales, order)),
+            orders: await withCatalogRefresh(this.#scales, () =>
+                res.orders.map((order) => formatOrder(this.#scales, order)),
+            ),
             nextPageToken: res.nextPageToken,
         };
     }
@@ -459,7 +455,7 @@ export class OrdersService {
             throw error;
         }
         if (!res.order) return null;
-        return parse(this.#orderDetailsSchema, res);
+        return withCatalogRefresh(this.#scales, () => parse(this.#orderDetailsSchema, res));
     }
 
     /**
@@ -473,63 +469,31 @@ export class OrdersService {
         idToBigInt(input.accountId, "accountId");
         const channel = `private:spot:orders:${input.accountId}`;
         const onError = input.onError;
-        const known = (orders: ProtoRead.Order[]) =>
-            orders.filter((o) => hasKnownOrderSymbol(this.#scales, o));
+        const scales = this.#scales;
+        let open = true;
+        // A publication naming a pair missing from the catalog waits for it to refresh.
+        const queue = createCatalogRefreshQueue(scales, channel, onError, () => open);
+        const missesCatalog = (orders: readonly ProtoRead.Order[]) =>
+            orders.some((o) => !hasKnownSymbol(scales, o.symbolId));
+        const deliver = (orders: readonly ProtoRead.Order[]) =>
+            deliverBatch(channel, orders, (o) => input.onEvent(formatOrder(scales, o)), onError);
         // Order IDs in the live view, so a snapshot can report orders that left it while
         // their removal was not delivered (a resync after an expired cursor).
         const live = new Set<bigint>();
-        return connectReadyGated<PrivateOrdersEvent>(
+        const stop = connectReadyGated<PrivateOrdersEvent>(
             {
                 channel,
                 ready: () => this.#scales.ready(),
-                onPublication: (event) => {
-                    if (event.type === "ready") {
-                        input.onReady?.();
-                        return;
-                    }
-                    if (event.type === "stale") {
-                        input.onStale?.(
-                            event.stale,
-                            event.orderIds?.map((id) => formatId(id)),
-                        );
-                        return;
-                    }
-                    if (event.type === "snapshot") {
-                        const ids = new Set(event.orders.map((o) => o.orderId));
-                        const removed = [...live].filter((id) => !ids.has(id));
-                        live.clear();
-                        for (const id of ids) live.add(id);
-                        if (input.onSnapshot) {
-                            input.onSnapshot(
-                                known(event.orders).map((o) => formatOrder(this.#scales, o)),
-                            );
-                            return;
-                        }
-                        deliverBatch(
-                            channel,
-                            known(event.orders),
-                            (o) => input.onEvent(formatOrder(this.#scales, o)),
-                            onError,
-                        );
-                        if (removed.length > 0)
-                            input.onRemoved?.(removed.map((id) => formatId(id)));
-                        return;
-                    }
-                    const { unit } = event;
-                    for (const o of unit.orders) live.add(o.orderId);
-                    for (const id of unit.removedOrderIds) live.delete(id);
-                    deliverBatch(
-                        channel,
-                        known(unit.orders),
-                        (o) => input.onEvent(formatOrder(this.#scales, o)),
-                        onError,
-                    );
-                    if (unit.removedOrderIds.length > 0) {
-                        input.onRemoved?.(unit.removedOrderIds.map((id) => formatId(id)));
-                    }
-                },
-                onConnected: () => input.onOpen?.(),
-                onDisconnected: () => input.onClose?.(),
+                onPublication: (event) =>
+                    queue(
+                        event.type === "snapshot"
+                            ? missesCatalog(event.orders)
+                            : event.type === "unit" && missesCatalog(event.unit.orders),
+                        () => handle(event),
+                    ),
+                // Queued too, so onClose never precedes the stream health it ends.
+                onConnected: () => queue(false, () => input.onOpen?.()),
+                onDisconnected: () => queue(false, () => input.onClose?.()),
                 onError,
             },
             (handlers) =>
@@ -541,5 +505,50 @@ export class OrdersService {
                     onError: handlers.onError,
                 }),
         );
+        return () => {
+            open = false;
+            stop();
+        };
+
+        function handle(event: PrivateOrdersEvent): void {
+            if (event.type === "ready") {
+                input.onReady?.();
+                return;
+            }
+            if (event.type === "stale") {
+                input.onStale?.(
+                    event.stale,
+                    event.orderIds?.map((id) => formatId(id)),
+                );
+                return;
+            }
+            if (event.type === "snapshot") {
+                const ids = new Set(event.orders.map((o) => o.orderId));
+                const removed = [...live].filter((id) => !ids.has(id));
+                live.clear();
+                for (const id of ids) live.add(id);
+                if (input.onSnapshot) {
+                    const orders: Order[] = [];
+                    deliverBatch(
+                        channel,
+                        event.orders,
+                        (o) => orders.push(formatOrder(scales, o)),
+                        onError,
+                    );
+                    input.onSnapshot(orders);
+                    return;
+                }
+                deliver(event.orders);
+                if (removed.length > 0) input.onRemoved?.(removed.map((id) => formatId(id)));
+                return;
+            }
+            const { unit } = event;
+            for (const o of unit.orders) live.add(o.orderId);
+            for (const id of unit.removedOrderIds) live.delete(id);
+            deliver(unit.orders);
+            if (unit.removedOrderIds.length > 0) {
+                input.onRemoved?.(unit.removedOrderIds.map((id) => formatId(id)));
+            }
+        }
     }
 }
