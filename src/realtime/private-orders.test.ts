@@ -1160,7 +1160,8 @@ describe("RealtimeClient.connectPrivateOrders", () => {
             hasAuth: () => true,
         });
 
-        const stop = client.connectPrivateOrders({ accountId: ACCOUNT, onEvent: vi.fn() });
+        // A padded ID passes the base58 check, so the channel must use the trimmed ID.
+        const stop = client.connectPrivateOrders({ accountId: ` ${ACCOUNT} `, onEvent: vi.fn() });
         await vi.waitFor(() => expect(FakeWebSocket.instances).toHaveLength(1));
         const ws = FakeWebSocket.instances[0]!;
         ws.open();

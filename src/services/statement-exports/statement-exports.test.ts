@@ -58,7 +58,7 @@ describe("StatementExportsService", () => {
         const result = await service.create({
             ...createInput,
             assetId: 2,
-            idempotencyKey: " q:1 ",
+            idempotencyKey: "q:1",
         });
 
         const call = transport.lastCall();
@@ -140,6 +140,7 @@ describe("StatementExportsService", () => {
     it.each([
         ["an idempotency key over 64 characters", { idempotencyKey: "k".repeat(65) }],
         ["an empty idempotency key", { idempotencyKey: "  " }],
+        ["a padded idempotency key", { idempotencyKey: " q:1 " }],
         ["a slash in the idempotency key", { idempotencyKey: "a/b" }],
         ["a start at the epoch", { startTime: 0 }],
         ["an empty period", { startTime: 2_500 }],

@@ -270,7 +270,12 @@ export class OrderbookService {
             schema: Proto.OrderBookDeltaSchema,
             maxBufferedPublications: 200,
             snapshotErrorLog: "Failed to fetch orderbook",
-            snapshotRetry: { maxAttempts: 3, delayMs: 1_000 },
+            // GetOrderBook answers unavailable while the book is (re)built; keep asking until it is ready.
+            snapshotRetry: {
+                maxAttempts: Number.POSITIVE_INFINITY,
+                delayMs: 1_000,
+                maxDelayMs: 8_000,
+            },
             fetchSnapshot: inputServiceFetch,
             readPublication: (delta) => [delta],
             applySnapshot: (snapshot, bufferedDeltas) => {

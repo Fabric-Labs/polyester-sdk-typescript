@@ -12,7 +12,6 @@ import {
 } from "../../shared/request-options.js";
 import type { PolyesterRealtime } from "../../realtime/index.js";
 import {
-    DEFAULT_SUBACCOUNT_POLICY,
     SubaccountPoliciesService,
     type SubaccountPolicy,
     SubaccountPolicySchema,
@@ -116,7 +115,8 @@ export class SubaccountsService {
     ): Promise<
         Subaccount & {
             apiKeys: ApiKey[];
-            policy: SubaccountPolicy;
+            /** Absent when the sub-account has no policy attached. */
+            policy?: SubaccountPolicy;
             members: SubaccountMember[];
             invites: SubaccountInvite[];
             balances?: LedgerBalance[];
@@ -141,9 +141,7 @@ export class SubaccountsService {
 
         return {
             ...parse(SubaccountSchema, res.subaccount),
-            policy: res.policy
-                ? parse(SubaccountPolicySchema, res.policy)
-                : DEFAULT_SUBACCOUNT_POLICY,
+            ...(res.policy && { policy: parse(SubaccountPolicySchema, res.policy) }),
             apiKeys: parse(v.optional(v.array(ApiKeySchema), []), res.apiKeys),
             members: parse(v.optional(v.array(SubaccountMemberSchema), []), res.members),
             invites: v

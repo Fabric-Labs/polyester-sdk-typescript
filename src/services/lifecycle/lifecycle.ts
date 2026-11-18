@@ -158,13 +158,13 @@ export class LifecycleService {
     }
 
     /**
-     * Subscribes to open lifecycle flow summary updates, using private:chain:lifecycle:flows:{accountId}:proto when an account id is provided and the public flow channel otherwise.
+     * Subscribes to open lifecycle flow summary updates, using private:chain:lifecycle:flows:{accountId}:proto when `accountId` is set and the public all-accounts flow channel only when it is omitted.
      */
     subscribeOpenFlows(input: SubscribeOpenLifecycleFlowsInput): () => void {
-        const accountId = input.accountId?.trim();
-        const channel = accountId
-            ? `private:chain:lifecycle:flows:${accountId}:proto`
-            : "public:chain:lifecycle:flows:proto";
+        const channel =
+            input.accountId === undefined
+                ? "public:chain:lifecycle:flows:proto"
+                : `private:chain:lifecycle:flows:${input.accountId}:proto`;
         return this.#realtime.connectProtoChannel({
             channel,
             schema: FlowSummaryViewSchema,

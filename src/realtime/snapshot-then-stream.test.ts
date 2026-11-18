@@ -2,6 +2,7 @@ import { create } from "@bufbuild/protobuf";
 import { describe, expect, it, vi } from "vitest";
 import * as Proto from "../gen/chain/zipper/v1/zipper_pb.js";
 import { realtimeClientStub } from "../testing/service-harness.js";
+import { ServiceUnavailableError, ValidationError } from "../shared/errors.js";
 import { snapshotThenStream } from "./snapshot-then-stream.js";
 
 const flushAsync = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
@@ -199,6 +200,44 @@ describe("snapshotThenStream", () => {
         expect(fetchSnapshot).toHaveBeenCalledTimes(2);
         expect(applySnapshot).toHaveBeenCalledWith(10, [7]);
         stream.unsubscribe();
+    });
+
+    it("keeps retrying a retryable snapshot error with capped backoff, but stops on a non-retryable one", async () => {
+        vi.useFakeTimers();
+        try {
+            const realtime = realtimeClientStub();
+            const fetchSnapshot = vi
+                .fn<() => Promise<number>>()
+                .mockRejectedValue(new ServiceUnavailableError("not available yet"));
+            const applySnapshot = vi.fn();
+            const stream = snapshotThenStream({
+                realtime: realtime.realtime,
+                channel: "public:test",
+                schema: Proto.ZippedAssetSupplyBatchSchema,
+                snapshotRetry: { maxAttempts: Number.POSITIVE_INFINITY, delayMs: 1, maxDelayMs: 4 },
+                fetchSnapshot,
+                readPublication: () => [],
+                applySnapshot,
+                applyLivePublications: vi.fn(),
+            });
+
+            realtime.params?.onConnected?.();
+            // 1 + 2 + 4 + 4 + 4 ms of backoff: well past where an uncapped 3-attempt limit stopped.
+            await vi.advanceTimersByTimeAsync(15);
+            expect(fetchSnapshot).toHaveBeenCalledTimes(6);
+
+            fetchSnapshot.mockResolvedValueOnce(5);
+            await vi.advanceTimersByTimeAsync(4);
+            expect(applySnapshot).toHaveBeenCalledWith(5, []);
+
+            stream.refreshSnapshot();
+            fetchSnapshot.mockClear().mockRejectedValue(new ValidationError("bad symbol"));
+            await vi.advanceTimersByTimeAsync(50);
+            expect(fetchSnapshot).toHaveBeenCalledOnce();
+            stream.unsubscribe();
+        } finally {
+            vi.useRealTimers();
+        }
     });
 
     it("isolates snapshot application failures without misclassifying them as fetch failures", async () => {

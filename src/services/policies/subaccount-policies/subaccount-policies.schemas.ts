@@ -279,26 +279,3 @@ export const ApplySubaccountPolicyInputSchema = v.strictObject({
 });
 
 export type SubaccountPolicyApplyInput = v.InferInput<typeof ApplySubaccountPolicyInputSchema>;
-
-const DEFAULT_SUBACCOUNT_POLICY_UPDATED_AT = Date.now();
-
-export const DEFAULT_SUBACCOUNT_POLICY: SubaccountPolicy = {
-    id: "",
-    name: "Subaccount Policy",
-    description: "Subaccount Policy description",
-    spotMarkets: [],
-    spotMarketScope: "all",
-    actions: ["read-balances", "read-internal-transfers", "read-address-book", "read-spot"],
-    maxOrderSize: "0",
-    maxOpenOrders: 0,
-    tradingHalted: false,
-    createdAt: DEFAULT_SUBACCOUNT_POLICY_UPDATED_AT,
-    updatedAt: DEFAULT_SUBACCOUNT_POLICY_UPDATED_AT,
-    updatedAtNs: (BigInt(DEFAULT_SUBACCOUNT_POLICY_UPDATED_AT) * 1_000_000n).toString(),
-    isTemplate: false,
-    sourceTemplateId: undefined,
-    locked: false,
-    reviewAt: undefined,
-    expiresAt: undefined,
-    revision: "0",
-};

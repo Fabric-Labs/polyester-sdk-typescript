@@ -34,7 +34,8 @@ export type MaxSlippageOneof = Proto.ModifyTriggerRequest["maxSlippage"];
 export const BaseTriggerFieldsSchema = v.object({
     ...AccountScopeInputEntries,
     symbolId: SymbolIdInputSchema,
-    clientTriggerId: v.optional(v.pipe(v.string(), v.trim()), () => crypto.randomUUID()),
+    // Sent as given. "" is refused here: proto3 sends it as no ID, so the server cannot.
+    clientTriggerId: v.optional(v.pipe(v.string(), v.minLength(1)), () => crypto.randomUUID()),
     qty: DecimalInputStringSchema,
     feeAsset: v.pipe(
         v.optional(FeeAssetSchema, "quote"),

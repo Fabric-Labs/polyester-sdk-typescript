@@ -6,7 +6,6 @@ import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
 import { describe, expect, it, vi } from "vitest";
-import { DEFAULT_SUBACCOUNT_POLICY } from "../policies/subaccount-policies/index.js";
 import { SubaccountsService } from "./subaccounts.js";
 
 const timestamp = { seconds: 0n, nanos: 0 };
@@ -142,7 +141,6 @@ describe("SubaccountsService", () => {
         const result = await service.get({ subaccountId: ` ${formatId(42n)} ` });
         expect(result).toMatchObject({
             id: formatId(42n),
-            policy: DEFAULT_SUBACCOUNT_POLICY,
             apiKeys: [],
             members: [],
             invites: [
@@ -155,6 +153,7 @@ describe("SubaccountsService", () => {
             ],
         });
         expect(result).not.toHaveProperty("balances");
+        expect(result).not.toHaveProperty("policy");
         expect(() => JSON.stringify(result)).not.toThrow();
 
         expect(transport.lastCall()?.message).toEqual({
