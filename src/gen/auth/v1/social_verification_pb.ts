@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file auth/v1/social_verification.proto.
  */
 export const file_auth_v1_social_verification: GenFile = /*@__PURE__*/
-  fileDesc("CiFhdXRoL3YxL3NvY2lhbF92ZXJpZmljYXRpb24ucHJvdG8SB2F1dGgudjEizwQKElNvY2lhbFZlcmlmaWNhdGlvbhIKCgJpZBgMIAEoAxIpCghwcm92aWRlchgBIAEoDjIXLmF1dGgudjEuU29jaWFsUHJvdmlkZXISMQoGbWV0aG9kGAsgASgOMiEuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb25NZXRob2QSDgoGaGFuZGxlGAIgASgJEhgKEHByb3ZpZGVyX3VzZXJfaWQYAyABKAkSFAoMZGlzcGxheV9uYW1lGBEgASgJEhYKDmNoYWxsZW5nZV9jb2RlGA0gASgJEjEKBnN0YXR1cxgEIAEoDjIhLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uU3RhdHVzEjAKDHJlcXVlc3RlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKZXhwaXJlc19hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLdmVyaWZpZWRfYXQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCGF0dGVtcHRzGAkgASgFEhIKCmxhc3RfZXJyb3IYCiABKAkSKgoKZXJyb3JfY29kZRgQIAEoDjIWLmF1dGgudjEuQXV0aEVycm9yQ29kZRIuCgp1cGRhdGVkX2F0GA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgtyZXRyeV9hZnRlchgSIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAilgEKHlN0YXJ0U29jaWFsVmVyaWZpY2F0aW9uUmVxdWVzdBIrCghwcm92aWRlchgBIAEoDjIXLmF1dGgudjEuU29jaWFsUHJvdmlkZXJCABIzCgZtZXRob2QYAyABKA4yIS5hdXRoLnYxLlNvY2lhbFZlcmlmaWNhdGlvbk1ldGhvZEIAEhAKBmhhbmRsZRgCIAEoCUIAOgAisAEKH1N0YXJ0U29jaWFsVmVyaWZpY2F0aW9uUmVzcG9uc2USFgoOY2hhbGxlbmdlX2NvZGUYASABKAkSLgoKZXhwaXJlc19hdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMQoMdmVyaWZpY2F0aW9uGAMgASgLMhsuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb24SEgoKYWN0aW9uX3VybBgEIAEoCSJNCh5Tb2NpYWxWZXJpZmljYXRpb25SZWFkeVJlcXVlc3QSKwoIcHJvdmlkZXIYASABKA4yFy5hdXRoLnYxLlNvY2lhbFByb3ZpZGVyQgAiVAofU29jaWFsVmVyaWZpY2F0aW9uUmVhZHlSZXNwb25zZRIxCgx2ZXJpZmljYXRpb24YASABKAsyGy5hdXRoLnYxLlNvY2lhbFZlcmlmaWNhdGlvbiJLChxHZXRTb2NpYWxWZXJpZmljYXRpb25SZXF1ZXN0EisKCHByb3ZpZGVyGAEgASgOMhcuYXV0aC52MS5Tb2NpYWxQcm92aWRlckIAIlIKHUdldFNvY2lhbFZlcmlmaWNhdGlvblJlc3BvbnNlEjEKDHZlcmlmaWNhdGlvbhgBIAEoCzIbLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uIm0KIENvbmZpcm1Tb2NpYWxWZXJpZmljYXRpb25SZXF1ZXN0EisKCHByb3ZpZGVyGAEgASgOMhcuYXV0aC52MS5Tb2NpYWxQcm92aWRlckIAEhoKEHByb3ZpZGVyX3VzZXJfaWQYAiABKAlCADoAIlYKIUNvbmZpcm1Tb2NpYWxWZXJpZmljYXRpb25SZXNwb25zZRIxCgx2ZXJpZmljYXRpb24YASABKAsyGy5hdXRoLnYxLlNvY2lhbFZlcmlmaWNhdGlvbiJJChpVbmxpbmtTb2NpYWxBY2NvdW50UmVxdWVzdBIrCghwcm92aWRlchgBIAEoDjIXLmF1dGgudjEuU29jaWFsUHJvdmlkZXJCACJQChtVbmxpbmtTb2NpYWxBY2NvdW50UmVzcG9uc2USMQoMdmVyaWZpY2F0aW9uGAEgASgLMhsuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb24qUgoOU29jaWFsUHJvdmlkZXISGAoUUFJPVklERVJfVU5TUEVDSUZJRUQQABILCgdUV0lUVEVSEAESCwoHRElTQ09SRBACEgwKCFRFTEVHUkFNEAMq8QEKGFNvY2lhbFZlcmlmaWNhdGlvblN0YXR1cxIWChJTVEFUVVNfVU5TUEVDSUZJRUQQABIeChpTVEFUVVNfUEVORElOR19VU0VSX0FDVElPThABEhEKDVNUQVRVU19RVUVVRUQQAhIWChJTVEFUVVNfSU5fUFJPR1JFU1MQAxITCg9TVEFUVVNfVkVSSUZJRUQQBBIRCg1TVEFUVVNfRkFJTEVEEAUSEgoOU1RBVFVTX0VYUElSRUQQBhIUChBTVEFUVVNfQ0FOQ0VMTEVEEAcSIAocU1RBVFVTX0FXQUlUSU5HX0NPTkZJUk1BVElPThAIKmkKGFNvY2lhbFZlcmlmaWNhdGlvbk1ldGhvZBIWChJNRVRIT0RfVU5TUEVDSUZJRUQQABISCg5NRVRIT0RfUFJPRklMRRABEhIKDk1FVEhPRF9DSEFOTkVMEAISDQoJTUVUSE9EX0RNEAMywQQKGVNvY2lhbFZlcmlmaWNhdGlvblNlcnZpY2USbgoXU3RhcnRTb2NpYWxWZXJpZmljYXRpb24SJy5hdXRoLnYxLlN0YXJ0U29jaWFsVmVyaWZpY2F0aW9uUmVxdWVzdBooLmF1dGgudjEuU3RhcnRTb2NpYWxWZXJpZmljYXRpb25SZXNwb25zZSIAEm4KF1NvY2lhbFZlcmlmaWNhdGlvblJlYWR5EicuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb25SZWFkeVJlcXVlc3QaKC5hdXRoLnYxLlNvY2lhbFZlcmlmaWNhdGlvblJlYWR5UmVzcG9uc2UiABJ0ChlDb25maXJtU29jaWFsVmVyaWZpY2F0aW9uEikuYXV0aC52MS5Db25maXJtU29jaWFsVmVyaWZpY2F0aW9uUmVxdWVzdBoqLmF1dGgudjEuQ29uZmlybVNvY2lhbFZlcmlmaWNhdGlvblJlc3BvbnNlIgASYgoTVW5saW5rU29jaWFsQWNjb3VudBIjLmF1dGgudjEuVW5saW5rU29jaWFsQWNjb3VudFJlcXVlc3QaJC5hdXRoLnYxLlVubGlua1NvY2lhbEFjY291bnRSZXNwb25zZSIAEmgKFUdldFNvY2lhbFZlcmlmaWNhdGlvbhIlLmF1dGgudjEuR2V0U29jaWFsVmVyaWZpY2F0aW9uUmVxdWVzdBomLmF1dGgudjEuR2V0U29jaWFsVmVyaWZpY2F0aW9uUmVzcG9uc2UiABoAQjxaOmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vYXV0aC92MTthdXRodjFiBnByb3RvMw==", [file_auth_v1_auth, file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("CiFhdXRoL3YxL3NvY2lhbF92ZXJpZmljYXRpb24ucHJvdG8SB2F1dGgudjEiiAUKElNvY2lhbFZlcmlmaWNhdGlvbhIKCgJpZBgMIAEoAxIpCghwcm92aWRlchgBIAEoDjIXLmF1dGgudjEuU29jaWFsUHJvdmlkZXISMQoGbWV0aG9kGAsgASgOMiEuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb25NZXRob2QSDgoGaGFuZGxlGAIgASgJEhgKEHByb3ZpZGVyX3VzZXJfaWQYAyABKAkSFAoMZGlzcGxheV9uYW1lGBEgASgJEhYKDmNoYWxsZW5nZV9jb2RlGA0gASgJEjEKBnN0YXR1cxgEIAEoDjIhLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uU3RhdHVzEjAKDHJlcXVlc3RlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKZXhwaXJlc19hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLdmVyaWZpZWRfYXQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCGF0dGVtcHRzGAkgASgFEhIKCmxhc3RfZXJyb3IYCiABKAkSKgoKZXJyb3JfY29kZRgQIAEoDjIWLmF1dGgudjEuQXV0aEVycm9yQ29kZRIuCgp1cGRhdGVkX2F0GA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgtyZXRyeV9hZnRlchgSIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASNwoTY2hhbmdlX2F2YWlsYWJsZV9hdBgTIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAilgEKHlN0YXJ0U29jaWFsVmVyaWZpY2F0aW9uUmVxdWVzdBIrCghwcm92aWRlchgBIAEoDjIXLmF1dGgudjEuU29jaWFsUHJvdmlkZXJCABIzCgZtZXRob2QYAyABKA4yIS5hdXRoLnYxLlNvY2lhbFZlcmlmaWNhdGlvbk1ldGhvZEIAEhAKBmhhbmRsZRgCIAEoCUIAOgAisAEKH1N0YXJ0U29jaWFsVmVyaWZpY2F0aW9uUmVzcG9uc2USFgoOY2hhbGxlbmdlX2NvZGUYASABKAkSLgoKZXhwaXJlc19hdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMQoMdmVyaWZpY2F0aW9uGAMgASgLMhsuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb24SEgoKYWN0aW9uX3VybBgEIAEoCSJNCh5Tb2NpYWxWZXJpZmljYXRpb25SZWFkeVJlcXVlc3QSKwoIcHJvdmlkZXIYASABKA4yFy5hdXRoLnYxLlNvY2lhbFByb3ZpZGVyQgAiVAofU29jaWFsVmVyaWZpY2F0aW9uUmVhZHlSZXNwb25zZRIxCgx2ZXJpZmljYXRpb24YASABKAsyGy5hdXRoLnYxLlNvY2lhbFZlcmlmaWNhdGlvbiJLChxHZXRTb2NpYWxWZXJpZmljYXRpb25SZXF1ZXN0EisKCHByb3ZpZGVyGAEgASgOMhcuYXV0aC52MS5Tb2NpYWxQcm92aWRlckIAIlIKHUdldFNvY2lhbFZlcmlmaWNhdGlvblJlc3BvbnNlEjEKDHZlcmlmaWNhdGlvbhgBIAEoCzIbLmF1dGgudjEuU29jaWFsVmVyaWZpY2F0aW9uIm0KIENvbmZpcm1Tb2NpYWxWZXJpZmljYXRpb25SZXF1ZXN0EisKCHByb3ZpZGVyGAEgASgOMhcuYXV0aC52MS5Tb2NpYWxQcm92aWRlckIAEhoKEHByb3ZpZGVyX3VzZXJfaWQYAiABKAlCADoAIlYKIUNvbmZpcm1Tb2NpYWxWZXJpZmljYXRpb25SZXNwb25zZRIxCgx2ZXJpZmljYXRpb24YASABKAsyGy5hdXRoLnYxLlNvY2lhbFZlcmlmaWNhdGlvbiJJChpVbmxpbmtTb2NpYWxBY2NvdW50UmVxdWVzdBIrCghwcm92aWRlchgBIAEoDjIXLmF1dGgudjEuU29jaWFsUHJvdmlkZXJCACJQChtVbmxpbmtTb2NpYWxBY2NvdW50UmVzcG9uc2USMQoMdmVyaWZpY2F0aW9uGAEgASgLMhsuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb24qUgoOU29jaWFsUHJvdmlkZXISGAoUUFJPVklERVJfVU5TUEVDSUZJRUQQABILCgdUV0lUVEVSEAESCwoHRElTQ09SRBACEgwKCFRFTEVHUkFNEAMq8QEKGFNvY2lhbFZlcmlmaWNhdGlvblN0YXR1cxIWChJTVEFUVVNfVU5TUEVDSUZJRUQQABIeChpTVEFUVVNfUEVORElOR19VU0VSX0FDVElPThABEhEKDVNUQVRVU19RVUVVRUQQAhIWChJTVEFUVVNfSU5fUFJPR1JFU1MQAxITCg9TVEFUVVNfVkVSSUZJRUQQBBIRCg1TVEFUVVNfRkFJTEVEEAUSEgoOU1RBVFVTX0VYUElSRUQQBhIUChBTVEFUVVNfQ0FOQ0VMTEVEEAcSIAocU1RBVFVTX0FXQUlUSU5HX0NPTkZJUk1BVElPThAIKmkKGFNvY2lhbFZlcmlmaWNhdGlvbk1ldGhvZBIWChJNRVRIT0RfVU5TUEVDSUZJRUQQABISCg5NRVRIT0RfUFJPRklMRRABEhIKDk1FVEhPRF9DSEFOTkVMEAISDQoJTUVUSE9EX0RNEAMywQQKGVNvY2lhbFZlcmlmaWNhdGlvblNlcnZpY2USbgoXU3RhcnRTb2NpYWxWZXJpZmljYXRpb24SJy5hdXRoLnYxLlN0YXJ0U29jaWFsVmVyaWZpY2F0aW9uUmVxdWVzdBooLmF1dGgudjEuU3RhcnRTb2NpYWxWZXJpZmljYXRpb25SZXNwb25zZSIAEm4KF1NvY2lhbFZlcmlmaWNhdGlvblJlYWR5EicuYXV0aC52MS5Tb2NpYWxWZXJpZmljYXRpb25SZWFkeVJlcXVlc3QaKC5hdXRoLnYxLlNvY2lhbFZlcmlmaWNhdGlvblJlYWR5UmVzcG9uc2UiABJ0ChlDb25maXJtU29jaWFsVmVyaWZpY2F0aW9uEikuYXV0aC52MS5Db25maXJtU29jaWFsVmVyaWZpY2F0aW9uUmVxdWVzdBoqLmF1dGgudjEuQ29uZmlybVNvY2lhbFZlcmlmaWNhdGlvblJlc3BvbnNlIgASYgoTVW5saW5rU29jaWFsQWNjb3VudBIjLmF1dGgudjEuVW5saW5rU29jaWFsQWNjb3VudFJlcXVlc3QaJC5hdXRoLnYxLlVubGlua1NvY2lhbEFjY291bnRSZXNwb25zZSIAEmgKFUdldFNvY2lhbFZlcmlmaWNhdGlvbhIlLmF1dGgudjEuR2V0U29jaWFsVmVyaWZpY2F0aW9uUmVxdWVzdBomLmF1dGgudjEuR2V0U29jaWFsVmVyaWZpY2F0aW9uUmVzcG9uc2UiABoAQjxaOmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vYXV0aC92MTthdXRodjFiBnByb3RvMw==", [file_auth_v1_auth, file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * SocialVerification describes the caller's current verification state for one
@@ -153,6 +153,20 @@ export type SocialVerification = Message<"auth.v1.SocialVerification"> & {
    * @generated from field: google.protobuf.Timestamp retry_after = 18;
    */
   retryAfter?: Timestamp | undefined;
+
+  /**
+   * Time in UTC from which the caller may change or unlink its X/Twitter or
+   * Discord account again. Each provider allows one change or unlink per 30
+   * days; until this time, changing or unlinking the linked account fails with
+   * AUTH_SOCIAL_CHANGE_LIMIT_REACHED and a retry_after equal to it. Set
+   * whenever the limit applies, whether or not a verification failed. Empty
+   * when a change or unlink is allowed now, and always for Telegram. A first
+   * link, a link after an unlink, and a re-verification of the linked
+   * X/Twitter handle are not changes and are allowed while it is set.
+   *
+   * @generated from field: google.protobuf.Timestamp change_available_at = 19;
+   */
+  changeAvailableAt?: Timestamp | undefined;
 };
 
 /**
@@ -611,12 +625,14 @@ export const SocialVerificationService: GenService<{
    * confirm the account with ConfirmSocialVerification.
    * AUTH_SOCIAL_VERIFICATION_INVALID_STATE for Telegram means a Telegram account is already linked; unlink it first.
    * While an X/Twitter or Discord account is linked, starting again can change
-   * it, so the caller needs enrolled MFA and a fresh, single-use step-up proof
-   * in the X-Auth-Step-Up header: AUTH_MFA_NOT_ENROLLED means enroll MFA first;
-   * AUTH_STEP_UP_REQUIRED and AUTH_STEP_UP_PROOF_UNAVAILABLE mean complete a new
-   * fresh step-up and retry. AUTH_SOCIAL_CHANGE_LIMIT_REACHED means the account
-   * changed or unlinked that provider's account less than 30 days ago; the
-   * detail's retry_after says when it may again.
+   * it. AUTH_SOCIAL_CHANGE_LIMIT_REACHED means the account changed or unlinked
+   * that provider's account less than 30 days ago; the detail's retry_after
+   * says when it may again, as change_available_at from GetSocialVerification
+   * does beforehand. That limit is checked before any step-up is asked for.
+   * Otherwise the caller needs enrolled MFA and a fresh, single-use step-up
+   * proof in the X-Auth-Step-Up header: AUTH_MFA_NOT_ENROLLED means enroll MFA
+   * first; AUTH_STEP_UP_REQUIRED and AUTH_STEP_UP_PROOF_UNAVAILABLE mean
+   * complete a new fresh step-up and retry.
    * The new verification fails with error_code AUTH_SOCIAL_ACCOUNT_COOLDOWN when
    * the verified account was unlinked from another Polyester account less than
    * 30 days ago, and AUTH_SOCIAL_CHANGE_LIMIT_REACHED when it would replace a
@@ -648,13 +664,14 @@ export const SocialVerificationService: GenService<{
    * linked Telegram account becomes a channel to the account, so the caller
    * needs enrolled MFA and a fresh, single-use step-up proof in the
    * X-Auth-Step-Up header, obtained by completing an MFA challenge for fresh
-   * step-up. The link consumes the proof; a retried confirmation of an existing
-   * link needs no new proof.
+   * step-up, which the link consumes. While the session's recent-MFA window
+   * is open for RECENT_MFA_ACTION_TELEGRAM_LINK (GetRecentMFA), no proof is
+   * needed. A retried confirmation of an existing link needs no new proof.
    * AUTH_RESOURCE_NOT_FOUND means no verification exists; start one first.
    * AUTH_SOCIAL_VERIFICATION_EXPIRED means the challenge window passed; start a new verification.
    * AUTH_SOCIAL_VERIFICATION_INVALID_STATE means no submitted account awaits confirmation, or provider_user_id is not the account that submitted the code.
    * AUTH_SOCIAL_ACCOUNT_ALREADY_LINKED means that Telegram account is linked to another Polyester account; the verification fails.
-   * AUTH_MFA_NOT_ENROLLED means enroll MFA first; AUTH_STEP_UP_REQUIRED and AUTH_STEP_UP_PROOF_UNAVAILABLE mean complete a new fresh step-up and retry.
+   * AUTH_MFA_NOT_ENROLLED means enroll MFA first; AUTH_STEP_UP_REQUIRED, AUTH_RECENT_MFA_EXPIRED and AUTH_STEP_UP_PROOF_UNAVAILABLE mean complete a new fresh step-up and retry.
    *
    * @generated from rpc auth.v1.SocialVerificationService.ConfirmSocialVerification
    */
@@ -667,13 +684,15 @@ export const SocialVerificationService: GenService<{
    * Unlink the caller's X/Twitter, Discord or Telegram account, or cancel a link
    * in progress. Unlinking again succeeds and changes nothing. To link again,
    * start a new verification.
-   * Unlinking a linked X/Twitter or Discord account needs enrolled MFA and a
-   * fresh, single-use step-up proof in the X-Auth-Step-Up header
+   * Unlinking a linked X/Twitter or Discord account counts as the provider's
+   * one change per 30 days: AUTH_SOCIAL_CHANGE_LIMIT_REACHED means the account
+   * changed or unlinked that provider's account less than 30 days ago, and the
+   * detail's retry_after says when it may again, as change_available_at from
+   * GetSocialVerification does beforehand. That limit is checked before any
+   * step-up is asked for. Otherwise the unlink needs enrolled MFA and a fresh,
+   * single-use step-up proof in the X-Auth-Step-Up header
    * (AUTH_MFA_NOT_ENROLLED, AUTH_STEP_UP_REQUIRED, AUTH_STEP_UP_PROOF_UNAVAILABLE
-   * as for StartSocialVerification), and counts as the provider's one change per
-   * 30 days: AUTH_SOCIAL_CHANGE_LIMIT_REACHED means the account changed or
-   * unlinked that provider's account less than 30 days ago, and the detail's
-   * retry_after says when it may again. For 30 days after it is unlinked, the
+   * as for StartSocialVerification). For 30 days after it is unlinked, the
    * account can be linked again only to this Polyester account.
    *
    * @generated from rpc auth.v1.SocialVerificationService.UnlinkSocialAccount
@@ -686,6 +705,9 @@ export const SocialVerificationService: GenService<{
   /**
    * Get current verification status for the caller.
    * A failed verification uses error_code for its machine-readable outcome.
+   * change_available_at says, before the caller starts, whether the linked
+   * X/Twitter or Discord account can be changed or unlinked now, and if not,
+   * when.
    * An API key needs READ_SOCIAL_VERIFICATION and must be scoped to the main
    * account. It reads the status only: provider, method, handle, status, and
    * verification time, with every other field left empty.

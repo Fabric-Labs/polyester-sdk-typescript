@@ -13,7 +13,7 @@ import type { JsonObject, Message } from "@bufbuild/protobuf";
  * Describes the file auth/v1/mfa.proto.
  */
 export const file_auth_v1_mfa: GenFile = /*@__PURE__*/
-  fileDesc("ChFhdXRoL3YxL21mYS5wcm90bxIHYXV0aC52MSKkAQoLU2Vzc2lvbkluZm8SFAoKc2Vzc2lvbl9pZBgBIAEoCUIAEi4KDXNlc3Npb25fbGV2ZWwYAiABKA4yFS5hdXRoLnYxLlNlc3Npb25MZXZlbEIAEiAKFmF1dGhlbnRpY2F0aW9uX21ldGhvZHMYAyADKAlCABItCglhdXRoX3RpbWUYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIsIBCglNRkFGYWN0b3ISEwoJZmFjdG9yX2lkGAEgASgJQgASLQoLZmFjdG9yX3R5cGUYAiABKA4yFi5hdXRoLnYxLk1GQUZhY3RvclR5cGVCABIPCgVsYWJlbBgDIAEoCUIAEi4KCmNyZWF0ZWRfYXQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGxhc3RfdXNlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiFwoVTGlzdE1GQUZhY3RvcnNSZXF1ZXN0IlkKFkxpc3RNRkFGYWN0b3JzUmVzcG9uc2USIwoHZmFjdG9ycxgBIAMoCzISLmF1dGgudjEuTUZBRmFjdG9yEhoKEmhhc19yZWNvdmVyeV9jb2RlcxgCIAEoCCItChpCZWdpblRPVFBFbnJvbGxtZW50UmVxdWVzdBIPCgVsYWJlbBgBIAEoCUIAIo8BChtCZWdpblRPVFBFbnJvbGxtZW50UmVzcG9uc2USFwoNZW5yb2xsbWVudF9pZBgBIAEoCUIAEhAKBnNlY3JldBgCIAEoCUIAEhUKC290cGF1dGhfdXJpGAMgASgJQgASLgoKZXhwaXJlc19hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiRgobRmluaXNoVE9UUEVucm9sbG1lbnRSZXF1ZXN0EhcKDWVucm9sbG1lbnRfaWQYASABKAlCABIOCgRjb2RlGAIgASgJQgAi2AEKHEZpbmlzaFRPVFBFbnJvbGxtZW50UmVzcG9uc2USIgoGZmFjdG9yGAEgASgLMhIuYXV0aC52MS5NRkFGYWN0b3ISGAoOcmVjb3ZlcnlfY29kZXMYAiADKAlCABIlCgdzZXNzaW9uGAMgASgLMhQuYXV0aC52MS5TZXNzaW9uSW5mbxIWCgxhY2Nlc3NfdG9rZW4YBCABKAlCABI7ChdhY2Nlc3NfdG9rZW5fZXhwaXJlc19hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiMAodQmVnaW5QYXNza2V5RW5yb2xsbWVudFJlcXVlc3QSDwoFbGFiZWwYASABKAlCACKWAQoeQmVnaW5QYXNza2V5RW5yb2xsbWVudFJlc3BvbnNlEhcKDWVucm9sbG1lbnRfaWQYASABKAlCABIrCgpwdWJsaWNfa2V5GAIgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdBIuCgpleHBpcmVzX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJoCh5GaW5pc2hQYXNza2V5RW5yb2xsbWVudFJlcXVlc3QSFwoNZW5yb2xsbWVudF9pZBgBIAEoCUIAEi0KCmNyZWRlbnRpYWwYAiABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0QgAi2wEKH0ZpbmlzaFBhc3NrZXlFbnJvbGxtZW50UmVzcG9uc2USIgoGZmFjdG9yGAEgASgLMhIuYXV0aC52MS5NRkFGYWN0b3ISGAoOcmVjb3ZlcnlfY29kZXMYAiADKAlCABIlCgdzZXNzaW9uGAMgASgLMhQuYXV0aC52MS5TZXNzaW9uSW5mbxIWCgxhY2Nlc3NfdG9rZW4YBCABKAlCABI7ChdhY2Nlc3NfdG9rZW5fZXhwaXJlc19hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiSwoYQmVnaW5NRkFDaGFsbGVuZ2VSZXF1ZXN0Ei8KB3B1cnBvc2UYASABKA4yHC5hdXRoLnYxLk1GQUNoYWxsZW5nZVB1cnBvc2VCACLIAQoZQmVnaW5NRkFDaGFsbGVuZ2VSZXNwb25zZRIWCgxjaGFsbGVuZ2VfaWQYASABKAlCABI2ChRhbGxvd2VkX2ZhY3Rvcl90eXBlcxgCIAMoDjIWLmF1dGgudjEuTUZBRmFjdG9yVHlwZUIAEisKCnB1YmxpY19rZXkYAyABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0Ei4KCmV4cGlyZXNfYXQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIkQKGlZlcmlmeVRPVFBDaGFsbGVuZ2VSZXF1ZXN0EhYKDGNoYWxsZW5nZV9pZBgBIAEoCUIAEg4KBGNvZGUYAiABKAlCACJmCh1GaW5pc2hQYXNza2V5Q2hhbGxlbmdlUmVxdWVzdBIWCgxjaGFsbGVuZ2VfaWQYASABKAlCABItCgpjcmVkZW50aWFsGAIgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdEIAIlUKIlZlcmlmeVJlY292ZXJ5Q29kZUNoYWxsZW5nZVJlcXVlc3QSFgoMY2hhbGxlbmdlX2lkGAEgASgJQgASFwoNcmVjb3ZlcnlfY29kZRgCIAEoCUIAIusBChxDb21wbGV0ZU1GQUNoYWxsZW5nZVJlc3BvbnNlEiUKB3Nlc3Npb24YASABKAsyFC5hdXRoLnYxLlNlc3Npb25JbmZvEhYKDGFjY2Vzc190b2tlbhgCIAEoCUIAEjsKF2FjY2Vzc190b2tlbl9leHBpcmVzX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIXCg1zdGVwX3VwX3Rva2VuGAQgASgJQgASNgoSc3RlcF91cF9leHBpcmVzX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJZChdDbGFpbUZyZXNoU3RlcFVwUmVxdWVzdBIUCgpyZXF1ZXN0X2lkGAEgASgJQgASFQoLYWN0aW9uX3R5cGUYAiABKAlCABIRCgdzdWJqZWN0GAMgASgJQgAifQoYQ2xhaW1GcmVzaFN0ZXBVcFJlc3BvbnNlEhQKCnN0ZXBfdXBfaWQYASABKAlCABIVCgtjbGFpbV9ub25jZRgCIAEoCUIAEjQKEGNsYWltX2V4cGlyZXNfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIogBChlDb25zdW1lRnJlc2hTdGVwVXBSZXF1ZXN0EhQKCnN0ZXBfdXBfaWQYASABKAlCABIUCgpyZXF1ZXN0X2lkGAIgASgJQgASFQoLYWN0aW9uX3R5cGUYAyABKAlCABIRCgdzdWJqZWN0GAQgASgJQgASFQoLY2xhaW1fbm9uY2UYBSABKAlCACIcChpDb25zdW1lRnJlc2hTdGVwVXBSZXNwb25zZSKaAQoZUmVsZWFzZUZyZXNoU3RlcFVwUmVxdWVzdBIUCgpzdGVwX3VwX2lkGAEgASgJQgASFAoKcmVxdWVzdF9pZBgCIAEoCUIAEhUKC2FjdGlvbl90eXBlGAMgASgJQgASEQoHc3ViamVjdBgEIAEoCUIAEhUKC2NsYWltX25vbmNlGAUgASgJQgASEAoGcmVhc29uGAYgASgJQgAiHAoaUmVsZWFzZUZyZXNoU3RlcFVwUmVzcG9uc2UiPgoWVXBkYXRlTUZBRmFjdG9yUmVxdWVzdBITCglmYWN0b3JfaWQYASABKAlCABIPCgVsYWJlbBgCIAEoCUIAIj0KF1VwZGF0ZU1GQUZhY3RvclJlc3BvbnNlEiIKBmZhY3RvchgBIAEoCzISLmF1dGgudjEuTUZBRmFjdG9yIi0KFkRlbGV0ZU1GQUZhY3RvclJlcXVlc3QSEwoJZmFjdG9yX2lkGAEgASgJQgAiGQoXRGVsZXRlTUZBRmFjdG9yUmVzcG9uc2UiIAoeUmVnZW5lcmF0ZVJlY292ZXJ5Q29kZXNSZXF1ZXN0IjsKH1JlZ2VuZXJhdGVSZWNvdmVyeUNvZGVzUmVzcG9uc2USGAoOcmVjb3ZlcnlfY29kZXMYASADKAlCACptCgxTZXNzaW9uTGV2ZWwSHQoZU0VTU0lPTl9MRVZFTF9VTlNQRUNJRklFRBAAEhkKFVBSSU1BUllfQVVUSEVOVElDQVRFRBABEhAKDE1GQV9FTEVWQVRFRBACEhEKDUZSRVNIX1NURVBfVVAQAyqKAQoNTUZBRmFjdG9yVHlwZRIfChtNRkFfRkFDVE9SX1RZUEVfVU5TUEVDSUZJRUQQABIYChRNRkFfRkFDVE9SX1RZUEVfVE9UUBABEhsKF01GQV9GQUNUT1JfVFlQRV9QQVNTS0VZEAISIQodTUZBX0ZBQ1RPUl9UWVBFX1JFQ09WRVJZX0NPREUQAyqSAQoTTUZBQ2hhbGxlbmdlUHVycG9zZRIlCiFNRkFfQ0hBTExFTkdFX1BVUlBPU0VfVU5TUEVDSUZJRUQQABIrCidNRkFfQ0hBTExFTkdFX1BVUlBPU0VfU0VTU0lPTl9FTEVWQVRJT04QARInCiNNRkFfQ0hBTExFTkdFX1BVUlBPU0VfRlJFU0hfU1RFUF9VUBACMusLCgpNRkFTZXJ2aWNlElMKDkxpc3RNRkFGYWN0b3JzEh4uYXV0aC52MS5MaXN0TUZBRmFjdG9yc1JlcXVlc3QaHy5hdXRoLnYxLkxpc3RNRkFGYWN0b3JzUmVzcG9uc2UiABJiChNCZWdpblRPVFBFbnJvbGxtZW50EiMuYXV0aC52MS5CZWdpblRPVFBFbnJvbGxtZW50UmVxdWVzdBokLmF1dGgudjEuQmVnaW5UT1RQRW5yb2xsbWVudFJlc3BvbnNlIgASZQoURmluaXNoVE9UUEVucm9sbG1lbnQSJC5hdXRoLnYxLkZpbmlzaFRPVFBFbnJvbGxtZW50UmVxdWVzdBolLmF1dGgudjEuRmluaXNoVE9UUEVucm9sbG1lbnRSZXNwb25zZSIAEmsKFkJlZ2luUGFzc2tleUVucm9sbG1lbnQSJi5hdXRoLnYxLkJlZ2luUGFzc2tleUVucm9sbG1lbnRSZXF1ZXN0GicuYXV0aC52MS5CZWdpblBhc3NrZXlFbnJvbGxtZW50UmVzcG9uc2UiABJuChdGaW5pc2hQYXNza2V5RW5yb2xsbWVudBInLmF1dGgudjEuRmluaXNoUGFzc2tleUVucm9sbG1lbnRSZXF1ZXN0GiguYXV0aC52MS5GaW5pc2hQYXNza2V5RW5yb2xsbWVudFJlc3BvbnNlIgASXAoRQmVnaW5NRkFDaGFsbGVuZ2USIS5hdXRoLnYxLkJlZ2luTUZBQ2hhbGxlbmdlUmVxdWVzdBoiLmF1dGgudjEuQmVnaW5NRkFDaGFsbGVuZ2VSZXNwb25zZSIAEmMKE1ZlcmlmeVRPVFBDaGFsbGVuZ2USIy5hdXRoLnYxLlZlcmlmeVRPVFBDaGFsbGVuZ2VSZXF1ZXN0GiUuYXV0aC52MS5Db21wbGV0ZU1GQUNoYWxsZW5nZVJlc3BvbnNlIgASaQoWRmluaXNoUGFzc2tleUNoYWxsZW5nZRImLmF1dGgudjEuRmluaXNoUGFzc2tleUNoYWxsZW5nZVJlcXVlc3QaJS5hdXRoLnYxLkNvbXBsZXRlTUZBQ2hhbGxlbmdlUmVzcG9uc2UiABJzChtWZXJpZnlSZWNvdmVyeUNvZGVDaGFsbGVuZ2USKy5hdXRoLnYxLlZlcmlmeVJlY292ZXJ5Q29kZUNoYWxsZW5nZVJlcXVlc3QaJS5hdXRoLnYxLkNvbXBsZXRlTUZBQ2hhbGxlbmdlUmVzcG9uc2UiABJWCg9VcGRhdGVNRkFGYWN0b3ISHy5hdXRoLnYxLlVwZGF0ZU1GQUZhY3RvclJlcXVlc3QaIC5hdXRoLnYxLlVwZGF0ZU1GQUZhY3RvclJlc3BvbnNlIgASVgoPRGVsZXRlTUZBRmFjdG9yEh8uYXV0aC52MS5EZWxldGVNRkFGYWN0b3JSZXF1ZXN0GiAuYXV0aC52MS5EZWxldGVNRkFGYWN0b3JSZXNwb25zZSIAEm4KF1JlZ2VuZXJhdGVSZWNvdmVyeUNvZGVzEicuYXV0aC52MS5SZWdlbmVyYXRlUmVjb3ZlcnlDb2Rlc1JlcXVlc3QaKC5hdXRoLnYxLlJlZ2VuZXJhdGVSZWNvdmVyeUNvZGVzUmVzcG9uc2UiABJZChBDbGFpbUZyZXNoU3RlcFVwEiAuYXV0aC52MS5DbGFpbUZyZXNoU3RlcFVwUmVxdWVzdBohLmF1dGgudjEuQ2xhaW1GcmVzaFN0ZXBVcFJlc3BvbnNlIgASXwoSQ29uc3VtZUZyZXNoU3RlcFVwEiIuYXV0aC52MS5Db25zdW1lRnJlc2hTdGVwVXBSZXF1ZXN0GiMuYXV0aC52MS5Db25zdW1lRnJlc2hTdGVwVXBSZXNwb25zZSIAEl8KElJlbGVhc2VGcmVzaFN0ZXBVcBIiLmF1dGgudjEuUmVsZWFzZUZyZXNoU3RlcFVwUmVxdWVzdBojLmF1dGgudjEuUmVsZWFzZUZyZXNoU3RlcFVwUmVzcG9uc2UiABoAQjxaOmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vYXV0aC92MTthdXRodjFiBnByb3RvMw==", [file_google_protobuf_struct, file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChFhdXRoL3YxL21mYS5wcm90bxIHYXV0aC52MSKkAQoLU2Vzc2lvbkluZm8SFAoKc2Vzc2lvbl9pZBgBIAEoCUIAEi4KDXNlc3Npb25fbGV2ZWwYAiABKA4yFS5hdXRoLnYxLlNlc3Npb25MZXZlbEIAEiAKFmF1dGhlbnRpY2F0aW9uX21ldGhvZHMYAyADKAlCABItCglhdXRoX3RpbWUYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIsIBCglNRkFGYWN0b3ISEwoJZmFjdG9yX2lkGAEgASgJQgASLQoLZmFjdG9yX3R5cGUYAiABKA4yFi5hdXRoLnYxLk1GQUZhY3RvclR5cGVCABIPCgVsYWJlbBgDIAEoCUIAEi4KCmNyZWF0ZWRfYXQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGxhc3RfdXNlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiFwoVTGlzdE1GQUZhY3RvcnNSZXF1ZXN0IlkKFkxpc3RNRkFGYWN0b3JzUmVzcG9uc2USIwoHZmFjdG9ycxgBIAMoCzISLmF1dGgudjEuTUZBRmFjdG9yEhoKEmhhc19yZWNvdmVyeV9jb2RlcxgCIAEoCCItChpCZWdpblRPVFBFbnJvbGxtZW50UmVxdWVzdBIPCgVsYWJlbBgBIAEoCUIAIo8BChtCZWdpblRPVFBFbnJvbGxtZW50UmVzcG9uc2USFwoNZW5yb2xsbWVudF9pZBgBIAEoCUIAEhAKBnNlY3JldBgCIAEoCUIAEhUKC290cGF1dGhfdXJpGAMgASgJQgASLgoKZXhwaXJlc19hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiRgobRmluaXNoVE9UUEVucm9sbG1lbnRSZXF1ZXN0EhcKDWVucm9sbG1lbnRfaWQYASABKAlCABIOCgRjb2RlGAIgASgJQgAi2AEKHEZpbmlzaFRPVFBFbnJvbGxtZW50UmVzcG9uc2USIgoGZmFjdG9yGAEgASgLMhIuYXV0aC52MS5NRkFGYWN0b3ISGAoOcmVjb3ZlcnlfY29kZXMYAiADKAlCABIlCgdzZXNzaW9uGAMgASgLMhQuYXV0aC52MS5TZXNzaW9uSW5mbxIWCgxhY2Nlc3NfdG9rZW4YBCABKAlCABI7ChdhY2Nlc3NfdG9rZW5fZXhwaXJlc19hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiMAodQmVnaW5QYXNza2V5RW5yb2xsbWVudFJlcXVlc3QSDwoFbGFiZWwYASABKAlCACKWAQoeQmVnaW5QYXNza2V5RW5yb2xsbWVudFJlc3BvbnNlEhcKDWVucm9sbG1lbnRfaWQYASABKAlCABIrCgpwdWJsaWNfa2V5GAIgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdBIuCgpleHBpcmVzX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJoCh5GaW5pc2hQYXNza2V5RW5yb2xsbWVudFJlcXVlc3QSFwoNZW5yb2xsbWVudF9pZBgBIAEoCUIAEi0KCmNyZWRlbnRpYWwYAiABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0QgAi2wEKH0ZpbmlzaFBhc3NrZXlFbnJvbGxtZW50UmVzcG9uc2USIgoGZmFjdG9yGAEgASgLMhIuYXV0aC52MS5NRkFGYWN0b3ISGAoOcmVjb3ZlcnlfY29kZXMYAiADKAlCABIlCgdzZXNzaW9uGAMgASgLMhQuYXV0aC52MS5TZXNzaW9uSW5mbxIWCgxhY2Nlc3NfdG9rZW4YBCABKAlCABI7ChdhY2Nlc3NfdG9rZW5fZXhwaXJlc19hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiSwoYQmVnaW5NRkFDaGFsbGVuZ2VSZXF1ZXN0Ei8KB3B1cnBvc2UYASABKA4yHC5hdXRoLnYxLk1GQUNoYWxsZW5nZVB1cnBvc2VCACLIAQoZQmVnaW5NRkFDaGFsbGVuZ2VSZXNwb25zZRIWCgxjaGFsbGVuZ2VfaWQYASABKAlCABI2ChRhbGxvd2VkX2ZhY3Rvcl90eXBlcxgCIAMoDjIWLmF1dGgudjEuTUZBRmFjdG9yVHlwZUIAEisKCnB1YmxpY19rZXkYAyABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0Ei4KCmV4cGlyZXNfYXQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIkQKGlZlcmlmeVRPVFBDaGFsbGVuZ2VSZXF1ZXN0EhYKDGNoYWxsZW5nZV9pZBgBIAEoCUIAEg4KBGNvZGUYAiABKAlCACJmCh1GaW5pc2hQYXNza2V5Q2hhbGxlbmdlUmVxdWVzdBIWCgxjaGFsbGVuZ2VfaWQYASABKAlCABItCgpjcmVkZW50aWFsGAIgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdEIAIlUKIlZlcmlmeVJlY292ZXJ5Q29kZUNoYWxsZW5nZVJlcXVlc3QSFgoMY2hhbGxlbmdlX2lkGAEgASgJQgASFwoNcmVjb3ZlcnlfY29kZRgCIAEoCUIAIusBChxDb21wbGV0ZU1GQUNoYWxsZW5nZVJlc3BvbnNlEiUKB3Nlc3Npb24YASABKAsyFC5hdXRoLnYxLlNlc3Npb25JbmZvEhYKDGFjY2Vzc190b2tlbhgCIAEoCUIAEjsKF2FjY2Vzc190b2tlbl9leHBpcmVzX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIXCg1zdGVwX3VwX3Rva2VuGAQgASgJQgASNgoSc3RlcF91cF9leHBpcmVzX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJZChdDbGFpbUZyZXNoU3RlcFVwUmVxdWVzdBIUCgpyZXF1ZXN0X2lkGAEgASgJQgASFQoLYWN0aW9uX3R5cGUYAiABKAlCABIRCgdzdWJqZWN0GAMgASgJQgAifQoYQ2xhaW1GcmVzaFN0ZXBVcFJlc3BvbnNlEhQKCnN0ZXBfdXBfaWQYASABKAlCABIVCgtjbGFpbV9ub25jZRgCIAEoCUIAEjQKEGNsYWltX2V4cGlyZXNfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIogBChlDb25zdW1lRnJlc2hTdGVwVXBSZXF1ZXN0EhQKCnN0ZXBfdXBfaWQYASABKAlCABIUCgpyZXF1ZXN0X2lkGAIgASgJQgASFQoLYWN0aW9uX3R5cGUYAyABKAlCABIRCgdzdWJqZWN0GAQgASgJQgASFQoLY2xhaW1fbm9uY2UYBSABKAlCACIcChpDb25zdW1lRnJlc2hTdGVwVXBSZXNwb25zZSKaAQoZUmVsZWFzZUZyZXNoU3RlcFVwUmVxdWVzdBIUCgpzdGVwX3VwX2lkGAEgASgJQgASFAoKcmVxdWVzdF9pZBgCIAEoCUIAEhUKC2FjdGlvbl90eXBlGAMgASgJQgASEQoHc3ViamVjdBgEIAEoCUIAEhUKC2NsYWltX25vbmNlGAUgASgJQgASEAoGcmVhc29uGAYgASgJQgAiHAoaUmVsZWFzZUZyZXNoU3RlcFVwUmVzcG9uc2UiQQoTR2V0UmVjZW50TUZBUmVxdWVzdBIqCgZhY3Rpb24YASABKA4yGC5hdXRoLnYxLlJlY2VudE1GQUFjdGlvbkIAIlQKFEdldFJlY2VudE1GQVJlc3BvbnNlEgwKBG9wZW4YASABKAgSLgoKZXhwaXJlc19hdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiFQoTRW5kUmVjZW50TUZBUmVxdWVzdCIWChRFbmRSZWNlbnRNRkFSZXNwb25zZSI+ChZVcGRhdGVNRkFGYWN0b3JSZXF1ZXN0EhMKCWZhY3Rvcl9pZBgBIAEoCUIAEg8KBWxhYmVsGAIgASgJQgAiPQoXVXBkYXRlTUZBRmFjdG9yUmVzcG9uc2USIgoGZmFjdG9yGAEgASgLMhIuYXV0aC52MS5NRkFGYWN0b3IiLQoWRGVsZXRlTUZBRmFjdG9yUmVxdWVzdBITCglmYWN0b3JfaWQYASABKAlCACIZChdEZWxldGVNRkFGYWN0b3JSZXNwb25zZSIgCh5SZWdlbmVyYXRlUmVjb3ZlcnlDb2Rlc1JlcXVlc3QiOwofUmVnZW5lcmF0ZVJlY292ZXJ5Q29kZXNSZXNwb25zZRIYCg5yZWNvdmVyeV9jb2RlcxgBIAMoCUIAKm0KDFNlc3Npb25MZXZlbBIdChlTRVNTSU9OX0xFVkVMX1VOU1BFQ0lGSUVEEAASGQoVUFJJTUFSWV9BVVRIRU5USUNBVEVEEAESEAoMTUZBX0VMRVZBVEVEEAISEQoNRlJFU0hfU1RFUF9VUBADKooBCg1NRkFGYWN0b3JUeXBlEh8KG01GQV9GQUNUT1JfVFlQRV9VTlNQRUNJRklFRBAAEhgKFE1GQV9GQUNUT1JfVFlQRV9UT1RQEAESGwoXTUZBX0ZBQ1RPUl9UWVBFX1BBU1NLRVkQAhIhCh1NRkFfRkFDVE9SX1RZUEVfUkVDT1ZFUllfQ09ERRADKpIBChNNRkFDaGFsbGVuZ2VQdXJwb3NlEiUKIU1GQV9DSEFMTEVOR0VfUFVSUE9TRV9VTlNQRUNJRklFRBAAEisKJ01GQV9DSEFMTEVOR0VfUFVSUE9TRV9TRVNTSU9OX0VMRVZBVElPThABEicKI01GQV9DSEFMTEVOR0VfUFVSUE9TRV9GUkVTSF9TVEVQX1VQEAIqsQEKD1JlY2VudE1GQUFjdGlvbhIhCh1SRUNFTlRfTUZBX0FDVElPTl9VTlNQRUNJRklFRBAAEiMKH1JFQ0VOVF9NRkFfQUNUSU9OX1RFTEVHUkFNX0xJTksQARImCiJSRUNFTlRfTUZBX0FDVElPTl9BU1NJU1RBTlRfQUNDRVNTEAISLgoqUkVDRU5UX01GQV9BQ1RJT05fVEVMRUdSQU1fQVBQUk9WQUxfTElNSVRTEAMyjw0KCk1GQVNlcnZpY2USUwoOTGlzdE1GQUZhY3RvcnMSHi5hdXRoLnYxLkxpc3RNRkFGYWN0b3JzUmVxdWVzdBofLmF1dGgudjEuTGlzdE1GQUZhY3RvcnNSZXNwb25zZSIAEmIKE0JlZ2luVE9UUEVucm9sbG1lbnQSIy5hdXRoLnYxLkJlZ2luVE9UUEVucm9sbG1lbnRSZXF1ZXN0GiQuYXV0aC52MS5CZWdpblRPVFBFbnJvbGxtZW50UmVzcG9uc2UiABJlChRGaW5pc2hUT1RQRW5yb2xsbWVudBIkLmF1dGgudjEuRmluaXNoVE9UUEVucm9sbG1lbnRSZXF1ZXN0GiUuYXV0aC52MS5GaW5pc2hUT1RQRW5yb2xsbWVudFJlc3BvbnNlIgASawoWQmVnaW5QYXNza2V5RW5yb2xsbWVudBImLmF1dGgudjEuQmVnaW5QYXNza2V5RW5yb2xsbWVudFJlcXVlc3QaJy5hdXRoLnYxLkJlZ2luUGFzc2tleUVucm9sbG1lbnRSZXNwb25zZSIAEm4KF0ZpbmlzaFBhc3NrZXlFbnJvbGxtZW50EicuYXV0aC52MS5GaW5pc2hQYXNza2V5RW5yb2xsbWVudFJlcXVlc3QaKC5hdXRoLnYxLkZpbmlzaFBhc3NrZXlFbnJvbGxtZW50UmVzcG9uc2UiABJcChFCZWdpbk1GQUNoYWxsZW5nZRIhLmF1dGgudjEuQmVnaW5NRkFDaGFsbGVuZ2VSZXF1ZXN0GiIuYXV0aC52MS5CZWdpbk1GQUNoYWxsZW5nZVJlc3BvbnNlIgASYwoTVmVyaWZ5VE9UUENoYWxsZW5nZRIjLmF1dGgudjEuVmVyaWZ5VE9UUENoYWxsZW5nZVJlcXVlc3QaJS5hdXRoLnYxLkNvbXBsZXRlTUZBQ2hhbGxlbmdlUmVzcG9uc2UiABJpChZGaW5pc2hQYXNza2V5Q2hhbGxlbmdlEiYuYXV0aC52MS5GaW5pc2hQYXNza2V5Q2hhbGxlbmdlUmVxdWVzdBolLmF1dGgudjEuQ29tcGxldGVNRkFDaGFsbGVuZ2VSZXNwb25zZSIAEnMKG1ZlcmlmeVJlY292ZXJ5Q29kZUNoYWxsZW5nZRIrLmF1dGgudjEuVmVyaWZ5UmVjb3ZlcnlDb2RlQ2hhbGxlbmdlUmVxdWVzdBolLmF1dGgudjEuQ29tcGxldGVNRkFDaGFsbGVuZ2VSZXNwb25zZSIAElYKD1VwZGF0ZU1GQUZhY3RvchIfLmF1dGgudjEuVXBkYXRlTUZBRmFjdG9yUmVxdWVzdBogLmF1dGgudjEuVXBkYXRlTUZBRmFjdG9yUmVzcG9uc2UiABJWCg9EZWxldGVNRkFGYWN0b3ISHy5hdXRoLnYxLkRlbGV0ZU1GQUZhY3RvclJlcXVlc3QaIC5hdXRoLnYxLkRlbGV0ZU1GQUZhY3RvclJlc3BvbnNlIgASbgoXUmVnZW5lcmF0ZVJlY292ZXJ5Q29kZXMSJy5hdXRoLnYxLlJlZ2VuZXJhdGVSZWNvdmVyeUNvZGVzUmVxdWVzdBooLmF1dGgudjEuUmVnZW5lcmF0ZVJlY292ZXJ5Q29kZXNSZXNwb25zZSIAElkKEENsYWltRnJlc2hTdGVwVXASIC5hdXRoLnYxLkNsYWltRnJlc2hTdGVwVXBSZXF1ZXN0GiEuYXV0aC52MS5DbGFpbUZyZXNoU3RlcFVwUmVzcG9uc2UiABJfChJDb25zdW1lRnJlc2hTdGVwVXASIi5hdXRoLnYxLkNvbnN1bWVGcmVzaFN0ZXBVcFJlcXVlc3QaIy5hdXRoLnYxLkNvbnN1bWVGcmVzaFN0ZXBVcFJlc3BvbnNlIgASXwoSUmVsZWFzZUZyZXNoU3RlcFVwEiIuYXV0aC52MS5SZWxlYXNlRnJlc2hTdGVwVXBSZXF1ZXN0GiMuYXV0aC52MS5SZWxlYXNlRnJlc2hTdGVwVXBSZXNwb25zZSIAElAKDEdldFJlY2VudE1GQRIcLmF1dGgudjEuR2V0UmVjZW50TUZBUmVxdWVzdBodLmF1dGgudjEuR2V0UmVjZW50TUZBUmVzcG9uc2UiA5ACARJQCgxFbmRSZWNlbnRNRkESHC5hdXRoLnYxLkVuZFJlY2VudE1GQVJlcXVlc3QaHS5hdXRoLnYxLkVuZFJlY2VudE1GQVJlc3BvbnNlIgOQAgIaAEI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2F1dGgvdjE7YXV0aHYxYgZwcm90bzM=", [file_google_protobuf_struct, file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * Current assurance details for an interactive session.
@@ -824,6 +824,88 @@ export const ReleaseFreshStepUpResponseSchema: GenMessage<ReleaseFreshStepUpResp
   messageDesc(file_auth_v1_mfa, 23);
 
 /**
+ * Request to read whether the session's recent-MFA window covers an action.
+ *
+ * @generated from message auth.v1.GetRecentMFARequest
+ */
+export type GetRecentMFARequest = Message<"auth.v1.GetRecentMFARequest"> & {
+  /**
+   * The action the client is about to perform.
+   *
+   * @generated from field: auth.v1.RecentMFAAction action = 1;
+   */
+  action: RecentMFAAction;
+};
+
+/**
+ * Describes the message auth.v1.GetRecentMFARequest.
+ * Use `create(GetRecentMFARequestSchema)` to create a new message.
+ */
+export const GetRecentMFARequestSchema: GenMessage<GetRecentMFARequest> = /*@__PURE__*/
+  messageDesc(file_auth_v1_mfa, 24);
+
+/**
+ * Whether the session's recent-MFA window is open for the action.
+ *
+ * @generated from message auth.v1.GetRecentMFAResponse
+ */
+export type GetRecentMFAResponse = Message<"auth.v1.GetRecentMFAResponse"> & {
+  /**
+   * True when the action needs no new step-up now: send it without a step-up
+   * proof. False when the client must complete an MFA challenge for fresh
+   * step-up first.
+   *
+   * @generated from field: bool open = 1;
+   */
+  open: boolean;
+
+  /**
+   * Time when the window closes. Empty when open is false. A request that
+   * arrives after this time needs a new step-up.
+   *
+   * @generated from field: google.protobuf.Timestamp expires_at = 2;
+   */
+  expiresAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message auth.v1.GetRecentMFAResponse.
+ * Use `create(GetRecentMFAResponseSchema)` to create a new message.
+ */
+export const GetRecentMFAResponseSchema: GenMessage<GetRecentMFAResponse> = /*@__PURE__*/
+  messageDesc(file_auth_v1_mfa, 25);
+
+/**
+ * Request to end the session's recent-MFA window, for example at sign-out.
+ *
+ * @generated from message auth.v1.EndRecentMFARequest
+ */
+export type EndRecentMFARequest = Message<"auth.v1.EndRecentMFARequest"> & {
+};
+
+/**
+ * Describes the message auth.v1.EndRecentMFARequest.
+ * Use `create(EndRecentMFARequestSchema)` to create a new message.
+ */
+export const EndRecentMFARequestSchema: GenMessage<EndRecentMFARequest> = /*@__PURE__*/
+  messageDesc(file_auth_v1_mfa, 26);
+
+/**
+ * Empty response returned after the recent-MFA window is ended.
+ *
+ * @generated from message auth.v1.EndRecentMFAResponse
+ */
+export type EndRecentMFAResponse = Message<"auth.v1.EndRecentMFAResponse"> & {
+};
+
+/**
+ * Describes the message auth.v1.EndRecentMFAResponse.
+ * Use `create(EndRecentMFAResponseSchema)` to create a new message.
+ */
+export const EndRecentMFAResponseSchema: GenMessage<EndRecentMFAResponse> = /*@__PURE__*/
+  messageDesc(file_auth_v1_mfa, 27);
+
+/**
  * Request to update an MFA factor label.
  *
  * @generated from message auth.v1.UpdateMFAFactorRequest
@@ -849,7 +931,7 @@ export type UpdateMFAFactorRequest = Message<"auth.v1.UpdateMFAFactorRequest"> &
  * Use `create(UpdateMFAFactorRequestSchema)` to create a new message.
  */
 export const UpdateMFAFactorRequestSchema: GenMessage<UpdateMFAFactorRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_mfa, 24);
+  messageDesc(file_auth_v1_mfa, 28);
 
 /**
  * Response containing the updated MFA factor.
@@ -870,7 +952,7 @@ export type UpdateMFAFactorResponse = Message<"auth.v1.UpdateMFAFactorResponse">
  * Use `create(UpdateMFAFactorResponseSchema)` to create a new message.
  */
 export const UpdateMFAFactorResponseSchema: GenMessage<UpdateMFAFactorResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_mfa, 25);
+  messageDesc(file_auth_v1_mfa, 29);
 
 /**
  * Request to delete an MFA factor.
@@ -891,7 +973,7 @@ export type DeleteMFAFactorRequest = Message<"auth.v1.DeleteMFAFactorRequest"> &
  * Use `create(DeleteMFAFactorRequestSchema)` to create a new message.
  */
 export const DeleteMFAFactorRequestSchema: GenMessage<DeleteMFAFactorRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_mfa, 26);
+  messageDesc(file_auth_v1_mfa, 30);
 
 /**
  * Empty response returned after an MFA factor is deleted.
@@ -906,7 +988,7 @@ export type DeleteMFAFactorResponse = Message<"auth.v1.DeleteMFAFactorResponse">
  * Use `create(DeleteMFAFactorResponseSchema)` to create a new message.
  */
 export const DeleteMFAFactorResponseSchema: GenMessage<DeleteMFAFactorResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_mfa, 27);
+  messageDesc(file_auth_v1_mfa, 31);
 
 /**
  * Request to rotate recovery codes.
@@ -921,7 +1003,7 @@ export type RegenerateRecoveryCodesRequest = Message<"auth.v1.RegenerateRecovery
  * Use `create(RegenerateRecoveryCodesRequestSchema)` to create a new message.
  */
 export const RegenerateRecoveryCodesRequestSchema: GenMessage<RegenerateRecoveryCodesRequest> = /*@__PURE__*/
-  messageDesc(file_auth_v1_mfa, 28);
+  messageDesc(file_auth_v1_mfa, 32);
 
 /**
  * Response containing newly generated recovery codes.
@@ -942,7 +1024,7 @@ export type RegenerateRecoveryCodesResponse = Message<"auth.v1.RegenerateRecover
  * Use `create(RegenerateRecoveryCodesResponseSchema)` to create a new message.
  */
 export const RegenerateRecoveryCodesResponseSchema: GenMessage<RegenerateRecoveryCodesResponse> = /*@__PURE__*/
-  messageDesc(file_auth_v1_mfa, 29);
+  messageDesc(file_auth_v1_mfa, 33);
 
 /**
  * Session assurance level for the current interactive authentication context.
@@ -1059,6 +1141,57 @@ export enum MFAChallengePurpose {
  */
 export const MFAChallengePurposeSchema: GenEnum<MFAChallengePurpose> = /*@__PURE__*/
   enumDesc(file_auth_v1_mfa, 2);
+
+/**
+ * An action that one step-up covers for a short time in the same signed-in
+ * session: the recent-MFA window. The window opens when the session completes
+ * an MFA challenge for fresh step-up, and lasts 5 minutes. It closes earlier
+ * when the session ends (EndRecentMFA or session expiry). Every other action
+ * that needs MFA, including withdrawals, transfers, auto-withdraw rules, API
+ * key and policy changes outside the assistant, address book changes and MFA
+ * settings, still needs a fresh, single-use step-up proof each time.
+ *
+ * @generated from enum auth.v1.RecentMFAAction
+ */
+export enum RecentMFAAction {
+  /**
+   * No action was specified.
+   *
+   * @generated from enum value: RECENT_MFA_ACTION_UNSPECIFIED = 0;
+   */
+  RECENT_MFA_ACTION_UNSPECIFIED = 0,
+
+  /**
+   * Confirming a Telegram link (SocialVerificationService.ConfirmSocialVerification
+   * for TELEGRAM).
+   *
+   * @generated from enum value: RECENT_MFA_ACTION_TELEGRAM_LINK = 1;
+   */
+  RECENT_MFA_ACTION_TELEGRAM_LINK = 1,
+
+  /**
+   * Changing the Polyester AI assistant's account access
+   * (ApiKeyService.SetAssistantKeys, with policies or presets).
+   *
+   * @generated from enum value: RECENT_MFA_ACTION_ASSISTANT_ACCESS = 2;
+   */
+  RECENT_MFA_ACTION_ASSISTANT_ACCESS = 2,
+
+  /**
+   * Raising or removing a Telegram approval limit
+   * (ai.v1.AssistantService.SetTelegramApprovalLimits). Setting or lowering a
+   * limit never needs MFA.
+   *
+   * @generated from enum value: RECENT_MFA_ACTION_TELEGRAM_APPROVAL_LIMITS = 3;
+   */
+  RECENT_MFA_ACTION_TELEGRAM_APPROVAL_LIMITS = 3,
+}
+
+/**
+ * Describes the enum auth.v1.RecentMFAAction.
+ */
+export const RecentMFAActionSchema: GenEnum<RecentMFAAction> = /*@__PURE__*/
+  enumDesc(file_auth_v1_mfa, 3);
 
 /**
  * MFA management service for enrollment, challenges, fresh step-up proofs, and recovery codes.
@@ -1215,6 +1348,32 @@ export const MFAService: GenService<{
     methodKind: "unary";
     input: typeof ReleaseFreshStepUpRequestSchema;
     output: typeof ReleaseFreshStepUpResponseSchema;
+  },
+  /**
+   * Read whether the session's recent-MFA window is open for an action, and
+   * until when, so the client can skip the MFA prompt while it is.
+   *
+   * @generated from rpc auth.v1.MFAService.GetRecentMFA
+   */
+  getRecentMFA: {
+    methodKind: "unary";
+    input: typeof GetRecentMFARequestSchema;
+    output: typeof GetRecentMFAResponseSchema;
+  },
+  /**
+   * End the session's recent-MFA window at sign-out. It also cancels the
+   * session's pending MFA challenges and revokes its unused step-up proofs,
+   * including one an MFA challenge completing at the same time issues: it
+   * answers once that completion has finished. A step-up completed later,
+   * with a new challenge, opens a new window. Ending a window that is not
+   * open succeeds.
+   *
+   * @generated from rpc auth.v1.MFAService.EndRecentMFA
+   */
+  endRecentMFA: {
+    methodKind: "unary";
+    input: typeof EndRecentMFARequestSchema;
+    output: typeof EndRecentMFAResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_auth_v1_mfa, 0);

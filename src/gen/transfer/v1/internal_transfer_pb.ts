@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file transfer/v1/internal_transfer.proto.
  */
 export const file_transfer_v1_internal_transfer: GenFile = /*@__PURE__*/
-  fileDesc("CiN0cmFuc2Zlci92MS9pbnRlcm5hbF90cmFuc2Zlci5wcm90bxILdHJhbnNmZXIudjEioQIKHUNyZWF0ZUludGVybmFsVHJhbnNmZXJSZXF1ZXN0EhcKDXN1YmFjY291bnRfaWQYASABKAZCABIiChZkZXN0aW5hdGlvbl9hY2NvdW50X2lkGAIgASgGQgBIABIlChlkZXN0aW5hdGlvbl9zdWJhY2NvdW50X2lkGAMgASgGQgBIABItCiFkZXN0aW5hdGlvbl9zbWFydF9hY2NvdW50X2FkZHJlc3MYBCABKAlCAEgAEhIKCGFzc2V0X2lkGAUgASgNQgASLQoKYW1vdW50X2UxOBgGIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjhCABIZCg9pZGVtcG90ZW5jeV9rZXkYByABKAlCAEIPCgtkZXN0aW5hdGlvbhIAInIKE1Jlc29sdmVkRGVzdGluYXRpb24SHgoWcm9vdF9hY2NvdW50X3B1YmxpY19pZBgBIAEoCRIcChRzdWJhY2NvdW50X3B1YmxpY19pZBgCIAEoCRIdChVzbWFydF9hY2NvdW50X2FkZHJlc3MYAyABKAkiMwoLRXJyb3JEZXRhaWwSJAoEY29kZRgBIAEoDjIWLnRyYW5zZmVyLnYxLkVycm9yQ29kZSLIAgoeQ3JlYXRlSW50ZXJuYWxUcmFuc2ZlclJlc3BvbnNlEhIKCnJlcXVlc3RfaWQYASABKAkSEwoLdHJhbnNmZXJfaWQYAiABKAkSGQoRYWNjZXB0ZWRfYXRfdHNfbnMYAyABKAQSEAoIYXNzZXRfaWQYBCABKA0SEgoKYXNzZXRfY29kZRgFIAEoCRISCgp1X2Fzc2V0X2lkGAYgASgJEisKCmFtb3VudF9lMTgYByABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EjUKC2Rlc3RpbmF0aW9uGAggASgLMiAudHJhbnNmZXIudjEuUmVzb2x2ZWREZXN0aW5hdGlvbhIzCgZzdGF0dXMYCSABKA4yIy50cmFuc2Zlci52MS5JbnRlcm5hbFRyYW5zZmVyU3RhdHVzEg8KB2Zsb3dfaWQYCiABKAkigQIKGEludGVybmFsVHJhbnNmZXJCYXRjaExlZxIXCg1zdWJhY2NvdW50X2lkGAEgASgGQgASIgoWZGVzdGluYXRpb25fYWNjb3VudF9pZBgCIAEoBkIASAASJQoZZGVzdGluYXRpb25fc3ViYWNjb3VudF9pZBgDIAEoBkIASAASLQohZGVzdGluYXRpb25fc21hcnRfYWNjb3VudF9hZGRyZXNzGAQgASgJQgBIABISCghhc3NldF9pZBgFIAEoDUIAEi0KCmFtb3VudF9lMTgYBiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4QgBCDwoLZGVzdGluYXRpb24SACJ3CiNCYXRjaENyZWF0ZUludGVybmFsVHJhbnNmZXJzUmVxdWVzdBI1CgRsZWdzGAEgAygLMiUudHJhbnNmZXIudjEuSW50ZXJuYWxUcmFuc2ZlckJhdGNoTGVnQgASGQoPaWRlbXBvdGVuY3lfa2V5GAIgASgJQgAikgMKHkludGVybmFsVHJhbnNmZXJCYXRjaExlZ1Jlc3VsdBIRCglsZWdfaW5kZXgYASABKA0SOwoGc3RhdHVzGAIgASgOMisudHJhbnNmZXIudjEuSW50ZXJuYWxUcmFuc2ZlckJhdGNoTGVnU3RhdHVzEhIKCnJlcXVlc3RfaWQYAyABKAkSEwoLdHJhbnNmZXJfaWQYBCABKAkSDwoHZmxvd19pZBgFIAEoCRIZChFhY2NlcHRlZF9hdF90c19ucxgGIAEoBBIQCghhc3NldF9pZBgHIAEoDRISCgphc3NldF9jb2RlGAggASgJEisKCmFtb3VudF9lMTgYCSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EjUKC2Rlc3RpbmF0aW9uGAogASgLMiAudHJhbnNmZXIudjEuUmVzb2x2ZWREZXN0aW5hdGlvbhIqCgplcnJvcl9jb2RlGAsgASgOMhYudHJhbnNmZXIudjEuRXJyb3JDb2RlEhUKDWVycm9yX21lc3NhZ2UYDCABKAkirwEKJEJhdGNoQ3JlYXRlSW50ZXJuYWxUcmFuc2ZlcnNSZXNwb25zZRISCgpyZXF1ZXN0X2lkGAEgASgJEjgKBnN0YXR1cxgCIAEoDjIoLnRyYW5zZmVyLnYxLkludGVybmFsVHJhbnNmZXJCYXRjaFN0YXR1cxI5CgRsZWdzGAMgAygLMisudHJhbnNmZXIudjEuSW50ZXJuYWxUcmFuc2ZlckJhdGNoTGVnUmVzdWx0InQKGkdldEludGVybmFsVHJhbnNmZXJSZXF1ZXN0EhUKDXN1YmFjY291bnRfaWQYASABKAYSFgoKcmVxdWVzdF9pZBgCIAEoCUIASAASFwoLdHJhbnNmZXJfaWQYAyABKAlCAEgAQg4KCmlkZW50aWZpZXISACJyChtHZXRJbnRlcm5hbFRyYW5zZmVyUmVzcG9uc2USEgoKcmVxdWVzdF9pZBgBIAEoCRITCgt0cmFuc2Zlcl9pZBgCIAEoCRIPCgdmbG93X2lkGAMgASgJEhkKEWFjY2VwdGVkX2F0X3RzX25zGAQgASgEKqEKCglFcnJvckNvZGUSGgoWRVJST1JfQ09ERV9VTlNQRUNJRklFRBAAEiEKHUVSUk9SX0NPREVfSU5TVUZGSUNJRU5UX0ZVTkRTEAESHgoaRVJST1JfQ09ERV9JTlZBTElEX1JFUVVFU1QQAhIeChpFUlJPUl9DT0RFX1VOQVVUSEVOVElDQVRFRBADEiAKHEVSUk9SX0NPREVfUEVSTUlTU0lPTl9ERU5JRUQQBBIiCh5FUlJPUl9DT0RFX1JBVEVfTElNSVRfRVhDRUVERUQQBRIiCh5FUlJPUl9DT0RFX1NFUlZJQ0VfVU5BVkFJTEFCTEUQBhIdChlFUlJPUl9DT0RFX0lOVEVSTkFMX0VSUk9SEAcSJAogRVJST1JfQ09ERV9JTlZBTElEX1NVQkFDQ09VTlRfSUQQCBIjCh9FUlJPUl9DT0RFX1NVQkFDQ09VTlRfTk9UX0ZPVU5EEAkSJgoiRVJST1JfQ09ERV9TT1VSQ0VfQUNDT1VOVF9JTkFDVElWRRAKEiAKHEVSUk9SX0NPREVfVU5TVVBQT1JURURfQVNTRVQQCxIdChlFUlJPUl9DT0RFX0lOVkFMSURfQU1PVU5UEAwSIgoeRVJST1JfQ09ERV9JTlZBTElEX0RFU1RJTkFUSU9OEA0SJAogRVJST1JfQ09ERV9ERVNUSU5BVElPTl9OT1RfRk9VTkQQDhIjCh9FUlJPUl9DT0RFX0RFU1RJTkFUSU9OX0lOQUNUSVZFEA8SJgoiRVJST1JfQ09ERV9TQU1FX1NPVVJDRV9ERVNUSU5BVElPThAQEioKJkVSUk9SX0NPREVfREVTVElOQVRJT05fTk9UX1dISVRFTElTVEVEEBESKAokRVJST1JfQ09ERV9TTUFSVF9BQ0NPVU5UX1VOQVZBSUxBQkxFEBISIgoeRVJST1JfQ09ERV9TVEVQX1VQX1VOQVZBSUxBQkxFEBMSIwofRVJST1JfQ09ERV9JREVNUE9URU5DWV9DT05GTElDVBAUEiIKHkVSUk9SX0NPREVfRlVORFNfTE9DS19DT05GTElDVBAVEicKI0VSUk9SX0NPREVfQ0FQSVRBTF9WSUVXX1VOQVZBSUxBQkxFEBYSKAokRVJST1JfQ09ERV9BQ0NPVU5UX1NIQVJEX1VOQVZBSUxBQkxFEBcSHAoYRVJST1JfQ09ERV9QT0xJQ1lfREVOSUVEEBgSIgoeRVJST1JfQ09ERV9GQUlMRURfUFJFQ09ORElUSU9OEBkSGAoURVJST1JfQ09ERV9OT1RfRk9VTkQQGhIXChNFUlJPUl9DT0RFX0NPTkZMSUNUEBsSIQodRVJST1JfQ09ERV9EVVNUX1FVT1RFX0VYUElSRUQQHBIfChtFUlJPUl9DT0RFX0RVU1RfUFJJQ0VfTU9WRUQQHRIgChxFUlJPUl9DT0RFX0RVU1RfTk9UX0VMSUdJQkxFEB4SIQodRVJST1JfQ09ERV9EVVNUX1dJTkRPV19BQ1RJVkUQHxIfChtFUlJPUl9DT0RFX0RVU1RfREFJTFlfTElNSVQQIBIYChRFUlJPUl9DT0RFX0RVU1RfQlVTWRAhEiYKIkVSUk9SX0NPREVfRFVTVF9UQVJHRVRfVU5BVkFJTEFCTEUQIhIjCh9FUlJPUl9DT0RFX0RVU1RfQkFMQU5DRV9DSEFOR0VEECMSJQohRVJST1JfQ09ERV9EVVNUX0NPTlZFUlNJT05fRkFJTEVEECQqtQEKFkludGVybmFsVHJhbnNmZXJTdGF0dXMSKAokSU5URVJOQUxfVFJBTlNGRVJfU1RBVFVTX1VOU1BFQ0lGSUVEEAASJQohSU5URVJOQUxfVFJBTlNGRVJfU1RBVFVTX0FDQ0VQVEVEEAESJQohSU5URVJOQUxfVFJBTlNGRVJfU1RBVFVTX1JFSkVDVEVEEAISIwofSU5URVJOQUxfVFJBTlNGRVJfU1RBVFVTX0ZBSUxFRBADKmMKG0ludGVybmFsVHJhbnNmZXJCYXRjaFN0YXR1cxIcChhCQVRDSF9TVEFUVVNfVU5TUEVDSUZJRUQQABITCg9CQVRDSF9TVUJNSVRURUQQARIRCg1CQVRDSF9SRUZVU0VEEAIqhwEKHkludGVybmFsVHJhbnNmZXJCYXRjaExlZ1N0YXR1cxIaChZMRUdfU1RBVFVTX1VOU1BFQ0lGSUVEEAASEAoMTEVHX0FDQ0VQVEVEEAESDwoLTEVHX1BFTkRJTkcQAhIPCgtMRUdfUkVGVVNFRBADEhUKEUxFR19OT1RfU1VCTUlUVEVEEAQyhAMKF0ludGVybmFsVHJhbnNmZXJTZXJ2aWNlEmoKE0dldEludGVybmFsVHJhbnNmZXISJy50cmFuc2Zlci52MS5HZXRJbnRlcm5hbFRyYW5zZmVyUmVxdWVzdBooLnRyYW5zZmVyLnYxLkdldEludGVybmFsVHJhbnNmZXJSZXNwb25zZSIAEnMKFkNyZWF0ZUludGVybmFsVHJhbnNmZXISKi50cmFuc2Zlci52MS5DcmVhdGVJbnRlcm5hbFRyYW5zZmVyUmVxdWVzdBorLnRyYW5zZmVyLnYxLkNyZWF0ZUludGVybmFsVHJhbnNmZXJSZXNwb25zZSIAEoUBChxCYXRjaENyZWF0ZUludGVybmFsVHJhbnNmZXJzEjAudHJhbnNmZXIudjEuQmF0Y2hDcmVhdGVJbnRlcm5hbFRyYW5zZmVyc1JlcXVlc3QaMS50cmFuc2Zlci52MS5CYXRjaENyZWF0ZUludGVybmFsVHJhbnNmZXJzUmVzcG9uc2UiABoAQkRaQmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vdHJhbnNmZXIvdjE7dHJhbnNmZXJ2MWIGcHJvdG8z", [file_polyester_api_options, file_polyester_type_v1_u128]);
+  fileDesc("CiN0cmFuc2Zlci92MS9pbnRlcm5hbF90cmFuc2Zlci5wcm90bxILdHJhbnNmZXIudjEioQIKHUNyZWF0ZUludGVybmFsVHJhbnNmZXJSZXF1ZXN0EhcKDXN1YmFjY291bnRfaWQYASABKAZCABIiChZkZXN0aW5hdGlvbl9hY2NvdW50X2lkGAIgASgGQgBIABIlChlkZXN0aW5hdGlvbl9zdWJhY2NvdW50X2lkGAMgASgGQgBIABItCiFkZXN0aW5hdGlvbl9zbWFydF9hY2NvdW50X2FkZHJlc3MYBCABKAlCAEgAEhIKCGFzc2V0X2lkGAUgASgNQgASLQoKYW1vdW50X2UxOBgGIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjhCABIZCg9pZGVtcG90ZW5jeV9rZXkYByABKAlCAEIPCgtkZXN0aW5hdGlvbhIAInIKE1Jlc29sdmVkRGVzdGluYXRpb24SHgoWcm9vdF9hY2NvdW50X3B1YmxpY19pZBgBIAEoCRIcChRzdWJhY2NvdW50X3B1YmxpY19pZBgCIAEoCRIdChVzbWFydF9hY2NvdW50X2FkZHJlc3MYAyABKAkiMwoLRXJyb3JEZXRhaWwSJAoEY29kZRgBIAEoDjIWLnRyYW5zZmVyLnYxLkVycm9yQ29kZSLIAgoeQ3JlYXRlSW50ZXJuYWxUcmFuc2ZlclJlc3BvbnNlEhIKCnJlcXVlc3RfaWQYASABKAkSEwoLdHJhbnNmZXJfaWQYAiABKAkSGQoRYWNjZXB0ZWRfYXRfdHNfbnMYAyABKAQSEAoIYXNzZXRfaWQYBCABKA0SEgoKYXNzZXRfY29kZRgFIAEoCRISCgp1X2Fzc2V0X2lkGAYgASgJEisKCmFtb3VudF9lMTgYByABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EjUKC2Rlc3RpbmF0aW9uGAggASgLMiAudHJhbnNmZXIudjEuUmVzb2x2ZWREZXN0aW5hdGlvbhIzCgZzdGF0dXMYCSABKA4yIy50cmFuc2Zlci52MS5JbnRlcm5hbFRyYW5zZmVyU3RhdHVzEg8KB2Zsb3dfaWQYCiABKAkigQIKGEludGVybmFsVHJhbnNmZXJCYXRjaExlZxIXCg1zdWJhY2NvdW50X2lkGAEgASgGQgASIgoWZGVzdGluYXRpb25fYWNjb3VudF9pZBgCIAEoBkIASAASJQoZZGVzdGluYXRpb25fc3ViYWNjb3VudF9pZBgDIAEoBkIASAASLQohZGVzdGluYXRpb25fc21hcnRfYWNjb3VudF9hZGRyZXNzGAQgASgJQgBIABISCghhc3NldF9pZBgFIAEoDUIAEi0KCmFtb3VudF9lMTgYBiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4QgBCDwoLZGVzdGluYXRpb24SACJ3CiNCYXRjaENyZWF0ZUludGVybmFsVHJhbnNmZXJzUmVxdWVzdBI1CgRsZWdzGAEgAygLMiUudHJhbnNmZXIudjEuSW50ZXJuYWxUcmFuc2ZlckJhdGNoTGVnQgASGQoPaWRlbXBvdGVuY3lfa2V5GAIgASgJQgAi/gIKHkludGVybmFsVHJhbnNmZXJCYXRjaExlZ1Jlc3VsdBIRCglsZWdfaW5kZXgYASABKA0SOwoGc3RhdHVzGAIgASgOMisudHJhbnNmZXIudjEuSW50ZXJuYWxUcmFuc2ZlckJhdGNoTGVnU3RhdHVzEhMKC3RyYW5zZmVyX2lkGAQgASgJEg8KB2Zsb3dfaWQYBSABKAkSGQoRY3JlZGl0ZWRfYXRfdHNfbnMYBiABKAQSEAoIYXNzZXRfaWQYByABKA0SEgoKYXNzZXRfY29kZRgIIAEoCRIrCgphbW91bnRfZTE4GAkgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBI1CgtkZXN0aW5hdGlvbhgKIAEoCzIgLnRyYW5zZmVyLnYxLlJlc29sdmVkRGVzdGluYXRpb24SKgoKZXJyb3JfY29kZRgLIAEoDjIWLnRyYW5zZmVyLnYxLkVycm9yQ29kZRIVCg1lcnJvcl9tZXNzYWdlGAwgASgJIq8BCiRCYXRjaENyZWF0ZUludGVybmFsVHJhbnNmZXJzUmVzcG9uc2USEgoKcmVxdWVzdF9pZBgBIAEoCRI4CgZzdGF0dXMYAiABKA4yKC50cmFuc2Zlci52MS5JbnRlcm5hbFRyYW5zZmVyQmF0Y2hTdGF0dXMSOQoEbGVncxgDIAMoCzIrLnRyYW5zZmVyLnYxLkludGVybmFsVHJhbnNmZXJCYXRjaExlZ1Jlc3VsdCI3Ch9HZXRJbnRlcm5hbFRyYW5zZmVyQmF0Y2hSZXF1ZXN0EhQKCnJlcXVlc3RfaWQYASABKAlCACKrAQogR2V0SW50ZXJuYWxUcmFuc2ZlckJhdGNoUmVzcG9uc2USEgoKcmVxdWVzdF9pZBgBIAEoCRI4CgZzdGF0dXMYAiABKA4yKC50cmFuc2Zlci52MS5JbnRlcm5hbFRyYW5zZmVyQmF0Y2hTdGF0dXMSOQoEbGVncxgDIAMoCzIrLnRyYW5zZmVyLnYxLkludGVybmFsVHJhbnNmZXJCYXRjaExlZ1Jlc3VsdCJ0ChpHZXRJbnRlcm5hbFRyYW5zZmVyUmVxdWVzdBIVCg1zdWJhY2NvdW50X2lkGAEgASgGEhYKCnJlcXVlc3RfaWQYAiABKAlCAEgAEhcKC3RyYW5zZmVyX2lkGAMgASgJQgBIAEIOCgppZGVudGlmaWVyEgAicgobR2V0SW50ZXJuYWxUcmFuc2ZlclJlc3BvbnNlEhIKCnJlcXVlc3RfaWQYASABKAkSEwoLdHJhbnNmZXJfaWQYAiABKAkSDwoHZmxvd19pZBgDIAEoCRIZChFhY2NlcHRlZF9hdF90c19ucxgEIAEoBCrICgoJRXJyb3JDb2RlEhoKFkVSUk9SX0NPREVfVU5TUEVDSUZJRUQQABIhCh1FUlJPUl9DT0RFX0lOU1VGRklDSUVOVF9GVU5EUxABEh4KGkVSUk9SX0NPREVfSU5WQUxJRF9SRVFVRVNUEAISHgoaRVJST1JfQ09ERV9VTkFVVEhFTlRJQ0FURUQQAxIgChxFUlJPUl9DT0RFX1BFUk1JU1NJT05fREVOSUVEEAQSIgoeRVJST1JfQ09ERV9SQVRFX0xJTUlUX0VYQ0VFREVEEAUSIgoeRVJST1JfQ09ERV9TRVJWSUNFX1VOQVZBSUxBQkxFEAYSHQoZRVJST1JfQ09ERV9JTlRFUk5BTF9FUlJPUhAHEiQKIEVSUk9SX0NPREVfSU5WQUxJRF9TVUJBQ0NPVU5UX0lEEAgSIwofRVJST1JfQ09ERV9TVUJBQ0NPVU5UX05PVF9GT1VORBAJEiYKIkVSUk9SX0NPREVfU09VUkNFX0FDQ09VTlRfSU5BQ1RJVkUQChIgChxFUlJPUl9DT0RFX1VOU1VQUE9SVEVEX0FTU0VUEAsSHQoZRVJST1JfQ09ERV9JTlZBTElEX0FNT1VOVBAMEiIKHkVSUk9SX0NPREVfSU5WQUxJRF9ERVNUSU5BVElPThANEiQKIEVSUk9SX0NPREVfREVTVElOQVRJT05fTk9UX0ZPVU5EEA4SIwofRVJST1JfQ09ERV9ERVNUSU5BVElPTl9JTkFDVElWRRAPEiYKIkVSUk9SX0NPREVfU0FNRV9TT1VSQ0VfREVTVElOQVRJT04QEBIqCiZFUlJPUl9DT0RFX0RFU1RJTkFUSU9OX05PVF9XSElURUxJU1RFRBAREigKJEVSUk9SX0NPREVfU01BUlRfQUNDT1VOVF9VTkFWQUlMQUJMRRASEiIKHkVSUk9SX0NPREVfU1RFUF9VUF9VTkFWQUlMQUJMRRATEiMKH0VSUk9SX0NPREVfSURFTVBPVEVOQ1lfQ09ORkxJQ1QQFBIiCh5FUlJPUl9DT0RFX0ZVTkRTX0xPQ0tfQ09ORkxJQ1QQFRInCiNFUlJPUl9DT0RFX0NBUElUQUxfVklFV19VTkFWQUlMQUJMRRAWEigKJEVSUk9SX0NPREVfQUNDT1VOVF9TSEFSRF9VTkFWQUlMQUJMRRAXEhwKGEVSUk9SX0NPREVfUE9MSUNZX0RFTklFRBAYEiIKHkVSUk9SX0NPREVfRkFJTEVEX1BSRUNPTkRJVElPThAZEhgKFEVSUk9SX0NPREVfTk9UX0ZPVU5EEBoSFwoTRVJST1JfQ09ERV9DT05GTElDVBAbEiEKHUVSUk9SX0NPREVfRFVTVF9RVU9URV9FWFBJUkVEEBwSHwobRVJST1JfQ09ERV9EVVNUX1BSSUNFX01PVkVEEB0SIAocRVJST1JfQ09ERV9EVVNUX05PVF9FTElHSUJMRRAeEiEKHUVSUk9SX0NPREVfRFVTVF9XSU5ET1dfQUNUSVZFEB8SHwobRVJST1JfQ09ERV9EVVNUX0RBSUxZX0xJTUlUECASGAoURVJST1JfQ09ERV9EVVNUX0JVU1kQIRImCiJFUlJPUl9DT0RFX0RVU1RfVEFSR0VUX1VOQVZBSUxBQkxFECISIwofRVJST1JfQ09ERV9EVVNUX0JBTEFOQ0VfQ0hBTkdFRBAjEiUKIUVSUk9SX0NPREVfRFVTVF9DT05WRVJTSU9OX0ZBSUxFRBAkEiUKIUVSUk9SX0NPREVfQkFUQ0hfVE9PX01BTllfU09VUkNFUxAlKrUBChZJbnRlcm5hbFRyYW5zZmVyU3RhdHVzEigKJElOVEVSTkFMX1RSQU5TRkVSX1NUQVRVU19VTlNQRUNJRklFRBAAEiUKIUlOVEVSTkFMX1RSQU5TRkVSX1NUQVRVU19BQ0NFUFRFRBABEiUKIUlOVEVSTkFMX1RSQU5TRkVSX1NUQVRVU19SRUpFQ1RFRBACEiMKH0lOVEVSTkFMX1RSQU5TRkVSX1NUQVRVU19GQUlMRUQQAyp4ChtJbnRlcm5hbFRyYW5zZmVyQmF0Y2hTdGF0dXMSHAoYQkFUQ0hfU1RBVFVTX1VOU1BFQ0lGSUVEEAASEQoNQkFUQ0hfUkVGVVNFRBACEhQKEEJBVENIX1BST0NFU1NJTkcQAxISCg5CQVRDSF9BQ0NFUFRFRBAEKnUKHkludGVybmFsVHJhbnNmZXJCYXRjaExlZ1N0YXR1cxIaChZMRUdfU1RBVFVTX1VOU1BFQ0lGSUVEEAASEgoOTEVHX1BST0NFU1NJTkcQBRIQCgxMRUdfQ1JFRElURUQQBhIRCg1MRUdfTk9UX01PVkVEEAcy/wMKF0ludGVybmFsVHJhbnNmZXJTZXJ2aWNlEmoKE0dldEludGVybmFsVHJhbnNmZXISJy50cmFuc2Zlci52MS5HZXRJbnRlcm5hbFRyYW5zZmVyUmVxdWVzdBooLnRyYW5zZmVyLnYxLkdldEludGVybmFsVHJhbnNmZXJSZXNwb25zZSIAEnMKFkNyZWF0ZUludGVybmFsVHJhbnNmZXISKi50cmFuc2Zlci52MS5DcmVhdGVJbnRlcm5hbFRyYW5zZmVyUmVxdWVzdBorLnRyYW5zZmVyLnYxLkNyZWF0ZUludGVybmFsVHJhbnNmZXJSZXNwb25zZSIAEoUBChxCYXRjaENyZWF0ZUludGVybmFsVHJhbnNmZXJzEjAudHJhbnNmZXIudjEuQmF0Y2hDcmVhdGVJbnRlcm5hbFRyYW5zZmVyc1JlcXVlc3QaMS50cmFuc2Zlci52MS5CYXRjaENyZWF0ZUludGVybmFsVHJhbnNmZXJzUmVzcG9uc2UiABJ5ChhHZXRJbnRlcm5hbFRyYW5zZmVyQmF0Y2gSLC50cmFuc2Zlci52MS5HZXRJbnRlcm5hbFRyYW5zZmVyQmF0Y2hSZXF1ZXN0Gi0udHJhbnNmZXIudjEuR2V0SW50ZXJuYWxUcmFuc2ZlckJhdGNoUmVzcG9uc2UiABoAQkRaQmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vdHJhbnNmZXIvdjE7dHJhbnNmZXJ2MWIGcHJvdG8z", [file_polyester_api_options, file_polyester_type_v1_u128]);
 
 /**
  * CreateInternalTransferRequest creates or returns one accepted Trading
@@ -133,7 +133,9 @@ export const ResolvedDestinationSchema: GenMessage<ResolvedDestination> = /*@__P
  */
 export type ErrorDetail = Message<"transfer.v1.ErrorDetail"> & {
   /**
-   * Stable error code matching the REST problem+json code field.
+   * Stable error code matching the REST problem+json code field. An
+   * authentication refusal answers REST with its auth.v1.AuthErrorDetail code
+   * instead; see ErrorCode.
    *
    * @generated from field: transfer.v1.ErrorCode code = 1;
    */
@@ -303,16 +305,18 @@ export const InternalTransferBatchLegSchema: GenMessage<InternalTransferBatchLeg
   messageDesc(file_transfer_v1_internal_transfer, 4);
 
 /**
- * BatchCreateInternalTransfersRequest submits up to 10 independent Trading to
- * Trading transfers under one idempotency key and one MFA check.
+ * BatchCreateInternalTransfersRequest submits Trading to Trading transfers
+ * that move together or not at all, under one idempotency key and one MFA
+ * check.
  *
  * @generated from message transfer.v1.BatchCreateInternalTransfersRequest
  */
 export type BatchCreateInternalTransfersRequest = Message<"transfer.v1.BatchCreateInternalTransfersRequest"> & {
   /**
-   * Transfers to run, in order. At most 10 legs; each leg counts as one
-   * internal transfer against the caller's rate limit. Legs may repeat an asset,
-   * a source or a destination.
+   * Transfers to move, in order. A batch holds at most 500 legs, debiting at
+   * most 50 distinct source account and asset pairs from at most 10 distinct
+   * source accounts. A source, destination and asset combination appears at
+   * most once; legs may otherwise repeat an asset, a source or a destination.
    *
    * @generated from field: repeated transfer.v1.InternalTransferBatchLeg legs = 1;
    */
@@ -337,7 +341,7 @@ export const BatchCreateInternalTransfersRequestSchema: GenMessage<BatchCreateIn
   messageDesc(file_transfer_v1_internal_transfer, 5);
 
 /**
- * InternalTransferBatchLegResult is the outcome of one leg, in request order.
+ * InternalTransferBatchLegResult is the state of one leg, in request order.
  *
  * @generated from message transfer.v1.InternalTransferBatchLegResult
  */
@@ -350,41 +354,35 @@ export type InternalTransferBatchLegResult = Message<"transfer.v1.InternalTransf
   legIndex: number;
 
   /**
-   * Outcome of the leg.
+   * State of the leg.
    *
    * @generated from field: transfer.v1.InternalTransferBatchLegStatus status = 2;
    */
   status: InternalTransferBatchLegStatus;
 
   /**
-   * Stable server-owned request identifier of the leg's transfer. Use it with
-   * GetInternalTransfer. Empty while the leg has not been submitted.
-   *
-   * @generated from field: string request_id = 3;
-   */
-  requestId: string;
-
-  /**
-   * Stable transfer identifier, set once the leg is accepted.
+   * Stable transfer identifier of the leg, set once the batch is accepted
+   * for processing.
    *
    * @generated from field: string transfer_id = 4;
    */
   transferId: string;
 
   /**
-   * Authoritative lifecycle flow identifier, set once the leg is accepted.
+   * Lifecycle flow of the leg, readable by its sender and its recipient
+   * with GetAccountFlow. Set once the leg is credited.
    *
    * @generated from field: string flow_id = 5;
    */
   flowId: string;
 
   /**
-   * Acceptance timestamp in nanoseconds since epoch (server time), set once
-   * the leg is accepted.
+   * Credit timestamp in nanoseconds since epoch (server time), set once the
+   * leg is credited.
    *
-   * @generated from field: uint64 accepted_at_ts_ns = 6;
+   * @generated from field: uint64 credited_at_ts_ns = 6;
    */
-  acceptedAtTsNs: bigint;
+  creditedAtTsNs: bigint;
 
   /**
    * Echoed canonical public unified asset id.
@@ -394,7 +392,7 @@ export type InternalTransferBatchLegResult = Message<"transfer.v1.InternalTransf
   assetId: number;
 
   /**
-   * Resolved asset code, set once the leg is submitted.
+   * Resolved asset code, set once the leg passed its checks.
    *
    * @generated from field: string asset_code = 8;
    */
@@ -408,15 +406,14 @@ export type InternalTransferBatchLegResult = Message<"transfer.v1.InternalTransf
   amountE18?: U128 | undefined;
 
   /**
-   * Server-resolved destination summary, set once the leg is submitted.
+   * Server-resolved destination summary, set once the leg passed its checks.
    *
    * @generated from field: transfer.v1.ResolvedDestination destination = 10;
    */
   destination?: ResolvedDestination | undefined;
 
   /**
-   * Why the leg was refused, or why its outcome is not known yet. Unset for an
-   * accepted leg and for a leg that was not submitted.
+   * Why the leg caused its batch's refusal. Unset for every other leg.
    *
    * @generated from field: transfer.v1.ErrorCode error_code = 11;
    */
@@ -438,14 +435,15 @@ export const InternalTransferBatchLegResultSchema: GenMessage<InternalTransferBa
   messageDesc(file_transfer_v1_internal_transfer, 6);
 
 /**
- * BatchCreateInternalTransfersResponse returns the outcome of every leg.
+ * BatchCreateInternalTransfersResponse returns the batch's outcome and the
+ * state of every leg.
  *
  * @generated from message transfer.v1.BatchCreateInternalTransfersResponse
  */
 export type BatchCreateInternalTransfersResponse = Message<"transfer.v1.BatchCreateInternalTransfersResponse"> & {
   /**
-   * Stable server-owned identifier of the batch request. Empty when the batch
-   * was refused.
+   * Stable server-owned identifier of the batch. Empty when the batch was
+   * refused before it was accepted for processing.
    *
    * @generated from field: string request_id = 1;
    */
@@ -472,6 +470,64 @@ export type BatchCreateInternalTransfersResponse = Message<"transfer.v1.BatchCre
  */
 export const BatchCreateInternalTransfersResponseSchema: GenMessage<BatchCreateInternalTransfersResponse> = /*@__PURE__*/
   messageDesc(file_transfer_v1_internal_transfer, 7);
+
+/**
+ * GetInternalTransferBatchRequest selects a batch by the request ID
+ * BatchCreateInternalTransfers returned.
+ *
+ * @generated from message transfer.v1.GetInternalTransferBatchRequest
+ */
+export type GetInternalTransferBatchRequest = Message<"transfer.v1.GetInternalTransferBatchRequest"> & {
+  /**
+   * Batch request ID returned by BatchCreateInternalTransfers.
+   *
+   * @generated from field: string request_id = 1;
+   */
+  requestId: string;
+};
+
+/**
+ * Describes the message transfer.v1.GetInternalTransferBatchRequest.
+ * Use `create(GetInternalTransferBatchRequestSchema)` to create a new message.
+ */
+export const GetInternalTransferBatchRequestSchema: GenMessage<GetInternalTransferBatchRequest> = /*@__PURE__*/
+  messageDesc(file_transfer_v1_internal_transfer, 8);
+
+/**
+ * GetInternalTransferBatchResponse returns the batch's current outcome and
+ * the state of every leg, as BatchCreateInternalTransfers answers them.
+ *
+ * @generated from message transfer.v1.GetInternalTransferBatchResponse
+ */
+export type GetInternalTransferBatchResponse = Message<"transfer.v1.GetInternalTransferBatchResponse"> & {
+  /**
+   * Stable server-owned identifier of the batch.
+   *
+   * @generated from field: string request_id = 1;
+   */
+  requestId: string;
+
+  /**
+   * Outcome of the batch as a whole.
+   *
+   * @generated from field: transfer.v1.InternalTransferBatchStatus status = 2;
+   */
+  status: InternalTransferBatchStatus;
+
+  /**
+   * One result per leg, in request order.
+   *
+   * @generated from field: repeated transfer.v1.InternalTransferBatchLegResult legs = 3;
+   */
+  legs: InternalTransferBatchLegResult[];
+};
+
+/**
+ * Describes the message transfer.v1.GetInternalTransferBatchResponse.
+ * Use `create(GetInternalTransferBatchResponseSchema)` to create a new message.
+ */
+export const GetInternalTransferBatchResponseSchema: GenMessage<GetInternalTransferBatchResponse> = /*@__PURE__*/
+  messageDesc(file_transfer_v1_internal_transfer, 9);
 
 /**
  * GetInternalTransferRequest selects an accepted transfer from the source account.
@@ -514,7 +570,7 @@ export type GetInternalTransferRequest = Message<"transfer.v1.GetInternalTransfe
  * Use `create(GetInternalTransferRequestSchema)` to create a new message.
  */
 export const GetInternalTransferRequestSchema: GenMessage<GetInternalTransferRequest> = /*@__PURE__*/
-  messageDesc(file_transfer_v1_internal_transfer, 8);
+  messageDesc(file_transfer_v1_internal_transfer, 10);
 
 /**
  * GetInternalTransferResponse links an accepted transfer to its lifecycle flow.
@@ -557,11 +613,14 @@ export type GetInternalTransferResponse = Message<"transfer.v1.GetInternalTransf
  * Use `create(GetInternalTransferResponseSchema)` to create a new message.
  */
 export const GetInternalTransferResponseSchema: GenMessage<GetInternalTransferResponse> = /*@__PURE__*/
-  messageDesc(file_transfer_v1_internal_transfer, 9);
+  messageDesc(file_transfer_v1_internal_transfer, 11);
 
 /**
  * ErrorCode identifies stable, machine-readable Internal Transfer API errors.
- * Values mirror the REST problem+json code field.
+ * Values mirror the REST problem+json code field, except for authentication
+ * refusals: an error that also carries an auth.v1.AuthErrorDetail, such as a
+ * missing fresh step-up, answers REST with that detail's auth.v1.AuthErrorCode
+ * name, for example AUTH_STEP_UP_REQUIRED.
  *
  * @generated from enum transfer.v1.ErrorCode
  */
@@ -826,6 +885,13 @@ export enum ErrorCode {
    * @generated from enum value: ERROR_CODE_DUST_CONVERSION_FAILED = 36;
    */
   DUST_CONVERSION_FAILED = 36,
+
+  /**
+   * The batch debits more distinct source accounts than its limit of 10.
+   *
+   * @generated from enum value: ERROR_CODE_BATCH_TOO_MANY_SOURCES = 37;
+   */
+  BATCH_TOO_MANY_SOURCES = 37,
 }
 
 /**
@@ -878,6 +944,8 @@ export const InternalTransferStatusSchema: GenEnum<InternalTransferStatus> = /*@
 
 /**
  * InternalTransferBatchStatus is the outcome of a batch request as a whole.
+ * No status claims more than is known: a batch is accepted only once every
+ * leg is credited, and refused only once it is certain nothing moved.
  *
  * @generated from enum transfer.v1.InternalTransferBatchStatus
  */
@@ -890,21 +958,30 @@ export enum InternalTransferBatchStatus {
   BATCH_STATUS_UNSPECIFIED = 0,
 
   /**
-   * Every leg passed its checks and the batch was submitted. Legs run
-   * independently: read each leg's status.
-   *
-   * @generated from enum value: BATCH_SUBMITTED = 1;
-   */
-  BATCH_SUBMITTED = 1,
-
-  /**
-   * At least one leg failed its checks, so no leg ran, no funds moved and no
-   * step-up verification was used. Failed legs carry their reason; the other
-   * legs are LEG_NOT_SUBMITTED.
+   * Nothing moved, and nothing will under this idempotency key: a leg failed
+   * its checks, a source could not cover its legs, or the batch could not
+   * complete. Legs that caused it carry their reason; the others are
+   * LEG_NOT_MOVED without one.
    *
    * @generated from enum value: BATCH_REFUSED = 2;
    */
   BATCH_REFUSED = 2,
+
+  /**
+   * The outcome is not known yet: the batch completes without the caller,
+   * ending accepted or refused. Retry with the same idempotency key to read
+   * it.
+   *
+   * @generated from enum value: BATCH_PROCESSING = 3;
+   */
+  BATCH_PROCESSING = 3,
+
+  /**
+   * Every leg is credited to its destination.
+   *
+   * @generated from enum value: BATCH_ACCEPTED = 4;
+   */
+  BATCH_ACCEPTED = 4,
 }
 
 /**
@@ -914,7 +991,7 @@ export const InternalTransferBatchStatusSchema: GenEnum<InternalTransferBatchSta
   enumDesc(file_transfer_v1_internal_transfer, 2);
 
 /**
- * InternalTransferBatchLegStatus is the outcome of one leg of a batch.
+ * InternalTransferBatchLegStatus is the state of one leg of a batch.
  *
  * @generated from enum transfer.v1.InternalTransferBatchLegStatus
  */
@@ -927,36 +1004,26 @@ export enum InternalTransferBatchLegStatus {
   LEG_STATUS_UNSPECIFIED = 0,
 
   /**
-   * The leg's transfer was accepted and has a durable transfer identifier.
+   * The leg's outcome is the batch's, not known yet.
    *
-   * @generated from enum value: LEG_ACCEPTED = 1;
+   * @generated from enum value: LEG_PROCESSING = 5;
    */
-  LEG_ACCEPTED = 1,
+  LEG_PROCESSING = 5,
 
   /**
-   * The leg's outcome is not known yet. The transfer runs to its outcome
-   * without the caller: read it with GetInternalTransfer, or retry the batch
-   * with the same idempotency key.
+   * The leg is credited to its destination.
    *
-   * @generated from enum value: LEG_PENDING = 2;
+   * @generated from enum value: LEG_CREDITED = 6;
    */
-  LEG_PENDING = 2,
+  LEG_CREDITED = 6,
 
   /**
-   * The leg moved no funds; error_code gives the reason. A retry of the batch
-   * with the same idempotency key runs a submitted leg again.
+   * The leg moved nothing: its batch was refused. error_code is set on the
+   * legs that caused the refusal.
    *
-   * @generated from enum value: LEG_REFUSED = 3;
+   * @generated from enum value: LEG_NOT_MOVED = 7;
    */
-  LEG_REFUSED = 3,
-
-  /**
-   * The leg did not run: its batch was refused, or the request ended before
-   * the leg started. A retry with the same idempotency key runs it.
-   *
-   * @generated from enum value: LEG_NOT_SUBMITTED = 4;
-   */
-  LEG_NOT_SUBMITTED = 4,
+  LEG_NOT_MOVED = 7,
 }
 
 /**
@@ -989,7 +1056,9 @@ export const InternalTransferService: GenService<{
    * Create or return one accepted Trading to Trading transfer.
    * Root-owner same-owner transfers and root-owner transfers to explicitly
    * whitelisted destinations accept recent MFA; delegated and other
-   * interactive transfers require fresh step-up.
+   * interactive transfers require fresh step-up. Without them the transfer is
+   * refused PERMISSION_DENIED with auth code AUTH_MFA_ELEVATION_REQUIRED or
+   * AUTH_STEP_UP_REQUIRED; REST answers HTTP 403 with that auth code.
    *
    * @generated from rpc transfer.v1.InternalTransferService.CreateInternalTransfer
    */
@@ -999,15 +1068,18 @@ export const InternalTransferService: GenService<{
     output: typeof CreateInternalTransferResponseSchema;
   },
   /**
-   * Submit up to 10 Trading to Trading transfers authorized by one MFA check.
-   * Every leg passes the same checks as CreateInternalTransfer before any leg
-   * runs; if one fails, the whole batch is refused, nothing moves and no
-   * step-up is used. Legs then run independently, in order, and are not
-   * atomic: a leg can be refused, for example for insufficient balance, after
-   * earlier legs were accepted. The batch accepts recent MFA when the root
-   * owner moves funds between its own accounts or to explicitly whitelisted
-   * destinations; any other leg requires one fresh step-up for the whole
-   * batch. Each leg is its own transfer, readable with GetInternalTransfer.
+   * Move up to 500 Trading to Trading transfers together, authorized by one
+   * MFA check: every leg is credited, or none moves. Every leg passes the
+   * same checks as CreateInternalTransfer first; if one fails, the batch is
+   * refused, nothing moves and no step-up is used. The batch accepts recent
+   * MFA when the root owner moves funds between its own accounts or to
+   * explicitly whitelisted destinations; any other leg requires one fresh
+   * step-up for the whole batch. Without them the batch is refused
+   * PERMISSION_DENIED with auth code AUTH_MFA_ELEVATION_REQUIRED or
+   * AUTH_STEP_UP_REQUIRED; REST answers HTTP 403 with that auth code. A batch
+   * whose outcome is not known within the request answers BATCH_PROCESSING
+   * and completes on its own; a retry with the same idempotency key returns
+   * its current state.
    *
    * @generated from rpc transfer.v1.InternalTransferService.BatchCreateInternalTransfers
    */
@@ -1015,6 +1087,21 @@ export const InternalTransferService: GenService<{
     methodKind: "unary";
     input: typeof BatchCreateInternalTransfersRequestSchema;
     output: typeof BatchCreateInternalTransfersResponseSchema;
+  },
+  /**
+   * Read a batch's current outcome and the state of every leg, by the
+   * request ID BatchCreateInternalTransfers returned: for example to follow
+   * a batch that answered BATCH_PROCESSING. The caller must be allowed to
+   * read the transfers of every source account of the batch; any other
+   * batch is not found. This read does not submit or retry the batch and
+   * requires no fresh MFA.
+   *
+   * @generated from rpc transfer.v1.InternalTransferService.GetInternalTransferBatch
+   */
+  getInternalTransferBatch: {
+    methodKind: "unary";
+    input: typeof GetInternalTransferBatchRequestSchema;
+    output: typeof GetInternalTransferBatchResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_transfer_v1_internal_transfer, 0);

@@ -807,7 +807,9 @@ export type Unit = Message<"privatews.v1.Unit"> & {
    * equal `version` is the identical order, also across the Orders API's
    * reads; version 0 is an order accepted but not yet on the book. The reads
    * omit attached risk unless asked for it: an omission on request, never a
-   * removal.
+   * removal. The stream never carries an order's fee_total, which the reads
+   * add once its fills are settled; orders.v1.Order.fee_total says how to
+   * read an ended order's fee.
    *
    * @generated from field: repeated orders.v1.Order orders = 3;
    */
@@ -1192,7 +1194,10 @@ export const UnitEventSchema: GenMessage<UnitEvent> = /*@__PURE__*/
   messageDesc(file_privatews_v1_private_ws, 27);
 
 /**
- * OrderEvent is something that happened to an order.
+ * OrderEvent is something that happened to an order. No event carries a
+ * fee: a fill's fee is recorded once the fill is settled, after its FILLED
+ * event and often after the order's last event. orders.v1.Order.fee_total
+ * says how to read it.
  *
  * @generated from message privatews.v1.OrderEvent
  */
@@ -1205,7 +1210,12 @@ export type OrderEvent = Message<"privatews.v1.OrderEvent"> & {
   orderId: bigint;
 
   /**
-   * The order's version after the event.
+   * The order's version after the event: the same counter as the version of the
+   * order's reads, orders.v1.Order.version, which says how a client orders
+   * events and reads by it. It is an unsigned 32-bit counter that increases on
+   * every change of the order: it would wrap to 0 only after 4,294,967,295
+   * changes to one order ID. Ignore an event whose version is below the highest
+   * one applied for the order.
    *
    * @generated from field: uint32 version = 2;
    */

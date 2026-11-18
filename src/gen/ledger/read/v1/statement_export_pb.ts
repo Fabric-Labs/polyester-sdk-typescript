@@ -13,21 +13,74 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file ledger/read/v1/statement_export.proto.
  */
 export const file_ledger_read_v1_statement_export: GenFile = /*@__PURE__*/
-  fileDesc("CiVsZWRnZXIvcmVhZC92MS9zdGF0ZW1lbnRfZXhwb3J0LnByb3RvEg5sZWRnZXIucmVhZC52MSK+BAoPU3RhdGVtZW50RXhwb3J0EhEKCWV4cG9ydF9pZBgBIAEoBhIaCg1zdWJhY2NvdW50X2lkGAIgASgGSACIAQESLgoKc3RhcnRfdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCGFzc2V0X2lkGAUgASgNEhcKD2lkZW1wb3RlbmN5X2tleRgGIAEoCRI1CgZzdGF0dXMYByABKA4yJS5sZWRnZXIucmVhZC52MS5TdGF0ZW1lbnRFeHBvcnRTdGF0dXMSNAoQY29tcGxldGVfdGhyb3VnaBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEQoJbW92ZW1lbnRzGAkgASgEEg0KBWJ5dGVzGAogASgEEi4KCmNyZWF0ZWRfYXQYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCHJlYWR5X2F0GAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpleHBpcmVzX2F0GA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBJECg5mYWlsdXJlX3JlYXNvbhgOIAEoDjIsLmxlZGdlci5yZWFkLnYxLlN0YXRlbWVudEV4cG9ydEZhaWx1cmVSZWFzb25CEAoOX3N1YmFjY291bnRfaWQi3wEKHENyZWF0ZVN0YXRlbWVudEV4cG9ydFJlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASACIAQESMAoKc3RhcnRfdGltZRgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCABIuCghlbmRfdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCABIQCghhc3NldF9pZBgEIAEoDRIZCg9pZGVtcG90ZW5jeV9rZXkYBSABKAlCADoAQhAKDl9zdWJhY2NvdW50X2lkIlAKHUNyZWF0ZVN0YXRlbWVudEV4cG9ydFJlc3BvbnNlEi8KBmV4cG9ydBgBIAEoCzIfLmxlZGdlci5yZWFkLnYxLlN0YXRlbWVudEV4cG9ydCIwChlHZXRTdGF0ZW1lbnRFeHBvcnRSZXF1ZXN0EhMKCWV4cG9ydF9pZBgBIAEoBkIAIk0KGkdldFN0YXRlbWVudEV4cG9ydFJlc3BvbnNlEi8KBmV4cG9ydBgBIAEoCzIfLmxlZGdlci5yZWFkLnYxLlN0YXRlbWVudEV4cG9ydCJ0ChtMaXN0U3RhdGVtZW50RXhwb3J0c1JlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASACIAQESDwoFbGltaXQYAiABKA1CABIUCgpwYWdlX3Rva2VuGAMgASgJQgBCEAoOX3N1YmFjY291bnRfaWQiawocTGlzdFN0YXRlbWVudEV4cG9ydHNSZXNwb25zZRIwCgdleHBvcnRzGAEgAygLMh8ubGVkZ2VyLnJlYWQudjEuU3RhdGVtZW50RXhwb3J0EhkKD25leHRfcGFnZV90b2tlbhgCIAEoCUIAKvgBChVTdGF0ZW1lbnRFeHBvcnRTdGF0dXMSJwojU1RBVEVNRU5UX0VYUE9SVF9TVEFUVVNfVU5TUEVDSUZJRUQQABIiCh5TVEFURU1FTlRfRVhQT1JUX1NUQVRVU19RVUVVRUQQARImCiJTVEFURU1FTlRfRVhQT1JUX1NUQVRVU19QUk9DRVNTSU5HEAISIQodU1RBVEVNRU5UX0VYUE9SVF9TVEFUVVNfUkVBRFkQAxIiCh5TVEFURU1FTlRfRVhQT1JUX1NUQVRVU19GQUlMRUQQBBIjCh9TVEFURU1FTlRfRVhQT1JUX1NUQVRVU19FWFBJUkVEEAUqrwEKHFN0YXRlbWVudEV4cG9ydEZhaWx1cmVSZWFzb24SLworU1RBVEVNRU5UX0VYUE9SVF9GQUlMVVJFX1JFQVNPTl9VTlNQRUNJRklFRBAAEi0KKVNUQVRFTUVOVF9FWFBPUlRfRkFJTFVSRV9SRUFTT05fVE9PX0xBUkdFEAESLworU1RBVEVNRU5UX0VYUE9SVF9GQUlMVVJFX1JFQVNPTl9VTkFWQUlMQUJMRRACMvwCChZTdGF0ZW1lbnRFeHBvcnRTZXJ2aWNlEnYKFUNyZWF0ZVN0YXRlbWVudEV4cG9ydBIsLmxlZGdlci5yZWFkLnYxLkNyZWF0ZVN0YXRlbWVudEV4cG9ydFJlcXVlc3QaLS5sZWRnZXIucmVhZC52MS5DcmVhdGVTdGF0ZW1lbnRFeHBvcnRSZXNwb25zZSIAEnAKEkdldFN0YXRlbWVudEV4cG9ydBIpLmxlZGdlci5yZWFkLnYxLkdldFN0YXRlbWVudEV4cG9ydFJlcXVlc3QaKi5sZWRnZXIucmVhZC52MS5HZXRTdGF0ZW1lbnRFeHBvcnRSZXNwb25zZSIDkAIBEnYKFExpc3RTdGF0ZW1lbnRFeHBvcnRzEisubGVkZ2VyLnJlYWQudjEuTGlzdFN0YXRlbWVudEV4cG9ydHNSZXF1ZXN0GiwubGVkZ2VyLnJlYWQudjEuTGlzdFN0YXRlbWVudEV4cG9ydHNSZXNwb25zZSIDkAIBGgBCR1pFZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9sZWRnZXIvcmVhZC92MTtsZWRnZXJyZHYxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("CiVsZWRnZXIvcmVhZC92MS9zdGF0ZW1lbnRfZXhwb3J0LnByb3RvEg5sZWRnZXIucmVhZC52MSK+BAoPU3RhdGVtZW50RXhwb3J0EhEKCWV4cG9ydF9pZBgBIAEoBhIaCg1zdWJhY2NvdW50X2lkGAIgASgGSACIAQESLgoKc3RhcnRfdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCGFzc2V0X2lkGAUgASgNEhcKD2lkZW1wb3RlbmN5X2tleRgGIAEoCRI1CgZzdGF0dXMYByABKA4yJS5sZWRnZXIucmVhZC52MS5TdGF0ZW1lbnRFeHBvcnRTdGF0dXMSNAoQY29tcGxldGVfdGhyb3VnaBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEQoJbW92ZW1lbnRzGAkgASgEEg0KBWJ5dGVzGAogASgEEi4KCmNyZWF0ZWRfYXQYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCHJlYWR5X2F0GAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpleHBpcmVzX2F0GA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBJECg5mYWlsdXJlX3JlYXNvbhgOIAEoDjIsLmxlZGdlci5yZWFkLnYxLlN0YXRlbWVudEV4cG9ydEZhaWx1cmVSZWFzb25CEAoOX3N1YmFjY291bnRfaWQi3wEKHENyZWF0ZVN0YXRlbWVudEV4cG9ydFJlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASACIAQESMAoKc3RhcnRfdGltZRgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCABIuCghlbmRfdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCABIQCghhc3NldF9pZBgEIAEoDRIZCg9pZGVtcG90ZW5jeV9rZXkYBSABKAlCADoAQhAKDl9zdWJhY2NvdW50X2lkIlAKHUNyZWF0ZVN0YXRlbWVudEV4cG9ydFJlc3BvbnNlEi8KBmV4cG9ydBgBIAEoCzIfLmxlZGdlci5yZWFkLnYxLlN0YXRlbWVudEV4cG9ydCIwChlHZXRTdGF0ZW1lbnRFeHBvcnRSZXF1ZXN0EhMKCWV4cG9ydF9pZBgBIAEoBkIAIk0KGkdldFN0YXRlbWVudEV4cG9ydFJlc3BvbnNlEi8KBmV4cG9ydBgBIAEoCzIfLmxlZGdlci5yZWFkLnYxLlN0YXRlbWVudEV4cG9ydCI7CiRHZXRTdGF0ZW1lbnRFeHBvcnREb3dubG9hZFVybFJlcXVlc3QSEwoJZXhwb3J0X2lkGAEgASgGQgAidgolR2V0U3RhdGVtZW50RXhwb3J0RG93bmxvYWRVcmxSZXNwb25zZRILCgN1cmwYASABKAkSLgoKZXhwaXJlc19hdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIZmlsZW5hbWUYAyABKAkiMwocQ2FuY2VsU3RhdGVtZW50RXhwb3J0UmVxdWVzdBITCglleHBvcnRfaWQYASABKAZCACJQCh1DYW5jZWxTdGF0ZW1lbnRFeHBvcnRSZXNwb25zZRIvCgZleHBvcnQYASABKAsyHy5sZWRnZXIucmVhZC52MS5TdGF0ZW1lbnRFeHBvcnQidAobTGlzdFN0YXRlbWVudEV4cG9ydHNSZXF1ZXN0EhwKDXN1YmFjY291bnRfaWQYASABKAZCAEgAiAEBEg8KBWxpbWl0GAIgASgNQgASFAoKcGFnZV90b2tlbhgDIAEoCUIAQhAKDl9zdWJhY2NvdW50X2lkIqkBChxMaXN0U3RhdGVtZW50RXhwb3J0c1Jlc3BvbnNlEjAKB2V4cG9ydHMYASADKAsyHy5sZWRnZXIucmVhZC52MS5TdGF0ZW1lbnRFeHBvcnQSGQoPbmV4dF9wYWdlX3Rva2VuGAIgASgJQgASGwoTaW5fcHJvZ3Jlc3NfZXhwb3J0cxgDIAEoDRIfChdtYXhfaW5fcHJvZ3Jlc3NfZXhwb3J0cxgEIAEoDSqeAgoVU3RhdGVtZW50RXhwb3J0U3RhdHVzEicKI1NUQVRFTUVOVF9FWFBPUlRfU1RBVFVTX1VOU1BFQ0lGSUVEEAASIgoeU1RBVEVNRU5UX0VYUE9SVF9TVEFUVVNfUVVFVUVEEAESJgoiU1RBVEVNRU5UX0VYUE9SVF9TVEFUVVNfUFJPQ0VTU0lORxACEiEKHVNUQVRFTUVOVF9FWFBPUlRfU1RBVFVTX1JFQURZEAMSIgoeU1RBVEVNRU5UX0VYUE9SVF9TVEFUVVNfRkFJTEVEEAQSIwofU1RBVEVNRU5UX0VYUE9SVF9TVEFUVVNfRVhQSVJFRBAFEiQKIFNUQVRFTUVOVF9FWFBPUlRfU1RBVFVTX0NBTkNFTEVEEAYqrwEKHFN0YXRlbWVudEV4cG9ydEZhaWx1cmVSZWFzb24SLworU1RBVEVNRU5UX0VYUE9SVF9GQUlMVVJFX1JFQVNPTl9VTlNQRUNJRklFRBAAEi0KKVNUQVRFTUVOVF9FWFBPUlRfRkFJTFVSRV9SRUFTT05fVE9PX0xBUkdFEAESLworU1RBVEVNRU5UX0VYUE9SVF9GQUlMVVJFX1JFQVNPTl9VTkFWQUlMQUJMRRACMosFChZTdGF0ZW1lbnRFeHBvcnRTZXJ2aWNlEnYKFUNyZWF0ZVN0YXRlbWVudEV4cG9ydBIsLmxlZGdlci5yZWFkLnYxLkNyZWF0ZVN0YXRlbWVudEV4cG9ydFJlcXVlc3QaLS5sZWRnZXIucmVhZC52MS5DcmVhdGVTdGF0ZW1lbnRFeHBvcnRSZXNwb25zZSIAEnAKEkdldFN0YXRlbWVudEV4cG9ydBIpLmxlZGdlci5yZWFkLnYxLkdldFN0YXRlbWVudEV4cG9ydFJlcXVlc3QaKi5sZWRnZXIucmVhZC52MS5HZXRTdGF0ZW1lbnRFeHBvcnRSZXNwb25zZSIDkAIBEpEBCh1HZXRTdGF0ZW1lbnRFeHBvcnREb3dubG9hZFVybBI0LmxlZGdlci5yZWFkLnYxLkdldFN0YXRlbWVudEV4cG9ydERvd25sb2FkVXJsUmVxdWVzdBo1LmxlZGdlci5yZWFkLnYxLkdldFN0YXRlbWVudEV4cG9ydERvd25sb2FkVXJsUmVzcG9uc2UiA5ACARJ5ChVDYW5jZWxTdGF0ZW1lbnRFeHBvcnQSLC5sZWRnZXIucmVhZC52MS5DYW5jZWxTdGF0ZW1lbnRFeHBvcnRSZXF1ZXN0Gi0ubGVkZ2VyLnJlYWQudjEuQ2FuY2VsU3RhdGVtZW50RXhwb3J0UmVzcG9uc2UiA5ACAhJ2ChRMaXN0U3RhdGVtZW50RXhwb3J0cxIrLmxlZGdlci5yZWFkLnYxLkxpc3RTdGF0ZW1lbnRFeHBvcnRzUmVxdWVzdBosLmxlZGdlci5yZWFkLnYxLkxpc3RTdGF0ZW1lbnRFeHBvcnRzUmVzcG9uc2UiA5ACARoAQkdaRWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vbGVkZ2VyL3JlYWQvdjE7bGVkZ2VycmR2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * StatementExport is a whole-period account statement produced in the
- * background as one CSV file. The file is byte for byte the pages of
- * ExportStatement for the same account, asset and period up to
- * complete_through, concatenated: the header row, then every row, oldest
- * first, in the columns ExportStatementResponse.csv documents.
+ * background as one CSV file.
  *
- * Download a READY file with an authenticated
- * `GET /v1/statements/exports/{exportId}/file`, as the account that created
- * it or one with the same access: it returns `text/csv` and supports HTTP
- * `Range` requests. With `?redirect=true` it instead answers
- * `307 Temporary Redirect` to a URL valid for 60 seconds. An EXPIRED export's
- * file answers `410 Gone`.
+ * The file is RFC 4180 CSV in UTF-8 with CRLF line endings: the header row,
+ * then every row of the period up to complete_through, oldest first. A period
+ * without movements yields the header row alone. Each row is the effect of
+ * one entry on one account bucket in one asset. An entry is one ledger
+ * operation, such as a trade with its fees, a deposit, a withdrawal step or an
+ * internal transfer.
+ *
+ * Columns, in order:
+ * - `time`: entry time, RFC 3339 in UTC with microseconds, for example
+ *   `2026-11-12T19:52:07.734123Z`.
+ * - `entry_id`: stable entry identifier, an unsigned 128-bit integer as a
+ *   decimal string. It is the `transfer_id` of the entry's first transfer leg
+ *   on the account, as LedgerReadService.ListTransfers returns it.
+ * - `type`: `trade` for a trade's settlement and its fees; otherwise the
+ *   entry's transfer reason, such as `deposit`, `withdraw`,
+ *   `internal_transfer`, `funding_to_trading` or `system_adjustment`.
+ * - `account`: account bucket, `funding` or `trading`.
+ * - `asset`: asset symbol.
+ * - `amount`: signed balance change of the entry in whole units of the
+ *   asset, excluding the fees in `fee`, for example `-5000` or `0.1`. Fees
+ *   the account receives are included here.
+ * - `fee`: fees the account paid in the asset for the entry, in whole units
+ *   of the asset; `0` when none.
+ * - `balance`: account bucket balance in the asset after the entry, in whole
+ *   units of the asset. For consecutive rows of the same bucket and asset,
+ *   each balance equals the previous balance plus `amount` minus `fee`.
+ * - `link_id`: correlation ID shared by related transfer legs, the trade's
+ *   match ID for trades; empty when unavailable.
+ * - `flow_id`: public lifecycle flow ID when the entry belongs to a chain
+ *   lifecycle flow, such as a deposit, a withdrawal or an internal transfer,
+ *   as LedgerReadService.ListTransfers returns it; empty otherwise.
+ *
+ * Amounts are exact decimal strings with up to 18 fractional digits and no
+ * trailing zeros.
+ *
+ * A READY file downloads in one of two ways:
+ * - StatementExportService.GetStatementExportDownloadUrl returns a URL valid
+ *   for 60 seconds from signing that needs no credentials, so a browser can
+ *   save the file straight to disk.
+ * - An authenticated `GET /v1/statements/exports/{exportId}/file` returns the
+ *   file as `text/csv` and supports HTTP `Range` requests.
+ *
+ * Both save the file as `statement-<exportId>.csv`. Before the file is READY
+ * both answer FAILED_PRECONDITION with STATEMENT_EXPORT_NOT_READY, REST
+ * `409 Conflict`; a FAILED export answers STATEMENT_EXPORT_FAILED, REST `409`;
+ * an EXPIRED export, or a file already deleted, answers
+ * STATEMENT_EXPORT_EXPIRED, REST `410 Gone`, and so does a download URL
+ * request for a file with less than 5 seconds left; a CANCELED export
+ * answers STATEMENT_EXPORT_CANCELED, REST `409`. REST errors are
+ * `application/problem+json` whose `code` is the ErrorCode name, such as
+ * `STATEMENT_EXPORT_NOT_READY`: `401` without valid credentials, `403
+ * PERMISSION_DENIED` for an API key without READ_STATEMENTS, `404 NOT_FOUND`
+ * for an export the caller cannot read, and `503 UPSTREAM_ERROR`, with
+ * `Retry-After`, when the request can be retried.
+ *
+ * An export belongs to the root account whose session or API key created it.
+ * Any session or API key of that root that may read the export's account can
+ * read and download it, whichever of them created it. A member of a
+ * subaccount shared from another root sees only the exports its own root
+ * created, and the subaccount's owner does not see those: an export of
+ * another root, or of an account the caller can no longer read, answers
+ * NOT_FOUND, as one that does not exist.
  *
  * @generated from message ledger.read.v1.StatementExport
  */
@@ -144,7 +197,8 @@ export const StatementExportSchema: GenMessage<StatementExport> = /*@__PURE__*/
 
 /**
  * CreateStatementExportRequest asks for a whole-period statement file of one
- * account.
+ * account. The period is at most 366 days long; a longer or empty period is
+ * INVALID_ARGUMENT.
  *
  * @generated from message ledger.read.v1.CreateStatementExportRequest
  */
@@ -265,6 +319,111 @@ export const GetStatementExportResponseSchema: GenMessage<GetStatementExportResp
   messageDesc(file_ledger_read_v1_statement_export, 4);
 
 /**
+ * GetStatementExportDownloadUrlRequest names the export whose file to
+ * download.
+ *
+ * @generated from message ledger.read.v1.GetStatementExportDownloadUrlRequest
+ */
+export type GetStatementExportDownloadUrlRequest = Message<"ledger.read.v1.GetStatementExportDownloadUrlRequest"> & {
+  /**
+   * Public ID of the export.
+   *
+   * @generated from field: fixed64 export_id = 1;
+   */
+  exportId: bigint;
+};
+
+/**
+ * Describes the message ledger.read.v1.GetStatementExportDownloadUrlRequest.
+ * Use `create(GetStatementExportDownloadUrlRequestSchema)` to create a new message.
+ */
+export const GetStatementExportDownloadUrlRequestSchema: GenMessage<GetStatementExportDownloadUrlRequest> = /*@__PURE__*/
+  messageDesc(file_ledger_read_v1_statement_export, 5);
+
+/**
+ * GetStatementExportDownloadUrlResponse is a short-lived link to a READY
+ * export's file.
+ *
+ * @generated from message ledger.read.v1.GetStatementExportDownloadUrlResponse
+ */
+export type GetStatementExportDownloadUrlResponse = Message<"ledger.read.v1.GetStatementExportDownloadUrlResponse"> & {
+  /**
+   * URL of the file, valid until expires_at. It carries its own
+   * authorization and needs no credentials, so a browser can open it to save
+   * the file. Anyone who holds it can download the file until expires_at:
+   * do not share, store or log it.
+   *
+   * @generated from field: string url = 1;
+   */
+  url: string;
+
+  /**
+   * When the URL stops working: the exact end of its signature, 60 seconds
+   * after it was signed for this request, or when the file expires if that
+   * is sooner. Request a new URL after it.
+   *
+   * @generated from field: google.protobuf.Timestamp expires_at = 2;
+   */
+  expiresAt?: Timestamp | undefined;
+
+  /**
+   * Name the download saves the file as, `statement-<exportId>.csv`.
+   *
+   * @generated from field: string filename = 3;
+   */
+  filename: string;
+};
+
+/**
+ * Describes the message ledger.read.v1.GetStatementExportDownloadUrlResponse.
+ * Use `create(GetStatementExportDownloadUrlResponseSchema)` to create a new message.
+ */
+export const GetStatementExportDownloadUrlResponseSchema: GenMessage<GetStatementExportDownloadUrlResponse> = /*@__PURE__*/
+  messageDesc(file_ledger_read_v1_statement_export, 6);
+
+/**
+ * CancelStatementExportRequest names the export to cancel.
+ *
+ * @generated from message ledger.read.v1.CancelStatementExportRequest
+ */
+export type CancelStatementExportRequest = Message<"ledger.read.v1.CancelStatementExportRequest"> & {
+  /**
+   * Public ID of the export.
+   *
+   * @generated from field: fixed64 export_id = 1;
+   */
+  exportId: bigint;
+};
+
+/**
+ * Describes the message ledger.read.v1.CancelStatementExportRequest.
+ * Use `create(CancelStatementExportRequestSchema)` to create a new message.
+ */
+export const CancelStatementExportRequestSchema: GenMessage<CancelStatementExportRequest> = /*@__PURE__*/
+  messageDesc(file_ledger_read_v1_statement_export, 7);
+
+/**
+ * CancelStatementExportResponse is the canceled export.
+ *
+ * @generated from message ledger.read.v1.CancelStatementExportResponse
+ */
+export type CancelStatementExportResponse = Message<"ledger.read.v1.CancelStatementExportResponse"> & {
+  /**
+   * The export, CANCELED.
+   *
+   * @generated from field: ledger.read.v1.StatementExport export = 1;
+   */
+  export?: StatementExport | undefined;
+};
+
+/**
+ * Describes the message ledger.read.v1.CancelStatementExportResponse.
+ * Use `create(CancelStatementExportResponseSchema)` to create a new message.
+ */
+export const CancelStatementExportResponseSchema: GenMessage<CancelStatementExportResponse> = /*@__PURE__*/
+  messageDesc(file_ledger_read_v1_statement_export, 8);
+
+/**
  * ListStatementExportsRequest selects one account's exports.
  *
  * @generated from message ledger.read.v1.ListStatementExportsRequest
@@ -299,7 +458,7 @@ export type ListStatementExportsRequest = Message<"ledger.read.v1.ListStatementE
  * Use `create(ListStatementExportsRequestSchema)` to create a new message.
  */
 export const ListStatementExportsRequestSchema: GenMessage<ListStatementExportsRequest> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_statement_export, 5);
+  messageDesc(file_ledger_read_v1_statement_export, 9);
 
 /**
  * ListStatementExportsResponse is a page of exports, newest first.
@@ -320,6 +479,24 @@ export type ListStatementExportsResponse = Message<"ledger.read.v1.ListStatement
    * @generated from field: string next_page_token = 2;
    */
   nextPageToken: string;
+
+  /**
+   * Exports QUEUED or PROCESSING across the whole root account, its
+   * subaccounts included, whichever account the list selects: the number a
+   * new CreateStatementExport counts against max_in_progress_exports.
+   *
+   * @generated from field: uint32 in_progress_exports = 3;
+   */
+  inProgressExports: number;
+
+  /**
+   * Most exports the root account may have QUEUED or PROCESSING at a time.
+   * While in_progress_exports is at it, CreateStatementExport answers
+   * RESOURCE_EXHAUSTED with STATEMENT_EXPORT_LIMIT_REACHED.
+   *
+   * @generated from field: uint32 max_in_progress_exports = 4;
+   */
+  maxInProgressExports: number;
 };
 
 /**
@@ -327,7 +504,7 @@ export type ListStatementExportsResponse = Message<"ledger.read.v1.ListStatement
  * Use `create(ListStatementExportsResponseSchema)` to create a new message.
  */
 export const ListStatementExportsResponseSchema: GenMessage<ListStatementExportsResponse> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_statement_export, 6);
+  messageDesc(file_ledger_read_v1_statement_export, 10);
 
 /**
  * StatementExportStatus is where a statement export is.
@@ -377,6 +554,14 @@ export enum StatementExportStatus {
    * @generated from enum value: STATEMENT_EXPORT_STATUS_EXPIRED = 5;
    */
   EXPIRED = 5,
+
+  /**
+   * Canceled with CancelStatementExport before it finished. It has no file
+   * and no longer counts toward the root account's exports in progress.
+   *
+   * @generated from enum value: STATEMENT_EXPORT_STATUS_CANCELED = 6;
+   */
+  CANCELED = 6,
 }
 
 /**
@@ -421,12 +606,15 @@ export const StatementExportFailureReasonSchema: GenEnum<StatementExportFailureR
   enumDesc(file_ledger_read_v1_statement_export, 1);
 
 /**
- * StatementExportService produces whole-period account statements in the
- * background as one CSV file each. It covers the same account, asset and
- * period choices as LedgerReadService.ExportStatement, with the same access
- * rules: API keys need the READ_STATEMENTS policy action. A root account has
- * at most 5 exports QUEUED or PROCESSING at a time, one account produces one
- * export at a time, and a READY file can be downloaded for 7 days.
+ * StatementExportService is the account statement API. A statement covers
+ * one account, optionally one asset, for a period of at most 366 days, and is
+ * produced in the background as one CSV file: create an export, poll it with
+ * GetStatementExport until it is READY, then download its file (see
+ * StatementExport). API keys need the READ_STATEMENTS policy action. A root
+ * account has at most 5 exports QUEUED or PROCESSING at a time, one account
+ * produces one export at a time, and a READY file can be downloaded for 7
+ * days. CancelStatementExport stops a QUEUED or PROCESSING export, which
+ * frees its place for the account's next export and under the root's 5.
  *
  * @generated from service ledger.read.v1.StatementExportService
  */
@@ -464,6 +652,51 @@ export const StatementExportService: GenService<{
     methodKind: "unary";
     input: typeof GetStatementExportRequestSchema;
     output: typeof GetStatementExportResponseSchema;
+  },
+  /**
+   * Get a URL valid for 60 seconds from signing that downloads a READY
+   * export's file without credentials, for a browser to save straight to
+   * disk. Each call returns a new URL.
+   *
+   * Errors:
+   * - NOT_FOUND: no such export for the authenticated account.
+   * - PERMISSION_DENIED: the caller may not read statements.
+   * - FAILED_PRECONDITION (STATEMENT_EXPORT_NOT_READY): the file is not ready
+   *   yet; poll GetStatementExport until it is READY.
+   * - FAILED_PRECONDITION (STATEMENT_EXPORT_FAILED): the export failed and has
+   *   no file.
+   * - FAILED_PRECONDITION (STATEMENT_EXPORT_CANCELED): the export was
+   *   canceled and has no file.
+   * - FAILED_PRECONDITION (STATEMENT_EXPORT_EXPIRED): the file expired, or
+   *   has less than 5 seconds left; create a new export.
+   * - UNAVAILABLE: retry the same request.
+   *
+   * @generated from rpc ledger.read.v1.StatementExportService.GetStatementExportDownloadUrl
+   */
+  getStatementExportDownloadUrl: {
+    methodKind: "unary";
+    input: typeof GetStatementExportDownloadUrlRequestSchema;
+    output: typeof GetStatementExportDownloadUrlResponseSchema;
+  },
+  /**
+   * Cancel a QUEUED or PROCESSING statement export. It ends CANCELED at
+   * once: it no longer counts toward the root account's 5 exports in
+   * progress, the account's next queued export can start, and any partial
+   * file is deleted. Canceling a CANCELED export returns it as it is.
+   *
+   * Errors:
+   * - NOT_FOUND: no such export for the authenticated account.
+   * - PERMISSION_DENIED: the caller may not read statements.
+   * - FAILED_PRECONDITION (STATEMENT_EXPORT_NOT_CANCELABLE): the export
+   *   already finished, READY, FAILED or EXPIRED.
+   * - UNAVAILABLE: retry the same request.
+   *
+   * @generated from rpc ledger.read.v1.StatementExportService.CancelStatementExport
+   */
+  cancelStatementExport: {
+    methodKind: "unary";
+    input: typeof CancelStatementExportRequestSchema;
+    output: typeof CancelStatementExportResponseSchema;
   },
   /**
    * List one account's statement exports, newest first.

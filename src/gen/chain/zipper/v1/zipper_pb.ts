@@ -4,6 +4,8 @@
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { Timestamp } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import { file_polyester_api_options } from "../../../polyester/api/options_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
@@ -11,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file chain/zipper/v1/zipper.proto.
  */
 export const file_chain_zipper_v1_zipper: GenFile = /*@__PURE__*/
-  fileDesc("ChxjaGFpbi96aXBwZXIvdjEvemlwcGVyLnByb3RvEg9jaGFpbi56aXBwZXIudjEimAMKC0NoYWluQ29uZmlnEhAKCGNoYWluX2lkGAEgASgNEgwKBGNvZGUYAiABKAkSDAoEbmFtZRgDIAEoCRIXCg9uYXRpdmVfY2hhaW5faWQYBCABKAkSHgoWbmF0aXZlX2N1cnJlbmN5X3N5bWJvbBgFIAEoCRIUCgxleHBsb3Jlcl91cmwYBiABKAkSDAoEaWNvbhgHIAEoCRIeChZyZXF1aXJlZF9jb25maXJtYXRpb25zGAggASgNEiEKGWNvbmZpcm1hdGlvbl90aW1lX3NlY29uZHMYCSABKA0SGQoRaXNfY2FzZV9zZW5zaXRpdmUYCiABKAgSGgoSbWluX2FkZHJlc3NfbGVuZ3RoGAsgASgNEhoKEm1heF9hZGRyZXNzX2xlbmd0aBgMIAEoDRI6ChBtZW1vX3JlcXVpcmVtZW50GA0gASgOMiAuY2hhaW4uemlwcGVyLnYxLk1lbW9SZXF1aXJlbWVudBISCgptZW1vX2xhYmVsGA4gASgJEhgKEG1lbW9fZm9ybWF0X2hpbnQYDyABKAkiiAMKEUFzc2V0Q2hhaW5WYXJpYW50EhcKD3ppcHBlZF9hc3NldF9pZBgBIAEoDRIQCghjaGFpbl9pZBgCIAEoDRIXCg9pc19uYXRpdmVfYXNzZXQYAyABKAgSEwoLbmV0d29ya19mZWUYBCABKAkSFgoOenRva2VuX2FkZHJlc3MYBiABKAkSFgoOc291cmNlX2FkZHJlc3MYByABKAkSFwoPc291cmNlX2RlY2ltYWxzGAggASgNEhcKD3p0b2tlbl9kZWNpbWFscxgJIAEoDRIaChJkZXBvc2l0X21pbl9hbW91bnQYCiABKAkSGwoTd2l0aGRyYXdfbWluX2Ftb3VudBgLIAEoCRIQCghzdXBwbHlfcRgMIAEoBBI0Cg5kZXBvc2l0X3N0YXR1cxgNIAEoDjIcLmNoYWluLnppcHBlci52MS5Sb3V0ZVN0YXR1cxI3ChF3aXRoZHJhd2FsX3N0YXR1cxgOIAEoDjIcLmNoYWluLnppcHBlci52MS5Sb3V0ZVN0YXR1cyJEChdaaXBwZWRBc3NldFN1cHBseVVwZGF0ZRIXCg96aXBwZWRfYXNzZXRfaWQYASABKA0SEAoIc3VwcGx5X3EYAiABKAQiUwoWWmlwcGVkQXNzZXRTdXBwbHlCYXRjaBI5Cgd1cGRhdGVzGAEgAygLMiguY2hhaW4uemlwcGVyLnYxLlppcHBlZEFzc2V0U3VwcGx5VXBkYXRlItABCgtBc3NldENvbmZpZxINCgVhc3NldBgBIAEoCRIRCglsZWRnZXJfaWQYAiABKA0SDAoEbmFtZRgDIAEoCRIMCgRpY29uGAQgASgJEhYKDnF1YW50aXR5X3NjYWxlGAUgASgNEiEKGXF1YW50aXR5X2Rpc3BsYXlfZGVjaW1hbHMYBiABKA0SNAoIdmFyaWFudHMYByADKAsyIi5jaGFpbi56aXBwZXIudjEuQXNzZXRDaGFpblZhcmlhbnQSEgoKdV9hc3NldF9pZBgIIAEoCSJoChNDaGFpbkNvbnRyYWN0Q29uZmlnEgwKBG5hbWUYASABKAkSDwoHYWRkcmVzcxgCIAEoCRIMCgR0eXBlGAMgASgJEhMKC2Rlc2NyaXB0aW9uGAQgASgJEg8KB3ZlcnNpb24YBSABKA0iIQofR2V0RGVwb3NpdFdpdGhkcmF3Q29uZmlnUmVxdWVzdCLHAQogR2V0RGVwb3NpdFdpdGhkcmF3Q29uZmlnUmVzcG9uc2USLAoGY2hhaW5zGAEgAygLMhwuY2hhaW4uemlwcGVyLnYxLkNoYWluQ29uZmlnEiwKBmFzc2V0cxgCIAMoCzIcLmNoYWluLnppcHBlci52MS5Bc3NldENvbmZpZxIOCgZ0c19zZWMYAyABKAQSNwoJY29udHJhY3RzGAUgAygLMiQuY2hhaW4uemlwcGVyLnYxLkNoYWluQ29udHJhY3RDb25maWcqVgoPTWVtb1JlcXVpcmVtZW50EhQKEE1FTU9fVU5TUEVDSUZJRUQQABIMCghSRVFVSVJFRBABEgwKCE9QVElPTkFMEAISEQoNTk9UX1NVUFBPUlRFRBADKkAKC1JvdXRlU3RhdHVzEhYKElNUQVRVU19VTlNQRUNJRklFRBAAEgoKBk5PUk1BTBABEg0KCVNVU1BFTkRFRBACMpUBCg1aaXBwZXJTZXJ2aWNlEoEBChhHZXREZXBvc2l0V2l0aGRyYXdDb25maWcSMC5jaGFpbi56aXBwZXIudjEuR2V0RGVwb3NpdFdpdGhkcmF3Q29uZmlnUmVxdWVzdBoxLmNoYWluLnppcHBlci52MS5HZXREZXBvc2l0V2l0aGRyYXdDb25maWdSZXNwb25zZSIAGgBCS1pJZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9jaGFpbi96aXBwZXIvdjE7Y2hhaW56aXBwZXJ2MWIGcHJvdG8z", [file_polyester_api_options]);
+  fileDesc("ChxjaGFpbi96aXBwZXIvdjEvemlwcGVyLnByb3RvEg9jaGFpbi56aXBwZXIudjEimAMKC0NoYWluQ29uZmlnEhAKCGNoYWluX2lkGAEgASgNEgwKBGNvZGUYAiABKAkSDAoEbmFtZRgDIAEoCRIXCg9uYXRpdmVfY2hhaW5faWQYBCABKAkSHgoWbmF0aXZlX2N1cnJlbmN5X3N5bWJvbBgFIAEoCRIUCgxleHBsb3Jlcl91cmwYBiABKAkSDAoEaWNvbhgHIAEoCRIeChZyZXF1aXJlZF9jb25maXJtYXRpb25zGAggASgNEiEKGWNvbmZpcm1hdGlvbl90aW1lX3NlY29uZHMYCSABKA0SGQoRaXNfY2FzZV9zZW5zaXRpdmUYCiABKAgSGgoSbWluX2FkZHJlc3NfbGVuZ3RoGAsgASgNEhoKEm1heF9hZGRyZXNzX2xlbmd0aBgMIAEoDRI6ChBtZW1vX3JlcXVpcmVtZW50GA0gASgOMiAuY2hhaW4uemlwcGVyLnYxLk1lbW9SZXF1aXJlbWVudBISCgptZW1vX2xhYmVsGA4gASgJEhgKEG1lbW9fZm9ybWF0X2hpbnQYDyABKAki9gMKEUFzc2V0Q2hhaW5WYXJpYW50EhcKD3ppcHBlZF9hc3NldF9pZBgBIAEoDRIQCghjaGFpbl9pZBgCIAEoDRIXCg9pc19uYXRpdmVfYXNzZXQYAyABKAgSEwoLbmV0d29ya19mZWUYBCABKAkSFgoOenRva2VuX2FkZHJlc3MYBiABKAkSFgoOc291cmNlX2FkZHJlc3MYByABKAkSFwoPc291cmNlX2RlY2ltYWxzGAggASgNEhcKD3p0b2tlbl9kZWNpbWFscxgJIAEoDRIaChJkZXBvc2l0X21pbl9hbW91bnQYCiABKAkSGwoTd2l0aGRyYXdfbWluX2Ftb3VudBgLIAEoCRIQCghzdXBwbHlfcRgMIAEoBBI0Cg5kZXBvc2l0X3N0YXR1cxgNIAEoDjIcLmNoYWluLnppcHBlci52MS5Sb3V0ZVN0YXR1cxI3ChF3aXRoZHJhd2FsX3N0YXR1cxgOIAEoDjIcLmNoYWluLnppcHBlci52MS5Sb3V0ZVN0YXR1cxI0Cg1zdXBwbHlfc3RhdHVzGA8gASgOMh0uY2hhaW4uemlwcGVyLnYxLlN1cHBseVN0YXR1cxI2ChJzdXBwbHlfb2JzZXJ2ZWRfYXQYECABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIqQBChdaaXBwZWRBc3NldFN1cHBseVVwZGF0ZRIXCg96aXBwZWRfYXNzZXRfaWQYASABKA0SEAoIc3VwcGx5X3EYAiABKAQSLQoGc3RhdHVzGAMgASgOMh0uY2hhaW4uemlwcGVyLnYxLlN1cHBseVN0YXR1cxIvCgtvYnNlcnZlZF9hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiUwoWWmlwcGVkQXNzZXRTdXBwbHlCYXRjaBI5Cgd1cGRhdGVzGAEgAygLMiguY2hhaW4uemlwcGVyLnYxLlppcHBlZEFzc2V0U3VwcGx5VXBkYXRlItABCgtBc3NldENvbmZpZxINCgVhc3NldBgBIAEoCRIRCglsZWRnZXJfaWQYAiABKA0SDAoEbmFtZRgDIAEoCRIMCgRpY29uGAQgASgJEhYKDnF1YW50aXR5X3NjYWxlGAUgASgNEiEKGXF1YW50aXR5X2Rpc3BsYXlfZGVjaW1hbHMYBiABKA0SNAoIdmFyaWFudHMYByADKAsyIi5jaGFpbi56aXBwZXIudjEuQXNzZXRDaGFpblZhcmlhbnQSEgoKdV9hc3NldF9pZBgIIAEoCSJoChNDaGFpbkNvbnRyYWN0Q29uZmlnEgwKBG5hbWUYASABKAkSDwoHYWRkcmVzcxgCIAEoCRIMCgR0eXBlGAMgASgJEhMKC2Rlc2NyaXB0aW9uGAQgASgJEg8KB3ZlcnNpb24YBSABKA0iIQofR2V0RGVwb3NpdFdpdGhkcmF3Q29uZmlnUmVxdWVzdCLHAQogR2V0RGVwb3NpdFdpdGhkcmF3Q29uZmlnUmVzcG9uc2USLAoGY2hhaW5zGAEgAygLMhwuY2hhaW4uemlwcGVyLnYxLkNoYWluQ29uZmlnEiwKBmFzc2V0cxgCIAMoCzIcLmNoYWluLnppcHBlci52MS5Bc3NldENvbmZpZxIOCgZ0c19zZWMYAyABKAQSNwoJY29udHJhY3RzGAUgAygLMiQuY2hhaW4uemlwcGVyLnYxLkNoYWluQ29udHJhY3RDb25maWcqVgoPTWVtb1JlcXVpcmVtZW50EhQKEE1FTU9fVU5TUEVDSUZJRUQQABIMCghSRVFVSVJFRBABEgwKCE9QVElPTkFMEAISEQoNTk9UX1NVUFBPUlRFRBADKkAKC1JvdXRlU3RhdHVzEhYKElNUQVRVU19VTlNQRUNJRklFRBAAEgoKBk5PUk1BTBABEg0KCVNVU1BFTkRFRBACKk0KDFN1cHBseVN0YXR1cxIWChJTVVBQTFlfVU5TUEVDSUZJRUQQABINCglBVkFJTEFCTEUQARIJCgVTVEFMRRACEgsKB01JU1NJTkcQAzKVAQoNWmlwcGVyU2VydmljZRKBAQoYR2V0RGVwb3NpdFdpdGhkcmF3Q29uZmlnEjAuY2hhaW4uemlwcGVyLnYxLkdldERlcG9zaXRXaXRoZHJhd0NvbmZpZ1JlcXVlc3QaMS5jaGFpbi56aXBwZXIudjEuR2V0RGVwb3NpdFdpdGhkcmF3Q29uZmlnUmVzcG9uc2UiABoAQktaSWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vY2hhaW4vemlwcGVyL3YxO2NoYWluemlwcGVydjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * ChainConfig describes one supported external chain for deposit and withdraw.
@@ -216,6 +218,8 @@ export type AssetChainVariant = Message<"chain.zipper.v1.AssetChainVariant"> & {
   /**
    * Latest zToken supply for this chain asset variant, scaled by the parent
    * unified asset's quantity_scale. Decode: supply_q / 10^quantity_scale.
+   * Set only when supply_status is AVAILABLE or STALE; a value of zero then
+   * is a real supply of zero.
    *
    * @generated from field: uint64 supply_q = 12;
    */
@@ -240,6 +244,21 @@ export type AssetChainVariant = Message<"chain.zipper.v1.AssetChainVariant"> & {
    * @generated from field: chain.zipper.v1.RouteStatus withdrawal_status = 14;
    */
   withdrawalStatus: RouteStatus;
+
+  /**
+   * Whether supply_q is known and current for this route.
+   *
+   * @generated from field: chain.zipper.v1.SupplyStatus supply_status = 15;
+   */
+  supplyStatus: SupplyStatus;
+
+  /**
+   * When supply_q was read from Polyester chain. Set only when supply_status
+   * is AVAILABLE or STALE.
+   *
+   * @generated from field: google.protobuf.Timestamp supply_observed_at = 16;
+   */
+  supplyObservedAt?: Timestamp | undefined;
 };
 
 /**
@@ -265,11 +284,30 @@ export type ZippedAssetSupplyUpdate = Message<"chain.zipper.v1.ZippedAssetSupply
 
   /**
    * Latest zToken supply for this route, scaled by the parent asset's
-   * quantity_scale. Decode: supply_q / 10^quantity_scale.
+   * quantity_scale. Decode: supply_q / 10^quantity_scale. Set only when
+   * status is AVAILABLE or STALE; a value of zero then is a real supply of
+   * zero.
    *
    * @generated from field: uint64 supply_q = 2;
    */
   supplyQ: bigint;
+
+  /**
+   * Whether supply_q is current: AVAILABLE or STALE. A route whose supply
+   * stops being refreshed gets one STALE update repeating its last value and
+   * observation time; it returns to AVAILABLE with the next reading.
+   *
+   * @generated from field: chain.zipper.v1.SupplyStatus status = 3;
+   */
+  status: SupplyStatus;
+
+  /**
+   * When supply_q was read from Polyester chain. Set only when status is
+   * AVAILABLE or STALE.
+   *
+   * @generated from field: google.protobuf.Timestamp observed_at = 4;
+   */
+  observedAt?: Timestamp | undefined;
 };
 
 /**
@@ -553,6 +591,52 @@ export enum RouteStatus {
  */
 export const RouteStatusSchema: GenEnum<RouteStatus> = /*@__PURE__*/
   enumDesc(file_chain_zipper_v1_zipper, 1);
+
+/**
+ * SupplyStatus says whether a route's zToken supply is known and current.
+ * Read it before using a supply value: only AVAILABLE and STALE routes carry
+ * one, and a missing supply is never reported as zero.
+ *
+ * @generated from enum chain.zipper.v1.SupplyStatus
+ */
+export enum SupplyStatus {
+  /**
+   * Never sent. Treat the supply as MISSING.
+   *
+   * @generated from enum value: SUPPLY_UNSPECIFIED = 0;
+   */
+  SUPPLY_UNSPECIFIED = 0,
+
+  /**
+   * The supply was read from Polyester chain recently and is current.
+   *
+   * @generated from enum value: AVAILABLE = 1;
+   */
+  AVAILABLE = 1,
+
+  /**
+   * The supply value is the last one read, but it has not been refreshed for
+   * longer than expected and may no longer be accurate. Do not size a
+   * withdrawal against it as if it were current.
+   *
+   * @generated from enum value: STALE = 2;
+   */
+  STALE = 2,
+
+  /**
+   * No supply is known for the route yet. No supply value or observation
+   * time is sent; do not treat the route's supply as zero.
+   *
+   * @generated from enum value: MISSING = 3;
+   */
+  MISSING = 3,
+}
+
+/**
+ * Describes the enum chain.zipper.v1.SupplyStatus.
+ */
+export const SupplyStatusSchema: GenEnum<SupplyStatus> = /*@__PURE__*/
+  enumDesc(file_chain_zipper_v1_zipper, 2);
 
 /**
  * ZipperService exposes deposit and withdraw chain configuration.

@@ -2,8 +2,8 @@
 // @generated from file marketdata/v1/asset_info.proto (package marketdata.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
+import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { Message } from "@bufbuild/protobuf";
@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file marketdata/v1/asset_info.proto.
  */
 export const file_marketdata_v1_asset_info: GenFile = /*@__PURE__*/
-  fileDesc("Ch5tYXJrZXRkYXRhL3YxL2Fzc2V0X2luZm8ucHJvdG8SDW1hcmtldGRhdGEudjEiMwoPQXNzZXRJc3N1ZVByaWNlEg4KBmFtb3VudBgBIAEoCRIQCghjdXJyZW5jeRgCIAEoCSKEAgoSQXNzZXRFZGl0b3JpYWxJbmZvEhMKC2Rlc2NyaXB0aW9uGAEgASgJEhMKC3dlYnNpdGVfdXJsGAIgASgJEhYKDndoaXRlcGFwZXJfdXJsGAMgASgJEhUKDWV4cGxvcmVyX3VybHMYBCADKAkSDQoFeF91cmwYBSABKAkSFAoMdGVsZWdyYW1fdXJsGAYgASgJEhMKC2Rpc2NvcmRfdXJsGAcgASgJEhIKCmdpdGh1Yl91cmwYCCABKAkSEgoKaXNzdWVfZGF0ZRgJIAEoCRIzCgtpc3N1ZV9wcmljZRgKIAEoCzIeLm1hcmtldGRhdGEudjEuQXNzZXRJc3N1ZVByaWNlIo0BCglBc3NldEluZm8SEAoIYXNzZXRfaWQYASABKA0SNAoJZWRpdG9yaWFsGAIgASgLMiEubWFya2V0ZGF0YS52MS5Bc3NldEVkaXRvcmlhbEluZm8SOAoUZWRpdG9yaWFsX3VwZGF0ZWRfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIisKFExpc3RBc3NldEluZm9SZXF1ZXN0EhMKCWFzc2V0X2lkcxgBIAMoDUIAIkUKFUxpc3RBc3NldEluZm9SZXNwb25zZRIsCgphc3NldF9pbmZvGAEgAygLMhgubWFya2V0ZGF0YS52MS5Bc3NldEluZm9CSFpGZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9tYXJrZXRkYXRhL3YxO21hcmtldGRhdGF2MWIGcHJvdG8z", [file_google_protobuf_timestamp]);
+  fileDesc("Ch5tYXJrZXRkYXRhL3YxL2Fzc2V0X2luZm8ucHJvdG8SDW1hcmtldGRhdGEudjEiMwoPQXNzZXRJc3N1ZVByaWNlEg4KBmFtb3VudBgBIAEoCRIQCghjdXJyZW5jeRgCIAEoCSKEAgoSQXNzZXRFZGl0b3JpYWxJbmZvEhMKC2Rlc2NyaXB0aW9uGAEgASgJEhMKC3dlYnNpdGVfdXJsGAIgASgJEhYKDndoaXRlcGFwZXJfdXJsGAMgASgJEhUKDWV4cGxvcmVyX3VybHMYBCADKAkSDQoFeF91cmwYBSABKAkSFAoMdGVsZWdyYW1fdXJsGAYgASgJEhMKC2Rpc2NvcmRfdXJsGAcgASgJEhIKCmdpdGh1Yl91cmwYCCABKAkSEgoKaXNzdWVfZGF0ZRgJIAEoCRIzCgtpc3N1ZV9wcmljZRgKIAEoCzIeLm1hcmtldGRhdGEudjEuQXNzZXRJc3N1ZVByaWNlInwKEEFzc2V0TWFya2V0VmFsdWUSDQoFdmFsdWUYASABKAkSLgoGc291cmNlGAIgASgOMh4ubWFya2V0ZGF0YS52MS5Bc3NldERhdGFTb3VyY2USKQoFYXNfb2YYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wImwKD0Fzc2V0TWFya2V0RmxhZxIuCgZzb3VyY2UYASABKA4yHi5tYXJrZXRkYXRhLnYxLkFzc2V0RGF0YVNvdXJjZRIpCgVhc19vZhgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiqAMKEEFzc2V0TWFya2V0U3RhdHMSOwoSY2lyY3VsYXRpbmdfc3VwcGx5GAEgASgLMh8ubWFya2V0ZGF0YS52MS5Bc3NldE1hcmtldFZhbHVlEjUKDHRvdGFsX3N1cHBseRgCIAEoCzIfLm1hcmtldGRhdGEudjEuQXNzZXRNYXJrZXRWYWx1ZRIzCgptYXhfc3VwcGx5GAMgASgLMh8ubWFya2V0ZGF0YS52MS5Bc3NldE1hcmtldFZhbHVlEjwKFG1heF9zdXBwbHlfdW5saW1pdGVkGAQgASgLMh4ubWFya2V0ZGF0YS52MS5Bc3NldE1hcmtldEZsYWcSNwoObWFya2V0X2NhcF91c2QYBSABKAsyHy5tYXJrZXRkYXRhLnYxLkFzc2V0TWFya2V0VmFsdWUSRQocZnVsbHlfZGlsdXRlZF9tYXJrZXRfY2FwX3VzZBgGIAEoCzIfLm1hcmtldGRhdGEudjEuQXNzZXRNYXJrZXRWYWx1ZRItCgRyYW5rGAcgASgLMh8ubWFya2V0ZGF0YS52MS5Bc3NldE1hcmtldFZhbHVlIsQBCglBc3NldEluZm8SEAoIYXNzZXRfaWQYASABKA0SNAoJZWRpdG9yaWFsGAIgASgLMiEubWFya2V0ZGF0YS52MS5Bc3NldEVkaXRvcmlhbEluZm8SOAoUZWRpdG9yaWFsX3VwZGF0ZWRfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjUKDG1hcmtldF9zdGF0cxgEIAEoCzIfLm1hcmtldGRhdGEudjEuQXNzZXRNYXJrZXRTdGF0cyIrChRMaXN0QXNzZXRJbmZvUmVxdWVzdBITCglhc3NldF9pZHMYASADKA1CACJFChVMaXN0QXNzZXRJbmZvUmVzcG9uc2USLAoKYXNzZXRfaW5mbxgBIAMoCzIYLm1hcmtldGRhdGEudjEuQXNzZXRJbmZvKksKD0Fzc2V0RGF0YVNvdXJjZRIWChJTT1VSQ0VfVU5TUEVDSUZJRUQQABIRCg1DT0lOTUFSS0VUQ0FQEAESDQoJUE9MWUVTVEVSEAJCSFpGZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9tYXJrZXRkYXRhL3YxO21hcmtldGRhdGF2MWIGcHJvdG8z", [file_google_protobuf_timestamp]);
 
 /**
  * AssetIssuePrice is a known launch price in US dollars, including zero.
@@ -128,6 +128,139 @@ export const AssetEditorialInfoSchema: GenMessage<AssetEditorialInfo> = /*@__PUR
   messageDesc(file_marketdata_v1_asset_info, 1);
 
 /**
+ * AssetMarketValue is one market datapoint with its source and observation time.
+ *
+ * @generated from message marketdata.v1.AssetMarketValue
+ */
+export type AssetMarketValue = Message<"marketdata.v1.AssetMarketValue"> & {
+  /**
+   * Nonnegative decimal string without sign or exponent, at most 64 characters.
+   *
+   * @generated from field: string value = 1;
+   */
+  value: string;
+
+  /**
+   * Who supplied the value.
+   *
+   * @generated from field: marketdata.v1.AssetDataSource source = 2;
+   */
+  source: AssetDataSource;
+
+  /**
+   * When the source last observed or set the value, in UTC. Older values stay
+   * until a newer observation replaces them, so show this time with the value.
+   *
+   * @generated from field: google.protobuf.Timestamp as_of = 3;
+   */
+  asOf?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message marketdata.v1.AssetMarketValue.
+ * Use `create(AssetMarketValueSchema)` to create a new message.
+ */
+export const AssetMarketValueSchema: GenMessage<AssetMarketValue> = /*@__PURE__*/
+  messageDesc(file_marketdata_v1_asset_info, 2);
+
+/**
+ * AssetMarketFlag is a market fact that holds when present, with its source
+ * and observation time.
+ *
+ * @generated from message marketdata.v1.AssetMarketFlag
+ */
+export type AssetMarketFlag = Message<"marketdata.v1.AssetMarketFlag"> & {
+  /**
+   * Who reported the fact.
+   *
+   * @generated from field: marketdata.v1.AssetDataSource source = 1;
+   */
+  source: AssetDataSource;
+
+  /**
+   * When the source last observed the fact, in UTC.
+   *
+   * @generated from field: google.protobuf.Timestamp as_of = 2;
+   */
+  asOf?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message marketdata.v1.AssetMarketFlag.
+ * Use `create(AssetMarketFlagSchema)` to create a new message.
+ */
+export const AssetMarketFlagSchema: GenMessage<AssetMarketFlag> = /*@__PURE__*/
+  messageDesc(file_marketdata_v1_asset_info, 3);
+
+/**
+ * AssetMarketStats contains market datapoints for an asset.
+ * An absent value is unknown and may be hidden by clients.
+ *
+ * @generated from message marketdata.v1.AssetMarketStats
+ */
+export type AssetMarketStats = Message<"marketdata.v1.AssetMarketStats"> & {
+  /**
+   * Coins circulating in the market and in public hands, in asset units.
+   *
+   * @generated from field: marketdata.v1.AssetMarketValue circulating_supply = 1;
+   */
+  circulatingSupply?: AssetMarketValue | undefined;
+
+  /**
+   * Coins in existence now, minus any verifiably burned, in asset units.
+   *
+   * @generated from field: marketdata.v1.AssetMarketValue total_supply = 2;
+   */
+  totalSupply?: AssetMarketValue | undefined;
+
+  /**
+   * Maximum coins that will ever exist, in asset units. Absent when unknown or
+   * when max_supply_unlimited is present.
+   *
+   * @generated from field: marketdata.v1.AssetMarketValue max_supply = 3;
+   */
+  maxSupply?: AssetMarketValue | undefined;
+
+  /**
+   * Present when the source reports no maximum supply; max_supply is then
+   * absent. Absent when a maximum is known or when it is unknown.
+   *
+   * @generated from field: marketdata.v1.AssetMarketFlag max_supply_unlimited = 4;
+   */
+  maxSupplyUnlimited?: AssetMarketFlag | undefined;
+
+  /**
+   * Price multiplied by circulating supply, in US dollars.
+   *
+   * @generated from field: marketdata.v1.AssetMarketValue market_cap_usd = 5;
+   */
+  marketCapUsd?: AssetMarketValue | undefined;
+
+  /**
+   * Price multiplied by maximum supply, or by total supply when the maximum is
+   * unknown or unlimited, in US dollars.
+   *
+   * @generated from field: marketdata.v1.AssetMarketValue fully_diluted_market_cap_usd = 6;
+   */
+  fullyDilutedMarketCapUsd?: AssetMarketValue | undefined;
+
+  /**
+   * Market capitalization rank among all listed coins as a positive integer
+   * string, where 1 is the largest.
+   *
+   * @generated from field: marketdata.v1.AssetMarketValue rank = 7;
+   */
+  rank?: AssetMarketValue | undefined;
+};
+
+/**
+ * Describes the message marketdata.v1.AssetMarketStats.
+ * Use `create(AssetMarketStatsSchema)` to create a new message.
+ */
+export const AssetMarketStatsSchema: GenMessage<AssetMarketStats> = /*@__PURE__*/
+  messageDesc(file_marketdata_v1_asset_info, 4);
+
+/**
  * AssetInfo is independently loaded asset information.
  *
  * @generated from message marketdata.v1.AssetInfo
@@ -141,18 +274,25 @@ export type AssetInfo = Message<"marketdata.v1.AssetInfo"> & {
   assetId: number;
 
   /**
-   * Team-maintained asset information.
+   * Team-maintained asset information. Empty when never edited.
    *
    * @generated from field: marketdata.v1.AssetEditorialInfo editorial = 2;
    */
   editorial?: AssetEditorialInfo | undefined;
 
   /**
-   * Time of the last effective editorial change, in UTC.
+   * Time of the last effective editorial change, in UTC. Absent when never edited.
    *
    * @generated from field: google.protobuf.Timestamp editorial_updated_at = 3;
    */
   editorialUpdatedAt?: Timestamp | undefined;
+
+  /**
+   * Market datapoints; absent when the asset has none.
+   *
+   * @generated from field: marketdata.v1.AssetMarketStats market_stats = 4;
+   */
+  marketStats?: AssetMarketStats | undefined;
 };
 
 /**
@@ -160,7 +300,7 @@ export type AssetInfo = Message<"marketdata.v1.AssetInfo"> & {
  * Use `create(AssetInfoSchema)` to create a new message.
  */
 export const AssetInfoSchema: GenMessage<AssetInfo> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_asset_info, 2);
+  messageDesc(file_marketdata_v1_asset_info, 5);
 
 /**
  * ListAssetInfoRequest selects a finite asset information snapshot.
@@ -182,11 +322,12 @@ export type ListAssetInfoRequest = Message<"marketdata.v1.ListAssetInfoRequest">
  * Use `create(ListAssetInfoRequestSchema)` to create a new message.
  */
 export const ListAssetInfoRequestSchema: GenMessage<ListAssetInfoRequest> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_asset_info, 3);
+  messageDesc(file_marketdata_v1_asset_info, 6);
 
 /**
- * ListAssetInfoResponse contains assets with saved editorial information.
- * Assets never edited are omitted. Cleared information retains an empty entry.
+ * ListAssetInfoResponse contains assets with saved editorial information or
+ * market datapoints. Other assets are omitted. Cleared editorial information
+ * retains an empty entry.
  *
  * @generated from message marketdata.v1.ListAssetInfoResponse
  */
@@ -204,5 +345,39 @@ export type ListAssetInfoResponse = Message<"marketdata.v1.ListAssetInfoResponse
  * Use `create(ListAssetInfoResponseSchema)` to create a new message.
  */
 export const ListAssetInfoResponseSchema: GenMessage<ListAssetInfoResponse> = /*@__PURE__*/
-  messageDesc(file_marketdata_v1_asset_info, 4);
+  messageDesc(file_marketdata_v1_asset_info, 7);
+
+/**
+ * AssetDataSource identifies who supplied a market value.
+ *
+ * @generated from enum marketdata.v1.AssetDataSource
+ */
+export enum AssetDataSource {
+  /**
+   * Not set. Never sent for a present value.
+   *
+   * @generated from enum value: SOURCE_UNSPECIFIED = 0;
+   */
+  SOURCE_UNSPECIFIED = 0,
+
+  /**
+   * Supplied by CoinMarketCap. Show "Source: CoinMarketCap" with the value.
+   *
+   * @generated from enum value: COINMARKETCAP = 1;
+   */
+  COINMARKETCAP = 1,
+
+  /**
+   * Set by the Polyester team.
+   *
+   * @generated from enum value: POLYESTER = 2;
+   */
+  POLYESTER = 2,
+}
+
+/**
+ * Describes the enum marketdata.v1.AssetDataSource.
+ */
+export const AssetDataSourceSchema: GenEnum<AssetDataSource> = /*@__PURE__*/
+  enumDesc(file_marketdata_v1_asset_info, 0);
 

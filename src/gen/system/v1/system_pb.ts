@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file system/v1/system.proto.
  */
 export const file_system_v1_system: GenFile = /*@__PURE__*/
-  fileDesc("ChZzeXN0ZW0vdjEvc3lzdGVtLnByb3RvEglzeXN0ZW0udjEiEwoRR2V0VmVyc2lvblJlcXVlc3QiUAoSR2V0VmVyc2lvblJlc3BvbnNlEhEKB3ZlcnNpb24YASABKAlCABIQCgZjb21taXQYAiABKAlCABIVCgtlbnZpcm9ubWVudBgDIAEoCUIAImAKEVN0YXR1c0V2ZW50VXBkYXRlEgoKAmlkGAEgASgNEg8KB21lc3NhZ2UYAiABKAkSLgoKY3JlYXRlZF9hdBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAipQQKC1N0YXR1c0V2ZW50EgoKAmlkGAEgASgGEigKBGtpbmQYAiABKA4yGi5zeXN0ZW0udjEuU3RhdHVzRXZlbnRLaW5kEioKBXN0YXRlGAMgASgOMhsuc3lzdGVtLnYxLlN0YXR1c0V2ZW50U3RhdGUSDQoFdGl0bGUYBCABKAkSDwoHbWVzc2FnZRgFIAEoCRIuCgpzdGFydF90aW1lGAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIc2VydmljZXMYCCADKA4yGi5zeXN0ZW0udjEuQWZmZWN0ZWRTZXJ2aWNlEg8KB21hcmtldHMYCSADKAkSLgoKdXBkYXRlZF9hdBgKIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoGaW1wYWN0GAsgASgOMhwuc3lzdGVtLnYxLlN0YXR1c0V2ZW50SW1wYWN0Eg4KBmFzc2V0cxgMIAMoCRIwCgxjYW5jZWxsZWRfYXQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi0KB3VwZGF0ZXMYDiADKAsyHC5zeXN0ZW0udjEuU3RhdHVzRXZlbnRVcGRhdGUSGAoLZGV0YWlsc191cmwYDyABKAlIAIgBAUIOCgxfZGV0YWlsc191cmwinAEKF0xpc3RTdGF0dXNFdmVudHNSZXF1ZXN0Ei0KBnN0YXRlcxgBIAMoDjIbLnN5c3RlbS52MS5TdGF0dXNFdmVudFN0YXRlQgASKwoFa2luZHMYAiADKA4yGi5zeXN0ZW0udjEuU3RhdHVzRXZlbnRLaW5kQgASDwoFbGltaXQYAyABKA1CABIUCgpwYWdlX3Rva2VuGAQgASgJQgAiWwoYTGlzdFN0YXR1c0V2ZW50c1Jlc3BvbnNlEiYKBmV2ZW50cxgBIAMoCzIWLnN5c3RlbS52MS5TdGF0dXNFdmVudBIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkqRgoPU3RhdHVzRXZlbnRLaW5kEhQKEEtJTkRfVU5TUEVDSUZJRUQQABIPCgtNQUlOVEVOQU5DRRABEgwKCElOQ0lERU5UEAIqZwoQU3RhdHVzRXZlbnRTdGF0ZRIVChFTVEFURV9VTlNQRUNJRklFRBAAEg0KCVNDSEVEVUxFRBABEg8KC0lOX1BST0dSRVNTEAISDQoJQ09NUExFVEVEEAMSDQoJQ0FOQ0VMTEVEEAQqXwoRU3RhdHVzRXZlbnRJbXBhY3QSFgoSSU1QQUNUX1VOU1BFQ0lGSUVEEAASDAoIREVHUkFERUQQARISCg5QQVJUSUFMX09VVEFHRRACEhAKDE1BSk9SX09VVEFHRRADKqUBCg9BZmZlY3RlZFNlcnZpY2USFwoTU0VSVklDRV9VTlNQRUNJRklFRBAAEgsKB1RSQURJTkcQARIPCgtNQVJLRVRfREFUQRACEgwKCERFUE9TSVRTEAMSDwoLV0lUSERSQVdBTFMQBBINCglUUkFOU0ZFUlMQBRIMCghBQ0NPVU5UUxAGEgcKA0FQSRAHEg0KCVFVSUNLU1dBUBAIEgcKA0FQUBAJMsMBCg1TeXN0ZW1TZXJ2aWNlEk4KCkdldFZlcnNpb24SHC5zeXN0ZW0udjEuR2V0VmVyc2lvblJlcXVlc3QaHS5zeXN0ZW0udjEuR2V0VmVyc2lvblJlc3BvbnNlIgOQAgESYAoQTGlzdFN0YXR1c0V2ZW50cxIiLnN5c3RlbS52MS5MaXN0U3RhdHVzRXZlbnRzUmVxdWVzdBojLnN5c3RlbS52MS5MaXN0U3RhdHVzRXZlbnRzUmVzcG9uc2UiA5ACARoAQkBaPmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vc3lzdGVtL3YxO3N5c3RlbXYxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChZzeXN0ZW0vdjEvc3lzdGVtLnByb3RvEglzeXN0ZW0udjEiEwoRR2V0VmVyc2lvblJlcXVlc3QiUAoSR2V0VmVyc2lvblJlc3BvbnNlEhEKB3ZlcnNpb24YASABKAlCABIQCgZjb21taXQYAiABKAlCABIVCgtlbnZpcm9ubWVudBgDIAEoCUIAIhAKDkdldFRpbWVSZXF1ZXN0IikKD0dldFRpbWVSZXNwb25zZRIWCg5zZXJ2ZXJfdGltZV9tcxgBIAEoAyJgChFTdGF0dXNFdmVudFVwZGF0ZRIKCgJpZBgBIAEoDRIPCgdtZXNzYWdlGAIgASgJEi4KCmNyZWF0ZWRfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIqUECgtTdGF0dXNFdmVudBIKCgJpZBgBIAEoBhIoCgRraW5kGAIgASgOMhouc3lzdGVtLnYxLlN0YXR1c0V2ZW50S2luZBIqCgVzdGF0ZRgDIAEoDjIbLnN5c3RlbS52MS5TdGF0dXNFdmVudFN0YXRlEg0KBXRpdGxlGAQgASgJEg8KB21lc3NhZ2UYBSABKAkSLgoKc3RhcnRfdGltZRgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCHNlcnZpY2VzGAggAygOMhouc3lzdGVtLnYxLkFmZmVjdGVkU2VydmljZRIPCgdtYXJrZXRzGAkgAygJEi4KCnVwZGF0ZWRfYXQYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKBmltcGFjdBgLIAEoDjIcLnN5c3RlbS52MS5TdGF0dXNFdmVudEltcGFjdBIOCgZhc3NldHMYDCADKAkSMAoMY2FuY2VsbGVkX2F0GA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBItCgd1cGRhdGVzGA4gAygLMhwuc3lzdGVtLnYxLlN0YXR1c0V2ZW50VXBkYXRlEhgKC2RldGFpbHNfdXJsGA8gASgJSACIAQFCDgoMX2RldGFpbHNfdXJsIpwBChdMaXN0U3RhdHVzRXZlbnRzUmVxdWVzdBItCgZzdGF0ZXMYASADKA4yGy5zeXN0ZW0udjEuU3RhdHVzRXZlbnRTdGF0ZUIAEisKBWtpbmRzGAIgAygOMhouc3lzdGVtLnYxLlN0YXR1c0V2ZW50S2luZEIAEg8KBWxpbWl0GAMgASgNQgASFAoKcGFnZV90b2tlbhgEIAEoCUIAIlsKGExpc3RTdGF0dXNFdmVudHNSZXNwb25zZRImCgZldmVudHMYASADKAsyFi5zeXN0ZW0udjEuU3RhdHVzRXZlbnQSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJKkYKD1N0YXR1c0V2ZW50S2luZBIUChBLSU5EX1VOU1BFQ0lGSUVEEAASDwoLTUFJTlRFTkFOQ0UQARIMCghJTkNJREVOVBACKmcKEFN0YXR1c0V2ZW50U3RhdGUSFQoRU1RBVEVfVU5TUEVDSUZJRUQQABINCglTQ0hFRFVMRUQQARIPCgtJTl9QUk9HUkVTUxACEg0KCUNPTVBMRVRFRBADEg0KCUNBTkNFTExFRBAEKl8KEVN0YXR1c0V2ZW50SW1wYWN0EhYKEklNUEFDVF9VTlNQRUNJRklFRBAAEgwKCERFR1JBREVEEAESEgoOUEFSVElBTF9PVVRBR0UQAhIQCgxNQUpPUl9PVVRBR0UQAyqlAQoPQWZmZWN0ZWRTZXJ2aWNlEhcKE1NFUlZJQ0VfVU5TUEVDSUZJRUQQABILCgdUUkFESU5HEAESDwoLTUFSS0VUX0RBVEEQAhIMCghERVBPU0lUUxADEg8KC1dJVEhEUkFXQUxTEAQSDQoJVFJBTlNGRVJTEAUSDAoIQUNDT1VOVFMQBhIHCgNBUEkQBxINCglRVUlDS1NXQVAQCBIHCgNBUFAQCTKKAgoNU3lzdGVtU2VydmljZRJOCgpHZXRWZXJzaW9uEhwuc3lzdGVtLnYxLkdldFZlcnNpb25SZXF1ZXN0Gh0uc3lzdGVtLnYxLkdldFZlcnNpb25SZXNwb25zZSIDkAIBEkUKB0dldFRpbWUSGS5zeXN0ZW0udjEuR2V0VGltZVJlcXVlc3QaGi5zeXN0ZW0udjEuR2V0VGltZVJlc3BvbnNlIgOQAgESYAoQTGlzdFN0YXR1c0V2ZW50cxIiLnN5c3RlbS52MS5MaXN0U3RhdHVzRXZlbnRzUmVxdWVzdBojLnN5c3RlbS52MS5MaXN0U3RhdHVzRXZlbnRzUmVzcG9uc2UiA5ACARoAQkBaPmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vc3lzdGVtL3YxO3N5c3RlbXYxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * GetVersionRequest takes no parameters.
@@ -72,6 +72,44 @@ export const GetVersionResponseSchema: GenMessage<GetVersionResponse> = /*@__PUR
   messageDesc(file_system_v1_system, 1);
 
 /**
+ * GetTimeRequest takes no parameters.
+ *
+ * @generated from message system.v1.GetTimeRequest
+ */
+export type GetTimeRequest = Message<"system.v1.GetTimeRequest"> & {
+};
+
+/**
+ * Describes the message system.v1.GetTimeRequest.
+ * Use `create(GetTimeRequestSchema)` to create a new message.
+ */
+export const GetTimeRequestSchema: GenMessage<GetTimeRequest> = /*@__PURE__*/
+  messageDesc(file_system_v1_system, 2);
+
+/**
+ * GetTimeResponse carries the server clock.
+ *
+ * @generated from message system.v1.GetTimeResponse
+ */
+export type GetTimeResponse = Message<"system.v1.GetTimeResponse"> & {
+  /**
+   * Server time when the request was answered, in milliseconds since the Unix
+   * epoch (UTC). The clock that checks the X-API-TIMESTAMP of requests signed
+   * with an API key.
+   *
+   * @generated from field: int64 server_time_ms = 1;
+   */
+  serverTimeMs: bigint;
+};
+
+/**
+ * Describes the message system.v1.GetTimeResponse.
+ * Use `create(GetTimeResponseSchema)` to create a new message.
+ */
+export const GetTimeResponseSchema: GenMessage<GetTimeResponse> = /*@__PURE__*/
+  messageDesc(file_system_v1_system, 3);
+
+/**
  * StatusEventUpdate is one progress note posted on a status event. Notes are
  * never edited or removed.
  *
@@ -106,7 +144,7 @@ export type StatusEventUpdate = Message<"system.v1.StatusEventUpdate"> & {
  * Use `create(StatusEventUpdateSchema)` to create a new message.
  */
 export const StatusEventUpdateSchema: GenMessage<StatusEventUpdate> = /*@__PURE__*/
-  messageDesc(file_system_v1_system, 2);
+  messageDesc(file_system_v1_system, 4);
 
 /**
  * StatusEvent is one scheduled maintenance or incident.
@@ -235,7 +273,7 @@ export type StatusEvent = Message<"system.v1.StatusEvent"> & {
  * Use `create(StatusEventSchema)` to create a new message.
  */
 export const StatusEventSchema: GenMessage<StatusEvent> = /*@__PURE__*/
-  messageDesc(file_system_v1_system, 3);
+  messageDesc(file_system_v1_system, 5);
 
 /**
  * ListStatusEventsRequest selects status events. Filters on different fields
@@ -283,7 +321,7 @@ export type ListStatusEventsRequest = Message<"system.v1.ListStatusEventsRequest
  * Use `create(ListStatusEventsRequestSchema)` to create a new message.
  */
 export const ListStatusEventsRequestSchema: GenMessage<ListStatusEventsRequest> = /*@__PURE__*/
-  messageDesc(file_system_v1_system, 4);
+  messageDesc(file_system_v1_system, 6);
 
 /**
  * ListStatusEventsResponse returns matching status events.
@@ -312,7 +350,7 @@ export type ListStatusEventsResponse = Message<"system.v1.ListStatusEventsRespon
  * Use `create(ListStatusEventsResponseSchema)` to create a new message.
  */
 export const ListStatusEventsResponseSchema: GenMessage<ListStatusEventsResponse> = /*@__PURE__*/
-  messageDesc(file_system_v1_system, 5);
+  messageDesc(file_system_v1_system, 7);
 
 /**
  * StatusEventKind classifies a status event.
@@ -541,6 +579,22 @@ export const SystemService: GenService<{
     methodKind: "unary";
     input: typeof GetVersionRequestSchema;
     output: typeof GetVersionResponseSchema;
+  },
+  /**
+   * Get the server time in milliseconds since the Unix epoch. A request signed
+   * with an API key is accepted only while its X-API-TIMESTAMP is at most 1000
+   * ms ahead of the server time and at most its receive window behind it: the
+   * X-API-RECV-WINDOW header, from 1 to 60000 ms, or 5000 ms when omitted.
+   * Otherwise it is refused unprocessed with TIMESTAMP_SKEW, which carries the
+   * server time and the window too. Clients measure their clock's offset from
+   * this time, allowing for half the round trip. Answers are never cached.
+   *
+   * @generated from rpc system.v1.SystemService.GetTime
+   */
+  getTime: {
+    methodKind: "unary";
+    input: typeof GetTimeRequestSchema;
+    output: typeof GetTimeResponseSchema;
   },
   /**
    * List scheduled maintenance and incidents, the latest start first. With no

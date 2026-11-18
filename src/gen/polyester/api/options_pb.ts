@@ -11,7 +11,7 @@ import { file_google_protobuf_descriptor } from "@bufbuild/protobuf/wkt";
  * Describes the file polyester/api/options.proto.
  */
 export const file_polyester_api_options: GenFile = /*@__PURE__*/
-  fileDesc("Chtwb2x5ZXN0ZXIvYXBpL29wdGlvbnMucHJvdG8SDXBvbHllc3Rlci5hcGkqYQoOTUZBUmVxdWlyZW1lbnQSEwoPTUZBX1VOU1BFQ0lGSUVEEAASDgoKTUZBX1JFQ0VOVBABEhUKEU1GQV9GUkVTSF9TVEVQX1VQEAISEwoPTUZBX0NPTkRJVElPTkFMEAMqYAoUQXV0aGVudGljYXRpb25NZXRob2QSFAoQQVVUSF9VTlNQRUNJRklFRBAAEhEKDVNFU1NJT05fVE9LRU4QARILCgdBUElfS0VZEAISEgoOQlJPS0VSX0FQSV9LRVkQAzo4CgZwdWJsaWMSHi5nb29nbGUucHJvdG9idWYuTWV0aG9kT3B0aW9ucxjRhgMgASgIUgZwdWJsaWM6OAoGaGlkZGVuEh4uZ29vZ2xlLnByb3RvYnVmLk1ldGhvZE9wdGlvbnMY0oYDIAEoCFIGaGlkZGVuOmgKD21mYV9yZXF1aXJlbWVudBIeLmdvb2dsZS5wcm90b2J1Zi5NZXRob2RPcHRpb25zGNOGAyABKA4yHS5wb2x5ZXN0ZXIuYXBpLk1GQVJlcXVpcmVtZW50Ug5tZmFSZXF1aXJlbWVudDp8ChZhdXRoZW50aWNhdGlvbl9tZXRob2RzEh4uZ29vZ2xlLnByb3RvYnVmLk1ldGhvZE9wdGlvbnMY1IYDIAMoDjIjLnBvbHllc3Rlci5hcGkuQXV0aGVudGljYXRpb25NZXRob2RSFWF1dGhlbnRpY2F0aW9uTWV0aG9kczpACgpkb2NzX2dyb3VwEh8uZ29vZ2xlLnByb3RvYnVmLlNlcnZpY2VPcHRpb25zGNGGAyABKAlSCWRvY3NHcm91cEJKWkhnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL3BvbHllc3Rlci9hcGk7cG9seWVzdGVyYXBpdjFiBnByb3RvMw==", [file_google_protobuf_descriptor]);
+  fileDesc("Chtwb2x5ZXN0ZXIvYXBpL29wdGlvbnMucHJvdG8SDXBvbHllc3Rlci5hcGkqYQoOTUZBUmVxdWlyZW1lbnQSEwoPTUZBX1VOU1BFQ0lGSUVEEAASDgoKTUZBX1JFQ0VOVBABEhUKEU1GQV9GUkVTSF9TVEVQX1VQEAISEwoPTUZBX0NPTkRJVElPTkFMEAMqYAoUQXV0aGVudGljYXRpb25NZXRob2QSFAoQQVVUSF9VTlNQRUNJRklFRBAAEhEKDVNFU1NJT05fVE9LRU4QARILCgdBUElfS0VZEAISEgoOQlJPS0VSX0FQSV9LRVkQAzo4CgZwdWJsaWMSHi5nb29nbGUucHJvdG9idWYuTWV0aG9kT3B0aW9ucxjRhgMgASgIUgZwdWJsaWM6OAoGaGlkZGVuEh4uZ29vZ2xlLnByb3RvYnVmLk1ldGhvZE9wdGlvbnMY0oYDIAEoCFIGaGlkZGVuOmgKD21mYV9yZXF1aXJlbWVudBIeLmdvb2dsZS5wcm90b2J1Zi5NZXRob2RPcHRpb25zGNOGAyABKA4yHS5wb2x5ZXN0ZXIuYXBpLk1GQVJlcXVpcmVtZW50Ug5tZmFSZXF1aXJlbWVudDp8ChZhdXRoZW50aWNhdGlvbl9tZXRob2RzEh4uZ29vZ2xlLnByb3RvYnVmLk1ldGhvZE9wdGlvbnMY1IYDIAMoDjIjLnBvbHllc3Rlci5hcGkuQXV0aGVudGljYXRpb25NZXRob2RSFWF1dGhlbnRpY2F0aW9uTWV0aG9kczpBCgtlcnJvcl9jb2RlcxIeLmdvb2dsZS5wcm90b2J1Zi5NZXRob2RPcHRpb25zGNWGAyADKAlSCmVycm9yQ29kZXM6QAoKZG9jc19ncm91cBIfLmdvb2dsZS5wcm90b2J1Zi5TZXJ2aWNlT3B0aW9ucxjRhgMgASgJUglkb2NzR3JvdXBCSlpIZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9wb2x5ZXN0ZXIvYXBpO3BvbHllc3RlcmFwaXYxYgZwcm90bzM=", [file_google_protobuf_descriptor]);
 
 /**
  * MFARequirement describes the interactive MFA assurance documented for an RPC.
@@ -132,6 +132,17 @@ export const authentication_methods: GenExtension<MethodOptions, AuthenticationM
   extDesc(file_polyester_api_options, 3);
 
 /**
+ * Domain error codes this RPC can return, as value names of its package's
+ * error code enum, for example "AMOUNT_OUT_OF_RANGE". The API reference
+ * lists them, with the transport errors every RPC can return, as the RPC's
+ * possible errors. This metadata does not affect runtime payloads.
+ *
+ * @generated from extension: repeated string error_codes = 50005;
+ */
+export const error_codes: GenExtension<MethodOptions, string[]> = /*@__PURE__*/
+  extDesc(file_polyester_api_options, 4);
+
+/**
  * Identifier of the API reference section that lists this service, such as
  * "trading", "account", "chain", "marketdata", "quickswap", "rewards",
  * "changelog" or "testnet". This metadata does not affect runtime payloads.
@@ -139,5 +150,5 @@ export const authentication_methods: GenExtension<MethodOptions, AuthenticationM
  * @generated from extension: string docs_group = 50001;
  */
 export const docs_group: GenExtension<ServiceOptions, string> = /*@__PURE__*/
-  extDesc(file_polyester_api_options, 4);
+  extDesc(file_polyester_api_options, 5);
 
