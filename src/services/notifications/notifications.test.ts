@@ -172,6 +172,22 @@ describe("NotificationsService", () => {
         });
     });
 
+    it("formats a Telegram link notice", async () => {
+        const { service } = serviceWith({
+            notification: rawNotification({
+                type: Proto.NotificationType.TELEGRAM_LINKED,
+                category: Proto.NotificationCategory.SECURITY,
+                detail: { case: "telegramLink", value: { linkedAt: ts(1_700_000_060) } },
+            }),
+        });
+
+        expect(await service.get({ notificationId: formatId(501n) })).toMatchObject({
+            type: "telegram_linked",
+            category: "security",
+            detail: { type: "telegram_linked", linkedAt: 1_700_000_060_000 },
+        });
+    });
+
     it("keeps a notification of an unknown type readable through title and text", async () => {
         const { service } = serviceWith({
             notifications: [

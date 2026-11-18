@@ -30,6 +30,7 @@ import {
     PreconditionFailedError,
     RateLimitError,
     RequestDeadlineExceededError,
+    RequestTooLargeError,
     ResourceNotFoundError,
     RevisionConflictError,
     ServiceUnavailableError,
@@ -50,6 +51,9 @@ export const TIMESTAMP_SKEW_CODE = "TIMESTAMP_SKEW";
 
 // The withdraw service has no structured code for this; match its message.
 const WITHDRAW_DEADLINE_EXPIRED_MESSAGE = "deadline_ts_sec has expired";
+
+// A body over the API's size limit arrives as ResourceExhausted with no detail; match its message.
+const REQUEST_TOO_LARGE_MESSAGE = "request too large";
 
 function hasTransientServiceError(detail: PolyesterErrorDetail | undefined): boolean {
     if (detail?.service === "withdraw") {
@@ -230,6 +234,18 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
             ...options,
             retryAfterMs: parseRetryAfterMs(ce),
         });
+    }
+
+    // Not a rate limit: the same request is refused again, so it must not read as retryable.
+    if (
+        ce.code === Code.ResourceExhausted &&
+        !detail &&
+        ce.rawMessage === REQUEST_TOO_LARGE_MESSAGE
+    ) {
+        return new RequestTooLargeError(
+            "Request is over the API's size limit. Send a smaller one.",
+            options,
+        );
     }
 
     // A malformed X-API-RECV-WINDOW arrives as unauthenticated, but the

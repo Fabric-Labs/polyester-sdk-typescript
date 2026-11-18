@@ -104,7 +104,28 @@ describe("AssistantService unary calls", () => {
         });
     });
 
+    it("sends images without text, only while the expected run is the latest", async () => {
+        const { transport, service } = serviceWith({ runId: 7n, conversationId: 8n });
+        const data = new Uint8Array([0x89, 0x50]);
+
+        await service.sendMessage({
+            conversationId: formatId(8n),
+            idempotencyKey: "k",
+            images: [{ data, mimeType: "image/png" }],
+            expectedLatestRunId: formatId(5n),
+        });
+
+        expect(transport.lastCall()?.message).toEqual({
+            conversationId: 8n,
+            idempotencyKey: "k",
+            images: [{ data, mimeType: "image/png" }],
+            expectedLatestRunId: 5n,
+        });
+    });
+
     it.each([
+        [{ idempotencyKey: "k" }],
+        [{ idempotencyKey: "k", images: [] }],
         [{ text: "hi", idempotencyKey: "k", accountSelection: "none" as const, subaccountId: "x" }],
         [{ text: "", idempotencyKey: "k" }],
         [{ text: "hi", idempotencyKey: " " }],
@@ -154,10 +175,19 @@ describe("AssistantService unary calls", () => {
             messages: [
                 {
                     messageId: 2n,
-                    role: Proto.MessageRole.ASSISTANT,
-                    text: "Done",
+                    role: Proto.MessageRole.USER,
+                    text: "What is this?",
                     createdAt: ts(3),
                     runId: 4n,
+                    images: [
+                        {
+                            imageId: 6n,
+                            mimeType: "image/png",
+                            width: 800,
+                            height: 600,
+                            sizeBytes: 1234,
+                        },
+                    ],
                 },
             ],
             memories: [
@@ -185,10 +215,19 @@ describe("AssistantService unary calls", () => {
             messages: [
                 {
                     messageId: formatId(2n),
-                    role: "assistant",
-                    text: "Done",
+                    role: "user",
+                    text: "What is this?",
                     createdAt: 3000,
                     runId: formatId(4n),
+                    images: [
+                        {
+                            imageId: formatId(6n),
+                            mimeType: "image/png",
+                            width: 800,
+                            height: 600,
+                            sizeBytes: 1234,
+                        },
+                    ],
                 },
             ],
             nextPageToken: "next",
@@ -291,6 +330,65 @@ describe("AssistantService unary calls", () => {
         expect(transport.lastCall()?.message).toEqual({ view: Proto.AssistantKeyView.FULL });
         await service.listKeys();
         expect(transport.lastCall()?.message).toEqual({});
+    });
+
+    it("reads a message image", async () => {
+        const data = new Uint8Array([1, 2, 3]);
+        const { transport, service } = serviceWith({ data, mimeType: "image/webp" });
+
+        await expect(service.getMessageImage({ imageId: formatId(6n) })).resolves.toEqual({
+            data,
+            mimeType: "image/webp",
+        });
+        expect(transport.lastCall()?.method.localName).toBe("getMessageImage");
+        expect(transport.lastCall()?.message).toEqual({ imageId: 6n });
+    });
+
+    it("sets, reads and deletes the caller's own model key", async () => {
+        const key = {
+            suffix: "x7Qa",
+            addedAt: ts(1),
+            lastCheck: Proto.ModelKeyCheck.KEY_NO_QUOTA,
+            checkedAt: ts(2),
+        };
+        const formatted = { suffix: "x7Qa", addedAt: 1000, lastCheck: "no_quota", checkedAt: 2000 };
+        const { transport, service } = serviceWith({ key });
+
+        await expect(service.setModelKey({ apiKey: "sk-abc" })).resolves.toEqual(formatted);
+        expect(transport.lastCall()?.message).toEqual({ apiKey: "sk-abc" });
+        await expect(service.getModelKey()).resolves.toEqual(formatted);
+        await service.deleteModelKey();
+        expect(transport.lastCall()?.method.localName).toBe("deleteModelKey");
+
+        await expect(serviceWith({}).service.getModelKey()).resolves.toBeNull();
+        await expect(service.setModelKey({ apiKey: "" })).rejects.toBeInstanceOf(ValidationError);
+    });
+
+    it("reads credit usage, an unknown funding mode as credits", async () => {
+        const { service } = serviceWith({
+            fundingMode: Proto.FundingMode.OWN_KEY,
+            vipTier: 0,
+            freeCredits: 100n,
+            freeCreditsUsed: 120n,
+            freeCreditsLeft: 0n,
+            resetsAt: ts(86_400),
+            nextTier: { vipTier: 1, dailyFreeCredits: 200n },
+        });
+
+        await expect(service.getUsage()).resolves.toEqual({
+            fundingMode: "own_key",
+            vipTier: 0,
+            freeCredits: 100,
+            freeCreditsUsed: 120,
+            freeCreditsLeft: 0,
+            resetsAt: 86_400_000,
+            nextTier: { vipTier: 1, dailyFreeCredits: 200 },
+        });
+        await expect(serviceWith({ fundingMode: 3 }).service.getUsage()).resolves.toMatchObject({
+            fundingMode: "credits",
+            vipTier: undefined,
+            nextTier: undefined,
+        });
     });
 
     it("reads Telegram approval limits, absent limits as null", async () => {

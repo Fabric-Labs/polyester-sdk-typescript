@@ -15,6 +15,15 @@ export const WITHDRAW_DESTINATION_VALIDATION_CODE_VALUES = [
 export type WithdrawDestinationValidationCodeValue =
     (typeof WITHDRAW_DESTINATION_VALIDATION_CODE_VALUES)[number];
 
+export const WALLET_ASSET_UNAVAILABLE_REASON_VALUES = [
+    "no_contract",
+    "read_failed",
+    "invalid_balance",
+] as const;
+/** Why a zToken balance could not be read. */
+export type WalletAssetUnavailableReasonValue =
+    (typeof WALLET_ASSET_UNAVAILABLE_REASON_VALUES)[number];
+
 export const TradingWithdrawActionCodec = {
     inputToProto: {
         to_funding: Proto.TradingWithdrawAction.TO_FUNDING,
@@ -35,5 +44,17 @@ export const WithdrawDestinationValidationCodeCodec = {
     } satisfies ProtoToOutput<
         Proto.WithdrawDestinationValidationCode,
         WithdrawDestinationValidationCodeValue
+    >,
+} as const;
+
+export const WalletAssetUnavailableReasonCodec = {
+    protoToOutput: {
+        [Proto.WalletAssetUnavailableReason.UNAVAILABLE_UNSPECIFIED]: "unspecified",
+        [Proto.WalletAssetUnavailableReason.NO_CONTRACT]: "no_contract",
+        [Proto.WalletAssetUnavailableReason.READ_FAILED]: "read_failed",
+        [Proto.WalletAssetUnavailableReason.INVALID_BALANCE]: "invalid_balance",
+    } satisfies ProtoToOutput<
+        Proto.WalletAssetUnavailableReason,
+        WalletAssetUnavailableReasonValue
     >,
 } as const;

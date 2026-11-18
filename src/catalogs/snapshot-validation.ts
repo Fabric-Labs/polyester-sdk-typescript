@@ -93,6 +93,8 @@ const ZipperEnrichedAssetChainSchema = v.object({
     depositMinAmount: v.optional(v.string()),
     withdrawMinAmount: v.optional(v.string()),
     supply: v.optional(v.string()),
+    supplyStatus: v.optional(v.picklist(["unspecified", "available", "stale", "missing"])),
+    supplyObservedAt: v.optional(FiniteNumberSchema),
     depositStatus: v.optional(v.picklist(ZIPPER_ROUTE_STATUSES)),
     withdrawalStatus: v.optional(v.picklist(ZIPPER_ROUTE_STATUSES)),
     sourceToken: ZipperTokenConfigSchema,
@@ -140,6 +142,8 @@ const ZippedAssetSupplyCatalogUpdatesSchema = v.array(
     v.object({
         zippedAssetId: IntegerSchema,
         supply: v.string(),
+        status: v.optional(v.picklist(["available", "stale"])),
+        observedAt: v.optional(FiniteNumberSchema),
     }),
 );
 

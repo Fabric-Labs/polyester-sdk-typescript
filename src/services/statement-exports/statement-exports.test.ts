@@ -124,7 +124,12 @@ describe("StatementExportsService", () => {
 
     it("lists the resolved account's exports with a page token", async () => {
         const { transport, service } = serviceWith(
-            { exports: [rawExport({ status: 99 })], nextPageToken: "n" },
+            {
+                exports: [rawExport({ status: 99 })],
+                nextPageToken: "n",
+                inProgressExports: 2,
+                maxInProgressExports: 5,
+            },
             formatId(7n),
         );
         const page = await service.list({ limit: 100, pageToken: " p " });
@@ -133,8 +138,59 @@ describe("StatementExportsService", () => {
             limit: 100,
             pageToken: "p",
         });
-        expect(page.nextPageToken).toBe("n");
+        expect(page).toMatchObject({
+            nextPageToken: "n",
+            inProgressExports: 2,
+            maxInProgressExports: 5,
+        });
         expect(page.exports[0]?.status).toBe("unspecified");
+    });
+
+    it("cancels an export by its public ID and decodes it canceled", async () => {
+        const { transport, service } = serviceWith({
+            export: rawExport({
+                status: Proto.StatementExportStatus.CANCELED,
+                readyAt: undefined,
+                expiresAt: undefined,
+            }),
+        });
+        const result = await service.cancel({ exportId: formatId(EXPORT_ID) });
+        expect(transport.lastCall()?.method.name).toBe("CancelStatementExport");
+        expect(transport.lastCall()?.message).toEqual({ exportId: EXPORT_ID });
+        expect(result).toMatchObject({ status: "canceled", readyAt: null });
+    });
+
+    it("returns a download URL with its expiry in epoch ms", async () => {
+        const { transport, service } = serviceWith({
+            url: "https://files.example/statement",
+            expiresAt: ts(1_705_000_060),
+            filename: "statement-x.csv",
+        });
+        const result = await service.getDownloadUrl({ exportId: formatId(EXPORT_ID) });
+        expect(transport.lastCall()?.method.name).toBe("GetStatementExportDownloadUrl");
+        expect(transport.lastCall()?.message).toEqual({ exportId: EXPORT_ID });
+        expect(result).toEqual({
+            url: "https://files.example/statement",
+            expiresAt: 1_705_000_060_000,
+            filename: "statement-x.csv",
+        });
+    });
+
+    it.each([
+        ["cancel", ErrorCode.STATEMENT_EXPORT_NOT_CANCELABLE],
+        ["getDownloadUrl", ErrorCode.STATEMENT_EXPORT_CANCELED],
+    ] as const)("maps %s refused with %s to PreconditionFailedError", async (method, code) => {
+        const error = new ConnectError("rejected", Code.FailedPrecondition, undefined, [
+            { desc: ErrorDetailSchema, value: create(ErrorDetailSchema, { code }) },
+        ]);
+        const service = new StatementExportsService({
+            authApi: createErrorMappingTransport(rejectingUnaryTransport(error)),
+        });
+        const rejected = service[method]({ exportId: formatId(EXPORT_ID) });
+        await expect(rejected).rejects.toBeInstanceOf(PreconditionFailedError);
+        await expect(rejected).rejects.toMatchObject({
+            detail: { service: "ledger", code: ErrorCode[code] },
+        });
     });
 
     it.each([

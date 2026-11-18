@@ -63,6 +63,7 @@ export function transformVerification(
         errorCode: enumLabel(SocialVerificationErrorCodeCodec.protoToOutput, v.errorCode),
         updatedAt: v.updatedAt,
         retryAfter: v.retryAfter,
+        changeAvailableAt: v.changeAvailableAt,
     };
 }
 
@@ -93,6 +94,12 @@ export const SocialVerificationSchema = v.object({
      * `social_account_cooldown` or `social_change_limit_reached`; absent otherwise.
      */
     retryAfter: v.optional(TimestampSchema),
+    /**
+     * X and Discord only: when the linked account may be changed or unlinked again, while the
+     * once-per-30-days limit applies; absent when a change or unlink is allowed now. A first
+     * link and re-verifying the linked X handle are not changes.
+     */
+    changeAvailableAt: v.optional(TimestampSchema),
 });
 
 type SocialVerificationBase = v.InferOutput<typeof SocialVerificationSchema>;

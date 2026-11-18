@@ -13,6 +13,9 @@ export {
     WITHDRAW_DESTINATION_VALIDATION_CODE_VALUES,
     WithdrawDestinationValidationCodeCodec,
     type WithdrawDestinationValidationCodeValue,
+    WALLET_ASSET_UNAVAILABLE_REASON_VALUES,
+    WalletAssetUnavailableReasonCodec,
+    type WalletAssetUnavailableReasonValue,
 } from "./trading-withdraws.codecs.js";
 export {
     CreateTradingWithdrawResultSchema,

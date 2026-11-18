@@ -2,4 +2,4 @@
 "@polyester/sdk": patch
 ---
 
-`client.internalTransfers.batchCreate` submits up to 10 transfers under one idempotency key and one MFA check, and returns each leg's outcome.
+`client.internalTransfers.batchCreate` moves up to 500 transfers together under one idempotency key and one MFA check: every leg is credited or nothing moves. The batch is `accepted`, `refused` or, when its outcome is not known within the request, `processing`; each leg is `credited`, `not_moved` or `processing`, with `creditedAtUnixMs` once credited.

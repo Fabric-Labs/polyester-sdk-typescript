@@ -19,6 +19,8 @@ import {
     TriggerPriceSourceCodec,
     TriggerDirectionCodec,
     LadderDistributionCodec,
+    LadderOutcomeCodec,
+    type LadderOutcomeValue,
     TriggerSideCodec,
     TriggerEventTypeCodec,
     TriggerCancelReasonCodec,
@@ -426,6 +428,11 @@ const LadderDetailsRawSchema = v.object({
     ladderDistribution: v.number(),
     executedQtyScaled: v.bigint(),
     executedLevels: v.number(),
+    requestedLevels: v.number(),
+    placedLevels: v.number(),
+    rejectedLevels: v.number(),
+    canceledLevels: v.number(),
+    outcome: v.number(),
 });
 
 const TriggerDetailsRawSchema = v.variant("case", [
@@ -478,6 +485,20 @@ export type LadderDetailsOutput = {
     executedQty: string;
     /** Number of ladder levels with at least one fill. */
     executedLevels: number;
+    /** Child orders the ladder requested, one per level. */
+    requestedLevels: number;
+    /** Child orders placed on the book, including those still open. */
+    placedLevels: number;
+    /** Child orders rejected before they were placed; each child order's status says why. */
+    rejectedLevels: number;
+    /** Placed child orders canceled or expired, including those canceled when the ladder ended. */
+    canceledLevels: number;
+    /**
+     * How the ended ladder's child orders were placed; `"unspecified"` while it runs and for a
+     * ladder rejected at its creation. A completed ladder with `"mixed_rejections"` placed
+     * `placedLevels` of `requestedLevels`.
+     */
+    outcome: LadderOutcomeValue | "unspecified";
 };
 
 export type TriggerDetailsOutput =
@@ -581,6 +602,11 @@ function transformTriggerDetails(
                     scales.baseQty(symbolId),
                 ),
                 executedLevels: details.value.executedLevels,
+                requestedLevels: details.value.requestedLevels,
+                placedLevels: details.value.placedLevels,
+                rejectedLevels: details.value.rejectedLevels,
+                canceledLevels: details.value.canceledLevels,
+                outcome: enumLabel(LadderOutcomeCodec.protoToOutput, details.value.outcome),
             };
         default:
             return { case: undefined };

@@ -9,4 +9,4 @@ export type {
     ListStatusEventsResult,
     StatusEvent,
 } from "./system.schemas.js";
-export type { SystemVersion } from "./system.js";
+export type { SystemTime, SystemVersion } from "./system.js";

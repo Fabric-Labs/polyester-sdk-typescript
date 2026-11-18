@@ -75,6 +75,7 @@ import {
     PolyesterError,
     PreconditionFailedError,
     RateLimitError,
+    RequestTooLargeError,
     RequestDeadlineExceededError,
     RequestError,
     ResourceNotFoundError,
@@ -526,6 +527,16 @@ describe("connectErrorToPolyesterError", () => {
                 new ConnectError("cannot remove the last MFA factor", Code.FailedPrecondition),
             ),
         ).toBeInstanceOf(PreconditionFailedError);
+    });
+
+    it("maps a too-large request to a non-retryable RequestTooLargeError, not a rate limit", () => {
+        const mapped = connectErrorToPolyesterError(
+            new ConnectError("request too large", Code.ResourceExhausted, new Headers({ a: "1" })),
+        );
+
+        expect(mapped).toBeInstanceOf(RequestTooLargeError);
+        expect(mapped.retryable).toBe(false);
+        expect(mapped.status).toBe(429);
     });
 
     it("parses retry-after metadata into retryAfterMs", () => {

@@ -52,6 +52,8 @@ const policyActionCases = [
     [Proto.PolicyAction.READ_STATEMENTS, "read-statements"],
     [Proto.PolicyAction.CONVERT_DUST, "convert-dust"],
     [Proto.PolicyAction.READ_FUNDING_FLOWS, "read-funding-flows"],
+    [Proto.PolicyAction.READ_NOTIFICATIONS, "read-notifications"],
+    [Proto.PolicyAction.READ_ACCOUNT_ACTIVITY, "read-account-activity"],
 ] as const;
 
 describe("PolicyMarketScopeCodec", () => {

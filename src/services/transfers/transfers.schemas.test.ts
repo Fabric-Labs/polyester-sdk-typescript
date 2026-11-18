@@ -226,6 +226,7 @@ describe("LedgerTransferSchema", () => {
         [TransferCode.FEE_REFILL, "fee_refill"],
         [TransferCode.SYSTEM_ADJUSTMENT, "system_adjustment"],
         [TransferCode.WITHDRAW_FAILED, "withdraw_failed"],
+        [TransferCode.INTERNAL_BATCH, "internal_batch"],
     ])("decodes transfer code %i as %s", (transferCode, type) => {
         const transfer = v.parse(LedgerTransferSchema, { ...baseTransfer, transferCode, tsUs: 0n });
 

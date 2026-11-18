@@ -216,6 +216,27 @@ describe("policy patch schemas", () => {
                 actions: ["create-deposit-address"],
             }),
         ).toThrow();
+        expect(() =>
+            v.parse(CreateSubaccountPolicyInputSchema, {
+                name: "Subaccount policy",
+                spotMarketScope: "all",
+                actions: ["read-account-activity"],
+            }),
+        ).toThrow();
+    });
+
+    it("accepts statement, dust and funding-flow actions on sub-account policies", () => {
+        expect(
+            v.parse(CreateSubaccountPolicyInputSchema, {
+                name: "Subaccount policy",
+                spotMarketScope: "all",
+                actions: ["read-statements", "convert-dust", "read-funding-flows"],
+            }).policy.actions,
+        ).toEqual([
+            Proto.PolicyAction.READ_STATEMENTS,
+            Proto.PolicyAction.CONVERT_DUST,
+            Proto.PolicyAction.READ_FUNDING_FLOWS,
+        ]);
     });
 
     it("preserves API policy empty arrays and false", () => {

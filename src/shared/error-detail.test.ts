@@ -306,6 +306,39 @@ describe("parseConnectErrorDetail", () => {
         ).toEqual({ service: "withdraw", code: "AMOUNT_BELOW_MINIMUM" });
     });
 
+    it("decodes the auth timestamp window of a skewed request", () => {
+        expect(
+            parseConnectErrorDetail(
+                error([
+                    {
+                        type: AuthErrorDetailSchema.typeName,
+                        value: toBinary(
+                            AuthErrorDetailSchema,
+                            create(AuthErrorDetailSchema, {
+                                code: AuthErrorCode.AUTH_TIMESTAMP_SKEW,
+                                message: "skew",
+                                timestampWindow: {
+                                    serverTimeMs: 1_700_000_000_123n,
+                                    recvWindowMs: 5_000,
+                                    maxFutureMs: 1_000,
+                                },
+                            }),
+                        ),
+                    },
+                ]),
+            ),
+        ).toEqual({
+            service: "auth",
+            code: "AUTH_TIMESTAMP_SKEW",
+            message: "skew",
+            timestampWindow: {
+                serverTimeMs: 1_700_000_000_123,
+                recvWindowMs: 5_000,
+                maxFutureMs: 1_000,
+            },
+        });
+    });
+
     it("preserves detail order and ignores unknown enum values", () => {
         expect(
             parseConnectErrorDetail(

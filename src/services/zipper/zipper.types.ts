@@ -6,6 +6,7 @@ export type {
     ZipperChainContractConfig,
     ZipperMemoRequirement,
     ZipperRouteStatus,
+    ZipperSupplyStatus,
     ZippedAssetSupplyBatch,
     ZippedAssetSupplyUpdate,
 } from "./zipper.schemas.js";

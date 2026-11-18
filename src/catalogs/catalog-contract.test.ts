@@ -478,6 +478,22 @@ describe("zipper lookups", () => {
         );
     });
 
+    it("patches supply status and read time with the supply", () => {
+        const snapshot = catalog().snapshot();
+        const next = catalogs.patchZipperCatalogSupply(snapshot, [
+            { zippedAssetId: 901, supply: "9.87", status: "stale", observedAt: 789 },
+        ]);
+
+        expect(next.zipper.assets[0]?.chains[0]).toMatchObject({
+            supply: "9.87",
+            supplyStatus: "stale",
+            supplyObservedAt: 789,
+        });
+        expect(
+            catalogs.patchZipperCatalogSupply(next, [{ zippedAssetId: 901, supply: "9.87" }]),
+        ).toBe(next);
+    });
+
     it("keeps patched supply snapshots cached and structurally shared through setSnapshot", () => {
         const client = catalog();
         const snapshot = client.snapshot();

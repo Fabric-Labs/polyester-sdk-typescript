@@ -5,6 +5,7 @@ export type {
     InternalTransferBatchLegResult,
     CreateInternalTransferInput,
     CreateInternalTransferResult,
+    GetInternalTransferBatchInput,
     GetInternalTransferInput,
     GetInternalTransferResult,
     InternalTransferDestination,

@@ -26,6 +26,7 @@ export const TRANSFER_CODE_VALUES = [
     "fee_refill",
     "system_adjustment",
     "withdraw_failed",
+    "internal_batch",
 ] as const;
 /**
  * Ledger transfer type. `system_adjustment` can credit or debit the account (a seeding credit
@@ -34,6 +35,8 @@ export const TRANSFER_CODE_VALUES = [
  * withdrawal that Zipper rejected or that failed to execute, request fee included, not a fee. A
  * rejected withdrawal refunds that amount less the request fee to the user's own wallet; one that
  * failed to execute is not refunded, and Zipper settles it with the user outside Polyester Chain.
+ * `internal_batch` is one leg of an all-or-nothing internal transfer batch between Trading
+ * accounts, credited together with the batch's other legs.
  */
 export type TransferCodeValue = (typeof TRANSFER_CODE_VALUES)[number];
 
@@ -72,6 +75,7 @@ export const TransferCodeCodec = {
         fee_refill: TransferCode.FEE_REFILL,
         system_adjustment: TransferCode.SYSTEM_ADJUSTMENT,
         withdraw_failed: TransferCode.WITHDRAW_FAILED,
+        internal_batch: TransferCode.INTERNAL_BATCH,
     } satisfies InputToProto<TransferCodeValue, TransferCode>,
     protoToOutput: {
         [TransferCode.TRANSFER_CODE_UNSPECIFIED]: "unspecified",
@@ -96,5 +100,6 @@ export const TransferCodeCodec = {
         [TransferCode.FEE_REFILL]: "fee_refill",
         [TransferCode.SYSTEM_ADJUSTMENT]: "system_adjustment",
         [TransferCode.WITHDRAW_FAILED]: "withdraw_failed",
+        [TransferCode.INTERNAL_BATCH]: "internal_batch",
     } satisfies ProtoToOutput<TransferCode, TransferCodeValue>,
 } as const;

@@ -104,6 +104,13 @@ export const ZIPPER_ROUTE_STATUSES = [
     "suspended",
 ] as const satisfies readonly ZipperRouteStatus[];
 
+/**
+ * Whether a route's zToken supply is known and current. Only `"available"` and `"stale"` routes
+ * carry a `supply`; a `"stale"` one is the last value read and may be out of date, so do not size
+ * a withdrawal against it. Treat `"missing"` and `"unspecified"` as unknown, never as zero.
+ */
+export type ZipperSupplyStatus = "unspecified" | "available" | "stale" | "missing";
+
 export interface ZipperChainConfig {
     chainId: number;
     code: string;
@@ -138,7 +145,15 @@ export interface ZipperAssetChainVariant {
     networkFeeTsSec: number;
     depositMinAmount: string;
     withdrawMinAmount: string;
-    supply: string;
+    /**
+     * zToken supply, set only while `supplyStatus` is `"available"` or `"stale"`. Absent means
+     * unknown, never zero.
+     */
+    supply?: string;
+    /** Whether `supply` is known and current. Absent on older snapshots. */
+    supplyStatus?: ZipperSupplyStatus;
+    /** Epoch ms when `supply` was read; set with it. */
+    supplyObservedAt?: number;
     /**
      * Whether the route accepts new deposits. Funds sent while deposits are suspended are
      * delayed, not lost. Absent on older snapshots.

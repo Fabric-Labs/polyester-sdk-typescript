@@ -38,6 +38,16 @@ describe("OrderErrorDetailSchema", () => {
         });
     });
 
+    it("reads a preview's price band limit as a decimal price", () => {
+        expect(
+            v.parse(OrderErrorDetailSchema, {
+                code: ProtoWrite.ErrorCode.PRICE_BAND_VIOLATION,
+                violations: [],
+                priceBandLimitTicks: 1_837_500_000_000n,
+            }),
+        ).toEqual({ code: "PRICE_BAND_VIOLATION", violations: [], priceBandLimit: "1837.5" });
+    });
+
     it("preserves exact structured rate-limit guidance", () => {
         expect(
             v.parse(OrderErrorDetailSchema, {

@@ -10,6 +10,9 @@ export const ASSISTANT_FAILURE_CATEGORY_VALUES = [
     "permission_denied",
     "model_unavailable",
     "unexpected_error",
+    "model_key_refused",
+    "daily_limit_reached",
+    "assistant_paused",
 ] as const;
 export type AssistantFailureCategory = (typeof ASSISTANT_FAILURE_CATEGORY_VALUES)[number];
 
@@ -48,6 +51,18 @@ export const ASSISTANT_DISPLAY_SETTING_VALUES = [
     "sounds",
 ] as const;
 export type AssistantDisplaySetting = (typeof ASSISTANT_DISPLAY_SETTING_VALUES)[number];
+
+export const ASSISTANT_MODEL_KEY_CHECK_VALUES = [
+    "valid",
+    "rejected",
+    "no_quota",
+    "model_unavailable",
+] as const;
+export type AssistantModelKeyCheck = (typeof ASSISTANT_MODEL_KEY_CHECK_VALUES)[number];
+
+export const ASSISTANT_FUNDING_MODE_VALUES = ["credits", "own_key"] as const;
+/** What pays for the caller's next messages: free daily `credits`, or their `own_key`. */
+export type AssistantFundingMode = (typeof ASSISTANT_FUNDING_MODE_VALUES)[number];
 
 export const ASSISTANT_ACCOUNT_SELECTION_VALUES = ["none"] as const;
 /** `"none"`: the run reads no account and answers about the markets and Polyester only. */
@@ -128,7 +143,29 @@ export const FailureCategoryCodec = {
         [Proto.FailureCategory.PERMISSION_DENIED]: "permission_denied",
         [Proto.FailureCategory.MODEL_UNAVAILABLE]: "model_unavailable",
         [Proto.FailureCategory.UNEXPECTED_ERROR]: "unexpected_error",
+        [Proto.FailureCategory.MODEL_KEY_REFUSED]: "model_key_refused",
+        [Proto.FailureCategory.DAILY_LIMIT_REACHED]: "daily_limit_reached",
+        [Proto.FailureCategory.ASSISTANT_PAUSED]: "assistant_paused",
     } satisfies ProtoToOutput<Proto.FailureCategory, AssistantFailureCategory>,
+} as const;
+
+export const ModelKeyCheckCodec = {
+    protoToOutput: {
+        [Proto.ModelKeyCheck.KEY_CHECK_UNSPECIFIED]: "unspecified",
+        [Proto.ModelKeyCheck.KEY_VALID]: "valid",
+        [Proto.ModelKeyCheck.KEY_REJECTED]: "rejected",
+        [Proto.ModelKeyCheck.KEY_NO_QUOTA]: "no_quota",
+        [Proto.ModelKeyCheck.KEY_MODEL_UNAVAILABLE]: "model_unavailable",
+    } satisfies ProtoToOutput<Proto.ModelKeyCheck, AssistantModelKeyCheck>,
+} as const;
+
+/** The contract says to read a mode this build does not know as `credits`. */
+export const FundingModeCodec = {
+    protoToOutput: {
+        [Proto.FundingMode.FUNDING_UNSPECIFIED]: "credits",
+        [Proto.FundingMode.CREDITS]: "credits",
+        [Proto.FundingMode.OWN_KEY]: "own_key",
+    } satisfies ProtoToOutput<Proto.FundingMode, AssistantFundingMode>,
 } as const;
 
 export const ApprovalDecisionCodec = {

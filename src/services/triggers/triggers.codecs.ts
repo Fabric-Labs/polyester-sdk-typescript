@@ -193,6 +193,14 @@ export const LADDER_DISTRIBUTION_LABEL_VALUES = [
 ] as const;
 export type LadderDistributionLabelValue = (typeof LADDER_DISTRIBUTION_LABEL_VALUES)[number];
 
+export const LADDER_OUTCOME_VALUES = [
+    "all_admitted",
+    "mixed_rejections",
+    "all_children_rejected",
+] as const;
+/** How an ended ladder's child orders were placed. */
+export type LadderOutcomeValue = (typeof LADDER_OUTCOME_VALUES)[number];
+
 export const TriggerTypeCodec = {
     inputToProto: {
         stop_loss: Proto.TriggerType.STOP_LOSS,
@@ -410,4 +418,13 @@ export const LadderDistributionCodec = {
         [Proto.LadderDistribution.GEOMETRIC]: "geometric",
         [Proto.LadderDistribution.WEIGHTED_FAVORABLE]: "weighted_favorable",
     } satisfies ProtoToOutput<Proto.LadderDistribution, LadderDistributionLabelValue>,
+} as const;
+
+export const LadderOutcomeCodec = {
+    protoToOutput: {
+        [Proto.LadderOutcome.LADDER_OUTCOME_UNSPECIFIED]: "unspecified",
+        [Proto.LadderOutcome.ALL_ADMITTED]: "all_admitted",
+        [Proto.LadderOutcome.MIXED_REJECTIONS]: "mixed_rejections",
+        [Proto.LadderOutcome.ALL_CHILDREN_REJECTED]: "all_children_rejected",
+    } satisfies ProtoToOutput<Proto.LadderOutcome, LadderOutcomeValue>,
 } as const;

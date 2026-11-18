@@ -1317,6 +1317,11 @@ describe("Trigger result and output schemas", () => {
                         ladderDistribution: Proto.LadderDistribution.LINEAR,
                         executedQtyScaled: 25_000_000n,
                         executedLevels: 2,
+                        requestedLevels: 5,
+                        placedLevels: 4,
+                        rejectedLevels: 1,
+                        canceledLevels: 2,
+                        outcome: Proto.LadderOutcome.MIXED_REJECTIONS,
                     }),
                 },
             }),
@@ -1355,6 +1360,11 @@ describe("Trigger result and output schemas", () => {
                 ladderDistribution: "linear",
                 executedQty: "0.25",
                 executedLevels: 2,
+                requestedLevels: 5,
+                placedLevels: 4,
+                rejectedLevels: 1,
+                canceledLevels: 2,
+                outcome: "mixed_rejections",
             },
         });
     });

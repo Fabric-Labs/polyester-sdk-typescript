@@ -196,6 +196,17 @@ export const SubaccountStatusCodec = {
 } as const;
 
 export const ActivityEntityKindCodec = {
+    inputToProto: {
+        account: Proto.ActivityEntityKind.ACTIVITY_ENTITY_ACCOUNT,
+        session: Proto.ActivityEntityKind.ACTIVITY_ENTITY_SESSION,
+        api_key: Proto.ActivityEntityKind.ACTIVITY_ENTITY_API_KEY,
+        subaccount: Proto.ActivityEntityKind.ACTIVITY_ENTITY_SUBACCOUNT,
+        member: Proto.ActivityEntityKind.ACTIVITY_ENTITY_MEMBER,
+        policy: Proto.ActivityEntityKind.ACTIVITY_ENTITY_POLICY,
+        invite: Proto.ActivityEntityKind.ACTIVITY_ENTITY_INVITE,
+        security: Proto.ActivityEntityKind.ACTIVITY_ENTITY_SECURITY,
+        destination: Proto.ActivityEntityKind.ACTIVITY_ENTITY_DESTINATION,
+    } satisfies InputToProto<ActivityEntityKindValue, Proto.ActivityEntityKind>,
     protoToOutput: {
         [Proto.ActivityEntityKind.ACTIVITY_ENTITY_UNSPECIFIED]: "unspecified",
         [Proto.ActivityEntityKind.ACTIVITY_ENTITY_ACCOUNT]: "account",
@@ -211,6 +222,24 @@ export const ActivityEntityKindCodec = {
 } as const;
 
 export const ActivityEventActionCodec = {
+    inputToProto: {
+        created: Proto.ActivityEventAction.ACTIVITY_ACTION_CREATED,
+        updated: Proto.ActivityEventAction.ACTIVITY_ACTION_UPDATED,
+        deleted: Proto.ActivityEventAction.ACTIVITY_ACTION_DELETED,
+        enabled: Proto.ActivityEventAction.ACTIVITY_ACTION_ENABLED,
+        disabled: Proto.ActivityEventAction.ACTIVITY_ACTION_DISABLED,
+        removed: Proto.ActivityEventAction.ACTIVITY_ACTION_REMOVED,
+        role_set: Proto.ActivityEventAction.ACTIVITY_ACTION_ROLE_SET,
+        received: Proto.ActivityEventAction.ACTIVITY_ACTION_RECEIVED,
+        replied: Proto.ActivityEventAction.ACTIVITY_ACTION_REPLIED,
+        failed: Proto.ActivityEventAction.ACTIVITY_ACTION_FAILED,
+        revoked: Proto.ActivityEventAction.ACTIVITY_ACTION_REVOKED,
+        blocked: Proto.ActivityEventAction.ACTIVITY_ACTION_BLOCKED,
+        hold_placed: Proto.ActivityEventAction.ACTIVITY_ACTION_HOLD_PLACED,
+        hold_released: Proto.ActivityEventAction.ACTIVITY_ACTION_HOLD_RELEASED,
+        requested: Proto.ActivityEventAction.ACTIVITY_ACTION_REQUESTED,
+        applied: Proto.ActivityEventAction.ACTIVITY_ACTION_APPLIED,
+    } satisfies InputToProto<ActivityEventActionValue, Proto.ActivityEventAction>,
     protoToOutput: {
         [Proto.ActivityEventAction.ACTIVITY_ACTION_UNSPECIFIED]: "unspecified",
         [Proto.ActivityEventAction.ACTIVITY_ACTION_CREATED]: "created",
@@ -233,6 +262,11 @@ export const ActivityEventActionCodec = {
 } as const;
 
 export const ActivityEventSourceCodec = {
+    inputToProto: {
+        web: Proto.ActivityEventSource.ACTIVITY_SOURCE_WEB,
+        mobile: Proto.ActivityEventSource.ACTIVITY_SOURCE_MOBILE,
+        api: Proto.ActivityEventSource.ACTIVITY_SOURCE_API,
+    } satisfies InputToProto<ActivityEventSourceValue, Proto.ActivityEventSource>,
     protoToOutput: {
         [Proto.ActivityEventSource.ACTIVITY_SOURCE_UNSPECIFIED]: "unspecified",
         [Proto.ActivityEventSource.ACTIVITY_SOURCE_WEB]: "web",

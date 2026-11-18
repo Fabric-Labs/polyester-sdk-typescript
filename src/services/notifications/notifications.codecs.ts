@@ -5,6 +5,7 @@ export const NOTIFICATION_TYPE_VALUES = [
     "price_alert",
     "telegram_approval",
     "broker_allowlist_change",
+    "telegram_linked",
 ] as const;
 /** What a notification reports; each type belongs to one category. */
 export type NotificationType = (typeof NOTIFICATION_TYPE_VALUES)[number];
@@ -48,6 +49,7 @@ export const NotificationTypeCodec = {
         [Proto.NotificationType.PRICE_ALERT]: "price_alert",
         [Proto.NotificationType.TELEGRAM_APPROVAL]: "telegram_approval",
         [Proto.NotificationType.BROKER_ALLOWLIST_CHANGE]: "broker_allowlist_change",
+        [Proto.NotificationType.TELEGRAM_LINKED]: "telegram_linked",
     } satisfies ProtoToOutput<Proto.NotificationType, NotificationType>,
 } as const;
 

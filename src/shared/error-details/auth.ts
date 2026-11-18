@@ -14,5 +14,13 @@ export function decode(raw: ConnectErrorDetail): PolyesterErrorDetail | undefine
     const detail: PolyesterErrorDetail = { service: "auth", code, message: auth.message };
     const retryAfter = tsObjToMs(auth.retryAfter);
     if (retryAfter !== undefined) detail.retryAfter = retryAfter;
+    const window = auth.timestampWindow;
+    if (window) {
+        detail.timestampWindow = {
+            serverTimeMs: Number(window.serverTimeMs),
+            recvWindowMs: window.recvWindowMs,
+            maxFutureMs: window.maxFutureMs,
+        };
+    }
     return detail;
 }

@@ -1,5 +1,6 @@
 import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { AssetDataSource } from "../../gen/marketdata/v1/asset_info_pb.js";
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
 import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales, type SdkScales } from "../../shared/decimal-surface.js";
@@ -422,11 +423,53 @@ describe("MarketDataService", () => {
                 issuePrice: { amount: "0", currency: "USD" },
             },
             editorialUpdatedAt: 1_700_000_000_000,
+            marketStats: null,
         });
         expect(info[1]).toMatchObject({
             assetId: 2,
             editorial: { description: "", issueDate: null, issuePrice: null },
             editorialUpdatedAt: null,
+        });
+    });
+
+    it("reads market statistics as exact decimals with their source and time", async () => {
+        const asOf = { seconds: 1_700_000_000n, nanos: 0 };
+        const transport = unaryTransport({
+            assetInfo: [
+                {
+                    assetId: 1,
+                    marketStats: {
+                        circulatingSupply: {
+                            value: "19876543.123456789012345678",
+                            source: AssetDataSource.COINMARKETCAP,
+                            asOf,
+                        },
+                        maxSupplyUnlimited: { source: AssetDataSource.POLYESTER, asOf },
+                        rank: { value: "1", source: 9, asOf },
+                    },
+                },
+            ],
+        });
+        const service = new MarketDataService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            testScales(),
+        );
+
+        const [info] = await service.listAssetInfo();
+
+        expect(info?.marketStats).toEqual({
+            circulatingSupply: {
+                value: "19876543.123456789012345678",
+                source: "coinmarketcap",
+                asOf: 1_700_000_000_000,
+            },
+            totalSupply: null,
+            maxSupply: null,
+            maxSupplyUnlimited: { source: "polyester", asOf: 1_700_000_000_000 },
+            marketCapUsd: null,
+            fullyDilutedMarketCapUsd: null,
+            rank: { value: "1", source: "unspecified", asOf: 1_700_000_000_000 },
         });
     });
 

@@ -15,8 +15,10 @@ import { WithdrawDestinationValidationCode } from "../../gen/chain/withdraw/v1/w
 import { fromU128, toU128, type U128Value } from "../../utils/u128.js";
 import { U128Schema } from "../../shared/schemas.js";
 import { ConfigurationError } from "../../shared/errors.js";
+import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import {
     TradingWithdrawActionCodec,
+    WalletAssetUnavailableReasonCodec,
     WithdrawDestinationValidationCodeCodec,
 } from "./trading-withdraws.codecs.js";
 
@@ -129,6 +131,7 @@ export function createCreateTradingWithdrawToExternalChainInputSchema(scales: Sd
             ...AccountScopeInputEntries,
             assetId: PositiveUint32InputSchema,
             quantity: v.string(),
+            /** Polyester chain ID of the network: a Zipper chain's `chainId`, not its `nativeChainId`. */
             destinationChainId: v.pipe(
                 v.number(),
                 v.integer(),
@@ -195,6 +198,7 @@ export type CreateWalletTradingWithdrawResult = v.InferOutput<
 
 export const ValidateWithdrawDestinationInputSchema = v.pipe(
     v.strictObject({
+        /** Polyester chain ID of the network: a Zipper chain's `chainId`, not its `nativeChainId`. */
         destinationChainId: v.pipe(
             v.number(),
             v.integer(),
@@ -289,6 +293,19 @@ export const GetWalletBalancesResultSchema = v.object({
             })),
         ),
     ),
+    /**
+     * zTokens whose balance could not be read: unknown, not zero. Read again later; the read is
+     * complete only when this is empty.
+     */
+    unavailableAssets: v.array(
+        v.object({
+            zippedAssetId: v.number(),
+            unifiedAssetId: v.number(),
+            chainId: v.number(),
+            ztokenAddress: v.string(),
+            reason: v.optional(enumLabelSchema(WalletAssetUnavailableReasonCodec.protoToOutput), 0),
+        }),
+    ),
 });
 
 /**
@@ -296,5 +313,7 @@ export const GetWalletBalancesResultSchema = v.object({
  * chain: for example a rejected withdrawal's refund, which stays there until moved. `amount`
  * is a decimal string (zTokens have 18 decimals); `chainId` is a `GetDepositWithdrawConfig`
  * chain. `balances` lists nonzero balances by `zippedAssetId` and is empty when there are none.
+ * An asset whose balance could not be read is in `unavailableAssets` instead, never in `balances`
+ * as zero.
  */
 export type GetWalletBalancesResult = v.InferOutput<typeof GetWalletBalancesResultSchema>;

@@ -140,6 +140,8 @@ export type AutoWithdrawStepReason =
     | "destination_cooling_down"
     /** Withdrawals of the asset to the destination network are suspended; the funds stay for a later run. */
     | "route_suspended"
+    /** The destination route's Zipper `supplyStatus` is `missing` or `stale`; the funds stay for a later run. */
+    | "supply_unavailable"
     | "authority_revoked"
     | "gateway_capacity_insufficient"
     | "withdrawal_released"

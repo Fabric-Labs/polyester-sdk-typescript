@@ -5,8 +5,10 @@ import { createClient, type Client } from "@connectrpc/connect";
 import {
     DepositWithdrawConfigSchema,
     createZippedAssetSupplyBatchSchema,
+    hasSupply,
     type DepositWithdrawConfig,
     type ZippedAssetSupplyBatch,
+    type ZippedAssetSupplyUpdate,
 } from "./zipper.schemas.js";
 import { parse } from "../../shared/validation.js";
 import {
@@ -83,21 +85,23 @@ export class ZipperService {
             readPublication: (batch) => batch.updates,
             bufferPublicationKey: (update) => update.zippedAssetId,
             applySnapshot: (snapshot, bufferedUpdates) => {
-                const latestByZippedAssetId = new Map<number, string>();
+                const latestByZippedAssetId = new Map<number, ZippedAssetSupplyUpdate>();
                 for (const asset of snapshot.assets) {
                     for (const variant of asset.variants) {
-                        latestByZippedAssetId.set(variant.zippedAssetId, variant.supply);
+                        const { zippedAssetId, supply, supplyStatus, supplyObservedAt } = variant;
+                        if (supply === undefined || !hasSupply(supplyStatus)) continue;
+                        latestByZippedAssetId.set(zippedAssetId, {
+                            zippedAssetId,
+                            supply,
+                            status: supplyStatus,
+                            ...(supplyObservedAt !== undefined && { observedAt: supplyObservedAt }),
+                        });
                     }
                 }
                 for (const update of parseUpdates(bufferedUpdates)) {
-                    latestByZippedAssetId.set(update.zippedAssetId, update.supply);
+                    latestByZippedAssetId.set(update.zippedAssetId, update);
                 }
-                input.onEvent({
-                    updates: Array.from(latestByZippedAssetId, ([zippedAssetId, supply]) => ({
-                        zippedAssetId,
-                        supply,
-                    })),
-                });
+                input.onEvent({ updates: [...latestByZippedAssetId.values()] });
             },
             applyLivePublications: (updates) => {
                 input.onEvent({
