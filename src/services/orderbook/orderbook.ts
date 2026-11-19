@@ -1,4 +1,3 @@
-import { create } from "@bufbuild/protobuf";
 import * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
 import { createClient, type Client } from "@connectrpc/connect";
 import { publicationHandlerErrorContext } from "../../shared/subscription-errors.js";
@@ -22,7 +21,6 @@ import {
 } from "./orderbook.schemas.js";
 import { orderbookWsChannelDepth } from "./orderbook.codecs.js";
 import { DepthTierCodec } from "../../shared/depth-tier.js";
-import { isResourceNotFoundError } from "../../utils/errors.js";
 import { PolyesterError, ServiceUnavailableError, ValidationError } from "../../shared/errors.js";
 import type * as v from "valibot";
 import { parse } from "../../shared/validation.js";
@@ -211,23 +209,11 @@ export class OrderbookService {
 
         async function inputServiceFetch(): Promise<Proto.GetOrderBookResponse> {
             await scales.ready();
-            let res: Proto.GetOrderBookResponse;
-            try {
-                res = await client.getOrderBook({
-                    symbolId,
-                    depth: DepthTierCodec.inputToProto[channelDepth],
-                });
-            } catch (error: unknown) {
-                if (!isResourceNotFoundError(error)) throw error;
-
-                return create(Proto.GetOrderBookResponseSchema, {
-                    symbolId,
-                    bookSeq: 0n,
-                    available: true,
-                    bids: [],
-                    asks: [],
-                });
-            }
+            // NOT_FOUND means the symbol does not exist; it reaches onError as a non-retryable error.
+            const res = await client.getOrderBook({
+                symbolId,
+                depth: DepthTierCodec.inputToProto[channelDepth],
+            });
             // An unavailable book's levels are unknown, not empty: fail the snapshot so it is retried.
             if (!isBookAvailable(res)) {
                 throw new ServiceUnavailableError(

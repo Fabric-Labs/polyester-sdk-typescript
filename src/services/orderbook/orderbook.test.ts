@@ -293,14 +293,10 @@ describe("OrderbookService", () => {
         subscription.unsubscribe();
     });
 
-    it("treats a missing orderbook snapshot as an empty ready book", async () => {
+    it("reports an unknown symbol through onError instead of an empty book", async () => {
         const realtime = realtimeClientStub();
         const service = new OrderbookService(
-            {
-                publicApi: rejectingUnaryTransport(
-                    new ResourceNotFoundError("orderbook not found"),
-                ),
-            },
+            { publicApi: rejectingUnaryTransport(new ResourceNotFoundError("orderbook not found")) },
             realtime.realtime,
             testScales(),
         );
@@ -316,17 +312,10 @@ describe("OrderbookService", () => {
         realtime.params?.onConnected?.();
         await flushMicrotasks();
 
-        expect(onError).not.toHaveBeenCalled();
-        expect(onEvent).toHaveBeenCalledOnce();
-        expect(onEvent).toHaveBeenCalledWith({
-            symbolId: 101,
-            depth: 50,
-            bookSeq: "0",
-            bookEpoch: "0",
-            available: true,
-            bids: [],
-            asks: [],
-        });
+        expect(onEvent).not.toHaveBeenCalled();
+        expect(onError).toHaveBeenCalledOnce();
+        expect(onError.mock.calls[0]?.[0]).toMatchObject({ type: "snapshot" });
+        expect(onError.mock.calls[0]?.[0].error).toBeInstanceOf(ResourceNotFoundError);
         subscription.unsubscribe();
     });
 
