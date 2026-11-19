@@ -79,9 +79,10 @@ export class InternalTransfersService {
      * step-up is used, the legs that caused it carry their `errorCode` and the rest are
      * `"not_moved"`. `"accepted"` means every leg is credited. A batch whose outcome is not known
      * within the request is `"processing"` and completes on its own: read it with `getBatch` by
-     * its `requestId`, or retry with the same key and legs. Recent MFA covers the root owner
-     * moving funds between its own accounts or to allowlisted destinations; any other leg needs
-     * one fresh step-up for the whole batch.
+     * its `requestId`, or retry with the same key and legs. An MFA-elevated session (an MFA
+     * challenge completed in the last 30 minutes) covers the root owner moving funds between its
+     * own accounts or to allowlisted destinations; any other leg needs one fresh step-up for the
+     * whole batch.
      */
     async batchCreate(
         input: BatchCreateInternalTransfersInput,

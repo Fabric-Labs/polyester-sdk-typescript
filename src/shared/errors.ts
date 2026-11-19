@@ -554,7 +554,10 @@ export class StepUpRequiredError extends MfaRequiredError {
     }
 }
 
-/** The operation requires a recent MFA-elevated session, not a one-use step-up proof. */
+/**
+ * The operation requires an MFA-elevated session (an MFA challenge completed in the last
+ * 30 minutes), not a one-use step-up proof. The server refuses with `AUTH_MFA_ELEVATION_REQUIRED`.
+ */
 export class SessionElevationRequiredError extends MfaRequiredError {
     override readonly code: string = "SESSION_ELEVATION_REQUIRED";
 

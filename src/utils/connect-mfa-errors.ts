@@ -23,8 +23,8 @@ export function isFreshStepUpRequiredError(err: unknown): boolean {
 }
 
 /**
- * True when the server requires a recent MFA-elevated session, not a one-use
- * fresh step-up proof. Prefer `err instanceof SessionElevationRequiredError`.
+ * True when the server requires an MFA-elevated session (an MFA challenge completed in
+ * the last 30 minutes), not a one-use fresh step-up proof. Prefer `err instanceof SessionElevationRequiredError`.
  */
 export function isSessionElevationRequiredError(err: unknown): boolean {
     return toPolyesterError(err) instanceof SessionElevationRequiredError;

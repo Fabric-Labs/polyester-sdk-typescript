@@ -126,7 +126,12 @@ export type ChangelogSection = v.InferOutput<typeof ChangelogSectionSchema>;
  * `coverageCutoff` is the exclusive end of the covered period, `undefined` when unknown.
  * A post can be republished to correct its copy or withdraw a change: `revision` starts at 1
  * and increases with each republication, and `updatedAt` is when the current revision was
- * published (equal to `publishedAt` for revision 1). `slug` and `publishedAt` never change.
+ * published (the first publication time for revision 1). `slug` never changes.
+ *
+ * `publishedAt` is the first publication time for posts that announce no single release. For a
+ * release post it is when the release went live in this environment, or the first publication
+ * time while the release is still pending here. It can change without a new revision, so don't
+ * treat it as fixed.
  * A server that predates post revisions sends `revision` 0 and no `updatedAt`.
  *
  * A release post has `releaseVersion` (for example `"0.92.9"`), the same slug (`"v0.92.9"`) and
@@ -186,7 +191,7 @@ export const ChangelogChangeEntrySchema = v.pipe(
     v.transform(({ change, ...entry }) => ({ ...change, ...entry })),
 );
 
-/** A change with the slug, first publication time and section heading of the post that announced it. */
+/** A change with the slug, `publishedAt` and section heading of the post that announced it. */
 export type ChangelogChangeEntry = v.InferOutput<typeof ChangelogChangeEntrySchema>;
 
 export const ListChangelogChangesResultSchema = v.object({
