@@ -86,8 +86,16 @@ describe("CancelAllAfter schemas", () => {
             timeoutSec,
             symbolId: 1,
             side: ProtoWrite.Side.SELL,
+            includeTriggers: false,
             requestId: "caa-1",
         });
+    });
+
+    it("sends includeTriggers when asked", () => {
+        expect(
+            v.parse(CancelAllAfterInputSchema, { timeoutSec: 30, includeTriggers: true })
+                .includeTriggers,
+        ).toBe(true);
     });
 
     it("accepts the uint32 symbol ID ceiling and rejects invalid IDs", () => {

@@ -19,6 +19,7 @@ import {
 import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import { bytesToHex } from "@noble/hashes/utils.js";
 import {
+    API_KEY_PURPOSE_INPUT_VALUES,
     API_KEY_STATUS_VALUES,
     API_KEY_UPDATE_STATUS_VALUES,
     ASSISTANT_KEY_PRESET_VALUES,
@@ -58,10 +59,13 @@ export const ApiKeysCreateInputSchema = v.pipe(
         ...AccountScopeInputEntries,
         ipWhitelist: v.optional(v.array(v.string()), []),
         publicKeyEd25519: v.instance(Uint8Array<ArrayBufferLike>),
+        /** `admin` takes the owner's session with a fresh step-up proof, for the main account. */
+        purpose: v.optional(v.picklist(API_KEY_PURPOSE_INPUT_VALUES)),
     }),
-    v.transform(({ account, ...input }) => ({
+    v.transform(({ account, purpose, ...input }) => ({
         ...input,
         subaccountId: accountScopeToSubaccountId(account),
+        purpose: purpose === undefined ? undefined : ApiKeyPurposeCodec.inputToProto[purpose],
     })),
 );
 
@@ -74,6 +78,7 @@ type ApiKeyPatch = {
     status?: v.InferOutput<typeof ApiKeyUpdateStatusSchema>;
     ipWhitelist?: string[];
     expiresAtIso?: string | null;
+    purpose?: (typeof API_KEY_PURPOSE_INPUT_VALUES)[number];
 };
 
 const API_KEY_PATCH_FIELDS = defineProtoPatchFields<ApiKeyPatch>()({
@@ -94,6 +99,10 @@ const API_KEY_PATCH_FIELDS = defineProtoPatchFields<ApiKeyPatch>()({
             if (expiresAtIso === null) return {};
             return { expiresAt: msToTimestamp(new Date(expiresAtIso).getTime()) };
         },
+    },
+    purpose: {
+        path: "purpose",
+        encode: (purpose) => ({ purpose: ApiKeyPurposeCodec.inputToProto[purpose] }),
     },
 });
 
@@ -117,15 +126,18 @@ export const ApiKeysUpdateInputSchema = v.pipe(
                 ),
             ),
         ),
+        /** `admin` promotes a standard key, `standard` demotes an admin key; needs the owner's session with a fresh step-up proof. */
+        purpose: v.optional(v.picklist(API_KEY_PURPOSE_INPUT_VALUES)),
     }),
     v.check(
-        ({ label, icon, color, status, ipWhitelist, expiresAtIso }) =>
+        ({ label, icon, color, status, ipWhitelist, expiresAtIso, purpose }) =>
             label !== undefined ||
             icon !== undefined ||
             color !== undefined ||
             status !== undefined ||
             ipWhitelist !== undefined ||
-            expiresAtIso !== undefined,
+            expiresAtIso !== undefined ||
+            purpose !== undefined,
         "At least one API key field must be provided",
     ),
     v.transform(({ keyId, expectedRevision, ...input }) => {

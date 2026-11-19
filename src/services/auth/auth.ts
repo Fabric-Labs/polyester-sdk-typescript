@@ -3,7 +3,10 @@ import * as Proto from "../../gen/auth/v1/auth_pb.js";
 import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import { ProfileService } from "./profile/profile.js";
+import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
+import { AccountScopeType } from "../../gen/auth/v1/address_book_pb.js";
 import {
+    OptionalPublicIdSchema,
     OptionalTimestampMsSchema,
     PublicIdSchema,
     TimestampSchema,
@@ -50,6 +53,13 @@ export const LoginWithWalletInputSchema = v.strictObject({
 
 export type LoginWithWalletInput = v.InferInput<typeof LoginWithWalletInputSchema>;
 
+// Inlined rather than imported from address-book, so a session-verifying core stays core + auth.
+const API_KEY_SCOPE_LABELS = {
+    [AccountScopeType.SCOPE_UNSPECIFIED]: "unspecified",
+    [AccountScopeType.SCOPE_ROOT]: "root",
+    [AccountScopeType.SCOPE_SUBACCOUNT]: "subaccount",
+} as const;
+
 const MeSchema = v.object({
     accountId: PublicIdSchema,
     apiKeyId: v.optional(v.string()),
@@ -57,6 +67,10 @@ const MeSchema = v.object({
     /** Root smart-account EVM address (lowercase 0x hex); empty when not set, which a new account can briefly be. */
     rootSmartAccountAddress: v.optional(v.string(), ""),
     session: v.optional(MfaSessionInfoSchema),
+    /** Scope of the API key that signed the request: `root`, `subaccount`, or `unspecified` for a session. */
+    apiKeyScope: v.optional(enumLabelSchema(API_KEY_SCOPE_LABELS), 0),
+    /** Sub-account a `subaccount` key is bound to; its private channels and account reads name this ID. */
+    subaccountId: OptionalPublicIdSchema,
 });
 
 export type Me = v.InferOutput<typeof MeSchema>;

@@ -6,6 +6,7 @@ export const NOTIFICATION_TYPE_VALUES = [
     "telegram_approval",
     "broker_allowlist_change",
     "telegram_linked",
+    "admin_key_action",
 ] as const;
 /** What a notification reports; each type belongs to one category. */
 export type NotificationType = (typeof NOTIFICATION_TYPE_VALUES)[number];
@@ -27,9 +28,21 @@ export const TELEGRAM_APPROVAL_ACTION_VALUES = [
     "pause_trigger",
     "resume_trigger",
     "swap",
+    "convert_dust",
 ] as const;
 /** What an approval from the linked Telegram account approved. */
 export type TelegramApprovalAction = (typeof TELEGRAM_APPROVAL_ACTION_VALUES)[number];
+
+export const ADMIN_KEY_ACTION_VALUES = [
+    "create_api_key",
+    "update_api_key",
+    "delete_api_key",
+    "set_api_key_policy",
+    "set_subaccount_policy",
+    "update_subaccount_policy",
+] as const;
+/** What an admin API key of the main account changed. */
+export type AdminKeyAction = (typeof ADMIN_KEY_ACTION_VALUES)[number];
 
 export const BROKER_ALLOWLIST_EVENT_VALUES = [
     "change_requested",
@@ -50,6 +63,7 @@ export const NotificationTypeCodec = {
         [Proto.NotificationType.TELEGRAM_APPROVAL]: "telegram_approval",
         [Proto.NotificationType.BROKER_ALLOWLIST_CHANGE]: "broker_allowlist_change",
         [Proto.NotificationType.TELEGRAM_LINKED]: "telegram_linked",
+        [Proto.NotificationType.ADMIN_KEY_ACTION]: "admin_key_action",
     } satisfies ProtoToOutput<Proto.NotificationType, NotificationType>,
 } as const;
 
@@ -84,7 +98,20 @@ export const TelegramApprovalActionCodec = {
         [Proto.TelegramApprovalAction.PAUSE_TRIGGER]: "pause_trigger",
         [Proto.TelegramApprovalAction.RESUME_TRIGGER]: "resume_trigger",
         [Proto.TelegramApprovalAction.SWAP]: "swap",
+        [Proto.TelegramApprovalAction.CONVERT_DUST]: "convert_dust",
     } satisfies ProtoToOutput<Proto.TelegramApprovalAction, TelegramApprovalAction>,
+} as const;
+
+export const AdminKeyActionCodec = {
+    protoToOutput: {
+        [Proto.AdminKeyAction.ADMIN_KEY_ACTION_UNSPECIFIED]: "unspecified",
+        [Proto.AdminKeyAction.CREATE_API_KEY]: "create_api_key",
+        [Proto.AdminKeyAction.UPDATE_API_KEY]: "update_api_key",
+        [Proto.AdminKeyAction.DELETE_API_KEY]: "delete_api_key",
+        [Proto.AdminKeyAction.SET_API_KEY_POLICY]: "set_api_key_policy",
+        [Proto.AdminKeyAction.SET_SUBACCOUNT_POLICY]: "set_subaccount_policy",
+        [Proto.AdminKeyAction.UPDATE_SUBACCOUNT_POLICY]: "update_subaccount_policy",
+    } satisfies ProtoToOutput<Proto.AdminKeyAction, AdminKeyAction>,
 } as const;
 
 export const BrokerAllowlistEventCodec = {

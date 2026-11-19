@@ -1,12 +1,13 @@
 import * as v from "valibot";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { OptionalTimestampMsSchema } from "../../shared/schemas.js";
-import { PositiveUint32InputSchema, SymbolIdInputSchema } from "../shared.js";
+import { DEPTH_TIER_VALUES } from "../../shared/depth-tier.js";
+import { SymbolIdInputSchema } from "../shared.js";
 
 export const GetOrderbookInputSchema = v.object({
     symbolId: SymbolIdInputSchema,
-    /** Price levels per side, sent as given. The server rejects a depth above the `maxDepth` it reports. */
-    depth: v.optional(PositiveUint32InputSchema, 50),
+    /** Price levels per side: one of `DEPTH_TIER_VALUES`. Any other count is refused before sending. */
+    depth: v.optional(v.picklist(DEPTH_TIER_VALUES), 50),
 });
 
 export type GetOrderbookInput = v.InferInput<typeof GetOrderbookInputSchema>;
@@ -35,12 +36,11 @@ export function createOrderbookDataSchema(scales: SdkScales, symbolId: number) {
     return v.pipe(
         v.object({
             symbolId: v.literal(symbolId),
+            /** Price levels per side this snapshot was served at. */
             depth: v.number(),
             bookSeq: v.bigint(),
             /** Epoch of `bookSeq`: order snapshots by `(bookEpoch, bookSeq)`, since a new epoch may restart `bookSeq`. */
             bookEpoch: v.bigint(),
-            /** Largest `depth` the server accepts. */
-            maxDepth: v.number(),
             /** False while the book is being built or after it was invalidated: its levels are unknown, not empty. */
             available: v.boolean(),
             bids: v.array(OrderbookLevelInputSchema),

@@ -664,14 +664,14 @@ export const SocialVerificationService: GenService<{
    * linked Telegram account becomes a channel to the account, so the caller
    * needs enrolled MFA and a fresh, single-use step-up proof in the
    * X-Auth-Step-Up header, obtained by completing an MFA challenge for fresh
-   * step-up, which the link consumes. While the session's recent-MFA window
-   * is open for RECENT_MFA_ACTION_TELEGRAM_LINK (GetRecentMFA), no proof is
-   * needed. A retried confirmation of an existing link needs no new proof.
+   * step-up, which the link consumes. An MFA-elevated session (one that
+   * completed an MFA challenge in the last 30 minutes) needs no proof. A
+   * retried confirmation of an existing link needs no new proof.
    * AUTH_RESOURCE_NOT_FOUND means no verification exists; start one first.
    * AUTH_SOCIAL_VERIFICATION_EXPIRED means the challenge window passed; start a new verification.
    * AUTH_SOCIAL_VERIFICATION_INVALID_STATE means no submitted account awaits confirmation, or provider_user_id is not the account that submitted the code.
    * AUTH_SOCIAL_ACCOUNT_ALREADY_LINKED means that Telegram account is linked to another Polyester account; the verification fails.
-   * AUTH_MFA_NOT_ENROLLED means enroll MFA first; AUTH_STEP_UP_REQUIRED, AUTH_RECENT_MFA_EXPIRED and AUTH_STEP_UP_PROOF_UNAVAILABLE mean complete a new fresh step-up and retry.
+   * AUTH_MFA_NOT_ENROLLED means enroll MFA first; AUTH_STEP_UP_REQUIRED and AUTH_STEP_UP_PROOF_UNAVAILABLE mean complete a new MFA challenge and retry with the elevated session it returns.
    *
    * @generated from rpc auth.v1.SocialVerificationService.ConfirmSocialVerification
    */

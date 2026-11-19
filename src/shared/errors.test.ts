@@ -11,6 +11,10 @@ import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js"
 import { formatId } from "../utils/base58-id.js";
 import { loadErrorDetailDecoders } from "./error-detail.js";
 import {
+    RequestErrorCode,
+    RequestErrorDetailSchema,
+} from "../gen/polyester/api/v1/request_error_pb.js";
+import {
     ErrorCode as WithdrawErrorCode,
     ErrorDetailSchema as WithdrawErrorDetailSchema,
 } from "../gen/chain/withdraw/v1/withdraw_pb.js";
@@ -537,6 +541,40 @@ describe("connectErrorToPolyesterError", () => {
         expect(mapped).toBeInstanceOf(RequestTooLargeError);
         expect(mapped.retryable).toBe(false);
         expect(mapped.status).toBe(429);
+    });
+
+    it("maps a RequestErrorDetail to RequestTooLargeError with its limit, whatever the message", () => {
+        const mapped = connectErrorToPolyesterError(
+            new ConnectError("payload rejected", Code.ResourceExhausted, undefined, [
+                {
+                    desc: RequestErrorDetailSchema,
+                    value: create(RequestErrorDetailSchema, {
+                        code: RequestErrorCode.REQUEST_TOO_LARGE,
+                        limitBytes: 4096n,
+                    }),
+                },
+            ]),
+        );
+
+        expect(mapped).toBeInstanceOf(RequestTooLargeError);
+        expect(mapped.retryable).toBe(false);
+        expect(mapped.detail).toEqual({
+            service: "request",
+            code: "REQUEST_TOO_LARGE",
+            limitBytes: 4096,
+        });
+    });
+
+    it("keeps a resource_exhausted with an unknown RequestErrorDetail code a rate limit", () => {
+        const mapped = connectErrorToPolyesterError(
+            new ConnectError("slow down", Code.ResourceExhausted, undefined, [
+                {
+                    desc: RequestErrorDetailSchema,
+                    value: create(RequestErrorDetailSchema, { code: 9 as RequestErrorCode }),
+                },
+            ]),
+        );
+        expect(mapped).toBeInstanceOf(RateLimitError);
     });
 
     it("parses retry-after metadata into retryAfterMs", () => {

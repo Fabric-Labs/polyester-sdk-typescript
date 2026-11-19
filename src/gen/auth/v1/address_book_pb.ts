@@ -2055,7 +2055,7 @@ export const AddressBookViewInvalidatedSchema: GenMessage<AddressBookViewInvalid
   messageDesc(file_auth_v1_address_book, 49);
 
 /**
- * AccountScopeType identifies whether address-book data belongs to the root account or a subaccount.
+ * AccountScopeType identifies whether address-book data or an API key belongs to the root account or a subaccount.
  *
  * @generated from enum auth.v1.AccountScopeType
  */

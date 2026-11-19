@@ -67,6 +67,8 @@ export const ApiKeyPolicySchema = v.pipe(
         ),
         isTemplate: v.optional(v.boolean(), false),
         sourceTemplateId: OptionalPublicIdSchema,
+        /** Template revision this policy was copied at; `"0"` when it is not a copy. */
+        sourceTemplateRevision: v.optional(BigIntStringSchema, 0n),
         createdAt: TimestampMsSchema,
         updatedAt: TimestampSchema,
         revision: BigIntStringSchema,
@@ -186,6 +188,7 @@ export const DEFAULT_API_KEY_POLICY: ApiKeyPolicy = {
     actions: [],
     isTemplate: false,
     sourceTemplateId: "",
+    sourceTemplateRevision: "0",
     createdAt: 0,
     updatedAt: 0,
     updatedAtNs: "0",

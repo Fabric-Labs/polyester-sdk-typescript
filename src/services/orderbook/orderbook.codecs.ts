@@ -1,6 +1,6 @@
 /**
  * Depths for which the backend publishes `public:spot:orderbook:deltas:depth:{depth}:{symbolId}:proto`
- * channels. Narrower than the depths the REST snapshot accepts (1 to its `maxDepth`):
+ * channels. Narrower than the depth tiers the REST snapshot serves (`DEPTH_TIER_VALUES`):
  * subscribing to a depth outside this set succeeds and then never delivers a publication, so the book
  * silently stays empty.
  */

@@ -5,6 +5,7 @@ import { AccountActivityService } from "./gen/auth/v1/activity_pb.js";
 import { AddressBookService } from "./gen/auth/v1/address_book_pb.js";
 import { ApiKeyService } from "./gen/auth/v1/api_keys_pb.js";
 import { AuthService } from "./gen/auth/v1/auth_pb.js";
+import { ConnectedAppService } from "./gen/auth/v1/connected_apps_pb.js";
 import { MFAService } from "./gen/auth/v1/mfa_pb.js";
 import { PolicyService } from "./gen/auth/v1/policies_pb.js";
 import { ProfileService } from "./gen/auth/v1/profile_pb.js";
@@ -63,6 +64,7 @@ export const WIRED_SERVICE_DESCRIPTORS: readonly DescService[] = [
     ChangelogService,
     CheckpointService,
     ClaimsService,
+    ConnectedAppService,
     DepositAddressService,
     DustConversionService,
     FeeService,

@@ -75,6 +75,8 @@ export type PolyesterErrorDetail =
     | { service: "alerts"; code: NamedCode<typeof PriceAlertErrorCode> }
     | { service: "assistant"; code: NamedCode<typeof AssistantErrorCode> }
     | { service: "notifications"; code: NamedCode<typeof NotificationErrorCode> }
+    /** A request over the API's size limit; `limitBytes` is the limit it exceeded. */
+    | { service: "request"; code: "REQUEST_TOO_LARGE"; limitBytes: number }
     /** A service's quota refusal sent as a bare `RateLimitDetail`, e.g. wallet sign-in. */
     | { service: "rate_limit"; code: "RATE_LIMIT_EXCEEDED"; rateLimit: RateLimitDetail };
 
@@ -96,6 +98,7 @@ const DECODER_LOADERS: Record<string, () => Promise<{ decode: ErrorDetailDecoder
     "ai.v1.ErrorDetail": () => import("./error-details/assistant.js"),
     "notifications.v1.ErrorDetail": () => import("./error-details/notifications.js"),
     "polyester.ratelimit.v1.RateLimitDetail": () => import("./error-details/rate-limit.js"),
+    "polyester.api.v1.RequestErrorDetail": () => import("./error-details/request.js"),
 };
 
 /** Known detail type names, exposed so tests can pin them to the generated descriptors. */

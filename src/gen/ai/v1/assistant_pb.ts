@@ -5804,15 +5804,14 @@ export const AssistantService: GenService<{
    * they may approve from Telegram. A limit left unset is turned off. Only a
    * signed-in session sets them, never Telegram; they apply to the next
    * approval from Telegram. Raising a limit, or turning one off, allows more
-   * from Telegram, so it needs the session's recent-MFA window open for
-   * auth.v1 RECENT_MFA_ACTION_TELEGRAM_APPROVAL_LIMITS: complete an MFA
-   * challenge for fresh step-up first, unless auth.v1 MFAService.GetRecentMFA
-   * says the window is open. Setting a new limit or lowering one needs no MFA.
+   * from Telegram, so it needs an MFA-elevated session: one that completed an
+   * MFA challenge in the last 30 minutes (auth.v1 SessionInfo.session_level
+   * MFA_ELEVATED, auth_time). Setting a new limit or lowering one needs no MFA.
    *
    * Errors:
    * - INVALID_ARGUMENT: malformed request.
-   * - PERMISSION_DENIED: auth.v1 AuthErrorDetail AUTH_STEP_UP_REQUIRED or
-   *   AUTH_RECENT_MFA_EXPIRED; complete a fresh step-up and retry.
+   * - PERMISSION_DENIED: auth.v1 AuthErrorDetail AUTH_MFA_ELEVATION_REQUIRED;
+   *   complete an MFA challenge and retry with the elevated session it returns.
    * - ABORTED: the limits changed at the same time; read them and retry.
    * - UNAVAILABLE: SERVICE_UNAVAILABLE; retry the same request.
    * - UNAUTHENTICATED: missing or invalid credentials.

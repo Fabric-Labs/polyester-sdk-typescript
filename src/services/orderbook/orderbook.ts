@@ -21,6 +21,7 @@ import {
     type OrderbookData,
 } from "./orderbook.schemas.js";
 import { orderbookWsChannelDepth } from "./orderbook.codecs.js";
+import { DepthTierCodec } from "../../shared/depth-tier.js";
 import { isResourceNotFoundError } from "../../utils/errors.js";
 import { ServiceUnavailableError, ValidationError } from "../../shared/errors.js";
 import type * as v from "valibot";
@@ -62,7 +63,7 @@ export class OrderbookService {
     }
 
     /**
-     * Fetches a spot order book depth snapshot for a symbol ID and requested depth, returning best bids and asks with the backend book sequence.
+     * Fetches a spot order book depth snapshot for a symbol ID and depth tier (`DEPTH_TIER_VALUES`, default 50), returning best bids and asks with the backend book sequence.
      * When `available` is false the book is being built or was invalidated: its levels are unknown, not empty, so read it again later instead of treating empty sides as no liquidity.
      */
     async get(
@@ -72,15 +73,16 @@ export class OrderbookService {
         const validated = parse(GetOrderbookInputSchema, input);
         await this.#scales.ready();
         const res = await this.#client.getOrderBook(
-            { symbolId: validated.symbolId, depth: validated.depth },
+            { symbolId: validated.symbolId, depth: DepthTierCodec.inputToProto[validated.depth] },
             toConnectCallOptions(options),
         );
+        // Servers that predate the served tier leave it unset; they served the requested one.
+        const served = DepthTierCodec.protoToOutput[res.depth];
         return parse(createOrderbookDataSchema(this.#scales, validated.symbolId), {
             symbolId: res.symbolId,
-            depth: validated.depth,
+            depth: typeof served === "number" ? served : validated.depth,
             bookSeq: res.bookSeq,
             bookEpoch: res.bookEpoch,
-            maxDepth: res.maxDepth,
             available: isBookAvailable(res),
             bids: res.bids,
             asks: res.asks,
@@ -98,7 +100,7 @@ export class OrderbookService {
     /**
      * Creates a stateful order book subscription that first fetches a snapshot, buffers proto deltas from public:spot:orderbook:deltas:depth:{depth}:{symbolId}:proto, applies each delta only when it chains onto the book, and refetches on reconnects. After a sequence gap the book holds its last state until the server's next reset, sent about every 30 seconds and after gaps. A snapshot whose book is not available fails with ServiceUnavailableError through onError and is retried; no event is emitted until a snapshot is available. The snapshot is fetched once the channel opens, so a socket that cannot connect reports a retryable RealtimeError with type "transport" through onError instead, once per outage; onOpen follows when it recovers. The returned handle can unsubscribe or change local price bucket aggregation without reconnecting.
      *
-     * `depth` above 500 throws ValidationError; other depths ride the smallest published channel depth that covers it (see ORDERBOOK_WS_DEPTHS); levels are sliced back to the requested depth locally.
+     * `depth` above 500 throws ValidationError, since only REST serves 1000 and 5000; other depths ride the smallest published channel depth that covers it (see ORDERBOOK_WS_DEPTHS); levels are sliced back to the requested depth locally.
      *
      * A refetched snapshot from an older `bookEpoch` than the book's is discarded and retried.
      *
@@ -123,7 +125,6 @@ export class OrderbookService {
         let asksMap: BookSide = new Map();
         let currentBookSeq = 0n;
         let currentBookEpoch = 0n;
-        let maxDepth = 0;
         // Set when a delta does not chain onto the book; only the next reset recovers it.
         let awaitingReset = false;
         let bucketTicks: bigint | null = null;
@@ -186,7 +187,6 @@ export class OrderbookService {
                     depth,
                     bookSeq: currentBookSeq.toString(),
                     bookEpoch: currentBookEpoch.toString(),
-                    maxDepth,
                     available: true,
                     bids: sideToUIBucketed(bidsMap, "bids", depth, bucketTicks),
                     asks: sideToUIBucketed(asksMap, "asks", depth, bucketTicks),
@@ -213,7 +213,10 @@ export class OrderbookService {
             await scales.ready();
             let res: Proto.GetOrderBookResponse;
             try {
-                res = await client.getOrderBook({ symbolId, depth: channelDepth });
+                res = await client.getOrderBook({
+                    symbolId,
+                    depth: DepthTierCodec.inputToProto[channelDepth],
+                });
             } catch (error: unknown) {
                 if (!isResourceNotFoundError(error)) throw error;
 
@@ -283,7 +286,6 @@ export class OrderbookService {
                 asksMap = levelsToMap(snapshot.asks);
                 currentBookSeq = snapshot.bookSeq;
                 currentBookEpoch = snapshot.bookEpoch;
-                maxDepth = snapshot.maxDepth;
                 awaitingReset = false;
                 emit();
                 for (const delta of bufferedDeltas) {

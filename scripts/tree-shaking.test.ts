@@ -62,11 +62,21 @@ const serviceModules = (modules: string[]) =>
     );
 const generatedModules = (modules: string[]) => modules.filter((id) => id.startsWith("gen/"));
 
+// auth.proto imports address_book.proto for MeResponse.api_key_scope (AccountScopeType), and
+// the generated file descriptors carry that import chain through subaccounts, policies, API
+// keys and the ledger catalog. Shrinks back if AccountScopeType moves to a common type proto.
 const AUTH_DESCRIPTORS = [
+    "gen/auth/v1/address_book_pb.ts",
+    "gen/auth/v1/api_keys_pb.ts",
     "gen/auth/v1/auth_pb.ts",
     "gen/auth/v1/mfa_pb.ts",
+    "gen/auth/v1/policies_pb.ts",
     "gen/auth/v1/profile_pb.ts",
+    "gen/auth/v1/subaccounts_pb.ts",
+    "gen/ledger/read/v1/ledger_read_pb.ts",
+    "gen/ledger/v1/catalog_pb.ts",
     "gen/polyester/api/options_pb.ts",
+    "gen/polyester/type/v1/u128_pb.ts",
 ];
 
 describe("core tree-shaking", () => {

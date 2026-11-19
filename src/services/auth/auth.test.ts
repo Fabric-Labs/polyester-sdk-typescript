@@ -1,3 +1,4 @@
+import { AccountScopeType } from "../../gen/auth/v1/address_book_pb.js";
 import { describe, expect, expectTypeOf, it } from "vitest";
 import {
     realtimeClientStub,
@@ -51,6 +52,8 @@ describe("AuthService", () => {
                 apiKeyId: "ak_0123456789abcdef0123456789abcdef",
                 username: "alice",
                 rootSmartAccountAddress: "0x5de42d558e4250bc4baeedbf872e130ad2dd7ea8",
+                apiKeyScope: AccountScopeType.SCOPE_SUBACCOUNT,
+                subaccountId: 2n,
             },
             { accountId: 1n, username: "alice", rootSmartAccountAddress: "" },
         ]);
@@ -64,11 +67,14 @@ describe("AuthService", () => {
             apiKeyId: "ak_0123456789abcdef0123456789abcdef",
             username: "alice",
             rootSmartAccountAddress: "0x5de42d558e4250bc4baeedbf872e130ad2dd7ea8",
+            apiKeyScope: "subaccount",
+            subaccountId: formatId(2n),
         });
         await expect(service.me()).resolves.toEqual({
             accountId: formatId(1n),
             username: "alice",
             rootSmartAccountAddress: "",
+            apiKeyScope: "unspecified",
         });
     });
 

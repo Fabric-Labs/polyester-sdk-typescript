@@ -12,6 +12,7 @@ import {
     PriceAlertPriceSourceCodec,
 } from "../price-alerts/price-alerts.codecs.js";
 import {
+    AdminKeyActionCodec,
     BrokerAllowlistActionCodec,
     BrokerAllowlistEventCodec,
     NOTIFICATION_CATEGORY_VALUES,
@@ -175,6 +176,23 @@ function formatDetail(detail: Proto.Notification["detail"]) {
                 type: "telegram_linked" as const,
                 linkedAt: tsObjToMs(detail.value.linkedAt) ?? null,
             };
+        case "adminKeyAction": {
+            const notice = detail.value;
+            return {
+                /** An admin API key changed a key or policy; if nobody on the account did, revoke it. */
+                type: "admin_key_action" as const,
+                adminKeyId: notice.adminKeyId,
+                action: enumLabel(AdminKeyActionCodec.protoToOutput, notice.action),
+                /** The API key changed; empty for a sub-account policy change. */
+                keyId: notice.keyId,
+                /** Null for the main account, or for a sub-account policy update. */
+                subaccountId: notice.subaccountId === 0n ? null : formatId(notice.subaccountId),
+                /** API key policy for `set_api_key_policy`, sub-account policy for the sub-account actions; null when none. */
+                policyId: notice.policyId === 0n ? null : formatId(notice.policyId),
+                sourceIp: notice.sourceIp,
+                changedAt: tsObjToMs(notice.changedAt) ?? null,
+            };
+        }
         default:
             return { type: "unspecified" as const };
     }

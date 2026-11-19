@@ -555,6 +555,7 @@ describe("AccountSignerAuthService", () => {
             accountId: "account-1",
             username: "hunter",
             rootSmartAccountAddress: "",
+            apiKeyScope: "unspecified",
         });
 
         await expect(auth.restoreSession()).resolves.toEqual({
@@ -690,7 +691,12 @@ describe("AccountSignerAuthService", () => {
             const restoring = auth.restoreSession();
             storage.set(fresh);
             if (outcome === "success")
-                pending.resolve({ accountId: "old", username: "old", rootSmartAccountAddress: "" });
+                pending.resolve({
+                    accountId: "old",
+                    username: "old",
+                    rootSmartAccountAddress: "",
+                    apiKeyScope: "unspecified",
+                });
             else pending.reject(new AuthenticationError("rejected"));
             await expect(restoring).resolves.toBeNull();
             expect(storage.get()).toBe(fresh);
@@ -709,6 +715,7 @@ describe("AccountSignerAuthService", () => {
             accountId: "old",
             username: "old",
             rootSmartAccountAddress: "",
+            apiKeyScope: "unspecified",
         });
         const restoring = auth.restoreSession();
         await Promise.resolve();
@@ -752,6 +759,7 @@ describe("AccountSignerAuthService", () => {
                     accountId: "account-1",
                     username: "user",
                     rootSmartAccountAddress: "",
+                    apiKeyScope: "unspecified",
                 });
             }
             await expect(restoring).resolves.toBeNull();
@@ -772,6 +780,7 @@ describe("AccountSignerAuthService", () => {
             accountId: "account-1",
             username: "user",
             rootSmartAccountAddress: "",
+            apiKeyScope: "unspecified",
         });
         await expect(auth.restoreSession()).rejects.toBe(failure);
         expect(storage.clear).not.toHaveBeenCalled();
@@ -1039,6 +1048,7 @@ describe("AccountSignerAuthService", () => {
                 accountId: "account-1",
                 username: "hunter",
                 rootSmartAccountAddress: "",
+                apiKeyScope: "unspecified",
             });
 
             await auth.handleRejectedToken(token);

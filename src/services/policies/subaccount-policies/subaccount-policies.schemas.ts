@@ -80,6 +80,8 @@ export const SubaccountPolicySchema = v.pipe(
         ),
         isTemplate: v.optional(v.boolean(), false),
         sourceTemplateId: OptionalPublicIdSchema,
+        /** Template revision this policy was copied at; `"0"` when it is not a copy. */
+        sourceTemplateRevision: v.optional(BigIntStringSchema, 0n),
         maxOrderNotional: v.pipe(
             v.bigint(),
             v.transform((value) => scaledToDecimalOutput(value, QUOTE_NOTIONAL_SCALE)),
@@ -136,6 +138,8 @@ const SubaccountPolicyInputBaseSchema = v.strictObject({
     policyLocked: v.optional(v.boolean(), false),
     reviewAt: v.optional(v.nullable(v.pipe(v.number(), v.integer(), v.minValue(0)))),
     expiresAt: v.optional(v.nullable(v.pipe(v.number(), v.integer(), v.minValue(0)))),
+    /** A template is applied as a copy, so editing it later changes no sub-account. Main account owner only, never with `subaccountId`. */
+    isTemplate: v.optional(v.boolean(), false),
     subaccountId: optionalSubaccountIdInputSchema(),
 });
 

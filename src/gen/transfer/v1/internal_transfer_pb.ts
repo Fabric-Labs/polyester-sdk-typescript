@@ -1055,7 +1055,8 @@ export const InternalTransferService: GenService<{
   /**
    * Create or return one accepted Trading to Trading transfer.
    * Root-owner same-owner transfers and root-owner transfers to explicitly
-   * whitelisted destinations accept recent MFA; delegated and other
+   * whitelisted destinations accept an MFA-elevated session, one that
+   * completed an MFA challenge in the last 30 minutes; delegated and other
    * interactive transfers require fresh step-up. Without them the transfer is
    * refused PERMISSION_DENIED with auth code AUTH_MFA_ELEVATION_REQUIRED or
    * AUTH_STEP_UP_REQUIRED; REST answers HTTP 403 with that auth code.
@@ -1071,8 +1072,9 @@ export const InternalTransferService: GenService<{
    * Move up to 500 Trading to Trading transfers together, authorized by one
    * MFA check: every leg is credited, or none moves. Every leg passes the
    * same checks as CreateInternalTransfer first; if one fails, the batch is
-   * refused, nothing moves and no step-up is used. The batch accepts recent
-   * MFA when the root owner moves funds between its own accounts or to
+   * refused, nothing moves and no step-up is used. The batch accepts an
+   * MFA-elevated session, one that completed an MFA challenge in the last 30
+   * minutes, when the root owner moves funds between its own accounts or to
    * explicitly whitelisted destinations; any other leg requires one fresh
    * step-up for the whole batch. Without them the batch is refused
    * PERMISSION_DENIED with auth code AUTH_MFA_ELEVATION_REQUIRED or

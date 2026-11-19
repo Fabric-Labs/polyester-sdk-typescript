@@ -339,6 +339,42 @@ describe("api key input schemas", () => {
             },
         );
     });
+
+    it("creates, promotes and decodes admin keys", () => {
+        expect(
+            v.parse(ApiKeysCreateInputSchema, {
+                label: "Admin",
+                publicKeyEd25519: new Uint8Array([1]),
+                purpose: "admin",
+            }).purpose,
+        ).toBe(Proto.ApiKeyPurpose.ADMIN_KEY);
+        expect(
+            v.parse(ApiKeysCreateInputSchema, {
+                label: "Desk",
+                publicKeyEd25519: new Uint8Array([1]),
+            }).purpose,
+        ).toBeUndefined();
+        expect(
+            v.parse(ApiKeysUpdateInputSchema, {
+                keyId: "key-1",
+                expectedRevision: "3",
+                purpose: "standard",
+            }),
+        ).toMatchObject({
+            apiKey: { purpose: Proto.ApiKeyPurpose.STANDARD },
+            updateMask: { paths: ["purpose"] },
+        });
+        expect(() =>
+            v.parse(ApiKeysCreateInputSchema, {
+                label: "Desk",
+                publicKeyEd25519: new Uint8Array([1]),
+                purpose: "assistant",
+            }),
+        ).toThrow();
+        expect(
+            v.parse(ApiKeySchema, apiKey({ purpose: Proto.ApiKeyPurpose.ADMIN_KEY })).purpose,
+        ).toBe("admin");
+    });
 });
 
 describe("ApiKeysService assistant keys", () => {

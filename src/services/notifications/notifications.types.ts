@@ -9,6 +9,7 @@ export type {
     NotificationCounts,
 } from "./notifications.schemas.js";
 export type {
+    AdminKeyAction,
     BrokerAllowlistAction,
     BrokerAllowlistEvent,
     NotificationCategory,
