@@ -473,10 +473,17 @@ export class RealtimeClient implements PolyesterRealtime {
 
         try {
             this.#assertChannelAuth(shared.channel);
-            this.#attachSubscriptionNow(Centrifuge, shared, attachmentEpoch);
         } catch (error) {
             this.#sharedSubs.delete(shared.channel);
             this.#emitSubscriptionError(shared, "auth", error);
+            return;
+        }
+        try {
+            this.#attachSubscriptionNow(Centrifuge, shared, attachmentEpoch);
+        } catch (error) {
+            // e.g. Centrifuge's "WebSocket constructor not found" on a runtime without one.
+            this.#sharedSubs.delete(shared.channel);
+            this.#emitSubscriptionError(shared, "transport_load", error);
         }
     }
 
