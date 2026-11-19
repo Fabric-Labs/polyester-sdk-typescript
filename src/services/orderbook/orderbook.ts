@@ -23,7 +23,7 @@ import {
 import { orderbookWsChannelDepth } from "./orderbook.codecs.js";
 import { DepthTierCodec } from "../../shared/depth-tier.js";
 import { isResourceNotFoundError } from "../../utils/errors.js";
-import { ServiceUnavailableError, ValidationError } from "../../shared/errors.js";
+import { PolyesterError, ServiceUnavailableError, ValidationError } from "../../shared/errors.js";
 import type * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import type { PublicApiTransports } from "../../shared/transports.js";
@@ -98,7 +98,7 @@ export class OrderbookService {
     }
 
     /**
-     * Creates a stateful order book subscription that first fetches a snapshot, buffers proto deltas from public:spot:orderbook:deltas:depth:{depth}:{symbolId}:proto, applies each delta only when it chains onto the book, and refetches on reconnects. After a sequence gap the book holds its last state until the server's next reset, sent about every 30 seconds and after gaps. A snapshot whose book is not available fails with ServiceUnavailableError through onError and is retried; no event is emitted until a snapshot is available. The snapshot is fetched once the channel opens, so a socket that cannot connect reports a retryable RealtimeError with type "transport" through onError instead, once per outage; onOpen follows when it recovers. The returned handle can unsubscribe or change local price bucket aggregation without reconnecting.
+     * Creates a stateful order book subscription that first fetches a snapshot, buffers proto deltas from public:spot:orderbook:deltas:depth:{depth}:{symbolId}:proto, applies each delta only when it chains onto the book, and refetches on reconnects. After a sequence gap the book holds its last state until the server's next reset, sent about every 30 seconds and after gaps. A snapshot whose book is not available fails with ServiceUnavailableError through onError and is retried. A snapshot error that is not retried (such as a 500) leaves the book to the server's next reset, which rebuilds it. The snapshot is fetched once the channel opens, so a socket that cannot connect reports a retryable RealtimeError with type "transport" through onError instead, once per outage; onOpen follows when it recovers. The returned handle can unsubscribe or change local price bucket aggregation without reconnecting.
      *
      * `depth` above 500 throws ValidationError, since only REST serves 1000 and 5000; other depths ride the smallest published channel depth that covers it (see ORDERBOOK_WS_DEPTHS); levels are sliced back to the requested depth locally.
      *
@@ -278,6 +278,14 @@ export class OrderbookService {
                 maxAttempts: Number.POSITIVE_INFINITY,
                 delayMs: 1_000,
                 maxDelayMs: 8_000,
+            },
+            // A snapshot error that is not retried (a 500) leaves the book to the server's next
+            // reset; seq 0 accepts that reset even from a new epoch. Retried errors keep buffering.
+            snapshotFailureMode: (error) => {
+                if (!(error instanceof PolyesterError) || error.retryable) return "wait";
+                currentBookSeq = 0n;
+                awaitingReset = true;
+                return "live";
             },
             fetchSnapshot: inputServiceFetch,
             readPublication: (delta) => [delta],

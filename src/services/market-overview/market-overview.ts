@@ -163,7 +163,15 @@ export class MarketOverviewService {
 
         function applyMarkets(markets: readonly MarketOverview[]): void {
             for (const market of markets) {
-                if (matchesSymbol(market)) bySymbolId.set(market.symbolId, market);
+                if (!matchesSymbol(market)) continue;
+                // The live channel carries no sparklines; keep the snapshot's.
+                const sparklines = bySymbolId.get(market.symbolId)?.sparklines;
+                bySymbolId.set(
+                    market.symbolId,
+                    market.sparklines.length === 0 && sparklines
+                        ? { ...market, sparklines }
+                        : market,
+                );
             }
         }
 

@@ -79,7 +79,7 @@ describe("CancelAllAfter schemas", () => {
                 timeoutSec,
                 symbolId: 1,
                 side: "sell",
-                requestId: " caa-1 ",
+                requestId: "caa-1",
             }),
         ).toEqual({
             subaccountId: 11n,
@@ -169,7 +169,7 @@ describe("batch create schemas", () => {
     it("reuses the single-order decimal contract for every item", () => {
         const input = v.parse(createBatchCreateOrdersInputSchema(testScales()), {
             account: { subaccountId: formatId(11n) },
-            requestId: " batch-create-1 ",
+            requestId: "batch-create-1",
             items: [limitOrder("order-a"), limitOrder("order-b")],
         });
 
@@ -294,6 +294,11 @@ describe("batch create schemas", () => {
             "clientOrderId has an invalid format",
         );
         expect(() => v.parse(schema, { items: [limitOrder("x".repeat(37))] })).toThrow();
+        for (const clientOrderId of [" order-a ", "   "]) {
+            expect(() => v.parse(schema, { items: [limitOrder(clientOrderId)] })).toThrow(
+                "clientOrderId has an invalid format",
+            );
+        }
     });
 
     it("rejects duplicate non-empty client-order IDs while allowing empty or omitted IDs", () => {
@@ -301,7 +306,7 @@ describe("batch create schemas", () => {
 
         expect(() =>
             v.parse(schema, {
-                items: [limitOrder(" order-a "), limitOrder("order-a")],
+                items: [limitOrder("order-a"), limitOrder("order-a")],
             }),
         ).toThrow("Each non-empty batch create clientOrderId must be unique");
         expect(() =>
@@ -437,7 +442,7 @@ describe("batch replace schemas", () => {
         const input = v.parse(createBatchReplaceOrdersInputSchema(testScales()), {
             account: { subaccountId: formatId(11n) },
             symbolId: 1,
-            requestId: " batch-replace-1 ",
+            requestId: "batch-replace-1",
             items: [
                 {
                     orderId: formatId(11n),

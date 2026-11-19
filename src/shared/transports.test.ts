@@ -14,6 +14,8 @@ import { signAsync } from "@noble/ed25519";
 import { AuthErrorCode, AuthErrorDetailSchema } from "../gen/auth/v1/auth_pb.js";
 import { RateLimitService } from "../gen/ratelimit/v1/ratelimit_pb.js";
 import { ApiKeyService } from "../gen/auth/v1/api_keys_pb.js";
+import { OrdersService } from "../gen/orders/v1/orders_pb.js";
+import { TriggersService } from "../gen/triggers/v1/triggers_pb.js";
 import {
     FailureReason,
     LimiterScope,
@@ -1195,15 +1197,16 @@ describe("server timeouts on non-idempotent writes", () => {
     };
     const edgePage = { body: "error code: 504", contentType: "text/plain" };
 
-    function answer504({ body, contentType }: { body: string; contentType: string }) {
+    function mock504({ body, contentType }: { body: string; contentType: string }) {
         vi.spyOn(globalThis, "fetch").mockImplementation(
             async () =>
                 new Response(body, { status: 504, headers: { "content-type": contentType } }),
         );
-        return createClient(
-            ApiKeyService,
-            createTransports({ apiUrl: "https://api.test" }).publicApi,
-        );
+        return createTransports({ apiUrl: "https://api.test" }).publicApi;
+    }
+
+    function answer504(response: { body: string; contentType: string }) {
+        return createClient(ApiKeyService, mock504(response));
     }
 
     it.each([
@@ -1217,6 +1220,43 @@ describe("server timeouts on non-idempotent writes", () => {
         expect(error).toBeInstanceOf(OutcomeUnknownError);
         expect((error as OutcomeUnknownError).retryable).toBe(false);
     });
+
+    it.each([
+        ["deadline_exceeded", connectDeadline],
+        ["an edge 504 page", edgePage],
+    ] as const)(
+        "reports %s on order and trigger writes as an unknown outcome",
+        async (_kind, response) => {
+            const orders = createClient(OrdersService, mock504(response));
+            const triggers = createClient(TriggersService, mock504(response));
+            const calls = [
+                orders.createOrder({}),
+                orders.batchCreateOrders({}),
+                orders.modifyOrder({}),
+                orders.batchReplaceOrders({}),
+                orders.cancelOrder({}),
+                orders.batchCancelOrders({}),
+                orders.cancelAllOrders({}),
+                orders.cancelAllAfter({}),
+                triggers.createTrigger({}),
+                triggers.createOco({}),
+                triggers.modifyTrigger({}),
+                triggers.cancelTrigger({}),
+                triggers.batchCancelTriggers({}),
+                triggers.cancelOco({}),
+                triggers.pauseTrigger({}),
+                triggers.resumeTrigger({}),
+            ];
+
+            for (const error of await Promise.all(
+                calls.map((call) => call.catch((e: unknown) => e)),
+            )) {
+                expect(error).toBeInstanceOf(OutcomeUnknownError);
+            }
+            const preview = await orders.previewOrder({}).catch((e: unknown) => e);
+            expect(preview).not.toBeInstanceOf(OutcomeUnknownError);
+        },
+    );
 
     it("keeps deadline_exceeded on a read retryable", async () => {
         const error = await answer504(connectDeadline)

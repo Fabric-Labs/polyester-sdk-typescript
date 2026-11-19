@@ -617,6 +617,47 @@ describe("MarketOverviewService", () => {
         ]);
     });
 
+    it("keeps snapshot sparklines across buffered and live rows that carry none", async () => {
+        const snapshot = deferred<Record<string, unknown>>();
+        const transport = unaryTransport(() => snapshot.promise);
+        const realtime = realtimeClientStub();
+        const onEvent = vi.fn();
+        const service = new MarketOverviewService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
+        const live = (lastPriceTicks: bigint) =>
+            create(Proto.MarketOverviewBatchSchema, { markets: [market({ lastPriceTicks })] });
+
+        const stop = service.subscribe({ onEvent });
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+        realtime.params?.onPublication(live(2_000_000_000n));
+        snapshot.resolve({
+            markets: [
+                market({
+                    sparklines: [
+                        {
+                            interval: Proto.SparklineInterval.SPARKLINE_24H,
+                            closeTicks: [100n, 200n],
+                        },
+                    ],
+                }),
+            ],
+            nextPageToken: "",
+        });
+        await flushMicrotasks();
+        realtime.params?.onPublication(live(3_000_000_000n));
+
+        const sparklines = [{ interval: "24h", close: ["0.0000002", "0.0000001"] }];
+        expect(onEvent.mock.calls.map(([rows]) => rows[0])).toEqual([
+            expect.objectContaining({ lastPrice: "2", sparklines }),
+            expect.objectContaining({ lastPrice: "3", sparklines }),
+        ]);
+        stop();
+    });
+
     it("refetches snapshots on each subscribed epoch until unsubscribed", async () => {
         const transport = unaryTransport({ markets: [market()], nextPageToken: "next-page" });
         const realtime = realtimeClientStub();

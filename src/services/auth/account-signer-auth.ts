@@ -455,14 +455,27 @@ export class AccountSignerAuthService extends AuthService {
             throw new AuthenticationError("Must be authenticated to refresh session");
         }
 
-        const currentSession = this.#getEnvironmentSession();
+        // The in-memory selection is authoritative; the display-session cookie may be unreadable
+        // (no `document`, cookies blocked) and only contributes label/address metadata.
+        const stored = this.#getEnvironmentSession()?.activeAccount;
+        const activeAccountId = this.#activeAccountId;
+        const mainAccountId = this.#mainAccountId;
+        const activeAccount =
+            activeAccountId && mainAccountId
+                ? {
+                      ...(stored?.accountId === activeAccountId ? stored : undefined),
+                      accountId: activeAccountId,
+                      isMain: activeAccountId === mainAccountId,
+                      mainAccountId,
+                  }
+                : undefined;
         return this.#login(
             {
                 provider: this.#resolveRefreshProvider(params?.provider),
                 uri: params?.uri,
                 loginMethod: params?.loginMethod ?? this.#loginMethod,
             },
-            currentSession?.activeAccount,
+            activeAccount,
         );
     }
 
