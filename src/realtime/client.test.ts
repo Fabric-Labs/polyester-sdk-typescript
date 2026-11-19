@@ -313,6 +313,28 @@ describe("RealtimeClient", () => {
         await vi.waitFor(() => expect(centrifugeState.instances).toHaveLength(1));
     });
 
+    it("reports a transport constructor failure as transport_load, not auth", async () => {
+        const failure = new Error("WebSocket constructor not found");
+        class ThrowingCentrifuge extends MockCentrifuge {
+            constructor(wsUrl: string, opts?: TokenOpts) {
+                super(wsUrl, opts);
+                throw failure;
+            }
+        }
+        __setRealtimeCentrifugeLoaderForTests((async () => ({
+            Centrifuge: ThrowingCentrifuge,
+        })) as never);
+        const onError = vi.fn();
+
+        createPublicRealtimeClient().subscribe("public:book", { onPublication: () => {}, onError });
+
+        await vi.waitFor(() => expect(onError).toHaveBeenCalledOnce());
+        expect(onError.mock.calls[0]?.[0]).toMatchObject({
+            type: "transport_load",
+            error: failure,
+        });
+    });
+
     it("reports missing authentication through onError without throwing", async () => {
         const client = createPublicRealtimeClient();
         const onError = vi.fn();
