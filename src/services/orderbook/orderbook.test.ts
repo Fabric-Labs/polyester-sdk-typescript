@@ -296,7 +296,11 @@ describe("OrderbookService", () => {
     it("reports an unknown symbol through onError instead of an empty book", async () => {
         const realtime = realtimeClientStub();
         const service = new OrderbookService(
-            { publicApi: rejectingUnaryTransport(new ResourceNotFoundError("orderbook not found")) },
+            {
+                publicApi: rejectingUnaryTransport(
+                    new ResourceNotFoundError("orderbook not found"),
+                ),
+            },
             realtime.realtime,
             testScales(),
         );
