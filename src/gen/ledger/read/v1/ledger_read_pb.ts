@@ -1398,8 +1398,9 @@ export const LedgerReadService: GenService<{
    * asset. Accepts a root-account session, or a root-scoped API key whose
    * policy grants READ_BALANCES. An API key covers the master account and
    * only the subaccounts that master account owns, each within its subaccount
-   * policy; the request fails when the key may not read one of them.
-   * Subaccount-scoped API keys are not supported.
+   * policy; the request fails when the key may not read one of them. A
+   * subaccount-scoped API key is refused with AUTH_API_KEY_ACCESS_DENIED: the
+   * snapshot needs a key scoped to the main account.
    *
    * @generated from rpc ledger.read.v1.LedgerReadService.GetPortfolioEquitySnapshot
    */

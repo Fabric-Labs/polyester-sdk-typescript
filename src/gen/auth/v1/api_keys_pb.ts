@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file auth/v1/api_keys.proto.
  */
 export const file_auth_v1_api_keys: GenFile = /*@__PURE__*/
-  fileDesc("ChZhdXRoL3YxL2FwaV9rZXlzLnByb3RvEgdhdXRoLnYxIpAECgZBcGlLZXkSEAoGa2V5X2lkGAIgASgJQgASDQoFbGFiZWwYAyABKAkSDgoEaWNvbhgJIAEoCUIAEg8KBWNvbG9yGAogASgJQgASFgoMaXBfd2hpdGVsaXN0GAQgAygJQgASJQoGc3RhdHVzGAYgASgOMhUuYXV0aC52MS5BcGlLZXlTdGF0dXMSGgoNc3ViYWNjb3VudF9pZBgHIAEoBkgAiAEBEhYKCXBvbGljeV9pZBgIIAEoBkgBiAEBEi4KCmNyZWF0ZWRfYXQYFCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGxhc3RfdXNlZF9hdBgVIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoScHVibGljX2tleV9lZDI1NTE5GBYgASgMEi4KCmV4cGlyZXNfYXQYFyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEGNyZWF0ZWRfYnlfYWN0b3IYGCABKAkSLgoKdXBkYXRlZF9hdBgZIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIcmV2aXNpb24YGiABKAQSJwoHcHVycG9zZRgbIAEoDjIWLmF1dGgudjEuQXBpS2V5UHVycG9zZUIQCg5fc3ViYWNjb3VudF9pZEIMCgpfcG9saWN5X2lkIqsBChNDcmVhdGVBcGlLZXlSZXF1ZXN0Eg8KBWxhYmVsGAEgASgJQgASGgoNc3ViYWNjb3VudF9pZBgDIAEoBkgAiAEBEg4KBGljb24YBiABKAlCABIPCgVjb2xvchgHIAEoCUIAEhYKDGlwX3doaXRlbGlzdBgEIAMoCUIAEhwKEnB1YmxpY19rZXlfZWQyNTUxORgFIAEoDEIAQhAKDl9zdWJhY2NvdW50X2lkIjgKFENyZWF0ZUFwaUtleVJlc3BvbnNlEiAKB2FwaV9rZXkYASABKAsyDy5hdXRoLnYxLkFwaUtleSJCChJMaXN0QXBpS2V5c1JlcXVlc3QSGgoNc3ViYWNjb3VudF9pZBgBIAEoBkgAiAEBQhAKDl9zdWJhY2NvdW50X2lkIjgKE0xpc3RBcGlLZXlzUmVzcG9uc2USIQoIYXBpX2tleXMYASADKAsyDy5hdXRoLnYxLkFwaUtleSInChNEZWxldGVBcGlLZXlSZXF1ZXN0EhAKBmtleV9pZBgBIAEoCUIAIhYKFERlbGV0ZUFwaUtleVJlc3BvbnNlIiQKEEdldEFwaUtleVJlcXVlc3QSEAoGa2V5X2lkGAEgASgJQgAiNQoRR2V0QXBpS2V5UmVzcG9uc2USIAoHYXBpX2tleRgBIAEoCzIPLmF1dGgudjEuQXBpS2V5IrcBChBBcGlLZXlVcGRhdGVTcGVjEg8KBWxhYmVsGAEgASgJQgASDgoEaWNvbhgCIAEoCUIAEg8KBWNvbG9yGAMgASgJQgASJwoGc3RhdHVzGAQgASgOMhUuYXV0aC52MS5BcGlLZXlTdGF0dXNCABIWCgxpcF93aGl0ZWxpc3QYBSADKAlCABIuCgpleHBpcmVzX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcDoAIqUBChNVcGRhdGVBcGlLZXlSZXF1ZXN0EhAKBmtleV9pZBgBIAEoCUIAEiwKB2FwaV9rZXkYAiABKAsyGS5hdXRoLnYxLkFwaUtleVVwZGF0ZVNwZWNCABIxCgt1cGRhdGVfbWFzaxgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2tCABIbChFleHBlY3RlZF9yZXZpc2lvbhgEIAEoBEIAIjgKFFVwZGF0ZUFwaUtleVJlc3BvbnNlEiAKB2FwaV9rZXkYASABKAsyDy5hdXRoLnYxLkFwaUtleSL5AQoQQXNzaXN0YW50S2V5U3BlYxIaCg1zdWJhY2NvdW50X2lkGAEgASgGSACIAQESHAoScHVibGljX2tleV9lZDI1NTE5GAIgASgMQgASEQoJcG9saWN5X2lkGAMgASgGEjkKFXJlZ2lzdHJhdGlvbl9kZWFkbGluZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoScmVnaXN0cmF0aW9uX3Byb29mGAUgASgMEi0KBnByZXNldBgGIAEoDjIbLmF1dGgudjEuQXNzaXN0YW50S2V5UHJlc2V0QgA6AEIQCg5fc3ViYWNjb3VudF9pZCJEChdTZXRBc3Npc3RhbnRLZXlzUmVxdWVzdBIpCgRrZXlzGAEgAygLMhkuYXV0aC52MS5Bc3Npc3RhbnRLZXlTcGVjQgAiPQoYU2V0QXNzaXN0YW50S2V5c1Jlc3BvbnNlEiEKCGFwaV9rZXlzGAEgAygLMg8uYXV0aC52MS5BcGlLZXkiGgoYTGlzdEFzc2lzdGFudEtleXNSZXF1ZXN0Ij4KGUxpc3RBc3Npc3RhbnRLZXlzUmVzcG9uc2USIQoIYXBpX2tleXMYASADKAsyDy5hdXRoLnYxLkFwaUtleSIcChpEZWxldGVBc3Npc3RhbnRLZXlzUmVxdWVzdCI2ChtEZWxldGVBc3Npc3RhbnRLZXlzUmVzcG9uc2USFwoPcmV2b2tlZF9rZXlfaWRzGAEgAygJKlUKDEFwaUtleVN0YXR1cxIeChpBUElfS0VZX1NUQVRVU19VTlNQRUNJRklFRBAAEgoKBkFDVElWRRABEgsKB1JFVk9LRUQQAhIMCghESVNBQkxFRBADKkUKDUFwaUtleVB1cnBvc2USFwoTUFVSUE9TRV9VTlNQRUNJRklFRBAAEgwKCFNUQU5EQVJEEAESDQoJQVNTSVNUQU5UEAIqVAoSQXNzaXN0YW50S2V5UHJlc2V0EhYKElBSRVNFVF9VTlNQRUNJRklFRBAAEg0KCVJFQURfT05MWRABEhcKE1RSQURFX1dJVEhfQVBQUk9WQUwQAjKtBQoNQXBpS2V5U2VydmljZRJNCgxDcmVhdGVBcGlLZXkSHC5hdXRoLnYxLkNyZWF0ZUFwaUtleVJlcXVlc3QaHS5hdXRoLnYxLkNyZWF0ZUFwaUtleVJlc3BvbnNlIgASSgoLTGlzdEFwaUtleXMSGy5hdXRoLnYxLkxpc3RBcGlLZXlzUmVxdWVzdBocLmF1dGgudjEuTGlzdEFwaUtleXNSZXNwb25zZSIAEkQKCUdldEFwaUtleRIZLmF1dGgudjEuR2V0QXBpS2V5UmVxdWVzdBoaLmF1dGgudjEuR2V0QXBpS2V5UmVzcG9uc2UiABJNCgxEZWxldGVBcGlLZXkSHC5hdXRoLnYxLkRlbGV0ZUFwaUtleVJlcXVlc3QaHS5hdXRoLnYxLkRlbGV0ZUFwaUtleVJlc3BvbnNlIgASTQoMVXBkYXRlQXBpS2V5EhwuYXV0aC52MS5VcGRhdGVBcGlLZXlSZXF1ZXN0Gh0uYXV0aC52MS5VcGRhdGVBcGlLZXlSZXNwb25zZSIAElkKEFNldEFzc2lzdGFudEtleXMSIC5hdXRoLnYxLlNldEFzc2lzdGFudEtleXNSZXF1ZXN0GiEuYXV0aC52MS5TZXRBc3Npc3RhbnRLZXlzUmVzcG9uc2UiABJcChFMaXN0QXNzaXN0YW50S2V5cxIhLmF1dGgudjEuTGlzdEFzc2lzdGFudEtleXNSZXF1ZXN0GiIuYXV0aC52MS5MaXN0QXNzaXN0YW50S2V5c1Jlc3BvbnNlIgASYgoTRGVsZXRlQXNzaXN0YW50S2V5cxIjLmF1dGgudjEuRGVsZXRlQXNzaXN0YW50S2V5c1JlcXVlc3QaJC5hdXRoLnYxLkRlbGV0ZUFzc2lzdGFudEtleXNSZXNwb25zZSIAGgBCPFo6Z2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9hdXRoL3YxO2F1dGh2MWIGcHJvdG8z", [file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChZhdXRoL3YxL2FwaV9rZXlzLnByb3RvEgdhdXRoLnYxIpAECgZBcGlLZXkSEAoGa2V5X2lkGAIgASgJQgASDQoFbGFiZWwYAyABKAkSDgoEaWNvbhgJIAEoCUIAEg8KBWNvbG9yGAogASgJQgASFgoMaXBfd2hpdGVsaXN0GAQgAygJQgASJQoGc3RhdHVzGAYgASgOMhUuYXV0aC52MS5BcGlLZXlTdGF0dXMSGgoNc3ViYWNjb3VudF9pZBgHIAEoBkgAiAEBEhYKCXBvbGljeV9pZBgIIAEoBkgBiAEBEi4KCmNyZWF0ZWRfYXQYFCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGxhc3RfdXNlZF9hdBgVIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoScHVibGljX2tleV9lZDI1NTE5GBYgASgMEi4KCmV4cGlyZXNfYXQYFyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEGNyZWF0ZWRfYnlfYWN0b3IYGCABKAkSLgoKdXBkYXRlZF9hdBgZIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIcmV2aXNpb24YGiABKAQSJwoHcHVycG9zZRgbIAEoDjIWLmF1dGgudjEuQXBpS2V5UHVycG9zZUIQCg5fc3ViYWNjb3VudF9pZEIMCgpfcG9saWN5X2lkItYBChNDcmVhdGVBcGlLZXlSZXF1ZXN0Eg8KBWxhYmVsGAEgASgJQgASGgoNc3ViYWNjb3VudF9pZBgDIAEoBkgAiAEBEg4KBGljb24YBiABKAlCABIPCgVjb2xvchgHIAEoCUIAEhYKDGlwX3doaXRlbGlzdBgEIAMoCUIAEhwKEnB1YmxpY19rZXlfZWQyNTUxORgFIAEoDEIAEikKB3B1cnBvc2UYCCABKA4yFi5hdXRoLnYxLkFwaUtleVB1cnBvc2VCAEIQCg5fc3ViYWNjb3VudF9pZCI4ChRDcmVhdGVBcGlLZXlSZXNwb25zZRIgCgdhcGlfa2V5GAEgASgLMg8uYXV0aC52MS5BcGlLZXkiQgoSTGlzdEFwaUtleXNSZXF1ZXN0EhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBAUIQCg5fc3ViYWNjb3VudF9pZCI4ChNMaXN0QXBpS2V5c1Jlc3BvbnNlEiEKCGFwaV9rZXlzGAEgAygLMg8uYXV0aC52MS5BcGlLZXkiJwoTRGVsZXRlQXBpS2V5UmVxdWVzdBIQCgZrZXlfaWQYASABKAlCACIWChREZWxldGVBcGlLZXlSZXNwb25zZSIkChBHZXRBcGlLZXlSZXF1ZXN0EhAKBmtleV9pZBgBIAEoCUIAIjUKEUdldEFwaUtleVJlc3BvbnNlEiAKB2FwaV9rZXkYASABKAsyDy5hdXRoLnYxLkFwaUtleSLiAQoQQXBpS2V5VXBkYXRlU3BlYxIPCgVsYWJlbBgBIAEoCUIAEg4KBGljb24YAiABKAlCABIPCgVjb2xvchgDIAEoCUIAEicKBnN0YXR1cxgEIAEoDjIVLmF1dGgudjEuQXBpS2V5U3RhdHVzQgASFgoMaXBfd2hpdGVsaXN0GAUgAygJQgASLgoKZXhwaXJlc19hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKQoHcHVycG9zZRgHIAEoDjIWLmF1dGgudjEuQXBpS2V5UHVycG9zZUIAOgAipQEKE1VwZGF0ZUFwaUtleVJlcXVlc3QSEAoGa2V5X2lkGAEgASgJQgASLAoHYXBpX2tleRgCIAEoCzIZLmF1dGgudjEuQXBpS2V5VXBkYXRlU3BlY0IAEjEKC3VwZGF0ZV9tYXNrGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFza0IAEhsKEWV4cGVjdGVkX3JldmlzaW9uGAQgASgEQgAiOAoUVXBkYXRlQXBpS2V5UmVzcG9uc2USIAoHYXBpX2tleRgBIAEoCzIPLmF1dGgudjEuQXBpS2V5IvkBChBBc3Npc3RhbnRLZXlTcGVjEhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBARIcChJwdWJsaWNfa2V5X2VkMjU1MTkYAiABKAxCABIRCglwb2xpY3lfaWQYAyABKAYSOQoVcmVnaXN0cmF0aW9uX2RlYWRsaW5lGAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJyZWdpc3RyYXRpb25fcHJvb2YYBSABKAwSLQoGcHJlc2V0GAYgASgOMhsuYXV0aC52MS5Bc3Npc3RhbnRLZXlQcmVzZXRCADoAQhAKDl9zdWJhY2NvdW50X2lkIkQKF1NldEFzc2lzdGFudEtleXNSZXF1ZXN0EikKBGtleXMYASADKAsyGS5hdXRoLnYxLkFzc2lzdGFudEtleVNwZWNCACI9ChhTZXRBc3Npc3RhbnRLZXlzUmVzcG9uc2USIQoIYXBpX2tleXMYASADKAsyDy5hdXRoLnYxLkFwaUtleSIaChhMaXN0QXNzaXN0YW50S2V5c1JlcXVlc3QiPgoZTGlzdEFzc2lzdGFudEtleXNSZXNwb25zZRIhCghhcGlfa2V5cxgBIAMoCzIPLmF1dGgudjEuQXBpS2V5IhwKGkRlbGV0ZUFzc2lzdGFudEtleXNSZXF1ZXN0IjYKG0RlbGV0ZUFzc2lzdGFudEtleXNSZXNwb25zZRIXCg9yZXZva2VkX2tleV9pZHMYASADKAkqVQoMQXBpS2V5U3RhdHVzEh4KGkFQSV9LRVlfU1RBVFVTX1VOU1BFQ0lGSUVEEAASCgoGQUNUSVZFEAESCwoHUkVWT0tFRBACEgwKCERJU0FCTEVEEAMqVAoNQXBpS2V5UHVycG9zZRIXChNQVVJQT1NFX1VOU1BFQ0lGSUVEEAASDAoIU1RBTkRBUkQQARINCglBU1NJU1RBTlQQAhINCglBRE1JTl9LRVkQAypUChJBc3Npc3RhbnRLZXlQcmVzZXQSFgoSUFJFU0VUX1VOU1BFQ0lGSUVEEAASDQoJUkVBRF9PTkxZEAESFwoTVFJBREVfV0lUSF9BUFBST1ZBTBACMq0FCg1BcGlLZXlTZXJ2aWNlEk0KDENyZWF0ZUFwaUtleRIcLmF1dGgudjEuQ3JlYXRlQXBpS2V5UmVxdWVzdBodLmF1dGgudjEuQ3JlYXRlQXBpS2V5UmVzcG9uc2UiABJKCgtMaXN0QXBpS2V5cxIbLmF1dGgudjEuTGlzdEFwaUtleXNSZXF1ZXN0GhwuYXV0aC52MS5MaXN0QXBpS2V5c1Jlc3BvbnNlIgASRAoJR2V0QXBpS2V5EhkuYXV0aC52MS5HZXRBcGlLZXlSZXF1ZXN0GhouYXV0aC52MS5HZXRBcGlLZXlSZXNwb25zZSIAEk0KDERlbGV0ZUFwaUtleRIcLmF1dGgudjEuRGVsZXRlQXBpS2V5UmVxdWVzdBodLmF1dGgudjEuRGVsZXRlQXBpS2V5UmVzcG9uc2UiABJNCgxVcGRhdGVBcGlLZXkSHC5hdXRoLnYxLlVwZGF0ZUFwaUtleVJlcXVlc3QaHS5hdXRoLnYxLlVwZGF0ZUFwaUtleVJlc3BvbnNlIgASWQoQU2V0QXNzaXN0YW50S2V5cxIgLmF1dGgudjEuU2V0QXNzaXN0YW50S2V5c1JlcXVlc3QaIS5hdXRoLnYxLlNldEFzc2lzdGFudEtleXNSZXNwb25zZSIAElwKEUxpc3RBc3Npc3RhbnRLZXlzEiEuYXV0aC52MS5MaXN0QXNzaXN0YW50S2V5c1JlcXVlc3QaIi5hdXRoLnYxLkxpc3RBc3Npc3RhbnRLZXlzUmVzcG9uc2UiABJiChNEZWxldGVBc3Npc3RhbnRLZXlzEiMuYXV0aC52MS5EZWxldGVBc3Npc3RhbnRLZXlzUmVxdWVzdBokLmF1dGgudjEuRGVsZXRlQXNzaXN0YW50S2V5c1Jlc3BvbnNlIgAaAEI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2F1dGgvdjE7YXV0aHYxYgZwcm90bzM=", [file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * ApiKey is public API key metadata. It never includes the private key or seed.
@@ -205,6 +205,17 @@ export type CreateApiKeyRequest = Message<"auth.v1.CreateApiKeyRequest"> & {
    * @generated from field: bytes public_key_ed25519 = 5;
    */
   publicKeyEd25519: Uint8Array;
+
+  /**
+   * What the key is for. Unspecified or STANDARD creates a standard key.
+   * ADMIN_KEY creates an admin key: only the main account's owner may, in a
+   * signed-in session with a fresh step-up proof, for the main account
+   * (subaccount_id unset), with an ip_whitelist that admin keys accept.
+   * ASSISTANT keys are created with SetAssistantKeys.
+   *
+   * @generated from field: auth.v1.ApiKeyPurpose purpose = 8;
+   */
+  purpose: ApiKeyPurpose;
 };
 
 /**
@@ -407,6 +418,17 @@ export type ApiKeyUpdateSpec = Message<"auth.v1.ApiKeyUpdateSpec"> & {
    * @generated from field: google.protobuf.Timestamp expires_at = 6;
    */
   expiresAt?: Timestamp | undefined;
+
+  /**
+   * New purpose: STANDARD demotes an admin key, ADMIN_KEY promotes a
+   * standard key. Only the main account's owner may select it, in a signed-in session
+   * with a fresh step-up proof. A promoted key must act for the main account,
+   * have an IP allowlist that admin keys accept, and have no policy that
+   * allows a money-out action. An assistant key's purpose never changes.
+   *
+   * @generated from field: auth.v1.ApiKeyPurpose purpose = 7;
+   */
+  purpose: ApiKeyPurpose;
 };
 
 /**
@@ -504,7 +526,8 @@ export type AssistantKeySpec = Message<"auth.v1.AssistantKeySpec"> & {
 
   /**
    * API policy that bounds the key (opaque ID). It must belong to the same
-   * main account as the key, and must not allow EXTERNAL_WITHDRAW,
+   * main account as the key, must not be a template (FailedPrecondition with
+   * AUTH_POLICY_INVALID), and must not allow EXTERNAL_WITHDRAW,
    * INTERNAL_TRANSFER, MANAGE_ADDRESS_BOOK or MANAGE_AUTO_WITHDRAW. Set
    * exactly one of policy_id and preset.
    *
@@ -740,6 +763,22 @@ export enum ApiKeyPurpose {
    * @generated from enum value: ASSISTANT = 2;
    */
   ASSISTANT = 2,
+
+  /**
+   * An elevated key the main account's owner created or promoted in a
+   * signed-in session with a fresh step-up proof. Its policy's admin
+   * permissions (MANAGE_API_KEYS, MANAGE_API_KEY_POLICIES and
+   * MANAGE_SUBACCOUNT_POLICIES) let it manage the main account's other keys
+   * and its owned sub-accounts' policies without a session. An admin key acts
+   * for the main account only, needs a non-empty IP allowlist of entries no
+   * broader than /24 (IPv4) or /48 (IPv6), and its policy can never allow an
+   * action that moves value out of the account or manages where it goes. No
+   * API key can create, promote, change or delete an admin key, including the
+   * key itself; only its owner's session with a fresh step-up proof can.
+   *
+   * @generated from enum value: ADMIN_KEY = 3;
+   */
+  ADMIN_KEY = 3,
 }
 
 /**
@@ -811,6 +850,15 @@ export const ApiKeyService: GenService<{
    * MFA enrollment or a fresh step-up proof. The acting caller's root account
    * must have accepted the current terms, including when targeting a shared
    * subaccount; otherwise FailedPrecondition with AUTH_TERMS_NOT_ACCEPTED is returned.
+   * Creating an admin key always takes a fresh step-up proof.
+   *
+   * An admin API key with MANAGE_API_KEYS may also create a standard key, for
+   * the main account or a sub-account it owns, without a session. The new key
+   * needs an ip_whitelist whose every entry lies within the admin key's own
+   * allowlist (else PermissionDenied with AUTH_ADMIN_KEY_SCOPE_EXCEEDED). A
+   * request for an admin key from any API key returns PermissionDenied with
+   * AUTH_ADMIN_KEY_ESCALATION_DENIED. Any other API key returns
+   * PermissionDenied with AUTH_ADMIN_KEY_REQUIRED.
    *
    * @generated from rpc auth.v1.ApiKeyService.CreateApiKey
    */
@@ -846,6 +894,12 @@ export const ApiKeyService: GenService<{
   /**
    * Revoke an API key permanently.
    *
+   * An admin API key with MANAGE_API_KEYS may also revoke a standard key of
+   * the main account or of a sub-account it owns, without a session. It can
+   * never revoke an admin or assistant key, itself included:
+   * PermissionDenied with AUTH_ADMIN_KEY_ESCALATION_DENIED or
+   * AUTH_ADMIN_KEY_FORBIDDEN_TARGET.
+   *
    * @generated from rpc auth.v1.ApiKeyService.DeleteApiKey
    */
   deleteApiKey: {
@@ -855,7 +909,17 @@ export const ApiKeyService: GenService<{
   },
   /**
    * Update API key metadata and allowed status transitions. Revocation must use
-   * DeleteApiKey.
+   * DeleteApiKey. Promoting a key to an admin key, demoting one, and any change
+   * to an admin key always take a fresh step-up proof.
+   *
+   * An admin API key with MANAGE_API_KEYS may also update a standard key of
+   * the main account or of a sub-account it owns, without a session, when the
+   * key's policy allows no money-out action. The key's ip_whitelist after the
+   * update must lie within the admin key's own allowlist (else
+   * PermissionDenied with AUTH_ADMIN_KEY_SCOPE_EXCEEDED). It can never select
+   * purpose, nor change an admin or assistant key, itself included:
+   * PermissionDenied with AUTH_ADMIN_KEY_ESCALATION_DENIED or
+   * AUTH_ADMIN_KEY_FORBIDDEN_TARGET.
    *
    * @generated from rpc auth.v1.ApiKeyService.UpdateApiKey
    */
@@ -868,12 +932,12 @@ export const ApiKeyService: GenService<{
    * Create or replace the caller's Polyester AI assistant key set: one
    * ASSISTANT key per enabled account, each bounded by its API policy or by a
    * permission preset. One step-up covers the whole set, including the
-   * policies its presets create, and the change is all or nothing. Send a
-   * fresh step-up proof in the X-Auth-Step-Up header, which the change
-   * consumes, or no proof while the session's recent-MFA window is open for
-   * RECENT_MFA_ACTION_ASSISTANT_ACCESS (GetRecentMFA). Without either,
-   * PermissionDenied with AUTH_STEP_UP_REQUIRED, or AUTH_RECENT_MFA_EXPIRED
-   * when the window has closed. An entry whose account already has an assistant key with the same
+   * policies its presets create, and the change is all or nothing. An
+   * MFA-elevated session (one that completed an MFA challenge in the last 30
+   * minutes) needs no proof; any other session sends a fresh step-up proof in
+   * the X-Auth-Step-Up header, which the change consumes. Without either,
+   * PermissionDenied with AUTH_STEP_UP_REQUIRED. An entry whose account
+   * already has an assistant key with the same
    * public key keeps that key, with its status, and takes the requested
    * policy; any other entry replaces the account's key. Accounts left out of
    * the set have their assistant key revoked. A sub-account entry needs the

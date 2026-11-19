@@ -7,13 +7,15 @@ import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import { file_polyester_api_options } from "../../polyester/api/options_pb.js";
+import type { DepthTier } from "../../polyester/type/v1/depth_tier_pb.js";
+import { file_polyester_type_v1_depth_tier } from "../../polyester/type/v1/depth_tier_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file marketdata/v1/heatmap.proto.
  */
 export const file_marketdata_v1_heatmap: GenFile = /*@__PURE__*/
-  fileDesc("ChttYXJrZXRkYXRhL3YxL2hlYXRtYXAucHJvdG8SDW1hcmtldGRhdGEudjEicgoQSGVhdG1hcFRpbWVSYW5nZRIuCgpzdGFydF90aW1lGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXA6ACKuAgoaR2V0T3JkZXJib29rSGVhdG1hcFJlcXVlc3QSEwoJc3ltYm9sX2lkGAEgASgNQgASMgoIaW50ZXJ2YWwYAiABKA4yHi5tYXJrZXRkYXRhLnYxLkhlYXRtYXBJbnRlcnZhbEIAEiwKBWRlcHRoGAMgASgOMhsubWFya2V0ZGF0YS52MS5IZWF0bWFwRGVwdGhCABIzCgp0aW1lX3JhbmdlGAQgASgLMh8ubWFya2V0ZGF0YS52MS5IZWF0bWFwVGltZVJhbmdlEhQKCnBhZ2VfdG9rZW4YBSABKAlCABIPCgVsaW1pdBgGIAEoDUIAEjsKDXF1YW50aXR5X21vZGUYByABKA4yIi5tYXJrZXRkYXRhLnYxLkhlYXRtYXBRdWFudGl0eU1vZGVCADoAIjoKDUhlYXRtYXBMZXZlbHMSEwoLcHJpY2VfdGlja3MYASADKAMSEgoKcXR5X3NjYWxlZBgCIAMoAzoAIj8KEkhlYXRtYXBEZWx0YUxldmVscxITCgtwcmljZV90aWNrcxgBIAMoAxISCgpxdHlfc2NhbGVkGAIgAygDOgAizgEKD0hlYXRtYXBLZXlmcmFtZRIOCgZ0c19zZWMYASABKAQSFgoOYmVzdF9iaWRfdGlja3MYAiABKAMSFgoOYmVzdF9hc2tfdGlja3MYAyABKAMSEQoJbWlkX3RpY2tzGAQgASgDEioKBGJpZHMYBSABKAsyHC5tYXJrZXRkYXRhLnYxLkhlYXRtYXBMZXZlbHMSKgoEYXNrcxgGIAEoCzIcLm1hcmtldGRhdGEudjEuSGVhdG1hcExldmVscxIQCghib29rX3NlcRgHIAEoBCLPAQoSSGVhdG1hcERlbHRhQnVja2V0Eg4KBnRzX3NlYxgBIAEoBBIvCgRiaWRzGAIgASgLMiEubWFya2V0ZGF0YS52MS5IZWF0bWFwRGVsdGFMZXZlbHMSLwoEYXNrcxgDIAEoCzIhLm1hcmtldGRhdGEudjEuSGVhdG1hcERlbHRhTGV2ZWxzEhkKEXVwZGF0ZXNfaW5fYnVja2V0GAQgASgNEhYKDmJvb2tfc2VxX3N0YXJ0GAUgASgEEhQKDGJvb2tfc2VxX2VuZBgGIAEoBCKBAwoRSGVhdG1hcExpdmVCdWNrZXQSEQoJc3ltYm9sX2lkGAEgASgNEjIKCGludGVydmFsGAIgASgOMh4ubWFya2V0ZGF0YS52MS5IZWF0bWFwSW50ZXJ2YWxCABIOCgZ0c19zZWMYAyABKAQSEAoIaXNfZmluYWwYBCABKAgSLwoEYmlkcxgFIAEoCzIhLm1hcmtldGRhdGEudjEuSGVhdG1hcERlbHRhTGV2ZWxzEi8KBGFza3MYBiABKAsyIS5tYXJrZXRkYXRhLnYxLkhlYXRtYXBEZWx0YUxldmVscxIZChF1cGRhdGVzX2luX2J1Y2tldBgHIAEoDRIWCg5ib29rX3NlcV9zdGFydBgIIAEoBBIUCgxib29rX3NlcV9lbmQYCSABKAQSOwoNcXVhbnRpdHlfbW9kZRgKIAEoDjIiLm1hcmtldGRhdGEudjEuSGVhdG1hcFF1YW50aXR5TW9kZUIAEhsKE2VmZmVjdGl2ZV9iaW5fdGlja3MYCyABKAQifQoRSGVhdG1hcERlbHRhQ2hhaW4SNQoNYmFzZV9rZXlmcmFtZRgBIAEoCzIeLm1hcmtldGRhdGEudjEuSGVhdG1hcEtleWZyYW1lEjEKBmRlbHRhcxgCIAMoCzIhLm1hcmtldGRhdGEudjEuSGVhdG1hcERlbHRhQnVja2V0Ir0DChtHZXRPcmRlcmJvb2tIZWF0bWFwUmVzcG9uc2USEQoJc3ltYm9sX2lkGAEgASgNEjAKCGludGVydmFsGAIgASgOMh4ubWFya2V0ZGF0YS52MS5IZWF0bWFwSW50ZXJ2YWwSKgoFZGVwdGgYAyABKA4yGy5tYXJrZXRkYXRhLnYxLkhlYXRtYXBEZXB0aBIvCgVjaGFpbhgEIAEoCzIgLm1hcmtldGRhdGEudjEuSGVhdG1hcERlbHRhQ2hhaW4SHQoVbGFzdF9wZXJzaXN0ZWRfdHNfc2VjGAUgASgEEh4KFmxpdmVfZnJvbV9ib29rX3NlcV9lbmQYBiABKAQSFwoPaGFzX2xpdmVfYW5jaG9yGAcgASgIEhkKD25leHRfcGFnZV90b2tlbhgIIAEoCUIAEhcKD3NlcnZlcl90aW1lX3NlYxgKIAEoBBI5Cg1xdWFudGl0eV9tb2RlGAsgASgOMiIubWFya2V0ZGF0YS52MS5IZWF0bWFwUXVhbnRpdHlNb2RlEjUKC2xpdmVfYnVja2V0GAwgASgLMiAubWFya2V0ZGF0YS52MS5IZWF0bWFwTGl2ZUJ1Y2tldCpvCg9IZWF0bWFwSW50ZXJ2YWwSGAoUSU5URVJWQUxfVU5TUEVDSUZJRUQQABIPCgtJTlRFUlZBTF8xUxABEg8KC0lOVEVSVkFMXzFNEAISDwoLSU5URVJWQUxfNU0QAxIPCgtJTlRFUlZBTF8xSBAEKqYBCgxIZWF0bWFwRGVwdGgSFQoRREVQVEhfVU5TUEVDSUZJRUQQABILCgdERVBUSF8xEAESCwoHREVQVEhfNRACEgwKCERFUFRIXzEwEAMSDAoIREVQVEhfMjAQBBIMCghERVBUSF81MBAFEg0KCURFUFRIXzEwMBAGEg0KCURFUFRIXzIwMBAHEg0KCURFUFRIXzUwMBAIEg4KCkRFUFRIXzEwMDAQCSpEChNIZWF0bWFwUXVhbnRpdHlNb2RlEhgKFFFUWV9NT0RFX1VOU1BFQ0lGSUVEEAASCQoFQ0xPU0UQARIICgRQRUFLEAIyggEKDkhlYXRtYXBTZXJ2aWNlEm4KE0dldE9yZGVyYm9va0hlYXRtYXASKS5tYXJrZXRkYXRhLnYxLkdldE9yZGVyYm9va0hlYXRtYXBSZXF1ZXN0GioubWFya2V0ZGF0YS52MS5HZXRPcmRlcmJvb2tIZWF0bWFwUmVzcG9uc2UiABoAQkhaRmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vbWFya2V0ZGF0YS92MTttYXJrZXRkYXRhdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChttYXJrZXRkYXRhL3YxL2hlYXRtYXAucHJvdG8SDW1hcmtldGRhdGEudjEicgoQSGVhdG1hcFRpbWVSYW5nZRIuCgpzdGFydF90aW1lGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXA6ACKvAgoaR2V0T3JkZXJib29rSGVhdG1hcFJlcXVlc3QSEwoJc3ltYm9sX2lkGAEgASgNQgASMgoIaW50ZXJ2YWwYAiABKA4yHi5tYXJrZXRkYXRhLnYxLkhlYXRtYXBJbnRlcnZhbEIAEi0KBWRlcHRoGAMgASgOMhwucG9seWVzdGVyLnR5cGUudjEuRGVwdGhUaWVyQgASMwoKdGltZV9yYW5nZRgEIAEoCzIfLm1hcmtldGRhdGEudjEuSGVhdG1hcFRpbWVSYW5nZRIUCgpwYWdlX3Rva2VuGAUgASgJQgASDwoFbGltaXQYBiABKA1CABI7Cg1xdWFudGl0eV9tb2RlGAcgASgOMiIubWFya2V0ZGF0YS52MS5IZWF0bWFwUXVhbnRpdHlNb2RlQgA6ACI6Cg1IZWF0bWFwTGV2ZWxzEhMKC3ByaWNlX3RpY2tzGAEgAygDEhIKCnF0eV9zY2FsZWQYAiADKAM6ACI/ChJIZWF0bWFwRGVsdGFMZXZlbHMSEwoLcHJpY2VfdGlja3MYASADKAMSEgoKcXR5X3NjYWxlZBgCIAMoAzoAIs4BCg9IZWF0bWFwS2V5ZnJhbWUSDgoGdHNfc2VjGAEgASgEEhYKDmJlc3RfYmlkX3RpY2tzGAIgASgDEhYKDmJlc3RfYXNrX3RpY2tzGAMgASgDEhEKCW1pZF90aWNrcxgEIAEoAxIqCgRiaWRzGAUgASgLMhwubWFya2V0ZGF0YS52MS5IZWF0bWFwTGV2ZWxzEioKBGFza3MYBiABKAsyHC5tYXJrZXRkYXRhLnYxLkhlYXRtYXBMZXZlbHMSEAoIYm9va19zZXEYByABKAQizwEKEkhlYXRtYXBEZWx0YUJ1Y2tldBIOCgZ0c19zZWMYASABKAQSLwoEYmlkcxgCIAEoCzIhLm1hcmtldGRhdGEudjEuSGVhdG1hcERlbHRhTGV2ZWxzEi8KBGFza3MYAyABKAsyIS5tYXJrZXRkYXRhLnYxLkhlYXRtYXBEZWx0YUxldmVscxIZChF1cGRhdGVzX2luX2J1Y2tldBgEIAEoDRIWCg5ib29rX3NlcV9zdGFydBgFIAEoBBIUCgxib29rX3NlcV9lbmQYBiABKAQigQMKEUhlYXRtYXBMaXZlQnVja2V0EhEKCXN5bWJvbF9pZBgBIAEoDRIyCghpbnRlcnZhbBgCIAEoDjIeLm1hcmtldGRhdGEudjEuSGVhdG1hcEludGVydmFsQgASDgoGdHNfc2VjGAMgASgEEhAKCGlzX2ZpbmFsGAQgASgIEi8KBGJpZHMYBSABKAsyIS5tYXJrZXRkYXRhLnYxLkhlYXRtYXBEZWx0YUxldmVscxIvCgRhc2tzGAYgASgLMiEubWFya2V0ZGF0YS52MS5IZWF0bWFwRGVsdGFMZXZlbHMSGQoRdXBkYXRlc19pbl9idWNrZXQYByABKA0SFgoOYm9va19zZXFfc3RhcnQYCCABKAQSFAoMYm9va19zZXFfZW5kGAkgASgEEjsKDXF1YW50aXR5X21vZGUYCiABKA4yIi5tYXJrZXRkYXRhLnYxLkhlYXRtYXBRdWFudGl0eU1vZGVCABIbChNlZmZlY3RpdmVfYmluX3RpY2tzGAsgASgEIn0KEUhlYXRtYXBEZWx0YUNoYWluEjUKDWJhc2Vfa2V5ZnJhbWUYASABKAsyHi5tYXJrZXRkYXRhLnYxLkhlYXRtYXBLZXlmcmFtZRIxCgZkZWx0YXMYAiADKAsyIS5tYXJrZXRkYXRhLnYxLkhlYXRtYXBEZWx0YUJ1Y2tldCK+AwobR2V0T3JkZXJib29rSGVhdG1hcFJlc3BvbnNlEhEKCXN5bWJvbF9pZBgBIAEoDRIwCghpbnRlcnZhbBgCIAEoDjIeLm1hcmtldGRhdGEudjEuSGVhdG1hcEludGVydmFsEisKBWRlcHRoGAMgASgOMhwucG9seWVzdGVyLnR5cGUudjEuRGVwdGhUaWVyEi8KBWNoYWluGAQgASgLMiAubWFya2V0ZGF0YS52MS5IZWF0bWFwRGVsdGFDaGFpbhIdChVsYXN0X3BlcnNpc3RlZF90c19zZWMYBSABKAQSHgoWbGl2ZV9mcm9tX2Jvb2tfc2VxX2VuZBgGIAEoBBIXCg9oYXNfbGl2ZV9hbmNob3IYByABKAgSGQoPbmV4dF9wYWdlX3Rva2VuGAggASgJQgASFwoPc2VydmVyX3RpbWVfc2VjGAogASgEEjkKDXF1YW50aXR5X21vZGUYCyABKA4yIi5tYXJrZXRkYXRhLnYxLkhlYXRtYXBRdWFudGl0eU1vZGUSNQoLbGl2ZV9idWNrZXQYDCABKAsyIC5tYXJrZXRkYXRhLnYxLkhlYXRtYXBMaXZlQnVja2V0Km8KD0hlYXRtYXBJbnRlcnZhbBIYChRJTlRFUlZBTF9VTlNQRUNJRklFRBAAEg8KC0lOVEVSVkFMXzFTEAESDwoLSU5URVJWQUxfMU0QAhIPCgtJTlRFUlZBTF81TRADEg8KC0lOVEVSVkFMXzFIEAQqRAoTSGVhdG1hcFF1YW50aXR5TW9kZRIYChRRVFlfTU9ERV9VTlNQRUNJRklFRBAAEgkKBUNMT1NFEAESCAoEUEVBSxACMoIBCg5IZWF0bWFwU2VydmljZRJuChNHZXRPcmRlcmJvb2tIZWF0bWFwEikubWFya2V0ZGF0YS52MS5HZXRPcmRlcmJvb2tIZWF0bWFwUmVxdWVzdBoqLm1hcmtldGRhdGEudjEuR2V0T3JkZXJib29rSGVhdG1hcFJlc3BvbnNlIgAaAEJIWkZnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL21hcmtldGRhdGEvdjE7bWFya2V0ZGF0YXYxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options, file_polyester_type_v1_depth_tier]);
 
 /**
  * HeatmapTimeRange selects historical buckets by [start_time, end_time] (UTC).
@@ -65,11 +67,12 @@ export type GetOrderbookHeatmapRequest = Message<"marketdata.v1.GetOrderbookHeat
   interval: HeatmapInterval;
 
   /**
-   * Top-N levels per side included in each bucket.
+   * Top-N levels per side included in each bucket. Every tier except
+   * DEPTH_5000, which is refused with INVALID_ARGUMENT.
    *
-   * @generated from field: marketdata.v1.HeatmapDepth depth = 3;
+   * @generated from field: polyester.type.v1.DepthTier depth = 3;
    */
-  depth: HeatmapDepth;
+  depth: DepthTier;
 
   /**
    * Absolute time range for the first page. Reuse the same request filters and
@@ -447,9 +450,9 @@ export type GetOrderbookHeatmapResponse = Message<"marketdata.v1.GetOrderbookHea
   /**
    * Top-N depth requested per side.
    *
-   * @generated from field: marketdata.v1.HeatmapDepth depth = 3;
+   * @generated from field: polyester.type.v1.DepthTier depth = 3;
    */
-  depth: HeatmapDepth;
+  depth: DepthTier;
 
   /**
    * Always returned as snapshot + sparse deltas for the requested interval.
@@ -555,69 +558,6 @@ export const HeatmapIntervalSchema: GenEnum<HeatmapInterval> = /*@__PURE__*/
   enumDesc(file_marketdata_v1_heatmap, 0);
 
 /**
- * HeatmapDepth controls top-N levels included per side in each heatmap bucket.
- *
- * @generated from enum marketdata.v1.HeatmapDepth
- */
-export enum HeatmapDepth {
-  /**
-   * @generated from enum value: DEPTH_UNSPECIFIED = 0;
-   */
-  DEPTH_UNSPECIFIED = 0,
-
-  /**
-   * @generated from enum value: DEPTH_1 = 1;
-   */
-  DEPTH_1 = 1,
-
-  /**
-   * @generated from enum value: DEPTH_5 = 2;
-   */
-  DEPTH_5 = 2,
-
-  /**
-   * @generated from enum value: DEPTH_10 = 3;
-   */
-  DEPTH_10 = 3,
-
-  /**
-   * @generated from enum value: DEPTH_20 = 4;
-   */
-  DEPTH_20 = 4,
-
-  /**
-   * @generated from enum value: DEPTH_50 = 5;
-   */
-  DEPTH_50 = 5,
-
-  /**
-   * @generated from enum value: DEPTH_100 = 6;
-   */
-  DEPTH_100 = 6,
-
-  /**
-   * @generated from enum value: DEPTH_200 = 7;
-   */
-  DEPTH_200 = 7,
-
-  /**
-   * @generated from enum value: DEPTH_500 = 8;
-   */
-  DEPTH_500 = 8,
-
-  /**
-   * @generated from enum value: DEPTH_1000 = 9;
-   */
-  DEPTH_1000 = 9,
-}
-
-/**
- * Describes the enum marketdata.v1.HeatmapDepth.
- */
-export const HeatmapDepthSchema: GenEnum<HeatmapDepth> = /*@__PURE__*/
-  enumDesc(file_marketdata_v1_heatmap, 1);
-
-/**
  * HeatmapQuantityMode controls what qty_scaled means in returned levels.
  *
  * @generated from enum marketdata.v1.HeatmapQuantityMode
@@ -643,7 +583,7 @@ export enum HeatmapQuantityMode {
  * Describes the enum marketdata.v1.HeatmapQuantityMode.
  */
 export const HeatmapQuantityModeSchema: GenEnum<HeatmapQuantityMode> = /*@__PURE__*/
-  enumDesc(file_marketdata_v1_heatmap, 2);
+  enumDesc(file_marketdata_v1_heatmap, 1);
 
 /**
  * HeatmapService serves historical orderbook heatmap chains.

@@ -27,7 +27,8 @@ export enum MFARequirement {
   MFA_UNSPECIFIED = 0,
 
   /**
-   * The RPC requires recently completed interactive MFA. Stale assurance must be renewed.
+   * The RPC requires an MFA-elevated session: an MFA challenge completed in the last 30 minutes.
+   * An older elevation must be renewed with a new MFA challenge.
    *
    * @generated from enum value: MFA_RECENT = 1;
    */

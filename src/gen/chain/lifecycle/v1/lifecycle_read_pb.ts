@@ -488,7 +488,10 @@ export type FlowTxMatchView = Message<"chain.lifecycle.v1.FlowTxMatchView"> & {
   flowKind: FlowKind;
 
   /**
-   * First observed source transaction hash for the flow when known.
+   * First observed source transaction hash for the flow when known. For a
+   * transfer between Trading accounts, this is the Polyester Chain transaction
+   * that records the settled transfer; it is empty until that transaction is
+   * observed.
    *
    * @generated from field: string source_tx_hash = 4;
    */
@@ -725,7 +728,10 @@ export type FlowSummaryView = Message<"chain.lifecycle.v1.FlowSummaryView"> & {
   requestFee?: RequestFee | undefined;
 
   /**
-   * First observed source transaction hash for the flow when known.
+   * First observed source transaction hash for the flow when known. For a
+   * transfer between Trading accounts, this is the Polyester Chain transaction
+   * that records the settled transfer; it is empty until that transaction is
+   * observed.
    *
    * @generated from field: string source_tx_hash = 11;
    */
@@ -1764,10 +1770,11 @@ export const FlowTimelineStatusSchema: GenEnum<FlowTimelineStatus> = /*@__PURE__
 export const LifecycleReadService: GenService<{
   /**
    * GetFlowById retrieves one lifecycle flow by public flow id. It finds only
-   * flows a chain transaction started, which carry `source_tx_hash`; a flow
-   * settled without one, such as a transfer between Trading accounts or a
-   * Trading withdrawal not yet sent to a chain, is not found. Its account
-   * reads it with GetAccountFlow.
+   * flows that carry a chain transaction, `source_tx_hash`; a flow without
+   * one, such as a Trading withdrawal not yet sent to a chain, or a transfer
+   * between Trading accounts before the Polyester Chain transaction that
+   * records it is observed, is not found. Its account reads it with
+   * GetAccountFlow.
    *
    * @generated from rpc chain.lifecycle.v1.LifecycleReadService.GetFlowById
    */
@@ -1778,7 +1785,7 @@ export const LifecycleReadService: GenService<{
   },
   /**
    * ListFlows lists lifecycle flows with optional filters and keyset
-   * pagination. It lists only flows a chain transaction started, which carry
+   * pagination. It lists only flows that carry a chain transaction,
    * `source_tx_hash`, and identifies accounts by smart account address. An
    * account lists all of its own flows with ListAccountFlows.
    *
@@ -1791,7 +1798,7 @@ export const LifecycleReadService: GenService<{
   },
   /**
    * ListFlowsByTx lists lifecycle flows that reference a transaction hash. It
-   * finds only flows a chain transaction started.
+   * finds only flows that carry a chain transaction, `source_tx_hash`.
    *
    * @generated from rpc chain.lifecycle.v1.LifecycleReadService.ListFlowsByTx
    */
@@ -1803,7 +1810,7 @@ export const LifecycleReadService: GenService<{
   /**
    * ListAccountFlows lists the authenticated account's lifecycle flows with
    * optional filters and keyset pagination: the flows it owns and the
-   * transfers it receives, including those no chain transaction started. API
+   * transfers it receives, including those without a chain transaction. API
    * keys need the READ_FUNDING_FLOWS policy action.
    *
    * @generated from rpc chain.lifecycle.v1.LifecycleReadService.ListAccountFlows
@@ -1815,7 +1822,7 @@ export const LifecycleReadService: GenService<{
   },
   /**
    * GetAccountFlow retrieves one lifecycle flow the authenticated account owns
-   * or receives, including one no chain transaction started. A flow the
+   * or receives, including one without a chain transaction. A flow the
    * account takes no part in is not found. API keys need the
    * READ_FUNDING_FLOWS policy action.
    *

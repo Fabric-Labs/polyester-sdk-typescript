@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file notifications/v1/notifications.proto.
  */
 export const file_notifications_v1_notifications: GenFile = /*@__PURE__*/
-  fileDesc("CiRub3RpZmljYXRpb25zL3YxL25vdGlmaWNhdGlvbnMucHJvdG8SEG5vdGlmaWNhdGlvbnMudjEiOAoLRXJyb3JEZXRhaWwSKQoEY29kZRgBIAEoDjIbLm5vdGlmaWNhdGlvbnMudjEuRXJyb3JDb2RlIp0ECgxOb3RpZmljYXRpb24SFwoPbm90aWZpY2F0aW9uX2lkGAEgASgGEjAKBHR5cGUYAiABKA4yIi5ub3RpZmljYXRpb25zLnYxLk5vdGlmaWNhdGlvblR5cGUSOAoIY2F0ZWdvcnkYAyABKA4yJi5ub3RpZmljYXRpb25zLnYxLk5vdGlmaWNhdGlvbkNhdGVnb3J5Eg0KBXRpdGxlGAQgASgJEgwKBHRleHQYBSABKAkSLgoKY3JlYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKwoHcmVhZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASOQoLcHJpY2VfYWxlcnQYCiABKAsyIi5ub3RpZmljYXRpb25zLnYxLlByaWNlQWxlcnROb3RpY2VIABJFChF0ZWxlZ3JhbV9hcHByb3ZhbBgLIAEoCzIoLm5vdGlmaWNhdGlvbnMudjEuVGVsZWdyYW1BcHByb3ZhbE5vdGljZUgAEkMKEGJyb2tlcl9hbGxvd2xpc3QYDCABKAsyJy5ub3RpZmljYXRpb25zLnYxLkJyb2tlckFsbG93bGlzdE5vdGljZUgAEj0KDXRlbGVncmFtX2xpbmsYDSABKAsyJC5ub3RpZmljYXRpb25zLnYxLlRlbGVncmFtTGlua05vdGljZUgAQggKBmRldGFpbCL+AQoQUHJpY2VBbGVydE5vdGljZRIQCghhbGVydF9pZBgBIAEoBhIRCglzeW1ib2xfaWQYAiABKA0SLAoJZGlyZWN0aW9uGAMgASgOMhkuYWxlcnRzLnYxLkFsZXJ0RGlyZWN0aW9uEjEKDHByaWNlX3NvdXJjZRgEIAEoDjIbLmFsZXJ0cy52MS5BbGVydFByaWNlU291cmNlEhMKC3ByaWNlX3RpY2tzGAUgASgDEh0KFXRyaWdnZXJlZF9wcmljZV90aWNrcxgGIAEoAxIwCgx0cmlnZ2VyZWRfYXQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIi8KC05vdGljZUZpZWxkEg8KBWxhYmVsGAEgASgJQgASDwoFdmFsdWUYAiABKAlCACL8AQoWVGVsZWdyYW1BcHByb3ZhbE5vdGljZRIVCgthcHByb3ZhbF9pZBgBIAEoBkIAEjoKBmFjdGlvbhgCIAEoDjIoLm5vdGlmaWNhdGlvbnMudjEuVGVsZWdyYW1BcHByb3ZhbEFjdGlvbkIAEhQKCmFjY291bnRfaWQYAyABKAZCABIRCgdzdW1tYXJ5GAQgASgJQgASMwoKcGFyYW1ldGVycxgFIAMoCzIdLm5vdGlmaWNhdGlvbnMudjEuTm90aWNlRmllbGRCABIxCgthcHByb3ZlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCACKvAgoVQnJva2VyQWxsb3dsaXN0Tm90aWNlEg4KBmJyb2tlchgBIAEoCRIYChB2YXVsdF9hY2NvdW50X2lkGAIgASgGEhEKCWNoYW5nZV9pZBgDIAEoBhI1CgVldmVudBgEIAEoDjImLm5vdGlmaWNhdGlvbnMudjEuQnJva2VyQWxsb3dsaXN0RXZlbnQSNwoGYWN0aW9uGAUgASgOMicubm90aWZpY2F0aW9ucy52MS5Ccm9rZXJBbGxvd2xpc3RBY3Rpb24SHAoUZGVzdGluYXRpb25fY2hhaW5faWQYBiABKAQSGwoTZGVzdGluYXRpb25fYWRkcmVzcxgHIAEoCRINCgVsYWJlbBgIIAEoCRIfChdyZXF1ZXN0ZWRfYnlfYWNjb3VudF9pZBgJIAEoBiKQAgoYTGlzdE5vdGlmaWNhdGlvbnNSZXF1ZXN0EjwKCmNhdGVnb3JpZXMYASADKA4yJi5ub3RpZmljYXRpb25zLnYxLk5vdGlmaWNhdGlvbkNhdGVnb3J5QgASMQoKcmVhZF9zdGF0ZRgCIAEoDjIbLm5vdGlmaWNhdGlvbnMudjEuUmVhZFN0YXRlQgASLgoKc3RhcnRfdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KBWxpbWl0GAUgASgNQgASFAoKcGFnZV90b2tlbhgGIAEoCUIAImsKGUxpc3ROb3RpZmljYXRpb25zUmVzcG9uc2USNQoNbm90aWZpY2F0aW9ucxgBIAMoCzIeLm5vdGlmaWNhdGlvbnMudjEuTm90aWZpY2F0aW9uEhcKD25leHRfcGFnZV90b2tlbhgCIAEoCSIzChZHZXROb3RpZmljYXRpb25SZXF1ZXN0EhkKD25vdGlmaWNhdGlvbl9pZBgBIAEoBkIAIk8KF0dldE5vdGlmaWNhdGlvblJlc3BvbnNlEjQKDG5vdGlmaWNhdGlvbhgBIAEoCzIeLm5vdGlmaWNhdGlvbnMudjEuTm90aWZpY2F0aW9uIh4KHEdldE5vdGlmaWNhdGlvbkNvdW50c1JlcXVlc3QilgEKCVR5cGVDb3VudBIwCgR0eXBlGAEgASgOMiIubm90aWZpY2F0aW9ucy52MS5Ob3RpZmljYXRpb25UeXBlEjgKCGNhdGVnb3J5GAIgASgOMiYubm90aWZpY2F0aW9ucy52MS5Ob3RpZmljYXRpb25DYXRlZ29yeRINCgV0b3RhbBgDIAEoBBIOCgZ1bnJlYWQYBCABKAQiagodR2V0Tm90aWZpY2F0aW9uQ291bnRzUmVzcG9uc2USDQoFdG90YWwYASABKAQSDgoGdW5yZWFkGAIgASgEEioKBXR5cGVzGAMgAygLMhsubm90aWZpY2F0aW9ucy52MS5UeXBlQ291bnQiOgocTWFya05vdGlmaWNhdGlvbnNSZWFkUmVxdWVzdBIaChBub3RpZmljYXRpb25faWRzGAEgAygGQgAiMAodTWFya05vdGlmaWNhdGlvbnNSZWFkUmVzcG9uc2USDwoHY2hhbmdlZBgBIAEoDSI8Ch5NYXJrTm90aWZpY2F0aW9uc1VucmVhZFJlcXVlc3QSGgoQbm90aWZpY2F0aW9uX2lkcxgBIAMoBkIAIjIKH01hcmtOb3RpZmljYXRpb25zVW5yZWFkUmVzcG9uc2USDwoHY2hhbmdlZBgBIAEoDSKAAQofTWFya0FsbE5vdGlmaWNhdGlvbnNSZWFkUmVxdWVzdBI8CgpjYXRlZ29yaWVzGAEgAygOMiYubm90aWZpY2F0aW9ucy52MS5Ob3RpZmljYXRpb25DYXRlZ29yeUIAEh8KF3Rocm91Z2hfbm90aWZpY2F0aW9uX2lkGAIgASgGIjMKIE1hcmtBbGxOb3RpZmljYXRpb25zUmVhZFJlc3BvbnNlEg8KB2NoYW5nZWQYASABKAQiQwoSVGVsZWdyYW1MaW5rTm90aWNlEi0KCWxpbmtlZF9hdBgBIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAqVwoJRXJyb3JDb2RlEhUKEUVSUk9SX1VOU1BFQ0lGSUVEEAASGgoWTk9USUZJQ0FUSU9OX05PVF9GT1VORBABEhcKE1NFUlZJQ0VfVU5BVkFJTEFCTEUQAiqCAQoQTm90aWZpY2F0aW9uVHlwZRIUChBUWVBFX1VOU1BFQ0lGSUVEEAASDwoLUFJJQ0VfQUxFUlQQARIVChFURUxFR1JBTV9BUFBST1ZBTBACEhsKF0JST0tFUl9BTExPV0xJU1RfQ0hBTkdFEAMSEwoPVEVMRUdSQU1fTElOS0VEEAQqSgoUTm90aWZpY2F0aW9uQ2F0ZWdvcnkSGAoUQ0FURUdPUllfVU5TUEVDSUZJRUQQABIKCgZBTEVSVFMQARIMCghTRUNVUklUWRACKj0KCVJlYWRTdGF0ZRIaChZSRUFEX1NUQVRFX1VOU1BFQ0lGSUVEEAASCgoGVU5SRUFEEAESCAoEUkVBRBACKtQBChZUZWxlZ3JhbUFwcHJvdmFsQWN0aW9uEhYKEkFDVElPTl9VTlNQRUNJRklFRBAAEg8KC1BMQUNFX09SREVSEAESEAoMUExBQ0VfT1JERVJTEAISEQoNTU9ESUZZX09SREVSUxADEhAKDENBTkNFTF9PUkRFUhAEEhUKEUNBTkNFTF9BTExfT1JERVJTEAUSEgoOTU9ESUZZX1RSSUdHRVIQBhIRCg1QQVVTRV9UUklHR0VSEAcSEgoOUkVTVU1FX1RSSUdHRVIQCBIICgRTV0FQEAkqgAEKFEJyb2tlckFsbG93bGlzdEV2ZW50EiYKIkJST0tFUl9BTExPV0xJU1RfRVZFTlRfVU5TUEVDSUZJRUQQABIUChBDSEFOR0VfUkVRVUVTVEVEEAESEgoOQ0hBTkdFX0FQUExJRUQQAhIWChJDSEFOR0VfTk9UX0FQUExJRUQQAyptChVCcm9rZXJBbGxvd2xpc3RBY3Rpb24SJwojQlJPS0VSX0FMTE9XTElTVF9BQ1RJT05fVU5TUEVDSUZJRUQQABITCg9BRERfREVTVElOQVRJT04QARIWChJSRU1PVkVfREVTVElOQVRJT04QAjKEBgoTTm90aWZpY2F0aW9uU2VydmljZRJxChFMaXN0Tm90aWZpY2F0aW9ucxIqLm5vdGlmaWNhdGlvbnMudjEuTGlzdE5vdGlmaWNhdGlvbnNSZXF1ZXN0Gisubm90aWZpY2F0aW9ucy52MS5MaXN0Tm90aWZpY2F0aW9uc1Jlc3BvbnNlIgOQAgESawoPR2V0Tm90aWZpY2F0aW9uEigubm90aWZpY2F0aW9ucy52MS5HZXROb3RpZmljYXRpb25SZXF1ZXN0Gikubm90aWZpY2F0aW9ucy52MS5HZXROb3RpZmljYXRpb25SZXNwb25zZSIDkAIBEn0KFUdldE5vdGlmaWNhdGlvbkNvdW50cxIuLm5vdGlmaWNhdGlvbnMudjEuR2V0Tm90aWZpY2F0aW9uQ291bnRzUmVxdWVzdBovLm5vdGlmaWNhdGlvbnMudjEuR2V0Tm90aWZpY2F0aW9uQ291bnRzUmVzcG9uc2UiA5ACARJ9ChVNYXJrTm90aWZpY2F0aW9uc1JlYWQSLi5ub3RpZmljYXRpb25zLnYxLk1hcmtOb3RpZmljYXRpb25zUmVhZFJlcXVlc3QaLy5ub3RpZmljYXRpb25zLnYxLk1hcmtOb3RpZmljYXRpb25zUmVhZFJlc3BvbnNlIgOQAgISgwEKF01hcmtOb3RpZmljYXRpb25zVW5yZWFkEjAubm90aWZpY2F0aW9ucy52MS5NYXJrTm90aWZpY2F0aW9uc1VucmVhZFJlcXVlc3QaMS5ub3RpZmljYXRpb25zLnYxLk1hcmtOb3RpZmljYXRpb25zVW5yZWFkUmVzcG9uc2UiA5ACAhKGAQoYTWFya0FsbE5vdGlmaWNhdGlvbnNSZWFkEjEubm90aWZpY2F0aW9ucy52MS5NYXJrQWxsTm90aWZpY2F0aW9uc1JlYWRSZXF1ZXN0GjIubm90aWZpY2F0aW9ucy52MS5NYXJrQWxsTm90aWZpY2F0aW9uc1JlYWRSZXNwb25zZSIDkAICGgBCTlpMZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9ub3RpZmljYXRpb25zL3YxO25vdGlmaWNhdGlvbnN2MWIGcHJvdG8z", [file_alerts_v1_price_alerts, file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("CiRub3RpZmljYXRpb25zL3YxL25vdGlmaWNhdGlvbnMucHJvdG8SEG5vdGlmaWNhdGlvbnMudjEiOAoLRXJyb3JEZXRhaWwSKQoEY29kZRgBIAEoDjIbLm5vdGlmaWNhdGlvbnMudjEuRXJyb3JDb2RlIuEECgxOb3RpZmljYXRpb24SFwoPbm90aWZpY2F0aW9uX2lkGAEgASgGEjAKBHR5cGUYAiABKA4yIi5ub3RpZmljYXRpb25zLnYxLk5vdGlmaWNhdGlvblR5cGUSOAoIY2F0ZWdvcnkYAyABKA4yJi5ub3RpZmljYXRpb25zLnYxLk5vdGlmaWNhdGlvbkNhdGVnb3J5Eg0KBXRpdGxlGAQgASgJEgwKBHRleHQYBSABKAkSLgoKY3JlYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKwoHcmVhZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASOQoLcHJpY2VfYWxlcnQYCiABKAsyIi5ub3RpZmljYXRpb25zLnYxLlByaWNlQWxlcnROb3RpY2VIABJFChF0ZWxlZ3JhbV9hcHByb3ZhbBgLIAEoCzIoLm5vdGlmaWNhdGlvbnMudjEuVGVsZWdyYW1BcHByb3ZhbE5vdGljZUgAEkMKEGJyb2tlcl9hbGxvd2xpc3QYDCABKAsyJy5ub3RpZmljYXRpb25zLnYxLkJyb2tlckFsbG93bGlzdE5vdGljZUgAEj0KDXRlbGVncmFtX2xpbmsYDSABKAsyJC5ub3RpZmljYXRpb25zLnYxLlRlbGVncmFtTGlua05vdGljZUgAEkIKEGFkbWluX2tleV9hY3Rpb24YDiABKAsyJi5ub3RpZmljYXRpb25zLnYxLkFkbWluS2V5QWN0aW9uTm90aWNlSABCCAoGZGV0YWlsIv4BChBQcmljZUFsZXJ0Tm90aWNlEhAKCGFsZXJ0X2lkGAEgASgGEhEKCXN5bWJvbF9pZBgCIAEoDRIsCglkaXJlY3Rpb24YAyABKA4yGS5hbGVydHMudjEuQWxlcnREaXJlY3Rpb24SMQoMcHJpY2Vfc291cmNlGAQgASgOMhsuYWxlcnRzLnYxLkFsZXJ0UHJpY2VTb3VyY2USEwoLcHJpY2VfdGlja3MYBSABKAMSHQoVdHJpZ2dlcmVkX3ByaWNlX3RpY2tzGAYgASgDEjAKDHRyaWdnZXJlZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiLwoLTm90aWNlRmllbGQSDwoFbGFiZWwYASABKAlCABIPCgV2YWx1ZRgCIAEoCUIAIvwBChZUZWxlZ3JhbUFwcHJvdmFsTm90aWNlEhUKC2FwcHJvdmFsX2lkGAEgASgGQgASOgoGYWN0aW9uGAIgASgOMigubm90aWZpY2F0aW9ucy52MS5UZWxlZ3JhbUFwcHJvdmFsQWN0aW9uQgASFAoKYWNjb3VudF9pZBgDIAEoBkIAEhEKB3N1bW1hcnkYBCABKAlCABIzCgpwYXJhbWV0ZXJzGAUgAygLMh0ubm90aWZpY2F0aW9ucy52MS5Ob3RpY2VGaWVsZEIAEjEKC2FwcHJvdmVkX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIAIq8CChVCcm9rZXJBbGxvd2xpc3ROb3RpY2USDgoGYnJva2VyGAEgASgJEhgKEHZhdWx0X2FjY291bnRfaWQYAiABKAYSEQoJY2hhbmdlX2lkGAMgASgGEjUKBWV2ZW50GAQgASgOMiYubm90aWZpY2F0aW9ucy52MS5Ccm9rZXJBbGxvd2xpc3RFdmVudBI3CgZhY3Rpb24YBSABKA4yJy5ub3RpZmljYXRpb25zLnYxLkJyb2tlckFsbG93bGlzdEFjdGlvbhIcChRkZXN0aW5hdGlvbl9jaGFpbl9pZBgGIAEoBBIbChNkZXN0aW5hdGlvbl9hZGRyZXNzGAcgASgJEg0KBWxhYmVsGAggASgJEh8KF3JlcXVlc3RlZF9ieV9hY2NvdW50X2lkGAkgASgGItsBChRBZG1pbktleUFjdGlvbk5vdGljZRIUCgxhZG1pbl9rZXlfaWQYASABKAkSMAoGYWN0aW9uGAIgASgOMiAubm90aWZpY2F0aW9ucy52MS5BZG1pbktleUFjdGlvbhIOCgZrZXlfaWQYAyABKAkSFQoNc3ViYWNjb3VudF9pZBgEIAEoBhIRCglwb2xpY3lfaWQYBSABKAYSEQoJc291cmNlX2lwGAYgASgJEi4KCmNoYW5nZWRfYXQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIpACChhMaXN0Tm90aWZpY2F0aW9uc1JlcXVlc3QSPAoKY2F0ZWdvcmllcxgBIAMoDjImLm5vdGlmaWNhdGlvbnMudjEuTm90aWZpY2F0aW9uQ2F0ZWdvcnlCABIxCgpyZWFkX3N0YXRlGAIgASgOMhsubm90aWZpY2F0aW9ucy52MS5SZWFkU3RhdGVCABIuCgpzdGFydF90aW1lGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDwoFbGltaXQYBSABKA1CABIUCgpwYWdlX3Rva2VuGAYgASgJQgAiawoZTGlzdE5vdGlmaWNhdGlvbnNSZXNwb25zZRI1Cg1ub3RpZmljYXRpb25zGAEgAygLMh4ubm90aWZpY2F0aW9ucy52MS5Ob3RpZmljYXRpb24SFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIjMKFkdldE5vdGlmaWNhdGlvblJlcXVlc3QSGQoPbm90aWZpY2F0aW9uX2lkGAEgASgGQgAiTwoXR2V0Tm90aWZpY2F0aW9uUmVzcG9uc2USNAoMbm90aWZpY2F0aW9uGAEgASgLMh4ubm90aWZpY2F0aW9ucy52MS5Ob3RpZmljYXRpb24iHgocR2V0Tm90aWZpY2F0aW9uQ291bnRzUmVxdWVzdCKWAQoJVHlwZUNvdW50EjAKBHR5cGUYASABKA4yIi5ub3RpZmljYXRpb25zLnYxLk5vdGlmaWNhdGlvblR5cGUSOAoIY2F0ZWdvcnkYAiABKA4yJi5ub3RpZmljYXRpb25zLnYxLk5vdGlmaWNhdGlvbkNhdGVnb3J5Eg0KBXRvdGFsGAMgASgEEg4KBnVucmVhZBgEIAEoBCJqCh1HZXROb3RpZmljYXRpb25Db3VudHNSZXNwb25zZRINCgV0b3RhbBgBIAEoBBIOCgZ1bnJlYWQYAiABKAQSKgoFdHlwZXMYAyADKAsyGy5ub3RpZmljYXRpb25zLnYxLlR5cGVDb3VudCI6ChxNYXJrTm90aWZpY2F0aW9uc1JlYWRSZXF1ZXN0EhoKEG5vdGlmaWNhdGlvbl9pZHMYASADKAZCACIwCh1NYXJrTm90aWZpY2F0aW9uc1JlYWRSZXNwb25zZRIPCgdjaGFuZ2VkGAEgASgNIjwKHk1hcmtOb3RpZmljYXRpb25zVW5yZWFkUmVxdWVzdBIaChBub3RpZmljYXRpb25faWRzGAEgAygGQgAiMgofTWFya05vdGlmaWNhdGlvbnNVbnJlYWRSZXNwb25zZRIPCgdjaGFuZ2VkGAEgASgNIoABCh9NYXJrQWxsTm90aWZpY2F0aW9uc1JlYWRSZXF1ZXN0EjwKCmNhdGVnb3JpZXMYASADKA4yJi5ub3RpZmljYXRpb25zLnYxLk5vdGlmaWNhdGlvbkNhdGVnb3J5QgASHwoXdGhyb3VnaF9ub3RpZmljYXRpb25faWQYAiABKAYiMwogTWFya0FsbE5vdGlmaWNhdGlvbnNSZWFkUmVzcG9uc2USDwoHY2hhbmdlZBgBIAEoBCJDChJUZWxlZ3JhbUxpbmtOb3RpY2USLQoJbGlua2VkX2F0GAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCpXCglFcnJvckNvZGUSFQoRRVJST1JfVU5TUEVDSUZJRUQQABIaChZOT1RJRklDQVRJT05fTk9UX0ZPVU5EEAESFwoTU0VSVklDRV9VTkFWQUlMQUJMRRACKpgBChBOb3RpZmljYXRpb25UeXBlEhQKEFRZUEVfVU5TUEVDSUZJRUQQABIPCgtQUklDRV9BTEVSVBABEhUKEVRFTEVHUkFNX0FQUFJPVkFMEAISGwoXQlJPS0VSX0FMTE9XTElTVF9DSEFOR0UQAxITCg9URUxFR1JBTV9MSU5LRUQQBBIUChBBRE1JTl9LRVlfQUNUSU9OEAUqSgoUTm90aWZpY2F0aW9uQ2F0ZWdvcnkSGAoUQ0FURUdPUllfVU5TUEVDSUZJRUQQABIKCgZBTEVSVFMQARIMCghTRUNVUklUWRACKj0KCVJlYWRTdGF0ZRIaChZSRUFEX1NUQVRFX1VOU1BFQ0lGSUVEEAASCgoGVU5SRUFEEAESCAoEUkVBRBACKuYBChZUZWxlZ3JhbUFwcHJvdmFsQWN0aW9uEhYKEkFDVElPTl9VTlNQRUNJRklFRBAAEg8KC1BMQUNFX09SREVSEAESEAoMUExBQ0VfT1JERVJTEAISEQoNTU9ESUZZX09SREVSUxADEhAKDENBTkNFTF9PUkRFUhAEEhUKEUNBTkNFTF9BTExfT1JERVJTEAUSEgoOTU9ESUZZX1RSSUdHRVIQBhIRCg1QQVVTRV9UUklHR0VSEAcSEgoOUkVTVU1FX1RSSUdHRVIQCBIICgRTV0FQEAkSEAoMQ09OVkVSVF9EVVNUEAoqgAEKFEJyb2tlckFsbG93bGlzdEV2ZW50EiYKIkJST0tFUl9BTExPV0xJU1RfRVZFTlRfVU5TUEVDSUZJRUQQABIUChBDSEFOR0VfUkVRVUVTVEVEEAESEgoOQ0hBTkdFX0FQUExJRUQQAhIWChJDSEFOR0VfTk9UX0FQUExJRUQQAyptChVCcm9rZXJBbGxvd2xpc3RBY3Rpb24SJwojQlJPS0VSX0FMTE9XTElTVF9BQ1RJT05fVU5TUEVDSUZJRUQQABITCg9BRERfREVTVElOQVRJT04QARIWChJSRU1PVkVfREVTVElOQVRJT04QAiq/AQoOQWRtaW5LZXlBY3Rpb24SIAocQURNSU5fS0VZX0FDVElPTl9VTlNQRUNJRklFRBAAEhIKDkNSRUFURV9BUElfS0VZEAESEgoOVVBEQVRFX0FQSV9LRVkQAhISCg5ERUxFVEVfQVBJX0tFWRADEhYKElNFVF9BUElfS0VZX1BPTElDWRAEEhkKFVNFVF9TVUJBQ0NPVU5UX1BPTElDWRAFEhwKGFVQREFURV9TVUJBQ0NPVU5UX1BPTElDWRAGMoQGChNOb3RpZmljYXRpb25TZXJ2aWNlEnEKEUxpc3ROb3RpZmljYXRpb25zEioubm90aWZpY2F0aW9ucy52MS5MaXN0Tm90aWZpY2F0aW9uc1JlcXVlc3QaKy5ub3RpZmljYXRpb25zLnYxLkxpc3ROb3RpZmljYXRpb25zUmVzcG9uc2UiA5ACARJrCg9HZXROb3RpZmljYXRpb24SKC5ub3RpZmljYXRpb25zLnYxLkdldE5vdGlmaWNhdGlvblJlcXVlc3QaKS5ub3RpZmljYXRpb25zLnYxLkdldE5vdGlmaWNhdGlvblJlc3BvbnNlIgOQAgESfQoVR2V0Tm90aWZpY2F0aW9uQ291bnRzEi4ubm90aWZpY2F0aW9ucy52MS5HZXROb3RpZmljYXRpb25Db3VudHNSZXF1ZXN0Gi8ubm90aWZpY2F0aW9ucy52MS5HZXROb3RpZmljYXRpb25Db3VudHNSZXNwb25zZSIDkAIBEn0KFU1hcmtOb3RpZmljYXRpb25zUmVhZBIuLm5vdGlmaWNhdGlvbnMudjEuTWFya05vdGlmaWNhdGlvbnNSZWFkUmVxdWVzdBovLm5vdGlmaWNhdGlvbnMudjEuTWFya05vdGlmaWNhdGlvbnNSZWFkUmVzcG9uc2UiA5ACAhKDAQoXTWFya05vdGlmaWNhdGlvbnNVbnJlYWQSMC5ub3RpZmljYXRpb25zLnYxLk1hcmtOb3RpZmljYXRpb25zVW5yZWFkUmVxdWVzdBoxLm5vdGlmaWNhdGlvbnMudjEuTWFya05vdGlmaWNhdGlvbnNVbnJlYWRSZXNwb25zZSIDkAICEoYBChhNYXJrQWxsTm90aWZpY2F0aW9uc1JlYWQSMS5ub3RpZmljYXRpb25zLnYxLk1hcmtBbGxOb3RpZmljYXRpb25zUmVhZFJlcXVlc3QaMi5ub3RpZmljYXRpb25zLnYxLk1hcmtBbGxOb3RpZmljYXRpb25zUmVhZFJlc3BvbnNlIgOQAgIaAEJOWkxnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL25vdGlmaWNhdGlvbnMvdjE7bm90aWZpY2F0aW9uc3YxYgZwcm90bzM=", [file_alerts_v1_price_alerts, file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * ErrorDetail is attached to Notification API errors as an error detail of
@@ -135,6 +135,14 @@ export type Notification = Message<"notifications.v1.Notification"> & {
      */
     value: TelegramLinkNotice;
     case: "telegramLink";
+  } | {
+    /**
+     * The admin API key's change.
+     *
+     * @generated from field: notifications.v1.AdminKeyActionNotice admin_key_action = 14;
+     */
+    value: AdminKeyActionNotice;
+    case: "adminKeyAction";
   } | { case: undefined; value?: undefined };
 };
 
@@ -376,6 +384,75 @@ export const BrokerAllowlistNoticeSchema: GenMessage<BrokerAllowlistNotice> = /*
   messageDesc(file_notifications_v1_notifications, 5);
 
 /**
+ * AdminKeyActionNotice is one change an admin API key of the main account
+ * made. The account's activity shows the same change.
+ *
+ * @generated from message notifications.v1.AdminKeyActionNotice
+ */
+export type AdminKeyActionNotice = Message<"notifications.v1.AdminKeyActionNotice"> & {
+  /**
+   * Opaque identifier of the admin API key that made the change, formatted
+   * as "ak_" followed by 32 lowercase hex characters.
+   *
+   * @generated from field: string admin_key_id = 1;
+   */
+  adminKeyId: string;
+
+  /**
+   * What the admin key changed.
+   *
+   * @generated from field: notifications.v1.AdminKeyAction action = 2;
+   */
+  action: AdminKeyAction;
+
+  /**
+   * Opaque identifier of the API key changed; empty for a sub-account policy
+   * change.
+   *
+   * @generated from field: string key_id = 3;
+   */
+  keyId: string;
+
+  /**
+   * Public ID of the sub-account the change applies to; 0 for the main
+   * account, or for an update of a sub-account policy, which applies to
+   * every sub-account it is attached to.
+   *
+   * @generated from field: fixed64 subaccount_id = 4;
+   */
+  subaccountId: bigint;
+
+  /**
+   * Public ID of the policy attached or updated; 0 when the change cleared a
+   * policy or attached none.
+   *
+   * @generated from field: fixed64 policy_id = 5;
+   */
+  policyId: bigint;
+
+  /**
+   * Source IP address of the admin key's request.
+   *
+   * @generated from field: string source_ip = 6;
+   */
+  sourceIp: string;
+
+  /**
+   * When the change was made.
+   *
+   * @generated from field: google.protobuf.Timestamp changed_at = 7;
+   */
+  changedAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message notifications.v1.AdminKeyActionNotice.
+ * Use `create(AdminKeyActionNoticeSchema)` to create a new message.
+ */
+export const AdminKeyActionNoticeSchema: GenMessage<AdminKeyActionNotice> = /*@__PURE__*/
+  messageDesc(file_notifications_v1_notifications, 6);
+
+/**
  * ListNotificationsRequest lists the caller's notifications.
  *
  * @generated from message notifications.v1.ListNotificationsRequest
@@ -434,7 +511,7 @@ export type ListNotificationsRequest = Message<"notifications.v1.ListNotificatio
  * Use `create(ListNotificationsRequestSchema)` to create a new message.
  */
 export const ListNotificationsRequestSchema: GenMessage<ListNotificationsRequest> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 6);
+  messageDesc(file_notifications_v1_notifications, 7);
 
 /**
  * ListNotificationsResponse returns one page of the caller's notifications.
@@ -462,7 +539,7 @@ export type ListNotificationsResponse = Message<"notifications.v1.ListNotificati
  * Use `create(ListNotificationsResponseSchema)` to create a new message.
  */
 export const ListNotificationsResponseSchema: GenMessage<ListNotificationsResponse> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 7);
+  messageDesc(file_notifications_v1_notifications, 8);
 
 /**
  * GetNotificationRequest reads one notification of the caller.
@@ -483,7 +560,7 @@ export type GetNotificationRequest = Message<"notifications.v1.GetNotificationRe
  * Use `create(GetNotificationRequestSchema)` to create a new message.
  */
 export const GetNotificationRequestSchema: GenMessage<GetNotificationRequest> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 8);
+  messageDesc(file_notifications_v1_notifications, 9);
 
 /**
  * GetNotificationResponse returns the notification.
@@ -504,7 +581,7 @@ export type GetNotificationResponse = Message<"notifications.v1.GetNotificationR
  * Use `create(GetNotificationResponseSchema)` to create a new message.
  */
 export const GetNotificationResponseSchema: GenMessage<GetNotificationResponse> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 9);
+  messageDesc(file_notifications_v1_notifications, 10);
 
 /**
  * GetNotificationCountsRequest counts the caller's notifications.
@@ -519,7 +596,7 @@ export type GetNotificationCountsRequest = Message<"notifications.v1.GetNotifica
  * Use `create(GetNotificationCountsRequestSchema)` to create a new message.
  */
 export const GetNotificationCountsRequestSchema: GenMessage<GetNotificationCountsRequest> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 10);
+  messageDesc(file_notifications_v1_notifications, 11);
 
 /**
  * TypeCount counts the caller's notifications of one type.
@@ -561,7 +638,7 @@ export type TypeCount = Message<"notifications.v1.TypeCount"> & {
  * Use `create(TypeCountSchema)` to create a new message.
  */
 export const TypeCountSchema: GenMessage<TypeCount> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 11);
+  messageDesc(file_notifications_v1_notifications, 12);
 
 /**
  * GetNotificationCountsResponse returns exact counts of the caller's
@@ -598,7 +675,7 @@ export type GetNotificationCountsResponse = Message<"notifications.v1.GetNotific
  * Use `create(GetNotificationCountsResponseSchema)` to create a new message.
  */
 export const GetNotificationCountsResponseSchema: GenMessage<GetNotificationCountsResponse> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 12);
+  messageDesc(file_notifications_v1_notifications, 13);
 
 /**
  * MarkNotificationsReadRequest marks notifications of the caller read.
@@ -619,7 +696,7 @@ export type MarkNotificationsReadRequest = Message<"notifications.v1.MarkNotific
  * Use `create(MarkNotificationsReadRequestSchema)` to create a new message.
  */
 export const MarkNotificationsReadRequestSchema: GenMessage<MarkNotificationsReadRequest> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 13);
+  messageDesc(file_notifications_v1_notifications, 14);
 
 /**
  * MarkNotificationsReadResponse reports what MarkNotificationsRead changed.
@@ -641,7 +718,7 @@ export type MarkNotificationsReadResponse = Message<"notifications.v1.MarkNotifi
  * Use `create(MarkNotificationsReadResponseSchema)` to create a new message.
  */
 export const MarkNotificationsReadResponseSchema: GenMessage<MarkNotificationsReadResponse> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 14);
+  messageDesc(file_notifications_v1_notifications, 15);
 
 /**
  * MarkNotificationsUnreadRequest marks notifications of the caller unread.
@@ -662,7 +739,7 @@ export type MarkNotificationsUnreadRequest = Message<"notifications.v1.MarkNotif
  * Use `create(MarkNotificationsUnreadRequestSchema)` to create a new message.
  */
 export const MarkNotificationsUnreadRequestSchema: GenMessage<MarkNotificationsUnreadRequest> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 15);
+  messageDesc(file_notifications_v1_notifications, 16);
 
 /**
  * MarkNotificationsUnreadResponse reports what MarkNotificationsUnread
@@ -685,7 +762,7 @@ export type MarkNotificationsUnreadResponse = Message<"notifications.v1.MarkNoti
  * Use `create(MarkNotificationsUnreadResponseSchema)` to create a new message.
  */
 export const MarkNotificationsUnreadResponseSchema: GenMessage<MarkNotificationsUnreadResponse> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 16);
+  messageDesc(file_notifications_v1_notifications, 17);
 
 /**
  * MarkAllNotificationsReadRequest marks every unread notification of the
@@ -716,7 +793,7 @@ export type MarkAllNotificationsReadRequest = Message<"notifications.v1.MarkAllN
  * Use `create(MarkAllNotificationsReadRequestSchema)` to create a new message.
  */
 export const MarkAllNotificationsReadRequestSchema: GenMessage<MarkAllNotificationsReadRequest> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 17);
+  messageDesc(file_notifications_v1_notifications, 18);
 
 /**
  * MarkAllNotificationsReadResponse reports what MarkAllNotificationsRead
@@ -738,7 +815,7 @@ export type MarkAllNotificationsReadResponse = Message<"notifications.v1.MarkAll
  * Use `create(MarkAllNotificationsReadResponseSchema)` to create a new message.
  */
 export const MarkAllNotificationsReadResponseSchema: GenMessage<MarkAllNotificationsReadResponse> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 18);
+  messageDesc(file_notifications_v1_notifications, 19);
 
 /**
  * TelegramLinkNotice is a Telegram account linked to the caller's account, as
@@ -760,7 +837,7 @@ export type TelegramLinkNotice = Message<"notifications.v1.TelegramLinkNotice"> 
  * Use `create(TelegramLinkNoticeSchema)` to create a new message.
  */
 export const TelegramLinkNoticeSchema: GenMessage<TelegramLinkNotice> = /*@__PURE__*/
-  messageDesc(file_notifications_v1_notifications, 19);
+  messageDesc(file_notifications_v1_notifications, 20);
 
 /**
  * ErrorCode identifies a Notification API error.
@@ -847,6 +924,16 @@ export enum NotificationType {
    * @generated from enum value: TELEGRAM_LINKED = 4;
    */
   TELEGRAM_LINKED = 4,
+
+  /**
+   * An admin API key of the caller's main account created, changed or
+   * revoked an API key, or changed an API key or sub-account policy.
+   * Category SECURITY; detail admin_key_action. If nobody on the account
+   * made the change, revoke the admin key and review the account's API keys.
+   *
+   * @generated from enum value: ADMIN_KEY_ACTION = 5;
+   */
+  ADMIN_KEY_ACTION = 5,
 }
 
 /**
@@ -999,6 +1086,14 @@ export enum TelegramApprovalAction {
    * @generated from enum value: SWAP = 9;
    */
   SWAP = 9,
+
+  /**
+   * Convert dust, balances too small to trade, into one asset within the
+   * trading account.
+   *
+   * @generated from enum value: CONVERT_DUST = 10;
+   */
+  CONVERT_DUST = 10,
 }
 
 /**
@@ -1082,6 +1177,68 @@ export enum BrokerAllowlistAction {
  */
 export const BrokerAllowlistActionSchema: GenEnum<BrokerAllowlistAction> = /*@__PURE__*/
   enumDesc(file_notifications_v1_notifications, 6);
+
+/**
+ * AdminKeyAction is what an admin API key changed.
+ *
+ * @generated from enum notifications.v1.AdminKeyAction
+ */
+export enum AdminKeyAction {
+  /**
+   * Not set. Never returned.
+   *
+   * @generated from enum value: ADMIN_KEY_ACTION_UNSPECIFIED = 0;
+   */
+  ADMIN_KEY_ACTION_UNSPECIFIED = 0,
+
+  /**
+   * Created an API key (CreateApiKey).
+   *
+   * @generated from enum value: CREATE_API_KEY = 1;
+   */
+  CREATE_API_KEY = 1,
+
+  /**
+   * Updated an API key (UpdateApiKey).
+   *
+   * @generated from enum value: UPDATE_API_KEY = 2;
+   */
+  UPDATE_API_KEY = 2,
+
+  /**
+   * Revoked an API key (DeleteApiKey).
+   *
+   * @generated from enum value: DELETE_API_KEY = 3;
+   */
+  DELETE_API_KEY = 3,
+
+  /**
+   * Attached or cleared an API key's policy (SetApiKeyPolicy).
+   *
+   * @generated from enum value: SET_API_KEY_POLICY = 4;
+   */
+  SET_API_KEY_POLICY = 4,
+
+  /**
+   * Attached or cleared a sub-account's policy (SetSubaccountPolicy).
+   *
+   * @generated from enum value: SET_SUBACCOUNT_POLICY = 5;
+   */
+  SET_SUBACCOUNT_POLICY = 5,
+
+  /**
+   * Updated a sub-account policy (UpdateSubaccountPolicy).
+   *
+   * @generated from enum value: UPDATE_SUBACCOUNT_POLICY = 6;
+   */
+  UPDATE_SUBACCOUNT_POLICY = 6,
+}
+
+/**
+ * Describes the enum notifications.v1.AdminKeyAction.
+ */
+export const AdminKeyActionSchema: GenEnum<AdminKeyAction> = /*@__PURE__*/
+  enumDesc(file_notifications_v1_notifications, 7);
 
 /**
  * NotificationService serves the caller's notification center: the

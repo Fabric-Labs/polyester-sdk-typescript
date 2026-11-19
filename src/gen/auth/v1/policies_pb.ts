@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file auth/v1/policies.proto.
  */
 export const file_auth_v1_policies: GenFile = /*@__PURE__*/
-  fileDesc("ChZhdXRoL3YxL3BvbGljaWVzLnByb3RvEgdhdXRoLnYxIj8KC01hcmtldFNjb3BlIjAKBVZhbHVlEg8KC1VOU1BFQ0lGSUVEEAASBwoDQUxMEAESDQoJQUxMT1dMSVNUEAIiKQoSU3BvdE1hcmtldFNlbGVjdG9yEhMKCXN5bWJvbF9pZBgBIAEoDUIAIiMKDlNwb3RNYXJrZXRSdWxlEhEKCXN5bWJvbF9pZBgBIAEoDSK2BAoUU3ViYWNjb3VudFBvbGljeVZpZXcSCgoCaWQYASABKAYSDAoEbmFtZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRItCgxzcG90X21hcmtldHMYBCADKAsyFy5hdXRoLnYxLlNwb3RNYXJrZXRSdWxlEjcKEXNwb3RfbWFya2V0X3Njb3BlGAYgASgOMhouYXV0aC52MS5NYXJrZXRTY29wZS5WYWx1ZUIAEigKB2FjdGlvbnMYCCADKA4yFS5hdXRoLnYxLlBvbGljeUFjdGlvbkIAEhMKC2lzX3RlbXBsYXRlGAogASgIEhoKEnNvdXJjZV90ZW1wbGF0ZV9pZBgLIAEoBhIaChJtYXhfb3JkZXJfbm90aW9uYWwYDSABKAQSFwoPbWF4X29wZW5fb3JkZXJzGA4gASgNEhYKDnRyYWRpbmdfaGFsdGVkGBcgASgIEg4KBmxvY2tlZBgbIAEoCBItCglyZXZpZXdfYXQYHCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmV4cGlyZXNfYXQYHSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmNyZWF0ZWRfYXQYFCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCnVwZGF0ZWRfYXQYFSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCHJldmlzaW9uGB4gASgEIk8KHUxpc3RTdWJhY2NvdW50UG9saWNpZXNSZXF1ZXN0EhwKDXN1YmFjY291bnRfaWQYASABKAZCAEgAiAEBQhAKDl9zdWJhY2NvdW50X2lkIlEKHkxpc3RTdWJhY2NvdW50UG9saWNpZXNSZXNwb25zZRIvCghwb2xpY2llcxgBIAMoCzIdLmF1dGgudjEuU3ViYWNjb3VudFBvbGljeVZpZXciYQoaR2V0U3ViYWNjb3VudFBvbGljeVJlcXVlc3QSEwoJcG9saWN5X2lkGAEgASgGQgASHAoNc3ViYWNjb3VudF9pZBgCIAEoBkIASACIAQFCEAoOX3N1YmFjY291bnRfaWQiTAobR2V0U3ViYWNjb3VudFBvbGljeVJlc3BvbnNlEi0KBnBvbGljeRgBIAEoCzIdLmF1dGgudjEuU3ViYWNjb3VudFBvbGljeVZpZXcikQMKFFN1YmFjY291bnRQb2xpY3lTcGVjEg4KBG5hbWUYASABKAlCABIVCgtkZXNjcmlwdGlvbhgCIAEoCUIAEjEKDHNwb3RfbWFya2V0cxgDIAMoCzIbLmF1dGgudjEuU3BvdE1hcmtldFNlbGVjdG9yEjcKEXNwb3RfbWFya2V0X3Njb3BlGAUgASgOMhouYXV0aC52MS5NYXJrZXRTY29wZS5WYWx1ZUIAEigKB2FjdGlvbnMYByADKA4yFS5hdXRoLnYxLlBvbGljeUFjdGlvbkIAEhoKEm1heF9vcmRlcl9ub3Rpb25hbBgNIAEoBBIXCg9tYXhfb3Blbl9vcmRlcnMYDiABKA0SFgoOdHJhZGluZ19oYWx0ZWQYFSABKAgSDgoGbG9ja2VkGBkgASgIEi0KCXJldmlld19hdBgaIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKZXhwaXJlc19hdBgbIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXA6ACKAAQodQ3JlYXRlU3ViYWNjb3VudFBvbGljeVJlcXVlc3QSLwoGcG9saWN5GAEgASgLMh0uYXV0aC52MS5TdWJhY2NvdW50UG9saWN5U3BlY0IAEhwKDXN1YmFjY291bnRfaWQYAiABKAZCAEgAiAEBQhAKDl9zdWJhY2NvdW50X2lkIk8KHkNyZWF0ZVN1YmFjY291bnRQb2xpY3lSZXNwb25zZRItCgZwb2xpY3kYASABKAsyHS5hdXRoLnYxLlN1YmFjY291bnRQb2xpY3lWaWV3IrUBCh1VcGRhdGVTdWJhY2NvdW50UG9saWN5UmVxdWVzdBITCglwb2xpY3lfaWQYASABKAZCABIvCgZwb2xpY3kYAiABKAsyHS5hdXRoLnYxLlN1YmFjY291bnRQb2xpY3lTcGVjQgASMQoLdXBkYXRlX21hc2sYAyABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrQgASGwoRZXhwZWN0ZWRfcmV2aXNpb24YBCABKARCACJPCh5VcGRhdGVTdWJhY2NvdW50UG9saWN5UmVzcG9uc2USLQoGcG9saWN5GAEgASgLMh0uYXV0aC52MS5TdWJhY2NvdW50UG9saWN5VmlldyI0Ch1EZWxldGVTdWJhY2NvdW50UG9saWN5UmVxdWVzdBITCglwb2xpY3lfaWQYASABKAZCACIgCh5EZWxldGVTdWJhY2NvdW50UG9saWN5UmVzcG9uc2UiSAoaU2V0U3ViYWNjb3VudFBvbGljeVJlcXVlc3QSFwoNc3ViYWNjb3VudF9pZBgBIAEoBkIAEhEKCXBvbGljeV9pZBgCIAEoBiIdChtTZXRTdWJhY2NvdW50UG9saWN5UmVzcG9uc2Ui8wIKDUFwaVBvbGljeVZpZXcSCgoCaWQYASABKAYSDAoEbmFtZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRItCgxzcG90X21hcmtldHMYBCADKAsyFy5hdXRoLnYxLlNwb3RNYXJrZXRSdWxlEigKB2FjdGlvbnMYBiADKA4yFS5hdXRoLnYxLlBvbGljeUFjdGlvbkIAEjcKEXNwb3RfbWFya2V0X3Njb3BlGAcgASgOMhouYXV0aC52MS5NYXJrZXRTY29wZS5WYWx1ZUIAEhMKC2lzX3RlbXBsYXRlGBMgASgIEhoKEnNvdXJjZV90ZW1wbGF0ZV9pZBgUIAEoBhIuCgpjcmVhdGVkX2F0GBUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgp1cGRhdGVkX2F0GBYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghyZXZpc2lvbhgXIAEoBCI6ChZMaXN0QXBpUG9saWNpZXNSZXF1ZXN0EhUKBmtleV9pZBgBIAEoCUIASACIAQFCCQoHX2tleV9pZCJDChdMaXN0QXBpUG9saWNpZXNSZXNwb25zZRIoCghwb2xpY2llcxgBIAMoCzIWLmF1dGgudjEuQXBpUG9saWN5VmlldyJMChNHZXRBcGlQb2xpY3lSZXF1ZXN0EhMKCXBvbGljeV9pZBgBIAEoBkIAEhUKBmtleV9pZBgCIAEoCUIASACIAQFCCQoHX2tleV9pZCI+ChRHZXRBcGlQb2xpY3lSZXNwb25zZRImCgZwb2xpY3kYASABKAsyFi5hdXRoLnYxLkFwaVBvbGljeVZpZXci4wEKDUFwaVBvbGljeVNwZWMSDgoEbmFtZRgBIAEoCUIAEhUKC2Rlc2NyaXB0aW9uGAIgASgJQgASMQoMc3BvdF9tYXJrZXRzGAMgAygLMhsuYXV0aC52MS5TcG90TWFya2V0U2VsZWN0b3ISNwoRc3BvdF9tYXJrZXRfc2NvcGUYBSABKA4yGi5hdXRoLnYxLk1hcmtldFNjb3BlLlZhbHVlQgASKAoHYWN0aW9ucxgHIAMoDjIVLmF1dGgudjEuUG9saWN5QWN0aW9uQgASEwoLaXNfdGVtcGxhdGUYEyABKAg6ACJeChZDcmVhdGVBcGlQb2xpY3lSZXF1ZXN0EigKBnBvbGljeRgBIAEoCzIWLmF1dGgudjEuQXBpUG9saWN5U3BlY0IAEhoKEGFzc2lnbl90b19rZXlfaWQYAiABKAlCACJBChdDcmVhdGVBcGlQb2xpY3lSZXNwb25zZRImCgZwb2xpY3kYASABKAsyFi5hdXRoLnYxLkFwaVBvbGljeVZpZXcipwEKFlVwZGF0ZUFwaVBvbGljeVJlcXVlc3QSEwoJcG9saWN5X2lkGAEgASgGQgASKAoGcG9saWN5GAIgASgLMhYuYXV0aC52MS5BcGlQb2xpY3lTcGVjQgASMQoLdXBkYXRlX21hc2sYAyABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrQgASGwoRZXhwZWN0ZWRfcmV2aXNpb24YBCABKARCACJBChdVcGRhdGVBcGlQb2xpY3lSZXNwb25zZRImCgZwb2xpY3kYASABKAsyFi5hdXRoLnYxLkFwaVBvbGljeVZpZXciLQoWRGVsZXRlQXBpUG9saWN5UmVxdWVzdBITCglwb2xpY3lfaWQYASABKAZCACIZChdEZWxldGVBcGlQb2xpY3lSZXNwb25zZSI9ChZTZXRBcGlLZXlQb2xpY3lSZXF1ZXN0EhAKBmtleV9pZBgBIAEoCUIAEhEKCXBvbGljeV9pZBgCIAEoBiIZChdTZXRBcGlLZXlQb2xpY3lSZXNwb25zZSqtBwoMUG9saWN5QWN0aW9uEg8KC1VOU1BFQ0lGSUVEEAASDgoKVFJBREVfU1BPVBABEhUKEUlOVEVSTkFMX1RSQU5TRkVSEAMSFQoRRVhURVJOQUxfV0lUSERSQVcQBBIRCg1SRUFEX0JBTEFOQ0VTEAUSDQoJUkVBRF9TUE9UEAYSGwoXUkVBRF9JTlRFUk5BTF9UUkFOU0ZFUlMQCBIVChFSRUFEX0FERFJFU1NfQk9PSxALEhcKE01BTkFHRV9BRERSRVNTX0JPT0sQDBIWChJSRUFEX0FVVE9fV0lUSERSQVcQDhIYChRNQU5BR0VfQVVUT19XSVRIRFJBVxAPEggKBFNXQVAQEBIRCg1SRUFEX0FQSV9LRVlTEBESFQoRUkVBRF9BUElfUE9MSUNJRVMQEhIcChhSRUFEX1NVQkFDQ09VTlRfUE9MSUNJRVMQExIfChtSRUFEX1NVQkFDQ09VTlRfUEVSTUlTU0lPTlMQFBITCg9SRUFEX1ZJUF9TVEFUVVMQFRIcChhSRUFEX1NPQ0lBTF9WRVJJRklDQVRJT04QFhIQCgxSRUFEX1BST0ZJTEUQFxIaChZSRUFEX0FDQ09VTlRfRElSRUNUT1JZEBgSHAoYUkVBRF9XSVRIRFJBV19WQUxJREFUSU9OEBkSFQoRUkVBRF9EQUlMWV9DTEFJTVMQGhIWChJDTEFJTV9EQUlMWV9SRVdBUkQQGxIUChBSRUFEX0NIRUNLUE9JTlRTEBwSEAoMUkVBRF9SRVdBUkRTEB0SGgoWQ1JFQVRFX0RFUE9TSVRfQUREUkVTUxAKEhoKFlJFQURfREVQT1NJVF9BRERSRVNTRVMQHhIUChBSRUFEX1NVQkFDQ09VTlRTEB8SHAoYUkVBRF9TVUJBQ0NPVU5UX0FDVElWSVRZECASGwoXUkVBRF9TVUJBQ0NPVU5UX01FTUJFUlMQIRIbChdSRUFEX1NVQkFDQ09VTlRfSU5WSVRFUxAiEhwKGFJFQURfR1VBUkRfU0lHTkVSX1NUQVRVUxAjEhUKEVJFQURfUFJJQ0VfQUxFUlRTECQSFwoTTUFOQUdFX1BSSUNFX0FMRVJUUxAlEhMKD1JFQURfU1RBVEVNRU5UUxAmEhAKDENPTlZFUlRfRFVTVBAnEhYKElJFQURfRlVORElOR19GTE9XUxAoEhYKElJFQURfTk9USUZJQ0FUSU9OUxApEhkKFVJFQURfQUNDT1VOVF9BQ1RJVklUWRAqMpQJCg1Qb2xpY3lTZXJ2aWNlEmsKFkxpc3RTdWJhY2NvdW50UG9saWNpZXMSJi5hdXRoLnYxLkxpc3RTdWJhY2NvdW50UG9saWNpZXNSZXF1ZXN0GicuYXV0aC52MS5MaXN0U3ViYWNjb3VudFBvbGljaWVzUmVzcG9uc2UiABJiChNHZXRTdWJhY2NvdW50UG9saWN5EiMuYXV0aC52MS5HZXRTdWJhY2NvdW50UG9saWN5UmVxdWVzdBokLmF1dGgudjEuR2V0U3ViYWNjb3VudFBvbGljeVJlc3BvbnNlIgASawoWQ3JlYXRlU3ViYWNjb3VudFBvbGljeRImLmF1dGgudjEuQ3JlYXRlU3ViYWNjb3VudFBvbGljeVJlcXVlc3QaJy5hdXRoLnYxLkNyZWF0ZVN1YmFjY291bnRQb2xpY3lSZXNwb25zZSIAEmsKFlVwZGF0ZVN1YmFjY291bnRQb2xpY3kSJi5hdXRoLnYxLlVwZGF0ZVN1YmFjY291bnRQb2xpY3lSZXF1ZXN0GicuYXV0aC52MS5VcGRhdGVTdWJhY2NvdW50UG9saWN5UmVzcG9uc2UiABJrChZEZWxldGVTdWJhY2NvdW50UG9saWN5EiYuYXV0aC52MS5EZWxldGVTdWJhY2NvdW50UG9saWN5UmVxdWVzdBonLmF1dGgudjEuRGVsZXRlU3ViYWNjb3VudFBvbGljeVJlc3BvbnNlIgASYgoTU2V0U3ViYWNjb3VudFBvbGljeRIjLmF1dGgudjEuU2V0U3ViYWNjb3VudFBvbGljeVJlcXVlc3QaJC5hdXRoLnYxLlNldFN1YmFjY291bnRQb2xpY3lSZXNwb25zZSIAElYKD0xpc3RBcGlQb2xpY2llcxIfLmF1dGgudjEuTGlzdEFwaVBvbGljaWVzUmVxdWVzdBogLmF1dGgudjEuTGlzdEFwaVBvbGljaWVzUmVzcG9uc2UiABJNCgxHZXRBcGlQb2xpY3kSHC5hdXRoLnYxLkdldEFwaVBvbGljeVJlcXVlc3QaHS5hdXRoLnYxLkdldEFwaVBvbGljeVJlc3BvbnNlIgASVgoPQ3JlYXRlQXBpUG9saWN5Eh8uYXV0aC52MS5DcmVhdGVBcGlQb2xpY3lSZXF1ZXN0GiAuYXV0aC52MS5DcmVhdGVBcGlQb2xpY3lSZXNwb25zZSIAElYKD1VwZGF0ZUFwaVBvbGljeRIfLmF1dGgudjEuVXBkYXRlQXBpUG9saWN5UmVxdWVzdBogLmF1dGgudjEuVXBkYXRlQXBpUG9saWN5UmVzcG9uc2UiABJWCg9EZWxldGVBcGlQb2xpY3kSHy5hdXRoLnYxLkRlbGV0ZUFwaVBvbGljeVJlcXVlc3QaIC5hdXRoLnYxLkRlbGV0ZUFwaVBvbGljeVJlc3BvbnNlIgASVgoPU2V0QXBpS2V5UG9saWN5Eh8uYXV0aC52MS5TZXRBcGlLZXlQb2xpY3lSZXF1ZXN0GiAuYXV0aC52MS5TZXRBcGlLZXlQb2xpY3lSZXNwb25zZSIAGgBCPFo6Z2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9hdXRoL3YxO2F1dGh2MWIGcHJvdG8z", [file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChZhdXRoL3YxL3BvbGljaWVzLnByb3RvEgdhdXRoLnYxIj8KC01hcmtldFNjb3BlIjAKBVZhbHVlEg8KC1VOU1BFQ0lGSUVEEAASBwoDQUxMEAESDQoJQUxMT1dMSVNUEAIiKQoSU3BvdE1hcmtldFNlbGVjdG9yEhMKCXN5bWJvbF9pZBgBIAEoDUIAIiMKDlNwb3RNYXJrZXRSdWxlEhEKCXN5bWJvbF9pZBgBIAEoDSLYBAoUU3ViYWNjb3VudFBvbGljeVZpZXcSCgoCaWQYASABKAYSDAoEbmFtZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRItCgxzcG90X21hcmtldHMYBCADKAsyFy5hdXRoLnYxLlNwb3RNYXJrZXRSdWxlEjcKEXNwb3RfbWFya2V0X3Njb3BlGAYgASgOMhouYXV0aC52MS5NYXJrZXRTY29wZS5WYWx1ZUIAEigKB2FjdGlvbnMYCCADKA4yFS5hdXRoLnYxLlBvbGljeUFjdGlvbkIAEhMKC2lzX3RlbXBsYXRlGAogASgIEhoKEnNvdXJjZV90ZW1wbGF0ZV9pZBgLIAEoBhIgChhzb3VyY2VfdGVtcGxhdGVfcmV2aXNpb24YHyABKAQSGgoSbWF4X29yZGVyX25vdGlvbmFsGA0gASgEEhcKD21heF9vcGVuX29yZGVycxgOIAEoDRIWCg50cmFkaW5nX2hhbHRlZBgXIAEoCBIOCgZsb2NrZWQYGyABKAgSLQoJcmV2aWV3X2F0GBwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpleHBpcmVzX2F0GB0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpjcmVhdGVkX2F0GBQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgp1cGRhdGVkX2F0GBUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghyZXZpc2lvbhgeIAEoBCJPCh1MaXN0U3ViYWNjb3VudFBvbGljaWVzUmVxdWVzdBIcCg1zdWJhY2NvdW50X2lkGAEgASgGQgBIAIgBAUIQCg5fc3ViYWNjb3VudF9pZCJRCh5MaXN0U3ViYWNjb3VudFBvbGljaWVzUmVzcG9uc2USLwoIcG9saWNpZXMYASADKAsyHS5hdXRoLnYxLlN1YmFjY291bnRQb2xpY3lWaWV3ImEKGkdldFN1YmFjY291bnRQb2xpY3lSZXF1ZXN0EhMKCXBvbGljeV9pZBgBIAEoBkIAEhwKDXN1YmFjY291bnRfaWQYAiABKAZCAEgAiAEBQhAKDl9zdWJhY2NvdW50X2lkIkwKG0dldFN1YmFjY291bnRQb2xpY3lSZXNwb25zZRItCgZwb2xpY3kYASABKAsyHS5hdXRoLnYxLlN1YmFjY291bnRQb2xpY3lWaWV3IqYDChRTdWJhY2NvdW50UG9saWN5U3BlYxIOCgRuYW1lGAEgASgJQgASFQoLZGVzY3JpcHRpb24YAiABKAlCABIxCgxzcG90X21hcmtldHMYAyADKAsyGy5hdXRoLnYxLlNwb3RNYXJrZXRTZWxlY3RvchI3ChFzcG90X21hcmtldF9zY29wZRgFIAEoDjIaLmF1dGgudjEuTWFya2V0U2NvcGUuVmFsdWVCABIoCgdhY3Rpb25zGAcgAygOMhUuYXV0aC52MS5Qb2xpY3lBY3Rpb25CABIaChJtYXhfb3JkZXJfbm90aW9uYWwYDSABKAQSFwoPbWF4X29wZW5fb3JkZXJzGA4gASgNEhYKDnRyYWRpbmdfaGFsdGVkGBUgASgIEg4KBmxvY2tlZBgZIAEoCBItCglyZXZpZXdfYXQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmV4cGlyZXNfYXQYGyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhMKC2lzX3RlbXBsYXRlGBwgASgIOgAigAEKHUNyZWF0ZVN1YmFjY291bnRQb2xpY3lSZXF1ZXN0Ei8KBnBvbGljeRgBIAEoCzIdLmF1dGgudjEuU3ViYWNjb3VudFBvbGljeVNwZWNCABIcCg1zdWJhY2NvdW50X2lkGAIgASgGQgBIAIgBAUIQCg5fc3ViYWNjb3VudF9pZCJPCh5DcmVhdGVTdWJhY2NvdW50UG9saWN5UmVzcG9uc2USLQoGcG9saWN5GAEgASgLMh0uYXV0aC52MS5TdWJhY2NvdW50UG9saWN5VmlldyK1AQodVXBkYXRlU3ViYWNjb3VudFBvbGljeVJlcXVlc3QSEwoJcG9saWN5X2lkGAEgASgGQgASLwoGcG9saWN5GAIgASgLMh0uYXV0aC52MS5TdWJhY2NvdW50UG9saWN5U3BlY0IAEjEKC3VwZGF0ZV9tYXNrGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFza0IAEhsKEWV4cGVjdGVkX3JldmlzaW9uGAQgASgEQgAiTwoeVXBkYXRlU3ViYWNjb3VudFBvbGljeVJlc3BvbnNlEi0KBnBvbGljeRgBIAEoCzIdLmF1dGgudjEuU3ViYWNjb3VudFBvbGljeVZpZXciNAodRGVsZXRlU3ViYWNjb3VudFBvbGljeVJlcXVlc3QSEwoJcG9saWN5X2lkGAEgASgGQgAiIAoeRGVsZXRlU3ViYWNjb3VudFBvbGljeVJlc3BvbnNlIkgKGlNldFN1YmFjY291bnRQb2xpY3lSZXF1ZXN0EhcKDXN1YmFjY291bnRfaWQYASABKAZCABIRCglwb2xpY3lfaWQYAiABKAYiMAobU2V0U3ViYWNjb3VudFBvbGljeVJlc3BvbnNlEhEKCXBvbGljeV9pZBgBIAEoBiKVAwoNQXBpUG9saWN5VmlldxIKCgJpZBgBIAEoBhIMCgRuYW1lGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEi0KDHNwb3RfbWFya2V0cxgEIAMoCzIXLmF1dGgudjEuU3BvdE1hcmtldFJ1bGUSKAoHYWN0aW9ucxgGIAMoDjIVLmF1dGgudjEuUG9saWN5QWN0aW9uQgASNwoRc3BvdF9tYXJrZXRfc2NvcGUYByABKA4yGi5hdXRoLnYxLk1hcmtldFNjb3BlLlZhbHVlQgASEwoLaXNfdGVtcGxhdGUYEyABKAgSGgoSc291cmNlX3RlbXBsYXRlX2lkGBQgASgGEiAKGHNvdXJjZV90ZW1wbGF0ZV9yZXZpc2lvbhgYIAEoBBIuCgpjcmVhdGVkX2F0GBUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgp1cGRhdGVkX2F0GBYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghyZXZpc2lvbhgXIAEoBCI6ChZMaXN0QXBpUG9saWNpZXNSZXF1ZXN0EhUKBmtleV9pZBgBIAEoCUIASACIAQFCCQoHX2tleV9pZCJDChdMaXN0QXBpUG9saWNpZXNSZXNwb25zZRIoCghwb2xpY2llcxgBIAMoCzIWLmF1dGgudjEuQXBpUG9saWN5VmlldyJMChNHZXRBcGlQb2xpY3lSZXF1ZXN0EhMKCXBvbGljeV9pZBgBIAEoBkIAEhUKBmtleV9pZBgCIAEoCUIASACIAQFCCQoHX2tleV9pZCI+ChRHZXRBcGlQb2xpY3lSZXNwb25zZRImCgZwb2xpY3kYASABKAsyFi5hdXRoLnYxLkFwaVBvbGljeVZpZXci4wEKDUFwaVBvbGljeVNwZWMSDgoEbmFtZRgBIAEoCUIAEhUKC2Rlc2NyaXB0aW9uGAIgASgJQgASMQoMc3BvdF9tYXJrZXRzGAMgAygLMhsuYXV0aC52MS5TcG90TWFya2V0U2VsZWN0b3ISNwoRc3BvdF9tYXJrZXRfc2NvcGUYBSABKA4yGi5hdXRoLnYxLk1hcmtldFNjb3BlLlZhbHVlQgASKAoHYWN0aW9ucxgHIAMoDjIVLmF1dGgudjEuUG9saWN5QWN0aW9uQgASEwoLaXNfdGVtcGxhdGUYEyABKAg6ACJeChZDcmVhdGVBcGlQb2xpY3lSZXF1ZXN0EigKBnBvbGljeRgBIAEoCzIWLmF1dGgudjEuQXBpUG9saWN5U3BlY0IAEhoKEGFzc2lnbl90b19rZXlfaWQYAiABKAlCACJBChdDcmVhdGVBcGlQb2xpY3lSZXNwb25zZRImCgZwb2xpY3kYASABKAsyFi5hdXRoLnYxLkFwaVBvbGljeVZpZXcipwEKFlVwZGF0ZUFwaVBvbGljeVJlcXVlc3QSEwoJcG9saWN5X2lkGAEgASgGQgASKAoGcG9saWN5GAIgASgLMhYuYXV0aC52MS5BcGlQb2xpY3lTcGVjQgASMQoLdXBkYXRlX21hc2sYAyABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrQgASGwoRZXhwZWN0ZWRfcmV2aXNpb24YBCABKARCACJBChdVcGRhdGVBcGlQb2xpY3lSZXNwb25zZRImCgZwb2xpY3kYASABKAsyFi5hdXRoLnYxLkFwaVBvbGljeVZpZXciLQoWRGVsZXRlQXBpUG9saWN5UmVxdWVzdBITCglwb2xpY3lfaWQYASABKAZCACIZChdEZWxldGVBcGlQb2xpY3lSZXNwb25zZSI9ChZTZXRBcGlLZXlQb2xpY3lSZXF1ZXN0EhAKBmtleV9pZBgBIAEoCUIAEhEKCXBvbGljeV9pZBgCIAEoBiIsChdTZXRBcGlLZXlQb2xpY3lSZXNwb25zZRIRCglwb2xpY3lfaWQYASABKAYq/wcKDFBvbGljeUFjdGlvbhIPCgtVTlNQRUNJRklFRBAAEg4KClRSQURFX1NQT1QQARIVChFJTlRFUk5BTF9UUkFOU0ZFUhADEhUKEUVYVEVSTkFMX1dJVEhEUkFXEAQSEQoNUkVBRF9CQUxBTkNFUxAFEg0KCVJFQURfU1BPVBAGEhsKF1JFQURfSU5URVJOQUxfVFJBTlNGRVJTEAgSFQoRUkVBRF9BRERSRVNTX0JPT0sQCxIXChNNQU5BR0VfQUREUkVTU19CT09LEAwSFgoSUkVBRF9BVVRPX1dJVEhEUkFXEA4SGAoUTUFOQUdFX0FVVE9fV0lUSERSQVcQDxIICgRTV0FQEBASEQoNUkVBRF9BUElfS0VZUxAREhUKEVJFQURfQVBJX1BPTElDSUVTEBISHAoYUkVBRF9TVUJBQ0NPVU5UX1BPTElDSUVTEBMSHwobUkVBRF9TVUJBQ0NPVU5UX1BFUk1JU1NJT05TEBQSEwoPUkVBRF9WSVBfU1RBVFVTEBUSHAoYUkVBRF9TT0NJQUxfVkVSSUZJQ0FUSU9OEBYSEAoMUkVBRF9QUk9GSUxFEBcSGgoWUkVBRF9BQ0NPVU5UX0RJUkVDVE9SWRAYEhwKGFJFQURfV0lUSERSQVdfVkFMSURBVElPThAZEhUKEVJFQURfREFJTFlfQ0xBSU1TEBoSFgoSQ0xBSU1fREFJTFlfUkVXQVJEEBsSFAoQUkVBRF9DSEVDS1BPSU5UUxAcEhAKDFJFQURfUkVXQVJEUxAdEhoKFkNSRUFURV9ERVBPU0lUX0FERFJFU1MQChIaChZSRUFEX0RFUE9TSVRfQUREUkVTU0VTEB4SFAoQUkVBRF9TVUJBQ0NPVU5UUxAfEhwKGFJFQURfU1VCQUNDT1VOVF9BQ1RJVklUWRAgEhsKF1JFQURfU1VCQUNDT1VOVF9NRU1CRVJTECESGwoXUkVBRF9TVUJBQ0NPVU5UX0lOVklURVMQIhIcChhSRUFEX0dVQVJEX1NJR05FUl9TVEFUVVMQIxIVChFSRUFEX1BSSUNFX0FMRVJUUxAkEhcKE01BTkFHRV9QUklDRV9BTEVSVFMQJRITCg9SRUFEX1NUQVRFTUVOVFMQJhIQCgxDT05WRVJUX0RVU1QQJxIWChJSRUFEX0ZVTkRJTkdfRkxPV1MQKBIWChJSRUFEX05PVElGSUNBVElPTlMQKRIZChVSRUFEX0FDQ09VTlRfQUNUSVZJVFkQKhITCg9NQU5BR0VfQVBJX0tFWVMQKxIbChdNQU5BR0VfQVBJX0tFWV9QT0xJQ0lFUxAsEh4KGk1BTkFHRV9TVUJBQ0NPVU5UX1BPTElDSUVTEC0ylAkKDVBvbGljeVNlcnZpY2USawoWTGlzdFN1YmFjY291bnRQb2xpY2llcxImLmF1dGgudjEuTGlzdFN1YmFjY291bnRQb2xpY2llc1JlcXVlc3QaJy5hdXRoLnYxLkxpc3RTdWJhY2NvdW50UG9saWNpZXNSZXNwb25zZSIAEmIKE0dldFN1YmFjY291bnRQb2xpY3kSIy5hdXRoLnYxLkdldFN1YmFjY291bnRQb2xpY3lSZXF1ZXN0GiQuYXV0aC52MS5HZXRTdWJhY2NvdW50UG9saWN5UmVzcG9uc2UiABJrChZDcmVhdGVTdWJhY2NvdW50UG9saWN5EiYuYXV0aC52MS5DcmVhdGVTdWJhY2NvdW50UG9saWN5UmVxdWVzdBonLmF1dGgudjEuQ3JlYXRlU3ViYWNjb3VudFBvbGljeVJlc3BvbnNlIgASawoWVXBkYXRlU3ViYWNjb3VudFBvbGljeRImLmF1dGgudjEuVXBkYXRlU3ViYWNjb3VudFBvbGljeVJlcXVlc3QaJy5hdXRoLnYxLlVwZGF0ZVN1YmFjY291bnRQb2xpY3lSZXNwb25zZSIAEmsKFkRlbGV0ZVN1YmFjY291bnRQb2xpY3kSJi5hdXRoLnYxLkRlbGV0ZVN1YmFjY291bnRQb2xpY3lSZXF1ZXN0GicuYXV0aC52MS5EZWxldGVTdWJhY2NvdW50UG9saWN5UmVzcG9uc2UiABJiChNTZXRTdWJhY2NvdW50UG9saWN5EiMuYXV0aC52MS5TZXRTdWJhY2NvdW50UG9saWN5UmVxdWVzdBokLmF1dGgudjEuU2V0U3ViYWNjb3VudFBvbGljeVJlc3BvbnNlIgASVgoPTGlzdEFwaVBvbGljaWVzEh8uYXV0aC52MS5MaXN0QXBpUG9saWNpZXNSZXF1ZXN0GiAuYXV0aC52MS5MaXN0QXBpUG9saWNpZXNSZXNwb25zZSIAEk0KDEdldEFwaVBvbGljeRIcLmF1dGgudjEuR2V0QXBpUG9saWN5UmVxdWVzdBodLmF1dGgudjEuR2V0QXBpUG9saWN5UmVzcG9uc2UiABJWCg9DcmVhdGVBcGlQb2xpY3kSHy5hdXRoLnYxLkNyZWF0ZUFwaVBvbGljeVJlcXVlc3QaIC5hdXRoLnYxLkNyZWF0ZUFwaVBvbGljeVJlc3BvbnNlIgASVgoPVXBkYXRlQXBpUG9saWN5Eh8uYXV0aC52MS5VcGRhdGVBcGlQb2xpY3lSZXF1ZXN0GiAuYXV0aC52MS5VcGRhdGVBcGlQb2xpY3lSZXNwb25zZSIAElYKD0RlbGV0ZUFwaVBvbGljeRIfLmF1dGgudjEuRGVsZXRlQXBpUG9saWN5UmVxdWVzdBogLmF1dGgudjEuRGVsZXRlQXBpUG9saWN5UmVzcG9uc2UiABJWCg9TZXRBcGlLZXlQb2xpY3kSHy5hdXRoLnYxLlNldEFwaUtleVBvbGljeVJlcXVlc3QaIC5hdXRoLnYxLlNldEFwaUtleVBvbGljeVJlc3BvbnNlIgAaAEI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2F1dGgvdjE7YXV0aHYxYgZwcm90bzM=", [file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * MarketScope describes how a policy applies to spot markets.
@@ -159,20 +159,32 @@ export type SubaccountPolicyView = Message<"auth.v1.SubaccountPolicyView"> & {
   actions: PolicyAction[];
 
   /**
-   * True if this policy is a reusable template; false if it is a
-   * per-sub-account instance.
+   * True if this policy is a template: a reusable policy of the main account
+   * that is never attached to a sub-account itself. Applying it with
+   * SetSubaccountPolicy attaches a copy, so editing the template later changes
+   * no sub-account. Set when the policy is created and never changes.
    *
    * @generated from field: bool is_template = 10;
    */
   isTemplate: boolean;
 
   /**
-   * Optional source template this policy was copied from (opaque ID). This is
-   * audit metadata only and does not imply live linkage.
+   * Template this policy was copied from (opaque ID), or 0 when it is not a
+   * copy. Set when the copy is made and never changes, even after the template
+   * is edited or deleted; the copy is not linked to the template.
    *
    * @generated from field: fixed64 source_template_id = 11;
    */
   sourceTemplateId: bigint;
+
+  /**
+   * Revision of the template when this policy was copied from it, or 0 when
+   * it is not a copy. Compare it with the template's current revision to see
+   * whether the template changed since. Never changes.
+   *
+   * @generated from field: uint64 source_template_revision = 31;
+   */
+  sourceTemplateRevision: bigint;
 
   /**
    * Maximum notional size allowed for any single order on this sub-account,
@@ -444,6 +456,16 @@ export type SubaccountPolicySpec = Message<"auth.v1.SubaccountPolicySpec"> & {
    * @generated from field: google.protobuf.Timestamp expires_at = 27;
    */
   expiresAt?: Timestamp | undefined;
+
+  /**
+   * Whether the policy is a template, which SetSubaccountPolicy applies as a
+   * copy. Only the main account owner creates templates, and never together
+   * with subaccount_id. Chosen at creation: an update_mask that selects it is
+   * refused with InvalidArgument.
+   *
+   * @generated from field: bool is_template = 28;
+   */
+  isTemplate: boolean;
 };
 
 /**
@@ -454,8 +476,8 @@ export const SubaccountPolicySpecSchema: GenMessage<SubaccountPolicySpec> = /*@_
   messageDesc(file_auth_v1_policies, 8);
 
 /**
- * CreateSubaccountPolicyRequest defines a new sub-account policy template, with
- * an optional attach step for one target sub-account.
+ * CreateSubaccountPolicyRequest defines a new sub-account policy, with an
+ * optional attach step for one target sub-account.
  *
  * @generated from message auth.v1.CreateSubaccountPolicyRequest
  */
@@ -468,7 +490,9 @@ export type CreateSubaccountPolicyRequest = Message<"auth.v1.CreateSubaccountPol
   policy?: SubaccountPolicySpec | undefined;
 
   /**
-   * Optional target sub-account to attach atomically after creation.
+   * Optional target sub-account to attach atomically after creation. A
+   * template cannot be attached: setting it with policy.is_template is refused
+   * with InvalidArgument.
    *
    * @generated from field: optional fixed64 subaccount_id = 2;
    */
@@ -570,8 +594,8 @@ export const UpdateSubaccountPolicyResponseSchema: GenMessage<UpdateSubaccountPo
   messageDesc(file_auth_v1_policies, 12);
 
 /**
- * DeleteSubaccountPolicyRequest deletes a sub-account policy template when it
- * is not in use.
+ * DeleteSubaccountPolicyRequest deletes a sub-account policy when it is not in
+ * use. A template is never in use; copies made from it keep their lineage.
  *
  * @generated from message auth.v1.DeleteSubaccountPolicyRequest
  */
@@ -607,8 +631,8 @@ export const DeleteSubaccountPolicyResponseSchema: GenMessage<DeleteSubaccountPo
   messageDesc(file_auth_v1_policies, 14);
 
 /**
- * SetSubaccountPolicyRequest attaches or clears a policy template on a
- * sub-account.
+ * SetSubaccountPolicyRequest attaches a policy to a sub-account, applies a
+ * template to it, or clears its policy.
  *
  * @generated from message auth.v1.SetSubaccountPolicyRequest
  */
@@ -621,8 +645,10 @@ export type SetSubaccountPolicyRequest = Message<"auth.v1.SetSubaccountPolicyReq
   subaccountId: bigint;
 
   /**
-   * Policy template to attach (opaque ID). A value of 0 clears the explicit
-   * binding and restores the system Read Only policy.
+   * Policy to attach (opaque ID), owned by the sub-account's main account. A
+   * template is applied: the sub-account gets a new copy of its current
+   * revision, which later edits of the template do not change. A value of 0
+   * clears the explicit binding and restores the system Read Only policy.
    *
    * @generated from field: fixed64 policy_id = 2;
    */
@@ -637,11 +663,18 @@ export const SetSubaccountPolicyRequestSchema: GenMessage<SetSubaccountPolicyReq
   messageDesc(file_auth_v1_policies, 15);
 
 /**
- * SetSubaccountPolicyResponse is empty when the policy binding succeeds.
+ * SetSubaccountPolicyResponse returns the policy now attached.
  *
  * @generated from message auth.v1.SetSubaccountPolicyResponse
  */
 export type SetSubaccountPolicyResponse = Message<"auth.v1.SetSubaccountPolicyResponse"> & {
+  /**
+   * Policy now attached to the sub-account (opaque ID): the new copy when
+   * policy_id named a template, else policy_id. 0 when the policy was cleared.
+   *
+   * @generated from field: fixed64 policy_id = 1;
+   */
+  policyId: bigint;
 };
 
 /**
@@ -705,20 +738,32 @@ export type ApiPolicyView = Message<"auth.v1.ApiPolicyView"> & {
   spotMarketScope: MarketScope_Value;
 
   /**
-   * When true, this policy is intended to be reused as a template across
-   * multiple API keys. When false, it represents a single-key instance.
+   * True if this policy is a template: a reusable policy of the main account
+   * that is never attached to an API key itself. Applying it with
+   * SetApiKeyPolicy attaches a copy, so editing the template later changes no
+   * API key. Set when the policy is created and never changes.
    *
    * @generated from field: bool is_template = 19;
    */
   isTemplate: boolean;
 
   /**
-   * Optional source template this policy was copied from (opaque ID). This is
-   * audit metadata only and does not imply live linkage.
+   * Template this policy was copied from (opaque ID), or 0 when it is not a
+   * copy. Set when the copy is made and never changes, even after the template
+   * is edited or deleted; the copy is not linked to the template.
    *
    * @generated from field: fixed64 source_template_id = 20;
    */
   sourceTemplateId: bigint;
+
+  /**
+   * Revision of the template when this policy was copied from it, or 0 when
+   * it is not a copy. Compare it with the template's current revision to see
+   * whether the template changed since. Never changes.
+   *
+   * @generated from field: uint64 source_template_revision = 24;
+   */
+  sourceTemplateRevision: bigint;
 
   /**
    * Creation time in UTC.
@@ -889,7 +934,10 @@ export type ApiPolicySpec = Message<"auth.v1.ApiPolicySpec"> & {
   actions: PolicyAction[];
 
   /**
-   * Whether this policy should be treated as a reusable template.
+   * Whether the policy is a template, which SetApiKeyPolicy applies as a copy.
+   * Only the main account owner creates templates, and never together with
+   * assign_to_key_id. Chosen at creation: an update_mask that selects it is
+   * refused with InvalidArgument.
    *
    * @generated from field: bool is_template = 19;
    */
@@ -904,7 +952,7 @@ export const ApiPolicySpecSchema: GenMessage<ApiPolicySpec> = /*@__PURE__*/
   messageDesc(file_auth_v1_policies, 22);
 
 /**
- * CreateApiPolicyRequest defines a new API key policy template.
+ * CreateApiPolicyRequest defines a new API key policy.
  *
  * @generated from message auth.v1.CreateApiPolicyRequest
  */
@@ -919,9 +967,12 @@ export type CreateApiPolicyRequest = Message<"auth.v1.CreateApiPolicyRequest"> &
   /**
    * Optional API key identifier to bind this newly-created policy to
    * atomically. When set, the caller must be allowed to manage the key and the
-   * create+assign operation consumes a single fresh step-up proof. An
-   * assistant API key cannot be assigned a policy that allows a money-out
-   * action: FailedPrecondition with AUTH_ASSISTANT_KEY_ACTION_NOT_ALLOWED.
+   * create+assign operation consumes a single fresh step-up proof. A template
+   * cannot be assigned: setting it with policy.is_template is refused with
+   * InvalidArgument. An assistant API key cannot be assigned a policy that
+   * allows a money-out action: FailedPrecondition with
+   * AUTH_ASSISTANT_KEY_ACTION_NOT_ALLOWED. Nor can an admin API key:
+   * FailedPrecondition with AUTH_ADMIN_KEY_ACTION_NOT_ALLOWED.
    *
    * @generated from field: string assign_to_key_id = 2;
    */
@@ -1023,7 +1074,8 @@ export const UpdateApiPolicyResponseSchema: GenMessage<UpdateApiPolicyResponse> 
   messageDesc(file_auth_v1_policies, 26);
 
 /**
- * DeleteApiPolicyRequest deletes an API key policy template when it is not in use.
+ * DeleteApiPolicyRequest deletes an API key policy when it is not in use. A
+ * template is never in use; copies made from it keep their lineage.
  *
  * @generated from message auth.v1.DeleteApiPolicyRequest
  */
@@ -1059,7 +1111,8 @@ export const DeleteApiPolicyResponseSchema: GenMessage<DeleteApiPolicyResponse> 
   messageDesc(file_auth_v1_policies, 28);
 
 /**
- * SetApiKeyPolicyRequest attaches or clears a policy template on an API key.
+ * SetApiKeyPolicyRequest attaches a policy to an API key, applies a template to
+ * it, or clears its policy.
  *
  * @generated from message auth.v1.SetApiKeyPolicyRequest
  */
@@ -1073,8 +1126,10 @@ export type SetApiKeyPolicyRequest = Message<"auth.v1.SetApiKeyPolicyRequest"> &
   keyId: string;
 
   /**
-   * Policy template to attach (opaque ID). A value of 0 clears the binding.
-   * An API key without an attached policy has no permissions.
+   * Policy to attach (opaque ID), owned by the key's main account. A template
+   * is applied: the key gets a new copy of its current revision, which later
+   * edits of the template do not change. A value of 0 clears the binding. An
+   * API key without an attached policy has no permissions.
    *
    * @generated from field: fixed64 policy_id = 2;
    */
@@ -1089,11 +1144,18 @@ export const SetApiKeyPolicyRequestSchema: GenMessage<SetApiKeyPolicyRequest> = 
   messageDesc(file_auth_v1_policies, 29);
 
 /**
- * SetApiKeyPolicyResponse is empty when the policy binding succeeds.
+ * SetApiKeyPolicyResponse returns the policy now attached.
  *
  * @generated from message auth.v1.SetApiKeyPolicyResponse
  */
 export type SetApiKeyPolicyResponse = Message<"auth.v1.SetApiKeyPolicyResponse"> & {
+  /**
+   * Policy now attached to the key (opaque ID): the new copy when policy_id
+   * named a template, else policy_id. 0 when the policy was cleared.
+   *
+   * @generated from field: fixed64 policy_id = 1;
+   */
+  policyId: bigint;
 };
 
 /**
@@ -1113,7 +1175,9 @@ export const SetApiKeyPolicyResponseSchema: GenMessage<SetApiKeyPolicyResponse> 
  * exactly the calls it names and never implies another permission. A
  * main-account permission is honored only for an API key scoped to the main
  * account; a key scoped to a sub-account is refused even when its policy
- * grants it. An API key without a policy has no permission at all.
+ * grants it. Admin permissions, documented below, apply to API-key policies
+ * only and are honored only for an admin API key. An API key without a policy
+ * has no permission at all.
  *
  * @generated from enum auth.v1.PolicyAction
  */
@@ -1446,6 +1510,39 @@ export enum PolicyAction {
    * @generated from enum value: READ_ACCOUNT_ACTIVITY = 42;
    */
   READ_ACCOUNT_ACTIVITY = 42,
+
+  /**
+   * Allow creating, updating and revoking the standard API keys of the main
+   * account and of the sub-accounts it owns. Admin permission: honored only
+   * for an admin API key, which never manages an admin or assistant key, a
+   * key whose policy allows a money-out action, or a sub-account shared with
+   * the main account. A key it creates or updates needs an IP allowlist
+   * within the admin key's own.
+   *
+   * @generated from enum value: MANAGE_API_KEYS = 43;
+   */
+  MANAGE_API_KEYS = 43,
+
+  /**
+   * Allow attaching and clearing the API policies of the standard API keys
+   * the admin key may manage. A policy it attaches can never allow a
+   * money-out action or an admin permission, and on a sub-account key can
+   * never allow more actions or markets than the sub-account's policy. Admin
+   * permission: honored only for an admin API key.
+   *
+   * @generated from enum value: MANAGE_API_KEY_POLICIES = 44;
+   */
+  MANAGE_API_KEY_POLICIES = 44,
+
+  /**
+   * Allow attaching, clearing and updating the policies of the sub-accounts
+   * the main account owns. The resulting policy can never allow a money-out
+   * action, and a locked policy is never changed. Admin permission: honored
+   * only for an admin API key.
+   *
+   * @generated from enum value: MANAGE_SUBACCOUNT_POLICIES = 45;
+   */
+  MANAGE_SUBACCOUNT_POLICIES = 45,
 }
 
 /**
@@ -1455,7 +1552,8 @@ export const PolicyActionSchema: GenEnum<PolicyAction> = /*@__PURE__*/
   enumDesc(file_auth_v1_policies, 0);
 
 /**
- * PolicyService manages sub-account and API key policy templates and bindings.
+ * PolicyService manages sub-account and API key policies, their templates, and
+ * which policy each sub-account and API key holds.
  *
  * @generated from service auth.v1.PolicyService
  */
@@ -1495,7 +1593,14 @@ export const PolicyService: GenService<{
     output: typeof CreateSubaccountPolicyResponseSchema;
   },
   /**
-   * Change selected fields on an existing sub-account policy template.
+   * Change selected fields on an existing sub-account policy. Editing a
+   * template changes only the template: sub-accounts it was applied to keep
+   * their copies.
+   *
+   * An admin API key with MANAGE_SUBACCOUNT_POLICIES may also update a policy
+   * of the main account's own sub-accounts without a session. The result can
+   * never allow a money-out action, and it can never lock, unlock or change a
+   * locked policy: PermissionDenied with AUTH_ADMIN_KEY_FORBIDDEN_TARGET.
    *
    * @generated from rpc auth.v1.PolicyService.UpdateSubaccountPolicy
    */
@@ -1515,7 +1620,14 @@ export const PolicyService: GenService<{
     output: typeof DeleteSubaccountPolicyResponseSchema;
   },
   /**
-   * Attach or clear a sub-account policy for a sub-account.
+   * Attach a policy to a sub-account, apply a template to it as a new copy, or
+   * clear its policy.
+   *
+   * An admin API key with MANAGE_SUBACCOUNT_POLICIES may also attach, apply or
+   * clear the policy of a sub-account the main account owns, without a
+   * session. It can never attach or apply a policy that allows a money-out
+   * action, replace a locked policy, or reach a sub-account shared with the
+   * main account: PermissionDenied with AUTH_ADMIN_KEY_FORBIDDEN_TARGET.
    *
    * @generated from rpc auth.v1.PolicyService.SetSubaccountPolicy
    */
@@ -1559,9 +1671,12 @@ export const PolicyService: GenService<{
     output: typeof CreateApiPolicyResponseSchema;
   },
   /**
-   * Change selected fields on an existing API key policy template. Adding a
-   * money-out action to a policy attached to an assistant API key returns
-   * FailedPrecondition with AUTH_ASSISTANT_KEY_ACTION_NOT_ALLOWED.
+   * Change selected fields on an existing API key policy. Editing a template
+   * changes only the template: keys it was applied to keep their copies.
+   * Adding a money-out action to a policy attached to an assistant API key
+   * returns FailedPrecondition with AUTH_ASSISTANT_KEY_ACTION_NOT_ALLOWED, and
+   * to a policy attached to an admin API key FailedPrecondition with
+   * AUTH_ADMIN_KEY_ACTION_NOT_ALLOWED.
    *
    * @generated from rpc auth.v1.PolicyService.UpdateApiPolicy
    */
@@ -1581,9 +1696,21 @@ export const PolicyService: GenService<{
     output: typeof DeleteApiPolicyResponseSchema;
   },
   /**
-   * Attach or clear an API key policy for a key. Attaching a policy that allows
-   * a money-out action to an assistant API key returns FailedPrecondition with
-   * AUTH_ASSISTANT_KEY_ACTION_NOT_ALLOWED.
+   * Attach a policy to a key, apply a template to it as a new copy, or clear
+   * its policy. Attaching a policy that allows a money-out action to an
+   * assistant API key returns FailedPrecondition with
+   * AUTH_ASSISTANT_KEY_ACTION_NOT_ALLOWED, and applying a template to one
+   * returns FailedPrecondition with AUTH_POLICY_INVALID.
+   *
+   * An admin API key with MANAGE_API_KEY_POLICIES may also attach, apply or
+   * clear the policy of a standard key it may manage, without a session; the
+   * key needs an IP allowlist within the admin key's own. The policy can never
+   * allow a money-out action (AUTH_ADMIN_KEY_FORBIDDEN_TARGET) or an admin
+   * permission (AUTH_ADMIN_KEY_ESCALATION_DENIED), and on a sub-account key
+   * never more actions or markets than the sub-account's policy
+   * (AUTH_ADMIN_KEY_SCOPE_EXCEEDED), each PermissionDenied. Attaching a
+   * money-out policy to an admin key returns FailedPrecondition with
+   * AUTH_ADMIN_KEY_ACTION_NOT_ALLOWED.
    *
    * @generated from rpc auth.v1.PolicyService.SetApiKeyPolicy
    */

@@ -7,13 +7,15 @@ import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import { file_polyester_api_options } from "../../polyester/api/options_pb.js";
+import type { DepthTier } from "../../polyester/type/v1/depth_tier_pb.js";
+import { file_polyester_type_v1_depth_tier } from "../../polyester/type/v1/depth_tier_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file orderbook/v1/orderbook.proto.
  */
 export const file_orderbook_v1_orderbook: GenFile = /*@__PURE__*/
-  fileDesc("ChxvcmRlcmJvb2svdjEvb3JkZXJib29rLnByb3RvEgxvcmRlcmJvb2sudjEiOQoTR2V0T3JkZXJCb29rUmVxdWVzdBITCglzeW1ib2xfaWQYASABKA1CABINCgVkZXB0aBgDIAEoDSI1CgpQcmljZUxldmVsEhMKC3ByaWNlX3RpY2tzGAEgASgDEhIKCnF0eV9zY2FsZWQYAiABKAMi7QEKFEdldE9yZGVyQm9va1Jlc3BvbnNlEhEKCXN5bWJvbF9pZBgBIAEoDRIQCghib29rX3NlcRgCIAEoBBImCgRiaWRzGAMgAygLMhgub3JkZXJib29rLnYxLlByaWNlTGV2ZWwSJgoEYXNrcxgEIAMoCzIYLm9yZGVyYm9vay52MS5QcmljZUxldmVsEiYKAnRzGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIRCglhdmFpbGFibGUYBiABKAgSEgoKYm9va19lcG9jaBgHIAEoBBIRCgltYXhfZGVwdGgYCCABKA0i2AEKDk9yZGVyQm9va0RlbHRhEhEKCXN5bWJvbF9pZBgBIAEoDRIWCg5ib29rX3NlcV9zdGFydBgCIAEoBBIUCgxib29rX3NlcV9lbmQYAyABKAQSJgoEYmlkcxgEIAMoCzIYLm9yZGVyYm9vay52MS5QcmljZUxldmVsEiYKBGFza3MYBSADKAsyGC5vcmRlcmJvb2sudjEuUHJpY2VMZXZlbBINCgVyZXNldBgGIAEoCBImCgJ0cxgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAybQoQT3JkZXJib29rU2VydmljZRJXCgxHZXRPcmRlckJvb2sSIS5vcmRlcmJvb2sudjEuR2V0T3JkZXJCb29rUmVxdWVzdBoiLm9yZGVyYm9vay52MS5HZXRPcmRlckJvb2tSZXNwb25zZSIAGgBCRlpEZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9vcmRlcmJvb2svdjE7b3JkZXJib29rdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChxvcmRlcmJvb2svdjEvb3JkZXJib29rLnByb3RvEgxvcmRlcmJvb2sudjEiWQoTR2V0T3JkZXJCb29rUmVxdWVzdBITCglzeW1ib2xfaWQYASABKA1CABItCgVkZXB0aBgCIAEoDjIcLnBvbHllc3Rlci50eXBlLnYxLkRlcHRoVGllckIAIjUKClByaWNlTGV2ZWwSEwoLcHJpY2VfdGlja3MYASABKAMSEgoKcXR5X3NjYWxlZBgCIAEoAyKHAgoUR2V0T3JkZXJCb29rUmVzcG9uc2USEQoJc3ltYm9sX2lkGAEgASgNEhAKCGJvb2tfc2VxGAIgASgEEiYKBGJpZHMYAyADKAsyGC5vcmRlcmJvb2sudjEuUHJpY2VMZXZlbBImCgRhc2tzGAQgAygLMhgub3JkZXJib29rLnYxLlByaWNlTGV2ZWwSJgoCdHMYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhEKCWF2YWlsYWJsZRgGIAEoCBISCgpib29rX2Vwb2NoGAcgASgEEisKBWRlcHRoGAkgASgOMhwucG9seWVzdGVyLnR5cGUudjEuRGVwdGhUaWVyItgBCg5PcmRlckJvb2tEZWx0YRIRCglzeW1ib2xfaWQYASABKA0SFgoOYm9va19zZXFfc3RhcnQYAiABKAQSFAoMYm9va19zZXFfZW5kGAMgASgEEiYKBGJpZHMYBCADKAsyGC5vcmRlcmJvb2sudjEuUHJpY2VMZXZlbBImCgRhc2tzGAUgAygLMhgub3JkZXJib29rLnYxLlByaWNlTGV2ZWwSDQoFcmVzZXQYBiABKAgSJgoCdHMYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wMm0KEE9yZGVyYm9va1NlcnZpY2USVwoMR2V0T3JkZXJCb29rEiEub3JkZXJib29rLnYxLkdldE9yZGVyQm9va1JlcXVlc3QaIi5vcmRlcmJvb2sudjEuR2V0T3JkZXJCb29rUmVzcG9uc2UiABoAQkZaRGdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vb3JkZXJib29rL3YxO29yZGVyYm9va3YxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options, file_polyester_type_v1_depth_tier]);
 
 /**
  * GetOrderBookRequest describes a ConnectRPC snapshot request.
@@ -29,13 +31,13 @@ export type GetOrderBookRequest = Message<"orderbook.v1.GetOrderBookRequest"> & 
   symbolId: number;
 
   /**
-   * Number of price levels per side, from 1 to the max_depth every response
-   * reports. 0 (unset) selects the default of 50. A depth above max_depth is
-   * rejected with INVALID_ARGUMENT, never truncated.
+   * Price levels per side. Every tier is served; DEPTH_UNSPECIFIED selects
+   * DEPTH_50. To follow the book in real time, subscribe to the order book
+   * stream at a streamed tier, then fetch this snapshot at exactly that tier.
    *
-   * @generated from field: uint32 depth = 3;
+   * @generated from field: polyester.type.v1.DepthTier depth = 2;
    */
-  depth: number;
+  depth: DepthTier;
 };
 
 /**
@@ -143,12 +145,12 @@ export type GetOrderBookResponse = Message<"orderbook.v1.GetOrderBookResponse"> 
   bookEpoch: bigint;
 
   /**
-   * Largest depth per side the service accepts, the upper bound of the
-   * request's depth. Set in every response, available or not.
+   * Tier this snapshot was served at: the request's depth, or DEPTH_50 when
+   * the request left it unset. Set in every response, available or not.
    *
-   * @generated from field: uint32 max_depth = 8;
+   * @generated from field: polyester.type.v1.DepthTier depth = 9;
    */
-  maxDepth: number;
+  depth: DepthTier;
 };
 
 /**
@@ -172,7 +174,8 @@ export const GetOrderBookResponseSchema: GenMessage<GetOrderBookResponse> = /*@_
  *   A reset carrying the full view is sent periodically, currently about every
  *   30 seconds, and after a sequence gap.
  *
- * To start, subscribe, then fetch GetOrderBook with the tier's depth. Drop
+ * To start, subscribe at a streamed tier, then fetch GetOrderBook at exactly
+ * that tier. Drop
  * deltas whose book_seq_end is at most the snapshot's book_seq, and apply the
  * first delta only when its book_seq_start equals that book_seq; then apply
  * each delta only when its book_seq_start equals the previous book_seq_end.
@@ -249,8 +252,8 @@ export const OrderBookDeltaSchema: GenMessage<OrderBookDelta> = /*@__PURE__*/
 export const OrderbookService: GenService<{
   /**
    * Retrieve a spot order book depth snapshot for a symbol.
-   * Supports a selectable depth per side, up to the max_depth each response
-   * reports, and returns best bid/ask levels.
+   * Supports a selectable depth tier per side, up to 5000 levels, and returns
+   * best bid/ask levels.
    *
    * @generated from rpc orderbook.v1.OrderbookService.GetOrderBook
    */

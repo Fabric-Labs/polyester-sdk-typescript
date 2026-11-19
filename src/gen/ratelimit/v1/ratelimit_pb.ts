@@ -13,18 +13,19 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file ratelimit/v1/ratelimit.proto.
  */
 export const file_ratelimit_v1_ratelimit: GenFile = /*@__PURE__*/
-  fileDesc("ChxyYXRlbGltaXQvdjEvcmF0ZWxpbWl0LnByb3RvEgxyYXRlbGltaXQudjEirAEKFFRyYWRpbmdSYXRlTGltaXRSdWxlEjsKDHBvbGljeV9jbGFzcxgBIAEoDjIjLnJhdGVsaW1pdC52MS5UcmFkaW5nUmF0ZUxpbWl0Q2xhc3NCABISCgh2aXBfdGllchgCIAEoDUIAEhYKDHF1b3RhX3dlaWdodBgDIAEoBEIAEhMKCXBlcmlvZF9tcxgEIAEoBEIAEhYKDGJ1cnN0X3dlaWdodBgFIAEoBEIAIhsKGUdldFJhdGVMaW1pdENvbmZpZ1JlcXVlc3QioQEKGkdldFJhdGVMaW1pdENvbmZpZ1Jlc3BvbnNlEhgKDnBvbGljeV92ZXJzaW9uGAEgASgEQgASNAoOZWZmZWN0aXZlX2Zyb20YAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgASMwoFcnVsZXMYAyADKAsyIi5yYXRlbGltaXQudjEuVHJhZGluZ1JhdGVMaW1pdFJ1bGVCACJNChtHZXRUcmFkaW5nUmF0ZUxpbWl0c1JlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASACIAQFCEAoOX3N1YmFjY291bnRfaWQi4AEKHEdldFRyYWRpbmdSYXRlTGltaXRzUmVzcG9uc2USGAoOcG9saWN5X3ZlcnNpb24YASABKARCABI0Cg5lZmZlY3RpdmVfZnJvbRgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCABIzCgVydWxlcxgDIAMoCzIiLnJhdGVsaW1pdC52MS5UcmFkaW5nUmF0ZUxpbWl0UnVsZUIAEjsKDWFwaV9rZXlfcnVsZXMYBCADKAsyIi5yYXRlbGltaXQudjEuVHJhZGluZ1JhdGVMaW1pdFJ1bGVCACqKAQoVVHJhZGluZ1JhdGVMaW1pdENsYXNzEigKJFRSQURJTkdfUkFURV9MSU1JVF9DTEFTU19VTlNQRUNJRklFRBAAEiIKHlRSQURJTkdfUkFURV9MSU1JVF9DTEFTU19QTEFDRRABEiMKH1RSQURJTkdfUkFURV9MSU1JVF9DTEFTU19DQU5DRUwQAjLzAQoQUmF0ZUxpbWl0U2VydmljZRJsChJHZXRSYXRlTGltaXRDb25maWcSJy5yYXRlbGltaXQudjEuR2V0UmF0ZUxpbWl0Q29uZmlnUmVxdWVzdBooLnJhdGVsaW1pdC52MS5HZXRSYXRlTGltaXRDb25maWdSZXNwb25zZSIDkAIBEm8KFEdldFRyYWRpbmdSYXRlTGltaXRzEikucmF0ZWxpbWl0LnYxLkdldFRyYWRpbmdSYXRlTGltaXRzUmVxdWVzdBoqLnJhdGVsaW1pdC52MS5HZXRUcmFkaW5nUmF0ZUxpbWl0c1Jlc3BvbnNlIgAaAEJGWkRnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL3JhdGVsaW1pdC92MTtyYXRlbGltaXR2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChxyYXRlbGltaXQvdjEvcmF0ZWxpbWl0LnByb3RvEgxyYXRlbGltaXQudjEirAEKFFRyYWRpbmdSYXRlTGltaXRSdWxlEjsKDHBvbGljeV9jbGFzcxgBIAEoDjIjLnJhdGVsaW1pdC52MS5UcmFkaW5nUmF0ZUxpbWl0Q2xhc3NCABISCgh2aXBfdGllchgCIAEoDUIAEhYKDHF1b3RhX3dlaWdodBgDIAEoBEIAEhMKCXBlcmlvZF9tcxgEIAEoBEIAEhYKDGJ1cnN0X3dlaWdodBgFIAEoBEIAIhsKGUdldFJhdGVMaW1pdENvbmZpZ1JlcXVlc3QioQEKGkdldFJhdGVMaW1pdENvbmZpZ1Jlc3BvbnNlEhgKDnBvbGljeV92ZXJzaW9uGAEgASgEQgASNAoOZWZmZWN0aXZlX2Zyb20YAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgASMwoFcnVsZXMYAyADKAsyIi5yYXRlbGltaXQudjEuVHJhZGluZ1JhdGVMaW1pdFJ1bGVCACJNChtHZXRUcmFkaW5nUmF0ZUxpbWl0c1JlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASACIAQFCEAoOX3N1YmFjY291bnRfaWQi4AEKHEdldFRyYWRpbmdSYXRlTGltaXRzUmVzcG9uc2USGAoOcG9saWN5X3ZlcnNpb24YASABKARCABI0Cg5lZmZlY3RpdmVfZnJvbRgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCABIzCgVydWxlcxgDIAMoCzIiLnJhdGVsaW1pdC52MS5UcmFkaW5nUmF0ZUxpbWl0UnVsZUIAEjsKDWFwaV9rZXlfcnVsZXMYBCADKAsyIi5yYXRlbGltaXQudjEuVHJhZGluZ1JhdGVMaW1pdFJ1bGVCACqtAQoVVHJhZGluZ1JhdGVMaW1pdENsYXNzEigKJFRSQURJTkdfUkFURV9MSU1JVF9DTEFTU19VTlNQRUNJRklFRBAAEiIKHlRSQURJTkdfUkFURV9MSU1JVF9DTEFTU19QTEFDRRABEiMKH1RSQURJTkdfUkFURV9MSU1JVF9DTEFTU19DQU5DRUwQAhIhCh1UUkFESU5HX1JBVEVfTElNSVRfQ0xBU1NfUkVBRBADMvMBChBSYXRlTGltaXRTZXJ2aWNlEmwKEkdldFJhdGVMaW1pdENvbmZpZxInLnJhdGVsaW1pdC52MS5HZXRSYXRlTGltaXRDb25maWdSZXF1ZXN0GigucmF0ZWxpbWl0LnYxLkdldFJhdGVMaW1pdENvbmZpZ1Jlc3BvbnNlIgOQAgESbwoUR2V0VHJhZGluZ1JhdGVMaW1pdHMSKS5yYXRlbGltaXQudjEuR2V0VHJhZGluZ1JhdGVMaW1pdHNSZXF1ZXN0GioucmF0ZWxpbWl0LnYxLkdldFRyYWRpbmdSYXRlTGltaXRzUmVzcG9uc2UiABoAQkZaRGdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vcmF0ZWxpbWl0L3YxO3JhdGVsaW1pdHYxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
- * TradingRateLimitRule describes one weighted placement or cancellation quota
- * for one VIP tier.
+ * TradingRateLimitRule describes one weighted placement, cancellation or read
+ * quota for one VIP tier.
  *
  * @generated from message ratelimit.v1.TradingRateLimitRule
  */
 export type TradingRateLimitRule = Message<"ratelimit.v1.TradingRateLimitRule"> & {
   /**
    * Trading operation family governed by this rule. Public responses contain
-   * TRADING_RATE_LIMIT_CLASS_PLACE or TRADING_RATE_LIMIT_CLASS_CANCEL.
+   * TRADING_RATE_LIMIT_CLASS_PLACE, TRADING_RATE_LIMIT_CLASS_CANCEL or
+   * TRADING_RATE_LIMIT_CLASS_READ.
    *
    * @generated from field: ratelimit.v1.TradingRateLimitClass policy_class = 1;
    */
@@ -84,8 +85,8 @@ export const GetRateLimitConfigRequestSchema: GenMessage<GetRateLimitConfigReque
   messageDesc(file_ratelimit_v1_ratelimit, 1);
 
 /**
- * GetRateLimitConfigResponse contains all placement and cancellation rules for
- * one complete policy version.
+ * GetRateLimitConfigResponse contains all placement, cancellation and read
+ * rules for one complete policy version.
  *
  * @generated from message ratelimit.v1.GetRateLimitConfigResponse
  */
@@ -105,9 +106,10 @@ export type GetRateLimitConfigResponse = Message<"ratelimit.v1.GetRateLimitConfi
   effectiveFrom?: Timestamp | undefined;
 
   /**
-   * Complete placement and cancellation catalog. Rules are ordered by policy
-   * class, then by tier ascending. The list contains one rule per class for
-   * each VIP0 through VIP10 tier and is not paginated.
+   * Complete placement, cancellation and read catalog. Rules are ordered by
+   * policy class (cancellation, placement, read), then by tier ascending. The
+   * list contains one rule per class for each VIP0 through VIP10 tier and is
+   * not paginated.
    *
    * @generated from field: repeated ratelimit.v1.TradingRateLimitRule rules = 3;
    */
@@ -146,10 +148,13 @@ export const GetTradingRateLimitsRequestSchema: GenMessage<GetTradingRateLimitsR
   messageDesc(file_ratelimit_v1_ratelimit, 3);
 
 /**
- * GetTradingRateLimitsResponse contains the placement and cancellation limits
- * enforced for the selected account target. Trading limits apply per account:
- * the root account and each subaccount have their own limits, and every API
- * key and session that trades for an account shares that account's limits.
+ * GetTradingRateLimitsResponse contains the placement, cancellation and read
+ * limits enforced for the selected account target. Placement and cancellation
+ * limits apply per account: the root account and each subaccount have their
+ * own limits, and every API key and session that trades for an account shares
+ * that account's limits. The read limit applies per root account: the root
+ * account, all of its subaccounts and every API key and session share one
+ * read limit.
  *
  * @generated from message ratelimit.v1.GetTradingRateLimitsResponse
  */
@@ -170,17 +175,18 @@ export type GetTradingRateLimitsResponse = Message<"ratelimit.v1.GetTradingRateL
   effectiveFrom?: Timestamp | undefined;
 
   /**
-   * Placement and cancellation rules enforced for the selected account,
-   * ordered with placement first and cancellation second. All of the
-   * account's API keys and sessions draw on these limits together.
+   * Placement, cancellation and read rules enforced for the selected
+   * account, ordered placement, cancellation, read. All of the account's API
+   * keys and sessions draw on the placement and cancellation limits together;
+   * the read rule is the root account's, shared with all of its subaccounts.
    *
    * @generated from field: repeated ratelimit.v1.TradingRateLimitRule rules = 3;
    */
   rules: TradingRateLimitRule[];
 
   /**
-   * Placement and cancellation rules resolved for the calling API key, ordered
-   * with placement first and cancellation second. Present only when the caller
+   * Placement, cancellation and read rules resolved for the calling API key,
+   * ordered placement, cancellation, read. Present only when the caller
    * authenticated with an API key. These rules are informational: trading
    * requests are not limited per API key, and only the account rules in
    * `rules` are enforced.
@@ -223,6 +229,15 @@ export enum TradingRateLimitClass {
    * @generated from enum value: TRADING_RATE_LIMIT_CLASS_CANCEL = 2;
    */
   CANCEL = 2,
+
+  /**
+   * Order, fill, trigger, trading-limit and fee reads, and order previews.
+   * Every API key, session and subaccount of a root account shares the root
+   * account's read limit.
+   *
+   * @generated from enum value: TRADING_RATE_LIMIT_CLASS_READ = 3;
+   */
+  READ = 3,
 }
 
 /**
@@ -233,14 +248,18 @@ export const TradingRateLimitClassSchema: GenEnum<TradingRateLimitClass> = /*@__
 
 /**
  * RateLimitService serves public trading quota reference data and authenticated
- * effective trading limits.
+ * effective trading limits. A trading read costs units of the root account's
+ * read limit: one unit per call, or for a list, one unit per 100 rows its
+ * limit asks for, rounded up (two for order history, fills and trigger
+ * events). A read over the limit is refused RESOURCE_EXHAUSTED (REST 429
+ * RATE_LIMIT_EXCEEDED) with its RateLimitDetail.
  *
  * @generated from service ratelimit.v1.RateLimitService
  */
 export const RateLimitService: GenService<{
   /**
-   * Get the complete active placement and cancellation quota catalog for
-   * VIP0 through VIP10.
+   * Get the complete active placement, cancellation and read quota catalog
+   * for VIP0 through VIP10.
    * This public, caller-independent catalog supports cacheable ConnectRPC GET.
    *
    * @generated from rpc ratelimit.v1.RateLimitService.GetRateLimitConfig
@@ -251,8 +270,9 @@ export const RateLimitService: GenService<{
     output: typeof GetRateLimitConfigResponseSchema;
   },
   /**
-   * Get the effective placement and cancellation limits for the authenticated
-   * caller's root account or selected subaccount.
+   * Get the effective placement, cancellation and read limits for the
+   * authenticated caller's root account or selected subaccount. Costs one
+   * unit of the root account's read limit.
    *
    * @generated from rpc ratelimit.v1.RateLimitService.GetTradingRateLimits
    */
