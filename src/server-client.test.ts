@@ -665,6 +665,7 @@ describe.each([
                 accountId: "account-1",
                 username: "hunter",
                 rootSmartAccountAddress: "",
+                apiKeyScope: "unspecified",
             };
             vi.spyOn(client.auth, "me").mockResolvedValue(user);
 

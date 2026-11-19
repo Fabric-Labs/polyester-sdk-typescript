@@ -1,4 +1,5 @@
 import * as Proto from "../../../gen/auth/v1/policies_pb.js";
+import { formatId } from "../../../utils/base58-id.js";
 import { createClient, type Client } from "@connectrpc/connect";
 import type { AuthApiTransports } from "../../../shared/transports.js";
 import type * as v from "valibot";
@@ -109,15 +110,17 @@ export class ApiKeyPoliciesService {
 
     /**
      * Attaches a policy to an API key. Passing a null policyId clears the binding and leaves the key with no permissions.
+     * Returns the attached policy's ID: a new copy when `policyId` named a template, else `policyId`; null when cleared.
      */
     async apply(
         input: v.InferInput<typeof ApplyApiKeyPolicyInputSchema>,
         options?: PolyesterMutationOptions,
-    ): Promise<void> {
+    ): Promise<{ policyId: string | null }> {
         const validatedInput = parse(ApplyApiKeyPolicyInputSchema, input);
-        await this.#client.setApiKeyPolicy(
+        const res = await this.#client.setApiKeyPolicy(
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
+        return { policyId: res.policyId ? formatId(res.policyId) : null };
     }
 }

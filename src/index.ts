@@ -225,6 +225,7 @@ export type * from "./services/chain-analytics/chain-analytics.types.js";
 export type * from "./services/changelog/changelog.types.js";
 export type * from "./services/checkpoints/checkpoints.types.js";
 export type * from "./services/claims/claims.types.js";
+export type * from "./services/connected-apps/connected-apps.types.js";
 export type * from "./services/deposit/deposit.types.js";
 export type * from "./services/dust-conversion/dust-conversion.types.js";
 export type * from "./services/fees/fees.types.js";

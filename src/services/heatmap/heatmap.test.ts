@@ -1,3 +1,4 @@
+import { DepthTier } from "../../gen/polyester/type/v1/depth_tier_pb.js";
 import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as Proto from "../../gen/marketdata/v1/heatmap_pb.js";
@@ -92,7 +93,7 @@ function heatmapResponse(overrides: Record<string, unknown> = {}) {
     return {
         symbolId: 101,
         interval: Proto.HeatmapInterval.INTERVAL_1S,
-        depth: Proto.HeatmapDepth.DEPTH_50,
+        depth: DepthTier.DEPTH_50,
         chain: {
             baseKeyframe: {
                 tsSec: 100n,
@@ -139,7 +140,7 @@ describe("HeatmapService", () => {
                 expected: {
                     symbolId: 101,
                     interval: Proto.HeatmapInterval.INTERVAL_1S,
-                    depth: Proto.HeatmapDepth.DEPTH_50,
+                    depth: DepthTier.DEPTH_50,
                     quantityMode: Proto.HeatmapQuantityMode.CLOSE,
                     limit: 100,
                     pageToken: "cursor-1",
@@ -158,13 +159,13 @@ describe("HeatmapService", () => {
                 },
                 response: heatmapResponse({
                     interval: Proto.HeatmapInterval.INTERVAL_1M,
-                    depth: Proto.HeatmapDepth.DEPTH_100,
+                    depth: DepthTier.DEPTH_100,
                     quantityMode: Proto.HeatmapQuantityMode.PEAK,
                 }),
                 expected: {
                     symbolId: 101,
                     interval: Proto.HeatmapInterval.INTERVAL_1M,
-                    depth: Proto.HeatmapDepth.DEPTH_100,
+                    depth: DepthTier.DEPTH_100,
                     quantityMode: Proto.HeatmapQuantityMode.PEAK,
                     limit: 500,
                     pageToken: "",
@@ -195,7 +196,7 @@ describe("HeatmapService", () => {
                 symbolId: 101,
                 interval:
                     testCase.expected.interval === Proto.HeatmapInterval.INTERVAL_1M ? "1m" : "1s",
-                depth: testCase.expected.depth === Proto.HeatmapDepth.DEPTH_100 ? 100 : 50,
+                depth: testCase.expected.depth === DepthTier.DEPTH_100 ? 100 : 50,
                 lastPersistedTsSec: 110,
                 liveFromBookSeqEnd: "12",
                 quantityMode:

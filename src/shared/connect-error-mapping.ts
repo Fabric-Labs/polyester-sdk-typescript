@@ -238,9 +238,10 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
 
     // Not a rate limit: the same request is refused again, so it must not read as retryable.
     if (
-        ce.code === Code.ResourceExhausted &&
-        !detail &&
-        ce.rawMessage === REQUEST_TOO_LARGE_MESSAGE
+        detail?.service === "request" ||
+        (ce.code === Code.ResourceExhausted &&
+            !detail &&
+            ce.rawMessage === REQUEST_TOO_LARGE_MESSAGE)
     ) {
         return new RequestTooLargeError(
             "Request is over the API's size limit. Send a smaller one.",

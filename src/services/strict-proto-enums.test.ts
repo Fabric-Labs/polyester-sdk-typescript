@@ -1,3 +1,4 @@
+import { DepthTier } from "../gen/polyester/type/v1/depth_tier_pb.js";
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 
@@ -206,7 +207,7 @@ describe("proto enum output decoding", () => {
             v.parse(OrderbookHeatmapResponseSchema, {
                 symbolId: 1,
                 interval: HeatmapProto.HeatmapInterval.INTERVAL_UNSPECIFIED,
-                depth: HeatmapProto.HeatmapDepth.DEPTH_50,
+                depth: DepthTier.DEPTH_50,
                 lastPersistedTsSec: 0n,
                 liveFromBookSeqEnd: 0n,
                 hasLiveAnchor: false,

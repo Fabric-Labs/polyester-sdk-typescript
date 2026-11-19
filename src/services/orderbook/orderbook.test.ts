@@ -15,6 +15,7 @@ import {
 } from "../../testing/service-harness.js";
 import { OrderbookService } from "./orderbook.js";
 import { ORDERBOOK_WS_DEPTHS, orderbookWsChannelDepth } from "./orderbook.codecs.js";
+import { DepthTier } from "../../gen/polyester/type/v1/depth_tier_pb.js";
 
 const BTC = {
     symbol: "BTC",
@@ -111,13 +112,13 @@ describe("OrderbookService", () => {
         await expect(service.get({ symbolId: 101 })).resolves.toMatchObject({ available: true });
     });
 
-    it("sends depth as given, forwards signals, and parses snapshots into decimals", async () => {
+    it("sends depth as its tier, reports the served tier, forwards signals, and parses snapshots into decimals", async () => {
         const controller = new AbortController();
         const transport = bookTransport({
             symbolId: 101,
             bookSeq: 12n,
             bookEpoch: 3n,
-            maxDepth: 1000,
+            depth: DepthTier.DEPTH_1000,
             available: true,
             bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
             asks: [{ priceTicks: 100_250_000_000n, qtyScaled: 50_000_000n }],
@@ -129,13 +130,12 @@ describe("OrderbookService", () => {
         );
 
         await expect(
-            service.get({ symbolId: 101, depth: 37 }, { signal: controller.signal }),
+            service.get({ symbolId: 101, depth: 1000 }, { signal: controller.signal }),
         ).resolves.toMatchObject({
             symbolId: 101,
-            depth: 37,
+            depth: 1000,
             bookSeq: "12",
             bookEpoch: "3",
-            maxDepth: 1000,
             bids: [
                 {
                     price: "100",
@@ -156,9 +156,35 @@ describe("OrderbookService", () => {
             signal: controller.signal,
             message: {
                 symbolId: 101,
-                depth: 37,
+                depth: DepthTier.DEPTH_1000,
             },
         });
+    });
+
+    it("refuses a depth that is no tier before sending", async () => {
+        const transport = bookTransport({ symbolId: 101 });
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            testScales(),
+        );
+        await expect(service.get({ symbolId: 101, depth: 37 as 50 })).rejects.toThrow(
+            ValidationError,
+        );
+        expect(transport.lastCall()).toBeUndefined();
+    });
+
+    it("reports the requested tier when the server leaves the served tier unset", async () => {
+        const transport = bookTransport({ symbolId: 101, available: true });
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            testScales(),
+        );
+        await expect(service.get({ symbolId: 101, depth: 5 })).resolves.toMatchObject({
+            depth: 5,
+        });
+        expect(transport.lastCall()?.message).toMatchObject({ depth: DepthTier.DEPTH_5 });
     });
 
     it("rejects malformed backend snapshots", async () => {
@@ -296,7 +322,6 @@ describe("OrderbookService", () => {
             depth: 50,
             bookSeq: "0",
             bookEpoch: "0",
-            maxDepth: 0,
             available: true,
             bids: [],
             asks: [],
@@ -312,7 +337,7 @@ describe("OrderbookService", () => {
             testScales(),
         );
         expect(() =>
-            service.createSubscription({ symbolId: 101, depth: 501, onEvent: () => {} }),
+            service.createSubscription({ symbolId: 101, depth: 1000, onEvent: () => {} }),
         ).toThrow(ValidationError);
         expect(realtime.params).toBeUndefined();
     });
@@ -363,7 +388,7 @@ describe("OrderbookService", () => {
         expect(captured).toMatchObject({
             message: {
                 symbolId: 101,
-                depth: 500,
+                depth: DepthTier.DEPTH_500,
             },
         });
         expect(onOpen).toHaveBeenCalledTimes(1);
@@ -627,7 +652,6 @@ describe("OrderbookService", () => {
                 symbolId: 101,
                 bookEpoch: s.bookEpoch,
                 bookSeq: s.bookSeq,
-                maxDepth: 1000,
                 available: true,
                 bids: [{ priceTicks: s.price, qtyScaled: 100_000_000n }],
                 asks: [],
@@ -645,7 +669,7 @@ describe("OrderbookService", () => {
         realtime.params?.onConnected?.();
         await flushMicrotasks();
         expect(onEvent).toHaveBeenLastCalledWith(
-            expect.objectContaining({ bookEpoch: "5", bookSeq: "9", maxDepth: 1000 }),
+            expect.objectContaining({ bookEpoch: "5", bookSeq: "9" }),
         );
 
         realtime.params?.onDisconnected?.();
@@ -779,7 +803,7 @@ describe("OrderbookService", () => {
         expect(realtime.params?.channel).toBe("public:spot:orderbook:deltas:depth:20:101:proto");
         expect(transport.lastCall()?.message).toMatchObject({
             symbolId: 101,
-            depth: 20,
+            depth: DepthTier.DEPTH_20,
         });
         subscription.unsubscribe();
     });

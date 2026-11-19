@@ -581,6 +581,7 @@ describe("OrdersService", () => {
                 totalCancelled: 2,
                 truncated: false,
                 listingStatus: ProtoWrite.CancelAllOrdersResponse_ListingStatus.INCLUDED,
+                matchedTriggers: 3,
             },
         });
         const service = new OrdersService(
@@ -590,25 +591,29 @@ describe("OrdersService", () => {
             testScales(),
         );
 
-        await expect(service.cancelAll({ symbolIds: [1] })).resolves.toEqual({
-            status: "submitted",
-            matchedOrders: 2,
-            submittedCancels: 2,
-            failedCancels: 0,
-            ts: 1,
-            tsNs: "1000000",
-            canceledOrders: [
-                { orderId: formatId(7n), clientOrderId: "client-7" },
-                { orderId: formatId(9n), clientOrderId: "" },
-            ],
-            totalCanceled: 2,
-            truncated: false,
-            listingStatus: "included",
-        });
+        await expect(service.cancelAll({ symbolIds: [1], includeTriggers: true })).resolves.toEqual(
+            {
+                status: "submitted",
+                matchedOrders: 2,
+                submittedCancels: 2,
+                failedCancels: 0,
+                ts: 1,
+                tsNs: "1000000",
+                canceledOrders: [
+                    { orderId: formatId(7n), clientOrderId: "client-7" },
+                    { orderId: formatId(9n), clientOrderId: "" },
+                ],
+                totalCanceled: 2,
+                truncated: false,
+                listingStatus: "included",
+                matchedTriggers: 3,
+            },
+        );
 
         const request = transport.lastCall()?.message;
         expect(request).toMatchObject({
             symbolIds: [1],
+            includeTriggers: true,
         });
         expect(request?.requestId).toBe("generated-request-id");
     });

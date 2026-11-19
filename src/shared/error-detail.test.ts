@@ -39,6 +39,10 @@ import { ErrorDetailSchema as AssistantErrorDetailSchema } from "../gen/ai/v1/as
 import { ErrorDetailSchema as PriceAlertErrorDetailSchema } from "../gen/alerts/v1/price_alerts_pb.js";
 import { ErrorDetailSchema as NotificationErrorDetailSchema } from "../gen/notifications/v1/notifications_pb.js";
 import {
+    RequestErrorCode,
+    RequestErrorDetailSchema,
+} from "../gen/polyester/api/v1/request_error_pb.js";
+import {
     ERROR_DETAIL_TYPE_NAMES,
     loadErrorDetailDecoders,
     parseConnectErrorDetail,
@@ -262,6 +266,29 @@ describe("parseConnectErrorDetail", () => {
                 ]),
             ),
         ).toEqual({ service: "claims", code: "CLAIM_UNAVAILABLE" });
+        expect(
+            parseConnectErrorDetail(
+                error([
+                    {
+                        desc: RequestErrorDetailSchema,
+                        value: create(RequestErrorDetailSchema, {
+                            code: RequestErrorCode.REQUEST_TOO_LARGE,
+                            limitBytes: 1_048_576n,
+                        }),
+                    },
+                ]),
+            ),
+        ).toEqual({ service: "request", code: "REQUEST_TOO_LARGE", limitBytes: 1_048_576 });
+        expect(
+            parseConnectErrorDetail(
+                error([
+                    {
+                        desc: RequestErrorDetailSchema,
+                        value: create(RequestErrorDetailSchema, { code: 7 as RequestErrorCode }),
+                    },
+                ]),
+            ),
+        ).toBeUndefined();
     });
 
     it("pins every loadable type name to its generated descriptor", () => {
@@ -279,6 +306,7 @@ describe("parseConnectErrorDetail", () => {
                 AssistantErrorDetailSchema,
                 NotificationErrorDetailSchema,
                 RateLimitDetailSchema,
+                RequestErrorDetailSchema,
             ]
                 .map((schema) => schema.typeName)
                 .sort(),

@@ -139,6 +139,7 @@ import type { PolyesterErrorDetail as ErrorsPolyesterErrorDetail } from "@polyes
 import { accountActivityService } from "@polyester/sdk/services/account-activity";
 import { assistantService } from "@polyester/sdk/services/assistant";
 import { autoWithdrawService } from "@polyester/sdk/services/auto-withdraw";
+import { connectedAppsService } from "@polyester/sdk/services/connected-apps";
 import { dustConversionService } from "@polyester/sdk/services/dust-conversion";
 import { notificationsService } from "@polyester/sdk/services/notifications";
 import { ordersService } from "@polyester/sdk/services/orders";
@@ -301,6 +302,24 @@ async function verifyServiceInference(): Promise<void> {
         await client.priceAlerts.update({ alertId: priceAlert.alertId, expectedRevision: "1" }),
     );
     expectType<import("@polyester/sdk").ListPriceAlertsResult>(await client.priceAlerts.list());
+    const appAuthorization = await client.connectedApps.getAuthorization({
+        requestId: "request",
+    } satisfies import("@polyester/sdk").AppAuthorizationInput);
+    expectType<import("@polyester/sdk").AppAuthorization>(appAuthorization);
+    expectNotAny(appAuthorization, true);
+    expectType<import("@polyester/sdk").AppAuthorizationRedirect>(
+        await client.connectedApps.approveAuthorization(
+            { requestId: "request" },
+            { stepUpToken: "step-up" },
+        ),
+    );
+    const connectedApps = await client.connectedApps.list();
+    expectType<import("@polyester/sdk").ConnectedApp[]>(connectedApps);
+    expectNotAny(connectedApps[0], true);
+    expectType<number | null | undefined>(connectedApps[0]?.lastUsedAt);
+    await client.connectedApps.revoke({
+        connectedAppId: "P",
+    } satisfies import("@polyester/sdk").RevokeConnectedAppInput);
     const accountActivity = await client.accountActivity.list({
         includeMainAccount: true,
         entityKinds: ["session"],
@@ -655,6 +674,7 @@ async function verifyCoreServiceAccessors(): Promise<void> {
     expectType<typeof client.tradingRateLimits>(tradingRateLimitsService(client));
     expectType<typeof client.autoWithdraw>(autoWithdrawService(browserCore));
     expectType<typeof client.priceAlerts>(priceAlertsService(browserCore));
+    expectType<typeof client.connectedApps>(connectedAppsService(browserCore));
     expectType<typeof client.accountActivity>(accountActivityService(browserCore));
     expectType<typeof client.notifications>(notificationsService(browserCore));
     expectType<typeof client.assistant>(assistantService(browserCore));

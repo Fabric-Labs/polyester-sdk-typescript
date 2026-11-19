@@ -1,10 +1,8 @@
 import * as v from "valibot";
 import { SymbolIdInputSchema } from "../shared.js";
-import type {
-    HeatmapDepth,
-    HeatmapInterval,
-    HeatmapQuantityMode,
-} from "../../gen/marketdata/v1/heatmap_pb.js";
+import type { HeatmapInterval, HeatmapQuantityMode } from "../../gen/marketdata/v1/heatmap_pb.js";
+import type { DepthTier } from "../../gen/polyester/type/v1/depth_tier_pb.js";
+import { DepthTierCodec } from "../../shared/depth-tier.js";
 import { OptionalTimestampSecondsInputSchema } from "../../shared/schemas.js";
 import { enumLabel } from "../../shared/proto-enum-codec.js";
 import type { DecodedEnum } from "../../utils/types.js";
@@ -13,7 +11,6 @@ import {
     HEATMAP_DEPTH_VALUES,
     HEATMAP_INTERVAL_VALUES,
     HEATMAP_QUANTITY_MODE_VALUES,
-    HeatmapDepthCodec,
     HeatmapIntervalCodec,
     HeatmapQuantityModeCodec,
     type HeatmapIntervalValue,
@@ -34,7 +31,7 @@ const IntervalInputSchema = v.pipe(
 
 const DepthInputSchema = v.pipe(
     v.optional(v.picklist(HEATMAP_DEPTH_VALUES), 50),
-    v.transform((value): HeatmapDepth => HeatmapDepthCodec.inputToProto[value]),
+    v.transform((value): DepthTier => DepthTierCodec.inputToProto[value]),
 );
 
 const QuantityModeInputSchema = v.pipe(
@@ -256,7 +253,7 @@ const OrderbookHeatmapResponseRawSchema = v.object({
     interval: v.pipe(v.number(), v.transform(intervalLabelFor)),
     depth: v.pipe(
         v.number(),
-        v.transform((value) => enumLabel(HeatmapDepthCodec.protoToOutput, value)),
+        v.transform((value) => enumLabel(DepthTierCodec.protoToOutput, value)),
     ),
     chain: v.optional(OrderbookHeatmapDeltaChainRawSchema),
     lastPersistedTsSec: TimestampSecondsSchema,

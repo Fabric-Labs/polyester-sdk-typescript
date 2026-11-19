@@ -75,6 +75,7 @@ export const TRIGGER_CANCEL_REASON_LABEL_VALUES = [
     "pair_drain_ladder",
     "pair_drain_attached_leg",
     "market_halted",
+    "cancel_all",
     "missing_reason_code",
     "internal_error",
 ] as const;
@@ -175,6 +176,7 @@ export const TRIGGER_FAILURE_REASON_LABEL_VALUES = [
     "max_open_orders_per_pair",
     "account_repairing",
     "self_trade_prevented",
+    "trigger_stopping",
     "missing_reason_code",
     "internal_error",
 ] as const;
@@ -276,6 +278,7 @@ export const TriggerCancelReasonCodec = {
         [Proto.TriggerCancelReason.PAIR_DRAIN_LADDER]: "pair_drain_ladder",
         [Proto.TriggerCancelReason.PAIR_DRAIN_ATTACHED_LEG]: "pair_drain_attached_leg",
         [Proto.TriggerCancelReason.MARKET_HALTED]: "market_halted",
+        [Proto.TriggerCancelReason.CANCEL_ALL]: "cancel_all",
         [Proto.TriggerCancelReason.MISSING_REASON_CODE]: "missing_reason_code",
         [Proto.TriggerCancelReason.INTERNAL_ERROR]: "internal_error",
     } satisfies ProtoToOutput<Proto.TriggerCancelReason, TriggerCancelReasonLabelValue>,
@@ -383,6 +386,7 @@ export const TriggerFailureReasonCodec = {
         [Proto.TriggerFailureReason.MAX_OPEN_ORDERS_PER_PAIR]: "max_open_orders_per_pair",
         [Proto.TriggerFailureReason.ACCOUNT_REPAIRING]: "account_repairing",
         [Proto.TriggerFailureReason.SELF_TRADE_PREVENTED]: "self_trade_prevented",
+        [Proto.TriggerFailureReason.TRIGGER_STOPPING]: "trigger_stopping",
         [Proto.TriggerFailureReason.MISSING_REASON_CODE]: "missing_reason_code",
         [Proto.TriggerFailureReason.INTERNAL_ERROR]: "internal_error",
     } satisfies ProtoToOutput<Proto.TriggerFailureReason, TriggerFailureReasonLabelValue>,

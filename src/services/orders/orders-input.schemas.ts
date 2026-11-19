@@ -569,6 +569,8 @@ export const CancelAllOrdersInputSchema = v.pipe(
             v.transform((v) => (v ? OrderSideCodec.inputToProto[v] : undefined)),
         ),
         dryRun: v.optional(v.boolean(), false),
+        /** Also stop the matched triggers, ending each canceled with reason `cancel_all`. Part of the criteria a retry must keep. */
+        includeTriggers: v.optional(v.boolean(), false),
         requestId: v.optional(OrderRequestIdInputSchema),
     }),
     v.transform(({ account, ...input }) => ({
@@ -593,6 +595,7 @@ export const CancelAllOrdersResponseSchema = v.pipe(
         totalCancelled: v.optional(v.number(), 0),
         truncated: v.optional(v.boolean(), false),
         listingStatus: v.optional(enumLabelSchema(CancelAllListingStatusCodec.protoToOutput), 0),
+        matchedTriggers: v.optional(v.number(), 0),
     }),
     v.transform((o) => ({
         status: o.status,
@@ -605,6 +608,8 @@ export const CancelAllOrdersResponseSchema = v.pipe(
         totalCanceled: o.totalCancelled,
         truncated: o.truncated,
         listingStatus: o.listingStatus,
+        /** With `includeTriggers`, the triggers matched (each stopped unless `dryRun`); 0 otherwise. */
+        matchedTriggers: o.matchedTriggers,
     })),
 );
 

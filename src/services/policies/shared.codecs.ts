@@ -52,9 +52,21 @@ export const ACCOUNT_PERMISSION_POLICY_ACTION_LABELS = [
     "read-account-activity",
 ] as const;
 
+/**
+ * Admin permissions, accepted by API-key policies only. They take effect only on an admin key
+ * (`purpose: "admin"`), letting it manage the main account's other keys and its sub-accounts'
+ * policies without a session.
+ */
+export const ADMIN_POLICY_ACTION_LABELS = [
+    "manage-api-keys",
+    "manage-api-key-policies",
+    "manage-subaccount-policies",
+] as const;
+
 export const POLICY_ACTION_LABELS = [
     ...PRODUCT_POLICY_ACTION_LABELS,
     ...ACCOUNT_PERMISSION_POLICY_ACTION_LABELS,
+    ...ADMIN_POLICY_ACTION_LABELS,
 ] as const;
 export type PolicyActionLabel = (typeof POLICY_ACTION_LABELS)[number];
 
@@ -114,6 +126,9 @@ export const PolicyActionCodec = {
         [Proto.PolicyAction.READ_FUNDING_FLOWS]: "read-funding-flows",
         [Proto.PolicyAction.READ_NOTIFICATIONS]: "read-notifications",
         [Proto.PolicyAction.READ_ACCOUNT_ACTIVITY]: "read-account-activity",
+        [Proto.PolicyAction.MANAGE_API_KEYS]: "manage-api-keys",
+        [Proto.PolicyAction.MANAGE_API_KEY_POLICIES]: "manage-api-key-policies",
+        [Proto.PolicyAction.MANAGE_SUBACCOUNT_POLICIES]: "manage-subaccount-policies",
     } satisfies ProtoToOutput<Proto.PolicyAction, PolicyActionLabel>,
     inputToProto: {
         "trade-spot": Proto.PolicyAction.TRADE_SPOT,
@@ -154,6 +169,9 @@ export const PolicyActionCodec = {
         "read-funding-flows": Proto.PolicyAction.READ_FUNDING_FLOWS,
         "read-notifications": Proto.PolicyAction.READ_NOTIFICATIONS,
         "read-account-activity": Proto.PolicyAction.READ_ACCOUNT_ACTIVITY,
+        "manage-api-keys": Proto.PolicyAction.MANAGE_API_KEYS,
+        "manage-api-key-policies": Proto.PolicyAction.MANAGE_API_KEY_POLICIES,
+        "manage-subaccount-policies": Proto.PolicyAction.MANAGE_SUBACCOUNT_POLICIES,
     } satisfies Record<PolicyActionLabel, Proto.PolicyAction>,
 } as const;
 

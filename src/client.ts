@@ -11,6 +11,7 @@ import { chainAnalyticsService } from "./services/chain-analytics/service.js";
 import { changelogService } from "./services/changelog/service.js";
 import { checkpointsService } from "./services/checkpoints/service.js";
 import { claimsService } from "./services/claims/service.js";
+import { connectedAppsService } from "./services/connected-apps/service.js";
 import { depositService } from "./services/deposit/service.js";
 import { feesService } from "./services/fees/service.js";
 import { guardSignerService } from "./services/guard-signer/service.js";
@@ -70,6 +71,7 @@ export const POLYESTER_SERVICES = {
     socialVerification: socialVerificationService,
     zipper: zipperService,
     mfa: mfaService,
+    connectedApps: connectedAppsService,
     claims: claimsService,
     checkpoints: checkpointsService,
     changelog: changelogService,

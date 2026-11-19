@@ -63,6 +63,8 @@ export const CancelAllAfterInputSchema = v.pipe(
         timeoutSec: CancelAllAfterTimeoutInputSchema,
         symbolId: v.optional(SymbolIdInputSchema),
         side: OptionalSideInputSchema,
+        /** On expiry, also stop the triggers in scope created before the expiry time. Each arm or refresh sets it again. */
+        includeTriggers: v.optional(v.boolean(), false),
         requestId: v.optional(OrderRequestIdInputSchema),
     }),
     v.transform(({ account, ...input }) => ({

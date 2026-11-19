@@ -5,8 +5,11 @@ export const API_KEY_STATUS_VALUES = ["active", "revoked", "disabled"] as const;
 export type ApiKeyStatusLabel = (typeof API_KEY_STATUS_VALUES)[number];
 export const API_KEY_UPDATE_STATUS_VALUES = ["active", "disabled"] as const;
 export type ApiKeyUpdateStatusLabel = (typeof API_KEY_UPDATE_STATUS_VALUES)[number];
-export const API_KEY_PURPOSE_VALUES = ["standard", "assistant"] as const;
+export const API_KEY_PURPOSE_VALUES = ["standard", "assistant", "admin"] as const;
 export type ApiKeyPurposeLabel = (typeof API_KEY_PURPOSE_VALUES)[number];
+/** Purposes a key can be created with or switched to; assistant keys come from `setAssistantKeys`. */
+export const API_KEY_PURPOSE_INPUT_VALUES = ["standard", "admin"] as const;
+export type ApiKeyPurposeInput = (typeof API_KEY_PURPOSE_INPUT_VALUES)[number];
 
 /**
  * Fixed permission sets for an assistant key, available on devnet only. `read_only` reads
@@ -27,13 +30,21 @@ export const AssistantKeyPresetCodec = {
 
 /**
  * `assistant` keys belong to the Polyester AI assistant: their policy can never move value out
- * of the account. They are listed, updated and revoked like any key.
+ * of the account. They are listed, updated and revoked like any key. `admin` keys are elevated:
+ * their policy's admin permissions let them manage the main account's other keys and its
+ * sub-account policies without a session. Only the owner's session with a fresh step-up proof
+ * can create, promote, change or delete one.
  */
 export const ApiKeyPurposeCodec = {
+    inputToProto: {
+        standard: Proto.ApiKeyPurpose.STANDARD,
+        admin: Proto.ApiKeyPurpose.ADMIN_KEY,
+    } satisfies InputToProto<ApiKeyPurposeInput, Proto.ApiKeyPurpose>,
     protoToOutput: {
         [Proto.ApiKeyPurpose.PURPOSE_UNSPECIFIED]: "unspecified",
         [Proto.ApiKeyPurpose.STANDARD]: "standard",
         [Proto.ApiKeyPurpose.ASSISTANT]: "assistant",
+        [Proto.ApiKeyPurpose.ADMIN_KEY]: "admin",
     } satisfies ProtoToOutput<Proto.ApiKeyPurpose, ApiKeyPurposeLabel>,
 } as const;
 

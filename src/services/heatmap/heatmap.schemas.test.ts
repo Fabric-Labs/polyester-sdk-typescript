@@ -1,3 +1,4 @@
+import { DepthTier } from "../../gen/polyester/type/v1/depth_tier_pb.js";
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 
@@ -17,7 +18,7 @@ describe("GetOrderbookHeatmapInputSchema", () => {
         });
 
         expect(input.interval).toBe(Proto.HeatmapInterval.INTERVAL_1M);
-        expect(input.depth).toBe(Proto.HeatmapDepth.DEPTH_50);
+        expect(input.depth).toBe(DepthTier.DEPTH_50);
         expect(input.quantityMode).toBe(Proto.HeatmapQuantityMode.PEAK);
         expect(input.pageToken).toBe("");
         expect(input.timeRange).toEqual({
@@ -34,7 +35,7 @@ describe("GetOrderbookHeatmapInputSchema", () => {
         });
 
         expect(input.interval).toBe(Proto.HeatmapInterval.INTERVAL_1S);
-        expect(input.depth).toBe(Proto.HeatmapDepth.DEPTH_50);
+        expect(input.depth).toBe(DepthTier.DEPTH_50);
         expect(input.quantityMode).toBe(Proto.HeatmapQuantityMode.CLOSE);
         expect(input.pageToken).toBe("");
         expect(input.timeRange).toEqual({
@@ -66,7 +67,7 @@ describe("GetOrderbookHeatmapInputSchema", () => {
         expect(() =>
             v.parse(GetOrderbookHeatmapInputSchema, {
                 symbolId: 1,
-                depth: Proto.HeatmapDepth.DEPTH_100,
+                depth: DepthTier.DEPTH_100,
                 startTsSec: 100,
             }),
         ).toThrow();

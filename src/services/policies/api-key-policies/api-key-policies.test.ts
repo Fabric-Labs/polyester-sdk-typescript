@@ -87,6 +87,24 @@ describe("ApiKeyPoliciesService", () => {
         expect(transport.lastCall()?.message).toEqual({ policyId: 9n });
     });
 
+    it("returns the attached policy, a template's new copy, or null when cleared", async () => {
+        const copy = unaryTransport({ policyId: 12n });
+        await expect(
+            new ApiKeyPoliciesService({ authApi: copy.transport }).apply({
+                keyId: "ak_1234567890abcdef1234567890abcdef",
+                policyId: formatId(9n),
+            }),
+        ).resolves.toEqual({ policyId: formatId(12n) });
+
+        const cleared = unaryTransport({ policyId: 0n });
+        await expect(
+            new ApiKeyPoliciesService({ authApi: cleared.transport }).apply({
+                keyId: "ak_1234567890abcdef1234567890abcdef",
+                policyId: null,
+            }),
+        ).resolves.toEqual({ policyId: null });
+    });
+
     it("normalizes mutation requests and forwards step-up call metadata", async () => {
         const transport = unaryTransport({ policy: apiKeyPolicy() });
         const service = new ApiKeyPoliciesService({ authApi: transport.transport });

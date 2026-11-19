@@ -4,7 +4,7 @@ import type { ProtoToOutput } from "../../utils/types.js";
 
 export type TradingRateLimitClass = Extract<
     RateLimitPolicyClass,
-    "unspecified" | "trading_place" | "trading_cancel"
+    "unspecified" | "trading_place" | "trading_cancel" | "trading_read"
 >;
 
 export const TradingRateLimitClassCodec = {
@@ -12,5 +12,6 @@ export const TradingRateLimitClassCodec = {
         [Proto.TradingRateLimitClass.UNSPECIFIED]: "unspecified",
         [Proto.TradingRateLimitClass.PLACE]: "trading_place",
         [Proto.TradingRateLimitClass.CANCEL]: "trading_cancel",
+        [Proto.TradingRateLimitClass.READ]: "trading_read",
     } satisfies ProtoToOutput<Proto.TradingRateLimitClass, TradingRateLimitClass>,
 } as const;

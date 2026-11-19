@@ -404,6 +404,7 @@ describe.each([
             accountId: "account-1",
             username: "hunter",
             rootSmartAccountAddress: "",
+            apiKeyScope: "unspecified",
         });
         await reloaded.auth.restoreSession();
         expect(reloaded.auth.getState().mainAccountId).toBe("account-1");

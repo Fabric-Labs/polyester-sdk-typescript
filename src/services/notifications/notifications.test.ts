@@ -188,6 +188,41 @@ describe("NotificationsService", () => {
         });
     });
 
+    it("formats an admin key action notice", async () => {
+        const { service } = serviceWith({
+            notification: rawNotification({
+                type: Proto.NotificationType.ADMIN_KEY_ACTION,
+                category: Proto.NotificationCategory.SECURITY,
+                detail: {
+                    case: "adminKeyAction",
+                    value: {
+                        adminKeyId: "ak_admin",
+                        action: Proto.AdminKeyAction.SET_API_KEY_POLICY,
+                        keyId: "ak_target",
+                        subaccountId: 0n,
+                        policyId: 31n,
+                        sourceIp: "203.0.113.7",
+                        changedAt: ts(1_700_000_120),
+                    },
+                },
+            }),
+        });
+
+        expect(await service.get({ notificationId: formatId(501n) })).toMatchObject({
+            type: "admin_key_action",
+            detail: {
+                type: "admin_key_action",
+                adminKeyId: "ak_admin",
+                action: "set_api_key_policy",
+                keyId: "ak_target",
+                subaccountId: null,
+                policyId: formatId(31n),
+                sourceIp: "203.0.113.7",
+                changedAt: 1_700_000_120_000,
+            },
+        });
+    });
+
     it("keeps a notification of an unknown type readable through title and text", async () => {
         const { service } = serviceWith({
             notifications: [

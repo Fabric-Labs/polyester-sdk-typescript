@@ -1,4 +1,5 @@
 import * as Proto from "../../../gen/auth/v1/policies_pb.js";
+import { formatId } from "../../../utils/base58-id.js";
 import { createClient, type Client } from "@connectrpc/connect";
 import * as v from "valibot";
 import { parse } from "../../../shared/validation.js";
@@ -123,16 +124,18 @@ export class SubaccountPoliciesService {
 
     /**
      * Attaches a policy to a subaccount. Passing a null policyId clears the explicit binding and restores the system read-only policy.
+     * Returns the attached policy's ID: a new copy when `policyId` named a template, else `policyId`; null when cleared.
      */
     async apply(
         input: v.InferInput<typeof ApplySubaccountPolicyInputSchema>,
         options?: PolyesterMutationOptions,
-    ): Promise<void> {
+    ): Promise<{ policyId: string | null }> {
         const validatedInput = parse(ApplySubaccountPolicyInputSchema, input);
-        await this.#client.setSubaccountPolicy(
+        const res = await this.#client.setSubaccountPolicy(
             removeUndefined(validatedInput),
             toConnectCallOptions(options),
         );
+        return { policyId: res.policyId ? formatId(res.policyId) : null };
     }
 
     /**

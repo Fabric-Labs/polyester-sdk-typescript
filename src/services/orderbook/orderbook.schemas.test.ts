@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
+import { DEPTH_TIER_VALUES } from "../../shared/depth-tier.js";
 import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import {
@@ -50,13 +51,14 @@ function testScales() {
 }
 
 describe("GetOrderbookInputSchema", () => {
-    it("defaults depth to 50 and sends other depths as given", () => {
+    it("defaults depth to 50 and accepts every depth tier", () => {
         expect(v.parse(GetOrderbookInputSchema, { symbolId: 101 }).depth).toBe(50);
-        expect(v.parse(GetOrderbookInputSchema, { symbolId: 101, depth: 37 }).depth).toBe(37);
-        expect(v.parse(GetOrderbookInputSchema, { symbolId: 101, depth: 750 }).depth).toBe(750);
+        for (const depth of DEPTH_TIER_VALUES) {
+            expect(v.parse(GetOrderbookInputSchema, { symbolId: 101, depth }).depth).toBe(depth);
+        }
     });
 
-    it.each([0, -1, 2.5, PROTOBUF_UINT32_MAX + 1])("rejects depth %s", (depth) => {
+    it.each([0, -1, 2.5, 37, 750, PROTOBUF_UINT32_MAX + 1])("rejects depth %s", (depth) => {
         expect(() => v.parse(GetOrderbookInputSchema, { symbolId: 101, depth })).toThrow();
     });
 
@@ -97,7 +99,6 @@ describe("OrderbookDataSchema", () => {
             depth: 50,
             bookSeq: 12n,
             bookEpoch: 3n,
-            maxDepth: 1000,
             available: true,
             bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
             asks: [{ priceTicks: 100_250_000_000n, qtyScaled: 50_000_000n }],
@@ -108,7 +109,6 @@ describe("OrderbookDataSchema", () => {
             depth: 50,
             bookSeq: "12",
             bookEpoch: "3",
-            maxDepth: 1000,
             bids: [{ price: "100", qty: "1" }],
             asks: [{ price: "100.25", qty: "0.5" }],
         });
@@ -123,7 +123,6 @@ describe("OrderbookDataSchema", () => {
                 depth: 50,
                 bookSeq: 12n,
                 bookEpoch: 3n,
-                maxDepth: 1000,
                 available: true,
                 bids: [{ priceTicks: 100_000_000_000n }],
                 asks: [],
