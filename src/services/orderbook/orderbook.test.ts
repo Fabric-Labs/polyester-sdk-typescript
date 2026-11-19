@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as Proto from "../../gen/orderbook/v1/orderbook_pb.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import {
+    InternalServerError,
     ResourceNotFoundError,
     ServiceUnavailableError,
     ValidationError,
@@ -585,6 +586,55 @@ describe("OrderbookService", () => {
         expect(onEvent).toHaveBeenLastCalledWith(
             expect.objectContaining({
                 bookSeq: "11",
+                bids: [expect.objectContaining({ price: "100", qty: "1" })],
+            }),
+        );
+        subscription.unsubscribe();
+    });
+
+    it("rebuilds from the next reset after a snapshot error that is not retried", async () => {
+        vi.useFakeTimers();
+        const realtime = realtimeClientStub();
+        const transport = bookTransport(() => {
+            throw new InternalServerError("An internal error occurred.");
+        });
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
+        const onEvent = vi.fn();
+        const onError = vi.fn();
+
+        const subscription = service.createSubscription({ symbolId: 101, onEvent, onError });
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+        await vi.advanceTimersByTimeAsync(10_000);
+
+        expect(transport.unary).toHaveBeenCalledOnce();
+        expect(onError).toHaveBeenCalledOnce();
+        realtime.params?.onPublication(
+            create(Proto.OrderBookDeltaSchema, {
+                symbolId: 101,
+                bookSeqStart: 5n,
+                bookSeqEnd: 6n,
+                bids: [{ priceTicks: 99_000_000_000n, qtyScaled: 100_000_000n }],
+            }),
+        );
+        expect(onEvent).not.toHaveBeenCalled();
+        realtime.params?.onPublication(
+            create(Proto.OrderBookDeltaSchema, {
+                symbolId: 101,
+                bookSeqStart: 0n,
+                bookSeqEnd: 7n,
+                reset: true,
+                bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
+            }),
+        );
+
+        expect(onEvent).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                bookSeq: "7",
                 bids: [expect.objectContaining({ price: "100", qty: "1" })],
             }),
         );

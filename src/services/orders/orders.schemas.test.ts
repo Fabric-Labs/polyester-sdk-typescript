@@ -301,12 +301,15 @@ describe("BaseOrdersFilterInputSchema", () => {
 
 describe("CancelAllOrdersInputSchema", () => {
     it("uses the shared order request ID format", () => {
-        expect(v.parse(CancelAllOrdersInputSchema, { requestId: " Az09._:/- " }).requestId).toBe(
+        expect(v.parse(CancelAllOrdersInputSchema, { requestId: "Az09._:/-" }).requestId).toBe(
             "Az09._:/-",
         );
         expect(() =>
             v.parse(CancelAllOrdersInputSchema, { requestId: "not a valid key!!!" }),
         ).toThrow("requestId has an invalid format");
+        expect(() => v.parse(CancelAllOrdersInputSchema, { requestId: " Az09 " })).toThrow(
+            "requestId has an invalid format",
+        );
     });
 
     it("accepts the uint32 symbol ID ceiling and rejects invalid IDs", () => {
@@ -368,6 +371,23 @@ describe("NewOrderInputSchema", () => {
         expect(() => v.parse(schema, { ...order, symbol: "BTC-USDT" })).toThrow();
     });
 
+    it("refuses a padded or blank clientOrderId instead of trimming it", () => {
+        const schema = createNewOrderInputSchema(testScales());
+        const order = {
+            symbolId: 1,
+            side: "buy",
+            qty: "0.5",
+            execution: { type: "market_ioc" },
+        } as const;
+
+        for (const clientOrderId of [" abc ", "   "]) {
+            expect(() => v.parse(schema, { ...order, clientOrderId })).toThrow(
+                "clientOrderId has an invalid format",
+            );
+        }
+        expect(v.parse(schema, order).order.clientOrderId).toBeUndefined();
+    });
+
     it("converts decimal limit and market order fields to wire scaled integers", () => {
         const schema = createNewOrderInputSchema(testScales());
 
@@ -383,7 +403,7 @@ describe("NewOrderInputSchema", () => {
                         type: "limit_gtc",
                         price: "100.25",
                     },
-                    clientOrderId: " client-1 ",
+                    clientOrderId: "client-1",
                     feeAsset: "base",
                 },
                 expected: {
@@ -1593,7 +1613,7 @@ describe("ModifyOrderInputSchema", () => {
         const schema = createModifyOrderInputSchema(testScales());
 
         const patch = v.parse(schema, {
-            clientOrderId: " client-1 ",
+            clientOrderId: "client-1",
             symbolId: 1,
             newPrice: "101.25",
             clearRisk: true,
@@ -1745,9 +1765,12 @@ describe("CancelOrderInputSchema", () => {
         expect(v.parse(CancelOrderInputSchema, { orderId: formatId(11n) })).toMatchObject({
             key: { case: "orderId", value: 11n },
         });
-        expect(v.parse(CancelOrderInputSchema, { clientOrderId: " client-1 " })).toMatchObject({
+        expect(v.parse(CancelOrderInputSchema, { clientOrderId: "client-1" })).toMatchObject({
             key: { case: "clientOrderId", value: "client-1" },
         });
+        for (const clientOrderId of [" client-1 ", "   "]) {
+            expect(() => v.parse(CancelOrderInputSchema, { clientOrderId })).toThrow();
+        }
         expect(formatId(58n)).toBe("21");
         expect(v.parse(CancelOrderInputSchema, { orderId: formatId(58n) })).toMatchObject({
             key: { case: "orderId", value: 58n },

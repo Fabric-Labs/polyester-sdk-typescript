@@ -243,7 +243,7 @@ describe("OrdersService", () => {
                         price: "100.2500000000",
                         postOnly: true,
                     },
-                    clientOrderId: " client-1 ",
+                    clientOrderId: "client-1",
                     feeAsset: "base",
                     selfTradePreventionMode: "expire_both",
                 },
@@ -506,7 +506,7 @@ describe("OrdersService", () => {
         });
         await expect(
             service.cancel({
-                clientOrderId: " client-1 ",
+                clientOrderId: "client-1",
                 symbolId: 1,
                 account: { subaccountId: formatId(11n) },
             }),
@@ -517,9 +517,9 @@ describe("OrdersService", () => {
         });
         await expect(
             service.modify({
-                clientOrderId: " client-1 ",
+                clientOrderId: "client-1",
                 symbolId: 1,
-                requestId: " modify-1 ",
+                requestId: "modify-1",
                 newQty: "0.25",
                 behavior: "amend_only",
             }),
@@ -678,7 +678,7 @@ describe("OrdersService", () => {
             testScales(),
         );
 
-        await service.cancelAll({ symbolIds: [1, 2], requestId: " retry-cancel-all-1 " });
+        await service.cancelAll({ symbolIds: [1, 2], requestId: "retry-cancel-all-1" });
 
         const request = transport.lastCall()?.message;
         expect(request?.requestId).toBe("retry-cancel-all-1");
@@ -718,7 +718,7 @@ describe("OrdersService", () => {
             service.batchCreate(
                 {
                     account: { subaccountId: formatId(11n) },
-                    requestId: " batch-create-1 ",
+                    requestId: "batch-create-1",
                     items: [
                         {
                             symbolId: 1,
@@ -1080,7 +1080,7 @@ describe("OrdersService", () => {
             testScales(),
         );
 
-        await expect(service.getDetails({ clientOrderId: " client-1 " })).resolves.toBeNull();
+        await expect(service.getDetails({ clientOrderId: "client-1" })).resolves.toBeNull();
 
         const request = transport.lastCall()?.message;
         expect(request).toMatchObject({

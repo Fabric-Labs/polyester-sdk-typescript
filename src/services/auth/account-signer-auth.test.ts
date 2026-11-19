@@ -472,6 +472,29 @@ describe("AccountSignerAuthService", () => {
         });
     });
 
+    it("preserves the active subaccount on refresh when the display session is unreadable", async () => {
+        const auth = authService(signer());
+        const { loginWithWallet } = mockLogin(auth);
+
+        await auth.login({ uri: "https://app.example", provider: "turnkey" });
+        auth.switchAccount("sub-1");
+        loginWithWallet.mockResolvedValueOnce({
+            accessToken: "token-2",
+            accountId: "account-1",
+            username: "hunter",
+            expiresAt: { seconds: 2n, nanos: 0 },
+        });
+
+        await auth.refreshSession({ uri: "https://app.example" });
+
+        expect(polyesterSession.get()).toBeNull();
+        expect(auth.getState().activeAccount).toMatchObject({
+            accountId: "sub-1",
+            isMain: false,
+            mainAccountId: "account-1",
+        });
+    });
+
     it("resets the active account when refresh resolves a different main account", async () => {
         const auth = authService(signer());
         const { loginWithWallet } = mockLogin(auth);

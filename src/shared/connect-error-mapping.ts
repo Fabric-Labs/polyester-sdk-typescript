@@ -584,6 +584,24 @@ const UNKNOWN_OUTCOME_ON_SERVER_TIMEOUT = new Set([
     "auth.v1.PolicyService.CreateApiPolicy",
     "auth.v1.PolicyService.CreateSubaccountPolicy",
     "auth.v1.MFAService.RegenerateRecoveryCodes",
+    // The `*_OUTCOME_UNKNOWN` detail tells these apart, but the public edge replaces a 504 body with
+    // its own page, so a bare 504 on these writes must read as unknown too.
+    "orders.v1.OrdersService.CreateOrder",
+    "orders.v1.OrdersService.BatchCreateOrders",
+    "orders.v1.OrdersService.ModifyOrder",
+    "orders.v1.OrdersService.BatchReplaceOrders",
+    "orders.v1.OrdersService.CancelOrder",
+    "orders.v1.OrdersService.BatchCancelOrders",
+    "orders.v1.OrdersService.CancelAllOrders",
+    "orders.v1.OrdersService.CancelAllAfter",
+    "triggers.v1.TriggersService.CreateTrigger",
+    "triggers.v1.TriggersService.CreateOco",
+    "triggers.v1.TriggersService.ModifyTrigger",
+    "triggers.v1.TriggersService.CancelTrigger",
+    "triggers.v1.TriggersService.BatchCancelTriggers",
+    "triggers.v1.TriggersService.CancelOco",
+    "triggers.v1.TriggersService.PauseTrigger",
+    "triggers.v1.TriggersService.ResumeTrigger",
 ]);
 
 function withUnknownWriteOutcome(
