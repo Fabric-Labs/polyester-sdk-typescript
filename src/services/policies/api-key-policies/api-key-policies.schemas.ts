@@ -172,8 +172,9 @@ export type ApiKeyPolicyUpdateInput = v.InferInput<typeof UpdateApiKeyPolicyInpu
 export const ApplyApiKeyPolicyInputSchema = v.strictObject({
     keyId: v.pipe(v.string(), v.trim(), v.minLength(1)),
     policyId: v.pipe(
-        v.nullable(v.pipe(v.string(), v.trim())),
-        v.transform((value) => (value ? idToBigInt(value, "policyId") : undefined)),
+        v.nullable(v.string()),
+        // Only null clears the binding; a blank string is rejected by idToBigInt.
+        v.transform((value) => (value === null ? undefined : idToBigInt(value, "policyId"))),
     ),
 });
 
