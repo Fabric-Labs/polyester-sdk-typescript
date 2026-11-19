@@ -321,13 +321,18 @@ describe("RealtimeClient", () => {
                 throw failure;
             }
         }
-        __setRealtimeCentrifugeLoaderForTests((async () => ({ Centrifuge: ThrowingCentrifuge })) as never);
+        __setRealtimeCentrifugeLoaderForTests((async () => ({
+            Centrifuge: ThrowingCentrifuge,
+        })) as never);
         const onError = vi.fn();
 
         createPublicRealtimeClient().subscribe("public:book", { onPublication: () => {}, onError });
 
         await vi.waitFor(() => expect(onError).toHaveBeenCalledOnce());
-        expect(onError.mock.calls[0]?.[0]).toMatchObject({ type: "transport_load", error: failure });
+        expect(onError.mock.calls[0]?.[0]).toMatchObject({
+            type: "transport_load",
+            error: failure,
+        });
     });
 
     it("reports missing authentication through onError without throwing", async () => {

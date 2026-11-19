@@ -211,12 +211,15 @@ describe("ApiKeyPoliciesService", () => {
         });
     });
 
-    it.each(["", "   "])("rejects a blank policy ID instead of clearing the binding (%j)", (policyId) => {
-        expect(() =>
-            v.parse(ApplyApiKeyPolicyInputSchema, {
-                keyId: "ak_1234567890abcdef1234567890abcdef",
-                policyId,
-            }),
-        ).toThrow("policyId: empty");
-    });
+    it.each(["", "   "])(
+        "rejects a blank policy ID instead of clearing the binding (%j)",
+        (policyId) => {
+            expect(() =>
+                v.parse(ApplyApiKeyPolicyInputSchema, {
+                    keyId: "ak_1234567890abcdef1234567890abcdef",
+                    policyId,
+                }),
+            ).toThrow("policyId: empty");
+        },
+    );
 });
