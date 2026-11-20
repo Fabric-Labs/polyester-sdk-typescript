@@ -67,7 +67,9 @@ export class SwapService {
      *
      * Idempotent per caller and key: an unknown outcome (`TimeoutError`, `ServiceUnavailableError`,
      * `NetworkError`, all `retryable`) is settled by calling `create` again with the same input,
-     * which returns the same swap, or by `get({ idempotencyKey })`. Reusing the key with
+     * which returns the same swap, or by `get({ idempotencyKey })`. Pass `account` explicitly
+     * (e.g. from the quote's `subaccountId`) so a retry after the active subaccount changes sends
+     * the same request. Reusing the key with
      * different input throws `AlreadyExistsError` (`IDEMPOTENCY_CONFLICT`, with the original
      * `swapId` on `detail`). `QUOTE_EXPIRED` and `PROTECTION_UNACHIEVABLE` throw
      * `PreconditionFailedError` and create nothing: quote again with a new key.
