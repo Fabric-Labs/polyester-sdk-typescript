@@ -78,6 +78,9 @@ function hasTransientServiceError(detail: PolyesterErrorDetail | undefined): boo
             "ACCOUNT_SHARD_UNAVAILABLE",
         ].includes(detail.code);
     }
+    if (detail?.service === "swap") {
+        return detail.code === "SERVICE_UNAVAILABLE" || detail.code === "QUOTE_UNAVAILABLE";
+    }
     if (detail?.service === "claims") {
         return ["SERVICE_UNAVAILABLE", "CLAIM_TEMPORARILY_UNAVAILABLE"].includes(detail.code);
     }

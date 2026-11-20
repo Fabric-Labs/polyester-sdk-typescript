@@ -17,6 +17,7 @@ import type { ErrorCode as WithdrawErrorCode } from "../gen/chain/withdraw/v1/wi
 import type { ErrorCode as LedgerErrorCode } from "../gen/ledger/read/v1/ledger_read_pb.js";
 import type { ErrorCode as MarketOverviewErrorCode } from "../gen/marketoverview/v1/marketoverview_pb.js";
 import type { ErrorCode as NotificationErrorCode } from "../gen/notifications/v1/notifications_pb.js";
+import type { ErrorCode as SwapErrorCode } from "../gen/swap/v1/swap_pb.js";
 import type { ErrorCode as StrategiesErrorCode } from "../gen/strategies/v1/strategies_pb.js";
 import type { ErrorCode as InternalTransferErrorCode } from "../gen/transfer/v1/internal_transfer_pb.js";
 import type { OrderErrorDetail } from "../services/orders/order-errors.schemas.js";
@@ -73,6 +74,18 @@ export type PolyesterErrorDetail =
           /** Claim the error concerns; set only with `CLAIM_OUTCOME_UNKNOWN`. */
           claimId?: string;
       }
+    | {
+          service: "swap";
+          code: NamedCode<typeof SwapErrorCode>;
+          /** The swap already bound to the idempotency key; with `IDEMPOTENCY_CONFLICT`. */
+          swapId?: string;
+          /**
+           * With `AMOUNT_OUT_OF_RANGE`, when known: the smallest source amount that quotes and the
+           * largest current depth absorbs, as decimals. Guidance, not a guarantee.
+           */
+          minAmount?: string;
+          maxAmount?: string;
+      }
     | { service: "alerts"; code: NamedCode<typeof PriceAlertErrorCode> }
     | { service: "assistant"; code: NamedCode<typeof AssistantErrorCode> }
     | { service: "notifications"; code: NamedCode<typeof NotificationErrorCode> }
@@ -115,6 +128,7 @@ const DECODER_LOADERS: Record<string, () => Promise<{ decode: ErrorDetailDecoder
     "ledger.read.v1.ErrorDetail": () => import("./error-details/ledger.js"),
     "marketoverview.v1.ErrorDetail": () => import("./error-details/market-overview.js"),
     "claims.v1.ErrorDetail": () => import("./error-details/claims.js"),
+    "swap.v1.ErrorDetail": () => import("./error-details/swap.js"),
     "alerts.v1.ErrorDetail": () => import("./error-details/alerts.js"),
     "ai.v1.ErrorDetail": () => import("./error-details/assistant.js"),
     "notifications.v1.ErrorDetail": () => import("./error-details/notifications.js"),

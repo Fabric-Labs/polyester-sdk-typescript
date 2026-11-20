@@ -38,6 +38,7 @@ import {
 import { ErrorDetailSchema as AssistantErrorDetailSchema } from "../gen/ai/v1/assistant_pb.js";
 import { ErrorDetailSchema as PriceAlertErrorDetailSchema } from "../gen/alerts/v1/price_alerts_pb.js";
 import { ErrorDetailSchema as NotificationErrorDetailSchema } from "../gen/notifications/v1/notifications_pb.js";
+import { ErrorDetailSchema as SwapErrorDetailSchema } from "../gen/swap/v1/swap_pb.js";
 import { ErrorDetailSchema as StrategiesErrorDetailSchema } from "../gen/strategies/v1/strategies_pb.js";
 import {
     RequestErrorCode,
@@ -307,6 +308,7 @@ describe("parseConnectErrorDetail", () => {
                 AssistantErrorDetailSchema,
                 NotificationErrorDetailSchema,
                 StrategiesErrorDetailSchema,
+                SwapErrorDetailSchema,
                 RateLimitDetailSchema,
                 RequestErrorDetailSchema,
             ]
