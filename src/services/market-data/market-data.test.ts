@@ -403,7 +403,8 @@ describe("MarketDataService", () => {
         const service = new MarketDataService(
             { publicApi: transport.transport },
             realtimeClientStub().realtime,
-            testScales(),
+            // The fixed price scale needs no catalog, so a failed catalog load must not block it.
+            { ...testScales(), ready: () => Promise.reject(new Error("catalog down")) },
         );
 
         const band = await service.getPriceBand({ symbolId: 101 });

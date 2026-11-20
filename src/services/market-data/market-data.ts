@@ -119,7 +119,6 @@ export class MarketDataService {
         input: GetPriceBandInput,
         options?: PolyesterRequestOptions,
     ): Promise<LivePriceBand> {
-        await this.#scales.ready();
         const request = parse(GetPriceBandInputSchema, input);
         const res = await this.#client.getPriceBand(request, toConnectCallOptions(options));
         if (!res.band) throw new Error("GetPriceBand response is missing its band");
