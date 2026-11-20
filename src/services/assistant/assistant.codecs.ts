@@ -60,8 +60,11 @@ export const ASSISTANT_MODEL_KEY_CHECK_VALUES = [
 ] as const;
 export type AssistantModelKeyCheck = (typeof ASSISTANT_MODEL_KEY_CHECK_VALUES)[number];
 
-export const ASSISTANT_FUNDING_MODE_VALUES = ["credits", "own_key"] as const;
-/** What pays for the caller's next messages: free daily `credits`, or their `own_key`. */
+export const ASSISTANT_FUNDING_MODE_VALUES = ["credits", "own_key", "sponsored"] as const;
+/**
+ * What pays: free daily `credits`, the caller's `own_key`, or `sponsored` (Polyester pays; only a
+ * subagent's work, never a message).
+ */
 export type AssistantFundingMode = (typeof ASSISTANT_FUNDING_MODE_VALUES)[number];
 
 export const ASSISTANT_ACCOUNT_SELECTION_VALUES = ["none"] as const;
@@ -165,6 +168,17 @@ export const FundingModeCodec = {
         [Proto.FundingMode.FUNDING_UNSPECIFIED]: "credits",
         [Proto.FundingMode.CREDITS]: "credits",
         [Proto.FundingMode.OWN_KEY]: "own_key",
+        [Proto.FundingMode.SPONSORED]: "sponsored",
+    } satisfies ProtoToOutput<Proto.FundingMode, AssistantFundingMode>,
+} as const;
+
+/** A subagent's funding: `"unspecified"` when the server did not say or sent a mode this build does not know. */
+export const SubagentFundingCodec = {
+    protoToOutput: {
+        [Proto.FundingMode.FUNDING_UNSPECIFIED]: "unspecified",
+        [Proto.FundingMode.CREDITS]: "credits",
+        [Proto.FundingMode.OWN_KEY]: "own_key",
+        [Proto.FundingMode.SPONSORED]: "sponsored",
     } satisfies ProtoToOutput<Proto.FundingMode, AssistantFundingMode>,
 } as const;
 

@@ -35,3 +35,36 @@ export const PairStatusCodec = {
         [Proto.PairStatus.HALTED]: "halted",
     },
 } as const;
+
+export const PRICE_BAND_STATE_VALUES = ["active", "off", "empty", "unknown"] as const;
+/**
+ * `active`: limits apply. `off`: the pair has no band. `empty`: no price lies inside the band, so
+ * every order that adds exposure is rejected until it moves. `unknown`: no current band.
+ */
+export type PriceBandStateValue = (typeof PRICE_BAND_STATE_VALUES)[number];
+
+export const PriceBandStateCodec = {
+    protoToOutput: {
+        [Proto.PriceBandState.BAND_STATE_UNSPECIFIED]: "unspecified",
+        [Proto.PriceBandState.ACTIVE]: "active",
+        [Proto.PriceBandState.OFF]: "off",
+        [Proto.PriceBandState.EMPTY]: "empty",
+        [Proto.PriceBandState.UNKNOWN]: "unknown",
+    } satisfies ProtoToOutput<Proto.PriceBandState, PriceBandStateValue>,
+} as const;
+
+export const PRICE_BAND_REFERENCE_SOURCE_VALUES = [
+    "last_trade",
+    "listing_reference",
+    "index_price",
+] as const;
+export type PriceBandReferenceSourceValue = (typeof PRICE_BAND_REFERENCE_SOURCE_VALUES)[number];
+
+export const PriceBandReferenceSourceCodec = {
+    protoToOutput: {
+        [Proto.PriceBandReferenceSource.REFERENCE_SOURCE_UNSPECIFIED]: "unspecified",
+        [Proto.PriceBandReferenceSource.LAST_TRADE]: "last_trade",
+        [Proto.PriceBandReferenceSource.LISTING_REFERENCE]: "listing_reference",
+        [Proto.PriceBandReferenceSource.INDEX_PRICE]: "index_price",
+    } satisfies ProtoToOutput<Proto.PriceBandReferenceSource, PriceBandReferenceSourceValue>,
+} as const;

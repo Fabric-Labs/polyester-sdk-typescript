@@ -22,6 +22,10 @@ import {
 } from "../../shared/transports.js";
 import { parse } from "../../shared/validation.js";
 import {
+    createCreateTradingToFundingBatchInputSchema,
+    CreateTradingToFundingBatchResultSchema,
+    type CreateTradingToFundingBatchInput,
+    type CreateTradingToFundingBatchResult,
     createCreateTradingWithdrawToExternalChainInputSchema,
     createCreateTradingWithdrawToFundingInputSchema,
     CreateTradingWithdrawResultSchema,
@@ -42,7 +46,11 @@ import {
     type ValidateWithdrawDestinationInput,
     type ValidateWithdrawDestinationResult,
 } from "./trading-withdraws.schemas.js";
-import { buildTradingWithdrawWalletMessage } from "./wallet-message.js";
+import { toU128 } from "../../utils/u128.js";
+import {
+    buildTradingToFundingBatchWalletMessage,
+    buildTradingWithdrawWalletMessage,
+} from "./wallet-message.js";
 
 export type TradingWithdrawWalletSigner = {
     signerWallet: string;
@@ -67,6 +75,22 @@ export type CreateTradingWithdrawToExternalChainServiceInput =
     CreateTradingWithdrawToExternalChainInput & {
         walletSigner?: TradingWithdrawWalletSigner;
     };
+
+export type CreateTradingToFundingBatchServiceInput = CreateTradingToFundingBatchInput & {
+    walletSigner: TradingWithdrawWalletSigner;
+};
+
+/**
+ * A signed batch. `submit` always sends the same signed request, so it can be repeated after
+ * an MFA step-up, or after an `aborted` or `unavailable` answer: the server then answers the
+ * first outcome for the key. It never signs again; a refused batch is final for its key, so
+ * moving the funds needs a new batch with a new `idempotencyKey`.
+ */
+export type PreparedTradingToFundingBatch = Readonly<{
+    /** When the backend stops accepting a new submission of this batch. */
+    deadline: Date;
+    submit: (options?: PolyesterMutationOptions) => Promise<CreateTradingToFundingBatchResult>;
+}>;
 
 export type PreparedTradingWithdraw = Readonly<{
     /** When the backend stops accepting the currently signed request. */
@@ -122,6 +146,15 @@ type TradingWithdrawRequest =
     | CreateTradingWithdrawToFundingRequest
     | CreateTradingWithdrawToExternalChainRequest;
 
+function walletSignatureBytes(signature: Hex): Uint8Array {
+    if (!/^0x[0-9a-fA-F]{128}(?:00|01|1[bBcC])$/.test(signature)) {
+        throw new ValidationError(
+            "Trading withdraw wallet signature must be 65 bytes with recovery byte 0, 1, 27, or 28.",
+        );
+    }
+    return evmHexToBytes(signature);
+}
+
 function resolveTradingWithdrawTargetAccountId(params: {
     subaccountId: bigint | undefined;
     rootAccountId: string;
@@ -168,15 +201,7 @@ async function resolveWalletSignature(params: {
             targetAccountId: params.targetAccountId,
         }),
     );
-    if (!/^0x[0-9a-fA-F]{128}(?:00|01|1[bBcC])$/.test(signature)) {
-        throw new ValidationError(
-            "Trading withdraw wallet signature must be 65 bytes with recovery byte 0, 1, 27, or 28.",
-        );
-    }
-    return {
-        signerWallet,
-        payloadSignature: evmHexToBytes(signature),
-    };
+    return { signerWallet, payloadSignature: walletSignatureBytes(signature) };
 }
 
 /**
@@ -193,6 +218,7 @@ export class TradingWithdrawsService {
     #toExternalChainInputSchema: ReturnType<
         typeof createCreateTradingWithdrawToExternalChainInputSchema
     >;
+    #toFundingBatchInputSchema: ReturnType<typeof createCreateTradingToFundingBatchInputSchema>;
 
     constructor(
         transports: AuthApiTransports,
@@ -211,6 +237,7 @@ export class TradingWithdrawsService {
         this.#toFundingInputSchema = createCreateTradingWithdrawToFundingInputSchema(scales);
         this.#toExternalChainInputSchema =
             createCreateTradingWithdrawToExternalChainInputSchema(scales);
+        this.#toFundingBatchInputSchema = createCreateTradingToFundingBatchInputSchema(scales);
     }
 
     /**
@@ -297,6 +324,77 @@ export class TradingWithdrawsService {
         const resolvedInput = resolveAccountScopedInput(inputForValidation, this.#resolver);
         const validated = parse(this.#toExternalChainInputSchema, resolvedInput);
         return this.#prepareWithdraw(validated, walletSigner);
+    }
+
+    /**
+     * Moves up to 10 amounts from one Trading account to Funding accounts with one wallet
+     * signature and one MFA check. All legs are accepted or none, and an accepted batch is paid
+     * as one or refunded in full. When every leg goes to the caller's own accounts, an
+     * MFA-elevated session is enough; any other leg needs a fresh `stepUpToken`. Wallet signers
+     * only.
+     */
+    async createToFundingBatch(
+        input: CreateTradingToFundingBatchServiceInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<CreateTradingToFundingBatchResult> {
+        const prepared = await this.prepareToFundingBatch(input);
+        return prepared.submit(options);
+    }
+
+    /**
+     * Builds and signs a Trading-to-Funding batch once, so the exact request can be resubmitted
+     * after an MFA step-up or a transient failure.
+     */
+    async prepareToFundingBatch(
+        input: CreateTradingToFundingBatchServiceInput,
+    ): Promise<PreparedTradingToFundingBatch> {
+        await this.#scales.ready();
+        const { walletSigner, ...inputForValidation } = input;
+        const resolvedInput = resolveAccountScopedInput(inputForValidation, this.#resolver);
+        const validated = parse(this.#toFundingBatchInputSchema, resolvedInput);
+        const signingConfig = await resolveTradingWithdrawSigningConfig({
+            fallback: this.#signingConfig,
+            catalog: this.#catalog,
+        });
+        const signerWallet = walletSigner.signerWallet.trim().toLowerCase();
+        const signature = await walletSigner.signMessage(
+            buildTradingToFundingBatchWalletMessage({
+                signingConfig,
+                signerWallet,
+                accountId: idToBigInt(walletSigner.accountId, "accountId"),
+                targetAccountId: resolveTradingWithdrawTargetAccountId({
+                    subaccountId: validated.subaccountId,
+                    rootAccountId: walletSigner.accountId,
+                }),
+                deadlineTsSec: validated.deadlineTsSec,
+                nonce: validated.nonce,
+                idempotencyKey: validated.idempotencyKey,
+                legs: validated.legs,
+            }),
+        );
+        const request = removeUndefined({
+            legs: validated.legs.map((leg) => ({
+                assetId: leg.assetId,
+                amountE18: toU128(leg.amountE18),
+                destinationAddress: leg.destinationAddress,
+            })),
+            subaccountId: validated.subaccountId,
+            deadlineTsSec: validated.deadlineTsSec,
+            nonce: toU128(validated.nonce),
+            idempotencyKey: validated.idempotencyKey,
+            signerWallet,
+            payloadSignature: walletSignatureBytes(signature),
+        });
+        return {
+            deadline: new Date(Number(validated.deadlineTsSec) * 1000),
+            submit: async (options) => {
+                const response = await this.#client.createWalletTradingToFundingBatch(
+                    request,
+                    toConnectCallOptions(options),
+                );
+                return parse(CreateTradingToFundingBatchResultSchema, response);
+            },
+        };
     }
 
     async #prepareWithdraw(

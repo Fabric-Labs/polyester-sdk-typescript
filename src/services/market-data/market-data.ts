@@ -19,6 +19,10 @@ import * as v from "valibot";
 import {
     AssetInfoSchema,
     GetMarketTradesInputSchema,
+    GetPriceBandInputSchema,
+    formatLivePriceBand,
+    type GetPriceBandInput,
+    type LivePriceBand,
     ListAssetInfoInputSchema,
     type AssetInfo,
     type ListAssetInfoInput,
@@ -102,6 +106,24 @@ export class MarketDataService {
         const request = parse(ListAssetInfoInputSchema, input);
         const res = await this.#client.listAssetInfo(request, toConnectCallOptions(options));
         return parse(v.array(AssetInfoSchema), res.assetInfo);
+    }
+
+    /**
+     * Returns a spot pair's live price band: its reference price and the limit prices the pair
+     * admits now. Advisory: the pair checks each order against its own band on arrival. Never
+     * cached. A band not confirmed in the last 5 seconds throws `ServiceUnavailableError`
+     * (`PRICE_BAND_STALE` or `PRICE_BAND_UNKNOWN`); retry after a second. An unknown `symbolId`
+     * throws `ResourceNotFoundError`.
+     */
+    async getPriceBand(
+        input: GetPriceBandInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<LivePriceBand> {
+        await this.#scales.ready();
+        const request = parse(GetPriceBandInputSchema, input);
+        const res = await this.#client.getPriceBand(request, toConnectCallOptions(options));
+        if (!res.band) throw new Error("GetPriceBand response is missing its band");
+        return formatLivePriceBand(this.#scales, res.band);
     }
 
     /**

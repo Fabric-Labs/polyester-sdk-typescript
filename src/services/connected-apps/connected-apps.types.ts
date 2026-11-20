@@ -1,7 +1,7 @@
 export type {
-    AppAuthorization,
-    AppAuthorizationInput,
-    AppAuthorizationRedirect,
+    AppConnectionRequest,
+    AppConnectionRequestInput,
+    AppConnectionRequestRedirect,
     ConnectedApp,
     ConnectedAppClient,
     RevokeConnectedAppInput,

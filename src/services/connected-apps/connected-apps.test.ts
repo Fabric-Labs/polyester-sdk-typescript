@@ -21,7 +21,7 @@ function serviceWith(response: Record<string, unknown> = {}) {
 describe("ConnectedAppsService", () => {
     it("reads a pending request for the consent page", async () => {
         const { transport, service } = serviceWith({
-            authorization: {
+            connectionRequest: {
                 client,
                 scopes: ["account:read"],
                 resource: "https://mcp.polyester.test/",
@@ -29,9 +29,9 @@ describe("ConnectedAppsService", () => {
                 expiresAt: ts(1_700_000_600),
             },
         });
-        const authorization = await service.getAuthorization({ requestId: " req-1 " });
+        const authorization = await service.getConnectionRequest({ requestId: " req-1 " });
 
-        expect(transport.lastCall()?.method.name).toBe("GetAppAuthorization");
+        expect(transport.lastCall()?.method.name).toBe("GetAppConnectionRequest");
         expect(transport.lastCall()?.message).toEqual({ requestId: "req-1" });
         expect(authorization).toEqual({
             client,
@@ -44,12 +44,12 @@ describe("ConnectedAppsService", () => {
 
     it("approves with the step-up proof in the header and returns the redirect", async () => {
         const { transport, service } = serviceWith({ redirectUrl: "https://claude.ai/cb?code=c" });
-        const result = await service.approveAuthorization(
+        const result = await service.approveConnectionRequest(
             { requestId: "req-1" },
             { stepUpToken: " fresh " },
         );
 
-        expect(transport.lastCall()?.method.name).toBe("ApproveAppAuthorization");
+        expect(transport.lastCall()?.method.name).toBe("ApproveAppConnectionRequest");
         expect(transport.lastCall()?.message).toEqual({ requestId: "req-1" });
         expect(new Headers(transport.lastCall()?.headers).get(AUTH_STEP_UP_HEADER_NAME)).toBe(
             "fresh",
@@ -59,10 +59,10 @@ describe("ConnectedAppsService", () => {
 
     it("denies and returns the redirect", async () => {
         const { transport, service } = serviceWith({ redirectUrl: "https://claude.ai/cb?e=d" });
-        await expect(service.denyAuthorization({ requestId: "req-1" })).resolves.toEqual({
+        await expect(service.denyConnectionRequest({ requestId: "req-1" })).resolves.toEqual({
             redirectUrl: "https://claude.ai/cb?e=d",
         });
-        expect(transport.lastCall()?.method.name).toBe("DenyAppAuthorization");
+        expect(transport.lastCall()?.method.name).toBe("DenyAppConnectionRequest");
     });
 
     it("lists connected apps with base58 IDs and null for unset times", async () => {
@@ -101,7 +101,7 @@ describe("ConnectedAppsService", () => {
         await expect(service.revoke({ connectedAppId: "0OIl" })).rejects.toBeInstanceOf(
             ValidationError,
         );
-        await expect(service.getAuthorization({ requestId: "  " })).rejects.toBeInstanceOf(
+        await expect(service.getConnectionRequest({ requestId: "  " })).rejects.toBeInstanceOf(
             ValidationError,
         );
         expect(transport.calls).toHaveLength(1);
@@ -119,7 +119,7 @@ describe("ConnectedAppsService", () => {
         const service = new ConnectedAppsService({
             authApi: createErrorMappingTransport(rejectingUnaryTransport(error)),
         });
-        const rejected = service.approveAuthorization({ requestId: "req-1" });
+        const rejected = service.approveConnectionRequest({ requestId: "req-1" });
         await expect(rejected).rejects.toBeInstanceOf(PreconditionFailedError);
         await expect(rejected).rejects.toMatchObject({
             detail: { service: "auth", code: "AUTH_CONNECTED_APP_LIMIT_REACHED" },

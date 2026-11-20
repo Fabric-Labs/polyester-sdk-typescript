@@ -40,6 +40,7 @@ import { OrdersReadService } from "./gen/orders/v1/orders_read_pb.js";
 import { RateLimitService } from "./gen/ratelimit/v1/ratelimit_pb.js";
 import { RewardCampaignService } from "./gen/rewards/v1/rewards_pb.js";
 import { InternalTransferService } from "./gen/transfer/v1/internal_transfer_pb.js";
+import { StrategiesService } from "./gen/strategies/v1/strategies_pb.js";
 import { SystemService } from "./gen/system/v1/system_pb.js";
 import { TriggersService } from "./gen/triggers/v1/triggers_pb.js";
 import { VIPService } from "./gen/vip/v1/vip_pb.js";
@@ -88,6 +89,7 @@ export const WIRED_SERVICE_DESCRIPTORS: readonly DescService[] = [
     RewardCampaignService,
     SocialVerificationService,
     StatementExportService,
+    StrategiesService,
     SubaccountRoleService,
     SubaccountService,
     SubaccountViewService,

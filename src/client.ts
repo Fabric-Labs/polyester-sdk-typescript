@@ -27,6 +27,7 @@ import { orderbookService } from "./services/orderbook/service.js";
 import { ordersService } from "./services/orders/service.js";
 import { tradingRateLimitsService } from "./services/rate-limits/service.js";
 import { priceAlertsService } from "./services/price-alerts/service.js";
+import { strategiesService } from "./services/strategies/service.js";
 import { rewardsService } from "./services/rewards/service.js";
 import { socialVerificationService } from "./services/social-verification/service.js";
 import { statementExportsService } from "./services/statement-exports/service.js";
@@ -56,6 +57,7 @@ export const POLYESTER_SERVICES = {
     orders: ordersService,
     triggers: triggersService,
     priceAlerts: priceAlertsService,
+    strategies: strategiesService,
     notifications: notificationsService,
     assistant: assistantService,
     balances: balancesService,

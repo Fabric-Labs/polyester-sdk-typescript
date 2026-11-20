@@ -50,6 +50,9 @@ export const ACCOUNT_PERMISSION_POLICY_ACTION_LABELS = [
     "manage-price-alerts",
     "read-notifications",
     "read-account-activity",
+    "read-strategies",
+    "draft-strategies",
+    "propose-strategy-deploy",
 ] as const;
 
 /**
@@ -129,6 +132,9 @@ export const PolicyActionCodec = {
         [Proto.PolicyAction.MANAGE_API_KEYS]: "manage-api-keys",
         [Proto.PolicyAction.MANAGE_API_KEY_POLICIES]: "manage-api-key-policies",
         [Proto.PolicyAction.MANAGE_SUBACCOUNT_POLICIES]: "manage-subaccount-policies",
+        [Proto.PolicyAction.READ_STRATEGIES]: "read-strategies",
+        [Proto.PolicyAction.DRAFT_STRATEGIES]: "draft-strategies",
+        [Proto.PolicyAction.PROPOSE_STRATEGY_DEPLOY]: "propose-strategy-deploy",
     } satisfies ProtoToOutput<Proto.PolicyAction, PolicyActionLabel>,
     inputToProto: {
         "trade-spot": Proto.PolicyAction.TRADE_SPOT,
@@ -172,6 +178,9 @@ export const PolicyActionCodec = {
         "manage-api-keys": Proto.PolicyAction.MANAGE_API_KEYS,
         "manage-api-key-policies": Proto.PolicyAction.MANAGE_API_KEY_POLICIES,
         "manage-subaccount-policies": Proto.PolicyAction.MANAGE_SUBACCOUNT_POLICIES,
+        "read-strategies": Proto.PolicyAction.READ_STRATEGIES,
+        "draft-strategies": Proto.PolicyAction.DRAFT_STRATEGIES,
+        "propose-strategy-deploy": Proto.PolicyAction.PROPOSE_STRATEGY_DEPLOY,
     } satisfies Record<PolicyActionLabel, Proto.PolicyAction>,
 } as const;
 

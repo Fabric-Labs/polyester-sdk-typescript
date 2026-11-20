@@ -1093,6 +1093,36 @@ describe("OrdersService", () => {
         });
     });
 
+    it("reads a refused batch replacement's successor, which has no pair, without a catalog lookup", async () => {
+        const transport = unaryTransportByMethod({
+            getOrder: {
+                order: create(ProtoRead.OrderSchema, {
+                    orderId: 77n,
+                    status: ProtoRead.OrderStatus.REJECTED,
+                    version: 1,
+                    batchRequestId: 5n,
+                }),
+            },
+        });
+        const service = new OrdersService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        const details = await service.getDetails({ orderId: formatId(77n) });
+
+        expect(details?.order).toMatchObject({
+            orderId: formatId(77n),
+            symbolId: 0,
+            status: "rejected",
+            totalQty: "0",
+            price: "0",
+            batchRequestId: formatId(5n),
+        });
+    });
+
     it("serializes bounded execution-history detail requests", async () => {
         const controller = new AbortController();
         const transport = unaryTransportByMethod({ getOrder: {} });

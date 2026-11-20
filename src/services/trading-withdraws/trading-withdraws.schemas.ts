@@ -169,6 +169,89 @@ export function createCreateTradingWithdrawToExternalChainInputSchema(scales: Sd
     );
 }
 
+export function createCreateTradingToFundingBatchInputSchema(scales: SdkScales) {
+    return v.pipe(
+        v.strictObject({
+            ...AccountScopeInputEntries,
+            /** Moves to make, in order: 1 to 10. Legs may repeat an asset or a destination. */
+            legs: v.pipe(
+                v.array(
+                    v.strictObject({
+                        assetId: PositiveUint32InputSchema,
+                        quantity: v.string(),
+                        /**
+                         * A Polyester Funding address, signed in the letter case given. Omit it
+                         * to credit the source account's own Funding account; another account's
+                         * address must be on the internal whitelist.
+                         */
+                        destinationAddress: v.optional(v.pipe(v.string(), v.trim()), ""),
+                    }),
+                ),
+                v.minLength(1),
+                v.maxLength(10),
+            ),
+            /** Scoped to the source account; 1 to 128 characters. */
+            idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(128)),
+            /**
+             * When the signed batch lapses, at most 15 minutes ahead. Defaults to five minutes
+             * from now on the device clock.
+             */
+            deadline: v.optional(v.date()),
+        }),
+        v.transform((input) => ({
+            subaccountId: accountScopeToSubaccountId(input.account),
+            legs: input.legs.map((leg) => ({
+                assetId: leg.assetId,
+                amountE18: quantityInputToE18({
+                    scales,
+                    assetId: leg.assetId,
+                    quantity: leg.quantity,
+                }),
+                destinationAddress: leg.destinationAddress,
+            })),
+            idempotencyKey: input.idempotencyKey,
+            deadlineTsSec: BigInt(
+                input.deadline
+                    ? Math.floor(input.deadline.getTime() / 1000)
+                    : Math.floor(Date.now() / 1000) + DEFAULT_DEADLINE_SECONDS,
+            ),
+            nonce: createNonce(),
+        })),
+    );
+}
+
+export type CreateTradingToFundingBatchInput = v.InferInput<
+    ReturnType<typeof createCreateTradingToFundingBatchInputSchema>
+>;
+
+export const CreateTradingToFundingBatchResultSchema = v.object({
+    batchId: v.pipe(v.string(), v.trim(), v.minLength(1)),
+    /** Every leg, in request order; follow each `intentId` like a single withdraw's. */
+    legs: v.array(
+        v.pipe(
+            v.object({
+                legIndex: v.number(),
+                intentId: v.pipe(v.string(), v.trim(), v.minLength(1)),
+                assetId: v.number(),
+                amountE18: v.optional(U128Schema),
+                destinationAddress: v.string(),
+            }),
+            v.transform(({ amountE18, ...leg }) => ({
+                legIndex: leg.legIndex,
+                intentId: leg.intentId,
+                assetId: leg.assetId,
+                amount: scaledToDecimalOutput(fromU128(amountE18), E18_SCALE),
+                /** Empty when the leg credits the source account's own Funding account. */
+                destinationAddress: leg.destinationAddress,
+            })),
+        ),
+    ),
+});
+
+export type CreateTradingToFundingBatchResult = v.InferOutput<
+    typeof CreateTradingToFundingBatchResultSchema
+>;
+
 export type CreateTradingWithdrawToFundingInput = v.InferInput<
     ReturnType<typeof createCreateTradingWithdrawToFundingInputSchema>
 >;

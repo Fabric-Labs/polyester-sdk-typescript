@@ -8,14 +8,14 @@ import {
 import type { AuthApiTransports } from "../../shared/transports.js";
 import { parse } from "../../shared/validation.js";
 import {
-    AppAuthorizationInputSchema,
-    AppAuthorizationRedirectSchema,
-    AppAuthorizationSchema,
+    AppConnectionRequestInputSchema,
+    AppConnectionRequestRedirectSchema,
+    AppConnectionRequestSchema,
     ConnectedAppsSchema,
     RevokeConnectedAppInputSchema,
-    type AppAuthorization,
-    type AppAuthorizationInput,
-    type AppAuthorizationRedirect,
+    type AppConnectionRequest,
+    type AppConnectionRequestInput,
+    type AppConnectionRequestRedirect,
     type ConnectedApp,
     type RevokeConnectedAppInput,
 } from "./connected-apps.schemas.js";
@@ -39,16 +39,16 @@ export class ConnectedAppsService {
      * Reads a pending app connection request to show the consent page. An unknown, expired or
      * already answered request throws `ResourceNotFoundError`.
      */
-    async getAuthorization(
-        input: AppAuthorizationInput,
+    async getConnectionRequest(
+        input: AppConnectionRequestInput,
         options?: PolyesterRequestOptions,
-    ): Promise<AppAuthorization> {
-        const request = parse(AppAuthorizationInputSchema, input);
-        const response = await this.#client.getAppAuthorization(
+    ): Promise<AppConnectionRequest> {
+        const request = parse(AppConnectionRequestInputSchema, input);
+        const response = await this.#client.getAppConnectionRequest(
             request,
             toConnectCallOptions(options),
         );
-        return parse(AppAuthorizationSchema, response.authorization);
+        return parse(AppConnectionRequestSchema, response.connectionRequest);
     }
 
     /**
@@ -58,16 +58,16 @@ export class ConnectedAppsService {
      * `ResourceNotFoundError`; an account with 20 connected apps throws `PreconditionFailedError`
      * (`AUTH_CONNECTED_APP_LIMIT_REACHED`).
      */
-    async approveAuthorization(
-        input: AppAuthorizationInput,
+    async approveConnectionRequest(
+        input: AppConnectionRequestInput,
         options?: PolyesterMutationOptions,
-    ): Promise<AppAuthorizationRedirect> {
-        const request = parse(AppAuthorizationInputSchema, input);
-        const response = await this.#client.approveAppAuthorization(
+    ): Promise<AppConnectionRequestRedirect> {
+        const request = parse(AppConnectionRequestInputSchema, input);
+        const response = await this.#client.approveAppConnectionRequest(
             request,
             toConnectCallOptions(options),
         );
-        return parse(AppAuthorizationRedirectSchema, response);
+        return parse(AppConnectionRequestRedirectSchema, response);
     }
 
     /**
@@ -75,16 +75,16 @@ export class ConnectedAppsService {
      * which carries the `access_denied` error. An unknown, expired or already answered request
      * throws `ResourceNotFoundError`.
      */
-    async denyAuthorization(
-        input: AppAuthorizationInput,
+    async denyConnectionRequest(
+        input: AppConnectionRequestInput,
         options?: PolyesterRequestOptions,
-    ): Promise<AppAuthorizationRedirect> {
-        const request = parse(AppAuthorizationInputSchema, input);
-        const response = await this.#client.denyAppAuthorization(
+    ): Promise<AppConnectionRequestRedirect> {
+        const request = parse(AppConnectionRequestInputSchema, input);
+        const response = await this.#client.denyAppConnectionRequest(
             request,
             toConnectCallOptions(options),
         );
-        return parse(AppAuthorizationRedirectSchema, response);
+        return parse(AppConnectionRequestRedirectSchema, response);
     }
 
     /** Lists the apps connected to the account, newest first; at most 20. */

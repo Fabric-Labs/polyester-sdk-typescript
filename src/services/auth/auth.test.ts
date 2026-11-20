@@ -1,4 +1,4 @@
-import { AccountScopeType } from "../../gen/auth/v1/address_book_pb.js";
+import { AccountScopeType } from "../../gen/auth/v1/account_scope_pb.js";
 import { describe, expect, expectTypeOf, it } from "vitest";
 import {
     realtimeClientStub,

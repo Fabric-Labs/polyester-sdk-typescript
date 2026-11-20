@@ -4,7 +4,7 @@ import * as v from "valibot";
 import { parse } from "../../shared/validation.js";
 import { ProfileService } from "./profile/profile.js";
 import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
-import { AccountScopeType } from "../../gen/auth/v1/address_book_pb.js";
+import { AccountScopeType } from "../../gen/auth/v1/account_scope_pb.js";
 import {
     OptionalPublicIdSchema,
     OptionalTimestampMsSchema,

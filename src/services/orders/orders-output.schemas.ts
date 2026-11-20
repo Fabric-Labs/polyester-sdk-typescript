@@ -102,7 +102,9 @@ function toOrder(
     n: OrderNestedFields,
 ) {
     const isPartial = n.status === "working" && o.cumQtyScaled > 0n;
-    const baseQtyScale = scales.baseQty(o.symbolId);
+    // A refused batch replacement's successor reads with no pair (symbolId 0) and "0"
+    // placeholder quantities for 60 seconds; it has no scale to look up.
+    const baseQtyScale = o.symbolId === 0 ? 0 : scales.baseQty(o.symbolId);
     const marketClientRefPrice =
         o.marketClientRefPriceTicks > 0n
             ? scaledToDecimalOutput(o.marketClientRefPriceTicks, scales.price())

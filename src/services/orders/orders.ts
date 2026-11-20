@@ -340,6 +340,11 @@ export class OrdersService {
      * An item refused for its value (a price off the pair's tick size, or an invalid attached-risk price, distance or slippage) is rejected alone in `results`, with its `code` and an `error` whose violations name `items[i]`; the other items are processed. Resend only the corrected rejected items under a fresh `requestId`. A malformed batch still throws as a whole.
      *
      * The receipt answers admission, before each admitted item's change completes. Until then, the next change of the same order is rejected with the retryable item `code` `ORDER_MODIFY_IN_PROGRESS`, or `ORDER_PLACEMENT_PENDING` when it names the returned `replacementOrderId`. Resend only those items, in a new batch under a fresh `requestId`, after a short jittered backoff (for example 50 ms doubling to 1 s). The rejected batch's `requestId` replays its rejection, admitted items must never be resent, and a batch whose outcome you did not receive is reconciled under its own `requestId`, never resent under a new one.
+     *
+     * An admitted item can still be refused when it applies, and one not applied 2 seconds after
+     * admission is refused with `MODIFY_APPLY_EXPIRED`; either way it changed nothing. For 60
+     * seconds, `getDetails` of a refused replacement's `replacementOrderId` reads `rejected` with
+     * `symbolId` 0 and `"0"` placeholder terms: take its terms from the batch sent.
      */
     async batchReplace(
         input: BatchReplaceOrdersInput,

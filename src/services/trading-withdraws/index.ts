@@ -1,7 +1,9 @@
 export {
     TradingWithdrawsService,
+    type CreateTradingToFundingBatchServiceInput,
     type CreateTradingWithdrawToExternalChainServiceInput,
     type CreateTradingWithdrawToFundingServiceInput,
+    type PreparedTradingToFundingBatch,
     type PreparedTradingWithdraw,
     type TradingWithdrawSigningConfig,
     type TradingWithdrawWalletSigner,
@@ -18,6 +20,10 @@ export {
     type WalletAssetUnavailableReasonValue,
 } from "./trading-withdraws.codecs.js";
 export {
+    CreateTradingToFundingBatchResultSchema,
+    createCreateTradingToFundingBatchInputSchema,
+    type CreateTradingToFundingBatchInput,
+    type CreateTradingToFundingBatchResult,
     CreateTradingWithdrawResultSchema,
     CreateWalletTradingWithdrawResultSchema,
     GetWalletBalancesInputSchema,

@@ -3,12 +3,12 @@ import { OptionalTimestampMsSchema, PublicIdSchema, idInputSchema } from "../../
 import { PositiveStringInputSchema } from "../shared.js";
 
 /** Selects a pending app connection request. */
-export const AppAuthorizationInputSchema = v.strictObject({
+export const AppConnectionRequestInputSchema = v.strictObject({
     /** The `request` query parameter the authorization endpoint gave the consent page. */
     requestId: PositiveStringInputSchema,
 });
 
-export type AppAuthorizationInput = v.InferInput<typeof AppAuthorizationInputSchema>;
+export type AppConnectionRequestInput = v.InferInput<typeof AppConnectionRequestInputSchema>;
 
 export const RevokeConnectedAppInputSchema = v.strictObject({
     /** `connectedAppId` from `connectedApps.list`. */
@@ -28,7 +28,7 @@ export type ConnectedAppClient = v.InferOutput<typeof ConnectedAppClientSchema>;
 const ClientSchema = v.optional(ConnectedAppClientSchema, { clientId: "", name: "" });
 
 /** A pending request from an app to connect to the account. Times are epoch milliseconds. */
-export const AppAuthorizationSchema = v.pipe(
+export const AppConnectionRequestSchema = v.pipe(
     v.object({
         client: ClientSchema,
         scopes: v.array(v.string()),
@@ -36,20 +36,20 @@ export const AppAuthorizationSchema = v.pipe(
         redirectHost: v.string(),
         expiresAt: OptionalTimestampMsSchema,
     }),
-    v.transform((authorization) => ({
-        client: authorization.client,
+    v.transform((request) => ({
+        client: request.client,
         /** OAuth scopes the app asks for, e.g. `"account:read"`. */
-        scopes: authorization.scopes,
+        scopes: request.scopes,
         /** Absolute URL of the server the app will use the account through. */
-        resource: authorization.resource,
+        resource: request.resource,
         /** Host the app receives the answer on. */
-        redirectHost: authorization.redirectHost,
+        redirectHost: request.redirectHost,
         /** After this the request can no longer be approved or denied. */
-        expiresAt: authorization.expiresAt ?? null,
+        expiresAt: request.expiresAt ?? null,
     })),
 );
 
-export type AppAuthorization = v.InferOutput<typeof AppAuthorizationSchema>;
+export type AppConnectionRequest = v.InferOutput<typeof AppConnectionRequestSchema>;
 
 /** An app connected to the account. Times are epoch milliseconds. */
 export const ConnectedAppSchema = v.pipe(
@@ -83,6 +83,6 @@ export type ConnectedApp = v.InferOutput<typeof ConnectedAppSchema>;
 export const ConnectedAppsSchema = v.array(ConnectedAppSchema);
 
 /** Where to send the browser to hand the app its answer. */
-export const AppAuthorizationRedirectSchema = v.object({ redirectUrl: v.string() });
+export const AppConnectionRequestRedirectSchema = v.object({ redirectUrl: v.string() });
 
-export type AppAuthorizationRedirect = v.InferOutput<typeof AppAuthorizationRedirectSchema>;
+export type AppConnectionRequestRedirect = v.InferOutput<typeof AppConnectionRequestRedirectSchema>;

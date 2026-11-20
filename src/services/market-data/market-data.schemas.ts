@@ -8,6 +8,7 @@ import {
     type PairStatus,
     type SpotConfig,
 } from "../../shared/catalog-config.js";
+import { parse } from "../../shared/validation.js";
 import { tsNsToMs } from "../../utils/time.js";
 import { timestampToMs, tsNsToTimestamp } from "../../utils/timestamp.js";
 import {
@@ -16,8 +17,15 @@ import {
 } from "../../shared/schemas.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
-import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
-import { AssetDataSourceCodec, PairStatusCodec, SideFilterCodec } from "./market-data.codecs.js";
+import type * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
+import { enumLabel, enumLabelSchema } from "../../shared/proto-enum-codec.js";
+import {
+    AssetDataSourceCodec,
+    PairStatusCodec,
+    PriceBandReferenceSourceCodec,
+    PriceBandStateCodec,
+    SideFilterCodec,
+} from "./market-data.codecs.js";
 
 export type { AssetConfig, PairConfig, PairMarketDataConfig, PairStatus, SpotConfig };
 export { PAIR_STATUSES };
@@ -131,6 +139,13 @@ const Uint32Schema = v.pipe(
     v.minValue(0),
     v.maxValue(PROTOBUF_UINT32_MAX),
 );
+
+const PriceBandParametersSchema = v.object({
+    lowerBps: Uint32Schema,
+    upperBps: Uint32Schema,
+    referenceWindowMs: Uint32Schema,
+});
+
 const OpenOrdersLimitSchema = v.optional(Uint32Schema, 0);
 
 export const AssetConfigSchema = v.pipe(
@@ -262,13 +277,7 @@ export const PairConfigSchema = v.pipe(
          * canceled with `price_band`. The reference stays fixed for `referenceWindowMs` (zero
          * moves it with every order). Absent when the pair has no band.
          */
-        priceBand: v.optional(
-            v.object({
-                lowerBps: Uint32Schema,
-                upperBps: Uint32Schema,
-                referenceWindowMs: Uint32Schema,
-            }),
-        ),
+        priceBand: v.optional(PriceBandParametersSchema),
 
         /**
          * Controls whether trading fee can be deducted from what you receive when buying.
@@ -471,3 +480,43 @@ export type AssetInfo = v.InferOutput<typeof AssetInfoSchema>;
 export type AssetEditorialInfo = AssetInfo["editorial"];
 export type AssetMarketStats = NonNullable<AssetInfo["marketStats"]>;
 export type AssetMarketValue = NonNullable<AssetMarketStats["marketCapUsd"]>;
+
+export const GetPriceBandInputSchema = v.strictObject({ symbolId: SymbolIdInputSchema });
+export type GetPriceBandInput = v.InferInput<typeof GetPriceBandInputSchema>;
+
+/** Formats a live price band; prices are decimal strings and absent ones `null`, never `"0"`. */
+export function formatLivePriceBand(scales: SdkScales, b: Proto.LivePriceBand) {
+    const price = (ticks: bigint | undefined) =>
+        ticks === undefined ? null : scaledToDecimalOutput(ticks, scales.price());
+    return {
+        symbolId: b.symbolId,
+        state: enumLabel(PriceBandStateCodec.protoToOutput, b.state),
+        /** Present when `state` is `active` or `empty`. */
+        referencePrice: price(b.referencePriceTicks),
+        referenceSource: enumLabel(PriceBandReferenceSourceCodec.protoToOutput, b.referenceSource),
+        /** Highest buy limit price admitted, inclusive; present only when `active`. */
+        maxBuyPrice: price(b.maxBuyPriceTicks),
+        /** Lowest sell limit price admitted, inclusive; present only when `active`. */
+        minSellPrice: price(b.minSellPriceTicks),
+        /** Lowest buy limit price admitted; null when any buy below `maxBuyPrice` is. */
+        minBuyPrice: price(b.minBuyPriceTicks),
+        /** Highest sell limit price admitted; null when any sell above `minSellPrice` is. */
+        maxSellPrice: price(b.maxSellPriceTicks),
+        updatedAtMs: tsNsToMs(b.updatedTsNs),
+        /** From then on, the next order operation on the pair may move the reference price. */
+        reanchorEligibleAtMs:
+            b.reanchorEligibleTsNs === undefined ? null : tsNsToMs(b.reanchorEligibleTsNs),
+        /** A trade newer than the reference is waiting to become the reference. */
+        reanchorPending: b.reanchorPending,
+        /** The band's settings, as in `getSpotConfig`; the limits above are authoritative. */
+        parameters: b.parameters ? parse(PriceBandParametersSchema, b.parameters) : null,
+        /** Newest band wins: compare `epoch`, then `updateId` within one epoch, then `asOfTsNs`. */
+        epoch: b.epoch.toString(),
+        updateId: b.updateId.toString(),
+        asOfTsNs: b.asOfTsNs.toString(),
+        /** Treat the band as unknown after this and read it again (`Date.now() < validUntilMs`). */
+        validUntilMs: tsNsToMs(b.validUntilTsNs),
+    };
+}
+
+export type LivePriceBand = ReturnType<typeof formatLivePriceBand>;

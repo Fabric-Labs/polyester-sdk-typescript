@@ -384,7 +384,7 @@ describe("AssistantService unary calls", () => {
             resetsAt: 86_400_000,
             nextTier: { vipTier: 1, dailyFreeCredits: 200 },
         });
-        await expect(serviceWith({ fundingMode: 3 }).service.getUsage()).resolves.toMatchObject({
+        await expect(serviceWith({ fundingMode: 99 }).service.getUsage()).resolves.toMatchObject({
             fundingMode: "credits",
             vipTier: undefined,
             nextTier: undefined,
@@ -486,6 +486,54 @@ describe("AssistantService.watchRun", () => {
             ["currency", ""],
             ["language", undefined],
         ]);
+    });
+
+    it("reads subagent funding, credit cap, deploy page and tool ownership", async () => {
+        const { service } = streamingService([
+            {
+                seq: 1n,
+                event: {
+                    case: "subagentStarted",
+                    value: {
+                        subagentId: "s1",
+                        name: "strategy-coder",
+                        funding: Proto.FundingMode.SPONSORED,
+                        creditCap: 500n,
+                    },
+                },
+            },
+            {
+                seq: 2n,
+                event: {
+                    case: "toolStarted",
+                    value: { toolCallId: "t1", name: "validate", subagentId: "s1" },
+                },
+            },
+            {
+                seq: 3n,
+                event: {
+                    case: "subagentFinished",
+                    value: { subagentId: "s1", ok: true, deployUrl: "https://polyester.test/d" },
+                },
+            },
+            // An older server says nothing; a newer one may send a mode this build does not know.
+            { seq: 4n, event: { case: "subagentStarted", value: { subagentId: "s2" } } },
+            {
+                seq: 5n,
+                event: {
+                    case: "subagentStarted",
+                    value: { subagentId: "s3", funding: 99 as Proto.FundingMode },
+                },
+            },
+        ]);
+
+        const events = await collect(service.watchRun({ runId: formatId(1n) }));
+
+        expect(events[0]).toMatchObject({ funding: "sponsored", creditCap: 500 });
+        expect(events[1]).toMatchObject({ type: "tool_started", subagentId: "s1" });
+        expect(events[2]).toMatchObject({ deployUrl: "https://polyester.test/d" });
+        expect(events[3]).toMatchObject({ funding: "unspecified", creditCap: null });
+        expect(events[4]).toMatchObject({ funding: "unspecified" });
     });
 
     it("streams typed events from afterSeq and skips unknown cases", async () => {
