@@ -9,7 +9,7 @@ import {
 } from "../../shared/account-scope.js";
 import {
     E18_SCALE,
-    positiveE18InputToScaled,
+    decimalInputToE18,
     scaledToDecimalOutput,
 } from "../../shared/decimal-surface.js";
 import { enumLabel, enumLabelSchema } from "../../shared/proto-enum-codec.js";
@@ -39,7 +39,9 @@ const IdempotencyKeySchema = v.pipe(v.string(), v.minLength(1));
 function e18AmountInputSchema(field: string) {
     return v.pipe(
         v.string(),
-        v.transform((value) => toU128(positiveE18InputToScaled(field, value))),
+        v.transform((value) => decimalInputToE18(field, value)),
+        v.check((scaled) => scaled > 0n, `${field} must be greater than 0`),
+        v.transform(toU128),
     );
 }
 
