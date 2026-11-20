@@ -142,6 +142,7 @@ import { autoWithdrawService } from "@polyester/sdk/services/auto-withdraw";
 import { connectedAppsService } from "@polyester/sdk/services/connected-apps";
 import { dustConversionService } from "@polyester/sdk/services/dust-conversion";
 import { notificationsService } from "@polyester/sdk/services/notifications";
+import { swapService } from "@polyester/sdk/services/swap";
 import { ordersService } from "@polyester/sdk/services/orders";
 import { priceAlertsService } from "@polyester/sdk/services/price-alerts";
 import { tradingRateLimitsService } from "@polyester/sdk/services/rate-limits";
@@ -433,6 +434,26 @@ async function verifyServiceInference(): Promise<void> {
     expectType<import("@polyester/sdk").ListDustConversionsResult>(
         await client.dustConversion.list({ limit: 20 }),
     );
+    const swapQuote = await client.swap.quote({
+        sourceAssetId: 1,
+        destinationAssetId: 2,
+        amount: "0.5",
+        maxSlippageBps: 50,
+    } satisfies import("@polyester/sdk").QuoteSwapInput);
+    expectType<import("@polyester/sdk").SwapQuote>(swapQuote);
+    expectNotAny(swapQuote, true);
+    const swap = await client.swap.create({
+        sourceAssetId: swapQuote.sourceAssetId,
+        destinationAssetId: swapQuote.destinationAssetId,
+        amount: swapQuote.amount,
+        minAmountOut: swapQuote.minAmountOut,
+        quoteExpiresAt: swapQuote.expiresAt ?? 0,
+        idempotencyKey: "swap-1",
+    } satisfies import("@polyester/sdk").CreateSwapInput);
+    expectType<import("@polyester/sdk").Swap>(swap);
+    expectType<import("@polyester/sdk").SwapStatus | "unspecified">(swap.status);
+    expectType<import("@polyester/sdk").SwapReason | "unspecified" | null>(swap.reason);
+    expectType<import("@polyester/sdk").Swap>(await client.swap.get({ idempotencyKey: "swap-1" }));
     const statementExport = await client.statementExports.create({
         startTime: 1,
         endTime: 86_400_000,
@@ -717,6 +738,7 @@ async function verifyCoreServiceAccessors(): Promise<void> {
     expectType<typeof client.assistant>(assistantService(browserCore));
     expectType<typeof client.statementExports>(statementExportsService(browserCore));
     expectType<typeof client.dustConversion>(dustConversionService(browserCore));
+    expectType<typeof client.swap>(swapService(browserCore));
     expectType<typeof client.strategies>(strategiesService(browserCore));
     expectType<import("@polyester/sdk").AuthState>(browserCore.auth.getState());
     expectType<boolean>(serverCore.hasDisplaySession);

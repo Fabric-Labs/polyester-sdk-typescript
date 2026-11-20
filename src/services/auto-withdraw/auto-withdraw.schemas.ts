@@ -5,7 +5,7 @@ import {
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
 import {
-    decimalInputToScaled,
+    decimalInputToE18,
     E18_SCALE,
     scaledToDecimalOutput,
 } from "../../shared/decimal-surface.js";
@@ -35,17 +35,6 @@ import {
     type AutoWithdrawStepReason,
     type AutoWithdrawWeekday,
 } from "./auto-withdraw.codecs.js";
-
-const U128_MAX = (1n << 128n) - 1n;
-
-/** Decimal string → 18-decimal U128 integer, exact; throws `ValidationError`. */
-function decimalToE18(field: string, value: string): bigint {
-    const scaled = decimalInputToScaled(field, value, E18_SCALE);
-    if (scaled > U128_MAX) {
-        throw new ValidationError(`${field} exceeds the maximum supported value: ${value}`);
-    }
-    return scaled;
-}
 
 function e18ToDecimal(value: v.InferOutput<typeof U128Schema> | undefined): string {
     return scaledToDecimalOutput(fromU128(value), E18_SCALE);
@@ -147,8 +136,8 @@ const AutoWithdrawDestinationInputSchema = v.pipe(
         maxAmount: v.string(),
     }),
     v.transform(({ minAmount, maxAmount, destinationChainId, ...destination }) => {
-        const min = decimalToE18("minAmount", minAmount);
-        const max = decimalToE18("maxAmount", maxAmount);
+        const min = decimalInputToE18("minAmount", minAmount);
+        const max = decimalInputToE18("maxAmount", maxAmount);
         if (max === 0n || max < min) {
             throw new ValidationError(
                 `maxAmount must be greater than 0 and at least minAmount: ${maxAmount}`,
@@ -188,7 +177,7 @@ export const SetAutoWithdrawRuleInputSchema = v.pipe(
         ...input,
         subaccountId: accountScopeToSubaccountId(account),
         minUsdValueE18:
-            minUsdValue == null ? undefined : toU128(decimalToE18("minUsdValue", minUsdValue)),
+            minUsdValue == null ? undefined : toU128(decimalInputToE18("minUsdValue", minUsdValue)),
     })),
 );
 

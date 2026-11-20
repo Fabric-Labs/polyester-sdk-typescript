@@ -229,6 +229,7 @@ export type * from "./services/connected-apps/connected-apps.types.js";
 export type * from "./services/deposit/deposit.types.js";
 export type * from "./services/dust-conversion/dust-conversion.types.js";
 export type * from "./services/fees/fees.types.js";
+export type * from "./services/swap/swap.types.js";
 export type * from "./services/guard-signer/guard-signer.types.js";
 export type * from "./services/heatmap/heatmap.types.js";
 export type * from "./services/internal-transfers/internal-transfers.types.js";

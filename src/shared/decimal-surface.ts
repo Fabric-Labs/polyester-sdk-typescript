@@ -27,6 +27,7 @@ import {
     type SdkSubscriptionErrorContext,
 } from "./subscription-errors.js";
 import { U128_MAX } from "../utils/u128.js";
+import { ValidationError } from "./errors.js";
 
 /** On-chain unified-asset amounts (`amountE18`) are always 18-decimal scaled. */
 export const E18_SCALE = 18;
@@ -266,6 +267,18 @@ export function quantityInputToE18(params: {
             field,
             `${field} exceeds the maximum supported value: ${params.quantity}`,
         );
+    }
+    return scaled;
+}
+
+/**
+ * Decimal string → 18-decimal U128 integer, exact, for amounts the wire takes at
+ * full E18 precision whatever the asset's quantity scale; throws `ValidationError`.
+ */
+export function decimalInputToE18(field: string, value: string): bigint {
+    const scaled = decimalInputToScaled(field, value, E18_SCALE);
+    if (scaled > U128_MAX) {
+        throw new ValidationError(`${field} exceeds the maximum supported value: ${value}`);
     }
     return scaled;
 }

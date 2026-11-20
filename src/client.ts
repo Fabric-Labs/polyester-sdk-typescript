@@ -32,6 +32,7 @@ import { rewardsService } from "./services/rewards/service.js";
 import { socialVerificationService } from "./services/social-verification/service.js";
 import { statementExportsService } from "./services/statement-exports/service.js";
 import { subaccountsService } from "./services/subaccounts/service.js";
+import { swapService } from "./services/swap/service.js";
 import { systemService } from "./services/system/service.js";
 import { tradesService } from "./services/trades/service.js";
 import { tradingWithdrawsService } from "./services/trading-withdraws/service.js";
@@ -65,6 +66,7 @@ export const POLYESTER_SERVICES = {
     transfers: transfersService,
     internalTransfers: internalTransfersService,
     dustConversion: dustConversionService,
+    swap: swapService,
     tradingWithdraws: tradingWithdrawsService,
     autoWithdraw: autoWithdrawService,
     deposit: depositService,
