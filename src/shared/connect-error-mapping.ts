@@ -307,6 +307,30 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
         );
     }
 
+    // Arrives as ResourceExhausted, but clears only when a bot stops or reuses an indicator
+    // setting, not on a retry.
+    if (detail?.service === "strategies" && detail.code === "INDICATOR_SETTINGS_LIMIT_REACHED") {
+        return new PreconditionFailedError(
+            withFallback(
+                "The account's bots and backtests would read more distinct indicator settings than allowed.",
+            ),
+            options,
+        );
+    }
+    // The detail's retryAfter says when; it can be a day away for the backtest limit.
+    if (
+        detail?.service === "strategies" &&
+        (detail.code === "SCENARIO_RUN_LIMIT_REACHED" || detail.code === "BACKTEST_LIMIT_REACHED")
+    ) {
+        return new RateLimitError(withFallback("Rate limit exceeded."), {
+            ...options,
+            retryAfterMs:
+                detail.retryAfter === undefined
+                    ? parseRetryAfterMs(ce)
+                    : Math.max(0, detail.retryAfter - Date.now()),
+        });
+    }
+
     if (detail?.service === "auth" && detail.code === "AUTH_SUBACCOUNT_CHALLENGE_INVALID") {
         return new SubaccountChallengeInvalidError(
             withFallback("Subaccount challenge is expired, replaced, or invalid."),

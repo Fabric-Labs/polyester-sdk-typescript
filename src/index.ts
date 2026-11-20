@@ -247,6 +247,7 @@ export type * from "./services/rate-limits/rate-limits.types.js";
 export type * from "./services/rewards/rewards.types.js";
 export type * from "./services/social-verification/social-verification.types.js";
 export type * from "./services/statement-exports/statement-exports.types.js";
+export type * from "./services/strategies/strategies.types.js";
 export type * from "./services/subaccounts/subaccounts.types.js";
 export type * from "./services/system/system.types.js";
 export type * from "./services/trades/trades.types.js";

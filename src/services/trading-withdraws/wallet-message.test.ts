@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { hashMessage, stringToBytes } from "viem";
 import { TradingWithdrawAction } from "../../gen/chain/withdraw/v1/withdraw_pb.js";
-import { buildTradingWithdrawWalletMessage } from "./wallet-message.js";
+import { privateKeyToAccount } from "viem/accounts";
+import {
+    buildTradingToFundingBatchWalletMessage,
+    buildTradingWithdrawWalletMessage,
+} from "./wallet-message.js";
 
 const funding: Parameters<typeof buildTradingWithdrawWalletMessage>[0] = {
     signingConfig: {
@@ -164,5 +168,85 @@ describe("wallet trading withdraw message", () => {
             ...changes,
         });
         expect(hashMessage(changed)).not.toBe(hashMessage(fundingMessage));
+    });
+});
+
+describe("buildTradingToFundingBatchWalletMessage", () => {
+    // Golden vector from the chain.withdraw.v1 2026-11-18T1926Z contract change.
+    const batchMessage = `Polyester Trading Withdrawal Batch
+
+Version: 1
+Environment: polyester
+Action: TO_FUNDING
+Signer Wallet: 0x2c7536e3605d9c16a7a3d7b1898e529396a65c23
+Account ID: 1001
+Target Account ID: 2002
+Polyester Chain ID: 31337
+Verifying Contract: 0x1111111111111111111111111111111111111111
+Deadline: 1900000000
+Nonce: 18446744073709551716
+Idempotency Key: bulk-0001
+Legs: 2
+
+Leg 1 of 2
+Asset ID: 42
+Amount E18: 1000000000
+Destination: 
+
+Leg 2 of 2
+Asset ID: 7
+Amount E18: 500000000000000000
+Destination: 0x2222222222222222222222222222222222222222`;
+
+    it("matches the backend golden vector, text and signature", async () => {
+        const message = buildTradingToFundingBatchWalletMessage({
+            signingConfig: {
+                chainId: 31337,
+                tradingGatewayAddress: "0x1111111111111111111111111111111111111111",
+            },
+            signerWallet: "0x2C7536E3605D9C16a7a3D7b1898e529396a65c23",
+            accountId: 1001n,
+            targetAccountId: 2002n,
+            deadlineTsSec: 1900000000n,
+            nonce: 18446744073709551716n,
+            idempotencyKey: "bulk-0001",
+            legs: [
+                { assetId: 42, amountE18: 1000000000n, destinationAddress: "" },
+                {
+                    assetId: 7,
+                    amountE18: 500000000000000000n,
+                    destinationAddress: "0x2222222222222222222222222222222222222222",
+                },
+            ],
+        });
+        expect(message).toBe(batchMessage);
+        const account = privateKeyToAccount(
+            "0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318",
+        );
+        await expect(account.signMessage({ message })).resolves.toBe(
+            "0xa6aef9e82b6029c93fba8e8c682fc4012e3cc9b741e62e007405b49a53e850491ffd662ed011412565cf1b5a9ea808a905f660647f5063e13d7692f57980e2851c",
+        );
+    });
+
+    it("keeps a destination's letter case", () => {
+        const message = buildTradingToFundingBatchWalletMessage({
+            signingConfig: funding.signingConfig,
+            signerWallet: funding.signerWallet,
+            accountId: 1n,
+            targetAccountId: 1n,
+            deadlineTsSec: 1n,
+            nonce: 1n,
+            idempotencyKey: "k",
+            legs: [
+                {
+                    assetId: 1,
+                    amountE18: 1n,
+                    destinationAddress: "0xBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBb",
+                },
+            ],
+        });
+        expect(message.endsWith("Destination: 0xBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBb")).toBe(
+            true,
+        );
     });
 });

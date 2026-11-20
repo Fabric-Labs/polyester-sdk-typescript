@@ -63,3 +63,49 @@ export function buildTradingWithdrawWalletMessage(params: {
         `Idempotency Key: ${messageText(payload.idempotencyKey, "idempotency key")}`,
     ].join("\n");
 }
+
+export type TradingToFundingBatchMessageLeg = {
+    assetId: number;
+    amountE18: bigint;
+    destinationAddress: string;
+};
+
+/** The text a wallet signs (EIP-191) for `CreateWalletTradingToFundingBatch`. */
+export function buildTradingToFundingBatchWalletMessage(params: {
+    signingConfig: TradingWithdrawSigningConfig;
+    signerWallet: string;
+    accountId: bigint;
+    targetAccountId: bigint;
+    deadlineTsSec: bigint;
+    nonce: bigint;
+    idempotencyKey: string;
+    legs: readonly TradingToFundingBatchMessageLeg[];
+}): string {
+    const { signingConfig, legs } = params;
+    if (!Number.isSafeInteger(signingConfig.chainId) || signingConfig.chainId <= 0) {
+        throw new ValidationError("Trading withdraw chain ID must be a positive safe integer.");
+    }
+    return [
+        "Polyester Trading Withdrawal Batch",
+        "",
+        "Version: 1",
+        "Environment: polyester",
+        "Action: TO_FUNDING",
+        `Signer Wallet: ${messageAddress(params.signerWallet, "signer wallet")}`,
+        `Account ID: ${params.accountId}`,
+        `Target Account ID: ${params.targetAccountId}`,
+        `Polyester Chain ID: ${signingConfig.chainId}`,
+        `Verifying Contract: ${messageAddress(signingConfig.tradingGatewayAddress, "verifying contract")}`,
+        `Deadline: ${params.deadlineTsSec}`,
+        `Nonce: ${params.nonce}`,
+        `Idempotency Key: ${messageText(params.idempotencyKey, "idempotency key")}`,
+        `Legs: ${legs.length}`,
+        ...legs.flatMap((leg, i) => [
+            "",
+            `Leg ${i + 1} of ${legs.length}`,
+            `Asset ID: ${leg.assetId}`,
+            `Amount E18: ${leg.amountE18}`,
+            `Destination: ${messageText(leg.destinationAddress, "destination")}`,
+        ]),
+    ].join("\n");
+}

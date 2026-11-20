@@ -1353,8 +1353,8 @@ export type QuickSwapSummary = Message<"swap.quickswap.v1.QuickSwapSummary"> & {
   fees?: RequestedFees | undefined;
 
   /**
-   * Broker, affiliate and referral fees charged so far, as settled, as on
-   * QuickSwap.
+   * Service, broker, affiliate and referral fees charged so far, as
+   * settled, as on QuickSwap.
    *
    * @generated from field: repeated swap.quickswap.v1.ChargedFee charged_fees = 8;
    */
@@ -2478,11 +2478,21 @@ export const ListPayoutsRequestSchema: GenMessage<ListPayoutsRequest> = /*@__PUR
 /**
  * ListPayoutsResponse lists payouts newest first by scheduled slot. Runs of
  * the same slot follow a stable server-defined order, the same on every
- * page; it does not follow run_id. Paging lists exactly once every run that
- * sorts after the previous page's last run when the next page is read,
- * including a run started meanwhile for an older slot. A run started
- * meanwhile for a newer slot sorts before the cursor and appears only in a
- * listing started again from the first page.
+ * page; it does not follow run_id. next_page_token marks a position in the
+ * run history, in that order. Without a status filter it is the last payout
+ * returned. On any page filtered by status, a full one included, the
+ * position can lie past the last payout returned: when the page uses up its
+ * scan before finding another match, it is the last run the page examined.
+ * A page may hold fewer than limit payouts, or none, while next_page_token
+ * is set and matching payouts remain; keep paging until next_page_token is
+ * empty. A complete traversal, followed until next_page_token is empty,
+ * lists every payout that matched throughout it exactly once, in order. A
+ * run started meanwhile past the position, for an older slot, is listed by
+ * a later page. A run started meanwhile at or before the position,
+ * including one between the last payout returned and the position, and a
+ * run there whose status changes meanwhile into the filter (in progress
+ * becoming paid, for example) appear only in a listing started again from
+ * the first page.
  *
  * @generated from message swap.quickswap.v1.ListPayoutsResponse
  */
@@ -3115,7 +3125,7 @@ export const ListVaultPayoutRulesResponseSchema: GenMessage<ListVaultPayoutRules
  */
 export type VaultLedgerFeeCredit = Message<"swap.quickswap.v1.VaultLedgerFeeCredit"> & {
   /**
-   * Public ID of the credit, unique among the broker's fee credits.
+   * Public ID of the credit, unique among fee credits.
    *
    * @generated from field: fixed64 credit_id = 1;
    */
@@ -3123,15 +3133,18 @@ export type VaultLedgerFeeCredit = Message<"swap.quickswap.v1.VaultLedgerFeeCred
 
   /**
    * Public ID of the QuickSwap the fee was charged on. Read it with
-   * GetQuickSwap for its full detail.
+   * GetQuickSwap for its full detail; a referral partner reads it with
+   * QuickSwapReferralService.GetReferredQuickSwap.
    *
    * @generated from field: fixed64 swap_id = 2;
    */
   swapId: bigint;
 
   /**
-   * BROKER (the broker fee, credited to the default vault) or AFFILIATE (an
-   * affiliate fee, credited to that affiliate vault).
+   * BROKER (the broker fee, credited to the default vault), AFFILIATE (an
+   * affiliate fee, credited to that affiliate vault) or REFERRAL (a referral
+   * commission, credited to the partner's earnings sub-account; only
+   * QuickSwapReferralService.ListReferralLedger returns it).
    *
    * @generated from field: swap.quickswap.v1.FeeKind fee_kind = 3;
    */
@@ -3308,7 +3321,8 @@ export const VaultLedgerPayoutRefundSchema: GenMessage<VaultLedgerPayoutRefund> 
   messageDesc(file_swap_quickswap_v1_quickswap_broker, 74);
 
 /**
- * VaultLedgerEntry is one movement of a broker vault's funds.
+ * VaultLedgerEntry is one movement of a broker vault's funds, or of a
+ * referral partner's earnings sub-account (ListReferralLedger).
  *
  * @generated from message swap.quickswap.v1.VaultLedgerEntry
  */
@@ -3321,8 +3335,9 @@ export type VaultLedgerEntry = Message<"swap.quickswap.v1.VaultLedgerEntry"> & {
   kind: VaultLedgerEntryKind;
 
   /**
-   * When it happened: when a fee credit was credited; a payout debit's and
-   * refund's run's scheduled slot (Payout.scheduled_for).
+   * When it happened: when a fee credit was credited (rounded down to the
+   * minute in ListReferralLedger); a payout debit's and refund's run's
+   * scheduled slot (Payout.scheduled_for).
    *
    * @generated from field: google.protobuf.Timestamp occurred_at = 2;
    */
@@ -3330,7 +3345,8 @@ export type VaultLedgerEntry = Message<"swap.quickswap.v1.VaultLedgerEntry"> & {
 
   /**
    * Public sub-account ID of the vault: the default vault or an affiliate
-   * vault.
+   * vault. In ListReferralLedger, the partner's earnings sub-account
+   * (ReferralPartner.earnings_subaccount_id).
    *
    * @generated from field: fixed64 vault_account_id = 3;
    */
@@ -3642,7 +3658,9 @@ export type VaultAllowlistChange = Message<"swap.quickswap.v1.VaultAllowlistChan
   /**
    * The end of the change's approval window: a change not applied by then
    * ends NOT_APPLIED / TIMED_OUT. A change can stay PENDING shortly past it
-   * while its outcome is confirmed.
+   * while its outcome is confirmed, and longer while an outcome that cannot
+   * be confirmed yet is investigated; the vault takes no other change
+   * meanwhile.
    *
    * @generated from field: google.protobuf.Timestamp expires_at = 9;
    */
@@ -4284,7 +4302,9 @@ export enum VaultLedgerEntryKind {
   LEDGER_ENTRY_KIND_UNSPECIFIED = 0,
 
   /**
-   * A broker or affiliate fee a QuickSwap credited to the vault.
+   * A broker or affiliate fee a QuickSwap credited to the vault, or a
+   * referral commission credited to a referral partner's earnings
+   * sub-account.
    *
    * @generated from enum value: FEE_CREDIT = 1;
    */
@@ -4302,6 +4322,7 @@ export enum VaultLedgerEntryKind {
    * to the vault's own smart account, less the network fee it kept. The
    * funds stay in that smart account: the refund is not part of the vault
    * balance ListVaultBalances reads, and no entry returns it to the vault.
+   * A referral partner's earnings sub-account is refunded the same way.
    *
    * @generated from enum value: PAYOUT_REFUND = 3;
    */

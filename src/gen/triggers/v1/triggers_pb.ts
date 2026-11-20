@@ -193,20 +193,47 @@ export const ConditionalChildExecutionSchema: GenMessage<ConditionalChildExecuti
   messageDesc(file_triggers_v1_triggers, 4);
 
 /**
- * ConditionalTrigger configures a standalone stop-loss or take-profit.
+ * ConditionalTrigger configures a standalone stop-loss or take-profit. There
+ * is no direction field: the strategy and the child order's side set the
+ * direction in which the watched price must move to fire the trigger.
+ *
+ * - A SELL stop-loss fires when the price falls to or below the trigger
+ *   price: it limits the loss on a held position.
+ * - A BUY stop-loss is a breakout buy: it fires when the price rises to or
+ *   above the trigger price.
+ * - A SELL take-profit sells into a rise: it fires when the price rises to or
+ *   above the trigger price.
+ * - A BUY take-profit buys a dip: it fires when the price falls to or below
+ *   the trigger price.
+ *
+ * The comparison is inclusive: a price equal to the trigger price fires the
+ * trigger, as does one past it. Trigger reads report the direction as
+ * StopDetails.trigger_direction, ABOVE or BELOW.
+ *
+ * A trigger price that the watched price has already reached when the trigger
+ * takes effect, at or past it in the firing direction, is not refused at
+ * create: CreateTrigger returns a trigger ID, then the trigger ends
+ * STATUS_FAILED with failure reason
+ * TRIGGER_FAILURE_REASON_TRIGGER_WOULD_TRIGGER_IMMEDIATELY. It never fires,
+ * places no order, and its reserved funds are released. Read the trigger
+ * after the create to tell this outcome from an armed trigger.
  *
  * @generated from message triggers.v1.ConditionalTrigger
  */
 export type ConditionalTrigger = Message<"triggers.v1.ConditionalTrigger"> & {
   /**
-   * Positive trigger threshold in quote units scaled by 1e9.
+   * Positive trigger threshold in quote units scaled by 1e9. The side and
+   * strategy set whether the trigger fires at or above it, or at or below it.
    *
    * @generated from field: int64 trigger_price_ticks = 1;
    */
   triggerPriceTicks: bigint;
 
   /**
-   * Child order side. Required.
+   * Child order side. Required. With the strategy, it sets the fire
+   * direction: a SELL stop-loss and a BUY take-profit fire at or below the
+   * trigger price; a BUY stop-loss and a SELL take-profit fire at or above
+   * it.
    *
    * @generated from field: orders.v1.Side side = 2;
    */
@@ -602,7 +629,12 @@ export type TriggerIntent = Message<"triggers.v1.TriggerIntent"> & {
    */
   strategy: {
     /**
-     * Standalone stop-loss.
+     * Standalone stop-loss. A SELL stop-loss fires when the price falls to or
+     * below the trigger price; a BUY stop-loss is a breakout buy that fires
+     * when the price rises to or above it. A trigger price already reached
+     * when the trigger takes effect ends the trigger STATUS_FAILED with
+     * TRIGGER_FAILURE_REASON_TRIGGER_WOULD_TRIGGER_IMMEDIATELY after the
+     * create is accepted, without firing.
      *
      * @generated from field: triggers.v1.ConditionalTrigger stop_loss = 10;
      */
@@ -610,7 +642,12 @@ export type TriggerIntent = Message<"triggers.v1.TriggerIntent"> & {
     case: "stopLoss";
   } | {
     /**
-     * Standalone take-profit.
+     * Standalone take-profit. A SELL take-profit fires when the price rises to
+     * or above the trigger price; a BUY take-profit buys a dip and fires when
+     * the price falls to or below it. A trigger price already reached when
+     * the trigger takes effect ends the trigger STATUS_FAILED with
+     * TRIGGER_FAILURE_REASON_TRIGGER_WOULD_TRIGGER_IMMEDIATELY after the
+     * create is accepted, without firing.
      *
      * @generated from field: triggers.v1.ConditionalTrigger take_profit = 11;
      */
@@ -2042,7 +2079,10 @@ export type StopDetails = Message<"triggers.v1.StopDetails"> & {
   triggerPriceSource: TriggerPriceSource;
 
   /**
-   * Direction the price must cross to fire the trigger.
+   * Direction in which the price must reach the trigger price to fire the
+   * trigger, inclusive: ABOVE fires at or above it, BELOW at or below it. Set
+   * from the strategy and side at create: BELOW for a SELL stop-loss or a BUY
+   * take-profit, ABOVE for a BUY stop-loss or a SELL take-profit.
    *
    * @generated from field: orders.v1.TriggerDirection trigger_direction = 3;
    */
@@ -2407,7 +2447,9 @@ export type Trigger = Message<"triggers.v1.Trigger"> & {
    */
   configuration: {
     /**
-     * Stop-loss configuration.
+     * Stop-loss configuration. A SELL stop-loss fires at or below its trigger
+     * price, a BUY stop-loss at or above it; stop.trigger_direction reports
+     * the direction.
      *
      * @generated from field: triggers.v1.ConditionalTrigger stop_loss = 30;
      */
@@ -2415,7 +2457,9 @@ export type Trigger = Message<"triggers.v1.Trigger"> & {
     case: "stopLoss";
   } | {
     /**
-     * Take-profit configuration.
+     * Take-profit configuration. A SELL take-profit fires at or above its
+     * trigger price, a BUY take-profit at or below it; stop.trigger_direction
+     * reports the direction.
      *
      * @generated from field: triggers.v1.ConditionalTrigger take_profit = 31;
      */
@@ -2570,14 +2614,16 @@ export enum TriggerType {
   TRIGGER_TYPE_UNSPECIFIED = 0,
 
   /**
-   * Stop-loss: fires when the price crosses a threshold.
+   * Stop-loss: a SELL fires when the price falls to or below its trigger
+   * price, a BUY when the price rises to or above it.
    *
    * @generated from enum value: STOP_LOSS = 1;
    */
   STOP_LOSS = 1,
 
   /**
-   * Take-profit: fires when the price crosses a threshold.
+   * Take-profit: a SELL fires when the price rises to or above its trigger
+   * price, a BUY when the price falls to or below it.
    *
    * @generated from enum value: TAKE_PROFIT = 2;
    */
@@ -3831,7 +3877,11 @@ export const TriggersService: GenService<{
    * instead, which then means the same. Pausing, resuming or modifying an
    * ended trigger answers the same way. A trigger ID that names none of the
    * caller's triggers returns ERROR_CODE_TRIGGER_NOT_FOUND. Cancelling
-   * either leg of an OCO cancels both.
+   * either leg of an OCO created with CreateOco, a trigger with an
+   * order_list_id, cancels both. Cancelling one attached take-profit or stop
+   * leg of an order, a trigger with a parent_order_id, ends only that leg,
+   * whether or not the order's legs are oco: the other leg stays active and
+   * keeps protecting the position.
    *
    * @generated from rpc triggers.v1.TriggersService.CancelTrigger
    */

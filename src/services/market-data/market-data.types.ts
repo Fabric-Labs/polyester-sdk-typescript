@@ -5,11 +5,17 @@ export type {
     AssetMarketStats,
     AssetMarketValue,
     GetMarketTradesInput,
+    GetPriceBandInput,
     ListAssetInfoInput,
+    LivePriceBand,
     MarketTrade,
     PairConfig,
     PairStatus,
     SpotConfig,
     TradeBackfill,
 } from "./market-data.schemas.js";
-export type { AssetDataSourceValue } from "./market-data.codecs.js";
+export type {
+    AssetDataSourceValue,
+    PriceBandReferenceSourceValue,
+    PriceBandStateValue,
+} from "./market-data.codecs.js";

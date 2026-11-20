@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file chain/withdraw/v1/withdraw.proto.
  */
 export const file_chain_withdraw_v1_withdraw: GenFile = /*@__PURE__*/
-  fileDesc("CiBjaGFpbi93aXRoZHJhdy92MS93aXRoZHJhdy5wcm90bxIRY2hhaW4ud2l0aGRyYXcudjEiMgodQ3JlYXRlVHJhZGluZ1dpdGhkcmF3UmVzcG9uc2USEQoJaW50ZW50X2lkGAEgASgJIjgKI0NyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhd1Jlc3BvbnNlEhEKCWludGVudF9pZBgBIAEoCSKvAQoLRXJyb3JEZXRhaWwSKgoEY29kZRgBIAEoDjIcLmNoYWluLndpdGhkcmF3LnYxLkVycm9yQ29kZRISCgpmaWVsZF9wYXRoGAIgASgJEi4KDW1pbl9mbG9vcl9lMTgYAyABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EjAKDHBheWFibGVfZnJvbRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiuAIKHFRyYWRpbmdXaXRoZHJhd0ludGVudFBheWxvYWQSOgoGYWN0aW9uGAEgASgOMiguY2hhaW4ud2l0aGRyYXcudjEuVHJhZGluZ1dpdGhkcmF3QWN0aW9uQgASEgoIYXNzZXRfaWQYAiABKA1CABIcChRkZXN0aW5hdGlvbl9jaGFpbl9pZBgDIAEoBBItCgphbW91bnRfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOEIAEhkKD2RlYWRsaW5lX3RzX3NlYxgFIAEoBEIAEigKBW5vbmNlGAYgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOEIAEhsKE2Rlc3RpbmF0aW9uX2FkZHJlc3MYByABKAkSGQoPaWRlbXBvdGVuY3lfa2V5GAggASgJQgAifwocQ3JlYXRlVHJhZGluZ1dpdGhkcmF3UmVxdWVzdBJCCgdwYXlsb2FkGAEgASgLMi8uY2hhaW4ud2l0aGRyYXcudjEuVHJhZGluZ1dpdGhkcmF3SW50ZW50UGF5bG9hZEIAEhsKEXBheWxvYWRfc2lnbmF0dXJlGAIgASgMQgAitQEKIkNyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhd1JlcXVlc3QSQgoHcGF5bG9hZBgBIAEoCzIvLmNoYWluLndpdGhkcmF3LnYxLlRyYWRpbmdXaXRoZHJhd0ludGVudFBheWxvYWRCABIVCg1zdWJhY2NvdW50X2lkGAIgASgEEhcKDXNpZ25lcl93YWxsZXQYAyABKAlCABIbChFwYXlsb2FkX3NpZ25hdHVyZRgEIAEoDEIAImMKIlZhbGlkYXRlV2l0aGRyYXdEZXN0aW5hdGlvblJlcXVlc3QSHgoUZGVzdGluYXRpb25fY2hhaW5faWQYASABKARCABIdChNkZXN0aW5hdGlvbl9hZGRyZXNzGAIgASgJQgAisAEKI1ZhbGlkYXRlV2l0aGRyYXdEZXN0aW5hdGlvblJlc3BvbnNlEg0KBXZhbGlkGAEgASgIEkIKBGNvZGUYAiABKA4yNC5jaGFpbi53aXRoZHJhdy52MS5XaXRoZHJhd0Rlc3RpbmF0aW9uVmFsaWRhdGlvbkNvZGUSDwoHbWVzc2FnZRgDIAEoCRIlCh1jYW5vbmljYWxfZGVzdGluYXRpb25fYWRkcmVzcxgEIAEoCSIxChhHZXRXYWxsZXRCYWxhbmNlc1JlcXVlc3QSFQoNc3ViYWNjb3VudF9pZBgBIAEoBiKZAQoNV2FsbGV0QmFsYW5jZRIXCg96aXBwZWRfYXNzZXRfaWQYASABKA0SGAoQdW5pZmllZF9hc3NldF9pZBgCIAEoDRIQCghjaGFpbl9pZBgDIAEoDRIWCg56dG9rZW5fYWRkcmVzcxgEIAEoCRIrCgphbW91bnRfZTE4GAUgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOCK1AQoZR2V0V2FsbGV0QmFsYW5jZXNSZXNwb25zZRIdChVzbWFydF9hY2NvdW50X2FkZHJlc3MYASABKAkSMgoIYmFsYW5jZXMYAiADKAsyIC5jaGFpbi53aXRoZHJhdy52MS5XYWxsZXRCYWxhbmNlEkUKEnVuYXZhaWxhYmxlX2Fzc2V0cxgDIAMoCzIpLmNoYWluLndpdGhkcmF3LnYxLlVuYXZhaWxhYmxlV2FsbGV0QXNzZXQitgEKFlVuYXZhaWxhYmxlV2FsbGV0QXNzZXQSFwoPemlwcGVkX2Fzc2V0X2lkGAEgASgNEhgKEHVuaWZpZWRfYXNzZXRfaWQYAiABKA0SEAoIY2hhaW5faWQYAyABKA0SFgoOenRva2VuX2FkZHJlc3MYBCABKAkSPwoGcmVhc29uGAUgASgOMi8uY2hhaW4ud2l0aGRyYXcudjEuV2FsbGV0QXNzZXRVbmF2YWlsYWJsZVJlYXNvbiq4DwoJRXJyb3JDb2RlEhoKFkVSUk9SX0NPREVfVU5TUEVDSUZJRUQQABIhCh1FUlJPUl9DT0RFX0lOU1VGRklDSUVOVF9GVU5EUxABEh4KGkVSUk9SX0NPREVfSU5WQUxJRF9SRVFVRVNUEAISHgoaRVJST1JfQ09ERV9VTkFVVEhFTlRJQ0FURUQQAxIgChxFUlJPUl9DT0RFX1BFUk1JU1NJT05fREVOSUVEEAQSIgoeRVJST1JfQ09ERV9SQVRFX0xJTUlUX0VYQ0VFREVEEAUSIgoeRVJST1JfQ09ERV9TRVJWSUNFX1VOQVZBSUxBQkxFEAYSHQoZRVJST1JfQ09ERV9JTlRFUk5BTF9FUlJPUhAHEiQKIEVSUk9SX0NPREVfSU5WQUxJRF9TVUJBQ0NPVU5UX0lEEAgSIwofRVJST1JfQ09ERV9TVUJBQ0NPVU5UX05PVF9GT1VORBAJEh0KGUVSUk9SX0NPREVfSU5WQUxJRF9BQ1RJT04QChIhCh1FUlJPUl9DT0RFX1VOU1VQUE9SVEVEX0xFREdFUhALEiAKHEVSUk9SX0NPREVfVU5TVVBQT1JURURfQVNTRVQQDBIdChlFUlJPUl9DT0RFX0lOVkFMSURfQU1PVU5UEA0SKAokRVJST1JfQ09ERV9JTlZBTElEX0RFU1RJTkFUSU9OX0NIQUlOEA4SKgomRVJST1JfQ09ERV9JTlZBTElEX0RFU1RJTkFUSU9OX0FERFJFU1MQDxIzCi9FUlJPUl9DT0RFX0VYVEVSTkFMX0RFU1RJTkFUSU9OX05PVF9XSElURUxJU1RFRBAQEjEKLUVSUk9SX0NPREVfSU5URVJOQUxfUkVDSVBJRU5UX05PVF9XSElURUxJU1RFRBAREiMKH0VSUk9SX0NPREVfQU1PVU5UX0JFTE9XX01JTklNVU0QEhIkCiBFUlJPUl9DT0RFX0FNT1VOVF9FWENFRURTX1NVUFBMWRATEi8KK0VSUk9SX0NPREVfU09VUkNFX1NNQVJUX0FDQ09VTlRfVU5BVkFJTEFCTEUQFBIhCh1FUlJPUl9DT0RFX1NJR05BVFVSRV9SRVFVSVJFRBAVEisKJ0VSUk9SX0NPREVfU0lHTkFUVVJFX1NDSEVNRV9VTlNVUFBPUlRFRBAWEiQKIEVSUk9SX0NPREVfU0lHTkVSX1dBTExFVF9JTlZBTElEEBcSJQohRVJST1JfQ09ERV9XQUxMRVRfQklORElOR19JTlZBTElEEBgSLAooRVJST1JfQ09ERV9XQUxMRVRfQklORElOR19TQ09QRV9NSVNNQVRDSBAZEi0KKUVSUk9SX0NPREVfV0FMTEVUX0JJTkRJTkdfU0lHTkVSX01JU01BVENIEBoSIAocRVJST1JfQ09ERV9BUElfS0VZX05PVF9GT1VORBAbEiYKIkVSUk9SX0NPREVfQVBJX0tFWV9CSU5ESU5HX0lOVkFMSUQQHBItCilFUlJPUl9DT0RFX0FQSV9LRVlfQklORElOR19TQ09QRV9NSVNNQVRDSBAdEjIKLkVSUk9SX0NPREVfQVBJX0tFWV9CSU5ESU5HX1BVQkxJQ19LRVlfTUlTTUFUQ0gQHhIjCh9FUlJPUl9DT0RFX0lERU1QT1RFTkNZX0NPTkZMSUNUEB8SIgoeRVJST1JfQ09ERV9GVU5EU19MT0NLX0NPTkZMSUNUECASJwojRVJST1JfQ09ERV9DQVBJVEFMX1ZJRVdfVU5BVkFJTEFCTEUQIRIpCiVFUlJPUl9DT0RFX0NIQUlOX01FVEFEQVRBX1VOQVZBSUxBQkxFECISHgoaRVJST1JfQ09ERV9GRUVfVU5BVkFJTEFCTEUQIxIhCh1FUlJPUl9DT0RFX1NVUFBMWV9VTkFWQUlMQUJMRRAkEiIKHkVSUk9SX0NPREVfU1RFUF9VUF9VTkFWQUlMQUJMRRAlEjEKLUVSUk9SX0NPREVfREVTVElOQVRJT05fVkFMSURBVElPTl9VTkFWQUlMQUJMRRAmEigKJEVSUk9SX0NPREVfQUNDT1VOVF9TSEFSRF9VTkFWQUlMQUJMRRAnEiIKHkVSUk9SX0NPREVfRkFJTEVEX1BSRUNPTkRJVElPThAoEhgKFEVSUk9SX0NPREVfTk9UX0ZPVU5EECkSFwoTRVJST1JfQ09ERV9DT05GTElDVBAqEi0KKUVSUk9SX0NPREVfSU5WQUxJRF9BVVRPX1dJVEhEUkFXX1NDSEVEVUxFECsSLQopRVJST1JfQ09ERV9BTU9VTlRfRVhDRUVEU19ST1VURV9QUkVDSVNJT04QLBIiCh5FUlJPUl9DT0RFX0RFU1RJTkFUSU9OX0lOVkFMSUQQLRIlCiFFUlJPUl9DT0RFX01JTl9BTU9VTlRfQkVMT1dfRkxPT1IQLhIgChxFUlJPUl9DT0RFX1JPVVRFX1VOU1VQUE9SVEVEEC8SHwobRVJST1JfQ09ERV9WRVJTSU9OX0NPTkZMSUNUEDASMAosRVJST1JfQ09ERV9FWFRFUk5BTF9ERVNUSU5BVElPTl9DT09MSU5HX0RPV04QMRIeChpFUlJPUl9DT0RFX1JPVVRFX1NVU1BFTkRFRBAyKlYKFVRyYWRpbmdXaXRoZHJhd0FjdGlvbhIWChJBQ1RJT05fVU5TUEVDSUZJRUQQABIOCgpUT19GVU5ESU5HEAESFQoRVE9fRVhURVJOQUxfQ0hBSU4QAiq7AQohV2l0aGRyYXdEZXN0aW5hdGlvblZhbGlkYXRpb25Db2RlEhYKElJFU1VMVF9VTlNQRUNJRklFRBAAEgkKBVZBTElEEAESEwoPSU5WQUxJRF9BRERSRVNTEAISFQoRVU5TVVBQT1JURURfQ0hBSU4QAxIbChdQT0xZRVNURVJfU01BUlRfQUNDT1VOVBAEEhIKDlRPS0VOX0NPTlRSQUNUEAUSFgoSREVOWUxJU1RFRF9BRERSRVNTEAYqcgocV2FsbGV0QXNzZXRVbmF2YWlsYWJsZVJlYXNvbhIbChdVTkFWQUlMQUJMRV9VTlNQRUNJRklFRBAAEg8KC05PX0NPTlRSQUNUEAESDwoLUkVBRF9GQUlMRUQQAhITCg9JTlZBTElEX0JBTEFOQ0UQAzKlBAoPV2l0aGRyYXdTZXJ2aWNlEnAKEUdldFdhbGxldEJhbGFuY2VzEisuY2hhaW4ud2l0aGRyYXcudjEuR2V0V2FsbGV0QmFsYW5jZXNSZXF1ZXN0GiwuY2hhaW4ud2l0aGRyYXcudjEuR2V0V2FsbGV0QmFsYW5jZXNSZXNwb25zZSIAEo4BChtWYWxpZGF0ZVdpdGhkcmF3RGVzdGluYXRpb24SNS5jaGFpbi53aXRoZHJhdy52MS5WYWxpZGF0ZVdpdGhkcmF3RGVzdGluYXRpb25SZXF1ZXN0GjYuY2hhaW4ud2l0aGRyYXcudjEuVmFsaWRhdGVXaXRoZHJhd0Rlc3RpbmF0aW9uUmVzcG9uc2UiABJ8ChVDcmVhdGVUcmFkaW5nV2l0aGRyYXcSLy5jaGFpbi53aXRoZHJhdy52MS5DcmVhdGVUcmFkaW5nV2l0aGRyYXdSZXF1ZXN0GjAuY2hhaW4ud2l0aGRyYXcudjEuQ3JlYXRlVHJhZGluZ1dpdGhkcmF3UmVzcG9uc2UiABKOAQobQ3JlYXRlV2FsbGV0VHJhZGluZ1dpdGhkcmF3EjUuY2hhaW4ud2l0aGRyYXcudjEuQ3JlYXRlV2FsbGV0VHJhZGluZ1dpdGhkcmF3UmVxdWVzdBo2LmNoYWluLndpdGhkcmF3LnYxLkNyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhd1Jlc3BvbnNlIgAaAEJPWk1naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2NoYWluL3dpdGhkcmF3L3YxO2NoYWlud2l0aGRyYXd2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options, file_polyester_type_v1_u128]);
+  fileDesc("CiBjaGFpbi93aXRoZHJhdy92MS93aXRoZHJhdy5wcm90bxIRY2hhaW4ud2l0aGRyYXcudjEiMgodQ3JlYXRlVHJhZGluZ1dpdGhkcmF3UmVzcG9uc2USEQoJaW50ZW50X2lkGAEgASgJIjgKI0NyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhd1Jlc3BvbnNlEhEKCWludGVudF9pZBgBIAEoCSKvAQoLRXJyb3JEZXRhaWwSKgoEY29kZRgBIAEoDjIcLmNoYWluLndpdGhkcmF3LnYxLkVycm9yQ29kZRISCgpmaWVsZF9wYXRoGAIgASgJEi4KDW1pbl9mbG9vcl9lMTgYAyABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EjAKDHBheWFibGVfZnJvbRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiuAIKHFRyYWRpbmdXaXRoZHJhd0ludGVudFBheWxvYWQSOgoGYWN0aW9uGAEgASgOMiguY2hhaW4ud2l0aGRyYXcudjEuVHJhZGluZ1dpdGhkcmF3QWN0aW9uQgASEgoIYXNzZXRfaWQYAiABKA1CABIcChRkZXN0aW5hdGlvbl9jaGFpbl9pZBgDIAEoBBItCgphbW91bnRfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOEIAEhkKD2RlYWRsaW5lX3RzX3NlYxgFIAEoBEIAEigKBW5vbmNlGAYgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOEIAEhsKE2Rlc3RpbmF0aW9uX2FkZHJlc3MYByABKAkSGQoPaWRlbXBvdGVuY3lfa2V5GAggASgJQgAifwocQ3JlYXRlVHJhZGluZ1dpdGhkcmF3UmVxdWVzdBJCCgdwYXlsb2FkGAEgASgLMi8uY2hhaW4ud2l0aGRyYXcudjEuVHJhZGluZ1dpdGhkcmF3SW50ZW50UGF5bG9hZEIAEhsKEXBheWxvYWRfc2lnbmF0dXJlGAIgASgMQgAitQEKIkNyZWF0ZVdhbGxldFRyYWRpbmdXaXRoZHJhd1JlcXVlc3QSQgoHcGF5bG9hZBgBIAEoCzIvLmNoYWluLndpdGhkcmF3LnYxLlRyYWRpbmdXaXRoZHJhd0ludGVudFBheWxvYWRCABIVCg1zdWJhY2NvdW50X2lkGAIgASgEEhcKDXNpZ25lcl93YWxsZXQYAyABKAlCABIbChFwYXlsb2FkX3NpZ25hdHVyZRgEIAEoDEIAInwKGFRyYWRpbmdUb0Z1bmRpbmdCYXRjaExlZxISCghhc3NldF9pZBgBIAEoDUIAEi0KCmFtb3VudF9lMTgYAiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4QgASHQoTZGVzdGluYXRpb25fYWRkcmVzcxgDIAEoCUIAIpQCCihDcmVhdGVXYWxsZXRUcmFkaW5nVG9GdW5kaW5nQmF0Y2hSZXF1ZXN0EjsKBGxlZ3MYASADKAsyKy5jaGFpbi53aXRoZHJhdy52MS5UcmFkaW5nVG9GdW5kaW5nQmF0Y2hMZWdCABIVCg1zdWJhY2NvdW50X2lkGAIgASgEEhkKD2RlYWRsaW5lX3RzX3NlYxgDIAEoBEIAEigKBW5vbmNlGAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOEIAEhkKD2lkZW1wb3RlbmN5X2tleRgFIAEoCUIAEhcKDXNpZ25lcl93YWxsZXQYBiABKAlCABIbChFwYXlsb2FkX3NpZ25hdHVyZRgHIAEoDEIAIqIBCh5UcmFkaW5nVG9GdW5kaW5nQmF0Y2hMZWdSZXN1bHQSEQoJbGVnX2luZGV4GAEgASgNEhEKCWludGVudF9pZBgCIAEoCRIQCghhc3NldF9pZBgDIAEoDRIrCgphbW91bnRfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIbChNkZXN0aW5hdGlvbl9hZGRyZXNzGAUgASgJIn4KKUNyZWF0ZVdhbGxldFRyYWRpbmdUb0Z1bmRpbmdCYXRjaFJlc3BvbnNlEhAKCGJhdGNoX2lkGAEgASgJEj8KBGxlZ3MYAiADKAsyMS5jaGFpbi53aXRoZHJhdy52MS5UcmFkaW5nVG9GdW5kaW5nQmF0Y2hMZWdSZXN1bHQiYwoiVmFsaWRhdGVXaXRoZHJhd0Rlc3RpbmF0aW9uUmVxdWVzdBIeChRkZXN0aW5hdGlvbl9jaGFpbl9pZBgBIAEoBEIAEh0KE2Rlc3RpbmF0aW9uX2FkZHJlc3MYAiABKAlCACKwAQojVmFsaWRhdGVXaXRoZHJhd0Rlc3RpbmF0aW9uUmVzcG9uc2USDQoFdmFsaWQYASABKAgSQgoEY29kZRgCIAEoDjI0LmNoYWluLndpdGhkcmF3LnYxLldpdGhkcmF3RGVzdGluYXRpb25WYWxpZGF0aW9uQ29kZRIPCgdtZXNzYWdlGAMgASgJEiUKHWNhbm9uaWNhbF9kZXN0aW5hdGlvbl9hZGRyZXNzGAQgASgJIjEKGEdldFdhbGxldEJhbGFuY2VzUmVxdWVzdBIVCg1zdWJhY2NvdW50X2lkGAEgASgGIpkBCg1XYWxsZXRCYWxhbmNlEhcKD3ppcHBlZF9hc3NldF9pZBgBIAEoDRIYChB1bmlmaWVkX2Fzc2V0X2lkGAIgASgNEhAKCGNoYWluX2lkGAMgASgNEhYKDnp0b2tlbl9hZGRyZXNzGAQgASgJEisKCmFtb3VudF9lMTgYBSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4IrUBChlHZXRXYWxsZXRCYWxhbmNlc1Jlc3BvbnNlEh0KFXNtYXJ0X2FjY291bnRfYWRkcmVzcxgBIAEoCRIyCghiYWxhbmNlcxgCIAMoCzIgLmNoYWluLndpdGhkcmF3LnYxLldhbGxldEJhbGFuY2USRQoSdW5hdmFpbGFibGVfYXNzZXRzGAMgAygLMikuY2hhaW4ud2l0aGRyYXcudjEuVW5hdmFpbGFibGVXYWxsZXRBc3NldCK2AQoWVW5hdmFpbGFibGVXYWxsZXRBc3NldBIXCg96aXBwZWRfYXNzZXRfaWQYASABKA0SGAoQdW5pZmllZF9hc3NldF9pZBgCIAEoDRIQCghjaGFpbl9pZBgDIAEoDRIWCg56dG9rZW5fYWRkcmVzcxgEIAEoCRI/CgZyZWFzb24YBSABKA4yLy5jaGFpbi53aXRoZHJhdy52MS5XYWxsZXRBc3NldFVuYXZhaWxhYmxlUmVhc29uKrgPCglFcnJvckNvZGUSGgoWRVJST1JfQ09ERV9VTlNQRUNJRklFRBAAEiEKHUVSUk9SX0NPREVfSU5TVUZGSUNJRU5UX0ZVTkRTEAESHgoaRVJST1JfQ09ERV9JTlZBTElEX1JFUVVFU1QQAhIeChpFUlJPUl9DT0RFX1VOQVVUSEVOVElDQVRFRBADEiAKHEVSUk9SX0NPREVfUEVSTUlTU0lPTl9ERU5JRUQQBBIiCh5FUlJPUl9DT0RFX1JBVEVfTElNSVRfRVhDRUVERUQQBRIiCh5FUlJPUl9DT0RFX1NFUlZJQ0VfVU5BVkFJTEFCTEUQBhIdChlFUlJPUl9DT0RFX0lOVEVSTkFMX0VSUk9SEAcSJAogRVJST1JfQ09ERV9JTlZBTElEX1NVQkFDQ09VTlRfSUQQCBIjCh9FUlJPUl9DT0RFX1NVQkFDQ09VTlRfTk9UX0ZPVU5EEAkSHQoZRVJST1JfQ09ERV9JTlZBTElEX0FDVElPThAKEiEKHUVSUk9SX0NPREVfVU5TVVBQT1JURURfTEVER0VSEAsSIAocRVJST1JfQ09ERV9VTlNVUFBPUlRFRF9BU1NFVBAMEh0KGUVSUk9SX0NPREVfSU5WQUxJRF9BTU9VTlQQDRIoCiRFUlJPUl9DT0RFX0lOVkFMSURfREVTVElOQVRJT05fQ0hBSU4QDhIqCiZFUlJPUl9DT0RFX0lOVkFMSURfREVTVElOQVRJT05fQUREUkVTUxAPEjMKL0VSUk9SX0NPREVfRVhURVJOQUxfREVTVElOQVRJT05fTk9UX1dISVRFTElTVEVEEBASMQotRVJST1JfQ09ERV9JTlRFUk5BTF9SRUNJUElFTlRfTk9UX1dISVRFTElTVEVEEBESIwofRVJST1JfQ09ERV9BTU9VTlRfQkVMT1dfTUlOSU1VTRASEiQKIEVSUk9SX0NPREVfQU1PVU5UX0VYQ0VFRFNfU1VQUExZEBMSLworRVJST1JfQ09ERV9TT1VSQ0VfU01BUlRfQUNDT1VOVF9VTkFWQUlMQUJMRRAUEiEKHUVSUk9SX0NPREVfU0lHTkFUVVJFX1JFUVVJUkVEEBUSKwonRVJST1JfQ09ERV9TSUdOQVRVUkVfU0NIRU1FX1VOU1VQUE9SVEVEEBYSJAogRVJST1JfQ09ERV9TSUdORVJfV0FMTEVUX0lOVkFMSUQQFxIlCiFFUlJPUl9DT0RFX1dBTExFVF9CSU5ESU5HX0lOVkFMSUQQGBIsCihFUlJPUl9DT0RFX1dBTExFVF9CSU5ESU5HX1NDT1BFX01JU01BVENIEBkSLQopRVJST1JfQ09ERV9XQUxMRVRfQklORElOR19TSUdORVJfTUlTTUFUQ0gQGhIgChxFUlJPUl9DT0RFX0FQSV9LRVlfTk9UX0ZPVU5EEBsSJgoiRVJST1JfQ09ERV9BUElfS0VZX0JJTkRJTkdfSU5WQUxJRBAcEi0KKUVSUk9SX0NPREVfQVBJX0tFWV9CSU5ESU5HX1NDT1BFX01JU01BVENIEB0SMgouRVJST1JfQ09ERV9BUElfS0VZX0JJTkRJTkdfUFVCTElDX0tFWV9NSVNNQVRDSBAeEiMKH0VSUk9SX0NPREVfSURFTVBPVEVOQ1lfQ09ORkxJQ1QQHxIiCh5FUlJPUl9DT0RFX0ZVTkRTX0xPQ0tfQ09ORkxJQ1QQIBInCiNFUlJPUl9DT0RFX0NBUElUQUxfVklFV19VTkFWQUlMQUJMRRAhEikKJUVSUk9SX0NPREVfQ0hBSU5fTUVUQURBVEFfVU5BVkFJTEFCTEUQIhIeChpFUlJPUl9DT0RFX0ZFRV9VTkFWQUlMQUJMRRAjEiEKHUVSUk9SX0NPREVfU1VQUExZX1VOQVZBSUxBQkxFECQSIgoeRVJST1JfQ09ERV9TVEVQX1VQX1VOQVZBSUxBQkxFECUSMQotRVJST1JfQ09ERV9ERVNUSU5BVElPTl9WQUxJREFUSU9OX1VOQVZBSUxBQkxFECYSKAokRVJST1JfQ09ERV9BQ0NPVU5UX1NIQVJEX1VOQVZBSUxBQkxFECcSIgoeRVJST1JfQ09ERV9GQUlMRURfUFJFQ09ORElUSU9OECgSGAoURVJST1JfQ09ERV9OT1RfRk9VTkQQKRIXChNFUlJPUl9DT0RFX0NPTkZMSUNUECoSLQopRVJST1JfQ09ERV9JTlZBTElEX0FVVE9fV0lUSERSQVdfU0NIRURVTEUQKxItCilFUlJPUl9DT0RFX0FNT1VOVF9FWENFRURTX1JPVVRFX1BSRUNJU0lPThAsEiIKHkVSUk9SX0NPREVfREVTVElOQVRJT05fSU5WQUxJRBAtEiUKIUVSUk9SX0NPREVfTUlOX0FNT1VOVF9CRUxPV19GTE9PUhAuEiAKHEVSUk9SX0NPREVfUk9VVEVfVU5TVVBQT1JURUQQLxIfChtFUlJPUl9DT0RFX1ZFUlNJT05fQ09ORkxJQ1QQMBIwCixFUlJPUl9DT0RFX0VYVEVSTkFMX0RFU1RJTkFUSU9OX0NPT0xJTkdfRE9XThAxEh4KGkVSUk9SX0NPREVfUk9VVEVfU1VTUEVOREVEEDIqVgoVVHJhZGluZ1dpdGhkcmF3QWN0aW9uEhYKEkFDVElPTl9VTlNQRUNJRklFRBAAEg4KClRPX0ZVTkRJTkcQARIVChFUT19FWFRFUk5BTF9DSEFJThACKrsBCiFXaXRoZHJhd0Rlc3RpbmF0aW9uVmFsaWRhdGlvbkNvZGUSFgoSUkVTVUxUX1VOU1BFQ0lGSUVEEAASCQoFVkFMSUQQARITCg9JTlZBTElEX0FERFJFU1MQAhIVChFVTlNVUFBPUlRFRF9DSEFJThADEhsKF1BPTFlFU1RFUl9TTUFSVF9BQ0NPVU5UEAQSEgoOVE9LRU5fQ09OVFJBQ1QQBRIWChJERU5ZTElTVEVEX0FERFJFU1MQBipyChxXYWxsZXRBc3NldFVuYXZhaWxhYmxlUmVhc29uEhsKF1VOQVZBSUxBQkxFX1VOU1BFQ0lGSUVEEAASDwoLTk9fQ09OVFJBQ1QQARIPCgtSRUFEX0ZBSUxFRBACEhMKD0lOVkFMSURfQkFMQU5DRRADMsgFCg9XaXRoZHJhd1NlcnZpY2UScAoRR2V0V2FsbGV0QmFsYW5jZXMSKy5jaGFpbi53aXRoZHJhdy52MS5HZXRXYWxsZXRCYWxhbmNlc1JlcXVlc3QaLC5jaGFpbi53aXRoZHJhdy52MS5HZXRXYWxsZXRCYWxhbmNlc1Jlc3BvbnNlIgASjgEKG1ZhbGlkYXRlV2l0aGRyYXdEZXN0aW5hdGlvbhI1LmNoYWluLndpdGhkcmF3LnYxLlZhbGlkYXRlV2l0aGRyYXdEZXN0aW5hdGlvblJlcXVlc3QaNi5jaGFpbi53aXRoZHJhdy52MS5WYWxpZGF0ZVdpdGhkcmF3RGVzdGluYXRpb25SZXNwb25zZSIAEnwKFUNyZWF0ZVRyYWRpbmdXaXRoZHJhdxIvLmNoYWluLndpdGhkcmF3LnYxLkNyZWF0ZVRyYWRpbmdXaXRoZHJhd1JlcXVlc3QaMC5jaGFpbi53aXRoZHJhdy52MS5DcmVhdGVUcmFkaW5nV2l0aGRyYXdSZXNwb25zZSIAEo4BChtDcmVhdGVXYWxsZXRUcmFkaW5nV2l0aGRyYXcSNS5jaGFpbi53aXRoZHJhdy52MS5DcmVhdGVXYWxsZXRUcmFkaW5nV2l0aGRyYXdSZXF1ZXN0GjYuY2hhaW4ud2l0aGRyYXcudjEuQ3JlYXRlV2FsbGV0VHJhZGluZ1dpdGhkcmF3UmVzcG9uc2UiABKgAQohQ3JlYXRlV2FsbGV0VHJhZGluZ1RvRnVuZGluZ0JhdGNoEjsuY2hhaW4ud2l0aGRyYXcudjEuQ3JlYXRlV2FsbGV0VHJhZGluZ1RvRnVuZGluZ0JhdGNoUmVxdWVzdBo8LmNoYWluLndpdGhkcmF3LnYxLkNyZWF0ZVdhbGxldFRyYWRpbmdUb0Z1bmRpbmdCYXRjaFJlc3BvbnNlIgAaAEJPWk1naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2NoYWluL3dpdGhkcmF3L3YxO2NoYWlud2l0aGRyYXd2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options, file_polyester_type_v1_u128]);
 
 /**
  * CreateTradingWithdrawResponse returns the accepted durable intent identifier
@@ -276,6 +276,239 @@ export const CreateWalletTradingWithdrawRequestSchema: GenMessage<CreateWalletTr
   messageDesc(file_chain_withdraw_v1_withdraw, 5);
 
 /**
+ * TradingToFundingBatchLeg is one Trading to Funding move of a batch.
+ *
+ * @generated from message chain.withdraw.v1.TradingToFundingBatchLeg
+ */
+export type TradingToFundingBatchLeg = Message<"chain.withdraw.v1.TradingToFundingBatchLeg"> & {
+  /**
+   * Unified asset identifier from Polyester asset metadata. amount_e18 is
+   * denominated in this asset at canonical 18-decimal scale.
+   *
+   * @generated from field: uint32 asset_id = 1;
+   */
+  assetId: number;
+
+  /**
+   * Amount in canonical 18-decimal unified asset units. For example, 0.5 is
+   * encoded as 500000000000000000.
+   *
+   * @generated from field: polyester.type.v1.U128 amount_e18 = 2;
+   */
+  amountE18?: U128 | undefined;
+
+  /**
+   * Funding account credited by this leg. Omit it to credit the source
+   * account's own Funding account, or give another Polyester Funding
+   * address. A Funding address of another account must be on the source
+   * account's internal whitelist, as for a single Trading to Funding
+   * withdraw.
+   *
+   * @generated from field: string destination_address = 3;
+   */
+  destinationAddress: string;
+};
+
+/**
+ * Describes the message chain.withdraw.v1.TradingToFundingBatchLeg.
+ * Use `create(TradingToFundingBatchLegSchema)` to create a new message.
+ */
+export const TradingToFundingBatchLegSchema: GenMessage<TradingToFundingBatchLeg> = /*@__PURE__*/
+  messageDesc(file_chain_withdraw_v1_withdraw, 6);
+
+/**
+ * CreateWalletTradingToFundingBatchRequest moves up to 10 amounts from one
+ * Trading account to Funding accounts, authorized by one wallet personal_sign
+ * signature over the whole batch. The legs move together or not at all.
+ *
+ * The wallet signs the UTF-8 text below with EIP-191 personal_sign. Lines are
+ * separated by a single line feed (\n), with no trailing line feed. Numbers
+ * are base-10 integers without separators or leading zeros. The signer
+ * wallet and the verifying contract are lowercase 0x-prefixed hex. A leg's
+ * destination is its destination_address as sent, in the letter case sent
+ * (a checksummed address stays checksummed), without leading or trailing
+ * whitespace; an omitted destination_address leaves an empty value after
+ * "Destination: ". Values must not contain control characters.
+ *
+ *     Polyester Trading Withdrawal Batch
+ *
+ *     Version: 1
+ *     Environment: polyester
+ *     Action: TO_FUNDING
+ *     Signer Wallet: <signer_wallet>
+ *     Account ID: <the caller's public account ID>
+ *     Target Account ID: <public ID of the source account: subaccount_id, or the account ID when omitted>
+ *     Polyester Chain ID: <EVM chain ID of Polyester Chain, as eth_chainId returns it>
+ *     Verifying Contract: <the withdraw verifying contract, as for CreateWalletTradingWithdraw>
+ *     Deadline: <deadline_ts_sec>
+ *     Nonce: <nonce>
+ *     Idempotency Key: <idempotency_key>
+ *     Legs: <number of legs>
+ *
+ *     Leg 1 of <number of legs>
+ *     Asset ID: <legs[0].asset_id>
+ *     Amount E18: <legs[0].amount_e18>
+ *     Destination: <legs[0].destination_address>
+ *
+ * followed by one such block per further leg, in request order, each after
+ * one empty line: "Leg 2 of <number of legs>", and so on. The header values
+ * are the ones a single wallet withdraw signs (CreateWalletTradingWithdraw),
+ * and the leg numbers bind the order of the legs. A batch signed for another
+ * chain ID or verifying contract is never paid.
+ *
+ * @generated from message chain.withdraw.v1.CreateWalletTradingToFundingBatchRequest
+ */
+export type CreateWalletTradingToFundingBatchRequest = Message<"chain.withdraw.v1.CreateWalletTradingToFundingBatchRequest"> & {
+  /**
+   * Moves to make, in order. 1 to 10 legs. Legs may repeat an asset or a
+   * destination.
+   *
+   * @generated from field: repeated chain.withdraw.v1.TradingToFundingBatchLeg legs = 1;
+   */
+  legs: TradingToFundingBatchLeg[];
+
+  /**
+   * Optional public subaccount id of the source Trading account. Omit to
+   * move funds from the caller's own Trading account.
+   *
+   * @generated from field: uint64 subaccount_id = 2;
+   */
+  subaccountId: bigint;
+
+  /**
+   * Unix timestamp in seconds after which the signed batch is no longer
+   * accepted, at most 15 minutes ahead.
+   *
+   * @generated from field: uint64 deadline_ts_sec = 3;
+   */
+  deadlineTsSec: bigint;
+
+  /**
+   * Client-generated unsigned 128-bit nonce bound to the signed batch. This
+   * is an identifier, not a decimal amount.
+   *
+   * @generated from field: polyester.type.v1.U128 nonce = 4;
+   */
+  nonce?: U128 | undefined;
+
+  /**
+   * Client-chosen idempotency key for the whole batch, scoped to the source
+   * account. Retrying with the same key and the same signed batch returns the
+   * first answer; reusing it for another batch is refused with
+   * ERROR_CODE_IDEMPOTENCY_CONFLICT. The first answer stands, after the
+   * deadline too. A refused batch is final: a retry under its key answers the
+   * same refusal, even once its cause is gone, so a corrected batch needs a
+   * new key and signature.
+   *
+   * @generated from field: string idempotency_key = 5;
+   */
+  idempotencyKey: string;
+
+  /**
+   * Wallet address that produced payload_signature.
+   *
+   * @generated from field: string signer_wallet = 6;
+   */
+  signerWallet: string;
+
+  /**
+   * EIP-191 personal_sign signature over the batch message described above.
+   *
+   * @generated from field: bytes payload_signature = 7;
+   */
+  payloadSignature: Uint8Array;
+};
+
+/**
+ * Describes the message chain.withdraw.v1.CreateWalletTradingToFundingBatchRequest.
+ * Use `create(CreateWalletTradingToFundingBatchRequestSchema)` to create a new message.
+ */
+export const CreateWalletTradingToFundingBatchRequestSchema: GenMessage<CreateWalletTradingToFundingBatchRequest> = /*@__PURE__*/
+  messageDesc(file_chain_withdraw_v1_withdraw, 7);
+
+/**
+ * TradingToFundingBatchLegResult is one accepted leg of a batch.
+ *
+ * @generated from message chain.withdraw.v1.TradingToFundingBatchLegResult
+ */
+export type TradingToFundingBatchLegResult = Message<"chain.withdraw.v1.TradingToFundingBatchLegResult"> & {
+  /**
+   * Zero-based position of the leg in the request.
+   *
+   * @generated from field: uint32 leg_index = 1;
+   */
+  legIndex: number;
+
+  /**
+   * Stable server-owned intent identifier of the leg's withdraw, the same
+   * identifier a single wallet withdraw returns. Clients use it to follow the
+   * leg's progress.
+   *
+   * @generated from field: string intent_id = 2;
+   */
+  intentId: string;
+
+  /**
+   * Echoed unified asset identifier.
+   *
+   * @generated from field: uint32 asset_id = 3;
+   */
+  assetId: number;
+
+  /**
+   * Echoed amount in canonical 18-decimal unified asset units.
+   *
+   * @generated from field: polyester.type.v1.U128 amount_e18 = 4;
+   */
+  amountE18?: U128 | undefined;
+
+  /**
+   * Echoed destination_address; empty when the leg credits the source
+   * account's own Funding account.
+   *
+   * @generated from field: string destination_address = 5;
+   */
+  destinationAddress: string;
+};
+
+/**
+ * Describes the message chain.withdraw.v1.TradingToFundingBatchLegResult.
+ * Use `create(TradingToFundingBatchLegResultSchema)` to create a new message.
+ */
+export const TradingToFundingBatchLegResultSchema: GenMessage<TradingToFundingBatchLegResult> = /*@__PURE__*/
+  messageDesc(file_chain_withdraw_v1_withdraw, 8);
+
+/**
+ * CreateWalletTradingToFundingBatchResponse is an accepted batch: every leg
+ * is reserved and will be paid together with the others, or, if the payment
+ * fails, every leg is refunded to the source Trading account.
+ *
+ * @generated from message chain.withdraw.v1.CreateWalletTradingToFundingBatchResponse
+ */
+export type CreateWalletTradingToFundingBatchResponse = Message<"chain.withdraw.v1.CreateWalletTradingToFundingBatchResponse"> & {
+  /**
+   * Stable server-owned identifier of the batch.
+   *
+   * @generated from field: string batch_id = 1;
+   */
+  batchId: string;
+
+  /**
+   * Every leg, in request order.
+   *
+   * @generated from field: repeated chain.withdraw.v1.TradingToFundingBatchLegResult legs = 2;
+   */
+  legs: TradingToFundingBatchLegResult[];
+};
+
+/**
+ * Describes the message chain.withdraw.v1.CreateWalletTradingToFundingBatchResponse.
+ * Use `create(CreateWalletTradingToFundingBatchResponseSchema)` to create a new message.
+ */
+export const CreateWalletTradingToFundingBatchResponseSchema: GenMessage<CreateWalletTradingToFundingBatchResponse> = /*@__PURE__*/
+  messageDesc(file_chain_withdraw_v1_withdraw, 9);
+
+/**
  * ValidateWithdrawDestinationRequest checks one external-chain
  * destination for an authenticated caller without creating a withdraw.
  *
@@ -305,7 +538,7 @@ export type ValidateWithdrawDestinationRequest = Message<"chain.withdraw.v1.Vali
  * Use `create(ValidateWithdrawDestinationRequestSchema)` to create a new message.
  */
 export const ValidateWithdrawDestinationRequestSchema: GenMessage<ValidateWithdrawDestinationRequest> = /*@__PURE__*/
-  messageDesc(file_chain_withdraw_v1_withdraw, 6);
+  messageDesc(file_chain_withdraw_v1_withdraw, 10);
 
 /**
  * ValidateWithdrawDestinationResponse returns a user-safe validation
@@ -348,7 +581,7 @@ export type ValidateWithdrawDestinationResponse = Message<"chain.withdraw.v1.Val
  * Use `create(ValidateWithdrawDestinationResponseSchema)` to create a new message.
  */
 export const ValidateWithdrawDestinationResponseSchema: GenMessage<ValidateWithdrawDestinationResponse> = /*@__PURE__*/
-  messageDesc(file_chain_withdraw_v1_withdraw, 7);
+  messageDesc(file_chain_withdraw_v1_withdraw, 11);
 
 /**
  * GetWalletBalancesRequest selects the account whose smart account wallet
@@ -370,7 +603,7 @@ export type GetWalletBalancesRequest = Message<"chain.withdraw.v1.GetWalletBalan
  * Use `create(GetWalletBalancesRequestSchema)` to create a new message.
  */
 export const GetWalletBalancesRequestSchema: GenMessage<GetWalletBalancesRequest> = /*@__PURE__*/
-  messageDesc(file_chain_withdraw_v1_withdraw, 8);
+  messageDesc(file_chain_withdraw_v1_withdraw, 12);
 
 /**
  * WalletBalance is one zToken the smart account wallet holds.
@@ -422,7 +655,7 @@ export type WalletBalance = Message<"chain.withdraw.v1.WalletBalance"> & {
  * Use `create(WalletBalanceSchema)` to create a new message.
  */
 export const WalletBalanceSchema: GenMessage<WalletBalance> = /*@__PURE__*/
-  messageDesc(file_chain_withdraw_v1_withdraw, 9);
+  messageDesc(file_chain_withdraw_v1_withdraw, 13);
 
 /**
  * GetWalletBalancesResponse is the smart account wallet's zToken balances,
@@ -463,7 +696,7 @@ export type GetWalletBalancesResponse = Message<"chain.withdraw.v1.GetWalletBala
  * Use `create(GetWalletBalancesResponseSchema)` to create a new message.
  */
 export const GetWalletBalancesResponseSchema: GenMessage<GetWalletBalancesResponse> = /*@__PURE__*/
-  messageDesc(file_chain_withdraw_v1_withdraw, 10);
+  messageDesc(file_chain_withdraw_v1_withdraw, 14);
 
 /**
  * UnavailableWalletAsset is a zipped asset whose zToken balance could not be
@@ -514,7 +747,7 @@ export type UnavailableWalletAsset = Message<"chain.withdraw.v1.UnavailableWalle
  * Use `create(UnavailableWalletAssetSchema)` to create a new message.
  */
 export const UnavailableWalletAssetSchema: GenMessage<UnavailableWalletAsset> = /*@__PURE__*/
-  messageDesc(file_chain_withdraw_v1_withdraw, 11);
+  messageDesc(file_chain_withdraw_v1_withdraw, 15);
 
 /**
  * ErrorCode identifies stable, machine-readable Withdraw API errors.
@@ -1093,6 +1326,24 @@ export const WithdrawService: GenService<{
     methodKind: "unary";
     input: typeof CreateWalletTradingWithdrawRequestSchema;
     output: typeof CreateWalletTradingWithdrawResponseSchema;
+  },
+  /**
+   * Move up to 10 amounts from one Trading account to Funding accounts with
+   * one wallet signature and one MFA check. All legs are accepted or none:
+   * a leg refused for any reason, for example insufficient funds, refuses the
+   * whole batch, and nothing moves. An accepted batch is paid as one, and if
+   * the payment fails every leg is refunded. When every leg goes to the
+   * caller's own accounts, a recent MFA is enough; any other leg needs one
+   * fresh single-use step-up for the whole batch. A session without recent
+   * MFA is refused with the auth error AUTH_MFA_ELEVATION_REQUIRED, and a
+   * missing or spent step-up with AUTH_STEP_UP_REQUIRED.
+   *
+   * @generated from rpc chain.withdraw.v1.WithdrawService.CreateWalletTradingToFundingBatch
+   */
+  createWalletTradingToFundingBatch: {
+    methodKind: "unary";
+    input: typeof CreateWalletTradingToFundingBatchRequestSchema;
+    output: typeof CreateWalletTradingToFundingBatchResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_chain_withdraw_v1_withdraw, 0);

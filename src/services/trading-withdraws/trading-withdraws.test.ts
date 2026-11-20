@@ -410,6 +410,133 @@ describe("TradingWithdrawsService", () => {
         ).resolves.toBe(account.address);
     });
 
+    it("signs one Trading-to-Funding batch and resubmits it unchanged", async () => {
+        const account = privateKeyToAccount(
+            "0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318",
+        );
+        let signedMessage: string | undefined;
+        const transport = unaryTransportByMethod({
+            createWalletTradingToFundingBatch: {
+                batchId: "twb_1",
+                legs: [
+                    {
+                        legIndex: 0,
+                        intentId: "intent-0",
+                        assetId: 1,
+                        amountE18: toU128(100n * 10n ** 18n),
+                        destinationAddress: "",
+                    },
+                    {
+                        legIndex: 1,
+                        intentId: "intent-1",
+                        assetId: 1,
+                        amountE18: toU128(5n * 10n ** 17n),
+                        destinationAddress: "0xBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBb",
+                    },
+                ],
+            },
+        });
+        const service = new TradingWithdrawsService(
+            { authApi: transport.transport },
+            undefined,
+            signingConfig,
+            testScales(),
+        );
+
+        const prepared = await service.prepareToFundingBatch({
+            account: { subaccountId: formatId(2n) },
+            legs: [
+                { assetId: 1, quantity: "100" },
+                {
+                    assetId: 1,
+                    quantity: "0.5",
+                    destinationAddress: " 0xBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBb ",
+                },
+            ],
+            idempotencyKey: "bulk-1",
+            deadline: new Date(1_900_000_000_000),
+            walletSigner: {
+                signerWallet: account.address,
+                accountId: formatId(1n),
+                signMessage: async (message) => {
+                    signedMessage = message;
+                    return account.signMessage({ message });
+                },
+            },
+        });
+        await expect(prepared.submit()).resolves.toEqual({
+            batchId: "twb_1",
+            legs: [
+                {
+                    legIndex: 0,
+                    intentId: "intent-0",
+                    assetId: 1,
+                    amount: "100",
+                    destinationAddress: "",
+                },
+                {
+                    legIndex: 1,
+                    intentId: "intent-1",
+                    assetId: 1,
+                    amount: "0.5",
+                    destinationAddress: "0xBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBb",
+                },
+            ],
+        });
+        await prepared.submit({ stepUpToken: "step-up" });
+
+        const [first, second] = transport.calls;
+        expect(first?.method.name).toBe("CreateWalletTradingToFundingBatch");
+        expect(second?.message).toEqual(first?.message);
+        expect(new Headers(second?.headers).get(AUTH_STEP_UP_HEADER_NAME)).toBe("step-up");
+        const request = first?.message as Proto.CreateWalletTradingToFundingBatchRequest;
+        expect(request).toMatchObject({
+            subaccountId: 2n,
+            deadlineTsSec: 1_900_000_000n,
+            idempotencyKey: "bulk-1",
+            signerWallet: account.address.toLowerCase(),
+            legs: [
+                { assetId: 1, amountE18: toU128(100n * 10n ** 18n), destinationAddress: "" },
+                {
+                    assetId: 1,
+                    amountE18: toU128(5n * 10n ** 17n),
+                    destinationAddress: "0xBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBb",
+                },
+            ],
+        });
+        expect(prepared.deadline).toEqual(new Date(1_900_000_000_000));
+        expect(signedMessage).toContain("Target Account ID: 2\n");
+        expect(signedMessage).toContain(
+            "Leg 2 of 2\nAsset ID: 1\nAmount E18: 500000000000000000\nDestination: 0xBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBbBb",
+        );
+        await expect(
+            recoverMessageAddress({
+                message: signedMessage!,
+                signature: bytesToHex(request.payloadSignature),
+            }),
+        ).resolves.toBe(account.address);
+    });
+
+    it("rejects an empty batch or one over 10 legs before signing", async () => {
+        const signMessage = vi.fn();
+        const service = new TradingWithdrawsService(
+            { authApi: unaryTransport({}).transport },
+            undefined,
+            signingConfig,
+            testScales(),
+        );
+        const walletSigner = { signerWallet: "0x1", accountId: formatId(1n), signMessage };
+        for (const legs of [
+            [],
+            Array.from({ length: 11 }, () => ({ assetId: 1, quantity: "1" })),
+        ]) {
+            await expect(
+                service.createToFundingBatch({ legs, idempotencyKey: "k", walletSigner }),
+            ).rejects.toThrow();
+        }
+        expect(signMessage).not.toHaveBeenCalled();
+    });
+
     it("builds wallet-signed external-chain withdraw requests", async () => {
         let message: string | undefined;
         const transport = unaryTransportByMethod({

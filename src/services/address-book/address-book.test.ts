@@ -1,3 +1,4 @@
+import { AccountScopeType } from "../../gen/auth/v1/account_scope_pb.js";
 import * as Proto from "../../gen/auth/v1/address_book_pb.js";
 import { SubaccountRole } from "../../gen/auth/v1/subaccounts_pb.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
@@ -267,7 +268,7 @@ describe("AddressBookService", () => {
                         entryId: 10n,
                         rootAccountId: 1n,
                         targetAccountId: 2n,
-                        targetScopeType: Proto.AccountScopeType.SCOPE_SUBACCOUNT,
+                        targetScopeType: AccountScopeType.SCOPE_SUBACCOUNT,
                         smartAccountAddress: "0x2222222222222222222222222222222222222222",
                         rootUsername: "root",
                         subaccountLabel: "Desk",
@@ -394,7 +395,7 @@ describe("AddressBookService", () => {
         });
         realtime.params?.onPublication({
             scope: {
-                scopeType: Proto.AccountScopeType.SCOPE_SUBACCOUNT,
+                scopeType: AccountScopeType.SCOPE_SUBACCOUNT,
                 rootAccountId: 1n,
                 subaccountId: 2n,
             },

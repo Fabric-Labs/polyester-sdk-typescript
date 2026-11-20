@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
+import { AccountScopeType } from "../../gen/auth/v1/account_scope_pb.js";
 import * as Proto from "../../gen/auth/v1/address_book_pb.js";
 import { formatId } from "../../utils/base58-id.js";
 import {
@@ -16,7 +17,7 @@ import {
 const baseExternalEntry = {
     addressBookEntryId: 7n,
     scope: {
-        scopeType: Proto.AccountScopeType.SCOPE_SUBACCOUNT,
+        scopeType: AccountScopeType.SCOPE_SUBACCOUNT,
         rootAccountId: 1n,
         subaccountId: 2n,
     },
@@ -252,7 +253,7 @@ describe("AddressBookEntrySchema", () => {
         const entry = v.parse(AddressBookEntrySchema, {
             ...baseExternalEntry,
             scope: {
-                scopeType: Proto.AccountScopeType.SCOPE_ROOT,
+                scopeType: AccountScopeType.SCOPE_ROOT,
                 rootAccountId: 1n,
                 subaccountId: 0n,
             },
@@ -274,7 +275,7 @@ describe("AddressBookEntrySchema", () => {
             v.parse(AddressBookEntrySchema, {
                 ...baseExternalEntry,
                 scope: {
-                    scopeType: Proto.AccountScopeType.SCOPE_UNSPECIFIED,
+                    scopeType: AccountScopeType.SCOPE_UNSPECIFIED,
                     rootAccountId: 1n,
                     subaccountId: 0n,
                 },
@@ -328,7 +329,7 @@ describe("unsaved counterparty entry IDs", () => {
                     ...recent,
                     rootAccountId: 1n,
                     targetAccountId: 2n,
-                    targetScopeType: Proto.AccountScopeType.SCOPE_ROOT,
+                    targetScopeType: AccountScopeType.SCOPE_ROOT,
                     smartAccountAddress: "0x02",
                     rootUsername: "root",
                     subaccountLabel: "",
@@ -345,7 +346,7 @@ describe("AddressBookViewInvalidatedSchema", () => {
     it("formats scope IDs and invalidation timestamps", () => {
         const event = v.parse(AddressBookViewInvalidatedSchema, {
             scope: {
-                scopeType: Proto.AccountScopeType.SCOPE_SUBACCOUNT,
+                scopeType: AccountScopeType.SCOPE_SUBACCOUNT,
                 rootAccountId: 1n,
                 subaccountId: 2n,
             },

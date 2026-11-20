@@ -381,6 +381,56 @@ describe("MarketDataService", () => {
         expect(onError.mock.calls[0]?.[0].error.message).toMatch(/market symbolId not found: 999/);
     });
 
+    it("reads a live price band with absent limits as null, not zero", async () => {
+        const ns = (ms: number) => BigInt(ms) * 1_000_000n;
+        const transport = unaryTransport({
+            band: {
+                symbolId: 101,
+                state: Proto.PriceBandState.ACTIVE,
+                referencePriceTicks: 1_750_000_000_000n,
+                referenceSource: Proto.PriceBandReferenceSource.INDEX_PRICE,
+                maxBuyPriceTicks: 1_837_500_000_000n,
+                minSellPriceTicks: 1_662_500_000_000n,
+                updatedTsNs: ns(1_700_000_000_000),
+                reanchorPending: true,
+                parameters: { lowerBps: 500, upperBps: 500, referenceWindowMs: 1_000 },
+                epoch: 3n,
+                updateId: 18_446_744_073_709_551_615n,
+                asOfTsNs: 1_700_000_001_000_000_001n,
+                validUntilTsNs: ns(1_700_000_006_000),
+            },
+        });
+        const service = new MarketDataService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            // The fixed price scale needs no catalog, so a failed catalog load must not block it.
+            { ...testScales(), ready: () => Promise.reject(new Error("catalog down")) },
+        );
+
+        const band = await service.getPriceBand({ symbolId: 101 });
+
+        expect(transport.lastCall()?.method.name).toBe("GetPriceBand");
+        expect(transport.lastCall()?.message).toEqual({ symbolId: 101 });
+        expect(band).toEqual({
+            symbolId: 101,
+            state: "active",
+            referencePrice: "1750",
+            referenceSource: "index_price",
+            maxBuyPrice: "1837.5",
+            minSellPrice: "1662.5",
+            minBuyPrice: null,
+            maxSellPrice: null,
+            updatedAtMs: 1_700_000_000_000,
+            reanchorEligibleAtMs: null,
+            reanchorPending: true,
+            parameters: { lowerBps: 500, upperBps: 500, referenceWindowMs: 1_000 },
+            epoch: "3",
+            updateId: "18446744073709551615",
+            asOfTsNs: "1700000001000000001",
+            validUntilMs: 1_700_000_006_000,
+        });
+    });
+
     it("lists asset information with nullable unknown launch facts", async () => {
         const transport = unaryTransport({
             assetInfo: [

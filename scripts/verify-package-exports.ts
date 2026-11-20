@@ -146,6 +146,7 @@ import { ordersService } from "@polyester/sdk/services/orders";
 import { priceAlertsService } from "@polyester/sdk/services/price-alerts";
 import { tradingRateLimitsService } from "@polyester/sdk/services/rate-limits";
 import { statementExportsService } from "@polyester/sdk/services/statement-exports";
+import { strategiesService } from "@polyester/sdk/services/strategies";
 
 declare const client: PolyesterClient;
 declare const ladderDetails: LadderDetailsOutput;
@@ -302,13 +303,13 @@ async function verifyServiceInference(): Promise<void> {
         await client.priceAlerts.update({ alertId: priceAlert.alertId, expectedRevision: "1" }),
     );
     expectType<import("@polyester/sdk").ListPriceAlertsResult>(await client.priceAlerts.list());
-    const appAuthorization = await client.connectedApps.getAuthorization({
+    const appConnectionRequest = await client.connectedApps.getConnectionRequest({
         requestId: "request",
-    } satisfies import("@polyester/sdk").AppAuthorizationInput);
-    expectType<import("@polyester/sdk").AppAuthorization>(appAuthorization);
-    expectNotAny(appAuthorization, true);
-    expectType<import("@polyester/sdk").AppAuthorizationRedirect>(
-        await client.connectedApps.approveAuthorization(
+    } satisfies import("@polyester/sdk").AppConnectionRequestInput);
+    expectType<import("@polyester/sdk").AppConnectionRequest>(appConnectionRequest);
+    expectNotAny(appConnectionRequest, true);
+    expectType<import("@polyester/sdk").AppConnectionRequestRedirect>(
+        await client.connectedApps.approveConnectionRequest(
             { requestId: "request" },
             { stepUpToken: "step-up" },
         ),
@@ -373,6 +374,42 @@ async function verifyServiceInference(): Promise<void> {
     expectType<import("@polyester/sdk").AssetInfo[]>(assetInfo);
     expectNotAny(assetInfo[0], true);
     expectType<string | null | undefined>(assetInfo[0]?.editorial.issueDate);
+    const priceBand = await client.marketData.getPriceBand({
+        symbolId: 1,
+    } satisfies import("@polyester/sdk").GetPriceBandInput);
+    expectType<import("@polyester/sdk").LivePriceBand>(priceBand);
+    expectNotAny(priceBand, true);
+    expectType<import("@polyester/sdk").PriceBandStateValue | "unspecified">(priceBand.state);
+    expectType<string | null>(priceBand.maxBuyPrice);
+    const toFundingBatch = await client.tradingWithdraws.prepareToFundingBatch({
+        legs: [{ assetId: 1, quantity: "1" }],
+        idempotencyKey: "batch-1",
+        walletSigner: {
+            signerWallet: "0x0000000000000000000000000000000000000000",
+            accountId: "1",
+            signMessage: async () => "0x",
+        },
+    } satisfies import("@polyester/sdk").CreateTradingToFundingBatchServiceInput);
+    expectType<import("@polyester/sdk").PreparedTradingToFundingBatch>(toFundingBatch);
+    expectType<import("@polyester/sdk").CreateTradingToFundingBatchResult>(
+        await toFundingBatch.submit({ stepUpToken: "step-up" }),
+    );
+    const strategyCheck = await client.strategies.validate({
+        name: "Grid",
+        manifest: {},
+        code: "",
+    } satisfies import("@polyester/sdk").ValidateStrategyInput);
+    expectType<import("@polyester/sdk").ValidateStrategyResult>(strategyCheck);
+    expectNotAny(strategyCheck, true);
+    const deployStatus = await client.strategies.getDeployStatus({ proposalId: "1" });
+    expectType<import("@polyester/sdk").StrategyDeployState | "unspecified">(deployStatus.state);
+    expectType<string | null>(deployStatus.botId);
+    const strategiesDetail: Extract<PolyesterErrorDetail, { service: "strategies" }> = {
+        service: "strategies",
+        code: "INSUFFICIENT_FUNDS",
+        shortfall: [{ asset: "USDT", amount: "1" }],
+    };
+    expectType<PolyesterErrorDetail>(strategiesDetail);
     const dustBalances = await client.dustConversion.listBalances();
     expectType<import("@polyester/sdk").ListDustBalancesResult>(dustBalances);
     expectType<import("@polyester/sdk").DustAssetEligibility | "unspecified" | undefined>(
@@ -680,6 +717,7 @@ async function verifyCoreServiceAccessors(): Promise<void> {
     expectType<typeof client.assistant>(assistantService(browserCore));
     expectType<typeof client.statementExports>(statementExportsService(browserCore));
     expectType<typeof client.dustConversion>(dustConversionService(browserCore));
+    expectType<typeof client.strategies>(strategiesService(browserCore));
     expectType<import("@polyester/sdk").AuthState>(browserCore.auth.getState());
     expectType<boolean>(serverCore.hasDisplaySession);
     // @ts-expect-error Cores only expose services through their accessors.

@@ -17,6 +17,7 @@ import type { ErrorCode as WithdrawErrorCode } from "../gen/chain/withdraw/v1/wi
 import type { ErrorCode as LedgerErrorCode } from "../gen/ledger/read/v1/ledger_read_pb.js";
 import type { ErrorCode as MarketOverviewErrorCode } from "../gen/marketoverview/v1/marketoverview_pb.js";
 import type { ErrorCode as NotificationErrorCode } from "../gen/notifications/v1/notifications_pb.js";
+import type { ErrorCode as StrategiesErrorCode } from "../gen/strategies/v1/strategies_pb.js";
 import type { ErrorCode as InternalTransferErrorCode } from "../gen/transfer/v1/internal_transfer_pb.js";
 import type { OrderErrorDetail } from "../services/orders/order-errors.schemas.js";
 import type { RateLimitDetail } from "./rate-limit.schemas.js";
@@ -75,6 +76,26 @@ export type PolyesterErrorDetail =
     | { service: "alerts"; code: NamedCode<typeof PriceAlertErrorCode> }
     | { service: "assistant"; code: NamedCode<typeof AssistantErrorCode> }
     | { service: "notifications"; code: NamedCode<typeof NotificationErrorCode> }
+    | {
+          service: "strategies";
+          code: NamedCode<typeof StrategiesErrorCode>;
+          /** Request field the error is about, e.g. `settings[0].value`; with `SETTINGS_INVALID`, `FUNDING_INVALID` and `MANIFEST_TOO_LARGE`. */
+          fieldPath?: string;
+          /** Epoch ms when the same request may succeed; with `SCENARIO_RUN_LIMIT_REACHED` and `BACKTEST_LIMIT_REACHED`. */
+          retryAfter?: number;
+          /** With `BOT_CAP_REACHED`; the next tier fields are 0 when no tier lifts the cap. */
+          botCap?: {
+              vipTier: number;
+              botCap: number;
+              bots: number;
+              nextVipTier: number;
+              nextBotCap: number;
+          };
+          /** Markets not open to bots, as the manifest names them; with `MARKET_NOT_ALLOWED`. */
+          markets?: string[];
+          /** Amounts the funding account lacks, one per asset; with `INSUFFICIENT_FUNDS`. */
+          shortfall?: { asset: string; amount: string }[];
+      }
     /** A request over the API's size limit; `limitBytes` is the limit it exceeded. */
     | { service: "request"; code: "REQUEST_TOO_LARGE"; limitBytes: number }
     /** A service's quota refusal sent as a bare `RateLimitDetail`, e.g. wallet sign-in. */
@@ -97,6 +118,7 @@ const DECODER_LOADERS: Record<string, () => Promise<{ decode: ErrorDetailDecoder
     "alerts.v1.ErrorDetail": () => import("./error-details/alerts.js"),
     "ai.v1.ErrorDetail": () => import("./error-details/assistant.js"),
     "notifications.v1.ErrorDetail": () => import("./error-details/notifications.js"),
+    "strategies.v1.ErrorDetail": () => import("./error-details/strategies.js"),
     "polyester.ratelimit.v1.RateLimitDetail": () => import("./error-details/rate-limit.js"),
     "polyester.api.v1.RequestErrorDetail": () => import("./error-details/request.js"),
 };

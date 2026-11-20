@@ -1,3 +1,4 @@
+import { AccountScopeType } from "../../gen/auth/v1/account_scope_pb.js";
 import * as Proto from "../../gen/auth/v1/address_book_pb.js";
 import type { InputToProto, ProtoToOutput } from "../../utils/types.js";
 
@@ -6,14 +7,14 @@ export type AccountScopeTypeLabel = (typeof ACCOUNT_SCOPE_TYPE_VALUES)[number];
 
 export const AccountScopeTypeCodec = {
     inputToProto: {
-        root: Proto.AccountScopeType.SCOPE_ROOT,
-        subaccount: Proto.AccountScopeType.SCOPE_SUBACCOUNT,
-    } satisfies InputToProto<AccountScopeTypeLabel, Proto.AccountScopeType>,
+        root: AccountScopeType.SCOPE_ROOT,
+        subaccount: AccountScopeType.SCOPE_SUBACCOUNT,
+    } satisfies InputToProto<AccountScopeTypeLabel, AccountScopeType>,
     protoToOutput: {
-        [Proto.AccountScopeType.SCOPE_UNSPECIFIED]: "unspecified",
-        [Proto.AccountScopeType.SCOPE_ROOT]: "root",
-        [Proto.AccountScopeType.SCOPE_SUBACCOUNT]: "subaccount",
-    } satisfies ProtoToOutput<Proto.AccountScopeType, AccountScopeTypeLabel>,
+        [AccountScopeType.SCOPE_UNSPECIFIED]: "unspecified",
+        [AccountScopeType.SCOPE_ROOT]: "root",
+        [AccountScopeType.SCOPE_SUBACCOUNT]: "subaccount",
+    } satisfies ProtoToOutput<AccountScopeType, AccountScopeTypeLabel>,
 } as const;
 
 export const ADDRESS_BOOK_ENTRY_KIND_VALUES = ["external", "internal"] as const;

@@ -31,6 +31,7 @@ import {
     PriceOffsetDirectionCodec,
     PriceRoundingCodec,
     ReferencePriceSourceCodec,
+    SubagentFundingCodec,
     TriggerChangeActionCodec,
     TriggerDirectionCodec,
     UnfilledSlicePolicyCodec,
@@ -454,6 +455,8 @@ function formatEvent(e: Proto.RunEvent["event"], scales: SdkScales) {
                 toolCallId: e.value.toolCallId,
                 name: e.value.name,
                 input: e.value.input ?? {},
+                /** Set for a subagent's own calls, as in its `subagent_started` event. */
+                subagentId: e.value.subagentId,
             };
         case "toolFinished":
             return {
@@ -462,6 +465,8 @@ function formatEvent(e: Proto.RunEvent["event"], scales: SdkScales) {
                 name: e.value.name,
                 ok: e.value.ok,
                 errorMessage: e.value.errorMessage,
+                /** Set for a subagent's own calls, as in its `subagent_started` event. */
+                subagentId: e.value.subagentId,
             };
         case "memoriesRecalled":
             /**
@@ -503,6 +508,10 @@ function formatEvent(e: Proto.RunEvent["event"], scales: SdkScales) {
                 type: "subagent_started" as const,
                 subagentId: e.value.subagentId,
                 name: e.value.name,
+                /** What pays for its work; `"unspecified"` means show no funding. */
+                funding: enumLabel(SubagentFundingCodec.protoToOutput, e.value.funding),
+                /** The most credits it may use, even when sponsored or on the own key; null when not said. */
+                creditCap: e.value.creditCap ? Number(e.value.creditCap) : null,
             };
         case "subagentFinished":
             return {
@@ -511,6 +520,8 @@ function formatEvent(e: Proto.RunEvent["event"], scales: SdkScales) {
                 name: e.value.name,
                 ok: e.value.ok,
                 summary: e.value.summary,
+                /** Website page where the user deploys the bot it proposed; omitted when it proposed none. */
+                deployUrl: e.value.deployUrl,
             };
         case "approvalRequested":
             return {

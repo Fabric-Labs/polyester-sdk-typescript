@@ -421,6 +421,9 @@ export type Order = Message<"orders.v1.Order"> & {
 
   /**
    * Trading symbol numeric identifier.
+   * Unset for the replacement order of a batch item refused when it applied
+   * (REJECTED with batch_request_id set), which never existed and carries no
+   * order terms: the client knows them from the batch it sent.
    *
    * @generated from field: uint32 symbol_id = 3;
    */
@@ -436,6 +439,9 @@ export type Order = Message<"orders.v1.Order"> & {
 
   /**
    * Order side.
+   * Unset for the replacement order of a batch item refused when it applied
+   * (REJECTED with batch_request_id set), which never existed and carries no
+   * order terms: the client knows them from the batch it sent.
    *
    * @generated from field: orders.v1.Side side = 5;
    */
@@ -450,6 +456,9 @@ export type Order = Message<"orders.v1.Order"> & {
 
   /**
    * Order type.
+   * Unset for the replacement order of a batch item refused when it applied
+   * (REJECTED with batch_request_id set), which never existed and carries no
+   * order terms: the client knows them from the batch it sent.
    *
    * @generated from field: orders.v1.OrderType order_type = 7;
    */
@@ -457,6 +466,9 @@ export type Order = Message<"orders.v1.Order"> & {
 
   /**
    * Time-in-force policy.
+   * Unset for the replacement order of a batch item refused when it applied
+   * (REJECTED with batch_request_id set), which never existed and carries no
+   * order terms: the client knows them from the batch it sent.
    *
    * @generated from field: orders.v1.TimeInForce time_in_force = 8;
    */
@@ -464,6 +476,9 @@ export type Order = Message<"orders.v1.Order"> & {
 
   /**
    * Self-trade prevention mode.
+   * Unset for the replacement order of a batch item refused when it applied
+   * (REJECTED with batch_request_id set), which never existed and carries no
+   * order terms: the client knows them from the batch it sent.
    *
    * @generated from field: orders.v1.SelfTradePreventionMode self_trade_prevention_mode = 9;
    */
@@ -471,6 +486,9 @@ export type Order = Message<"orders.v1.Order"> & {
 
   /**
    * Fee asset selected for fills.
+   * Unset for the replacement order of a batch item refused when it applied
+   * (REJECTED with batch_request_id set), which never existed and carries no
+   * order terms: the client knows them from the batch it sent.
    *
    * @generated from field: orders.v1.FeeAsset fee_asset = 10;
    */
@@ -486,6 +504,9 @@ export type Order = Message<"orders.v1.Order"> & {
   /**
    * Current accepted total order quantity, updated by successful modifies,
    * scaled by the pair's base_quantity_scale from GetSpotConfig for symbol_id.
+   * 0 as a placeholder for the replacement order of a batch item refused when
+   * it applied, which carries no order terms: the client knows them from the
+   * batch it sent.
    *
    * @generated from field: int64 orig_qty_scaled = 12;
    */
@@ -621,7 +642,8 @@ export type Order = Message<"orders.v1.Order"> & {
    * (see MarketIoc). A stop-loss's, take-profit's or
    * trailing stop's market order takes the price that fired it as its
    * reference; a buy stop's is never above the protection price at its
-   * trigger price.
+   * trigger price. 0 as a placeholder for the replacement order of a batch
+   * item refused when it applied, which carries no order terms.
    *
    * @generated from field: int64 price_ticks = 15;
    */
@@ -759,6 +781,8 @@ export type Order = Message<"orders.v1.Order"> & {
 
   /**
    * Logical-order identity and requested generation. Always populated by order reads.
+   * A batch item's refused replacement never joined its predecessor's
+   * lineage: it is its own, at generation 1.
    *
    * @generated from field: orders.v1.OrderLineage lineage = 31;
    */
@@ -2193,6 +2217,16 @@ export const OrdersReadService: GenService<{
    * Retrieve order state and a bounded page of its lineage executions by order or client order ID.
    * Use GetUserTrades for paginated execution history and optional settlement legs.
    * Recent accepted orders may wait briefly for read availability; retry UNAVAILABLE with the same lookup key.
+   * The successor of a BatchReplaceOrders item refused when it applied reads
+   * REJECTED with the refusal's code, at version 1, for 60 seconds from the
+   * batch's acceptance: its order ID, batch_request_id, the batch's admission
+   * as its created time, and its own lineage at generation 1. It has no
+   * terminal time: the refusal's own time is its BatchReplaceItemReject's
+   * eventTsNs on the trading WebSocket. It never existed as an order, so it
+   * carries no order terms: its pair, side, type, time in force, self-trade
+   * prevention mode and fee asset are unset, and its price and quantities read
+   * 0 as placeholders. The client takes its terms from the batch it sent.
+   * After that window it is not found: see BatchReplaceOrdersRequest.
    * Costs one unit of the root account's trading read limit.
    *
    * @generated from rpc orders.v1.OrdersReadService.GetOrder

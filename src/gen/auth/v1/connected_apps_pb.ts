@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file auth/v1/connected_apps.proto.
  */
 export const file_auth_v1_connected_apps: GenFile = /*@__PURE__*/
-  fileDesc("ChxhdXRoL3YxL2Nvbm5lY3RlZF9hcHBzLnByb3RvEgdhdXRoLnYxIjUKEkNvbm5lY3RlZEFwcENsaWVudBIRCgljbGllbnRfaWQYASABKAkSDAoEbmFtZRgCIAEoCSKoAQoQQXBwQXV0aG9yaXphdGlvbhIrCgZjbGllbnQYASABKAsyGy5hdXRoLnYxLkNvbm5lY3RlZEFwcENsaWVudBIOCgZzY29wZXMYAiADKAkSEAoIcmVzb3VyY2UYAyABKAkSFQoNcmVkaXJlY3RfaG9zdBgEIAEoCRIuCgpleHBpcmVzX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCKLAgoMQ29ubmVjdGVkQXBwEhgKEGNvbm5lY3RlZF9hcHBfaWQYASABKAYSKwoGY2xpZW50GAIgASgLMhsuYXV0aC52MS5Db25uZWN0ZWRBcHBDbGllbnQSDgoGc2NvcGVzGAMgAygJEhAKCHJlc291cmNlGAQgASgJEjAKDGNvbm5lY3RlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMbGFzdF91c2VkX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpleHBpcmVzX2F0GAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCIyChpHZXRBcHBBdXRob3JpemF0aW9uUmVxdWVzdBIUCgpyZXF1ZXN0X2lkGAEgASgJQgAiTwobR2V0QXBwQXV0aG9yaXphdGlvblJlc3BvbnNlEjAKDWF1dGhvcml6YXRpb24YASABKAsyGS5hdXRoLnYxLkFwcEF1dGhvcml6YXRpb24iNgoeQXBwcm92ZUFwcEF1dGhvcml6YXRpb25SZXF1ZXN0EhQKCnJlcXVlc3RfaWQYASABKAlCACI3Ch9BcHByb3ZlQXBwQXV0aG9yaXphdGlvblJlc3BvbnNlEhQKDHJlZGlyZWN0X3VybBgBIAEoCSIzChtEZW55QXBwQXV0aG9yaXphdGlvblJlcXVlc3QSFAoKcmVxdWVzdF9pZBgBIAEoCUIAIjQKHERlbnlBcHBBdXRob3JpemF0aW9uUmVzcG9uc2USFAoMcmVkaXJlY3RfdXJsGAEgASgJIhoKGExpc3RDb25uZWN0ZWRBcHBzUmVxdWVzdCJAChlMaXN0Q29ubmVjdGVkQXBwc1Jlc3BvbnNlEiMKBGFwcHMYASADKAsyFS5hdXRoLnYxLkNvbm5lY3RlZEFwcCI3ChlSZXZva2VDb25uZWN0ZWRBcHBSZXF1ZXN0EhoKEGNvbm5lY3RlZF9hcHBfaWQYASABKAZCACIcChpSZXZva2VDb25uZWN0ZWRBcHBSZXNwb25zZTKaBAoTQ29ubmVjdGVkQXBwU2VydmljZRJlChNHZXRBcHBBdXRob3JpemF0aW9uEiMuYXV0aC52MS5HZXRBcHBBdXRob3JpemF0aW9uUmVxdWVzdBokLmF1dGgudjEuR2V0QXBwQXV0aG9yaXphdGlvblJlc3BvbnNlIgOQAgESbgoXQXBwcm92ZUFwcEF1dGhvcml6YXRpb24SJy5hdXRoLnYxLkFwcHJvdmVBcHBBdXRob3JpemF0aW9uUmVxdWVzdBooLmF1dGgudjEuQXBwcm92ZUFwcEF1dGhvcml6YXRpb25SZXNwb25zZSIAEmUKFERlbnlBcHBBdXRob3JpemF0aW9uEiQuYXV0aC52MS5EZW55QXBwQXV0aG9yaXphdGlvblJlcXVlc3QaJS5hdXRoLnYxLkRlbnlBcHBBdXRob3JpemF0aW9uUmVzcG9uc2UiABJfChFMaXN0Q29ubmVjdGVkQXBwcxIhLmF1dGgudjEuTGlzdENvbm5lY3RlZEFwcHNSZXF1ZXN0GiIuYXV0aC52MS5MaXN0Q29ubmVjdGVkQXBwc1Jlc3BvbnNlIgOQAgESYgoSUmV2b2tlQ29ubmVjdGVkQXBwEiIuYXV0aC52MS5SZXZva2VDb25uZWN0ZWRBcHBSZXF1ZXN0GiMuYXV0aC52MS5SZXZva2VDb25uZWN0ZWRBcHBSZXNwb25zZSIDkAICGgBCPFo6Z2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9hdXRoL3YxO2F1dGh2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChxhdXRoL3YxL2Nvbm5lY3RlZF9hcHBzLnByb3RvEgdhdXRoLnYxIjUKEkNvbm5lY3RlZEFwcENsaWVudBIRCgljbGllbnRfaWQYASABKAkSDAoEbmFtZRgCIAEoCSKsAQoUQXBwQ29ubmVjdGlvblJlcXVlc3QSKwoGY2xpZW50GAEgASgLMhsuYXV0aC52MS5Db25uZWN0ZWRBcHBDbGllbnQSDgoGc2NvcGVzGAIgAygJEhAKCHJlc291cmNlGAMgASgJEhUKDXJlZGlyZWN0X2hvc3QYBCABKAkSLgoKZXhwaXJlc19hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiiwIKDENvbm5lY3RlZEFwcBIYChBjb25uZWN0ZWRfYXBwX2lkGAEgASgGEisKBmNsaWVudBgCIAEoCzIbLmF1dGgudjEuQ29ubmVjdGVkQXBwQ2xpZW50Eg4KBnNjb3BlcxgDIAMoCRIQCghyZXNvdXJjZRgEIAEoCRIwCgxjb25uZWN0ZWRfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGxhc3RfdXNlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKZXhwaXJlc19hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiNgoeR2V0QXBwQ29ubmVjdGlvblJlcXVlc3RSZXF1ZXN0EhQKCnJlcXVlc3RfaWQYASABKAlCACJcCh9HZXRBcHBDb25uZWN0aW9uUmVxdWVzdFJlc3BvbnNlEjkKEmNvbm5lY3Rpb25fcmVxdWVzdBgBIAEoCzIdLmF1dGgudjEuQXBwQ29ubmVjdGlvblJlcXVlc3QiOgoiQXBwcm92ZUFwcENvbm5lY3Rpb25SZXF1ZXN0UmVxdWVzdBIUCgpyZXF1ZXN0X2lkGAEgASgJQgAiOwojQXBwcm92ZUFwcENvbm5lY3Rpb25SZXF1ZXN0UmVzcG9uc2USFAoMcmVkaXJlY3RfdXJsGAEgASgJIjcKH0RlbnlBcHBDb25uZWN0aW9uUmVxdWVzdFJlcXVlc3QSFAoKcmVxdWVzdF9pZBgBIAEoCUIAIjgKIERlbnlBcHBDb25uZWN0aW9uUmVxdWVzdFJlc3BvbnNlEhQKDHJlZGlyZWN0X3VybBgBIAEoCSIaChhMaXN0Q29ubmVjdGVkQXBwc1JlcXVlc3QiQAoZTGlzdENvbm5lY3RlZEFwcHNSZXNwb25zZRIjCgRhcHBzGAEgAygLMhUuYXV0aC52MS5Db25uZWN0ZWRBcHAiNwoZUmV2b2tlQ29ubmVjdGVkQXBwUmVxdWVzdBIaChBjb25uZWN0ZWRfYXBwX2lkGAEgASgGQgAiHAoaUmV2b2tlQ29ubmVjdGVkQXBwUmVzcG9uc2UyvgQKE0Nvbm5lY3RlZEFwcFNlcnZpY2UScQoXR2V0QXBwQ29ubmVjdGlvblJlcXVlc3QSJy5hdXRoLnYxLkdldEFwcENvbm5lY3Rpb25SZXF1ZXN0UmVxdWVzdBooLmF1dGgudjEuR2V0QXBwQ29ubmVjdGlvblJlcXVlc3RSZXNwb25zZSIDkAIBEnoKG0FwcHJvdmVBcHBDb25uZWN0aW9uUmVxdWVzdBIrLmF1dGgudjEuQXBwcm92ZUFwcENvbm5lY3Rpb25SZXF1ZXN0UmVxdWVzdBosLmF1dGgudjEuQXBwcm92ZUFwcENvbm5lY3Rpb25SZXF1ZXN0UmVzcG9uc2UiABJxChhEZW55QXBwQ29ubmVjdGlvblJlcXVlc3QSKC5hdXRoLnYxLkRlbnlBcHBDb25uZWN0aW9uUmVxdWVzdFJlcXVlc3QaKS5hdXRoLnYxLkRlbnlBcHBDb25uZWN0aW9uUmVxdWVzdFJlc3BvbnNlIgASXwoRTGlzdENvbm5lY3RlZEFwcHMSIS5hdXRoLnYxLkxpc3RDb25uZWN0ZWRBcHBzUmVxdWVzdBoiLmF1dGgudjEuTGlzdENvbm5lY3RlZEFwcHNSZXNwb25zZSIDkAIBEmIKElJldm9rZUNvbm5lY3RlZEFwcBIiLmF1dGgudjEuUmV2b2tlQ29ubmVjdGVkQXBwUmVxdWVzdBojLmF1dGgudjEuUmV2b2tlQ29ubmVjdGVkQXBwUmVzcG9uc2UiA5ACAhoAQjxaOmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vYXV0aC92MTthdXRodjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * An app that asks to use the account, as the OAuth client that registered
@@ -47,9 +47,9 @@ export const ConnectedAppClientSchema: GenMessage<ConnectedAppClient> = /*@__PUR
 /**
  * A pending request from an app to connect to the account.
  *
- * @generated from message auth.v1.AppAuthorization
+ * @generated from message auth.v1.AppConnectionRequest
  */
-export type AppAuthorization = Message<"auth.v1.AppAuthorization"> & {
+export type AppConnectionRequest = Message<"auth.v1.AppConnectionRequest"> & {
   /**
    * The app that asks.
    *
@@ -90,10 +90,10 @@ export type AppAuthorization = Message<"auth.v1.AppAuthorization"> & {
 };
 
 /**
- * Describes the message auth.v1.AppAuthorization.
- * Use `create(AppAuthorizationSchema)` to create a new message.
+ * Describes the message auth.v1.AppConnectionRequest.
+ * Use `create(AppConnectionRequestSchema)` to create a new message.
  */
-export const AppAuthorizationSchema: GenMessage<AppAuthorization> = /*@__PURE__*/
+export const AppConnectionRequestSchema: GenMessage<AppConnectionRequest> = /*@__PURE__*/
   messageDesc(file_auth_v1_connected_apps, 1);
 
 /**
@@ -164,9 +164,9 @@ export const ConnectedAppSchema: GenMessage<ConnectedApp> = /*@__PURE__*/
 /**
  * Request to read a pending app connection request for the consent page.
  *
- * @generated from message auth.v1.GetAppAuthorizationRequest
+ * @generated from message auth.v1.GetAppConnectionRequestRequest
  */
-export type GetAppAuthorizationRequest = Message<"auth.v1.GetAppAuthorizationRequest"> & {
+export type GetAppConnectionRequestRequest = Message<"auth.v1.GetAppConnectionRequestRequest"> & {
   /**
    * Request ID the authorization endpoint gave the consent page in its
    * `request` query parameter.
@@ -177,39 +177,39 @@ export type GetAppAuthorizationRequest = Message<"auth.v1.GetAppAuthorizationReq
 };
 
 /**
- * Describes the message auth.v1.GetAppAuthorizationRequest.
- * Use `create(GetAppAuthorizationRequestSchema)` to create a new message.
+ * Describes the message auth.v1.GetAppConnectionRequestRequest.
+ * Use `create(GetAppConnectionRequestRequestSchema)` to create a new message.
  */
-export const GetAppAuthorizationRequestSchema: GenMessage<GetAppAuthorizationRequest> = /*@__PURE__*/
+export const GetAppConnectionRequestRequestSchema: GenMessage<GetAppConnectionRequestRequest> = /*@__PURE__*/
   messageDesc(file_auth_v1_connected_apps, 3);
 
 /**
  * The pending app connection request.
  *
- * @generated from message auth.v1.GetAppAuthorizationResponse
+ * @generated from message auth.v1.GetAppConnectionRequestResponse
  */
-export type GetAppAuthorizationResponse = Message<"auth.v1.GetAppAuthorizationResponse"> & {
+export type GetAppConnectionRequestResponse = Message<"auth.v1.GetAppConnectionRequestResponse"> & {
   /**
    * The request.
    *
-   * @generated from field: auth.v1.AppAuthorization authorization = 1;
+   * @generated from field: auth.v1.AppConnectionRequest connection_request = 1;
    */
-  authorization?: AppAuthorization | undefined;
+  connectionRequest?: AppConnectionRequest | undefined;
 };
 
 /**
- * Describes the message auth.v1.GetAppAuthorizationResponse.
- * Use `create(GetAppAuthorizationResponseSchema)` to create a new message.
+ * Describes the message auth.v1.GetAppConnectionRequestResponse.
+ * Use `create(GetAppConnectionRequestResponseSchema)` to create a new message.
  */
-export const GetAppAuthorizationResponseSchema: GenMessage<GetAppAuthorizationResponse> = /*@__PURE__*/
+export const GetAppConnectionRequestResponseSchema: GenMessage<GetAppConnectionRequestResponse> = /*@__PURE__*/
   messageDesc(file_auth_v1_connected_apps, 4);
 
 /**
  * Request to approve a pending app connection request.
  *
- * @generated from message auth.v1.ApproveAppAuthorizationRequest
+ * @generated from message auth.v1.ApproveAppConnectionRequestRequest
  */
-export type ApproveAppAuthorizationRequest = Message<"auth.v1.ApproveAppAuthorizationRequest"> & {
+export type ApproveAppConnectionRequestRequest = Message<"auth.v1.ApproveAppConnectionRequestRequest"> & {
   /**
    * Request ID the authorization endpoint gave the consent page.
    *
@@ -219,18 +219,18 @@ export type ApproveAppAuthorizationRequest = Message<"auth.v1.ApproveAppAuthoriz
 };
 
 /**
- * Describes the message auth.v1.ApproveAppAuthorizationRequest.
- * Use `create(ApproveAppAuthorizationRequestSchema)` to create a new message.
+ * Describes the message auth.v1.ApproveAppConnectionRequestRequest.
+ * Use `create(ApproveAppConnectionRequestRequestSchema)` to create a new message.
  */
-export const ApproveAppAuthorizationRequestSchema: GenMessage<ApproveAppAuthorizationRequest> = /*@__PURE__*/
+export const ApproveAppConnectionRequestRequestSchema: GenMessage<ApproveAppConnectionRequestRequest> = /*@__PURE__*/
   messageDesc(file_auth_v1_connected_apps, 5);
 
 /**
  * The approved request's answer to the app.
  *
- * @generated from message auth.v1.ApproveAppAuthorizationResponse
+ * @generated from message auth.v1.ApproveAppConnectionRequestResponse
  */
-export type ApproveAppAuthorizationResponse = Message<"auth.v1.ApproveAppAuthorizationResponse"> & {
+export type ApproveAppConnectionRequestResponse = Message<"auth.v1.ApproveAppConnectionRequestResponse"> & {
   /**
    * URL to send the browser to: the app's redirect URL carrying a one-time
    * authorization code. It is valid for 60 seconds.
@@ -241,18 +241,18 @@ export type ApproveAppAuthorizationResponse = Message<"auth.v1.ApproveAppAuthori
 };
 
 /**
- * Describes the message auth.v1.ApproveAppAuthorizationResponse.
- * Use `create(ApproveAppAuthorizationResponseSchema)` to create a new message.
+ * Describes the message auth.v1.ApproveAppConnectionRequestResponse.
+ * Use `create(ApproveAppConnectionRequestResponseSchema)` to create a new message.
  */
-export const ApproveAppAuthorizationResponseSchema: GenMessage<ApproveAppAuthorizationResponse> = /*@__PURE__*/
+export const ApproveAppConnectionRequestResponseSchema: GenMessage<ApproveAppConnectionRequestResponse> = /*@__PURE__*/
   messageDesc(file_auth_v1_connected_apps, 6);
 
 /**
  * Request to deny a pending app connection request.
  *
- * @generated from message auth.v1.DenyAppAuthorizationRequest
+ * @generated from message auth.v1.DenyAppConnectionRequestRequest
  */
-export type DenyAppAuthorizationRequest = Message<"auth.v1.DenyAppAuthorizationRequest"> & {
+export type DenyAppConnectionRequestRequest = Message<"auth.v1.DenyAppConnectionRequestRequest"> & {
   /**
    * Request ID the authorization endpoint gave the consent page.
    *
@@ -262,18 +262,18 @@ export type DenyAppAuthorizationRequest = Message<"auth.v1.DenyAppAuthorizationR
 };
 
 /**
- * Describes the message auth.v1.DenyAppAuthorizationRequest.
- * Use `create(DenyAppAuthorizationRequestSchema)` to create a new message.
+ * Describes the message auth.v1.DenyAppConnectionRequestRequest.
+ * Use `create(DenyAppConnectionRequestRequestSchema)` to create a new message.
  */
-export const DenyAppAuthorizationRequestSchema: GenMessage<DenyAppAuthorizationRequest> = /*@__PURE__*/
+export const DenyAppConnectionRequestRequestSchema: GenMessage<DenyAppConnectionRequestRequest> = /*@__PURE__*/
   messageDesc(file_auth_v1_connected_apps, 7);
 
 /**
  * The denied request's answer to the app.
  *
- * @generated from message auth.v1.DenyAppAuthorizationResponse
+ * @generated from message auth.v1.DenyAppConnectionRequestResponse
  */
-export type DenyAppAuthorizationResponse = Message<"auth.v1.DenyAppAuthorizationResponse"> & {
+export type DenyAppConnectionRequestResponse = Message<"auth.v1.DenyAppConnectionRequestResponse"> & {
   /**
    * URL to send the browser to: the app's redirect URL carrying the
    * `access_denied` error.
@@ -284,10 +284,10 @@ export type DenyAppAuthorizationResponse = Message<"auth.v1.DenyAppAuthorization
 };
 
 /**
- * Describes the message auth.v1.DenyAppAuthorizationResponse.
- * Use `create(DenyAppAuthorizationResponseSchema)` to create a new message.
+ * Describes the message auth.v1.DenyAppConnectionRequestResponse.
+ * Use `create(DenyAppConnectionRequestResponseSchema)` to create a new message.
  */
-export const DenyAppAuthorizationResponseSchema: GenMessage<DenyAppAuthorizationResponse> = /*@__PURE__*/
+export const DenyAppConnectionRequestResponseSchema: GenMessage<DenyAppConnectionRequestResponse> = /*@__PURE__*/
   messageDesc(file_auth_v1_connected_apps, 8);
 
 /**
@@ -364,13 +364,14 @@ export const RevokeConnectedAppResponseSchema: GenMessage<RevokeConnectedAppResp
   messageDesc(file_auth_v1_connected_apps, 12);
 
 /**
- * ConnectedAppService connects outside apps, such as an AI assistant, to the
- * account with OAuth ("Sign in with Polyester"), and lists and disconnects
- * them. A connected app uses the account as the signed-in website does, for
- * the scopes the account granted; it never moves money out of the account
- * and never changes its security settings. A connection lasts until the
- * account or the app disconnects it, or until it expires; signing out of the
- * website does not end it.
+ * ConnectedAppService connects outside apps, such as an AI assistant, a
+ * spreadsheet, a portfolio tracker or another tool, to the account with OAuth
+ * ("Sign in with Polyester"), and lists and disconnects them. A connected app
+ * uses the account as the signed-in website does, for the scopes the account
+ * granted; it never moves money out of the account and never changes its
+ * security settings. A connection lasts until the account or the app
+ * disconnects it, or until it expires; signing out of the website does not
+ * end it.
  *
  * @generated from service auth.v1.ConnectedAppService
  */
@@ -379,12 +380,12 @@ export const ConnectedAppService: GenService<{
    * Read a pending app connection request, to show the consent page. An
    * unknown, expired or already answered request is NotFound.
    *
-   * @generated from rpc auth.v1.ConnectedAppService.GetAppAuthorization
+   * @generated from rpc auth.v1.ConnectedAppService.GetAppConnectionRequest
    */
-  getAppAuthorization: {
+  getAppConnectionRequest: {
     methodKind: "unary";
-    input: typeof GetAppAuthorizationRequestSchema;
-    output: typeof GetAppAuthorizationResponseSchema;
+    input: typeof GetAppConnectionRequestRequestSchema;
+    output: typeof GetAppConnectionRequestResponseSchema;
   },
   /**
    * Approve a pending app connection request. The account must have MFA
@@ -394,24 +395,24 @@ export const ConnectedAppService: GenService<{
    * expired or already answered request is NotFound; an account with 20
    * connected apps is FailedPrecondition with AUTH_CONNECTED_APP_LIMIT_REACHED.
    *
-   * @generated from rpc auth.v1.ConnectedAppService.ApproveAppAuthorization
+   * @generated from rpc auth.v1.ConnectedAppService.ApproveAppConnectionRequest
    */
-  approveAppAuthorization: {
+  approveAppConnectionRequest: {
     methodKind: "unary";
-    input: typeof ApproveAppAuthorizationRequestSchema;
-    output: typeof ApproveAppAuthorizationResponseSchema;
+    input: typeof ApproveAppConnectionRequestRequestSchema;
+    output: typeof ApproveAppConnectionRequestResponseSchema;
   },
   /**
    * Deny a pending app connection request. The app receives the
    * `access_denied` error through the returned redirect URL. An unknown,
    * expired or already answered request is NotFound.
    *
-   * @generated from rpc auth.v1.ConnectedAppService.DenyAppAuthorization
+   * @generated from rpc auth.v1.ConnectedAppService.DenyAppConnectionRequest
    */
-  denyAppAuthorization: {
+  denyAppConnectionRequest: {
     methodKind: "unary";
-    input: typeof DenyAppAuthorizationRequestSchema;
-    output: typeof DenyAppAuthorizationResponseSchema;
+    input: typeof DenyAppConnectionRequestRequestSchema;
+    output: typeof DenyAppConnectionRequestResponseSchema;
   },
   /**
    * List the apps connected to the account.
