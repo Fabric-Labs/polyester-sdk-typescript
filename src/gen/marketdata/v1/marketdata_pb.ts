@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file marketdata/v1/marketdata.proto.
  */
 export const file_marketdata_v1_marketdata: GenFile = /*@__PURE__*/
-  fileDesc("Ch5tYXJrZXRkYXRhL3YxL21hcmtldGRhdGEucHJvdG8SDW1hcmtldGRhdGEudjEiiQIKEEdldFRyYWRlc1JlcXVlc3QSEwoJc3ltYm9sX2lkGAEgASgNQgASDwoFbGltaXQYAiABKA1CABIuCgpzdGFydF90aW1lGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKQoEc2lkZRgFIAEoDjIZLm1hcmtldGRhdGEudjEuU2lkZUZpbHRlckIAEhQKCnBhZ2VfdG9rZW4YBiABKAlCABIbCg5hZnRlcl90cmFkZV9pZBgHIAEoBEgAiAEBOgBCEQoPX2FmdGVyX3RyYWRlX2lkInoKC01hcmtldFRyYWRlEhEKCXN5bWJvbF9pZBgBIAEoDRIQCghtYXRjaF9pZBgCIAEoBBIOCgZpc19idXkYAyABKAgSEwoLcHJpY2VfdGlja3MYBCABKAMSEgoKcXR5X3NjYWxlZBgFIAEoAxINCgV0c19ucxgGIAEoBCI+ChBNYXJrZXRUcmFkZUJhdGNoEioKBmV2ZW50cxgBIAMoCzIaLm1hcmtldGRhdGEudjEuTWFya2V0VHJhZGUiNQoNVHJhZGVFcG9jaEVuZBINCgVlcG9jaBgBIAEoBBIVCg1sYXN0X3RyYWRlX2lkGAIgASgEIswBChFHZXRUcmFkZXNSZXNwb25zZRIqCgZ0cmFkZXMYASADKAsyGi5tYXJrZXRkYXRhLnYxLk1hcmtldFRyYWRlEhkKD25leHRfcGFnZV90b2tlbhgCIAEoCUIAEiEKGWNvbXBsZXRlX3Rocm91Z2hfdHJhZGVfaWQYAyABKAQSGwoTbmV4dF9hZnRlcl90cmFkZV9pZBgEIAEoBBIwCgplcG9jaF9lbmRzGAUgAygLMhwubWFya2V0ZGF0YS52MS5UcmFkZUVwb2NoRW5kIpUCChFHZXRDYW5kbGVzUmVxdWVzdBITCglzeW1ib2xfaWQYASABKA1CABItCgl0aW1lZnJhbWUYAiABKA4yGC5tYXJrZXRkYXRhLnYxLlRpbWVmcmFtZUIAEg8KBWxpbWl0GAMgASgNQgASLgoKc3RhcnRfdGltZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmluY2x1ZGVfaW5jb21wbGV0ZRgGIAEoCBIZChFpbmNsdWRlX3JlZmVyZW5jZRgHIAEoCBIUCgpwYWdlX3Rva2VuGAggASgJQgA6ACKcAgoYR2V0Q2FuZGxlc0NvbHVtbnNSZXF1ZXN0EhMKCXN5bWJvbF9pZBgBIAEoDUIAEi0KCXRpbWVmcmFtZRgCIAEoDjIYLm1hcmtldGRhdGEudjEuVGltZWZyYW1lQgASDwoFbGltaXQYAyABKA1CABIuCgpzdGFydF90aW1lGAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSaW5jbHVkZV9pbmNvbXBsZXRlGAYgASgIEhkKEWluY2x1ZGVfcmVmZXJlbmNlGAcgASgIEhQKCnBhZ2VfdG9rZW4YCCABKAlCADoAIo4BCgtDYW5kbGVQb2ludBIOCgZ0c19zZWMYASABKAQSDAoEb3BlbhgCIAEoAxIMCgRoaWdoGAMgASgDEgsKA2xvdxgEIAEoAxINCgVjbG9zZRgFIAEoAxIOCgZ2b2x1bWUYBiABKAMSEQoJaXNfY2xvc2VkGAcgASgIEhQKDHF1b3RlX3ZvbHVtZRgIIAEoCSLTAQoSR2V0Q2FuZGxlc1Jlc3BvbnNlEhEKCXN5bWJvbF9pZBgBIAEoDRIrCgl0aW1lZnJhbWUYAiABKA4yGC5tYXJrZXRkYXRhLnYxLlRpbWVmcmFtZRIrCgdjYW5kbGVzGAMgAygLMhoubWFya2V0ZGF0YS52MS5DYW5kbGVQb2ludBI1ChFyZWZlcmVuY2VfY2FuZGxlcxgEIAMoCzIaLm1hcmtldGRhdGEudjEuQ2FuZGxlUG9pbnQSGQoPbmV4dF9wYWdlX3Rva2VuGAUgASgJQgAi+AIKGUdldENhbmRsZXNDb2x1bW5zUmVzcG9uc2USEQoJc3ltYm9sX2lkGAEgASgNEisKCXRpbWVmcmFtZRgCIAEoDjIYLm1hcmtldGRhdGEudjEuVGltZWZyYW1lEg4KBnRzX3NlYxgDIAMoBBIMCgRvcGVuGAQgAygDEgwKBGhpZ2gYBSADKAMSCwoDbG93GAYgAygDEg0KBWNsb3NlGAcgAygDEg4KBnZvbHVtZRgIIAMoAxIYChByZWZlcmVuY2VfdHNfc2VjGAkgAygEEhYKDnJlZmVyZW5jZV9vcGVuGAogAygDEhYKDnJlZmVyZW5jZV9oaWdoGAsgAygDEhUKDXJlZmVyZW5jZV9sb3cYDCADKAMSFwoPcmVmZXJlbmNlX2Nsb3NlGA0gAygDEhgKEHJlZmVyZW5jZV92b2x1bWUYDiADKAMSGQoPbmV4dF9wYWdlX3Rva2VuGA8gASgJQgASFAoMcXVvdGVfdm9sdW1lGBAgAygJIrYBCgZDYW5kbGUSEQoJc3ltYm9sX2lkGAEgASgNEisKCXRpbWVmcmFtZRgCIAEoDjIYLm1hcmtldGRhdGEudjEuVGltZWZyYW1lEg4KBnRzX3NlYxgDIAEoBBIMCgRvcGVuGAQgASgDEgwKBGhpZ2gYBSABKAMSCwoDbG93GAYgASgDEg0KBWNsb3NlGAcgASgDEg4KBnZvbHVtZRgIIAEoAxIUCgxxdW90ZV92b2x1bWUYCSABKAki0gEKC0Fzc2V0Q29uZmlnEg0KBWFzc2V0GAEgASgJEhEKCWxlZGdlcl9pZBgCIAEoDRIMCgRuYW1lGAMgASgJEiEKGXF1YW50aXR5X2Rpc3BsYXlfZGVjaW1hbHMYBCABKA0SFgoOcXVhbnRpdHlfc2NhbGUYBSABKA0SIAoYbWFya2V0X2RhdGFfdm9sdW1lX3NjYWxlGAYgASgNEh8KEmluY2x1ZGVkX2luX2VxdWl0eRgHIAEoCEgAiAEBQhUKE19pbmNsdWRlZF9pbl9lcXVpdHkiNwoUUGFpck1hcmtldGRhdGFDb25maWcSHwoXb3JkZXJib29rX3ByaWNlX2J1Y2tldHMYASADKAEisgcKClBhaXJDb25maWcSEQoJc3ltYm9sX2lkGAEgASgNEg4KBnN5bWJvbBgCIAEoCRISCgpiYXNlX2Fzc2V0GAMgASgJEhMKC3F1b3RlX2Fzc2V0GAQgASgJEhEKCXRpY2tfc2l6ZRgFIAEoCRIRCglzdGVwX3NpemUYBiABKAkSGgoSbWluX25vdGlvbmFsX3F1b3RlGAcgASgJEhQKDG1pbl9xdHlfYmFzZRgIIAEoCRIfChdhbGxvd19idXlfZmVlX2Zyb21fYmFzZRgJIAEoCBIbChNiYXNlX3F1YW50aXR5X3NjYWxlGAogASgNEhwKFHF1b3RlX3F1YW50aXR5X3NjYWxlGAsgASgNEjcKCm1hcmtldGRhdGEYDCABKAsyIy5tYXJrZXRkYXRhLnYxLlBhaXJNYXJrZXRkYXRhQ29uZmlnEi4KCmxpc3RpbmdfYXQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGRlbGlzdGluZ19hdBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKQoGc3RhdHVzGA8gASgOMhkubWFya2V0ZGF0YS52MS5QYWlyU3RhdHVzEicKH2RlZmF1bHRfbWFya2V0X3NsaXBwYWdlX2Jwc19idXkYECABKAUSKAogZGVmYXVsdF9tYXJrZXRfc2xpcHBhZ2VfYnBzX3NlbGwYESABKAUSIAoYbWF4X2NsaWVudF9yZWZfZHJpZnRfYnBzGBIgASgFEh0KFXJlZmVyZW5jZV9wcmljZV9zY2FsZRgTIAEoDRIfChJtYXhfbGltaXRfcXR5X2Jhc2UYFCABKAlIAIgBARIgChNtYXhfbWFya2V0X3F0eV9iYXNlGBUgASgJSAGIAQESJQoYbWF4X29yZGVyX25vdGlvbmFsX3F1b3RlGBYgASgJSAKIAQESIAoYbWF4X29wZW5fb3JkZXJzX3Blcl9wYWlyGBcgASgNEiYKGW1heF9tYXJrZXRfbm90aW9uYWxfcXVvdGUYGCABKAlIA4gBARIsCgpwcmljZV9iYW5kGBkgASgLMhgubWFya2V0ZGF0YS52MS5QcmljZUJhbmRCFQoTX21heF9saW1pdF9xdHlfYmFzZUIWChRfbWF4X21hcmtldF9xdHlfYmFzZUIbChlfbWF4X29yZGVyX25vdGlvbmFsX3F1b3RlQhwKGl9tYXhfbWFya2V0X25vdGlvbmFsX3F1b3RlIk4KCVByaWNlQmFuZBIRCglsb3dlcl9icHMYASABKA0SEQoJdXBwZXJfYnBzGAIgASgNEhsKE3JlZmVyZW5jZV93aW5kb3dfbXMYAyABKA0iFgoUR2V0U3BvdENvbmZpZ1JlcXVlc3QinAEKFUdldFNwb3RDb25maWdSZXNwb25zZRIqCgZhc3NldHMYASADKAsyGi5tYXJrZXRkYXRhLnYxLkFzc2V0Q29uZmlnEigKBXBhaXJzGAIgAygLMhkubWFya2V0ZGF0YS52MS5QYWlyQ29uZmlnEg4KBnRzX3NlYxgDIAEoBBIdChVtYXhfb3Blbl9vcmRlcnNfdG90YWwYBCABKA0qNQoKU2lkZUZpbHRlchIUChBTSURFX1VOU1BFQ0lGSUVEEAASBwoDQlVZEAESCAoEU0VMTBACKuIBCglUaW1lZnJhbWUSGQoVVElNRUZSQU1FX1VOU1BFQ0lGSUVEEAASCQoFU0VDXzEQARIJCgVNSU5fMRACEgkKBU1JTl8zEAwSCQoFTUlOXzUQAxIKCgZNSU5fMTUQBBIKCgZNSU5fMzAQBRIKCgZIT1VSXzEQBhIKCgZIT1VSXzIQDRIKCgZIT1VSXzQQBxIKCgZIT1VSXzYQDhIKCgZIT1VSXzgQDxILCgdIT1VSXzEyEAkSCQoFREFZXzEQCBIJCgVEQVlfMxAQEgoKBldFRUtfMRAKEgsKB01PTlRIXzEQCyrJAQoKUGFpclN0YXR1cxIbChdQQUlSX1NUQVRVU19VTlNQRUNJRklFRBAAEhcKE1BBSVJfU1RBVFVTX0VOQUJMRUQQARIYChRQQUlSX1NUQVRVU19ESVNBQkxFRBACEhsKF1BBSVJfU1RBVFVTX0NBTkNFTF9PTkxZEAMSGQoVUEFJUl9TVEFUVVNfUE9TVF9PTkxZEAQSGwoXUEFJUl9TVEFUVVNfUkVEVUNFX09OTFkQBRIWChJQQUlSX1NUQVRVU19IQUxURUQQBjLlAwoRTWFya2V0RGF0YVNlcnZpY2USXwoNTGlzdEFzc2V0SW5mbxIjLm1hcmtldGRhdGEudjEuTGlzdEFzc2V0SW5mb1JlcXVlc3QaJC5tYXJrZXRkYXRhLnYxLkxpc3RBc3NldEluZm9SZXNwb25zZSIDkAIBElAKCUdldFRyYWRlcxIfLm1hcmtldGRhdGEudjEuR2V0VHJhZGVzUmVxdWVzdBogLm1hcmtldGRhdGEudjEuR2V0VHJhZGVzUmVzcG9uc2UiABJTCgpHZXRDYW5kbGVzEiAubWFya2V0ZGF0YS52MS5HZXRDYW5kbGVzUmVxdWVzdBohLm1hcmtldGRhdGEudjEuR2V0Q2FuZGxlc1Jlc3BvbnNlIgASaAoRR2V0Q2FuZGxlc0NvbHVtbnMSJy5tYXJrZXRkYXRhLnYxLkdldENhbmRsZXNDb2x1bW5zUmVxdWVzdBooLm1hcmtldGRhdGEudjEuR2V0Q2FuZGxlc0NvbHVtbnNSZXNwb25zZSIAElwKDUdldFNwb3RDb25maWcSIy5tYXJrZXRkYXRhLnYxLkdldFNwb3RDb25maWdSZXF1ZXN0GiQubWFya2V0ZGF0YS52MS5HZXRTcG90Q29uZmlnUmVzcG9uc2UiABoAQkhaRmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vbWFya2V0ZGF0YS92MTttYXJrZXRkYXRhdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_marketdata_v1_asset_info, file_polyester_api_options]);
+  fileDesc("Ch5tYXJrZXRkYXRhL3YxL21hcmtldGRhdGEucHJvdG8SDW1hcmtldGRhdGEudjEiiQIKEEdldFRyYWRlc1JlcXVlc3QSEwoJc3ltYm9sX2lkGAEgASgNQgASDwoFbGltaXQYAiABKA1CABIuCgpzdGFydF90aW1lGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKQoEc2lkZRgFIAEoDjIZLm1hcmtldGRhdGEudjEuU2lkZUZpbHRlckIAEhQKCnBhZ2VfdG9rZW4YBiABKAlCABIbCg5hZnRlcl90cmFkZV9pZBgHIAEoBEgAiAEBOgBCEQoPX2FmdGVyX3RyYWRlX2lkInoKC01hcmtldFRyYWRlEhEKCXN5bWJvbF9pZBgBIAEoDRIQCghtYXRjaF9pZBgCIAEoBBIOCgZpc19idXkYAyABKAgSEwoLcHJpY2VfdGlja3MYBCABKAMSEgoKcXR5X3NjYWxlZBgFIAEoAxINCgV0c19ucxgGIAEoBCI+ChBNYXJrZXRUcmFkZUJhdGNoEioKBmV2ZW50cxgBIAMoCzIaLm1hcmtldGRhdGEudjEuTWFya2V0VHJhZGUiNQoNVHJhZGVFcG9jaEVuZBINCgVlcG9jaBgBIAEoBBIVCg1sYXN0X3RyYWRlX2lkGAIgASgEIswBChFHZXRUcmFkZXNSZXNwb25zZRIqCgZ0cmFkZXMYASADKAsyGi5tYXJrZXRkYXRhLnYxLk1hcmtldFRyYWRlEhkKD25leHRfcGFnZV90b2tlbhgCIAEoCUIAEiEKGWNvbXBsZXRlX3Rocm91Z2hfdHJhZGVfaWQYAyABKAQSGwoTbmV4dF9hZnRlcl90cmFkZV9pZBgEIAEoBBIwCgplcG9jaF9lbmRzGAUgAygLMhwubWFya2V0ZGF0YS52MS5UcmFkZUVwb2NoRW5kIpUCChFHZXRDYW5kbGVzUmVxdWVzdBITCglzeW1ib2xfaWQYASABKA1CABItCgl0aW1lZnJhbWUYAiABKA4yGC5tYXJrZXRkYXRhLnYxLlRpbWVmcmFtZUIAEg8KBWxpbWl0GAMgASgNQgASLgoKc3RhcnRfdGltZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmluY2x1ZGVfaW5jb21wbGV0ZRgGIAEoCBIZChFpbmNsdWRlX3JlZmVyZW5jZRgHIAEoCBIUCgpwYWdlX3Rva2VuGAggASgJQgA6ACKcAgoYR2V0Q2FuZGxlc0NvbHVtbnNSZXF1ZXN0EhMKCXN5bWJvbF9pZBgBIAEoDUIAEi0KCXRpbWVmcmFtZRgCIAEoDjIYLm1hcmtldGRhdGEudjEuVGltZWZyYW1lQgASDwoFbGltaXQYAyABKA1CABIuCgpzdGFydF90aW1lGAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSaW5jbHVkZV9pbmNvbXBsZXRlGAYgASgIEhkKEWluY2x1ZGVfcmVmZXJlbmNlGAcgASgIEhQKCnBhZ2VfdG9rZW4YCCABKAlCADoAIo4BCgtDYW5kbGVQb2ludBIOCgZ0c19zZWMYASABKAQSDAoEb3BlbhgCIAEoAxIMCgRoaWdoGAMgASgDEgsKA2xvdxgEIAEoAxINCgVjbG9zZRgFIAEoAxIOCgZ2b2x1bWUYBiABKAMSEQoJaXNfY2xvc2VkGAcgASgIEhQKDHF1b3RlX3ZvbHVtZRgIIAEoCSLTAQoSR2V0Q2FuZGxlc1Jlc3BvbnNlEhEKCXN5bWJvbF9pZBgBIAEoDRIrCgl0aW1lZnJhbWUYAiABKA4yGC5tYXJrZXRkYXRhLnYxLlRpbWVmcmFtZRIrCgdjYW5kbGVzGAMgAygLMhoubWFya2V0ZGF0YS52MS5DYW5kbGVQb2ludBI1ChFyZWZlcmVuY2VfY2FuZGxlcxgEIAMoCzIaLm1hcmtldGRhdGEudjEuQ2FuZGxlUG9pbnQSGQoPbmV4dF9wYWdlX3Rva2VuGAUgASgJQgAi+AIKGUdldENhbmRsZXNDb2x1bW5zUmVzcG9uc2USEQoJc3ltYm9sX2lkGAEgASgNEisKCXRpbWVmcmFtZRgCIAEoDjIYLm1hcmtldGRhdGEudjEuVGltZWZyYW1lEg4KBnRzX3NlYxgDIAMoBBIMCgRvcGVuGAQgAygDEgwKBGhpZ2gYBSADKAMSCwoDbG93GAYgAygDEg0KBWNsb3NlGAcgAygDEg4KBnZvbHVtZRgIIAMoAxIYChByZWZlcmVuY2VfdHNfc2VjGAkgAygEEhYKDnJlZmVyZW5jZV9vcGVuGAogAygDEhYKDnJlZmVyZW5jZV9oaWdoGAsgAygDEhUKDXJlZmVyZW5jZV9sb3cYDCADKAMSFwoPcmVmZXJlbmNlX2Nsb3NlGA0gAygDEhgKEHJlZmVyZW5jZV92b2x1bWUYDiADKAMSGQoPbmV4dF9wYWdlX3Rva2VuGA8gASgJQgASFAoMcXVvdGVfdm9sdW1lGBAgAygJIrYBCgZDYW5kbGUSEQoJc3ltYm9sX2lkGAEgASgNEisKCXRpbWVmcmFtZRgCIAEoDjIYLm1hcmtldGRhdGEudjEuVGltZWZyYW1lEg4KBnRzX3NlYxgDIAEoBBIMCgRvcGVuGAQgASgDEgwKBGhpZ2gYBSABKAMSCwoDbG93GAYgASgDEg0KBWNsb3NlGAcgASgDEg4KBnZvbHVtZRgIIAEoAxIUCgxxdW90ZV92b2x1bWUYCSABKAki0gEKC0Fzc2V0Q29uZmlnEg0KBWFzc2V0GAEgASgJEhEKCWxlZGdlcl9pZBgCIAEoDRIMCgRuYW1lGAMgASgJEiEKGXF1YW50aXR5X2Rpc3BsYXlfZGVjaW1hbHMYBCABKA0SFgoOcXVhbnRpdHlfc2NhbGUYBSABKA0SIAoYbWFya2V0X2RhdGFfdm9sdW1lX3NjYWxlGAYgASgNEh8KEmluY2x1ZGVkX2luX2VxdWl0eRgHIAEoCEgAiAEBQhUKE19pbmNsdWRlZF9pbl9lcXVpdHkiNwoUUGFpck1hcmtldGRhdGFDb25maWcSHwoXb3JkZXJib29rX3ByaWNlX2J1Y2tldHMYASADKAEisgcKClBhaXJDb25maWcSEQoJc3ltYm9sX2lkGAEgASgNEg4KBnN5bWJvbBgCIAEoCRISCgpiYXNlX2Fzc2V0GAMgASgJEhMKC3F1b3RlX2Fzc2V0GAQgASgJEhEKCXRpY2tfc2l6ZRgFIAEoCRIRCglzdGVwX3NpemUYBiABKAkSGgoSbWluX25vdGlvbmFsX3F1b3RlGAcgASgJEhQKDG1pbl9xdHlfYmFzZRgIIAEoCRIfChdhbGxvd19idXlfZmVlX2Zyb21fYmFzZRgJIAEoCBIbChNiYXNlX3F1YW50aXR5X3NjYWxlGAogASgNEhwKFHF1b3RlX3F1YW50aXR5X3NjYWxlGAsgASgNEjcKCm1hcmtldGRhdGEYDCABKAsyIy5tYXJrZXRkYXRhLnYxLlBhaXJNYXJrZXRkYXRhQ29uZmlnEi4KCmxpc3RpbmdfYXQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGRlbGlzdGluZ19hdBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKQoGc3RhdHVzGA8gASgOMhkubWFya2V0ZGF0YS52MS5QYWlyU3RhdHVzEicKH2RlZmF1bHRfbWFya2V0X3NsaXBwYWdlX2Jwc19idXkYECABKAUSKAogZGVmYXVsdF9tYXJrZXRfc2xpcHBhZ2VfYnBzX3NlbGwYESABKAUSIAoYbWF4X2NsaWVudF9yZWZfZHJpZnRfYnBzGBIgASgFEh0KFXJlZmVyZW5jZV9wcmljZV9zY2FsZRgTIAEoDRIfChJtYXhfbGltaXRfcXR5X2Jhc2UYFCABKAlIAIgBARIgChNtYXhfbWFya2V0X3F0eV9iYXNlGBUgASgJSAGIAQESJQoYbWF4X29yZGVyX25vdGlvbmFsX3F1b3RlGBYgASgJSAKIAQESIAoYbWF4X29wZW5fb3JkZXJzX3Blcl9wYWlyGBcgASgNEiYKGW1heF9tYXJrZXRfbm90aW9uYWxfcXVvdGUYGCABKAlIA4gBARIsCgpwcmljZV9iYW5kGBkgASgLMhgubWFya2V0ZGF0YS52MS5QcmljZUJhbmRCFQoTX21heF9saW1pdF9xdHlfYmFzZUIWChRfbWF4X21hcmtldF9xdHlfYmFzZUIbChlfbWF4X29yZGVyX25vdGlvbmFsX3F1b3RlQhwKGl9tYXhfbWFya2V0X25vdGlvbmFsX3F1b3RlIk4KCVByaWNlQmFuZBIRCglsb3dlcl9icHMYASABKA0SEQoJdXBwZXJfYnBzGAIgASgNEhsKE3JlZmVyZW5jZV93aW5kb3dfbXMYAyABKA0iFgoUR2V0U3BvdENvbmZpZ1JlcXVlc3QinAEKFUdldFNwb3RDb25maWdSZXNwb25zZRIqCgZhc3NldHMYASADKAsyGi5tYXJrZXRkYXRhLnYxLkFzc2V0Q29uZmlnEigKBXBhaXJzGAIgAygLMhkubWFya2V0ZGF0YS52MS5QYWlyQ29uZmlnEg4KBnRzX3NlYxgDIAEoBBIdChVtYXhfb3Blbl9vcmRlcnNfdG90YWwYBCABKA0isAUKDUxpdmVQcmljZUJhbmQSEQoJc3ltYm9sX2lkGAEgASgNEiwKBXN0YXRlGAIgASgOMh0ubWFya2V0ZGF0YS52MS5QcmljZUJhbmRTdGF0ZRIiChVyZWZlcmVuY2VfcHJpY2VfdGlja3MYAyABKANIAIgBARJBChByZWZlcmVuY2Vfc291cmNlGAQgASgOMicubWFya2V0ZGF0YS52MS5QcmljZUJhbmRSZWZlcmVuY2VTb3VyY2USIAoTbWF4X2J1eV9wcmljZV90aWNrcxgFIAEoA0gBiAEBEiEKFG1pbl9zZWxsX3ByaWNlX3RpY2tzGAYgASgDSAKIAQESIAoTbWluX2J1eV9wcmljZV90aWNrcxgHIAEoA0gDiAEBEiEKFG1heF9zZWxsX3ByaWNlX3RpY2tzGAggASgDSASIAQESFQoNdXBkYXRlZF90c19ucxgJIAEoBBIkChdyZWFuY2hvcl9lbGlnaWJsZV90c19ucxgKIAEoBEgFiAEBEhgKEHJlYW5jaG9yX3BlbmRpbmcYCyABKAgSLAoKcGFyYW1ldGVycxgMIAEoCzIYLm1hcmtldGRhdGEudjEuUHJpY2VCYW5kEg0KBWVwb2NoGA0gASgEEhEKCXVwZGF0ZV9pZBgOIAEoBBITCgthc19vZl90c19ucxgPIAEoBBIZChF2YWxpZF91bnRpbF90c19ucxgQIAEoBEIYChZfcmVmZXJlbmNlX3ByaWNlX3RpY2tzQhYKFF9tYXhfYnV5X3ByaWNlX3RpY2tzQhcKFV9taW5fc2VsbF9wcmljZV90aWNrc0IWChRfbWluX2J1eV9wcmljZV90aWNrc0IXChVfbWF4X3NlbGxfcHJpY2VfdGlja3NCGgoYX3JlYW5jaG9yX2VsaWdpYmxlX3RzX25zIioKE0dldFByaWNlQmFuZFJlcXVlc3QSEwoJc3ltYm9sX2lkGAEgASgNQgAiQgoUR2V0UHJpY2VCYW5kUmVzcG9uc2USKgoEYmFuZBgBIAEoCzIcLm1hcmtldGRhdGEudjEuTGl2ZVByaWNlQmFuZCo1CgpTaWRlRmlsdGVyEhQKEFNJREVfVU5TUEVDSUZJRUQQABIHCgNCVVkQARIICgRTRUxMEAIq4gEKCVRpbWVmcmFtZRIZChVUSU1FRlJBTUVfVU5TUEVDSUZJRUQQABIJCgVTRUNfMRABEgkKBU1JTl8xEAISCQoFTUlOXzMQDBIJCgVNSU5fNRADEgoKBk1JTl8xNRAEEgoKBk1JTl8zMBAFEgoKBkhPVVJfMRAGEgoKBkhPVVJfMhANEgoKBkhPVVJfNBAHEgoKBkhPVVJfNhAOEgoKBkhPVVJfOBAPEgsKB0hPVVJfMTIQCRIJCgVEQVlfMRAIEgkKBURBWV8zEBASCgoGV0VFS18xEAoSCwoHTU9OVEhfMRALKskBCgpQYWlyU3RhdHVzEhsKF1BBSVJfU1RBVFVTX1VOU1BFQ0lGSUVEEAASFwoTUEFJUl9TVEFUVVNfRU5BQkxFRBABEhgKFFBBSVJfU1RBVFVTX0RJU0FCTEVEEAISGwoXUEFJUl9TVEFUVVNfQ0FOQ0VMX09OTFkQAxIZChVQQUlSX1NUQVRVU19QT1NUX09OTFkQBBIbChdQQUlSX1NUQVRVU19SRURVQ0VfT05MWRAFEhYKElBBSVJfU1RBVFVTX0hBTFRFRBAGKlkKDlByaWNlQmFuZFN0YXRlEhoKFkJBTkRfU1RBVEVfVU5TUEVDSUZJRUQQABIKCgZBQ1RJVkUQARIHCgNPRkYQAhIJCgVFTVBUWRADEgsKB1VOS05PV04QBCp0ChhQcmljZUJhbmRSZWZlcmVuY2VTb3VyY2USIAocUkVGRVJFTkNFX1NPVVJDRV9VTlNQRUNJRklFRBAAEg4KCkxBU1RfVFJBREUQARIVChFMSVNUSU5HX1JFRkVSRU5DRRACEg8KC0lOREVYX1BSSUNFEAMywAQKEU1hcmtldERhdGFTZXJ2aWNlEl8KDUxpc3RBc3NldEluZm8SIy5tYXJrZXRkYXRhLnYxLkxpc3RBc3NldEluZm9SZXF1ZXN0GiQubWFya2V0ZGF0YS52MS5MaXN0QXNzZXRJbmZvUmVzcG9uc2UiA5ACARJQCglHZXRUcmFkZXMSHy5tYXJrZXRkYXRhLnYxLkdldFRyYWRlc1JlcXVlc3QaIC5tYXJrZXRkYXRhLnYxLkdldFRyYWRlc1Jlc3BvbnNlIgASUwoKR2V0Q2FuZGxlcxIgLm1hcmtldGRhdGEudjEuR2V0Q2FuZGxlc1JlcXVlc3QaIS5tYXJrZXRkYXRhLnYxLkdldENhbmRsZXNSZXNwb25zZSIAEmgKEUdldENhbmRsZXNDb2x1bW5zEicubWFya2V0ZGF0YS52MS5HZXRDYW5kbGVzQ29sdW1uc1JlcXVlc3QaKC5tYXJrZXRkYXRhLnYxLkdldENhbmRsZXNDb2x1bW5zUmVzcG9uc2UiABJcCg1HZXRTcG90Q29uZmlnEiMubWFya2V0ZGF0YS52MS5HZXRTcG90Q29uZmlnUmVxdWVzdBokLm1hcmtldGRhdGEudjEuR2V0U3BvdENvbmZpZ1Jlc3BvbnNlIgASWQoMR2V0UHJpY2VCYW5kEiIubWFya2V0ZGF0YS52MS5HZXRQcmljZUJhbmRSZXF1ZXN0GiMubWFya2V0ZGF0YS52MS5HZXRQcmljZUJhbmRSZXNwb25zZSIAGgBCSFpGZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9tYXJrZXRkYXRhL3YxO21hcmtldGRhdGF2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_marketdata_v1_asset_info, file_polyester_api_options]);
 
 /**
  * GetTradesRequest selects recent public trades for one spot market.
@@ -1238,6 +1238,211 @@ export const GetSpotConfigResponseSchema: GenMessage<GetSpotConfigResponse> = /*
   messageDesc(file_marketdata_v1_marketdata, 16);
 
 /**
+ * LivePriceBand is one pair's price band as of as_of_ts_ns: the reference
+ * price and the limit prices the pair admits. It is advisory: the pair checks
+ * every order against its own band when the order arrives, and the band may
+ * have moved by then.
+ *
+ * Limits are inclusive and side-specific. A buy limit order is checked
+ * against max_buy_price_ticks, and a sell limit order against
+ * min_sell_price_ticks; min_buy_price_ticks and max_sell_price_ticks apply
+ * only when present. REST responses render prices as decimal strings and
+ * times as RFC 3339 timestamps.
+ *
+ * @generated from message marketdata.v1.LivePriceBand
+ */
+export type LivePriceBand = Message<"marketdata.v1.LivePriceBand"> & {
+  /**
+   * Stable numeric pair id from GetSpotConfig.
+   *
+   * @generated from field: uint32 symbol_id = 1;
+   */
+  symbolId: number;
+
+  /**
+   * The band's state.
+   *
+   * @generated from field: marketdata.v1.PriceBandState state = 2;
+   */
+  state: PriceBandState;
+
+  /**
+   * The band's reference price in quote-asset units scaled by 1e9. Present
+   * when the state is ACTIVE or EMPTY.
+   *
+   * @generated from field: optional int64 reference_price_ticks = 3;
+   */
+  referencePriceTicks?: bigint | undefined;
+
+  /**
+   * Where the reference price came from. REFERENCE_SOURCE_UNSPECIFIED when
+   * the state is OFF or UNKNOWN.
+   *
+   * @generated from field: marketdata.v1.PriceBandReferenceSource reference_source = 4;
+   */
+  referenceSource: PriceBandReferenceSource;
+
+  /**
+   * The highest buy limit price admitted, inclusive, in quote-asset units
+   * scaled by 1e9. Present only when the state is ACTIVE.
+   *
+   * @generated from field: optional int64 max_buy_price_ticks = 5;
+   */
+  maxBuyPriceTicks?: bigint | undefined;
+
+  /**
+   * The lowest sell limit price admitted, inclusive, in quote-asset units
+   * scaled by 1e9. Present only when the state is ACTIVE.
+   *
+   * @generated from field: optional int64 min_sell_price_ticks = 6;
+   */
+  minSellPriceTicks?: bigint | undefined;
+
+  /**
+   * The lowest buy limit price admitted, inclusive, in quote-asset units
+   * scaled by 1e9. Present only when the state is ACTIVE and the band limits
+   * passive prices too; absent otherwise, when any buy price below
+   * max_buy_price_ticks is admitted.
+   *
+   * @generated from field: optional int64 min_buy_price_ticks = 7;
+   */
+  minBuyPriceTicks?: bigint | undefined;
+
+  /**
+   * The highest sell limit price admitted, inclusive, in quote-asset units
+   * scaled by 1e9. Present only when the state is ACTIVE and the band limits
+   * passive prices too; absent otherwise, when any sell price above
+   * min_sell_price_ticks is admitted.
+   *
+   * @generated from field: optional int64 max_sell_price_ticks = 8;
+   */
+  maxSellPriceTicks?: bigint | undefined;
+
+  /**
+   * When the band last changed, in nanoseconds since the Unix epoch (UTC): its
+   * first setting, OFF included, a change of its settings, or a move of its
+   * reference price, to the same price included.
+   *
+   * @generated from field: uint64 updated_ts_ns = 9;
+   */
+  updatedTsNs: bigint;
+
+  /**
+   * From when the next order operation on the pair may move the reference
+   * price, in nanoseconds since the Unix epoch (UTC). Nothing moves at that
+   * time by itself: from then on, an order, modification, cancellation or
+   * trigger on the pair can move the reference to a newer trade's price, or to
+   * the index price. Present when the state is ACTIVE or EMPTY.
+   *
+   * @generated from field: optional uint64 reanchor_eligible_ts_ns = 10;
+   */
+  reanchorEligibleTsNs?: bigint | undefined;
+
+  /**
+   * True when a trade newer than the reference price is waiting: once the
+   * re-anchor eligibility time has passed, the next order operation moves the
+   * reference to it, unless the index price moves it instead. False does not
+   * promise that the band stays: a move to the index price needs no trade.
+   *
+   * @generated from field: bool reanchor_pending = 11;
+   */
+  reanchorPending: boolean;
+
+  /**
+   * The band's settings, as GetSpotConfig returns them. Absent when the state
+   * is OFF, or when the settings in effect cannot be expressed exactly in
+   * basis points and milliseconds; the limits above are authoritative either
+   * way.
+   *
+   * @generated from field: marketdata.v1.PriceBand parameters = 12;
+   */
+  parameters?: PriceBand | undefined;
+
+  /**
+   * The band's epoch. It never decreases, and a band of a greater epoch is
+   * newer. Compare update_id only within one epoch.
+   *
+   * @generated from field: uint64 epoch = 13;
+   */
+  epoch: bigint;
+
+  /**
+   * Increases with each band update within an epoch, and may increase without
+   * one. Compare it only within one epoch: a greater value is newer.
+   *
+   * @generated from field: uint64 update_id = 14;
+   */
+  updateId: bigint;
+
+  /**
+   * When the band was last confirmed current, in nanoseconds since the Unix
+   * epoch (UTC).
+   *
+   * @generated from field: uint64 as_of_ts_ns = 15;
+   */
+  asOfTsNs: bigint;
+
+  /**
+   * as_of_ts_ns plus 5 seconds. After it, treat the band as unknown and read
+   * it again.
+   *
+   * @generated from field: uint64 valid_until_ts_ns = 16;
+   */
+  validUntilTsNs: bigint;
+};
+
+/**
+ * Describes the message marketdata.v1.LivePriceBand.
+ * Use `create(LivePriceBandSchema)` to create a new message.
+ */
+export const LivePriceBandSchema: GenMessage<LivePriceBand> = /*@__PURE__*/
+  messageDesc(file_marketdata_v1_marketdata, 17);
+
+/**
+ * GetPriceBandRequest selects one spot pair.
+ *
+ * @generated from message marketdata.v1.GetPriceBandRequest
+ */
+export type GetPriceBandRequest = Message<"marketdata.v1.GetPriceBandRequest"> & {
+  /**
+   * Stable numeric pair id from GetSpotConfig.
+   *
+   * @generated from field: uint32 symbol_id = 1;
+   */
+  symbolId: number;
+};
+
+/**
+ * Describes the message marketdata.v1.GetPriceBandRequest.
+ * Use `create(GetPriceBandRequestSchema)` to create a new message.
+ */
+export const GetPriceBandRequestSchema: GenMessage<GetPriceBandRequest> = /*@__PURE__*/
+  messageDesc(file_marketdata_v1_marketdata, 18);
+
+/**
+ * GetPriceBandResponse carries the pair's live price band.
+ *
+ * @generated from message marketdata.v1.GetPriceBandResponse
+ */
+export type GetPriceBandResponse = Message<"marketdata.v1.GetPriceBandResponse"> & {
+  /**
+   * The pair's price band, confirmed current within the last 5 seconds.
+   * GetPriceBand never returns an UNKNOWN band: it refuses one. The price
+   * band streams send this message with an UNKNOWN band too.
+   *
+   * @generated from field: marketdata.v1.LivePriceBand band = 1;
+   */
+  band?: LivePriceBand | undefined;
+};
+
+/**
+ * Describes the message marketdata.v1.GetPriceBandResponse.
+ * Use `create(GetPriceBandResponseSchema)` to create a new message.
+ */
+export const GetPriceBandResponseSchema: GenMessage<GetPriceBandResponse> = /*@__PURE__*/
+  messageDesc(file_marketdata_v1_marketdata, 19);
+
+/**
  * SideFilter controls which aggressor side of trades to return.
  *
  * @generated from enum marketdata.v1.SideFilter
@@ -1472,6 +1677,108 @@ export const PairStatusSchema: GenEnum<PairStatus> = /*@__PURE__*/
   enumDesc(file_marketdata_v1_marketdata, 2);
 
 /**
+ * PriceBandState is a pair's price band state.
+ *
+ * @generated from enum marketdata.v1.PriceBandState
+ */
+export enum PriceBandState {
+  /**
+   * Never returned.
+   *
+   * @generated from enum value: BAND_STATE_UNSPECIFIED = 0;
+   */
+  BAND_STATE_UNSPECIFIED = 0,
+
+  /**
+   * The band is on and at least one price lies inside it.
+   *
+   * @generated from enum value: ACTIVE = 1;
+   */
+  ACTIVE = 1,
+
+  /**
+   * The pair applies no price band.
+   *
+   * @generated from enum value: OFF = 2;
+   */
+  OFF = 2,
+
+  /**
+   * The band is on and no price lies inside it: every order that adds
+   * exposure, market orders included, is rejected with PRICE_BAND_VIOLATION
+   * until the reference price or the band's settings change. This is not a
+   * trading halt.
+   *
+   * @generated from enum value: EMPTY = 3;
+   */
+  EMPTY = 3,
+
+  /**
+   * No band was confirmed current within the last 5 seconds: do not rely on
+   * the band received before. Only the price band streams send it, once, when
+   * the band lapses; GetPriceBand answers PRICE_BAND_STALE or
+   * PRICE_BAND_UNKNOWN instead, which means the same. An UNKNOWN band has no
+   * prices, reference source or settings. Its epoch, update ID and as-of time
+   * are those of the last confirmation of the band it replaces, 0 when there
+   * was none, and its update and valid-until times equal its as-of time. Keep
+   * the band with the greatest epoch, then update ID, then as-of time; at an
+   * equal one, UNKNOWN replaces the band, and a later confirmation replaces
+   * UNKNOWN.
+   *
+   * @generated from enum value: UNKNOWN = 4;
+   */
+  UNKNOWN = 4,
+}
+
+/**
+ * Describes the enum marketdata.v1.PriceBandState.
+ */
+export const PriceBandStateSchema: GenEnum<PriceBandState> = /*@__PURE__*/
+  enumDesc(file_marketdata_v1_marketdata, 3);
+
+/**
+ * PriceBandReferenceSource is where a band's reference price came from.
+ *
+ * @generated from enum marketdata.v1.PriceBandReferenceSource
+ */
+export enum PriceBandReferenceSource {
+  /**
+   * No reference price: the band is OFF.
+   *
+   * @generated from enum value: REFERENCE_SOURCE_UNSPECIFIED = 0;
+   */
+  REFERENCE_SOURCE_UNSPECIFIED = 0,
+
+  /**
+   * The price of the pair's last trade.
+   *
+   * @generated from enum value: LAST_TRADE = 1;
+   */
+  LAST_TRADE = 1,
+
+  /**
+   * The pair's listing reference price, on a pair that has not traded yet.
+   *
+   * @generated from enum value: LISTING_REFERENCE = 2;
+   */
+  LISTING_REFERENCE = 2,
+
+  /**
+   * The pair's index price, on the tick grid: the reference moves there when
+   * the candidate reference lies outside the band around the index price.
+   *
+   * @generated from enum value: INDEX_PRICE = 3;
+   */
+  INDEX_PRICE = 3,
+}
+
+/**
+ * Describes the enum marketdata.v1.PriceBandReferenceSource.
+ */
+export const PriceBandReferenceSourceSchema: GenEnum<PriceBandReferenceSource> = /*@__PURE__*/
+  enumDesc(file_marketdata_v1_marketdata, 4);
+
+/**
  * @generated from service marketdata.v1.MarketDataService
  */
 export const MarketDataService: GenService<{
@@ -1535,6 +1842,22 @@ export const MarketDataService: GenService<{
     methodKind: "unary";
     input: typeof GetSpotConfigRequestSchema;
     output: typeof GetSpotConfigResponseSchema;
+  },
+  /**
+   * Retrieve a spot pair's live price band: its reference price and the
+   * limit prices the pair admits now. Never cached. A band is returned only
+   * when it was confirmed current within the last 5 seconds; otherwise the
+   * call fails with unavailable, and its error code tells a band that went
+   * stale (PRICE_BAND_STALE) from one that is not known
+   * (PRICE_BAND_UNKNOWN). Retry after a second. An unknown symbol_id fails with
+   * not_found (UNKNOWN_SYMBOL).
+   *
+   * @generated from rpc marketdata.v1.MarketDataService.GetPriceBand
+   */
+  getPriceBand: {
+    methodKind: "unary";
+    input: typeof GetPriceBandRequestSchema;
+    output: typeof GetPriceBandResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_marketdata_v1_marketdata, 0);

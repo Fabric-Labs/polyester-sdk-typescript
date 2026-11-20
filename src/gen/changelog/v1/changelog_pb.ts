@@ -239,7 +239,15 @@ export type PostSummary = Message<"changelog.v1.PostSummary"> & {
   introduction: string;
 
   /**
-   * Time of first publication. It never changes when the post is republished.
+   * Publication time of the post in this environment. For a release post,
+   * the time its release went live here, the same value as this
+   * environment's live_at in environments (releases that went live together
+   * share it), or the time the post was first published while the release is
+   * still pending here. It follows that live_at, without a new revision:
+   * it changes when the release goes live here and whenever that live_at
+   * changes later. For other posts, the time of first publication. It never
+   * changes when the post is republished. Post lists are ordered by it,
+   * newest first, then by release version descending at equal times.
    *
    * @generated from field: google.protobuf.Timestamp published_at = 4;
    */
@@ -295,7 +303,9 @@ export type PostSummary = Message<"changelog.v1.PostSummary"> & {
   bugFixCount: number;
 
   /**
-   * When the current revision was published; equals published_at for revision 1.
+   * When the current revision was published. For a post other than a release
+   * post, it equals published_at for revision 1. For a release post, it is
+   * independent of published_at and can be earlier or later.
    *
    * @generated from field: google.protobuf.Timestamp updated_at = 12;
    */
@@ -588,7 +598,8 @@ export type ChangeEntry = Message<"changelog.v1.ChangeEntry"> & {
   postSlug: string;
 
   /**
-   * Time of first publication of the announcing post.
+   * Publication time of the announcing post in this environment, as its
+   * PostSummary.published_at.
    *
    * @generated from field: google.protobuf.Timestamp published_at = 3;
    */
@@ -666,7 +677,8 @@ export type DeploymentGroupPost = Message<"changelog.v1.DeploymentGroupPost"> & 
   title: string;
 
   /**
-   * Time of first publication of the post.
+   * Publication time of the post in this environment, as its
+   * PostSummary.published_at: the time its release went live here.
    *
    * @generated from field: google.protobuf.Timestamp published_at = 4;
    */

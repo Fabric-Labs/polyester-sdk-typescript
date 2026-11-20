@@ -9,15 +9,13 @@ import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import { file_polyester_api_options } from "../../../polyester/api/options_pb.js";
 import type { TokenAmount } from "./quickswap_pb.js";
 import { file_swap_quickswap_v1_quickswap } from "./quickswap_pb.js";
-import type { AssetVolume } from "./quickswap_broker_pb.js";
-import { file_swap_quickswap_v1_quickswap_broker } from "./quickswap_broker_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file swap/quickswap/v1/quickswap_explorer.proto.
  */
 export const file_swap_quickswap_v1_quickswap_explorer: GenFile = /*@__PURE__*/
-  fileDesc("Cipzd2FwL3F1aWNrc3dhcC92MS9xdWlja3N3YXBfZXhwbG9yZXIucHJvdG8SEXN3YXAucXVpY2tzd2FwLnYxIiUKEEV4cGxvcmVyUm91dGVMZWcSEQoJc3ltYm9sX2lkGAEgASgNIjMKD0V4cGxvcmVyRGVwb3NpdBIPCgd0eF9oYXNoGAEgASgJEg8KB2FkZHJlc3MYAiABKAkiNgoSRXhwbG9yZXJXaXRoZHJhd2FsEg8KB3R4X2hhc2gYASABKAkSDwoHYWRkcmVzcxgCIAEoCSKzAwoRRXhwbG9yZXJRdWlja1N3YXASDwoHc3dhcF9pZBgBIAEoBhIwCgxjb21wbGV0ZWRfYXQYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEh4KFnNvdXJjZV96aXBwZWRfYXNzZXRfaWQYAyABKA0SIwobZGVzdGluYXRpb25femlwcGVkX2Fzc2V0X2lkGAQgASgNEjUKDXNvdXJjZV9hbW91bnQYBSABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI6ChJkZXN0aW5hdGlvbl9hbW91bnQYBiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBIxCgRsZWdzGAcgAygLMiMuc3dhcC5xdWlja3N3YXAudjEuRXhwbG9yZXJSb3V0ZUxlZxI0CghkZXBvc2l0cxgIIAMoCzIiLnN3YXAucXVpY2tzd2FwLnYxLkV4cGxvcmVyRGVwb3NpdBI6Cgt3aXRoZHJhd2FscxgJIAMoCzIlLnN3YXAucXVpY2tzd2FwLnYxLkV4cGxvcmVyV2l0aGRyYXdhbCKMAQoeTGlzdENvbXBsZXRlZFF1aWNrU3dhcHNSZXF1ZXN0Eh4KFnNvdXJjZV96aXBwZWRfYXNzZXRfaWQYASABKA0SIwobZGVzdGluYXRpb25femlwcGVkX2Fzc2V0X2lkGAIgASgNEg8KBWxpbWl0GAMgASgNQgASFAoKcGFnZV90b2tlbhgEIAEoCUIAInUKH0xpc3RDb21wbGV0ZWRRdWlja1N3YXBzUmVzcG9uc2USOQoLcXVpY2tfc3dhcHMYASADKAsyJC5zd2FwLnF1aWNrc3dhcC52MS5FeHBsb3JlclF1aWNrU3dhcBIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkiXAoRWmlwcGVkQXNzZXRWb2x1bWUSFwoPemlwcGVkX2Fzc2V0X2lkGAEgASgNEi4KBmFtb3VudBgCIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50IpwDChRRdWlja1N3YXBTdGF0c1RvdGFscxISCgpzd2FwX2NvdW50GAEgASgEEjsKDXNvdXJjZV92b2x1bWUYAiADKAsyJC5zd2FwLnF1aWNrc3dhcC52MS5aaXBwZWRBc3NldFZvbHVtZRJAChJkZXN0aW5hdGlvbl92b2x1bWUYAyADKAsyJC5zd2FwLnF1aWNrc3dhcC52MS5aaXBwZWRBc3NldFZvbHVtZRIsCgRmZWVzGAQgAygLMh4uc3dhcC5xdWlja3N3YXAudjEuQXNzZXRWb2x1bWUSOQoRc291cmNlX3ZvbHVtZV91c2QYBSABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI+ChZkZXN0aW5hdGlvbl92b2x1bWVfdXNkGAYgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSMAoIZmVlc191c2QYByABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBIWCg51bnZhbHVlZF9jb3VudBgIIAEoBCJ/ChRRdWlja1N3YXBTdGF0c0J1Y2tldBIuCgpzdGFydF90aW1lGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI3CgZ0b3RhbHMYAiABKAsyJy5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBTdGF0c1RvdGFscyL0AgoTUXVpY2tTd2FwUm91dGVTdGF0cxIeChZzb3VyY2VfemlwcGVkX2Fzc2V0X2lkGAEgASgNEiMKG2Rlc3RpbmF0aW9uX3ppcHBlZF9hc3NldF9pZBgCIAEoDRISCgpzd2FwX2NvdW50GAMgASgEEjUKDXNvdXJjZV92b2x1bWUYBCABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI6ChJkZXN0aW5hdGlvbl92b2x1bWUYBSABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI5ChFzb3VyY2Vfdm9sdW1lX3VzZBgGIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50Ej4KFmRlc3RpbmF0aW9uX3ZvbHVtZV91c2QYByABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBIWCg51bnZhbHVlZF9jb3VudBgIIAEoBCJVChhHZXRRdWlja1N3YXBTdGF0c1JlcXVlc3QSOQoGd2luZG93GAEgASgOMicuc3dhcC5xdWlja3N3YXAudjEuUXVpY2tTd2FwU3RhdHNXaW5kb3dCACKMBAoZR2V0UXVpY2tTd2FwU3RhdHNSZXNwb25zZRI3CgZ3aW5kb3cYASABKA4yJy5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBTdGF0c1dpbmRvdxIuCgpzdGFydF90aW1lGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASQAoLYnVja2V0X3NpemUYBCABKA4yKy5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBTdGF0c0J1Y2tldFNpemUSNwoGdG90YWxzGAUgASgLMicuc3dhcC5xdWlja3N3YXAudjEuUXVpY2tTd2FwU3RhdHNUb3RhbHMSQAoPcHJldmlvdXNfdG90YWxzGAYgASgLMicuc3dhcC5xdWlja3N3YXAudjEuUXVpY2tTd2FwU3RhdHNUb3RhbHMSOAoHYnVja2V0cxgHIAMoCzInLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFN0YXRzQnVja2V0EjYKBnJvdXRlcxgIIAMoCzImLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFJvdXRlU3RhdHMSKQoFYXNfb2YYCSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wKo8BChRRdWlja1N3YXBTdGF0c1dpbmRvdxIcChhTVEFUU19XSU5ET1dfVU5TUEVDSUZJRUQQABIRCg1MQVNUXzI0X0hPVVJTEAESDwoLTEFTVF83X0RBWVMQAhIQCgxMQVNUXzMwX0RBWVMQAxIQCgxMQVNUXzkwX0RBWVMQBBIRCg1MQVNUXzI2X1dFRUtTEAUqWgoYUXVpY2tTd2FwU3RhdHNCdWNrZXRTaXplEhsKF0JVQ0tFVF9TSVpFX1VOU1BFQ0lGSUVEEAASCgoGSE9VUkxZEAESCQoFREFJTFkQAhIKCgZXRUVLTFkQAzKTAgoYUXVpY2tTd2FwRXhwbG9yZXJTZXJ2aWNlEoIBChdMaXN0Q29tcGxldGVkUXVpY2tTd2FwcxIxLnN3YXAucXVpY2tzd2FwLnYxLkxpc3RDb21wbGV0ZWRRdWlja1N3YXBzUmVxdWVzdBoyLnN3YXAucXVpY2tzd2FwLnYxLkxpc3RDb21wbGV0ZWRRdWlja1N3YXBzUmVzcG9uc2UiABJwChFHZXRRdWlja1N3YXBTdGF0cxIrLnN3YXAucXVpY2tzd2FwLnYxLkdldFF1aWNrU3dhcFN0YXRzUmVxdWVzdBosLnN3YXAucXVpY2tzd2FwLnYxLkdldFF1aWNrU3dhcFN0YXRzUmVzcG9uc2UiABoAQktaSWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vc3dhcC9xdWlja3N3YXAvdjE7cXVpY2tzd2FwdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_polyester_api_options, file_swap_quickswap_v1_quickswap, file_swap_quickswap_v1_quickswap_broker]);
+  fileDesc("Cipzd2FwL3F1aWNrc3dhcC92MS9xdWlja3N3YXBfZXhwbG9yZXIucHJvdG8SEXN3YXAucXVpY2tzd2FwLnYxIiUKEEV4cGxvcmVyUm91dGVMZWcSEQoJc3ltYm9sX2lkGAEgASgNIjMKD0V4cGxvcmVyRGVwb3NpdBIPCgd0eF9oYXNoGAEgASgJEg8KB2FkZHJlc3MYAiABKAkiNgoSRXhwbG9yZXJXaXRoZHJhd2FsEg8KB3R4X2hhc2gYASABKAkSDwoHYWRkcmVzcxgCIAEoCSKsBAoRRXhwbG9yZXJRdWlja1N3YXASDwoHc3dhcF9pZBgBIAEoBhIwCgxjb21wbGV0ZWRfYXQYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEh4KFnNvdXJjZV96aXBwZWRfYXNzZXRfaWQYAyABKA0SIwobZGVzdGluYXRpb25femlwcGVkX2Fzc2V0X2lkGAQgASgNEjUKDXNvdXJjZV9hbW91bnQYBSABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI6ChJkZXN0aW5hdGlvbl9hbW91bnQYBiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBIxCgRsZWdzGAcgAygLMiMuc3dhcC5xdWlja3N3YXAudjEuRXhwbG9yZXJSb3V0ZUxlZxI0CghkZXBvc2l0cxgIIAMoCzIiLnN3YXAucXVpY2tzd2FwLnYxLkV4cGxvcmVyRGVwb3NpdBI6Cgt3aXRoZHJhd2FscxgJIAMoCzIlLnN3YXAucXVpY2tzd2FwLnYxLkV4cGxvcmVyV2l0aGRyYXdhbBI4ChBzb3VyY2VfdmFsdWVfdXNkGAogASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSPQoVZGVzdGluYXRpb25fdmFsdWVfdXNkGAsgASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQijwIKHkxpc3RDb21wbGV0ZWRRdWlja1N3YXBzUmVxdWVzdBIhChdzb3VyY2VfemlwcGVkX2Fzc2V0X2lkcxgBIAMoDUIAEiYKHGRlc3RpbmF0aW9uX3ppcHBlZF9hc3NldF9pZHMYAiADKA1CABIPCgVsaW1pdBgDIAEoDUIAEhQKCnBhZ2VfdG9rZW4YBCABKAlCABIaChBzb3VyY2VfYXNzZXRfaWRzGAUgAygNQgASHwoVZGVzdGluYXRpb25fYXNzZXRfaWRzGAYgAygNQgASHgoUbWluX3NvdXJjZV92YWx1ZV91c2QYByABKAlCABIeChRtYXhfc291cmNlX3ZhbHVlX3VzZBgIIAEoCUIAInUKH0xpc3RDb21wbGV0ZWRRdWlja1N3YXBzUmVzcG9uc2USOQoLcXVpY2tfc3dhcHMYASADKAsyJC5zd2FwLnF1aWNrc3dhcC52MS5FeHBsb3JlclF1aWNrU3dhcBIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkiLwocR2V0Q29tcGxldGVkUXVpY2tTd2FwUmVxdWVzdBIPCgdzd2FwX2lkGAEgASgGIlkKHUdldENvbXBsZXRlZFF1aWNrU3dhcFJlc3BvbnNlEjgKCnF1aWNrX3N3YXAYASABKAsyJC5zd2FwLnF1aWNrc3dhcC52MS5FeHBsb3JlclF1aWNrU3dhcCKIAgoUUXVpY2tTd2FwU3RhdHNUb3RhbHMSEgoKc3dhcF9jb3VudBgBIAEoDRIWCg51bnZhbHVlZF9jb3VudBgCIAEoDRIZChFzb3VyY2Vfdm9sdW1lX3VzZBgDIAEoCRIeChZkZXN0aW5hdGlvbl92b2x1bWVfdXNkGAQgASgJEhAKCGZlZXNfdXNkGAUgASgJEhUKDXNvdXJjZV92b2x1bWUYBiADKAkSGgoSZGVzdGluYXRpb25fdm9sdW1lGAcgAygJEgwKBGZlZXMYCCADKAkSGQoRZmVlc191c2RfYnlfYXNzZXQYCSADKAkSGwoTZmVlc191bnZhbHVlZF9jb3VudBgKIAMoDSKtAQoVUXVpY2tTd2FwU3RhdHNCdWNrZXRzEhIKCnN3YXBfY291bnQYASADKA0SFgoOdW52YWx1ZWRfY291bnQYAiADKA0SGQoRc291cmNlX3ZvbHVtZV91c2QYAyADKAkSHgoWZGVzdGluYXRpb25fdm9sdW1lX3VzZBgEIAMoCRIQCghmZWVzX3VzZBgFIAMoCRIbChNmZWVzX3VudmFsdWVkX2NvdW50GAYgAygNIvcBChRRdWlja1N3YXBTdGF0c1JvdXRlcxIfChdzb3VyY2VfemlwcGVkX2Fzc2V0X2lkcxgBIAMoDRIkChxkZXN0aW5hdGlvbl96aXBwZWRfYXNzZXRfaWRzGAIgAygNEhIKCnN3YXBfY291bnQYAyADKA0SFgoOdW52YWx1ZWRfY291bnQYBCADKA0SFQoNc291cmNlX3ZvbHVtZRgFIAMoCRIaChJkZXN0aW5hdGlvbl92b2x1bWUYBiADKAkSGQoRc291cmNlX3ZvbHVtZV91c2QYByADKAkSHgoWZGVzdGluYXRpb25fdm9sdW1lX3VzZBgIIAMoCSJVChhHZXRRdWlja1N3YXBTdGF0c1JlcXVlc3QSOQoGd2luZG93GAEgASgOMicuc3dhcC5xdWlja3N3YXAudjEuUXVpY2tTd2FwU3RhdHNXaW5kb3dCACLeBAoZR2V0UXVpY2tTd2FwU3RhdHNSZXNwb25zZRI3CgZ3aW5kb3cYASABKA4yJy5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBTdGF0c1dpbmRvdxIuCgpzdGFydF90aW1lGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghlbmRfdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASQAoLYnVja2V0X3NpemUYBCABKA4yKy5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBTdGF0c0J1Y2tldFNpemUSGAoQemlwcGVkX2Fzc2V0X2lkcxgFIAMoDRIdChV6aXBwZWRfYXNzZXRfZGVjaW1hbHMYBiADKA0SFQoNZmVlX2Fzc2V0X2lkcxgHIAMoDRI3CgZ0b3RhbHMYCCABKAsyJy5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBTdGF0c1RvdGFscxJACg9wcmV2aW91c190b3RhbHMYCSABKAsyJy5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBTdGF0c1RvdGFscxI5CgdidWNrZXRzGAogASgLMiguc3dhcC5xdWlja3N3YXAudjEuUXVpY2tTd2FwU3RhdHNCdWNrZXRzEjcKBnJvdXRlcxgLIAEoCzInLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFN0YXRzUm91dGVzEikKBWFzX29mGAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCqPAQoUUXVpY2tTd2FwU3RhdHNXaW5kb3cSHAoYU1RBVFNfV0lORE9XX1VOU1BFQ0lGSUVEEAASEQoNTEFTVF8yNF9IT1VSUxABEg8KC0xBU1RfN19EQVlTEAISEAoMTEFTVF8zMF9EQVlTEAMSEAoMTEFTVF85MF9EQVlTEAQSEQoNTEFTVF8yNl9XRUVLUxAFKloKGFF1aWNrU3dhcFN0YXRzQnVja2V0U2l6ZRIbChdCVUNLRVRfU0laRV9VTlNQRUNJRklFRBAAEgoKBkhPVVJMWRABEgkKBURBSUxZEAISCgoGV0VFS0xZEAMykQMKGFF1aWNrU3dhcEV4cGxvcmVyU2VydmljZRKCAQoXTGlzdENvbXBsZXRlZFF1aWNrU3dhcHMSMS5zd2FwLnF1aWNrc3dhcC52MS5MaXN0Q29tcGxldGVkUXVpY2tTd2Fwc1JlcXVlc3QaMi5zd2FwLnF1aWNrc3dhcC52MS5MaXN0Q29tcGxldGVkUXVpY2tTd2Fwc1Jlc3BvbnNlIgASfAoVR2V0Q29tcGxldGVkUXVpY2tTd2FwEi8uc3dhcC5xdWlja3N3YXAudjEuR2V0Q29tcGxldGVkUXVpY2tTd2FwUmVxdWVzdBowLnN3YXAucXVpY2tzd2FwLnYxLkdldENvbXBsZXRlZFF1aWNrU3dhcFJlc3BvbnNlIgAScAoRR2V0UXVpY2tTd2FwU3RhdHMSKy5zd2FwLnF1aWNrc3dhcC52MS5HZXRRdWlja1N3YXBTdGF0c1JlcXVlc3QaLC5zd2FwLnF1aWNrc3dhcC52MS5HZXRRdWlja1N3YXBTdGF0c1Jlc3BvbnNlIgAaAEJLWklnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL3N3YXAvcXVpY2tzd2FwL3YxO3F1aWNrc3dhcHYxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options, file_swap_quickswap_v1_quickswap]);
 
 /**
  * ExplorerRouteLeg is one market a completed QuickSwap traded on, in route
@@ -188,6 +186,27 @@ export type ExplorerQuickSwap = Message<"swap.quickswap.v1.ExplorerQuickSwap"> &
    * @generated from field: repeated swap.quickswap.v1.ExplorerWithdrawal withdrawals = 9;
    */
   withdrawals: ExplorerWithdrawal[];
+
+  /**
+   * USD value of the deposit taken into execution, fixed when it was taken
+   * in, as QuickSwap.deposited_value_usd: in base units of 18 decimals,
+   * rounded down, never repriced. Unset when it has none: not valued by a
+   * current price in time, or from before USD values existed; never zero
+   * for unknown.
+   *
+   * @generated from field: swap.quickswap.v1.TokenAmount source_value_usd = 10;
+   */
+  sourceValueUsd?: TokenAmount | undefined;
+
+  /**
+   * USD value of what the destination was paid, fixed when its payout was
+   * requested, as QuickSwap.delivered_value_usd. Like source_value_usd, it
+   * is unset when it has none, and can be set a few minutes after
+   * completed_at.
+   *
+   * @generated from field: swap.quickswap.v1.TokenAmount destination_value_usd = 11;
+   */
+  destinationValueUsd?: TokenAmount | undefined;
 };
 
 /**
@@ -198,26 +217,44 @@ export const ExplorerQuickSwapSchema: GenMessage<ExplorerQuickSwap> = /*@__PURE_
   messageDesc(file_swap_quickswap_v1_quickswap_explorer, 3);
 
 /**
- * ListCompletedQuickSwapsRequest lists completed QuickSwaps of every broker.
+ * ListCompletedQuickSwapsRequest lists completed QuickSwaps of every broker,
+ * optionally only those matching every filter given. A side's filters match
+ * a QuickSwap whose asset and network is any of its zipped_asset_ids, or on
+ * any network of any of its asset_ids. The source and destination
+ * filters together may select at most 400 routes (source and destination
+ * asset and network pairs), counting each asset_id as all its networks.
+ * QuickSwaps created before the Explorer launched never match an asset
+ * filter, and those without a source_value_usd never match a USD bound.
+ *
+ * A USD bound is 0 or 1, 2 or 5 times a power of ten dollars from $1 to
+ * $1,000,000,000: $1, $2, $5, $10, $20, $50, $100 and so on. With a USD
+ * bound, the list holds only QuickSwaps that completed at least 5 minutes
+ * before it is read, when their source_value_usd is final, so it lags
+ * completion by up to 5 minutes. The routes times the value steps the range
+ * covers may be at most 400, counted from the request alone: the steps run
+ * $0 to $1, $1 to $2, $2 to $5, $5 to $10 and so on up to $1,000,000,000 and
+ * above, the last one, so a range without a maximum covers the steps from
+ * its minimum to the last.
  *
  * @generated from message swap.quickswap.v1.ListCompletedQuickSwapsRequest
  */
 export type ListCompletedQuickSwapsRequest = Message<"swap.quickswap.v1.ListCompletedQuickSwapsRequest"> & {
   /**
-   * Only QuickSwaps from this source asset and network, as a zipped_asset_id;
-   * 0 for every source.
+   * Only QuickSwaps from one of these source assets and networks, as
+   * AssetChainVariant.zipped_asset_id values from
+   * GET /v1/chain/deposit-withdraw/config; at most 20.
    *
-   * @generated from field: uint32 source_zipped_asset_id = 1;
+   * @generated from field: repeated uint32 source_zipped_asset_ids = 1;
    */
-  sourceZippedAssetId: number;
+  sourceZippedAssetIds: number[];
 
   /**
-   * Only QuickSwaps to this destination asset and network, as a
-   * zipped_asset_id; 0 for every destination.
+   * Only QuickSwaps to one of these destination assets and networks, as
+   * source_zipped_asset_ids; at most 20.
    *
-   * @generated from field: uint32 destination_zipped_asset_id = 2;
+   * @generated from field: repeated uint32 destination_zipped_asset_ids = 2;
    */
-  destinationZippedAssetId: number;
+  destinationZippedAssetIds: number[];
 
   /**
    * Maximum number of QuickSwaps to return; 0 means 50, at most 100.
@@ -228,12 +265,51 @@ export type ListCompletedQuickSwapsRequest = Message<"swap.quickswap.v1.ListComp
 
   /**
    * Opaque keyset cursor from a previous next_page_token, exclusive, bound
-   * to the asset filters and the newest-first order. Reuse it with the same
-   * filters. Empty for the first page.
+   * to the filters, the networks their asset IDs covered and the
+   * newest-first order. Reuse it with the same filters. If a network was
+   * added to or removed from one of the asset IDs since the first page, it
+   * is PAGE_TOKEN_INVALID: request the first page again. Empty for the first
+   * page.
    *
    * @generated from field: string page_token = 4;
    */
   pageToken: string;
+
+  /**
+   * Only QuickSwaps from one of these assets, on any of their networks, as
+   * AssetConfig.ledger_id values from GET /v1/chain/deposit-withdraw/config;
+   * at most 20.
+   *
+   * @generated from field: repeated uint32 source_asset_ids = 5;
+   */
+  sourceAssetIds: number[];
+
+  /**
+   * Only QuickSwaps to one of these assets, on any of their networks, as
+   * source_asset_ids; at most 20.
+   *
+   * @generated from field: repeated uint32 destination_asset_ids = 6;
+   */
+  destinationAssetIds: number[];
+
+  /**
+   * Only QuickSwaps whose source_value_usd is at least this: a bound on the
+   * grid, in base units of 18 decimals as source_value_usd.base_units, for
+   * example 100000000000000000000 for $100. Unset (empty) for no lower
+   * bound.
+   *
+   * @generated from field: string min_source_value_usd = 7;
+   */
+  minSourceValueUsd: string;
+
+  /**
+   * Only QuickSwaps whose source_value_usd is below this: a bound on the
+   * grid, in base units of 18 decimals, above min_source_value_usd when both
+   * are set, so never 0 alone. Unset (empty) for no upper bound.
+   *
+   * @generated from field: string max_source_value_usd = 8;
+   */
+  maxSourceValueUsd: string;
 };
 
 /**
@@ -275,42 +351,63 @@ export const ListCompletedQuickSwapsResponseSchema: GenMessage<ListCompletedQuic
   messageDesc(file_swap_quickswap_v1_quickswap_explorer, 5);
 
 /**
- * ZippedAssetVolume is a total amount of one asset on one network.
+ * GetCompletedQuickSwapRequest reads one completed QuickSwap of any broker.
  *
- * @generated from message swap.quickswap.v1.ZippedAssetVolume
+ * @generated from message swap.quickswap.v1.GetCompletedQuickSwapRequest
  */
-export type ZippedAssetVolume = Message<"swap.quickswap.v1.ZippedAssetVolume"> & {
+export type GetCompletedQuickSwapRequest = Message<"swap.quickswap.v1.GetCompletedQuickSwapRequest"> & {
   /**
-   * Asset and network, as an AssetChainVariant.zipped_asset_id from
-   * GET /v1/chain/deposit-withdraw/config.
+   * Public QuickSwap identifier. 0, which no QuickSwap has, is
+   * SWAP_NOT_FOUND like any other identifier no completed QuickSwap has.
    *
-   * @generated from field: uint32 zipped_asset_id = 1;
+   * @generated from field: fixed64 swap_id = 1;
    */
-  zippedAssetId: number;
-
-  /**
-   * Exact total, in that asset's token units.
-   *
-   * @generated from field: swap.quickswap.v1.TokenAmount amount = 2;
-   */
-  amount?: TokenAmount | undefined;
+  swapId: bigint;
 };
 
 /**
- * Describes the message swap.quickswap.v1.ZippedAssetVolume.
- * Use `create(ZippedAssetVolumeSchema)` to create a new message.
+ * Describes the message swap.quickswap.v1.GetCompletedQuickSwapRequest.
+ * Use `create(GetCompletedQuickSwapRequestSchema)` to create a new message.
  */
-export const ZippedAssetVolumeSchema: GenMessage<ZippedAssetVolume> = /*@__PURE__*/
+export const GetCompletedQuickSwapRequestSchema: GenMessage<GetCompletedQuickSwapRequest> = /*@__PURE__*/
   messageDesc(file_swap_quickswap_v1_quickswap_explorer, 6);
 
 /**
+ * GetCompletedQuickSwapResponse returns one completed QuickSwap.
+ *
+ * @generated from message swap.quickswap.v1.GetCompletedQuickSwapResponse
+ */
+export type GetCompletedQuickSwapResponse = Message<"swap.quickswap.v1.GetCompletedQuickSwapResponse"> & {
+  /**
+   * The QuickSwap, as ListCompletedQuickSwaps lists it.
+   *
+   * @generated from field: swap.quickswap.v1.ExplorerQuickSwap quick_swap = 1;
+   */
+  quickSwap?: ExplorerQuickSwap | undefined;
+};
+
+/**
+ * Describes the message swap.quickswap.v1.GetCompletedQuickSwapResponse.
+ * Use `create(GetCompletedQuickSwapResponseSchema)` to create a new message.
+ */
+export const GetCompletedQuickSwapResponseSchema: GenMessage<GetCompletedQuickSwapResponse> = /*@__PURE__*/
+  messageDesc(file_swap_quickswap_v1_quickswap_explorer, 7);
+
+/**
  * QuickSwapStatsTotals are the totals of the completed QuickSwaps of a
- * period, counted by completion time. Every list has one entry per asset
- * with a non-zero total, in ascending ID order. The USD values are fixed when
- * each amount happened: a deposit when it was taken into execution, a
- * delivery when its payout was requested and a fee when it was charged. Each
- * is valued once, within minutes, and never repriced, so a past period keeps
- * its value.
+ * period, counted by completion time. Each per-asset list is parallel to a
+ * list of the response: source_volume and destination_volume to
+ * GetQuickSwapStatsResponse.zipped_asset_ids, the fee lists to
+ * GetQuickSwapStatsResponse.fee_asset_ids, with "0" or 0 for an asset with
+ * nothing in this period.
+ *
+ * USD values are decimal strings of base units of 18 decimals, rounded down,
+ * and fixed when each amount happened: a deposit when it was taken into
+ * execution, a delivery when its payout was requested and a fee when it was
+ * charged. Each is valued once, within minutes, and never repriced, so a
+ * past period keeps its value. An amount without a USD value is left out of
+ * the USD sums and counted in unvalued_count or fees_unvalued_count: a
+ * count equal to the amounts counted means none was valued.
  *
  * @generated from message swap.quickswap.v1.QuickSwapStatsTotals
  */
@@ -318,67 +415,82 @@ export type QuickSwapStatsTotals = Message<"swap.quickswap.v1.QuickSwapStatsTota
   /**
    * Completed QuickSwaps.
    *
-   * @generated from field: uint64 swap_count = 1;
+   * @generated from field: uint32 swap_count = 1;
    */
-  swapCount: bigint;
+  swapCount: number;
 
   /**
-   * Amounts deposited, per source asset and network.
-   *
-   * @generated from field: repeated swap.quickswap.v1.ZippedAssetVolume source_volume = 2;
-   */
-  sourceVolume: ZippedAssetVolume[];
-
-  /**
-   * Amounts delivered, per destination asset and network.
-   *
-   * @generated from field: repeated swap.quickswap.v1.ZippedAssetVolume destination_volume = 3;
-   */
-  destinationVolume: ZippedAssetVolume[];
-
-  /**
-   * Fees charged on those QuickSwaps, per asset: the service, broker,
-   * affiliate and referral fees actually charged, summed over every broker.
-   * Network fees are not included. Each asset is an AssetConfig.ledger_id
-   * from GET /v1/chain/deposit-withdraw/config, in base units of 18
-   * decimals. Each entry carries its USD value.
-   *
-   * @generated from field: repeated swap.quickswap.v1.AssetVolume fees = 4;
-   */
-  fees: AssetVolume[];
-
-  /**
-   * USD value of the deposited amounts that have one, in base units of 18
-   * decimals, rounded down; unset when none has; never zero for unknown.
-   *
-   * @generated from field: swap.quickswap.v1.TokenAmount source_volume_usd = 5;
-   */
-  sourceVolumeUsd?: TokenAmount | undefined;
-
-  /**
-   * USD value of the delivered amounts that have one, as source_volume_usd.
-   *
-   * @generated from field: swap.quickswap.v1.TokenAmount destination_volume_usd = 6;
-   */
-  destinationVolumeUsd?: TokenAmount | undefined;
-
-  /**
-   * USD value of the fees that have one, as source_volume_usd.
-   *
-   * @generated from field: swap.quickswap.v1.TokenAmount fees_usd = 7;
-   */
-  feesUsd?: TokenAmount | undefined;
-
-  /**
-   * Completed QuickSwaps counted here whose deposited or delivered amount
-   * has no USD value, and so is left out of source_volume_usd or
+   * Completed QuickSwaps whose deposited or delivered amount has no USD
+   * value, and so is left out of source_volume_usd or
    * destination_volume_usd: not valued by a current price in time, or from
-   * before USD values existed. Fees without one are counted per asset, in
-   * fees. Zero when the volume USD totals cover every QuickSwap.
+   * before USD values existed.
    *
-   * @generated from field: uint64 unvalued_count = 8;
+   * @generated from field: uint32 unvalued_count = 2;
    */
-  unvaluedCount: bigint;
+  unvaluedCount: number;
+
+  /**
+   * USD value of the deposited amounts that have one.
+   *
+   * @generated from field: string source_volume_usd = 3;
+   */
+  sourceVolumeUsd: string;
+
+  /**
+   * USD value of the delivered amounts that have one.
+   *
+   * @generated from field: string destination_volume_usd = 4;
+   */
+  destinationVolumeUsd: string;
+
+  /**
+   * USD value of the fees that have one.
+   *
+   * @generated from field: string fees_usd = 5;
+   */
+  feesUsd: string;
+
+  /**
+   * Exact amounts deposited, per source asset and network, as decimal
+   * strings of that asset's base units (zipped_asset_decimals), before the
+   * deposit network fee.
+   *
+   * @generated from field: repeated string source_volume = 6;
+   */
+  sourceVolume: string[];
+
+  /**
+   * Exact amounts delivered, per destination asset and network, as decimal
+   * strings of that asset's base units, after the withdrawal network fee.
+   *
+   * @generated from field: repeated string destination_volume = 7;
+   */
+  destinationVolume: string[];
+
+  /**
+   * Fees charged on those QuickSwaps, per fee asset: the service, broker,
+   * affiliate and referral fees actually charged, summed over every broker,
+   * as decimal strings of base units of 18 decimals. Network fees are not
+   * included.
+   *
+   * @generated from field: repeated string fees = 8;
+   */
+  fees: string[];
+
+  /**
+   * USD value of each fee asset's fees that have one.
+   *
+   * @generated from field: repeated string fees_usd_by_asset = 9;
+   */
+  feesUsdByAsset: string[];
+
+  /**
+   * Fees of each fee asset without a USD value, left out of
+   * fees_usd_by_asset and fees_usd.
+   *
+   * @generated from field: repeated uint32 fees_unvalued_count = 10;
+   */
+  feesUnvaluedCount: number[];
 };
 
 /**
@@ -386,108 +498,144 @@ export type QuickSwapStatsTotals = Message<"swap.quickswap.v1.QuickSwapStatsTota
  * Use `create(QuickSwapStatsTotalsSchema)` to create a new message.
  */
 export const QuickSwapStatsTotalsSchema: GenMessage<QuickSwapStatsTotals> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap_explorer, 7);
-
-/**
- * QuickSwapStatsBucket is one bucket of the time series.
- *
- * @generated from message swap.quickswap.v1.QuickSwapStatsBucket
- */
-export type QuickSwapStatsBucket = Message<"swap.quickswap.v1.QuickSwapStatsBucket"> & {
-  /**
-   * Start of the bucket, inclusive; it ends where the next one starts.
-   *
-   * @generated from field: google.protobuf.Timestamp start_time = 1;
-   */
-  startTime?: Timestamp | undefined;
-
-  /**
-   * Totals of the QuickSwaps that completed in the bucket.
-   *
-   * @generated from field: swap.quickswap.v1.QuickSwapStatsTotals totals = 2;
-   */
-  totals?: QuickSwapStatsTotals | undefined;
-};
-
-/**
- * Describes the message swap.quickswap.v1.QuickSwapStatsBucket.
- * Use `create(QuickSwapStatsBucketSchema)` to create a new message.
- */
-export const QuickSwapStatsBucketSchema: GenMessage<QuickSwapStatsBucket> = /*@__PURE__*/
   messageDesc(file_swap_quickswap_v1_quickswap_explorer, 8);
 
 /**
- * QuickSwapRouteStats are the totals of one route over the window.
+ * QuickSwapStatsBuckets is the window's time series in columns: entry i of
+ * every list is bucket i, oldest first, with every bucket of the window,
+ * empty ones included. Bucket i starts at start_time plus i bucket lengths,
+ * inclusive, and ends where the next one starts. Per-asset amounts are only
+ * in the totals.
  *
- * @generated from message swap.quickswap.v1.QuickSwapRouteStats
+ * @generated from message swap.quickswap.v1.QuickSwapStatsBuckets
  */
-export type QuickSwapRouteStats = Message<"swap.quickswap.v1.QuickSwapRouteStats"> & {
+export type QuickSwapStatsBuckets = Message<"swap.quickswap.v1.QuickSwapStatsBuckets"> & {
   /**
-   * Source asset and network, as a zipped_asset_id.
+   * Completed QuickSwaps.
    *
-   * @generated from field: uint32 source_zipped_asset_id = 1;
+   * @generated from field: repeated uint32 swap_count = 1;
    */
-  sourceZippedAssetId: number;
+  swapCount: number[];
 
   /**
-   * Destination asset and network, as a zipped_asset_id.
+   * Completed QuickSwaps whose deposited or delivered amount has no USD
+   * value, as QuickSwapStatsTotals.unvalued_count.
    *
-   * @generated from field: uint32 destination_zipped_asset_id = 2;
+   * @generated from field: repeated uint32 unvalued_count = 2;
    */
-  destinationZippedAssetId: number;
-
-  /**
-   * Completed QuickSwaps on the route.
-   *
-   * @generated from field: uint64 swap_count = 3;
-   */
-  swapCount: bigint;
-
-  /**
-   * Exact amount deposited, in source token units.
-   *
-   * @generated from field: swap.quickswap.v1.TokenAmount source_volume = 4;
-   */
-  sourceVolume?: TokenAmount | undefined;
-
-  /**
-   * Exact amount delivered, in destination token units.
-   *
-   * @generated from field: swap.quickswap.v1.TokenAmount destination_volume = 5;
-   */
-  destinationVolume?: TokenAmount | undefined;
+  unvaluedCount: number[];
 
   /**
    * USD value of the deposited amounts that have one, as
    * QuickSwapStatsTotals.source_volume_usd.
    *
-   * @generated from field: swap.quickswap.v1.TokenAmount source_volume_usd = 6;
+   * @generated from field: repeated string source_volume_usd = 3;
    */
-  sourceVolumeUsd?: TokenAmount | undefined;
+  sourceVolumeUsd: string[];
 
   /**
-   * USD value of the delivered amounts that have one, as
-   * QuickSwapStatsTotals.destination_volume_usd.
+   * USD value of the delivered amounts that have one.
    *
-   * @generated from field: swap.quickswap.v1.TokenAmount destination_volume_usd = 7;
+   * @generated from field: repeated string destination_volume_usd = 4;
    */
-  destinationVolumeUsd?: TokenAmount | undefined;
+  destinationVolumeUsd: string[];
 
   /**
-   * Completed QuickSwaps on the route whose deposited or delivered amount
-   * has no USD value, and so is left out of the USD fields.
+   * USD value of the fees that have one.
    *
-   * @generated from field: uint64 unvalued_count = 8;
+   * @generated from field: repeated string fees_usd = 5;
    */
-  unvaluedCount: bigint;
+  feesUsd: string[];
+
+  /**
+   * Fees without a USD value, left out of fees_usd.
+   *
+   * @generated from field: repeated uint32 fees_unvalued_count = 6;
+   */
+  feesUnvaluedCount: number[];
 };
 
 /**
- * Describes the message swap.quickswap.v1.QuickSwapRouteStats.
- * Use `create(QuickSwapRouteStatsSchema)` to create a new message.
+ * Describes the message swap.quickswap.v1.QuickSwapStatsBuckets.
+ * Use `create(QuickSwapStatsBucketsSchema)` to create a new message.
  */
-export const QuickSwapRouteStatsSchema: GenMessage<QuickSwapRouteStats> = /*@__PURE__*/
+export const QuickSwapStatsBucketsSchema: GenMessage<QuickSwapStatsBuckets> = /*@__PURE__*/
   messageDesc(file_swap_quickswap_v1_quickswap_explorer, 9);
+
+/**
+ * QuickSwapStatsRoutes are the totals of every route with a completed
+ * QuickSwap in the window, in columns: entry i of every list is route i,
+ * in ascending source then destination order. Amounts are decimal strings
+ * of each asset's base units (GetQuickSwapStatsResponse.zipped_asset_ids and
+ * zipped_asset_decimals); USD values as in QuickSwapStatsTotals.
+ *
+ * @generated from message swap.quickswap.v1.QuickSwapStatsRoutes
+ */
+export type QuickSwapStatsRoutes = Message<"swap.quickswap.v1.QuickSwapStatsRoutes"> & {
+  /**
+   * Source asset and network of each route, as a zipped_asset_id.
+   *
+   * @generated from field: repeated uint32 source_zipped_asset_ids = 1;
+   */
+  sourceZippedAssetIds: number[];
+
+  /**
+   * Destination asset and network of each route, as a zipped_asset_id.
+   *
+   * @generated from field: repeated uint32 destination_zipped_asset_ids = 2;
+   */
+  destinationZippedAssetIds: number[];
+
+  /**
+   * Completed QuickSwaps on the route.
+   *
+   * @generated from field: repeated uint32 swap_count = 3;
+   */
+  swapCount: number[];
+
+  /**
+   * Completed QuickSwaps on the route whose deposited or delivered amount
+   * has no USD value, and so is left out of the USD values.
+   *
+   * @generated from field: repeated uint32 unvalued_count = 4;
+   */
+  unvaluedCount: number[];
+
+  /**
+   * Exact amount deposited, in source token units.
+   *
+   * @generated from field: repeated string source_volume = 5;
+   */
+  sourceVolume: string[];
+
+  /**
+   * Exact amount delivered, in destination token units.
+   *
+   * @generated from field: repeated string destination_volume = 6;
+   */
+  destinationVolume: string[];
+
+  /**
+   * USD value of the deposited amounts that have one.
+   *
+   * @generated from field: repeated string source_volume_usd = 7;
+   */
+  sourceVolumeUsd: string[];
+
+  /**
+   * USD value of the delivered amounts that have one.
+   *
+   * @generated from field: repeated string destination_volume_usd = 8;
+   */
+  destinationVolumeUsd: string[];
+};
+
+/**
+ * Describes the message swap.quickswap.v1.QuickSwapStatsRoutes.
+ * Use `create(QuickSwapStatsRoutesSchema)` to create a new message.
+ */
+export const QuickSwapStatsRoutesSchema: GenMessage<QuickSwapStatsRoutes> = /*@__PURE__*/
+  messageDesc(file_swap_quickswap_v1_quickswap_explorer, 10);
 
 /**
  * GetQuickSwapStatsRequest reads the statistics of one window.
@@ -508,12 +656,14 @@ export type GetQuickSwapStatsRequest = Message<"swap.quickswap.v1.GetQuickSwapSt
  * Use `create(GetQuickSwapStatsRequestSchema)` to create a new message.
  */
 export const GetQuickSwapStatsRequestSchema: GenMessage<GetQuickSwapStatsRequest> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap_explorer, 10);
+  messageDesc(file_swap_quickswap_v1_quickswap_explorer, 11);
 
 /**
  * GetQuickSwapStatsResponse is the activity of completed QuickSwaps of every
- * broker over a window, with the window just before it for comparison.
- * Amounts are exact, with their USD values fixed when they happened.
+ * broker over a window, with the window just before it for comparison, in
+ * columns: each asset is listed once, with its decimals, and the per-asset
+ * lists of the totals are parallel to that list. Amounts are exact, with
+ * their USD values fixed when they happened.
  *
  * @generated from message swap.quickswap.v1.GetQuickSwapStatsResponse
  */
@@ -547,40 +697,65 @@ export type GetQuickSwapStatsResponse = Message<"swap.quickswap.v1.GetQuickSwapS
   bucketSize: QuickSwapStatsBucketSize;
 
   /**
+   * Every asset and network deposited or delivered in the window or the
+   * previous one, ascending, as an AssetChainVariant.zipped_asset_id from
+   * GET /v1/chain/deposit-withdraw/config.
+   *
+   * @generated from field: repeated uint32 zipped_asset_ids = 5;
+   */
+  zippedAssetIds: number[];
+
+  /**
+   * Token decimals of each zipped_asset_ids entry, in the same order.
+   *
+   * @generated from field: repeated uint32 zipped_asset_decimals = 6;
+   */
+  zippedAssetDecimals: number[];
+
+  /**
+   * Every asset a fee was charged in, in the window or the previous one,
+   * ascending, as an AssetConfig.ledger_id from
+   * GET /v1/chain/deposit-withdraw/config. Fees are in base units of 18
+   * decimals.
+   *
+   * @generated from field: repeated uint32 fee_asset_ids = 7;
+   */
+  feeAssetIds: number[];
+
+  /**
    * Totals of the window.
    *
-   * @generated from field: swap.quickswap.v1.QuickSwapStatsTotals totals = 5;
+   * @generated from field: swap.quickswap.v1.QuickSwapStatsTotals totals = 8;
    */
   totals?: QuickSwapStatsTotals | undefined;
 
   /**
    * Totals of the previous window: the same length, ending at start_time.
    *
-   * @generated from field: swap.quickswap.v1.QuickSwapStatsTotals previous_totals = 6;
+   * @generated from field: swap.quickswap.v1.QuickSwapStatsTotals previous_totals = 9;
    */
   previousTotals?: QuickSwapStatsTotals | undefined;
 
   /**
-   * Every bucket of the window, oldest first, empty ones included.
+   * The window's buckets.
    *
-   * @generated from field: repeated swap.quickswap.v1.QuickSwapStatsBucket buckets = 7;
+   * @generated from field: swap.quickswap.v1.QuickSwapStatsBuckets buckets = 10;
    */
-  buckets: QuickSwapStatsBucket[];
+  buckets?: QuickSwapStatsBuckets | undefined;
 
   /**
-   * Every route with a completed QuickSwap in the window, in ascending
-   * source then destination order. The set is small: the client ranks
-   * routes, source assets and destination assets from it.
+   * Every route with a completed QuickSwap in the window. The set is small:
+   * the client ranks routes, source assets and destination assets from it.
    *
-   * @generated from field: repeated swap.quickswap.v1.QuickSwapRouteStats routes = 8;
+   * @generated from field: swap.quickswap.v1.QuickSwapStatsRoutes routes = 11;
    */
-  routes: QuickSwapRouteStats[];
+  routes?: QuickSwapStatsRoutes | undefined;
 
   /**
    * When the statistics were computed. Each window's outcome, answer or
    * error, is shared for about a minute, so an answer can be that old.
    *
-   * @generated from field: google.protobuf.Timestamp as_of = 9;
+   * @generated from field: google.protobuf.Timestamp as_of = 12;
    */
   asOf?: Timestamp | undefined;
 };
@@ -590,7 +765,7 @@ export type GetQuickSwapStatsResponse = Message<"swap.quickswap.v1.GetQuickSwapS
  * Use `create(GetQuickSwapStatsResponseSchema)` to create a new message.
  */
 export const GetQuickSwapStatsResponseSchema: GenMessage<GetQuickSwapStatsResponse> = /*@__PURE__*/
-  messageDesc(file_swap_quickswap_v1_quickswap_explorer, 11);
+  messageDesc(file_swap_quickswap_v1_quickswap_explorer, 12);
 
 /**
  * QuickSwapStatsWindow is a statistics window ending at the end of the
@@ -700,19 +875,20 @@ export const QuickSwapStatsBucketSizeSchema: GenEnum<QuickSwapStatsBucketSize> =
  * ConnectRPC and REST. It needs no credentials and lists QuickSwaps of every
  * broker, Polyester's own QuickSwap app included.
  *
- * Only completed QuickSwaps are shown: one in progress, refunded, returned
- * or expired never is. Each shows its assets and networks, the amounts
- * deposited and delivered, the markets traded, and the transactions and
+ * Only completed QuickSwaps are shown, listed or read by swap_id: one in
+ * progress, refunded, returned or expired never is. Each shows its assets
+ * and networks, the amounts deposited and delivered with their USD values
+ * fixed when they happened, the markets traded, and the transactions and
  * addresses of its deposit and destination payout, as public on their
  * networks. It shows no memo or destination tag, no return or refund
  * address and nothing about the broker (see ExplorerQuickSwap).
  *
  * GetQuickSwapStats aggregates the same completed QuickSwaps over a window:
- * totals, a time series and per-route totals, each with exact amounts per
- * asset and their USD values fixed when they happened.
+ * totals with exact amounts per asset, a time series of counts and USD
+ * values, and per-route totals, with USD values fixed when they happened.
  *
  * QuickSwaps created before the Explorer launched are listed, but never
- * match a source or destination filter and are not counted in statistics.
+ * match an asset filter and are not counted in statistics.
  *
  * Calls are rate limited per client address: over the limit a call fails
  * with RESOURCE_EXHAUSTED and a Retry-After header.
@@ -722,12 +898,15 @@ export const QuickSwapStatsBucketSizeSchema: GenEnum<QuickSwapStatsBucketSize> =
 export const QuickSwapExplorerService: GenService<{
   /**
    * ListCompletedQuickSwaps lists completed QuickSwaps of every broker,
-   * newest completion first, optionally by source or destination asset and
-   * network.
+   * newest completion first, optionally by source and destination assets,
+   * on given networks or on all of them, and by a range of source USD value.
    *
    * Errors:
-   * - INVALID_ARGUMENT: malformed request, or PAGE_TOKEN_INVALID for a
-   *   page_token that is malformed or from other filters.
+   * - INVALID_ARGUMENT: malformed request; a USD bound off the grid; filters
+   *   that select more than 400 routes, or routes times USD value steps; a
+   *   max_source_value_usd not above min_source_value_usd; or
+   *   PAGE_TOKEN_INVALID for a page_token that is malformed, from other
+   *   filters, or from before a change of the networks the asset IDs cover.
    *
    * @generated from rpc swap.quickswap.v1.QuickSwapExplorerService.ListCompletedQuickSwaps
    */
@@ -735,6 +914,23 @@ export const QuickSwapExplorerService: GenService<{
     methodKind: "unary";
     input: typeof ListCompletedQuickSwapsRequestSchema;
     output: typeof ListCompletedQuickSwapsResponseSchema;
+  },
+  /**
+   * GetCompletedQuickSwap returns one completed QuickSwap of any broker by
+   * swap_id, as ListCompletedQuickSwaps lists it.
+   *
+   * Errors:
+   * - NOT_FOUND: SWAP_NOT_FOUND when no completed QuickSwap has this
+   *   swap_id: none has it, it is 0, or the QuickSwap has not completed,
+   *   whatever its status. Every such answer is the same, so it never tells
+   *   which.
+   *
+   * @generated from rpc swap.quickswap.v1.QuickSwapExplorerService.GetCompletedQuickSwap
+   */
+  getCompletedQuickSwap: {
+    methodKind: "unary";
+    input: typeof GetCompletedQuickSwapRequestSchema;
+    output: typeof GetCompletedQuickSwapResponseSchema;
   },
   /**
    * GetQuickSwapStats returns the activity of completed QuickSwaps of every
