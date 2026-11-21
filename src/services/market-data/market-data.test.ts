@@ -652,7 +652,10 @@ describe("MarketDataService.subscribePriceBand", () => {
         ]);
     });
 
-    it("drops the seed when the stream got ahead of it", async () => {
+    it.each([
+        ["the stream got ahead of the seed", 42n, 41n],
+        ["the seed got ahead of the stream", 41n, 42n],
+    ])("emits only the newest band when %s", async (_case, streamed, seeded) => {
         let resolveSeed!: (value: unknown) => void;
         const { realtime, publish, emitted } = setup(
             () => new Promise((resolve) => (resolveSeed = resolve)),
@@ -660,8 +663,8 @@ describe("MarketDataService.subscribePriceBand", () => {
         realtime.params?.onConnected?.();
         await settle();
 
-        publish(band(3n, 42n));
-        resolveSeed(response(band(3n, 41n)));
+        publish(band(3n, streamed));
+        resolveSeed(response(band(3n, seeded)));
         await settle();
 
         expect(emitted()).toEqual([`active ${id(3, 42)}`]);

@@ -48,19 +48,20 @@ interface SubscribePriceBandInput extends BaseSubscribeInput<LivePriceBand> {
     symbolId: number;
 }
 
-/** Orders two bands by `epoch`, then `updateId`, then `asOfTsNs`. */
-function compareBands(a: LivePriceBand, b: LivePriceBand): number {
+/** Newer by `epoch`, then `updateId`, then `asOfTsNs`; at an equal one, `unknown` replaces a band. */
+function isNewerBand(band: LivePriceBand, than: LivePriceBand): boolean {
     for (const key of ["epoch", "updateId", "asOfTsNs"] as const) {
-        const d = BigInt(a[key]) - BigInt(b[key]);
-        if (d !== 0n) return d > 0n ? 1 : -1;
+        const d = BigInt(band[key]) - BigInt(than[key]);
+        if (d !== 0n) return d > 0n;
     }
-    return 0;
+    return band.state === "unknown" && than.state !== "unknown";
 }
 
 /** True for `getPriceBand`'s refusal of a band not confirmed in the last 5 seconds. */
 function isPriceBandUnknownError(error: unknown): boolean {
     return (
-        error instanceof ServiceUnavailableError && /PRICE_BAND_(STALE|UNKNOWN)/.test(error.message)
+        error instanceof ServiceUnavailableError &&
+        /^PRICE_BAND_(STALE|UNKNOWN)$/.test(error.message)
     );
 }
 
@@ -189,13 +190,10 @@ export class MarketDataService {
             );
         };
 
-        const apply = (band: LivePriceBand): void => {
-            if (current) {
-                const order = compareBands(band, current);
-                const unknownWinsTie =
-                    order === 0 && band.state === "unknown" && current.state !== "unknown";
-                if (order < 0 || (order === 0 && !unknownWinsTie)) return;
-            }
+        // Emits only the newest of `bands`, and only when it is newer than the current band.
+        const apply = (...bands: LivePriceBand[]): void => {
+            const band = bands.reduce((a, b) => (isNewerBand(b, a) ? b : a));
+            if (current && !isNewerBand(band, current)) return;
             clearTimeout(lapseTimer);
             const lapsed = band.state !== "unknown" && band.validUntilMs <= Date.now();
             current = lapsed ? unknownBand(band) : band;
@@ -224,14 +222,10 @@ export class MarketDataService {
                     throw error;
                 }),
             readPublication: (res) => (res.band ? [res.band] : []),
-            // Stream first, so a seed the stream already passed is dropped, not emitted.
-            applySnapshot: (seed, buffered) => {
-                for (const band of buffered) apply(formatLivePriceBand(scales, band));
-                apply(seed);
-            },
-            applyLivePublications: (bands) => {
-                for (const band of bands) apply(formatLivePriceBand(scales, band));
-            },
+            applySnapshot: (seed, buffered) =>
+                apply(seed, ...buffered.map((band) => formatLivePriceBand(scales, band))),
+            applyLivePublications: (bands) =>
+                apply(...bands.map((band) => formatLivePriceBand(scales, band))),
             onOpen: input.onOpen,
             onClose: input.onClose,
             onError: input.onError,
