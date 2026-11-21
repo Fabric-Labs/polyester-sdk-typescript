@@ -1288,10 +1288,11 @@ export const RiskPolicySchema: GenMessage<RiskPolicy> = /*@__PURE__*/
   messageDesc(file_orders_v1_orders, 21);
 
 /**
- * CancelAllOrdersRequest cancels all matching open orders for an account.
- * It cancels orders only, never triggers: see CancelAllOrders for what
- * happens to stop-loss, take-profit and trailing stops, TWAPs, ladders and
- * attached legs, and how to stop them too.
+ * CancelAllOrdersRequest cancels all matching open orders for an account,
+ * and with `include_triggers` its matching triggers too: see CancelAllOrders
+ * for what happens to stop-loss, take-profit and trailing stops, TWAPs,
+ * ladders and attached legs without it. To cancel triggers without
+ * canceling orders, use triggers.v1.TriggersService.CancelAllTriggers.
  *
  * @generated from message orders.v1.CancelAllOrdersRequest
  */
@@ -1580,7 +1581,8 @@ export const CancelAllOrdersResponse_ListingStatusSchema: GenEnum<CancelAllOrder
 /**
  * CancelAllAfterRequest arms/disables a dead-man switch for automatic cancel-all.
  * When the switch fires, it cancels what a CancelAllOrders with the same
- * scope cancels: open orders, never triggers. See CancelAllAfter.
+ * scope cancels: open orders, and triggers only with `include_triggers`.
+ * See CancelAllAfter.
  *
  * @generated from message orders.v1.CancelAllAfterRequest
  */
@@ -1651,9 +1653,10 @@ export const CancelAllAfterRequestSchema: GenMessage<CancelAllAfterRequest> = /*
 /**
  * DeadManSwitchScope describes the recorded scope of an armed dead-man switch.
  * Expiry cancels working orders in this scope, including orders that
- * triggers placed. It cancels no trigger: armed stop-loss, take-profit and
- * trailing stops and running TWAPs remain active and may create further
- * orders after expiry. Cancel them with TriggersService.CancelTrigger.
+ * triggers placed. Unless the switch was armed with `include_triggers`, it
+ * cancels no trigger: armed stop-loss, take-profit and trailing stops and
+ * running TWAPs remain active and may create further orders after expiry.
+ * Cancel them with triggers.v1.TriggersService.CancelAllTriggers.
  *
  * @generated from message orders.v1.DeadManSwitchScope
  */
@@ -3550,8 +3553,11 @@ export enum ErrorCode {
   INVALID_ORDER_ID = 80,
 
   /**
-   * The quantity of a trigger's child order or a ladder order can't be raised
-   * above its planned quantity. Nothing changed.
+   * A ladder level or the exit order of a take-profit, stop-loss or trailing
+   * leg can't be raised above its cap. Nothing changed. A ladder level's cap
+   * is its planned quantity, even after the level was reduced. An exit
+   * order's cap is its current quantity: reducing an exit returns the reduced
+   * quantity to the legs that protect the position.
    *
    * @generated from enum value: ERROR_CODE_CHILD_QTY_RAISE_NOT_ALLOWED = 81;
    */
@@ -3798,6 +3804,10 @@ export enum ErrorCode {
    * refresh of the same order can get this code. Retry after a short backoff.
    * For a batch item, resend only that item in a new batch under a fresh request
    * ID, because the rejected batch's request ID returns this rejection again.
+   * A modify that adds or changes an attached take-profit, stop-loss or
+   * trailing leg also gets this code while a cancel of triggers is ending
+   * the order's attached legs, which end together; retry it once they have
+   * ended.
    *
    * @generated from enum value: ERROR_CODE_ORDER_MODIFY_IN_PROGRESS = 226;
    */
@@ -4994,7 +5004,12 @@ export const OrdersService: GenService<{
    * To stop all automated trading in one request, set `include_triggers`:
    * every matching trigger ends canceled with reason
    * TRIGGER_CANCEL_REASON_CANCEL_ALL, none places an order after the
-   * response, and `matched_triggers` counts them.
+   * response, and `matched_triggers` counts them. To cancel triggers without
+   * canceling orders, use triggers.v1.TriggersService.CancelAllTriggers.
+   *
+   * Every request counts 10 against the account's cancel rate limit,
+   * however many orders it cancels: a dry run and a retry with the same
+   * request_id count the same.
    *
    * @generated from rpc orders.v1.OrdersService.CancelAllOrders
    */

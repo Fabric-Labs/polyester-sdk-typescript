@@ -9,7 +9,7 @@ import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import { file_polyester_api_options } from "../../../polyester/api/options_pb.js";
 import type { QuickSwapStatus, TokenAmount } from "./quickswap_pb.js";
 import { file_swap_quickswap_v1_quickswap } from "./quickswap_pb.js";
-import type { VaultLedgerEntry } from "./quickswap_broker_pb.js";
+import type { GetBrokerStatsResponse, StatsBreakdown, StatsPeriod, StatsRoute, VaultLedgerEntry } from "./quickswap_broker_pb.js";
 import { file_swap_quickswap_v1_quickswap_broker } from "./quickswap_broker_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file swap/quickswap/v1/quickswap_referral.proto.
  */
 export const file_swap_quickswap_v1_quickswap_referral: GenFile = /*@__PURE__*/
-  fileDesc("Cipzd2FwL3F1aWNrc3dhcC92MS9xdWlja3N3YXBfcmVmZXJyYWwucHJvdG8SEXN3YXAucXVpY2tzd2FwLnYxIj0KDVJlZmVycmFsUmF0ZXMSFAoMZGlzY291bnRfYnBzGAEgASgNEhYKDmNvbW1pc3Npb25fYnBzGAIgASgNIq0BCg9SZWZlcnJhbFByb2dyYW0SMAoGbm9ybWFsGAEgASgLMiAuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxSYXRlcxI0CgpzdGFibGVjb2luGAIgASgLMiAuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxSYXRlcxIyCghicmlkZ2luZxgDIAEoCzIgLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmFsUmF0ZXMiuwIKD1JlZmVycmFsUGFydG5lchISCgpwYXJ0bmVyX2lkGAEgASgGEhQKDGRpc3BsYXlfbmFtZRgCIAEoCRI4CgZzdGF0dXMYAyABKA4yKC5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbFBhcnRuZXJTdGF0dXMSHgoWZWFybmluZ3Nfc3ViYWNjb3VudF9pZBgEIAEoBhIMCgRjb2RlGAUgASgJEhEKCWxpbmtfcGF0aBgGIAEoCRIzCgdwcm9ncmFtGAcgASgLMiIuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxQcm9ncmFtEi4KCmNyZWF0ZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEh4KFmNvZGVfY2hhbmdlc19yZW1haW5pbmcYCSABKA0iWAocRW5yb2xsUmVmZXJyYWxQYXJ0bmVyUmVxdWVzdBIgChZlYXJuaW5nc19zdWJhY2NvdW50X2lkGAEgASgGQgASFgoMZGlzcGxheV9uYW1lGAIgASgJQgAiVAodRW5yb2xsUmVmZXJyYWxQYXJ0bmVyUmVzcG9uc2USMwoHcGFydG5lchgBIAEoCzIiLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmFsUGFydG5lciIbChlHZXRSZWZlcnJhbFBhcnRuZXJSZXF1ZXN0IlEKGkdldFJlZmVycmFsUGFydG5lclJlc3BvbnNlEjMKB3BhcnRuZXIYASABKAsyIi5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbFBhcnRuZXIiKgoYQ2hlY2tSZWZlcnJhbENvZGVSZXF1ZXN0Eg4KBGNvZGUYASABKAlCACJsChlDaGVja1JlZmVycmFsQ29kZVJlc3BvbnNlEgwKBGNvZGUYASABKAkSQQoMYXZhaWxhYmlsaXR5GAIgASgOMisuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxDb2RlQXZhaWxhYmlsaXR5IigKFlNldFJlZmVycmFsQ29kZVJlcXVlc3QSDgoEY29kZRgBIAEoCUIAIk4KF1NldFJlZmVycmFsQ29kZVJlc3BvbnNlEjMKB3BhcnRuZXIYASABKAsyIi5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbFBhcnRuZXIiVgoSUmVmZXJyYWxDb21taXNzaW9uEhAKCGFzc2V0X2lkGAEgASgNEi4KBmFtb3VudBgCIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50IoIBCg5SZWZlcnJhbENyZWRpdBIQCghhc3NldF9pZBgBIAEoDRIuCgZhbW91bnQYAiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBIuCgphY2NydWVkX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCKJBQoRUmVmZXJyZWRRdWlja1N3YXASDwoHc3dhcF9pZBgBIAEoBhIyCgZzdGF0dXMYAiABKA4yIi5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBTdGF0dXMSEwoLaXNfdGVybWluYWwYAyABKAgSLgoKY3JlYXRlZF9hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLdGVybWluYWxfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEh4KFnNvdXJjZV96aXBwZWRfYXNzZXRfaWQYBiABKA0SIwobZGVzdGluYXRpb25femlwcGVkX2Fzc2V0X2lkGAcgASgNEjwKFHF1b3RlZF9zb3VyY2VfYW1vdW50GAggASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSQQoZcXVvdGVkX2Rlc3RpbmF0aW9uX2Ftb3VudBgJIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EjUKDXNvdXJjZV9hbW91bnQYCiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI6ChJkZXN0aW5hdGlvbl9hbW91bnQYCyABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBIUCgxiYXNlX2ZlZV9icHMYDCABKA0SFwoPY2hhcmdlZF9mZWVfYnBzGA0gASgNEhYKDmNvbW1pc3Npb25fYnBzGA4gASgNEjkKCmNvbW1pc3Npb24YDyADKAsyJS5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbENvbW1pc3Npb24iUQoXUmVmZXJyYWxDb21taXNzaW9uVmFsdWUSCwoDdXNkGAEgASgJEikKBWFzX29mGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCLCAgoRUmVmZXJyYWxCcmVha2Rvd24SFAoMYmFzZV9mZWVfYnBzGAEgASgNEhcKD2NoYXJnZWRfZmVlX2JwcxgCIAEoDRIUCgxkaXNjb3VudF9icHMYAyABKA0SFgoOY29tbWlzc2lvbl9icHMYBCABKA0SOQoFYmFzaXMYBSABKA4yKi5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbENvbW1pc3Npb25CYXNpcxIzCghjcmVkaXRlZBgGIAMoCzIhLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmFsQ3JlZGl0EhoKEmNyZWRpdGVkX3RydW5jYXRlZBgHIAEoCBJEChBjb21taXNzaW9uX3ZhbHVlGAggASgLMiouc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxDb21taXNzaW9uVmFsdWUi3gEKHUxpc3RSZWZlcnJlZFF1aWNrU3dhcHNSZXF1ZXN0Ei4KCnN0YXJ0X3RpbWUYASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGVuZF90aW1lGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2CghzdGF0dXNlcxgDIAMoDjIiLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFN0YXR1c0IAEg8KBWxpbWl0GAQgASgNQgASFAoKcGFnZV90b2tlbhgFIAEoCUIAOgAidAoeTGlzdFJlZmVycmVkUXVpY2tTd2Fwc1Jlc3BvbnNlEjkKC3F1aWNrX3N3YXBzGAEgAygLMiQuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyZWRRdWlja1N3YXASFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIjAKG0dldFJlZmVycmVkUXVpY2tTd2FwUmVxdWVzdBIRCgdzd2FwX2lkGAEgASgGQgAikQEKHEdldFJlZmVycmVkUXVpY2tTd2FwUmVzcG9uc2USOAoKcXVpY2tfc3dhcBgBIAEoCzIkLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmVkUXVpY2tTd2FwEjcKCWJyZWFrZG93bhgCIAEoCzIkLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmFsQnJlYWtkb3duIqIBChlMaXN0UmVmZXJyYWxMZWRnZXJSZXF1ZXN0Ei4KCnN0YXJ0X3RpbWUYASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGVuZF90aW1lGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIPCgVsaW1pdBgDIAEoDUIAEhQKCnBhZ2VfdG9rZW4YBCABKAlCADoAImsKGkxpc3RSZWZlcnJhbExlZGdlclJlc3BvbnNlEjQKB2VudHJpZXMYASADKAsyIy5zd2FwLnF1aWNrc3dhcC52MS5WYXVsdExlZGdlckVudHJ5EhcKD25leHRfcGFnZV90b2tlbhgCIAEoCSp2ChVSZWZlcnJhbFBhcnRuZXJTdGF0dXMSHgoaUEFSVE5FUl9TVEFUVVNfVU5TUEVDSUZJRUQQABITCg9QQVJUTkVSX1BFTkRJTkcQARISCg5QQVJUTkVSX0FDVElWRRACEhQKEFBBUlRORVJfRElTQUJMRUQQAyqYAQoYUmVmZXJyYWxDb2RlQXZhaWxhYmlsaXR5EiEKHUNPREVfQVZBSUxBQklMSVRZX1VOU1BFQ0lGSUVEEAASEgoOQ09ERV9BVkFJTEFCTEUQARIQCgxDT0RFX0NVUlJFTlQQAhIOCgpDT0RFX1RBS0VOEAMSEQoNQ09ERV9SRVNFUlZFRBAEEhAKDENPREVfSU5WQUxJRBAFKlEKF1JlZmVycmFsQ29tbWlzc2lvbkJhc2lzEiAKHENPTU1JU1NJT05fQkFTSVNfVU5TUEVDSUZJRUQQABIUChBQUkVfRElTQ09VTlRfRkVFEAEy3gYKGFF1aWNrU3dhcFJlZmVycmFsU2VydmljZRJ8ChVFbnJvbGxSZWZlcnJhbFBhcnRuZXISLy5zd2FwLnF1aWNrc3dhcC52MS5FbnJvbGxSZWZlcnJhbFBhcnRuZXJSZXF1ZXN0GjAuc3dhcC5xdWlja3N3YXAudjEuRW5yb2xsUmVmZXJyYWxQYXJ0bmVyUmVzcG9uc2UiABJzChJHZXRSZWZlcnJhbFBhcnRuZXISLC5zd2FwLnF1aWNrc3dhcC52MS5HZXRSZWZlcnJhbFBhcnRuZXJSZXF1ZXN0Gi0uc3dhcC5xdWlja3N3YXAudjEuR2V0UmVmZXJyYWxQYXJ0bmVyUmVzcG9uc2UiABJwChFDaGVja1JlZmVycmFsQ29kZRIrLnN3YXAucXVpY2tzd2FwLnYxLkNoZWNrUmVmZXJyYWxDb2RlUmVxdWVzdBosLnN3YXAucXVpY2tzd2FwLnYxLkNoZWNrUmVmZXJyYWxDb2RlUmVzcG9uc2UiABJqCg9TZXRSZWZlcnJhbENvZGUSKS5zd2FwLnF1aWNrc3dhcC52MS5TZXRSZWZlcnJhbENvZGVSZXF1ZXN0Giouc3dhcC5xdWlja3N3YXAudjEuU2V0UmVmZXJyYWxDb2RlUmVzcG9uc2UiABJ/ChZMaXN0UmVmZXJyZWRRdWlja1N3YXBzEjAuc3dhcC5xdWlja3N3YXAudjEuTGlzdFJlZmVycmVkUXVpY2tTd2Fwc1JlcXVlc3QaMS5zd2FwLnF1aWNrc3dhcC52MS5MaXN0UmVmZXJyZWRRdWlja1N3YXBzUmVzcG9uc2UiABJ5ChRHZXRSZWZlcnJlZFF1aWNrU3dhcBIuLnN3YXAucXVpY2tzd2FwLnYxLkdldFJlZmVycmVkUXVpY2tTd2FwUmVxdWVzdBovLnN3YXAucXVpY2tzd2FwLnYxLkdldFJlZmVycmVkUXVpY2tTd2FwUmVzcG9uc2UiABJzChJMaXN0UmVmZXJyYWxMZWRnZXISLC5zd2FwLnF1aWNrc3dhcC52MS5MaXN0UmVmZXJyYWxMZWRnZXJSZXF1ZXN0Gi0uc3dhcC5xdWlja3N3YXAudjEuTGlzdFJlZmVycmFsTGVkZ2VyUmVzcG9uc2UiABoAQktaSWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vc3dhcC9xdWlja3N3YXAvdjE7cXVpY2tzd2FwdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_polyester_api_options, file_swap_quickswap_v1_quickswap, file_swap_quickswap_v1_quickswap_broker]);
+  fileDesc("Cipzd2FwL3F1aWNrc3dhcC92MS9xdWlja3N3YXBfcmVmZXJyYWwucHJvdG8SEXN3YXAucXVpY2tzd2FwLnYxIj0KDVJlZmVycmFsUmF0ZXMSFAoMZGlzY291bnRfYnBzGAEgASgNEhYKDmNvbW1pc3Npb25fYnBzGAIgASgNIq0BCg9SZWZlcnJhbFByb2dyYW0SMAoGbm9ybWFsGAEgASgLMiAuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxSYXRlcxI0CgpzdGFibGVjb2luGAIgASgLMiAuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxSYXRlcxIyCghicmlkZ2luZxgDIAEoCzIgLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmFsUmF0ZXMiuwIKD1JlZmVycmFsUGFydG5lchISCgpwYXJ0bmVyX2lkGAEgASgGEhQKDGRpc3BsYXlfbmFtZRgCIAEoCRI4CgZzdGF0dXMYAyABKA4yKC5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbFBhcnRuZXJTdGF0dXMSHgoWZWFybmluZ3Nfc3ViYWNjb3VudF9pZBgEIAEoBhIMCgRjb2RlGAUgASgJEhEKCWxpbmtfcGF0aBgGIAEoCRIzCgdwcm9ncmFtGAcgASgLMiIuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxQcm9ncmFtEi4KCmNyZWF0ZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEh4KFmNvZGVfY2hhbmdlc19yZW1haW5pbmcYCSABKA0iWAocRW5yb2xsUmVmZXJyYWxQYXJ0bmVyUmVxdWVzdBIgChZlYXJuaW5nc19zdWJhY2NvdW50X2lkGAEgASgGQgASFgoMZGlzcGxheV9uYW1lGAIgASgJQgAiVAodRW5yb2xsUmVmZXJyYWxQYXJ0bmVyUmVzcG9uc2USMwoHcGFydG5lchgBIAEoCzIiLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmFsUGFydG5lciIbChlHZXRSZWZlcnJhbFBhcnRuZXJSZXF1ZXN0IlEKGkdldFJlZmVycmFsUGFydG5lclJlc3BvbnNlEjMKB3BhcnRuZXIYASABKAsyIi5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbFBhcnRuZXIiKgoYQ2hlY2tSZWZlcnJhbENvZGVSZXF1ZXN0Eg4KBGNvZGUYASABKAlCACJsChlDaGVja1JlZmVycmFsQ29kZVJlc3BvbnNlEgwKBGNvZGUYASABKAkSQQoMYXZhaWxhYmlsaXR5GAIgASgOMisuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxDb2RlQXZhaWxhYmlsaXR5IigKFlNldFJlZmVycmFsQ29kZVJlcXVlc3QSDgoEY29kZRgBIAEoCUIAIk4KF1NldFJlZmVycmFsQ29kZVJlc3BvbnNlEjMKB3BhcnRuZXIYASABKAsyIi5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbFBhcnRuZXIiVgoSUmVmZXJyYWxDb21taXNzaW9uEhAKCGFzc2V0X2lkGAEgASgNEi4KBmFtb3VudBgCIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50IoIBCg5SZWZlcnJhbENyZWRpdBIQCghhc3NldF9pZBgBIAEoDRIuCgZhbW91bnQYAiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBIuCgphY2NydWVkX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCKJBQoRUmVmZXJyZWRRdWlja1N3YXASDwoHc3dhcF9pZBgBIAEoBhIyCgZzdGF0dXMYAiABKA4yIi5zd2FwLnF1aWNrc3dhcC52MS5RdWlja1N3YXBTdGF0dXMSEwoLaXNfdGVybWluYWwYAyABKAgSLgoKY3JlYXRlZF9hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLdGVybWluYWxfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEh4KFnNvdXJjZV96aXBwZWRfYXNzZXRfaWQYBiABKA0SIwobZGVzdGluYXRpb25femlwcGVkX2Fzc2V0X2lkGAcgASgNEjwKFHF1b3RlZF9zb3VyY2VfYW1vdW50GAggASgLMh4uc3dhcC5xdWlja3N3YXAudjEuVG9rZW5BbW91bnQSQQoZcXVvdGVkX2Rlc3RpbmF0aW9uX2Ftb3VudBgJIAEoCzIeLnN3YXAucXVpY2tzd2FwLnYxLlRva2VuQW1vdW50EjUKDXNvdXJjZV9hbW91bnQYCiABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBI6ChJkZXN0aW5hdGlvbl9hbW91bnQYCyABKAsyHi5zd2FwLnF1aWNrc3dhcC52MS5Ub2tlbkFtb3VudBIUCgxiYXNlX2ZlZV9icHMYDCABKA0SFwoPY2hhcmdlZF9mZWVfYnBzGA0gASgNEhYKDmNvbW1pc3Npb25fYnBzGA4gASgNEjkKCmNvbW1pc3Npb24YDyADKAsyJS5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbENvbW1pc3Npb24iUQoXUmVmZXJyYWxDb21taXNzaW9uVmFsdWUSCwoDdXNkGAEgASgJEikKBWFzX29mGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCLCAgoRUmVmZXJyYWxCcmVha2Rvd24SFAoMYmFzZV9mZWVfYnBzGAEgASgNEhcKD2NoYXJnZWRfZmVlX2JwcxgCIAEoDRIUCgxkaXNjb3VudF9icHMYAyABKA0SFgoOY29tbWlzc2lvbl9icHMYBCABKA0SOQoFYmFzaXMYBSABKA4yKi5zd2FwLnF1aWNrc3dhcC52MS5SZWZlcnJhbENvbW1pc3Npb25CYXNpcxIzCghjcmVkaXRlZBgGIAMoCzIhLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmFsQ3JlZGl0EhoKEmNyZWRpdGVkX3RydW5jYXRlZBgHIAEoCBJEChBjb21taXNzaW9uX3ZhbHVlGAggASgLMiouc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyYWxDb21taXNzaW9uVmFsdWUi3gEKHUxpc3RSZWZlcnJlZFF1aWNrU3dhcHNSZXF1ZXN0Ei4KCnN0YXJ0X3RpbWUYASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGVuZF90aW1lGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2CghzdGF0dXNlcxgDIAMoDjIiLnN3YXAucXVpY2tzd2FwLnYxLlF1aWNrU3dhcFN0YXR1c0IAEg8KBWxpbWl0GAQgASgNQgASFAoKcGFnZV90b2tlbhgFIAEoCUIAOgAidAoeTGlzdFJlZmVycmVkUXVpY2tTd2Fwc1Jlc3BvbnNlEjkKC3F1aWNrX3N3YXBzGAEgAygLMiQuc3dhcC5xdWlja3N3YXAudjEuUmVmZXJyZWRRdWlja1N3YXASFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIjAKG0dldFJlZmVycmVkUXVpY2tTd2FwUmVxdWVzdBIRCgdzd2FwX2lkGAEgASgGQgAikQEKHEdldFJlZmVycmVkUXVpY2tTd2FwUmVzcG9uc2USOAoKcXVpY2tfc3dhcBgBIAEoCzIkLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmVkUXVpY2tTd2FwEjcKCWJyZWFrZG93bhgCIAEoCzIkLnN3YXAucXVpY2tzd2FwLnYxLlJlZmVycmFsQnJlYWtkb3duIqIBChlMaXN0UmVmZXJyYWxMZWRnZXJSZXF1ZXN0Ei4KCnN0YXJ0X3RpbWUYASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGVuZF90aW1lGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIPCgVsaW1pdBgDIAEoDUIAEhQKCnBhZ2VfdG9rZW4YBCABKAlCADoAImsKGkxpc3RSZWZlcnJhbExlZGdlclJlc3BvbnNlEjQKB2VudHJpZXMYASADKAsyIy5zd2FwLnF1aWNrc3dhcC52MS5WYXVsdExlZGdlckVudHJ5EhcKD25leHRfcGFnZV90b2tlbhgCIAEoCSKHAwoXR2V0UmVmZXJyYWxTdGF0c1JlcXVlc3QSMgoIZ3JvdXBfYnkYASABKA4yHi5zd2FwLnF1aWNrc3dhcC52MS5TdGF0c1BlcmlvZEIAEjAKCnN0YXJ0X3RpbWUYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgASLgoIZW5kX3RpbWUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgASNgoJYnJlYWtkb3duGAQgASgOMiEuc3dhcC5xdWlja3N3YXAudjEuU3RhdHNCcmVha2Rvd25CABIuCgVyb3V0ZRgFIAEoCzIdLnN3YXAucXVpY2tzd2FwLnYxLlN0YXRzUm91dGVIABIgChZzb3VyY2VfemlwcGVkX2Fzc2V0X2lkGAYgASgNSAASJQobZGVzdGluYXRpb25femlwcGVkX2Fzc2V0X2lkGAcgASgNSAASFQoNaW5jbHVkZV9jZWxscxgIIAEoCDoAQgwKCmRyaWxsX2Rvd24iVAoYR2V0UmVmZXJyYWxTdGF0c1Jlc3BvbnNlEjgKBXN0YXRzGAEgASgLMikuc3dhcC5xdWlja3N3YXAudjEuR2V0QnJva2VyU3RhdHNSZXNwb25zZSp2ChVSZWZlcnJhbFBhcnRuZXJTdGF0dXMSHgoaUEFSVE5FUl9TVEFUVVNfVU5TUEVDSUZJRUQQABITCg9QQVJUTkVSX1BFTkRJTkcQARISCg5QQVJUTkVSX0FDVElWRRACEhQKEFBBUlRORVJfRElTQUJMRUQQAyqYAQoYUmVmZXJyYWxDb2RlQXZhaWxhYmlsaXR5EiEKHUNPREVfQVZBSUxBQklMSVRZX1VOU1BFQ0lGSUVEEAASEgoOQ09ERV9BVkFJTEFCTEUQARIQCgxDT0RFX0NVUlJFTlQQAhIOCgpDT0RFX1RBS0VOEAMSEQoNQ09ERV9SRVNFUlZFRBAEEhAKDENPREVfSU5WQUxJRBAFKlEKF1JlZmVycmFsQ29tbWlzc2lvbkJhc2lzEiAKHENPTU1JU1NJT05fQkFTSVNfVU5TUEVDSUZJRUQQABIUChBQUkVfRElTQ09VTlRfRkVFEAEyzQcKGFF1aWNrU3dhcFJlZmVycmFsU2VydmljZRJ8ChVFbnJvbGxSZWZlcnJhbFBhcnRuZXISLy5zd2FwLnF1aWNrc3dhcC52MS5FbnJvbGxSZWZlcnJhbFBhcnRuZXJSZXF1ZXN0GjAuc3dhcC5xdWlja3N3YXAudjEuRW5yb2xsUmVmZXJyYWxQYXJ0bmVyUmVzcG9uc2UiABJzChJHZXRSZWZlcnJhbFBhcnRuZXISLC5zd2FwLnF1aWNrc3dhcC52MS5HZXRSZWZlcnJhbFBhcnRuZXJSZXF1ZXN0Gi0uc3dhcC5xdWlja3N3YXAudjEuR2V0UmVmZXJyYWxQYXJ0bmVyUmVzcG9uc2UiABJwChFDaGVja1JlZmVycmFsQ29kZRIrLnN3YXAucXVpY2tzd2FwLnYxLkNoZWNrUmVmZXJyYWxDb2RlUmVxdWVzdBosLnN3YXAucXVpY2tzd2FwLnYxLkNoZWNrUmVmZXJyYWxDb2RlUmVzcG9uc2UiABJqCg9TZXRSZWZlcnJhbENvZGUSKS5zd2FwLnF1aWNrc3dhcC52MS5TZXRSZWZlcnJhbENvZGVSZXF1ZXN0Giouc3dhcC5xdWlja3N3YXAudjEuU2V0UmVmZXJyYWxDb2RlUmVzcG9uc2UiABJ/ChZMaXN0UmVmZXJyZWRRdWlja1N3YXBzEjAuc3dhcC5xdWlja3N3YXAudjEuTGlzdFJlZmVycmVkUXVpY2tTd2Fwc1JlcXVlc3QaMS5zd2FwLnF1aWNrc3dhcC52MS5MaXN0UmVmZXJyZWRRdWlja1N3YXBzUmVzcG9uc2UiABJ5ChRHZXRSZWZlcnJlZFF1aWNrU3dhcBIuLnN3YXAucXVpY2tzd2FwLnYxLkdldFJlZmVycmVkUXVpY2tTd2FwUmVxdWVzdBovLnN3YXAucXVpY2tzd2FwLnYxLkdldFJlZmVycmVkUXVpY2tTd2FwUmVzcG9uc2UiABJzChJMaXN0UmVmZXJyYWxMZWRnZXISLC5zd2FwLnF1aWNrc3dhcC52MS5MaXN0UmVmZXJyYWxMZWRnZXJSZXF1ZXN0Gi0uc3dhcC5xdWlja3N3YXAudjEuTGlzdFJlZmVycmFsTGVkZ2VyUmVzcG9uc2UiABJtChBHZXRSZWZlcnJhbFN0YXRzEiouc3dhcC5xdWlja3N3YXAudjEuR2V0UmVmZXJyYWxTdGF0c1JlcXVlc3QaKy5zd2FwLnF1aWNrc3dhcC52MS5HZXRSZWZlcnJhbFN0YXRzUmVzcG9uc2UiABoAQktaSWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vc3dhcC9xdWlja3N3YXAvdjE7cXVpY2tzd2FwdjFiBnByb3RvMw==", [file_google_protobuf_timestamp, file_polyester_api_options, file_swap_quickswap_v1_quickswap, file_swap_quickswap_v1_quickswap_broker]);
 
 /**
  * ReferralRates are the referral rates of one route category, in whole basis
@@ -894,6 +894,142 @@ export const ListReferralLedgerResponseSchema: GenMessage<ListReferralLedgerResp
   messageDesc(file_swap_quickswap_v1_quickswap_referral, 21);
 
 /**
+ * GetReferralStatsRequest reads the activity of the QuickSwaps the caller
+ * referred, and the commission they credited it, in a time window, in
+ * buckets of one UTC hour, day or month, with an optional breakdown.
+ *
+ * Both bounds are rounded down to the minute before the read. Every time a
+ * referral partner sees is minute-granular, as in ListReferredQuickSwaps:
+ * a referred QuickSwap's exact time could be matched to its on-chain
+ * deposit or payout, and so to the person who swapped, and second-precise
+ * bounds would reveal it by narrowing the window. So a QuickSwap created in
+ * the window's last partial minute, the current minute when end_time is
+ * now, counts from the first request whose end_time is in the next minute
+ * or later. Changes to QuickSwaps already counted show within seconds.
+ *
+ * @generated from message swap.quickswap.v1.GetReferralStatsRequest
+ */
+export type GetReferralStatsRequest = Message<"swap.quickswap.v1.GetReferralStatsRequest"> & {
+  /**
+   * The bucket length.
+   *
+   * @generated from field: swap.quickswap.v1.StatsPeriod group_by = 1;
+   */
+  groupBy: StatsPeriod;
+
+  /**
+   * Start of the window, inclusive, rounded down to the minute. For "All",
+   * ReferralPartner.created_at with MONTH.
+   *
+   * @generated from field: google.protobuf.Timestamp start_time = 2;
+   */
+  startTime?: Timestamp | undefined;
+
+  /**
+   * End of the window, exclusive, rounded down to the minute. The window is
+   * checked once rounded: it must end after it starts and be at most 7 days
+   * long for HOUR, 366 days for DAY and 3660 days for MONTH, else
+   * INVALID_ARGUMENT.
+   *
+   * @generated from field: google.protobuf.Timestamp end_time = 3;
+   */
+  endTime?: Timestamp | undefined;
+
+  /**
+   * ROUTE, SOURCE_ASSET or DESTINATION_ASSET; unset for the totals series
+   * only. VAULT is refused.
+   *
+   * @generated from field: swap.quickswap.v1.StatsBreakdown breakdown = 4;
+   */
+  breakdown: StatsBreakdown;
+
+  /**
+   * One group of the breakdown to return with its per-bucket columns even
+   * when it is not among the 10 that get them. A group with no activity in
+   * the window is returned at zero, after the groups with activity; it
+   * never takes one of the 10.
+   *
+   * @generated from oneof swap.quickswap.v1.GetReferralStatsRequest.drill_down
+   */
+  drillDown: {
+    /**
+     * The route, for the ROUTE breakdown.
+     *
+     * @generated from field: swap.quickswap.v1.StatsRoute route = 5;
+     */
+    value: StatsRoute;
+    case: "route";
+  } | {
+    /**
+     * The source asset and network, for the SOURCE_ASSET breakdown.
+     *
+     * @generated from field: uint32 source_zipped_asset_id = 6;
+     */
+    value: number;
+    case: "sourceZippedAssetId";
+  } | {
+    /**
+     * The destination asset and network, for the DESTINATION_ASSET
+     * breakdown.
+     *
+     * @generated from field: uint32 destination_zipped_asset_id = 7;
+     */
+    value: number;
+    case: "destinationZippedAssetId";
+  } | { case: undefined; value?: undefined };
+
+  /**
+   * Also return the totals series' exact amounts per bucket and asset:
+   * cell_deposited, cell_delivered and cell_referral_fee (the commission).
+   * They grow with the buckets times the assets, so leave this unset
+   * unless they are needed.
+   *
+   * @generated from field: bool include_cells = 8;
+   */
+  includeCells: boolean;
+};
+
+/**
+ * Describes the message swap.quickswap.v1.GetReferralStatsRequest.
+ * Use `create(GetReferralStatsRequestSchema)` to create a new message.
+ */
+export const GetReferralStatsRequestSchema: GenMessage<GetReferralStatsRequest> = /*@__PURE__*/
+  messageDesc(file_swap_quickswap_v1_quickswap_referral, 22);
+
+/**
+ * GetReferralStatsResponse is the activity of the QuickSwaps the caller
+ * referred, in GetBrokerStats' columns.
+ *
+ * Every fee in it is the caller's commission: fees, fees_usd_q4 and
+ * fees_usd count only the commission, referral_fee_usd and
+ * cell_referral_fee carry it, and the service, broker and affiliate fee
+ * columns are empty.
+ *
+ * as_of_ts_sec is minute-granular for the same reason as the window
+ * bounds, and rounded up so the answer holds nothing newer: the end of the
+ * minute the newest change counted was published in, or the time of the
+ * read while that minute is the current one. The newest change counted was
+ * published in the 60 seconds before it; zero when the answer counts none.
+ *
+ * @generated from message swap.quickswap.v1.GetReferralStatsResponse
+ */
+export type GetReferralStatsResponse = Message<"swap.quickswap.v1.GetReferralStatsResponse"> & {
+  /**
+   * The stats.
+   *
+   * @generated from field: swap.quickswap.v1.GetBrokerStatsResponse stats = 1;
+   */
+  stats?: GetBrokerStatsResponse | undefined;
+};
+
+/**
+ * Describes the message swap.quickswap.v1.GetReferralStatsResponse.
+ * Use `create(GetReferralStatsResponseSchema)` to create a new message.
+ */
+export const GetReferralStatsResponseSchema: GenMessage<GetReferralStatsResponse> = /*@__PURE__*/
+  messageDesc(file_swap_quickswap_v1_quickswap_referral, 23);
+
+/**
  * ReferralPartnerStatus is where a referral partner stands. Partners are
  * invite-only: Polyester reviews every enrollment.
  *
@@ -1052,8 +1188,16 @@ export const ReferralCommissionBasisSchema: GenEnum<ReferralCommissionBasis> = /
  * ListReferralLedger lists each commission credit with its QuickSwap and
  * each auto-withdraw payout from that sub-account.
  *
+ * GetReferralStats reads the activity of the QuickSwaps the partner
+ * referred and its commission over time, in GetBrokerStats' columns, with
+ * a breakdown by route, source or destination asset. It shows the
+ * partner's commission only, never the other fees of those QuickSwaps.
+ *
  * Every RPC is rate limited per account: over the limit it fails with
  * RESOURCE_EXHAUSTED, a RateLimitDetail and a Retry-After header.
+ * GetReferralStats instead shares GetBrokerStats' budget, the caller's read
+ * rate: over it the call fails with RESOURCE_EXHAUSTED / BROKER_LIMIT and a
+ * Retry-After header.
  *
  * @generated from service swap.quickswap.v1.QuickSwapReferralService
  */
@@ -1178,6 +1322,32 @@ export const QuickSwapReferralService: GenService<{
     methodKind: "unary";
     input: typeof ListReferralLedgerRequestSchema;
     output: typeof ListReferralLedgerResponseSchema;
+  },
+  /**
+   * GetReferralStats reads the activity of the QuickSwaps the caller
+   * referred and the commission they credited it, over time, with an
+   * optional breakdown by route, source asset or destination asset.
+   *
+   * A QuickSwap counts in the bucket it was created in, with its current
+   * status. A commission counts in the bucket it was credited in on the
+   * totals series, and in its QuickSwap's bucket on a group. The window's
+   * totals over ReferralPartner.created_at to now are the lifetime totals.
+   * Times are minute-granular (see GetReferralStatsRequest). A disabled
+   * partner still reads its stats.
+   *
+   * Errors:
+   * - NOT_FOUND: REFERRAL_PARTNER_NOT_FOUND.
+   * - INVALID_ARGUMENT: the window, breakdown or drill-down.
+   * - RESOURCE_EXHAUSTED: BROKER_LIMIT, with a Retry-After header: the
+   *   caller's read rate, shared with GetBrokerStats, is spent.
+   * - UNAVAILABLE: the stats cannot be read; retry the same request.
+   *
+   * @generated from rpc swap.quickswap.v1.QuickSwapReferralService.GetReferralStats
+   */
+  getReferralStats: {
+    methodKind: "unary";
+    input: typeof GetReferralStatsRequestSchema;
+    output: typeof GetReferralStatsResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_swap_quickswap_v1_quickswap_referral, 0);

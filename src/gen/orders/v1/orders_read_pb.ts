@@ -2173,7 +2173,7 @@ export const OrdersReadService: GenService<{
    * While the current state of an order in scope is temporarily unavailable, the call
    * fails with a retryable UNAVAILABLE rather than omitting the order or returning a
    * stale state; retry the same request.
-   * Costs one unit of the root account's trading read limit per 100 rows the
+   * Costs one unit of the account's trading read limit per 100 rows the
    * limit asks for, rounded up.
    *
    * @generated from rpc orders.v1.OrdersReadService.GetOpenOrders
@@ -2189,7 +2189,7 @@ export const OrdersReadService: GenService<{
    * While the current state of an order on the page is temporarily unavailable, the call
    * fails with a retryable UNAVAILABLE rather than returning a stale state; retry the
    * same request.
-   * Costs two units of the root account's trading read limit per 100 rows the
+   * Costs two units of the account's trading read limit per 100 rows the
    * limit asks for, rounded up.
    *
    * @generated from rpc orders.v1.OrdersReadService.GetOrderHistory
@@ -2203,7 +2203,7 @@ export const OrdersReadService: GenService<{
    * Retrieve per-user trade fills for an account.
    * Supports exact physical-order or logical-lineage scope, an inclusive generation
    * cutoff, and subaccount, symbol, side and time filters with cursor pagination.
-   * Costs two units of the root account's trading read limit per 100 rows the
+   * Costs two units of the account's trading read limit per 100 rows the
    * limit asks for, rounded up.
    *
    * @generated from rpc orders.v1.OrdersReadService.GetUserTrades
@@ -2227,7 +2227,7 @@ export const OrdersReadService: GenService<{
    * prevention mode and fee asset are unset, and its price and quantities read
    * 0 as placeholders. The client takes its terms from the batch it sent.
    * After that window it is not found: see BatchReplaceOrdersRequest.
-   * Costs one unit of the root account's trading read limit.
+   * Costs one unit of the account's trading read limit.
    *
    * @generated from rpc orders.v1.OrdersReadService.GetOrder
    */
@@ -2240,7 +2240,7 @@ export const OrdersReadService: GenService<{
    * Retrieve the execution status of one accepted batch replacement, retained
    * for 60 seconds from its acceptance. Retry UNAVAILABLE with the same
    * request; NOT_FOUND means no retained batch, never a rejected replacement.
-   * Costs one unit of the root account's trading read limit.
+   * Costs one unit of the account's trading read limit.
    *
    * @generated from rpc orders.v1.OrdersReadService.GetBatchReplaceStatus
    */

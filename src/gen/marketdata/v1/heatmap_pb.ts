@@ -67,7 +67,7 @@ export type GetOrderbookHeatmapRequest = Message<"marketdata.v1.GetOrderbookHeat
   interval: HeatmapInterval;
 
   /**
-   * Top-N levels per side included in each bucket. Every tier except
+   * Top-N levels per side that the returned chain replays. Every tier except
    * DEPTH_5000, which is refused with INVALID_ARGUMENT.
    *
    * @generated from field: polyester.type.v1.DepthTier depth = 3;
@@ -181,7 +181,8 @@ export const HeatmapDeltaLevelsSchema: GenMessage<HeatmapDeltaLevels> = /*@__PUR
   messageDesc(file_marketdata_v1_heatmap, 3);
 
 /**
- * HeatmapKeyframe is a full-book snapshot anchor.
+ * HeatmapKeyframe is the order book at one time, limited to the requested
+ * depth: the top-N levels per side.
  * Best bid, best ask and mid preserve the raw prices where available. For older
  * historical buckets without recorded raw prices, they use the reconstructed
  * price bins instead.
@@ -218,14 +219,14 @@ export type HeatmapKeyframe = Message<"marketdata.v1.HeatmapKeyframe"> & {
   midTicks: bigint;
 
   /**
-   * Complete bid-side levels at the snapshot.
+   * Top-N bid levels at the keyframe time.
    *
    * @generated from field: marketdata.v1.HeatmapLevels bids = 5;
    */
   bids?: HeatmapLevels | undefined;
 
   /**
-   * Complete ask-side levels at the snapshot.
+   * Top-N ask levels at the keyframe time.
    *
    * @generated from field: marketdata.v1.HeatmapLevels asks = 6;
    */
@@ -247,7 +248,12 @@ export const HeatmapKeyframeSchema: GenMessage<HeatmapKeyframe> = /*@__PURE__*/
   messageDesc(file_marketdata_v1_heatmap, 4);
 
 /**
- * HeatmapDeltaBucket is one sparse update bucket containing both sides.
+ * HeatmapDeltaBucket is one bucket's changes to the top-N view of both sides.
+ * A level that enters the top N during the bucket appears with its quantity,
+ * even when the bucket did not change it, for example after a better level
+ * was deleted. A level that leaves the top N appears with quantity zero, even
+ * when it still rests deeper in the book. Changes deeper than the top N are
+ * omitted.
  *
  * @generated from message marketdata.v1.HeatmapDeltaBucket
  */
@@ -260,14 +266,14 @@ export type HeatmapDeltaBucket = Message<"marketdata.v1.HeatmapDeltaBucket"> & {
   tsSec: bigint;
 
   /**
-   * Sparse bid-side level changes in this bucket.
+   * Changes to the top-N bid levels in this bucket.
    *
    * @generated from field: marketdata.v1.HeatmapDeltaLevels bids = 2;
    */
   bids?: HeatmapDeltaLevels | undefined;
 
   /**
-   * Sparse ask-side level changes in this bucket.
+   * Changes to the top-N ask levels in this bucket.
    *
    * @generated from field: marketdata.v1.HeatmapDeltaLevels asks = 3;
    */
@@ -304,7 +310,17 @@ export const HeatmapDeltaBucketSchema: GenMessage<HeatmapDeltaBucket> = /*@__PUR
 
 /**
  * HeatmapLiveBucket is the canonical live payload for real-time heatmap updates.
- * It represents the latest state of one bucket (open or finalized).
+ * It represents the latest state of one bucket (open or finalized). A bucket
+ * can be published again after it was finalized, when later updates for it
+ * arrive: the new payload holds every update of the bucket and a higher
+ * book_seq_end. Keep the payload with the highest book_seq_end per ts_sec.
+ * Finalized buckets are delivered at least once: the same finalized payload
+ * can arrive more than once, for example after a service restart; keep the
+ * highest book_seq_end per ts_sec. Updates of a bucket still open are best
+ * effort; a later update or the final payload supersedes them. A market's
+ * buckets are published here only once the service projects the market
+ * live: a bucket that holds only earlier updates is history, available
+ * through GetOrderbookHeatmap and never published live.
  *
  * @generated from message marketdata.v1.HeatmapLiveBucket
  */
@@ -332,7 +348,8 @@ export type HeatmapLiveBucket = Message<"marketdata.v1.HeatmapLiveBucket"> & {
 
   /**
    * True when this bucket is finalized; false for provisional updates to an
-   * open bucket.
+   * open bucket. A finalized bucket can still be republished with a higher
+   * book_seq_end.
    *
    * @generated from field: bool is_final = 4;
    */
@@ -398,14 +415,27 @@ export const HeatmapLiveBucketSchema: GenMessage<HeatmapLiveBucket> = /*@__PURE_
 
 /**
  * HeatmapDeltaChain is the historical payload for all intervals.
- * Reconstruct by applying deltas over base_keyframe.
- * Deltas are ordered oldest-first by ts_sec.
+ * Reconstruct by applying deltas over base_keyframe, oldest first: set each
+ * listed level's quantity, and delete it when the quantity is zero. After each
+ * bucket the result is exactly the top-N levels per side of the requested
+ * depth and quantity mode, the same at every page limit. No further clipping
+ * is needed.
+ * - CLOSE: the order book at the bucket's close. It equals the base_keyframe
+ *   of a chain anchored at that bucket.
+ * - PEAK: each price's highest quantity during the bucket, among the prices
+ *   that held liquidity during it.
  *
  * @generated from message marketdata.v1.HeatmapDeltaChain
  */
 export type HeatmapDeltaChain = Message<"marketdata.v1.HeatmapDeltaChain"> & {
   /**
-   * Full-book snapshot from which to apply the returned deltas.
+   * Top-N order book from which to apply the returned deltas, from strictly
+   * before the first of them. In CLOSE mode it holds closing quantities. In
+   * PEAK mode it is only the starting point of the replay, not a bucket view:
+   * its quantities may differ between page limits, so do not render it as a
+   * bucket. A base advanced through stored buckets holds the peaks of its last
+   * bucket, and a base taken from a stored keyframe holds that keyframe's
+   * recorded peaks.
    *
    * @generated from field: marketdata.v1.HeatmapKeyframe base_keyframe = 1;
    */
@@ -596,8 +626,9 @@ export const HeatmapService: GenService<{
    * - All intervals (1s/1m/5m/1h) return snapshot + sparse delta chain.
    * - Response may also include the latest live bucket state when available.
    * Response always includes realtime stitching anchors.
-   * Replayable history starts at the oldest available snapshot. Earlier update
-   * buckets are omitted, and pagination ends with an empty next_page_token.
+   * Replayable history starts after the oldest available snapshot. Update
+   * buckets at or before it are omitted, and pagination ends with an empty
+   * next_page_token.
    * A window entirely before replayable history returns an empty chain.
    *
    * @generated from rpc marketdata.v1.HeatmapService.GetOrderbookHeatmap

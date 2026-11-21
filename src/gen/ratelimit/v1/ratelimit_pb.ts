@@ -149,12 +149,10 @@ export const GetTradingRateLimitsRequestSchema: GenMessage<GetTradingRateLimitsR
 
 /**
  * GetTradingRateLimitsResponse contains the placement, cancellation and read
- * limits enforced for the selected account target. Placement and cancellation
- * limits apply per account: the root account and each subaccount have their
- * own limits, and every API key and session that trades for an account shares
- * that account's limits. The read limit applies per root account: the root
- * account, all of its subaccounts and every API key and session share one
- * read limit.
+ * limits enforced for the selected account target. All three limits apply per
+ * account: the root account and each subaccount have their own limits, and
+ * every API key and session that trades or reads for an account shares that
+ * account's limits.
  *
  * @generated from message ratelimit.v1.GetTradingRateLimitsResponse
  */
@@ -177,8 +175,7 @@ export type GetTradingRateLimitsResponse = Message<"ratelimit.v1.GetTradingRateL
   /**
    * Placement, cancellation and read rules enforced for the selected
    * account, ordered placement, cancellation, read. All of the account's API
-   * keys and sessions draw on the placement and cancellation limits together;
-   * the read rule is the root account's, shared with all of its subaccounts.
+   * keys and sessions draw on these limits together.
    *
    * @generated from field: repeated ratelimit.v1.TradingRateLimitRule rules = 3;
    */
@@ -187,9 +184,10 @@ export type GetTradingRateLimitsResponse = Message<"ratelimit.v1.GetTradingRateL
   /**
    * Placement, cancellation and read rules resolved for the calling API key,
    * ordered placement, cancellation, read. Present only when the caller
-   * authenticated with an API key. These rules are informational: trading
-   * requests are not limited per API key, and only the account rules in
-   * `rules` are enforced.
+   * authenticated with an API key. The read rule is enforced per API key on
+   * top of the account's read limit: a read or preview is refused when either
+   * is exhausted. The placement and cancellation rules are informational:
+   * orders are limited per account only, by the account rules in `rules`.
    *
    * @generated from field: repeated ratelimit.v1.TradingRateLimitRule api_key_rules = 4;
    */
@@ -232,8 +230,9 @@ export enum TradingRateLimitClass {
 
   /**
    * Order, fill, trigger, trading-limit and fee reads, and order previews.
-   * Every API key, session and subaccount of a root account shares the root
-   * account's read limit.
+   * Each account has its own read limit: the root account and each
+   * subaccount separately, shared by every API key and session that reads
+   * for that account.
    *
    * @generated from enum value: TRADING_RATE_LIMIT_CLASS_READ = 3;
    */
@@ -248,10 +247,10 @@ export const TradingRateLimitClassSchema: GenEnum<TradingRateLimitClass> = /*@__
 
 /**
  * RateLimitService serves public trading quota reference data and authenticated
- * effective trading limits. A trading read costs units of the root account's
- * read limit: one unit per call, or for a list, one unit per 100 rows its
- * limit asks for, rounded up (two for order history, fills and trigger
- * events). A read over the limit is refused RESOURCE_EXHAUSTED (REST 429
+ * effective trading limits. A trading read costs units of the read limit of
+ * the account it reads: one unit per call, or for a list, one unit per 100
+ * rows its limit asks for, rounded up (two for order history, fills and
+ * trigger events). A read over the limit is refused RESOURCE_EXHAUSTED (REST 429
  * RATE_LIMIT_EXCEEDED) with its RateLimitDetail.
  *
  * @generated from service ratelimit.v1.RateLimitService
@@ -272,7 +271,7 @@ export const RateLimitService: GenService<{
   /**
    * Get the effective placement, cancellation and read limits for the
    * authenticated caller's root account or selected subaccount. Costs one
-   * unit of the root account's read limit.
+   * unit of the account's read limit.
    *
    * @generated from rpc ratelimit.v1.RateLimitService.GetTradingRateLimits
    */
