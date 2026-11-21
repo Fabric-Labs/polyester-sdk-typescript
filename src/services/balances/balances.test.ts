@@ -514,6 +514,30 @@ describe("BalancesService", () => {
         expect((transport.lastCall()?.message as { subaccountId?: bigint }).subaccountId).toBe(8n);
     });
 
+    it("stops a pending snapshot when the private socket goes disconnected on logout", async () => {
+        const realtime = realtimeClientStub();
+        let answer!: (value: { balances: never[] }) => void;
+        const pending = new Promise<{ balances: never[] }>((resolve) => (answer = resolve));
+        const transport = unaryTransport(() => pending);
+        const onEvent = vi.fn();
+        const service = new BalancesService(
+            { authApi: transport.transport },
+            realtime.realtime,
+            undefined,
+            testScales(),
+        );
+
+        const unsubscribe = service.subscribe({ accountId: "acct-1", onEvent });
+        realtime.params?.onConnected?.();
+        realtime.setPrivateState("disconnected");
+        answer({ balances: [] });
+        await flushAsync();
+
+        expect(onEvent).not.toHaveBeenCalled();
+        unsubscribe();
+        expect(realtime.realtime.onConnectionChange).toHaveBeenCalledTimes(1);
+    });
+
     it("routes malformed balance publications to the subscription onError", async () => {
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();

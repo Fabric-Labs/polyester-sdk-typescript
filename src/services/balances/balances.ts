@@ -184,7 +184,8 @@ export class BalancesService {
      */
     subscribe(input: SubscribeBalancesInput): () => void {
         const channel = `private:ledger:balances:${input.accountId}:proto`;
-        const account = resolveAccountScope(input.account, this.#resolver) ?? "main";
+        const resolved = resolveAccountScope(input.account, this.#resolver);
+        const account = resolved === undefined ? "main" : resolved;
         const report = (type: string, error: unknown) => {
             try {
                 input.onError?.(createSdkSubscriptionErrorContext(channel, type, error));
@@ -196,7 +197,6 @@ export class BalancesService {
             // Pinned now: the channel is fixed to `accountId`, so a later account switch must not
             // re-resolve the snapshot's scope.
             fetchSnapshot: () => this.getSnapshot({ account }),
-            isConnected: () => this.#realtime.connection.private.state !== "disconnected",
             emit: (event) => {
                 try {
                     input.onEvent(event);
@@ -228,7 +228,13 @@ export class BalancesService {
             },
             onError: input.onError,
         });
+        // Logout drops the channel without `onDisconnected`; the socket going `disconnected` (a
+        // reconnect only passes through `connecting`) stops a pending snapshot, retry or timer.
+        const stopOnDisconnect = this.#realtime.onConnectionChange((connection) => {
+            if (connection.private.state === "disconnected") sync.disconnected();
+        });
         return () => {
+            stopOnDisconnect();
             sync.dispose();
             unsubscribe();
         };

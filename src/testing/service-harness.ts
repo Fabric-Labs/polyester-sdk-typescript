@@ -107,6 +107,7 @@ export function realtimeClientStub(): {
     params: Parameters<RealtimeClient["connectProtoChannel"]>[0] | undefined;
     privateOrdersParams: Parameters<RealtimeClient["connectPrivateOrders"]>[0] | undefined;
     unsubscribe: ReturnType<typeof vi.fn>;
+    setPrivateState: (state: "connected" | "connecting" | "disconnected") => void;
 } {
     let params: Parameters<RealtimeClient["connectProtoChannel"]>[0] | undefined;
     let privateOrdersParams: Parameters<RealtimeClient["connectPrivateOrders"]>[0] | undefined;
@@ -124,10 +125,19 @@ export function realtimeClientStub(): {
         },
     );
 
+    const connectionListeners = new Set<Parameters<RealtimeClient["onConnectionChange"]>[0]>();
+    const onConnectionChange = vi.fn(
+        (listener: Parameters<RealtimeClient["onConnectionChange"]>[0]) => {
+            connectionListeners.add(listener);
+            return () => connectionListeners.delete(listener);
+        },
+    );
+
     return {
         realtime: {
             connectProtoChannel,
             connectPrivateOrders,
+            onConnectionChange,
             connection: {
                 public: { state: "connected", error: null },
                 private: { state: "connected", error: null },
@@ -139,6 +149,15 @@ export function realtimeClientStub(): {
         },
         get privateOrdersParams() {
             return privateOrdersParams;
+        },
+        /** Reports a private socket state to `onConnectionChange` listeners. */
+        setPrivateState(state: "connected" | "connecting" | "disconnected") {
+            for (const listener of connectionListeners) {
+                listener({
+                    public: { state: "connected", error: null },
+                    private: { state, error: null },
+                } as RealtimeClient["connection"]);
+            }
         },
         unsubscribe,
     };
