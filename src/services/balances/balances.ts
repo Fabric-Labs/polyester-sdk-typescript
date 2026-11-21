@@ -2,7 +2,8 @@ import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { createClient, type Client } from "@connectrpc/connect";
 import { parse } from "../../shared/validation.js";
 import type { PolyesterRealtime } from "../../realtime/index.js";
-import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
+import { createSdkSubscriptionErrorContext } from "../../shared/subscription-errors.js";
+import { createBalanceSync, type LedgerBalancesEvent } from "./balances.sync.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import {
     toConnectCallOptions,
@@ -25,7 +26,6 @@ import {
     createPortfolioEquitySnapshotResponseSchema,
     type LedgerBalance,
     type LedgerBalanceSnapshot,
-    type LedgerBalanceUpdate,
     type BalanceHistoryInput,
     type BalanceHistoryResponse,
     type EquityHistoryInput,
@@ -35,8 +35,10 @@ import {
     type PortfolioEquitySnapshotResponse,
 } from "./balances.schemas.js";
 
-interface SubscribeBalancesInput extends BaseSubscribeInput<LedgerBalanceUpdate> {
+interface SubscribeBalancesInput extends BaseSubscribeInput<LedgerBalancesEvent> {
     accountId: string;
+    /** The account scope `accountId` names, for the snapshot; omit for the default scope. */
+    account?: AccountScopedInput["account"];
 }
 
 /**
@@ -168,26 +170,59 @@ export class BalancesService {
     }
 
     /**
-     * Subscribes to private:ledger:balances:{accountId}:proto and emits each `BalanceUpdate` as-is, in
-     * arrival order: a Trading update (`account: "trading"`) at its position, or a Funding update.
-     * Ordering is the caller's job: buffer updates and seed with `getSnapshot` on every `onOpen`,
-     * reconnects included (a failed recovery shows only as `onOpen`), drop Trading updates at or below its
-     * position, reload on an unknown epoch, a sequence gap, or an incomplete update whose next
-     * sequence does not arrive within 2 seconds, and apply a Funding update only when its
-     * `fundingRevision` is higher. See `ledger.read.v1.BalanceUpdate` for the full contract.
+     * Keeps the account's balances exact from private:ledger:balances:{accountId}:proto and emits
+     * the whole balance list after each change: a `snapshot` on every (re)subscribe, then each
+     * complete Trading step in sequence and each newer Funding balance. Repeats and stale epochs
+     * are dropped; a new epoch, a sequence gap or a Trading step stalled for 2 seconds reloads the
+     * snapshot. `account` selects the snapshot and must name the same account as `accountId`;
+     * omit it for the default account scope. A failed snapshot is reported to `onError` and
+     * retried while it is retryable.
      */
     subscribe(input: SubscribeBalancesInput): () => void {
         const channel = `private:ledger:balances:${input.accountId}:proto`;
-        return connectReadyGatedProtoChannel(this.#realtime, {
+        const report = (type: string, error: unknown) => {
+            try {
+                input.onError?.(createSdkSubscriptionErrorContext(channel, type, error));
+            } catch {
+                // A throwing error handler must not break the sync.
+            }
+        };
+        const sync = createBalanceSync({
+            fetchSnapshot: () => this.getSnapshot({ account: input.account }),
+            emit: (event) => {
+                try {
+                    input.onEvent(event);
+                } catch (error) {
+                    report("publication_handler", error);
+                }
+            },
+            onSnapshotError: (error) => report("snapshot", error),
+        });
+        const unsubscribe = this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.BalanceUpdateSchema,
-            ready: () => this.#scales.ready(),
             onPublication: (data) => {
-                input.onEvent(formatLedgerBalanceUpdate(data));
+                let update;
+                try {
+                    update = formatLedgerBalanceUpdate(data);
+                } catch (error) {
+                    return report("publication_handler", error);
+                }
+                sync.update(update);
             },
-            onConnected: input.onOpen,
-            onDisconnected: input.onClose,
+            onConnected: () => {
+                sync.connected();
+                input.onOpen?.();
+            },
+            onDisconnected: () => {
+                sync.disconnected();
+                input.onClose?.();
+            },
             onError: input.onError,
         });
+        return () => {
+            sync.dispose();
+            unsubscribe();
+        };
     }
 }

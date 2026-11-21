@@ -103,7 +103,7 @@ try {
     type LadderDetailsOutput,
     type LedgerBalance,
     type LedgerBalanceSnapshot,
-    type LedgerBalanceUpdate,
+    type LedgerBalancesEvent,
     type LifecycleFlowSummary,
     type MarketOverview,
     type ModifyOrderInput,
@@ -743,7 +743,7 @@ async function verifyServiceInference(): Promise<void> {
     client.balances.subscribe({
         accountId: "account-id",
         onEvent: (update) => {
-            expectType<LedgerBalanceUpdate>(update);
+            expectType<LedgerBalancesEvent>(update);
             expectNotAny(update, true);
         },
     });

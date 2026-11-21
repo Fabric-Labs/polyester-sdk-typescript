@@ -274,8 +274,9 @@ export class TriggersService {
      * Cancels every trigger of the account scope matching `symbolIds`, `side` and `triggerTypes`
      * (empty or omitted matches all), with its working orders (a TWAP slice, ladder levels, an
      * attached leg's exit); other orders stay open. `dryRun` only counts them. What it cancels is
-     * fixed when its `requestId` is first accepted. A requestId is generated when omitted; retry
-     * with the same requestId and criteria within 2 minutes to get the original count. The result
+     * fixed when its `requestId` is first accepted. A generated requestId is not returned, so pass
+     * your own if you may retry an ambiguous failure: the same requestId and criteria within 2
+     * minutes return the original count instead of cancelling again. The result
      * lists no trigger IDs, so refresh the trigger list afterwards.
      */
     async cancelAll(

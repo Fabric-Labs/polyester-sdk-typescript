@@ -411,14 +411,20 @@ describe("BalancesService", () => {
         });
     });
 
-    it("wires balance subscriptions and emits each update with only its kind's fields", async () => {
+    it("seeds the balance subscription with a snapshot and applies the next Trading step", async () => {
         const realtime = realtimeClientStub();
+        const transport = unaryTransport({
+            balances: [assetBalance(1, onePointFiveE18)],
+            tradingEpoch: 7n,
+            tradingSequence: 42n,
+            tradingAppliedThroughTsNs: 90n,
+        });
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();
         const onError = vi.fn();
         const service = new BalancesService(
-            { authApi: unaryTransport({}).transport },
+            { authApi: transport.transport },
             realtime.realtime,
             undefined,
             testScales(),
@@ -426,6 +432,7 @@ describe("BalancesService", () => {
 
         const unsubscribe = service.subscribe({
             accountId: "acct-1",
+            account: { subaccountId: formatId(8n) },
             onEvent,
             onOpen,
             onClose,
@@ -436,10 +443,6 @@ describe("BalancesService", () => {
         expect(realtime.params?.schema).toBe(Proto.BalanceUpdateSchema);
 
         realtime.params?.onConnected?.();
-        realtime.params?.onDisconnected?.();
-        const error = { channel: "c", type: "publication", error: new Error("bad") };
-        realtime.params?.onError?.(error);
-
         realtime.params?.onPublication(
             create(Proto.BalanceUpdateSchema, {
                 account: AccountCode.TRADING,
@@ -447,7 +450,7 @@ describe("BalancesService", () => {
                 tradingSequence: 43n,
                 complete: true,
                 tradingAppliedThroughTsNs: 99n,
-                balances: [assetBalance(1, onePointFiveE18)],
+                balances: [{ assetId: 1, trading: { hi: 0n, lo: 2n * E18 } }],
                 transfers: [
                     {
                         assetId: 1,
@@ -456,49 +459,38 @@ describe("BalancesService", () => {
                         accountCode: AccountCode.TRADING,
                         tsUs: 1n,
                         tsNs: 1_000n,
-                        isDebit: true,
                         transferId: "5",
                     },
-                ],
-            }),
-        );
-        realtime.params?.onPublication(
-            create(Proto.BalanceUpdateSchema, {
-                account: AccountCode.FUNDING,
-                balances: [
-                    { assetId: 2, funding: { hi: 0n, lo: onePointFiveE18 }, fundingRevision: 81n },
                 ],
             }),
         );
         await flushAsync();
 
         expect(onOpen).toHaveBeenCalledTimes(1);
-        expect(onClose).toHaveBeenCalledTimes(1);
-        expect(onError).toHaveBeenCalledWith(error);
-        expect(onEvent.mock.calls.map(([update]) => update)).toEqual([
-            {
-                account: "trading",
+        expect((transport.lastCall()?.message as { subaccountId?: bigint }).subaccountId).toBe(8n);
+        expect(onEvent.mock.calls.map(([event]) => event)).toEqual([
+            expect.objectContaining({
+                kind: "snapshot",
                 tradingEpoch: "7",
-                tradingSequence: "43",
-                complete: true,
-                tradingAppliedThroughTsNs: "99",
-                balances: [{ assetId: 1, trading: "1.5", reserved: "0", available: "1.5" }],
-                transfers: [
-                    expect.objectContaining({
-                        transferId: "5",
-                        amount: "1.5",
-                        type: "trade_quote",
-                        tsNs: "1000",
-                        isDebit: true,
-                    }),
+                tradingSequence: "42",
+                balances: [
+                    expect.objectContaining({ assetId: 1, trading: "1.5", fundingRevision: "102" }),
                 ],
-            },
-            {
-                account: "funding",
-                balances: [{ assetId: 2, funding: "1.5", fundingRevision: "81" }],
-            },
+            }),
+            expect.objectContaining({
+                kind: "trading",
+                tradingSequence: "43",
+                tradingAppliedThroughTsNs: "99",
+                balances: [
+                    expect.objectContaining({ assetId: 1, trading: "2", fundingRevision: "102" }),
+                ],
+                transfers: [expect.objectContaining({ transferId: "5", tsNs: "1000" })],
+            }),
         ]);
+        expect(onError).not.toHaveBeenCalled();
 
+        realtime.params?.onDisconnected?.();
+        expect(onClose).toHaveBeenCalledTimes(1);
         unsubscribe();
         expect(realtime.connectProtoChannel.mock.results[0]?.value).toHaveBeenCalledTimes(1);
     });

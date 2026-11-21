@@ -14,7 +14,5 @@ export type {
     PortfolioEquitySnapshotResponse,
     LedgerBalance,
     LedgerBalanceSnapshot,
-    LedgerBalanceUpdate,
-    LedgerFundingBalanceUpdate,
-    LedgerTradingBalanceUpdate,
 } from "./balances.schemas.js";
+export type { LedgerBalancesEvent } from "./balances.sync.js";
