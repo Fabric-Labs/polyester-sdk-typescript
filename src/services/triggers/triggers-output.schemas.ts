@@ -12,6 +12,7 @@ import { formatId } from "../../utils/base58-id.js";
 import { OrderErrorDetailSchema } from "../orders/order-errors.schemas.js";
 import {
     BatchCancelTriggerStatusCodec,
+    CancelAllTriggersStatusCodec,
     TriggerTypeCodec,
     TriggerStatusCodec,
     FeeAssetCodec,
@@ -131,6 +132,21 @@ export const BatchCancelTriggersResultSchema = v.pipe(
     })),
 );
 export type BatchCancelTriggersResult = v.InferOutput<typeof BatchCancelTriggersResultSchema>;
+
+export const CancelAllTriggersResultSchema = v.pipe(
+    v.object({
+        status: enumLabelSchema(CancelAllTriggersStatusCodec.protoToOutput),
+        /** Triggers matched; each is canceled unless `dryRun`. */
+        matchedTriggers: v.number(),
+        tsNs: v.bigint(),
+    }),
+    v.transform(({ tsNs, ...result }) => ({
+        ...result,
+        ts: tsNsToMs(tsNs),
+        tsNs: tsNs.toString(),
+    })),
+);
+export type CancelAllTriggersResult = v.InferOutput<typeof CancelAllTriggersResultSchema>;
 
 export const PauseTriggerResultSchema = TriggerMutationResultBaseSchema;
 export type PauseTriggerResult = v.InferOutput<typeof PauseTriggerResultSchema>;

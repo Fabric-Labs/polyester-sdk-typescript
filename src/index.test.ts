@@ -25,7 +25,6 @@ describe("public package entrypoint", () => {
                 createPolyesterEnvironment: expect.any(Function),
                 createPolyesterServerClientFromCookies: expect.any(Function),
                 createPolyesterServerClientFromRequest: expect.any(Function),
-                mergeLedgerBalances: expect.any(Function),
                 formatLedgerBalance: expect.any(Function),
                 compareUnsignedIntegerStrings: expect.any(Function),
                 shouldApplyReconciliationUpdate: expect.any(Function),

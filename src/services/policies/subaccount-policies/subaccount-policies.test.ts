@@ -278,6 +278,19 @@ describe("SubaccountPoliciesService", () => {
         expect(transport.lastCall()?.message).toMatchObject({ policy: { maxOpenOrders: 0 } });
     });
 
+    it("subscribes to delegated subaccount policies on their own channel", () => {
+        const realtime = realtimeClientStub();
+        const service = new SubaccountPoliciesService(
+            { authApi: unaryTransport({}).transport },
+            realtime.realtime,
+        );
+
+        service.subscribePolicies({ accountId: "acct-1", delegated: true, onEvent: vi.fn() });
+        expect(realtime.params?.channel).toBe(
+            "private:auth:subaccount-policies:delegated:acct-1:proto",
+        );
+    });
+
     it("subscribes to account policy channels and parses publications", () => {
         const transport = unaryTransport({});
         const realtime = realtimeClientStub();

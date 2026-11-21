@@ -63,6 +63,11 @@ import {
 
 interface SubscribeViewInvalidationsInput extends BaseSubscribeInput<AddressBookViewInvalidated> {
     rootAccountPublicId: string;
+    /**
+     * Stream invalidations of the address books of subaccounts the account reads through a
+     * subaccount role, owned or delegated, instead of its own. Signed-in sessions only: API keys are refused with `AUTH_SESSION_KIND_NOT_ALLOWED`.
+     */
+    subaccounts?: boolean;
 }
 
 /**
@@ -301,7 +306,8 @@ export class AddressBookService {
      * Use `scope` and `invalidatedAt` for diagnostics and ordering, then refetch `getView` for the canonical aggregate (entries, tags, recent destinations, whitelist), passing the event's `viewRevision` as `minimumViewRevision` to avoid reading an older view. Do not patch individual rows from these events.
      */
     subscribeViewInvalidations(input: SubscribeViewInvalidationsInput): () => void {
-        const channel = `private:auth:address-books:${input.rootAccountPublicId}:proto`;
+        const scope = input.subaccounts ? "subaccounts:" : "";
+        const channel = `private:auth:address-books:${scope}${input.rootAccountPublicId}:proto`;
 
         return this.#realtime.connectProtoChannel({
             channel,

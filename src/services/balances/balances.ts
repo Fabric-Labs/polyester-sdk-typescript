@@ -19,10 +19,13 @@ import {
     PortfolioEquityHistoryInputSchema,
     createBalanceHistoryResponseSchema,
     createEquityHistoryResponseSchema,
-    formatLedgerBalance,
+    formatLedgerBalanceSnapshot,
+    formatLedgerBalanceUpdate,
     createPortfolioEquityHistoryResponseSchema,
     createPortfolioEquitySnapshotResponseSchema,
     type LedgerBalance,
+    type LedgerBalanceSnapshot,
+    type LedgerBalanceUpdate,
     type BalanceHistoryInput,
     type BalanceHistoryResponse,
     type EquityHistoryInput,
@@ -32,7 +35,7 @@ import {
     type PortfolioEquitySnapshotResponse,
 } from "./balances.schemas.js";
 
-interface SubscribeBalancesInput extends BaseSubscribeInput<LedgerBalance> {
+interface SubscribeBalancesInput extends BaseSubscribeInput<LedgerBalanceUpdate> {
     accountId: string;
 }
 
@@ -78,6 +81,19 @@ export class BalancesService {
         input: AccountScopedInput = {},
         options?: PolyesterRequestOptions,
     ): Promise<LedgerBalance[]> {
+        return (await this.getSnapshot(input, options)).balances;
+    }
+
+    /**
+     * Like `list`, plus the position (`tradingEpoch`, `tradingSequence`) the Trading values are at,
+     * which seeds the balance stream: apply its Trading updates of that epoch from the next sequence
+     * on. Throws `ServiceUnavailableError` while it cannot answer at a current position yet; retry
+     * it with a short backoff.
+     */
+    async getSnapshot(
+        input: AccountScopedInput = {},
+        options?: PolyesterRequestOptions,
+    ): Promise<LedgerBalanceSnapshot> {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = parse(BalancesListInputSchema, resolved);
@@ -87,7 +103,7 @@ export class BalancesService {
             },
             toConnectCallOptions(options),
         );
-        return res.balances.map(formatLedgerBalance);
+        return formatLedgerBalanceSnapshot(res);
     }
 
     /**
@@ -152,16 +168,22 @@ export class BalancesService {
     }
 
     /**
-     * Subscribes to private balance updates on private:ledger:balances:{accountId}:proto and emits every balance record as a decimal-string row. Records for assets unknown to the catalog route a CatalogLookupError to onError.
+     * Subscribes to private:ledger:balances:{accountId}:proto and emits each `BalanceUpdate` as-is, in
+     * arrival order: a Trading update (`account: "trading"`) at its position, or a Funding update.
+     * Ordering is the caller's job: buffer updates and seed with `getSnapshot` on every `onOpen`,
+     * reconnects included (a failed recovery shows only as `onOpen`), drop Trading updates at or below its
+     * position, reload on an unknown epoch, a sequence gap, or an incomplete update whose next
+     * sequence does not arrive within 2 seconds, and apply a Funding update only when its
+     * `fundingRevision` is higher. See `ledger.read.v1.BalanceUpdate` for the full contract.
      */
     subscribe(input: SubscribeBalancesInput): () => void {
         const channel = `private:ledger:balances:${input.accountId}:proto`;
         return connectReadyGatedProtoChannel(this.#realtime, {
             channel,
-            schema: Proto.AssetBalanceSchema,
+            schema: Proto.BalanceUpdateSchema,
             ready: () => this.#scales.ready(),
             onPublication: (data) => {
-                input.onEvent(formatLedgerBalance(data));
+                input.onEvent(formatLedgerBalanceUpdate(data));
             },
             onConnected: input.onOpen,
             onDisconnected: input.onClose,

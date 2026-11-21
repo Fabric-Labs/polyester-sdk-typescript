@@ -482,6 +482,34 @@ export const BatchCancelTriggersInputSchema = v.pipe(
 );
 export type BatchCancelTriggersInput = v.InferInput<typeof BatchCancelTriggersInputSchema>;
 
+/**
+ * Matches every trigger of the account scope by `symbolIds`, `side` and `triggerTypes`; an empty
+ * list or omitted `side` matches all. `requestId` is generated when omitted.
+ */
+export const CancelAllTriggersInputSchema = v.pipe(
+    v.strictObject({
+        ...AccountScopeInputEntries,
+        symbolIds: v.optional(v.array(SymbolIdInputSchema), []),
+        side: v.optional(TriggerSideInputSchema),
+        triggerTypes: v.optional(
+            v.array(
+                v.pipe(
+                    TriggerTypeSchema,
+                    v.transform((value) => TriggerTypeCodec.inputToProto[value]),
+                ),
+            ),
+            [],
+        ),
+        dryRun: v.optional(v.boolean(), false),
+        requestId: v.optional(OrderRequestIdInputSchema),
+    }),
+    v.transform(({ account, ...input }) => ({
+        ...input,
+        subaccountId: accountScopeToSubaccountId(account),
+    })),
+);
+export type CancelAllTriggersInput = v.InferInput<typeof CancelAllTriggersInputSchema>;
+
 export const CancelOcoInputSchema = v.pipe(
     v.strictObject({
         ...AccountScopeInputEntries,

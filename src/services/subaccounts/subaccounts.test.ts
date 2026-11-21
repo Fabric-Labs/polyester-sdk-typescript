@@ -206,7 +206,6 @@ describe("SubaccountsService", () => {
                         funding: { hi: 0n, lo: 0n },
                         reserved: { hi: 0n, lo: 0n },
                         available: { hi: 0n, lo: 1_500_000_000_000_000_000n },
-                        tradingRevision: 3n,
                     },
                 ],
             },
@@ -226,7 +225,6 @@ describe("SubaccountsService", () => {
                 funding: "0",
                 reserved: "0",
                 available: "1.5",
-                tradingRevision: "3",
                 fundingRevision: "0",
             },
         ]);
@@ -599,6 +597,18 @@ describe("SubaccountsService", () => {
             name: "ValidationError",
         });
         expect(transport.unary).not.toHaveBeenCalled();
+    });
+
+    it("subscribes to delegated subaccounts on their own channel", () => {
+        const transport = unaryTransport({});
+        const realtime = realtimeClientStub();
+        const service = new SubaccountsService(
+            { publicApi: transport.transport, authApi: transport.transport },
+            realtime.realtime,
+        );
+
+        service.subscribe({ accountId: "acct-1", delegated: true, onEvent: vi.fn() });
+        expect(realtime.params?.channel).toBe("private:auth:subaccounts:delegated:acct-1:proto");
     });
 
     it("subscribes to subaccount and API key channels and parses publications", () => {

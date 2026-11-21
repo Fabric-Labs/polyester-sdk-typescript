@@ -44,7 +44,6 @@ describe("ledger balance schema", () => {
             funding: { hi: 0n, lo: 0n },
             reserved: { hi: 0n, lo: 0n },
             available: { hi: 0n, lo: onePointFiveE18 },
-            tradingRevision: 101n,
             fundingRevision: 102n,
         });
 
@@ -53,14 +52,8 @@ describe("ledger balance schema", () => {
         expect(balance.available).toBe("1.5");
         expect(balance.funding).toBe("0");
         expect(balance.reserved).toBe("0");
-        expect(balance).toMatchObject({
-            tradingRevision: "101",
-            fundingRevision: "102",
-        });
-        expectTypeOf(balance).toMatchTypeOf<{
-            tradingRevision: string;
-            fundingRevision: string;
-        }>();
+        expect(balance).toMatchObject({ fundingRevision: "102" });
+        expectTypeOf(balance).toMatchTypeOf<{ fundingRevision: string }>();
     });
 
     it("preserves balances for assets unknown to the catalog", () => {
@@ -75,7 +68,6 @@ describe("ledger balance schema", () => {
             trading: "0.000000000000000001",
             reserved: "0",
             available: "0",
-            tradingRevision: "0",
             fundingRevision: "0",
         });
     });

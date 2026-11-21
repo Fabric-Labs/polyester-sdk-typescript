@@ -4,6 +4,8 @@ import type { DecodedEnum } from "../../utils/types.js";
 import { enumLabelSchema } from "../../shared/proto-enum-codec.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
 import { PositiveUint32InputSchema, SymbolIdInputSchema } from "../shared.js";
+import type { LivePriceBand as ProtoLivePriceBand } from "../../gen/marketdata/v1/marketdata_pb.js";
+import { formatLivePriceBand } from "../market-data/market-data.schemas.js";
 import {
     SPARKLINE_INTERVAL_VALUES,
     MARKET_OVERVIEW_ORDER_BY_VALUES,
@@ -70,6 +72,7 @@ const MarketOverviewRawSchema = v.object({
     bestAskQtyScaled: v.bigint(),
     sparklines: v.optional(v.array(MarketOverviewSparklineRawSchema), []),
     indexPriceTicks: v.bigint(),
+    priceBand: v.optional(v.custom<ProtoLivePriceBand>((value) => typeof value === "object")),
 });
 
 export function createMarketOverviewSchema(scales: SdkScales) {
@@ -105,6 +108,12 @@ export function createMarketOverviewSchema(scales: SdkScales) {
                     m.indexPriceTicks > 0n
                         ? scaledToDecimalOutput(m.indexPriceTicks, priceScale)
                         : undefined,
+                /**
+                 * The pair's live price band while one was confirmed in the last 5 seconds; absent
+                 * means no fresh band is known. Treat it as unknown once `validUntilMs` passes, and
+                 * check order prices with `marketData.getPriceBand` instead.
+                 */
+                priceBand: m.priceBand ? formatLivePriceBand(scales, m.priceBand) : undefined,
                 sparklines: (m.sparklines ?? []).map(
                     (s): MarketOverviewSparkline => ({
                         interval: s.interval,

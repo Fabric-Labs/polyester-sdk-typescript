@@ -162,6 +162,7 @@ describe("CandlesService", () => {
             close: [1_250_000_000n],
             volume: [100_000_000n],
             quoteVolume: ["125000000"],
+            isClosed: [true],
             referenceTsSec: [90n],
             referenceOpen: [2_000_000_000n],
             referenceHigh: [2_500_000_000n],
@@ -196,6 +197,7 @@ describe("CandlesService", () => {
             close: ["1.25"],
             volume: ["1"],
             quoteVolume: ["125000000"],
+            isClosed: [true],
             nextPageToken: "",
             reference: {
                 time: [90],
@@ -288,6 +290,7 @@ describe("CandlesService", () => {
             close: ["0.000004"],
             volume: ["0.00000005"],
             quoteVolume: ["0.00002"],
+            isClosed: [],
             nextPageToken: "",
             reference: null,
         });

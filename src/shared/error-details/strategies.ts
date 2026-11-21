@@ -19,6 +19,14 @@ export function decode(raw: ConnectErrorDetail): PolyesterErrorDetail | undefine
         const { vipTier, botCap, bots, nextVipTier, nextBotCap } = strategies.botCap;
         detail.botCap = { vipTier, botCap, bots, nextVipTier, nextBotCap };
     }
+    if (strategies.strategyCap) {
+        const { strategyCap, strategies: count } = strategies.strategyCap;
+        detail.strategyCap = { strategyCap, strategies: count };
+    }
+    if (strategies.revisionConflict) {
+        const { revision, headVersionId } = strategies.revisionConflict;
+        detail.revisionConflict = { revision: revision.toString(), headVersionId };
+    }
     if (strategies.markets.length > 0) detail.markets = strategies.markets;
     if (strategies.shortfall.length > 0) {
         detail.shortfall = strategies.shortfall.map(({ asset, amount }) => ({ asset, amount }));

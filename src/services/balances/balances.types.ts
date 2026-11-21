@@ -13,4 +13,8 @@ export type {
     PortfolioEquitySeriesGrouping,
     PortfolioEquitySnapshotResponse,
     LedgerBalance,
+    LedgerBalanceSnapshot,
+    LedgerBalanceUpdate,
+    LedgerFundingBalanceUpdate,
+    LedgerTradingBalanceUpdate,
 } from "./balances.schemas.js";

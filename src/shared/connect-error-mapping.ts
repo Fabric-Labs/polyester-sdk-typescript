@@ -310,6 +310,13 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
         );
     }
 
+    if (detail?.service === "strategies" && detail.code === "DRAFT_REVISION_CONFLICT") {
+        return new RevisionConflictError(
+            withFallback("Strategy draft changed since it was last read."),
+            options,
+        );
+    }
+
     // Arrives as ResourceExhausted, but clears only when a bot stops or reuses an indicator
     // setting, not on a retry.
     if (detail?.service === "strategies" && detail.code === "INDICATOR_SETTINGS_LIMIT_REACHED") {
@@ -626,6 +633,7 @@ const UNKNOWN_OUTCOME_ON_SERVER_TIMEOUT = new Set([
     "triggers.v1.TriggersService.ModifyTrigger",
     "triggers.v1.TriggersService.CancelTrigger",
     "triggers.v1.TriggersService.BatchCancelTriggers",
+    "triggers.v1.TriggersService.CancelAllTriggers",
     "triggers.v1.TriggersService.CancelOco",
     "triggers.v1.TriggersService.PauseTrigger",
     "triggers.v1.TriggersService.ResumeTrigger",

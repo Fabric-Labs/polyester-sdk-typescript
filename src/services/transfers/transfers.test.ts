@@ -78,6 +78,7 @@ describe("TransfersService", () => {
                     type: "internal_transfer",
                     accountCode: "trading",
                     timestamp: 1_781_190_257_836,
+                    tsNs: "0",
                     balanceAfter: "2.5",
                     isDebit: false,
                     linkId: "22",

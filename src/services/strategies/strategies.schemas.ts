@@ -2,7 +2,13 @@ import type { JsonObject } from "@bufbuild/protobuf";
 import * as v from "valibot";
 import type * as Proto from "../../gen/strategies/v1/strategies_pb.js";
 import { enumLabel } from "../../shared/proto-enum-codec.js";
-import { JsonObjectSchema, idInputSchema } from "../../shared/schemas.js";
+import {
+    JsonObjectSchema,
+    bigintStringInputSchema,
+    idInputSchema,
+    positiveBigintStringInputSchema,
+} from "../../shared/schemas.js";
+import { PROTOBUF_UINT64_MAX } from "../../shared/wire-bounds.js";
 import { formatId } from "../../utils/base58-id.js";
 import { tsObjToMs } from "../../utils/time.js";
 import { msToTimestamp } from "../../utils/timestamp.js";
@@ -10,8 +16,13 @@ import {
     BacktestStatusCodec,
     BotLogKindCodec,
     BotStatusCodec,
+    BotPauseReasonCodec,
     DeployStateCodec,
+    FlowNodeKindCodec,
+    RevisionSavedByCodec,
+    STRATEGY_BOT_STOP_MODE_VALUES,
     ScenarioOutcomeCodec,
+    StopModeCodec,
     StrategyOrderSideCodec,
 } from "./strategies.codecs.js";
 
@@ -31,6 +42,7 @@ const TimestampMsInputSchema = v.pipe(
 );
 const PageTokenInputSchema = v.optional(TrimmedStringSchema, "");
 const VersionIdInputSchema = RequiredStringSchema;
+const StrategyIdSchema = idInputSchema("strategyId");
 
 /** An exact decimal amount of an asset, e.g. `{ asset: "USDT", amount: "50" }`. */
 const MoneyInputSchema = v.strictObject({
@@ -50,7 +62,40 @@ export const GetStrategyReferenceInputSchema = v.strictObject({
 });
 export type GetStrategyReferenceInput = v.InferInput<typeof GetStrategyReferenceInputSchema>;
 
-export const ValidateStrategyInputSchema = v.strictObject({
+export const CreateStrategyInputSchema = v.pipe(
+    v.strictObject({
+        name: RequiredStringSchema,
+        /** Start from a bot template from `listTemplates`. Omit both sources for a blank strategy. */
+        templateId: v.optional(RequiredStringSchema),
+        /** Start as a copy of one of the caller's own versions. */
+        versionId: v.optional(VersionIdInputSchema),
+        /** Reusing a key with the same request returns the strategy it created. */
+        idempotencyKey: RequiredStringSchema,
+    }),
+    v.check(
+        (input) => input.templateId === undefined || input.versionId === undefined,
+        "Pass templateId or versionId, not both",
+    ),
+    v.transform(({ templateId, versionId, ...input }) => ({
+        ...input,
+        source:
+            templateId !== undefined
+                ? { case: "templateId" as const, value: templateId }
+                : versionId !== undefined
+                  ? { case: "versionId" as const, value: versionId }
+                  : { case: undefined },
+    })),
+);
+export type CreateStrategyInput = v.InferInput<typeof CreateStrategyInputSchema>;
+
+export const SaveDraftVersionInputSchema = v.strictObject({
+    strategyId: StrategyIdSchema,
+    /** The strategy's `revision` this draft was made from, as a decimal string; `"0"` for its first save. */
+    expectedRevision: v.pipe(
+        bigintStringInputSchema("expectedRevision"),
+        v.maxValue(PROTOBUF_UINT64_MAX, "expectedRevision exceeds the uint64 range"),
+    ),
+    /** The save renames the strategy to it. */
     name: RequiredStringSchema,
     /** The manifest as a JSON object shaped like `getReference`'s `manifestSchema`. */
     manifest: JsonObjectSchema,
@@ -58,8 +103,19 @@ export const ValidateStrategyInputSchema = v.strictObject({
     code: v.string(),
     /** Omit for the current runtime version. */
     runtimeVersion: v.optional(TrimmedStringSchema, ""),
+    /** Reusing a key with the same request returns the revision it saved. */
+    idempotencyKey: v.optional(TrimmedStringSchema, ""),
 });
-export type ValidateStrategyInput = v.InferInput<typeof ValidateStrategyInputSchema>;
+export type SaveDraftVersionInput = v.InferInput<typeof SaveDraftVersionInputSchema>;
+
+export const StrategyIdInputSchema = v.strictObject({ strategyId: StrategyIdSchema });
+export type StrategyInput = v.InferInput<typeof StrategyIdInputSchema>;
+
+export const RenameStrategyInputSchema = v.strictObject({
+    strategyId: StrategyIdSchema,
+    name: RequiredStringSchema,
+});
+export type RenameStrategyInput = v.InferInput<typeof RenameStrategyInputSchema>;
 
 export const StrategyVersionInputSchema = v.strictObject({ versionId: VersionIdInputSchema });
 export type StrategyVersionInput = v.InferInput<typeof StrategyVersionInputSchema>;
@@ -84,7 +140,12 @@ export type StrategyBacktestInput = v.InferInput<typeof BacktestIdInputSchema>;
 
 export const ProposeDeployInputSchema = v.pipe(
     v.strictObject({
-        versionId: VersionIdInputSchema,
+        strategyId: StrategyIdSchema,
+        /** The strategy's revision to propose, as a decimal string, e.g. `saveDraftVersion`'s `revision`. */
+        revision: v.pipe(
+            positiveBigintStringInputSchema("revision"),
+            v.maxValue(PROTOBUF_UINT64_MAX, "revision exceeds the uint64 range"),
+        ),
         botName: RequiredStringSchema,
         /** Settings form values, each setting once; settings left out take their default. */
         settings: v.optional(v.array(SettingValueInputSchema), []),
@@ -119,8 +180,41 @@ export const ListBotsInputSchema = v.strictObject({
 });
 export type ListBotsInput = v.InferInput<typeof ListBotsInputSchema>;
 
+export const ListStrategiesInputSchema = ListBotsInputSchema;
+export type ListStrategiesInput = ListBotsInput;
+
+export const ListStrategyRevisionsInputSchema = v.strictObject({
+    strategyId: StrategyIdSchema,
+    /** Page size: default 50, at most 200. */
+    limit: LimitInputSchema,
+    /** Previous `nextPageToken`; reuse only with the same `strategyId`. */
+    pageToken: PageTokenInputSchema,
+});
+export type ListStrategyRevisionsInput = v.InferInput<typeof ListStrategyRevisionsInputSchema>;
+
 export const BotIdInputSchema = v.strictObject({ botId: idInputSchema("botId") });
 export type StrategyBotInput = v.InferInput<typeof BotIdInputSchema>;
+
+export const ListBotVersionsInputSchema = v.strictObject({
+    botId: idInputSchema("botId"),
+    /** Page size: default 50, at most 200. */
+    limit: LimitInputSchema,
+    /** Previous `nextPageToken`; reuse only with the same `botId`. */
+    pageToken: PageTokenInputSchema,
+});
+export type ListBotVersionsInput = v.InferInput<typeof ListBotVersionsInputSchema>;
+
+export const StopBotInputSchema = v.pipe(
+    v.strictObject({
+        botId: idInputSchema("botId"),
+        /** `keep_orders` leaves its open orders with its subaccount; `cancel_orders` cancels them. */
+        mode: v.picklist(STRATEGY_BOT_STOP_MODE_VALUES),
+        /** Reusing a key with the same request returns the stop it recorded. */
+        idempotencyKey: RequiredStringSchema,
+    }),
+    v.transform(({ mode, ...input }) => ({ ...input, mode: StopModeCodec.inputToProto[mode] })),
+);
+export type StopBotInput = v.InferInput<typeof StopBotInputSchema>;
 
 export const ListBotLogsInputSchema = v.strictObject({
     botId: idInputSchema("botId"),
@@ -184,8 +278,6 @@ export function formatStrategyReference(r: Proto.GetStrategyReferenceResponse) {
                   stateBytes: Number(r.limits.stateBytes),
                   codeBytes: Number(r.limits.codeBytes),
                   manifestBytes: Number(r.limits.manifestBytes),
-                  uniqueIndicatorSettings: r.limits.uniqueIndicatorSettings,
-                  backtestsPerDay: r.limits.backtestsPerDay,
                   scenarioRunsPerMinute: r.limits.scenarioRunsPerMinute,
               }
             : null,
@@ -245,23 +337,169 @@ const settingField = (f: Proto.SettingField) => ({
 });
 export type StrategySettingField = ReturnType<typeof settingField>;
 
+/** `description`, `kind` and `asset` come from the settings form; empty in a proposal's summary. */
 const settingValues = (list: Proto.SettingValue[]) =>
-    list.map((s) => ({ name: s.name, value: s.value }));
+    list.map((s) => ({
+        name: s.name,
+        value: s.value,
+        description: s.description,
+        kind: s.kind,
+        asset: s.asset,
+    }));
 
-export function formatValidateStrategyResult(r: Proto.ValidateStrategyResponse) {
+function flow(f: Proto.StrategyFlow | undefined) {
+    if (!f) return null;
+    return {
+        nodes: f.nodes.map((n) => ({
+            /** Stable within a version only. */
+            nodeId: n.nodeId,
+            kind: enumLabel(FlowNodeKindCodec.protoToOutput, n.kind),
+            label: n.label,
+            /** 1-based, inclusive code lines; null when the node has no code. */
+            span: n.span ? { startLine: n.span.startLine, endLine: n.span.endLine } : null,
+            /** A trigger's manifest event, as the money card names it; else empty. */
+            event: n.event,
+            /** An action's kind, e.g. `BUY` or `LOG`; else empty. */
+            action: n.action,
+            settings: n.settings,
+        })),
+        /** `branch` is `"true"` or `"false"` out of a condition; else empty. */
+        edges: f.edges.map((e) => ({
+            fromNodeId: e.fromNodeId,
+            toNodeId: e.toNodeId,
+            branch: e.branch,
+        })),
+        /** What the graph leaves out when `complete` is false. */
+        notes: f.notes,
+        complete: f.complete,
+    };
+}
+/** What wakes a bot, what it checks and what it may do, one lane per trigger. */
+export type StrategyFlow = NonNullable<ReturnType<typeof flow>>;
+
+function versionValidation(r: Proto.VersionValidation | undefined) {
+    if (!r) return null;
     return {
         /** Same runtime version, manifest and code always give the same version. */
         versionId: r.versionId,
         runtimeVersion: r.runtimeVersion,
-        /** False means fix `errors` and validate again; it is not a thrown error. */
+        /** False means fix `errors` and save again; it is not a thrown error. */
         valid: r.valid,
         errors: r.errors.map(issue),
         warnings: r.warnings.map(issue),
         moneyCard: moneyCard(r.moneyCard),
         settingsForm: r.settingsForm.map(settingField),
+        /** Null unless `valid`, or for a version stored before flows existed. */
+        flow: flow(r.flow),
     };
 }
-export type ValidateStrategyResult = ReturnType<typeof formatValidateStrategyResult>;
+/** A version's check result. */
+export type StrategyVersionValidation = NonNullable<ReturnType<typeof versionValidation>>;
+
+export function formatStrategyVersion(r: Proto.GetStrategyVersionResponse) {
+    return {
+        versionId: r.versionId,
+        name: r.name,
+        runtimeVersion: r.runtimeVersion,
+        manifest: (r.manifest ?? {}) as JsonObject,
+        code: r.code,
+        settingsForm: r.settingsForm.map(settingField),
+        valid: r.valid,
+        createdAt: ms(r.createdAt),
+        /** Null unless `valid`, or for a version stored before flows existed. */
+        flow: flow(r.flow),
+    };
+}
+export type StrategyVersion = ReturnType<typeof formatStrategyVersion>;
+
+function origin(o: Proto.StrategyOrigin | undefined) {
+    switch (o?.source.case) {
+        case "templateId":
+            return { kind: "template" as const, templateId: o.source.value };
+        case "duplicate":
+            return { kind: "duplicate" as const, sourceVersionId: o.source.value.sourceVersionId };
+        default:
+            return null;
+    }
+}
+
+export function formatStrategy(s: Proto.Strategy) {
+    return {
+        strategyId: formatId(s.strategyId),
+        name: s.name,
+        /** The current revision, a decimal string; `"0"` until the first save. */
+        revision: s.revision.toString(),
+        /** The current revision's version; empty until the first save. */
+        headVersionId: s.headVersionId,
+        valid: s.valid,
+        /** What it started from; null for a blank strategy. */
+        origin: origin(s.origin),
+        createdAt: ms(s.createdAt),
+        /** When it was last saved or renamed. */
+        updatedAt: ms(s.updatedAt),
+        /**
+         * The newest bot deployed from it that hasn't stopped (`running` or `stopping`); null when
+         * none, or when the caller may not read bots.
+         */
+        bot: s.bot
+            ? {
+                  botId: formatId(s.bot.botId),
+                  status: enumLabel(BotStatusCodec.protoToOutput, s.bot.status),
+              }
+            : null,
+    };
+}
+export type Strategy = ReturnType<typeof formatStrategy>;
+
+const requireStrategy = (s: Proto.Strategy | undefined, rpc: string) => {
+    if (!s) throw new Error(`${rpc} response is missing its strategy`);
+    return formatStrategy(s);
+};
+
+export function formatCreateStrategyResult(r: Proto.CreateStrategyResponse) {
+    return {
+        strategy: requireStrategy(r.strategy, "CreateStrategy"),
+        /** Revision 1's check result; null for a blank strategy. */
+        version: versionValidation(r.version),
+    };
+}
+export type CreateStrategyResult = ReturnType<typeof formatCreateStrategyResult>;
+
+export function formatSaveDraftVersionResult(r: Proto.SaveDraftVersionResponse) {
+    const version = versionValidation(r.version);
+    if (!version) throw new Error("SaveDraftVersion response is missing its version");
+    return {
+        /** The revision saved, a decimal string; the current one when the content is unchanged. */
+        revision: r.revision.toString(),
+        version,
+    };
+}
+export type SaveDraftVersionResult = ReturnType<typeof formatSaveDraftVersionResult>;
+
+export function formatStrategyDetails(r: Proto.GetStrategyResponse) {
+    return {
+        strategy: requireStrategy(r.strategy, "GetStrategy"),
+        /** The current revision's version; null until the first save. */
+        head: r.head ? formatStrategyVersion(r.head) : null,
+    };
+}
+export type StrategyDetails = ReturnType<typeof formatStrategyDetails>;
+
+export function formatRenameStrategyResult(r: Proto.RenameStrategyResponse) {
+    return requireStrategy(r.strategy, "RenameStrategy");
+}
+
+export function formatStrategyRevision(r: Proto.StrategyRevision) {
+    return {
+        /** A decimal string, from `"1"`. */
+        revision: r.revision.toString(),
+        versionId: r.versionId,
+        valid: r.valid,
+        savedAt: ms(r.savedAt),
+        savedBy: enumLabel(RevisionSavedByCodec.protoToOutput, r.savedBy),
+    };
+}
+export type StrategyRevision = ReturnType<typeof formatStrategyRevision>;
 
 export function formatRunScenariosResult(r: Proto.RunScenariosResponse) {
     return {
@@ -380,25 +618,31 @@ export function formatExplainStrategyResult(r: Proto.ExplainStrategyResponse) {
 }
 export type ExplainStrategyResult = ReturnType<typeof formatExplainStrategyResult>;
 
+function deployProposalSummary(s: Proto.DeployProposalSummary | undefined) {
+    if (!s) return null;
+    return {
+        versionId: s.versionId,
+        /** The strategy it came from; null once that strategy is deleted. */
+        strategyId: optionalId(s.strategyId),
+        /** The strategy's revision, a decimal string; null once that strategy is deleted. */
+        revision: s.revision === 0n ? null : s.revision.toString(),
+        botName: s.botName,
+        moneyCard: moneyCard(s.moneyCard),
+        settings: settingValues(s.settings),
+        /** Null when the main account funds the bot. */
+        fundingSubaccountId: optionalId(s.fundingSubaccountId),
+        funding: moneyList(s.funding),
+        scenariosPassed: s.scenariosPassed,
+        backtest: backtestSummary(s.backtest),
+    };
+}
+
 export function formatProposeDeployResult(r: Proto.ProposeDeployResponse) {
-    const s = r.summary;
     return {
         proposalId: formatId(r.proposalId),
-        /** Website page where the user deploys the bot with MFA and a wallet signature. */
+        /** Website page where the user deploys the bot; open it, never parse it. */
         deployUrl: r.deployUrl,
-        summary: s
-            ? {
-                  versionId: s.versionId,
-                  botName: s.botName,
-                  moneyCard: moneyCard(s.moneyCard),
-                  settings: settingValues(s.settings),
-                  /** Null when the main account funds the bot. */
-                  fundingSubaccountId: optionalId(s.fundingSubaccountId),
-                  funding: moneyList(s.funding),
-                  scenariosPassed: s.scenariosPassed,
-                  backtest: backtestSummary(s.backtest),
-              }
-            : null,
+        summary: deployProposalSummary(r.summary),
         expiresAt: ms(r.expiresAt),
     };
 }
@@ -417,11 +661,26 @@ export function formatDeployStatus(d: Proto.DeployStatus) {
         subaccountId: optionalId(d.subaccountId),
         /** Why the deploy stopped; empty unless `state` is `failed`. */
         failure: d.failure,
+        /** The step a `failed` deploy failed in; `unspecified` otherwise. */
+        failedAt: enumLabel(DeployStateCodec.protoToOutput, d.failedAt),
         expiresAt: ms(d.expiresAt),
         updatedAt: ms(d.updatedAt),
     };
 }
 export type StrategyDeployStatus = ReturnType<typeof formatDeployStatus>;
+
+export function formatDeployProposal(r: Proto.GetDeployProposalResponse) {
+    if (!r.status) throw new Error("GetDeployProposal response is missing its status");
+    return {
+        proposalId: formatId(r.proposalId),
+        summary: deployProposalSummary(r.summary),
+        status: formatDeployStatus(r.status),
+        createdAt: ms(r.createdAt),
+        /** The funding subaccount's current label; empty when the main account funds the bot. */
+        fundingSubaccountLabel: r.fundingSubaccountLabel,
+    };
+}
+export type StrategyDeployProposal = ReturnType<typeof formatDeployProposal>;
 
 export function formatBot(b: Proto.Bot) {
     return {
@@ -432,15 +691,55 @@ export function formatBot(b: Proto.Bot) {
         status: enumLabel(BotStatusCodec.protoToOutput, b.status),
         /** Empty when `running`. */
         statusReason: b.statusReason,
+        /** Why a `paused` bot paused; `unspecified` otherwise. */
+        pauseReason: enumLabel(BotPauseReasonCodec.protoToOutput, b.pauseReason),
         versionId: b.versionId,
         /** Since deployment, an exact decimal in `quoteAsset`; negative for a loss. */
         profitAndLoss: b.profitAndLoss,
         lastDecisionAt: ms(b.lastDecisionAt),
         createdAt: ms(b.createdAt),
         quoteAsset: b.quoteAsset,
+        /** The markets it trades, e.g. `BTC/USDT`. */
+        markets: b.markets,
+        /** Where its initial funding came from; null until recorded. */
+        funding: b.funding
+            ? {
+                  /** Null when the main account funded it. */
+                  subaccountId: optionalId(b.funding.subaccountId),
+                  /** The funding subaccount's current label. */
+                  subaccountLabel: b.funding.subaccountLabel,
+                  initialFunding: moneyList(b.funding.initialFunding),
+              }
+            : null,
+        /** Share of the time since first deployed that it was running (paused counts), `"0"` to `"1"`. */
+        uptimeRatio: b.uptimeRatio,
+        /** When it last started; null unless `running`. */
+        runningSince: ms(b.runningSince),
     };
 }
 export type StrategyBot = ReturnType<typeof formatBot>;
+
+export function formatStopBotResult(r: Proto.StopBotResponse) {
+    if (!r.bot) throw new Error("StopBot response is missing its bot");
+    return {
+        /** `stopping` until the stop completes, then `stopped`; poll `getBot` to follow it. */
+        bot: formatBot(r.bot),
+        mode: enumLabel(StopModeCodec.protoToOutput, r.mode),
+    };
+}
+export type StopStrategyBotResult = ReturnType<typeof formatStopBotResult>;
+
+export function formatBotVersion(b: Proto.BotVersion) {
+    return {
+        versionId: b.versionId,
+        name: b.name,
+        runtimeVersion: b.runtimeVersion,
+        startedAt: ms(b.startedAt),
+        /** When its stop was recorded; null for the current run. */
+        stoppedAt: ms(b.stoppedAt),
+    };
+}
+export type StrategyBotVersion = ReturnType<typeof formatBotVersion>;
 
 export function formatBotDetails(r: Proto.GetBotResponse) {
     if (!r.bot) throw new Error("GetBot response is missing its bot");
@@ -481,7 +780,26 @@ export function formatBotLogEntry(e: Proto.BotLogEntry) {
 }
 export type StrategyBotLogEntry = ReturnType<typeof formatBotLogEntry>;
 
-/** An empty `nextPageToken` means no more. */
-export type ListStrategyBotsResult = { bots: StrategyBot[]; nextPageToken: string };
+/**
+ * `statusCounts` counts all the caller's bots per status, on every page, listing only statuses
+ * that have a bot; it is not a pagination total. An empty `nextPageToken` means no more.
+ */
+export type ListStrategyBotsResult = {
+    bots: StrategyBot[];
+    nextPageToken: string;
+    statusCounts: { status: StrategyBot["status"]; count: number }[];
+};
+/** Newest run first, one entry per run; an empty `nextPageToken` means no more. */
+export type ListStrategyBotVersionsResult = {
+    versions: StrategyBotVersion[];
+    nextPageToken: string;
+};
+/** Most recently saved or renamed first; an empty `nextPageToken` means no more. */
+export type ListStrategiesResult = { strategies: Strategy[]; nextPageToken: string };
+/** Newest first; an empty `nextPageToken` means no more. */
+export type ListStrategyRevisionsResult = {
+    revisions: StrategyRevision[];
+    nextPageToken: string;
+};
 /** Oldest first; an empty `nextPageToken` means no more. */
 export type ListStrategyBotLogsResult = { entries: StrategyBotLogEntry[]; nextPageToken: string };

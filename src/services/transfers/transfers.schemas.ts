@@ -50,6 +50,7 @@ export const LedgerTransferSchema = v.pipe(
         transferCode: v.number(),
         accountCode: v.number(),
         tsUs: WireTimestampInputSchema,
+        tsNs: v.optional(WireTimestampInputSchema, 0n),
         linkId: v.optional(v.bigint()),
         flowId: v.optional(v.string()),
         source: v.optional(LedgerTransferSideSchema),
@@ -71,6 +72,8 @@ export const LedgerTransferSchema = v.pipe(
             type: enumLabel(TransferCodeCodec.protoToOutput, tr.transferCode),
             accountCode: enumLabel(AccountCodeCodec.protoToOutput, tr.accountCode),
             timestamp: wireTimestampToMs(tr.tsUs),
+            /** Exact transfer time in nanoseconds; compare with a balance `tradingAppliedThroughTsNs`. */
+            tsNs: tr.tsNs.toString(),
             isDebit: tr.isDebit,
             linkId,
             flowId: tr.flowId?.trim() ?? "",

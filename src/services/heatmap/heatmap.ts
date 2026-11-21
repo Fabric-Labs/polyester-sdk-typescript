@@ -95,6 +95,8 @@ export class HeatmapService implements OrderbookHeatmapProvider {
 
     /**
      * Subscribes to live heatmap buckets on public:spot:market:heatmap:{interval}:{symbolId}:proto and emits parsed bid/ask delta buckets for the selected interval.
+     * A bucket, final or not, can arrive again with more updates: keep the one with the highest
+     * `bookSeqEnd` per `tsSec`.
      */
     subscribeLive(input: SubscribeHeatmapLiveInput): () => void {
         const params = parse(SubscribeHeatmapLiveParamsSchema, {

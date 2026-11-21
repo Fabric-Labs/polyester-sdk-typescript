@@ -102,6 +102,8 @@ try {
     type GeneratedUsernameOffer,
     type LadderDetailsOutput,
     type LedgerBalance,
+    type LedgerBalanceSnapshot,
+    type LedgerBalanceUpdate,
     type LifecycleFlowSummary,
     type MarketOverview,
     type ModifyOrderInput,
@@ -145,6 +147,7 @@ import { notificationsService } from "@polyester/sdk/services/notifications";
 import { swapService } from "@polyester/sdk/services/swap";
 import { ordersService } from "@polyester/sdk/services/orders";
 import { priceAlertsService } from "@polyester/sdk/services/price-alerts";
+import { profitAndLossService } from "@polyester/sdk/services/profit-and-loss";
 import { tradingRateLimitsService } from "@polyester/sdk/services/rate-limits";
 import { statementExportsService } from "@polyester/sdk/services/statement-exports";
 import { strategiesService } from "@polyester/sdk/services/strategies";
@@ -395,13 +398,28 @@ async function verifyServiceInference(): Promise<void> {
     expectType<import("@polyester/sdk").CreateTradingToFundingBatchResult>(
         await toFundingBatch.submit({ stepUpToken: "step-up" }),
     );
-    const strategyCheck = await client.strategies.validate({
+    const strategyDraft = await client.strategies.saveDraftVersion({
+        strategyId: "1",
+        expectedRevision: "0",
         name: "Grid",
         manifest: {},
         code: "",
-    } satisfies import("@polyester/sdk").ValidateStrategyInput);
-    expectType<import("@polyester/sdk").ValidateStrategyResult>(strategyCheck);
-    expectNotAny(strategyCheck, true);
+    } satisfies import("@polyester/sdk").SaveDraftVersionInput);
+    expectType<import("@polyester/sdk").SaveDraftVersionResult>(strategyDraft);
+    expectType<import("@polyester/sdk").StrategyFlow | null>(strategyDraft.version.flow);
+    expectNotAny(strategyDraft, true);
+    const strategyDetails = await client.strategies.get({ strategyId: "1" });
+    expectType<import("@polyester/sdk").Strategy>(strategyDetails.strategy);
+    expectType<import("@polyester/sdk").StrategyVersion | null>(strategyDetails.head);
+    const stoppedBot = await client.strategies.stopBot({
+        botId: "1",
+        mode: "keep_orders",
+        idempotencyKey: "stop-1",
+    } satisfies import("@polyester/sdk").StopBotInput);
+    expectType<import("@polyester/sdk").StrategyBotStopMode | "unspecified">(stoppedBot.mode);
+    expectType<import("@polyester/sdk").StrategyBotPauseReason | "unspecified">(
+        stoppedBot.bot.pauseReason,
+    );
     const deployStatus = await client.strategies.getDeployStatus({ proposalId: "1" });
     expectType<import("@polyester/sdk").StrategyDeployState | "unspecified">(deployStatus.state);
     expectType<string | null>(deployStatus.botId);
@@ -409,6 +427,7 @@ async function verifyServiceInference(): Promise<void> {
         service: "strategies",
         code: "INSUFFICIENT_FUNDS",
         shortfall: [{ asset: "USDT", amount: "1" }],
+        revisionConflict: { revision: "2", headVersionId: "sha256:1" },
     };
     expectType<PolyesterErrorDetail>(strategiesDetail);
     const dustBalances = await client.dustConversion.listBalances();
@@ -485,6 +504,23 @@ async function verifyServiceInference(): Promise<void> {
     );
     expectType<import("@polyester/sdk").StatementExportDownloadUrl>(
         await client.statementExports.getDownloadUrl({ exportId: statementExport.exportId }),
+    );
+    const profitAndLoss = await client.profitAndLoss.get({
+        window: "days_7",
+    } satisfies import("@polyester/sdk").GetProfitAndLossInput);
+    expectType<import("@polyester/sdk").ProfitAndLoss>(profitAndLoss);
+    expectNotAny(profitAndLoss, true);
+    expectType<string | null>(profitAndLoss.pnlUsd);
+    expectType<import("@polyester/sdk").ListDailyProfitAndLossResult>(
+        await client.profitAndLoss.listDaily({
+            startTime: 0,
+            endTime: 86_400_000,
+        } satisfies import("@polyester/sdk").ListDailyProfitAndLossInput),
+    );
+    expectType<import("@polyester/sdk").TradingStatistics>(
+        await client.profitAndLoss.getTradingStatistics({
+            window: "lifetime",
+        } satisfies import("@polyester/sdk").GetTradingStatisticsInput),
     );
     expectType<import("@polyester/sdk").ZipperRouteStatus | undefined>(
         ({} as import("@polyester/sdk").ZipperAssetChainVariant).depositStatus,
@@ -616,6 +652,9 @@ async function verifyServiceInference(): Promise<void> {
     const balances = await client.balances.list();
     expectType<LedgerBalance[]>(balances);
     expectNotAny(balances[0], true);
+    const balanceSnapshot = await client.balances.getSnapshot();
+    expectType<LedgerBalanceSnapshot>(balanceSnapshot);
+    expectNotAny(balanceSnapshot, true);
 
     const portfolioHistory = await client.balances.getPortfolioEquityHistory({ range: "1d" });
     expectType<PortfolioEquityHistoryResponse>(portfolioHistory);
@@ -703,9 +742,9 @@ async function verifyServiceInference(): Promise<void> {
 
     client.balances.subscribe({
         accountId: "account-id",
-        onEvent: (balance) => {
-            expectType<LedgerBalance>(balance);
-            expectNotAny(balance, true);
+        onEvent: (update) => {
+            expectType<LedgerBalanceUpdate>(update);
+            expectNotAny(update, true);
         },
     });
     client.lifecycle.subscribeOpenFlows({
@@ -732,6 +771,7 @@ async function verifyCoreServiceAccessors(): Promise<void> {
     expectType<typeof client.tradingRateLimits>(tradingRateLimitsService(client));
     expectType<typeof client.autoWithdraw>(autoWithdrawService(browserCore));
     expectType<typeof client.priceAlerts>(priceAlertsService(browserCore));
+    expectType<typeof client.profitAndLoss>(profitAndLossService(browserCore));
     expectType<typeof client.connectedApps>(connectedAppsService(browserCore));
     expectType<typeof client.accountActivity>(accountActivityService(browserCore));
     expectType<typeof client.notifications>(notificationsService(browserCore));

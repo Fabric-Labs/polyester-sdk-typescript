@@ -25,6 +25,7 @@ import {
     createModifyTriggerInputSchema,
     ListTriggersInputSchema,
     BatchCancelTriggersInputSchema,
+    CancelAllTriggersInputSchema,
     CancelOcoInputSchema,
     CancelTriggerInputSchema,
     PauseTriggerInputSchema,
@@ -35,6 +36,7 @@ import {
     CreateOcoResultSchema,
     CancelOcoResultSchema,
     BatchCancelTriggersResultSchema,
+    CancelAllTriggersResultSchema,
     CancelTriggerResultSchema,
     ModifyTriggerResultSchema,
     PauseTriggerResultSchema,
@@ -49,6 +51,8 @@ import {
     type CancelOcoResult,
     type BatchCancelTriggersInput,
     type BatchCancelTriggersResult,
+    type CancelAllTriggersInput,
+    type CancelAllTriggersResult,
     type ListTriggersInput,
     type CancelTriggerInput,
     type GetTriggerInput,
@@ -264,6 +268,30 @@ export class TriggersService {
             );
         }
         return result;
+    }
+
+    /**
+     * Cancels every trigger of the account scope matching `symbolIds`, `side` and `triggerTypes`
+     * (empty or omitted matches all), with its working orders (a TWAP slice, ladder levels, an
+     * attached leg's exit); other orders stay open. `dryRun` only counts them. What it cancels is
+     * fixed when its `requestId` is first accepted. A requestId is generated when omitted; retry
+     * with the same requestId and criteria within 2 minutes to get the original count. The result
+     * lists no trigger IDs, so refresh the trigger list afterwards.
+     */
+    async cancelAll(
+        input: CancelAllTriggersInput = {},
+        options?: PolyesterMutationOptions,
+    ): Promise<CancelAllTriggersResult> {
+        const resolved = {
+            ...resolveAccountScopedInput(input, this.#resolver),
+            requestId: input.requestId ?? createMutationRequestId(),
+        };
+        const validated = parse(CancelAllTriggersInputSchema, resolved);
+        const res = await this.#client.cancelAllTriggers(
+            removeUndefined(validated),
+            toConnectCallOptions(options),
+        );
+        return parse(CancelAllTriggersResultSchema, res);
     }
 
     /**

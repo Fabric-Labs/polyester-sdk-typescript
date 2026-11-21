@@ -37,6 +37,7 @@ import { NotificationService } from "./gen/notifications/v1/notifications_pb.js"
 import { OrderbookService } from "./gen/orderbook/v1/orderbook_pb.js";
 import { OrdersService } from "./gen/orders/v1/orders_pb.js";
 import { OrdersReadService } from "./gen/orders/v1/orders_read_pb.js";
+import { ProfitAndLossService } from "./gen/pnl/v1/pnl_pb.js";
 import { RateLimitService } from "./gen/ratelimit/v1/ratelimit_pb.js";
 import { RewardCampaignService } from "./gen/rewards/v1/rewards_pb.js";
 import { InternalTransferService } from "./gen/transfer/v1/internal_transfer_pb.js";
@@ -85,6 +86,7 @@ export const WIRED_SERVICE_DESCRIPTORS: readonly DescService[] = [
     PolicyService,
     PriceAlertService,
     ProfileService,
+    ProfitAndLossService,
     RateLimitService,
     ResolveService,
     RewardCampaignService,

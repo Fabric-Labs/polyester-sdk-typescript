@@ -121,6 +121,7 @@ const CandleColumnarRawSchema = v.object({
     close: v.array(v.bigint()),
     volume: v.array(v.bigint()),
     quoteVolume: v.array(v.string()),
+    isClosed: v.optional(v.array(v.boolean()), []),
     referenceTsSec: v.optional(v.array(v.bigint()), []),
     referenceOpen: v.optional(v.array(v.bigint()), []),
     referenceHigh: v.optional(v.array(v.bigint()), []),
@@ -153,6 +154,8 @@ export function createCandleColumnarSchema(scales: SdkScales) {
                 close: scaledArrayToDecimal(d.close, priceScale),
                 volume: scaledArrayToDecimal(d.volume, volumeScale),
                 quoteVolume: d.quoteVolume,
+                /** Closed-bucket flag per row; only an `includeIncomplete` open candle, last, is false. */
+                isClosed: d.isClosed,
                 nextPageToken: d.nextPageToken,
                 reference: hasReference
                     ? {
@@ -187,6 +190,8 @@ export function createCandleColumnarIntSchema(scales: SdkScales) {
                 close: scaledArrayToDecimal(d.close, priceScale),
                 volume: scaledArrayToDecimal(d.volume, volumeScale),
                 quoteVolume: d.quoteVolume,
+                /** Closed-bucket flag per row; only an `includeIncomplete` open candle, last, is false. */
+                isClosed: d.isClosed,
                 nextPageToken: d.nextPageToken,
                 reference:
                     referenceTsSec.length > 0

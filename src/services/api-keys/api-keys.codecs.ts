@@ -5,7 +5,7 @@ export const API_KEY_STATUS_VALUES = ["active", "revoked", "disabled"] as const;
 export type ApiKeyStatusLabel = (typeof API_KEY_STATUS_VALUES)[number];
 export const API_KEY_UPDATE_STATUS_VALUES = ["active", "disabled"] as const;
 export type ApiKeyUpdateStatusLabel = (typeof API_KEY_UPDATE_STATUS_VALUES)[number];
-export const API_KEY_PURPOSE_VALUES = ["standard", "assistant", "admin"] as const;
+export const API_KEY_PURPOSE_VALUES = ["standard", "assistant", "admin", "strategy_bot"] as const;
 export type ApiKeyPurposeLabel = (typeof API_KEY_PURPOSE_VALUES)[number];
 /** Purposes a key can be created with or switched to; assistant keys come from `setAssistantKeys`. */
 export const API_KEY_PURPOSE_INPUT_VALUES = ["standard", "admin"] as const;
@@ -33,7 +33,9 @@ export const AssistantKeyPresetCodec = {
  * of the account. They are listed, updated and revoked like any key. `admin` keys are elevated:
  * their policy's admin permissions let them manage the main account's other keys and its
  * sub-account policies without a session. Only the owner's session with a fresh step-up proof
- * can create, promote, change or delete one.
+ * can create, promote, change or delete one. A `strategy_bot` key trades for one strategy bot
+ * (`strategyBotId`) on its own sub-account: no call changes, revokes or re-binds it while the bot
+ * holds it (`AUTH_STRATEGY_BOT_MANAGED`).
  */
 export const ApiKeyPurposeCodec = {
     inputToProto: {
@@ -45,6 +47,7 @@ export const ApiKeyPurposeCodec = {
         [Proto.ApiKeyPurpose.STANDARD]: "standard",
         [Proto.ApiKeyPurpose.ASSISTANT]: "assistant",
         [Proto.ApiKeyPurpose.ADMIN_KEY]: "admin",
+        [Proto.ApiKeyPurpose.STRATEGY_BOT]: "strategy_bot",
     } satisfies ProtoToOutput<Proto.ApiKeyPurpose, ApiKeyPurposeLabel>,
 } as const;
 
