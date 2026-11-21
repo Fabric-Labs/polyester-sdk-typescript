@@ -51,6 +51,7 @@ function funding(revision: string, value: string): LedgerBalanceUpdate {
 
 function setup(...answers: Array<LedgerBalanceSnapshot | Error>) {
     const events: LedgerBalancesEvent[] = [];
+    let connected = true;
     const errors: unknown[] = [];
     const fetchSnapshot = vi.fn(async () => {
         const next = answers.length > 1 ? answers.shift() : answers[0];
@@ -61,9 +62,11 @@ function setup(...answers: Array<LedgerBalanceSnapshot | Error>) {
         fetchSnapshot,
         emit: (event) => events.push(event),
         onSnapshotError: (error) => errors.push(error),
+        isConnected: () => connected,
     });
     const trading1 = () => events.map((e) => [e.kind, e.balances[0]?.trading, e.tradingSequence]);
-    return { sync, events, errors, fetchSnapshot, trading1 };
+    const disconnect = () => (connected = false);
+    return { sync, events, errors, fetchSnapshot, trading1, disconnect };
 }
 
 describe("createBalanceSync", () => {
@@ -139,6 +142,23 @@ describe("createBalanceSync", () => {
         sync.update(trading("E", 10, "late"));
         await vi.advanceTimersByTimeAsync(0);
         expect(fetchSnapshot).toHaveBeenCalledTimes(1);
+    });
+
+    it("stops when realtime drops the socket and ignores edits to emitted rows", async () => {
+        const dropped = setup(new ServiceUnavailableError("busy"), snapshot("E", "0"));
+        dropped.sync.connected();
+        await vi.advanceTimersByTimeAsync(0);
+        dropped.disconnect();
+        await vi.advanceTimersByTimeAsync(10_000);
+        expect(dropped.fetchSnapshot).toHaveBeenCalledTimes(1);
+        expect(dropped.events).toEqual([]);
+
+        const { sync, events } = setup(snapshot("E", "0"));
+        sync.connected();
+        await vi.advanceTimersByTimeAsync(0);
+        events[0]!.balances[0]!.fundingRevision = "100";
+        sync.update(funding("11", "6"));
+        expect(events.at(-1)?.balances[0]).toMatchObject({ funding: "6", fundingRevision: "11" });
     });
 
     it("retries a retryable snapshot failure and stops on another", async () => {

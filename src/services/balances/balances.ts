@@ -4,7 +4,11 @@ import { parse } from "../../shared/validation.js";
 import type { PolyesterRealtime } from "../../realtime/index.js";
 import { createSdkSubscriptionErrorContext } from "../../shared/subscription-errors.js";
 import { createBalanceSync, type LedgerBalancesEvent } from "./balances.sync.js";
-import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
+import {
+    type SubaccountResolver,
+    resolveAccountScope,
+    resolveAccountScopedInput,
+} from "../subaccount-resolver.js";
 import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
@@ -180,6 +184,7 @@ export class BalancesService {
      */
     subscribe(input: SubscribeBalancesInput): () => void {
         const channel = `private:ledger:balances:${input.accountId}:proto`;
+        const account = resolveAccountScope(input.account, this.#resolver) ?? "main";
         const report = (type: string, error: unknown) => {
             try {
                 input.onError?.(createSdkSubscriptionErrorContext(channel, type, error));
@@ -188,7 +193,10 @@ export class BalancesService {
             }
         };
         const sync = createBalanceSync({
-            fetchSnapshot: () => this.getSnapshot({ account: input.account }),
+            // Pinned now: the channel is fixed to `accountId`, so a later account switch must not
+            // re-resolve the snapshot's scope.
+            fetchSnapshot: () => this.getSnapshot({ account }),
+            isConnected: () => this.#realtime.connection.private.state !== "disconnected",
             emit: (event) => {
                 try {
                     input.onEvent(event);

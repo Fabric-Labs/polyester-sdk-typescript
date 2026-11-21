@@ -495,6 +495,25 @@ describe("BalancesService", () => {
         expect(realtime.connectProtoChannel.mock.results[0]?.value).toHaveBeenCalledTimes(1);
     });
 
+    it("pins the snapshot scope when subscribing, so an account switch does not change it", async () => {
+        const realtime = realtimeClientStub();
+        const transport = unaryTransport({ balances: [] });
+        let active: string | null = formatId(8n);
+        const service = new BalancesService(
+            { authApi: transport.transport },
+            realtime.realtime,
+            { getDefaultSubaccountId: () => active },
+            testScales(),
+        );
+
+        service.subscribe({ accountId: "acct-8", onEvent: vi.fn() });
+        active = formatId(9n);
+        realtime.params?.onConnected?.();
+        await flushAsync();
+
+        expect((transport.lastCall()?.message as { subaccountId?: bigint }).subaccountId).toBe(8n);
+    });
+
     it("routes malformed balance publications to the subscription onError", async () => {
         const realtime = realtimeClientStub();
         const onEvent = vi.fn();
