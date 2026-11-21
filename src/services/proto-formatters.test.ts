@@ -171,7 +171,6 @@ describe("protobuf fast-path formatters", () => {
                 funding: { hi: 0n, lo: 1_500_000_000_000_000_000n },
                 reserved: { hi: 0n, lo: 1n },
                 available: { hi: 0n, lo: 2n },
-                tradingRevision: 9n,
                 fundingRevision: 10n,
             }),
         ]) {

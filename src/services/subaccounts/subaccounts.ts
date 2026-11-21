@@ -55,6 +55,11 @@ import {
 
 interface SubscribeSubaccountsInput extends BaseSubscribeInput<Subaccount> {
     accountId: string;
+    /**
+     * Stream the subaccounts the account holds a delegated role on, with that role, instead of the
+     * ones it owns. Signed-in sessions only: API keys are refused with `AUTH_SESSION_KIND_NOT_ALLOWED`.
+     */
+    delegated?: boolean;
 }
 
 interface SubscribeApiKeysInput extends BaseSubscribeInput<ApiKey> {
@@ -352,10 +357,11 @@ export class SubaccountsService {
     }
 
     /**
-     * Subscribes to private subaccount updates for an account and emits normalized subaccount records. A record with `removed: true` means the caller lost access to that subaccount; remove it locally. Losing access also ends the caller's subscriptions to that subaccount's channels.
+     * Subscribes to private updates of the subaccounts an account owns, or with `delegated` of those it holds a delegated role on, and emits normalized subaccount records. A record with `removed: true` means the caller lost access to that subaccount; remove it locally. Losing access also ends the caller's subscriptions to that subaccount's channels.
      */
     subscribe(input: SubscribeSubaccountsInput) {
-        const channel = `private:auth:subaccounts:${input.accountId}:proto`;
+        const scope = input.delegated ? "delegated:" : "";
+        const channel = `private:auth:subaccounts:${scope}${input.accountId}:proto`;
 
         return this.#realtime.connectProtoChannel({
             channel,

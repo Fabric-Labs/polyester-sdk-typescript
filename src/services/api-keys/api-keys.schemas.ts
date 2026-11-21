@@ -170,8 +170,10 @@ export const ApiKeySchema = v.pipe(
             }),
         ),
         status: enumLabelSchema(ApiKeyStatusCodec.protoToOutput),
-        /** `"standard"`, `"assistant"`, or `"unspecified"` from older servers. */
+        /** `"standard"`, `"assistant"`, `"admin"`, `"strategy_bot"`, or `"unspecified"` from older servers. */
         purpose: v.optional(enumLabelSchema(ApiKeyPurposeCodec.protoToOutput), 0),
+        /** The strategy bot a `strategy_bot` key trades for, as `strategies` bot IDs; absent otherwise. */
+        strategyBotId: OptionalPublicIdSchema,
         createdByActor: v.string(),
         revision: BigIntStringSchema,
     }),

@@ -167,6 +167,33 @@ describe("AssistantService unary calls", () => {
         });
     });
 
+    it("lists and sends messages by strategy subject", async () => {
+        const { transport, service } = serviceWith({
+            conversations: [
+                {
+                    conversationId: 1n,
+                    title: "",
+                    subject: { kind: { case: "strategy", value: { strategyId: 7n } } },
+                    createdAt: ts(1),
+                    updatedAt: ts(2),
+                },
+            ],
+            nextPageToken: "",
+            runId: 3n,
+            conversationId: 1n,
+        });
+        const subject = { strategyId: formatId(7n) };
+        const protoSubject = { kind: { case: "strategy", value: { strategyId: 7n } } };
+
+        await expect(service.listConversations({ subject })).resolves.toMatchObject({
+            conversations: [{ conversationId: formatId(1n), subject }],
+        });
+        expect(transport.lastCall()?.message).toEqual({ subject: protoSubject });
+
+        await service.sendMessage({ text: "hi", idempotencyKey: "k-1", subject });
+        expect(transport.lastCall()?.message).toMatchObject({ subject: protoSubject });
+    });
+
     it("pages conversations, messages and memories", async () => {
         const { transport, service } = serviceWith({
             conversations: [

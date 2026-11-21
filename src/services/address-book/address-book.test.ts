@@ -365,6 +365,23 @@ describe("AddressBookService", () => {
         ]);
     });
 
+    it("subscribeViewInvalidations streams subaccount address books on their own channel", () => {
+        const realtime = realtimeClientStub();
+        const service = new AddressBookService(
+            { authApi: unaryTransport({}).transport },
+            realtime.realtime,
+        );
+
+        service.subscribeViewInvalidations({
+            rootAccountPublicId: "root-public",
+            subaccounts: true,
+            onEvent: vi.fn(),
+        });
+        expect(realtime.params?.channel).toBe(
+            "private:auth:address-books:subaccounts:root-public:proto",
+        );
+    });
+
     it("subscribeViewInvalidations parses scoped invalidation publications", () => {
         const realtime = realtimeClientStub();
         const service = new AddressBookService(

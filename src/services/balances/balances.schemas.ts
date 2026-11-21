@@ -15,6 +15,8 @@ import {
     accountScopeToSubaccountId,
 } from "../../shared/account-scope.js";
 import { PublicIdSchema, U128Schema } from "../../shared/schemas.js";
+import { AccountCode } from "../../gen/ledger/v1/catalog_pb.js";
+import { LedgerTransferSchema, type LedgerTransfer } from "../transfers/transfers.schemas.js";
 
 /**
  * Equity history values are quoted in the response's quote currency at a fixed
@@ -33,10 +35,6 @@ const LedgerBalanceFieldsSchema = v.object({
     funding: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
     reserved: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
     available: v.pipe(v.optional(U128Schema), v.transform(fromU128)),
-    tradingRevision: v.pipe(
-        v.optional(v.bigint(), 0n),
-        v.transform((value) => value.toString()),
-    ),
     fundingRevision: v.pipe(
         v.optional(v.bigint(), 0n),
         v.transform((value) => value.toString()),
@@ -50,7 +48,6 @@ function toLedgerBalance(b: v.InferOutput<typeof LedgerBalanceFieldsSchema>) {
         trading: scaledToDecimalOutput(b.trading ?? 0n, E18_SCALE),
         reserved: scaledToDecimalOutput(b.reserved ?? 0n, E18_SCALE),
         available: scaledToDecimalOutput(b.available ?? 0n, E18_SCALE),
-        tradingRevision: b.tradingRevision,
         fundingRevision: b.fundingRevision,
     };
 }
@@ -71,12 +68,92 @@ export function formatLedgerBalance(b: ProtoLedgerRead.AssetBalance): LedgerBala
         funding: fromU128(b.funding),
         reserved: fromU128(b.reserved),
         available: fromU128(b.available),
-        tradingRevision: (b.tradingRevision ?? 0n).toString(),
         fundingRevision: (b.fundingRevision ?? 0n).toString(),
     });
 }
 
 export type LedgerBalance = v.InferOutput<ReturnType<typeof createLedgerBalanceSchema>>;
+
+/**
+ * `balances.getSnapshot`: the balances with the position (`tradingEpoch`, `tradingSequence`) of
+ * their Trading values, all taken at that one position. Apply the balance stream's Trading updates
+ * of `tradingEpoch` from `tradingSequence + 1` on; compare epochs only for equality.
+ */
+export interface LedgerBalanceSnapshot {
+    balances: LedgerBalance[];
+    tradingEpoch: string;
+    tradingSequence: string;
+    /** Every Trading transfer whose `tsNs` is at or below this is in these balances. */
+    tradingAppliedThroughTsNs: string;
+}
+
+/**
+ * One step of the account's Trading balances at (`tradingEpoch`, `tradingSequence`). Within an
+ * epoch sequences run 1, 2, 3 with no gap; show Trading values only after a `complete` update.
+ * Its balances carry Trading fields only.
+ */
+export interface LedgerTradingBalanceUpdate {
+    account: "trading";
+    tradingEpoch: string;
+    tradingSequence: string;
+    complete: boolean;
+    tradingAppliedThroughTsNs: string;
+    balances: Pick<LedgerBalance, "assetId" | "trading" | "reserved" | "available">[];
+    /** Trading transfer legs this update applied, oldest first; `(transferId, isDebit)` names a leg. */
+    transfers: LedgerTransfer[];
+}
+
+/** One asset's Funding balance; newer when its `fundingRevision` is higher. No Trading fields. */
+export interface LedgerFundingBalanceUpdate {
+    account: "funding";
+    balances: Pick<LedgerBalance, "assetId" | "funding" | "fundingRevision">[];
+}
+
+/** A `ledger.read.v1.BalanceUpdate` from the private balance stream. Tell kinds apart by `account`. */
+export type LedgerBalanceUpdate = LedgerTradingBalanceUpdate | LedgerFundingBalanceUpdate;
+
+export function formatLedgerBalanceSnapshot(
+    res: ProtoLedgerRead.GetBalancesResponse,
+): LedgerBalanceSnapshot {
+    return {
+        balances: res.balances.map(formatLedgerBalance),
+        tradingEpoch: (res.tradingEpoch ?? 0n).toString(),
+        tradingSequence: (res.tradingSequence ?? 0n).toString(),
+        tradingAppliedThroughTsNs: (res.tradingAppliedThroughTsNs ?? 0n).toString(),
+    };
+}
+
+export function formatLedgerBalanceUpdate(u: ProtoLedgerRead.BalanceUpdate): LedgerBalanceUpdate {
+    const balances = u.balances.map(formatLedgerBalance);
+    switch (u.account) {
+        case AccountCode.TRADING:
+            return {
+                account: "trading",
+                tradingEpoch: u.tradingEpoch.toString(),
+                tradingSequence: u.tradingSequence.toString(),
+                complete: u.complete,
+                tradingAppliedThroughTsNs: u.tradingAppliedThroughTsNs.toString(),
+                balances: balances.map(({ assetId, trading, reserved, available }) => ({
+                    assetId,
+                    trading,
+                    reserved,
+                    available,
+                })),
+                transfers: u.transfers.map((row) => v.parse(LedgerTransferSchema, row)),
+            };
+        case AccountCode.FUNDING:
+            return {
+                account: "funding",
+                balances: balances.map(({ assetId, funding, fundingRevision }) => ({
+                    assetId,
+                    funding,
+                    fundingRevision,
+                })),
+            };
+        default:
+            throw new Error(`Balance update has an unknown account code ${u.account}`);
+    }
+}
 
 export const BalancesListInputSchema = v.strictObject(AccountScopeInputEntries);
 

@@ -6,6 +6,8 @@ import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobu
 import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import type { FieldMask, Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_field_mask, file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
+import type { MarketScope_Value, SpotMarketSelector } from "./policies_pb.js";
+import { file_auth_v1_policies } from "./policies_pb.js";
 import { file_polyester_api_options } from "../../polyester/api/options_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
@@ -13,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file auth/v1/api_keys.proto.
  */
 export const file_auth_v1_api_keys: GenFile = /*@__PURE__*/
-  fileDesc("ChZhdXRoL3YxL2FwaV9rZXlzLnByb3RvEgdhdXRoLnYxIpAECgZBcGlLZXkSEAoGa2V5X2lkGAIgASgJQgASDQoFbGFiZWwYAyABKAkSDgoEaWNvbhgJIAEoCUIAEg8KBWNvbG9yGAogASgJQgASFgoMaXBfd2hpdGVsaXN0GAQgAygJQgASJQoGc3RhdHVzGAYgASgOMhUuYXV0aC52MS5BcGlLZXlTdGF0dXMSGgoNc3ViYWNjb3VudF9pZBgHIAEoBkgAiAEBEhYKCXBvbGljeV9pZBgIIAEoBkgBiAEBEi4KCmNyZWF0ZWRfYXQYFCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGxhc3RfdXNlZF9hdBgVIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoScHVibGljX2tleV9lZDI1NTE5GBYgASgMEi4KCmV4cGlyZXNfYXQYFyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEGNyZWF0ZWRfYnlfYWN0b3IYGCABKAkSLgoKdXBkYXRlZF9hdBgZIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIcmV2aXNpb24YGiABKAQSJwoHcHVycG9zZRgbIAEoDjIWLmF1dGgudjEuQXBpS2V5UHVycG9zZUIQCg5fc3ViYWNjb3VudF9pZEIMCgpfcG9saWN5X2lkItYBChNDcmVhdGVBcGlLZXlSZXF1ZXN0Eg8KBWxhYmVsGAEgASgJQgASGgoNc3ViYWNjb3VudF9pZBgDIAEoBkgAiAEBEg4KBGljb24YBiABKAlCABIPCgVjb2xvchgHIAEoCUIAEhYKDGlwX3doaXRlbGlzdBgEIAMoCUIAEhwKEnB1YmxpY19rZXlfZWQyNTUxORgFIAEoDEIAEikKB3B1cnBvc2UYCCABKA4yFi5hdXRoLnYxLkFwaUtleVB1cnBvc2VCAEIQCg5fc3ViYWNjb3VudF9pZCI4ChRDcmVhdGVBcGlLZXlSZXNwb25zZRIgCgdhcGlfa2V5GAEgASgLMg8uYXV0aC52MS5BcGlLZXkiQgoSTGlzdEFwaUtleXNSZXF1ZXN0EhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBAUIQCg5fc3ViYWNjb3VudF9pZCI4ChNMaXN0QXBpS2V5c1Jlc3BvbnNlEiEKCGFwaV9rZXlzGAEgAygLMg8uYXV0aC52MS5BcGlLZXkiJwoTRGVsZXRlQXBpS2V5UmVxdWVzdBIQCgZrZXlfaWQYASABKAlCACIWChREZWxldGVBcGlLZXlSZXNwb25zZSIkChBHZXRBcGlLZXlSZXF1ZXN0EhAKBmtleV9pZBgBIAEoCUIAIjUKEUdldEFwaUtleVJlc3BvbnNlEiAKB2FwaV9rZXkYASABKAsyDy5hdXRoLnYxLkFwaUtleSLiAQoQQXBpS2V5VXBkYXRlU3BlYxIPCgVsYWJlbBgBIAEoCUIAEg4KBGljb24YAiABKAlCABIPCgVjb2xvchgDIAEoCUIAEicKBnN0YXR1cxgEIAEoDjIVLmF1dGgudjEuQXBpS2V5U3RhdHVzQgASFgoMaXBfd2hpdGVsaXN0GAUgAygJQgASLgoKZXhwaXJlc19hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKQoHcHVycG9zZRgHIAEoDjIWLmF1dGgudjEuQXBpS2V5UHVycG9zZUIAOgAipQEKE1VwZGF0ZUFwaUtleVJlcXVlc3QSEAoGa2V5X2lkGAEgASgJQgASLAoHYXBpX2tleRgCIAEoCzIZLmF1dGgudjEuQXBpS2V5VXBkYXRlU3BlY0IAEjEKC3VwZGF0ZV9tYXNrGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFza0IAEhsKEWV4cGVjdGVkX3JldmlzaW9uGAQgASgEQgAiOAoUVXBkYXRlQXBpS2V5UmVzcG9uc2USIAoHYXBpX2tleRgBIAEoCzIPLmF1dGgudjEuQXBpS2V5IvkBChBBc3Npc3RhbnRLZXlTcGVjEhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBARIcChJwdWJsaWNfa2V5X2VkMjU1MTkYAiABKAxCABIRCglwb2xpY3lfaWQYAyABKAYSOQoVcmVnaXN0cmF0aW9uX2RlYWRsaW5lGAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJyZWdpc3RyYXRpb25fcHJvb2YYBSABKAwSLQoGcHJlc2V0GAYgASgOMhsuYXV0aC52MS5Bc3Npc3RhbnRLZXlQcmVzZXRCADoAQhAKDl9zdWJhY2NvdW50X2lkIkQKF1NldEFzc2lzdGFudEtleXNSZXF1ZXN0EikKBGtleXMYASADKAsyGS5hdXRoLnYxLkFzc2lzdGFudEtleVNwZWNCACI9ChhTZXRBc3Npc3RhbnRLZXlzUmVzcG9uc2USIQoIYXBpX2tleXMYASADKAsyDy5hdXRoLnYxLkFwaUtleSIaChhMaXN0QXNzaXN0YW50S2V5c1JlcXVlc3QiPgoZTGlzdEFzc2lzdGFudEtleXNSZXNwb25zZRIhCghhcGlfa2V5cxgBIAMoCzIPLmF1dGgudjEuQXBpS2V5IhwKGkRlbGV0ZUFzc2lzdGFudEtleXNSZXF1ZXN0IjYKG0RlbGV0ZUFzc2lzdGFudEtleXNSZXNwb25zZRIXCg9yZXZva2VkX2tleV9pZHMYASADKAkqVQoMQXBpS2V5U3RhdHVzEh4KGkFQSV9LRVlfU1RBVFVTX1VOU1BFQ0lGSUVEEAASCgoGQUNUSVZFEAESCwoHUkVWT0tFRBACEgwKCERJU0FCTEVEEAMqVAoNQXBpS2V5UHVycG9zZRIXChNQVVJQT1NFX1VOU1BFQ0lGSUVEEAASDAoIU1RBTkRBUkQQARINCglBU1NJU1RBTlQQAhINCglBRE1JTl9LRVkQAypUChJBc3Npc3RhbnRLZXlQcmVzZXQSFgoSUFJFU0VUX1VOU1BFQ0lGSUVEEAASDQoJUkVBRF9PTkxZEAESFwoTVFJBREVfV0lUSF9BUFBST1ZBTBACMq0FCg1BcGlLZXlTZXJ2aWNlEk0KDENyZWF0ZUFwaUtleRIcLmF1dGgudjEuQ3JlYXRlQXBpS2V5UmVxdWVzdBodLmF1dGgudjEuQ3JlYXRlQXBpS2V5UmVzcG9uc2UiABJKCgtMaXN0QXBpS2V5cxIbLmF1dGgudjEuTGlzdEFwaUtleXNSZXF1ZXN0GhwuYXV0aC52MS5MaXN0QXBpS2V5c1Jlc3BvbnNlIgASRAoJR2V0QXBpS2V5EhkuYXV0aC52MS5HZXRBcGlLZXlSZXF1ZXN0GhouYXV0aC52MS5HZXRBcGlLZXlSZXNwb25zZSIAEk0KDERlbGV0ZUFwaUtleRIcLmF1dGgudjEuRGVsZXRlQXBpS2V5UmVxdWVzdBodLmF1dGgudjEuRGVsZXRlQXBpS2V5UmVzcG9uc2UiABJNCgxVcGRhdGVBcGlLZXkSHC5hdXRoLnYxLlVwZGF0ZUFwaUtleVJlcXVlc3QaHS5hdXRoLnYxLlVwZGF0ZUFwaUtleVJlc3BvbnNlIgASWQoQU2V0QXNzaXN0YW50S2V5cxIgLmF1dGgudjEuU2V0QXNzaXN0YW50S2V5c1JlcXVlc3QaIS5hdXRoLnYxLlNldEFzc2lzdGFudEtleXNSZXNwb25zZSIAElwKEUxpc3RBc3Npc3RhbnRLZXlzEiEuYXV0aC52MS5MaXN0QXNzaXN0YW50S2V5c1JlcXVlc3QaIi5hdXRoLnYxLkxpc3RBc3Npc3RhbnRLZXlzUmVzcG9uc2UiABJiChNEZWxldGVBc3Npc3RhbnRLZXlzEiMuYXV0aC52MS5EZWxldGVBc3Npc3RhbnRLZXlzUmVxdWVzdBokLmF1dGgudjEuRGVsZXRlQXNzaXN0YW50S2V5c1Jlc3BvbnNlIgAaAEI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2F1dGgvdjE7YXV0aHYxYgZwcm90bzM=", [file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChZhdXRoL3YxL2FwaV9rZXlzLnByb3RvEgdhdXRoLnYxIsIECgZBcGlLZXkSEAoGa2V5X2lkGAIgASgJQgASDQoFbGFiZWwYAyABKAkSDgoEaWNvbhgJIAEoCUIAEg8KBWNvbG9yGAogASgJQgASFgoMaXBfd2hpdGVsaXN0GAQgAygJQgASJQoGc3RhdHVzGAYgASgOMhUuYXV0aC52MS5BcGlLZXlTdGF0dXMSGgoNc3ViYWNjb3VudF9pZBgHIAEoBkgAiAEBEhYKCXBvbGljeV9pZBgIIAEoBkgBiAEBEi4KCmNyZWF0ZWRfYXQYFCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGxhc3RfdXNlZF9hdBgVIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoScHVibGljX2tleV9lZDI1NTE5GBYgASgMEi4KCmV4cGlyZXNfYXQYFyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEGNyZWF0ZWRfYnlfYWN0b3IYGCABKAkSLgoKdXBkYXRlZF9hdBgZIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIcmV2aXNpb24YGiABKAQSJwoHcHVycG9zZRgbIAEoDjIWLmF1dGgudjEuQXBpS2V5UHVycG9zZRIcCg9zdHJhdGVneV9ib3RfaWQYHCABKAZIAogBAUIQCg5fc3ViYWNjb3VudF9pZEIMCgpfcG9saWN5X2lkQhIKEF9zdHJhdGVneV9ib3RfaWQi1gEKE0NyZWF0ZUFwaUtleVJlcXVlc3QSDwoFbGFiZWwYASABKAlCABIaCg1zdWJhY2NvdW50X2lkGAMgASgGSACIAQESDgoEaWNvbhgGIAEoCUIAEg8KBWNvbG9yGAcgASgJQgASFgoMaXBfd2hpdGVsaXN0GAQgAygJQgASHAoScHVibGljX2tleV9lZDI1NTE5GAUgASgMQgASKQoHcHVycG9zZRgIIAEoDjIWLmF1dGgudjEuQXBpS2V5UHVycG9zZUIAQhAKDl9zdWJhY2NvdW50X2lkIjgKFENyZWF0ZUFwaUtleVJlc3BvbnNlEiAKB2FwaV9rZXkYASABKAsyDy5hdXRoLnYxLkFwaUtleSJCChJMaXN0QXBpS2V5c1JlcXVlc3QSGgoNc3ViYWNjb3VudF9pZBgBIAEoBkgAiAEBQhAKDl9zdWJhY2NvdW50X2lkIjgKE0xpc3RBcGlLZXlzUmVzcG9uc2USIQoIYXBpX2tleXMYASADKAsyDy5hdXRoLnYxLkFwaUtleSInChNEZWxldGVBcGlLZXlSZXF1ZXN0EhAKBmtleV9pZBgBIAEoCUIAIhYKFERlbGV0ZUFwaUtleVJlc3BvbnNlIiQKEEdldEFwaUtleVJlcXVlc3QSEAoGa2V5X2lkGAEgASgJQgAiNQoRR2V0QXBpS2V5UmVzcG9uc2USIAoHYXBpX2tleRgBIAEoCzIPLmF1dGgudjEuQXBpS2V5IuIBChBBcGlLZXlVcGRhdGVTcGVjEg8KBWxhYmVsGAEgASgJQgASDgoEaWNvbhgCIAEoCUIAEg8KBWNvbG9yGAMgASgJQgASJwoGc3RhdHVzGAQgASgOMhUuYXV0aC52MS5BcGlLZXlTdGF0dXNCABIWCgxpcF93aGl0ZWxpc3QYBSADKAlCABIuCgpleHBpcmVzX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIpCgdwdXJwb3NlGAcgASgOMhYuYXV0aC52MS5BcGlLZXlQdXJwb3NlQgA6ACKlAQoTVXBkYXRlQXBpS2V5UmVxdWVzdBIQCgZrZXlfaWQYASABKAlCABIsCgdhcGlfa2V5GAIgASgLMhkuYXV0aC52MS5BcGlLZXlVcGRhdGVTcGVjQgASMQoLdXBkYXRlX21hc2sYAyABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrQgASGwoRZXhwZWN0ZWRfcmV2aXNpb24YBCABKARCACI4ChRVcGRhdGVBcGlLZXlSZXNwb25zZRIgCgdhcGlfa2V5GAEgASgLMg8uYXV0aC52MS5BcGlLZXki+QEKEEFzc2lzdGFudEtleVNwZWMSGgoNc3ViYWNjb3VudF9pZBgBIAEoBkgAiAEBEhwKEnB1YmxpY19rZXlfZWQyNTUxORgCIAEoDEIAEhEKCXBvbGljeV9pZBgDIAEoBhI5ChVyZWdpc3RyYXRpb25fZGVhZGxpbmUYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEnJlZ2lzdHJhdGlvbl9wcm9vZhgFIAEoDBItCgZwcmVzZXQYBiABKA4yGy5hdXRoLnYxLkFzc2lzdGFudEtleVByZXNldEIAOgBCEAoOX3N1YmFjY291bnRfaWQiRAoXU2V0QXNzaXN0YW50S2V5c1JlcXVlc3QSKQoEa2V5cxgBIAMoCzIZLmF1dGgudjEuQXNzaXN0YW50S2V5U3BlY0IAIj0KGFNldEFzc2lzdGFudEtleXNSZXNwb25zZRIhCghhcGlfa2V5cxgBIAMoCzIPLmF1dGgudjEuQXBpS2V5IhoKGExpc3RBc3Npc3RhbnRLZXlzUmVxdWVzdCI+ChlMaXN0QXNzaXN0YW50S2V5c1Jlc3BvbnNlEiEKCGFwaV9rZXlzGAEgAygLMg8uYXV0aC52MS5BcGlLZXkiHAoaRGVsZXRlQXNzaXN0YW50S2V5c1JlcXVlc3QiNgobRGVsZXRlQXNzaXN0YW50S2V5c1Jlc3BvbnNlEhcKD3Jldm9rZWRfa2V5X2lkcxgBIAMoCSK2AQoRU3RyYXRlZ3lCb3RMaW1pdHMSMQoMc3BvdF9tYXJrZXRzGAEgAygLMhsuYXV0aC52MS5TcG90TWFya2V0U2VsZWN0b3ISNwoRc3BvdF9tYXJrZXRfc2NvcGUYAiABKA4yGi5hdXRoLnYxLk1hcmtldFNjb3BlLlZhbHVlQgASGgoSbWF4X29yZGVyX25vdGlvbmFsGAMgASgEEhcKD21heF9vcGVuX29yZGVycxgEIAEoDToAIrwBChtTZXRTdHJhdGVneUJvdEFjY2Vzc1JlcXVlc3QSHQoTZGVwbG95X29wZXJhdGlvbl9pZBgBIAEoCUIAEhcKDXN1YmFjY291bnRfaWQYAiABKAZCABIcChJwdWJsaWNfa2V5X2VkMjU1MTkYAyABKAxCABIZCg9zdHJhdGVneV9ib3RfaWQYBCABKAZCABIsCgZsaW1pdHMYBSABKAsyGi5hdXRoLnYxLlN0cmF0ZWd5Qm90TGltaXRzQgAiYwocU2V0U3RyYXRlZ3lCb3RBY2Nlc3NSZXNwb25zZRIOCgZrZXlfaWQYASABKAkSFQoNYXBpX3BvbGljeV9pZBgCIAEoBhIcChRzdWJhY2NvdW50X3BvbGljeV9pZBgDIAEoBiI8ChtFbmRTdHJhdGVneUJvdEFjY2Vzc1JlcXVlc3QSHQoTZGVwbG95X29wZXJhdGlvbl9pZBgBIAEoCUIAIjYKHEVuZFN0cmF0ZWd5Qm90QWNjZXNzUmVzcG9uc2USFgoOcmV2b2tlZF9rZXlfaWQYASABKAkqVQoMQXBpS2V5U3RhdHVzEh4KGkFQSV9LRVlfU1RBVFVTX1VOU1BFQ0lGSUVEEAASCgoGQUNUSVZFEAESCwoHUkVWT0tFRBACEgwKCERJU0FCTEVEEAMqZgoNQXBpS2V5UHVycG9zZRIXChNQVVJQT1NFX1VOU1BFQ0lGSUVEEAASDAoIU1RBTkRBUkQQARINCglBU1NJU1RBTlQQAhINCglBRE1JTl9LRVkQAxIQCgxTVFJBVEVHWV9CT1QQBCpUChJBc3Npc3RhbnRLZXlQcmVzZXQSFgoSUFJFU0VUX1VOU1BFQ0lGSUVEEAASDQoJUkVBRF9PTkxZEAESFwoTVFJBREVfV0lUSF9BUFBST1ZBTBACMoEHCg1BcGlLZXlTZXJ2aWNlEk0KDENyZWF0ZUFwaUtleRIcLmF1dGgudjEuQ3JlYXRlQXBpS2V5UmVxdWVzdBodLmF1dGgudjEuQ3JlYXRlQXBpS2V5UmVzcG9uc2UiABJKCgtMaXN0QXBpS2V5cxIbLmF1dGgudjEuTGlzdEFwaUtleXNSZXF1ZXN0GhwuYXV0aC52MS5MaXN0QXBpS2V5c1Jlc3BvbnNlIgASRAoJR2V0QXBpS2V5EhkuYXV0aC52MS5HZXRBcGlLZXlSZXF1ZXN0GhouYXV0aC52MS5HZXRBcGlLZXlSZXNwb25zZSIAEk0KDERlbGV0ZUFwaUtleRIcLmF1dGgudjEuRGVsZXRlQXBpS2V5UmVxdWVzdBodLmF1dGgudjEuRGVsZXRlQXBpS2V5UmVzcG9uc2UiABJNCgxVcGRhdGVBcGlLZXkSHC5hdXRoLnYxLlVwZGF0ZUFwaUtleVJlcXVlc3QaHS5hdXRoLnYxLlVwZGF0ZUFwaUtleVJlc3BvbnNlIgASWQoQU2V0QXNzaXN0YW50S2V5cxIgLmF1dGgudjEuU2V0QXNzaXN0YW50S2V5c1JlcXVlc3QaIS5hdXRoLnYxLlNldEFzc2lzdGFudEtleXNSZXNwb25zZSIAElwKEUxpc3RBc3Npc3RhbnRLZXlzEiEuYXV0aC52MS5MaXN0QXNzaXN0YW50S2V5c1JlcXVlc3QaIi5hdXRoLnYxLkxpc3RBc3Npc3RhbnRLZXlzUmVzcG9uc2UiABJiChNEZWxldGVBc3Npc3RhbnRLZXlzEiMuYXV0aC52MS5EZWxldGVBc3Npc3RhbnRLZXlzUmVxdWVzdBokLmF1dGgudjEuRGVsZXRlQXNzaXN0YW50S2V5c1Jlc3BvbnNlIgASaAoUU2V0U3RyYXRlZ3lCb3RBY2Nlc3MSJC5hdXRoLnYxLlNldFN0cmF0ZWd5Qm90QWNjZXNzUmVxdWVzdBolLmF1dGgudjEuU2V0U3RyYXRlZ3lCb3RBY2Nlc3NSZXNwb25zZSIDkAICEmgKFEVuZFN0cmF0ZWd5Qm90QWNjZXNzEiQuYXV0aC52MS5FbmRTdHJhdGVneUJvdEFjY2Vzc1JlcXVlc3QaJS5hdXRoLnYxLkVuZFN0cmF0ZWd5Qm90QWNjZXNzUmVzcG9uc2UiA5ACAhoAQjxaOmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vYXV0aC92MTthdXRodjFiBnByb3RvMw==", [file_google_protobuf_field_mask, file_auth_v1_policies, file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * ApiKey is public API key metadata. It never includes the private key or seed.
@@ -139,11 +141,21 @@ export type ApiKey = Message<"auth.v1.ApiKey"> & {
 
   /**
    * What the key is for. ASSISTANT keys are managed with SetAssistantKeys and
-   * are otherwise listed, updated and revoked like any key.
+   * are otherwise listed, updated and revoked like any key. STRATEGY_BOT keys
+   * are managed only with SetStrategyBotAccess and EndStrategyBotAccess.
    *
    * @generated from field: auth.v1.ApiKeyPurpose purpose = 27;
    */
   purpose: ApiKeyPurpose;
+
+  /**
+   * Strategy bot the key trades for: the bot's public ID (opaque ID), the
+   * same bot_id strategies.v1 GetBot takes. Present only on a STRATEGY_BOT
+   * key.
+   *
+   * @generated from field: optional fixed64 strategy_bot_id = 28;
+   */
+  strategyBotId?: bigint | undefined;
 };
 
 /**
@@ -211,7 +223,8 @@ export type CreateApiKeyRequest = Message<"auth.v1.CreateApiKeyRequest"> & {
    * ADMIN_KEY creates an admin key: only the main account's owner may, in a
    * signed-in session with a fresh step-up proof, for the main account
    * (subaccount_id unset), with an ip_whitelist that admin keys accept.
-   * ASSISTANT keys are created with SetAssistantKeys.
+   * ASSISTANT keys are created with SetAssistantKeys, STRATEGY_BOT keys with
+   * SetStrategyBotAccess.
    *
    * @generated from field: auth.v1.ApiKeyPurpose purpose = 8;
    */
@@ -424,7 +437,8 @@ export type ApiKeyUpdateSpec = Message<"auth.v1.ApiKeyUpdateSpec"> & {
    * standard key. Only the main account's owner may select it, in a signed-in session
    * with a fresh step-up proof. A promoted key must act for the main account,
    * have an IP allowlist that admin keys accept, and have no policy that
-   * allows a money-out action. An assistant key's purpose never changes.
+   * allows a money-out action. An assistant key's purpose never changes, and
+   * no key becomes or stops being a STRATEGY_BOT key.
    *
    * @generated from field: auth.v1.ApiKeyPurpose purpose = 7;
    */
@@ -692,6 +706,189 @@ export const DeleteAssistantKeysResponseSchema: GenMessage<DeleteAssistantKeysRe
   messageDesc(file_auth_v1_api_keys, 18);
 
 /**
+ * StrategyBotLimits are the trading limits of a strategy bot's sub-account.
+ * They become the sub-account's policy, which also bounds every member and
+ * key of the sub-account. The bot's key policy allows the same markets.
+ *
+ * @generated from message auth.v1.StrategyBotLimits
+ */
+export type StrategyBotLimits = Message<"auth.v1.StrategyBotLimits"> & {
+  /**
+   * Spot markets the bot may trade, enforced when spot_market_scope is
+   * ALLOWLIST.
+   *
+   * @generated from field: repeated auth.v1.SpotMarketSelector spot_markets = 1;
+   */
+  spotMarkets: SpotMarketSelector[];
+
+  /**
+   * Market-level scope for spot markets. When unspecified, defaults to ALL.
+   *
+   * @generated from field: auth.v1.MarketScope.Value spot_market_scope = 2;
+   */
+  spotMarketScope: MarketScope_Value;
+
+  /**
+   * Maximum notional size for any single order, in canonical quote
+   * microunits (one unit is 0.000001 USDT). A value of 0 means no explicit
+   * cap.
+   *
+   * @generated from field: uint64 max_order_notional = 3;
+   */
+  maxOrderNotional: bigint;
+
+  /**
+   * Maximum number of resting orders at any time. A value of 0 means no
+   * explicit cap.
+   *
+   * @generated from field: uint32 max_open_orders = 4;
+   */
+  maxOpenOrders: number;
+};
+
+/**
+ * Describes the message auth.v1.StrategyBotLimits.
+ * Use `create(StrategyBotLimitsSchema)` to create a new message.
+ */
+export const StrategyBotLimitsSchema: GenMessage<StrategyBotLimits> = /*@__PURE__*/
+  messageDesc(file_auth_v1_api_keys, 19);
+
+/**
+ * SetStrategyBotAccessRequest gives a strategy bot its trade key on its own
+ * sub-account.
+ *
+ * @generated from message auth.v1.SetStrategyBotAccessRequest
+ */
+export type SetStrategyBotAccessRequest = Message<"auth.v1.SetStrategyBotAccessRequest"> & {
+  /**
+   * Identifier of the deploy operation, chosen by the caller and unique
+   * within the main account: 1 to 128 characters of letters, digits, '.',
+   * '_', ':' and '-'. Repeating a request under it changes nothing.
+   *
+   * @generated from field: string deploy_operation_id = 1;
+   */
+  deployOperationId: string;
+
+  /**
+   * Sub-account the bot trades on (opaque ID).
+   *
+   * @generated from field: fixed64 subaccount_id = 2;
+   */
+  subaccountId: bigint;
+
+  /**
+   * Ed25519 public key bytes of the bot's trade key. Must be exactly 32
+   * bytes. The private key or seed must never be sent to the API.
+   *
+   * @generated from field: bytes public_key_ed25519 = 3;
+   */
+  publicKeyEd25519: Uint8Array;
+
+  /**
+   * Strategy bot the key trades for: the bot's public ID (opaque ID), the
+   * same bot_id strategies.v1 GetBot takes.
+   *
+   * @generated from field: fixed64 strategy_bot_id = 4;
+   */
+  strategyBotId: bigint;
+
+  /**
+   * Trading limits of the sub-account.
+   *
+   * @generated from field: auth.v1.StrategyBotLimits limits = 5;
+   */
+  limits?: StrategyBotLimits | undefined;
+};
+
+/**
+ * Describes the message auth.v1.SetStrategyBotAccessRequest.
+ * Use `create(SetStrategyBotAccessRequestSchema)` to create a new message.
+ */
+export const SetStrategyBotAccessRequestSchema: GenMessage<SetStrategyBotAccessRequest> = /*@__PURE__*/
+  messageDesc(file_auth_v1_api_keys, 20);
+
+/**
+ * SetStrategyBotAccessResponse names the bot's key and the policies that
+ * bound it.
+ *
+ * @generated from message auth.v1.SetStrategyBotAccessResponse
+ */
+export type SetStrategyBotAccessResponse = Message<"auth.v1.SetStrategyBotAccessResponse"> & {
+  /**
+   * The bot's STRATEGY_BOT key, formatted as "ak_" followed by 32 lowercase
+   * hex characters.
+   *
+   * @generated from field: string key_id = 1;
+   */
+  keyId: string;
+
+  /**
+   * API policy bound to the key (opaque ID).
+   *
+   * @generated from field: fixed64 api_policy_id = 2;
+   */
+  apiPolicyId: bigint;
+
+  /**
+   * Sub-account policy bound to the bot's sub-account (opaque ID).
+   *
+   * @generated from field: fixed64 subaccount_policy_id = 3;
+   */
+  subaccountPolicyId: bigint;
+};
+
+/**
+ * Describes the message auth.v1.SetStrategyBotAccessResponse.
+ * Use `create(SetStrategyBotAccessResponseSchema)` to create a new message.
+ */
+export const SetStrategyBotAccessResponseSchema: GenMessage<SetStrategyBotAccessResponse> = /*@__PURE__*/
+  messageDesc(file_auth_v1_api_keys, 21);
+
+/**
+ * EndStrategyBotAccessRequest ends a strategy bot's access.
+ *
+ * @generated from message auth.v1.EndStrategyBotAccessRequest
+ */
+export type EndStrategyBotAccessRequest = Message<"auth.v1.EndStrategyBotAccessRequest"> & {
+  /**
+   * Identifier of the deploy operation SetStrategyBotAccess was called with,
+   * or would be.
+   *
+   * @generated from field: string deploy_operation_id = 1;
+   */
+  deployOperationId: string;
+};
+
+/**
+ * Describes the message auth.v1.EndStrategyBotAccessRequest.
+ * Use `create(EndStrategyBotAccessRequestSchema)` to create a new message.
+ */
+export const EndStrategyBotAccessRequestSchema: GenMessage<EndStrategyBotAccessRequest> = /*@__PURE__*/
+  messageDesc(file_auth_v1_api_keys, 22);
+
+/**
+ * EndStrategyBotAccessResponse names the key the request revoked.
+ *
+ * @generated from message auth.v1.EndStrategyBotAccessResponse
+ */
+export type EndStrategyBotAccessResponse = Message<"auth.v1.EndStrategyBotAccessResponse"> & {
+  /**
+   * The bot's key this request revoked. Empty when the operation had no
+   * access to end: none was set under it, or it already ended.
+   *
+   * @generated from field: string revoked_key_id = 1;
+   */
+  revokedKeyId: string;
+};
+
+/**
+ * Describes the message auth.v1.EndStrategyBotAccessResponse.
+ * Use `create(EndStrategyBotAccessResponseSchema)` to create a new message.
+ */
+export const EndStrategyBotAccessResponseSchema: GenMessage<EndStrategyBotAccessResponse> = /*@__PURE__*/
+  messageDesc(file_auth_v1_api_keys, 23);
+
+/**
  * Status of an API key.
  *
  * @generated from enum auth.v1.ApiKeyStatus
@@ -779,6 +976,19 @@ export enum ApiKeyPurpose {
    * @generated from enum value: ADMIN_KEY = 3;
    */
   ADMIN_KEY = 3,
+
+  /**
+   * A strategy bot's trade key, created with SetStrategyBotAccess on the
+   * bot's own sub-account and linked to the bot (strategy_bot_id). Its policy
+   * allows spot trading only, within the sub-account's trading limits, and
+   * never an action that moves value out of the account. No other call
+   * changes, revokes or re-binds it until EndStrategyBotAccess revokes it:
+   * FailedPrecondition with AUTH_STRATEGY_BOT_MANAGED. Disabling its
+   * sub-account disables it.
+   *
+   * @generated from enum value: STRATEGY_BOT = 4;
+   */
+  STRATEGY_BOT = 4,
 }
 
 /**
@@ -976,12 +1186,80 @@ export const ApiKeyService: GenService<{
    * for DeleteApiKey, key management sees it at once, and requests signed with
    * a revoked key are refused within a few seconds of the response.
    *
+   * It revokes ASSISTANT keys only. A strategy bot is not the assistant: its
+   * STRATEGY_BOT key stays as it is. To cut a bot off, stop the bot, or
+   * disable its sub-account with UpdateSubaccount, which disables the bot's
+   * key at once; a strategy bot's sub-account cannot be enabled again.
+   *
    * @generated from rpc auth.v1.ApiKeyService.DeleteAssistantKeys
    */
   deleteAssistantKeys: {
     methodKind: "unary";
     input: typeof DeleteAssistantKeysRequestSchema;
     output: typeof DeleteAssistantKeysResponseSchema;
+  },
+  /**
+   * Give a strategy bot its trade key on its own sub-account, in one
+   * all-or-nothing change: a sub-account policy that allows spot trading
+   * only, within limits, bound to the sub-account; an API policy that allows
+   * spot trading over the same markets and reading the sub-account's orders,
+   * balances and profit and loss; and a STRATEGY_BOT key with
+   * public_key_ed25519, bound to that API policy and linked to
+   * strategy_bot_id. Neither policy allows an action that moves value out of
+   * the account.
+   *
+   * An MFA-elevated session (one that completed an MFA challenge in the last
+   * 30 minutes) needs no proof; any other session sends a fresh step-up proof
+   * in the X-Auth-Step-Up header, which the change consumes. Without either,
+   * PermissionDenied with AUTH_STEP_UP_REQUIRED. API keys and connected apps
+   * are refused.
+   *
+   * The sub-account must belong to the caller's main account, else
+   * PermissionDenied with AUTH_SUBACCOUNT_ACCESS_DENIED. It must be active
+   * and not a QuickSwap broker vault, with no policy, no API key that is not
+   * revoked, no member and no pending invite; else FailedPrecondition with
+   * AUTH_STRATEGY_BOT_SUBACCOUNT_INELIGIBLE. It may hold deposit addresses:
+   * deposits raise the bot's balance.
+   *
+   * deploy_operation_id makes the call idempotent within the main account:
+   * repeating the same request returns the same key and policies and changes
+   * nothing. A different request under the same identifier, or any request
+   * under one EndStrategyBotAccess ended, returns AlreadyExists with
+   * AUTH_STRATEGY_BOT_OPERATION_CONFLICT.
+   *
+   * Until EndStrategyBotAccess, other calls refuse to change the key, its
+   * policy, or the sub-account's policy, keys, members or invites, or to
+   * enable it again: FailedPrecondition with AUTH_STRATEGY_BOT_MANAGED.
+   * Disabling the sub-account, which disables the key, renaming it and
+   * removing its members stay available.
+   *
+   * @generated from rpc auth.v1.ApiKeyService.SetStrategyBotAccess
+   */
+  setStrategyBotAccess: {
+    methodKind: "unary";
+    input: typeof SetStrategyBotAccessRequestSchema;
+    output: typeof SetStrategyBotAccessResponseSchema;
+  },
+  /**
+   * End the strategy bot access SetStrategyBotAccess gave under
+   * deploy_operation_id, in one change: revoke the bot's key and release its
+   * sub-account to the account's own management. The revoked key is no
+   * longer a STRATEGY_BOT key, and the sub-account is released whatever state
+   * the key is in: a disabled sub-account stays disabled, and the account
+   * manages it like any other. The sub-account keeps its policy until the
+   * account changes it. The operation stays ended:
+   * SetStrategyBotAccess under it afterwards, even a delayed original
+   * request, returns AlreadyExists with AUTH_STRATEGY_BOT_OPERATION_CONFLICT.
+   * Ending an operation that set no access, or one already ended, succeeds
+   * and revokes nothing. Ending only removes access, so it needs no step-up
+   * proof. API keys and connected apps are refused.
+   *
+   * @generated from rpc auth.v1.ApiKeyService.EndStrategyBotAccess
+   */
+  endStrategyBotAccess: {
+    methodKind: "unary";
+    input: typeof EndStrategyBotAccessRequestSchema;
+    output: typeof EndStrategyBotAccessResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_auth_v1_api_keys, 0);

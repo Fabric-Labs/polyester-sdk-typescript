@@ -42,6 +42,7 @@ export * as notificationsPb from "./notifications/v1/notifications_pb.js";
 export * as orderbookPb from "./orderbook/v1/orderbook_pb.js";
 export * as ordersPb from "./orders/v1/orders_pb.js";
 export * as ordersReadPb from "./orders/v1/orders_read_pb.js";
+export * as pnlPb from "./pnl/v1/pnl_pb.js";
 export * as polyesterOptionsPb from "./polyester/api/options_pb.js";
 export * as requestErrorPb from "./polyester/api/v1/request_error_pb.js";
 export * as rateLimitPb from "./polyester/ratelimit/v1/types_pb.js";

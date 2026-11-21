@@ -17,6 +17,7 @@ export const TRANSFER_CODE_VALUES = [
     "trading_to_funding",
     "trading_withdraw_reserve",
     "funding_user_transfer",
+    "funding_opening_balance",
     "trading_withdraw_request_fee",
     "trading_withdraw_fee_leg",
     "quickswap_polyester_fee",
@@ -36,7 +37,8 @@ export const TRANSFER_CODE_VALUES = [
  * rejected withdrawal refunds that amount less the request fee to the user's own wallet; one that
  * failed to execute is not refunded, and Zipper settles it with the user outside Polyester Chain.
  * `internal_batch` is one leg of an all-or-nothing internal transfer batch between Trading
- * accounts, credited together with the batch's other legs.
+ * accounts, credited together with the batch's other legs. `funding_opening_balance` credits a
+ * Funding account with what it held on Polyester Chain when its transfer history starts.
  */
 export type TransferCodeValue = (typeof TRANSFER_CODE_VALUES)[number];
 
@@ -66,6 +68,7 @@ export const TransferCodeCodec = {
         trading_to_funding: TransferCode.TRADING_TO_FUNDING,
         trading_withdraw_reserve: TransferCode.TRADING_WITHDRAW_RESERVE,
         funding_user_transfer: TransferCode.FUNDING_USER_TRANSFER,
+        funding_opening_balance: TransferCode.FUNDING_OPENING_BALANCE,
         trading_withdraw_request_fee: TransferCode.TRADING_WITHDRAW_REQUEST_FEE,
         trading_withdraw_fee_leg: TransferCode.TRADING_WITHDRAW_FEE_LEG,
         quickswap_polyester_fee: TransferCode.QUICKSWAP_POLYESTER_FEE,
@@ -91,6 +94,7 @@ export const TransferCodeCodec = {
         [TransferCode.TRADING_TO_FUNDING]: "trading_to_funding",
         [TransferCode.TRADING_WITHDRAW_RESERVE]: "trading_withdraw_reserve",
         [TransferCode.FUNDING_USER_TRANSFER]: "funding_user_transfer",
+        [TransferCode.FUNDING_OPENING_BALANCE]: "funding_opening_balance",
         [TransferCode.TRADING_WITHDRAW_REQUEST_FEE]: "trading_withdraw_request_fee",
         [TransferCode.TRADING_WITHDRAW_FEE_LEG]: "trading_withdraw_fee_leg",
         [TransferCode.QUICKSWAP_POLYESTER_FEE]: "quickswap_polyester_fee",

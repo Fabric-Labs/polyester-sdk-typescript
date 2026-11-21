@@ -26,6 +26,11 @@ import {
 
 interface SubscribePoliciesInput extends BaseSubscribeInput<SubaccountPolicy> {
     accountId: string;
+    /**
+     * Stream the policies of subaccounts the account holds a delegated role on instead of its own.
+     * Signed-in sessions only: API keys are refused with `AUTH_SESSION_KIND_NOT_ALLOWED`.
+     */
+    delegated?: boolean;
 }
 
 /**
@@ -142,7 +147,8 @@ export class SubaccountPoliciesService {
      * Subscribes to private subaccount policy updates for an account and emits normalized policy views.
      */
     subscribePolicies(input: SubscribePoliciesInput) {
-        const channel = `private:auth:subaccount-policies:${input.accountId}:proto`;
+        const scope = input.delegated ? "delegated:" : "";
+        const channel = `private:auth:subaccount-policies:${scope}${input.accountId}:proto`;
 
         return this.#realtime.connectProtoChannel({
             channel,

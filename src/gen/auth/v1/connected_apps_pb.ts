@@ -60,8 +60,11 @@ export type AppConnectionRequest = Message<"auth.v1.AppConnectionRequest"> & {
   /**
    * OAuth scopes the app asks for. "account:read" lets the app read the
    * account as the signed-in website does: balances, orders, trades and
-   * account settings. A connected app never moves money out of the account
-   * and never changes its security settings.
+   * account settings. "strategies:manage", which an app asks for only
+   * together with "account:read": Build, test and propose trading bots, and
+   * stop running bots. It can't deploy a bot or move funds. A connected app
+   * never moves money out of the account and never changes its security
+   * settings.
    *
    * @generated from field: repeated string scopes = 2;
    */

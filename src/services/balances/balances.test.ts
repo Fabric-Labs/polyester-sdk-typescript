@@ -1,7 +1,7 @@
 import { create } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
-import { AccountCode } from "../../gen/ledger/v1/catalog_pb.js";
+import { AccountCode, TransferCode } from "../../gen/ledger/v1/catalog_pb.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import {
@@ -47,7 +47,6 @@ function assetBalance(assetId: number, lo: bigint) {
         funding: { hi: 0n, lo: 0n },
         reserved: { hi: 0n, lo: 0n },
         available: { hi: 0n, lo },
-        tradingRevision: 101n,
         fundingRevision: 102n,
     };
 }
@@ -103,7 +102,6 @@ describe("BalancesService", () => {
                     trading: "1.5",
                     reserved: "0",
                     available: "1.5",
-                    tradingRevision: "101",
                     fundingRevision: "102",
                 },
                 {
@@ -112,7 +110,6 @@ describe("BalancesService", () => {
                     trading: "1.5",
                     reserved: "0",
                     available: "1.5",
-                    tradingRevision: "101",
                     fundingRevision: "102",
                 },
             ]);
@@ -137,7 +134,6 @@ describe("BalancesService", () => {
                 trading: "0.000000000000000001",
                 reserved: "0",
                 available: "0.000000000000000001",
-                tradingRevision: "101",
                 fundingRevision: "102",
             },
         ]);
@@ -393,14 +389,42 @@ describe("BalancesService", () => {
         });
     });
 
-    it("wires balance subscriptions and parses publications to decimal strings", async () => {
+    it("seeds the balance stream with the snapshot position", async () => {
+        const transport = unaryTransport({
+            balances: [assetBalance(1, onePointFiveE18)],
+            tradingEpoch: 4_294_967_303n,
+            tradingSequence: 42n,
+            tradingAppliedThroughTsNs: 1_767_225_600_123_456_789n,
+        });
+        const service = new BalancesService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await expect(service.getSnapshot()).resolves.toMatchObject({
+            balances: [{ assetId: 1, trading: "1.5" }],
+            tradingEpoch: "4294967303",
+            tradingSequence: "42",
+            tradingAppliedThroughTsNs: "1767225600123456789",
+        });
+    });
+
+    it("seeds the balance subscription with a snapshot and applies the next Trading step", async () => {
         const realtime = realtimeClientStub();
+        const transport = unaryTransport({
+            balances: [assetBalance(1, onePointFiveE18)],
+            tradingEpoch: 7n,
+            tradingSequence: 42n,
+            tradingAppliedThroughTsNs: 90n,
+        });
         const onEvent = vi.fn();
         const onOpen = vi.fn();
         const onClose = vi.fn();
         const onError = vi.fn();
         const service = new BalancesService(
-            { authApi: unaryTransport({}).transport },
+            { authApi: transport.transport },
             realtime.realtime,
             undefined,
             testScales(),
@@ -408,6 +432,7 @@ describe("BalancesService", () => {
 
         const unsubscribe = service.subscribe({
             accountId: "acct-1",
+            account: { subaccountId: formatId(8n) },
             onEvent,
             onOpen,
             onClose,
@@ -415,36 +440,114 @@ describe("BalancesService", () => {
         });
 
         expect(realtime.params?.channel).toBe("private:ledger:balances:acct-1:proto");
-        expect(realtime.params?.schema).toBe(Proto.AssetBalanceSchema);
+        expect(realtime.params?.schema).toBe(Proto.BalanceUpdateSchema);
 
         realtime.params?.onConnected?.();
-        realtime.params?.onDisconnected?.();
-        const error = { channel: "c", type: "publication", error: new Error("bad") };
-        realtime.params?.onError?.(error);
-
         realtime.params?.onPublication(
-            create(Proto.AssetBalanceSchema, assetBalance(1, onePointFiveE18)),
-        );
-        realtime.params?.onPublication(
-            create(Proto.AssetBalanceSchema, assetBalance(999, onePointFiveE18)),
+            create(Proto.BalanceUpdateSchema, {
+                account: AccountCode.TRADING,
+                tradingEpoch: 7n,
+                tradingSequence: 43n,
+                complete: true,
+                tradingAppliedThroughTsNs: 99n,
+                balances: [{ assetId: 1, trading: { hi: 0n, lo: 2n * E18 } }],
+                transfers: [
+                    {
+                        assetId: 1,
+                        amountE18: { hi: 0n, lo: onePointFiveE18 },
+                        transferCode: TransferCode.TRADE_QUOTE,
+                        accountCode: AccountCode.TRADING,
+                        tsUs: 1n,
+                        tsNs: 1_000n,
+                        transferId: "5",
+                    },
+                ],
+            }),
         );
         await flushAsync();
 
         expect(onOpen).toHaveBeenCalledTimes(1);
-        expect(onClose).toHaveBeenCalledTimes(1);
-        expect(onError).toHaveBeenCalledWith(error);
-        expect(onEvent).toHaveBeenCalledTimes(2);
-        expect(onEvent.mock.calls[0]?.[0]).toMatchObject({
-            assetId: 1,
-            trading: "1.5",
-        });
-        expect(onEvent.mock.calls[1]?.[0]).toMatchObject({
-            assetId: 999,
-            trading: "1.5",
-        });
+        expect((transport.lastCall()?.message as { subaccountId?: bigint }).subaccountId).toBe(8n);
+        expect(onEvent.mock.calls.map(([event]) => event)).toEqual([
+            expect.objectContaining({
+                kind: "snapshot",
+                tradingEpoch: "7",
+                tradingSequence: "42",
+                balances: [
+                    expect.objectContaining({ assetId: 1, trading: "1.5", fundingRevision: "102" }),
+                ],
+            }),
+            expect.objectContaining({
+                kind: "trading",
+                tradingSequence: "43",
+                tradingAppliedThroughTsNs: "99",
+                balances: [
+                    expect.objectContaining({ assetId: 1, trading: "2", fundingRevision: "102" }),
+                ],
+                transfers: [expect.objectContaining({ transferId: "5", tsNs: "1000" })],
+            }),
+        ]);
+        expect(onError).not.toHaveBeenCalled();
 
+        realtime.params?.onDisconnected?.();
+        expect(onClose).toHaveBeenCalledTimes(1);
         unsubscribe();
         expect(realtime.connectProtoChannel.mock.results[0]?.value).toHaveBeenCalledTimes(1);
+    });
+
+    it("pins the snapshot scope when subscribing, so an account switch does not change it", async () => {
+        const realtime = realtimeClientStub();
+        const transport = unaryTransport({ balances: [] });
+        let active: string | null = formatId(8n);
+        const service = new BalancesService(
+            { authApi: transport.transport },
+            realtime.realtime,
+            { getDefaultSubaccountId: () => active },
+            testScales(),
+        );
+
+        service.subscribe({ accountId: "acct-8", onEvent: vi.fn() });
+        active = formatId(9n);
+        realtime.params?.onConnected?.();
+        await flushAsync();
+
+        expect((transport.lastCall()?.message as { subaccountId?: bigint }).subaccountId).toBe(8n);
+    });
+
+    it("drops a snapshot answered after logout and keeps no socket listener once disconnected", async () => {
+        const realtime = realtimeClientStub();
+        const answers: Array<(value: { balances: never[] }) => void> = [];
+        const transport = unaryTransport(
+            () => new Promise<{ balances: never[] }>((resolve) => answers.push(resolve)),
+        );
+        const onEvent = vi.fn();
+        const service = new BalancesService(
+            { authApi: transport.transport },
+            realtime.realtime,
+            undefined,
+            testScales(),
+        );
+        service.subscribe({ accountId: "acct-1", onEvent });
+
+        // Logout marks the socket disconnected before its listeners run.
+        realtime.params?.onConnected?.();
+        await flushAsync();
+        realtime.setPrivateState("disconnected", false);
+        answers[0]?.({ balances: [] });
+        await flushAsync();
+        expect(onEvent).not.toHaveBeenCalled();
+
+        // A restart watches again; the next disconnect stops the sync and unwatches.
+        realtime.setPrivateState("connected", false);
+        realtime.params?.onConnected?.();
+        await flushAsync();
+        expect(realtime.connectionListenerCount).toBe(1);
+        realtime.setPrivateState("disconnected");
+        expect(realtime.connectionListenerCount).toBe(0);
+        realtime.setPrivateState("connected", false);
+        answers[1]?.({ balances: [] });
+        await flushAsync();
+        expect(onEvent).not.toHaveBeenCalled();
     });
 
     it("routes malformed balance publications to the subscription onError", async () => {
@@ -461,8 +564,9 @@ describe("BalancesService", () => {
         service.subscribe({ accountId: "acct-1", onEvent, onError });
 
         realtime.params?.onPublication({
-            assetId: 1,
-            trading: { hi: 1n << 64n, lo: 0n },
+            account: AccountCode.TRADING,
+            balances: [{ assetId: 1, trading: { hi: 1n << 64n, lo: 0n } }],
+            transfers: [],
         } as never);
         await flushAsync();
 

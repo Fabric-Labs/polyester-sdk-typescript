@@ -225,17 +225,18 @@ describe("policy patch schemas", () => {
         ).toThrow();
     });
 
-    it("accepts statement, dust and funding-flow actions on sub-account policies", () => {
+    it("accepts statement, dust, funding-flow and PnL actions on sub-account policies", () => {
         expect(
             v.parse(CreateSubaccountPolicyInputSchema, {
                 name: "Subaccount policy",
                 spotMarketScope: "all",
-                actions: ["read-statements", "convert-dust", "read-funding-flows"],
+                actions: ["read-statements", "convert-dust", "read-funding-flows", "read-pnl"],
             }).policy.actions,
         ).toEqual([
             Proto.PolicyAction.READ_STATEMENTS,
             Proto.PolicyAction.CONVERT_DUST,
             Proto.PolicyAction.READ_FUNDING_FLOWS,
+            Proto.PolicyAction.READ_PNL,
         ]);
     });
 

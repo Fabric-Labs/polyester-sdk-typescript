@@ -1243,6 +1243,7 @@ describe("server timeouts on non-idempotent writes", () => {
                 triggers.modifyTrigger({}),
                 triggers.cancelTrigger({}),
                 triggers.batchCancelTriggers({}),
+                triggers.cancelAllTriggers({}),
                 triggers.cancelOco({}),
                 triggers.pauseTrigger({}),
                 triggers.resumeTrigger({}),

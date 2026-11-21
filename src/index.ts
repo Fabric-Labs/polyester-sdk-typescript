@@ -183,7 +183,6 @@ export {
     expandColumnarTimestampsSec,
     type ColumnarTimeWindow,
 } from "./utils/columnar-time.js";
-export { mergeLedgerBalances } from "./services/balances/balances.merge.js";
 // For callers holding `ledger.read.v1.AssetBalance` messages from other APIs. Its
 // module already sits in the root graph through PolyesterClient's balances service.
 export { formatLedgerBalance } from "./services/balances/balances.schemas.js";
@@ -244,6 +243,7 @@ export type * from "./services/policies/api-key-policies/api-key-policies.types.
 export type * from "./services/policies/policies.types.js";
 export type * from "./services/policies/subaccount-policies/subaccount-policies.types.js";
 export type * from "./services/price-alerts/price-alerts.types.js";
+export type * from "./services/profit-and-loss/profit-and-loss.types.js";
 export type * from "./services/rate-limits/rate-limits.types.js";
 export type * from "./services/rewards/rewards.types.js";
 export type * from "./services/social-verification/social-verification.types.js";

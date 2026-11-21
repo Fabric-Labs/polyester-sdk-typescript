@@ -400,6 +400,14 @@ export const BatchCancelTriggerStatusCodec = {
     } satisfies ProtoToOutput<Proto.BatchCancelTriggersResultItem_Status, "accepted" | "rejected">,
 } as const;
 
+export const CancelAllTriggersStatusCodec = {
+    protoToOutput: {
+        [Proto.CancelAllTriggersResponse_Status.STATUS_UNSPECIFIED]: "unspecified",
+        [Proto.CancelAllTriggersResponse_Status.SUBMITTED]: "submitted",
+        [Proto.CancelAllTriggersResponse_Status.DRY_RUN]: "dry_run",
+    } satisfies ProtoToOutput<Proto.CancelAllTriggersResponse_Status, "submitted" | "dry_run">,
+} as const;
+
 export const TriggerDirectionCodec = {
     inputToProto: {
         above: ProtoOrders.TriggerDirection.ABOVE,

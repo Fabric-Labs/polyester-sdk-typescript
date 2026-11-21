@@ -18,6 +18,7 @@ export const PRODUCT_POLICY_ACTION_LABELS = [
     "read-statements",
     "convert-dust",
     "read-funding-flows",
+    "read-pnl",
 ] as const;
 
 /**
@@ -53,6 +54,7 @@ export const ACCOUNT_PERMISSION_POLICY_ACTION_LABELS = [
     "read-strategies",
     "draft-strategies",
     "propose-strategy-deploy",
+    "stop-strategies",
 ] as const;
 
 /**
@@ -135,6 +137,8 @@ export const PolicyActionCodec = {
         [Proto.PolicyAction.READ_STRATEGIES]: "read-strategies",
         [Proto.PolicyAction.DRAFT_STRATEGIES]: "draft-strategies",
         [Proto.PolicyAction.PROPOSE_STRATEGY_DEPLOY]: "propose-strategy-deploy",
+        [Proto.PolicyAction.READ_PNL]: "read-pnl",
+        [Proto.PolicyAction.STOP_STRATEGIES]: "stop-strategies",
     } satisfies ProtoToOutput<Proto.PolicyAction, PolicyActionLabel>,
     inputToProto: {
         "trade-spot": Proto.PolicyAction.TRADE_SPOT,
@@ -181,6 +185,8 @@ export const PolicyActionCodec = {
         "read-strategies": Proto.PolicyAction.READ_STRATEGIES,
         "draft-strategies": Proto.PolicyAction.DRAFT_STRATEGIES,
         "propose-strategy-deploy": Proto.PolicyAction.PROPOSE_STRATEGY_DEPLOY,
+        "read-pnl": Proto.PolicyAction.READ_PNL,
+        "stop-strategies": Proto.PolicyAction.STOP_STRATEGIES,
     } satisfies Record<PolicyActionLabel, Proto.PolicyAction>,
 } as const;
 

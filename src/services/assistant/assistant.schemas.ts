@@ -68,10 +68,24 @@ const CurrentPageInputSchema = v.strictObject({
     title: v.pipe(v.string(), v.minLength(1), v.maxLength(80)),
 });
 
+/**
+ * What a conversation is about: one of the caller's strategies. There is at most one conversation
+ * per subject, fixed when it starts.
+ */
+const AssistantSubjectInputSchema = v.pipe(
+    v.strictObject({ strategyId: idInputSchema("strategyId") }),
+    v.transform((subject) => ({ kind: { case: "strategy" as const, value: subject } })),
+);
+
 export const SendAssistantMessageInputSchema = v.pipe(
     v.strictObject({
         /** Conversation to continue; omit to start a new one. */
         conversationId: v.optional(idInputSchema("conversationId")),
+        /**
+         * Continues the conversation about this subject, or starts it; omit `conversationId`. With
+         * `conversationId`, any other subject fails with `CONVERSATION_SUBJECT_MISMATCH`.
+         */
+        subject: v.optional(AssistantSubjectInputSchema),
         /**
          * Message text, plain text or Markdown, at most 16000 characters. Required unless
          * `images` are attached; with images, it is the question about them.
@@ -188,7 +202,11 @@ export const DecideAssistantApprovalInputSchema = v.pipe(
 
 export type DecideAssistantApprovalInput = v.InferInput<typeof DecideAssistantApprovalInputSchema>;
 
-export const ListAssistantConversationsInputSchema = v.strictObject(pageInputEntries(100));
+export const ListAssistantConversationsInputSchema = v.strictObject({
+    ...pageInputEntries(100),
+    /** Lists only the conversation about this subject: zero or one. */
+    subject: v.optional(AssistantSubjectInputSchema),
+});
 
 export type ListAssistantConversationsInput = v.InferInput<
     typeof ListAssistantConversationsInputSchema
@@ -261,6 +279,11 @@ export function formatConversation(c: Proto.Conversation) {
         conversationId: formatId(c.conversationId),
         /** Empty until a title is available. */
         title: c.title,
+        /** What the conversation is about; absent for a general conversation. */
+        subject:
+            c.subject?.kind.case === "strategy"
+                ? { strategyId: formatId(c.subject.kind.value.strategyId) }
+                : undefined,
         createdAt: tsObjToMs(c.createdAt),
         updatedAt: tsObjToMs(c.updatedAt),
     };

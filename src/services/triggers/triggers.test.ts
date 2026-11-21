@@ -747,6 +747,44 @@ describe("TriggersService", () => {
         ).toEqual({ triggerId: 22n, symbolId: 1, subaccountId: 11n });
     });
 
+    it("cancels all matching triggers with a generated request ID", async () => {
+        const transport = unaryTransportByMethod({
+            cancelAllTriggers: {
+                status: Proto.CancelAllTriggersResponse_Status.DRY_RUN,
+                matchedTriggers: 3,
+                tsNs: 4_000_000n,
+            },
+        });
+        const service = new TriggersService(
+            { authApi: transport.transport },
+            realtimeClientStub().realtime,
+            undefined,
+            testScales(),
+        );
+
+        await expect(
+            service.cancelAll({
+                symbolIds: [1],
+                side: "sell",
+                triggerTypes: ["stop_loss", "twap"],
+                dryRun: true,
+                account: { subaccountId: formatId(11n) },
+            }),
+        ).resolves.toEqual({ status: "dry_run", matchedTriggers: 3, ts: 4, tsNs: "4000000" });
+
+        const request = transport.calls.find(
+            (call) => call.method.localName === "cancelAllTriggers",
+        )?.message as Proto.CancelAllTriggersRequest | undefined;
+        expect(request).toMatchObject({
+            symbolIds: [1],
+            side: ProtoOrders.Side.SELL,
+            triggerTypes: [Proto.TriggerType.STOP_LOSS, Proto.TriggerType.TWAP],
+            dryRun: true,
+            subaccountId: 11n,
+        });
+        expect(request?.requestId).toMatch(/^[A-Za-z0-9-]{32,36}$/);
+    });
+
     it("creates and cancels OCOs and batch-cancels triggers with a generated request ID", async () => {
         const transport = unaryTransportByMethod({
             createOco: {

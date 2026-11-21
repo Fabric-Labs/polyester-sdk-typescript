@@ -7,6 +7,7 @@ import {
     SortDirection,
     SparklineInterval,
 } from "../../gen/marketoverview/v1/marketoverview_pb.js";
+import { LivePriceBandSchema, PriceBandState } from "../../gen/marketdata/v1/marketdata_pb.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import { createTestCatalog } from "../../testing/catalog.js";
@@ -58,6 +59,27 @@ function testScales() {
 }
 
 describe("MarketOverviewSchema", () => {
+    it("carries the live price band when the row has one", () => {
+        const schema = createMarketOverviewSchema(testScales());
+        const row = create(MarketOverviewSchema, {
+            symbolId: 101,
+            priceBand: create(LivePriceBandSchema, {
+                symbolId: 101,
+                state: PriceBandState.ACTIVE,
+                maxBuyPriceTicks: 64_050_250_000_000n,
+            }),
+        });
+
+        expect(v.parse(schema, row).priceBand).toMatchObject({
+            symbolId: 101,
+            state: "active",
+            maxBuyPrice: "64050.25",
+        });
+        expect(v.parse(schema, create(MarketOverviewSchema, { symbolId: 101 })).priceBand).toBe(
+            undefined,
+        );
+    });
+
     it("converts market values into decimal strings", () => {
         const schema = createMarketOverviewSchema(testScales());
         const market = v.parse(schema, {

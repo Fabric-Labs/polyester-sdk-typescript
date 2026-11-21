@@ -43,6 +43,8 @@ export const SUBACCOUNT_PERMISSION_VALUES = [
     "read_statements",
     "convert_dust",
     "read_funding_flows",
+    "read_pnl",
+    "stop_strategies",
 ] as const;
 export type SubaccountPermissionValue = (typeof SUBACCOUNT_PERMISSION_VALUES)[number];
 
@@ -154,6 +156,8 @@ export const SubaccountPermissionCodec = {
         [Proto.SubaccountPermission.READ_STATEMENTS]: "read_statements",
         [Proto.SubaccountPermission.CONVERT_DUST]: "convert_dust",
         [Proto.SubaccountPermission.READ_FUNDING_FLOWS]: "read_funding_flows",
+        [Proto.SubaccountPermission.READ_PNL]: "read_pnl",
+        [Proto.SubaccountPermission.STOP_STRATEGIES]: "stop_strategies",
     } satisfies ProtoToOutput<Proto.SubaccountPermission, SubaccountPermissionValue>,
 } as const;
 

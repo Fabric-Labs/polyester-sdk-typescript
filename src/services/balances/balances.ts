@@ -2,8 +2,13 @@ import * as Proto from "../../gen/ledger/read/v1/ledger_read_pb.js";
 import { createClient, type Client } from "@connectrpc/connect";
 import { parse } from "../../shared/validation.js";
 import type { PolyesterRealtime } from "../../realtime/index.js";
-import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
-import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
+import { createSdkSubscriptionErrorContext } from "../../shared/subscription-errors.js";
+import { createBalanceSync, type LedgerBalancesEvent } from "./balances.sync.js";
+import {
+    type SubaccountResolver,
+    resolveAccountScope,
+    resolveAccountScopedInput,
+} from "../subaccount-resolver.js";
 import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
@@ -19,10 +24,12 @@ import {
     PortfolioEquityHistoryInputSchema,
     createBalanceHistoryResponseSchema,
     createEquityHistoryResponseSchema,
-    formatLedgerBalance,
+    formatLedgerBalanceSnapshot,
+    formatLedgerBalanceUpdate,
     createPortfolioEquityHistoryResponseSchema,
     createPortfolioEquitySnapshotResponseSchema,
     type LedgerBalance,
+    type LedgerBalanceSnapshot,
     type BalanceHistoryInput,
     type BalanceHistoryResponse,
     type EquityHistoryInput,
@@ -32,8 +39,10 @@ import {
     type PortfolioEquitySnapshotResponse,
 } from "./balances.schemas.js";
 
-interface SubscribeBalancesInput extends BaseSubscribeInput<LedgerBalance> {
+interface SubscribeBalancesInput extends BaseSubscribeInput<LedgerBalancesEvent> {
     accountId: string;
+    /** The account scope `accountId` names, for the snapshot; omit for the default scope. */
+    account?: AccountScopedInput["account"];
 }
 
 /**
@@ -78,6 +87,19 @@ export class BalancesService {
         input: AccountScopedInput = {},
         options?: PolyesterRequestOptions,
     ): Promise<LedgerBalance[]> {
+        return (await this.getSnapshot(input, options)).balances;
+    }
+
+    /**
+     * Like `list`, plus the position (`tradingEpoch`, `tradingSequence`) the Trading values are at,
+     * which seeds the balance stream: apply its Trading updates of that epoch from the next sequence
+     * on. Throws `ServiceUnavailableError` while it cannot answer at a current position yet; retry
+     * it with a short backoff.
+     */
+    async getSnapshot(
+        input: AccountScopedInput = {},
+        options?: PolyesterRequestOptions,
+    ): Promise<LedgerBalanceSnapshot> {
         await this.#scales.ready();
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = parse(BalancesListInputSchema, resolved);
@@ -87,7 +109,7 @@ export class BalancesService {
             },
             toConnectCallOptions(options),
         );
-        return res.balances.map(formatLedgerBalance);
+        return formatLedgerBalanceSnapshot(res);
     }
 
     /**
@@ -152,20 +174,79 @@ export class BalancesService {
     }
 
     /**
-     * Subscribes to private balance updates on private:ledger:balances:{accountId}:proto and emits every balance record as a decimal-string row. Records for assets unknown to the catalog route a CatalogLookupError to onError.
+     * Keeps the account's balances exact from private:ledger:balances:{accountId}:proto and emits
+     * the whole balance list after each change: a `snapshot` on every (re)subscribe, then each
+     * complete Trading step in sequence and each newer Funding balance. Repeats and stale epochs
+     * are dropped; a new epoch, a sequence gap or a Trading step stalled for 2 seconds reloads the
+     * snapshot. `account` selects the snapshot and must name the same account as `accountId`;
+     * omit it for the default account scope. A failed snapshot is reported to `onError` and
+     * retried while it is retryable.
      */
     subscribe(input: SubscribeBalancesInput): () => void {
         const channel = `private:ledger:balances:${input.accountId}:proto`;
-        return connectReadyGatedProtoChannel(this.#realtime, {
-            channel,
-            schema: Proto.AssetBalanceSchema,
-            ready: () => this.#scales.ready(),
-            onPublication: (data) => {
-                input.onEvent(formatLedgerBalance(data));
+        const resolved = resolveAccountScope(input.account, this.#resolver);
+        const account = resolved === undefined ? "main" : resolved;
+        const report = (type: string, error: unknown) => {
+            try {
+                input.onError?.(createSdkSubscriptionErrorContext(channel, type, error));
+            } catch {
+                // A throwing error handler must not break the sync.
+            }
+        };
+        const sync = createBalanceSync({
+            // Pinned now: the channel is fixed to `accountId`, so a later account switch must not
+            // re-resolve the snapshot's scope.
+            fetchSnapshot: () => this.getSnapshot({ account }),
+            isConnected: () => this.#realtime.connection.private.state !== "disconnected",
+            emit: (event) => {
+                try {
+                    input.onEvent(event);
+                } catch (error) {
+                    report("publication_handler", error);
+                }
             },
-            onConnected: input.onOpen,
-            onDisconnected: input.onClose,
+            onSnapshotError: (error) => report("snapshot", error),
+        });
+        // Logout drops the channel without `onDisconnected` but marks the socket `disconnected`
+        // (a reconnect only passes through `connecting`). Watch for that only while subscribed,
+        // so a channel logout dropped keeps no listener; `onConnected` watches again on a restart.
+        let unwatch: (() => void) | undefined;
+        const stopWatching = () => {
+            unwatch?.();
+            unwatch = undefined;
+        };
+        const unsubscribe = this.#realtime.connectProtoChannel({
+            channel,
+            schema: Proto.BalanceUpdateSchema,
+            onPublication: (data) => {
+                let update;
+                try {
+                    update = formatLedgerBalanceUpdate(data);
+                } catch (error) {
+                    return report("publication_handler", error);
+                }
+                sync.update(update);
+            },
+            onConnected: () => {
+                unwatch ??= this.#realtime.onConnectionChange((connection) => {
+                    if (connection.private.state !== "disconnected") return;
+                    sync.disconnected();
+                    stopWatching();
+                });
+                sync.connected();
+                input.onOpen?.();
+            },
+            onDisconnected: () => {
+                stopWatching();
+                sync.disconnected();
+                input.onClose?.();
+            },
             onError: input.onError,
         });
+        return () => {
+            stopWatching();
+            sync.dispose();
+            unsubscribe();
+        };
     }
 }

@@ -108,6 +108,13 @@ export type PolyesterErrorDetail =
           markets?: string[];
           /** Amounts the funding account lacks, one per asset; with `INSUFFICIENT_FUNDS`. */
           shortfall?: { asset: string; amount: string }[];
+          /** With `STRATEGY_CAP_REACHED`: the cap and how many strategies the account has. */
+          strategyCap?: { strategyCap: number; strategies: number };
+          /**
+           * With `DRAFT_REVISION_CONFLICT`: the strategy's current revision, a decimal string, and
+           * its version; a matching `headVersionId` means your own save already landed.
+           */
+          revisionConflict?: { revision: string; headVersionId: string };
       }
     /** A request over the API's size limit; `limitBytes` is the limit it exceeded. */
     | { service: "request"; code: "REQUEST_TOO_LARGE"; limitBytes: number }

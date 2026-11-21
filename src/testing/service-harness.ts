@@ -107,6 +107,9 @@ export function realtimeClientStub(): {
     params: Parameters<RealtimeClient["connectProtoChannel"]>[0] | undefined;
     privateOrdersParams: Parameters<RealtimeClient["connectPrivateOrders"]>[0] | undefined;
     unsubscribe: ReturnType<typeof vi.fn>;
+    /** Sets the private socket state; `notify: false` changes it without telling listeners yet. */
+    setPrivateState: (state: "connected" | "connecting" | "disconnected", notify?: boolean) => void;
+    readonly connectionListenerCount: number;
 } {
     let params: Parameters<RealtimeClient["connectProtoChannel"]>[0] | undefined;
     let privateOrdersParams: Parameters<RealtimeClient["connectPrivateOrders"]>[0] | undefined;
@@ -124,14 +127,27 @@ export function realtimeClientStub(): {
         },
     );
 
+    const connection = {
+        public: { state: "connected", error: null },
+        private: { state: "connected", error: null },
+    } as {
+        public: RealtimeClient["connection"]["public"];
+        private: RealtimeClient["connection"]["private"];
+    };
+    const connectionListeners = new Set<Parameters<RealtimeClient["onConnectionChange"]>[0]>();
+    const onConnectionChange = vi.fn(
+        (listener: Parameters<RealtimeClient["onConnectionChange"]>[0]) => {
+            connectionListeners.add(listener);
+            return () => connectionListeners.delete(listener);
+        },
+    );
+
     return {
         realtime: {
             connectProtoChannel,
             connectPrivateOrders,
-            connection: {
-                public: { state: "connected", error: null },
-                private: { state: "connected", error: null },
-            },
+            onConnectionChange,
+            connection,
         } as unknown as RealtimeClient,
         connectProtoChannel,
         get params() {
@@ -139,6 +155,14 @@ export function realtimeClientStub(): {
         },
         get privateOrdersParams() {
             return privateOrdersParams;
+        },
+        setPrivateState(state: "connected" | "connecting" | "disconnected", notify = true) {
+            connection.private = { state, error: null };
+            if (!notify) return;
+            for (const listener of [...connectionListeners]) listener(connection);
+        },
+        get connectionListenerCount() {
+            return connectionListeners.size;
         },
         unsubscribe,
     };

@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file ledger/read/v1/ledger_read.proto.
  */
 export const file_ledger_read_v1_ledger_read: GenFile = /*@__PURE__*/
-  fileDesc("CiBsZWRnZXIvcmVhZC92MS9sZWRnZXJfcmVhZC5wcm90bxIObGVkZ2VyLnJlYWQudjEiQgoSR2V0QmFsYW5jZXNSZXF1ZXN0EhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBAUIQCg5fc3ViYWNjb3VudF9pZCL/AQoMQXNzZXRCYWxhbmNlEhAKCGFzc2V0X2lkGAEgASgNEigKB3RyYWRpbmcYAiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EigKB2Z1bmRpbmcYAyABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EikKCHJlc2VydmVkGAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIqCglhdmFpbGFibGUYBSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EhgKEHRyYWRpbmdfcmV2aXNpb24YBiABKAQSGAoQZnVuZGluZ19yZXZpc2lvbhgHIAEoBCJFChNHZXRCYWxhbmNlc1Jlc3BvbnNlEi4KCGJhbGFuY2VzGAEgAygLMhwubGVkZ2VyLnJlYWQudjEuQXNzZXRCYWxhbmNlIrYBChhHZXRCYWxhbmNlSGlzdG9yeVJlcXVlc3QSGgoNc3ViYWNjb3VudF9pZBgBIAEoBkgAiAEBEi0KBXJhbmdlGAIgASgOMhwubGVkZ2VyLnJlYWQudjEuQmFsYW5jZVJhbmdlQgASDgoGbGVkZ2VyGAMgASgNEi0KDWFjY291bnRfY29kZXMYBCADKA4yFi5sZWRnZXIudjEuQWNjb3VudENvZGVCEAoOX3N1YmFjY291bnRfaWQieQoNQmFsYW5jZVNlcmllcxIQCghhc3NldF9pZBgBIAEoDRIsCgxhY2NvdW50X2NvZGUYAiABKA4yFi5sZWRnZXIudjEuQWNjb3VudENvZGUSKAoHYmFsYW5jZRgEIAMoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgiwQEKGUdldEJhbGFuY2VIaXN0b3J5UmVzcG9uc2USKwoFcmFuZ2UYASABKA4yHC5sZWRnZXIucmVhZC52MS5CYWxhbmNlUmFuZ2USDgoGYnVja2V0GAIgASgJEhQKDHN0YXJ0X3RzX3NlYxgDIAEoBxISCgplbmRfdHNfc2VjGAQgASgHEg4KBnBvaW50cxgFIAEoDRItCgZzZXJpZXMYBiADKAsyHS5sZWRnZXIucmVhZC52MS5CYWxhbmNlU2VyaWVzIjUKD0FjY291bnRHcm91cGluZxIUCgxhY2NvdW50X2NvZGUYASABKA0SDAoEbmFtZRgCIAEoCSIrCg1Bc3NldEdyb3VwaW5nEgoKAmlkGAEgASgNEg4KBnN5bWJvbBgCIAEoCSJVChhQb3J0Zm9saW9BY2NvdW50R3JvdXBpbmcSFwoKYWNjb3VudF9pZBgBIAEoBkgAiAEBEhEKCXJlbWFpbmluZxgCIAEoCEINCgtfYWNjb3VudF9pZCLcAQodR2V0RXF1aXR5SGlzdG9yeVNlcmllc1JlcXVlc3QSGgoNc3ViYWNjb3VudF9pZBgBIAEoBkgAiAEBEi0KBXJhbmdlGAIgASgOMhwubGVkZ2VyLnJlYWQudjEuQmFsYW5jZVJhbmdlQgASLQoNYWNjb3VudF9jb2RlcxgEIAMoDjIWLmxlZGdlci52MS5BY2NvdW50Q29kZRIvCghncm91cF9ieRgFIAEoDjIdLmxlZGdlci5yZWFkLnYxLkVxdWl0eUdyb3VwQnlCEAoOX3N1YmFjY291bnRfaWQi1wEKDEVxdWl0eVNlcmllcxIyCgdhY2NvdW50GAEgASgLMh8ubGVkZ2VyLnJlYWQudjEuQWNjb3VudEdyb3VwaW5nSAASLgoFYXNzZXQYAyABKAsyHS5sZWRnZXIucmVhZC52MS5Bc3NldEdyb3VwaW5nSAASRQoRcG9ydGZvbGlvX2FjY291bnQYBCABKAsyKC5sZWRnZXIucmVhZC52MS5Qb3J0Zm9saW9BY2NvdW50R3JvdXBpbmdIABIQCghlcXVpdHlfcRgCIAMoEkIKCghncm91cGluZyLwAQoeR2V0RXF1aXR5SGlzdG9yeVNlcmllc1Jlc3BvbnNlEisKBXJhbmdlGAEgASgOMhwubGVkZ2VyLnJlYWQudjEuQmFsYW5jZVJhbmdlEg4KBmJ1Y2tldBgCIAEoCRIUCgxzdGFydF90c19zZWMYAyABKAcSEgoKZW5kX3RzX3NlYxgEIAEoBxITCgtxdW90ZV9hc3NldBgGIAEoCRIOCgZwb2ludHMYByABKA0SLAoGc2VyaWVzGAggAygLMhwubGVkZ2VyLnJlYWQudjEuRXF1aXR5U2VyaWVzEhQKDGJ0Y19wcmljZXNfcRgKIAMoAyJXCiZHZXRQb3J0Zm9saW9FcXVpdHlIaXN0b3J5U2VyaWVzUmVxdWVzdBItCgVyYW5nZRgBIAEoDjIcLmxlZGdlci5yZWFkLnYxLkJhbGFuY2VSYW5nZUIAIvkBCidHZXRQb3J0Zm9saW9FcXVpdHlIaXN0b3J5U2VyaWVzUmVzcG9uc2USKwoFcmFuZ2UYASABKA4yHC5sZWRnZXIucmVhZC52MS5CYWxhbmNlUmFuZ2USDgoGYnVja2V0GAIgASgJEhQKDHN0YXJ0X3RzX3NlYxgDIAEoBxISCgplbmRfdHNfc2VjGAQgASgHEhMKC3F1b3RlX2Fzc2V0GAUgASgJEg4KBnBvaW50cxgGIAEoDRIsCgZzZXJpZXMYByADKAsyHC5sZWRnZXIucmVhZC52MS5FcXVpdHlTZXJpZXMSFAoMYnRjX3ByaWNlc19xGAggAygDIlcKFlBvcnRmb2xpb0FjY291bnRFcXVpdHkSEgoKYWNjb3VudF9pZBgBIAEoBhIQCghlcXVpdHlfcRgCIAEoEhIXCg10b3BfYXNzZXRfaWRzGAMgAygNQgAiZAoUUG9ydGZvbGlvQXNzZXRFcXVpdHkSEAoIYXNzZXRfaWQYASABKA0SKAoHYmFsYW5jZRgEIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSEAoIZXF1aXR5X3EYAyABKBIiIwohR2V0UG9ydGZvbGlvRXF1aXR5U25hcHNob3RSZXF1ZXN0ItYBCiJHZXRQb3J0Zm9saW9FcXVpdHlTbmFwc2hvdFJlc3BvbnNlEhMKC3F1b3RlX2Fzc2V0GAEgASgJEhYKDnRvdGFsX2VxdWl0eV9xGAIgASgSEjgKCGFjY291bnRzGAMgAygLMiYubGVkZ2VyLnJlYWQudjEuUG9ydGZvbGlvQWNjb3VudEVxdWl0eRI0CgZhc3NldHMYBCADKAsyJC5sZWRnZXIucmVhZC52MS5Qb3J0Zm9saW9Bc3NldEVxdWl0eRITCgtidGNfcHJpY2VfcRgFIAEoAyL6AQoUTGlzdFRyYW5zZmVyc1JlcXVlc3QSGgoNc3ViYWNjb3VudF9pZBgBIAEoBkgAiAEBEg8KBWxpbWl0GAIgASgNQgASEAoIcmV2ZXJzZWQYAyABKAgSEQoJdHNfbWluX3VzGAQgASgEEhYKCXRzX21heF91cxgFIAEoBEgBiAEBEjAKDXRyYW5zZmVyX2NvZGUYBiABKA4yFy5sZWRnZXIudjEuVHJhbnNmZXJDb2RlQgASDgoGbGVkZ2VyGAcgASgNEhQKCnBhZ2VfdG9rZW4YCSABKAlCADoAQhAKDl9zdWJhY2NvdW50X2lkQgwKCl90c19tYXhfdXMimwEKDFRyYW5zZmVyU2lkZRIuCgRraW5kGAEgASgOMiAubGVkZ2VyLnJlYWQudjEuVHJhbnNmZXJTaWRlS2luZBIXCgphY2NvdW50X2lkGAIgASgGSACIAQESDwoHYWRkcmVzcxgDIAEoCRIVCghjaGFpbl9pZBgEIAEoDUgBiAEBQg0KC19hY2NvdW50X2lkQgsKCV9jaGFpbl9pZCKXAwoLVHJhbnNmZXJSb3cSEAoIYXNzZXRfaWQYASABKA0SKwoKYW1vdW50X2UxOBgCIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSLgoNdHJhbnNmZXJfY29kZRgDIAEoDjIXLmxlZGdlci52MS5UcmFuc2ZlckNvZGUSLAoMYWNjb3VudF9jb2RlGAQgASgOMhYubGVkZ2VyLnYxLkFjY291bnRDb2RlEg0KBXRzX3VzGAUgASgEEjIKEWJhbGFuY2VfYWZ0ZXJfZTE4GAkgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIQCghpc19kZWJpdBgKIAEoCBIPCgdsaW5rX2lkGAsgASgEEg8KB2Zsb3dfaWQYDCABKAkSLAoGc291cmNlGA0gASgLMhwubGVkZ2VyLnJlYWQudjEuVHJhbnNmZXJTaWRlEjEKC2Rlc3RpbmF0aW9uGA4gASgLMhwubGVkZ2VyLnJlYWQudjEuVHJhbnNmZXJTaWRlEhMKC3RyYW5zZmVyX2lkGA8gASgJIj8KEFRyYW5zZmVyUm93QmF0Y2gSKwoGZXZlbnRzGAEgAygLMhsubGVkZ2VyLnJlYWQudjEuVHJhbnNmZXJSb3ciYgoVTGlzdFRyYW5zZmVyc1Jlc3BvbnNlEi4KCXRyYW5zZmVycxgBIAMoCzIbLmxlZGdlci5yZWFkLnYxLlRyYW5zZmVyUm93EhkKD25leHRfcGFnZV90b2tlbhgDIAEoCUIAIjYKC0Vycm9yRGV0YWlsEicKBGNvZGUYASABKA4yGS5sZWRnZXIucmVhZC52MS5FcnJvckNvZGUqbQoMQmFsYW5jZVJhbmdlEhUKEVJBTkdFX1VOU1BFQ0lGSUVEEAASCQoFREFZXzEQARIJCgVEQVlfNxACEgoKBkRBWV8zMBADEgoKBkRBWV85MBAEEgsKB0RBWV8xODAQBRILCgdEQVlfMzY1EAYqUwoNRXF1aXR5R3JvdXBCeRIYChRHUk9VUF9CWV9VTlNQRUNJRklFRBAAEhQKEEdST1VQX0JZX0FDQ09VTlQQARISCg5HUk9VUF9CWV9BU1NFVBACKrUBChBUcmFuc2ZlclNpZGVLaW5kEiIKHlRSQU5TRkVSX1NJREVfS0lORF9VTlNQRUNJRklFRBAAEhMKD0ZVTkRJTkdfQUNDT1VOVBABEhMKD1RSQURJTkdfQUNDT1VOVBACEhQKEEVYVEVSTkFMX0FERFJFU1MQAxIYChRQUklWQVRFX0NPVU5URVJQQVJUWRAEEg8KC0ZFRV9BQ0NPVU5UEAUSEgoOU1lTVEVNX0FDQ09VTlQQBirEBQoJRXJyb3JDb2RlEhoKFkVSUk9SX0NPREVfVU5TUEVDSUZJRUQQABIaChZFUlJPUl9DT0RFX0JBRF9SRVFVRVNUEAESHgoaRVJST1JfQ09ERV9VTkFVVEhFTlRJQ0FURUQQAhIgChxFUlJPUl9DT0RFX1BFUk1JU1NJT05fREVOSUVEEAMSGAoURVJST1JfQ09ERV9OT1RfRk9VTkQQBBIhCh1FUlJPUl9DT0RFX01JU1NJTkdfQUNDT1VOVF9JRBAFEiEKHUVSUk9SX0NPREVfSU5WQUxJRF9BQ0NPVU5UX0lEEAYSHQoZRVJST1JfQ09ERV9NSVNTSU5HX1dBTExFVBAHEiwKKEVSUk9SX0NPREVfV0FMTEVUX1JFU09MVVRJT05fVU5BVkFJTEFCTEUQCBIfChtFUlJPUl9DT0RFX1dBTExFVF9OT1RfRk9VTkQQCRIdChlFUlJPUl9DT0RFX1VQU1RSRUFNX0VSUk9SEAoSJAogRVJST1JfQ09ERV9JTlZBTElEX1NVQkFDQ09VTlRfSUQQCxIlCiFFUlJPUl9DT0RFX0lERU1QT1RFTkNZX0tFWV9SRVVTRUQQDBItCilFUlJPUl9DT0RFX1NUQVRFTUVOVF9FWFBPUlRfTElNSVRfUkVBQ0hFRBANEikKJUVSUk9SX0NPREVfU1RBVEVNRU5UX0VYUE9SVF9OT1RfUkVBRFkQDhInCiNFUlJPUl9DT0RFX1NUQVRFTUVOVF9FWFBPUlRfRVhQSVJFRBAPEiYKIkVSUk9SX0NPREVfU1RBVEVNRU5UX0VYUE9SVF9GQUlMRUQQEBIuCipFUlJPUl9DT0RFX1NUQVRFTUVOVF9FWFBPUlRfTk9UX0NBTkNFTEFCTEUQERIoCiRFUlJPUl9DT0RFX1NUQVRFTUVOVF9FWFBPUlRfQ0FOQ0VMRUQQEjLVBQoRTGVkZ2VyUmVhZFNlcnZpY2USagoRR2V0QmFsYW5jZUhpc3RvcnkSKC5sZWRnZXIucmVhZC52MS5HZXRCYWxhbmNlSGlzdG9yeVJlcXVlc3QaKS5sZWRnZXIucmVhZC52MS5HZXRCYWxhbmNlSGlzdG9yeVJlc3BvbnNlIgASeQoWR2V0RXF1aXR5SGlzdG9yeVNlcmllcxItLmxlZGdlci5yZWFkLnYxLkdldEVxdWl0eUhpc3RvcnlTZXJpZXNSZXF1ZXN0Gi4ubGVkZ2VyLnJlYWQudjEuR2V0RXF1aXR5SGlzdG9yeVNlcmllc1Jlc3BvbnNlIgASlAEKH0dldFBvcnRmb2xpb0VxdWl0eUhpc3RvcnlTZXJpZXMSNi5sZWRnZXIucmVhZC52MS5HZXRQb3J0Zm9saW9FcXVpdHlIaXN0b3J5U2VyaWVzUmVxdWVzdBo3LmxlZGdlci5yZWFkLnYxLkdldFBvcnRmb2xpb0VxdWl0eUhpc3RvcnlTZXJpZXNSZXNwb25zZSIAEoUBChpHZXRQb3J0Zm9saW9FcXVpdHlTbmFwc2hvdBIxLmxlZGdlci5yZWFkLnYxLkdldFBvcnRmb2xpb0VxdWl0eVNuYXBzaG90UmVxdWVzdBoyLmxlZGdlci5yZWFkLnYxLkdldFBvcnRmb2xpb0VxdWl0eVNuYXBzaG90UmVzcG9uc2UiABJeCg1MaXN0VHJhbnNmZXJzEiQubGVkZ2VyLnJlYWQudjEuTGlzdFRyYW5zZmVyc1JlcXVlc3QaJS5sZWRnZXIucmVhZC52MS5MaXN0VHJhbnNmZXJzUmVzcG9uc2UiABJYCgtHZXRCYWxhbmNlcxIiLmxlZGdlci5yZWFkLnYxLkdldEJhbGFuY2VzUmVxdWVzdBojLmxlZGdlci5yZWFkLnYxLkdldEJhbGFuY2VzUmVzcG9uc2UiABoAQkdaRWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vbGVkZ2VyL3JlYWQvdjE7bGVkZ2VycmR2MWIGcHJvdG8z", [file_ledger_v1_catalog, file_polyester_api_options, file_polyester_type_v1_u128]);
+  fileDesc("CiBsZWRnZXIvcmVhZC92MS9sZWRnZXJfcmVhZC5wcm90bxIObGVkZ2VyLnJlYWQudjEiQgoSR2V0QmFsYW5jZXNSZXF1ZXN0EhoKDXN1YmFjY291bnRfaWQYASABKAZIAIgBAUIQCg5fc3ViYWNjb3VudF9pZCLlAQoMQXNzZXRCYWxhbmNlEhAKCGFzc2V0X2lkGAEgASgNEigKB3RyYWRpbmcYAiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EigKB2Z1bmRpbmcYAyABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EikKCHJlc2VydmVkGAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIqCglhdmFpbGFibGUYBSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EhgKEGZ1bmRpbmdfcmV2aXNpb24YByABKAQinQEKE0dldEJhbGFuY2VzUmVzcG9uc2USLgoIYmFsYW5jZXMYASADKAsyHC5sZWRnZXIucmVhZC52MS5Bc3NldEJhbGFuY2USFQoNdHJhZGluZ19lcG9jaBgCIAEoBBIYChB0cmFkaW5nX3NlcXVlbmNlGAMgASgEEiUKHXRyYWRpbmdfYXBwbGllZF90aHJvdWdoX3RzX25zGAQgASgEIoICCg1CYWxhbmNlVXBkYXRlEicKB2FjY291bnQYASABKA4yFi5sZWRnZXIudjEuQWNjb3VudENvZGUSFQoNdHJhZGluZ19lcG9jaBgCIAEoBBIYChB0cmFkaW5nX3NlcXVlbmNlGAMgASgEEhAKCGNvbXBsZXRlGAQgASgIEi4KCGJhbGFuY2VzGAUgAygLMhwubGVkZ2VyLnJlYWQudjEuQXNzZXRCYWxhbmNlEi4KCXRyYW5zZmVycxgGIAMoCzIbLmxlZGdlci5yZWFkLnYxLlRyYW5zZmVyUm93EiUKHXRyYWRpbmdfYXBwbGllZF90aHJvdWdoX3RzX25zGAcgASgEIrYBChhHZXRCYWxhbmNlSGlzdG9yeVJlcXVlc3QSGgoNc3ViYWNjb3VudF9pZBgBIAEoBkgAiAEBEi0KBXJhbmdlGAIgASgOMhwubGVkZ2VyLnJlYWQudjEuQmFsYW5jZVJhbmdlQgASDgoGbGVkZ2VyGAMgASgNEi0KDWFjY291bnRfY29kZXMYBCADKA4yFi5sZWRnZXIudjEuQWNjb3VudENvZGVCEAoOX3N1YmFjY291bnRfaWQieQoNQmFsYW5jZVNlcmllcxIQCghhc3NldF9pZBgBIAEoDRIsCgxhY2NvdW50X2NvZGUYAiABKA4yFi5sZWRnZXIudjEuQWNjb3VudENvZGUSKAoHYmFsYW5jZRgEIAMoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgiwQEKGUdldEJhbGFuY2VIaXN0b3J5UmVzcG9uc2USKwoFcmFuZ2UYASABKA4yHC5sZWRnZXIucmVhZC52MS5CYWxhbmNlUmFuZ2USDgoGYnVja2V0GAIgASgJEhQKDHN0YXJ0X3RzX3NlYxgDIAEoBxISCgplbmRfdHNfc2VjGAQgASgHEg4KBnBvaW50cxgFIAEoDRItCgZzZXJpZXMYBiADKAsyHS5sZWRnZXIucmVhZC52MS5CYWxhbmNlU2VyaWVzIjUKD0FjY291bnRHcm91cGluZxIUCgxhY2NvdW50X2NvZGUYASABKA0SDAoEbmFtZRgCIAEoCSIrCg1Bc3NldEdyb3VwaW5nEgoKAmlkGAEgASgNEg4KBnN5bWJvbBgCIAEoCSJVChhQb3J0Zm9saW9BY2NvdW50R3JvdXBpbmcSFwoKYWNjb3VudF9pZBgBIAEoBkgAiAEBEhEKCXJlbWFpbmluZxgCIAEoCEINCgtfYWNjb3VudF9pZCLcAQodR2V0RXF1aXR5SGlzdG9yeVNlcmllc1JlcXVlc3QSGgoNc3ViYWNjb3VudF9pZBgBIAEoBkgAiAEBEi0KBXJhbmdlGAIgASgOMhwubGVkZ2VyLnJlYWQudjEuQmFsYW5jZVJhbmdlQgASLQoNYWNjb3VudF9jb2RlcxgEIAMoDjIWLmxlZGdlci52MS5BY2NvdW50Q29kZRIvCghncm91cF9ieRgFIAEoDjIdLmxlZGdlci5yZWFkLnYxLkVxdWl0eUdyb3VwQnlCEAoOX3N1YmFjY291bnRfaWQi1wEKDEVxdWl0eVNlcmllcxIyCgdhY2NvdW50GAEgASgLMh8ubGVkZ2VyLnJlYWQudjEuQWNjb3VudEdyb3VwaW5nSAASLgoFYXNzZXQYAyABKAsyHS5sZWRnZXIucmVhZC52MS5Bc3NldEdyb3VwaW5nSAASRQoRcG9ydGZvbGlvX2FjY291bnQYBCABKAsyKC5sZWRnZXIucmVhZC52MS5Qb3J0Zm9saW9BY2NvdW50R3JvdXBpbmdIABIQCghlcXVpdHlfcRgCIAMoEkIKCghncm91cGluZyLwAQoeR2V0RXF1aXR5SGlzdG9yeVNlcmllc1Jlc3BvbnNlEisKBXJhbmdlGAEgASgOMhwubGVkZ2VyLnJlYWQudjEuQmFsYW5jZVJhbmdlEg4KBmJ1Y2tldBgCIAEoCRIUCgxzdGFydF90c19zZWMYAyABKAcSEgoKZW5kX3RzX3NlYxgEIAEoBxITCgtxdW90ZV9hc3NldBgGIAEoCRIOCgZwb2ludHMYByABKA0SLAoGc2VyaWVzGAggAygLMhwubGVkZ2VyLnJlYWQudjEuRXF1aXR5U2VyaWVzEhQKDGJ0Y19wcmljZXNfcRgKIAMoAyJXCiZHZXRQb3J0Zm9saW9FcXVpdHlIaXN0b3J5U2VyaWVzUmVxdWVzdBItCgVyYW5nZRgBIAEoDjIcLmxlZGdlci5yZWFkLnYxLkJhbGFuY2VSYW5nZUIAIvkBCidHZXRQb3J0Zm9saW9FcXVpdHlIaXN0b3J5U2VyaWVzUmVzcG9uc2USKwoFcmFuZ2UYASABKA4yHC5sZWRnZXIucmVhZC52MS5CYWxhbmNlUmFuZ2USDgoGYnVja2V0GAIgASgJEhQKDHN0YXJ0X3RzX3NlYxgDIAEoBxISCgplbmRfdHNfc2VjGAQgASgHEhMKC3F1b3RlX2Fzc2V0GAUgASgJEg4KBnBvaW50cxgGIAEoDRIsCgZzZXJpZXMYByADKAsyHC5sZWRnZXIucmVhZC52MS5FcXVpdHlTZXJpZXMSFAoMYnRjX3ByaWNlc19xGAggAygDIlcKFlBvcnRmb2xpb0FjY291bnRFcXVpdHkSEgoKYWNjb3VudF9pZBgBIAEoBhIQCghlcXVpdHlfcRgCIAEoEhIXCg10b3BfYXNzZXRfaWRzGAMgAygNQgAiZAoUUG9ydGZvbGlvQXNzZXRFcXVpdHkSEAoIYXNzZXRfaWQYASABKA0SKAoHYmFsYW5jZRgEIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSEAoIZXF1aXR5X3EYAyABKBIiIwohR2V0UG9ydGZvbGlvRXF1aXR5U25hcHNob3RSZXF1ZXN0ItYBCiJHZXRQb3J0Zm9saW9FcXVpdHlTbmFwc2hvdFJlc3BvbnNlEhMKC3F1b3RlX2Fzc2V0GAEgASgJEhYKDnRvdGFsX2VxdWl0eV9xGAIgASgSEjgKCGFjY291bnRzGAMgAygLMiYubGVkZ2VyLnJlYWQudjEuUG9ydGZvbGlvQWNjb3VudEVxdWl0eRI0CgZhc3NldHMYBCADKAsyJC5sZWRnZXIucmVhZC52MS5Qb3J0Zm9saW9Bc3NldEVxdWl0eRITCgtidGNfcHJpY2VfcRgFIAEoAyL6AQoUTGlzdFRyYW5zZmVyc1JlcXVlc3QSGgoNc3ViYWNjb3VudF9pZBgBIAEoBkgAiAEBEg8KBWxpbWl0GAIgASgNQgASEAoIcmV2ZXJzZWQYAyABKAgSEQoJdHNfbWluX3VzGAQgASgEEhYKCXRzX21heF91cxgFIAEoBEgBiAEBEjAKDXRyYW5zZmVyX2NvZGUYBiABKA4yFy5sZWRnZXIudjEuVHJhbnNmZXJDb2RlQgASDgoGbGVkZ2VyGAcgASgNEhQKCnBhZ2VfdG9rZW4YCSABKAlCADoAQhAKDl9zdWJhY2NvdW50X2lkQgwKCl90c19tYXhfdXMimwEKDFRyYW5zZmVyU2lkZRIuCgRraW5kGAEgASgOMiAubGVkZ2VyLnJlYWQudjEuVHJhbnNmZXJTaWRlS2luZBIXCgphY2NvdW50X2lkGAIgASgGSACIAQESDwoHYWRkcmVzcxgDIAEoCRIVCghjaGFpbl9pZBgEIAEoDUgBiAEBQg0KC19hY2NvdW50X2lkQgsKCV9jaGFpbl9pZCKmAwoLVHJhbnNmZXJSb3cSEAoIYXNzZXRfaWQYASABKA0SKwoKYW1vdW50X2UxOBgCIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSLgoNdHJhbnNmZXJfY29kZRgDIAEoDjIXLmxlZGdlci52MS5UcmFuc2ZlckNvZGUSLAoMYWNjb3VudF9jb2RlGAQgASgOMhYubGVkZ2VyLnYxLkFjY291bnRDb2RlEg0KBXRzX3VzGAUgASgEEjIKEWJhbGFuY2VfYWZ0ZXJfZTE4GAkgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIQCghpc19kZWJpdBgKIAEoCBIPCgdsaW5rX2lkGAsgASgEEg8KB2Zsb3dfaWQYDCABKAkSLAoGc291cmNlGA0gASgLMhwubGVkZ2VyLnJlYWQudjEuVHJhbnNmZXJTaWRlEjEKC2Rlc3RpbmF0aW9uGA4gASgLMhwubGVkZ2VyLnJlYWQudjEuVHJhbnNmZXJTaWRlEhMKC3RyYW5zZmVyX2lkGA8gASgJEg0KBXRzX25zGBAgASgEIj8KEFRyYW5zZmVyUm93QmF0Y2gSKwoGZXZlbnRzGAEgAygLMhsubGVkZ2VyLnJlYWQudjEuVHJhbnNmZXJSb3ciYgoVTGlzdFRyYW5zZmVyc1Jlc3BvbnNlEi4KCXRyYW5zZmVycxgBIAMoCzIbLmxlZGdlci5yZWFkLnYxLlRyYW5zZmVyUm93EhkKD25leHRfcGFnZV90b2tlbhgDIAEoCUIAIjYKC0Vycm9yRGV0YWlsEicKBGNvZGUYASABKA4yGS5sZWRnZXIucmVhZC52MS5FcnJvckNvZGUqbQoMQmFsYW5jZVJhbmdlEhUKEVJBTkdFX1VOU1BFQ0lGSUVEEAASCQoFREFZXzEQARIJCgVEQVlfNxACEgoKBkRBWV8zMBADEgoKBkRBWV85MBAEEgsKB0RBWV8xODAQBRILCgdEQVlfMzY1EAYqUwoNRXF1aXR5R3JvdXBCeRIYChRHUk9VUF9CWV9VTlNQRUNJRklFRBAAEhQKEEdST1VQX0JZX0FDQ09VTlQQARISCg5HUk9VUF9CWV9BU1NFVBACKrUBChBUcmFuc2ZlclNpZGVLaW5kEiIKHlRSQU5TRkVSX1NJREVfS0lORF9VTlNQRUNJRklFRBAAEhMKD0ZVTkRJTkdfQUNDT1VOVBABEhMKD1RSQURJTkdfQUNDT1VOVBACEhQKEEVYVEVSTkFMX0FERFJFU1MQAxIYChRQUklWQVRFX0NPVU5URVJQQVJUWRAEEg8KC0ZFRV9BQ0NPVU5UEAUSEgoOU1lTVEVNX0FDQ09VTlQQBirEBQoJRXJyb3JDb2RlEhoKFkVSUk9SX0NPREVfVU5TUEVDSUZJRUQQABIaChZFUlJPUl9DT0RFX0JBRF9SRVFVRVNUEAESHgoaRVJST1JfQ09ERV9VTkFVVEhFTlRJQ0FURUQQAhIgChxFUlJPUl9DT0RFX1BFUk1JU1NJT05fREVOSUVEEAMSGAoURVJST1JfQ09ERV9OT1RfRk9VTkQQBBIhCh1FUlJPUl9DT0RFX01JU1NJTkdfQUNDT1VOVF9JRBAFEiEKHUVSUk9SX0NPREVfSU5WQUxJRF9BQ0NPVU5UX0lEEAYSHQoZRVJST1JfQ09ERV9NSVNTSU5HX1dBTExFVBAHEiwKKEVSUk9SX0NPREVfV0FMTEVUX1JFU09MVVRJT05fVU5BVkFJTEFCTEUQCBIfChtFUlJPUl9DT0RFX1dBTExFVF9OT1RfRk9VTkQQCRIdChlFUlJPUl9DT0RFX1VQU1RSRUFNX0VSUk9SEAoSJAogRVJST1JfQ09ERV9JTlZBTElEX1NVQkFDQ09VTlRfSUQQCxIlCiFFUlJPUl9DT0RFX0lERU1QT1RFTkNZX0tFWV9SRVVTRUQQDBItCilFUlJPUl9DT0RFX1NUQVRFTUVOVF9FWFBPUlRfTElNSVRfUkVBQ0hFRBANEikKJUVSUk9SX0NPREVfU1RBVEVNRU5UX0VYUE9SVF9OT1RfUkVBRFkQDhInCiNFUlJPUl9DT0RFX1NUQVRFTUVOVF9FWFBPUlRfRVhQSVJFRBAPEiYKIkVSUk9SX0NPREVfU1RBVEVNRU5UX0VYUE9SVF9GQUlMRUQQEBIuCipFUlJPUl9DT0RFX1NUQVRFTUVOVF9FWFBPUlRfTk9UX0NBTkNFTEFCTEUQERIoCiRFUlJPUl9DT0RFX1NUQVRFTUVOVF9FWFBPUlRfQ0FOQ0VMRUQQEjLVBQoRTGVkZ2VyUmVhZFNlcnZpY2USagoRR2V0QmFsYW5jZUhpc3RvcnkSKC5sZWRnZXIucmVhZC52MS5HZXRCYWxhbmNlSGlzdG9yeVJlcXVlc3QaKS5sZWRnZXIucmVhZC52MS5HZXRCYWxhbmNlSGlzdG9yeVJlc3BvbnNlIgASeQoWR2V0RXF1aXR5SGlzdG9yeVNlcmllcxItLmxlZGdlci5yZWFkLnYxLkdldEVxdWl0eUhpc3RvcnlTZXJpZXNSZXF1ZXN0Gi4ubGVkZ2VyLnJlYWQudjEuR2V0RXF1aXR5SGlzdG9yeVNlcmllc1Jlc3BvbnNlIgASlAEKH0dldFBvcnRmb2xpb0VxdWl0eUhpc3RvcnlTZXJpZXMSNi5sZWRnZXIucmVhZC52MS5HZXRQb3J0Zm9saW9FcXVpdHlIaXN0b3J5U2VyaWVzUmVxdWVzdBo3LmxlZGdlci5yZWFkLnYxLkdldFBvcnRmb2xpb0VxdWl0eUhpc3RvcnlTZXJpZXNSZXNwb25zZSIAEoUBChpHZXRQb3J0Zm9saW9FcXVpdHlTbmFwc2hvdBIxLmxlZGdlci5yZWFkLnYxLkdldFBvcnRmb2xpb0VxdWl0eVNuYXBzaG90UmVxdWVzdBoyLmxlZGdlci5yZWFkLnYxLkdldFBvcnRmb2xpb0VxdWl0eVNuYXBzaG90UmVzcG9uc2UiABJeCg1MaXN0VHJhbnNmZXJzEiQubGVkZ2VyLnJlYWQudjEuTGlzdFRyYW5zZmVyc1JlcXVlc3QaJS5sZWRnZXIucmVhZC52MS5MaXN0VHJhbnNmZXJzUmVzcG9uc2UiABJYCgtHZXRCYWxhbmNlcxIiLmxlZGdlci5yZWFkLnYxLkdldEJhbGFuY2VzUmVxdWVzdBojLmxlZGdlci5yZWFkLnYxLkdldEJhbGFuY2VzUmVzcG9uc2UiABoAQkdaRWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vbGVkZ2VyL3JlYWQvdjE7bGVkZ2VycmR2MWIGcHJvdG8z", [file_ledger_v1_catalog, file_polyester_api_options, file_polyester_type_v1_u128]);
 
 /**
  * @generated from message ledger.read.v1.GetBalancesRequest
@@ -83,16 +83,9 @@ export type AssetBalance = Message<"ledger.read.v1.AssetBalance"> & {
   available?: U128 | undefined;
 
   /**
-   * Opaque monotonic revision for the atomic trading, reserved, and available
-   * values. Higher means newer; zero means no trading state has been observed.
-   *
-   * @generated from field: uint64 trading_revision = 6;
-   */
-  tradingRevision: bigint;
-
-  /**
    * Opaque monotonic revision for the funding value. Higher means newer; zero
-   * means no funding state has been observed.
+   * means no funding state has been observed. Trading values have no
+   * revision: their position is (trading_epoch, trading_sequence).
    *
    * @generated from field: uint64 funding_revision = 7;
    */
@@ -107,6 +100,15 @@ export const AssetBalanceSchema: GenMessage<AssetBalance> = /*@__PURE__*/
   messageDesc(file_ledger_read_v1_ledger_read, 1);
 
 /**
+ * GetBalancesResponse is the account's balances with the position of its
+ * Trading values.
+ *
+ * The Trading values of every asset are one atomic cut: all are taken at the
+ * single position (trading_epoch, trading_sequence) the response names, never
+ * a mix of two positions, and never at a position older than one the balance
+ * stream already published. The Funding values carry their own
+ * funding_revision and are not part of that position.
+ *
  * @generated from message ledger.read.v1.GetBalancesResponse
  */
 export type GetBalancesResponse = Message<"ledger.read.v1.GetBalancesResponse"> & {
@@ -118,6 +120,36 @@ export type GetBalancesResponse = Message<"ledger.read.v1.GetBalancesResponse"> 
    * @generated from field: repeated ledger.read.v1.AssetBalance balances = 1;
    */
   balances: AssetBalance[];
+
+  /**
+   * The Trading numbering the balances' Trading values are in. It changes
+   * when the numbering restarts: then reload. Compare it only for equality;
+   * its value has no order. Zero, with trading_sequence zero, when the
+   * account has no Trading balances yet.
+   *
+   * @generated from field: uint64 trading_epoch = 2;
+   */
+  tradingEpoch: bigint;
+
+  /**
+   * The Trading sequence the balances' Trading values are at, within
+   * trading_epoch: apply the balance stream's Trading updates from
+   * trading_sequence + 1 on (see BalanceUpdate).
+   *
+   * @generated from field: uint64 trading_sequence = 3;
+   */
+  tradingSequence: bigint;
+
+  /**
+   * Every Trading transfer of the account whose ts_ns is at or below this
+   * value is applied in these balances, a receipt within trading_epoch.
+   * While a transfer of the account could not be applied, this value stays
+   * below it, until a later balance of that asset includes it; it never
+   * passes a transfer that is not applied. Nanoseconds since epoch (UTC).
+   *
+   * @generated from field: uint64 trading_applied_through_ts_ns = 4;
+   */
+  tradingAppliedThroughTsNs: bigint;
 };
 
 /**
@@ -126,6 +158,140 @@ export type GetBalancesResponse = Message<"ledger.read.v1.GetBalancesResponse"> 
  */
 export const GetBalancesResponseSchema: GenMessage<GetBalancesResponse> = /*@__PURE__*/
   messageDesc(file_ledger_read_v1_ledger_read, 2);
+
+/**
+ * BalanceUpdate is one publication on an account's balance stream.
+ *
+ * A TRADING update is one step of the account's Trading balances, at a
+ * position (trading_epoch, trading_sequence). Within an epoch the sequence
+ * runs 1, 2, 3 with no gap. A new epoch starts again at 1, and its updates
+ * up to its first complete one carry every asset the account holds in
+ * Trading.
+ *
+ * A FUNDING update carries one asset's Funding balance. It is not sequenced:
+ * a higher funding_revision is newer. Its trading_epoch and trading_sequence
+ * are unset: tell the two kinds apart by account, never by a zero epoch.
+ *
+ * Keep the balances exact as follows:
+ *
+ * 1. Subscribe to the stream and buffer its updates.
+ * 2. Call GetBalances and apply its balances. Its position (E, Q) is
+ *    (trading_epoch, trading_sequence). If it answers unavailable, retry it
+ *    with a backoff.
+ * 3. Drop buffered and later TRADING updates of epoch E with a sequence at or
+ *    below Q; a reconnect can repeat one. Apply E's sequences Q + 1, Q + 2,
+ *    and so on, in order.
+ * 4. Keep a dropped set of epochs: every epoch you held before E, and every
+ *    epoch other than E of an update received before the GetBalances call
+ *    that answered E began. GetBalances never answers a dropped epoch again,
+ *    so drop a TRADING update of a dropped epoch without reloading: after a
+ *    move, the earlier epoch's late updates can still arrive. Reload, from
+ *    step 2, when:
+ *    - a TRADING update's epoch is neither E nor dropped, including one
+ *      buffered while the call ran: the numbering restarted;
+ *    - its sequence skips a number: an update was missed;
+ *    - after an incomplete update of E, E's next sequence does not arrive
+ *      within 2 seconds. FUNDING updates, repeats and updates of dropped
+ *      epochs do not stop the timer;
+ *    - the subscription reports that missed publications could not be
+ *      recovered.
+ * 5. Apply a FUNDING update when its funding_revision is higher than the one
+ *    held for its asset.
+ *
+ * GetBalances reflects every balance update published before the call began,
+ * so a reload covers anything the subscription missed in the answer's epoch,
+ * even a final update of an idle account, and an earlier epoch's Trading
+ * transfers as below. Show Trading values after an update with complete set:
+ * in between, the same step continues in the next update.
+ *
+ * After a move, a new epoch's Trading values can be older than the previous
+ * epoch's last ones: its owner may not have applied the latest transfers yet.
+ * Until its trading_applied_through_ts_ns reaches the last one you saw, the
+ * epoch is catching up, and its later updates apply those transfers.
+ * GetBalances waits, or fails with UNAVAILABLE, rather than answer such a
+ * cut below a Trading transfer the stream published in an earlier epoch,
+ * including one you never received. Right after a server restart it may not
+ * know every such transfer, so still count a transfer as applied only by a
+ * receipt in the current epoch: its leg, or a trading_applied_through_ts_ns
+ * at or past its ts_ns.
+ *
+ * @generated from message ledger.read.v1.BalanceUpdate
+ */
+export type BalanceUpdate = Message<"ledger.read.v1.BalanceUpdate"> & {
+  /**
+   * TRADING or FUNDING: which balances this update carries.
+   *
+   * @generated from field: ledger.v1.AccountCode account = 1;
+   */
+  account: AccountCode;
+
+  /**
+   * TRADING only. The Trading numbering this update is in, as GetBalances
+   * returns it. It changes when the numbering restarts: drop an update of a
+   * dropped epoch, and reload on any other epoch than the current one
+   * (step 4). Compare it only for equality; its value has no order.
+   *
+   * @generated from field: uint64 trading_epoch = 2;
+   */
+  tradingEpoch: bigint;
+
+  /**
+   * TRADING only. This update's place in its epoch, from 1, with no gap.
+   *
+   * @generated from field: uint64 trading_sequence = 3;
+   */
+  tradingSequence: bigint;
+
+  /**
+   * TRADING only. True when the account's Trading values are a consistent
+   * snapshot after this update; false while the same step continues in the
+   * next update.
+   *
+   * @generated from field: bool complete = 4;
+   */
+  complete: boolean;
+
+  /**
+   * The assets this update changed, each at most once. A TRADING update sets
+   * trading, reserved and available; a FUNDING update sets funding and
+   * funding_revision. The other kind's fields are unset.
+   *
+   * @generated from field: repeated ledger.read.v1.AssetBalance balances = 5;
+   */
+  balances: AssetBalance[];
+
+  /**
+   * TRADING only. The Trading transfer legs this update applied, oldest
+   * first. Each sets asset_id, amount_e18, transfer_code, account_code,
+   * ts_us, ts_ns, balance_after_e18, is_debit and transfer_id; link_id,
+   * flow_id, source and destination are unset here and are published on the
+   * transfer stream and by ListTransfers. After a move, a transfer's legs
+   * can arrive again in the new epoch: (transfer_id, is_debit) identifies a
+   * leg.
+   *
+   * @generated from field: repeated ledger.read.v1.TransferRow transfers = 6;
+   */
+  transfers: TransferRow[];
+
+  /**
+   * TRADING only. Every Trading transfer of the account whose ts_ns is at or
+   * below this value is applied in this update's balances, whether or not its
+   * leg was received. It is a receipt within trading_epoch. While a transfer
+   * of the account could not be applied, this value stays below it, until a
+   * later balance of that asset includes it; it never passes a transfer that
+   * is not applied. Nanoseconds since epoch (UTC).
+   *
+   * @generated from field: uint64 trading_applied_through_ts_ns = 7;
+   */
+  tradingAppliedThroughTsNs: bigint;
+};
+
+/**
+ * Describes the message ledger.read.v1.BalanceUpdate.
+ * Use `create(BalanceUpdateSchema)` to create a new message.
+ */
+export const BalanceUpdateSchema: GenMessage<BalanceUpdate> = /*@__PURE__*/
+  messageDesc(file_ledger_read_v1_ledger_read, 3);
 
 /**
  * @generated from message ledger.read.v1.GetBalanceHistoryRequest
@@ -168,7 +334,7 @@ export type GetBalanceHistoryRequest = Message<"ledger.read.v1.GetBalanceHistory
  * Use `create(GetBalanceHistoryRequestSchema)` to create a new message.
  */
 export const GetBalanceHistoryRequestSchema: GenMessage<GetBalanceHistoryRequest> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 3);
+  messageDesc(file_ledger_read_v1_ledger_read, 4);
 
 /**
  * Columnar balance series payload.
@@ -205,7 +371,7 @@ export type BalanceSeries = Message<"ledger.read.v1.BalanceSeries"> & {
  * Use `create(BalanceSeriesSchema)` to create a new message.
  */
 export const BalanceSeriesSchema: GenMessage<BalanceSeries> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 4);
+  messageDesc(file_ledger_read_v1_ledger_read, 5);
 
 /**
  * GetBalanceHistoryResponse returns aligned balance chart series.
@@ -261,7 +427,7 @@ export type GetBalanceHistoryResponse = Message<"ledger.read.v1.GetBalanceHistor
  * Use `create(GetBalanceHistoryResponseSchema)` to create a new message.
  */
 export const GetBalanceHistoryResponseSchema: GenMessage<GetBalanceHistoryResponse> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 5);
+  messageDesc(file_ledger_read_v1_ledger_read, 6);
 
 /**
  * Account grouping metadata (used when group_by = ACCOUNT).
@@ -289,7 +455,7 @@ export type AccountGrouping = Message<"ledger.read.v1.AccountGrouping"> & {
  * Use `create(AccountGroupingSchema)` to create a new message.
  */
 export const AccountGroupingSchema: GenMessage<AccountGrouping> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 6);
+  messageDesc(file_ledger_read_v1_ledger_read, 7);
 
 /**
  * Asset grouping metadata (used when group_by = ASSET).
@@ -317,7 +483,7 @@ export type AssetGrouping = Message<"ledger.read.v1.AssetGrouping"> & {
  * Use `create(AssetGroupingSchema)` to create a new message.
  */
 export const AssetGroupingSchema: GenMessage<AssetGrouping> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 7);
+  messageDesc(file_ledger_read_v1_ledger_read, 8);
 
 /**
  * Logical account grouping used by root portfolio equity history.
@@ -346,7 +512,7 @@ export type PortfolioAccountGrouping = Message<"ledger.read.v1.PortfolioAccountG
  * Use `create(PortfolioAccountGroupingSchema)` to create a new message.
  */
 export const PortfolioAccountGroupingSchema: GenMessage<PortfolioAccountGrouping> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 8);
+  messageDesc(file_ledger_read_v1_ledger_read, 9);
 
 /**
  * Equity history in USDT (or BTC via client-side conversion using btc_prices).
@@ -393,7 +559,7 @@ export type GetEquityHistorySeriesRequest = Message<"ledger.read.v1.GetEquityHis
  * Use `create(GetEquityHistorySeriesRequestSchema)` to create a new message.
  */
 export const GetEquityHistorySeriesRequestSchema: GenMessage<GetEquityHistorySeriesRequest> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 9);
+  messageDesc(file_ledger_read_v1_ledger_read, 10);
 
 /**
  * Columnar equity series payload (scaled integers).
@@ -447,7 +613,7 @@ export type EquitySeries = Message<"ledger.read.v1.EquitySeries"> & {
  * Use `create(EquitySeriesSchema)` to create a new message.
  */
 export const EquitySeriesSchema: GenMessage<EquitySeries> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 10);
+  messageDesc(file_ledger_read_v1_ledger_read, 11);
 
 /**
  * GetEquityHistorySeriesResponse returns aligned equity chart series.
@@ -518,7 +684,7 @@ export type GetEquityHistorySeriesResponse = Message<"ledger.read.v1.GetEquityHi
  * Use `create(GetEquityHistorySeriesResponseSchema)` to create a new message.
  */
 export const GetEquityHistorySeriesResponseSchema: GenMessage<GetEquityHistorySeriesResponse> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 11);
+  messageDesc(file_ledger_read_v1_ledger_read, 12);
 
 /**
  * Requests root portfolio equity history.
@@ -539,7 +705,7 @@ export type GetPortfolioEquityHistorySeriesRequest = Message<"ledger.read.v1.Get
  * Use `create(GetPortfolioEquityHistorySeriesRequestSchema)` to create a new message.
  */
 export const GetPortfolioEquityHistorySeriesRequestSchema: GenMessage<GetPortfolioEquityHistorySeriesRequest> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 12);
+  messageDesc(file_ledger_read_v1_ledger_read, 13);
 
 /**
  * Root portfolio equity history with aligned, implicit timestamps.
@@ -611,7 +777,7 @@ export type GetPortfolioEquityHistorySeriesResponse = Message<"ledger.read.v1.Ge
  * Use `create(GetPortfolioEquityHistorySeriesResponseSchema)` to create a new message.
  */
 export const GetPortfolioEquityHistorySeriesResponseSchema: GenMessage<GetPortfolioEquityHistorySeriesResponse> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 13);
+  messageDesc(file_ledger_read_v1_ledger_read, 14);
 
 /**
  * Current equity for one logical account in the root portfolio.
@@ -647,7 +813,7 @@ export type PortfolioAccountEquity = Message<"ledger.read.v1.PortfolioAccountEqu
  * Use `create(PortfolioAccountEquitySchema)` to create a new message.
  */
 export const PortfolioAccountEquitySchema: GenMessage<PortfolioAccountEquity> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 14);
+  messageDesc(file_ledger_read_v1_ledger_read, 15);
 
 /**
  * Current aggregate balance and equity for one asset in the root portfolio.
@@ -683,7 +849,7 @@ export type PortfolioAssetEquity = Message<"ledger.read.v1.PortfolioAssetEquity"
  * Use `create(PortfolioAssetEquitySchema)` to create a new message.
  */
 export const PortfolioAssetEquitySchema: GenMessage<PortfolioAssetEquity> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 15);
+  messageDesc(file_ledger_read_v1_ledger_read, 16);
 
 /**
  * Requests a current root portfolio equity snapshot.
@@ -698,7 +864,7 @@ export type GetPortfolioEquitySnapshotRequest = Message<"ledger.read.v1.GetPortf
  * Use `create(GetPortfolioEquitySnapshotRequestSchema)` to create a new message.
  */
 export const GetPortfolioEquitySnapshotRequestSchema: GenMessage<GetPortfolioEquitySnapshotRequest> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 16);
+  messageDesc(file_ledger_read_v1_ledger_read, 17);
 
 /**
  * Current root portfolio equity, grouped by logical account and asset.
@@ -750,7 +916,7 @@ export type GetPortfolioEquitySnapshotResponse = Message<"ledger.read.v1.GetPort
  * Use `create(GetPortfolioEquitySnapshotResponseSchema)` to create a new message.
  */
 export const GetPortfolioEquitySnapshotResponseSchema: GenMessage<GetPortfolioEquitySnapshotResponse> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 17);
+  messageDesc(file_ledger_read_v1_ledger_read, 18);
 
 /**
  * @generated from message ledger.read.v1.ListTransfersRequest
@@ -826,7 +992,7 @@ export type ListTransfersRequest = Message<"ledger.read.v1.ListTransfersRequest"
  * Use `create(ListTransfersRequestSchema)` to create a new message.
  */
 export const ListTransfersRequestSchema: GenMessage<ListTransfersRequest> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 18);
+  messageDesc(file_ledger_read_v1_ledger_read, 19);
 
 /**
  * TransferSide describes one side of a ledger transfer for display.
@@ -874,7 +1040,7 @@ export type TransferSide = Message<"ledger.read.v1.TransferSide"> & {
  * Use `create(TransferSideSchema)` to create a new message.
  */
 export const TransferSideSchema: GenMessage<TransferSide> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 19);
+  messageDesc(file_ledger_read_v1_ledger_read, 20);
 
 /**
  * TransferRow describes one debit or credit leg of a ledger transfer.
@@ -970,6 +1136,15 @@ export type TransferRow = Message<"ledger.read.v1.TransferRow"> & {
    * @generated from field: string transfer_id = 15;
    */
   transferId: string;
+
+  /**
+   * Exact transfer timestamp in nanoseconds since epoch (UTC); ts_us is this
+   * value divided by 1,000, rounded down. Compare it with a balance update's
+   * trading_applied_through_ts_ns.
+   *
+   * @generated from field: uint64 ts_ns = 16;
+   */
+  tsNs: bigint;
 };
 
 /**
@@ -977,7 +1152,7 @@ export type TransferRow = Message<"ledger.read.v1.TransferRow"> & {
  * Use `create(TransferRowSchema)` to create a new message.
  */
 export const TransferRowSchema: GenMessage<TransferRow> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 20);
+  messageDesc(file_ledger_read_v1_ledger_read, 21);
 
 /**
  * TransferRowBatch is one realtime publication on an account's transfer
@@ -1008,7 +1183,7 @@ export type TransferRowBatch = Message<"ledger.read.v1.TransferRowBatch"> & {
  * Use `create(TransferRowBatchSchema)` to create a new message.
  */
 export const TransferRowBatchSchema: GenMessage<TransferRowBatch> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 21);
+  messageDesc(file_ledger_read_v1_ledger_read, 22);
 
 /**
  * ListTransfersResponse contains transfer rows and an optional continuation cursor.
@@ -1036,7 +1211,7 @@ export type ListTransfersResponse = Message<"ledger.read.v1.ListTransfersRespons
  * Use `create(ListTransfersResponseSchema)` to create a new message.
  */
 export const ListTransfersResponseSchema: GenMessage<ListTransfersResponse> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 22);
+  messageDesc(file_ledger_read_v1_ledger_read, 23);
 
 /**
  * ErrorDetail is attached to ConnectRPC errors for structured error handling.
@@ -1058,7 +1233,7 @@ export type ErrorDetail = Message<"ledger.read.v1.ErrorDetail"> & {
  * Use `create(ErrorDetailSchema)` to create a new message.
  */
 export const ErrorDetailSchema: GenMessage<ErrorDetail> = /*@__PURE__*/
-  messageDesc(file_ledger_read_v1_ledger_read, 23);
+  messageDesc(file_ledger_read_v1_ledger_read, 24);
 
 /**
  * Supported history windows for balance charts.
@@ -1423,6 +1598,12 @@ export const LedgerReadService: GenService<{
   /**
    * Retrieve the latest balances for an account.
    * Supports optional subaccount scoping and returns asset symbols with decimal amounts on REST.
+   * The answer reflects every balance update published before the call
+   * began (across an ownership move, its earlier Trading transfers: see
+   * BalanceUpdate), and its Trading values are one atomic cut at the
+   * position it returns. When it cannot answer so yet, the call fails with UNAVAILABLE
+   * (503); retry it with a short backoff. Each call costs 1 unit of the
+   * trading_read rate-limit class, whatever the number of assets.
    *
    * @generated from rpc ledger.read.v1.LedgerReadService.GetBalances
    */
