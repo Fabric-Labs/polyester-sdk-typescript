@@ -61,6 +61,7 @@ function setup(...answers: Array<LedgerBalanceSnapshot | Error>) {
         fetchSnapshot,
         emit: (event) => events.push(event),
         onSnapshotError: (error) => errors.push(error),
+        isConnected: () => true,
     });
     const trading1 = () => events.map((e) => [e.kind, e.balances[0]?.trading, e.tradingSequence]);
     return { sync, events, errors, fetchSnapshot, trading1 };

@@ -31,6 +31,8 @@ interface BalanceSyncParams {
     fetchSnapshot: () => Promise<LedgerBalanceSnapshot>;
     emit: (event: LedgerBalancesEvent) => void;
     onSnapshotError: (error: unknown) => void;
+    /** Read synchronously: logout marks the socket disconnected before its listeners hear of it. */
+    isConnected: () => boolean;
 }
 
 type TradingFields = LedgerTradingBalanceUpdate["balances"][number];
@@ -95,6 +97,7 @@ export function createBalanceSync(params: BalanceSyncParams) {
         params.fetchSnapshot().then(
             (snapshot) => {
                 if (current !== generation) return;
+                if (!params.isConnected()) return stop();
                 if (epoch !== undefined && epoch !== snapshot.tradingEpoch) dropped.add(epoch);
                 for (const e of before) if (e !== snapshot.tradingEpoch) dropped.add(e);
                 epoch = snapshot.tradingEpoch;
@@ -122,7 +125,7 @@ export function createBalanceSync(params: BalanceSyncParams) {
                 }
                 const delay = Math.min(RETRY_BASE_MS * 2 ** attempt, RETRY_MAX_MS);
                 retryTimer = setTimeout(() => {
-                    if (current === generation) load(attempt + 1);
+                    if (current === generation && params.isConnected()) load(attempt + 1);
                 }, delay);
             },
         );

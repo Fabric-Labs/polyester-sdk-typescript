@@ -197,6 +197,7 @@ export class BalancesService {
             // Pinned now: the channel is fixed to `accountId`, so a later account switch must not
             // re-resolve the snapshot's scope.
             fetchSnapshot: () => this.getSnapshot({ account }),
+            isConnected: () => this.#realtime.connection.private.state !== "disconnected",
             emit: (event) => {
                 try {
                     input.onEvent(event);
@@ -206,6 +207,14 @@ export class BalancesService {
             },
             onSnapshotError: (error) => report("snapshot", error),
         });
+        // Logout drops the channel without `onDisconnected` but marks the socket `disconnected`
+        // (a reconnect only passes through `connecting`). Watch for that only while subscribed,
+        // so a channel logout dropped keeps no listener; `onConnected` watches again on a restart.
+        let unwatch: (() => void) | undefined;
+        const stopWatching = () => {
+            unwatch?.();
+            unwatch = undefined;
+        };
         const unsubscribe = this.#realtime.connectProtoChannel({
             channel,
             schema: Proto.BalanceUpdateSchema,
@@ -219,22 +228,23 @@ export class BalancesService {
                 sync.update(update);
             },
             onConnected: () => {
+                unwatch ??= this.#realtime.onConnectionChange((connection) => {
+                    if (connection.private.state !== "disconnected") return;
+                    sync.disconnected();
+                    stopWatching();
+                });
                 sync.connected();
                 input.onOpen?.();
             },
             onDisconnected: () => {
+                stopWatching();
                 sync.disconnected();
                 input.onClose?.();
             },
             onError: input.onError,
         });
-        // Logout drops the channel without `onDisconnected`; the socket going `disconnected` (a
-        // reconnect only passes through `connecting`) stops a pending snapshot, retry or timer.
-        const stopOnDisconnect = this.#realtime.onConnectionChange((connection) => {
-            if (connection.private.state === "disconnected") sync.disconnected();
-        });
         return () => {
-            stopOnDisconnect();
+            stopWatching();
             sync.dispose();
             unsubscribe();
         };
