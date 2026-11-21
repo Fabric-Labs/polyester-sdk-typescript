@@ -1,11 +1,12 @@
 import { create } from "@bufbuild/protobuf";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AssetDataSource } from "../../gen/marketdata/v1/asset_info_pb.js";
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
 import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales, type SdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
+import { ResourceNotFoundError, ServiceUnavailableError } from "../../shared/errors.js";
 import { MarketDataService } from "./market-data.js";
 
 const btc = {
@@ -535,5 +536,222 @@ describe("MarketDataService", () => {
             service.listAssetInfo({ assetIds: Array.from({ length: 1001 }, (_, i) => i) }),
         ).rejects.toThrow();
         expect(transport.calls).toHaveLength(0);
+    });
+});
+
+describe("MarketDataService.subscribePriceBand", () => {
+    const NOW_MS = 1_800_000_000_000;
+    const ns = (ms: number) => BigInt(ms) * 1_000_000n;
+    const channel = "public:spot:market:price_band:101:proto";
+
+    /** A confirmed ACTIVE band; `asOfMs` defaults to now and `validUntil` is 5 s later. */
+    function band(epoch: bigint, updateId: bigint, asOfMs = NOW_MS, init = {}) {
+        return create(Proto.LivePriceBandSchema, {
+            symbolId: 101,
+            state: Proto.PriceBandState.ACTIVE,
+            referencePriceTicks: 61_000_000_000_000n,
+            referenceSource: Proto.PriceBandReferenceSource.LAST_TRADE,
+            maxBuyPriceTicks: 64_000_000_000_000n,
+            minSellPriceTicks: 58_000_000_000_000n,
+            parameters: { lowerBps: 500, upperBps: 500, referenceWindowMs: 60_000 },
+            updatedTsNs: ns(asOfMs),
+            epoch,
+            updateId,
+            asOfTsNs: ns(asOfMs),
+            validUntilTsNs: ns(asOfMs + 5_000),
+            ...init,
+        });
+    }
+    /** The stream's UNKNOWN for the confirmation `epoch/updateId/asOfMs`. */
+    function unknown(epoch: bigint, updateId: bigint, asOfMs: number) {
+        return create(Proto.LivePriceBandSchema, {
+            symbolId: 101,
+            state: Proto.PriceBandState.UNKNOWN,
+            updatedTsNs: ns(asOfMs),
+            epoch,
+            updateId,
+            asOfTsNs: ns(asOfMs),
+            validUntilTsNs: ns(asOfMs),
+        });
+    }
+    const response = (b: Proto.LivePriceBand) =>
+        create(Proto.GetPriceBandResponseSchema, { band: b });
+
+    function setup(seed: () => unknown) {
+        const realtime = realtimeClientStub();
+        const transport = unaryTransport(seed as never);
+        const service = new MarketDataService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
+        const onEvent = vi.fn();
+        const onError = vi.fn();
+        const unsubscribe = service.subscribePriceBand({ symbolId: 101, onEvent, onError });
+        const publish = (b: Proto.LivePriceBand) => realtime.params?.onPublication(response(b));
+        const emitted = () =>
+            onEvent.mock.calls.map(([b]) => `${b.state} ${b.epoch}/${b.updateId}/${b.asOfTsNs}`);
+        return { realtime, transport, onEvent, onError, unsubscribe, publish, emitted };
+    }
+    const settle = () => vi.advanceTimersByTimeAsync(0);
+    const id = (epoch: number, updateId: number, asOfMs = NOW_MS) =>
+        `${epoch}/${updateId}/${ns(asOfMs)}`;
+
+    beforeEach(() => {
+        vi.useFakeTimers({ now: NOW_MS });
+    });
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
+    it("seeds from getPriceBand on the price band proto channel and emits the formatted band", async () => {
+        const { realtime, transport, onEvent, onError } = setup(() => response(band(3n, 41n)));
+
+        expect(realtime.params?.channel).toBe(channel);
+        expect(realtime.params?.schema).toBe(Proto.GetPriceBandResponseSchema);
+        realtime.params?.onConnected?.();
+        await settle();
+
+        expect(transport.lastCall()?.method.name).toBe("GetPriceBand");
+        expect(transport.lastCall()?.message).toEqual({ symbolId: 101 });
+        expect(onEvent).toHaveBeenCalledTimes(1);
+        expect(onEvent).toHaveBeenCalledWith(
+            expect.objectContaining({
+                symbolId: 101,
+                state: "active",
+                maxBuyPrice: "64000",
+                minSellPrice: "58000",
+                validUntilMs: NOW_MS + 5_000,
+            }),
+        );
+        expect(onError).not.toHaveBeenCalled();
+    });
+
+    it("emits only newer bands by epoch, then updateId, then asOf, through reconnect replays", async () => {
+        const { realtime, publish, emitted } = setup(() => response(band(3n, 41n)));
+        realtime.params?.onConnected?.();
+        await settle();
+
+        publish(band(3n, 40n)); // older updateId
+        publish(band(3n, 41n)); // duplicate
+        publish(band(2n, 99n)); // older epoch, greater updateId
+        publish(band(3n, 41n, NOW_MS + 1_000)); // same update, re-sent later
+        publish(band(4n, 1n, NOW_MS + 1_000)); // new epoch restarts updateId
+
+        // Reconnect: the re-seed and the recovered history are older than what was emitted.
+        realtime.params?.onDisconnected?.();
+        realtime.params?.onConnected?.();
+        publish(band(3n, 41n, NOW_MS + 1_000));
+        await settle();
+        publish(band(4n, 1n, NOW_MS + 1_000));
+
+        expect(emitted()).toEqual([
+            `active ${id(3, 41)}`,
+            `active ${id(3, 41, NOW_MS + 1_000)}`,
+            `active ${id(4, 1, NOW_MS + 1_000)}`,
+        ]);
+    });
+
+    it("drops the seed when the stream got ahead of it", async () => {
+        let resolveSeed!: (value: unknown) => void;
+        const { realtime, publish, emitted } = setup(
+            () => new Promise((resolve) => (resolveSeed = resolve)),
+        );
+        realtime.params?.onConnected?.();
+        await settle();
+
+        publish(band(3n, 42n));
+        resolveSeed(response(band(3n, 41n)));
+        await settle();
+
+        expect(emitted()).toEqual([`active ${id(3, 42)}`]);
+    });
+
+    it("keeps UNKNOWN on a tie and replaces it with a later confirmation", async () => {
+        const { realtime, publish, emitted, onEvent } = setup(() => response(band(3n, 41n)));
+        realtime.params?.onConnected?.();
+        await settle();
+
+        publish(unknown(3n, 41n, NOW_MS)); // same confirmation: UNKNOWN wins
+        publish(band(3n, 41n)); // a late copy of the confirmation it replaced
+        publish(unknown(3n, 41n, NOW_MS)); // repeated UNKNOWN
+        publish(band(3n, 41n, NOW_MS + 2_000)); // the band returns
+
+        expect(emitted()).toEqual([
+            `active ${id(3, 41)}`,
+            `unknown ${id(3, 41)}`,
+            `active ${id(3, 41, NOW_MS + 2_000)}`,
+        ]);
+        expect(onEvent.mock.calls[1]?.[0]).toMatchObject({
+            referencePrice: null,
+            maxBuyPrice: null,
+            minSellPrice: null,
+            referenceSource: "unspecified",
+            parameters: null,
+            validUntilMs: NOW_MS,
+        });
+    });
+
+    it.each(["PRICE_BAND_STALE", "PRICE_BAND_UNKNOWN"])(
+        "emits an unknown band, not an error, when the seed is refused %s",
+        async (code) => {
+            const { realtime, publish, emitted, onError } = setup(() => {
+                throw new ServiceUnavailableError(code);
+            });
+            realtime.params?.onConnected?.();
+            await settle();
+
+            expect(emitted()).toEqual(["unknown 0/0/0"]);
+            expect(onError).not.toHaveBeenCalled();
+
+            publish(band(3n, 41n));
+            expect(emitted()).toEqual(["unknown 0/0/0", `active ${id(3, 41)}`]);
+        },
+    );
+
+    it("reports other seed failures and still delivers the stream", async () => {
+        const { realtime, publish, emitted, onError } = setup(() => {
+            throw new ResourceNotFoundError("UNKNOWN_SYMBOL");
+        });
+        realtime.params?.onConnected?.();
+        await settle();
+
+        expect(onError).toHaveBeenCalledWith(
+            expect.objectContaining({ channel, type: "snapshot" }),
+        );
+        publish(band(3n, 41n));
+        expect(emitted()).toEqual([`active ${id(3, 41)}`]);
+    });
+
+    it("emits a stale seed as unknown", async () => {
+        const { realtime, emitted } = setup(() => response(band(3n, 41n, NOW_MS - 5_000)));
+        realtime.params?.onConnected?.();
+        await settle();
+
+        expect(emitted()).toEqual([`unknown ${id(3, 41, NOW_MS - 5_000)}`]);
+    });
+
+    it("emits unknown when validUntil passes with no newer band, and stops after unsubscribe", async () => {
+        const { realtime, publish, emitted, unsubscribe } = setup(() => response(band(3n, 41n)));
+        realtime.params?.onConnected?.();
+        await settle();
+
+        await vi.advanceTimersByTimeAsync(2_000);
+        publish(band(3n, 41n, NOW_MS + 2_000)); // the re-send pushes validUntil out
+        await vi.advanceTimersByTimeAsync(4_999);
+        expect(emitted()).toHaveLength(2);
+
+        await vi.advanceTimersByTimeAsync(1);
+        expect(emitted()).toEqual([
+            `active ${id(3, 41)}`,
+            `active ${id(3, 41, NOW_MS + 2_000)}`,
+            `unknown ${id(3, 41, NOW_MS + 2_000)}`,
+        ]);
+
+        publish(band(3n, 42n, NOW_MS + 8_000));
+        unsubscribe();
+        await vi.advanceTimersByTimeAsync(10_000);
+        expect(emitted()).toHaveLength(4);
+        expect(realtime.unsubscribe).toHaveBeenCalledTimes(1);
     });
 });
