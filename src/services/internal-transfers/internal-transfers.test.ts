@@ -153,9 +153,9 @@ describe("InternalTransfersService", () => {
         await expect(service.create({ ...base, quantity: "0" })).rejects.toThrow(
             /quantity must be greater than 0/,
         );
-        await expect(service.create({ ...base, quantity: "1.2345678" })).rejects.toThrow(
-            /quantity supports at most 6 decimal places/,
-        );
+        await expect(
+            service.create({ ...base, quantity: "1.0000000000000000001" }),
+        ).rejects.toThrow(/quantity supports at most 18 decimal places/);
         expect(transport.unary).not.toHaveBeenCalled();
     });
 
@@ -277,7 +277,7 @@ describe("InternalTransfersService", () => {
                     {
                         destination: { type: "account", accountId: formatId(22n) },
                         assetId: 1,
-                        quantity: "1",
+                        quantity: "0.000000000000000001",
                     },
                     {
                         account: "main",
@@ -303,7 +303,11 @@ describe("InternalTransfersService", () => {
         expect(captured?.message).toMatchObject({
             idempotencyKey: " batch-key ",
             legs: [
-                { subaccountId: 11n, destination: { case: "destinationAccountId", value: 22n } },
+                {
+                    subaccountId: 11n,
+                    destination: { case: "destinationAccountId", value: 22n },
+                    amountE18: { hi: 0n, lo: 1n },
+                },
                 { subaccountId: 0n, destination: { case: "destinationSubaccountId", value: 33n } },
                 { subaccountId: 44n, destination: { case: "destinationSmartAccountAddress" } },
             ],

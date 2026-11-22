@@ -283,6 +283,21 @@ export function decimalInputToE18(field: string, value: string): bigint {
     return scaled;
 }
 
+/**
+ * Positive decimal string → 18-decimal U128 integer, exact, for amounts the wire
+ * takes at full E18 precision whatever the asset's quantity scale.
+ */
+export function positiveDecimalInputToE18(field: string, value: string): bigint {
+    const scaled = unboundedPositiveDecimalInputToScaled(field, value, E18_SCALE);
+    if (scaled > U128_MAX) {
+        throw new CatalogConversionError(
+            field,
+            `${field} exceeds the maximum supported value: ${value}`,
+        );
+    }
+    return scaled;
+}
+
 export interface ReadyGate {
     /** Queues or delivers one transition while the gate remains active. */
     run(deliver: () => void): void;

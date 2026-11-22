@@ -6,7 +6,7 @@ import { idInputSchema, U128Schema } from "../../shared/schemas.js";
 import { tsNsToMs } from "../../utils/time.js";
 import {
     E18_SCALE,
-    quantityInputToE18,
+    positiveDecimalInputToE18,
     scaledToDecimalOutput,
     type SdkScales,
 } from "../../shared/decimal-surface.js";
@@ -67,7 +67,8 @@ export type InternalTransferDestination = v.InferInput<
     typeof InternalTransferDestinationInputSchema
 >;
 
-export function createCreateInternalTransferInputSchema(scales: SdkScales) {
+// `_scales` is unused: kept so the public factory signature does not break.
+export function createCreateInternalTransferInputSchema(_scales?: SdkScales) {
     return v.pipe(
         v.strictObject({
             ...AccountScopeInputEntries,
@@ -81,13 +82,8 @@ export function createCreateInternalTransferInputSchema(scales: SdkScales) {
             ({ account, quantity, ...input }) =>
                 ({
                     ...input,
-                    amountE18: toU128(
-                        quantityInputToE18({
-                            scales,
-                            assetId: input.assetId,
-                            quantity,
-                        }),
-                    ),
+                    // amount_e18 is full 18-decimal, not the asset's order-quantity scale.
+                    amountE18: toU128(positiveDecimalInputToE18("quantity", quantity)),
                     subaccountId: accountScopeToSubaccountId(account),
                 }) satisfies MessageInitShape<typeof Proto.CreateInternalTransferRequestSchema>,
         ),
@@ -156,7 +152,8 @@ export type CreateInternalTransferResult = v.InferOutput<
 /** The most legs one batch may carry. */
 export const MAX_INTERNAL_TRANSFER_BATCH_LEGS = 500;
 
-export function createBatchCreateInternalTransfersInputSchema(scales: SdkScales) {
+// `_scales` is unused: kept so the public factory signature does not break.
+export function createBatchCreateInternalTransfersInputSchema(_scales?: SdkScales) {
     return v.pipe(
         v.strictObject({
             /**
@@ -191,9 +188,7 @@ export function createBatchCreateInternalTransfersInputSchema(scales: SdkScales)
                     legs: legs.map(({ account, quantity, ...leg }) => ({
                         ...leg,
                         subaccountId: accountScopeToSubaccountIdOrZero(account),
-                        amountE18: toU128(
-                            quantityInputToE18({ scales, assetId: leg.assetId, quantity }),
-                        ),
+                        amountE18: toU128(positiveDecimalInputToE18("quantity", quantity)),
                     })),
                 }) satisfies MessageInitShape<
                     typeof Proto.BatchCreateInternalTransfersRequestSchema
