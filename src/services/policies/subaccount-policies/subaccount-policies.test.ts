@@ -336,4 +336,20 @@ describe("SubaccountPoliciesService", () => {
             }),
         );
     });
+
+    it.each(["", "   "])(
+        "rejects a blank policy ID instead of clearing the binding (%j)",
+        async (policyId) => {
+            const transport = unaryTransport({});
+            const service = new SubaccountPoliciesService(
+                { authApi: transport.transport },
+                realtimeClientStub().realtime,
+            );
+
+            await expect(service.apply({ subaccountId: formatId(42n), policyId })).rejects.toThrow(
+                new ValidationError("policyId: empty"),
+            );
+            expect(transport.calls).toHaveLength(0);
+        },
+    );
 });

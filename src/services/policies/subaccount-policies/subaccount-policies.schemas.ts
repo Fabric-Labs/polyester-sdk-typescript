@@ -277,8 +277,9 @@ export const PolicyIdSchema = v.pipe(
 export const ApplySubaccountPolicyInputSchema = v.strictObject({
     subaccountId: idInputSchema("subaccountId"),
     policyId: v.pipe(
-        v.nullable(v.pipe(v.string(), v.trim())),
-        v.transform((value) => (value ? idToBigInt(value, "policyId") : undefined)),
+        v.nullable(v.string()),
+        // Only null clears the binding; a blank string is rejected by idToBigInt.
+        v.transform((value) => (value === null ? undefined : idToBigInt(value, "policyId"))),
     ),
 });
 
