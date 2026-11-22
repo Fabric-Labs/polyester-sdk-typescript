@@ -29,7 +29,8 @@ describe("AccountActivityService", () => {
                     entityKind: Proto.ActivityEntityKind.ACTIVITY_ENTITY_POLICY,
                     eventAction: Proto.ActivityEventAction.ACTIVITY_ACTION_UPDATED,
                     source: Proto.ActivityEventSource.ACTIVITY_SOURCE_WEB,
-                    actorAccountId: 7n,
+                    // Zero is the unset fixed64: no recorded actor.
+                    actorAccountId: 0n,
                     payloadJson: "{}",
                     subaccountId: 42n,
                     // Zero is the unset fixed64: a session actor.
@@ -87,6 +88,7 @@ describe("AccountActivityService", () => {
         expect(page.events[1]).toMatchObject({
             entityKind: "policy",
             subaccountId: formatId(42n),
+            actorAccountId: undefined,
             actorApiKeyId: undefined,
         });
     });
