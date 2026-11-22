@@ -346,9 +346,9 @@ describe("SubaccountPoliciesService", () => {
                 realtimeClientStub().realtime,
             );
 
-            await expect(
-                service.apply({ subaccountId: formatId(42n), policyId }),
-            ).rejects.toThrow(new ValidationError("policyId: empty"));
+            await expect(service.apply({ subaccountId: formatId(42n), policyId })).rejects.toThrow(
+                new ValidationError("policyId: empty"),
+            );
             expect(transport.calls).toHaveLength(0);
         },
     );
