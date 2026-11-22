@@ -356,7 +356,8 @@ export const SubaccountActivityEventSchema = v.object({
     source: enumLabelSchema(ActivityEventSourceCodec.protoToOutput),
     ip: v.optional(v.string()),
     userAgent: v.optional(v.string()),
-    actorAccountId: PublicIdSchema,
+    /** Account that performed the action; undefined when the server records no actor. */
+    actorAccountId: OptionalPublicIdSchema,
     payloadJson: v.pipe(
         v.string(),
         v.transform((v) => JSON.parse(v)),
