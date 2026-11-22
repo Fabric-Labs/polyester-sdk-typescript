@@ -11,7 +11,14 @@ import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import { decimalInputToScaled, type SdkScales } from "../../shared/decimal-surface.js";
+import {
+    createCatalogRefreshQueue,
+    decimalInputToScaled,
+    hasKnownSymbol,
+    withCatalogRefresh,
+    type SdkScales,
+} from "../../shared/decimal-surface.js";
+import { tsObjToMs } from "../../utils/time.js";
 import {
     formatOrderbookLevel,
     GetOrderbookInputSchema,
@@ -76,16 +83,18 @@ export class OrderbookService {
         );
         // Servers that predate the served tier leave it unset; they served the requested one.
         const served = DepthTierCodec.protoToOutput[res.depth];
-        return parse(createOrderbookDataSchema(this.#scales, validated.symbolId), {
-            symbolId: res.symbolId,
-            depth: typeof served === "number" ? served : validated.depth,
-            bookSeq: res.bookSeq,
-            bookEpoch: res.bookEpoch,
-            available: isBookAvailable(res),
-            bids: res.bids,
-            asks: res.asks,
-            ts: res.ts,
-        });
+        return withCatalogRefresh(this.#scales, () =>
+            parse(createOrderbookDataSchema(this.#scales, validated.symbolId), {
+                symbolId: res.symbolId,
+                depth: typeof served === "number" ? served : validated.depth,
+                bookSeq: res.bookSeq,
+                bookEpoch: res.bookEpoch,
+                available: isBookAvailable(res),
+                bids: res.bids,
+                asks: res.asks,
+                ts: res.ts,
+            }),
+        );
     }
 
     /**
@@ -123,10 +132,19 @@ export class OrderbookService {
         let asksMap: BookSide = new Map();
         let currentBookSeq = 0n;
         let currentBookEpoch = 0n;
-        // Set when a delta does not chain onto the book; only the next reset recovers it.
+        let currentTs: number | undefined;
+        let hasBook = false;
+        // set when a delta does not chain onto the book; only the next reset recovers it.
         let awaitingReset = false;
         let bucketTicks: bigint | null = null;
+        let snapshotGeneration = 0;
         let stream: SnapshotThenStreamSubscription | undefined;
+        const queue = createCatalogRefreshQueue(
+            scales,
+            channel,
+            input.onError,
+            () => !(stream?.isDisposed() ?? false),
+        );
 
         function levelsToMap(levels: Proto.PriceLevel[] | undefined): BookSide {
             const map: BookSide = new Map();
@@ -188,6 +206,7 @@ export class OrderbookService {
                     available: true,
                     bids: sideToUIBucketed(bidsMap, "bids", depth, bucketTicks),
                     asks: sideToUIBucketed(asksMap, "asks", depth, bucketTicks),
+                    ...(currentTs !== undefined ? { ts: currentTs } : {}),
                 });
             } catch (error) {
                 input.onError?.(publicationHandlerErrorContext(channel, error));
@@ -204,7 +223,7 @@ export class OrderbookService {
                     bucketTicks = null;
                 }
             }
-            if (stream?.isReady()) emit();
+            if (stream?.isReady() && hasBook) emit();
         }
 
         async function inputServiceFetch(): Promise<Proto.GetOrderBookResponse> {
@@ -225,6 +244,9 @@ export class OrderbookService {
                     `Order book snapshot for symbol ${symbolId} is from an older epoch`,
                 );
             }
+            if (!hasKnownSymbol(scales, symbolId)) {
+                await scales.refreshAfterMiss?.();
+            }
             return res;
         }
 
@@ -233,22 +255,28 @@ export class OrderbookService {
          * last applied `bookSeqEnd`) or is a reset. A delta that does not chain leaves the book
          * waiting for the next reset, which the server sends periodically and after a gap.
          */
-        function handleDelta(delta: Proto.OrderBookDelta): void {
-            if (delta.bookSeqEnd <= currentBookSeq) return;
-
+        function handleDelta(delta: Proto.OrderBookDelta, fromBuffer: boolean): void {
             if (delta.reset) {
+                // a buffered reset from before the snapshot must not rewind a newer snapshot;
+                // a live reset always replaces the book, even after an epoch restart lowers bookSeq.
+                if (fromBuffer && delta.bookSeqEnd <= currentBookSeq) return;
                 bidsMap.clear();
                 asksMap.clear();
                 awaitingReset = false;
-            } else if (awaitingReset || delta.bookSeqStart !== currentBookSeq) {
-                awaitingReset = true;
-                return;
+                hasBook = true;
+            } else {
+                if (delta.bookSeqEnd <= currentBookSeq) return;
+                if (awaitingReset || delta.bookSeqStart !== currentBookSeq) {
+                    awaitingReset = true;
+                    return;
+                }
             }
 
             applySideDelta(bidsMap, delta.bids);
             applySideDelta(asksMap, delta.asks);
 
             currentBookSeq = delta.bookSeqEnd;
+            currentTs = tsObjToMs(delta.ts);
             emit();
         }
 
@@ -266,35 +294,65 @@ export class OrderbookService {
                 maxDelayMs: 8_000,
             },
             // A snapshot error that is not retried (a 500) leaves the book to the server's next
-            // reset; seq 0 accepts that reset even from a new epoch. Retried errors keep buffering.
+            // reset; clear any stale state so setBucket stays quiet until that reset arrives.
             snapshotFailureMode: (error) => {
                 if (!(error instanceof PolyesterError) || error.retryable) return "wait";
+                snapshotGeneration++;
+                bidsMap.clear();
+                asksMap.clear();
                 currentBookSeq = 0n;
+                currentTs = undefined;
+                hasBook = false;
                 awaitingReset = true;
                 return "live";
             },
             fetchSnapshot: inputServiceFetch,
             readPublication: (delta) => [delta],
             applySnapshot: (snapshot, bufferedDeltas) => {
+                snapshotGeneration++;
                 bidsMap = levelsToMap(snapshot.bids);
                 asksMap = levelsToMap(snapshot.asks);
                 currentBookSeq = snapshot.bookSeq;
                 currentBookEpoch = snapshot.bookEpoch;
+                currentTs = tsObjToMs(snapshot.ts);
+                hasBook = true;
                 awaitingReset = false;
                 emit();
                 for (const delta of bufferedDeltas) {
                     if (stream?.isDisposed()) return;
-                    handleDelta(delta);
+                    handleDelta(delta, true);
                 }
             },
             applyLivePublications: (deltas) => {
-                for (const delta of deltas) {
-                    if (stream?.isDisposed()) return;
-                    handleDelta(delta);
-                }
+                const generation = snapshotGeneration;
+                queue(!hasKnownSymbol(scales, symbolId), () => {
+                    if (
+                        generation !== snapshotGeneration ||
+                        !stream?.isReady() ||
+                        stream.isDisposed()
+                    ) {
+                        return;
+                    }
+                    for (const delta of deltas) {
+                        if (
+                            generation !== snapshotGeneration ||
+                            !stream?.isReady() ||
+                            stream.isDisposed()
+                        ) {
+                            return;
+                        }
+                        handleDelta(delta, false);
+                    }
+                });
             },
-            onOpen: input.onOpen,
-            onClose: input.onClose,
+            onOpen: () => {
+                snapshotGeneration++;
+                input.onOpen?.();
+            },
+            onClose: () => {
+                snapshotGeneration++;
+                input.onClose?.();
+            },
             onError: input.onError,
         });
 

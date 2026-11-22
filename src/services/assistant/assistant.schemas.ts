@@ -21,7 +21,8 @@ import {
     ModelKeyCheckCodec,
 } from "./assistant.codecs.js";
 
-const IdempotencyKeySchema = v.pipe(v.string(), v.trim(), v.minLength(1));
+// sent unchanged: trimming would fold " k " and "k" into the same key.
+const IdempotencyKeySchema = v.pipe(v.string(), v.minLength(1));
 
 function pageInputEntries(maxLimit: number) {
     return {

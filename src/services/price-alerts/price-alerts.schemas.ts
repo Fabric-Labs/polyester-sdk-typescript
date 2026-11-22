@@ -49,7 +49,8 @@ const ChannelsInputSchema = v.pipe(
     ),
 );
 
-const IdempotencyKeySchema = v.optional(v.pipe(v.string(), v.trim(), v.minLength(1)));
+// sent unchanged: trimming would fold " k " and "k" into the same key.
+const IdempotencyKeySchema = v.optional(v.pipe(v.string(), v.minLength(1)));
 
 export const CreatePriceAlertInputSchema = v.pipe(
     v.strictObject({

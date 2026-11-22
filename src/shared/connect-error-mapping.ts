@@ -611,9 +611,8 @@ export function createErrorMappingInterceptor(): Interceptor {
     };
 }
 
-// Non-idempotent writes the contract answers with `deadline_exceeded` / 504 when the write may
-// already have been applied (changes/2026-11-15T2309Z-orders-v1.md); a retry could apply it twice.
-const UNKNOWN_OUTCOME_ON_SERVER_TIMEOUT = new Set([
+// non-idempotent writes whose outcome is unknown after a server or client timeout; a retry could apply them twice.
+const UNKNOWN_OUTCOME_ON_TIMEOUT = new Set([
     "auth.v1.ApiKeyService.CreateApiKey",
     "auth.v1.PolicyService.CreateApiPolicy",
     "auth.v1.PolicyService.CreateSubaccountPolicy",
@@ -643,15 +642,15 @@ function withUnknownWriteOutcome(
     method: { name: string; parent: { typeName: string } },
     err: unknown,
 ): unknown {
-    if (!(err instanceof TimeoutError || err instanceof ServiceUnavailableError)) return err;
-    // Only a server-sent 504; a client-side timeout carries no status.
-    if (err.status !== 504) return err;
-    if (!UNKNOWN_OUTCOME_ON_SERVER_TIMEOUT.has(`${method.parent.typeName}.${method.name}`)) {
+    const isTimeout = err instanceof TimeoutError;
+    const isGatewayTimeout = err instanceof ServiceUnavailableError && err.status === 504;
+    if (!isTimeout && !isGatewayTimeout) return err;
+    if (!UNKNOWN_OUTCOME_ON_TIMEOUT.has(`${method.parent.typeName}.${method.name}`)) {
         return err;
     }
     return new OutcomeUnknownError(
         "Outcome unknown; the write may have been applied. Read the current state before retrying.",
-        { cause: err, status: 504 },
+        { cause: err },
     );
 }
 

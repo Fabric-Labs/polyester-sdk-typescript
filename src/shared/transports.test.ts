@@ -1266,6 +1266,70 @@ describe("server timeouts on non-idempotent writes", () => {
 
         expect(error).toBeInstanceOf(TimeoutError);
     });
+
+    it("reports a client-side timeout on order, trigger, and api-key writes as OutcomeUnknownError", async () => {
+        vi.spyOn(globalThis, "fetch").mockImplementation(
+            (_input, init) =>
+                new Promise<Response>((_resolve, reject) => {
+                    const abort = () => {
+                        reject(init?.signal?.reason ?? new DOMException("Aborted", "AbortError"));
+                    };
+                    if (init?.signal?.aborted) abort();
+                    else init?.signal?.addEventListener("abort", abort, { once: true });
+                }),
+        );
+        const transport = createTransports({
+            apiUrl: "https://api.example.test",
+            auth: { kind: "jwt", getToken: () => "tok" },
+        }).authApi;
+        const orders = createClient(OrdersService, transport);
+        const triggers = createClient(TriggersService, transport);
+        const apiKeys = createClient(ApiKeyService, transport);
+
+        const writeErrors = await Promise.all(
+            [
+                orders.createOrder({}, toConnectCallOptions({ timeoutMs: 10 })),
+                triggers.createTrigger({}, toConnectCallOptions({ timeoutMs: 10 })),
+                apiKeys.createApiKey({}, toConnectCallOptions({ timeoutMs: 10 })),
+            ].map((p) => p.catch((e: unknown) => e)),
+        );
+        for (const error of writeErrors) {
+            expect(error).toBeInstanceOf(OutcomeUnknownError);
+            expect((error as OutcomeUnknownError).retryable).toBe(false);
+            expect((error as OutcomeUnknownError).status).toBeUndefined();
+        }
+
+        const readError = await apiKeys
+            .listApiKeys({}, toConnectCallOptions({ timeoutMs: 10 }))
+            .catch((e: unknown) => e);
+        expect(readError).toBeInstanceOf(TimeoutError);
+        expect((readError as TimeoutError).retryable).toBe(true);
+
+        const previewError = await orders
+            .previewOrder({}, toConnectCallOptions({ timeoutMs: 10 }))
+            .catch((e: unknown) => e);
+        expect(previewError).toBeInstanceOf(TimeoutError);
+        expect((previewError as TimeoutError).retryable).toBe(true);
+    });
+
+    it("keeps a pre-aborted caller signal on a write as abort, not OutcomeUnknownError", async () => {
+        const controller = new AbortController();
+        controller.abort();
+        const fetchMock = vi.spyOn(globalThis, "fetch");
+        const transport = createTransports({
+            apiUrl: "https://api.example.test",
+            auth: { kind: "jwt", getToken: () => "tok" },
+        }).authApi;
+        const orders = createClient(OrdersService, transport);
+
+        const error = await orders
+            .createOrder({}, toConnectCallOptions({ signal: controller.signal, timeoutMs: 50 }))
+            .catch((e: unknown) => e);
+
+        expect(isAbortError(error)).toBe(true);
+        expect(error).not.toBeInstanceOf(OutcomeUnknownError);
+        expect(fetchMock).not.toHaveBeenCalled();
+    });
 });
 
 describe("caller cancellation through transports", () => {

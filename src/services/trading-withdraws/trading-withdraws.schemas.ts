@@ -88,13 +88,23 @@ export function renewTradingWithdrawPayload(
     };
 }
 
+// refuse surrounding whitespace instead of trimming so signed payloads and wire keys never diverge.
+const TradingWithdrawIdempotencyKeySchema = v.pipe(
+    v.string(),
+    v.minLength(1),
+    v.check(
+        (value) => value === value.trim(),
+        "idempotencyKey must not have leading or trailing whitespace.",
+    ),
+);
+
 export function createCreateTradingWithdrawToFundingInputSchema(scales: SdkScales) {
     return v.pipe(
         v.strictObject({
             ...AccountScopeInputEntries,
             assetId: PositiveUint32InputSchema,
             quantity: v.string(),
-            idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
+            idempotencyKey: TradingWithdrawIdempotencyKeySchema,
             destinationAddress: v.optional(v.pipe(v.string(), v.trim()), ""),
             signerWallet: v.optional(v.pipe(v.string(), v.trim()), ""),
             /**
@@ -139,7 +149,7 @@ export function createCreateTradingWithdrawToExternalChainInputSchema(scales: Sd
                 v.maxValue(Number.MAX_SAFE_INTEGER),
             ),
             destinationAddress: v.pipe(v.string(), v.trim(), v.minLength(1)),
-            idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
+            idempotencyKey: TradingWithdrawIdempotencyKeySchema,
             signerWallet: v.optional(v.pipe(v.string(), v.trim()), ""),
             /**
              * When the signed authorization lapses. Defaults to five minutes from now
@@ -191,7 +201,7 @@ export function createCreateTradingToFundingBatchInputSchema(scales: SdkScales) 
                 v.maxLength(10),
             ),
             /** Scoped to the source account; 1 to 128 characters. */
-            idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(128)),
+            idempotencyKey: v.pipe(TradingWithdrawIdempotencyKeySchema, v.maxLength(128)),
             /**
              * When the signed batch lapses, at most 15 minutes ahead. Defaults to five minutes
              * from now on the device clock.

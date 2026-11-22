@@ -18,6 +18,7 @@ import {
     InternalServerError,
     PolyesterError,
     RealtimeError,
+    ServiceUnavailableError,
 } from "../shared/errors.js";
 import { parseRetryAfterHeader } from "../shared/connect-error-mapping.js";
 import { makeFetch } from "../shared/transports.js";
@@ -197,6 +198,13 @@ export class RealtimeClient implements PolyesterRealtime {
                     this.#tokenRetryAt,
                     Date.now() + Math.min(retryAfterMs, MAX_RETRY_AFTER_MS),
                 );
+            }
+            // token endpoints return 500 on transient server faults (not auth refusal), so keep retrying them.
+            if (res.status >= 500 && res.status !== 501) {
+                throw new ServiceUnavailableError(`Failed to fetch ${kind} token: ${res.status}`, {
+                    status: res.status,
+                    retryAfterMs,
+                });
             }
             throw errorFromHttpStatus(res.status, `Failed to fetch ${kind} token: ${res.status}`, {
                 status: res.status,

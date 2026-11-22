@@ -1,5 +1,13 @@
 import type { Address, LocalAccount, PublicClient } from "viem";
-import { BaseError, createPublicClient, http, TimeoutError, withTimeout } from "viem";
+import {
+    BaseError,
+    createPublicClient,
+    http,
+    HttpRequestError,
+    RpcRequestError,
+    TimeoutError,
+    withTimeout,
+} from "viem";
 import type { EstimateUserOperationGasParameters, UserOperation } from "viem/account-abstraction";
 import {
     estimateUserOperationGas,
@@ -385,6 +393,20 @@ export async function sendPolyesterUserOperation(
                 { cause: error },
             );
         }
+        // a gateway 5xx/408 or lost reply after signing also leaves the outcome unknown.
+        const uncertainHttpError = getUncertainSendHttpError(error);
+        if (uncertainHttpError !== null) {
+            const hash = userOpHash();
+            const statusText =
+                uncertainHttpError.status !== undefined
+                    ? ` (HTTP ${uncertainHttpError.status})`
+                    : "";
+            throw new UserOperationSendTimeoutError(
+                `Sending UserOperation ${hash} ended with an uncertain response${statusText}; it may still be pending.`,
+                hash,
+                { cause: error, status: uncertainHttpError.status },
+            );
+        }
         // Only a failure after signing (i.e. from `eth_sendUserOperation`) can
         // mean the bundler rejected the cached gas price. Earlier
         // failures — a canceled wallet prompt above all — keep the cache so
@@ -406,6 +428,20 @@ function isTimeoutError(error: unknown): boolean {
     return (
         error instanceof BaseError && error.walk((cause) => cause instanceof TimeoutError) !== null
     );
+}
+
+function getUncertainSendHttpError(error: unknown): HttpRequestError | null {
+    if (!(error instanceof BaseError)) return null;
+    // a JSON-RPC error response means the bundler answered with a structured refusal.
+    if (error.walk((cause) => cause instanceof RpcRequestError) !== null) return null;
+    const httpError = error.walk(
+        (cause) => cause instanceof HttpRequestError,
+    ) as HttpRequestError | null;
+    if (httpError === null) return null;
+    if (httpError.status === undefined || httpError.status === 408 || httpError.status >= 500) {
+        return httpError;
+    }
+    return null;
 }
 
 /** Observers must never affect the result: a throwing `onPhase` is swallowed. */

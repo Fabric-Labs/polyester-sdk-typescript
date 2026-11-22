@@ -133,7 +133,6 @@ import { OrderSchema } from "../gen/orders/v1/orders_read_pb.js";
 import { formatId } from "../utils/base58-id.js";
 import {
     AuthenticationError,
-    InternalServerError,
     NetworkError,
     PermissionError,
     RealtimeError,
@@ -1130,7 +1129,7 @@ describe("RealtimeClient", () => {
     });
 
     it("records a rejected connection token, not 'unauthorized', when it stops the private socket", async () => {
-        vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}", { status: 500 }));
+        vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}", { status: 403 }));
         const client = new RealtimeClient({
             wsUrl: "wss://stream.example.test",
             tokenEndpoint: "https://api.example.test/v1/rt/token",
@@ -1146,8 +1145,8 @@ describe("RealtimeClient", () => {
         expect(client.connection.private).toEqual({
             state: "disconnected",
             error: expect.objectContaining({
-                name: "InternalServerError",
-                message: "Failed to fetch connection token: 500",
+                name: "PermissionError",
+                message: "Failed to fetch connection token: 403",
             }),
         });
         client.disconnect();
@@ -2010,7 +2009,6 @@ describe("RealtimeClient", () => {
         [401, AuthenticationError],
         [403, PermissionError],
         [404, ResourceNotFoundError],
-        [500, InternalServerError],
     ])(
         "stops real Centrifuge connection-token retries after terminal HTTP %i",
         async (status, ErrorType) => {
@@ -2078,7 +2076,7 @@ describe("RealtimeClient", () => {
     });
 
     it.each(
-        [408, 429, 502, 503, 504].flatMap((status) =>
+        [408, 429, 500, 502, 503, 504].flatMap((status) =>
             ["connection", "subscription"].map((endpoint) => [status, endpoint] as const),
         ),
     )(
@@ -2191,7 +2189,6 @@ describe("RealtimeClient", () => {
         [401, AuthenticationError],
         [403, PermissionError],
         [404, ResourceNotFoundError],
-        [500, InternalServerError],
     ])(
         "stops real Centrifuge subscription-token retries after terminal HTTP %i",
         async (status, ErrorType) => {
@@ -2390,5 +2387,62 @@ describe("RealtimeClient", () => {
         expect(firstInstance().disconnectCalls).toBe(1);
         expect(IdleWebSocket.instances[0]!.closeCode).toBeUndefined();
         expect(onDisconnected).not.toHaveBeenCalled();
+    });
+
+    it("retries private order stream token fetches after HTTP 500 instead of stopping", async () => {
+        vi.useFakeTimers();
+        class FakeOrderSocket {
+            static instances: FakeOrderSocket[] = [];
+            readyState = 0;
+            binaryType = "";
+            onopen: (() => void) | null = null;
+            onmessage: ((event: unknown) => void) | null = null;
+            onclose: ((event: unknown) => void) | null = null;
+            constructor() {
+                FakeOrderSocket.instances.push(this);
+            }
+            send(): void {}
+            close(): void {}
+        }
+        vi.stubGlobal("WebSocket", FakeOrderSocket);
+
+        let tokenCalls = 0;
+        vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+            tokenCalls++;
+            if (tokenCalls === 1) {
+                return new Response(JSON.stringify({ error: "AUTH_INTERNAL_ERROR" }), {
+                    status: 500,
+                });
+            }
+            return Response.json({ token: "recovered-token" });
+        });
+
+        const client = new RealtimeClient({
+            wsUrl: "wss://stream.example.test",
+            tokenEndpoint: "https://api.example.test/v1/rt/token",
+            subscribeEndpoint: "https://api.example.test/v1/rt/subscribe",
+            privateWsUrl: "wss://api.example.test/v1/ws/private",
+            hasAuth: () => true,
+        });
+        const onDisconnected = vi.fn();
+
+        const disconnect = client.connectPrivateOrders({
+            accountId: formatId(42n),
+            onEvent: vi.fn(),
+            onDisconnected,
+        });
+
+        await vi.advanceTimersByTimeAsync(0);
+        expect(tokenCalls).toBe(1);
+        expect(FakeOrderSocket.instances).toHaveLength(0);
+
+        // after reconnect backoff, the token fetch retries and opens the socket
+        await vi.advanceTimersByTimeAsync(2_000);
+        expect(tokenCalls).toBe(2);
+        expect(FakeOrderSocket.instances).toHaveLength(1);
+        expect(onDisconnected).not.toHaveBeenCalled();
+
+        disconnect();
+        client.disconnect();
     });
 });

@@ -190,6 +190,12 @@ export class MarketOverviewService {
             schema: Proto.MarketOverviewBatchSchema,
             maxBufferedPublications: 2000,
             snapshotErrorLog: "Failed to fetch market overview",
+            // retry transient snapshot failures (e.g. 503) so the stream recovers instead of buffering forever.
+            snapshotRetry: {
+                maxAttempts: Number.POSITIVE_INFINITY,
+                delayMs: 1_000,
+                maxDelayMs: 8_000,
+            },
             fetchSnapshot,
             readPublication: (batch) => batch.markets.filter(matchesSymbol),
             bufferPublicationKey: (market) => market.symbolId,

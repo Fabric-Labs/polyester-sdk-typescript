@@ -40,7 +40,7 @@ describe("CreateInternalTransferInputSchema", () => {
             destination: { case: "destinationAccountId", value: 22n },
             assetId: 1,
             amountE18: { hi: 0n, lo: 1_500_000_000_000_000_000n },
-            idempotencyKey: "transfer-1",
+            idempotencyKey: " transfer-1 ",
         });
     });
 

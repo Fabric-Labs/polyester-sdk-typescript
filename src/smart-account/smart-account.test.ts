@@ -4,10 +4,11 @@ import { privateKeyToAccount } from "viem/accounts";
 import { formatUserOperation, getUserOperationHash } from "viem/account-abstraction";
 import { createPolyesterEnvironment } from "../environment.js";
 import {
+    OutcomeUnknownError,
     UserOperationAlreadyKnownError,
     UserOperationNotExecutedError,
     UserOperationSendTimeoutError,
-} from "./index.js";
+} from "../shared/errors.js";
 import {
     createPolyesterSmartAccount,
     createPolyesterSmartAccountClient,
@@ -30,6 +31,10 @@ let failGasPrice = false;
 let failSend = false;
 let sendAlreadyKnown = false;
 let sendTimesOut = false;
+let sendHttpFailure:
+    | { kind: "status"; status: number; body?: string; contentType?: string }
+    | { kind: "network" }
+    | undefined;
 let statusDelayMs = 0;
 let statusQueue: string[] = [];
 let receiptQueue: (object | null)[] = [];
@@ -131,6 +136,17 @@ beforeAll(() => {
         if (method === "eth_sendUserOperation" && sendTimesOut) {
             // What viem's http transport throws once the request deadline passes.
             throw new TimeoutError({ body: { method }, url: "https://bundler.test" });
+        }
+        if (method === "eth_sendUserOperation" && sendHttpFailure) {
+            if (sendHttpFailure.kind === "network") {
+                throw new TypeError("fetch failed: socket hang up");
+            }
+            return new Response(sendHttpFailure.body ?? "<html>504 Gateway Timeout</html>", {
+                status: sendHttpFailure.status,
+                headers: sendHttpFailure.contentType
+                    ? { "content-type": sendHttpFailure.contentType }
+                    : { "content-type": "text/html" },
+            });
         }
         if (method === "eth_sendUserOperation" && sendAlreadyKnown) {
             // What the bundler answers when this exact UserOperation is already pending.
@@ -312,6 +328,7 @@ describe("sendPolyesterUserOperation", () => {
 
         const sent = byMethod("eth_sendUserOperation")[1]?.params[0];
         expect(error).toBeInstanceOf(UserOperationSendTimeoutError);
+        expect(error).toBeInstanceOf(OutcomeUnknownError);
         expect((error as UserOperationSendTimeoutError).retryable).toBe(false);
         expect((error as UserOperationSendTimeoutError).userOpHash).toBe(
             getUserOperationHash({
@@ -323,6 +340,74 @@ describe("sendPolyesterUserOperation", () => {
         );
         // Not a fee rejection: the gas-price cache survives.
         expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(1);
+    });
+
+    it.each([
+        ["gateway 504", { kind: "status", status: 504 } as const, 504],
+        ["gateway 502", { kind: "status", status: 502 } as const, 502],
+        ["gateway 503", { kind: "status", status: 503 } as const, 503],
+        ["non-JSON-RPC 500", { kind: "status", status: 500, body: "Internal Error" } as const, 500],
+        ["request timeout 408", { kind: "status", status: 408 } as const, 408],
+        ["dropped connection", { kind: "network" } as const, undefined],
+    ])(
+        "throws UserOperationSendTimeoutError (OutcomeUnknownError) with userOpHash on %s after signing",
+        async (_label, failure, expectedStatus) => {
+            const { client } = await setup();
+            await sendPolyesterUserOperation(client, sendParameters);
+
+            sendHttpFailure = failure;
+            let error: unknown;
+            try {
+                error = await sendPolyesterUserOperation(client, sendParameters).catch((e) => e);
+            } finally {
+                sendHttpFailure = undefined;
+            }
+
+            const sent = byMethod("eth_sendUserOperation")[1]?.params[0];
+            expect(error).toBeInstanceOf(UserOperationSendTimeoutError);
+            expect(error).toBeInstanceOf(OutcomeUnknownError);
+            expect((error as UserOperationSendTimeoutError).retryable).toBe(false);
+            expect((error as UserOperationSendTimeoutError).status).toBe(expectedStatus);
+            expect((error as UserOperationSendTimeoutError).userOpHash).toBe(
+                getUserOperationHash({
+                    chainId: environment.chain.id,
+                    entryPointAddress: environment.accountAbstraction.entryPoint.address,
+                    entryPointVersion: "0.7",
+                    userOperation: formatUserOperation(sent as never),
+                }),
+            );
+            // uncertain response says nothing about the gas price, so the cache survives
+            expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(1);
+        },
+    );
+
+    it("keeps a structured JSON-RPC error on HTTP 500 as a refusal and clears the gas-price cache", async () => {
+        const { client } = await setup();
+        await sendPolyesterUserOperation(client, sendParameters);
+
+        sendHttpFailure = {
+            kind: "status",
+            status: 500,
+            contentType: "application/json",
+            body: JSON.stringify({
+                jsonrpc: "2.0",
+                id: 1,
+                error: { code: -32602, message: "AA25 invalid account nonce" },
+            }),
+        };
+        let error: unknown;
+        try {
+            error = await sendPolyesterUserOperation(client, sendParameters).catch((e) => e);
+        } finally {
+            sendHttpFailure = undefined;
+        }
+
+        expect(error).not.toBeInstanceOf(UserOperationSendTimeoutError);
+        expect(error).not.toBeInstanceOf(OutcomeUnknownError);
+
+        await sendPolyesterUserOperation(client, sendParameters);
+        // cache was cleared after the structured refusal
+        expect(byMethod("pimlico_getUserOperationGasPrice")).toHaveLength(2);
     });
 
     it("keeps the gas-price cache when the wallet prompt is canceled before signing", async () => {

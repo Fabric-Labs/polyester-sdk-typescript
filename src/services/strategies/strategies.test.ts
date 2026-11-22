@@ -616,4 +616,79 @@ describe("StrategiesService", () => {
             service.startBacktest({ versionId: "v1", idempotencyKey: "bt-1" }),
         ).rejects.toBeInstanceOf(type);
     });
+
+    it("rejects whitespace-padded or invalid idempotency keys on strategy writes without trimming", async () => {
+        const { transport, service } = serviceWith({});
+
+        for (const badKey of ["", "   ", " key-1 ", "bad key", "k".repeat(129)]) {
+            await expect(
+                service.create({ name: "Grid", idempotencyKey: badKey }),
+            ).rejects.toBeInstanceOf(ValidationError);
+            await expect(
+                service.saveDraftVersion({
+                    strategyId: formatId(6n),
+                    expectedRevision: "0",
+                    name: "Grid",
+                    manifest: {},
+                    code: "",
+                    idempotencyKey: badKey,
+                }),
+            ).rejects.toBeInstanceOf(ValidationError);
+            await expect(
+                service.startBacktest({ versionId: "v1", idempotencyKey: badKey }),
+            ).rejects.toBeInstanceOf(ValidationError);
+            await expect(
+                service.proposeDeploy({
+                    strategyId: formatId(6n),
+                    revision: "1",
+                    botName: "Grid",
+                    funding: [{ asset: "USDT", amount: "50" }],
+                    idempotencyKey: badKey,
+                }),
+            ).rejects.toBeInstanceOf(ValidationError);
+            await expect(
+                service.stopBot({
+                    botId: formatId(3n),
+                    mode: "keep_orders",
+                    idempotencyKey: badKey,
+                }),
+            ).rejects.toBeInstanceOf(ValidationError);
+        }
+
+        expect(transport.lastCall()).toBeUndefined();
+    });
+
+    it("sends valid saveDraftVersion idempotency keys unchanged and defaults omitted keys to empty", async () => {
+        const { transport, service } = serviceWith({
+            saveDraftVersion: create(Proto.SaveDraftVersionResponseSchema, {
+                revision: 1n,
+                version: {
+                    versionId: "v1",
+                    runtimeVersion: "2026-12",
+                    valid: true,
+                    errors: [],
+                    flow: { nodes: [], edges: [], complete: true },
+                },
+            }),
+        });
+
+        await service.saveDraftVersion({
+            strategyId: formatId(6n),
+            expectedRevision: "0",
+            name: "Grid",
+            manifest: {},
+            code: "",
+        });
+        expect(transport.lastCall()?.message).toMatchObject({ idempotencyKey: "" });
+
+        await service.saveDraftVersion({
+            strategyId: formatId(6n),
+            expectedRevision: "1",
+            name: "Grid",
+            manifest: {},
+            code: "",
+            idempotencyKey: "draft_1:v2.0-rc",
+        });
+        expect(transport.lastCall()?.message).toMatchObject({ idempotencyKey: "draft_1:v2.0-rc" });
+    });
 });

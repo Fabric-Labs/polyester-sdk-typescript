@@ -90,10 +90,11 @@ This factory accepts a `Request`, a `{ [name]: value }` record, or a synchronous
 `.get(name)` store that returns either the cookie value or an object containing
 the value.
 
-The `polyester_auth_token` bearer cookie is read independently from the
-`polyester_session_3` cookie. The latter contains unsigned display data for UI
-hydration; it is not proof of authentication. The backend still verifies the
-bearer token and authorizes every call.
+The `polyester_auth_token` (`POLYESTER_AUTH_TOKEN_COOKIE_NAME`) bearer cookie is
+read independently from the `polyester_session_4` (`POLYESTER_SESSION_COOKIE_NAME`)
+cookie. The latter contains unsigned display data for UI hydration; it is not
+proof of authentication. The backend still verifies the bearer token and
+authorizes every call.
 
 For machine clients, pass an Ed25519 API key provider instead of a cookie
 session:

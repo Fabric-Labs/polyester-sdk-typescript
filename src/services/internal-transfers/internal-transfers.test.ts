@@ -100,7 +100,7 @@ describe("InternalTransfersService", () => {
                 hi: 5n,
                 lo: 7_766_279_631_452_241_920n,
             },
-            idempotencyKey: "transfer-1",
+            idempotencyKey: " transfer-1 ",
         });
     });
 
@@ -301,7 +301,7 @@ describe("InternalTransfersService", () => {
         expect(captured?.method.localName).toBe("batchCreateInternalTransfers");
         expect(new Headers(captured?.headers).get(AUTH_STEP_UP_HEADER_NAME)).toBe("fresh-token");
         expect(captured?.message).toMatchObject({
-            idempotencyKey: "batch-key",
+            idempotencyKey: " batch-key ",
             legs: [
                 { subaccountId: 11n, destination: { case: "destinationAccountId", value: 22n } },
                 { subaccountId: 0n, destination: { case: "destinationSubaccountId", value: 33n } },

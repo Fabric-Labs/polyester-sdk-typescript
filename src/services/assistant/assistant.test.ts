@@ -64,7 +64,7 @@ describe("AssistantService unary calls", () => {
         expect(transport.lastCall()?.message).toEqual({
             conversationId: 8n,
             text: "buy 1 SOL",
-            idempotencyKey: "key-1",
+            idempotencyKey: " key-1 ",
             subaccountId: 42n,
             destinations: [{ id: "page-subaccounts", title: "Subaccounts", description: "" }],
         });
@@ -128,7 +128,7 @@ describe("AssistantService unary calls", () => {
         [{ idempotencyKey: "k", images: [] }],
         [{ text: "hi", idempotencyKey: "k", accountSelection: "none" as const, subaccountId: "x" }],
         [{ text: "", idempotencyKey: "k" }],
-        [{ text: "hi", idempotencyKey: " " }],
+        [{ text: "hi", idempotencyKey: "" }],
         [
             {
                 text: "hi",
@@ -151,8 +151,9 @@ describe("AssistantService unary calls", () => {
             },
         ],
     ])("rejects invalid message input %#", async (input) => {
-        const { service } = serviceWith({});
+        const { transport, service } = serviceWith({});
         await expect(service.sendMessage(input)).rejects.toBeInstanceOf(ValidationError);
+        expect(transport.lastCall()).toBeUndefined();
     });
 
     it("decides approvals and returns the recorded status", async () => {
