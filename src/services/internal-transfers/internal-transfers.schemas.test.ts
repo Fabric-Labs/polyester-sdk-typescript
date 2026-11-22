@@ -3,6 +3,7 @@ import * as v from "valibot";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import { formatId } from "../../utils/base58-id.js";
+import { fromU128 } from "../../utils/u128.js";
 import { InternalTransferStatus } from "../../gen/transfer/v1/internal_transfer_pb.js";
 import {
     createCreateInternalTransferInputSchema,
@@ -60,6 +61,17 @@ describe("CreateInternalTransferInputSchema", () => {
         expect(input.subaccountId).toBeUndefined();
     });
 
+    it("encodes an 18-decimal balance exactly, beyond the asset's 6-decimal quantity scale", () => {
+        const input = v.parse(CreateInternalTransferInputSchema, {
+            destination: { type: "subaccount", subaccountId: formatId(33n) },
+            assetId: 1,
+            quantity: "1402.539785489031499997",
+            idempotencyKey: "transfer-balance",
+        });
+
+        expect(fromU128(input.amountE18)).toBe(1_402_539_785_489_031_499_997n);
+    });
+
     it("trims smart account address destinations", () => {
         const input = v.parse(CreateInternalTransferInputSchema, {
             destination: { type: "smartAccountAddress", address: " 0xabc123 " },
@@ -102,10 +114,10 @@ describe("CreateInternalTransferInputSchema", () => {
             v.parse(CreateInternalTransferInputSchema, {
                 destination: { type: "account", accountId: formatId(22n) },
                 assetId: 1,
-                quantity: "1.2345678",
+                quantity: "1.0000000000000000001",
                 idempotencyKey: "transfer-7",
             }),
-        ).toThrow(/quantity supports at most 6 decimal places/);
+        ).toThrow(/quantity supports at most 18 decimal places/);
         expect(() =>
             v.parse(CreateInternalTransferInputSchema, {
                 destination: { type: "account", accountId: formatId(22n) },
