@@ -326,15 +326,33 @@ export class OrderbookService {
             applyLivePublications: (deltas) => {
                 const generation = snapshotGeneration;
                 queue(!hasKnownSymbol(scales, symbolId), () => {
-                    if (generation !== snapshotGeneration || stream?.isDisposed()) return;
+                    if (
+                        generation !== snapshotGeneration ||
+                        !stream?.isReady() ||
+                        stream.isDisposed()
+                    ) {
+                        return;
+                    }
                     for (const delta of deltas) {
-                        if (generation !== snapshotGeneration || stream?.isDisposed()) return;
+                        if (
+                            generation !== snapshotGeneration ||
+                            !stream?.isReady() ||
+                            stream.isDisposed()
+                        ) {
+                            return;
+                        }
                         handleDelta(delta, false);
                     }
                 });
             },
-            onOpen: input.onOpen,
-            onClose: input.onClose,
+            onOpen: () => {
+                snapshotGeneration++;
+                input.onOpen?.();
+            },
+            onClose: () => {
+                snapshotGeneration++;
+                input.onClose?.();
+            },
             onError: input.onError,
         });
 

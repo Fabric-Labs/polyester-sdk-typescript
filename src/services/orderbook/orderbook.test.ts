@@ -1156,6 +1156,72 @@ describe("OrderbookService", () => {
         expect(getCatalog.refresh).toHaveBeenCalledOnce();
         expect(book.bids).toEqual([expect.objectContaining({ price: "2000", qty: "1" })]);
     });
+
+    it("drops a live reset waiting on catalog refresh if the socket disconnects before refresh finishes", async () => {
+        const NEW_PAIR = {
+            ...BTC_USDT,
+            symbolId: 202,
+            symbol: "ETH-USDT",
+        } as const;
+        let currentCatalog = createTestCatalog({ assets: [BTC, USDT], pairs: [BTC_USDT] });
+        let resolveRefresh: (() => void) | undefined;
+        currentCatalog.refresh = () =>
+            new Promise((resolve) => {
+                resolveRefresh = () => {
+                    currentCatalog = createTestCatalog({
+                        assets: [BTC, USDT],
+                        pairs: [BTC_USDT, NEW_PAIR],
+                    });
+                    resolve(currentCatalog.snapshot());
+                };
+            });
+
+        const scales = createCatalogSdkScales(() => currentCatalog);
+        const transport = bookTransport(() => {
+            throw new InternalServerError("snapshot failed", { status: 500 });
+        });
+        const realtime = realtimeClientStub();
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            scales,
+        );
+        const onEvent = vi.fn();
+        const onClose = vi.fn();
+        const onError = vi.fn();
+
+        const subscription = service.createSubscription({
+            symbolId: 202,
+            onEvent,
+            onClose,
+            onError,
+        });
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+        expect(onError).toHaveBeenCalledOnce();
+
+        // live reset triggers catalog refresh and queues while pending
+        realtime.params?.onPublication(
+            create(Proto.OrderBookDeltaSchema, {
+                symbolId: 202,
+                bookSeqStart: 0n,
+                bookSeqEnd: 5n,
+                reset: true,
+                bids: [{ priceTicks: 2_000_000_000_000n, qtyScaled: 100_000_000n }],
+            }),
+        );
+        await flushMicrotasks();
+
+        // socket closes before catalog refresh resolves
+        realtime.params?.onDisconnected?.();
+        expect(onClose).toHaveBeenCalledOnce();
+
+        resolveRefresh?.();
+        await flushMicrotasks();
+
+        expect(onEvent).not.toHaveBeenCalled();
+        subscription.unsubscribe();
+    });
 });
 
 describe("orderbookWsChannelDepth", () => {
