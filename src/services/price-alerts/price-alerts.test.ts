@@ -70,7 +70,7 @@ describe("PriceAlertsService", () => {
             direction: Proto.AlertDirection.ABOVE,
             priceTicks: 90_000n * E9,
             channels: [Proto.AlertChannel.IN_APP, Proto.AlertChannel.TELEGRAM],
-            idempotencyKey: "key-1",
+            idempotencyKey: " key-1 ",
         });
         expect(alert).toEqual({
             alertId: formatId(ALERT_ID),

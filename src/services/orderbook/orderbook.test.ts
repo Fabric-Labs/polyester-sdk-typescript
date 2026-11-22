@@ -900,6 +900,262 @@ describe("OrderbookService", () => {
         expect(realtime.params?.channel).toBe("public:spot:orderbook:deltas:depth:50:999:proto");
         unsubscribe();
     });
+
+    it("applies a live reset even when bookSeqEnd restarts at or below currentBookSeq", async () => {
+        const realtime = realtimeClientStub();
+        const transport = bookTransport({
+            symbolId: 101,
+            bookSeq: 100n,
+            bookEpoch: 2n,
+            available: true,
+            bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
+            asks: [],
+        });
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
+        const onEvent = vi.fn();
+
+        const subscription = service.createSubscription({ symbolId: 101, onEvent });
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+
+        // new epoch restarts bookSeq at 1 (<= 100) via a live reset
+        realtime.params?.onPublication(
+            create(Proto.OrderBookDeltaSchema, {
+                symbolId: 101,
+                bookSeqStart: 0n,
+                bookSeqEnd: 1n,
+                reset: true,
+                bids: [{ priceTicks: 105_000_000_000n, qtyScaled: 200_000_000n }],
+            }),
+        );
+        // subsequent delta chains onto the restarted bookSeq
+        realtime.params?.onPublication(
+            create(Proto.OrderBookDeltaSchema, {
+                symbolId: 101,
+                bookSeqStart: 1n,
+                bookSeqEnd: 2n,
+                bids: [{ priceTicks: 106_000_000_000n, qtyScaled: 300_000_000n }],
+            }),
+        );
+        await flushMicrotasks();
+
+        expect(onEvent).toHaveBeenCalledTimes(3);
+        expect(onEvent.mock.calls[1]?.[0]).toMatchObject({
+            bookSeq: "1",
+            bids: [expect.objectContaining({ price: "105", qty: "2" })],
+        });
+        expect(onEvent.mock.calls[2]?.[0]).toMatchObject({
+            bookSeq: "2",
+            bids: [
+                expect.objectContaining({ price: "106", qty: "3" }),
+                expect.objectContaining({ price: "105", qty: "2" }),
+            ],
+        });
+        subscription.unsubscribe();
+    });
+
+    it("carries ts from snapshots and deltas, and omits ts when unset", async () => {
+        const realtime = realtimeClientStub();
+        const transport = bookTransport({
+            symbolId: 101,
+            bookSeq: 10n,
+            available: true,
+            bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
+            asks: [],
+            ts: { seconds: 1_700_000_000n, nanos: 123_000_000 },
+        });
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
+        const onEvent = vi.fn();
+
+        const subscription = service.createSubscription({ symbolId: 101, onEvent });
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+
+        expect(onEvent.mock.calls[0]?.[0].ts).toBe(1_700_000_000_123);
+
+        realtime.params?.onPublication(
+            create(Proto.OrderBookDeltaSchema, {
+                symbolId: 101,
+                bookSeqStart: 10n,
+                bookSeqEnd: 11n,
+                bids: [{ priceTicks: 101_000_000_000n, qtyScaled: 100_000_000n }],
+                ts: { seconds: 1_700_000_001n, nanos: 500_000_000 },
+            }),
+        );
+        realtime.params?.onPublication(
+            create(Proto.OrderBookDeltaSchema, {
+                symbolId: 101,
+                bookSeqStart: 11n,
+                bookSeqEnd: 12n,
+                bids: [{ priceTicks: 102_000_000_000n, qtyScaled: 100_000_000n }],
+            }),
+        );
+        await flushMicrotasks();
+
+        expect(onEvent.mock.calls[1]?.[0].ts).toBe(1_700_000_001_500);
+        expect("ts" in (onEvent.mock.calls[2]?.[0] ?? {})).toBe(false);
+        subscription.unsubscribe();
+    });
+
+    it("does not emit from setBucket after a failed snapshot until a reset rebuilds the book", async () => {
+        const realtime = realtimeClientStub();
+        let attempt = 0;
+        const transport = bookTransport(() => {
+            attempt++;
+            if (attempt === 1) {
+                throw new InternalServerError("snapshot failed", { status: 500 });
+            }
+            return {
+                symbolId: 101,
+                bookSeq: 10n,
+                available: true,
+                bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
+                asks: [],
+            };
+        });
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
+        const onEvent = vi.fn();
+        const onError = vi.fn();
+
+        const subscription = service.createSubscription({ symbolId: 101, onEvent, onError });
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+
+        expect(onError).toHaveBeenCalledOnce();
+        subscription.setBucket("1");
+        expect(onEvent).not.toHaveBeenCalled();
+
+        // a reset rebuilds the book; subsequent setBucket emits normally
+        realtime.params?.onPublication(
+            create(Proto.OrderBookDeltaSchema, {
+                symbolId: 101,
+                bookSeqStart: 0n,
+                bookSeqEnd: 5n,
+                reset: true,
+                bids: [{ priceTicks: 100_500_000_000n, qtyScaled: 100_000_000n }],
+            }),
+        );
+        await flushMicrotasks();
+        expect(onEvent).toHaveBeenCalledTimes(1);
+
+        subscription.setBucket("1");
+        expect(onEvent).toHaveBeenCalledTimes(2);
+        expect(onEvent.mock.calls[1]?.[0]).toMatchObject({
+            bookSeq: "5",
+            bids: [expect.objectContaining({ price: "100", qty: "1" })],
+        });
+        subscription.unsubscribe();
+    });
+
+    it("does not emit stale levels from setBucket after a failed reconnect snapshot", async () => {
+        const realtime = realtimeClientStub();
+        let attempt = 0;
+        const transport = bookTransport(() => {
+            attempt++;
+            if (attempt === 1) {
+                return {
+                    symbolId: 101,
+                    bookSeq: 10n,
+                    available: true,
+                    bids: [{ priceTicks: 100_000_000_000n, qtyScaled: 100_000_000n }],
+                    asks: [],
+                };
+            }
+            throw new InternalServerError("reconnect snapshot failed", { status: 500 });
+        });
+        const service = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            testScales(),
+        );
+        const onEvent = vi.fn();
+        const onError = vi.fn();
+
+        const subscription = service.createSubscription({ symbolId: 101, onEvent, onError });
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+        expect(onEvent).toHaveBeenCalledTimes(1);
+
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+        expect(onError).toHaveBeenCalledOnce();
+
+        subscription.setBucket("1");
+        expect(onEvent).toHaveBeenCalledTimes(1);
+        subscription.unsubscribe();
+    });
+
+    it("refreshes the catalog on miss for newly listed pairs in get() and subscribe()", async () => {
+        const NEW_PAIR = {
+            ...BTC_USDT,
+            symbolId: 202,
+            symbol: "ETH-USDT",
+        } as const;
+        const withRefresh = () => {
+            let currentCatalog = createTestCatalog({ assets: [BTC, USDT], pairs: [BTC_USDT] });
+            const refresh = vi.fn(async () => {
+                currentCatalog = createTestCatalog({
+                    assets: [BTC, USDT],
+                    pairs: [BTC_USDT, NEW_PAIR],
+                });
+                return currentCatalog.snapshot();
+            });
+            currentCatalog.refresh = refresh;
+            return { scales: createCatalogSdkScales(() => currentCatalog), refresh };
+        };
+
+        const transport = bookTransport({
+            symbolId: 202,
+            bookSeq: 1n,
+            available: true,
+            bids: [{ priceTicks: 2_000_000_000_000n, qtyScaled: 100_000_000n }],
+            asks: [],
+        });
+        const realtime = realtimeClientStub();
+        const subCatalog = withRefresh();
+        const subService = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            subCatalog.scales,
+        );
+        const onEvent = vi.fn();
+        const onError = vi.fn();
+
+        const subscription = subService.createSubscription({ symbolId: 202, onEvent, onError });
+        realtime.params?.onConnected?.();
+        await flushMicrotasks();
+
+        expect(subCatalog.refresh).toHaveBeenCalledOnce();
+        expect(onError).not.toHaveBeenCalled();
+        expect(onEvent).toHaveBeenCalledOnce();
+        expect(onEvent.mock.calls[0]?.[0]).toMatchObject({
+            symbolId: 202,
+            bids: [expect.objectContaining({ price: "2000", qty: "1" })],
+        });
+        subscription.unsubscribe();
+
+        const getCatalog = withRefresh();
+        const getService = new OrderbookService(
+            { publicApi: transport.transport },
+            realtime.realtime,
+            getCatalog.scales,
+        );
+        const book = await getService.get({ symbolId: 202 });
+        expect(getCatalog.refresh).toHaveBeenCalledOnce();
+        expect(book.bids).toEqual([expect.objectContaining({ price: "2000", qty: "1" })]);
+    });
 });
 
 describe("orderbookWsChannelDepth", () => {

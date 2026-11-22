@@ -64,7 +64,7 @@ describe("CreateTradingWithdrawToFundingInputSchema", () => {
             account: { subaccountId: formatId(11n) },
             assetId: 1,
             quantity: "1.25",
-            idempotencyKey: " withdraw-1 ",
+            idempotencyKey: "withdraw-1",
             destinationAddress: " 0xabc123 ",
         });
 
@@ -146,6 +146,13 @@ describe("CreateTradingWithdrawToFundingInputSchema", () => {
                 idempotencyKey: "",
             }),
         ).toThrow();
+        expect(() =>
+            v.parse(CreateTradingWithdrawToFundingInputSchema, {
+                assetId: 1,
+                quantity: "1",
+                idempotencyKey: " withdraw-1 ",
+            }),
+        ).toThrow(/leading or trailing whitespace/);
     });
 });
 
@@ -158,7 +165,7 @@ describe("CreateTradingWithdrawToExternalChainInputSchema", () => {
             quantity: "1.25",
             destinationChainId: 10_009,
             destinationAddress: " rAddress:123 ",
-            idempotencyKey: " withdraw-1 ",
+            idempotencyKey: "withdraw-1",
         });
 
         expect(input).toMatchObject({

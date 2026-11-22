@@ -782,4 +782,53 @@ describe("MarketOverviewService", () => {
             { sparklines: [{ interval: "unspecified" }] },
         ]);
     });
+
+    it("retries transient snapshot failures (503) and delivers snapshot plus live updates once recovered", async () => {
+        vi.useFakeTimers();
+        try {
+            let calls = 0;
+            const transport = unaryTransport(() => {
+                calls++;
+                if (calls === 1) {
+                    throw new ServiceUnavailableError("temporarily unavailable", { status: 503 });
+                }
+                return { markets: [market()], nextPageToken: "" };
+            });
+            const realtime = realtimeClientStub();
+            const onEvent = vi.fn();
+            const onError = vi.fn();
+            const service = new MarketOverviewService(
+                { publicApi: transport.transport },
+                realtime.realtime,
+                testScales(),
+            );
+
+            const unsubscribe = service.subscribe({ onEvent, onError });
+            realtime.params?.onConnected?.();
+            await flushMicrotasks();
+
+            expect(calls).toBe(1);
+            expect(onError).toHaveBeenCalledOnce();
+            expect(onEvent).not.toHaveBeenCalled();
+
+            await vi.advanceTimersByTimeAsync(1_000);
+            await flushMicrotasks();
+
+            expect(calls).toBe(2);
+            expect(onEvent).toHaveBeenCalledTimes(1);
+
+            realtime.params?.onPublication(
+                create(Proto.MarketOverviewBatchSchema, {
+                    markets: [market()],
+                    tsNs: 1n,
+                }),
+            );
+            await flushMicrotasks();
+
+            expect(onEvent).toHaveBeenCalledTimes(2);
+            unsubscribe();
+        } finally {
+            vi.useRealTimers();
+        }
+    });
 });

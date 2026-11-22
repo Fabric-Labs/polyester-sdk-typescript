@@ -5,7 +5,7 @@ import { bytesToHex, recoverMessageAddress } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { POLYESTER_DEVNET_ENVIRONMENT } from "../../environment.js";
 import * as Proto from "../../gen/chain/withdraw/v1/withdraw_pb.js";
-import { StepUpRequiredError } from "../../shared/errors.js";
+import { StepUpRequiredError, ValidationError } from "../../shared/errors.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
@@ -191,7 +191,7 @@ describe("TradingWithdrawsService", () => {
                     assetId: 1,
                     quantity: "100",
                     destinationAddress: " funding ",
-                    idempotencyKey: " withdraw-1 ",
+                    idempotencyKey: "withdraw-1",
                 },
                 { signal: controller.signal, stepUpToken: " fresh-token " },
             ),
@@ -248,7 +248,7 @@ describe("TradingWithdrawsService", () => {
                 assetId: 1,
                 quantity: "100",
                 destinationAddress: " funding ",
-                idempotencyKey: " withdraw-1 ",
+                idempotencyKey: "withdraw-1",
                 walletSigner: {
                     signerWallet: "0x1111111111111111111111111111111111111111",
                     accountId: formatId(1n),
@@ -556,7 +556,7 @@ describe("TradingWithdrawsService", () => {
                 quantity: "1.25",
                 destinationChainId: 10_009,
                 destinationAddress: " rAddress:123 ",
-                idempotencyKey: " withdraw-external-1 ",
+                idempotencyKey: "withdraw-external-1",
                 walletSigner: {
                     signerWallet: "0x1111111111111111111111111111111111111111",
                     accountId: formatId(1n),
@@ -1070,5 +1070,55 @@ describe("TradingWithdrawsService", () => {
                 idempotencyKey: "withdraw-1",
             }),
         ).rejects.toThrow();
+    });
+
+    it("rejects idempotency keys with surrounding whitespace before signing or sending", async () => {
+        const transport = unaryTransportByMethod({
+            createTradingWithdraw: { intentId: "intent-1" },
+            createTradingToFundingBatch: { batchId: "batch-1" },
+        });
+        const signMessage = vi.fn(async (): Promise<`0x${string}`> => validWalletSignature);
+        const walletSigner = {
+            signerWallet: "0x1111111111111111111111111111111111111111" as const,
+            accountId: formatId(1n),
+            signMessage,
+        };
+        const service = new TradingWithdrawsService(
+            { authApi: transport.transport },
+            undefined,
+            signingConfig,
+            testScales(),
+            undefined,
+            apiKeyAuth,
+        );
+
+        await expect(
+            service.createToFunding({
+                assetId: 1,
+                quantity: "1",
+                idempotencyKey: " withdraw-1 ",
+                walletSigner,
+            }),
+        ).rejects.toBeInstanceOf(ValidationError);
+        await expect(
+            service.createToExternalChain({
+                assetId: 1,
+                quantity: "1",
+                destinationChainId: 10_009,
+                destinationAddress: "rAddress:123",
+                idempotencyKey: " withdraw-2 ",
+                walletSigner,
+            }),
+        ).rejects.toBeInstanceOf(ValidationError);
+        await expect(
+            service.createToFundingBatch({
+                legs: [{ assetId: 1, quantity: "1" }],
+                idempotencyKey: " batch-1 ",
+                walletSigner,
+            }),
+        ).rejects.toBeInstanceOf(ValidationError);
+
+        expect(signMessage).not.toHaveBeenCalled();
+        expect(transport.lastCall()).toBeUndefined();
     });
 });

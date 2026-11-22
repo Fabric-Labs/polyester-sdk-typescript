@@ -43,8 +43,8 @@ import type { RateLimitDetail } from "./rate-limit.schemas.js";
  * │   │   ├── StepUpRequiredError            STEP_UP_REQUIRED
  * │   │   └── SessionElevationRequiredError  SESSION_ELEVATION_REQUIRED
  * │   ├── MfaVerificationError       MFA_VERIFICATION_FAILED     false
- * │   ├── UserOperationSendTimeoutError USER_OPERATION_SEND_TIMEOUT false
  * │   ├── OutcomeUnknownError        OUTCOME_UNKNOWN             false
+ * │   │   └── UserOperationSendTimeoutError USER_OPERATION_SEND_TIMEOUT false
  * │   └── UserOperationNotExecutedError USER_OPERATION_NOT_EXECUTED false
  * ├── InternalServerError            INTERNAL_SERVER_ERROR       false
  * └── RealtimeError                  REALTIME_ERROR              varies
@@ -392,27 +392,11 @@ export class UserOperationAlreadyKnownError extends AlreadyExistsError {
 }
 
 /**
- * `eth_sendUserOperation` timed out after the UserOperation was signed. The
- * bundler may still have accepted it, so the outcome is unknown rather than
- * rejected. Wait on `userOpHash` instead of signing again; a new operation
- * could execute a second time. Not retryable for the same reason.
- */
-export class UserOperationSendTimeoutError extends RequestError {
-    override readonly code: string = "USER_OPERATION_SEND_TIMEOUT";
-    readonly userOpHash: `0x${string}`;
-
-    constructor(message: string, userOpHash: `0x${string}`, options?: PolyesterErrorOptions) {
-        super(message, options);
-        this.name = "UserOperationSendTimeoutError";
-        this.userOpHash = userOpHash;
-    }
-}
-
-/**
- * An order or trigger change was sent but not confirmed in time, so it may
- * still apply. Not retryable: read the order by its client order ID, or list
- * triggers by client trigger ID, before sending it again. `detail.code` names
- * the operation, e.g. `ORDER_CREATE_OUTCOME_UNKNOWN`.
+ * An order, trigger, or UserOperation change was sent but not confirmed in time
+ * (or the transport failed before a reply arrived), so it may still apply. Not
+ * retryable: read the current state or wait on the operation hash before sending
+ * it again. `detail.code` names the operation when provided by the server, e.g.
+ * `ORDER_CREATE_OUTCOME_UNKNOWN`.
  */
 export class OutcomeUnknownError extends RequestError {
     override readonly code: string = "OUTCOME_UNKNOWN";
@@ -420,6 +404,24 @@ export class OutcomeUnknownError extends RequestError {
     constructor(message: string, options?: PolyesterErrorOptions) {
         super(message, options);
         this.name = "OutcomeUnknownError";
+    }
+}
+
+/**
+ * `eth_sendUserOperation` timed out or lost its response after the
+ * UserOperation was signed. The bundler may still have accepted it, so the
+ * outcome is unknown rather than rejected. Wait on `userOpHash` instead of
+ * signing again; a new operation could execute a second time. Not retryable for
+ * the same reason.
+ */
+export class UserOperationSendTimeoutError extends OutcomeUnknownError {
+    override readonly code: string = "USER_OPERATION_SEND_TIMEOUT";
+    readonly userOpHash: `0x${string}`;
+
+    constructor(message: string, userOpHash: `0x${string}`, options?: PolyesterErrorOptions) {
+        super(message, options);
+        this.name = "UserOperationSendTimeoutError";
+        this.userOpHash = userOpHash;
     }
 }
 

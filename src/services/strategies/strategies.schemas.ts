@@ -32,6 +32,13 @@ import {
 
 const TrimmedStringSchema = v.pipe(v.string(), v.trim());
 const RequiredStringSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
+const IdempotencyKeySchema = v.pipe(
+    v.string(),
+    v.regex(
+        /^[A-Za-z0-9._:-]{1,128}$/u,
+        "idempotencyKey must be 1 to 128 letters, digits, '.', '_', ':' or '-'.",
+    ),
+);
 /** Epoch milliseconds. */
 const TimestampMsInputSchema = v.pipe(
     v.number(),
@@ -70,7 +77,7 @@ export const CreateStrategyInputSchema = v.pipe(
         /** Start as a copy of one of the caller's own versions. */
         versionId: v.optional(VersionIdInputSchema),
         /** Reusing a key with the same request returns the strategy it created. */
-        idempotencyKey: RequiredStringSchema,
+        idempotencyKey: IdempotencyKeySchema,
     }),
     v.check(
         (input) => input.templateId === undefined || input.versionId === undefined,
@@ -88,24 +95,30 @@ export const CreateStrategyInputSchema = v.pipe(
 );
 export type CreateStrategyInput = v.InferInput<typeof CreateStrategyInputSchema>;
 
-export const SaveDraftVersionInputSchema = v.strictObject({
-    strategyId: StrategyIdSchema,
-    /** The strategy's `revision` this draft was made from, as a decimal string; `"0"` for its first save. */
-    expectedRevision: v.pipe(
-        bigintStringInputSchema("expectedRevision"),
-        v.maxValue(PROTOBUF_UINT64_MAX, "expectedRevision exceeds the uint64 range"),
-    ),
-    /** The save renames the strategy to it. */
-    name: RequiredStringSchema,
-    /** The manifest as a JSON object shaped like `getReference`'s `manifestSchema`. */
-    manifest: JsonObjectSchema,
-    /** The bot code, UTF-8. */
-    code: v.string(),
-    /** Omit for the current runtime version. */
-    runtimeVersion: v.optional(TrimmedStringSchema, ""),
-    /** Reusing a key with the same request returns the revision it saved. */
-    idempotencyKey: v.optional(TrimmedStringSchema, ""),
-});
+export const SaveDraftVersionInputSchema = v.pipe(
+    v.strictObject({
+        strategyId: StrategyIdSchema,
+        /** The strategy's `revision` this draft was made from, as a decimal string; `"0"` for its first save. */
+        expectedRevision: v.pipe(
+            bigintStringInputSchema("expectedRevision"),
+            v.maxValue(PROTOBUF_UINT64_MAX, "expectedRevision exceeds the uint64 range"),
+        ),
+        /** The save renames the strategy to it. */
+        name: RequiredStringSchema,
+        /** The manifest as a JSON object shaped like `getReference`'s `manifestSchema`. */
+        manifest: JsonObjectSchema,
+        /** The bot code, UTF-8. */
+        code: v.string(),
+        /** Omit for the current runtime version. */
+        runtimeVersion: v.optional(TrimmedStringSchema, ""),
+        /** Reusing a key with the same request returns the revision it saved. */
+        idempotencyKey: v.optional(IdempotencyKeySchema),
+    }),
+    v.transform(({ idempotencyKey, ...input }) => ({
+        ...input,
+        idempotencyKey: idempotencyKey ?? "",
+    })),
+);
 export type SaveDraftVersionInput = v.InferInput<typeof SaveDraftVersionInputSchema>;
 
 export const StrategyIdInputSchema = v.strictObject({ strategyId: StrategyIdSchema });
@@ -131,7 +144,7 @@ export const StartBacktestInputSchema = v.strictObject({
     /** Starting balances, one per asset. Omit for the budget setting in the quote asset. */
     initialBalances: v.optional(v.array(MoneyInputSchema), []),
     /** Reusing a key with the same request returns the backtest it started. */
-    idempotencyKey: RequiredStringSchema,
+    idempotencyKey: IdempotencyKeySchema,
 });
 export type StartBacktestInput = v.InferInput<typeof StartBacktestInputSchema>;
 
@@ -152,7 +165,7 @@ export const ProposeDeployInputSchema = v.pipe(
         /** Amounts to move into the bot's new subaccount on deploy: 1 to 16 assets, each once. */
         funding: v.pipe(v.array(MoneyInputSchema), v.minLength(1)),
         /** Reusing a key with the same request returns the proposal it recorded. */
-        idempotencyKey: RequiredStringSchema,
+        idempotencyKey: IdempotencyKeySchema,
         /** Subaccount that funds the bot. Omit to fund it from the main account. */
         fundingSubaccountId: v.optional(idInputSchema("fundingSubaccountId")),
     }),
@@ -210,7 +223,7 @@ export const StopBotInputSchema = v.pipe(
         /** `keep_orders` leaves its open orders with its subaccount; `cancel_orders` cancels them. */
         mode: v.picklist(STRATEGY_BOT_STOP_MODE_VALUES),
         /** Reusing a key with the same request returns the stop it recorded. */
-        idempotencyKey: RequiredStringSchema,
+        idempotencyKey: IdempotencyKeySchema,
     }),
     v.transform(({ mode, ...input }) => ({ ...input, mode: StopModeCodec.inputToProto[mode] })),
 );

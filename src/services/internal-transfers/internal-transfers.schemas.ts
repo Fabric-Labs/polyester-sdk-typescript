@@ -74,7 +74,8 @@ export function createCreateInternalTransferInputSchema(scales: SdkScales) {
             destination: InternalTransferDestinationInputSchema,
             assetId: PositiveUint32InputSchema,
             quantity: v.string(),
-            idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
+            // sent unchanged: trimming would fold " k " and "k" into the same key.
+            idempotencyKey: v.pipe(v.string(), v.minLength(1)),
         }),
         v.transform(
             ({ account, quantity, ...input }) =>
@@ -181,7 +182,7 @@ export function createBatchCreateInternalTransfersInputSchema(scales: SdkScales)
                 ),
             ),
             /** Covers the whole batch; a retry must send the same legs in the same order. */
-            idempotencyKey: v.pipe(v.string(), v.trim(), v.minLength(1)),
+            idempotencyKey: v.pipe(v.string(), v.minLength(1)),
         }),
         v.transform(
             ({ legs, idempotencyKey }) =>
