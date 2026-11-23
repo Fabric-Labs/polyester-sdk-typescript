@@ -120,7 +120,7 @@ export type MfaErrorKind = "session-elevation" | "enrollment" | "step-up";
 
 /**
  * Classifies an error as one of the MFA flows the backend can demand.
- * Classification is based only on stable structured auth error details.
+ * Classification is based only on stable structured error details.
  */
 export function detectMfaErrorKind(err: unknown): MfaErrorKind | null {
     const mapped = toPolyesterError(err);
@@ -128,7 +128,10 @@ export function detectMfaErrorKind(err: unknown): MfaErrorKind | null {
 }
 
 function mfaErrorKind(detail: PolyesterErrorDetail | undefined): MfaErrorKind | null {
-    if (detail?.service === "auth" && detail.code === "AUTH_MFA_ELEVATION_REQUIRED") {
+    if (
+        (detail?.service === "auth" && detail.code === "AUTH_MFA_ELEVATION_REQUIRED") ||
+        (detail?.service === "strategies" && detail.code === "MFA_ELEVATION_REQUIRED")
+    ) {
         return "session-elevation";
     }
     if (detail?.service === "auth" && detail.code === "AUTH_STEP_UP_REQUIRED") return "step-up";

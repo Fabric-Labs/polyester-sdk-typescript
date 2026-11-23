@@ -126,8 +126,6 @@ const UNWRAPPED_BY_DESIGN = new Set([
     // Called by the website's bot deploy flow only; SDKs don't wrap them.
     "auth.v1.ApiKeyService.SetStrategyBotAccess",
     "auth.v1.ApiKeyService.EndStrategyBotAccess",
-    // Session-only, MFA-elevated deploy the website's deploy page runs; API keys are refused.
-    "strategies.v1.StrategiesService.DeployBot",
 ]);
 
 describe("generated service coverage", () => {

@@ -13,6 +13,7 @@ import {
     BacktestIdInputSchema,
     BotIdInputSchema,
     CreateStrategyInputSchema,
+    DeployBotInputSchema,
     DeployProposalInputSchema,
     GetStrategyReferenceInputSchema,
     ListBacktestTradesInputSchema,
@@ -57,6 +58,7 @@ import {
     formatStrategyVersion,
     type CreateStrategyInput,
     type CreateStrategyResult,
+    type DeployBotInput,
     type ExplainStrategyResult,
     type GetStrategyReferenceInput,
     type ListBacktestTradesInput,
@@ -104,12 +106,12 @@ import {
 } from "./strategies.schemas.js";
 
 /**
- * Writes, tests and proposes trading bots of the caller's main account: save drafts of a strategy
- * as immutable versions, run their behaviour examples, backtest them, then record a deploy
- * proposal the user deploys on the website with MFA and a wallet signature, and stop bots. Nothing
- * here deploys a bot, creates a subaccount or moves funds. API keys need `read-strategies`,
- * `draft-strategies`, `propose-strategy-deploy` or `stop-strategies`, and a key scoped to a
- * subaccount is refused (`PermissionError`).
+ * Writes, tests, proposes and deploys trading bots of the caller's main account: save drafts of a
+ * strategy as immutable versions, run their behaviour examples, backtest them, record a deploy
+ * proposal, deploy it from the user's own MFA-elevated session with a wallet signature, and stop
+ * bots. API keys need `read-strategies`, `draft-strategies`, `propose-strategy-deploy` or
+ * `stop-strategies`, and a key scoped to a subaccount is refused (`PermissionError`); `deployBot`
+ * requires the user's own MFA-elevated session and refuses API keys and connected-app sessions.
  * Errors carry a `strategies` detail; a `ServiceUnavailableError` is safe to retry unchanged.
  */
 export class StrategiesService {
@@ -419,6 +421,28 @@ export class StrategiesService {
         const request = parse(ProposeDeployInputSchema, input);
         const res = await this.#client.proposeDeploy(request, toConnectCallOptions(options));
         return formatProposeDeployResult(res);
+    }
+
+    /**
+     * Deploys one deploy proposal of the caller from the user's own MFA-elevated session. API keys
+     * and sessions a connected app holds on the user's behalf are refused (`PermissionError`); a
+     * session without recent MFA throws `SessionElevationRequiredError` (`MFA_ELEVATION_REQUIRED`).
+     * A deploy that creates a subaccount needs `subaccountAuthorization` signed via
+     * `subaccounts.createChallenge` (otherwise throws `PreconditionFailedError` with
+     * `SUBACCOUNT_AUTHORIZATION_REQUIRED`). Safe to retry on timeout or error: calling again
+     * continues the same deploy and never starts a second bot.
+     */
+    async deployBot(
+        input: DeployBotInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<StrategyDeployStatus> {
+        const request = parse(DeployBotInputSchema, input);
+        const res = await this.#client.deployBot(
+            removeUndefined(request),
+            toConnectCallOptions(options),
+        );
+        if (!res.status) throw new Error("DeployBot response is missing its status");
+        return formatDeployStatus(res.status);
     }
 
     /**

@@ -8,10 +8,12 @@ import {
     PreconditionFailedError,
     RateLimitError,
     RevisionConflictError,
+    SessionElevationRequiredError,
     ValidationError,
 } from "../../shared/errors.js";
 import { rejectingUnaryTransport, unaryTransportByMethod } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
+import { isSessionElevationRequiredError } from "../../utils/connect-mfa-errors.js";
 import { StrategiesService } from "./strategies.js";
 
 const ts = (seconds: number) => ({ seconds: BigInt(seconds), nanos: 0 });
@@ -365,6 +367,81 @@ describe("StrategiesService", () => {
         await expect(service.proposeDeploy({ ...input, revision: "0" })).rejects.toBeInstanceOf(
             ValidationError,
         );
+    });
+
+    it("deploys a proposal with or without subaccount authorization", async () => {
+        const { transport, service } = serviceWith({
+            deployBot: {
+                status: create(Proto.DeployStatusSchema, {
+                    proposalId: 7n,
+                    state: Proto.DeployStatus_State.DEPLOYING,
+                    step: "Starting the bot…",
+                    botId: 42n,
+                    subaccountId: 99n,
+                }),
+            },
+        });
+
+        await expect(service.deployBot({ proposalId: formatId(7n) })).resolves.toMatchObject({
+            proposalId: formatId(7n),
+            state: "deploying",
+            step: "Starting the bot…",
+            botId: formatId(42n),
+            subaccountId: formatId(99n),
+        });
+        expect(transport.lastCall()?.message).toEqual({ proposalId: 7n });
+
+        const auth = {
+            smartAccountAddress: "0x1111111111111111111111111111111111111111",
+            message: "Authorize bot subaccount",
+            signature: "0xsig",
+        };
+        await service.deployBot({ proposalId: formatId(7n), subaccountAuthorization: auth });
+        expect(transport.lastCall()?.message).toEqual({
+            proposalId: 7n,
+            subaccountAuthorization: auth,
+        });
+    });
+
+    it("rejects invalid deployBot subaccount authorization before calling the transport", async () => {
+        const { transport, service } = serviceWith({});
+        const proposalId = formatId(7n);
+
+        await expect(
+            service.deployBot({
+                proposalId,
+                subaccountAuthorization: {
+                    smartAccountAddress: "not-an-address",
+                    message: "Authorize bot subaccount",
+                    signature: "0xsig",
+                },
+            }),
+        ).rejects.toBeInstanceOf(ValidationError);
+
+        await expect(
+            service.deployBot({
+                proposalId,
+                subaccountAuthorization: {
+                    smartAccountAddress: "0x1111111111111111111111111111111111111111",
+                    message: "Authorize bot subaccount",
+                    signature: "",
+                },
+            }),
+        ).rejects.toBeInstanceOf(ValidationError);
+
+        expect(transport.lastCall()).toBeUndefined();
+    });
+
+    it("maps deployBot MFA_ELEVATION_REQUIRED to SessionElevationRequiredError", async () => {
+        const service = rejectingService(Code.PermissionDenied, {
+            code: Proto.ErrorCode.MFA_ELEVATION_REQUIRED,
+        });
+        const error = await service.deployBot({ proposalId: formatId(7n) }).catch((e) => e);
+        expect(error).toBeInstanceOf(SessionElevationRequiredError);
+        expect(error).toMatchObject({
+            detail: { service: "strategies", code: "MFA_ELEVATION_REQUIRED" },
+        });
+        expect(isSessionElevationRequiredError(error)).toBe(true);
     });
 
     it("reads deploy status with null IDs until the bot exists", async () => {

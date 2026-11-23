@@ -3,6 +3,11 @@ import * as v from "valibot";
 import type * as Proto from "../../gen/strategies/v1/strategies_pb.js";
 import { enumLabel } from "../../shared/proto-enum-codec.js";
 import {
+    WalletAddressSchema,
+    WalletChallengeMessageSchema,
+    WalletSignatureSchema,
+} from "../auth/wallet-challenge.schemas.js";
+import {
     JsonObjectSchema,
     bigintStringInputSchema,
     idInputSchema,
@@ -200,6 +205,26 @@ export const DeployProposalInputSchema = v.strictObject({
     proposalId: idInputSchema("proposalId"),
 });
 export type StrategyDeployProposalInput = v.InferInput<typeof DeployProposalInputSchema>;
+
+/** Signed authorization for a bot's new subaccount, from `subaccounts.createChallenge`. */
+export const StrategySubaccountAuthorizationSchema = v.strictObject({
+    smartAccountAddress: WalletAddressSchema,
+    message: WalletChallengeMessageSchema,
+    signature: WalletSignatureSchema,
+});
+export type StrategySubaccountAuthorizationInput = v.InferInput<
+    typeof StrategySubaccountAuthorizationSchema
+>;
+
+export const DeployBotInputSchema = v.strictObject({
+    proposalId: idInputSchema("proposalId"),
+    /**
+     * Signed authorization for the bot's new subaccount, from `subaccounts.createChallenge`.
+     * Needed only when the deploy creates a subaccount; omit when reusing a closed bot subaccount.
+     */
+    subaccountAuthorization: v.optional(StrategySubaccountAuthorizationSchema),
+});
+export type DeployBotInput = v.InferInput<typeof DeployBotInputSchema>;
 
 const limitInputSchema = (max: number) =>
     v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(max)));
