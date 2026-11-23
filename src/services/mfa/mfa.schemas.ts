@@ -216,7 +216,8 @@ export type RegenerateRecoveryCodesResult = v.InferOutput<
 >;
 
 export const ClaimFreshStepUpInputSchema = v.strictObject({
-    requestId: v.pipe(v.string(), v.trim(), v.minLength(1)),
+    // sent unchanged: trimming would fold " r1 " and "r1" into the same key.
+    requestId: v.pipe(v.string(), v.minLength(1), v.maxLength(128)),
     actionType: v.pipe(v.string(), v.trim(), v.minLength(1)),
     subject: v.pipe(v.string(), v.trim(), v.minLength(1)),
 });
@@ -233,7 +234,7 @@ export type ClaimFreshStepUpResult = v.InferOutput<typeof ClaimFreshStepUpResult
 
 export const ConsumeFreshStepUpInputSchema = v.strictObject({
     stepUpId: v.pipe(v.string(), v.trim(), v.minLength(1)),
-    requestId: v.pipe(v.string(), v.trim(), v.minLength(1)),
+    requestId: v.pipe(v.string(), v.minLength(1), v.maxLength(128)),
     actionType: v.pipe(v.string(), v.trim(), v.minLength(1)),
     subject: v.pipe(v.string(), v.trim(), v.minLength(1)),
     claimNonce: v.pipe(v.string(), v.trim(), v.minLength(1)),
@@ -243,7 +244,7 @@ export type ConsumeFreshStepUpInput = v.InferInput<typeof ConsumeFreshStepUpInpu
 
 export const ReleaseFreshStepUpInputSchema = v.strictObject({
     stepUpId: v.pipe(v.string(), v.trim(), v.minLength(1)),
-    requestId: v.pipe(v.string(), v.trim(), v.minLength(1)),
+    requestId: v.pipe(v.string(), v.minLength(1), v.maxLength(128)),
     actionType: v.pipe(v.string(), v.trim(), v.minLength(1)),
     subject: v.pipe(v.string(), v.trim(), v.minLength(1)),
     claimNonce: v.pipe(v.string(), v.trim(), v.minLength(1)),

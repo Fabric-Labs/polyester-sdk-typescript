@@ -1330,6 +1330,82 @@ describe("server timeouts on non-idempotent writes", () => {
         expect(error).not.toBeInstanceOf(OutcomeUnknownError);
         expect(fetchMock).not.toHaveBeenCalled();
     });
+
+    it("reports a transport drop on non-idempotent writes as OutcomeUnknownError and keeps reads retryable", async () => {
+        vi.spyOn(globalThis, "fetch").mockRejectedValue(new TypeError("Failed to fetch"));
+        const transport = createTransports({
+            apiUrl: "https://api.example.test",
+            auth: { kind: "jwt", getToken: () => "tok" },
+        }).authApi;
+        const orders = createClient(OrdersService, transport);
+        const triggers = createClient(TriggersService, transport);
+        const apiKeys = createClient(ApiKeyService, transport);
+
+        const writeCalls = [
+            orders.createOrder({}),
+            orders.batchCreateOrders({}),
+            orders.modifyOrder({}),
+            orders.batchReplaceOrders({}),
+            orders.cancelOrder({}),
+            orders.batchCancelOrders({}),
+            orders.cancelAllOrders({}),
+            orders.cancelAllAfter({}),
+            triggers.createTrigger({}),
+            triggers.createOco({}),
+            triggers.modifyTrigger({}),
+            triggers.cancelTrigger({}),
+            triggers.batchCancelTriggers({}),
+            triggers.cancelAllTriggers({}),
+            triggers.cancelOco({}),
+            triggers.pauseTrigger({}),
+            triggers.resumeTrigger({}),
+            apiKeys.createApiKey({}),
+        ];
+        for (const error of await Promise.all(
+            writeCalls.map((call) => call.catch((e: unknown) => e)),
+        )) {
+            expect(error).toBeInstanceOf(OutcomeUnknownError);
+            expect((error as OutcomeUnknownError).retryable).toBe(false);
+            expect((error as OutcomeUnknownError).status).toBeUndefined();
+            expect((error as OutcomeUnknownError).cause).toBeInstanceOf(NetworkError);
+        }
+
+        for (const readCall of [apiKeys.listApiKeys({}), orders.previewOrder({})]) {
+            const error = await readCall.catch((e: unknown) => e);
+            expect(error).toBeInstanceOf(NetworkError);
+            expect((error as NetworkError).retryable).toBe(true);
+        }
+    });
+
+    it("reports a socket destroyed after receiving CreateOrder as OutcomeUnknownError", async () => {
+        let received = 0;
+        const server = createServer((req, _res) => {
+            req.on("data", () => {});
+            req.on("end", () => {
+                received++;
+                req.socket.destroy();
+            });
+        });
+        await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+        const { port } = server.address() as { port: number };
+        try {
+            const transport = createTransports({
+                apiUrl: `http://127.0.0.1:${port}`,
+                wireFormat: "json",
+                auth: { kind: "jwt", getToken: () => "tok" },
+            }).authApi;
+            const orders = createClient(OrdersService, transport);
+
+            const error = await orders.createOrder({}).catch((e: unknown) => e);
+            expect(received).toBe(1);
+            expect(error).toBeInstanceOf(OutcomeUnknownError);
+            expect((error as OutcomeUnknownError).retryable).toBe(false);
+            expect((error as OutcomeUnknownError).status).toBeUndefined();
+            expect((error as OutcomeUnknownError).cause).toBeInstanceOf(NetworkError);
+        } finally {
+            server.close();
+        }
+    });
 });
 
 describe("caller cancellation through transports", () => {

@@ -628,7 +628,7 @@ export function createErrorMappingInterceptor(): Interceptor {
     };
 }
 
-// non-idempotent writes whose outcome is unknown after a server or client timeout; a retry could apply them twice.
+// non-idempotent writes whose outcome is unknown after a timeout or dropped transport connection; a retry could apply them twice.
 const UNKNOWN_OUTCOME_ON_TIMEOUT = new Set([
     "auth.v1.ApiKeyService.CreateApiKey",
     "auth.v1.PolicyService.CreateApiPolicy",
@@ -661,7 +661,8 @@ function withUnknownWriteOutcome(
 ): unknown {
     const isTimeout = err instanceof TimeoutError;
     const isGatewayTimeout = err instanceof ServiceUnavailableError && err.status === 504;
-    if (!isTimeout && !isGatewayTimeout) return err;
+    const isNetworkFailure = err instanceof NetworkError;
+    if (!isTimeout && !isGatewayTimeout && !isNetworkFailure) return err;
     if (!UNKNOWN_OUTCOME_ON_TIMEOUT.has(`${method.parent.typeName}.${method.name}`)) {
         return err;
     }

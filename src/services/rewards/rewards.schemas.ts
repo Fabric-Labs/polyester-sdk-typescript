@@ -18,7 +18,8 @@ export const SetRewardDestinationInputSchema = v.strictObject({
     awardId: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(128)),
     destinationAddress: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(512)),
     expectedRevision: positiveBigintStringInputSchema("expectedRevision"),
-    requestId: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(128)),
+    // sent unchanged: trimming would fold " r1 " and "r1" into the same key.
+    requestId: v.pipe(v.string(), v.minLength(1), v.maxLength(128)),
 });
 
 export type SetRewardDestinationInput = v.InferInput<typeof SetRewardDestinationInputSchema>;
