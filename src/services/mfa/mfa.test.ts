@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import * as Proto from "../../gen/auth/v1/mfa_pb.js";
+import { ValidationError } from "../../shared/errors.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { unaryTransportByMethod } from "../../testing/service-harness.js";
 import { MfaService } from "./mfa.js";
@@ -248,7 +249,7 @@ describe("MfaService", () => {
                     options,
                 ),
             expectedMessage: {
-                requestId: "request-1",
+                requestId: " request-1 ",
                 actionType: "order:create",
                 subject: "BTC-USDT",
             },
@@ -275,7 +276,7 @@ describe("MfaService", () => {
                 ),
             expectedMessage: {
                 stepUpId: "step-up-1",
-                requestId: "request-1",
+                requestId: " request-1 ",
                 actionType: "order:create",
                 subject: "BTC-USDT",
                 claimNonce: "nonce-1",
@@ -299,7 +300,7 @@ describe("MfaService", () => {
                 ),
             expectedMessage: {
                 stepUpId: "step-up-1",
-                requestId: "request-1",
+                requestId: " request-1 ",
                 actionType: "order:create",
                 subject: "BTC-USDT",
                 claimNonce: "nonce-1",
@@ -329,6 +330,36 @@ describe("MfaService", () => {
             }
         });
     }
+
+    it("sends fresh step-up requestIds unchanged and rejects empty or overlong values", async () => {
+        const transport = unaryTransportByMethod({
+            claimFreshStepUp: { stepUpId: "step-up-1", claimNonce: "nonce-1" },
+        });
+        const service = new MfaService({ authApi: transport.transport });
+
+        await service.claimFreshStepUp({
+            requestId: " r1 ",
+            actionType: "withdraw",
+            subject: "s",
+        });
+        await service.claimFreshStepUp({
+            requestId: "r1",
+            actionType: "withdraw",
+            subject: "s",
+        });
+
+        expect(transport.calls.map((c) => (c.message as { requestId: string }).requestId)).toEqual([
+            " r1 ",
+            "r1",
+        ]);
+
+        for (const requestId of ["", "x".repeat(129)]) {
+            await expect(
+                service.claimFreshStepUp({ requestId, actionType: "withdraw", subject: "s" }),
+            ).rejects.toBeInstanceOf(ValidationError);
+        }
+        expect(transport.calls).toHaveLength(2);
+    });
 
     it("rejects malformed backend challenge completion responses", async () => {
         const transport = unaryTransportByMethod({

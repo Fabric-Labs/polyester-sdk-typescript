@@ -32,7 +32,7 @@ export class RateLimitService {
     }
 
     /**
-     * Returns the complete active placement and cancellation quota catalog for VIP0+.
+     * Returns the complete active placement, cancellation and read quota catalog for VIP0+.
      */
     async getConfig(options?: PolyesterRequestOptions): Promise<RateLimitConfig> {
         const res = await this.#publicClient.getRateLimitConfig({}, toConnectCallOptions(options));
@@ -40,10 +40,12 @@ export class RateLimitService {
     }
 
     /**
-     * Returns the placement and cancellation limits enforced for the resolved account. Limits
-     * apply per account: every API key and session that trades for it shares them, so more API
-     * keys add no capacity. `apiKeyRules`, present for an API-key caller, are informational
-     * only; `rules` are the enforced limits.
+     * Returns the placement, cancellation and read limits enforced for the resolved account.
+     * Account `rules` apply per account: every API key and session that trades or reads for it
+     * shares them, so more API keys add no capacity. `apiKeyRules`, present for an API-key
+     * caller, include the calling key's enforced per-key read rule (a read or preview is refused
+     * when either the account or API-key read limit is exhausted); its placement and
+     * cancellation rules are informational only.
      */
     async getTradingLimits(
         input: AccountScopedInput = {},

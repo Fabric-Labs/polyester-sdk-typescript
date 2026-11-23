@@ -32,6 +32,7 @@ class FakeWebSocket {
     closed: { code: number; reason?: string } | undefined;
     onopen: (() => void) | null = null;
     onmessage: ((event: { data: unknown }) => void) | null = null;
+    onerror: ((event: { message?: string; error?: unknown }) => void) | null = null;
     onclose: ((event: { code: number; reason: string }) => void) | null = null;
 
     constructor(
@@ -82,8 +83,14 @@ class FakeWebSocket {
         this.onmessage?.({ data: data.buffer });
     }
 
-    serverClose(code: number): void {
+    serverClose(code: number, reason = ""): void {
         this.readyState = 3;
+        this.onclose?.({ code, reason });
+    }
+
+    failConnect(code = 1006, errorEvent?: { message?: string; error?: unknown }): void {
+        this.readyState = 3;
+        if (errorEvent) this.onerror?.(errorEvent);
         this.onclose?.({ code, reason: "" });
     }
 
@@ -913,6 +920,87 @@ describe("PrivateOrderStream", () => {
         expect(handlers.onDisconnected).toHaveBeenCalledOnce();
         expect(handlers.onConnected).toHaveBeenCalledTimes(2);
         expect(handlers.onError).not.toHaveBeenCalled();
+    });
+
+    it("reports the first failed WebSocket upgrade once while continuing to reconnect", async () => {
+        vi.spyOn(Math, "random").mockReturnValue(0);
+        const { stream, handlers } = setup();
+        await flush();
+
+        // First upgrade refused with HTTP 429 (as Bun exposes on ErrorEvent).
+        const firstError = new Error(
+            "WebSocket connection to 'wss://api.test/v1/ws/private' failed: Expected 101 status code: 429",
+        );
+        FakeWebSocket.instances[0]!.failConnect(1006, {
+            message: firstError.message,
+            error: firstError,
+        });
+
+        expect(handlers.onError).toHaveBeenCalledOnce();
+        expect(handlers.onError).toHaveBeenCalledWith(
+            expect.objectContaining({
+                type: "transport",
+                error: expect.objectContaining({
+                    realtimeCode: 1006,
+                    status: 429,
+                    retryable: true,
+                }),
+            }),
+        );
+        expect(handlers.onError.mock.calls[0]![0].error).toBeInstanceOf(RealtimeError);
+        expect(handlers.onDisconnected).not.toHaveBeenCalled();
+
+        // A consumer joining during the outage gets the outage report once.
+        const late = subscriber(stream);
+        await flush();
+        expect(late.handlers.onError).toHaveBeenCalledOnce();
+        expect(late.handlers.onError).toHaveBeenCalledWith(
+            expect.objectContaining({
+                type: "transport",
+                error: expect.objectContaining({ status: 429, retryable: true }),
+            }),
+        );
+
+        // Subsequent failed retries in the same outage stay quiet.
+        await vi.advanceTimersByTimeAsync(500);
+        await flush();
+        expect(FakeWebSocket.instances).toHaveLength(2);
+        FakeWebSocket.instances[1]!.failConnect(1006, { message: firstError.message });
+
+        await vi.advanceTimersByTimeAsync(1_000);
+        await flush();
+        expect(FakeWebSocket.instances).toHaveLength(3);
+        FakeWebSocket.instances[2]!.failConnect(1006);
+
+        expect(handlers.onError).toHaveBeenCalledOnce();
+        expect(late.handlers.onError).toHaveBeenCalledOnce();
+
+        // Once the server accepts the upgrade, the stream connects and delivers its snapshot.
+        await vi.advanceTimersByTimeAsync(2_000);
+        const recovered = await confirm("s1");
+        snapshot(recovered, "s1", "c1", [order(7n)]);
+
+        expect(handlers.onConnected).toHaveBeenCalledOnce();
+        expect(handlers.onEvent).toHaveBeenCalledWith({ type: "snapshot", orders: [order(7n)] });
+        expect(late.handlers.onConnected).toHaveBeenCalledOnce();
+        expect(late.handlers.onEvent).toHaveBeenCalledWith({
+            type: "snapshot",
+            orders: [order(7n)],
+        });
+
+        // A later drop uses onDisconnected; if its reconnect upgrade also fails, onError fires once for the new outage.
+        recovered.serverClose(1001);
+        expect(handlers.onDisconnected).toHaveBeenCalledOnce();
+        expect(handlers.onError).toHaveBeenCalledOnce();
+
+        await vi.advanceTimersByTimeAsync(10_000);
+        await flush();
+        FakeWebSocket.instances.at(-1)!.failConnect(1006);
+        expect(handlers.onError).toHaveBeenCalledTimes(2);
+        expect(handlers.onError.mock.calls[1]![0]).toMatchObject({
+            type: "transport",
+            error: expect.objectContaining({ realtimeCode: 1006, retryable: true }),
+        });
     });
 
     it("ends the stream when the WebSocket cannot be constructed", async () => {

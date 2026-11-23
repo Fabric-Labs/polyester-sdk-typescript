@@ -123,11 +123,24 @@ describe("RewardsService", () => {
             awardId: "award-1",
             destinationAddress: "0xabc",
             expectedRevision: 3n,
-            requestId: "req-1",
+            requestId: " req-1 ",
         });
         expect(new Headers(authApi.lastCall()?.headers).get(AUTH_STEP_UP_HEADER_NAME)).toBe(
             "step-up",
         );
+
+        await service.setDestination({
+            awardId: "award-1",
+            destinationAddress: "0xabc",
+            expectedRevision: "3",
+            requestId: "req-1",
+        });
+        expect(authApi.lastCall()?.message).toEqual({
+            awardId: "award-1",
+            destinationAddress: "0xabc",
+            expectedRevision: 3n,
+            requestId: "req-1",
+        });
     });
 
     const destination = {

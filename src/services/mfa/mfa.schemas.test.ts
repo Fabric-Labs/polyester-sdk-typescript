@@ -29,7 +29,7 @@ describe("MFA schemas", () => {
         );
         expect(consume).toEqual({
             stepUpId: "step-up-1",
-            requestId: "request-1",
+            requestId: " request-1 ",
             actionType: "order:create",
             subject: "BTC-USDT",
             claimNonce: "nonce-1",

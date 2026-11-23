@@ -41,7 +41,12 @@ export const GetTradingRateLimitsInputSchema = v.pipe(
 
 export const TradingRateLimitsSchema = v.object({
     ...RateLimitConfigSchema.entries,
-    /** Rules resolved for the calling API key; informational, not enforced. Only `rules` limit trading. */
+    /**
+     * Placement, cancellation and read rules resolved for the calling API key. Present only for
+     * an API-key caller. The read rule is enforced per API key on top of the account's read
+     * limit (a read or preview is refused when either is exhausted); placement and cancellation
+     * rules are informational, as orders are limited per account only by `rules`.
+     */
     apiKeyRules: v.optional(v.array(TradingRateLimitRuleSchema), []),
 });
 

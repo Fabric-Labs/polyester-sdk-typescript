@@ -117,6 +117,26 @@ function isTerminalTokenError(error: unknown): boolean {
     return error instanceof PolyesterError && !error.retryable;
 }
 
+interface ConnectErrorDetail {
+    message?: string;
+    status?: number;
+    cause?: unknown;
+}
+
+function connectErrorDetail(event: Event): ConnectErrorDetail {
+    const raw = event as { message?: unknown; error?: unknown };
+    const cause = raw.error instanceof Error ? raw.error : undefined;
+    const message =
+        typeof raw.message === "string" && raw.message ? raw.message : cause?.message || undefined;
+    // Runtimes that expose a refused upgrade HTTP status word it as e.g.
+    // "Expected 101 status code: 429" (Bun) or "Unexpected server response: 429" (Node/ws).
+    const statusMatch = message
+        ? /\b(?:status code|server response)[:\s]+(\d{3})\b/iu.exec(message)
+        : null;
+    const status = statusMatch ? Number(statusMatch[1]) : undefined;
+    return { message, status, cause };
+}
+
 /**
  * Account order streams over the private WebSocket (`/v1/ws/private`). One
  * connection carries every subscription; each resumes from its last cursor
@@ -137,6 +157,10 @@ export class PrivateOrderStream {
     #generation = 0;
     #authSent = false;
     #authSentAt = 0;
+    /** Runtime detail from `ws.onerror` for the in-flight connect attempt. */
+    #connectError: ConnectErrorDetail | null = null;
+    /** First failed-connect error of the current outage; cleared once a socket opens or shuts down. */
+    #outageError: RealtimeError | null = null;
     #reconnectAttempt = 0;
     #reconnectTimer: ReturnType<typeof setTimeout> | null = null;
     #heartbeatTimer: ReturnType<typeof setTimeout> | null = null;
@@ -177,6 +201,18 @@ export class PrivateOrderStream {
         this.#subs.set(channel, s);
         if (this.#ws && this.#authSent) void this.#subscribe(this.#ws, s);
         else if (!this.#ws && !this.#connecting && !this.#reconnectTimer) this.#open();
+        else if (this.#outageError) {
+            const outage = this.#outageError;
+            queueMicrotask(() => {
+                if (
+                    this.#outageError === outage &&
+                    this.#isCurrent(s) &&
+                    s.consumers.has(consumer)
+                ) {
+                    this.#reportConsumer(s.channel, consumer, "transport", outage);
+                }
+            });
+        }
         return () => this.#remove(s, consumer);
     }
 
@@ -216,6 +252,9 @@ export class PrivateOrderStream {
         const { stale } = s;
         if (stale)
             this.#deliverTo(s, c, () => params.onEvent({ type: "stale", stale: true, ...stale }));
+        if (this.#outageError && s.state !== "connected") {
+            this.#reportConsumer(s.channel, c, "transport", this.#outageError);
+        }
     }
 
     /** Fetches the connect token first: the server closes a socket that sends no Auth within 5 seconds. */
@@ -248,8 +287,12 @@ export class PrivateOrderStream {
                 ws.binaryType = "arraybuffer";
                 this.#ws = ws;
                 this.#authSent = false;
+                this.#connectError = null;
                 ws.onopen = () => this.#authenticate(ws, token);
                 ws.onmessage = (event: MessageEvent) => this.#onFrame(ws, event.data);
+                ws.onerror = (event: Event) => {
+                    if (this.#ws === ws) this.#connectError = connectErrorDetail(event);
+                };
                 ws.onclose = (event: CloseEvent) => this.#onClosed(ws, event.code, event.reason);
             },
             (error: unknown) => {
@@ -266,6 +309,8 @@ export class PrivateOrderStream {
     }
 
     #authenticate(ws: WebSocket, token: string): void {
+        this.#connectError = null;
+        this.#outageError = null;
         this.#send(ws, { case: "auth", value: { token } });
         this.#authSent = true;
         this.#authSentAt = Date.now();
@@ -605,7 +650,9 @@ export class PrivateOrderStream {
 
     #onClosed(ws: WebSocket, code: number, reason: string): void {
         if (this.#ws !== ws) return;
-        const stable = this.#authSent && Date.now() - this.#authSentAt >= STABLE_CONNECTION_MS;
+        const opened = this.#authSent;
+        const connectError = this.#connectError;
+        const stable = opened && Date.now() - this.#authSentAt >= STABLE_CONNECTION_MS;
         this.#detach();
         if (stable) this.#reconnectAttempt = 0;
         if (this.#subs.size === 0) return;
@@ -621,8 +668,29 @@ export class PrivateOrderStream {
             this.#terminateAll("disconnected", error);
             return;
         }
-        // Scheduled first, so a subscription opened from onDisconnected waits for it.
+        // Scheduled first, so a subscription opened from onDisconnected or onError waits for it.
         this.#scheduleReconnect();
+        if (!opened) {
+            // Report the first connect failure of an outage once; retries stay quiet until open.
+            if (!this.#outageError) {
+                const error = new RealtimeError(
+                    connectError?.message ||
+                        reason ||
+                        (code
+                            ? `Private WebSocket connection failed (code ${code})`
+                            : "Private WebSocket connection failed"),
+                    {
+                        realtimeCode: code,
+                        retryable: true,
+                        status: connectError?.status,
+                        cause: connectError?.cause,
+                    },
+                );
+                this.#outageError = error;
+                this.#reportAll("transport", error);
+            }
+            return;
+        }
         // A close that reconnects is not an error, like a Centrifugo reconnect.
         for (const s of this.#subs.values()) {
             if (s.state === "connected") {
@@ -665,6 +733,7 @@ export class PrivateOrderStream {
         const ws = this.#ws;
         this.#ws = null;
         this.#authSent = false;
+        this.#connectError = null;
         if (this.#heartbeatTimer) clearTimeout(this.#heartbeatTimer);
         this.#heartbeatTimer = null;
         for (const { timer } of this.#pending.values()) clearTimeout(timer);
@@ -681,6 +750,7 @@ export class PrivateOrderStream {
         if (ws) {
             ws.onopen = null;
             ws.onmessage = null;
+            ws.onerror = null;
             ws.onclose = null;
         }
     }
@@ -688,6 +758,7 @@ export class PrivateOrderStream {
     #shutdown(): void {
         const ws = this.#ws;
         this.#detach();
+        this.#outageError = null;
         this.#generation++;
         this.#connecting = false;
         if (this.#reconnectTimer) clearTimeout(this.#reconnectTimer);
@@ -748,6 +819,15 @@ export class PrivateOrderStream {
 
     #nextRequestId(): string {
         return String(++this.#requestSeq);
+    }
+
+    #reportConsumer(channel: string, c: Consumer, type: string, error: unknown): void {
+        const ctx = createSdkSubscriptionErrorContext(channel, type, error);
+        try {
+            c.params.onError?.(ctx);
+        } catch {
+            // Keep consumer error-handler failures isolated from the stream.
+        }
     }
 
     #report(s: StreamSubscription, type: string, error: unknown): void {
