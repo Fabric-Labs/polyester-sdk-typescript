@@ -100,5 +100,14 @@ describe("GetOrderbookHeatmapInputSchema", () => {
                 startTsSec: 100,
             }),
         ).toThrow();
+
+        expect(() =>
+            v.parse(GetOrderbookHeatmapInputSchema, {
+                symbolId: 1,
+                limit: 100,
+                startTsSec: 100,
+                endTime: 200,
+            }),
+        ).toThrow();
     });
 });

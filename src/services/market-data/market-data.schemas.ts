@@ -67,7 +67,7 @@ export function createMarketTradeSchema(scales: SdkScales) {
 export type MarketTrade = v.InferOutput<ReturnType<typeof createMarketTradeSchema>>;
 
 export const GetMarketTradesInputSchema = v.pipe(
-    v.object({
+    v.strictObject({
         symbolId: SymbolIdInputSchema,
         side: v.optional(SideSchema),
         startTsNs: optionalUint64DecimalFilterSchema("startTsNs"),

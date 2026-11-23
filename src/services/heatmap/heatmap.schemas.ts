@@ -44,7 +44,7 @@ function timestampFromTsSec(tsSec: bigint): TimestampInit {
 }
 
 export const GetOrderbookHeatmapInputSchema = v.pipe(
-    v.object({
+    v.strictObject({
         symbolId: SymbolIdInputSchema,
         interval: IntervalInputSchema,
         depth: DepthInputSchema,

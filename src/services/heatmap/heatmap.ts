@@ -39,7 +39,7 @@ interface SubscribeHeatmapLiveInput extends BaseSubscribeInput<OrderbookHeatmapL
     interval: HeatmapIntervalValue;
 }
 
-const SubscribeHeatmapLiveParamsSchema = v.object({
+const SubscribeHeatmapLiveParamsSchema = v.strictObject({
     symbolId: SymbolIdInputSchema,
     interval: v.picklist(HEATMAP_INTERVAL_VALUES),
 });
