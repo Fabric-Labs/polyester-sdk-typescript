@@ -92,8 +92,8 @@ export class MarketDataService {
         input: GetMarketTradesInput,
         options?: PolyesterRequestOptions,
     ): Promise<{ trades: MarketTrade[]; nextPageToken: string; backfill?: TradeBackfill }> {
-        await this.#scales.ready();
         const validatedInput = parse(GetMarketTradesInputSchema, input);
+        await this.#scales.ready();
         const res = await this.#client.getTrades(validatedInput, toConnectCallOptions(options));
         const trades = res.trades.map((trade) => formatMarketTrade(this.#scales, trade));
         if (validatedInput.afterTradeId === undefined) {

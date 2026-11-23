@@ -228,7 +228,7 @@ export type CandleColumnarIntInput = v.InferInput<ReturnType<typeof createCandle
 export type CandleColumnarInt = v.InferOutput<ReturnType<typeof createCandleColumnarIntSchema>>;
 
 export const ListCandlesInputSchema = v.pipe(
-    v.object({
+    v.strictObject({
         symbolId: SymbolIdInputSchema,
         timeframe: TimeframeInputSchema,
         limit: OptionalPositiveNumberSchema,

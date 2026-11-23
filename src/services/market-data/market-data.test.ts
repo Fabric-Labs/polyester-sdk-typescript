@@ -6,7 +6,11 @@ import type { EnrichedPairConfig } from "../../catalogs/index.js";
 import { createCatalogSdkScales, type SdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
-import { ResourceNotFoundError, ServiceUnavailableError } from "../../shared/errors.js";
+import {
+    ResourceNotFoundError,
+    ServiceUnavailableError,
+    ValidationError,
+} from "../../shared/errors.js";
 import { MarketDataService } from "./market-data.js";
 
 const btc = {
@@ -160,6 +164,25 @@ describe("MarketDataService", () => {
         await expect(
             service.listTrades({ symbolId: 101, afterTradeId: "18446744073709551616" }),
         ).rejects.toThrow("afterTradeId must be at most 18446744073709551615");
+        expect(transport.lastCall()).toBeUndefined();
+    });
+
+    it("rejects unknown trade filter keys before waiting on scales or sending", async () => {
+        const transport = unaryTransport({ trades: [], nextPageToken: "" });
+        const scales = {
+            ...testScales(),
+            ready: vi.fn(() => Promise.reject(new Error("should not wait on scales"))),
+        };
+        const service = new MarketDataService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            scales,
+        );
+
+        await expect(
+            service.listTrades({ symbolId: 101, startTime: 1_700_000_000_000 } as never),
+        ).rejects.toThrow(ValidationError);
+        expect(scales.ready).not.toHaveBeenCalled();
         expect(transport.lastCall()).toBeUndefined();
     });
 

@@ -4,7 +4,7 @@ import { OptionalTimestampMsSchema } from "../../shared/schemas.js";
 import { DEPTH_TIER_VALUES } from "../../shared/depth-tier.js";
 import { SymbolIdInputSchema } from "../shared.js";
 
-export const GetOrderbookInputSchema = v.object({
+export const GetOrderbookInputSchema = v.strictObject({
     symbolId: SymbolIdInputSchema,
     /** Price levels per side: one of `DEPTH_TIER_VALUES`. Any other count is refused before sending. */
     depth: v.optional(v.picklist(DEPTH_TIER_VALUES), 50),

@@ -71,6 +71,7 @@ describe("GetOrderbookInputSchema", () => {
             v.parse(GetOrderbookInputSchema, { symbolId: PROTOBUF_UINT32_MAX + 1 }),
         ).toThrow();
         expect(() => v.parse(GetOrderbookInputSchema, { symbol: "BTC-USDT" })).toThrow();
+        expect(() => v.parse(GetOrderbookInputSchema, { symbolId: 101, limit: 50 })).toThrow();
     });
 });
 

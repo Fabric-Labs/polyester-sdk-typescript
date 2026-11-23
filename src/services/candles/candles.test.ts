@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
 import { CatalogLookupError } from "../../catalogs/types.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
+import { ValidationError } from "../../shared/errors.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
 import { CandlesService } from "./candles.js";
@@ -132,6 +133,28 @@ describe("CandlesService", () => {
         );
 
         await expect(service.list({ symbolId: 101, timeframe: "1m" })).resolves.toEqual([]);
+    });
+
+    it("rejects unknown filter keys before sending candle requests", async () => {
+        const transport = unaryTransport({
+            symbolId: 101,
+            timeframe: Proto.Timeframe.MIN_1,
+        });
+        const service = new CandlesService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            testScales(),
+        );
+        const badInput = {
+            symbolId: 101,
+            timeframe: "1m",
+            startTime: 100,
+        } as never;
+
+        await expect(service.list(badInput)).rejects.toThrow(ValidationError);
+        await expect(service.listColumnar(badInput)).rejects.toThrow(ValidationError);
+        await expect(service.listColumnarInts(badInput)).rejects.toThrow(ValidationError);
+        expect(transport.lastCall()).toBeUndefined();
     });
 
     it("rejects candle responses for unknown symbol ids during parse", async () => {

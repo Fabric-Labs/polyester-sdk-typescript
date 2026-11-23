@@ -36,6 +36,9 @@ describe("ResolveAccountInputSchema", () => {
 
         expect(input.hint).toBe(ProtoResolve.ResolveHint.RESOLVE_HINT_UNSPECIFIED);
         expect(() => v.parse(ResolveAccountInputSchema, { query: " " })).toThrow();
+        expect(() =>
+            v.parse(ResolveAccountInputSchema, { query: "alice", includeSubAccounts: true }),
+        ).toThrow();
     });
 });
 

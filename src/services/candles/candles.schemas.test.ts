@@ -81,4 +81,12 @@ describe("ListCandlesInputSchema", () => {
         expect(() => v.parse(schema, { symbolId: 1, timeframe: "1m", limit: 0 })).toThrow();
         expect(() => v.parse(schema, { symbolId: 1, timeframe: "1m", limit: -1 })).toThrow();
     });
+
+    it("rejects unknown keys such as mistyped time filters", () => {
+        const schema = createListCandlesInputSchema();
+
+        expect(() =>
+            v.parse(schema, { symbolId: 1, timeframe: "1m", startTime: 100, endTime: 200 }),
+        ).toThrow();
+    });
 });

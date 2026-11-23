@@ -102,6 +102,7 @@ describe("market data schemas", () => {
             { symbolId: 101, startTsNs: "not-a-ts" },
             { symbolId: 101, startTsNs: "1_000" },
             { symbolId: 101, endTsNs: "12.3" },
+            { symbolId: 101, startTime: 1_700_000_000_000 },
         ];
 
         for (const input of cases) {

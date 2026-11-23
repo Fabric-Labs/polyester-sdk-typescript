@@ -38,7 +38,7 @@ interface SubscribeCandlesIntsInput extends BaseSubscribeInput<CandleInt> {
     timeframe: Timeframe;
 }
 
-const SubscribeCandlesParamsSchema = v.object({
+const SubscribeCandlesParamsSchema = v.strictObject({
     symbolId: SymbolIdInputSchema,
     timeframe: TimeframeSchema,
 });
