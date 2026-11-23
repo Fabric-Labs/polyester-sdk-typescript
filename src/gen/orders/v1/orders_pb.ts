@@ -517,8 +517,15 @@ export type CreateOrderResponse = Message<"orders.v1.CreateOrderResponse"> & {
   acceptedAtTsNs: bigint;
 
   /**
-   * Gross base quantity resolved for execution, scaled by the pair's
-   * base_quantity_scale from GetSpotConfig.
+   * Gross base quantity admission resolved, scaled by the pair's
+   * base_quantity_scale from GetSpotConfig. For base_qty_scaled sizing, the
+   * order's quantity. For quote sizing (max_quote_debit_scaled BUY or
+   * quote_proceeds_scaled SELL), the quantity the quote amount buys or sells at
+   * the order's limit price, or a market order's protection price: a BUY can
+   * fill more at better prices, or less when the book runs out, and a SELL sells
+   * at most this. The executed quantity is the order's cumulative filled
+   * quantity (cum_qty_scaled in GetOrder) or the sum of its fills
+   * (GetUserTrades, or the fills of its private order events).
    *
    * @generated from field: int64 resolved_base_qty_scaled = 5;
    */
@@ -630,9 +637,18 @@ export type PreviewOrderResponse = Message<"orders.v1.PreviewOrderResponse"> & {
   rejection?: ErrorDetail | undefined;
 
   /**
-   * Gross base quantity resolved for execution. REST returns resolvedBaseQty as
-   * a decimal string in base asset units, for example "0.005". Protobuf uses the
-   * pair's base_quantity_scale from GetSpotConfig. Present when sizing was resolved.
+   * Gross base quantity admission resolved. REST returns resolvedBaseQty as a
+   * decimal string in base asset units, for example "0.005". Protobuf uses the
+   * pair's base_quantity_scale from GetSpotConfig. Present when sizing was
+   * resolved. For base_qty_scaled sizing, the order's quantity. For quote sizing
+   * (max_quote_debit_scaled BUY or quote_proceeds_scaled SELL), the quantity the
+   * quote amount buys or sells at the order's limit price, or at the market
+   * protection price at preview time (protected_price_bound_ticks). CreateOrder
+   * resolves the protection price and the order's quantity again at submission,
+   * so the submitted order can buy or sell more or less than this. The executed
+   * quantity is the order's cumulative filled quantity (cum_qty_scaled in
+   * GetOrder) or the sum of its fills (GetUserTrades, or the fills of its
+   * private order events).
    *
    * @generated from field: optional int64 resolved_base_qty_scaled = 3;
    */
@@ -1818,8 +1834,15 @@ export type BatchCreateAccepted = Message<"orders.v1.BatchCreateAccepted"> & {
   trailingStopTriggerId?: bigint | undefined;
 
   /**
-   * Gross base quantity resolved for execution, scaled by the pair's
-   * base_quantity_scale from GetSpotConfig.
+   * Gross base quantity admission resolved, scaled by the pair's
+   * base_quantity_scale from GetSpotConfig. For base_qty_scaled sizing, the
+   * order's quantity. For quote sizing (max_quote_debit_scaled BUY or
+   * quote_proceeds_scaled SELL), the quantity the quote amount buys or sells at
+   * the order's limit price, or a market order's protection price: a BUY can
+   * fill more at better prices, or less when the book runs out, and a SELL sells
+   * at most this. The executed quantity is the order's cumulative filled
+   * quantity (cum_qty_scaled in GetOrder) or the sum of its fills
+   * (GetUserTrades, or the fills of its private order events).
    *
    * @generated from field: int64 resolved_base_qty_scaled = 5;
    */
@@ -1915,7 +1938,14 @@ export const BatchCreateResultItemSchema: GenMessage<BatchCreateResultItem> = /*
   messageDesc(file_orders_v1_orders, 30);
 
 /**
- * BatchCreateOrdersRequest places multiple orders in one request.
+ * BatchCreateOrdersRequest places multiple orders in one request. A request can
+ * be refused as a whole before admission, admitting nothing: for example an
+ * invalid request_id or number of items, an item whose fields cannot be decoded
+ * over REST (a malformed decimal, or more than one execution or sizing field),
+ * or a failed authentication, permission or receive-window check. Once a
+ * request reaches admission, each item is admitted or rejected on its own,
+ * never all-or-nothing: a rejected item does not stop the other items from
+ * being admitted.
  *
  * @generated from message orders.v1.BatchCreateOrdersRequest
  */
@@ -2360,6 +2390,11 @@ export const BatchReplaceAdmissionItemSchema: GenMessage<BatchReplaceAdmissionIt
 /**
  * BatchReplaceOrdersRequest modifies same-symbol orders as one quote refresh:
  * each item is amended in place or replaced as ModifyOrder decides by default.
+ * A request can be refused as a whole before admission, changing nothing: for
+ * example an invalid request_id or number of items, an item that names no
+ * order, supplies no patch field or breaks a field rule, or a failed
+ * authentication, permission or receive-window check. Once a request reaches
+ * admission, each item is admitted or rejected on its own.
  * Identical retries replay the admission result for 60 seconds from acceptance;
  * a different payload under the same key conflicts. Use a fresh key for a new batch.
  * Read the batch's status with GetBatchReplaceStatus within the same window;
@@ -2620,7 +2655,12 @@ export const BatchCancelResultItem_StatusSchema: GenEnum<BatchCancelResultItem_S
   enumDesc(file_orders_v1_orders, 40, 0);
 
 /**
- * BatchCancelOrdersRequest cancels multiple orders by explicit ID.
+ * BatchCancelOrdersRequest cancels multiple orders by explicit ID. A request
+ * can be refused as a whole before admission, canceling nothing: for example an
+ * invalid request_id or number of items, an item that sets both order_id and
+ * client_order_id or neither, or a failed authentication, permission or
+ * receive-window check. Once a request reaches admission, each item's
+ * cancellation is accepted or rejected on its own.
  *
  * @generated from message orders.v1.BatchCancelOrdersRequest
  */
@@ -3147,16 +3187,15 @@ export enum ErrorCode {
   POLICY_SPOT_TRADE_DENY = 23,
 
   /**
-   * API key is scoped to the master/root account and cannot trade on
-   * sub-accounts.
+   * API key is scoped to the root account and cannot trade on sub-accounts.
    *
    * @generated from enum value: ERROR_CODE_API_KEY_ROOT_SCOPE_ONLY = 24;
    */
   API_KEY_ROOT_SCOPE_ONLY = 24,
 
   /**
-   * API key is scoped to a specific sub-account and cannot trade on the
-   * master/root account.
+   * API key is scoped to a specific sub-account and cannot trade on the root
+   * account.
    *
    * @generated from enum value: ERROR_CODE_API_KEY_SUB_SCOPE_ONLY = 25;
    */
@@ -3497,7 +3536,7 @@ export enum ErrorCode {
   POLICY_SPOT_READ_DENY = 71,
 
   /**
-   * API key policy does not allow reading spot data.
+   * API key policy does not grant READ_SPOT.
    *
    * @generated from enum value: ERROR_CODE_API_KEY_SPOT_READ_DENY = 72;
    */
@@ -3714,8 +3753,8 @@ export enum ErrorCode {
   INVALID_ORDER_FLAGS = 214,
 
   /**
-   * Another item of the same batch was invalid, so this item was not applied
-   * either. Nothing in the batch changed.
+   * Another item of the same BatchReplaceOrders batch was invalid, so this item
+   * was not applied either. Nothing in the batch changed.
    *
    * @generated from enum value: ERROR_CODE_BATCH_OTHER_ITEM_INVALID = 215;
    */
@@ -5037,7 +5076,14 @@ export const OrdersService: GenService<{
     output: typeof CancelAllAfterResponseSchema;
   },
   /**
-   * Places multiple orders in a single request (best-effort per item).
+   * Places multiple orders in a single request. A request can be refused as a
+   * whole before admission, admitting nothing: for example an invalid
+   * request_id or number of items, an item whose fields cannot be decoded over
+   * REST (a malformed decimal, or more than one execution or sizing field), or
+   * a failed authentication, permission or receive-window check. Once a request
+   * reaches admission, each item is admitted or rejected on its own, never
+   * all-or-nothing: a rejected item does not stop the other items from being
+   * admitted.
    *
    * @generated from rpc orders.v1.OrdersService.BatchCreateOrders
    */
@@ -5066,9 +5112,13 @@ export const OrdersService: GenService<{
   },
   /**
    * Amends or replaces same-symbol orders and returns after authoritative
-   * admission. An item naming an ended order is refused with
-   * ERROR_CODE_ORDER_ALREADY_TERMINAL or ERROR_CODE_ORDER_UNKNOWN as for
-   * ModifyOrder.
+   * admission. A request can be refused as a whole before admission, changing
+   * nothing: for example an invalid request_id or number of items, an item that
+   * names no order, supplies no patch field or breaks a field rule, or a failed
+   * authentication, permission or receive-window check. Once a request reaches
+   * admission, each item is admitted or rejected on its own. An item naming an
+   * ended order is refused with ERROR_CODE_ORDER_ALREADY_TERMINAL or
+   * ERROR_CODE_ORDER_UNKNOWN as for ModifyOrder.
    *
    * @generated from rpc orders.v1.OrdersService.BatchReplaceOrders
    */
@@ -5078,9 +5128,13 @@ export const OrdersService: GenService<{
     output: typeof BatchReplaceOrdersResponseSchema;
   },
   /**
-   * Cancels multiple orders by explicit ID in a single request.
-   * Per-item results are returned; partial success is the default. An item
-   * naming an ended order is rejected with ERROR_CODE_ORDER_ALREADY_TERMINAL
+   * Cancels multiple orders by explicit ID in a single request. A request can
+   * be refused as a whole before admission, canceling nothing: for example an
+   * invalid request_id or number of items, an item that sets both order_id and
+   * client_order_id or neither, or a failed authentication, permission or
+   * receive-window check. Once a request reaches admission, each item's
+   * cancellation is accepted or rejected on its own. An item naming an
+   * ended order is rejected with ERROR_CODE_ORDER_ALREADY_TERMINAL
    * or ERROR_CODE_ORDER_UNKNOWN as for CancelOrder.
    * Final state is confirmed via the order update stream or read path.
    *

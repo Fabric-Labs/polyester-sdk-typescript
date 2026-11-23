@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file auth/v1/activity.proto.
  */
 export const file_auth_v1_activity: GenFile = /*@__PURE__*/
-  fileDesc("ChZhdXRoL3YxL2FjdGl2aXR5LnByb3RvEgdhdXRoLnYxIowDChpMaXN0QWNjb3VudEFjdGl2aXR5UmVxdWVzdBIPCgVsaW1pdBgBIAEoDUIAEhQKCnBhZ2VfdG9rZW4YAiABKAlCABIYCg5zdWJhY2NvdW50X2lkcxgDIAMoBkIAEhwKFGluY2x1ZGVfbWFpbl9hY2NvdW50GAQgASgIEjMKDGVudGl0eV9raW5kcxgFIAMoDjIbLmF1dGgudjEuQWN0aXZpdHlFbnRpdHlLaW5kQgASNQoNZXZlbnRfYWN0aW9ucxgGIAMoDjIcLmF1dGgudjEuQWN0aXZpdHlFdmVudEFjdGlvbkIAEi8KB3NvdXJjZXMYByADKA4yHC5hdXRoLnYxLkFjdGl2aXR5RXZlbnRTb3VyY2VCABISCgphcGlfa2V5X2lkGAggASgGEi4KCnN0YXJ0X3RpbWUYCSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGVuZF90aW1lGAogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcDoAImAKG0xpc3RBY2NvdW50QWN0aXZpdHlSZXNwb25zZRImCgZldmVudHMYASADKAsyFi5hdXRoLnYxLkFjdGl2aXR5RXZlbnQSGQoPbmV4dF9wYWdlX3Rva2VuGAIgASgJQgAyfgoWQWNjb3VudEFjdGl2aXR5U2VydmljZRJiChNMaXN0QWNjb3VudEFjdGl2aXR5EiMuYXV0aC52MS5MaXN0QWNjb3VudEFjdGl2aXR5UmVxdWVzdBokLmF1dGgudjEuTGlzdEFjY291bnRBY3Rpdml0eVJlc3BvbnNlIgAaAEI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2F1dGgvdjE7YXV0aHYxYgZwcm90bzM=", [file_auth_v1_subaccounts, file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("ChZhdXRoL3YxL2FjdGl2aXR5LnByb3RvEgdhdXRoLnYxIo4DChpMaXN0QWNjb3VudEFjdGl2aXR5UmVxdWVzdBIPCgVsaW1pdBgBIAEoDUIAEhQKCnBhZ2VfdG9rZW4YAiABKAlCABIYCg5zdWJhY2NvdW50X2lkcxgDIAMoBkIAEhwKFGluY2x1ZGVfbWFpbl9hY2NvdW50GAQgASgIEjMKDGVudGl0eV9raW5kcxgFIAMoDjIbLmF1dGgudjEuQWN0aXZpdHlFbnRpdHlLaW5kQgASNQoNZXZlbnRfYWN0aW9ucxgGIAMoDjIcLmF1dGgudjEuQWN0aXZpdHlFdmVudEFjdGlvbkIAEi8KB3NvdXJjZXMYByADKA4yHC5hdXRoLnYxLkFjdGl2aXR5RXZlbnRTb3VyY2VCABIUCgphcGlfa2V5X2lkGAggASgJQgASLgoKc3RhcnRfdGltZRgJIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wOgAiYAobTGlzdEFjY291bnRBY3Rpdml0eVJlc3BvbnNlEiYKBmV2ZW50cxgBIAMoCzIWLmF1dGgudjEuQWN0aXZpdHlFdmVudBIZCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCADJ+ChZBY2NvdW50QWN0aXZpdHlTZXJ2aWNlEmIKE0xpc3RBY2NvdW50QWN0aXZpdHkSIy5hdXRoLnYxLkxpc3RBY2NvdW50QWN0aXZpdHlSZXF1ZXN0GiQuYXV0aC52MS5MaXN0QWNjb3VudEFjdGl2aXR5UmVzcG9uc2UiABoAQjxaOmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vYXV0aC92MTthdXRodjFiBnByb3RvMw==", [file_auth_v1_subaccounts, file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
  * Request to list the activity of the caller's main account and its
@@ -87,12 +87,12 @@ export type ListAccountActivityRequest = Message<"auth.v1.ListAccountActivityReq
   sources: ActivityEventSource[];
 
   /**
-   * API key (opaque ID) whose actions to return: only events performed with
-   * that key. Omit it to match every actor.
+   * API key whose actions to return, as ApiKey.key_id names it: only events
+   * performed with that key. Omit it to match every actor.
    *
-   * @generated from field: fixed64 api_key_id = 8;
+   * @generated from field: string api_key_id = 8;
    */
-  apiKeyId: bigint;
+  apiKeyId: string;
 
   /**
    * Earliest event time to return, inclusive. Omit it for no lower bound.

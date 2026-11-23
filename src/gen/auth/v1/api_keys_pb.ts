@@ -1202,8 +1202,8 @@ export const ApiKeyService: GenService<{
    * Give a strategy bot its trade key on its own sub-account, in one
    * all-or-nothing change: a sub-account policy that allows spot trading
    * only, within limits, bound to the sub-account; an API policy that allows
-   * spot trading over the same markets and reading the sub-account's orders,
-   * balances and profit and loss; and a STRATEGY_BOT key with
+   * spot trading over the same markets and reading the sub-account's orders
+   * and balances; and a STRATEGY_BOT key with
    * public_key_ed25519, bound to that API policy and linked to
    * strategy_bot_id. Neither policy allows an action that moves value out of
    * the account.

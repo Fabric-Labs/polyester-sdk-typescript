@@ -132,7 +132,9 @@ export type SocialVerification = Message<"auth.v1.SocialVerification"> & {
 
   /**
    * Stable machine-readable error code for the current failed verification.
-   * AUTH_UNSPECIFIED when no typed error applies.
+   * Unspecified when no typed error applies. REST JSON writes the value
+   * without the AUTH_ prefix, for example SOCIAL_ACCOUNT_COOLDOWN; ConnectRPC
+   * writes its full name, AUTH_SOCIAL_ACCOUNT_COOLDOWN.
    *
    * @generated from field: auth.v1.AuthErrorCode error_code = 16;
    */
@@ -147,8 +149,9 @@ export type SocialVerification = Message<"auth.v1.SocialVerification"> & {
 
   /**
    * Time in UTC from which a new verification may succeed, when this one
-   * failed with error_code AUTH_SOCIAL_ACCOUNT_COOLDOWN or
-   * AUTH_SOCIAL_CHANGE_LIMIT_REACHED. Empty otherwise.
+   * failed with error_code SOCIAL_ACCOUNT_COOLDOWN or
+   * SOCIAL_CHANGE_LIMIT_REACHED (in ConnectRPC, AUTH_SOCIAL_ACCOUNT_COOLDOWN
+   * or AUTH_SOCIAL_CHANGE_LIMIT_REACHED). Empty otherwise.
    *
    * @generated from field: google.protobuf.Timestamp retry_after = 18;
    */
@@ -633,10 +636,12 @@ export const SocialVerificationService: GenService<{
    * proof in the X-Auth-Step-Up header: AUTH_MFA_NOT_ENROLLED means enroll MFA
    * first; AUTH_STEP_UP_REQUIRED and AUTH_STEP_UP_PROOF_UNAVAILABLE mean
    * complete a new fresh step-up and retry.
-   * The new verification fails with error_code AUTH_SOCIAL_ACCOUNT_COOLDOWN when
-   * the verified account was unlinked from another Polyester account less than
-   * 30 days ago, and AUTH_SOCIAL_CHANGE_LIMIT_REACHED when it would replace a
-   * link within 30 days of the last change; retry_after says when.
+   * The new verification fails with error_code SOCIAL_ACCOUNT_COOLDOWN (in
+   * ConnectRPC, AUTH_SOCIAL_ACCOUNT_COOLDOWN) when the verified account was
+   * unlinked from another Polyester account less than 30 days ago, and
+   * SOCIAL_CHANGE_LIMIT_REACHED (AUTH_SOCIAL_CHANGE_LIMIT_REACHED) when it
+   * would replace a link within 30 days of the last change; retry_after says
+   * when.
    *
    * @generated from rpc auth.v1.SocialVerificationService.StartSocialVerification
    */
