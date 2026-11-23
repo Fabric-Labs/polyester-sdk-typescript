@@ -25,6 +25,10 @@ import {
     type GetCandlesInput,
     type GetCandlesColumnsInput,
     ListCandlesInputSchema,
+    ListIndexPriceCandlesInputSchema,
+    formatIndexPriceCandles,
+    type IndexPriceCandles,
+    type ListIndexPriceCandlesInput,
 } from "./candles.schemas.js";
 import { TimeframeCodec } from "./candles.codecs.js";
 
@@ -103,6 +107,24 @@ export class CandlesService {
             toConnectCallOptions(options),
         );
         return parse(this.#columnarIntSchema, res);
+    }
+
+    /**
+     * Returns one page of a market's index price candles, closed only and newest first: its
+     * composite reference candles before the bucket containing the pair's listing, its index
+     * price candles from that bucket on, each marked with its `source`. There is no volume, and a
+     * bucket without an index price is omitted as a gap. Follow `nextPageToken` with the same
+     * symbol, timeframe and bounds for older candles; a token from another request throws
+     * `ValidationError`.
+     */
+    async listIndexPrice(
+        input: ListIndexPriceCandlesInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<IndexPriceCandles> {
+        const request = parse(ListIndexPriceCandlesInputSchema, input);
+        await this.#scales.ready();
+        const res = await this.#client.getIndexPriceCandles(request, toConnectCallOptions(options));
+        return formatIndexPriceCandles(this.#scales, res);
     }
 
     /**

@@ -1,7 +1,15 @@
 export { AccountActivityService } from "./account-activity.js";
 export {
+    ACTIVITY_ACTOR_KIND_VALUES,
+    ACTIVITY_ALLOWLIST_ACTION_VALUES,
+    ACTIVITY_API_KEY_KIND_VALUES,
+    ACTIVITY_BROKER_ROLE_VALUES,
+    ACTIVITY_ELEVATED_ACTION_VALUES,
     ACTIVITY_ENTITY_KIND_VALUES,
     ACTIVITY_EVENT_ACTION_VALUES,
     ACTIVITY_EVENT_SOURCE_VALUES,
+    ACTIVITY_SIGN_IN_FAILURE_VALUES,
+    ACTIVITY_SIGN_IN_METHOD_VALUES,
+    ACTIVITY_SYSTEM_REASON_VALUES,
 } from "../subaccounts/subaccounts.codecs.js";
 export type * from "./account-activity.types.js";

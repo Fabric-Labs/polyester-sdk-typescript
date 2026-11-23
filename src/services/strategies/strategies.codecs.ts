@@ -1,7 +1,14 @@
 import * as Proto from "../../gen/strategies/v1/strategies_pb.js";
 import type { InputToProto, ProtoToOutput } from "../../utils/types.js";
 
-export const STRATEGY_BACKTEST_STATUS_VALUES = ["queued", "running", "done", "failed"] as const;
+export const STRATEGY_BACKTEST_STATUS_VALUES = [
+    "queued",
+    "running",
+    "done",
+    "failed",
+    "not_backtestable",
+] as const;
+/** `done`, `failed` and `not_backtestable` are final. */
 export type StrategyBacktestStatus = (typeof STRATEGY_BACKTEST_STATUS_VALUES)[number];
 
 export const BacktestStatusCodec = {
@@ -11,6 +18,7 @@ export const BacktestStatusCodec = {
         [Proto.Backtest_Status.RUNNING]: "running",
         [Proto.Backtest_Status.DONE]: "done",
         [Proto.Backtest_Status.FAILED]: "failed",
+        [Proto.Backtest_Status.NOT_BACKTESTABLE]: "not_backtestable",
     } satisfies ProtoToOutput<Proto.Backtest_Status, StrategyBacktestStatus>,
 } as const;
 
@@ -30,6 +38,7 @@ export const STRATEGY_DEPLOY_STATE_VALUES = [
     "proposed",
     "validating",
     "creating_subaccount",
+    "setting_access",
     "funding",
     "deploying",
     "live",
@@ -45,6 +54,7 @@ export const DeployStateCodec = {
         [Proto.DeployStatus_State.PROPOSED]: "proposed",
         [Proto.DeployStatus_State.VALIDATING]: "validating",
         [Proto.DeployStatus_State.CREATING_SUBACCOUNT]: "creating_subaccount",
+        [Proto.DeployStatus_State.SETTING_ACCESS]: "setting_access",
         [Proto.DeployStatus_State.FUNDING]: "funding",
         [Proto.DeployStatus_State.DEPLOYING]: "deploying",
         [Proto.DeployStatus_State.LIVE]: "live",
@@ -77,6 +87,7 @@ export const STRATEGY_BOT_PAUSE_REASON_VALUES = [
     "bot_decided",
     "failures_in_a_row",
     "environment_reset",
+    "unrecorded_order",
 ] as const;
 export type StrategyBotPauseReason = (typeof STRATEGY_BOT_PAUSE_REASON_VALUES)[number];
 
@@ -86,6 +97,7 @@ export const BotPauseReasonCodec = {
         [Proto.Bot_PauseReason.BOT_DECIDED]: "bot_decided",
         [Proto.Bot_PauseReason.FAILURES_IN_A_ROW]: "failures_in_a_row",
         [Proto.Bot_PauseReason.ENVIRONMENT_RESET]: "environment_reset",
+        [Proto.Bot_PauseReason.UNRECORDED_ORDER]: "unrecorded_order",
     } satisfies ProtoToOutput<Proto.Bot_PauseReason, StrategyBotPauseReason>,
 } as const;
 
@@ -140,6 +152,44 @@ export const BotLogKindCodec = {
         [Proto.BotLogEntry_Kind.DECISION]: "decision",
         [Proto.BotLogEntry_Kind.ERROR]: "error",
     } satisfies ProtoToOutput<Proto.BotLogEntry_Kind, StrategyBotLogKind>,
+} as const;
+
+export const STRATEGY_EVIDENCE_GRADE_VALUES = ["not_enough", "low", "medium", "high"] as const;
+/** How much a backtest's result can be trusted, from `not_enough` to `high`. */
+export type StrategyEvidenceGrade = (typeof STRATEGY_EVIDENCE_GRADE_VALUES)[number];
+
+export const EvidenceGradeCodec = {
+    protoToOutput: {
+        [Proto.EvidenceGrade.EVIDENCE_GRADE_UNSPECIFIED]: "unspecified",
+        [Proto.EvidenceGrade.NOT_ENOUGH]: "not_enough",
+        [Proto.EvidenceGrade.LOW]: "low",
+        [Proto.EvidenceGrade.MEDIUM]: "medium",
+        [Proto.EvidenceGrade.HIGH]: "high",
+    } satisfies ProtoToOutput<Proto.EvidenceGrade, StrategyEvidenceGrade>,
+} as const;
+
+export const STRATEGY_NOT_BACKTESTABLE_REASON_VALUES = [
+    "reacts_to_trades_or_quotes",
+    "reads_social_signals",
+    "mixed_quote_assets",
+    "no_reference_candles",
+    "places_limit_orders",
+    "reads_volume",
+] as const;
+/** Why a bot cannot be backtested on candles; it can still be proposed and deployed without one. */
+export type StrategyNotBacktestableReason =
+    (typeof STRATEGY_NOT_BACKTESTABLE_REASON_VALUES)[number];
+
+export const NotBacktestableReasonCodec = {
+    protoToOutput: {
+        [Proto.NotBacktestableReason.NOT_BACKTESTABLE_REASON_UNSPECIFIED]: "unspecified",
+        [Proto.NotBacktestableReason.REACTS_TO_TRADES_OR_QUOTES]: "reacts_to_trades_or_quotes",
+        [Proto.NotBacktestableReason.READS_SOCIAL_SIGNALS]: "reads_social_signals",
+        [Proto.NotBacktestableReason.MIXED_QUOTE_ASSETS]: "mixed_quote_assets",
+        [Proto.NotBacktestableReason.NO_REFERENCE_CANDLES]: "no_reference_candles",
+        [Proto.NotBacktestableReason.PLACES_LIMIT_ORDERS]: "places_limit_orders",
+        [Proto.NotBacktestableReason.READS_VOLUME]: "reads_volume",
+    } satisfies ProtoToOutput<Proto.NotBacktestableReason, StrategyNotBacktestableReason>,
 } as const;
 
 export const StrategyOrderSideCodec = {

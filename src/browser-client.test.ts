@@ -612,6 +612,7 @@ describe.each([
             totalCreated: 1,
             smartAccountSaltNonce: 1,
             revision: "9",
+            replayed: false,
         });
         const createChallenge = vi
             .spyOn(subaccountsService(client), "createChallenge")

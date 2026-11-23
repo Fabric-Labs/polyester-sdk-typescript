@@ -283,6 +283,60 @@ describe("CandlesService", () => {
         });
     });
 
+    it("pages index price candles and scales both series by referencePriceScale", async () => {
+        const transport = unaryTransport({
+            symbolId: 101,
+            timeframe: Proto.Timeframe.HOUR_1,
+            tsSec: [7200n, 3600n],
+            open: [200_000_000n, 190_000_000n],
+            high: [250_000_000n, 200_000_000n],
+            low: [190_000_000n, 180_000_000n],
+            close: [225_000_000n, 195_000_000n],
+            source: [Proto.IndexPriceCandleSource.INDEX, Proto.IndexPriceCandleSource.REFERENCE],
+            nextPageToken: "older",
+        });
+        const scales = createCatalogSdkScales(() =>
+            createTestCatalog({
+                assets: [BTC, USDT],
+                pairs: [{ ...BTC_USDT, referencePriceScale: 8 }],
+            }),
+        );
+        const service = new CandlesService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            scales,
+        );
+
+        await expect(
+            service.listIndexPrice({
+                symbolId: 101,
+                timeframe: "1h",
+                startTsSec: 3600,
+                pageToken: "p",
+            }),
+        ).resolves.toEqual({
+            symbolId: 101,
+            timeframe: "1h",
+            time: [7200, 3600],
+            open: ["2", "1.9"],
+            high: ["2.5", "2"],
+            low: ["1.9", "1.8"],
+            close: ["2.25", "1.95"],
+            source: ["index", "reference"],
+            nextPageToken: "older",
+        });
+        expect(transport.lastCall()?.message).toMatchObject({
+            symbolId: 101,
+            timeframe: Proto.Timeframe.HOUR_1,
+            startTime: { seconds: 3600n, nanos: 0 },
+            pageToken: "p",
+        });
+        await expect(
+            // @ts-expect-error -- 1s has no index price candles
+            service.listIndexPrice({ symbolId: 101, timeframe: "1s" }),
+        ).rejects.toBeInstanceOf(ValidationError);
+    });
+
     it("parses integer columnar responses and defaults missing reference arrays to null", async () => {
         const transport = unaryTransport({
             symbolId: 101,

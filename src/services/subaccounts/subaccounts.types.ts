@@ -1,4 +1,7 @@
 export type {
+    ActivityActor,
+    ActivityDetails,
+    ActivityItem,
     CreateSubaccountChallengeInput,
     CreateSubaccountInput,
     CreateSubaccountResult,

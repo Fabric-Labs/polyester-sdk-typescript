@@ -124,10 +124,8 @@ describe("proto enum output decoding", () => {
                 entityKind: SubaccountsProto.ActivityEntityKind.ACTIVITY_ENTITY_UNSPECIFIED,
                 eventAction: SubaccountsProto.ActivityEventAction.ACTIVITY_ACTION_CREATED,
                 source: SubaccountsProto.ActivityEventSource.ACTIVITY_SOURCE_WEB,
-                actorAccountId: 1n,
-                payloadJson: "{}",
             }),
-        ).toMatchObject({ entityKind: "unspecified" });
+        ).toMatchObject({ entityKind: "unspecified", actor: { kind: "unspecified" } });
     });
 
     it("preserves address-book helper enums sent as unspecified", () => {

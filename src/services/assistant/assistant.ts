@@ -21,6 +21,7 @@ import {
     formatAssistantUsage,
     formatConversation,
     formatMemory,
+    formatConversationAccount,
     formatMessage,
     formatModelKey,
     formatPrepareAssistantKeysResult,
@@ -182,6 +183,7 @@ export class AssistantService {
         return {
             messages: response.messages.map(formatMessage),
             nextPageToken: response.nextPageToken,
+            lastAccount: formatConversationAccount(response.lastAccount),
         };
     }
 

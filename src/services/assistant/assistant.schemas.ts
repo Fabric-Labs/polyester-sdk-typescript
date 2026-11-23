@@ -1,6 +1,7 @@
 import * as v from "valibot";
 import { bytesToHex } from "@noble/hashes/utils.js";
 import type * as Proto from "../../gen/ai/v1/assistant_pb.js";
+import { AccountSelection } from "../../gen/ai/v1/assistant_pb.js";
 import { enumLabel } from "../../shared/proto-enum-codec.js";
 import { idInputSchema, optionalSubaccountIdInputSchema } from "../../shared/schemas.js";
 import { formatId } from "../../utils/base58-id.js";
@@ -275,6 +276,24 @@ function optionalId(id: bigint | undefined): string | undefined {
     return id ? formatId(id) : undefined;
 }
 
+/**
+ * The account a conversation's latest message selected, in `sendMessage`'s terms: pass both
+ * fields back unchanged to keep it. `accountSelection: "none"` read no account; otherwise an
+ * absent `subaccountId` is the main account.
+ */
+export function formatConversationAccount(a: Proto.ConversationAccount | undefined) {
+    if (!a) return undefined;
+    return {
+        accountSelection:
+            a.accountSelection === AccountSelection.NONE ? ("none" as const) : undefined,
+        subaccountId: optionalId(a.subaccountId),
+    };
+}
+
+export type AssistantConversationAccount = NonNullable<
+    ReturnType<typeof formatConversationAccount>
+>;
+
 export function formatConversation(c: Proto.Conversation) {
     return {
         conversationId: formatId(c.conversationId),
@@ -285,6 +304,11 @@ export function formatConversation(c: Proto.Conversation) {
             c.subject?.kind.case === "strategy"
                 ? { strategyId: formatId(c.subject.kind.value.strategyId) }
                 : undefined,
+        /**
+         * The account its latest message selected as of this list; `listMessages` returns it
+         * as it stands when the conversation is opened.
+         */
+        lastAccount: formatConversationAccount(c.lastAccount),
         createdAt: tsObjToMs(c.createdAt),
         updatedAt: tsObjToMs(c.updatedAt),
     };
@@ -435,7 +459,12 @@ export type ListAssistantConversationsResult = {
     conversations: AssistantConversation[];
     nextPageToken: string;
 };
-export type ListAssistantMessagesResult = { messages: AssistantMessage[]; nextPageToken: string };
+/** `lastAccount` is the account the latest message selected, current on every page. */
+export type ListAssistantMessagesResult = {
+    messages: AssistantMessage[];
+    nextPageToken: string;
+    lastAccount: AssistantConversationAccount | undefined;
+};
 export type ListAssistantMemoriesResult = { memories: AssistantMemory[]; nextPageToken: string };
 
 /** US dollars as a decimal string with at most 2 decimal places, e.g. `"5000"` or `"250.50"`. */

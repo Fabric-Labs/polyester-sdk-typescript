@@ -1,4 +1,4 @@
-import type { MessageInitShape } from "@bufbuild/protobuf";
+import { create, type MessageInitShape } from "@bufbuild/protobuf";
 import * as ProtoApiKeys from "../../gen/auth/v1/api_keys_pb.js";
 import * as ProtoPolicies from "../../gen/auth/v1/policies_pb.js";
 import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
@@ -385,6 +385,7 @@ describe("SubaccountsService", () => {
             totalCreated: 4,
             smartAccountSaltNonce: 4,
             revision: "9",
+            replayed: false,
         });
         await expect(
             service.inviteMember({
@@ -434,20 +435,67 @@ describe("SubaccountsService", () => {
         ).rejects.toThrow();
     });
 
+    it("sends a create idempotency key as given and returns a replay", async () => {
+        const transport = unaryTransport({
+            subaccountId: 43n,
+            totalCreated: 4,
+            smartAccountSaltNonce: 4,
+            revision: 12n,
+            replayed: true,
+        });
+        const service = new SubaccountsService(
+            { publicApi: transport.transport, authApi: transport.transport },
+            realtimeClientStub().realtime,
+        );
+
+        await expect(
+            service.create({
+                smartAccountAddress: "0x1111111111111111111111111111111111111111",
+                message: "server message",
+                signature: "signature",
+                idempotencyKey: "deploy-1842",
+            }),
+        ).resolves.toEqual({
+            subaccountId: formatId(43n),
+            totalCreated: 4,
+            smartAccountSaltNonce: 4,
+            revision: "12",
+            replayed: true,
+        });
+        expect(transport.lastCall()?.message).toMatchObject({ idempotencyKey: "deploy-1842" });
+    });
+
+    it("returns the idempotency key a listed subaccount was created with", async () => {
+        const transport = unaryTransport({
+            totalCreated: 2,
+            subaccounts: [{ ...subaccount(42n), idempotencyKey: "deploy-1842" }, subaccount(43n)],
+        });
+        const service = new SubaccountsService(
+            { publicApi: transport.transport, authApi: transport.transport },
+            realtimeClientStub().realtime,
+        );
+
+        const { subaccounts } = await service.list();
+        expect(subaccounts.map((s) => s.idempotencyKey)).toEqual(["deploy-1842", ""]);
+    });
+
     it("normalizes list invite/member/activity requests and parses responses", async () => {
         const responses = [
             { invites: [invite()] },
             { members: [member()] },
             {
                 events: [
-                    {
+                    create(Proto.ActivityEventSchema, {
                         entityKind: Proto.ActivityEntityKind.ACTIVITY_ENTITY_DESTINATION,
                         eventAction: Proto.ActivityEventAction.ACTIVITY_ACTION_CREATED,
                         source: Proto.ActivityEventSource.ACTIVITY_SOURCE_WEB,
-                        actorAccountId: 7n,
-                        payloadJson: '{"ok":true}',
                         subaccountId: 42n,
-                    },
+                        actor: { kind: Proto.ActivityActorKind.ACTIVITY_ACTOR_USER, accountId: 7n },
+                        item: { id: { case: "addressBookEntryId", value: 8n }, name: "Cold" },
+                        details: {
+                            kind: { case: "destination", value: { label: { to: "Cold" } } },
+                        },
+                    }),
                 ],
                 nextPageToken: "next",
             } satisfies MessageInitShape<typeof Proto.ListSubaccountEventsResponseSchema>,
@@ -478,10 +526,25 @@ describe("SubaccountsService", () => {
                     entityKind: "destination",
                     eventAction: "created",
                     source: "web",
-                    actorAccountId: formatId(7n),
-                    payloadJson: { ok: true },
+                    ip: "",
+                    userAgent: "",
                     subaccountId: formatId(42n),
-                    actorApiKeyId: undefined,
+                    actor: {
+                        kind: "user",
+                        accountId: formatId(7n),
+                        username: "",
+                        apiKeyId: "",
+                        apiKeyKind: "unspecified",
+                        apiKeyLabel: "",
+                        systemReason: "unspecified",
+                    },
+                    item: { type: "address_book_entry", id: formatId(8n), name: "Cold" },
+                    details: {
+                        type: "destination",
+                        label: { from: "", to: "Cold" },
+                        noteChanged: false,
+                        tagIds: undefined,
+                    },
                 },
             ],
             nextPageToken: "next",

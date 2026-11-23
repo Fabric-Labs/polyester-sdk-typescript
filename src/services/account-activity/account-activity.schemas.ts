@@ -1,5 +1,5 @@
 import * as v from "valibot";
-import { idInputSchema, optionalIdInputSchema } from "../../shared/schemas.js";
+import { idInputSchema } from "../../shared/schemas.js";
 import { msToTimestamp } from "../../utils/timestamp.js";
 import {
     ACTIVITY_ENTITY_KIND_VALUES,
@@ -37,8 +37,8 @@ export const ListAccountActivityInputSchema = v.pipe(
         entityKinds: v.optional(v.array(v.picklist(ACTIVITY_ENTITY_KIND_VALUES))),
         eventActions: v.optional(v.array(v.picklist(ACTIVITY_EVENT_ACTION_VALUES))),
         sources: v.optional(v.array(v.picklist(ACTIVITY_EVENT_SOURCE_VALUES))),
-        /** Only events performed with this API key. */
-        apiKeyId: optionalIdInputSchema("apiKeyId"),
+        /** Only events performed with this API key, as `ApiKey.keyId` names it (`ak_…`). Sent as given. */
+        apiKeyId: v.optional(v.string()),
         startTime: TimestampMsInputSchema,
         endTime: TimestampMsInputSchema,
         /** Page size: default 50, at most 200. */

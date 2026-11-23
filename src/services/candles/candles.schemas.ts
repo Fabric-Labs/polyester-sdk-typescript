@@ -5,7 +5,7 @@ import type { DecodedEnum } from "../../utils/types.js";
 import { OptionalTimestampSecondsInputSchema } from "../../shared/schemas.js";
 import { enumLabel } from "../../shared/proto-enum-codec.js";
 import { scaledToDecimalOutput, type SdkScales } from "../../shared/decimal-surface.js";
-import { TIMEFRAMES, TimeframeCodec } from "./candles.codecs.js";
+import { IndexPriceCandleSourceCodec, TIMEFRAMES, TimeframeCodec } from "./candles.codecs.js";
 
 export const TimeframeSchema = v.picklist(TIMEFRAMES);
 
@@ -257,3 +257,62 @@ export function createListCandlesInputSchema() {
 export type GetCandlesInput = v.InferInput<ReturnType<typeof createListCandlesInputSchema>>;
 export const createGetCandlesColumnsInputSchema = createListCandlesInputSchema;
 export type GetCandlesColumnsInput = v.InferInput<ReturnType<typeof createListCandlesInputSchema>>;
+
+/** Every timeframe but `1s`, which has no index price candles. */
+const IndexPriceTimeframeInputSchema = v.pipe(
+    v.picklist(TIMEFRAMES.filter((t): t is Exclude<Timeframe, "1s"> => t !== "1s")),
+    v.transform((value) => TimeframeCodec.inputToProto[value]),
+);
+
+export const ListIndexPriceCandlesInputSchema = v.pipe(
+    v.strictObject({
+        symbolId: SymbolIdInputSchema,
+        timeframe: IndexPriceTimeframeInputSchema,
+        /** Default 500, at most 10000. */
+        limit: OptionalPositiveNumberSchema,
+        /** Inclusive lower bound on bucket start, epoch seconds. */
+        startTsSec: OptionalTimestampSecondsInputSchema,
+        /** Inclusive upper bound on bucket start, epoch seconds. */
+        endTsSec: OptionalTimestampSecondsInputSchema,
+        /** Previous `nextPageToken`; reuse only with the same symbol, timeframe and bounds. */
+        pageToken: v.optional(v.pipe(v.string(), v.trim()), ""),
+    }),
+    v.transform((d) => ({
+        symbolId: d.symbolId,
+        timeframe: d.timeframe,
+        limit: d.limit,
+        startTime: d.startTsSec != null ? timestampFromTsSec(d.startTsSec) : undefined,
+        endTime: d.endTsSec != null ? timestampFromTsSec(d.endTsSec) : undefined,
+        pageToken: d.pageToken,
+    })),
+);
+
+export type ListIndexPriceCandlesInput = v.InferInput<typeof ListIndexPriceCandlesInputSchema>;
+
+/**
+ * Formats one page of index price candles. Prices use the pair's reference price scale, the
+ * scale of both series, not the primary candle price scale.
+ */
+export function formatIndexPriceCandles(
+    scales: SdkScales,
+    r: ProtoMarketData.GetIndexPriceCandlesResponse,
+) {
+    const scale = scales.referencePrice(r.symbolId);
+    return {
+        symbolId: r.symbolId,
+        timeframe: timeframeFromProto(r.timeframe),
+        /** Bucket start, epoch seconds, newest first. A missing bucket is a gap, never filled. */
+        time: r.tsSec.map((t) => Number(t)),
+        open: scaledArrayToDecimal(r.open, scale),
+        high: scaledArrayToDecimal(r.high, scale),
+        low: scaledArrayToDecimal(r.low, scale),
+        close: scaledArrayToDecimal(r.close, scale),
+        /** The series each candle comes from. */
+        source: r.source.map((s) => enumLabel(IndexPriceCandleSourceCodec.protoToOutput, s)),
+        /** Cursor for the next, older page; empty when none. */
+        nextPageToken: r.nextPageToken,
+    };
+}
+
+/** One page of a market's index price candles in columns: element i of each array is one candle. */
+export type IndexPriceCandles = ReturnType<typeof formatIndexPriceCandles>;
