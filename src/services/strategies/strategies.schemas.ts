@@ -18,7 +18,9 @@ import {
     BotStatusCodec,
     BotPauseReasonCodec,
     DeployStateCodec,
+    EvidenceGradeCodec,
     FlowNodeKindCodec,
+    NotBacktestableReasonCodec,
     RevisionSavedByCodec,
     STRATEGY_BOT_STOP_MODE_VALUES,
     ScenarioOutcomeCodec,
@@ -50,6 +52,12 @@ const TimestampMsInputSchema = v.pipe(
 const PageTokenInputSchema = v.optional(TrimmedStringSchema, "");
 const VersionIdInputSchema = RequiredStringSchema;
 const StrategyIdSchema = idInputSchema("strategyId");
+/** A uint64 revision as a decimal string, e.g. `"0"`. */
+const revisionInputSchema = (fieldName: string) =>
+    v.pipe(
+        bigintStringInputSchema(fieldName),
+        v.maxValue(PROTOBUF_UINT64_MAX, `${fieldName} exceeds the uint64 range`),
+    );
 
 /** An exact decimal amount of an asset, e.g. `{ asset: "USDT", amount: "50" }`. */
 const MoneyInputSchema = v.strictObject({
@@ -99,10 +107,7 @@ export const SaveDraftVersionInputSchema = v.pipe(
     v.strictObject({
         strategyId: StrategyIdSchema,
         /** The strategy's `revision` this draft was made from, as a decimal string; `"0"` for its first save. */
-        expectedRevision: v.pipe(
-            bigintStringInputSchema("expectedRevision"),
-            v.maxValue(PROTOBUF_UINT64_MAX, "expectedRevision exceeds the uint64 range"),
-        ),
+        expectedRevision: revisionInputSchema("expectedRevision"),
         /** The save renames the strategy to it. */
         name: RequiredStringSchema,
         /** The manifest as a JSON object shaped like `getReference`'s `manifestSchema`. */
@@ -113,6 +118,12 @@ export const SaveDraftVersionInputSchema = v.pipe(
         runtimeVersion: v.optional(TrimmedStringSchema, ""),
         /** Reusing a key with the same request returns the revision it saved. */
         idempotencyKey: v.optional(IdempotencyKeySchema),
+        /**
+         * The notes' `notesRevision` this draft was written against, `"0"` for notes never saved;
+         * omit to skip the check. Any other current notes revision throws `RevisionConflictError`
+         * (`NOTES_REVISION_CONFLICT`), checked together with `expectedRevision`.
+         */
+        expectedNotesRevision: v.optional(revisionInputSchema("expectedNotesRevision")),
     }),
     v.transform(({ idempotencyKey, ...input }) => ({
         ...input,
@@ -135,13 +146,22 @@ export type StrategyVersionInput = v.InferInput<typeof StrategyVersionInputSchem
 
 export const StartBacktestInputSchema = v.strictObject({
     versionId: VersionIdInputSchema,
-    /** Window start, epoch ms, inclusive. Omit for the start of the longest window with data. */
+    /**
+     * Window start, epoch ms, inclusive, floored to a whole second. Omit for the most recent 365
+     * days of data, or all of it when there is less.
+     */
     startTime: v.optional(TimestampMsInputSchema),
-    /** Window end, epoch ms, exclusive. Omit for the end of that window. */
+    /**
+     * Window end, epoch ms, exclusive, floored to a whole second. Omit for the end of the longest
+     * window with data.
+     */
     endTime: v.optional(TimestampMsInputSchema),
     /** Settings form values, each setting once; settings left out take their default. */
     settings: v.optional(v.array(SettingValueInputSchema), []),
-    /** Starting balances, one per asset. Omit for the budget setting in the quote asset. */
+    /**
+     * Starting balances, one per asset of the bot's markets, each more than 0. Omit for 1,000 of
+     * the bot's quote asset, e.g. 1000 USDT, whatever its settings.
+     */
     initialBalances: v.optional(v.array(MoneyInputSchema), []),
     /** Reusing a key with the same request returns the backtest it started. */
     idempotencyKey: IdempotencyKeySchema,
@@ -181,9 +201,9 @@ export const DeployProposalInputSchema = v.strictObject({
 });
 export type StrategyDeployProposalInput = v.InferInput<typeof DeployProposalInputSchema>;
 
-const LimitInputSchema = v.optional(
-    v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(200)),
-);
+const limitInputSchema = (max: number) =>
+    v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(max)));
+const LimitInputSchema = limitInputSchema(200);
 
 export const ListBotsInputSchema = v.strictObject({
     /** Page size: default 50, at most 200. */
@@ -204,6 +224,57 @@ export const ListStrategyRevisionsInputSchema = v.strictObject({
     pageToken: PageTokenInputSchema,
 });
 export type ListStrategyRevisionsInput = v.InferInput<typeof ListStrategyRevisionsInputSchema>;
+
+export const SaveStrategyNotesInputSchema = v.strictObject({
+    strategyId: StrategyIdSchema,
+    /** The notes' current `notesRevision` this text was made from, as a decimal string; `"0"` for the first save. */
+    expectedNotesRevision: revisionInputSchema("expectedNotesRevision"),
+    /** What the strategy is, in one line with no line break: at most 120 characters. */
+    summary: v.string(),
+    /** The notes, as Markdown: at most 8192 bytes of UTF-8. */
+    body: v.string(),
+    /**
+     * Reusing a key with the same request returns the notes revision it saved, even after later
+     * saves. Without one, a retry after a save that landed throws `RevisionConflictError`.
+     */
+    idempotencyKey: v.optional(IdempotencyKeySchema),
+    /**
+     * The strategy's `revision` this text was written against, `"0"` for a strategy never saved;
+     * omit to skip the check. Any other current revision throws `RevisionConflictError`
+     * (`DRAFT_REVISION_CONFLICT`), checked together with `expectedNotesRevision`.
+     */
+    expectedRevision: v.optional(revisionInputSchema("expectedRevision")),
+});
+export type SaveStrategyNotesInput = v.InferInput<typeof SaveStrategyNotesInputSchema>;
+
+export const ListStrategyNotesRevisionsInputSchema = v.strictObject({
+    strategyId: StrategyIdSchema,
+    /** Page size: default 10, at most 20. */
+    limit: limitInputSchema(20),
+    /** Previous `nextPageToken`; reuse only with the same `strategyId`. */
+    pageToken: PageTokenInputSchema,
+});
+export type ListStrategyNotesRevisionsInput = v.InferInput<
+    typeof ListStrategyNotesRevisionsInputSchema
+>;
+
+export const ListBacktestsInputSchema = v.strictObject({
+    strategyId: StrategyIdSchema,
+    /** Page size: default 10, at most 50. */
+    limit: limitInputSchema(50),
+    /** Previous `nextPageToken`; reuse only with the same `strategyId`. */
+    pageToken: PageTokenInputSchema,
+});
+export type ListBacktestsInput = v.InferInput<typeof ListBacktestsInputSchema>;
+
+export const ListBacktestTradesInputSchema = v.strictObject({
+    backtestId: idInputSchema("backtestId"),
+    /** Page size: default 100, at most 1000. */
+    limit: limitInputSchema(1000),
+    /** Previous `nextPageToken`; reuse only with the same `backtestId`. */
+    pageToken: PageTokenInputSchema,
+});
+export type ListBacktestTradesInput = v.InferInput<typeof ListBacktestTradesInputSchema>;
 
 export const BotIdInputSchema = v.strictObject({ botId: idInputSchema("botId") });
 export type StrategyBotInput = v.InferInput<typeof BotIdInputSchema>;
@@ -231,11 +302,18 @@ export type StopBotInput = v.InferInput<typeof StopBotInputSchema>;
 
 export const ListBotLogsInputSchema = v.strictObject({
     botId: idInputSchema("botId"),
-    /** Earliest entry, epoch ms, inclusive. Omit for the start of the retained log. */
+    /**
+     * Earliest entry, epoch ms, inclusive, by the time of the event behind it, which doesn't follow
+     * the log's order. Omit to read from the oldest entry kept. To read later entries, pass
+     * `followToken` as `pageToken`, never a later `startTime`.
+     */
     startTime: v.optional(TimestampMsInputSchema),
     /** Page size: default 100, at most 200. */
     limit: LimitInputSchema,
-    /** Previous `nextPageToken`; reuse only with the same `botId` and `startTime`. */
+    /**
+     * Previous `nextPageToken` or `followToken`; reuse only with the same `botId` and `startTime`.
+     * It keeps reading the deployment the first page read, even after the bot is deployed again.
+     */
     pageToken: PageTokenInputSchema,
 });
 export type ListBotLogsInput = v.InferInput<typeof ListBotLogsInputSchema>;
@@ -309,6 +387,8 @@ export function formatStrategyTemplate(t: Proto.StrategyTemplate) {
         manifest: (t.manifest ?? {}) as JsonObject,
         code: t.code,
         runtimeVersion: t.runtimeVersion,
+        /** The money card a version saved from the template unchanged shows. */
+        moneyCard: moneyCard(t.moneyCard),
     };
 }
 export type StrategyTemplate = ReturnType<typeof formatStrategyTemplate>;
@@ -421,6 +501,11 @@ export function formatStrategyVersion(r: Proto.GetStrategyVersionResponse) {
         createdAt: ms(r.createdAt),
         /** Null unless `valid`, or for a version stored before flows existed. */
         flow: flow(r.flow),
+        /**
+         * The check result stored with the version, as saving it answered; reading never checks it
+         * again. Null for a version stored without one.
+         */
+        validation: versionValidation(r.validation),
     };
 }
 export type StrategyVersion = ReturnType<typeof formatStrategyVersion>;
@@ -451,8 +536,8 @@ export function formatStrategy(s: Proto.Strategy) {
         /** When it was last saved or renamed. */
         updatedAt: ms(s.updatedAt),
         /**
-         * The newest bot deployed from it that hasn't stopped (`running` or `stopping`); null when
-         * none, or when the caller may not read bots.
+         * The newest bot deployed from it that hasn't stopped (`running`, `paused` or `stopping`);
+         * null when none, or when the caller may not read bots.
          */
         bot: s.bot
             ? {
@@ -460,6 +545,13 @@ export function formatStrategy(s: Proto.Strategy) {
                   status: enumLabel(BotStatusCodec.protoToOutput, s.bot.status),
               }
             : null,
+        /**
+         * The current revision's markets, as its money card names them, e.g. `BTC/USDT`; empty
+         * without a valid current revision, or when the caller may not read bots.
+         */
+        markets: s.markets,
+        /** The notes' one-line summary; empty before their first save, or when the caller may not read bots. */
+        summary: s.summary,
     };
 }
 export type Strategy = ReturnType<typeof formatStrategy>;
@@ -494,6 +586,8 @@ export function formatStrategyDetails(r: Proto.GetStrategyResponse) {
         strategy: requireStrategy(r.strategy, "GetStrategy"),
         /** The current revision's version; null until the first save. */
         head: r.head ? formatStrategyVersion(r.head) : null,
+        /** The notes, as `getNotes` reads them. */
+        notes: r.notes ? formatStrategyNotes(r.notes) : null,
     };
 }
 export type StrategyDetails = ReturnType<typeof formatStrategyDetails>;
@@ -513,6 +607,27 @@ export function formatStrategyRevision(r: Proto.StrategyRevision) {
     };
 }
 export type StrategyRevision = ReturnType<typeof formatStrategyRevision>;
+
+export function formatStrategyNotes(n: Proto.StrategyNotes) {
+    return {
+        strategyId: formatId(n.strategyId),
+        /**
+         * One per save that changed them, a decimal string from `"1"`; `"0"` when never saved. It
+         * counts apart from the strategy's `revision`.
+         */
+        notesRevision: n.notesRevision.toString(),
+        /** What the strategy is, in one line. */
+        summary: n.summary,
+        /** Markdown. */
+        body: n.body,
+        /** Null when never saved. */
+        savedAt: ms(n.savedAt),
+        /** How the caller that saved this revision signed in; `unspecified` when never saved. */
+        savedBy: enumLabel(RevisionSavedByCodec.protoToOutput, n.savedBy),
+    };
+}
+/** The caller's notes about a strategy; never shown in a community listing, and a copy starts with none. */
+export type StrategyNotes = ReturnType<typeof formatStrategyNotes>;
 
 export function formatRunScenariosResult(r: Proto.RunScenariosResponse) {
     return {
@@ -540,38 +655,97 @@ function metrics(m: Proto.BacktestMetrics | undefined) {
         winRatePercent: m.winRatePercent,
         fees: money(m.fees),
         exposurePercent: m.exposurePercent,
+        /**
+         * Annualized Sharpe ratio of the daily returns, zero risk-free rate, e.g. `"1.4"`; null with
+         * fewer than two daily returns, or when they never vary.
+         */
+        sharpeRatio: m.sharpeRatio ?? null,
+        /** Profit and loss the period's sells realized after their fees, in the quote asset. */
+        realizedPnl: m.realizedPnl,
+        /** When the largest fall started (its peak) and ended (its trough). */
+        maxDrawdownStart: ms(m.maxDrawdownStart),
+        maxDrawdownEnd: ms(m.maxDrawdownEnd),
+        /** Exact equity at the period's start and end, in the quote asset; the equity curve is sampled. */
+        startEquity: m.startEquity,
+        endEquity: m.endEquity,
     };
 }
-/** Percentages are exact decimal strings, e.g. `"-3.25"`. */
+/** Percentages and amounts are exact decimal strings, e.g. `"-3.25"`; amounts are in the quote asset. */
 export type StrategyBacktestMetrics = NonNullable<ReturnType<typeof metrics>>;
+
+const baseline = (b: Proto.Baseline) => ({ name: b.name, metrics: metrics(b.metrics) });
+
+export const formatBacktestTrade = (t: Proto.BacktestTrade) => ({
+    /** Position among the backtest's trades in fill order, a decimal string from `"0"`. */
+    tradeIndex: t.tradeIndex.toString(),
+    time: ms(t.time),
+    market: t.market,
+    side: enumLabel(StrategyOrderSideCodec.protoToOutput, t.side),
+    price: t.price,
+    quantity: t.quantity,
+    fee: money(t.fee),
+    reason: t.reason,
+    /** Profit and loss it realized after its fee, in the quote asset; empty on a buy. */
+    realizedPnl: t.realizedPnl,
+    /** True when its market data was missing, so it filled at the first price after the gap. */
+    afterGap: t.afterGap,
+});
+export type StrategyBacktestTrade = ReturnType<typeof formatBacktestTrade>;
 
 function report(r: Proto.BacktestReport | undefined) {
     if (!r) return null;
     return {
+        /** What was simulated and how, naming every assumption. */
         fidelity: r.fidelity,
-        evidenceGrade: r.evidenceGrade,
+        /** How much the result can be trusted. */
+        evidenceGrade: enumLabel(EvidenceGradeCodec.protoToOutput, r.evidenceGrade),
+        /** The period the bot was tuned on; the whole window when it is too short to hold months back. */
         period: window(r.period),
+        /** The most recent months, held back from tuning; null when the window is too short. */
         heldBackPeriod: window(r.heldBackPeriod),
+        /** Under the base cost scenario; `scenarios` gives the range. */
         metrics: metrics(r.metrics),
+        /** Null without a held-back period. */
         heldBackMetrics: metrics(r.heldBackMetrics),
-        baselines: r.baselines.map((b) => ({ name: b.name, metrics: metrics(b.metrics) })),
-        attempts: r.attempts,
-        trades: r.trades.map((t) => ({
-            time: ms(t.time),
-            market: t.market,
-            side: enumLabel(StrategyOrderSideCodec.protoToOutput, t.side),
-            price: t.price,
-            quantity: t.quantity,
-            fee: money(t.fee),
-            reason: t.reason,
+        /** Buy-and-hold and cash over `period`. */
+        baselines: r.baselines.map(baseline),
+        /** The baselines over `heldBackPeriod`; empty without one. */
+        heldBackBaselines: r.heldBackBaselines.map(baseline),
+        /** The result under the low, base and high cost scenarios: the range to read. */
+        scenarios: r.scenarios.map((sc) => ({
+            name: sc.name,
+            /** Slippage per side, in basis points. */
+            slippageBps: sc.slippageBps,
+            metrics: metrics(sc.metrics),
+            heldBackMetrics: metrics(sc.heldBackMetrics),
         })),
+        /**
+         * The whole window's equity curve with buy-and-hold's, oldest first: at most 1,000 sampled
+         * points that keep the peaks and troughs of every largest fall reported.
+         */
+        equity: r.equity.map((p) => ({
+            time: ms(p.time),
+            equity: p.equity,
+            buyAndHoldEquity: p.buyAndHoldEquity,
+        })),
+        /** Where `heldBackPeriod` starts on the curve; null without one. */
+        heldBackStart: ms(r.heldBackStart),
+        /** The whole window's largest fall, in percent, with its peak and trough. */
+        windowMaxDrawdownPercent: r.windowMaxDrawdownPercent,
+        windowMaxDrawdownStart: ms(r.windowMaxDrawdownStart),
+        windowMaxDrawdownEnd: ms(r.windowMaxDrawdownEnd),
+        /** True when earlier backtests already showed part of `heldBackPeriod`, so it is no longer excluded from tuning. */
+        heldBackSeen: r.heldBackSeen,
+        /** The first 20 trades of the whole window, oldest first; `listBacktestTrades` lists all of them. */
+        trades: r.trades.map(formatBacktestTrade),
         dataGaps: r.dataGaps.map((g) => ({
             market: g.market,
             timeframe: g.timeframe,
             window: window(g.window),
+            /** True when the bot was exposed across the gap, so the result is less certain. */
+            affected: g.affected,
         })),
         warnings: r.warnings,
-        reportUrl: r.reportUrl,
     };
 }
 
@@ -588,7 +762,7 @@ export function formatBacktest(b: Proto.Backtest) {
     return {
         backtestId: formatId(b.backtestId),
         versionId: b.versionId,
-        /** `done` and `failed` are final. */
+        /** `done`, `failed` and `not_backtestable` are final. */
         status: enumLabel(BacktestStatusCodec.protoToOutput, b.status),
         window: window(b.window),
         createdAt: ms(b.createdAt),
@@ -597,6 +771,16 @@ export function formatBacktest(b: Proto.Backtest) {
         report: report(b.report),
         /** Why it failed; empty unless `status` is `failed`. */
         failure: b.failure,
+        /** Backtests the caller ran of this bot's versions; many make a good result more likely luck. */
+        attempts: b.attempts,
+        /**
+         * Why the bot cannot be backtested; `unspecified` unless `status` is `not_backtestable`. It
+         * can still be proposed and deployed without a backtest.
+         */
+        notBacktestableReason: enumLabel(
+            NotBacktestableReasonCodec.protoToOutput,
+            b.notBacktestableReason,
+        ),
     };
 }
 export type StrategyBacktest = ReturnType<typeof formatBacktest>;
@@ -609,9 +793,24 @@ function backtestSummary(b: Proto.BacktestSummary | undefined) {
         metrics: metrics(b.metrics),
         heldBackMetrics: metrics(b.heldBackMetrics),
         attempts: b.attempts,
-        reportUrl: b.reportUrl,
     };
 }
+
+export function formatStrategyBacktestListItem(b: Proto.StrategyBacktest) {
+    return {
+        /** The backtest's headline; `getBacktest` reads the whole report. */
+        summary: backtestSummary(b.summary),
+        versionId: b.versionId,
+        /** The newest revision of the strategy that saved `versionId`, a decimal string. */
+        revision: b.revision.toString(),
+        window: window(b.window),
+        createdAt: ms(b.createdAt),
+        /** Null until it finishes or fails. */
+        finishedAt: ms(b.finishedAt),
+    };
+}
+/** One backtest of a strategy's versions, as `listBacktests` shows it. */
+export type StrategyBacktestListItem = ReturnType<typeof formatStrategyBacktestListItem>;
 
 export function formatExplainStrategyResult(r: Proto.ExplainStrategyResponse) {
     return {
@@ -646,7 +845,13 @@ function deployProposalSummary(s: Proto.DeployProposalSummary | undefined) {
         fundingSubaccountId: optionalId(s.fundingSubaccountId),
         funding: moneyList(s.funding),
         scenariosPassed: s.scenariosPassed,
+        /** The version's latest backtest; null when the bot cannot be backtested. */
         backtest: backtestSummary(s.backtest),
+        /** Why the bot was not backtested; `unspecified` when `backtest` is set. */
+        notBacktestableReason: enumLabel(
+            NotBacktestableReasonCodec.protoToOutput,
+            s.notBacktestableReason,
+        ),
     };
 }
 
@@ -702,13 +907,18 @@ export function formatBot(b: Proto.Bot) {
         /** The bot's own subaccount. */
         subaccountId: formatId(b.subaccountId),
         status: enumLabel(BotStatusCodec.protoToOutput, b.status),
-        /** Empty when `running`. */
+        /**
+         * Why a `paused` bot paused, in words: its own message when it decided to pause, else a
+         * sentence for `pauseReason`. Empty unless `paused`.
+         */
         statusReason: b.statusReason,
         /** Why a `paused` bot paused; `unspecified` otherwise. */
         pauseReason: enumLabel(BotPauseReasonCodec.protoToOutput, b.pauseReason),
         versionId: b.versionId,
-        /** Since deployment, an exact decimal in `quoteAsset`; negative for a loss. */
-        profitAndLoss: b.profitAndLoss,
+        /**
+         * The time of the event behind its newest decision, over all its deployments; null before
+         * its first. Lags the bot by up to about a minute.
+         */
         lastDecisionAt: ms(b.lastDecisionAt),
         createdAt: ms(b.createdAt),
         quoteAsset: b.quoteAsset,
@@ -728,6 +938,19 @@ export function formatBot(b: Proto.Bot) {
         uptimeRatio: b.uptimeRatio,
         /** When it last started; null unless `running`. */
         runningSince: ms(b.runningSince),
+        /**
+         * What it did in each of the last 24 UTC hours, oldest first, ending with the current hour;
+         * an idle hour has zero counts. Counts lag the bot by up to about a minute.
+         */
+        activity: b.activity.map((h) => ({
+            /** The hour's start, a whole UTC hour. */
+            start: ms(h.start),
+            /** Events the bot was called for, whether or not the call succeeded. */
+            decisions: h.decisions,
+            fills: h.fills,
+            /** Events skipped because they were too old when it could run; never decisions. */
+            expired: h.expired,
+        })),
     };
 }
 export type StrategyBot = ReturnType<typeof formatBot>;
@@ -760,24 +983,18 @@ export function formatBotDetails(r: Proto.GetBotResponse) {
         bot: formatBot(r.bot),
         moneyCard: moneyCard(r.moneyCard),
         settings: settingValues(r.settings),
-        balances: r.balances.map((b) => ({ asset: b.asset, free: b.free, locked: b.locked })),
-        openOrders: r.openOrders.map((o) => ({
-            orderId: formatId(o.orderId),
-            market: o.market,
-            side: enumLabel(StrategyOrderSideCodec.protoToOutput, o.side),
-            type: o.type,
-            price: o.price,
-            quantity: o.quantity,
-            filledQuantity: o.filledQuantity,
-            createdAt: ms(o.createdAt),
-        })),
+        /** Its last decisions, newest first, from its current run: at most 20. */
         decisions: r.decisions.map((d) => ({
+            /** When the event that woke the bot reached it. */
             decidedAt: ms(d.decidedAt),
+            /** The handler the event woke, e.g. `on_timer`. */
             event: d.event,
+            /** The orders it asked for, in the behaviour examples' shape; empty when it did nothing. */
             orders: d.orders as JsonObject[],
+            /** Its log lines from the call, oldest first: at most 20, shortened ones ending with `…`. */
             logs: d.logs,
-            snapshot: (d.snapshot ?? null) as JsonObject | null,
         })),
+        /** Its last errors, newest first, from its current run: at most 20. */
         errors: r.errors.map((e) => ({ time: ms(e.time), event: e.event, message: e.message })),
     };
 }
@@ -785,6 +1002,7 @@ export type StrategyBotDetails = ReturnType<typeof formatBotDetails>;
 
 export function formatBotLogEntry(e: Proto.BotLogEntry) {
     return {
+        /** Increasing within the log of the bot's current deployment; a new deployment starts low again. */
         sequence: e.sequence.toString(),
         time: ms(e.time),
         kind: enumLabel(BotLogKindCodec.protoToOutput, e.kind),
@@ -814,5 +1032,30 @@ export type ListStrategyRevisionsResult = {
     revisions: StrategyRevision[];
     nextPageToken: string;
 };
-/** Oldest first; an empty `nextPageToken` means no more. */
-export type ListStrategyBotLogsResult = { entries: StrategyBotLogEntry[]; nextPageToken: string };
+/** Newest first; an empty `nextPageToken` means no more. */
+export type ListStrategyNotesRevisionsResult = {
+    revisions: StrategyNotes[];
+    nextPageToken: string;
+};
+/** Newest first, each kept 30 days after it finished; an empty `nextPageToken` means no more. */
+export type ListStrategyBacktestsResult = {
+    backtests: StrategyBacktestListItem[];
+    nextPageToken: string;
+};
+/** In `tradeIndex` order; an empty `nextPageToken` means no more. */
+export type ListStrategyBacktestTradesResult = {
+    trades: StrategyBacktestTrade[];
+    nextPageToken: string;
+};
+/**
+ * Oldest first, in increasing `sequence`; an empty `nextPageToken` means no more for now.
+ * `followToken`, set on the last page, reads what the same deployment writes later: pass it as
+ * `pageToken`, now or later. `deployedAgain` means a new run started a new log, read by listing
+ * again without `pageToken`; this log can still grow, and `followToken` keeps reading it.
+ */
+export type ListStrategyBotLogsResult = {
+    entries: StrategyBotLogEntry[];
+    nextPageToken: string;
+    followToken: string;
+    deployedAgain: boolean;
+};

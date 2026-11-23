@@ -1,5 +1,6 @@
 export type {
     AssistantConversation,
+    AssistantConversationAccount,
     AssistantKey,
     AssistantMemory,
     AssistantMessage,

@@ -26,6 +26,11 @@ export const AssistantKeyPresetCodec = {
         read_only: Proto.AssistantKeyPreset.READ_ONLY,
         trade_with_approval: Proto.AssistantKeyPreset.TRADE_WITH_APPROVAL,
     } satisfies InputToProto<AssistantKeyPreset, Proto.AssistantKeyPreset>,
+    protoToOutput: {
+        [Proto.AssistantKeyPreset.PRESET_UNSPECIFIED]: "unspecified",
+        [Proto.AssistantKeyPreset.READ_ONLY]: "read_only",
+        [Proto.AssistantKeyPreset.TRADE_WITH_APPROVAL]: "trade_with_approval",
+    } satisfies ProtoToOutput<Proto.AssistantKeyPreset, AssistantKeyPreset>,
 } as const;
 
 /**

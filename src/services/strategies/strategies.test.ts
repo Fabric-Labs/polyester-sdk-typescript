@@ -1,4 +1,4 @@
-import { create } from "@bufbuild/protobuf";
+import { create, isFieldSet } from "@bufbuild/protobuf";
 import { Code, ConnectError } from "@connectrpc/connect";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as Proto from "../../gen/strategies/v1/strategies_pb.js";
@@ -150,8 +150,11 @@ describe("StrategiesService", () => {
                         source: { case: "duplicate", value: { sourceVersionId: "v0" } },
                     },
                     bot: { botId: 3n, status: Proto.Bot_Status.RUNNING },
+                    markets: ["BTC/USDT"],
+                    summary: "Buys dips",
                 },
                 head: { versionId: "v3", code: "bot()", manifest: { name: "Grid" } },
+                notes: { strategyId: 5n },
             }),
         });
 
@@ -160,8 +163,11 @@ describe("StrategiesService", () => {
                 revision: "3",
                 origin: { kind: "duplicate", sourceVersionId: "v0" },
                 bot: { botId: formatId(3n), status: "running" },
+                markets: ["BTC/USDT"],
+                summary: "Buys dips",
             },
             head: { versionId: "v3", code: "bot()", manifest: { name: "Grid" }, createdAt: null },
+            notes: { strategyId: formatId(5n), notesRevision: "0", savedAt: null },
         });
         expect(transport.lastCall()?.message).toEqual({ strategyId: 5n });
     });
@@ -226,6 +232,7 @@ describe("StrategiesService", () => {
                 code: "bot()",
                 valid: true,
                 createdAt: ts(1_700_000_000),
+                validation: { versionId: "v1", valid: true },
             }),
         });
 
@@ -239,6 +246,12 @@ describe("StrategiesService", () => {
             valid: true,
             createdAt: 1_700_000_000_000,
             flow: null,
+            validation: expect.objectContaining({
+                versionId: "v1",
+                valid: true,
+                errors: [],
+                moneyCard: null,
+            }),
         });
         expect(transport.lastCall()?.message).toEqual({ versionId: "v1" });
     });
@@ -359,15 +372,15 @@ describe("StrategiesService", () => {
             getDeployStatus: {
                 status: create(Proto.DeployStatusSchema, {
                     proposalId: 7n,
-                    state: Proto.DeployStatus_State.FUNDING,
-                    step: "Funding the account…",
+                    state: Proto.DeployStatus_State.SETTING_ACCESS,
+                    step: "Setting the bot's limits…",
                 }),
             },
         });
 
         await expect(service.getDeployStatus({ proposalId: formatId(7n) })).resolves.toMatchObject({
             proposalId: formatId(7n),
-            state: "funding",
+            state: "setting_access",
             botId: null,
             subaccountId: null,
             failedAt: "unspecified",
@@ -378,7 +391,11 @@ describe("StrategiesService", () => {
         const { transport, service } = serviceWith({
             getDeployProposal: create(Proto.GetDeployProposalResponseSchema, {
                 proposalId: 7n,
-                summary: { versionId: "v1", botName: "Grid" },
+                summary: {
+                    versionId: "v1",
+                    botName: "Grid",
+                    notBacktestableReason: Proto.NotBacktestableReason.PLACES_LIMIT_ORDERS,
+                },
                 status: {
                     proposalId: 7n,
                     state: Proto.DeployStatus_State.FAILED,
@@ -392,7 +409,13 @@ describe("StrategiesService", () => {
             service.getDeployProposal({ proposalId: formatId(7n) }),
         ).resolves.toMatchObject({
             proposalId: formatId(7n),
-            summary: { versionId: "v1", strategyId: null, revision: null },
+            summary: {
+                versionId: "v1",
+                strategyId: null,
+                revision: null,
+                backtest: null,
+                notBacktestableReason: "places_limit_orders",
+            },
             status: { state: "failed", failedAt: "funding" },
             createdAt: null,
             fundingSubaccountLabel: "Savings",
@@ -408,8 +431,10 @@ describe("StrategiesService", () => {
                         botId: 3n,
                         subaccountId: 4n,
                         status: Proto.Bot_Status.PAUSED,
-                        pauseReason: Proto.Bot_PauseReason.FAILURES_IN_A_ROW,
-                        profitAndLoss: "-12.5",
+                        pauseReason: Proto.Bot_PauseReason.UNRECORDED_ORDER,
+                        activity: [
+                            { start: ts(1_700_000_000), decisions: 3, fills: 1, expired: 2 },
+                        ],
                         markets: ["BTC/USDT"],
                         funding: {
                             subaccountId: 6n,
@@ -440,6 +465,8 @@ describe("StrategiesService", () => {
                     }),
                 ],
                 nextPageToken: "",
+                followToken: "follow",
+                deployedAgain: true,
             },
         });
 
@@ -449,8 +476,8 @@ describe("StrategiesService", () => {
                     botId: formatId(3n),
                     subaccountId: formatId(4n),
                     status: "paused",
-                    pauseReason: "failures_in_a_row",
-                    profitAndLoss: "-12.5",
+                    pauseReason: "unrecorded_order",
+                    activity: [{ start: 1_700_000_000_000, decisions: 3, fills: 1, expired: 2 }],
                     markets: ["BTC/USDT"],
                     funding: {
                         subaccountId: formatId(6n),
@@ -473,6 +500,8 @@ describe("StrategiesService", () => {
         ).resolves.toEqual({
             entries: [{ sequence: "9", time: null, kind: "error", message: "boom" }],
             nextPageToken: "",
+            followToken: "follow",
+            deployedAgain: true,
         });
         expect(transport.lastCall()?.message).toEqual({
             botId: 3n,
@@ -528,6 +557,415 @@ describe("StrategiesService", () => {
             // @ts-expect-error: an unknown mode is rejected before the call
             service.stopBot({ botId: formatId(3n), mode: "pause", idempotencyKey: "s-1" }),
         ).rejects.toBeInstanceOf(ValidationError);
+    });
+
+    it("lists templates with the money card a version saved from them shows", async () => {
+        const { service } = serviceWith({
+            listStrategyTemplates: create(Proto.ListStrategyTemplatesResponseSchema, {
+                templates: [{ templateId: "grid", moneyCard: { markets: ["BTC/USDT"] } }],
+            }),
+        });
+
+        await expect(service.listTemplates()).resolves.toMatchObject([
+            { templateId: "grid", moneyCard: { budget: null, markets: ["BTC/USDT"] } },
+        ]);
+    });
+
+    it("reads a bot's decisions and errors; balances, open orders and P&L are read elsewhere", async () => {
+        const { service } = serviceWith({
+            getBot: create(Proto.GetBotResponseSchema, {
+                bot: { botId: 3n, subaccountId: 4n, status: Proto.Bot_Status.RUNNING },
+                decisions: [
+                    {
+                        decidedAt: ts(1_700_000_000),
+                        event: "on_timer",
+                        orders: [{ buy: "BTC/USDT", qty: "0.1" }],
+                        logs: ["bought"],
+                    },
+                ],
+                errors: [{ time: ts(1_700_000_060), event: "on_fill", message: "boom" }],
+            }),
+        });
+
+        const details = await service.getBot({ botId: formatId(3n) });
+        expect(Object.keys(details).sort()).toEqual([
+            "bot",
+            "decisions",
+            "errors",
+            "moneyCard",
+            "settings",
+        ]);
+        expect(details.bot).not.toHaveProperty("profitAndLoss");
+        expect(details.bot.activity).toEqual([]);
+        expect(details.decisions).toEqual([
+            {
+                decidedAt: 1_700_000_000_000,
+                event: "on_timer",
+                orders: [{ buy: "BTC/USDT", qty: "0.1" }],
+                logs: ["bought"],
+            },
+        ]);
+        expect(details.errors).toEqual([
+            { time: 1_700_000_060_000, event: "on_fill", message: "boom" },
+        ]);
+    });
+
+    it("reads a finished backtest's grade, scenarios, equity curve and new metrics", async () => {
+        const { service } = serviceWith({
+            getBacktest: create(Proto.GetBacktestResponseSchema, {
+                backtest: {
+                    backtestId: 42n,
+                    status: Proto.Backtest_Status.DONE,
+                    attempts: 3,
+                    report: {
+                        evidenceGrade: Proto.EvidenceGrade.MEDIUM,
+                        metrics: {
+                            sharpeRatio: "1.4",
+                            realizedPnl: "12.5",
+                            maxDrawdownStart: ts(1_700_000_000),
+                            startEquity: "1000",
+                            endEquity: "1012.5",
+                        },
+                        heldBackMetrics: { returnPercent: "1" },
+                        heldBackBaselines: [{ name: "cash" }],
+                        scenarios: [{ name: "high", slippageBps: 25, metrics: {} }],
+                        equity: [
+                            { time: ts(1_700_000_000), equity: "1000", buyAndHoldEquity: "1000" },
+                        ],
+                        heldBackStart: ts(1_700_086_400),
+                        windowMaxDrawdownPercent: "4.2",
+                        heldBackSeen: true,
+                        trades: [{ tradeIndex: 0n, realizedPnl: "", afterGap: true }],
+                        dataGaps: [{ market: "BTC/USDT", affected: true }],
+                    },
+                },
+            }),
+        });
+
+        const backtest = await service.getBacktest({ backtestId: formatId(42n) });
+        expect(backtest).toMatchObject({
+            status: "done",
+            attempts: 3,
+            notBacktestableReason: "unspecified",
+            report: {
+                evidenceGrade: "medium",
+                metrics: {
+                    sharpeRatio: "1.4",
+                    realizedPnl: "12.5",
+                    maxDrawdownStart: 1_700_000_000_000,
+                    maxDrawdownEnd: null,
+                    startEquity: "1000",
+                    endEquity: "1012.5",
+                },
+                heldBackMetrics: { returnPercent: "1", sharpeRatio: null },
+                heldBackBaselines: [{ name: "cash", metrics: null }],
+                scenarios: [
+                    {
+                        name: "high",
+                        slippageBps: 25,
+                        metrics: { sharpeRatio: null },
+                        heldBackMetrics: null,
+                    },
+                ],
+                equity: [{ time: 1_700_000_000_000, equity: "1000", buyAndHoldEquity: "1000" }],
+                heldBackStart: 1_700_086_400_000,
+                windowMaxDrawdownPercent: "4.2",
+                windowMaxDrawdownStart: null,
+                heldBackSeen: true,
+                trades: [{ tradeIndex: "0", realizedPnl: "", afterGap: true }],
+                dataGaps: [{ market: "BTC/USDT", window: null, affected: true }],
+            },
+        });
+        expect(backtest.report).not.toHaveProperty("attempts");
+        expect(backtest.report).not.toHaveProperty("reportUrl");
+    });
+
+    it("reads a backtest that ended as not backtestable, with its reason", async () => {
+        const { service } = serviceWith({
+            getBacktest: create(Proto.GetBacktestResponseSchema, {
+                backtest: {
+                    backtestId: 42n,
+                    status: Proto.Backtest_Status.NOT_BACKTESTABLE,
+                    notBacktestableReason: Proto.NotBacktestableReason.PLACES_LIMIT_ORDERS,
+                },
+            }),
+        });
+
+        await expect(service.getBacktest({ backtestId: formatId(42n) })).resolves.toMatchObject({
+            status: "not_backtestable",
+            notBacktestableReason: "places_limit_orders",
+            report: null,
+        });
+    });
+
+    it("lists a strategy's backtests as headlines", async () => {
+        const { transport, service } = serviceWith({
+            listBacktests: create(Proto.ListBacktestsResponseSchema, {
+                backtests: [
+                    {
+                        summary: {
+                            backtestId: 42n,
+                            status: Proto.Backtest_Status.DONE,
+                            metrics: { returnPercent: "2.5" },
+                            attempts: 2,
+                        },
+                        versionId: "v1",
+                        revision: 3n,
+                        window: { startTime: ts(1_700_000_000), endTime: ts(1_700_086_400) },
+                        createdAt: ts(1_700_100_000),
+                    },
+                ],
+                nextPageToken: "next",
+            }),
+        });
+
+        await expect(
+            service.listBacktests({ strategyId: formatId(5n), limit: 50 }),
+        ).resolves.toEqual({
+            backtests: [
+                {
+                    summary: {
+                        backtestId: formatId(42n),
+                        status: "done",
+                        metrics: expect.objectContaining({ returnPercent: "2.5" }),
+                        heldBackMetrics: null,
+                        attempts: 2,
+                    },
+                    versionId: "v1",
+                    revision: "3",
+                    window: { startTime: 1_700_000_000_000, endTime: 1_700_086_400_000 },
+                    createdAt: 1_700_100_000_000,
+                    finishedAt: null,
+                },
+            ],
+            nextPageToken: "next",
+        });
+        expect(transport.lastCall()?.method.name).toBe("ListBacktests");
+        expect(transport.lastCall()?.message).toEqual({ strategyId: 5n, limit: 50, pageToken: "" });
+        await expect(
+            service.listBacktests({ strategyId: formatId(5n), limit: 51 }),
+        ).rejects.toBeInstanceOf(ValidationError);
+    });
+
+    it("lists a backtest's trades a page at a time", async () => {
+        const { transport, service } = serviceWith({
+            listBacktestTrades: create(Proto.ListBacktestTradesResponseSchema, {
+                trades: [
+                    {
+                        tradeIndex: 20n,
+                        time: ts(1_700_000_000),
+                        market: "BTC/USDT",
+                        side: Proto.OrderSide.SELL,
+                        price: "100",
+                        quantity: "0.1",
+                        fee: { asset: "USDT", amount: "0.01" },
+                        reason: "take profit",
+                        realizedPnl: "-0.75",
+                    },
+                ],
+                nextPageToken: "next",
+            }),
+        });
+
+        await expect(
+            service.listBacktestTrades({
+                backtestId: formatId(42n),
+                limit: 1000,
+                pageToken: "p",
+            }),
+        ).resolves.toEqual({
+            trades: [
+                {
+                    tradeIndex: "20",
+                    time: 1_700_000_000_000,
+                    market: "BTC/USDT",
+                    side: "sell",
+                    price: "100",
+                    quantity: "0.1",
+                    fee: { asset: "USDT", amount: "0.01" },
+                    reason: "take profit",
+                    realizedPnl: "-0.75",
+                    afterGap: false,
+                },
+            ],
+            nextPageToken: "next",
+        });
+        expect(transport.lastCall()?.method.name).toBe("ListBacktestTrades");
+        expect(transport.lastCall()?.message).toEqual({
+            backtestId: 42n,
+            limit: 1000,
+            pageToken: "p",
+        });
+    });
+
+    it("reads, saves and lists a strategy's notes", async () => {
+        const notes = {
+            strategyId: 5n,
+            notesRevision: 2n,
+            summary: "Buys dips",
+            body: "# Plan\n",
+            savedAt: ts(1_700_000_000),
+            savedBy: Proto.StrategyRevision_SavedBy.API_KEY,
+        };
+        const formatted = {
+            strategyId: formatId(5n),
+            notesRevision: "2",
+            summary: "Buys dips",
+            body: "# Plan\n",
+            savedAt: 1_700_000_000_000,
+            savedBy: "api_key",
+        };
+        const { transport, service } = serviceWith({
+            getStrategyNotes: create(Proto.GetStrategyNotesResponseSchema, { notes }),
+            saveStrategyNotes: create(Proto.SaveStrategyNotesResponseSchema, { notes }),
+            listStrategyNotesRevisions: create(Proto.ListStrategyNotesRevisionsResponseSchema, {
+                revisions: [notes, { strategyId: 5n }],
+                nextPageToken: "next",
+            }),
+        });
+
+        await expect(service.getNotes({ strategyId: formatId(5n) })).resolves.toEqual(formatted);
+        expect(transport.lastCall()?.method.name).toBe("GetStrategyNotes");
+        expect(transport.lastCall()?.message).toEqual({ strategyId: 5n });
+
+        await expect(
+            service.saveNotes({
+                strategyId: formatId(5n),
+                expectedNotesRevision: "1",
+                summary: "Buys dips",
+                body: "# Plan\n",
+            }),
+        ).resolves.toEqual(formatted);
+        expect(transport.lastCall()?.method.name).toBe("SaveStrategyNotes");
+        expect(transport.lastCall()?.message).toEqual({
+            strategyId: 5n,
+            expectedNotesRevision: 1n,
+            summary: "Buys dips",
+            body: "# Plan\n",
+        });
+        expect(transport.lastCall()?.message).not.toHaveProperty("expectedRevision");
+
+        await service.saveNotes({
+            strategyId: formatId(5n),
+            expectedNotesRevision: "0",
+            summary: "",
+            body: "",
+            idempotencyKey: "n-1",
+            expectedRevision: "0",
+        });
+        expect(transport.lastCall()?.message).toMatchObject({
+            expectedNotesRevision: 0n,
+            idempotencyKey: "n-1",
+            expectedRevision: 0n,
+        });
+
+        await expect(
+            service.listNotesRevisions({ strategyId: formatId(5n), limit: 20 }),
+        ).resolves.toEqual({
+            revisions: [
+                formatted,
+                {
+                    strategyId: formatId(5n),
+                    notesRevision: "0",
+                    summary: "",
+                    body: "",
+                    savedAt: null,
+                    savedBy: "unspecified",
+                },
+            ],
+            nextPageToken: "next",
+        });
+        expect(transport.lastCall()?.method.name).toBe("ListStrategyNotesRevisions");
+        expect(transport.lastCall()?.message).toEqual({ strategyId: 5n, limit: 20, pageToken: "" });
+        await expect(
+            service.listNotesRevisions({ strategyId: formatId(5n), limit: 21 }),
+        ).rejects.toBeInstanceOf(ValidationError);
+    });
+
+    it("sends saveDraftVersion's expectedNotesRevision only when given, including zero", async () => {
+        const { transport, service } = serviceWith({
+            saveDraftVersion: create(Proto.SaveDraftVersionResponseSchema, {
+                revision: 1n,
+                version: { versionId: "v1" },
+            }),
+        });
+        const input = {
+            strategyId: formatId(6n),
+            expectedRevision: "0",
+            name: "Grid",
+            manifest: {},
+            code: "",
+        };
+
+        await service.saveDraftVersion(input);
+        expect(transport.lastCall()?.message).not.toHaveProperty("expectedNotesRevision");
+
+        await service.saveDraftVersion({ ...input, expectedNotesRevision: "0" });
+        const message = transport.lastCall()?.message;
+        expect(message).toMatchObject({ expectedNotesRevision: 0n });
+        expect(
+            isFieldSet(
+                create(Proto.SaveDraftVersionRequestSchema, message),
+                Proto.SaveDraftVersionRequestSchema.field.expectedNotesRevision,
+            ),
+        ).toBe(true);
+    });
+
+    it("maps a notes revision conflict to a RevisionConflictError with the notes' revision", async () => {
+        const service = rejectingService(Code.FailedPrecondition, {
+            code: Proto.ErrorCode.NOTES_REVISION_CONFLICT,
+            notesConflict: { notesRevision: 4n },
+        });
+        const rejected = service.saveNotes({
+            strategyId: formatId(5n),
+            expectedNotesRevision: "3",
+            summary: "",
+            body: "",
+        });
+        await expect(rejected).rejects.toBeInstanceOf(RevisionConflictError);
+        await expect(rejected).rejects.toMatchObject({
+            detail: {
+                service: "strategies",
+                code: "NOTES_REVISION_CONFLICT",
+                notesConflict: { notesRevision: "4" },
+            },
+        });
+    });
+
+    it("surfaces why a bot cannot be backtested, and only when the detail says", async () => {
+        const rejected = rejectingService(Code.FailedPrecondition, {
+            code: Proto.ErrorCode.NOT_BACKTESTABLE,
+            notBacktestableReason: Proto.NotBacktestableReason.READS_VOLUME,
+        }).startBacktest({ versionId: "v1", idempotencyKey: "bt-1" });
+        await expect(rejected).rejects.toBeInstanceOf(PreconditionFailedError);
+        await expect(rejected).rejects.toMatchObject({
+            detail: { code: "NOT_BACKTESTABLE", notBacktestableReason: "reads_volume" },
+        });
+
+        const bare = rejectingService(Code.FailedPrecondition, {
+            code: Proto.ErrorCode.NOT_BACKTESTABLE,
+        }).startBacktest({ versionId: "v1", idempotencyKey: "bt-1" });
+        await expect(bare).rejects.toSatisfy(
+            (error: PreconditionFailedError) => !("notBacktestableReason" in (error.detail ?? {})),
+        );
+    });
+
+    it("maps the limit on backtests at once to a RateLimitError with its use and no retryAfter", async () => {
+        const service = rejectingService(Code.ResourceExhausted, {
+            code: Proto.ErrorCode.BACKTEST_LIMIT_REACHED,
+            backtestLimit: { dailyLimit: 200, dailyUsed: 12, activeLimit: 3, active: 3 },
+        });
+        const rejected = service.startBacktest({ versionId: "v1", idempotencyKey: "bt-1" });
+        await expect(rejected).rejects.toBeInstanceOf(RateLimitError);
+        await expect(rejected).rejects.toSatisfy(
+            (error: RateLimitError) => !("retryAfter" in (error.detail ?? {})),
+        );
+        await expect(rejected).rejects.toMatchObject({
+            detail: {
+                code: "BACKTEST_LIMIT_REACHED",
+                backtestLimit: { dailyLimit: 200, dailyUsed: 12, activeLimit: 3, active: 3 },
+            },
+        });
     });
 
     it("maps a draft revision conflict to a RevisionConflictError with the current revision", async () => {

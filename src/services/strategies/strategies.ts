@@ -15,19 +15,24 @@ import {
     CreateStrategyInputSchema,
     DeployProposalInputSchema,
     GetStrategyReferenceInputSchema,
+    ListBacktestTradesInputSchema,
+    ListBacktestsInputSchema,
     ListBotLogsInputSchema,
     ListBotVersionsInputSchema,
     ListBotsInputSchema,
     ListStrategiesInputSchema,
+    ListStrategyNotesRevisionsInputSchema,
     ListStrategyRevisionsInputSchema,
     ProposeDeployInputSchema,
     RenameStrategyInputSchema,
     SaveDraftVersionInputSchema,
+    SaveStrategyNotesInputSchema,
     StartBacktestInputSchema,
     StopBotInputSchema,
     StrategyIdInputSchema,
     StrategyVersionInputSchema,
     formatBacktest,
+    formatBacktestTrade,
     formatBot,
     formatBotDetails,
     formatBotLogEntry,
@@ -43,7 +48,9 @@ import {
     formatStartBacktestResult,
     formatStopBotResult,
     formatStrategy,
+    formatStrategyBacktestListItem,
     formatStrategyDetails,
+    formatStrategyNotes,
     formatStrategyReference,
     formatStrategyRevision,
     formatStrategyTemplate,
@@ -52,14 +59,20 @@ import {
     type CreateStrategyResult,
     type ExplainStrategyResult,
     type GetStrategyReferenceInput,
+    type ListBacktestTradesInput,
+    type ListBacktestsInput,
     type ListBotLogsInput,
     type ListBotVersionsInput,
     type ListBotsInput,
     type ListStrategiesInput,
     type ListStrategiesResult,
+    type ListStrategyBacktestTradesResult,
+    type ListStrategyBacktestsResult,
     type ListStrategyBotLogsResult,
     type ListStrategyBotVersionsResult,
     type ListStrategyBotsResult,
+    type ListStrategyNotesRevisionsInput,
+    type ListStrategyNotesRevisionsResult,
     type ListStrategyRevisionsInput,
     type ListStrategyRevisionsResult,
     type ProposeDeployInput,
@@ -68,6 +81,7 @@ import {
     type RunStrategyScenariosResult,
     type SaveDraftVersionInput,
     type SaveDraftVersionResult,
+    type SaveStrategyNotesInput,
     type StartBacktestInput,
     type StartStrategyBacktestResult,
     type StopBotInput,
@@ -82,6 +96,7 @@ import {
     type StrategyDeployStatus,
     type StrategyDetails,
     type StrategyInput,
+    type StrategyNotes,
     type StrategyReference,
     type StrategyTemplate,
     type StrategyVersion,
@@ -145,8 +160,9 @@ export class StrategiesService {
      * Checks a bot and saves it as the strategy's next revision, renaming the strategy to `name`.
      * A bot with mistakes is saved too, with `valid: false` and its `errors`. A stale
      * `expectedRevision` throws `RevisionConflictError` (`DRAFT_REVISION_CONFLICT`, with
-     * `revisionConflict`): read the strategy again and reapply the change. Needs
-     * `draft-strategies`.
+     * `revisionConflict`): read the strategy again and reapply the change. With
+     * `expectedNotesRevision`, notes saved since also throw `RevisionConflictError`
+     * (`NOTES_REVISION_CONFLICT`, with `notesConflict`). Needs `draft-strategies`.
      */
     async saveDraftVersion(
         input: SaveDraftVersionInput,
@@ -158,7 +174,7 @@ export class StrategiesService {
     }
 
     /**
-     * Reads a strategy and its current revision's version. An unknown strategy throws
+     * Reads a strategy, its current revision's version and its notes. An unknown strategy throws
      * `ResourceNotFoundError` (`STRATEGY_NOT_FOUND`). Needs `read-strategies`.
      */
     async get(input: StrategyInput, options?: PolyesterRequestOptions): Promise<StrategyDetails> {
@@ -200,6 +216,60 @@ export class StrategiesService {
     }
 
     /**
+     * Reads a strategy's notes: its one-line summary and Markdown body as last saved, with
+     * `notesRevision` `"0"` when never saved. An unknown strategy throws `ResourceNotFoundError`
+     * (`STRATEGY_NOT_FOUND`). Needs `read-strategies`.
+     */
+    async getNotes(
+        input: StrategyInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<StrategyNotes> {
+        const request = parse(StrategyIdInputSchema, input);
+        const res = await this.#client.getStrategyNotes(request, toConnectCallOptions(options));
+        if (!res.notes) throw new Error("GetStrategyNotes response is missing its notes");
+        return formatStrategyNotes(res.notes);
+    }
+
+    /**
+     * Saves a strategy's notes as their next revision; notes equal to the current ones add none
+     * and return the current revision. A stale `expectedNotesRevision` throws
+     * `RevisionConflictError` (`NOTES_REVISION_CONFLICT`, with `notesConflict`): read the notes
+     * again, reapply the change and save with the new revision. A stale `expectedRevision` throws
+     * `RevisionConflictError` (`DRAFT_REVISION_CONFLICT`); an unknown strategy throws
+     * `ResourceNotFoundError` (`STRATEGY_NOT_FOUND`); reusing `idempotencyKey` for another request
+     * throws `AlreadyExistsError`. Needs `draft-strategies`.
+     */
+    async saveNotes(
+        input: SaveStrategyNotesInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<StrategyNotes> {
+        const request = parse(SaveStrategyNotesInputSchema, input);
+        const res = await this.#client.saveStrategyNotes(request, toConnectCallOptions(options));
+        if (!res.notes) throw new Error("SaveStrategyNotes response is missing its notes");
+        return formatStrategyNotes(res.notes);
+    }
+
+    /**
+     * Lists a strategy's saved notes, newest first, with how each was saved; every revision is
+     * kept. An unknown strategy throws `ResourceNotFoundError` (`STRATEGY_NOT_FOUND`). Needs
+     * `read-strategies`.
+     */
+    async listNotesRevisions(
+        input: ListStrategyNotesRevisionsInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<ListStrategyNotesRevisionsResult> {
+        const request = parse(ListStrategyNotesRevisionsInputSchema, input);
+        const res = await this.#client.listStrategyNotesRevisions(
+            removeUndefined(request),
+            toConnectCallOptions(options),
+        );
+        return {
+            revisions: res.revisions.map(formatStrategyNotes),
+            nextPageToken: res.nextPageToken,
+        };
+    }
+
+    /**
      * Renames a strategy; its revisions stay as they are. An unknown strategy throws
      * `ResourceNotFoundError` (`STRATEGY_NOT_FOUND`). Needs `draft-strategies`.
      */
@@ -220,7 +290,8 @@ export class StrategiesService {
     }
 
     /**
-     * Reads a version's manifest, code and settings form, to start a new strategy from it. An
+     * Reads a version's manifest, code, settings form and stored check result, to start a new
+     * strategy from it. An
      * unknown or expired version throws `ResourceNotFoundError` (`VERSION_NOT_FOUND`). Needs
      * `read-strategies`.
      */
@@ -234,9 +305,10 @@ export class StrategiesService {
     }
 
     /**
-     * Runs a version's behaviour examples against its code; a version always gets the same
-     * result. Too many runs throw `RateLimitError` (`SCENARIO_RUN_LIMIT_REACHED`). Needs
-     * `draft-strategies`.
+     * Runs a version's behaviour examples against its code, on each market's trading rules as
+     * they were when the version first ran; a version always gets the same result. A market not
+     * listed on the exchange throws `PreconditionFailedError` (`VERSION_INVALID`); too many runs
+     * throw `RateLimitError` (`SCENARIO_RUN_LIMIT_REACHED`). Needs `draft-strategies`.
      */
     async runScenarios(
         input: StrategyVersionInput,
@@ -248,10 +320,15 @@ export class StrategiesService {
     }
 
     /**
-     * Starts a backtest of a version; poll `getBacktest` until it is `done` or `failed`. The same
-     * version, window, settings and balances return the existing backtest. The daily limit throws
-     * `RateLimitError` (`BACKTEST_LIMIT_REACHED`); reusing `idempotencyKey` for another request
-     * throws `AlreadyExistsError` (`IDEMPOTENCY_CONFLICT`). Needs `draft-strategies`.
+     * Starts a backtest of a version; poll `getBacktest` until it is `done`, `failed` or
+     * `not_backtestable`. The same version, window, settings and balances, under the same fee
+     * rates and platform assumptions, return the existing backtest. A bot that cannot be
+     * backtested throws `PreconditionFailedError` (`NOT_BACKTESTABLE`, with
+     * `notBacktestableReason`). The daily limit throws `RateLimitError` (`BACKTEST_LIMIT_REACHED`)
+     * that waits until the UTC day resets; the limit on backtests at once throws it without a
+     * `retryAfter`, clearing when one finishes (`backtestLimit` says which). Reusing
+     * `idempotencyKey` for another request throws `AlreadyExistsError` (`IDEMPOTENCY_CONFLICT`).
+     * Needs `draft-strategies`.
      */
     async startBacktest(
         input: StartBacktestInput,
@@ -274,6 +351,44 @@ export class StrategiesService {
         const res = await this.#client.getBacktest(request, toConnectCallOptions(options));
         if (!res.backtest) throw new Error("GetBacktest response is missing its backtest");
         return formatBacktest(res.backtest);
+    }
+
+    /**
+     * Lists a strategy's backtests, newest first, each as a headline: those of the versions its
+     * revisions saved, kept 30 days after they finish. An unknown strategy throws
+     * `ResourceNotFoundError` (`STRATEGY_NOT_FOUND`). Needs `read-strategies`.
+     */
+    async listBacktests(
+        input: ListBacktestsInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<ListStrategyBacktestsResult> {
+        const request = parse(ListBacktestsInputSchema, input);
+        const res = await this.#client.listBacktests(
+            removeUndefined(request),
+            toConnectCallOptions(options),
+        );
+        return {
+            backtests: res.backtests.map(formatStrategyBacktestListItem),
+            nextPageToken: res.nextPageToken,
+        };
+    }
+
+    /**
+     * Lists every trade of a finished backtest, a page at a time, in `tradeIndex` order. A
+     * backtest not yet finished throws `PreconditionFailedError` (`BACKTEST_NOT_DONE`); an unknown
+     * or expired one throws `ResourceNotFoundError` (`BACKTEST_NOT_FOUND`). Needs
+     * `read-strategies`.
+     */
+    async listBacktestTrades(
+        input: ListBacktestTradesInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<ListStrategyBacktestTradesResult> {
+        const request = parse(ListBacktestTradesInputSchema, input);
+        const res = await this.#client.listBacktestTrades(
+            removeUndefined(request),
+            toConnectCallOptions(options),
+        );
+        return { trades: res.trades.map(formatBacktestTrade), nextPageToken: res.nextPageToken };
     }
 
     /**
@@ -355,8 +470,9 @@ export class StrategiesService {
     }
 
     /**
-     * Reads one bot: its money rules and settings, its subaccount's balances and open orders, and
-     * its recent decisions and errors. Needs `read-strategies`.
+     * Reads one bot: its money rules and settings, and its recent decisions and errors. Read its
+     * subaccount's balances, open orders and profit and loss by its `subaccountId`, with
+     * `balances.list`, `orders.listOpen` and `profitAndLoss.get`. Needs `read-strategies`.
      */
     async getBot(
         input: StrategyBotInput,
@@ -400,7 +516,12 @@ export class StrategiesService {
         return formatStopBotResult(res);
     }
 
-    /** Reads a bot's log lines, decisions and errors, oldest first. Needs `read-strategies`. */
+    /**
+     * Reads a bot's recent activity, oldest first: the last 20 decisions of its current deployment,
+     * each with the lines its call wrote, and its last 20 errors. Older entries are not kept, and
+     * each lags the bot by up to about a minute. Follow new entries with the last page's
+     * `followToken`. Needs `read-strategies`.
+     */
     async listBotLogs(
         input: ListBotLogsInput,
         options?: PolyesterRequestOptions,
@@ -410,6 +531,11 @@ export class StrategiesService {
             removeUndefined(request),
             toConnectCallOptions(options),
         );
-        return { entries: res.entries.map(formatBotLogEntry), nextPageToken: res.nextPageToken };
+        return {
+            entries: res.entries.map(formatBotLogEntry),
+            nextPageToken: res.nextPageToken,
+            followToken: res.followToken,
+            deployedAgain: res.deployedAgain,
+        };
     }
 }

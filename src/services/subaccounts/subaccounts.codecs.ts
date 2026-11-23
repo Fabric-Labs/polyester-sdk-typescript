@@ -98,8 +98,61 @@ export const ACTIVITY_EVENT_ACTION_VALUES = [
 ] as const;
 export type ActivityEventActionValue = (typeof ACTIVITY_EVENT_ACTION_VALUES)[number];
 
-export const ACTIVITY_EVENT_SOURCE_VALUES = ["web", "mobile", "api"] as const;
+/** `system`: Polyester recorded the event by itself, with no client request behind it. */
+export const ACTIVITY_EVENT_SOURCE_VALUES = ["web", "mobile", "api", "system"] as const;
 export type ActivityEventSourceValue = (typeof ACTIVITY_EVENT_SOURCE_VALUES)[number];
+
+export const ACTIVITY_ACTOR_KIND_VALUES = ["user", "api_key", "system", "unauthenticated"] as const;
+export type ActivityActorKindValue = (typeof ACTIVITY_ACTOR_KIND_VALUES)[number];
+
+export const ACTIVITY_API_KEY_KIND_VALUES = [
+    "standard",
+    "assistant",
+    "admin",
+    "strategy_bot",
+    "broker",
+] as const;
+export type ActivityApiKeyKindValue = (typeof ACTIVITY_API_KEY_KIND_VALUES)[number];
+
+export const ACTIVITY_BROKER_ROLE_VALUES = [
+    "owner",
+    "admin",
+    "finance",
+    "affiliate_manager",
+    "viewer",
+] as const;
+export type ActivityBrokerRoleValue = (typeof ACTIVITY_BROKER_ROLE_VALUES)[number];
+
+export const ACTIVITY_SYSTEM_REASON_VALUES = [
+    "assistant_preset_updated",
+    "broker_allowlist_change_settled",
+    "quickswap_pool_provisioned",
+    "quickswap_broker_provisioned",
+    "broker_allowlist_change_reconciling",
+] as const;
+export type ActivitySystemReasonValue = (typeof ACTIVITY_SYSTEM_REASON_VALUES)[number];
+
+export const ACTIVITY_SIGN_IN_METHOD_VALUES = ["wallet", "connected_app"] as const;
+export type ActivitySignInMethodValue = (typeof ACTIVITY_SIGN_IN_METHOD_VALUES)[number];
+
+export const ACTIVITY_SIGN_IN_FAILURE_VALUES = [
+    "invalid_challenge",
+    "challenge_expired",
+    "challenge_used",
+    "invalid_signature",
+    "no_challenge",
+] as const;
+export type ActivitySignInFailureValue = (typeof ACTIVITY_SIGN_IN_FAILURE_VALUES)[number];
+
+export const ACTIVITY_ELEVATED_ACTION_VALUES = [
+    "assistant_access",
+    "strategy_bot_access",
+    "telegram_link",
+] as const;
+export type ActivityElevatedActionValue = (typeof ACTIVITY_ELEVATED_ACTION_VALUES)[number];
+
+export const ACTIVITY_ALLOWLIST_ACTION_VALUES = ["add", "remove"] as const;
+export type ActivityAllowlistActionValue = (typeof ACTIVITY_ALLOWLIST_ACTION_VALUES)[number];
 
 export const SubaccountRoleCodec = {
     inputToProto: {
@@ -270,11 +323,97 @@ export const ActivityEventSourceCodec = {
         web: Proto.ActivityEventSource.ACTIVITY_SOURCE_WEB,
         mobile: Proto.ActivityEventSource.ACTIVITY_SOURCE_MOBILE,
         api: Proto.ActivityEventSource.ACTIVITY_SOURCE_API,
+        system: Proto.ActivityEventSource.ACTIVITY_SOURCE_SYSTEM,
     } satisfies InputToProto<ActivityEventSourceValue, Proto.ActivityEventSource>,
     protoToOutput: {
         [Proto.ActivityEventSource.ACTIVITY_SOURCE_UNSPECIFIED]: "unspecified",
         [Proto.ActivityEventSource.ACTIVITY_SOURCE_WEB]: "web",
         [Proto.ActivityEventSource.ACTIVITY_SOURCE_MOBILE]: "mobile",
         [Proto.ActivityEventSource.ACTIVITY_SOURCE_API]: "api",
+        [Proto.ActivityEventSource.ACTIVITY_SOURCE_SYSTEM]: "system",
     } satisfies ProtoToOutput<Proto.ActivityEventSource, ActivityEventSourceValue>,
+} as const;
+
+export const ActivityActorKindCodec = {
+    protoToOutput: {
+        [Proto.ActivityActorKind.ACTIVITY_ACTOR_UNSPECIFIED]: "unspecified",
+        [Proto.ActivityActorKind.ACTIVITY_ACTOR_USER]: "user",
+        [Proto.ActivityActorKind.ACTIVITY_ACTOR_API_KEY]: "api_key",
+        [Proto.ActivityActorKind.ACTIVITY_ACTOR_SYSTEM]: "system",
+        [Proto.ActivityActorKind.ACTIVITY_ACTOR_UNAUTHENTICATED]: "unauthenticated",
+    } satisfies ProtoToOutput<Proto.ActivityActorKind, ActivityActorKindValue>,
+} as const;
+
+export const ActivityApiKeyKindCodec = {
+    protoToOutput: {
+        [Proto.ActivityApiKeyKind.ACTIVITY_KEY_UNSPECIFIED]: "unspecified",
+        [Proto.ActivityApiKeyKind.ACTIVITY_KEY_STANDARD]: "standard",
+        [Proto.ActivityApiKeyKind.ACTIVITY_KEY_ASSISTANT]: "assistant",
+        [Proto.ActivityApiKeyKind.ACTIVITY_KEY_ADMIN]: "admin",
+        [Proto.ActivityApiKeyKind.ACTIVITY_KEY_STRATEGY_BOT]: "strategy_bot",
+        [Proto.ActivityApiKeyKind.ACTIVITY_KEY_BROKER]: "broker",
+    } satisfies ProtoToOutput<Proto.ActivityApiKeyKind, ActivityApiKeyKindValue>,
+} as const;
+
+export const ActivityBrokerRoleCodec = {
+    protoToOutput: {
+        [Proto.ActivityBrokerRole.ACTIVITY_BROKER_ROLE_UNSPECIFIED]: "unspecified",
+        [Proto.ActivityBrokerRole.ACTIVITY_BROKER_OWNER]: "owner",
+        [Proto.ActivityBrokerRole.ACTIVITY_BROKER_ADMIN]: "admin",
+        [Proto.ActivityBrokerRole.ACTIVITY_BROKER_FINANCE]: "finance",
+        [Proto.ActivityBrokerRole.ACTIVITY_BROKER_AFFILIATE_MANAGER]: "affiliate_manager",
+        [Proto.ActivityBrokerRole.ACTIVITY_BROKER_VIEWER]: "viewer",
+    } satisfies ProtoToOutput<Proto.ActivityBrokerRole, ActivityBrokerRoleValue>,
+} as const;
+
+export const ActivitySystemReasonCodec = {
+    protoToOutput: {
+        [Proto.ActivitySystemReason.ACTIVITY_SYSTEM_REASON_UNSPECIFIED]: "unspecified",
+        [Proto.ActivitySystemReason.ACTIVITY_SYSTEM_ASSISTANT_PRESET_UPDATED]:
+            "assistant_preset_updated",
+        [Proto.ActivitySystemReason.ACTIVITY_SYSTEM_BROKER_ALLOWLIST_CHANGE_SETTLED]:
+            "broker_allowlist_change_settled",
+        [Proto.ActivitySystemReason.ACTIVITY_SYSTEM_QUICKSWAP_POOL_PROVISIONED]:
+            "quickswap_pool_provisioned",
+        [Proto.ActivitySystemReason.ACTIVITY_SYSTEM_QUICKSWAP_BROKER_PROVISIONED]:
+            "quickswap_broker_provisioned",
+        [Proto.ActivitySystemReason.ACTIVITY_SYSTEM_BROKER_ALLOWLIST_CHANGE_RECONCILING]:
+            "broker_allowlist_change_reconciling",
+    } satisfies ProtoToOutput<Proto.ActivitySystemReason, ActivitySystemReasonValue>,
+} as const;
+
+export const ActivitySignInMethodCodec = {
+    protoToOutput: {
+        [Proto.ActivitySignInMethod.ACTIVITY_SIGN_IN_UNSPECIFIED]: "unspecified",
+        [Proto.ActivitySignInMethod.ACTIVITY_SIGN_IN_WALLET]: "wallet",
+        [Proto.ActivitySignInMethod.ACTIVITY_SIGN_IN_CONNECTED_APP]: "connected_app",
+    } satisfies ProtoToOutput<Proto.ActivitySignInMethod, ActivitySignInMethodValue>,
+} as const;
+
+export const ActivitySignInFailureCodec = {
+    protoToOutput: {
+        [Proto.ActivitySignInFailure.UNSPECIFIED]: "unspecified",
+        [Proto.ActivitySignInFailure.INVALID_CHALLENGE]: "invalid_challenge",
+        [Proto.ActivitySignInFailure.CHALLENGE_EXPIRED]: "challenge_expired",
+        [Proto.ActivitySignInFailure.CHALLENGE_USED]: "challenge_used",
+        [Proto.ActivitySignInFailure.INVALID_SIGNATURE]: "invalid_signature",
+        [Proto.ActivitySignInFailure.NO_CHALLENGE]: "no_challenge",
+    } satisfies ProtoToOutput<Proto.ActivitySignInFailure, ActivitySignInFailureValue>,
+} as const;
+
+export const ActivityElevatedActionCodec = {
+    protoToOutput: {
+        [Proto.ActivityElevatedAction.ACTIVITY_ELEVATED_UNSPECIFIED]: "unspecified",
+        [Proto.ActivityElevatedAction.ACTIVITY_ELEVATED_ASSISTANT_ACCESS]: "assistant_access",
+        [Proto.ActivityElevatedAction.ACTIVITY_ELEVATED_STRATEGY_BOT_ACCESS]: "strategy_bot_access",
+        [Proto.ActivityElevatedAction.ACTIVITY_ELEVATED_TELEGRAM_LINK]: "telegram_link",
+    } satisfies ProtoToOutput<Proto.ActivityElevatedAction, ActivityElevatedActionValue>,
+} as const;
+
+export const ActivityAllowlistActionCodec = {
+    protoToOutput: {
+        [Proto.ActivityAllowlistAction.ACTIVITY_ALLOWLIST_UNSPECIFIED]: "unspecified",
+        [Proto.ActivityAllowlistAction.ACTIVITY_ALLOWLIST_ADD]: "add",
+        [Proto.ActivityAllowlistAction.ACTIVITY_ALLOWLIST_REMOVE]: "remove",
+    } satisfies ProtoToOutput<Proto.ActivityAllowlistAction, ActivityAllowlistActionValue>,
 } as const;

@@ -227,6 +227,24 @@ function formatTriggerSettings(s: Proto.TriggerSettings | undefined) {
     };
 }
 
+function formatCancelTriggerPreview(t: Proto.CancelTriggerPreview) {
+    return {
+        triggerId: formatId(t.triggerId),
+        symbolId: t.symbolId,
+        symbol: t.symbol,
+        triggerType: enumLabel(TriggerTypeCodec.protoToOutput, t.type),
+        side: side(t.side),
+        quantity: t.quantity,
+        triggerPrice: t.triggerPrice,
+        filledQuantity: t.filledQuantity,
+        slicesDone: t.slicesDone,
+        sliceCount: t.sliceCount,
+        levelsFilled: t.levelsFilled,
+        levelCount: t.levelCount,
+        cancelsOpenOrders: t.cancelsOpenOrders,
+    };
+}
+
 function formatApprovalPreview(p: Proto.ApprovalRequested["preview"]) {
     switch (p.case) {
         case "orderPreview":
@@ -299,25 +317,14 @@ function formatApprovalPreview(p: Proto.ApprovalRequested["preview"]) {
                 firesOnResume: t.firesOnResume,
             };
         }
-        case "cancelTrigger": {
-            const t = p.value;
+        case "cancelTrigger":
+            return { type: "cancel_trigger" as const, ...formatCancelTriggerPreview(p.value) };
+        case "cancelTriggers":
             return {
-                type: "cancel_trigger" as const,
-                triggerId: formatId(t.triggerId),
-                symbolId: t.symbolId,
-                symbol: t.symbol,
-                triggerType: enumLabel(TriggerTypeCodec.protoToOutput, t.type),
-                side: side(t.side),
-                quantity: t.quantity,
-                triggerPrice: t.triggerPrice,
-                filledQuantity: t.filledQuantity,
-                slicesDone: t.slicesDone,
-                sliceCount: t.sliceCount,
-                levelsFilled: t.levelsFilled,
-                levelCount: t.levelCount,
-                cancelsOpenOrders: t.cancelsOpenOrders,
+                type: "cancel_triggers" as const,
+                /** Every trigger the approval cancels, in the order the user named them. */
+                triggers: p.value.triggers.map(formatCancelTriggerPreview),
             };
-        }
         case "swap": {
             const s = p.value;
             return {
@@ -522,6 +529,18 @@ function formatEvent(e: Proto.RunEvent["event"], scales: SdkScales) {
                 summary: e.value.summary,
                 /** Website page where the user deploys the bot it proposed; omitted when it proposed none. */
                 deployUrl: e.value.deployUrl,
+                /**
+                 * The last strategy revision its saves are known to have landed, whatever its
+                 * outcome; absent when none is known. Read the strategy for what it shows.
+                 */
+                draftVersion: e.value.draftVersion
+                    ? {
+                          strategyId: formatId(e.value.draftVersion.strategyId),
+                          /** A decimal string, from `"1"`. */
+                          revision: e.value.draftVersion.revision.toString(),
+                          versionId: e.value.draftVersion.versionId,
+                      }
+                    : undefined,
             };
         case "approvalRequested":
             return {

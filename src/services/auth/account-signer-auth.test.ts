@@ -168,6 +168,7 @@ describe("AccountSignerAuthService", () => {
             totalCreated: 1,
             smartAccountSaltNonce: 1,
             revision: "1",
+            replayed: false,
         });
         await auth.login({ provider: "other" });
         await auth.refreshSession();
@@ -928,6 +929,7 @@ describe("AccountSignerAuthService", () => {
             totalCreated: 1,
             smartAccountSaltNonce: 1,
             revision: "9",
+            replayed: false,
         });
 
         await expect(
@@ -979,6 +981,7 @@ describe("AccountSignerAuthService", () => {
             totalCreated: 1,
             smartAccountSaltNonce: 1,
             revision: "9",
+            replayed: false,
         });
 
         await expect(
@@ -1016,6 +1019,7 @@ describe("AccountSignerAuthService", () => {
             totalCreated: 1,
             smartAccountSaltNonce: 1,
             revision: "9",
+            replayed: false,
         });
         const factory = vi.fn(async (challenge: { smartAccountSaltNonce: number }) => {
             expect(challenge.smartAccountSaltNonce).toBe(1);

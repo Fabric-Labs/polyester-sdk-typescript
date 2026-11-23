@@ -1,5 +1,7 @@
+import { create, type MessageInitShape } from "@bufbuild/protobuf";
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
+import * as ProtoMfa from "../../gen/auth/v1/mfa_pb.js";
 
 import { formatId } from "../../utils/base58-id.js";
 import * as Proto from "../../gen/auth/v1/subaccounts_pb.js";
@@ -7,6 +9,7 @@ import {
     CreateSubaccountResultSchema,
     EffectiveSubaccountPermissionsSchema,
     ListSubaccountInvitesInputSchema,
+    SubaccountActivityEventSchema,
     SubaccountMutationResultSchema,
     SubaccountSchema,
     UpdateSubaccountInputSchema,
@@ -88,6 +91,7 @@ describe("subaccount status schemas", () => {
             totalCreated: 7,
             smartAccountSaltNonce: 7,
             revision: "18446744073709551615",
+            replayed: false,
         });
     });
 
@@ -151,5 +155,84 @@ describe("ListSubaccountInvitesInputSchema", () => {
         }
 
         expect(() => v.parse(ListSubaccountInvitesInputSchema, { direction: "all" })).toThrow();
+    });
+});
+
+describe("SubaccountActivityEventSchema details", () => {
+    it.each<[MessageInitShape<typeof Proto.ActivityDetailsSchema>["kind"], unknown]>([
+        [
+            { case: "account", value: { username: { from: "old", to: "new" } } },
+            { type: "account", username: { from: "old", to: "new" }, generatedUsername: false },
+        ],
+        [
+            {
+                case: "subaccount",
+                value: {
+                    status: {
+                        from: Proto.SubaccountStatus.ACTIVE,
+                        to: Proto.SubaccountStatus.DISABLED,
+                    },
+                    requireMemberMfa: { from: false, to: true },
+                },
+            },
+            {
+                type: "subaccount",
+                status: { from: "active", to: "disabled" },
+                requireMemberMfa: { from: false, to: true },
+            },
+        ],
+        [
+            {
+                case: "member",
+                value: {
+                    brokerRole: {
+                        from: Proto.ActivityBrokerRole.ACTIVITY_BROKER_VIEWER,
+                        to: Proto.ActivityBrokerRole.ACTIVITY_BROKER_OWNER,
+                    },
+                    ownershipTransfer: true,
+                },
+            },
+            {
+                type: "member",
+                role: undefined,
+                brokerRole: { from: "viewer", to: "owner" },
+                ownershipTransfer: true,
+            },
+        ],
+        [
+            {
+                case: "brokerAllowlist",
+                value: {
+                    action: Proto.ActivityAllowlistAction.ACTIVITY_ALLOWLIST_ADD,
+                    destination: "0xdef",
+                    destinationChainId: 8453n,
+                },
+            },
+            { type: "broker_allowlist", action: "add", destinationChainId: "8453" },
+        ],
+        [
+            {
+                case: "security",
+                value: {
+                    factorType: ProtoMfa.MFAFactorType.MFA_FACTOR_TYPE_PASSKEY,
+                    challengePurpose:
+                        ProtoMfa.MFAChallengePurpose.MFA_CHALLENGE_PURPOSE_FRESH_STEP_UP,
+                    recoveryCodesRotated: true,
+                },
+            },
+            {
+                type: "security",
+                factorType: "passkey",
+                challengePurpose: "freshStepUp",
+                recoveryCodesRotated: true,
+            },
+        ],
+        [{ case: undefined }, { type: "unspecified" }],
+    ])("formats %o", (kind, expected) => {
+        const event = v.parse(
+            SubaccountActivityEventSchema,
+            create(Proto.ActivityEventSchema, { details: { kind } }),
+        );
+        expect(event.details).toMatchObject(expected as object);
     });
 });

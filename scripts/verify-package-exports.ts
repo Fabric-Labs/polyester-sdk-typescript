@@ -335,7 +335,11 @@ async function verifyServiceInference(): Promise<void> {
     expectType<import("@polyester/sdk").AccountActivityEvent | undefined>(
         accountActivity.events[0],
     );
-    expectType<string | undefined>(accountActivity.events[0]?.actorApiKeyId);
+    expectType<import("@polyester/sdk").ActivityActor | undefined>(accountActivity.events[0]?.actor);
+    expectType<import("@polyester/sdk").ActivityItem | undefined>(accountActivity.events[0]?.item);
+    expectType<import("@polyester/sdk").ActivityDetails | undefined>(
+        accountActivity.events[0]?.details,
+    );
     const notificationPage = await client.notifications.list({
         categories: ["alerts"],
         readState: "unread",
@@ -420,6 +424,17 @@ async function verifyServiceInference(): Promise<void> {
     expectType<import("@polyester/sdk").StrategyBotPauseReason | "unspecified">(
         stoppedBot.bot.pauseReason,
     );
+    const strategyNotes = await client.strategies.saveNotes({
+        strategyId: "1",
+        expectedNotesRevision: "0",
+        summary: "Grid",
+        body: "",
+    } satisfies import("@polyester/sdk").SaveStrategyNotesInput);
+    expectType<import("@polyester/sdk").StrategyNotes>(strategyNotes);
+    const strategyBacktests = await client.strategies.listBacktests({ strategyId: "1" });
+    expectType<import("@polyester/sdk").StrategyBacktestListItem[]>(strategyBacktests.backtests);
+    const backtestTrades = await client.strategies.listBacktestTrades({ backtestId: "1" });
+    expectType<import("@polyester/sdk").StrategyBacktestTrade[]>(backtestTrades.trades);
     const deployStatus = await client.strategies.getDeployStatus({ proposalId: "1" });
     expectType<import("@polyester/sdk").StrategyDeployState | "unspecified">(deployStatus.state);
     expectType<string | null>(deployStatus.botId);
@@ -534,6 +549,17 @@ async function verifyServiceInference(): Promise<void> {
         expectType<import("@polyester/sdk").AssistantRunEvent>(event);
         expectNotAny(event, true);
     }
+    expectType<import("@polyester/sdk").AssistantConversationAccount | undefined>(
+        (await client.assistant.listMessages({ conversationId: "1" })).lastAccount,
+    );
+    const indexCandles = await client.candles.listIndexPrice({
+        symbolId: 1,
+        timeframe: "1h",
+    } satisfies import("@polyester/sdk").ListIndexPriceCandlesInput);
+    expectType<import("@polyester/sdk").IndexPriceCandles>(indexCandles);
+    expectType<(import("@polyester/sdk").IndexPriceCandleSource | "unspecified")[]>(
+        indexCandles.source,
+    );
     expectType<import("@polyester/sdk").AssistantKey[]>(await client.assistant.listKeys());
     expectType<string>((await client.assistant.listKeys({ view: "full" }))[0]!.label);
     expectType<import("@polyester/sdk").TelegramApprovalLimits>(

@@ -276,6 +276,35 @@ describe("AssistantService unary calls", () => {
         });
     });
 
+    it("reads the account a conversation's latest message selected", async () => {
+        const { service } = serviceWith({
+            conversations: [
+                { conversationId: 1n, lastAccount: { subaccountId: 7n } },
+                {
+                    conversationId: 2n,
+                    lastAccount: { accountSelection: Proto.AccountSelection.NONE },
+                },
+                { conversationId: 3n, lastAccount: {} },
+                { conversationId: 4n },
+            ],
+            messages: [],
+            lastAccount: { subaccountId: 7n },
+        });
+
+        const { conversations } = await service.listConversations();
+        expect(conversations.map((c) => c.lastAccount)).toEqual([
+            { accountSelection: undefined, subaccountId: formatId(7n) },
+            { accountSelection: "none", subaccountId: undefined },
+            { accountSelection: undefined, subaccountId: undefined },
+            undefined,
+        ]);
+        await expect(service.listMessages({ conversationId: formatId(1n) })).resolves.toMatchObject(
+            {
+                lastAccount: { subaccountId: formatId(7n) },
+            },
+        );
+    });
+
     it("prepares keys with hex public keys and refuses duplicate accounts", async () => {
         const publicKey = new Uint8Array(32).fill(1);
         const proof = new Uint8Array(64).fill(2);
@@ -541,7 +570,12 @@ describe("AssistantService.watchRun", () => {
                 seq: 3n,
                 event: {
                     case: "subagentFinished",
-                    value: { subagentId: "s1", ok: true, deployUrl: "https://polyester.test/d" },
+                    value: {
+                        subagentId: "s1",
+                        ok: true,
+                        deployUrl: "https://polyester.test/d",
+                        draftVersion: { strategyId: 8n, revision: 3n, versionId: "v3" },
+                    },
                 },
             },
             // An older server says nothing; a newer one may send a mode this build does not know.
@@ -559,9 +593,52 @@ describe("AssistantService.watchRun", () => {
 
         expect(events[0]).toMatchObject({ funding: "sponsored", creditCap: 500 });
         expect(events[1]).toMatchObject({ type: "tool_started", subagentId: "s1" });
-        expect(events[2]).toMatchObject({ deployUrl: "https://polyester.test/d" });
+        expect(events[2]).toMatchObject({
+            deployUrl: "https://polyester.test/d",
+            draftVersion: { strategyId: formatId(8n), revision: "3", versionId: "v3" },
+        });
         expect(events[3]).toMatchObject({ funding: "unspecified", creditCap: null });
         expect(events[4]).toMatchObject({ funding: "unspecified" });
+    });
+
+    it("reads an approval that cancels several triggers together", async () => {
+        const trigger = (triggerId: bigint) => ({
+            triggerId,
+            symbolId: 1,
+            symbol: "SOL-USDT",
+            side: Side.SELL,
+            quantity: "1",
+            triggerPrice: "140",
+        });
+        const { service } = streamingService([
+            {
+                seq: 1n,
+                event: {
+                    case: "approvalRequested",
+                    value: {
+                        approvalId: 11n,
+                        accountId: 42n,
+                        preview: {
+                            case: "cancelTriggers",
+                            value: { triggers: [trigger(5n), trigger(6n)] },
+                        },
+                    },
+                },
+            },
+        ]);
+
+        const [event] = await collect(service.watchRun({ runId: formatId(1n) }));
+
+        expect(event).toMatchObject({
+            type: "approval_requested",
+            preview: {
+                type: "cancel_triggers",
+                triggers: [
+                    { triggerId: formatId(5n), side: "sell", triggerPrice: "140" },
+                    { triggerId: formatId(6n), symbol: "SOL-USDT" },
+                ],
+            },
+        });
     });
 
     it("streams typed events from afterSeq and skips unknown cases", async () => {

@@ -376,6 +376,22 @@ describe("connectErrorToPolyesterError", () => {
         expect(mapped.message).toBe("Wallet is already linked to another Polyester account.");
     });
 
+    it.each([Code.AlreadyExists, Code.Aborted])(
+        "maps a sub-account idempotency conflict to a terminal AlreadyExistsError (%s)",
+        (code) => {
+            const mapped = connectErrorToPolyesterError(
+                authDetailError("", code, AuthErrorCode.AUTH_SUBACCOUNT_IDEMPOTENCY_CONFLICT),
+            );
+
+            expect(mapped).toBeInstanceOf(AlreadyExistsError);
+            expect(mapped.retryable).toBe(false);
+            expect(mapped.detail).toMatchObject({
+                service: "auth",
+                code: "AUTH_SUBACCOUNT_IDEMPOTENCY_CONFLICT",
+            });
+        },
+    );
+
     it("maps stale subaccount challenge details regardless of gRPC code", () => {
         const raw = authDetailError(
             "",

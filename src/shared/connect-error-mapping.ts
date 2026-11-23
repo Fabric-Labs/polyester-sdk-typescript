@@ -316,6 +316,12 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
             options,
         );
     }
+    if (detail?.service === "strategies" && detail.code === "NOTES_REVISION_CONFLICT") {
+        return new RevisionConflictError(
+            withFallback("Strategy notes changed since they were last read."),
+            options,
+        );
+    }
 
     // Arrives as ResourceExhausted, but clears only when a bot stops or reuses an indicator
     // setting, not on a retry.
@@ -327,7 +333,8 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
             options,
         );
     }
-    // The detail's retryAfter says when; it can be a day away for the backtest limit.
+    // The detail's retryAfter says when; it can be a day away for the daily backtest limit, and is
+    // unset for the limit on backtests at once, which clears when one finishes.
     if (
         detail?.service === "strategies" &&
         (detail.code === "SCENARIO_RUN_LIMIT_REACHED" || detail.code === "BACKTEST_LIMIT_REACHED")
@@ -356,6 +363,16 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
     if (detail?.service === "auth" && detail.code === "AUTH_WALLET_ALREADY_LINKED") {
         return new AlreadyExistsError(
             withFallback("Wallet is already linked to another Polyester account."),
+            options,
+        );
+    }
+    // HTTP 409 with no documented gRPC code: an Aborted one would map to a retryable
+    // TransientError, but resending fails the same way.
+    if (detail?.service === "auth" && detail.code === "AUTH_SUBACCOUNT_IDEMPOTENCY_CONFLICT") {
+        return new AlreadyExistsError(
+            withFallback(
+                "Idempotency key was already used for a different sub-account request. Find the sub-account in subaccounts.list() by its idempotencyKey.",
+            ),
             options,
         );
     }

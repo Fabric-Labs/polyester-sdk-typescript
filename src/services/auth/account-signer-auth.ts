@@ -65,6 +65,13 @@ export interface CreateSubaccountParams {
     uri?: string;
     /** Root owner EOA bound to the authenticated account; defaults to the configured signer's owner. */
     ownerAddress?: HexAddress;
+    /**
+     * Passed to `subaccounts.create`. Every call signs a new challenge, so a retry under the same
+     * key never creates a second sub-account: it throws `AlreadyExistsError`
+     * (`AUTH_SUBACCOUNT_IDEMPOTENCY_CONFLICT`) when the first call did create one, which
+     * `subaccounts.list()` then shows with this `idempotencyKey`.
+     */
+    idempotencyKey?: string;
 }
 
 export interface CreateSubaccountResult {
@@ -564,6 +571,7 @@ export class AccountSignerAuthService extends AuthService {
             smartAccountAddress: challenge.smartAccountAddress,
             message: challenge.message,
             signature,
+            ...(params.idempotencyKey !== undefined && { idempotencyKey: params.idempotencyKey }),
         });
 
         return {

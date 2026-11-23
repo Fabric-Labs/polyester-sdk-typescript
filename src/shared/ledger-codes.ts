@@ -27,6 +27,7 @@ export const TRANSFER_CODE_VALUES = [
     "fee_refill",
     "system_adjustment",
     "withdraw_failed",
+    "dust_convert",
     "internal_batch",
 ] as const;
 /**
@@ -39,6 +40,9 @@ export const TRANSFER_CODE_VALUES = [
  * `internal_batch` is one leg of an all-or-nothing internal transfer batch between Trading
  * accounts, credited together with the batch's other legs. `funding_opening_balance` credits a
  * Funding account with what it held on Polyester Chain when its transfer history starts.
+ * `dust_convert` is one leg of a dust conversion: a source asset's dust debited, or the target
+ * asset's payout credited after the fee. A conversion's legs can arrive separately; read the
+ * conversion itself from `dustConversion` for its sources, payout and fee.
  */
 export type TransferCodeValue = (typeof TRANSFER_CODE_VALUES)[number];
 
@@ -78,6 +82,7 @@ export const TransferCodeCodec = {
         fee_refill: TransferCode.FEE_REFILL,
         system_adjustment: TransferCode.SYSTEM_ADJUSTMENT,
         withdraw_failed: TransferCode.WITHDRAW_FAILED,
+        dust_convert: TransferCode.DUST_CONVERT,
         internal_batch: TransferCode.INTERNAL_BATCH,
     } satisfies InputToProto<TransferCodeValue, TransferCode>,
     protoToOutput: {
@@ -104,6 +109,7 @@ export const TransferCodeCodec = {
         [TransferCode.FEE_REFILL]: "fee_refill",
         [TransferCode.SYSTEM_ADJUSTMENT]: "system_adjustment",
         [TransferCode.WITHDRAW_FAILED]: "withdraw_failed",
+        [TransferCode.DUST_CONVERT]: "dust_convert",
         [TransferCode.INTERNAL_BATCH]: "internal_batch",
     } satisfies ProtoToOutput<TransferCode, TransferCodeValue>,
 } as const;

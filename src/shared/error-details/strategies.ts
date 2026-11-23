@@ -1,5 +1,7 @@
 import { ErrorCode, ErrorDetailSchema } from "../../gen/strategies/v1/strategies_pb.js";
+import { NotBacktestableReasonCodec } from "../../services/strategies/strategies.codecs.js";
 import { tsObjToMs } from "../../utils/time.js";
+import { enumLabel } from "../proto-enum-codec.js";
 import {
     codeName,
     decodeDetail,
@@ -26,6 +28,19 @@ export function decode(raw: ConnectErrorDetail): PolyesterErrorDetail | undefine
     if (strategies.revisionConflict) {
         const { revision, headVersionId } = strategies.revisionConflict;
         detail.revisionConflict = { revision: revision.toString(), headVersionId };
+    }
+    if (strategies.notesConflict) {
+        detail.notesConflict = { notesRevision: strategies.notesConflict.notesRevision.toString() };
+    }
+    if (strategies.backtestLimit) {
+        const { dailyLimit, dailyUsed, activeLimit, active } = strategies.backtestLimit;
+        detail.backtestLimit = { dailyLimit, dailyUsed, activeLimit, active };
+    }
+    if (strategies.notBacktestableReason) {
+        detail.notBacktestableReason = enumLabel(
+            NotBacktestableReasonCodec.protoToOutput,
+            strategies.notBacktestableReason,
+        );
     }
     if (strategies.markets.length > 0) detail.markets = strategies.markets;
     if (strategies.shortfall.length > 0) {

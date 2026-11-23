@@ -177,6 +177,14 @@ export class SubaccountsService {
 
     /**
      * Creates a new subaccount under the caller's root account using the smart-account address, message, and smart-account signature from `createChallenge`.
+     *
+     * Pass an `idempotencyKey` to make a lost response safe to retry: resend the identical
+     * request under the same key and it returns the sub-account it created with
+     * `replayed: true`, consuming no challenge. Any other request under that key throws
+     * `AlreadyExistsError` with `detail.code` `AUTH_SUBACCOUNT_IDEMPOTENCY_CONFLICT`; this
+     * includes a retry carrying a new challenge after the first request did create the
+     * sub-account, so find it in `list()` by its `idempotencyKey` instead. A resend that throws
+     * `ResourceNotFoundError` means the sub-account this key created was deleted; do not retry it.
      */
     async create(
         input: v.InferInput<typeof CreateSubaccountInputSchema>,

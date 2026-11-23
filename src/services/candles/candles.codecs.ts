@@ -61,3 +61,18 @@ export const TimeframeCodec = {
         [Proto.Timeframe.MONTH_1]: "1mo",
     } satisfies ProtoToOutput<Proto.Timeframe, Timeframe>,
 } as const;
+
+export const INDEX_PRICE_CANDLE_SOURCE_VALUES = ["reference", "index"] as const;
+/**
+ * `reference`: a composite reference candle, from before the bucket containing the pair's
+ * listing. `index`: the pair's index price candle, from that bucket on.
+ */
+export type IndexPriceCandleSource = (typeof INDEX_PRICE_CANDLE_SOURCE_VALUES)[number];
+
+export const IndexPriceCandleSourceCodec = {
+    protoToOutput: {
+        [Proto.IndexPriceCandleSource.UNSPECIFIED]: "unspecified",
+        [Proto.IndexPriceCandleSource.REFERENCE]: "reference",
+        [Proto.IndexPriceCandleSource.INDEX]: "index",
+    } satisfies ProtoToOutput<Proto.IndexPriceCandleSource, IndexPriceCandleSource>,
+} as const;

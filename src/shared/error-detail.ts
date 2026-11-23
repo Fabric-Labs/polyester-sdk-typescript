@@ -19,6 +19,7 @@ import type { ErrorCode as MarketOverviewErrorCode } from "../gen/marketoverview
 import type { ErrorCode as NotificationErrorCode } from "../gen/notifications/v1/notifications_pb.js";
 import type { ErrorCode as SwapErrorCode } from "../gen/swap/v1/swap_pb.js";
 import type { ErrorCode as StrategiesErrorCode } from "../gen/strategies/v1/strategies_pb.js";
+import type { StrategyNotBacktestableReason } from "../services/strategies/strategies.codecs.js";
 import type { ErrorCode as InternalTransferErrorCode } from "../gen/transfer/v1/internal_transfer_pb.js";
 import type { OrderErrorDetail } from "../services/orders/order-errors.schemas.js";
 import type { RateLimitDetail } from "./rate-limit.schemas.js";
@@ -94,7 +95,11 @@ export type PolyesterErrorDetail =
           code: NamedCode<typeof StrategiesErrorCode>;
           /** Request field the error is about, e.g. `settings[0].value`; with `SETTINGS_INVALID`, `FUNDING_INVALID` and `MANIFEST_TOO_LARGE`. */
           fieldPath?: string;
-          /** Epoch ms when the same request may succeed; with `SCENARIO_RUN_LIMIT_REACHED` and `BACKTEST_LIMIT_REACHED`. */
+          /**
+           * Epoch ms when the same request may succeed; with `SCENARIO_RUN_LIMIT_REACHED`, and with
+           * `BACKTEST_LIMIT_REACHED` for the daily limit (when the UTC day resets). The limit on
+           * backtests at once has none: retry when one finishes.
+           */
           retryAfter?: number;
           /** With `BOT_CAP_REACHED`; the next tier fields are 0 when no tier lifts the cap. */
           botCap?: {
@@ -115,6 +120,24 @@ export type PolyesterErrorDetail =
            * its version; a matching `headVersionId` means your own save already landed.
            */
           revisionConflict?: { revision: string; headVersionId: string };
+          /**
+           * With `NOTES_REVISION_CONFLICT`: the notes' current revision, a decimal string; `"0"`
+           * when never saved.
+           */
+          notesConflict?: { notesRevision: string };
+          /**
+           * With `BACKTEST_LIMIT_REACHED`: backtests per UTC day and started today, and backtests
+           * allowed queued or running at once and queued or running now. `dailyUsed` reaching
+           * `dailyLimit` is the daily limit; `active` reaching `activeLimit` is the limit at once.
+           */
+          backtestLimit?: {
+              dailyLimit: number;
+              dailyUsed: number;
+              activeLimit: number;
+              active: number;
+          };
+          /** Why the bot cannot be backtested; with `NOT_BACKTESTABLE`. */
+          notBacktestableReason?: StrategyNotBacktestableReason | "unspecified";
       }
     /** A request over the API's size limit; `limitBytes` is the limit it exceeded. */
     | { service: "request"; code: "REQUEST_TOO_LARGE"; limitBytes: number }

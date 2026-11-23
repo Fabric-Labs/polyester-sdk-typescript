@@ -107,11 +107,13 @@ export type ClientFrame = Message<"tradews.v1.ClientFrame"> & {
     case: "cancelAllOrders";
   } | {
     /**
-     * Batch create command using the public Orders API request contract: up
-     * to 20 orders, each admitted or rejected on its own. request_id is the
-     * same account-scoped idempotency key as the Orders API's: resending the
-     * same request_id and items, over this WebSocket or the Orders API,
-     * replays the original per-item results instead of creating orders again.
+     * Batch create command using the public Orders API request contract: up to
+     * 20 orders. A command can be rejected as a whole before admission; once it
+     * reaches admission, each item is admitted or rejected on its own.
+     * request_id is the same account-scoped idempotency key as the Orders
+     * API's: resending the same request_id and items, over this WebSocket or
+     * the Orders API, replays the original per-item results instead of creating
+     * orders again.
      *
      * @generated from field: orders.v1.BatchCreateOrdersRequest batch_create_orders = 15;
      */
@@ -121,8 +123,9 @@ export type ClientFrame = Message<"tradews.v1.ClientFrame"> & {
     /**
      * Batch replace command using the public Orders API request contract: up
      * to 50 orders on one trading pair, each amended in place or replaced as
-     * the Orders API decides, under the same request_id idempotency as the
-     * Orders API.
+     * the Orders API decides. A command can be rejected as a whole before
+     * admission; once it reaches admission, each item is admitted or rejected
+     * on its own, under the same request_id idempotency as the Orders API.
      *
      * @generated from field: orders.v1.BatchReplaceOrdersRequest batch_replace_orders = 16;
      */
@@ -131,8 +134,9 @@ export type ClientFrame = Message<"tradews.v1.ClientFrame"> & {
   } | {
     /**
      * Batch cancel command using the public Orders API request contract: up
-     * to 50 cancellations, each accepted or rejected on its own, under the
-     * same request_id idempotency as the Orders API.
+     * to 50 cancellations. A command can be rejected as a whole before
+     * admission; once it reaches admission, each item is accepted or rejected
+     * on its own, under the same request_id idempotency as the Orders API.
      *
      * @generated from field: orders.v1.BatchCancelOrdersRequest batch_cancel_orders = 17;
      */
