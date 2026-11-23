@@ -27,6 +27,10 @@ import {
     ErrorDetailSchema as OrderErrorDetailSchema,
 } from "../gen/orders/v1/orders_pb.js";
 import {
+    ErrorCode as StrategiesErrorCode,
+    ErrorDetailSchema as StrategiesErrorDetailSchema,
+} from "../gen/strategies/v1/strategies_pb.js";
+import {
     ErrorCode as InternalTransferErrorCode,
     ErrorDetailSchema as InternalTransferErrorDetailSchema,
 } from "../gen/transfer/v1/internal_transfer_pb.js";
@@ -496,6 +500,27 @@ describe("connectErrorToPolyesterError", () => {
             message: "Multi-factor authentication required.",
             cause: elevation,
         });
+        const strategiesElevation = new ConnectError(
+            "mfa required",
+            Code.PermissionDenied,
+            undefined,
+            [
+                {
+                    desc: StrategiesErrorDetailSchema,
+                    value: create(StrategiesErrorDetailSchema, {
+                        code: StrategiesErrorCode.MFA_ELEVATION_REQUIRED,
+                    }),
+                },
+            ],
+        );
+        expect(connectErrorToPolyesterError(strategiesElevation)).toMatchObject({
+            name: "SessionElevationRequiredError",
+            code: "SESSION_ELEVATION_REQUIRED",
+            message: "mfa required",
+            detail: { service: "strategies", code: "MFA_ELEVATION_REQUIRED" },
+            cause: strategiesElevation,
+        });
+        expect(detectMfaErrorKind(strategiesElevation)).toBe("session-elevation");
         const lastFactor = authDetailError(
             "",
             Code.FailedPrecondition,
@@ -1118,6 +1143,24 @@ describe("predicates over typed and raw errors", () => {
         );
         expect(isSessionElevationRequiredError(elevation)).toBe(true);
         expect(isSessionElevationRequiredError(connectErrorToPolyesterError(elevation))).toBe(true);
+
+        const strategiesElevation = new ConnectError(
+            "mfa required",
+            Code.PermissionDenied,
+            undefined,
+            [
+                {
+                    desc: StrategiesErrorDetailSchema,
+                    value: create(StrategiesErrorDetailSchema, {
+                        code: StrategiesErrorCode.MFA_ELEVATION_REQUIRED,
+                    }),
+                },
+            ],
+        );
+        expect(isSessionElevationRequiredError(strategiesElevation)).toBe(true);
+        expect(
+            isSessionElevationRequiredError(connectErrorToPolyesterError(strategiesElevation)),
+        ).toBe(true);
 
         const lastFactor = authDetailError(
             "mfa",

@@ -1,6 +1,7 @@
 export type {
     CreateStrategyInput,
     CreateStrategyResult,
+    DeployBotInput,
     ExplainStrategyResult,
     GetStrategyReferenceInput,
     ListBacktestTradesInput,
@@ -53,6 +54,7 @@ export type {
     StrategyReference,
     StrategyRevision,
     StrategySettingField,
+    StrategySubaccountAuthorizationInput,
     StrategyTemplate,
     StrategyValidationIssue,
     StrategyVersion,
