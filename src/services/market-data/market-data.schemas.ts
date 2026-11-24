@@ -361,9 +361,10 @@ export const SpotConfigSchema = v.object({
      * An account may have a lower limit of its own.
      */
     maxOpenOrdersTotal: OpenOrdersLimitSchema,
+    /** Unix seconds when the server built this config. */
     tsSec: v.pipe(
         v.bigint(),
-        v.transform((v) => Number(v) * 1000),
+        v.transform((v) => Number(v)),
     ),
 });
 
