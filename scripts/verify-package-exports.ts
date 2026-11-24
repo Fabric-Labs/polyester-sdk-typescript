@@ -106,6 +106,7 @@ try {
     type LedgerBalancesEvent,
     type LifecycleFlowSummary,
     type MarketOverview,
+    type MarketOverviewRollingWindowStats,
     type ModifyOrderInput,
     type ModifyTriggerInput,
     type PauseTriggerInput,
@@ -293,6 +294,10 @@ async function verifyServiceInference(): Promise<void> {
         autoWithdrawRuns.runs[0]?.state,
     );
     expectType<string | undefined>(autoWithdrawRuns.runs[0]?.steps[0]?.amount);
+    expectType<number | null>(autoWithdrawRule.payoutAssetId);
+    expectType<import("@polyester/sdk").AutoWithdrawConversion[] | undefined>(
+        autoWithdrawRuns.runs[0]?.conversions,
+    );
     const priceAlert = await client.priceAlerts.create({
         symbolId: 1,
         direction: "above",
@@ -438,11 +443,48 @@ async function verifyServiceInference(): Promise<void> {
     const deployStatus = await client.strategies.getDeployStatus({ proposalId: "1" });
     expectType<import("@polyester/sdk").StrategyDeployState | "unspecified">(deployStatus.state);
     expectType<string | null>(deployStatus.botId);
+    expectType<import("@polyester/sdk").StrategyDeployWait | null>(deployStatus.wait);
+    expectType<import("@polyester/sdk").StrategyDeployWaitReason | "unspecified" | undefined>(
+        deployStatus.wait?.reason,
+    );
+    expectType<import("@polyester/sdk").StrategyListing | null>(strategyDetails.strategy.listing);
+    expectType<import("@polyester/sdk").StrategyListingState | "unspecified" | undefined>(
+        strategyDetails.strategy.listing?.state,
+    );
+    const publishedListing = await client.strategies.publishVersion({
+        strategyId: "1",
+        versionId: "sha256:1",
+        title: "Weekly DCA",
+        tags: ["dca"],
+        idempotencyKey: "pub-1",
+    } satisfies import("@polyester/sdk").PublishStrategyVersionInput);
+    expectType<import("@polyester/sdk").StrategyListing>(publishedListing);
+    expectType<import("@polyester/sdk").StrategyListing>(
+        await client.strategies.unpublish({
+            listingId: "1",
+        } satisfies import("@polyester/sdk").StrategyListingInput),
+    );
+    const communityStrategies = await client.strategies.listCommunity({
+        tags: ["grid"],
+        markets: ["BTC-USDT"],
+    } satisfies import("@polyester/sdk").ListCommunityStrategiesInput);
+    expectType<import("@polyester/sdk").ListCommunityStrategiesResult>(communityStrategies);
+    expectType<import("@polyester/sdk").CommunityStrategySummary[]>(
+        communityStrategies.strategies,
+    );
+    const communityStrategy = await client.strategies.getCommunity({ listingId: "1" });
+    expectType<import("@polyester/sdk").CommunityStrategy>(communityStrategy);
+    expectType<(import("@polyester/sdk").StrategyTag | "unspecified")[]>(communityStrategy.tags);
+    expectType<import("@polyester/sdk").CommunityStrategyBacktest | null>(
+        communityStrategy.backtest,
+    );
+    expectNotAny(communityStrategy, true);
     const strategiesDetail: Extract<PolyesterErrorDetail, { service: "strategies" }> = {
         service: "strategies",
         code: "INSUFFICIENT_FUNDS",
         shortfall: [{ asset: "USDT", amount: "1" }],
         revisionConflict: { revision: "2", headVersionId: "sha256:1" },
+        listingCap: { listingCap: 20, listings: 20 },
     };
     expectType<PolyesterErrorDetail>(strategiesDetail);
     const dustBalances = await client.dustConversion.listBalances();
@@ -487,6 +529,9 @@ async function verifyServiceInference(): Promise<void> {
     expectType<import("@polyester/sdk").Swap>(swap);
     expectType<import("@polyester/sdk").SwapStatus | "unspecified">(swap.status);
     expectType<import("@polyester/sdk").SwapReason | "unspecified" | null>(swap.reason);
+    expectType<import("@polyester/sdk").SwapExecutionOutput>(swap.execution);
+    expectType<import("@polyester/sdk").SwapLeg[]>(swap.legs);
+    expectType<import("@polyester/sdk").SwapProgress | null>(swap.progress);
     expectType<import("@polyester/sdk").Swap>(await client.swap.get({ idempotencyKey: "swap-1" }));
     const statementExport = await client.statementExports.create({
         startTime: 1,
@@ -552,11 +597,17 @@ async function verifyServiceInference(): Promise<void> {
     expectType<import("@polyester/sdk").AssistantConversationAccount | undefined>(
         (await client.assistant.listMessages({ conversationId: "1" })).lastAccount,
     );
+    expectType<import("@polyester/sdk").AssistantSubject | undefined>(
+        (await client.assistant.listMessages({ conversationId: "1" })).subject,
+    );
     const indexCandles = await client.candles.listIndexPrice({
         symbolId: 1,
         timeframe: "1h",
     } satisfies import("@polyester/sdk").ListIndexPriceCandlesInput);
     expectType<import("@polyester/sdk").IndexPriceCandles>(indexCandles);
+    const candlePage = await client.candles.list({ symbolId: 1, timeframe: "1h" });
+    expectType<import("@polyester/sdk").CandlePage>(candlePage);
+    expectType<import("@polyester/sdk").Candle[]>(candlePage.reference);
     expectType<(import("@polyester/sdk").IndexPriceCandleSource | "unspecified")[]>(
         indexCandles.source,
     );
@@ -568,6 +619,20 @@ async function verifyServiceInference(): Promise<void> {
         } satisfies import("@polyester/sdk").SetTelegramApprovalLimitsInput),
     );
     expectType<import("@polyester/sdk").ApiKey[]>(await client.apiKeys.listAssistantKeys());
+    expectType<import("@polyester/sdk").StrategyBotAccess>(
+        await client.apiKeys.setStrategyBotAccess({
+            deployOperationId: "deploy-1",
+            subaccountId: "1",
+            publicKeyEd25519: new Uint8Array(32),
+            strategyBotId: "1",
+            limits: { spotMarketScope: "all" },
+        } satisfies import("@polyester/sdk").SetStrategyBotAccessInput),
+    );
+    expectType<string | null>(
+        await client.apiKeys.endStrategyBotAccess({
+            deployOperationId: "deploy-1",
+        } satisfies import("@polyester/sdk").EndStrategyBotAccessInput),
+    );
     const gtdOrder: import("@polyester/sdk").NewOrderInput = {
         symbolId: 1,
         side: "buy",
@@ -704,6 +769,14 @@ async function verifyServiceInference(): Promise<void> {
     expectType<string | undefined>(markets[0]!.volume24hBase);
     expectType<string | undefined>(markets[0]!.volume24hQuote);
     expectType<string | undefined>(markets[0]!.volume24hUsd);
+    expectType<MarketOverviewRollingWindowStats | undefined>(markets[0]!.stats1h);
+    expectType<string | undefined>(markets[0]!.open24h);
+    expectType<string>(markets[0]!.tradeCount24h);
+    await client.marketOverview.list({
+        lastPrice: { min: "0.5" },
+        change24hBps: { min: -500, max: 1000 },
+        volume24hUsd: { max: "50000000" },
+    });
     await client.marketOverview.list({ orderBy: "volume_24h_usd" });
     // @ts-expect-error Quote-volume sorting was replaced by canonical USD volume.
     await client.marketOverview.list({ orderBy: "volume_24h_quote" });

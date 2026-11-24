@@ -1558,8 +1558,13 @@ export const LedgerReadService: GenService<{
   },
   /**
    * Retrieve root portfolio equity history as master, top owned subaccounts,
-   * and an aggregate of the remaining owned subaccounts. Requires an
-   * interactive root-account session; API keys are not supported.
+   * and an aggregate of the remaining owned subaccounts. Accepts a
+   * root-account session, or a root-scoped API key whose policy grants
+   * READ_BALANCES. An API key covers the master account and only the
+   * subaccounts that master account owns, each within its subaccount policy;
+   * the request fails when the key may not read one of them. A
+   * subaccount-scoped API key is refused with AUTH_API_KEY_ACCESS_DENIED: the
+   * history needs a key scoped to the main account.
    *
    * @generated from rpc ledger.read.v1.LedgerReadService.GetPortfolioEquityHistorySeries
    */

@@ -70,6 +70,21 @@ export type PolyesterErrorDetail =
           code: NamedCode<typeof MarketOverviewErrorCode>;
       }
     | {
+          service: "market_data";
+          /**
+           * The market data error code, which the error message carries. With
+           * `PAGE_TOKEN_INVALID`, drop the stored page token and request the first page again.
+           */
+          code:
+              | "BAD_REQUEST"
+              | "INVALID_ARGUMENT"
+              | "UNKNOWN_SYMBOL"
+              | "NOT_FOUND"
+              | "PAGE_TOKEN_INVALID";
+          /** What to correct, for display (also the error's message); never branch on it. */
+          reason: string;
+      }
+    | {
           service: "claims";
           code: NamedCode<typeof ClaimsErrorCode>;
           /** Claim the error concerns; set only with `CLAIM_OUTCOME_UNKNOWN`. */
@@ -97,8 +112,8 @@ export type PolyesterErrorDetail =
           fieldPath?: string;
           /**
            * Epoch ms when the same request may succeed; with `SCENARIO_RUN_LIMIT_REACHED`, and with
-           * `BACKTEST_LIMIT_REACHED` for the daily limit (when the UTC day resets). The limit on
-           * backtests at once has none: retry when one finishes.
+           * `PUBLISH_LIMIT_REACHED` and `BACKTEST_LIMIT_REACHED` for their daily limits (when the
+           * UTC day resets). The limit on backtests at once has none: retry when one finishes.
            */
           retryAfter?: number;
           /** With `BOT_CAP_REACHED`; the next tier fields are 0 when no tier lifts the cap. */
@@ -115,6 +130,8 @@ export type PolyesterErrorDetail =
           shortfall?: { asset: string; amount: string }[];
           /** With `STRATEGY_CAP_REACHED`: the cap and how many strategies the account has. */
           strategyCap?: { strategyCap: number; strategies: number };
+          /** With `LISTING_CAP_REACHED`: the cap and how many public listings the account has. */
+          listingCap?: { listingCap: number; listings: number };
           /**
            * With `DRAFT_REVISION_CONFLICT`: the strategy's current revision, a decimal string, and
            * its version; a matching `headVersionId` means your own save already landed.
@@ -146,7 +163,10 @@ export type PolyesterErrorDetail =
 
 export type ConnectErrorDetail = ConnectError["details"][number];
 
-type ErrorDetailDecoder = (raw: ConnectErrorDetail) => PolyesterErrorDetail | undefined;
+type ErrorDetailDecoder = (
+    raw: ConnectErrorDetail,
+    error: ConnectError,
+) => PolyesterErrorDetail | undefined;
 
 /** Loads each known detail decoder, keyed by its protobuf type name. */
 const DECODER_LOADERS: Record<string, () => Promise<{ decode: ErrorDetailDecoder }>> = {
@@ -157,6 +177,7 @@ const DECODER_LOADERS: Record<string, () => Promise<{ decode: ErrorDetailDecoder
     "transfer.v1.ErrorDetail": () => import("./error-details/internal-transfer.js"),
     "ledger.read.v1.ErrorDetail": () => import("./error-details/ledger.js"),
     "marketoverview.v1.ErrorDetail": () => import("./error-details/market-overview.js"),
+    "marketdata.v1.ErrorDetail": () => import("./error-details/market-data.js"),
     "claims.v1.ErrorDetail": () => import("./error-details/claims.js"),
     "swap.v1.ErrorDetail": () => import("./error-details/swap.js"),
     "alerts.v1.ErrorDetail": () => import("./error-details/alerts.js"),
@@ -230,7 +251,7 @@ export function decodeDetail<Desc extends DescMessage>(
  */
 export function parseConnectErrorDetail(error: ConnectError): PolyesterErrorDetail | undefined {
     for (const raw of error.details) {
-        const detail = decoders.get(detailTypeName(raw))?.(raw);
+        const detail = decoders.get(detailTypeName(raw))?.(raw, error);
         if (detail) return detail;
     }
     return undefined;

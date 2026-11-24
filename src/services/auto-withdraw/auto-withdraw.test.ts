@@ -3,6 +3,7 @@ import { Code, ConnectError } from "@connectrpc/connect";
 import { describe, expect, it } from "vitest";
 import { AuthErrorCode, AuthErrorDetailSchema } from "../../gen/auth/v1/auth_pb.js";
 import * as Proto from "../../gen/chain/withdraw/v1/auto_withdraw_pb.js";
+import * as SwapProto from "../../gen/swap/v1/swap_pb.js";
 import { ErrorCode, ErrorDetailSchema } from "../../gen/chain/withdraw/v1/withdraw_pb.js";
 import { createErrorMappingTransport } from "../../shared/connect-error-mapping.js";
 import {
@@ -275,6 +276,8 @@ describe("AutoWithdrawService U128 decimal conversions", () => {
                 pausedAt: 1_700_000_100_000,
             },
             minUsdValue: "100.000000000000000001",
+            payoutAssetId: null,
+            conversionTwapDurationMs: null,
         });
     });
 
@@ -289,6 +292,187 @@ describe("AutoWithdrawService U128 decimal conversions", () => {
             schedule: { cadence: "unspecified" },
             pause: null,
             minUsdValue: null,
+        });
+    });
+});
+
+describe("AutoWithdrawService payout asset", () => {
+    it("sends a payout asset and TWAP duration, and omits both for an in-kind rule", async () => {
+        const { transport, service } = serviceWith({
+            rule: rawRule({ payoutAssetId: 2, conversionTwapDurationMs: 600_000n }),
+        });
+
+        await expect(
+            service.setRule(setInput({ payoutAssetId: 2, conversionTwapDurationMs: 600_000 })),
+        ).resolves.toMatchObject({ payoutAssetId: 2, conversionTwapDurationMs: 600_000 });
+        expect(transport.lastCall()?.message).toMatchObject({
+            payoutAssetId: 2,
+            conversionTwapDurationMs: 600_000n,
+        });
+
+        await service.setRule(setInput({ payoutAssetId: null, conversionTwapDurationMs: null }));
+        expect(transport.lastCall()?.message).not.toHaveProperty("payoutAssetId");
+        expect(transport.lastCall()?.message).not.toHaveProperty("conversionTwapDurationMs");
+    });
+
+    it("reads a payout rule's zero TWAP duration as the 300000 ms default", async () => {
+        const { service } = serviceWith({
+            rule: rawRule({ payoutAssetId: 2, conversionTwapDurationMs: 0n }),
+        });
+
+        await expect(service.setRule(setInput({ payoutAssetId: 2 }))).resolves.toMatchObject({
+            payoutAssetId: 2,
+            conversionTwapDurationMs: 300_000,
+        });
+    });
+
+    it.each([
+        ["a zero payout asset", { payoutAssetId: 0 }],
+        ["a fractional TWAP duration", { conversionTwapDurationMs: 60_000.5 }],
+        ["a zero TWAP duration", { conversionTwapDurationMs: 0 }],
+    ])("rejects %s before sending", async (_name, overrides) => {
+        const { transport, service } = serviceWith();
+        await expect(service.setRule(setInput(overrides))).rejects.toBeInstanceOf(ValidationError);
+        expect(transport.calls).toHaveLength(0);
+    });
+
+    it("decodes a converting run's swap and skipped conversions", async () => {
+        const { service } = serviceWith({
+            runs: [
+                {
+                    runSeq: 13n,
+                    ruleVersion: 4,
+                    scheduledFor: ts(1_700_007_200),
+                    state: Proto.AutoWithdrawRunState.RUN_CONVERTING,
+                    reason: "",
+                    steps: [],
+                    createdAt: ts(1_700_007_201),
+                    conversions: [
+                        {
+                            sourceAssetId: 1,
+                            amountE18: toU128(E18 / 2n),
+                            swapId: 77n,
+                            execution: create(SwapProto.ExecutionSchema, {
+                                strategy: {
+                                    case: "twap",
+                                    value: { durationMs: 600_000n, sliceIntervalMs: 60_000n },
+                                },
+                            }),
+                            status: SwapProto.SwapStatus.PARTIALLY_COMPLETED,
+                            reason: SwapProto.SwapReason.INTERMEDIATE_BELOW_MINIMUM,
+                            isTerminal: true,
+                            executedAmountE18: toU128(E18 / 2n),
+                            unspentAmountE18: toU128(0n),
+                            receivedAmountE18: toU128(31_000n * E18),
+                            legs: [
+                                create(SwapProto.SwapLegSchema, {
+                                    leg: 0,
+                                    symbolId: 9,
+                                    side: SwapProto.Side.SELL,
+                                    spentE18: toU128(E18 / 2n),
+                                    receivedE18: toU128(31_000n * E18),
+                                    feeE18: toU128(31n * E18),
+                                    feeAssetId: 2,
+                                }),
+                            ],
+                            skipReason: "",
+                        },
+                        {
+                            sourceAssetId: 5,
+                            amountE18: toU128(E18),
+                            swapId: 0n,
+                            isTerminal: true,
+                            legs: [],
+                            skipReason: "below_minimum",
+                        },
+                    ],
+                },
+            ],
+            nextPageToken: "",
+        });
+
+        const { runs } = await service.listRuns();
+        expect(runs[0]).toMatchObject({ state: "converting", finishedAt: null });
+        expect(runs[0]?.conversions).toEqual([
+            {
+                sourceAssetId: 1,
+                amount: "0.5",
+                swapId: formatId(77n),
+                execution: { type: "twap", durationMs: 600_000, sliceIntervalMs: 60_000 },
+                status: "partially_completed",
+                reason: "intermediate_below_minimum",
+                isTerminal: true,
+                executedAmount: "0.5",
+                unspentAmount: "0",
+                receivedAmount: "31000",
+                legs: [
+                    {
+                        leg: 0,
+                        symbolId: 9,
+                        side: "sell",
+                        spent: "0.5",
+                        received: "31000",
+                        fee: "31",
+                        feeAssetId: 2,
+                    },
+                ],
+                skipReason: null,
+            },
+            {
+                sourceAssetId: 5,
+                amount: "1",
+                swapId: null,
+                execution: null,
+                status: null,
+                reason: null,
+                isTerminal: true,
+                executedAmount: "0",
+                unspentAmount: "0",
+                receivedAmount: "0",
+                legs: [],
+                skipReason: "below_minimum",
+            },
+        ]);
+    });
+
+    it("decodes a preview asset's conversion quote", async () => {
+        const { service } = serviceWith({
+            status: Proto.AutoWithdrawPreviewStatus.WILL_PAY,
+            ruleVersion: 4,
+            computedAt: ts(1_700_000_000),
+            assets: [
+                {
+                    assetId: 1,
+                    availableE18: toU128(E18),
+                    payableE18: toU128(0n),
+                    heldBackE18: toU128(0n),
+                    holdReason: "converts",
+                    conversion: {
+                        payoutAssetId: 2,
+                        expectedAmountOutE18: toU128(62_000n * E18),
+                        minAmountOutE18: toU128(61_380n * E18),
+                        priceImpactBps: 12,
+                        execution: create(SwapProto.ExecutionSchema, {
+                            strategy: { case: "market", value: {} },
+                        }),
+                        skipReason: "",
+                    },
+                },
+            ],
+        });
+
+        const preview = await service.previewRun();
+        expect(preview.assets[0]).toMatchObject({
+            holdReason: "converts",
+            payable: "0",
+            conversion: {
+                payoutAssetId: 2,
+                expectedAmountOut: "62000",
+                minAmountOut: "61380",
+                priceImpactBps: 12,
+                execution: { type: "market" },
+                skipReason: null,
+            },
         });
     });
 });
@@ -562,6 +746,7 @@ describe("AutoWithdrawService runs", () => {
                     ],
                     createdAt: 1_700_003_601_000,
                     finishedAt: 1_700_003_700_000,
+                    conversions: [],
                 },
                 {
                     runSeq: "11",
@@ -572,6 +757,7 @@ describe("AutoWithdrawService runs", () => {
                     steps: [],
                     createdAt: 1_700_000_001_000,
                     finishedAt: null,
+                    conversions: [],
                 },
             ],
             nextPageToken: "cursor-2",
@@ -648,6 +834,7 @@ describe("AutoWithdrawService preview", () => {
                     networkFee: "0.4",
                     networkFeeSampledAt: 1_699_999_900_000,
                     payableFrom: null,
+                    conversion: null,
                 },
                 {
                     assetId: 9,
@@ -663,6 +850,7 @@ describe("AutoWithdrawService preview", () => {
                     networkFee: null,
                     networkFeeSampledAt: null,
                     payableFrom: null,
+                    conversion: null,
                 },
             ],
         });

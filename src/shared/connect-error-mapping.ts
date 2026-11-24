@@ -205,8 +205,12 @@ const TIMEOUT_ABORT_MESSAGE_RE = /timed out|due to timeout/iu;
  * {@link PolyesterError} tree. The original error is preserved as `cause`.
  */
 export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
-    const message = getNormalizedConnectMessage(ce);
     const detail = parseConnectErrorDetail(ce);
+    // Market data sends its error code as the message and the readable text as the reason.
+    const message =
+        detail?.service === "market_data" && detail.reason
+            ? detail.reason
+            : getNormalizedConnectMessage(ce);
     const httpStatus = /^HTTP (\d{3})$/u.exec(ce.rawMessage)?.[1];
     const options: PolyesterErrorOptions = {
         cause: ce,

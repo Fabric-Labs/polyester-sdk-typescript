@@ -361,7 +361,7 @@ describe("batch create schemas", () => {
                                     code: ProtoWrite.ErrorCode.BAD_QTY,
                                     violations: [
                                         {
-                                            fieldPath: "items[1].qty_scaled",
+                                            fieldPath: "order.base_qty_scaled",
                                             ruleId: "gt",
                                             message: "must be positive",
                                         },
@@ -394,7 +394,7 @@ describe("batch create schemas", () => {
                         code: "BAD_QTY",
                         violations: [
                             {
-                                fieldPath: "items[1].qty_scaled",
+                                fieldPath: "order.base_qty_scaled",
                                 ruleId: "gt",
                                 message: "must be positive",
                             },

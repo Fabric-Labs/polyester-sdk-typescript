@@ -145,6 +145,7 @@ export class BalancesService {
 
     /**
      * Returns root portfolio equity history grouped by the master account, leading owned subaccounts, and an optional remaining-subaccounts series.
+     * Accepts a root-account session or a root-scoped API key with `read-balances`; a subaccount-scoped key, or one that may not read an owned subaccount, gets `PermissionError`.
      */
     async getPortfolioEquityHistory(
         input: PortfolioEquityHistoryInput,

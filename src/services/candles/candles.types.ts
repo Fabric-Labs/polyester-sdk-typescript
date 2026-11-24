@@ -3,6 +3,7 @@ export type {
     CandleColumnar,
     CandleColumnarInt,
     CandleInt,
+    CandlePage,
     GetCandlesColumnsInput,
     GetCandlesInput,
     IndexPriceCandles,

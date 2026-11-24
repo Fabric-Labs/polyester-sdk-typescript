@@ -23,14 +23,18 @@ import {
     BotStatusCodec,
     BotPauseReasonCodec,
     DeployStateCodec,
+    DeployWaitReasonCodec,
     EvidenceGradeCodec,
     FlowNodeKindCodec,
+    ListingStateCodec,
     NotBacktestableReasonCodec,
     RevisionSavedByCodec,
     STRATEGY_BOT_STOP_MODE_VALUES,
+    STRATEGY_TAG_VALUES,
     ScenarioOutcomeCodec,
     StopModeCodec,
     StrategyOrderSideCodec,
+    StrategyTagCodec,
 } from "./strategies.codecs.js";
 
 // ---------------------------------------------------------------------------
@@ -153,7 +157,9 @@ export const StartBacktestInputSchema = v.strictObject({
     versionId: VersionIdInputSchema,
     /**
      * Window start, epoch ms, inclusive, floored to a whole second. Omit for the most recent 365
-     * days of data, or all of it when there is less.
+     * days of data, or all of it when there is less; a bot whose candle, schedule and start calls
+     * over 365 days would not fit a backtest's 30,000 calls gets the most whole days that fit, at
+     * least one. Read the resolved window from `getBacktest`.
      */
     startTime: v.optional(TimestampMsInputSchema),
     /**
@@ -300,6 +306,50 @@ export const ListBacktestTradesInputSchema = v.strictObject({
     pageToken: PageTokenInputSchema,
 });
 export type ListBacktestTradesInput = v.InferInput<typeof ListBacktestTradesInputSchema>;
+
+const StrategyTagsInputSchema = v.optional(
+    v.pipe(
+        v.array(v.picklist(STRATEGY_TAG_VALUES)),
+        v.transform((tags) => tags.map((tag) => StrategyTagCodec.inputToProto[tag])),
+    ),
+    [],
+);
+
+export const PublishStrategyVersionInputSchema = v.strictObject({
+    strategyId: StrategyIdSchema,
+    /** One of the strategy's revisions' versions: valid, with every behaviour example passing. */
+    versionId: VersionIdInputSchema,
+    /** The listing's title. */
+    title: RequiredStringSchema,
+    /** The listing's description; sent as given. */
+    description: v.optional(v.string(), ""),
+    /** The strategy's types, each at most once. */
+    tags: StrategyTagsInputSchema,
+    /**
+     * Reusing a key with the same request returns the listing as it stands now and never
+     * publishes again.
+     */
+    idempotencyKey: IdempotencyKeySchema,
+});
+export type PublishStrategyVersionInput = v.InferInput<typeof PublishStrategyVersionInputSchema>;
+
+export const ListingIdInputSchema = v.strictObject({ listingId: idInputSchema("listingId") });
+export type StrategyListingInput = v.InferInput<typeof ListingIdInputSchema>;
+
+export const ListCommunityStrategiesInputSchema = v.strictObject({
+    /** Only listings with any of these types; omit for every type. */
+    tags: StrategyTagsInputSchema,
+    /**
+     * Only listings trading any of these markets, each by its symbol, e.g. `BTC-USDT`; omit for
+     * every market. A name that isn't a symbol throws `ValidationError`.
+     */
+    markets: v.optional(v.array(v.string()), []),
+    /** Page size: default 20, at most 100. */
+    limit: limitInputSchema(100),
+    /** Previous `nextPageToken`; reuse only with the same `tags` and `markets`. */
+    pageToken: PageTokenInputSchema,
+});
+export type ListCommunityStrategiesInput = v.InferInput<typeof ListCommunityStrategiesInputSchema>;
 
 export const BotIdInputSchema = v.strictObject({ botId: idInputSchema("botId") });
 export type StrategyBotInput = v.InferInput<typeof BotIdInputSchema>;
@@ -571,15 +621,34 @@ export function formatStrategy(s: Proto.Strategy) {
               }
             : null,
         /**
-         * The current revision's markets, as its money card names them, e.g. `BTC/USDT`; empty
+         * The current revision's markets, as its money card names them, e.g. `BTC-USDT`; empty
          * without a valid current revision, or when the caller may not read bots.
          */
         markets: s.markets,
         /** The notes' one-line summary; empty before their first save, or when the caller may not read bots. */
         summary: s.summary,
+        /**
+         * Its community listing, `public` or `hidden`; null when never published, or when the
+         * caller may not read bots.
+         */
+        listing: s.listing ? formatStrategyListing(s.listing) : null,
     };
 }
 export type Strategy = ReturnType<typeof formatStrategy>;
+
+export function formatStrategyListing(l: Proto.StrategyListing) {
+    return {
+        listingId: formatId(l.listingId),
+        /** `hidden` once its author unpublished it; the next publish makes it `public` again. */
+        state: enumLabel(ListingStateCodec.protoToOutput, l.state),
+        /** The version it shows: the one last published. */
+        versionId: l.versionId,
+        /** When that version was published. */
+        publishedAt: ms(l.publishedAt),
+    };
+}
+/** A strategy's community listing, as its author's strategy shows it. */
+export type StrategyListing = ReturnType<typeof formatStrategyListing>;
 
 const requireStrategy = (s: Proto.Strategy | undefined, rpc: string) => {
     if (!s) throw new Error(`${rpc} response is missing its strategy`);
@@ -908,9 +977,25 @@ export function formatDeployStatus(d: Proto.DeployStatus) {
         failedAt: enumLabel(DeployStateCodec.protoToOutput, d.failedAt),
         expiresAt: ms(d.expiresAt),
         updatedAt: ms(d.updatedAt),
+        /**
+         * What a running deploy waits for from the user; null when it waits for nothing. Do what
+         * it says, then call `deployBot` again.
+         */
+        wait: d.wait
+            ? {
+                  reason: enumLabel(DeployWaitReasonCodec.protoToOutput, d.wait.reason),
+                  /**
+                   * With `whitelist_required`: the bot subaccount's smart account address to add to
+                   * the funding account's internal whitelist; empty otherwise.
+                   */
+                  address: d.wait.address,
+              }
+            : null,
     };
 }
 export type StrategyDeployStatus = ReturnType<typeof formatDeployStatus>;
+/** What a running deploy waits for from the user. */
+export type StrategyDeployWait = NonNullable<StrategyDeployStatus["wait"]>;
 
 export function formatDeployProposal(r: Proto.GetDeployProposalResponse) {
     if (!r.status) throw new Error("GetDeployProposal response is missing its status");
@@ -947,7 +1032,7 @@ export function formatBot(b: Proto.Bot) {
         lastDecisionAt: ms(b.lastDecisionAt),
         createdAt: ms(b.createdAt),
         quoteAsset: b.quoteAsset,
-        /** The markets it trades, e.g. `BTC/USDT`. */
+        /** The markets it trades, e.g. `BTC-USDT`. */
         markets: b.markets,
         /** Where its initial funding came from; null until recorded. */
         funding: b.funding
@@ -1036,6 +1121,91 @@ export function formatBotLogEntry(e: Proto.BotLogEntry) {
 }
 export type StrategyBotLogEntry = ReturnType<typeof formatBotLogEntry>;
 
+function communityBacktest(b: Proto.CommunityBacktest | undefined) {
+    if (!b) return null;
+    return {
+        /** `queued` or `running` until it finishes; `done`, `failed` and `not_backtestable` are final. */
+        status: enumLabel(BacktestStatusCodec.protoToOutput, b.status),
+        /** Why the bot can't be backtested; `unspecified` unless `status` is `not_backtestable`. */
+        notBacktestableReason: enumLabel(
+            NotBacktestableReasonCodec.protoToOutput,
+            b.notBacktestableReason,
+        ),
+        /** The simulated window; null when the bot can't be backtested and it never started. */
+        window: window(b.window),
+        /** The base cost scenario's results over the report's period; null unless `done`. */
+        metrics: metrics(b.metrics),
+        /** The whole report, once `done`; `getCommunity` sets it, lists never do. */
+        report: report(b.report),
+        /** Why it failed; empty unless `status` is `failed`. */
+        failure: b.failure,
+    };
+}
+/**
+ * The platform's backtest of a listing's published version, started at each publish: the default
+ * window, default settings, 1,000 of the quote asset and the standard fees, so listings compare
+ * alike. It shows nothing of the author's own backtests.
+ */
+export type CommunityStrategyBacktest = NonNullable<ReturnType<typeof communityBacktest>>;
+
+const strategyTags = (tags: Proto.StrategyTag[]) =>
+    tags.map((tag) => enumLabel(StrategyTagCodec.protoToOutput, tag));
+
+export function formatCommunityStrategySummary(s: Proto.CommunityStrategySummary) {
+    return {
+        listingId: formatId(s.listingId),
+        title: s.title,
+        tags: strategyTags(s.tags),
+        /** The markets the published version trades, e.g. `BTC-USDT`. */
+        markets: s.markets,
+        /** The author's current username. */
+        authorUsername: s.authorUsername,
+        /** The platform backtest of the published version, without its report. */
+        backtest: communityBacktest(s.backtest),
+        /** When the shown version was published. */
+        publishedAt: ms(s.publishedAt),
+    };
+}
+/** One public community listing, as `listCommunity` shows it. */
+export type CommunityStrategySummary = ReturnType<typeof formatCommunityStrategySummary>;
+
+export function formatCommunityStrategy(s: Proto.CommunityStrategy) {
+    return {
+        listingId: formatId(s.listingId),
+        title: s.title,
+        description: s.description,
+        tags: strategyTags(s.tags),
+        /** The markets the published version trades, e.g. `BTC-USDT`. */
+        markets: s.markets,
+        /** The author's current username. */
+        authorUsername: s.authorUsername,
+        /** When the shown version was published. */
+        publishedAt: ms(s.publishedAt),
+        versionId: s.versionId,
+        /** The runtime version it was checked against. */
+        runtimeVersion: s.runtimeVersion,
+        manifest: (s.manifest ?? {}) as JsonObject,
+        code: s.code,
+        /** The settings a user may change, at the version's defaults; never the author's values. */
+        settingsForm: s.settingsForm.map(settingField),
+        moneyCard: moneyCard(s.moneyCard),
+        /** Null for a version stored before flows existed. */
+        flow: flow(s.flow),
+        /** The platform backtest of the published version, with its report once `done`. */
+        backtest: communityBacktest(s.backtest),
+    };
+}
+/** One public community listing with its published version; nothing of its author's account. */
+export type CommunityStrategy = ReturnType<typeof formatCommunityStrategy>;
+
+/**
+ * Most recently published first, then by listing ID, descending; an empty `nextPageToken` means
+ * no more.
+ */
+export type ListCommunityStrategiesResult = {
+    strategies: CommunityStrategySummary[];
+    nextPageToken: string;
+};
 /**
  * `statusCounts` counts all the caller's bots per status, on every page, listing only statuses
  * that have a bot; it is not a pagination total. An empty `nextPageToken` means no more.

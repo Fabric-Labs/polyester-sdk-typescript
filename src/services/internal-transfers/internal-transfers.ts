@@ -104,10 +104,16 @@ export class InternalTransfersService {
     }
 
     /**
-     * Reads a batch's current status and every leg's state by the `requestId` `batchCreate`
-     * returned, for example to follow a `"processing"` batch. The caller must be allowed to read
-     * the transfers of every source account of the batch; any other batch is a
-     * `ResourceNotFoundError`. Does not submit or retry the batch and needs no step-up.
+     * Reads a batch's current status and every leg's state by exactly one of the `requestId`
+     * `batchCreate` returned or the `idempotencyKey` sent to it, for example to follow a
+     * `"processing"` batch. The caller must be allowed to read the transfers of every source
+     * account of the batch; by `requestId`, any other batch is a `ResourceNotFoundError`. By
+     * `idempotencyKey`, scoped to the session's account or the API key that sent it, a caller who
+     * has since lost the right to move a source still reads the answer it lost, a batch refused
+     * before it got a `requestId` reads its refusal, a caller who may not read a source gets
+     * `PermissionError` (`ServiceUnavailableError` while that cannot be decided yet: retry), and
+     * `ResourceNotFoundError` means no batch was sent under that key. Does not submit or retry the
+     * batch and needs no step-up.
      */
     async getBatch(
         input: GetInternalTransferBatchInput,

@@ -29,9 +29,13 @@ export const file_ledger_read_v1_statement_export: GenFile = /*@__PURE__*/
  * Columns, in order:
  * - `time`: entry time, RFC 3339 in UTC with microseconds, for example
  *   `2026-11-12T19:52:07.734123Z`.
- * - `entry_id`: stable entry identifier, an unsigned 128-bit integer as a
- *   decimal string. It is the `transfer_id` of the entry's first transfer leg
- *   on the account, as LedgerReadService.ListTransfers returns it.
+ * - `entry_id`: entry identifier, an unsigned 128-bit integer as a decimal
+ *   string. It is the `transfer_id` of the entry's first transfer leg on the
+ *   account within the export's period, as LedgerReadService.ListTransfers
+ *   returns it, and is the same whichever asset the export is limited to. A
+ *   period boundary can fall between the legs of one entry: each export then
+ *   holds its own part of the entry, under the `transfer_id` of that part's
+ *   first leg, so do not join rows across periods on `entry_id` alone.
  * - `type`: `trade` for a trade's settlement and its fees; otherwise the
  *   entry's transfer reason, such as `deposit`, `withdraw`,
  *   `internal_transfer`, `funding_to_trading` or `system_adjustment`.
@@ -584,8 +588,11 @@ export enum StatementExportFailureReason {
   UNSPECIFIED = 0,
 
   /**
-   * The period holds more than 4,000,000 ledger movements, the most one file
-   * holds. Split the period into shorter exports.
+   * The period holds more than 4,000,000 ledger movements of the account,
+   * the most one export reads. Every asset's movements count, even for an
+   * export limited to one asset: an entry is built from all of its ledger
+   * operation's movements before the asset's rows are selected. Split the
+   * period into shorter exports.
    *
    * @generated from enum value: STATEMENT_EXPORT_FAILURE_REASON_TOO_LARGE = 1;
    */

@@ -126,6 +126,10 @@ export class TriggersService {
 
     /**
      * Creates a standalone trigger for a symbol ID, using that market's catalog quantity scale.
+     * To recover from an `OutcomeUnknownError`, pass your own unique `clientTriggerId` and keep it
+     * before the first call: an omitted one is generated per call and never returned, so a retry
+     * would create a second trigger. With it, retry the identical create (same account) within
+     * 60 s, which returns the trigger it created, or find it with `list({ clientTriggerId })`.
      */
     async create(
         input: CreateTriggerInput,
@@ -142,7 +146,8 @@ export class TriggersService {
      * Creates an OCO: a take-profit and a stop-loss over a quantity the account already holds, which
      * cancel each other. Returns the OCO's `orderListId` and both legs' trigger IDs; read the legs
      * with `list({ orderListId })`. An `OutcomeUnknownError` means the OCO may exist: list by
-     * `clientListId` before retrying.
+     * `clientListId` before retrying, which needs your own `clientListId` kept from before the
+     * first call (an omitted one is generated per call and never returned).
      */
     async createOco(
         input: CreateOcoInput,
@@ -202,7 +207,7 @@ export class TriggersService {
     }
 
     /**
-     * Lists triggers for the resolved account scope with optional symbol ID, status, trigger type, parent order, OCO (`orderListId` or `clientListId`), limit, and page-token filters. Results are returned newest-first.
+     * Lists triggers for the resolved account scope with optional symbol ID, status, trigger type, parent order, OCO (`orderListId` or `clientListId`), `clientTriggerId`, limit, and page-token filters. Results are returned newest-first. Ended triggers stay listable for at least 24 hours. Follow realtime trigger updates to track triggers and list to recover and reconcile, not to poll.
      */
     async list(
         input: ListTriggersInput = {},
@@ -296,7 +301,7 @@ export class TriggersService {
     }
 
     /**
-     * Applies a limited patch to an existing trigger. Omit activationPrice or maxSlippage to leave it unchanged, or pass `{ kind: "none" }` to clear it. Once a trailing stop has started tracking, a new or different activation price rejects the whole patch with `TRIGGER_ACTIVATION_PRICE_NOT_MODIFIABLE`; clearing it or repeating the current price is still accepted. To wait for a new activation price, cancel the trigger and create another. An optional symbol ID must name the trigger's own market. An API key limited to specific markets gets `API_KEY_MARKET_DENY` when the trigger's market is outside them.
+     * Applies a limited patch to an existing trigger. Omit activationPrice or maxSlippage to leave it unchanged, or pass `{ kind: "none" }` to clear it. Once a trailing stop has started tracking, a new or different activation price rejects the whole patch with `TRIGGER_ACTIVATION_PRICE_NOT_MODIFIABLE`; clearing it or repeating the current price is still accepted. To wait for a new activation price, cancel the trigger and create another. A take-profit or stop-loss attached to an order, and either OCO leg, takes no maxSlippage: setting it rejects the whole patch with `TRIGGER_NOT_MODIFIABLE`; patch its trigger price alone. An optional symbol ID must name the trigger's own market. An API key limited to specific markets gets `API_KEY_MARKET_DENY` when the trigger's market is outside them.
      */
     async modify(
         input: ModifyTriggerInput,

@@ -6,7 +6,10 @@ export type {
     ApiKeysListInput,
     ApiKeysUpdateInput,
     AssistantKeySpecInput,
+    EndStrategyBotAccessInput,
     SetAssistantKeysInput,
+    SetStrategyBotAccessInput,
+    StrategyBotAccess,
 } from "./api-keys.schemas.js";
 export type {
     ApiKeyPurposeInput,

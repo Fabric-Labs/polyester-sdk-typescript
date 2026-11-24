@@ -8,6 +8,7 @@ export type {
     ListMarketOverviewInput,
     MarketOverview,
     MarketOverviewOrderBy,
+    MarketOverviewRollingWindowStats,
     MarketOverviewSort,
     MarketOverviewSparkline,
     SparklineIntervalName,

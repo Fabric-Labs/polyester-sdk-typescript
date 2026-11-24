@@ -900,7 +900,7 @@ describe("OrdersService", () => {
                             code: ProtoWrite.ErrorCode.PRICE_TICK_SIZE,
                             violations: [
                                 {
-                                    fieldPath: "items[1].new_price_ticks",
+                                    fieldPath: "new_price_ticks",
                                     ruleId: "PRICE_TICK_SIZE",
                                     message: "price must align with the tick size",
                                 },
@@ -938,7 +938,7 @@ describe("OrdersService", () => {
                     code: "PRICE_TICK_SIZE",
                     error: {
                         code: "PRICE_TICK_SIZE",
-                        violations: [{ fieldPath: "items[1].new_price_ticks" }],
+                        violations: [{ fieldPath: "new_price_ticks" }],
                     },
                 },
             ],

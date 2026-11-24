@@ -4,7 +4,7 @@ import {
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
-import type { AuthApiTransports } from "../../shared/transports.js";
+import type { AuthAndPublicApiTransports } from "../../shared/transports.js";
 import { enumLabel } from "../../shared/proto-enum-codec.js";
 import { parse } from "../../shared/validation.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
@@ -17,6 +17,8 @@ import {
     DeployProposalInputSchema,
     GetStrategyReferenceInputSchema,
     ListBacktestTradesInputSchema,
+    ListCommunityStrategiesInputSchema,
+    ListingIdInputSchema,
     ListBacktestsInputSchema,
     ListBotLogsInputSchema,
     ListBotVersionsInputSchema,
@@ -25,6 +27,7 @@ import {
     ListStrategyNotesRevisionsInputSchema,
     ListStrategyRevisionsInputSchema,
     ProposeDeployInputSchema,
+    PublishStrategyVersionInputSchema,
     RenameStrategyInputSchema,
     SaveDraftVersionInputSchema,
     SaveStrategyNotesInputSchema,
@@ -38,6 +41,8 @@ import {
     formatBotDetails,
     formatBotLogEntry,
     formatBotVersion,
+    formatCommunityStrategy,
+    formatCommunityStrategySummary,
     formatCreateStrategyResult,
     formatDeployProposal,
     formatDeployStatus,
@@ -51,11 +56,13 @@ import {
     formatStrategy,
     formatStrategyBacktestListItem,
     formatStrategyDetails,
+    formatStrategyListing,
     formatStrategyNotes,
     formatStrategyReference,
     formatStrategyRevision,
     formatStrategyTemplate,
     formatStrategyVersion,
+    type CommunityStrategy,
     type CreateStrategyInput,
     type CreateStrategyResult,
     type DeployBotInput,
@@ -66,6 +73,8 @@ import {
     type ListBotLogsInput,
     type ListBotVersionsInput,
     type ListBotsInput,
+    type ListCommunityStrategiesInput,
+    type ListCommunityStrategiesResult,
     type ListStrategiesInput,
     type ListStrategiesResult,
     type ListStrategyBacktestTradesResult,
@@ -79,6 +88,7 @@ import {
     type ListStrategyRevisionsResult,
     type ProposeDeployInput,
     type ProposeStrategyDeployResult,
+    type PublishStrategyVersionInput,
     type RenameStrategyInput,
     type RunStrategyScenariosResult,
     type SaveDraftVersionInput,
@@ -98,6 +108,8 @@ import {
     type StrategyDeployStatus,
     type StrategyDetails,
     type StrategyInput,
+    type StrategyListing,
+    type StrategyListingInput,
     type StrategyNotes,
     type StrategyReference,
     type StrategyTemplate,
@@ -109,16 +121,22 @@ import {
  * Writes, tests, proposes and deploys trading bots of the caller's main account: save drafts of a
  * strategy as immutable versions, run their behaviour examples, backtest them, record a deploy
  * proposal, deploy it from the user's own MFA-elevated session with a wallet signature, and stop
- * bots. API keys need `read-strategies`, `draft-strategies`, `propose-strategy-deploy` or
+ * bots. Publishes a strategy's version as its community listing, and browses the public listings.
+ * API keys need `read-strategies`, `draft-strategies`, `propose-strategy-deploy` or
  * `stop-strategies`, and a key scoped to a subaccount is refused (`PermissionError`); `deployBot`
- * requires the user's own MFA-elevated session and refuses API keys and connected-app sessions.
- * Errors carry a `strategies` detail; a `ServiceUnavailableError` is safe to retry unchanged.
+ * requires the user's own MFA-elevated session, and `publishVersion` and `unpublish` the user's
+ * own session: both refuse API keys and connected-app sessions. `getReference`, `listTemplates`,
+ * `listCommunity` and `getCommunity` need no credentials. Errors carry a `strategies` detail; a
+ * `ServiceUnavailableError` is safe to retry unchanged.
  */
 export class StrategiesService {
     #client: Client<typeof Proto.StrategiesService>;
+    /** For the public reads, which take no credentials and may be cached as GETs. */
+    #publicClient: Client<typeof Proto.StrategiesService>;
 
-    constructor(transports: AuthApiTransports) {
+    constructor(transports: AuthAndPublicApiTransports) {
         this.#client = createClient(Proto.StrategiesService, transports.authApi);
+        this.#publicClient = createClient(Proto.StrategiesService, transports.publicApi);
     }
 
     /**
@@ -132,13 +150,19 @@ export class StrategiesService {
         options?: PolyesterRequestOptions,
     ): Promise<StrategyReference> {
         const request = parse(GetStrategyReferenceInputSchema, input);
-        const res = await this.#client.getStrategyReference(request, toConnectCallOptions(options));
+        const res = await this.#publicClient.getStrategyReference(
+            request,
+            toConnectCallOptions(options),
+        );
         return formatStrategyReference(res);
     }
 
     /** Lists the bot templates: starting points with a manifest and code. */
     async listTemplates(options?: PolyesterRequestOptions): Promise<StrategyTemplate[]> {
-        const res = await this.#client.listStrategyTemplates({}, toConnectCallOptions(options));
+        const res = await this.#publicClient.listStrategyTemplates(
+            {},
+            toConnectCallOptions(options),
+        );
         return res.templates.map(formatStrategyTemplate);
     }
 
@@ -283,8 +307,9 @@ export class StrategiesService {
 
     /**
      * Deletes a strategy and its revisions; it never stops a bot. A strategy a running bot or a
-     * waiting proposal uses throws `PreconditionFailedError` (`STRATEGY_IN_USE`); an unknown one
-     * throws `ResourceNotFoundError` (`STRATEGY_NOT_FOUND`). Needs `draft-strategies`.
+     * waiting proposal uses, or whose community listing is public, throws
+     * `PreconditionFailedError` (`STRATEGY_IN_USE`); an unknown one throws `ResourceNotFoundError`
+     * (`STRATEGY_NOT_FOUND`). Needs `draft-strategies`.
      */
     async delete(input: StrategyInput, options?: PolyesterRequestOptions): Promise<void> {
         const request = parse(StrategyIdInputSchema, input);
@@ -429,8 +454,10 @@ export class StrategiesService {
      * session without recent MFA throws `SessionElevationRequiredError` (`MFA_ELEVATION_REQUIRED`).
      * A deploy that creates a subaccount needs `subaccountAuthorization` signed via
      * `subaccounts.createChallenge` (otherwise throws `PreconditionFailedError` with
-     * `SUBACCOUNT_AUTHORIZATION_REQUIRED`). Safe to retry on timeout or error: calling again
-     * continues the same deploy and never starts a second bot.
+     * `SUBACCOUNT_AUTHORIZATION_REQUIRED`). Each call waits up to about 20 seconds; call again
+     * while it answers `setting_access`, or `funding` without `wait`. With `wait`, do what it says
+     * first, e.g. add `wait.address` to the internal whitelist. Safe to retry on timeout or error:
+     * calling again continues the same deploy and never starts a second bot.
      */
     async deployBot(
         input: DeployBotInput,
@@ -446,8 +473,10 @@ export class StrategiesService {
     }
 
     /**
-     * Reads where a deploy proposal is; poll it until `live`, `failed` or `expired`. Needs
-     * `read-strategies`.
+     * Reads where a deploy proposal is, without advancing it. A deploy only moves on through
+     * `deployBot`: while this reads `setting_access`, or `funding` once any `wait` is done, call
+     * `deployBot` again; from `deploying`, polling this until `live`, `failed` or `expired` is
+     * enough. Needs `read-strategies`.
      */
     async getDeployStatus(
         input: StrategyDeployProposalInput,
@@ -561,5 +590,85 @@ export class StrategiesService {
             followToken: res.followToken,
             deployedAgain: res.deployedAgain,
         };
+    }
+
+    /**
+     * Publishes a version of one of the caller's strategies as the strategy's community listing,
+     * with a title, a description and types, and starts the platform's backtest of it. A strategy
+     * has one listing: publishing again shows the new version and makes a `hidden` listing
+     * `public` again. The user's own session only: API keys and connected-app sessions are
+     * refused (`PermissionError`). An invalid version or failing behaviour examples throw
+     * `PreconditionFailedError` (`VERSION_INVALID`, `SCENARIOS_FAILING`), as do a caller without
+     * a username (`USERNAME_REQUIRED`), the listing cap (`LISTING_CAP_REACHED`, with
+     * `listingCap`) and the daily publish limit (`PUBLISH_LIMIT_REACHED`, with `retryAfter` when
+     * the UTC day resets). Reusing `idempotencyKey` for another request throws
+     * `AlreadyExistsError` (`IDEMPOTENCY_CONFLICT`).
+     */
+    async publishVersion(
+        input: PublishStrategyVersionInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<StrategyListing> {
+        const request = parse(PublishStrategyVersionInputSchema, input);
+        const res = await this.#client.publishStrategyVersion(
+            request,
+            toConnectCallOptions(options),
+        );
+        if (!res.listing) throw new Error("PublishStrategyVersion response is missing its listing");
+        return formatStrategyListing(res.listing);
+    }
+
+    /**
+     * Unpublishes one of the caller's community listings: it reads `hidden`, leaves the list and
+     * `getCommunity` throws `ResourceNotFoundError` for it; copies already made stay. Unpublishing
+     * a `hidden` listing changes nothing. The user's own session only. Another account's listing
+     * throws `ResourceNotFoundError` (`LISTING_NOT_FOUND`).
+     */
+    async unpublish(
+        input: StrategyListingInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<StrategyListing> {
+        const request = parse(ListingIdInputSchema, input);
+        const res = await this.#client.unpublishStrategy(request, toConnectCallOptions(options));
+        if (!res.listing) throw new Error("UnpublishStrategy response is missing its listing");
+        return formatStrategyListing(res.listing);
+    }
+
+    /**
+     * Lists the public community listings, most recently published first, optionally only those
+     * of some types or trading some markets, each with its platform backtest's results. Needs no
+     * credentials.
+     */
+    async listCommunity(
+        input: ListCommunityStrategiesInput = {},
+        options?: PolyesterRequestOptions,
+    ): Promise<ListCommunityStrategiesResult> {
+        const request = parse(ListCommunityStrategiesInputSchema, input);
+        const res = await this.#publicClient.listCommunityStrategies(
+            removeUndefined(request),
+            toConnectCallOptions(options),
+        );
+        return {
+            strategies: res.strategies.map(formatCommunityStrategySummary),
+            nextPageToken: res.nextPageToken,
+        };
+    }
+
+    /**
+     * Reads one public community listing with its published version's code, manifest, settings
+     * form, money rules, flow and platform backtest report. An unknown or unpublished listing
+     * throws `ResourceNotFoundError` (`LISTING_NOT_FOUND`), for its author too. Needs no
+     * credentials.
+     */
+    async getCommunity(
+        input: StrategyListingInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<CommunityStrategy> {
+        const request = parse(ListingIdInputSchema, input);
+        const res = await this.#publicClient.getCommunityStrategy(
+            request,
+            toConnectCallOptions(options),
+        );
+        if (!res.strategy) throw new Error("GetCommunityStrategy response is missing its strategy");
+        return formatCommunityStrategy(res.strategy);
     }
 }

@@ -294,16 +294,22 @@ export type AssistantConversationAccount = NonNullable<
     ReturnType<typeof formatConversationAccount>
 >;
 
+/** What a conversation is about; absent for a general conversation. */
+export function formatSubject(s: Proto.Subject | undefined) {
+    return s?.kind.case === "strategy"
+        ? { strategyId: formatId(s.kind.value.strategyId) }
+        : undefined;
+}
+
+export type AssistantSubject = NonNullable<ReturnType<typeof formatSubject>>;
+
 export function formatConversation(c: Proto.Conversation) {
     return {
         conversationId: formatId(c.conversationId),
         /** Empty until a title is available. */
         title: c.title,
         /** What the conversation is about; absent for a general conversation. */
-        subject:
-            c.subject?.kind.case === "strategy"
-                ? { strategyId: formatId(c.subject.kind.value.strategyId) }
-                : undefined,
+        subject: formatSubject(c.subject),
         /**
          * The account its latest message selected as of this list; `listMessages` returns it
          * as it stands when the conversation is opened.
@@ -459,11 +465,15 @@ export type ListAssistantConversationsResult = {
     conversations: AssistantConversation[];
     nextPageToken: string;
 };
-/** `lastAccount` is the account the latest message selected, current on every page. */
+/**
+ * `lastAccount` is the account the latest message selected, current on every page. `subject` is
+ * what the conversation is about, fixed when it started; absent for a general conversation.
+ */
 export type ListAssistantMessagesResult = {
     messages: AssistantMessage[];
     nextPageToken: string;
     lastAccount: AssistantConversationAccount | undefined;
+    subject: AssistantSubject | undefined;
 };
 export type ListAssistantMemoriesResult = { memories: AssistantMemory[]; nextPageToken: string };
 

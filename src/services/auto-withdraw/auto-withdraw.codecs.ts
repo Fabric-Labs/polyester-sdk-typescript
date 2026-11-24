@@ -28,7 +28,9 @@ export const AUTO_WITHDRAW_RUN_STATE_VALUES = [
     "partially_failed",
     "failed",
     "skipped",
+    "converting",
 ] as const;
+/** `converting`: the run's conversions into the payout asset are executing; show it in progress. */
 export type AutoWithdrawRunState = (typeof AUTO_WITHDRAW_RUN_STATE_VALUES)[number];
 
 export const AUTO_WITHDRAW_STEP_STATE_VALUES = [
@@ -91,6 +93,7 @@ export const AutoWithdrawRunStateCodec = {
         [Proto.AutoWithdrawRunState.RUN_PARTIALLY_FAILED]: "partially_failed",
         [Proto.AutoWithdrawRunState.RUN_FAILED]: "failed",
         [Proto.AutoWithdrawRunState.RUN_SKIPPED]: "skipped",
+        [Proto.AutoWithdrawRunState.RUN_CONVERTING]: "converting",
     } satisfies ProtoToOutput<Proto.AutoWithdrawRunState, AutoWithdrawRunState>,
 } as const;
 
@@ -144,13 +147,34 @@ export type AutoWithdrawStepReason =
     | "supply_unavailable"
     | "authority_revoked"
     | "gateway_capacity_insufficient"
+    /** The environment does not allow withdrawals; the funds stay on the account. */
+    | "withdrawals_disabled"
     | "withdrawal_released"
     | "withdrawal_failed"
     | (string & {});
 
 /**
- * Why part or all of an asset's balance would stay on the account in a previewed run. Unknown
- * future reasons pass through as strings.
+ * Why an asset a payout-asset rule converts was not, or would not be, converted; its balance stays
+ * on the account. A run can also report `conversion_refused`, `rule_superseded` or
+ * `policy_denied` (the rule's author lost the swap permission). Unknown future reasons pass
+ * through as strings.
+ */
+export type AutoWithdrawConversionSkipReason =
+    | "route_unsupported"
+    | "below_minimum"
+    | "above_maximum"
+    | "conversion_unavailable"
+    | "price_unavailable"
+    | "conversion_refused"
+    | "rule_superseded"
+    | "policy_denied"
+    | (string & {});
+
+/**
+ * Why part or all of an asset's balance would stay on the account in a previewed run. On a
+ * payout-asset rule, `converts` means the asset is converted instead (see `conversion`), and a
+ * conversion skip reason means it would stay unconverted. Unknown future reasons pass through as
+ * strings.
  */
 export type AutoWithdrawHoldReason =
     | "below_minimum"
@@ -159,4 +183,5 @@ export type AutoWithdrawHoldReason =
     | "destination_cooling_down"
     | "above_max"
     | "dust"
-    | (string & {});
+    | "converts"
+    | AutoWithdrawConversionSkipReason;

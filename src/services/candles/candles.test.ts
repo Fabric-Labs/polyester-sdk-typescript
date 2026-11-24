@@ -1,11 +1,17 @@
 import { create } from "@bufbuild/protobuf";
+import { Code, ConnectError } from "@connectrpc/connect";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as Proto from "../../gen/marketdata/v1/marketdata_pb.js";
 import { CatalogLookupError } from "../../catalogs/types.js";
+import { createErrorMappingTransport } from "../../shared/connect-error-mapping.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { ValidationError } from "../../shared/errors.js";
 import { createTestCatalog } from "../../testing/catalog.js";
-import { realtimeClientStub, unaryTransport } from "../../testing/service-harness.js";
+import {
+    realtimeClientStub,
+    rejectingUnaryTransport,
+    unaryTransport,
+} from "../../testing/service-harness.js";
 import { CandlesService } from "./candles.js";
 
 const BTC = {
@@ -105,20 +111,61 @@ describe("CandlesService", () => {
             endTime: { seconds: 200n, nanos: 0 },
         });
         expect(transport.lastCall()?.signal).toBe(controller.signal);
-        expect(candles).toEqual([
-            {
-                symbolId: 101,
-                timeframe: "5m",
-                time: 100,
-                open: "1.234",
-                high: "1.235",
-                low: "1.233",
-                close: "1.234567",
-                volume: "1.23456789",
-                quoteVolume: "152415.677625363",
-                isClosed: true,
-            },
+        expect(candles).toEqual({
+            candles: [
+                {
+                    symbolId: 101,
+                    timeframe: "5m",
+                    time: 100,
+                    open: "1.234",
+                    high: "1.235",
+                    low: "1.233",
+                    close: "1.234567",
+                    volume: "1.23456789",
+                    quoteVolume: "152415.677625363",
+                    isClosed: true,
+                },
+            ],
+            reference: [],
+            nextPageToken: "",
+        });
+    });
+
+    it("returns reference candles at the reference price scale and the next page token", async () => {
+        const transport = unaryTransport({
+            symbolId: 101,
+            timeframe: Proto.Timeframe.MIN_1,
+            candles: [candlePoint],
+            referenceCandles: [{ ...candlePoint, tsSec: 40n, close: 123_456_789n }],
+            nextPageToken: "older",
+        });
+        const service = new CandlesService(
+            { publicApi: transport.transport },
+            realtimeClientStub().realtime,
+            createCatalogSdkScales(() =>
+                createTestCatalog({
+                    assets: [BTC, USDT],
+                    pairs: [{ ...BTC_USDT, referencePriceScale: 8 }],
+                }),
+            ),
+        );
+
+        const page = await service.list({
+            symbolId: 101,
+            timeframe: "1m",
+            includeReference: true,
+            pageToken: "p1",
+        });
+
+        expect(transport.lastCall()?.message).toMatchObject({
+            includeReference: true,
+            pageToken: "p1",
+        });
+        expect(page.candles[0]).toMatchObject({ time: 100, close: "1.234567" });
+        expect(page.reference).toEqual([
+            expect.objectContaining({ time: 40, close: "1.23456789", isClosed: true }),
         ]);
+        expect(page.nextPageToken).toBe("older");
     });
 
     it("returns an empty list when the candle response omits repeated rows", async () => {
@@ -132,7 +179,11 @@ describe("CandlesService", () => {
             testScales(),
         );
 
-        await expect(service.list({ symbolId: 101, timeframe: "1m" })).resolves.toEqual([]);
+        await expect(service.list({ symbolId: 101, timeframe: "1m" })).resolves.toEqual({
+            candles: [],
+            reference: [],
+            nextPageToken: "",
+        });
     });
 
     it("rejects unknown filter keys before sending candle requests", async () => {
@@ -337,6 +388,41 @@ describe("CandlesService", () => {
         ).rejects.toBeInstanceOf(ValidationError);
     });
 
+    it("surfaces a refused page token's code and reason through the transport", async () => {
+        const service = new CandlesService(
+            {
+                publicApi: createErrorMappingTransport(
+                    rejectingUnaryTransport(
+                        new ConnectError("PAGE_TOKEN_INVALID", Code.InvalidArgument, undefined, [
+                            {
+                                desc: Proto.ErrorDetailSchema,
+                                value: create(Proto.ErrorDetailSchema, {
+                                    reason: "bad page_token",
+                                }),
+                            },
+                        ]),
+                    ),
+                ),
+            },
+            realtimeClientStub().realtime,
+            testScales(),
+        );
+
+        const error = await service
+            .listIndexPrice({ symbolId: 101, timeframe: "1m", pageToken: "bogus" })
+            .catch((caught: unknown) => caught);
+
+        expect(error).toBeInstanceOf(ValidationError);
+        expect(error).toMatchObject({
+            message: "bad page_token",
+            detail: {
+                service: "market_data",
+                code: "PAGE_TOKEN_INVALID",
+                reason: "bad page_token",
+            },
+        });
+    });
+
     it("parses integer columnar responses and defaults missing reference arrays to null", async () => {
         const transport = unaryTransport({
             symbolId: 101,
@@ -385,9 +471,9 @@ describe("CandlesService", () => {
             testScales(),
         );
 
-        await expect(service.list({ symbolId: 101, timeframe: "1m" })).resolves.toMatchObject([
-            { timeframe: "unspecified" },
-        ]);
+        await expect(service.list({ symbolId: 101, timeframe: "1m" })).resolves.toMatchObject({
+            candles: [{ timeframe: "unspecified" }],
+        });
     });
 
     it("wires row candle subscriptions and parses point publications", async () => {

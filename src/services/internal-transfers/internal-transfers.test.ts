@@ -417,6 +417,39 @@ describe("InternalTransfersService", () => {
         });
     });
 
+    it("reads a batch by the idempotency key sent unchanged", async () => {
+        const transport = unaryTransport({
+            requestId: "",
+            status: InternalTransferBatchStatus.BATCH_REFUSED,
+            legs: [],
+        });
+        const service = new InternalTransfersService(
+            { authApi: transport.transport },
+            undefined,
+            testScales(),
+        );
+
+        const result = await service.getBatch({ idempotencyKey: " rebalance-1 " });
+
+        expect(transport.lastCall()?.message).toEqual({ idempotencyKey: " rebalance-1 " });
+        expect(result).toMatchObject({ requestId: undefined, status: "refused" });
+    });
+
+    it.each([{}, { requestId: "batch-1", idempotencyKey: "k" }, { idempotencyKey: "" }])(
+        "rejects batch selector %o before calling the server",
+        async (input) => {
+            const transport = unaryTransport({});
+            const service = new InternalTransfersService(
+                { authApi: transport.transport },
+                undefined,
+                testScales(),
+            );
+
+            await expect(service.getBatch(input as never)).rejects.toBeInstanceOf(ValidationError);
+            expect(transport.unary).not.toHaveBeenCalled();
+        },
+    );
+
     it("rejects a blank batch request ID before calling the server", async () => {
         const transport = unaryTransport({});
         const service = new InternalTransfersService(

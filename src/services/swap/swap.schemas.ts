@@ -29,6 +29,8 @@ import {
     SwapOrderStatusCodec,
     SwapReasonCodec,
     SwapSideCodec,
+    SwapSliceReasonCodec,
+    SwapSliceStateCodec,
     SwapStatusCodec,
 } from "./swap.codecs.js";
 
@@ -45,6 +47,43 @@ function e18AmountInputSchema(field: string) {
     );
 }
 
+const MillisecondsInputSchema = v.pipe(v.number(), v.safeInteger(), v.gtValue(0));
+
+/**
+ * `market` trades at once; `twap` spreads the swap evenly over `durationMs` (1 to 60 minutes) in
+ * slices `sliceIntervalMs` apart (at least 10 seconds, at most `durationMs`). Each slice nets at
+ * least the swap's minimum rate on what it converts, except an order accepted late under severe
+ * delay, which ends the swap with `minimum_not_met`. A TWAP needs a larger amount than a market
+ * swap, since every slice must be a valid order.
+ */
+export const SwapExecutionInputSchema = v.pipe(
+    v.variant("type", [
+        v.strictObject({ type: v.literal("market") }),
+        v.strictObject({
+            type: v.literal("twap"),
+            durationMs: MillisecondsInputSchema,
+            sliceIntervalMs: MillisecondsInputSchema,
+        }),
+    ]),
+    v.transform(
+        (execution): MessageInitShape<typeof Proto.ExecutionSchema> => ({
+            strategy:
+                execution.type === "market"
+                    ? { case: "market", value: {} }
+                    : {
+                          case: "twap",
+                          value: {
+                              durationMs: BigInt(execution.durationMs),
+                              sliceIntervalMs: BigInt(execution.sliceIntervalMs),
+                          },
+                      },
+        }),
+    ),
+);
+
+/** How a swap executes. Input and output share this shape. */
+export type SwapExecution = v.InferInput<typeof SwapExecutionInputSchema>;
+
 const SwapTermsInputEntries = {
     /** Defaults to the active subaccount, else the root account (or an API key's bound subaccount). */
     ...AccountScopeInputEntries,
@@ -57,6 +96,8 @@ const SwapTermsInputEntries = {
      * steps of the market trade; the rest stays on the account.
      */
     amount: e18AmountInputSchema("amount"),
+    /** Omit for `market`. Part of the idempotent terms: quote and create with the same one. */
+    execution: v.optional(SwapExecutionInputSchema),
 };
 
 type SwapTermsInput = {
@@ -64,14 +105,22 @@ type SwapTermsInput = {
     sourceAssetId: number;
     destinationAssetId: number;
     amount: U128Value;
+    execution?: MessageInitShape<typeof Proto.ExecutionSchema>;
 };
 
-function toTerms({ account, sourceAssetId, destinationAssetId, amount }: SwapTermsInput) {
+function toTerms({
+    account,
+    sourceAssetId,
+    destinationAssetId,
+    amount,
+    execution,
+}: SwapTermsInput) {
     return removeUndefined({
         subaccountId: accountScopeToSubaccountId(account),
         sourceAssetId,
         destinationAssetId,
         amount: { case: "amountE18" as const, value: amount },
+        execution,
     }) satisfies MessageInitShape<typeof Proto.SwapTermsSchema>;
 }
 
@@ -104,7 +153,8 @@ export const CreateSwapInputSchema = v.pipe(
         quoteExpiresAt: v.pipe(v.number(), v.safeInteger(), v.gtValue(0)),
         /**
          * Caller-chosen key, unique per caller. The same key and request return the same swap;
-         * the same key with a different request is `IDEMPOTENCY_CONFLICT`.
+         * the same key with a different request is `IDEMPOTENCY_CONFLICT`. Keys starting `aw:`
+         * are reserved for auto-withdraw conversions and refused.
          */
         idempotencyKey: IdempotencyKeySchema,
     }),
@@ -147,6 +197,50 @@ function e18ToDecimal(value: U128Value | undefined): string {
 
 const AmountE18Schema = v.optional(U128Schema);
 
+/** An execution as read back: `unspecified` is a strategy this SDK build does not know. */
+export type SwapExecutionOutput = SwapExecution | { type: "unspecified" };
+
+/**
+ * Wire `Execution` → {@link SwapExecutionOutput}; `undefined` only when unset, so callers apply
+ * the field's own unset meaning with `??`.
+ */
+export const SwapExecutionSchema = v.pipe(
+    v.optional(
+        v.object({
+            strategy: v.variant("case", [
+                v.object({ case: v.literal("market") }),
+                v.object({
+                    case: v.literal("twap"),
+                    value: v.object({ durationMs: v.bigint(), sliceIntervalMs: v.bigint() }),
+                }),
+                v.object({ case: v.undefined() }),
+            ]),
+        }),
+    ),
+    v.transform((execution): SwapExecutionOutput | undefined => {
+        if (!execution) return undefined;
+        const strategy = execution.strategy;
+        if (strategy.case === "market") return { type: "market" };
+        if (strategy?.case === "twap") {
+            return {
+                type: "twap",
+                durationMs: Number(strategy.value.durationMs),
+                sliceIntervalMs: Number(strategy.value.sliceIntervalMs),
+            };
+        }
+        return { type: "unspecified" };
+    }),
+);
+
+/** Unset terms execute at market. */
+const marketExecution = (): SwapExecutionOutput => ({ type: "market" });
+
+/** Zero (a direct route) → `null`. */
+const IntermediateAssetIdSchema = v.pipe(
+    v.optional(v.number(), 0),
+    v.transform((id) => (id === 0 ? null : id)),
+);
+
 /** Root account is `null`. */
 const SubaccountIdOutputSchema = v.pipe(
     OptionalPublicIdSchema,
@@ -185,6 +279,7 @@ const SwapTermsOutputSchema = v.object({
     sourceAssetId: v.number(),
     destinationAssetId: v.number(),
     amount: v.object({ case: v.literal("amountE18"), value: U128Schema }),
+    execution: SwapExecutionSchema,
 });
 
 export const SwapQuoteSchema = v.pipe(
@@ -195,6 +290,9 @@ export const SwapQuoteSchema = v.pipe(
         minAmountOutE18: AmountE18Schema,
         quotedAt: OptionalTimestampMsSchema,
         expiresAt: OptionalTimestampMsSchema,
+        intermediateAssetId: IntermediateAssetIdSchema,
+        priceImpactBps: v.number(),
+        totalSlices: v.number(),
     }),
     v.transform((quote) => ({
         /** Subaccount the quote is for; `null` for the root account. */
@@ -203,8 +301,18 @@ export const SwapQuoteSchema = v.pipe(
         destinationAssetId: quote.terms.destinationAssetId,
         /** Source amount quoted. */
         amount: e18ToDecimal(quote.terms.amount.value),
-        /** Markets the swap trades on, in order; a direct swap has one. */
+        execution: quote.terms.execution ?? marketExecution(),
+        /**
+         * Markets the swap trades on, in order: the direct market when one exists, otherwise two
+         * through `intermediateAssetId`.
+         */
         legs: quote.legs,
+        /** A two-leg route's intermediate asset (USDT or USDC); `null` for a direct route. */
+        intermediateAssetId: quote.intermediateAssetId,
+        /** End-to-end price impact over every leg, in bps, rounded up. */
+        priceImpactBps: quote.priceImpactBps,
+        /** Slices the swap executes in: 1 at market. A TWAP is quoted as the whole amount now. */
+        totalSlices: quote.totalSlices,
         /** Estimated destination amount after fees at current depth. */
         expectedAmountOut: e18ToDecimal(quote.expectedAmountOutE18),
         /** Destination amount after fees at the requested slippage; pass to `create`. */
@@ -229,6 +337,7 @@ export const SwapOrderSchema = v.pipe(
         spentE18: AmountE18Schema,
         receivedE18: AmountE18Schema,
         feeE18: AmountE18Schema,
+        slice: v.number(),
     }),
     v.transform((order) => ({
         /** Spot order ID once the market accepted it; `null` before. */
@@ -246,10 +355,124 @@ export const SwapOrderSchema = v.pipe(
         received: e18ToDecimal(order.receivedE18),
         /** Fee on settled fills, in the asset the order receives. */
         fee: e18ToDecimal(order.feeE18),
+        /** Zero-based TWAP slice the order belongs to; 0 at market. */
+        slice: order.slice,
     })),
 );
 
 export type SwapOrder = v.InferOutput<typeof SwapOrderSchema>;
+
+export const SwapLegSchema = v.pipe(
+    v.object({
+        leg: v.number(),
+        symbolId: v.number(),
+        side: enumLabelSchema(SwapSideCodec.protoToOutput),
+        spentE18: AmountE18Schema,
+        receivedE18: AmountE18Schema,
+        feeE18: AmountE18Schema,
+        feeAssetId: v.number(),
+    }),
+    v.transform((leg) => ({
+        /** Zero-based position of the market in the route. */
+        leg: leg.leg,
+        symbolId: leg.symbolId,
+        side: leg.side,
+        /** Spent in settled fills, fees in the spent asset included. */
+        spent: e18ToDecimal(leg.spentE18),
+        /** Received in settled fills, after fees. */
+        received: e18ToDecimal(leg.receivedE18),
+        /** Fee on settled fills, in `feeAssetId` (the asset the leg receives). */
+        fee: e18ToDecimal(leg.feeE18),
+        feeAssetId: leg.feeAssetId,
+    })),
+);
+
+/** One market of a swap's route with its settled totals. Sum `fee` per `feeAssetId`. */
+export type SwapLeg = v.InferOutput<typeof SwapLegSchema>;
+
+/** Unspecified (`0`) → `null`. */
+function sliceReason(reason: number) {
+    return reason === 0 ? null : enumLabel(SwapSliceReasonCodec.protoToOutput, reason);
+}
+
+const SwapSliceSchema = v.pipe(
+    v.object({
+        index: v.number(),
+        plannedAt: OptionalTimestampMsSchema,
+        executedAt: OptionalTimestampMsSchema,
+        finishedAt: OptionalTimestampMsSchema,
+        state: enumLabelSchema(SwapSliceStateCodec.protoToOutput),
+        reason: v.number(),
+        completed: v.boolean(),
+        inputTradedE18: AmountE18Schema,
+        outputReceivedE18: AmountE18Schema,
+        secondLegInputE18: AmountE18Schema,
+        intermediateCarriedE18: AmountE18Schema,
+        carryReason: v.number(),
+    }),
+    v.transform((slice) => ({
+        /** Zero-based position in the frozen schedule. */
+        index: slice.index,
+        /** Frozen scheduled start of the slot. */
+        plannedAt: slice.plannedAt ?? null,
+        /** When its first order was sent; `null` while unsent. */
+        executedAt: slice.executedAt ?? null,
+        /** When its outcome became final; `null` while planned or executing. */
+        finishedAt: slice.finishedAt ?? null,
+        state: slice.state,
+        /** Why a final slice did not trade in full; `null` while pending or after full trading. */
+        reason: sliceReason(slice.reason),
+        /** Whether the slice traded source amount and is over. */
+        completed: slice.completed,
+        /** Source the slice's first leg spent in settled fills. */
+        inputTraded: e18ToDecimal(slice.inputTradedE18),
+        /** Destination received after fees; on a two-leg route, may include carried intermediate. */
+        outputReceived: e18ToDecimal(slice.outputReceivedE18),
+        /** Intermediate the slice's second leg spent; `"0"` on a direct route. */
+        secondLegInput: e18ToDecimal(slice.secondLegInputE18),
+        /**
+         * Intermediate acquired through this slice that no second leg had converted by its end:
+         * carried to a later slice (`carryReason`), otherwise left on the account.
+         */
+        intermediateCarried: e18ToDecimal(slice.intermediateCarriedE18),
+        /** Why intermediate could not be converted in this slice; `null` when none was refused. */
+        carryReason: sliceReason(slice.carryReason),
+    })),
+);
+
+/** One slot of a TWAP swap's schedule, including one that traded nothing. Times are epoch ms. */
+export type SwapSlice = v.InferOutput<typeof SwapSliceSchema>;
+
+const SwapProgressSchema = v.pipe(
+    v.object({
+        completedSlices: v.number(),
+        totalSlices: v.number(),
+        startedAt: OptionalTimestampMsSchema,
+        deadline: OptionalTimestampMsSchema,
+        slices: v.array(SwapSliceSchema),
+        slicesTruncated: v.boolean(),
+    }),
+    v.transform((progress) => ({
+        /** Slices that traded source amount and are over; counts every slice. */
+        completedSlices: progress.completedSlices,
+        /** 1 at market; a TWAP's slice count. */
+        totalSlices: progress.totalSlices,
+        /** A TWAP's first slot; `null` at market and until planned. */
+        startedAt: progress.startedAt ?? null,
+        /**
+         * Last moment an order may be sent; `null` until planned. Orders sent before it may
+         * settle after it, so poll until `isTerminal`, not until the deadline.
+         */
+        deadline: progress.deadline ?? null,
+        /** A TWAP's first 50 slices in index order, future ones included; empty at market. */
+        slices: progress.slices,
+        /** True when the TWAP has more than 50 slices and only the first 50 are listed. */
+        slicesTruncated: progress.slicesTruncated,
+    })),
+);
+
+/** A swap's execution schedule and slices. Times are epoch ms. */
+export type SwapProgress = v.InferOutput<typeof SwapProgressSchema>;
 
 export const SwapSchema = v.pipe(
     v.object({
@@ -266,9 +489,13 @@ export const SwapSchema = v.pipe(
         executedAmountE18: AmountE18Schema,
         unspentAmountE18: AmountE18Schema,
         receivedAmountE18: AmountE18Schema,
-        feeE18: AmountE18Schema,
         orders: v.array(SwapOrderSchema),
         createdAt: OptionalTimestampMsSchema,
+        execution: SwapExecutionSchema,
+        intermediateAssetId: IntermediateAssetIdSchema,
+        intermediateRemainderE18: AmountE18Schema,
+        legs: v.array(SwapLegSchema),
+        progress: v.optional(SwapProgressSchema),
     }),
     v.transform((swap) => ({
         swapId: swap.swapId,
@@ -292,11 +519,21 @@ export const SwapSchema = v.pipe(
         unspentAmount: e18ToDecimal(swap.unspentAmountE18),
         /** Destination received after fees. */
         receivedAmount: e18ToDecimal(swap.receivedAmountE18),
-        /** Total fee, in the destination asset. */
-        fee: e18ToDecimal(swap.feeE18),
         /** Spot orders, in placement order. */
         orders: swap.orders,
         createdAt: swap.createdAt ?? null,
+        execution: swap.execution ?? marketExecution(),
+        /** A two-leg route's intermediate asset; `null` for a direct route. */
+        intermediateAssetId: swap.intermediateAssetId,
+        /**
+         * Intermediate received and not converted; it is on the account. Final once
+         * `isTerminal`; `"0"` for a direct route.
+         */
+        intermediateRemainder: e18ToDecimal(swap.intermediateRemainderE18),
+        /** The route's markets in order with settled totals; sum `fee` per `feeAssetId`. */
+        legs: swap.legs,
+        /** Execution schedule and slices; `null` before execution is planned. */
+        progress: swap.progress ?? null,
     })),
 );
 

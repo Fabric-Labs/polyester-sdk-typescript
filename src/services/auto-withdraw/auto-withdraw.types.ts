@@ -1,9 +1,11 @@
 export type {
+    AutoWithdrawConversion,
     AutoWithdrawDestination,
     AutoWithdrawDestinationInput,
     AutoWithdrawPause,
     AutoWithdrawPreview,
     AutoWithdrawPreviewAsset,
+    AutoWithdrawPreviewConversion,
     AutoWithdrawRule,
     AutoWithdrawRun,
     AutoWithdrawSchedule,
@@ -17,6 +19,7 @@ export type {
 } from "./auto-withdraw.schemas.js";
 export type {
     AutoWithdrawCadence,
+    AutoWithdrawConversionSkipReason,
     AutoWithdrawHoldReason,
     AutoWithdrawPauseReason,
     AutoWithdrawPreviewStatus,

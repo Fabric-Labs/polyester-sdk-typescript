@@ -25,6 +25,10 @@ export function decode(raw: ConnectErrorDetail): PolyesterErrorDetail | undefine
         const { strategyCap, strategies: count } = strategies.strategyCap;
         detail.strategyCap = { strategyCap, strategies: count };
     }
+    if (strategies.listingCap) {
+        const { listingCap, listings } = strategies.listingCap;
+        detail.listingCap = { listingCap, listings };
+    }
     if (strategies.revisionConflict) {
         const { revision, headVersionId } = strategies.revisionConflict;
         detail.revisionConflict = { revision: revision.toString(), headVersionId };

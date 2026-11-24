@@ -6,6 +6,7 @@ export type {
     AssistantMessage,
     AssistantMessageImage,
     AssistantModelKey,
+    AssistantSubject,
     AssistantUsage,
     AssistantRunIdInput,
     CompleteAssistantKeysInput,

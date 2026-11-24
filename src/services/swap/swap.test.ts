@@ -1,5 +1,6 @@
 import { create, type MessageInitShape } from "@bufbuild/protobuf";
 import { Code, ConnectError } from "@connectrpc/connect";
+import * as v from "valibot";
 import { describe, expect, it } from "vitest";
 import * as Proto from "../../gen/swap/v1/swap_pb.js";
 import { createErrorMappingTransport } from "../../shared/connect-error-mapping.js";
@@ -14,6 +15,7 @@ import { rejectingUnaryTransport, unaryTransport } from "../../testing/service-h
 import { formatId } from "../../utils/base58-id.js";
 import { toU128 } from "../../utils/u128.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
+import { SwapExecutionSchema } from "./swap.schemas.js";
 import { SwapService } from "./swap.js";
 
 const E18 = 10n ** 18n;
@@ -27,7 +29,7 @@ const createInput = {
     idempotencyKey: "swap-1",
 };
 
-const rawSwap = () =>
+const rawSwap = (overrides: Exclude<MessageInitShape<typeof Proto.SwapSchema>, Proto.Swap> = {}) =>
     create(Proto.SwapSchema, {
         swapId: 77n,
         idempotencyKey: "swap-1",
@@ -41,7 +43,17 @@ const rawSwap = () =>
         executedAmountE18: toU128(E18 / 4n),
         unspentAmountE18: toU128(E18 / 4n),
         receivedAmountE18: toU128(62n * (E18 / 1000n)),
-        feeE18: toU128(E18 / 10_000n),
+        legs: [
+            {
+                leg: 0,
+                symbolId: 9,
+                side: Proto.Side.SELL,
+                spentE18: toU128(E18 / 4n),
+                receivedE18: toU128(62n * (E18 / 1000n)),
+                feeE18: toU128(E18 / 10_000n),
+                feeAssetId: 2,
+            },
+        ],
         orders: [
             {
                 orderId: 0n,
@@ -52,6 +64,7 @@ const rawSwap = () =>
             },
         ],
         createdAt: { seconds: 1_700_000_001n, nanos: 0 },
+        ...overrides,
     });
 
 function errorWith(code: Code, detail: MessageInitShape<typeof Proto.ErrorDetailSchema>) {
@@ -120,6 +133,152 @@ describe("SwapService", () => {
             minAmountOut: "0.000000000000000001",
             quotedAt: 1_700_000_000_000,
             expiresAt: 1_700_000_030_500,
+            execution: { type: "market" },
+            intermediateAssetId: null,
+            priceImpactBps: 0,
+            totalSlices: 0,
+        });
+    });
+
+    it("quotes and creates a two-leg TWAP with its execution in the idempotent terms", async () => {
+        const twap = { type: "twap", durationMs: 1_800_000, sliceIntervalMs: 60_000 } as const;
+        const wireExecution = {
+            strategy: {
+                case: "twap",
+                value: { durationMs: 1_800_000n, sliceIntervalMs: 60_000n },
+            },
+        } as const;
+        const transport = unaryTransport((call) =>
+            call.method.name === "QuoteSwap"
+                ? {
+                      quote: create(Proto.SwapQuoteSchema, {
+                          terms: {
+                              sourceAssetId: 1,
+                              destinationAssetId: 5,
+                              amount: { case: "amountE18", value: toU128(E18 / 2n) },
+                              execution: wireExecution,
+                          },
+                          legs: [
+                              { symbolId: 9, side: Proto.Side.SELL, feeAssetId: 3 },
+                              { symbolId: 12, side: Proto.Side.BUY, feeAssetId: 5 },
+                          ],
+                          intermediateAssetId: 3,
+                          priceImpactBps: 42,
+                          totalSlices: 30,
+                      }),
+                  }
+                : { swap: rawSwap() },
+        );
+        const service = new SwapService({ authApi: transport.transport });
+
+        const quote = await service.quote({
+            ...terms,
+            destinationAssetId: 5,
+            execution: twap,
+            maxSlippageBps: 100,
+        });
+        expect(transport.lastCall()?.message).toMatchObject({
+            terms: { destinationAssetId: 5, execution: wireExecution },
+        });
+        expect(quote).toMatchObject({
+            execution: twap,
+            intermediateAssetId: 3,
+            priceImpactBps: 42,
+            totalSlices: 30,
+            legs: [{ symbolId: 9 }, { symbolId: 12, side: "buy", feeAssetId: 5 }],
+        });
+
+        await service.create({ ...createInput, execution: { type: "market" } });
+        expect(transport.lastCall()?.message).toMatchObject({
+            terms: { execution: { strategy: { case: "market", value: {} } } },
+        });
+    });
+
+    it("decodes a two-leg TWAP swap's legs, remainder and slice progress", async () => {
+        const transport = unaryTransport({
+            swap: rawSwap({
+                reason: Proto.SwapReason.INTERMEDIATE_BELOW_MINIMUM,
+                execution: {
+                    strategy: {
+                        case: "twap",
+                        value: { durationMs: 120_000n, sliceIntervalMs: 60_000n },
+                    },
+                },
+                intermediateAssetId: 3,
+                intermediateRemainderE18: toU128(E18 / 100n),
+                orders: [{ orderId: 5n, symbolId: 12, leg: 1, slice: 1 }],
+                progress: {
+                    completedSlices: 1,
+                    totalSlices: 2,
+                    startedAt: { seconds: 1_700_000_000n, nanos: 0 },
+                    deadline: { seconds: 1_700_000_120n, nanos: 0 },
+                    slices: [
+                        {
+                            index: 0,
+                            plannedAt: { seconds: 1_700_000_000n, nanos: 0 },
+                            executedAt: { seconds: 1_700_000_001n, nanos: 0 },
+                            finishedAt: { seconds: 1_700_000_005n, nanos: 0 },
+                            state: Proto.SwapSlice_State.PARTLY_TRADED,
+                            completed: true,
+                            inputTradedE18: toU128(E18 / 4n),
+                            intermediateCarriedE18: toU128(E18 / 100n),
+                            carryReason: Proto.SwapSlice_Reason.BELOW_MINIMUM,
+                        },
+                        {
+                            index: 1,
+                            plannedAt: { seconds: 1_700_000_060n, nanos: 0 },
+                            state: Proto.SwapSlice_State.SKIPPED,
+                            reason: Proto.SwapSlice_Reason.SLOT_MISSED,
+                        },
+                    ],
+                },
+            }),
+        });
+        const service = new SwapService({ authApi: transport.transport });
+
+        await expect(service.get({ swapId: formatId(77n) })).resolves.toMatchObject({
+            reason: "intermediate_below_minimum",
+            execution: { type: "twap", durationMs: 120_000, sliceIntervalMs: 60_000 },
+            intermediateAssetId: 3,
+            intermediateRemainder: "0.01",
+            orders: [{ orderId: formatId(5n), leg: 1, slice: 1 }],
+            progress: {
+                completedSlices: 1,
+                totalSlices: 2,
+                startedAt: 1_700_000_000_000,
+                deadline: 1_700_000_120_000,
+                slicesTruncated: false,
+                slices: [
+                    {
+                        index: 0,
+                        plannedAt: 1_700_000_000_000,
+                        executedAt: 1_700_000_001_000,
+                        finishedAt: 1_700_000_005_000,
+                        state: "partly_traded",
+                        reason: null,
+                        completed: true,
+                        inputTraded: "0.25",
+                        outputReceived: "0",
+                        secondLegInput: "0",
+                        intermediateCarried: "0.01",
+                        carryReason: "below_minimum",
+                    },
+                    {
+                        index: 1,
+                        plannedAt: 1_700_000_060_000,
+                        executedAt: null,
+                        finishedAt: null,
+                        state: "skipped",
+                        reason: "slot_missed",
+                        completed: false,
+                        inputTraded: "0",
+                        outputReceived: "0",
+                        secondLegInput: "0",
+                        intermediateCarried: "0",
+                        carryReason: null,
+                    },
+                ],
+            },
         });
     });
 
@@ -164,7 +323,6 @@ describe("SwapService", () => {
             executedAmount: "0.25",
             unspentAmount: "0.25",
             receivedAmount: "0.062",
-            fee: "0.0001",
             orders: [
                 {
                     orderId: null,
@@ -176,9 +334,25 @@ describe("SwapService", () => {
                     spent: "0",
                     received: "0",
                     fee: "0",
+                    slice: 0,
                 },
             ],
             createdAt: 1_700_000_001_000,
+            execution: { type: "market" },
+            intermediateAssetId: null,
+            intermediateRemainder: "0",
+            legs: [
+                {
+                    leg: 0,
+                    symbolId: 9,
+                    side: "sell",
+                    spent: "0.25",
+                    received: "0.062",
+                    fee: "0.0001",
+                    feeAssetId: 2,
+                },
+            ],
+            progress: null,
         });
     });
 
@@ -205,10 +379,22 @@ describe("SwapService", () => {
         ["a zero amount", { ...createInput, amount: "0" }],
         ["a zero minimum", { ...createInput, minAmountOut: "0" }],
         ["a non-decimal amount", { ...createInput, amount: "1e3" }],
+        [
+            "a fractional TWAP duration",
+            {
+                ...createInput,
+                execution: { type: "twap", durationMs: 60_000.5, sliceIntervalMs: 10_000 },
+            },
+        ],
+        [
+            "a TWAP without its slice interval",
+            { ...createInput, execution: { type: "twap", durationMs: 60_000 } },
+        ],
+        ["an unknown execution", { ...createInput, execution: { type: "limit" } }],
     ])("rejects %s before sending", async (_name, input) => {
         const transport = unaryTransport({ swap: rawSwap() });
         const service = new SwapService({ authApi: transport.transport });
-        await expect(service.create(input)).rejects.toBeInstanceOf(ValidationError);
+        await expect(service.create(input as never)).rejects.toBeInstanceOf(ValidationError);
         expect(transport.calls).toHaveLength(0);
     });
 
@@ -248,5 +434,14 @@ describe("SwapService", () => {
         const rejected = service.create(createInput);
         await expect(rejected).rejects.toBeInstanceOf(type);
         await expect(rejected).rejects.toMatchObject({ detail: mapped });
+    });
+});
+
+describe("SwapExecutionSchema", () => {
+    it("reads a strategy this build doesn't know as unspecified, never as market", () => {
+        expect(v.parse(SwapExecutionSchema, { strategy: { case: undefined } })).toEqual({
+            type: "unspecified",
+        });
+        expect(v.parse(SwapExecutionSchema, undefined)).toBeUndefined();
     });
 });

@@ -48,8 +48,11 @@ const CandleRowRawSchema = v.object({
     isClosed: v.optional(v.boolean(), false),
 });
 
-function toCandleRow(scales: SdkScales, data: v.InferOutput<typeof CandleRowRawSchema>) {
-    const priceScale = scales.price();
+function toCandleRow(
+    scales: SdkScales,
+    data: v.InferOutput<typeof CandleRowRawSchema>,
+    priceScale = scales.price(),
+) {
     return {
         symbolId: data.symbolId,
         timeframe: data.timeframe,
@@ -73,26 +76,32 @@ export function createCandleRowSchema(scales: SdkScales) {
 
 /**
  * Formats a protobuf-decoded candle point like {@link createCandleRowSchema} without
- * re-validating it. `timeframe` is the proto enum value of the series.
+ * re-validating it. `timeframe` is the proto enum value of the series. Pass `priceScale` for a
+ * series priced at another scale, such as composite reference candles.
  */
 export function formatCandleRow(
     scales: SdkScales,
     point: ProtoMarketData.CandlePoint,
     symbolId: number,
     timeframe: number,
+    priceScale?: number,
 ): Candle {
-    return toCandleRow(scales, {
-        symbolId,
-        timeframe: timeframeFromProto(timeframe),
-        tsSec: point.tsSec,
-        open: point.open,
-        high: point.high,
-        low: point.low,
-        close: point.close,
-        volume: point.volume,
-        quoteVolume: point.quoteVolume,
-        isClosed: point.isClosed ?? false,
-    });
+    return toCandleRow(
+        scales,
+        {
+            symbolId,
+            timeframe: timeframeFromProto(timeframe),
+            tsSec: point.tsSec,
+            open: point.open,
+            high: point.high,
+            low: point.low,
+            close: point.close,
+            volume: point.volume,
+            quoteVolume: point.quoteVolume,
+            isClosed: point.isClosed ?? false,
+        },
+        priceScale,
+    );
 }
 
 export const createCandleRowIntSchema = createCandleRowSchema;
@@ -219,6 +228,19 @@ export function createCandleColumnarIntSchema(scales: SdkScales) {
 }
 
 export type Candle = v.InferOutput<ReturnType<typeof createCandleRowSchema>>;
+
+/** One page of `candles.list`. */
+export interface CandlePage {
+    /** The market's candles, newest first. */
+    candles: Candle[];
+    /**
+     * Composite reference market candles, newest first, priced at the pair's reference price
+     * scale. Empty unless `includeReference` is set and reference data is available.
+     */
+    reference: Candle[];
+    /** Pass as `pageToken` with the same request for older candles; `""` on the last page. */
+    nextPageToken: string;
+}
 export type CandleInput = v.InferInput<ReturnType<typeof createCandleRowSchema>>;
 export type CandleIntInput = v.InferInput<ReturnType<typeof createCandleRowIntSchema>>;
 export type CandleInt = v.InferOutput<ReturnType<typeof createCandleRowIntSchema>>;

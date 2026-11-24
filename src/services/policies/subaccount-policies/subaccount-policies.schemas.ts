@@ -32,7 +32,7 @@ import {
     decimalInputToScaled,
     scaledToDecimalOutput,
 } from "../../../shared/decimal-surface.js";
-import { PROTOBUF_UINT32_MAX } from "../../../shared/wire-bounds.js";
+import { PROTOBUF_UINT32_MAX, PROTOBUF_UINT64_MAX } from "../../../shared/wire-bounds.js";
 import {
     AccountScopeInputEntries,
     accountScopeToSubaccountId,
@@ -110,9 +110,10 @@ export type SubaccountPolicy = v.InferOutput<typeof SubaccountPolicySchema>;
  * field is canonical quote microunits, so `"100000"` caps orders at 100,000 USDT.
  * `"0"` means no cap.
  */
-const MaxOrderSizeInputSchema = v.pipe(
+export const MaxOrderSizeInputSchema = v.pipe(
     v.string(),
     v.transform((value) => decimalInputToScaled("maxOrderSize", value, QUOTE_NOTIONAL_SCALE)),
+    v.maxValue(PROTOBUF_UINT64_MAX, "maxOrderSize exceeds the uint64 range"),
 );
 
 const OptionalMaxOrderSizeInputSchema = v.pipe(

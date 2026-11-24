@@ -19,6 +19,7 @@ import {
     createCandleColumnarIntSchema,
     TimeframeSchema,
     type Candle,
+    type CandlePage,
     type CandleInt,
     type Timeframe,
     type CandleColumnarInt,
@@ -66,19 +67,29 @@ export class CandlesService {
     }
 
     /**
-     * Returns OHLCV candles for a symbol/timeframe request, mapped into row objects with symbol id and timeframe. The proto response is newest-first and may include incomplete/reference data depending on input flags.
+     * Returns one page of OHLCV candles for a symbol and timeframe as row objects, newest first:
+     * the market's `candles`, its composite `reference` candles when `includeReference` is set,
+     * and `nextPageToken` for older candles. A malformed page token, or one from another request,
+     * throws `ValidationError` (`PAGE_TOKEN_INVALID`): request the first page again.
      */
-    async list(input: GetCandlesInput, options?: PolyesterRequestOptions): Promise<Candle[]> {
+    async list(input: GetCandlesInput, options?: PolyesterRequestOptions): Promise<CandlePage> {
         const validatedInput = parse(ListCandlesInputSchema, input);
         await this.#scales.ready();
         const res = await this.#client.getCandles(validatedInput, toConnectCallOptions(options));
-        return (res.candles ?? []).map((c) =>
-            formatCandleRow(this.#scales, c, res.symbolId, res.timeframe),
-        );
+        const referencePriceScale = this.#scales.referencePrice(res.symbolId);
+        return {
+            candles: (res.candles ?? []).map((c) =>
+                formatCandleRow(this.#scales, c, res.symbolId, res.timeframe),
+            ),
+            reference: (res.referenceCandles ?? []).map((c) =>
+                formatCandleRow(this.#scales, c, res.symbolId, res.timeframe, referencePriceScale),
+            ),
+            nextPageToken: res.nextPageToken ?? "",
+        };
     }
 
     /**
-     * Returns candle data in chart-friendly column arrays ordered oldest-first by bucket start time. This preserves decimal-string SDK formatting from the columnar schema.
+     * Returns candle data in chart-friendly column arrays ordered oldest-first by bucket start time. This preserves decimal-string SDK formatting from the columnar schema. A bad page token throws `ValidationError` (`PAGE_TOKEN_INVALID`): request the first page again.
      */
     async listColumnar(
         input: GetCandlesColumnsInput,
@@ -114,8 +125,9 @@ export class CandlesService {
      * composite reference candles before the bucket containing the pair's listing, its index
      * price candles from that bucket on, each marked with its `source`. There is no volume, and a
      * bucket without an index price is omitted as a gap. Follow `nextPageToken` with the same
-     * symbol, timeframe and bounds for older candles; a token from another request throws
-     * `ValidationError`.
+     * symbol, timeframe and bounds for older candles. A malformed token, or one from another
+     * request, throws `ValidationError` with `detail.code` `PAGE_TOKEN_INVALID`: drop it and
+     * request the first page again.
      */
     async listIndexPrice(
         input: ListIndexPriceCandlesInput,

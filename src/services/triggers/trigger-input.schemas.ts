@@ -433,6 +433,13 @@ export const ListTriggersInputSchema = v.pipe(
         orderListId: optionalIdInputSchema("orderListId"),
         /** Both legs of the OCO created with this client list ID. */
         clientListId: v.optional(ClientListIdInputSchema),
+        /**
+         * The triggers created with this `clientTriggerId`, running or ended, newest first: how to
+         * find a create that threw `OutcomeUnknownError`. An ID is reusable 60 s after its trigger
+         * ends, so it can match several; add `symbolId` and `triggerType` to keep one ID's scope.
+         * An OCO's legs have none: filter them by `clientListId`.
+         */
+        clientTriggerId: v.optional(v.string()),
         symbolId: v.optional(SymbolIdInputSchema),
         status: v.pipe(
             v.optional(v.array(TriggerStatusFilterSchema)),

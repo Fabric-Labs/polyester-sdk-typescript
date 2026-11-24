@@ -19,9 +19,12 @@ import {
     U128Schema,
 } from "../../shared/schemas.js";
 import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
+import { formatId } from "../../utils/base58-id.js";
 import type { DecodedEnum } from "../../utils/types.js";
 import { fromU128, toU128 } from "../../utils/u128.js";
 import { PositiveUint32InputSchema } from "../shared.js";
+import { SwapReasonCodec, SwapStatusCodec } from "../swap/swap.codecs.js";
+import { SwapExecutionSchema, SwapLegSchema } from "../swap/swap.schemas.js";
 import {
     AUTO_WITHDRAW_WEEKDAY_VALUES,
     AutoWithdrawCadenceCodec,
@@ -29,6 +32,7 @@ import {
     AutoWithdrawRunStateCodec,
     AutoWithdrawStepStateCodec,
     AutoWithdrawWeekdayCodec,
+    type AutoWithdrawConversionSkipReason,
     type AutoWithdrawHoldReason,
     type AutoWithdrawPauseReason,
     type AutoWithdrawRunReason,
@@ -172,12 +176,30 @@ export const SetAutoWithdrawRuleInputSchema = v.pipe(
         ),
         /** Least USD value one payout pays, as a decimal; omit or null for no USD minimum. */
         minUsdValue: v.optional(v.nullable(v.string())),
+        /**
+         * Asset every other asset is converted into, through a swap from the account, before the
+         * run pays it; omit or null to pay every asset in kind. With a payout asset,
+         * `destinations` has exactly one entry, for that asset, and creating the rule also needs
+         * the swap permission on the account.
+         */
+        payoutAssetId: v.optional(v.nullable(PositiveUint32InputSchema)),
+        /**
+         * Duration of a conversion that runs as TWAP, in milliseconds (60000 to 3600000); omit or
+         * null for 300000. A conversion runs as TWAP when worth over 10,000 USD or its quoted
+         * price impact exceeds 0.5%, otherwise at market.
+         */
+        conversionTwapDurationMs: v.optional(
+            v.nullable(v.pipe(v.number(), v.safeInteger(), v.gtValue(0))),
+        ),
     }),
-    v.transform(({ account, minUsdValue, ...input }) => ({
+    v.transform(({ account, minUsdValue, payoutAssetId, conversionTwapDurationMs, ...input }) => ({
         ...input,
         subaccountId: accountScopeToSubaccountId(account),
         minUsdValueE18:
             minUsdValue == null ? undefined : toU128(decimalInputToE18("minUsdValue", minUsdValue)),
+        payoutAssetId: payoutAssetId ?? undefined,
+        conversionTwapDurationMs:
+            conversionTwapDurationMs == null ? undefined : BigInt(conversionTwapDurationMs),
     })),
 );
 
@@ -304,6 +326,8 @@ const AutoWithdrawPauseSchema = v.object({
 
 export type AutoWithdrawPause = v.InferOutput<typeof AutoWithdrawPauseSchema>;
 
+const DEFAULT_CONVERSION_TWAP_DURATION_MS = 300_000;
+
 export const AutoWithdrawRuleSchema = v.pipe(
     v.object({
         subaccountId: v.optional(PublicIdOrEmptySchema, 0n),
@@ -315,13 +339,32 @@ export const AutoWithdrawRuleSchema = v.pipe(
         pause: v.optional(AutoWithdrawPauseSchema),
         minUsdValueE18: v.optional(U128Schema),
         createdByAccountId: v.optional(PublicIdOrEmptySchema, 0n),
+        payoutAssetId: v.optional(v.number(), 0),
+        conversionTwapDurationMs: v.optional(v.bigint(), 0n),
     }),
-    v.transform(({ schedule, pause, minUsdValueE18, ...rule }) => ({
-        ...rule,
-        schedule: schedule ?? ({ cadence: "unspecified" } as AutoWithdrawSchedule),
-        pause: pause ?? null,
-        minUsdValue: fromU128(minUsdValueE18) === 0n ? null : e18ToDecimal(minUsdValueE18),
-    })),
+    v.transform(
+        ({
+            schedule,
+            pause,
+            minUsdValueE18,
+            payoutAssetId,
+            conversionTwapDurationMs,
+            ...rule
+        }) => ({
+            ...rule,
+            schedule: schedule ?? ({ cadence: "unspecified" } as AutoWithdrawSchedule),
+            pause: pause ?? null,
+            minUsdValue: fromU128(minUsdValueE18) === 0n ? null : e18ToDecimal(minUsdValueE18),
+            payoutAssetId: payoutAssetId === 0 ? null : payoutAssetId,
+            // Zero means the default, 300000, on a rule that converts.
+            conversionTwapDurationMs:
+                payoutAssetId === 0
+                    ? null
+                    : conversionTwapDurationMs === 0n
+                      ? DEFAULT_CONVERSION_TWAP_DURATION_MS
+                      : Number(conversionTwapDurationMs),
+        }),
+    ),
 );
 
 /**
@@ -330,7 +373,10 @@ export const AutoWithdrawRuleSchema = v.pipe(
  * Times are epoch milliseconds. `minUsdValue` is null when the rule has no USD minimum. A paused
  * version (`enabled: false`) keeps its schedule and destinations. `pause` is set when the rule
  * paused itself; resuming it or setting a new rule clears it. The rule runs only while
- * `enabled` is true and `pause` is null.
+ * `enabled` is true and `pause` is null. `payoutAssetId` is the asset every other asset is
+ * converted into before paying, null for a rule that pays in kind; `conversionTwapDurationMs`
+ * is its conversions' TWAP duration (300000 when the rule left it at the default), null on an
+ * in-kind rule.
  */
 export type AutoWithdrawRule = v.InferOutput<typeof AutoWithdrawRuleSchema>;
 
@@ -380,6 +426,46 @@ const AutoWithdrawStepSchema = v.pipe(
  */
 export type AutoWithdrawStep = v.InferOutput<typeof AutoWithdrawStepSchema>;
 
+const AutoWithdrawConversionSchema = v.pipe(
+    v.object({
+        sourceAssetId: v.number(),
+        amountE18: v.optional(U128Schema),
+        swapId: v.optional(v.bigint(), 0n),
+        execution: SwapExecutionSchema,
+        status: v.optional(v.number(), 0),
+        reason: v.optional(v.number(), 0),
+        isTerminal: v.boolean(),
+        executedAmountE18: v.optional(U128Schema),
+        unspentAmountE18: v.optional(U128Schema),
+        receivedAmountE18: v.optional(U128Schema),
+        legs: v.optional(v.array(SwapLegSchema), []),
+        skipReason: reasonSchema<AutoWithdrawConversionSkipReason>(),
+    }),
+    v.transform((c) => ({
+        sourceAssetId: c.sourceAssetId,
+        amount: e18ToDecimal(c.amountE18),
+        swapId: c.swapId === 0n ? null : formatId(c.swapId),
+        execution: c.execution ?? null,
+        status: c.status === 0 ? null : enumLabel(SwapStatusCodec.protoToOutput, c.status),
+        reason: c.reason === 0 ? null : enumLabel(SwapReasonCodec.protoToOutput, c.reason),
+        isTerminal: c.isTerminal,
+        executedAmount: e18ToDecimal(c.executedAmountE18),
+        unspentAmount: e18ToDecimal(c.unspentAmountE18),
+        receivedAmount: e18ToDecimal(c.receivedAmountE18),
+        legs: c.legs,
+        skipReason: c.skipReason,
+    })),
+);
+
+/**
+ * One asset a run converts into its rule's payout asset through a swap from the account, before
+ * it pays. `swapId` reads the swap with `client.swap.get`. A skipped conversion (`skipReason`
+ * set) is terminal, spends nothing, and has null `swapId`, `execution`, `status` and `reason`;
+ * `reason` is also null for a swap that traded its whole amount. `executedAmount` is source spent,
+ * `unspentAmount` stays on the account and `receivedAmount` is payout asset after fees.
+ */
+export type AutoWithdrawConversion = v.InferOutput<typeof AutoWithdrawConversionSchema>;
+
 const AutoWithdrawRunSchema = v.pipe(
     v.object({
         runSeq: BigIntStringSchema,
@@ -390,11 +476,15 @@ const AutoWithdrawRunSchema = v.pipe(
         steps: v.array(AutoWithdrawStepSchema),
         createdAt: TimestampMsSchema,
         finishedAt: OptionalTimestampMsSchema,
+        conversions: v.optional(v.array(AutoWithdrawConversionSchema), []),
     }),
     v.transform(({ finishedAt, ...run }) => ({ ...run, finishedAt: finishedAt ?? null })),
 );
 
-/** One scheduled run. Times are epoch milliseconds; `finishedAt` is null while in progress. */
+/**
+ * One scheduled run. Times are epoch milliseconds; `finishedAt` is null while in progress.
+ * `conversions` lists a payout-asset rule's conversions by `sourceAssetId`; empty in kind.
+ */
 export type AutoWithdrawRun = v.InferOutput<typeof AutoWithdrawRunSchema>;
 
 export const ListAutoWithdrawRunsResultSchema = v.object({
@@ -404,6 +494,35 @@ export const ListAutoWithdrawRunsResultSchema = v.object({
 
 /** One page of runs, newest first. An empty `nextPageToken` means no more runs. */
 export type ListAutoWithdrawRunsResult = v.InferOutput<typeof ListAutoWithdrawRunsResultSchema>;
+
+const AutoWithdrawPreviewConversionSchema = v.pipe(
+    v.object({
+        payoutAssetId: v.number(),
+        expectedAmountOutE18: v.optional(U128Schema),
+        minAmountOutE18: v.optional(U128Schema),
+        priceImpactBps: v.number(),
+        execution: SwapExecutionSchema,
+        skipReason: reasonSchema<AutoWithdrawConversionSkipReason>(),
+    }),
+    v.transform(({ expectedAmountOutE18, minAmountOutE18, execution, ...conversion }) => ({
+        payoutAssetId: conversion.payoutAssetId,
+        expectedAmountOut: e18ToDecimal(expectedAmountOutE18),
+        minAmountOut: e18ToDecimal(minAmountOutE18),
+        priceImpactBps: conversion.priceImpactBps,
+        execution: execution ?? null,
+        skipReason: conversion.skipReason,
+    })),
+);
+
+/**
+ * The current quote for converting an asset's whole available balance into the payout asset.
+ * `expectedAmountOut` is after every leg's fee at current depth, `minAmountOut` that less the 1%
+ * slippage protection; a TWAP's slices execute at their own time's prices. `execution` is how the
+ * run would trade it; `skipReason` says why it would not convert now (null when it would).
+ */
+export type AutoWithdrawPreviewConversion = v.InferOutput<
+    typeof AutoWithdrawPreviewConversionSchema
+>;
 
 const AutoWithdrawPreviewAssetSchema = v.pipe(
     v.object({
@@ -420,6 +539,7 @@ const AutoWithdrawPreviewAssetSchema = v.pipe(
         networkFeeE18: v.optional(U128Schema),
         networkFeeSampledAt: OptionalTimestampMsSchema,
         payableFrom: OptionalTimestampMsSchema,
+        conversion: v.optional(AutoWithdrawPreviewConversionSchema),
     }),
     v.transform((asset) => ({
         assetId: asset.assetId,
@@ -436,6 +556,7 @@ const AutoWithdrawPreviewAssetSchema = v.pipe(
         networkFee: optionalE18ToDecimal(asset.networkFeeE18),
         networkFeeSampledAt: asset.networkFeeSampledAt ?? null,
         payableFrom: asset.payableFrom ?? null,
+        conversion: asset.conversion ?? null,
     })),
 );
 
@@ -445,7 +566,8 @@ const AutoWithdrawPreviewAssetSchema = v.pipe(
  * when the whole balance pays). `destinationChainId` and `destinationAddress` are null for an
  * asset the rule pays nowhere. `minimum`, `valueUsd`, `networkFee` and their times are null
  * when unknown, never zero. `payableFrom` is set only while a broker vault's destination cools
- * down. Times are epoch milliseconds.
+ * down. Times are epoch milliseconds. `conversion` is set on an asset a payout-asset rule
+ * converts: it pays nothing in kind, and the payout asset's entry includes the expected outputs.
  */
 export type AutoWithdrawPreviewAsset = v.InferOutput<typeof AutoWithdrawPreviewAssetSchema>;
 
