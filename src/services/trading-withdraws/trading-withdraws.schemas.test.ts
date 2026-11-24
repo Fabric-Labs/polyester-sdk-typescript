@@ -278,6 +278,7 @@ describe("ValidateWithdrawDestinationResultSchema", () => {
         [WithdrawDestinationValidationCode.POLYESTER_SMART_ACCOUNT, "polyester_smart_account"],
         [WithdrawDestinationValidationCode.TOKEN_CONTRACT, "token_contract"],
         [WithdrawDestinationValidationCode.DENYLISTED_ADDRESS, "denylisted_address"],
+        [WithdrawDestinationValidationCode.SWAP_DEPOSIT_ADDRESS, "swap_deposit_address"],
     ] as const)("decodes failure code %i as %s", (code, expected) => {
         expect(
             v.parse(ValidateWithdrawDestinationResultSchema, {

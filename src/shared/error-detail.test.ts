@@ -20,6 +20,7 @@ import {
     ErrorCode as MarketOverviewErrorCode,
     ErrorDetailSchema as MarketOverviewErrorDetailSchema,
 } from "../gen/marketoverview/v1/marketoverview_pb.js";
+import { ErrorDetailSchema as MarketDataErrorDetailSchema } from "../gen/marketdata/v1/marketdata_pb.js";
 import {
     ErrorCode as OrderErrorCode,
     ErrorDetailSchema as OrderErrorDetailSchema,
@@ -303,6 +304,7 @@ describe("parseConnectErrorDetail", () => {
                 InternalTransferErrorDetailSchema,
                 LedgerErrorDetailSchema,
                 MarketOverviewErrorDetailSchema,
+                MarketDataErrorDetailSchema,
                 ClaimsErrorDetailSchema,
                 PriceAlertErrorDetailSchema,
                 AssistantErrorDetailSchema,
@@ -369,6 +371,22 @@ describe("parseConnectErrorDetail", () => {
                 maxFutureMs: 1_000,
             },
         });
+    });
+
+    it("reads the market data code from the error message and the reason from the detail", () => {
+        const marketData = (message: string) =>
+            new ConnectError(message, Code.InvalidArgument, undefined, [
+                {
+                    desc: MarketDataErrorDetailSchema,
+                    value: create(MarketDataErrorDetailSchema, { reason: "bad page_token" }),
+                },
+            ]);
+        expect(parseConnectErrorDetail(marketData("PAGE_TOKEN_INVALID"))).toEqual({
+            service: "market_data",
+            code: "PAGE_TOKEN_INVALID",
+            reason: "bad page_token",
+        });
+        expect(parseConnectErrorDetail(marketData("SOMETHING_NEW"))).toBeUndefined();
     });
 
     it("preserves detail order and ignores unknown enum values", () => {

@@ -56,8 +56,9 @@ function rethrowVersionConflict(err: unknown): never {
 
 /**
  * Manages the scheduled auto-withdraw rule of the root account or a subaccount: each asset's
- * balance is paid in kind on an hourly, daily, weekly, biweekly or monthly UTC slot to
- * destinations on the account's external withdraw whitelist. API keys can read rules and runs;
+ * balance is paid on an hourly, daily, weekly, biweekly or monthly UTC slot to destinations on
+ * the account's external withdraw whitelist, in kind or, with a `payoutAssetId`, after the run
+ * converts every other asset into that one through swaps from the account. API keys can read rules and runs;
  * changing a rule needs a session login with withdraw rights and a fresh single-use step-up
  * token (`stepUpToken`). A missing step-up throws `StepUpRequiredError` or
  * `SessionElevationRequiredError`; check `isFreshStepUpRequiredError` before retrying with a new
@@ -88,7 +89,8 @@ export class AutoWithdrawService {
     /**
      * Creates the account's rule, or replaces its latest version, and returns the new version.
      * `expectedVersion` is 0 when the account has no rule yet, otherwise its latest version; a
-     * stale version throws `RevisionConflictError`. Requires a fresh `stepUpToken`.
+     * stale version throws `RevisionConflictError`. Requires a fresh `stepUpToken`, and with a
+     * `payoutAssetId` also the swap permission on the account (else `PermissionError`).
      */
     async setRule(
         input: SetAutoWithdrawRuleInput,
@@ -107,8 +109,8 @@ export class AutoWithdrawService {
      * unchanged when the rule is already in that state. Each change creates a version, so pass
      * the latest `version` as `expectedVersion`; a stale one throws `RevisionConflictError`.
      * Pausing needs no step-up. Resuming needs a fresh `stepUpToken`, checks every destination
-     * again like `setRule`, and clears a pause the rule set itself; a refused destination
-     * leaves the rule paused.
+     * again like `setRule` (including the swap permission for a payout-asset rule), and clears a
+     * pause the rule set itself; a refused destination leaves the rule paused.
      */
     async setRuleEnabled(
         input: SetAutoWithdrawRuleEnabledInput,

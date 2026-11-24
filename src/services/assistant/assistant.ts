@@ -24,6 +24,7 @@ import {
     formatConversationAccount,
     formatMessage,
     formatModelKey,
+    formatSubject,
     formatPrepareAssistantKeysResult,
     formatTelegramApprovalLimits,
     GetAssistantMessageImageInputSchema,
@@ -184,6 +185,7 @@ export class AssistantService {
             messages: response.messages.map(formatMessage),
             nextPageToken: response.nextPageToken,
             lastAccount: formatConversationAccount(response.lastAccount),
+            subject: formatSubject(response.subject),
         };
     }
 

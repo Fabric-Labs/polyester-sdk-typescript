@@ -71,7 +71,9 @@ export const SpotFeeRateSchema = v.object({
     vipTier: VipTierNumberSchema,
     /**
      * Rate a new order reserves its quote-asset fee at; size buy orders by it.
-     * At least the effective rates, and discounts never lower it.
+     * At least the effective rates, and discounts never lower it. An order that can only take
+     * (market, IOC or FOK) caps its fees at the lower of this and `takerFeeRatePercent` when
+     * accepted, and a fixed-quantity buy among them reserves at that cap.
      */
     reserveFeeRatePercent: DecimalStringSchema,
     /** Rate a new post-only limit order reserves its quote-asset fee at. */

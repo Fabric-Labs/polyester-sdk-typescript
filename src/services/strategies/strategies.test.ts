@@ -7,6 +7,7 @@ import {
     AlreadyExistsError,
     PreconditionFailedError,
     RateLimitError,
+    ResourceNotFoundError,
     RevisionConflictError,
     SessionElevationRequiredError,
     ValidationError,
@@ -20,7 +21,13 @@ const ts = (seconds: number) => ({ seconds: BigInt(seconds), nanos: 0 });
 
 function serviceWith(responses: Record<string, Record<string, unknown>>) {
     const transport = unaryTransportByMethod(responses);
-    return { transport, service: new StrategiesService({ authApi: transport.transport }) };
+    return {
+        transport,
+        service: new StrategiesService({
+            authApi: transport.transport,
+            publicApi: transport.transport,
+        }),
+    };
 }
 
 function rejectingService(
@@ -30,12 +37,41 @@ function rejectingService(
     const error = new ConnectError("rejected", code, undefined, [
         { desc: Proto.ErrorDetailSchema, value: create(Proto.ErrorDetailSchema, detail) },
     ]);
-    return new StrategiesService({
-        authApi: createErrorMappingTransport(rejectingUnaryTransport(error)),
-    });
+    const transport = createErrorMappingTransport(rejectingUnaryTransport(error));
+    return new StrategiesService({ authApi: transport, publicApi: transport });
 }
 
 describe("StrategiesService", () => {
+    it("sends the public reads without credentials and everything else authenticated", async () => {
+        const authApi = unaryTransportByMethod({ listStrategies: { strategies: [] } });
+        const publicApi = unaryTransportByMethod({
+            getStrategyReference: create(Proto.GetStrategyReferenceResponseSchema),
+            listStrategyTemplates: { templates: [] },
+            listCommunityStrategies: { strategies: [] },
+            getCommunityStrategy: {
+                strategy: create(Proto.CommunityStrategySchema, { listingId: 1n }),
+            },
+        });
+        const service = new StrategiesService({
+            authApi: authApi.transport,
+            publicApi: publicApi.transport,
+        });
+
+        await service.getReference();
+        await service.listTemplates();
+        await service.listCommunity();
+        await service.getCommunity({ listingId: formatId(1n) });
+        await service.list();
+
+        expect(publicApi.calls.map((c) => c.method.localName)).toEqual([
+            "getStrategyReference",
+            "listStrategyTemplates",
+            "listCommunityStrategies",
+            "getCommunityStrategy",
+        ]);
+        expect(authApi.calls.map((c) => c.method.localName)).toEqual(["listStrategies"]);
+    });
+
     afterEach(() => {
         vi.useRealTimers();
     });
@@ -1205,5 +1241,222 @@ describe("StrategiesService", () => {
             idempotencyKey: "draft_1:v2.0-rc",
         });
         expect(transport.lastCall()?.message).toMatchObject({ idempotencyKey: "draft_1:v2.0-rc" });
+    });
+
+    it("publishes a version with its tags and unpublishes the listing", async () => {
+        const { transport, service } = serviceWith({
+            publishStrategyVersion: create(Proto.PublishStrategyVersionResponseSchema, {
+                listing: {
+                    listingId: 9n,
+                    state: Proto.StrategyListing_State.PUBLIC,
+                    versionId: "v3",
+                    publishedAt: ts(1_700_000_000),
+                },
+            }),
+            unpublishStrategy: create(Proto.UnpublishStrategyResponseSchema, {
+                listing: { listingId: 9n, state: Proto.StrategyListing_State.HIDDEN },
+            }),
+        });
+
+        await expect(
+            service.publishVersion({
+                strategyId: formatId(5n),
+                versionId: "v3",
+                title: " Weekly DCA ",
+                tags: ["dca", "trend"],
+                idempotencyKey: "pub-1",
+            }),
+        ).resolves.toEqual({
+            listingId: formatId(9n),
+            state: "public",
+            versionId: "v3",
+            publishedAt: 1_700_000_000_000,
+        });
+        expect(transport.lastCall()?.method.name).toBe("PublishStrategyVersion");
+        expect(transport.lastCall()?.message).toEqual({
+            strategyId: 5n,
+            versionId: "v3",
+            title: "Weekly DCA",
+            description: "",
+            tags: [Proto.StrategyTag.DCA, Proto.StrategyTag.TREND],
+            idempotencyKey: "pub-1",
+        });
+        await expect(
+            service.publishVersion({
+                strategyId: formatId(5n),
+                versionId: "v3",
+                title: "Weekly DCA",
+                // @ts-expect-error not a strategy tag
+                tags: ["unspecified"],
+                idempotencyKey: "pub-1",
+            }),
+        ).rejects.toBeInstanceOf(ValidationError);
+        expect(transport.calls).toHaveLength(1);
+
+        await expect(service.unpublish({ listingId: formatId(9n) })).resolves.toMatchObject({
+            state: "hidden",
+            publishedAt: null,
+        });
+        expect(transport.lastCall()?.message).toEqual({ listingId: 9n });
+    });
+
+    it("lists community strategies with their backtest results and reads one with its report", async () => {
+        const { transport, service } = serviceWith({
+            listCommunityStrategies: create(Proto.ListCommunityStrategiesResponseSchema, {
+                strategies: [
+                    {
+                        listingId: 9n,
+                        title: "Weekly DCA",
+                        tags: [Proto.StrategyTag.DCA],
+                        markets: ["BTC-USDT"],
+                        authorUsername: "ada",
+                        backtest: {
+                            status: Proto.Backtest_Status.DONE,
+                            metrics: { returnPercent: "12.5" },
+                        },
+                    },
+                ],
+                nextPageToken: "next",
+            }),
+            getCommunityStrategy: create(Proto.GetCommunityStrategyResponseSchema, {
+                strategy: {
+                    listingId: 9n,
+                    description: "Buys BTC every Monday.",
+                    manifest: { name: "Weekly DCA" },
+                    code: "bot()",
+                    backtest: {
+                        status: Proto.Backtest_Status.NOT_BACKTESTABLE,
+                        notBacktestableReason: Proto.NotBacktestableReason.PLACES_LIMIT_ORDERS,
+                    },
+                },
+            }),
+        });
+
+        await expect(
+            service.listCommunity({ tags: ["dca", "grid"], markets: ["BTC-USDT"], limit: 20 }),
+        ).resolves.toMatchObject({
+            strategies: [
+                {
+                    listingId: formatId(9n),
+                    tags: ["dca"],
+                    authorUsername: "ada",
+                    backtest: {
+                        status: "done",
+                        notBacktestableReason: "unspecified",
+                        window: null,
+                        metrics: { returnPercent: "12.5" },
+                        report: null,
+                    },
+                    publishedAt: null,
+                },
+            ],
+            nextPageToken: "next",
+        });
+        expect(transport.lastCall()?.message).toEqual({
+            tags: [Proto.StrategyTag.DCA, Proto.StrategyTag.GRID],
+            markets: ["BTC-USDT"],
+            limit: 20,
+            pageToken: "",
+        });
+
+        await service.listCommunity();
+        expect(transport.lastCall()?.message).toEqual({ tags: [], markets: [], pageToken: "" });
+
+        await expect(service.getCommunity({ listingId: formatId(9n) })).resolves.toMatchObject({
+            listingId: formatId(9n),
+            description: "Buys BTC every Monday.",
+            tags: [],
+            manifest: { name: "Weekly DCA" },
+            moneyCard: null,
+            flow: null,
+            backtest: {
+                status: "not_backtestable",
+                notBacktestableReason: "places_limit_orders",
+                metrics: null,
+            },
+        });
+        expect(transport.lastCall()?.message).toEqual({ listingId: 9n });
+    });
+
+    it("reads a strategy's community listing and what a deploy waits for", async () => {
+        const { service } = serviceWith({
+            getStrategy: create(Proto.GetStrategyResponseSchema, {
+                strategy: {
+                    strategyId: 5n,
+                    listing: {
+                        listingId: 9n,
+                        state: Proto.StrategyListing_State.HIDDEN,
+                        versionId: "v3",
+                    },
+                },
+            }),
+            getDeployStatus: create(Proto.GetDeployStatusResponseSchema, {
+                status: {
+                    proposalId: 7n,
+                    state: Proto.DeployStatus_State.FUNDING,
+                    wait: {
+                        reason: Proto.DeployWait_Reason.WHITELIST_REQUIRED,
+                        address: "0x21a759df040a9b843de73092e59ac10ac17eb555",
+                    },
+                },
+            }),
+        });
+
+        await expect(service.get({ strategyId: formatId(5n) })).resolves.toMatchObject({
+            strategy: {
+                listing: { listingId: formatId(9n), state: "hidden", versionId: "v3" },
+            },
+        });
+        await expect(service.getDeployStatus({ proposalId: formatId(7n) })).resolves.toMatchObject({
+            state: "funding",
+            wait: {
+                reason: "whitelist_required",
+                address: "0x21a759df040a9b843de73092e59ac10ac17eb555",
+            },
+        });
+    });
+
+    it("surfaces community listing refusals with their typed errors and details", async () => {
+        const publish = (service: StrategiesService) =>
+            service.publishVersion({
+                strategyId: formatId(5n),
+                versionId: "v3",
+                title: "Weekly DCA",
+                idempotencyKey: "pub-1",
+            });
+
+        const capped = publish(
+            rejectingService(Code.FailedPrecondition, {
+                code: Proto.ErrorCode.LISTING_CAP_REACHED,
+                listingCap: { listingCap: 20, listings: 20 },
+            }),
+        );
+        await expect(capped).rejects.toBeInstanceOf(PreconditionFailedError);
+        await expect(capped).rejects.toMatchObject({
+            detail: {
+                service: "strategies",
+                code: "LISTING_CAP_REACHED",
+                listingCap: { listingCap: 20, listings: 20 },
+            },
+        });
+
+        // A daily limit that clears only when the UTC day resets: not a retryable rate limit.
+        const limited = publish(
+            rejectingService(Code.FailedPrecondition, {
+                code: Proto.ErrorCode.PUBLISH_LIMIT_REACHED,
+                retryAfter: ts(1_700_003_600),
+            }),
+        );
+        await expect(limited).rejects.toBeInstanceOf(PreconditionFailedError);
+        await expect(limited).rejects.toMatchObject({
+            retryable: false,
+            detail: { code: "PUBLISH_LIMIT_REACHED", retryAfter: 1_700_003_600_000 },
+        });
+
+        await expect(
+            rejectingService(Code.NotFound, {
+                code: Proto.ErrorCode.LISTING_NOT_FOUND,
+            }).getCommunity({ listingId: formatId(9n) }),
+        ).rejects.toBeInstanceOf(ResourceNotFoundError);
     });
 });

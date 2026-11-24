@@ -102,6 +102,11 @@ export const PegReferenceCodec = {
         best_bid: ProtoWrite.PegReference.BEST_BID,
         best_ask: ProtoWrite.PegReference.BEST_ASK,
     } satisfies InputToProto<PegReferenceValue, ProtoWrite.PegReference>,
+    protoToOutput: {
+        [ProtoWrite.PegReference.PEG_REFERENCE_UNSPECIFIED]: "unspecified",
+        [ProtoWrite.PegReference.BEST_BID]: "best_bid",
+        [ProtoWrite.PegReference.BEST_ASK]: "best_ask",
+    } satisfies ProtoToOutput<ProtoWrite.PegReference, PegReferenceValue>,
 } as const;
 
 export const TriggerPriceSourceCodec = {

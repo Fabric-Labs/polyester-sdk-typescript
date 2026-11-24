@@ -3,7 +3,12 @@ import { Code, ConnectError, createRouterTransport } from "@connectrpc/connect";
 import { describe, expect, it, vi } from "vitest";
 import * as Alerts from "../../gen/alerts/v1/price_alerts_pb.js";
 import * as Proto from "../../gen/ai/v1/assistant_pb.js";
-import { Side, TimeInForce } from "../../gen/orders/v1/orders_pb.js";
+import {
+    PegReference,
+    Side,
+    TimeInForce,
+    TriggerPriceSource,
+} from "../../gen/orders/v1/orders_pb.js";
 import { createErrorMappingTransport } from "../../shared/connect-error-mapping.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import { ServiceUnavailableError, ValidationError } from "../../shared/errors.js";
@@ -182,6 +187,8 @@ describe("AssistantService unary calls", () => {
             nextPageToken: "",
             runId: 3n,
             conversationId: 1n,
+            messages: [],
+            subject: { kind: { case: "strategy", value: { strategyId: 7n } } },
         });
         const subject = { strategyId: formatId(7n) };
         const protoSubject = { kind: { case: "strategy", value: { strategyId: 7n } } };
@@ -190,6 +197,10 @@ describe("AssistantService unary calls", () => {
             conversations: [{ conversationId: formatId(1n), subject }],
         });
         expect(transport.lastCall()?.message).toEqual({ subject: protoSubject });
+
+        await expect(service.listMessages({ conversationId: formatId(1n) })).resolves.toMatchObject(
+            { subject },
+        );
 
         await service.sendMessage({ text: "hi", idempotencyKey: "k-1", subject });
         expect(transport.lastCall()?.message).toMatchObject({ subject: protoSubject });
@@ -601,6 +612,117 @@ describe("AssistantService.watchRun", () => {
         expect(events[4]).toMatchObject({ funding: "unspecified" });
     });
 
+    it("reads OCO, pegged limit and sell-by-proceeds order previews", async () => {
+        const order = (value: MessageInitShape<typeof Proto.OrderPreviewSchema>) => ({
+            seq: 1n,
+            event: {
+                case: "approvalRequested" as const,
+                value: {
+                    approvalId: 11n,
+                    accountId: 42n,
+                    preview: { case: "orderPreview" as const, value },
+                },
+            },
+        });
+        const { service } = streamingService([
+            order({
+                side: Side.SELL,
+                quantity: "0.15",
+                reservedAmount: "0.15",
+                kind: {
+                    case: "oco",
+                    value: {
+                        takeProfit: {
+                            triggerPrice: "90",
+                            triggerPriceSource: TriggerPriceSource.LAST_PRICE,
+                            direction: Proto.TriggerDirection.AT_OR_ABOVE,
+                        },
+                        stopLoss: {
+                            triggerPrice: "48",
+                            triggerPriceSource: TriggerPriceSource.INDEX_PRICE,
+                            direction: Proto.TriggerDirection.AT_OR_BELOW,
+                            limitPrice: "47.5",
+                        },
+                        reservedAsset: "SOL",
+                    },
+                },
+            }),
+            order({
+                side: Side.BUY,
+                quantity: "0.001",
+                kind: {
+                    case: "peggedLimit",
+                    value: {
+                        reference: PegReference.BEST_BID,
+                        offsetTicks: -2n,
+                        tickSize: "0.01",
+                        currentPrice: "75939.37",
+                        boundPrice: "76000",
+                        timeInForce: TimeInForce.GTD,
+                        expireAt: ts(60),
+                        postOnly: true,
+                    },
+                },
+            }),
+            order({
+                side: Side.SELL,
+                quoteProceeds: "500",
+                estimatedValue: "500",
+                kind: { case: "market", value: {} },
+            }),
+        ]);
+
+        const [oco, pegged, proceeds] = await collect(service.watchRun({ runId: formatId(1n) }));
+
+        expect(oco).toMatchObject({
+            preview: {
+                side: "sell",
+                reservedAmount: "0.15",
+                order: {
+                    type: "oco",
+                    takeProfit: {
+                        triggerPrice: "90",
+                        triggerPriceSource: "last",
+                        direction: "at_or_above",
+                        limitPrice: undefined,
+                    },
+                    stopLoss: {
+                        triggerPrice: "48",
+                        triggerPriceSource: "index",
+                        direction: "at_or_below",
+                        limitPrice: "47.5",
+                    },
+                    reservedAsset: "SOL",
+                },
+            },
+        });
+        expect(pegged).toMatchObject({
+            preview: {
+                order: {
+                    type: "pegged_limit",
+                    reference: "best_bid",
+                    offsetTicks: -2,
+                    tickSize: "0.01",
+                    currentPrice: "75939.37",
+                    boundPrice: "76000",
+                    timeInForce: "gtd",
+                    expireAt: 60_000,
+                    postOnly: true,
+                },
+            },
+        });
+        expect(proceeds).toMatchObject({
+            preview: {
+                side: "sell",
+                quantity: undefined,
+                quoteAmount: undefined,
+                quoteProceeds: "500",
+                estimatedValue: "500",
+                order: { type: "market" },
+            },
+        });
+    });
+
     it("reads an approval that cancels several triggers together", async () => {
         const trigger = (triggerId: bigint) => ({
             triggerId,
@@ -758,6 +880,7 @@ describe("AssistantService.watchRun", () => {
                     side: "buy",
                     quantity: "1",
                     quoteAmount: undefined,
+                    quoteProceeds: undefined,
                     estimatedValue: undefined,
                     reservedAmount: undefined,
                     referencePrice: undefined,

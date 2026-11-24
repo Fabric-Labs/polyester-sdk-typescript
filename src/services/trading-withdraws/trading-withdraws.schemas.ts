@@ -341,6 +341,7 @@ const InvalidWithdrawDestinationResultSchema = v.pipe(
             WithdrawDestinationValidationCode.POLYESTER_SMART_ACCOUNT,
             WithdrawDestinationValidationCode.TOKEN_CONTRACT,
             WithdrawDestinationValidationCode.DENYLISTED_ADDRESS,
+            WithdrawDestinationValidationCode.SWAP_DEPOSIT_ADDRESS,
         ]),
         message: v.string(),
         canonicalDestinationAddress: v.string(),

@@ -251,10 +251,22 @@ export type BatchCreateInternalTransfersResult = v.InferOutput<
 
 const TransferLookupIdSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
 
-export const GetInternalTransferBatchInputSchema = v.strictObject({
-    /** Batch `requestId` returned by `internalTransfers.batchCreate`. */
-    requestId: TransferLookupIdSchema,
-});
+export const GetInternalTransferBatchInputSchema = v.union(
+    [
+        v.strictObject({
+            /** Batch `requestId` returned by `internalTransfers.batchCreate`. */
+            requestId: TransferLookupIdSchema,
+        }),
+        v.strictObject({
+            /**
+             * The `idempotencyKey` sent to `internalTransfers.batchCreate`, sent unchanged: reads
+             * that batch's stored outcome when its answer was lost, a refused batch included.
+             */
+            idempotencyKey: v.pipe(v.string(), v.minLength(1)),
+        }),
+    ],
+    "Pass exactly one of requestId or idempotencyKey.",
+);
 
 export type GetInternalTransferBatchInput = v.InferInput<
     typeof GetInternalTransferBatchInputSchema

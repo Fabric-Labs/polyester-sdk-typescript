@@ -2073,8 +2073,9 @@ export type CreateQuickSwapRequest = Message<"swap.quickswap.v1.CreateQuickSwapR
    * at most 64 bytes; empty for none. Only a broker with a referral program may send one
    * (REFERRAL_NOT_SUPPORTED otherwise), never with affiliates.
    * It must be a valid code (REFERRAL_CODE_INVALID) that is a partner's
-   * current code (REFERRAL_CODE_UNKNOWN), and the partner must be active
-   * (REFERRAL_PARTNER_INACTIVE). The program's rates
+   * code (REFERRAL_CODE_UNKNOWN), and the partner must be active
+   * (REFERRAL_PARTNER_INACTIVE). A code the partner has since replaced with
+   * SetReferralCode keeps crediting that partner. The program's current rates
    * for the route are applied (quote.referral) and fixed at creation. It is
    * part of the request: the same idempotency_key with another code, or with
    * and without one, is IDEMPOTENCY_CONFLICT.
@@ -3101,14 +3102,18 @@ export enum ErrorCode {
 
   /**
    * destination_address or destination_memo is not valid on the destination
-   * network.
+   * network, or names a QuickSwap deposit address, which never receives a
+   * payout. A Polyester account's own deposit address is a valid
+   * destination.
    *
    * @generated from enum value: DESTINATION_ADDRESS_INVALID = 4;
    */
   DESTINATION_ADDRESS_INVALID = 4,
 
   /**
-   * return_address or return_memo is not valid on the source network.
+   * return_address or return_memo is not valid on the source network, or
+   * names a deposit address on Polyester (a QuickSwap deposit address or an
+   * account's own deposit address), which never receives a return.
    *
    * @generated from enum value: RETURN_ADDRESS_INVALID = 5;
    */
@@ -3123,7 +3128,9 @@ export enum ErrorCode {
 
   /**
    * refund_zipped_asset_id is not a withdraw route of the intermediate asset,
-   * or refund_address or refund_memo is not valid on its network.
+   * or refund_address or refund_memo is not valid on its network, or names a
+   * deposit address on Polyester (a QuickSwap deposit address or an
+   * account's own deposit address), which never receives a refund.
    *
    * @generated from enum value: REFUND_ADDRESS_INVALID = 7;
    */
@@ -3396,8 +3403,8 @@ export enum ErrorCode {
   REFERRAL_NOT_SUPPORTED = 43,
 
   /**
-   * The referral_code is not a referral partner's current code: unknown, or
-   * replaced by the partner. Repeat the request without the code.
+   * The referral_code is not a referral partner's code, current or replaced.
+   * Repeat the request without the code.
    *
    * @generated from enum value: REFERRAL_CODE_UNKNOWN = 44;
    */

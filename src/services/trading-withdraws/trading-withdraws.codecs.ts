@@ -11,6 +11,7 @@ export const WITHDRAW_DESTINATION_VALIDATION_CODE_VALUES = [
     "polyester_smart_account",
     "token_contract",
     "denylisted_address",
+    "swap_deposit_address",
 ] as const;
 export type WithdrawDestinationValidationCodeValue =
     (typeof WITHDRAW_DESTINATION_VALIDATION_CODE_VALUES)[number];
@@ -41,6 +42,7 @@ export const WithdrawDestinationValidationCodeCodec = {
             "polyester_smart_account",
         [Proto.WithdrawDestinationValidationCode.TOKEN_CONTRACT]: "token_contract",
         [Proto.WithdrawDestinationValidationCode.DENYLISTED_ADDRESS]: "denylisted_address",
+        [Proto.WithdrawDestinationValidationCode.SWAP_DEPOSIT_ADDRESS]: "swap_deposit_address",
     } satisfies ProtoToOutput<
         Proto.WithdrawDestinationValidationCode,
         WithdrawDestinationValidationCodeValue

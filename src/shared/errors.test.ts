@@ -18,6 +18,7 @@ import {
     ErrorCode as WithdrawErrorCode,
     ErrorDetailSchema as WithdrawErrorDetailSchema,
 } from "../gen/chain/withdraw/v1/withdraw_pb.js";
+import { ErrorDetailSchema as MarketDataErrorDetailSchema } from "../gen/marketdata/v1/marketdata_pb.js";
 import {
     ErrorCode as ClaimsErrorCode,
     ErrorDetailSchema as ClaimsErrorDetailSchema,
@@ -932,6 +933,63 @@ describe("connectErrorToPolyesterError", () => {
         expect(connectErrorToPolyesterError(rateLimited)).toBeInstanceOf(RateLimitError);
         expect(connectErrorToPolyesterError(unavailable)).toBeInstanceOf(ServiceUnavailableError);
         expect(isRetryableError(unavailable)).toBe(true);
+    });
+
+    it("maps a QuickSwap deposit address destination to a non-retryable ValidationError", () => {
+        const mapped = connectErrorToPolyesterError(
+            new ConnectError("DESTINATION_SWAP_DEPOSIT_ADDRESS", Code.InvalidArgument, undefined, [
+                {
+                    desc: WithdrawErrorDetailSchema,
+                    value: create(WithdrawErrorDetailSchema, {
+                        code: WithdrawErrorCode.DESTINATION_SWAP_DEPOSIT_ADDRESS,
+                        fieldPath: "destinations[0].destination_address",
+                    }),
+                },
+            ]),
+        );
+        expect(mapped).toBeInstanceOf(ValidationError);
+        expect(mapped.retryable).toBe(false);
+        expect(mapped.detail).toEqual({
+            service: "withdraw",
+            code: "DESTINATION_SWAP_DEPOSIT_ADDRESS",
+            fieldPath: "destinations[0].destination_address",
+        });
+    });
+
+    it("maps market data errors with the reason as the message and the code in the detail", () => {
+        const marketData = (code: Code, message: string, reason: string) =>
+            connectErrorToPolyesterError(
+                new ConnectError(message, code, undefined, [
+                    {
+                        desc: MarketDataErrorDetailSchema,
+                        value: create(MarketDataErrorDetailSchema, { reason }),
+                    },
+                ]),
+            );
+
+        const pageToken = marketData(
+            Code.InvalidArgument,
+            "PAGE_TOKEN_INVALID",
+            "page_token does not match request",
+        );
+        expect(pageToken).toBeInstanceOf(ValidationError);
+        expect(pageToken.message).toBe("page_token does not match request");
+        expect(pageToken.detail).toEqual({
+            service: "market_data",
+            code: "PAGE_TOKEN_INVALID",
+            reason: "page_token does not match request",
+        });
+
+        const unknownSymbol = marketData(Code.NotFound, "UNKNOWN_SYMBOL", "unknown symbol_id 9");
+        expect(unknownSymbol).toBeInstanceOf(ResourceNotFoundError);
+        expect(unknownSymbol.detail).toMatchObject({ code: "UNKNOWN_SYMBOL" });
+
+        // Service-side failures carry the code and no detail, and stay retryable.
+        const upstream = connectErrorToPolyesterError(
+            new ConnectError("UPSTREAM_ERROR", Code.Unavailable),
+        );
+        expect(upstream).toBeInstanceOf(ServiceUnavailableError);
+        expect(upstream.retryable).toBe(true);
     });
 
     it("maps internal transfer error details before generic gRPC handling", () => {

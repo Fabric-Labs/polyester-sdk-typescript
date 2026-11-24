@@ -51,7 +51,7 @@ export class MarketOverviewService {
     }
 
     /**
-     * Returns market overview rows with last and index prices, 24h stats, top-of-book values, listing timestamp, and optional sparklines. Supports symbol ID filtering, sorting, pagination, and sparkline interval selection. A symbol ID that names no configured market is rejected as an invalid argument instead of returning an empty page.
+     * Returns market overview rows with last and index prices, rolling 1h, 4h, 24h and 7-day stats, the UTC day open, top-of-book values, listing timestamp, and optional sparklines. Supports symbol ID filtering, last price, 24h change and 24h USD volume ranges (a market must match every filter), sorting, pagination, and sparkline interval selection. Filters apply before sorting and paging; pages are cut from current values, so request one page with `limit: 2000` for a consistent list. A symbol ID that names no configured market is rejected as an invalid argument instead of returning an empty page.
      */
     async list(
         input: ListMarketOverviewInput = {},

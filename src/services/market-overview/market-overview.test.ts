@@ -339,6 +339,8 @@ describe("MarketOverviewService", () => {
                 sort: "asc",
                 includeSparklines: false,
                 sparklineIntervals: ["1h", "1w"],
+                lastPrice: { max: "2" },
+                change24hBps: { min: -500 },
             },
             { signal: controller.signal },
         );
@@ -354,6 +356,8 @@ describe("MarketOverviewService", () => {
                 Proto.SparklineInterval.SPARKLINE_1H,
                 Proto.SparklineInterval.SPARKLINE_1W,
             ],
+            lastPrice: { maxTicks: 2_000_000_000n },
+            change24h: { minBps: -500 },
         });
         expect(transport.lastCall()?.signal).toBe(controller.signal);
         expect(result).toEqual({
@@ -373,6 +377,7 @@ describe("MarketOverviewService", () => {
                     bestAsk: "1.3",
                     bestAskQty: "0.2",
                     indexPrice: "1.25",
+                    tradeCount24h: "0",
                     sparklines: [],
                 },
             ],

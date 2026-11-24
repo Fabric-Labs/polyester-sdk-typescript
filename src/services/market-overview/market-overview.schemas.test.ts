@@ -1,15 +1,20 @@
 import { create } from "@bufbuild/protobuf";
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
+import { fromBinary, toBinary } from "@bufbuild/protobuf";
+import { ValidationError } from "../../shared/errors.js";
+import { parse } from "../../shared/validation.js";
 import {
+    ListMarketOverviewRequestSchema,
     MarketOrderBy,
     MarketOverviewSchema,
+    RollingWindowStatsSchema,
     SortDirection,
     SparklineInterval,
 } from "../../gen/marketoverview/v1/marketoverview_pb.js";
 import { LivePriceBandSchema, PriceBandState } from "../../gen/marketdata/v1/marketdata_pb.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
-import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
+import { PROTOBUF_INT64_MAX, PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import {
     createMarketOverviewSchema,
@@ -120,6 +125,7 @@ describe("MarketOverviewSchema", () => {
             bestAsk: "1234.600002",
             bestAskQty: "0.23456789",
             indexPrice: "1234.550003",
+            tradeCount24h: "0",
             sparklines: [{ interval: "24h", close: ["1.000001", "1.01"] }],
         });
 
@@ -128,6 +134,52 @@ describe("MarketOverviewSchema", () => {
             create(MarketOverviewSchema, { symbolId: 101, indexPriceTicks: 0n }),
         );
         expect(unavailableIndexPrice.indexPrice).toBeUndefined();
+    });
+
+    it("surfaces rolling window stats, the 24h and UTC day opens, trade count and VWAP", () => {
+        const schema = createMarketOverviewSchema(testScales());
+        const stats = (openTicks: bigint, changeBps: number) =>
+            create(RollingWindowStatsSchema, {
+                openTicks,
+                highTicks: 62_000_000_000_000n,
+                lowTicks: 57_000_000_000_000n,
+                changeBps,
+            });
+        const market = v.parse(
+            schema,
+            create(MarketOverviewSchema, {
+                symbolId: 101,
+                open24hTicks: 60_000_000_000_000n,
+                tradeCount24h: 1_834n,
+                vwap24hTicks: 60_812_345_678_901n,
+                openUtcDayTicks: 60_750_000_000_000n,
+                stats1h: stats(61_200_000_000_000n, 49),
+                stats4h: stats(60_500_000_000_000n, 165),
+                stats7d: stats(58_000_000_000_000n, -603),
+            }),
+        );
+
+        expect(market).toMatchObject({
+            open24h: "60000",
+            tradeCount24h: "1834",
+            vwap24h: "60812.345678901",
+            openUtcDay: "60750",
+            stats1h: { open: "61200", high: "62000", low: "57000", changeBps: 49 },
+            stats4h: { open: "60500", changeBps: 165 },
+            stats7d: { open: "58000", changeBps: -603 },
+        });
+    });
+
+    it("reports unknown opens, VWAP and windows as undefined", () => {
+        const market = v.parse(
+            createMarketOverviewSchema(testScales()),
+            create(MarketOverviewSchema, { symbolId: 101 }),
+        );
+
+        expect(market).toMatchObject({ change24hBps: 0, tradeCount24h: "0" });
+        for (const field of ["open24h", "vwap24h", "openUtcDay", "stats1h", "stats4h", "stats7d"]) {
+            expect(market[field as keyof MarketOverview]).toBeUndefined();
+        }
     });
 
     it("scales 24h base volume by marketDataVolumeScale, not the quantity scale", () => {
@@ -197,6 +249,44 @@ describe("ListMarketOverviewInputSchema", () => {
         expect(() =>
             v.parse(ListMarketOverviewInputSchema, { orderBy: "volume_24h_quote" }),
         ).toThrow();
+    });
+
+    it("maps range filters to scaled, encodable proto bounds", () => {
+        const input = v.parse(ListMarketOverviewInputSchema, {
+            lastPrice: { min: "0", max: "65000.5" },
+            change24hBps: { min: -500, max: 1000 },
+            volume24hUsd: { min: "1000000" },
+        });
+
+        expect(input).toMatchObject({
+            lastPrice: { minTicks: 0n, maxTicks: 65_000_500_000_000n },
+            change24h: { minBps: -500, maxBps: 1000 },
+            volume24h: { minUsdScaled: 1_000_000_000_000n, maxUsdScaled: undefined },
+        });
+        const encoded = toBinary(
+            ListMarketOverviewRequestSchema,
+            create(ListMarketOverviewRequestSchema, input),
+        );
+        expect(
+            fromBinary(ListMarketOverviewRequestSchema, encoded).volume24h?.maxUsdScaled,
+        ).toBeUndefined();
+        expect(v.parse(ListMarketOverviewInputSchema, {}).lastPrice).toBeUndefined();
+    });
+
+    it("rejects range bounds the wire cannot carry", () => {
+        const cases = [
+            { lastPrice: { min: "-1" } },
+            { lastPrice: { max: "0.0000000001" } },
+            { lastPrice: { max: (PROTOBUF_INT64_MAX + 1n).toString() } },
+            { volume24hUsd: { min: "0.0000001" } },
+            { change24hBps: { min: 2 ** 31 } },
+            { change24hBps: { max: 1.5 } },
+            { change24hBps: { below: 1 } },
+        ];
+
+        for (const input of cases) {
+            expect(() => parse(ListMarketOverviewInputSchema, input)).toThrow(ValidationError);
+        }
     });
 
     it("rejects invalid list input values", () => {

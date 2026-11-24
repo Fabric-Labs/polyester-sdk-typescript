@@ -15,13 +15,14 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file swap/v1/swap.proto.
  */
 export const file_swap_v1_swap: GenFile = /*@__PURE__*/
-  fileDesc("ChJzd2FwL3YxL3N3YXAucHJvdG8SB3N3YXAudjEinAEKCVN3YXBUZXJtcxIXCg1zdWJhY2NvdW50X2lkGAEgASgGQgASGQoPc291cmNlX2Fzc2V0X2lkGAIgASgNQgASHgoUZGVzdGluYXRpb25fYXNzZXRfaWQYAyABKA1CABItCgphbW91bnRfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOEgAOgBCCgoGYW1vdW50EgAizwEKDFN3YXBRdW90ZUxlZxIRCglzeW1ib2xfaWQYASABKA0SGwoEc2lkZRgCIAEoDjINLnN3YXAudjEuU2lkZRIVCg1hdmVyYWdlX3ByaWNlGAMgASgJEhgKEHByaWNlX2ltcGFjdF9icHMYBCABKA0SHgoWdGFrZXJfZmVlX3JhdGVfcGVyY2VudBgFIAEoCRIoCgdmZWVfZTE4GAYgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIUCgxmZWVfYXNzZXRfaWQYByABKA0ioQIKCVN3YXBRdW90ZRIhCgV0ZXJtcxgBIAEoCzISLnN3YXAudjEuU3dhcFRlcm1zEiMKBGxlZ3MYAiADKAsyFS5zd2FwLnYxLlN3YXBRdW90ZUxlZxI4ChdleHBlY3RlZF9hbW91bnRfb3V0X2UxOBgDIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSMwoSbWluX2Ftb3VudF9vdXRfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBItCglxdW90ZWRfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmV4cGlyZXNfYXQYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIqQCCglTd2FwT3JkZXISEAoIb3JkZXJfaWQYASABKAYSEQoJc3ltYm9sX2lkGAIgASgNEhsKBHNpZGUYAyABKA4yDS5zd2FwLnYxLlNpZGUSCwoDbGVnGAQgASgNEigKBnN0YXR1cxgFIAEoDjIYLnN3YXAudjEuU3dhcE9yZGVyU3RhdHVzEhkKEWxpbWl0X3ByaWNlX3RpY2tzGAYgASgDEioKCXNwZW50X2UxOBgHIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSLQoMcmVjZWl2ZWRfZTE4GAggASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIoCgdmZWVfZTE4GAkgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOCLeBAoEU3dhcBIPCgdzd2FwX2lkGAEgASgGEhcKD2lkZW1wb3RlbmN5X2tleRgCIAEoCRIVCg1zdWJhY2NvdW50X2lkGAMgASgGEhcKD3NvdXJjZV9hc3NldF9pZBgEIAEoDRIcChRkZXN0aW5hdGlvbl9hc3NldF9pZBgFIAEoDRIrCgphbW91bnRfZTE4GAYgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIzChJtaW5fYW1vdW50X291dF9lMTgYByABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EiMKBnN0YXR1cxgIIAEoDjITLnN3YXAudjEuU3dhcFN0YXR1cxIjCgZyZWFzb24YCSABKA4yEy5zd2FwLnYxLlN3YXBSZWFzb24SEwoLaXNfdGVybWluYWwYCiABKAgSNAoTZXhlY3V0ZWRfYW1vdW50X2UxOBgLIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSMwoSdW5zcGVudF9hbW91bnRfZTE4GAwgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBI0ChNyZWNlaXZlZF9hbW91bnRfZTE4GA0gASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIoCgdmZWVfZTE4GA4gASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIiCgZvcmRlcnMYDyADKAsyEi5zd2FwLnYxLlN3YXBPcmRlchIuCgpjcmVhdGVkX2F0GBAgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJTChBRdW90ZVN3YXBSZXF1ZXN0EiMKBXRlcm1zGAEgASgLMhIuc3dhcC52MS5Td2FwVGVybXNCABIaChBtYXhfc2xpcHBhZ2VfYnBzGAIgASgNQgAiNgoRUXVvdGVTd2FwUmVzcG9uc2USIQoFcXVvdGUYASABKAsyEi5zd2FwLnYxLlN3YXBRdW90ZSLCAQoRQ3JlYXRlU3dhcFJlcXVlc3QSGQoPaWRlbXBvdGVuY3lfa2V5GAEgASgJQgASIwoFdGVybXMYAiABKAsyEi5zd2FwLnYxLlN3YXBUZXJtc0IAEjUKEm1pbl9hbW91bnRfb3V0X2UxOBgDIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjhCABI2ChBxdW90ZV9leHBpcmVzX2F0GAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIAIjEKEkNyZWF0ZVN3YXBSZXNwb25zZRIbCgRzd2FwGAEgASgLMg0uc3dhcC52MS5Td2FwIlAKDkdldFN3YXBSZXF1ZXN0EhMKB3N3YXBfaWQYASABKAZCAEgAEhsKD2lkZW1wb3RlbmN5X2tleRgCIAEoCUIASABCDAoIc2VsZWN0b3ISACIuCg9HZXRTd2FwUmVzcG9uc2USGwoEc3dhcBgBIAEoCzINLnN3YXAudjEuU3dhcCKiAQoLRXJyb3JEZXRhaWwSIAoEY29kZRgBIAEoDjISLnN3YXAudjEuRXJyb3JDb2RlEg8KB3N3YXBfaWQYAiABKAYSLwoObWluX2Ftb3VudF9lMTgYAyABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Ei8KDm1heF9hbW91bnRfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOCovCgRTaWRlEhQKEFNJREVfVU5TUEVDSUZJRUQQABIHCgNCVVkQARIICgRTRUxMEAIqeAoKU3dhcFN0YXR1cxIWChJTVEFUVVNfVU5TUEVDSUZJRUQQABINCglFWEVDVVRJTkcQARINCglDT01QTEVURUQQAhIXChNQQVJUSUFMTFlfQ09NUExFVEVEEAMSCgoGRkFJTEVEEAQSDwoLUkVDT05DSUxJTkcQBSrpAQoKU3dhcFJlYXNvbhIWChJSRUFTT05fVU5TUEVDSUZJRUQQABIYChRJTlNVRkZJQ0lFTlRfQkFMQU5DRRABEhQKEFBSSUNFX1BST1RFQ1RJT04QAhIWChJNQVJLRVRfVU5BVkFJTEFCTEUQAxIbChdPUkRFUl9TSVpFX09VVF9PRl9SQU5HRRAEEhAKDFJBVEVfTElNSVRFRBAFEhIKDk9SREVSX1JFSkVDVEVEEAYSCwoHRVhQSVJFRBAHEhMKD01JTklNVU1fTk9UX01FVBAIEhYKEk1BWF9PUkRFUl9RVUFOVElUWRAJKnYKD1N3YXBPcmRlclN0YXR1cxIcChhPUkRFUl9TVEFUVVNfVU5TUEVDSUZJRUQQABILCgdQTEFDSU5HEAESCgoGUExBQ0VEEAISCwoHUkVGVVNFRBADEg4KCk5PVF9QTEFDRUQQBBIPCgtVTkNPTkZJUk1FRBAFKuECCglFcnJvckNvZGUSFQoRRVJST1JfVU5TUEVDSUZJRUQQABIVChFST1VURV9VTlNVUFBPUlRFRBABEhcKE0FNT1VOVF9PVVRfT0ZfUkFOR0UQAhIVChFRVU9URV9VTkFWQUlMQUJMRRADEhsKF1BST1RFQ1RJT05fVU5BQ0hJRVZBQkxFEAQSEQoNUVVPVEVfRVhQSVJFRBAFEhgKFElERU1QT1RFTkNZX0NPTkZMSUNUEAYSEgoOU1dBUF9OT1RfRk9VTkQQBxIZChVJTlZBTElEX1NVQkFDQ09VTlRfSUQQCBIYChRTVUJBQ0NPVU5UX05PVF9GT1VORBAJEhcKE1NVQkFDQ09VTlRfSU5BQ1RJVkUQChIWChJTV0FQX05PVF9QRVJNSVRURUQQCxIXChNTRVJWSUNFX1VOQVZBSUxBQkxFEAwSGQoVRElSRUNUSU9OX1VOU1VQUE9SVEVEEA0y3gEKC1N3YXBTZXJ2aWNlEkQKCVF1b3RlU3dhcBIZLnN3YXAudjEuUXVvdGVTd2FwUmVxdWVzdBoaLnN3YXAudjEuUXVvdGVTd2FwUmVzcG9uc2UiABJHCgpDcmVhdGVTd2FwEhouc3dhcC52MS5DcmVhdGVTd2FwUmVxdWVzdBobLnN3YXAudjEuQ3JlYXRlU3dhcFJlc3BvbnNlIgASPgoHR2V0U3dhcBIXLnN3YXAudjEuR2V0U3dhcFJlcXVlc3QaGC5zd2FwLnYxLkdldFN3YXBSZXNwb25zZSIAGgBCPFo6Z2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9zd2FwL3YxO3N3YXB2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options, file_polyester_type_v1_u128]);
+  fileDesc("ChJzd2FwL3YxL3N3YXAucHJvdG8SB3N3YXAudjEiwwEKCVN3YXBUZXJtcxIXCg1zdWJhY2NvdW50X2lkGAEgASgGQgASGQoPc291cmNlX2Fzc2V0X2lkGAIgASgNQgASHgoUZGVzdGluYXRpb25fYXNzZXRfaWQYAyABKA1CABItCgphbW91bnRfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOEgAEiUKCWV4ZWN1dGlvbhgFIAEoCzISLnN3YXAudjEuRXhlY3V0aW9uOgBCCgoGYW1vdW50EgAiEQoPTWFya2V0RXhlY3V0aW9uIkUKDVR3YXBFeGVjdXRpb24SFQoLZHVyYXRpb25fbXMYASABKARCABIbChFzbGljZV9pbnRlcnZhbF9tcxgCIAEoBEIAOgAibQoJRXhlY3V0aW9uEioKBm1hcmtldBgBIAEoCzIYLnN3YXAudjEuTWFya2V0RXhlY3V0aW9uSAASJgoEdHdhcBgCIAEoCzIWLnN3YXAudjEuVHdhcEV4ZWN1dGlvbkgAQgwKCHN0cmF0ZWd5EgAizwEKDFN3YXBRdW90ZUxlZxIRCglzeW1ib2xfaWQYASABKA0SGwoEc2lkZRgCIAEoDjINLnN3YXAudjEuU2lkZRIVCg1hdmVyYWdlX3ByaWNlGAMgASgJEhgKEHByaWNlX2ltcGFjdF9icHMYBCABKA0SHgoWdGFrZXJfZmVlX3JhdGVfcGVyY2VudBgFIAEoCRIoCgdmZWVfZTE4GAYgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIUCgxmZWVfYXNzZXRfaWQYByABKA0i8AIKCVN3YXBRdW90ZRIhCgV0ZXJtcxgBIAEoCzISLnN3YXAudjEuU3dhcFRlcm1zEiMKBGxlZ3MYAiADKAsyFS5zd2FwLnYxLlN3YXBRdW90ZUxlZxI4ChdleHBlY3RlZF9hbW91bnRfb3V0X2UxOBgDIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSMwoSbWluX2Ftb3VudF9vdXRfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBItCglxdW90ZWRfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmV4cGlyZXNfYXQYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEh0KFWludGVybWVkaWF0ZV9hc3NldF9pZBgHIAEoDRIYChBwcmljZV9pbXBhY3RfYnBzGAggASgNEhQKDHRvdGFsX3NsaWNlcxgJIAEoDSKzAgoJU3dhcE9yZGVyEhAKCG9yZGVyX2lkGAEgASgGEhEKCXN5bWJvbF9pZBgCIAEoDRIbCgRzaWRlGAMgASgOMg0uc3dhcC52MS5TaWRlEgsKA2xlZxgEIAEoDRIoCgZzdGF0dXMYBSABKA4yGC5zd2FwLnYxLlN3YXBPcmRlclN0YXR1cxIZChFsaW1pdF9wcmljZV90aWNrcxgGIAEoAxIqCglzcGVudF9lMTgYByABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Ei0KDHJlY2VpdmVkX2UxOBgIIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSKAoHZmVlX2UxOBgJIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSDQoFc2xpY2UYCiABKA0i4QEKB1N3YXBMZWcSCwoDbGVnGAEgASgNEhEKCXN5bWJvbF9pZBgCIAEoDRIbCgRzaWRlGAMgASgOMg0uc3dhcC52MS5TaWRlEioKCXNwZW50X2UxOBgEIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSLQoMcmVjZWl2ZWRfZTE4GAUgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIoCgdmZWVfZTE4GAYgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIUCgxmZWVfYXNzZXRfaWQYByABKA0i8gYKCVN3YXBTbGljZRINCgVpbmRleBgBIAEoDRIuCgpwbGFubmVkX2F0GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgtleGVjdXRlZF9hdBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLZmluaXNoZWRfYXQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEicKBXN0YXRlGAUgASgOMhguc3dhcC52MS5Td2FwU2xpY2UuU3RhdGUSKQoGcmVhc29uGAYgASgOMhkuc3dhcC52MS5Td2FwU2xpY2UuUmVhc29uEhEKCWNvbXBsZXRlZBgHIAEoCBIxChBpbnB1dF90cmFkZWRfZTE4GAggASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBI0ChNvdXRwdXRfcmVjZWl2ZWRfZTE4GAkgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBI1ChRzZWNvbmRfbGVnX2lucHV0X2UxOBgKIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSOQoYaW50ZXJtZWRpYXRlX2NhcnJpZWRfZTE4GAsgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIvCgxjYXJyeV9yZWFzb24YDCABKA4yGS5zd2FwLnYxLlN3YXBTbGljZS5SZWFzb24icgoFU3RhdGUSFQoRU1RBVEVfVU5TUEVDSUZJRUQQABILCgdQTEFOTkVEEAESDQoJRVhFQ1VUSU5HEAISCgoGVFJBREVEEAMSEQoNUEFSVExZX1RSQURFRBAEEgsKB1NLSVBQRUQQBRIKCgZGQUlMRUQQBiLcAQoGUmVhc29uEhwKGFNMSUNFX1JFQVNPTl9VTlNQRUNJRklFRBAAEg8KC1NMT1RfTUlTU0VEEAESFAoQREVBRExJTkVfUkVBQ0hFRBACEhEKDU1BUktFVF9DTE9TRUQQAxIRCg1CRUxPV19NSU5JTVVNEAQSEQoNQUJPVkVfTUFYSU1VTRAFEhYKElBST1RFQ1RJT05fTk9UX01FVBAGEgsKB1JFRlVTRUQQBxIaChZJTlNVRkZJQ0lFTlRfTElRVUlESVRZEAgSEwoPRVhFQ1VUSU9OX0VOREVEEAki2gEKDFN3YXBQcm9ncmVzcxIYChBjb21wbGV0ZWRfc2xpY2VzGAEgASgNEhQKDHRvdGFsX3NsaWNlcxgCIAEoDRIuCgpzdGFydGVkX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghkZWFkbGluZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASIgoGc2xpY2VzGAUgAygLMhIuc3dhcC52MS5Td2FwU2xpY2USGAoQc2xpY2VzX3RydW5jYXRlZBgGIAEoCCKABgoEU3dhcBIPCgdzd2FwX2lkGAEgASgGEhcKD2lkZW1wb3RlbmN5X2tleRgCIAEoCRIVCg1zdWJhY2NvdW50X2lkGAMgASgGEhcKD3NvdXJjZV9hc3NldF9pZBgEIAEoDRIcChRkZXN0aW5hdGlvbl9hc3NldF9pZBgFIAEoDRIrCgphbW91bnRfZTE4GAYgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIzChJtaW5fYW1vdW50X291dF9lMTgYByABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EiMKBnN0YXR1cxgIIAEoDjITLnN3YXAudjEuU3dhcFN0YXR1cxIjCgZyZWFzb24YCSABKA4yEy5zd2FwLnYxLlN3YXBSZWFzb24SEwoLaXNfdGVybWluYWwYCiABKAgSNAoTZXhlY3V0ZWRfYW1vdW50X2UxOBgLIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSMwoSdW5zcGVudF9hbW91bnRfZTE4GAwgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBI0ChNyZWNlaXZlZF9hbW91bnRfZTE4GA0gASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIiCgZvcmRlcnMYDyADKAsyEi5zd2FwLnYxLlN3YXBPcmRlchIuCgpjcmVhdGVkX2F0GBAgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIlCglleGVjdXRpb24YESABKAsyEi5zd2FwLnYxLkV4ZWN1dGlvbhIdChVpbnRlcm1lZGlhdGVfYXNzZXRfaWQYEiABKA0SOwoaaW50ZXJtZWRpYXRlX3JlbWFpbmRlcl9lMTgYEyABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Eh4KBGxlZ3MYFCADKAsyEC5zd2FwLnYxLlN3YXBMZWcSJwoIcHJvZ3Jlc3MYFSABKAsyFS5zd2FwLnYxLlN3YXBQcm9ncmVzcyJTChBRdW90ZVN3YXBSZXF1ZXN0EiMKBXRlcm1zGAEgASgLMhIuc3dhcC52MS5Td2FwVGVybXNCABIaChBtYXhfc2xpcHBhZ2VfYnBzGAIgASgNQgAiNgoRUXVvdGVTd2FwUmVzcG9uc2USIQoFcXVvdGUYASABKAsyEi5zd2FwLnYxLlN3YXBRdW90ZSLCAQoRQ3JlYXRlU3dhcFJlcXVlc3QSGQoPaWRlbXBvdGVuY3lfa2V5GAEgASgJQgASIwoFdGVybXMYAiABKAsyEi5zd2FwLnYxLlN3YXBUZXJtc0IAEjUKEm1pbl9hbW91bnRfb3V0X2UxOBgDIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjhCABI2ChBxdW90ZV9leHBpcmVzX2F0GAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIAIjEKEkNyZWF0ZVN3YXBSZXNwb25zZRIbCgRzd2FwGAEgASgLMg0uc3dhcC52MS5Td2FwIlAKDkdldFN3YXBSZXF1ZXN0EhMKB3N3YXBfaWQYASABKAZCAEgAEhsKD2lkZW1wb3RlbmN5X2tleRgCIAEoCUIASABCDAoIc2VsZWN0b3ISACIuCg9HZXRTd2FwUmVzcG9uc2USGwoEc3dhcBgBIAEoCzINLnN3YXAudjEuU3dhcCKiAQoLRXJyb3JEZXRhaWwSIAoEY29kZRgBIAEoDjISLnN3YXAudjEuRXJyb3JDb2RlEg8KB3N3YXBfaWQYAiABKAYSLwoObWluX2Ftb3VudF9lMTgYAyABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Ei8KDm1heF9hbW91bnRfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOCovCgRTaWRlEhQKEFNJREVfVU5TUEVDSUZJRUQQABIHCgNCVVkQARIICgRTRUxMEAIqeAoKU3dhcFN0YXR1cxIWChJTVEFUVVNfVU5TUEVDSUZJRUQQABINCglFWEVDVVRJTkcQARINCglDT01QTEVURUQQAhIXChNQQVJUSUFMTFlfQ09NUExFVEVEEAMSCgoGRkFJTEVEEAQSDwoLUkVDT05DSUxJTkcQBSqJAgoKU3dhcFJlYXNvbhIWChJSRUFTT05fVU5TUEVDSUZJRUQQABIYChRJTlNVRkZJQ0lFTlRfQkFMQU5DRRABEhQKEFBSSUNFX1BST1RFQ1RJT04QAhIWChJNQVJLRVRfVU5BVkFJTEFCTEUQAxIbChdPUkRFUl9TSVpFX09VVF9PRl9SQU5HRRAEEhAKDFJBVEVfTElNSVRFRBAFEhIKDk9SREVSX1JFSkVDVEVEEAYSCwoHRVhQSVJFRBAHEhMKD01JTklNVU1fTk9UX01FVBAIEhYKEk1BWF9PUkRFUl9RVUFOVElUWRAJEh4KGklOVEVSTUVESUFURV9CRUxPV19NSU5JTVVNEAoqdgoPU3dhcE9yZGVyU3RhdHVzEhwKGE9SREVSX1NUQVRVU19VTlNQRUNJRklFRBAAEgsKB1BMQUNJTkcQARIKCgZQTEFDRUQQAhILCgdSRUZVU0VEEAMSDgoKTk9UX1BMQUNFRBAEEg8KC1VOQ09ORklSTUVEEAUq4QIKCUVycm9yQ29kZRIVChFFUlJPUl9VTlNQRUNJRklFRBAAEhUKEVJPVVRFX1VOU1VQUE9SVEVEEAESFwoTQU1PVU5UX09VVF9PRl9SQU5HRRACEhUKEVFVT1RFX1VOQVZBSUxBQkxFEAMSGwoXUFJPVEVDVElPTl9VTkFDSElFVkFCTEUQBBIRCg1RVU9URV9FWFBJUkVEEAUSGAoUSURFTVBPVEVOQ1lfQ09ORkxJQ1QQBhISCg5TV0FQX05PVF9GT1VORBAHEhkKFUlOVkFMSURfU1VCQUNDT1VOVF9JRBAIEhgKFFNVQkFDQ09VTlRfTk9UX0ZPVU5EEAkSFwoTU1VCQUNDT1VOVF9JTkFDVElWRRAKEhYKElNXQVBfTk9UX1BFUk1JVFRFRBALEhcKE1NFUlZJQ0VfVU5BVkFJTEFCTEUQDBIZChVESVJFQ1RJT05fVU5TVVBQT1JURUQQDTLeAQoLU3dhcFNlcnZpY2USRAoJUXVvdGVTd2FwEhkuc3dhcC52MS5RdW90ZVN3YXBSZXF1ZXN0Ghouc3dhcC52MS5RdW90ZVN3YXBSZXNwb25zZSIAEkcKCkNyZWF0ZVN3YXASGi5zd2FwLnYxLkNyZWF0ZVN3YXBSZXF1ZXN0Ghsuc3dhcC52MS5DcmVhdGVTd2FwUmVzcG9uc2UiABI+CgdHZXRTd2FwEhcuc3dhcC52MS5HZXRTd2FwUmVxdWVzdBoYLnN3YXAudjEuR2V0U3dhcFJlc3BvbnNlIgAaAEI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL3N3YXAvdjE7c3dhcHYxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options, file_polyester_type_v1_u128]);
 
 /**
  * SwapTerms are the economic terms of one Swap: spend amount_e18 of the
  * source asset from the account's Trading balance and receive the destination
- * asset there. The same terms are quoted and created. A Swap executes as spot
- * orders at the account's own spot taker fee; no other fee is charged.
+ * asset there, at market or over time. The same terms are quoted and created.
+ * A Swap executes as spot orders at the account's own spot taker fee on each
+ * market it trades; no other fee is charged.
  *
  * @generated from message swap.v1.SwapTerms
  */
@@ -67,6 +68,13 @@ export type SwapTerms = Message<"swap.v1.SwapTerms"> & {
     value: U128;
     case: "amountE18";
   } | { case: undefined; value?: undefined };
+
+  /**
+   * How the Swap executes; unset executes at market.
+   *
+   * @generated from field: swap.v1.Execution execution = 5;
+   */
+  execution?: Execution | undefined;
 };
 
 /**
@@ -77,7 +85,115 @@ export const SwapTermsSchema: GenMessage<SwapTerms> = /*@__PURE__*/
   messageDesc(file_swap_v1_swap, 0);
 
 /**
- * SwapQuoteLeg is one spot market a quote trades on.
+ * MarketExecution executes the Swap at once, in immediate orders.
+ *
+ * @generated from message swap.v1.MarketExecution
+ */
+export type MarketExecution = Message<"swap.v1.MarketExecution"> & {
+};
+
+/**
+ * Describes the message swap.v1.MarketExecution.
+ * Use `create(MarketExecutionSchema)` to create a new message.
+ */
+export const MarketExecutionSchema: GenMessage<MarketExecution> = /*@__PURE__*/
+  messageDesc(file_swap_v1_swap, 1);
+
+/**
+ * TwapExecution spreads the Swap evenly over a duration, one slice per slot.
+ * Slot k starts k slice intervals after execution starts. Each slice trades
+ * what is left of the amount over the slots left, and each slice nets at
+ * least the Swap's minimum rate (min_amount_out_e18 over amount_e18) on what
+ * it converts, judged slice by slice; slices whose intermediate one later
+ * second leg converts together (below) are judged together. Each order's
+ * price limit allows for the taker fee in force when the order can match
+ * within its window, the highest rate scheduled from when the order is
+ * prepared until it can last be accepted, some minutes after its sending
+ * window since a resent copy of it can still be accepted then. An order the
+ * exchange first accepts after that window (only under severe delay) may pay
+ * a later scheduled fee, and a slice it takes below the minimum fails the
+ * Swap closed (MINIMUM_NOT_MET). A slice's first order is sent only within
+ * its slot: a slot missed is skipped, never sent late. On a two-leg route, a
+ * slice's second leg is sent once its first leg has settled, at any time
+ * before the deadline, even after the slice's slot, and the next slice
+ * starts only once it is over. When no second-leg order can meet the
+ * protection or the second market's order limits, the slice's intermediate
+ * asset is added to the next slice's second leg. What a second-leg order
+ * leaves unfilled, and what is still unconverted when execution ends, stays
+ * on the account (intermediate_remainder_e18), and the Swap then ends
+ * PARTIALLY_COMPLETED; a rest smaller than one order step of the second
+ * market is ordinary residue and the Swap can still end COMPLETED. A TWAP
+ * needs a larger amount than a market execution, since every slice must be a
+ * valid order.
+ *
+ * @generated from message swap.v1.TwapExecution
+ */
+export type TwapExecution = Message<"swap.v1.TwapExecution"> & {
+  /**
+   * Total execution duration in milliseconds, from 60000 (1 minute) to
+   * 3600000 (60 minutes). The duration starts when execution starts.
+   *
+   * @generated from field: uint64 duration_ms = 1;
+   */
+  durationMs: bigint;
+
+  /**
+   * Interval between slices in milliseconds, from 10000 (10 seconds) up to
+   * duration_ms. The slice count is duration_ms / slice_interval_ms, rounded
+   * up.
+   *
+   * @generated from field: uint64 slice_interval_ms = 2;
+   */
+  sliceIntervalMs: bigint;
+};
+
+/**
+ * Describes the message swap.v1.TwapExecution.
+ * Use `create(TwapExecutionSchema)` to create a new message.
+ */
+export const TwapExecutionSchema: GenMessage<TwapExecution> = /*@__PURE__*/
+  messageDesc(file_swap_v1_swap, 2);
+
+/**
+ * Execution selects how a Swap is traded.
+ *
+ * @generated from message swap.v1.Execution
+ */
+export type Execution = Message<"swap.v1.Execution"> & {
+  /**
+   * Exactly one strategy.
+   *
+   * @generated from oneof swap.v1.Execution.strategy
+   */
+  strategy: {
+    /**
+     * Execute immediately.
+     *
+     * @generated from field: swap.v1.MarketExecution market = 1;
+     */
+    value: MarketExecution;
+    case: "market";
+  } | {
+    /**
+     * Execute in equal time slices.
+     *
+     * @generated from field: swap.v1.TwapExecution twap = 2;
+     */
+    value: TwapExecution;
+    case: "twap";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * Describes the message swap.v1.Execution.
+ * Use `create(ExecutionSchema)` to create a new message.
+ */
+export const ExecutionSchema: GenMessage<Execution> = /*@__PURE__*/
+  messageDesc(file_swap_v1_swap, 3);
+
+/**
+ * SwapQuoteLeg is one spot market a quote trades on. The first leg of a
+ * two-leg route receives the intermediate asset and the second spends it.
  *
  * @generated from message swap.v1.SwapQuoteLeg
  */
@@ -122,7 +238,8 @@ export type SwapQuoteLeg = Message<"swap.v1.SwapQuoteLeg"> & {
 
   /**
    * Estimated fee, in 18-decimal units of the asset the leg receives
-   * (fee_asset_id).
+   * (fee_asset_id): the leg's received amount times its taker fee rate. A
+   * second leg is priced on what the first leg receives after its fee.
    *
    * @generated from field: polyester.type.v1.U128 fee_e18 = 6;
    */
@@ -141,7 +258,7 @@ export type SwapQuoteLeg = Message<"swap.v1.SwapQuoteLeg"> & {
  * Use `create(SwapQuoteLegSchema)` to create a new message.
  */
 export const SwapQuoteLegSchema: GenMessage<SwapQuoteLeg> = /*@__PURE__*/
-  messageDesc(file_swap_v1_swap, 1);
+  messageDesc(file_swap_v1_swap, 4);
 
 /**
  * SwapQuote is an estimate from current order-book depth. Nothing is
@@ -159,7 +276,10 @@ export type SwapQuote = Message<"swap.v1.SwapQuote"> & {
   terms?: SwapTerms | undefined;
 
   /**
-   * Markets the Swap would trade on, in order. A direct Swap has one.
+   * Markets the Swap would trade on, in order: the direct market between the
+   * two assets when one exists, otherwise two markets through
+   * intermediate_asset_id (USDT or USDC), the route with the largest
+   * expected output.
    *
    * @generated from field: repeated swap.v1.SwapQuoteLeg legs = 2;
    */
@@ -199,6 +319,32 @@ export type SwapQuote = Message<"swap.v1.SwapQuote"> & {
    * @generated from field: google.protobuf.Timestamp expires_at = 6;
    */
   expiresAt?: Timestamp | undefined;
+
+  /**
+   * Unified asset ID of a two-leg route's intermediate asset (for example
+   * USDT for BTC to SOL); zero for a direct route.
+   *
+   * @generated from field: uint32 intermediate_asset_id = 7;
+   */
+  intermediateAssetId: number;
+
+  /**
+   * Distance of the whole amount's average execution from the best prices
+   * of the books, across every leg, in basis points, rounded up:
+   * 1 - (1 - impact of leg 1) x (1 - impact of leg 2).
+   *
+   * @generated from field: uint32 price_impact_bps = 8;
+   */
+  priceImpactBps: number;
+
+  /**
+   * Slices the Swap executes in: 1 at market; for a TWAP, duration_ms over
+   * slice_interval_ms, rounded up. A TWAP is quoted as the whole amount at
+   * current depth, an estimate of every slice.
+   *
+   * @generated from field: uint32 total_slices = 9;
+   */
+  totalSlices: number;
 };
 
 /**
@@ -206,11 +352,11 @@ export type SwapQuote = Message<"swap.v1.SwapQuote"> & {
  * Use `create(SwapQuoteSchema)` to create a new message.
  */
 export const SwapQuoteSchema: GenMessage<SwapQuote> = /*@__PURE__*/
-  messageDesc(file_swap_v1_swap, 2);
+  messageDesc(file_swap_v1_swap, 5);
 
 /**
  * SwapOrder is one spot order of a Swap: an immediate-or-cancel limit order
- * at the Swap's protection price.
+ * at the Swap's protection price, on one leg of one slice.
  *
  * @generated from message swap.v1.SwapOrder
  */
@@ -281,6 +427,14 @@ export type SwapOrder = Message<"swap.v1.SwapOrder"> & {
    * @generated from field: polyester.type.v1.U128 fee_e18 = 9;
    */
   feeE18?: U128 | undefined;
+
+  /**
+   * Zero-based slice of the Swap's schedule the order belongs to; 0 at
+   * market.
+   *
+   * @generated from field: uint32 slice = 10;
+   */
+  slice: number;
 };
 
 /**
@@ -288,7 +442,391 @@ export type SwapOrder = Message<"swap.v1.SwapOrder"> & {
  * Use `create(SwapOrderSchema)` to create a new message.
  */
 export const SwapOrderSchema: GenMessage<SwapOrder> = /*@__PURE__*/
-  messageDesc(file_swap_v1_swap, 3);
+  messageDesc(file_swap_v1_swap, 6);
+
+/**
+ * SwapLeg is one market of a Swap's route and its settled totals.
+ *
+ * @generated from message swap.v1.SwapLeg
+ */
+export type SwapLeg = Message<"swap.v1.SwapLeg"> & {
+  /**
+   * Zero-based position of the market in the route.
+   *
+   * @generated from field: uint32 leg = 1;
+   */
+  leg: number;
+
+  /**
+   * Stable numeric pair ID from GetSpotConfig.
+   *
+   * @generated from field: uint32 symbol_id = 2;
+   */
+  symbolId: number;
+
+  /**
+   * Side of the leg's orders.
+   *
+   * @generated from field: swap.v1.Side side = 3;
+   */
+  side: Side;
+
+  /**
+   * Amount the leg spent in settled fills, fees in the spent asset included,
+   * in 18-decimal units of the asset it spends.
+   *
+   * @generated from field: polyester.type.v1.U128 spent_e18 = 4;
+   */
+  spentE18?: U128 | undefined;
+
+  /**
+   * Amount the leg received in settled fills after fees, in 18-decimal units
+   * of the asset it receives.
+   *
+   * @generated from field: polyester.type.v1.U128 received_e18 = 5;
+   */
+  receivedE18?: U128 | undefined;
+
+  /**
+   * Fee charged on the leg's settled fills, in 18-decimal units of
+   * fee_asset_id.
+   *
+   * @generated from field: polyester.type.v1.U128 fee_e18 = 6;
+   */
+  feeE18?: U128 | undefined;
+
+  /**
+   * Asset the leg's fee is charged in: the asset it receives.
+   *
+   * @generated from field: uint32 fee_asset_id = 7;
+   */
+  feeAssetId: number;
+};
+
+/**
+ * Describes the message swap.v1.SwapLeg.
+ * Use `create(SwapLegSchema)` to create a new message.
+ */
+export const SwapLegSchema: GenMessage<SwapLeg> = /*@__PURE__*/
+  messageDesc(file_swap_v1_swap, 7);
+
+/**
+ * SwapSlice is one slot of a TWAP Swap's schedule, including a slot that
+ * traded nothing. Its index and planned_at never change.
+ *
+ * @generated from message swap.v1.SwapSlice
+ */
+export type SwapSlice = Message<"swap.v1.SwapSlice"> & {
+  /**
+   * Zero-based position in the Swap's frozen schedule.
+   *
+   * @generated from field: uint32 index = 1;
+   */
+  index: number;
+
+  /**
+   * Frozen scheduled start of the slot.
+   *
+   * @generated from field: google.protobuf.Timestamp planned_at = 2;
+   */
+  plannedAt?: Timestamp | undefined;
+
+  /**
+   * When its first order was sent; unset for an unsent slice.
+   *
+   * @generated from field: google.protobuf.Timestamp executed_at = 3;
+   */
+  executedAt?: Timestamp | undefined;
+
+  /**
+   * When its outcome became final; unset while planned or executing.
+   *
+   * @generated from field: google.protobuf.Timestamp finished_at = 4;
+   */
+  finishedAt?: Timestamp | undefined;
+
+  /**
+   * Current slice state.
+   *
+   * @generated from field: swap.v1.SwapSlice.State state = 5;
+   */
+  state: SwapSlice_State;
+
+  /**
+   * Why a final slice did not trade in full; unspecified after full trading.
+   *
+   * @generated from field: swap.v1.SwapSlice.Reason reason = 6;
+   */
+  reason: SwapSlice_Reason;
+
+  /**
+   * Whether the slice traded source amount and is over.
+   *
+   * @generated from field: bool completed = 7;
+   */
+  completed: boolean;
+
+  /**
+   * Source amount the slice's first leg spent in settled fills, in
+   * 18-decimal units.
+   *
+   * @generated from field: polyester.type.v1.U128 input_traded_e18 = 8;
+   */
+  inputTradedE18?: U128 | undefined;
+
+  /**
+   * Destination amount received in the slice after fees, in 18-decimal
+   * units. On a two-leg route this is its second leg's output, which can
+   * include intermediate carried from earlier slices.
+   *
+   * @generated from field: polyester.type.v1.U128 output_received_e18 = 9;
+   */
+  outputReceivedE18?: U128 | undefined;
+
+  /**
+   * On a two-leg route, intermediate amount the slice's second leg spent, in
+   * 18-decimal units; zero on a direct route.
+   *
+   * @generated from field: polyester.type.v1.U128 second_leg_input_e18 = 10;
+   */
+  secondLegInputE18?: U128 | undefined;
+
+  /**
+   * On a two-leg route, intermediate acquired through this slice, from it and
+   * earlier slices, that no second leg had converted by its end, in
+   * 18-decimal units: added to a later slice's second leg when none could be
+   * ordered (carry_reason), otherwise left on the account. Zero on a direct
+   * route.
+   *
+   * @generated from field: polyester.type.v1.U128 intermediate_carried_e18 = 11;
+   */
+  intermediateCarriedE18?: U128 | undefined;
+
+  /**
+   * Why intermediate asset could not be converted in this slice;
+   * unspecified when no conversion was refused.
+   *
+   * @generated from field: swap.v1.SwapSlice.Reason carry_reason = 12;
+   */
+  carryReason: SwapSlice_Reason;
+};
+
+/**
+ * Describes the message swap.v1.SwapSlice.
+ * Use `create(SwapSliceSchema)` to create a new message.
+ */
+export const SwapSliceSchema: GenMessage<SwapSlice> = /*@__PURE__*/
+  messageDesc(file_swap_v1_swap, 8);
+
+/**
+ * State distinguishes pending work from a final slice outcome.
+ *
+ * @generated from enum swap.v1.SwapSlice.State
+ */
+export enum SwapSlice_State {
+  /**
+   * No state; never returned.
+   *
+   * @generated from enum value: STATE_UNSPECIFIED = 0;
+   */
+  STATE_UNSPECIFIED = 0,
+
+  /**
+   * Scheduled; no order has been sent yet.
+   *
+   * @generated from enum value: PLANNED = 1;
+   */
+  PLANNED = 1,
+
+  /**
+   * An order has been sent and the outcome is not final.
+   *
+   * @generated from enum value: EXECUTING = 2;
+   */
+  EXECUTING = 2,
+
+  /**
+   * The slice traded its planned orders in full.
+   *
+   * @generated from enum value: TRADED = 3;
+   */
+  TRADED = 3,
+
+  /**
+   * The slice traded some input but left an order partly unfilled or
+   * intermediate asset unconverted.
+   *
+   * @generated from enum value: PARTLY_TRADED = 4;
+   */
+  PARTLY_TRADED = 4,
+
+  /**
+   * No input traded because the slot was not used or no order could fill.
+   *
+   * @generated from enum value: SKIPPED = 5;
+   */
+  SKIPPED = 5,
+
+  /**
+   * No input traded because an order or its execution failed.
+   *
+   * @generated from enum value: FAILED = 6;
+   */
+  FAILED = 6,
+}
+
+/**
+ * Describes the enum swap.v1.SwapSlice.State.
+ */
+export const SwapSlice_StateSchema: GenEnum<SwapSlice_State> = /*@__PURE__*/
+  enumDesc(file_swap_v1_swap, 8, 0);
+
+/**
+ * Reason explains a slice outcome or why intermediate asset was carried.
+ *
+ * @generated from enum swap.v1.SwapSlice.Reason
+ */
+export enum SwapSlice_Reason {
+  /**
+   * No reason is needed while pending or after a fully traded slice.
+   *
+   * @generated from enum value: SLICE_REASON_UNSPECIFIED = 0;
+   */
+  SLICE_REASON_UNSPECIFIED = 0,
+
+  /**
+   * The slot ended before an order could be sent.
+   *
+   * @generated from enum value: SLOT_MISSED = 1;
+   */
+  SLOT_MISSED = 1,
+
+  /**
+   * The execution deadline ended this slice.
+   *
+   * @generated from enum value: DEADLINE_REACHED = 2;
+   */
+  DEADLINE_REACHED = 2,
+
+  /**
+   * The required market was closed.
+   *
+   * @generated from enum value: MARKET_CLOSED = 3;
+   */
+  MARKET_CLOSED = 3,
+
+  /**
+   * The amount was below the market's minimum order size.
+   *
+   * @generated from enum value: BELOW_MINIMUM = 4;
+   */
+  BELOW_MINIMUM = 4,
+
+  /**
+   * The amount exceeded the market's maximum order size.
+   *
+   * @generated from enum value: ABOVE_MAXIMUM = 5;
+   */
+  ABOVE_MAXIMUM = 5,
+
+  /**
+   * No order could satisfy the Swap's price protection.
+   *
+   * @generated from enum value: PROTECTION_NOT_MET = 6;
+   */
+  PROTECTION_NOT_MET = 6,
+
+  /**
+   * An order was refused.
+   *
+   * @generated from enum value: REFUSED = 7;
+   */
+  REFUSED = 7,
+
+  /**
+   * Available liquidity did not fill the whole order at its protected price.
+   *
+   * @generated from enum value: INSUFFICIENT_LIQUIDITY = 8;
+   */
+  INSUFFICIENT_LIQUIDITY = 8,
+
+  /**
+   * The execution ended before this slot was used.
+   *
+   * @generated from enum value: EXECUTION_ENDED = 9;
+   */
+  EXECUTION_ENDED = 9,
+}
+
+/**
+ * Describes the enum swap.v1.SwapSlice.Reason.
+ */
+export const SwapSlice_ReasonSchema: GenEnum<SwapSlice_Reason> = /*@__PURE__*/
+  enumDesc(file_swap_v1_swap, 8, 1);
+
+/**
+ * SwapProgress is a Swap's execution schedule and slices.
+ *
+ * @generated from message swap.v1.SwapProgress
+ */
+export type SwapProgress = Message<"swap.v1.SwapProgress"> & {
+  /**
+   * Slices that traded source amount and are over.
+   *
+   * @generated from field: uint32 completed_slices = 1;
+   */
+  completedSlices: number;
+
+  /**
+   * Slices of the schedule: 1 at market, duration_ms over slice_interval_ms
+   * rounded up for a TWAP; zero until execution is planned.
+   *
+   * @generated from field: uint32 total_slices = 2;
+   */
+  totalSlices: number;
+
+  /**
+   * When a TWAP's schedule started, its first slot; unset at market and
+   * until the TWAP is planned.
+   *
+   * @generated from field: google.protobuf.Timestamp started_at = 3;
+   */
+  startedAt?: Timestamp | undefined;
+
+  /**
+   * The last moment an order of the Swap may be sent: the TWAP's start plus
+   * its duration, or the end of the market execution window. Unset until
+   * execution is planned. An order sent before it may settle, and an order's
+   * outcome be confirmed (RECONCILING), after it; the Swap is terminal only
+   * then.
+   *
+   * @generated from field: google.protobuf.Timestamp deadline = 4;
+   */
+  deadline?: Timestamp | undefined;
+
+  /**
+   * A TWAP's slices in index order, at most 50, including future slices.
+   * Empty at market.
+   *
+   * @generated from field: repeated swap.v1.SwapSlice slices = 5;
+   */
+  slices: SwapSlice[];
+
+  /**
+   * True when the TWAP has more than 50 slices; only the first 50 are
+   * listed, and completed_slices still counts them all.
+   *
+   * @generated from field: bool slices_truncated = 6;
+   */
+  slicesTruncated: boolean;
+};
+
+/**
+ * Describes the message swap.v1.SwapProgress.
+ * Use `create(SwapProgressSchema)` to create a new message.
+ */
+export const SwapProgressSchema: GenMessage<SwapProgress> = /*@__PURE__*/
+  messageDesc(file_swap_v1_swap, 9);
 
 /**
  * Swap is one signed-in Swap and its outcome. Amounts count settled fills
@@ -392,13 +930,6 @@ export type Swap = Message<"swap.v1.Swap"> & {
   receivedAmountE18?: U128 | undefined;
 
   /**
-   * Total fee charged, in 18-decimal units of the destination asset.
-   *
-   * @generated from field: polyester.type.v1.U128 fee_e18 = 14;
-   */
-  feeE18?: U128 | undefined;
-
-  /**
    * The Swap's spot orders, in placement order.
    *
    * @generated from field: repeated swap.v1.SwapOrder orders = 15;
@@ -411,6 +942,44 @@ export type Swap = Message<"swap.v1.Swap"> & {
    * @generated from field: google.protobuf.Timestamp created_at = 16;
    */
   createdAt?: Timestamp | undefined;
+
+  /**
+   * How the Swap executes.
+   *
+   * @generated from field: swap.v1.Execution execution = 17;
+   */
+  execution?: Execution | undefined;
+
+  /**
+   * Unified asset ID of a two-leg route's intermediate asset; zero for a
+   * direct route.
+   *
+   * @generated from field: uint32 intermediate_asset_id = 18;
+   */
+  intermediateAssetId: number;
+
+  /**
+   * On a two-leg route, intermediate asset received and not converted, in
+   * 18-decimal units; it is on the account. Final once is_terminal is true.
+   * Zero for a direct route.
+   *
+   * @generated from field: polyester.type.v1.U128 intermediate_remainder_e18 = 19;
+   */
+  intermediateRemainderE18?: U128 | undefined;
+
+  /**
+   * The route's markets in order, with each leg's settled totals and fee.
+   *
+   * @generated from field: repeated swap.v1.SwapLeg legs = 20;
+   */
+  legs: SwapLeg[];
+
+  /**
+   * Execution schedule and slices; unset before execution is planned.
+   *
+   * @generated from field: swap.v1.SwapProgress progress = 21;
+   */
+  progress?: SwapProgress | undefined;
 };
 
 /**
@@ -418,7 +987,7 @@ export type Swap = Message<"swap.v1.Swap"> & {
  * Use `create(SwapSchema)` to create a new message.
  */
 export const SwapSchema: GenMessage<Swap> = /*@__PURE__*/
-  messageDesc(file_swap_v1_swap, 4);
+  messageDesc(file_swap_v1_swap, 10);
 
 /**
  * QuoteSwapRequest asks for a quote of terms.
@@ -447,7 +1016,7 @@ export type QuoteSwapRequest = Message<"swap.v1.QuoteSwapRequest"> & {
  * Use `create(QuoteSwapRequestSchema)` to create a new message.
  */
 export const QuoteSwapRequestSchema: GenMessage<QuoteSwapRequest> = /*@__PURE__*/
-  messageDesc(file_swap_v1_swap, 5);
+  messageDesc(file_swap_v1_swap, 11);
 
 /**
  * QuoteSwapResponse is the quote.
@@ -468,7 +1037,7 @@ export type QuoteSwapResponse = Message<"swap.v1.QuoteSwapResponse"> & {
  * Use `create(QuoteSwapResponseSchema)` to create a new message.
  */
 export const QuoteSwapResponseSchema: GenMessage<QuoteSwapResponse> = /*@__PURE__*/
-  messageDesc(file_swap_v1_swap, 6);
+  messageDesc(file_swap_v1_swap, 12);
 
 /**
  * CreateSwapRequest creates and executes a Swap.
@@ -479,7 +1048,8 @@ export type CreateSwapRequest = Message<"swap.v1.CreateSwapRequest"> & {
   /**
    * Client-chosen key, unique per caller, that makes creation idempotent: the
    * same key and request return the same Swap; another request with the same
-   * key is IDEMPOTENCY_CONFLICT.
+   * key is IDEMPOTENCY_CONFLICT. Keys starting "aw:" are reserved for
+   * auto-withdraw's conversions and refused (INVALID_ARGUMENT).
    *
    * @generated from field: string idempotency_key = 1;
    */
@@ -494,8 +1064,12 @@ export type CreateSwapRequest = Message<"swap.v1.CreateSwapRequest"> & {
 
   /**
    * Positive minimum destination amount after fees for the whole amount, in
-   * 18-decimal units, usually the quote's min_amount_out_e18. Execution never
-   * nets a lower rate; what cannot be traded at it stays on the account.
+   * 18-decimal units, usually the quote's min_amount_out_e18. An order that
+   * matches within its window never nets a lower rate: its price limit allows
+   * for the taker fee in force then. What cannot be traded at that rate stays
+   * on the account. An order the exchange first accepts after its window
+   * (only under severe delay) may pay a later scheduled fee; if that takes a
+   * fill below the minimum rate, the Swap fails closed with MINIMUM_NOT_MET.
    *
    * @generated from field: polyester.type.v1.U128 min_amount_out_e18 = 3;
    */
@@ -515,7 +1089,7 @@ export type CreateSwapRequest = Message<"swap.v1.CreateSwapRequest"> & {
  * Use `create(CreateSwapRequestSchema)` to create a new message.
  */
 export const CreateSwapRequestSchema: GenMessage<CreateSwapRequest> = /*@__PURE__*/
-  messageDesc(file_swap_v1_swap, 7);
+  messageDesc(file_swap_v1_swap, 13);
 
 /**
  * CreateSwapResponse is the created (or existing) Swap.
@@ -536,7 +1110,7 @@ export type CreateSwapResponse = Message<"swap.v1.CreateSwapResponse"> & {
  * Use `create(CreateSwapResponseSchema)` to create a new message.
  */
 export const CreateSwapResponseSchema: GenMessage<CreateSwapResponse> = /*@__PURE__*/
-  messageDesc(file_swap_v1_swap, 8);
+  messageDesc(file_swap_v1_swap, 14);
 
 /**
  * GetSwapRequest selects one Swap of the caller.
@@ -573,7 +1147,7 @@ export type GetSwapRequest = Message<"swap.v1.GetSwapRequest"> & {
  * Use `create(GetSwapRequestSchema)` to create a new message.
  */
 export const GetSwapRequestSchema: GenMessage<GetSwapRequest> = /*@__PURE__*/
-  messageDesc(file_swap_v1_swap, 9);
+  messageDesc(file_swap_v1_swap, 15);
 
 /**
  * GetSwapResponse is the selected Swap.
@@ -594,7 +1168,7 @@ export type GetSwapResponse = Message<"swap.v1.GetSwapResponse"> & {
  * Use `create(GetSwapResponseSchema)` to create a new message.
  */
 export const GetSwapResponseSchema: GenMessage<GetSwapResponse> = /*@__PURE__*/
-  messageDesc(file_swap_v1_swap, 10);
+  messageDesc(file_swap_v1_swap, 16);
 
 /**
  * ErrorDetail is attached to Swap errors as an error detail of type
@@ -641,7 +1215,7 @@ export type ErrorDetail = Message<"swap.v1.ErrorDetail"> & {
  * Use `create(ErrorDetailSchema)` to create a new message.
  */
 export const ErrorDetailSchema: GenMessage<ErrorDetail> = /*@__PURE__*/
-  messageDesc(file_swap_v1_swap, 11);
+  messageDesc(file_swap_v1_swap, 17);
 
 /**
  * Side is a spot order side.
@@ -794,7 +1368,8 @@ export enum SwapReason {
   ORDER_REJECTED = 6,
 
   /**
-   * The execution window ended before the order could be placed.
+   * The execution window ended before the order could be placed, or a
+   * TWAP's deadline ended it with slots left untraded.
    *
    * @generated from enum value: EXPIRED = 7;
    */
@@ -816,6 +1391,15 @@ export enum SwapReason {
    * @generated from enum value: MAX_ORDER_QUANTITY = 9;
    */
   MAX_ORDER_QUANTITY = 9,
+
+  /**
+   * On a two-leg route, intermediate asset below the second market's minimum
+   * order, with later slices' intermediate added where a TWAP had slices
+   * left, stays on the account, unconverted (intermediate_remainder_e18).
+   *
+   * @generated from enum value: INTERMEDIATE_BELOW_MINIMUM = 10;
+   */
+  INTERMEDIATE_BELOW_MINIMUM = 10,
 }
 
 /**
@@ -893,8 +1477,8 @@ export enum ErrorCode {
   ERROR_UNSPECIFIED = 0,
 
   /**
-   * No spot market trades the source asset directly against the destination
-   * asset.
+   * No spot market trades the source asset against the destination asset,
+   * directly or through USDT or USDC.
    *
    * @generated from enum value: ROUTE_UNSUPPORTED = 1;
    */
@@ -983,8 +1567,8 @@ export enum ErrorCode {
   SERVICE_UNAVAILABLE = 12,
 
   /**
-   * The market trades the two assets but cannot execute a Swap in this
-   * direction: a buy there would pay its fee in the asset it spends.
+   * A market of the route trades its two assets but cannot execute a Swap in
+   * this direction: a buy there would pay its fee in the asset it spends.
    *
    * @generated from enum value: DIRECTION_UNSUPPORTED = 13;
    */
@@ -999,11 +1583,17 @@ export const ErrorCodeSchema: GenEnum<ErrorCode> = /*@__PURE__*/
 
 /**
  * SwapService converts one asset of an account's Trading balance into another
- * through Polyester's spot order books. A Swap executes as immediate-or-cancel
- * spot orders on the account, at the account's spot taker fee and with no
- * other fee, protected by the end-to-end min_amount_out the caller accepts:
- * any part that trades nets at least that rate, and anything that cannot stays
- * on the account. Quotes are estimates and reserve nothing.
+ * through Polyester's spot order books, on the direct market or through USDT
+ * or USDC, at market or as a TWAP over up to 60 minutes. A Swap
+ * executes as immediate-or-cancel spot orders on the account, at the
+ * account's spot taker fee on each market and with no other fee, protected by
+ * the end-to-end min_amount_out the caller accepts: each order's price limit
+ * covers the taker fee scheduled within its window, so any part that trades
+ * nets at least that rate, and anything that cannot stays on the account. An
+ * order the exchange first accepts after its window (only under severe
+ * delay) may pay a later scheduled fee; if that takes a fill below the rate,
+ * the Swap finishes with MINIMUM_NOT_MET. Quotes are estimates and reserve
+ * nothing.
  *
  * Requests are authenticated with a session token or a signed API key. The
  * caller needs the SWAP permission on the account: the trading roles grant it
@@ -1011,8 +1601,8 @@ export const ErrorCodeSchema: GenEnum<ErrorCode> = /*@__PURE__*/
  * action. A Swap's orders also remain subject to the sub-account's spot
  * trading policy.
  *
- * Follow a Swap with GetSwap until is_terminal is true; a direct Swap usually
- * completes within seconds.
+ * Follow a Swap with GetSwap until is_terminal is true; a market Swap usually
+ * completes within seconds, a TWAP by its deadline.
  *
  * @generated from service swap.v1.SwapService
  */

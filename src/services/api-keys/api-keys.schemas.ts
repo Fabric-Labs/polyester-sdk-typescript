@@ -3,6 +3,7 @@ import { msToTimestamp } from "../../utils/timestamp.js";
 import { tsObjToMs, tsObjToNsString } from "../../utils/time.js";
 import {
     OptionalPublicIdSchema,
+    PublicIdSchema,
     PublicIdOrEmptySchema,
     OptionalTimestampMsSchema,
     BigIntStringSchema,
@@ -28,6 +29,10 @@ import {
     ApiKeyStatusCodec,
 } from "./api-keys.codecs.js";
 import { buildProtoPatch, defineProtoPatchFields } from "../../utils/proto-patch.js";
+import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
+import { PolicyMarketScopeEnumSchema, SpotMarketRuleSchema } from "../policies/shared.js";
+import { PolicyMarketScopeCodec } from "../policies/shared.codecs.js";
+import { MaxOrderSizeInputSchema } from "../policies/subaccount-policies/subaccount-policies.schemas.js";
 
 const ApiKeyStatusSchema = v.picklist(API_KEY_STATUS_VALUES);
 const ApiKeyUpdateStatusSchema = v.picklist(API_KEY_UPDATE_STATUS_VALUES);
@@ -258,3 +263,62 @@ export const SetAssistantKeysInputSchema = v.strictObject({
 });
 
 export type SetAssistantKeysInput = v.InferInput<typeof SetAssistantKeysInputSchema>;
+
+const DeployOperationIdSchema = v.pipe(v.string(), v.minLength(1, "deployOperationId is required"));
+
+export const SetStrategyBotAccessInputSchema = v.pipe(
+    v.strictObject({
+        /**
+         * Deploy operation identifier, unique within the main account: 1 to 128 letters, digits,
+         * `.`, `_`, `:` and `-`. Repeating a request under it changes nothing. Sent as given.
+         */
+        deployOperationId: DeployOperationIdSchema,
+        /** The bot's own sub-account. */
+        subaccountId: idInputSchema("subaccountId"),
+        /** 32-byte Ed25519 public key of the bot's trade key. Never send the private key. */
+        publicKeyEd25519: v.pipe(BytesSchema, v.length(32, "publicKeyEd25519 must be 32 bytes")),
+        /** The bot the key trades for, as `strategies.getBot` takes it. */
+        strategyBotId: idInputSchema("strategyBotId"),
+        /** Trading limits; they become the sub-account's policy. */
+        limits: v.strictObject({
+            /** Markets the bot may trade when `spotMarketScope` is `allowlist`. */
+            spotMarkets: v.optional(v.array(SpotMarketRuleSchema), []),
+            spotMarketScope: v.optional(PolicyMarketScopeEnumSchema, "all"),
+            /** Most notional for one order, as a decimal string in USDT; omit or `"0"` for no cap. */
+            maxOrderSize: v.optional(MaxOrderSizeInputSchema),
+            /** Most resting orders at a time; omit or 0 for no cap. */
+            maxOpenOrders: v.optional(
+                v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(PROTOBUF_UINT32_MAX)),
+            ),
+        }),
+    }),
+    v.transform(({ limits, ...input }) => ({
+        ...input,
+        limits: {
+            spotMarkets: limits.spotMarkets,
+            spotMarketScope: PolicyMarketScopeCodec.inputToProto[limits.spotMarketScope],
+            maxOrderNotional: limits.maxOrderSize ?? 0n,
+            maxOpenOrders: limits.maxOpenOrders ?? 0,
+        },
+    })),
+);
+
+export type SetStrategyBotAccessInput = v.InferInput<typeof SetStrategyBotAccessInputSchema>;
+
+export const StrategyBotAccessSchema = v.object({
+    /** The bot's `strategy_bot` key. */
+    keyId: v.string(),
+    /** API policy bound to the key. */
+    apiPolicyId: PublicIdSchema,
+    /** Sub-account policy bound to the bot's sub-account. */
+    subaccountPolicyId: PublicIdSchema,
+});
+
+export type StrategyBotAccess = v.InferOutput<typeof StrategyBotAccessSchema>;
+
+export const EndStrategyBotAccessInputSchema = v.strictObject({
+    /** The deploy operation `setStrategyBotAccess` was called with, or would be. */
+    deployOperationId: DeployOperationIdSchema,
+});
+
+export type EndStrategyBotAccessInput = v.InferInput<typeof EndStrategyBotAccessInputSchema>;

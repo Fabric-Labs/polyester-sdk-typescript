@@ -23,10 +23,14 @@ import {
 
 /**
  * Converts one asset of an account's Trading balance into another with immediate-or-cancel spot
- * orders on that account, at its spot taker fee and no other fee. Every part that trades nets at
- * least the accepted `minAmountOut` rate; anything that cannot stays on the account. Sized by
- * source amount only. Flow: `quote`, then `create` with the quote's `minAmountOut` and
- * `expiresAt`, then `get` until `isTerminal`; a direct swap usually finishes within seconds.
+ * orders on that account, at its spot taker fee on each market and no other fee. The route is the
+ * direct market, or two markets through USDT or USDC; `execution` trades at market or as a TWAP
+ * over up to 60 minutes. Every part that trades nets at least the accepted `minAmountOut` rate;
+ * anything that cannot stays on the account. Only an order the exchange accepts late, under
+ * severe delay, can pay a later scheduled fee and net less; the swap then ends `failed` with
+ * reason `minimum_not_met`, and its amounts show what actually traded. Sized by source amount only. Flow: `quote`, then
+ * `create` with the same terms and the quote's `minAmountOut` and `expiresAt`, then `get` until
+ * `isTerminal`; a market swap usually finishes within seconds, a TWAP by its deadline.
  *
  * Needs a session or a signed API key with the `swap` policy action; subaccount members need the
  * `swap` permission. The swap's orders also follow the subaccount's spot trading policy.
@@ -43,8 +47,9 @@ export class SwapService {
 
     /**
      * Prices a swap against current order-book depth and the account's taker fee. Reserves
-     * nothing. `AMOUNT_OUT_OF_RANGE` throws `ValidationError` with the current `minAmount` and
-     * `maxAmount` on its `detail` when known; `ROUTE_UNSUPPORTED`, `DIRECTION_UNSUPPORTED` and
+     * nothing. `AMOUNT_OUT_OF_RANGE` throws `ValidationError` with the current `minAmount` (for a
+     * TWAP, the least amount that quotes for its schedule) and `maxAmount` on its `detail` when
+     * known; `ROUTE_UNSUPPORTED`, `DIRECTION_UNSUPPORTED` and
      * `PROTECTION_UNACHIEVABLE` throw `PreconditionFailedError`; `QUOTE_UNAVAILABLE` throws
      * `ServiceUnavailableError` (retry later).
      */
@@ -61,13 +66,15 @@ export class SwapService {
     }
 
     /**
-     * Creates the swap for `idempotencyKey` and executes it at once, after re-pricing: it is
+     * Creates the swap for `idempotencyKey` and starts executing it, after re-pricing: it is
      * created only while the quote is unexpired and `minAmountOut` is achievable. The result is
-     * usually still `executing`; follow it with `get`.
+     * usually still `executing`; follow it with `get`. Keys starting `aw:` are refused
+     * (`ValidationError`): they are reserved for auto-withdraw conversions.
      *
      * Idempotent per caller and key: an unknown outcome (`TimeoutError`, `ServiceUnavailableError`,
      * `NetworkError`, all `retryable`) is settled by calling `create` again with the same input,
-     * which returns the same swap, or by `get({ idempotencyKey })`. Pass `account` explicitly
+     * which returns the same swap, or by `get({ idempotencyKey })`. The `execution` is part of the
+     * idempotent terms. Pass `account` explicitly
      * (e.g. from the quote's `subaccountId`) so a retry after the active subaccount changes sends
      * the same request. Reusing the key with
      * different input throws `AlreadyExistsError` (`IDEMPOTENCY_CONFLICT`, with the original

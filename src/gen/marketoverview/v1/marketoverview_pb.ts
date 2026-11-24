@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file marketoverview/v1/marketoverview.proto.
  */
 export const file_marketoverview_v1_marketoverview: GenFile = /*@__PURE__*/
-  fileDesc("CiZtYXJrZXRvdmVydmlldy92MS9tYXJrZXRvdmVydmlldy5wcm90bxIRbWFya2V0b3ZlcnZpZXcudjEiOQoLRXJyb3JEZXRhaWwSKgoEY29kZRgBIAEoDjIcLm1hcmtldG92ZXJ2aWV3LnYxLkVycm9yQ29kZSJaCglTcGFya2xpbmUSOAoIaW50ZXJ2YWwYASABKA4yJC5tYXJrZXRvdmVydmlldy52MS5TcGFya2xpbmVJbnRlcnZhbEIAEhMKC2Nsb3NlX3RpY2tzGAIgAygDIt0ECg5NYXJrZXRPdmVydmlldxIRCglzeW1ib2xfaWQYASABKA0SGAoQbGFzdF9wcmljZV90aWNrcxgDIAEoAxIYChBsYXN0X3RyYWRlX3RzX25zGAQgASgEEhYKDmNoYW5nZV8yNGhfYnBzGAUgASgFEhYKDmhpZ2hfMjRoX3RpY2tzGAYgASgDEhUKDWxvd18yNGhfdGlja3MYByABKAMSIwoWdm9sdW1lXzI0aF9iYXNlX3NjYWxlZBgIIAEoA0gAiAEBEiQKF3ZvbHVtZV8yNGhfcXVvdGVfc2NhbGVkGA4gASgDSAGIAQESIgoVdm9sdW1lXzI0aF91c2Rfc2NhbGVkGBEgASgDSAKIAQESFAoMbGlzdGVkX3RzX25zGA8gASgEEhYKDmJlc3RfYmlkX3RpY2tzGAkgASgDEhsKE2Jlc3RfYmlkX3F0eV9zY2FsZWQYCiABKAMSFgoOYmVzdF9hc2tfdGlja3MYCyABKAMSGwoTYmVzdF9hc2tfcXR5X3NjYWxlZBgMIAEoAxIwCgpzcGFya2xpbmVzGA0gAygLMhwubWFya2V0b3ZlcnZpZXcudjEuU3BhcmtsaW5lEhkKEWluZGV4X3ByaWNlX3RpY2tzGBAgASgDEjAKCnByaWNlX2JhbmQYEiABKAsyHC5tYXJrZXRkYXRhLnYxLkxpdmVQcmljZUJhbmRCGQoXX3ZvbHVtZV8yNGhfYmFzZV9zY2FsZWRCGgoYX3ZvbHVtZV8yNGhfcXVvdGVfc2NhbGVkQhgKFl92b2x1bWVfMjRoX3VzZF9zY2FsZWQioAIKGUxpc3RNYXJrZXRPdmVydmlld1JlcXVlc3QSEwoJc3ltYm9sX2lkGAEgAygNQgASDwoFbGltaXQYAiABKA1CABIUCgpwYWdlX3Rva2VuGAMgASgJQgASNAoIb3JkZXJfYnkYBCABKA4yIC5tYXJrZXRvdmVydmlldy52MS5NYXJrZXRPcmRlckJ5QgASMAoEc29ydBgFIAEoDjIgLm1hcmtldG92ZXJ2aWV3LnYxLlNvcnREaXJlY3Rpb25CABIaChJpbmNsdWRlX3NwYXJrbGluZXMYBiABKAgSQwoTc3BhcmtsaW5lX2ludGVydmFscxgHIAMoDjIkLm1hcmtldG92ZXJ2aWV3LnYxLlNwYXJrbGluZUludGVydmFsQgAiawoaTGlzdE1hcmtldE92ZXJ2aWV3UmVzcG9uc2USMgoHbWFya2V0cxgBIAMoCzIhLm1hcmtldG92ZXJ2aWV3LnYxLk1hcmtldE92ZXJ2aWV3EhkKD25leHRfcGFnZV90b2tlbhgCIAEoCUIAIlgKE01hcmtldE92ZXJ2aWV3QmF0Y2gSMgoHbWFya2V0cxgBIAMoCzIhLm1hcmtldG92ZXJ2aWV3LnYxLk1hcmtldE92ZXJ2aWV3Eg0KBXRzX25zGAIgASgEIjIKG0dldFNwb3RWb2x1bWVIaXN0b3J5UmVxdWVzdBITCglzeW1ib2xfaWQYASADKA1CACJEChRTcG90UGFpclZvbHVtZVNlcmllcxIRCglzeW1ib2xfaWQYASABKA0SGQoRdm9sdW1lX3VzZF9zY2FsZWQYAiADKBIiwQEKHEdldFNwb3RWb2x1bWVIaXN0b3J5UmVzcG9uc2USDgoGYnVja2V0GAEgASgJEhQKDHN0YXJ0X3RzX3NlYxgCIAEoBxISCgplbmRfdHNfc2VjGAMgASgHEg4KBnBvaW50cxgEIAEoDRI2CgVwYWlycxgFIAMoCzInLm1hcmtldG92ZXJ2aWV3LnYxLlNwb3RQYWlyVm9sdW1lU2VyaWVzEh8KF3RvdGFsX3ZvbHVtZV91c2Rfc2NhbGVkGAYgAygSImcKEEN1cnJlbmN5TWV0YWRhdGESDAoEY29kZRgBIAEoCRIcChRkZWZhdWx0X2VuZ2xpc2hfbmFtZRgCIAEoCRIOCgZzeW1ib2wYAyABKAkSFwoPZnJhY3Rpb25fZGlnaXRzGAQgASgNIiQKIkdldEN1cnJlbmN5Q29udmVyc2lvbkNvbmZpZ1JlcXVlc3QikgEKI0dldEN1cnJlbmN5Q29udmVyc2lvbkNvbmZpZ1Jlc3BvbnNlEjEKBGZpYXQYASADKAsyIy5tYXJrZXRvdmVydmlldy52MS5DdXJyZW5jeU1ldGFkYXRhEjgKC3N0YWJsZWNvaW5zGAIgAygLMiMubWFya2V0b3ZlcnZpZXcudjEuQ3VycmVuY3lNZXRhZGF0YSI8ChJGaWF0Q29udmVyc2lvblJhdGUSDAoEY29kZRgBIAEoCRIYChB1bml0c19wZXJfdXNkX2U4GAIgASgDInQKFkZpYXRDb252ZXJzaW9uU25hcHNob3QSNAoFcmF0ZXMYASADKAsyJS5tYXJrZXRvdmVydmlldy52MS5GaWF0Q29udmVyc2lvblJhdGUSFQoNc291cmNlX3RzX3NlYxgCIAEoBBINCgVzdGFsZRgDIAEoCCJnChhTdGFibGVjb2luQ29udmVyc2lvblJhdGUSDAoEY29kZRgBIAEoCRIXCg91c2RfcGVyX3VuaXRfZTgYAiABKAMSFQoNc291cmNlX3RzX3NlYxgDIAEoBBINCgVzdGFsZRgEIAEoCCIjCiFHZXRDdXJyZW5jeUNvbnZlcnNpb25SYXRlc1JlcXVlc3QiuAEKIkdldEN1cnJlbmN5Q29udmVyc2lvblJhdGVzUmVzcG9uc2USNwoEZmlhdBgBIAEoCzIpLm1hcmtldG92ZXJ2aWV3LnYxLkZpYXRDb252ZXJzaW9uU25hcHNob3QSQAoLc3RhYmxlY29pbnMYAiADKAsyKy5tYXJrZXRvdmVydmlldy52MS5TdGFibGVjb2luQ29udmVyc2lvblJhdGUSFwoPc25hcHNob3RfdHNfc2VjGAMgASgEKoABChFTcGFya2xpbmVJbnRlcnZhbBIiCh5TUEFSS0xJTkVfSU5URVJWQUxfVU5TUEVDSUZJRUQQABIQCgxTUEFSS0xJTkVfMUgQARIRCg1TUEFSS0xJTkVfMjRIEAISEAoMU1BBUktMSU5FXzFXEAMSEAoMU1BBUktMSU5FXzFNEAQqnAEKDU1hcmtldE9yZGVyQnkSHwobTUFSS0VUX09SREVSX0JZX1VOU1BFQ0lGSUVEEAASGwoXT1JERVJfQllfQ0hBTkdFXzI0SF9CUFMQARIbChdPUkRFUl9CWV9WT0xVTUVfMjRIX1VTRBACEhcKE09SREVSX0JZX0xBU1RfUFJJQ0UQAxIXChNPUkRFUl9CWV9EQVRFX0FEREVEEAQqTAoNU29ydERpcmVjdGlvbhIeChpTT1JUX0RJUkVDVElPTl9VTlNQRUNJRklFRBAAEgwKCFNPUlRfQVNDEAESDQoJU09SVF9ERVNDEAIquQEKCUVycm9yQ29kZRIaChZFUlJPUl9DT0RFX1VOU1BFQ0lGSUVEEAASGgoWRVJST1JfQ09ERV9CQURfUkVRVUVTVBABEh8KG0VSUk9SX0NPREVfSU5WQUxJRF9BUkdVTUVOVBACEhgKFEVSUk9SX0NPREVfTk9UX0ZPVU5EEAMSGgoWRVJST1JfQ09ERV9VTkFWQUlMQUJMRRAEEh0KGUVSUk9SX0NPREVfVVBTVFJFQU1fRVJST1IQBTKoBAoVTWFya2V0T3ZlcnZpZXdTZXJ2aWNlEo4BChtHZXRDdXJyZW5jeUNvbnZlcnNpb25Db25maWcSNS5tYXJrZXRvdmVydmlldy52MS5HZXRDdXJyZW5jeUNvbnZlcnNpb25Db25maWdSZXF1ZXN0GjYubWFya2V0b3ZlcnZpZXcudjEuR2V0Q3VycmVuY3lDb252ZXJzaW9uQ29uZmlnUmVzcG9uc2UiABKLAQoaR2V0Q3VycmVuY3lDb252ZXJzaW9uUmF0ZXMSNC5tYXJrZXRvdmVydmlldy52MS5HZXRDdXJyZW5jeUNvbnZlcnNpb25SYXRlc1JlcXVlc3QaNS5tYXJrZXRvdmVydmlldy52MS5HZXRDdXJyZW5jeUNvbnZlcnNpb25SYXRlc1Jlc3BvbnNlIgASeQoUR2V0U3BvdFZvbHVtZUhpc3RvcnkSLi5tYXJrZXRvdmVydmlldy52MS5HZXRTcG90Vm9sdW1lSGlzdG9yeVJlcXVlc3QaLy5tYXJrZXRvdmVydmlldy52MS5HZXRTcG90Vm9sdW1lSGlzdG9yeVJlc3BvbnNlIgAScwoSTGlzdE1hcmtldE92ZXJ2aWV3EiwubWFya2V0b3ZlcnZpZXcudjEuTGlzdE1hcmtldE92ZXJ2aWV3UmVxdWVzdBotLm1hcmtldG92ZXJ2aWV3LnYxLkxpc3RNYXJrZXRPdmVydmlld1Jlc3BvbnNlIgAaAEJQWk5naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL21hcmtldG92ZXJ2aWV3L3YxO21hcmtldG92ZXJ2aWV3djFiBnByb3RvMw==", [file_marketdata_v1_marketdata, file_polyester_api_options]);
+  fileDesc("CiZtYXJrZXRvdmVydmlldy92MS9tYXJrZXRvdmVydmlldy5wcm90bxIRbWFya2V0b3ZlcnZpZXcudjEiOQoLRXJyb3JEZXRhaWwSKgoEY29kZRgBIAEoDjIcLm1hcmtldG92ZXJ2aWV3LnYxLkVycm9yQ29kZSJaCglTcGFya2xpbmUSOAoIaW50ZXJ2YWwYASABKA4yJC5tYXJrZXRvdmVydmlldy52MS5TcGFya2xpbmVJbnRlcnZhbEIAEhMKC2Nsb3NlX3RpY2tzGAIgAygDImMKElJvbGxpbmdXaW5kb3dTdGF0cxISCgpvcGVuX3RpY2tzGAEgASgDEhIKCmhpZ2hfdGlja3MYAiABKAMSEQoJbG93X3RpY2tzGAMgASgDEhIKCmNoYW5nZV9icHMYBCABKAUihQcKDk1hcmtldE92ZXJ2aWV3EhEKCXN5bWJvbF9pZBgBIAEoDRIYChBsYXN0X3ByaWNlX3RpY2tzGAMgASgDEhgKEGxhc3RfdHJhZGVfdHNfbnMYBCABKAQSFgoOY2hhbmdlXzI0aF9icHMYBSABKAUSFgoOaGlnaF8yNGhfdGlja3MYBiABKAMSFQoNbG93XzI0aF90aWNrcxgHIAEoAxIWCg5vcGVuXzI0aF90aWNrcxgWIAEoAxIXCg90cmFkZV9jb3VudF8yNGgYGCABKAQSGwoOdndhcF8yNGhfdGlja3MYGSABKANIAIgBARIaChJvcGVuX3V0Y19kYXlfdGlja3MYFyABKAMSNwoIc3RhdHNfMWgYEyABKAsyJS5tYXJrZXRvdmVydmlldy52MS5Sb2xsaW5nV2luZG93U3RhdHMSNwoIc3RhdHNfNGgYFCABKAsyJS5tYXJrZXRvdmVydmlldy52MS5Sb2xsaW5nV2luZG93U3RhdHMSNwoIc3RhdHNfN2QYFSABKAsyJS5tYXJrZXRvdmVydmlldy52MS5Sb2xsaW5nV2luZG93U3RhdHMSIwoWdm9sdW1lXzI0aF9iYXNlX3NjYWxlZBgIIAEoA0gBiAEBEiQKF3ZvbHVtZV8yNGhfcXVvdGVfc2NhbGVkGA4gASgDSAKIAQESIgoVdm9sdW1lXzI0aF91c2Rfc2NhbGVkGBEgASgDSAOIAQESFAoMbGlzdGVkX3RzX25zGA8gASgEEhYKDmJlc3RfYmlkX3RpY2tzGAkgASgDEhsKE2Jlc3RfYmlkX3F0eV9zY2FsZWQYCiABKAMSFgoOYmVzdF9hc2tfdGlja3MYCyABKAMSGwoTYmVzdF9hc2tfcXR5X3NjYWxlZBgMIAEoAxIwCgpzcGFya2xpbmVzGA0gAygLMhwubWFya2V0b3ZlcnZpZXcudjEuU3BhcmtsaW5lEhkKEWluZGV4X3ByaWNlX3RpY2tzGBAgASgDEjAKCnByaWNlX2JhbmQYEiABKAsyHC5tYXJrZXRkYXRhLnYxLkxpdmVQcmljZUJhbmRCEQoPX3Z3YXBfMjRoX3RpY2tzQhkKF192b2x1bWVfMjRoX2Jhc2Vfc2NhbGVkQhoKGF92b2x1bWVfMjRoX3F1b3RlX3NjYWxlZEIYChZfdm9sdW1lXzI0aF91c2Rfc2NhbGVkImMKD1ByaWNlVGlja3NSYW5nZRIYCgltaW5fdGlja3MYASABKANCAEgAiAEBEhgKCW1heF90aWNrcxgCIAEoA0IASAGIAQE6AEIMCgpfbWluX3RpY2tzQgwKCl9tYXhfdGlja3MiUAoIQnBzUmFuZ2USFAoHbWluX2JwcxgBIAEoBUgAiAEBEhQKB21heF9icHMYAiABKAVIAYgBAToAQgoKCF9taW5fYnBzQgoKCF9tYXhfYnBzInYKDlVzZFZvbHVtZVJhbmdlEh0KDm1pbl91c2Rfc2NhbGVkGAEgASgDQgBIAIgBARIdCg5tYXhfdXNkX3NjYWxlZBgCIAEoA0IASAGIAQE6AEIRCg9fbWluX3VzZF9zY2FsZWRCEQoPX21heF91c2Rfc2NhbGVkIsADChlMaXN0TWFya2V0T3ZlcnZpZXdSZXF1ZXN0EhMKCXN5bWJvbF9pZBgBIAMoDUIAEg8KBWxpbWl0GAIgASgNQgASFAoKcGFnZV90b2tlbhgDIAEoCUIAEjQKCG9yZGVyX2J5GAQgASgOMiAubWFya2V0b3ZlcnZpZXcudjEuTWFya2V0T3JkZXJCeUIAEjAKBHNvcnQYBSABKA4yIC5tYXJrZXRvdmVydmlldy52MS5Tb3J0RGlyZWN0aW9uQgASGgoSaW5jbHVkZV9zcGFya2xpbmVzGAYgASgIEkMKE3NwYXJrbGluZV9pbnRlcnZhbHMYByADKA4yJC5tYXJrZXRvdmVydmlldy52MS5TcGFya2xpbmVJbnRlcnZhbEIAEjYKCmxhc3RfcHJpY2UYCCABKAsyIi5tYXJrZXRvdmVydmlldy52MS5QcmljZVRpY2tzUmFuZ2USLwoKY2hhbmdlXzI0aBgJIAEoCzIbLm1hcmtldG92ZXJ2aWV3LnYxLkJwc1JhbmdlEjUKCnZvbHVtZV8yNGgYCiABKAsyIS5tYXJrZXRvdmVydmlldy52MS5Vc2RWb2x1bWVSYW5nZSJrChpMaXN0TWFya2V0T3ZlcnZpZXdSZXNwb25zZRIyCgdtYXJrZXRzGAEgAygLMiEubWFya2V0b3ZlcnZpZXcudjEuTWFya2V0T3ZlcnZpZXcSGQoPbmV4dF9wYWdlX3Rva2VuGAIgASgJQgAiWAoTTWFya2V0T3ZlcnZpZXdCYXRjaBIyCgdtYXJrZXRzGAEgAygLMiEubWFya2V0b3ZlcnZpZXcudjEuTWFya2V0T3ZlcnZpZXcSDQoFdHNfbnMYAiABKAQiMgobR2V0U3BvdFZvbHVtZUhpc3RvcnlSZXF1ZXN0EhMKCXN5bWJvbF9pZBgBIAMoDUIAIkQKFFNwb3RQYWlyVm9sdW1lU2VyaWVzEhEKCXN5bWJvbF9pZBgBIAEoDRIZChF2b2x1bWVfdXNkX3NjYWxlZBgCIAMoEiLBAQocR2V0U3BvdFZvbHVtZUhpc3RvcnlSZXNwb25zZRIOCgZidWNrZXQYASABKAkSFAoMc3RhcnRfdHNfc2VjGAIgASgHEhIKCmVuZF90c19zZWMYAyABKAcSDgoGcG9pbnRzGAQgASgNEjYKBXBhaXJzGAUgAygLMicubWFya2V0b3ZlcnZpZXcudjEuU3BvdFBhaXJWb2x1bWVTZXJpZXMSHwoXdG90YWxfdm9sdW1lX3VzZF9zY2FsZWQYBiADKBIiZwoQQ3VycmVuY3lNZXRhZGF0YRIMCgRjb2RlGAEgASgJEhwKFGRlZmF1bHRfZW5nbGlzaF9uYW1lGAIgASgJEg4KBnN5bWJvbBgDIAEoCRIXCg9mcmFjdGlvbl9kaWdpdHMYBCABKA0iJAoiR2V0Q3VycmVuY3lDb252ZXJzaW9uQ29uZmlnUmVxdWVzdCKSAQojR2V0Q3VycmVuY3lDb252ZXJzaW9uQ29uZmlnUmVzcG9uc2USMQoEZmlhdBgBIAMoCzIjLm1hcmtldG92ZXJ2aWV3LnYxLkN1cnJlbmN5TWV0YWRhdGESOAoLc3RhYmxlY29pbnMYAiADKAsyIy5tYXJrZXRvdmVydmlldy52MS5DdXJyZW5jeU1ldGFkYXRhIjwKEkZpYXRDb252ZXJzaW9uUmF0ZRIMCgRjb2RlGAEgASgJEhgKEHVuaXRzX3Blcl91c2RfZTgYAiABKAMidAoWRmlhdENvbnZlcnNpb25TbmFwc2hvdBI0CgVyYXRlcxgBIAMoCzIlLm1hcmtldG92ZXJ2aWV3LnYxLkZpYXRDb252ZXJzaW9uUmF0ZRIVCg1zb3VyY2VfdHNfc2VjGAIgASgEEg0KBXN0YWxlGAMgASgIImcKGFN0YWJsZWNvaW5Db252ZXJzaW9uUmF0ZRIMCgRjb2RlGAEgASgJEhcKD3VzZF9wZXJfdW5pdF9lOBgCIAEoAxIVCg1zb3VyY2VfdHNfc2VjGAMgASgEEg0KBXN0YWxlGAQgASgIIiMKIUdldEN1cnJlbmN5Q29udmVyc2lvblJhdGVzUmVxdWVzdCK4AQoiR2V0Q3VycmVuY3lDb252ZXJzaW9uUmF0ZXNSZXNwb25zZRI3CgRmaWF0GAEgASgLMikubWFya2V0b3ZlcnZpZXcudjEuRmlhdENvbnZlcnNpb25TbmFwc2hvdBJACgtzdGFibGVjb2lucxgCIAMoCzIrLm1hcmtldG92ZXJ2aWV3LnYxLlN0YWJsZWNvaW5Db252ZXJzaW9uUmF0ZRIXCg9zbmFwc2hvdF90c19zZWMYAyABKAQqgAEKEVNwYXJrbGluZUludGVydmFsEiIKHlNQQVJLTElORV9JTlRFUlZBTF9VTlNQRUNJRklFRBAAEhAKDFNQQVJLTElORV8xSBABEhEKDVNQQVJLTElORV8yNEgQAhIQCgxTUEFSS0xJTkVfMVcQAxIQCgxTUEFSS0xJTkVfMU0QBCqcAQoNTWFya2V0T3JkZXJCeRIfChtNQVJLRVRfT1JERVJfQllfVU5TUEVDSUZJRUQQABIbChdPUkRFUl9CWV9DSEFOR0VfMjRIX0JQUxABEhsKF09SREVSX0JZX1ZPTFVNRV8yNEhfVVNEEAISFwoTT1JERVJfQllfTEFTVF9QUklDRRADEhcKE09SREVSX0JZX0RBVEVfQURERUQQBCpMCg1Tb3J0RGlyZWN0aW9uEh4KGlNPUlRfRElSRUNUSU9OX1VOU1BFQ0lGSUVEEAASDAoIU09SVF9BU0MQARINCglTT1JUX0RFU0MQAiq5AQoJRXJyb3JDb2RlEhoKFkVSUk9SX0NPREVfVU5TUEVDSUZJRUQQABIaChZFUlJPUl9DT0RFX0JBRF9SRVFVRVNUEAESHwobRVJST1JfQ09ERV9JTlZBTElEX0FSR1VNRU5UEAISGAoURVJST1JfQ09ERV9OT1RfRk9VTkQQAxIaChZFUlJPUl9DT0RFX1VOQVZBSUxBQkxFEAQSHQoZRVJST1JfQ09ERV9VUFNUUkVBTV9FUlJPUhAFMqgEChVNYXJrZXRPdmVydmlld1NlcnZpY2USjgEKG0dldEN1cnJlbmN5Q29udmVyc2lvbkNvbmZpZxI1Lm1hcmtldG92ZXJ2aWV3LnYxLkdldEN1cnJlbmN5Q29udmVyc2lvbkNvbmZpZ1JlcXVlc3QaNi5tYXJrZXRvdmVydmlldy52MS5HZXRDdXJyZW5jeUNvbnZlcnNpb25Db25maWdSZXNwb25zZSIAEosBChpHZXRDdXJyZW5jeUNvbnZlcnNpb25SYXRlcxI0Lm1hcmtldG92ZXJ2aWV3LnYxLkdldEN1cnJlbmN5Q29udmVyc2lvblJhdGVzUmVxdWVzdBo1Lm1hcmtldG92ZXJ2aWV3LnYxLkdldEN1cnJlbmN5Q29udmVyc2lvblJhdGVzUmVzcG9uc2UiABJ5ChRHZXRTcG90Vm9sdW1lSGlzdG9yeRIuLm1hcmtldG92ZXJ2aWV3LnYxLkdldFNwb3RWb2x1bWVIaXN0b3J5UmVxdWVzdBovLm1hcmtldG92ZXJ2aWV3LnYxLkdldFNwb3RWb2x1bWVIaXN0b3J5UmVzcG9uc2UiABJzChJMaXN0TWFya2V0T3ZlcnZpZXcSLC5tYXJrZXRvdmVydmlldy52MS5MaXN0TWFya2V0T3ZlcnZpZXdSZXF1ZXN0Gi0ubWFya2V0b3ZlcnZpZXcudjEuTGlzdE1hcmtldE92ZXJ2aWV3UmVzcG9uc2UiABoAQlBaTmdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vbWFya2V0b3ZlcnZpZXcvdjE7bWFya2V0b3ZlcnZpZXd2MWIGcHJvdG8z", [file_marketdata_v1_marketdata, file_polyester_api_options]);
 
 /**
  * ErrorDetail carries a typed domain error code for machine-readable handling.
@@ -65,6 +65,55 @@ export const SparklineSchema: GenMessage<Sparkline> = /*@__PURE__*/
   messageDesc(file_marketoverview_v1_marketoverview, 1);
 
 /**
+ * RollingWindowStats summarizes executed trade prices over one rolling window
+ * that ends now. Like the rolling 24h stats, a window has minute granularity:
+ * it starts at the start of the minute that contains the time one window
+ * length ago. All prices are in quote units scaled by 1e9 and come from
+ * executed trades, never from the index price.
+ *
+ * @generated from message marketoverview.v1.RollingWindowStats
+ */
+export type RollingWindowStats = Message<"marketoverview.v1.RollingWindowStats"> & {
+  /**
+   * Price at the start of the window: the last trade price before the
+   * window's first minute or, for a market that first traded later, its
+   * first trade.
+   *
+   * @generated from field: int64 open_ticks = 1;
+   */
+  openTicks: bigint;
+
+  /**
+   * Highest price in the window, counting the open and every trade.
+   *
+   * @generated from field: int64 high_ticks = 2;
+   */
+  highTicks: bigint;
+
+  /**
+   * Lowest price in the window, counting the open and every trade.
+   *
+   * @generated from field: int64 low_ticks = 3;
+   */
+  lowTicks: bigint;
+
+  /**
+   * Change from the open to the last price in basis points (bp), truncated
+   * toward zero. Example: +123 = +1.23%.
+   *
+   * @generated from field: int32 change_bps = 4;
+   */
+  changeBps: number;
+};
+
+/**
+ * Describes the message marketoverview.v1.RollingWindowStats.
+ * Use `create(RollingWindowStatsSchema)` to create a new message.
+ */
+export const RollingWindowStatsSchema: GenMessage<RollingWindowStats> = /*@__PURE__*/
+  messageDesc(file_marketoverview_v1_marketoverview, 2);
+
+/**
  * @generated from message marketoverview.v1.MarketOverview
  */
 export type MarketOverview = Message<"marketoverview.v1.MarketOverview"> & {
@@ -93,28 +142,106 @@ export type MarketOverview = Message<"marketoverview.v1.MarketOverview"> & {
    * Rolling 24h change expressed in basis points (bp). Example: +123 = +1.23%.
    * Measured from the 24h open to the last price, at minute granularity: the
    * 24h open is the price at the start of the minute that contains the time
-   * 24h ago or, for a market that first traded later, its first trade. 0 when
-   * the market has no trade yet (its last trade timestamp is 0 too) and until
-   * its first minute of trading has ended.
+   * 24h ago or, for a market that first traded later, its first trade. 0 while
+   * the 24h open is unavailable (open_24h_ticks is 0 then): the market has no
+   * trade yet (its last trade timestamp is 0 too), its first trade is a few
+   * seconds old, or its trade history is temporarily unavailable.
    *
    * @generated from field: int32 change_24h_bps = 5;
    */
   change24hBps: number;
 
   /**
-   * Rolling 24h stats.
-   * Highest traded price in the 24h window, in quote units scaled by 1e9.
+   * Rolling 24h stats. The 24h window starts at the start of the minute that
+   * contains the time 24h ago and ends now; its prices, volumes and trade
+   * count cover the same window.
+   * Highest price in the 24h window, counting its open and every trade, in
+   * quote units scaled by 1e9.
    *
    * @generated from field: int64 high_24h_ticks = 6;
    */
   high24hTicks: bigint;
 
   /**
-   * Lowest traded price in the 24h window, in quote units scaled by 1e9.
+   * Lowest price in the 24h window, counting its open and every trade, in
+   * quote units scaled by 1e9.
    *
    * @generated from field: int64 low_24h_ticks = 7;
    */
   low24hTicks: bigint;
+
+  /**
+   * The 24h open that change_24h_bps is measured from, in quote units scaled
+   * by 1e9. 0 while the open is unavailable, including when history is
+   * temporarily unavailable: the market has no trade yet, its first trade is a
+   * few seconds old, or its trade history cannot be read for a while.
+   *
+   * @generated from field: int64 open_24h_ticks = 22;
+   */
+  open24hTicks: bigint;
+
+  /**
+   * Number of trades executed in the 24h window.
+   *
+   * @generated from field: uint64 trade_count_24h = 24;
+   */
+  tradeCount24h: bigint;
+
+  /**
+   * 24h volume-weighted average trade price in quote units scaled by 1e9,
+   * rounded down: the exact 24h quote notional divided by the 24h base volume.
+   * The notional is not rounded to the quote scale, so dividing the displayed
+   * volume_24h_quote_scaled by volume_24h_base_scaled can differ slightly;
+   * clients cannot reproduce this value from the displayed volumes. The base
+   * volume is exact when the base asset's market_data_volume_scale equals its
+   * quantity_scale in GetSpotConfig. Otherwise each second with trades rounds
+   * its base volume to the volume scale, by at most half of one volume unit,
+   * so the base volume can be off by that much per second with trades and the
+   * price error shrinks as the total base volume grows. Omitted when the
+   * window has no base volume or the 24h base volume is omitted.
+   *
+   * @generated from field: optional int64 vwap_24h_ticks = 25;
+   */
+  vwap24hTicks?: bigint | undefined;
+
+  /**
+   * Price at the start of the current UTC day (00:00 UTC), in quote units
+   * scaled by 1e9: the last trade price before the day's first minute or, for
+   * a market that first traded later that day, its first trade. Change since
+   * the day open is last_price_ticks against this price. 0 while the open is
+   * unavailable, including when history is temporarily unavailable: the
+   * market has no trade yet, a new day's first price is still being recorded
+   * (a few seconds after 00:00 UTC), or its trade history cannot be read for a
+   * while.
+   *
+   * @generated from field: int64 open_utc_day_ticks = 23;
+   */
+  openUtcDayTicks: bigint;
+
+  /**
+   * Rolling 1h stats, over the same minute-granular window as the 24h stats.
+   * Absent while the window's open is unavailable, including when history is
+   * temporarily unavailable: the market has no trade yet, its first trade is
+   * a few seconds old, or the window's trade history cannot be read for a
+   * while. Later fields may add volumes per window.
+   *
+   * @generated from field: marketoverview.v1.RollingWindowStats stats_1h = 19;
+   */
+  stats1h?: RollingWindowStats | undefined;
+
+  /**
+   * Rolling 4h stats. Absent under the same conditions as stats_1h.
+   *
+   * @generated from field: marketoverview.v1.RollingWindowStats stats_4h = 20;
+   */
+  stats4h?: RollingWindowStats | undefined;
+
+  /**
+   * Rolling 7-day stats. Absent under the same conditions as stats_1h.
+   *
+   * @generated from field: marketoverview.v1.RollingWindowStats stats_7d = 21;
+   */
+  stats7d?: RollingWindowStats | undefined;
 
   /**
    * Rolling 24h base volume scaled by the base asset's
@@ -215,9 +342,111 @@ export type MarketOverview = Message<"marketoverview.v1.MarketOverview"> & {
  * Use `create(MarketOverviewSchema)` to create a new message.
  */
 export const MarketOverviewSchema: GenMessage<MarketOverview> = /*@__PURE__*/
-  messageDesc(file_marketoverview_v1_marketoverview, 2);
+  messageDesc(file_marketoverview_v1_marketoverview, 3);
 
 /**
+ * PriceTicksRange bounds a price in quote units scaled by 1e9. Both bounds
+ * are inclusive; an omitted bound leaves that side unbounded.
+ *
+ * @generated from message marketoverview.v1.PriceTicksRange
+ */
+export type PriceTicksRange = Message<"marketoverview.v1.PriceTicksRange"> & {
+  /**
+   * Lowest matching price, inclusive, in quote units scaled by 1e9; at least
+   * 0. Omit for no lower bound.
+   *
+   * @generated from field: optional int64 min_ticks = 1;
+   */
+  minTicks?: bigint | undefined;
+
+  /**
+   * Highest matching price, inclusive, in quote units scaled by 1e9; at least
+   * 0. Omit for no upper bound.
+   *
+   * @generated from field: optional int64 max_ticks = 2;
+   */
+  maxTicks?: bigint | undefined;
+};
+
+/**
+ * Describes the message marketoverview.v1.PriceTicksRange.
+ * Use `create(PriceTicksRangeSchema)` to create a new message.
+ */
+export const PriceTicksRangeSchema: GenMessage<PriceTicksRange> = /*@__PURE__*/
+  messageDesc(file_marketoverview_v1_marketoverview, 4);
+
+/**
+ * BpsRange bounds a signed change in basis points (bp). Both bounds are
+ * inclusive; an omitted bound leaves that side unbounded.
+ *
+ * @generated from message marketoverview.v1.BpsRange
+ */
+export type BpsRange = Message<"marketoverview.v1.BpsRange"> & {
+  /**
+   * Lowest matching change, inclusive, in basis points; may be negative.
+   * Example: -500 = -5%. Omit for no lower bound.
+   *
+   * @generated from field: optional int32 min_bps = 1;
+   */
+  minBps?: number | undefined;
+
+  /**
+   * Highest matching change, inclusive, in basis points; may be negative.
+   * Example: 1000 = +10%. Omit for no upper bound.
+   *
+   * @generated from field: optional int32 max_bps = 2;
+   */
+  maxBps?: number | undefined;
+};
+
+/**
+ * Describes the message marketoverview.v1.BpsRange.
+ * Use `create(BpsRangeSchema)` to create a new message.
+ */
+export const BpsRangeSchema: GenMessage<BpsRange> = /*@__PURE__*/
+  messageDesc(file_marketoverview_v1_marketoverview, 5);
+
+/**
+ * UsdVolumeRange bounds a USD volume scaled by 1e6 (one unit is 0.000001
+ * USD). Both bounds are inclusive; an omitted bound leaves that side
+ * unbounded.
+ *
+ * @generated from message marketoverview.v1.UsdVolumeRange
+ */
+export type UsdVolumeRange = Message<"marketoverview.v1.UsdVolumeRange"> & {
+  /**
+   * Lowest matching USD volume, inclusive, scaled by 1e6; at least 0. Omit
+   * for no lower bound.
+   *
+   * @generated from field: optional int64 min_usd_scaled = 1;
+   */
+  minUsdScaled?: bigint | undefined;
+
+  /**
+   * Highest matching USD volume, inclusive, scaled by 1e6; at least 0. Omit
+   * for no upper bound.
+   *
+   * @generated from field: optional int64 max_usd_scaled = 2;
+   */
+  maxUsdScaled?: bigint | undefined;
+};
+
+/**
+ * Describes the message marketoverview.v1.UsdVolumeRange.
+ * Use `create(UsdVolumeRangeSchema)` to create a new message.
+ */
+export const UsdVolumeRangeSchema: GenMessage<UsdVolumeRange> = /*@__PURE__*/
+  messageDesc(file_marketoverview_v1_marketoverview, 6);
+
+/**
+ * ListMarketOverviewRequest lists market overview rows. The symbol_id
+ * filter and the range filters combine: a market is returned only when it
+ * matches every filter given. Filters apply before sorting and paging.
+ * A range whose minimum exceeds its maximum is refused as invalid, with a
+ * violation on the range field (last_price, change_24h or volume_24h); a
+ * negative price or volume bound is refused with a violation on the bound
+ * itself, such as last_price.max_ticks.
+ *
  * @generated from message marketoverview.v1.ListMarketOverviewRequest
  */
 export type ListMarketOverviewRequest = Message<"marketoverview.v1.ListMarketOverviewRequest"> & {
@@ -241,8 +470,14 @@ export type ListMarketOverviewRequest = Message<"marketoverview.v1.ListMarketOve
 
   /**
    * Opaque keyset cursor from a previous response. The cursor is exclusive and
-   * bound to symbol IDs, sort key, and sort direction. Sparkline options
-   * affect only response enrichment and may change between pages.
+   * bound to symbol IDs, the range filters, sort key, and sort direction:
+   * reuse it with the same filters. A cursor reused with other filters or
+   * another sort is refused as invalid; request the first page again.
+   * Sparkline options affect only response enrichment and may change between
+   * pages. Each page is cut from current values, so a market whose sort value
+   * or range membership changes between pages can appear twice or not at all
+   * across them. For a consistent list, request a single page with the
+   * maximum limit.
    *
    * @generated from field: string page_token = 3;
    */
@@ -276,6 +511,33 @@ export type ListMarketOverviewRequest = Message<"marketoverview.v1.ListMarketOve
    * @generated from field: repeated marketoverview.v1.SparklineInterval sparkline_intervals = 7;
    */
   sparklineIntervals: SparklineInterval[];
+
+  /**
+   * Only markets whose last_price_ticks is within this range. When a bound is
+   * set, a market with no trade yet never matches. Omit for no price filter.
+   *
+   * @generated from field: marketoverview.v1.PriceTicksRange last_price = 8;
+   */
+  lastPrice?: PriceTicksRange | undefined;
+
+  /**
+   * Only markets whose signed change_24h_bps is within this range; sorting by
+   * ORDER_BY_CHANGE_24H_BPS still uses the absolute change. When a bound is
+   * set, a market whose 24h change has no open (open_24h_ticks is 0) never
+   * matches. Omit for no change filter.
+   *
+   * @generated from field: marketoverview.v1.BpsRange change_24h = 9;
+   */
+  change24h?: BpsRange | undefined;
+
+  /**
+   * Only markets whose volume_24h_usd_scaled is within this range. When a
+   * bound is set, a market whose USD volume is omitted never matches. Omit
+   * for no volume filter.
+   *
+   * @generated from field: marketoverview.v1.UsdVolumeRange volume_24h = 10;
+   */
+  volume24h?: UsdVolumeRange | undefined;
 };
 
 /**
@@ -283,7 +545,7 @@ export type ListMarketOverviewRequest = Message<"marketoverview.v1.ListMarketOve
  * Use `create(ListMarketOverviewRequestSchema)` to create a new message.
  */
 export const ListMarketOverviewRequestSchema: GenMessage<ListMarketOverviewRequest> = /*@__PURE__*/
-  messageDesc(file_marketoverview_v1_marketoverview, 3);
+  messageDesc(file_marketoverview_v1_marketoverview, 7);
 
 /**
  * @generated from message marketoverview.v1.ListMarketOverviewResponse
@@ -309,7 +571,7 @@ export type ListMarketOverviewResponse = Message<"marketoverview.v1.ListMarketOv
  * Use `create(ListMarketOverviewResponseSchema)` to create a new message.
  */
 export const ListMarketOverviewResponseSchema: GenMessage<ListMarketOverviewResponse> = /*@__PURE__*/
-  messageDesc(file_marketoverview_v1_marketoverview, 4);
+  messageDesc(file_marketoverview_v1_marketoverview, 8);
 
 /**
  * MarketOverviewBatch is a websocket payload carrying batched market overview
@@ -338,7 +600,7 @@ export type MarketOverviewBatch = Message<"marketoverview.v1.MarketOverviewBatch
  * Use `create(MarketOverviewBatchSchema)` to create a new message.
  */
 export const MarketOverviewBatchSchema: GenMessage<MarketOverviewBatch> = /*@__PURE__*/
-  messageDesc(file_marketoverview_v1_marketoverview, 5);
+  messageDesc(file_marketoverview_v1_marketoverview, 9);
 
 /**
  * A finite spot-volume chart request; no pagination or arbitrary time range.
@@ -361,7 +623,7 @@ export type GetSpotVolumeHistoryRequest = Message<"marketoverview.v1.GetSpotVolu
  * Use `create(GetSpotVolumeHistoryRequestSchema)` to create a new message.
  */
 export const GetSpotVolumeHistoryRequestSchema: GenMessage<GetSpotVolumeHistoryRequest> = /*@__PURE__*/
-  messageDesc(file_marketoverview_v1_marketoverview, 6);
+  messageDesc(file_marketoverview_v1_marketoverview, 10);
 
 /**
  * One pair appears exactly once, regardless of its base and quote assets.
@@ -392,7 +654,7 @@ export type SpotPairVolumeSeries = Message<"marketoverview.v1.SpotPairVolumeSeri
  * Use `create(SpotPairVolumeSeriesSchema)` to create a new message.
  */
 export const SpotPairVolumeSeriesSchema: GenMessage<SpotPairVolumeSeries> = /*@__PURE__*/
-  messageDesc(file_marketoverview_v1_marketoverview, 7);
+  messageDesc(file_marketoverview_v1_marketoverview, 11);
 
 /**
  * Aligned columnar trailing-24h USD series over the most recent 24 hours.
@@ -458,7 +720,7 @@ export type GetSpotVolumeHistoryResponse = Message<"marketoverview.v1.GetSpotVol
  * Use `create(GetSpotVolumeHistoryResponseSchema)` to create a new message.
  */
 export const GetSpotVolumeHistoryResponseSchema: GenMessage<GetSpotVolumeHistoryResponse> = /*@__PURE__*/
-  messageDesc(file_marketoverview_v1_marketoverview, 8);
+  messageDesc(file_marketoverview_v1_marketoverview, 12);
 
 /**
  * CurrencyMetadata supplies stable defaults for display conversion. Clients may
@@ -504,7 +766,7 @@ export type CurrencyMetadata = Message<"marketoverview.v1.CurrencyMetadata"> & {
  * Use `create(CurrencyMetadataSchema)` to create a new message.
  */
 export const CurrencyMetadataSchema: GenMessage<CurrencyMetadata> = /*@__PURE__*/
-  messageDesc(file_marketoverview_v1_marketoverview, 9);
+  messageDesc(file_marketoverview_v1_marketoverview, 13);
 
 /**
  * GetCurrencyConversionConfigRequest has no parameters.
@@ -519,7 +781,7 @@ export type GetCurrencyConversionConfigRequest = Message<"marketoverview.v1.GetC
  * Use `create(GetCurrencyConversionConfigRequestSchema)` to create a new message.
  */
 export const GetCurrencyConversionConfigRequestSchema: GenMessage<GetCurrencyConversionConfigRequest> = /*@__PURE__*/
-  messageDesc(file_marketoverview_v1_marketoverview, 10);
+  messageDesc(file_marketoverview_v1_marketoverview, 14);
 
 /**
  * GetCurrencyConversionConfigResponse contains finite, cacheable display metadata.
@@ -548,7 +810,7 @@ export type GetCurrencyConversionConfigResponse = Message<"marketoverview.v1.Get
  * Use `create(GetCurrencyConversionConfigResponseSchema)` to create a new message.
  */
 export const GetCurrencyConversionConfigResponseSchema: GenMessage<GetCurrencyConversionConfigResponse> = /*@__PURE__*/
-  messageDesc(file_marketoverview_v1_marketoverview, 11);
+  messageDesc(file_marketoverview_v1_marketoverview, 15);
 
 /**
  * FiatConversionRate states the fiat currency units equal to one US dollar.
@@ -576,7 +838,7 @@ export type FiatConversionRate = Message<"marketoverview.v1.FiatConversionRate">
  * Use `create(FiatConversionRateSchema)` to create a new message.
  */
 export const FiatConversionRateSchema: GenMessage<FiatConversionRate> = /*@__PURE__*/
-  messageDesc(file_marketoverview_v1_marketoverview, 12);
+  messageDesc(file_marketoverview_v1_marketoverview, 16);
 
 /**
  * FiatConversionSnapshot contains all supported fiat rates from one observation.
@@ -611,7 +873,7 @@ export type FiatConversionSnapshot = Message<"marketoverview.v1.FiatConversionSn
  * Use `create(FiatConversionSnapshotSchema)` to create a new message.
  */
 export const FiatConversionSnapshotSchema: GenMessage<FiatConversionSnapshot> = /*@__PURE__*/
-  messageDesc(file_marketoverview_v1_marketoverview, 13);
+  messageDesc(file_marketoverview_v1_marketoverview, 17);
 
 /**
  * StablecoinConversionRate states the observed USD value of one stablecoin unit.
@@ -653,7 +915,7 @@ export type StablecoinConversionRate = Message<"marketoverview.v1.StablecoinConv
  * Use `create(StablecoinConversionRateSchema)` to create a new message.
  */
 export const StablecoinConversionRateSchema: GenMessage<StablecoinConversionRate> = /*@__PURE__*/
-  messageDesc(file_marketoverview_v1_marketoverview, 14);
+  messageDesc(file_marketoverview_v1_marketoverview, 18);
 
 /**
  * GetCurrencyConversionRatesRequest has no parameters.
@@ -668,7 +930,7 @@ export type GetCurrencyConversionRatesRequest = Message<"marketoverview.v1.GetCu
  * Use `create(GetCurrencyConversionRatesRequestSchema)` to create a new message.
  */
 export const GetCurrencyConversionRatesRequestSchema: GenMessage<GetCurrencyConversionRatesRequest> = /*@__PURE__*/
-  messageDesc(file_marketoverview_v1_marketoverview, 15);
+  messageDesc(file_marketoverview_v1_marketoverview, 19);
 
 /**
  * GetCurrencyConversionRatesResponse groups rates by their USD conversion direction.
@@ -705,7 +967,7 @@ export type GetCurrencyConversionRatesResponse = Message<"marketoverview.v1.GetC
  * Use `create(GetCurrencyConversionRatesResponseSchema)` to create a new message.
  */
 export const GetCurrencyConversionRatesResponseSchema: GenMessage<GetCurrencyConversionRatesResponse> = /*@__PURE__*/
-  messageDesc(file_marketoverview_v1_marketoverview, 16);
+  messageDesc(file_marketoverview_v1_marketoverview, 20);
 
 /**
  * SparklineInterval identifies the time range and sampling resolution for a

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import * as v from "valibot";
 import * as Proto from "../../gen/auth/v1/api_keys_pb.js";
+import * as PolicyProto from "../../gen/auth/v1/policies_pb.js";
 import { ValidationError } from "../../shared/errors.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { realtimeClientStub, unaryTransportSequence } from "../../testing/service-harness.js";
@@ -486,5 +487,133 @@ describe("ApiKeysService assistant keys", () => {
             "listAssistantKeys",
             "deleteAssistantKeys",
         ]);
+    });
+});
+
+describe("ApiKeysService strategy bot access", () => {
+    function serviceWith(responses: Record<string, unknown>[]) {
+        const transport = unaryTransportSequence(responses);
+        const realtime = realtimeClientStub();
+        return {
+            transport,
+            service: new ApiKeysService({ authApi: transport.transport }, realtime.realtime),
+        };
+    }
+
+    const publicKey = new Uint8Array(32).fill(7);
+
+    it("sets a bot's key with its limits and step-up proof, and formats the policy IDs", async () => {
+        const { transport, service } = serviceWith([
+            {
+                keyId: "ak_0123456789abcdef0123456789abcdef",
+                apiPolicyId: 11n,
+                subaccountPolicyId: 12n,
+            },
+        ]);
+
+        const access = await service.setStrategyBotAccess(
+            {
+                deployOperationId: "deploy:42",
+                subaccountId: formatId(42n),
+                publicKeyEd25519: publicKey,
+                strategyBotId: formatId(7n),
+                limits: {
+                    spotMarketScope: "allowlist",
+                    spotMarkets: [{ symbolId: 1 }],
+                    maxOrderSize: "250.5",
+                    maxOpenOrders: 20,
+                },
+            },
+            { stepUpToken: "fresh" },
+        );
+
+        expect(access).toEqual({
+            keyId: "ak_0123456789abcdef0123456789abcdef",
+            apiPolicyId: formatId(11n),
+            subaccountPolicyId: formatId(12n),
+        });
+        expect(transport.calls[0]?.method.localName).toBe("setStrategyBotAccess");
+        expect(transport.calls[0]?.message).toEqual({
+            deployOperationId: "deploy:42",
+            subaccountId: 42n,
+            publicKeyEd25519: publicKey,
+            strategyBotId: 7n,
+            limits: {
+                spotMarkets: [{ symbolId: 1 }],
+                spotMarketScope: PolicyProto.MarketScope_Value.ALLOWLIST,
+                maxOrderNotional: 250_500_000n,
+                maxOpenOrders: 20,
+            },
+        });
+        expect(stepUpHeader(transport.calls[0])).toBe("fresh");
+    });
+
+    it("defaults limits to every market without caps", async () => {
+        const { transport, service } = serviceWith([
+            { keyId: "ak_1", apiPolicyId: 1n, subaccountPolicyId: 2n },
+        ]);
+
+        await service.setStrategyBotAccess({
+            deployOperationId: "op",
+            subaccountId: formatId(42n),
+            publicKeyEd25519: publicKey,
+            strategyBotId: formatId(7n),
+            limits: {},
+        });
+
+        expect(transport.calls[0]?.message).toMatchObject({
+            limits: {
+                spotMarkets: [],
+                spotMarketScope: PolicyProto.MarketScope_Value.ALL,
+                maxOrderNotional: 0n,
+                maxOpenOrders: 0,
+            },
+        });
+    });
+
+    it("refuses a key that isn't 32 bytes and a blank operation before sending", async () => {
+        const { transport, service } = serviceWith([]);
+        const base = {
+            deployOperationId: "op",
+            subaccountId: formatId(42n),
+            strategyBotId: formatId(7n),
+            limits: {},
+        };
+
+        await expect(
+            service.setStrategyBotAccess({ ...base, publicKeyEd25519: new Uint8Array(64) }),
+        ).rejects.toBeInstanceOf(ValidationError);
+        await expect(
+            service.setStrategyBotAccess({
+                ...base,
+                deployOperationId: "",
+                publicKeyEd25519: publicKey,
+            }),
+        ).rejects.toBeInstanceOf(ValidationError);
+        await expect(
+            service.endStrategyBotAccess({ deployOperationId: "" }),
+        ).rejects.toBeInstanceOf(ValidationError);
+        await expect(
+            service.setStrategyBotAccess({
+                ...base,
+                publicKeyEd25519: publicKey,
+                limits: { maxOrderSize: "18446744073709.551616" },
+            }),
+        ).rejects.toBeInstanceOf(ValidationError);
+        expect(transport.calls).toHaveLength(0);
+    });
+
+    it("ends access and returns the revoked key, or null when nothing was revoked", async () => {
+        const { transport, service } = serviceWith([
+            { revokedKeyId: "ak_1" },
+            { revokedKeyId: "" },
+        ]);
+
+        await expect(service.endStrategyBotAccess({ deployOperationId: " op " })).resolves.toBe(
+            "ak_1",
+        );
+        await expect(service.endStrategyBotAccess({ deployOperationId: "op" })).resolves.toBeNull();
+        // The operation identifier is sent as given, never trimmed.
+        expect(transport.calls[0]?.message).toEqual({ deployOperationId: " op " });
     });
 });

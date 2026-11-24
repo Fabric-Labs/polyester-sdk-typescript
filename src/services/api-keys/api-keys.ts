@@ -23,8 +23,14 @@ import {
     ApiKeySchema,
     ApiKeysSchema,
     SetAssistantKeysInputSchema,
+    SetStrategyBotAccessInputSchema,
+    EndStrategyBotAccessInputSchema,
+    StrategyBotAccessSchema,
     type ApiKey,
+    type EndStrategyBotAccessInput,
     type SetAssistantKeysInput,
+    type SetStrategyBotAccessInput,
+    type StrategyBotAccess,
 } from "./api-keys.schemas.js";
 
 interface SubscribeApiKeysInput extends BaseSubscribeInput<ApiKey> {
@@ -155,6 +161,47 @@ export class ApiKeysService {
     async deleteAssistantKeys(options?: PolyesterMutationOptions): Promise<string[]> {
         const res = await this.#client.deleteAssistantKeys({}, toConnectCallOptions(options));
         return res.revokedKeyIds;
+    }
+
+    /**
+     * Gives a strategy bot its trade key on its own sub-account, all or nothing: a sub-account
+     * policy that allows spot trading only within `limits`, an API policy over the same markets
+     * that also reads the sub-account's orders and balances, and a `strategy_bot` key bound to it.
+     * Neither policy can move value out. Needs a session (API keys and connected apps are refused)
+     * that is MFA-elevated or passes a fresh `stepUpToken`.
+     *
+     * The sub-account must be the caller's, active, not a QuickSwap broker vault, and have no
+     * policy, live key, member or pending invite (`PreconditionFailedError`,
+     * `AUTH_STRATEGY_BOT_SUBACCOUNT_INELIGIBLE`). Repeating the same request under the same
+     * `deployOperationId` returns the same key and changes nothing, so it is safe to retry; a
+     * different request under it, or one `endStrategyBotAccess` ended, throws `AlreadyExistsError`
+     * (`AUTH_STRATEGY_BOT_OPERATION_CONFLICT`). Until access ends, the key, its policy and the
+     * sub-account's policy, keys, members and invites can't be changed
+     * (`AUTH_STRATEGY_BOT_MANAGED`).
+     */
+    async setStrategyBotAccess(
+        input: SetStrategyBotAccessInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<StrategyBotAccess> {
+        const request = parse(SetStrategyBotAccessInputSchema, input);
+        const res = await this.#client.setStrategyBotAccess(request, toConnectCallOptions(options));
+        return parse(StrategyBotAccessSchema, res);
+    }
+
+    /**
+     * Ends the access `setStrategyBotAccess` gave under `deployOperationId`: revokes the bot's key
+     * and releases the sub-account. Returns the revoked key ID, or `null` when there was nothing to
+     * end (never set, or already ended), so it is safe to retry. Needs a session but no step-up.
+     * The sub-account keeps its policy, and the identifier stays ended: a later
+     * `setStrategyBotAccess` under it throws `AlreadyExistsError`.
+     */
+    async endStrategyBotAccess(
+        input: EndStrategyBotAccessInput,
+        options?: PolyesterMutationOptions,
+    ): Promise<string | null> {
+        const request = parse(EndStrategyBotAccessInputSchema, input);
+        const res = await this.#client.endStrategyBotAccess(request, toConnectCallOptions(options));
+        return res.revokedKeyId || null;
     }
 
     /**

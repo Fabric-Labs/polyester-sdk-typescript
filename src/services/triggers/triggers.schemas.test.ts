@@ -1679,6 +1679,19 @@ describe("OCO and batch cancel schemas", () => {
         expect(() => v.parse(ListTriggersInputSchema, { clientListId: "é".repeat(19) })).toThrow();
     });
 
+    it("filters listed triggers by client trigger ID, sent as given", () => {
+        expect(
+            v.parse(ListTriggersInputSchema, {
+                clientTriggerId: " bot-17",
+                triggerType: "stop_loss",
+            }),
+        ).toMatchObject({
+            clientTriggerId: " bot-17",
+            triggerType: Proto.TriggerType.STOP_LOSS,
+        });
+        expect(v.parse(ListTriggersInputSchema, {})).not.toHaveProperty("clientTriggerId");
+    });
+
     it("checks clientListId with the clientOrderId rule and sends it unchanged", () => {
         const ocoInput = (clientListId: string) => ({
             symbolId: 1,

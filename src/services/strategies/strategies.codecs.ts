@@ -199,3 +199,64 @@ export const StrategyOrderSideCodec = {
         [Proto.OrderSide.SELL]: "sell",
     } satisfies ProtoToOutput<Proto.OrderSide, "buy" | "sell">,
 } as const;
+
+export const STRATEGY_DEPLOY_WAIT_REASON_VALUES = ["whitelist_required"] as const;
+/**
+ * What a running deploy waits for from the user: `whitelist_required` means adding the bot
+ * subaccount's `address` to the funding account's internal whitelist, then calling `deployBot`
+ * again.
+ */
+export type StrategyDeployWaitReason = (typeof STRATEGY_DEPLOY_WAIT_REASON_VALUES)[number];
+
+export const DeployWaitReasonCodec = {
+    protoToOutput: {
+        [Proto.DeployWait_Reason.REASON_UNSPECIFIED]: "unspecified",
+        [Proto.DeployWait_Reason.WHITELIST_REQUIRED]: "whitelist_required",
+    } satisfies ProtoToOutput<Proto.DeployWait_Reason, StrategyDeployWaitReason>,
+} as const;
+
+export const STRATEGY_LISTING_STATE_VALUES = ["public", "hidden"] as const;
+/** `public` is listed and readable by everyone; `hidden` was unpublished by its author. */
+export type StrategyListingState = (typeof STRATEGY_LISTING_STATE_VALUES)[number];
+
+export const ListingStateCodec = {
+    protoToOutput: {
+        [Proto.StrategyListing_State.LISTING_STATE_UNSPECIFIED]: "unspecified",
+        [Proto.StrategyListing_State.PUBLIC]: "public",
+        [Proto.StrategyListing_State.HIDDEN]: "hidden",
+    } satisfies ProtoToOutput<Proto.StrategyListing_State, StrategyListingState>,
+} as const;
+
+export const STRATEGY_TAG_VALUES = [
+    "trend",
+    "mean_reversion",
+    "grid",
+    "dca",
+    "market_making",
+    "arbitrage",
+    "signals",
+] as const;
+/** A community strategy's type, from a fixed list; markets are never tags. */
+export type StrategyTag = (typeof STRATEGY_TAG_VALUES)[number];
+
+export const StrategyTagCodec = {
+    inputToProto: {
+        trend: Proto.StrategyTag.TREND,
+        mean_reversion: Proto.StrategyTag.MEAN_REVERSION,
+        grid: Proto.StrategyTag.GRID,
+        dca: Proto.StrategyTag.DCA,
+        market_making: Proto.StrategyTag.MARKET_MAKING,
+        arbitrage: Proto.StrategyTag.ARBITRAGE,
+        signals: Proto.StrategyTag.SIGNALS,
+    } satisfies InputToProto<StrategyTag, Proto.StrategyTag>,
+    protoToOutput: {
+        [Proto.StrategyTag.TAG_UNSPECIFIED]: "unspecified",
+        [Proto.StrategyTag.TREND]: "trend",
+        [Proto.StrategyTag.MEAN_REVERSION]: "mean_reversion",
+        [Proto.StrategyTag.GRID]: "grid",
+        [Proto.StrategyTag.DCA]: "dca",
+        [Proto.StrategyTag.MARKET_MAKING]: "market_making",
+        [Proto.StrategyTag.ARBITRAGE]: "arbitrage",
+        [Proto.StrategyTag.SIGNALS]: "signals",
+    } satisfies ProtoToOutput<Proto.StrategyTag, StrategyTag>,
+} as const;

@@ -14,6 +14,7 @@ import { createCandleRowSchema } from "../candles/candles.schemas.js";
 import { DepositAddressSchema } from "../deposit/deposit.schemas.js";
 import {
     OrderSideCodec,
+    PegReferenceCodec,
     TimeInForceCodec,
     TriggerPriceSourceCodec,
 } from "../orders/order-enums.codecs.js";
@@ -178,6 +179,39 @@ function formatOrderKind(k: Proto.OrderPreview["kind"]) {
                 timeInForce: tif(k.value.timeInForce),
                 allLevelsAtOnce: k.value.allLevelsAtOnce,
             };
+        case "oco": {
+            const leg = (l: Proto.OcoLegPreview | undefined) =>
+                l && {
+                    triggerPrice: l.triggerPrice,
+                    triggerPriceSource: watchedPrice(l.triggerPriceSource),
+                    direction: direction(l.direction),
+                    /** The good-till-canceled exit price; absent for a market exit. */
+                    limitPrice: l.limitPrice,
+                };
+            return {
+                type: "oco" as const,
+                takeProfit: leg(k.value.takeProfit),
+                stopLoss: leg(k.value.stopLoss),
+                /** Reserved once for both legs: the base asset for a sell, the quote asset for a buy. */
+                reservedAsset: k.value.reservedAsset,
+            };
+        }
+        case "peggedLimit":
+            return {
+                type: "pegged_limit" as const,
+                /** The book side the price is taken from, once, when the exchange accepts the order. */
+                reference: enumLabel(PegReferenceCodec.protoToOutput, k.value.reference),
+                /** Signed count of the pair's ticks added to the reference's best price. */
+                offsetTicks: Number(k.value.offsetTicks),
+                tickSize: k.value.tickSize,
+                /** The price the peg gave when previewed; the order's price can differ. */
+                currentPrice: k.value.currentPrice,
+                /** The most a buy pays or the least a sell takes; not the order's price. */
+                boundPrice: k.value.boundPrice,
+                timeInForce: tif(k.value.timeInForce),
+                expireAt: tsObjToMs(k.value.expireAt),
+                postOnly: k.value.postOnly,
+            };
         default:
             return { type: "unspecified" as const };
     }
@@ -192,6 +226,8 @@ function formatOrderPreview(o: Proto.OrderPreview) {
         side: side(o.side),
         quantity: o.quantity,
         quoteAmount: o.quoteAmount,
+        /** A sell sized by proceeds: it sells until its proceeds before fees reach this, never more. */
+        quoteProceeds: o.quoteProceeds,
         estimatedValue: o.estimatedValue,
         reservedAmount: o.reservedAmount,
         referencePrice: o.referencePrice && formatReferencePrice(o.referencePrice),

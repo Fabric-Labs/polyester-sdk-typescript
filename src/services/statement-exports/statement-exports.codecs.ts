@@ -19,8 +19,9 @@ export type StatementExportStatus = (typeof STATEMENT_EXPORT_STATUS_VALUES)[numb
 
 export const STATEMENT_EXPORT_FAILURE_REASON_VALUES = ["too_large", "unavailable"] as const;
 /**
- * `too_large`: the period holds more than 4,000,000 ledger movements; split it into shorter
- * exports. `unavailable`: the file could not be produced in time; create a new export.
+ * `too_large`: the period holds more than 4,000,000 of the account's ledger movements, every
+ * asset's counted even for an export limited to one asset; split it into shorter exports.
+ * `unavailable`: the file could not be produced in time; create a new export.
  */
 export type StatementExportFailureReason = (typeof STATEMENT_EXPORT_FAILURE_REASON_VALUES)[number];
 

@@ -121,11 +121,6 @@ const UNWRAPPED_BY_DESIGN = new Set([
     "swap.quickswap.v1.QuickSwapBrokerService",
     "swap.quickswap.v1.QuickSwapReferralService",
     "swap.quickswap.v1.QuickSwapExplorerService",
-    // Not wrapped yet; exported raw through `@polyester/sdk/unstable/gen`.
-    "swap.v1.SwapService",
-    // Called by the website's bot deploy flow only; SDKs don't wrap them.
-    "auth.v1.ApiKeyService.SetStrategyBotAccess",
-    "auth.v1.ApiKeyService.EndStrategyBotAccess",
 ]);
 
 describe("generated service coverage", () => {
