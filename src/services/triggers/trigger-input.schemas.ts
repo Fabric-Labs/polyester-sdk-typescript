@@ -308,7 +308,7 @@ function createTwapTriggerInputSchema(scales: SdkScales) {
                             side: input.side,
                             durationMs: input.durationMs,
                             sliceIntervalMs: input.sliceIntervalMs,
-                            execution: buildTwapExecution(input.execution, scales),
+                            execution: buildTwapExecution(input.execution, scales, input.side),
                         },
                     } as const,
                 },

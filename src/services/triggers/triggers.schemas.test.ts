@@ -669,6 +669,30 @@ describe("CreateTriggerInputSchema", () => {
         ).toThrow("maxSlippageBps must be between 1 and 9999");
     });
 
+    it("caps a TWAP market slice's bps slippage at 10000 for a buy and 9999 for a sell", () => {
+        const schema = createCreateTriggerInputSchema(testScales());
+        const twap = (side: "buy" | "sell", bps: number) =>
+            v.parse(schema, {
+                triggerType: "twap",
+                symbolId: 1,
+                side,
+                qty: "1",
+                durationMs: 60_000,
+                sliceIntervalMs: 30_000,
+                execution: { type: "market_ioc", maxSlippage: { kind: "bps", bps } },
+            }).trigger.strategy;
+        const sent = (bps: number) => ({
+            value: {
+                execution: { value: { maxSlippage: { case: "maxSlippageBps", value: bps } } },
+            },
+        });
+
+        expect(twap("buy", 10_000)).toMatchObject(sent(10_000));
+        expect(twap("sell", 9_999)).toMatchObject(sent(9_999));
+        expect(() => twap("sell", 10_000)).toThrow("maxSlippageBps must be between 1 and 9999");
+        expect(() => twap("buy", 10_001)).toThrow("maxSlippageBps must be between 1 and 10000");
+    });
+
     it("builds explicit TWAP execution and ladder strategies", () => {
         const schema = createCreateTriggerInputSchema(testScales());
 

@@ -89,6 +89,7 @@ export const ConditionalExecutionInputSchema = v.variant("type", [
 export const TwapExecutionInputSchema = v.variant("type", [
     v.strictObject({
         type: v.literal("market_ioc"),
+        /** A bps cap takes 1 to 10000 on a buy and 1 to 9999 on a sell. */
         maxSlippage: v.optional(MaxSlippageInputSchema),
     }),
     v.strictObject({
@@ -195,12 +196,20 @@ export function buildConditionalExecution(
     }
 }
 
-export function buildTwapExecution(input: TwapExecutionInput, scales: SdkScales) {
+export function buildTwapExecution(
+    input: TwapExecutionInput,
+    scales: SdkScales,
+    side: ProtoOrders.Side,
+) {
     return input.type === "market_ioc"
         ? ({
               case: "marketIoc",
               value: create(Proto.TwapMarketIocSchema, {
-                  maxSlippage: parseMaxSlippage(scales, input.maxSlippage),
+                  maxSlippage: parseMaxSlippage(
+                      scales,
+                      input.maxSlippage,
+                      side === ProtoOrders.Side.SELL ? MAX_SELLING_SLIPPAGE_BPS : MAX_SLIPPAGE_BPS,
+                  ),
               }),
           } as const)
         : ({
