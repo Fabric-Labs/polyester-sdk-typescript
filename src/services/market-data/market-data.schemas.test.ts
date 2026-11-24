@@ -198,7 +198,7 @@ describe("market data schemas", () => {
             listingAt: 1_700_000_000_000,
             status: "enabled",
         });
-        expect(config.tsSec).toBe(123_000);
+        expect(config.tsSec).toBe(123);
     });
 
     it("bounds market-data scales to 0..18 and defaults absent scales to 0", () => {

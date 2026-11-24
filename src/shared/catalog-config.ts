@@ -75,6 +75,7 @@ export interface SpotConfig {
     pairs: PairConfig[];
     /** Default resting-order limit for a typical account across all pairs. Absent on older snapshots. */
     maxOpenOrdersTotal?: number;
+    /** Unix seconds when the server built this config. */
     tsSec: number;
 }
 
