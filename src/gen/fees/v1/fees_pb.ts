@@ -68,10 +68,28 @@ export type SpotFeeRate = Message<"fees.v1.SpotFeeRate"> & {
    * 10^-18. It has sufficient quote balance when N + F is at most the
    * available quote balance, compared in the same 10^-18 units; other order
    * validation and market limits still apply. A post-only limit order
-   * reserves at post_only_reserve_fee_rate_percent instead, and a buy sized
-   * by a quote amount reserves at the lower of this rate and
-   * taker_fee_rate_percent. Fills charge the effective rate, and the rest of
-   * the reserve is released as the order fills or ends.
+   * reserves at post_only_reserve_fee_rate_percent instead. An order that
+   * can only take, a market order or an IOC or FOK limit order such as a
+   * buy sized by a quote amount, fixes its fee cap when it is accepted: the
+   * lower of this rate and taker_fee_rate_percent in force then. A
+   * fixed-quantity buy among them that pays its fee in the quote asset
+   * reserves its fee at that cap; a buy sized by a quote amount holds its
+   * whole budget, which a lower cap lets buy more. A standalone stop-loss,
+   * take-profit or trailing stop whose order can only take fixes the cap
+   * when the stop is created, and each slice of a TWAP whose slices can
+   * only take when that slice is placed. Take-profit and stop-loss orders
+   * attached to an order or paired in an OCO, and orders that can rest, are
+   * capped at this rate, a post-only one at
+   * post_only_reserve_fee_rate_percent. Rates read before an order is sent
+   * are an estimate: a VIP tier or fee policy change before the order is
+   * accepted changes them. Each fill is charged the rate of the VIP tier
+   * and fee policy current when the fill is settled, never above the
+   * order's cap: in the quote asset on the fill's notional, or for a buy
+   * paying its fee in the base asset, in base on the quantity it receives.
+   * The cap is an upper bound on every fill, not a fixed rate: a VIP tier
+   * change after the order is accepted can move a later fill's rate up or
+   * down within it, but never above it. The rest of the reserve is released
+   * as the order fills or ends.
    *
    * @generated from field: string reserve_fee_rate_percent = 6;
    */

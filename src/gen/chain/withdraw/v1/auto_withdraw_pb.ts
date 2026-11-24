@@ -9,13 +9,15 @@ import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import { file_polyester_api_options } from "../../../polyester/api/options_pb.js";
 import type { U128 } from "../../../polyester/type/v1/u128_pb.js";
 import { file_polyester_type_v1_u128 } from "../../../polyester/type/v1/u128_pb.js";
+import type { Execution, SwapLeg, SwapReason, SwapStatus } from "../../../swap/v1/swap_pb.js";
+import { file_swap_v1_swap } from "../../../swap/v1/swap_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file chain/withdraw/v1/auto_withdraw.proto.
  */
 export const file_chain_withdraw_v1_auto_withdraw: GenFile = /*@__PURE__*/
-  fileDesc("CiVjaGFpbi93aXRoZHJhdy92MS9hdXRvX3dpdGhkcmF3LnByb3RvEhFjaGFpbi53aXRoZHJhdy52MSLuAQoUQXV0b1dpdGhkcmF3U2NoZWR1bGUSOQoHY2FkZW5jZRgBIAEoDjImLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd0NhZGVuY2VCABI5Cgd3ZWVrZGF5GAIgASgOMiYuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3V2Vla2RheUIAEhcKDW1pbnV0ZV9vZl9kYXkYAyABKA1CABIYCg5taW51dGVfb2ZfaG91chgEIAEoDUIAEhYKDGRheV9vZl9tb250aBgFIAEoDUIAEhUKC2FuY2hvcl9kYXRlGAYgASgJQgAiggIKF0F1dG9XaXRoZHJhd0Rlc3RpbmF0aW9uEhIKCGFzc2V0X2lkGAEgASgNQgASHgoUZGVzdGluYXRpb25fY2hhaW5faWQYAiABKARCABIdChNkZXN0aW5hdGlvbl9hZGRyZXNzGAMgASgJQgASMQoObWluX2Ftb3VudF9lMTgYBCABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4QgASMQoObWF4X2Ftb3VudF9lMTgYBSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4QgASLgoNbWluX2Zsb29yX2UxOBgGIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgiZAoRQXV0b1dpdGhkcmF3UGF1c2USEAoIYXNzZXRfaWQYASABKA0SDgoGcmVhc29uGAIgASgJEi0KCXBhdXNlZF9hdBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAigAMKEEF1dG9XaXRoZHJhd1J1bGUSFQoNc3ViYWNjb3VudF9pZBgBIAEoBhIPCgd2ZXJzaW9uGAIgASgNEg8KB2VuYWJsZWQYAyABKAgSOQoIc2NoZWR1bGUYBCABKAsyJy5jaGFpbi53aXRoZHJhdy52MS5BdXRvV2l0aGRyYXdTY2hlZHVsZRJACgxkZXN0aW5hdGlvbnMYBSADKAsyKi5jaGFpbi53aXRoZHJhdy52MS5BdXRvV2l0aGRyYXdEZXN0aW5hdGlvbhIuCgpjcmVhdGVkX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIzCgVwYXVzZRgHIAEoCzIkLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1BhdXNlEjIKEW1pbl91c2RfdmFsdWVfZTE4GAggASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIdChVjcmVhdGVkX2J5X2FjY291bnRfaWQYCSABKAYiggIKGlNldEF1dG9XaXRoZHJhd1J1bGVSZXF1ZXN0EhUKDXN1YmFjY291bnRfaWQYASABKAYSGAoQZXhwZWN0ZWRfdmVyc2lvbhgCIAEoDRI7CghzY2hlZHVsZRgDIAEoCzInLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1NjaGVkdWxlQgASQgoMZGVzdGluYXRpb25zGAQgAygLMiouY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3RGVzdGluYXRpb25CABIyChFtaW5fdXNkX3ZhbHVlX2UxOBgFIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgiUAobU2V0QXV0b1dpdGhkcmF3UnVsZVJlc3BvbnNlEjEKBHJ1bGUYASABKAsyIy5jaGFpbi53aXRoZHJhdy52MS5BdXRvV2l0aGRyYXdSdWxlImcKIVNldEF1dG9XaXRoZHJhd1J1bGVFbmFibGVkUmVxdWVzdBIVCg1zdWJhY2NvdW50X2lkGAEgASgGEhoKEGV4cGVjdGVkX3ZlcnNpb24YAiABKA1CABIPCgdlbmFibGVkGAMgASgIIlcKIlNldEF1dG9XaXRoZHJhd1J1bGVFbmFibGVkUmVzcG9uc2USMQoEcnVsZRgBIAEoCzIjLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1J1bGUiMwoaR2V0QXV0b1dpdGhkcmF3UnVsZVJlcXVlc3QSFQoNc3ViYWNjb3VudF9pZBgBIAEoBiJQChtHZXRBdXRvV2l0aGRyYXdSdWxlUmVzcG9uc2USMQoEcnVsZRgBIAEoCzIjLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1J1bGUiiwMKEEF1dG9XaXRoZHJhd1N0ZXASEAoIYXNzZXRfaWQYASABKA0SHAoUZGVzdGluYXRpb25fY2hhaW5faWQYAiABKAQSGwoTZGVzdGluYXRpb25fYWRkcmVzcxgDIAEoCRIuCg1hdmFpbGFibGVfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIrCgphbW91bnRfZTE4GAUgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBI3CgVzdGF0ZRgGIAEoDjIoLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1N0ZXBTdGF0ZRIOCgZyZWFzb24YByABKAkSEQoJaW50ZW50X2lkGAggASgJEg8KB3R4X2hhc2gYCSABKAkSLgoNdmFsdWVfdXNkX2UxOBgKIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSMAoPbmV0d29ya19mZWVfZTE4GAsgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOCLIAgoPQXV0b1dpdGhkcmF3UnVuEg8KB3J1bl9zZXEYASABKAQSFAoMcnVsZV92ZXJzaW9uGAIgASgNEjEKDXNjaGVkdWxlZF9mb3IYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjYKBXN0YXRlGAQgASgOMicuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3UnVuU3RhdGUSDgoGcmVhc29uGAUgASgJEjIKBXN0ZXBzGAYgAygLMiMuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3U3RlcBIuCgpjcmVhdGVkX2F0GAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgtmaW5pc2hlZF9hdBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiWwobTGlzdEF1dG9XaXRoZHJhd1J1bnNSZXF1ZXN0EhUKDXN1YmFjY291bnRfaWQYASABKAYSDwoFbGltaXQYAiABKA1CABIUCgpwYWdlX3Rva2VuGAMgASgJQgAiaQocTGlzdEF1dG9XaXRoZHJhd1J1bnNSZXNwb25zZRIwCgRydW5zGAEgAygLMiIuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3UnVuEhcKD25leHRfcGFnZV90b2tlbhgCIAEoCSI2Ch1QcmV2aWV3QXV0b1dpdGhkcmF3UnVuUmVxdWVzdBIVCg1zdWJhY2NvdW50X2lkGAEgASgGIrcEChhBdXRvV2l0aGRyYXdQcmV2aWV3QXNzZXQSEAoIYXNzZXRfaWQYASABKA0SHAoUZGVzdGluYXRpb25fY2hhaW5faWQYAiABKAQSGwoTZGVzdGluYXRpb25fYWRkcmVzcxgDIAEoCRIuCg1hdmFpbGFibGVfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIsCgtwYXlhYmxlX2UxOBgFIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSLgoNaGVsZF9iYWNrX2UxOBgGIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSEwoLaG9sZF9yZWFzb24YByABKAkSLAoLbWluaW11bV9lMTgYCCABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Ei4KDXZhbHVlX3VzZF9lMTgYCSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Ei0KCXByaWNlZF9hdBgKIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoPbmV0d29ya19mZWVfZTE4GAsgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBI6ChZuZXR3b3JrX2ZlZV9zYW1wbGVkX2F0GAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxwYXlhYmxlX2Zyb20YDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIvwCCh5QcmV2aWV3QXV0b1dpdGhkcmF3UnVuUmVzcG9uc2USPAoGc3RhdHVzGAEgASgOMiwuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3UHJldmlld1N0YXR1cxIvCgtuZXh0X3J1bl9hdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFAoMcnVsZV92ZXJzaW9uGAMgASgNEjMKBXBhdXNlGAQgASgLMiQuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3UGF1c2USMgoRbWluX3VzZF92YWx1ZV9lMTgYBSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EjsKBmFzc2V0cxgGIAMoCzIrLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1ByZXZpZXdBc3NldBIvCgtjb21wdXRlZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAqbAoTQXV0b1dpdGhkcmF3Q2FkZW5jZRIXChNDQURFTkNFX1VOU1BFQ0lGSUVEEAASCQoFREFJTFkQARIKCgZXRUVLTFkQAhIKCgZIT1VSTFkQAxIMCghCSVdFRUtMWRAEEgsKB01PTlRITFkQBSqKAQoTQXV0b1dpdGhkcmF3V2Vla2RheRIXChNXRUVLREFZX1VOU1BFQ0lGSUVEEAASCgoGTU9OREFZEAESCwoHVFVFU0RBWRACEg0KCVdFRE5FU0RBWRADEgwKCFRIVVJTREFZEAQSCgoGRlJJREFZEAUSDAoIU0FUVVJEQVkQBhIKCgZTVU5EQVkQByqgAQoUQXV0b1dpdGhkcmF3UnVuU3RhdGUSGQoVUlVOX1NUQVRFX1VOU1BFQ0lGSUVEEAASDwoLUlVOX1BMQU5ORUQQARIOCgpSVU5fUEFZSU5HEAISEQoNUlVOX0NPTVBMRVRFRBADEhgKFFJVTl9QQVJUSUFMTFlfRkFJTEVEEAQSDgoKUlVOX0ZBSUxFRBAFEg8KC1JVTl9TS0lQUEVEEAYqpQEKFUF1dG9XaXRoZHJhd1N0ZXBTdGF0ZRIaChZTVEVQX1NUQVRFX1VOU1BFQ0lGSUVEEAASEAoMU1RFUF9QRU5ESU5HEAESEwoPU1RFUF9TVUJNSVRUSU5HEAISEgoOU1RFUF9TVUJNSVRURUQQAxISCg5TVEVQX0NPTVBMRVRFRBAEEg8KC1NURVBfRkFJTEVEEAUSEAoMU1RFUF9TS0lQUEVEEAYqhgEKGUF1dG9XaXRoZHJhd1ByZXZpZXdTdGF0dXMSHgoaUFJFVklFV19TVEFUVVNfVU5TUEVDSUZJRUQQABIMCghXSUxMX1BBWRABEg4KClJPTExTX09WRVIQAhISCg5OT19ERVNUSU5BVElPThADEgoKBlBBVVNFRBAEEgsKB05PX1JVTEUQBTKRBQoTQXV0b1dpdGhkcmF3U2VydmljZRJ2ChNTZXRBdXRvV2l0aGRyYXdSdWxlEi0uY2hhaW4ud2l0aGRyYXcudjEuU2V0QXV0b1dpdGhkcmF3UnVsZVJlcXVlc3QaLi5jaGFpbi53aXRoZHJhdy52MS5TZXRBdXRvV2l0aGRyYXdSdWxlUmVzcG9uc2UiABKLAQoaU2V0QXV0b1dpdGhkcmF3UnVsZUVuYWJsZWQSNC5jaGFpbi53aXRoZHJhdy52MS5TZXRBdXRvV2l0aGRyYXdSdWxlRW5hYmxlZFJlcXVlc3QaNS5jaGFpbi53aXRoZHJhdy52MS5TZXRBdXRvV2l0aGRyYXdSdWxlRW5hYmxlZFJlc3BvbnNlIgASdgoTR2V0QXV0b1dpdGhkcmF3UnVsZRItLmNoYWluLndpdGhkcmF3LnYxLkdldEF1dG9XaXRoZHJhd1J1bGVSZXF1ZXN0Gi4uY2hhaW4ud2l0aGRyYXcudjEuR2V0QXV0b1dpdGhkcmF3UnVsZVJlc3BvbnNlIgASeQoUTGlzdEF1dG9XaXRoZHJhd1J1bnMSLi5jaGFpbi53aXRoZHJhdy52MS5MaXN0QXV0b1dpdGhkcmF3UnVuc1JlcXVlc3QaLy5jaGFpbi53aXRoZHJhdy52MS5MaXN0QXV0b1dpdGhkcmF3UnVuc1Jlc3BvbnNlIgASfwoWUHJldmlld0F1dG9XaXRoZHJhd1J1bhIwLmNoYWluLndpdGhkcmF3LnYxLlByZXZpZXdBdXRvV2l0aGRyYXdSdW5SZXF1ZXN0GjEuY2hhaW4ud2l0aGRyYXcudjEuUHJldmlld0F1dG9XaXRoZHJhd1J1blJlc3BvbnNlIgAaAEJPWk1naXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL2NoYWluL3dpdGhkcmF3L3YxO2NoYWlud2l0aGRyYXd2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options, file_polyester_type_v1_u128]);
+  fileDesc("CiVjaGFpbi93aXRoZHJhdy92MS9hdXRvX3dpdGhkcmF3LnByb3RvEhFjaGFpbi53aXRoZHJhdy52MSLuAQoUQXV0b1dpdGhkcmF3U2NoZWR1bGUSOQoHY2FkZW5jZRgBIAEoDjImLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd0NhZGVuY2VCABI5Cgd3ZWVrZGF5GAIgASgOMiYuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3V2Vla2RheUIAEhcKDW1pbnV0ZV9vZl9kYXkYAyABKA1CABIYCg5taW51dGVfb2ZfaG91chgEIAEoDUIAEhYKDGRheV9vZl9tb250aBgFIAEoDUIAEhUKC2FuY2hvcl9kYXRlGAYgASgJQgAiggIKF0F1dG9XaXRoZHJhd0Rlc3RpbmF0aW9uEhIKCGFzc2V0X2lkGAEgASgNQgASHgoUZGVzdGluYXRpb25fY2hhaW5faWQYAiABKARCABIdChNkZXN0aW5hdGlvbl9hZGRyZXNzGAMgASgJQgASMQoObWluX2Ftb3VudF9lMTgYBCABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4QgASMQoObWF4X2Ftb3VudF9lMTgYBSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4QgASLgoNbWluX2Zsb29yX2UxOBgGIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgiZAoRQXV0b1dpdGhkcmF3UGF1c2USEAoIYXNzZXRfaWQYASABKA0SDgoGcmVhc29uGAIgASgJEi0KCXBhdXNlZF9hdBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAivgMKEEF1dG9XaXRoZHJhd1J1bGUSFQoNc3ViYWNjb3VudF9pZBgBIAEoBhIPCgd2ZXJzaW9uGAIgASgNEg8KB2VuYWJsZWQYAyABKAgSOQoIc2NoZWR1bGUYBCABKAsyJy5jaGFpbi53aXRoZHJhdy52MS5BdXRvV2l0aGRyYXdTY2hlZHVsZRJACgxkZXN0aW5hdGlvbnMYBSADKAsyKi5jaGFpbi53aXRoZHJhdy52MS5BdXRvV2l0aGRyYXdEZXN0aW5hdGlvbhIuCgpjcmVhdGVkX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIzCgVwYXVzZRgHIAEoCzIkLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1BhdXNlEjIKEW1pbl91c2RfdmFsdWVfZTE4GAggASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIdChVjcmVhdGVkX2J5X2FjY291bnRfaWQYCSABKAYSFwoPcGF5b3V0X2Fzc2V0X2lkGAogASgNEiMKG2NvbnZlcnNpb25fdHdhcF9kdXJhdGlvbl9tcxgLIAEoBCLCAgoaU2V0QXV0b1dpdGhkcmF3UnVsZVJlcXVlc3QSFQoNc3ViYWNjb3VudF9pZBgBIAEoBhIYChBleHBlY3RlZF92ZXJzaW9uGAIgASgNEjsKCHNjaGVkdWxlGAMgASgLMicuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3U2NoZWR1bGVCABJCCgxkZXN0aW5hdGlvbnMYBCADKAsyKi5jaGFpbi53aXRoZHJhdy52MS5BdXRvV2l0aGRyYXdEZXN0aW5hdGlvbkIAEjIKEW1pbl91c2RfdmFsdWVfZTE4GAUgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIXCg9wYXlvdXRfYXNzZXRfaWQYBiABKA0SJQobY29udmVyc2lvbl90d2FwX2R1cmF0aW9uX21zGAcgASgEQgAiUAobU2V0QXV0b1dpdGhkcmF3UnVsZVJlc3BvbnNlEjEKBHJ1bGUYASABKAsyIy5jaGFpbi53aXRoZHJhdy52MS5BdXRvV2l0aGRyYXdSdWxlImcKIVNldEF1dG9XaXRoZHJhd1J1bGVFbmFibGVkUmVxdWVzdBIVCg1zdWJhY2NvdW50X2lkGAEgASgGEhoKEGV4cGVjdGVkX3ZlcnNpb24YAiABKA1CABIPCgdlbmFibGVkGAMgASgIIlcKIlNldEF1dG9XaXRoZHJhd1J1bGVFbmFibGVkUmVzcG9uc2USMQoEcnVsZRgBIAEoCzIjLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1J1bGUiMwoaR2V0QXV0b1dpdGhkcmF3UnVsZVJlcXVlc3QSFQoNc3ViYWNjb3VudF9pZBgBIAEoBiJQChtHZXRBdXRvV2l0aGRyYXdSdWxlUmVzcG9uc2USMQoEcnVsZRgBIAEoCzIjLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1J1bGUiiwMKEEF1dG9XaXRoZHJhd1N0ZXASEAoIYXNzZXRfaWQYASABKA0SHAoUZGVzdGluYXRpb25fY2hhaW5faWQYAiABKAQSGwoTZGVzdGluYXRpb25fYWRkcmVzcxgDIAEoCRIuCg1hdmFpbGFibGVfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIrCgphbW91bnRfZTE4GAUgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBI3CgVzdGF0ZRgGIAEoDjIoLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1N0ZXBTdGF0ZRIOCgZyZWFzb24YByABKAkSEQoJaW50ZW50X2lkGAggASgJEg8KB3R4X2hhc2gYCSABKAkSLgoNdmFsdWVfdXNkX2UxOBgKIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSMAoPbmV0d29ya19mZWVfZTE4GAsgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOCKIAwoPQXV0b1dpdGhkcmF3UnVuEg8KB3J1bl9zZXEYASABKAQSFAoMcnVsZV92ZXJzaW9uGAIgASgNEjEKDXNjaGVkdWxlZF9mb3IYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjYKBXN0YXRlGAQgASgOMicuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3UnVuU3RhdGUSDgoGcmVhc29uGAUgASgJEjIKBXN0ZXBzGAYgAygLMiMuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3U3RlcBIuCgpjcmVhdGVkX2F0GAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgtmaW5pc2hlZF9hdBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASPgoLY29udmVyc2lvbnMYCSADKAsyKS5jaGFpbi53aXRoZHJhdy52MS5BdXRvV2l0aGRyYXdDb252ZXJzaW9uIssDChZBdXRvV2l0aGRyYXdDb252ZXJzaW9uEhcKD3NvdXJjZV9hc3NldF9pZBgBIAEoDRIrCgphbW91bnRfZTE4GAIgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIPCgdzd2FwX2lkGAMgASgGEiUKCWV4ZWN1dGlvbhgEIAEoCzISLnN3YXAudjEuRXhlY3V0aW9uEiMKBnN0YXR1cxgFIAEoDjITLnN3YXAudjEuU3dhcFN0YXR1cxIjCgZyZWFzb24YBiABKA4yEy5zd2FwLnYxLlN3YXBSZWFzb24SEwoLaXNfdGVybWluYWwYByABKAgSNAoTZXhlY3V0ZWRfYW1vdW50X2UxOBgIIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSMwoSdW5zcGVudF9hbW91bnRfZTE4GAkgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBI0ChNyZWNlaXZlZF9hbW91bnRfZTE4GAogASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIeCgRsZWdzGAsgAygLMhAuc3dhcC52MS5Td2FwTGVnEhMKC3NraXBfcmVhc29uGAwgASgJIlsKG0xpc3RBdXRvV2l0aGRyYXdSdW5zUmVxdWVzdBIVCg1zdWJhY2NvdW50X2lkGAEgASgGEg8KBWxpbWl0GAIgASgNQgASFAoKcGFnZV90b2tlbhgDIAEoCUIAImkKHExpc3RBdXRvV2l0aGRyYXdSdW5zUmVzcG9uc2USMAoEcnVucxgBIAMoCzIiLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1J1bhIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkiNgodUHJldmlld0F1dG9XaXRoZHJhd1J1blJlcXVlc3QSFQoNc3ViYWNjb3VudF9pZBgBIAEoBiL9BAoYQXV0b1dpdGhkcmF3UHJldmlld0Fzc2V0EhAKCGFzc2V0X2lkGAEgASgNEhwKFGRlc3RpbmF0aW9uX2NoYWluX2lkGAIgASgEEhsKE2Rlc3RpbmF0aW9uX2FkZHJlc3MYAyABKAkSLgoNYXZhaWxhYmxlX2UxOBgEIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSLAoLcGF5YWJsZV9lMTgYBSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Ei4KDWhlbGRfYmFja19lMTgYBiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EhMKC2hvbGRfcmVhc29uGAcgASgJEiwKC21pbmltdW1fZTE4GAggASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIuCg12YWx1ZV91c2RfZTE4GAkgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBItCglwcmljZWRfYXQYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKD25ldHdvcmtfZmVlX2UxOBgLIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSOgoWbmV0d29ya19mZWVfc2FtcGxlZF9hdBgMIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMcGF5YWJsZV9mcm9tGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBJECgpjb252ZXJzaW9uGA4gASgLMjAuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3UHJldmlld0NvbnZlcnNpb24i/QEKHUF1dG9XaXRoZHJhd1ByZXZpZXdDb252ZXJzaW9uEhcKD3BheW91dF9hc3NldF9pZBgBIAEoDRI4ChdleHBlY3RlZF9hbW91bnRfb3V0X2UxOBgCIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSMwoSbWluX2Ftb3VudF9vdXRfZTE4GAMgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIYChBwcmljZV9pbXBhY3RfYnBzGAQgASgNEiUKCWV4ZWN1dGlvbhgFIAEoCzISLnN3YXAudjEuRXhlY3V0aW9uEhMKC3NraXBfcmVhc29uGAYgASgJIvwCCh5QcmV2aWV3QXV0b1dpdGhkcmF3UnVuUmVzcG9uc2USPAoGc3RhdHVzGAEgASgOMiwuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3UHJldmlld1N0YXR1cxIvCgtuZXh0X3J1bl9hdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFAoMcnVsZV92ZXJzaW9uGAMgASgNEjMKBXBhdXNlGAQgASgLMiQuY2hhaW4ud2l0aGRyYXcudjEuQXV0b1dpdGhkcmF3UGF1c2USMgoRbWluX3VzZF92YWx1ZV9lMTgYBSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EjsKBmFzc2V0cxgGIAMoCzIrLmNoYWluLndpdGhkcmF3LnYxLkF1dG9XaXRoZHJhd1ByZXZpZXdBc3NldBIvCgtjb21wdXRlZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAqbAoTQXV0b1dpdGhkcmF3Q2FkZW5jZRIXChNDQURFTkNFX1VOU1BFQ0lGSUVEEAASCQoFREFJTFkQARIKCgZXRUVLTFkQAhIKCgZIT1VSTFkQAxIMCghCSVdFRUtMWRAEEgsKB01PTlRITFkQBSqKAQoTQXV0b1dpdGhkcmF3V2Vla2RheRIXChNXRUVLREFZX1VOU1BFQ0lGSUVEEAASCgoGTU9OREFZEAESCwoHVFVFU0RBWRACEg0KCVdFRE5FU0RBWRADEgwKCFRIVVJTREFZEAQSCgoGRlJJREFZEAUSDAoIU0FUVVJEQVkQBhIKCgZTVU5EQVkQByq0AQoUQXV0b1dpdGhkcmF3UnVuU3RhdGUSGQoVUlVOX1NUQVRFX1VOU1BFQ0lGSUVEEAASDwoLUlVOX1BMQU5ORUQQARIOCgpSVU5fUEFZSU5HEAISEQoNUlVOX0NPTVBMRVRFRBADEhgKFFJVTl9QQVJUSUFMTFlfRkFJTEVEEAQSDgoKUlVOX0ZBSUxFRBAFEg8KC1JVTl9TS0lQUEVEEAYSEgoOUlVOX0NPTlZFUlRJTkcQByqlAQoVQXV0b1dpdGhkcmF3U3RlcFN0YXRlEhoKFlNURVBfU1RBVEVfVU5TUEVDSUZJRUQQABIQCgxTVEVQX1BFTkRJTkcQARITCg9TVEVQX1NVQk1JVFRJTkcQAhISCg5TVEVQX1NVQk1JVFRFRBADEhIKDlNURVBfQ09NUExFVEVEEAQSDwoLU1RFUF9GQUlMRUQQBRIQCgxTVEVQX1NLSVBQRUQQBiqGAQoZQXV0b1dpdGhkcmF3UHJldmlld1N0YXR1cxIeChpQUkVWSUVXX1NUQVRVU19VTlNQRUNJRklFRBAAEgwKCFdJTExfUEFZEAESDgoKUk9MTFNfT1ZFUhACEhIKDk5PX0RFU1RJTkFUSU9OEAMSCgoGUEFVU0VEEAQSCwoHTk9fUlVMRRAFMpEFChNBdXRvV2l0aGRyYXdTZXJ2aWNlEnYKE1NldEF1dG9XaXRoZHJhd1J1bGUSLS5jaGFpbi53aXRoZHJhdy52MS5TZXRBdXRvV2l0aGRyYXdSdWxlUmVxdWVzdBouLmNoYWluLndpdGhkcmF3LnYxLlNldEF1dG9XaXRoZHJhd1J1bGVSZXNwb25zZSIAEosBChpTZXRBdXRvV2l0aGRyYXdSdWxlRW5hYmxlZBI0LmNoYWluLndpdGhkcmF3LnYxLlNldEF1dG9XaXRoZHJhd1J1bGVFbmFibGVkUmVxdWVzdBo1LmNoYWluLndpdGhkcmF3LnYxLlNldEF1dG9XaXRoZHJhd1J1bGVFbmFibGVkUmVzcG9uc2UiABJ2ChNHZXRBdXRvV2l0aGRyYXdSdWxlEi0uY2hhaW4ud2l0aGRyYXcudjEuR2V0QXV0b1dpdGhkcmF3UnVsZVJlcXVlc3QaLi5jaGFpbi53aXRoZHJhdy52MS5HZXRBdXRvV2l0aGRyYXdSdWxlUmVzcG9uc2UiABJ5ChRMaXN0QXV0b1dpdGhkcmF3UnVucxIuLmNoYWluLndpdGhkcmF3LnYxLkxpc3RBdXRvV2l0aGRyYXdSdW5zUmVxdWVzdBovLmNoYWluLndpdGhkcmF3LnYxLkxpc3RBdXRvV2l0aGRyYXdSdW5zUmVzcG9uc2UiABJ/ChZQcmV2aWV3QXV0b1dpdGhkcmF3UnVuEjAuY2hhaW4ud2l0aGRyYXcudjEuUHJldmlld0F1dG9XaXRoZHJhd1J1blJlcXVlc3QaMS5jaGFpbi53aXRoZHJhdy52MS5QcmV2aWV3QXV0b1dpdGhkcmF3UnVuUmVzcG9uc2UiABoAQk9aTWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vY2hhaW4vd2l0aGRyYXcvdjE7Y2hhaW53aXRoZHJhd3YxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options, file_polyester_type_v1_u128, file_swap_v1_swap]);
 
 /**
  * AutoWithdrawSchedule is a rule's UTC run slot. Only the fields of its
@@ -268,6 +270,26 @@ export type AutoWithdrawRule = Message<"chain.withdraw.v1.AutoWithdrawRule"> & {
    * @generated from field: fixed64 created_by_account_id = 9;
    */
   createdByAccountId: bigint;
+
+  /**
+   * Ledger asset every other asset with a balance is converted into, through
+   * a Swap placed from the account, before the run pays it; zero pays every
+   * asset in kind. When set, destinations has exactly one entry, for this
+   * asset.
+   *
+   * @generated from field: uint32 payout_asset_id = 10;
+   */
+  payoutAssetId: number;
+
+  /**
+   * Duration of a conversion that runs as TWAP, in milliseconds, 60000 to
+   * 3600000; zero means 300000. A conversion runs as TWAP when its USD value
+   * exceeds 10,000 or its quoted price impact exceeds 0.5%, otherwise at
+   * market.
+   *
+   * @generated from field: uint64 conversion_twap_duration_ms = 11;
+   */
+  conversionTwapDurationMs: bigint;
 };
 
 /**
@@ -325,6 +347,30 @@ export type SetAutoWithdrawRuleRequest = Message<"chain.withdraw.v1.SetAutoWithd
    * @generated from field: polyester.type.v1.U128 min_usd_value_e18 = 5;
    */
   minUsdValueE18?: U128 | undefined;
+
+  /**
+   * Ledger asset every other asset with a balance is converted into, through
+   * a Swap placed from the account, before the run pays it; zero pays every
+   * asset in kind. When set, destinations has exactly one entry, for this
+   * asset. Creating or resuming a rule with a payout asset also needs the
+   * permission to swap on the account; on a broker vault that is the
+   * permission to manage its payouts (the Owner and Finance roles). Pausing
+   * it does not, and a run whose author lost it leaves the assets in kind
+   * (policy_denied).
+   *
+   * @generated from field: uint32 payout_asset_id = 6;
+   */
+  payoutAssetId: number;
+
+  /**
+   * Duration of a conversion that runs as TWAP, in milliseconds, 60000 to
+   * 3600000; zero means 300000. A conversion runs as TWAP when its USD value
+   * exceeds 10,000 or its quoted price impact exceeds 0.5%, otherwise at
+   * market.
+   *
+   * @generated from field: uint64 conversion_twap_duration_ms = 7;
+   */
+  conversionTwapDurationMs: bigint;
 };
 
 /**
@@ -520,7 +566,9 @@ export type AutoWithdrawStep = Message<"chain.withdraw.v1.AutoWithdrawStep"> & {
    * route's supply_status in the deposit and withdraw config is MISSING or
    * STALE; the funds stay for a later run), authority_revoked,
    * gateway_capacity_insufficient (the funds stay for a later run),
-   * withdrawal_released or withdrawal_failed; empty otherwise.
+   * withdrawals_disabled (the environment does not allow withdrawals; the
+   * funds stay on the account), withdrawal_released or withdrawal_failed;
+   * empty otherwise.
    *
    * @generated from field: string reason = 7;
    */
@@ -639,6 +687,13 @@ export type AutoWithdrawRun = Message<"chain.withdraw.v1.AutoWithdrawRun"> & {
    * @generated from field: google.protobuf.Timestamp finished_at = 8;
    */
   finishedAt?: Timestamp | undefined;
+
+  /**
+   * Conversions into the rule's payout asset, ordered by source_asset_id; empty for an in-kind rule.
+   *
+   * @generated from field: repeated chain.withdraw.v1.AutoWithdrawConversion conversions = 9;
+   */
+  conversions: AutoWithdrawConversion[];
 };
 
 /**
@@ -647,6 +702,109 @@ export type AutoWithdrawRun = Message<"chain.withdraw.v1.AutoWithdrawRun"> & {
  */
 export const AutoWithdrawRunSchema: GenMessage<AutoWithdrawRun> = /*@__PURE__*/
   messageDesc(file_chain_withdraw_v1_auto_withdraw, 11);
+
+/**
+ * AutoWithdrawConversion is one asset a run converts into its rule's payout
+ * asset through a Swap placed from the account, before it pays.
+ *
+ * @generated from message chain.withdraw.v1.AutoWithdrawConversion
+ */
+export type AutoWithdrawConversion = Message<"chain.withdraw.v1.AutoWithdrawConversion"> & {
+  /**
+   * Ledger asset converted.
+   *
+   * @generated from field: uint32 source_asset_id = 1;
+   */
+  sourceAssetId: number;
+
+  /**
+   * Amount the conversion spends.
+   *
+   * @generated from field: polyester.type.v1.U128 amount_e18 = 2;
+   */
+  amountE18?: U128 | undefined;
+
+  /**
+   * The Swap (swap.v1 GetSwap); zero when the asset was not converted.
+   *
+   * @generated from field: fixed64 swap_id = 3;
+   */
+  swapId: bigint;
+
+  /**
+   * Market or TWAP; unset when the asset was not converted.
+   *
+   * @generated from field: swap.v1.Execution execution = 4;
+   */
+  execution?: Execution | undefined;
+
+  /**
+   * Where the Swap stands; unset when the asset was not converted.
+   *
+   * @generated from field: swap.v1.SwapStatus status = 5;
+   */
+  status: SwapStatus;
+
+  /**
+   * Why a terminal Swap did not trade its whole amount; unset when it did or
+   * when the asset was not converted.
+   *
+   * @generated from field: swap.v1.SwapReason reason = 6;
+   */
+  reason: SwapReason;
+
+  /**
+   * Whether the conversion is over: its Swap is terminal, or it was skipped.
+   *
+   * @generated from field: bool is_terminal = 7;
+   */
+  isTerminal: boolean;
+
+  /**
+   * Source spent, settled.
+   *
+   * @generated from field: polyester.type.v1.U128 executed_amount_e18 = 8;
+   */
+  executedAmountE18?: U128 | undefined;
+
+  /**
+   * Stays on the account.
+   *
+   * @generated from field: polyester.type.v1.U128 unspent_amount_e18 = 9;
+   */
+  unspentAmountE18?: U128 | undefined;
+
+  /**
+   * Payout asset after fees.
+   *
+   * @generated from field: polyester.type.v1.U128 received_amount_e18 = 10;
+   */
+  receivedAmountE18?: U128 | undefined;
+
+  /**
+   * Per-leg spent, received and fee.
+   *
+   * @generated from field: repeated swap.v1.SwapLeg legs = 11;
+   */
+  legs: SwapLeg[];
+
+  /**
+   * Why the asset was not converted (route_unsupported, below_minimum,
+   * above_maximum, conversion_unavailable, price_unavailable,
+   * conversion_refused, rule_superseded or policy_denied); empty otherwise.
+   * Its balance stays on the account.
+   *
+   * @generated from field: string skip_reason = 12;
+   */
+  skipReason: string;
+};
+
+/**
+ * Describes the message chain.withdraw.v1.AutoWithdrawConversion.
+ * Use `create(AutoWithdrawConversionSchema)` to create a new message.
+ */
+export const AutoWithdrawConversionSchema: GenMessage<AutoWithdrawConversion> = /*@__PURE__*/
+  messageDesc(file_chain_withdraw_v1_auto_withdraw, 12);
 
 /**
  * ListAutoWithdrawRunsRequest pages through an account's runs, newest first.
@@ -683,7 +841,7 @@ export type ListAutoWithdrawRunsRequest = Message<"chain.withdraw.v1.ListAutoWit
  * Use `create(ListAutoWithdrawRunsRequestSchema)` to create a new message.
  */
 export const ListAutoWithdrawRunsRequestSchema: GenMessage<ListAutoWithdrawRunsRequest> = /*@__PURE__*/
-  messageDesc(file_chain_withdraw_v1_auto_withdraw, 12);
+  messageDesc(file_chain_withdraw_v1_auto_withdraw, 13);
 
 /**
  * ListAutoWithdrawRunsResponse returns one page of runs, newest first.
@@ -711,7 +869,7 @@ export type ListAutoWithdrawRunsResponse = Message<"chain.withdraw.v1.ListAutoWi
  * Use `create(ListAutoWithdrawRunsResponseSchema)` to create a new message.
  */
 export const ListAutoWithdrawRunsResponseSchema: GenMessage<ListAutoWithdrawRunsResponse> = /*@__PURE__*/
-  messageDesc(file_chain_withdraw_v1_auto_withdraw, 13);
+  messageDesc(file_chain_withdraw_v1_auto_withdraw, 14);
 
 /**
  * PreviewAutoWithdrawRunRequest previews the next run of the rule of the
@@ -733,7 +891,7 @@ export type PreviewAutoWithdrawRunRequest = Message<"chain.withdraw.v1.PreviewAu
  * Use `create(PreviewAutoWithdrawRunRequestSchema)` to create a new message.
  */
 export const PreviewAutoWithdrawRunRequestSchema: GenMessage<PreviewAutoWithdrawRunRequest> = /*@__PURE__*/
-  messageDesc(file_chain_withdraw_v1_auto_withdraw, 14);
+  messageDesc(file_chain_withdraw_v1_auto_withdraw, 15);
 
 /**
  * AutoWithdrawPreviewAsset is what the next run would do with one asset,
@@ -797,9 +955,11 @@ export type AutoWithdrawPreviewAsset = Message<"chain.withdraw.v1.AutoWithdrawPr
    * no_destination (the rule pays no destination for the asset),
    * destination_cooling_down (a broker vault pays a destination only once
    * it has been on the vault's external withdraw whitelist for 24 hours;
-   * see payable_from), above_max (the balance above max_amount_e18 stays)
-   * or dust (less than one whole on-chain unit stays); empty when the whole
-   * balance pays.
+   * see payable_from), above_max (the balance above max_amount_e18 stays),
+   * dust (less than one whole on-chain unit stays) or, on a rule with a
+   * payout asset, converts (the asset is converted into the payout asset
+   * instead; see conversion) or why it would not be converted (see
+   * conversion.skip_reason); empty when the whole balance pays.
    *
    * @generated from field: string hold_reason = 7;
    */
@@ -860,6 +1020,16 @@ export type AutoWithdrawPreviewAsset = Message<"chain.withdraw.v1.AutoWithdrawPr
    * @generated from field: google.protobuf.Timestamp payable_from = 13;
    */
   payableFrom?: Timestamp | undefined;
+
+  /**
+   * Set on an asset the rule converts into its payout asset: what converting
+   * its whole available balance is quoted to deliver now. Such an asset pays
+   * nothing in kind (payable_e18 zero); its hold_reason is converts, or why
+   * it would stay on the account.
+   *
+   * @generated from field: chain.withdraw.v1.AutoWithdrawPreviewConversion conversion = 14;
+   */
+  conversion?: AutoWithdrawPreviewConversion | undefined;
 };
 
 /**
@@ -867,7 +1037,71 @@ export type AutoWithdrawPreviewAsset = Message<"chain.withdraw.v1.AutoWithdrawPr
  * Use `create(AutoWithdrawPreviewAssetSchema)` to create a new message.
  */
 export const AutoWithdrawPreviewAssetSchema: GenMessage<AutoWithdrawPreviewAsset> = /*@__PURE__*/
-  messageDesc(file_chain_withdraw_v1_auto_withdraw, 15);
+  messageDesc(file_chain_withdraw_v1_auto_withdraw, 16);
+
+/**
+ * AutoWithdrawPreviewConversion is the current quote for converting one
+ * asset into the rule's payout asset through a Swap placed from the account.
+ *
+ * @generated from message chain.withdraw.v1.AutoWithdrawPreviewConversion
+ */
+export type AutoWithdrawPreviewConversion = Message<"chain.withdraw.v1.AutoWithdrawPreviewConversion"> & {
+  /**
+   * Payout asset the conversion delivers.
+   *
+   * @generated from field: uint32 payout_asset_id = 1;
+   */
+  payoutAssetId: number;
+
+  /**
+   * Expected payout asset after every leg's fee, estimated from the whole
+   * amount at the current book depth; a TWAP's slices execute at the prices
+   * of their own time.
+   *
+   * @generated from field: polyester.type.v1.U128 expected_amount_out_e18 = 2;
+   */
+  expectedAmountOutE18?: U128 | undefined;
+
+  /**
+   * Least payout asset the conversion accepts: the expected amount less the
+   * 1% slippage protection, estimated the same way.
+   *
+   * @generated from field: polyester.type.v1.U128 min_amount_out_e18 = 3;
+   */
+  minAmountOutE18?: U128 | undefined;
+
+  /**
+   * Quoted price impact of the whole amount, in basis points.
+   *
+   * @generated from field: uint32 price_impact_bps = 4;
+   */
+  priceImpactBps: number;
+
+  /**
+   * How the run would execute the conversion: market, or TWAP over the
+   * rule's conversion duration when its USD value exceeds 10,000 or its
+   * price impact exceeds 0.5%. A TWAP whose slices would fall below the
+   * route's minimum runs in fewer, longer slices, never fewer than two;
+   * otherwise the asset is skipped with below_minimum.
+   *
+   * @generated from field: swap.v1.Execution execution = 5;
+   */
+  execution?: Execution | undefined;
+
+  /**
+   * Why the asset would not be converted now (route_unsupported, below_minimum, above_maximum, conversion_unavailable, price_unavailable); empty when it would. Its balance stays on the account.
+   *
+   * @generated from field: string skip_reason = 6;
+   */
+  skipReason: string;
+};
+
+/**
+ * Describes the message chain.withdraw.v1.AutoWithdrawPreviewConversion.
+ * Use `create(AutoWithdrawPreviewConversionSchema)` to create a new message.
+ */
+export const AutoWithdrawPreviewConversionSchema: GenMessage<AutoWithdrawPreviewConversion> = /*@__PURE__*/
+  messageDesc(file_chain_withdraw_v1_auto_withdraw, 17);
 
 /**
  * PreviewAutoWithdrawRunResponse previews the next run.
@@ -935,7 +1169,7 @@ export type PreviewAutoWithdrawRunResponse = Message<"chain.withdraw.v1.PreviewA
  * Use `create(PreviewAutoWithdrawRunResponseSchema)` to create a new message.
  */
 export const PreviewAutoWithdrawRunResponseSchema: GenMessage<PreviewAutoWithdrawRunResponse> = /*@__PURE__*/
-  messageDesc(file_chain_withdraw_v1_auto_withdraw, 16);
+  messageDesc(file_chain_withdraw_v1_auto_withdraw, 18);
 
 /**
  * AutoWithdrawCadence is how often an auto-withdraw rule runs. Every slot
@@ -1126,6 +1360,13 @@ export enum AutoWithdrawRunState {
    * @generated from enum value: RUN_SKIPPED = 6;
    */
   RUN_SKIPPED = 6,
+
+  /**
+   * The run's conversions into the payout asset are executing; payouts start once every conversion is final and settled.
+   *
+   * @generated from enum value: RUN_CONVERTING = 7;
+   */
+  RUN_CONVERTING = 7,
 }
 
 /**
