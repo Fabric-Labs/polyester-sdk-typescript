@@ -1,3 +1,4 @@
+import type * as CentrifugeJsonModule from "centrifuge";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 type TokenOpts = { getToken?: () => Promise<string> };
@@ -201,11 +202,35 @@ class JsonReplyWebSocket {
     }
 }
 
+let realCentrifugeModule: typeof CentrifugeJsonModule | null = null;
+const realCentrifugeInstances: Array<{ disconnect: () => void }> = [];
+
+function createTrackedRealCentrifugeCtor(): typeof CentrifugeJsonModule.Centrifuge {
+    if (!realCentrifugeModule) {
+        throw new Error("Expected real centrifuge module to be preloaded in beforeAll");
+    }
+    const RealCentrifuge = realCentrifugeModule.Centrifuge;
+    return class TrackedRealCentrifuge extends RealCentrifuge {
+        constructor(...args: ConstructorParameters<typeof RealCentrifuge>) {
+            super(...args);
+            realCentrifugeInstances.push(this);
+        }
+    };
+}
+
 function useRealJsonCentrifuge(): void {
+    const TrackedRealCentrifuge = createTrackedRealCentrifugeCtor();
+    vi.spyOn(Math, "random").mockReturnValue(0);
     vi.stubGlobal("WebSocket", JsonReplyWebSocket);
     // SAFETY: JSON and protobuf builds share the token state machine and public API;
     // only their wire codecs and nominally typed private fields differ.
-    __setRealtimeCentrifugeLoaderForTests(() => import("centrifuge") as never);
+    __setRealtimeCentrifugeLoaderForTests(
+        () =>
+            Promise.resolve({
+                ...realCentrifugeModule!,
+                Centrifuge: TrackedRealCentrifuge,
+            }) as never,
+    );
 }
 
 async function waitForAsyncTokens(): Promise<void> {
@@ -235,7 +260,8 @@ function firstSubscription(instance = firstInstance()): MockSubscriptionRecord {
 }
 
 describe("RealtimeClient", () => {
-    beforeAll(() => {
+    beforeAll(async () => {
+        realCentrifugeModule = await import("centrifuge");
         __setRealtimeCentrifugeForTests(MockCentrifuge as never);
         centrifugeState.instances.length = 0;
     });
@@ -245,8 +271,12 @@ describe("RealtimeClient", () => {
     });
 
     afterEach(() => {
+        for (const instance of realCentrifugeInstances.splice(0)) {
+            instance.disconnect();
+        }
         JsonReplyWebSocket.instances.length = 0;
         JsonReplyWebSocket.refuse = false;
+        JsonReplyWebSocket.subscribeError = null;
         vi.useRealTimers();
         vi.unstubAllGlobals();
         vi.restoreAllMocks();
@@ -1919,9 +1949,10 @@ describe("RealtimeClient", () => {
     });
 
     it("holds real Centrifuge reconnects to Retry-After, then connects and clears the error", async () => {
+        vi.spyOn(Math, "random").mockReturnValue(0);
         vi.stubGlobal("WebSocket", JsonReplyWebSocket);
         // Load before faking timers: a dynamic import does not settle under fake timers.
-        __setRealtimeCentrifugeForTests((await import("centrifuge")).Centrifuge as never);
+        __setRealtimeCentrifugeForTests(createTrackedRealCentrifugeCtor() as never);
         vi.useFakeTimers();
         let tokenCalls = 0;
         vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
@@ -2093,7 +2124,7 @@ describe("RealtimeClient", () => {
                     failures++;
                     return Promise.resolve(new Response(null, { status }));
                 }
-                return Promise.resolve(new Response(JSON.stringify({ token: "recovered" })));
+                return Promise.resolve(Response.json({ token: "recovered" }));
             });
             const onError = vi.fn();
             const onSubscribed = vi.fn();
@@ -2114,6 +2145,7 @@ describe("RealtimeClient", () => {
             await vi.advanceTimersByTimeAsync(0);
             expect(onSubscribed).not.toHaveBeenCalled();
             await vi.advanceTimersByTimeAsync(4_001);
+            await vi.advanceTimersByTimeAsync(0);
 
             const endpointCalls = fetchMock.mock.calls.filter(([input]) =>
                 endpoint === "subscription"
@@ -2125,7 +2157,6 @@ describe("RealtimeClient", () => {
                 type: `${endpoint}_token`,
             });
             expect(onError.mock.calls[0]?.[0].error.retryable).toBe(true);
-            await waitForAsyncTokens();
             expect(onSubscribed).toHaveBeenCalledOnce();
             unsubscribe();
             await vi.advanceTimersByTimeAsync(0);
@@ -2143,9 +2174,7 @@ describe("RealtimeClient", () => {
         const fetchMock = vi
             .spyOn(globalThis, "fetch")
             .mockRejectedValueOnce(networkFailure)
-            .mockImplementation(() =>
-                Promise.resolve(new Response(JSON.stringify({ token: "recovered" }))),
-            );
+            .mockImplementation(() => Promise.resolve(Response.json({ token: "recovered" })));
         const getAuthHeaders = vi.fn().mockRejectedValueOnce(providerFailure).mockResolvedValue({});
         const onError = vi.fn();
         const onSubscribed = vi.fn();
@@ -2167,6 +2196,7 @@ describe("RealtimeClient", () => {
         await vi.advanceTimersByTimeAsync(0);
         expect(getAuthHeaders).toHaveBeenCalledOnce();
         await vi.advanceTimersByTimeAsync(4_000);
+        await vi.advanceTimersByTimeAsync(0);
 
         expect(getAuthHeaders).toHaveBeenCalledTimes(4);
         expect(
@@ -2201,7 +2231,7 @@ describe("RealtimeClient", () => {
                     Promise.resolve(
                         String(input).includes("/subscribe")
                             ? new Response(null, { status })
-                            : new Response(JSON.stringify({ token: "connection-token" })),
+                            : Response.json({ token: "connection-token" }),
                     ),
                 );
             const client = new RealtimeClient({
@@ -2250,7 +2280,7 @@ describe("RealtimeClient", () => {
                     failed = true;
                     return Promise.resolve(new Response(null, { status: 400 }));
                 }
-                return Promise.resolve(new Response(JSON.stringify({ token: "recovered" })));
+                return Promise.resolve(Response.json({ token: "recovered" }));
             });
             const client = new RealtimeClient({
                 wsUrl: "wss://stream.example.test",
@@ -2281,7 +2311,7 @@ describe("RealtimeClient", () => {
                 onSubscribed,
             });
             await vi.advanceTimersByTimeAsync(0);
-            await waitForAsyncTokens();
+            await vi.advanceTimersByTimeAsync(0);
 
             expect(
                 fetchMock.mock.calls.filter(([input]) =>
@@ -2391,6 +2421,7 @@ describe("RealtimeClient", () => {
 
     it("retries private order stream token fetches after HTTP 500 instead of stopping", async () => {
         vi.useFakeTimers();
+        vi.spyOn(Math, "random").mockReturnValue(0);
         class FakeOrderSocket {
             static instances: FakeOrderSocket[] = [];
             readyState = 0;
