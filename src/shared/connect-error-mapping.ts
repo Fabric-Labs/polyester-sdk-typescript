@@ -316,6 +316,14 @@ export function connectErrorToPolyesterError(ce: ConnectError): PolyesterError {
             options,
         );
     }
+    if (detail?.service === "internal_transfer" && detail.code === "IDEMPOTENCY_KEY_ABANDONED") {
+        return new PreconditionFailedError(
+            withFallback(
+                "Idempotency key was abandoned. Nothing moved under this key; submit the batch under a new idempotency key.",
+            ),
+            options,
+        );
+    }
 
     if (detail?.service === "strategies" && detail.code === "DRAFT_REVISION_CONFLICT") {
         return new RevisionConflictError(

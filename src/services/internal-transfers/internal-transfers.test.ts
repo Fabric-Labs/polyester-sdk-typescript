@@ -1,14 +1,18 @@
+import { create } from "@bufbuild/protobuf";
+import { Code, ConnectError } from "@connectrpc/connect";
 import { describe, expect, it } from "vitest";
-import { ValidationError } from "../../shared/errors.js";
+import { createErrorMappingTransport } from "../../shared/connect-error-mapping.js";
+import { PreconditionFailedError, ValidationError } from "../../shared/errors.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { createTestCatalog } from "../../testing/catalog.js";
-import { unaryTransport } from "../../testing/service-harness.js";
+import { rejectingUnaryTransport, unaryTransport } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import { InternalTransfersService } from "./internal-transfers.js";
 import {
     ErrorCode,
+    ErrorDetailSchema,
     InternalTransferBatchLegStatus,
     InternalTransferBatchStatus,
     InternalTransferStatus,
@@ -460,6 +464,118 @@ describe("InternalTransfersService", () => {
 
         await expect(service.getBatch({ requestId: " " })).rejects.toBeInstanceOf(ValidationError);
         expect(transport.unary).not.toHaveBeenCalled();
+    });
+
+    it("reads an abandoned batch key by idempotency key", async () => {
+        const transport = unaryTransport({
+            requestId: "",
+            status: InternalTransferBatchStatus.BATCH_ABANDONED,
+            legs: [],
+        });
+        const service = new InternalTransfersService(
+            { authApi: transport.transport },
+            undefined,
+            testScales(),
+        );
+
+        await expect(service.getBatch({ idempotencyKey: " abandoned-1 " })).resolves.toEqual({
+            requestId: undefined,
+            status: "abandoned",
+            legs: [],
+        });
+        expect(transport.lastCall()?.message).toEqual({ idempotencyKey: " abandoned-1 " });
+    });
+
+    it("abandons an unused batch idempotency key sent unchanged", async () => {
+        const transport = unaryTransport({
+            requestId: "",
+            status: InternalTransferBatchStatus.BATCH_ABANDONED,
+            legs: [],
+        });
+        const service = new InternalTransfersService(
+            { authApi: transport.transport },
+            undefined,
+            testScales(),
+        );
+
+        await expect(service.abandonBatch({ idempotencyKey: " batch-key " })).resolves.toEqual({
+            requestId: undefined,
+            status: "abandoned",
+            legs: [],
+        });
+
+        const captured = transport.lastCall();
+        expect(captured?.method.localName).toBe("abandonInternalTransferBatch");
+        expect(captured?.message).toEqual({ idempotencyKey: " batch-key " });
+    });
+
+    it("returns an existing batch outcome when abandoning a submitted key", async () => {
+        const transport = unaryTransport({
+            requestId: "batch-1",
+            status: InternalTransferBatchStatus.BATCH_ACCEPTED,
+            legs: [creditedLeg],
+        });
+        const service = new InternalTransfersService(
+            { authApi: transport.transport },
+            undefined,
+            testScales(),
+        );
+
+        await expect(service.abandonBatch({ idempotencyKey: "batch-key" })).resolves.toMatchObject({
+            requestId: "batch-1",
+            status: "accepted",
+            legs: [{ legIndex: 0, status: "credited", transferId: "transfer-1" }],
+        });
+    });
+
+    it.each([{}, { idempotencyKey: "" }, { idempotencyKey: "k", extra: true }])(
+        "rejects abandonBatch input %o before calling the server",
+        async (input) => {
+            const transport = unaryTransport({});
+            const service = new InternalTransfersService(
+                { authApi: transport.transport },
+                undefined,
+                testScales(),
+            );
+
+            await expect(service.abandonBatch(input as never)).rejects.toBeInstanceOf(
+                ValidationError,
+            );
+            expect(transport.unary).not.toHaveBeenCalled();
+        },
+    );
+
+    it("maps IDEMPOTENCY_KEY_ABANDONED on batchCreate to a non-retryable PreconditionFailedError", async () => {
+        const error = new ConnectError("key abandoned", Code.FailedPrecondition, undefined, [
+            {
+                desc: ErrorDetailSchema,
+                value: create(ErrorDetailSchema, {
+                    code: ErrorCode.IDEMPOTENCY_KEY_ABANDONED,
+                }),
+            },
+        ]);
+        const service = new InternalTransfersService(
+            { authApi: createErrorMappingTransport(rejectingUnaryTransport(error)) },
+            undefined,
+            testScales(),
+        );
+
+        const rejected = service.batchCreate({
+            legs: [
+                {
+                    destination: { type: "account", accountId: formatId(22n) },
+                    assetId: 1,
+                    quantity: "1",
+                },
+            ],
+            idempotencyKey: "abandoned-key",
+        });
+
+        await expect(rejected).rejects.toBeInstanceOf(PreconditionFailedError);
+        await expect(rejected).rejects.toMatchObject({
+            retryable: false,
+            detail: { service: "internal_transfer", code: "IDEMPOTENCY_KEY_ABANDONED" },
+        });
     });
 
     it.each([

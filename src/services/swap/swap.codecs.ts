@@ -7,11 +7,14 @@ export const SWAP_STATUS_VALUES = [
     "partially_completed",
     "failed",
     "reconciling",
+    "canceling",
+    "canceled",
 ] as const;
 /**
  * `executing` places, fills and settles orders; `reconciling` is establishing an order's outcome
- * (balances already show settled fills). `completed`, `partially_completed` and `failed` are
- * terminal: anything not traded stays on the account.
+ * (balances already show settled fills); `canceling` stops starting new slices or first-leg orders
+ * while finishing what was already placed. `completed`, `partially_completed`, `failed` and
+ * `canceled` are terminal: anything not traded stays on the account.
  */
 export type SwapStatus = (typeof SWAP_STATUS_VALUES)[number];
 
@@ -26,9 +29,10 @@ export const SWAP_REASON_VALUES = [
     "minimum_not_met",
     "max_order_quantity",
     "intermediate_below_minimum",
+    "user_canceled",
 ] as const;
 /**
- * Why a `partially_completed` or `failed` swap did not trade its whole amount.
+ * Why a `partially_completed`, `failed` or `canceled` swap did not trade its whole amount.
  * `intermediate_below_minimum`: on a two-leg route, intermediate asset below the second market's
  * minimum order stays on the account (`intermediateRemainder`).
  */
@@ -67,6 +71,7 @@ export const SWAP_SLICE_REASON_VALUES = [
     "refused",
     "insufficient_liquidity",
     "execution_ended",
+    "canceled",
 ] as const;
 /** Why a final TWAP slice did not trade in full, or why its intermediate asset was carried. */
 export type SwapSliceReason = (typeof SWAP_SLICE_REASON_VALUES)[number];
@@ -82,6 +87,8 @@ export const SwapStatusCodec = {
         [Proto.SwapStatus.PARTIALLY_COMPLETED]: "partially_completed",
         [Proto.SwapStatus.FAILED]: "failed",
         [Proto.SwapStatus.RECONCILING]: "reconciling",
+        [Proto.SwapStatus.CANCELING]: "canceling",
+        [Proto.SwapStatus.CANCELED]: "canceled",
     } satisfies ProtoToOutput<Proto.SwapStatus, SwapStatus>,
 } as const;
 
@@ -98,6 +105,7 @@ export const SwapReasonCodec = {
         [Proto.SwapReason.MINIMUM_NOT_MET]: "minimum_not_met",
         [Proto.SwapReason.MAX_ORDER_QUANTITY]: "max_order_quantity",
         [Proto.SwapReason.INTERMEDIATE_BELOW_MINIMUM]: "intermediate_below_minimum",
+        [Proto.SwapReason.USER_CANCELED]: "user_canceled",
     } satisfies ProtoToOutput<Proto.SwapReason, SwapReason>,
 } as const;
 
@@ -136,6 +144,7 @@ export const SwapSliceReasonCodec = {
         [Proto.SwapSlice_Reason.REFUSED]: "refused",
         [Proto.SwapSlice_Reason.INSUFFICIENT_LIQUIDITY]: "insufficient_liquidity",
         [Proto.SwapSlice_Reason.EXECUTION_ENDED]: "execution_ended",
+        [Proto.SwapSlice_Reason.CANCELED]: "canceled",
     } satisfies ProtoToOutput<Proto.SwapSlice_Reason, SwapSliceReason>,
 } as const;
 

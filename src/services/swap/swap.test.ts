@@ -358,7 +358,115 @@ describe("SwapService", () => {
                 },
             ],
             progress: null,
+            cancelRequestedAt: null,
         });
+    });
+
+    it("cancels a swap, decodes cancel state and slice reason, and retries unknown outcomes", async () => {
+        const canceledSwap = rawSwap({
+            status: Proto.SwapStatus.CANCELED,
+            reason: Proto.SwapReason.USER_CANCELED,
+            isTerminal: true,
+            cancelRequestedAt: { seconds: 1_700_000_050n, nanos: 250_000_000 },
+            progress: {
+                completedSlices: 0,
+                totalSlices: 2,
+                slices: [
+                    {
+                        index: 1,
+                        state: Proto.SwapSlice_State.SKIPPED,
+                        reason: Proto.SwapSlice_Reason.CANCELED,
+                    },
+                ],
+            },
+        });
+        const transport = unaryTransport((_call, index) => {
+            if (index === 0) throw new ConnectError("deadline", Code.DeadlineExceeded);
+            return { swap: canceledSwap };
+        });
+        const service = new SwapService({
+            authApi: createErrorMappingTransport(transport.transport),
+        });
+
+        const first = service.cancel({ swapId: formatId(77n) });
+        await expect(first).rejects.toBeInstanceOf(TimeoutError);
+        await expect(first).rejects.toMatchObject({ retryable: true });
+
+        const swap = await service.cancel({ swapId: formatId(77n) });
+        expect(transport.lastCall()?.method.localName).toBe("cancelSwap");
+        expect(transport.lastCall()?.message).toEqual({ swapId: 77n });
+        expect(swap).toMatchObject({
+            status: "canceled",
+            reason: "user_canceled",
+            isTerminal: true,
+            cancelRequestedAt: 1_700_000_050_250,
+            progress: {
+                slices: [{ index: 1, state: "skipped", reason: "canceled" }],
+            },
+        });
+    });
+
+    it("decodes a canceling swap as non-terminal with cancelRequestedAt", async () => {
+        const transport = unaryTransport({
+            swap: rawSwap({
+                status: Proto.SwapStatus.CANCELING,
+                reason: Proto.SwapReason.REASON_UNSPECIFIED,
+                isTerminal: false,
+                cancelRequestedAt: { seconds: 1_700_000_050n, nanos: 0 },
+            }),
+        });
+        const service = new SwapService({ authApi: transport.transport });
+
+        await expect(service.cancel({ swapId: formatId(77n) })).resolves.toMatchObject({
+            status: "canceling",
+            reason: null,
+            isTerminal: false,
+            cancelRequestedAt: 1_700_000_050_000,
+        });
+    });
+
+    it("lists swaps for the resolved account with openOnly and pagination", async () => {
+        const transport = unaryTransport({
+            swaps: [rawSwap()],
+            nextPageToken: "next-cursor",
+        });
+        const service = new SwapService({ authApi: transport.transport }, activeSubaccount);
+
+        const page = await service.list({ openOnly: true, limit: 25, pageToken: " cursor-1 " });
+
+        expect(transport.lastCall()?.method.localName).toBe("listSwaps");
+        expect(transport.lastCall()?.message).toEqual({
+            subaccountId: 11n,
+            openOnly: true,
+            limit: 25,
+            pageToken: "cursor-1",
+        });
+        expect(page).toMatchObject({
+            swaps: [{ swapId: formatId(77n), cancelRequestedAt: null }],
+            nextPageToken: "next-cursor",
+        });
+
+        await service.list({ account: "main" });
+        expect(transport.lastCall()?.message).toEqual({});
+    });
+
+    it.each([
+        ["negative limit", { limit: -1 }],
+        ["limit over 50", { limit: 51 }],
+        ["fractional limit", { limit: 10.5 }],
+        ["unknown field", { extra: true }],
+    ])("rejects list input with %s before sending", async (_name, input) => {
+        const transport = unaryTransport({ swaps: [], nextPageToken: "" });
+        const service = new SwapService({ authApi: transport.transport });
+        await expect(service.list(input as never)).rejects.toBeInstanceOf(ValidationError);
+        expect(transport.calls).toHaveLength(0);
+    });
+
+    it("rejects malformed cancel swapId before sending", async () => {
+        const transport = unaryTransport({ swap: rawSwap() });
+        const service = new SwapService({ authApi: transport.transport });
+        await expect(service.cancel({ swapId: "" })).rejects.toBeInstanceOf(ValidationError);
+        expect(transport.calls).toHaveLength(0);
     });
 
     it("settles an unknown create outcome by resending the same request", async () => {
@@ -427,6 +535,18 @@ describe("SwapService", () => {
             { service: "swap", code: "QUOTE_EXPIRED" },
         ],
         [
+            Code.FailedPrecondition,
+            { code: Proto.ErrorCode.SWAP_ALREADY_FINAL, swapId: 77n },
+            PreconditionFailedError,
+            { service: "swap", code: "SWAP_ALREADY_FINAL", swapId: formatId(77n) },
+        ],
+        [
+            Code.FailedPrecondition,
+            { code: Proto.ErrorCode.SWAP_NOT_CANCELABLE },
+            PreconditionFailedError,
+            { service: "swap", code: "SWAP_NOT_CANCELABLE" },
+        ],
+        [
             Code.Unavailable,
             { code: Proto.ErrorCode.SERVICE_UNAVAILABLE },
             ServiceUnavailableError,
@@ -452,7 +572,7 @@ describe("SwapExecutionSchema", () => {
 
     it("exports TWAP duration and slice interval bounds", () => {
         expect(SWAP_TWAP_MIN_DURATION_MS).toBe(60_000);
-        expect(SWAP_TWAP_MAX_DURATION_MS).toBe(3_600_000);
+        expect(SWAP_TWAP_MAX_DURATION_MS).toBe(86_400_000);
         expect(SWAP_TWAP_MIN_SLICE_INTERVAL_MS).toBe(10_000);
     });
 });

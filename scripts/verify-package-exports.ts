@@ -538,6 +538,11 @@ async function verifyServiceInference(): Promise<void> {
     expectType<import("@polyester/sdk").SwapExecutionOutput>(swap.execution);
     expectType<import("@polyester/sdk").SwapLeg[]>(swap.legs);
     expectType<import("@polyester/sdk").SwapProgress | null>(swap.progress);
+    expectType<number | null>(swap.cancelRequestedAt);
+    expectType<import("@polyester/sdk").SwapStatus>("canceling");
+    expectType<import("@polyester/sdk").SwapStatus>("canceled");
+    expectType<import("@polyester/sdk").SwapReason>("user_canceled");
+    expectType<import("@polyester/sdk").SwapSliceReason>("canceled");
     expectType<number>(AUTO_WITHDRAW_CONVERSION_TWAP_MIN_DURATION_MS);
     expectType<number>(AUTO_WITHDRAW_CONVERSION_TWAP_MAX_DURATION_MS);
     expectType<number>(AUTO_WITHDRAW_CONVERSION_TWAP_DEFAULT_DURATION_MS);
@@ -545,6 +550,23 @@ async function verifyServiceInference(): Promise<void> {
     expectType<number>(SWAP_TWAP_MAX_DURATION_MS);
     expectType<number>(SWAP_TWAP_MIN_SLICE_INTERVAL_MS);
     expectType<import("@polyester/sdk").Swap>(await client.swap.get({ idempotencyKey: "swap-1" }));
+    expectType<import("@polyester/sdk").Swap>(
+        await client.swap.cancel({
+            swapId: swap.swapId,
+        } satisfies import("@polyester/sdk").CancelSwapInput),
+    );
+    const swapPage = await client.swap.list({
+        openOnly: true,
+        limit: 20,
+    } satisfies import("@polyester/sdk").ListSwapsInput);
+    expectType<import("@polyester/sdk").ListSwapsResult>(swapPage);
+    expectNotAny(swapPage, true);
+    expectType<import("@polyester/sdk").InternalTransferBatchStatus>("abandoned");
+    expectType<import("@polyester/sdk").BatchCreateInternalTransfersResult>(
+        await client.internalTransfers.abandonBatch({
+            idempotencyKey: "batch-1",
+        } satisfies import("@polyester/sdk").AbandonInternalTransferBatchInput),
+    );
     const statementExport = await client.statementExports.create({
         startTime: 1,
         endTime: 86_400_000,

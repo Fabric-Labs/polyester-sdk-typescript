@@ -9,13 +9,19 @@ import { parse } from "../../shared/validation.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import { resolveAccountScopedInput, type SubaccountResolver } from "../subaccount-resolver.js";
 import {
+    CancelSwapInputSchema,
     CreateSwapInputSchema,
     GetSwapInputSchema,
+    ListSwapsInputSchema,
+    ListSwapsResultSchema,
     QuoteSwapInputSchema,
     SwapQuoteSchema,
     SwapSchema,
+    type CancelSwapInput,
     type CreateSwapInput,
     type GetSwapInput,
+    type ListSwapsInput,
+    type ListSwapsResult,
     type QuoteSwapInput,
     type Swap,
     type SwapQuote,
@@ -25,12 +31,13 @@ import {
  * Converts one asset of an account's Trading balance into another with immediate-or-cancel spot
  * orders on that account, at its spot taker fee on each market and no other fee. The route is the
  * direct market, or two markets through USDT or USDC; `execution` trades at market or as a TWAP
- * over up to 60 minutes. Every part that trades nets at least the accepted `minAmountOut` rate;
+ * over up to 24 hours. Every part that trades nets at least the accepted `minAmountOut` rate;
  * anything that cannot stays on the account. Only an order the exchange accepts late, under
  * severe delay, can pay a later scheduled fee and net less; the swap then ends `failed` with
  * reason `minimum_not_met`, and its amounts show what actually traded. Sized by source amount only. Flow: `quote`, then
  * `create` with the same terms and the quote's `minAmountOut` and `expiresAt`, then `get` until
- * `isTerminal`; a market swap usually finishes within seconds, a TWAP by its deadline.
+ * `isTerminal`; a market swap usually finishes within seconds, a TWAP by its deadline. `cancel`
+ * stops a swap that has not ended, and `list` finds an account's swaps newest first.
  *
  * Needs a session or a signed API key with the `swap` policy action; subaccount members need the
  * `swap` permission. The swap's orders also follow the subaccount's spot trading policy.
@@ -101,5 +108,44 @@ export class SwapService {
         const request = parse(GetSwapInputSchema, input);
         const response = await this.#client.getSwap(request, toConnectCallOptions(options));
         return parse(SwapSchema, response.swap);
+    }
+
+    /**
+     * Cancels one of the caller's swaps that has not ended. No new slice or first-leg order starts;
+     * what was already placed finishes, and nothing that traded is undone. The swap stays
+     * `canceling` (or `reconciling` while confirming an order) until terminal (`canceled` with
+     * reason `user_canceled`, or the outcome it would have had if nothing was left to stop); keep
+     * polling `get` until `isTerminal`.
+     *
+     * Idempotent once recorded: repeating the request returns the swap with its original
+     * `cancelRequestedAt`, so an unknown outcome (`TimeoutError`, `ServiceUnavailableError`,
+     * `NetworkError`) is resolved by retrying. Throws `PreconditionFailedError` with
+     * `SWAP_ALREADY_FINAL` (with `swapId` on `detail`) when the swap ended without a cancel, or
+     * `SWAP_NOT_CANCELABLE` for an auto-withdraw conversion; `ResourceNotFoundError`
+     * (`SWAP_NOT_FOUND`) when unknown.
+     */
+    async cancel(input: CancelSwapInput, options?: PolyesterRequestOptions): Promise<Swap> {
+        const request = parse(CancelSwapInputSchema, input);
+        const response = await this.#client.cancelSwap(request, toConnectCallOptions(options));
+        return parse(SwapSchema, response.swap);
+    }
+
+    /**
+     * Lists the caller's swaps funded by the resolved account, newest first. Pass `openOnly: true`
+     * to list only swaps that have not ended (`isTerminal` false). Inactive subaccounts can still
+     * be listed so their open swaps can be found and canceled. Pass the returned `nextPageToken`
+     * as `pageToken` with the same account and `openOnly` to continue; an empty `nextPageToken`
+     * means no more swaps.
+     */
+    async list(
+        input: ListSwapsInput = {},
+        options?: PolyesterRequestOptions,
+    ): Promise<ListSwapsResult> {
+        const request = parse(
+            ListSwapsInputSchema,
+            resolveAccountScopedInput(input, this.#resolver),
+        );
+        const response = await this.#client.listSwaps(request, toConnectCallOptions(options));
+        return parse(ListSwapsResultSchema, response);
     }
 }
