@@ -215,3 +215,7 @@ Setup, commands, and release process live in
 [SECURITY.md](SECURITY.md), not the issue tracker.
 
 Maintained by Fabric Labs and updated as the public API evolves.
+
+## License
+
+Licensed under the [Apache License 2.0](LICENSE); see also [NOTICE](NOTICE).
