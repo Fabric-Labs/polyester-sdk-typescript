@@ -32,7 +32,7 @@ import {
     AUTO_WITHDRAW_CONVERSION_TWAP_DEFAULT_DURATION_MS,
     AUTO_WITHDRAW_CONVERSION_TWAP_MAX_DURATION_MS,
     AUTO_WITHDRAW_CONVERSION_TWAP_MIN_DURATION_MS,
-} from "./service.js";
+} from "./index.js";
 
 const E18 = 10n ** 18n;
 const ts = (seconds: number) => ({ seconds: BigInt(seconds), nanos: 0 });

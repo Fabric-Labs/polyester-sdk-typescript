@@ -147,21 +147,11 @@ import {
 import type { PolyesterErrorDetail as ErrorsPolyesterErrorDetail } from "@polyester/sdk/errors";
 import { accountActivityService } from "@polyester/sdk/services/account-activity";
 import { assistantService } from "@polyester/sdk/services/assistant";
-import {
-    AUTO_WITHDRAW_CONVERSION_TWAP_DEFAULT_DURATION_MS as serviceAutoWithdrawDefaultDurationMs,
-    AUTO_WITHDRAW_CONVERSION_TWAP_MAX_DURATION_MS as serviceAutoWithdrawMaxDurationMs,
-    AUTO_WITHDRAW_CONVERSION_TWAP_MIN_DURATION_MS as serviceAutoWithdrawMinDurationMs,
-    autoWithdrawService,
-} from "@polyester/sdk/services/auto-withdraw";
+import { autoWithdrawService } from "@polyester/sdk/services/auto-withdraw";
 import { connectedAppsService } from "@polyester/sdk/services/connected-apps";
 import { dustConversionService } from "@polyester/sdk/services/dust-conversion";
 import { notificationsService } from "@polyester/sdk/services/notifications";
-import {
-    SWAP_TWAP_MAX_DURATION_MS as serviceSwapMaxDurationMs,
-    SWAP_TWAP_MIN_DURATION_MS as serviceSwapMinDurationMs,
-    SWAP_TWAP_MIN_SLICE_INTERVAL_MS as serviceSwapMinSliceIntervalMs,
-    swapService,
-} from "@polyester/sdk/services/swap";
+import { swapService } from "@polyester/sdk/services/swap";
 import { ordersService } from "@polyester/sdk/services/orders";
 import { priceAlertsService } from "@polyester/sdk/services/price-alerts";
 import { profitAndLossService } from "@polyester/sdk/services/profit-and-loss";
@@ -551,15 +541,9 @@ async function verifyServiceInference(): Promise<void> {
     expectType<number>(AUTO_WITHDRAW_CONVERSION_TWAP_MIN_DURATION_MS);
     expectType<number>(AUTO_WITHDRAW_CONVERSION_TWAP_MAX_DURATION_MS);
     expectType<number>(AUTO_WITHDRAW_CONVERSION_TWAP_DEFAULT_DURATION_MS);
-    expectType<number>(serviceAutoWithdrawMinDurationMs);
-    expectType<number>(serviceAutoWithdrawMaxDurationMs);
-    expectType<number>(serviceAutoWithdrawDefaultDurationMs);
     expectType<number>(SWAP_TWAP_MIN_DURATION_MS);
     expectType<number>(SWAP_TWAP_MAX_DURATION_MS);
     expectType<number>(SWAP_TWAP_MIN_SLICE_INTERVAL_MS);
-    expectType<number>(serviceSwapMinDurationMs);
-    expectType<number>(serviceSwapMaxDurationMs);
-    expectType<number>(serviceSwapMinSliceIntervalMs);
     expectType<import("@polyester/sdk").Swap>(await client.swap.get({ idempotencyKey: "swap-1" }));
     const statementExport = await client.statementExports.create({
         startTime: 1,

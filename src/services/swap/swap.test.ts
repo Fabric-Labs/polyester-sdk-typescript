@@ -21,7 +21,7 @@ import {
     SWAP_TWAP_MAX_DURATION_MS,
     SWAP_TWAP_MIN_DURATION_MS,
     SWAP_TWAP_MIN_SLICE_INTERVAL_MS,
-} from "./service.js";
+} from "./index.js";
 
 const E18 = 10n ** 18n;
 const activeSubaccount: SubaccountResolver = { getDefaultSubaccountId: () => formatId(11n) };
