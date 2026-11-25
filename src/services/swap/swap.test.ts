@@ -17,6 +17,11 @@ import { toU128 } from "../../utils/u128.js";
 import type { SubaccountResolver } from "../subaccount-resolver.js";
 import { SwapExecutionSchema } from "./swap.schemas.js";
 import { SwapService } from "./swap.js";
+import {
+    SWAP_TWAP_MAX_DURATION_MS,
+    SWAP_TWAP_MIN_DURATION_MS,
+    SWAP_TWAP_MIN_SLICE_INTERVAL_MS,
+} from "./service.js";
 
 const E18 = 10n ** 18n;
 const activeSubaccount: SubaccountResolver = { getDefaultSubaccountId: () => formatId(11n) };
@@ -443,5 +448,11 @@ describe("SwapExecutionSchema", () => {
             type: "unspecified",
         });
         expect(v.parse(SwapExecutionSchema, undefined)).toBeUndefined();
+    });
+
+    it("exports TWAP duration and slice interval bounds", () => {
+        expect(SWAP_TWAP_MIN_DURATION_MS).toBe(60_000);
+        expect(SWAP_TWAP_MAX_DURATION_MS).toBe(3_600_000);
+        expect(SWAP_TWAP_MIN_SLICE_INTERVAL_MS).toBe(10_000);
     });
 });

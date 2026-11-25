@@ -28,6 +28,11 @@ import { isRevisionConflictError } from "../../utils/errors.js";
 import { toU128 } from "../../utils/u128.js";
 import { AutoWithdrawService } from "./auto-withdraw.js";
 import type { SetAutoWithdrawRuleInput } from "./auto-withdraw.schemas.js";
+import {
+    AUTO_WITHDRAW_CONVERSION_TWAP_DEFAULT_DURATION_MS,
+    AUTO_WITHDRAW_CONVERSION_TWAP_MAX_DURATION_MS,
+    AUTO_WITHDRAW_CONVERSION_TWAP_MIN_DURATION_MS,
+} from "./service.js";
 
 const E18 = 10n ** 18n;
 const ts = (seconds: number) => ({ seconds: BigInt(seconds), nanos: 0 });
@@ -316,13 +321,17 @@ describe("AutoWithdrawService payout asset", () => {
     });
 
     it("reads a payout rule's zero TWAP duration as the 300000 ms default", async () => {
+        expect(AUTO_WITHDRAW_CONVERSION_TWAP_MIN_DURATION_MS).toBe(60_000);
+        expect(AUTO_WITHDRAW_CONVERSION_TWAP_MAX_DURATION_MS).toBe(3_600_000);
+        expect(AUTO_WITHDRAW_CONVERSION_TWAP_DEFAULT_DURATION_MS).toBe(300_000);
+
         const { service } = serviceWith({
             rule: rawRule({ payoutAssetId: 2, conversionTwapDurationMs: 0n }),
         });
 
         await expect(service.setRule(setInput({ payoutAssetId: 2 }))).resolves.toMatchObject({
             payoutAssetId: 2,
-            conversionTwapDurationMs: 300_000,
+            conversionTwapDurationMs: AUTO_WITHDRAW_CONVERSION_TWAP_DEFAULT_DURATION_MS,
         });
     });
 

@@ -37,6 +37,12 @@ describe("public package entrypoint", () => {
                 isPolicyInUseError: expect.any(Function),
                 isPolicyLockedError: expect.any(Function),
                 isPolicyScopeMismatchError: expect.any(Function),
+                SWAP_TWAP_MIN_DURATION_MS: 60_000,
+                SWAP_TWAP_MAX_DURATION_MS: 3_600_000,
+                SWAP_TWAP_MIN_SLICE_INTERVAL_MS: 10_000,
+                AUTO_WITHDRAW_CONVERSION_TWAP_MIN_DURATION_MS: 60_000,
+                AUTO_WITHDRAW_CONVERSION_TWAP_MAX_DURATION_MS: 3_600_000,
+                AUTO_WITHDRAW_CONVERSION_TWAP_DEFAULT_DURATION_MS: 300_000,
             }),
         );
     });

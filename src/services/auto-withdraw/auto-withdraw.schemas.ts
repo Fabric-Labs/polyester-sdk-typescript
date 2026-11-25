@@ -25,6 +25,7 @@ import { fromU128, toU128 } from "../../utils/u128.js";
 import { PositiveUint32InputSchema } from "../shared.js";
 import { SwapReasonCodec, SwapStatusCodec } from "../swap/swap.codecs.js";
 import { SwapExecutionSchema, SwapLegSchema } from "../swap/swap.schemas.js";
+import { AUTO_WITHDRAW_CONVERSION_TWAP_DEFAULT_DURATION_MS } from "./auto-withdraw.constants.js";
 import {
     AUTO_WITHDRAW_WEEKDAY_VALUES,
     AutoWithdrawCadenceCodec,
@@ -326,8 +327,6 @@ const AutoWithdrawPauseSchema = v.object({
 
 export type AutoWithdrawPause = v.InferOutput<typeof AutoWithdrawPauseSchema>;
 
-const DEFAULT_CONVERSION_TWAP_DURATION_MS = 300_000;
-
 export const AutoWithdrawRuleSchema = v.pipe(
     v.object({
         subaccountId: v.optional(PublicIdOrEmptySchema, 0n),
@@ -361,7 +360,7 @@ export const AutoWithdrawRuleSchema = v.pipe(
                 payoutAssetId === 0
                     ? null
                     : conversionTwapDurationMs === 0n
-                      ? DEFAULT_CONVERSION_TWAP_DURATION_MS
+                      ? AUTO_WITHDRAW_CONVERSION_TWAP_DEFAULT_DURATION_MS
                       : Number(conversionTwapDurationMs),
         }),
     ),
