@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file swap/v1/swap.proto.
  */
 export const file_swap_v1_swap: GenFile = /*@__PURE__*/
-  fileDesc("ChJzd2FwL3YxL3N3YXAucHJvdG8SB3N3YXAudjEiwwEKCVN3YXBUZXJtcxIXCg1zdWJhY2NvdW50X2lkGAEgASgGQgASGQoPc291cmNlX2Fzc2V0X2lkGAIgASgNQgASHgoUZGVzdGluYXRpb25fYXNzZXRfaWQYAyABKA1CABItCgphbW91bnRfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOEgAEiUKCWV4ZWN1dGlvbhgFIAEoCzISLnN3YXAudjEuRXhlY3V0aW9uOgBCCgoGYW1vdW50EgAiEQoPTWFya2V0RXhlY3V0aW9uIkUKDVR3YXBFeGVjdXRpb24SFQoLZHVyYXRpb25fbXMYASABKARCABIbChFzbGljZV9pbnRlcnZhbF9tcxgCIAEoBEIAOgAibQoJRXhlY3V0aW9uEioKBm1hcmtldBgBIAEoCzIYLnN3YXAudjEuTWFya2V0RXhlY3V0aW9uSAASJgoEdHdhcBgCIAEoCzIWLnN3YXAudjEuVHdhcEV4ZWN1dGlvbkgAQgwKCHN0cmF0ZWd5EgAizwEKDFN3YXBRdW90ZUxlZxIRCglzeW1ib2xfaWQYASABKA0SGwoEc2lkZRgCIAEoDjINLnN3YXAudjEuU2lkZRIVCg1hdmVyYWdlX3ByaWNlGAMgASgJEhgKEHByaWNlX2ltcGFjdF9icHMYBCABKA0SHgoWdGFrZXJfZmVlX3JhdGVfcGVyY2VudBgFIAEoCRIoCgdmZWVfZTE4GAYgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIUCgxmZWVfYXNzZXRfaWQYByABKA0i8AIKCVN3YXBRdW90ZRIhCgV0ZXJtcxgBIAEoCzISLnN3YXAudjEuU3dhcFRlcm1zEiMKBGxlZ3MYAiADKAsyFS5zd2FwLnYxLlN3YXBRdW90ZUxlZxI4ChdleHBlY3RlZF9hbW91bnRfb3V0X2UxOBgDIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSMwoSbWluX2Ftb3VudF9vdXRfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBItCglxdW90ZWRfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmV4cGlyZXNfYXQYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEh0KFWludGVybWVkaWF0ZV9hc3NldF9pZBgHIAEoDRIYChBwcmljZV9pbXBhY3RfYnBzGAggASgNEhQKDHRvdGFsX3NsaWNlcxgJIAEoDSKzAgoJU3dhcE9yZGVyEhAKCG9yZGVyX2lkGAEgASgGEhEKCXN5bWJvbF9pZBgCIAEoDRIbCgRzaWRlGAMgASgOMg0uc3dhcC52MS5TaWRlEgsKA2xlZxgEIAEoDRIoCgZzdGF0dXMYBSABKA4yGC5zd2FwLnYxLlN3YXBPcmRlclN0YXR1cxIZChFsaW1pdF9wcmljZV90aWNrcxgGIAEoAxIqCglzcGVudF9lMTgYByABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Ei0KDHJlY2VpdmVkX2UxOBgIIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSKAoHZmVlX2UxOBgJIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSDQoFc2xpY2UYCiABKA0i4QEKB1N3YXBMZWcSCwoDbGVnGAEgASgNEhEKCXN5bWJvbF9pZBgCIAEoDRIbCgRzaWRlGAMgASgOMg0uc3dhcC52MS5TaWRlEioKCXNwZW50X2UxOBgEIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSLQoMcmVjZWl2ZWRfZTE4GAUgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIoCgdmZWVfZTE4GAYgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIUCgxmZWVfYXNzZXRfaWQYByABKA0i8gYKCVN3YXBTbGljZRINCgVpbmRleBgBIAEoDRIuCgpwbGFubmVkX2F0GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgtleGVjdXRlZF9hdBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLZmluaXNoZWRfYXQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEicKBXN0YXRlGAUgASgOMhguc3dhcC52MS5Td2FwU2xpY2UuU3RhdGUSKQoGcmVhc29uGAYgASgOMhkuc3dhcC52MS5Td2FwU2xpY2UuUmVhc29uEhEKCWNvbXBsZXRlZBgHIAEoCBIxChBpbnB1dF90cmFkZWRfZTE4GAggASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBI0ChNvdXRwdXRfcmVjZWl2ZWRfZTE4GAkgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBI1ChRzZWNvbmRfbGVnX2lucHV0X2UxOBgKIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSOQoYaW50ZXJtZWRpYXRlX2NhcnJpZWRfZTE4GAsgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIvCgxjYXJyeV9yZWFzb24YDCABKA4yGS5zd2FwLnYxLlN3YXBTbGljZS5SZWFzb24icgoFU3RhdGUSFQoRU1RBVEVfVU5TUEVDSUZJRUQQABILCgdQTEFOTkVEEAESDQoJRVhFQ1VUSU5HEAISCgoGVFJBREVEEAMSEQoNUEFSVExZX1RSQURFRBAEEgsKB1NLSVBQRUQQBRIKCgZGQUlMRUQQBiLcAQoGUmVhc29uEhwKGFNMSUNFX1JFQVNPTl9VTlNQRUNJRklFRBAAEg8KC1NMT1RfTUlTU0VEEAESFAoQREVBRExJTkVfUkVBQ0hFRBACEhEKDU1BUktFVF9DTE9TRUQQAxIRCg1CRUxPV19NSU5JTVVNEAQSEQoNQUJPVkVfTUFYSU1VTRAFEhYKElBST1RFQ1RJT05fTk9UX01FVBAGEgsKB1JFRlVTRUQQBxIaChZJTlNVRkZJQ0lFTlRfTElRVUlESVRZEAgSEwoPRVhFQ1VUSU9OX0VOREVEEAki2gEKDFN3YXBQcm9ncmVzcxIYChBjb21wbGV0ZWRfc2xpY2VzGAEgASgNEhQKDHRvdGFsX3NsaWNlcxgCIAEoDRIuCgpzdGFydGVkX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghkZWFkbGluZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASIgoGc2xpY2VzGAUgAygLMhIuc3dhcC52MS5Td2FwU2xpY2USGAoQc2xpY2VzX3RydW5jYXRlZBgGIAEoCCKABgoEU3dhcBIPCgdzd2FwX2lkGAEgASgGEhcKD2lkZW1wb3RlbmN5X2tleRgCIAEoCRIVCg1zdWJhY2NvdW50X2lkGAMgASgGEhcKD3NvdXJjZV9hc3NldF9pZBgEIAEoDRIcChRkZXN0aW5hdGlvbl9hc3NldF9pZBgFIAEoDRIrCgphbW91bnRfZTE4GAYgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIzChJtaW5fYW1vdW50X291dF9lMTgYByABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EiMKBnN0YXR1cxgIIAEoDjITLnN3YXAudjEuU3dhcFN0YXR1cxIjCgZyZWFzb24YCSABKA4yEy5zd2FwLnYxLlN3YXBSZWFzb24SEwoLaXNfdGVybWluYWwYCiABKAgSNAoTZXhlY3V0ZWRfYW1vdW50X2UxOBgLIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSMwoSdW5zcGVudF9hbW91bnRfZTE4GAwgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBI0ChNyZWNlaXZlZF9hbW91bnRfZTE4GA0gASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIiCgZvcmRlcnMYDyADKAsyEi5zd2FwLnYxLlN3YXBPcmRlchIuCgpjcmVhdGVkX2F0GBAgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIlCglleGVjdXRpb24YESABKAsyEi5zd2FwLnYxLkV4ZWN1dGlvbhIdChVpbnRlcm1lZGlhdGVfYXNzZXRfaWQYEiABKA0SOwoaaW50ZXJtZWRpYXRlX3JlbWFpbmRlcl9lMTgYEyABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Eh4KBGxlZ3MYFCADKAsyEC5zd2FwLnYxLlN3YXBMZWcSJwoIcHJvZ3Jlc3MYFSABKAsyFS5zd2FwLnYxLlN3YXBQcm9ncmVzcyJTChBRdW90ZVN3YXBSZXF1ZXN0EiMKBXRlcm1zGAEgASgLMhIuc3dhcC52MS5Td2FwVGVybXNCABIaChBtYXhfc2xpcHBhZ2VfYnBzGAIgASgNQgAiNgoRUXVvdGVTd2FwUmVzcG9uc2USIQoFcXVvdGUYASABKAsyEi5zd2FwLnYxLlN3YXBRdW90ZSLCAQoRQ3JlYXRlU3dhcFJlcXVlc3QSGQoPaWRlbXBvdGVuY3lfa2V5GAEgASgJQgASIwoFdGVybXMYAiABKAsyEi5zd2FwLnYxLlN3YXBUZXJtc0IAEjUKEm1pbl9hbW91bnRfb3V0X2UxOBgDIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjhCABI2ChBxdW90ZV9leHBpcmVzX2F0GAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIAIjEKEkNyZWF0ZVN3YXBSZXNwb25zZRIbCgRzd2FwGAEgASgLMg0uc3dhcC52MS5Td2FwIlAKDkdldFN3YXBSZXF1ZXN0EhMKB3N3YXBfaWQYASABKAZCAEgAEhsKD2lkZW1wb3RlbmN5X2tleRgCIAEoCUIASABCDAoIc2VsZWN0b3ISACIuCg9HZXRTd2FwUmVzcG9uc2USGwoEc3dhcBgBIAEoCzINLnN3YXAudjEuU3dhcCKiAQoLRXJyb3JEZXRhaWwSIAoEY29kZRgBIAEoDjISLnN3YXAudjEuRXJyb3JDb2RlEg8KB3N3YXBfaWQYAiABKAYSLwoObWluX2Ftb3VudF9lMTgYAyABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Ei8KDm1heF9hbW91bnRfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOCovCgRTaWRlEhQKEFNJREVfVU5TUEVDSUZJRUQQABIHCgNCVVkQARIICgRTRUxMEAIqeAoKU3dhcFN0YXR1cxIWChJTVEFUVVNfVU5TUEVDSUZJRUQQABINCglFWEVDVVRJTkcQARINCglDT01QTEVURUQQAhIXChNQQVJUSUFMTFlfQ09NUExFVEVEEAMSCgoGRkFJTEVEEAQSDwoLUkVDT05DSUxJTkcQBSqJAgoKU3dhcFJlYXNvbhIWChJSRUFTT05fVU5TUEVDSUZJRUQQABIYChRJTlNVRkZJQ0lFTlRfQkFMQU5DRRABEhQKEFBSSUNFX1BST1RFQ1RJT04QAhIWChJNQVJLRVRfVU5BVkFJTEFCTEUQAxIbChdPUkRFUl9TSVpFX09VVF9PRl9SQU5HRRAEEhAKDFJBVEVfTElNSVRFRBAFEhIKDk9SREVSX1JFSkVDVEVEEAYSCwoHRVhQSVJFRBAHEhMKD01JTklNVU1fTk9UX01FVBAIEhYKEk1BWF9PUkRFUl9RVUFOVElUWRAJEh4KGklOVEVSTUVESUFURV9CRUxPV19NSU5JTVVNEAoqdgoPU3dhcE9yZGVyU3RhdHVzEhwKGE9SREVSX1NUQVRVU19VTlNQRUNJRklFRBAAEgsKB1BMQUNJTkcQARIKCgZQTEFDRUQQAhILCgdSRUZVU0VEEAMSDgoKTk9UX1BMQUNFRBAEEg8KC1VOQ09ORklSTUVEEAUq4QIKCUVycm9yQ29kZRIVChFFUlJPUl9VTlNQRUNJRklFRBAAEhUKEVJPVVRFX1VOU1VQUE9SVEVEEAESFwoTQU1PVU5UX09VVF9PRl9SQU5HRRACEhUKEVFVT1RFX1VOQVZBSUxBQkxFEAMSGwoXUFJPVEVDVElPTl9VTkFDSElFVkFCTEUQBBIRCg1RVU9URV9FWFBJUkVEEAUSGAoUSURFTVBPVEVOQ1lfQ09ORkxJQ1QQBhISCg5TV0FQX05PVF9GT1VORBAHEhkKFUlOVkFMSURfU1VCQUNDT1VOVF9JRBAIEhgKFFNVQkFDQ09VTlRfTk9UX0ZPVU5EEAkSFwoTU1VCQUNDT1VOVF9JTkFDVElWRRAKEhYKElNXQVBfTk9UX1BFUk1JVFRFRBALEhcKE1NFUlZJQ0VfVU5BVkFJTEFCTEUQDBIZChVESVJFQ1RJT05fVU5TVVBQT1JURUQQDTLeAQoLU3dhcFNlcnZpY2USRAoJUXVvdGVTd2FwEhkuc3dhcC52MS5RdW90ZVN3YXBSZXF1ZXN0Ghouc3dhcC52MS5RdW90ZVN3YXBSZXNwb25zZSIAEkcKCkNyZWF0ZVN3YXASGi5zd2FwLnYxLkNyZWF0ZVN3YXBSZXF1ZXN0Ghsuc3dhcC52MS5DcmVhdGVTd2FwUmVzcG9uc2UiABI+CgdHZXRTd2FwEhcuc3dhcC52MS5HZXRTd2FwUmVxdWVzdBoYLnN3YXAudjEuR2V0U3dhcFJlc3BvbnNlIgAaAEI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL3N3YXAvdjE7c3dhcHYxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options, file_polyester_type_v1_u128]);
+  fileDesc("ChJzd2FwL3YxL3N3YXAucHJvdG8SB3N3YXAudjEiwwEKCVN3YXBUZXJtcxIXCg1zdWJhY2NvdW50X2lkGAEgASgGQgASGQoPc291cmNlX2Fzc2V0X2lkGAIgASgNQgASHgoUZGVzdGluYXRpb25fYXNzZXRfaWQYAyABKA1CABItCgphbW91bnRfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOEgAEiUKCWV4ZWN1dGlvbhgFIAEoCzISLnN3YXAudjEuRXhlY3V0aW9uOgBCCgoGYW1vdW50EgAiEQoPTWFya2V0RXhlY3V0aW9uIkUKDVR3YXBFeGVjdXRpb24SFQoLZHVyYXRpb25fbXMYASABKARCABIbChFzbGljZV9pbnRlcnZhbF9tcxgCIAEoBEIAOgAibQoJRXhlY3V0aW9uEioKBm1hcmtldBgBIAEoCzIYLnN3YXAudjEuTWFya2V0RXhlY3V0aW9uSAASJgoEdHdhcBgCIAEoCzIWLnN3YXAudjEuVHdhcEV4ZWN1dGlvbkgAQgwKCHN0cmF0ZWd5EgAizwEKDFN3YXBRdW90ZUxlZxIRCglzeW1ib2xfaWQYASABKA0SGwoEc2lkZRgCIAEoDjINLnN3YXAudjEuU2lkZRIVCg1hdmVyYWdlX3ByaWNlGAMgASgJEhgKEHByaWNlX2ltcGFjdF9icHMYBCABKA0SHgoWdGFrZXJfZmVlX3JhdGVfcGVyY2VudBgFIAEoCRIoCgdmZWVfZTE4GAYgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIUCgxmZWVfYXNzZXRfaWQYByABKA0i8AIKCVN3YXBRdW90ZRIhCgV0ZXJtcxgBIAEoCzISLnN3YXAudjEuU3dhcFRlcm1zEiMKBGxlZ3MYAiADKAsyFS5zd2FwLnYxLlN3YXBRdW90ZUxlZxI4ChdleHBlY3RlZF9hbW91bnRfb3V0X2UxOBgDIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSMwoSbWluX2Ftb3VudF9vdXRfZTE4GAQgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBItCglxdW90ZWRfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmV4cGlyZXNfYXQYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEh0KFWludGVybWVkaWF0ZV9hc3NldF9pZBgHIAEoDRIYChBwcmljZV9pbXBhY3RfYnBzGAggASgNEhQKDHRvdGFsX3NsaWNlcxgJIAEoDSKzAgoJU3dhcE9yZGVyEhAKCG9yZGVyX2lkGAEgASgGEhEKCXN5bWJvbF9pZBgCIAEoDRIbCgRzaWRlGAMgASgOMg0uc3dhcC52MS5TaWRlEgsKA2xlZxgEIAEoDRIoCgZzdGF0dXMYBSABKA4yGC5zd2FwLnYxLlN3YXBPcmRlclN0YXR1cxIZChFsaW1pdF9wcmljZV90aWNrcxgGIAEoAxIqCglzcGVudF9lMTgYByABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Ei0KDHJlY2VpdmVkX2UxOBgIIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSKAoHZmVlX2UxOBgJIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSDQoFc2xpY2UYCiABKA0i4QEKB1N3YXBMZWcSCwoDbGVnGAEgASgNEhEKCXN5bWJvbF9pZBgCIAEoDRIbCgRzaWRlGAMgASgOMg0uc3dhcC52MS5TaWRlEioKCXNwZW50X2UxOBgEIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSLQoMcmVjZWl2ZWRfZTE4GAUgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIoCgdmZWVfZTE4GAYgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIUCgxmZWVfYXNzZXRfaWQYByABKA0igAcKCVN3YXBTbGljZRINCgVpbmRleBgBIAEoDRIuCgpwbGFubmVkX2F0GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgtleGVjdXRlZF9hdBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLZmluaXNoZWRfYXQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEicKBXN0YXRlGAUgASgOMhguc3dhcC52MS5Td2FwU2xpY2UuU3RhdGUSKQoGcmVhc29uGAYgASgOMhkuc3dhcC52MS5Td2FwU2xpY2UuUmVhc29uEhEKCWNvbXBsZXRlZBgHIAEoCBIxChBpbnB1dF90cmFkZWRfZTE4GAggASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBI0ChNvdXRwdXRfcmVjZWl2ZWRfZTE4GAkgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBI1ChRzZWNvbmRfbGVnX2lucHV0X2UxOBgKIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSOQoYaW50ZXJtZWRpYXRlX2NhcnJpZWRfZTE4GAsgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIvCgxjYXJyeV9yZWFzb24YDCABKA4yGS5zd2FwLnYxLlN3YXBTbGljZS5SZWFzb24icgoFU3RhdGUSFQoRU1RBVEVfVU5TUEVDSUZJRUQQABILCgdQTEFOTkVEEAESDQoJRVhFQ1VUSU5HEAISCgoGVFJBREVEEAMSEQoNUEFSVExZX1RSQURFRBAEEgsKB1NLSVBQRUQQBRIKCgZGQUlMRUQQBiLqAQoGUmVhc29uEhwKGFNMSUNFX1JFQVNPTl9VTlNQRUNJRklFRBAAEg8KC1NMT1RfTUlTU0VEEAESFAoQREVBRExJTkVfUkVBQ0hFRBACEhEKDU1BUktFVF9DTE9TRUQQAxIRCg1CRUxPV19NSU5JTVVNEAQSEQoNQUJPVkVfTUFYSU1VTRAFEhYKElBST1RFQ1RJT05fTk9UX01FVBAGEgsKB1JFRlVTRUQQBxIaChZJTlNVRkZJQ0lFTlRfTElRVUlESVRZEAgSEwoPRVhFQ1VUSU9OX0VOREVEEAkSDAoIQ0FOQ0VMRUQQCiLaAQoMU3dhcFByb2dyZXNzEhgKEGNvbXBsZXRlZF9zbGljZXMYASABKA0SFAoMdG90YWxfc2xpY2VzGAIgASgNEi4KCnN0YXJ0ZWRfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGRlYWRsaW5lGAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIiCgZzbGljZXMYBSADKAsyEi5zd2FwLnYxLlN3YXBTbGljZRIYChBzbGljZXNfdHJ1bmNhdGVkGAYgASgIIrkGCgRTd2FwEg8KB3N3YXBfaWQYASABKAYSFwoPaWRlbXBvdGVuY3lfa2V5GAIgASgJEhUKDXN1YmFjY291bnRfaWQYAyABKAYSFwoPc291cmNlX2Fzc2V0X2lkGAQgASgNEhwKFGRlc3RpbmF0aW9uX2Fzc2V0X2lkGAUgASgNEisKCmFtb3VudF9lMTgYBiABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EjMKEm1pbl9hbW91bnRfb3V0X2UxOBgHIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSIwoGc3RhdHVzGAggASgOMhMuc3dhcC52MS5Td2FwU3RhdHVzEiMKBnJlYXNvbhgJIAEoDjITLnN3YXAudjEuU3dhcFJlYXNvbhITCgtpc190ZXJtaW5hbBgKIAEoCBI0ChNleGVjdXRlZF9hbW91bnRfZTE4GAsgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOBIzChJ1bnNwZW50X2Ftb3VudF9lMTgYDCABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EjQKE3JlY2VpdmVkX2Ftb3VudF9lMTgYDSABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4EiIKBm9yZGVycxgPIAMoCzISLnN3YXAudjEuU3dhcE9yZGVyEi4KCmNyZWF0ZWRfYXQYECABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiUKCWV4ZWN1dGlvbhgRIAEoCzISLnN3YXAudjEuRXhlY3V0aW9uEh0KFWludGVybWVkaWF0ZV9hc3NldF9pZBgSIAEoDRI7ChppbnRlcm1lZGlhdGVfcmVtYWluZGVyX2UxOBgTIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSHgoEbGVncxgUIAMoCzIQLnN3YXAudjEuU3dhcExlZxInCghwcm9ncmVzcxgVIAEoCzIVLnN3YXAudjEuU3dhcFByb2dyZXNzEjcKE2NhbmNlbF9yZXF1ZXN0ZWRfYXQYFiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIlMKEFF1b3RlU3dhcFJlcXVlc3QSIwoFdGVybXMYASABKAsyEi5zd2FwLnYxLlN3YXBUZXJtc0IAEhoKEG1heF9zbGlwcGFnZV9icHMYAiABKA1CACI2ChFRdW90ZVN3YXBSZXNwb25zZRIhCgVxdW90ZRgBIAEoCzISLnN3YXAudjEuU3dhcFF1b3RlIsIBChFDcmVhdGVTd2FwUmVxdWVzdBIZCg9pZGVtcG90ZW5jeV9rZXkYASABKAlCABIjCgV0ZXJtcxgCIAEoCzISLnN3YXAudjEuU3dhcFRlcm1zQgASNQoSbWluX2Ftb3VudF9vdXRfZTE4GAMgASgLMhcucG9seWVzdGVyLnR5cGUudjEuVTEyOEIAEjYKEHF1b3RlX2V4cGlyZXNfYXQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgAiMQoSQ3JlYXRlU3dhcFJlc3BvbnNlEhsKBHN3YXAYASABKAsyDS5zd2FwLnYxLlN3YXAiUAoOR2V0U3dhcFJlcXVlc3QSEwoHc3dhcF9pZBgBIAEoBkIASAASGwoPaWRlbXBvdGVuY3lfa2V5GAIgASgJQgBIAEIMCghzZWxlY3RvchIAIi4KD0dldFN3YXBSZXNwb25zZRIbCgRzd2FwGAEgASgLMg0uc3dhcC52MS5Td2FwIiYKEUNhbmNlbFN3YXBSZXF1ZXN0EhEKB3N3YXBfaWQYASABKAZCACIxChJDYW5jZWxTd2FwUmVzcG9uc2USGwoEc3dhcBgBIAEoCzINLnN3YXAudjEuU3dhcCJlChBMaXN0U3dhcHNSZXF1ZXN0EhcKDXN1YmFjY291bnRfaWQYASABKAZCABIRCglvcGVuX29ubHkYAiABKAgSDwoFbGltaXQYAyABKA1CABIUCgpwYWdlX3Rva2VuGAQgASgJQgAiSgoRTGlzdFN3YXBzUmVzcG9uc2USHAoFc3dhcHMYASADKAsyDS5zd2FwLnYxLlN3YXASFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIqIBCgtFcnJvckRldGFpbBIgCgRjb2RlGAEgASgOMhIuc3dhcC52MS5FcnJvckNvZGUSDwoHc3dhcF9pZBgCIAEoBhIvCg5taW5fYW1vdW50X2UxOBgDIAEoCzIXLnBvbHllc3Rlci50eXBlLnYxLlUxMjgSLwoObWF4X2Ftb3VudF9lMTgYBCABKAsyFy5wb2x5ZXN0ZXIudHlwZS52MS5VMTI4Ki8KBFNpZGUSFAoQU0lERV9VTlNQRUNJRklFRBAAEgcKA0JVWRABEggKBFNFTEwQAiqVAQoKU3dhcFN0YXR1cxIWChJTVEFUVVNfVU5TUEVDSUZJRUQQABINCglFWEVDVVRJTkcQARINCglDT01QTEVURUQQAhIXChNQQVJUSUFMTFlfQ09NUExFVEVEEAMSCgoGRkFJTEVEEAQSDwoLUkVDT05DSUxJTkcQBRINCglDQU5DRUxJTkcQBhIMCghDQU5DRUxFRBAHKpwCCgpTd2FwUmVhc29uEhYKElJFQVNPTl9VTlNQRUNJRklFRBAAEhgKFElOU1VGRklDSUVOVF9CQUxBTkNFEAESFAoQUFJJQ0VfUFJPVEVDVElPThACEhYKEk1BUktFVF9VTkFWQUlMQUJMRRADEhsKF09SREVSX1NJWkVfT1VUX09GX1JBTkdFEAQSEAoMUkFURV9MSU1JVEVEEAUSEgoOT1JERVJfUkVKRUNURUQQBhILCgdFWFBJUkVEEAcSEwoPTUlOSU1VTV9OT1RfTUVUEAgSFgoSTUFYX09SREVSX1FVQU5USVRZEAkSHgoaSU5URVJNRURJQVRFX0JFTE9XX01JTklNVU0QChIRCg1VU0VSX0NBTkNFTEVEEAsqdgoPU3dhcE9yZGVyU3RhdHVzEhwKGE9SREVSX1NUQVRVU19VTlNQRUNJRklFRBAAEgsKB1BMQUNJTkcQARIKCgZQTEFDRUQQAhILCgdSRUZVU0VEEAMSDgoKTk9UX1BMQUNFRBAEEg8KC1VOQ09ORklSTUVEEAUqkgMKCUVycm9yQ29kZRIVChFFUlJPUl9VTlNQRUNJRklFRBAAEhUKEVJPVVRFX1VOU1VQUE9SVEVEEAESFwoTQU1PVU5UX09VVF9PRl9SQU5HRRACEhUKEVFVT1RFX1VOQVZBSUxBQkxFEAMSGwoXUFJPVEVDVElPTl9VTkFDSElFVkFCTEUQBBIRCg1RVU9URV9FWFBJUkVEEAUSGAoUSURFTVBPVEVOQ1lfQ09ORkxJQ1QQBhISCg5TV0FQX05PVF9GT1VORBAHEhkKFUlOVkFMSURfU1VCQUNDT1VOVF9JRBAIEhgKFFNVQkFDQ09VTlRfTk9UX0ZPVU5EEAkSFwoTU1VCQUNDT1VOVF9JTkFDVElWRRAKEhYKElNXQVBfTk9UX1BFUk1JVFRFRBALEhcKE1NFUlZJQ0VfVU5BVkFJTEFCTEUQDBIZChVESVJFQ1RJT05fVU5TVVBQT1JURUQQDRIWChJTV0FQX0FMUkVBRFlfRklOQUwQDhIXChNTV0FQX05PVF9DQU5DRUxBQkxFEA8y7QIKC1N3YXBTZXJ2aWNlEkQKCVF1b3RlU3dhcBIZLnN3YXAudjEuUXVvdGVTd2FwUmVxdWVzdBoaLnN3YXAudjEuUXVvdGVTd2FwUmVzcG9uc2UiABJHCgpDcmVhdGVTd2FwEhouc3dhcC52MS5DcmVhdGVTd2FwUmVxdWVzdBobLnN3YXAudjEuQ3JlYXRlU3dhcFJlc3BvbnNlIgASPgoHR2V0U3dhcBIXLnN3YXAudjEuR2V0U3dhcFJlcXVlc3QaGC5zd2FwLnYxLkdldFN3YXBSZXNwb25zZSIAEkcKCkNhbmNlbFN3YXASGi5zd2FwLnYxLkNhbmNlbFN3YXBSZXF1ZXN0Ghsuc3dhcC52MS5DYW5jZWxTd2FwUmVzcG9uc2UiABJECglMaXN0U3dhcHMSGS5zd2FwLnYxLkxpc3RTd2Fwc1JlcXVlc3QaGi5zd2FwLnYxLkxpc3RTd2Fwc1Jlc3BvbnNlIgAaAEI8WjpnaXRodWIuY29tL0ZhYnJpYy1MYWJzL3BvbHllc3Rlci1zZGstZ28vZ2VuL3N3YXAvdjE7c3dhcHYxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options, file_polyester_type_v1_u128]);
 
 /**
  * SwapTerms are the economic terms of one Swap: spend amount_e18 of the
@@ -109,7 +109,7 @@ export const MarketExecutionSchema: GenMessage<MarketExecution> = /*@__PURE__*/
  * price limit allows for the taker fee in force when the order can match
  * within its window, the highest rate scheduled from when the order is
  * prepared until it can last be accepted, some minutes after its sending
- * window since a resent copy of it can still be accepted then. An order the
+ * window since a delayed order can still be accepted then. An order the
  * exchange first accepts after that window (only under severe delay) may pay
  * a later scheduled fee, and a slice it takes below the minimum fails the
  * Swap closed (MINIMUM_NOT_MET). A slice's first order is sent only within
@@ -131,7 +131,8 @@ export const MarketExecutionSchema: GenMessage<MarketExecution> = /*@__PURE__*/
 export type TwapExecution = Message<"swap.v1.TwapExecution"> & {
   /**
    * Total execution duration in milliseconds, from 60000 (1 minute) to
-   * 3600000 (60 minutes). The duration starts when execution starts.
+   * 86400000 (24 hours). The duration starts when execution starts, not when
+   * the Swap is created.
    *
    * @generated from field: uint64 duration_ms = 1;
    */
@@ -756,6 +757,14 @@ export enum SwapSlice_Reason {
    * @generated from enum value: EXECUTION_ENDED = 9;
    */
   EXECUTION_ENDED = 9,
+
+  /**
+   * The Swap was canceled (CancelSwap) before this slot was used, or before
+   * a later slice could convert this slice's intermediate.
+   *
+   * @generated from enum value: CANCELED = 10;
+   */
+  CANCELED = 10,
 }
 
 /**
@@ -893,15 +902,16 @@ export type Swap = Message<"swap.v1.Swap"> & {
   status: SwapStatus;
 
   /**
-   * Why the Swap did not trade its whole amount; set with PARTIALLY_COMPLETED
-   * and FAILED.
+   * Why the Swap did not trade its whole amount; set with
+   * PARTIALLY_COMPLETED, FAILED and CANCELED.
    *
    * @generated from field: swap.v1.SwapReason reason = 9;
    */
   reason: SwapReason;
 
   /**
-   * True once the status is final: COMPLETED, PARTIALLY_COMPLETED or FAILED.
+   * True once the status is final: COMPLETED, PARTIALLY_COMPLETED, FAILED or
+   * CANCELED.
    *
    * @generated from field: bool is_terminal = 10;
    */
@@ -980,6 +990,16 @@ export type Swap = Message<"swap.v1.Swap"> & {
    * @generated from field: swap.v1.SwapProgress progress = 21;
    */
   progress?: SwapProgress | undefined;
+
+  /**
+   * When the Swap's owner first canceled it (CancelSwap); unset when it was
+   * never canceled. Set once and never changed. A cancel that came when
+   * nothing was left to stop leaves the Swap's outcome as it would have been
+   * (for example COMPLETED), with this set.
+   *
+   * @generated from field: google.protobuf.Timestamp cancel_requested_at = 22;
+   */
+  cancelRequestedAt?: Timestamp | undefined;
 };
 
 /**
@@ -1171,6 +1191,129 @@ export const GetSwapResponseSchema: GenMessage<GetSwapResponse> = /*@__PURE__*/
   messageDesc(file_swap_v1_swap, 16);
 
 /**
+ * CancelSwapRequest cancels one of the caller's Swaps.
+ *
+ * @generated from message swap.v1.CancelSwapRequest
+ */
+export type CancelSwapRequest = Message<"swap.v1.CancelSwapRequest"> & {
+  /**
+   * Swap ID.
+   *
+   * @generated from field: fixed64 swap_id = 1;
+   */
+  swapId: bigint;
+};
+
+/**
+ * Describes the message swap.v1.CancelSwapRequest.
+ * Use `create(CancelSwapRequestSchema)` to create a new message.
+ */
+export const CancelSwapRequestSchema: GenMessage<CancelSwapRequest> = /*@__PURE__*/
+  messageDesc(file_swap_v1_swap, 17);
+
+/**
+ * CancelSwapResponse is the Swap as the cancel left it.
+ *
+ * @generated from message swap.v1.CancelSwapResponse
+ */
+export type CancelSwapResponse = Message<"swap.v1.CancelSwapResponse"> & {
+  /**
+   * The Swap: CANCELING until what was already placed finishes, or
+   * RECONCILING while an order's outcome is being confirmed; already
+   * terminal; or, after the Swap's deadline, unchanged (EXECUTING or
+   * RECONCILING, without cancel_requested_at).
+   *
+   * @generated from field: swap.v1.Swap swap = 1;
+   */
+  swap?: Swap | undefined;
+};
+
+/**
+ * Describes the message swap.v1.CancelSwapResponse.
+ * Use `create(CancelSwapResponseSchema)` to create a new message.
+ */
+export const CancelSwapResponseSchema: GenMessage<CancelSwapResponse> = /*@__PURE__*/
+  messageDesc(file_swap_v1_swap, 18);
+
+/**
+ * ListSwapsRequest lists the caller's Swaps funded by one account, newest
+ * first.
+ *
+ * @generated from message swap.v1.ListSwapsRequest
+ */
+export type ListSwapsRequest = Message<"swap.v1.ListSwapsRequest"> & {
+  /**
+   * Optional sub-account public ID whose Swaps to list. When omitted, the
+   * Swaps funded by the caller's root account are listed, or those of the
+   * sub-account an API key is bound to.
+   *
+   * @generated from field: fixed64 subaccount_id = 1;
+   */
+  subaccountId: bigint;
+
+  /**
+   * When true, only Swaps that have not ended (is_terminal false) are listed.
+   *
+   * @generated from field: bool open_only = 2;
+   */
+  openOnly: boolean;
+
+  /**
+   * Maximum number of Swaps to return: 0 means 20, at most 50.
+   *
+   * @generated from field: uint32 limit = 3;
+   */
+  limit: number;
+
+  /**
+   * Opaque, exclusive, keyset-backed cursor from a previous response's
+   * next_page_token. It is bound to the caller, subaccount_id and open_only,
+   * and to the newest-first creation order with a stable tie-breaker for
+   * Swaps created at the same instant; reuse it only with the same values.
+   * Empty for the first page.
+   *
+   * @generated from field: string page_token = 4;
+   */
+  pageToken: string;
+};
+
+/**
+ * Describes the message swap.v1.ListSwapsRequest.
+ * Use `create(ListSwapsRequestSchema)` to create a new message.
+ */
+export const ListSwapsRequestSchema: GenMessage<ListSwapsRequest> = /*@__PURE__*/
+  messageDesc(file_swap_v1_swap, 19);
+
+/**
+ * ListSwapsResponse returns one page of Swaps, newest first.
+ *
+ * @generated from message swap.v1.ListSwapsResponse
+ */
+export type ListSwapsResponse = Message<"swap.v1.ListSwapsResponse"> & {
+  /**
+   * Swaps ordered by creation time, newest first, each as GetSwap returns
+   * it.
+   *
+   * @generated from field: repeated swap.v1.Swap swaps = 1;
+   */
+  swaps: Swap[];
+
+  /**
+   * Cursor for the next page. Empty when no more results exist.
+   *
+   * @generated from field: string next_page_token = 2;
+   */
+  nextPageToken: string;
+};
+
+/**
+ * Describes the message swap.v1.ListSwapsResponse.
+ * Use `create(ListSwapsResponseSchema)` to create a new message.
+ */
+export const ListSwapsResponseSchema: GenMessage<ListSwapsResponse> = /*@__PURE__*/
+  messageDesc(file_swap_v1_swap, 20);
+
+/**
  * ErrorDetail is attached to Swap errors as an error detail of type
  * swap.v1.ErrorDetail.
  *
@@ -1185,7 +1328,8 @@ export type ErrorDetail = Message<"swap.v1.ErrorDetail"> & {
   code: ErrorCode;
 
   /**
-   * IDEMPOTENCY_CONFLICT only: the Swap bound to the idempotency key.
+   * IDEMPOTENCY_CONFLICT and SWAP_ALREADY_FINAL only: the Swap bound to the
+   * idempotency key, or the Swap that ended.
    *
    * @generated from field: fixed64 swap_id = 2;
    */
@@ -1215,7 +1359,7 @@ export type ErrorDetail = Message<"swap.v1.ErrorDetail"> & {
  * Use `create(ErrorDetailSchema)` to create a new message.
  */
 export const ErrorDetailSchema: GenMessage<ErrorDetail> = /*@__PURE__*/
-  messageDesc(file_swap_v1_swap, 17);
+  messageDesc(file_swap_v1_swap, 21);
 
 /**
  * Side is a spot order side.
@@ -1298,11 +1442,36 @@ export enum SwapStatus {
 
   /**
    * An order's outcome is being established. Balances already reflect any
-   * settled fill; the Swap stays here until the outcome is confirmed.
+   * settled fill; the Swap stays here until the outcome is confirmed. A
+   * canceled Swap shows RECONCILING too while it waits for such an outcome
+   * (see CancelSwap).
    *
    * @generated from enum value: RECONCILING = 5;
    */
   RECONCILING = 5,
+
+  /**
+   * The Swap's owner canceled it (CancelSwap) and the cancel is taking
+   * effect: no new slice or first-leg order is sent. An order already sent
+   * finishes, and a slice whose first leg traded still sends its second
+   * leg. The Swap then becomes terminal: CANCELED, or the outcome it would
+   * have had when the cancel came too late to stop anything. This usually
+   * takes seconds. While an order's outcome is being confirmed the Swap is
+   * RECONCILING instead, and CANCELING again once it is, until it ends.
+   *
+   * @generated from enum value: CANCELING = 6;
+   */
+  CANCELING = 6,
+
+  /**
+   * The Swap's owner canceled it (CancelSwap) before its whole amount
+   * traded. The amounts show exactly what traded and settled; the unspent
+   * amount and any intermediate_remainder_e18 stay on the account. reason is
+   * USER_CANCELED.
+   *
+   * @generated from enum value: CANCELED = 7;
+   */
+  CANCELED = 7,
 }
 
 /**
@@ -1400,6 +1569,14 @@ export enum SwapReason {
    * @generated from enum value: INTERMEDIATE_BELOW_MINIMUM = 10;
    */
   INTERMEDIATE_BELOW_MINIMUM = 10,
+
+  /**
+   * The Swap's owner canceled it (CancelSwap) before its whole amount
+   * traded.
+   *
+   * @generated from enum value: USER_CANCELED = 11;
+   */
+  USER_CANCELED = 11,
 }
 
 /**
@@ -1573,6 +1750,22 @@ export enum ErrorCode {
    * @generated from enum value: DIRECTION_UNSUPPORTED = 13;
    */
   DIRECTION_UNSUPPORTED = 13,
+
+  /**
+   * The Swap ended before it was canceled; the error carries its swap_id.
+   * Read it with GetSwap.
+   *
+   * @generated from enum value: SWAP_ALREADY_FINAL = 14;
+   */
+  SWAP_ALREADY_FINAL = 14,
+
+  /**
+   * The Swap converts an auto-withdraw payout and ends only with its
+   * auto-withdraw run.
+   *
+   * @generated from enum value: SWAP_NOT_CANCELABLE = 15;
+   */
+  SWAP_NOT_CANCELABLE = 15,
 }
 
 /**
@@ -1584,7 +1777,7 @@ export const ErrorCodeSchema: GenEnum<ErrorCode> = /*@__PURE__*/
 /**
  * SwapService converts one asset of an account's Trading balance into another
  * through Polyester's spot order books, on the direct market or through USDT
- * or USDC, at market or as a TWAP over up to 60 minutes. A Swap
+ * or USDC, at market or as a TWAP over up to 24 hours. A Swap
  * executes as immediate-or-cancel spot orders on the account, at the
  * account's spot taker fee on each market and with no other fee, protected by
  * the end-to-end min_amount_out the caller accepts: each order's price limit
@@ -1602,7 +1795,10 @@ export const ErrorCodeSchema: GenEnum<ErrorCode> = /*@__PURE__*/
  * trading policy.
  *
  * Follow a Swap with GetSwap until is_terminal is true; a market Swap usually
- * completes within seconds, a TWAP by its deadline.
+ * completes within seconds, a TWAP by its deadline. CancelSwap stops a Swap
+ * that has not ended: no further slice starts, and what already traded
+ * stays traded. ListSwaps finds an account's Swaps again, those that have
+ * not ended among them.
  *
  * @generated from service swap.v1.SwapService
  */
@@ -1658,6 +1854,8 @@ export const SwapService: GenService<{
   },
   /**
    * GetSwap returns one of the caller's Swaps by swap_id or idempotency key.
+   * It needs the SWAP permission on the Swap's funding account; the Swaps of
+   * a sub-account that is not active can still be read.
    *
    * Errors:
    * - INVALID_ARGUMENT: malformed selector.
@@ -1672,6 +1870,84 @@ export const SwapService: GenService<{
     methodKind: "unary";
     input: typeof GetSwapRequestSchema;
     output: typeof GetSwapResponseSchema;
+  },
+  /**
+   * CancelSwap cancels one of the caller's Swaps that has not ended. From
+   * the cancel on, no new slice starts and no further first-leg order is
+   * placed. A first-leg order placed just before the cancel arrives may
+   * still be accepted, once; it is immediate-or-cancel and finishes. A
+   * slice whose first leg traded still sends its second leg for that slice's
+   * own intermediate asset; intermediate asset carried from earlier slices
+   * is not converted and stays on the account. Nothing that traded is
+   * undone. Until that work ends the Swap is CANCELING, or RECONCILING
+   * while an order's outcome is being confirmed (it can move between the
+   * two); it then becomes terminal: CANCELED with reason USER_CANCELED; or,
+   * when the cancel came too late to stop anything, the outcome it would
+   * have had (COMPLETED, PARTIALLY_COMPLETED or FAILED); or FAILED with
+   * MINIMUM_NOT_MET, which still applies to what traded. A cancel usually
+   * takes effect within seconds; confirming an order's outcome can take
+   * longer, and the Swap stays non-terminal until it is confirmed. A cancel
+   * after the Swap's deadline changes nothing: a Swap that has not ended is
+   * returned as it is, EXECUTING or RECONCILING, without
+   * cancel_requested_at, and one that has ended answers SWAP_ALREADY_FINAL.
+   * Keep polling GetSwap until is_terminal is true.
+   *
+   * The cancel is idempotent: repeating a cancel that was recorded in time,
+   * before or after the Swap ends, returns the Swap with its original
+   * cancel_requested_at, so an unknown outcome is resolved by repeating the
+   * request. Canceling needs the SWAP
+   * permission on the funding account, through the caller's role or the API
+   * key's policy; the sub-account's policy does not restrict it, and it
+   * works on a sub-account that is not active, since a cancel only stops
+   * trading.
+   *
+   * Errors:
+   * - INVALID_ARGUMENT: malformed request.
+   * - NOT_FOUND: SWAP_NOT_FOUND.
+   * - FAILED_PRECONDITION: SWAP_ALREADY_FINAL when the Swap ended with no
+   *   cancel recorded (also after its deadline); SWAP_NOT_CANCELABLE for an
+   *   auto-withdraw conversion.
+   * - PERMISSION_DENIED: SWAP_NOT_PERMITTED.
+   * - UNAVAILABLE, DEADLINE_EXCEEDED: SERVICE_UNAVAILABLE or an unknown
+   *   outcome; retry the same request.
+   * - UNAUTHENTICATED: missing or invalid credentials.
+   *
+   * @generated from rpc swap.v1.SwapService.CancelSwap
+   */
+  cancelSwap: {
+    methodKind: "unary";
+    input: typeof CancelSwapRequestSchema;
+    output: typeof CancelSwapResponseSchema;
+  },
+  /**
+   * ListSwaps lists the caller's Swaps funded by one account, the root
+   * account or a sub-account, newest first, each as GetSwap returns it. With
+   * open_only it lists only the Swaps that have not ended, so a client can
+   * find the Swaps it still follows. A sub-account that is not active is
+   * listed too, so its open Swaps can be found and canceled. Each page
+   * continues strictly after the last Swap of the page before it, in the
+   * listing order, and holds the Swaps as they are when it is read: a
+   * listing never repeats a Swap and never skips one that existed when the
+   * listing started and still matches the filter. A Swap created while a
+   * listing is under way is listed on a later page only if it sorts after
+   * the last Swap already listed; otherwise it appears only when listing
+   * starts again. With open_only, a Swap that ends between pages is left out
+   * of the later ones.
+   *
+   * Errors:
+   * - INVALID_ARGUMENT: malformed request or page_token, or
+   *   INVALID_SUBACCOUNT_ID.
+   * - NOT_FOUND: SUBACCOUNT_NOT_FOUND.
+   * - PERMISSION_DENIED: SWAP_NOT_PERMITTED.
+   * - UNAVAILABLE: SERVICE_UNAVAILABLE; retry later.
+   * - UNAUTHENTICATED: missing or invalid credentials.
+   *
+   * @generated from rpc swap.v1.SwapService.ListSwaps
+   */
+  listSwaps: {
+    methodKind: "unary";
+    input: typeof ListSwapsRequestSchema;
+    output: typeof ListSwapsResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_swap_v1_swap, 0);

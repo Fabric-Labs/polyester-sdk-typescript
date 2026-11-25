@@ -3049,7 +3049,8 @@ export enum SubaccountPermission {
   MANAGE_AUTO_WITHDRAW = 27,
 
   /**
-   * Quote, create, and view Swaps of the sub-account's Trading balance.
+   * Quote, create, view and cancel Swaps of the sub-account's Trading
+   * balance.
    *
    * @generated from enum value: SUBACCOUNT_PERMISSION_SWAP = 28;
    */

@@ -504,8 +504,15 @@ export type Order = Message<"orders.v1.Order"> & {
   /**
    * Current accepted total order quantity, updated by successful modifies,
    * scaled by the pair's base_quantity_scale from GetSpotConfig for symbol_id.
-   * 0 as a placeholder for the replacement order of a batch item refused when
-   * it applied, which carries no order terms: the client knows them from the
+   * Above 0 while the order is working. It carries the filled quantity, equal
+   * to cum_qty_scaled and so 0 when the order had no fill, on a base-quantity
+   * order that self-trade prevention decremented to its end
+   * (CANCEL_REASON_STP_DECREMENT) and on an order that a modify ended by
+   * setting its total at or below its filled quantity
+   * (CANCEL_REASON_QTY_AT_OR_BELOW_FILLED). A quote-sized buy never ends at 0
+   * through STP: with no fill it keeps its original quantity. Also 0 as a
+   * placeholder for the replacement order of a batch item refused when it
+   * applied, which carries no order terms: the client knows them from the
    * batch it sent.
    *
    * @generated from field: int64 orig_qty_scaled = 12;
