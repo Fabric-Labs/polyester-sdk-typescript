@@ -94,6 +94,7 @@ export interface ApiKeyEd25519SigningRequest {
     method: string;
     body?: Uint8Array;
     timestamp?: string;
+    signal?: AbortSignal;
 }
 
 /** Largest `X-API-RECV-WINDOW` the backend accepts, in milliseconds. */
@@ -263,16 +264,71 @@ async function sha256Hex(bytes: Uint8Array): Promise<string> {
     return Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+function isPromiseLike<T>(value: T | PromiseLike<T>): value is PromiseLike<T> {
+    return (
+        typeof value === "object" &&
+        value !== null &&
+        "then" in value &&
+        typeof value.then === "function"
+    );
+}
+
+function abortReason(signal: AbortSignal): unknown {
+    return signal.reason !== undefined
+        ? signal.reason
+        : new DOMException("Request canceled.", "AbortError");
+}
+
+function throwIfAborted(signal?: AbortSignal): void {
+    if (signal?.aborted) throw abortReason(signal);
+}
+
+function awaitWithSignal<T>(promise: PromiseLike<T>, signal?: AbortSignal): Promise<T> {
+    if (!signal) return Promise.resolve(promise);
+    if (signal.aborted) {
+        // Swallow late rejections from an abandoned promise so they never surface as unhandled.
+        void Promise.resolve(promise).catch(() => {});
+        return Promise.reject(abortReason(signal));
+    }
+    return new Promise<T>((resolve, reject) => {
+        const onAbort = () => reject(abortReason(signal));
+        signal.addEventListener("abort", onAbort, { once: true });
+        Promise.resolve(promise).then(
+            (value) => {
+                signal.removeEventListener("abort", onAbort);
+                resolve(value);
+            },
+            (err) => {
+                signal.removeEventListener("abort", onAbort);
+                reject(err);
+            },
+        );
+    });
+}
+
 /** Half the backend's 1000 ms future limit, leaving room for clock offset. */
 const MAX_TIMESTAMP_LEAD_MS = 500;
 
 let lastTimestamp = 0;
 /** Allocates strictly increasing timestamps, waiting for the clock when a burst outruns it. */
-async function nextTimestamp(): Promise<string> {
+async function nextTimestamp(signal?: AbortSignal): Promise<string> {
+    throwIfAborted(signal);
     const timestamp = Math.max(lastTimestamp + 1, Date.now());
     lastTimestamp = timestamp;
     const wait = timestamp - MAX_TIMESTAMP_LEAD_MS - Date.now();
-    if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
+    if (wait > 0) {
+        await new Promise<void>((resolve, reject) => {
+            const onAbort = () => {
+                clearTimeout(timer);
+                reject(abortReason(signal!));
+            };
+            const timer = setTimeout(() => {
+                signal?.removeEventListener("abort", onAbort);
+                resolve();
+            }, wait);
+            signal?.addEventListener("abort", onAbort, { once: true });
+        });
+    }
     return String(timestamp);
 }
 
@@ -324,15 +380,35 @@ function canonicalQueryString(search: string): string {
  */
 async function resolveApiKeyCredentials(
     auth: ApiKeyEd25519AuthProvider,
+    signal?: AbortSignal,
 ): Promise<{ keyId: string; secretKey: Uint8Array }> {
+    throwIfAborted(signal);
     let keyId: string | null;
     let secretKey: Uint8Array | null;
     try {
-        [keyId, secretKey] = await Promise.all([auth.getKeyId(), auth.getSecretKey()]);
+        const keyIdOrPromise = auth.getKeyId();
+        let secretKeyOrPromise: Uint8Array | null | Promise<Uint8Array | null>;
+        try {
+            secretKeyOrPromise = auth.getSecretKey();
+        } catch (err) {
+            if (isPromiseLike(keyIdOrPromise)) void Promise.resolve(keyIdOrPromise).catch(() => {});
+            throw err;
+        }
+        if (isPromiseLike(keyIdOrPromise) || isPromiseLike(secretKeyOrPromise)) {
+            [keyId, secretKey] = await awaitWithSignal(
+                Promise.all([keyIdOrPromise, secretKeyOrPromise]),
+                signal,
+            );
+        } else {
+            keyId = keyIdOrPromise;
+            secretKey = secretKeyOrPromise;
+        }
     } catch (cause) {
+        if (signal?.aborted) throw abortReason(signal);
         if (cause instanceof PolyesterError) throw cause;
         throw new ConfigurationError("API key credential provider failed", { cause });
     }
+    throwIfAborted(signal);
     if (!keyId || !secretKey) throw new ConfigurationError("Missing API key ID or secret key");
     if (!(secretKey instanceof Uint8Array) || secretKey.byteLength !== 32) {
         throw new ConfigurationError("API key secret key must contain exactly 32 bytes");
@@ -354,7 +430,8 @@ export async function createApiKeyEd25519AuthHeaders(
     auth: ApiKeyEd25519AuthProvider,
     request: ApiKeyEd25519SigningRequest,
 ): Promise<Record<string, string>> {
-    const { keyId, secretKey } = await resolveApiKeyCredentials(auth);
+    const { signal } = request;
+    const { keyId, secretKey } = await resolveApiKeyCredentials(auth, signal);
 
     const { recvWindow } = auth;
     if (
@@ -373,8 +450,9 @@ export async function createApiKeyEd25519AuthHeaders(
             "Cannot sign a URL with a malformed percent-escape or a ';' in its query",
         );
     }
-    const timestamp = request.timestamp ?? (await nextTimestamp());
-    const bodyHash = await sha256Hex(request.body ?? new Uint8Array(0));
+    const timestamp = request.timestamp ?? (await nextTimestamp(signal));
+    const bodyHash = await awaitWithSignal(sha256Hex(request.body ?? new Uint8Array(0)), signal);
+    throwIfAborted(signal);
     const canonicalQuery = canonicalQueryString(urlObj.search);
     // The window line is signed only when the header is sent.
     const windowLine = recvWindow === undefined ? "" : `${recvWindow}\n`;
@@ -382,8 +460,10 @@ export async function createApiKeyEd25519AuthHeaders(
     const canonical = `${timestamp}\n${windowLine}${request.method.toUpperCase()}\n${percentDecode(urlObj.pathname)}\n${canonicalQuery}\n${bodyHash}`;
     const msgBytes = Uint8Array.from(canonical, (c) => c.charCodeAt(0));
     // Loaded on demand: browser clients authenticate with JWTs and never sign.
-    const { signAsync } = await import("@noble/ed25519");
-    const sig = await signAsync(msgBytes, secretKey);
+    const { signAsync } = await awaitWithSignal(import("@noble/ed25519"), signal);
+    throwIfAborted(signal);
+    const sig = await awaitWithSignal(signAsync(msgBytes, secretKey), signal);
+    throwIfAborted(signal);
     const signatureHex = Array.from(sig, (b: number) => b.toString(16).padStart(2, "0")).join("");
 
     return {
@@ -398,14 +478,23 @@ export async function createApiKeyEd25519AuthHeaders(
  * Resolves a JWT credential and translates provider failures or invalid values
  * into stable SDK errors.
  */
-export async function resolveJwtToken(auth: JwtAuthProvider): Promise<string | null> {
+export async function resolveJwtToken(
+    auth: JwtAuthProvider,
+    signal?: AbortSignal,
+): Promise<string | null> {
+    throwIfAborted(signal);
     let token: string | null;
     try {
-        token = await auth.getToken();
+        const tokenOrPromise = auth.getToken();
+        token = isPromiseLike(tokenOrPromise)
+            ? await awaitWithSignal(tokenOrPromise, signal)
+            : tokenOrPromise;
     } catch (cause) {
+        if (signal?.aborted) throw abortReason(signal);
         if (cause instanceof PolyesterError) throw cause;
         throw new AuthenticationError("JWT token provider failed", { cause });
     }
+    throwIfAborted(signal);
     if (token !== null && typeof token !== "string") {
         throw new ConfigurationError("JWT token provider must return a string or null");
     }
@@ -420,9 +509,10 @@ export function createAuthInterceptor(
     options?: { wireFormat?: ConnectWireFormat },
 ): Interceptor {
     return (next) => async (req) => {
+        throwIfAborted(req.signal);
         const wireFormat = options?.wireFormat ?? "binary";
         if (auth.kind === "jwt") {
-            const token = await resolveJwtToken(auth);
+            const token = await resolveJwtToken(auth, req.signal);
             if (token) {
                 req.header.set("Authorization", `Bearer ${token}`);
             }
@@ -443,11 +533,13 @@ export function createAuthInterceptor(
                 url: req.url,
                 method: req.requestMethod,
                 body: bodyBytes,
+                signal: req.signal,
             });
             for (const [key, value] of Object.entries(headers)) {
                 req.header.set(key, value);
             }
         }
+        throwIfAborted(req.signal);
         return next(req);
     };
 }
