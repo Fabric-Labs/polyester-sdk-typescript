@@ -94,6 +94,12 @@ try {
     fs.writeFileSync(
         path.join(consumerDirectory, "index.ts"),
         `import {
+    AUTO_WITHDRAW_CONVERSION_TWAP_DEFAULT_DURATION_MS,
+    AUTO_WITHDRAW_CONVERSION_TWAP_MAX_DURATION_MS,
+    AUTO_WITHDRAW_CONVERSION_TWAP_MIN_DURATION_MS,
+    SWAP_TWAP_MAX_DURATION_MS,
+    SWAP_TWAP_MIN_DURATION_MS,
+    SWAP_TWAP_MIN_SLICE_INTERVAL_MS,
     ValidationError,
     type CurrencyConversionConfig,
     type CurrencyConversionRates,
@@ -532,6 +538,12 @@ async function verifyServiceInference(): Promise<void> {
     expectType<import("@polyester/sdk").SwapExecutionOutput>(swap.execution);
     expectType<import("@polyester/sdk").SwapLeg[]>(swap.legs);
     expectType<import("@polyester/sdk").SwapProgress | null>(swap.progress);
+    expectType<number>(AUTO_WITHDRAW_CONVERSION_TWAP_MIN_DURATION_MS);
+    expectType<number>(AUTO_WITHDRAW_CONVERSION_TWAP_MAX_DURATION_MS);
+    expectType<number>(AUTO_WITHDRAW_CONVERSION_TWAP_DEFAULT_DURATION_MS);
+    expectType<number>(SWAP_TWAP_MIN_DURATION_MS);
+    expectType<number>(SWAP_TWAP_MAX_DURATION_MS);
+    expectType<number>(SWAP_TWAP_MIN_SLICE_INTERVAL_MS);
     expectType<import("@polyester/sdk").Swap>(await client.swap.get({ idempotencyKey: "swap-1" }));
     const statementExport = await client.statementExports.create({
         startTime: 1,
