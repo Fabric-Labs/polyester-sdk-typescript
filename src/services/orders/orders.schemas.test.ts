@@ -1,3 +1,4 @@
+import { create } from "@bufbuild/protobuf";
 import { describe, expect, expectTypeOf, it } from "vitest";
 import * as v from "valibot";
 import * as ProtoRead from "../../gen/orders/v1/orders_read_pb.js";
@@ -13,6 +14,7 @@ import {
     PROTOBUF_UINT32_MAX,
 } from "../../shared/wire-bounds.js";
 import { formatId } from "../../utils/base58-id.js";
+import { formatOrder } from "./orders-output.schemas.js";
 import {
     BaseOrdersFilterInputSchema,
     CancelAllOrdersInputSchema,
@@ -1996,6 +1998,58 @@ describe("OrderSchema", () => {
         });
         expect(order).not.toHaveProperty("origQty");
         expect(order.marketClientRefPrice).toBeUndefined();
+    });
+
+    it.each([
+        [
+            "base-quantity STP decrement with no fill",
+            {
+                status: ProtoRead.OrderStatus.CANCELED,
+                cancelReason: ProtoRead.CancelReason.STP_DECREMENT,
+                origQtyScaled: 0n,
+                cumQtyScaled: 0n,
+                leavesQtyScaled: 0n,
+            },
+            { status: "canceled", cancelReason: "stp_decrement" },
+        ],
+        [
+            "modify to at or below filled quantity with no fill",
+            {
+                status: ProtoRead.OrderStatus.CANCELED,
+                cancelReason: ProtoRead.CancelReason.QTY_AT_OR_BELOW_FILLED,
+                origQtyScaled: 0n,
+                cumQtyScaled: 0n,
+                leavesQtyScaled: 0n,
+            },
+            { status: "canceled", cancelReason: "qty_at_or_below_filled" },
+        ],
+        [
+            "refused batch replacement placeholder",
+            {
+                symbolId: 0,
+                status: ProtoRead.OrderStatus.REJECTED,
+                origQtyScaled: 0n,
+                cumQtyScaled: 0n,
+                leavesQtyScaled: 0n,
+            },
+            { symbolId: 0, status: "rejected" },
+        ],
+    ])("decodes zero origQtyScaled as totalQty '0' for %s", (_label, overrides, expected) => {
+        const scales = testScales();
+        const schema = createOrderSchema(scales);
+        const message = create(ProtoRead.OrderSchema, rawOrder(overrides));
+
+        const parsed = v.parse(schema, message);
+        const formatted = formatOrder(scales, message);
+
+        for (const order of [parsed, formatted]) {
+            expect(order).toMatchObject({
+                ...expected,
+                totalQty: "0",
+                cumQty: "0",
+                leavesQty: "0",
+            });
+        }
     });
 
     it("reads exact execution totals without a float", () => {

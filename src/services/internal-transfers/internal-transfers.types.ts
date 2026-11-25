@@ -1,4 +1,5 @@
 export type {
+    AbandonInternalTransferBatchInput,
     BatchCreateInternalTransfersInput,
     BatchCreateInternalTransfersResult,
     InternalTransferBatchLegInput,

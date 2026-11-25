@@ -15,6 +15,8 @@ import {
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import { parse } from "../../shared/validation.js";
 import {
+    AbandonInternalTransferBatchInputSchema,
+    type AbandonInternalTransferBatchInput,
     BatchCreateInternalTransfersResultSchema,
     createBatchCreateInternalTransfersInputSchema,
     type BatchCreateInternalTransfersInput,
@@ -110,8 +112,9 @@ export class InternalTransfersService {
      * account of the batch; by `requestId`, any other batch is a `ResourceNotFoundError`. By
      * `idempotencyKey`, scoped to the session's account or the API key that sent it, a caller who
      * has since lost the right to move a source still reads the answer it lost, a batch refused
-     * before it got a `requestId` reads its refusal, a caller who may not read a source gets
-     * `PermissionError` (`ServiceUnavailableError` while that cannot be decided yet: retry), and
+     * before it got a `requestId` reads its refusal, an abandoned key (`abandonBatch`) reads
+     * `"abandoned"`, a caller who may not read a source gets `PermissionError`
+     * (`ServiceUnavailableError` while that cannot be decided yet: retry), and
      * `ResourceNotFoundError` means no batch was sent under that key. Does not submit or retry the
      * batch and needs no step-up.
      */
@@ -121,6 +124,27 @@ export class InternalTransfersService {
     ): Promise<BatchCreateInternalTransfersResult> {
         const request = parse(GetInternalTransferBatchInputSchema, input);
         const res = await this.#client.getInternalTransferBatch(
+            request,
+            toConnectCallOptions(options),
+        );
+        return parse(BatchCreateInternalTransfersResultSchema, res);
+    }
+
+    /**
+     * Makes the absence of a batch under `idempotencyKey` final. If a batch was already submitted
+     * under the key, returns its outcome just like `getBatch({ idempotencyKey })` and changes
+     * nothing. Otherwise records the key as abandoned and returns `{ status: "abandoned",
+     * requestId: undefined, legs: [] }`: no funds moved under the key and none ever will. Every
+     * later `batchCreate` under that key throws `PreconditionFailedError`
+     * (`IDEMPOTENCY_KEY_ABANDONED`), and every later `getBatch` or `abandonBatch` returns
+     * `"abandoned"`. Requires no step-up.
+     */
+    async abandonBatch(
+        input: AbandonInternalTransferBatchInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<BatchCreateInternalTransfersResult> {
+        const request = parse(AbandonInternalTransferBatchInputSchema, input);
+        const res = await this.#client.abandonInternalTransferBatch(
             request,
             toConnectCallOptions(options),
         );

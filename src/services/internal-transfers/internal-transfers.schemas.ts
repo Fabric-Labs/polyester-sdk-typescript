@@ -237,11 +237,11 @@ export type InternalTransferBatchLegResult = v.InferOutput<
 export const BatchCreateInternalTransfersResultSchema = v.object({
     /**
      * Batch request ID for `internalTransfers.getBatch`; unset when the batch was refused before
-     * it was accepted for processing.
+     * it was accepted for processing or when the idempotency key was `"abandoned"`.
      */
     requestId: OptionalResponseStringSchema,
     status: enumLabelSchema(InternalTransferBatchStatusCodec.protoToOutput),
-    /** One result per leg, in request order. */
+    /** One result per leg, in request order; empty for `"abandoned"`. */
     legs: v.optional(v.array(InternalTransferBatchLegResultSchema), []),
 });
 
@@ -260,7 +260,8 @@ export const GetInternalTransferBatchInputSchema = v.union(
         v.strictObject({
             /**
              * The `idempotencyKey` sent to `internalTransfers.batchCreate`, sent unchanged: reads
-             * that batch's stored outcome when its answer was lost, a refused batch included.
+             * that batch's stored outcome when its answer was lost, including a refused batch or
+             * an `"abandoned"` key.
              */
             idempotencyKey: v.pipe(v.string(), v.minLength(1)),
         }),
@@ -270,6 +271,18 @@ export const GetInternalTransferBatchInputSchema = v.union(
 
 export type GetInternalTransferBatchInput = v.InferInput<
     typeof GetInternalTransferBatchInputSchema
+>;
+
+export const AbandonInternalTransferBatchInputSchema = v.strictObject({
+    /**
+     * The `idempotencyKey` sent, or that may have been sent, to `internalTransfers.batchCreate`,
+     * sent unchanged.
+     */
+    idempotencyKey: v.pipe(v.string(), v.minLength(1)),
+});
+
+export type AbandonInternalTransferBatchInput = v.InferInput<
+    typeof AbandonInternalTransferBatchInputSchema
 >;
 
 export const GetInternalTransferInputSchema = v.pipe(

@@ -50,9 +50,9 @@ function e18AmountInputSchema(field: string) {
 const MillisecondsInputSchema = v.pipe(v.number(), v.safeInteger(), v.gtValue(0));
 
 /**
- * `market` trades at once; `twap` spreads the swap evenly over `durationMs` (1 to 60 minutes) in
- * slices `sliceIntervalMs` apart (at least 10 seconds, at most `durationMs`). Each slice nets at
- * least the swap's minimum rate on what it converts, except an order accepted late under severe
+ * `market` trades at once; `twap` spreads the swap evenly over `durationMs` (1 minute to 24 hours)
+ * in slices `sliceIntervalMs` apart (at least 10 seconds, at most `durationMs`). Each slice nets
+ * at least the swap's minimum rate on what it converts, except an order accepted late under severe
  * delay, which ends the swap with `minimum_not_met`. A TWAP needs a larger amount than a market
  * swap, since every slice must be a valid order.
  */
@@ -189,6 +189,41 @@ export const GetSwapInputSchema = v.pipe(
 
 /** Select a swap by `swapId`, or by the `idempotencyKey` it was created with. */
 export type GetSwapInput = v.InferInput<typeof GetSwapInputSchema>;
+
+export const CancelSwapInputSchema = v.pipe(
+    v.strictObject({ swapId: idInputSchema("swapId") }),
+    v.transform(
+        ({ swapId }) =>
+            ({ swapId }) satisfies MessageInitShape<typeof Proto.CancelSwapRequestSchema>,
+    ),
+);
+
+/** Cancels one of the caller's swaps by its public `swapId`. */
+export type CancelSwapInput = v.InferInput<typeof CancelSwapInputSchema>;
+
+export const ListSwapsInputSchema = v.pipe(
+    v.strictObject({
+        /** Defaults to the active subaccount, else the root account (or an API key's bound subaccount). */
+        ...AccountScopeInputEntries,
+        /** When true, only swaps that have not ended (`isTerminal` false) are listed. */
+        openOnly: v.optional(v.boolean()),
+        /** Page size: 0 or omitted means 20, at most 50. */
+        limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(50))),
+        /** Previous `nextPageToken`; reuse only with the same account and `openOnly`. */
+        pageToken: v.optional(v.pipe(v.string(), v.trim())),
+    }),
+    v.transform(
+        ({ account, openOnly, limit, pageToken }) =>
+            removeUndefined({
+                subaccountId: accountScopeToSubaccountId(account),
+                openOnly,
+                limit,
+                pageToken,
+            }) satisfies MessageInitShape<typeof Proto.ListSwapsRequestSchema>,
+    ),
+);
+
+export type ListSwapsInput = v.InferInput<typeof ListSwapsInputSchema>;
 
 /** Wire `*_e18` U128 → exact decimal string; an unset amount is `"0"`. */
 function e18ToDecimal(value: U128Value | undefined): string {
@@ -496,6 +531,7 @@ export const SwapSchema = v.pipe(
         intermediateRemainderE18: AmountE18Schema,
         legs: v.array(SwapLegSchema),
         progress: v.optional(SwapProgressSchema),
+        cancelRequestedAt: OptionalTimestampMsSchema,
     }),
     v.transform((swap) => ({
         swapId: swap.swapId,
@@ -509,9 +545,9 @@ export const SwapSchema = v.pipe(
         /** Minimum destination amount after fees for the whole amount. */
         minAmountOut: e18ToDecimal(swap.minAmountOutE18),
         status: swap.status,
-        /** Why a `partially_completed` or `failed` swap did not trade everything; null otherwise. */
+        /** Why a `partially_completed`, `failed` or `canceled` swap did not trade everything; null otherwise. */
         reason: swap.reason === 0 ? null : enumLabel(SwapReasonCodec.protoToOutput, swap.reason),
-        /** True once `status` is `completed`, `partially_completed` or `failed`; stop polling. */
+        /** True once `status` is `completed`, `partially_completed`, `failed` or `canceled`; stop polling. */
         isTerminal: swap.isTerminal,
         /** Source spent in settled fills. */
         executedAmount: e18ToDecimal(swap.executedAmountE18),
@@ -534,8 +570,21 @@ export const SwapSchema = v.pipe(
         legs: swap.legs,
         /** Execution schedule and slices; `null` before execution is planned. */
         progress: swap.progress ?? null,
+        /**
+         * When the swap's owner first canceled it (epoch ms); `null` when it was never canceled.
+         * Set once and never changed.
+         */
+        cancelRequestedAt: swap.cancelRequestedAt ?? null,
     })),
 );
 
 /** One swap and its outcome. Amounts are decimal strings and count settled fills only. */
 export type Swap = v.InferOutput<typeof SwapSchema>;
+
+export const ListSwapsResultSchema = v.object({
+    swaps: v.optional(v.array(SwapSchema), []),
+    nextPageToken: v.optional(v.string(), ""),
+});
+
+/** One page of swaps, newest first; an empty `nextPageToken` means no more. */
+export type ListSwapsResult = v.InferOutput<typeof ListSwapsResultSchema>;

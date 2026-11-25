@@ -1,6 +1,9 @@
 export type {
+    CancelSwapInput,
     CreateSwapInput,
     GetSwapInput,
+    ListSwapsInput,
+    ListSwapsResult,
     QuoteSwapInput,
     Swap,
     SwapExecution,

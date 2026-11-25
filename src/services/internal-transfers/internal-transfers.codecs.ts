@@ -25,13 +25,20 @@ export const INTERNAL_TRANSFER_STATUS_VALUES = ["accepted", "rejected", "failed"
 
 export type InternalTransferStatus = (typeof INTERNAL_TRANSFER_STATUS_VALUES)[number];
 
-export const INTERNAL_TRANSFER_BATCH_STATUS_VALUES = ["refused", "processing", "accepted"] as const;
+export const INTERNAL_TRANSFER_BATCH_STATUS_VALUES = [
+    "refused",
+    "processing",
+    "accepted",
+    "abandoned",
+] as const;
 
 /**
  * `"accepted"`: every leg is credited. `"refused"`: nothing moved, and nothing will under this
- * idempotency key. `"processing"`: the outcome is not known yet; the batch completes on its own,
- * ending accepted or refused. Read it with `internalTransfers.getBatch` by its `requestId` or
- * idempotency key, or retry with the same idempotency key.
+ * idempotency key. `"abandoned"`: the idempotency key was abandoned before any batch was submitted
+ * under it (`internalTransfers.abandonBatch`); this is final, no funds moved and none ever will.
+ * `"processing"`: the outcome is not known yet; the batch completes on its own, ending accepted or
+ * refused. Read it with `internalTransfers.getBatch` by its `requestId` or idempotency key, or
+ * retry with the same idempotency key.
  */
 export type InternalTransferBatchStatus = (typeof INTERNAL_TRANSFER_BATCH_STATUS_VALUES)[number];
 
@@ -41,6 +48,7 @@ export const InternalTransferBatchStatusCodec = {
         [Proto.InternalTransferBatchStatus.BATCH_REFUSED]: "refused",
         [Proto.InternalTransferBatchStatus.BATCH_PROCESSING]: "processing",
         [Proto.InternalTransferBatchStatus.BATCH_ACCEPTED]: "accepted",
+        [Proto.InternalTransferBatchStatus.BATCH_ABANDONED]: "abandoned",
     } satisfies ProtoToOutput<Proto.InternalTransferBatchStatus, InternalTransferBatchStatus>,
 } as const;
 

@@ -93,7 +93,7 @@ export type PolyesterErrorDetail =
     | {
           service: "swap";
           code: NamedCode<typeof SwapErrorCode>;
-          /** The swap already bound to the idempotency key; with `IDEMPOTENCY_CONFLICT`. */
+          /** The swap bound to the idempotency key (`IDEMPOTENCY_CONFLICT`), or the swap that ended (`SWAP_ALREADY_FINAL`). */
           swapId?: string;
           /**
            * With `AMOUNT_OUT_OF_RANGE`, when known: the smallest source amount that quotes and the
