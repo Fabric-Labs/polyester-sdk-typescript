@@ -7,7 +7,7 @@
     "bugs": {
         "url": "https://github.com/Fabric-Labs/polyester-sdk-typescript/issues"
     },
-    "license": "UNLICENSED",
+    "license": "Apache-2.0",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/Fabric-Labs/polyester-sdk-typescript.git"
@@ -17,6 +17,7 @@
         "README.md",
         "CHANGELOG.md",
         "LICENSE",
+        "NOTICE",
         "SECURITY.md"
     ],
     "type": "module",
