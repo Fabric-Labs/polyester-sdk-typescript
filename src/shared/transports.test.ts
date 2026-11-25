@@ -1531,4 +1531,182 @@ describe("caller cancellation through transports", () => {
         expect(isAbortError(error)).toBe(true);
         expect(isRetryableError(error)).toBe(false);
     });
+
+    it.each([
+        { authKind: "jwt", wireFormat: "binary", cancelKind: "timeout" },
+        { authKind: "jwt", wireFormat: "json", cancelKind: "timeout" },
+        { authKind: "jwt", wireFormat: "binary", cancelKind: "abort" },
+        { authKind: "jwt", wireFormat: "json", cancelKind: "abort" },
+        { authKind: "api-key-ed25519", wireFormat: "binary", cancelKind: "timeout" },
+        { authKind: "api-key-ed25519", wireFormat: "json", cancelKind: "timeout" },
+        { authKind: "api-key-ed25519", wireFormat: "binary", cancelKind: "abort" },
+        { authKind: "api-key-ed25519", wireFormat: "json", cancelKind: "abort" },
+    ] as const)(
+        "cancels pending async $authKind auth on $cancelKind ($wireFormat) without dispatching fetch",
+        async ({ authKind, wireFormat, cancelKind }) => {
+            vi.useFakeTimers();
+            try {
+                const fetchMock = vi
+                    .fn<typeof fetch>()
+                    .mockResolvedValue(new Response(null, { status: 200 }));
+                let resolveProvider!: () => void;
+                const providerDelay = new Promise<void>((resolve) => {
+                    resolveProvider = resolve;
+                });
+                const auth =
+                    authKind === "jwt"
+                        ? {
+                              kind: "jwt" as const,
+                              getToken: async () => {
+                                  await providerDelay;
+                                  return "late-token";
+                              },
+                          }
+                        : {
+                              kind: "api-key-ed25519" as const,
+                              getKeyId: () => "ak_test",
+                              getSecretKey: async () => {
+                                  await providerDelay;
+                                  return new Uint8Array(32).fill(1);
+                              },
+                          };
+
+                const { authApi } = createTransports({
+                    apiUrl: "https://api.test",
+                    wireFormat,
+                    auth,
+                    fetch: fetchMock,
+                });
+                const client = createClient(RateLimitService, authApi);
+
+                const controller = new AbortController();
+                const call = client
+                    .getRateLimitConfig(
+                        {},
+                        toConnectCallOptions(
+                            cancelKind === "timeout"
+                                ? { timeoutMs: 50 }
+                                : { signal: controller.signal },
+                        ),
+                    )
+                    .then(
+                        () => ({ ok: true as const }),
+                        (error: unknown) => ({ ok: false as const, error }),
+                    );
+
+                if (cancelKind === "timeout") {
+                    await vi.advanceTimersByTimeAsync(50);
+                } else {
+                    controller.abort();
+                }
+
+                const result = await call;
+                expect(result.ok).toBe(false);
+                if (!result.ok) {
+                    if (cancelKind === "timeout") {
+                        expect(result.error).toBeInstanceOf(TimeoutError);
+                        expect(isRetryableError(result.error)).toBe(true);
+                    } else {
+                        expect(isAbortError(result.error)).toBe(true);
+                        expect(isRetryableError(result.error)).toBe(false);
+                    }
+                }
+
+                // Provider settling later must not dispatch the canceled request.
+                resolveProvider();
+                await vi.advanceTimersByTimeAsync(0);
+                expect(fetchMock).not.toHaveBeenCalled();
+            } finally {
+                vi.useRealTimers();
+            }
+        },
+    );
+
+    it.each(["jwt", "api-key-ed25519"] as const)(
+        "cancels an unresolved async %s provider on timeout and abort without unhandled rejection",
+        async (authKind) => {
+            const unhandled: unknown[] = [];
+            const onUnhandled = (reason: unknown) => unhandled.push(reason);
+            process.on("unhandledRejection", onUnhandled);
+            vi.useFakeTimers();
+            try {
+                const fetchMock = vi.fn<typeof fetch>();
+                let rejectLate!: (err: Error) => void;
+                const lateReject = new Promise<never>((_resolve, reject) => {
+                    rejectLate = reject;
+                });
+                const neverSettling = new Promise<never>(() => {});
+
+                const makeAuth = (pending: Promise<never>) =>
+                    authKind === "jwt"
+                        ? { kind: "jwt" as const, getToken: () => pending }
+                        : {
+                              kind: "api-key-ed25519" as const,
+                              getKeyId: () => "ak_test",
+                              getSecretKey: () => pending,
+                          };
+
+                const { authApi: neverApi } = createTransports({
+                    apiUrl: "https://api.test",
+                    auth: makeAuth(neverSettling),
+                    fetch: fetchMock,
+                });
+                const neverClient = createClient(RateLimitService, neverApi);
+                const timeoutCall = neverClient
+                    .getRateLimitConfig({}, toConnectCallOptions({ timeoutMs: 25 }))
+                    .catch((error: unknown) => error);
+                await vi.advanceTimersByTimeAsync(25);
+                expect(await timeoutCall).toBeInstanceOf(TimeoutError);
+
+                const { authApi: lateApi } = createTransports({
+                    apiUrl: "https://api.test",
+                    auth: makeAuth(lateReject),
+                    fetch: fetchMock,
+                });
+                const lateClient = createClient(RateLimitService, lateApi);
+                const controller = new AbortController();
+                const abortCall = lateClient
+                    .getRateLimitConfig({}, toConnectCallOptions({ signal: controller.signal }))
+                    .catch((error: unknown) => error);
+                controller.abort();
+                expect(isAbortError(await abortCall)).toBe(true);
+
+                // Rejecting the abandoned provider promise must not surface as unhandled.
+                rejectLate(new Error("late provider failure"));
+                await vi.advanceTimersByTimeAsync(0);
+                expect(fetchMock).not.toHaveBeenCalled();
+                expect(unhandled).toEqual([]);
+            } finally {
+                vi.useRealTimers();
+                process.off("unhandledRejection", onUnhandled);
+            }
+        },
+    );
+
+    it("cancels a burst timestamp clock wait when the signing signal aborts", async () => {
+        vi.useFakeTimers({ toFake: ["Date", "setTimeout"] });
+        try {
+            vi.resetModules();
+            const { createApiKeyEd25519AuthHeaders: sign } = await import("./transports.js");
+            const auth = {
+                kind: "api-key-ed25519",
+                getKeyId: () => "ak_test",
+                getSecretKey: () => new Uint8Array(32),
+            } as const;
+            const request = { url: "https://api.example.test/v1/rt/token", method: "GET" };
+
+            // Exhaust the 500 ms lead window so the next call has to wait for the clock.
+            await Promise.all(Array.from({ length: 501 }, () => sign(auth, request)));
+
+            const controller = new AbortController();
+            const waiting = sign(auth, { ...request, signal: controller.signal }).catch(
+                (error: unknown) => error,
+            );
+            controller.abort();
+
+            expect(isAbortError(await waiting)).toBe(true);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
 });
