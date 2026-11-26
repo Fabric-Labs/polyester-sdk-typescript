@@ -15,8 +15,10 @@ import {
 import { PROTOBUF_UINT32_MAX } from "../../shared/wire-bounds.js";
 import { msToTimestamp } from "../../utils/timestamp.js";
 import {
+    STATEMENT_EXPORT_TYPE_VALUES,
     StatementExportFailureReasonCodec,
     StatementExportStatusCodec,
+    StatementExportTypeCodec,
 } from "./statement-exports.codecs.js";
 
 /** Latest period end the server accepts: 2262-04-11T23:47:16Z, the int64-nanosecond limit. */
@@ -33,6 +35,13 @@ const IdempotencyKeySchema = v.pipe(
 export const CreateStatementExportInputSchema = v.pipe(
     v.strictObject({
         ...AccountScopeInputEntries,
+        /**
+         * The file to produce: `account_statement`, `ledger` or `balances`. A `balances` period
+         * must start at or after the account history's start, otherwise `create` throws
+         * `PreconditionFailedError` (`STATEMENT_HISTORY_UNAVAILABLE`) whose detail's
+         * `historyAvailableFrom` says where it starts.
+         */
+        type: v.picklist(STATEMENT_EXPORT_TYPE_VALUES),
         /** Period start, inclusive, in epoch milliseconds (UTC); after the epoch and not in the future. */
         startTime: v.pipe(
             v.number(),
@@ -62,8 +71,9 @@ export const CreateStatementExportInputSchema = v.pipe(
         idempotencyKey: IdempotencyKeySchema,
     }),
     v.check(({ startTime, endTime }) => endTime > startTime, "endTime must be after startTime."),
-    v.transform(({ account, startTime, endTime, ...input }) => ({
+    v.transform(({ account, type, startTime, endTime, ...input }) => ({
         ...input,
+        type: StatementExportTypeCodec.inputToProto[type],
         subaccountId: accountScopeToSubaccountId(account),
         startTime: msToTimestamp(startTime),
         endTime: msToTimestamp(endTime),
@@ -96,7 +106,7 @@ export const ListStatementExportsInputSchema = v.pipe(
 
 export type ListStatementExportsInput = v.InferInput<typeof ListStatementExportsInputSchema>;
 
-/** A whole-period statement file being produced, ready, failed or expired. Times are epoch ms. */
+/** A whole-period account statement, ledger or balances file being produced, ready, failed or expired. Times are epoch ms. */
 export const StatementExportSchema = v.pipe(
     v.object({
         exportId: PublicIdSchema,
@@ -113,9 +123,13 @@ export const StatementExportSchema = v.pipe(
         readyAt: OptionalTimestampMsSchema,
         expiresAt: OptionalTimestampMsSchema,
         failureReason: enumLabelSchema(StatementExportFailureReasonCodec.protoToOutput),
+        type: enumLabelSchema(StatementExportTypeCodec.protoToOutput),
+        historyAvailableFrom: OptionalTimestampMsSchema,
     }),
     v.transform((statement) => ({
         exportId: statement.exportId,
+        /** The file the export produces, as requested; `unspecified` for a type this build doesn't know. */
+        type: statement.type,
         /** Public subaccount ID the statement covers; null for the root account. */
         subaccountId: statement.subaccountId ?? null,
         /** Period start, inclusive. */
@@ -142,6 +156,11 @@ export const StatementExportSchema = v.pipe(
         expiresAt: statement.expiresAt ?? null,
         /** Why the export failed; `unspecified` unless `status` is `failed`. */
         failureReason: statement.failureReason,
+        /**
+         * Where the account history starts, which a `balances` period must start at or after;
+         * set only with the `history_unavailable` failure reason, null otherwise.
+         */
+        historyAvailableFrom: statement.historyAvailableFrom ?? null,
     })),
 );
 
@@ -170,7 +189,10 @@ export const StatementExportDownloadUrlSchema = v.object({
     url: v.string(),
     /** When the link stops working, epoch ms: 60 seconds after signing or when the file expires. */
     expiresAt: TimestampMsSchema,
-    /** Name the download saves the file as, `statement-<exportId>.csv`. */
+    /**
+     * Name the download saves the file as, by the export's type: `account-statement-<exportId>.csv`,
+     * `ledger-<exportId>.csv` or `balances-<exportId>.csv`.
+     */
     filename: v.string(),
 });
 

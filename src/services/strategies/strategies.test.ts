@@ -640,6 +640,7 @@ describe("StrategiesService", () => {
                     runtimeVersion: "",
                     startedAt: 1_700_000_000_000,
                     stoppedAt: null,
+                    strategy: null,
                 },
             ],
             nextPageToken: "next",
@@ -1271,6 +1272,7 @@ describe("StrategiesService", () => {
             state: "public",
             versionId: "v3",
             publishedAt: 1_700_000_000_000,
+            holdReason: "",
         });
         expect(transport.lastCall()?.method.name).toBe("PublishStrategyVersion");
         expect(transport.lastCall()?.message).toEqual({
@@ -1296,6 +1298,7 @@ describe("StrategiesService", () => {
         await expect(service.unpublish({ listingId: formatId(9n) })).resolves.toMatchObject({
             state: "hidden",
             publishedAt: null,
+            holdReason: "",
         });
         expect(transport.lastCall()?.message).toEqual({ listingId: 9n });
     });
@@ -1458,5 +1461,213 @@ describe("StrategiesService", () => {
                 code: Proto.ErrorCode.LISTING_NOT_FOUND,
             }).getCommunity({ listingId: formatId(9n) }),
         ).rejects.toBeInstanceOf(ResourceNotFoundError);
+    });
+
+    it("reads the strategy a bot and its runs were deployed from, null once unlinked", async () => {
+        const { service } = serviceWith({
+            getBot: create(Proto.GetBotResponseSchema, {
+                bot: { botId: 3n, strategyId: 5n, revision: 18_446_744_073_709_551_615n },
+            }),
+            listBotVersions: create(Proto.ListBotVersionsResponseSchema, {
+                versions: [{ versionId: "v2", strategyId: 5n, revision: 2n }, { versionId: "v1" }],
+            }),
+        });
+
+        await expect(service.getBot({ botId: formatId(3n) })).resolves.toMatchObject({
+            bot: { strategy: { strategyId: formatId(5n), revision: "18446744073709551615" } },
+        });
+        const { versions } = await service.listBotVersions({ botId: formatId(3n) });
+        expect(versions.map((v) => v.strategy)).toEqual([
+            { strategyId: formatId(5n), revision: "2" },
+            null,
+        ]);
+    });
+
+    it("returns a stopped bot's funds and polls the return", async () => {
+        const fundsReturn = {
+            returnId: 11n,
+            botId: 3n,
+            status: Proto.BotFundsReturnStatus.RETURN_PROCESSING,
+            assets: [{ asset: "USDT", amount: "120.5" }],
+            requestedAt: ts(1_700_000_000),
+            held: [{ asset: "BTC", amount: "0.01" }],
+        };
+        const { transport, service } = serviceWith({
+            returnBotFunds: create(Proto.ReturnBotFundsResponseSchema, { fundsReturn }),
+            getBotFundsReturn: create(Proto.GetBotFundsReturnResponseSchema, {
+                fundsReturn: {
+                    ...fundsReturn,
+                    status: Proto.BotFundsReturnStatus.RETURN_COMPLETED,
+                    held: [],
+                    finishedAt: ts(1_700_000_060),
+                },
+            }),
+        });
+
+        await expect(
+            service.returnBotFunds({ botId: formatId(3n), idempotencyKey: "ret-1" }),
+        ).resolves.toEqual({
+            returnId: formatId(11n),
+            botId: formatId(3n),
+            status: "processing",
+            assets: [{ asset: "USDT", amount: "120.5" }],
+            requestedAt: 1_700_000_000_000,
+            finishedAt: null,
+            held: [{ asset: "BTC", amount: "0.01" }],
+        });
+        expect(transport.lastCall()?.message).toEqual({ botId: 3n, idempotencyKey: "ret-1" });
+
+        await expect(service.getBotFundsReturn({ returnId: formatId(11n) })).resolves.toMatchObject(
+            { status: "completed", held: [], finishedAt: 1_700_000_060_000 },
+        );
+        expect(transport.lastCall()?.message).toEqual({ returnId: 11n });
+
+        const notStopped = rejectingService(Code.FailedPrecondition, {
+            code: Proto.ErrorCode.BOT_NOT_STOPPED,
+        }).returnBotFunds({ botId: formatId(3n), idempotencyKey: "ret-1" });
+        await expect(notStopped).rejects.toBeInstanceOf(PreconditionFailedError);
+        await expect(notStopped).rejects.toMatchObject({
+            retryable: false,
+            detail: { service: "strategies", code: "BOT_NOT_STOPPED" },
+        });
+    });
+
+    it("forks a community listing into a new strategy whose origin names it", async () => {
+        const { transport, service } = serviceWith({
+            forkStrategy: create(Proto.ForkStrategyResponseSchema, {
+                strategy: {
+                    strategyId: 8n,
+                    revision: 1n,
+                    origin: {
+                        source: {
+                            case: "fork",
+                            value: {
+                                listingId: 9n,
+                                title: "Weekly DCA",
+                                authorUsername: "ada",
+                                sourceVersionId: "v3",
+                            },
+                        },
+                    },
+                },
+                version: { versionId: "v3", valid: true },
+            }),
+            getStrategy: create(Proto.GetStrategyResponseSchema, {
+                strategy: {
+                    strategyId: 8n,
+                    origin: { source: { case: "fork", value: { sourceVersionId: "v3" } } },
+                },
+            }),
+        });
+
+        await expect(
+            service.fork({ listingId: formatId(9n), name: "My DCA", idempotencyKey: "fork-1" }),
+        ).resolves.toMatchObject({
+            strategy: {
+                strategyId: formatId(8n),
+                revision: "1",
+                origin: {
+                    kind: "fork",
+                    listingId: formatId(9n),
+                    title: "Weekly DCA",
+                    authorUsername: "ada",
+                    sourceVersionId: "v3",
+                },
+            },
+            version: { versionId: "v3", valid: true },
+        });
+        expect(transport.lastCall()?.message).toEqual({
+            listingId: 9n,
+            name: "My DCA",
+            idempotencyKey: "fork-1",
+        });
+
+        // Once the source listing is no longer public, the fork still shows it was forked.
+        await expect(service.get({ strategyId: formatId(8n) })).resolves.toMatchObject({
+            strategy: {
+                origin: {
+                    kind: "fork",
+                    listingId: null,
+                    title: "",
+                    authorUsername: "",
+                    sourceVersionId: "v3",
+                },
+            },
+        });
+    });
+
+    it("reports a community listing's version and rejects an unknown reason", async () => {
+        const { transport, service } = serviceWith({
+            reportCommunityStrategy: create(Proto.ReportCommunityStrategyResponseSchema, {
+                reportedAt: ts(1_700_000_000),
+            }),
+        });
+
+        await expect(
+            service.reportCommunity({
+                listingId: formatId(9n),
+                versionId: "v3",
+                reason: "copied_without_credit",
+                note: "Copy of another listing",
+            }),
+        ).resolves.toEqual({ reportedAt: 1_700_000_000_000 });
+        expect(transport.lastCall()?.message).toEqual({
+            listingId: 9n,
+            versionId: "v3",
+            reason: Proto.ReportReason.COPIED_WITHOUT_CREDIT,
+            note: "Copy of another listing",
+        });
+
+        await expect(
+            service.reportCommunity({
+                listingId: formatId(9n),
+                versionId: "v3",
+                // @ts-expect-error: an unknown reason is rejected before the call
+                reason: "rude",
+            }),
+        ).rejects.toBeInstanceOf(ValidationError);
+        expect(transport.calls).toHaveLength(1);
+
+        const limited = rejectingService(Code.FailedPrecondition, {
+            code: Proto.ErrorCode.REPORT_LIMIT_REACHED,
+            retryAfter: ts(1_700_003_600),
+        }).reportCommunity({ listingId: formatId(9n), versionId: "v3", reason: "spam" });
+        await expect(limited).rejects.toBeInstanceOf(PreconditionFailedError);
+        await expect(limited).rejects.toMatchObject({
+            retryable: false,
+            detail: { code: "REPORT_LIMIT_REACHED", retryAfter: 1_700_003_600_000 },
+        });
+    });
+
+    it("reads a held listing's reason and community fork counts and source", async () => {
+        const { service } = serviceWith({
+            getStrategy: create(Proto.GetStrategyResponseSchema, {
+                strategy: {
+                    strategyId: 5n,
+                    listing: {
+                        listingId: 9n,
+                        state: Proto.StrategyListing_State.HELD,
+                        holdReason: "Under review",
+                    },
+                },
+            }),
+            listCommunityStrategies: create(Proto.ListCommunityStrategiesResponseSchema, {
+                strategies: [{ listingId: 9n, forks: 4 }],
+            }),
+            getCommunityStrategy: create(Proto.GetCommunityStrategyResponseSchema, {
+                strategy: { listingId: 9n, forks: 4, forkedFrom: { listingId: 0n } },
+            }),
+        });
+
+        await expect(service.get({ strategyId: formatId(5n) })).resolves.toMatchObject({
+            strategy: { listing: { state: "held", holdReason: "Under review" } },
+        });
+        await expect(service.listCommunity()).resolves.toMatchObject({
+            strategies: [{ forks: 4 }],
+        });
+        await expect(service.getCommunity({ listingId: formatId(9n) })).resolves.toMatchObject({
+            forks: 4,
+            forkedFrom: { listingId: null, title: "", authorUsername: "" },
+        });
     });
 });

@@ -37,6 +37,7 @@ function rawExport(overrides: Record<string, unknown> = {}) {
         readyAt: ts(1_705_000_060),
         expiresAt: ts(1_705_604_860),
         failureReason: Proto.StatementExportFailureReason.UNSPECIFIED,
+        type: Proto.StatementExportType.LEDGER,
         ...overrides,
     };
 }
@@ -50,7 +51,12 @@ function serviceWith(response: Record<string, unknown>, resolverDefault: string 
     return { transport, service };
 }
 
-const createInput = { startTime: 1_000, endTime: 2_500, idempotencyKey: "k" };
+const createInput = {
+    type: "ledger" as const,
+    startTime: 1_000,
+    endTime: 2_500,
+    idempotencyKey: "k",
+};
 
 describe("StatementExportsService", () => {
     it("creates an export for the resolved account and surfaces every field", async () => {
@@ -69,9 +75,11 @@ describe("StatementExportsService", () => {
             endTime: { seconds: 2n, nanos: 500_000_000 },
             assetId: 2,
             idempotencyKey: "q:1",
+            type: Proto.StatementExportType.LEDGER,
         });
         expect(result).toEqual({
             exportId: formatId(EXPORT_ID),
+            type: "ledger",
             subaccountId: formatId(7n),
             startTime: 1_700_000_000_000,
             endTime: 1_710_000_000_000,
@@ -85,6 +93,7 @@ describe("StatementExportsService", () => {
             readyAt: 1_705_000_060_000,
             expiresAt: 1_705_604_860_000,
             failureReason: "unspecified",
+            historyAvailableFrom: null,
         });
     });
 
@@ -120,6 +129,30 @@ describe("StatementExportsService", () => {
         const result = await service.get({ exportId: formatId(EXPORT_ID) });
         expect(transport.lastCall()?.message).toEqual({ exportId: EXPORT_ID });
         expect(result).toMatchObject({ status: "failed", failureReason: "too_large" });
+    });
+
+    it("decodes a balances export that failed on the account history's start", async () => {
+        const { service } = serviceWith({
+            export: rawExport({
+                type: Proto.StatementExportType.BALANCES,
+                status: Proto.StatementExportStatus.FAILED,
+                failureReason: Proto.StatementExportFailureReason.HISTORY_UNAVAILABLE,
+                historyAvailableFrom: ts(1_700_500_000),
+            }),
+        });
+        const result = await service.get({ exportId: formatId(EXPORT_ID) });
+        expect(result).toMatchObject({
+            type: "balances",
+            failureReason: "history_unavailable",
+            historyAvailableFrom: 1_700_500_000_000,
+        });
+    });
+
+    it("keeps an export of a type this build doesn't know", async () => {
+        const { service } = serviceWith({ export: rawExport({ type: 99 }) });
+        await expect(service.get({ exportId: formatId(EXPORT_ID) })).resolves.toMatchObject({
+            type: "unspecified",
+        });
     });
 
     it("lists the resolved account's exports with a page token", async () => {
@@ -202,17 +235,20 @@ describe("StatementExportsService", () => {
         ["an empty period", { startTime: 2_500 }],
         ["an end after 2262-04-11T23:47:16Z", { endTime: Date.UTC(2262, 3, 11, 23, 47, 17) }],
         ["an asset ID over uint32", { assetId: 2 ** 32 }],
+        ["a missing type", { type: undefined }],
+        ["an unknown type", { type: "trades" }],
     ])("rejects %s before sending", async (_name, overrides) => {
         const { transport, service } = serviceWith({});
-        await expect(service.create({ ...createInput, ...overrides })).rejects.toBeInstanceOf(
-            ValidationError,
-        );
+        await expect(
+            service.create({ ...createInput, ...overrides } as typeof createInput),
+        ).rejects.toBeInstanceOf(ValidationError);
         expect(transport.calls).toHaveLength(0);
     });
 
     it("accepts the widest bounds the proto allows", async () => {
         const { transport, service } = serviceWith({ export: rawExport() });
         await service.create({
+            type: "account_statement",
             startTime: 1,
             endTime: Date.UTC(2262, 3, 11, 23, 47, 16),
             idempotencyKey: `Aa0._:-${"k".repeat(57)}`,
@@ -243,6 +279,28 @@ describe("StatementExportsService", () => {
         await expect(rejected).rejects.toMatchObject({
             retryable: false,
             detail: { service: "ledger", code: ErrorCode[ledgerCode] },
+        });
+    });
+
+    it("surfaces historyAvailableFrom on STATEMENT_HISTORY_UNAVAILABLE", async () => {
+        const detail = create(ErrorDetailSchema, {
+            code: ErrorCode.STATEMENT_HISTORY_UNAVAILABLE,
+            historyAvailableFrom: ts(1_700_500_000),
+        });
+        const error = new ConnectError("rejected", Code.FailedPrecondition, undefined, [
+            { desc: ErrorDetailSchema, value: detail },
+        ]);
+        const service = new StatementExportsService({
+            authApi: createErrorMappingTransport(rejectingUnaryTransport(error)),
+        });
+        const rejected = service.create({ ...createInput, type: "balances" });
+        await expect(rejected).rejects.toBeInstanceOf(PreconditionFailedError);
+        await expect(rejected).rejects.toMatchObject({
+            detail: {
+                service: "ledger",
+                code: "STATEMENT_HISTORY_UNAVAILABLE",
+                historyAvailableFrom: 1_700_500_000_000,
+            },
         });
     });
 });

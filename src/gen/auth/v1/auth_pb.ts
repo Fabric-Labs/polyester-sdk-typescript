@@ -1010,8 +1010,10 @@ export enum AuthErrorCode {
    * EndStrategyBotAccess ends the bot's access, no other call changes the
    * bot's key or its policy, or the sub-account's policy, keys, members or
    * invites, or enables the sub-account again. Disabling the sub-account,
-   * renaming it and removing its members stay available. HTTP 412,
-   * AUTH_STRATEGY_BOT_MANAGED.
+   * renaming it and removing its members stay available. After the bot's
+   * access ends, its sub-account keeps its trading-only policy: no call
+   * attaches another policy to it or edits the one it holds, and its policy
+   * can only be cleared. HTTP 412, AUTH_STRATEGY_BOT_MANAGED.
    *
    * @generated from enum value: AUTH_STRATEGY_BOT_MANAGED = 74;
    */

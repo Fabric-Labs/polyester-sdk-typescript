@@ -1,4 +1,5 @@
 import { ErrorCode, ErrorDetailSchema } from "../../gen/ledger/read/v1/ledger_read_pb.js";
+import { tsObjToMs } from "../../utils/time.js";
 import {
     codeName,
     decodeDetail,
@@ -9,5 +10,9 @@ import {
 export function decode(raw: ConnectErrorDetail): PolyesterErrorDetail | undefined {
     const ledger = decodeDetail(raw, ErrorDetailSchema);
     const code = ledger && codeName(ErrorCode, ledger.code);
-    return code ? { service: "ledger", code } : undefined;
+    if (!code) return undefined;
+    const detail: PolyesterErrorDetail = { service: "ledger", code };
+    const historyAvailableFrom = tsObjToMs(ledger.historyAvailableFrom);
+    if (historyAvailableFrom !== undefined) detail.historyAvailableFrom = historyAvailableFrom;
+    return detail;
 }

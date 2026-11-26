@@ -25,8 +25,9 @@ import {
 } from "./statement-exports.schemas.js";
 
 /**
- * Produces whole-period account statements in the background, one RFC 4180 CSV file each: one
- * account, optionally one asset, for a period of at most 366 days. API keys need
+ * Produces whole-period statement files in the background, one RFC 4180 CSV file each: an account
+ * statement, a ledger or the account's balances, of one account, optionally one asset, for a
+ * period of at most 366 days. API keys need
  * `read-statements`. A root account has at most 5 exports queued or processing, each account
  * produces one at a time, and a ready file can be downloaded for 7 days.
  *
@@ -47,7 +48,9 @@ export class StatementExportsService {
      * Creates an export of the resolved account's statement, or returns the existing one for the
      * same `idempotencyKey`. Throws `PreconditionFailedError` when the key was used with other
      * fields (`IDEMPOTENCY_KEY_REUSED`) or the root account already has 5 exports queued or
-     * processing (`STATEMENT_EXPORT_LIMIT_REACHED`). A `ServiceUnavailableError` can be retried
+     * processing (`STATEMENT_EXPORT_LIMIT_REACHED`), or a `balances` period starts before the
+     * account history (`STATEMENT_HISTORY_UNAVAILABLE`, with `historyAvailableFrom`: create it
+     * again starting at or after that time). A `ServiceUnavailableError` can be retried
      * with the same request.
      */
     async create(

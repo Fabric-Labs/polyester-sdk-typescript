@@ -316,6 +316,13 @@ export const SubaccountSchema = v.pipe(
          * updates.
          */
         idempotencyKey: v.optional(v.string(), ""),
+        /**
+         * True once a strategy bot has held this sub-account, and never cleared: keep it out of
+         * funding-source choices, since a bot's funds never fund another bot
+         * (`FUNDING_SOURCE_IS_BOT`). Its policy stays the bot's trading-only one, which can only be
+         * cleared (`AUTH_STRATEGY_BOT_MANAGED`).
+         */
+        strategyBot: v.optional(v.boolean(), false),
     }),
     v.transform(({ updatedAt, ...subaccount }) => ({
         ...subaccount,
