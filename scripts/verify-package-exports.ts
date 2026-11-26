@@ -485,6 +485,36 @@ async function verifyServiceInference(): Promise<void> {
         communityStrategy.backtest,
     );
     expectNotAny(communityStrategy, true);
+    expectType<number>(communityStrategy.forks);
+    expectType<string | null | undefined>(communityStrategy.forkedFrom?.listingId);
+    const forked = await client.strategies.fork({
+        listingId: "1",
+        name: "My DCA",
+        idempotencyKey: "fork-1",
+    } satisfies import("@polyester/sdk").ForkStrategyInput);
+    expectType<import("@polyester/sdk").ForkStrategyResult>(forked);
+    expectType<{ reportedAt: number | null }>(
+        await client.strategies.reportCommunity({
+            listingId: "1",
+            versionId: "sha256:1",
+            reason: "spam",
+        } satisfies import("@polyester/sdk").ReportCommunityStrategyInput),
+    );
+    const fundsReturn = await client.strategies.returnBotFunds({
+        botId: "1",
+        idempotencyKey: "ret-1",
+    } satisfies import("@polyester/sdk").ReturnBotFundsInput);
+    expectType<import("@polyester/sdk").StrategyBotFundsReturn>(fundsReturn);
+    expectType<import("@polyester/sdk").StrategyBotFundsReturnStatus | "unspecified">(
+        fundsReturn.status,
+    );
+    expectType<import("@polyester/sdk").StrategyBotFundsReturn>(
+        await client.strategies.getBotFundsReturn({
+            returnId: fundsReturn.returnId,
+        } satisfies import("@polyester/sdk").StrategyBotFundsReturnInput),
+    );
+    expectType<import("@polyester/sdk").StrategyBotStrategyRef | null>(stoppedBot.bot.strategy);
+    expectType<import("@polyester/sdk").StrategyReportReason>("copied_without_credit");
     const strategiesDetail: Extract<PolyesterErrorDetail, { service: "strategies" }> = {
         service: "strategies",
         code: "INSUFFICIENT_FUNDS",
@@ -568,6 +598,7 @@ async function verifyServiceInference(): Promise<void> {
         } satisfies import("@polyester/sdk").AbandonInternalTransferBatchInput),
     );
     const statementExport = await client.statementExports.create({
+        type: "balances",
         startTime: 1,
         endTime: 86_400_000,
         idempotencyKey: "q1-2026",
@@ -581,6 +612,8 @@ async function verifyServiceInference(): Promise<void> {
         statementExport.failureReason,
     );
     expectType<string | null>(statementExport.subaccountId);
+    expectType<import("@polyester/sdk").StatementExportType | "unspecified">(statementExport.type);
+    expectType<number | null>(statementExport.historyAvailableFrom);
     expectType<import("@polyester/sdk").StatementExport>(
         await client.statementExports.get({
             exportId: statementExport.exportId,

@@ -64,7 +64,15 @@ export type PolyesterErrorDetail =
           service: "internal_transfer";
           code: NamedCode<typeof InternalTransferErrorCode>;
       }
-    | { service: "ledger"; code: NamedCode<typeof LedgerErrorCode> }
+    | {
+          service: "ledger";
+          code: NamedCode<typeof LedgerErrorCode>;
+          /**
+           * With `STATEMENT_HISTORY_UNAVAILABLE`: where the account history starts, epoch ms. Create
+           * the `balances` export again with a start at or after it.
+           */
+          historyAvailableFrom?: number;
+      }
     | {
           service: "market_overview";
           code: NamedCode<typeof MarketOverviewErrorCode>;
@@ -103,7 +111,15 @@ export type PolyesterErrorDetail =
           maxAmount?: string;
       }
     | { service: "alerts"; code: NamedCode<typeof PriceAlertErrorCode> }
-    | { service: "assistant"; code: NamedCode<typeof AssistantErrorCode> }
+    | {
+          service: "assistant";
+          code: NamedCode<typeof AssistantErrorCode>;
+          /**
+           * With `RUN_ACTIVE`, while the run waits for a decision: the pending approval to show
+           * Approve and Reject for, instead of a generic "busy" message.
+           */
+          pendingApprovalId?: string;
+      }
     | { service: "notifications"; code: NamedCode<typeof NotificationErrorCode> }
     | {
           service: "strategies";
@@ -112,7 +128,8 @@ export type PolyesterErrorDetail =
           fieldPath?: string;
           /**
            * Epoch ms when the same request may succeed; with `SCENARIO_RUN_LIMIT_REACHED`, and with
-           * `PUBLISH_LIMIT_REACHED` and `BACKTEST_LIMIT_REACHED` for their daily limits (when the
+           * `PUBLISH_LIMIT_REACHED`, `REPORT_LIMIT_REACHED` and `BACKTEST_LIMIT_REACHED` for their
+           * daily limits (when the
            * UTC day resets). The limit on backtests at once has none: retry when one finishes.
            */
           retryAfter?: number;

@@ -59,6 +59,8 @@ const policyActionCases = [
     [Proto.PolicyAction.PROPOSE_STRATEGY_DEPLOY, "propose-strategy-deploy"],
     [Proto.PolicyAction.READ_PNL, "read-pnl"],
     [Proto.PolicyAction.STOP_STRATEGIES, "stop-strategies"],
+    [Proto.PolicyAction.FORK_STRATEGIES, "fork-strategies"],
+    [Proto.PolicyAction.RETURN_STRATEGY_BOT_FUNDS, "return-strategy-bot-funds"],
 ] as const;
 
 describe("PolicyMarketScopeCodec", () => {

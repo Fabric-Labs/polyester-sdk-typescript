@@ -1,4 +1,4 @@
-import type { MessageInitShape } from "@bufbuild/protobuf";
+import { create, type MessageInitShape } from "@bufbuild/protobuf";
 import { Code, ConnectError, createRouterTransport } from "@connectrpc/connect";
 import { describe, expect, it, vi } from "vitest";
 import * as Alerts from "../../gen/alerts/v1/price_alerts_pb.js";
@@ -11,8 +11,12 @@ import {
 } from "../../gen/orders/v1/orders_pb.js";
 import { createErrorMappingTransport } from "../../shared/connect-error-mapping.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
-import { ServiceUnavailableError, ValidationError } from "../../shared/errors.js";
-import { unaryTransport } from "../../testing/service-harness.js";
+import {
+    PreconditionFailedError,
+    ServiceUnavailableError,
+    ValidationError,
+} from "../../shared/errors.js";
+import { rejectingUnaryTransport, unaryTransport } from "../../testing/service-harness.js";
 import { formatId } from "../../utils/base58-id.js";
 import { FailureCategoryCodec } from "./assistant.codecs.js";
 import { AssistantService } from "./assistant.js";
@@ -170,6 +174,40 @@ describe("AssistantService unary calls", () => {
         expect(transport.lastCall()?.message).toEqual({
             approvalId: 5n,
             decision: Proto.ApprovalDecision.REJECT,
+        });
+    });
+
+    it("returns cancelled for an approval whose run ended before a decision", async () => {
+        const { service } = serviceWith({ status: Proto.ApprovalStatus.APPROVAL_CANCELLED });
+        await expect(
+            service.decideApproval({ approvalId: formatId(5n), decision: "approve" }),
+        ).resolves.toBe("cancelled");
+    });
+
+    it("names the pending approval a busy conversation waits for, and only then", async () => {
+        const send = (pendingApprovalId: bigint) => {
+            const detail = create(Proto.ErrorDetailSchema, {
+                code: Proto.ErrorCode.RUN_ACTIVE,
+                pendingApprovalId,
+            });
+            const error = new ConnectError("busy", Code.FailedPrecondition, undefined, [
+                { desc: Proto.ErrorDetailSchema, value: detail },
+            ]);
+            const service = new AssistantService(
+                { authApi: createErrorMappingTransport(rejectingUnaryTransport(error)) },
+                scales,
+            );
+            return service.sendMessage({ text: "hi", idempotencyKey: "k" });
+        };
+
+        const waiting = send(9n);
+        await expect(waiting).rejects.toBeInstanceOf(PreconditionFailedError);
+        await expect(waiting).rejects.toMatchObject({
+            detail: { service: "assistant", code: "RUN_ACTIVE", pendingApprovalId: formatId(9n) },
+        });
+        await expect(send(0n)).rejects.toHaveProperty("detail", {
+            service: "assistant",
+            code: "RUN_ACTIVE",
         });
     });
 

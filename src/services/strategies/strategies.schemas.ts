@@ -19,6 +19,7 @@ import { tsObjToMs } from "../../utils/time.js";
 import { msToTimestamp } from "../../utils/timestamp.js";
 import {
     BacktestStatusCodec,
+    BotFundsReturnStatusCodec,
     BotLogKindCodec,
     BotStatusCodec,
     BotPauseReasonCodec,
@@ -28,8 +29,10 @@ import {
     FlowNodeKindCodec,
     ListingStateCodec,
     NotBacktestableReasonCodec,
+    ReportReasonCodec,
     RevisionSavedByCodec,
     STRATEGY_BOT_STOP_MODE_VALUES,
+    STRATEGY_REPORT_REASON_VALUES,
     STRATEGY_TAG_VALUES,
     ScenarioOutcomeCodec,
     StopModeCodec,
@@ -336,6 +339,34 @@ export type PublishStrategyVersionInput = v.InferInput<typeof PublishStrategyVer
 export const ListingIdInputSchema = v.strictObject({ listingId: idInputSchema("listingId") });
 export type StrategyListingInput = v.InferInput<typeof ListingIdInputSchema>;
 
+export const ForkStrategyInputSchema = v.strictObject({
+    listingId: idInputSchema("listingId"),
+    /** Name of the new strategy. */
+    name: RequiredStringSchema,
+    /**
+     * Reusing a key with the same request returns the strategy the first call created and never
+     * forks again; a key `create` or `saveDraftVersion` used throws `AlreadyExistsError`.
+     */
+    idempotencyKey: IdempotencyKeySchema,
+});
+export type ForkStrategyInput = v.InferInput<typeof ForkStrategyInputSchema>;
+
+export const ReportCommunityStrategyInputSchema = v.pipe(
+    v.strictObject({
+        listingId: idInputSchema("listingId"),
+        /** The version the reader saw, as `getCommunity` returned it. */
+        versionId: VersionIdInputSchema,
+        reason: v.picklist(STRATEGY_REPORT_REASON_VALUES),
+        /** What the reader adds, at most 500 characters; required with `other`. */
+        note: v.optional(v.string(), ""),
+    }),
+    v.transform(({ reason, ...input }) => ({
+        ...input,
+        reason: ReportReasonCodec.inputToProto[reason],
+    })),
+);
+export type ReportCommunityStrategyInput = v.InferInput<typeof ReportCommunityStrategyInputSchema>;
+
 export const ListCommunityStrategiesInputSchema = v.strictObject({
     /** Only listings with any of these types; omit for every type. */
     tags: StrategyTagsInputSchema,
@@ -374,6 +405,19 @@ export const StopBotInputSchema = v.pipe(
     v.transform(({ mode, ...input }) => ({ ...input, mode: StopModeCodec.inputToProto[mode] })),
 );
 export type StopBotInput = v.InferInput<typeof StopBotInputSchema>;
+
+export const ReturnBotFundsInputSchema = v.strictObject({
+    botId: idInputSchema("botId"),
+    /**
+     * Reusing a key for the same bot returns the same return as it stands now and never starts a
+     * second; the same key for another bot throws `AlreadyExistsError`.
+     */
+    idempotencyKey: IdempotencyKeySchema,
+});
+export type ReturnBotFundsInput = v.InferInput<typeof ReturnBotFundsInputSchema>;
+
+export const BotFundsReturnIdInputSchema = v.strictObject({ returnId: idInputSchema("returnId") });
+export type StrategyBotFundsReturnInput = v.InferInput<typeof BotFundsReturnIdInputSchema>;
 
 export const ListBotLogsInputSchema = v.strictObject({
     botId: idInputSchema("botId"),
@@ -591,6 +635,21 @@ function origin(o: Proto.StrategyOrigin | undefined) {
             return { kind: "template" as const, templateId: o.source.value };
         case "duplicate":
             return { kind: "duplicate" as const, sourceVersionId: o.source.value.sourceVersionId };
+        case "fork": {
+            const { listingId, title, authorUsername, sourceVersionId } = o.source.value;
+            return {
+                kind: "fork" as const,
+                /**
+                 * The listing forked, while it is public; null once it isn't, with `title` and
+                 * `authorUsername` empty: show "forked from a community strategy" then.
+                 */
+                listingId: optionalId(listingId),
+                title,
+                authorUsername,
+                /** The published version copied: the strategy's revision 1. */
+                sourceVersionId,
+            };
+        }
         default:
             return null;
     }
@@ -628,8 +687,8 @@ export function formatStrategy(s: Proto.Strategy) {
         /** The notes' one-line summary; empty before their first save, or when the caller may not read bots. */
         summary: s.summary,
         /**
-         * Its community listing, `public` or `hidden`; null when never published, or when the
-         * caller may not read bots.
+         * Its community listing, `public`, `hidden` or `held`; null when never published, or when
+         * the caller may not read bots.
          */
         listing: s.listing ? formatStrategyListing(s.listing) : null,
     };
@@ -645,6 +704,8 @@ export function formatStrategyListing(l: Proto.StrategyListing) {
         versionId: l.versionId,
         /** When that version was published. */
         publishedAt: ms(l.publishedAt),
+        /** Why moderation holds it, for its author only; empty unless `held`. */
+        holdReason: l.holdReason,
     };
 }
 /** A strategy's community listing, as its author's strategy shows it. */
@@ -1010,6 +1071,14 @@ export function formatDeployProposal(r: Proto.GetDeployProposalResponse) {
 }
 export type StrategyDeployProposal = ReturnType<typeof formatDeployProposal>;
 
+/**
+ * The strategy and revision a bot or run was deployed from, as its deploy proposal recorded them;
+ * null when it has no linked strategy, e.g. once the strategy is deleted.
+ */
+const strategyRef = (strategyId: bigint, revision: bigint) =>
+    strategyId === 0n ? null : { strategyId: formatId(strategyId), revision: revision.toString() };
+export type StrategyBotStrategyRef = NonNullable<ReturnType<typeof strategyRef>>;
+
 export function formatBot(b: Proto.Bot) {
     return {
         botId: formatId(b.botId),
@@ -1025,6 +1094,8 @@ export function formatBot(b: Proto.Bot) {
         /** Why a `paused` bot paused; `unspecified` otherwise. */
         pauseReason: enumLabel(BotPauseReasonCodec.protoToOutput, b.pauseReason),
         versionId: b.versionId,
+        /** The strategy and revision it runs; null without a linked strategy. */
+        strategy: strategyRef(b.strategyId, b.revision),
         /**
          * The time of the event behind its newest decision, over all its deployments; null before
          * its first. Lags the bot by up to about a minute.
@@ -1083,6 +1154,8 @@ export function formatBotVersion(b: Proto.BotVersion) {
         startedAt: ms(b.startedAt),
         /** When its stop was recorded; null for the current run. */
         stoppedAt: ms(b.stoppedAt),
+        /** The strategy and revision the run ran; null without a linked strategy. */
+        strategy: strategyRef(b.strategyId, b.revision),
     };
 }
 export type StrategyBotVersion = ReturnType<typeof formatBotVersion>;
@@ -1120,6 +1193,37 @@ export function formatBotLogEntry(e: Proto.BotLogEntry) {
     };
 }
 export type StrategyBotLogEntry = ReturnType<typeof formatBotLogEntry>;
+
+export function formatBotFundsReturn(r: Proto.BotFundsReturn) {
+    return {
+        returnId: formatId(r.returnId),
+        botId: formatId(r.botId),
+        /** Poll `getBotFundsReturn` while `processing`. */
+        status: enumLabel(BotFundsReturnStatusCodec.protoToOutput, r.status),
+        /** Confirmed amounts moved to the main account so far, one per asset; grows while `processing`. */
+        assets: moneyList(r.assets),
+        requestedAt: ms(r.requestedAt),
+        /** When it completed or ended with nothing moved; null while `processing`. */
+        finishedAt: ms(r.finishedAt),
+        /**
+         * What the bot's open orders still hold on its subaccount, one per asset; the return takes
+         * it as the orders fill or end. Empty once it finished.
+         */
+        held: moneyList(r.held),
+    };
+}
+/** A return of a stopped bot's available balances to its owner's main account. */
+export type StrategyBotFundsReturn = ReturnType<typeof formatBotFundsReturn>;
+
+export function formatForkStrategyResult(r: Proto.ForkStrategyResponse) {
+    return {
+        /** The new strategy: the published version is its revision 1, and its `origin` names the listing. */
+        strategy: requireStrategy(r.strategy, "ForkStrategy"),
+        /** Revision 1's check result, as the listing published it. */
+        version: versionValidation(r.version),
+    };
+}
+export type ForkStrategyResult = ReturnType<typeof formatForkStrategyResult>;
 
 function communityBacktest(b: Proto.CommunityBacktest | undefined) {
     if (!b) return null;
@@ -1160,6 +1264,8 @@ export function formatCommunityStrategySummary(s: Proto.CommunityStrategySummary
         markets: s.markets,
         /** The author's current username. */
         authorUsername: s.authorUsername,
+        /** Accounts that forked it, each once; its author's own copies never count. */
+        forks: s.forks,
         /** The platform backtest of the published version, without its report. */
         backtest: communityBacktest(s.backtest),
         /** When the shown version was published. */
@@ -1193,6 +1299,20 @@ export function formatCommunityStrategy(s: Proto.CommunityStrategy) {
         flow: flow(s.flow),
         /** The platform backtest of the published version, with its report once `done`. */
         backtest: communityBacktest(s.backtest),
+        /** Accounts that forked it, each once; its author's own copies never count. */
+        forks: s.forks,
+        /**
+         * The listing it was forked from; null when it wasn't forked. `listingId` is null once the
+         * source isn't public, with `title` and `authorUsername` empty: show "forked from a
+         * community strategy" then.
+         */
+        forkedFrom: s.forkedFrom
+            ? {
+                  listingId: optionalId(s.forkedFrom.listingId),
+                  title: s.forkedFrom.title,
+                  authorUsername: s.forkedFrom.authorUsername,
+              }
+            : null,
     };
 }
 /** One public community listing with its published version; nothing of its author's account. */

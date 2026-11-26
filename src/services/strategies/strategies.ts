@@ -8,6 +8,7 @@ import type { AuthAndPublicApiTransports } from "../../shared/transports.js";
 import { enumLabel } from "../../shared/proto-enum-codec.js";
 import { parse } from "../../shared/validation.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
+import { tsObjToMs } from "../../utils/time.js";
 import { BotStatusCodec } from "./strategies.codecs.js";
 import {
     BacktestIdInputSchema,
@@ -15,6 +16,8 @@ import {
     CreateStrategyInputSchema,
     DeployBotInputSchema,
     DeployProposalInputSchema,
+    BotFundsReturnIdInputSchema,
+    ForkStrategyInputSchema,
     GetStrategyReferenceInputSchema,
     ListBacktestTradesInputSchema,
     ListCommunityStrategiesInputSchema,
@@ -29,6 +32,8 @@ import {
     ProposeDeployInputSchema,
     PublishStrategyVersionInputSchema,
     RenameStrategyInputSchema,
+    ReportCommunityStrategyInputSchema,
+    ReturnBotFundsInputSchema,
     SaveDraftVersionInputSchema,
     SaveStrategyNotesInputSchema,
     StartBacktestInputSchema,
@@ -39,6 +44,7 @@ import {
     formatBacktestTrade,
     formatBot,
     formatBotDetails,
+    formatBotFundsReturn,
     formatBotLogEntry,
     formatBotVersion,
     formatCommunityStrategy,
@@ -47,6 +53,7 @@ import {
     formatDeployProposal,
     formatDeployStatus,
     formatExplainStrategyResult,
+    formatForkStrategyResult,
     formatProposeDeployResult,
     formatRenameStrategyResult,
     formatRunScenariosResult,
@@ -67,6 +74,8 @@ import {
     type CreateStrategyResult,
     type DeployBotInput,
     type ExplainStrategyResult,
+    type ForkStrategyInput,
+    type ForkStrategyResult,
     type GetStrategyReferenceInput,
     type ListBacktestTradesInput,
     type ListBacktestsInput,
@@ -90,6 +99,8 @@ import {
     type ProposeStrategyDeployResult,
     type PublishStrategyVersionInput,
     type RenameStrategyInput,
+    type ReportCommunityStrategyInput,
+    type ReturnBotFundsInput,
     type RunStrategyScenariosResult,
     type SaveDraftVersionInput,
     type SaveDraftVersionResult,
@@ -102,6 +113,8 @@ import {
     type StrategyBacktest,
     type StrategyBacktestInput,
     type StrategyBotDetails,
+    type StrategyBotFundsReturn,
+    type StrategyBotFundsReturnInput,
     type StrategyBotInput,
     type StrategyDeployProposal,
     type StrategyDeployProposalInput,
@@ -121,11 +134,13 @@ import {
  * Writes, tests, proposes and deploys trading bots of the caller's main account: save drafts of a
  * strategy as immutable versions, run their behaviour examples, backtest them, record a deploy
  * proposal, deploy it from the user's own MFA-elevated session with a wallet signature, and stop
- * bots. Publishes a strategy's version as its community listing, and browses the public listings.
- * API keys need `read-strategies`, `draft-strategies`, `propose-strategy-deploy` or
- * `stop-strategies`, and a key scoped to a subaccount is refused (`PermissionError`); `deployBot`
- * requires the user's own MFA-elevated session, and `publishVersion` and `unpublish` the user's
- * own session: both refuse API keys and connected-app sessions. `getReference`, `listTemplates`,
+ * bots, then return a stopped bot's funds to the main account. Publishes a strategy's version as its
+ * community listing, and browses, forks and reports the public listings. API keys need
+ * `read-strategies`, `draft-strategies`, `propose-strategy-deploy`, `stop-strategies`,
+ * `fork-strategies` or `return-strategy-bot-funds`, and a key scoped to a subaccount is refused
+ * (`PermissionError`); `deployBot` requires the user's own MFA-elevated session, and
+ * `publishVersion`, `unpublish` and `reportCommunity` the user's own session: they refuse API keys
+ * and connected-app sessions. `getReference`, `listTemplates`,
  * `listCommunity` and `getCommunity` need no credentials. Errors carry a `strategies` detail; a
  * `ServiceUnavailableError` is safe to retry unchanged.
  */
@@ -308,7 +323,8 @@ export class StrategiesService {
     /**
      * Deletes a strategy and its revisions; it never stops a bot. A strategy a running bot or a
      * waiting proposal uses, or whose community listing is public, throws
-     * `PreconditionFailedError` (`STRATEGY_IN_USE`); an unknown one throws `ResourceNotFoundError`
+     * `PreconditionFailedError` (`STRATEGY_IN_USE`), and one whose listing moderation holds
+     * (`LISTING_HELD`); an unknown one throws `ResourceNotFoundError`
      * (`STRATEGY_NOT_FOUND`). Needs `draft-strategies`.
      */
     async delete(input: StrategyInput, options?: PolyesterRequestOptions): Promise<void> {
@@ -570,6 +586,41 @@ export class StrategiesService {
     }
 
     /**
+     * Returns every spendable balance of a stopped bot's subaccount to the caller's main account,
+     * its only destination; poll `getBotFundsReturn` while `processing`. It never takes what open
+     * orders hold (`held`), returning it as they fill or end. A bot that may still trade throws
+     * `PreconditionFailedError` (`BOT_NOT_STOPPED`), as does a subaccount with nothing to return
+     * (`NOTHING_TO_RETURN`); while a stopped bot's access is still live, an API key also gets
+     * `BOT_NOT_STOPPED` until the owner calls this once from their own session. Reusing
+     * `idempotencyKey` for another bot throws `AlreadyExistsError`; a `ServiceUnavailableError` is
+     * safe to retry with the same key. The owner's own session or a root-scoped API key with
+     * `return-strategy-bot-funds`.
+     */
+    async returnBotFunds(
+        input: ReturnBotFundsInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<StrategyBotFundsReturn> {
+        const request = parse(ReturnBotFundsInputSchema, input);
+        const res = await this.#client.returnBotFunds(request, toConnectCallOptions(options));
+        if (!res.fundsReturn) throw new Error("ReturnBotFunds response is missing its return");
+        return formatBotFundsReturn(res.fundsReturn);
+    }
+
+    /**
+     * Reads one of the caller's returns of a stopped bot's funds. An unknown return throws
+     * `ResourceNotFoundError`. Needs `read-strategies`.
+     */
+    async getBotFundsReturn(
+        input: StrategyBotFundsReturnInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<StrategyBotFundsReturn> {
+        const request = parse(BotFundsReturnIdInputSchema, input);
+        const res = await this.#client.getBotFundsReturn(request, toConnectCallOptions(options));
+        if (!res.fundsReturn) throw new Error("GetBotFundsReturn response is missing its return");
+        return formatBotFundsReturn(res.fundsReturn);
+    }
+
+    /**
      * Reads a bot's recent activity, oldest first: the last 20 decisions of its current deployment,
      * each with the lines its call wrote, and its last 20 errors. Older entries are not kept, and
      * each lags the bot by up to about a minute. Follow new entries with the last page's
@@ -601,8 +652,8 @@ export class StrategiesService {
      * `PreconditionFailedError` (`VERSION_INVALID`, `SCENARIOS_FAILING`), as do a caller without
      * a username (`USERNAME_REQUIRED`), the listing cap (`LISTING_CAP_REACHED`, with
      * `listingCap`) and the daily publish limit (`PUBLISH_LIMIT_REACHED`, with `retryAfter` when
-     * the UTC day resets). Reusing `idempotencyKey` for another request throws
-     * `AlreadyExistsError` (`IDEMPOTENCY_CONFLICT`).
+     * the UTC day resets) and a listing moderation holds (`LISTING_HELD`). Reusing
+     * `idempotencyKey` for another request throws `AlreadyExistsError` (`IDEMPOTENCY_CONFLICT`).
      */
     async publishVersion(
         input: PublishStrategyVersionInput,
@@ -620,7 +671,8 @@ export class StrategiesService {
     /**
      * Unpublishes one of the caller's community listings: it reads `hidden`, leaves the list and
      * `getCommunity` throws `ResourceNotFoundError` for it; copies already made stay. Unpublishing
-     * a `hidden` listing changes nothing. The user's own session only. Another account's listing
+     * a `hidden` listing changes nothing; a `held` one throws `PreconditionFailedError`
+     * (`LISTING_HELD`) until moderation releases it. The user's own session only. Another account's listing
      * throws `ResourceNotFoundError` (`LISTING_NOT_FOUND`).
      */
     async unpublish(
@@ -670,5 +722,42 @@ export class StrategiesService {
         );
         if (!res.strategy) throw new Error("GetCommunityStrategy response is missing its strategy");
         return formatCommunityStrategy(res.strategy);
+    }
+
+    /**
+     * Copies a public community listing's published version into a new strategy of the caller,
+     * as its revision 1, with the listing as its `origin`; nothing the author does later changes
+     * it. An unknown or unpublished listing throws `ResourceNotFoundError` (`LISTING_NOT_FOUND`);
+     * the strategy cap throws `PreconditionFailedError` (`STRATEGY_CAP_REACHED`, with
+     * `strategyCap`); reusing `idempotencyKey` for another request throws `AlreadyExistsError`
+     * (`IDEMPOTENCY_CONFLICT`). Needs `fork-strategies`; connected-app sessions are refused.
+     */
+    async fork(
+        input: ForkStrategyInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<ForkStrategyResult> {
+        const request = parse(ForkStrategyInputSchema, input);
+        const res = await this.#client.forkStrategy(request, toConnectCallOptions(options));
+        return formatForkStrategyResult(res);
+    }
+
+    /**
+     * Reports the version of a public community listing the reader saw to moderation, and returns
+     * when the report was recorded, epoch ms; reporting the same version again returns the first
+     * report's time. The user's own session only. The caller's own listing throws
+     * `PreconditionFailedError` (`CANNOT_REPORT_OWN_LISTING`), as does the daily limit
+     * (`REPORT_LIMIT_REACHED`, with `retryAfter` when the UTC day resets); an unknown listing or
+     * version throws `ResourceNotFoundError` (`LISTING_NOT_FOUND`, `VERSION_NOT_FOUND`).
+     */
+    async reportCommunity(
+        input: ReportCommunityStrategyInput,
+        options?: PolyesterRequestOptions,
+    ): Promise<{ reportedAt: number | null }> {
+        const request = parse(ReportCommunityStrategyInputSchema, input);
+        const res = await this.#client.reportCommunityStrategy(
+            request,
+            toConnectCallOptions(options),
+        );
+        return { reportedAt: tsObjToMs(res.reportedAt) ?? null };
     }
 }

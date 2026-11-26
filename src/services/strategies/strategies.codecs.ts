@@ -215,8 +215,12 @@ export const DeployWaitReasonCodec = {
     } satisfies ProtoToOutput<Proto.DeployWait_Reason, StrategyDeployWaitReason>,
 } as const;
 
-export const STRATEGY_LISTING_STATE_VALUES = ["public", "hidden"] as const;
-/** `public` is listed and readable by everyone; `hidden` was unpublished by its author. */
+export const STRATEGY_LISTING_STATE_VALUES = ["public", "hidden", "held"] as const;
+/**
+ * `public` is listed and readable by everyone; `hidden` was unpublished by its author; `held` is
+ * held by moderation (see `holdReason`): out of the list, and it can't be published, unpublished
+ * or its strategy deleted (`LISTING_HELD`) until moderation releases it.
+ */
 export type StrategyListingState = (typeof STRATEGY_LISTING_STATE_VALUES)[number];
 
 export const ListingStateCodec = {
@@ -224,6 +228,7 @@ export const ListingStateCodec = {
         [Proto.StrategyListing_State.LISTING_STATE_UNSPECIFIED]: "unspecified",
         [Proto.StrategyListing_State.PUBLIC]: "public",
         [Proto.StrategyListing_State.HIDDEN]: "hidden",
+        [Proto.StrategyListing_State.HELD]: "held",
     } satisfies ProtoToOutput<Proto.StrategyListing_State, StrategyListingState>,
 } as const;
 
@@ -259,4 +264,45 @@ export const StrategyTagCodec = {
         [Proto.StrategyTag.ARBITRAGE]: "arbitrage",
         [Proto.StrategyTag.SIGNALS]: "signals",
     } satisfies ProtoToOutput<Proto.StrategyTag, StrategyTag>,
+} as const;
+
+export const STRATEGY_BOT_FUNDS_RETURN_STATUS_VALUES = [
+    "processing",
+    "completed",
+    "nothing_moved",
+] as const;
+/**
+ * `processing` is under way and completes on its own, staying so while open orders still hold
+ * amounts (`held`); `completed` credited every asset to the main account; `nothing_moved` ended
+ * with nothing left to return.
+ */
+export type StrategyBotFundsReturnStatus = (typeof STRATEGY_BOT_FUNDS_RETURN_STATUS_VALUES)[number];
+
+export const BotFundsReturnStatusCodec = {
+    protoToOutput: {
+        [Proto.BotFundsReturnStatus.BOT_FUNDS_RETURN_STATUS_UNSPECIFIED]: "unspecified",
+        [Proto.BotFundsReturnStatus.RETURN_PROCESSING]: "processing",
+        [Proto.BotFundsReturnStatus.RETURN_COMPLETED]: "completed",
+        [Proto.BotFundsReturnStatus.RETURN_NOTHING_MOVED]: "nothing_moved",
+    } satisfies ProtoToOutput<Proto.BotFundsReturnStatus, StrategyBotFundsReturnStatus>,
+} as const;
+
+export const STRATEGY_REPORT_REASON_VALUES = [
+    "misleading_results",
+    "harmful_code",
+    "spam",
+    "copied_without_credit",
+    "other",
+] as const;
+/** Why a community listing is reported; `other` needs a `note`. */
+export type StrategyReportReason = (typeof STRATEGY_REPORT_REASON_VALUES)[number];
+
+export const ReportReasonCodec = {
+    inputToProto: {
+        misleading_results: Proto.ReportReason.MISLEADING_RESULTS,
+        harmful_code: Proto.ReportReason.HARMFUL_CODE,
+        spam: Proto.ReportReason.SPAM,
+        copied_without_credit: Proto.ReportReason.COPIED_WITHOUT_CREDIT,
+        other: Proto.ReportReason.OTHER,
+    } satisfies InputToProto<StrategyReportReason, Proto.ReportReason>,
 } as const;

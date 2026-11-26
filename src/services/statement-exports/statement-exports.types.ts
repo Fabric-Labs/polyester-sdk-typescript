@@ -11,4 +11,5 @@ export type {
 export type {
     StatementExportFailureReason,
     StatementExportStatus,
+    StatementExportType,
 } from "./statement-exports.codecs.js";

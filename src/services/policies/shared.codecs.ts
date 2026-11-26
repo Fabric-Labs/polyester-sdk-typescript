@@ -55,6 +55,8 @@ export const ACCOUNT_PERMISSION_POLICY_ACTION_LABELS = [
     "draft-strategies",
     "propose-strategy-deploy",
     "stop-strategies",
+    "fork-strategies",
+    "return-strategy-bot-funds",
 ] as const;
 
 /**
@@ -139,6 +141,8 @@ export const PolicyActionCodec = {
         [Proto.PolicyAction.PROPOSE_STRATEGY_DEPLOY]: "propose-strategy-deploy",
         [Proto.PolicyAction.READ_PNL]: "read-pnl",
         [Proto.PolicyAction.STOP_STRATEGIES]: "stop-strategies",
+        [Proto.PolicyAction.FORK_STRATEGIES]: "fork-strategies",
+        [Proto.PolicyAction.RETURN_STRATEGY_BOT_FUNDS]: "return-strategy-bot-funds",
     } satisfies ProtoToOutput<Proto.PolicyAction, PolicyActionLabel>,
     inputToProto: {
         "trade-spot": Proto.PolicyAction.TRADE_SPOT,
@@ -187,6 +191,8 @@ export const PolicyActionCodec = {
         "propose-strategy-deploy": Proto.PolicyAction.PROPOSE_STRATEGY_DEPLOY,
         "read-pnl": Proto.PolicyAction.READ_PNL,
         "stop-strategies": Proto.PolicyAction.STOP_STRATEGIES,
+        "fork-strategies": Proto.PolicyAction.FORK_STRATEGIES,
+        "return-strategy-bot-funds": Proto.PolicyAction.RETURN_STRATEGY_BOT_FUNDS,
     } satisfies Record<PolicyActionLabel, Proto.PolicyAction>,
 } as const;
 

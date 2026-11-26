@@ -24,6 +24,7 @@ export const ASSISTANT_APPROVAL_STATUS_VALUES = [
     "approved",
     "rejected",
     "expired",
+    "cancelled",
 ] as const;
 export type AssistantApprovalStatus = (typeof ASSISTANT_APPROVAL_STATUS_VALUES)[number];
 
@@ -196,6 +197,7 @@ export const ApprovalStatusCodec = {
         [Proto.ApprovalStatus.APPROVED]: "approved",
         [Proto.ApprovalStatus.REJECTED]: "rejected",
         [Proto.ApprovalStatus.EXPIRED]: "expired",
+        [Proto.ApprovalStatus.APPROVAL_CANCELLED]: "cancelled",
     } satisfies ProtoToOutput<Proto.ApprovalStatus, AssistantApprovalStatus>,
 } as const;
 
