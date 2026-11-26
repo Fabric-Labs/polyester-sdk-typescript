@@ -1246,8 +1246,9 @@ export const ApiKeyService: GenService<{
    * sub-account to the account's own management. The revoked key is no
    * longer a STRATEGY_BOT key, and the sub-account is released whatever state
    * the key is in: a disabled sub-account stays disabled, and the account
-   * manages it like any other. The sub-account keeps its policy until the
-   * account changes it. The operation stays ended:
+   * manages it like any other, except its policy: the sub-account keeps the
+   * bot's trading-only policy, which the account can only clear
+   * (AUTH_STRATEGY_BOT_MANAGED), and never widen. The operation stays ended:
    * SetStrategyBotAccess under it afterwards, even a delayed original
    * request, returns AlreadyExists with AUTH_STRATEGY_BOT_OPERATION_CONFLICT.
    * Ending an operation that set no access, or one already ended, succeeds

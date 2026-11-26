@@ -13,20 +13,23 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file ledger/read/v1/statement_export.proto.
  */
 export const file_ledger_read_v1_statement_export: GenFile = /*@__PURE__*/
-  fileDesc("CiVsZWRnZXIvcmVhZC92MS9zdGF0ZW1lbnRfZXhwb3J0LnByb3RvEg5sZWRnZXIucmVhZC52MSK+BAoPU3RhdGVtZW50RXhwb3J0EhEKCWV4cG9ydF9pZBgBIAEoBhIaCg1zdWJhY2NvdW50X2lkGAIgASgGSACIAQESLgoKc3RhcnRfdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCGFzc2V0X2lkGAUgASgNEhcKD2lkZW1wb3RlbmN5X2tleRgGIAEoCRI1CgZzdGF0dXMYByABKA4yJS5sZWRnZXIucmVhZC52MS5TdGF0ZW1lbnRFeHBvcnRTdGF0dXMSNAoQY29tcGxldGVfdGhyb3VnaBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEQoJbW92ZW1lbnRzGAkgASgEEg0KBWJ5dGVzGAogASgEEi4KCmNyZWF0ZWRfYXQYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCHJlYWR5X2F0GAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpleHBpcmVzX2F0GA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBJECg5mYWlsdXJlX3JlYXNvbhgOIAEoDjIsLmxlZGdlci5yZWFkLnYxLlN0YXRlbWVudEV4cG9ydEZhaWx1cmVSZWFzb25CEAoOX3N1YmFjY291bnRfaWQi3wEKHENyZWF0ZVN0YXRlbWVudEV4cG9ydFJlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASACIAQESMAoKc3RhcnRfdGltZRgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCABIuCghlbmRfdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCABIQCghhc3NldF9pZBgEIAEoDRIZCg9pZGVtcG90ZW5jeV9rZXkYBSABKAlCADoAQhAKDl9zdWJhY2NvdW50X2lkIlAKHUNyZWF0ZVN0YXRlbWVudEV4cG9ydFJlc3BvbnNlEi8KBmV4cG9ydBgBIAEoCzIfLmxlZGdlci5yZWFkLnYxLlN0YXRlbWVudEV4cG9ydCIwChlHZXRTdGF0ZW1lbnRFeHBvcnRSZXF1ZXN0EhMKCWV4cG9ydF9pZBgBIAEoBkIAIk0KGkdldFN0YXRlbWVudEV4cG9ydFJlc3BvbnNlEi8KBmV4cG9ydBgBIAEoCzIfLmxlZGdlci5yZWFkLnYxLlN0YXRlbWVudEV4cG9ydCI7CiRHZXRTdGF0ZW1lbnRFeHBvcnREb3dubG9hZFVybFJlcXVlc3QSEwoJZXhwb3J0X2lkGAEgASgGQgAidgolR2V0U3RhdGVtZW50RXhwb3J0RG93bmxvYWRVcmxSZXNwb25zZRILCgN1cmwYASABKAkSLgoKZXhwaXJlc19hdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIZmlsZW5hbWUYAyABKAkiMwocQ2FuY2VsU3RhdGVtZW50RXhwb3J0UmVxdWVzdBITCglleHBvcnRfaWQYASABKAZCACJQCh1DYW5jZWxTdGF0ZW1lbnRFeHBvcnRSZXNwb25zZRIvCgZleHBvcnQYASABKAsyHy5sZWRnZXIucmVhZC52MS5TdGF0ZW1lbnRFeHBvcnQidAobTGlzdFN0YXRlbWVudEV4cG9ydHNSZXF1ZXN0EhwKDXN1YmFjY291bnRfaWQYASABKAZCAEgAiAEBEg8KBWxpbWl0GAIgASgNQgASFAoKcGFnZV90b2tlbhgDIAEoCUIAQhAKDl9zdWJhY2NvdW50X2lkIqkBChxMaXN0U3RhdGVtZW50RXhwb3J0c1Jlc3BvbnNlEjAKB2V4cG9ydHMYASADKAsyHy5sZWRnZXIucmVhZC52MS5TdGF0ZW1lbnRFeHBvcnQSGQoPbmV4dF9wYWdlX3Rva2VuGAIgASgJQgASGwoTaW5fcHJvZ3Jlc3NfZXhwb3J0cxgDIAEoDRIfChdtYXhfaW5fcHJvZ3Jlc3NfZXhwb3J0cxgEIAEoDSqeAgoVU3RhdGVtZW50RXhwb3J0U3RhdHVzEicKI1NUQVRFTUVOVF9FWFBPUlRfU1RBVFVTX1VOU1BFQ0lGSUVEEAASIgoeU1RBVEVNRU5UX0VYUE9SVF9TVEFUVVNfUVVFVUVEEAESJgoiU1RBVEVNRU5UX0VYUE9SVF9TVEFUVVNfUFJPQ0VTU0lORxACEiEKHVNUQVRFTUVOVF9FWFBPUlRfU1RBVFVTX1JFQURZEAMSIgoeU1RBVEVNRU5UX0VYUE9SVF9TVEFUVVNfRkFJTEVEEAQSIwofU1RBVEVNRU5UX0VYUE9SVF9TVEFUVVNfRVhQSVJFRBAFEiQKIFNUQVRFTUVOVF9FWFBPUlRfU1RBVFVTX0NBTkNFTEVEEAYqrwEKHFN0YXRlbWVudEV4cG9ydEZhaWx1cmVSZWFzb24SLworU1RBVEVNRU5UX0VYUE9SVF9GQUlMVVJFX1JFQVNPTl9VTlNQRUNJRklFRBAAEi0KKVNUQVRFTUVOVF9FWFBPUlRfRkFJTFVSRV9SRUFTT05fVE9PX0xBUkdFEAESLworU1RBVEVNRU5UX0VYUE9SVF9GQUlMVVJFX1JFQVNPTl9VTkFWQUlMQUJMRRACMosFChZTdGF0ZW1lbnRFeHBvcnRTZXJ2aWNlEnYKFUNyZWF0ZVN0YXRlbWVudEV4cG9ydBIsLmxlZGdlci5yZWFkLnYxLkNyZWF0ZVN0YXRlbWVudEV4cG9ydFJlcXVlc3QaLS5sZWRnZXIucmVhZC52MS5DcmVhdGVTdGF0ZW1lbnRFeHBvcnRSZXNwb25zZSIAEnAKEkdldFN0YXRlbWVudEV4cG9ydBIpLmxlZGdlci5yZWFkLnYxLkdldFN0YXRlbWVudEV4cG9ydFJlcXVlc3QaKi5sZWRnZXIucmVhZC52MS5HZXRTdGF0ZW1lbnRFeHBvcnRSZXNwb25zZSIDkAIBEpEBCh1HZXRTdGF0ZW1lbnRFeHBvcnREb3dubG9hZFVybBI0LmxlZGdlci5yZWFkLnYxLkdldFN0YXRlbWVudEV4cG9ydERvd25sb2FkVXJsUmVxdWVzdBo1LmxlZGdlci5yZWFkLnYxLkdldFN0YXRlbWVudEV4cG9ydERvd25sb2FkVXJsUmVzcG9uc2UiA5ACARJ5ChVDYW5jZWxTdGF0ZW1lbnRFeHBvcnQSLC5sZWRnZXIucmVhZC52MS5DYW5jZWxTdGF0ZW1lbnRFeHBvcnRSZXF1ZXN0Gi0ubGVkZ2VyLnJlYWQudjEuQ2FuY2VsU3RhdGVtZW50RXhwb3J0UmVzcG9uc2UiA5ACAhJ2ChRMaXN0U3RhdGVtZW50RXhwb3J0cxIrLmxlZGdlci5yZWFkLnYxLkxpc3RTdGF0ZW1lbnRFeHBvcnRzUmVxdWVzdBosLmxlZGdlci5yZWFkLnYxLkxpc3RTdGF0ZW1lbnRFeHBvcnRzUmVzcG9uc2UiA5ACARoAQkdaRWdpdGh1Yi5jb20vRmFicmljLUxhYnMvcG9seWVzdGVyLXNkay1nby9nZW4vbGVkZ2VyL3JlYWQvdjE7bGVkZ2VycmR2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_polyester_api_options]);
+  fileDesc("CiVsZWRnZXIvcmVhZC92MS9zdGF0ZW1lbnRfZXhwb3J0LnByb3RvEg5sZWRnZXIucmVhZC52MSKtBQoPU3RhdGVtZW50RXhwb3J0EhEKCWV4cG9ydF9pZBgBIAEoBhIaCg1zdWJhY2NvdW50X2lkGAIgASgGSACIAQESLgoKc3RhcnRfdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCGFzc2V0X2lkGAUgASgNEhcKD2lkZW1wb3RlbmN5X2tleRgGIAEoCRI1CgZzdGF0dXMYByABKA4yJS5sZWRnZXIucmVhZC52MS5TdGF0ZW1lbnRFeHBvcnRTdGF0dXMSNAoQY29tcGxldGVfdGhyb3VnaBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEQoJbW92ZW1lbnRzGAkgASgEEg0KBWJ5dGVzGAogASgEEi4KCmNyZWF0ZWRfYXQYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCHJlYWR5X2F0GAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpleHBpcmVzX2F0GA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBJECg5mYWlsdXJlX3JlYXNvbhgOIAEoDjIsLmxlZGdlci5yZWFkLnYxLlN0YXRlbWVudEV4cG9ydEZhaWx1cmVSZWFzb24SMQoEdHlwZRgPIAEoDjIjLmxlZGdlci5yZWFkLnYxLlN0YXRlbWVudEV4cG9ydFR5cGUSOgoWaGlzdG9yeV9hdmFpbGFibGVfZnJvbRgQIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCEAoOX3N1YmFjY291bnRfaWQilAIKHENyZWF0ZVN0YXRlbWVudEV4cG9ydFJlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASACIAQESMAoKc3RhcnRfdGltZRgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCABIuCghlbmRfdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCABIQCghhc3NldF9pZBgEIAEoDRIZCg9pZGVtcG90ZW5jeV9rZXkYBSABKAlCABIzCgR0eXBlGAYgASgOMiMubGVkZ2VyLnJlYWQudjEuU3RhdGVtZW50RXhwb3J0VHlwZUIAOgBCEAoOX3N1YmFjY291bnRfaWQiUAodQ3JlYXRlU3RhdGVtZW50RXhwb3J0UmVzcG9uc2USLwoGZXhwb3J0GAEgASgLMh8ubGVkZ2VyLnJlYWQudjEuU3RhdGVtZW50RXhwb3J0IjAKGUdldFN0YXRlbWVudEV4cG9ydFJlcXVlc3QSEwoJZXhwb3J0X2lkGAEgASgGQgAiTQoaR2V0U3RhdGVtZW50RXhwb3J0UmVzcG9uc2USLwoGZXhwb3J0GAEgASgLMh8ubGVkZ2VyLnJlYWQudjEuU3RhdGVtZW50RXhwb3J0IjsKJEdldFN0YXRlbWVudEV4cG9ydERvd25sb2FkVXJsUmVxdWVzdBITCglleHBvcnRfaWQYASABKAZCACJ2CiVHZXRTdGF0ZW1lbnRFeHBvcnREb3dubG9hZFVybFJlc3BvbnNlEgsKA3VybBgBIAEoCRIuCgpleHBpcmVzX2F0GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghmaWxlbmFtZRgDIAEoCSIzChxDYW5jZWxTdGF0ZW1lbnRFeHBvcnRSZXF1ZXN0EhMKCWV4cG9ydF9pZBgBIAEoBkIAIlAKHUNhbmNlbFN0YXRlbWVudEV4cG9ydFJlc3BvbnNlEi8KBmV4cG9ydBgBIAEoCzIfLmxlZGdlci5yZWFkLnYxLlN0YXRlbWVudEV4cG9ydCJ0ChtMaXN0U3RhdGVtZW50RXhwb3J0c1JlcXVlc3QSHAoNc3ViYWNjb3VudF9pZBgBIAEoBkIASACIAQESDwoFbGltaXQYAiABKA1CABIUCgpwYWdlX3Rva2VuGAMgASgJQgBCEAoOX3N1YmFjY291bnRfaWQiqQEKHExpc3RTdGF0ZW1lbnRFeHBvcnRzUmVzcG9uc2USMAoHZXhwb3J0cxgBIAMoCzIfLmxlZGdlci5yZWFkLnYxLlN0YXRlbWVudEV4cG9ydBIZCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCABIbChNpbl9wcm9ncmVzc19leHBvcnRzGAMgASgNEh8KF21heF9pbl9wcm9ncmVzc19leHBvcnRzGAQgASgNKm0KE1N0YXRlbWVudEV4cG9ydFR5cGUSJQohU1RBVEVNRU5UX0VYUE9SVF9UWVBFX1VOU1BFQ0lGSUVEEAASFQoRQUNDT1VOVF9TVEFURU1FTlQQARIKCgZMRURHRVIQAhIMCghCQUxBTkNFUxADKp4CChVTdGF0ZW1lbnRFeHBvcnRTdGF0dXMSJwojU1RBVEVNRU5UX0VYUE9SVF9TVEFUVVNfVU5TUEVDSUZJRUQQABIiCh5TVEFURU1FTlRfRVhQT1JUX1NUQVRVU19RVUVVRUQQARImCiJTVEFURU1FTlRfRVhQT1JUX1NUQVRVU19QUk9DRVNTSU5HEAISIQodU1RBVEVNRU5UX0VYUE9SVF9TVEFUVVNfUkVBRFkQAxIiCh5TVEFURU1FTlRfRVhQT1JUX1NUQVRVU19GQUlMRUQQBBIjCh9TVEFURU1FTlRfRVhQT1JUX1NUQVRVU19FWFBJUkVEEAUSJAogU1RBVEVNRU5UX0VYUE9SVF9TVEFUVVNfQ0FOQ0VMRUQQBiroAQocU3RhdGVtZW50RXhwb3J0RmFpbHVyZVJlYXNvbhIvCitTVEFURU1FTlRfRVhQT1JUX0ZBSUxVUkVfUkVBU09OX1VOU1BFQ0lGSUVEEAASLQopU1RBVEVNRU5UX0VYUE9SVF9GQUlMVVJFX1JFQVNPTl9UT09fTEFSR0UQARIvCitTVEFURU1FTlRfRVhQT1JUX0ZBSUxVUkVfUkVBU09OX1VOQVZBSUxBQkxFEAISNwozU1RBVEVNRU5UX0VYUE9SVF9GQUlMVVJFX1JFQVNPTl9ISVNUT1JZX1VOQVZBSUxBQkxFEAMyiwUKFlN0YXRlbWVudEV4cG9ydFNlcnZpY2USdgoVQ3JlYXRlU3RhdGVtZW50RXhwb3J0EiwubGVkZ2VyLnJlYWQudjEuQ3JlYXRlU3RhdGVtZW50RXhwb3J0UmVxdWVzdBotLmxlZGdlci5yZWFkLnYxLkNyZWF0ZVN0YXRlbWVudEV4cG9ydFJlc3BvbnNlIgAScAoSR2V0U3RhdGVtZW50RXhwb3J0EikubGVkZ2VyLnJlYWQudjEuR2V0U3RhdGVtZW50RXhwb3J0UmVxdWVzdBoqLmxlZGdlci5yZWFkLnYxLkdldFN0YXRlbWVudEV4cG9ydFJlc3BvbnNlIgOQAgESkQEKHUdldFN0YXRlbWVudEV4cG9ydERvd25sb2FkVXJsEjQubGVkZ2VyLnJlYWQudjEuR2V0U3RhdGVtZW50RXhwb3J0RG93bmxvYWRVcmxSZXF1ZXN0GjUubGVkZ2VyLnJlYWQudjEuR2V0U3RhdGVtZW50RXhwb3J0RG93bmxvYWRVcmxSZXNwb25zZSIDkAIBEnkKFUNhbmNlbFN0YXRlbWVudEV4cG9ydBIsLmxlZGdlci5yZWFkLnYxLkNhbmNlbFN0YXRlbWVudEV4cG9ydFJlcXVlc3QaLS5sZWRnZXIucmVhZC52MS5DYW5jZWxTdGF0ZW1lbnRFeHBvcnRSZXNwb25zZSIDkAICEnYKFExpc3RTdGF0ZW1lbnRFeHBvcnRzEisubGVkZ2VyLnJlYWQudjEuTGlzdFN0YXRlbWVudEV4cG9ydHNSZXF1ZXN0GiwubGVkZ2VyLnJlYWQudjEuTGlzdFN0YXRlbWVudEV4cG9ydHNSZXNwb25zZSIDkAIBGgBCR1pFZ2l0aHViLmNvbS9GYWJyaWMtTGFicy9wb2x5ZXN0ZXItc2RrLWdvL2dlbi9sZWRnZXIvcmVhZC92MTtsZWRnZXJyZHYxYgZwcm90bzM=", [file_google_protobuf_timestamp, file_polyester_api_options]);
 
 /**
- * StatementExport is a whole-period account statement produced in the
- * background as one CSV file.
+ * StatementExport is a whole-period account statement, ledger or balances
+ * file produced in the background as one CSV file.
  *
  * The file is RFC 4180 CSV in UTF-8 with CRLF line endings: the header row,
- * then every row of the period up to complete_through, oldest first. A period
- * without movements yields the header row alone. Each row is the effect of
- * one entry on one account bucket in one asset. An entry is one ledger
- * operation, such as a trade with its fees, a deposit, a withdrawal step or an
- * internal transfer.
+ * then the rows of the period up to complete_through. ACCOUNT_STATEMENT and
+ * LEDGER rows come oldest first, and a period without movements yields the
+ * header row alone. Every type reads the same ledger movements of the
+ * account; type sets the file's rows and columns.
  *
- * Columns, in order:
+ * An ACCOUNT_STATEMENT row is the effect of one entry on one account bucket
+ * in one asset. An entry is one ledger operation, such as a trade with its
+ * fees, a deposit, a withdrawal step or an internal transfer.
+ *
+ * ACCOUNT_STATEMENT columns, in order:
  * - `time`: entry time, RFC 3339 in UTC with microseconds, for example
  *   `2026-11-12T19:52:07.734123Z`.
  * - `entry_id`: entry identifier, an unsigned 128-bit integer as a decimal
@@ -53,7 +56,64 @@ export const file_ledger_read_v1_statement_export: GenFile = /*@__PURE__*/
  *   match ID for trades; empty when unavailable.
  * - `flow_id`: public lifecycle flow ID when the entry belongs to a chain
  *   lifecycle flow, such as a deposit, a withdrawal or an internal transfer,
- *   as LedgerReadService.ListTransfers returns it; empty otherwise.
+ *   linked before the export was created; empty otherwise. A flow linked
+ *   later, which LedgerReadService.ListTransfers then shows, is not in the
+ *   file: a new export shows it.
+ *
+ * A LEDGER row is one ledger movement: one transfer leg on the account,
+ * as LedgerReadService.ListTransfers returns it. A trade's settlement is
+ * several rows, such as its base and quote legs and each fee.
+ *
+ * LEDGER columns, in order:
+ * - `time`: transfer time, RFC 3339 in UTC with microseconds.
+ * - `transfer_id`: transfer identifier, an unsigned 128-bit integer as a
+ *   decimal string, as LedgerReadService.ListTransfers returns it. With
+ *   `account` and `side` it identifies the row.
+ * - `account`: account bucket, `funding` or `trading`.
+ * - `asset`: asset symbol.
+ * - `type`: transfer reason, such as `trade_base`, `trade_quote`,
+ *   `maker_fee`, `taker_fee`, `rebate`, `deposit`, `withdraw`,
+ *   `internal_transfer` or `funding_to_trading`.
+ * - `side`: `debit` when the movement takes from the account bucket,
+ *   `credit` when it adds to it.
+ * - `amount`: signed balance change in whole units of the asset: negative
+ *   for a debit, positive for a credit.
+ * - `counterparty`: kind of the transfer's other side: `funding_account`,
+ *   `trading_account`, `external_address`, `private_counterparty`,
+ *   `fee_account` or `system_account`; empty when unknown.
+ * - `balance`: account bucket balance in the asset after the movement, in
+ *   whole units of the asset. For consecutive rows of the same bucket and
+ *   asset, each balance equals the previous balance plus `amount`.
+ * - `link_id`: correlation ID shared by related transfer legs, the trade's
+ *   match ID for trades; empty when unavailable.
+ * - `flow_id`: public lifecycle flow ID when the transfer belongs to a chain
+ *   lifecycle flow linked before the export was created; empty otherwise,
+ *   as for `flow_id` of an account statement.
+ *
+ * A BALANCES row is one account bucket in one asset over the period: its
+ * balance at start_time, the period's ledger movements on it, and its
+ * balance at complete_through. Rows come sorted by `account`, then `asset`.
+ * A bucket and asset with a zero balance at both ends and no movement has no
+ * row, so an account without any yields the header row alone. The period
+ * must start at or after the earliest instant whose balances the account
+ * history holds: an earlier start is refused when the export is created
+ * (CreateStatementExport) and fails the export if that instant moves later
+ * before the file is produced.
+ *
+ * BALANCES columns, in order:
+ * - `account`: account bucket, `funding` or `trading`.
+ * - `asset`: asset symbol.
+ * - `opening_balance`: balance of the bucket in the asset at start_time.
+ * - `credits`: total the period's movements added to the bucket, the sum of
+ *   the LEDGER file's credit rows of that bucket and asset; `0` when none.
+ * - `debits`: total the period's movements took from the bucket, the sum of
+ *   the LEDGER file's debit rows of that bucket and asset, as a positive
+ *   amount; `0` when none.
+ * - `closing_balance`: balance of the bucket in the asset at
+ *   complete_through. Every row reconciles: `closing_balance` equals
+ *   `opening_balance` plus `credits` minus `debits`.
+ * - `movements`: number of the period's ledger movements on the bucket in
+ *   the asset.
  *
  * Amounts are exact decimal strings with up to 18 fractional digits and no
  * trailing zeros.
@@ -65,7 +125,8 @@ export const file_ledger_read_v1_statement_export: GenFile = /*@__PURE__*/
  * - An authenticated `GET /v1/statements/exports/{exportId}/file` returns the
  *   file as `text/csv` and supports HTTP `Range` requests.
  *
- * Both save the file as `statement-<exportId>.csv`. Before the file is READY
+ * Both save the file as `account-statement-<exportId>.csv`,
+ * `ledger-<exportId>.csv` or `balances-<exportId>.csv`, by type. Before the file is READY
  * both answer FAILED_PRECONDITION with STATEMENT_EXPORT_NOT_READY, REST
  * `409 Conflict`; a FAILED export answers STATEMENT_EXPORT_FAILED, REST `409`;
  * an EXPIRED export, or a file already deleted, answers
@@ -190,6 +251,22 @@ export type StatementExport = Message<"ledger.read.v1.StatementExport"> & {
    * @generated from field: ledger.read.v1.StatementExportFailureReason failure_reason = 14;
    */
   failureReason: StatementExportFailureReason;
+
+  /**
+   * Kind of file the export produces, as requested.
+   *
+   * @generated from field: ledger.read.v1.StatementExportType type = 15;
+   */
+  type: StatementExportType;
+
+  /**
+   * Earliest instant whose balances the account history holds, which a
+   * BALANCES export's period must start at or after. Set only when
+   * failure_reason is STATEMENT_EXPORT_FAILURE_REASON_HISTORY_UNAVAILABLE.
+   *
+   * @generated from field: google.protobuf.Timestamp history_available_from = 16;
+   */
+  historyAvailableFrom?: Timestamp | undefined;
 };
 
 /**
@@ -200,9 +277,9 @@ export const StatementExportSchema: GenMessage<StatementExport> = /*@__PURE__*/
   messageDesc(file_ledger_read_v1_statement_export, 0);
 
 /**
- * CreateStatementExportRequest asks for a whole-period statement file of one
- * account. The period is at most 366 days long; a longer or empty period is
- * INVALID_ARGUMENT.
+ * CreateStatementExportRequest asks for a whole-period account statement,
+ * ledger or balances file of one account. The period is at most 366 days long; a longer or empty
+ * period is INVALID_ARGUMENT.
  *
  * @generated from message ledger.read.v1.CreateStatementExportRequest
  */
@@ -250,6 +327,15 @@ export type CreateStatementExportRequest = Message<"ledger.read.v1.CreateStateme
    * @generated from field: string idempotency_key = 5;
    */
   idempotencyKey: string;
+
+  /**
+   * Kind of file to produce; required. Every type has the same period,
+   * asset filter, limits and lifecycle; a BALANCES period must also start
+   * inside the account history.
+   *
+   * @generated from field: ledger.read.v1.StatementExportType type = 6;
+   */
+  type: StatementExportType;
 };
 
 /**
@@ -371,7 +457,9 @@ export type GetStatementExportDownloadUrlResponse = Message<"ledger.read.v1.GetS
   expiresAt?: Timestamp | undefined;
 
   /**
-   * Name the download saves the file as, `statement-<exportId>.csv`.
+   * Name the download saves the file as, `account-statement-<exportId>.csv`,
+   * `ledger-<exportId>.csv` or `balances-<exportId>.csv`, by the export's
+   * type.
    *
    * @generated from field: string filename = 3;
    */
@@ -511,6 +599,52 @@ export const ListStatementExportsResponseSchema: GenMessage<ListStatementExports
   messageDesc(file_ledger_read_v1_statement_export, 10);
 
 /**
+ * StatementExportType is the kind of file a statement export produces.
+ *
+ * @generated from enum ledger.read.v1.StatementExportType
+ */
+export enum StatementExportType {
+  /**
+   * Never returned; refused in a request.
+   *
+   * @generated from enum value: STATEMENT_EXPORT_TYPE_UNSPECIFIED = 0;
+   */
+  STATEMENT_EXPORT_TYPE_UNSPECIFIED = 0,
+
+  /**
+   * Account statement: one row per entry, account bucket and asset, with the
+   * entry's net amount, the fees paid and the balance after it.
+   *
+   * @generated from enum value: ACCOUNT_STATEMENT = 1;
+   */
+  ACCOUNT_STATEMENT = 1,
+
+  /**
+   * Ledger: one row per ledger movement, each transfer leg on its own, with
+   * its transfer reason, side, counterparty and the balance after it.
+   *
+   * @generated from enum value: LEDGER = 2;
+   */
+  LEDGER = 2,
+
+  /**
+   * Balances: one row per account bucket and asset, with its balance at the
+   * start and at the end of the period and the period's credits and debits.
+   * Its period must start inside the account history; see
+   * StatementExport.history_available_from.
+   *
+   * @generated from enum value: BALANCES = 3;
+   */
+  BALANCES = 3,
+}
+
+/**
+ * Describes the enum ledger.read.v1.StatementExportType.
+ */
+export const StatementExportTypeSchema: GenEnum<StatementExportType> = /*@__PURE__*/
+  enumDesc(file_ledger_read_v1_statement_export, 0);
+
+/**
  * StatementExportStatus is where a statement export is.
  *
  * @generated from enum ledger.read.v1.StatementExportStatus
@@ -572,7 +706,7 @@ export enum StatementExportStatus {
  * Describes the enum ledger.read.v1.StatementExportStatus.
  */
 export const StatementExportStatusSchema: GenEnum<StatementExportStatus> = /*@__PURE__*/
-  enumDesc(file_ledger_read_v1_statement_export, 0);
+  enumDesc(file_ledger_read_v1_statement_export, 1);
 
 /**
  * StatementExportFailureReason is why a statement export failed.
@@ -604,18 +738,29 @@ export enum StatementExportFailureReason {
    * @generated from enum value: STATEMENT_EXPORT_FAILURE_REASON_UNAVAILABLE = 2;
    */
   UNAVAILABLE = 2,
+
+  /**
+   * A BALANCES export's period starts before the earliest instant whose
+   * balances the account history holds, which moved later after the export
+   * was created. history_available_from is that instant: create a new
+   * export that starts at or after it.
+   *
+   * @generated from enum value: STATEMENT_EXPORT_FAILURE_REASON_HISTORY_UNAVAILABLE = 3;
+   */
+  HISTORY_UNAVAILABLE = 3,
 }
 
 /**
  * Describes the enum ledger.read.v1.StatementExportFailureReason.
  */
 export const StatementExportFailureReasonSchema: GenEnum<StatementExportFailureReason> = /*@__PURE__*/
-  enumDesc(file_ledger_read_v1_statement_export, 1);
+  enumDesc(file_ledger_read_v1_statement_export, 2);
 
 /**
  * StatementExportService is the account statement API. A statement covers
  * one account, optionally one asset, for a period of at most 366 days, and is
- * produced in the background as one CSV file: create an export, poll it with
+ * produced in the background as one CSV file, an account statement, a ledger
+ * or the account's balances: create an export, poll it with
  * GetStatementExport until it is READY, then download its file (see
  * StatementExport). API keys need the READ_STATEMENTS policy action. A root
  * account has at most 5 exports QUEUED or PROCESSING at a time, one account
@@ -631,9 +776,15 @@ export const StatementExportService: GenService<{
    * idempotency key.
    *
    * Errors:
-   * - INVALID_ARGUMENT: the period, asset or idempotency key is invalid.
+   * - INVALID_ARGUMENT: the period, asset, type or idempotency key is
+   *   invalid.
    * - FAILED_PRECONDITION (IDEMPOTENCY_KEY_REUSED): the key was used for a
    *   request with other fields.
+   * - FAILED_PRECONDITION (STATEMENT_HISTORY_UNAVAILABLE): a BALANCES
+   *   period starts before the earliest instant whose balances the account
+   *   history holds. The error detail's history_available_from is that
+   *   instant; REST answers `409` with it as `historyAvailableFrom`. Create
+   *   the export again with a start at or after it.
    * - RESOURCE_EXHAUSTED (STATEMENT_EXPORT_LIMIT_REACHED): the root account
    *   has 5 exports QUEUED or PROCESSING.
    * - PERMISSION_DENIED, NOT_FOUND: the account cannot be read.
