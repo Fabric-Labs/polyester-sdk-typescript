@@ -1,4 +1,6 @@
-import { ValidationError } from "./errors.js";
+import { callerAbortError, preAbortedError } from "./connect-error-mapping.js";
+import type { SdkScales } from "./decimal-surface.js";
+import { TimeoutError, ValidationError } from "./errors.js";
 
 export interface PolyesterRequestOptions {
     signal?: AbortSignal;
@@ -58,5 +60,54 @@ export function toConnectCallOptions(
         callOptions.headers = headers;
     }
 
+    return callOptions;
+}
+
+/**
+ * Waits for the catalog inside the call's deadline and abort signal, then returns
+ * Connect call options carrying the time left. Giving up rejects only this call;
+ * the shared catalog load keeps going for other callers.
+ */
+export async function readyCallOptions(
+    scales: Pick<SdkScales, "ready">,
+    options?: PolyesterMutationOptions,
+): Promise<PolyesterConnectCallOptions | undefined> {
+    const callOptions = toConnectCallOptions(options);
+    const signal = callOptions?.signal;
+    const timeoutMs = callOptions?.timeoutMs;
+    if (signal?.aborted) throw preAbortedError(signal);
+    if (!signal && timeoutMs === undefined) {
+        await scales.ready();
+        return callOptions;
+    }
+
+    const start = Date.now();
+    const ready = scales.ready();
+    await new Promise<void>((resolve, reject) => {
+        const settle = (finish: () => void) => {
+            clearTimeout(timer);
+            signal?.removeEventListener("abort", onAbort);
+            finish();
+        };
+        const onAbort = () => settle(() => reject(callerAbortError(signal!)));
+        const timer =
+            timeoutMs === undefined
+                ? undefined
+                : setTimeout(
+                      () => settle(() => reject(new TimeoutError("Request timed out."))),
+                      timeoutMs,
+                  );
+        signal?.addEventListener("abort", onAbort, { once: true });
+        ready.then(
+            () => settle(resolve),
+            (err: unknown) => settle(() => reject(err)),
+        );
+    });
+
+    if (callOptions && timeoutMs !== undefined) {
+        const remaining = timeoutMs - (Date.now() - start);
+        if (remaining <= 0) throw new TimeoutError("Request timed out.");
+        callOptions.timeoutMs = remaining;
+    }
     return callOptions;
 }

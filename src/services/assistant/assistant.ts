@@ -3,6 +3,7 @@ import * as Proto from "../../gen/ai/v1/assistant_pb.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import { enumLabel } from "../../shared/proto-enum-codec.js";
 import {
+    readyCallOptions,
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
@@ -110,11 +111,8 @@ export class AssistantService {
         options?: PolyesterRequestOptions,
     ): AsyncGenerator<AssistantRunEvent, void, undefined> {
         const request = parse(WatchAssistantRunInputSchema, input);
-        await this.#scales.ready();
-        for await (const response of this.#client.watchRun(
-            request,
-            toConnectCallOptions(options),
-        )) {
+        const callOptions = await readyCallOptions(this.#scales, options);
+        for await (const response of this.#client.watchRun(request, callOptions)) {
             if (response.event) yield formatRunEvent(response.event, this.#scales);
         }
     }

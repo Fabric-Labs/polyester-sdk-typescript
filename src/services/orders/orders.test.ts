@@ -13,7 +13,7 @@ import {
 } from "../../catalogs/index.js";
 import { createCatalogSdkScales } from "../../shared/decimal-surface.js";
 import { AUTH_STEP_UP_HEADER_NAME } from "../../shared/request-options.js";
-import { ConfigurationError, ValidationError } from "../../shared/errors.js";
+import { ConfigurationError, TimeoutError, ValidationError } from "../../shared/errors.js";
 import { createTestCatalog } from "../../testing/catalog.js";
 import {
     realtimeClientStub,
@@ -210,6 +210,37 @@ describe("OrdersService", () => {
         expect(
             transport.calls.find((call) => call.method.localName === "getOrderHistory")?.message,
         ).not.toHaveProperty("subaccountId");
+    });
+
+    it("does not dispatch create after its deadline passes during a cold catalog wait", async () => {
+        vi.useFakeTimers();
+        try {
+            const transport = unaryTransportByMethod({ createOrder: { orderId: 11n } });
+            const ready = new Promise<void>((resolve) => setTimeout(resolve, 1_000));
+            const service = new OrdersService(
+                { authApi: transport.transport },
+                realtimeClientStub().realtime,
+                undefined,
+                { ...testScales(), ready: () => ready },
+            );
+            const input = {
+                account: { subaccountId: formatId(11n) },
+                symbolId: 1,
+                side: "buy",
+                qty: "0.1",
+                execution: { type: "limit_gtc", price: "60" },
+            } as const;
+
+            const outcome = expect(
+                service.create(input, { timeoutMs: 100 }),
+            ).rejects.toBeInstanceOf(TimeoutError);
+            await vi.advanceTimersByTimeAsync(100);
+            await outcome;
+            await vi.advanceTimersByTimeAsync(1_000);
+            expect(transport.unary).not.toHaveBeenCalled();
+        } finally {
+            vi.useRealTimers();
+        }
     });
 
     it("accepts exact zero-padded decimals and forwards scaled integers and mutation options", async () => {

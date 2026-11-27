@@ -9,10 +9,7 @@ import {
     resolveAccountScope,
     resolveAccountScopedInput,
 } from "../subaccount-resolver.js";
-import {
-    toConnectCallOptions,
-    type PolyesterRequestOptions,
-} from "../../shared/request-options.js";
+import { readyCallOptions, type PolyesterRequestOptions } from "../../shared/request-options.js";
 import { accountScopeToSubaccountId, type AccountScopedInput } from "../../shared/account-scope.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
@@ -100,14 +97,14 @@ export class BalancesService {
         input: AccountScopedInput = {},
         options?: PolyesterRequestOptions,
     ): Promise<LedgerBalanceSnapshot> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = parse(BalancesListInputSchema, resolved);
         const res = await this.#client.getBalances(
             {
                 subaccountId: accountScopeToSubaccountId(validated.account),
             },
-            toConnectCallOptions(options),
+            callOptions,
         );
         return formatLedgerBalanceSnapshot(res);
     }
@@ -119,10 +116,10 @@ export class BalancesService {
         input: BalanceHistoryInput,
         options?: PolyesterRequestOptions,
     ): Promise<BalanceHistoryResponse> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = parse(BalanceHistoryInputSchema, resolved);
-        const res = await this.#client.getBalanceHistory(validated, toConnectCallOptions(options));
+        const res = await this.#client.getBalanceHistory(validated, callOptions);
         return parse(this.#balanceHistoryResponseSchema, res);
     }
 
@@ -133,13 +130,10 @@ export class BalancesService {
         input: EquityHistoryInput,
         options?: PolyesterRequestOptions,
     ): Promise<EquityHistoryResponse> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = parse(EquityHistoryInputSchema, resolved);
-        const res = await this.#client.getEquityHistorySeries(
-            validated,
-            toConnectCallOptions(options),
-        );
+        const res = await this.#client.getEquityHistorySeries(validated, callOptions);
         return parse(this.#equityHistoryResponseSchema, res);
     }
 
@@ -151,12 +145,9 @@ export class BalancesService {
         input: PortfolioEquityHistoryInput,
         options?: PolyesterRequestOptions,
     ): Promise<PortfolioEquityHistoryResponse> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const validated = parse(PortfolioEquityHistoryInputSchema, input);
-        const res = await this.#client.getPortfolioEquityHistorySeries(
-            validated,
-            toConnectCallOptions(options),
-        );
+        const res = await this.#client.getPortfolioEquityHistorySeries(validated, callOptions);
         return parse(this.#portfolioEquityHistoryResponseSchema, res);
     }
 
@@ -166,11 +157,8 @@ export class BalancesService {
     async getPortfolioEquitySnapshot(
         options?: PolyesterRequestOptions,
     ): Promise<PortfolioEquitySnapshotResponse> {
-        await this.#scales.ready();
-        const res = await this.#client.getPortfolioEquitySnapshot(
-            {},
-            toConnectCallOptions(options),
-        );
+        const callOptions = await readyCallOptions(this.#scales, options);
+        const res = await this.#client.getPortfolioEquitySnapshot({}, callOptions);
         return parse(this.#portfolioEquitySnapshotResponseSchema, res);
     }
 

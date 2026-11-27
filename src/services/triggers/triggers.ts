@@ -5,6 +5,7 @@ import { parse } from "../../shared/validation.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import {
+    readyCallOptions,
     toConnectCallOptions,
     type PolyesterMutationOptions,
     type PolyesterRequestOptions,
@@ -135,10 +136,10 @@ export class TriggersService {
         input: CreateTriggerInput,
         options?: PolyesterMutationOptions,
     ): Promise<CreateTriggerResult> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validatedInput = parse(this.#createTriggerInputSchema, resolved);
-        const res = await this.#client.createTrigger(validatedInput, toConnectCallOptions(options));
+        const res = await this.#client.createTrigger(validatedInput, callOptions);
         return parse(CreateTriggerResultSchema, res);
     }
 
@@ -153,13 +154,10 @@ export class TriggersService {
         input: CreateOcoInput,
         options?: PolyesterMutationOptions,
     ): Promise<CreateOcoResult> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = parse(this.#createOcoInputSchema, resolved);
-        const res = await this.#client.createOco(
-            removeUndefined(validated),
-            toConnectCallOptions(options),
-        );
+        const res = await this.#client.createOco(removeUndefined(validated), callOptions);
         return parse(CreateOcoResultSchema, res);
     }
 
@@ -184,13 +182,10 @@ export class TriggersService {
      * Fetches one trigger by id in the resolved account scope and returns null when the backend response contains no trigger.
      */
     async get(input: GetTriggerInput, options?: PolyesterRequestOptions): Promise<Trigger | null> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = parse(GetTriggerInputSchema, resolved);
-        const res = await this.#client.getTrigger(
-            removeUndefined(validated),
-            toConnectCallOptions(options),
-        );
+        const res = await this.#client.getTrigger(removeUndefined(validated), callOptions);
 
         const trigger = res.trigger;
         if (!trigger) return null;
@@ -213,13 +208,10 @@ export class TriggersService {
         input: ListTriggersInput = {},
         options?: PolyesterRequestOptions,
     ): Promise<ListTriggersResult> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = parse(ListTriggersInputSchema, resolved);
-        const res = await this.#client.listTriggers(
-            removeUndefined(validated),
-            toConnectCallOptions(options),
-        );
+        const res = await this.#client.listTriggers(removeUndefined(validated), callOptions);
         return {
             triggers: await withCatalogRefresh(this.#scales, () =>
                 parse(v.array(this.#triggerSchema), res.triggers),
@@ -307,10 +299,10 @@ export class TriggersService {
         input: ModifyTriggerInput,
         options?: PolyesterMutationOptions,
     ): Promise<ModifyTriggerResult> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = parse(this.#modifyTriggerInputSchema, resolved);
-        const res = await this.#client.modifyTrigger(validated, toConnectCallOptions(options));
+        const res = await this.#client.modifyTrigger(validated, callOptions);
         return parse(ModifyTriggerResultSchema, res);
     }
 
@@ -353,7 +345,7 @@ export class TriggersService {
         input: ListTriggerEventsInput,
         options?: PolyesterRequestOptions,
     ): Promise<ListTriggerEventsResult> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validated = parse(ListTriggerEventsInputSchema, resolved);
 
@@ -365,7 +357,7 @@ export class TriggersService {
                 eventType: validated.eventType,
                 pageToken: validated.pageToken ?? "",
             }),
-            toConnectCallOptions(options),
+            callOptions,
         );
 
         return {

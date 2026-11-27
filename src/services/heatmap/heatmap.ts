@@ -9,10 +9,7 @@ import {
 import type { PolyesterRealtime } from "../../realtime/types.js";
 import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
-import {
-    toConnectCallOptions,
-    type PolyesterRequestOptions,
-} from "../../shared/request-options.js";
+import { readyCallOptions, type PolyesterRequestOptions } from "../../shared/request-options.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import type { PublicApiTransports } from "../../shared/transports.js";
 import { HEATMAP_INTERVAL_VALUES, type HeatmapIntervalValue } from "./heatmap.codecs.js";
@@ -70,7 +67,7 @@ export class HeatmapService implements OrderbookHeatmapProvider {
         options?: PolyesterRequestOptions,
     ): Promise<OrderbookHeatmapResponse> {
         const parsed = parse(GetOrderbookHeatmapInputSchema, input);
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
 
         const res = await this.#client.getOrderbookHeatmap(
             {
@@ -88,7 +85,7 @@ export class HeatmapService implements OrderbookHeatmapProvider {
                           })
                         : undefined,
             },
-            toConnectCallOptions(options),
+            callOptions,
         );
         return parse(this.#responseSchema, res);
     }
