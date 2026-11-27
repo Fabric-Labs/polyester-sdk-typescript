@@ -1,5 +1,389 @@
 # @polyester/sdk
 
+## 0.36.0
+
+### Minor Changes
+
+- Breaking: activity events from `subaccounts.listEvents` and `accountActivity.list` drop `actorAccountId` and `payloadJson`. Read `actor` for who acted (its `kind`, base58 `accountId` and `username`; for an API key its `apiKeyId`, `apiKeyKind` and `apiKeyLabel`; for Polyester itself its `systemReason`), `item` for what the event affected, tagged by `type` (such as `{ type: "subaccount", id, name }`), and `details` for what it changed, tagged by `type`, with before and after values as `{ from, to }`. Events Polyester records by itself have the new `"system"` source. ([#280](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/280))
+
+- Breaking: `assistant.listKeys` takes an input before its request options. Pass `{ view: "full" }` to get each key's account name as `label`. Available on devnet only. ([#258](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/258))
+
+- Breaking: `balances.subscribe` keeps the account's balances exact from the new sequenced balance stream and emits the whole balance list after each change (a `snapshot` on every subscribe, then each complete Trading step and each newer Funding balance) instead of one asset row; it takes an optional `account` for the snapshot's scope. `LedgerBalance` drops `tradingRevision` and `mergeLedgerBalances` is removed. `balances.getSnapshot` returns the balances with their Trading position. ([#274](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/274))
+
+- Breaking: `orders.batchReplace` resolves an item refused for its value, such as a price off the tick size or an invalid attached-risk price, as a rejected item in `results` with its `code` and `error`, whose violations name the item's own fields without its `items[i]` prefix, instead of failing the whole batch. Resend only the corrected rejected items under a fresh `requestId`. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Breaking: price alert status and the assistant `run_failed` failure category now spell canceled `"canceled"` (was `"cancelled"`), matching orders, triggers and the rest of the SDK. This covers `PriceAlert["status"]`, the `priceAlerts.list` `statuses` filter and `AssistantFailureCategory`. There are no aliases: `"cancelled"` is now rejected as an input. ([#254](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/254))
+
+- Breaking: `candles.list` returns a `CandlePage` instead of `Candle[]`: the market's `candles`, its composite `reference` candles when `includeReference` is set (before, they were dropped), and `nextPageToken` for older candles. Read `page.candles` where you used the array. ([#287](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/287))
+
+- Breaking: order, trigger and trade reads no longer drop or fail on a pair listed after the client loaded its catalog. When a result names a symbol the catalog lacks, the SDK refreshes the catalog and formats it again; misses within 30 seconds share one refresh. A symbol still unknown after that throws `CatalogLookupError`. Before, `orders.listOpen`, `orders.listHistory` and `orders.subscribe` silently skipped those orders. This covers `orders.listOpen`, `orders.listHistory`, `orders.getDetails`, `triggers.get`, `triggers.list`, `triggers.fromProto` and `trades.list`. On `orders.subscribe`, `triggers.subscribe` and `trades.subscribe`, a publication naming such a symbol waits for the refresh, and later publications wait behind it, so callbacks keep their order; an order still unknown then reaches `onError` as a `CatalogLookupError` and is left out of `onSnapshot`. ([#265](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/265))
+
+- Breaking: `lifecycle.listFlows` selects an account only by `{ kind: "smartAccountAddress" }`; the `accountId` and `ownerAccountId` selectors are gone, and flow summaries and transaction matches no longer carry `ownerAccountId`. Use `listAccountFlows` for the signed-in account's flows. ([#258](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/258))
+
+- Breaking: Lifecycle `zipperReason.code` is a label such as `"deposit_amount_below_minimum"` instead of a number, like every other enum. An uncataloged code reads `unknown_zipper_reason_${code}`. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- `client.marketData.subscribePriceBand({ symbolId, onEvent })` streams a pair's live price band from `public:spot:market:price_band:{symbolId}:proto`, emitting the same `LivePriceBand` as `getPriceBand`. Each connection is seeded with `getPriceBand`, and only a newer band (by `epoch`, then `updateId`, then `asOfTsNs`) is emitted, so repeated, late and reconnect-replayed messages are dropped. An unknown band arrives as `state: "unknown"` with null prices, not as an error: when the seed is refused `PRICE_BAND_STALE` or `PRICE_BAND_UNKNOWN`, when the stream sends `UNKNOWN`, and when `validUntilMs` passes with no newer band, so a band other than `unknown` is current until the next event. ([#273](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/273))
+
+- Breaking: a refusal caused by the API key's policy now reads `API_KEY_SPOT_TRADE_DENY` (no Spot Trading Write on the key) or `API_KEY_POLICY_REQUIRED` (no policy on the key) instead of `POLICY_SPOT_TRADE_DENY`, which now means only the sub-account's policy. All three still surface as `PermissionError`; handle them together. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Breaking: The order error code `MAX_QUOTE_DEBIT_TOO_SMALL` is renamed `QUOTE_SIZE_TOO_SMALL`, the refusal of either quote sizing, in `OrderErrorCode`, error details and `rejectReason`. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Breaking: `orderbook.get` takes `depth` as a depth tier (1, 5, 10, 20, 50, 100, 200, 500, 1000 or 5000, default 50) and throws `ValidationError` for any other count before sending. Snapshots report the tier they were served at in `depth` and no longer return `maxDepth`. ([#266](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/266))
+
+- Breaking: `profile.update` no longer takes `twitter`; only X verification sets the profile's X handle. ([#258](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/258))
+
+- Breaking: `orderbook.createSubscription()` and `orderbook.subscribe()` throw `ValidationError` for a `depth` above 500 instead of silently serving 500 levels. A realtime subscribe the server refuses, including a resubscribe after a server unsubscribe, now reports a non-retryable error with the server's code and message through `onError` before `onUnsubscribed`, instead of only closing. ([#261](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/261))
+
+- Breaking: `marketData.getSpotConfig()` returns `tsSec` in Unix seconds, matching its name and the REST API. It was in milliseconds, and so was the catalog's market `tsSec`. Multiply by 1000 where you need a `Date`. ([#283](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/283))
+
+- Breaking: `subaccounts.get` leaves `policy` out when the sub-account has no policy attached, instead of returning a made-up read-only "Subaccount Policy". `policy` is now optional in the return type. ([#263](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/263))
+
+- Breaking: trading withdraws without a wallet signer are now signed by the client's API key, so `tradingWithdraws.createToFunding`, `createToExternalChain` and their `prepare*` variants work for API-key clients with no extra input. The `payloadSignature` input is removed: the SDK picked the nonce after the caller had signed, so a caller-supplied signature could never match. Without a wallet signer or API-key auth the call throws `ConfigurationError`, and an API-key withdraw that targets a subaccount throws `ValidationError` instead of silently withdrawing from the key's account. API-key withdraws now also sign again on `submit` when the deadline is near, like wallet withdraws. ([#257](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/257))
+
+- Breaking: Trigger IDs are now opaque public IDs, like order IDs, and every existing trigger gets a new ID once: drop stored trigger IDs, list triggers again and restart trigger listings from the first page. A zero trigger ID is now rejected before it is sent. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Breaking: The trigger failure reason `max_quote_debit_too_small` is renamed `quote_size_too_small`. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+### Patch Changes
+
+- `client.accountActivity.list` lists the security and activity events of the main account and its sub-accounts in one feed, newest first, filtered by sub-account, entity kind, action, source, API key (`apiKeyId`, the key's `keyId`) and time. Each event names its `subaccountId` (undefined for the main account). API keys need `read-account-activity`; a key scoped to a sub-account reads only that sub-account. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- `addressBook.listTransferCounterparties` and the recent destinations in `addressBook.getView` return an empty `addressBookEntryId` for unsaved rows instead of `"1"`, the public ID of entry 0. ([#257](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/257))
+
+- The SDK is now licensed under the Apache License 2.0, where it was proprietary: `package.json` declares `"license": "Apache-2.0"` in place of `UNLICENSED`, `LICENSE` holds the license text and `NOTICE` the attribution notice it asks redistributions to keep. Both ship in the npm package. ([#290](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/290))
+
+- `apiKeys.create` and `apiKeys.update` take `purpose: "admin"` to create or promote an admin key (and `"standard"` to demote one), and listed keys report `purpose: "admin"`. Admin keys need the owner's session with a fresh step-up proof. ([#266](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/266))
+
+- `apiKeys.setAssistantKeys` can bound a key with a permission `preset` (`read_only` or `trade_with_approval`) instead of a `policyId`. Available on devnet only. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- `apiKeys.policies.apply` now throws `ValidationError` for a blank `policyId` (`""` or whitespace) instead of clearing the key's policy. Pass `null` to clear the binding. ([#269](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/269))
+
+- `apiKeys.setStrategyBotAccess` gives a strategy bot its trade key on its own sub-account, bounded by trading limits, and `apiKeys.endStrategyBotAccess` revokes it. Both are safe to retry under the same `deployOperationId`. ([#287](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/287))
+
+- Listed API keys report `purpose: "strategy_bot"` with the bot's `strategyBotId` for a key a strategy bot trades with. ([#274](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/274))
+
+- API-key signing timestamps lead the local clock by at most 500 ms. A burst that signs more requests than milliseconds pass now waits for the clock instead of running past the backend's 1000 ms future limit and getting `TimestampSkewError`. Timestamps still strictly increase, and a single call or a slow sequence is signed as before. This covers `createApiKeyEd25519AuthHeaders` and every `api-key-ed25519` client. ([#257](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/257))
+
+- Assistant approvals add the `cancelled` status for a run that ended before a decision. A `RUN_ACTIVE` error detail carries `pendingApprovalId` while the run waits for an approval. ([#292](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/292))
+
+- Approval previews add `cancel_triggers`, the triggers one approval cancels together. ([#280](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/280))
+
+- `assistant.sendMessage` and `assistant.listConversations` take a `subject` (`{ strategyId }`) to use the one conversation about a strategy, and conversations report their `subject`. ([#274](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/274))
+
+- `client.assistant.sendMessage` takes the `page` the user is on, named by route template and title. Available on devnet only. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- `client.assistant.sendMessage` takes the `displaySettings` the client can change, and runs emit `display_setting_action` events asking the client to change one or show its choices. Available on devnet only. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- `client.assistant.sendMessage` takes `expectedLatestRunId` to send only while that run is still the conversation's latest; otherwise nothing is recorded and the call fails with `CONVERSATION_ADVANCED`. Available on devnet only. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- `client.assistant.sendMessage` takes `images` (PNG, JPEG or WebP), with `text` optional when images are attached; `listMessages` returns each message's `images`, and `getMessageImage` reads one. Available on devnet only. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- `assistant.listConversations` and `assistant.listMessages` return `lastAccount`, the account the conversation's latest message selected, as `accountSelection` and `subaccountId` to pass back to `sendMessage`. ([#280](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/280))
+
+- `assistant.listMessages` returns the conversation's `subject`, so a client that opens a conversation by its ID learns whether it is about one of the caller's strategies. ([#287](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/287))
+
+- `assistant.sendMessage` takes `accountSelection: "none"` for a run that reads no account. Available on devnet only. ([#258](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/258))
+
+- Approval order previews add the `oco` order type, a take-profit leg and a stop-loss leg that share one reserve. ([#287](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/287))
+
+- `client.assistant.setModelKey`, `getModelKey` and `deleteModelKey` save, read and delete the caller's own OpenAI API key, which then pays for their messages instead of credits. A run that OpenAI refuses the key for fails with category `model_key_refused`. Available on devnet only. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- Approval order previews add the `pegged_limit` order type, a limit order priced once from the best bid or ask plus `offsetTicks`, with its `currentPrice` and `boundPrice`. ([#287](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/287))
+
+- Approval order previews add `quoteProceeds`, set on a sell sized by the quote it brings in before fees instead of `quantity`. ([#287](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/287))
+
+- `subagent_finished` run events carry `draftVersion`, the last strategy revision the subagent's saves are known to have landed. ([#280](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/280))
+
+- Assistant `subagent_started` events carry `funding` (which adds `sponsored`) and `creditCap`, `subagent_finished` carries `deployUrl`, and tool events carry the `subagentId` of the subagent that made the call. ([#271](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/271))
+
+- `client.assistant.getTelegramApprovalLimits` and `setTelegramApprovalLimits` read and replace the per-approval and rolling 24-hour US dollar limits on what can be approved from Telegram. Available on devnet only. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- `client.assistant.getUsage` returns today's free assistant credits for the caller's VIP tier, how many are used and left, when they reset, and what pays for the next messages. A run with no credits left fails with category `daily_limit_reached`, and one sent while the assistant is paused for the day with `assistant_paused`. Available on devnet only. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- `subaccounts.subscribe` and `subaccounts.policies.subscribePolicies` take `delegated: true`, and `addressBook.subscribeViewInvalidations` takes `subaccounts: true`, for the records reached through a subaccount role, which the default streams no longer carry. Signed-in sessions only. ([#274](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/274))
+
+- `auth.me()` returns `apiKeyScope` (`root`, `subaccount`, or `unspecified` for a session) and, for a sub-account key, its `subaccountId`. ([#266](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/266))
+
+- A `TimestampSkewError` from an `AUTH_TIMESTAMP_SKEW` refusal carries `detail.timestampWindow`: the server time and the receive and future windows the request timestamp was checked against. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- Auto-withdraw rules can pay out in one asset: `setRule` takes a `payoutAssetId` and `conversionTwapDurationMs`, and each run first converts every other asset into it through swaps from the account. Runs add the `converting` state and their `conversions`, and preview assets add the `conversion` quote with the `converts` hold reason. ([#287](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/287))
+
+- Auto-withdraw step reasons add `supply_unavailable`: the destination route's Zipper supply is missing or stale, and the funds stay for a later run. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- Auto-withdraw step reason `withdrawals_disabled`: the environment does not allow withdrawals, and the funds stay on the account. ([#287](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/287))
+
+- `balances.getBalanceHistory` series and `balances.getPortfolioEquitySnapshot` asset balances read the exact 18-decimal balances the server now returns, instead of values rounded to 7 decimals. Requires the server release that ships them. ([#258](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/258))
+
+- `balances.getPortfolioEquityHistory` docs: a root-scoped API key with `read-balances` can now read the portfolio equity history, as it already reads the snapshot. ([#287](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/287))
+
+- SDK requests read at most 1 MiB of a non-Connect response body, such as an error page or a problem+json error, whatever its Content-Length. A longer body is canceled and the request fails with an `InternalServerError` carrying the HTTP status, instead of being buffered whole. ([#257](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/257))
+
+- `candles.listColumnar` and `candles.listColumnarInts` return `isClosed`, a closed-bucket flag per row. ([#274](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/274))
+
+- `candles.listIndexPrice` returns one page of a market's closed index price candles, newest first, each marked with its `source`: composite `reference` candles before the pair's listing and `index` candles after, both scaled by the pair's reference price scale. ([#280](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/280))
+
+- Catalog snapshots passed to `createPolyesterCatalog`, `catalog.setSnapshot` or `buildCatalogSnapshot` now refuse asset and pair scales (`quantityScale`, `marketDataVolumeScale`, `baseQuantityScale`, `quoteQuantityScale`, `referencePriceScale`) outside 0 to 18 with `ValidationError`, instead of hanging on the first formatted value. ([#257](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/257))
+
+- The ledger catalog amount helpers (`amountScaledToDecimalString`, `amountScaledToDisplayString`, `decimalAmountToScaled`, `normalizeAmountInput` and `formatAmount`) throw `CatalogLookupError` for a ledger id missing from the catalog, instead of converting at scale 6. The `unknownLedgerAsset` and `unknownZipperAsset` fallbacks that `getAssetByLedgerId` returns now have a `quantityScale` and `quantityDisplayDecimals` of 0, so applying their scale leaves the amount unscaled. ([#257](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/257))
+
+- `timeoutMs` and `signal` now cover the wait for the client catalog that order, balance, candle, trigger and other catalog-backed calls do first. A call whose deadline passes or whose signal aborts during a cold catalog load rejects right away and never sends its request; the backend gets only the time left. Other callers still share the catalog load. ([#293](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/293))
+
+- Changelog entries can carry the `assistant` surface, and `changelog.listChanges` can filter by it. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- `client.changelog.listDeploymentGroups` and `getDeploymentGroup` read the deployments that brought releases to the environment, with their release posts, changes that need attention and highlights. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- Changelog release posts carry `releaseVersion`, the release's status in each environment (`environments`) and `deploymentGroupSlug`, and changes carry `environmentExceptions` where they differ from their release. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- Changelog surface `trading_bots`, as an output label and a `surfaces` filter. ([#280](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/280))
+
+- A ConnectRPC request over the API's size limit now throws the non-retryable `RequestTooLargeError`, as a REST 413 does, instead of a retryable `RateLimitError`. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- `client.connectedApps` connects outside apps to the account with OAuth: `getConnectionRequest`, `approveConnectionRequest` (needs a fresh `stepUpToken`) and `denyConnectionRequest` drive the consent page, and `list` and `revoke` manage connected apps. Session only; API keys are refused. ([#266](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/266))
+
+- `client.dustConversion` converts dust, Trading balances too small to trade, into one target asset: `listBalances` shows each balance's eligibility, `quote` prices a conversion for 30 seconds, `create` converts the quote, and `get` and `list` read conversions. API keys need the `convert-dust` policy action and subaccount members the `convert_dust` permission. ([#258](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/258))
+
+- Caller-chosen IDs and keys are sent exactly as given instead of trimmed: `triggers.create` `clientTriggerId` (an empty one is now refused), `statementExports.create` `idempotencyKey` (a padded key is refused by its pattern), and `dustConversion.create` / `get` `quoteId`, `idempotencyKey` and `conversionId`. `lifecycle.subscribeOpenFlows` uses the public all-accounts channel only when `accountId` is omitted, not when it is empty. `orders.subscribe` / `realtime.connectPrivateOrders` subscribe with the trimmed account ID they validate. ([#263](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/263))
+
+- `internalTransfers.abandonBatch` abandons an unused batch idempotency key with terminal status `abandoned`, returns any batch already submitted under that key unchanged, and causes later `batchCreate` calls under the key to throw a non-retryable `PreconditionFailedError` (`IDEMPOTENCY_KEY_ABANDONED`). ([#289](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/289))
+
+- `client.internalTransfers.batchCreate` moves up to 500 transfers together under one idempotency key and one MFA check: every leg is credited or nothing moves. The batch is `accepted`, `refused` or, when its outcome is not known within the request, `processing`; each leg is `credited`, `not_moved` or `processing`, with `creditedAtUnixMs` once credited. ([#258](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/258))
+
+- `internalTransfers.create` and `internalTransfers.batchCreate` now accept quantities with up to 18 decimals, so a balance from `balances.list` can be transferred exactly as reported. They no longer cap input at the asset's order-quantity scale. ([#277](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/277))
+
+- `internalTransfers.getBatch({ requestId })` reads a batch's current status and every leg's state, for example to follow a batch that `batchCreate` returned as `processing`. `getBatch({ idempotencyKey })` reads it by the key sent to `batchCreate` instead, so a caller whose answer was lost, or whose batch was refused before it got a `requestId`, can still learn the outcome. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- Transfer type `dust_convert`: one leg of a dust conversion, a source asset's dust debited or the target asset's payout credited after the fee. ([#280](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/280))
+
+- Docs: the `trading_withdraw_request_fee` and `withdraw_failed` transfer types are the whole debit of a rejected or failed withdrawal, not a fee. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- Transfer type `funding_opening_balance`: the balance a Funding account held when its transfer history starts. ([#274](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/274))
+
+- A ledger transfer that is one leg of an internal transfer batch reads as type `internal_batch` instead of `unspecified`, and `transfers.list` accepts `internal_batch` as a `transferCode` filter. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- `client.lifecycle.listAccountFlows` and `getAccountFlow` read the signed-in account's own flows, including transfers between Trading accounts and other flows no chain transaction started. API keys need the `read-funding-flows` policy action. ([#258](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/258))
+
+- Lifecycle reasons add `zipper_deposit_delivered_to_wallet`, which appears on a completed flow whose deposit was delivered to the wallet, not on a failure. ([#258](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/258))
+
+- `client.marketData.listAssetInfo` reads asset information: team-maintained description, official links and launch date and price, and `marketStats` (circulating, total and maximum supply, market caps and rank as exact decimal strings, each with its `source` and `asOf` time). ([#256](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/256))
+
+- Market data errors carry a `market_data` error detail with the error `code` (`BAD_REQUEST`, `INVALID_ARGUMENT`, `UNKNOWN_SYMBOL`, `NOT_FOUND` or `PAGE_TOKEN_INVALID`) and a readable `reason`, which stays the error message. On `PAGE_TOKEN_INVALID` from a candle read, drop the page token and request the first page again. ([#287](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/287))
+
+- `client.marketData.getPriceBand` reads a pair's live price band: its reference price and the limit prices it admits now, with absent limits as `null`. ([#271](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/271))
+
+- `marketOverview.subscribe` keeps each market's sparklines from the snapshot when live updates arrive. The live channel carries no sparklines, so before every emitted row had `sparklines: []`, even with `includeSparklines` on (the default). ([#268](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/268))
+
+- Market overview rows carry the pair's live `priceBand` while a fresh one is known. ([#274](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/274))
+
+- `marketOverview.list` filters markets server-side by `lastPrice`, `change24hBps` and `volume24hUsd`, each an inclusive `{ min?, max? }` range; a market must match every filter given. ([#287](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/287))
+
+- Market overview rows add `open24h`, `tradeCount24h`, `vwap24h`, `openUtcDay` and rolling `stats1h`, `stats4h` and `stats7d` (`open`, `high`, `low` and `changeBps`). An unknown open, and a window without one, is `undefined`; `change24hBps` is meaningful only while `open24h` is set. ([#287](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/287))
+
+- `client.notifications` decodes `admin_key_action` security notices, sent when an admin API key creates, changes or revokes a key or changes a policy. ([#266](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/266))
+
+- `client.notifications` decodes `broker_allowlist_change` notices about QuickSwap broker vault payout address changes. These previously decoded as `"unspecified"`. Available on devnet only. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- `client.notifications` lists, reads, counts and marks the caller's notifications. `list`, `get` and `getCounts` also take a main-account API key whose policy grants `read-notifications`; marking takes a session only. Available on devnet only. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Telegram approval notices decode the `convert_dust` action. ([#266](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/266))
+
+- `client.notifications` decodes `telegram_linked` security notices, with the link's `linkedAt`, sent when a Telegram account is linked to the caller's account. Available on devnet only. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- `orders.cancelAll` and `orders.cancelAllAfter` take `includeTriggers` to also stop the matching triggers, and `cancelAll` returns `matchedTriggers`. ([#266](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/266))
+
+- Orders report the cancel reason `cancel_on_disconnect` when the trading WebSocket's cancel-on-disconnect canceled them, apart from `cancel_all_after`. These orders previously read `"unspecified"`. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Order error codes add `CLIENT_LIST_ID_INVALID`, which the server answers for a malformed OCO `clientListId` on `triggers.createOco` and the `triggers.list` filter. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- An order error code newer than the installed SDK now reads as `"UNSPECIFIED"` instead of throwing `ValidationError`, so `orders.preview` keeps `admissible: false`, and rejected items in `orders.batchCreate`, `orders.batchCancel` and `orders.getBatchReplaceStatus` still decode. A newer account code in `balances.getBalanceHistory` and `balances.getEquityHistory` series reads as `"unspecified"`. ([#257](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/257))
+
+- GTC and GTD limit orders take `execution.displayQty` to show only that much on the book at a time (iceberg), below `qty` and at least `qty` divided by 100; orders report it as `displayQty` with the hidden part of `leavesQty` as `hiddenQty`. Refusals use the new codes `ICEBERG_NOT_ALLOWED`, `ICEBERG_DISPLAY_TOO_SMALL` and `ICEBERG_DISPLAY_INVALID`. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Order `clientOrderId` / `newClientOrderId` and order `requestId` are sent exactly as given instead of trimmed. A padded or blank ID now throws `ValidationError` before sending, so an order is never placed under a different ID than the caller holds, or with none. This covers `orders.create`, `batchCreate`, `modify`, `batchReplace`, `cancel`, `batchCancel`, `cancelAll`, `cancelAllAfter` and `getDetails`. An omitted ID behaves as before. ([#268](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/268))
+
+- Order error details add `causeCode` and `levelIndex` on `LADDER_LEVEL_REJECTED`: the code the refused ladder order would return on its own and its zero-based index among the ladder's levels. ([#258](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/258))
+
+- Order error details add `priceBandLimit` with `PRICE_BAND_VIOLATION` on `orders.preview`: the highest admitted buy price or lowest admitted sell price, as a decimal price. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- A SELL market or limit IOC order can be sized by `quoteProceeds`, the quote it sells for before fees, instead of `qty`; BUY, GTC, GTD, FOK, attached risk and a peg are rejected before sending. Create and batch create results and orders echo it as `submittedQuoteProceeds`, and the order's `cumQuote` is what it received. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- `orders.getDetails` reads a refused batch replacement's successor (`symbolId` 0, placeholder terms) instead of failing a catalog lookup, and order errors add `MODIFY_APPLY_EXPIRED`. ([#271](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/271))
+
+- Order intents, single and batch, take `peg: { reference: "best_bid" | "best_ask", offsetTicks? }` to take the limit price from the book at entry, offset by a signed count of the pair's tick size and bounded by `execution.price`. It needs `qty` sizing, a limit execution and no attached risk; refusals use the new codes `PEG_LIMIT_VIOLATION`, `PEG_REFERENCE_UNAVAILABLE` and `INVALID_PEG`. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- `selfTradePreventionMode` takes and reports `"decrement"`, which reduces both orders by the quantity that would have traded, also on orders with attached risk; an order left with nothing is canceled with the new cancel reason `stp_decrement`. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- A server 504, client-side timeout (`timeoutMs` / `AbortSignal.timeout()`), or dropped connection (`NetworkError`) on an order or trigger write (create, batch create, modify, batch replace, cancel, batch cancel, cancel all, cancel all after; trigger create, OCO create, modify, cancel, batch cancel, OCO cancel, pause, resume) now throws `OutcomeUnknownError` (`retryable: false`) even without the `*_OUTCOME_UNKNOWN` detail, which the public edge strips. Read the order or trigger back before sending it again. Timeouts and network failures on reads and `previewOrder`, and caller cancellations, are unchanged. ([#268](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/268))
+
+- Order book snapshots return `bookEpoch`, and order book subscriptions discard a refetched snapshot from an older epoch. ([#260](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/260))
+
+- Order book subscriptions apply a delta only when it starts at the book's current sequence, and after a gap wait for the server's next reset instead of refetching snapshots. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- An order book subscription whose snapshot fails with an error that isn't retried (such as a 500) now rebuilds the book from the server's next reset, instead of ignoring every later reset and delta until the socket reconnects. ([#268](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/268))
+
+- An order book subscription keeps asking for the snapshot while `GetOrderBook` answers that the book is not available yet (backoff from 1 s up to 8 s), and shows the book as soon as it is ready. Before, it stopped after three tries and stayed empty until the socket reconnected. A non-retryable snapshot error is not retried. ([#263](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/263))
+
+- `orderbook.subscribe` on a symbol that does not exist now reports `ResourceNotFoundError` through `onError` instead of emitting an available, empty book. ([#270](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/270))
+
+- `PolicyAction` adds `manage-api-keys`, `manage-api-key-policies` and `manage-subaccount-policies`, API-key policy permissions that take effect only on an admin key. ([#266](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/266))
+
+- `PolicyAction` adds `convert-dust` and `read-funding-flows`, which sub-account and API-key policies both accept, and sub-account permissions add `convert_dust` and `read_funding_flows`. ([#258](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/258))
+
+- `subaccounts.policies.create` and `update` reject a negative or fractional `maxOpenOrders` with a `ValidationError` before sending. They used to send it as 0 (no cap) or truncate it. 0, `null` and an omitted field still mean no cap. ([#259](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/259))
+
+- `PolicyAction` adds `read-pnl` and `stop-strategies`, and subaccount permissions add `read_pnl` and `stop_strategies`. ([#274](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/274))
+
+- `PolicyAction` adds `read-price-alerts` and `manage-price-alerts`, which API keys now need for `priceAlerts.list` and for `create`, `update` and `cancel`. Both are main-account permissions, so sub-account policies reject them, and like price alerts they are available on devnet only. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- `PolicyAction` adds `read-notifications`, a main-account permission, and `read-account-activity`. Both are accepted by API-key policies only. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- `PolicyAction` adds `read-statements`, which sub-account and API-key policies both accept, and sub-account permissions add `read_statements`, which API keys and members need to export account statements. ([#256](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/256))
+
+- `PolicyAction` adds `read-strategies`, `draft-strategies` and `propose-strategy-deploy`, API-key permissions for bot strategies. ([#271](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/271))
+
+- `apiKeyPolicies.apply` and `subaccountPolicies.apply` return the attached `policyId`, a new copy when the applied policy is a template. Policies report `sourceTemplateRevision`, and `subaccountPolicies.create` takes `isTemplate`. ([#266](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/266))
+
+- `priceAlerts.create` and `update` throw `PreconditionFailedError` with the alerts detail `TELEGRAM_NOT_LINKED` when the `telegram` channel is asked for without a linked Telegram account, and `TELEGRAM_UNAVAILABLE` where Telegram delivery is not available. Neither is retryable. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- `realtime.connectPrivateOrders` delivers `{ type: "ready" }` once the stream reflects every order change acknowledged before it subscribed, again after each resubscribe or reconnect, and replayed after the snapshot to a consumer that joins later. `orders.subscribe` calls the new `onReady` for it. ([#257](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/257))
+
+- `realtime.connectPrivateOrders` and `orders.subscribe` no longer wait forever for a subscribe the server never answers. After 30 seconds a subscription the server never confirmed ends with a retryable `subscribe` error and `onDisconnected`; one it confirmed before reports the error and subscribes again. A late confirmation of the expired request is unsubscribed. ([#257](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/257))
+
+- `client.profitAndLoss` wires the profit and loss API (`pnl.v1.ProfitAndLossService`): `get` returns PnL over a `window` (`today`, `days_7`, `days_30`, `lifetime`) by product and market with current holdings, `listDaily` lists PnL per UTC day with start and end equity and net flow, and `getTradingStatistics` returns trade count, volume, fees and realized PnL with the return, maximum drawdown and Sharpe ratio. USD amounts are decimal strings, and a figure that needs an unavailable price is `null` with a `notices` entry saying why. API keys need the `read-pnl` policy action. ([#274](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/274))
+
+- Docs: trading placement, cancellation and read rate limits apply per account and are shared by all its API keys and sessions; in `getTradingLimits`, `apiKeyRules` enforces the per-key read rule alongside the account read limit while its placement and cancellation rules are informational. ([#258](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/258))
+
+- `tradingRateLimits` decodes `trading_read` rules: the selected account's own limit on trading reads, and the calling API key's in `apiKeyRules`. ([#266](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/266))
+
+- The order book stops retrying its snapshot once `realtime.disconnect()` closes the socket. `lifecycle.subscribeOpenFlows` trims a padded `accountId` again, and a `null` `accountId` throws instead of opening the public all-accounts channel. A `ServiceUnavailableError` from a gateway that only says "service temporarily unavailable" now carries `retryAfterMs` from `Retry-After`. ([#265](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/265))
+
+- A realtime subscription whose transport can't be constructed (for example, no global `WebSocket` on the runtime) now reports `type: "transport_load"` to `onError` instead of `type: "auth"`. ([#269](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/269))
+
+- `auth.refreshSession()` keeps the account selected with `switchAccount` even when the display-session cookie can't be read (Node, Bun, workers, or a browser with cookies blocked). Before, the refresh fell back to the main account, so later calls without an explicit `account` ran on the main account. ([#268](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/268))
+
+- `RequestTooLargeError` carries the exceeded `limitBytes` in its `detail` when the server sends a `RequestErrorDetail`, whatever the message. ([#266](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/266))
+
+- `orderbook.get` returns the snapshot's `ts`, `orders.cancelAll` returns `tsNs`, and `internalTransfers.create` returns `acceptedAtNs`, fields the server already sent but the SDK dropped. ([#258](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/258))
+
+- `ServiceUnavailableError` carries the server's `Retry-After` as `retryAfterMs`, as `RateLimitError` already does. ([#263](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/263))
+
+- Social verifications add `changeAvailableAt`: while the once-per-30-days limit applies, when the linked X or Discord account may be changed or unlinked again. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- `socialVerification.unlink` unlinks X and Discord accounts as well as Telegram. Changing or unlinking a linked X or Discord account needs a `stepUpToken` and is allowed once per provider every 30 days: auth error details and verifications carry `retryAfter`, and verifications add the `social_account_cooldown` and `social_change_limit_reached` error codes. ([#258](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/258))
+
+- Spot config pairs and the catalog add an optional `priceBand` (`lowerBps`, `upperBps`, `referenceWindowMs`), absent when the pair has no band, and orders report the cancel reason `price_band` when the band stopped a market order. Older snapshots without it still validate. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Doc comments describe the MFA-elevated session (an MFA challenge completed in the last 30 minutes) instead of recent MFA, and say that a release post's `publishedAt` is when the release went live in this environment and can change without a new revision. ([#267](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/267))
+
+- `statementExports.cancel({ exportId })` stops a queued or processing export, which ends `canceled` and frees its place under the root account's limit of 5. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- `statementExports.getDownloadUrl({ exportId })` returns a link to a ready export's file, valid for 60 seconds and usable without credentials, so a browser can save the file. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- `statementExports.create` takes a required `type`: `account_statement`, `ledger` or `balances`. A `balances` period that starts before the account history throws `STATEMENT_HISTORY_UNAVAILABLE`, and the error detail carries `historyAvailableFrom`. ([#292](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/292))
+
+- `statementExports.list` also returns `inProgressExports` and `maxInProgressExports`, the root account's exports queued or processing and the most it may have at once. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- `client.statementExports` creates, gets and lists whole-period statement exports produced in the background as one CSV file each, downloadable for 7 days. API keys need `read-statements`; a root account at its limit of 5 exports in progress gets `PreconditionFailedError` (`STATEMENT_EXPORT_LIMIT_REACHED`) instead of a retryable `RateLimitError`. ([#258](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/258))
+
+- `strategies` adds `listBacktests`, a strategy's backtests newest first as headlines, and `listBacktestTrades`, every trade of a finished backtest a page at a time. ([#280](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/280))
+
+- Backtest reports add the low, base and high cost scenarios, the equity curve, held-back baselines and the whole window's largest fall, and their metrics add the Sharpe ratio, realized profit and loss and exact start and end equity. A bot that cannot be backtested ends as `not_backtestable` with a `notBacktestableReason`, which deploy proposals and the `NOT_BACKTESTABLE` error detail carry too. ([#280](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/280))
+
+- Bots and the runs `listBotVersions` returns add `strategy`, the strategy and revision they were deployed from, or null once the strategy is unlinked. ([#292](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/292))
+
+- `strategies` adds `publishVersion` and `unpublish` for a strategy's community listing, from the user's own session, and `listCommunity` and `getCommunity` to browse and read public listings with their platform backtest, without credentials. Strategies add their `listing`, and `LISTING_CAP_REACHED` carries a `listingCap` detail. ([#287](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/287))
+
+- Bot templates add their `moneyCard`, strategies add their `markets` and notes `summary`, bots add their last 24 hours of `activity`, `getVersion` returns the stored `validation`, and `listBotLogs` returns a `followToken` and `deployedAgain`. Deploys add the `setting_access` step, bots the `unrecorded_order` pause reason, and `BACKTEST_LIMIT_REACHED` a `backtestLimit` detail, without `retryAfter` for the limit on backtests at once. ([#280](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/280))
+
+- Deploy statuses add `wait`, what a running deploy waits for from the user: `whitelist_required` gives the bot subaccount's `address` to add to the internal whitelist before calling `deployBot` again. ([#287](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/287))
+
+- Adds `strategies.fork`, which copies a public community listing into a new strategy whose `origin` names the listing (needs `fork-strategies`). Community listings add `forks` and `forkedFrom`. ([#292](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/292))
+
+- `strategies` adds `getNotes`, `saveNotes` and `listNotesRevisions` for a strategy's notes, a one-line summary and a Markdown body saved as revisions; a stale `expectedNotesRevision` throws `RevisionConflictError` (`NOTES_REVISION_CONFLICT`). `saveDraftVersion` takes an optional `expectedNotesRevision` to save the draft only against the notes it was written with. ([#280](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/280))
+
+- Adds `strategies.reportCommunity`, which reports a community listing to moderation from the user's own session. Listings add the `held` state with the author-only `holdReason`, and a held listing throws `LISTING_HELD`. ([#292](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/292))
+
+- Adds `strategies.returnBotFunds` and `getBotFundsReturn`, which return a stopped bot's spendable balances to the main account and follow the return until it completes (needs `return-strategy-bot-funds`). ([#292](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/292))
+
+- `client.strategies` writes, tests and proposes trading bots: it creates strategies and saves their drafts as versions, runs behaviour examples and backtests, records a deploy proposal of a strategy's revision and deploys it with `deployBot` from an MFA-elevated session, and reads, lists and stops bots. Errors carry a `strategies` detail, and a stale draft revision throws `RevisionConflictError`. ([#271](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/271))
+
+- Reject unknown keys with `ValidationError` on `candles.list`, `candles.listColumnar`, `candles.listColumnarInts`, `marketData.listTrades`, `orderbook.get`, `heatmap.getOrderbookHeatmap`, and `accounts.resolve` instead of silently ignoring misspelled filters such as `startTime`/`endTime`. Validate `marketData.listTrades` input before awaiting catalog scale readiness. ([#279](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/279))
+
+- Sub-account activity events add the `requested` and `applied` actions: a requested change records a later `applied` or `failed` event. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Events from `subaccounts.listEvents` add `subaccountId`. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- `subaccounts.create` and `auth.createSubaccount` accept an optional `idempotencyKey` so a retry never creates a second sub-account: resending the identical signed request returns the one it created with `replayed: true`, and any other request under the key throws `AlreadyExistsError` (`AUTH_SUBACCOUNT_IDEMPOTENCY_CONFLICT`); find that sub-account in `subaccounts.list()` by its new `idempotencyKey`. ([#280](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/280))
+
+- `subaccounts.policies.apply` only clears the binding for `policyId: null`. A blank or whitespace `policyId` now throws `ValidationError("policyId: empty")` before any request is sent. ([#276](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/276))
+
+- Sub-accounts add `strategyBot`, which is true once a strategy bot has held the sub-account. Use it to keep these sub-accounts out of funding-source choices. ([#292](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/292))
+
+- `client.swap` adds `cancel` to stop a running swap (`canceling` and `canceled` statuses, `user_canceled` reason, `canceled` slice reason and `cancelRequestedAt`) and `list` to page through an account's swaps newest first with an `openOnly` filter. ([#289](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/289))
+
+- `client.swap` quotes, creates and reads swaps that convert one asset of an account's Trading balance into another, on the direct market or through USDT or USDC, at market or as a TWAP. A `create` that fails with a retryable error may have run; resend the same input under the same `idempotencyKey` to get the same swap. Available on devnet only. ([#272](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/272))
+
+- `SWAP_TWAP_MAX_DURATION_MS` is raised from 60 minutes (`3_600_000` ms) to 24 hours (`86_400_000` ms). ([#289](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/289))
+
+- `client.system.getTime` returns the server time as `serverTimeMs`, the clock that checks the timestamp of API-key-signed requests. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- `client.system.listStatusEvents` lists scheduled maintenance and incidents, with their affected services, markets and assets and their progress notes. ([#256](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/256))
+
+- `client.tradingWithdraws.createToFundingBatch` and `prepareToFundingBatch` move up to 10 amounts from one Trading account to Funding accounts with one wallet signature and one MFA check. The legs move together or not at all. ([#271](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/271))
+
+- Wallet-signed trading withdraws also refuse line and paragraph separators and format characters, such as a right-to-left override or a zero-width space, in the destination and idempotency key, so the signing prompt reads the same as the signed message. ([#257](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/257))
+
+- Ledger transfers carry `tsNs`, the exact transfer time in nanoseconds, to compare with a balance `tradingAppliedThroughTsNs`. ([#274](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/274))
+
+- Order error code `TRIGGER_ACTIVATION_PRICE_NOT_MODIFIABLE` rejects a trigger patch that sets a new activation price after a trailing stop started tracking. ([#255](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/255))
+
+- `triggers.batchCancel({ triggerIds })` cancels 1 to 50 triggers in one request and answers each, in order, as `accepted` or `rejected` with a `code`. A `requestId` is generated when omitted; retry a timed-out batch with the same one. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- Triggers report the `cancel_all` cancel reason and the `trigger_stopping` failure reason. ([#266](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/266))
+
+- `triggers.cancelAll` cancels every trigger matching `symbolIds`, `side` and `triggerTypes` in one request, with the orders those triggers are working; other orders stay open, and `dryRun` returns the count only. ([#274](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/274))
+
+- Canceling a trigger that has already ended, including a repeated cancel, now throws with code `TRIGGER_STATUS_INVALID`, or `TRIGGER_NOT_FOUND` after 60 seconds, instead of returning the canceled trigger: treat either as done. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- `triggers.createOco` and the `triggers.list` filter check `clientListId` with the same rule as `clientOrderId` (1 to 36 letters, digits, `.`, `_`, `:`, `/` or `-`) and send it unchanged instead of trimming it, like the other SDKs. An ID with spaces or other characters is refused with `ValidationError` before the request. ([#257](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/257))
+
+- Ladder trigger `runtimeDetails` add `requestedLevels`, `placedLevels`, `rejectedLevels` and `canceledLevels`, and `outcome` (`all_admitted`, `mixed_rejections` or `all_children_rejected`; `"unspecified"` while the ladder runs). ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- Triggers add `orderListId` and `clientListId`, set on both legs of an OCO, and `triggers.list` filters by either to read one OCO's legs. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- `triggers.createOco` creates an OCO, a take-profit and a stop-loss that share one reserved quantity the account already holds and cancel each other, and returns its `orderListId` with both legs' trigger IDs. `triggers.cancelOco({ orderListId })` cancels both legs. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- `triggers.list` filters by `clientTriggerId` to find the triggers a create used, such as one that threw `OutcomeUnknownError`. ([#287](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/287))
+
+- `triggers.create` rejects a sell TWAP whose market slices cap slippage at 10000 bps before sending it. A sell TWAP takes 1 to 9999 bps, as the server requires; a buy still takes up to 10000. ([#284](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/284))
+
+- A trading withdraw or internal transfer `quantity` too large for the 128-bit wire amount now throws `CatalogConversionError` (a `ValidationError`) naming `quantity`, instead of a plain `RangeError`. ([#259](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/259))
+
+- A server or client-side timeout (`deadline_exceeded`, 504, `timeoutMs`, or `AbortSignal.timeout()`) or dropped connection (`NetworkError`) on `apiKeys.create`, API-key policy create, sub-account policy create and MFA recovery-code regeneration now throws `OutcomeUnknownError` (`retryable: false`) instead of a retryable `TimeoutError`, `ServiceUnavailableError`, or `NetworkError`. The write may have been applied, so read it back before trying again. Reads and caller cancellations are unchanged. ([#263](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/263))
+
+- `@polyester/sdk/unstable/gen` adds `activityPb` (account activity) and `quickswapExplorerPb` (QuickSwap explorer). ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- `@polyester/sdk/unstable/gen` adds `assetInfoPb` (asset information). ([#256](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/256))
+
+- `@polyester/sdk/unstable/gen` adds `depthTierPb` (`DepthTier`, which replaces `orderbookPb.Depth` and `heatmapPb.HeatmapDepth`), `connectedAppsPb` (connected apps) and `requestErrorPb` (request errors), and drops the removed recent-MFA bindings from `mfaPb`. ([#266](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/266))
+
+- `@polyester/sdk/unstable/gen` adds `dustConversionPb` (dust conversion) and `statementExportPb` (statement exports). ([#258](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/258))
+
+- `@polyester/sdk/unstable/gen` adds `notificationsPb` (notifications, devnet only). `quickswapBrokerPb` adds the vault ledger and vault allowlist methods, and `quickswapPb` adds execution slices to execution progress. ([#251](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/251))
+
+- `@polyester/sdk/unstable/gen` adds `strategiesPb` (bot strategies) and `accountScopePb`, which now holds `AccountScopeType` instead of `addressBookPb`. `quickswapExplorerPb` adds `getCompletedQuickSwap` and multi-asset and USD filters and replaces its stats rows with parallel lists, and `quickswapReferralPb` adds the referral ledger. ([#271](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/271))
+
+- Inputs the SDK rejects before sending now throw `ValidationError`: a TWAP `durationMs` or `sliceIntervalMs` out of range and ladder `levels` outside 2 to 100 in `triggers.create`, an `afterMatchId`, `afterTradeId`, `startTsNs` or `endTsNs` filter that is not a positive integer, unknown keys in `orders.modify` and `orders.batchReplace` items, and a missing `accountId` in `orders.subscribe`. Messages are unchanged. ([#257](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/257))
+
+- `tradingWithdraws.getWalletBalances` adds `unavailableAssets`: zTokens whose balance could not be read, with a `reason` (`no_contract`, `read_failed` or `invalid_balance`). Their balance is unknown, not zero; the read is complete only when the list is empty. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
+- Withdraw error details add `ROUTE_SUSPENDED` and auto-withdraw step reasons add `route_suspended` for a destination network whose withdrawals are suspended. Docs: while a Zipper route is `suspended`, do not send funds on it. ([#258](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/258))
+
+- `tradingWithdraws.validateDestination` adds code `swap_deposit_address` for a QuickSwap deposit address, which can never receive a withdrawal, and withdraw error details add `DESTINATION_SWAP_DEPOSIT_ADDRESS`, the `ValidationError` a withdrawal or auto-withdraw rule to such an address gets. ([#287](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/287))
+
+- Zipper chain variants carry `depositStatus` and `withdrawalStatus` (`normal` or `suspended`); treat `"unspecified"` or an absent value as unknown, not as suspended. Older snapshots without them still validate. ([#256](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/256))
+
+- Zipper chain variants add `supplyStatus` (`available`, `stale`, `missing`) and `supplyObservedAt`, and `supply` is now set only while the status is `available` or `stale`, so an unknown supply no longer reads as `"0"`. `zipper.subscribeZippedAssetSupply` updates add `status` and `observedAt` and leave out routes whose supply is unknown. ([#264](https://github.com/Fabric-Labs/polyester-sdk-typescript/pull/264))
+
 ## 0.35.0
 
 ### Minor Changes
