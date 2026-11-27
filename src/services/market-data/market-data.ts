@@ -14,6 +14,7 @@ import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscr
 import { snapshotThenStream } from "../../realtime/snapshot-then-stream.js";
 import { ServiceUnavailableError } from "../../shared/errors.js";
 import {
+    readyCallOptions,
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
@@ -93,8 +94,8 @@ export class MarketDataService {
         options?: PolyesterRequestOptions,
     ): Promise<{ trades: MarketTrade[]; nextPageToken: string; backfill?: TradeBackfill }> {
         const validatedInput = parse(GetMarketTradesInputSchema, input);
-        await this.#scales.ready();
-        const res = await this.#client.getTrades(validatedInput, toConnectCallOptions(options));
+        const callOptions = await readyCallOptions(this.#scales, options);
+        const res = await this.#client.getTrades(validatedInput, callOptions);
         const trades = res.trades.map((trade) => formatMarketTrade(this.#scales, trade));
         if (validatedInput.afterTradeId === undefined) {
             return { trades, nextPageToken: res.nextPageToken };

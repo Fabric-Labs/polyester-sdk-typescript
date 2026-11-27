@@ -3,6 +3,7 @@ import * as Proto from "../../gen/transfer/v1/internal_transfer_pb.js";
 import type { AuthApiTransports } from "../../shared/transports.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import {
+    readyCallOptions,
     toConnectCallOptions,
     type PolyesterMutationOptions,
     type PolyesterRequestOptions,
@@ -64,12 +65,12 @@ export class InternalTransfersService {
         input: CreateInternalTransferInput,
         options?: PolyesterMutationOptions,
     ): Promise<CreateInternalTransferResult> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const resolvedInput = resolveAccountScopedInput(input, this.#resolver);
         const validatedInput = parse(this.#inputSchema, resolvedInput);
         const res = await this.#client.createInternalTransfer(
             removeUndefined(validatedInput),
-            toConnectCallOptions(options),
+            callOptions,
         );
         return parse(this.#resultSchema, res);
     }
@@ -90,7 +91,7 @@ export class InternalTransfersService {
         input: BatchCreateInternalTransfersInput,
         options?: PolyesterMutationOptions,
     ): Promise<BatchCreateInternalTransfersResult> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const legs = Array.isArray(input?.legs)
             ? input.legs.map((leg) => ({
                   ...leg,
@@ -98,10 +99,7 @@ export class InternalTransfersService {
               }))
             : input?.legs;
         const request = parse(this.#batchInputSchema, { ...input, legs });
-        const res = await this.#client.batchCreateInternalTransfers(
-            request,
-            toConnectCallOptions(options),
-        );
+        const res = await this.#client.batchCreateInternalTransfers(request, callOptions);
         return parse(BatchCreateInternalTransfersResultSchema, res);
     }
 

@@ -1,9 +1,6 @@
 import * as Proto from "../../gen/chain/analytics/v1/analytics_read_pb.js";
 import { createClient, type Client } from "@connectrpc/connect";
-import {
-    toConnectCallOptions,
-    type PolyesterRequestOptions,
-} from "../../shared/request-options.js";
+import { readyCallOptions, type PolyesterRequestOptions } from "../../shared/request-options.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import type { PublicApiTransports } from "../../shared/transports.js";
 import { parse } from "../../shared/validation.js";
@@ -42,11 +39,8 @@ export class ChainAnalyticsService {
         options?: PolyesterRequestOptions,
     ): Promise<ZippedAssetSupplyResponse> {
         const parsedInput = parse(GetZippedAssetSupplyInputSchema, input);
-        await this.#scales.ready();
-        const response = await this.#client.getZippedAssetSupply(
-            parsedInput,
-            toConnectCallOptions(options),
-        );
+        const callOptions = await readyCallOptions(this.#scales, options);
+        const response = await this.#client.getZippedAssetSupply(parsedInput, callOptions);
         return parse(createZippedAssetSupplyResponseSchema(this.#scales), response);
     }
 
@@ -58,11 +52,8 @@ export class ChainAnalyticsService {
         options?: PolyesterRequestOptions,
     ): Promise<ZippedAssetSupplyGroupResponse> {
         const parsedInput = parse(GetZippedAssetSupplyGroupInputSchema, input);
-        await this.#scales.ready();
-        const response = await this.#client.getZippedAssetSupplyGroup(
-            parsedInput,
-            toConnectCallOptions(options),
-        );
+        const callOptions = await readyCallOptions(this.#scales, options);
+        const response = await this.#client.getZippedAssetSupplyGroup(parsedInput, callOptions);
         return parse(createZippedAssetSupplyGroupResponseSchema(this.#scales), response);
     }
 
@@ -74,11 +65,8 @@ export class ChainAnalyticsService {
         options?: PolyesterRequestOptions,
     ): Promise<UnifiedAssetBalancesResponse> {
         const parsedInput = parse(GetUnifiedAssetBalancesInputSchema, input);
-        await this.#scales.ready();
-        const response = await this.#client.getUnifiedAssetBalances(
-            parsedInput,
-            toConnectCallOptions(options),
-        );
+        const callOptions = await readyCallOptions(this.#scales, options);
+        const response = await this.#client.getUnifiedAssetBalances(parsedInput, callOptions);
         return parse(createUnifiedAssetBalancesResponseSchema(this.#scales), response);
     }
 }

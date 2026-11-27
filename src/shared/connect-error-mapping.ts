@@ -588,7 +588,7 @@ export function toPolyesterError(err: unknown): unknown {
     return err;
 }
 
-function callerAbortError(signal: AbortSignal): DOMException | TimeoutError {
+export function callerAbortError(signal: AbortSignal): DOMException | TimeoutError {
     const reason: unknown = signal.reason;
     if (isTimeoutAbortError(reason))
         return new TimeoutError("Request timed out.", { cause: reason });
@@ -597,7 +597,7 @@ function callerAbortError(signal: AbortSignal): DOMException | TimeoutError {
 
 // A signal that fired before the call started is a cancellation even when it was
 // a timeout: a retryable TimeoutError would let retry loops spin on a dead signal.
-function preAbortedError(signal: AbortSignal): DOMException {
+export function preAbortedError(signal: AbortSignal): DOMException {
     const reason: unknown = signal.reason;
     return reason instanceof DOMException && reason.name === "AbortError"
         ? reason

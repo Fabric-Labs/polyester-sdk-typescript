@@ -7,10 +7,7 @@ import {
     type SnapshotThenStreamSubscription,
 } from "../../realtime/snapshot-then-stream.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
-import {
-    toConnectCallOptions,
-    type PolyesterRequestOptions,
-} from "../../shared/request-options.js";
+import { readyCallOptions, type PolyesterRequestOptions } from "../../shared/request-options.js";
 import {
     createCatalogRefreshQueue,
     decimalInputToScaled,
@@ -76,10 +73,10 @@ export class OrderbookService {
         options?: PolyesterRequestOptions,
     ): Promise<OrderbookData> {
         const validated = parse(GetOrderbookInputSchema, input);
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const res = await this.#client.getOrderBook(
             { symbolId: validated.symbolId, depth: DepthTierCodec.inputToProto[validated.depth] },
-            toConnectCallOptions(options),
+            callOptions,
         );
         // Servers that predate the served tier leave it unset; they served the requested one.
         const served = DepthTierCodec.protoToOutput[res.depth];

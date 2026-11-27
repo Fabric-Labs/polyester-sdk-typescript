@@ -6,6 +6,7 @@ import { parse } from "../../shared/validation.js";
 import { type SubaccountResolver, resolveAccountScopedInput } from "../subaccount-resolver.js";
 import { removeUndefined } from "../../utils/remove-undefined.js";
 import {
+    readyCallOptions,
     toConnectCallOptions,
     type PolyesterMutationOptions,
     type PolyesterRequestOptions,
@@ -164,12 +165,12 @@ export class OrdersService {
         input: v.InferInput<typeof OpenOrdersInputSchema> = {},
         options?: PolyesterRequestOptions,
     ): Promise<{ orders: Order[]; nextPageToken: string }> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validatedInput = parse(OpenOrdersInputSchema, resolved);
         const res = await this.#readClient.getOpenOrders(
             removeUndefined(validatedInput),
-            toConnectCallOptions(options),
+            callOptions,
         );
         return {
             orders: await withCatalogRefresh(this.#scales, () =>
@@ -186,12 +187,12 @@ export class OrdersService {
         input: v.InferInput<typeof OrderHistoryInputSchema> = {},
         options?: PolyesterRequestOptions,
     ): Promise<{ orders: Order[]; nextPageToken: string }> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validatedInput = parse(OrderHistoryInputSchema, resolved);
         const res = await this.#readClient.getOrderHistory(
             removeUndefined(validatedInput),
-            toConnectCallOptions(options),
+            callOptions,
         );
         return {
             orders: await withCatalogRefresh(this.#scales, () =>
@@ -208,12 +209,12 @@ export class OrdersService {
         input: NewOrderInput,
         options?: PolyesterRequestOptions,
     ): Promise<PreviewOrderResult> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const request = parse(this.#newOrderInputSchema, resolved);
         const response = await this.#writeClient.previewOrder(
             removeUndefined(request),
-            toConnectCallOptions(options),
+            callOptions,
         );
         return parse(
             createPreviewOrderResultSchema(this.#scales, request.order.symbolId),
@@ -228,14 +229,11 @@ export class OrdersService {
         input: NewOrderInput,
         options?: PolyesterMutationOptions,
     ): Promise<CreateOrderResult> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validatedInput = parse(this.#newOrderInputSchema, resolved);
         const requestPayload = removeUndefined(validatedInput);
-        const res = await this.#writeClient.createOrder(
-            requestPayload,
-            toConnectCallOptions(options),
-        );
+        const res = await this.#writeClient.createOrder(requestPayload, callOptions);
         return parse(
             createCreateOrderResultSchema(this.#scales, validatedInput.order.symbolId),
             res,
@@ -249,7 +247,7 @@ export class OrdersService {
         input: BatchCreateOrdersInput,
         options?: PolyesterMutationOptions,
     ): Promise<BatchCreateOrdersResult> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const resolved = {
             ...resolveAccountScopedInput(input, this.#resolver),
             requestId: input.requestId ?? createMutationRequestId(),
@@ -257,7 +255,7 @@ export class OrdersService {
         const request = parse(this.#batchCreateOrdersInputSchema, resolved);
         const response = await this.#writeClient.batchCreateOrders(
             removeUndefined(request),
-            toConnectCallOptions(options),
+            callOptions,
         );
         const result = parse(
             createBatchCreateOrdersResultSchema(
@@ -320,17 +318,14 @@ export class OrdersService {
         input: ModifyOrderInput,
         options?: PolyesterMutationOptions,
     ): Promise<ModifyOrderResult> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const resolved = {
             ...resolveAccountScopedInput(input, this.#resolver),
             requestId: input.requestId ?? createMutationRequestId(),
         };
         assertKnownModifyOrderInputKeys(resolved);
         const validated = parse(this.#modifyOrderInputSchema, resolved);
-        const res = await this.#writeClient.modifyOrder(
-            removeUndefined(validated),
-            toConnectCallOptions(options),
-        );
+        const res = await this.#writeClient.modifyOrder(removeUndefined(validated), callOptions);
         return parse(ModifyOrderResultSchema, res);
     }
 
@@ -350,7 +345,7 @@ export class OrdersService {
         input: BatchReplaceOrdersInput,
         options?: PolyesterMutationOptions,
     ): Promise<BatchReplaceOrdersResult> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         for (const item of input.items) {
             assertKnownBatchReplaceOrderItemInputKeys(item);
         }
@@ -361,7 +356,7 @@ export class OrdersService {
         const request = parse(createBatchReplaceOrdersInputSchema(this.#scales), resolved);
         const response = await this.#writeClient.batchReplaceOrders(
             removeUndefined(request),
-            toConnectCallOptions(options),
+            callOptions,
         );
         const result = parse(BatchReplaceOrdersResultSchema, response);
         assertBatchResultCount("batchReplace", input.items.length, result.results.length);
@@ -444,15 +439,12 @@ export class OrdersService {
         input: v.InferInput<typeof GetOrderDetailsInputSchema>,
         options?: PolyesterRequestOptions,
     ): Promise<OrderDetails | null> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validatedInput = parse(GetOrderDetailsInputSchema, resolved);
         let res: ProtoRead.GetOrderResponse;
         try {
-            res = await this.#readClient.getOrder(
-                removeUndefined(validatedInput),
-                toConnectCallOptions(options),
-            );
+            res = await this.#readClient.getOrder(removeUndefined(validatedInput), callOptions);
         } catch (error) {
             // Injected transports skip SDK error mapping, so load the detail decoder here.
             await loadErrorDetailDecoders(error);

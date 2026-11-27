@@ -6,10 +6,7 @@ import { parse } from "../../shared/validation.js";
 import type { PolyesterRealtime } from "../../realtime/types.js";
 import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
-import {
-    toConnectCallOptions,
-    type PolyesterRequestOptions,
-} from "../../shared/request-options.js";
+import { readyCallOptions, type PolyesterRequestOptions } from "../../shared/request-options.js";
 import type { SdkScales } from "../../shared/decimal-surface.js";
 import type { PublicApiTransports } from "../../shared/transports.js";
 import {
@@ -74,8 +71,8 @@ export class CandlesService {
      */
     async list(input: GetCandlesInput, options?: PolyesterRequestOptions): Promise<CandlePage> {
         const validatedInput = parse(ListCandlesInputSchema, input);
-        await this.#scales.ready();
-        const res = await this.#client.getCandles(validatedInput, toConnectCallOptions(options));
+        const callOptions = await readyCallOptions(this.#scales, options);
+        const res = await this.#client.getCandles(validatedInput, callOptions);
         const referencePriceScale = this.#scales.referencePrice(res.symbolId);
         return {
             candles: (res.candles ?? []).map((c) =>
@@ -96,11 +93,8 @@ export class CandlesService {
         options?: PolyesterRequestOptions,
     ): Promise<CandleColumnar> {
         const validatedInput = parse(ListCandlesInputSchema, input);
-        await this.#scales.ready();
-        const res = await this.#client.getCandlesColumns(
-            validatedInput,
-            toConnectCallOptions(options),
-        );
+        const callOptions = await readyCallOptions(this.#scales, options);
+        const res = await this.#client.getCandlesColumns(validatedInput, callOptions);
         return parse(this.#columnarSchema, res);
     }
 
@@ -112,11 +106,8 @@ export class CandlesService {
         options?: PolyesterRequestOptions,
     ): Promise<CandleColumnarInt> {
         const validatedInput = parse(ListCandlesInputSchema, input);
-        await this.#scales.ready();
-        const res = await this.#client.getCandlesColumns(
-            validatedInput,
-            toConnectCallOptions(options),
-        );
+        const callOptions = await readyCallOptions(this.#scales, options);
+        const res = await this.#client.getCandlesColumns(validatedInput, callOptions);
         return parse(this.#columnarIntSchema, res);
     }
 
@@ -134,8 +125,8 @@ export class CandlesService {
         options?: PolyesterRequestOptions,
     ): Promise<IndexPriceCandles> {
         const request = parse(ListIndexPriceCandlesInputSchema, input);
-        await this.#scales.ready();
-        const res = await this.#client.getIndexPriceCandles(request, toConnectCallOptions(options));
+        const callOptions = await readyCallOptions(this.#scales, options);
+        const res = await this.#client.getIndexPriceCandles(request, callOptions);
         return formatIndexPriceCandles(this.#scales, res);
     }
 

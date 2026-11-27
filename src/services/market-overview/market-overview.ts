@@ -7,6 +7,7 @@ import type { PolyesterRealtime } from "../../realtime/types.js";
 import { snapshotThenStream } from "../../realtime/snapshot-then-stream.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
 import {
+    readyCallOptions,
     toConnectCallOptions,
     type PolyesterRequestOptions,
 } from "../../shared/request-options.js";
@@ -58,11 +59,8 @@ export class MarketOverviewService {
         options?: PolyesterRequestOptions,
     ): Promise<{ markets: MarketOverview[]; nextPageToken: string }> {
         const validatedInput = parse(ListMarketOverviewInputSchema, input);
-        await this.#scales.ready();
-        const res = await this.#client.listMarketOverview(
-            validatedInput,
-            toConnectCallOptions(options),
-        );
+        const callOptions = await readyCallOptions(this.#scales, options);
+        const res = await this.#client.listMarketOverview(validatedInput, callOptions);
         return {
             markets: this.#decodeMarkets(res.markets),
             nextPageToken: res.nextPageToken,

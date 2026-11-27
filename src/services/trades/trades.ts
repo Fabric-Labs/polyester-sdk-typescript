@@ -9,10 +9,7 @@ import type { PolyesterRealtime } from "../../realtime/types.js";
 import { deliverBatch } from "../../shared/subscription-errors.js";
 import { connectReadyGatedProtoChannel } from "../../realtime/ready-gated-subscription.js";
 import type { BaseSubscribeInput } from "../../shared/types.js";
-import {
-    toConnectCallOptions,
-    type PolyesterRequestOptions,
-} from "../../shared/request-options.js";
+import { readyCallOptions, type PolyesterRequestOptions } from "../../shared/request-options.js";
 import {
     createCatalogRefreshQueue,
     hasKnownSymbol,
@@ -61,13 +58,10 @@ export class TradesService {
         input: GetUserTradesInput = {},
         options?: PolyesterRequestOptions,
     ): Promise<{ trades: Trade[]; transfers: OrderTransfer[]; nextPageToken: string }> {
-        await this.#scales.ready();
+        const callOptions = await readyCallOptions(this.#scales, options);
         const resolved = resolveAccountScopedInput(input, this.#resolver);
         const validatedInput = parse(GetUserTradesInputSchema, resolved);
-        const res = await this.#client.getUserTrades(
-            removeUndefined(validatedInput),
-            toConnectCallOptions(options),
-        );
+        const res = await this.#client.getUserTrades(removeUndefined(validatedInput), callOptions);
         return {
             trades: await withCatalogRefresh(this.#scales, () =>
                 res.trades.map((trade) => formatUserTrade(this.#scales, trade)),
